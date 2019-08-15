@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, OnDestroy, ViewChild, Input } from '@angular/core';
+import { Component, Inject, OnInit, OnDestroy, ViewChild, Input, AfterViewInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { ClassifierService } from '../services/classifier.service';
 import { ReviewSetsService } from '../services/ReviewSets.service';
@@ -20,7 +20,7 @@ import { iArm } from '../services/arms.service';
     providers: []
 })
 
-export class OutcomesComponent implements OnInit, OnDestroy {
+export class OutcomesComponent implements OnInit, OnDestroy, AfterViewInit {
     DataSource: any;
     constructor(private router: Router,
         @Inject('BASE_URL') private _baseUrl: string,
@@ -40,7 +40,8 @@ export class OutcomesComponent implements OnInit, OnDestroy {
 
 	//private _Outcomes: Outcome[] = [];
 
-
+	//@ViewChild('f') f: any;
+	
 
 	//public set outcomesList(Outcomes: Outcome[]) {
 	//	this._Outcomes = Outcomes;
@@ -238,7 +239,9 @@ export class OutcomesComponent implements OnInit, OnDestroy {
 		this._reviewSetsService.selectedNode = null;
 	}
     ngAfterViewInit() {
-
+		//this.f.form.valueChanges.subscribe((change: any) => {
+		//	console.log('jkaskdf' + change)
+		//})
 	}
 	CreateNewOutcome() {
 

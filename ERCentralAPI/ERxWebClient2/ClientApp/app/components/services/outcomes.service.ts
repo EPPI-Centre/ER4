@@ -60,13 +60,14 @@ export class OutcomesService extends BusyAwareService  {
 
 		this._BusyMethods.push("FetchOutcomes");
 		let body = JSON.stringify({ Value: ItemSetId });
-
+		this._Outcomes = [];
         this._http.post<iOutcomeList>(this._baseUrl + 'api/OutcomeList/Fetch', body).subscribe(result => {
             //console.log("count of outcomes is:", this._Outcomes.length);
             //console.log('can see the new outcome in here: ' + JSON.stringify(result));
             for (let iO of result.outcomesList) {
                 //console.log("iO is:", iO);
-                let RealOutcome: Outcome = new Outcome(iO);
+				let RealOutcome: Outcome = new Outcome(iO);
+				
                 this._Outcomes.push(RealOutcome);
                 //console.log("count of outcomes is:", this._Outcomes.length);
             }
@@ -282,7 +283,14 @@ export class ReviewSetDropDownResult {
 }
 
 export interface iOutcome {
-    outcomeId: number;
+
+	isSelected: boolean;
+	canSelect: boolean;
+	grp1ArmName: string;
+	grp2ArmName: string;
+	outcomeId: number;
+	manuallyEnteredOutcomeTypeId: number;
+	unifiedOutcomeTypeId: number;
     itemSetId: number;
     outcomeTypeName: string;
     outcomeTypeId: number;
@@ -297,10 +305,10 @@ export interface iOutcome {
     itemTimepointValue: string;
     itemTimepointMetric: string;
     itemTimepointId: number;
-    outcomeTimePoint: iTimePoint;
+	outcomeTimePoint: iTimePoint;
+	timepointDisplayValue: string;
     title: string;
     shortTitle: string;
-    timepointDisplayValue: string;
     outcomeDescription: string;
     data1: number;
     data2: number;
@@ -373,29 +381,277 @@ export interface iOutcome {
 }
 export class Outcome {
 
-    unifiedOutcomeTypeIdProperty: number = 0;
+	unifiedOutcomeTypeId: number = 0;
+	manuallyEnteredOutcomeTypeId: number = 0;
+	grp1ArmName: string = '';
+	grp2ArmName: string = '';
+	isSelected: boolean = false;
+	canSelect: boolean = false;
+
     public constructor(iO?: iOutcome) {
-        if (iO) {
-            this.title = iO.title;
+		if (iO) {
+			this.itemSetId = iO.itemSetId;
+			this.outcomeTypeId = iO.outcomeTypeId;
+			this.manuallyEnteredOutcomeTypeId = iO.manuallyEnteredOutcomeTypeId;
+			this.unifiedOutcomeTypeId = iO.unifiedOutcomeTypeId;
+			this.outcomeTypeName = iO.outcomeTypeName;
+			this.itemAttributeIdIntervention =  iO.itemAttributeIdIntervention;
+			this.itemAttributeIdControl = iO.itemAttributeIdControl;
+			this.itemAttributeIdOutcome = iO.itemAttributeIdOutcome
+			this.title = iO.title;
+			this.shortTitle = iO.shortTitle;
+			this.outcomeDescription = iO.outcomeDescription
             this.outcomeId = iO.outcomeId;
             this._data1 = iO.data1;
-            this.data2 = iO.data2;
-            this.data3 = iO.data3;
-            this.data4 = iO.data4;
-            this.data5 = iO.data5;
-            this.data6 = iO.data6;
+            this._data2 = iO.data2;
+            this._data3 = iO.data3;
+            this._data4 = iO.data4;
+            this._data5 = iO.data5;
+			this._data6 = iO.data6;
+			this._data7 = iO.data7;
+			this._data8 = iO.data8;
+			this._data9 = iO.data9;
+			this._data10 = iO.data10;
+			this._data11 = iO.data11;
+			this._data12 = iO.data12;
+			this._data13 = iO.data13;
+			this._data14 = iO.data14;
+			this.interventionText = iO.interventionText;
+			this.controlText = iO.controlText;
+			this.outcomeText = iO.outcomeText;
+			this.itemTimepointId = iO.itemTimepointId;
+			this.itemTimepointMetric = iO.itemTimepointMetric;
+			this.itemTimepointValue = iO.itemTimepointValue;
+			this.itemArmIdGrp1 = iO.itemArmIdGrp1;
+			this.itemArmIdGrp2 = iO.itemArmIdGrp2;
+			this.timepointDisplayValue = iO.timepointDisplayValue;
+			this.grp1ArmName = iO.grp1ArmName;
+			this.grp2ArmName = iO.grp2ArmName;
+			this.isSelected = iO.isSelected;
+			this.canSelect = iO.canSelect;
+			this.outcomeCodes = iO.outcomeCodes;
+			this.feWeight = iO.feWeight;
+			this.reWeight = iO.reWeight;
+
             this.SetCalculatedValues();
         }
-    }
+	}
+
     private SetCalculatedValues() {
-        console.log("SetCalculatedValues");
-        this.SetEffectSizes();
-    }
+		console.log("outcomeTypeId value is now: " + this.outcomeTypeId);
+
+		this.SetEffectSizes();
+		switch (this.outcomeTypeId) {
+			case 0: // manual entry
+				this.esDesc= "Effect size";
+				this.seDesc= "SE";
+				this.NRows= 6;
+				this.data1Desc = "SMD";
+				this.data2Desc = "standard error";
+				this.data3Desc = "r";
+				this.data4Desc = "SE (Z transformed)";
+				this.data5Desc = "odds ratio";
+				this.data6Desc = "SE (log OR)";
+				this.data7Desc = "risk ratio";
+				this.data8Desc = "SE (log RR)";
+				this.data9Desc = "";
+				this.data10Desc = "";
+				this.data11Desc = "risk difference";
+				this.data12Desc = "standard error";
+				this.data13Desc = "mean difference";
+				this.data14Desc = "standard error";
+				break;
+
+			case 1: // n, mean, SD
+				this.esDesc = "SMD";
+				this.seDesc = "SE";
+				this.NRows = 3;
+				this.data1Desc = "Group 1 N";
+				this.data2Desc = "Group 2 N";
+				this.data3Desc= "Group 1 mean";
+				this.data4Desc= "Group 2 mean";
+				this.data5Desc= "Group 1 SD";
+				this.data6Desc= "Group 2 SD";
+				this.data7Desc= "";
+				this.data8Desc= "";
+				this.data9Desc= "";
+				this.data10Desc= "";
+				this.data11Desc= "";
+				this.data12Desc= "";
+				this.data13Desc= "";
+				this.data14Desc= "";
+				this.outcomeTypeName= "Continuous";
+				break;
+
+			case 2: // binary 2 x 2 table
+				this.esDesc= "OR";
+				this.seDesc= "SE (log OR)";
+				this.NRows= 2;
+				this.data1Desc= "Group 1 events";
+				this.data2Desc= "Group 2 events";
+				this.data3Desc= "Group 1 no events";
+				this.data4Desc= "Group 2 no events";
+				this.data5Desc= "";
+				this.data6Desc= "";
+				this.data7Desc= "";
+				this.data8Desc= "";
+				this.data9Desc= "";
+				this.data10Desc= "";
+				this.data11Desc= "";
+				this.data12Desc= "";
+				this.data13Desc= "";
+				this.data14Desc= "";
+				this.outcomeTypeName= "Binary";
+				break;
+
+			case 3: //n, mean SE
+				this.esDesc= "SMD";
+				this.seDesc= "SE";
+				this.NRows= 3;
+				this.data1Desc= "Group 1 N";
+				this.data2Desc= "Group 2 N";
+				this.data3Desc= "Group 1 mean";
+				this.data4Desc= "Group 2 mean";
+				this.data5Desc= "Group 1 SE";
+				this.data6Desc= "Group 2 SE";
+				this.data7Desc= "";
+				this.data8Desc= "";
+				this.data9Desc= "";
+				this.data10Desc= "";
+				this.data11Desc= "";
+				this.data12Desc= "";
+				this.data13Desc= "";
+				this.data14Desc= "";
+				this.outcomeTypeName= "Continuous";
+				break;
+
+			case 4: //n, mean CI
+				this.esDesc= "SMD";
+				this.seDesc= "SE";
+				this.NRows= 4;
+				this.data1Desc= "Group 1 N";
+				this.data2Desc= "Group 2 N";
+				this.data3Desc= "Group 1 mean";
+				this.data4Desc= "Group 2 mean";
+				this.data5Desc= "Group 1 CI lower";
+				this.data6Desc= "Group 2 CI lower";
+				this.data7Desc= "Group 1 CI upper";
+				this.data8Desc= "Group 2 CI upper";
+				this.data9Desc= "";
+				this.data10Desc= "";
+				this.data11Desc= "";
+				this.data12Desc= "";
+				this.data13Desc= "";
+				this.data14Desc= "";
+				this.outcomeTypeName= "Continuous";
+				break;
+
+			case 5: //n, t or p value
+				this.esDesc= "SMD";
+				this.seDesc= "SE";
+				this.NRows= 2;
+				this.data1Desc= "Group 1 N";
+				this.data2Desc= "Group 2 N";
+				this.data3Desc= "t-value";
+				this.data4Desc= "p-value";
+				this.data5Desc= "";
+				this.data6Desc= "";
+				this.data7Desc= "";
+				this.data8Desc= "";
+				this.data9Desc= "";
+				this.data10Desc= "";
+				this.data11Desc= "";
+				this.data12Desc= "";
+				this.data13Desc= "";
+				this.data14Desc= "";
+				this.outcomeTypeName= "Continuous";
+				break;
+
+			case 6: // diagnostic test 2 x 2 table
+				this.esDesc= "Diagnostic OR";
+				this.seDesc= "SE";
+				this.NRows= 2;
+				this.data1Desc= "True positive";
+				this.data2Desc= "False positive";
+				this.data3Desc= "False negative";
+				this.data4Desc= "True negative";
+				this.data5Desc= "";
+				this.data6Desc= "";
+				this.data7Desc= "";
+				this.data8Desc= "";
+				this.data9Desc= "";
+				this.data10Desc= "";
+				this.data11Desc= "";
+				this.data12Desc= "";
+				this.data13Desc= "";
+				this.data14Desc= "";
+				this.outcomeTypeName= "Binary";
+				break;
+
+			case 7: // correlation coefficient r
+				this.esDesc= "r";
+				this.seDesc= "SE (Z transformed)";
+				this.NRows= 1;
+				this.data1Desc= "group(s) size";
+				this.data2Desc= "correlation";
+				this.data3Desc= "";
+				this.data4Desc= "";
+				this.data5Desc= "";
+				this.data6Desc= "";
+				this.data7Desc= "";
+				this.data8Desc= "";
+				this.data9Desc= "";
+				this.data10Desc= "";
+				this.data11Desc= "";
+				this.data12Desc= "";
+				this.data13Desc= "";
+				this.data14Desc= "";
+				this.outcomeTypeName= "Correlation";
+				break;
+
+			default:
+				this.data1Desc= "";
+				this.data2Desc= "";
+				this.data3Desc= "";
+				this.data4Desc= "";
+				this.data5Desc= "";
+				this.data6Desc= "";
+				this.data7Desc= "";
+				this.data8Desc= "";
+				this.data9Desc= "";
+				this.data10Desc= "";
+				this.data11Desc= "";
+				this.data12Desc= "";
+				this.data13Desc= "";
+				this.data14Desc= "";
+				this.outcomeTypeName= "";
+				break;
+		}
+		console.log("es value is now: " + this.es);
+		console.log('and the rest are: ');
+		console.log(this.es);
+		console.log(this.sees);
+		console.log(this.data1);
+		console.log(this.data2);
+		console.log(this.data3);
+		console.log(this.data4);
+		console.log(this.data5);
+		console.log(this.data6);
+		console.log(this.data7);
+		console.log(this.data8);
+		console.log(this.data9);
+		console.log(this.data10);
+		console.log(this.data11);
+		console.log(this.data12);
+		console.log(this.data13);
+		console.log(this.data14);
+
+	}
 	private SetEffectSizes() {
 
 		let es: number = 0;
 		let se: number = 0;
-		this.unifiedOutcomeTypeIdProperty = this.outcomeTypeId;
+		this.unifiedOutcomeTypeId = this.outcomeTypeId;
 
 		switch (this.outcomeTypeId) {
 
@@ -419,6 +675,7 @@ export class Outcome {
 
 			case 1: // n, mean, SD
 
+				
 				this.smd = this.SmdFromNMeanSD();
 				this.sesmd = this.CorrectForClustering(this.GetSEforD(this.data1, this.data2, this.smd));
 				this.meanDifference = this.MeanDiff();
@@ -426,7 +683,7 @@ export class Outcome {
 					this.data2, this.data5, this.data6));
 				this.es = this.smd;
 				this.sees = this.sesmd;
-						
+				console.log('focus on getting one es number correct first:' + this.smd  + ' smd and es: ' + this.es);
 				break;
 
 			case 2: // binary 2 x 2 table
@@ -447,16 +704,18 @@ export class Outcome {
 			case 3: //n, mean SE
 
 				this.smd = this.SmdFromNMeanSe();
-
+				console.log('in case 3 smd: ' + this.smd);
 				this.sesmd = this.CorrectForClustering(this.GetSEforD(this.data1, this.data2, this.smd));
-
+				console.log('in case 3 sesmd: ' + this.sesmd);
 				this.meanDifference =  this.MeanDiff();
-
+				console.log('in case 3 meanDifference: ' + this.meanDifference);
 				this.seMeanDifference = this.CorrectForClustering(this.GetSEforMeanDiff(
 					this.data1, this.data2, this.data5, this.data6));
-
+				console.log('in case 3 seMeanDifference: ' + this.seMeanDifference);
 				this.es = this.smd;
 				this.sees = this.sesmd;
+				console.log('This is case type 3:' + this.smd + ' smd and es: ' + this.es);
+
 				break;
 
 			case 4: //n, mean CI
@@ -510,9 +769,11 @@ export class Outcome {
 				this.ser =  Math.sqrt(1 / (this.data1 - 3));
 				this.es = this.r;
 				this.sees = this.ser;
+
 				break;
 
 			default:
+
 				break;
 		}
 
@@ -520,10 +781,63 @@ export class Outcome {
 		this.ciUpper = this.smd + (1.96 * this.sees);
 
 	}
-    SetESforManualEntry(): any {
-        throw new Error("Method not implemented.");
-    }
 
+	SetESforManualEntry(): any {
+
+		if (this.oddsRatio == 0 && this.riskRatio == 0 &&
+			this.riskDifference == 0 && this.petoOR == 0
+			&& this.r == 0 && this.meanDifference == 0) {
+
+			this.es = this.smd;
+			this.sees = this.sesmd;
+			this.unifiedOutcomeTypeId = 1;
+			this.outcomeTypeName = "Continuous";
+		}
+		if (this.smd == 0 && this.riskRatio == 0 && this.riskDifference == 0
+			&& this.petoOR == 0 && this.r == 0 && this.meanDifference == 0) {
+
+			this.es = this.oddsRatio;
+			this.sees = this.seOddsRatio;
+			this.unifiedOutcomeTypeId = 2;
+			this.outcomeTypeName = "Binary";
+
+		}
+		if (this.smd == 0 && this.smd == 0 && this.riskDifference == 0
+			&& this.petoOR == 0 && this.r == 0 && this.meanDifference == 0) {
+			this.es = this.riskRatio;
+			this.sees = this.seRiskRatio;
+			this.unifiedOutcomeTypeId = 2;
+			this.outcomeTypeName = "Binary";
+		}
+		if (this.smd == 0 && this.oddsRatio == 0 && this.riskRatio == 0
+			&& this.petoOR == 0 && this.r == 0 && this.meanDifference == 0) {
+			this.es = this.riskDifference;
+			this.sees = this.seRiskDifference;
+			this.unifiedOutcomeTypeId = 2;
+			this.outcomeTypeName = "Binary";
+		}
+		if (this.smd == 0 && this.oddsRatio == 0 && this.riskRatio == 0
+			&& this.riskDifference == 0 && this.r == 0 && this.meanDifference == 0) {
+			this.es = this.petoOR;
+			this.sees = this.sePetoOR;
+			this.unifiedOutcomeTypeId = 2;
+			this.outcomeTypeName = "Binary";
+		}
+		if (this.smd == 0 && this.oddsRatio == 0 && this.riskRatio == 0
+			&& this.riskDifference == 0 && this.petoOR == 0 && this.meanDifference == 0) {
+			this.es =  this.r;
+			this.sees = this.ser;
+			this.unifiedOutcomeTypeId = 7;
+			this.outcomeTypeName = "Correlation";
+		}
+		if (this.smd == 0 && this.oddsRatio == 0 && this.riskRatio == 0
+			&& this.riskDifference == 0 && this.petoOR == 0 && this.r == 0) {
+			this.es = this.meanDifference;
+			this.sees =  this.seMeanDifference;
+			this.unifiedOutcomeTypeId = 1;
+			this.outcomeTypeName =  "Continuous";
+		}
+    }
 	private GetSEforD(n1: number, n2: number, d: number): number {
 		let top, lower, left, right, se: number;
 
@@ -539,6 +853,10 @@ export class Outcome {
 		return Math.sqrt(SD1 * SD1 / n1 + SD2 * SD2 / n2);
 	}
 	private SmdFromNMeanSD(): number {
+
+		console.log('checking function SmdFromNMeanSD');
+		console.log('checking data values, 1,2,5,6: ' + this.data1, this.data2, this.data5, this.data6);
+
 		let SD: number = this.PoolSDs(this.data1, this.data2, this.data5, this.data6);
 		if (SD == 0) {
 			return 0;
@@ -546,17 +864,23 @@ export class Outcome {
 		let cohensD: number = (this.data3 - this.data4) / SD;
 		return cohensD * (1 - (3 / (4 * (this.data1 + this.data2) - 9)));
 	}
-
 	private MeanDiff(): number {
 		return this.data3 - this.data4;
 	}
 	private SmdFromNMeanSe(): number {
+		console.log('checking function SmdFromNMeanSe');
+		console.log('checking data values, 1,2,5,6: ' + this.data1, this.data2, this.data5, this.data6);
+
+		let thirdArg: number = this.SdFromSe(this.data5, this.data1);
+		let fourthArg: number = this.SdFromSe(this.data6, this.data1);
 		let SD: number = this.PoolSDs(this.data1, this.data2,
-			this.SdFromSe(this.data5, this.data1), this.SdFromSe(this.data6, this.data1));
+			thirdArg, fourthArg);
+		console.log('checking Pool SD: '+ SD );
 		if (SD == 0) {
 			return 0;
 		}
 		let cohensD: number = (this.data3 - this.data4) / SD;
+		console.log('checking cohensD: ' + cohensD);
 		return cohensD * (1 - (3 / (4 * (this.data1 + this.data2) - 9)));
 	}
 	private SmdFromNMeanCI(): number {
@@ -592,7 +916,6 @@ export class Outcome {
 		}
 		return g;
 	}
-
 	private CorrectG(n1: number, n2: number, g: number ): number  // for single group studies n2=0
 	{
 		let gc, top, lower: number ;
@@ -607,7 +930,6 @@ export class Outcome {
 		}
 		return gc;
 	}
-
 	private CalcOddsRatio(): number  {
 		let d1: number = 0, d2: number = 0, d3: number = 0, d4: number  = 0;
 		if ((this.data1 == 0) || (this.data2 == 0) || (this.data3 == 0) || (this.data4 == 0)) {
@@ -624,7 +946,6 @@ export class Outcome {
 		}
 		return (d1 * d4) / (d3 * d2);
 	}
-
 	private CalcOddsRatioSE(): number {
 		let d1: number = 0, d2: number = 0, d3: number = 0, d4: number = 0;
 		if ((this.data1 == 0) || (this.data2 == 0) || (this.data3 == 0) || (this.data4 == 0)) {
@@ -641,7 +962,6 @@ export class Outcome {
 		}
 		return Math.sqrt((1 / d1) + (1 / d2) + (1 / d3) + (1 / d4));
 	}
-
 	private CalcRiskRatio(): number {
 		let d1: number = 0, d2: number = 0, d3: number = 0, d4: number  = 0;
 		if ((this.data1 == 0) || (this.data2 == 0) || (this.data3 == 0) || (this.data4 == 0)) {
@@ -658,7 +978,6 @@ export class Outcome {
 		}
 		return (d1 / (d1 + d3)) / (d2 / (d2 + d4));
 	}
-
 	private CalcRiskRatioSE(): number {
 		let d1: number = 0, d2: number = 0, d3: number = 0, d4: number = 0;
 		if ((this.data1 == 0) || (this.data2 == 0) || (this.data3 == 0) || (this.data4 == 0)) {
@@ -675,7 +994,6 @@ export class Outcome {
 		}
 		return Math.sqrt((1 / d1) + (1 / d2) - (1 / (d1 + d3)) - (1 / (d2 + d4)));
 	}
-
 	private CalcRiskDifference(): number {
 		let d1: number = 0, d2: number = 0, d3: number = 0, d4: number = 0;
 		if ((this.data1 == 0) || (this.data2 == 0) || (this.data3 == 0) || (this.data4 == 0)) {
@@ -692,7 +1010,6 @@ export class Outcome {
 		}
 		return (d1 / (d1 + d3)) - (d2 / (d2 + d4));
 	}
-
 	private CalcRiskDifferenceSE(): number {
 		let d1: number = 0, d2: number = 0, d3: number = 0, d4: number = 0;
 		if ((this.data1 == 0) || (this.data2 == 0) || (this.data3 == 0) || (this.data4 == 0)) {
@@ -709,7 +1026,6 @@ export class Outcome {
 		}
 		return Math.sqrt((d1 * d3 / Math.pow((d1 + d3), 3)) + (d2 * d4 / Math.pow((d2 + d4), 3)));
 	}
-
 	private CalcPetoOR(): number {
 		let d1: number = 0, d2: number = 0, d3: number = 0, d4: number = 0;
 		if ((this.data1 == 0) || (this.data2 == 0) || (this.data3 == 0) || (this.data4 == 0)) {
@@ -732,7 +1048,6 @@ export class Outcome {
 		let e: number = n1 * (d1 + d2) / n;
 		return Math.exp((d1 - e) / v);
 	}
-
 	private CalcPetoORSE(): number  {
 		let d1: number = 0, d2: number = 0, d3: number = 0, d4: number  = 0;
 		if ((this.data1 == 0) || (this.data2 == 0) || (this.data3 == 0) || (this.data4 == 0)) {
@@ -754,25 +1069,38 @@ export class Outcome {
 		let v: number  = (n1 * n2 * (d1 + d2) * (d3 + d4)) / (n * n * (n - 1));
 		return Math.sqrt(1 / v);
 	}
-
 	private PoolSDs(n1: number, n2: number, sd1: number, sd2: number): number {
+		console.log('checking input numbers to PoolSds function:');
+		console.log('n1, n2, sd1, sd2: ' + n1 + ' ' + n2 + ' ' + sd1 + ' ' +sd2);
 		if (n1 + n2 < 3) {
 			return 0;
 		}
-		let s: number = (((n1 - 1) * sd1 * sd1) + ((n2 - 1) * sd2 * sd2)) / (n1 + n2 - 2);
-		s = Math.sqrt(s);
-		return s;
+		let part1Of1: number = ((n1 - 1) * sd1 * sd1);
+		console.log('part1Of1: ' + part1Of1);
+		let part2Of1: number = ((n2 - 1) * sd2 * sd2);
+		console.log('part2Of1: ' + part2Of1);
+		let part1OfS: number = (part1Of1 + part2Of1);
+		console.log('part1OfS: ' + part1OfS);
+		console.log(n1);
+		console.log(n2);
+		let part2OfS: number = 0;
+		part2OfS = n1.valueOf() + n2.valueOf() -2 ;
+		console.log('part2OfS  n1 + n2 - 2: n1 :' + n1 + ' n2: '  + n2 + ' ans: ' + part2OfS);
+		let s: number = part1OfS / part2OfS;
+		console.log('the poolSD result before the sqrt call: ' + s);
+		let ans: number = Math.sqrt(s);
+		console.log('the poolSD result after the sqrt call: ' + ans);
+		return ans;
 	}
-
 	private SdFromSe(se: number, n: number): number {
+		console.log('checking SdFromSe: ' + se + ' ' + n);
+		console.log('ans: ' + se * Math.sqrt(n));
 		return se * Math.sqrt(n);
 	}
-
 	private SeFromCi(ciUpper: number, ciLower: number): number {
 		let se: number = Math.abs((0.5 * (ciUpper - ciLower)) / 1.96);
 		return se;
 	}
-
 	CorrectForClustering(se: number): number {
 
 		if (this.data9 != 0) {
@@ -962,61 +1290,117 @@ export class Outcome {
 	ciUpper: number = 0;
 	esDesc: string = "";
 	seDesc: string = "";
-	private _data1Desc: number = 0;
-	public get data1Desc(): number {
+	private _data1Desc: string = "";
+	public get data1Desc(): string {
 		return this._data1Desc;
 	}
-	private _data2Desc: number = 0;
-	public get data2Desc(): number {
+	public set data1Desc(val: string) {
+		this._data1Desc = val;
+		//this.SetCalculatedValues();
+	}
+	private _data2Desc: string = "";
+	public get data2Desc(): string {
 		return this._data2Desc;
 	}
-	private _data3Desc: number = 0;
-	public get data3Desc(): number {
+	public set data2Desc(val: string) {
+		this._data2Desc = val;
+		//this.SetCalculatedValues();
+	}
+	private _data3Desc: string = "";
+	public get data3Desc(): string {
 		return this._data3Desc;
 	}
-	private _data4Desc: number = 0;
-	public get data4Desc(): number {
+	public set data3Desc(val: string) {
+		this._data3Desc = val;
+		//this.SetCalculatedValues();
+	}
+	private _data4Desc: string ="";
+	public get data4Desc(): string {
 		return this._data4Desc;
 	}
-	private _data5Desc: number = 0;
-	public get data5Desc(): number {
+	public set data4Desc(val: string) {
+		this._data4Desc = val;
+		//this.SetCalculatedValues();
+	}
+	private _data5Desc: string = "";
+	public get data5Desc(): string {
 		return this._data5Desc;
 	}
-	private _data6Desc: number = 0;
-	public get data6Desc(): number {
+	public set data5Desc(val: string) {
+		this._data5Desc = val;
+		//this.SetCalculatedValues();
+	}
+	private _data6Desc: string = "";
+	public get data6Desc(): string {
 		return this._data6Desc;
 	}
-	private _data7Desc: number = 0;
-	public get data7Desc(): number {
+	public set data6Desc(val: string) {
+		this._data6Desc = val;
+		//this.SetCalculatedValues();
+	}
+	private _data7Desc: string = "";
+	public get data7Desc(): string {
 		return this._data7Desc;
 	}
-	private _data8Desc: number = 0;
-	public get data8Desc(): number {
+	public set data7Desc(val: string) {
+		this._data7Desc = val;
+		//this.SetCalculatedValues();
+	}
+	private _data8Desc: string = "";
+	public get data8Desc(): string {
 		return this._data8Desc;
 	}
-	private _data9Desc: number = 0;
-	public get data9Desc(): number {
+	public set data8Desc(val: string) {
+		this._data8Desc = val;
+		//this.SetCalculatedValues();
+	}
+	private _data9Desc: string = "";
+	public get data9Desc(): string {
 		return this._data9Desc;
 	}
-	private _data10Desc: number = 0;
-	public get data10Desc(): number {
+	public set data9Desc(val: string) {
+		this._data9Desc = val;
+		//this.SetCalculatedValues();
+	}
+	private _data10Desc: string = "";
+	public get data10Desc(): string {
 		return this._data10Desc;
 	}
-	private _data11Desc: number = 0;
-	public get data11Desc(): number {
+	public set data10Desc(val: string) {
+		this._data10Desc = val;
+		//this.SetCalculatedValues();
+	}
+	private _data11Desc: string = "";
+	public get data11Desc(): string {
 		return this._data11Desc;
 	}
-	private _data12Desc: number = 0;
-	public get data12Desc(): number {
+	public set data11Desc(val: string) {
+		this._data11Desc = val;
+		//this.SetCalculatedValues();
+	}
+	private _data12Desc: string ="";
+	public get data12Desc(): string {
 		return this._data12Desc;
 	}
-	private _data13Desc: number = 0;
-	public get data13Desc(): number {
+	public set data12Desc(val: string) {
+		this._data12Desc = val;
+		//this.SetCalculatedValues();
+	}
+	private _data13Desc: string = "";
+	public get data13Desc(): string {
 		return this._data13Desc;
 	}
-	private _data14Desc: number = 0;
-	public get data14Desc(): number {
+	public set data13Desc(val: string) {
+		this._data13Desc = val;
+		//this.SetCalculatedValues();
+	}
+	private _data14Desc: string = "";
+	public get data14Desc(): string {
 		return this._data14Desc;
+	}
+	public set data14Desc(val: string) {
+		this._data14Desc = val;
+		//this.SetCalculatedValues();
 	}
 }
 export class OutcomeItemAttributesList {
