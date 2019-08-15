@@ -212,12 +212,12 @@ export class OutcomesService extends BusyAwareService  {
 				(result) => {
 
 					if (!result) this.modalService.GenericErrorMessage(ErrMsg);
-					this.FetchOutcomes(this._currentItemSetId);	
+					this.FetchOutcomes(currentOutcome.itemSetId);	
 					this.RemoveBusy("UpdateOutcome");
 					return result;
 				}
 				, (error) => {
-					this.FetchOutcomes(this._currentItemSetId);		
+					this.FetchOutcomes(currentOutcome.itemSetId);		
 					this.modalService.GenericErrorMessage(ErrMsg);
 					this.RemoveBusy("UpdateOutcome");
 					return error;
@@ -335,20 +335,20 @@ export interface iOutcome {
     seOddsRatio: number;
     riskRatio: number;
     seRiskRatio: number;
-    ciUpperSMD: number;
-    ciLowerSMD: number;
-    ciUpperR: number;
-    ciLowerR: number;
-    ciUpperOddsRatio: number;
-    ciLowerOddsRatio: number;
-    ciUpperRiskRatio: number;
-    ciLowerRiskRatio: number;
-    ciUpperRiskDifference: number;
-    ciLowerRiskDifference: number;
-    ciUpperPetoOddsRatio: number;
-    ciLowerPetoOddsRatio: number;
-    ciUpperMeanDifference: number;
-    ciLowerMeanDifference: number;
+    CIUpperSMD: number;
+    CILowerSMD: number;
+    CIUpperR: number;
+    CILowerR: number;
+    CIUpperOddsRatio: number;
+    CILowerOddsRatio: number;
+    CIUpperRiskRatio: number;
+    CILowerRiskRatio: number;
+    CIUpperRiskDifference: number;
+    CILowerRiskDifference: number;
+    CIUpperPetoOddsRatio: number;
+    CILowerPetoOddsRatio: number;
+    CIUpperMeanDifference: number;
+    CILowerMeanDifference: number;
     riskDifference: number;
     seRiskDifference: number;
     meanDifference: number;
@@ -358,8 +358,8 @@ export interface iOutcome {
     es: number;
     sees: number;
     nRows: number;
-    ciLower: number;
-    ciUpper: number;
+    CILower: number;
+    CIUpper: number;
     esDesc: string;
     seDesc: string;
     data1Desc: string;
@@ -400,20 +400,20 @@ export class Outcome {
 			this.shortTitle = iO.shortTitle;
 			this.outcomeDescription = iO.outcomeDescription
             this.outcomeId = iO.outcomeId;
-            this._data1 = Number(iO.data1);
-			this._data2 = Number(iO.data2);
-			this._data3 = Number(iO.data3);
-			this._data4 = Number(iO.data4);
-			this._data5 = Number(iO.data5);
-			this._data6 = Number(iO.data6);
-			this._data7 = Number(iO.data7);
-			this._data8 = Number(iO.data8);
-			this._data9 = Number(iO.data9);
-			this._data10 = Number(iO.data10);
-			this._data11 = Number(iO.data11);
-			this._data12 = Number(iO.data12);
-			this._data13 = Number(iO.data13);
-			this._data14 = Number(iO.data14);
+            this.Data1 = Number(iO.data1);
+			this.Data2 = Number(iO.data2);
+			this.Data3 = Number(iO.data3);
+			this.Data4 = Number(iO.data4);
+			this.Data5 = Number(iO.data5);
+			this.Data6 = Number(iO.data6);
+			this.Data7 = Number(iO.data7);
+			this.Data8 = Number(iO.data8);
+			this.Data9 = Number(iO.data9);
+			this.Data10 = Number(iO.data10);
+			this.Data11 = Number(iO.data11);
+			this.Data12 = Number(iO.data12);
+			this.Data13 = Number(iO.data13);
+			this.Data14 = Number(iO.data14);
 			this.interventionText = iO.interventionText;
 			this.controlText = iO.controlText;
 			this.outcomeText = iO.outcomeText;
@@ -585,7 +585,7 @@ export class Outcome {
 				this.outcomeTypeName= "Binary";
 				break;
 
-			case 7: // correlation coefficient r
+			case 7: // correlation coeffiCIent r
 				this.esDesc= "r";
 				this.seDesc= "SE (Z transformed)";
 				this.NRows= 1;
@@ -737,7 +737,7 @@ export class Outcome {
 				this.seOddsRatio = this.sees;
 				break;
 
-			case 7: // correlation coefficient r
+			case 7: // correlation coeffiCIent r
 
 				this.r = this.data2;
 				this.ser =  Math.sqrt(1 / (this.data1 - 3));
@@ -751,8 +751,8 @@ export class Outcome {
 				break;
 		}
 
-		this.ciLower = this.smd - (1.96 * this.sees);
-		this.ciUpper = this.smd + (1.96 * this.sees);
+		this.CILower = this.smd - (1.96 * this.sees);
+		this.CIUpper = this.smd + (1.96 * this.sees);
 
 	}
 
@@ -1057,8 +1057,8 @@ export class Outcome {
 	private SdFromSe(se: number, n: number): number {
 		return se * Math.sqrt(n);
 	}
-	private SeFromCi(ciUpper: number, ciLower: number): number {
-		let se: number = Math.abs((0.5 * (ciUpper - ciLower)) / 1.96);
+	private SeFromCi(CIUpper: number, CILower: number): number {
+		let se: number = Math.abs((0.5 * (CIUpper - CILower)) / 1.96);
 		return se;
 	}
 	CorrectForClustering(se: number): number {
@@ -1098,116 +1098,116 @@ export class Outcome {
     shortTitle: string = "";
     timepointDisplayValue: string = "";
 	outcomeDescription: string = "";
-    private _data1: number = 0;
+    private Data1: number = 0;
     public get data1(): number {
-        return Number(this._data1);
+        return Number(this.Data1);
     }
     public set data1(val: number) {
-        this._data1 = val;
+        this.Data1 = val;
         this.SetCalculatedValues();
     }
-	private _data2: number = 0;
+	private Data2: number = 0;
 	public get data2(): number {
-		return Number(this._data2);
+		return Number(this.Data2);
 	}
 	public set data2(val: number) {
-		this._data2 = val;
+		this.Data2 = val;
 		this.SetCalculatedValues();
 	}
-	private _data3: number = 0;
+	private Data3: number = 0;
 	public get data3(): number {
-		return Number(this._data3);
+		return Number(this.Data3);
 	}
 	public set data3(val: number) {
-		this._data3 = val;
+		this.Data3 = val;
 		this.SetCalculatedValues();
 	}
-	private _data4: number = 0;
+	private Data4: number = 0;
 	public get data4(): number {
-		return Number(this._data4);
+		return Number(this.Data4);
 	}
 	public set data4(val: number) {
-		this._data4 = val;
+		this.Data4 = val;
 		this.SetCalculatedValues();
 	}
-	private _data5: number = 0;
+	private Data5: number = 0;
 	public get data5(): number {
-		return this._data5;
+		return this.Data5;
 	}
 	public set data5(val: number) {
-		this._data5 = val;
+		this.Data5 = val;
 		this.SetCalculatedValues();
 	}
-	private _data6: number = 0;
+	private Data6: number = 0;
 	public get data6(): number {
-		return this._data6;
+		return this.Data6;
 	}
 	public set data6(val: number) {
-		this._data6 = val;
+		this.Data6 = val;
 		this.SetCalculatedValues();
 	}
-	private _data7: number = 0;
+	private Data7: number = 0;
 	public get data7(): number {
-		return this._data7;
+		return this.Data7;
 	}
 	public set data7(val: number) {
-		this._data7 = val;
+		this.Data7 = val;
 		this.SetCalculatedValues();
 	}
-	private _data8: number = 0;
+	private Data8: number = 0;
 	public get data8(): number {
-		return this._data8;
+		return this.Data8;
 	}
 	public set data8(val: number) {
-		this._data8 = val;
+		this.Data8 = val;
 		this.SetCalculatedValues();
 	}
-	private _data9: number = 0;
+	private Data9: number = 0;
 	public get data9(): number {
-		return this._data9;
+		return this.Data9;
 	}
 	public set data9(val: number) {
-		this._data9 = val;
+		this.Data9 = val;
 		this.SetCalculatedValues();
 	}
-	private _data10: number = 0;
+	private Data10: number = 0;
 	public get data10(): number {
-		return this._data10;
+		return this.Data10;
 	}
 	public set data10(val: number) {
-		this._data10 = val;
+		this.Data10 = val;
 		this.SetCalculatedValues();
 	}
-	private _data11: number = 0;
+	private Data11: number = 0;
 	public get data11(): number {
-		return this._data11;
+		return this.Data11;
 	}
 	public set data11(val: number) {
-		this._data11 = val;
+		this.Data11 = val;
 		this.SetCalculatedValues();
 	}
-	private _data12: number = 0;
+	private Data12: number = 0;
 	public get data12(): number {
-		return this._data12;
+		return this.Data12;
 	}
 	public set data12(val: number) {
-		this._data12 = val;
+		this.Data12 = val;
 		this.SetCalculatedValues();
 	}
-	private _data13: number = 0;
+	private Data13: number = 0;
 	public get data13(): number {
-		return this._data13;
+		return this.Data13;
 	}
 	public set data13(val: number) {
-		this._data13 = val;
+		this.Data13 = val;
 		this.SetCalculatedValues();
 	}
-	private _data14: number = 0;
+	private Data14: number = 0;
 	public get data14(): number {
-		return this._data14;
+		return this.Data14;
 	}
 	public set data14(val: number) {
-		this._data14 = val;
+		this.Data14 = val;
 		this.SetCalculatedValues();
 	}
 	interventionText: string = "";
@@ -1223,20 +1223,20 @@ export class Outcome {
 	seOddsRatio: number = 0;
 	riskRatio: number = 0;
 	seRiskRatio: number = 0;
-	ciUpperSMD: number = 0;
-	ciLowerSMD: number = 0;
-	ciUpperR: number = 0;
-	ciLowerR: number = 0;
-	ciUpperOddsRatio: number = 0;
-	ciLowerOddsRatio: number = 0;
-	ciUpperRiskRatio: number = 0;
-	ciLowerRiskRatio: number = 0;
-	ciUpperRiskDifference: number = 0;
-	ciLowerRiskDifference: number = 0;
-	ciUpperPetoOddsRatio: number = 0;
-	ciLowerPetoOddsRatio: number = 0;
-	ciUpperMeanDifference: number = 0;
-	ciLowerMeanDifference: number = 0;
+	CIUpperSMD: number = 0;
+	CILowerSMD: number = 0;
+	CIUpperR: number = 0;
+	CILowerR: number = 0;
+	CIUpperOddsRatio: number = 0;
+	CILowerOddsRatio: number = 0;
+	CIUpperRiskRatio: number = 0;
+	CILowerRiskRatio: number = 0;
+	CIUpperRiskDifference: number = 0;
+	CILowerRiskDifference: number = 0;
+	CIUpperPetoOddsRatio: number = 0;
+	CILowerPetoOddsRatio: number = 0;
+	CIUpperMeanDifference: number = 0;
+	CILowerMeanDifference: number = 0;
 	riskDifference: number = 0;
 	seRiskDifference: number = 0;
 	meanDifference: number = 0;
@@ -1246,120 +1246,120 @@ export class Outcome {
 	es: number = 0;
 	sees: number = 0;
 	nRows: number = 0;
-	ciLower: number = 0;
-	ciUpper: number = 0;
+	CILower: number = 0;
+	CIUpper: number = 0;
 	esDesc: string = "";
 	seDesc: string = "";
-	private _data1Desc: string = "";
+	private Data1Desc: string = "";
 	public get data1Desc(): string {
-		return this._data1Desc;
+		return this.Data1Desc;
 	}
 	public set data1Desc(val: string) {
-		this._data1Desc = val;
+		this.Data1Desc = val;
 		//this.SetCalculatedValues();
 	}
-	private _data2Desc: string = "";
+	private Data2Desc: string = "";
 	public get data2Desc(): string {
-		return this._data2Desc;
+		return this.Data2Desc;
 	}
 	public set data2Desc(val: string) {
-		this._data2Desc = val;
+		this.Data2Desc = val;
 		//this.SetCalculatedValues();
 	}
-	private _data3Desc: string = "";
+	private Data3Desc: string = "";
 	public get data3Desc(): string {
-		return this._data3Desc;
+		return this.Data3Desc;
 	}
 	public set data3Desc(val: string) {
-		this._data3Desc = val;
+		this.Data3Desc = val;
 		//this.SetCalculatedValues();
 	}
-	private _data4Desc: string ="";
+	private Data4Desc: string ="";
 	public get data4Desc(): string {
-		return this._data4Desc;
+		return this.Data4Desc;
 	}
 	public set data4Desc(val: string) {
-		this._data4Desc = val;
+		this.Data4Desc = val;
 		//this.SetCalculatedValues();
 	}
-	private _data5Desc: string = "";
+	private Data5Desc: string = "";
 	public get data5Desc(): string {
-		return this._data5Desc;
+		return this.Data5Desc;
 	}
 	public set data5Desc(val: string) {
-		this._data5Desc = val;
+		this.Data5Desc = val;
 		//this.SetCalculatedValues();
 	}
-	private _data6Desc: string = "";
+	private Data6Desc: string = "";
 	public get data6Desc(): string {
-		return this._data6Desc;
+		return this.Data6Desc;
 	}
 	public set data6Desc(val: string) {
-		this._data6Desc = val;
+		this.Data6Desc = val;
 		//this.SetCalculatedValues();
 	}
-	private _data7Desc: string = "";
+	private Data7Desc: string = "";
 	public get data7Desc(): string {
-		return this._data7Desc;
+		return this.Data7Desc;
 	}
 	public set data7Desc(val: string) {
-		this._data7Desc = val;
+		this.Data7Desc = val;
 		//this.SetCalculatedValues();
 	}
-	private _data8Desc: string = "";
+	private Data8Desc: string = "";
 	public get data8Desc(): string {
-		return this._data8Desc;
+		return this.Data8Desc;
 	}
 	public set data8Desc(val: string) {
-		this._data8Desc = val;
+		this.Data8Desc = val;
 		//this.SetCalculatedValues();
 	}
-	private _data9Desc: string = "";
+	private Data9Desc: string = "";
 	public get data9Desc(): string {
-		return this._data9Desc;
+		return this.Data9Desc;
 	}
 	public set data9Desc(val: string) {
-		this._data9Desc = val;
+		this.Data9Desc = val;
 		//this.SetCalculatedValues();
 	}
-	private _data10Desc: string = "";
+	private Data10Desc: string = "";
 	public get data10Desc(): string {
-		return this._data10Desc;
+		return this.Data10Desc;
 	}
 	public set data10Desc(val: string) {
-		this._data10Desc = val;
+		this.Data10Desc = val;
 		//this.SetCalculatedValues();
 	}
-	private _data11Desc: string = "";
+	private Data11Desc: string = "";
 	public get data11Desc(): string {
-		return this._data11Desc;
+		return this.Data11Desc;
 	}
 	public set data11Desc(val: string) {
-		this._data11Desc = val;
+		this.Data11Desc = val;
 		//this.SetCalculatedValues();
 	}
-	private _data12Desc: string ="";
+	private Data12Desc: string ="";
 	public get data12Desc(): string {
-		return this._data12Desc;
+		return this.Data12Desc;
 	}
 	public set data12Desc(val: string) {
-		this._data12Desc = val;
+		this.Data12Desc = val;
 		//this.SetCalculatedValues();
 	}
-	private _data13Desc: string = "";
+	private Data13Desc: string = "";
 	public get data13Desc(): string {
-		return this._data13Desc;
+		return this.Data13Desc;
 	}
 	public set data13Desc(val: string) {
-		this._data13Desc = val;
+		this.Data13Desc = val;
 		//this.SetCalculatedValues();
 	}
-	private _data14Desc: string = "";
+	private Data14Desc: string = "";
 	public get data14Desc(): string {
-		return this._data14Desc;
+		return this.Data14Desc;
 	}
 	public set data14Desc(val: string) {
-		this._data14Desc = val;
+		this.Data14Desc = val;
 		//this.SetCalculatedValues();
 	}
 }
@@ -1512,7 +1512,7 @@ export class StatFunctions {
 				c = (((0.05 * d * x - 5) * x - 7) * x - 2) * x + b + c;
 				y = (((((0.4 * y + 6.3) * y + 36) * y + 94.5) / c - y - 3) / b + 1) * x;
 				y = a * y * y;
-				if (y > 0.002)/* FIXME: This cutoff is machine-precision dependent*/
+				if (y > 0.002)/* FIXME: This cutoff is machine-preCIsion dependent*/
 					y = Math.exp(y) - 1;
 				else { /* Taylor of    e^y -1 : */
 					y = (0.5 * y + 1) * y;
@@ -1565,7 +1565,7 @@ export class StatFunctions {
 	}
 
 	public static pchisq(q: number, df: number): number {
-		// Posten, H. (1989) American Statistician 43 p. 261-265
+		// Posten, H. (1989) American StatistiCIan 43 p. 261-265
 		let df2: number = df * .5;
 		let q2: number = q * .5;
 		let n: number = 5, k: number;
