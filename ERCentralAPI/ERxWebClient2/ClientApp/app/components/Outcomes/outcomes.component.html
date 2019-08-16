@@ -49,15 +49,14 @@
 	</div>
 	<div *ngIf="ShowOutcomesStatistics && outcome != null" class="col-md-12 row card p-0 m-0">
 		<div class="card container-fluid mt-1 bg-light border border-primary rounded m-1 p-1">
-			<div class=" col-md-12 small">
-				<div class="row col-md-12">
+			<div class=" col-md-12 small" >
+				<div  class="row col-md-12">
 					<div class="col-md-6 row form-field">
 						<label class="col-md-3">Title</label>
-						<input #titleModel="ngModel" placeholder="Title"
+						<input  #titleModel="ngModel" placeholder="Title" [(ngModel)]="currentOutcome.title"
 							   required minlength="3"
 							   value="currentOutcome.title"
 							   pattern="^(?!\s*$).+"
-							   [(ngModel)]="currentOutcome.title"
 							   type="text" class="form-control col-md-8 form-input" />
 					</div>
 					<div class="col-md-6 row ">
@@ -362,7 +361,7 @@
 					</div>
 					<div class="row col-md-12 p-1 m-1">
 						<label class="col-md-1">{{currentOutcome.esDesc}}</label>
-						<p class="col-md-2">{{CalculatedEffectSize()}}</p>
+						<p class="col-md-2">{{currentOutcome.es}}</p>
 						<label class="col-md-1 text-capitalize">{{currentOutcome.seDesc}}</label>
 						<p class="col-md-2">{{currentOutcome.sees}}</p>
 					</div>
