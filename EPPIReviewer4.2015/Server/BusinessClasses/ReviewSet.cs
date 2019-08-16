@@ -746,6 +746,40 @@ namespace BusinessLibrary.BusinessClasses
             return returnValue;
         }
 
+        internal void RecursiveBuildTree(AttributeSet parent, List<AttributeSet> flatList)
+        {
+            AttributeSetList workingAttsList = new AttributeSetList();
+            //AttributeSet parent = null;
+            long parentId = 0;
+            workingAttsList.RaiseListChangedEvents = false;
+            if (parent == null)
+            {
+                this.Attributes = workingAttsList;
+            }
+            else
+            {//need to find the list of children we'll be populating
+                //parent = this.GetAttributeSetFromAttributeId(parentId);
+                parentId = parent.AttributeId;
+                parent.Attributes = workingAttsList;
+            }
+            
+                IEnumerable<AttributeSet> CodesAtThisLevel = flatList.FindAll(found => found.ParentAttributeId == parentId).OrderBy(Att => Att.AttributeOrder);
+                flatList.RemoveAll(found => found.ParentAttributeId == parentId);
+                foreach(AttributeSet aSet in CodesAtThisLevel)
+                {
+                    if (parent != null)
+                    {
+                        aSet.HostAttribute = parent;
+                    }
+                    workingAttsList.Add(aSet);
+                    //flatList.Remove(aSet);
+                    this.RecursiveBuildTree(aSet, flatList);
+                }
+
+            //if (parentId == 0 && flatList.Count > 0) throw new Exception("did not parse all codes in tree...");
+            workingAttsList.RaiseListChangedEvents = true;
+        }
+
         public int TempMaxDepth = 0;
 #endif
     }
