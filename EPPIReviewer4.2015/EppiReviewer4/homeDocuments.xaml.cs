@@ -243,6 +243,8 @@ namespace EppiReviewer4
             windowMagBrowser.Width = 500;
             Grid MagGrid = new Grid();
             MagGrid.Children.Add(MagBrowserControl);
+            MagBrowserControl.ListIncludedThatNeedMatching += MagBrowserControl_ListIncludedThatNeedMatching;
+            MagBrowserControl.ListExcludedThatNeedMatching += MagBrowserControl_ListExcludedThatNeedMatching;
             windowMagBrowser.Content = MagGrid;
             //end of windowMagBrowser
 
@@ -4054,7 +4056,6 @@ on the right of the main screen");
         {
             CslaDataProvider provider = ((CslaDataProvider)this.Resources["ItemListData"]);
             
-            
             if (provider.Error != null)
             {
                 System.Windows.Browser.HtmlPage.Window.Alert(((Csla.Xaml.CslaDataProvider)sender).Error.Message);
@@ -6065,5 +6066,32 @@ on the right of the main screen");
             MagBrowserControl.ShowMagBrowser();
             windowMagBrowser.ShowDialog();
         }
+
+        private void MagBrowserControl_ListIncludedThatNeedMatching(object sender, RoutedEventArgs e)
+        {
+            windowMagBrowser.Close();
+            TextBlockShowing.Text = "Showing: included items with low confidence Microsoft Academic matches (that are unchecked)";
+            SelectionCritieraItemList = new SelectionCriteria();
+            SelectionCritieraItemList.ListType = "MagMatchesNeedingChecking";
+            SelectionCritieraItemList.OnlyIncluded = true;
+            SelectionCritieraItemList.ShowDeleted = false;
+            SelectionCritieraItemList.AttributeSetIdList = "";
+            SelectionCritieraItemList.PageNumber = 0;
+            LoadItemList();
+        }
+
+        private void MagBrowserControl_ListExcludedThatNeedMatching(object sender, RoutedEventArgs e)
+        {
+            windowMagBrowser.Close();
+            TextBlockShowing.Text = "Showing: excluded items with low confidence Microsoft Academic matches (that are unchecked)";
+            SelectionCritieraItemList = new SelectionCriteria();
+            SelectionCritieraItemList.ListType = "MagMatchesNeedingChecking";
+            SelectionCritieraItemList.OnlyIncluded = false;
+            SelectionCritieraItemList.ShowDeleted = false;
+            SelectionCritieraItemList.AttributeSetIdList = "";
+            SelectionCritieraItemList.PageNumber = 0;
+            LoadItemList();
+        }
+
     }
 }

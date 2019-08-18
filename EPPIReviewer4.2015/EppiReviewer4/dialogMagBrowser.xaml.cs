@@ -19,6 +19,8 @@ namespace EppiReviewer4
 {
     public partial class dialogMagBrowser : UserControl
     {
+        public event EventHandler<RoutedEventArgs> ListIncludedThatNeedMatching;
+        public event EventHandler<RoutedEventArgs> ListExcludedThatNeedMatching;
         private int CurrentBrowsePosition = 0;
         private List<Int64> SelectedPaperIds;
         public dialogMagBrowser()
@@ -299,6 +301,16 @@ namespace EppiReviewer4
             }
             AddToBrowseHistory("List of all excluded matches", "MatchesExcluded", 0, "", "", 0, "");
             ShowIncludedMatchesPage("excluded");
+        }
+
+        private void LBManualCheckIncluded_Click(object sender, RoutedEventArgs e)
+        {
+            this.ListIncludedThatNeedMatching.Invoke(sender, e);
+        }
+
+        private void LBManualCheckExcluded_Click(object sender, RoutedEventArgs e)
+        {
+            this.ListExcludedThatNeedMatching.Invoke(sender, e);            
         }
 
         private void HLShowSelected_Click(object sender, RoutedEventArgs e)
@@ -874,6 +886,6 @@ namespace EppiReviewer4
             HistoryGrid.Visibility = Visibility.Collapsed;
         }
 
-        
+       
     }
 }
