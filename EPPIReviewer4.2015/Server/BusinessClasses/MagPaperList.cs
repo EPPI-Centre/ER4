@@ -265,6 +265,19 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
+        private string _IncludedOrExcluded;
+        public string IncludedOrExcluded
+        {
+            get
+            {
+                return _IncludedOrExcluded;
+            }
+            set
+            {
+                _IncludedOrExcluded = value;
+            }
+        }
+
         protected override void OnSetState(Csla.Serialization.Mobile.SerializationInfo info)
         {
             base.OnSetState(info);
@@ -278,6 +291,7 @@ namespace BusinessLibrary.BusinessClasses
             _AuthorId = info.GetValue<Int64>("_AuthorId");
             _MagRelatedRunId = info.GetValue<Int64>("_MagRelatedRunId");
             _PaperIds = info.GetValue<string>("_PaperIds");
+            _IncludedOrExcluded = info.GetValue<string>("_IncludedOrExcluded");
         }
 
         protected override void OnGetState(Csla.Serialization.Mobile.SerializationInfo info)
@@ -293,6 +307,7 @@ namespace BusinessLibrary.BusinessClasses
             info.AddValue("_AuthorId", _AuthorId);
             info.AddValue("_MagRelatedRunId", _MagRelatedRunId);
             info.AddValue("_PaperIds", _PaperIds);
+            info.AddValue("_IncludedOrExcluded", _IncludedOrExcluded);
         }
 
 
@@ -344,6 +359,7 @@ namespace BusinessLibrary.BusinessClasses
                     command = new SqlCommand("st_ReviewMatchedPapers", connection);
                     command.CommandType = System.Data.CommandType.StoredProcedure;
                     command.Parameters.Add(new SqlParameter("@INCLUDED", criteria.Included));
+                    this.IncludedOrExcluded = criteria.Included;
                     this.PaperIds = ""; // probably unnecessary, but just in case...
                     break;
                 case "ItemMatchedPapersList":

@@ -198,15 +198,10 @@
                                     IsReadOnly="True" MinHeight="50" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                                     ItemsSource="{Binding PagedSource, ElementName=BibliographyPager}"
                                     RowIndicatorVisibility="Collapsed" CanUserSelect="False"
-                                    SelectionMode="Extended" FrozenColumnCount="1" ColumnWidth="*"
+                                    SelectionMode="Extended" ColumnWidth="*"
                                     IsSynchronizedWithCurrentItem="False">
                             <telerikGridView:RadGridView.Columns>
-                                <telerikGridView:GridViewSelectColumn UniqueName="TopicColumnSelectPaper" Width="Auto">
-                                    <telerikGridView:GridViewSelectColumn.Header>
-                                        <CheckBox Tag="Bibliography" />
-                                    </telerikGridView:GridViewSelectColumn.Header>
-                                </telerikGridView:GridViewSelectColumn>
-                                <telerikGridView:GridViewDataColumn DataMemberBinding="{Binding FullRecord}">
+                                <telerikGridView:GridViewDataColumn Header="" DataMemberBinding="{Binding FullRecord}">
                                     <telerikGridView:GridViewDataColumn.CellTemplate>
                                         <DataTemplate>
                                             <TextBlock Text="{Binding FullRecord}" TextWrapping="Wrap" MouseLeftButtonUp="PaperListBibliographyGrid_MouseLeftButtonUp"/>
@@ -235,15 +230,10 @@
                                     IsReadOnly="True" MinHeight="50" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                                     ItemsSource="{Binding PagedSource, ElementName=CitedByPager}"
                                     RowIndicatorVisibility="Collapsed"
-                                    SelectionMode="Extended" FrozenColumnCount="1" ColumnWidth="*"
+                                    SelectionMode="Extended" ColumnWidth="*"
                                     IsSynchronizedWithCurrentItem="False">
                         <telerikGridView:RadGridView.Columns>
-                            <telerikGridView:GridViewSelectColumn UniqueName="TopicColumnSelectPaper" Width="Auto">
-                                <telerikGridView:GridViewSelectColumn.Header>
-                                    <CheckBox Tag="Bibliography" />
-                                </telerikGridView:GridViewSelectColumn.Header>
-                            </telerikGridView:GridViewSelectColumn>
-                            <telerikGridView:GridViewDataColumn DataMemberBinding="{Binding FullRecord}">
+                            <telerikGridView:GridViewDataColumn Header="" DataMemberBinding="{Binding FullRecord}">
                                 <telerikGridView:GridViewDataColumn.CellTemplate>
                                     <DataTemplate>
                                         <TextBlock Text="{Binding FullRecord}" TextWrapping="Wrap" MouseLeftButtonUp="PaperListBibliographyGrid_MouseLeftButtonUp"/>
@@ -266,15 +256,11 @@
                                     IsReadOnly="True" MinHeight="50" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                                     ItemsSource="{Binding Source={StaticResource RecommendationsListData}, Path=Data, Mode=TwoWay}"
                                     RowIndicatorVisibility="Collapsed"
-                                    SelectionMode="Extended" FrozenColumnCount="1" ColumnWidth="*"
+                                    SelectionMode="Extended" ColumnWidth="*"
                                     IsSynchronizedWithCurrentItem="False">
                         <telerikGridView:RadGridView.Columns>
-                            <telerikGridView:GridViewSelectColumn UniqueName="TopicColumnSelectPaper" Width="Auto">
-                                <telerikGridView:GridViewSelectColumn.Header>
-                                    <CheckBox Tag="Bibliography" />
-                                </telerikGridView:GridViewSelectColumn.Header>
-                            </telerikGridView:GridViewSelectColumn>
-                            <telerikGridView:GridViewDataColumn DataMemberBinding="{Binding FullRecord}">
+                            
+                            <telerikGridView:GridViewDataColumn Header="" DataMemberBinding="{Binding FullRecord}">
                                 <telerikGridView:GridViewDataColumn.CellTemplate>
                                     <DataTemplate>
                                         <TextBlock Text="{Binding FullRecord}" TextWrapping="Wrap" MouseLeftButtonUp="PaperListBibliographyGrid_MouseLeftButtonUp"/>
@@ -365,15 +351,10 @@
                                     IsReadOnly="True" MinHeight="50" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                                     ItemsSource="{Binding PagedSource, ElementName=TopicPaperListBibliographyPager}"
                                     RowIndicatorVisibility="Collapsed"
-                                    SelectionMode="Extended" FrozenColumnCount="1" ColumnWidth="*"
+                                    SelectionMode="Extended" ColumnWidth="*"
                                     IsSynchronizedWithCurrentItem="False">
                 <telerikGridView:RadGridView.Columns>
-                    <telerikGridView:GridViewSelectColumn UniqueName="TopicColumnSelectPaper" Width="Auto">
-                        <telerikGridView:GridViewSelectColumn.Header>
-                            <CheckBox Tag="Topic" />
-                        </telerikGridView:GridViewSelectColumn.Header>
-                    </telerikGridView:GridViewSelectColumn>
-                    <telerikGridView:GridViewDataColumn DataMemberBinding="{Binding FullRecord}">
+                    <telerikGridView:GridViewDataColumn Header="" DataMemberBinding="{Binding FullRecord}">
                         <telerikGridView:GridViewDataColumn.CellTemplate>
                             <DataTemplate>
                                 <TextBlock Text="{Binding FullRecord}" TextWrapping="Wrap" MouseLeftButtonUp="PaperListBibliographyGrid_MouseLeftButtonUp"/>

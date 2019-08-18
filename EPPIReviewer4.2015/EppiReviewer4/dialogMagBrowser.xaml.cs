@@ -213,7 +213,7 @@ namespace EppiReviewer4
         }
 
         // ***************************************** Included matches page *************************
-        private void ShowIncludedMatchesPage()
+        private void ShowIncludedMatchesPage(string IncludedOrExcluded)
         {
             StatusGrid.Visibility = Visibility.Collapsed;
             PaperGrid.Visibility = Visibility.Collapsed;
@@ -227,7 +227,7 @@ namespace EppiReviewer4
             selectionCriteria.PageSize = 20;
             selectionCriteria.PageNumber = 0;
             selectionCriteria.ListType = "ReviewMatchedPapers";
-            selectionCriteria.Included = "included";
+            selectionCriteria.Included = IncludedOrExcluded;
             provider.FactoryParameters.Add(selectionCriteria);
             provider.FactoryMethod = "GetMagPaperList";
             provider.Refresh();
@@ -283,7 +283,22 @@ namespace EppiReviewer4
                 }
             }
             AddToBrowseHistory("List of all included matches", "MatchesIncluded", 0, "", "", 0, "");
-            ShowIncludedMatchesPage();
+            ShowIncludedMatchesPage("included");
+        }
+
+        private void LBListMatchesExcluded_Click(object sender, RoutedEventArgs e)
+        {
+            CslaDataProvider provider = this.Resources["HistoryListData"] as CslaDataProvider;
+            if (provider != null)
+            {
+                MagBrowseHistoryList mbhl = provider.Data as MagBrowseHistoryList;
+                if (mbhl != null)
+                {
+                    CurrentBrowsePosition = mbhl.Count + 1; // otherwise we leave it where it is (i.e. user has navigated 'back')
+                }
+            }
+            AddToBrowseHistory("List of all excluded matches", "MatchesExcluded", 0, "", "", 0, "");
+            ShowIncludedMatchesPage("excluded");
         }
 
         private void HLShowSelected_Click(object sender, RoutedEventArgs e)
@@ -432,11 +447,6 @@ namespace EppiReviewer4
             provider.Refresh();
         }
 
-        private void LBListMatchesExcluded_Click(object sender, RoutedEventArgs e)
-        {
-            
-        }
-
         private void PaperListBibliographyGrid_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             MagPaper paper = (sender as TextBlock).DataContext as MagPaper;
@@ -468,7 +478,7 @@ namespace EppiReviewer4
             if (mpl.PaperIds == "")
             {
                 selectionCriteria.ListType = "ReviewMatchedPapers";
-                selectionCriteria.Included = "included";
+                selectionCriteria.Included = mpl.IncludedOrExcluded;
             }
             else
             {
@@ -630,7 +640,10 @@ namespace EppiReviewer4
                                 ShowPaperDetailsPage(mbh.PaperId, mbh.PaperFullRecord, mbh.PaperAbstract);
                                 break;
                             case "MatchesIncluded":
-                                ShowIncludedMatchesPage();
+                                ShowIncludedMatchesPage("included");
+                                break;
+                            case "MatchesExcluded":
+                                ShowIncludedMatchesPage("excluded");
                                 break;
                             case "BrowseTopic":
                                 ShowTopicPage(mbh.FieldOfStudyId, mbh.FieldOfStudy);
@@ -714,8 +727,22 @@ namespace EppiReviewer4
 
         private void ClearSelectedPaperList()
         {
-            SelectedPaperIds.Clear();
-            UpdateSelectedCount();
+            if (SelectedPaperIds.Count == 0)
+            {
+                RadWindow.Alert("You don't have anything selected");
+                return;
+            }
+            RadWindow.Confirm("Are you sure you want to clear your list of selected items?", this.doClearSelectedPaperList);
+        }
+
+        private void doClearSelectedPaperList(object sender, WindowClosedEventArgs e)
+        {
+            var result = e.DialogResult;
+            if (result == true)
+            {
+                SelectedPaperIds.Clear();
+                UpdateSelectedCount();
+            }
         }
 
         private void UpdateSelectedCount()
@@ -801,6 +828,11 @@ namespace EppiReviewer4
 
         private void HLImportSelected_Click(object sender, RoutedEventArgs e)
         {
+            if (SelectedPaperIds.Count == 0)
+            {
+                RadWindow.Alert("You don't have anything selected");
+                return;
+            }
             RadWindow.Confirm("Are you sure you want to import these items?", this.ImportSelected);
         }
 
