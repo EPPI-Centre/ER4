@@ -14,6 +14,7 @@ using Csla;
 using Telerik.Windows.Controls;
 using Csla.Xaml;
 using BusinessLibrary.Security;
+using System.Windows.Threading;
 
 namespace EppiReviewer4
 {
@@ -21,6 +22,7 @@ namespace EppiReviewer4
     {
         public event EventHandler<RoutedEventArgs> ListIncludedThatNeedMatching;
         public event EventHandler<RoutedEventArgs> ListExcludedThatNeedMatching;
+        private DispatcherTimer timer;
         private int CurrentBrowsePosition = 0;
         private List<Int64> SelectedPaperIds;
         public dialogMagBrowser()
@@ -33,7 +35,11 @@ namespace EppiReviewer4
             HLShowSummary_Click(null, null);
             SelectedPaperIds = new List<Int64>();
             UpdateSelectedCount();
+            timer = new DispatcherTimer();
+            timer.Interval = TimeSpan.FromSeconds(1);
+            timer.Tick += Timer_Tick;
         }
+
 
         private void HLShowSummary_Click(object sender, RoutedEventArgs e)
         {
@@ -873,19 +879,72 @@ namespace EppiReviewer4
             }
         }
 
+        // ******************************* Find topics using search box ********************************
+
+        private void tbFindTopics_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (tbFindTopics.Text.Length > 2)
+            {
+                if (this.timer != null && this.timer.IsEnabled)
+                {
+                    this.timer.Stop();
+                    this.timer.Start();
+                }
+                else
+                {
+                    if (this.timer != null)
+                    {
+                        this.timer.Start();
+                    }
+                }
+            }
+        }
+
+        private void Timer_Tick(object sender, EventArgs e)
+        {
+            this.timer.Stop();
+            if (tbFindTopics.Text.Length > 2)
+            {
+                CslaDataProvider provider = this.Resources["SearchTopicsData"] as CslaDataProvider;
+                if (provider != null)
+                {
+                    MagFieldOfStudyListSelectionCriteria selectionCriteria = new MagFieldOfStudyListSelectionCriteria();
+                    selectionCriteria.ListType = "FieldOfStudySearchList";
+                    selectionCriteria.SearchText = tbFindTopics.Text;
+                    DataPortal<MagFieldOfStudyList> dp = new DataPortal<MagFieldOfStudyList>();
+                    MagFieldOfStudyList mfsl = new MagFieldOfStudyList();
+                    dp.FetchCompleted += (o, e2) =>
+                    {
+                        WPFindTopics.Children.Clear();
+                        MagFieldOfStudyList FosList = e2.Object as MagFieldOfStudyList;
+                        double i = 15;
+                        foreach (MagFieldOfStudy fos in FosList)
+                        {
+                            HyperlinkButton newHl = new HyperlinkButton();
+                            newHl.Content = fos.DisplayName;
+                            newHl.Tag = fos.FieldOfStudyId.ToString();
+                            newHl.Click += HlNavigateToTopic_Click;
+                            newHl.FontSize = i;
+                            newHl.Margin = new Thickness(5, 5, 5, 5);
+                            WPFindTopics.Children.Add(newHl);
+                            if (i > 10)
+                            {
+                                i -= 0.5;
+                            }
+                        }
+                    };
+                    dp.BeginFetch(selectionCriteria);
+                }
+            }
+            else
+            {
+                WPFindTopics.Children.Clear();
+            }
+        }
+
 
         // 88888888888888888888888888888 NOT IMPLEMENTED YET 8888888888888888888888888888888888888888
 
 
-        private void LBBrowseByTopic_Click(object sender, RoutedEventArgs e)
-        {
-            StatusGrid.Visibility = Visibility.Collapsed;
-            PaperGrid.Visibility = Visibility.Collapsed;
-            TopicsGrid.Visibility = Visibility.Visible;
-            PaperListGrid.Visibility = Visibility.Collapsed;
-            HistoryGrid.Visibility = Visibility.Collapsed;
-        }
-
-       
     }
 }
