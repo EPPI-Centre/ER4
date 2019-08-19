@@ -4,6 +4,7 @@ import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
 import { SetAttribute } from './ReviewSets.service';
 import { iTimePoint } from './timePoints.service';
+import { Helpers } from '../helpers/HelperMethods';
 
 @Injectable({
     providedIn: 'root',
@@ -388,35 +389,37 @@ export class Outcome {
 
     public constructor(iO?: iOutcome) {
 		if (iO) {
+			console.log('going through here: ');
+			console.log(iO);
 			this.itemSetId = iO.itemSetId;
-			this.outcomeTypeId = iO.outcomeTypeId;
+			this.OutcomeTypeId = iO.outcomeTypeId;
 			this.manuallyEnteredOutcomeTypeId = iO.manuallyEnteredOutcomeTypeId;
 			this.unifiedOutcomeTypeId = iO.unifiedOutcomeTypeId;
-			this.outcomeTypeName = iO.outcomeTypeName;
+			this.OutcomeTypeName = iO.outcomeTypeName;
 			this.itemAttributeIdIntervention =  iO.itemAttributeIdIntervention;
 			this.itemAttributeIdControl = iO.itemAttributeIdControl;
 			this.itemAttributeIdOutcome = iO.itemAttributeIdOutcome
 			this.title = iO.title;
 			this.shortTitle = iO.shortTitle;
-			this.outcomeDescription = iO.outcomeDescription
+			this.OutcomeDescription = iO.outcomeDescription
             this.outcomeId = iO.outcomeId;
-            this.Data1 = Number(iO.data1);
-			this.Data2 = Number(iO.data2);
-			this.Data3 = Number(iO.data3);
-			this.Data4 = Number(iO.data4);
-			this.Data5 = Number(iO.data5);
-			this.Data6 = Number(iO.data6);
-			this.Data7 = Number(iO.data7);
-			this.Data8 = Number(iO.data8);
-			this.Data9 = Number(iO.data9);
-			this.Data10 = Number(iO.data10);
-			this.Data11 = Number(iO.data11);
-			this.Data12 = Number(iO.data12);
-			this.Data13 = Number(iO.data13);
-			this.Data14 = Number(iO.data14);
+            this.data1 = Number(iO.data1 == null ? 0: iO.data1);
+			this.data2 = Number(iO.data2 == null ? 0 : iO.data2);
+			this.data3 = Number(iO.data3 == null ? 0 : iO.data3);
+			this.data4 = Number(iO.data4 == null ? 0 : iO.data4);
+			this.data5 = Number(iO.data5 == null ? 0 : iO.data5);
+			this.data6 = Number(iO.data6 == null ? 0 : iO.data6);
+			this.data7 = Number(iO.data7 == null ? 0 : iO.data7);
+			this.data8 = Number(iO.data8 == null ? 0 : iO.data8);
+			this.data9 = Number(iO.data9 == null ? 0 : iO.data9);
+			this.data10 = Number(iO.data10 == null ? 0 : iO.data10);
+			this.data11 = Number(iO.data11 == null ? 0 : iO.data11);
+			this.data12 = Number(iO.data12 == null ? 0 : iO.data12);
+			this.data13 = Number(iO.data13 == null ? 0 : iO.data13);
+			this.data14 = Number(iO.data14 == null ? 0 : iO.data14);
 			this.interventionText = iO.interventionText;
 			this.controlText = iO.controlText;
-			this.outcomeText = iO.outcomeText;
+			this.OutcomeText = iO.outcomeText;
 			this.itemTimepointId = iO.itemTimepointId;
 			this.itemTimepointMetric = iO.itemTimepointMetric;
 			this.itemTimepointValue = iO.itemTimepointValue;
@@ -435,7 +438,7 @@ export class Outcome {
         }
 	}
 
-    private SetCalculatedValues() {
+    public SetCalculatedValues() {
 		
 		this.SetEffectSizes();
 		switch (this.outcomeTypeId) {
@@ -1073,13 +1076,23 @@ export class Outcome {
     }
 	outcomeId: number = 0;
 	itemSetId: number = 0;
-	outcomeTypeName: string = "";
-	private _outcomeTypeId: number = 0;
+	private OutcomeTypeName: string = "Manual entry";
+	public get outcomeTypeName(): string {
+
+		return this.OutcomeTypeName;
+	}
+	public set outcomeTypeName(val: string) {
+
+		this.OutcomeTypeName = val;
+	}
+	private OutcomeTypeId: number = 0;
 	public get outcomeTypeId(): number {
-		return this._outcomeTypeId;
+
+		return this.OutcomeTypeId;
 	}
 	public set outcomeTypeId(val: number) {
-		this._outcomeTypeId = val;
+
+		this.OutcomeTypeId = val;
 		this.SetCalculatedValues();
 	}
 	NRows: number = 0;
@@ -1097,10 +1110,10 @@ export class Outcome {
 	title: string = "";
     shortTitle: string = "";
     timepointDisplayValue: string = "";
-	outcomeDescription: string = "";
+	OutcomeDescription: string = "";
     private Data1: number = 0;
     public get data1(): number {
-        return Number(this.Data1);
+		return Number(this.Data1);
     }
     public set data1(val: number) {
         this.Data1 = val;
@@ -1132,7 +1145,7 @@ export class Outcome {
 	}
 	private Data5: number = 0;
 	public get data5(): number {
-		return this.Data5;
+		return Number(this.Data5);
 	}
 	public set data5(val: number) {
 		this.Data5 = val;
@@ -1212,7 +1225,7 @@ export class Outcome {
 	}
 	interventionText: string = "";
 	controlText: string = "";
-	outcomeText: string = "";
+	OutcomeText: string = "";
 	feWeight: number = 0;
 	reWeight: number = 0;
 	smd: number = 0;
@@ -1702,6 +1715,6 @@ export class StatFunctions {
 			return (Math.log(2.5066282746310005 * ser / x) - tmp);
 		}
 
-	private constructor() { /* no */ }
+	private constructor() { /* This works; without this line you can instanitate */ }
 
 }

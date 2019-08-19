@@ -77,9 +77,9 @@
 					<label class="col-md-2">Outcome Description</label>
 					<input #outcomeDescriptionModel="ngModel"
 						   required minlength="3"
-						   value="currentOutcome.outcomeDescription"
+						   value="currentOutcome.OutcomeDescription"
 						   pattern="^(?!\s*$).+"
-						   [(ngModel)]="currentOutcome.outcomeDescription"
+						   [(ngModel)]="currentOutcome.OutcomeDescription"
 						   type="text" class="form-control col-md-8  form-input" />
 				</div>
 				<div class="row col-md-12">
@@ -207,14 +207,14 @@
 				<div class="row col-md-12 p-1 m-1 ">
 
 					<div class="row col-md-4 p-0 m-0">
-						<label class="col-md-3">{{currentOutcome.data1Desc}}</label>
+						<label class="col-md-3">{{currentOutcome.Data1Desc}}</label>
 						<input class="form-control col-md-4" #group1NModel="ngModel"
 							   [(ngModel)]="currentOutcome.data1"
 							   value="currentOutcome.data1"
 							   type="text" />
 					</div>
 					<div class="row col-md-4 p-0 m-0">
-						<label class="col-md-3">{{currentOutcome.data2Desc}}</label>
+						<label class="col-md-3">{{currentOutcome.Data2Desc}}</label>
 						<input class="form-control col-md-4" #group2NModel="ngModel"
 							   [(ngModel)]="currentOutcome.data2"
 							   value="currentOutcome.data2"
@@ -222,7 +222,7 @@
 					</div>
 					<div class="row col-md-4 p-0 m-0"
 						 *ngIf="currentOutcome.outcomeTypeId != 7">
-						<label class="col-md-3">{{currentOutcome.data3Desc}}</label>
+						<label class="col-md-3">{{currentOutcome.Data3Desc}}</label>
 						<input #group1MeanModel="ngModel"
 							   [(ngModel)]="currentOutcome.data3"
 							   value="currentOutcome.data3"
@@ -231,7 +231,7 @@
 					<div class="row col-md-4 p-0 m-0"
 						 *ngIf="currentOutcome.outcomeTypeId != 7 ">
 
-						<label class="col-md-3">{{currentOutcome.data4Desc}}</label>
+						<label class="col-md-3">{{currentOutcome.Data4Desc}}</label>
 						<input #group2MeanModel="ngModel"
 							   [(ngModel)]="currentOutcome.data4"
 							   value="currentOutcome.data4"
@@ -242,7 +242,7 @@
 						 *ngIf="currentOutcome.outcomeTypeId != 7 && currentOutcome.outcomeTypeId != 6
 						 && currentOutcome.outcomeTypeId != 5 && currentOutcome.outcomeTypeId != 2">
 
-						<label class="col-md-3">{{currentOutcome.data5Desc}}</label>
+						<label class="col-md-3">{{currentOutcome.Data5Desc}}</label>
 						<input #group1SDModel="ngModel"
 							   [(ngModel)]="currentOutcome.data5"
 							   value="currentOutcome.data5"
@@ -252,7 +252,7 @@
 						 *ngIf="currentOutcome.outcomeTypeId != 7 && currentOutcome.outcomeTypeId != 6
 						 && currentOutcome.outcomeTypeId != 5 && currentOutcome.outcomeTypeId != 2">
 
-						<label class="col-md-3">{{currentOutcome.data6Desc}}</label>
+						<label class="col-md-3">{{currentOutcome.Data6Desc}}</label>
 						<input #group2SDModel="ngModel"
 							   [(ngModel)]="currentOutcome.data6"
 							   value="currentOutcome.data6"
@@ -265,7 +265,7 @@
 						 && currentOutcome.outcomeTypeId != 5 && currentOutcome.outcomeTypeId != 3
 						 && currentOutcome.outcomeTypeId != 2 && currentOutcome.outcomeTypeId != 1">
 
-						<label class="col-md-3">{{currentOutcome.data7Desc}}</label>
+						<label class="col-md-3">{{currentOutcome.Data7Desc}}</label>
 						<input #group2SDModel="ngModel"
 							   [(ngModel)]="currentOutcome.data7"
 							   value="currentOutcome.data7"
@@ -277,7 +277,7 @@
 						 && currentOutcome.outcomeTypeId != 5 && currentOutcome.outcomeTypeId != 3
 						 && currentOutcome.outcomeTypeId != 2 && currentOutcome.outcomeTypeId != 1">
 
-						<label class="col-md-3">{{currentOutcome.data8Desc}}</label>
+						<label class="col-md-3">{{currentOutcome.Data8Desc}}</label>
 						<input #group2SDModel="ngModel"
 							   [(ngModel)]="currentOutcome.data8"
 							   value="currentOutcome.data8"
@@ -290,7 +290,7 @@
 						 && currentOutcome.outcomeTypeId != 3 && currentOutcome.outcomeTypeId != 2
 						 && currentOutcome.outcomeTypeId != 1 && currentOutcome.outcomeTypeId != 0">
 
-						<label class="col-md-3">{{currentOutcome.data9Desc}}</label>
+						<label class="col-md-3">{{currentOutcome.Data9Desc}}</label>
 						<input #group2SDModel="ngModel"
 							   [(ngModel)]="currentOutcome.data9"
 							   value="currentOutcome.data9"
@@ -302,7 +302,7 @@
 						 && currentOutcome.outcomeTypeId != 5 && currentOutcome.outcomeTypeId != 4
 						 && currentOutcome.outcomeTypeId != 3 && currentOutcome.outcomeTypeId != 2
 						 && currentOutcome.outcomeTypeId != 1 && currentOutcome.outcomeTypeId != 0">
-						<label class="col-md-3">{{currentOutcome.data10Desc}}</label>
+						<label class="col-md-3">{{currentOutcome.Data10Desc}}</label>
 						<input #group2SDModel="ngModel"
 							   [(ngModel)]="currentOutcome.data10"
 							   value="currentOutcome.data10"
@@ -315,7 +315,7 @@
 						 && currentOutcome.outcomeTypeId != 3 && currentOutcome.outcomeTypeId != 2
 						 && currentOutcome.outcomeTypeId != 1">
 
-						<label class="col-md-3">{{currentOutcome.data11Desc}}</label>
+						<label class="col-md-3">{{currentOutcome.Data11Desc}}</label>
 						<input #group2SDModel="ngModel"
 							   [(ngModel)]="currentOutcome.data11"
 							   value="currentOutcome.data11"
@@ -328,7 +328,7 @@
 						 && currentOutcome.outcomeTypeId != 3 && currentOutcome.outcomeTypeId != 2
 						 && currentOutcome.outcomeTypeId != 1">
 
-						<label class="col-md-3">{{currentOutcome.data12Desc}}</label>
+						<label class="col-md-3">{{currentOutcome.Data12Desc}}</label>
 						<input #group2SDModel="ngModel"
 							   [(ngModel)]="currentOutcome.data12"
 							   value="currentOutcome.data12"
@@ -341,7 +341,7 @@
 						 && currentOutcome.outcomeTypeId != 3 && currentOutcome.outcomeTypeId != 2
 						 && currentOutcome.outcomeTypeId != 1">
 
-						<label class="col-md-3">{{currentOutcome.data13Desc}}</label>
+						<label class="col-md-3">{{currentOutcome.Data13Desc}}</label>
 						<input #group2SDModel="ngModel"
 							   [(ngModel)]="currentOutcome.data13"
 							   value="currentOutcome.data13"
@@ -353,7 +353,7 @@
 						 && currentOutcome.outcomeTypeId != 5 && currentOutcome.outcomeTypeId != 4
 						 && currentOutcome.outcomeTypeId != 3 && currentOutcome.outcomeTypeId != 2
 						 && currentOutcome.outcomeTypeId != 1">
-						<label class="col-md-3">{{currentOutcome.data14Desc}}</label>
+						<label class="col-md-3">{{currentOutcome.Data14Desc}}</label>
 						<input #group2SDModel="ngModel"
 							   [(ngModel)]="currentOutcome.data14"
 							   value="currentOutcome.data14"

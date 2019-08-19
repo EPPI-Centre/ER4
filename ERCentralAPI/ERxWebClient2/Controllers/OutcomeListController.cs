@@ -97,6 +97,7 @@ namespace ERxWebClient2.Controllers
 					OutcomeItemList result = dp.Fetch(criteria);
 					Outcome editOutcome = result.FirstOrDefault(x => x.OutcomeId == outcomeId);
 
+					// this line is wishful thinking...
 					outcomeData.Populate(editOutcome);
 					editOutcome = editOutcome.Save();
 

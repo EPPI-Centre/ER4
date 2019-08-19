@@ -173,6 +173,8 @@ export class OutcomesComponent implements OnInit, OnDestroy, AfterViewInit {
 		this.ShowOutcomesStatistics = true;
 		this.ShowOutcomesList = false;
 		this.currentOutcome = outcome;
+		console.log('pressed edit outcome:');
+		console.log(outcome);
 	}
 	removeWarning(outcome: Outcome, key: number) {
 
@@ -248,6 +250,7 @@ export class OutcomesComponent implements OnInit, OnDestroy, AfterViewInit {
 		this.currentOutcome = new Outcome();
 		this.ShowOutcomesStatistics = true;
 		this.ShowOutcomesList = false;
+		this.currentOutcome.SetCalculatedValues();
 	}
 	ClearAndCancelSave() {
 		this.ShowOutcomesStatistics = false;
