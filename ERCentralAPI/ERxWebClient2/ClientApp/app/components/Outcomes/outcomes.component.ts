@@ -168,13 +168,17 @@ export class OutcomesComponent implements OnInit, OnDestroy, AfterViewInit {
 	public get HasWriteRights(): boolean {
 		return this._ReviewerIdentityServ.HasWriteRights;
 	}
+	public printstuff() {
+
+		var ans = this.currentOutcome;//.OutcomeCodes.outcomeItemAttributesList;
+		console.log(JSON.stringify(ans));
+	}
 	public editOutcome(outcome: Outcome, key: number) {
 
 		this.ShowOutcomesStatistics = true;
 		this.ShowOutcomesList = false;
 		this.currentOutcome = outcome;
-		console.log('pressed edit outcome:');
-		console.log(outcome);
+		console.log(JSON.stringify(this.currentOutcome));
 	}
 	removeWarning(outcome: Outcome, key: number) {
 
@@ -230,6 +234,8 @@ export class OutcomesComponent implements OnInit, OnDestroy, AfterViewInit {
 					);
 
 			} else {
+
+				// Populate the outcome codes here
 				this._OutcomesService.Updateoutcome(this.currentOutcome);
 			}
 		}
@@ -258,6 +264,7 @@ export class OutcomesComponent implements OnInit, OnDestroy, AfterViewInit {
 	}
 	ClearAndCancelEdit() {
 		this.ShowOutcomesList = false;
+		this._OutcomesService.outcomesChangedEE.emit();
 	}
 	Clear() {
 

@@ -45,6 +45,7 @@
 
   <ItemGroup>
     <None Remove="ClientApp\app\components\helpers\HelperMethods.ts" />
+    <None Remove="ClientApp\app\components\helpers\StatisticsMethods.ts" />
     <None Remove="ClientApp\app\components\services\ReviewSetsEditing.service.ts" />
   </ItemGroup>
 
@@ -115,6 +116,7 @@
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\Outcome.cs" Link="Models\Outcome.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\OutcomeItemAttribute.cs" Link="Models\OutcomeItemAttribute.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\OutcomeItemAttributeList.cs" Link="Models\OutcomeItemAttributeList.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\OutcomeItemAttributesSaveCommand.cs" Link="Models\OutcomeItemAttributesSaveCommand.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\OutcomeItemList.cs" Link="Models\OutcomeItemList.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\PerformClusterCommand.cs" Link="Models\PerformClusterCommand.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\PerformRandomAllocateCommand.cs" Link="Models\PerformRandomAllocateCommand.cs" />
@@ -215,6 +217,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <TypeScriptCompile Include="ClientApp\app\components\helpers\StatisticsMethods.ts" />
     <TypeScriptCompile Include="ClientApp\app\components\helpers\HelperMethods.ts" />
     <TypeScriptCompile Include="ClientApp\app\components\services\ReviewSetsEditing.service.ts" />
   </ItemGroup>

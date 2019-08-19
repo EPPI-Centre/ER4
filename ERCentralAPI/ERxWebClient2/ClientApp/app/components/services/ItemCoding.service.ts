@@ -773,7 +773,7 @@ export class ItemCodingService extends BusyAwareService {
         }
 
         retVal += "<td>";
-        for(let OIA of o.outcomeCodes.outcomeItemAttributesList)
+        for(let OIA of o.OutcomeCodes.outcomeItemAttributesList)
         {
             retVal += OIA.attributeName + "<br style='mso-data-placement:same-cell;' >";
         }

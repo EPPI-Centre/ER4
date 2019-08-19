@@ -49,11 +49,11 @@
 	</div>
 	<div *ngIf="ShowOutcomesStatistics && outcome != null" class="col-md-12 row card p-0 m-0">
 		<div class="card container-fluid mt-1 bg-light border border-primary rounded m-1 p-1">
-			<div class=" col-md-12 small" >
-				<div  class="row col-md-12">
+			<div class=" col-md-12 small">
+				<div class="row col-md-12">
 					<div class="col-md-6 row form-field">
 						<label class="col-md-3">Title</label>
-						<input  #titleModel="ngModel" placeholder="Title" [(ngModel)]="currentOutcome.title"
+						<input #titleModel="ngModel" placeholder="Title" [(ngModel)]="currentOutcome.title"
 							   required minlength="3"
 							   value="currentOutcome.title"
 							   pattern="^(?!\s*$).+"
@@ -168,44 +168,25 @@
 				</div>
 
 				<!-- Need 8 sections here for the different outcomeTypes that can occur
-				/* Meta-analysis types:
-				*     0: Continuous: d (Hedges g)
-				*     1: Continuous: r
-				*     2: Binary: odds ratio
-				*     3: Binary: risk ratio
-				*     4: Binary: risk difference
-				*     5: Binary: diagnostic test OR
-				*     6: Binary: Peto OR
-				*     7: Continuous: mean difference
-				*/
-					-->
-				<!--<div *ngIf="currentOutcome.outcomeTypeId == 0">
-					<p>manual entry currentOutcome.outcomeTypeId == 0</p>
-				</div>
-				<div *ngIf="currentOutcome.outcomeTypeId == 1">
-					<p>Continuous: n, mean, SD currentOutcome.outcomeTypeId == 1</p>
-				</div>
-				<div *ngIf="currentOutcome.outcomeTypeId == 2">
-					<p>binary 2 x 2 table currentOutcome.outcomeTypeId == 2</p>
-				</div>
-				<div *ngIf="currentOutcome.outcomeTypeId == 3">
-					<p>n, mean SE currentOutcome.outcomeTypeId == 3</p>
-				</div>
-				<div *ngIf="currentOutcome.outcomeTypeId == 4">
-					<p>n, mean CI currentOutcome.outcomeTypeId == 4</p>
-				</div>
-				<div *ngIf="currentOutcome.outcomeTypeId == 5">
-					<p>N, t- or p-value currentOutcome.outcomeTypeId == 5</p>
-				</div>
-				<div *ngIf="currentOutcome.outcomeTypeId == 6">
-					<p>diagnostic binary 2 x 2 table currentOutcome.outcomeTypeId == 6</p>
-				</div>
-				<div *ngIf="currentOutcome.outcomeTypeId == 7">
-					<p>correlation coefficient r currentOutcome.outcomeTypeId == 7</p>
-				</div>-->
+	/* Meta-analysis types:
+	*     0: Continuous: d (Hedges g)
+	*     1: Continuous: r
+	*     2: Binary: odds ratio
+	*     3: Binary: risk ratio
+	*     4: Binary: risk difference
+	*     5: Binary: diagnostic test OR
+	*     6: Binary: Peto OR
+	*     7: Continuous: mean difference
+	*/
 
-				<div class="row col-md-12 p-1 m-1 ">
+						<div *ngFor="let code of currentOutcome.OutcomeCodes.outcomeItemAttributesList">
+						{{code.attributeName}}
+					</div>
 
+					<button (click)="printstuff()"></button>
+		-->
+
+			<div class="row col-md-12 p-1 m-1 ">
 					<div class="row col-md-4 p-0 m-0">
 						<label class="col-md-3">{{currentOutcome.Data1Desc}}</label>
 						<input class="form-control col-md-4" #group1NModel="ngModel"
@@ -366,7 +347,7 @@
 						<p class="col-md-2">{{currentOutcome.sees}}</p>
 					</div>
 				</div>
-				</div>
+			</div>
 				<div class="row col-md-12">
 					<button [disabled]="!HasWriteRights && !IsServiceBusy"
 							class="btn btn-sm btn-primary mt-1 p-1 m-1 col-md-2"
