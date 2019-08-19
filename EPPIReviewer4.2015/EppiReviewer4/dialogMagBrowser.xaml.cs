@@ -52,7 +52,7 @@ namespace EppiReviewer4
                     CurrentBrowsePosition = mbhl.Count + 1; // otherwise we leave it where it is (i.e. user has navigated 'back')
                 }
             }
-            AddToBrowseHistory("Summary page", "Summary", 0, "", "", 0, "");
+            AddToBrowseHistory("Summary page", "Summary", 0, "", "", 0, "", "");
             ShowSummaryPage();
         }
 
@@ -67,7 +67,7 @@ namespace EppiReviewer4
                     CurrentBrowsePosition = mbhl.Count + 1; // otherwise we leave it where it is (i.e. user has navigated 'back')
                 }
             }
-            AddToBrowseHistory("View browse history", "History", 0, "", "", 0, "");
+            AddToBrowseHistory("View browse history", "History", 0, "", "", 0, "", "");
             ShowHistoryPage();
         }
 
@@ -241,6 +241,26 @@ namespace EppiReviewer4
             provider.Refresh();
         }
 
+        private void ShowAllWithThisCode(string AttributeIds)
+        {
+            StatusGrid.Visibility = Visibility.Collapsed;
+            PaperGrid.Visibility = Visibility.Collapsed;
+            TopicsGrid.Visibility = Visibility.Collapsed;
+            PaperListGrid.Visibility = Visibility.Visible;
+            HistoryGrid.Visibility = Visibility.Collapsed;
+
+            CslaDataProvider provider = this.Resources["PaperListData"] as CslaDataProvider;
+            provider.FactoryParameters.Clear();
+            MagPaperListSelectionCriteria selectionCriteria = new MagPaperListSelectionCriteria();
+            selectionCriteria.PageSize = 20;
+            selectionCriteria.PageNumber = 0;
+            selectionCriteria.ListType = "ReviewMatchedPapersWithThisCode";
+            selectionCriteria.AttributeIds = AttributeIds;
+            provider.FactoryParameters.Add(selectionCriteria);
+            provider.FactoryMethod = "GetMagPaperList";
+            provider.Refresh();
+        }
+
         // *********************************** Topic page *********************************
         private void ShowTopicPage(Int64 FieldOfStudyId, string FieldOfStudy)
         {
@@ -290,7 +310,7 @@ namespace EppiReviewer4
                     CurrentBrowsePosition = mbhl.Count + 1; // otherwise we leave it where it is (i.e. user has navigated 'back')
                 }
             }
-            AddToBrowseHistory("List of all included matches", "MatchesIncluded", 0, "", "", 0, "");
+            AddToBrowseHistory("List of all included matches", "MatchesIncluded", 0, "", "", 0, "", "");
             ShowIncludedMatchesPage("included");
         }
 
@@ -305,8 +325,81 @@ namespace EppiReviewer4
                     CurrentBrowsePosition = mbhl.Count + 1; // otherwise we leave it where it is (i.e. user has navigated 'back')
                 }
             }
-            AddToBrowseHistory("List of all excluded matches", "MatchesExcluded", 0, "", "", 0, "");
+            AddToBrowseHistory("List of all excluded matches", "MatchesExcluded", 0, "", "", 0, "", "");
             ShowIncludedMatchesPage("excluded");
+        }
+
+        private void LBListAllInReview_Click(object sender, RoutedEventArgs e)
+        {
+            CslaDataProvider provider = this.Resources["HistoryListData"] as CslaDataProvider;
+            if (provider != null)
+            {
+                MagBrowseHistoryList mbhl = provider.Data as MagBrowseHistoryList;
+                if (mbhl != null)
+                {
+                    CurrentBrowsePosition = mbhl.Count + 1; // otherwise we leave it where it is (i.e. user has navigated 'back')
+                }
+            }
+            AddToBrowseHistory("List of all matches in review (included and excluded)", "MatchesIncludedAndExcluded", 0, "", "", 0, "", "");
+            ShowIncludedMatchesPage("all");
+        }
+
+        private void LBListAllRelatedToItemsWithThisCode_Click(object sender, RoutedEventArgs e)
+        {
+            if (RowCodesSelect.MaxHeight == 0)
+            {
+                RowCodesSelect.MaxHeight = 40;
+                LBListAllRelatedToItemsWithThisCode.Content = "";
+                LBListAllRelatedToItemsWithThisCode.Content = "Select code below (click to hide)";
+            }
+            else
+            {
+                RowCodesSelect.MaxHeight = 0;
+                LBListAllRelatedToItemsWithThisCode.Content = "";
+                LBListAllRelatedToItemsWithThisCode.Content = "List all Microsoft Academic records with this code";
+            }
+        }
+
+        private void LBListAllRelatedItemsWithThisCode_Click(object sender, RoutedEventArgs e)
+        {
+            string attributeIDs = "";
+            string attributeNames = "";
+            if ((codesSelectControlMAGSelect.SelectedAttributeSet() == null) && codesSelectControlMAGSelect.SelectedAttributes().Count == 0)
+            {
+                MessageBox.Show("Please select one or more codes");
+            }
+            else
+            {
+                if (codesSelectControlMAGSelect.SelectedAttributes().Count == 0)
+                {
+                    attributeIDs = codesSelectControlMAGSelect.SelectedAttributeSet().AttributeSetId.ToString();
+                    attributeNames = codesSelectControlMAGSelect.SelectedAttributeSet().AttributeName.ToString();
+                }
+                foreach (AttributeSet attribute in codesSelectControlMAGSelect.SelectedAttributes())
+                {
+                    if (attributeIDs == "")
+                    {
+                        attributeIDs = attribute.AttributeSetId.ToString();
+                        attributeNames = attribute.AttributeName;
+                    }
+                    else
+                    {
+                        attributeIDs += "," + attribute.AttributeSetId.ToString();
+                        attributeNames += ", OR " + attribute.AttributeName;
+                    }
+                }
+                CslaDataProvider provider = this.Resources["HistoryListData"] as CslaDataProvider;
+                if (provider != null)
+                {
+                    MagBrowseHistoryList mbhl = provider.Data as MagBrowseHistoryList;
+                    if (mbhl != null)
+                    {
+                        CurrentBrowsePosition = mbhl.Count + 1; // otherwise we leave it where it is (i.e. user has navigated 'back')
+                    }
+                }
+                AddToBrowseHistory("List of all item matches with this code", "ReviewMatchedPapersWithThisCode", 0, "", "", 0, "", attributeIDs);
+                ShowAllWithThisCode(attributeIDs);
+            }
         }
 
         private void LBManualCheckIncluded_Click(object sender, RoutedEventArgs e)
@@ -330,7 +423,7 @@ namespace EppiReviewer4
                     CurrentBrowsePosition = mbhl.Count + 1; 
                 }
             }
-            AddToBrowseHistory("List of all selected papers", "SelectedPapers", 0, "", "", 0, "");
+            AddToBrowseHistory("List of all selected papers", "SelectedPapers", 0, "", "", 0, "", "");
             ShowSelectedPapersPage();
         }
 
@@ -415,7 +508,7 @@ namespace EppiReviewer4
             if (hl != null)
             {
                 AddToBrowseHistory("Browse topic: " + hl.Content.ToString(), "BrowseTopic", 0, "", "",
-                    Convert.ToInt64(hl.Tag), hl.Content.ToString());
+                    Convert.ToInt64(hl.Tag), hl.Content.ToString(), "");
                 ShowTopicPage(Convert.ToInt64(hl.Tag), hl.Content.ToString());
             }
         }
@@ -478,7 +571,7 @@ namespace EppiReviewer4
                 }
             }
             AddToBrowseHistory("Browse paper: " + paper.FullRecord, "PaperDetail", paper.PaperId, paper.FullRecord,
-                paper.Abstract, 0, "");
+                paper.Abstract, 0, "", "");
             ShowPaperDetailsPage(paper.PaperId, paper.FullRecord, paper.Abstract);
         }
 
@@ -493,15 +586,20 @@ namespace EppiReviewer4
             selectionCriteria.PageSize = 20;
             selectionCriteria.PageNumber = e.NewPageIndex;
 
-            if (mpl.PaperIds == "")
+            if (mpl.PaperIds == "" && mpl.AttributeIds == "")
             {
                 selectionCriteria.ListType = "ReviewMatchedPapers";
                 selectionCriteria.Included = mpl.IncludedOrExcluded;
             }
-            else
+            else if (mpl.PaperIds != "")
             {
                 selectionCriteria.ListType = "PaperListById";
                 selectionCriteria.PaperIds = mpl.PaperIds;
+            }
+            else if (mpl.AttributeIds != "")
+            {
+                selectionCriteria.ListType = "ReviewMatchedPapersWithThisCode";
+                selectionCriteria.AttributeIds = mpl.AttributeIds;
             }
             provider.FactoryParameters.Add(selectionCriteria);
             provider.FactoryMethod = "GetMagPaperList";
@@ -591,7 +689,7 @@ namespace EppiReviewer4
 
         // ***************************** Keeping track of, and navigating within, browsing history ***************************************
         private void AddToBrowseHistory(string title, string browseType, Int64 PaperId, string PaperFullRecord,
-            string PaperAbstract, Int64 FieldOfStudyId, string FieldOfStudy)
+            string PaperAbstract, Int64 FieldOfStudyId, string FieldOfStudy, string AttributeIds)
         {
             MagBrowseHistory mbh = new MagBrowseHistory();
             mbh.Title = title;
@@ -601,6 +699,7 @@ namespace EppiReviewer4
             mbh.PaperAbstract = PaperAbstract;
             mbh.FieldOfStudyId = FieldOfStudyId;
             mbh.FieldOfStudy = FieldOfStudy;
+            mbh.AttributeIds = AttributeIds;
             ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
             mbh.ContactId = ri.UserId;
             mbh.DateBrowsed = DateTime.Now;
@@ -662,6 +761,12 @@ namespace EppiReviewer4
                                 break;
                             case "MatchesExcluded":
                                 ShowIncludedMatchesPage("excluded");
+                                break;
+                            case "MatchesIncludedAndExcluded":
+                                ShowIncludedMatchesPage("all");
+                                break;
+                            case "ReviewMatchedPapersWithThisCode":
+                                ShowAllWithThisCode(mbh.AttributeIds);
                                 break;
                             case "BrowseTopic":
                                 ShowTopicPage(mbh.FieldOfStudyId, mbh.FieldOfStudy);
@@ -898,6 +1003,10 @@ namespace EppiReviewer4
                     }
                 }
             }
+            else
+            {
+                WPFindTopics.Children.Clear();
+            }
         }
 
         private void Timer_Tick(object sender, EventArgs e)
@@ -941,6 +1050,12 @@ namespace EppiReviewer4
                 WPFindTopics.Children.Clear();
             }
         }
+
+        
+
+
+
+
 
 
         // 88888888888888888888888888888 NOT IMPLEMENTED YET 8888888888888888888888888888888888888888

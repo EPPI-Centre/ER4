@@ -278,6 +278,19 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
+        private string _AttributeIds;
+        public string AttributeIds
+        {
+            get
+            {
+                return _AttributeIds;
+            }
+            set
+            {
+                _AttributeIds = value;
+            }
+        }
+
         protected override void OnSetState(Csla.Serialization.Mobile.SerializationInfo info)
         {
             base.OnSetState(info);
@@ -292,6 +305,7 @@ namespace BusinessLibrary.BusinessClasses
             _MagRelatedRunId = info.GetValue<Int64>("_MagRelatedRunId");
             _PaperIds = info.GetValue<string>("_PaperIds");
             _IncludedOrExcluded = info.GetValue<string>("_IncludedOrExcluded");
+            _AttributeIds = info.GetValue<string>("_AttributeIds");
         }
 
         protected override void OnGetState(Csla.Serialization.Mobile.SerializationInfo info)
@@ -308,6 +322,7 @@ namespace BusinessLibrary.BusinessClasses
             info.AddValue("_MagRelatedRunId", _MagRelatedRunId);
             info.AddValue("_PaperIds", _PaperIds);
             info.AddValue("_IncludedOrExcluded", _IncludedOrExcluded);
+            info.AddValue("_AttributeIds", _AttributeIds);
         }
 
 
@@ -360,6 +375,13 @@ namespace BusinessLibrary.BusinessClasses
                     command.CommandType = System.Data.CommandType.StoredProcedure;
                     command.Parameters.Add(new SqlParameter("@INCLUDED", criteria.Included));
                     this.IncludedOrExcluded = criteria.Included;
+                    this.PaperIds = ""; // probably unnecessary, but just in case...
+                    break;
+                case "ReviewMatchedPapersWithThisCode":
+                    command = new SqlCommand("st_ReviewMatchedPapersWithThisCode", connection);
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@ATTRIBUTE_IDS", criteria.AttributeIds));
+                    this.AttributeIds = criteria.AttributeIds;
                     this.PaperIds = ""; // probably unnecessary, but just in case...
                     break;
                 case "ItemMatchedPapersList":
@@ -501,6 +523,16 @@ namespace BusinessLibrary.BusinessClasses
             set
             {
                 SetProperty(PaperIdsProperty, value);
+            }
+        }
+
+        public static readonly PropertyInfo<string> AttributeIdsProperty = RegisterProperty<string>(typeof(MagPaperListSelectionCriteria), new PropertyInfo<string>("AttributeIds", "AttributeIds", ""));
+        public string AttributeIds
+        {
+            get { return ReadProperty(AttributeIdsProperty); }
+            set
+            {
+                SetProperty(AttributeIdsProperty, value);
             }
         }
 

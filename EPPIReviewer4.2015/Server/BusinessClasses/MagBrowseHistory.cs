@@ -147,6 +147,19 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
+        private static PropertyInfo<string> AttributeIdsProperty = RegisterProperty<string>(new PropertyInfo<string>("AttributeIds", "AttributeIds", string.Empty));
+        public string AttributeIds
+        {
+            get
+            {
+                return GetProperty(AttributeIdsProperty);
+            }
+            set
+            {
+                SetProperty(AttributeIdsProperty, value);
+            }
+        }
+
 
 
         //protected override void AddAuthorizationRules()

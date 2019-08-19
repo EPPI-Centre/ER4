@@ -10,6 +10,7 @@
     xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
     xmlns:cslaXAML="clr-namespace:Csla.Xaml;assembly=Csla.Xaml"
     xmlns:dpager="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Controls.Data"
+    xmlns:local="clr-namespace:EppiReviewer4;assembly=EppiReviewer4"
     mc:Ignorable="d"
     xmlns:helper="clr-namespace:EppiReviewer4.Helpers"
     d:DesignHeight="800" d:DesignWidth="1000">
@@ -138,6 +139,7 @@
                 <RowDefinition Height="40"></RowDefinition>
                 <RowDefinition Height="40"></RowDefinition>
                 <RowDefinition Height="40"></RowDefinition>
+                <RowDefinition MaxHeight="0" x:Name="RowCodesSelect"></RowDefinition>
                 <RowDefinition Height="40"></RowDefinition>
                 <RowDefinition Height="*"></RowDefinition>
             </Grid.RowDefinitions>
@@ -159,12 +161,13 @@
             <TextBlock Grid.Column="0" Grid.Row="4" Text="ACTIONS: " HorizontalAlignment="Left" Margin="5,5,5,5"></TextBlock>
             <HyperlinkButton x:Name="LBMatchAllIncluded" Grid.Column="0" Grid.Row="5" Content="Match all included items" Margin="20,5,5,5" HorizontalAlignment="Left"></HyperlinkButton>
 
-            <HyperlinkButton x:Name="LBListAllInReview" Grid.Column="0" Grid.Row="6" Content="List ALL Microsoft Academic records in your review" Margin="20,5,5,5" HorizontalAlignment="Left"></HyperlinkButton>
-            <HyperlinkButton x:Name="LBListAllWithThisCode" Grid.Column="0" Grid.Row="7" Content="List all Microsoft Academic records with this code" Margin="20,5,5,5" HorizontalAlignment="Left"></HyperlinkButton>
-            <HyperlinkButton x:Name="LBListAllRelatedToItemsWithThisCode" Grid.Column="0" Grid.Row="7" Content="List all Microsoft Academic records with this code" Margin="20,5,5,5" HorizontalAlignment="Left"></HyperlinkButton>
+            <HyperlinkButton x:Name="LBListAllInReview" Grid.Column="0" Grid.Row="6" Content="List ALL Microsoft Academic records in your review" Margin="20,5,5,5" HorizontalAlignment="Left" Click="LBListAllInReview_Click"></HyperlinkButton>
+            <HyperlinkButton x:Name="LBListAllRelatedToItemsWithThisCode" Grid.Column="0" Grid.Row="7" Content="List all Microsoft Academic records with this code" Margin="20,5,5,5" HorizontalAlignment="Left" Click="LBListAllRelatedToItemsWithThisCode_Click"></HyperlinkButton>
+            <local:codesSelectControl x:Name="codesSelectControlMAGSelect" Grid.Column="0" Grid.Row="8" Margin="20,5,5,5"></local:codesSelectControl>
+            <HyperlinkButton x:Name="LBListAllRelatedItemsWithThisCode" Grid.Column="1" Grid.Row="8" Margin="5,5,5,5" Content="Go!" Click="LBListAllRelatedItemsWithThisCode_Click"></HyperlinkButton>
 
-            <TextBox x:Name="tbFindTopics" Grid.Column="0" Grid.Row="8" Grid.ColumnSpan="2" Margin="5,5,5,0" TextChanged="tbFindTopics_TextChanged"></TextBox>
-            <ScrollViewer Grid.Column="0" Grid.Row="9" Grid.ColumnSpan="2" Margin="5,0,5,5" HorizontalScrollBarVisibility="Disabled"  VerticalScrollBarVisibility="Auto">
+            <TextBox x:Name="tbFindTopics" Grid.Column="0" Grid.Row="9" Grid.ColumnSpan="2" Margin="5,5,5,0" TextChanged="tbFindTopics_TextChanged"></TextBox>
+            <ScrollViewer Grid.Column="0" Grid.Row="10" Grid.ColumnSpan="2" Margin="5,0,5,5" HorizontalScrollBarVisibility="Disabled"  VerticalScrollBarVisibility="Auto">
                 <ToolkitRef:WrapPanel x:Name="WPFindTopics"  Orientation="Horizontal">
                     <TextBlock Margin="5,5,5,5" Text="Search for topics in the box above. Wildcards work e.g. physic*"></TextBlock>
                 </ToolkitRef:WrapPanel>
