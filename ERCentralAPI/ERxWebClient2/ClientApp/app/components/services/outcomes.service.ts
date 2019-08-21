@@ -174,14 +174,13 @@ export class OutcomesService extends BusyAwareService  {
 		this._BusyMethods.push("CreateOutcome");
 		let ErrMsg = "Something went wrong when creating an outcome. \r\n If the problem persists, please contact EPPISupport.";
 
-		return this._http.post<Outcome>(this._baseUrl + 'api/OutcomeList/Createoutcome',
+		return this._http.post<iOutcome>(this._baseUrl + 'api/OutcomeList/Createoutcome',
 
 			currentoutcome).toPromise()
 						.then(
 						(result) => {
 
-							var newOutcome: Outcome = new Outcome();
-							newOutcome = result;
+							var newOutcome: Outcome = new Outcome(result);
 							this.outcomesList.push(newOutcome);
 							
 							if (!result) this.modalService.GenericErrorMessage(ErrMsg);
@@ -212,16 +211,20 @@ export class OutcomesService extends BusyAwareService  {
 		this._BusyMethods.push("UpdateOutcome");
 		let ErrMsg = "Something went wrong when updating an outcome. \r\n If the problem persists, please contact EPPISupport.";
 
-		this._http.post<Outcome[]>(this._baseUrl + 'api/OutcomeList/UpdateOutcome',
+		this._http.post<iOutcome>(this._baseUrl + 'api/OutcomeList/UpdateOutcome',
 
 			currentOutcome).subscribe(
 
-				(result) => {
+			(result) => {
 
-					if (!result) this.modalService.GenericErrorMessage(ErrMsg);
-					this.FetchOutcomes(currentOutcome.itemSetId);	
 					this.RemoveBusy("UpdateOutcome");
-					return result;
+					if (!result) {
+						this.modalService.GenericErrorMessage(ErrMsg);
+						this.FetchOutcomes(currentOutcome.itemSetId);
+						return;
+					}
+					var updateOutcome: Outcome = new Outcome(result);
+					return updateOutcome;
 				}
 				, (error) => {
 					this.FetchOutcomes(currentOutcome.itemSetId);		
@@ -237,11 +240,11 @@ export class OutcomesService extends BusyAwareService  {
 			let ErrMsg = "Something went wrong when deleting an outcome. \r\n If the problem persists, please contact EPPISupport.";
 
 		let body = JSON.stringify({ outcomeId: outcomeId, itemSetId: itemSetId  });		
-		this._http.post<any>(this._baseUrl + 'api/OutcomeList/DeleteOutcome',
+		this._http.post<iOutcome>(this._baseUrl + 'api/OutcomeList/DeleteOutcome',
 
 			body).subscribe(
 				(result) => {
-
+					
                     this.outcomesList.splice(key, 1);
 					if (!result) this.modalService.GenericErrorMessage(ErrMsg);
 					this.RemoveBusy("DeleteOutcome");
@@ -257,7 +260,6 @@ export class OutcomesService extends BusyAwareService  {
 					}
 				);
 	}
-
 
 }
 
