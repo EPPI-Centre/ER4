@@ -36,11 +36,11 @@
 				</tr>
 			</table>
 			<button [disabled]="!HasWriteRights"
-					class="btn btn-primary mt-1 p-1 m-1 col-md-2"
+					class="btn btn-primary mt-1 p-1 m-1"
 					(click)="CreateNewOutcome()">
 				New Outcome
 			</button>
-			<button class="btn btn-danger mt-1 p-1 m-1 col-md-2"
+			<button class="btn btn-danger mt-1 p-1 m-1"
 					(click)="ClearAndCancelEdit()">
 				Cancel
 			</button>
@@ -48,22 +48,22 @@
 		</div>
 	</div>
 	<div *ngIf="ShowOutcomesStatistics && outcome != null" class="col-md-12 row card p-0 m-0">
-		<div class="card container-fluid mt-1 bg-light border border-primary rounded m-1 p-1">
-			<div class=" col-md-12 small">
-				<div class="row col-md-12">
-					<div class="col-md-6 row form-field">
-						<label class="col-md-3">Title</label>
+		<div class="card container-fluid mt-1 bg-light border border-primary rounded  p-0 m-0">
+			<div class=" col-md-12 small p-0 m-0">
+				<div class="row col-md-12  p-0 m-0">
+					<div class="col-md-6 row p-1 m-0">
+						<label class="col-md-4">Title</label>
 						<input #titleModel="ngModel" placeholder="Title" [(ngModel)]="currentOutcome.title"
 							   required minlength="3"
 							   value="currentOutcome.title"
 							   pattern="^(?!\s*$).+"
 							   type="text" class="form-control col-md-8 form-input" />
 					</div>
-					<div class="col-md-6 row ">
-						<label class="col-md-3">Timepoint</label>
-						<div class="d-inline-block col-md-8">
+					<div class="col-md-6 row p-1 m-0">
+						<label class="col-md-4 ">Timepoint</label>
+						<div class="d-inline-block col-md-8 p-0 m-0">
 							<select #timePoint [(ngModel)]="currentOutcome.itemTimepointId"
-									class="form-control col-md-12">
+									class="form-control col-md-12 p-0 m-0">
 								<option [ngValue]="timepoint.itemTimepointId"
 										[selected]="timepoint.itemTimepointId == currentOutcome.itemTimepointId"
 										*ngFor="let timepoint of timePointsList">
@@ -73,19 +73,19 @@
 						</div>
 					</div>
 				</div>
-				<div class="row col-md-12  p-1 m-1">
-					<label class="col-md-2">Outcome Description</label>
+				<div class="row col-md-12 p-0 m-0">
+					<label class="col-md-4">Outcome Description</label>
 					<input #outcomeDescriptionModel="ngModel"
 						   required minlength="3"
 						   value="currentOutcome.OutcomeDescription"
 						   pattern="^(?!\s*$).+"
 						   [(ngModel)]="currentOutcome.OutcomeDescription"
-						   type="text" class="form-control col-md-8  form-input" />
+						   type="text" class="form-control col-md-8 form-input" />
 				</div>
-				<div class="row col-md-12">
-					<div class="col-md-6 row">
-						<label class="col-md-3">Outcome type</label>
-						<div ngbDropdown class="d-inline-block col-12 col-sm-6 col-md-8">
+				<div class="row col-md-12  p-0 m-0">
+					
+						<label class="col-md-4">Outcome type</label>
+						<div ngbDropdown class="d-inline-block col-12 col-sm-8 col-md-8">
 							<select #outcomeType [(ngModel)]="currentOutcome.outcomeTypeId"
 									class="form-control col-md-12">
 								<option [ngValue]="outcomeT.outcomeTypeId"
@@ -95,10 +95,11 @@
 								</option>
 							</select>
 						</div>
-					</div>
-					<div class="col-md-6 row">
-						<label class="col-md-3">Outcome</label>
-						<div ngbDropdown class="d-inline-block col-12 col-sm-6 col-md-8" placeholder="Outcomes">
+					
+				
+						<label class="col-md-4">Outcome</label>
+						<div ngbDropdown class="d-inline-block col-12 col-sm-8 col-md-8" 
+							 placeholder="Outcomes">
 							<select #outcomeDD [(ngModel)]="currentOutcome.itemAttributeIdOutcome"
 									class="form-control col-md-12">
 								<option [ngValue]="out.attributeId"
@@ -108,13 +109,14 @@
 								</option>
 							</select>
 						</div>
-					</div>
+					
 				</div>
-				<div class="row col-md-12">
-					<div class="col-md-6 row">
-						<label class="col-md-3">Intervention</label>
-						<div ngbDropdown class="d-inline-block col-12 col-sm-6 col-md-8">
-							<select #interventionDD="ngModel" [(ngModel)]="currentOutcome.itemAttributeIdIntervention"
+				<div class="row col-md-12  p-0 m-0">
+					
+						<label class="col-md-4">Intervention</label>
+						<div ngbDropdown class="d-inline-block col-12 col-sm-8 col-md-8">
+							<select #interventionDD="ngModel" 
+									[(ngModel)]="currentOutcome.itemAttributeIdIntervention"
 									class="form-control col-md-12">
 								<option [ngValue]="intervention.attributeId"
 										[selected]="intervention.attributeId == currentOutcome.itemAttributeIdIntervention"
@@ -123,11 +125,12 @@
 								</option>
 							</select>
 						</div>
-					</div>
-					<div class="col-md-6 row">
-						<label class="col-md-3">Comparison</label>
-						<div ngbDropdown class="d-inline-block col-12 col-sm-6 col-md-8">
-							<select #controlDD="ngModel" [(ngModel)]="currentOutcome.itemAttributeIdControl"
+					
+				
+						<label class="col-md-4">Comparison</label>
+						<div ngbDropdown class="d-inline-block col-12 col-sm-8 col-md-8">
+							<select #controlDD="ngModel"
+									[(ngModel)]="currentOutcome.itemAttributeIdControl"
 									class="form-control col-md-12">
 								<option [ngValue]="control.attributeId"
 										[selected]="control.attributeId == currentOutcome.itemAttributeIdControl"
@@ -136,12 +139,12 @@
 								</option>
 							</select>
 						</div>
-					</div>
+					
 				</div>
-				<div class="row col-md-12">
-					<div class="col-md-6 row">
-						<label class="col-md-3">Group 1 arm</label>
-						<div ngbDropdown class="d-inline-block col-12 col-sm-6 col-md-8">
+				<div class="row col-md-12 p-0 m-0">
+					
+						<label class="col-md-4">Group 1 arm</label>
+						<div ngbDropdown class="d-inline-block col-12 col-sm-8 col-md-8">
 							<select #GroupOneArm="ngModel" [(ngModel)]="currentOutcome.itemArmIdGrp1"
 									class="form-control col-md-12">
 								<option [ngValue]="arm.itemArmId"
@@ -151,10 +154,10 @@
 								</option>
 							</select>
 						</div>
-					</div>
-					<div class="col-md-6 row">
-						<label class="col-md-3">Group 2 arm</label>
-						<div ngbDropdown class="d-inline-block col-12 col-sm-6 col-md-8">
+				
+					
+						<label class="col-md-4">Group 2 arm</label>
+						<div ngbDropdown class="d-inline-block col-12 col-sm-8 col-md-8">
 							<select #GroupTwoArm="ngModel" [(ngModel)]="currentOutcome.itemArmIdGrp2"
 									class="form-control col-md-12">
 								<option [ngValue]="arm.itemArmId"
@@ -164,20 +167,20 @@
 								</option>
 							</select>
 						</div>
-					</div>
+					
 				</div>
 
 				<!-- Need 8 sections here for the different outcomeTypes that can occur
-	/* Meta-analysis types:
-	*     0: Continuous: d (Hedges g)
-	*     1: Continuous: r
-	*     2: Binary: odds ratio
-	*     3: Binary: risk ratio
-	*     4: Binary: risk difference
-	*     5: Binary: diagnostic test OR
-	*     6: Binary: Peto OR
-	*     7: Continuous: mean difference
-	*/
+					/* Meta-analysis types:
+					*     0: Continuous: d (Hedges g)
+					*     1: Continuous: r
+					*     2: Binary: odds ratio
+					*     3: Binary: risk ratio
+					*     4: Binary: risk difference
+					*     5: Binary: diagnostic test OR
+					*     6: Binary: Peto OR
+					*     7: Continuous: mean difference
+					*/
 
 						<div *ngFor="let code of currentOutcome.OutcomeCodes.outcomeItemAttributesList">
 						{{code.attributeName}}
@@ -186,58 +189,58 @@
 					<button (click)="printstuff()"></button>
 		-->
 
-			<div class="row col-md-12 p-1 m-1 ">
+			<div class="row col-md-12 p-1 m-0">
 					<div class="row col-md-4 p-0 m-0">
-						<label class="col-md-3">{{currentOutcome.Data1Desc}}</label>
-						<input class="form-control col-md-4" #group1NModel="ngModel"
+						<label class="col-md-6 small">{{currentOutcome.Data1Desc}}</label>
+						<input class="form-control col-md-6" #group1NModel="ngModel"
 							   [(ngModel)]="currentOutcome.data1"
 							   value="currentOutcome.data1"
 							   type="text" />
 					</div>
 					<div class="row col-md-4 p-0 m-0">
-						<label class="col-md-3">{{currentOutcome.Data2Desc}}</label>
-						<input class="form-control col-md-4" #group2NModel="ngModel"
+						<label class="col-md-6 small">{{currentOutcome.Data2Desc}}</label>
+						<input class="form-control col-md-6" #group2NModel="ngModel"
 							   [(ngModel)]="currentOutcome.data2"
 							   value="currentOutcome.data2"
 							   type="text" />
 					</div>
 					<div class="row col-md-4 p-0 m-0"
 						 *ngIf="currentOutcome.outcomeTypeId != 7">
-						<label class="col-md-3">{{currentOutcome.Data3Desc}}</label>
+						<label class="col-md-6 small">{{currentOutcome.Data3Desc}}</label>
 						<input #group1MeanModel="ngModel"
 							   [(ngModel)]="currentOutcome.data3"
 							   value="currentOutcome.data3"
-							   type="text" class="form-control col-md-4" />
+							   type="text" class="form-control col-md-6" />
 					</div>
 					<div class="row col-md-4 p-0 m-0"
 						 *ngIf="currentOutcome.outcomeTypeId != 7 ">
 
-						<label class="col-md-3">{{currentOutcome.Data4Desc}}</label>
+						<label class="col-md-6 small">{{currentOutcome.Data4Desc}}</label>
 						<input #group2MeanModel="ngModel"
 							   [(ngModel)]="currentOutcome.data4"
 							   value="currentOutcome.data4"
-							   type="text" class="form-control col-md-4" />
+							   type="text" class="form-control col-md-6" />
 					</div>
 
 					<div class="row col-md-4  p-0 m-0"
 						 *ngIf="currentOutcome.outcomeTypeId != 7 && currentOutcome.outcomeTypeId != 6
 						 && currentOutcome.outcomeTypeId != 5 && currentOutcome.outcomeTypeId != 2">
 
-						<label class="col-md-3">{{currentOutcome.Data5Desc}}</label>
+						<label class="col-md-6 small">{{currentOutcome.Data5Desc}}</label>
 						<input #group1SDModel="ngModel"
 							   [(ngModel)]="currentOutcome.data5"
 							   value="currentOutcome.data5"
-							   type="text" class="form-control col-md-4" />
+							   type="text" class="form-control col-md-6" />
 					</div>
 					<div class="row col-md-4 p-0 m-0"
 						 *ngIf="currentOutcome.outcomeTypeId != 7 && currentOutcome.outcomeTypeId != 6
 						 && currentOutcome.outcomeTypeId != 5 && currentOutcome.outcomeTypeId != 2">
 
-						<label class="col-md-3">{{currentOutcome.Data6Desc}}</label>
+						<label class="col-md-6 small">{{currentOutcome.Data6Desc}}</label>
 						<input #group2SDModel="ngModel"
 							   [(ngModel)]="currentOutcome.data6"
 							   value="currentOutcome.data6"
-							   type="text" class="form-control col-md-4" />
+							   type="text" class="form-control col-md-6" />
 
 					</div>
 
@@ -246,11 +249,11 @@
 						 && currentOutcome.outcomeTypeId != 5 && currentOutcome.outcomeTypeId != 3
 						 && currentOutcome.outcomeTypeId != 2 && currentOutcome.outcomeTypeId != 1">
 
-						<label class="col-md-3">{{currentOutcome.Data7Desc}}</label>
+						<label class="col-md-6 small">{{currentOutcome.Data7Desc}}</label>
 						<input #group2SDModel="ngModel"
 							   [(ngModel)]="currentOutcome.data7"
 							   value="currentOutcome.data7"
-							   type="text" class="form-control col-md-4" />
+							   type="text" class="form-control col-md-6" />
 					</div>
 
 					<div class="row col-md-4  p-0 m-0"
@@ -258,11 +261,11 @@
 						 && currentOutcome.outcomeTypeId != 5 && currentOutcome.outcomeTypeId != 3
 						 && currentOutcome.outcomeTypeId != 2 && currentOutcome.outcomeTypeId != 1">
 
-						<label class="col-md-3">{{currentOutcome.Data8Desc}}</label>
+						<label class="col-md-6 small">{{currentOutcome.Data8Desc}}</label>
 						<input #group2SDModel="ngModel"
 							   [(ngModel)]="currentOutcome.data8"
 							   value="currentOutcome.data8"
-							   type="text" class="form-control col-md-4" />
+							   type="text" class="form-control col-md-6" />
 					</div>
 
 					<div class="row col-md-4 p-0 m-0"
@@ -271,11 +274,11 @@
 						 && currentOutcome.outcomeTypeId != 3 && currentOutcome.outcomeTypeId != 2
 						 && currentOutcome.outcomeTypeId != 1 && currentOutcome.outcomeTypeId != 0">
 
-						<label class="col-md-3">{{currentOutcome.Data9Desc}}</label>
+						<label class="col-md-6 small">{{currentOutcome.Data9Desc}}</label>
 						<input #group2SDModel="ngModel"
 							   [(ngModel)]="currentOutcome.data9"
 							   value="currentOutcome.data9"
-							   type="text" class="form-control col-md-4" />
+							   type="text" class="form-control col-md-6" />
 					</div>
 
 					<div class="row col-md-4 p-0 m-0"
@@ -283,11 +286,11 @@
 						 && currentOutcome.outcomeTypeId != 5 && currentOutcome.outcomeTypeId != 4
 						 && currentOutcome.outcomeTypeId != 3 && currentOutcome.outcomeTypeId != 2
 						 && currentOutcome.outcomeTypeId != 1 && currentOutcome.outcomeTypeId != 0">
-						<label class="col-md-3">{{currentOutcome.Data10Desc}}</label>
+						<label class="col-md-6 small">{{currentOutcome.Data10Desc}}</label>
 						<input #group2SDModel="ngModel"
 							   [(ngModel)]="currentOutcome.data10"
 							   value="currentOutcome.data10"
-							   type="text" class="form-control col-md-4 small" />
+							   type="text" class="form-control col-md-6 small" />
 					</div>
 
 					<div class="row col-md-4 p-0 m-0"
@@ -296,11 +299,11 @@
 						 && currentOutcome.outcomeTypeId != 3 && currentOutcome.outcomeTypeId != 2
 						 && currentOutcome.outcomeTypeId != 1">
 
-						<label class="col-md-3">{{currentOutcome.Data11Desc}}</label>
+						<label class="col-md-6 small">{{currentOutcome.Data11Desc}}</label>
 						<input #group2SDModel="ngModel"
 							   [(ngModel)]="currentOutcome.data11"
 							   value="currentOutcome.data11"
-							   type="text" class="form-control col-md-4 small" />
+							   type="text" class="form-control col-md-6 small" />
 					</div>
 
 					<div class="row col-md-4 p-0 m-0"
@@ -309,11 +312,11 @@
 						 && currentOutcome.outcomeTypeId != 3 && currentOutcome.outcomeTypeId != 2
 						 && currentOutcome.outcomeTypeId != 1">
 
-						<label class="col-md-3">{{currentOutcome.Data12Desc}}</label>
+						<label class="col-md-6 small">{{currentOutcome.Data12Desc}}</label>
 						<input #group2SDModel="ngModel"
 							   [(ngModel)]="currentOutcome.data12"
 							   value="currentOutcome.data12"
-							   type="text" class="form-control col-md-4 small" />
+							   type="text" class="form-control col-md-6 small" />
 					</div>
 
 					<div class="row col-md-4  p-0 m-0"
@@ -322,11 +325,11 @@
 						 && currentOutcome.outcomeTypeId != 3 && currentOutcome.outcomeTypeId != 2
 						 && currentOutcome.outcomeTypeId != 1">
 
-						<label class="col-md-3">{{currentOutcome.Data13Desc}}</label>
+						<label class="col-md-6 small">{{currentOutcome.Data13Desc}}</label>
 						<input #group2SDModel="ngModel"
 							   [(ngModel)]="currentOutcome.data13"
 							   value="currentOutcome.data13"
-							   type="text" class="form-control col-md-4 small" />
+							   type="text" class="form-control col-md-6 small" />
 					</div>
 
 					<div class="row col-md-4 p-0 m-0"
@@ -334,30 +337,34 @@
 						 && currentOutcome.outcomeTypeId != 5 && currentOutcome.outcomeTypeId != 4
 						 && currentOutcome.outcomeTypeId != 3 && currentOutcome.outcomeTypeId != 2
 						 && currentOutcome.outcomeTypeId != 1">
-						<label class="col-md-3">{{currentOutcome.Data14Desc}}</label>
+						<label class="col-md-6 small">{{currentOutcome.Data14Desc}}</label>
 						<input #group2SDModel="ngModel"
 							   [(ngModel)]="currentOutcome.data14"
 							   value="currentOutcome.data14"
-							   type="text" class="form-control col-md-4 small" />
+							   type="text" class="form-control col-md-6 small" />
 					</div>
 					<div class="row col-md-12 p-1 m-1">
-						<label class="col-md-1">{{currentOutcome.esDesc}}</label>
-						<p class="col-md-2">{{currentOutcome.es}}</p>
-						<label class="col-md-1 text-capitalize">{{currentOutcome.seDesc}}</label>
-						<p class="col-md-2">{{currentOutcome.sees}}</p>
+						<label class="col-md-2 small">{{currentOutcome.esDesc}}</label>
+						<p class="col-md-4">{{currentOutcome.es}}</p>
+						<label class="col-md-2 text-capitalize small">{{currentOutcome.seDesc}}</label>
+						<p class="col-md-4">{{currentOutcome.sees}}</p>
 					</div>
 				</div>
 			</div>
-				<div class="row col-md-12">
+			<div class="row col-md-12">
+				<div class="col-md-5">
 					<button [disabled]="!HasWriteRights && !IsServiceBusy"
-							class="btn btn-sm btn-primary mt-1 p-1 m-1 col-md-2"
+							class="btn btn-sm btn-primary mt-1 p-1 m-1 "
 							(click)="SaveOutcome()">
 						Save Outcome
 					</button>
-					<button class="btn btn-sm btn-danger mt-1 p-1 m-1 col-md-2"
+				</div>
+				<div class="col-md-5">
+					<button class="btn btn-sm btn-danger mt-1 p-1 m-1"
 							(click)="ClearAndCancelSave()">
 						Cancel
 					</button>
+
 				</div>
 			</div>
 		</div>

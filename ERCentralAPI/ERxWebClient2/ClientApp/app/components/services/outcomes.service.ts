@@ -180,7 +180,9 @@ export class OutcomesService extends BusyAwareService  {
 						.then(
 						(result) => {
 
-							this.outcomesList.push(result);
+							var newOutcome: Outcome = new Outcome();
+							newOutcome = result;
+							this.outcomesList.push(newOutcome);
 							
 							if (!result) this.modalService.GenericErrorMessage(ErrMsg);
 							this.RemoveBusy("CreateOutcome");
