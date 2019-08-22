@@ -25,7 +25,7 @@
 
 
 
------------- THIS ALTER TABLE PROCEDURE IS MISSING THE RE-RUN OPTIONS!!!!!
+
 
 USE [Reviewer]
 GO
@@ -41,33 +41,40 @@ SET ANSI_WARNINGS ON
 COMMIT
 BEGIN TRANSACTION
 GO
-ALTER TABLE dbo.TB_SITE_LIC ADD
-	EPPI_NOTES nvarchar(4000) NULL
+IF COL_LENGTH('dbo.TB_SITE_LIC', 'EPPI_NOTES') IS NULL
+BEGIN
+	ALTER TABLE dbo.TB_SITE_LIC ADD
+		EPPI_NOTES nvarchar(4000) NULL
+END
 GO
 
 COMMIT
 go
 
 
-----------------------------------------------------------------
------------- THIS INSERT IS MISSING THE RE-RUN OPTIONS!!!!!
-
-INSERT into ReviewerAdmin.dbo.TB_MANAGMENT_EMAILS (EMAIL_NAME)
-VALUES ('HELP: EPPI Admin License Details')
-
-----------------------------------------------------------------------------------
------------- THIS INSERT IS MISSING THE RE-RUN OPTIONS!!!!!
-
-INSERT into ReviewerAdmin.dbo.TB_MANAGMENT_EMAILS (EMAIL_NAME)
-VALUES ('HELP: Using the Site License')
-
-----------------------------------------------------------------------------------
-
-
-
 
 USE [ReviewerAdmin]
 GO
+declare @check nvarchar(50) = ''
+select @check = EMAIL_NAME from TB_MANAGMENT_EMAILS where EMAIL_NAME = 'HELP: EPPI Admin License Details'
+if @check is null OR @check != 'HELP: EPPI Admin License Details'
+begin
+	INSERT into ReviewerAdmin.dbo.TB_MANAGMENT_EMAILS (EMAIL_NAME)
+	VALUES ('HELP: EPPI Admin License Details')
+end
+
+select @check = EMAIL_NAME from TB_MANAGMENT_EMAILS where EMAIL_NAME = 'HELP: Using the Site License'
+if @check is null OR @check != 'HELP: Using the Site License'
+begin
+	INSERT into ReviewerAdmin.dbo.TB_MANAGMENT_EMAILS (EMAIL_NAME)
+	VALUES ('HELP: Using the Site License')
+end
+----------------------------------------------------------------------------------
+
+
+
+
+
 
 /****** Object:  StoredProcedure [dbo].[st_Site_Lic_Get_By_ID]    Script Date: 21/08/2019 15:59:00 ******/
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[st_Site_Lic_Get_By_ID]') AND type in (N'P', N'PC'))
