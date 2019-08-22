@@ -34,7 +34,7 @@ public partial class MasterPage : System.Web.UI.MasterPage
                 rtsMenu.Tabs[4].Visible = true;
                 rtsMenu.Tabs[5].Visible = true;
                 rtsMenu.Tabs[6].Visible = true;
-                rtsMenu.Tabs[7].Visible = true;
+                rtsMenu.Tabs[7].Visible = false;
                 rtsMenu.Tabs[8].Visible = true;
             }
 
@@ -43,10 +43,12 @@ public partial class MasterPage : System.Web.UI.MasterPage
                 rtsMenu.Tabs[6].Visible = true;
             }
 
+            /* // Removed Organisations from menu on 21/08/2019 as it isn't being used
             if (Utils.GetSessionString("IsOrganisationAdm") == "1")
             {
-                rtsMenu.Tabs[7].Visible = true;
+                rtsMenu.Tabs[7].Visible = false;
             }
+            */
 
             //string test = (Utils.GetSessionString("EnableDataPresenter").ToString());
             if (Utils.GetSessionString("EnableDataPresenter") == "True")

@@ -942,4 +942,125 @@ public partial class ReviewDetails : System.Web.UI.Page
         Utils.ExecuteSP(isAdmDB, Server, "st_BritishLibraryCCValuesSet", lblReviewID.Text,
             tbBritLibCRClearedAccountCode.Text, tbBritLibCRClearedAuthCode.Text, tbBritLibCRClearedTxLine.Text);
     }
+
+
+
+    protected void lbShowHide_Click(object sender, EventArgs e)
+    {
+        if (lbShowHide.Text == "Show")
+        {
+            pnlDetailedExtensionHistory.Visible = true;
+            lbShowHide.Text = "Hide";
+
+
+            DataTable dt = new DataTable();
+            System.Data.DataRow newrow;
+
+            DataTable dt1 = new DataTable();
+            System.Data.DataRow newrow1;
+
+            dt.Columns.Add(new DataColumn("CONTACT_NAME", typeof(string)));
+            dt.Columns.Add(new DataColumn("CONTACT_ID", typeof(string)));
+            dt.Columns.Add(new DataColumn("EMAIL", typeof(string)));
+            dt.Columns.Add(new DataColumn("EXPIRY_EDIT_ID", typeof(string)));
+            dt.Columns.Add(new DataColumn("DATE_OF_EDIT", typeof(string)));
+            dt.Columns.Add(new DataColumn("TYPE_EXTENDED", typeof(string)));
+            dt.Columns.Add(new DataColumn("ID_EXTENDED", typeof(string)));
+            dt.Columns.Add(new DataColumn("OLD_EXPIRY_DATE", typeof(string)));
+            dt.Columns.Add(new DataColumn("NEW_EXPIRY_DATE", typeof(string)));
+            dt.Columns.Add(new DataColumn("EXTENDED_BY_ID", typeof(string)));
+            dt.Columns.Add(new DataColumn("EXTENSION_TYPE_ID", typeof(string)));
+            dt.Columns.Add(new DataColumn("EXTENSION_NOTES", typeof(string)));
+            dt.Columns.Add(new DataColumn("EXTENSION_TYPE", typeof(string)));
+            dt.Columns.Add(new DataColumn("Months_Ext", typeof(string)));
+            dt.Columns.Add(new DataColumn("£", typeof(string)));
+
+            dt1.Columns.Add(new DataColumn("REVIEW_NAME", typeof(string)));
+            dt1.Columns.Add(new DataColumn("REVIEW_ID", typeof(string)));
+            dt1.Columns.Add(new DataColumn("EXPIRY_EDIT_ID", typeof(string)));
+            dt1.Columns.Add(new DataColumn("DATE_OF_EDIT", typeof(string)));
+            dt1.Columns.Add(new DataColumn("TYPE_EXTENDED", typeof(string)));
+            dt1.Columns.Add(new DataColumn("ID_EXTENDED", typeof(string)));
+            dt1.Columns.Add(new DataColumn("OLD_EXPIRY_DATE", typeof(string)));
+            dt1.Columns.Add(new DataColumn("NEW_EXPIRY_DATE", typeof(string)));
+            dt1.Columns.Add(new DataColumn("EXTENDED_BY_ID", typeof(string)));
+            dt1.Columns.Add(new DataColumn("EXTENSION_TYPE_ID", typeof(string)));
+            dt1.Columns.Add(new DataColumn("EXTENSION_NOTES", typeof(string)));
+            dt1.Columns.Add(new DataColumn("EXTENSION_TYPE", typeof(string)));
+            dt1.Columns.Add(new DataColumn("Months_Ext", typeof(string)));
+            dt1.Columns.Add(new DataColumn("£", typeof(string)));
+            /*
+            CONTACT_NAME
+            CONTACT_ID
+            EMAIL
+            EXPIRY_EDIT_ID
+            DATE_OF_EDIT
+            TYPE_EXTENDED
+            ID_EXTENDED
+            OLD_EXPIRY_DATE
+            NEW_EXPIRY_DATE
+            EXTENDED_BY_ID
+            EXTENSION_TYPE_ID
+            EXTENSION_NOTES
+            EXTENSION_TYPE
+            Months_Ext
+            £
+            */
+            bool isAdmDB = true;
+            IDataReader idr = Utils.GetReader(isAdmDB, "st_DetailedExtensionRecordGet", Request.QueryString["ID"].ToString(), "0");
+            while (idr.Read())
+            {
+                newrow = dt.NewRow();
+                newrow["CONTACT_NAME"] = idr["CONTACT_NAME"].ToString();
+                newrow["CONTACT_ID"] = idr["CONTACT_ID"].ToString();
+                newrow["EMAIL"] = idr["EMAIL"].ToString();
+                newrow["EXPIRY_EDIT_ID"] = idr["EXPIRY_EDIT_ID"].ToString();
+                newrow["DATE_OF_EDIT"] = idr["DATE_OF_EDIT"].ToString();
+                newrow["TYPE_EXTENDED"] = idr["TYPE_EXTENDED"].ToString();
+                newrow["ID_EXTENDED"] = idr["ID_EXTENDED"].ToString();
+                newrow["OLD_EXPIRY_DATE"] = idr["OLD_EXPIRY_DATE"].ToString();
+                newrow["NEW_EXPIRY_DATE"] = idr["NEW_EXPIRY_DATE"].ToString();
+                newrow["EXTENDED_BY_ID"] = idr["EXTENDED_BY_ID"].ToString();
+                newrow["EXTENSION_TYPE_ID"] = idr["EXTENSION_TYPE_ID"].ToString();
+                newrow["EXTENSION_NOTES"] = idr["EXTENSION_NOTES"].ToString();
+                newrow["EXTENSION_TYPE"] = idr["EXTENSION_TYPE"].ToString();
+                newrow["Months_Ext"] = idr["Months_Ext"].ToString();
+                newrow["£"] = idr["£"].ToString();
+                dt.Rows.Add(newrow);
+            }
+            idr.NextResult();
+            while (idr.Read())
+            {
+                newrow1 = dt1.NewRow();
+                newrow1["REVIEW_NAME"] = idr["REVIEW_NAME"].ToString();
+                newrow1["REVIEW_ID"] = idr["REVIEW_ID"].ToString();
+                newrow1["EXPIRY_EDIT_ID"] = idr["EXPIRY_EDIT_ID"].ToString();
+                newrow1["DATE_OF_EDIT"] = idr["DATE_OF_EDIT"].ToString();
+                newrow1["TYPE_EXTENDED"] = idr["TYPE_EXTENDED"].ToString();
+                newrow1["ID_EXTENDED"] = idr["ID_EXTENDED"].ToString();
+                newrow1["OLD_EXPIRY_DATE"] = idr["OLD_EXPIRY_DATE"].ToString();
+                newrow1["NEW_EXPIRY_DATE"] = idr["NEW_EXPIRY_DATE"].ToString();
+                newrow1["EXTENDED_BY_ID"] = idr["EXTENDED_BY_ID"].ToString();
+                newrow1["EXTENSION_TYPE_ID"] = idr["EXTENSION_TYPE_ID"].ToString();
+                newrow1["EXTENSION_NOTES"] = idr["EXTENSION_NOTES"].ToString();
+                newrow1["EXTENSION_TYPE"] = idr["EXTENSION_TYPE"].ToString();
+                newrow1["Months_Ext"] = idr["MonthsExt"].ToString();
+                newrow1["£"] = idr["£"].ToString();
+                dt1.Rows.Add(newrow1);
+            }
+            idr.Close();
+
+            gvDetailedContactExtension.DataSource = dt;
+            gvDetailedContactExtension.DataBind();
+
+            gvDetailedReviewExtension.DataSource = dt1;
+            gvDetailedReviewExtension.DataBind();
+        }
+        else
+        {
+            pnlDetailedExtensionHistory.Visible = false;
+            lbShowHide.Text = "Show";
+        }
+
+    }
 }

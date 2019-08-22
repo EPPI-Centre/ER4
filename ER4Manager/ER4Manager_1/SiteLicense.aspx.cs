@@ -38,11 +38,12 @@ public partial class SiteLicense : System.Web.UI.Page
                     {
                         radTs.SelectedIndex = 6;
                         radTs.Tabs[6].Tabs[0].Selected = true;
-                        radTs.Tabs[6].Tabs[2].Width = 710;
+                        radTs.Tabs[6].Tabs[3].Width = 650;
+                        radTs.Tabs[6].Tabs[2].Visible = false;
                         if (Utils.GetSessionString("IsAdm") == "True")
                         {
                             radTs.Tabs[6].Tabs[1].Visible = true;
-                            radTs.Tabs[6].Tabs[2].Width = 640;
+                            radTs.Tabs[6].Tabs[3].Width = 600;
                         }
                     }
                     System.Web.UI.WebControls.Label lbl1 = (Label)Master.FindControl("lblHeadingText");
@@ -62,8 +63,18 @@ public partial class SiteLicense : System.Web.UI.Page
                     }
                     else // the person is a site license adm (and could also be an ER4 admin)
                     {
-                        // check how many site licenses this person is an administrator of
+
+                        // load help text
                         bool isAdmDB = true;
+                        IDataReader idr0 = Utils.GetReader(isAdmDB, "st_GetHelpText", "HELP: Using the Site License");
+                        while (idr0.Read())
+                        {
+                            lblLicenseDetailsHelp.Text = idr0["EMAIL_MESSAGE"].ToString();
+                        }
+                        idr0.Close();
+
+                        // check how many site licenses this person is an administrator of
+                        isAdmDB = true;
                         DataTable dt2 = new DataTable();
                         System.Data.DataRow newrow2;
                         dt2.Columns.Add(new DataColumn("SITE_LIC_ID", typeof(string)));
@@ -169,7 +180,7 @@ public partial class SiteLicense : System.Web.UI.Page
                             // added JB Jun26 
                             if (selectedSiteLicenseID != "0")
                             {
-                                idr = Utils.GetReader(isAdmDB, "st_Site_Lic_Get_Details_1",
+                                idr = Utils.GetReader(isAdmDB, "st_Site_Lic_Get_Details_By_ID",
                                     Utils.GetSessionString("Contact_ID"), selectedSiteLicenseID);
                             }
                             else
@@ -203,6 +214,17 @@ public partial class SiteLicense : System.Web.UI.Page
                                 else
                                 {
                                     lblSiteLicenceID.Text = "Site license ID";
+                                }
+
+                                string test2 = idr["SITE_LIC_MODEL"].ToString();
+                                if (idr["SITE_LIC_MODEL"].ToString() == "1")
+                                {
+                                    lblLicModel.Text = "Fixed";
+                                }
+                                else
+                                {
+                                    lblLicModel.Text = "Removeable";
+
                                 }
 
                                 if (ddlPackages.SelectedItem.Text.StartsWith("Expired"))
@@ -285,7 +307,9 @@ public partial class SiteLicense : System.Web.UI.Page
                             // added JB Jun26 
                             if (selectedSiteLicenseID != "0")
                             {
-                                idr = Utils.GetReader(isAdmDB, "st_Site_Lic_Get_1", Utils.GetSessionString("Contact_ID"), 
+                                //idr = Utils.GetReader(isAdmDB, "st_Site_Lic_Get_1", Utils.GetSessionString("Contact_ID"), 
+                                //    selectedSiteLicenseID);
+                                idr = Utils.GetReader(isAdmDB, "st_Site_Lic_Get_By_ID", Utils.GetSessionString("Contact_ID"),
                                     selectedSiteLicenseID);
                             }
                             else
@@ -580,7 +604,7 @@ public partial class SiteLicense : System.Web.UI.Page
             paramList[3] = new SqlParameter("@res", SqlDbType.Int, 8, ParameterDirection.Output,
                 true, 0, 0, null, DataRowVersion.Default, "");
             //Utils.ExecuteSPWithReturnValues(isAdmDB, Server, "st_Site_Lic_Add_Remove_Admin", paramList);
-            Utils.ExecuteSPWithReturnValues(isAdmDB, Server, "st_Site_Lic_Add_Remove_Admin_1", paramList);
+            Utils.ExecuteSPWithReturnValues(isAdmDB, Server, "st_Site_Lic_Add_Remove_Admin", paramList);
 
             if (paramList[3].Value.ToString() != "0")
             {
@@ -704,7 +728,7 @@ public partial class SiteLicense : System.Web.UI.Page
                         true, 0, 0, null, DataRowVersion.Default, email);
                     paramList[3] = new SqlParameter("@res", SqlDbType.Int, 8, ParameterDirection.Output,
                         true, 0, 0, null, DataRowVersion.Default, "");
-                    Utils.ExecuteSPWithReturnValues(isAdmDB, Server, "st_Site_Lic_Add_Remove_Admin_1", paramList);
+                    Utils.ExecuteSPWithReturnValues(isAdmDB, Server, "st_Site_Lic_Add_Remove_Admin", paramList);
 
                     if (paramList[3].Value.ToString() != "0")
                     {
@@ -1036,7 +1060,7 @@ public partial class SiteLicense : System.Web.UI.Page
             // added JB Jun26 
             if (selectedSiteLicenseID != "0")
             {
-                idr = Utils.GetReader(isAdmDB, "st_Site_Lic_Get_Details_1",
+                idr = Utils.GetReader(isAdmDB, "st_Site_Lic_Get_Details_By_ID",
                     Utils.GetSessionString("Contact_ID"), selectedSiteLicenseID);
             }
             else
@@ -1062,6 +1086,7 @@ public partial class SiteLicense : System.Web.UI.Page
                 lblTotalFee.Text = (int.Parse(idr["PRICE_PER_MONTH"].ToString()) * int.Parse(lblNumberMonths.Text)).ToString();
                 lblValidFrom.Text = idr["VALID_FROM"].ToString();
 
+                string test = idr["ALLOW_REVIEW_OWNERSHIP_CHANGE"].ToString();
                 if (idr["ALLOW_REVIEW_OWNERSHIP_CHANGE"].ToString() == "True")
                 {
                     lblSiteLicenceID.Text = "Site license #";
@@ -1069,6 +1094,17 @@ public partial class SiteLicense : System.Web.UI.Page
                 else
                 {
                     lblSiteLicenceID.Text = "Site license ID";
+                }
+
+                string test2 = idr["SITE_LIC_MODEL"].ToString();
+                if (idr["SITE_LIC_MODEL"].ToString() == "1")
+                {
+                    lblLicModel.Text = "Fixed";
+                }
+                else
+                {
+                    lblLicModel.Text = "Removeable";
+
                 }
 
                 if (ddlPackages.SelectedItem.Text.StartsWith("Expired"))
@@ -1151,7 +1187,7 @@ public partial class SiteLicense : System.Web.UI.Page
             // added JB Jun26 
             if (selectedSiteLicenseID != "0")
             {
-                idr = Utils.GetReader(isAdmDB, "st_Site_Lic_Get_1", Utils.GetSessionString("Contact_ID"),
+                idr = Utils.GetReader(isAdmDB, "st_Site_Lic_Get_By_ID", Utils.GetSessionString("Contact_ID"),
                     selectedSiteLicenseID);
             }
             else
@@ -1234,6 +1270,10 @@ public partial class SiteLicense : System.Web.UI.Page
     {
         if (e.Row.RowType == DataControlRowType.DataRow)
         {
+            LinkButton lb = (LinkButton)(e.Row.Cells[3].Controls[0]);
+            lb.Attributes.Add("onclick", "if (confirm('Are you sure you want to remove this review from the package?') == false) return false;");
+
+
             LinkButton reviewOwner = (LinkButton) e.Row.Cells[2].FindControl("lbReviewOwner");
 
             bool isAdmDB = true;
@@ -1256,6 +1296,10 @@ public partial class SiteLicense : System.Web.UI.Page
                 this.gvReviews.Columns[2].Visible = false;
             }
 
+            if (lblLicModel.Text == "Removeable")
+            {
+                this.gvReviews.Columns[3].Visible = true;
+            }
 
         }
     }
@@ -1285,6 +1329,11 @@ public partial class SiteLicense : System.Web.UI.Page
             {
                 this.gvReviewsPastLicense.Columns[2].Visible = false;
             }
+
+            if (lblLicModel.Text == "Removeable")
+            {
+                this.gvReviews.Columns[3].Visible = true;
+            }
         }
     }
 
@@ -1305,4 +1354,59 @@ public partial class SiteLicense : System.Web.UI.Page
     }
 
 
+
+    protected void gvReviews_RowCommand(object sender, GridViewCommandEventArgs e)
+    {
+        lblReviewMsg.Visible = false;
+        lblReviewMsg.ForeColor = System.Drawing.Color.Black;
+        int index = Convert.ToInt32(e.CommandArgument);
+        string reviewID = (string)gvReviews.DataKeys[index].Value;
+        switch (e.CommandName)
+        {
+            case "REMOVE":
+                bool isAdmDB = true;
+                SqlParameter[] paramList = new SqlParameter[4];
+                paramList[1] = new SqlParameter("@lic_id", SqlDbType.Int, 8, ParameterDirection.Input,
+                    true, 0, 0, null, DataRowVersion.Default, lblSiteLicID.Text);
+                paramList[0] = new SqlParameter("@admin_ID", SqlDbType.Int, 8, ParameterDirection.Input,
+                    true, 0, 0, null, DataRowVersion.Default, Utils.GetSessionString("Contact_ID"));
+                paramList[2] = new SqlParameter("@review_id", SqlDbType.NVarChar, 255, ParameterDirection.Input,
+                    true, 0, 0, null, DataRowVersion.Default, reviewID);
+                paramList[3] = new SqlParameter("@res", SqlDbType.Int, 8, ParameterDirection.Output,
+                    true, 0, 0, null, DataRowVersion.Default, "");
+                Utils.ExecuteSPWithReturnValues(isAdmDB, Server, "st_Site_Lic_Remove_Review", paramList);
+
+                if (paramList[3].Value.ToString() != "0")
+                {
+                    switch (paramList[3].Value.ToString())
+                    {
+                        case "-1":
+                            lblReviewMsg.Text = "supplied admin_id is not an admin of this site license";
+                            break;
+                        case "-2":
+                            lblReviewMsg.Text = "review_id does not exist";
+                            break;
+                        case "-3":
+                            lblReviewMsg.Text = "review is not in this this site_lic";
+                            break;
+                        case "-4":
+                            lblReviewMsg.Text = "all seemed well but couldn't write changes! BUG ALERT";
+                            break;
+                        default:
+                            break;
+                    }
+                    lblReviewMsg.Visible = true;
+                    lblReviewMsg.ForeColor = System.Drawing.Color.Red;
+                }
+                else
+                {
+                    buildGrids();
+                    tbEmail.Text = "Enter Review ID";
+                }
+
+                break;
+            default:
+                break;
+        }
+    }
 }
