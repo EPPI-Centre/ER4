@@ -721,32 +721,66 @@ namespace BusinessLibrary.BusinessClasses
                     }
                 }
             }
+            ReviewSet.ReviewSetFromDBCommonPart(returnValue);
+            return returnValue;
+        }
+
+        internal static void ReviewSetFromDBCommonPart(ReviewSet reviewSet)
+        {
+
+#if OLD_BUILDTREE
+                            //compiler directive above is for testing purposes, so that we can re-activate old code by setting env. var. to OLD_BUILDTREE
+                            using (SqlConnection connection2 = new SqlConnection(DataConnection.ConnectionString))
+                            {
+                                connection2.Open();
+                                using (SqlCommand command2 = new SqlCommand("st_AttributeSet", connection2))
+                                {
+                                    
+                                    command2.CommandType = System.Data.CommandType.StoredProcedure;
+                                    command2.Parameters.Add(new SqlParameter("@SET_ID", reviewSet.SetId));
+                                    command2.Parameters.Add(new SqlParameter("@PARENT_ATTRIBUTE_ID", 0));
+                                    using (Csla.Data.SafeDataReader reader2 = new Csla.Data.SafeDataReader(command2.ExecuteReader()))
+                                    {
+                                        while (reader2.Read())
+                                        {
+                                             
+                                            AttributeSet newAttributeSet = AttributeSet.GetAttributeSet(reader2, reviewSet.TempMaxDepth);
+                                            reviewSet.Attributes.Add(newAttributeSet);
+                                        }
+                                        reader2.Close();
+                                    }
+                                }
+                                connection2.Close();
+                            }
+#else
+            List<AttributeSet> flatList = new List<AttributeSet>();
             using (SqlConnection connection2 = new SqlConnection(DataConnection.ConnectionString))
-            {//build the contents (RECURSIVE!!)
+            {
+
                 connection2.Open();
-                using (SqlCommand command2 = new SqlCommand("st_AttributeSet", connection2))
+                using (SqlCommand command2 = new SqlCommand("st_AllAttributesInSet", connection2))
                 {
 
                     command2.CommandType = System.Data.CommandType.StoredProcedure;
-                    command2.Parameters.Add(new SqlParameter("@SET_ID", returnValue.SetId));
-                    command2.Parameters.Add(new SqlParameter("@PARENT_ATTRIBUTE_ID", 0));
+                    command2.Parameters.Add(new SqlParameter("@SET_ID", reviewSet.SetId));
                     using (Csla.Data.SafeDataReader reader2 = new Csla.Data.SafeDataReader(command2.ExecuteReader()))
                     {
                         while (reader2.Read())
                         {
 
-                            AttributeSet newAttributeSet = AttributeSet.GetAttributeSet(reader2, returnValue.TempMaxDepth);
-                            returnValue.Attributes.Add(newAttributeSet);
+                            AttributeSet newAttributeSet = AttributeSet.GetAttributeSetForFlatList(reader2, reviewSet.TempMaxDepth);
+                            flatList.Add(newAttributeSet);
                         }
                         reader2.Close();
                     }
                 }
                 connection2.Close();
             }
-            return returnValue;
+            reviewSet.RecursiveBuildTree(null, flatList);
+#endif
         }
 
-        internal void RecursiveBuildTree(AttributeSet parent, List<AttributeSet> flatList)
+        private void RecursiveBuildTree(AttributeSet parent, List<AttributeSet> flatList)
         {
             AttributeSetList workingAttsList = new AttributeSetList();
             //AttributeSet parent = null;

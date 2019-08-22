@@ -124,8 +124,9 @@ export class ReviewSetsService extends BusyAwareService {
                  this.GetReviewStatsEmit.emit();
 
             },
-            error => {
-                this.modalService.GenericError(error);
+             error => {
+                console.log("Error in GetReviewSets:", error);
+                this.modalService.SendBackHomeWithError(error);
                 this.Clear();
                 this.RemoveBusy("GetReviewSets");
             },
