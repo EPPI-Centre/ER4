@@ -245,6 +245,8 @@ namespace EppiReviewer4
             MagGrid.Children.Add(MagBrowserControl);
             MagBrowserControl.ListIncludedThatNeedMatching += MagBrowserControl_ListIncludedThatNeedMatching;
             MagBrowserControl.ListExcludedThatNeedMatching += MagBrowserControl_ListExcludedThatNeedMatching;
+            MagBrowserControl.ListIncludedNotMatched += MagBrowserControl_ListIncludedNotMatched;
+            MagBrowserControl.ListExcludedNotMatched += MagBrowserControl_ListExcludedNotMatched;
             windowMagBrowser.Content = MagGrid;
             //end of windowMagBrowser
 
@@ -6093,5 +6095,30 @@ on the right of the main screen");
             LoadItemList();
         }
 
+        private void MagBrowserControl_ListExcludedNotMatched(object sender, RoutedEventArgs e)
+        {
+            windowMagBrowser.Close();
+            TextBlockShowing.Text = "Showing: excluded items that are not matched to any Microsoft Academic records";
+            SelectionCritieraItemList = new SelectionCriteria();
+            SelectionCritieraItemList.ListType = "MagMatchesNotMatched";
+            SelectionCritieraItemList.OnlyIncluded = false;
+            SelectionCritieraItemList.ShowDeleted = false;
+            SelectionCritieraItemList.AttributeSetIdList = "";
+            SelectionCritieraItemList.PageNumber = 0;
+            LoadItemList();
+        }
+
+        private void MagBrowserControl_ListIncludedNotMatched(object sender, RoutedEventArgs e)
+        {
+            windowMagBrowser.Close();
+            TextBlockShowing.Text = "Showing: included items that are not matched to any Microsoft Academic records";
+            SelectionCritieraItemList = new SelectionCriteria();
+            SelectionCritieraItemList.ListType = "MagMatchesNotMatched";
+            SelectionCritieraItemList.OnlyIncluded = true;
+            SelectionCritieraItemList.ShowDeleted = false;
+            SelectionCritieraItemList.AttributeSetIdList = "";
+            SelectionCritieraItemList.PageNumber = 0;
+            LoadItemList();
+        }
     }
 }

@@ -38,6 +38,8 @@ namespace BusinessLibrary.BusinessClasses
         private int _NMatchedAccuratelyExcluded;
         private int _NRequiringManualCheckIncluded;
         private int _NRequiringManualCheckExcluded;
+        private int _NNotMatchedIncluded;
+        private int _NNotMatchedExcluded;
 
         public int ReviewId
         {
@@ -68,6 +70,15 @@ namespace BusinessLibrary.BusinessClasses
             get { return _NRequiringManualCheckExcluded; }
         }
 
+        public int NNotMatchedIncluded
+        {
+            get { return _NNotMatchedIncluded; }
+        }
+        public int NNotMatchedExcluded
+        {
+            get { return _NNotMatchedExcluded; }
+        }
+
         protected override void OnGetState(Csla.Serialization.Mobile.SerializationInfo info, Csla.Core.StateMode mode)
         {
             base.OnGetState(info, mode);
@@ -78,6 +89,8 @@ namespace BusinessLibrary.BusinessClasses
             info.AddValue("_NMatchedAccuratelyExcluded", _NMatchedAccuratelyExcluded);
             info.AddValue("_NRequiringManualCheckIncluded", _NRequiringManualCheckIncluded);
             info.AddValue("_NRequiringManualCheckExcluded", _NRequiringManualCheckExcluded);
+            info.AddValue("_NNotMatchedIncluded", _NNotMatchedIncluded);
+            info.AddValue("_NNotMatchedExcluded", _NNotMatchedExcluded);
         }
         protected override void OnSetState(Csla.Serialization.Mobile.SerializationInfo info, Csla.Core.StateMode mode)
         {
@@ -88,6 +101,8 @@ namespace BusinessLibrary.BusinessClasses
             _NMatchedAccuratelyExcluded = info.GetValue<int>("_NMatchedAccuratelyExcluded");
             _NRequiringManualCheckIncluded = info.GetValue<int>("_NRequiringManualCheckIncluded");
             _NRequiringManualCheckExcluded = info.GetValue<int>("_NRequiringManualCheckExcluded");
+            _NNotMatchedIncluded = info.GetValue<int>("_NNotMatchedIncluded");
+            _NNotMatchedExcluded = info.GetValue<int>("_NNotMatchedExcluded");
         }
 
        
@@ -116,6 +131,10 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters["@NRequiringManualCheckIncluded"].Direction = System.Data.ParameterDirection.Output;
                     command.Parameters.Add(new SqlParameter("@NRequiringManualCheckExcluded", 0));
                     command.Parameters["@NRequiringManualCheckExcluded"].Direction = System.Data.ParameterDirection.Output;
+                    command.Parameters.Add(new SqlParameter("@NNotMatchedIncluded", 0));
+                    command.Parameters["@NNotMatchedIncluded"].Direction = System.Data.ParameterDirection.Output;
+                    command.Parameters.Add(new SqlParameter("@NNotMatchedExcluded", 0));
+                    command.Parameters["@NNotMatchedExcluded"].Direction = System.Data.ParameterDirection.Output;
                     command.ExecuteNonQuery();
                     _NInReviewIncluded = Convert.ToInt32(command.Parameters["@NInReviewIncluded"].Value);
                     _NInReviewExcluded = Convert.ToInt32(command.Parameters["@NInReviewExcluded"].Value);
@@ -123,6 +142,8 @@ namespace BusinessLibrary.BusinessClasses
                     _NMatchedAccuratelyExcluded = Convert.ToInt32(command.Parameters["@NMatchedAccuratelyExcluded"].Value);
                     _NRequiringManualCheckIncluded = Convert.ToInt32(command.Parameters["@NRequiringManualCheckIncluded"].Value);
                     _NRequiringManualCheckExcluded = Convert.ToInt32(command.Parameters["@NRequiringManualCheckExcluded"].Value);
+                    _NNotMatchedIncluded = Convert.ToInt32(command.Parameters["@NNotMatchedIncluded"].Value);
+                    _NNotMatchedExcluded = Convert.ToInt32(command.Parameters["@NNotMatchedExcluded"].Value);
                 }
                 connection.Close();
             }

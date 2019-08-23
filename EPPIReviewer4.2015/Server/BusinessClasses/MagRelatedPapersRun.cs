@@ -112,7 +112,7 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(DateRunProperty, value);
             }
         }
-
+        /*
         private static PropertyInfo<bool> CheckedProperty = RegisterProperty<bool>(new PropertyInfo<bool>("Checked", "Checked", false));
         public bool Checked
         {
@@ -138,7 +138,7 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(IrrelevantProperty, value);
             }
         }
-
+        */
         private static PropertyInfo<bool> AutoReRunProperty = RegisterProperty<bool>(new PropertyInfo<bool>("AutoReRun", "AutoReRun", false));
         public bool AutoReRun
         {
@@ -346,8 +346,8 @@ namespace BusinessLibrary.BusinessClasses
                             LoadProperty<bool>(AllIncludedProperty, reader.GetBoolean("ALL_INCLUDED"));
                             LoadProperty<SmartDate>(DateFromProperty, reader.GetSmartDate("DATE_FROM"));
                             LoadProperty<SmartDate>(DateRunProperty, reader.GetSmartDate("DATE_RUN"));
-                            LoadProperty<bool>(CheckedProperty, reader.GetBoolean("CHECKED"));
-                            LoadProperty<bool>(IrrelevantProperty, reader.GetBoolean("IRRELEVANT"));
+                            //LoadProperty<bool>(CheckedProperty, reader.GetBoolean("CHECKED"));
+                            //LoadProperty<bool>(IrrelevantProperty, reader.GetBoolean("IRRELEVANT"));
                             LoadProperty<bool>(AutoReRunProperty, reader.GetBoolean("AUTO_RERUN"));
                         }
                     }
@@ -366,8 +366,8 @@ namespace BusinessLibrary.BusinessClasses
             returnValue.LoadProperty<bool>(AllIncludedProperty, reader.GetBoolean("ALL_INCLUDED"));
             returnValue.LoadProperty<SmartDate>(DateFromProperty, reader.GetSmartDate("DATE_FROM"));
             returnValue.LoadProperty<SmartDate>(DateRunProperty, reader.GetSmartDate("DATE_RUN"));
-            returnValue.LoadProperty<bool>(CheckedProperty, reader.GetBoolean("CHECKED"));
-            returnValue.LoadProperty<bool>(IrrelevantProperty, reader.GetBoolean("IRRELEVANT"));
+            //returnValue.LoadProperty<bool>(CheckedProperty, reader.GetBoolean("CHECKED"));
+            //returnValue.LoadProperty<bool>(IrrelevantProperty, reader.GetBoolean("IRRELEVANT"));
             returnValue.LoadProperty<bool>(AutoReRunProperty, reader.GetBoolean("AUTO_RERUN"));
             returnValue.MarkOld();
             return returnValue;

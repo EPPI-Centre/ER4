@@ -22,6 +22,8 @@ namespace EppiReviewer4
     {
         public event EventHandler<RoutedEventArgs> ListIncludedThatNeedMatching;
         public event EventHandler<RoutedEventArgs> ListExcludedThatNeedMatching;
+        public event EventHandler<RoutedEventArgs> ListIncludedNotMatched;
+        public event EventHandler<RoutedEventArgs> ListExcludedNotMatched;
         private DispatcherTimer timer;
         private int CurrentBrowsePosition = 0;
         private List<Int64> SelectedPaperIds;
@@ -38,6 +40,8 @@ namespace EppiReviewer4
             timer = new DispatcherTimer();
             timer.Interval = TimeSpan.FromSeconds(1);
             timer.Tick += Timer_Tick;
+            CslaDataProvider provider = this.Resources["RelatedPapersRunListData"] as CslaDataProvider;
+            provider.Refresh();
         }
 
 
@@ -124,6 +128,8 @@ namespace EppiReviewer4
                     LBListMatchesExcluded.Content = mrmic2.NMatchedAccuratelyExcluded.ToString();
                     LBManualCheckIncluded.Content = mrmic2.NRequiringManualCheckIncluded.ToString();
                     LBManualCheckExcluded.Content = mrmic2.NRequiringManualCheckExcluded.ToString();
+                    LBMNotMatchedIncluded.Content = mrmic2.NNotMatchedIncluded.ToString();
+                    LBMNotMatchedExcluded.Content = mrmic2.NNotMatchedExcluded.ToString();
                 }
             };
             //BusyLoading.IsRunning = true;
@@ -427,6 +433,16 @@ namespace EppiReviewer4
         private void LBManualCheckExcluded_Click(object sender, RoutedEventArgs e)
         {
             this.ListExcludedThatNeedMatching.Invoke(sender, e);            
+        }
+
+        private void LBMNotMatchedIncluded_Click(object sender, RoutedEventArgs e)
+        {
+            this.ListIncludedNotMatched.Invoke(sender, e);
+        }
+
+        private void LBMNotMatchedExcluded_Click(object sender, RoutedEventArgs e)
+        {
+            this.ListExcludedNotMatched.Invoke(sender, e);
         }
 
         private void HLShowSelected_Click(object sender, RoutedEventArgs e)
@@ -1237,6 +1253,8 @@ namespace EppiReviewer4
             }
 
         }
+
+        
 
         // 88888888888888888888888888888 NOT IMPLEMENTED YET 8888888888888888888888888888888888888888
 
