@@ -80,6 +80,7 @@ namespace EppiReviewer4
             TopicsGrid.Visibility = Visibility.Collapsed;
             PaperListGrid.Visibility = Visibility.Collapsed;
             HistoryGrid.Visibility = Visibility.Collapsed;
+            RelatedPapersGrid.Visibility = Visibility.Collapsed;
 
             DataPortal<MagCurrentInfo> dp = new DataPortal<MagCurrentInfo>();
             MagCurrentInfo mci = new MagCurrentInfo();
@@ -138,6 +139,7 @@ namespace EppiReviewer4
             TopicsGrid.Visibility = Visibility.Collapsed;
             PaperListGrid.Visibility = Visibility.Collapsed;
             HistoryGrid.Visibility = Visibility.Visible;
+            RelatedPapersGrid.Visibility = Visibility.Collapsed;
         }
 
         // ******************************** PAPER DETAILS PAGE **************************************
@@ -148,6 +150,7 @@ namespace EppiReviewer4
             TopicsGrid.Visibility = Visibility.Collapsed;
             PaperListGrid.Visibility = Visibility.Collapsed;
             HistoryGrid.Visibility = Visibility.Collapsed;
+            RelatedPapersGrid.Visibility = Visibility.Collapsed;
             CitationPane.SelectedIndex = 0;
 
             RTBPaperInfo.Text = FullRecord;
@@ -228,6 +231,7 @@ namespace EppiReviewer4
             TopicsGrid.Visibility = Visibility.Collapsed;
             PaperListGrid.Visibility = Visibility.Visible;
             HistoryGrid.Visibility = Visibility.Collapsed;
+            RelatedPapersGrid.Visibility = Visibility.Collapsed;
 
             CslaDataProvider provider = this.Resources["PaperListData"] as CslaDataProvider;
             provider.FactoryParameters.Clear();
@@ -248,6 +252,7 @@ namespace EppiReviewer4
             TopicsGrid.Visibility = Visibility.Collapsed;
             PaperListGrid.Visibility = Visibility.Visible;
             HistoryGrid.Visibility = Visibility.Collapsed;
+            RelatedPapersGrid.Visibility = Visibility.Collapsed;
 
             CslaDataProvider provider = this.Resources["PaperListData"] as CslaDataProvider;
             provider.FactoryParameters.Clear();
@@ -269,7 +274,8 @@ namespace EppiReviewer4
             TopicsGrid.Visibility = Visibility.Visible;
             PaperListGrid.Visibility = Visibility.Collapsed;
             HistoryGrid.Visibility = Visibility.Collapsed;
-            
+            RelatedPapersGrid.Visibility = Visibility.Collapsed;
+
             TBMainTopic.Text = FieldOfStudy;
 
             getParentAndChildFieldsOfStudy("FieldOfStudyParentsList", FieldOfStudyId, WPParentTopics, "Parent topics");
@@ -286,6 +292,7 @@ namespace EppiReviewer4
             TopicsGrid.Visibility = Visibility.Collapsed;
             PaperListGrid.Visibility = Visibility.Visible;
             HistoryGrid.Visibility = Visibility.Collapsed;
+            RelatedPapersGrid.Visibility = Visibility.Collapsed;
 
             CslaDataProvider provider = this.Resources["PaperListData"] as CslaDataProvider;
             provider.FactoryParameters.Clear();
@@ -297,6 +304,16 @@ namespace EppiReviewer4
             provider.FactoryParameters.Add(selectionCriteria);
             provider.FactoryMethod = "GetMagPaperList";
             provider.Refresh();
+        }
+
+        private void ShowRelatedPapersPage()
+        {
+            StatusGrid.Visibility = Visibility.Collapsed;
+            PaperGrid.Visibility = Visibility.Collapsed;
+            TopicsGrid.Visibility = Visibility.Collapsed;
+            PaperListGrid.Visibility = Visibility.Collapsed;
+            HistoryGrid.Visibility = Visibility.Collapsed;
+            RelatedPapersGrid.Visibility = Visibility.Visible;
         }
 
         private void LBListMatchesIncluded_Click(object sender, RoutedEventArgs e)
@@ -414,6 +431,11 @@ namespace EppiReviewer4
 
         private void HLShowSelected_Click(object sender, RoutedEventArgs e)
         {
+            if (SelectedPaperIds.Count == 0)
+            {
+                RadWindow.Alert("You don't have anything selected.");
+                return;
+            }
             CslaDataProvider provider = this.Resources["HistoryListData"] as CslaDataProvider;
             if (provider != null)
             {
@@ -774,6 +796,9 @@ namespace EppiReviewer4
                             case "SelectedPapers":
                                 ShowSelectedPapersPage();
                                 break;
+                            case "RelatedPapers":
+                                ShowRelatedPapersPage();
+                                break;
                         }
                     }
                     else
@@ -1048,15 +1073,170 @@ namespace EppiReviewer4
             else
             {
                 WPFindTopics.Children.Clear();
+                TextBlock tb = new TextBlock();
+                tb.Text = "Search for topics in the box above. Wildcards work e.g. physic*";
+                tb.Margin = new Thickness(5, 5, 5, 5);
+                WPFindTopics.Children.Add(tb);
             }
         }
 
-        
+        // ********************************** Matching items from review to MAG *******************************
 
+        private void LBMatchAllIncluded_Click(object sender, RoutedEventArgs e)
+        {
+            RadWindow.Confirm("Are you sure you want to match all the items in your review\n to Microsoft Academic records?", OnShowWizardDialogClosed);
+        }
 
+        private void OnShowWizardDialogClosed(object sender, WindowClosedEventArgs e)
+        {
+            if (e.DialogResult == true)
+            {
+                DataPortal<MagMatchItemsToPapersCommand> dp = new DataPortal<MagMatchItemsToPapersCommand>();
+                MagMatchItemsToPapersCommand GetMatches = new MagMatchItemsToPapersCommand("FindMatches",
+                    true, 0, 0);
+                dp.ExecuteCompleted += (o, e2) =>
+                {
+                    if (e2.Error != null)
+                    {
+                        RadWindow.Alert(e2.Error.Message);
+                    }
+                    else
+                    {
+                        MagMatchItemsToPapersCommand res = e2.Object as MagMatchItemsToPapersCommand;
+                        RadWindow.Alert(res.currentStatus);
+                    }
+                };
+                dp.BeginExecute(GetMatches);
+            }
+        }
 
+        // ************************** Managing related papers / review auto-updates **********************
 
+        private void LBManageRelatedPapersRun_Click(object sender, RoutedEventArgs e)
+        {
+            CslaDataProvider provider = this.Resources["HistoryListData"] as CslaDataProvider;
+            if (provider != null)
+            {
+                MagBrowseHistoryList mbhl = provider.Data as MagBrowseHistoryList;
+                if (mbhl != null)
+                {
+                    CurrentBrowsePosition = mbhl.Count + 1; // otherwise we leave it where it is (i.e. user has navigated 'back')
+                }
+            }
+            AddToBrowseHistory("Manage review updates / find related papers", "RelatedPapers", 0, "", "", 0, "", "");
+            ShowRelatedPapersPage();
+        }
 
+        private void LBAddNewRagRelatedPapersRun_Click(object sender, RoutedEventArgs e)
+        {
+            if ((sender as HyperlinkButton).Tag.ToString() == "ClickToOpen")
+            {
+                RowCreateNewRelatedPapersRun.Height = new GridLength(50, GridUnitType.Auto);
+                LBAddNewRagRelatedPapersRun.Content = "Adding new search for related papers / auto update search for review (Click to close)";
+                LBAddNewRagRelatedPapersRun.Tag = "ClickToClose";
+            }
+            else
+            {
+                RowCreateNewRelatedPapersRun.Height = new GridLength(0);
+                LBAddNewRagRelatedPapersRun.Content = "Add new search for related papers / auto update search for review";
+                LBAddNewRagRelatedPapersRun.Tag = "ClickToOpen";
+            }
+        }
+
+        private void RadioButton_Checked(object sender, RoutedEventArgs e)
+        {
+            if (RowSelectCodeRelatedPapersRun != null)
+            {
+                RowSelectCodeRelatedPapersRun.Height = new GridLength(0);
+            }
+        }
+
+        private void RadioButton_Checked_1(object sender, RoutedEventArgs e)
+        {
+            if (RowSelectCodeRelatedPapersRun != null)
+            {
+                RowSelectCodeRelatedPapersRun.Height = new GridLength(50, GridUnitType.Auto);
+            }
+        }
+
+        private void RadioButton_Checked_2(object sender, RoutedEventArgs e)
+        {
+            if (DatePickerRelatedPapersRun != null)
+            {
+                DatePickerRelatedPapersRun.Visibility = Visibility.Collapsed;
+            }
+        }
+
+        private void RadioButton_Checked_3(object sender, RoutedEventArgs e)
+        {
+            if (DatePickerRelatedPapersRun != null)
+            {
+                DatePickerRelatedPapersRun.Visibility = Visibility.Visible;
+            }
+        }
+
+        private void LBAddRelatedPapersRun_Click(object sender, RoutedEventArgs e)
+        {
+            MagRelatedPapersRun mrpr = new MagRelatedPapersRun();
+            if (RadioButtonRelatedPapersRunAllIncluded.IsChecked == true)
+            {
+                mrpr.AllIncluded = true;
+                mrpr.AttributeId = 0;
+            }
+            else
+            {
+                if (codesSelectControlRelatedPapersRun.SelectedAttributeSet() == null)
+                {
+                    RadWindow.Alert("Please select an attribute");
+                    return;
+                }
+                else
+                {
+                    mrpr.AttributeId = codesSelectControlRelatedPapersRun.SelectedAttributeSet().AttributeId;
+                    mrpr.AllIncluded = false;
+                }
+            }
+            mrpr.AutoReRun = cbRelatedPapersRunAutoRun.IsChecked == true ? true : false;
+            if (RadioButtonRelatedPapersRunNoDateRestriction.IsChecked == true)
+            {
+                mrpr.DateFrom = null;
+            }
+            else
+            {
+                if (DatePickerRelatedPapersRun.SelectedDate != null)
+                {
+                    mrpr.DateFrom = DatePickerRelatedPapersRun.SelectedDate;
+                }
+                else
+                {
+                    RadWindow.Alert("Please select a date to date items from");
+                    return;
+                }
+            }
+            if (tbRelatedPapersRunDescription.Text == "")
+            {
+                RadWindow.Alert("Please enter a description");
+                return;
+            }
+            else
+            {
+                mrpr.UserDescription = tbRelatedPapersRunDescription.Text;
+            }
+            CslaDataProvider provider = this.Resources["RelatedPapersRunListData"] as CslaDataProvider;
+            if (provider != null)
+            {
+                MagRelatedPapersRunList mrprl = provider.Data as MagRelatedPapersRunList;
+                if (mrprl != null)
+                {
+                    mrprl.Add(mrpr);
+                    mrprl.SaveItem(mrpr);
+                    RowCreateNewRelatedPapersRun.Height = new GridLength(0);
+                    LBAddNewRagRelatedPapersRun.Content = "Add new search for related papers / auto update search for review";
+                    LBAddNewRagRelatedPapersRun.Tag = "ClickToOpen";
+                }
+            }
+
+        }
 
         // 88888888888888888888888888888 NOT IMPLEMENTED YET 8888888888888888888888888888888888888888
 

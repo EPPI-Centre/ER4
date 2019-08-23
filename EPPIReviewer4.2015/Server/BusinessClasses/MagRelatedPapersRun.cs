@@ -55,6 +55,10 @@ namespace BusinessLibrary.BusinessClasses
             {
                 return GetProperty(UserDescriptionProperty);
             }
+            set
+            {
+                SetProperty(UserDescriptionProperty, value);
+            }
         }
 
         private static PropertyInfo<Int64> AttributeIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("AttributeId", "AttributeId"));
@@ -63,6 +67,10 @@ namespace BusinessLibrary.BusinessClasses
             get
             {
                 return GetProperty(AttributeIdProperty);
+            }
+            set
+            {
+                SetProperty(AttributeIdProperty, value);
             }
         }
 
@@ -73,6 +81,10 @@ namespace BusinessLibrary.BusinessClasses
             {
                 return GetProperty(AllIncludedProperty);
             }
+            set
+            {
+                SetProperty(AllIncludedProperty, value);
+            }
         }
 
         private static PropertyInfo<SmartDate> DateFromProperty = RegisterProperty<SmartDate>(new PropertyInfo<SmartDate>("DateFrom", "DateFrom"));
@@ -81,6 +93,10 @@ namespace BusinessLibrary.BusinessClasses
             get
             {
                 return GetProperty(DateFromProperty);
+            }
+            set
+            {
+                SetProperty(DateFromProperty, value);
             }
         }
 
@@ -91,6 +107,10 @@ namespace BusinessLibrary.BusinessClasses
             {
                 return GetProperty(DateRunProperty);
             }
+            set
+            {
+                SetProperty(DateRunProperty, value);
+            }
         }
 
         private static PropertyInfo<bool> CheckedProperty = RegisterProperty<bool>(new PropertyInfo<bool>("Checked", "Checked", false));
@@ -99,6 +119,10 @@ namespace BusinessLibrary.BusinessClasses
             get
             {
                 return GetProperty(CheckedProperty);
+            }
+            set
+            {
+                SetProperty(CheckedProperty, value);
             }
         }
 
@@ -109,6 +133,10 @@ namespace BusinessLibrary.BusinessClasses
             {
                 return GetProperty(IrrelevantProperty);
             }
+            set
+            {
+                SetProperty(IrrelevantProperty, value);
+            }
         }
 
         private static PropertyInfo<bool> AutoReRunProperty = RegisterProperty<bool>(new PropertyInfo<bool>("AutoReRun", "AutoReRun", false));
@@ -117,6 +145,10 @@ namespace BusinessLibrary.BusinessClasses
             get
             {
                 return GetProperty(AutoReRunProperty);
+            }
+            set
+            {
+                SetProperty(AutoReRunProperty, value);
             }
         }
 
@@ -232,27 +264,27 @@ namespace BusinessLibrary.BusinessClasses
 
         protected override void DataPortal_Insert()
         {
-            /*
             ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
-            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+            using (SqlConnection connection = new SqlConnection(DataConnection.AcademicControllerConnectionString))
             {
                 connection.Open();
-                using (SqlCommand command = new SqlCommand("st_MagRelatedPapersRunInsert", connection))
+                using (SqlCommand command = new SqlCommand("st_MagRelatedPapersRunsInsert", connection))
                 {
                     command.CommandType = System.Data.CommandType.StoredProcedure;
-                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", ReadProperty(ReviewIdProperty)));
-                    command.Parameters.Add(new SqlParameter("@MagRelatedPapersRun_NAME", ReadProperty(NameProperty)));
-                    command.Parameters.Add(new SqlParameter("@MagRelatedPapersRun_DETAIL", ReadProperty(DetailProperty)));
-                    SqlParameter par = new SqlParameter("@NEW_MagRelatedPapersRun_ID", System.Data.SqlDbType.Int);
-                    par.Value = 0;
-                    command.Parameters.Add(par);
-                    command.Parameters["@NEW_MagRelatedPapersRun_ID"].Direction = System.Data.ParameterDirection.Output;
+                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
+                    command.Parameters.Add(new SqlParameter("@USER_DESCRIPTION", ReadProperty(UserDescriptionProperty)));
+                    command.Parameters.Add(new SqlParameter("@PaperIdList", ""));
+                    command.Parameters.Add(new SqlParameter("@ATTRIBUTE_ID", ReadProperty(AttributeIdProperty)));
+                    command.Parameters.Add(new SqlParameter("@ALL_INCLUDED", ReadProperty(AllIncludedProperty)));
+                    //command.Parameters.Add(new SqlParameter("@DATE_FROM", ReadProperty(DateFromProperty)));
+                    command.Parameters.Add(new SqlParameter("@AUTO_RERUN", ReadProperty(AutoReRunProperty)));
+                    command.Parameters.Add(new SqlParameter("@MAG_RELATED_RUN_ID", ReadProperty(MagRelatedRunIdProperty)));
+                    command.Parameters["@MAG_RELATED_RUN_ID"].Direction = System.Data.ParameterDirection.Output;
                     command.ExecuteNonQuery();
-                    LoadProperty(MFieldOfStudyIdProperty, command.Parameters["@NEW_MagRelatedPapersRun_ID"].Value);
+                    LoadProperty(MagRelatedRunIdProperty, command.Parameters["@MAG_RELATED_RUN_ID"].Value);
                 }
                 connection.Close();
             }
-            */
         }
 
         protected override void DataPortal_Update()

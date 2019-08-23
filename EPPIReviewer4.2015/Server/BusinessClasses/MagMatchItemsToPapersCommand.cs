@@ -36,6 +36,14 @@ namespace BusinessLibrary.BusinessClasses
         private Int64 _ATTRIBUTE_ID;
         private string _FindOrRemove;
         private string _currentStatus;
+        [Newtonsoft.Json.JsonProperty]
+        public string currentStatus
+        {
+            get
+            {
+                return _currentStatus;
+            }
+        }
 
         public MagMatchItemsToPapersCommand(string FindOrRemove, bool AllInReview, Int64 ItemId, Int64 AttributeId)
         {
@@ -68,16 +76,21 @@ namespace BusinessLibrary.BusinessClasses
 
         protected override void DataPortal_Execute()
         {
-            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+            using (SqlConnection connection = new SqlConnection(DataConnection.AcademicControllerConnectionString))
             {
                 connection.Open();
                 ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
                 using (SqlCommand command = SpecifyCommand(connection, ri))
                 {
-                    command.CommandTimeout = 500; // should make this a nice long time
+                    command.CommandTimeout = 10800; // 3 hours
                     command.CommandType = System.Data.CommandType.StoredProcedure;
                     command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
+                    command.Parameters.Add(new SqlParameter("@CONTACT_ID", ri.UserId));
+                    command.Parameters.Add(new SqlParameter("@RESULT", ""));
+                    command.Parameters["@RESULT"].Direction = System.Data.ParameterDirection.Output;
                     command.ExecuteNonQuery();
+                    _currentStatus = command.Parameters["@RESULT"].Value.ToString();
+
                 }
                 connection.Close();
             }
@@ -132,6 +145,6 @@ namespace BusinessLibrary.BusinessClasses
 
 #endif
 
-        
-        }
+
+    }
 }
