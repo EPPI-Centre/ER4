@@ -38,15 +38,6 @@ export class OutcomesComponent implements OnInit, OnDestroy, AfterViewInit {
 
 	public OutcomeTypeList: OutcomeType[] = [];
 
-	//private _Outcomes: Outcome[] = [];
-
-	//@ViewChild('f') f: any;
-	
-
-	//public set outcomesList(Outcomes: Outcome[]) {
-	//	this._Outcomes = Outcomes;
-	//}
-
 	ngOnInit() {
 
 		this.OutcomeTypeList = [
@@ -60,8 +51,6 @@ export class OutcomesComponent implements OnInit, OnDestroy, AfterViewInit {
 			{ "outcomeTypeId": 7, "outcomeTypeName": "Correlation coefficient r" }
 		];
 
-		//this._OutcomesService.Outcomes = this._OutcomesService.outcomesList;
-		//this.currentOutcome = this._OutcomesService.outcomesList[0];
 		var outcomeTimePoint = <iTimePoint>{};
 		if (this.item) {
 			outcomeTimePoint.itemId = this.item.itemId;
@@ -79,7 +68,7 @@ export class OutcomesComponent implements OnInit, OnDestroy, AfterViewInit {
 			this.GetReviewSetControlList(this.ItemSetId);
 			this.GetItemArmList();
 		}
-		console.log('current outcome' + JSON.stringify(this.currentOutcome));
+		//console.log('current outcome' + JSON.stringify(this.currentOutcome));
 	}
 	public GetReviewSetOutcomeList(ItemSetId: number ) {
 
@@ -221,21 +210,14 @@ export class OutcomesComponent implements OnInit, OnDestroy, AfterViewInit {
 
 		if (this.currentOutcome &&
 			this.ItemSetId != 0) {
-			
 			if (this.currentOutcome.outcomeId == 0 ) {
-
 				this.currentOutcome.itemSetId = this.ItemSetId;
 				this._OutcomesService.Createoutcome(this.currentOutcome).then(
-
 					() => {
-						this._OutcomesService.outcomesList =
-							this._OutcomesService.FetchOutcomes(this.ItemSetId);
+						this._OutcomesService.outcomesList;
 						}
 					);
-
 			} else {
-
-				// Populate the outcome codes here
 				this._OutcomesService.Updateoutcome(this.currentOutcome);
 			}
 		}
@@ -247,9 +229,7 @@ export class OutcomesComponent implements OnInit, OnDestroy, AfterViewInit {
 		this._reviewSetsService.selectedNode = null;
 	}
     ngAfterViewInit() {
-		//this.f.form.valueChanges.subscribe((change: any) => {
-		//	console.log('jkaskdf' + change)
-		//})
+
 	}
 	CreateNewOutcome() {
 

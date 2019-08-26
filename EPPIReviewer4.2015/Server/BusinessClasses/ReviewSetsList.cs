@@ -281,7 +281,7 @@ namespace BusinessLibrary.BusinessClasses
                         while (reader.Read())
                         {
                             ReviewSet reviewSet = ReviewSet.GetReviewSet(reader);
-                            this.ReviewSetFromDBCommonPart(reviewSet);
+                            ReviewSet.ReviewSetFromDBCommonPart(reviewSet);
                             Add(reviewSet);
                         }
                     }
@@ -321,7 +321,7 @@ namespace BusinessLibrary.BusinessClasses
                         while (reader.Read())
                         {
                             ReviewSet reviewSet = ReviewSet.GetReviewSet(reader);
-                            this.ReviewSetFromDBCommonPart(reviewSet);
+                            ReviewSet.ReviewSetFromDBCommonPart(reviewSet);
                             Add(reviewSet);
                         }
                     }
@@ -343,62 +343,7 @@ namespace BusinessLibrary.BusinessClasses
             }
             RaiseListChangedEvents = true;
         }
-        private void ReviewSetFromDBCommonPart(ReviewSet reviewSet)
-        {
-
-#if OLD_BUILDTREE
-                            //compiler directive above is for testing purposes, so that we can re-activate old code by setting env. var. to OLD_BUILDTREE
-                            using (SqlConnection connection2 = new SqlConnection(DataConnection.ConnectionString))
-                            {
-                                connection2.Open();
-                                using (SqlCommand command2 = new SqlCommand("st_AttributeSet", connection2))
-                                {
-                                    
-                                    command2.CommandType = System.Data.CommandType.StoredProcedure;
-                                    command2.Parameters.Add(new SqlParameter("@SET_ID", reviewSet.SetId));
-                                    command2.Parameters.Add(new SqlParameter("@PARENT_ATTRIBUTE_ID", 0));
-                                    using (Csla.Data.SafeDataReader reader2 = new Csla.Data.SafeDataReader(command2.ExecuteReader()))
-                                    {
-                                        while (reader2.Read())
-                                        {
-                                             
-                                            AttributeSet newAttributeSet = AttributeSet.GetAttributeSet(reader2, reviewSet.TempMaxDepth);
-                                            reviewSet.Attributes.Add(newAttributeSet);
-                                        }
-                                        reader2.Close();
-                                    }
-                                }
-                                connection2.Close();
-                            }
-#else
-            List<AttributeSet> flatList = new List<AttributeSet>();
-            using (SqlConnection connection2 = new SqlConnection(DataConnection.ConnectionString))
-            {
-
-                connection2.Open();
-                using (SqlCommand command2 = new SqlCommand("st_AllAttributesInSet", connection2))
-                {
-
-                    command2.CommandType = System.Data.CommandType.StoredProcedure;
-                    command2.Parameters.Add(new SqlParameter("@SET_ID", reviewSet.SetId));
-                    using (Csla.Data.SafeDataReader reader2 = new Csla.Data.SafeDataReader(command2.ExecuteReader()))
-                    {
-                        while (reader2.Read())
-                        {
-
-                            AttributeSet newAttributeSet = AttributeSet.GetAttributeSetForFlatList(reader2, reviewSet.TempMaxDepth);
-                            flatList.Add(newAttributeSet);
-                        }
-                        reader2.Close();
-                    }
-                }
-                connection2.Close();
-            }
-            reviewSet.RecursiveBuildTree(null, flatList);
-#endif
-        }
-
-
+        
 #endif
 
     }
