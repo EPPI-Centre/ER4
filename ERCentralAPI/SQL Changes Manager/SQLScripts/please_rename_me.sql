@@ -3,6 +3,7 @@
 
 -- changes for script
 --x edit TB_SITE_LIC add EPPI_NOTES nvarchar(4000) NULL
+--x edit TB_SITE_LIC add EPPI_NOTES nvarchar(4000) NULL
 --x INSERT into TB_MANAGMENT_EMAILS add - 'HELP: EPPI Admin License Details'
 --x INSERT into TB_MANAGMENT_EMAILS add - 'HELP: Using the Site License'
 --x new st_Site_Lic_Get_By_ID
@@ -20,11 +21,35 @@
 --x change 'No extension' to 'Unrecorded' in TB_EXTENSION_TYPES
 
 
+------------ THIS ALTER TABLE PROCEDURE IS MISSING THE RE-RUN OPTIONS!!!!!
+
+USE [Reviewer]
+GO
+BEGIN TRANSACTION
+SET QUOTED_IDENTIFIER ON
+SET ARITHABORT ON
+SET NUMERIC_ROUNDABORT OFF
+SET CONCAT_NULL_YIELDS_NULL ON
+SET ANSI_NULLS ON
+SET ANSI_PADDING ON
+SET ANSI_WARNINGS ON
+COMMIT
+BEGIN TRANSACTION
+GO
+ALTER TABLE dbo.TB_SITE_LIC ADD
+	SITE_LIC_MODEL int NOT NULL CONSTRAINT DF_TB_SITE_LIC_SITE_LIC_MODEL DEFAULT 1
+GO
+ALTER TABLE dbo.TB_SITE_LIC SET (LOCK_ESCALATION = TABLE)
+GO
+COMMIT
+select Has_Perms_By_Name(N'dbo.TB_SITE_LIC', 'Object', 'ALTER') as ALT_Per, Has_Perms_By_Name(N'dbo.TB_SITE_LIC', 'Object', 'VIEW DEFINITION') as View_def_Per, Has_Perms_By_Name(N'dbo.TB_SITE_LIC', 'Object', 'CONTROL') as Contr_Per 
+
+COMMIT
+go
 
 
 
-
-
+------------------------------------------------------------------------------------------------
 
 
 USE [Reviewer]
