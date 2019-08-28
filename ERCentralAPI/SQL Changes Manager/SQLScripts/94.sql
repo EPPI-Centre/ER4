@@ -36,15 +36,18 @@ SET ANSI_WARNINGS ON
 COMMIT
 BEGIN TRANSACTION
 GO
+IF COL_LENGTH('dbo.TB_SITE_LIC', 'SITE_LIC_MODEL') IS NULL
+BEGIN
 ALTER TABLE dbo.TB_SITE_LIC ADD
 	SITE_LIC_MODEL int NOT NULL CONSTRAINT DF_TB_SITE_LIC_SITE_LIC_MODEL DEFAULT 1
+END
 GO
 ALTER TABLE dbo.TB_SITE_LIC SET (LOCK_ESCALATION = TABLE)
 GO
 COMMIT
-select Has_Perms_By_Name(N'dbo.TB_SITE_LIC', 'Object', 'ALTER') as ALT_Per, Has_Perms_By_Name(N'dbo.TB_SITE_LIC', 'Object', 'VIEW DEFINITION') as View_def_Per, Has_Perms_By_Name(N'dbo.TB_SITE_LIC', 'Object', 'CONTROL') as Contr_Per 
+--select Has_Perms_By_Name(N'dbo.TB_SITE_LIC', 'Object', 'ALTER') as ALT_Per, Has_Perms_By_Name(N'dbo.TB_SITE_LIC', 'Object', 'VIEW DEFINITION') as View_def_Per, Has_Perms_By_Name(N'dbo.TB_SITE_LIC', 'Object', 'CONTROL') as Contr_Per 
 
-COMMIT
+--COMMIT
 go
 
 
@@ -88,11 +91,20 @@ begin
 	VALUES ('HELP: EPPI Admin License Details')
 end
 
+declare @content nvarchar(max) = 'To add a user account you just need to enter the email address that was used to create that account and click ‘Add account’ (near the bottom left hand side of the screen). The reviewer will need to create an EPPI-Reviewer  account before you can place them in the license. Anyone can create an account on the ‘account manager’. If you place an expired user account into the license it becomes active again until you remove it from the license. The site license is a mechanism to keep reviews and user accounts from expiring. It does not affect the number of user accounts that can be in a review.<br />
+To add a review to the license you just need to enter the review ID and click ‘Add review’ (near the bottom right of the screen). This means that the review needs to be created before you can add it to the license (you can create new reviews in EPPI-Reviewer in the ‘My Info’ tab). Once you have placed the review in the license it becomes shareable and you can then invite other reviewers into that review. I should mention that adding a reviewer to the site license does not place them in any review. Inviting a reviewer to a review is still done as normal in the account manager. You will find a video on our <a href="http://www.youtube.com/user/eppireviewer4" target="_blank">YouTube channel</a> showing how to do this.<br />
+If you wish to add more administrators to the license you can add them near the bottom left of the screen. You should enter the person’s email address and then click ‘Add admin’. They will need to have an EPPI-Reviewer account before they can be made an administrator. An administrator does not take up one of the license’s slots (unless that person is also in the license).<br />'
+
 select @check = EMAIL_NAME from TB_MANAGMENT_EMAILS where EMAIL_NAME = 'HELP: Using the Site License'
 if @check is null OR @check != 'HELP: Using the Site License'
 begin
-	INSERT into ReviewerAdmin.dbo.TB_MANAGMENT_EMAILS (EMAIL_NAME)
-	VALUES ('HELP: Using the Site License')
+
+	INSERT into ReviewerAdmin.dbo.TB_MANAGMENT_EMAILS (EMAIL_NAME, EMAIL_MESSAGE)
+	VALUES ('HELP: Using the Site License', @content)
+end
+else
+begin
+	update TB_MANAGMENT_EMAILS set EMAIL_MESSAGE = @content where EMAIL_NAME = 'HELP: Using the Site License'
 end
 ----------------------------------------------------------------------------------
 
@@ -1224,7 +1236,7 @@ GO
 --------------------------------------------------------------
 
 update [ReviewerAdmin].[dbo].[TB_EXTENSION_TYPES]
-set EXTENSION_TYPE = 'Unreorded' where EXTENSION_TYPE_ID = 1
+set EXTENSION_TYPE = 'Unrecorded (not logged)' where EXTENSION_TYPE_ID = 1
 
 ---------------------------------------------------------
-
+GO
