@@ -243,7 +243,7 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
         this.EditCodesPanel = "";
     }
 	IsServiceBusy(): boolean {
-		if (this._reviewSetsEditingService.IsBusy || this.reviewInfoService.IsBusy) return true;
+		if (this._reviewSetsEditingService.IsBusy || this.reviewInfoService.IsBusy || this._outcomeService.IsBusy) return true;
 		else return false;
 	}
 	CanWrite(): boolean {
