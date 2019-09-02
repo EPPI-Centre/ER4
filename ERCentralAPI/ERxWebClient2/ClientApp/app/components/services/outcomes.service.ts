@@ -7,6 +7,7 @@ import { iTimePoint } from './timePoints.service';
 import { Helpers } from '../helpers/HelperMethods';
 import { forEach } from '@angular/router/src/utils/collection';
 import { StatFunctions } from '../helpers/StatisticsMethods';
+import { Subscription, Observable } from 'rxjs';
 
 @Injectable({
     providedIn: 'root',
@@ -59,32 +60,32 @@ export class OutcomesService extends BusyAwareService  {
 	}
 
 	// this is in draft stage still!!!!!!!!!!!!!!!!!!
-    public FetchOutcomes(ItemSetId: number): Outcome[] {
-
+	public FetchOutcomes(ItemSetId: number): Subscription {
+		//console.log("Fetch outcomes, base url:", this._baseUrl);
 		this._BusyMethods.push("FetchOutcomes");
 		let body = JSON.stringify({ Value: ItemSetId });
 		this._Outcomes = [];
-        this._http.post<iOutcomeList>(this._baseUrl + 'api/OutcomeList/Fetch', body).subscribe(result => {
+		return this._http.post<iOutcomeList>(this._baseUrl + 'api/OutcomeList/Fetch', body)
+			.subscribe(result => {
 
-
-			//alert(JSON.stringify(result.outcomesList));
+			console.log(JSON.stringify(result.outcomesList));
             for (let iO of result.outcomesList) {
    
 				let RealOutcome: Outcome = new Outcome(iO);
 				console.log('Check outcome codes here: ' + JSON.stringify(RealOutcome));
                 this._Outcomes.push(RealOutcome);
        
-            }
+				}
+			
             this.RemoveBusy("FetchOutcomes");
-
+			//return result.outcomesList;
         }, error => {
 
             this.modalService.SendBackHomeWithError(error);
             this.RemoveBusy("FetchOutcomes");
-            return error;
-        }
-		);
-		return this._Outcomes;
+            //return error;
+			});
+
 	}
 
 	public FetchReviewSetOutcomeList(itemSetId: number, setId: number) {
@@ -174,12 +175,14 @@ export class OutcomesService extends BusyAwareService  {
 		this._BusyMethods.push("CreateOutcome");
 		let ErrMsg = "Something went wrong when creating an outcome. \r\n If the problem persists, please contact EPPISupport.";
 
+		console.log('did call this...');
 		return this._http.post<iOutcome>(this._baseUrl + 'api/OutcomeList/Createoutcome',
 
 			currentoutcome).toPromise()
 						.then(
 						(result) => {
 
+							console.log('did get results....');
 							var newOutcome: Outcome = new Outcome(result);
 							this.outcomesList.push(newOutcome);
 							
@@ -207,7 +210,7 @@ export class OutcomesService extends BusyAwareService  {
 	
 	public Updateoutcome(currentOutcome: Outcome) {
 
-		console.log('outcome codes are: ' + JSON.stringify(currentOutcome.OutcomeCodes));
+		console.log('outcome codes are: ' + JSON.stringify(currentOutcome.outcomeCodes));
 		this._BusyMethods.push("UpdateOutcome");
 		let ErrMsg = "Something went wrong when updating an outcome. \r\n If the problem persists, please contact EPPISupport.";
 
@@ -251,7 +254,6 @@ export class OutcomesService extends BusyAwareService  {
 					return result;
 				}
 				, (error) => {
-
 
 					this.FetchOutcomes(this._currentItemSetId);					
 					this.modalService.GenericErrorMessage(ErrMsg);
@@ -386,7 +388,7 @@ export interface iOutcome {
     data13Desc: string;
     data14Desc: string;
 }
-export class Outcome {
+export class Outcome implements iOutcome {
 
 	unifiedOutcomeTypeId: number = 0;
 	manuallyEnteredOutcomeTypeId: number = 0;
@@ -394,11 +396,10 @@ export class Outcome {
 	grp2ArmName: string = '';
 	isSelected: boolean = false;
 	canSelect: boolean = false;
-	OutcomeCodes: OutcomeItemAttributesList = new OutcomeItemAttributesList();//OutcomeItemAttribute[] = [];
+	outcomeCodes: OutcomeItemAttributesList = new OutcomeItemAttributesList();
     public constructor(iO?: iOutcome) {
 		if (iO) {
-			//console.log('going through here: ');
-			//alert(JSON.stringify(iO.outcomeCodes));
+
 			this.itemSetId = iO.itemSetId;
 			this.OutcomeTypeId = iO.outcomeTypeId;
 			this.manuallyEnteredOutcomeTypeId = iO.manuallyEnteredOutcomeTypeId;
@@ -411,17 +412,16 @@ export class Outcome {
 			if (iO.outcomeCodes != undefined) {
 				for (var i = 0; i < iO.outcomeCodes.outcomeItemAttributesList.length; i++) {
 					let tmpCode: OutcomeItemAttribute = iO.outcomeCodes.outcomeItemAttributesList[i];
-					if (this.OutcomeCodes.outcomeItemAttributesList != undefined) {
-						this.OutcomeCodes.outcomeItemAttributesList.push(tmpCode);
+					if (this.outcomeCodes.outcomeItemAttributesList != undefined) {
+						this.outcomeCodes.outcomeItemAttributesList.push(tmpCode);
 						
 					}
 				}
-				//console.log('checking outcome codes: ' + JSON.stringify(this.OutcomeCodes.outcomeItemAttributesList));
 			}
 			this.shortTitle = iO.shortTitle;
-			this.OutcomeDescription = iO.outcomeDescription
+			this.outcomeDescription = iO.outcomeDescription
             this.outcomeId = iO.outcomeId;
-            this.data1 = Number(iO.data1 == null ? 0: iO.data1);
+			this.data1 = Number(iO.data1 == null ? 0 : iO.data1);
 			this.data2 = Number(iO.data2 == null ? 0 : iO.data2);
 			this.data3 = Number(iO.data3 == null ? 0 : iO.data3);
 			this.data4 = Number(iO.data4 == null ? 0 : iO.data4);
@@ -437,7 +437,7 @@ export class Outcome {
 			this.data14 = Number(iO.data14 == null ? 0 : iO.data14);
 			this.interventionText = iO.interventionText;
 			this.controlText = iO.controlText;
-			this.OutcomeText = iO.outcomeText;
+			this.outcomeText = iO.outcomeText;
 			this.itemTimepointId = iO.itemTimepointId;
 			this.itemTimepointMetric = iO.itemTimepointMetric;
 			this.itemTimepointValue = iO.itemTimepointValue;
@@ -850,10 +850,12 @@ export class Outcome {
 
 	
 		let SD: number = this.PoolSDs(this.data1, this.data2, this.data5, this.data6);
+
 		if (SD == 0) {
 			return 0;
 		}
 		let cohensD: number = (this.data3 - this.data4) / SD;
+		
 		return cohensD * (1 - (3 / (4 * (this.data1 + this.data2) - 9)));
 	}
 	private MeanDiff(): number {
@@ -1128,7 +1130,7 @@ export class Outcome {
 	title: string = "";
     shortTitle: string = "";
     timepointDisplayValue: string = "";
-	OutcomeDescription: string = "";
+	outcomeDescription: string = "";
     private Data1: number = 0;
     public get data1(): number {
 		return Number(this.Data1);
@@ -1243,7 +1245,7 @@ export class Outcome {
 	}
 	interventionText: string = "";
 	controlText: string = "";
-	OutcomeText: string = "";
+	outcomeText: string = "";
 	feWeight: number = 0;
 	reWeight: number = 0;
 	smd: number = 0;
@@ -1287,7 +1289,6 @@ export class Outcome {
 	}
 	public set data1Desc(val: string) {
 		this.Data1Desc = val;
-		//this.SetCalculatedValues();
 	}
 	private Data2Desc: string = "";
 	public get data2Desc(): string {
@@ -1295,7 +1296,6 @@ export class Outcome {
 	}
 	public set data2Desc(val: string) {
 		this.Data2Desc = val;
-		//this.SetCalculatedValues();
 	}
 	private Data3Desc: string = "";
 	public get data3Desc(): string {
@@ -1303,7 +1303,6 @@ export class Outcome {
 	}
 	public set data3Desc(val: string) {
 		this.Data3Desc = val;
-		//this.SetCalculatedValues();
 	}
 	private Data4Desc: string ="";
 	public get data4Desc(): string {
@@ -1311,7 +1310,6 @@ export class Outcome {
 	}
 	public set data4Desc(val: string) {
 		this.Data4Desc = val;
-		//this.SetCalculatedValues();
 	}
 	private Data5Desc: string = "";
 	public get data5Desc(): string {
@@ -1319,7 +1317,6 @@ export class Outcome {
 	}
 	public set data5Desc(val: string) {
 		this.Data5Desc = val;
-		//this.SetCalculatedValues();
 	}
 	private Data6Desc: string = "";
 	public get data6Desc(): string {
@@ -1327,7 +1324,6 @@ export class Outcome {
 	}
 	public set data6Desc(val: string) {
 		this.Data6Desc = val;
-		//this.SetCalculatedValues();
 	}
 	private Data7Desc: string = "";
 	public get data7Desc(): string {
@@ -1335,7 +1331,6 @@ export class Outcome {
 	}
 	public set data7Desc(val: string) {
 		this.Data7Desc = val;
-		//this.SetCalculatedValues();
 	}
 	private Data8Desc: string = "";
 	public get data8Desc(): string {
@@ -1343,7 +1338,6 @@ export class Outcome {
 	}
 	public set data8Desc(val: string) {
 		this.Data8Desc = val;
-		//this.SetCalculatedValues();
 	}
 	private Data9Desc: string = "";
 	public get data9Desc(): string {
@@ -1351,7 +1345,6 @@ export class Outcome {
 	}
 	public set data9Desc(val: string) {
 		this.Data9Desc = val;
-		//this.SetCalculatedValues();
 	}
 	private Data10Desc: string = "";
 	public get data10Desc(): string {
@@ -1359,7 +1352,6 @@ export class Outcome {
 	}
 	public set data10Desc(val: string) {
 		this.Data10Desc = val;
-		//this.SetCalculatedValues();
 	}
 	private Data11Desc: string = "";
 	public get data11Desc(): string {
@@ -1367,7 +1359,6 @@ export class Outcome {
 	}
 	public set data11Desc(val: string) {
 		this.Data11Desc = val;
-		//this.SetCalculatedValues();
 	}
 	private Data12Desc: string ="";
 	public get data12Desc(): string {
@@ -1375,7 +1366,6 @@ export class Outcome {
 	}
 	public set data12Desc(val: string) {
 		this.Data12Desc = val;
-		//this.SetCalculatedValues();
 	}
 	private Data13Desc: string = "";
 	public get data13Desc(): string {
@@ -1383,7 +1373,6 @@ export class Outcome {
 	}
 	public set data13Desc(val: string) {
 		this.Data13Desc = val;
-		//this.SetCalculatedValues();
 	}
 	private Data14Desc: string = "";
 	public get data14Desc(): string {
@@ -1391,7 +1380,6 @@ export class Outcome {
 	}
 	public set data14Desc(val: string) {
 		this.Data14Desc = val;
-		//this.SetCalculatedValues();
 	}
 }
 export class OutcomeItemAttributesList {

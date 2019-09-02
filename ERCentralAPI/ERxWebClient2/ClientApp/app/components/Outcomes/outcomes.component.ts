@@ -1,15 +1,9 @@
-import { Component, Inject, OnInit, OnDestroy, ViewChild, Input, AfterViewInit } from '@angular/core';
-import { Router } from '@angular/router';
-import { ClassifierService } from '../services/classifier.service';
+import { Component,  OnInit, OnDestroy, Input, AfterViewInit } from '@angular/core';
 import { ReviewSetsService } from '../services/ReviewSets.service';
-import { SortDescriptor, orderBy } from '@progress/kendo-data-query';
 import { EventEmitterService } from '../services/EventEmitter.service';
-import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
-import { NotificationService } from '@progress/kendo-angular-notification';
 import { OutcomesService, OutcomeType, Outcome } from '../services/outcomes.service';
 import { Item } from '../services/ItemList.service';
-import { ItemCodingService, ItemSet } from '../services/ItemCoding.service';
 import { iTimePoint } from '../services/timePoints.service';
 import { iArm } from '../services/arms.service';
 
@@ -22,8 +16,7 @@ import { iArm } from '../services/arms.service';
 
 export class OutcomesComponent implements OnInit, OnDestroy, AfterViewInit {
     DataSource: any;
-    constructor(private router: Router,
-        @Inject('BASE_URL') private _baseUrl: string,
+    constructor(
 		public _reviewSetsService: ReviewSetsService,
 		public _eventEmitterService: EventEmitterService,
 		private _ReviewerIdentityServ: ReviewerIdentityService,
@@ -35,7 +28,7 @@ export class OutcomesComponent implements OnInit, OnDestroy, AfterViewInit {
 	public ShowOutcomesStatistics: boolean = false;
 	public ShowOutcomesList: boolean = true;
 	@Input() item: Item | undefined;
-
+	public ShowCFUOAEBool: boolean = false;
 	public OutcomeTypeList: OutcomeType[] = [];
 
 	ngOnInit() {
@@ -68,7 +61,6 @@ export class OutcomesComponent implements OnInit, OnDestroy, AfterViewInit {
 			this.GetReviewSetControlList(this.ItemSetId);
 			this.GetItemArmList();
 		}
-		//console.log('current outcome' + JSON.stringify(this.currentOutcome));
 	}
 	public GetReviewSetOutcomeList(ItemSetId: number ) {
 
@@ -88,6 +80,18 @@ export class OutcomesComponent implements OnInit, OnDestroy, AfterViewInit {
 			this._OutcomesService.FetchItemArmList(this.item.itemId);
 		}
 	}
+	public ShowCFUOAE(){
+
+		this.ShowCFUOAEBool = !this.ShowCFUOAEBool;
+	}
+	public get SMD(): string {
+
+		return this.currentOutcome.smd.toFixed(15);
+	}
+	public get SEES(): string {
+
+		return this.currentOutcome.sees.toFixed(15);
+	}
 	public get timePointsList(): iTimePoint[] {
 
 		if (!this.item || !this.item.timepoints) {
@@ -102,20 +106,16 @@ export class OutcomesComponent implements OnInit, OnDestroy, AfterViewInit {
 	public CalculatedEffectSize(): number {
 
 		if (this.currentOutcome.esDesc == 'Effect size') {
-			//console.log('got in here: Effect size');
 			return this.currentOutcome.es;
 		}
 		if (this.currentOutcome.esDesc == 'SMD') {
-			//console.log('got in here: smd');
 			return this.currentOutcome.smd;
 		}
 		if (this.currentOutcome.esDesc == 'Diagnostic OR') {
-			//console.log('got in here: petoOR could be wrong');
 			return this.currentOutcome.petoOR;
 		}
 		if (this.currentOutcome.esDesc == 'r') {
 
-			//console.log('got in here: petoOR could be wrong');
 			return this.currentOutcome.r;
 		}
 

@@ -44,7 +44,7 @@ namespace ERxWebClient2.Controllers
 			}
 			catch (Exception e)
 			{
-				_logger.LogError(e, "Fetching OoutcomeList Errors");
+				_logger.LogError(e, "Fetching OutcomeList Errors");
 				return StatusCode(500, e.Message);
 			}
 		}

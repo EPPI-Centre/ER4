@@ -673,8 +673,8 @@ export class ItemCodingService extends BusyAwareService {
     }
 
     private GetOutcomeInnerTable(o: Outcome): string {
-        let retVal = "<tr><td>" + o.title + "</td><td>" + o.OutcomeDescription.replace("\r", "<br style='mso-Data-placement:same-cell;'  />")
-            + "</td><td>" + o.timepointDisplayValue + "</td><td>" + o.OutcomeText + "</td><td>" + o.interventionText +
+        let retVal = "<tr><td>" + o.title + "</td><td>" + o.outcomeDescription.replace("\r", "<br style='mso-Data-placement:same-cell;'  />")
+            + "</td><td>" + o.timepointDisplayValue + "</td><td>" + o.outcomeText + "</td><td>" + o.interventionText +
             "</td><td>" + o.controlText + "</td>";
         switch (o.outcomeTypeId) {
             case 0: // manual entry
@@ -773,7 +773,7 @@ export class ItemCodingService extends BusyAwareService {
         }
 
         retVal += "<td>";
-        for(let OIA of o.OutcomeCodes.outcomeItemAttributesList)
+        for(let OIA of o.outcomeCodes.outcomeItemAttributesList)
         {
             retVal += OIA.attributeName + "<br style='mso-data-placement:same-cell;' >";
         }

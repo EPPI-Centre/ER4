@@ -207,6 +207,7 @@
     <Folder Include="ClientApp\app\components\StatusBar\" />
     <Folder Include="ClientApp\app\components\reviewStatistics\" />
     <Folder Include="Extensions\" />
+    <Folder Include="helpers\" />
     <Folder Include="wwwroot\Images\" />
   </ItemGroup>
 
