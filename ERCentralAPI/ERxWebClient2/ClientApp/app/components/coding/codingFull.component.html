@@ -6,7 +6,9 @@
 	<div class="h-100 mh-100 pr-0 ">
 		
         <div class="row d-flex flex-wrap-reverse ml-1 mr-1 ">
-			<div class="col-sm-12 col-md-5 col-lg-3 pl-2 pr-2 align-self-end ">
+			<div class="col-sm-12 pl-2 pr-2 align-self-end "
+                 [ngClass]="{'col-md-5 col-lg-3' : !ShowOutComes
+                 , 'col-md-6 col-lg-5' : ShowOutComes}">
 				<div class="containsAtoolbar mb-1 small h-100 rounded" style="background-color: #f5f6fa;">
 
 					<button kendoButton [icon]="'plus'" class="small m-1" title="Add child code..."
@@ -42,7 +44,7 @@
 				</div>
 
 				<ArmsComp #ArmsCmp class="card-text"></ArmsComp>
-				<div *ngIf="!ShowOutComes">
+				<div [hidden]="ShowOutComes">
 					<codesetTreeCoding 
 									   #codesetTreeCoding class="bg-light" 
 									   [InitiateFetchPDFCoding]="ShouldFetchPDFCoding" 
@@ -55,7 +57,9 @@
 				</div>
 			</div>
 
-            <div class="col-sm-12 col-md-7 col-lg-9 m-0 pr-0 pl-0">
+            <div class="col-sm-12 m-0 pr-0 pl-0"
+                 [ngClass]="{'col-md-7 col-lg-9' : !ShowOutComes
+                 , 'col-md-6 col-lg-7' : ShowOutComes}">
                 <div class="ml-1 mt-0 mr-1 pl-0 pr-0 w-100 row">
                     <itemDetailsPaginator [item]="item" Context="FullUI" [IsScreening]="IsScreening" (ItemChanged)="ItemChanged()" (GoToNextScreeningItemClicked)="GetItem()"
                                           class="col-12 col-sm  pr-0 pl-0 ml-1 mr-1"></itemDetailsPaginator>
