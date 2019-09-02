@@ -190,21 +190,21 @@
 		-->
 
 					<div class="row col-md-12 p-1 m-0">
-						<div class="row col-6 col-md-6 col-lg-4 p-1 m-0">
+						<div class="row col-6 col-md-6 col-lg-6 p-1 m-0">
 							<label class="col-md-6">{{currentOutcome.Data1Desc}}</label>
 							<input class="form-control col-md-6" #group1NModel="ngModel"
 								   [(ngModel)]="currentOutcome.data1"
 								   value="currentOutcome.data1"
 								   type="text" />
 						</div>
-						<div class="row col-6 col-md-6 col-lg-4 p-1 m-0">
+						<div class="row col-6 col-md-6 col-lg-6 p-1 m-0">
 							<label class="col-md-6">{{currentOutcome.Data2Desc}}</label>
 							<input class="form-control col-md-6" #group2NModel="ngModel"
 								   [(ngModel)]="currentOutcome.data2"
 								   value="currentOutcome.data2"
 								   type="text" />
 						</div>
-						<div class="row col-6 col-md-6 col-lg-4 p-1 m-0"
+						<div class="row col-6 col-md-6 col-lg-6 p-1 m-0"
 							 *ngIf="currentOutcome.outcomeTypeId != 7">
 							<label class="col-md-6">{{currentOutcome.Data3Desc}}</label>
 							<input #group1MeanModel="ngModel"
@@ -212,7 +212,7 @@
 								   value="currentOutcome.data3"
 								   type="text" class="form-control col-md-6" />
 						</div>
-						<div class="row col-6 col-md-6 col-lg-4 p-1 m-0"
+						<div class="row col-6 col-md-6 col-lg-6 p-1 m-0"
 							 *ngIf="currentOutcome.outcomeTypeId != 7 ">
 
 							<label class="col-md-6">{{currentOutcome.Data4Desc}}</label>
@@ -222,7 +222,7 @@
 								   type="text" class="form-control col-md-6" />
 						</div>
 
-						<div class="row col-6 col-md-6 col-lg-4  p-1 m-0"
+						<div class="row col-6 col-md-6 col-lg-6  p-1 m-0"
 							 *ngIf="currentOutcome.outcomeTypeId != 7 && currentOutcome.outcomeTypeId != 6
 						 && currentOutcome.outcomeTypeId != 5 && currentOutcome.outcomeTypeId != 2">
 
@@ -232,7 +232,7 @@
 								   value="currentOutcome.data5"
 								   type="text" class="form-control col-md-6" />
 						</div>
-						<div class="row col-6 col-md-6 col-lg-4 p-1 m-0"
+						<div class="row col-6 col-md-6 col-lg-6 p-1 m-0"
 							 *ngIf="currentOutcome.outcomeTypeId != 7 && currentOutcome.outcomeTypeId != 6
 						 && currentOutcome.outcomeTypeId != 5 && currentOutcome.outcomeTypeId != 2">
 
@@ -244,7 +244,7 @@
 
 						</div>
 
-						<div class="row col-6 col-md-6 col-lg-4 p-1 m-0"
+						<div class="row col-6 col-md-6 col-lg-6 p-1 m-0"
 							 *ngIf="currentOutcome.outcomeTypeId != 7 && currentOutcome.outcomeTypeId != 6
 						 && currentOutcome.outcomeTypeId != 5 && currentOutcome.outcomeTypeId != 3
 						 && currentOutcome.outcomeTypeId != 2 && currentOutcome.outcomeTypeId != 1">
@@ -256,7 +256,7 @@
 								   type="text" class="form-control col-md-6" />
 						</div>
 
-						<div class="row col-6 col-md-6 col-lg-4 p-1 m-0"
+						<div class="row col-6 col-md-6 col-lg-6 p-1 m-0"
 							 *ngIf="currentOutcome.outcomeTypeId != 7 && currentOutcome.outcomeTypeId != 6
 						 && currentOutcome.outcomeTypeId != 5 && currentOutcome.outcomeTypeId != 3
 						 && currentOutcome.outcomeTypeId != 2 && currentOutcome.outcomeTypeId != 1">
@@ -268,7 +268,7 @@
 								   type="text" class="form-control col-md-6" />
 						</div>
 
-						<div class="row col-6 col-md-6 col-lg-4 p-1 m-0"
+						<div class="row col-6 col-md-6 col-lg-6 p-1 m-0"
 							 *ngIf="currentOutcome.outcomeTypeId != 7 && currentOutcome.outcomeTypeId != 6
 						 && currentOutcome.outcomeTypeId != 5 && currentOutcome.outcomeTypeId != 4
 						 && currentOutcome.outcomeTypeId != 3 && currentOutcome.outcomeTypeId != 2
@@ -281,7 +281,7 @@
 								   type="text" class="form-control col-md-6 small" />
 						</div>
 
-						<div class="row col-6 col-md-6 col-lg-4 p-1 m-0"
+						<div class="row col-6 col-md-6 col-lg-6 p-1 m-0"
 							 *ngIf="currentOutcome.outcomeTypeId != 7 && currentOutcome.outcomeTypeId != 6
 						 && currentOutcome.outcomeTypeId != 5 && currentOutcome.outcomeTypeId != 4
 						 && currentOutcome.outcomeTypeId != 3 && currentOutcome.outcomeTypeId != 2
@@ -294,7 +294,7 @@
 								   type="text" class="form-control col-md-6 small" />
 						</div>
 
-						<div class="row col-6  col-md-4  p-1 m-0"
+						<div class="row col-6 col-md-6 col-lg-6  p-1 m-0"
 							 *ngIf="currentOutcome.outcomeTypeId != 7 && currentOutcome.outcomeTypeId != 6
 						 && currentOutcome.outcomeTypeId != 5 && currentOutcome.outcomeTypeId != 4
 						 && currentOutcome.outcomeTypeId != 3 && currentOutcome.outcomeTypeId != 2
@@ -306,7 +306,7 @@
 								   value="currentOutcome.data13"
 								   type="text" class="form-control col-md-6 small" />
 						</div>
-						<div class="row col-6 col-md-6 col-lg-4 p-1 m-0"
+						<div class="row col-6 col-md-6 col-lg-6 p-1 m-0"
 							 *ngIf="currentOutcome.outcomeTypeId != 7 && currentOutcome.outcomeTypeId != 6
 						 && currentOutcome.outcomeTypeId != 5 && currentOutcome.outcomeTypeId != 4
 						 && currentOutcome.outcomeTypeId != 3 && currentOutcome.outcomeTypeId != 2
@@ -317,7 +317,7 @@
 								   value="currentOutcome.data14"
 								   type="text" class="form-control col-md-6 small" />
 						</div>
-						<div class="row col-12 p-2 m-2">
+						<div class="row col-12 p-0 m-0">
 							<div class="">
 								<input class="p-2 m-2" type="checkbox" name="CFUOAE" value="false" (click)="ShowCFUOAE()">
 								<label class="p-2 m-2">Correct for unit of analysis error</label>
@@ -338,8 +338,8 @@
 										   type="text" class="form-control col-4 col-md-4" />
 								</div>
 							</div>
-							<div class="row col-md-12 ">
-								<div class="col-12 col-md-12 col-lg-12 row">
+							<div class="row col-md-12 p-0 m-0">
+								<div class="col-12 col-md-12 col-lg-12 row p-0 m-0">
 									<label class="col-md-5 bold">{{currentOutcome.esDesc}}</label>
 									<p *ngIf="currentOutcome.esDesc=='SMD'" class="col-md-7 ">{{SMD}}</p>
 									<p *ngIf="currentOutcome.esDesc=='Effect size'" class="col-md-7 ">{{SMD}}</p>
