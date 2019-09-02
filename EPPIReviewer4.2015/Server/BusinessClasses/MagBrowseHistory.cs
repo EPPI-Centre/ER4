@@ -160,6 +160,19 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
+        private static PropertyInfo<int> MagRelatedRunIdProperty = RegisterProperty<int>(new PropertyInfo<int>("MagRelatedRunId", "MagRelatedRunId", 0));
+        public int MagRelatedRunId
+        {
+            get
+            {
+                return GetProperty(MagRelatedRunIdProperty);
+            }
+            set
+            {
+                SetProperty(MagRelatedRunIdProperty, value);
+            }
+        }
+
 
 
         //protected override void AddAuthorizationRules()

@@ -239,8 +239,8 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private Int64 _MagRelatedRunId;
-        public Int64 MagRelatedRunId
+        private int _MagRelatedRunId;
+        public int MagRelatedRunId
         {
             get
             {
@@ -302,7 +302,7 @@ namespace BusinessLibrary.BusinessClasses
             _FieldOfStudyId = info.GetValue<Int64>("_FieldOfStudyId");
             _PaperId = info.GetValue<Int64>("_PaperId");
             _AuthorId = info.GetValue<Int64>("_AuthorId");
-            _MagRelatedRunId = info.GetValue<Int64>("_MagRelatedRunId");
+            _MagRelatedRunId = info.GetValue<int>("_MagRelatedRunId");
             _PaperIds = info.GetValue<string>("_PaperIds");
             _IncludedOrExcluded = info.GetValue<string>("_IncludedOrExcluded");
             _AttributeIds = info.GetValue<string>("_AttributeIds");
@@ -341,6 +341,7 @@ namespace BusinessLibrary.BusinessClasses
                 connection.Open();
                 using (SqlCommand command = SpecifyListCommand(connection, selectionCriteria, ri))
                 {
+                    command.CommandTimeout = 500; // a bit longer, as some of these lists are long!
                     command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId)); // use the stored value so that noone can list items out of a review they aren't properly authenticated on
                     command.Parameters.Add(new SqlParameter("@PageNo", selectionCriteria.PageNumber + 1));
                     command.Parameters.Add(new SqlParameter("@RowsPerPage", selectionCriteria.PageSize));
@@ -431,6 +432,8 @@ namespace BusinessLibrary.BusinessClasses
                     command.CommandType = System.Data.CommandType.StoredProcedure;
                     command.Parameters.Add(new SqlParameter("@MAG_RELATED_RUN_ID", criteria.MagRelatedRunId));
                     this.MagRelatedRunId = criteria.MagRelatedRunId;
+                    this.PaperIds = "";
+                    this.AttributeIds = "";
                     break;
                 case "PaperListById":
                     command = new SqlCommand("st_PaperListById", connection);
@@ -506,7 +509,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        public static readonly PropertyInfo<int> MagRelatedRunIdProperty = RegisterProperty<int>(typeof(MagPaperListSelectionCriteria), new PropertyInfo<int>("MagRelatedRunId", "MagRelatedRunId", 1));
+        public static readonly PropertyInfo<int> MagRelatedRunIdProperty = RegisterProperty<int>(typeof(MagPaperListSelectionCriteria), new PropertyInfo<int>("MagRelatedRunId", "MagRelatedRunId", 0));
         public int MagRelatedRunId
         {
             get { return ReadProperty(MagRelatedRunIdProperty); }
