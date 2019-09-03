@@ -53,7 +53,7 @@ export class OutcomesComponent implements OnInit, OnDestroy, AfterViewInit {
 		outcomeTimePoint.timepointMetric = this.currentOutcome.itemTimepointMetric;
 		outcomeTimePoint.timepointValue = this.currentOutcome.itemTimepointValue;
 		this.currentOutcome.outcomeTimePoint = outcomeTimePoint;
-
+		this._OutcomesService.currentOutcome = this.currentOutcome;
 		this.ItemSetId = this._OutcomesService.ItemSetId;
 		if (this.ItemSetId != 0) {
 

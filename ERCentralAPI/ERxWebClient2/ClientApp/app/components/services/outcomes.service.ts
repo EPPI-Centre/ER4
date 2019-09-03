@@ -27,6 +27,7 @@ export class OutcomesService extends BusyAwareService  {
 	private _Outcomes: Outcome[] = [];
 	//public Outcomes: Outcome[] = [];
 	public ItemSetId: number = 0;
+	public currentOutcome: Outcome = new Outcome();
 	public ShowOutComeList: EventEmitter<SetAttribute> = new EventEmitter();
 
 	public get outcomesList(): Outcome[] {
@@ -1392,5 +1393,6 @@ export interface OutcomeItemAttribute {
 	attributeId: number;
 	additionalText: string;
 	attributeName: string;
+	//IsSelected: boolean;
 }
 
