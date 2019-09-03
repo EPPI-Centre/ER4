@@ -44,6 +44,7 @@ export class OutcomesService extends BusyAwareService  {
     }
 
 	@Output() outcomesChangedEE = new EventEmitter();
+	@Output() ItemSetChanged = new EventEmitter();
 
 	public ReviewSetOutcomeList: ReviewSetDropDownResult[] = [];
 	public ReviewSetControlList: ReviewSetDropDownResult[] = [];

@@ -1,4 +1,4 @@
-import { Component,  OnInit, OnDestroy, Input, AfterViewInit } from '@angular/core';
+import { Component,  OnInit, OnDestroy, Input, AfterViewInit, EventEmitter, Output } from '@angular/core';
 import { ReviewSetsService } from '../services/ReviewSets.service';
 import { EventEmitterService } from '../services/EventEmitter.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
@@ -6,6 +6,7 @@ import { OutcomesService, OutcomeType, Outcome } from '../services/outcomes.serv
 import { Item } from '../services/ItemList.service';
 import { iTimePoint } from '../services/timePoints.service';
 import { iArm } from '../services/arms.service';
+import { ItemSet } from '../services/ItemCoding.service';
 
 
 @Component({
@@ -32,7 +33,7 @@ export class OutcomesComponent implements OnInit, OnDestroy, AfterViewInit {
 	public OutcomeTypeList: OutcomeType[] = [];
 
 	ngOnInit() {
-
+		
 		this.OutcomeTypeList = [
 			{ "outcomeTypeId": 0, "outcomeTypeName": "Manual entry" },
 			{ "outcomeTypeId": 1, "outcomeTypeName": "Continuous: Ns, means, and SD" },
@@ -167,7 +168,9 @@ export class OutcomesComponent implements OnInit, OnDestroy, AfterViewInit {
 		this.ShowOutcomesStatistics = true;
 		this.ShowOutcomesList = false;
 		this.currentOutcome = outcome;
-		console.log(JSON.stringify(this.currentOutcome));
+		this._OutcomesService.ItemSetId = outcome.itemSetId;
+		this._OutcomesService.ItemSetChanged.emit(outcome.itemSetId);
+		console.log('emitting the following number: ' + outcome.itemSetId);
 	}
 	removeWarning(outcome: Outcome, key: number) {
 

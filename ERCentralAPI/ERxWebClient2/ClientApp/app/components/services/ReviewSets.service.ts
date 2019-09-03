@@ -157,6 +157,7 @@ export class ReviewSetsService extends BusyAwareService {
         //    }
         //}
         //this._IsBusy = false;
+
         return this._ReviewSets;
     }
     public set ReviewSets(sets: ReviewSet[]) {
