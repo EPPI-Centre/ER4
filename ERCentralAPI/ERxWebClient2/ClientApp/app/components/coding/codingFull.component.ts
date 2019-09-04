@@ -157,7 +157,7 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
                 () => { this.SetCoding(); }
             );
             this.subCodingCheckBoxClickedEvent = this.ReviewSetsService.ItemCodingCheckBoxClickedEvent.subscribe((data: CheckBoxClickedEventData) => this.ItemAttributeSave(data));
-            this.subGotPDFforViewing = this.ItemDocsService.GotDocument.subscribe(() => this.CheckAndMoveToPDFTab())
+            this.subGotPDFforViewing = this.ItemDocsService.GotDocument.subscribe(() => this.CheckAndMoveToPDFTab());
 
             //this.ReviewSetsService.ItemCodingItemAttributeSaveCommandError.subscribe((cmdErr: any) => this.HandleItemAttributeSaveCommandError(cmdErr));
             //this.ReviewSetsService.ItemCodingItemAttributeSaveCommandExecuted.subscribe((cmd: ItemAttributeSaveCommand) => this.HandleItemAttributeSaveCommandDone(cmd));
@@ -615,7 +615,7 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
         if (e.title == 'Item Details') {
             this.HelpAndFeebackContext = "itemdetails";
         }
-        else if (e.title == 'Study Arms') {
+        else if (e.title == 'Arms and Timepoints') {
             this.HelpAndFeebackContext = "itemdetails\\arms";
         }
         else if (e.title == 'Coding Record') {
