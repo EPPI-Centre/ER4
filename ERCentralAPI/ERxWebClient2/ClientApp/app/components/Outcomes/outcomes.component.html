@@ -53,19 +53,19 @@
 			<div class=" col-md-12 p-0 m-0">
 				<div class="row col-md-12 p-1 m-0">
 					<label class="col-md-4">Title</label>
-					<input #titleModel="ngModel" placeholder="Title" [(ngModel)]="currentOutcome.title"
+					<input #titleModel="ngModel" placeholder="Title" [(ngModel)]="_OutcomesService.currentOutcome.title"
 						   required minlength="3"
-						   value="currentOutcome.title"
+						   value="_OutcomesService.currentOutcome.title"
 						   pattern="^(?!\s*$).+"
 						   type="text" class="form-control col-md-8 form-input" />
 				</div>
 				<div class="row col-md-12 p-1 m-0">
 					<label class="col-md-4 ">Timepoint</label>
 					<div class="d-inline-block col-md-8 p-0 m-0">
-						<select #timePoint [(ngModel)]="currentOutcome.itemTimepointId"
+						<select #timePoint [(ngModel)]="_OutcomesService.currentOutcome.itemTimepointId"
 								class="form-control col-md-12 p-0 m-0">
 							<option [ngValue]="timepoint.itemTimepointId"
-									[selected]="timepoint.itemTimepointId == currentOutcome.itemTimepointId"
+									[selected]="timepoint.itemTimepointId == _OutcomesService.currentOutcome.itemTimepointId"
 									*ngFor="let timepoint of timePointsList">
 								{{timepoint.timepointValue}} &nbsp; {{timepoint.timepointMetric}}
 							</option>
@@ -77,18 +77,18 @@
 					<label class="col-md-4">Outcome Description</label>
 					<input #outcomeDescriptionModel="ngModel"
 						   required minlength="3"
-						   value="currentOutcome.outcomeDescription"
+						   value="_OutcomesService.currentOutcome.outcomeDescription"
 						   pattern="^(?!\s*$).+"
-						   [(ngModel)]="currentOutcome.outcomeDescription"
+						   [(ngModel)]="_OutcomesService.currentOutcome.outcomeDescription"
 						   type="text" class="form-control col-md-8 form-input" />
 				</div>
 				<div class="row col-md-12  p-1 m-0">
 					<label class="col-md-4">Outcome type</label>
 					<div ngbDropdown class="col-12 col-md-8  p-1">
-						<select #outcomeType [(ngModel)]="currentOutcome.outcomeTypeId"
+						<select #outcomeType [(ngModel)]="_OutcomesService.currentOutcome.outcomeTypeId"
 								class="form-control col-md-12">
 							<option [ngValue]="outcomeT.outcomeTypeId"
-									[selected]="outcomeT.outcomeTypeId == currentOutcome.outcomeTypeId"
+									[selected]="outcomeT.outcomeTypeId == _OutcomesService.currentOutcome.outcomeTypeId"
 									*ngFor="let outcomeT of OutcomeTypeList">
 								{{outcomeT.outcomeTypeName}}
 							</option>
@@ -99,10 +99,10 @@
 					<label class="col-md-4">Outcome</label>
 					<div ngbDropdown class="col-12  col-md-8  p-1"
 						 placeholder="Outcomes">
-						<select #outcomeDD [(ngModel)]="currentOutcome.itemAttributeIdOutcome"
+						<select #outcomeDD [(ngModel)]="_OutcomesService.currentOutcome.itemAttributeIdOutcome"
 								class="form-control col-md-12">
 							<option [ngValue]="out.attributeId"
-									[selected]="out.attributeId == currentOutcome.itemAttributeIdOutcome"
+									[selected]="out.attributeId == _OutcomesService.currentOutcome.itemAttributeIdOutcome"
 									*ngFor="let out of _OutcomesService.ReviewSetOutcomeList">
 								{{out.attributeName}}
 							</option>
@@ -115,10 +115,10 @@
 					<label class="col-md-4">Intervention</label>
 					<div ngbDropdown class="col-12  col-md-8  p-1">
 						<select #interventionDD="ngModel"
-								[(ngModel)]="currentOutcome.itemAttributeIdIntervention"
+								[(ngModel)]="_OutcomesService.currentOutcome.itemAttributeIdIntervention"
 								class="form-control col-md-12">
 							<option [ngValue]="intervention.attributeId"
-									[selected]="intervention.attributeId == currentOutcome.itemAttributeIdIntervention"
+									[selected]="intervention.attributeId == _OutcomesService.currentOutcome.itemAttributeIdIntervention"
 									*ngFor="let intervention of _OutcomesService.ReviewSetInterventionList">
 								{{intervention.attributeName}}
 							</option>
@@ -129,10 +129,10 @@
 					<label class="col-md-4">Comparison</label>
 					<div ngbDropdown class="col-12  col-md-8  p-1">
 						<select #controlDD="ngModel"
-								[(ngModel)]="currentOutcome.itemAttributeIdControl"
+								[(ngModel)]="_OutcomesService.currentOutcome.itemAttributeIdControl"
 								class="form-control col-md-12">
 							<option [ngValue]="control.attributeId"
-									[selected]="control.attributeId == currentOutcome.itemAttributeIdControl"
+									[selected]="control.attributeId == _OutcomesService.currentOutcome.itemAttributeIdControl"
 									*ngFor="let control of _OutcomesService.ReviewSetControlList">
 								{{control.attributeName}}
 							</option>
@@ -144,10 +144,10 @@
 
 					<label class="col-md-4">Group 1 arm</label>
 					<div ngbDropdown class="col-12 col-md-8  p-1">
-						<select #GroupOneArm="ngModel" [(ngModel)]="currentOutcome.itemArmIdGrp1"
+						<select #GroupOneArm="ngModel" [(ngModel)]="_OutcomesService.currentOutcome.itemArmIdGrp1"
 								class="form-control col-md-12">
 							<option [ngValue]="arm.itemArmId"
-									[selected]="arm.itemArmId == currentOutcome.itemArmIdGrp1"
+									[selected]="arm.itemArmId == _OutcomesService.currentOutcome.itemArmIdGrp1"
 									*ngFor="let arm of _OutcomesService.ReviewSetItemArmList">
 								{{arm.title}}
 							</option>
@@ -157,10 +157,10 @@
 
 					<label class="col-md-4">Group 2 arm</label>
 					<div ngbDropdown class="col-12  col-md-8 p-1">
-						<select #GroupTwoArm="ngModel" [(ngModel)]="currentOutcome.itemArmIdGrp2"
+						<select #GroupTwoArm="ngModel" [(ngModel)]="_OutcomesService.currentOutcome.itemArmIdGrp2"
 								class="form-control col-md-12">
 							<option [ngValue]="arm.itemArmId"
-									[selected]="arm.itemArmId == currentOutcome.itemArmIdGrp2"
+									[selected]="arm.itemArmId == _OutcomesService.currentOutcome.itemArmIdGrp2"
 									*ngFor="let arm of _OutcomesService.ReviewSetItemArmList">
 								{{arm.title}}
 							</option>
@@ -181,7 +181,7 @@
 				*     7: Continuous: mean difference
 				*/
 
-					<div *ngFor="let code of currentOutcome.OutcomeCodes.outcomeItemAttributesList">
+					<div *ngFor="let code of _OutcomesService.currentOutcome.OutcomeCodes.outcomeItemAttributesList">
 					{{code.attributeName}}
 				</div>
 
@@ -190,130 +190,130 @@
 
 				<div class="row col-md-12 p-1 m-0">
 					<div class="row col-6 col-md-6 col-lg-6 p-1 m-0">
-						<label class="col-md-6">{{currentOutcome.Data1Desc}}</label>
+						<label class="col-md-6">{{_OutcomesService.currentOutcome.Data1Desc}}</label>
 						<input class="form-control col-md-6" #group1NModel="ngModel"
-							   [(ngModel)]="currentOutcome.data1"
-							   value="currentOutcome.data1"
+							   [(ngModel)]="_OutcomesService.currentOutcome.data1"
+							   value="_OutcomesService.currentOutcome.data1"
 							   type="text" />
 					</div>
 					<div class="row col-6 col-md-6 col-lg-6 p-1 m-0">
-						<label class="col-md-6">{{currentOutcome.Data2Desc}}</label>
+						<label class="col-md-6">{{_OutcomesService.currentOutcome.Data2Desc}}</label>
 						<input class="form-control col-md-6" #group2NModel="ngModel"
-							   [(ngModel)]="currentOutcome.data2"
-							   value="currentOutcome.data2"
+							   [(ngModel)]="_OutcomesService.currentOutcome.data2"
+							   value="_OutcomesService.currentOutcome.data2"
 							   type="text" />
 					</div>
 					<div class="row col-6 col-md-6 col-lg-6 p-1 m-0"
-						 *ngIf="currentOutcome.outcomeTypeId != 7">
-						<label class="col-md-6">{{currentOutcome.Data3Desc}}</label>
+						 *ngIf="_OutcomesService.currentOutcome.outcomeTypeId != 7">
+						<label class="col-md-6">{{_OutcomesService.currentOutcome.Data3Desc}}</label>
 						<input #group1MeanModel="ngModel"
-							   [(ngModel)]="currentOutcome.data3"
-							   value="currentOutcome.data3"
+							   [(ngModel)]="_OutcomesService.currentOutcome.data3"
+							   value="_OutcomesService.currentOutcome.data3"
 							   type="text" class="form-control col-md-6" />
 					</div>
 					<div class="row col-6 col-md-6 col-lg-6 p-1 m-0"
-						 *ngIf="currentOutcome.outcomeTypeId != 7 ">
+						 *ngIf="_OutcomesService.currentOutcome.outcomeTypeId != 7 ">
 
-						<label class="col-md-6">{{currentOutcome.Data4Desc}}</label>
+						<label class="col-md-6">{{_OutcomesService.currentOutcome.Data4Desc}}</label>
 						<input #group2MeanModel="ngModel"
-							   [(ngModel)]="currentOutcome.data4"
-							   value="currentOutcome.data4"
+							   [(ngModel)]="_OutcomesService.currentOutcome.data4"
+							   value="_OutcomesService.currentOutcome.data4"
 							   type="text" class="form-control col-md-6" />
 					</div>
 
 					<div class="row col-6 col-md-6 col-lg-6  p-1 m-0"
-						 *ngIf="currentOutcome.outcomeTypeId != 7 && currentOutcome.outcomeTypeId != 6
-						 && currentOutcome.outcomeTypeId != 5 && currentOutcome.outcomeTypeId != 2">
+						 *ngIf="_OutcomesService.currentOutcome.outcomeTypeId != 7 && _OutcomesService.currentOutcome.outcomeTypeId != 6
+						 && _OutcomesService.currentOutcome.outcomeTypeId != 5 && _OutcomesService.currentOutcome.outcomeTypeId != 2">
 
-						<label class="col-md-6">{{currentOutcome.Data5Desc}}</label>
+						<label class="col-md-6">{{_OutcomesService.currentOutcome.Data5Desc}}</label>
 						<input #group1SDModel="ngModel"
-							   [(ngModel)]="currentOutcome.data5"
-							   value="currentOutcome.data5"
+							   [(ngModel)]="_OutcomesService.currentOutcome.data5"
+							   value="_OutcomesService.currentOutcome.data5"
 							   type="text" class="form-control col-md-6" />
 					</div>
 					<div class="row col-6 col-md-6 col-lg-6 p-1 m-0"
-						 *ngIf="currentOutcome.outcomeTypeId != 7 && currentOutcome.outcomeTypeId != 6
-						 && currentOutcome.outcomeTypeId != 5 && currentOutcome.outcomeTypeId != 2">
+						 *ngIf="_OutcomesService.currentOutcome.outcomeTypeId != 7 && _OutcomesService.currentOutcome.outcomeTypeId != 6
+						 && _OutcomesService.currentOutcome.outcomeTypeId != 5 && _OutcomesService.currentOutcome.outcomeTypeId != 2">
 
-						<label class="col-md-6">{{currentOutcome.Data6Desc}}</label>
+						<label class="col-md-6">{{_OutcomesService.currentOutcome.Data6Desc}}</label>
 						<input #group2SDModel="ngModel"
-							   [(ngModel)]="currentOutcome.data6"
-							   value="currentOutcome.data6"
+							   [(ngModel)]="_OutcomesService.currentOutcome.data6"
+							   value="_OutcomesService.currentOutcome.data6"
 							   type="text" class="form-control col-md-6" />
 
 					</div>
 
 					<div class="row col-6 col-md-6 col-lg-6 p-1 m-0"
-						 *ngIf="currentOutcome.outcomeTypeId != 7 && currentOutcome.outcomeTypeId != 6
-						 && currentOutcome.outcomeTypeId != 5 && currentOutcome.outcomeTypeId != 3
-						 && currentOutcome.outcomeTypeId != 2 && currentOutcome.outcomeTypeId != 1">
+						 *ngIf="_OutcomesService.currentOutcome.outcomeTypeId != 7 && _OutcomesService.currentOutcome.outcomeTypeId != 6
+						 && _OutcomesService.currentOutcome.outcomeTypeId != 5 && _OutcomesService.currentOutcome.outcomeTypeId != 3
+						 && _OutcomesService.currentOutcome.outcomeTypeId != 2 && _OutcomesService.currentOutcome.outcomeTypeId != 1">
 
-						<label class="col-md-6">{{currentOutcome.Data7Desc}}</label>
+						<label class="col-md-6">{{_OutcomesService.currentOutcome.Data7Desc}}</label>
 						<input #group2SDModel="ngModel"
-							   [(ngModel)]="currentOutcome.data7"
-							   value="currentOutcome.data7"
-							   type="text" class="form-control col-md-6" />
-					</div>
-
-					<div class="row col-6 col-md-6 col-lg-6 p-1 m-0"
-						 *ngIf="currentOutcome.outcomeTypeId != 7 && currentOutcome.outcomeTypeId != 6
-						 && currentOutcome.outcomeTypeId != 5 && currentOutcome.outcomeTypeId != 3
-						 && currentOutcome.outcomeTypeId != 2 && currentOutcome.outcomeTypeId != 1">
-
-						<label class="col-md-6">{{currentOutcome.Data8Desc}}</label>
-						<input #group2SDModel="ngModel"
-							   [(ngModel)]="currentOutcome.data8"
-							   value="currentOutcome.data8"
+							   [(ngModel)]="_OutcomesService.currentOutcome.data7"
+							   value="_OutcomesService.currentOutcome.data7"
 							   type="text" class="form-control col-md-6" />
 					</div>
 
 					<div class="row col-6 col-md-6 col-lg-6 p-1 m-0"
-						 *ngIf="currentOutcome.outcomeTypeId != 7 && currentOutcome.outcomeTypeId != 6
-						 && currentOutcome.outcomeTypeId != 5 && currentOutcome.outcomeTypeId != 4
-						 && currentOutcome.outcomeTypeId != 3 && currentOutcome.outcomeTypeId != 2
-						 && currentOutcome.outcomeTypeId != 1">
+						 *ngIf="_OutcomesService.currentOutcome.outcomeTypeId != 7 && _OutcomesService.currentOutcome.outcomeTypeId != 6
+						 && _OutcomesService.currentOutcome.outcomeTypeId != 5 && _OutcomesService.currentOutcome.outcomeTypeId != 3
+						 && _OutcomesService.currentOutcome.outcomeTypeId != 2 && _OutcomesService.currentOutcome.outcomeTypeId != 1">
 
-						<label class="col-md-6">{{currentOutcome.Data11Desc}}</label>
+						<label class="col-md-6">{{_OutcomesService.currentOutcome.Data8Desc}}</label>
 						<input #group2SDModel="ngModel"
-							   [(ngModel)]="currentOutcome.data11"
-							   value="currentOutcome.data11"
+							   [(ngModel)]="_OutcomesService.currentOutcome.data8"
+							   value="_OutcomesService.currentOutcome.data8"
+							   type="text" class="form-control col-md-6" />
+					</div>
+
+					<div class="row col-6 col-md-6 col-lg-6 p-1 m-0"
+						 *ngIf="_OutcomesService.currentOutcome.outcomeTypeId != 7 && _OutcomesService.currentOutcome.outcomeTypeId != 6
+						 && _OutcomesService.currentOutcome.outcomeTypeId != 5 && _OutcomesService.currentOutcome.outcomeTypeId != 4
+						 && _OutcomesService.currentOutcome.outcomeTypeId != 3 && _OutcomesService.currentOutcome.outcomeTypeId != 2
+						 && _OutcomesService.currentOutcome.outcomeTypeId != 1">
+
+						<label class="col-md-6">{{_OutcomesService.currentOutcome.Data11Desc}}</label>
+						<input #group2SDModel="ngModel"
+							   [(ngModel)]="_OutcomesService.currentOutcome.data11"
+							   value="_OutcomesService.currentOutcome.data11"
 							   type="text" class="form-control col-md-6 small" />
 					</div>
 
 					<div class="row col-6 col-md-6 col-lg-6 p-1 m-0"
-						 *ngIf="currentOutcome.outcomeTypeId != 7 && currentOutcome.outcomeTypeId != 6
-						 && currentOutcome.outcomeTypeId != 5 && currentOutcome.outcomeTypeId != 4
-						 && currentOutcome.outcomeTypeId != 3 && currentOutcome.outcomeTypeId != 2
-						 && currentOutcome.outcomeTypeId != 1">
+						 *ngIf="_OutcomesService.currentOutcome.outcomeTypeId != 7 && _OutcomesService.currentOutcome.outcomeTypeId != 6
+						 && _OutcomesService.currentOutcome.outcomeTypeId != 5 && _OutcomesService.currentOutcome.outcomeTypeId != 4
+						 && _OutcomesService.currentOutcome.outcomeTypeId != 3 && _OutcomesService.currentOutcome.outcomeTypeId != 2
+						 && _OutcomesService.currentOutcome.outcomeTypeId != 1">
 
-						<label class="col-md-6">{{currentOutcome.Data12Desc}}</label>
+						<label class="col-md-6">{{_OutcomesService.currentOutcome.Data12Desc}}</label>
 						<input #group2SDModel="ngModel"
-							   [(ngModel)]="currentOutcome.data12"
-							   value="currentOutcome.data12"
+							   [(ngModel)]="_OutcomesService.currentOutcome.data12"
+							   value="_OutcomesService.currentOutcome.data12"
 							   type="text" class="form-control col-md-6 small" />
 					</div>
 
 					<div class="row col-6 col-md-6 col-lg-6  p-1 m-0"
-						 *ngIf="currentOutcome.outcomeTypeId != 7 && currentOutcome.outcomeTypeId != 6
-						 && currentOutcome.outcomeTypeId != 5 && currentOutcome.outcomeTypeId != 4
-						 && currentOutcome.outcomeTypeId != 3 && currentOutcome.outcomeTypeId != 2
-						 && currentOutcome.outcomeTypeId != 1">
+						 *ngIf="_OutcomesService.currentOutcome.outcomeTypeId != 7 && _OutcomesService.currentOutcome.outcomeTypeId != 6
+						 && _OutcomesService.currentOutcome.outcomeTypeId != 5 && _OutcomesService.currentOutcome.outcomeTypeId != 4
+						 && _OutcomesService.currentOutcome.outcomeTypeId != 3 && _OutcomesService.currentOutcome.outcomeTypeId != 2
+						 && _OutcomesService.currentOutcome.outcomeTypeId != 1">
 
-						<label class="col-md-6">{{currentOutcome.Data13Desc}}</label>
+						<label class="col-md-6">{{_OutcomesService.currentOutcome.Data13Desc}}</label>
 						<input #group2SDModel="ngModel"
-							   [(ngModel)]="currentOutcome.data13"
-							   value="currentOutcome.data13"
+							   [(ngModel)]="_OutcomesService.currentOutcome.data13"
+							   value="_OutcomesService.currentOutcome.data13"
 							   type="text" class="form-control col-md-6 small" />
 					</div>
 					<div class="row col-6 col-md-6 col-lg-6 p-1 m-0"
-						 *ngIf="currentOutcome.outcomeTypeId != 7 && currentOutcome.outcomeTypeId != 6
-						 && currentOutcome.outcomeTypeId != 5 && currentOutcome.outcomeTypeId != 4
-						 && currentOutcome.outcomeTypeId != 3 && currentOutcome.outcomeTypeId != 2
-						 && currentOutcome.outcomeTypeId != 1">
-						<label class="col-md-6">{{currentOutcome.Data14Desc}}</label>
+						 *ngIf="_OutcomesService.currentOutcome.outcomeTypeId != 7 && _OutcomesService.currentOutcome.outcomeTypeId != 6
+						 && _OutcomesService.currentOutcome.outcomeTypeId != 5 && _OutcomesService.currentOutcome.outcomeTypeId != 4
+						 && _OutcomesService.currentOutcome.outcomeTypeId != 3 && _OutcomesService.currentOutcome.outcomeTypeId != 2
+						 && _OutcomesService.currentOutcome.outcomeTypeId != 1">
+						<label class="col-md-6">{{_OutcomesService.currentOutcome.Data14Desc}}</label>
 						<input #group2SDModel="ngModel"
-							   [(ngModel)]="currentOutcome.data14"
-							   value="currentOutcome.data14"
+							   [(ngModel)]="_OutcomesService.currentOutcome.data14"
+							   value="_OutcomesService.currentOutcome.data14"
 							   type="text" class="form-control col-md-6 small" />
 					</div>
 					<div class="row col-12 p-0 m-0">
@@ -325,38 +325,38 @@
 							<div class="col-12 row p-1">
 								<label class="col-md-12 p-1 m-0">Mean cluster size</label>
 								<input #group2SDModel="ngModel"
-									   [(ngModel)]="currentOutcome.data9"
-									   value="currentOutcome.data9"
+									   [(ngModel)]="_OutcomesService.currentOutcome.data9"
+									   value="_OutcomesService.currentOutcome.data9"
 									   type="text" class="form-control col-4 col-md-4" />
 							</div>
 							<div class="col-12 row p-1">
 								<label class="col-md-12 p-1 m-0">ICC</label>
 								<input #group2SDModel="ngModel"
-									   [(ngModel)]="currentOutcome.data10"
-									   value="currentOutcome.data10"
+									   [(ngModel)]="_OutcomesService.currentOutcome.data10"
+									   value="_OutcomesService.currentOutcome.data10"
 									   type="text" class="form-control col-4 col-md-4" />
 							</div>
 						</div>
 						<div class="row col-md-12 p-0 m-0">
 							<div class="col-12 col-md-12 col-lg-12 row p-0 m-0">
-								<label class="col-md-5 bold">{{currentOutcome.esDesc}}</label>
-								<p *ngIf="currentOutcome.esDesc=='SMD'" class="col-md-7 ">{{SMD}}</p>
-								<p *ngIf="currentOutcome.esDesc=='Effect size'" class="col-md-7 ">{{SMD}}</p>
-								<p *ngIf="currentOutcome.esDesc=='OR'" class="col-md-7 ">{{currentOutcome.oddsRatio}}</p>
-								<p *ngIf="currentOutcome.esDesc=='Diagnostic OR'" class="col-md-7 ">{{currentOutcome.oddsRatio}}</p>
-								<p *ngIf="currentOutcome.esDesc=='r'" class="col-md-7 ">{{currentOutcome.r}}</p>
+								<label class="col-md-5 bold">{{_OutcomesService.currentOutcome.esDesc}}</label>
+								<p *ngIf="_OutcomesService.currentOutcome.esDesc=='SMD'" class="col-md-7 ">{{SMD}}</p>
+								<p *ngIf="_OutcomesService.currentOutcome.esDesc=='Effect size'" class="col-md-7 ">{{SMD}}</p>
+								<p *ngIf="_OutcomesService.currentOutcome.esDesc=='OR'" class="col-md-7 ">{{_OutcomesService.currentOutcome.oddsRatio}}</p>
+								<p *ngIf="_OutcomesService.currentOutcome.esDesc=='Diagnostic OR'" class="col-md-7 ">{{_OutcomesService.currentOutcome.oddsRatio}}</p>
+								<p *ngIf="_OutcomesService.currentOutcome.esDesc=='r'" class="col-md-7 ">{{_OutcomesService.currentOutcome.r}}</p>
 							</div>
 							<div class="col-md-12 row">
-								<label class="col-md-5 text-capitalize bold">{{currentOutcome.seDesc}}</label>
-								<p *ngIf="currentOutcome.esDesc!='Effect size'" class="col-md-7 ">{{SEES}}</p>
+								<label class="col-md-5 text-capitalize bold">{{_OutcomesService.currentOutcome.seDesc}}</label>
+								<p *ngIf="_OutcomesService.currentOutcome.esDesc!='Effect size'" class="col-md-7 ">{{SEES}}</p>
 
-								<p *ngIf="currentOutcome.esDesc=='Effect size'" class="col-md-7 ">{{currentOutcome.sesmd}}</p>
+								<p *ngIf="_OutcomesService.currentOutcome.esDesc=='Effect size'" class="col-md-7 ">{{_OutcomesService.currentOutcome.sesmd}}</p>
 							</div>
 						</div>
 					</div>
 				</div>
 				<div class="p-2 m-2 col-12">
-					<SingleCodesetTreeCoding>
+					<SingleCodesetTreeCoding [currentOutcome]="_OutcomesService.currentOutcome">
 					</SingleCodesetTreeCoding>
 				</div>
 				<div class="col-md-12">

@@ -12,9 +12,9 @@
 				<img *ngIf="!node.data.allowEditingCodeset" title="You can't edit this Coding Tool" src="../assets/CodeSetLocked.png" class="mr-1" />
 			</span>
 			<input class="m-1" type="checkbox" id="attributeID-{{node.data.id}}" 
-				   [(ngModel)]="node.data.isSelected"
+				   [checked]="IsAttributeInOutcome(node.data)"
 				   [disabled]="!ReviewSetsService.CanWriteCoding(node.data)"
-				   *ngIf="node.data.showCheckBox" (change)="CheckBoxClicked($event, node.data)" />
+				   *ngIf="node.data.showCheckBox" (change)="CheckBoxClicked($event.target.checked, node.data)" />
 
 			<span [ngClass]="{'ScreeningSet' : node.data.subTypeName == 'Screening',
                             'AdminSet' : node.data.subTypeName == 'Administration',

@@ -12,7 +12,7 @@ import { frequenciesService } from '../services/frequencies.service';
 import { Injectable, EventEmitter } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { EventEmitterService } from '../services/EventEmitter.service';
-import { OutcomesService } from '../services/outcomes.service';
+import { OutcomesService, OutcomeItemAttribute, Outcome } from '../services/outcomes.service';
 import { CheckBoxClickedEventData } from './codesetTreeCoding.component';
 
 @Component({
@@ -47,13 +47,12 @@ export class SingleCodesetTreeCodingComponent implements OnInit, OnDestroy, Afte
 
 	@Input() tabSelected: string = '';
 	@Input() MaxHeight: number = 800;
+	@Input() currentOutcome: Outcome = new Outcome();
 
 	public showManualModal: boolean = false;
 
 	sub: Subscription = new Subscription();
-
-	public smallTree: string = '';
-
+	
 	ngOnInit() {
 
 		if (this.ReviewerIdentityServ.reviewerIdentity.userId == 0 || this.ReviewerIdentityServ.reviewerIdentity.reviewId == 0) {
@@ -73,152 +72,109 @@ export class SingleCodesetTreeCodingComponent implements OnInit, OnDestroy, Afte
 	ngAfterViewInit() {
 
 	}
-	private DeletingEvent: any;
-	private DeletingData: singleNode | null = null;
-	DeleteCodingConfirmed() {
-		if (this.DeletingData) {
-			this.DeletingData.isSelected = false;
-			this.CheckBoxClickedAfterCheck(this.DeletingEvent, this.DeletingData);
+
+	CheckBoxClicked(checked: boolean, data: singleNode, ) {
+		if (data.nodeType != "SetAttribute" || this.currentOutcome.itemSetId < 1) return;
+
+		let Att = data as SetAttribute;
+		let index = this.currentOutcome.outcomeCodes.outcomeItemAttributesList.findIndex(found => found.attributeId == Att.attribute_id);
+		if (checked) {
+			if (index == -1) {
+				//add it to outcomeCodes.outcomeItemAttributesList
+				let outcomeItemAttribute: OutcomeItemAttribute = {
+					outcomeItemAttributeId: 0,
+					outcomeId: this.currentOutcome.outcomeId,
+					attributeId: Att.attribute_id,
+					additionalText: "",
+					attributeName: Att.attribute_name
+				};
+				this.currentOutcome.outcomeCodes.outcomeItemAttributesList.push(outcomeItemAttribute);
+			}
+			else {
+				//uh? It's there already!
+				console.log("didn't add attribute to outcome - was already there.", Att);
+			}
 		}
-		this.DeletingEvent = undefined;
-		this.DeletingData = null;
-		this.showManualModal = false;
-	}
-	DeleteCodingCancelled() {
-		//console.log('trying to close...')
-		if (this.DeletingData) this.DeletingData.isSelected = true;
-		this.DeletingEvent = undefined;
-		this.DeletingData = null;
-		this.showManualModal = false;
-	}
-	CheckBoxClicked(event: any, data: singleNode, ) {
-
-		let checkPassed: boolean = true;
-		if (event.target) checkPassed = event.target.checked;//if we ticked the checkbox, it's OK to carry on, otherwise we need to check
-		if (!checkPassed) {
-			//event.srcElement.blur();
-			console.log('checking...');
-			//deleting the codeset: need to confirm
-			this.DeletingData = data;
-			this.DeletingEvent = event;
-			//all this seems necessary because I could not suppress the error discussed here:
-			//https://blog.angularindepth.com/everything-you-need-to-know-about-the-expressionchangedafterithasbeencheckederror-error-e3fd9ce7dbb4
-			this.showManualModal = true;
+		else {//splice
+			if (index == -1) {
+				//uh? It's not there already!
+				console.log("didn't remove attribute to outcome - wasn't already there.", Att);
+			}
+			else {
+				this.currentOutcome.outcomeCodes.outcomeItemAttributesList.splice(index, 1);
+			}
 		}
-		else this.CheckBoxClickedAfterCheck(event, data);
 	}
-	CheckBoxClickedAfterCheck(event: any, data: singleNode) {
-		//let evdata: CheckBoxClickedEventData = new CheckBoxClickedEventData();
-		//evdata.event = event;
-		//evdata.armId = this._armsService.SelectedArm == null ? 0 : this._armsService.SelectedArm.itemArmId;
-		//evdata.AttId = +data.id.replace('A', '');
-		//console.log('AttID: ' + evdata.AttId + ' armid = ' + evdata.armId);
-		//evdata.additionalText = data.additionalText;
-		//this.ReviewSetsService.PassItemCodingCeckboxChangedEvent(evdata);
+	
+	IsAttributeInOutcome(data: singleNode): boolean {
+		if (data.nodeType != "SetAttribute") return false; //check this! || this._outcomeService.currentOutcome.itemSetId < 1
+		let Att = data as SetAttribute;
+		let index = this.currentOutcome.outcomeCodes.outcomeItemAttributesList.findIndex(found => found.attributeId == Att.attribute_id);
+		if (index < 0) return false;
+		else return true;
 	}
-	//CheckIfNodeIsSelected(data: singleNode) {
-
-	//	// this needs to be for the current outcome !!!!!!!!!!!!!!!!!
-	//	for (var i = 0; i < data.attributes.length; i++) {
-
-	//		if (this._outcomeService.currentOutcome) {
-	//			this._outcomeService.currentOutcome.outcomeCodes.outcomeItemAttributesList.forEach(function (value) {
-	//			console.log(value);
-	//			let attribute: SetAttribute = data.attributes[i] as SetAttribute;
-	//				if (value.attributeId == attribute.attribute_id) {
-
-	//					data.isSelected = true;
-	//				} else {
-	//					data.isSelected = false;
-	//				}
-	//			});
-	//		}
-	//	}		
-	//}
-	//Potentially need to change below with logic from above
+	
 	get nodes(): singleNode[] | null {
 
 		if (this.ReviewSetsService && this.ReviewSetsService.ReviewSets && this.ReviewSetsService.ReviewSets.length > 0) {
 
-
-			var RelevantCodingTool = this.ReviewSetsService.ReviewSets.filter(x => x.ItemSetId == this._outcomeService.ItemSetId);
-			// this needs to be for the current outcome !!!!!!!!!!!!!!!!!
-			for (var i = 0; i < RelevantCodingTool[0].attributes.length; i++) {
-				console.log('got in here: ' + this._outcomeService.outcomesList[0].outcomeCodes.outcomeItemAttributesList.length);
-				if (this._outcomeService.outcomesList[0]) {
-					this._outcomeService.outcomesList[0].outcomeCodes.outcomeItemAttributesList.forEach(function (value) {
-						console.log(value);
-						let attribute: SetAttribute = RelevantCodingTool[0].attributes[i] as SetAttribute;
-						console.log('got in here: ' + value.attributeId + ' : ' + attribute.attribute_id);
-						if (value.attributeId == attribute.attribute_id) {
-
-							
-							RelevantCodingTool[0].attributes[i].isSelected = true;
-						} else {
-							RelevantCodingTool[0].attributes[i].isSelected = false;
-						}
-					});
-				}
-			}
-			//console.log(RelevantCodingTool);
-			return RelevantCodingTool;
-
-		}//return this.ReviewSetsService.ReviewSets.filter(x => x.ItemSetId == this._outcomeService.ItemSetId);
+			return this.ReviewSetsService.ReviewSets.filter(x => x.ItemSetId == this._outcomeService.ItemSetId);
+			//return this.ReviewSetsService.ReviewSets.filter(x => x.ItemSetId == this._outcomeService.ItemSetId);
+		}
 		else {
 			return null;
 		}
 	}
 
-	rootsCollect() {
+	//rootsCollect() {
 
-		const treeModel: TreeModel = this.treeComponent.treeModel;
-		const firstNode: any = treeModel.getFirstRoot();
+	//	const treeModel: TreeModel = this.treeComponent.treeModel;
+	//	const firstNode: any = treeModel.getFirstRoot();
 
-		var rootsArr: Array<ITreeNode> = [];
+	//	var rootsArr: Array<ITreeNode> = [];
 
-		for (var i = 0; i < this.treeComponent.treeModel.roots.length; i++) {
+	//	for (var i = 0; i < this.treeComponent.treeModel.roots.length; i++) {
 
-			rootsArr[i] = this.treeComponent.treeModel.roots[i];
-			console.log(rootsArr[i]);
-		}
+	//		rootsArr[i] = this.treeComponent.treeModel.roots[i];
+	//		console.log(rootsArr[i]);
+	//	}
+	//}
 
-	}
+	//nodesNotRootsCollect(node: ITreeNode) {
 
-	nodesNotRootsCollect(node: ITreeNode) {
+	//	const treeModel: TreeModel = this.treeComponent.treeModel;
+	//	const firstNode: any = treeModel.getFirstRoot();
 
-		const treeModel: TreeModel = this.treeComponent.treeModel;
-		const firstNode: any = treeModel.getFirstRoot();
+	//	var childrenArr: Array<any> = [];
 
-		var childrenArr: Array<any> = [];
+	//	for (var i = 0; i < this.treeComponent.treeModel.roots.length; i++) {
 
-		for (var i = 0; i < this.treeComponent.treeModel.roots.length; i++) {
+	//		var test = this.treeComponent.treeModel.roots[i];
 
-			var test = this.treeComponent.treeModel.roots[i];
+	//		childrenArr[i] = test.getVisibleChildren();
+	//		console.log(childrenArr[i]);
 
-			childrenArr[i] = test.getVisibleChildren();
-			console.log(childrenArr[i]);
+	//	}
+	//}
 
-		}
-	}
+	//onEvent($event: any) {
 
-	onEvent($event: any) {
+	//	alert($event);
 
-		alert($event);
+	//}
 
-	}
+	//selectAllRoots() {
 
-	selectAllRoots() {
+	//	const treeModel: TreeModel = this.treeComponent.treeModel;
 
-		const treeModel: TreeModel = this.treeComponent.treeModel;
+	//	const firstNode: any = treeModel.getFirstRoot();
 
-		const firstNode: any = treeModel.getFirstRoot();
+	//	for (var i = 0; i < this.treeComponent.treeModel.roots.length; i++) {
 
-		for (var i = 0; i < this.treeComponent.treeModel.roots.length; i++) {
+	//		this.treeComponent.treeModel.roots[i].setIsActive(false, true);
 
-			this.treeComponent.treeModel.roots[i].setIsActive(false, true);
-
-		}
-	}
+	//	}
+	//}
 
 	public SelectedNodeData: singleNode | null = null;
 	public get SelectedCodeDescription(): string {

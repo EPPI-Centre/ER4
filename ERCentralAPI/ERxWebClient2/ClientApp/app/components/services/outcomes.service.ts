@@ -70,11 +70,11 @@ export class OutcomesService extends BusyAwareService  {
 		return this._http.post<iOutcomeList>(this._baseUrl + 'api/OutcomeList/Fetch', body)
 			.subscribe(result => {
 
-			console.log(JSON.stringify(result.outcomesList));
+			//console.log(JSON.stringify(result.outcomesList));
             for (let iO of result.outcomesList) {
    
 				let RealOutcome: Outcome = new Outcome(iO);
-				console.log('Check outcome codes here: ' + JSON.stringify(RealOutcome));
+				//console.log('Check outcome codes here: ' + JSON.stringify(RealOutcome));
                 this._Outcomes.push(RealOutcome);
        
 				}
