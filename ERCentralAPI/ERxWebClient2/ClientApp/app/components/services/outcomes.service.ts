@@ -74,6 +74,9 @@ export class OutcomesService extends BusyAwareService  {
             this.modalService.SendBackHomeWithError(error);
             this.RemoveBusy("FetchOutcomes");
 
+			},
+			() => {
+				this.RemoveBusy("FetchOutcomes");
 			});
 
 	}
@@ -94,7 +97,10 @@ export class OutcomesService extends BusyAwareService  {
 			}, error => {
 				this.modalService.SendBackHomeWithError(error);
 				this.RemoveBusy("FetchReviewSetOutcomeList");
-		}
+			},
+			() => {
+				this.RemoveBusy("FetchReviewSetOutcomeList");
+			}
 		);
 
 	}
@@ -113,6 +119,9 @@ export class OutcomesService extends BusyAwareService  {
 				this.RemoveBusy("FetchReviewSetInterventionList");
 			}, error => {
 				this.modalService.SendBackHomeWithError(error);
+				this.RemoveBusy("FetchReviewSetInterventionList");
+			},
+			() => {
 				this.RemoveBusy("FetchReviewSetInterventionList");
 			}
 			);
@@ -134,6 +143,9 @@ export class OutcomesService extends BusyAwareService  {
 			}, error => {
 				this.modalService.SendBackHomeWithError(error);
 				this.RemoveBusy("FetchReviewSetControlList");
+			},
+			() => {
+				this.RemoveBusy("FetchReviewSetControlList");
 			}
 			);
 
@@ -154,6 +166,9 @@ export class OutcomesService extends BusyAwareService  {
 				this.RemoveBusy("FetchItemArmList");
 			}, error => {
 				this.modalService.SendBackHomeWithError(error);
+				this.RemoveBusy("FetchItemArmList");
+			},
+			() => {
 				this.RemoveBusy("FetchItemArmList");
 			}
 			);

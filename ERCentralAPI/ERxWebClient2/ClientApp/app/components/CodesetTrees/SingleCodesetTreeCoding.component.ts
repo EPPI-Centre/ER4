@@ -36,7 +36,6 @@ export class SingleCodesetTreeCodingComponent implements OnInit, OnDestroy {
 
 	@ViewChild('SingleCodeSetTree') treeComponent!: TreeComponent;
 
-	@Input() tabSelected: string = '';
 	@Input() MaxHeight: number = 800;
 	@Input() currentOutcome: Outcome = new Outcome();
 		

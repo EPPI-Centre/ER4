@@ -213,7 +213,6 @@ export class OutcomesComponent implements OnInit, OnDestroy, AfterViewInit {
 				//console.log('Just before creating outcome we have: ', this._OutcomesService.currentOutcome.outcomeCodes);
 				this._OutcomesService.Createoutcome(this._OutcomesService.currentOutcome).then(
 					() => {
-						
 							this._OutcomesService.FetchOutcomes(this._OutcomesService.currentOutcome.itemSetId);
 						}
 					);
