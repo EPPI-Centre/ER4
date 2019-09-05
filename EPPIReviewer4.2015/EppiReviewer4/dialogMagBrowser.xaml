@@ -476,6 +476,7 @@
                     <RowDefinition Height="35"></RowDefinition>
                     <RowDefinition Height="35"></RowDefinition>
                     <RowDefinition Height="35"></RowDefinition>
+                    <RowDefinition Height="35"></RowDefinition>
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="120"></ColumnDefinition>
@@ -497,8 +498,14 @@
                     <RadioButton Content="Items dated from" Margin="5,5,5,5" GroupName="RadioButtonsRelatedPapersDate" VerticalAlignment="Center" Checked="RadioButton_Checked_3"></RadioButton>
                     <telerik:RadDatePicker x:Name="DatePickerRelatedPapersRun" Visibility="Collapsed" VerticalAlignment="Center"></telerik:RadDatePicker>
                 </StackPanel>
-                <TextBlock Text="Search mode" Grid.Row="4" Grid.Column="0" Margin="5,5,5,5" VerticalAlignment="Center" HorizontalAlignment="Right"></TextBlock>
-                <ComboBox x:Name="ComboRelatedPapersMode" Grid.Row="4" Grid.Column="1" Margin="5,5,5,5" VerticalAlignment="Center" HorizontalAlignment="Left">
+                <TextBlock Text="RCT filter" Grid.Row="4" Grid.Column="0" Margin="5,5,5,5" VerticalAlignment="Center" HorizontalAlignment="Right"></TextBlock>
+                <StackPanel Grid.Row="4" Grid.Column="1" Orientation="Horizontal">
+                    <RadioButton x:Name="RBRelatedRCTFilterNone" Content="No filter" IsChecked="True" Margin="5,5,5,5" GroupName="RBGroupRCTFilter" VerticalAlignment="Center"></RadioButton>
+                    <RadioButton x:Name="RBRelatedRCTFilterSensitive" Content="High sensitivity" Margin="5,5,5,5" GroupName="RBGroupRCTFilter" VerticalAlignment="Center"></RadioButton>
+                    <RadioButton x:Name="RBRelatedRCTFilterPrecise" Content="Higher specificity" Margin="5,5,5,5" GroupName="RBGroupRCTFilter" VerticalAlignment="Center"></RadioButton>
+                </StackPanel>
+                <TextBlock Text="Search mode" Grid.Row="5" Grid.Column="0" Margin="5,5,5,5" VerticalAlignment="Center" HorizontalAlignment="Right"></TextBlock>
+                <ComboBox x:Name="ComboRelatedPapersMode" Grid.Row="5" Grid.Column="1" Margin="5,5,5,5" VerticalAlignment="Center" HorizontalAlignment="Left">
                     <ComboBoxItem Content="Papers 'recommended' by known items ('Recommended by')" Tag="Recommended by"></ComboBoxItem>
                     <ComboBoxItem Content="Papers that 'recommend' known items ('That recommend')" Tag="That recommend"></ComboBoxItem>
                     <ComboBoxItem Content="Bi-directional recommendation relationships ('Recommendations')" Tag="Recommendations" IsSelected="True"></ComboBoxItem>
@@ -506,13 +513,13 @@
                     <ComboBoxItem Content="Papers that cite known items ('Cited by')" Tag="Cited by"></ComboBoxItem>
                     <ComboBoxItem Content="Bi-directional citation relationships" Tag="BiCitation"></ComboBoxItem>
                 </ComboBox>
-                <HyperlinkButton x:Name="LBAddRelatedPapersRun" Content="Add new search for related papers" Grid.Row="5" Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Center" Click="LBAddRelatedPapersRun_Click"></HyperlinkButton>
+                <HyperlinkButton x:Name="LBAddRelatedPapersRun" Content="Add new search for related papers" Grid.Row="6" Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Center" Click="LBAddRelatedPapersRun_Click"></HyperlinkButton>
             </Grid>
             
-            <telerikGridView:RadGridView x:Name="RelatedPapersRunGrid" Grid.Row="6" AutoGenerateColumns="False" ShowGroupPanel="False"
+            <telerikGridView:RadGridView x:Name="RelatedPapersRunGrid" Grid.Row="7" AutoGenerateColumns="False" ShowGroupPanel="False"
                                     IsReadOnly="True" MinHeight="50" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                                     ItemsSource="{Binding Source={StaticResource RelatedPapersRunListData}, Path=Data, Mode=TwoWay}"
-                                    RowIndicatorVisibility="Collapsed" CanUserSelect="False" Margin="20,20,20,20"
+                                    RowIndicatorVisibility="Collapsed" CanUserSelect="False" Margin="10,20,10,20"
                                     SelectionMode="Extended" ColumnWidth="*"
                                     IsSynchronizedWithCurrentItem="False">
                 <telerikGridView:RadGridView.Columns>
@@ -522,6 +529,7 @@
                     <telerikGridView:GridViewDataColumn Header="Date run" DataMemberBinding="{Binding DateRun}" Width="85"></telerikGridView:GridViewDataColumn>
                     <telerikGridView:GridViewDataColumn Header="All included" Width="100" DataMemberBinding="{Binding AllIncluded}"></telerikGridView:GridViewDataColumn>
                     <telerikGridView:GridViewDataColumn Header="With this code" Width="80*" DataMemberBinding="{Binding AttributeName}"></telerikGridView:GridViewDataColumn>
+                    <telerikGridView:GridViewDataColumn Header="Filtered" Width="65" DataMemberBinding="{Binding Filtered}"></telerikGridView:GridViewDataColumn>
                     <telerikGridView:GridViewDataColumn Header="Re-run?" Width="80" DataMemberBinding="{Binding AutoReRun}"></telerikGridView:GridViewDataColumn>
                     <telerikGridView:GridViewDataColumn Header="Status" Width="80" DataMemberBinding="{Binding Status}"></telerikGridView:GridViewDataColumn>
                     <telerikGridView:GridViewDataColumn Width="50" SortingState="None">

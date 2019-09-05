@@ -1313,6 +1313,7 @@ namespace EppiReviewer4
                 if (mrprl != null)
                 {
                     mrpr.Status = "Pending";
+                    mrpr.Filtered = RBRelatedRCTFilterNone.IsChecked.Value ? "None" : RBRelatedRCTFilterPrecise.IsChecked.Value ? "Precise" : "Sensitive";
                     mrpr.Mode = (ComboRelatedPapersMode.SelectedItem as ComboBoxItem).Tag.ToString();
                     mrprl.Add(mrpr);
                     mrprl.SaveItem(mrpr);

@@ -174,6 +174,19 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(ModeProperty, value);
             }
         }
+
+        private static PropertyInfo<string> FilteredProperty = RegisterProperty<string>(new PropertyInfo<string>("Filtered", "Filtered"));
+        public string Filtered
+        {
+            get
+            {
+                return GetProperty(FilteredProperty);
+            }
+            set
+            {
+                SetProperty(FilteredProperty, value);
+            }
+        }
         /*
         private static PropertyInfo<bool> CheckedProperty = RegisterProperty<bool>(new PropertyInfo<bool>("Checked", "Checked", false));
         public bool Checked
@@ -341,6 +354,7 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@DATE_FROM", DateFrom.DBValue));
                     command.Parameters.Add(new SqlParameter("@AUTO_RERUN", ReadProperty(AutoReRunProperty)));
                     command.Parameters.Add(new SqlParameter("@MODE", ReadProperty(ModeProperty)));
+                    command.Parameters.Add(new SqlParameter("@FILTERED", ReadProperty(FilteredProperty)));
                     command.Parameters.Add(new SqlParameter("@MAG_RELATED_RUN_ID", ReadProperty(MagRelatedRunIdProperty)));
                     command.Parameters["@MAG_RELATED_RUN_ID"].Direction = System.Data.ParameterDirection.Output;
                     command.ExecuteNonQuery();
@@ -405,13 +419,12 @@ namespace BusinessLibrary.BusinessClasses
                             LoadProperty<bool>(AllIncludedProperty, reader.GetBoolean("ALL_INCLUDED"));
                             LoadProperty<SmartDate>(DateFromProperty, reader.GetSmartDate("DATE_FROM"));
                             LoadProperty<SmartDate>(DateRunProperty, reader.GetSmartDate("DATE_RUN"));
-                            //LoadProperty<bool>(CheckedProperty, reader.GetBoolean("CHECKED"));
-                            //LoadProperty<bool>(IrrelevantProperty, reader.GetBoolean("IRRELEVANT"));
                             LoadProperty<bool>(AutoReRunProperty, reader.GetBoolean("AUTO_RERUN"));
                             LoadProperty<string>(StatusProperty, reader.GetString("STATUS"));
                             LoadProperty<string>(UserStatusProperty, reader.GetString("USER_STATUS"));
                             LoadProperty<int>(NPapersProperty, reader.GetInt32("N_PAPERS"));
                             LoadProperty<string>(ModeProperty, reader.GetString("MODE"));
+                            LoadProperty<string>(FilteredProperty, reader.GetString("FILTERED"));
                         }
                     }
                 }
@@ -430,13 +443,12 @@ namespace BusinessLibrary.BusinessClasses
             returnValue.LoadProperty<bool>(AllIncludedProperty, reader.GetBoolean("ALL_INCLUDED"));
             returnValue.LoadProperty<SmartDate>(DateFromProperty, reader.GetSmartDate("DATE_FROM"));
             returnValue.LoadProperty<SmartDate>(DateRunProperty, reader.GetSmartDate("DATE_RUN"));
-            //returnValue.LoadProperty<bool>(CheckedProperty, reader.GetBoolean("CHECKED"));
-            //returnValue.LoadProperty<bool>(IrrelevantProperty, reader.GetBoolean("IRRELEVANT"));
             returnValue.LoadProperty<bool>(AutoReRunProperty, reader.GetBoolean("AUTO_RERUN"));
             returnValue.LoadProperty<string>(StatusProperty, reader.GetString("STATUS"));
             returnValue.LoadProperty<string>(UserStatusProperty, reader.GetString("USER_STATUS"));
             returnValue.LoadProperty<int>(NPapersProperty, reader.GetInt32("N_PAPERS"));
             returnValue.LoadProperty<string>(ModeProperty, reader.GetString("MODE"));
+            returnValue.LoadProperty<string>(FilteredProperty, reader.GetString("FILTERED"));
             returnValue.MarkOld();
             return returnValue;
         }
