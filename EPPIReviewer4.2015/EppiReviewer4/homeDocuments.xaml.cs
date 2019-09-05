@@ -233,7 +233,7 @@ namespace EppiReviewer4
             //end of windowReportsDocuments
 
             //prepare windowMagBrowser
-            windowMagBrowser.Header = "Microsoft Academic Browser";
+            windowMagBrowser.Header = "Microsoft Academic Browser. BETA version: all feedback welcome!";
             windowMagBrowser.WindowStateChanged += new EventHandler(Helpers.WindowHelper.MaxOnly_WindowStateChanged);
             windowMagBrowser.Style = Application.Current.Resources["CustomRadWindowStyle"] as Style;
             windowMagBrowser.WindowState = WindowState.Maximized;

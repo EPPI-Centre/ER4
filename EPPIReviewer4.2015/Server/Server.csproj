@@ -248,6 +248,7 @@
     <Compile Include="BusinessClasses\MagCurrentInfo.cs" />
     <Compile Include="BusinessClasses\MagFieldOfStudy.cs" />
     <Compile Include="BusinessClasses\MagFieldOfStudyList.cs" />
+    <Compile Include="BusinessClasses\MagItemMagRelatedPaperInsertCommand.cs" />
     <Compile Include="BusinessClasses\MagItemPaperInsertCommand.cs" />
     <Compile Include="BusinessClasses\MagMatchItemsToPapersCommand.cs" />
     <Compile Include="BusinessClasses\MagPaper.cs" />

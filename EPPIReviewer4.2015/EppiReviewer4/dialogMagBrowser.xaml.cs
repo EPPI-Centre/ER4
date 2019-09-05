@@ -335,6 +335,8 @@ namespace EppiReviewer4
 
         private void ShowRelatedPapersPage()
         {
+            CslaDataProvider provider = this.Resources["RelatedPapersRunListData"] as CslaDataProvider;
+            provider.Refresh();
             StatusGrid.Visibility = Visibility.Collapsed;
             PaperGrid.Visibility = Visibility.Collapsed;
             TopicsGrid.Visibility = Visibility.Collapsed;
@@ -1297,13 +1299,13 @@ namespace EppiReviewer4
                 MagRelatedPapersRun pr = hlb.DataContext as MagRelatedPapersRun;
                 if (pr != null)
                 {
-                    DeleteThisMagRelatedPapersRun = pr;
+                    RememberThisMagRelatedPapersRun = pr;
                     RadWindow.Confirm("Are you sure you want to delete this item?", this.doDeleteMagRelatedPapersRun);
                 }
             }
         }
 
-        MagRelatedPapersRun DeleteThisMagRelatedPapersRun;
+        MagRelatedPapersRun RememberThisMagRelatedPapersRun;
 
         private void doDeleteMagRelatedPapersRun(object sender, WindowClosedEventArgs e)
         {
@@ -1316,7 +1318,7 @@ namespace EppiReviewer4
                     MagRelatedPapersRunList runList = provider.Data as MagRelatedPapersRunList;
                     if (runList != null)
                     {
-                        runList.Remove(DeleteThisMagRelatedPapersRun);
+                        runList.Remove(RememberThisMagRelatedPapersRun);
                     }
                 }
             }
@@ -1330,9 +1332,104 @@ namespace EppiReviewer4
                 MagRelatedPapersRun pr = hlb.DataContext as MagRelatedPapersRun;
                 if (pr != null)
                 {
+                    CslaDataProvider provider = this.Resources["HistoryListData"] as CslaDataProvider;
+                    if (provider != null)
+                    {
+                        MagBrowseHistoryList mbhl = provider.Data as MagBrowseHistoryList;
+                        if (mbhl != null)
+                        {
+                            CurrentBrowsePosition = mbhl.Count + 1; // otherwise we leave it where it is (i.e. user has navigated 'back')
+                        }
+                    }
                     AddToBrowseHistory("Papers identified from auto-identification run", "MagRelatedPapersRunList", 0, "", "", 0, "", "", pr.MagRelatedRunId);
                     ShowAutoIdentifiedMatches(pr.MagRelatedRunId);
                 }
+            }
+        }
+
+        private void HyperlinkButton_Click_4(object sender, RoutedEventArgs e)
+        {
+            HyperlinkButton hlb = sender as HyperlinkButton;
+            if (hlb != null)
+            {
+                MagRelatedPapersRun pr = hlb.DataContext as MagRelatedPapersRun;
+                if (pr != null)
+                {
+                    if (pr.UserStatus == "Checked")
+                    {
+                        RememberThisMagRelatedPapersRun = pr;
+                        RadWindow.Confirm("Are you sure you want to import these items?\n(This set is already marked as 'checked'.)", this.DoImportItems);
+                    }
+                    else if (pr.UserStatus == "Unchecked")
+                    {
+                        RememberThisMagRelatedPapersRun = pr;
+                        RadWindow.Confirm("Are you sure you want to import these items?", this.DoImportItems);
+                    }
+                    else if (pr.UserStatus == "Imported")
+                    {
+                        RadWindow.Alert("These items are already imported");
+                    }
+                }
+            }
+        }
+
+        private void DoImportItems(object sender, WindowClosedEventArgs e)
+        {
+            var result = e.DialogResult;
+            if (result == true)
+            {
+                if (RememberThisMagRelatedPapersRun != null)
+                {
+                    DataPortal<MagItemMagRelatedPaperInsertCommand> dp2 = new DataPortal<MagItemMagRelatedPaperInsertCommand>();
+                    MagItemMagRelatedPaperInsertCommand command = new MagItemMagRelatedPaperInsertCommand(RememberThisMagRelatedPapersRun.MagRelatedRunId);
+                    dp2.ExecuteCompleted += (o, e2) =>
+                    {
+                        //BusyLoading.IsRunning = false;
+                        if (e2.Error != null)
+                        {
+                            RadWindow.Alert(e2.Error.Message);
+                        }
+                        else
+                        {
+                            RadWindow.Alert("Items imported: " + (e2.Object as MagItemMagRelatedPaperInsertCommand).NImported.ToString());
+                        }
+                    };
+                    //BusyLoading.IsRunning = true;
+                    dp2.BeginExecute(command);
+                }
+            }
+        }
+
+        private void HyperlinkButton_Click_5(object sender, RoutedEventArgs e)
+        {
+            HyperlinkButton hlb = sender as HyperlinkButton;
+            if (hlb != null)
+            {
+                MagRelatedPapersRun pr = hlb.DataContext as MagRelatedPapersRun;
+                if (pr != null)
+                {
+                    if (pr.UserStatus == "Unchecked")
+                    {
+                        RememberThisMagRelatedPapersRun = pr;
+                        RadWindow.Confirm("Are you sure you want to mark this set as having been checked?", this.DoSetRelatedRunToChecked);
+                    }
+                    else if (pr.UserStatus == "Imported")
+                    {
+                        RadWindow.Alert("You have imported these records already");
+                    }
+                    else
+                        RadWindow.Alert("You have marked this set as having been checked.");
+                }
+            }
+        }
+
+        private void DoSetRelatedRunToChecked(object sender, WindowClosedEventArgs e)
+        {
+            var result = e.DialogResult;
+            if (result == true)
+            {
+                RememberThisMagRelatedPapersRun.UserStatus = "Checked";
+                RememberThisMagRelatedPapersRun.BeginSave();
             }
         }
 

@@ -510,14 +510,14 @@
                                     SelectionMode="Extended" ColumnWidth="*"
                                     IsSynchronizedWithCurrentItem="False">
                 <telerikGridView:RadGridView.Columns>
-                    <telerikGridView:GridViewDataColumn Header="Description" DataMemberBinding="{Binding UserDescription}" Width="100*"></telerikGridView:GridViewDataColumn>
+                    <telerikGridView:GridViewDataColumn Header="Description" DataMemberBinding="{Binding UserDescription}" Width="70*"></telerikGridView:GridViewDataColumn>
                     <telerikGridView:GridViewDataColumn Header="Mode" Width="120" DataMemberBinding="{Binding Mode}"></telerikGridView:GridViewDataColumn>
                     <telerikGridView:GridViewDataColumn Header="Date from" DataMemberBinding="{Binding DateFrom}" Width="85"></telerikGridView:GridViewDataColumn>
                     <telerikGridView:GridViewDataColumn Header="Date run" DataMemberBinding="{Binding DateRun}" Width="85"></telerikGridView:GridViewDataColumn>
-                    <telerikGridView:GridViewDataColumn Header="Seed: all included" Width="125" DataMemberBinding="{Binding AllIncluded}"></telerikGridView:GridViewDataColumn>
-                    <telerikGridView:GridViewDataColumn Header="Seed: records with this code" Width="170" DataMemberBinding="{Binding AttributeName}"></telerikGridView:GridViewDataColumn>
-                    <telerikGridView:GridViewDataColumn Header="Auto re-run?" Width="90" DataMemberBinding="{Binding AutoReRun}"></telerikGridView:GridViewDataColumn>
-                    <telerikGridView:GridViewDataColumn Header="Status" Width="90" DataMemberBinding="{Binding Status}"></telerikGridView:GridViewDataColumn>
+                    <telerikGridView:GridViewDataColumn Header="All included" Width="100" DataMemberBinding="{Binding AllIncluded}"></telerikGridView:GridViewDataColumn>
+                    <telerikGridView:GridViewDataColumn Header="With this code" Width="80*" DataMemberBinding="{Binding AttributeName}"></telerikGridView:GridViewDataColumn>
+                    <telerikGridView:GridViewDataColumn Header="Re-run?" Width="80" DataMemberBinding="{Binding AutoReRun}"></telerikGridView:GridViewDataColumn>
+                    <telerikGridView:GridViewDataColumn Header="Status" Width="80" DataMemberBinding="{Binding Status}"></telerikGridView:GridViewDataColumn>
                     <telerikGridView:GridViewDataColumn Width="50" SortingState="None">
                         <telerikGridView:GridViewDataColumn.CellTemplate>
                             <DataTemplate>
@@ -525,13 +525,28 @@
                             </DataTemplate>
                         </telerikGridView:GridViewDataColumn.CellTemplate>
                     </telerikGridView:GridViewDataColumn>
+                    <telerikGridView:GridViewDataColumn Width="73" SortingState="None">
+                        <telerikGridView:GridViewDataColumn.CellTemplate>
+                            <DataTemplate>
+                                <HyperlinkButton Content="{Binding UserStatus}" Click="HyperlinkButton_Click_5"/>
+                            </DataTemplate>
+                        </telerikGridView:GridViewDataColumn.CellTemplate>
+                    </telerikGridView:GridViewDataColumn>
                     <telerikGridView:GridViewDataColumn Width="50" SortingState="None">
+                        <telerikGridView:GridViewDataColumn.CellTemplate>
+                            <DataTemplate>
+                                <HyperlinkButton Content="Import" Click="HyperlinkButton_Click_4"/>
+                            </DataTemplate>
+                        </telerikGridView:GridViewDataColumn.CellTemplate>
+                    </telerikGridView:GridViewDataColumn>
+                    <telerikGridView:GridViewDataColumn Width="50*" SortingState="None">
                         <telerikGridView:GridViewDataColumn.CellTemplate>
                             <DataTemplate>
                                 <HyperlinkButton Content="{Binding NPapers}" Click="HyperlinkButton_Click_3"/>
                             </DataTemplate>
                         </telerikGridView:GridViewDataColumn.CellTemplate>
                     </telerikGridView:GridViewDataColumn>
+                    
                 </telerikGridView:RadGridView.Columns>
 
             </telerikGridView:RadGridView>

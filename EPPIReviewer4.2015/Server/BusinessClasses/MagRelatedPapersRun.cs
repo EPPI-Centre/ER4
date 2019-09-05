@@ -125,7 +125,7 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(DateRunProperty, value);
             }
         }
-        private static PropertyInfo<string> StatusProperty = RegisterProperty<string>(new PropertyInfo<string>("Status", "Status"));
+        private static PropertyInfo<string> StatusProperty = RegisterProperty<string>(new PropertyInfo<string>("Status", "Status", ""));
         public string Status
         {
             get
@@ -135,6 +135,19 @@ namespace BusinessLibrary.BusinessClasses
             set
             {
                 SetProperty(StatusProperty, value);
+            }
+        }
+
+        private static PropertyInfo<string> UserStatusProperty = RegisterProperty<string>(new PropertyInfo<string>("UserStatus", "UserStatus", ""));
+        public string UserStatus
+        {
+            get
+            {
+                return GetProperty(UserStatusProperty);
+            }
+            set
+            {
+                SetProperty(UserStatusProperty, value);
             }
         }
         private static PropertyInfo<int> NPapersProperty = RegisterProperty<int>(new PropertyInfo<int>("NPapers", "NPapers", 0));
@@ -339,21 +352,17 @@ namespace BusinessLibrary.BusinessClasses
 
         protected override void DataPortal_Update()
         {
-            /*
-            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+            using (SqlConnection connection = new SqlConnection(DataConnection.AcademicControllerConnectionString))
             {
                 connection.Open();
-                using (SqlCommand command = new SqlCommand("st_MagRelatedPapersRunUpdate", connection))
+                using (SqlCommand command = new SqlCommand("st_MagRelatedPapersRunsUpdate", connection))
                 {
                     command.CommandType = System.Data.CommandType.StoredProcedure;
-                    command.Parameters.Add(new SqlParameter("@MagRelatedPapersRun_NAME", ReadProperty(NameProperty)));
-                    command.Parameters.Add(new SqlParameter("@MagRelatedPapersRun_DETAIL", ReadProperty(DetailProperty)));
-                    command.Parameters.Add(new SqlParameter("@MagRelatedPapersRun_ID", ReadProperty(MagRelatedPapersRunIdProperty)));
+                    command.Parameters.Add(new SqlParameter("@MAG_RELATED_RUN_ID", ReadProperty(MagRelatedRunIdProperty)));
                     command.ExecuteNonQuery();
                 }
                 connection.Close();
             }
-            */
         }
 
         protected override void DataPortal_DeleteSelf()
@@ -400,6 +409,7 @@ namespace BusinessLibrary.BusinessClasses
                             //LoadProperty<bool>(IrrelevantProperty, reader.GetBoolean("IRRELEVANT"));
                             LoadProperty<bool>(AutoReRunProperty, reader.GetBoolean("AUTO_RERUN"));
                             LoadProperty<string>(StatusProperty, reader.GetString("STATUS"));
+                            LoadProperty<string>(UserStatusProperty, reader.GetString("USER_STATUS"));
                             LoadProperty<int>(NPapersProperty, reader.GetInt32("N_PAPERS"));
                             LoadProperty<string>(ModeProperty, reader.GetString("MODE"));
                         }
@@ -424,6 +434,7 @@ namespace BusinessLibrary.BusinessClasses
             //returnValue.LoadProperty<bool>(IrrelevantProperty, reader.GetBoolean("IRRELEVANT"));
             returnValue.LoadProperty<bool>(AutoReRunProperty, reader.GetBoolean("AUTO_RERUN"));
             returnValue.LoadProperty<string>(StatusProperty, reader.GetString("STATUS"));
+            returnValue.LoadProperty<string>(UserStatusProperty, reader.GetString("USER_STATUS"));
             returnValue.LoadProperty<int>(NPapersProperty, reader.GetInt32("N_PAPERS"));
             returnValue.LoadProperty<string>(ModeProperty, reader.GetString("MODE"));
             returnValue.MarkOld();
