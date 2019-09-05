@@ -236,7 +236,7 @@ export class OutcomesComponent implements OnInit, OnDestroy, AfterViewInit {
 		console.log(this._OutcomesService.currentOutcome);
 		this.ShowOutcomesStatistics = true;
 		this.ShowOutcomesList = false;
-		//this._OutcomesService.currentOutcome.SetCalculatedValues();
+		this._OutcomesService.currentOutcome.SetCalculatedValues();
 	}
 	ClearAndCancelSave() {
 		this._OutcomesService.FetchOutcomes(this.ItemSetId);
