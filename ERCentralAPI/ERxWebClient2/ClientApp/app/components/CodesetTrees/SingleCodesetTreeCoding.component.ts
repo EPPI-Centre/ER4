@@ -1,19 +1,11 @@
 import { Component, Inject, OnInit, Output, Input, ViewChild, OnDestroy, ElementRef, AfterViewInit, ViewContainerRef } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
-import { forEach } from '@angular/router/src/utils/collection';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Router } from '@angular/router';
-import { ReviewSetsService, singleNode, ReviewSet, SetAttribute, iAttributeSet } from '../services/ReviewSets.service';
-import { ITreeOptions, TreeModel, TreeComponent } from 'angular-tree-component';
-import { NgbModal, NgbActiveModal, NgbTabset } from '@ng-bootstrap/ng-bootstrap';
-import { ArmsService } from '../services/arms.service';
-import { ITreeNode } from 'angular-tree-component/dist/defs/api';
-import { frequenciesService } from '../services/frequencies.service';
-import { Injectable, EventEmitter } from '@angular/core';
-import { Subscription } from 'rxjs';
-import { EventEmitterService } from '../services/EventEmitter.service';
+import { ReviewSetsService, singleNode,  SetAttribute } from '../services/ReviewSets.service';
+import { ITreeOptions,  TreeComponent } from 'angular-tree-component';
 import { OutcomesService, OutcomeItemAttribute, Outcome } from '../services/outcomes.service';
-import { CheckBoxClickedEventData } from './codesetTreeCoding.component';
+
 
 @Component({
 	selector: 'SingleCodesetTreeCoding',
@@ -32,14 +24,13 @@ import { CheckBoxClickedEventData } from './codesetTreeCoding.component';
 	templateUrl: './SingleCodesetTreeCoding.component.html'
 })
 
-export class SingleCodesetTreeCodingComponent implements OnInit, OnDestroy, AfterViewInit {
+export class SingleCodesetTreeCodingComponent implements OnInit, OnDestroy {
 	constructor(private router: Router,
 		private _httpC: HttpClient,
 		@Inject('BASE_URL') private _baseUrl: string,
 		private ReviewerIdentityServ: ReviewerIdentityService,
 		private ReviewSetsService: ReviewSetsService,
 		private _outcomeService: OutcomesService,
-		private _armsService: ArmsService
 
 	) { }
 
@@ -48,11 +39,7 @@ export class SingleCodesetTreeCodingComponent implements OnInit, OnDestroy, Afte
 	@Input() tabSelected: string = '';
 	@Input() MaxHeight: number = 800;
 	@Input() currentOutcome: Outcome = new Outcome();
-
-	public showManualModal: boolean = false;
-
-	sub: Subscription = new Subscription();
-	
+		
 	ngOnInit() {
 
 		if (this.ReviewerIdentityServ.reviewerIdentity.userId == 0 || this.ReviewerIdentityServ.reviewerIdentity.reviewId == 0) {
@@ -68,19 +55,16 @@ export class SingleCodesetTreeCodingComponent implements OnInit, OnDestroy, Afte
 		allowDrag: false,
 
 	}
-
-	ngAfterViewInit() {
-
-	}
-
 	CheckBoxClicked(checked: boolean, data: singleNode, ) {
-		if (data.nodeType != "SetAttribute" || this.currentOutcome.itemSetId < 1) return;
-
+		
+		if (data.nodeType != "SetAttribute") return;
+	
 		let Att = data as SetAttribute;
 		let index = this.currentOutcome.outcomeCodes.outcomeItemAttributesList.findIndex(found => found.attributeId == Att.attribute_id);
 		if (checked) {
 			if (index == -1) {
 				//add it to outcomeCodes.outcomeItemAttributesList
+				console.log('got in here...');
 				let outcomeItemAttribute: OutcomeItemAttribute = {
 					outcomeItemAttributeId: 0,
 					outcomeId: this.currentOutcome.outcomeId,
@@ -89,6 +73,7 @@ export class SingleCodesetTreeCodingComponent implements OnInit, OnDestroy, Afte
 					attributeName: Att.attribute_name
 				};
 				this.currentOutcome.outcomeCodes.outcomeItemAttributesList.push(outcomeItemAttribute);
+				console.log('we have codes length: ', this.currentOutcome.outcomeCodes.outcomeItemAttributesList);
 			}
 			else {
 				//uh? It's there already!
@@ -109,6 +94,8 @@ export class SingleCodesetTreeCodingComponent implements OnInit, OnDestroy, Afte
 	IsAttributeInOutcome(data: singleNode): boolean {
 		if (data.nodeType != "SetAttribute") return false; //check this! || this._outcomeService.currentOutcome.itemSetId < 1
 		let Att = data as SetAttribute;
+		//console.log(Att);
+		//console.log(this.currentOutcome.outcomeCodes.outcomeItemAttributesList);
 		let index = this.currentOutcome.outcomeCodes.outcomeItemAttributesList.findIndex(found => found.attributeId == Att.attribute_id);
 		if (index < 0) return false;
 		else return true;
@@ -126,70 +113,13 @@ export class SingleCodesetTreeCodingComponent implements OnInit, OnDestroy, Afte
 		}
 	}
 
-	//rootsCollect() {
-
-	//	const treeModel: TreeModel = this.treeComponent.treeModel;
-	//	const firstNode: any = treeModel.getFirstRoot();
-
-	//	var rootsArr: Array<ITreeNode> = [];
-
-	//	for (var i = 0; i < this.treeComponent.treeModel.roots.length; i++) {
-
-	//		rootsArr[i] = this.treeComponent.treeModel.roots[i];
-	//		console.log(rootsArr[i]);
-	//	}
-	//}
-
-	//nodesNotRootsCollect(node: ITreeNode) {
-
-	//	const treeModel: TreeModel = this.treeComponent.treeModel;
-	//	const firstNode: any = treeModel.getFirstRoot();
-
-	//	var childrenArr: Array<any> = [];
-
-	//	for (var i = 0; i < this.treeComponent.treeModel.roots.length; i++) {
-
-	//		var test = this.treeComponent.treeModel.roots[i];
-
-	//		childrenArr[i] = test.getVisibleChildren();
-	//		console.log(childrenArr[i]);
-
-	//	}
-	//}
-
-	//onEvent($event: any) {
-
-	//	alert($event);
-
-	//}
-
-	//selectAllRoots() {
-
-	//	const treeModel: TreeModel = this.treeComponent.treeModel;
-
-	//	const firstNode: any = treeModel.getFirstRoot();
-
-	//	for (var i = 0; i < this.treeComponent.treeModel.roots.length; i++) {
-
-	//		this.treeComponent.treeModel.roots[i].setIsActive(false, true);
-
-	//	}
-	//}
-
-	public SelectedNodeData: singleNode | null = null;
-	public get SelectedCodeDescription(): string {
-		return this.ReviewSetsService.SelectedCodeDescription;
-	}
-
 	NodeSelected(node: singleNode) {
 
 			this.ReviewSetsService.selectedNode = node;
 	}
 
 	ngOnDestroy() {
-
-		this.sub.unsubscribe();
-
+		
 	}
 }
 

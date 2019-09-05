@@ -6,7 +6,6 @@ import { OutcomesService, OutcomeType, Outcome } from '../services/outcomes.serv
 import { Item } from '../services/ItemList.service';
 import { iTimePoint } from '../services/timePoints.service';
 import { iArm } from '../services/arms.service';
-import { ItemSet } from '../services/ItemCoding.service';
 
 
 @Component({
@@ -23,8 +22,7 @@ export class OutcomesComponent implements OnInit, OnDestroy, AfterViewInit {
 		private _ReviewerIdentityServ: ReviewerIdentityService,
 		private _OutcomesService: OutcomesService
 	) { }
-
-
+	
 	private ItemSetId: number = 0;
 	public ShowOutcomesStatistics: boolean = false;
 	public ShowOutcomesList: boolean = true;
@@ -124,7 +122,6 @@ export class OutcomesComponent implements OnInit, OnDestroy, AfterViewInit {
 
 	}
 
-	//public currentOutcome: Outcome = new Outcome();
 	public outcomeDescription: string = '';
 	public outcomeDescriptionModel: string = '';
 	public interventionDD: string = '';
@@ -160,7 +157,7 @@ export class OutcomesComponent implements OnInit, OnDestroy, AfterViewInit {
 	}
 	public printstuff() {
 
-		var ans = this._OutcomesService.currentOutcome;//.OutcomeCodes.outcomeItemAttributesList;
+		var ans = this._OutcomesService.currentOutcome;
 		console.log(JSON.stringify(ans));
 	}
 	public editOutcome(outcome: Outcome, key: number) {
@@ -169,8 +166,6 @@ export class OutcomesComponent implements OnInit, OnDestroy, AfterViewInit {
 		this.ShowOutcomesList = false;
 		this._OutcomesService.currentOutcome = outcome;
 		this._OutcomesService.ItemSetId = outcome.itemSetId;
-		this._OutcomesService.ItemSetChanged.emit(outcome.itemSetId);
-		//console.log('emitting the following number: ' + outcome.itemSetId);
 	}
 	removeWarning(outcome: Outcome, key: number) {
 
@@ -215,9 +210,11 @@ export class OutcomesComponent implements OnInit, OnDestroy, AfterViewInit {
 			this.ItemSetId != 0) {
 			if (this._OutcomesService.currentOutcome.outcomeId == 0 ) {
 				this._OutcomesService.currentOutcome.itemSetId = this.ItemSetId;
+				//console.log('Just before creating outcome we have: ', this._OutcomesService.currentOutcome.outcomeCodes);
 				this._OutcomesService.Createoutcome(this._OutcomesService.currentOutcome).then(
 					() => {
-						this._OutcomesService.outcomesList;
+						
+							this._OutcomesService.FetchOutcomes(this._OutcomesService.currentOutcome.itemSetId);
 						}
 					);
 			} else {
@@ -237,9 +234,10 @@ export class OutcomesComponent implements OnInit, OnDestroy, AfterViewInit {
 	CreateNewOutcome() {
 
 		this._OutcomesService.currentOutcome = new Outcome();
+		console.log(this._OutcomesService.currentOutcome);
 		this.ShowOutcomesStatistics = true;
 		this.ShowOutcomesList = false;
-		this._OutcomesService.currentOutcome.SetCalculatedValues();
+		//this._OutcomesService.currentOutcome.SetCalculatedValues();
 	}
 	ClearAndCancelSave() {
 		this._OutcomesService.FetchOutcomes(this.ItemSetId);

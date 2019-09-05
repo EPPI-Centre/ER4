@@ -4,10 +4,8 @@ import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
 import { SetAttribute } from './ReviewSets.service';
 import { iTimePoint } from './timePoints.service';
-import { Helpers } from '../helpers/HelperMethods';
-import { forEach } from '@angular/router/src/utils/collection';
 import { StatFunctions } from '../helpers/StatisticsMethods';
-import { Subscription, Observable } from 'rxjs';
+import { Subscription } from 'rxjs';
 
 @Injectable({
     providedIn: 'root',
@@ -25,7 +23,6 @@ export class OutcomesService extends BusyAwareService  {
 
 	private _currentItemSetId: number = 0;
 	private _Outcomes: Outcome[] = [];
-	//public Outcomes: Outcome[] = [];
 	public ItemSetId: number = 0;
 	public currentOutcome: Outcome = new Outcome();
 	public ShowOutComeList: EventEmitter<SetAttribute> = new EventEmitter();
@@ -37,15 +34,12 @@ export class OutcomesService extends BusyAwareService  {
             this._Outcomes = [];
             return this._Outcomes;
 		}
-
 	}
-
 	public set outcomesList(Outcomes: Outcome[]) {
         this._Outcomes = Outcomes;
     }
 
 	@Output() outcomesChangedEE = new EventEmitter();
-	@Output() ItemSetChanged = new EventEmitter();
 
 	public ReviewSetOutcomeList: ReviewSetDropDownResult[] = [];
 	public ReviewSetControlList: ReviewSetDropDownResult[] = [];
@@ -61,31 +55,25 @@ export class OutcomesService extends BusyAwareService  {
 		}
 	}
 
-	// this is in draft stage still!!!!!!!!!!!!!!!!!!
 	public FetchOutcomes(ItemSetId: number): Subscription {
-		//console.log("Fetch outcomes, base url:", this._baseUrl);
 		this._BusyMethods.push("FetchOutcomes");
 		let body = JSON.stringify({ Value: ItemSetId });
 		this._Outcomes = [];
 		return this._http.post<iOutcomeList>(this._baseUrl + 'api/OutcomeList/Fetch', body)
 			.subscribe(result => {
 
-			//console.log(JSON.stringify(result.outcomesList));
             for (let iO of result.outcomesList) {
    
 				let RealOutcome: Outcome = new Outcome(iO);
-				//console.log('Check outcome codes here: ' + JSON.stringify(RealOutcome));
                 this._Outcomes.push(RealOutcome);
-       
-				}
+       		}
 			
             this.RemoveBusy("FetchOutcomes");
-			//return result.outcomesList;
         }, error => {
 
             this.modalService.SendBackHomeWithError(error);
             this.RemoveBusy("FetchOutcomes");
-            //return error;
+
 			});
 
 	}
@@ -411,10 +399,12 @@ export class Outcome implements iOutcome {
 			this.itemAttributeIdControl = iO.itemAttributeIdControl;
 			this.itemAttributeIdOutcome = iO.itemAttributeIdOutcome
 			this.title = iO.title;
+			//console.log('adding an outcome with codes: ', iO);
 			if (iO.outcomeCodes != undefined) {
 				for (var i = 0; i < iO.outcomeCodes.outcomeItemAttributesList.length; i++) {
 					let tmpCode: OutcomeItemAttribute = iO.outcomeCodes.outcomeItemAttributesList[i];
 					if (this.outcomeCodes.outcomeItemAttributesList != undefined) {
+						//console.log('got inside outcome codes adding: ', tmpCode);
 						this.outcomeCodes.outcomeItemAttributesList.push(tmpCode);
 						
 					}
@@ -1393,6 +1383,5 @@ export interface OutcomeItemAttribute {
 	attributeId: number;
 	additionalText: string;
 	attributeName: string;
-	//IsSelected: boolean;
 }
 

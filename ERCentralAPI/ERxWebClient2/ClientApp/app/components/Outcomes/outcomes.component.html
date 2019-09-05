@@ -6,17 +6,17 @@
 			<table class="table table-bordered table-responsive-md table-striped text-center">
 				<tr>
 					<th class="text-center">Outcome Title</th>
-					<!--<th class="text-center">Intervention</th>-->
-					<th class="text-center" style="max-width: 10px;">Edit</th>
-					<th class="text-center" style="max-width: 10px;">Remove</th>
+					<th class="text-center">Intervention</th>
+					<th class="text-center">Edit</th>
+					<th class="text-center">Remove</th>
 				</tr>
 				<tr *ngFor="let outcome of _OutcomesService.outcomesList; let key = index">
 					<td class="p-1 m-0" style="white-space:nowrap;">{{outcome.title}}</td>
-					<!--<td style="width: 150px;">{{outcome.intervention}}</td>-->
+					<td >{{outcome.interventionText}}</td>
 					<td class="p-0 m-0" style="white-space:nowrap;">
 						<span class="table-remove">
 							<button (click)="editOutcome(outcome, key)"
-									[disabled]="!HasWriteRights && !IsServiceBusy"
+									[disabled]="IsServiceBusy"
 									type="button" rounded="true"
 									size="sm" class="btn btn-outline-info p-1 m-1">
 								Edit
@@ -181,7 +181,7 @@
 				*     7: Continuous: mean difference
 				*/
 
-					<div *ngFor="let code of _OutcomesService.currentOutcome.OutcomeCodes.outcomeItemAttributesList">
+					<div *ngFor="let code of _OutcomesService.currentOutcome.outcomeCodes.outcomeItemAttributesList">
 					{{code.attributeName}}
 				</div>
 
