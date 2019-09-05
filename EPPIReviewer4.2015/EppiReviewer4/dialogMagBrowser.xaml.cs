@@ -229,6 +229,39 @@ namespace EppiReviewer4
             dp.BeginFetch(selectionCriteria4);
         }
 
+        private void lbGoToPaperId_Click(object sender, RoutedEventArgs e)
+        {
+            Int64 id;
+            if (!Int64.TryParse(tbGoToPaperId.Text, out id))
+            {
+                RadWindow.Alert("Please enter a valid number");
+                return;
+            }
+            DataPortal<MagPaper> dp = new DataPortal<MagPaper>();
+            dp.FetchCompleted += (o, e2) =>
+            {
+                if (e2 != null)
+                {
+                    CslaDataProvider provider = this.Resources["HistoryListData"] as CslaDataProvider;
+                    if (provider != null)
+                    {
+                        MagBrowseHistoryList mbhl = provider.Data as MagBrowseHistoryList;
+                        if (mbhl != null)
+                        {
+                            CurrentBrowsePosition = mbhl.Count + 1; // otherwise we leave it where it is (i.e. user has navigated 'back')
+                        }
+                    }
+                    AddToBrowseHistory("Go to specific Paper Id: " + e2.Object.PaperId.ToString(), "PaperDetail", e2.Object.PaperId, e2.Object.Abstract, "", 0, "", "", 0);
+                    ShowPaperDetailsPage(e2.Object.PaperId, e2.Object.FullRecord, e2.Object.Abstract);
+                }
+                else
+                {
+                    RadWindow.Alert("This Paper ID cannot be found in the database");
+                }
+            };
+            dp.BeginFetch(new SingleCriteria<MagPaper, Int64>(id));
+        }
+
         // ***************************************** Included matches page *************************
         private void ShowIncludedMatchesPage(string IncludedOrExcluded)
         {
@@ -394,7 +427,7 @@ namespace EppiReviewer4
         {
             if (RowCodesSelect.MaxHeight == 0)
             {
-                RowCodesSelect.MaxHeight = 40;
+                RowCodesSelect.MaxHeight = 35;
                 LBListAllRelatedToItemsWithThisCode.Content = "";
                 LBListAllRelatedToItemsWithThisCode.Content = "Select code below (click to hide)";
             }
@@ -1432,6 +1465,8 @@ namespace EppiReviewer4
                 RememberThisMagRelatedPapersRun.BeginSave();
             }
         }
+
+
 
 
 

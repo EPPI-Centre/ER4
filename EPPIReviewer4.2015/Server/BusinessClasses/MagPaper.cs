@@ -29,6 +29,12 @@ namespace BusinessLibrary.BusinessClasses
 #else
         private MagPaper() { }
 #endif
+        public static void GetMagPaper(Int64 PaperId, EventHandler<DataPortalResult<MagPaper>> handler)
+        {
+            DataPortal<MagPaper> dp = new DataPortal<MagPaper>();
+            dp.FetchCompleted += handler;
+            dp.BeginFetch(new SingleCriteria<MagPaper, Int64>(PaperId));
+        }
 
         private static PropertyInfo<string> ExternalMagLinkProperty = RegisterProperty<string>(new PropertyInfo<string>("ExternalMagLink", "ExternalMagLink", string.Empty));
         public string ExternalMagLink()
@@ -456,7 +462,7 @@ namespace BusinessLibrary.BusinessClasses
 
         protected void DataPortal_Fetch(SingleCriteria<MagPaper, Int64> criteria) // used to return a specific Paper
         {
-            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+            using (SqlConnection connection = new SqlConnection(DataConnection.AcademicControllerConnectionString))
             {
                 ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
                 connection.Open();
@@ -468,7 +474,7 @@ namespace BusinessLibrary.BusinessClasses
                     {
                         if (reader.Read())
                         {
-                            LoadProperty<Int64>(PaperIdProperty, reader.GetInt64("PaperId"));
+                            LoadProperty<Int64>(PaperIdProperty, reader.GetInt64("PaperID"));
                             LoadProperty<string>(DOIProperty, reader.GetString("DOI"));
                             LoadProperty<string>(DocTypeProperty, reader.GetString("DocType"));
                             LoadProperty<string>(PaperTitleProperty, reader.GetString("PaperTitle"));
