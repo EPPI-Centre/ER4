@@ -110,16 +110,16 @@ namespace BusinessLibrary.BusinessClasses
                 return GetProperty(CreatedDateProperty);
             }
         }
-
-        private static PropertyInfo<decimal> SimilarityScoreProperty = RegisterProperty<decimal>(new PropertyInfo<decimal>("SimilarityScore", "SimilarityScore"));
-        public decimal SimilarityScore
+        /*
+        private static PropertyInfo<decimal> ScoreProperty = RegisterProperty<decimal>(new PropertyInfo<decimal>("Score", "Score"));
+        public decimal Score
         {
             get
             {
-                return GetProperty(SimilarityScoreProperty);
+                return GetProperty(ScoreProperty);
             }
         }
-
+        */
         private static PropertyInfo<int> num_timesProperty = RegisterProperty<int>(new PropertyInfo<int>("num_times", "num_times"));
         public int num_times
         {
@@ -325,7 +325,7 @@ namespace BusinessLibrary.BusinessClasses
                             LoadProperty<Int64>(FieldOfStudyIdProperty, reader.GetInt64("FieldOfStudyId"));
                             LoadProperty<string>(DisplayNameProperty, reader.GetString("DisplayName"));
                             LoadProperty<Int32>(num_timesProperty, reader.GetInt32("n_papers"));
-                            LoadProperty<decimal>(SimilarityScoreProperty, Convert.ToDecimal(reader.GetFloat("sum_similarity")));
+                            //LoadProperty<decimal>(ScoreProperty, Convert.ToDecimal(reader.GetFloat("sum_similarity")));
                         }
                     }
                 }
