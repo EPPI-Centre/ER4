@@ -373,6 +373,7 @@ namespace BusinessLibrary.BusinessClasses
                 {
                     command.CommandType = System.Data.CommandType.StoredProcedure;
                     command.Parameters.Add(new SqlParameter("@MAG_RELATED_RUN_ID", ReadProperty(MagRelatedRunIdProperty)));
+                    command.Parameters.Add(new SqlParameter("@AUTO_RERUN", ReadProperty(AutoReRunProperty)));
                     command.ExecuteNonQuery();
                 }
                 connection.Close();

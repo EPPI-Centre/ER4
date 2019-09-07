@@ -1,167 +1,191 @@
-﻿create procedure [dbo].[BulkTextUpload]
-(
-	@FileName nvarchar(50)
---,	@Path nvarchar(500) null
-)
-
-As
-
-SET NOCOUNT ON
--- Need to find out how to parameterise the path and filename
-if @FileName = 'Papers'
-begin
-BULK INSERT [dbo].[Papers] FROM 'writeToThisFolder\Papers.txt'
+﻿
+/*
+		BULK INSERT [dbo].Affiliations FROM 'D:\MSAcademic\downloads\mag\Affiliations.txt'
            WITH ( 
                DATAFILETYPE = 'char', 
                FIELDTERMINATOR = '\t', 
                ROWTERMINATOR = '\n', 
                FIRSTROW = 1 ,
 			   TABLOCK,
-			   BATCHSIZE = 100000
+			   BATCHSIZE = 5000
             ) 
-end
 
-if @FileName = 'PaperAbstractsInvertedIndex'
-begin
-BULK INSERT [dbo].[PaperAbstractsInvertedIndex] FROM 'writeToThisFolder\PaperAbstractsInvertedIndex.txt'
+		BULK INSERT [dbo].Authors FROM 'D:\MSAcademic\downloads\mag\Authors.txt'
            WITH ( 
                DATAFILETYPE = 'char', 
                FIELDTERMINATOR = '\t', 
                ROWTERMINATOR = '\n', 
                FIRSTROW = 1 ,
 			   TABLOCK,
-			   BATCHSIZE = 100000
-            ) 
-end
+			   BATCHSIZE = 5000
+            )
 
-if @FileName = 'PaperFieldsOfStudy'
-begin
-BULK INSERT [dbo].[PaperFieldsOfStudy] FROM 'writeToThisFolder\PaperFieldsOfStudy.txt'
+		BULK INSERT [dbo].EntityRelatedEntities FROM 'D:\MSAcademic\downloads\advanced\EntityRelatedEntities.txt'
            WITH ( 
                DATAFILETYPE = 'char', 
                FIELDTERMINATOR = '\t', 
                ROWTERMINATOR = '\n', 
                FIRSTROW = 1 ,
 			   TABLOCK,
-			   BATCHSIZE = 100000
-            ) 
-end
+			   BATCHSIZE = 5000
+            )
 
-if @FileName = 'PaperRecommendations'
-begin
-BULK INSERT [dbo].[PaperRecommendations] FROM 'writeToThisFolder\PaperRecommendations.txt'
+			BULK INSERT [dbo].FieldOfStudyChildren FROM 'D:\MSAcademic\downloads\advanced\FieldOfStudyChildren.txt'
            WITH ( 
                DATAFILETYPE = 'char', 
                FIELDTERMINATOR = '\t', 
                ROWTERMINATOR = '\n', 
                FIRSTROW = 1 ,
 			   TABLOCK,
-			   BATCHSIZE = 100000
-            ) 
-end
+			   BATCHSIZE = 5000
+            )
 
-if @FileName = 'FieldsOfStudy'
-begin
-BULK INSERT [dbo].[FieldsOfStudy] FROM 'writeToThisFolder\FieldsOfStudy.txt'
+			BULK INSERT [dbo].FieldOfStudyExtendedAttributes FROM 'D:\MSAcademic\downloads\advanced\FieldOfStudyExtendedAttributes.txt'
            WITH ( 
                DATAFILETYPE = 'char', 
                FIELDTERMINATOR = '\t', 
                ROWTERMINATOR = '\n', 
                FIRSTROW = 1 ,
 			   TABLOCK,
-			   BATCHSIZE = 100000
-            ) 
-end
+			   BATCHSIZE = 5000
+            )
 
-if @FileName = 'PaperReferences'
-begin
-BULK INSERT [dbo].[PaperReferences] FROM 'writeToThisFolder\PaperReferences.txt'
+			BULK INSERT [dbo].FieldsOfStudy FROM 'D:\MSAcademic\downloads\advanced\FieldsOfStudy.txt'
            WITH ( 
                DATAFILETYPE = 'char', 
                FIELDTERMINATOR = '\t', 
                ROWTERMINATOR = '\n', 
                FIRSTROW = 1 ,
 			   TABLOCK,
-			   BATCHSIZE = 100000
-            ) 
-end
+			   BATCHSIZE = 5000
+            )
 
-if @FileName = 'PaperUrls'
-begin
-BULK INSERT [dbo].[PaperUrls] FROM 'writeToThisFolder\PaperUrls.txt'
+			BULK INSERT [dbo].Journals FROM 'D:\MSAcademic\downloads\mag\Journals.txt'
            WITH ( 
                DATAFILETYPE = 'char', 
                FIELDTERMINATOR = '\t', 
                ROWTERMINATOR = '\n', 
                FIRSTROW = 1 ,
 			   TABLOCK,
-			   BATCHSIZE = 100000
-            ) 
-end
+			   BATCHSIZE = 5000
+            )
 
-if @FileName = 'FieldOfStudyChildren'
-begin
-BULK INSERT [dbo].[FieldOfStudyChildren] FROM 'writeToThisFolder\FieldOfStudyChildren.txt'
+			BULK INSERT [dbo].PaperAbstractsInvertedIndex FROM 'D:\MSAcademic\downloads\nlp\PaperAbstractsInvertedIndex.txt'
            WITH ( 
                DATAFILETYPE = 'char', 
                FIELDTERMINATOR = '\t', 
                ROWTERMINATOR = '\n', 
                FIRSTROW = 1 ,
 			   TABLOCK,
-			   BATCHSIZE = 100000
-            ) 
-end
-
-if @FileName = 'FieldOfStudyRelationship'
-begin
-BULK INSERT [dbo].[FieldOfStudyRelationship] FROM 'writeToThisFolder\FieldOfStudyRelationship.txt'
+			   BATCHSIZE = 5000
+            )
+*/
+			BULK INSERT [dbo].PaperAuthorAffiliations FROM 'D:\MSAcademic\downloads\mag\PaperAuthorAffiliations.txt'
            WITH ( 
                DATAFILETYPE = 'char', 
                FIELDTERMINATOR = '\t', 
                ROWTERMINATOR = '\n', 
                FIRSTROW = 1 ,
 			   TABLOCK,
-			   BATCHSIZE = 100000
-            ) 
-end
+			   BATCHSIZE = 5000
+            )
 
-if @FileName = 'Journals'
-begin
-BULK INSERT [dbo].[Journals] FROM 'writeToThisFolder\Journals.txt'
+			BULK INSERT [dbo].PaperExtendedAttributes FROM 'D:\MSAcademic\downloads\mag\PaperExtendedAttributes.txt'
            WITH ( 
                DATAFILETYPE = 'char', 
                FIELDTERMINATOR = '\t', 
                ROWTERMINATOR = '\n', 
                FIRSTROW = 1 ,
 			   TABLOCK,
-			   BATCHSIZE = 100000
-            ) 
-end
+			   BATCHSIZE = 5000
+            )
 
-if @FileName = 'Authors'
-begin
-BULK INSERT [dbo].[Authors] FROM 'writeToThisFolder\Authors.txt'
+			BULK INSERT [dbo].PaperFieldsOfStudy FROM 'D:\MSAcademic\downloads\advanced\PaperFieldsOfStudy.txt'
            WITH ( 
                DATAFILETYPE = 'char', 
                FIELDTERMINATOR = '\t', 
                ROWTERMINATOR = '\n', 
                FIRSTROW = 1 ,
 			   TABLOCK,
-			   BATCHSIZE = 100000
-            ) 
-end
+			   BATCHSIZE = 5000
+            )
 
-if @FileName = 'Affiliations'
-begin
-BULK INSERT [dbo].[Affiliations] FROM 'writeToThisFolder\Affiliations.txt'
+			BULK INSERT [dbo].PaperLanguages FROM 'D:\MSAcademic\downloads\nlp\PaperLanguages.txt'
            WITH ( 
                DATAFILETYPE = 'char', 
                FIELDTERMINATOR = '\t', 
                ROWTERMINATOR = '\n', 
                FIRSTROW = 1 ,
 			   TABLOCK,
-			   BATCHSIZE = 100000
-            ) 
-end
+			   BATCHSIZE = 5000
+            )
 
-SET NOCOUNT OFF
+			BULK INSERT [dbo].PaperRecommendations FROM 'D:\MSAcademic\downloads\advanced\PaperRecommendations.txt'
+           WITH ( 
+               DATAFILETYPE = 'char', 
+               FIELDTERMINATOR = '\t', 
+               ROWTERMINATOR = '\n', 
+               FIRSTROW = 1 ,
+			   TABLOCK,
+			   BATCHSIZE = 5000
+            )
+
+			BULK INSERT [dbo].PaperReferences FROM 'D:\MSAcademic\downloads\mag\PaperReferences.txt'
+           WITH ( 
+               DATAFILETYPE = 'char', 
+               FIELDTERMINATOR = '\t', 
+               ROWTERMINATOR = '\n', 
+               FIRSTROW = 1 ,
+			   TABLOCK,
+			   BATCHSIZE = 5000
+            )
+
+			BULK INSERT [dbo].PaperResources FROM 'D:\MSAcademic\downloads\mag\PaperResources.txt'
+           WITH ( 
+               DATAFILETYPE = 'char', 
+               FIELDTERMINATOR = '\t', 
+               ROWTERMINATOR = '\n', 
+               FIRSTROW = 1 ,
+			   TABLOCK,
+			   BATCHSIZE = 5000
+            )
+
+			BULK INSERT [dbo].PaperUrls FROM 'D:\MSAcademic\downloads\mag\PaperUrls.txt'
+           WITH ( 
+               DATAFILETYPE = 'char', 
+               FIELDTERMINATOR = '\t', 
+               ROWTERMINATOR = '\n', 
+               FIRSTROW = 1 ,
+			   TABLOCK,
+			   BATCHSIZE = 5000
+            )
+
+			BULK INSERT [dbo].Papers FROM 'D:\MSAcademic\downloads\mag\Papers.txt'
+           WITH ( 
+               DATAFILETYPE = 'char', 
+               FIELDTERMINATOR = '\t', 
+               ROWTERMINATOR = '\n', 
+               FIRSTROW = 1 ,
+			   TABLOCK,
+			   BATCHSIZE = 5000
+            )
+
+			BULK INSERT [dbo].RelatedFieldOfStudy FROM 'D:\MSAcademic\downloads\advanced\RelatedFieldOfStudy.txt'
+           WITH ( 
+               DATAFILETYPE = 'char', 
+               FIELDTERMINATOR = '\t', 
+               ROWTERMINATOR = '\n', 
+               FIRSTROW = 1 ,
+			   TABLOCK,
+			   BATCHSIZE = 5000
+            )
+
+
+
+
+
+
+
+
+
+

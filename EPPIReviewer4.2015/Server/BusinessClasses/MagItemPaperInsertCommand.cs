@@ -32,6 +32,19 @@ namespace BusinessLibrary.BusinessClasses
 #endif
 
         private string _PaperIds;
+        private int _NImported;
+
+        public int NImported
+        {
+            get
+            {
+                return _NImported;
+            }
+            set
+            {
+                _NImported = value;
+            }
+        }
 
         public MagItemPaperInsertCommand(string PaperIds)
         {
@@ -42,10 +55,12 @@ namespace BusinessLibrary.BusinessClasses
         {
             base.OnGetState(info, mode);
             info.AddValue("_PaperIds", _PaperIds);
+            info.AddValue("_NImported", _NImported);
         }
         protected override void OnSetState(Csla.Serialization.Mobile.SerializationInfo info, Csla.Core.StateMode mode)
         {
             _PaperIds = info.GetValue<string>("_PaperIds");
+            _NImported = info.GetValue<int>("_NImported");
         }
 
 
@@ -66,7 +81,10 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@SOURCE_NAME", "Selected items from MAG on " + DateTime.Now.ToShortDateString() +
                         " at " + DateTime.Now.ToLongTimeString()));
                     command.Parameters.Add(new SqlParameter("@CONTACT_ID", ri.UserId));
+                    command.Parameters.Add(new SqlParameter("@N_IMPORTED", ri.UserId));
+                    command.Parameters["@N_IMPORTED"].Direction = System.Data.ParameterDirection.Output;
                     command.ExecuteNonQuery();
+                    _NImported = Convert.ToInt32(command.Parameters["@N_IMPORTED"].Value);
                 }
                 connection.Close();
             }

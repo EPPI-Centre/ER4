@@ -517,7 +517,7 @@
             </Grid>
             
             <telerikGridView:RadGridView x:Name="RelatedPapersRunGrid" Grid.Row="7" AutoGenerateColumns="False" ShowGroupPanel="False"
-                                    IsReadOnly="True" MinHeight="50" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                    IsReadOnly="False" MinHeight="50" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                                     ItemsSource="{Binding Source={StaticResource RelatedPapersRunListData}, Path=Data, Mode=TwoWay}"
                                     RowIndicatorVisibility="Collapsed" CanUserSelect="False" Margin="10,20,10,20"
                                     SelectionMode="Extended" ColumnWidth="*"
@@ -530,7 +530,13 @@
                     <telerikGridView:GridViewDataColumn Header="All included" Width="100" DataMemberBinding="{Binding AllIncluded}"></telerikGridView:GridViewDataColumn>
                     <telerikGridView:GridViewDataColumn Header="With this code" Width="80*" DataMemberBinding="{Binding AttributeName}"></telerikGridView:GridViewDataColumn>
                     <telerikGridView:GridViewDataColumn Header="Filtered" Width="65" DataMemberBinding="{Binding Filtered}"></telerikGridView:GridViewDataColumn>
-                    <telerikGridView:GridViewDataColumn Header="Re-run?" Width="80" DataMemberBinding="{Binding AutoReRun}"></telerikGridView:GridViewDataColumn>
+                    <telerikGridView:GridViewDataColumn Header="Re-run?" Width="80" IsReadOnly="False">
+                        <telerikGridView:GridViewDataColumn.CellTemplate>
+                            <DataTemplate>
+                                <CheckBox IsChecked="{Binding AutoReRun}" Checked="CheckBox_Checked" Unchecked="CheckBox_Unchecked"></CheckBox>
+                            </DataTemplate>
+                        </telerikGridView:GridViewDataColumn.CellTemplate>
+                    </telerikGridView:GridViewDataColumn>
                     <telerikGridView:GridViewDataColumn Header="Status" Width="80" DataMemberBinding="{Binding Status}"></telerikGridView:GridViewDataColumn>
                     <telerikGridView:GridViewDataColumn Width="50" SortingState="None">
                         <telerikGridView:GridViewDataColumn.CellTemplate>

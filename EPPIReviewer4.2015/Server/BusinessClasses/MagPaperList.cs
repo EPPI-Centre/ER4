@@ -51,6 +51,14 @@ namespace BusinessLibrary.BusinessClasses
             return retval;
         }
 
+        public void ResetSelected()
+        {
+            foreach (MagPaper p in this)
+            {
+                p.IsSelected = false;
+            }
+        }
+
         public event PropertyChangedEventHandler PropertyChanged;
         private void NotifyPropertyChanged(String info)
         {

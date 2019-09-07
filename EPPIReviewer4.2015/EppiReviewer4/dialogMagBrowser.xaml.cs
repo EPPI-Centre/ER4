@@ -47,30 +47,14 @@ namespace EppiReviewer4
 
         private void HLShowSummary_Click(object sender, RoutedEventArgs e)
         {
-            CslaDataProvider provider = this.Resources["HistoryListData"] as CslaDataProvider;
-            if (provider != null)
-            {
-                MagBrowseHistoryList mbhl = provider.Data as MagBrowseHistoryList;
-                if (mbhl != null)
-                {
-                    CurrentBrowsePosition = mbhl.Count + 1; // otherwise we leave it where it is (i.e. user has navigated 'back')
-                }
-            }
+            IncrementHistoryCount();
             AddToBrowseHistory("Summary page", "Summary", 0, "", "", 0, "", "", 0);
             ShowSummaryPage();
         }
 
         private void HLShowHistory_Click(object sender, RoutedEventArgs e)
         {
-            CslaDataProvider provider = this.Resources["HistoryListData"] as CslaDataProvider;
-            if (provider != null)
-            {
-                MagBrowseHistoryList mbhl = provider.Data as MagBrowseHistoryList;
-                if (mbhl != null)
-                {
-                    CurrentBrowsePosition = mbhl.Count + 1; // otherwise we leave it where it is (i.e. user has navigated 'back')
-                }
-            }
+            IncrementHistoryCount();
             AddToBrowseHistory("View browse history", "History", 0, "", "", 0, "", "", 0);
             ShowHistoryPage();
         }
@@ -242,15 +226,7 @@ namespace EppiReviewer4
             {
                 if (e2 != null)
                 {
-                    CslaDataProvider provider = this.Resources["HistoryListData"] as CslaDataProvider;
-                    if (provider != null)
-                    {
-                        MagBrowseHistoryList mbhl = provider.Data as MagBrowseHistoryList;
-                        if (mbhl != null)
-                        {
-                            CurrentBrowsePosition = mbhl.Count + 1; // otherwise we leave it where it is (i.e. user has navigated 'back')
-                        }
-                    }
+                    IncrementHistoryCount();
                     AddToBrowseHistory("Go to specific Paper Id: " + e2.Object.PaperId.ToString(), "PaperDetail", e2.Object.PaperId, e2.Object.Abstract, "", 0, "", "", 0);
                     ShowPaperDetailsPage(e2.Object.PaperId, e2.Object.FullRecord, e2.Object.Abstract);
                 }
@@ -380,45 +356,21 @@ namespace EppiReviewer4
 
         private void LBListMatchesIncluded_Click(object sender, RoutedEventArgs e)
         {
-            CslaDataProvider provider = this.Resources["HistoryListData"] as CslaDataProvider;
-            if (provider != null)
-            {
-                MagBrowseHistoryList mbhl = provider.Data as MagBrowseHistoryList;
-                if (mbhl != null)
-                {
-                    CurrentBrowsePosition = mbhl.Count + 1; // otherwise we leave it where it is (i.e. user has navigated 'back')
-                }
-            }
+            IncrementHistoryCount();
             AddToBrowseHistory("List of all included matches", "MatchesIncluded", 0, "", "", 0, "", "", 0);
             ShowIncludedMatchesPage("included");
         }
 
         private void LBListMatchesExcluded_Click(object sender, RoutedEventArgs e)
         {
-            CslaDataProvider provider = this.Resources["HistoryListData"] as CslaDataProvider;
-            if (provider != null)
-            {
-                MagBrowseHistoryList mbhl = provider.Data as MagBrowseHistoryList;
-                if (mbhl != null)
-                {
-                    CurrentBrowsePosition = mbhl.Count + 1; // otherwise we leave it where it is (i.e. user has navigated 'back')
-                }
-            }
+            IncrementHistoryCount();
             AddToBrowseHistory("List of all excluded matches", "MatchesExcluded", 0, "", "", 0, "", "", 0);
             ShowIncludedMatchesPage("excluded");
         }
 
         private void LBListAllInReview_Click(object sender, RoutedEventArgs e)
         {
-            CslaDataProvider provider = this.Resources["HistoryListData"] as CslaDataProvider;
-            if (provider != null)
-            {
-                MagBrowseHistoryList mbhl = provider.Data as MagBrowseHistoryList;
-                if (mbhl != null)
-                {
-                    CurrentBrowsePosition = mbhl.Count + 1; // otherwise we leave it where it is (i.e. user has navigated 'back')
-                }
-            }
+            IncrementHistoryCount();
             AddToBrowseHistory("List of all matches in review (included and excluded)", "MatchesIncludedAndExcluded", 0, "", "", 0, "", "", 0);
             ShowIncludedMatchesPage("all");
         }
@@ -467,15 +419,7 @@ namespace EppiReviewer4
                         attributeNames += ", OR " + attribute.AttributeName;
                     }
                 }
-                CslaDataProvider provider = this.Resources["HistoryListData"] as CslaDataProvider;
-                if (provider != null)
-                {
-                    MagBrowseHistoryList mbhl = provider.Data as MagBrowseHistoryList;
-                    if (mbhl != null)
-                    {
-                        CurrentBrowsePosition = mbhl.Count + 1; // otherwise we leave it where it is (i.e. user has navigated 'back')
-                    }
-                }
+                IncrementHistoryCount();
                 AddToBrowseHistory("List of all item matches with this code", "ReviewMatchedPapersWithThisCode", 0, "", "", 0, "", attributeIDs, 0);
                 ShowAllWithThisCode(attributeIDs);
             }
@@ -508,15 +452,7 @@ namespace EppiReviewer4
                 RadWindow.Alert("You don't have anything selected.");
                 return;
             }
-            CslaDataProvider provider = this.Resources["HistoryListData"] as CslaDataProvider;
-            if (provider != null)
-            {
-                MagBrowseHistoryList mbhl = provider.Data as MagBrowseHistoryList;
-                if (mbhl != null)
-                {
-                    CurrentBrowsePosition = mbhl.Count + 1; 
-                }
-            }
+            IncrementHistoryCount();
             AddToBrowseHistory("List of all selected papers", "SelectedPapers", 0, "", "", 0, "", "", 0);
             ShowSelectedPapersPage();
         }
@@ -589,15 +525,7 @@ namespace EppiReviewer4
 
         private void HlNavigateToTopic_Click(object sender, RoutedEventArgs e)
         {
-            CslaDataProvider provider = this.Resources["HistoryListData"] as CslaDataProvider;
-            if (provider != null)
-            {
-                MagBrowseHistoryList mbhl = provider.Data as MagBrowseHistoryList;
-                if (mbhl != null)
-                {
-                    CurrentBrowsePosition = mbhl.Count + 1; // otherwise we leave it where it is (i.e. user has navigated 'back')
-                }
-            }
+            IncrementHistoryCount();
             HyperlinkButton hl = sender as HyperlinkButton;
             if (hl != null)
             {
@@ -655,15 +583,7 @@ namespace EppiReviewer4
         private void PaperListBibliographyGrid_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             MagPaper paper = (sender as TextBlock).DataContext as MagPaper;
-            CslaDataProvider provider = this.Resources["HistoryListData"] as CslaDataProvider;
-            if (provider != null)
-            {
-                MagBrowseHistoryList mbhl = provider.Data as MagBrowseHistoryList;
-                if (mbhl != null)
-                {
-                    CurrentBrowsePosition = mbhl.Count + 1; // otherwise we leave it where it is (i.e. user has navigated 'back')
-                }
-            }
+            IncrementHistoryCount();
             AddToBrowseHistory("Browse paper: " + paper.FullRecord, "PaperDetail", paper.PaperId, paper.FullRecord,
                 paper.Abstract, 0, "", "", 0);
             ShowPaperDetailsPage(paper.PaperId, paper.FullRecord, paper.Abstract);
@@ -952,6 +872,19 @@ namespace EppiReviewer4
             }
         }
 
+        private void IncrementHistoryCount()
+        {
+            CslaDataProvider provider = this.Resources["HistoryListData"] as CslaDataProvider;
+            if (provider != null)
+            {
+                MagBrowseHistoryList mbhl = provider.Data as MagBrowseHistoryList;
+                if (mbhl != null)
+                {
+                    CurrentBrowsePosition = mbhl.Count + 1; // otherwise we leave it where it is (i.e. user has navigated 'back')
+                }
+            }
+        }
+
         // ******************************** Selected paper list handling *******************************
 
         private void ClearSelectedPaperList()
@@ -971,12 +904,35 @@ namespace EppiReviewer4
             {
                 SelectedPaperIds.Clear();
                 UpdateSelectedCount();
+                ClearSelectionsFromPaperLists();
             }
         }
 
         private void UpdateSelectedCount()
         {
             HLShowSelected.Content = "Show selected (" + SelectedPaperIds.Count.ToString() + ")";
+        }
+
+        private void ClearSelectionsFromPaperLists()
+        {
+            ResetSelected("PaperListData");
+            ResetSelected("TopicPaperListData");
+            ResetSelected("CitationPaperListData");
+            ResetSelected("CitedByListData");
+            ResetSelected("RecommendationsListData");
+        }
+
+        private void ResetSelected(string ProviderName)
+        {
+            CslaDataProvider provider = this.Resources[ProviderName] as CslaDataProvider;
+            if (provider != null)
+            {
+                MagPaperList mpl = provider.Data as MagPaperList;
+                if (mpl != null)
+                {
+                    mpl.ResetSelected();
+                }
+            }
         }
 
         private void HLClearSelected_Click(object sender, RoutedEventArgs e)
@@ -1081,8 +1037,25 @@ namespace EppiReviewer4
                     }
                     else
                     {
-                        RadWindow.Alert("Items imported: " + SelectedPaperIds.Count.ToString());
-                        ClearSelectedPaperList();
+                        if (e2.Object.NImported == SelectedPaperIds.Count)
+                        {
+                            RadWindow.Alert("Imported " + e2.Object.NImported.ToString() + " out of " +
+                                SelectedPaperIds.Count.ToString() + " items");
+                        }
+                        else if (e2.Object.NImported != 0)
+                        {
+                            RadWindow.Alert("Some of these items were already in your review.\n\nImported " +
+                                e2.Object.NImported.ToString() + " out of " + SelectedPaperIds.Count.ToString() +
+                                " selected items");
+                        }
+                        else
+                        {
+                            RadWindow.Alert("All of these records were already in your review.");
+                        }
+                        
+                        SelectedPaperIds.Clear();
+                        ClearSelectionsFromPaperLists();
+                        UpdateSelectedCount();
                     }
                 };
                 //BusyLoading.IsRunning = true;
@@ -1196,15 +1169,7 @@ namespace EppiReviewer4
 
         private void LBManageRelatedPapersRun_Click(object sender, RoutedEventArgs e)
         {
-            CslaDataProvider provider = this.Resources["HistoryListData"] as CslaDataProvider;
-            if (provider != null)
-            {
-                MagBrowseHistoryList mbhl = provider.Data as MagBrowseHistoryList;
-                if (mbhl != null)
-                {
-                    CurrentBrowsePosition = mbhl.Count + 1; // otherwise we leave it where it is (i.e. user has navigated 'back')
-                }
-            }
+            IncrementHistoryCount();
             AddToBrowseHistory("Manage review updates / find related papers", "RelatedPapers", 0, "", "", 0, "", "", 0);
             ShowRelatedPapersPage();
         }
@@ -1334,12 +1299,12 @@ namespace EppiReviewer4
                 if (pr != null)
                 {
                     RememberThisMagRelatedPapersRun = pr;
-                    RadWindow.Confirm("Are you sure you want to delete this item?", this.doDeleteMagRelatedPapersRun);
+                    RadWindow.Confirm("Are you sure you want to delete this row?", this.doDeleteMagRelatedPapersRun);
                 }
             }
         }
 
-        MagRelatedPapersRun RememberThisMagRelatedPapersRun;
+        MagRelatedPapersRun RememberThisMagRelatedPapersRun; // temporary variable to store a specific row while a dialog is showing
 
         private void doDeleteMagRelatedPapersRun(object sender, WindowClosedEventArgs e)
         {
@@ -1366,15 +1331,7 @@ namespace EppiReviewer4
                 MagRelatedPapersRun pr = hlb.DataContext as MagRelatedPapersRun;
                 if (pr != null)
                 {
-                    CslaDataProvider provider = this.Resources["HistoryListData"] as CslaDataProvider;
-                    if (provider != null)
-                    {
-                        MagBrowseHistoryList mbhl = provider.Data as MagBrowseHistoryList;
-                        if (mbhl != null)
-                        {
-                            CurrentBrowsePosition = mbhl.Count + 1; // otherwise we leave it where it is (i.e. user has navigated 'back')
-                        }
-                    }
+                    IncrementHistoryCount();
                     AddToBrowseHistory("Papers identified from auto-identification run", "MagRelatedPapersRunList", 0, "", "", 0, "", "", pr.MagRelatedRunId);
                     ShowAutoIdentifiedMatches(pr.MagRelatedRunId);
                 }
@@ -1389,6 +1346,11 @@ namespace EppiReviewer4
                 MagRelatedPapersRun pr = hlb.DataContext as MagRelatedPapersRun;
                 if (pr != null)
                 {
+                    if (pr.NPapers == 0)
+                    {
+                        RadWindow.Alert("There are no items to import.");
+                        return;
+                    }
                     if (pr.UserStatus == "Checked")
                     {
                         RememberThisMagRelatedPapersRun = pr;
@@ -1414,6 +1376,7 @@ namespace EppiReviewer4
             {
                 if (RememberThisMagRelatedPapersRun != null)
                 {
+                    int num_in_run = RememberThisMagRelatedPapersRun.NPapers;
                     DataPortal<MagItemMagRelatedPaperInsertCommand> dp2 = new DataPortal<MagItemMagRelatedPaperInsertCommand>();
                     MagItemMagRelatedPaperInsertCommand command = new MagItemMagRelatedPaperInsertCommand(RememberThisMagRelatedPapersRun.MagRelatedRunId);
                     dp2.ExecuteCompleted += (o, e2) =>
@@ -1425,7 +1388,23 @@ namespace EppiReviewer4
                         }
                         else
                         {
-                            RadWindow.Alert("Items imported: " + (e2.Object as MagItemMagRelatedPaperInsertCommand).NImported.ToString());
+                            if (e2.Object.NImported == num_in_run)
+                            {
+                                RadWindow.Alert("Imported " + e2.Object.NImported.ToString() + " out of " +
+                                    num_in_run.ToString() + " items");
+                            }
+                            else if (e2.Object.NImported != 0)
+                            {
+                                RadWindow.Alert("Some of these items were already in your review.\n\nImported " +
+                                    e2.Object.NImported.ToString() + " out of " + num_in_run.ToString() +
+                                    " new items");
+                            }
+                            else
+                            {
+                                RadWindow.Alert("All of these records were already in your review.");
+                            }
+                            CslaDataProvider provider = this.Resources["RelatedPapersRunListData"] as CslaDataProvider;
+                            provider.Refresh();
                         }
                     };
                     //BusyLoading.IsRunning = true;
@@ -1466,6 +1445,35 @@ namespace EppiReviewer4
                 RememberThisMagRelatedPapersRun.BeginSave();
             }
         }
+
+        private void CheckBox_Checked(object sender, RoutedEventArgs e)
+        {
+            CheckBox cb = sender as CheckBox;
+            if (cb != null)
+            {
+                MagRelatedPapersRun r = cb.DataContext as MagRelatedPapersRun;
+                if (r != null)
+                {
+                    r.AutoReRun = true;
+                    r.BeginSave();
+                }
+            }
+        }
+
+        private void CheckBox_Unchecked(object sender, RoutedEventArgs e)
+        {
+            CheckBox cb = sender as CheckBox;
+            if (cb != null)
+            {
+                MagRelatedPapersRun r = cb.DataContext as MagRelatedPapersRun;
+                if (r != null)
+                {
+                    r.AutoReRun = false;
+                    r.BeginSave();
+                }
+            }
+        }
+
 
 
 

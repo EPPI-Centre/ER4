@@ -1,4 +1,6 @@
-﻿DROP TABLE IF EXISTS [dbo].[Affiliations]
+﻿ALTER DATABASE academiccurrent SET RECOVERY SIMPLE
+
+DROP TABLE IF EXISTS [dbo].[Affiliations]
 CREATE TABLE [dbo].[Affiliations](
 	[AffiliationID] [bigint] NULL,
 	[Rank] [int] NULL,
