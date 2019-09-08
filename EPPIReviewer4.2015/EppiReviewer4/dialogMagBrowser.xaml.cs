@@ -145,6 +145,7 @@ namespace EppiReviewer4
 
             RTBPaperInfo.Text = FullRecord;
             tbAbstract.Text = Abstract;
+            tbPaperId.Text = PaperId.ToString();
             if (LinkedITEM_ID == 0)
             {
                 tbPaperAlreadyInReview.Text = "This paper is not currently in your review.";

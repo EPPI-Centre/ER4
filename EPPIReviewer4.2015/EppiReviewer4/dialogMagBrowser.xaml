@@ -111,7 +111,7 @@
             <RowDefinition Height="*"></RowDefinition>
         </Grid.RowDefinitions>
 
-        <Grid x:Name="HeaderGrid" Grid.Row="0" Background="LightYellow">
+        <Grid x:Name="HeaderGrid" Grid.Row="0" Background="LightGray">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="400*"></ColumnDefinition>
                 <ColumnDefinition Width="400*"></ColumnDefinition>
@@ -119,7 +119,7 @@
                 <ColumnDefinition Width="100*"></ColumnDefinition>
             </Grid.ColumnDefinitions>
 
-            <TextBlock x:Name="tbAcademicTitle" TextWrapping="Wrap" Grid.Column="0" Text="Microsoft Academic browser" FontSize="16" FontWeight="Bold" FontStyle="Italic" Margin="5,10,5,5"></TextBlock>
+            <TextBlock x:Name="tbAcademicTitle" TextWrapping="Wrap" Grid.Column="0" Text="Microsoft Academic browser" FontSize="12" FontStyle="Italic" Margin="5,10,5,5"></TextBlock>
             <HyperlinkButton x:Name="HLShowSelected" Grid.Column="1" Content="Show selected (0)" Margin="0,5,5,5" HorizontalAlignment="Right" Width="105" Click="HLShowSelected_Click"></HyperlinkButton>
             <HyperlinkButton x:Name="HLClearSelected" Grid.Column="1" Content="Clear selected" Margin="0,22,5,22" HorizontalAlignment="Right" VerticalAlignment="Center" Width="105" Height="16" Click="HLClearSelected_Click"></HyperlinkButton>
             <HyperlinkButton x:Name="HLImportSelected" Grid.Column="1" Content="Import selected" Margin="0,0,5,5" HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="105" Height="16" Click="HLImportSelected_Click"></HyperlinkButton>
@@ -212,8 +212,8 @@
 
         <Grid x:Name="PaperGrid" Grid.Row="1" Visibility="Collapsed">
             <Grid.RowDefinitions>
-                    <RowDefinition x:Name="PaperGridHeadingRow" Height="67"></RowDefinition>
-                    <RowDefinition Height="25"></RowDefinition>
+                    <RowDefinition x:Name="PaperGridHeadingRow" Height="61"></RowDefinition>
+                    <RowDefinition Height="35"></RowDefinition>
                     <RowDefinition x:Name="PaperGridAbstractRow" Height="0"></RowDefinition>
                     <RowDefinition Height="25"></RowDefinition>
                     <RowDefinition Height="*"></RowDefinition>
@@ -223,15 +223,19 @@
                 <ColumnDefinition Width="*"></ColumnDefinition>
             </Grid.ColumnDefinitions>
 
-            <TextBlock x:Name="RTBPaperInfo" Grid.Row="0" Grid.ColumnSpan="2" TextWrapping="Wrap" FontSize="18" Text="Authors et al (2019) This is the really very much longer title of the paper, Journal name: volume(issue): pages" Margin="5,5,5,5" ></TextBlock>
+            <TextBox x:Name="RTBPaperInfo" Grid.Row="0" Grid.ColumnSpan="2" TextWrapping="Wrap" FontSize="17" IsReadOnly="True" Text="Authors et al (2019) This is the really very much longer title of the paper, Journal name: volume(issue): pages" Margin="0,0,0,0" ></TextBox>
 
             <StackPanel Grid.Row="1" Grid.ColumnSpan="2" Orientation="Horizontal">
                 <TextBlock x:Name="tbPaperAlreadyInReview" Margin="5,5,5,5" VerticalAlignment="Center" HorizontalAlignment="Left"></TextBlock>
                 <HyperlinkButton x:Name="hlAddPaperToSelectedList" Content="Add to selected list" FontStyle="Italic" Margin="5,5,5,5" VerticalAlignment="Center" HorizontalAlignment="Left" Click="hlAddPaperToSelectedList_Click"></HyperlinkButton>
             </StackPanel>
+            <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
+                <TextBlock Text="PaperId: " HorizontalAlignment="Right" VerticalAlignment="Center" Margin="5,5,0,5"></TextBlock>
+                <TextBox x:Name="tbPaperId" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,5,5,5" IsReadOnly="True"></TextBox>
+            </StackPanel>
             
             <TextBox x:Name="tbAbstract" Grid.Row="2" Grid.ColumnSpan="2" TextWrapping="Wrap" ScrollViewer.VerticalScrollBarVisibility="Auto"></TextBox>
-            <HyperlinkButton x:Name="HLExpandContract" Grid.Row="3" Grid.ColumnSpan="2" FontSize="14" HorizontalAlignment="Center" Content="&lt;&lt;&lt;Expand&gt;&gt;&gt;" Click="HLExpandContract_Click" Tag="expand"></HyperlinkButton>
+            <HyperlinkButton x:Name="HLExpandContract" Grid.Row="3" Grid.ColumnSpan="2" FontSize="13" HorizontalAlignment="Center" Content="&lt;&lt;&lt;Expand&gt;&gt;&gt;" Click="HLExpandContract_Click" Tag="expand"></HyperlinkButton>
             <ToolkitRef:WrapPanel x:Name="WPPaperTopics" Grid.Row="4" Grid.Column="0" Orientation="Horizontal">
                 <TextBlock Margin="5,5,10,5" Text="Topics" FontStyle="Italic"></TextBlock>
                 <HyperlinkButton Grid.Column="1" Content="Show selected (0)" Margin="0,5,5,5" HorizontalAlignment="Right" Width="105"></HyperlinkButton>
@@ -329,7 +333,7 @@
 
         <Grid x:Name="PaperListGrid" Grid.Row="1" Visibility="Collapsed">
             <Grid.RowDefinitions>
-                <RowDefinition Height="50"></RowDefinition>
+                <RowDefinition Height="47"></RowDefinition>
                 <RowDefinition Height="*"></RowDefinition>
                 <RowDefinition Height="Auto"></RowDefinition>
             </Grid.RowDefinitions>
@@ -338,7 +342,7 @@
                 <ColumnDefinition Width="*"></ColumnDefinition>
             </Grid.ColumnDefinitions>
 
-            <TextBlock x:Name="TBPaperListTitle" FontSize="18" Text="" Grid.Row="0" Grid.ColumnSpan="2" Margin="5,15,5,5"></TextBlock>
+            <TextBlock x:Name="TBPaperListTitle" FontSize="18" Text="" Grid.Row="0" Grid.ColumnSpan="2" Margin="5,20,5,5"></TextBlock>
 
             <ToolkitRef:WrapPanel x:Name="WPTopTopics" ScrollViewer.VerticalScrollBarVisibility="Auto" Grid.Row="1" Grid.RowSpan="2" Grid.Column="0" Orientation="Horizontal">
                 <TextBlock Margin="5,5,10,5" Text="Top Topics " FontStyle="Italic"></TextBlock>
