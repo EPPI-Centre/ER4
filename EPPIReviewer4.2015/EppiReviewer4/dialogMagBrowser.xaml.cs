@@ -358,6 +358,7 @@ namespace EppiReviewer4
         {
             IncrementHistoryCount();
             AddToBrowseHistory("List of all included matches", "MatchesIncluded", 0, "", "", 0, "", "", 0);
+            TBPaperListTitle.Text = "List of all included matches";
             ShowIncludedMatchesPage("included");
         }
 
@@ -365,6 +366,7 @@ namespace EppiReviewer4
         {
             IncrementHistoryCount();
             AddToBrowseHistory("List of all excluded matches", "MatchesExcluded", 0, "", "", 0, "", "", 0);
+            TBPaperListTitle.Text = "List of all excluded matches";
             ShowIncludedMatchesPage("excluded");
         }
 
@@ -372,6 +374,7 @@ namespace EppiReviewer4
         {
             IncrementHistoryCount();
             AddToBrowseHistory("List of all matches in review (included and excluded)", "MatchesIncludedAndExcluded", 0, "", "", 0, "", "", 0);
+            TBPaperListTitle.Text = "List of all matches in review (included and excluded)";
             ShowIncludedMatchesPage("all");
         }
 
@@ -466,6 +469,11 @@ namespace EppiReviewer4
             }
             else
             {
+                MagPaperList mpl = provider.Data as MagPaperList;
+                if (mpl != null)
+                {
+                    tbCountPaperListGrid.Text = "Total number of items in this list: " + mpl.TotalItemCount.ToString();
+                }
                 SetSelected(provider);
                 GetAssociatedTopics();
             }
@@ -600,7 +608,7 @@ namespace EppiReviewer4
             selectionCriteria.PageSize = 20;
             selectionCriteria.PageNumber = e.NewPageIndex;
 
-            if (mpl.PaperIds == "" && mpl.AttributeIds == "" && mpl.MagRelatedRunId == 0)
+            if (mpl.PaperIds == "" && (mpl.AttributeIds == "" || mpl.AttributeIds == null) && mpl.MagRelatedRunId == 0)
             {
                 selectionCriteria.ListType = "ReviewMatchedPapers";
                 selectionCriteria.Included = mpl.IncludedOrExcluded;
@@ -610,7 +618,7 @@ namespace EppiReviewer4
                 selectionCriteria.ListType = "PaperListById";
                 selectionCriteria.PaperIds = mpl.PaperIds;
             }
-            else if (mpl.AttributeIds != "")
+            else if (mpl.AttributeIds != "" && mpl.AttributeIds != null)
             {
                 selectionCriteria.ListType = "ReviewMatchedPapersWithThisCode";
                 selectionCriteria.AttributeIds = mpl.AttributeIds;
@@ -702,6 +710,11 @@ namespace EppiReviewer4
                 else
                 {
                     SetSelected(provider);
+                    MagPaperList mpl = provider.Data as MagPaperList;
+                    if (mpl != null)
+                    {
+                        tbCountTopicPaperListBibliographyGrid.Text = "Total number of items in this list: " + mpl.TotalItemCount.ToString();
+                    }
                 }
             }
         }
@@ -777,18 +790,22 @@ namespace EppiReviewer4
                                 ShowPaperDetailsPage(mbh.PaperId, mbh.PaperFullRecord, mbh.PaperAbstract);
                                 break;
                             case "MatchesIncluded":
+                                TBPaperListTitle.Text = mbh.Title;
                                 ShowIncludedMatchesPage("included");
                                 break;
                             case "MatchesExcluded":
+                                TBPaperListTitle.Text = mbh.Title;
                                 ShowIncludedMatchesPage("excluded");
                                 break;
                             case "MatchesIncludedAndExcluded":
+                                TBPaperListTitle.Text = mbh.Title;
                                 ShowIncludedMatchesPage("all");
                                 break;
                             case "ReviewMatchedPapersWithThisCode":
                                 ShowAllWithThisCode(mbh.AttributeIds);
                                 break;
                             case "MagRelatedPapersRunList":
+                                TBPaperListTitle.Text = mbh.Title;
                                 ShowAutoIdentifiedMatches(mbh.MagRelatedRunId);
                                 break;
                             case "BrowseTopic":
@@ -970,15 +987,22 @@ namespace EppiReviewer4
             MagPaper paper = (sender as HyperlinkButton).DataContext as MagPaper;
             if (paper != null)
             {
-                if (paper.IsSelected)
+                if (paper.LinkedITEM_ID == 0)
                 {
-                    RemoveFromSelectedList(paper.PaperId);
-                    paper.IsSelected = false;
+                    if (paper.IsSelected)
+                    {
+                        RemoveFromSelectedList(paper.PaperId);
+                        paper.IsSelected = false;
+                    }
+                    else
+                    {
+                        AddToSelectedList(paper.PaperId);
+                        paper.IsSelected = true;
+                    }
                 }
                 else
                 {
-                    AddToSelectedList(paper.PaperId);
-                    paper.IsSelected = true;
+                    RadWindow.Alert("This paper is already in your review");
                 }
             }
         }
@@ -993,6 +1017,10 @@ namespace EppiReviewer4
                     if (IsInSelectedList(paper.PaperId))
                     {
                         paper.IsSelected = true;
+                    }
+                    else
+                    {
+                        paper.IsSelected = false;
                     }
                 }
             }
@@ -1333,6 +1361,7 @@ namespace EppiReviewer4
                 {
                     IncrementHistoryCount();
                     AddToBrowseHistory("Papers identified from auto-identification run", "MagRelatedPapersRunList", 0, "", "", 0, "", "", pr.MagRelatedRunId);
+                    TBPaperListTitle.Text = "Papers identified from auto-identification run";
                     ShowAutoIdentifiedMatches(pr.MagRelatedRunId);
                 }
             }

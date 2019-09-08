@@ -277,6 +277,23 @@ namespace BusinessLibrary.BusinessClasses
             set
             {
                 SetProperty(IsSelectedProperty, value);
+                SetProperty(CanBeSelectedProperty,
+                    IsSelected && LinkedITEM_ID == 0 ? "Unselect" :
+                    !IsSelected && LinkedITEM_ID == 0 ? "Select" :
+                    "In review");
+            }
+        }
+
+        private static PropertyInfo<string> CanBeSelectedProperty = RegisterProperty<string>(new PropertyInfo<string>("CanBeSelected", "CanBeSelected", string.Empty));
+        public string CanBeSelected
+        {
+            get
+            {
+                return GetProperty(CanBeSelectedProperty);
+            }
+            set
+            {
+                SetProperty(CanBeSelectedProperty, value);
             }
         }
 

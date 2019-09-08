@@ -477,6 +477,9 @@ namespace EppiReviewer4.Helpers
         }
     }
 
+    /*
+     * JT - added these for the MAG integration. Didn't need in the end, but leaving code in case I do...
+     * 
     public class SelectedNotSelectedConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
@@ -491,6 +494,21 @@ namespace EppiReviewer4.Helpers
             throw new NotImplementedException();
         }
     }
+
+    public class SelectedNotSelectedInReviewConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            string val = value.ToString();
+            return val;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+    */
 
     public class ReconcilingCodesConverter : IValueConverter
     {
