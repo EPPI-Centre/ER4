@@ -236,10 +236,13 @@
             
             <TextBox x:Name="tbAbstract" Grid.Row="2" Grid.ColumnSpan="2" TextWrapping="Wrap" ScrollViewer.VerticalScrollBarVisibility="Auto"></TextBox>
             <HyperlinkButton x:Name="HLExpandContract" Grid.Row="3" Grid.ColumnSpan="2" FontSize="13" HorizontalAlignment="Center" Content="&lt;&lt;&lt;Expand&gt;&gt;&gt;" Click="HLExpandContract_Click" Tag="expand"></HyperlinkButton>
-            <ToolkitRef:WrapPanel x:Name="WPPaperTopics" Grid.Row="4" Grid.Column="0" Orientation="Horizontal">
-                <TextBlock Margin="5,5,10,5" Text="Topics" FontStyle="Italic"></TextBlock>
-                <HyperlinkButton Grid.Column="1" Content="Show selected (0)" Margin="0,5,5,5" HorizontalAlignment="Right" Width="105"></HyperlinkButton>
-            </ToolkitRef:WrapPanel>
+
+            <ScrollViewer Grid.Column="0" Grid.Row="4" HorizontalScrollBarVisibility="Disabled"  VerticalScrollBarVisibility="Auto">
+                <ToolkitRef:WrapPanel x:Name="WPPaperTopics" Grid.Row="4" Grid.Column="0" Orientation="Horizontal">
+                    <TextBlock Margin="5,5,10,5" Text="Topics" FontStyle="Italic"></TextBlock>
+                    <HyperlinkButton Grid.Column="1" Content="Show selected (0)" Margin="0,5,5,5" HorizontalAlignment="Right" Width="105"></HyperlinkButton>
+                </ToolkitRef:WrapPanel>
+            </ScrollViewer>
 
             <radDock:RadPaneGroup x:Name="CitationPane" Grid.Row="4" Grid.Column="1" TabStripPlacement="Top">
                 <radDock:RadPane Header="References" Title="References" CanUserClose="False" CanFloat="False" CanUserPin="False" CanDockInDocumentHost="False" PaneHeaderVisibility="Collapsed">
@@ -343,11 +346,12 @@
             </Grid.ColumnDefinitions>
 
             <TextBlock x:Name="TBPaperListTitle" FontSize="18" Text="" Grid.Row="0" Grid.ColumnSpan="2" Margin="5,20,5,5"></TextBlock>
-
-            <ToolkitRef:WrapPanel x:Name="WPTopTopics" ScrollViewer.VerticalScrollBarVisibility="Auto" Grid.Row="1" Grid.RowSpan="2" Grid.Column="0" Orientation="Horizontal">
-                <TextBlock Margin="5,5,10,5" Text="Top Topics " FontStyle="Italic"></TextBlock>
-                <HyperlinkButton Grid.Column="1" Content="Topic 1" Margin="0,5,5,5" HorizontalAlignment="Right" Width="105"></HyperlinkButton>
-            </ToolkitRef:WrapPanel>
+            <ScrollViewer Grid.Column="0" Grid.Row="1" Grid.RowSpan="2" HorizontalScrollBarVisibility="Disabled"  VerticalScrollBarVisibility="Auto">
+                <ToolkitRef:WrapPanel x:Name="WPTopTopics" ScrollViewer.VerticalScrollBarVisibility="Auto" Orientation="Horizontal">
+                    <TextBlock Margin="5,5,10,5" Text="Top Topics " FontStyle="Italic"></TextBlock>
+                    <HyperlinkButton Grid.Column="1" Content="Topic 1" Margin="0,5,5,5" HorizontalAlignment="Right" Width="105"></HyperlinkButton>
+                </ToolkitRef:WrapPanel>
+            </ScrollViewer>
 
             <TextBlock x:Name="tbCountPaperListGrid" Grid.Row="0" Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="5,5,10,5"></TextBlock>
 
@@ -381,6 +385,7 @@
         <Grid x:Name="TopicsGrid" Grid.Row="1" Visibility="Collapsed">
             <Grid.RowDefinitions>
                 <RowDefinition Height="50"></RowDefinition>
+                <RowDefinition Height="auto"></RowDefinition>
                 <RowDefinition Height="*"></RowDefinition>
                 <RowDefinition Height="auto"></RowDefinition>
             </Grid.RowDefinitions>
@@ -397,14 +402,16 @@
                     <TextBlock Margin="5,5,10,5" Text="Parent Topics " FontStyle="Italic"></TextBlock>
                     <HyperlinkButton Grid.Column="1" Content="Topic 1" Margin="0,5,5,5" HorizontalAlignment="Right" Width="105"></HyperlinkButton>
                 </ToolkitRef:WrapPanel>
-
-                <ToolkitRef:WrapPanel x:Name="WPChildTopics" Orientation="Horizontal" Margin="0, 15, 0, 0">
-                    <TextBlock Margin="5,5,10,5" Text="Child Topics " FontStyle="Italic"></TextBlock>
-                    <HyperlinkButton Grid.Column="1" Content="Topic 1" Margin="0,5,5,5" HorizontalAlignment="Right" Width="105"></HyperlinkButton>
-                </ToolkitRef:WrapPanel>
             </StackPanel>
 
-            <telerikGridView:RadGridView x:Name="TopicPaperListBibliographyGrid" Grid.Column="1" Grid.Row="1" AutoGenerateColumns="False" ShowGroupPanel="False"
+            <ScrollViewer Grid.Row="2" Grid.Column="0" HorizontalScrollBarVisibility="Disabled"  VerticalScrollBarVisibility="Auto">
+                    <ToolkitRef:WrapPanel x:Name="WPChildTopics" Orientation="Horizontal" Margin="0, 15, 0, 0">
+                        <TextBlock Margin="5,5,10,5" Text="Child Topics " FontStyle="Italic"></TextBlock>
+                        <HyperlinkButton Grid.Column="1" Content="Topic 1" Margin="0,5,5,5" HorizontalAlignment="Right" Width="105"></HyperlinkButton>
+                    </ToolkitRef:WrapPanel>
+                </ScrollViewer>
+
+            <telerikGridView:RadGridView x:Name="TopicPaperListBibliographyGrid" Grid.Column="1" Grid.Row="1" Grid.RowSpan="2" AutoGenerateColumns="False" ShowGroupPanel="False"
                                     IsReadOnly="True" MinHeight="50" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                                     ItemsSource="{Binding PagedSource, ElementName=TopicPaperListBibliographyPager}"
                                     RowIndicatorVisibility="Collapsed"
@@ -422,7 +429,7 @@
                 </telerikGridView:RadGridView.Columns>
             </telerikGridView:RadGridView>
 
-            <dpager:RadDataPager Grid.Column="1" Grid.Row="2" x:Name="TopicPaperListBibliographyPager" IsTotalItemCountFixed="True"
+            <dpager:RadDataPager Grid.Column="1" Grid.Row="3" x:Name="TopicPaperListBibliographyPager" IsTotalItemCountFixed="True"
                 DisplayMode="All"  NumericButtonCount="10" Source="{Binding Source={StaticResource TopicPaperListData}, Path=Data}"
                 PageIndexChanging="TopicPaperListBibliographyPager_PageIndexChanging"></dpager:RadDataPager>
 
