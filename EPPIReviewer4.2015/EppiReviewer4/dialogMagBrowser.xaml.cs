@@ -48,14 +48,14 @@ namespace EppiReviewer4
         private void HLShowSummary_Click(object sender, RoutedEventArgs e)
         {
             IncrementHistoryCount();
-            AddToBrowseHistory("Summary page", "Summary", 0, "", "", 0, "", "", 0);
+            AddToBrowseHistory("Summary page", "Summary", 0, "", "", 0, 0, "", "", 0);
             ShowSummaryPage();
         }
 
         private void HLShowHistory_Click(object sender, RoutedEventArgs e)
         {
             IncrementHistoryCount();
-            AddToBrowseHistory("View browse history", "History", 0, "", "", 0, "", "", 0);
+            AddToBrowseHistory("View browse history", "History", 0, "", "", 0, 0, "", "", 0);
             ShowHistoryPage();
         }
 
@@ -133,7 +133,7 @@ namespace EppiReviewer4
         }
 
         // ******************************** PAPER DETAILS PAGE **************************************
-        private void ShowPaperDetailsPage(Int64 PaperId, string FullRecord, string Abstract)
+        private void ShowPaperDetailsPage(Int64 PaperId, string FullRecord, string Abstract, Int64 LinkedITEM_ID)
         {
             StatusGrid.Visibility = Visibility.Collapsed;
             PaperGrid.Visibility = Visibility.Visible;
@@ -145,6 +145,27 @@ namespace EppiReviewer4
 
             RTBPaperInfo.Text = FullRecord;
             tbAbstract.Text = Abstract;
+            if (LinkedITEM_ID == 0)
+            {
+                tbPaperAlreadyInReview.Text = "This paper is not currently in your review.";
+                hlAddPaperToSelectedList.Visibility = Visibility.Visible;
+                hlAddPaperToSelectedList.Tag = PaperId;
+            }
+            else
+            {
+                tbPaperAlreadyInReview.Text = "This paper is already in your review.";
+                hlAddPaperToSelectedList.Visibility = Visibility.Collapsed;
+            }
+
+            if (SelectedPaperIds.IndexOf(PaperId) > -1)
+            {
+                hlAddPaperToSelectedList.Content = "Remove from selected list";
+            }
+            else
+            {
+                hlAddPaperToSelectedList.Content = "Add to selected list";
+            }
+
 
             CslaDataProvider provider = this.Resources["CitationPaperListData"] as CslaDataProvider;
             provider.FactoryParameters.Clear();
@@ -227,8 +248,10 @@ namespace EppiReviewer4
                 if (e2 != null)
                 {
                     IncrementHistoryCount();
-                    AddToBrowseHistory("Go to specific Paper Id: " + e2.Object.PaperId.ToString(), "PaperDetail", e2.Object.PaperId, e2.Object.Abstract, "", 0, "", "", 0);
-                    ShowPaperDetailsPage(e2.Object.PaperId, e2.Object.FullRecord, e2.Object.Abstract);
+                    AddToBrowseHistory("Go to specific Paper Id: " + e2.Object.PaperId.ToString(), "PaperDetail",
+                        e2.Object.PaperId, e2.Object.FullRecord, e2.Object.Abstract, e2.Object.LinkedITEM_ID, 0,
+                        "", "", 0);
+                    ShowPaperDetailsPage(e2.Object.PaperId, e2.Object.FullRecord, e2.Object.Abstract, e2.Object.LinkedITEM_ID);
                 }
                 else
                 {
@@ -357,7 +380,7 @@ namespace EppiReviewer4
         private void LBListMatchesIncluded_Click(object sender, RoutedEventArgs e)
         {
             IncrementHistoryCount();
-            AddToBrowseHistory("List of all included matches", "MatchesIncluded", 0, "", "", 0, "", "", 0);
+            AddToBrowseHistory("List of all included matches", "MatchesIncluded", 0, "", "", 0, 0, "", "", 0);
             TBPaperListTitle.Text = "List of all included matches";
             ShowIncludedMatchesPage("included");
         }
@@ -365,7 +388,7 @@ namespace EppiReviewer4
         private void LBListMatchesExcluded_Click(object sender, RoutedEventArgs e)
         {
             IncrementHistoryCount();
-            AddToBrowseHistory("List of all excluded matches", "MatchesExcluded", 0, "", "", 0, "", "", 0);
+            AddToBrowseHistory("List of all excluded matches", "MatchesExcluded", 0, "", "", 0, 0, "", "", 0);
             TBPaperListTitle.Text = "List of all excluded matches";
             ShowIncludedMatchesPage("excluded");
         }
@@ -373,7 +396,8 @@ namespace EppiReviewer4
         private void LBListAllInReview_Click(object sender, RoutedEventArgs e)
         {
             IncrementHistoryCount();
-            AddToBrowseHistory("List of all matches in review (included and excluded)", "MatchesIncludedAndExcluded", 0, "", "", 0, "", "", 0);
+            AddToBrowseHistory("List of all matches in review (included and excluded)", "MatchesIncludedAndExcluded",
+                0, "", "", 0, 0, "", "", 0);
             TBPaperListTitle.Text = "List of all matches in review (included and excluded)";
             ShowIncludedMatchesPage("all");
         }
@@ -423,7 +447,8 @@ namespace EppiReviewer4
                     }
                 }
                 IncrementHistoryCount();
-                AddToBrowseHistory("List of all item matches with this code", "ReviewMatchedPapersWithThisCode", 0, "", "", 0, "", attributeIDs, 0);
+                AddToBrowseHistory("List of all item matches with this code", "ReviewMatchedPapersWithThisCode", 0,
+                    "", "", 0, 0, "", attributeIDs, 0);
                 ShowAllWithThisCode(attributeIDs);
             }
         }
@@ -456,7 +481,7 @@ namespace EppiReviewer4
                 return;
             }
             IncrementHistoryCount();
-            AddToBrowseHistory("List of all selected papers", "SelectedPapers", 0, "", "", 0, "", "", 0);
+            AddToBrowseHistory("List of all selected papers", "SelectedPapers", 0, "", "", 0, 0, "", "", 0);
             ShowSelectedPapersPage();
         }
 
@@ -537,7 +562,7 @@ namespace EppiReviewer4
             HyperlinkButton hl = sender as HyperlinkButton;
             if (hl != null)
             {
-                AddToBrowseHistory("Browse topic: " + hl.Content.ToString(), "BrowseTopic", 0, "", "",
+                AddToBrowseHistory("Browse topic: " + hl.Content.ToString(), "BrowseTopic", 0, "", "", 0,
                     Convert.ToInt64(hl.Tag), hl.Content.ToString(), "", 0);
                 ShowTopicPage(Convert.ToInt64(hl.Tag), hl.Content.ToString());
             }
@@ -593,8 +618,8 @@ namespace EppiReviewer4
             MagPaper paper = (sender as TextBlock).DataContext as MagPaper;
             IncrementHistoryCount();
             AddToBrowseHistory("Browse paper: " + paper.FullRecord, "PaperDetail", paper.PaperId, paper.FullRecord,
-                paper.Abstract, 0, "", "", 0);
-            ShowPaperDetailsPage(paper.PaperId, paper.FullRecord, paper.Abstract);
+                paper.Abstract, paper.LinkedITEM_ID, 0, "", "", 0);
+            ShowPaperDetailsPage(paper.PaperId, paper.FullRecord, paper.Abstract, paper.LinkedITEM_ID);
         }
 
         // **************************** Managing page changes on the paper grid list views *****************
@@ -721,7 +746,7 @@ namespace EppiReviewer4
 
         // ***************************** Keeping track of, and navigating within, browsing history ***************************************
         private void AddToBrowseHistory(string title, string browseType, Int64 PaperId, string PaperFullRecord,
-            string PaperAbstract, Int64 FieldOfStudyId, string FieldOfStudy, string AttributeIds, int MagRelatedRunId)
+            string PaperAbstract, Int64 LinkedITEM_ID, Int64 FieldOfStudyId, string FieldOfStudy, string AttributeIds, int MagRelatedRunId)
         {
             MagBrowseHistory mbh = new MagBrowseHistory();
             mbh.Title = title;
@@ -733,6 +758,7 @@ namespace EppiReviewer4
             mbh.FieldOfStudy = FieldOfStudy;
             mbh.AttributeIds = AttributeIds;
             mbh.MagRelatedRunId = MagRelatedRunId;
+            mbh.LinkedITEM_ID = LinkedITEM_ID;
             ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
             mbh.ContactId = ri.UserId;
             mbh.DateBrowsed = DateTime.Now;
@@ -787,7 +813,7 @@ namespace EppiReviewer4
                                 ShowSummaryPage();
                                 break;
                             case "PaperDetail":
-                                ShowPaperDetailsPage(mbh.PaperId, mbh.PaperFullRecord, mbh.PaperAbstract);
+                                ShowPaperDetailsPage(mbh.PaperId, mbh.PaperFullRecord, mbh.PaperAbstract, mbh.LinkedITEM_ID);
                                 break;
                             case "MatchesIncluded":
                                 TBPaperListTitle.Text = mbh.Title;
@@ -1039,6 +1065,25 @@ namespace EppiReviewer4
             return ids;
         }
 
+        private void hlAddPaperToSelectedList_Click(object sender, RoutedEventArgs e)
+        {
+            HyperlinkButton hl = sender as HyperlinkButton;
+            if (hl != null)
+            {
+                if (hl.Content.ToString() == "Add to selected list")
+                {
+                    AddToSelectedList(Convert.ToInt64(hl.Tag.ToString()));
+                    hlAddPaperToSelectedList.Content = "Remove from selected list";
+                }
+
+                else
+                {
+                    RemoveFromSelectedList(Convert.ToInt64(hl.Tag.ToString()));
+                    hlAddPaperToSelectedList.Content = "Add to selected list";
+                }
+            }
+        }
+
         private void HLImportSelected_Click(object sender, RoutedEventArgs e)
         {
             if (SelectedPaperIds.Count == 0)
@@ -1198,7 +1243,7 @@ namespace EppiReviewer4
         private void LBManageRelatedPapersRun_Click(object sender, RoutedEventArgs e)
         {
             IncrementHistoryCount();
-            AddToBrowseHistory("Manage review updates / find related papers", "RelatedPapers", 0, "", "", 0, "", "", 0);
+            AddToBrowseHistory("Manage review updates / find related papers", "RelatedPapers", 0, "", "", 0, 0, "", "", 0);
             ShowRelatedPapersPage();
         }
 
@@ -1360,7 +1405,8 @@ namespace EppiReviewer4
                 if (pr != null)
                 {
                     IncrementHistoryCount();
-                    AddToBrowseHistory("Papers identified from auto-identification run", "MagRelatedPapersRunList", 0, "", "", 0, "", "", pr.MagRelatedRunId);
+                    AddToBrowseHistory("Papers identified from auto-identification run", "MagRelatedPapersRunList", 0,
+                        "", "", 0, 0, "", "", pr.MagRelatedRunId);
                     TBPaperListTitle.Text = "Papers identified from auto-identification run";
                     ShowAutoIdentifiedMatches(pr.MagRelatedRunId);
                 }
@@ -1502,6 +1548,8 @@ namespace EppiReviewer4
                 }
             }
         }
+
+       
 
 
 

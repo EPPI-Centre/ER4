@@ -69,6 +69,19 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
+        private static PropertyInfo<Int64> LinkedITEM_IDProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("LinkedITEM_ID", "LinkedITEM_ID"));
+        public Int64 LinkedITEM_ID
+        {
+            get
+            {
+                return GetProperty(LinkedITEM_IDProperty);
+            }
+            set
+            {
+                SetProperty(LinkedITEM_IDProperty, value);
+            }
+        }
+
         private static PropertyInfo<string> PaperFullRecordProperty = RegisterProperty<string>(new PropertyInfo<string>("PaperFullRecord", "PaperFullRecord", string.Empty));
         public string PaperFullRecord
         {

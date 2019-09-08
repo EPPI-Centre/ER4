@@ -213,6 +213,7 @@
         <Grid x:Name="PaperGrid" Grid.Row="1" Visibility="Collapsed">
             <Grid.RowDefinitions>
                     <RowDefinition x:Name="PaperGridHeadingRow" Height="67"></RowDefinition>
+                    <RowDefinition Height="25"></RowDefinition>
                     <RowDefinition x:Name="PaperGridAbstractRow" Height="0"></RowDefinition>
                     <RowDefinition Height="25"></RowDefinition>
                     <RowDefinition Height="*"></RowDefinition>
@@ -223,14 +224,20 @@
             </Grid.ColumnDefinitions>
 
             <TextBlock x:Name="RTBPaperInfo" Grid.Row="0" Grid.ColumnSpan="2" TextWrapping="Wrap" FontSize="18" Text="Authors et al (2019) This is the really very much longer title of the paper, Journal name: volume(issue): pages" Margin="5,5,5,5" ></TextBlock>
-            <TextBox x:Name="tbAbstract" Grid.Row="1" Grid.ColumnSpan="2" TextWrapping="Wrap" ScrollViewer.VerticalScrollBarVisibility="Auto"></TextBox>
-            <HyperlinkButton x:Name="HLExpandContract" Grid.Row="2" Grid.ColumnSpan="2" FontSize="14" HorizontalAlignment="Center" Content="&lt;&lt;&lt;Expand&gt;&gt;&gt;" Click="HLExpandContract_Click" Tag="expand"></HyperlinkButton>
-            <ToolkitRef:WrapPanel x:Name="WPPaperTopics" Grid.Row="3" Grid.Column="0" Orientation="Horizontal">
+
+            <StackPanel Grid.Row="1" Grid.ColumnSpan="2" Orientation="Horizontal">
+                <TextBlock x:Name="tbPaperAlreadyInReview" Margin="5,5,5,5" VerticalAlignment="Center" HorizontalAlignment="Left"></TextBlock>
+                <HyperlinkButton x:Name="hlAddPaperToSelectedList" Content="Add to selected list" FontStyle="Italic" Margin="5,5,5,5" VerticalAlignment="Center" HorizontalAlignment="Left" Click="hlAddPaperToSelectedList_Click"></HyperlinkButton>
+            </StackPanel>
+            
+            <TextBox x:Name="tbAbstract" Grid.Row="2" Grid.ColumnSpan="2" TextWrapping="Wrap" ScrollViewer.VerticalScrollBarVisibility="Auto"></TextBox>
+            <HyperlinkButton x:Name="HLExpandContract" Grid.Row="3" Grid.ColumnSpan="2" FontSize="14" HorizontalAlignment="Center" Content="&lt;&lt;&lt;Expand&gt;&gt;&gt;" Click="HLExpandContract_Click" Tag="expand"></HyperlinkButton>
+            <ToolkitRef:WrapPanel x:Name="WPPaperTopics" Grid.Row="4" Grid.Column="0" Orientation="Horizontal">
                 <TextBlock Margin="5,5,10,5" Text="Topics" FontStyle="Italic"></TextBlock>
                 <HyperlinkButton Grid.Column="1" Content="Show selected (0)" Margin="0,5,5,5" HorizontalAlignment="Right" Width="105"></HyperlinkButton>
             </ToolkitRef:WrapPanel>
 
-            <radDock:RadPaneGroup x:Name="CitationPane" Grid.Row="3" Grid.Column="1" TabStripPlacement="Top">
+            <radDock:RadPaneGroup x:Name="CitationPane" Grid.Row="4" Grid.Column="1" TabStripPlacement="Top">
                 <radDock:RadPane Header="References" Title="References" CanUserClose="False" CanFloat="False" CanUserPin="False" CanDockInDocumentHost="False" PaneHeaderVisibility="Collapsed">
                     <Grid>
                         <Grid.RowDefinitions>
