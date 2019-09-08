@@ -417,6 +417,39 @@ namespace EppiReviewer4
                 cmdScreeningRunSimulation.Visibility = Visibility.Visible;
                 cmdScreeningSimulationSave.Visibility = Visibility.Visible;
             }
+
+            SetMicrosoftAcademicAlertIcon();
+        }
+
+        private void SetMicrosoftAcademicAlertIcon()
+        {
+            DataPortal<MagReviewHasUpdatesToCheckCommand> dp = new DataPortal<MagReviewHasUpdatesToCheckCommand>();
+            MagReviewHasUpdatesToCheckCommand check = new MagReviewHasUpdatesToCheckCommand();
+            dp.ExecuteCompleted += (o, e2) =>
+            {
+                //BusyLoading.IsRunning = false;
+                if (e2.Error != null)
+                {
+                    RadWindow.Alert(e2.Error.Message);
+                }
+                else
+                {
+                    MagReviewHasUpdatesToCheckCommand chk = e2.Object as MagReviewHasUpdatesToCheckCommand;
+                    if (chk != null)
+                    {
+                        if (chk.HasUpdates)
+                        {
+                            ImageMAGHasUpdates.Source = new BitmapImage(new Uri("Icons/MicrosoftAcademicICOAlert.png", UriKind.Relative));
+                        }
+                        else
+                        {
+                            ImageMAGHasUpdates.Source = new BitmapImage(new Uri("Icons/MicrosoftAcademicICO.png", UriKind.Relative));
+                        }
+                    }
+                }
+            };
+            //BusyLoading.IsRunning = true;
+            dp.BeginExecute(check);
         }
 
         private void CsetsProvider_DataChanged(object sender, EventArgs e)

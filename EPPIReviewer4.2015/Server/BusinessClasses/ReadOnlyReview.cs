@@ -71,7 +71,15 @@ namespace BusinessLibrary.BusinessClasses
                 return GetProperty(LastAccessProperty);
             }
         }
-        
+        public static readonly PropertyInfo<int> NAutoUpdatesProperty = RegisterProperty<int>(new PropertyInfo<int>("NAutoUpdates", "Review Id", 0));
+        public int NAutoUpdates
+        {
+            get
+            {
+                return GetProperty(NAutoUpdatesProperty);
+            }
+        }
+
         //protected override void AddAuthorizationRules()
         //{
         //    //string[] canRead = new string[] { "AdminUser", "RegularUser", "ReadOnlyUser" };
@@ -96,6 +104,7 @@ namespace BusinessLibrary.BusinessClasses
             LoadProperty<string>(ContactReviewRolesProperty, reader.GetString("ROLES"));
             LoadProperty<string>(ReviewOwnerProperty, reader.GetString("OWNER"));
             LoadProperty<DateTime>(LastAccessProperty, reader.GetDateTime("LAST_ACCESS"));
+            LoadProperty<int>(NAutoUpdatesProperty, reader.GetInt32("NAutoUpdates"));
         }
 
 

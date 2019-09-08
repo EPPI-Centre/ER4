@@ -108,6 +108,7 @@
                         <telerikGridView:GridViewDataColumn Header="Review" DataMemberBinding="{Binding ReviewName}" Width="*"></telerikGridView:GridViewDataColumn>
                         <telerikGridView:GridViewDataColumn Header="ID" DataMemberBinding="{Binding ReviewId}" Width="40"></telerikGridView:GridViewDataColumn>
                         <telerikGridView:GridViewDataColumn Header="Last Logon" DataMemberBinding="{Binding LastAccess}" Width="120"></telerikGridView:GridViewDataColumn>
+                        <telerikGridView:GridViewDataColumn Header="New items" DataMemberBinding="{Binding NAutoUpdates}" Width="120"></telerikGridView:GridViewDataColumn>
                         <telerikGridView:GridViewDataColumn Header="Owner" DataMemberBinding="{Binding ReviewOwner}" Width="95"></telerikGridView:GridViewDataColumn>
                         <telerikGridView:GridViewDataColumn IsVisible="True" IsFilterable="False" IsSortable="False" CellStyle="{StaticResource csCodeOnlyBt}" Width="35" 
                         Header="" DataMemberBinding="{Binding ReviewName}"></telerikGridView:GridViewDataColumn>

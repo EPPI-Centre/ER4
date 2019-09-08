@@ -370,3 +370,87 @@ Declare @ID table (ItemID bigint primary key )
 SELECT      @CurrentPage as N'@CurrentPage',
             @TotalPages as N'@TotalPages',
             @TotalRows as N'@TotalRows'
+
+GO
+
+USE [Reviewer]
+GO
+/****** Object:  StoredProcedure [dbo].[st_ReviewContactForSiteAdmin]    Script Date: 08/09/2019 23:12:09 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+ALTER procedure [dbo].[st_ReviewContactForSiteAdmin]
+(
+	@CONTACT_ID INT
+	,@REVIEW_ID int
+)
+
+As
+
+SELECT 0 as REVIEW_CONTACT_ID, - r.REVIEW_ID as REVIEW_ID, rc.CONTACT_ID, REVIEW_NAME, 'AdminUser;' as ROLES
+	,own.CONTACT_NAME as 'OWNER', case when LR is null
+									then r.DATE_CREATED
+									else LR
+								 end
+								 as 'LAST_ACCESS'
+	, r.SHOW_SCREENING, r.SCREENING_CODE_SET_ID, r.SCREENING_MODE, r.SCREENING_WHAT_ATTRIBUTE_ID, r.SCREENING_N_PEOPLE
+	, r.SCREENING_RECONCILLIATION, r.SCREENING_AUTO_EXCLUDE, SCREENING_MODEL_RUNNING, SCREENING_INDEXED
+	, BL_ACCOUNT_CODE,BL_AUTH_CODE, BL_TX, BL_CC_ACCOUNT_CODE, BL_CC_AUTH_CODE, BL_CC_TX
+	, (SELECT SUM(N_PAPERS) from Reviewer.dbo.tb_MAG_RELATED_RUN MRR
+			WHERE REVIEW_ID = @REVIEW_ID  and USER_STATUS = 'Unchecked') NAutoUpdates
+FROM TB_CONTACT rc
+INNER JOIN TB_REVIEW r ON rc.CONTACT_ID = @CONTACT_ID and rc.IS_SITE_ADMIN = 1 and r.REVIEW_ID = @REVIEW_ID 
+inner join TB_CONTACT own on r.FUNDER_ID = own.CONTACT_ID
+left join (
+			select MAX(LAST_RENEWED) LR, REVIEW_ID
+			from ReviewerAdmin.dbo.TB_LOGON_TICKET  
+			where @CONTACT_ID = CONTACT_ID and REVIEW_ID = @REVIEW_ID
+			group by REVIEW_ID
+			) as t
+			on t.REVIEW_ID = r.REVIEW_ID
+WHERE rc.CONTACT_ID = @CONTACT_ID
+ORDER BY REVIEW_NAME
+
+GO
+
+USE [Reviewer]
+GO
+/****** Object:  StoredProcedure [dbo].[st_ReviewContact]    Script Date: 08/09/2019 23:09:40 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+ALTER procedure [dbo].[st_ReviewContact]
+(
+	@CONTACT_ID INT
+)
+
+As
+
+SELECT REVIEW_CONTACT_ID, rc.REVIEW_ID, rc.CONTACT_ID, REVIEW_NAME, dbo.fn_REBUILD_ROLES(rc.REVIEW_CONTACT_ID) as ROLES
+	,own.CONTACT_NAME as 'OWNER', case when LR is null
+									then r.DATE_CREATED
+									else LR
+								 end
+								 as 'LAST_ACCESS'
+	, r.SHOW_SCREENING, r.SCREENING_CODE_SET_ID, r.SCREENING_MODE, r.SCREENING_WHAT_ATTRIBUTE_ID, r.SCREENING_N_PEOPLE
+	, r.SCREENING_RECONCILLIATION, r.SCREENING_AUTO_EXCLUDE, SCREENING_MODEL_RUNNING, SCREENING_INDEXED
+	, BL_ACCOUNT_CODE,BL_AUTH_CODE, BL_TX, BL_CC_ACCOUNT_CODE, BL_CC_AUTH_CODE, BL_CC_TX
+	, (SELECT SUM(N_PAPERS) from Reviewer.dbo.tb_MAG_RELATED_RUN MRR
+			WHERE REVIEW_ID = rc.REVIEW_ID  and USER_STATUS = 'Unchecked') NAutoUpdates
+FROM TB_REVIEW_CONTACT rc
+INNER JOIN TB_REVIEW r ON rc.REVIEW_ID = r.REVIEW_ID
+inner join TB_CONTACT own on r.FUNDER_ID = own.CONTACT_ID
+left join (
+			select MAX(LAST_RENEWED) LR, REVIEW_ID
+			from ReviewerAdmin.dbo.TB_LOGON_TICKET  
+			where @CONTACT_ID = CONTACT_ID
+			group by REVIEW_ID
+			) as t
+			on t.REVIEW_ID = r.REVIEW_ID
+WHERE rc.CONTACT_ID = @CONTACT_ID and (r.ARCHIE_ID is null OR r.ARCHIE_ID = 'prospective_______')
+ORDER BY REVIEW_NAME
+
+GO
