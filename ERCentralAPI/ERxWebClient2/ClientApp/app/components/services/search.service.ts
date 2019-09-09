@@ -111,7 +111,7 @@ export class Search {
 	searchDate: string = '';
 	contactName: string = '';
 	isClassifierResult: boolean = false;
-
+	add: boolean = false;
 }
 
 export class SearchCodeCommand {

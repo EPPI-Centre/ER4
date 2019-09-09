@@ -84,7 +84,7 @@
 					outcomedata2 must be numeric
 				</div>
 			</div>
-			<div *ngIf="outcomedata3 && outcomedata3.invalid && (outcomedata3.dirty || outcomedata3.touched)"
+			<!--<div *ngIf="outcomedata3 && outcomedata3.invalid && (outcomedata3.dirty || outcomedata3.touched)"
 				 class="alert alert-danger">
 				<div *ngIf="outcomedata3.errors.pattern">
 					outcomedata3 must be numeric
@@ -150,7 +150,8 @@
 			<div *ngIf="outcomedata13.errors.pattern">
 				outcomedata13 must be numeric
 			</div>
-		</div>
+
+		</div>-->
 				<div class=" col-md-12 p-0 m-0">
 					<div class="row col-md-12 p-1 m-0">
 						<label class="col-md-4">Title</label>
@@ -495,7 +496,7 @@
 					</div>
 					<div class="col-md-12">
 						<div class="row col-12">
-							<button [disabled]="!HasWriteRights && !IsServiceBusy"
+							<button [disabled]="!HasWriteRights && !IsServiceBusy  && !OutcomeTitle == ''"
 									class="btn btn-primary mt-1 p-1 m-1 "
 									(click)="SaveOutcome()">
 								Save Outcome
