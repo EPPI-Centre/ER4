@@ -21,6 +21,8 @@ import { NotificationService } from '@progress/kendo-angular-notification';
 import { SelectEvent, TabStripComponent } from '@progress/kendo-angular-layout';
 import { PdfTronContainer } from '../PDFTron/pdftroncontainer.component';
 import { Helpers } from '../helpers/HelperMethods';
+import { OutcomesComponent } from '../Outcomes/outcomes.component';
+import { OutcomesService } from '../services/outcomes.service';
 
 
 @Component({
@@ -79,7 +81,9 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
         , private ReviewerTermsService: ReviewerTermsService,
         public ItemDocsService: ItemDocsService,
         private armservice: ArmsService,
-        private notificationService: NotificationService
+		private notificationService: NotificationService,
+		private _outcomeService: OutcomesService,
+		private _ItemCodingService: ItemCodingService
     ) { }
 //     .codesInSmallScreen.collapse{
 //    display: block!important;
@@ -95,7 +99,8 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
 //    opacity: 1;
 //    height: 100 %;
 //}
-    
+	@ViewChild('OutcomesCmp')
+	private OutcomesCmpRef!: OutcomesComponent;
     @ViewChild('cmp') private ArmsCompRef!: any;
     @ViewChild('pdftroncontainer') private pdftroncontainer!: PdfTronContainer;
 
@@ -110,7 +115,7 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
     }
     private itemString: string = '0';
     public item?: Item;
-    
+	public ShowOutComes: boolean = false;
     private subGotScreeningItem: Subscription | null = null;
     public IsScreening: boolean = false;
     public ShowHighlights: boolean = false;
@@ -198,7 +203,10 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
     }
     //@Output() criteriaChange = new EventEmitter();
     //public ListSubType: string = "";
-
+	public ShowingOutComes() {
+		this.ShowOutComes = !this.ShowOutComes;
+	}
+	private outcomeSubscription: Subscription | null = null;
 	ngOnInit() {
 
         this.innerWidth = window.innerWidth;
@@ -216,7 +224,39 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
         if (this.ReviewerIdentityServ.reviewerIdentity.userId == 0) {
             this.router.navigate(['home']);
         }
-        else {
+		else {
+			this.outcomeSubscription = this._outcomeService.outcomesChangedEE.subscribe(
+
+				(res: any) => {
+
+					var selectedNode = res as SetAttribute;
+
+					if (selectedNode && selectedNode.nodeType == 'SetAttribute') {
+
+						console.log('a node has been selected');
+						var itemSet = this._ItemCodingService.FindItemSetBySetId(selectedNode.set_id);
+						if (itemSet != null) {
+							this._outcomeService.ItemSetId = itemSet.itemSetId;
+							this._outcomeService.FetchOutcomes(itemSet.itemSetId);
+							//this._outcomeService.outcomesList = itemSet.OutcomeList;
+						}
+						this.ShowingOutComes();
+
+					} else {
+
+						console.log('a code is not selected');
+						if (this.OutcomesCmpRef) {
+							console.log('inside OutcomesCmpRef');
+							this._outcomeService.outcomesList = [];
+							this.OutcomesCmpRef.ShowOutcomesList = false;
+							this.ShowingOutComes();
+						}
+					}
+				}
+				// ERROR HANDLING IN HERE NEXT....
+			);
+
+
             //if (this.ArmsCompRef) {
                 this.armservice.armChangedEE.subscribe(() => {
                     if (this.armservice.SelectedArm) this.SetArmCoding(this.armservice.SelectedArm.itemArmId);
@@ -539,7 +579,8 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
         if (this.ItemCodingServiceDataChanged) this.ItemCodingServiceDataChanged.unsubscribe();
         if (this.subCodingCheckBoxClickedEvent) this.subCodingCheckBoxClickedEvent.unsubscribe();
         if (this.subGotScreeningItem) this.subGotScreeningItem.unsubscribe();
-        if (this.subGotPDFforViewing) this.subGotPDFforViewing.unsubscribe();
+		if (this.subGotPDFforViewing) this.subGotPDFforViewing.unsubscribe();
+		if (this.outcomeSubscription) this.outcomeSubscription.unsubscribe();
     }
     WipeHighlights() {
         if (this.ItemDetailsCompRef) this.ItemDetailsCompRef.WipeHighlights();

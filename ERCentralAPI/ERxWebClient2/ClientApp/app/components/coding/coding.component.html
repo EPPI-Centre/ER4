@@ -13,19 +13,28 @@
                 <i class="fa fa-arrow-up" aria-hidden="true"></i>
             </button>
 
-            <div [ngClass]="{'codesInSmallScreen bg-light rounded border border-success':IsSmallScreen()
+			<div [ngClass]="{'codesInSmallScreen bg-light rounded border border-success':IsSmallScreen()
                              ,'col-12 col-sm-12 col-md-5 col-lg-3 pl-2 pr-2 align-self-end':!IsSmallScreen()
                              , 'show':IsSmallScreen() && ShowCodesInSmallScreen
                             , 'hide':IsSmallScreen() && !ShowCodesInSmallScreen}">
 
-                <button *ngIf="IsSmallScreen() && ShowCodesInSmallScreen" class="btn btn-success float-right vertical-text-R" (click)="ShowHideCodes()">
-                    <i class="fa fa-arrow-down" aria-hidden="true"></i>
-                    Codes
-                    <i class="fa fa-arrow-down" aria-hidden="true"></i>
-                </button>
-                <ArmsComp #cmp class="card-text"></ArmsComp>
-                <codesetTreeCoding #codesetTreeCoding class="bg-light" [InitiateFetchPDFCoding]="ShouldFetchPDFCoding"></codesetTreeCoding>
-            </div>
+				<button *ngIf="IsSmallScreen() && ShowCodesInSmallScreen" class="btn btn-success float-right vertical-text-R" (click)="ShowHideCodes()">
+					<i class="fa fa-arrow-down" aria-hidden="true"></i>
+					Codes
+					<i class="fa fa-arrow-down" aria-hidden="true"></i>
+				</button>
+				<ArmsComp #cmp class="card-text"></ArmsComp>
+				<div [hidden]="ShowOutComes">
+					<codesetTreeCoding #codesetTreeCoding class="bg-light"
+									   [InitiateFetchPDFCoding]="ShouldFetchPDFCoding" >
+					</codesetTreeCoding>
+				</div>
+				<div *ngIf="ShowOutComes"
+					 class="my-1 ml-0 pl-1 pr-0 container">
+					<OutcomesComp #OutcomesCmp [item]="item"></OutcomesComp>
+				</div>
+				<!--<codesetTreeCoding #codesetTreeCoding class="bg-light" [InitiateFetchPDFCoding]="ShouldFetchPDFCoding"></codesetTreeCoding>-->
+			</div>
             <div class="col-sm-12 col-md-7 col-lg-9 m-0 pr-0 pl-0 align-self-end">
                 <div class="ml-1 mt-0 mr-1 pl-0 pr-0 w-100 row">
                     <itemDetailsPaginator [(item)]="item" Context="CodingOnly" [IsScreening]="IsScreening" (ItemChanged)="ItemChanged()" (GoToNextScreeningItemClicked)="GetItem()"

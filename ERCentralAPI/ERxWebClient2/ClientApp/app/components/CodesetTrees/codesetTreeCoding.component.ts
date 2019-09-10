@@ -113,7 +113,7 @@ export class CodesetTreeCodingComponent implements OnInit, OnDestroy, AfterViewI
 	public outcomesPresent: boolean = false;
 	public checkOutComes(data: singleNode): boolean {
 
-		//console.log('checking this node');
+		//console.log('checking this node: ', data);
 		var selectedNode: boolean = false;
 		var itemSetId = 0;
 		if (data.nodeType == 'ReviewSet') {
