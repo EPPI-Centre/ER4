@@ -514,6 +514,7 @@ namespace BusinessLibrary.BusinessClasses
                             LoadProperty<string>(AuthorsProperty, reader.GetString("Authors"));
                             LoadProperty<Int64>(LinkedITEM_IDProperty, reader.GetInt64("ITEM_ID"));
                             LoadProperty<string>(AbstractProperty, reader.GetString("IndexedAbstract"));
+                            LoadProperty<string>(URLsProperty, reader.GetString("URLs"));
                         }
                     }
                 }
@@ -547,6 +548,7 @@ namespace BusinessLibrary.BusinessClasses
             returnValue.LoadProperty<string>(AuthorsProperty, reader.GetString("Authors"));
             returnValue.LoadProperty<Int64>(LinkedITEM_IDProperty, reader.GetInt64("ITEM_ID"));
             returnValue.LoadProperty<string>(AbstractProperty, reader.GetString("IndexedAbstract"));
+            returnValue.LoadProperty<string>(URLsProperty, reader.GetString("URLs"));
 
             returnValue.MarkOld();
             return returnValue;

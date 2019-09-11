@@ -87,6 +87,7 @@
                            FactoryMethod="GetMagRelatedPapersRunList" 
                            DataChanged="CslaDataProvider_HandleDataChangeError">
         </cslaXAML:CslaDataProvider>
+        <helper:ReverseBooleanConverter x:Key="ReverseBoolean" />
 
         <!--<helper:SelectedNotSelectedConverter x:Key="SelectedNotSelectedText" />
             Not using this now - simple binding is sufficient. Leaving in case I do need it. Refers to code in ButtonConverters.cs
@@ -125,7 +126,6 @@
             <HyperlinkButton x:Name="HLImportSelected" Grid.Column="1" Content="Import selected" Margin="0,0,5,5" HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="105" Height="16" Click="HLImportSelected_Click"></HyperlinkButton>
             <HyperlinkButton x:Name="HLShowHistory" Grid.Column="2" Content="Show history" Margin="0,5,5,5" HorizontalAlignment="Center" VerticalAlignment="Top" Click="HLShowHistory_Click"></HyperlinkButton>
             <HyperlinkButton x:Name="HLShowSummary" Grid.Column="2" Content="Show summary" Margin="0,5,5,5" HorizontalAlignment="Center" VerticalAlignment="Center" Width="90" Click="HLShowSummary_Click"></HyperlinkButton>
-            <HyperlinkButton x:Name="HLImportEntireList" Grid.Column="2" Content="Import list" Margin="0,5,5,5" FontStyle="Italic" HorizontalAlignment="Center" VerticalAlignment="Bottom" Width="90"></HyperlinkButton>
             <HyperlinkButton x:Name="HLBack" Grid.Column="3" Content="Back" Margin="5,5,0,5" HorizontalAlignment="Left" Width="31" Click="HLBack_Click"></HyperlinkButton>
             <HyperlinkButton x:Name="HLForward" Grid.Column="3" Content="Forward" Margin="0,5,5,5" HorizontalAlignment="Right" Width="49" Click="HLForward_Click"></HyperlinkButton>
 
@@ -233,8 +233,16 @@
                 <TextBlock Text="PaperId: " HorizontalAlignment="Right" VerticalAlignment="Center" Margin="5,5,0,5"></TextBlock>
                 <TextBox x:Name="tbPaperId" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,5,5,5" IsReadOnly="True"></TextBox>
             </StackPanel>
+
+            <StackPanel Grid.Row="2" Grid.ColumnSpan="2" Orientation="Vertical">
+                <TextBox x:Name="tbAbstract" Grid.Row="2" Grid.ColumnSpan="2" TextWrapping="Wrap" ScrollViewer.VerticalScrollBarVisibility="Auto"></TextBox>
+                <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+                    <ToolkitRef:WrapPanel x:Name="WPPaperURLs" Orientation="Horizontal">
+
+                    </ToolkitRef:WrapPanel>
+                </ScrollViewer>
+            </StackPanel>
             
-            <TextBox x:Name="tbAbstract" Grid.Row="2" Grid.ColumnSpan="2" TextWrapping="Wrap" ScrollViewer.VerticalScrollBarVisibility="Auto"></TextBox>
             <HyperlinkButton x:Name="HLExpandContract" Grid.Row="3" Grid.ColumnSpan="2" FontSize="13" HorizontalAlignment="Center" Content="&lt;&lt;&lt;Expand&gt;&gt;&gt;" Click="HLExpandContract_Click" Tag="expand"></HyperlinkButton>
 
             <ScrollViewer Grid.Column="0" Grid.Row="4" HorizontalScrollBarVisibility="Disabled"  VerticalScrollBarVisibility="Auto">
@@ -254,6 +262,7 @@
                         <telerikGridView:RadGridView x:Name="BibliographyGrid" Grid.Row="0" AutoGenerateColumns="False" ShowGroupPanel="False"
                                     IsReadOnly="True" MinHeight="50" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                                     ItemsSource="{Binding PagedSource, ElementName=BibliographyPager}"
+                                    IsEnabled="{Binding Source={StaticResource CitationPaperListData}, Converter={StaticResource ReverseBoolean}, Path=IsBusy }"
                                     RowIndicatorVisibility="Collapsed" CanUserSelect="False"
                                     SelectionMode="Extended" ColumnWidth="*"
                                     IsSynchronizedWithCurrentItem="False">
@@ -286,6 +295,7 @@
                     <telerikGridView:RadGridView x:Name="CitedByGrid" Grid.Row="0" AutoGenerateColumns="False" ShowGroupPanel="False"
                                     IsReadOnly="True" MinHeight="50" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                                     ItemsSource="{Binding PagedSource, ElementName=CitedByPager}"
+                                    IsEnabled="{Binding Source={StaticResource CitedByListData}, Converter={StaticResource ReverseBoolean}, Path=IsBusy }"
                                     RowIndicatorVisibility="Collapsed"
                                     SelectionMode="Extended" ColumnWidth="*"
                                     IsSynchronizedWithCurrentItem="False">
@@ -312,6 +322,7 @@
                     <telerikGridView:RadGridView x:Name="RelatedGrid" Grid.Column="1" Grid.Row="1" Grid.RowSpan="2" AutoGenerateColumns="False" ShowGroupPanel="False"
                                     IsReadOnly="True" MinHeight="50" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                                     ItemsSource="{Binding Source={StaticResource RecommendationsListData}, Path=Data, Mode=TwoWay}"
+                                    IsEnabled="{Binding Source={StaticResource RecommendationsListData}, Converter={StaticResource ReverseBoolean}, Path=IsBusy }"
                                     RowIndicatorVisibility="Collapsed"
                                     SelectionMode="Extended" ColumnWidth="*"
                                     IsSynchronizedWithCurrentItem="False">
@@ -358,6 +369,7 @@
             <telerikGridView:RadGridView x:Name="PaperListBibliographyGrid" Grid.Column="1" Grid.Row="1" AutoGenerateColumns="False" ShowGroupPanel="False"
                                     IsReadOnly="True" MinHeight="50" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                                     ItemsSource="{Binding PagedSource, ElementName=PaperListBibliographyPager, Mode=TwoWay}"
+                                    IsEnabled="{Binding Source={StaticResource PaperListData}, Converter={StaticResource ReverseBoolean}, Path=IsBusy }"
                                     RowIndicatorVisibility="Collapsed"
                                     SelectionMode="Extended" ColumnWidth="*"
                                     IsSynchronizedWithCurrentItem="False">
@@ -414,6 +426,7 @@
             <telerikGridView:RadGridView x:Name="TopicPaperListBibliographyGrid" Grid.Column="1" Grid.Row="1" Grid.RowSpan="2" AutoGenerateColumns="False" ShowGroupPanel="False"
                                     IsReadOnly="True" MinHeight="50" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                                     ItemsSource="{Binding PagedSource, ElementName=TopicPaperListBibliographyPager}"
+                                    IsEnabled="{Binding Source={StaticResource TopicPaperListData}, Converter={StaticResource ReverseBoolean}, Path=IsBusy }"
                                     RowIndicatorVisibility="Collapsed"
                                     SelectionMode="Extended" ColumnWidth="*"
                                     IsSynchronizedWithCurrentItem="False">
@@ -542,6 +555,7 @@
             <telerikGridView:RadGridView x:Name="RelatedPapersRunGrid" Grid.Row="7" AutoGenerateColumns="False" ShowGroupPanel="False"
                                     IsReadOnly="False" MinHeight="50" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                                     ItemsSource="{Binding Source={StaticResource RelatedPapersRunListData}, Path=Data, Mode=TwoWay}"
+                                    IsEnabled="{Binding Source={StaticResource RelatedPapersRunListData}, Converter={StaticResource ReverseBoolean}, Path=IsBusy }"
                                     RowIndicatorVisibility="Collapsed" CanUserSelect="False" Margin="10,20,10,20"
                                     SelectionMode="Extended" ColumnWidth="*"
                                     IsSynchronizedWithCurrentItem="False">

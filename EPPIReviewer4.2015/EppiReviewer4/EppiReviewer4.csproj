@@ -998,6 +998,7 @@
     <Resource Include="Icons\Export.png" />
     <Resource Include="Icons\Import.png" />
     <Resource Include="Icons\ManageDuplicates.png" />
+    <Resource Include="Icons\MicrosoftAcademicICO.png" />
     <Resource Include="Icons\NewCodeSet.png" />
     <Resource Include="Icons\NewItem.png" />
     <Resource Include="Icons\RandomAssign.png" />
@@ -1077,7 +1078,6 @@
     <Resource Include="Icons\view-refresh-7.png" />
     <Resource Include="Icons\run-build-configure.png" />
     <Resource Include="Icons\run-build-install.png" />
-    <Resource Include="Icons\MicrosoftAcademicICO.png" />
     <Resource Include="Icons\MicrosoftAcademicICOAlert.png" />
     <Content Include="pMed.png" />
     <Content Include="ServiceReferences.ClientConfig">
