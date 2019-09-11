@@ -388,8 +388,8 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 	}
 	BulkAssignRemoveCodesToSearches(IsBulkAssign: boolean) {
 
-		alert(this.searchService.SearchList.filter(x => x.add == true).length);
-		alert(JSON.stringify(this.searchService.SearchList));
+		//alert(this.searchService.SearchList.filter(x => x.add == true).length);
+		//alert(JSON.stringify(this.searchService.SearchList));
 
 		if (!this.reviewSetsService.selectedNode || this.reviewSetsService.selectedNode.nodeType != "SetAttribute") return;
 		else {
