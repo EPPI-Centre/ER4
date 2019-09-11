@@ -109,7 +109,7 @@
 			   TABLOCK,
 			   BATCHSIZE = 5000
             )
-
+			/*
 			BULK INSERT [dbo].PaperLanguages FROM 'D:\MSAcademic\downloads\nlp\PaperLanguages.txt'
            WITH ( 
                DATAFILETYPE = 'char', 
@@ -119,7 +119,7 @@
 			   TABLOCK,
 			   BATCHSIZE = 5000
             )
-
+			*/
 			BULK INSERT [dbo].PaperRecommendations FROM 'D:\MSAcademic\downloads\advanced\PaperRecommendations.txt'
            WITH ( 
                DATAFILETYPE = 'char', 

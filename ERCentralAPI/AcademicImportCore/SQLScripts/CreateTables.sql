@@ -86,7 +86,7 @@ CREATE TABLE [dbo].[Journals](
 
 DROP TABLE IF EXISTS [dbo].[PaperAbstractsInvertedIndex]
 CREATE TABLE [dbo].[PaperAbstractsInvertedIndex](
-	[PaperID] [bigint] NULL,
+	[PaperId] [bigint] NULL,
 	[IndexedAbstract] [nvarchar](max) NULL
 ) ON [PRIMARY]
 
@@ -113,28 +113,31 @@ GO
 
 DROP TABLE IF EXISTS [dbo].[PaperFieldsOfStudy]
 CREATE TABLE [dbo].[PaperFieldsOfStudy](
-	[PaperID] [bigint] NULL,
+	[PaperId] [bigint] NULL,
 	[FieldOfStudyID] [bigint] NULL,
 	[Score] [float] NULL
 ) ON [PRIMARY]
 
+/*
+This info is now in the URL file
 DROP TABLE IF EXISTS [dbo].PaperLanguages
 CREATE TABLE PaperLanguages(
     PaperId bigint,
     LanguageCode nvarchar(max)
 ) ON [PRIMARY]
 GO
+*/
 
 DROP TABLE IF EXISTS [dbo].[PaperRecommendations]
 CREATE TABLE [dbo].[PaperRecommendations](
-	[PaperID] [bigint] NULL,
-	[RecommendedPaperID] [bigint] NULL,
+	[PaperId] [bigint] NULL,
+	[RecommendedPaperId] [bigint] NULL,
 	[Score] [float] NULL
 ) ON [PRIMARY]
 
 DROP TABLE IF EXISTS [dbo].[PaperReferences]
 CREATE TABLE [dbo].[PaperReferences](
-	[PaperID] [bigint] NULL,
+	[PaperId] [bigint] NULL,
 	[PaperReferenceID] [bigint] NULL
 ) ON [PRIMARY]
 
@@ -152,12 +155,13 @@ DROP TABLE IF EXISTS [dbo].[PaperUrls]
 CREATE TABLE [dbo].[PaperUrls](
 	[PaperId] [bigint] NULL,
 	[SourceType] [int] NULL,
-	[SourceURL] [nvarchar](2500) NULL
+	[SourceURL] [nvarchar](2500) NULL,
+	[LanguageCode] [nvarchar](2500)
 ) ON [PRIMARY]
 
 DROP TABLE IF EXISTS [dbo].[Papers]
 CREATE TABLE [dbo].[Papers](
-	[PaperID] [bigint] NULL,
+	[PaperId] [bigint] NULL,
 	[Rank] [int] NULL,
 	[DOI] [nvarchar](500) NULL,
 	[DocType] [nvarchar](500) NULL,

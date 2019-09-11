@@ -77,7 +77,8 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@NUpdates", 0));
                     command.Parameters["@NUpdates"].Direction = System.Data.ParameterDirection.Output;
                     command.ExecuteNonQuery();
-                    _NUpdates = Convert.ToInt32(command.Parameters["@NUpdates"].Value.ToString());
+                    var n = Convert.ToInt32(command.Parameters["@NUpdates"].Value);
+                    _NUpdates = int.Parse(n.ToString());
                     _HasUpdates = _NUpdates > 0 ? true : false;
                 }
                 connection.Close();
