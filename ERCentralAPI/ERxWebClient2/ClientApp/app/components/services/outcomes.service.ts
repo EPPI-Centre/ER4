@@ -175,19 +175,20 @@ export class OutcomesService extends BusyAwareService  {
 	}
 
 	public listOutcomes: Outcome[] = [];
+
 	public Createoutcome(currentoutcome: Outcome): Promise<Outcome> {
 
 		this._BusyMethods.push("CreateOutcome");
 		let ErrMsg = "Something went wrong when creating an outcome. \r\n If the problem persists, please contact EPPISupport.";
 
-		console.log('did call this...');
+		//console.log('did call this...');
 		return this._http.post<iOutcome>(this._baseUrl + 'api/OutcomeList/Createoutcome',
 
 			currentoutcome).toPromise()
 						.then(
 						(result) => {
 
-							console.log('did get results....');
+							//console.log('did get results....');
 							var newOutcome: Outcome = new Outcome(result);
 							this.outcomesList.push(newOutcome);
 							
@@ -215,7 +216,7 @@ export class OutcomesService extends BusyAwareService  {
 	
 	public Updateoutcome(currentOutcome: Outcome) {
 
-		console.log('outcome codes are: ' + JSON.stringify(currentOutcome.outcomeCodes));
+		//console.log('outcome codes are: ' + JSON.stringify(currentOutcome.outcomeCodes));
 		this._BusyMethods.push("UpdateOutcome");
 		let ErrMsg = "Something went wrong when updating an outcome. \r\n If the problem persists, please contact EPPISupport.";
 

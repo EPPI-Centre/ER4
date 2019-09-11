@@ -1,4 +1,4 @@
-import { Component,  OnInit, OnDestroy, Input, AfterViewInit, EventEmitter, Output } from '@angular/core';
+import { Component,  OnInit, OnDestroy, Input, AfterViewInit } from '@angular/core';
 import { ReviewSetsService } from '../services/ReviewSets.service';
 import { EventEmitterService } from '../services/EventEmitter.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
@@ -27,6 +27,7 @@ export class OutcomesComponent implements OnInit, OnDestroy, AfterViewInit {
 	public ShowOutcomesStatistics: boolean = false;
 	public ShowOutcomesList: boolean = true;
 	@Input() item: Item | undefined;
+	// Correction for unit of analysis error
 	public ShowCFUOAEBool: boolean = false;
 	public OutcomeTypeList: OutcomeType[] = [];
 
@@ -155,17 +156,14 @@ export class OutcomesComponent implements OnInit, OnDestroy, AfterViewInit {
 	public get HasWriteRights(): boolean {
 		return this._ReviewerIdentityServ.HasWriteRights;
 	}
-	public printstuff() {
+	public editOutcome(outcome: Outcome) {
 
-		var ans = this._OutcomesService.currentOutcome;
-		console.log(JSON.stringify(ans));
-	}
-	public editOutcome(outcome: Outcome, key: number) {
-
-		this.ShowOutcomesStatistics = true;
-		this.ShowOutcomesList = false;
-		this._OutcomesService.currentOutcome = outcome;
-		this._OutcomesService.ItemSetId = outcome.itemSetId;
+		if (outcome != null) {
+			this.ShowOutcomesStatistics = true;
+			this.ShowOutcomesList = false;
+			this._OutcomesService.currentOutcome = outcome;
+			this._OutcomesService.ItemSetId = outcome.itemSetId;
+		}
 	}
 	removeWarning(outcome: Outcome, key: number) {
 
@@ -202,7 +200,9 @@ export class OutcomesComponent implements OnInit, OnDestroy, AfterViewInit {
 	}
 	public setTimepoint(Timepoint: iTimePoint) {
 
-		this.Timepoint = Timepoint;
+		if (Timepoint != null) {
+			this.Timepoint = Timepoint;
+		}
 	}
 	public SaveOutcome() {
 
@@ -233,7 +233,7 @@ export class OutcomesComponent implements OnInit, OnDestroy, AfterViewInit {
 	CreateNewOutcome() {
 
 		this._OutcomesService.currentOutcome = new Outcome();
-		console.log(this._OutcomesService.currentOutcome);
+		//console.log(this._OutcomesService.currentOutcome);
 		this.ShowOutcomesStatistics = true;
 		this.ShowOutcomesList = false;
 		this._OutcomesService.currentOutcome.SetCalculatedValues();
