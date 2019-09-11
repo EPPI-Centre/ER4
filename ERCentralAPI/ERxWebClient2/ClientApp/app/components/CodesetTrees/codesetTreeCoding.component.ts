@@ -99,26 +99,13 @@ export class CodesetTreeCodingComponent implements OnInit, OnDestroy, AfterViewI
             this._outcomeService.IsBusy);
     }
 	ngAfterViewInit() {
-
-		//if () {
-				
-		//const firstNode: TreeNode<singleNode> = treeModel.getFirstRoot();
-			
-		//}
-		//const firstNode: singleNode = treeModel.getFirstRoot();
-
-		//firstNode.setActiveAndVisible();
 	}
 	public attributeType: string = '';
 	public outcomesPresent: boolean = false;
 	public checkOutComes(data: singleNode): boolean {
-
-		//console.log('checking this node: ', data);
 		var selectedNode: boolean = false;
 		var itemSetId = 0;
 		if (data.nodeType == 'ReviewSet') {
-			//let node = data as ReviewSet;
-			//itemSetId = node.ItemSetId;
 			return false;
 		} else {
 			let node = data as SetAttribute;
@@ -126,9 +113,6 @@ export class CodesetTreeCodingComponent implements OnInit, OnDestroy, AfterViewI
 			this.attributeType = nodeAttType;
 			var itemSet = this._ItemCodingService.FindItemSetBySetId(node.set_id);
 			if (itemSet) {
-				if (itemSet.OutcomeList.length > 0) {
-					this.outcomesPresent = true;
-				}
 				itemSetId = itemSet.itemSetId
 			}
 			
@@ -140,8 +124,7 @@ export class CodesetTreeCodingComponent implements OnInit, OnDestroy, AfterViewI
 			|| nodeAttType == 'Comparison') {
 			okayAttType = true;
 		}
-		//var itemSet = this._ItemCodingService.FindItemSetByItemSetId(itemSetId);
-		if (this.outcomesPresent && okayAttType
+		if ( okayAttType
 			) {
 
 			return true;
@@ -149,7 +132,6 @@ export class CodesetTreeCodingComponent implements OnInit, OnDestroy, AfterViewI
 			return false;
 		}
 	}
-	//public ShowOutComeList: EventEmitter<boolean> = new EventEmitter();
 	public OutcomePanel: boolean = false;
 	public openOutcomePanel(data: singleNode) {
 
@@ -177,7 +159,7 @@ export class CodesetTreeCodingComponent implements OnInit, OnDestroy, AfterViewI
     }
     GetReviewSets() {
         if (this.ReviewSetsService.ReviewSets && this.ReviewSetsService.ReviewSets.length > 0) return;
-        console.log('Get reviesets in revsets comp');
+
         this.ReviewSetsService.GetReviewSets();
             //.subscribe(
             //result => {
@@ -193,9 +175,6 @@ export class CodesetTreeCodingComponent implements OnInit, OnDestroy, AfterViewI
         let checkPassed: boolean = true;
         if (event.target) checkPassed = event.target.checked;//if we ticked the checkbox, it's OK to carry on, otherwise we need to check
         if (!checkPassed) {
-            //event.srcElement.blur();
-            console.log('checking...');
-            //deleting the codeset: need to confirm
             this.DeletingData = data;
             this.DeletingEvent = event;
             //all this seems necessary because I could not suppress the error discussed here:
@@ -216,7 +195,6 @@ export class CodesetTreeCodingComponent implements OnInit, OnDestroy, AfterViewI
         this.showManualModal = false;
     }
     DeleteCodingCancelled() {
-        //console.log('trying to close...')
         if (this.DeletingData) this.DeletingData.isSelected = true;
         this.DeletingEvent = undefined;
         this.DeletingData = null;
@@ -227,7 +205,6 @@ export class CodesetTreeCodingComponent implements OnInit, OnDestroy, AfterViewI
         evdata.event = event;
         evdata.armId = this.armsService.SelectedArm == null ? 0 : this.armsService.SelectedArm.itemArmId;
         evdata.AttId = +data.id.replace('A', '');
-        console.log('AttID: ' + evdata.AttId + ' armid = ' + evdata.armId);
         evdata.additionalText = data.additionalText;
         this.ReviewSetsService.PassItemCodingCeckboxChangedEvent(evdata);
     }
@@ -240,7 +217,6 @@ export class CodesetTreeCodingComponent implements OnInit, OnDestroy, AfterViewI
             return;//not a codeset, can't un/complete or lock...
         }
         let rSet = node as ReviewSet;
-        console.log("comp/uncomp this:", rSet);
         if (!rSet || rSet.ItemSetId == 0) {
             this.ShowCompleteUncompletePanelForSetId = 0;
             return;//couldn't cast to codeset OR codeset doesn't have codes applied.
@@ -323,21 +299,21 @@ export class CodesetTreeCodingComponent implements OnInit, OnDestroy, AfterViewI
     openInfoBox(data: singleNode) {
         //const tmp: any = new InfoBoxModalContent();
         let modalComp = this.modalService.open(InfoBoxModalContent);
-        //console.log('ADDTXT: '+ data.additionalText);
+
         modalComp.componentInstance.InfoBoxTextInput = data.additionalText;
         modalComp.componentInstance.focus(this.ReviewSetsService.CanWriteCoding(data));
         //let tBox = this.renderer.selectRootElement('#InfoBoxText');
         //tBox.innerText = modalComp.componentInstance.InfoBoxTextInput;
-        //console.log(tBox);
+
         modalComp.result.then((infoTxt) => {
             data.additionalText = infoTxt;
             if (!data.isSelected) {
                 
-                //console.log('InfoboxTextAdded ' + data.additionalText);
+
                 this.CheckBoxClickedAfterCheck('InfoboxTextAdded', data);//checkbox is not ticked: we are adding this code
             }
             else {
-                //console.log('InfoboxTextUpdate ' + data.additionalText);
+  
                 this.CheckBoxClickedAfterCheck('InfoboxTextUpdate', data);// checkbox is ticked: we are editing text in infobox
             }
         },
