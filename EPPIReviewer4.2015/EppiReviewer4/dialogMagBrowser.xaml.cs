@@ -34,22 +34,23 @@ namespace EppiReviewer4
 
         public void ShowMagBrowser()
         {
-            HLShowSummary_Click(null, null);
+            //HLShowAdvanced_Click(null, null);
+            LBManageRelatedPapersRun_Click(null, null);
             SelectedPaperIds = new List<Int64>();
             UpdateSelectedCount();
             timer = new DispatcherTimer();
             timer.Interval = TimeSpan.FromSeconds(1);
             timer.Tick += Timer_Tick;
-            CslaDataProvider provider = this.Resources["RelatedPapersRunListData"] as CslaDataProvider;
-            provider.Refresh();
+            //CslaDataProvider provider = this.Resources["RelatedPapersRunListData"] as CslaDataProvider;
+            //provider.Refresh();
         }
 
-
-        private void HLShowSummary_Click(object sender, RoutedEventArgs e)
+        // ************************** Top navigation button events **************************
+        private void HLShowAdvanced_Click(object sender, RoutedEventArgs e)
         {
             IncrementHistoryCount();
-            AddToBrowseHistory("Summary page", "Summary", 0, "", "", 0, "", 0, "", "", 0);
-            ShowSummaryPage();
+            AddToBrowseHistory("Advanced page", "Advanced", 0, "", "", 0, "", 0, "", "", 0);
+            ShowAdvancedPage();
         }
 
         private void HLShowHistory_Click(object sender, RoutedEventArgs e)
@@ -59,9 +60,28 @@ namespace EppiReviewer4
             ShowHistoryPage();
         }
 
-        // ************************************* SUMMARY PAGE ******************************************
+        private void HLShowSelected_Click(object sender, RoutedEventArgs e)
+        {
+            if (SelectedPaperIds.Count == 0)
+            {
+                RadWindow.Alert("You don't have anything selected.");
+                return;
+            }
+            IncrementHistoryCount();
+            AddToBrowseHistory("List of all selected papers", "SelectedPapers", 0, "", "", 0, "", 0, "", "", 0);
+            TBPaperListTitle.Text = "List of all selected papers";
+            ShowSelectedPapersPage();
+        }
+        private void LBManageRelatedPapersRun_Click(object sender, RoutedEventArgs e)
+        {
+            IncrementHistoryCount();
+            AddToBrowseHistory("Manage review updates / find related papers", "RelatedPapers", 0, "", "", 0, "", 0, "", "", 0);
+            ShowRelatedPapersPage();
+        }
 
-        private void ShowSummaryPage()
+        // ************************************* Advanced PAGE ******************************************
+
+        private void ShowAdvancedPage()
         {
             StatusGrid.Visibility = Visibility.Visible;
             PaperGrid.Visibility = Visibility.Collapsed;
@@ -145,6 +165,14 @@ namespace EppiReviewer4
 
             RTBPaperInfo.Text = FullRecord;
             tbAbstract.Text = Abstract;
+            if (tbAbstract.Text == "")
+            {
+                tbAbstract.Visibility = Visibility.Collapsed;
+            }
+            else
+            {
+                tbAbstract.Visibility = Visibility.Visible;
+            }
             tbPaperId.Text = PaperId.ToString();
             WPPaperURLs.Children.Clear();
             if (URLs != "")
@@ -165,6 +193,14 @@ namespace EppiReviewer4
                         }
                     }
                 }
+            }
+            if (WPPaperURLs.Children.Count == 0 && tbAbstract.Text == "")
+            {
+                HLExpandContract.Visibility = Visibility.Collapsed;
+            }
+            else
+            {
+                HLExpandContract.Visibility = Visibility.Visible;
             }
             if (LinkedITEM_ID == 0)
             {
@@ -495,19 +531,6 @@ namespace EppiReviewer4
             this.ListExcludedNotMatched.Invoke(sender, e);
         }
 
-        private void HLShowSelected_Click(object sender, RoutedEventArgs e)
-        {
-            if (SelectedPaperIds.Count == 0)
-            {
-                RadWindow.Alert("You don't have anything selected.");
-                return;
-            }
-            IncrementHistoryCount();
-            AddToBrowseHistory("List of all selected papers", "SelectedPapers", 0, "", "", 0, "", 0, "", "", 0);
-            TBPaperListTitle.Text = "List of all selected papers";
-            ShowSelectedPapersPage();
-        }
-
         private void CslaDataProvider_DataChanged(object sender, EventArgs e)
         {
             CslaDataProvider provider = ((CslaDataProvider)this.Resources["PaperListData"]);
@@ -833,8 +856,8 @@ namespace EppiReviewer4
                             case "History":
                                 ShowHistoryPage();
                                 break;
-                            case "Summary":
-                                ShowSummaryPage();
+                            case "Advanced":
+                                ShowAdvancedPage();
                                 break;
                             case "PaperDetail":
                                 ShowPaperDetailsPage(mbh.PaperId, mbh.PaperFullRecord, mbh.PaperAbstract, mbh.URLs, mbh.LinkedITEM_ID);
@@ -1264,13 +1287,6 @@ namespace EppiReviewer4
 
 
         // ************************** Managing related papers / review auto-updates **********************
-
-        private void LBManageRelatedPapersRun_Click(object sender, RoutedEventArgs e)
-        {
-            IncrementHistoryCount();
-            AddToBrowseHistory("Manage review updates / find related papers", "RelatedPapers", 0, "", "", 0, "", 0, "", "", 0);
-            ShowRelatedPapersPage();
-        }
 
         private void LBAddNewRagRelatedPapersRun_Click(object sender, RoutedEventArgs e)
         {

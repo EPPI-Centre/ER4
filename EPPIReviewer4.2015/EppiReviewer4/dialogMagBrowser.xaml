@@ -98,7 +98,7 @@
                 <Setter.Value>
                     <ControlTemplate>
                         <HyperlinkButton x:Name="HLSelectUnSelect" Margin="5,2,5,2" VerticalAlignment="Center" HorizontalAlignment="Center" Click="HLSelectUnSelect_Click"
-                                    Content="{Binding CanBeSelected, Mode=TwoWay}"></HyperlinkButton>
+                                    Content="{Binding CanBeSelected, Mode=TwoWay}" IsTabStop="False"></HyperlinkButton>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
@@ -115,19 +115,20 @@
         <Grid x:Name="HeaderGrid" Grid.Row="0" Background="LightGray">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="400*"></ColumnDefinition>
-                <ColumnDefinition Width="400*"></ColumnDefinition>
-                <ColumnDefinition Width="200*"></ColumnDefinition>
+                <ColumnDefinition Width="450*"></ColumnDefinition>
+                <ColumnDefinition Width="250*"></ColumnDefinition>
                 <ColumnDefinition Width="100*"></ColumnDefinition>
             </Grid.ColumnDefinitions>
 
             <TextBlock x:Name="tbAcademicTitle" TextWrapping="Wrap" Grid.Column="0" Text="Microsoft Academic browser" FontSize="12" FontStyle="Italic" Margin="5,10,5,5"></TextBlock>
-            <HyperlinkButton x:Name="HLShowSelected" Grid.Column="1" Content="Show selected (0)" Margin="0,5,5,5" HorizontalAlignment="Right" Width="105" Click="HLShowSelected_Click"></HyperlinkButton>
-            <HyperlinkButton x:Name="HLClearSelected" Grid.Column="1" Content="Clear selected" Margin="0,22,5,22" HorizontalAlignment="Right" VerticalAlignment="Center" Width="105" Height="16" Click="HLClearSelected_Click"></HyperlinkButton>
-            <HyperlinkButton x:Name="HLImportSelected" Grid.Column="1" Content="Import selected" Margin="0,0,5,5" HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="105" Height="16" Click="HLImportSelected_Click"></HyperlinkButton>
-            <HyperlinkButton x:Name="HLShowHistory" Grid.Column="2" Content="Show history" Margin="0,5,5,5" HorizontalAlignment="Center" VerticalAlignment="Top" Click="HLShowHistory_Click"></HyperlinkButton>
-            <HyperlinkButton x:Name="HLShowSummary" Grid.Column="2" Content="Show summary" Margin="0,5,5,5" HorizontalAlignment="Center" VerticalAlignment="Center" Width="90" Click="HLShowSummary_Click"></HyperlinkButton>
-            <HyperlinkButton x:Name="HLBack" Grid.Column="3" Content="Back" Margin="5,5,0,5" HorizontalAlignment="Left" Width="31" Click="HLBack_Click"></HyperlinkButton>
-            <HyperlinkButton x:Name="HLForward" Grid.Column="3" Content="Forward" Margin="0,5,5,5" HorizontalAlignment="Right" Width="49" Click="HLForward_Click"></HyperlinkButton>
+            <HyperlinkButton x:Name="HLShowSelected" Grid.Column="1" Content="Show selected (0)" Margin="0,5,5,5" HorizontalAlignment="Right" Width="105" Click="HLShowSelected_Click" IsTabStop="False"></HyperlinkButton>
+            <HyperlinkButton x:Name="HLClearSelected" Grid.Column="1" Content="Clear selected" Margin="0,22,5,22" HorizontalAlignment="Right" VerticalAlignment="Center" Width="105" Height="16" Click="HLClearSelected_Click" IsTabStop="False"></HyperlinkButton>
+            <HyperlinkButton x:Name="HLImportSelected" Grid.Column="1" Content="Import selected" Margin="0,0,5,5" HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="105" Height="16" Click="HLImportSelected_Click" IsTabStop="False"></HyperlinkButton>
+            <HyperlinkButton x:Name="LBManageRelatedPapersRun" Grid.Column="2" Content="Auto-update home" Margin="0,5,5,5" HorizontalAlignment="Center" VerticalAlignment="Top" Click="LBManageRelatedPapersRun_Click" IsTabStop="False"></HyperlinkButton>
+            <HyperlinkButton x:Name="HLShowAdvanced" Grid.Column="2" Content="Show advanced" Margin="0,5,5,5" HorizontalAlignment="Center" VerticalAlignment="Center" Width="90" Click="HLShowAdvanced_Click" IsTabStop="False"></HyperlinkButton>
+            <HyperlinkButton x:Name="HLShowHistory" Grid.Column="2" Content="Show history" Margin="0,5,5,5" HorizontalAlignment="Center" VerticalAlignment="Bottom" Click="HLShowHistory_Click" IsTabStop="False"></HyperlinkButton>
+            <HyperlinkButton x:Name="HLBack" Grid.Column="3" Content="Back" Margin="5,5,0,5" HorizontalAlignment="Left" Width="31" Click="HLBack_Click" IsTabStop="False"></HyperlinkButton>
+            <HyperlinkButton x:Name="HLForward" Grid.Column="3" Content="Forward" Margin="0,5,5,5" HorizontalAlignment="Right" Width="49" Click="HLForward_Click" IsTabStop="False"></HyperlinkButton>
 
         </Grid>
 
@@ -159,30 +160,30 @@
             <TextBlock x:Name="TBNumInReview" Grid.Column="1" Grid.Row="1" Text="N" HorizontalAlignment="Left" Margin="5,5,5,5"></TextBlock>
             <TextBlock Grid.Column="0" Grid.Row="2" Text="Number matched to Microsoft Academic records: " HorizontalAlignment="Right" Margin="5,5,5,5"></TextBlock>
             <StackPanel Grid.Column="1" Grid.Row="2" Orientation="Horizontal">
-                <HyperlinkButton x:Name="LBListMatchesIncluded" Content="N" Margin="5,5,5,5" HorizontalAlignment="Left" Click="LBListMatchesIncluded_Click"></HyperlinkButton>
+                <HyperlinkButton x:Name="LBListMatchesIncluded" Content="N" Margin="5,5,5,5" HorizontalAlignment="Left" Click="LBListMatchesIncluded_Click" IsTabStop="False"></HyperlinkButton>
                 <TextBlock Text=" / " Margin="2,5,2,5"></TextBlock>
-                <HyperlinkButton x:Name="LBListMatchesExcluded" Content="N" Margin="5,5,5,5" HorizontalAlignment="Left" Click="LBListMatchesExcluded_Click"></HyperlinkButton>
+                <HyperlinkButton x:Name="LBListMatchesExcluded" Content="N" Margin="5,5,5,5" HorizontalAlignment="Left" Click="LBListMatchesExcluded_Click" IsTabStop="False"></HyperlinkButton>
             </StackPanel>
             <TextBlock Grid.Column="0" Grid.Row="3" Text="Number that could use manual checking: " HorizontalAlignment="Right" Margin="5,5,5,5"></TextBlock>
             <StackPanel Grid.Column="1" Grid.Row="3" Orientation="Horizontal">
-                <HyperlinkButton x:Name="LBManualCheckIncluded" Content="N" Margin="5,5,5,5" HorizontalAlignment="Left" Click="LBManualCheckIncluded_Click"></HyperlinkButton>
+                <HyperlinkButton x:Name="LBManualCheckIncluded" Content="N" Margin="5,5,5,5" HorizontalAlignment="Left" Click="LBManualCheckIncluded_Click" IsTabStop="False"></HyperlinkButton>
                 <TextBlock Text=" / " Margin="2,5,2,5"></TextBlock>
-                <HyperlinkButton x:Name="LBManualCheckExcluded" Content="N" Margin="5,5,5,5" HorizontalAlignment="Left" Click="LBManualCheckExcluded_Click"></HyperlinkButton>
+                <HyperlinkButton x:Name="LBManualCheckExcluded" Content="N" Margin="5,5,5,5" HorizontalAlignment="Left" Click="LBManualCheckExcluded_Click" IsTabStop="False"></HyperlinkButton>
             </StackPanel>
             <TextBlock Grid.Column="0" Grid.Row="4" Text="Number that could not be matched: " HorizontalAlignment="Right" Margin="5,5,5,5"></TextBlock>
             <StackPanel Grid.Column="1" Grid.Row="4" Orientation="Horizontal">
-                <HyperlinkButton x:Name="LBMNotMatchedIncluded" Content="N" Margin="5,5,5,5" HorizontalAlignment="Left" Click="LBMNotMatchedIncluded_Click"></HyperlinkButton>
+                <HyperlinkButton x:Name="LBMNotMatchedIncluded" Content="N" Margin="5,5,5,5" HorizontalAlignment="Left" Click="LBMNotMatchedIncluded_Click" IsTabStop="False"></HyperlinkButton>
                 <TextBlock Text=" / " Margin="2,5,2,5"></TextBlock>
-                <HyperlinkButton x:Name="LBMNotMatchedExcluded" Content="N" Margin="5,5,5,5" HorizontalAlignment="Left" Click="LBMNotMatchedExcluded_Click"></HyperlinkButton>
+                <HyperlinkButton x:Name="LBMNotMatchedExcluded" Content="N" Margin="5,5,5,5" HorizontalAlignment="Left" Click="LBMNotMatchedExcluded_Click" IsTabStop="False"></HyperlinkButton>
             </StackPanel>
             
             <TextBlock Grid.Column="0" Grid.Row="5" Text="ACTIONS: " HorizontalAlignment="Left" Margin="5,5,5,5"></TextBlock>
-            <HyperlinkButton x:Name="LBMatchAllIncluded" Grid.Column="0" Grid.Row="6" Content="Match all included items" Margin="20,5,5,5" HorizontalAlignment="Left" Click="LBMatchAllIncluded_Click"></HyperlinkButton>
+            <HyperlinkButton x:Name="LBMatchAllIncluded" Grid.Column="0" Grid.Row="6" Content="Match all included items" Margin="20,5,5,5" HorizontalAlignment="Left" Click="LBMatchAllIncluded_Click" IsTabStop="False"></HyperlinkButton>
 
-            <HyperlinkButton x:Name="LBListAllInReview" Grid.Column="0" Grid.Row="7" Content="List ALL Microsoft Academic records in your review" Margin="20,5,5,5" HorizontalAlignment="Left" Click="LBListAllInReview_Click"></HyperlinkButton>
-            <HyperlinkButton x:Name="LBListAllRelatedToItemsWithThisCode" Grid.Column="0" Grid.Row="8" Content="List all Microsoft Academic records with this code" Margin="20,5,5,5" HorizontalAlignment="Left" Click="LBListAllRelatedToItemsWithThisCode_Click"></HyperlinkButton>
+            <HyperlinkButton x:Name="LBListAllInReview" Grid.Column="0" Grid.Row="7" Content="List ALL Microsoft Academic records in your review" Margin="20,5,5,5" HorizontalAlignment="Left" Click="LBListAllInReview_Click" IsTabStop="False"></HyperlinkButton>
+            <HyperlinkButton x:Name="LBListAllRelatedToItemsWithThisCode" Grid.Column="0" Grid.Row="8" Content="List all Microsoft Academic records with this code" Margin="20,5,5,5" HorizontalAlignment="Left" Click="LBListAllRelatedToItemsWithThisCode_Click" IsTabStop="False"></HyperlinkButton>
             <local:codesSelectControl x:Name="codesSelectControlMAGSelect" Grid.Column="0" Grid.Row="9" Margin="20,5,5,5"></local:codesSelectControl>
-            <HyperlinkButton x:Name="LBListAllRelatedItemsWithThisCode" Grid.Column="1" Grid.Row="9" Margin="5,5,5,5" Content="Go!" VerticalAlignment="Center" Click="LBListAllRelatedItemsWithThisCode_Click"></HyperlinkButton>
+            <HyperlinkButton x:Name="LBListAllRelatedItemsWithThisCode" Grid.Column="1" Grid.Row="9" Margin="5,5,5,5" Content="Go!" VerticalAlignment="Center" Click="LBListAllRelatedItemsWithThisCode_Click" IsTabStop="False"></HyperlinkButton>
 
             <TextBox x:Name="tbFindTopics" Grid.Column="0" Grid.Row="10" Grid.ColumnSpan="2" Margin="20,5,5,0" TextChanged="tbFindTopics_TextChanged"></TextBox>
             <ScrollViewer Grid.Column="0" Grid.Row="11" Grid.ColumnSpan="2" Margin="20,0,5,5" HorizontalScrollBarVisibility="Disabled"  VerticalScrollBarVisibility="Auto">
@@ -192,21 +193,21 @@
             </ScrollViewer>
 
             <StackPanel Grid.Column="0" Grid.Row="12" Grid.ColumnSpan="2" Orientation="Horizontal">
-                <HyperlinkButton x:Name="lbGoToPaperId" Margin="20,5,5,5" Content="Go to this Microsoft Academic Paper ID" VerticalAlignment="Center" Click="lbGoToPaperId_Click"></HyperlinkButton>
+                <HyperlinkButton x:Name="lbGoToPaperId" Margin="20,5,5,5" Content="Go to this Microsoft Academic Paper ID" VerticalAlignment="Center" Click="lbGoToPaperId_Click" IsTabStop="False"></HyperlinkButton>
                 <TextBox x:Name="tbGoToPaperId" Margin="5,5,5,5" Width="80" VerticalAlignment="Center"></TextBox>
             </StackPanel>
             
-            <StackPanel Grid.Column="3" Grid.Row="0" Grid.RowSpan="8" Orientation="Vertical">
-                <TextBlock FontSize="14" Margin="5,5,5,5">Introduction</TextBlock>
+            <StackPanel Grid.Column="3" Grid.Row="0" Grid.RowSpan="12" Orientation="Vertical">
+                <TextBlock FontSize="14" Margin="5,5,5,5">Advanced features</TextBlock>
                 <TextBlock TextWrapping="Wrap"  Margin="5,10,5,5" Text="This part of the program gives you access to the Microsoft Academic dataset. It is updated regularly, and may contain many of the research studies that you are likely to include in your review.&#10;
-&#10;You can browse the dataset using the 'topic' search. Once you have found some relevant topics, then you can examine the research within those topics to find relevant studies for your review.
+&#10;You can browse the dataset using the 'topic' search. Once you have found some relevant topics, then you can examine the research within those topics to find relevant studies for your review. You can also navigate directly to a given Microsoft Academic ID, if you have found it already (e.g. on the web).
 &#10;
 &#10;Once you have some relevant research studies you can use the graph structure of this dataset to identify other studies that are likely to be relevant.
- The 'related documents' feature in this dataset is very powerful, and can identify many - if not all - of the studies you are looking for with far less manual effort compared with conventional search methods.
- In order to take full advantage of this feature, any records that you have imported from other sources should be matched up with records from the Microsoft Academic dataset.
+ The 'related documents' feature in this dataset is very powerful, and can identify many - if not all - of the studies you are looking for with far less manual effort compared with conventional search methods. The 'home' page enables you to set up automated searches to take advantage of this feature.
+ In order to take full advantage of this feature though, any records that you have imported from other sources should be matched up with records from the Microsoft Academic dataset.
  It isn't possible to match all records correctly, as while the Microsoft Academic dataset contains the vast majority of journal articles, it may not contain 'grey' literature, such as dissertations, theses and trial registry records.
- Use the functionality on this page to match your records into Microsoft Academic, and view the results of the automatic matching exercise."></TextBlock>
-                <HyperlinkButton x:Name="LBManageRelatedPapersRun" Margin="5,5,5,5" Content="Set up review auto-updates and automatically find related papers" Click="LBManageRelatedPapersRun_Click"></HyperlinkButton>
+ Use the functionality on this page to match your records into Microsoft Academic, and to view the results of the automatic matching exercise. You will also notice that some records might need checking manually, and also some can't be matched at all. To get the best results from the automated search, or if you want to run evaluations of it, you should check those that can't be matched automatically - either to accept or reject the suggestions - or by searching the Microsoft Academic website yourself to see whether the record is actually there, but is just difficult to match automatically."></TextBlock>
+                
             </StackPanel>
         </Grid> <!-- end statusgrid -->
 
@@ -223,11 +224,11 @@
                 <ColumnDefinition Width="*"></ColumnDefinition>
             </Grid.ColumnDefinitions>
 
-            <TextBox x:Name="RTBPaperInfo" Grid.Row="0" Grid.ColumnSpan="2" TextWrapping="Wrap" FontSize="17" IsReadOnly="True" Text="Authors et al (2019) This is the really very much longer title of the paper, Journal name: volume(issue): pages" Margin="0,0,0,0" ></TextBox>
+            <TextBox x:Name="RTBPaperInfo" Grid.Row="0" Grid.ColumnSpan="2" TextWrapping="Wrap" BorderThickness="0" FontSize="17" IsReadOnly="True" Text="Authors et al (2019) This is the really very much longer title of the paper, Journal name: volume(issue): pages" Margin="0,0,0,0" ></TextBox>
 
             <StackPanel Grid.Row="1" Grid.ColumnSpan="2" Orientation="Horizontal">
                 <TextBlock x:Name="tbPaperAlreadyInReview" Margin="5,5,5,5" VerticalAlignment="Center" HorizontalAlignment="Left"></TextBlock>
-                <HyperlinkButton x:Name="hlAddPaperToSelectedList" Content="Add to selected list" FontStyle="Italic" Margin="5,5,5,5" VerticalAlignment="Center" HorizontalAlignment="Left" Click="hlAddPaperToSelectedList_Click"></HyperlinkButton>
+                <HyperlinkButton x:Name="hlAddPaperToSelectedList" Content="Add to selected list" FontStyle="Italic" Margin="5,5,5,5" VerticalAlignment="Center" HorizontalAlignment="Left" Click="hlAddPaperToSelectedList_Click" IsTabStop="False"></HyperlinkButton>
             </StackPanel>
             <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
                 <TextBlock Text="PaperId: " HorizontalAlignment="Right" VerticalAlignment="Center" Margin="5,5,0,5"></TextBlock>
@@ -235,20 +236,20 @@
             </StackPanel>
 
             <StackPanel Grid.Row="2" Grid.ColumnSpan="2" Orientation="Vertical">
-                <TextBox x:Name="tbAbstract" Grid.Row="2" Grid.ColumnSpan="2" TextWrapping="Wrap" ScrollViewer.VerticalScrollBarVisibility="Auto"></TextBox>
-                <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+                <TextBox x:Name="tbAbstract" Grid.Row="2" Grid.ColumnSpan="2" TextWrapping="Wrap" ScrollViewer.VerticalScrollBarVisibility="Auto" BorderThickness="0"></TextBox>
+                <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto" BorderThickness="0">
                     <ToolkitRef:WrapPanel x:Name="WPPaperURLs" Orientation="Horizontal">
 
                     </ToolkitRef:WrapPanel>
                 </ScrollViewer>
             </StackPanel>
             
-            <HyperlinkButton x:Name="HLExpandContract" Grid.Row="3" Grid.ColumnSpan="2" FontSize="13" HorizontalAlignment="Center" Content="&lt;&lt;&lt;Expand&gt;&gt;&gt;" Click="HLExpandContract_Click" Tag="expand"></HyperlinkButton>
+            <HyperlinkButton x:Name="HLExpandContract" Grid.Row="3" Grid.ColumnSpan="2" FontSize="13" HorizontalAlignment="Center" Content="&lt;&lt;&lt;Expand&gt;&gt;&gt;" Click="HLExpandContract_Click" Tag="expand" IsTabStop="False"></HyperlinkButton>
 
             <ScrollViewer Grid.Column="0" Grid.Row="4" HorizontalScrollBarVisibility="Disabled"  VerticalScrollBarVisibility="Auto">
                 <ToolkitRef:WrapPanel x:Name="WPPaperTopics" Grid.Row="4" Grid.Column="0" Orientation="Horizontal">
                     <TextBlock Margin="5,5,10,5" Text="Topics" FontStyle="Italic"></TextBlock>
-                    <HyperlinkButton Grid.Column="1" Content="Show selected (0)" Margin="0,5,5,5" HorizontalAlignment="Right" Width="105"></HyperlinkButton>
+                    <HyperlinkButton Grid.Column="1" Content="Show selected (0)" Margin="0,5,5,5" HorizontalAlignment="Right" Width="105" IsTabStop="False"></HyperlinkButton>
                 </ToolkitRef:WrapPanel>
             </ScrollViewer>
 
@@ -360,7 +361,7 @@
             <ScrollViewer Grid.Column="0" Grid.Row="1" Grid.RowSpan="2" HorizontalScrollBarVisibility="Disabled"  VerticalScrollBarVisibility="Auto">
                 <ToolkitRef:WrapPanel x:Name="WPTopTopics" ScrollViewer.VerticalScrollBarVisibility="Auto" Orientation="Horizontal">
                     <TextBlock Margin="5,5,10,5" Text="Top Topics " FontStyle="Italic"></TextBlock>
-                    <HyperlinkButton Grid.Column="1" Content="Topic 1" Margin="0,5,5,5" HorizontalAlignment="Right" Width="105"></HyperlinkButton>
+                    <HyperlinkButton Grid.Column="1" Content="Topic 1" Margin="0,5,5,5" HorizontalAlignment="Right" Width="105" IsTabStop="False"></HyperlinkButton>
                 </ToolkitRef:WrapPanel>
             </ScrollViewer>
 
@@ -412,14 +413,14 @@
             <StackPanel Grid.Row="1" Grid.Column="0" Orientation="Vertical">
                 <ToolkitRef:WrapPanel x:Name="WPParentTopics" Orientation="Horizontal">
                     <TextBlock Margin="5,5,10,5" Text="Parent Topics " FontStyle="Italic"></TextBlock>
-                    <HyperlinkButton Grid.Column="1" Content="Topic 1" Margin="0,5,5,5" HorizontalAlignment="Right" Width="105"></HyperlinkButton>
+                    <HyperlinkButton Grid.Column="1" Content="Topic 1" Margin="0,5,5,5" HorizontalAlignment="Right" Width="105" IsTabStop="False"></HyperlinkButton>
                 </ToolkitRef:WrapPanel>
             </StackPanel>
 
             <ScrollViewer Grid.Row="2" Grid.Column="0" HorizontalScrollBarVisibility="Disabled"  VerticalScrollBarVisibility="Auto">
                     <ToolkitRef:WrapPanel x:Name="WPChildTopics" Orientation="Horizontal" Margin="0, 15, 0, 0">
                         <TextBlock Margin="5,5,10,5" Text="Child Topics " FontStyle="Italic"></TextBlock>
-                        <HyperlinkButton Grid.Column="1" Content="Topic 1" Margin="0,5,5,5" HorizontalAlignment="Right" Width="105"></HyperlinkButton>
+                    <HyperlinkButton Grid.Column="1" Content="Topic 1" Margin="0,5,5,5" HorizontalAlignment="Right" Width="105" IsTabStop="False"></HyperlinkButton>
                     </ToolkitRef:WrapPanel>
                 </ScrollViewer>
 
@@ -499,10 +500,11 @@
                 <TextBlock TextWrapping="Wrap"  Margin="5,10,5,5" Text="On this page you can set up tasks to find papers related to papers in your review automatically.&#10;
 &#10;You can look for related papers as a one-off exercise, or set up an auto update, that will look for new papers every time Microsoft Academic is updated (once or twice a month).
 &#10;Each time the process runs, a new row will be added to the table below, and items not previously identified will be added.
-&#10;"></TextBlock>
+&#10;Once new items have appeared in the list below, you can either preview them in this window by clicking the number, or import them into your review, and examine them as you would for any other batch of references. When you import them, they will appear as a new 'source' with the date/time of import.
+&#10;If you want to improve the performance of the algorithm, or undertake methodological work to evaluate its performance, click on the 'advanced' link above."></TextBlock>
             </StackPanel>
 
-            <HyperlinkButton x:Name="LBAddNewRagRelatedPapersRun" Grid.Row="1" Margin="5,5,5,5" Content="Add new search for related papers / auto update search for review" Click="LBAddNewRagRelatedPapersRun_Click" Tag="ClickToOpen"></HyperlinkButton>
+            <HyperlinkButton x:Name="LBAddNewRagRelatedPapersRun" Grid.Row="1" Margin="5,5,5,5" Content="Add new search for related papers / auto update search for review" Click="LBAddNewRagRelatedPapersRun_Click" Tag="ClickToOpen" IsTabStop="False"></HyperlinkButton>
 
             <Grid Grid.Row="2">
                 <Grid.RowDefinitions>
@@ -549,7 +551,7 @@
                     <ComboBoxItem Content="Papers that cite known items ('Cited by')" Tag="Cited by"></ComboBoxItem>
                     <ComboBoxItem Content="Bi-directional citation relationships" Tag="BiCitation"></ComboBoxItem>
                 </ComboBox>
-                <HyperlinkButton x:Name="LBAddRelatedPapersRun" Content="Add new search for related papers" Grid.Row="6" Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Center" Click="LBAddRelatedPapersRun_Click"></HyperlinkButton>
+                <HyperlinkButton x:Name="LBAddRelatedPapersRun" Content="Add new search for related papers" Grid.Row="6" Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Center" Click="LBAddRelatedPapersRun_Click" IsTabStop="False"></HyperlinkButton>
             </Grid>
             
             <telerikGridView:RadGridView x:Name="RelatedPapersRunGrid" Grid.Row="7" AutoGenerateColumns="False" ShowGroupPanel="False"
