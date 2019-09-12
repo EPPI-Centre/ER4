@@ -53,23 +53,25 @@
 			<div *ngIf="OutcomeTitle.invalid && (OutcomeTitle.dirty || OutcomeTitle.touched)"
 				 class="alert alert-danger">
 				<div *ngIf="OutcomeTitle.errors.pattern">
-					OutcomeTitle Must be text
+					Title must be text only
 				</div>
-
 				<div *ngIf="OutcomeTitle.errors.required">
-					OutcomeTitle text is required.
+					Title text is required.
 				</div>
 				<div *ngIf="OutcomeTitle.errors.minlength">
-					OutcomeTitle text must be at least 3 characters long.
+					Title text must be at least 3 characters long.
 				</div>
 			</div>
-			<div *ngIf="outcomeDescription.invalid && (outcomeDescription.dirty || outcomeDescription.touched)"
+			<div *ngIf="OutcomeDescription.invalid && (OutcomeDescription.dirty || OutcomeDescription.touched)"
 				 class="alert alert-danger">
-				<div *ngIf="outcomeDescription.errors.pattern">
-					outcome Description Must be text
+				<div *ngIf="OutcomeDescription.errors.pattern">
+					Description must be text only
 				</div>
-				<div *ngIf="outcomeDescription.errors.minlength">
-					outcome Description text must be at least 3 characters long.
+				<div *ngIf="OutcomeDescription.errors.required">
+					Description text is required.
+				</div>
+				<div *ngIf="OutcomeDescription.errors.minlength">
+					Description text must be at least 3 characters long.
 				</div>
 			</div>
 			<div *ngIf="outcomedata1.invalid && (outcomedata1.dirty || outcomedata1.touched)"
@@ -84,74 +86,7 @@
 					outcomedata2 must be numeric
 				</div>
 			</div>
-			<!--<div *ngIf="outcomedata3 && outcomedata3.invalid && (outcomedata3.dirty || outcomedata3.touched)"
-				 class="alert alert-danger">
-				<div *ngIf="outcomedata3.errors.pattern">
-					outcomedata3 must be numeric
-				</div>
-			</div>
-
-		<div *ngIf="outcomedata4 && outcomedata4.invalid && (outcomedata4.dirty || outcomedata4.touched)"
-			 class="alert alert-danger">
-			<div *ngIf="outcomedata4.errors.pattern">
-				outcomedata4 must be numeric
-			</div>
-		</div>
-		<div *ngIf="outcomedata5 && outcomedata5.invalid && (outcomedata5.dirty || outcomedata5.touched)"
-			 class="alert alert-danger">
-			<div *ngIf="outcomedata5.errors.pattern">
-				outcomedata5 must be numeric
-			</div>
-		</div>
-		<div *ngIf="outcomedata6 && outcomedata6.invalid && (outcomedata6.dirty || outcomedata6.touched)"
-			 class="alert alert-danger">
-			<div *ngIf="outcomedata6.errors.pattern">
-				outcomedata6 must be numeric
-			</div>
-		</div>
-		<div *ngIf="outcomedata7 && outcomedata7.invalid && (outcomedata7.dirty || outcomedata7.touched)"
-			 class="alert alert-danger">
-			<div *ngIf="outcomedata7.errors.pattern">
-				outcomedata7 must be numeric
-			</div>
-		</div>
-		<div *ngIf="outcomedata8 && outcomedata8.invalid && (outcomedata8.dirty || outcomedata8.touched)"
-			 class="alert alert-danger">
-			<div *ngIf="outcomedata8.errors.pattern">
-				outcomedata8 must be numeric
-			</div>
-		</div>
-		<div *ngIf="outcomedata9 && outcomedata9.invalid && (outcomedata9.dirty || outcomedata9.touched)"
-			 class="alert alert-danger">
-			<div *ngIf="outcomedata9.errors.pattern">
-				outcomedata9 must be numeric
-			</div>
-		</div>
-		<div *ngIf="outcomedata10 && outcomedata10.invalid && (outcomedata10.dirty || outcomedata10.touched)"
-			 class="alert alert-danger">
-			<div *ngIf="outcomedata10.errors.pattern">
-				outcomedata10 must be numeric
-			</div>
-		</div>
-		<div *ngIf="outcomedata11 && outcomedata11.invalid && (outcomedata11.dirty || outcomedata11.touched)"
-			 class="alert alert-danger">
-			<div *ngIf="outcomedata11.errors.pattern">
-				outcomedata11 must be numeric
-			</div>
-		</div>
-		<div *ngIf="outcomedata12 && outcomedata12.invalid && (outcomedata12.dirty || outcomedata12.touched)"
-			 class="alert alert-danger">
-			<div *ngIf="outcomedata12.errors.pattern">
-				outcomedata12 must be numeric
-			</div>
-		</div>
-		<div *ngIf="outcomedata13 && outcomedata13.invalid && (outcomedata13.dirty || outcomedata13.touched)"
-			 class="alert alert-danger">
-			<div *ngIf="outcomedata13.errors.pattern">
-				outcomedata13 must be numeric
-			</div>
-
-		</div>-->
+			
 				<div class=" col-md-12 p-0 m-0">
 					<div class="row col-md-12 p-1 m-0">
 						<label class="col-md-4">Title</label>
@@ -179,9 +114,8 @@
 
 					<div class="row col-md-12 p-1 m-0">
 						<label class="col-md-4">Outcome Description</label>
-						<input #outcomeDescriptionModel="ngModel"
-							   required minlength="3"
-							   name="outcomeDescription" #outcomeDescription="ngModel"
+						<input name="outcomeDescription" #OutcomeDescription="ngModel"
+							   required minlength="3" 
 							   value="_OutcomesService.currentOutcome.outcomeDescription"
 							   pattern="^[a-zA-Z]+$"
 							   [(ngModel)]="_OutcomesService.currentOutcome.outcomeDescription"
@@ -301,7 +235,7 @@
 								   name="outcomedata1" #outcomedata1="ngModel"
 								   pattern="^\d+$"
 								   value="_OutcomesService.currentOutcome.data1"
-								   type="text" />
+								   type="number" />
 						</div>
 						<div class="row col-6 col-md-6 col-lg-6 p-1 m-0">
 							<label class="col-md-6">{{_OutcomesService.currentOutcome.Data2Desc}}</label>
@@ -310,7 +244,7 @@
 								   pattern="^\d+$"
 								   name="outcomedata2" #outcomedata2="ngModel"
 								   value="_OutcomesService.currentOutcome.data2"
-								   type="text" />
+								   type="number" />
 						</div>
 						<div class="row col-6 col-md-6 col-lg-6 p-1 m-0"
 							 *ngIf="_OutcomesService.currentOutcome.outcomeTypeId != 7">
@@ -320,7 +254,7 @@
 								   name="outcomedata3" #outcomedata3="ngModel"
 								   pattern="^\d+$"
 								   value="_OutcomesService.currentOutcome.data3"
-								   type="text" class="form-control col-md-6" />
+								   type="number" class="form-control col-md-6" />
 						</div>
 
 						<div class="row col-6 col-md-6 col-lg-6 p-1 m-0"
@@ -332,7 +266,7 @@
 								   name="outcomedata4" #outcomedata4="ngModel"
 								   pattern="^\d+$"
 								   value="_OutcomesService.currentOutcome.data4"
-								   type="text" class="form-control col-md-6" />
+								   type="number" class="form-control col-md-6" />
 						</div>
 
 						<div class="row col-6 col-md-6 col-lg-6  p-1 m-0"
@@ -345,7 +279,7 @@
 								   name="outcomedata5" #outcomedata5="ngModel"
 								   pattern="^\d+$"
 								   value="_OutcomesService.currentOutcome.data5"
-								   type="text" class="form-control col-md-6" />
+								   type="number" class="form-control col-md-6" />
 						</div>
 						<div class="row col-6 col-md-6 col-lg-6 p-1 m-0"
 							 *ngIf="_OutcomesService.currentOutcome.outcomeTypeId != 7 && _OutcomesService.currentOutcome.outcomeTypeId != 6
@@ -357,7 +291,7 @@
 								   name="outcomedata6" #outcomedata6="ngModel"
 								   pattern="^\d+$"
 								   value="_OutcomesService.currentOutcome.data6"
-								   type="text" class="form-control col-md-6" />
+								   type="number" class="form-control col-md-6" />
 
 						</div>
 
@@ -372,7 +306,7 @@
 								   name="outcomedata7" #outcomedata7="ngModel"
 								   pattern="^\d+$"
 								   value="_OutcomesService.currentOutcome.data7"
-								   type="text" class="form-control col-md-6" />
+								   type="number" class="form-control col-md-6" />
 						</div>
 
 						<div class="row col-6 col-md-6 col-lg-6 p-1 m-0"
@@ -386,7 +320,7 @@
 								   name="outcomedata8" #outcomedata8="ngModel"
 								   pattern="^\d+$"
 								   value="_OutcomesService.currentOutcome.data8"
-								   type="text" class="form-control col-md-6" />
+								   type="number" class="form-control col-md-6" />
 						</div>
 
 						<div class="row col-6 col-md-6 col-lg-6 p-1 m-0"
@@ -401,7 +335,7 @@
 								   name="outcomedata11" #outcomedata11="ngModel"
 								   pattern="^\d+$"
 								   value="_OutcomesService.currentOutcome.data11"
-								   type="text" class="form-control col-md-6 small" />
+								   type="number" class="form-control col-md-6 small" />
 						</div>
 
 						<div class="row col-6 col-md-6 col-lg-6 p-1 m-0"
@@ -416,7 +350,7 @@
 								   name="outcomedata12" #outcomedata12="ngModel"
 								   pattern="^\d+$"
 								   value="_OutcomesService.currentOutcome.data12"
-								   type="text" class="form-control col-md-6 small" />
+								   type="number" class="form-control col-md-6 small" />
 						</div>
 
 						<div class="row col-6 col-md-6 col-lg-6  p-1 m-0"
@@ -431,7 +365,7 @@
 								   name="outcomedata13" #outcomedata13="ngModel"
 								   pattern="^\d+$"
 								   value="_OutcomesService.currentOutcome.data13"
-								   type="text" class="form-control col-md-6 small" />
+								   type="number" class="form-control col-md-6 small" />
 						</div>
 						<div class="row col-6 col-md-6 col-lg-6 p-1 m-0"
 							 *ngIf="_OutcomesService.currentOutcome.outcomeTypeId != 7 && _OutcomesService.currentOutcome.outcomeTypeId != 6
@@ -444,7 +378,7 @@
 								   name="outcomedata14" #outcomedata14="ngModel"
 								   pattern="^\d+$"
 								   value="_OutcomesService.currentOutcome.data14"
-								   type="text" class="form-control col-md-6 small" />
+								   type="number" class="form-control col-md-6 small" />
 						</div>
 						<div class="row col-12 p-0 m-0">
 							<div class="">
@@ -459,7 +393,7 @@
 										   name="outcomedata9" #outcomedata9="ngModel"
 										   pattern="^\d+$"
 										   value="_OutcomesService.currentOutcome.data9"
-										   type="text" class="form-control col-4 col-md-4" />
+										   type="number" class="form-control col-4 col-md-4" />
 								</div>
 								<div class="col-12 row p-1">
 									<label class="col-md-12 p-1 m-0">ICC</label>
@@ -468,7 +402,7 @@
 										   name="outcomedata10" #outcomedata10="ngModel"
 										   pattern="^\d+$"
 										   value="_OutcomesService.currentOutcome.data10"
-										   type="text" class="form-control col-4 col-md-4" />
+										   type="number" class="form-control col-4 col-md-4" />
 								</div>
 							</div>
 
@@ -491,6 +425,7 @@
 						</div>
 					</div>
 					<div class="p-2 m-2 col-12">
+						You can further characterise this outcome by associating it with any code in the current codeset:
 						<SingleCodesetTreeCoding [currentOutcome]="_OutcomesService.currentOutcome">
 						</SingleCodesetTreeCoding>
 					</div>
