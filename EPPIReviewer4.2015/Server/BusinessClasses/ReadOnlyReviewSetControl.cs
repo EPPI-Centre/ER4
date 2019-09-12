@@ -26,7 +26,7 @@ namespace BusinessLibrary.BusinessClasses
         
     }
 #else
-        private ReadOnlyReviewSetControl()
+        public ReadOnlyReviewSetControl()
         {
             //LoadProperty(ReadOnlyReviewSetControlProperty, ReadOnlyReviewSetControl.NewReadOnlyReviewSetControl());
         }
@@ -42,7 +42,7 @@ namespace BusinessLibrary.BusinessClasses
             return returnValue;
         }
 
-        private static PropertyInfo<Int64> AttributeIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("AttributeId", "AttributeId"));
+        public static readonly PropertyInfo<Int64> AttributeIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("AttributeId", "AttributeId"));
         public Int64 AttributeId
         {
             get
@@ -51,7 +51,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> AttributeNameProperty = RegisterProperty<string>(new PropertyInfo<string>("AttributeName", "AttributeName", string.Empty));
+		public static readonly PropertyInfo<string> AttributeNameProperty = RegisterProperty<string>(new PropertyInfo<string>("AttributeName", "AttributeName", string.Empty));
         public string AttributeName
         {
             get

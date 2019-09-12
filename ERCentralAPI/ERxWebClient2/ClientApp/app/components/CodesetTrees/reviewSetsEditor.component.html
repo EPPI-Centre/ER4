@@ -213,63 +213,7 @@
                     </div>
                 </form>-->
             </div>
-            <div *ngIf="ActivityPanelName == 'EditCode'" class="container card card-body bg-light">
-                <div *ngIf="ShowDeleteCodeset" class="alert alert-danger">
-                    <div>Are you sure you want to delete '{{UpdatingCode.attribute_name}}' and all its children?</div>
-                    <div>This will affect codes assigned to <strong>{{appliedCodes}}</strong> items. All this coding will be deleted!</div>
-                    <div>Also all codes assigned to '{{UpdatingCode.attribute_name}}' children (if any) will be lost.</div>
-                    <div>
-                        <button class="btn btn-outline-secondary ml-1" (click)="HideDeleteCodeset()" style="width:200px;">No</button>
-                        <button class="btn btn-danger ml-1" (click)="DoDeleteCode()"
-                                [disabled]="!CanWrite() "
-                                style="width:80px;">
-                            Yes
-                        </button>
-                    </div>
-                </div>
-                <form class="row" #EditCodeFrom="ngForm">
-                    <div class="col-12">
-                        <div class="form-group">
-                            <label for="Codeset_Type">Code Type*</label>
-                            <select #EditCodeTypeSelect class="col-md-6 form-control"
-                                    (change)="AttributeTypeChanged($event.target.value)" name="Code_Type"
-                                    [(ngModel)]="UpdatingCode.attribute_type_id">
-                                <option *ngFor="let type of AllowedChildTypes" [value]="type.key" [selected]="UpdatingCode && type.key == UpdatingCode.attribute_type_id">
-                                    {{type.value}}
-                                </option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="form-group col-12">
-                        <label for="source_Name">Code Name*</label>
-                        <input type="text" class="form-control" id="AttName"
-                               [(ngModel)]="UpdatingCode.attribute_name" name="attribute_name"
-                               #name="ngModel">
-                        <span [hidden]="IsNewCodeNameValid()"
-                              class="alert alert-danger small p-1">
-                            Name is required
-                        </span>
-                    </div>
-                    <div class="form-group col-12">
-                        <label for="newSetDescription">Description (optional)</label>
-                        <textarea class="form-control" id="newSetDescription"
-                                  [(ngModel)]="UpdatingCode.attribute_set_desc" name="newAttDescription" rows="3"></textarea>
-                    </div>
-                    <div class="col-12">
-                        <button type="submit" (click)="UpdateCode()" class="btn btn-success ml-2 mr-2" [disabled]="!EditCodeFrom.dirty || !IsNewCodeNameValid() || !CanWrite() ">
-                            Update
-                        </button>
-                        <button class="btn btn-outline-secondary ml-1"
-                                (click)="CancelActivity(EditCodeFrom.dirty)" style="width:200px;">
-                            Cancel
-                        </button>
-                        <button class="btn btn-outline-danger ml-3" (click)="ShowDeleteCodesetClicked()"
-                                [disabled]="!CanWrite()">
-                            Delete Code...
-                        </button>
-                    </div>
-                </form>
-            </div>
+            <EditCodeComp *ngIf="ActivityPanelName == 'EditCode'" [UpdatingCode]="UpdatingCode" (emitterCancel)="CancelActivity($event)"></EditCodeComp>
         </div>
 
 </kendo-splitter-pane>

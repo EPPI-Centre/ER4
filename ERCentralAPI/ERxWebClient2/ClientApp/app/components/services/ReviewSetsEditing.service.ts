@@ -9,7 +9,7 @@ import { OK } from 'http-status-codes';
 import { error } from '@angular/compiler/src/util';
 import { ReviewerIdentityService } from './revieweridentity.service';
 import { ModalService } from './modal.service';
-import { iSetType, ReviewSetsService, ReviewSet, iReviewSet, SetAttribute, iAttributeSet } from './ReviewSets.service';
+import { iSetType, ReviewSetsService, ReviewSet, iReviewSet, SetAttribute, iAttributeSet, singleNode } from './ReviewSets.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
 import { Search } from './search.service';
 import { WorkAllocation } from './WorkAllocationList.service';
@@ -78,7 +78,7 @@ export class ReviewSetsEditingService extends BusyAwareService {
             }
         );
     }
-    public SaveReviewSet(rs: ReviewSet) {
+    public async SaveReviewSet(rs: ReviewSet) {
         this._BusyMethods.push("SaveReviewSet");
         let rsC: ReviewSetUpdateCommand = {
             ReviewSetId: rs.reviewSetId,
@@ -193,7 +193,7 @@ export class ReviewSetsEditingService extends BusyAwareService {
             );
     }
     
-    public MoveSetAttribute(attributeSetId: number,
+    public async MoveSetAttribute(attributeSetId: number,
         fromId: number,
         toId: number,
         attributeorder: number) {
@@ -217,7 +217,224 @@ export class ReviewSetsEditingService extends BusyAwareService {
                 
             }
         );
-	}
+    }
+
+    CanMoveDown(node: singleNode): boolean {
+        if (!this.ReviewSetsService.ReviewSets || this.ReviewSetsService.ReviewSets.length < 1) return false;
+        else if (node.nodeType == 'ReviewSet') {
+            //console.log("AAAAAAAAA", node);
+            if (node.order != this.ReviewSetsService.ReviewSets.length - 1) return true;//even if the set can't be edited, I can still move it up or down...
+            else return false;
+        }
+        else {//this is an attribute, more work needed...
+            let SetAtt = node as SetAttribute;
+            if (SetAtt) {
+                //first of all: is the set editable?
+                let MySet = this.ReviewSetsService.FindSetById(SetAtt.set_id);
+                if (MySet) {
+                    if (MySet.allowEditingCodeset == false) return false;//otherwise do the other checks...
+                }
+                else {
+                    //ugh, shouldn't happen. Return false just in case...
+                    return false;
+                }
+                if (SetAtt.parent == 0) {
+                    //att is in the root.
+                    if (MySet) {
+                        if (SetAtt.order != MySet.attributes.length - 1) return true;
+                        else return false;
+                    }
+                }
+                else {
+                    //att is inside the tree
+                    let MyParent = this.ReviewSetsService.FindAttributeById(SetAtt.parent_attribute_id);
+                    if (MyParent) {
+                        //console.log("CanMoveDown", SetAtt.order, "PA_ID:" + MyParent.attribute_id, MyParent.attributes.length);
+                        if (SetAtt.order != MyParent.attributes.length - 1) return true;
+                        else return false;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+    CanMoveUp(node: singleNode): boolean {
+        if (!this.ReviewSetsService.ReviewSets || this.ReviewSetsService.ReviewSets.length < 1) return false;
+        else if (node.nodeType == 'ReviewSet') {
+            if (node.order != 0 && this.ReviewSetsService.ReviewSets.length > 1) return true;
+            else return false;
+        }
+        else {//this is an attribute, more work needed...
+            let SetAtt = node as SetAttribute;
+            if (SetAtt) {
+                let MySet = this.ReviewSetsService.FindSetById(SetAtt.set_id);
+                if (MySet) {
+                    if (MySet.allowEditingCodeset == false) return false;//otherwise do the other checks...
+                }
+                else {
+                    //ugh, shouldn't happen. Return false just in case...
+                    return false;
+                }
+                if (SetAtt.parent == 0) {
+                    //att is in the root.
+                    let MySet = this.ReviewSetsService.FindSetById(SetAtt.set_id);
+                    if (MySet) {
+                        // console.log(MySet, SetAtt);
+                        if (SetAtt.order != 0 && MySet.attributes.length > 1) return true;
+                        else return false;
+                    }
+                }
+                else {
+                    //att is inside the tree
+                    let MyParent = this.ReviewSetsService.FindAttributeById(SetAtt.parent_attribute_id);
+                    if (MyParent) {
+                        if (SetAtt.order != 0 && MyParent.attributes.length > 1) return true;
+                        else return false;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+
+
+    async MoveUpNode(node: singleNode) {
+        if (node.nodeType == 'ReviewSet') {
+            let MySet = node as ReviewSet;
+            if (MySet) await this.MoveUpSet(MySet);
+        }
+        else {
+            let MyAtt = node as SetAttribute;
+            if (MyAtt) {
+                await this.MoveUpAttribute(MyAtt);
+            }
+        }
+    }
+    async MoveDownNode(node: singleNode) {
+        if (node.nodeType == 'ReviewSet') {
+            let MySet = node as ReviewSet;
+            if (MySet) await this.MoveDownSet(MySet);
+        }
+        else {
+            let MyAtt = node as SetAttribute;
+            if (MyAtt) await this.MoveDownAttribute(MyAtt);
+        }
+    }
+    private async MoveDownSet(rs: ReviewSet) {
+        let index = this.ReviewSetsService.ReviewSets.findIndex(found => found.set_id == rs.set_id);
+        if (index == -1 || index == this.ReviewSetsService.ReviewSets.length - 1) {
+            //oh! should not happen... do nothing?
+            return;
+        }
+        let swapper: ReviewSet = this.ReviewSetsService.ReviewSets[index + 1];
+        rs.order++;
+        await this.SaveReviewSet(rs);
+        if (swapper) {
+            swapper.order--;
+            await this.SaveReviewSet(swapper);
+        }
+        //now sort by order;
+        this.ReviewSetsService.ReviewSets = this.ReviewSetsService.ReviewSets.sort((s1, s2) => {
+            return s1.order - s2.order;
+        });
+    }
+    private async MoveUpSet(rs: ReviewSet) {
+        //console.log("before:", rs, rs.order);
+        let index = this.ReviewSetsService.ReviewSets.findIndex(found => found.set_id == rs.set_id);
+        if (index <= 0) {
+            //oh! should not happen... do nothing?
+            return;
+        }
+        let swapper: ReviewSet = this.ReviewSetsService.ReviewSets[index - 1];
+        //console.log("mid1:", rs, rs.order);
+        rs.order = rs.order - 1;
+        //console.log("mid2 :", rs, rs.order);
+        await this.SaveReviewSet(rs);
+        if (swapper) {
+            swapper.order = swapper.order + 1;
+            await this.SaveReviewSet(swapper);
+        }
+        //now sort by order;
+        this.ReviewSetsService.ReviewSets = this.ReviewSetsService.ReviewSets.sort((s1, s2) => {
+            return s1.order - s2.order;
+        });
+    }
+    private async MoveDownAttribute(Att: SetAttribute) {
+        //silently does nothing if data doesn't make sense
+        let swapper: SetAttribute | null = null;
+        let SortingParent: ReviewSet | SetAttribute | null = null;//used to update what user sees
+        let index: number = -1;
+        if (Att.parent_attribute_id == 0) {
+            let Set: ReviewSet | null = this.ReviewSetsService.FindSetById(Att.set_id);
+            if (!Set) return;
+            index = Set.attributes.findIndex(found => found.attribute_id == Att.attribute_id);
+            if (index < 0) {
+                //oh! should not happen... do nothing?
+                console.log("MoveDownAttribute fail 1", index);
+                return;
+            }
+            swapper = Set.attributes[index + 1];
+            SortingParent = Set;
+        }
+        else {
+            let Parent: SetAttribute | null = this.ReviewSetsService.FindAttributeById(Att.parent_attribute_id);
+            if (!Parent) return;
+            index = Parent.attributes.findIndex(found => found.attribute_id == Att.attribute_id);
+            if (index < 0) {
+                //oh! should not happen... do nothing?
+                return;
+            }
+            swapper = Parent.attributes[index + 1];
+            if (!swapper) return;
+            SortingParent = Parent;
+        }
+        if (!swapper || index < 0) return;
+        //all is good: do changes
+        swapper.order = swapper.order - 1;
+        Att.order = Att.order + 1;
+        await this.MoveSetAttribute(Att.attributeSetId, Att.parent_attribute_id, Att.parent_attribute_id, Att.order);
+        SortingParent.attributes.sort((s1, s2) => {
+            return s1.order - s2.order;
+        });
+    }
+    private async MoveUpAttribute(Att: SetAttribute) {
+        let swapper: SetAttribute | null = null;
+        let SortingParent: ReviewSet | SetAttribute | null = null;//used to update what user sees
+        let index: number = -1;
+        if (Att.parent_attribute_id == 0) {
+            let Set: ReviewSet | null = this.ReviewSetsService.FindSetById(Att.set_id);
+            if (!Set) return;
+            index = Set.attributes.findIndex(found => found.attribute_id == Att.attribute_id);
+            if (index <= 0) {
+                //oh! should not happen... do nothing?
+                return;
+            }
+            swapper = Set.attributes[index - 1];
+            SortingParent = Set;
+        }
+        else {
+            let Parent: SetAttribute | null = this.ReviewSetsService.FindAttributeById(Att.parent_attribute_id);
+            if (!Parent) return;
+            index = Parent.attributes.findIndex(found => found.attribute_id == Att.attribute_id);
+            if (index <= 0) {
+                //oh! should not happen... do nothing?
+                return;
+            }
+            swapper = Parent.attributes[index - 1];
+            if (!swapper) return;
+            SortingParent = Parent;
+        }
+        if (!swapper || index < 0) return;
+        //all is good: do changes
+        swapper.order = swapper.order + 1;
+        Att.order = Att.order - 1;
+        await this.MoveSetAttribute(Att.attributeSetId, Att.parent_attribute_id, Att.parent_attribute_id, Att.order);
+        SortingParent.attributes.sort((s1, s2) => {
+            return s1.order - s2.order;
+        });
+    }
+
 
 
     public ReviewSetCheckCodingStatus(SetId: number): Promise<number> {//used to check how many incomplete items are here before moving to "normal" data entry

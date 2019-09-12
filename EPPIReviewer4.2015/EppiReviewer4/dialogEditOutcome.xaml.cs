@@ -30,11 +30,10 @@ namespace EppiReviewer4
         }
 
         public OutcomeItemList CurrentOutcomeItemList;
+        public Int64 CurrentItemId;
 
         public void RefreshProviders()
         {
-            //o.SetCalculatedValues();
-            
             Outcome o = this.DataContext as Outcome;
 
             CslaDataProvider provider = this.Resources["ReviewSetOutcomeListData"] as CslaDataProvider;
@@ -58,73 +57,126 @@ namespace EppiReviewer4
             provider3.FactoryMethod = "GetReadOnlyReviewSetControlList";
             provider3.Refresh();
 
+            provider = ((CslaDataProvider)App.Current.Resources["ItemTimepointsData"]);
+            ComboBoxTimepoint.SelectedItem = null;
+            foreach (ItemTimepoint it in provider.Data as ItemTimepointList)
+            {
+                if (it.ItemTimepointId == o.ItemTimepointId)
+                {
+                    ComboBoxTimepoint.SelectedItem = it;
+                }
+            }
+
+            provider = ((CslaDataProvider)App.Current.Resources["ItemArmsData"]);
+            ComboBoxGrp1Arm.SelectedItem = null;
+            ComboBoxGrp2Arm.SelectedItem = null;
+            foreach (ItemArm ia in provider.Data as ItemArmList)
+            {
+                if (ia.ItemArmId == o.ItemArmIdGrp1)
+                {
+                    ComboBoxGrp1Arm.SelectedItem = ia;
+                }
+                if (ia.ItemArmId == o.ItemArmIdGrp2)
+                {
+                    ComboBoxGrp2Arm.SelectedItem = ia;
+                }
+            }
+
             SetClusteringVisibility();
         }
 
         public void BuildOutcomeClassificationList(AttributeSet attributeSet)
         {
-            List<AttributeSet> OutcomeClassificationList = new List<AttributeSet>();
-            //TreeViewClassifications.Items.Clear();
+            TreeViewClassifications.Items.Clear();
             ReviewSetsList rsl = (App.Current.Resources["CodeSetsData"] as CslaDataProvider).Data as ReviewSetsList;
             if (rsl != null)
             {
                 ReviewSet rs = rsl.GetReviewSet(attributeSet.SetId);
                 if (rs != null)
                 {
-                    AddCodes(OutcomeClassificationList, rs.Attributes);
-                    GridViewOutcomeCodes.ItemsSource = OutcomeClassificationList;
-                    foreach (AttributeSet attributeset in (GridViewOutcomeCodes.ItemsSource as List<AttributeSet>))
-                    {
-                        foreach (OutcomeItemAttribute oia in (DataContext as Outcome).OutcomeCodes)
-                        {
-                            if (oia.AttributeId == attributeset.AttributeId)
-                            {
-                                GridViewOutcomeCodes.SelectedItems.Add(attributeset);
-                            }
-                        }
-                    }
+                    AddClassificationTreeCodes(rs.Attributes, null);
                 }
             }
         }
 
-        private List<AttributeSet> AddCodes(List<AttributeSet> theList, AttributeSetList attributes)
+        private void AddClassificationTreeCodes(AttributeSetList attributes, RadTreeViewItem currentParent)
         {
-            RadTreeViewItem currentParent = null;
             foreach (AttributeSet attribute in attributes)
             {
-                AddCodes(theList, attribute.Attributes);
-                if (attribute.AttributeTypeId == 9)
+                RadTreeViewItem newItem = new RadTreeViewItem();
+                newItem.Header = attribute.AttributeName;
+                newItem.Tag = attribute.AttributeId;
+                newItem.DoubleClick += new EventHandler<Telerik.Windows.RadRoutedEventArgs>(newItem_DoubleClick);
+                if (attribute.AttributeTypeId == 1)
                 {
-                    if (currentParent == null && attribute.HostAttribute != null)
+                    newItem.OptionType = OptionListType.None;
+                }
+                else
+                {
+                    newItem.OptionType = OptionListType.CheckList;
+                }
+                foreach (OutcomeItemAttribute oia in (DataContext as Outcome).OutcomeCodes)
+                {
+                    if (oia.AttributeId == attribute.AttributeId)
                     {
-                        currentParent = new RadTreeViewItem();
-                        currentParent.Header = attribute.HostAttribute.AttributeName;
-                        //TreeViewClassifications.Items.Add(currentParent);
-                        currentParent.OptionType = OptionListType.None;
+                        newItem.IsChecked = true;
                     }
-                    RadTreeViewItem newItem = new RadTreeViewItem();
-                    newItem.Header = attribute.AttributeName;
-                    newItem.Tag = attribute.AttributeId;
-                    newItem.DoubleClick += new EventHandler<Telerik.Windows.RadRoutedEventArgs>(newItem_DoubleClick);
-                    if (currentParent != null)
-                    {
-                        currentParent.Items.Add(newItem);
-                    }
-                    else
-                    {
-                        //TreeViewClassifications.Items.Add(newItem);
-                    }
-                    theList.Add(attribute);
+                }
+                if (attribute.AttributeTypeId > 1) // have to do this after the checking is set, or we trigger the event
+                {
+                    newItem.Checked += OutcomeClassificationItem_Checked;
+                    newItem.Unchecked += OutcomeClassificationItem_Unchecked;
+                }
+
+                if (currentParent != null)
+                {
+                    currentParent.Items.Add(newItem);
+                }
+                else
+                {
+                    TreeViewClassifications.Items.Add(newItem);
+                }
+                AddClassificationTreeCodes(attribute.Attributes, newItem);
+            }
+        }
+
+        private void OutcomeClassificationItem_Unchecked(object sender, Telerik.Windows.RadRoutedEventArgs e)
+        {
+            RadTreeViewItem item = e.OriginalSource as RadTreeViewItem;
+            foreach (OutcomeItemAttribute oia in (DataContext as Outcome).OutcomeCodes)
+            {
+                if (oia.AttributeId == Convert.ToInt64(item.Tag.ToString()))
+                {
+                    (DataContext as Outcome).OutcomeCodes.Remove(oia);
+                    break;
                 }
             }
-            return theList;
+        }
+
+        private void OutcomeClassificationItem_Checked(object sender, Telerik.Windows.RadRoutedEventArgs e)
+        {
+            RadTreeViewItem item = e.OriginalSource as RadTreeViewItem;
+
+            // This is probably unnecessary, but better be safe, than risk ending up with multiple codes saved for some reason
+            foreach (OutcomeItemAttribute oia1 in (DataContext as Outcome).OutcomeCodes)
+            {
+                if (oia1.AttributeId == Convert.ToInt64(item.Tag.ToString()))
+                {
+                    return;
+                }
+            }
+
+            OutcomeItemAttribute oia = new OutcomeItemAttribute();
+            oia.AttributeId = Convert.ToInt64(item.Tag.ToString());
+            oia.AttributeName = item.Header.ToString();
+            (DataContext as Outcome).OutcomeCodes.Add(oia);
         }
 
         void newItem_DoubleClick(object sender, Telerik.Windows.RadRoutedEventArgs e)
         {
-            MessageBox.Show("clicked");
-            RadTreeViewItem rtvi = sender as RadTreeViewItem;
-            int i = Convert.ToInt32(rtvi.Tag);
+            //MessageBox.Show("clicked");
+            //RadTreeViewItem rtvi = sender as RadTreeViewItem;
+            //int i = Convert.ToInt32(rtvi.Tag);
         }
 
         private void cmdSaveOutcome_Click(object sender, RoutedEventArgs e)
@@ -136,6 +188,12 @@ namespace EppiReviewer4
                 thisOutcome.ItemAttributeIdIntervention = (ComboBoxIntervention.SelectedItem as ReadOnlyReviewSetIntervention).AttributeId;
             if (ComboBoxControl.SelectedItem != null)
                 thisOutcome.ItemAttributeIdControl = (ComboBoxControl.SelectedItem as ReadOnlyReviewSetControl).AttributeId;
+            if (ComboBoxTimepoint.SelectedItem != null)
+                thisOutcome.ItemTimepointId = (ComboBoxTimepoint.SelectedItem as ItemTimepoint).ItemTimepointId;
+            if (ComboBoxGrp1Arm.SelectedItem != null)
+                thisOutcome.ItemArmIdGrp1 = (ComboBoxGrp1Arm.SelectedItem as ItemArm).ItemArmId;
+            if (ComboBoxGrp2Arm.SelectedItem != null)
+                thisOutcome.ItemArmIdGrp2 = (ComboBoxGrp2Arm.SelectedItem as ItemArm).ItemArmId;
 
             if (thisOutcome.IsNew == true)
             {
@@ -153,17 +211,18 @@ namespace EppiReviewer4
                     else
                     {
                         string attributes = "";
-                        foreach (AttributeSet attributeSet in GridViewOutcomeCodes.SelectedItems)
+                        foreach (OutcomeItemAttribute oia in (DataContext as Outcome).OutcomeCodes)
                         {
                             if (attributes == "")
                             {
-                                attributes = attributeSet.AttributeId.ToString();
+                                attributes = oia.AttributeId.ToString();
                             }
                             else
                             {
-                                attributes += "," + attributeSet.AttributeId.ToString();
+                                attributes += "," + oia.AttributeId.ToString();
                             }
                         }
+                        
                         DataPortal<OutcomeItemAttributesCommand> dp = new DataPortal<OutcomeItemAttributesCommand>();
                         OutcomeItemAttributesCommand command = new OutcomeItemAttributesCommand(
                             (e2.NewObject as Outcome).OutcomeId,
@@ -190,67 +249,67 @@ namespace EppiReviewer4
             switch (thisOutcome.NRows)
             {
                 case 0:
-                    LayoutRoot.RowDefinitions[3].MaxHeight = 35;
-                    LayoutRoot.RowDefinitions[4].MaxHeight = 35;
                     LayoutRoot.RowDefinitions[5].MaxHeight = 35;
                     LayoutRoot.RowDefinitions[6].MaxHeight = 35;
                     LayoutRoot.RowDefinitions[7].MaxHeight = 35;
                     LayoutRoot.RowDefinitions[8].MaxHeight = 35;
+                    LayoutRoot.RowDefinitions[9].MaxHeight = 35;
+                    LayoutRoot.RowDefinitions[10].MaxHeight = 35;
                     break;
 
                 case 1:
-                    LayoutRoot.RowDefinitions[3].MaxHeight = 35;
-                    LayoutRoot.RowDefinitions[4].MaxHeight = 0;
-                    LayoutRoot.RowDefinitions[5].MaxHeight = 0;
+                    LayoutRoot.RowDefinitions[5].MaxHeight = 35;
                     LayoutRoot.RowDefinitions[6].MaxHeight = 0;
                     LayoutRoot.RowDefinitions[7].MaxHeight = 0;
                     LayoutRoot.RowDefinitions[8].MaxHeight = 0;
+                    LayoutRoot.RowDefinitions[9].MaxHeight = 0;
+                    LayoutRoot.RowDefinitions[10].MaxHeight = 0;
 
                     break;
 
                 case 2:
-                    LayoutRoot.RowDefinitions[3].MaxHeight = 35;
-                    LayoutRoot.RowDefinitions[4].MaxHeight = 35;
-                    LayoutRoot.RowDefinitions[5].MaxHeight = 0;
-                    LayoutRoot.RowDefinitions[6].MaxHeight = 0;
-                    LayoutRoot.RowDefinitions[7].MaxHeight = 0;
-                    LayoutRoot.RowDefinitions[8].MaxHeight = 0;
-                    break;
-
-                case 3:
-                    LayoutRoot.RowDefinitions[3].MaxHeight = 35;
-                    LayoutRoot.RowDefinitions[4].MaxHeight = 35;
-                    LayoutRoot.RowDefinitions[5].MaxHeight = 35;
-                    LayoutRoot.RowDefinitions[6].MaxHeight = 0;
-                    LayoutRoot.RowDefinitions[7].MaxHeight = 0;
-                    LayoutRoot.RowDefinitions[8].MaxHeight = 0;
-                    break;
-
-                case 4:
-                    LayoutRoot.RowDefinitions[3].MaxHeight = 35;
-                    LayoutRoot.RowDefinitions[4].MaxHeight = 35;
                     LayoutRoot.RowDefinitions[5].MaxHeight = 35;
                     LayoutRoot.RowDefinitions[6].MaxHeight = 35;
                     LayoutRoot.RowDefinitions[7].MaxHeight = 0;
                     LayoutRoot.RowDefinitions[8].MaxHeight = 0;
+                    LayoutRoot.RowDefinitions[9].MaxHeight = 0;
+                    LayoutRoot.RowDefinitions[10].MaxHeight = 0;
                     break;
 
-                case 5:
-                    LayoutRoot.RowDefinitions[3].MaxHeight = 35;
-                    LayoutRoot.RowDefinitions[4].MaxHeight = 35;
+                case 3:
                     LayoutRoot.RowDefinitions[5].MaxHeight = 35;
                     LayoutRoot.RowDefinitions[6].MaxHeight = 35;
                     LayoutRoot.RowDefinitions[7].MaxHeight = 35;
                     LayoutRoot.RowDefinitions[8].MaxHeight = 0;
+                    LayoutRoot.RowDefinitions[9].MaxHeight = 0;
+                    LayoutRoot.RowDefinitions[10].MaxHeight = 0;
                     break;
 
-                case 6:
-                    LayoutRoot.RowDefinitions[3].MaxHeight = 35;
-                    LayoutRoot.RowDefinitions[4].MaxHeight = 35;
+                case 4:
                     LayoutRoot.RowDefinitions[5].MaxHeight = 35;
                     LayoutRoot.RowDefinitions[6].MaxHeight = 35;
                     LayoutRoot.RowDefinitions[7].MaxHeight = 35;
                     LayoutRoot.RowDefinitions[8].MaxHeight = 35;
+                    LayoutRoot.RowDefinitions[9].MaxHeight = 0;
+                    LayoutRoot.RowDefinitions[10].MaxHeight = 0;
+                    break;
+
+                case 5:
+                    LayoutRoot.RowDefinitions[5].MaxHeight = 35;
+                    LayoutRoot.RowDefinitions[6].MaxHeight = 35;
+                    LayoutRoot.RowDefinitions[7].MaxHeight = 35;
+                    LayoutRoot.RowDefinitions[8].MaxHeight = 35;
+                    LayoutRoot.RowDefinitions[9].MaxHeight = 35;
+                    LayoutRoot.RowDefinitions[10].MaxHeight = 0;
+                    break;
+
+                case 6:
+                    LayoutRoot.RowDefinitions[5].MaxHeight = 35;
+                    LayoutRoot.RowDefinitions[6].MaxHeight = 35;
+                    LayoutRoot.RowDefinitions[7].MaxHeight = 35;
+                    LayoutRoot.RowDefinitions[8].MaxHeight = 35;
+                    LayoutRoot.RowDefinitions[9].MaxHeight = 35;
+                    LayoutRoot.RowDefinitions[10].MaxHeight = 35;
                     break;
             }
             SetClusteringVisibility();
@@ -290,7 +349,10 @@ namespace EppiReviewer4
         {
             CslaDataProvider provider = ((CslaDataProvider)this.Resources["ReviewSetControlListData"]);
             if (provider.Error != null)
+            {
                 System.Windows.Browser.HtmlPage.Window.Alert(((Csla.Xaml.CslaDataProvider)sender).Error.Message);
+                return;
+            }
             Outcome o = this.DataContext as Outcome;
             foreach (ReadOnlyReviewSetControl RSC in provider.Data as ReadOnlyReviewSetControlList)
             {
@@ -312,11 +374,11 @@ namespace EppiReviewer4
         {
             if (cbUnitOfAnalysis.IsChecked == true)
             {
-                LayoutRoot.RowDefinitions[10].MaxHeight = 35;
+                LayoutRoot.RowDefinitions[12].MaxHeight = 35;
             }
             else
             {
-                LayoutRoot.RowDefinitions[10].MaxHeight = 0;
+                LayoutRoot.RowDefinitions[12].MaxHeight = 0;
                 Outcome o = this.DataContext as Outcome;
                 if (o != null)
                 {
@@ -331,12 +393,12 @@ namespace EppiReviewer4
             Outcome o = this.DataContext as Outcome;
             if (o.Data9 == 0)
             {
-                LayoutRoot.RowDefinitions[10].MaxHeight = 0;
+                LayoutRoot.RowDefinitions[12].MaxHeight = 0;
                 cbUnitOfAnalysis.IsChecked = false;
             }
             else
             {
-                LayoutRoot.RowDefinitions[10].MaxHeight = 35;
+                LayoutRoot.RowDefinitions[12].MaxHeight = 35;
                 cbUnitOfAnalysis.IsChecked = true;
             }
         }
@@ -359,5 +421,7 @@ namespace EppiReviewer4
             else
                 parentGrid.UnselectAll();
         }
+
+
     }
 }

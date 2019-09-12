@@ -52,7 +52,9 @@ namespace ERxWebClient2.Controllers
                         roia.ItemAttributeFullTextDetails.Sort();
                     }
                 }
-                //ItemSetList result = dp.Fetch(ItemIDCrit.Value);
+				//ItemSetList result = dp.Fetch(ItemIDCrit.Value);
+				//var test = result.Where(x => x.OutcomeItemList.Count > 0).ToList();
+
                 return Ok(result);
 
             }

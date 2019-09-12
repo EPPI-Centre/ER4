@@ -31,6 +31,12 @@
 
             </script>
 
+        <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+
+
 
         <div>
 
@@ -54,62 +60,82 @@
             </asp:Panel>
                 
                 <asp:Panel ID="pnlSiteLicense" runat="server">
-                    <b>Site license details</b><br />
+                    <b>Site license details</b>
+                    &nbsp;&nbsp;
+                    <button type="button" class="btn btn-outline-secondary btn-sm" data-toggle="collapse" data-target="#demo">Help</button>
+                    <br />
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="collapse" id="demo">
+                                <div class="card card-body bg-light">
+                                    <asp:Label ID="lblLicenseDetailsHelp" runat="server" Text="" ></asp:Label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <table ID="Table3" border="1" cellpadding="1" cellspacing="1" width="100%">
                         <tr>
                             <td style="background-color: #B6C6D6; width: 25%;">
                                 License name</td>
-                            <td ;="" style="width: 75%; background-color: #E2E9EF">
+                            <td colspan="3" style="width: 75%; background-color: #E2E9EF">
                                 &nbsp;<asp:Label ID="lblLicenseName" runat="server" Text="N/A"></asp:Label>
                                 &nbsp;</td>
                         </tr>
                         <tr>
                             <td style="background-color: #B6C6D6; width: 25%;">
                                 Organisation *</td>
-                            <td ;="" style="width: 75%; background-color: #E2E9EF">
+                            <td colspan="3" style="width: 75%; background-color: #E2E9EF">
                                 <asp:TextBox ID="tbOrganisation" runat="server" Width="80%">N/A</asp:TextBox>
                             </td>
                         </tr>
                         <tr>
                             <td style="background-color: #B6C6D6; width: 25%;">
                                 Address *</td>
-                            <td ;="" style="width: 75%; background-color: #E2E9EF">
+                            <td colspan="3" style="width: 75%; background-color: #E2E9EF">
                                 <asp:TextBox ID="tbAddress" runat="server" Width="80%">N/A</asp:TextBox>
                             </td>
                         </tr>
                         <tr>
                             <td style="background-color: #B6C6D6; width: 25%;">
                                 Telephone *</td>
-                            <td ;="" style="width: 75%; background-color: #E2E9EF">
+                            <td colspan="3" style="width: 75%; background-color: #E2E9EF">
                                 <asp:TextBox ID="tbTelephone" runat="server" Width="80%">N/A</asp:TextBox>
                             </td>
                         </tr>
                         <tr>
                             <td style="background-color: #B6C6D6; width: 25%;">
                                 Notes</td>
-                            <td ;="" style="width: 75%; background-color: #E2E9EF">
+                            <td colspan="3" style="width: 75%; background-color: #E2E9EF">
                                 <asp:TextBox ID="tbNotes" runat="server" Width="80%">N/A</asp:TextBox>
                             </td>
                         </tr>
                         <tr>
                             <td style="background-color: #B6C6D6; width: 25%;">
-                                <asp:Label ID="lblSiteLicenceID" runat="server" Text="Site Licence ID"></asp:Label>
+                                <asp:Label ID="lblSiteLicenceID" runat="server" Text=""></asp:Label>
                             </td>
-                            <td ;="" style="width: 75%; background-color: #E2E9EF">
+                            <td style="width: 25%; background-color: #E2E9EF">
                                 &nbsp;<asp:Label ID="lblSiteLicID" runat="server" Text="N/A"></asp:Label>
+                                &nbsp;</td>
+                            <td style="background-color: #B6C6D6; width: 25%;">
+                                <asp:Label ID="lblLicenseModel" runat="server" Text="Licence review model"></asp:Label>
+                            </td>
+                            <td style="width: 25%; background-color: #E2E9EF">
+                                &nbsp;<asp:Label ID="lblLicModel" runat="server" Text="Fixed"></asp:Label>
                                 &nbsp;</td>
                         </tr>
                         <tr>
                             <td style="background-color: #B6C6D6; width: 25%;">
                                 Date created</td>
-                            <td ;="" style="width: 75%; background-color: #E2E9EF">
+                            <td colspan="3" style="width: 75%; background-color: #E2E9EF">
                                 &nbsp;<asp:Label ID="lblDateCreated" runat="server" Text="N/A"></asp:Label>
                                 &nbsp;</td>
                         </tr>
                         <tr>
                             <td style="background-color: #B6C6D6; width: 25%;">
                                 Packages (with date created)</td>
-                            <td ;="" style="width: 75%; background-color: #99FF99">
+                            <td colspan="3" style="width: 75%; background-color: #99FF99">
                                 <asp:DropDownList ID="ddlPackages" runat="server" AutoPostBack="True" 
                                     DataTextField="DATE_CREATED" DataValueField="SITE_LIC_DETAILS_ID" 
                                     onselectedindexchanged="ddlPackages_SelectedIndexChanged" Width="50%">
@@ -117,7 +143,7 @@
                                 &nbsp; (dd/mm/yyyy)</td>
                         </tr>
                         <tr>
-                            <td colspan="2" style="background-color: #B6C6D6; ">
+                            <td colspan="4" style="background-color: #B6C6D6; ">
                                 British library codes (optional)&nbsp;&nbsp;
                                 <asp:LinkButton ID="lbShowBLCodes" runat="server" onclick="lbShowBLCodes_Click">Show/Edit</asp:LinkButton>
                                 <asp:Panel ID="pnlBriLibCodes" runat="server" Visible="False">
@@ -363,7 +389,7 @@
                         <td style="background-color: #ffffff; width: 45%;" valign="top">
                             <asp:GridView ID="gvReviews" runat="server" 
                                 AutoGenerateColumns="False" 
-                                DataKeyNames="REVIEW_ID" EnableModelValidation="True" Width="100%" OnRowDataBound="gvReviews_RowDataBound">
+                                DataKeyNames="REVIEW_ID" EnableModelValidation="True" Width="100%" OnRowDataBound="gvReviews_RowDataBound" OnRowCommand="gvReviews_RowCommand">
                                 <Columns>
                                     <asp:BoundField DataField="REVIEW_ID" HeaderText="ReviewID">
                                     <HeaderStyle BackColor="#B6C6D6" />
@@ -380,6 +406,9 @@
                                         </ItemTemplate>
                                         <HeaderStyle BackColor="#B6C6D6" />
                                     </asp:TemplateField>
+                                    <asp:ButtonField CommandName="REMOVE" HeaderText="Remove" Text="Remove" Visible="False">
+                                    <HeaderStyle BackColor="#B6C6D6" />
+                                    </asp:ButtonField>
                                 </Columns>
                             </asp:GridView>
                         </td>

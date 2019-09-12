@@ -14,6 +14,7 @@ import { ReviewSet, SetAttribute, ReviewSetsService, singleNode, ItemAttributeSa
 import { Review } from './review.service';
 import { ArmsService } from './arms.service';
 import { ItemDocsService } from './itemdocs.service';
+import { Outcome, OutcomeItemList } from './outcomes.service';
 
 @Injectable({
     providedIn: 'root',
@@ -67,9 +68,13 @@ export class ItemCodingService extends BusyAwareService {
         //this.itemID.next(ItemId); 
         //console.log('FetchCoding');
         let body = JSON.stringify({ Value: ItemId });
-        this._httpC.post<ItemSet[]>(this._baseUrl + 'api/ItemSetList/Fetch',
+        this._httpC.post<iItemSet[]>(this._baseUrl + 'api/ItemSetList/Fetch',
             body).subscribe(result => {
-                this.ItemCodingList = result;
+                this.ItemCodingList = [];
+                for (let iSet of result) {
+                    let NewRealItemSet: ItemSet = new ItemSet(iSet);
+                    this.ItemCodingList.push(NewRealItemSet);
+                }
                 this.DataChanged.emit();
                 //this.ReviewSetsService.AddItemData(result);
                 //this.Save();
@@ -461,7 +466,7 @@ export class ItemCodingService extends BusyAwareService {
         }
         result += "</ul></p>";
         //console.log("about to go into OutcomesTable", itemSet.outcomeItemList.outcomesList);
-        result += "<p>" + this.OutcomesTable(itemSet.outcomeItemList.outcomesList) + "</p>";
+        result += "<p>" + this.OutcomesTable(itemSet.OutcomeList) + "</p>";
         return result;
     }
 
@@ -532,7 +537,7 @@ export class ItemCodingService extends BusyAwareService {
                         }
                         this._CodingReport += "</ul></p>";
                         //console.log("about to go into OutcomesTable", itemSet.outcomeItemList.outcomesList);
-                        this._CodingReport += "<p>" + this.OutcomesTable(itemSet.outcomeItemList.outcomesList) + "</p>";
+                        this._CodingReport += "<p>" + this.OutcomesTable(itemSet.OutcomeList) + "</p>";
                     }
 
                 }
@@ -623,7 +628,7 @@ export class ItemCodingService extends BusyAwareService {
         return retVal + "</table>";
     }
     private GetOutcomeHeaders(o: Outcome): string {
-        let retVal = "<tr bgcolor='silver'><td>Title</td><td>Description</td><td>Outcome</td><td>Intervention</td><td>Control</td><td>Type</td>";
+        let retVal = "<tr bgcolor='silver'><td>Title</td><td>Description</td><td>Timepoint</td><td>Outcome</td><td>Intervention</td><td>Control</td><td>Type</td>";
         switch (o.outcomeTypeId) {
             case 0: // manual entry
                 retVal += "<td>SMD</td><td>SE</td><td>r</td><td>SE</td><td>Odds ratio</td><td>SE</td><td>Risk ratio</td><td>SE</td><td>Risk difference</td><td>SE</td><td>Mean difference</td><td>SE</td>";
@@ -668,7 +673,8 @@ export class ItemCodingService extends BusyAwareService {
     }
 
     private GetOutcomeInnerTable(o: Outcome): string {
-        let retVal = "<tr><td>" + o.title + "</td><td>" + o.outcomeDescription.replace("\r", "<br style='mso-data-placement:same-cell;'  />") + "</td><td>" + o.outcomeText + "</td><td>" + o.interventionText +
+        let retVal = "<tr><td>" + o.title + "</td><td>" + o.outcomeDescription.replace("\r", "<br style='mso-Data-placement:same-cell;'  />")
+            + "</td><td>" + o.timepointDisplayValue + "</td><td>" + o.outcomeText + "</td><td>" + o.interventionText +
             "</td><td>" + o.controlText + "</td>";
         switch (o.outcomeTypeId) {
             case 0: // manual entry
@@ -1004,7 +1010,43 @@ export class ItemCodingService extends BusyAwareService {
     }
 }
 
+
+export interface iItemSet {
+    itemSetId: number;
+    setId: number;
+    itemId: number;
+    contactId: number;
+    contactName: string;
+    setName: string;
+    isCompleted: boolean;
+    isLocked: boolean;
+    itemAttributesList: ReadOnlyItemAttribute[];
+    isSelected: boolean;
+    outcomeItemList: OutcomeItemList;//this is stale data that shouldn't be normally used!
+}
+
 export class ItemSet {
+    public constructor(iISet?: iItemSet) {
+        if (iISet) {
+            this.itemSetId = iISet.itemSetId;
+            this.setId = iISet.setId;
+            this.itemId = iISet.itemId;
+            this.contactId = iISet.contactId;
+            this.contactName = iISet.contactName;
+            this.setName = iISet.setName;
+            this.isCompleted = iISet.isCompleted;
+            this.isLocked = iISet.isLocked;
+            this.itemAttributesList = iISet.itemAttributesList;
+            this.isSelected = iISet.isSelected;
+            this.OutcomeList = [];
+            if (iISet.outcomeItemList.outcomesList) {
+                for (let iO of iISet.outcomeItemList.outcomesList) {
+                    let RealOutcome: Outcome = new Outcome(iO);
+                    this.OutcomeList.push(RealOutcome);
+                }
+            }
+        }
+    }
     itemSetId: number = 0;
     setId: number = 0;
     itemId: number = 0;
@@ -1015,7 +1057,8 @@ export class ItemSet {
     isLocked: boolean = true;
     itemAttributesList: ReadOnlyItemAttribute[] = [];
     isSelected: boolean = false;
-    outcomeItemList: OutcomeItemList = new OutcomeItemList();
+    //outcomeItemList: OutcomeItemList = new OutcomeItemList();//this is stale data that shouldn't be normally used!
+    OutcomeList: Outcome[] = [];
 }
 export class ReadOnlyItemAttribute {
     attributeId: number = 0;
@@ -1024,100 +1067,6 @@ export class ReadOnlyItemAttribute {
     armId: number = 0;
     armTitle: string = "";
     itemAttributeFullTextDetails: ItemAttributeFullTextDetails[] = [];
-}
-export class OutcomeItemList {
-    outcomesList: Outcome[] = [];
-}
-export class Outcome {
-    outcomeId: number = 0;
-    itemSetId: number = 0;
-    outcomeTypeName: string = "";
-    outcomeTypeId: number = 0;
-    outcomeCodes: OutcomeItemAttributesList = new OutcomeItemAttributesList();//OutcomeItemAttribute[] = [];
-    itemAttributeIdIntervention: number = 0;
-    itemAttributeIdControl: number = 0;
-    itemAttributeIdOutcome: number = 0;
-    title: string = "";
-    shortTitle: string = "";
-    outcomeDescription: string = "";
-    data1: number = 0;
-    data2: number = 0;
-    data3: number = 0;
-    data4: number = 0;
-    data5: number = 0;
-    data6: number = 0;
-    data7: number = 0;
-    data8: number = 0;
-    data9: number = 0;
-    data10: number = 0;
-    data11: number = 0;
-    data12: number = 0;
-    data13: number = 0;
-    data14: number = 0;
-    interventionText: string = "";
-    controlText: string = "";
-    outcomeText: string = "";
-    feWeight: number = 0;
-    reWeight: number = 0;
-    smd: number = 0;
-    sesmd: number = 0;
-    r: number = 0;
-    ser: number = 0;
-    oddsRatio: number = 0;
-    seOddsRatio: number = 0;
-    riskRatio: number = 0;
-    seRiskRatio: number = 0;
-    ciUpperSMD: number = 0;
-    ciLowerSMD: number = 0;
-    ciUpperR: number = 0;
-    ciLowerR: number = 0;
-    ciUpperOddsRatio: number = 0;
-    ciLowerOddsRatio: number = 0;
-    ciUpperRiskRatio: number = 0;
-    ciLowerRiskRatio: number = 0;
-    ciUpperRiskDifference: number = 0;
-    ciLowerRiskDifference: number = 0;
-    ciUpperPetoOddsRatio: number = 0;
-    ciLowerPetoOddsRatio: number = 0;
-    ciUpperMeanDifference: number = 0;
-    ciLowerMeanDifference: number = 0;
-    riskDifference: number = 0;
-    seRiskDifference: number = 0;
-    meanDifference: number = 0;
-    seMeanDifference: number = 0;
-    petoOR: number = 0;
-    sePetoOR: number = 0;
-    es: number = 0;
-    sees: number = 0;
-    nRows: number = 0;
-    ciLower: number = 0;
-    ciUpper: number = 0;
-    esDesc: string = "";
-    seDesc: string = "";
-    data1Desc: string = "";
-    data2Desc: string = "";
-    data3Desc: string = "";
-    data4Desc: string = "";
-    data5Desc: string = "";
-    data6Desc: string = "";
-    data7Desc: string = "";
-    data8Desc: string = "";
-    data9Desc: string = "";
-    data10Desc: string = "";
-    data11Desc: string = "";
-    data12Desc: string = "";
-    data13Desc: string = "";
-    data14Desc: string = "";
-}
-export class  OutcomeItemAttributesList {
-    outcomeItemAttributesList: OutcomeItemAttribute[] = [];
-}
-export interface OutcomeItemAttribute {
-    outcomeItemAttributeId: number;
-    outcomeId: number;
-    attributeId: number;
-    additionalText: string;
-    attributeName: string;
 }
 
 export interface ItemAttributeFullTextDetails {

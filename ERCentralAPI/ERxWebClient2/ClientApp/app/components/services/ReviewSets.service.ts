@@ -91,7 +91,28 @@ export class ReviewSetsService extends BusyAwareService {
         }
         else return false;
     }
-
+    public get CanEditSelectedNode(): boolean {
+        if (this.selectedNode == null) return false;
+        else if (this.selectedNode.nodeType == 'ReviewSet') {
+            //console.log("AAAAAAAAA", node);
+            return this.selectedNode.allowEditingCodeset;
+        }
+        else {//this is an attribute, more work needed...
+            let SetAtt = this.selectedNode as SetAttribute;
+            if (SetAtt) {
+                //is the set editable?
+                let MySet = this.FindSetById(SetAtt.set_id);
+                if (MySet) {
+                    return MySet.allowEditingCodeset;
+                }
+                else {
+                    //ugh, shouldn't happen. Return false just in case...
+                    return false;
+                }
+            }
+        }
+        return false;
+    }
     GetReviewSets(): ReviewSet[] {
          //console.log("GetReviewSets");
          this._BusyMethods.push("GetReviewSets");
@@ -103,8 +124,9 @@ export class ReviewSetsService extends BusyAwareService {
                  this.GetReviewStatsEmit.emit();
 
             },
-            error => {
-                this.modalService.GenericError(error);
+             error => {
+                console.log("Error in GetReviewSets:", error);
+                this.modalService.SendBackHomeWithError(error);
                 this.Clear();
                 this.RemoveBusy("GetReviewSets");
             },
@@ -135,6 +157,7 @@ export class ReviewSetsService extends BusyAwareService {
         //    }
         //}
         //this._IsBusy = false;
+
         return this._ReviewSets;
     }
     public set ReviewSets(sets: ReviewSet[]) {
@@ -669,7 +692,8 @@ export class ItemAttributeBulkSaveCommand {
     public attributeId: number = 0;
     public setId: number = 0;
     public itemIds: string = "";
-    public searchIds: string = "";
+	public searchIds: string = "";
+	public saveType: string = "";
 }
 export class ItemSetCompleteCommand {
     public itemSetId: number = 0;

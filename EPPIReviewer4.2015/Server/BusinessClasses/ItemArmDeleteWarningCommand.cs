@@ -28,6 +28,7 @@ namespace BusinessLibrary.BusinessClasses
         private Int64 _itemId;
         private Int64 _armId;
         private int _numCodings;
+        private int _numOutcomes;
 
 
         public ItemArmDeleteWarningCommand(Int64 itemId, Int64 armId)
@@ -41,18 +42,25 @@ namespace BusinessLibrary.BusinessClasses
             get { return _numCodings; }
         }
 
+        public int NumOutcomes
+        {
+            get { return _numOutcomes; }
+        }
+
         protected override void OnGetState(Csla.Serialization.Mobile.SerializationInfo info, Csla.Core.StateMode mode)
         {
             base.OnGetState(info, mode);
             info.AddValue("_itemId", _itemId);
             info.AddValue("_armId", _armId);
             info.AddValue("_numCodings", _numCodings);
+            info.AddValue("_numOutcomes", _numOutcomes);
         }
         protected override void OnSetState(Csla.Serialization.Mobile.SerializationInfo info, Csla.Core.StateMode mode)
         {
             _itemId = info.GetValue<Int64>("_itemId");
             _armId = info.GetValue<Int64>("_armId");
             _numCodings = info.GetValue<int>("_numCodings");
+            _numOutcomes = info.GetValue<int>("_numOutcomes");
         }
 
 
@@ -71,6 +79,10 @@ namespace BusinessLibrary.BusinessClasses
                     output.Direction = System.Data.ParameterDirection.Output;
                     command.Parameters.Add(output);
 
+                    SqlParameter output2 = new SqlParameter("@NUM_OUTCOMES", System.Data.SqlDbType.Int);
+                    output2.Direction = System.Data.ParameterDirection.Output;
+                    command.Parameters.Add(output2);
+
                     command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
                     command.Parameters.Add(new SqlParameter("@ARM_ID", _armId));
                     command.Parameters.Add(new SqlParameter("@ITEM_ID", _itemId));
@@ -78,6 +90,10 @@ namespace BusinessLibrary.BusinessClasses
                     int? tmp = output.Value as int?;
                     if (tmp == null) _numCodings = 0;
                     else _numCodings = (int)tmp;
+
+                    int? tmp2 = output2.Value as int?;
+                    if (tmp2 == null) _numOutcomes = 0;
+                    else _numOutcomes = (int)tmp2;
                 }
                 connection.Close();
             }

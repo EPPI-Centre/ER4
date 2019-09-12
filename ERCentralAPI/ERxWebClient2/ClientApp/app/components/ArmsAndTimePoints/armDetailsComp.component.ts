@@ -1,6 +1,6 @@
 import { Component, OnInit, Input, ViewChild, ElementRef, Renderer2 } from '@angular/core';
-import { ArmsService } from '../services/arms.service';
-import { iArm, Item, Arm } from '../services/ItemList.service';
+import { ArmsService, iArm, Arm } from '../services/arms.service';
+import {  Item } from '../services/ItemList.service';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 import { Observable } from 'rxjs';
 import { EventEmitterService } from '../services/EventEmitter.service';
@@ -18,7 +18,9 @@ export class armDetailsComp implements OnInit {
 		private confirmationDialogService: ConfirmationDialogService,
         private eventsService: EventEmitterService,
         private ReviewerIdentityServ: ReviewerIdentityService
-	) { }
+	) {
+		
+	}
 
     public get armsList(): iArm[] {
 
@@ -27,9 +29,15 @@ export class armDetailsComp implements OnInit {
 	}
 
 	public title: string = '';
+	public ShowArms: boolean = true;
+
+	public get ShowArmsBtnText(): string {
+		if (this.ShowArms) return "Collapse";
+		else return "Expand";
+	}
+
 	
-	//public currentItem!: Item;
-	
+
 	@Input() item!: Item | undefined;
 
 	//@ViewChild("editTitle", { read: ElementRef }) tref!: ElementRef;
@@ -178,8 +186,6 @@ export class armDetailsComp implements OnInit {
 	}
 
 }
-
-
 
 export interface numCodings {
 

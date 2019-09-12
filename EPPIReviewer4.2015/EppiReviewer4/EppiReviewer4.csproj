@@ -395,6 +395,9 @@
     <Compile Include="Windows\RadWCheckRemoveItemsFromCode.xaml.cs">
       <DependentUpon>RadWCheckRemoveItemsFromCode.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Windows\RadWCheckTimepointDelete.xaml.cs">
+      <DependentUpon>RadWCheckTimepointDelete.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Windows\RadWClassifier.xaml.cs">
       <DependentUpon>RadWClassifier.xaml</DependentUpon>
     </Compile>
@@ -691,6 +694,10 @@
     <Page Include="Windows\RadWCheckArmDelete.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Windows\RadWCheckTimepointDelete.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Windows\windowSearchVisualise.xaml">
       <SubType>Designer</SubType>

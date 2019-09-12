@@ -906,6 +906,7 @@ export class SearchComp implements OnInit, OnDestroy {
 	public checkBoxSelected: boolean = false;
 	public checkboxClicked(dataItem: any) {
 
+		console.log(dataItem);
 		dataItem.add = !dataItem.add;
 		if (dataItem.add == true && this.modelNum == 5) {
 

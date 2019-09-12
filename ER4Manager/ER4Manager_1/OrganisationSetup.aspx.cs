@@ -565,7 +565,7 @@ public partial class OrganisationSetup : System.Web.UI.Page
                         true, 0, 0, null, DataRowVersion.Default, email);
                     paramList[3] = new SqlParameter("@res", SqlDbType.Int, 8, ParameterDirection.Output,
                         true, 0, 0, null, DataRowVersion.Default, "");
-                    Utils.ExecuteSPWithReturnValues(isAdmDB, Server, "st_Site_Lic_Add_Remove_Admin_1", paramList);
+                    Utils.ExecuteSPWithReturnValues(isAdmDB, Server, "st_Site_Lic_Add_Remove_Admin", paramList);
 
                     if (paramList[3].Value.ToString() != "0")
                     {

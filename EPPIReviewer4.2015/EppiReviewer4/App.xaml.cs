@@ -23,7 +23,6 @@ namespace EppiReviewer4
     public partial class App : Application, INotifyPropertyChanged
 
     {
-
         public event PropertyChangedEventHandler PropertyChanged; //INotifyPropertyChanged is needed to let the isEn resouce notice that the review has changed and therefore also write rights
         public void NotifyPropertyChanged(string propertyName)
         {
@@ -237,7 +236,26 @@ namespace EppiReviewer4
                 System.Windows.Browser.HtmlPage.Window.Alert(((Csla.Xaml.CslaDataProvider)sender).Error.Message);
             }
         }
+
+        private void CslaDataProvider_DataChanged_4(object sender, EventArgs e)
+        {
+            CslaDataProvider provider = ((CslaDataProvider)this.Resources["ItemArmsData"]);
+            if (provider.Error != null)
+            {
+                System.Windows.Browser.HtmlPage.Window.Alert(((Csla.Xaml.CslaDataProvider)sender).Error.Message);
+                return;
+            }
+        }
+
+        private void CslaDataProvider_DataChanged_6(object sender, EventArgs e)
+        {
+            CslaDataProvider provider = ((CslaDataProvider)this.Resources["ItemTimepointsData"]);
+            if (provider.Error != null)
+                System.Windows.Browser.HtmlPage.Window.Alert(((Csla.Xaml.CslaDataProvider)sender).Error.Message);
+        }
     }
+
+
     public class JavaScriptBridge
     {
         public event EventHandler<EventArgs> AuthenticationIsDoneEvent;
