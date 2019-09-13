@@ -154,9 +154,9 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
             this.HelpAndFeebackContext = "(codingui)itemdetails\\arms";
         }
         else if (e.title == 'PDF') {
-            if (this.HasDocForView && this.pdftroncontainer.currentDocId !== this.ItemDocsService.CurrentDocId) {
-                this.pdftroncontainer.loadDoc();//only load it if it's not there already
-            }
+            //if (this.HasDocForView && this.pdftroncontainer.currentDocId !== this.ItemDocsService.CurrentDocId) {
+                //this.pdftroncontainer.loadDoc();//only load it if it's not there already
+            //}
             this.HelpAndFeebackContext = "(codingui)itemdetails\\pdf";//no record in DB for the help!!
         }
         else {

@@ -35,6 +35,9 @@ export class PdfTronContainer implements OnInit, AfterViewInit, OnDestroy {
     private docViewer: any;
     private annotManager: any;
     public AvoidHandlingAnnotationChanges: boolean = false;
+    private LoadingNewDoc = false;
+    private AlsoBuildHighlights: boolean = false;//used to instruct wvAnnotationsLoaded
+    private AttachwvAnnotationsLoaded = true;
     private PDFnet: any;
     private subBuildHighlights: Subscription | null = null;
     private _currentDocId: number = 0;
@@ -64,6 +67,7 @@ export class PdfTronContainer implements OnInit, AfterViewInit, OnDestroy {
     ngAfterViewInit() {
         this.webviewer.getElement().addEventListener('ready', this.wvReadyHandler);
         this.webviewer.getElement().addEventListener('documentLoaded', this.wvDocumentLoadedHandler);
+        
         if (this.subBuildHighlights === null) {
             this.subBuildHighlights = this.ItemCodingService.ItemAttPDFCodingChanged.subscribe(() => {
                 console.log("sub buildH");
@@ -82,9 +86,15 @@ export class PdfTronContainer implements OnInit, AfterViewInit, OnDestroy {
         }
         if (this.ItemDocsService.CurrentDoc) {
             this.AvoidHandlingAnnotationChanges = true;
-            console.log("asking for the doc- - viewerInstance.loadDocument...");
-            
-            //if (this.docViewer) this.docViewer.on('annotationsLoaded', this.wvAnnotationsLoaded());
+
+            //this.webviewer.getElement().removeEventListener("annotationsLoaded", this.wvAnnotationsLoaded);
+            if (this.AttachwvAnnotationsLoaded) {
+                this.docViewer.on('annotationsLoaded', () => this.wvAnnotationsLoaded());
+                this.AttachwvAnnotationsLoaded = false;
+            }
+            this.LoadingNewDoc = true;
+
+            console.log("asking for the doc- - viewerInstance.loadDocument...", this.LoadingNewDoc);
             this.viewerInstance.loadDocument(this.ItemDocsService.CurrentDoc);
         }
         else console.log("I'm giving up :-(");
@@ -92,6 +102,13 @@ export class PdfTronContainer implements OnInit, AfterViewInit, OnDestroy {
     wvAnnotationsLoaded(): void {
         console.log("wvAnnotationsLoaded");
         this.webviewer.getElement().removeEventListener("annotationsLoaded", this.wvAnnotationsLoaded);
+        //this.webviewer.getElement().removeEventListener("annotationsLoaded", this.wvAnnotationsLoaded);
+        this.LoadingNewDoc = false;
+        if (this.AlsoBuildHighlights) {
+            this.buildHighlights();
+            this.AlsoBuildHighlights = false;
+        }
+        console.log("wvAnnotationsLoaded", this.LoadingNewDoc);
         //this.AvoidHandlingAnnotationChanges = false;
     }
     async wvReadyHandler() {
@@ -161,14 +178,20 @@ export class PdfTronContainer implements OnInit, AfterViewInit, OnDestroy {
     wvDocumentLoadedHandler(): void {
         //TODO: if a code is selected, get the PDFCoding...
         this._currentDocId = this.ItemDocsService.CurrentDocId;
-        console.log("wvDocumentLoadedHandler");
+        console.log("wvDocumentLoadedHandler", this.AvoidHandlingAnnotationChanges);
+
         if (this.ItemCodingService.CurrentItemAttPDFCoding.ItemAttPDFCoding
             && this.ItemCodingService.CurrentItemAttPDFCoding.ItemAttPDFCoding.length > 0
             && this.ItemDocsService.CurrentDoc
             && this.ItemCodingService.CurrentItemAttPDFCoding.Criteria.itemDocumentId == this.ItemDocsService.CurrentDocId
         ) {
-            console.log("wvDocumentLoadedHandler1");
-            this.buildHighlights();
+            console.log("wvDocumentLoadedHandler1", this.AvoidHandlingAnnotationChanges, this.LoadingNewDoc);
+            if (this.docViewer) {
+                this.AlsoBuildHighlights = true; //buildHighlights is called by wvAnnotationsLoaded, we want to do it after this event!
+                //this.docViewer.on('annotationsLoaded', () => this.wvAnnotationsLoaded());//wvAnnotationsLoaded will call buildHighlights when done
+            }
+            //the above makes sure we can distinguish between imported highlights that come from within the PDF binary from those that are "coding highlights"...
+            //this.buildHighlights();
         }
         else if (
             this.ItemDocsService.CurrentDoc
@@ -177,16 +200,25 @@ export class PdfTronContainer implements OnInit, AfterViewInit, OnDestroy {
         ) {
             //we have a doc, but doc coding isn't right, go fetch it.
             const ROatt = this.ItemCodingService.FindROItemAttributeByAttribute(this.ItemCodingService.SelectedSetAttribute);
-            console.log("wvDocumentLoadedHandler2 fetch PDF coding", ROatt);
+            console.log("wvDocumentLoadedHandler2 fetch PDF coding", ROatt, this.AvoidHandlingAnnotationChanges, this.LoadingNewDoc);
+            if (this.docViewer) {
+                this.AlsoBuildHighlights = true; //buildHighlights is called by wvAnnotationsLoaded, we want to do it after this event!
+                //this.docViewer.on('annotationsLoaded', () => this.wvAnnotationsLoaded());
+            }
             if (ROatt) this.ItemCodingService.FetchItemAttPDFCoding(new ItemAttPDFCodingCrit(this.ItemDocsService.CurrentDocId, ROatt.itemAttributeId));
             else this.ItemCodingService.ClearItemAttPDFCoding();
         }
         else {
-            console.log("wvDocumentLoadedHandler3 nothing to do (docId, crit.docId, selected attId):",
+            console.log("wvDocumentLoadedHandler3 nothing to do (docId, crit.docId, selected attId, AvoidHandlingAnnotationChanges, LoadingNewDoc):",
                 this.ItemDocsService.CurrentDocId,
                 this.ItemCodingService.CurrentItemAttPDFCoding.Criteria.itemDocumentId,
-                this.ItemCodingService.SelectedSetAttribute
-            )
+                this.ItemCodingService.SelectedSetAttribute,
+                this.AvoidHandlingAnnotationChanges, this.LoadingNewDoc
+            );
+            if (this.docViewer) {
+                this.AlsoBuildHighlights = false; //buildHighlights does not need to be called.
+                //this.docViewer.on('annotationsLoaded', () => this.wvAnnotationsLoaded());//buildHighlights is called otherwise, no need to do it in wvAnnotationsLoaded
+            }
         }
 
 
@@ -426,16 +458,17 @@ export class PdfTronContainer implements OnInit, AfterViewInit, OnDestroy {
         
         for (let i = 0; i < Annots.length; i++) {
             let annot = Annots[i];
-            //console.log("deleting annot: " + (i+1) + " of " + count, annot);
+            
             //if (annot && annot !== undefined && (annot.Subject === "Highlight" || annot.Subject === null)) {
             if (annot && annot !== undefined ) { 
                 if (annot.Subject === "Highlight" || annot instanceof Annotations.TextHighlightAnnotation) {
                     try {
-                        //console.log("how many?", Annots.length, annot.Custom, annot.Subject, annot instanceof Annotations.TextHighlightAnnotation);
+                        console.log("how many?", Annots.length, annot.Custom, annot.Subject, annot instanceof Annotations.TextHighlightAnnotation);
+                        console.log("deleting annot: " + (i + 1), annot);
                         annotManager.deleteAnnotation(annot, true, true);
                         i--;
                         //Annots.splice(i, 1);
-                        //console.log("2 how many?", Annots.length);
+                        console.log("2 how many?", Annots.length);
                     }
                     catch (e) {
                         console.log("error deleting annot:", e);
@@ -456,7 +489,22 @@ export class PdfTronContainer implements OnInit, AfterViewInit, OnDestroy {
 
     //this executes whenever annotations are changed, even if done programmatically,
     //we use this.AvoidHandlingAnnotationChanges to figure if the change is user-initiated or not.
-    private AnnotationChangedHandler(event: any, annotations: any, action: any) {
+    private async AnnotationChangedHandler(event: any, annotations: any, action: any) {
+        console.log("AnnotationChangedHandler", this.AvoidHandlingAnnotationChanges, this.LoadingNewDoc);
+        if (event && event.imported && this.LoadingNewDoc && action === 'add') {
+            for (let i = 0; i < annotations.length; i++) {
+                let annot = annotations[i];
+                if (annot.Subject && annot.Subject == "Highlight") {
+                    console.log("Imported annotation: delete!", annot, i);
+                    let currentAvoidState: boolean = this.AvoidHandlingAnnotationChanges;
+                    this.AvoidHandlingAnnotationChanges = true;
+                    await this.annotManager.deleteAnnotation(annot, true, true);//we just delete it, consider showing an explanation...
+                    this.AvoidHandlingAnnotationChanges = currentAvoidState;
+                }
+            }
+            
+            return;
+        }
         //console.log("AnnotationChangedHandler, action:", action);
         const { Annotations } = this.webviewer.getWindow();
         if (this.AvoidHandlingAnnotationChanges) {
