@@ -157,6 +157,7 @@ export class ReviewSetsService extends BusyAwareService {
         //    }
         //}
         //this._IsBusy = false;
+
         return this._ReviewSets;
     }
     public set ReviewSets(sets: ReviewSet[]) {
@@ -691,7 +692,8 @@ export class ItemAttributeBulkSaveCommand {
     public attributeId: number = 0;
     public setId: number = 0;
     public itemIds: string = "";
-    public searchIds: string = "";
+	public searchIds: string = "";
+	public saveType: string = "";
 }
 export class ItemSetCompleteCommand {
     public itemSetId: number = 0;

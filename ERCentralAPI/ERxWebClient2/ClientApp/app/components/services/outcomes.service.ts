@@ -4,10 +4,8 @@ import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
 import { SetAttribute } from './ReviewSets.service';
 import { iTimePoint } from './timePoints.service';
-import { Helpers } from '../helpers/HelperMethods';
-import { forEach } from '@angular/router/src/utils/collection';
 import { StatFunctions } from '../helpers/StatisticsMethods';
-import { Subscription, Observable } from 'rxjs';
+import { Subscription } from 'rxjs';
 
 @Injectable({
     providedIn: 'root',
@@ -25,8 +23,8 @@ export class OutcomesService extends BusyAwareService  {
 
 	private _currentItemSetId: number = 0;
 	private _Outcomes: Outcome[] = [];
-	//public Outcomes: Outcome[] = [];
 	public ItemSetId: number = 0;
+	public currentOutcome: Outcome = new Outcome();
 	public ShowOutComeList: EventEmitter<SetAttribute> = new EventEmitter();
 
 	public get outcomesList(): Outcome[] {
@@ -36,9 +34,7 @@ export class OutcomesService extends BusyAwareService  {
             this._Outcomes = [];
             return this._Outcomes;
 		}
-
 	}
-
 	public set outcomesList(Outcomes: Outcome[]) {
         this._Outcomes = Outcomes;
     }
@@ -59,31 +55,28 @@ export class OutcomesService extends BusyAwareService  {
 		}
 	}
 
-	// this is in draft stage still!!!!!!!!!!!!!!!!!!
 	public FetchOutcomes(ItemSetId: number): Subscription {
-		//console.log("Fetch outcomes, base url:", this._baseUrl);
 		this._BusyMethods.push("FetchOutcomes");
 		let body = JSON.stringify({ Value: ItemSetId });
 		this._Outcomes = [];
 		return this._http.post<iOutcomeList>(this._baseUrl + 'api/OutcomeList/Fetch', body)
 			.subscribe(result => {
 
-			console.log(JSON.stringify(result.outcomesList));
             for (let iO of result.outcomesList) {
    
 				let RealOutcome: Outcome = new Outcome(iO);
-				console.log('Check outcome codes here: ' + JSON.stringify(RealOutcome));
                 this._Outcomes.push(RealOutcome);
-       
-				}
+       		}
 			
             this.RemoveBusy("FetchOutcomes");
-			//return result.outcomesList;
         }, error => {
 
             this.modalService.SendBackHomeWithError(error);
             this.RemoveBusy("FetchOutcomes");
-            //return error;
+
+			},
+			() => {
+				this.RemoveBusy("FetchOutcomes");
 			});
 
 	}
@@ -104,7 +97,10 @@ export class OutcomesService extends BusyAwareService  {
 			}, error => {
 				this.modalService.SendBackHomeWithError(error);
 				this.RemoveBusy("FetchReviewSetOutcomeList");
-		}
+			},
+			() => {
+				this.RemoveBusy("FetchReviewSetOutcomeList");
+			}
 		);
 
 	}
@@ -123,6 +119,9 @@ export class OutcomesService extends BusyAwareService  {
 				this.RemoveBusy("FetchReviewSetInterventionList");
 			}, error => {
 				this.modalService.SendBackHomeWithError(error);
+				this.RemoveBusy("FetchReviewSetInterventionList");
+			},
+			() => {
 				this.RemoveBusy("FetchReviewSetInterventionList");
 			}
 			);
@@ -143,6 +142,9 @@ export class OutcomesService extends BusyAwareService  {
 				this.RemoveBusy("FetchReviewSetControlList");
 			}, error => {
 				this.modalService.SendBackHomeWithError(error);
+				this.RemoveBusy("FetchReviewSetControlList");
+			},
+			() => {
 				this.RemoveBusy("FetchReviewSetControlList");
 			}
 			);
@@ -165,24 +167,28 @@ export class OutcomesService extends BusyAwareService  {
 			}, error => {
 				this.modalService.SendBackHomeWithError(error);
 				this.RemoveBusy("FetchItemArmList");
+			},
+			() => {
+				this.RemoveBusy("FetchItemArmList");
 			}
 			);
 	}
 
 	public listOutcomes: Outcome[] = [];
+
 	public Createoutcome(currentoutcome: Outcome): Promise<Outcome> {
 
 		this._BusyMethods.push("CreateOutcome");
 		let ErrMsg = "Something went wrong when creating an outcome. \r\n If the problem persists, please contact EPPISupport.";
 
-		console.log('did call this...');
+		//console.log('did call this...');
 		return this._http.post<iOutcome>(this._baseUrl + 'api/OutcomeList/Createoutcome',
 
 			currentoutcome).toPromise()
 						.then(
 						(result) => {
 
-							console.log('did get results....');
+							//console.log('did get results....');
 							var newOutcome: Outcome = new Outcome(result);
 							this.outcomesList.push(newOutcome);
 							
@@ -210,7 +216,7 @@ export class OutcomesService extends BusyAwareService  {
 	
 	public Updateoutcome(currentOutcome: Outcome) {
 
-		console.log('outcome codes are: ' + JSON.stringify(currentOutcome.outcomeCodes));
+		//console.log('outcome codes are: ' + JSON.stringify(currentOutcome.outcomeCodes));
 		this._BusyMethods.push("UpdateOutcome");
 		let ErrMsg = "Something went wrong when updating an outcome. \r\n If the problem persists, please contact EPPISupport.";
 
@@ -409,10 +415,12 @@ export class Outcome implements iOutcome {
 			this.itemAttributeIdControl = iO.itemAttributeIdControl;
 			this.itemAttributeIdOutcome = iO.itemAttributeIdOutcome
 			this.title = iO.title;
+			//console.log('adding an outcome with codes: ', iO);
 			if (iO.outcomeCodes != undefined) {
 				for (var i = 0; i < iO.outcomeCodes.outcomeItemAttributesList.length; i++) {
 					let tmpCode: OutcomeItemAttribute = iO.outcomeCodes.outcomeItemAttributesList[i];
 					if (this.outcomeCodes.outcomeItemAttributesList != undefined) {
+						//console.log('got inside outcome codes adding: ', tmpCode);
 						this.outcomeCodes.outcomeItemAttributesList.push(tmpCode);
 						
 					}

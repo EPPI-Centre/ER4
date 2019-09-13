@@ -12,6 +12,7 @@ import { ReviewSetsEditingService } from '../services/ReviewSetsEditing.service'
 import { ReviewInfoService } from '../services/ReviewInfo.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Subscription } from 'rxjs';
+import { OutcomesService } from '../services/outcomes.service';
 
 
 @Component({
@@ -28,7 +29,8 @@ export class CreateNewCodeComp implements OnInit, OnDestroy {
 		public _buildModelService: BuildModelService,
 		public _eventEmitterService: EventEmitterService,
 		public _reviewInfoService: ReviewInfoService,
-		public _reviewerIdentityServ: ReviewerIdentityService
+		public _reviewerIdentityServ: ReviewerIdentityService,
+		private _outcomeService: OutcomesService
 	) { }
 
     @ViewChild('CodeTypeSelectCollaborate') CodeTypeSelect: any;
@@ -105,7 +107,8 @@ export class CreateNewCodeComp implements OnInit, OnDestroy {
 
         if (this.CodeTypeSelect && this.CodeTypeSelect.nativeElement.selectedOptions && this.CodeTypeSelect.nativeElement.selectedOptions.length > 0) {
             this._NewCode.attribute_type_id = this.CodeTypeSelect.nativeElement.selectedOptions[0].value;
-            this._NewCode.attribute_type = this.CodeTypeSelect.nativeElement.selectedOptions[0].text;
+			this._NewCode.attribute_type = this.CodeTypeSelect.nativeElement.selectedOptions[0].text;
+			console.log('got in here', this._NewCode.attribute_type);
         }
         else {
             this._NewCode.attribute_type_id = 1;//non selectable HARDCODED WARNING!
@@ -117,8 +120,12 @@ export class CreateNewCodeComp implements OnInit, OnDestroy {
             .then(
                 success => {
                     if (success && this.CurrentNode) {
-                        this.CurrentNode.attributes.push(success);
+						
+						console.log('The ones we have are: ', this._outcomeService.outcomesList);
+						this.CurrentNode.attributes.push(success);
+						console.log('this is the current node: ', this.CurrentNode);
                         //this._reviewSetsService.GetReviewSets();
+						
 
                     }
                     this._NewCode = new SetAttribute();

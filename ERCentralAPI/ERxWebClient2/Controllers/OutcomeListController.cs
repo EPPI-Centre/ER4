@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using BusinessLibrary.BusinessClasses;
 using BusinessLibrary.Security;
@@ -65,6 +66,37 @@ namespace ERxWebClient2.Controllers
 					outcome = outcomeData.ToObject<Outcome>();
 					Outcome result = outcome.Save();
 
+					if (result.OutcomeId > 0)
+					{
+						int itemSetId = Convert.ToInt32(outcomeData["itemSetId"].ToString());
+						int outcomeId = result.OutcomeId;
+
+						var jtokenArrOutcomeCodes =
+							outcomeData["outcomeCodes"]["outcomeItemAttributesList"].Select(x => x).ToArray();
+
+						string attributes = "";
+						foreach (var item in jtokenArrOutcomeCodes)
+						{
+							var obj = item.ToObject<OutcomeItemAttribute>();
+
+							if (attributes == "")
+							{
+								attributes = obj.AttributeId.ToString();
+							}
+							else
+							{
+								attributes += "," + obj.AttributeId.ToString();
+							}
+						}
+
+						DataPortal<OutcomeItemAttributesCommand> dpCmd = new DataPortal<OutcomeItemAttributesCommand>();
+						OutcomeItemAttributesCommand command = new OutcomeItemAttributesCommand(
+							outcomeId, attributes);
+
+						command = dpCmd.Execute(command);
+
+					}
+
 					return Ok(result);
 				}
 				else
@@ -89,16 +121,42 @@ namespace ERxWebClient2.Controllers
 				{
 					ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
 
-					DataPortal<OutcomeItemList> dp = new DataPortal<OutcomeItemList>();
-					long itemSetId = Convert.ToInt64(outcomeData["itemSetId"].ToString());
-					long outcomeId = Convert.ToInt64(outcomeData["outcomeId"].ToString());
+					int itemSetId = Convert.ToInt32(outcomeData["itemSetId"].ToString());
+					int outcomeId = Convert.ToInt32(outcomeData["outcomeId"].ToString());
+
+					var jtokenArrOutcomeCodes =
+						outcomeData["outcomeCodes"]["outcomeItemAttributesList"].Select(x => x).ToArray();
+
+					string attributes = "";
+					foreach (var item in jtokenArrOutcomeCodes)
+					{
+						var obj = item.ToObject<OutcomeItemAttribute>();
+
+						if (attributes == "")
+						{
+							attributes = obj.AttributeId.ToString();
+						}
+						else
+						{
+							attributes += "," + obj.AttributeId.ToString();
+						}
+					}
+
+					DataPortal<OutcomeItemAttributesCommand> dpCmd = new DataPortal<OutcomeItemAttributesCommand>();
+					OutcomeItemAttributesCommand command = new OutcomeItemAttributesCommand(
+						outcomeId, attributes);
+
+					command = dpCmd.Execute(command);
+
+					
 					SingleCriteria<OutcomeItemList, Int64> criteria =
 						new SingleCriteria<OutcomeItemList, Int64>(itemSetId);
+					DataPortal<OutcomeItemList> dp = new DataPortal<OutcomeItemList>();
 					OutcomeItemList result = dp.Fetch(criteria);
 					Outcome editOutcome = result.FirstOrDefault(x => x.OutcomeId == outcomeId);
 
-					// this line is wishful thinking...
 					outcomeData.Populate(editOutcome);
+					
 					editOutcome = editOutcome.Save();
 
 					return Ok(editOutcome);
@@ -115,7 +173,6 @@ namespace ERxWebClient2.Controllers
 				return StatusCode(500, e.Message);
 			}
 		}
-
 
 		//FetchReviewSetOutcomeList
 		[HttpPost("[action]")]
@@ -264,6 +321,7 @@ namespace ERxWebClient2.Controllers
 	{
 		public static void Populate<T>(this JToken value, T target) where T : class
 		{
+
 			using (var sr = value.CreateReader())
 			{
 				JsonSerializer.CreateDefault().Populate(sr, target); // Uses the system default JsonSerializerSettings

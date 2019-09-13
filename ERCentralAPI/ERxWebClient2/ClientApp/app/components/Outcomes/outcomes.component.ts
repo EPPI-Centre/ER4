@@ -22,17 +22,17 @@ export class OutcomesComponent implements OnInit, OnDestroy, AfterViewInit {
 		private _ReviewerIdentityServ: ReviewerIdentityService,
 		private _OutcomesService: OutcomesService
 	) { }
-
-
+	
 	private ItemSetId: number = 0;
 	public ShowOutcomesStatistics: boolean = false;
 	public ShowOutcomesList: boolean = true;
 	@Input() item: Item | undefined;
+	// Correction for unit of analysis error
 	public ShowCFUOAEBool: boolean = false;
 	public OutcomeTypeList: OutcomeType[] = [];
 
 	ngOnInit() {
-
+		
 		this.OutcomeTypeList = [
 			{ "outcomeTypeId": 0, "outcomeTypeName": "Manual entry" },
 			{ "outcomeTypeId": 1, "outcomeTypeName": "Continuous: Ns, means, and SD" },
@@ -48,10 +48,10 @@ export class OutcomesComponent implements OnInit, OnDestroy, AfterViewInit {
 		if (this.item) {
 			outcomeTimePoint.itemId = this.item.itemId;
 		}
-		outcomeTimePoint.itemTimepointId = this.currentOutcome.itemTimepointId;
-		outcomeTimePoint.timepointMetric = this.currentOutcome.itemTimepointMetric;
-		outcomeTimePoint.timepointValue = this.currentOutcome.itemTimepointValue;
-		this.currentOutcome.outcomeTimePoint = outcomeTimePoint;
+		outcomeTimePoint.itemTimepointId = this._OutcomesService.currentOutcome.itemTimepointId;
+		outcomeTimePoint.timepointMetric = this._OutcomesService.currentOutcome.itemTimepointMetric;
+		outcomeTimePoint.timepointValue = this._OutcomesService.currentOutcome.itemTimepointValue;
+		this._OutcomesService.currentOutcome.outcomeTimePoint = outcomeTimePoint;
 
 		this.ItemSetId = this._OutcomesService.ItemSetId;
 		if (this.ItemSetId != 0) {
@@ -86,11 +86,11 @@ export class OutcomesComponent implements OnInit, OnDestroy, AfterViewInit {
 	}
 	public get SMD(): string {
 
-		return this.currentOutcome.smd.toFixed(15);
+		return this._OutcomesService.currentOutcome.smd.toFixed(15);
 	}
 	public get SEES(): string {
 
-		return this.currentOutcome.sees.toFixed(15);
+		return this._OutcomesService.currentOutcome.sees.toFixed(15);
 	}
 	public get timePointsList(): iTimePoint[] {
 
@@ -105,25 +105,24 @@ export class OutcomesComponent implements OnInit, OnDestroy, AfterViewInit {
 
 	public CalculatedEffectSize(): number {
 
-		if (this.currentOutcome.esDesc == 'Effect size') {
-			return this.currentOutcome.es;
+		if (this._OutcomesService.currentOutcome.esDesc == 'Effect size') {
+			return this._OutcomesService.currentOutcome.es;
 		}
-		if (this.currentOutcome.esDesc == 'SMD') {
-			return this.currentOutcome.smd;
+		if (this._OutcomesService.currentOutcome.esDesc == 'SMD') {
+			return this._OutcomesService.currentOutcome.smd;
 		}
-		if (this.currentOutcome.esDesc == 'Diagnostic OR') {
-			return this.currentOutcome.petoOR;
+		if (this._OutcomesService.currentOutcome.esDesc == 'Diagnostic OR') {
+			return this._OutcomesService.currentOutcome.petoOR;
 		}
-		if (this.currentOutcome.esDesc == 'r') {
+		if (this._OutcomesService.currentOutcome.esDesc == 'r') {
 
-			return this.currentOutcome.r;
+			return this._OutcomesService.currentOutcome.r;
 		}
 
 		return this._calculatedEffectSize;
 
 	}
 
-	public currentOutcome: Outcome = new Outcome();
 	public outcomeDescription: string = '';
 	public outcomeDescriptionModel: string = '';
 	public interventionDD: string = '';
@@ -157,17 +156,14 @@ export class OutcomesComponent implements OnInit, OnDestroy, AfterViewInit {
 	public get HasWriteRights(): boolean {
 		return this._ReviewerIdentityServ.HasWriteRights;
 	}
-	public printstuff() {
+	public editOutcome(outcome: Outcome) {
 
-		var ans = this.currentOutcome;//.OutcomeCodes.outcomeItemAttributesList;
-		console.log(JSON.stringify(ans));
-	}
-	public editOutcome(outcome: Outcome, key: number) {
-
-		this.ShowOutcomesStatistics = true;
-		this.ShowOutcomesList = false;
-		this.currentOutcome = outcome;
-		console.log(JSON.stringify(this.currentOutcome));
+		if (outcome != null) {
+			this.ShowOutcomesStatistics = true;
+			this.ShowOutcomesList = false;
+			this._OutcomesService.currentOutcome = outcome;
+			this._OutcomesService.ItemSetId = outcome.itemSetId;
+		}
 	}
 	removeWarning(outcome: Outcome, key: number) {
 
@@ -204,21 +200,24 @@ export class OutcomesComponent implements OnInit, OnDestroy, AfterViewInit {
 	}
 	public setTimepoint(Timepoint: iTimePoint) {
 
-		this.Timepoint = Timepoint;
+		if (Timepoint != null) {
+			this.Timepoint = Timepoint;
+		}
 	}
 	public SaveOutcome() {
 
-		if (this.currentOutcome &&
+		if (this._OutcomesService.currentOutcome &&
 			this.ItemSetId != 0) {
-			if (this.currentOutcome.outcomeId == 0 ) {
-				this.currentOutcome.itemSetId = this.ItemSetId;
-				this._OutcomesService.Createoutcome(this.currentOutcome).then(
+			if (this._OutcomesService.currentOutcome.outcomeId == 0 ) {
+				this._OutcomesService.currentOutcome.itemSetId = this.ItemSetId;
+				//console.log('Just before creating outcome we have: ', this._OutcomesService.currentOutcome.outcomeCodes);
+				this._OutcomesService.Createoutcome(this._OutcomesService.currentOutcome).then(
 					() => {
-						this._OutcomesService.outcomesList;
+							this._OutcomesService.FetchOutcomes(this._OutcomesService.currentOutcome.itemSetId);
 						}
 					);
 			} else {
-				this._OutcomesService.Updateoutcome(this.currentOutcome);
+				this._OutcomesService.Updateoutcome(this._OutcomesService.currentOutcome);
 			}
 		}
 		this.ShowOutcomesStatistics = false;
@@ -233,12 +232,14 @@ export class OutcomesComponent implements OnInit, OnDestroy, AfterViewInit {
 	}
 	CreateNewOutcome() {
 
-		this.currentOutcome = new Outcome();
+		this._OutcomesService.currentOutcome = new Outcome();
+		//console.log(this._OutcomesService.currentOutcome);
 		this.ShowOutcomesStatistics = true;
 		this.ShowOutcomesList = false;
-		this.currentOutcome.SetCalculatedValues();
+		this._OutcomesService.currentOutcome.SetCalculatedValues();
 	}
 	ClearAndCancelSave() {
+		this._OutcomesService.FetchOutcomes(this.ItemSetId);
 		this.ShowOutcomesStatistics = false;
 		this.ShowOutcomesList = true;
 	}

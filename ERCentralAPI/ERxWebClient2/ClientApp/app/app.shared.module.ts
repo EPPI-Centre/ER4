@@ -80,6 +80,7 @@ import { LiveComparisonComp } from './components/CodingRecord/LiveComparison.com
 import { timePointsComp } from './components/ArmsAndTimePoints/timePointsComp.component';
 import { OutcomesComponent } from './components/Outcomes/outcomes.component'
 import { EditCodeComp } from './components/CodesetTrees/editcode.component';
+import { SingleCodesetTreeCodingComponent } from './components/CodesetTrees/SingleCodesetTreeCoding.component';
 
 @NgModule({
     declarations: [
@@ -92,7 +93,7 @@ import { EditCodeComp } from './components/CodesetTrees/editcode.component';
 		ReviewStatisticsComp,
 		itemDetailsPaginatorComp,
         CodesetTreeMainComponent,
-        CodesetTreeCodingComponent,
+		CodesetTreeCodingComponent,
         CodesetTreeEditComponent,
         ImportCodesetsWizardComponent,
         codesetTree4CopyComponent,
@@ -140,7 +141,8 @@ import { EditCodeComp } from './components/CodesetTrees/editcode.component';
         WebViewerComponent,
 		codingRecordComp,
         OutcomesComponent,
-        EditCodeComp
+		EditCodeComp,
+		SingleCodesetTreeCodingComponent
 	],
     providers: [
         EventEmitterService,
