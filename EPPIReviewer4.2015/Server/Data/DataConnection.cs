@@ -56,9 +56,18 @@ namespace BusinessLibrary.Data
             {
                 string name = Environment.MachineName;
                 if (name.ToLower() == "epi2")// | name.ToLower() == "ssru38")
-                    return System.Configuration.ConfigurationManager.ConnectionStrings["WcfHostWeb.Properties.Settings.ADMConnectionString"].ConnectionString;
+                    return System.Configuration.ConfigurationManager.ConnectionStrings["WcfHostWeb.Properties.Settings.MAGConnectionString"].ConnectionString;
+                else if (name.ToLower() == "epi3")// | name.ToLower() == "eppi-management")
+                    return System.Configuration.ConfigurationManager.ConnectionStrings["WcfHostWeb.Properties.Settings.MAGConnectionStringAz"].ConnectionString;
+                else if (name.ToLower() == "silvie2")
+                    return "Data Source=SILVIE2;Initial Catalog=Reviewer;Integrated Security=True";
+                else if (name.ToLower() == "bk-epi")
+                    return "Data Source=db-epi;Initial Catalog=AcademicController;Integrated Security=True";
+                    //return "Server=tcp:f6u2ejr2ty.database.windows.net;Database=Reviewer;User ID=JamesThomas100;Password=20thDecember;Trusted_Connection=False;Encrypt=True;";
+                else if (name.ToLower() == "ssrulap41")
+                    return "Data Source=SSRULAP41\\LAP2008;Initial Catalog=AcademicController;Integrated Security=True";
                 else
-                    return "Data Source = localhost; Initial Catalog = AcademicController; Integrated Security = True";
+                    return System.Configuration.ConfigurationManager.ConnectionStrings["WcfHostWeb.Properties.Settings.MAGConnectionString1"].ConnectionString;
             }
         }
     }

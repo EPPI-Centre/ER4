@@ -127,9 +127,10 @@ namespace EppiReviewer4
                 else
                 {
                     MAgReviewMagInfoCommand mrmic2 = e2.Object as MAgReviewMagInfoCommand;
-                    TBNumInReview.Text = mrmic2.NInReviewIncluded.ToString() + " / " + mrmic2.NInReviewExcluded.ToString();
+                    //TBNumInReview.Text = mrmic2.NInReviewIncluded.ToString() + " / " + mrmic2.NInReviewExcluded.ToString();
                     LBListMatchesIncluded.Content = mrmic2.NMatchedAccuratelyIncluded.ToString();
                     LBListMatchesExcluded.Content = mrmic2.NMatchedAccuratelyExcluded.ToString();
+                    LBListAllInReview.Content = (mrmic2.NMatchedAccuratelyIncluded + mrmic2.NMatchedAccuratelyExcluded).ToString();
                     LBManualCheckIncluded.Content = mrmic2.NRequiringManualCheckIncluded.ToString();
                     LBManualCheckExcluded.Content = mrmic2.NRequiringManualCheckExcluded.ToString();
                     LBMNotMatchedIncluded.Content = mrmic2.NNotMatchedIncluded.ToString();
@@ -458,22 +459,6 @@ namespace EppiReviewer4
                 0, "", "", 0, "", 0, "", "", 0);
             TBPaperListTitle.Text = "List of all matches in review (included and excluded)";
             ShowIncludedMatchesPage("all");
-        }
-
-        private void LBListAllRelatedToItemsWithThisCode_Click(object sender, RoutedEventArgs e)
-        {
-            if (RowCodesSelect.MaxHeight == 0)
-            {
-                RowCodesSelect.MaxHeight = 35;
-                LBListAllRelatedToItemsWithThisCode.Content = "";
-                LBListAllRelatedToItemsWithThisCode.Content = "Select code below (click to hide)";
-            }
-            else
-            {
-                RowCodesSelect.MaxHeight = 0;
-                LBListAllRelatedToItemsWithThisCode.Content = "";
-                LBListAllRelatedToItemsWithThisCode.Content = "List all Microsoft Academic records with this code";
-            }
         }
 
         private void LBListAllRelatedItemsWithThisCode_Click(object sender, RoutedEventArgs e)
@@ -1590,7 +1575,109 @@ namespace EppiReviewer4
             }
         }
 
-       
+        // **************************** Simulation studies in research & development *******************************
+
+        private void rbSimulationYear_Click(object sender, RoutedEventArgs e)
+        {
+            RadioButton rb = sender as RadioButton;
+            if (rb != null)
+            {
+                if (rb.Tag.ToString() == "ShowCodesControl")
+                {
+                    DatePickerSimulation.Visibility = Visibility.Collapsed;
+                    codesSelectControlSimulation.Visibility = Visibility.Visible;
+                }
+                else
+                {
+                    DatePickerSimulation.Visibility = Visibility.Visible;
+                    codesSelectControlSimulation.Visibility = Visibility.Collapsed;
+                }
+            }
+        }
+
+        private void lbRunSimulation_Click(object sender, RoutedEventArgs e)
+        {
+            DateTime SimulationYear = Convert.ToDateTime("1/1/1753");
+            DateTime CreatedDate = Convert.ToDateTime("1/1/1753");
+            Int64 AttributeId = 0;
+            if (rbSimulationYear.IsChecked == true)
+            {
+                SimulationYear = DatePickerSimulation.SelectedValue.Value;
+                AttributeId = 0;
+            }
+            if (rbSimulationCreatedDate.IsChecked == true)
+            {
+                CreatedDate = DatePickerSimulation.SelectedValue.Value;
+                AttributeId = 0;
+            }
+            if (rbSimulationWithThisCode.IsChecked == true)
+            {
+                if (codesSelectControlSimulation.SelectedAttributeSet() != null)
+                {
+                    AttributeId = codesSelectControlSimulation.SelectedAttributeSet().AttributeId;
+                }
+                else
+                {
+                    RadWindow.Alert("Please select a code");
+                    return;
+                }
+            }
+            DataPortal<MagRunSimulationCommand> dp2 = new DataPortal<MagRunSimulationCommand>();
+            MagRunSimulationCommand mrsc = new MagRunSimulationCommand(SimulationYear, CreatedDate, AttributeId);
+            dp2.ExecuteCompleted += (o, e2) =>
+            {
+                //BusyLoading.IsRunning = false;
+                if (e2.Error != null)
+                {
+                    RadWindow.Alert(e2.Error.Message);
+                    tbSimulationResults.Text = "error";
+                }
+                else
+                {
+                    MagRunSimulationCommand mrsc2 = e2.Object as MagRunSimulationCommand;
+                    if (mrsc2 != null)
+                    {
+                        lbRunSimulation.IsEnabled = true;
+                        if (mrsc2.N_Seeking == 0 || mrsc2.N_Seeds == 0)
+                        {
+                            tbSimulationResults.Text = "Zero items to find / to learn from";
+                        }
+                        else
+                        {
+                            string r = "Results" + Environment.NewLine + "-------" + Environment.NewLine + Environment.NewLine;
+                            r += "Number of 'seed' items: " + mrsc2.N_Seeds.ToString() + ". Number of items being sought: " +
+                                mrsc2.N_Seeking.ToString() + Environment.NewLine;
+                            r += "-----------------------------------------" + Environment.NewLine;
+                            r += "Method".PadRight(24) + "true positives\t\tfalse positives\t\tPrecision\t\tRecall" + Environment.NewLine;
+                            r += AddSimulationLine("Bibliography", mrsc2.bibliography, mrsc2.total_bibliography, mrsc2.N_Seeking) + Environment.NewLine;
+                            r += AddSimulationLine("Cited by", mrsc2.citations, mrsc2.total_citations, mrsc2.N_Seeking) + Environment.NewLine;
+                            r += AddSimulationLine("Both", mrsc2.bicitations, mrsc2.total_bicitations, mrsc2.N_Seeking) + Environment.NewLine +
+                                "------------------------------------------------------------------------------" + Environment.NewLine;
+                            r += AddSimulationLine("Recommended", mrsc2.recommended, mrsc2.total_recommended, mrsc2.N_Seeking) + Environment.NewLine;
+                            r += AddSimulationLine("Recommended by", mrsc2.reverse_recommended, mrsc2.total_reverse_recommended, mrsc2.N_Seeking) + Environment.NewLine;
+                            r += AddSimulationLine("Bi-directional recommended", mrsc2.birecommended, mrsc2.total_birecommended, mrsc2.N_Seeking) + Environment.NewLine +
+                                "------------------------------------------------------------------------------" + Environment.NewLine;
+                            r += AddSimulationLine("Citations AND recommendations", mrsc2.both, mrsc2.total_both, mrsc2.N_Seeking) + Environment.NewLine;
+                            tbSimulationResults.Text = r;
+                        }
+                    }
+                }
+            };
+            //BusyLoading.IsRunning = true;
+            tbSimulationResults.Text = "Working...";
+            lbRunSimulation.IsEnabled = false;
+            dp2.BeginExecute(mrsc);
+        }
+
+        private string AddSimulationLine(string name, int TP, int FP, int N_Seeking)
+        {
+            string res = name.PadRight(31) +
+                TP.ToString().PadLeft(5).PadRight(15) +
+                FP.ToString().PadLeft(5).PadRight(15) +
+                (((double)TP / (double)FP).ToString("0.##")).PadRight(10) +
+                ((double)TP / (double)N_Seeking).ToString("0.##");
+            return res;
+        }
 
 
 

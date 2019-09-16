@@ -19,6 +19,7 @@ namespace SQL_Changes_Manager
         static void Main(string[] args)
         {
             if (GetAppSettings()) DoWork();
+            //Console.ReadLine(); // added by James so that I can see which scripts were run
         }
         static void DoWork()
         {

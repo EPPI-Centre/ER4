@@ -465,6 +465,9 @@
     <Compile Include="..\Server\BusinessClasses\MagReviewMagInfo.cs">
       <Link>BusinessClasses\MagReviewMagInfo.cs</Link>
     </Compile>
+    <Compile Include="..\Server\BusinessClasses\MagRunSimulationCommand.cs">
+      <Link>BusinessClasses\MagRunSimulationCommand.cs</Link>
+    </Compile>
     <Compile Include="..\Server\BusinessClasses\MetaAnalyse.cs">
       <Link>BusinessClasses\MetaAnalyse.cs</Link>
     </Compile>
