@@ -633,9 +633,9 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
             this.HelpAndFeebackContext = "itemdetails\\codingrecord";
         }
         else if (e.title == 'PDF') {
-            if (this.HasDocForView && this.pdftroncontainer.currentDocId !== this.ItemDocsService.CurrentDocId) {
-                this.pdftroncontainer.loadDoc();//only load it if it's not there already
-            }
+            //if (this.HasDocForView && this.pdftroncontainer.currentDocId !== this.ItemDocsService.CurrentDocId) {
+                //this.pdftroncontainer.loadDoc();//only load it if it's not there already
+            //}
             this.HelpAndFeebackContext = "itemdetails\\pdf";//no record in DB for the help!!
         }
         else {
