@@ -102,6 +102,7 @@ namespace BusinessLibrary.BusinessClasses
                         command.Parameters.Add(new SqlParameter("@BIN", _docbin));
                         command.Parameters.Add(new SqlParameter("@DOCUMENT_EXTENSION", _documentExtension));
                         command.Parameters.Add(new SqlParameter("@DOCUMENT_TEXT", _documentText));
+						command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
                         command.ExecuteNonQuery();
                     }
                     connection.Close();
@@ -116,4 +117,5 @@ namespace BusinessLibrary.BusinessClasses
 
 #endif
     }
+
 }
