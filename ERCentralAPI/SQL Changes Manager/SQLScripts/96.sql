@@ -1,38 +1,5 @@
 ﻿USE [Reviewer]
 GO
-/****** Object:  StoredProcedure [dbo].[st_ItemDocumentBinInsert]    Script Date: 16/09/2019 14:51:05 ******/
-SET ANSI_NULLS ON
-GO
-SET QUOTED_IDENTIFIER ON
-GO
-ALTER procedure [dbo].[st_ItemDocumentBinInsert]
-(
-	@ITEM_ID BIGINT,
-	@DOCUMENT_TITLE NVARCHAR(255),
-	@DOCUMENT_EXTENSION NVARCHAR(5),
-	@BIN IMAGE,
-	@DOCUMENT_TEXT NVARCHAR(MAX),
-	@REVIEW_ID int
-)
-
-As
-
-SET NOCOUNT ON
-
-declare @check int = 0
---make sure source belongs to review...
-set @check = (select count(ITEM_ID) from TB_ITEM_REVIEW where ITEM_ID = @ITEM_ID and REVIEW_ID = @REVIEW_ID)
-if (@check != 1) return
-
-
-SET @DOCUMENT_TEXT = replace(@DOCUMENT_TEXT,CHAR(13)+CHAR(10),CHAR(10))
-	INSERT INTO TB_ITEM_DOCUMENT(ITEM_ID, DOCUMENT_TITLE, DOCUMENT_EXTENSION, DOCUMENT_BINARY, DOCUMENT_TEXT)
-	VALUES(@ITEM_ID, @DOCUMENT_TITLE, @DOCUMENT_EXTENSION, @BIN, [dbo].fn_CLEAN_SIMPLE_TEXT(@DOCUMENT_TEXT))
-
-SET NOCOUNT OFF
-SET ANSI_NULLS ON
-
-GO
 /****** Object:  StoredProcedure [dbo].[st_ItemTimepointDelete]    Script Date: 16/09/2019 15:03:14 ******/
 SET ANSI_NULLS ON
 GO
