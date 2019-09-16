@@ -144,7 +144,7 @@ DELETE FROM TB_SEARCH
 	FROM TB_SEARCH INNER JOIN fn_split_int(@SEARCHES, ',') SearchList on SearchList.value = TB_SEARCH.SEARCH_ID
 
 SET NOCOUNT OFF
-
+GO
 
 
 
