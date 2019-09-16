@@ -162,7 +162,18 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
             //this.ReviewSetsService.ItemCodingItemAttributeSaveCommandError.subscribe((cmdErr: any) => this.HandleItemAttributeSaveCommandError(cmdErr));
             //this.ReviewSetsService.ItemCodingItemAttributeSaveCommandExecuted.subscribe((cmd: ItemAttributeSaveCommand) => this.HandleItemAttributeSaveCommandDone(cmd));
         }
-    }
+	}
+	public FindReference(item: Item) {
+
+		if (item != null) {
+
+			let searchString: string = "\"" + item.title + "\"" + item.authors;
+			
+			window.open("https://www.google.com/search?q=" + searchString);
+
+		}
+
+	}
 	public ShowingOutComes() {
         this.ShowOutComes = !this.ShowOutComes;
 	}

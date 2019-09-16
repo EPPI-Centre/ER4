@@ -95,7 +95,7 @@
 							   [(ngModel)]="_OutcomesService.currentOutcome.title"
 							   required minlength="3"
 							   value="_OutcomesService.currentOutcome.title"
-							   pattern="^[a-zA-Z]+$"
+							   pattern="^[a-zA-Z\s]+$"
 							   type="text" class="form-control col-md-8 form-input" />
 					</div>
 					<div class="row col-md-12 p-1 m-0">
@@ -233,7 +233,7 @@
 							<input class="form-control col-md-6" #group1NModel="ngModel"
 								   [(ngModel)]="_OutcomesService.currentOutcome.data1"
 								   name="outcomedata1" #outcomedata1="ngModel"
-								   pattern="^\d+$"
+								   pattern="^[-+]?[0-9]*\.?[0-9]+$"
 								   value="_OutcomesService.currentOutcome.data1"
 								   type="number" />
 						</div>
@@ -241,7 +241,7 @@
 							<label class="col-md-6">{{_OutcomesService.currentOutcome.Data2Desc}}</label>
 							<input class="form-control col-md-6" #group2NModel="ngModel"
 								   [(ngModel)]="_OutcomesService.currentOutcome.data2"
-								   pattern="^\d+$"
+								   pattern="^[-+]?[0-9]*\.?[0-9]+$"
 								   name="outcomedata2" #outcomedata2="ngModel"
 								   value="_OutcomesService.currentOutcome.data2"
 								   type="number" />
@@ -252,7 +252,7 @@
 							<input #group1MeanModel="ngModel"
 								   [(ngModel)]="_OutcomesService.currentOutcome.data3"
 								   name="outcomedata3" #outcomedata3="ngModel"
-								   pattern="^\d+$"
+								   pattern="^[-+]?[0-9]*\.?[0-9]+$"
 								   value="_OutcomesService.currentOutcome.data3"
 								   type="number" class="form-control col-md-6" />
 						</div>
@@ -264,7 +264,7 @@
 							<input #group2MeanModel="ngModel"
 								   [(ngModel)]="_OutcomesService.currentOutcome.data4"
 								   name="outcomedata4" #outcomedata4="ngModel"
-								   pattern="^\d+$"
+								   pattern="^[-+]?[0-9]*\.?[0-9]+$"
 								   value="_OutcomesService.currentOutcome.data4"
 								   type="number" class="form-control col-md-6" />
 						</div>
@@ -277,7 +277,7 @@
 							<input #group1SDModel="ngModel"
 								   [(ngModel)]="_OutcomesService.currentOutcome.data5"
 								   name="outcomedata5" #outcomedata5="ngModel"
-								   pattern="^\d+$"
+								   pattern="^[-+]?[0-9]*\.?[0-9]+$"
 								   value="_OutcomesService.currentOutcome.data5"
 								   type="number" class="form-control col-md-6" />
 						</div>
@@ -289,7 +289,7 @@
 							<input #group2SDModel="ngModel"
 								   [(ngModel)]="_OutcomesService.currentOutcome.data6"
 								   name="outcomedata6" #outcomedata6="ngModel"
-								   pattern="^\d+$"
+								   pattern="^[-+]?[0-9]*\.?[0-9]+$"
 								   value="_OutcomesService.currentOutcome.data6"
 								   type="number" class="form-control col-md-6" />
 
@@ -304,7 +304,7 @@
 							<input #group2SDModel="ngModel"
 								   [(ngModel)]="_OutcomesService.currentOutcome.data7"
 								   name="outcomedata7" #outcomedata7="ngModel"
-								   pattern="^\d+$"
+								   pattern="^[-+]?[0-9]*\.?[0-9]+$"
 								   value="_OutcomesService.currentOutcome.data7"
 								   type="number" class="form-control col-md-6" />
 						</div>
@@ -318,7 +318,7 @@
 							<input #group2SDModel="ngModel"
 								   [(ngModel)]="_OutcomesService.currentOutcome.data8"
 								   name="outcomedata8" #outcomedata8="ngModel"
-								   pattern="^\d+$"
+								   pattern="^[-+]?[0-9]*\.?[0-9]+$"
 								   value="_OutcomesService.currentOutcome.data8"
 								   type="number" class="form-control col-md-6" />
 						</div>
@@ -333,7 +333,7 @@
 							<input #group2SDModel="ngModel"
 								   [(ngModel)]="_OutcomesService.currentOutcome.data11"
 								   name="outcomedata11" #outcomedata11="ngModel"
-								   pattern="^\d+$"
+								   pattern="^[-+]?[0-9]*\.?[0-9]+$"
 								   value="_OutcomesService.currentOutcome.data11"
 								   type="number" class="form-control col-md-6 small" />
 						</div>
@@ -348,7 +348,7 @@
 							<input #group2SDModel="ngModel"
 								   [(ngModel)]="_OutcomesService.currentOutcome.data12"
 								   name="outcomedata12" #outcomedata12="ngModel"
-								   pattern="^\d+$"
+								   pattern="^[-+]?[0-9]*\.?[0-9]+$"
 								   value="_OutcomesService.currentOutcome.data12"
 								   type="number" class="form-control col-md-6 small" />
 						</div>
@@ -363,7 +363,7 @@
 							<input #group2SDModel="ngModel"
 								   [(ngModel)]="_OutcomesService.currentOutcome.data13"
 								   name="outcomedata13" #outcomedata13="ngModel"
-								   pattern="^\d+$"
+								   pattern="^[-+]?[0-9]*\.?[0-9]+$"
 								   value="_OutcomesService.currentOutcome.data13"
 								   type="number" class="form-control col-md-6 small" />
 						</div>
@@ -376,7 +376,7 @@
 							<input #group2SDModel="ngModel"
 								   [(ngModel)]="_OutcomesService.currentOutcome.data14"
 								   name="outcomedata14" #outcomedata14="ngModel"
-								   pattern="^\d+$"
+								   pattern="^[-+]?[0-9]*\.?[0-9]+$"
 								   value="_OutcomesService.currentOutcome.data14"
 								   type="number" class="form-control col-md-6 small" />
 						</div>
@@ -391,7 +391,7 @@
 									<input #group2SDModel="ngModel"
 										   [(ngModel)]="_OutcomesService.currentOutcome.data9"
 										   name="outcomedata9" #outcomedata9="ngModel"
-										   pattern="^\d+$"
+										   pattern="^[-+]?[0-9]*\.?[0-9]+$"
 										   value="_OutcomesService.currentOutcome.data9"
 										   type="number" class="form-control col-4 col-md-4" />
 								</div>
@@ -400,7 +400,7 @@
 									<input #group2SDModel="ngModel"
 										   [(ngModel)]="_OutcomesService.currentOutcome.data10"
 										   name="outcomedata10" #outcomedata10="ngModel"
-										   pattern="^\d+$"
+										   pattern="^[-+]?[0-9]*\.?[0-9]+$"
 										   value="_OutcomesService.currentOutcome.data10"
 										   type="number" class="form-control col-4 col-md-4" />
 								</div>
@@ -417,9 +417,9 @@
 								</div>
 								<div class="col-md-12 row">
 									<label class="col-md-5 text-capitalize bold">{{_OutcomesService.currentOutcome.seDesc}}</label>
-									<p *ngIf="_OutcomesService.currentOutcome.esDesc!='Effect size'" class="col-md-7 ">{{SEES}}</p>
-
-									<p *ngIf="_OutcomesService.currentOutcome.esDesc=='Effect size'" class="col-md-7 ">{{_OutcomesService.currentOutcome.sesmd}}</p>
+									<!--<p *ngIf="_OutcomesService.currentOutcome.esDesc!='Effect size'" class="col-md-7 ">{{SEES}}</p>-->
+									<p *ngIf="_OutcomesService.currentOutcome.seDesc=='SE'" class="col-md-7 ">{{SEES}}</p>
+									<p *ngIf="_OutcomesService.currentOutcome.esDesc=='r'" class="col-md-7 ">{{_OutcomesService.currentOutcome.sesmd}}</p>
 								</div>
 							</div>
 						</div>

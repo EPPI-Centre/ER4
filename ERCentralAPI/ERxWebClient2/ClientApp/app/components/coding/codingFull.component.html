@@ -63,6 +63,10 @@
                     <itemDetailsPaginator [item]="item" Context="FullUI" [IsScreening]="IsScreening" (ItemChanged)="ItemChanged()" (GoToNextScreeningItemClicked)="GetItem()"
                                           class="col-12 col-sm  pr-0 pl-0 ml-1 mr-1"></itemDetailsPaginator>
 
+					<button class="page-link rounded pt-1 pb-1 mb-1 float-right" (click)="FindReference(item)">
+						Find Reference
+					</button>
+
                     <div class="pr-0 pl-0 col-12 col-sm pr-0">
                         <button class="page-link rounded pt-1 pb-1 mb-1 float-right" (click)="BackToMain()">
                             Close/back
@@ -85,41 +89,42 @@
                     <LiveComparisonComp></LiveComparisonComp>
                 </div>
                
-                <kendo-tabstrip #tabstripCoding (tabSelect)="onTabSelect($event)" class="specialHideSystem" [keepTabContent]="true">
-                    <kendo-tabstrip-tab [selected]="true" [title]="'Item Details'">
-                        <ng-template kendoTabContent>
-                            <itemDetailsComp #ItemDetailsCmp [item]="item" [CanEdit]="HasWriteRights" [IsScreening]="IsScreening" [ShowHighlights]="ShowHighlights" ShowDocViewButton="true"></itemDetailsComp>
-                        </ng-template>
-                    </kendo-tabstrip-tab>
-                    <kendo-tabstrip-tab [title]="'Arms and Timepoints'">
-                        <ng-template kendoTabContent>
-                            <div *ngIf="item">
-                                <armDetailsComp [item]="item"></armDetailsComp>
-                                <timePointsComp [item]="item"></timePointsComp>
-                            </div>
-                        </ng-template>
-                    </kendo-tabstrip-tab>
-                    <kendo-tabstrip-tab [title]="'PDF'" [disabled]="!HasDocForView">
-                        <ng-template kendoTabContent>
-                            <div *ngIf="item" style="min-height:600px;">
-                                <div *ngIf="IsServiceBusy4PDF()" class="k-loading-image"></div>
-                                <pdftroncontainer #pdftroncontainer [ItemID]="itemID"></pdftroncontainer>
-                            </div>
-                        </ng-template>
-                    </kendo-tabstrip-tab>
-                    <kendo-tabstrip-tab [title]="'Coding Record'">
-                        <ng-template kendoTabContent>
-                            <codingRecordComp [item]="item"></codingRecordComp>
-                        </ng-template>
-                    </kendo-tabstrip-tab>
-                    <!--<kendo-tabstrip-tab [title]="'Study timepoints'">
-                <ng-template kendoTabContent>
-                    <div *ngIf="item" style="min-height:600px;">
-                        <timePointsComp #timepointscontainer [item]="item"></timePointsComp>
-                    </div>
-                </ng-template>
-            </kendo-tabstrip-tab>-->
-                </kendo-tabstrip>
+				<kendo-tabstrip #tabstripCoding (tabSelect)="onTabSelect($event)" class="specialHideSystem" [keepTabContent]="true">
+					<kendo-tabstrip-tab [selected]="true" [title]="'Item Details'">
+						<ng-template kendoTabContent>
+							<itemDetailsComp #ItemDetailsCmp [item]="item" [CanEdit]="HasWriteRights" [IsScreening]="IsScreening" [ShowHighlights]="ShowHighlights" ShowDocViewButton="true"></itemDetailsComp>
+						</ng-template>
+					</kendo-tabstrip-tab>
+			
+					<kendo-tabstrip-tab [title]="'Arms and Timepoints'">
+						<ng-template kendoTabContent>
+							<div *ngIf="item">
+								<armDetailsComp [item]="item"></armDetailsComp>
+								<timePointsComp [item]="item"></timePointsComp>
+							</div>
+						</ng-template>
+					</kendo-tabstrip-tab>
+					<kendo-tabstrip-tab [title]="'PDF'" [disabled]="!HasDocForView">
+						<ng-template kendoTabContent>
+							<div *ngIf="item" style="min-height:600px;">
+								<div *ngIf="IsServiceBusy4PDF()" class="k-loading-image"></div>
+								<pdftroncontainer #pdftroncontainer [ItemID]="itemID"></pdftroncontainer>
+							</div>
+						</ng-template>
+					</kendo-tabstrip-tab>
+					<kendo-tabstrip-tab [title]="'Coding Record'">
+						<ng-template kendoTabContent>
+							<codingRecordComp [item]="item"></codingRecordComp>
+						</ng-template>
+					</kendo-tabstrip-tab>
+					<!--<kendo-tabstrip-tab [title]="'Study timepoints'">
+		<ng-template kendoTabContent>
+			<div *ngIf="item" style="min-height:600px;">
+				<timePointsComp #timepointscontainer [item]="item"></timePointsComp>
+			</div>
+		</ng-template>
+	</kendo-tabstrip-tab>-->
+				</kendo-tabstrip>
             </div>
 
 
