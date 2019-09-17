@@ -666,7 +666,8 @@ namespace BusinessLibrary.BusinessClasses
             {
                 using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
                 {
-                    connection.Open();
+					ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+					connection.Open();
                     using (SqlCommand command = new SqlCommand("st_AttributeSetUpdate", connection))
                     {
                         command.CommandType = System.Data.CommandType.StoredProcedure;
@@ -680,7 +681,8 @@ namespace BusinessLibrary.BusinessClasses
                         command.Parameters.Add(new SqlParameter("@ATTRIBUTE_NAME", ReadProperty(AttributeNameProperty)));
                         command.Parameters.Add(new SqlParameter("@ATTRIBUTE_DESC", ReadProperty(AttributeDescriptionProperty)));
                         command.Parameters.Add(new SqlParameter("@CONTACT_ID", ReadProperty(ContactIdProperty)));
-                        command.ExecuteNonQuery();
+						command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
+						command.ExecuteNonQuery();
                     }
                     connection.Close();
                 }

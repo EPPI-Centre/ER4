@@ -186,13 +186,15 @@ namespace BusinessLibrary.BusinessClasses
         {
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
-                connection.Open();
+				ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+				connection.Open();
                 using (SqlCommand command = new SqlCommand("st_SearchUpdate", connection))
                 {
                     command.CommandType = System.Data.CommandType.StoredProcedure;
                     command.Parameters.Add(new SqlParameter("@SEARCH_ID", ReadProperty(SearchIdProperty)));
                     command.Parameters.Add(new SqlParameter("@SEARCH_TITLE", ReadProperty(TitleProperty)));
-                    command.ExecuteNonQuery();
+					command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
+					command.ExecuteNonQuery();
                 }
                 connection.Close();
             }

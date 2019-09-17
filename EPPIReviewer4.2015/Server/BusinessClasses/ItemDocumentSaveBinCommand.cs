@@ -106,7 +106,6 @@ namespace BusinessLibrary.BusinessClasses
                     }
                     connection.Close();
                 }
-            
         }
         public ItemDocumentSaveBinCommand doItNow()
         {

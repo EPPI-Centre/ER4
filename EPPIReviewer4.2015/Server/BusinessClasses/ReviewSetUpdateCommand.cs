@@ -11,8 +11,9 @@ using Csla.Silverlight;
 using System.ComponentModel;
 using Csla.DataPortalClient;
 using System.Threading;
+using BusinessLibrary.Security;
 
-#if!SILVERLIGHT
+#if !SILVERLIGHT
 using System.Data.SqlClient;
 using BusinessLibrary.Data;
 #endif
@@ -72,7 +73,8 @@ namespace BusinessLibrary.BusinessClasses
         {
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
-                connection.Open();
+				ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+				connection.Open();
                 using (SqlCommand command = new SqlCommand("st_ReviewSetUpdate", connection))
                 {
                     command.CommandType = System.Data.CommandType.StoredProcedure;
@@ -83,7 +85,8 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@SET_NAME", _SetName));
                     command.Parameters.Add(new SqlParameter("@SET_ORDER", _setOrder));
                     command.Parameters.Add(new SqlParameter("@SET_DESCRIPTION", _setDescription));
-                    command.ExecuteNonQuery();
+					command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
+					command.ExecuteNonQuery();
                 }
                 connection.Close();
             }
