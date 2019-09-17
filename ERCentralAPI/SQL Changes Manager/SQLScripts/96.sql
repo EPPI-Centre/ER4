@@ -22,7 +22,6 @@ set @ITEM_ID = (select ITEM_ID from TB_ITEM_TIMEPOINT WHERE
 ITEM_TIMEPOINT_ID = @ITEM_TIMEPOINT_ID)
 
 declare @check int = 0
---make sure source belongs to review...
 set @check = (select count(ITEM_ID) from TB_ITEM_REVIEW where ITEM_ID = @ITEM_ID and REVIEW_ID = @REVIEW_ID)
 if (@check != 1) return
 
@@ -48,9 +47,7 @@ ALTER procedure [dbo].[st_ReviewWorkAllocationDelete]
 
 As
 
-/* ADD TO THIS THE RETRIEVAL OF ROLES */
 declare @check int = 0
---make sure source belongs to review...
 set @check = (select count(WORK_ALLOCATION_ID) from TB_WORK_ALLOCATION 
 where WORK_ALLOCATION_ID= @WORK_ALLOCATION_ID and REVIEW_ID = @REVIEW_ID)
 if (@check != 1) return
@@ -65,13 +62,7 @@ SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
--- =============================================
--- Author:		Sergio
--- Create date: 20/7/09
--- Description:	(Un/)Delete a source and all its Items
--- =============================================
 ALTER PROCEDURE [dbo].[st_SourceDelete] 
-	-- Add the parameters for the stored procedure here
 	@source_ID int,
 	@REVIEW_ID int
 
@@ -82,7 +73,6 @@ BEGIN
 	SET NOCOUNT ON;
 
 declare @check int = 0
---make sure source belongs to review...
 set @check = (select count(SOURCE_ID) from TB_SOURCE 
 where SOURCE_ID= @source_ID and REVIEW_ID = @REVIEW_ID)
 if (@check != 1) return
@@ -130,7 +120,6 @@ As
 SET NOCOUNT ON
 
 declare @check int = 0
---make sure source belongs to review...
 set @check = (SELECT COUNT(*) FROM TB_SEARCH
 INNER JOIN fn_split_int(@SEARCHES, ',') SearchList on SearchList.value = TB_SEARCH.SEARCH_ID
 WHERE REVIEW_ID = @REVIEW_ID)
