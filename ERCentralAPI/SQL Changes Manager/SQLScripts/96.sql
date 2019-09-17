@@ -33,6 +33,7 @@ DELETE FROM TB_ITEM_TIMEPOINT
 	WHERE ITEM_TIMEPOINT_ID = @ITEM_TIMEPOINT_ID
 
 SET NOCOUNT OFF
+GO
 
 /****** Object:  StoredProcedure [dbo].[st_ReviewWorkAllocationDelete]    Script Date: 16/09/2019 15:12:50 ******/
 SET ANSI_NULLS ON
@@ -55,7 +56,7 @@ if (@check != 1) return
 
 DELETE FROM TB_WORK_ALLOCATION
 WHERE WORK_ALLOCATION_ID = @WORK_ALLOCATION_ID
-
+GO
 
 /****** Object:  StoredProcedure [dbo].[st_SourceDelete]    Script Date: 16/09/2019 15:20:58 ******/
 SET ANSI_NULLS ON
@@ -133,7 +134,7 @@ DELETE FROM TB_SEARCH
 	FROM TB_SEARCH INNER JOIN fn_split_int(@SEARCHES, ',') SearchList on SearchList.value = TB_SEARCH.SEARCH_ID
 
 SET NOCOUNT OFF
-
+GO
 
 
 
