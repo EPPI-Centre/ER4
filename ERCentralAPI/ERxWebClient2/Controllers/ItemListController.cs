@@ -225,11 +225,11 @@ namespace ERxWebClient2.Controllers
 
 
 		[HttpPost("[action]")]
-		public IActionResult DeleteSelectedItems([FromBody] MVCItemIds ItemIds)
+		public IActionResult DeleteSelectedItems([FromBody] long[] ItemIds)
 		{
 			try
 			{
-				string strItemIds = ItemIds.ItemIds;
+				//string strItemIds = ItemIds.ItemIds;
 
 
 
@@ -237,7 +237,7 @@ namespace ERxWebClient2.Controllers
 				{
 					DataPortal<ItemDeleteUndeleteCommand> dp = new DataPortal<ItemDeleteUndeleteCommand>();
 					ItemDeleteUndeleteCommand command = new ItemDeleteUndeleteCommand(
-						true, strItemIds);
+						true, string.Join(",", ItemIds));
 
 					command = dp.Execute(command);
 					return Ok(command);
@@ -249,7 +249,7 @@ namespace ERxWebClient2.Controllers
 			}
 			catch (Exception e)
 			{
-				_logger.LogError(e, "Error when deleting items: {0}", ItemIds);
+				_logger.LogError(e, "Error when deleting items: {0}", ItemIds == null ? "no data" : ItemIds.ToString() );
 				return StatusCode(500, e.Message);
 			}
 		}

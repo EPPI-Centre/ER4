@@ -624,26 +624,28 @@ export class ItemListService extends BusyAwareService {
 
 	DeleteSelectedItems(ItemIds: Item[]) {
 		
-		this._BusyMethods.push("DeleteSelectedItems");
-		var strItemIds = ItemIds.map(x => x.itemId).toString();
+        this._BusyMethods.push("DeleteSelectedItems");
+        let Ids = ItemIds.map(x => x.itemId);
+        //console.log("IDs:", Ids);
+		//var strItemIds = ItemIds.map(x => x.itemId).toString();
 
-		let body = JSON.stringify({ ItemIds: strItemIds });
+		//let body = JSON.stringify({ ItemIds: strItemIds });
 
 		this._httpC.post<any>(this._baseUrl + 'api/ItemList/DeleteSelectedItems',
-			body)
+            Ids)
 			.subscribe(
 			list => {
 
-					var ItemIdStr = list.toString().split(",");
-					var wholListItemIdStr = this.ItemList.items.map(x => x.itemId);
-					for (var i = 0; i < ItemIdStr.length; i++) {
-						var id = Number(ItemIdStr[i]);
-						var ind = wholListItemIdStr.indexOf(id);
-						this.ItemList.items.slice(ind, 1);
-					}
-					this._Criteria.totalItems = this.ItemList.totalItemCount;
-					this.SaveItems(this.ItemList, this._Criteria);
-					this.ListChanged.emit();
+					//var ItemIdStr = list.toString().split(",");
+					//var wholListItemIdStr = this.ItemList.items.map(x => x.itemId);
+					//for (var i = 0; i < ItemIdStr.length; i++) {
+					//	var id = Number(ItemIdStr[i]);
+					//	var ind = wholListItemIdStr.indexOf(id);
+					//	this.ItemList.items.slice(ind, 1);
+					//}
+					//this._Criteria.totalItems = this.ItemList.totalItemCount;
+					//this.SaveItems(this.ItemList, this._Criteria);
+					//this.ListChanged.emit();
 					this.Refresh();
 					//this.FetchWithCrit(this._Criteria, "StandardItemList");
 				
