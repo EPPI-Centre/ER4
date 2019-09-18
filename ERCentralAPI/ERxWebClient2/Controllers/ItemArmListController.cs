@@ -119,7 +119,7 @@ namespace ERxWebClient2.Controllers
             }
 			catch (Exception e)
 			{
-				_logger.LogError(e, "Error when updating an arm: {0}", data.itemArmId);
+				_logger.LogError(e, "Error when updating an arm: {0}", data == null ? "data for arm is null": data.itemArmId.ToString());
 				return StatusCode(500, e.Message);
 			}
 		}
