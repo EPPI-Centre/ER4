@@ -356,6 +356,7 @@ namespace BusinessLibrary.BusinessClasses
                 {
                     command.CommandType = System.Data.CommandType.StoredProcedure;
                     command.Parameters.Add(new SqlParameter("@ITEM_ATTRIBUTE_PDF_ID", ReadProperty(ItemAttributePDFIdProperty)));
+                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", tocheck));
                     command.ExecuteNonQuery();
                 }
                 connection.Close();
