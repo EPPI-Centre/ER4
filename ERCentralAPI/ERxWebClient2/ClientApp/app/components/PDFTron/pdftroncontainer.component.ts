@@ -96,7 +96,7 @@ export class PdfTronContainer implements OnInit, AfterViewInit, OnDestroy {
                 if (!this.docViewer) {
                     //user got here super fast, PDFtron is still initialising...
                     counter = 0;
-                    while (!this.docViewer && counter < 1 * 30) {
+                    while (!this.docViewer && counter < 1 * 60) {
                         counter++;
                         await Helpers.Sleep(200);
                         console.log("waiting, cycle2 n: " + counter);
