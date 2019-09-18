@@ -131,14 +131,16 @@ namespace BusinessLibrary.BusinessClasses
         {
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
-                connection.Open();
+				ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+				connection.Open();
                 using (SqlCommand command = new SqlCommand("st_ItemArmUpdate", connection))
                 {
                     command.CommandType = System.Data.CommandType.StoredProcedure;
                     command.Parameters.Add(new SqlParameter("@ITEM_ARM_ID", ReadProperty(ItemArmIdProperty)));
                     command.Parameters.Add(new SqlParameter("@ARM_NAME", ReadProperty(TitleProperty)));
                     command.Parameters.Add(new SqlParameter("@ORDERING", ReadProperty(OrderingProperty)));
-                    command.ExecuteNonQuery();
+					command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
+					command.ExecuteNonQuery();
                 }
                 connection.Close();
             }

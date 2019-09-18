@@ -225,17 +225,20 @@ namespace ERxWebClient2.Controllers
 
 
 		[HttpPost("[action]")]
-		public IActionResult DeleteSelectedItems([FromBody] Item[] ItemIds)
+		public IActionResult DeleteSelectedItems([FromBody] MVCItemIds ItemIds)
 		{
 			try
 			{
-				string[] strItemIds = ItemIds.Select(x => x.ItemId.ToString()).ToArray();
+				string strItemIds = ItemIds.ItemIds;
+
+
+
 				if (SetCSLAUser4Writing())
 				{
 					DataPortal<ItemDeleteUndeleteCommand> dp = new DataPortal<ItemDeleteUndeleteCommand>();
 					ItemDeleteUndeleteCommand command = new ItemDeleteUndeleteCommand(
-					true,
-					string.Join(",", strItemIds));
+						true, strItemIds);
+
 					command = dp.Execute(command);
 					return Ok(command);
 				}
@@ -312,7 +315,12 @@ namespace ERxWebClient2.Controllers
 		//    }
 		//}
 	}
-    public class SelCritMVC
+	public class MVCItemIds
+	{
+		public string ItemIds { get; set; }
+	}
+
+	public class SelCritMVC
     {
         public bool onlyIncluded { get; set; }
         public bool showDeleted { get; set; }

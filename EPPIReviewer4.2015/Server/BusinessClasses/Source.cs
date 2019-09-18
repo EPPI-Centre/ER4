@@ -229,6 +229,7 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@Descr", SearchDescription));
                     command.Parameters.Add(new SqlParameter("@s_Str", SearchString));
                     command.Parameters.Add(new SqlParameter("@Notes", Notes));
+					command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
                     command.ExecuteNonQuery();
                 }
             }
