@@ -1657,7 +1657,7 @@ namespace EppiReviewer4
                             r += AddSimulationLine("Recommended by", mrsc2.reverse_recommended, mrsc2.total_reverse_recommended, mrsc2.N_Seeking) + Environment.NewLine;
                             r += AddSimulationLine("Bi-directional recommended", mrsc2.birecommended, mrsc2.total_birecommended, mrsc2.N_Seeking) + Environment.NewLine +
                                 "------------------------------------------------------------------------------" + Environment.NewLine;
-                            r += AddSimulationLine("Citations AND recommendations", mrsc2.both, mrsc2.total_both, mrsc2.N_Seeking) + Environment.NewLine;
+                            r += AddSimulationLine("Citations AND recommendations", mrsc2.both, mrsc2.total_both - mrsc2.both, mrsc2.N_Seeking) + Environment.NewLine;
                             tbSimulationResults.Text = r;
                         }
                     }
@@ -1669,12 +1669,12 @@ namespace EppiReviewer4
             dp2.BeginExecute(mrsc);
         }
 
-        private string AddSimulationLine(string name, int TP, int FP, int N_Seeking)
+        private string AddSimulationLine(string name, int TP, int total, int N_Seeking)
         {
             string res = name.PadRight(31) +
                 TP.ToString().PadLeft(5).PadRight(15) +
-                FP.ToString().PadLeft(5).PadRight(15) +
-                (((double)TP / (double)FP).ToString("0.##")).PadRight(10) +
+                (total - TP).ToString().PadLeft(5).PadRight(15) +
+                (((double)TP / (double)total).ToString("0.##")).PadRight(10) +
                 ((double)TP / (double)N_Seeking).ToString("0.##");
             return res;
         }
