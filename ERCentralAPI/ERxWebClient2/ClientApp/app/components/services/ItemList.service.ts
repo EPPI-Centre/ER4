@@ -623,10 +623,14 @@ export class ItemListService extends BusyAwareService {
     }
 
 	DeleteSelectedItems(ItemIds: Item[]) {
-
+		
 		this._BusyMethods.push("DeleteSelectedItems");
-		this._httpC.post<string>(this._baseUrl + 'api/ItemList/DeleteSelectedItems',
-			ItemIds)
+		var strItemIds = ItemIds.map(x => x.itemId).toString();
+
+		let body = JSON.stringify({ ItemIds: strItemIds });
+
+		this._httpC.post<any>(this._baseUrl + 'api/ItemList/DeleteSelectedItems',
+			body)
 			.subscribe(
 			list => {
 
