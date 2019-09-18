@@ -315,11 +315,7 @@ namespace ERxWebClient2.Controllers
 		//    }
 		//}
 	}
-	public class MVCItemIds
-	{
-		public string ItemIds { get; set; }
-	}
-
+	
 	public class SelCritMVC
     {
         public bool onlyIncluded { get; set; }
