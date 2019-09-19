@@ -52,6 +52,43 @@ namespace BusinessLibrary.BusinessClasses
         private int _N_Seeds;
         private int _N_Seeking;
 
+        public string GetReport()
+        {
+            string r = "";
+            if (N_Seeking == 0 || N_Seeds == 0)
+            {
+                r = "Zero items to find / to learn from";
+            }
+            else
+            {
+                r = "Results" + Environment.NewLine + "-------" + Environment.NewLine + Environment.NewLine;
+                r += "Number of 'seed' items: " + this.N_Seeds.ToString() + ". Number of items being sought: " +
+                    this.N_Seeking.ToString() + Environment.NewLine;
+                r += "------------------------------------------------------------------------------" + Environment.NewLine;
+                r += "Method".PadRight(24) + "true positives\t\tfalse positives\t\tPrecision\t\tRecall" + Environment.NewLine;
+                r += AddSimulationLine("Bibliography", this.bibliography, this.total_bibliography, this.N_Seeking) + Environment.NewLine;
+                r += AddSimulationLine("Cited by", this.citations, this.total_citations, this.N_Seeking) + Environment.NewLine;
+                r += AddSimulationLine("Both", this.bicitations, this.total_bicitations, this.N_Seeking) + Environment.NewLine +
+                    "------------------------------------------------------------------------------" + Environment.NewLine;
+                r += AddSimulationLine("Recommended", this.recommended, this.total_recommended, this.N_Seeking) + Environment.NewLine;
+                r += AddSimulationLine("Recommended by", this.reverse_recommended, this.total_reverse_recommended, this.N_Seeking) + Environment.NewLine;
+                r += AddSimulationLine("Bi-directional recommended", this.birecommended, this.total_birecommended, this.N_Seeking) + Environment.NewLine +
+                    "------------------------------------------------------------------------------" + Environment.NewLine;
+                r += AddSimulationLine("Citations AND recommendations", this.both, this.total_both - this.both, this.N_Seeking) + Environment.NewLine;
+            }
+            return r;
+        }
+
+        private string AddSimulationLine(string name, int TP, int total, int N_Seeking)
+        {
+            string res = name.PadRight(31) +
+                TP.ToString().PadLeft(5).PadRight(15) +
+                (total - TP).ToString().PadLeft(5).PadRight(15) +
+                (((double)TP / (double)total).ToString("0.##")).PadRight(10) +
+                ((double)TP / (double)N_Seeking).ToString("0.##");
+            return res;
+        }
+
         [Newtonsoft.Json.JsonProperty]
         public int recommended
         {

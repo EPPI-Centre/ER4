@@ -82,14 +82,14 @@ namespace BusinessLibrary.BusinessClasses
                 ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
                 using (SqlCommand command = SpecifyCommand(connection, ri))
                 {
-                    command.CommandTimeout = 10800; // 3 hours
                     command.CommandType = System.Data.CommandType.StoredProcedure;
                     command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
                     command.Parameters.Add(new SqlParameter("@CONTACT_ID", ri.UserId));
-                    command.Parameters.Add(new SqlParameter("@RESULT", ""));
-                    command.Parameters["@RESULT"].Direction = System.Data.ParameterDirection.Output;
+                    //command.Parameters.Add(new SqlParameter("@RESULT", ""));
+                    //command.Parameters["@RESULT"].Direction = System.Data.ParameterDirection.Output;
                     command.ExecuteNonQuery();
-                    _currentStatus = command.Parameters["@RESULT"].Value.ToString();
+                    //_currentStatus = command.Parameters["@RESULT"].Value.ToString();
+                    _currentStatus = "Successfully added this review to the queue for matching";
 
                 }
                 connection.Close();
@@ -104,11 +104,12 @@ namespace BusinessLibrary.BusinessClasses
                 case "FindMatches":
                     if (_AllInReview == true)
                     {
-                        command = new SqlCommand("st_MatchItemsToPapers", connection);
+                        //command = new SqlCommand("st_MatchItemsToPapers", connection);
+                        command = new SqlCommand("st_MatchItemsToPapersAddJob", connection);
                         command.CommandType = System.Data.CommandType.StoredProcedure;
                     }
                     else if (_ATTRIBUTE_ID != 0)
-                    {
+                    {   // this is currently unused. Should probably add a job rather than run immediately
                         command = new SqlCommand("st_MatchItemsToPapersWithAttribute", connection);
                         command.CommandType = System.Data.CommandType.StoredProcedure;
                         command.Parameters.Add(new SqlParameter("@ATTRIBUTE_ID", _ATTRIBUTE_ID));

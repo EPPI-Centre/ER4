@@ -1638,28 +1638,7 @@ namespace EppiReviewer4
                     if (mrsc2 != null)
                     {
                         lbRunSimulation.IsEnabled = true;
-                        if (mrsc2.N_Seeking == 0 || mrsc2.N_Seeds == 0)
-                        {
-                            tbSimulationResults.Text = "Zero items to find / to learn from";
-                        }
-                        else
-                        {
-                            string r = "Results" + Environment.NewLine + "-------" + Environment.NewLine + Environment.NewLine;
-                            r += "Number of 'seed' items: " + mrsc2.N_Seeds.ToString() + ". Number of items being sought: " +
-                                mrsc2.N_Seeking.ToString() + Environment.NewLine;
-                            r += "-----------------------------------------" + Environment.NewLine;
-                            r += "Method".PadRight(24) + "true positives\t\tfalse positives\t\tPrecision\t\tRecall" + Environment.NewLine;
-                            r += AddSimulationLine("Bibliography", mrsc2.bibliography, mrsc2.total_bibliography, mrsc2.N_Seeking) + Environment.NewLine;
-                            r += AddSimulationLine("Cited by", mrsc2.citations, mrsc2.total_citations, mrsc2.N_Seeking) + Environment.NewLine;
-                            r += AddSimulationLine("Both", mrsc2.bicitations, mrsc2.total_bicitations, mrsc2.N_Seeking) + Environment.NewLine +
-                                "------------------------------------------------------------------------------" + Environment.NewLine;
-                            r += AddSimulationLine("Recommended", mrsc2.recommended, mrsc2.total_recommended, mrsc2.N_Seeking) + Environment.NewLine;
-                            r += AddSimulationLine("Recommended by", mrsc2.reverse_recommended, mrsc2.total_reverse_recommended, mrsc2.N_Seeking) + Environment.NewLine;
-                            r += AddSimulationLine("Bi-directional recommended", mrsc2.birecommended, mrsc2.total_birecommended, mrsc2.N_Seeking) + Environment.NewLine +
-                                "------------------------------------------------------------------------------" + Environment.NewLine;
-                            r += AddSimulationLine("Citations AND recommendations", mrsc2.both, mrsc2.total_both - mrsc2.both, mrsc2.N_Seeking) + Environment.NewLine;
-                            tbSimulationResults.Text = r;
-                        }
+                        tbSimulationResults.Text = mrsc2.GetReport();
                     }
                 }
             };
@@ -1669,15 +1648,7 @@ namespace EppiReviewer4
             dp2.BeginExecute(mrsc);
         }
 
-        private string AddSimulationLine(string name, int TP, int total, int N_Seeking)
-        {
-            string res = name.PadRight(31) +
-                TP.ToString().PadLeft(5).PadRight(15) +
-                (total - TP).ToString().PadLeft(5).PadRight(15) +
-                (((double)TP / (double)total).ToString("0.##")).PadRight(10) +
-                ((double)TP / (double)N_Seeking).ToString("0.##");
-            return res;
-        }
+        
 
 
 
