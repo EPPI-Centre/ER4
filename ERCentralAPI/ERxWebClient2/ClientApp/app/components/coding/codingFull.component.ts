@@ -59,6 +59,11 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
    
     @ViewChild('ArmsCmp')
 	private ArmsCompRef!: any;
+	@ViewChild('TimePointsComp')
+	private TimePointsComp!: any;
+	//ArmDetailsComp
+	@ViewChild('ArmDetailsComp')
+	private ArmDetailsComp!: any;
 	@ViewChild('OutcomesCmp')
 	private OutcomesCmpRef!: OutcomesComponent;
     @ViewChild('ItemDetailsCmp')
@@ -500,7 +505,10 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
     }
     goToItem(item: Item) {
         this.WipeHighlights();
-        this.clearItemData();
+		this.clearItemData();
+		this.ArmsCompRef.Clear();
+		this.TimePointsComp.Clear();
+		this.ArmDetailsComp.Clear();
         console.log('what do you need me to do?' + item.itemId);
         this.router.navigate(['itemcoding', item.itemId]);
         this.item = item;
@@ -632,7 +640,10 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
     ItemChanged() {
         if (this.tabstrip) this.tabstrip.selectTab(0);
         this.WipeHighlights();
-        this.SetHighlights();
+		this.SetHighlights();
+		this.TimePointsComp.Clear();
+		this.ArmDetailsComp.Clear();
+		this.ArmsCompRef.Clear();
     }
     WipeHighlights() {
         if (this.ItemDetailsCompRef) this.ItemDetailsCompRef.WipeHighlights();

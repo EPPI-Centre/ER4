@@ -74,21 +74,17 @@ export class armDetailsComp implements OnInit {
 		this.armsList[this.currentKey].title = this.currentTitle;
 		this.item!.arms[this.currentKey].title = this.currentTitle;
 		this._armsService.UpdateArm(this.item!.arms[this.currentKey]);
-		this.ClearAndCancelEdit();
+		this.Clear();
 	}
 
-	ClearAndCancelEdit() {
+	Clear() {
 
 		this.editTitle = false;
 		this.currentTitle = '';
-
-	}
-
-	ClearAndCancelAdd() {
-
 		this.title = '';
 
 	}
+
 	
 	public openConfirmationDialogDeleteArms(key: number) {
 		this.confirmationDialogService.confirm('Please confirm', 'Deleting an Arm is a permanent operation and will delete all coding associated with the Arm.' +
@@ -184,7 +180,7 @@ export class armDetailsComp implements OnInit {
 			}
 			this.title = '';
 		}
-		this.ClearAndCancelAdd();
+		this.Clear();
 	}
 
 }

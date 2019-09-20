@@ -135,11 +135,12 @@ export class timePointsComp extends BusyAwareService implements OnInit {
 
 		this.title = '';
 		this.unit = '';
-		this.timepointFreq = '';
+		this.timepointFreq = "";
 		this.currentTimePoint = new TimePoint(0, '', '', 0);
 		this._timePointsService.SetSelectedtimepoint(new TimePoint(0, '', '', 0));
-		this.unitModel = '';
+		this.unitModel = "";
 		this.edit = false;
+		this.timepointModel = "";
 	}
 
 	public openConfirmationDialogDeletetimepoints(key: number) {
@@ -203,7 +204,6 @@ export class timePointsComp extends BusyAwareService implements OnInit {
 
 					this.openConfirmationDialogDeletetimepointsWithText(key, res.numOutcomes);
 				}
-
 			}
 		);
 		this.timepointFreq = "";
