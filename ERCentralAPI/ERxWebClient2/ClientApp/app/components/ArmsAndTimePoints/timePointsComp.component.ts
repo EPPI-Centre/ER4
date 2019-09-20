@@ -206,6 +206,9 @@ export class timePointsComp extends BusyAwareService implements OnInit {
 
 			}
 		);
+		this.timepointFreq = "";
+		this.unitModel = "";
+		this.edit = false;
 	}
 
 	ActuallyRemove(key: number) {

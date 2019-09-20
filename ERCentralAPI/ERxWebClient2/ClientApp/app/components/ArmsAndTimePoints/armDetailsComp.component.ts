@@ -153,6 +153,8 @@ export class armDetailsComp implements OnInit {
 
 			}
 		);
+
+		this.editTitle = false;
 	}
 
 	ActuallyRemove(key: number) {
