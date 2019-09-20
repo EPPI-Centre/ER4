@@ -121,7 +121,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         }
 	}];
 	public AddRemoveSearchesDDData: Array<any> = [{
-		text: 'Remove searches from selection',
+		text: 'Remove search(es) from code',
 		click: () => {
 			this.BulkAssignRemoveCodesToSearches(false);
 		}
