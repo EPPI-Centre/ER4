@@ -59,32 +59,39 @@
             <div class="col-sm-12 m-0 pr-0 pl-0"
                  [ngClass]="{'col-md-7 col-lg-9' : !ShowOutComes
                  , 'col-md-6 col-lg-7' : ShowOutComes}">
-                <div class="ml-1 mt-0 mr-1 pl-0 pr-0 w-100 row">
-                    <itemDetailsPaginator [item]="item" Context="FullUI" [IsScreening]="IsScreening" (ItemChanged)="ItemChanged()" (GoToNextScreeningItemClicked)="GetItem()"
-                                          class="col-12 col-sm  pr-0 pl-0 ml-1 mr-1"></itemDetailsPaginator>
+				<div class="ml-1 mt-0 mr-1 pl-0 pr-0 w-100 row">
+					<itemDetailsPaginator [item]="item" Context="FullUI" [IsScreening]="IsScreening" (ItemChanged)="ItemChanged()" (GoToNextScreeningItemClicked)="GetItem()"
+										  class="col-12 col-sm  pr-0 pl-0 ml-1 mr-1"></itemDetailsPaginator>
 
-					<button class="page-link rounded pt-1 pb-1 mb-1 float-right" (click)="FindReference(item)">
-						Find Reference
-					</button>
+					<!--<button class="page-link rounded pt-1 pb-1 mb-1 float-right" (click)="FindReference(item)">
+		Find Reference
+	</button>-->
+					<kendo-toolbar class="small" style="background-color: #f5f6fa;">
+						<kendo-toolbar-splitbutton [text]="'Find Reference on google'" (buttonClick)="FindReference(item)"
+												   [data]="MicrosoftSearchData"
+												   style="border-color: #04070b;
+							background-color: #e1e4eb;">
 
-                    <div class="pr-0 pl-0 col-12 col-sm pr-0">
-                        <button class="page-link rounded pt-1 pb-1 mb-1 float-right" (click)="BackToMain()">
-                            Close/back
-                        </button>
-                        <div class="row bg-info float-right mb-1 pb-1 ml-1 mr-1">
-                            <div class="form-check-label ml-2 mr-0 row" for="exampleCheck1">
-                                Auto Advance?
-                                <input type="checkbox" class="ml-2 mt-2 mr-2" [(ngModel)]="CheckBoxAutoAdvanceVal" #CheckBoxAutoAdvance>
-                            </div>
-                        </div>
-                        <div *ngIf="HasTermList" class="row bg-info float-right mb-1 pb-1 ml-0 mr-0">
-                            <div class="form-check-label ml-2 mr-0 row" for="exampleCheck1">
-                                Show terms?
-                                <input type="checkbox" class="ml-2 mt-2 mr-2" [(ngModel)]="ShowHighlights" (click)="ShowHighlightsClicked()">
-                            </div>
-                        </div>
-                    </div>
-                </div>
+						</kendo-toolbar-splitbutton>
+						</kendo-toolbar>
+						<div class="pr-0 pl-0 col-12 col-sm pr-0">
+							<button class="page-link rounded pt-1 pb-1 mb-1 float-right" (click)="BackToMain()">
+								Close/back
+							</button>
+							<div class="row bg-info float-right mb-1 pb-1 ml-1 mr-1">
+								<div class="form-check-label ml-2 mr-0 row" for="exampleCheck1">
+									Auto Advance?
+									<input type="checkbox" class="ml-2 mt-2 mr-2" [(ngModel)]="CheckBoxAutoAdvanceVal" #CheckBoxAutoAdvance>
+								</div>
+							</div>
+							<div *ngIf="HasTermList" class="row bg-info float-right mb-1 pb-1 ml-0 mr-0">
+								<div class="form-check-label ml-2 mr-0 row" for="exampleCheck1">
+									Show terms?
+									<input type="checkbox" class="ml-2 mt-2 mr-2" [(ngModel)]="ShowHighlights" (click)="ShowHighlightsClicked()">
+								</div>
+							</div>
+						</div>
+				</div>
                 <div *ngIf="ShowLiveComparison" class="my-1 ml-0 pl-1 pr-0 container">
                     <LiveComparisonComp></LiveComparisonComp>
                 </div>
