@@ -306,45 +306,52 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
+        private static PropertyInfo<double> AutoMatchScoreProperty = RegisterProperty<double>(new PropertyInfo<double>("AutoMatchScore", "AutoMatchScore"));
+        public double AutoMatchScore
+        {
+            get
+            {
+                return GetProperty(AutoMatchScoreProperty);
+            }
+        }
+
+        private static PropertyInfo<bool> ManualTrueMatchProperty = RegisterProperty<bool>(new PropertyInfo<bool>("ManualTrueMatch", "ManualTrueMatch", false));
+        public bool ManualTrueMatch
+        {
+            get
+            {
+                return GetProperty(ManualTrueMatchProperty);
+            }
+            set
+            {
+                SetProperty(ManualTrueMatchProperty, value);
+            }
+        }
+
+        private static PropertyInfo<bool> ManualFalseMatchProperty = RegisterProperty<bool>(new PropertyInfo<bool>("ManualFalseMatch", "ManualFalseMatch", false));
+        public bool ManualFalseMatch
+        {
+            get
+            {
+                return GetProperty(ManualFalseMatchProperty);
+            }
+            set
+            {
+                SetProperty(ManualFalseMatchProperty, value);
+            }
+        }
+
+        private static PropertyInfo<string> FindOnWebProperty = RegisterProperty<string>(new PropertyInfo<string>("FindOnWeb", "FindOnWeb", string.Empty));
+        public string FindOnWeb
+        {
+            get
+            {
+                return "http://academic.microsoft.com/paper/" + this.PaperId.ToString();
+            }
+        }
+
+
         /*
-        public static readonly PropertyInfo<MagPaperList> CitationsProperty = RegisterProperty<MagPaperList>(new PropertyInfo<MagPaperList>("Citations", "Citations"));
-        public MagPaperList Citations
-        {
-            get
-            {
-                return GetProperty(CitationsProperty);
-            }
-            set
-            {
-                SetProperty(CitationsProperty, value);
-            }
-        }
-
-        public static readonly PropertyInfo<MagPaperList> CitedByProperty = RegisterProperty<MagPaperList>(new PropertyInfo<MagPaperList>("CitedBy", "CitedBy"));
-        public MagPaperList CitedBy
-        {
-            get
-            {
-                return GetProperty(CitedByProperty);
-            }
-            set
-            {
-                SetProperty(CitedByProperty, value);
-            }
-        }
-
-        public static readonly PropertyInfo<MagPaperList> RecommendedProperty = RegisterProperty<MagPaperList>(new PropertyInfo<MagPaperList>("Recommended", "Recommended"));
-        public MagPaperList Recommended
-        {
-            get
-            {
-                return GetProperty(RecommendedProperty);
-            }
-            set
-            {
-                SetProperty(RecommendedProperty, value);
-            }
-        }
 
         public static readonly PropertyInfo<MagPaperList> RecommendedByProperty = RegisterProperty<MagPaperList>(new PropertyInfo<MagPaperList>("RecommendedBy", "RecommendedBy"));
         public MagPaperList RecommendedBy
@@ -443,21 +450,22 @@ namespace BusinessLibrary.BusinessClasses
 
         protected override void DataPortal_Update()
         {
-            /*
-            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+            using (SqlConnection connection = new SqlConnection(DataConnection.AcademicControllerConnectionString))
             {
+                ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
                 connection.Open();
-                using (SqlCommand command = new SqlCommand("st_MagPaperUpdate", connection))
+                using (SqlCommand command = new SqlCommand("st_ItemMatchedPaperUpdate", connection))
                 {
                     command.CommandType = System.Data.CommandType.StoredProcedure;
-                    command.Parameters.Add(new SqlParameter("@MagPaper_NAME", ReadProperty(NameProperty)));
-                    command.Parameters.Add(new SqlParameter("@MagPaper_DETAIL", ReadProperty(DetailProperty)));
-                    command.Parameters.Add(new SqlParameter("@MagPaper_ID", ReadProperty(MagPaperIdProperty)));
+                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
+                    command.Parameters.Add(new SqlParameter("@ITEM_ID", ReadProperty(LinkedITEM_IDProperty)));
+                    command.Parameters.Add(new SqlParameter("@PaperId", ReadProperty(PaperIdProperty)));
+                    command.Parameters.Add(new SqlParameter("@ManualTrueMatch", ReadProperty(ManualTrueMatchProperty)));
+                    command.Parameters.Add(new SqlParameter("@ManualFalseMatch", ReadProperty(ManualFalseMatchProperty)));
                     command.ExecuteNonQuery();
                 }
                 connection.Close();
             }
-            */
         }
 
         protected override void DataPortal_DeleteSelf()
@@ -515,6 +523,9 @@ namespace BusinessLibrary.BusinessClasses
                             LoadProperty<Int64>(LinkedITEM_IDProperty, reader.GetInt64("ITEM_ID"));
                             LoadProperty<string>(AbstractProperty, reader.GetString("IndexedAbstract"));
                             LoadProperty<string>(URLsProperty, reader.GetString("URLs"));
+                            LoadProperty<bool>(ManualTrueMatchProperty, reader.GetBoolean("ManualTrueMatch"));
+                            LoadProperty<bool>(ManualFalseMatchProperty, reader.GetBoolean("ManualFalseMatch"));
+                            LoadProperty<double>(AutoMatchScoreProperty, reader.GetDouble("AutoMatchScore"));
                         }
                     }
                 }
@@ -549,6 +560,9 @@ namespace BusinessLibrary.BusinessClasses
             returnValue.LoadProperty<Int64>(LinkedITEM_IDProperty, reader.GetInt64("ITEM_ID"));
             returnValue.LoadProperty<string>(AbstractProperty, reader.GetString("IndexedAbstract"));
             returnValue.LoadProperty<string>(URLsProperty, reader.GetString("URLs"));
+            returnValue.LoadProperty<bool>(ManualTrueMatchProperty, reader.GetBoolean("ManualTrueMatch"));
+            returnValue.LoadProperty<bool>(ManualFalseMatchProperty, reader.GetBoolean("ManualFalseMatch"));
+            returnValue.LoadProperty<double>(AutoMatchScoreProperty, reader.GetDouble("AutoMatchScore"));
 
             returnValue.MarkOld();
             return returnValue;

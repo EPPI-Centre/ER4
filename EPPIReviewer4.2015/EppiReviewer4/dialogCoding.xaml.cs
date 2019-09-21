@@ -84,6 +84,7 @@ namespace EppiReviewer4
         private double CurrentcodesTreeContainerWidth = 330;
 
         public List<Int64> ScreenedItemIds;
+        public event EventHandler<EventArgs> launchMagBrowser;
 
         // maybe we should move these to a central location for this kind of thing??
         class TimepointMetricsClass
@@ -332,6 +333,8 @@ namespace EppiReviewer4
             ClearCurrentTextDocument();
             PaneItemDetails.SelectedIndex = 0;
             GetItemDocumentList(DataContext as Item);
+            GetMagPaperListData(DataContext as Item);
+            tbQuickCitation.DataContext = i;
             GetItemArmList(DataContext as Item);
             GetItemTimepointList(DataContext as Item);
             dialogItemDetailsControl.BindNew(DataContext as Item);
@@ -412,6 +415,8 @@ namespace EppiReviewer4
                 GetItemDocumentList(DataContext as Item);
                 GetItemArmList(DataContext as Item);
                 GetItemTimepointList(DataContext as Item);
+                GetMagPaperListData(DataContext as Item);
+                tbQuickCitation.DataContext = i;
 
 
                 dialogItemDetailsControl.BindTree(DataContext as Item);
@@ -2066,6 +2071,8 @@ namespace EppiReviewer4
                                 PaneItemDetails.SelectedIndex = 0;
                                 GetItemDocumentList(DataContext as Item);
                                 GetItemArmList(DataContext as Item);
+                                GetMagPaperListData(DataContext as Item);
+                                tbQuickCitation.DataContext = DataContext as Item;
                                 GetItemTimepointList(DataContext as Item);
                                 dialogItemDetailsControl.BindTree(DataContext as Item);
                                 GridDocuments.IsEnabled = true;
@@ -2152,6 +2159,8 @@ namespace EppiReviewer4
                                 PaneItemDetails.SelectedIndex = 0;
                                 GetItemDocumentList(DataContext as Item);
                                 GetItemArmList(DataContext as Item);
+                                GetMagPaperListData(DataContext as Item);
+                                tbQuickCitation.DataContext = DataContext as Item;
                                 GetItemTimepointList(DataContext as Item);
                                 dialogItemDetailsControl.BindTree(DataContext as Item);
                                 GridDocuments.IsEnabled = true;
@@ -3316,6 +3325,112 @@ namespace EppiReviewer4
             if (Deleting == null) return;
             WindowCheckTimepointDelete.StartChecking(Deleting);
             WindowCheckTimepointDelete.ShowDialog();
+        }
+
+        private void GetMagPaperListData(Item i)
+        {
+            CslaDataProvider provider = this.Resources["MagPaperListData"] as CslaDataProvider;
+            provider.FactoryParameters.Clear();
+            MagPaperListSelectionCriteria selectionCriteria = new MagPaperListSelectionCriteria();
+            selectionCriteria.ListType = "ItemMatchedPapersList";
+            selectionCriteria.ITEM_ID = i.ItemId;
+            provider.FactoryParameters.Add(selectionCriteria);
+            provider.FactoryMethod = "GetMagPaperList";
+            provider.Refresh();
+        }
+
+        private void CslaDataProvider_DataChanged_1(object sender, EventArgs e)
+        {
+            CslaDataProvider provider = ((CslaDataProvider)this.Resources["MagPaperListData"]);
+            if (provider.Error != null)
+            {
+                RadWindow.Alert(provider.Error.Message);
+            }
+        }
+
+        private void CheckBox_Click(object sender, RoutedEventArgs e)
+        {
+            RadioButton rb = sender as RadioButton;
+            if (rb != null)
+            {
+                MagPaper mp = rb.DataContext as MagPaper;
+                if (mp != null)
+                {
+                    mp.BeginSave();
+                }
+            }
+        }
+
+        private void HyperlinkButton_Click(object sender, RoutedEventArgs e)
+        {
+            this.launchMagBrowser.Invoke((sender as HyperlinkButton).DataContext, e);
+        }
+
+        private void HyperlinkButton_Click_1(object sender, RoutedEventArgs e)
+        {
+            Int64 id;
+            if (!Int64.TryParse(tbFindMagPaperById.Text, out id))
+            {
+                RadWindow.Alert("Please enter a valid number");
+                return;
+            }
+            DataPortal<MagPaper> dp = new DataPortal<MagPaper>();
+            dp.FetchCompleted += (o, e2) =>
+            {
+                if (e2 != null && e2.Object.PaperId != 0)
+                {
+                    GridLookupMagPaper.DataContext = e2.Object;
+                    GridLookupMagPaper.Visibility = Visibility.Visible;
+                    lbHideMagPaperPreview.Visibility = Visibility.Visible;
+                }
+                else
+                {
+                    RadWindow.Alert("This Paper ID cannot be found in the database");
+                    GridLookupMagPaper.Visibility = Visibility.Collapsed;
+                    lbHideMagPaperPreview.Visibility = Visibility.Collapsed;
+                }
+            };
+            dp.BeginFetch(new SingleCriteria<MagPaper, Int64>(id));
+        }
+
+        private void HyperlinkButton_Click_2(object sender, RoutedEventArgs e)
+        {
+            GridLookupMagPaper.Visibility = Visibility.Collapsed;
+            lbHideMagPaperPreview.Visibility = Visibility.Collapsed;
+        }
+
+        private void CheckBox_Click_1(object sender, RoutedEventArgs e)
+        {
+            RadioButton rb = sender as RadioButton;
+            if (rb != null)
+            {
+                MagPaper mp = rb.DataContext as MagPaper;
+                if (mp != null)
+                {
+                    Item i = this.DataContext as Item;
+                    if (i != null)
+                    {
+                        DataPortal<MagMatchItemToPaperManualCommand> dp = new DataPortal<MagMatchItemToPaperManualCommand>();
+                        MagMatchItemToPaperManualCommand mm = new MagMatchItemToPaperManualCommand(i.ItemId,
+                            mp.PaperId, mp.ManualTrueMatch, mp.ManualFalseMatch);
+                        dp.ExecuteCompleted += (o, e2) =>
+                        {
+                            if (e2.Error != null)
+                            {
+                                RadWindow.Alert(e2.Error.ToErrorInfo());
+                            }
+                            else
+                            {
+                                GridLookupMagPaper.Visibility = Visibility.Collapsed;
+                                tbFindMagPaperById.Text = "";
+                                lbHideMagPaperPreview.Visibility = Visibility.Collapsed;
+                                GetMagPaperListData(i);
+                            }
+                        };
+                        dp.BeginExecute(mm);
+                    }
+                }
+            }
         }
 
         private void It_Saved(object sender, Csla.Core.SavedEventArgs e)

@@ -133,6 +133,7 @@ namespace EppiReviewer4
             
             dialogCodingControl.CloseWindowRequest += dCoding_CloseWindowRequest;
             dialogCodingControl.RunTrainingCommandRequest += dCoding_RunTrainingCommandRequest;
+            dialogCodingControl.launchMagBrowser += DialogCodingControl_launchMagBrowser;
             codingContent.Children.Add(dialogCodingControl);
             windowCoding.Content = codingContent;
             //end of dialogCoding
@@ -6152,6 +6153,18 @@ on the right of the main screen");
             SelectionCritieraItemList.AttributeSetIdList = "";
             SelectionCritieraItemList.PageNumber = 0;
             LoadItemList();
+        }
+
+        private void DialogCodingControl_launchMagBrowser(object sender, EventArgs e)
+        {
+            MagPaper mp = sender as MagPaper;
+            if (mp != null)
+            {
+                MagBrowserControl.InitialiseBrowser();
+                MagBrowserControl.ShowPaperDetailsPage(mp.PaperId, mp.FullRecord, mp.Abstract,
+                    mp.URLs, mp.LinkedITEM_ID);
+                windowMagBrowser.ShowDialog();
+            }
         }
     }
 }

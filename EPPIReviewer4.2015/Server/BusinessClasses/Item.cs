@@ -341,6 +341,57 @@ namespace BusinessLibrary.BusinessClasses
             return retVal;
         }
 
+        public string QuickCitation
+        {
+            get
+            {
+                string retVal = "";
+                switch (this.TypeId)
+                {
+                    case 1: //Report
+                        retVal = CleanAuthors(Authors) + " (" + Year + ") " + Title + ". " + City + ": " + Publisher + ", " + Pages;
+                        break;
+                    case 2: //Book, Whole
+                        retVal = CleanAuthors(Authors) + " (" + Year + ") " + Title + ". " + City + ": " + Publisher;
+                        break;
+                    case 3: //Book, Chapter
+                        retVal = CleanAuthors(Authors) + " (" + Year + ") " + Title + ". In: " + CleanAuthors(ParentAuthors) + ", editors. " + ParentTitle + ". " + City + ": " + Publisher + ", p" + Pages;
+                        break;
+                    case 4: //Dissertation
+                        retVal = CleanAuthors(Authors) + " (" + Year + ") " + Title + ". " + Edition + ", " + Institution + ".";
+                        break;
+                    case 5: //Conference Proceedings
+                        retVal = CleanAuthors(Authors) + " (" + Year + ") " + Title + ". In: " + ParentTitle + ", " + City + ". " + Publisher + ", p" + Pages;
+                        break;
+                    case 6: //Document From Internet Site
+                        retVal = CleanAuthors(Authors) + " (" + Year + ") " + URL + Title + ". " + Publisher;
+                        break;
+                    case 7: //Web Site
+                        retVal = CleanAuthors(Authors) + " (" + Year + ") " + URL + Title + " " + (Availability == "" ? "" : " [online; accessed: " + Availability + "]");
+                        break;
+                    case 8: //DVD, Video, Media
+                        retVal = CleanAuthors(Authors) + " (" + Year + ") " + Title + (Availability == "" ? "" : " [online; accessed: " + Availability + "]");
+                        break;
+                    case 9: //Research project
+                        retVal = CleanAuthors(Authors) + " (" + Year + ") " + Title + ". " + City + ": " + Publisher + ", ";
+                        break;
+                    case 10: //Article In A Periodical
+                        retVal = CleanAuthors(Authors) + " (" + Year + ") " + Title + ". " + CleanAuthors(ParentTitle) + " " + Volume + (Issue != "" ? "(" + Issue + ")" : "") + ", " + Pages;
+                        break;
+                    case 11: //Interview
+                        retVal = CleanAuthors(Authors) + " (" + Year + ") " + Title + ". ";
+                        break;
+                    case 12: //Generic
+                        retVal = CleanAuthors(Authors) + " (" + Year + ") " + Title + ". " + City + ": " + Publisher;
+                        break;
+                    case 14: //Journal, Article
+                        retVal = CleanAuthors(Authors) + " (" + Year + ") " + Title + ". " + CleanAuthors(ParentTitle) + " " + Volume + (Issue != "" ? "(" + Issue + ")" : "") + ", " + Pages;
+                        break;
+                }
+                return retVal;
+            }
+        }
+
         public string GetBritishLibraryCitation()
         {
             string retVal = "";

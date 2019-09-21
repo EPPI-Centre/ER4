@@ -74,7 +74,7 @@ namespace BusinessLibrary.BusinessClasses
                 r += AddSimulationLine("Recommended by", this.reverse_recommended, this.total_reverse_recommended, this.N_Seeking) + Environment.NewLine;
                 r += AddSimulationLine("Bi-directional recommended", this.birecommended, this.total_birecommended, this.N_Seeking) + Environment.NewLine +
                     "------------------------------------------------------------------------------" + Environment.NewLine;
-                r += AddSimulationLine("Citations AND recommendations", this.both, this.total_both - this.both, this.N_Seeking) + Environment.NewLine;
+                r += AddSimulationLine("Citations AND recommendations", this.both, this.total_both, this.N_Seeking) + Environment.NewLine;
             }
             return r;
         }

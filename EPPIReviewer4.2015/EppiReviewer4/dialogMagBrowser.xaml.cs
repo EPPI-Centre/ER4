@@ -32,15 +32,20 @@ namespace EppiReviewer4
             InitializeComponent();
         }
 
-        public void ShowMagBrowser()
+        public void InitialiseBrowser()
         {
-            //HLShowAdvanced_Click(null, null);
-            LBManageRelatedPapersRun_Click(null, null);
             SelectedPaperIds = new List<Int64>();
             UpdateSelectedCount();
             timer = new DispatcherTimer();
             timer.Interval = TimeSpan.FromSeconds(1);
             timer.Tick += Timer_Tick;
+        }
+
+        public void ShowMagBrowser()
+        {
+            //HLShowAdvanced_Click(null, null);
+            LBManageRelatedPapersRun_Click(null, null);
+            InitialiseBrowser();
             //CslaDataProvider provider = this.Resources["RelatedPapersRunListData"] as CslaDataProvider;
             //provider.Refresh();
         }
@@ -154,7 +159,7 @@ namespace EppiReviewer4
         }
 
         // ******************************** PAPER DETAILS PAGE **************************************
-        private void ShowPaperDetailsPage(Int64 PaperId, string FullRecord, string Abstract, string URLs, Int64 LinkedITEM_ID)
+        public void ShowPaperDetailsPage(Int64 PaperId, string FullRecord, string Abstract, string URLs, Int64 LinkedITEM_ID)
         {
             StatusGrid.Visibility = Visibility.Collapsed;
             PaperGrid.Visibility = Visibility.Visible;
@@ -1162,9 +1167,11 @@ namespace EppiReviewer4
                         SelectedPaperIds.Clear();
                         ClearSelectionsFromPaperLists();
                         UpdateSelectedCount();
+                        HLImportSelected.IsEnabled = true;
                     }
                 };
                 //BusyLoading.IsRunning = true;
+                HLImportSelected.IsEnabled = false;
                 dp2.BeginExecute(command);
             }
         }
@@ -1447,6 +1454,7 @@ namespace EppiReviewer4
                 MagRelatedPapersRun pr = hlb.DataContext as MagRelatedPapersRun;
                 if (pr != null)
                 {
+                    SelectedLinkButton = hlb;
                     if (pr.NPapers == 0)
                     {
                         RadWindow.Alert("There are no items to import.");
@@ -1469,6 +1477,8 @@ namespace EppiReviewer4
                 }
             }
         }
+
+        private HyperlinkButton SelectedLinkButton;
 
         private void DoImportItems(object sender, WindowClosedEventArgs e)
         {
@@ -1504,11 +1514,13 @@ namespace EppiReviewer4
                             {
                                 RadWindow.Alert("All of these records were already in your review.");
                             }
+                            //SelectedLinkButton.IsEnabled = true; - no need to renable, as it's destroyed in the refresh below
                             CslaDataProvider provider = this.Resources["RelatedPapersRunListData"] as CslaDataProvider;
                             provider.Refresh();
                         }
                     };
                     //BusyLoading.IsRunning = true;
+                    SelectedLinkButton.IsEnabled = false;
                     dp2.BeginExecute(command);
                 }
             }

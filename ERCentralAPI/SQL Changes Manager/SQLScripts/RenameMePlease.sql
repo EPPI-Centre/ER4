@@ -466,3 +466,36 @@ WHERE rc.CONTACT_ID = @CONTACT_ID and (r.ARCHIE_ID is null OR r.ARCHIE_ID = 'pro
 ORDER BY REVIEW_NAME
 
 GO
+
+USE [Reviewer]
+GO
+/****** Object:  StoredProcedure [dbo].[st_CheckReviewHasUpdates]    Script Date: 21/09/2019 18:23:05 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+-- =============================================
+-- Author:		James
+-- Create date: 
+-- Description:	Checks to see whether a review has any auto-identified studies for authors to check
+-- =============================================
+ALTER PROCEDURE [dbo].[st_CheckReviewHasUpdates] 
+	-- Add the parameters for the stored procedure here
+	@REVIEW_id int = 0,
+	@NUpdates INT OUTPUT
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+    select @NUpdates = sum(N_PAPERS) from Reviewer.dbo.tb_MAG_RELATED_RUN
+		where REVIEW_ID = @REVIEW_id
+		and USER_STATUS = 'Unchecked'
+
+	if @NUpdates is null
+	begin
+		set @NUpdates = 0
+	end
+END
+GO
