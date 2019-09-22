@@ -30,15 +30,15 @@ namespace EppiReviewer4
         public dialogMagBrowser()
         {
             InitializeComponent();
+            SelectedPaperIds = new List<Int64>();
+            timer = new DispatcherTimer();
+            timer.Interval = TimeSpan.FromSeconds(1);
+            timer.Tick += Timer_Tick;
         }
 
         public void InitialiseBrowser()
         {
-            SelectedPaperIds = new List<Int64>();
             UpdateSelectedCount();
-            timer = new DispatcherTimer();
-            timer.Interval = TimeSpan.FromSeconds(1);
-            timer.Tick += Timer_Tick;
         }
 
         public void ShowMagBrowser()
@@ -190,12 +190,19 @@ namespace EppiReviewer4
                     {
                         if (splitted[i].Length > 7)
                         {
-                            HyperlinkButton newHl = new HyperlinkButton();
-                            newHl.Content = splitted[i];
-                            newHl.NavigateUri = new Uri(splitted[i]);
-                            newHl.TargetName = "_blank";
-                            newHl.Margin = new Thickness(2, 1, 1, 1);
-                            WPPaperURLs.Children.Add(newHl);
+                            try
+                            {
+                                HyperlinkButton newHl = new HyperlinkButton();
+                                newHl.Content = splitted[i];
+                                newHl.NavigateUri = new Uri(splitted[i]);
+                                newHl.TargetName = "_blank";
+                                newHl.Margin = new Thickness(2, 1, 1, 1);
+                                WPPaperURLs.Children.Add(newHl);
+                            }
+                            catch
+                            {
+                                continue;
+                            }
                         }
                     }
                 }
@@ -781,7 +788,7 @@ namespace EppiReviewer4
         }
 
         // ***************************** Keeping track of, and navigating within, browsing history ***************************************
-        private void AddToBrowseHistory(string title, string browseType, Int64 PaperId, string PaperFullRecord,
+        public void AddToBrowseHistory(string title, string browseType, Int64 PaperId, string PaperFullRecord,
             string PaperAbstract, Int64 LinkedITEM_ID, string URLs, Int64 FieldOfStudyId, string FieldOfStudy, string AttributeIds, int MagRelatedRunId)
         {
             MagBrowseHistory mbh = new MagBrowseHistory();
@@ -953,7 +960,7 @@ namespace EppiReviewer4
             }
         }
 
-        private void IncrementHistoryCount()
+        public void IncrementHistoryCount()
         {
             CslaDataProvider provider = this.Resources["HistoryListData"] as CslaDataProvider;
             if (provider != null)
@@ -991,7 +998,7 @@ namespace EppiReviewer4
 
         private void UpdateSelectedCount()
         {
-            HLShowSelected.Content = "Show selected (" + SelectedPaperIds.Count.ToString() + ")";
+            HLShowSelected.Content = "Selected (" + SelectedPaperIds.Count.ToString() + ")";
         }
 
         private void ClearSelectionsFromPaperLists()

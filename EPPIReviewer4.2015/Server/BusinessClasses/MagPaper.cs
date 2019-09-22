@@ -9,8 +9,10 @@ using Csla.Serialization;
 using Csla.Silverlight;
 //using Csla.Validation;
 using Csla.DataPortalClient;
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json;
 
-#if!SILVERLIGHT
+#if !SILVERLIGHT
 using System.Data.SqlClient;
 using BusinessLibrary.Data;
 using Csla.Data;
@@ -350,6 +352,8 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
+        
+
 
         /*
 
@@ -566,6 +570,23 @@ namespace BusinessLibrary.BusinessClasses
 
             returnValue.MarkOld();
             return returnValue;
+        }
+
+        public static string ReconstructInvertedAbstract(string str)
+        {
+            var j = (JObject)JsonConvert.DeserializeObject(str);
+            int indexLength = j["IndexLength"].ToObject<int>();
+            Dictionary<string, int[]> invertedIndex = j["InvertedIndex"].ToObject<Dictionary<string, int[]>>();
+            string[] abstractStr = new string[indexLength];
+            foreach (var pair in invertedIndex)
+            {
+                string word = pair.Key;
+                foreach (var index in pair.Value)
+                {
+                    abstractStr[index] = word;
+                }
+            }
+            return String.Join(" ", abstractStr);
         }
 
 #endif

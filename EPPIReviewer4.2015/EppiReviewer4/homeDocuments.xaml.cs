@@ -6161,6 +6161,10 @@ on the right of the main screen");
             if (mp != null)
             {
                 MagBrowserControl.InitialiseBrowser();
+                MagBrowserControl.AddToBrowseHistory("Go to specific Paper Id: " + mp.PaperId.ToString(), "PaperDetail",
+                        mp.PaperId, mp.FullRecord, mp.Abstract, mp.LinkedITEM_ID, mp.URLs, 0,
+                        "", "", 0);
+                MagBrowserControl.IncrementHistoryCount();
                 MagBrowserControl.ShowPaperDetailsPage(mp.PaperId, mp.FullRecord, mp.Abstract,
                     mp.URLs, mp.LinkedITEM_ID);
                 windowMagBrowser.ShowDialog();
