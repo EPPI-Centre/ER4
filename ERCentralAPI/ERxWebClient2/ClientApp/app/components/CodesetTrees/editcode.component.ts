@@ -69,8 +69,8 @@ export class EditCodeComp implements OnInit, OnDestroy {
         else return false;
     }
     CancelActivity(refreshtree?: boolean) {
-        if (refreshtree != null) this.emitterCancel.emit(refreshtree);
-        else this.emitterCancel.emit();
+        if (refreshtree && refreshtree == true) this.emitterCancel.emit(true);
+        else this.emitterCancel.emit(false);
     }
 
     AttributeTypeChanged(typeId: number) {

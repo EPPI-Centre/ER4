@@ -99,7 +99,7 @@ namespace ERxWebClient2.Controllers
                         string type = (string)dr["DOCUMENT_EXTENSION"];
                         string name = (string)dr["DOCUMENT_TITLE"];
 
-                        name = name.Replace(type, "") + type;
+                        name = System.Web.HttpUtility.UrlEncode( name.Replace(type, "") + type);
                         if (name.IndexOf(type) == -1) name = name + type;
 
                         switch (type.ToLower())
