@@ -41,6 +41,10 @@ export class EditCodeComp implements OnInit, OnDestroy {
     ngOnInit() {
     }
 
+    onSubmit(): boolean {
+        console.log("onSubmit");
+        return false;
+    }
     private _appliedCodes: number = -1;
     public get appliedCodes(): number {
         return this._appliedCodes;
