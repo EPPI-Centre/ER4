@@ -36,7 +36,11 @@ export class ComparisonComp implements OnInit {
 	ngOnInit() {
 		this.RefreshData();
 
-	}
+    }
+    onSubmit(): boolean {
+        console.log("create new comparison onSubmit");
+        return false;
+    }
 	public get Contacts(): Contact[] {
 		return this._reviewInfoService.Contacts;
 	}

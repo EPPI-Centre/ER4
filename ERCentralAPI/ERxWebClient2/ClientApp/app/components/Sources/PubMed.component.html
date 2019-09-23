@@ -99,7 +99,7 @@
         <div *ngIf="!DataToCheck || !DataToCheck.itemsList" class="col-12">
             The search returned no references. <strong>Please revise your string.</strong>
         </div>
-        <form *ngIf="DataToCheck && DataToCheck.itemsList" class="col-12 row" #NewSourceForm="ngForm">
+        <form *ngIf="DataToCheck && DataToCheck.itemsList" (ngSubmit)="onSubmit()" class="col-12 row" #NewSourceForm="ngForm">
             <div class="form-group col-6">
                 <label for="source_Name">Source Name</label>
                 <input type="text" class="form-control" id="Sourcename"
@@ -161,7 +161,7 @@
                                               class="border border-dark rounded"
                                               style="width: 130px;"
                                               name="importTo"></kendo-numerictextbox>
-                        <button class="btn btn-success ml-2" (click)="ImportPmSearch()"
+                        <button class="btn btn-success ml-2" (click)="ImportPmSearch()" type="button"
                                  [disabled]="IsSourceNameValid() != 0 || !DataToCheck || DataToCheck.queMax == 0">&nbsp;Import&nbsp;</button>
                     </div>
             </div>

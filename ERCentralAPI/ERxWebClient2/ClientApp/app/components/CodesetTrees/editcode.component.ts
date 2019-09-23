@@ -42,7 +42,7 @@ export class EditCodeComp implements OnInit, OnDestroy {
     }
 
     onSubmit(): boolean {
-        console.log("onSubmit");
+        console.log("edit code onSubmit");
         return false;
     }
     private _appliedCodes: number = -1;

@@ -1,5 +1,5 @@
 <div class="card container-fluid mt-1 bg-light  m-1 p-1 form-group  border border-primary ">
-	<form class="row" >
+	<form class="row" (ngSubmit)="onSubmit()">
 		<div class="col-12">
 			<div class="form-group">
 				<label for="rev1">Reviewer 1</label>
@@ -63,8 +63,8 @@
 				</div>
 			</div>
 			<div class="col-12 m-2">
-				<button (click)="SetFilter()" [disabled]="!canSetFilter()" class="btn btn-primary btn-sm"> Set Filter</button>&nbsp;
-				<button (click)="clearChosenFilter()" class="btn btn-outline-info btn-sm"> Clear Filter</button>
+				<button (click)="SetFilter()" [disabled]="!canSetFilter()" class="btn btn-primary btn-sm" type="button"> Set Filter</button>&nbsp;
+				<button (click)="clearChosenFilter()" class="btn btn-outline-info btn-sm" type="button"> Clear Filter</button>
 			</div>
 		</div>
 		<div class="col-12">
@@ -72,7 +72,7 @@
 					[disabled]="!HasWriteRights || CanCreateComparison()" style="width:200px;">
 				Create Comparison
 			</button>
-			<button class="btn btn-outline-secondary ml-1"
+			<button class="btn btn-outline-secondary ml-1" type="button"
 					(click)="CancelActivity()" style="width:200px;">
 				Cancel
 			</button>

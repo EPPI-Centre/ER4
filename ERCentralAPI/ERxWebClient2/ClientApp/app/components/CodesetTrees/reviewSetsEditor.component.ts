@@ -462,7 +462,10 @@ export class ReviewSetsEditorComponent implements OnInit, OnDestroy {
         return this._UpdatingCode;
     }
     
-    
+    onSubmit(): boolean {
+        console.log("ReviewSets Editor onSubmit");
+        return false;
+    }
     
     BackToMain() {
         this.ReviewSetsService.GetReviewSets();
