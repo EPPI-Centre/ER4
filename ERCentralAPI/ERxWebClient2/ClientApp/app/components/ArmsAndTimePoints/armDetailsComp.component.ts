@@ -5,6 +5,7 @@ import { ConfirmationDialogService } from '../services/confirmation-dialog.servi
 import { Observable } from 'rxjs';
 import { EventEmitterService } from '../services/EventEmitter.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
+import { NgModel } from '@angular/forms';
 
 @Component({
 	selector: 'armDetailsComp',
@@ -82,7 +83,6 @@ export class armDetailsComp implements OnInit {
 		this.editTitle = false;
 		this.currentTitle = '';
 		this.title = '';
-
 	}
 
 	

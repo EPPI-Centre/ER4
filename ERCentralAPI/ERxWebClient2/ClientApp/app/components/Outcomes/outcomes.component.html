@@ -431,7 +431,20 @@
 					</div>
 					<div class="col-md-12">
 						<div class="row col-12">
-							<button [disabled]="!HasWriteRights && !IsServiceBusy  && !OutcomeTitle == ''"
+							<button 
+					[disabled]="!this.HasWriteRights ||
+								this.OutcomeTitle.touched == false ||
+								OutcomeTitle.invalid &&
+								(OutcomeTitle.dirty || OutcomeTitle.touched)
+								&& (OutcomeTitle.errors.pattern
+									|| OutcomeTitle.errors.required
+									|| OutcomeTitle.errors.minlength) ||
+								this.OutcomeDescription.touched == false ||
+								OutcomeDescription.invalid &&
+								(OutcomeDescription.dirty || OutcomeDescription.touched)
+								&& (OutcomeDescription.errors.pattern
+									|| OutcomeDescription.errors.required
+									|| OutcomeDescription.errors.minlength)"
 									class="btn btn-primary mt-1 p-1 m-1 "
 									(click)="SaveOutcome()">
 								Save Outcome

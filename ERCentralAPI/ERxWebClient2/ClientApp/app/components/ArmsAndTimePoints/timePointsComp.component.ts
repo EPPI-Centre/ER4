@@ -217,7 +217,6 @@ export class timePointsComp extends BusyAwareService implements OnInit {
 		if (ToRemove) {
 			let SelectedId = this._timePointsService.Selectedtimepoint ? this._timePointsService.Selectedtimepoint.itemTimepointId : -1;
 			this._timePointsService.Deletetimepoint(ToRemove);
-			this.timePointsList.splice(key, 1);
 			if (SelectedId == ToRemove.itemTimepointId) this._timePointsService.SetSelectedtimepoint(new TimePoint(0, '', '', 0));
 		}
 	}

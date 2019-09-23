@@ -137,10 +137,10 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
                 if (this.armservice.SelectedArm) this.SetArmCoding(this.armservice.SelectedArm.itemArmId);
                 else this.SetArmCoding(0);
             });
-            this.timePointsService.gotNewTimepoints.subscribe(() => {
+            //this.timePointsService.gotNewTimepoints.subscribe(() => {
 
-                console.log('need to do something here of course....');
-            });
+            //    console.log('need to do something here of course....');
+            //});
             this.ItemCodingService.ToggleLiveComparison.subscribe(() => {
                 this.ShowLiveComparison = !this.ShowLiveComparison;
             })

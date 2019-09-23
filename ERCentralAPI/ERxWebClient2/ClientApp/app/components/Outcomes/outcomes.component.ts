@@ -156,6 +156,7 @@ export class OutcomesComponent implements OnInit, OnDestroy, AfterViewInit {
 	public get HasWriteRights(): boolean {
 		return this._ReviewerIdentityServ.HasWriteRights;
 	}
+	
 	public editOutcome(outcome: Outcome) {
 
 		if (outcome != null) {
