@@ -71,7 +71,8 @@ namespace BusinessLibrary.BusinessClasses
         {
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
-				connection.Open();
+                ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+                connection.Open();
                 using (SqlCommand command = new SqlCommand("st_AttributeSetLimitedUpdate", connection))
                 {
                     command.CommandType = System.Data.CommandType.StoredProcedure;
@@ -81,7 +82,8 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@ATTRIBUTE_NAME", _attributeName));
                     command.Parameters.Add(new SqlParameter("@ATTRIBUTE_DESCRIPTION", _attributeDescription));
                     command.Parameters.Add(new SqlParameter("@ATTRIBUTE_ORDER", _attributeOrder));
-					command.ExecuteNonQuery();
+                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
+                    command.ExecuteNonQuery();
                 }
                 connection.Close();
             }
