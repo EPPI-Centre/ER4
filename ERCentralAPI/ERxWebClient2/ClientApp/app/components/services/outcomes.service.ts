@@ -438,6 +438,11 @@ export class Outcome implements iOutcome {
 			this.data7 = Number(iO.data7 == null ? 0 : iO.data7);
 			this.data8 = Number(iO.data8 == null ? 0 : iO.data8);
 			this.data9 = Number(iO.data9 == null ? 0 : iO.data9);
+			if (this.data9 != null && this.data9 > 0) {
+				this.isSelected = true;
+			} else {
+				this.isSelected = false;
+			}
 			this.data10 = Number(iO.data10 == null ? 0 : iO.data10);
 			this.data11 = Number(iO.data11 == null ? 0 : iO.data11);
 			this.data12 = Number(iO.data12 == null ? 0 : iO.data12);
@@ -686,9 +691,6 @@ export class Outcome implements iOutcome {
 				
 				this.smd = this.SmdFromNMeanSD();
 				this.sesmd = this.CorrectForClustering(this.GetSEforD(this.data1, this.data2, this.smd));
-				console.log('the sesmd without correction is: ', this.GetSEforD(this.data1, this.data2, this.smd));
-				console.log('data 9 is: ', this.data9);
-				console.log('the sesmd with correction is: ', this.CorrectForClustering(this.GetSEforD(this.data1, this.data2, this.smd)));
 				this.meanDifference = this.MeanDiff();
 				this.seMeanDifference = this.CorrectForClustering(this.GetSEforMeanDiff(this.data1,
 					this.data2, this.data5, this.data6));
@@ -1216,6 +1218,11 @@ export class Outcome implements iOutcome {
 	}
 	public set data9(val: number) {
 		this.Data9 = val;
+		if (val != null && val > 0) {
+			this.isSelected = true;
+		} else {
+			this.isSelected = false;
+		}
 		this.SetCalculatedValues();
 	}
 	private Data10: number = 0;

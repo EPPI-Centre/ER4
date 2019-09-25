@@ -85,8 +85,14 @@ export class OutcomesComponent implements OnInit, OnDestroy, AfterViewInit {
 			this._OutcomesService.FetchItemArmList(this.item.itemId);
 		}
 	}
-	public ShowCFUOAE(){
+	public ShowCFUOAE(currentOutcome: Outcome) {
+
+		console.log(currentOutcome);
+		currentOutcome.isSelected = !currentOutcome.isSelected;
 		this.ShowCFUOAEBool = !this.ShowCFUOAEBool;
+		if (currentOutcome.isSelected == true) {
+			this.ShowCFUOAEBool = true;
+		}
 	}
 	public get SMD(): string {
 
