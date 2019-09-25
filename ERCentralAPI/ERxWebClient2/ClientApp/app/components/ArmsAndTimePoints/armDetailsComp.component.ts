@@ -62,8 +62,9 @@ export class armDetailsComp implements OnInit {
     }
     setArm(arm: iArm, key: number) {
 
+		this.editTitle = true;
 		this.currentKey = key;
-		this.currentTitle = arm.title;
+		this.title = arm.title;
 		this.currentArm = arm;
 	}
 
@@ -72,8 +73,8 @@ export class armDetailsComp implements OnInit {
     updateList(arm: iArm) {
 
 		this.editTitle = false;
-		this.armsList[this.currentKey].title = this.currentTitle;
-		this.item!.arms[this.currentKey].title = this.currentTitle;
+		this.armsList[this.currentKey].title = this.title;
+		this.item!.arms[this.currentKey].title = this.title;
 		this._armsService.UpdateArm(this.item!.arms[this.currentKey]);
 		this.Clear();
 	}
@@ -81,7 +82,7 @@ export class armDetailsComp implements OnInit {
 	Clear() {
 
 		this.editTitle = false;
-		this.currentTitle = '';
+		this.titleModel = '';
 		this.title = '';
 	}
 

@@ -438,6 +438,11 @@ export class Outcome implements iOutcome {
 			this.data7 = Number(iO.data7 == null ? 0 : iO.data7);
 			this.data8 = Number(iO.data8 == null ? 0 : iO.data8);
 			this.data9 = Number(iO.data9 == null ? 0 : iO.data9);
+			if (this.data9 != null && this.data9 > 0) {
+				this.isSelected = true;
+			} else {
+				this.isSelected = false;
+			}
 			this.data10 = Number(iO.data10 == null ? 0 : iO.data10);
 			this.data11 = Number(iO.data11 == null ? 0 : iO.data11);
 			this.data12 = Number(iO.data12 == null ? 0 : iO.data12);
@@ -762,7 +767,7 @@ export class Outcome implements iOutcome {
 				this.es = this.CalcOddsRatio();
 				this.sees = this.CalcOddsRatioSE();
 				this.oddsRatio = this.es;
-				this.seOddsRatio = this.sees;
+				this.seOddsRatio = this.CalcOddsRatioSE();
 				break;
 
 			case 7: // correlation coeffiCIent r
@@ -958,6 +963,8 @@ export class Outcome implements iOutcome {
 			d3 = Number(this.data3);
 			d4 = Number(this.data4);
 		}
+		var tester = Math.sqrt(Number(1 / d1) + Number(1 / d2) + Number(1 / d3) + Number(1 / d4));
+		console.log("Odds ratio SE is: ", tester);
 		return Math.sqrt(Number(1 / d1) + Number(1 / d2) + Number(1 / d3) + Number(1 / d4));
 	}
 	private CalcRiskRatio(): number {
@@ -977,6 +984,7 @@ export class Outcome implements iOutcome {
 		return (d1 / (d1 + d3)) / (d2 / (d2 + d4));
 	}
 	private CalcRiskRatioSE(): number {
+
 		let d1: number = 0, d2: number = 0, d3: number = 0, d4: number = 0;
 		if ((this.data1 == 0) || (this.data2 == 0) || (this.data3 == 0) || (this.data4 == 0)) {
 			d1 = this.data1 + 0.5;
@@ -990,6 +998,7 @@ export class Outcome implements iOutcome {
 			d3 = this.data3;
 			d4 = this.data4;
 		}
+	
 		return Math.sqrt((1 / d1) + (1 / d2) - (1 / (d1 + d3)) - (1 / (d2 + d4)));
 	}
 	private CalcRiskDifference(): number {
@@ -1100,8 +1109,8 @@ export class Outcome implements iOutcome {
 		else {
 			return se;
 		}
-	}
 
+	}
 	outcomeId: number = 0;
 	itemSetId: number = 0;
 	private OutcomeTypeName: string = "Manual entry";
@@ -1116,10 +1125,10 @@ export class Outcome implements iOutcome {
 	private OutcomeTypeId: number = 0;
 	public get outcomeTypeId(): number {
 
+		//this.SetCalculatedValues();
 		return this.OutcomeTypeId;
 	}
 	public set outcomeTypeId(val: number) {
-
 		this.OutcomeTypeId = val;
 		this.SetCalculatedValues();
 	}

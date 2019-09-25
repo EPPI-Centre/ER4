@@ -25,58 +25,64 @@
 						Arm name cannot be empty
 					</div>
 
-                    <div *ngIf="titleModel.errors.required">
-                        Arm name is required
-                    </div>
-                    <div *ngIf="titleModel.errors.minlength">
-                        Arm name must be at least 3 characters long
-                    </div>
+					<div *ngIf="titleModel.errors.required">
+						Arm name is required
+					</div>
+					<div *ngIf="titleModel.errors.minlength">
+						Arm name must be at least 3 characters long
+					</div>
 
 				</div>
-				<button *ngIf="!titleModel.invalid" [disabled]="!HasWriteRights"
-						class="btn btn-success mt-1 p-1 m-1" (click)="add(title)">
-					Add New Study Arm
-				</button>
-				<button *ngIf="!titleModel.invalid"
-						class="btn btn-danger mt-1 p-1 m-1"
-						(click)="ClearAndCancelAdd()">
-					Cancel
-				</button>
+				<div class="col-md-12 row">
+					<button [disabled]="!HasWriteRights || titleModel.invalid || titleModel =='' || editTitle == true"
+							class="btn btn-success mt-1 p-1 m-1" (click)="add(title)">
+						Add New Study Arm
+					</button>
+					<button *ngIf="
+							editTitle == true
+							&& titleModel !=''"
+							[disabled]="!editTitle"
+							class="btn btn-warning mt-1 p-1 m-1"
+							(click)="updateList(currentArm)">
+						Update study arm
+					</button>
+					<button [disabled]="!HasWriteRights || titleModel =='' && editTitle == false"
+							class="btn btn-danger mt-1 p-1 m-1"
+							(click)="Clear()">
+						Cancel
+					</button>
+				</div>
+				</div>
+				<!---->
+				<table class="table table-bordered table-responsive-md table-striped text-center">
+					<tr>
+						<th class="text-center">Arm Title</th>
+						<th class="text-center" style="max-width: 10px;">Edit</th>
+						<th class="text-center" style="max-width: 10px;">Remove</th>
+					</tr>
+					<tr *ngFor="let arm of armsList; let key = index">
+						<td style="width: 150px;">{{arm.title}}</td>
+						<td style="width: 15px; white-space:nowrap;">
+							<span class="table-remove">
+								<button (click)="editTitle=true; setArm(arm, key)"
+										[disabled]="!HasWriteRights"
+										type="button" rounded="true" size="sm" class="btn btn-outline-info p-1 m-1">
+									Edit
+								</button>
+							</span>
+						</td>
+						<td style="width: 15px; white-space:nowrap;">
+							<span class="table-remove">
+								<button type="button" rounded="true" size="sm" class="btn btn-outline-danger p-1 m-1"
+										[disabled]="!HasWriteRights" (click)="removeWarning(key)">
+									Remove
+								</button>
+							</span>
+						</td>
+					</tr>
+				</table>
+				
 			</div>
-			<!---->
-			<table class="table table-bordered table-responsive-md table-striped text-center">
-				<tr>
-					<th class="text-center">Arm Title</th>
-					<th class="text-center" style="max-width: 10px;">Edit</th>
-					<th class="text-center" style="max-width: 10px;">Remove</th>
-				</tr>
-				<tr *ngFor="let arm of armsList; let key = index">
-					<td style="width: 150px;">{{arm.title}}</td>
-					<td style="width: 15px; white-space:nowrap;">
-						<span class="table-remove">
-							<button (click)="editTitle=true; setArm(arm, key)"
-									[disabled]="!HasWriteRights"
-									type="button" rounded="true" size="sm" class="btn btn-outline-info p-1 m-1">
-								Edit
-							</button>
-						</span>
-					</td>
-					<td style="width: 15px; white-space:nowrap;">
-						<span class="table-remove">
-							<button type="button" rounded="true" size="sm" class="btn btn-outline-danger p-1 m-1"
-									[disabled]="!HasWriteRights" (click)="removeWarning(key)">
-								Remove
-							</button>
-						</span>
-					</td>
-				</tr>
-			</table>
-			<div *ngIf="editTitle">
-				<input class="form-control" type="text" name="titleChange" id="titleChange" [(ngModel)]="currentTitle" />
-				<button class="btn btn-primary mt-1 p-1 m-1" (click)="updateList(currentArm)">Confirm Change</button>
-				<button class="btn btn-danger mt-1 p-1 m-1" (click)="ClearAndCancelEdit()">Cancel Change</button>
-			</div>
-		</div>
 	</div>
 
 </div>
