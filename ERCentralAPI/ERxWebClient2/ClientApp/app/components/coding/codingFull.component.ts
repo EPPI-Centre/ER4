@@ -506,7 +506,7 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
     goToItem(item: Item) {
         this.WipeHighlights();
 		this.clearItemData();
-		this.ArmsCompRef.Clear();
+		//this.ArmsCompRef.Clear();
 		this.TimePointsComp.Clear();
 		this.ArmDetailsComp.Clear();
         console.log('what do you need me to do?' + item.itemId);
@@ -643,7 +643,7 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
 		this.SetHighlights();
 		this.TimePointsComp.Clear();
 		this.ArmDetailsComp.Clear();
-		this.ArmsCompRef.Clear();
+		
     }
     WipeHighlights() {
         if (this.ItemDetailsCompRef) this.ItemDetailsCompRef.WipeHighlights();
