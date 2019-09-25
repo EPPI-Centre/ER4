@@ -181,7 +181,7 @@ namespace ERxWebClient2.Controllers
 		}
 
 		[HttpPost("[action]")]
-		public IActionResult CreateComparison([FromBody] JObject comparison)
+		public IActionResult CreateComparison([FromBody] ComparisonMVCJSON comparison)
 		{
 			try
 			{
@@ -193,8 +193,22 @@ namespace ERxWebClient2.Controllers
 					Comparison newComp = new Comparison();
 					DataPortal<Comparison> dp = new DataPortal<Comparison>();
 
-					newComp = comparison.ToObject<Comparison>();
 
+					newComp.AttributeName = comparison.attributeName;
+					newComp.ComparisonDate = (Csla.SmartDate) comparison.comparisonDate;
+					//newComp.ComparisonId = comparison.comparisonId;
+					newComp.ContactId1 = comparison.contactId1;
+					newComp.ContactId2 = comparison.contactId2;
+					newComp.ContactId3 = comparison.contactId3;
+					newComp.ContactName1 = comparison.contactName1;
+					newComp.ContactName2 = comparison.contactName2;
+					newComp.ContactName3 = comparison.contactName3;
+					newComp.InGroupAttributeId = comparison.inGroupAttributeId;
+					//newComp.IsScreening = comparison.isScreening;
+					newComp.ReviewId = comparison.reviewId;
+					newComp.SetId = comparison.setId;
+					newComp.SetName = comparison.setName;
+					
 					newComp = dp.Execute(newComp);
 
 					return Ok();
@@ -257,5 +271,24 @@ namespace ERxWebClient2.Controllers
 		public Comparison comparison { get; set; }
 	}
 
+
+	public class ComparisonMVCJSON
+	{
+		public int comparisonId  {get; set;}
+		public bool isScreening  {get; set;}
+		public int reviewId  {get; set;}
+		public int  inGroupAttributeId {get; set;}
+		public int setId  {get; set;}
+		public string comparisonDate {get; set;}
+		public int contactId1 {get; set;}
+		public int contactId2 { get; set;}
+		public int contactId3 { get; set;}
+		public string contactName1 { get; set;}
+		public string contactName2 {get; set;}
+		public string contactName3 { get; set;}
+		public string attributeName { get; set;}
+		public string setName { get; set;}
+
+	}
 
 }

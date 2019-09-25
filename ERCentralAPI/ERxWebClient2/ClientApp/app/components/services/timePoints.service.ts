@@ -151,14 +151,12 @@ export class timePointsService extends BusyAwareService implements OnInit  {
 			.then(
 				(result) => {
 
-					
 					if (!result) this.modalService.GenericErrorMessage(ErrMsg);
 					this.RemoveBusy("DeleteWarningtimepoint");
 					return result;
 				}
 				, (error) => {
 
-					
 					console.log('error in DeleteWarningtimepoint() rejected', error);
 					this.modalService.GenericErrorMessage(ErrMsg);
 					this.RemoveBusy("DeleteWarningtimepoint");
@@ -168,7 +166,6 @@ export class timePointsService extends BusyAwareService implements OnInit  {
 			.catch(
 			(error) => {
 
-					
 					console.log('error in DeleteWarningtimepoint() catch', error);
 					this.modalService.GenericErrorMessage(ErrMsg);
 					this.RemoveBusy("DeleteWarningtimepoint");

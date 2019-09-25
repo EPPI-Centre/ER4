@@ -6,6 +6,7 @@ import { OutcomesService, OutcomeType, Outcome } from '../services/outcomes.serv
 import { Item } from '../services/ItemList.service';
 import { iTimePoint } from '../services/timePoints.service';
 import { iArm } from '../services/arms.service';
+import { Console } from '@angular/core/src/console';
 
 
 @Component({
@@ -32,7 +33,9 @@ export class OutcomesComponent implements OnInit, OnDestroy, AfterViewInit {
 	public OutcomeTypeList: OutcomeType[] = [];
 
 	ngOnInit() {
-		
+
+
+
 		this.OutcomeTypeList = [
 			{ "outcomeTypeId": 0, "outcomeTypeName": "Manual entry" },
 			{ "outcomeTypeId": 1, "outcomeTypeName": "Continuous: Ns, means, and SD" },
@@ -61,6 +64,8 @@ export class OutcomesComponent implements OnInit, OnDestroy, AfterViewInit {
 			this.GetReviewSetControlList(this.ItemSetId);
 			this.GetItemArmList();
 		}
+			   		 
+		console.log('aksjhdfkjash: ', this._OutcomesService.currentOutcome.data9);
 	}
 	public GetReviewSetOutcomeList(ItemSetId: number ) {
 
@@ -81,7 +86,6 @@ export class OutcomesComponent implements OnInit, OnDestroy, AfterViewInit {
 		}
 	}
 	public ShowCFUOAE(){
-
 		this.ShowCFUOAEBool = !this.ShowCFUOAEBool;
 	}
 	public get SMD(): string {
@@ -215,10 +219,12 @@ export class OutcomesComponent implements OnInit, OnDestroy, AfterViewInit {
 				this._OutcomesService.Createoutcome(this._OutcomesService.currentOutcome).then(
 					() => {
 						console.log(JSON.stringify(this._OutcomesService.currentOutcome));
+
 							this._OutcomesService.FetchOutcomes(this._OutcomesService.currentOutcome.itemSetId);
 						}
 					);
 			} else {
+				console.log(JSON.stringify(this._OutcomesService.currentOutcome));
 				this._OutcomesService.Updateoutcome(this._OutcomesService.currentOutcome);
 			}
 		}
