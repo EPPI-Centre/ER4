@@ -1218,11 +1218,6 @@ export class Outcome implements iOutcome {
 	}
 	public set data9(val: number) {
 		this.Data9 = val;
-		if (val != null && val > 0) {
-			this.isSelected = true;
-		} else {
-			this.isSelected = false;
-		}
 		this.SetCalculatedValues();
 	}
 	private Data10: number = 0;

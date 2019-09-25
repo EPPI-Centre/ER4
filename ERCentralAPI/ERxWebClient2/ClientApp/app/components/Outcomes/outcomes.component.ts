@@ -29,7 +29,7 @@ export class OutcomesComponent implements OnInit, OnDestroy, AfterViewInit {
 	public ShowOutcomesList: boolean = true;
 	@Input() item: Item | undefined;
 	// Correction for unit of analysis error
-	public ShowCFUOAEBool: boolean = false;
+	public ShowCFUOAEBool: boolean = true;
 	public OutcomeTypeList: OutcomeType[] = [];
 
 	ngOnInit() {
@@ -65,7 +65,6 @@ export class OutcomesComponent implements OnInit, OnDestroy, AfterViewInit {
 			this.GetItemArmList();
 		}
 			   		 
-		console.log('aksjhdfkjash: ', this._OutcomesService.currentOutcome.data9);
 	}
 	public GetReviewSetOutcomeList(ItemSetId: number ) {
 
@@ -85,14 +84,21 @@ export class OutcomesComponent implements OnInit, OnDestroy, AfterViewInit {
 			this._OutcomesService.FetchItemArmList(this.item.itemId);
 		}
 	}
+	public ShowCFUOAEBoolCheck() : boolean {
+
+		if (this._OutcomesService.currentOutcome.data9 > 0 ||
+			this._OutcomesService.currentOutcome.data10 > 0 ) {
+			return true;
+		} else {
+			return false;
+		}
+
+	}
 	public ShowCFUOAE(currentOutcome: Outcome) {
 
-		console.log(currentOutcome);
-		currentOutcome.isSelected = !currentOutcome.isSelected;
+		//currentOutcome.isSelected = !currentOutcome.isSelected;
 		this.ShowCFUOAEBool = !this.ShowCFUOAEBool;
-		if (currentOutcome.isSelected == true) {
-			this.ShowCFUOAEBool = true;
-		}
+
 	}
 	public get SMD(): string {
 
@@ -112,7 +118,6 @@ export class OutcomesComponent implements OnInit, OnDestroy, AfterViewInit {
 		}
 	}
 	private _calculatedEffectSize: number = 0;
-
 	public CalculatedEffectSize(): number {
 
 		if (this._OutcomesService.currentOutcome.esDesc == 'Effect size') {
@@ -130,9 +135,7 @@ export class OutcomesComponent implements OnInit, OnDestroy, AfterViewInit {
 		}
 
 		return this._calculatedEffectSize;
-
 	}
-
 	public outcomeDescription: string = '';
 	public outcomeDescriptionModel: string = '';
 	public interventionDD: string = '';
@@ -260,8 +263,5 @@ export class OutcomesComponent implements OnInit, OnDestroy, AfterViewInit {
 	ClearAndCancelEdit() {
 		this.ShowOutcomesList = false;
 		this._OutcomesService.outcomesChangedEE.emit();
-	}
-	Clear() {
-
 	}
 }

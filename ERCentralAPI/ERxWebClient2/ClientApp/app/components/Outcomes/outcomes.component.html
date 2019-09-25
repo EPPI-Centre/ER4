@@ -372,11 +372,11 @@
 							
 							<input (click)="ShowCFUOAE(_OutcomesService.currentOutcome)"
 								   type="checkbox"
-								   [checked]="this.ShowCFUOAEBool"  />
+								   [checked]="ShowCFUOAEBoolCheck()" />
 							<label class="p-2 m-2">Correct for unit of analysis error</label>
 						</div>
 						<div *ngIf="ShowCFUOAEBool" 
-						class="row col-12  p-1 m-2">
+							class="row col-12  p-1 m-2">
 							<div class="col-12 row p-1">
 								<label class="col-md-12 p-1 m-0">Mean cluster size</label>
 								<input #group2SDModel="ngModel"
