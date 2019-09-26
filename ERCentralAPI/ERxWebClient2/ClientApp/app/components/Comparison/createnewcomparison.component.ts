@@ -196,14 +196,6 @@ export class ComparisonComp implements OnInit {
 		this.emitterCancel.emit();
 
 	}
-	public NewComparisonSectionOpen() {
-
-		if (this.PanelName == 'NewComparisonSection') {
-			this.PanelName = '';
-		} else {
-			this.PanelName = 'NewComparisonSection';
-		}
-	}
 	public RefreshData() {
 
 		this.getMembers();
