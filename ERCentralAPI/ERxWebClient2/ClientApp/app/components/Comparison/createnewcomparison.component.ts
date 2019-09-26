@@ -169,7 +169,7 @@ export class ComparisonComp implements OnInit {
 				}
 		}
 		
-		console.log('New comaprison: ',newComparison);
+		//console.log('New comaprison: ',newComparison);
         this.__comparisonsService.CreateComparison(newComparison);
         this.emitterCancel.emit();
 	}
