@@ -62,18 +62,6 @@
 				<div class="ml-1 mt-0 mr-1 pl-0 pr-0 w-100 row">
 					<itemDetailsPaginator [item]="item" Context="FullUI" [IsScreening]="IsScreening" (ItemChanged)="ItemChanged()" (GoToNextScreeningItemClicked)="GetItem()"
 										  class="col-12 col-sm  pr-0 pl-0 ml-1 mr-1"></itemDetailsPaginator>
-
-					<!--<button class="page-link rounded pt-1 pb-1 mb-1 float-right" (click)="FindReference(item)">
-		Find Reference
-	</button>-->
-					<kendo-toolbar class="small" style="background-color: #f5f6fa;">
-						<kendo-toolbar-splitbutton [text]="'Find Reference on google'" (buttonClick)="FindReference(item)"
-												   [data]="MicrosoftSearchData"
-												   style="border-color: #04070b;
-							background-color: #e1e4eb;">
-
-						</kendo-toolbar-splitbutton>
-						</kendo-toolbar>
 						<div class="pr-0 pl-0 col-12 col-sm pr-0">
 							<button class="page-link rounded pt-1 pb-1 mb-1 float-right" (click)="BackToMain()">
 								Close/back

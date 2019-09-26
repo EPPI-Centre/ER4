@@ -169,38 +169,7 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
         }
 	}
 
-	public MicrosoftSearchData: Array<any> = [{
-		text: 'Find reference on Microsoft Academic',
-		click: () => {
-			if (this.item != undefined) {
-
-				this.FindReferenceOnMicrosoftAcademic(this.item);
-			}
-		}
-	}];
-	public FindReferenceOnMicrosoftAcademic(item: Item) {
-
-		if (item != null) {
-
-			let searchString: string = "\"" + item.title + "\"" + item.authors;
-				//+ "=& orderBy=0 & skip=0 & take=10";
-
-			window.open("https://academic.microsoft.com/search?q=" +
-				encodeURIComponent(searchString));
-
-		}
-	}
-	public FindReference(item: Item) {
-
-		if (item != null) {
-
-			let searchString: string = "\"" + item.title + "\"" + item.authors;
-			
-			window.open("https://www.google.com/search?q=" + searchString);
-
-		}
-
-	}
+	
 	public ShowingOutComes() {
         this.ShowOutComes = !this.ShowOutComes;
 	}
