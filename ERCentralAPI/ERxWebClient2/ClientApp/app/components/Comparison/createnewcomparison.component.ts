@@ -169,7 +169,7 @@ export class ComparisonComp implements OnInit {
 				}
 		}
 		
-		console.log('New comaprison: ',newComparison);
+		//console.log('New comaprison: ',newComparison);
         this.__comparisonsService.CreateComparison(newComparison);
         this.emitterCancel.emit();
 	}
@@ -195,14 +195,6 @@ export class ComparisonComp implements OnInit {
 		this.PanelName = '';
 		this.emitterCancel.emit();
 
-	}
-	public NewComparisonSectionOpen() {
-
-		if (this.PanelName == 'NewComparisonSection') {
-			this.PanelName = '';
-		} else {
-			this.PanelName = 'NewComparisonSection';
-		}
 	}
 	public RefreshData() {
 

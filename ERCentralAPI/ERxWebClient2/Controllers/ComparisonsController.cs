@@ -80,7 +80,8 @@ namespace ERxWebClient2.Controllers
 			}
 			catch (Exception e)
 			{
-				_logger.LogException(e, "Comparison Report data portal error");
+				_logger.LogError(e, "Comparison Report data portal error {0}",
+					JsonConvert.SerializeObject(comparisonAttributesCriteria));
 				throw;
 			}
 		}
@@ -107,7 +108,7 @@ namespace ERxWebClient2.Controllers
 			}
 			catch (Exception e)
 			{
-				_logger.LogException(e, "Comparison delete data portal error");
+				_logger.LogError(e, "Comparison delete data portal error {0}", comparisonId);
 				throw;
 			}
 		}
@@ -130,7 +131,7 @@ namespace ERxWebClient2.Controllers
 			}
 			catch (Exception e)
 			{
-				_logger.LogException(e, "Comparison Statistics data portal error");
+				_logger.LogError(e, "Comparison Statistics data portal error {0}", comparisonId);
 				throw;
 			}
 		}
@@ -175,7 +176,7 @@ namespace ERxWebClient2.Controllers
 			}
 			catch (Exception e)
 			{
-				_logger.LogException(e, "Comparison Complete data portal error");
+				_logger.LogError(e, "Comparison Complete data portal error {0}", JsonConvert.SerializeObject(comparisonComplete));
 				throw;
 			}
 		}
@@ -195,8 +196,7 @@ namespace ERxWebClient2.Controllers
 
 
 					newComp.AttributeName = comparison.attributeName;
-					newComp.ComparisonDate = (Csla.SmartDate) comparison.comparisonDate;
-					//newComp.ComparisonId = comparison.comparisonId;
+					newComp.ComparisonDate = (SmartDate) comparison.comparisonDate;
 					newComp.ContactId1 = comparison.contactId1;
 					newComp.ContactId2 = comparison.contactId2;
 					newComp.ContactId3 = comparison.contactId3;
@@ -204,8 +204,7 @@ namespace ERxWebClient2.Controllers
 					newComp.ContactName2 = comparison.contactName2;
 					newComp.ContactName3 = comparison.contactName3;
 					newComp.InGroupAttributeId = comparison.inGroupAttributeId;
-					//newComp.IsScreening = comparison.isScreening;
-					newComp.ReviewId = comparison.reviewId;
+					newComp.ReviewId = ri.ReviewId;
 					newComp.SetId = comparison.setId;
 					newComp.SetName = comparison.setName;
 					
@@ -218,7 +217,8 @@ namespace ERxWebClient2.Controllers
 			}
 			catch (Exception e)
 			{
-				_logger.LogException(e, "Comparison create data portal error");
+				_logger.LogError(e, "Comparison create data portal error {0}", 
+					JsonConvert.SerializeObject(comparison), Formatting.Indented);
 				throw;
 			}
 		}
