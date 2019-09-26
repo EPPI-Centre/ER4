@@ -367,35 +367,33 @@
 							   value="_OutcomesService.currentOutcome.data14"
 							   type="number" class="form-control col-md-6 small" />
 					</div>
-					<div class="row col-12 p-0 m-0">
-						<div class="">
-							
-							<input (click)="ShowCFUOAE(_OutcomesService.currentOutcome)"
-								   type="checkbox"
-								   [checked]="ShowCFUOAEBoolCheck()" />
-							<label class="p-2 m-2">Correct for unit of analysis error</label>
-						</div>
-						<div *ngIf="ShowCFUOAEBool" 
-							class="row col-12  p-1 m-2">
-							<div class="col-12 row p-1">
-								<label class="col-md-12 p-1 m-0">Mean cluster size</label>
-								<input #group2SDModel="ngModel"
-									   [(ngModel)]="_OutcomesService.currentOutcome.data9"
-									   name="outcomedata9" #outcomedata9="ngModel"
-									   pattern="^[-+]?[0-9]*\.?[0-9]+$"
-									   value="_OutcomesService.currentOutcome.data9"
-									   type="number" class="form-control col-4 col-md-4" />
-							</div>
-							<div class="col-12 row p-1">
-								<label class="col-md-12 p-1 m-0">ICC</label>
-								<input #group2SDModel="ngModel"
-									   [(ngModel)]="_OutcomesService.currentOutcome.data10"
-									   name="outcomedata10" #outcomedata10="ngModel"
-									   pattern="^[-+]?[0-9]*\.?[0-9]+$"
-									   value="_OutcomesService.currentOutcome.data10"
-									   type="number" class="form-control col-4 col-md-4" />
-							</div>
-						</div>
+					<div class="row col-12 p-0 my-0 mx-1">
+                        <div class="row p-1 m-2 border border-success rounded alert-info w-100">
+                            <div class="col-12 m-0 p-0">
+                                <label class="p-0 m-2 small font-weight-bold">{{ShowCFUOAEtext}}: </label> <button class="btn btn-sm btn-outline-success px-2 py-0" (click)="ShowCFUOAE()">Go</button>
+                            </div>
+                            <div *ngIf="ShowCFUOAEBoolCheck()"
+                                 class="row col-12  p-1 m-2">
+                                <div class="col-12 row p-1">
+                                    <label class="col-12 col-md-8 p-1 m-0">Mean cluster size</label>
+                                    <input #group2SDModel="ngModel"
+                                           [(ngModel)]="_OutcomesService.currentOutcome.data9"
+                                           name="outcomedata9" #outcomedata9="ngModel"
+                                           pattern="^[-+]?[0-9]*\.?[0-9]+$"
+                                           value="_OutcomesService.currentOutcome.data9"
+                                           type="number" class="form-control col-12 col-md-4" />
+                                </div>
+                                <div class="col-12 row p-1">
+                                    <label class="col-12 col-md-8 p-1 m-0">ICC</label>
+                                    <input #group2SDModel="ngModel"
+                                           [(ngModel)]="_OutcomesService.currentOutcome.data10"
+                                           name="outcomedata10" #outcomedata10="ngModel"
+                                           pattern="^[-+]?[0-9]*\.?[0-9]+$"
+                                           value="_OutcomesService.currentOutcome.data10"
+                                           type="number" class="form-control col-12 col-md-4" />
+                                </div>
+                            </div>
+                        </div>
 						<div class="row col-md-12 p-0 m-0">
 							<div class="col-12 col-md-12 col-lg-12 row p-0 m-0">
 								<label class="col-md-5 bold">{{_OutcomesService.currentOutcome.esDesc}}</label>

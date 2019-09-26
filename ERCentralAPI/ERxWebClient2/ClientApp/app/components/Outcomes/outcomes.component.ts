@@ -29,7 +29,7 @@ export class OutcomesComponent implements OnInit, OnDestroy, AfterViewInit {
 	public ShowOutcomesList: boolean = true;
 	@Input() item: Item | undefined;
 	// Correction for unit of analysis error
-	public ShowCFUOAEBool: boolean = true;
+	public ShowCFUOAEBool: boolean = false;
 	public OutcomeTypeList: OutcomeType[] = [];
 
 	ngOnInit() {
@@ -85,19 +85,33 @@ export class OutcomesComponent implements OnInit, OnDestroy, AfterViewInit {
 		}
 	}
 	public ShowCFUOAEBoolCheck() : boolean {
-
 		if (this._OutcomesService.currentOutcome.data9 > 0 ||
-			this._OutcomesService.currentOutcome.data10 > 0 ) {
+            this._OutcomesService.currentOutcome.data10 > 0) {
+            this.ShowCFUOAEBool = true;
 			return true;
 		} else {
-			return false;
+            return this.ShowCFUOAEBool;
 		}
-
-	}
-	public ShowCFUOAE(currentOutcome: Outcome) {
-
+    }
+    public get ShowCFUOAEtext(): string {
+        if (this.ShowCFUOAEBoolCheck()) return "Stop correcting for unit of analysis error (resets current values)";
+        else return "Correct for unit of analysis error";
+    }
+	public ShowCFUOAE() {
+        if (this._OutcomesService.currentOutcome.data9 > 0 ||
+            this._OutcomesService.currentOutcome.data10 > 0) {
+            //we are currently correcting for unit of analysis...
+            //we'll wipe the data and set the backing field to false
+            this._OutcomesService.currentOutcome.data9 = 0;
+            this._OutcomesService.currentOutcome.data10 = 0;
+            this.ShowCFUOAEBool = false;
+        }
+        else {
+            //we currently are not "correcting", or we are, but no values have been entered, so flip backing field
+            this.ShowCFUOAEBool = !this.ShowCFUOAEBool;
+        }
 		//currentOutcome.isSelected = !currentOutcome.isSelected;
-		this.ShowCFUOAEBool = !this.ShowCFUOAEBool;
+		//this.ShowCFUOAEBool = !this.ShowCFUOAEBool;
 
 	}
 	public get SMD(): string {
@@ -176,7 +190,10 @@ export class OutcomesComponent implements OnInit, OnDestroy, AfterViewInit {
 			this.ShowOutcomesStatistics = true;
 			this.ShowOutcomesList = false;
 			this._OutcomesService.currentOutcome = outcome;
-			this._OutcomesService.ItemSetId = outcome.itemSetId;
+            this._OutcomesService.ItemSetId = outcome.itemSetId;
+            if (this._OutcomesService.currentOutcome.data9 > 0 ||
+                this._OutcomesService.currentOutcome.data10 > 0) this.ShowCFUOAEBool = true;
+            else this.ShowCFUOAEBool = false;
 		}
 	}
 	removeWarning(outcome: Outcome, key: number) {

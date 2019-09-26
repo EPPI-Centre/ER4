@@ -88,13 +88,14 @@ namespace ERxWebClient2.Controllers
 								attributes += "," + obj.AttributeId.ToString();
 							}
 						}
+                        if (attributes != "")
+                        {
+                            DataPortal<OutcomeItemAttributesCommand> dpCmd = new DataPortal<OutcomeItemAttributesCommand>();
+                            OutcomeItemAttributesCommand command = new OutcomeItemAttributesCommand(
+                                outcomeId, attributes);
 
-						DataPortal<OutcomeItemAttributesCommand> dpCmd = new DataPortal<OutcomeItemAttributesCommand>();
-						OutcomeItemAttributesCommand command = new OutcomeItemAttributesCommand(
-							outcomeId, attributes);
-
-						command = dpCmd.Execute(command);
-
+                            command = dpCmd.Execute(command);
+                        }
 					}
 
 					return Ok(result);
@@ -106,7 +107,7 @@ namespace ERxWebClient2.Controllers
 			}
 			catch (Exception e)
 			{
-				_logger.LogError(e, "Error when Creating an Outcome : {0}");
+				_logger.LogError(e, "Error when Creating an Outcome : " + JsonConvert.SerializeObject(outcomeData));
 				return StatusCode(500, e.Message);
 			}
 		}
@@ -143,8 +144,7 @@ namespace ERxWebClient2.Controllers
 					}
 
 					DataPortal<OutcomeItemAttributesCommand> dpCmd = new DataPortal<OutcomeItemAttributesCommand>();
-					OutcomeItemAttributesCommand command = new OutcomeItemAttributesCommand(
-						outcomeId, attributes);
+					OutcomeItemAttributesCommand command = new OutcomeItemAttributesCommand(outcomeId, attributes);
 
 					command = dpCmd.Execute(command);
 
@@ -169,7 +169,7 @@ namespace ERxWebClient2.Controllers
 			}
 			catch (Exception e)
 			{
-				_logger.LogError(e, "Error when updating an Outcome: {0}");
+				_logger.LogError(e, "Error when updating an Outcome: " + JsonConvert.SerializeObject(outcomeData));
 				return StatusCode(500, e.Message);
 			}
 		}
@@ -295,7 +295,7 @@ namespace ERxWebClient2.Controllers
 			}
 			catch (Exception e)
 			{
-				_logger.LogError(e, "Error when Deleting an outcome: {0}", outcome);
+				_logger.LogError(e, "Error when Deleting an outcome: {0}" + JsonConvert.SerializeObject(outcome));
 				return StatusCode(500, e.Message);
 			}
 		}
