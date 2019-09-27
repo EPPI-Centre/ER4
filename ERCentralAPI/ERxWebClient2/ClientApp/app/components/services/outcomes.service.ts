@@ -352,20 +352,20 @@ export interface iOutcome {
     seOddsRatio: number;
     riskRatio: number;
     seRiskRatio: number;
-    CIUpperSMD: number;
-    CILowerSMD: number;
-    CIUpperR: number;
-    CILowerR: number;
-    CIUpperOddsRatio: number;
-    CILowerOddsRatio: number;
-    CIUpperRiskRatio: number;
-    CILowerRiskRatio: number;
-    CIUpperRiskDifference: number;
-    CILowerRiskDifference: number;
-    CIUpperPetoOddsRatio: number;
-    CILowerPetoOddsRatio: number;
-    CIUpperMeanDifference: number;
-    CILowerMeanDifference: number;
+    ciUpperSMD: number;
+    ciLowerSMD: number;
+    ciUpperR: number;
+    ciLowerR: number;
+    ciUpperOddsRatio: number;
+    ciLowerOddsRatio: number;
+    ciUpperRiskRatio: number;
+    ciLowerRiskRatio: number;
+    ciUpperRiskDifference: number;
+    ciLowerRiskDifference: number;
+    ciUpperPetoOddsRatio: number;
+    ciLowerPetoOddsRatio: number;
+    ciUpperMeanDifference: number;
+    ciLowerMeanDifference: number;
     riskDifference: number;
     seRiskDifference: number;
     meanDifference: number;
@@ -375,8 +375,8 @@ export interface iOutcome {
     es: number;
     sees: number;
     nRows: number;
-    CILower: number;
-    CIUpper: number;
+    ciLower: number;
+    ciUpper: number;
     esDesc: string;
     seDesc: string;
     data1Desc: string;
@@ -465,6 +465,23 @@ export class Outcome implements iOutcome {
 			this.reWeight = iO.reWeight;
 
             this.SetCalculatedValues();
+
+            this.ciUpperSMD = iO.ciUpperSMD;
+            this.ciLowerSMD = iO.ciLowerSMD;
+            this.ciUpperR = iO.ciUpperR;
+            this.ciLowerR = iO.ciLowerR;
+            this.ciUpperOddsRatio = iO.ciUpperOddsRatio;
+            this.ciLowerOddsRatio = iO.ciLowerOddsRatio;
+            this.ciUpperRiskRatio = iO.ciUpperRiskRatio;
+            this.ciLowerRiskRatio = iO.ciLowerRiskRatio;
+            this.ciUpperRiskDifference = iO.ciUpperRiskDifference;
+            this.ciLowerRiskDifference = iO.ciUpperRiskDifference;
+            this.ciUpperPetoOddsRatio = iO.ciUpperPetoOddsRatio;
+            this.ciLowerPetoOddsRatio = iO.ciLowerPetoOddsRatio;
+            this.ciUpperMeanDifference = iO.ciUpperMeanDifference;
+            this.ciLowerMeanDifference = iO.ciLowerMeanDifference;
+            this.ciUpper = iO.ciUpper;
+            this.ciLower = iO.ciLower;
         }
 	}
 
@@ -784,8 +801,8 @@ export class Outcome implements iOutcome {
 				break;
 		}
 
-		this.CILower = this.smd - (1.96 * this.sees);
-		this.CIUpper = this.smd + (1.96 * this.sees);
+		this.ciLower = this.smd - (1.96 * this.sees);
+		this.ciUpper = this.smd + (1.96 * this.sees);
 
 	}
 
@@ -964,7 +981,7 @@ export class Outcome implements iOutcome {
 			d4 = Number(this.data4);
 		}
 		var tester = Math.sqrt(Number(1 / d1) + Number(1 / d2) + Number(1 / d3) + Number(1 / d4));
-		console.log("Odds ratio SE is: ", tester);
+		//console.log("Odds ratio SE is: ", tester);
 		return Math.sqrt(Number(1 / d1) + Number(1 / d2) + Number(1 / d3) + Number(1 / d4));
 	}
 	private CalcRiskRatio(): number {
@@ -1273,20 +1290,20 @@ export class Outcome implements iOutcome {
 	seOddsRatio: number = 0;
 	riskRatio: number = 0;
 	seRiskRatio: number = 0;
-	CIUpperSMD: number = 0;
-	CILowerSMD: number = 0;
-	CIUpperR: number = 0;
-	CILowerR: number = 0;
-	CIUpperOddsRatio: number = 0;
-	CILowerOddsRatio: number = 0;
-	CIUpperRiskRatio: number = 0;
-	CILowerRiskRatio: number = 0;
-	CIUpperRiskDifference: number = 0;
-	CILowerRiskDifference: number = 0;
-	CIUpperPetoOddsRatio: number = 0;
-	CILowerPetoOddsRatio: number = 0;
-	CIUpperMeanDifference: number = 0;
-	CILowerMeanDifference: number = 0;
+    ciUpperSMD: number = 0;
+    ciLowerSMD: number = 0;
+    ciUpperR: number = 0;
+    ciLowerR: number = 0;
+    ciUpperOddsRatio: number = 0;
+    ciLowerOddsRatio: number = 0;
+    ciUpperRiskRatio: number = 0;
+    ciLowerRiskRatio: number = 0;
+    ciUpperRiskDifference: number = 0;
+    ciLowerRiskDifference: number = 0;
+    ciUpperPetoOddsRatio: number = 0;
+    ciLowerPetoOddsRatio: number = 0;
+    ciUpperMeanDifference: number = 0;
+    ciLowerMeanDifference: number = 0;
 	riskDifference: number = 0;
 	seRiskDifference: number = 0;
 	meanDifference: number = 0;
@@ -1296,8 +1313,8 @@ export class Outcome implements iOutcome {
 	es: number = 0;
 	sees: number = 0;
 	nRows: number = 0;
-	CILower: number = 0;
-	CIUpper: number = 0;
+	ciLower: number = 0;
+	ciUpper: number = 0;
 	esDesc: string = "";
 	seDesc: string = "";
 	private Data1Desc: string = "";
