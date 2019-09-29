@@ -480,10 +480,13 @@ namespace BusinessLibrary.BusinessClasses
                 attributeCount++;
             }
             dt.Columns.Add(new DataColumn("Outcome description", System.Type.GetType("System.String")));
+            dt.Columns.Add(new DataColumn("Timepoint", System.Type.GetType("System.String")));
             dt.Columns.Add(new DataColumn("Outcome type", System.Type.GetType("System.String")));
             dt.Columns.Add(new DataColumn("Outcome", System.Type.GetType("System.String")));
             dt.Columns.Add(new DataColumn("Intervention", System.Type.GetType("System.String")));
             dt.Columns.Add(new DataColumn("Comparison", System.Type.GetType("System.String")));
+            dt.Columns.Add(new DataColumn("Arm 1", System.Type.GetType("System.String")));
+            dt.Columns.Add(new DataColumn("Arm 2", System.Type.GetType("System.String")));
             dt.Columns.Add(new DataColumn("Data 1", System.Type.GetType("System.String")));
             dt.Columns.Add(new DataColumn("Data 2", System.Type.GetType("System.String")));
             dt.Columns.Add(new DataColumn("Data 3", System.Type.GetType("System.String")));
@@ -538,10 +541,14 @@ namespace BusinessLibrary.BusinessClasses
                         string OutcomeId = reader.GetValue("OUTCOME_ID").ToString();
                         Outcome o = Outcome.GetSingleOutcome(Convert.ToInt32(OutcomeId));
                         dr["Outcome description"] = o.Title;
+                        dr["Timepoint"] = o.TimepointDisplayValue;
                         dr["Outcome"] = o.OutcomeText;
                         dr["Intervention"] = o.InterventionText;
                         dr["Comparison"] = o.ControlText;
                         dr["Outcome type"] = o.OutcomeTypeName;
+
+                        dr["Arm 1"] = o.grp1ArmName;
+                        dr["Arm 2"] = o.grp2ArmName;
 
                         dr["Data 1"] = o.Data1;
                         dr["Data 2"] = o.Data2;

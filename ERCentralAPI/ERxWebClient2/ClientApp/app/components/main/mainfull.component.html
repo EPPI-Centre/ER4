@@ -207,7 +207,13 @@
                                        [data]="AddRemoveItemsDDData"
                                        class="my-1 ml-1 mr-0"
                                        style="border-color: #04070b;background-color: #e1e4eb;"></kendo-splitbutton>
-                </div>
+					<kendo-splitbutton *ngIf="ShowSearchesAssign" [text]="'Assign search(es) to code'" 
+									   (buttonClick)="BulkAssignRemoveCodesToSearches(true)"
+									   [disabled]="!CanBulkAssignRemoveCodesToSearches"
+									   [data]="AddRemoveSearchesDDData"
+									   class="my-1 ml-1 mr-0"
+									   style="border-color: #04070b;background-color: #e1e4eb;"></kendo-splitbutton>
+				</div>
                 <codesetTreeMain [MaxHeight]="700"></codesetTreeMain>
                 <div *ngIf="(!ReviewSets || ReviewSets.length == 0) && !IsServiceBusy && HasWriteRights">
                     <button class="btn btn-success btn-sm p-0 mb-1" (click)="ImportCodesetClick()"><span class="ml-1 mr-1">Click Here</span></button> to Import Coding Tools from templates.

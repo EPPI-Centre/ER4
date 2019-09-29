@@ -243,6 +243,9 @@
     <Compile Include="BusinessClasses\ItemDuplicateUnDUPCommand.cs" />
     <Compile Include="BusinessClasses\ItemLink.cs" />
     <Compile Include="BusinessClasses\ItemLinkList.cs" />
+    <Compile Include="BusinessClasses\ItemTimepoint.cs" />
+    <Compile Include="BusinessClasses\ItemTimepointDeleteWarningCommand.cs" />
+    <Compile Include="BusinessClasses\ItemTimepointList.cs" />
     <Compile Include="BusinessClasses\MetaAnalysisModerator.cs" />
     <Compile Include="BusinessClasses\MetaAnalysisModeratorList.cs" />
     <Compile Include="BusinessClasses\MetaAnalysisModeratorReference.cs" />
@@ -378,6 +381,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>TestDataSet.xsd</DependentUpon>
     </Compile>
+    <Compile Include="BusinessClasses\TimePointTypeList.cs" />
     <Compile Include="BusinessClasses\Training.cs" />
     <Compile Include="BusinessClasses\TrainingList.cs" />
     <Compile Include="BusinessClasses\TrainingNextItem.cs" />

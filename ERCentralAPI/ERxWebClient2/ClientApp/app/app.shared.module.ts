@@ -19,7 +19,7 @@ import { ItemDocListComp } from './components/ItemDocumentList/itemDocListComp.c
 import { intropageComponent } from './components/intropage/intropage.component';
 import { HeaderComponent } from './components/commonComponents/header.component';
 import { ModalDialogComponent } from './components/ModalDialog/ModalDialog.component';
-import { armsComp } from './components/arms/armsComp.component';
+import { armsComp } from './components/ArmsAndTimePoints/armsComp.component';
 import { AngularFontAwesomeModule } from 'angular-font-awesome';
 import { DataTablesModule } from 'angular-datatables';
 import { ItemCodingFullComp } from './components/coding/codingFull.component';
@@ -61,7 +61,7 @@ import { QuickCodingReportComponent } from './components/Reports/quickcodingrepo
 import { NewReviewComponent } from './components/Review/newreview.component';
 import 'hammerjs';
 import { RunLingo3G } from './components/CodesetTrees/runlingo3g.component';
-import { armDetailsComp } from './components/arms/armDetailsComp.component';
+import { armDetailsComp } from './components/ArmsAndTimePoints/armDetailsComp.component';
 import { CodesetTree4QuickQuestionReportComponent } from './components/CodesetTrees/codesetTree4QuickQuestionReport.component';
 import { WorkAllocationComp } from './components/WorkAllocations/WorkAllocationComp.component';
 import { SiteAdminComponent } from './components/SiteAdmin/siteadmin.component';
@@ -77,6 +77,10 @@ import { WebViewerComponent } from './components/PDFTron/webviewer.component';
 import { PdfTronContainer } from './components/PDFTron/pdftroncontainer.component';
 import { codingRecordComp } from './components/CodingRecord/codingRecord.component';
 import { LiveComparisonComp } from './components/CodingRecord/LiveComparison.component';
+import { timePointsComp } from './components/ArmsAndTimePoints/timePointsComp.component';
+import { OutcomesComponent } from './components/Outcomes/outcomes.component'
+import { EditCodeComp } from './components/CodesetTrees/editcode.component';
+import { SingleCodesetTreeCodingComponent } from './components/CodesetTrees/SingleCodesetTreeCoding.component';
 
 @NgModule({
     declarations: [
@@ -89,7 +93,7 @@ import { LiveComparisonComp } from './components/CodingRecord/LiveComparison.com
 		ReviewStatisticsComp,
 		itemDetailsPaginatorComp,
         CodesetTreeMainComponent,
-        CodesetTreeCodingComponent,
+		CodesetTreeCodingComponent,
         CodesetTreeEditComponent,
         ImportCodesetsWizardComponent,
         codesetTree4CopyComponent,
@@ -132,9 +136,13 @@ import { LiveComparisonComp } from './components/CodingRecord/LiveComparison.com
 		ComparisonComp,
 		ComparisonStatsComp,
 		ComparisonReconciliationComp,
+		timePointsComp,
         PdfTronContainer,
         WebViewerComponent,
-		codingRecordComp
+		codingRecordComp,
+        OutcomesComponent,
+		EditCodeComp,
+		SingleCodesetTreeCodingComponent
 	],
     providers: [
         EventEmitterService,

@@ -1,0 +1,28 @@
+﻿Worker process to look after the Academic Database.
+
+- Sits in a separate database [AcademicController]
+- Runs a periodic CLR to see if a new version of MAG has been published
+
+When a new version of MAG has been published:
+- Delete previously downloaded files and the old version of Academic (not the one currently live, but the previous version)
+- Trigger CLR to download data (will take up to a day)
+- Create SearchText and unindex the Abstracts
+- Create database with name = current MAG
+- Create tables
+- Upload data to new DB
+- Update tables to create / enter data for calculated fields (SearchText, Abstracts, Authors, +)
+- Create indexes
+- Update Controller stored procedures so that they point to the new database
+- Tell EPPI-Reviewer that a new MAG database is available
+
+
+
+
+Timing
+- Download all data: ~20 hours
+- Create database: 30 mins (external HD, 50GB)
+- Import data: 21 hours (external HD, 812GB)
+- Create shorttext in papers: 100 minutes
+- Recreate abstracts: 
+- Update tables / create data
+- Create indexes

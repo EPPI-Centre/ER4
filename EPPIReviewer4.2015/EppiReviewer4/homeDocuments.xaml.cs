@@ -391,7 +391,7 @@ namespace EppiReviewer4
             cmdScreeningRunSimulation.Visibility = ri.IsSiteAdmin ? Visibility.Visible : System.Windows.Visibility.Collapsed;
             cmdScreeningSimulationSave.Visibility = ri.IsSiteAdmin ? Visibility.Visible : System.Windows.Visibility.Collapsed;
             if (ri.UserId == 1451 || ri.UserId == 1576 || ri.UserId == 4688 
-                || ri.UserId == 6258) //Alison, Ian, Dylan and Hollie Melton from York CRD
+                || ri.UserId == 6258 || ri.UserId == 6545 || ri.UserId == 11817) //Alison, Ian, Dylan,  Hollie Melton from York CRD, Joshua Pink from NICE and Albert Harkema
             {
                 cmdScreeningRunSimulation.Visibility = Visibility.Visible;
                 cmdScreeningSimulationSave.Visibility = Visibility.Visible;
@@ -5623,7 +5623,7 @@ on the right of the main screen");
 
         private void cmdScreeningRunSimulation_Click(object sender, RoutedEventArgs e)
         {
-            if (MessageBox.Show("Are you sure you want to run this simulation?", "Confirm run simulation", MessageBoxButton.OKCancel) == MessageBoxResult.OK)
+            if (MessageBox.Show(@"Are you sure you want to run this simulation? \n\r(This will delete previous simulation runs from this review.)", "Confirm run simulation", MessageBoxButton.OKCancel) == MessageBoxResult.OK)
             {
                 CslaDataProvider provider = App.Current.Resources["ReviewInfoData"] as CslaDataProvider;
                 ReviewInfo RevInfo = provider.Data as ReviewInfo;

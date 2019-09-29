@@ -126,7 +126,8 @@ export class Helpers {
             };
         }
     }
-
+    //used to add link to stylesheet and HTML frame to HTML content, usually for reports
+    //gets used to show and save reports.
     public static AddHTMLFrame(report: string, baseUrl: string): string {
         //used to save reports
         let res = "<HTML id='content'><HEAD><title>EPPI-Reviewer Coding Report</title><link rel='stylesheet' href='" + baseUrl + "/dist/vendor.css' /></HEAD><BODY class='m-2' id='body'>" + report;
@@ -135,6 +136,7 @@ export class Helpers {
         res += "</BODY></HTML>";
         return res;
     }
+    //used to show reports in a throwaway new tab.
     public static OpenInNewWindow(ReportHTML: any, baseUrl: string) {
         if (ReportHTML.length < 1) return;
 

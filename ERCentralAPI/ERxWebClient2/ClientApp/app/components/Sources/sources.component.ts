@@ -53,6 +53,10 @@ export class SourcesComponent implements OnInit, OnDestroy {
         //}
         //this.SourcesService.FetchImportFilters();
     }
+    onSubmit(): boolean {
+        console.log("Sources onSubmit");
+        return false;
+    }
     @ViewChild('tabstrip') public tabstrip!: TabStripComponent;
     get ReviewSources(): ReadOnlySource[] {
         //console.log("rev srcs:", this.SourcesService.ReviewSources.length);

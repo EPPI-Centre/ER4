@@ -7,6 +7,9 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Globalization;
 using System.Linq;
+using System.Collections.Generic;
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json;
 
 public partial class StoredFunctions
 {
@@ -157,6 +160,33 @@ public partial class StoredFunctions
     }
 
     // **************************** END TOSHORTSEARCHTEXT ******************************
+
+    // ***************************** RECONSTRUCTING INVERTED INDEX FIELD FROM MICROSOFT ACADEMIC ***********************************
+
+
+    public static string InvertedAbstractToAbstract(string invertedAbstract)
+    {
+        if (invertedAbstract == null || invertedAbstract == "")
+            return "";
+        var j = (JObject)JsonConvert.DeserializeObject(invertedAbstract);
+        int indexLength = j["IndexLength"].ToObject<int>();
+        Dictionary<string, int[]> invertedIndex = j["InvertedIndex"].ToObject<Dictionary<string, int[]>>();
+        return ReconstructInvertedAbstract(indexLength, invertedIndex);
+    }
+
+    public static string ReconstructInvertedAbstract(int indexLength, Dictionary<string, int[]> invertedIndex)
+    {
+        string[] abstractStr = new string[indexLength];
+        foreach (var pair in invertedIndex)
+        {
+            string word = pair.Key;
+            foreach (var index in pair.Value)
+            {
+                abstractStr[index] = word;
+            }
+        }
+        return String.Join(" ", abstractStr);
+    }
 };
 
 
@@ -365,6 +395,10 @@ public static class EditDistance
     */
     public static SqlDouble Jaro(this string s1, string s2)
     {
+        if (s1 == null || s1 == "" || s2 == null || s2 == "")
+        {
+            return 0;
+        }
         EditDistance.JaroMetrics jaroMetrics = EditDistance.Matches(s1, s2);
         float num = (float)jaroMetrics.Matches;
         int transpositions = jaroMetrics.Transpositions;
@@ -430,4 +464,7 @@ public static class EditDistance
         }
         return result;
     }
+
+
+    
 }

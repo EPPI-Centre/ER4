@@ -666,7 +666,8 @@ namespace BusinessLibrary.BusinessClasses
             {
                 using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
                 {
-                    connection.Open();
+					ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+					connection.Open();
                     using (SqlCommand command = new SqlCommand("st_AttributeSetUpdate", connection))
                     {
                         command.CommandType = System.Data.CommandType.StoredProcedure;
@@ -680,7 +681,8 @@ namespace BusinessLibrary.BusinessClasses
                         command.Parameters.Add(new SqlParameter("@ATTRIBUTE_NAME", ReadProperty(AttributeNameProperty)));
                         command.Parameters.Add(new SqlParameter("@ATTRIBUTE_DESC", ReadProperty(AttributeDescriptionProperty)));
                         command.Parameters.Add(new SqlParameter("@CONTACT_ID", ReadProperty(ContactIdProperty)));
-                        command.ExecuteNonQuery();
+						command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
+						command.ExecuteNonQuery();
                     }
                     connection.Close();
                 }
@@ -761,9 +763,34 @@ namespace BusinessLibrary.BusinessClasses
             
             return returnValue;
         }
-
+        internal static AttributeSet GetAttributeSetForFlatList(SafeDataReader reader, int MaxDepth)
+        {
+            AttributeSet returnValue = new AttributeSet();
+            try
+            {
+                returnValue.MarkOld();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
+            //returnValue.LoadProperty<int>(MaxDepthProperty, maxD);//setting this here because it needs to be correct when adding a ref to returnValue inside it's children
+            returnValue.LoadProperty<Int64>(AttributeSetIdProperty, reader.GetInt64("ATTRIBUTE_SET_ID"));
+            returnValue.LoadProperty<int>(SetIdProperty, reader.GetInt32("SET_ID"));
+            returnValue.LoadProperty<Int64>(AttributeIdProperty, reader.GetInt64("ATTRIBUTE_ID"));
+            returnValue.LoadProperty<Int64>(ParentAttributeIdProperty, reader.GetInt64("PARENT_ATTRIBUTE_ID"));
+            returnValue.LoadProperty<int>(AttributeTypeIdProperty, reader.GetInt32("ATTRIBUTE_TYPE_ID"));
+            returnValue.LoadProperty<string>(AttributeSetDescriptionProperty, reader.GetString("ATTRIBUTE_SET_DESC"));
+            returnValue.LoadProperty<int>(AttributeOrderProperty, reader.GetInt32("ATTRIBUTE_ORDER"));
+            returnValue.LoadProperty<string>(AttributeTypeProperty, reader.GetString("ATTRIBUTE_TYPE"));
+            returnValue.LoadProperty<string>(AttributeNameProperty, reader.GetString("ATTRIBUTE_NAME"));
+            returnValue.LoadProperty<string>(AttributeDescriptionProperty, reader.GetString("ATTRIBUTE_DESC"));
+            returnValue.LoadProperty<int>(ContactIdProperty, reader.GetInt32("CONTACT_ID"));
+            returnValue.LoadProperty<int>(MaxDepthProperty, MaxDepth);
+            return returnValue;
+        }
 #endif
-                        }
+        }
 
     [Serializable]
     public class ItemAttributeData

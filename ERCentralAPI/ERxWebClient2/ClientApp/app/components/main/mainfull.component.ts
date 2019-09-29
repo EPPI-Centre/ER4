@@ -64,7 +64,8 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         , private ItemCodingService: ItemCodingService
 		, private ReviewSetsEditingService: ReviewSetsEditingService
         , private workAllocationListService: WorkAllocationListService
-        , private ComparisonsService: ComparisonsService
+		, private ComparisonsService: ComparisonsService,
+		private searchService: searchService
     ) {}
 	@ViewChild('WorkAllocationContactList') workAllocationsContactComp!: WorkAllocationContactListComp;
 	@ViewChild('WorkAllocationCollaborateList') workAllocationCollaborateComp!: WorkAllocationComp;
@@ -118,7 +119,13 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         click: () => {
             this.BulkAssignRemoveCodes(false);
         }
-    }];
+	}];
+	public AddRemoveSearchesDDData: Array<any> = [{
+		text: 'Remove search(es) from code',
+		click: () => {
+			this.BulkAssignRemoveCodesToSearches(false);
+		}
+	}];
     public QuickReportsDDData: Array<any> = [{
         text: 'Quick Question Report',
         click: () => {
@@ -170,7 +177,18 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
             && this.ItemListService.HasSelectedItems
         ) return true;
         else return false;
-    }
+	}
+	public get CanBulkAssignRemoveCodesToSearches(): boolean {
+		if (
+			this.selectedNode
+			&& this.selectedNode.nodeType == "SetAttribute" &&
+			this.ReviewerIdentityServ.HasWriteRights
+			&& this.searchService.SearchList
+			&& this.searchService.SearchList.findIndex(x => x.add == true) != -1
+			//&& this.searchService.SearchList.length > 0
+		) return true;
+		else return false;
+	}
     public ShowClusterCommand: boolean = false;
     public HelpAndFeebackContext: string = "main\\reviewhome";
 
@@ -198,14 +216,17 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 		return false;
 	}
 	public DeleteRelevantItems() {
+		if (this.ItemListService.SelectedItems != null &&
+			this.ItemListService.SelectedItems.length > 0) {
 		this.AllIncOrExcShow = false;
 		this.ConfirmationDialogService.confirm("Delete the selected items?",
 			"Are you sure you want to delete these " + this.ItemListService.SelectedItems.length  + " item/s?", false, '')
 			.then((confirm: any) => {
-				if (confirm) {
-					this.ItemListService.DeleteSelectedItems(this.ItemListService.SelectedItems);
+					if (confirm) {
+						this.ItemListService.DeleteSelectedItems(this.ItemListService.SelectedItems);
 				}
-			});
+				});
+		}
 	}
 	public AllocateChoice: string = '';
 	public AllIncOrExcShow: boolean = false;
@@ -367,6 +388,73 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         this.ItemListService.FetchWithCrit(cr, ListDescription);
         this.tabstrip.selectTab(1);
         //this._eventEmitter.PleaseSelectItemsListTab.emit();
+	}
+	BulkAssignRemoveCodesToSearches(IsBulkAssign: boolean) {
+
+		//alert(this.searchService.SearchList.filter(x => x.add == true).length);
+		//alert(JSON.stringify(this.searchService.SearchList));
+
+		if (!this.reviewSetsService.selectedNode || this.reviewSetsService.selectedNode.nodeType != "SetAttribute") return;
+		else {
+			const SetA = this.reviewSetsService.selectedNode as SetAttribute;
+			if (!SetA) return;
+			else {
+				if (IsBulkAssign
+					&& this.reviewSetsService.selectedNode) {
+					this.ConfirmationDialogService.confirm("Assign the selected ("
+						+ this.searchService.SearchList.filter(x => x.add == true).length + ") searches ? ", "Are you sure you want to assign all selected searches to this ("
+						+ this.reviewSetsService.selectedNode.name + ") code?", false, '')
+						.then((confirm: any) => {
+							if (confirm) {
+								this.BulkAssignCodesToSearches(SetA.attribute_id, SetA.set_id);
+							}
+						});
+				}
+				else if (!IsBulkAssign
+					&& this.reviewSetsService.selectedNode) {
+					this.ConfirmationDialogService.confirm("Remove the selected ("
+						+ this.searchService.SearchList.filter(x => x.add == true).length + ") searches?", "Are you sure you want to remove all selected searches from this ("
+						+ this.reviewSetsService.selectedNode.name + ") code?", false, '')
+						.then((confirm: any) => {
+							if (confirm) {
+								this.BulkDeleteCodesToSearches(SetA.attribute_id, SetA.set_id);
+							}
+						});
+				}
+			}
+		}
+
+	}
+    BulkAssignCodesToSearches(attribute_id: number, set_id: number): any {
+		let ItemIds: string = "";
+		let cmd: ItemAttributeBulkSaveCommand = new ItemAttributeBulkSaveCommand();
+		cmd.itemIds = ItemIds;
+		cmd.attributeId = attribute_id;
+		cmd.setId = set_id;
+		cmd.saveType = "Insert";
+		const searches = this.searchService.SearchList.filter(x => x.add == true);
+		let SearchIds: string = "";
+		for (let item of searches) {
+			SearchIds += item.searchId.toString() + ",";
+		}
+		SearchIds = SearchIds.substring(0, SearchIds.length - 1);
+		cmd.searchIds = SearchIds;
+		this.reviewSetsService.ExecuteItemAttributeBulkInsertCommand(cmd);
+    }
+    BulkDeleteCodesToSearches(attribute_id: number, set_id: number): any {
+		let ItemIds: string = "";
+		let cmd: ItemAttributeBulkSaveCommand = new ItemAttributeBulkSaveCommand();
+		cmd.itemIds = ItemIds;
+		cmd.attributeId = attribute_id;
+		cmd.setId = set_id;
+		const searches = this.searchService.SearchList.filter(x => x.add == true);
+		let SearchIds: string = "";
+		for (let item of searches) {
+			SearchIds += item.searchId.toString() + ",";
+		}
+		SearchIds = SearchIds.substring(0, SearchIds.length - 1);
+		cmd.searchIds = SearchIds;
+		this.reviewSetsService.ExecuteItemAttributeBulkDeleteCommand(cmd);
     }
     BulkAssignRemoveCodes(IsBulkAssign: boolean) {
         if (!this.reviewSetsService.selectedNode || this.reviewSetsService.selectedNode.nodeType != "SetAttribute") return;
@@ -508,38 +596,46 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         
     };
     subOpeningReview: Subscription | null = null;
-    ShowItemsTable: boolean = false;
+	ShowItemsTable: boolean = false;
+	ShowSearchesAssign: boolean = false;
     onTabSelect(e: SelectEvent) {
 
         if (e.title == 'Review home') {
             this.HelpAndFeebackContext = "main\\reviewhome";
-            this.ShowItemsTable = false;
+			this.ShowItemsTable = false;
+			this.ShowSearchesAssign = false;
         }
         else if (e.title == 'References') {
             this.HelpAndFeebackContext = "main\\references";
-            this.ShowItemsTable = true;
+			this.ShowItemsTable = true;
+			this.ShowSearchesAssign = false;
         }
         else if (e.title == 'Frequencies') {
             this.HelpAndFeebackContext = "main\\frequencies";
-            this.ShowItemsTable = false;
+			this.ShowItemsTable = false;
+			this.ShowSearchesAssign = false;
         }
         else if (e.title == 'Crosstabs') {
             this.HelpAndFeebackContext = "main\\crosstabs";
-            this.ShowItemsTable = false;
+			this.ShowItemsTable = false;
+			this.ShowSearchesAssign = false;
         }
         else if (e.title == 'Search & Classify') {
             this.HelpAndFeebackContext = "main\\search";
-            this.ShowItemsTable = false;
+			this.ShowItemsTable = false;
+			this.ShowSearchesAssign = true;
             this._searchService.Fetch();
 		}
 		else if (e.title == 'Collaborate') {
 			this.HelpAndFeebackContext = "main\\collaborate";
 			if (this.workAllocationCollaborateComp) this.workAllocationCollaborateComp.RefreshData();
 			this.ShowItemsTable = false;
+			this.ShowSearchesAssign = false;
 		}
         else {
             this.HelpAndFeebackContext = "main\\reviewhome";
-            this.ShowItemsTable = false;
+			this.ShowItemsTable = false;
+			this.ShowSearchesAssign = false;
         }
     }
     //NewReference() {

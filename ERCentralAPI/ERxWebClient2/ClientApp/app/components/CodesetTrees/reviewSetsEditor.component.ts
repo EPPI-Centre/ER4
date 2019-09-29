@@ -291,26 +291,7 @@ export class ReviewSetsEditorComponent implements OnInit, OnDestroy {
     }
     public get CanEditSelectedNode(): boolean {
         if (!this.CanWrite()) return false;
-        if (!this.CurrentNode) return false;//??
-        else if (this.CurrentNode.nodeType == 'ReviewSet') {
-            //console.log("AAAAAAAAA", node);
-            return this.CurrentNode.allowEditingCodeset;
-        }
-        else {//this is an attribute, more work needed...
-            let SetAtt = this.CurrentNode as SetAttribute;
-            if (SetAtt) {
-                //is the set editable?
-                let MySet = this.ReviewSetsService.FindSetById(SetAtt.set_id);
-                if (MySet) {
-                    return MySet.allowEditingCodeset;
-                }
-                else {
-                    //ugh, shouldn't happen. Return false just in case...
-                    return false;
-                }
-            }
-        }
-        return false;
+        else return this.ReviewSetsService.CanEditSelectedNode;
     }
     SetIsSelected(): boolean {
         if (this.ReviewSetsService.selectedNode && this.ReviewSetsService.selectedNode.nodeType == "ReviewSet") return true;
@@ -325,6 +306,7 @@ export class ReviewSetsEditorComponent implements OnInit, OnDestroy {
         this._ActivityPanelName = activityName;
     }
     CancelActivity(refreshTree?: boolean) {
+        console.log("CancelActivity", refreshTree);
         if (refreshTree) {
             if (this.ReviewSetsService.selectedNode) {
                 let IsSet: boolean = this.ReviewSetsService.selectedNode.nodeType == "ReviewSet";
@@ -369,10 +351,8 @@ export class ReviewSetsEditorComponent implements OnInit, OnDestroy {
         if (this.ActivityPanelName == 'AddCode') {
             if (this._NewCode.attribute_name.trim() != "") return true;
             else return false;
-        } else if (this.ActivityPanelName == 'EditCode'){
-            if (this._UpdatingCode && this._UpdatingCode.attribute_name.trim() != "") return true;
-            else return false;
         }
+        else return false;
     }
     IsEditingNodeNameValid() {
         if (this.CurrentNode && this.CurrentNode.name.trim().length > 0) return true;
@@ -470,99 +450,24 @@ export class ReviewSetsEditorComponent implements OnInit, OnDestroy {
     }
     private _UpdatingCode: SetAttribute | null = null;
     public get UpdatingCode(): SetAttribute | null {
+        
         if (this.ActivityPanelName != 'EditCode') {
             this._UpdatingCode = null;
         }
-        else if (this._UpdatingCode == null && this.CurrentNode && this.CurrentNode.nodeType == "SetAttribute") {
+        else if (this.CurrentNode == null) this._UpdatingCode = null;
+        else if (this.CurrentNode.nodeType == "SetAttribute") {
             this._UpdatingCode = this.CurrentNode as SetAttribute;
         }
-        else if (this._UpdatingCode && this._UpdatingCode.attribute_id != (this.CurrentNode as SetAttribute).attribute_id) {
-            this._UpdatingCode = this.CurrentNode as SetAttribute;
-        }
+        
+        //console.log("get UpdatingCode" , this._UpdatingCode);
         return this._UpdatingCode;
     }
-    AttributeTypeChanged(typeId: number) {
-        console.log('selected att type:' + typeId);
-        if (this.ActivityPanelName == 'AddCode') {
-            //this.NewSetSelectedTypeId = typeId;
-            //let current = this.ReviewSetsEditingService.SetTypes.find(found => found.setTypeId == this.NewSetSelectedTypeId);
-            //if (current) {
-            //    this._NewReviewSet.setType = current;
-            //    if (!current.allowComparison) this._NewReviewSet.codingIsFinal = true;
-            //}
-        } else if (this.ActivityPanelName == 'EditCode' && this.UpdatingCode && this.UpdatingCode.nodeType == "SetAttribute") {
-            this.UpdatingCode.attribute_type_id = typeId;
-            let foundT = this.AllowedChildTypes.find(found => found.key == typeId);
-            if (foundT) this.UpdatingCode.attribute_type = foundT.value;
-        }
+    
+    onSubmit(): boolean {
+        console.log("ReviewSets Editor onSubmit");
+        return false;
     }
-    UpdateCode() {
-        if (!this.UpdatingCode || this.UpdatingCode.nodeType != "SetAttribute") {
-            this.CancelActivity();
-            return;//fail silently, should be ok as it should never happen...
-        }
-        let Att = this.UpdatingCode;
-        this.ReviewSetsEditingService.UpdateAttribute(Att)
-            .then(
-                success => {
-                    //alert("did it");
-                    if (success) {
-                        this.ReviewSetsService.selectedNode = Att;
-                        let OldAtt = this.ReviewSetsService.FindAttributeById(Att.attribute_id);
-                        if (OldAtt) {
-                            if (OldAtt.parent_attribute_id == 0) {
-                                let Set = this.ReviewSetsService.FindSetById(Att.set_id);
-                                if (Set) {
-                                    let index = Set.attributes.findIndex(Old => OldAtt === Old);
-                                    if (index != -1) {
-                                        console.log("replacing updated Att...");
-                                        Set.attributes.splice(index, 1, Att);
-                                    }
-                                }
-                            }
-                            else {
-                                let Par = this.ReviewSetsService.FindAttributeById(Att.parent_attribute_id);
-                                if (Par) {
-                                    let index = Par.attributes.findIndex(Old => OldAtt === Old);
-                                    if (index != -1) Par.attributes.splice(index, 1, Att);
-                                }
-                            }
-                            if (this.treeEditorComponent) this.treeEditorComponent.RefreshLocalTree();
-                        }
-                        //eventual error messages have been shown by the service...
-                        this.CancelActivity();
-                    }
-                },
-                error => {
-                    this.CancelActivity();
-                    console.log("error updating code:", error, Att);
-                    
-                })
-            .catch(
-                error => {
-                    console.log("error(catch) updating code:", error, Att);
-                    this.CancelActivity();
-                }
-            );
-    }
-    DoDeleteCode() {
-        if (!this._UpdatingCode) return;
-       
-        console.log("will delete:", this._UpdatingCode);
-        this.ReviewSetsEditingService.SetAttributeDelete(this._UpdatingCode)
-            .then(
-                success => {
-                    //alert("did it");
-                    this.ReviewSetsService.selectedNode = null;
-                    this.ReviewSetsService.GetReviewSets();
-                    this.CancelActivity(true);
-                },
-                error => {
-                    this.ReviewSetsService.selectedNode = null;
-                    this.ReviewSetsService.GetReviewSets();
-                    this.CancelActivity(true);
-                });
-    }
+    
     BackToMain() {
         this.ReviewSetsService.GetReviewSets();
         this.router.navigate(['Main']);

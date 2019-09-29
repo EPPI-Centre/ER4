@@ -92,8 +92,8 @@
             <div class="form-group row m-1 p-0">
                 <div class="row offset-md-1 col-sm-7 align-content-center ">
                     <input type="submit" value="Complete Authentication" class="btn btn-primary my-1" />
-                    <button class="btn btn-outline-info m-1" (click)="BackToMainChoice()">Back</button>
-                    <button class="btn btn-outline-dark my-1" (click)="BackHome()">Cancel & Logout</button>
+                    <button class="btn btn-outline-info m-1" (click)="BackToMainChoice()" type="button">Back</button>
+                    <button class="btn btn-outline-dark my-1" (click)="BackHome()" type="button">Cancel & Logout</button>
                     <div *ngIf="ShowLoginFailed" class=" m-2"><div class="badge badge-warning ml-1 pt-1 te"><span class="ml-2 mt-1 mr-2">Login Failed!</span></div></div>
                 </div>
             </div>

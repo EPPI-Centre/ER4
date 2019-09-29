@@ -16,7 +16,8 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Data.SqlClient;
 using Microsoft.Extensions.DependencyInjection;
-
+using Microsoft.Azure.Storage;
+using Microsoft.Azure.Storage.Blob;
 
 namespace AcademicImport
 {
@@ -32,7 +33,57 @@ namespace AcademicImport
             return LogFilename;
         }
 
+        // Change these settings for different install locations
+        static bool isAlpha = false;
+
         public static void Main(string[] args)
+        {
+            string writeToThisFolder = @"E:\MSAcademic\downloads";
+            int limit = 0; // ********** use this for testing. 0 = get everything
+
+            if (isAlpha)
+            {
+                writeToThisFolder = @"L:\MSAcademic\downloads";
+            }
+            Console.WriteLine("Now opening and writing papers file");
+            var fileStream = new FileStream(writeToThisFolder + @"\papers.txt", FileMode.Open, FileAccess.Read);
+            using (var streamReader = new StreamReader(fileStream, Encoding.UTF8))
+            {
+                using (StreamWriter outputFile = new StreamWriter(writeToThisFolder + @"\papers2.txt"))
+                {
+                    string line;
+                    while ((line = streamReader.ReadLine()) != null)
+                    {
+                        string[] f = line.Split('\t');
+                        line += '\t' + Truncate(ToShortSearchText(f[4]), 500);
+                        outputFile.WriteLine(line);
+                    }
+                }
+            }
+            Console.WriteLine("Now opening and writing abstracts file");
+            var fileStream2 = new FileStream(writeToThisFolder + @"\PaperAbstractsInvertedIndex.txt", FileMode.Open, FileAccess.Read);
+            using (var streamReader = new StreamReader(fileStream2, Encoding.UTF8))
+            {
+                using (StreamWriter outputFile = new StreamWriter(writeToThisFolder + @"\PaperAbstractsInvertedIndex2.txt"))
+                {
+                    string line;
+                    while ((line = streamReader.ReadLine()) != null)
+                    {
+                        string[] f = line.Split('\t');
+                        var j = (JObject)JsonConvert.DeserializeObject(f[1]);
+                        int indexLength = j["IndexLength"].ToObject<int>();
+                        Dictionary<string, int[]> invertedIndex = j["InvertedIndex"].ToObject<Dictionary<string, int[]>>();
+                        string reconstructedAbstract = ReconstructInvertedAbstract(indexLength, invertedIndex);
+                        line = f[0] + '\t' + reconstructedAbstract.Replace(Environment.NewLine, " ").Replace("\n", " ").Replace("\r", " ");
+                        outputFile.WriteLine(line);
+                    }
+                }
+            }
+            Console.WriteLine("All done");
+            Console.ReadLine();
+        }
+
+        public static void Main_old(string[] args)
         {
 
             // Starting from here ==============================================
@@ -66,14 +117,9 @@ namespace AcademicImport
             _logger.LogInformation(Environment.NewLine);
             _logger.LogInformation("MAG import starts...");
 
-            string applicationId = configuration["AppSettings:applicationId"];     // Also called client id
-            string clientSecret = configuration["AppSettings:clientSecret"];
-            string tenantId = configuration["AppSettings:tenantId"];
-            string adlsAccountFQDN = configuration["AppSettings:adlsAccountFQDN"];   // full account FQDN, not just the account name like example.azure.datalakestore.net
+            string blobConnection = configuration["AppSettings:blobConnection"]; 
 
-
-            // Change these settings for different install locations
-            bool isAlpha = false;
+            
 
             string writeToThisFolder = @"E:\MSAcademic\downloads";
             string SqlScriptFolder = @"\SQLScripts\";
@@ -90,18 +136,15 @@ namespace AcademicImport
 
             // start off by connecting to existing SQL database and getting the name of the datalake folder that was used to create it (this is the date of last update)
 
-            // Obtain AAD token
-            var creds = new ClientCredential(applicationId, clientSecret);
-            var clientCreds = ApplicationTokenProvider.LoginSilentAsync(tenantId, creds).GetAwaiter().GetResult();
-
-            // Create ADLS client object
-            AdlsClient client = AdlsClient.CreateClient(adlsAccountFQDN, clientCreds);
+            // Get storage account
+            CloudStorageAccount storageAccount = CloudStorageAccount.Parse(blobConnection);
+            CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
 
             try
             {
-                DirectoryEntry latest = null;
+                CloudBlobContainer latest = null;
                 // Enumerate through directory on DataLake and find the most recent dataset
-                foreach (DirectoryEntry entry in client.EnumerateDirectory("/graph"))
+                foreach (CloudBlobContainer entry in blobClient.ListContainers())
                 {
                     if (latest == null)
                     {
@@ -109,12 +152,12 @@ namespace AcademicImport
                     }
                     else
                     {
-                        if (entry.LastModifiedTime > latest.LastModifiedTime)
+                        if (Convert.ToInt32(entry.Name.Replace("mag-", "").Replace("-", "")) > 
+                            Convert.ToInt32(latest.Name.Replace("mag-", "").Replace("-", "")))
                         {
                             latest = entry;
                         }
                     }
-                    PrintDirectoryEntry(entry);
                 }
 
                 // When this is a service ADD a check here to see whether we have a new dataset now by comparing
@@ -141,25 +184,46 @@ namespace AcademicImport
                 }
                 Console.WriteLine("");
 
-                List<string> filenameColl = new List<string>
+                List<string> mag = new List<string>
                 {
+                    //"Affiliations",
+                    //"Authors",
+                    //"ConferenceInstances",
+                    //"ConferenceSeries",
+                    //"FieldsOfStudy",
+                    //"Journals",
+                    "PaperAuthorAffiliations",
+                    "PaperReferences",
+                    "PaperResources",
                     "Papers",
-                    "PaperAbstractsInvertedIndex",
+                    "PaperUrls"
+                };
+                List<string> advanced = new List<string>
+                {
+                    "FieldOfStudyChildren",
                     "PaperFieldsOfStudy",
                     "PaperRecommendations",
-                    "PaperReferences",
-                    "PaperUrls",
-                    "FieldOfStudyChildren",
-                    "FieldOfStudyRelationship",
-                    "FieldsOfStudy",
-                    "Journals",
-                    "Authors",
-                    "Affiliations"
+                    "RelatedFieldOfStudy"
+                };
+                List<string> nlp = new List<string>
+                {
+                    "PaperAbstractsInvertedIndex" //,
+                    //"PaperCitationContexts",
+                    //"PaperLanguages"
                 };
 
-                foreach (var item in filenameColl)
+                Console.WriteLine("Starting file download at: " + DateTime.Now.ToString());
+                foreach (var item in mag)
                 {
-                    DownloadThisFile(client, latest.FullName, "/" + item + ".txt", writeToThisFolder, limit);
+                    DownloadThisFile(latest, @"mag/", item + ".txt", writeToThisFolder, limit);
+                }
+                foreach (var item in advanced)
+                {
+                    DownloadThisFile(latest, @"advanced/", item + ".txt", writeToThisFolder, limit);
+                }
+                foreach (var item in nlp)
+                {
+                    DownloadThisFile(latest, @"nlp/", item + ".txt", writeToThisFolder, limit);
                 }
                 Console.WriteLine("");
                 // once we've downloaded the files, put them into the SQL DB
@@ -176,7 +240,7 @@ namespace AcademicImport
                     Console.WriteLine("");
 
                     // put the files into the DB
-                    foreach (var item in filenameColl)
+                    foreach (var item in mag)
                     {
                         UploadToDatabase(conn, item);
                     }
@@ -197,14 +261,15 @@ namespace AcademicImport
 
                 // once we've finished downloading all the files, delete all the older databases on DataLake, so we only have the most recent one being stored
                 // I think keep the most recent one, in case we need to rebuild the DB for any reason??
-                foreach (DirectoryEntry entry in client.EnumerateDirectory("/graph"))
-                {
+
+                //foreach (DirectoryEntry entry in client.EnumerateDirectory("/graph"))
+                //{
                     // store in a string variable the name of the most recent directory
                     // if each directory is not the most current, then delete it using this command
                     // client.DeleteRecursive("/graph/directoryname");
                     // when this service is up and running, there will only ever be one directory deleted
                     // hopefully this doesn't mess up the Enumerable, but if it does, we'll need to enumerate and store a list of folders to delete
-                }
+                //}
 
                 // We've now got a new clean database. We need to:
                 // 1. Record in the Reivewer DB (or somewhere??) the fact that it should now use the new academic SQL DB and not the old onw
@@ -255,39 +320,50 @@ namespace AcademicImport
             return true;
         }
 
-        private static bool DownloadThisFile(AdlsClient client, string graphPath, string fileName, string folder, int limit)
+        private static bool DownloadThisFile(CloudBlobContainer container, string graphPath, string fileName, string folder, int limit)
         {
             Stopwatch sw = new Stopwatch();
             sw.Start();
             Int64 count = 0;
             Int64 tempLimit = limit == 0 ? 5000000000 : limit; // i.e. if limit == 0 we download everything. less for testing
             Console.WriteLine("Reading this file now: " + fileName);
-            using (var readStream = new StreamReader(client.GetReadStream(graphPath + fileName)))
+            CloudBlockBlob cbb = container.GetBlockBlobReference(graphPath + fileName);
+            BlobRequestOptions requestOptions = new BlobRequestOptions();
+            requestOptions.MaximumExecutionTime = TimeSpan.FromHours(6);
+            cbb.DownloadToFile(folder + @"/" + fileName, FileMode.Create, null, requestOptions);
+
+            /* The below is for downloading a line at a time. 
+            CloudBlob blob = container.GetBlobReference(graphPath + fileName);
+            using (var readStream = blob.OpenRead())
             {
-                using (System.IO.StreamWriter file = new System.IO.StreamWriter(folder + fileName))
+                using (System.IO.StreamWriter file = new System.IO.StreamWriter(folder + @"/" + fileName))
                 {
-                    string line;
-                    while ((line = readStream.ReadLine()) != null && count < tempLimit)
+                    using (StreamReader reader = new StreamReader(readStream))
                     {
-                        if (fileName == "/Papers.txt")
+                        string line;
+                        while ((line = reader.ReadLine()) != null && count < tempLimit)
                         {
-                            string[] f = line.Split('\t');
-                            line += '\t' + Truncate(ToShortSearchText(f[4]), 500);
+                            if (fileName == "/Papers.txt")
+                            {
+                                string[] f = line.Split('\t');
+                                line += '\t' + Truncate(ToShortSearchText(f[4]), 500);
+                            }
+                            if (fileName == "/PaperAbstractsInvertedIndex.txt")
+                            {
+                                string[] f = line.Split('\t');
+                                var j = (JObject)JsonConvert.DeserializeObject(f[1]);
+                                int indexLength = j["IndexLength"].ToObject<int>();
+                                Dictionary<string, int[]> invertedIndex = j["InvertedIndex"].ToObject<Dictionary<string, int[]>>();
+                                string reconstructedAbstract = ReconstructInvertedAbstract(indexLength, invertedIndex);
+                                line = f[0] + '\t' + reconstructedAbstract.Replace(Environment.NewLine, " ").Replace("\n", " ").Replace("\r", " ");
+                            }
+                            file.WriteLine(line);
+                            count++;
                         }
-                        if (fileName == "/PaperAbstractsInvertedIndex.txt")
-                        {
-                            string[] f = line.Split('\t');
-                            var j = (JObject)JsonConvert.DeserializeObject(f[1]);
-                            int indexLength = j["IndexLength"].ToObject<int>();
-                            Dictionary<string, int[]> invertedIndex = j["InvertedIndex"].ToObject<Dictionary<string, int[]>>();
-                            string reconstructedAbstract = ReconstructInvertedAbstract(indexLength, invertedIndex);
-                            line = f[0] + '\t' + reconstructedAbstract.Replace(Environment.NewLine, " ").Replace("\n", " ").Replace("\r", " ");
-                        }
-                        file.WriteLine(line);
-                        count++;
                     }
                 }
             }
+            */
             sw.Stop();
             Console.WriteLine("That took: " + sw.Elapsed);
             return true;
@@ -347,20 +423,6 @@ namespace AcademicImport
                 }
             }
             return String.Join(" ", abstractStr);
-        }
-
-        private static void PrintDirectoryEntry(DirectoryEntry entry)
-        {
-            Console.WriteLine($"Name: {entry.Name}");
-            Console.WriteLine($"FullName: {entry.FullName}");
-            Console.WriteLine($"Length: {entry.Length}");
-            Console.WriteLine($"Type: {entry.Type}");
-            Console.WriteLine($"User: {entry.User}");
-            Console.WriteLine($"Group: {entry.Group}");
-            Console.WriteLine($"Permission: {entry.Permission}");
-            Console.WriteLine($"Modified Time: {entry.LastModifiedTime}");
-            Console.WriteLine($"Last Accessed Time: {entry.LastAccessTime}");
-            Console.WriteLine();
         }
 
         private static void PrintAdlsException(AdlsException exp)

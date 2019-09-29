@@ -57,6 +57,8 @@
 
         <Button x:Name="cmdNewOutcome" Content="New outcome" Grid.Row="1" Width="100" Margin="4,4,4,4" Click="cmdNewOutcome_Click" 
                 IsEnabled="{Binding Source={StaticResource isEn}, Path=IsEnabled, Mode=OneWay}" HorizontalAlignment="Left"></Button>
+        <Button x:Name="cmdCloseWindow" Content="Close" Grid.Row="1" Width="100" Margin="4,4,4,4" Click="cmdCloseWindow_Click" 
+                 HorizontalAlignment="Right"></Button>
 
         <!--<telerikNavigation:RadWindow x:Name="windowEditOutcome" Header="Edit / create outcome" CanClose="False"  ResizeMode="CanResize" WindowStartupLocation="CenterScreen" Width="1020" Height="700"
             Opened="windowEditOutcome_Opened">

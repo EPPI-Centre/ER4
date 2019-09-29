@@ -6,13 +6,15 @@ import { ModalService } from './modal.service';
 import { error } from '@angular/compiler/src/util';
 import { BusyAwareService } from '../helpers/BusyAwareService';
 import { SortDescriptor, orderBy } from '@progress/kendo-data-query';
-import { ArmsService } from './arms.service';
+import { ArmsService, iArm } from './arms.service';
 import { Subject } from 'rxjs';
 import { Helpers } from '../helpers/HelperMethods';
 import { ReadOnlySource } from './sources.service';
 import { EventEmitterService } from './EventEmitter.service';
 import { forEach } from '@angular/router/src/utils/collection';
 import { ERROR_COLLECTOR_TOKEN } from '@angular/platform-browser-dynamic/src/compiler_factory';
+import { iTimePoint } from './timePoints.service';
+
 
 @Injectable({
 
@@ -621,23 +623,29 @@ export class ItemListService extends BusyAwareService {
     }
 
 	DeleteSelectedItems(ItemIds: Item[]) {
+		
+        this._BusyMethods.push("DeleteSelectedItems");
+        let Ids = ItemIds.map(x => x.itemId);
+        //console.log("IDs:", Ids);
+		//var strItemIds = ItemIds.map(x => x.itemId).toString();
 
-		this._BusyMethods.push("DeleteSelectedItems");
-		this._httpC.post<string>(this._baseUrl + 'api/ItemList/DeleteSelectedItems',
-			ItemIds)
+		//let body = JSON.stringify({ ItemIds: strItemIds });
+
+		this._httpC.post<any>(this._baseUrl + 'api/ItemList/DeleteSelectedItems',
+            Ids)
 			.subscribe(
 			list => {
 
-					var ItemIdStr = list.toString().split(",");
-					var wholListItemIdStr = this.ItemList.items.map(x => x.itemId);
-					for (var i = 0; i < ItemIdStr.length; i++) {
-						var id = Number(ItemIdStr[i]);
-						var ind = wholListItemIdStr.indexOf(id);
-						this.ItemList.items.slice(ind, 1);
-					}
-					this._Criteria.totalItems = this.ItemList.totalItemCount;
-					this.SaveItems(this.ItemList, this._Criteria);
-					this.ListChanged.emit();
+					//var ItemIdStr = list.toString().split(",");
+					//var wholListItemIdStr = this.ItemList.items.map(x => x.itemId);
+					//for (var i = 0; i < ItemIdStr.length; i++) {
+					//	var id = Number(ItemIdStr[i]);
+					//	var ind = wholListItemIdStr.indexOf(id);
+					//	this.ItemList.items.slice(ind, 1);
+					//}
+					//this._Criteria.totalItems = this.ItemList.totalItemCount;
+					//this.SaveItems(this.ItemList, this._Criteria);
+					//this.ListChanged.emit();
 					this.Refresh();
 					//this.FetchWithCrit(this._Criteria, "StandardItemList");
 				
@@ -721,7 +729,8 @@ export class Item {
     isSelected: boolean = false;
     itemStatus: string = "";
     itemStatusTooltip: string = "";
-    arms: iArm[] = [];
+	arms: iArm[] = [];
+	timepoints: iTimePoint[] = [];
 }
 export class Criteria {
     onlyIncluded: boolean = true;
@@ -754,21 +763,9 @@ export class Criteria {
     showInfoColumn: boolean = true;
     showScoreColumn: boolean = true;
 }
-export interface iArm {
-	[key: number]: any;  // Add index signature
-	itemArmId: number;
-    itemId: number;
-    ordering: number;
-    title: string;
-}
-export class Arm {
-    
-    itemArmId: number = 0;
-    itemId: number = 0;
-    ordering: number = 0;
-    title: string = '';
 
-}
+
+
 export class ItemDocumentList {
 
     ItemDocuments: ItemDocument[] = [];

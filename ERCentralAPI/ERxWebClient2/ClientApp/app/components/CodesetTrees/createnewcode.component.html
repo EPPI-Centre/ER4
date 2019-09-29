@@ -1,42 +1,83 @@
 
-	<div class="card container-fluid mt-1 bg-light  m-1 p-1 form-group">
-		<form class="row" #NewCodeFromCollaborate="ngForm">
-			<div class="col-12">
-				<div class="form-group">
-					<label for="Codeset_TypeCollaborate">Code Type*</label>
-					<select #CodeTypeSelectCollaborate class="col-md-6 form-control" name="NewCode_TypeCollaborate"
-							[disabled]="!CurrentCodeCanHaveChildren">
-						<option *ngFor="let type of AllowedChildTypes" [value]="type.key" [selected]="AllowedChildTypes && type.key == AllowedChildTypes[0].key">
-							{{type.value}}
-						</option>
-					</select>
-				</div>
-			</div>
-			<div class="form-group col-12">
-				<label for="source_NameCollaborate">Code Name*</label>
-				<input type="text" class="form-control" id="AttName" [disabled]="!CurrentCodeCanHaveChildren"
-					   [(ngModel)]="NewCode.attribute_name" name="attribute_name"
-					   #name="ngModel">
-				<span [hidden]="IsNewCodeNameValid()"
-					  class="alert alert-danger small p-1">
-					Name is required
-				</span>
-			</div>
-			<div class="form-group col-12 mt-2">
-				<label for="newSetDescriptionCollaborate">Description (optional)</label>
-				<textarea class="form-control" id="newSetDescription" [disabled]="!CurrentCodeCanHaveChildren"
-						  [(ngModel)]="NewCode.attribute_set_desc" name="newAttDescription" rows="3"></textarea>
-			</div>
-			<div class="col-12">
-				<button type="submit" (click)="CreateNewCode()" class="btn btn-success ml-2 mr-2" [disabled]="!NewCodeFromCollaborate.dirty || !IsNewCodeNameValid() || !CurrentCodeCanHaveChildren">
-					Create
-				</button>
-				<button class="btn btn-outline-secondary ml-1"
-						(click)="CancelActivity()" style="width:200px;">
-					Cancel
-				</button>
-			</div>
-		</form>
+<div *ngIf="!IsSmall" class="card container-fluid mt-1 bg-light  m-1 p-1 form-group">
+    <form class="row" #NewCodeFromCollaborate="ngForm" (ngSubmit)="onSubmit()">
+        <div class="col-12">
+            <div class="form-group">
+                <label for="Codeset_TypeCollaborate">Code Type*</label>
+                <select #CodeTypeSelectCollaborate class="form-control" name="NewCode_TypeCollaborate"
+                        [disabled]="!CurrentCodeCanHaveChildren">
+                    <option *ngFor="let type of _reviewSetsService.AllowedChildTypesOfSelectedNode" [value]="type.key" [selected]="type.key == _reviewSetsService.AllowedChildTypesOfSelectedNode[0].key">
+                        {{type.value}}
+                    </option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group col-12">
+            <label for="source_NameCollaborate">Code Name*</label>
+            <input type="text" class="form-control" id="AttName" [disabled]="!CurrentCodeCanHaveChildren"
+                   [(ngModel)]="NewCode.attribute_name" name="attribute_name"
+                   #name="ngModel">
+            <span [hidden]="IsNewCodeNameValid()"
+                  class="alert alert-danger small p-1">
+                Name is required
+            </span>
+        </div>
+        <div class="form-group col-12 mt-2">
+            <label for="newSetDescriptionCollaborate">Description (optional)</label>
+            <textarea class="form-control" id="newSetDescription" [disabled]="!CurrentCodeCanHaveChildren"
+                      [(ngModel)]="NewCode.attribute_set_desc" name="newAttDescription" rows="3"></textarea>
+        </div>
+        <div class="col-12">
+            <button type="submit" (click)="CreateNewCode()"
+                    class="btn btn-success ml-2 mr-2"
+                    [disabled]="!NewCodeFromCollaborate.dirty || !IsNewCodeNameValid() || !CurrentCodeCanHaveChildren">
+                Create
+            </button>
+            <button class="btn btn-outline-secondary ml-2 mr-2" type="button"
+                    (click)="CancelActivity()">
+                Cancel
+            </button>
+        </div>
+    </form>
+</div>
 
 
-	</div>
+<form  *ngIf="IsSmall" class="row small"#NewCodeFromCollaborate="ngForm" (ngSubmit)="onSubmit()">
+    <div class="col-12">
+        <div class="form-group mb-1">
+            <div>Code Type*</div>
+            <select #CodeTypeSelectCollaborate class="p-1" name="NewCode_TypeCollaborate"
+                    [disabled]="!CurrentCodeCanHaveChildren">
+                <option *ngFor="let type of _reviewSetsService.AllowedChildTypesOfSelectedNode" [value]="type.key" [selected]="type.key == _reviewSetsService.AllowedChildTypesOfSelectedNode[0].key">
+                    {{type.value}}
+                </option>
+            </select>
+        </div>
+    </div>
+    <div class="form-group mb-1 col-12">
+        <div>Code Name*</div>
+        <input type="text" class="form-control" id="AttName" [disabled]="!CurrentCodeCanHaveChildren"
+               [(ngModel)]="NewCode.attribute_name" name="attribute_name"
+               #name="ngModel">
+        <span [hidden]="IsNewCodeNameValid()"
+              class="alert alert-danger small p-1">
+            Name is required
+        </span>
+    </div>
+    <div class="form-group col-12 mb-1">
+        <div for="newSetDescriptionCollaborate">Description (optional)</div>
+        <textarea class="form-control" id="newSetDescription" [disabled]="!CurrentCodeCanHaveChildren"
+                  [(ngModel)]="NewCode.attribute_set_desc" name="newAttDescription" rows="2"></textarea>
+    </div>
+    <div class="col-12 mb-1">
+        <button type="submit" (click)="CreateNewCode()"
+                class="btn btn-sm btn-success ml-2 mr-2"
+                [disabled]="!NewCodeFromCollaborate.dirty || !IsNewCodeNameValid() || !CurrentCodeCanHaveChildren">
+            Create
+        </button>
+        <button class="btn btn-sm btn-outline-secondary ml-2 mr-2" type="button"
+                (click)="CancelActivity()">
+            Cancel
+        </button>
+    </div>
+</form>

@@ -69,7 +69,6 @@ namespace BusinessLibrary.BusinessClasses
         }
 
         public static readonly PropertyInfo<Int64> ItemSetIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("ItemSetId", "ItemSetId"));
-
         [JsonProperty]
         public Int64 ItemSetId
         {
@@ -474,6 +473,113 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(OutcomeTextProperty, value);
             }
         }
+
+        public static readonly PropertyInfo<Int64> ItemTimepointIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("ItemTimepointId", "ItemTimepointId"));
+        [JsonProperty]
+        public Int64 ItemTimepointId
+        {
+            get
+            {
+                return GetProperty(ItemTimepointIdProperty);
+            }
+            set
+            {
+                SetProperty(ItemTimepointIdProperty, value);
+            }
+        }
+
+        public static readonly PropertyInfo<string> ItemTimepointMetricProperty = RegisterProperty<string>(new PropertyInfo<string>("ItemTimepointMetric", "ItemTimepointMetric"));
+        [JsonProperty]
+        public string ItemTimepointMetric
+        {
+            get
+            {
+                return GetProperty(TimepointDisplayValueProperty).IndexOf(' ') > 0 ? GetProperty(TimepointDisplayValueProperty).Substring(GetProperty(TimepointDisplayValueProperty).IndexOf(' ') + 1) : "";
+            }
+        }
+
+        public static readonly PropertyInfo<string> ItemTimepointValueProperty = RegisterProperty<string>(new PropertyInfo<string>("ItemTimepointValue", "ItemTimepointValue"));
+        [JsonProperty]
+        public string ItemTimepointValue
+        {
+            get
+            {
+                return GetProperty(TimepointDisplayValueProperty).IndexOf(' ') > 0 ? GetProperty(TimepointDisplayValueProperty).Substring(0, GetProperty(TimepointDisplayValueProperty).IndexOf(' ')) : "";
+            }
+        }
+
+        public static readonly PropertyInfo<Int64> ItemArmIdGrp1Property = RegisterProperty<Int64>(new PropertyInfo<Int64>("ItemArmIdGrp1", "ItemArmIdGrp1"));
+        [JsonProperty]
+        public Int64 ItemArmIdGrp1
+        {
+            get
+            {
+                return GetProperty(ItemArmIdGrp1Property);
+            }
+            set
+            {
+                SetProperty(ItemArmIdGrp1Property, value);
+            }
+        }
+
+        public static readonly PropertyInfo<Int64> ItemArmIdGrp2Property = RegisterProperty<Int64>(new PropertyInfo<Int64>("ItemArmIdGrp2", "ItemArmIdGrp2"));
+        [JsonProperty]
+        public Int64 ItemArmIdGrp2
+        {
+            get
+            {
+                return GetProperty(ItemArmIdGrp2Property);
+            }
+            set
+            {
+                SetProperty(ItemArmIdGrp2Property, value);
+            }
+        }
+
+        public static readonly PropertyInfo<string> TimepointDisplayValueProperty = RegisterProperty<string>(new PropertyInfo<string>("TimepointDisplayValue", "TimepointDisplayValue", string.Empty));
+        [JsonProperty]
+        public string TimepointDisplayValue
+        {
+            get
+            {
+                return GetProperty(TimepointDisplayValueProperty);
+            }
+            set
+            {
+                SetProperty(TimepointDisplayValueProperty, value);
+            }
+        }
+
+        public static readonly PropertyInfo<string> grp1ArmNameProperty = RegisterProperty<string>(new PropertyInfo<string>("grp1ArmName", "grp1ArmName", string.Empty));
+        [JsonProperty]
+        public string grp1ArmName
+        {
+            get
+            {
+                return GetProperty(grp1ArmNameProperty);
+            }
+            set
+            {
+                SetProperty(grp1ArmNameProperty, value);
+            }
+        }
+
+        public static readonly PropertyInfo<string> grp2ArmNameProperty = RegisterProperty<string>(new PropertyInfo<string>("grp2ArmName", "grp2ArmName", string.Empty));
+        [JsonProperty]
+        public string grp2ArmName
+        {
+            get
+            {
+                return GetProperty(grp2ArmNameProperty);
+            }
+            set
+            {
+                SetProperty(grp2ArmNameProperty, value);
+            }
+        }
+
+
+
 
         public static readonly PropertyInfo<bool> IsSelectedProperty = RegisterProperty<bool>(new PropertyInfo<bool>("IsSelected", "IsSelected"));
         public bool IsSelected
@@ -1700,7 +1806,7 @@ namespace BusinessLibrary.BusinessClasses
 
         public string GetOutcomeHeaders()
         {
-            string retVal = "<tr bgcolor='silver'><td>Title</td><td>Description</td><td>Outcome</td><td>Intervention</td><td>Control</td><td>Type</td>";
+            string retVal = "<tr bgcolor='silver'><td>Title</td><td>Description</td><td>Timepoint</td><td>Outcome</td><td>Intervention</td><td>Control</td><td>Arm 1</td><td>Arm 2</td><td>Type</td>";
             switch (OutcomeTypeId)
             {
                 case 0: // manual entry
@@ -1747,8 +1853,8 @@ namespace BusinessLibrary.BusinessClasses
 
         public string GetOutcomeStats()
         {
-            string retVal = "<tr><td>" + Title + "</td><td>" + OutcomeDescription.Replace("\r", "<br />") + "</td><td>" + OutcomeText + "</td><td>" + InterventionText +
-                "</td><td>" + ControlText + "</td>";
+            string retVal = "<tr><td>" + Title + "</td><td>" + OutcomeDescription.Replace("\r", "<br />") + "</td><td>" + TimepointDisplayValue + "</td><td>" + OutcomeText + "</td><td>" + InterventionText +
+                "</td><td>" + ControlText + "</td><td>" + grp1ArmName + "</td><td>" + grp2ArmName + "</td>";
             switch (OutcomeTypeId)
             {
                 case 0: // manual entry
@@ -2961,6 +3067,9 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@DATA12", ReadProperty(Data12Property)));
                     command.Parameters.Add(new SqlParameter("@DATA13", ReadProperty(Data13Property)));
                     command.Parameters.Add(new SqlParameter("@DATA14", ReadProperty(Data14Property)));
+                    command.Parameters.Add(new SqlParameter("@ITEM_TIMEPOINT_ID", ReadProperty(ItemTimepointIdProperty)));
+                    command.Parameters.Add(new SqlParameter("@ITEM_ARM_ID_GRP1", ReadProperty(ItemArmIdGrp1Property)));
+                    command.Parameters.Add(new SqlParameter("@ITEM_ARM_ID_GRP2", ReadProperty(ItemArmIdGrp2Property)));
                     command.ExecuteNonQuery();
                 }
                 connection.Close();
@@ -2997,6 +3106,9 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@DATA12", ReadProperty(Data12Property)));
                     command.Parameters.Add(new SqlParameter("@DATA13", ReadProperty(Data13Property)));
                     command.Parameters.Add(new SqlParameter("@DATA14", ReadProperty(Data14Property)));
+                    command.Parameters.Add(new SqlParameter("@ITEM_TIMEPOINT_ID", ReadProperty(ItemTimepointIdProperty)));
+                    command.Parameters.Add(new SqlParameter("@ITEM_ARM_ID_GRP1", ReadProperty(ItemArmIdGrp1Property)));
+                    command.Parameters.Add(new SqlParameter("@ITEM_ARM_ID_GRP2", ReadProperty(ItemArmIdGrp2Property)));
                     SqlParameter par = new SqlParameter("@NEW_OUTCOME_ID", System.Data.SqlDbType.Int);
                     par.Value = 0;
                     command.Parameters.Add(par);
@@ -3094,6 +3206,13 @@ namespace BusinessLibrary.BusinessClasses
                             returnValue.LoadProperty<string>(InterventionTextProperty, reader.GetString("INTERVENTION_TEXT"));
                             returnValue.LoadProperty<string>(ControlTextProperty, reader.GetString("CONTROL_TEXT"));
                             returnValue.LoadProperty<string>(OutcomeTextProperty, reader.GetString("OUTCOME_TEXT"));
+                            returnValue.LoadProperty<Int64>(ItemTimepointIdProperty, reader.GetInt64("ITEM_TIMEPOINT_ID"));
+                            returnValue.LoadProperty<Int64>(ItemArmIdGrp1Property, reader.GetInt64("ITEM_ARM_ID_GRP1"));
+                            returnValue.LoadProperty<Int64>(ItemArmIdGrp2Property, reader.GetInt64("ITEM_ARM_ID_GRP2"));
+                            returnValue.LoadProperty<string>(TimepointDisplayValueProperty, reader.GetString("TimepointDisplayValue"));
+                            returnValue.LoadProperty<string>(grp1ArmNameProperty, reader.GetString("grp1ArmName"));
+                            returnValue.LoadProperty<string>(grp2ArmNameProperty, reader.GetString("grp2ArmName"));
+
                             returnValue.MarkOld();
                             returnValue.SetCalculatedValues();
                         }
@@ -3158,6 +3277,12 @@ namespace BusinessLibrary.BusinessClasses
             returnValue.LoadProperty<double>(Data12Property, reader.GetDouble("DATA12"));
             returnValue.LoadProperty<double>(Data13Property, reader.GetDouble("DATA13"));
             returnValue.LoadProperty<double>(Data14Property, reader.GetDouble("DATA14"));
+            returnValue.LoadProperty<Int64>(ItemTimepointIdProperty, reader.GetInt64("ITEM_TIMEPOINT_ID"));
+            returnValue.LoadProperty<Int64>(ItemArmIdGrp1Property, reader.GetInt64("ITEM_ARM_ID_GRP1"));
+            returnValue.LoadProperty<Int64>(ItemArmIdGrp2Property, reader.GetInt64("ITEM_ARM_ID_GRP2"));
+            returnValue.LoadProperty<string>(TimepointDisplayValueProperty, reader.GetString("TimepointDisplayValue"));
+            returnValue.LoadProperty<string>(grp1ArmNameProperty, reader.GetString("grp1ArmName"));
+            returnValue.LoadProperty<string>(grp2ArmNameProperty, reader.GetString("grp2ArmName"));
             returnValue.LoadProperty<bool>(IsSelectedProperty, reader.GetInt32("META_ANALYSIS_OUTCOME_ID") == 0 ? false : true);
             returnValue.LoadProperty<string>(InterventionTextProperty, reader.GetString("INTERVENTION_TEXT"));
             returnValue.LoadProperty<string>(ControlTextProperty, reader.GetString("CONTROL_TEXT"));

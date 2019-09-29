@@ -15,6 +15,10 @@ using System.IO;
 using System.Data.SqlClient;
 using System.Drawing;
 
+
+
+
+
 public partial class Organisation : System.Web.UI.Page
 {
     protected void Page_Load(object sender, EventArgs e)
@@ -653,7 +657,7 @@ public partial class Organisation : System.Web.UI.Page
             // added JB Jun26 
             if (selectedSiteLicenseID != "0")
             {
-                idr = Utils.GetReader(isAdmDB, "st_Site_Lic_Get_Details_1",
+                idr = Utils.GetReader(isAdmDB, "st_Site_Lic_Get_Details_By_ID",
                     Utils.GetSessionString("Contact_ID"), selectedSiteLicenseID);
             }
             else
@@ -768,7 +772,7 @@ public partial class Organisation : System.Web.UI.Page
             // added JB Jun26 
             if (selectedSiteLicenseID != "0")
             {
-                idr = Utils.GetReader(isAdmDB, "st_Site_Lic_Get_1", Utils.GetSessionString("Contact_ID"),
+                idr = Utils.GetReader(isAdmDB, "st_Site_Lic_Get_By_ID", Utils.GetSessionString("Contact_ID"),
                     selectedSiteLicenseID);
             }
             else

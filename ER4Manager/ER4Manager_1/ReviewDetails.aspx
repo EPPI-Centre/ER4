@@ -386,9 +386,164 @@ function openReviewerList(ID) {
                     </asp:BoundField>
                 </Columns>
             </asp:GridView>
+            <br /><b>Detailed extension history</b>&nbsp;&nbsp;
+            <asp:LinkButton ID="lbShowHide" runat="server" Visible="True" Text="Show" OnClick="lbShowHide_Click"></asp:LinkButton>
+            <br />
+            <asp:Panel runat="server" ID="pnlDetailedExtensionHistory" Visible="false">
+
+<!--
+CONTACT_NAME
+CONTACT_ID
+EMAIL
+EXPIRY_EDIT_ID
+DATE_OF_EDIT
+TYPE_EXTENDED
+ID_EXTENDED
+OLD_EXPIRY_DATE
+NEW_EXPIRY_DATE
+EXTENDED_BY_ID
+EXTENSION_TYPE_ID
+EXTENSION_NOTES
+EXTENSION_TYPE
+Months_Ext
+£
+-->
+                <b>Contact details  (not restricted to this review!)</b><br />
+                <asp:GridView ID="gvDetailedContactExtension" runat="server" AutoGenerateColumns="False"
+                    DataKeyNames="CONTACT_ID" EnableModelValidation="True">
+                    <Columns>
+                        <asp:BoundField DataField="CONTACT_ID" HeaderText="ContactID">
+                            <HeaderStyle BackColor="#B6C6D6" />
+                        </asp:BoundField>
+                        <asp:BoundField DataField="CONTACT_NAME" HeaderText="Name">
+                            <HeaderStyle BackColor="#B6C6D6" />
+                        </asp:BoundField>
+                        <asp:BoundField DataField="EMAIL" HeaderText="Email">
+                            <HeaderStyle BackColor="#B6C6D6" />
+                        </asp:BoundField>
+                        <asp:BoundField DataField="EXPIRY_EDIT_ID" HeaderText="Edit ID">
+                            <HeaderStyle BackColor="#B6C6D6" />
+                        </asp:BoundField>
+                        <asp:BoundField DataField="DATE_OF_EDIT" HeaderText="Edit date">
+                            <HeaderStyle BackColor="#B6C6D6" />
+                        </asp:BoundField>
+                        <asp:BoundField DataField="TYPE_EXTENDED" HeaderText="Ext. Type">
+                            <HeaderStyle BackColor="#B6C6D6" />
+                        </asp:BoundField>
+                        <asp:BoundField DataField="OLD_EXPIRY_DATE" HeaderText="Old exp. date">
+                            <HeaderStyle BackColor="#B6C6D6" />
+                        </asp:BoundField>
+                        <asp:BoundField DataField="NEW_EXPIRY_DATE" HeaderText="New exp. date">
+                            <HeaderStyle BackColor="#B6C6D6" />
+                        </asp:BoundField>
+                        <asp:BoundField DataField="EXTENDED_BY_ID" HeaderText="Ext. by ID">
+                            <HeaderStyle BackColor="#B6C6D6" />
+                        </asp:BoundField>
+                        <asp:BoundField DataField="EXTENSION_TYPE_ID" HeaderText="ext. type ID">
+                            <HeaderStyle BackColor="#B6C6D6" />
+                        </asp:BoundField>
+                        <asp:BoundField DataField="EXTENSION_NOTES" HeaderText="Ext. notes">
+                            <HeaderStyle BackColor="#B6C6D6" />
+                        </asp:BoundField>
+                        <asp:BoundField DataField="EXTENSION_TYPE" HeaderText="Ext. type">
+                            <HeaderStyle BackColor="#B6C6D6" />
+                        </asp:BoundField>
+                        <asp:BoundField DataField="Months_Ext" HeaderText="Months ext.">
+                            <HeaderStyle BackColor="#B6C6D6" />
+                        </asp:BoundField>
+                        <asp:BoundField DataField="£" HeaderText="£">
+                            <HeaderStyle BackColor="#B6C6D6" />
+                        </asp:BoundField>
+                    </Columns>
+                </asp:GridView>
+                <br />
+                <b>Review details</b><br />
+                <asp:GridView ID="gvDetailedReviewExtension" runat="server" AutoGenerateColumns="False"
+                    DataKeyNames="REVIEW_ID" EnableModelValidation="True">
+                    <Columns>
+                        <asp:BoundField DataField="REVIEW_ID" HeaderText="ReviewID">
+                            <HeaderStyle BackColor="#B6C6D6" />
+                        </asp:BoundField>
+                        <asp:BoundField DataField="REVIEW_NAME" HeaderText="Name">
+                            <HeaderStyle BackColor="#B6C6D6" />
+                        </asp:BoundField>
+                        <asp:BoundField DataField="EXPIRY_EDIT_ID" HeaderText="Edit ID">
+                            <HeaderStyle BackColor="#B6C6D6" />
+                        </asp:BoundField>
+                        <asp:BoundField DataField="DATE_OF_EDIT" HeaderText="Edit date">
+                            <HeaderStyle BackColor="#B6C6D6" />
+                        </asp:BoundField>
+                        <asp:BoundField DataField="TYPE_EXTENDED" HeaderText="Ext. Type">
+                            <HeaderStyle BackColor="#B6C6D6" />
+                        </asp:BoundField>
+                        <asp:BoundField DataField="OLD_EXPIRY_DATE" HeaderText="Old exp. date">
+                            <HeaderStyle BackColor="#B6C6D6" />
+                        </asp:BoundField>
+                        <asp:BoundField DataField="NEW_EXPIRY_DATE" HeaderText="New exp. date">
+                            <HeaderStyle BackColor="#B6C6D6" />
+                        </asp:BoundField>
+                        <asp:BoundField DataField="EXTENDED_BY_ID" HeaderText="Ext. by ID">
+                            <HeaderStyle BackColor="#B6C6D6" />
+                        </asp:BoundField>
+                        <asp:BoundField DataField="EXTENSION_TYPE_ID" HeaderText="ext. type ID">
+                            <HeaderStyle BackColor="#B6C6D6" />
+                        </asp:BoundField>
+                        <asp:BoundField DataField="EXTENSION_NOTES" HeaderText="Ext. notes">
+                            <HeaderStyle BackColor="#B6C6D6" />
+                        </asp:BoundField>
+                        <asp:BoundField DataField="EXTENSION_TYPE" HeaderText="Ext. type">
+                            <HeaderStyle BackColor="#B6C6D6" />
+                        </asp:BoundField>
+                        <asp:BoundField DataField="Months_Ext" HeaderText="Months ext.">
+                            <HeaderStyle BackColor="#B6C6D6" />
+                        </asp:BoundField>
+                        <asp:BoundField DataField="£" HeaderText="£">
+                            <HeaderStyle BackColor="#B6C6D6" />
+                        </asp:BoundField>
+                    </Columns>
+                </asp:GridView>
+
+
+<!--
+REVIEW_NAME
+REVIEW_ID
+EXPIRY_EDIT_ID
+DATE_OF_EDIT
+TYPE_EXTENDED
+ID_EXTENDED
+OLD_EXPIRY_DATE
+NEW_EXPIRY_DATE
+EXTENDED_BY_ID
+EXTENSION_TYPE_ID
+EXTENSION_NOTES
+EXTENSION_TYPE
+Months_Ext
+£
+-->
+
+
+            </asp:Panel>
             <br />
             <br />
-            
+
+<!--
+CONTACT_NAME
+CONTACT_ID
+EMAIL
+EXPIRY_EDIT_ID
+DATE_OF_EDIT
+TYPE_EXTENDED
+ID_EXTENDED
+OLD_EXPIRY_DATE
+NEW_EXPIRY_DATE
+EXTENDED_BY_ID
+EXTENSION_TYPE_ID
+EXTENSION_NOTES
+EXTENSION_TYPE
+Months_Ext
+£
+-->
+
 
     </div>
 </asp:Content>

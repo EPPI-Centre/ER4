@@ -42,6 +42,9 @@ using Csla.Xaml;
 using Telerik.Windows.Documents.FormatProviders.Txt;
 using Telerik.Windows.Documents.TextSearch;
 using Telerik.Windows.Documents;
+using Telerik.Windows.Documents.UI;
+using Telerik.Windows.Controls.RichTextBoxUI;
+using System.Globalization;
 
 using System.Text;
 using System.Threading.Tasks;
@@ -76,8 +79,21 @@ namespace EppiReviewer4
         private RadWindow WindowRaduploadContainer = new RadWindow();
         private RadUpload RadUp = new RadUpload();
         private RadWCheckArmDelete WindowCheckArmDelete = new RadWCheckArmDelete();
+        private RadWCheckTimepointDelete WindowCheckTimepointDelete = new RadWCheckTimepointDelete();
+
+        private double CurrentcodesTreeContainerWidth = 330;
 
         public List<Int64> ScreenedItemIds;
+
+        // maybe we should move these to a central location for this kind of thing??
+        class TimepointMetricsClass
+        {
+            public string[] TimepointMetrics
+            {
+                get { return new string[] { "seconds", "minutes", "hours", "days", "weeks", "months", "years" }; }
+            }
+            
+        }
 
         //first bunch of lines to make the read-only UI work, modified to make it possible to do PDF text coding possible in Coding-Only
         private BusinessLibrary.Security.ReviewerIdentity ri;
@@ -169,6 +185,7 @@ namespace EppiReviewer4
             windowConfirmDocDelete.cmdDeleteDoc_Clicked+=new EventHandler<RoutedEventArgs>(cmdDeleteDoc_Click);
             windowResetPdfCoding.Closed += new EventHandler<WindowClosedEventArgs>(windowResetPdfCoding_Closed);
             WindowCheckArmDelete.cmdArmDeletedInWindow += WindowCheckArmDelete_cmdArmDeletedInWindow;
+            WindowCheckTimepointDelete.cmdTimepointDeletedInWindow += WindowCheckTimepointDelete_cmdTimepointDeletedInWindow;
 
             //end hooking up radW events
 
@@ -183,7 +200,28 @@ namespace EppiReviewer4
                 if (flt != "txt") filefilt += "*"+flt+";";
             }
             RadUp.Filter = filefilt.Trim(';');
+
+            codesTreeControl.RequestLargerOutcomePane += CodesTreeControl_RequestLargerOutcomePane;
+            codesTreeControl.RequestReturnOutcomePaneToNormal += CodesTreeControl_RequestReturnOutcomePaneToNormal;
+
+            TimePointTypeList tptl = new BusinessLibrary.BusinessClasses.TimePointTypeList();
+            ComboTimepointMetricSelection.ItemsSource = new TimePointTypeList().TimepointTypes;
+            ComboTimepointMetricSelection.SelectedIndex = 5;
         }
+
+        
+
+        private void CodesTreeControl_RequestReturnOutcomePaneToNormal(object sender, EventArgs e)
+        {
+            codesTreeContainer.Width = CurrentcodesTreeContainerWidth;
+        }
+
+        private void CodesTreeControl_RequestLargerOutcomePane(object sender, EventArgs e)
+        {
+            CurrentcodesTreeContainerWidth = codesTreeContainer.Width;
+            codesTreeContainer.Width = 500;
+        }
+
         public void PrepareCodingOnly()
         {
             CodingOnlyMode = true;
@@ -224,7 +262,7 @@ namespace EppiReviewer4
 
         void dialogCoding_CloseWindowRequest(object sender, EventArgs e)
         {
-            PaneItemDetails[1].Control.IsEnabled = false; 
+            PaneItemDetails[1].Control.IsEnabled = false;
         }
 
         ItemDocument CurrentTextDocument;
@@ -295,6 +333,7 @@ namespace EppiReviewer4
             PaneItemDetails.SelectedIndex = 0;
             GetItemDocumentList(DataContext as Item);
             GetItemArmList(DataContext as Item);
+            GetItemTimepointList(DataContext as Item);
             dialogItemDetailsControl.BindNew(DataContext as Item);
         }
 
@@ -372,7 +411,9 @@ namespace EppiReviewer4
                 //(DataContext as Item).GetDocumentList();
                 GetItemDocumentList(DataContext as Item);
                 GetItemArmList(DataContext as Item);
-                
+                GetItemTimepointList(DataContext as Item);
+
+
                 dialogItemDetailsControl.BindTree(DataContext as Item);
             }
             else
@@ -434,10 +475,25 @@ namespace EppiReviewer4
 
         private void GetItemArmList(Item item)
         {
-            CslaDataProvider provider = this.Resources["ItemArmsData"] as CslaDataProvider;
+            CslaDataProvider provider = App.Current.Resources["ItemArmsData"] as CslaDataProvider;
+            provider.DataChanged -= ItemArmsDataChanged;
+            provider.DataChanged += ItemArmsDataChanged;
             provider.FactoryParameters.Clear();
             provider.FactoryParameters.Add(item.ItemId);
             provider.FactoryMethod = "GetItemArmList";
+            GridArms.IsEnabled = false;
+            provider.Refresh();
+        }
+
+        
+        private void GetItemTimepointList(Item item)
+        {
+            CslaDataProvider provider = App.Current.Resources["ItemTimepointsData"] as CslaDataProvider;
+            provider.DataChanged -= ItemTimepointsDataChanged;
+            provider.DataChanged += ItemTimepointsDataChanged;
+            provider.FactoryParameters.Clear();
+            provider.FactoryParameters.Add(item.ItemId);
+            provider.FactoryMethod = "GetItemTimepointList";
             GridArms.IsEnabled = false;
             provider.Refresh();
         }
@@ -2010,6 +2066,7 @@ namespace EppiReviewer4
                                 PaneItemDetails.SelectedIndex = 0;
                                 GetItemDocumentList(DataContext as Item);
                                 GetItemArmList(DataContext as Item);
+                                GetItemTimepointList(DataContext as Item);
                                 dialogItemDetailsControl.BindTree(DataContext as Item);
                                 GridDocuments.IsEnabled = true;
                                 CheckRunTraining(e2.Object.Rank);
@@ -2095,6 +2152,7 @@ namespace EppiReviewer4
                                 PaneItemDetails.SelectedIndex = 0;
                                 GetItemDocumentList(DataContext as Item);
                                 GetItemArmList(DataContext as Item);
+                                GetItemTimepointList(DataContext as Item);
                                 dialogItemDetailsControl.BindTree(DataContext as Item);
                                 GridDocuments.IsEnabled = true;
                             }
@@ -2432,7 +2490,26 @@ namespace EppiReviewer4
         }
         private void cmdApplyCodeClick(object sender, RoutedEventArgs e)
         {
+            /* JT experimentation on getting an image from the current page
+            ThumbnailFactory fact = new ThumbnailFactory();
+            RadFixedPage ss = this.pdfViewer.CurrentPage;
+            ImageSource imsource = fact.CreateThumbnail(ss, this.pdfViewer.CurrentPage.Size);
+            imagetest.Source = imsource;
+            return;
+            */
+
             ReviewInfo rInfo = ((App)(Application.Current)).GetReviewInfo();
+
+            // JT experimenting with document conversion
+            /*
+            string html = "<html><body><table><tr><td>hello</td><td> world</td></tr></table></body></html>";
+            Telerik.Windows.Documents.FormatProviders.Html.HtmlFormatProvider htmlprov = new Telerik.Windows.Documents.FormatProviders.Html.HtmlFormatProvider();
+            Telerik.Windows.Documents.Model.RadDocument doc = new Telerik.Windows.Documents.Model.RadDocument();
+            doc = htmlprov.Import(html);
+            Telerik.Windows.Documents.FormatProviders.Xaml.XamlFormatProvider prov = new Telerik.Windows.Documents.FormatProviders.Xaml.XamlFormatProvider();
+            string output = prov.Export(doc);
+            return;
+            */
 
             if (this.pdfViewer.Document == null || this.pdfViewer.Document.Selection.IsEmpty)
             {
@@ -3033,10 +3110,10 @@ namespace EppiReviewer4
             dp.BeginExecute(command);
         }
 
-        private void CslaDataProvider_DataChanged_1(object sender, EventArgs e)
+        private void ItemArmsDataChanged(object sender, EventArgs e)
         {
             this.IsEnabled = true;
-            CslaDataProvider provider = ((CslaDataProvider)this.Resources["ItemArmsData"]);
+            CslaDataProvider provider = App.Current.Resources["ItemArmsData"] as CslaDataProvider; ;
             if (provider.Error != null)
                 Telerik.Windows.Controls.RadWindow.Alert(((Csla.Xaml.CslaDataProvider)sender).Error.Message);
             if (provider.IsBusy == false)
@@ -3049,7 +3126,7 @@ namespace EppiReviewer4
 
         private void NewArm_Click(object sender, RoutedEventArgs e)
         {
-            CslaDataProvider provider = ((CslaDataProvider)this.Resources["ItemArmsData"]);
+            CslaDataProvider provider = App.Current.Resources["ItemArmsData"] as CslaDataProvider; ;
             if (tbNewArm.Text != null && provider != null)
             {
                 if (tbNewArm.Text == "")
@@ -3094,7 +3171,7 @@ namespace EppiReviewer4
         {
             if (e.Error != null)
                 Telerik.Windows.Controls.RadWindow.Alert(e.Error.Message);
-            CslaDataProvider_DataChanged_1(sender, e);
+            ItemArmsDataChanged(sender, e);
         }
 
         private void CancelArm_Click(object sender, RoutedEventArgs e)
@@ -3130,12 +3207,125 @@ namespace EppiReviewer4
             ia.ApplyEdit();
         }
 
+        private void ItemTimepointsDataChanged(object sender, EventArgs e)
+        {
+            this.IsEnabled = true;
+            CslaDataProvider provider = ((CslaDataProvider)App.Current.Resources["ItemTimepointsData"]);
+            if (provider.Error != null)
+                Telerik.Windows.Controls.RadWindow.Alert(((Csla.Xaml.CslaDataProvider)sender).Error.Message);
+            if (provider.IsBusy == false)
+            {
+                GridTimepoints.IsEnabled = true;
+                tbNewTimepoint.DataContext = null;
+            }
+        }
+
+        private void CancelTimepoint_Click(object sender, RoutedEventArgs e)
+        {
+            tbNewTimepointValue.Text = "";
+            tbNewTimepoint.DataContext = null;
+            tbNewTimepoint.Text = "New timepoint";
+        }
+
+        private void NewTimepoint_Click(object sender, RoutedEventArgs e)
+        {
+            CslaDataProvider provider = ((CslaDataProvider)App.Current.Resources["ItemTimepointsData"]);
+            if (tbNewTimepoint.Text != null && provider != null)
+            {
+                float result = 0;
+                if (!float.TryParse(tbNewTimepointValue.Text, NumberStyles.Any, CultureInfo.InvariantCulture, out result))
+                {
+                    RadWindow.Alert("Timepoint value cannot be empty and must be a number");
+                    return;
+                }
+                foreach (ItemTimepoint timepoint in (provider.Data as ItemTimepointList))
+                {
+                    if (timepoint.TimepointValue.ToString() == tbNewTimepointValue.Text && 
+                        timepoint.TimepointMetric == ComboTimepointMetricSelection.SelectedValue.ToString())
+                    {
+                        RadWindow.Alert("Timepoints must be unique");
+                        return;
+                    }
+                }
+                ItemTimepointList thelist = provider.Data as ItemTimepointList;
+                ItemTimepoint it = null;
+
+                if (tbNewTimepoint.DataContext == null)
+                {
+                    it = new ItemTimepoint();
+                    it.ItemId = (DataContext as Item).ItemId;
+                    thelist.Add(it);
+                }
+                else
+                {
+                    it = tbNewTimepoint.DataContext as ItemTimepoint;
+                }
+                it.TimepointValue = float.Parse(tbNewTimepointValue.Text, CultureInfo.InvariantCulture.NumberFormat);
+                it.TimepointMetric = ComboTimepointMetricSelection.SelectedValue.ToString();
+                it.Saved -= Ia_Saved;
+                it.Saved += Ia_Saved;
+                it.BeginEdit();
+                it.ApplyEdit();
+                tbNewTimepointValue.Text = "";
+                tbNewTimepoint.DataContext = null;
+                tbNewTimepoint.Text = "New timepoint";
+            }
+        }
+
+        private void cmdEditTimepoint_Click(object sender, RoutedEventArgs e)
+        {
+            ItemTimepoint it = (ItemTimepoint)(sender as Button).DataContext;
+            if (it != null)
+            {
+                tbNewTimepoint.Text = "Edit timepoint";
+                tbNewTimepointValue.Text = it.TimepointValue.ToString();
+                /*
+                for (int i=0; i < ComboTimepointMetricSelection.Items.Count; i++)
+                {
+                    if (ComboTimepointMetricSelection.Items[i].ToString() == it.TimepointMetric)
+                    {
+                        ComboTimepointMetricSelection.SelectedIndex = i;
+                    }
+                }
+                */
+                ComboTimepointMetricSelection.SelectedValue = it.TimepointMetric;
+                tbNewTimepoint.DataContext = it;
+            }
+        }
+
         public void UnHookMe()
         {
             codesTreeControl.UnHookMe();
         }
 
-        
+        private void WindowCheckTimepointDelete_cmdTimepointDeletedInWindow(object sender, RoutedEventArgs e)
+        {
+            this.IsEnabled = false;
+            WindowCheckTimepointDelete.Close();
+            ItemTimepoint it = sender as ItemTimepoint;
+            if (it == null) return;
+            it.Saved -= It_Saved;
+            it.Saved += It_Saved;
+            it.BeginEdit();
+            it.ApplyEdit();
+        }
+
+        private void cmdDeleteTimepoint_Click(object sender, RoutedEventArgs e)
+        {
+            ItemTimepoint Deleting = (sender as Button).DataContext as ItemTimepoint;
+            if (Deleting == null) return;
+            WindowCheckTimepointDelete.StartChecking(Deleting);
+            WindowCheckTimepointDelete.ShowDialog();
+        }
+
+        private void It_Saved(object sender, Csla.Core.SavedEventArgs e)
+        {
+            if (e.Error != null)
+                Telerik.Windows.Controls.RadWindow.Alert(e.Error.Message);
+            ItemTimepointsDataChanged(sender, e);
+        }
+
+
 
     } // END DIALOG CONTROL
     

@@ -282,3 +282,526 @@ SET NOCOUNT OFF
 
 
 GO
+
+
+USE [ReviewerAdmin]
+GO
+
+/****** Object:  StoredProcedure [dbo].[st_ReviewDetailsCochrane]    Script Date: 8/28/2019 11:13:45 AM ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[st_ReviewDetailsCochrane]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[st_ReviewDetailsCochrane]
+GO
+
+-- =============================================
+-- Author:		<Author,,Name>
+-- ALTER date: <ALTER Date,,>
+-- Description:	<Description,,>
+-- =============================================
+CREATE PROCEDURE [dbo].[st_ReviewDetailsCochrane] 
+(
+	@REVIEW_ID nvarchar(50)
+)
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+    -- Insert statements for procedure here	
+	select r.REVIEW_ID, r.old_review_id, r.REVIEW_NAME, r.REVIEW_NUMBER, 
+	r.DATE_CREATED, r.OLD_REVIEW_GROUP_ID,
+		CASE when l.[EXPIRY_DATE] is not null 
+		and l.[EXPIRY_DATE] > r.[EXPIRY_DATE]
+			then l.[EXPIRY_DATE]
+		else r.[EXPIRY_DATE]
+		end as 'EXPIRY_DATE', 
+	r.MONTHS_CREDIT, r.FUNDER_ID, c.CONTACT_NAME,
+	l.SITE_LIC_ID, l.SITE_LIC_NAME, r.SHOW_SCREENING, r.ALLOW_REVIEWER_TERMS, r.ALLOW_CLUSTERED_SEARCH,
+	r.ARCHIE_ID, r.ARCHIE_CD, r.IS_CHECKEDOUT_HERE, r.CHECKED_OUT_BY
+	from Reviewer.dbo.TB_REVIEW r
+	inner join Reviewer.dbo.TB_CONTACT c on c.CONTACT_ID = r.FUNDER_ID
+	left join Reviewer.dbo.TB_SITE_LIC_REVIEW sr on r.REVIEW_ID = sr.REVIEW_ID
+	left join Reviewer.dbo.TB_SITE_LIC l on sr.SITE_LIC_ID = l.SITE_LIC_ID
+	where r.REVIEW_ID = @REVIEW_ID
+	
+	group by r.REVIEW_ID, r.old_review_id, r.REVIEW_NAME, 
+	r.DATE_CREATED, r.[EXPIRY_DATE],  r.MONTHS_CREDIT, r.FUNDER_ID, c.CONTACT_NAME,
+	l.[EXPIRY_DATE], l.SITE_LIC_ID, l.SITE_LIC_NAME, r.REVIEW_NUMBER, r.OLD_REVIEW_GROUP_ID,
+	r.SHOW_SCREENING, r.ALLOW_REVIEWER_TERMS, r.ALLOW_CLUSTERED_SEARCH,
+	r.ARCHIE_ID, r.ARCHIE_CD, r.IS_CHECKEDOUT_HERE, r.CHECKED_OUT_BY
+	order by r.REVIEW_NAME
+	
+
+	RETURN
+
+END
+
+
+GO
+
+USE [ReviewerAdmin]
+GO
+
+/****** Object:  StoredProcedure [dbo].[st_ReviewDetailsFilterCochrane]    Script Date: 8/28/2019 11:13:57 AM ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[st_ReviewDetailsFilterCochrane]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[st_ReviewDetailsFilterCochrane]
+GO
+
+
+-- =============================================
+-- Author:		<Author,,Name>
+-- ALTER date: <ALTER Date,,>
+-- Description:	<Description,,>
+-- =============================================
+CREATE PROCEDURE [dbo].[st_ReviewDetailsFilterCochrane] 
+(
+	@SHAREABLE bit,
+	@TEXT_BOX nvarchar(255)
+)
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+    -- Insert statements for procedure here
+    if @SHAREABLE = 1
+	begin        
+		/*
+		SELECT r.REVIEW_ID, r.REVIEW_NAME, r.DATE_CREATED, r.EXPIRY_DATE, 
+		r.FUNDER_ID, c.CONTACT_NAME, r.MONTHS_CREDIT
+		FROM Reviewer.dbo.tb_REVIEW r
+		inner join Reviewer.dbo.TB_CONTACT c on c.CONTACT_ID = r.FUNDER_ID
+		where 
+		(r.EXPIRY_DATE is not null) OR
+		(r.EXPIRY_DATE is null and r.MONTHS_CREDIT != 0)*/
+		
+		select r.REVIEW_ID, r.old_review_id, r.REVIEW_NAME,  
+		r.DATE_CREATED, 
+			CASE when l.[EXPIRY_DATE] is not null 
+			and l.[EXPIRY_DATE] > r.[EXPIRY_DATE]
+				then l.[EXPIRY_DATE]
+			else r.[EXPIRY_DATE]
+			end as 'EXPIRY_DATE', 
+		r.MONTHS_CREDIT, r.FUNDER_ID, c.CONTACT_NAME,
+		l.SITE_LIC_ID, l.SITE_LIC_NAME
+		from Reviewer.dbo.TB_REVIEW r
+		inner join Reviewer.dbo.TB_CONTACT c on c.CONTACT_ID = r.FUNDER_ID
+		left join Reviewer.dbo.TB_SITE_LIC_REVIEW sr on r.REVIEW_ID = sr.REVIEW_ID
+		left join Reviewer.dbo.TB_SITE_LIC l on sr.SITE_LIC_ID = l.SITE_LIC_ID
+		where 
+			((r.EXPIRY_DATE is not null) OR
+			(r.EXPIRY_DATE is null and r.MONTHS_CREDIT != 0))
+		and ((r.REVIEW_ID like '%' + @TEXT_BOX + '%') OR
+			(r.REVIEW_NAME like '%' + @TEXT_BOX + '%') OR
+			(c.CONTACT_NAME like '%' + @TEXT_BOX + '%'))
+		and r.ARCHIE_ID is not null
+		
+		
+		group by r.REVIEW_ID, r.old_review_id, r.REVIEW_NAME, 
+		r.DATE_CREATED, r.[EXPIRY_DATE],  r.MONTHS_CREDIT, r.FUNDER_ID, c.CONTACT_NAME,
+		l.[EXPIRY_DATE], l.SITE_LIC_ID, l.SITE_LIC_NAME
+		order by r.REVIEW_NAME
+		 
+	end
+	else
+	begin
+		SELECT r.REVIEW_ID, r.REVIEW_NAME, r.DATE_CREATED, r.EXPIRY_DATE, 
+		r.FUNDER_ID, c.CONTACT_NAME
+		FROM Reviewer.dbo.tb_REVIEW r
+		inner join Reviewer.dbo.TB_CONTACT c on c.CONTACT_ID = r.FUNDER_ID 
+		where (r.EXPIRY_DATE is null and r.MONTHS_CREDIT = 0)
+		
+		and ((r.REVIEW_ID like '%' + @TEXT_BOX + '%') OR
+			(r.REVIEW_NAME like '%' + @TEXT_BOX + '%') OR
+			(c.CONTACT_NAME like '%' + @TEXT_BOX + '%'))
+		and r.ARCHIE_ID is not null
+		
+	end
+
+	RETURN
+
+END
+
+
+GO
+
+USE [ReviewerAdmin]
+GO
+
+/****** Object:  StoredProcedure [dbo].[st_ReviewDetailsGetAllCochrane]    Script Date: 8/28/2019 11:14:10 AM ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[st_ReviewDetailsGetAllCochrane]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[st_ReviewDetailsGetAllCochrane]
+GO
+
+-- =============================================
+-- Author:		<Author,,Name>
+-- ALTER date: <ALTER Date,,>
+-- Description:	<Description,,>
+-- =============================================
+CREATE PROCEDURE [dbo].[st_ReviewDetailsGetAllCochrane] 
+(
+	@SHAREABLE bit
+)
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+    -- Insert statements for procedure here
+    if @SHAREABLE = 1
+	begin        
+		/*
+		SELECT r.REVIEW_ID, r.REVIEW_NAME, r.DATE_CREATED, r.EXPIRY_DATE, 
+		r.FUNDER_ID, c.CONTACT_NAME, r.MONTHS_CREDIT
+		FROM Reviewer.dbo.tb_REVIEW r
+		inner join Reviewer.dbo.TB_CONTACT c on c.CONTACT_ID = r.FUNDER_ID
+		where 
+		(r.EXPIRY_DATE is not null) OR
+		(r.EXPIRY_DATE is null and r.MONTHS_CREDIT != 0)*/
+		
+		select r.REVIEW_ID, r.old_review_id, r.REVIEW_NAME,  
+		r.DATE_CREATED, 
+			CASE when l.[EXPIRY_DATE] is not null 
+			and l.[EXPIRY_DATE] > r.[EXPIRY_DATE]
+				then l.[EXPIRY_DATE]
+			else r.[EXPIRY_DATE]
+			end as 'EXPIRY_DATE', 
+		r.MONTHS_CREDIT, r.FUNDER_ID, c.CONTACT_NAME,
+		l.SITE_LIC_ID, l.SITE_LIC_NAME
+		from Reviewer.dbo.TB_REVIEW r
+		inner join Reviewer.dbo.TB_CONTACT c on c.CONTACT_ID = r.FUNDER_ID
+		left join Reviewer.dbo.TB_SITE_LIC_REVIEW sr on r.REVIEW_ID = sr.REVIEW_ID
+		left join Reviewer.dbo.TB_SITE_LIC l on sr.SITE_LIC_ID = l.SITE_LIC_ID
+		where 
+			(r.EXPIRY_DATE is not null) OR
+			(r.EXPIRY_DATE is null and r.MONTHS_CREDIT != 0)
+		and r.ARCHIE_ID is not null
+		
+		group by r.REVIEW_ID, r.old_review_id, r.REVIEW_NAME, 
+		r.DATE_CREATED, r.[EXPIRY_DATE],  r.MONTHS_CREDIT, r.FUNDER_ID, c.CONTACT_NAME,
+		l.[EXPIRY_DATE], l.SITE_LIC_ID, l.SITE_LIC_NAME
+		order by r.REVIEW_NAME
+		 
+	end
+	else
+	begin
+		SELECT r.REVIEW_ID, r.REVIEW_NAME, r.DATE_CREATED, r.EXPIRY_DATE, 
+		r.FUNDER_ID, c.CONTACT_NAME
+		FROM Reviewer.dbo.tb_REVIEW r
+		inner join Reviewer.dbo.TB_CONTACT c on c.CONTACT_ID = r.FUNDER_ID 
+		where (r.EXPIRY_DATE is null and r.MONTHS_CREDIT = 0)
+		and r.ARCHIE_ID is not null
+	end
+
+	RETURN
+
+END
+
+
+
+GO
+
+USE [Reviewer]
+GO
+IF COL_LENGTH('dbo.TB_SITE_LIC', 'BL_ACCOUNT_CODE') IS NULL
+BEGIN
+ALTER TABLE dbo.TB_SITE_LIC ADD BL_ACCOUNT_CODE nvarchar(50) NULL 
+END
+IF COL_LENGTH('dbo.TB_SITE_LIC', 'BL_AUTH_CODE') IS NULL
+BEGIN
+ALTER TABLE dbo.TB_SITE_LIC ADD BL_AUTH_CODE nvarchar(50) NULL 
+END
+IF COL_LENGTH('dbo.TB_SITE_LIC', 'BL_TX') IS NULL
+BEGIN
+ALTER TABLE dbo.TB_SITE_LIC ADD BL_TX nvarchar(50) NULL 
+END
+IF COL_LENGTH('dbo.TB_SITE_LIC', 'BL_CC_ACCOUNT_CODE') IS NULL
+BEGIN
+ALTER TABLE dbo.TB_SITE_LIC ADD BL_CC_ACCOUNT_CODE nvarchar(50) NULL 
+END
+IF COL_LENGTH('dbo.TB_SITE_LIC', 'BL_CC_AUTH_CODE') IS NULL
+BEGIN
+ALTER TABLE dbo.TB_SITE_LIC ADD BL_CC_AUTH_CODE nvarchar(50) NULL 
+END
+IF COL_LENGTH('dbo.TB_SITE_LIC', 'BL_CC_TX') IS NULL
+BEGIN
+ALTER TABLE dbo.TB_SITE_LIC ADD BL_CC_TX nvarchar(50) NULL 
+END
+IF COL_LENGTH('dbo.TB_SITE_LIC', 'ALLOW_REVIEW_OWNERSHIP_CHANGE') IS NULL
+BEGIN
+ALTER TABLE dbo.TB_SITE_LIC ADD ALLOW_REVIEW_OWNERSHIP_CHANGE bit NULL 
+END
+GO
+
+
+
+
+USE [ReviewerAdmin]
+GO
+
+/****** Object:  StoredProcedure [dbo].[st_BritishLibraryCCValuesSet]    Script Date: 8/28/2019 11:19:53 AM ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[st_BritishLibraryCCValuesSet]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[st_BritishLibraryCCValuesSet]
+GO
+
+
+CREATE procedure [dbo].[st_BritishLibraryCCValuesSet]
+(
+	@REVIEW_ID int,
+	@BL_CC_ACCOUNT_CODE nvarchar(50), 
+	@BL_CC_AUTH_CODE nvarchar(50), 
+	@BL_CC_TX nvarchar(50)
+)
+
+As
+
+SET NOCOUNT ON
+
+	update Reviewer.dbo.TB_REVIEW
+	set BL_CC_ACCOUNT_CODE = @BL_CC_ACCOUNT_CODE,
+	BL_CC_AUTH_CODE = @BL_CC_AUTH_CODE,
+	BL_CC_TX = @BL_CC_TX 
+	where REVIEW_ID = @REVIEW_ID
+
+SET NOCOUNT OFF
+
+
+
+
+GO
+
+USE [ReviewerAdmin]
+GO
+
+/****** Object:  StoredProcedure [dbo].[st_BritishLibraryCCValuesSetOnLicense]    Script Date: 8/28/2019 11:20:04 AM ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[st_BritishLibraryCCValuesSetOnLicense]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[st_BritishLibraryCCValuesSetOnLicense]
+GO
+
+
+
+CREATE procedure [dbo].[st_BritishLibraryCCValuesSetOnLicense]
+(
+	@SITE_LIC_ID int,
+	@BL_CC_ACCOUNT_CODE nvarchar(50), 
+	@BL_CC_AUTH_CODE nvarchar(50), 
+	@BL_CC_TX nvarchar(50)
+)
+
+As
+
+SET NOCOUNT ON
+
+	update Reviewer.dbo.TB_SITE_LIC
+	set BL_CC_ACCOUNT_CODE = @BL_CC_ACCOUNT_CODE,
+	BL_CC_AUTH_CODE = @BL_CC_AUTH_CODE,
+	BL_CC_TX = @BL_CC_TX 
+	where SITE_LIC_ID = @SITE_LIC_ID
+
+SET NOCOUNT OFF
+
+
+
+
+GO
+
+USE [ReviewerAdmin]
+GO
+
+/****** Object:  StoredProcedure [dbo].[st_BritishLibraryValuesGetAll]    Script Date: 8/28/2019 11:20:13 AM ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[st_BritishLibraryValuesGetAll]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[st_BritishLibraryValuesGetAll]
+GO
+
+-- =============================================
+-- Author:		<Jeff>
+-- ALTER date: <>
+-- Description:	<gets contact table for a contactID>
+-- =============================================
+CREATE PROCEDURE [dbo].[st_BritishLibraryValuesGetAll] 
+(
+	@REVIEW_ID int
+)
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+    -- Insert statements for procedure here
+    -- need to lose the milliseconds as the database is setting it to 000
+
+	select BL_ACCOUNT_CODE, BL_AUTH_CODE, BL_TX, 
+	BL_CC_ACCOUNT_CODE, BL_CC_AUTH_CODE, BL_CC_TX 
+	from Reviewer.dbo.TB_REVIEW 
+	where REVIEW_ID = @REVIEW_ID
+    	
+	RETURN
+END
+
+
+GO
+
+USE [ReviewerAdmin]
+GO
+
+/****** Object:  StoredProcedure [dbo].[st_BritishLibraryValuesGetFromLicense]    Script Date: 8/28/2019 11:20:24 AM ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[st_BritishLibraryValuesGetFromLicense]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[st_BritishLibraryValuesGetFromLicense]
+GO
+
+
+-- =============================================
+-- Author:		<Jeff>
+-- ALTER date: <>
+-- Description:	<gets contact table for a contactID>
+-- =============================================
+CREATE PROCEDURE [dbo].[st_BritishLibraryValuesGetFromLicense] 
+(
+	@SITE_LIC_ID int
+)
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+    -- Insert statements for procedure here
+    -- need to lose the milliseconds as the database is setting it to 000
+
+	select BL_ACCOUNT_CODE, BL_AUTH_CODE, BL_TX, 
+	BL_CC_ACCOUNT_CODE, BL_CC_AUTH_CODE, BL_CC_TX 
+	from Reviewer.dbo.TB_SITE_LIC 
+	where SITE_LIC_ID = @SITE_LIC_ID
+    	
+	RETURN
+END
+
+
+GO
+
+USE [ReviewerAdmin]
+GO
+
+/****** Object:  StoredProcedure [dbo].[st_BritishLibraryValuesSet]    Script Date: 8/28/2019 11:20:39 AM ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[st_BritishLibraryValuesSet]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[st_BritishLibraryValuesSet]
+GO
+
+
+CREATE procedure [dbo].[st_BritishLibraryValuesSet]
+(
+	@REVIEW_ID int,
+	@BL_ACCOUNT_CODE nvarchar(50), 
+	@BL_AUTH_CODE nvarchar(50), 
+	@BL_TX nvarchar(50)
+)
+
+As
+
+SET NOCOUNT ON
+
+	update Reviewer.dbo.TB_REVIEW
+	set BL_ACCOUNT_CODE = @BL_ACCOUNT_CODE,
+	BL_AUTH_CODE = @BL_AUTH_CODE,
+	BL_TX = @BL_TX 
+	where REVIEW_ID = @REVIEW_ID
+
+SET NOCOUNT OFF
+
+
+
+GO
+
+USE [ReviewerAdmin]
+GO
+
+/****** Object:  StoredProcedure [dbo].[st_BritishLibraryValuesSetOnLicense]    Script Date: 8/28/2019 11:20:47 AM ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].st_BritishLibraryValuesSetOnLicense') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[st_BritishLibraryValuesSetOnLicense]
+GO
+
+
+
+CREATE procedure [dbo].[st_BritishLibraryValuesSetOnLicense]
+(
+	@SITE_LIC_ID int,
+	@BL_ACCOUNT_CODE nvarchar(50), 
+	@BL_AUTH_CODE nvarchar(50), 
+	@BL_TX nvarchar(50)
+)
+
+As
+
+SET NOCOUNT ON
+
+	update Reviewer.dbo.TB_SITE_LIC
+	set BL_ACCOUNT_CODE = @BL_ACCOUNT_CODE,
+	BL_AUTH_CODE = @BL_AUTH_CODE,
+	BL_TX = @BL_TX 
+	where SITE_LIC_ID = @SITE_LIC_ID
+
+SET NOCOUNT OFF
+
+
+
+GO
+
+

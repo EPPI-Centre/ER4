@@ -28,7 +28,7 @@ namespace BusinessLibrary.BusinessClasses
 #if SILVERLIGHT
     public OutcomeItemAttributesCommand(){}
 #else
-        protected OutcomeItemAttributesCommand() { }
+        public OutcomeItemAttributesCommand() { }
 #endif
 
         private string _attributeIds;

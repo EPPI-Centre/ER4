@@ -106,7 +106,6 @@ namespace BusinessLibrary.BusinessClasses
                     }
                     connection.Close();
                 }
-            
         }
         public ItemDocumentSaveBinCommand doItNow()
         {
@@ -116,4 +115,5 @@ namespace BusinessLibrary.BusinessClasses
 
 #endif
     }
+
 }

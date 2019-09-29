@@ -1,10 +1,11 @@
 import { Component, OnInit, Input, ViewChild, ElementRef, Renderer2 } from '@angular/core';
-import { ArmsService } from '../services/arms.service';
-import { iArm, Item, Arm } from '../services/ItemList.service';
+import { ArmsService, iArm, Arm } from '../services/arms.service';
+import {  Item } from '../services/ItemList.service';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 import { Observable } from 'rxjs';
 import { EventEmitterService } from '../services/EventEmitter.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
+import { NgModel } from '@angular/forms';
 
 @Component({
 	selector: 'armDetailsComp',
@@ -18,7 +19,9 @@ export class armDetailsComp implements OnInit {
 		private confirmationDialogService: ConfirmationDialogService,
         private eventsService: EventEmitterService,
         private ReviewerIdentityServ: ReviewerIdentityService
-	) { }
+	) {
+		
+	}
 
     public get armsList(): iArm[] {
 
@@ -27,9 +30,15 @@ export class armDetailsComp implements OnInit {
 	}
 
 	public title: string = '';
+	public ShowArms: boolean = true;
+
+	public get ShowArmsBtnText(): string {
+		if (this.ShowArms) return "Collapse";
+		else return "Expand";
+	}
+
 	
-	//public currentItem!: Item;
-	
+
 	@Input() item!: Item | undefined;
 
 	//@ViewChild("editTitle", { read: ElementRef }) tref!: ElementRef;
@@ -53,8 +62,9 @@ export class armDetailsComp implements OnInit {
     }
     setArm(arm: iArm, key: number) {
 
+		this.editTitle = true;
 		this.currentKey = key;
-		this.currentTitle = arm.title;
+		this.title = arm.title;
 		this.currentArm = arm;
 	}
 
@@ -63,24 +73,19 @@ export class armDetailsComp implements OnInit {
     updateList(arm: iArm) {
 
 		this.editTitle = false;
-		this.armsList[this.currentKey].title = this.currentTitle;
-		this.item!.arms[this.currentKey].title = this.currentTitle;
+		this.armsList[this.currentKey].title = this.title;
+		this.item!.arms[this.currentKey].title = this.title;
 		this._armsService.UpdateArm(this.item!.arms[this.currentKey]);
-		this.ClearAndCancelEdit();
+		this.Clear();
 	}
 
-	ClearAndCancelEdit() {
+	Clear() {
 
 		this.editTitle = false;
-		this.currentTitle = '';
-
-	}
-
-	ClearAndCancelAdd() {
-
+		this.titleModel = '';
 		this.title = '';
-
 	}
+
 	
 	public openConfirmationDialogDeleteArms(key: number) {
 		this.confirmationDialogService.confirm('Please confirm', 'Deleting an Arm is a permanent operation and will delete all coding associated with the Arm.' +
@@ -145,6 +150,8 @@ export class armDetailsComp implements OnInit {
 
 			}
 		);
+
+		this.editTitle = false;
 	}
 
 	ActuallyRemove(key: number) {
@@ -174,12 +181,10 @@ export class armDetailsComp implements OnInit {
 			}
 			this.title = '';
 		}
-		this.ClearAndCancelAdd();
+		this.Clear();
 	}
 
 }
-
-
 
 export interface numCodings {
 

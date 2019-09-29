@@ -1,8 +1,8 @@
 import { Inject, Injectable, EventEmitter, Output, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { ModalService } from './modal.service';
-import { iArm, Item,  Arm } from './ItemList.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
+import { Item } from './ItemList.service';
 
 @Injectable({
     providedIn: 'root',
@@ -149,7 +149,6 @@ export class ArmsService extends BusyAwareService implements OnInit  {
 
 	}
 
-
 	public UpdateArm(currentArm: iArm) {
 
 		this._BusyMethods.push("UpdateArm");
@@ -236,6 +235,22 @@ export class ArmsService extends BusyAwareService implements OnInit  {
 				);
 
 	}
+
+}
+
+export interface iArm {
+	[key: number]: any;  // Add index signature
+	itemArmId: number;
+	itemId: number;
+	ordering: number;
+	title: string;
+}
+export class Arm {
+
+	itemArmId: number = 0;
+	itemId: number = 0;
+	ordering: number = 0;
+	title: string = '';
 
 }
 

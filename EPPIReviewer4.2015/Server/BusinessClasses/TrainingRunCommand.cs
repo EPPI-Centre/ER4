@@ -36,7 +36,12 @@ using System.Configuration;
 using System.Text.RegularExpressions;
 using System.Data;
 #endif
-#if (!SILVERLIGHT && !CSLA_NETCORE) 
+
+#if CSLA_NETCORE
+using Microsoft.Extensions.Logging;
+#endif
+
+#if (!SILVERLIGHT && !CSLA_NETCORE)
 using Microsoft.VisualBasic.FileIO;
 #endif
 
@@ -378,10 +383,19 @@ namespace BusinessLibrary.BusinessClasses
                     try
                     {
                         command.ExecuteNonQuery();
+
+                        //code used to trigger an excemption almost always, used to test if logging from a CSLA object can work...
+                        //naturally this code should never be active in production!!
+                        //Random r = new Random();
+                        //if (r.Next() > 0.0000001) throw new Exception("done manually for testing purpose...", new Exception("this is the inner exception"));
                     }
                     catch (Exception e)
                     {
-                        MLreturnedEmptyLines = true;//send some signal that stuff didn't work...
+                        ERxWebClient2.Startup.Logger.LogError(e, "List creation in TrainingRunCommand failed", command.Parameters);
+
+                        //the line below was (probably) creating the "review needs indexing" bug: when an exception happened (timeout?)
+                        //then RevInfo.ScreeningIndexed = false was set in the lines below... (07/08/2019)
+                        //MLreturnedEmptyLines = true;//send some signal that stuff didn't work...
                     }
 #endif
                 }
@@ -396,7 +410,6 @@ namespace BusinessLibrary.BusinessClasses
                 }
             }
         }
-
         private void CreateNonMLLIst()
         {
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
@@ -633,6 +646,16 @@ namespace BusinessLibrary.BusinessClasses
 
         private async void DoSimulation(int ReviewID)
         {
+            // Delete existing results file (if any)
+            CloudStorageAccount storageAccount = CloudStorageAccount.Parse(blobConnection);
+            CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
+            CloudBlobContainer container = blobClient.GetContainerReference("simulations");
+            CloudBlockBlob blockBlob = container.GetBlockBlobReference(NameBase + "ReviewId" + ReviewID.ToString() + ".csv");
+#if (!CSLA_NETCORE)
+            blockBlob.DeleteIfExists();
+#else
+            await blockBlob.DeleteIfExistsAsync();
+#endif
             // Simple: upload data if needed
             bool justIndexed = false;
             if (RevInfo.ScreeningIndexed == false)
@@ -896,6 +919,6 @@ namespace BusinessLibrary.BusinessClasses
 
 
 #endif
-                }
+        }
 
-}
+    }
