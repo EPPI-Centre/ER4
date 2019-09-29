@@ -309,7 +309,6 @@ export interface iOutcome {
     itemSetId: number;
     outcomeTypeName: string;
     outcomeTypeId: number;
-    NRows: number;
     outcomeCodes: OutcomeItemAttributesList;
     itemAttributeIdIntervention: number;
     itemAttributeIdControl: number;
@@ -482,6 +481,7 @@ export class Outcome implements iOutcome {
             this.ciLowerMeanDifference = iO.ciLowerMeanDifference;
             this.ciUpper = iO.ciUpper;
             this.ciLower = iO.ciLower;
+            this.nRows = iO.nRows;
         }
 	}
 
@@ -492,7 +492,7 @@ export class Outcome implements iOutcome {
 			case 0: // manual entry
 				this.esDesc= "Effect size";
 				this.seDesc= "SE";
-				this.NRows= 6;
+				this.nRows= 6;
 				this.data1Desc = "SMD";
 				this.data2Desc = "standard error";
 				this.data3Desc = "r";
@@ -512,7 +512,7 @@ export class Outcome implements iOutcome {
 			case 1: // n, mean, SD
 				this.esDesc = "SMD";
 				this.seDesc = "SE";
-				this.NRows = 3;
+				this.nRows = 3;
 				this.data1Desc = "Group 1 N";
 				this.data2Desc = "Group 2 N";
 				this.data3Desc= "Group 1 mean";
@@ -533,7 +533,7 @@ export class Outcome implements iOutcome {
 			case 2: // binary 2 x 2 table
 				this.esDesc= "OR";
 				this.seDesc= "SE (log OR)";
-				this.NRows= 2;
+				this.nRows= 2;
 				this.data1Desc= "Group 1 events";
 				this.data2Desc= "Group 2 events";
 				this.data3Desc= "Group 1 no events";
@@ -554,7 +554,7 @@ export class Outcome implements iOutcome {
 			case 3: //n, mean SE
 				this.esDesc= "SMD";
 				this.seDesc= "SE";
-				this.NRows= 3;
+				this.nRows= 3;
 				this.data1Desc= "Group 1 N";
 				this.data2Desc= "Group 2 N";
 				this.data3Desc= "Group 1 mean";
@@ -575,7 +575,7 @@ export class Outcome implements iOutcome {
 			case 4: //n, mean CI
 				this.esDesc= "SMD";
 				this.seDesc= "SE";
-				this.NRows= 4;
+				this.nRows= 4;
 				this.data1Desc= "Group 1 N";
 				this.data2Desc= "Group 2 N";
 				this.data3Desc= "Group 1 mean";
@@ -596,7 +596,7 @@ export class Outcome implements iOutcome {
 			case 5: //n, t or p value
 				this.esDesc= "SMD";
 				this.seDesc= "SE";
-				this.NRows= 2;
+				this.nRows= 2;
 				this.data1Desc= "Group 1 N";
 				this.data2Desc= "Group 2 N";
 				this.data3Desc= "t-value";
@@ -617,7 +617,7 @@ export class Outcome implements iOutcome {
 			case 6: // diagnostic test 2 x 2 table
 				this.esDesc= "Diagnostic OR";
 				this.seDesc= "SE";
-				this.NRows= 2;
+				this.nRows= 2;
 				this.data1Desc= "True positive";
 				this.data2Desc= "False positive";
 				this.data3Desc= "False negative";
@@ -638,7 +638,7 @@ export class Outcome implements iOutcome {
 			case 7: // correlation coeffiCIent r
 				this.esDesc= "r";
 				this.seDesc= "SE (Z transformed)";
-				this.NRows= 1;
+				this.nRows= 1;
 				this.data1Desc= "group(s) size";
 				this.data2Desc= "correlation";
 				this.data3Desc= "";
@@ -1149,17 +1149,16 @@ export class Outcome implements iOutcome {
 		this.OutcomeTypeId = val;
 		this.SetCalculatedValues();
 	}
-	NRows: number = 0;
 	
 	itemAttributeIdIntervention: number = 0;
 	itemAttributeIdControl: number = 0;
 	itemAttributeIdOutcome: number = 0;
 	itemArmIdGrp1: number = 0;
 	itemArmIdGrp2: number = 0;
-	itemId: number = 0;
+    itemId: number = 0;
+    itemTimepointId: number = 0;
 	itemTimepointValue: string = '';
 	itemTimepointMetric: string = '';
-	itemTimepointId: number = 0;
 	outcomeTimePoint = {} as iTimePoint;
 	title: string = "";
     shortTitle: string = "";
