@@ -77,7 +77,7 @@ function openAdminList(ID)
                     OnNeedDataSource="radGVSiteLicenses_NeedDataSource"
                     OnPageIndexChanged="radGVSiteLicenses_PageIndexChanged"
                     DataKeyName="SITE_LIC_ID"
-                    PageSize="20">
+                    PageSize="10">
 
                     <ClientSettings EnablePostBackOnRowClick="false" >
                         <Resizing AllowColumnResize="True" AllowResizeToFit="True" />
