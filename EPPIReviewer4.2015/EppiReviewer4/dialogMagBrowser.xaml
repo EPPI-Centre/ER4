@@ -169,8 +169,15 @@
                     <TextBlock Grid.Row="2" Grid.Column="0" Text="All matched records in review" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="5,5,5,5"></TextBlock>
                     <TextBlock Grid.Row="3" Grid.Column="0" Text="All matched records with this code" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="5,5,5,5"></TextBlock>
 
-                    <HyperlinkButton x:Name="LBListMatchesIncluded" Grid.Row="0" Grid.Column="1" Margin="5,5,5,5" HorizontalAlignment="Left" VerticalAlignment="Center" Click="LBListMatchesIncluded_Click" IsTabStop="False"></HyperlinkButton>
-                    <HyperlinkButton x:Name="LBListMatchesExcluded" Grid.Row="1" Grid.Column="1" Margin="5,5,5,5" HorizontalAlignment="Left" VerticalAlignment="Center" Click="LBListMatchesExcluded_Click" IsTabStop="False"></HyperlinkButton>
+                    <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal">
+                        <HyperlinkButton x:Name="LBListMatchesIncluded" Margin="5,5,5,5" HorizontalAlignment="Left" VerticalAlignment="Center" Click="LBListMatchesIncluded_Click" IsTabStop="False"></HyperlinkButton>
+                        <HyperlinkButton x:Name="lbItemListMatchesIncluded" Margin="1,5,5,5" HorizontalAlignment="Left" VerticalAlignment="Center" Content="(List)" Click="lbItemListMatchesIncluded_Click" IsTabStop="False"></HyperlinkButton>
+                    </StackPanel>
+                    <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal">
+                        <HyperlinkButton x:Name="LBListMatchesExcluded" Margin="5,5,5,5" HorizontalAlignment="Left" VerticalAlignment="Center" Click="LBListMatchesExcluded_Click" IsTabStop="False"></HyperlinkButton>
+                        <HyperlinkButton x:Name="lbItemListMatchesExcluded" Margin="1,5,5,5" HorizontalAlignment="Left" VerticalAlignment="Center" Content="(List)" Click="lbItemListMatchesExcluded_Click"  IsTabStop="False"></HyperlinkButton>
+                    </StackPanel>
+                    
                     <HyperlinkButton x:Name="LBListAllInReview" Grid.Row="2" Grid.Column="1" Margin="0,5,5,5" HorizontalAlignment="Left" VerticalAlignment="Center" Click="LBListAllInReview_Click" IsTabStop="False"></HyperlinkButton>
                     <StackPanel Orientation="Horizontal" Grid.Row="3" Grid.Column="1">
                         <local:codesSelectControl x:Name="codesSelectControlMAGSelect" Margin="5,5,5,5" Width="100" Height="25" HorizontalAlignment="Left" VerticalAlignment="Center"></local:codesSelectControl>
@@ -265,7 +272,8 @@
                     </ToolkitRef:WrapPanel>
                 </ScrollViewer>
             </StackPanel>
-            
+
+            <HyperlinkButton x:Name="hlFindOnWeb" Grid.Row="3" Grid.Column="0" Content="View on the web" HorizontalAlignment="Left" Margin="5,5,5,5" TargetName="_blank" IsTabStop="False"></HyperlinkButton>
             <HyperlinkButton x:Name="HLExpandContract" Grid.Row="3" Grid.ColumnSpan="2" FontSize="13" HorizontalAlignment="Center" Content="&lt;&lt;&lt;Expand&gt;&gt;&gt;" Click="HLExpandContract_Click" Tag="expand" IsTabStop="False"></HyperlinkButton>
 
             <ScrollViewer Grid.Column="0" Grid.Row="4" HorizontalScrollBarVisibility="Disabled"  VerticalScrollBarVisibility="Auto">

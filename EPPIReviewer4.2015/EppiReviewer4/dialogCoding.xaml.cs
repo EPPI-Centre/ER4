@@ -3433,6 +3433,35 @@ namespace EppiReviewer4
             }
         }
 
+        private void hlManualMagLookup_Click(object sender, RoutedEventArgs e)
+        {
+            Item i = this.DataContext as Item;
+            DataPortal<MagMatchItemsToPapersCommand> dp = new DataPortal<MagMatchItemsToPapersCommand>();
+            MagMatchItemsToPapersCommand GetMatches = new MagMatchItemsToPapersCommand("FindMatches",
+                false, i.ItemId, 0);
+            dp.ExecuteCompleted += (o, e2) =>
+            {
+                if (e2.Error != null)
+                {
+                    RadWindow.Alert(e2.Error.Message);
+                }
+                else
+                {
+                    MagMatchItemsToPapersCommand res = e2.Object as MagMatchItemsToPapersCommand;
+                    CslaDataProvider provider = this.Resources["MagPaperListData"] as CslaDataProvider;
+                    provider.FactoryParameters.Clear();
+                    MagPaperListSelectionCriteria selectionCriteria = new MagPaperListSelectionCriteria();
+                    selectionCriteria.ListType = "ItemMatchedPapersList";
+                    selectionCriteria.ITEM_ID = i.ItemId;
+                    provider.FactoryParameters.Add(selectionCriteria);
+                    provider.FactoryMethod = "GetMagPaperList";
+                    provider.Refresh();
+                    RadWindow.Alert(res.currentStatus);
+                }
+            };
+            dp.BeginExecute(GetMatches);
+        }
+
         private void It_Saved(object sender, Csla.Core.SavedEventArgs e)
         {
             if (e.Error != null)

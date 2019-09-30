@@ -121,6 +121,19 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
+        private static PropertyInfo<string> FindOnWebProperty = RegisterProperty<string>(new PropertyInfo<string>("FindOnWeb", "FindOnWeb", string.Empty));
+        public string FindOnWeb
+        {
+            get
+            {
+                return GetProperty(FindOnWebProperty);
+            }
+            set
+            {
+                SetProperty(FindOnWebProperty, value);
+            }
+        }
+
         private static PropertyInfo<Int64> FieldOfStudyIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("FieldOfStudyId", "FieldOfStudyId"));
         public Int64 FieldOfStudyId
         {

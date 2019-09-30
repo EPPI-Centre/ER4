@@ -283,6 +283,7 @@ namespace BusinessLibrary.BusinessClasses
                 using (SqlCommand command = new SqlCommand("st_Simulation", connection))
                 {
                     command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.CommandTimeout = 300; // i.e. 5 minutes
                     command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
                     command.Parameters.Add(new SqlParameter("@DateFrom", _DateFrom));
                     command.Parameters.Add(new SqlParameter("@CreatedDate", _CreatedDate));

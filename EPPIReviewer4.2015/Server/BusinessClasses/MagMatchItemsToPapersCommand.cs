@@ -85,12 +85,13 @@ namespace BusinessLibrary.BusinessClasses
                     command.CommandType = System.Data.CommandType.StoredProcedure;
                     command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
                     command.Parameters.Add(new SqlParameter("@CONTACT_ID", ri.UserId));
-                    //command.Parameters.Add(new SqlParameter("@RESULT", ""));
-                    //command.Parameters["@RESULT"].Direction = System.Data.ParameterDirection.Output;
+                    command.Parameters.Add(new SqlParameter("@RESULT", ""));
+                    command.Parameters["@RESULT"].Direction = System.Data.ParameterDirection.Output;
                     command.ExecuteNonQuery();
-                    //_currentStatus = command.Parameters["@RESULT"].Value.ToString();
-                    _currentStatus = "Successfully added this review to the queue for matching";
-
+                    string res = command.Parameters["@RESULT"].Value.ToString();
+                    _currentStatus = "The automated matching identified " +
+                        command.Parameters["@RESULT"].Value.ToString() + (res == "1" ? " possible match" :
+                        " possible matches");
                 }
                 connection.Close();
             }
@@ -104,7 +105,7 @@ namespace BusinessLibrary.BusinessClasses
                 case "FindMatches":
                     if (_AllInReview == true)
                     {
-                        //command = new SqlCommand("st_MatchItemsToPapers", connection);
+                        //command = new SqlCommand("st_MatchItemsToPapers", connection); - now doing via worker process
                         command = new SqlCommand("st_MatchItemsToPapersAddJob", connection);
                         command.CommandType = System.Data.CommandType.StoredProcedure;
                     }

@@ -325,6 +325,7 @@ namespace BusinessLibrary.BusinessClasses
                             LoadProperty<Int64>(FieldOfStudyIdProperty, reader.GetInt64("FieldOfStudyId"));
                             LoadProperty<string>(DisplayNameProperty, reader.GetString("DisplayName"));
                             LoadProperty<Int32>(num_timesProperty, reader.GetInt32("n_papers"));
+                            LoadProperty<Int64>(PaperCountProperty, reader.GetInt64("PaperCount"));
                             //LoadProperty<decimal>(ScoreProperty, Convert.ToDecimal(reader.GetFloat("sum_similarity")));
                         }
                     }
@@ -339,6 +340,7 @@ namespace BusinessLibrary.BusinessClasses
             returnValue.LoadProperty<Int64>(FieldOfStudyIdProperty, reader.GetInt64("FieldOfStudyId"));
             returnValue.LoadProperty<string>(DisplayNameProperty, reader.GetString("DisplayName"));
             returnValue.LoadProperty<Int32>(num_timesProperty, reader.GetInt32("n_papers"));
+            returnValue.LoadProperty<Int64>(PaperCountProperty, reader.GetInt64("PaperCount"));
             //returnValue.LoadProperty<decimal>(SimilarityScoreProperty, Convert.ToDecimal(reader.GetFloat("sum_similarity"))); // Getting the float data type into c# is a pain
 
             returnValue.MarkOld();

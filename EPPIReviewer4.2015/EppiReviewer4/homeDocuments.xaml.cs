@@ -248,6 +248,8 @@ namespace EppiReviewer4
             MagBrowserControl.ListExcludedThatNeedMatching += MagBrowserControl_ListExcludedThatNeedMatching;
             MagBrowserControl.ListIncludedNotMatched += MagBrowserControl_ListIncludedNotMatched;
             MagBrowserControl.ListExcludedNotMatched += MagBrowserControl_ListExcludedNotMatched;
+            MagBrowserControl.ListIncludedMatched += MagBrowserControl_ListIncludedMatched;
+            MagBrowserControl.ListExcludedMatched += MagBrowserControl_ListExcludedMatched;
             windowMagBrowser.Content = MagGrid;
             //end of windowMagBrowser
 
@@ -6155,6 +6157,32 @@ on the right of the main screen");
             LoadItemList();
         }
 
+        private void MagBrowserControl_ListExcludedMatched(object sender, RoutedEventArgs e)
+        {
+            windowMagBrowser.Close();
+            TextBlockShowing.Text = "Showing: excluded items that are matched to at least one Microsoft Academic record";
+            SelectionCritieraItemList = new SelectionCriteria();
+            SelectionCritieraItemList.ListType = "MagMatchesMatched";
+            SelectionCritieraItemList.OnlyIncluded = false;
+            SelectionCritieraItemList.ShowDeleted = false;
+            SelectionCritieraItemList.AttributeSetIdList = "";
+            SelectionCritieraItemList.PageNumber = 0;
+            LoadItemList();
+        }
+
+        private void MagBrowserControl_ListIncludedMatched(object sender, RoutedEventArgs e)
+        {
+            windowMagBrowser.Close();
+            TextBlockShowing.Text = "Showing: included items that are matched to at least one Microsoft Academic record";
+            SelectionCritieraItemList = new SelectionCriteria();
+            SelectionCritieraItemList.ListType = "MagMatchesMatched";
+            SelectionCritieraItemList.OnlyIncluded = true;
+            SelectionCritieraItemList.ShowDeleted = false;
+            SelectionCritieraItemList.AttributeSetIdList = "";
+            SelectionCritieraItemList.PageNumber = 0;
+            LoadItemList();
+        }
+
         private void DialogCodingControl_launchMagBrowser(object sender, EventArgs e)
         {
             MagPaper mp = sender as MagPaper;
@@ -6162,11 +6190,11 @@ on the right of the main screen");
             {
                 MagBrowserControl.InitialiseBrowser();
                 MagBrowserControl.AddToBrowseHistory("Go to specific Paper Id: " + mp.PaperId.ToString(), "PaperDetail",
-                        mp.PaperId, mp.FullRecord, mp.Abstract, mp.LinkedITEM_ID, mp.URLs, 0,
+                        mp.PaperId, mp.FullRecord, mp.Abstract, mp.LinkedITEM_ID, mp.URLs, mp.FindOnWeb, 0,
                         "", "", 0);
                 MagBrowserControl.IncrementHistoryCount();
                 MagBrowserControl.ShowPaperDetailsPage(mp.PaperId, mp.FullRecord, mp.Abstract,
-                    mp.URLs, mp.LinkedITEM_ID);
+                    mp.URLs, mp.FindOnWeb, mp.LinkedITEM_ID);
                 windowMagBrowser.ShowDialog();
             }
         }

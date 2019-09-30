@@ -49,7 +49,7 @@ namespace BusinessLibrary.BusinessClasses
         {
             get
             {
-                return Authors + " (" + Year.ToString() + ") " + PaperTitle + ". " + Journal + ". " + Volume.ToString() + " (" + Issue + ") " + FirstPage + "-" + LastPage;
+                return Authors + " (" + Year.ToString() + ") " + OriginalTitle + ". " + Journal + ". " + Volume.ToString() + " (" + Issue + ") " + FirstPage + "-" + LastPage;
             }
         }
 
@@ -525,7 +525,7 @@ namespace BusinessLibrary.BusinessClasses
                             LoadProperty<SmartDate>(CreatedDateProperty, reader.GetSmartDate("CreatedDate"));
                             LoadProperty<string>(AuthorsProperty, reader.GetString("Authors"));
                             LoadProperty<Int64>(LinkedITEM_IDProperty, reader.GetInt64("ITEM_ID"));
-                            LoadProperty<string>(AbstractProperty, reader.GetString("IndexedAbstract"));
+                            LoadProperty<string>(AbstractProperty, ReconstructInvertedAbstract(reader.GetString("IndexedAbstract")));
                             LoadProperty<string>(URLsProperty, reader.GetString("URLs"));
                             LoadProperty<bool>(ManualTrueMatchProperty, reader.GetBoolean("ManualTrueMatch"));
                             LoadProperty<bool>(ManualFalseMatchProperty, reader.GetBoolean("ManualFalseMatch"));
@@ -562,7 +562,7 @@ namespace BusinessLibrary.BusinessClasses
             returnValue.LoadProperty<SmartDate>(CreatedDateProperty, reader.GetSmartDate("CreatedDate"));
             returnValue.LoadProperty<string>(AuthorsProperty, reader.GetString("Authors"));
             returnValue.LoadProperty<Int64>(LinkedITEM_IDProperty, reader.GetInt64("ITEM_ID"));
-            returnValue.LoadProperty<string>(AbstractProperty, reader.GetString("IndexedAbstract"));
+            returnValue.LoadProperty<string>(AbstractProperty, ReconstructInvertedAbstract(reader.GetString("IndexedAbstract")));
             returnValue.LoadProperty<string>(URLsProperty, reader.GetString("URLs"));
             returnValue.LoadProperty<bool>(ManualTrueMatchProperty, reader.GetBoolean("ManualTrueMatch"));
             returnValue.LoadProperty<bool>(ManualFalseMatchProperty, reader.GetBoolean("ManualFalseMatch"));
@@ -574,19 +574,26 @@ namespace BusinessLibrary.BusinessClasses
 
         public static string ReconstructInvertedAbstract(string str)
         {
-            var j = (JObject)JsonConvert.DeserializeObject(str);
-            int indexLength = j["IndexLength"].ToObject<int>();
-            Dictionary<string, int[]> invertedIndex = j["InvertedIndex"].ToObject<Dictionary<string, int[]>>();
-            string[] abstractStr = new string[indexLength];
-            foreach (var pair in invertedIndex)
+            try
             {
-                string word = pair.Key;
-                foreach (var index in pair.Value)
+                var j = (JObject)JsonConvert.DeserializeObject(str);
+                int indexLength = j["IndexLength"].ToObject<int>();
+                Dictionary<string, int[]> invertedIndex = j["InvertedIndex"].ToObject<Dictionary<string, int[]>>();
+                string[] abstractStr = new string[indexLength];
+                foreach (var pair in invertedIndex)
                 {
-                    abstractStr[index] = word;
+                    string word = pair.Key;
+                    foreach (var index in pair.Value)
+                    {
+                        abstractStr[index] = word;
+                    }
                 }
+                return String.Join(" ", abstractStr);
             }
-            return String.Join(" ", abstractStr);
+            catch
+            {
+                return "";
+            }
         }
 
 #endif

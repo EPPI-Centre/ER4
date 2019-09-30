@@ -800,10 +800,11 @@
                                     <RowDefinition Height="35"></RowDefinition>
                                     <RowDefinition Height="Auto"></RowDefinition>
                                 </Grid.RowDefinitions>
+
+                                <HyperlinkButton x:Name="hlManualMagLookup" Grid.Row="0" VerticalAlignment="Top" Content="Look up this record in Microsoft Academic" Margin="2,7,2,0" Click="hlManualMagLookup_Click" IsTabStop="False"></HyperlinkButton>
                                 
-                                <TextBlock Grid.Row="0" VerticalAlignment="Top" Text="Record stored in EPPI-Reviewer database (from citation tab):" Margin="5,3,5,0"></TextBlock>
                                 <TextBlock Grid.Row="1" x:Name="tbQuickCitation" Text="{Binding QuickCitation}" FontWeight="Bold" FontSize="12" TextWrapping="Wrap" Margin="5,2,5,2"></TextBlock>
-                                <TextBlock Grid.Row="2" VerticalAlignment="Top" Text="Record(s) matched from Microsoft Academic:" Margin="5,3,5,0"></TextBlock>
+                                <TextBlock Grid.Row="2" VerticalAlignment="Bottom" Text="Record(s) matched from Microsoft Academic:" Margin="5,3,5,1"></TextBlock>
                                 <telerik:RadListBox Grid.Row="3" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                                         ItemsSource="{Binding Source={StaticResource MagPaperListData}, Path=Data, Mode=TwoWay}"
                                         ItemTemplate="{StaticResource MagPaperDataTemplate}"
