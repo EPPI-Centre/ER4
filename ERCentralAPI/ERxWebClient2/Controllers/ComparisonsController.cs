@@ -54,9 +54,9 @@ namespace ERxWebClient2.Controllers
 		[HttpPost("[action]")]
 		public IActionResult ComparisonReport([FromBody] ComparisonAttributeSelectionJSON comparisonAttributesCriteria)
 		{
-			Comparison comparison = new Comparison();
+			//Comparison comparison = new Comparison();
 
-			comparison = comparisonAttributesCriteria.comparison;
+			//comparison = comparisonAttributesCriteria.comparison;
 
 			try
 			{
@@ -268,7 +268,7 @@ namespace ERxWebClient2.Controllers
 		public int comparisonid { get; set; }
 		public Int64 parentAttributeId { get; set; }
 		public int setId { get; set; }
-		public Comparison comparison { get; set; }
+		//public Comparison comparison { get; set; }
 	}
 
 
