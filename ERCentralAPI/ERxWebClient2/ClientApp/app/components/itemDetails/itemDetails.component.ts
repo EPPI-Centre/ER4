@@ -74,6 +74,28 @@ export class itemDetailsComp implements OnInit {
             this.router.navigate(['EditItem', this.item.itemId], { queryParams: { return: 'itemcoding/' + this.item.itemId.toString() } });
         }
     }
+    
+    public FindReferenceOnMicrosoftAcademic(item: Item) {
+        if (item != null) {
+            let searchString: string = "\"" + item.title + "\" " + item.authors;
+            window.open("https://academic.microsoft.com/search?q=" +
+                encodeURIComponent(searchString));
+        }
+    }
+    public FindReferenceOnGoogle(item: Item) {
+        if (item != null) {
+            let searchString: string = "\"" + item.title + "\" " + item.authors;
+            window.open("https://www.google.com/search?q=" + searchString);
+        }
+    }
+
+    public FindReferenceOnGoogleScholar(item: Item) {
+        if (item != null) {
+            let searchString: string = "\"" + item.title + "\" " + item.authors;
+            window.open("https://scholar.google.com/scholar?q=" + searchString);
+        }
+    }
+
     public SetHighlights() {
         if (this.item && this.ReviewerTermsService && this.ReviewerTermsService.TermsList.length > 0) {
             this.HTitle = this.item.title;

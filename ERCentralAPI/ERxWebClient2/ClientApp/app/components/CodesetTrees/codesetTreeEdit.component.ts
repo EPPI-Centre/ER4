@@ -92,8 +92,8 @@ export class CodesetTreeEditComponent implements OnInit, OnDestroy {
     RefreshLocalTree() {
         this.treeComponent.treeModel.update();
     }
-    MoveUpNode(node: singleNode) {
-        this.ReviewSetsEditingService.MoveUpNode(node);
+    async MoveUpNode(node: singleNode) {
+        await this.ReviewSetsEditingService.MoveUpNode(node);
         //and notify the tree:
         this.treeComponent.treeModel.update();
         //if (node.nodeType == 'ReviewSet') {
@@ -107,8 +107,8 @@ export class CodesetTreeEditComponent implements OnInit, OnDestroy {
         //    }
         //}
     }
-    MoveDownNode(node: singleNode) {
-        this.ReviewSetsEditingService.MoveDownNode(node);
+    async MoveDownNode(node: singleNode) {
+        await this.ReviewSetsEditingService.MoveDownNode(node);
         //and notify the tree:
         this.treeComponent.treeModel.update();
         //if (node.nodeType == 'ReviewSet') {

@@ -174,7 +174,8 @@ namespace ERxWebClient2.Controllers
             }
             catch (Exception e)
             {
-                _logger.LogException(e, "Upload import file error");
+				var errMsg = incoming == null ? "incoming data is null" : incoming.ToString();
+				_logger.LogError(e, "Upload import file error" + errMsg);
                 throw;
             }
 

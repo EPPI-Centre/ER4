@@ -1,6 +1,6 @@
 
 <div *ngIf="!IsSmall" class="card container-fluid mt-1 bg-light  m-1 p-1 form-group">
-    <form class="row" #NewCodeFromCollaborate="ngForm" >
+    <form class="row" #NewCodeFromCollaborate="ngForm" (ngSubmit)="onSubmit()">
         <div class="col-12">
             <div class="form-group">
                 <label for="Codeset_TypeCollaborate">Code Type*</label>
@@ -33,7 +33,7 @@
                     [disabled]="!NewCodeFromCollaborate.dirty || !IsNewCodeNameValid() || !CurrentCodeCanHaveChildren">
                 Create
             </button>
-            <button class="btn btn-outline-secondary ml-2 mr-2"
+            <button class="btn btn-outline-secondary ml-2 mr-2" type="button"
                     (click)="CancelActivity()">
                 Cancel
             </button>
@@ -42,7 +42,7 @@
 </div>
 
 
-<form  *ngIf="IsSmall" class="row small"#NewCodeFromCollaborate="ngForm">
+<form  *ngIf="IsSmall" class="row small"#NewCodeFromCollaborate="ngForm" (ngSubmit)="onSubmit()">
     <div class="col-12">
         <div class="form-group mb-1">
             <div>Code Type*</div>
@@ -75,7 +75,7 @@
                 [disabled]="!NewCodeFromCollaborate.dirty || !IsNewCodeNameValid() || !CurrentCodeCanHaveChildren">
             Create
         </button>
-        <button class="btn btn-sm btn-outline-secondary ml-2 mr-2"
+        <button class="btn btn-sm btn-outline-secondary ml-2 mr-2" type="button"
                 (click)="CancelActivity()">
             Cancel
         </button>

@@ -95,6 +95,7 @@ namespace BusinessLibrary.BusinessClasses
                     {
                         command.Parameters.Add(new SqlParameter("@IS_LOCKED", 0));
                     }
+					command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
                     using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
                     {
                         if (reader.Read())

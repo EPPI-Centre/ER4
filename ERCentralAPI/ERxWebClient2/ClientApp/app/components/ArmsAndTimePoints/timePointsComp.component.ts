@@ -95,7 +95,7 @@ export class timePointsComp extends BusyAwareService implements OnInit {
 	//public currentTitle!: string;
 	public currentKey: number = 0;
 	public edit: boolean = false;
-	public timepointModel: string = '';
+	public timepointModel2: string = '';
 	
 	public unitModel: string = '';
 	public timepointFreq: string = '';
@@ -112,7 +112,7 @@ export class timePointsComp extends BusyAwareService implements OnInit {
 		this.edit = true;
 		this.unit = this.currentTimePoint.timepointMetric;
 		this.unitModel = this.Units.filter(x => x.name == this.currentTimePoint.timepointMetric)[0];
-		this.timepointModel = this.currentTimePoint.timepointMetric;
+		this.timepointModel2 = this.currentTimePoint.timepointMetric;
 		this.timepointFreq = this.currentTimePoint.timepointValue;
 		this.selected = 'selected';
 	}
@@ -121,7 +121,7 @@ export class timePointsComp extends BusyAwareService implements OnInit {
 
 	UpdateList() {
 
-		this.currentTimePoint.timepointMetric = this.timepointModel;
+		this.currentTimePoint.timepointMetric = this.timepointModel2;
 		this.currentTimePoint.timepointValue = this.timepointFreq;
 		this.edit = false;
 		this.item!.timepoints[this.currentKey] = this.currentTimePoint;
@@ -135,11 +135,12 @@ export class timePointsComp extends BusyAwareService implements OnInit {
 
 		this.title = '';
 		this.unit = '';
-		this.timepointFreq = '';
+		this.timepointFreq = "";
 		this.currentTimePoint = new TimePoint(0, '', '', 0);
 		this._timePointsService.SetSelectedtimepoint(new TimePoint(0, '', '', 0));
-		this.unitModel = '';
+		this.unitModel = "";
 		this.edit = false;
+		this.timepointModel2 = "";
 	}
 
 	public openConfirmationDialogDeletetimepoints(key: number) {
@@ -203,9 +204,11 @@ export class timePointsComp extends BusyAwareService implements OnInit {
 
 					this.openConfirmationDialogDeletetimepointsWithText(key, res.numOutcomes);
 				}
-
 			}
 		);
+		this.timepointFreq = "";
+		this.unitModel = "";
+		this.edit = false;
 	}
 
 	ActuallyRemove(key: number) {
@@ -214,7 +217,6 @@ export class timePointsComp extends BusyAwareService implements OnInit {
 		if (ToRemove) {
 			let SelectedId = this._timePointsService.Selectedtimepoint ? this._timePointsService.Selectedtimepoint.itemTimepointId : -1;
 			this._timePointsService.Deletetimepoint(ToRemove);
-			this.timePointsList.splice(key, 1);
 			if (SelectedId == ToRemove.itemTimepointId) this._timePointsService.SetSelectedtimepoint(new TimePoint(0, '', '', 0));
 		}
 	}

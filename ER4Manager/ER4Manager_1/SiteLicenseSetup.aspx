@@ -77,7 +77,7 @@ function openAdminList(ID)
                     OnNeedDataSource="radGVSiteLicenses_NeedDataSource"
                     OnPageIndexChanged="radGVSiteLicenses_PageIndexChanged"
                     DataKeyName="SITE_LIC_ID"
-                    PageSize="2">
+                    PageSize="10">
 
                     <ClientSettings EnablePostBackOnRowClick="false" >
                         <Resizing AllowColumnResize="True" AllowResizeToFit="True" />
@@ -117,6 +117,13 @@ function openAdminList(ID)
                                 UniqueName="CONTACT_ID" 
                                 Resizable="False" AllowFiltering="False" Visible="true">
                                 <HeaderStyle BackColor="#B6C6D6" ForeColor="Black" Width="0px" />
+                            </telerik:GridBoundColumn>
+
+                            <telerik:GridBoundColumn DataField="COMPANY_NAME"
+                                FilterControlAltText="Filter name column" HeaderText="Org"
+                                UniqueName="COMPANY_NAME" DataFormatString="<nobr>{0}</nobr>"
+                                Resizable="False" AllowFiltering="False">
+                                <HeaderStyle BackColor="#B6C6D6" ForeColor="Black" Width="235px" />
                             </telerik:GridBoundColumn>
 
                             <telerik:GridBoundColumn DataField="CONTACT_NAME"

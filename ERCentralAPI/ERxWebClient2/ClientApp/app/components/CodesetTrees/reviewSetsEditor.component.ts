@@ -306,6 +306,7 @@ export class ReviewSetsEditorComponent implements OnInit, OnDestroy {
         this._ActivityPanelName = activityName;
     }
     CancelActivity(refreshTree?: boolean) {
+        console.log("CancelActivity", refreshTree);
         if (refreshTree) {
             if (this.ReviewSetsService.selectedNode) {
                 let IsSet: boolean = this.ReviewSetsService.selectedNode.nodeType == "ReviewSet";
@@ -462,7 +463,10 @@ export class ReviewSetsEditorComponent implements OnInit, OnDestroy {
         return this._UpdatingCode;
     }
     
-    
+    onSubmit(): boolean {
+        console.log("ReviewSets Editor onSubmit");
+        return false;
+    }
     
     BackToMain() {
         this.ReviewSetsService.GetReviewSets();

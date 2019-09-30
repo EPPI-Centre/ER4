@@ -1,13 +1,26 @@
 
-<div *ngIf="item" class="row col-12 card card-body  ml-1" [ngClass]="{'alert-dark' : item.itemStatus == 'D' || item.itemStatus == 'S' , 'bg-light': item.itemStatus == 'I' || item.itemStatus == 'E'}">
+<div *ngIf="item" class="row col-12 card card-body pt-0 px-0 mx-0" [ngClass]="{'alert-dark' : item.itemStatus == 'D' || item.itemStatus == 'S' , 'bg-light': item.itemStatus == 'I' || item.itemStatus == 'E'}">
     
-    <div class="row col-12 p-0 m-0 " style="position:absolute; right:0%; top:0px; z-index:20">
-        <div class="small m-1" >Ref. Type:</div>
-        <div class="small font-weight-bold mr-1 mt-1">
-            {{item.typeName}}
+    <div class="row col-12 p-0 m-0 justify-content-around ">
+        <div class="row p-0 m-0 col">
+            <div class="small m-1">Ref. Type:</div>
+            <div class="small font-weight-bold mr-1 mt-1">
+                {{item.typeName}}
+            </div>
         </div>
-        <div class="small row p-0 m-0"
-             style="position:absolute; right:0%; top:0px; z-index:20">
+
+        <div class="small row p-0 m-0 col justify-content-end"
+             style="">
+            <div class="dropdown small mr-1">
+                <button class="btn btn-outline-info dropdown-toggle btn-sm px-1 py-0" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <i class="fa fa-book" aria-hidden="true"></i>&nbsp;Find on:
+                </button>
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                    <a class="dropdown-item small" (click)="FindReferenceOnMicrosoftAcademic(item)">Microsoft Academic</a>
+                    <a class="dropdown-item small" (click)="FindReferenceOnGoogle(item)">Google</a>
+                    <a class="dropdown-item small" (click)="FindReferenceOnGoogleScholar(item)">Google Scholar</a>
+                </div>
+            </div>
             <span class="mt-0 mr-1 ">Show optional fields?</span>
             <span class="brightSwitch" style="zoom:75%;">
                 <kendo-switch name="showOptionalFieldsSW" class="small small mt-0"
@@ -16,11 +29,11 @@
                               [offLabel]="'No'"></kendo-switch>
             </span>
             <button *ngIf="CanEdit" class="btn btn-success btn-sm ml-1 p-0 mr-0" (click)="EditItem()"
-                    style="width:46px;">
+                    style="width:46px;height:23px;">
                 Edit
             </button>
         </div>
-        
+
     </div>
     
     <div class="row col-12 p-1 m-1 mt-2">

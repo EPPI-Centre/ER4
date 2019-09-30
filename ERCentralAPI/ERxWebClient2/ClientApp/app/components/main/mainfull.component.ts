@@ -121,7 +121,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         }
 	}];
 	public AddRemoveSearchesDDData: Array<any> = [{
-		text: 'Remove searches from selection',
+		text: 'Remove search(es) from code',
 		click: () => {
 			this.BulkAssignRemoveCodesToSearches(false);
 		}
@@ -216,14 +216,17 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 		return false;
 	}
 	public DeleteRelevantItems() {
+		if (this.ItemListService.SelectedItems != null &&
+			this.ItemListService.SelectedItems.length > 0) {
 		this.AllIncOrExcShow = false;
 		this.ConfirmationDialogService.confirm("Delete the selected items?",
 			"Are you sure you want to delete these " + this.ItemListService.SelectedItems.length  + " item/s?", false, '')
 			.then((confirm: any) => {
-				if (confirm) {
-					this.ItemListService.DeleteSelectedItems(this.ItemListService.SelectedItems);
+					if (confirm) {
+						this.ItemListService.DeleteSelectedItems(this.ItemListService.SelectedItems);
 				}
-			});
+				});
+		}
 	}
 	public AllocateChoice: string = '';
 	public AllIncOrExcShow: boolean = false;
@@ -388,8 +391,8 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 	}
 	BulkAssignRemoveCodesToSearches(IsBulkAssign: boolean) {
 
-		alert(this.searchService.SearchList.filter(x => x.add == true).length);
-		alert(JSON.stringify(this.searchService.SearchList));
+		//alert(this.searchService.SearchList.filter(x => x.add == true).length);
+		//alert(JSON.stringify(this.searchService.SearchList));
 
 		if (!this.reviewSetsService.selectedNode || this.reviewSetsService.selectedNode.nodeType != "SetAttribute") return;
 		else {

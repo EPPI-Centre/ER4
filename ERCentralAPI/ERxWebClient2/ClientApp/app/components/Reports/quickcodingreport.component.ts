@@ -29,6 +29,7 @@ export class QuickCodingReportComponent implements OnInit, OnDestroy {
     @Input() Aim:string = "";
     @ViewChild('QuestionSelector') QuestionSelector!: CodesetTree4QuickQuestionReportComponent;
     public QuickQuestionReportOptions: QuickQuestionReportOptions = new QuickQuestionReportOptions();
+    public JsonReport = false;
     public get GettingReport(): boolean {
         return this.ItemCodingService.QuickCodingReportIsRunning;
     }
@@ -37,6 +38,21 @@ export class QuickCodingReportComponent implements OnInit, OnDestroy {
     }
     public get ReportHTML(): string {
         return this.ItemCodingService.CodingReport;
+    }
+    public get JsonReportContent(): string {
+        if (!this.JsonReport) return "";
+        if (this.ItemCodingService.jsonReport.CodeSets.length > 0 || this.ItemCodingService.jsonReport.References.length > 0) {
+            let step = JSON.stringify(this.ItemCodingService.jsonReport);
+            step = step.replace(/,"Attributes":\{"AttributesList":\[]\}/g, "");
+            return step;
+        }
+        return "";
+    }
+    public get CanSaveReport(): boolean {
+        if (this.GettingReport) return false;
+        if (!this.JsonReport && this.ReportHTML.length > 0) return true;
+        if (this.JsonReport && (this.ItemCodingService.jsonReport.CodeSets.length > 0 || this.ItemCodingService.jsonReport.References.length > 0)) return true;
+        return false;
     }
     public get CodeSets(): ReviewSet[] {
         return this.ReviewSetsService.ReviewSets;
@@ -49,7 +65,7 @@ export class QuickCodingReportComponent implements OnInit, OnDestroy {
     public StartQuickReport() {
         if (!this.CanStartReport) return;
         else if (this.Aim == '') {
-            this.ItemCodingService.FetchCodingReport(this.ItemListService.SelectedItems, this.ReviewSetsService.ReviewSets.filter(found => found.isSelected == true));
+            this.ItemCodingService.FetchCodingReport(this.ItemListService.SelectedItems, this.ReviewSetsService.ReviewSets.filter(found => found.isSelected == true), this.JsonReport);
         }
         else if (this.Aim == 'QuickQuestionReport' && this.QuestionSelector) {
            this.ItemCodingService.FetchQuickQuestionReport(this.ItemListService.SelectedItems, this.QuestionSelector.SelectedNodes, this.QuickQuestionReportOptions);
@@ -105,13 +121,55 @@ export class QuickCodingReportComponent implements OnInit, OnDestroy {
         for (let Set of this.ReviewSetsService.ReviewSets) if (Set.isSelected) return true;
         return false;
     }
+    public SaveReport() {
+        if (this.JsonReport) this.SaveAsJson();
+        else this.SaveAsHtml();
+    }
     public SaveAsHtml() {
         if (this.ReportHTML.length < 1 && !this.CanStartReport) return;
         const dataURI = "data:text/plain;base64," + encodeBase64(Helpers.AddHTMLFrame(this.ReportHTML, this._baseUrl));
         //console.log("Savign report:", dataURI)
         saveAs(dataURI, "Report.html");
     }
-    
+
+    public SaveAsJson() {
+        console.log("Save as Json, codesets: " + this.ItemCodingService.jsonReport.CodeSets.length + "; refs: " + this.ItemCodingService.jsonReport.References.length);
+        if (!this.JsonReport) {
+            console.log("Save as Json. Return (not jsonreport)");
+            return;
+        }
+        if ((this.ItemCodingService.jsonReport.CodeSets.length < 1 && this.ItemCodingService.jsonReport.References.length < 1) && !this.CanStartReport) {
+            console.log("Save as Json. Return", this.ItemCodingService.jsonReport.CodeSets.length
+                , this.ItemCodingService.jsonReport.References.length < 1
+                , this.CanStartReport);
+            return;
+        }
+        console.log("Save as Json. Encoding");
+        const dataURI = "data:text/plain;base64," + encodeBase64(this.JsonReportContent);
+        const blob = this.dataURItoBlob(dataURI);
+        console.log("Savign json report...");//, dataURI)
+        saveAs(blob, "Report.json");
+    }
+    private dataURItoBlob(dataURI: string): Blob {
+        // convert base64/URLEncoded data component to raw binary data held in a string
+        var byteString;
+        if (dataURI.split(',')[0].indexOf('base64') >= 0)
+            byteString = atob(dataURI.split(',')[1]);
+        else
+            byteString = unescape(dataURI.split(',')[1]);
+
+        // separate out the mime component
+        var mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
+
+        // write the bytes of the string to a typed array
+        var ia = new Uint8Array(byteString.length);
+        for (var i = 0; i < byteString.length; i++) {
+            ia[i] = byteString.charCodeAt(i);
+        }
+
+        let res = new Blob([ia], { type: mimeString });
+        return res;
+    }
     private AddSaveMe(): string {
         //see: https://stackoverflow.com/questions/29702758/html-button-to-save-div-content-using-javascript#answer-29702870
         let rep = "<script>function download(){";

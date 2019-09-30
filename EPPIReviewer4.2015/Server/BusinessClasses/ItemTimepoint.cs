@@ -141,14 +141,16 @@ namespace BusinessLibrary.BusinessClasses
         {
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
-                connection.Open();
+				ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+				connection.Open();
                 using (SqlCommand command = new SqlCommand("st_ItemTimepointUpdate", connection))
                 {
                     command.CommandType = System.Data.CommandType.StoredProcedure;
                     command.Parameters.Add(new SqlParameter("@ITEM_TIMEPOINT_ID", ReadProperty(ItemTimepointIdProperty)));
                     command.Parameters.Add(new SqlParameter("@TIMEPOINT_VALUE", ReadProperty(TimepointValueProperty)));
                     command.Parameters.Add(new SqlParameter("@TIMEPOINT_METRIC", ReadProperty(TimepointMetricProperty)));
-                    command.ExecuteNonQuery();
+					command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
+					command.ExecuteNonQuery();
                 }
                 connection.Close();
             }
@@ -161,9 +163,11 @@ namespace BusinessLibrary.BusinessClasses
                 connection.Open();
                 using (SqlCommand command = new SqlCommand("st_ItemTimepointDelete", connection))
                 {
-                    command.CommandType = System.Data.CommandType.StoredProcedure;
+					ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+					command.CommandType = System.Data.CommandType.StoredProcedure;
                     command.Parameters.Add(new SqlParameter("@ITEM_TIMEPOINT_ID", ReadProperty(ItemTimepointIdProperty)));
-                    command.ExecuteNonQuery();
+					command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
+					command.ExecuteNonQuery();
                 }
                 connection.Close();
             }

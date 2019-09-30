@@ -14,7 +14,7 @@
                 </button>
             </div>
         </div>
-        <form class="row" #EditCodeFrom="ngForm">
+        <form class="row" #EditCodeFrom="ngForm" (ngSubmit)="onSubmit()">
             <div class="col-12">
                 <div class="form-group">
                     <label for="Codeset_Type">Code Type*</label>
@@ -46,11 +46,11 @@
                 <button type="submit" (click)="UpdateCode()" class="btn btn-success ml-2 mr-2" [disabled]="!EditCodeFrom.dirty || !IsNewCodeNameValid() || !CanWrite() ">
                     Update
                 </button>
-                <button class="btn btn-outline-secondary ml-1"
+                <button class="btn btn-outline-secondary ml-1" type="button"
                         (click)="CancelActivity(EditCodeFrom.dirty)" style="width:200px;">
                     Cancel
                 </button>
-                <button class="btn btn-outline-danger ml-3" (click)="ShowDeleteCodesetClicked()"
+                <button class="btn btn-outline-danger ml-3" (click)="ShowDeleteCodesetClicked()" type="button"
                         [disabled]="!CanWrite()">
                     Delete Code...
                 </button>
@@ -75,7 +75,7 @@
                 </button>
             </div>
         </div>
-        <form class="row" #EditCodeFrom="ngForm">
+        <form class="row" #EditCodeFrom="ngForm" (ngSubmit)="onSubmit()">
             <div class="col-12">
                 <div class="form-group">
                     <div for="Codeset_Type">Code Type*</div>
@@ -107,11 +107,11 @@
                 <button type="submit" (click)="UpdateCode()" class="btn btn-sm btn-success ml-2 mr-2" [disabled]="!EditCodeFrom.dirty || !IsNewCodeNameValid() || !CanWrite() ">
                     Update
                 </button>
-                <button class="btn btn-sm btn-outline-secondary ml-1"
+                <button class="btn btn-sm btn-outline-secondary ml-1" type="button"
                         (click)="CancelActivity(EditCodeFrom.dirty)" style="width:60px;">
                     Cancel
                 </button>
-                <button class="btn btn-sm btn-outline-danger ml-3" (click)="ShowDeleteCodesetClicked()"
+                <button class="btn btn-sm btn-outline-danger ml-3" (click)="ShowDeleteCodesetClicked()" type="button"
                         [disabled]="!CanWrite() || !IsNewCodeNameValid()">
                     Delete Code...
                 </button>

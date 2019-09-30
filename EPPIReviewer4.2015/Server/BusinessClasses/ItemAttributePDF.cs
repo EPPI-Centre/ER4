@@ -324,7 +324,7 @@ namespace BusinessLibrary.BusinessClasses
             }
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
-                connection.Open();
+				connection.Open();
                 using (SqlCommand command = new SqlCommand("st_ItemAttributePDFUpdate", connection))
                 {
                     command.CommandType = System.Data.CommandType.StoredProcedure;
@@ -332,11 +332,12 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@SHAPE_TEXT", ShapeTxt));
                     command.Parameters.Add(new SqlParameter("@INTERVALS", Intervals));
                     command.Parameters.Add(new SqlParameter("@TEXTS", Texts));
+					command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
 #if (CSLA_NETCORE)
-                    //saving or inserting an Item_AttributePDF row:
-                    //when this comes from Angular, the PdfTronXml is current, when it comes from ER4, it means this value is now invalid.
-                    //SP will wipe it (default value is "")
-                    command.Parameters.Add(new SqlParameter("@PDFTRON_XML", PdfTronXml));
+					//saving or inserting an Item_AttributePDF row:
+					//when this comes from Angular, the PdfTronXml is current, when it comes from ER4, it means this value is now invalid.
+					//SP will wipe it (default value is "")
+					command.Parameters.Add(new SqlParameter("@PDFTRON_XML", PdfTronXml));
 #endif
                     command.ExecuteNonQuery();
                 }
@@ -355,6 +356,7 @@ namespace BusinessLibrary.BusinessClasses
                 {
                     command.CommandType = System.Data.CommandType.StoredProcedure;
                     command.Parameters.Add(new SqlParameter("@ITEM_ATTRIBUTE_PDF_ID", ReadProperty(ItemAttributePDFIdProperty)));
+                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", tocheck));
                     command.ExecuteNonQuery();
                 }
                 connection.Close();

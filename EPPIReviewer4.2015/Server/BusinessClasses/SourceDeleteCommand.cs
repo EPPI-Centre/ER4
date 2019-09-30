@@ -74,13 +74,15 @@ namespace BusinessLibrary.BusinessClasses
             {
                 using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
                 {
-                    connection.Open();
+					
+					connection.Open();
                     using (SqlCommand command = new SqlCommand("st_SourceDelete", connection))
                     {
                         
                         command.CommandType = System.Data.CommandType.StoredProcedure;
                         command.Parameters.Add(new SqlParameter("@source_ID", _SourceId));
-                        command.ExecuteNonQuery();
+						command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
+						command.ExecuteNonQuery();
                     }
                     connection.Close();
                 }

@@ -241,15 +241,17 @@ namespace BusinessLibrary.BusinessClasses
         {
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
-                connection.Open();
+				ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+				connection.Open();
                 using (SqlCommand command = new SqlCommand("st_ItemDocumentUpdate", connection))
                 {
                     command.CommandType = System.Data.CommandType.StoredProcedure;
                     command.Parameters.Add(new SqlParameter("@ITEM_DOCUMENT_ID", ReadProperty(ItemDocumentIdProperty)));
                     command.Parameters.Add(new SqlParameter("@DOCUMENT_TITLE", ReadProperty(TitleProperty)));
                     command.Parameters.Add(new SqlParameter("@DOCUMENT_FREE_NOTES", FreeNotesXML));
-                    
-                    command.ExecuteNonQuery();
+					command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
+
+					command.ExecuteNonQuery();
                 }
                 connection.Close();
             }

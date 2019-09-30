@@ -172,6 +172,10 @@ export class PubMedComponent implements OnInit, OnDestroy {
         this.ShowPreviewTable = false;
         this.WizPhase = 1;
     }
+    onSubmit(): boolean {
+        console.log("PubMed Search onSubmit");
+        return false;
+    }
     public get togglePreviewPanelButtonText(): string {
         if (this.ShowPreviewTable) return 'Hide Preview';
         else return 'Show Preview';

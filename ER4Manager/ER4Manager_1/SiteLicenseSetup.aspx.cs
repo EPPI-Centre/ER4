@@ -145,6 +145,7 @@ public partial class SiteLicenseSetup : System.Web.UI.Page
         dt.Columns.Add(new DataColumn("SITE_LIC_ID", typeof(string)));
         dt.Columns.Add(new DataColumn("SITE_LIC_NAME", typeof(string)));
         dt.Columns.Add(new DataColumn("CONTACT_NAME", typeof(string)));
+        dt.Columns.Add(new DataColumn("COMPANY_NAME", typeof(string)));
         dt.Columns.Add(new DataColumn("CONTACT_ID", typeof(string)));
         dt.Columns.Add(new DataColumn("EXPIRY_DATE", typeof(string)));
 
@@ -155,6 +156,7 @@ public partial class SiteLicenseSetup : System.Web.UI.Page
             newrow = dt.NewRow();
             newrow["CONTACT_NAME"] = idr["CONTACT_NAME"].ToString();
             newrow["CONTACT_ID"] = idr["CONTACT_ID"].ToString(); // not visible
+            newrow["COMPANY_NAME"] = idr["COMPANY_NAME"].ToString(); 
             newrow["SITE_LIC_ID"] = idr["SITE_LIC_ID"].ToString();
             newrow["EXPIRY_DATE"] = idr["EXPIRY_DATE"].ToString();
             if (idr["EXPIRY_DATE"].ToString() != "")
@@ -173,6 +175,7 @@ public partial class SiteLicenseSetup : System.Web.UI.Page
         dt.Columns.Add(new DataColumn("SITE_LIC_ID", typeof(string)));
         dt.Columns.Add(new DataColumn("SITE_LIC_NAME", typeof(string)));
         dt.Columns.Add(new DataColumn("CONTACT_NAME", typeof(string)));
+        dt.Columns.Add(new DataColumn("COMPANY_NAME", typeof(string)));
         dt.Columns.Add(new DataColumn("CONTACT_ID", typeof(string)));
         dt.Columns.Add(new DataColumn("EXPIRY_DATE", typeof(string)));
 
@@ -184,6 +187,7 @@ public partial class SiteLicenseSetup : System.Web.UI.Page
             newrow["CONTACT_NAME"] = idr["CONTACT_NAME"].ToString();
             newrow["CONTACT_ID"] = idr["CONTACT_ID"].ToString(); // not visible
             newrow["SITE_LIC_ID"] = idr["SITE_LIC_ID"].ToString();
+            newrow["COMPANY_NAME"] = idr["COMPANY_NAME"].ToString();
             newrow["SITE_LIC_NAME"] = idr["SITE_LIC_NAME"].ToString();
             newrow["EXPIRY_DATE"] = idr["EXPIRY_DATE"].ToString();
             if (idr["EXPIRY_DATE"].ToString() != "")
