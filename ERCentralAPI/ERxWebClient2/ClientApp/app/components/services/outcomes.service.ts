@@ -309,7 +309,6 @@ export interface iOutcome {
     itemSetId: number;
     outcomeTypeName: string;
     outcomeTypeId: number;
-    NRows: number;
     outcomeCodes: OutcomeItemAttributesList;
     itemAttributeIdIntervention: number;
     itemAttributeIdControl: number;
@@ -352,20 +351,20 @@ export interface iOutcome {
     seOddsRatio: number;
     riskRatio: number;
     seRiskRatio: number;
-    CIUpperSMD: number;
-    CILowerSMD: number;
-    CIUpperR: number;
-    CILowerR: number;
-    CIUpperOddsRatio: number;
-    CILowerOddsRatio: number;
-    CIUpperRiskRatio: number;
-    CILowerRiskRatio: number;
-    CIUpperRiskDifference: number;
-    CILowerRiskDifference: number;
-    CIUpperPetoOddsRatio: number;
-    CILowerPetoOddsRatio: number;
-    CIUpperMeanDifference: number;
-    CILowerMeanDifference: number;
+    ciUpperSMD: number;
+    ciLowerSMD: number;
+    ciUpperR: number;
+    ciLowerR: number;
+    ciUpperOddsRatio: number;
+    ciLowerOddsRatio: number;
+    ciUpperRiskRatio: number;
+    ciLowerRiskRatio: number;
+    ciUpperRiskDifference: number;
+    ciLowerRiskDifference: number;
+    ciUpperPetoOddsRatio: number;
+    ciLowerPetoOddsRatio: number;
+    ciUpperMeanDifference: number;
+    ciLowerMeanDifference: number;
     riskDifference: number;
     seRiskDifference: number;
     meanDifference: number;
@@ -375,8 +374,8 @@ export interface iOutcome {
     es: number;
     sees: number;
     nRows: number;
-    CILower: number;
-    CIUpper: number;
+    ciLower: number;
+    ciUpper: number;
     esDesc: string;
     seDesc: string;
     data1Desc: string;
@@ -438,6 +437,11 @@ export class Outcome implements iOutcome {
 			this.data7 = Number(iO.data7 == null ? 0 : iO.data7);
 			this.data8 = Number(iO.data8 == null ? 0 : iO.data8);
 			this.data9 = Number(iO.data9 == null ? 0 : iO.data9);
+			if (this.data9 != null && this.data9 > 0) {
+				this.isSelected = true;
+			} else {
+				this.isSelected = false;
+			}
 			this.data10 = Number(iO.data10 == null ? 0 : iO.data10);
 			this.data11 = Number(iO.data11 == null ? 0 : iO.data11);
 			this.data12 = Number(iO.data12 == null ? 0 : iO.data12);
@@ -460,6 +464,24 @@ export class Outcome implements iOutcome {
 			this.reWeight = iO.reWeight;
 
             this.SetCalculatedValues();
+
+            this.ciUpperSMD = iO.ciUpperSMD;
+            this.ciLowerSMD = iO.ciLowerSMD;
+            this.ciUpperR = iO.ciUpperR;
+            this.ciLowerR = iO.ciLowerR;
+            this.ciUpperOddsRatio = iO.ciUpperOddsRatio;
+            this.ciLowerOddsRatio = iO.ciLowerOddsRatio;
+            this.ciUpperRiskRatio = iO.ciUpperRiskRatio;
+            this.ciLowerRiskRatio = iO.ciLowerRiskRatio;
+            this.ciUpperRiskDifference = iO.ciUpperRiskDifference;
+            this.ciLowerRiskDifference = iO.ciUpperRiskDifference;
+            this.ciUpperPetoOddsRatio = iO.ciUpperPetoOddsRatio;
+            this.ciLowerPetoOddsRatio = iO.ciLowerPetoOddsRatio;
+            this.ciUpperMeanDifference = iO.ciUpperMeanDifference;
+            this.ciLowerMeanDifference = iO.ciLowerMeanDifference;
+            this.ciUpper = iO.ciUpper;
+            this.ciLower = iO.ciLower;
+            this.nRows = iO.nRows;
         }
 	}
 
@@ -470,7 +492,7 @@ export class Outcome implements iOutcome {
 			case 0: // manual entry
 				this.esDesc= "Effect size";
 				this.seDesc= "SE";
-				this.NRows= 6;
+				this.nRows= 6;
 				this.data1Desc = "SMD";
 				this.data2Desc = "standard error";
 				this.data3Desc = "r";
@@ -490,7 +512,7 @@ export class Outcome implements iOutcome {
 			case 1: // n, mean, SD
 				this.esDesc = "SMD";
 				this.seDesc = "SE";
-				this.NRows = 3;
+				this.nRows = 3;
 				this.data1Desc = "Group 1 N";
 				this.data2Desc = "Group 2 N";
 				this.data3Desc= "Group 1 mean";
@@ -511,7 +533,7 @@ export class Outcome implements iOutcome {
 			case 2: // binary 2 x 2 table
 				this.esDesc= "OR";
 				this.seDesc= "SE (log OR)";
-				this.NRows= 2;
+				this.nRows= 2;
 				this.data1Desc= "Group 1 events";
 				this.data2Desc= "Group 2 events";
 				this.data3Desc= "Group 1 no events";
@@ -532,7 +554,7 @@ export class Outcome implements iOutcome {
 			case 3: //n, mean SE
 				this.esDesc= "SMD";
 				this.seDesc= "SE";
-				this.NRows= 3;
+				this.nRows= 3;
 				this.data1Desc= "Group 1 N";
 				this.data2Desc= "Group 2 N";
 				this.data3Desc= "Group 1 mean";
@@ -553,7 +575,7 @@ export class Outcome implements iOutcome {
 			case 4: //n, mean CI
 				this.esDesc= "SMD";
 				this.seDesc= "SE";
-				this.NRows= 4;
+				this.nRows= 4;
 				this.data1Desc= "Group 1 N";
 				this.data2Desc= "Group 2 N";
 				this.data3Desc= "Group 1 mean";
@@ -574,7 +596,7 @@ export class Outcome implements iOutcome {
 			case 5: //n, t or p value
 				this.esDesc= "SMD";
 				this.seDesc= "SE";
-				this.NRows= 2;
+				this.nRows= 2;
 				this.data1Desc= "Group 1 N";
 				this.data2Desc= "Group 2 N";
 				this.data3Desc= "t-value";
@@ -595,7 +617,7 @@ export class Outcome implements iOutcome {
 			case 6: // diagnostic test 2 x 2 table
 				this.esDesc= "Diagnostic OR";
 				this.seDesc= "SE";
-				this.NRows= 2;
+				this.nRows= 2;
 				this.data1Desc= "True positive";
 				this.data2Desc= "False positive";
 				this.data3Desc= "False negative";
@@ -616,7 +638,7 @@ export class Outcome implements iOutcome {
 			case 7: // correlation coeffiCIent r
 				this.esDesc= "r";
 				this.seDesc= "SE (Z transformed)";
-				this.NRows= 1;
+				this.nRows= 1;
 				this.data1Desc= "group(s) size";
 				this.data2Desc= "correlation";
 				this.data3Desc= "";
@@ -762,7 +784,7 @@ export class Outcome implements iOutcome {
 				this.es = this.CalcOddsRatio();
 				this.sees = this.CalcOddsRatioSE();
 				this.oddsRatio = this.es;
-				this.seOddsRatio = this.sees;
+				this.seOddsRatio = this.CalcOddsRatioSE();
 				break;
 
 			case 7: // correlation coeffiCIent r
@@ -779,8 +801,8 @@ export class Outcome implements iOutcome {
 				break;
 		}
 
-		this.CILower = this.smd - (1.96 * this.sees);
-		this.CIUpper = this.smd + (1.96 * this.sees);
+		this.ciLower = this.smd - (1.96 * this.sees);
+		this.ciUpper = this.smd + (1.96 * this.sees);
 
 	}
 
@@ -958,6 +980,8 @@ export class Outcome implements iOutcome {
 			d3 = Number(this.data3);
 			d4 = Number(this.data4);
 		}
+		var tester = Math.sqrt(Number(1 / d1) + Number(1 / d2) + Number(1 / d3) + Number(1 / d4));
+		//console.log("Odds ratio SE is: ", tester);
 		return Math.sqrt(Number(1 / d1) + Number(1 / d2) + Number(1 / d3) + Number(1 / d4));
 	}
 	private CalcRiskRatio(): number {
@@ -977,6 +1001,7 @@ export class Outcome implements iOutcome {
 		return (d1 / (d1 + d3)) / (d2 / (d2 + d4));
 	}
 	private CalcRiskRatioSE(): number {
+
 		let d1: number = 0, d2: number = 0, d3: number = 0, d4: number = 0;
 		if ((this.data1 == 0) || (this.data2 == 0) || (this.data3 == 0) || (this.data4 == 0)) {
 			d1 = this.data1 + 0.5;
@@ -990,6 +1015,7 @@ export class Outcome implements iOutcome {
 			d3 = this.data3;
 			d4 = this.data4;
 		}
+	
 		return Math.sqrt((1 / d1) + (1 / d2) - (1 / (d1 + d3)) - (1 / (d2 + d4)));
 	}
 	private CalcRiskDifference(): number {
@@ -1100,8 +1126,8 @@ export class Outcome implements iOutcome {
 		else {
 			return se;
 		}
-	}
 
+	}
 	outcomeId: number = 0;
 	itemSetId: number = 0;
 	private OutcomeTypeName: string = "Manual entry";
@@ -1116,24 +1142,23 @@ export class Outcome implements iOutcome {
 	private OutcomeTypeId: number = 0;
 	public get outcomeTypeId(): number {
 
+		//this.SetCalculatedValues();
 		return this.OutcomeTypeId;
 	}
 	public set outcomeTypeId(val: number) {
-
 		this.OutcomeTypeId = val;
 		this.SetCalculatedValues();
 	}
-	NRows: number = 0;
 	
 	itemAttributeIdIntervention: number = 0;
 	itemAttributeIdControl: number = 0;
 	itemAttributeIdOutcome: number = 0;
 	itemArmIdGrp1: number = 0;
 	itemArmIdGrp2: number = 0;
-	itemId: number = 0;
+    itemId: number = 0;
+    itemTimepointId: number = 0;
 	itemTimepointValue: string = '';
 	itemTimepointMetric: string = '';
-	itemTimepointId: number = 0;
 	outcomeTimePoint = {} as iTimePoint;
 	title: string = "";
     shortTitle: string = "";
@@ -1264,20 +1289,20 @@ export class Outcome implements iOutcome {
 	seOddsRatio: number = 0;
 	riskRatio: number = 0;
 	seRiskRatio: number = 0;
-	CIUpperSMD: number = 0;
-	CILowerSMD: number = 0;
-	CIUpperR: number = 0;
-	CILowerR: number = 0;
-	CIUpperOddsRatio: number = 0;
-	CILowerOddsRatio: number = 0;
-	CIUpperRiskRatio: number = 0;
-	CILowerRiskRatio: number = 0;
-	CIUpperRiskDifference: number = 0;
-	CILowerRiskDifference: number = 0;
-	CIUpperPetoOddsRatio: number = 0;
-	CILowerPetoOddsRatio: number = 0;
-	CIUpperMeanDifference: number = 0;
-	CILowerMeanDifference: number = 0;
+    ciUpperSMD: number = 0;
+    ciLowerSMD: number = 0;
+    ciUpperR: number = 0;
+    ciLowerR: number = 0;
+    ciUpperOddsRatio: number = 0;
+    ciLowerOddsRatio: number = 0;
+    ciUpperRiskRatio: number = 0;
+    ciLowerRiskRatio: number = 0;
+    ciUpperRiskDifference: number = 0;
+    ciLowerRiskDifference: number = 0;
+    ciUpperPetoOddsRatio: number = 0;
+    ciLowerPetoOddsRatio: number = 0;
+    ciUpperMeanDifference: number = 0;
+    ciLowerMeanDifference: number = 0;
 	riskDifference: number = 0;
 	seRiskDifference: number = 0;
 	meanDifference: number = 0;
@@ -1287,8 +1312,8 @@ export class Outcome implements iOutcome {
 	es: number = 0;
 	sees: number = 0;
 	nRows: number = 0;
-	CILower: number = 0;
-	CIUpper: number = 0;
+	ciLower: number = 0;
+	ciUpper: number = 0;
 	esDesc: string = "";
 	seDesc: string = "";
 	private Data1Desc: string = "";

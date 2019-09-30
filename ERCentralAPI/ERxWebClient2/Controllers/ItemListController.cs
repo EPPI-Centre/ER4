@@ -225,17 +225,20 @@ namespace ERxWebClient2.Controllers
 
 
 		[HttpPost("[action]")]
-		public IActionResult DeleteSelectedItems([FromBody] Item[] ItemIds)
+		public IActionResult DeleteSelectedItems([FromBody] long[] ItemIds)
 		{
 			try
 			{
-				string[] strItemIds = ItemIds.Select(x => x.ItemId.ToString()).ToArray();
+				//string strItemIds = ItemIds.ItemIds;
+
+
+
 				if (SetCSLAUser4Writing())
 				{
 					DataPortal<ItemDeleteUndeleteCommand> dp = new DataPortal<ItemDeleteUndeleteCommand>();
 					ItemDeleteUndeleteCommand command = new ItemDeleteUndeleteCommand(
-					true,
-					string.Join(",", strItemIds));
+						true, string.Join(",", ItemIds));
+
 					command = dp.Execute(command);
 					return Ok(command);
 				}
@@ -246,7 +249,7 @@ namespace ERxWebClient2.Controllers
 			}
 			catch (Exception e)
 			{
-				_logger.LogError(e, "Error when deleting items: {0}", ItemIds);
+				_logger.LogError(e, "Error when deleting items: {0}", ItemIds == null ? "no data" : ItemIds.ToString() );
 				return StatusCode(500, e.Message);
 			}
 		}
@@ -312,7 +315,8 @@ namespace ERxWebClient2.Controllers
 		//    }
 		//}
 	}
-    public class SelCritMVC
+	
+	public class SelCritMVC
     {
         public bool onlyIncluded { get; set; }
         public bool showDeleted { get; set; }

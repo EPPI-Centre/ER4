@@ -41,6 +41,10 @@ export class EditCodeComp implements OnInit, OnDestroy {
     ngOnInit() {
     }
 
+    onSubmit(): boolean {
+        console.log("edit code onSubmit");
+        return false;
+    }
     private _appliedCodes: number = -1;
     public get appliedCodes(): number {
         return this._appliedCodes;
@@ -69,8 +73,8 @@ export class EditCodeComp implements OnInit, OnDestroy {
         else return false;
     }
     CancelActivity(refreshtree?: boolean) {
-        if (refreshtree != null) this.emitterCancel.emit(refreshtree);
-        else this.emitterCancel.emit();
+        if (refreshtree && refreshtree == true) this.emitterCancel.emit(true);
+        else this.emitterCancel.emit(false);
     }
 
     AttributeTypeChanged(typeId: number) {

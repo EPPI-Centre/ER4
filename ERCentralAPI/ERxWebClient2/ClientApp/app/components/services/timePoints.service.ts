@@ -33,7 +33,7 @@ export class timePointsService extends BusyAwareService implements OnInit  {
 	public set timepoints(timepoints: iTimePoint[]) {
         this._timepoints = timepoints;
     }
-   @Output() gotNewTimepoints = new EventEmitter();
+   //@Output() gotNewTimepoints = new EventEmitter();
    // @Output() timepointChangedEE = new EventEmitter();
 	public get Selectedtimepoint(): iTimePoint | null {
 
@@ -45,7 +45,7 @@ export class timePointsService extends BusyAwareService implements OnInit  {
 
 		this._selectedtimepoint = timepoint;
 		//if (this._selectedtimepoint != timepoint) {
-			this.gotNewTimepoints.emit();
+			//this.gotNewTimepoints.emit();
 		//}
 
 	}
@@ -70,7 +70,7 @@ export class timePointsService extends BusyAwareService implements OnInit  {
 			console.log('got inside the timepoints service: ' + this.timepoints.length);
 				   currentItem.timepoints = this.timepoints;
 				   this._selectedtimepoint = null;
-				   this.gotNewTimepoints.emit(this.timepoints);
+				   //this.gotNewTimepoints.emit(this.timepoints);
 				   this.RemoveBusy("Fetchtimepoints");
 			}, error => {
 				this.modalService.SendBackHomeWithError(error);
@@ -157,7 +157,6 @@ export class timePointsService extends BusyAwareService implements OnInit  {
 				}
 				, (error) => {
 
-					
 					console.log('error in DeleteWarningtimepoint() rejected', error);
 					this.modalService.GenericErrorMessage(ErrMsg);
 					this.RemoveBusy("DeleteWarningtimepoint");
@@ -167,7 +166,6 @@ export class timePointsService extends BusyAwareService implements OnInit  {
 			.catch(
 			(error) => {
 
-					
 					console.log('error in DeleteWarningtimepoint() catch', error);
 					this.modalService.GenericErrorMessage(ErrMsg);
 					this.RemoveBusy("DeleteWarningtimepoint");
@@ -186,6 +184,8 @@ export class timePointsService extends BusyAwareService implements OnInit  {
 			timepoint).subscribe(
 				(result) => {
 
+					let key: number = this.timepoints.indexOf(result);
+					this.timepoints.splice(key, 1);
 					if (!result) this.modalService.GenericErrorMessage(ErrMsg);
 					this.RemoveBusy("Deletetimepoint");
 					return result;

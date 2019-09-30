@@ -5,10 +5,10 @@
 			<span aria-hidden="true">&times;</span>
 		</button>-->
 	</div>
-	<div class="modal-body bg-white" [innerHTML]="message">
+	<div class="modal-body bg-white p-1" [innerHTML]="message">
 	</div>
-	<div *ngIf="ShowInputTextWarning">
-		<input class="form-control rounded border border-dark" type="text" name="ShowInputTextWarning"  
+	<div *ngIf="ShowInputTextWarning" class="modal-body bg-white p-1 mb-1">
+		<input class="form-control rounded border border-dark " type="text" name="ShowInputTextWarning"  
 		[(ngModel)] ="UserInputTextArms"  />
 	</div>
 	<div class="modal-footer bg-white">

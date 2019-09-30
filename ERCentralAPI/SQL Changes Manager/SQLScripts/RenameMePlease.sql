@@ -252,11 +252,14 @@ CREATE TABLE dbo.Tmp_tb_ITEM_MAG_MATCH
 GO
 ALTER TABLE dbo.Tmp_tb_ITEM_MAG_MATCH SET (LOCK_ESCALATION = TABLE)
 GO
-IF EXISTS(SELECT * FROM dbo.tb_ITEM_MAG_MATCH)
+IF EXISTS(SELECT * FROM INFORMATION_SCHEMA.TABLES
+           WHERE TABLE_NAME = N'tb_ITEM_MAG_MATCH')
 	 EXEC('INSERT INTO dbo.Tmp_tb_ITEM_MAG_MATCH (ITEM_ID, REVIEW_ID, PaperId, AutoMatchScore, ManualTrueMatch, ManualFalseMatch)
 		SELECT ITEM_ID, REVIEW_ID, PaperId, AutoMatchScore, ManualTrueMatch, ManualFalseMatch FROM dbo.tb_ITEM_MAG_MATCH WITH (HOLDLOCK TABLOCKX)')
 GO
-DROP TABLE dbo.tb_ITEM_MAG_MATCH
+IF EXISTS(SELECT * FROM INFORMATION_SCHEMA.TABLES
+           WHERE TABLE_NAME = N'tb_ITEM_MAG_MATCH')
+		   DROP TABLE dbo.tb_ITEM_MAG_MATCH
 GO
 EXECUTE sp_rename N'dbo.Tmp_tb_ITEM_MAG_MATCH', N'tb_ITEM_MAG_MATCH', 'OBJECT' 
 GO
@@ -316,6 +319,9 @@ CREATE NONCLUSTERED INDEX [NonClusteredIndex-20190911-093715] ON [dbo].[tb_ITEM_
 	[PaperId] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON)
 
+GO
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[st_ItemListMagNoMatches]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[st_ItemListMagNoMatches]
 GO
 
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[st_ItemListMagNoMatches]') AND type in (N'P', N'PC'))
@@ -490,7 +496,6 @@ GO
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[st_CheckReviewHasUpdates]') AND type in (N'P', N'PC'))
 DROP PROCEDURE [dbo].[st_CheckReviewHasUpdates]
 GO
-
 /****** Object:  StoredProcedure [dbo].[st_CheckReviewHasUpdates]    Script Date: 21/09/2019 18:23:05 ******/
 SET ANSI_NULLS ON
 GO
@@ -501,7 +506,7 @@ GO
 -- Create date: 
 -- Description:	Checks to see whether a review has any auto-identified studies for authors to check
 -- =============================================
-ALTER PROCEDURE [dbo].[st_CheckReviewHasUpdates] 
+CREATE PROCEDURE [dbo].[st_CheckReviewHasUpdates] 
 	-- Add the parameters for the stored procedure here
 	@REVIEW_id int = 0,
 	@NUpdates INT OUTPUT
@@ -814,5 +819,4 @@ SELECT      @CurrentPage as N'@CurrentPage',
             @TotalPages as N'@TotalPages',
             @TotalRows as N'@TotalRows'
 GO
-
 

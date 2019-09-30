@@ -56,7 +56,7 @@ export class ComparisonsService extends BusyAwareService {
 		compReport.comparisonId = comparisonId;
 		compReport.parentAttributeId = ParentAttributeId;
 		compReport.setId = SetId;
-		compReport.comparison = comparison;
+		//compReport.comparison = comparison;
 		let chosenSetFilter: ReviewSet = new ReviewSet();
 		let chosenAttFilter: SetAttribute = new SetAttribute();
 		if (ParentAttributeId == 0) {
@@ -231,7 +231,7 @@ export class ComparisonsService extends BusyAwareService {
 
 	public CreateComparison(comparison: Comparison) {
 
-		this._BusyMethods.push("CreateComparison");
+        this._BusyMethods.push("CreateComparison");
 		//console.log('inside the service now' + JSON.stringify(comparison));
 		this._httpC.post<Comparison>(this._baseUrl +
 			'api/Comparisons/CreateComparison', comparison)
@@ -349,7 +349,7 @@ export class ComparisonAttributeSelectionCriteria {
 	comparisonId: number = 0;
 	parentAttributeId: number = 0;
 	setId: number = 0;
-	comparison: any = null;
+	//comparison: any = null;
 }
 
 export interface iComparisonStatistics {

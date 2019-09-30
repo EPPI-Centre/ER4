@@ -1,17 +1,11 @@
-import { Component, Inject, Injectable, Output, EventEmitter, NgZone } from '@angular/core';
-import { NgForm } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Inject, Injectable, Output, EventEmitter, NgZone, Attribute } from '@angular/core';
 import { Observable, of, Subscription } from 'rxjs';
-import { AppComponent } from '../app/app.component'
-import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
-import { ItemCodingComp } from '../coding/coding.component';
+import { HttpClient } from '@angular/common/http';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
-import { Subject } from 'rxjs';
 import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
 import { Item, ItemListService } from './ItemList.service';
-import { ReviewSet, SetAttribute, ReviewSetsService, singleNode, ItemAttributeSaveCommand } from './ReviewSets.service';
-import { Review } from './review.service';
+import { ReviewSet, SetAttribute, ReviewSetsService, singleNode, ItemAttributeSaveCommand, iSetType } from './ReviewSets.service';
 import { ArmsService } from './arms.service';
 import { ItemDocsService } from './itemdocs.service';
 import { Outcome, OutcomeItemList } from './outcomes.service';
@@ -413,9 +407,11 @@ export class ItemCodingService extends BusyAwareService {
     public get CodingReport(): string {
         return this._CodingReport;
     }
+    public jsonReport: JsonReport = new JsonReport();
     public Clear() {
         this._ItemsToReport = [];
         this._CodingReport = "";
+        this.jsonReport = new JsonReport();
         this._CurrentItemIndex4QuickCodingReport = 0;
         if (this.SelfSubscription4QuickCodingReport) {
             this.SelfSubscription4QuickCodingReport.unsubscribe();
@@ -434,7 +430,7 @@ export class ItemCodingService extends BusyAwareService {
     public get ProgressOfQuickCodingReport(): string {
         return "Retreiving Item " + (this._CurrentItemIndex4QuickCodingReport + 1).toString() + " of " + this._ItemsToReport.length;
     }
-    public FetchCodingReport(Items: Item[], ReviewSetsToReportOn: ReviewSet[]) {
+    public FetchCodingReport(Items: Item[], ReviewSetsToReportOn: ReviewSet[], isJson: boolean) {
         this._ItemsToReport = [];
         this._ReviewSetsToReportOn = [];
         if (this.SelfSubscription4QuickCodingReport) {
@@ -443,6 +439,7 @@ export class ItemCodingService extends BusyAwareService {
         }
         this._CurrentItemIndex4QuickCodingReport = 0;
         this._CodingReport = "";
+        this.jsonReport = new JsonReport();
         this.stopQuickReport = false;
         if (!Items || Items.length < 1) {
             return;
@@ -450,7 +447,15 @@ export class ItemCodingService extends BusyAwareService {
         this._BusyMethods.push("FetchCodingReport");
         this._ItemsToReport = Items;
         this._ReviewSetsToReportOn = ReviewSetsToReportOn;
-        this.InterimGetItemCodingForReport();
+        if (isJson && this._ReviewSetsToReportOn) {
+            let cSets: ReviewSet4ER4Json[] = [];
+            for (let rs of this._ReviewSetsToReportOn) {
+                let setForReport = new ReviewSet4ER4Json(rs);
+                cSets.push(setForReport);
+            }
+            this.jsonReport.CodeSets = cSets;
+        }
+        this.InterimGetItemCodingForReport(isJson);
         this.RemoveBusy("FetchCodingReport");
     }
     public FetchSingleCodingReport(itemSet: ItemSet, item:Item): string {
@@ -470,22 +475,33 @@ export class ItemCodingService extends BusyAwareService {
         return result;
     }
 
-    private InterimGetItemCodingForReport() {
+    private InterimGetItemCodingForReport(isJson: boolean) {
         if (this.stopQuickReport == true) {
             //makes the index jump forward so that below this.QuickCodingReportIsRunning will return "false" triggering the gracious end of recursion.
             this._CurrentItemIndex4QuickCodingReport = this._ItemsToReport.length + 1;
             this._CodingReport = "";
+            this.jsonReport = new JsonReport();
             this.stopQuickReport = false;
         }
         if (!this.SelfSubscription4QuickCodingReport) {
             //initiate recursion, ugh!
-            this.SelfSubscription4QuickCodingReport = this.DataChanged.subscribe(
-                () => {
-                    this.AddToQuickCodingReport();
-                    this._CurrentItemIndex4QuickCodingReport++;
-                    this.InterimGetItemCodingForReport();
-                }//no error handling: any error in this.Fetch(...) sends back home!!
-            );
+            if (isJson) {
+                this.SelfSubscription4QuickCodingReport = this.DataChanged.subscribe(
+                    () => {
+                        this.AddToJSONQuickCodingReport();
+                        this._CurrentItemIndex4QuickCodingReport++;
+                        this.InterimGetItemCodingForReport(isJson);
+                    }//no error handling: any error in this.Fetch(...) sends back home!!
+                );
+            } else {
+                this.SelfSubscription4QuickCodingReport = this.DataChanged.subscribe(
+                    () => {
+                        this.AddToQuickCodingReport();
+                        this._CurrentItemIndex4QuickCodingReport++;
+                        this.InterimGetItemCodingForReport(isJson);
+                    }//no error handling: any error in this.Fetch(...) sends back home!!
+                );
+            }
         }
         if (!this.QuickCodingReportIsRunning)  {
             if (this.SelfSubscription4QuickCodingReport) {
@@ -543,6 +559,25 @@ export class ItemCodingService extends BusyAwareService {
                 }
             }
         }
+    }
+    private AddToJSONQuickCodingReport() {
+        const currentItem = this._ItemsToReport[this._CurrentItemIndex4QuickCodingReport];
+        let jItem: Item4ER4Json = new Item4ER4Json(currentItem);
+        for (let i = 0; i < this._ReviewSetsToReportOn.length; i++) {
+            let reviewSet: ReviewSet = this._ReviewSetsToReportOn[i];
+            for (let itemSet of this._ItemCodingList) {
+                if (itemSet.setId == this._ReviewSetsToReportOn[i].set_id && itemSet.isCompleted == true) {
+                    for (let ia of itemSet.itemAttributesList) {
+                        jItem.Codes.push(new Attribute4ER4Json(ia));
+                        //console.log(ia, new Attribute4ER4Json(ia));
+                    }
+                    for (let o of itemSet.OutcomeList) {
+                        jItem.Outcomes.push(new Outcome4ER4Json(o));
+                    }
+                }
+            }
+        }
+        this.jsonReport.References.push(jItem);
     }
     private writeCodingReportAttributesWithArms(itemSet: ItemSet, attributeSet: SetAttribute) :string {
         let report: string = "";
@@ -802,6 +837,7 @@ export class ItemCodingService extends BusyAwareService {
         }
         this._CurrentItemIndex4QuickCodingReport = 0;
         this._CodingReport = "";
+        this.jsonReport = new JsonReport();
         this.stopQuickReport = false;
         if (!Items || Items.length < 1) {
             return;
@@ -816,6 +852,7 @@ export class ItemCodingService extends BusyAwareService {
             //makes the index jump forward so that below this.QuickCodingReportIsRunning will return "false" triggering the gracious end of recursion.
             this._CurrentItemIndex4QuickCodingReport = this._ItemsToReport.length + 1;
             this._CodingReport = "";
+            this.jsonReport = new JsonReport();
             this.stopQuickReport = false;
         }
         if (!this.SelfSubscription4QuickCodingReport) {
@@ -1137,4 +1174,339 @@ export class MVCiaPDFCodingPage {
 export interface iCreatePDFCodingPageResult {
     createInfo: ItemAttributeSaveCommand;
     iaPDFpage: ItemAttributePDF;
+}
+class ReviewSet4ER4Json {
+    constructor(rs: ReviewSet) {
+        this.SetName = rs.set_name;
+        this.SetId = rs.set_id;
+        this.ReviewSetId = rs.reviewSetId;
+        this.SetDescription = rs.description;
+        this.SetType = new SetType4ER4Json(rs.setType);
+        this.Attributes = new AttributesList4ER4Json(rs.attributes);
+    }
+    SetName: string;
+    ReviewSetId: number;
+    SetId: number;
+    SetType: SetType4ER4Json; 
+    SetDescription: string;
+    Attributes: AttributesList4ER4Json;
+}
+class SetType4ER4Json {
+    constructor(type: iSetType) {
+        this.SetTypeDescription = type.setTypeDescription;
+        this.SetTypeName = type.setTypeName;
+    }
+    SetTypeName: string;
+    SetTypeDescription: string;
+}
+class AttributesList4ER4Json {
+    constructor(atts: SetAttribute[]) {
+        this.AttributesList = [];
+        for (let a of atts) {
+            this.AttributesList.push(new SetAttribute4ER4Json(a));
+        }
+    }
+    AttributesList: SetAttribute4ER4Json[];
+
+}
+class SetAttribute4ER4Json {
+    constructor(att: SetAttribute) {
+        this.AttributeSetId = att.attributeSetId;
+        this.AttributeId = att.attribute_id;
+        this.AttributeSetDescription = att.attribute_set_desc;
+        this.AttributeType = att.attribute_type;
+        this.AttributeName = att.attribute_name;
+        this.Attributes = new AttributesList4ER4Json(att.attributes);
+    }
+    AttributeSetId: number;
+    AttributeId: number;
+    AttributeSetDescription: string;
+    AttributeType: string;
+    AttributeName: string;
+    AttributeDescription: string = "";
+    Attributes: AttributesList4ER4Json;
+}
+class Item4ER4Json {
+    constructor(item: Item) {
+        this.ItemId = item.itemId;
+        this.Title = item.title;
+        this.ParentTitle = item.parentTitle;
+        this.ShortTitle = item.shortTitle;
+        this.DateCreated = item.dateCreated;
+        this.CreatedBy = item.createdBy;
+        this.DateEdited = item.dateEdited;
+        this.EditedBy = item.editedBy;
+        this.Year = item.year;
+        this.Month = item.month;
+        this.StandardNumber = item.standardNumber;
+        this.City = item.city;
+        this.Country = item.country;
+        this.Publisher = item.publisher;
+        this.Institution = item.institution;
+        this.Volume = item.volume;
+        this.Pages = item.pages;
+        this.Edition = item.edition;
+        this.Issue = item.issue;
+        this.Availability = item.availability;
+        this.URL = item.url;
+        this.OldItemId = item.oldItemId;
+        this.Abstract = item.abstract;
+        this.Comments = item.comments;
+        this.TypeName = item.typeName;
+        this.Authors = item.authors;
+        this.ParentAuthors = item.parentAuthors;
+        this.DOI = item.doi;
+        this.Keywords = item.keywords;
+        this.ItemStatus = item.itemStatus;
+        this.ItemStatusTooltip = item.itemStatusTooltip;
+    }
+
+    ItemId: number;
+    Title: string;
+    ParentTitle: string;
+    ShortTitle: string;
+    DateCreated: string;
+    CreatedBy: string;
+    DateEdited: string;
+    EditedBy: string;
+    Year: string;
+    Month: string;
+    StandardNumber: string;
+    City: string;
+    Country: string;
+    Publisher: string;
+    Institution: string;
+    Volume: string;
+    Pages: string;
+    Edition: string;
+    Issue: string;
+    Availability: string;
+    URL: string;
+    OldItemId: string;
+    Abstract: string;
+    Comments: string;
+    TypeName: string;
+    Authors: string;
+    ParentAuthors: string;
+    DOI: string;
+    Keywords: string;
+    ItemStatus: string;
+    ItemStatusTooltip: string;
+    Codes: Attribute4ER4Json[] = [];
+    Outcomes: Outcome4ER4Json[] = [];
+}
+class Outcome4ER4Json {
+    constructor(o: Outcome) {
+        this.OutcomeId = o.outcomeId;
+        this.ItemSetId = o.itemSetId;
+        this.OutcomeTypeId = o.outcomeTypeId;
+        this.OutcomeTypeName = o.outcomeTypeName;
+        this.ItemAttributeIdIntervention = o.itemAttributeIdIntervention;
+        this.ItemAttributeIdControl = o.itemAttributeIdControl;
+        this.ItemAttributeIdOutcome = o.itemAttributeIdOutcome;
+        this.Title = o.title;
+        this.ItemTimepointID = o.itemTimepointId;
+        this.ItemTimepointMetric = o.itemTimepointMetric;
+        this.ItemTimepointValue = o.itemTimepointValue;
+        this.TimepointDisplayValue = o.timepointDisplayValue;
+        this.ItemArmIDGrp1 = o.itemArmIdGrp1;
+        this.ItemArmIDGrp2 = o.itemArmIdGrp2;
+        this.grp1ArmName = o.grp1ArmName;
+        this.grp2ArmName = o.grp2ArmName;
+        this.ShortTitle = o.shortTitle;
+        this.OutcomeDescription = o.outcomeDescription;
+        this.Data1 = o.data1;
+        this.Data2 = o.data2;
+        this.Data3 = o.data3;
+        this.Data4 = o.data4;
+        this.Data5 = o.data5;
+        this.Data6 = o.data6;
+        this.Data7 = o.data7;
+        this.Data8 = o.data8;
+        this.Data9 = o.data9;
+        this.Data10 = o.data10;
+        this.Data11 = o.data11;
+        this.Data12 = o.data12;
+        this.Data13 = o.data13;
+        this.Data14 = o.data14;
+        this.InterventionText = o.interventionText;
+        this.ControlText = o.controlText;
+        this.OutcomeText = o.outcomeText;
+        this.feWeight = o.feWeight;
+        this.reWeight = o.reWeight;
+        this.SMD = o.smd;
+        this.SESMD = o.sesmd;
+        this.R = o.r;
+        this.SER = o.ser;
+        this.OddsRatio = o.oddsRatio;
+        this.SEOddsRatio = o.seOddsRatio;
+        this.RiskRatio = o.riskRatio;
+        this.SERiskRatio = o.seRiskRatio;
+        this.CIUpperSMD = o.ciUpperSMD;
+        this.CILowerSMD = o.ciLowerSMD;
+        this.CIUpperR = o.ciUpperR;
+        this.CILowerR = o.ciLowerR;
+        this.CIUpperOddsRatio = o.ciUpperOddsRatio;
+        this.CILowerOddsRatio = o.ciLowerOddsRatio;
+        this.CIUpperRiskRatio = o.ciUpperRiskRatio;
+        this.CILowerRiskRatio = o.ciLowerRiskRatio;
+        this.CIUpperRiskDifference = o.ciUpperRiskDifference;
+        this.CILowerRiskDifference = o.ciLowerRiskDifference;
+        this.CIUpperPetoOddsRatio = o.ciUpperPetoOddsRatio;
+        this.CILowerPetoOddsRatio = o.ciLowerPetoOddsRatio;
+        this.CIUpperMeanDifference = o.ciUpperMeanDifference;
+        this.CILowerMeanDifference = o.ciLowerMeanDifference;
+        this.RiskDifference = o.riskDifference;
+        this.SERiskDifference = o.seRiskDifference;
+        this.MeanDifference = o.meanDifference;
+        this.SEMeanDifference = o.seMeanDifference;
+        this.PetoOR = o.petoOR;
+        this.SEPetoOR = o.sePetoOR;
+        this.ES = o.es;
+        this.SEES = o.sees;
+        this.NRows = o.nRows;
+        this.CILower = o.ciLower;
+        this.CIUpper = o.ciUpper;
+        this.ESDesc = o.esDesc;
+        this.SEDesc = o.seDesc;
+        this.Data1Desc = o.data1Desc;
+        this.Data2Desc = o.data2Desc;
+        this.Data3Desc = o.data3Desc;
+        this.Data4Desc = o.data4Desc;
+        this.Data5Desc = o.data5Desc;
+        this.Data6Desc = o.data6Desc;
+        this.Data7Desc = o.data7Desc;
+        this.Data8Desc = o.data8Desc;
+        this.Data9Desc = o.data9Desc;
+        this.Data10Desc = o.data10Desc;
+        this.Data11Desc = o.data11Desc;
+        this.Data12Desc = o.data12Desc;
+        this.Data13Desc = o.data13Desc;
+        this.Data14Desc = o.data14Desc;
+    }
+    OutcomeId: number;
+    ItemSetId: number;
+    OutcomeTypeId: number;
+    OutcomeTypeName: string;
+    ItemAttributeIdIntervention: number;
+    ItemAttributeIdControl: number;
+    ItemAttributeIdOutcome: number;
+    Title: string;
+    ItemTimepointID: number;
+    ItemTimepointMetric: string;
+    ItemTimepointValue: string;
+    TimepointDisplayValue: string;
+    ItemArmIDGrp1: number;
+    ItemArmIDGrp2: number;
+    grp1ArmName: string;
+    grp2ArmName: string;
+    ShortTitle: string;
+    OutcomeDescription: string;
+    Data1: number;
+    Data2: number;
+    Data3: number;
+    Data4: number;
+    Data5: number;
+    Data6: number;
+    Data7: number;
+    Data8: number;
+    Data9: number;
+    Data10: number;
+    Data11: number;
+    Data12: number;
+    Data13: number;
+    Data14: number;
+    InterventionText: string;
+    ControlText: string;
+    OutcomeText: string;
+    feWeight: number;
+    reWeight: number;
+    SMD: number;
+    SESMD: number;
+    R: number;
+    SER: number;
+    OddsRatio: number;
+    SEOddsRatio: number;
+    RiskRatio: number;
+    SERiskRatio: number;
+    CIUpperSMD: number;
+    CILowerSMD: number;
+    CIUpperR: number;
+    CILowerR: number;
+    CIUpperOddsRatio: number;
+    CILowerOddsRatio: number;
+    CIUpperRiskRatio: number;
+    CILowerRiskRatio: number;
+    CIUpperRiskDifference: number;
+    CILowerRiskDifference: number;
+    CIUpperPetoOddsRatio: number;
+    CILowerPetoOddsRatio: number;
+    CIUpperMeanDifference: number;
+    CILowerMeanDifference: number;
+    RiskDifference: number;
+    SERiskDifference: number;
+    MeanDifference: number;
+    SEMeanDifference: number;
+    PetoOR: number;
+    SEPetoOR: number;
+    ES: number;
+    SEES: number;
+    NRows: number;
+    CILower: number;
+    CIUpper: number;
+    ESDesc: string;
+    SEDesc: string;
+    Data1Desc: string;
+    Data2Desc: string;
+    Data3Desc: string;
+    Data4Desc: string;
+    Data5Desc: string;
+    Data6Desc: string;
+    Data7Desc: string;
+    Data8Desc: string;
+    Data9Desc: string;
+    Data10Desc: string;
+    Data11Desc: string;
+    Data12Desc: string;
+    Data13Desc: string;
+    Data14Desc: string;
+}
+class Attribute4ER4Json {
+    constructor(ia: ReadOnlyItemAttribute) {
+        this.AttributeId = ia.attributeId;
+        this.AdditionalText = ia.additionalText;
+        this.ArmId = ia.armId;
+        this.ArmTitle = ia.armTitle;
+        this.ItemAttributeFullTextDetails = [];
+        for (let ft of ia.itemAttributeFullTextDetails) {
+            this.ItemAttributeFullTextDetails.push(new ItemAttributeFullTextDetails4ER4Json(ft));
+        }
+    }
+    AttributeId: number;
+    AdditionalText: string;
+    ArmId: number;
+    ArmTitle: string;
+    ItemAttributeFullTextDetails: ItemAttributeFullTextDetails4ER4Json[];
+}
+class ItemAttributeFullTextDetails4ER4Json {
+    constructor(ft: ItemAttributeFullTextDetails) {
+        this.ItemDocumentId = ft.itemDocumentId;
+        this.TextFrom = ft.textFrom;
+        this.TextTo = ft.textTo;
+        this.Text = ft.text;
+        this.IsFromPDF = ft.isFromPDF;
+        this.DocTitle = ft.docTitle;
+        this.ItemArm = ft.itemArm;
+    }
+    ItemDocumentId: number;
+    TextFrom: number;
+    TextTo: number;
+    Text: string;
+    IsFromPDF: boolean;
+    DocTitle: string;
+    ItemArm: string;
+}
+class JsonReport {
+    CodeSets: ReviewSet4ER4Json[] = [];
+    References: Item4ER4Json[] = [];
 }

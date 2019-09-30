@@ -36,7 +36,11 @@ export class ComparisonComp implements OnInit {
 	ngOnInit() {
 		this.RefreshData();
 
-	}
+    }
+    onSubmit(): boolean {
+        console.log("create new comparison onSubmit");
+        return false;
+    }
 	public get Contacts(): Contact[] {
 		return this._reviewInfoService.Contacts;
 	}
@@ -134,6 +138,7 @@ export class ComparisonComp implements OnInit {
 		else return this._reviewSetsService.selectedNode;
 	}
 	CreateNewComparison() {
+
 		if(this.CanCreateComparison()) return;
 		let newComparison: Comparison = new Comparison();
 		
@@ -164,7 +169,7 @@ export class ComparisonComp implements OnInit {
 				}
 		}
 		
-		console.log('hello' + newComparison);
+		//console.log('New comaprison: ',newComparison);
         this.__comparisonsService.CreateComparison(newComparison);
         this.emitterCancel.emit();
 	}
@@ -190,14 +195,6 @@ export class ComparisonComp implements OnInit {
 		this.PanelName = '';
 		this.emitterCancel.emit();
 
-	}
-	public NewComparisonSectionOpen() {
-
-		if (this.PanelName == 'NewComparisonSection') {
-			this.PanelName = '';
-		} else {
-			this.PanelName = 'NewComparisonSection';
-		}
 	}
 	public RefreshData() {
 

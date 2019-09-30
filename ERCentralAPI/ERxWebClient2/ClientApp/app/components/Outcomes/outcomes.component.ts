@@ -6,6 +6,7 @@ import { OutcomesService, OutcomeType, Outcome } from '../services/outcomes.serv
 import { Item } from '../services/ItemList.service';
 import { iTimePoint } from '../services/timePoints.service';
 import { iArm } from '../services/arms.service';
+import { Console } from '@angular/core/src/console';
 
 
 @Component({
@@ -32,7 +33,9 @@ export class OutcomesComponent implements OnInit, OnDestroy, AfterViewInit {
 	public OutcomeTypeList: OutcomeType[] = [];
 
 	ngOnInit() {
-		
+
+
+
 		this.OutcomeTypeList = [
 			{ "outcomeTypeId": 0, "outcomeTypeName": "Manual entry" },
 			{ "outcomeTypeId": 1, "outcomeTypeName": "Continuous: Ns, means, and SD" },
@@ -61,6 +64,7 @@ export class OutcomesComponent implements OnInit, OnDestroy, AfterViewInit {
 			this.GetReviewSetControlList(this.ItemSetId);
 			this.GetItemArmList();
 		}
+			   		 
 	}
 	public GetReviewSetOutcomeList(ItemSetId: number ) {
 
@@ -80,9 +84,35 @@ export class OutcomesComponent implements OnInit, OnDestroy, AfterViewInit {
 			this._OutcomesService.FetchItemArmList(this.item.itemId);
 		}
 	}
-	public ShowCFUOAE(){
+	public ShowCFUOAEBoolCheck() : boolean {
+		if (this._OutcomesService.currentOutcome.data9 > 0 ||
+            this._OutcomesService.currentOutcome.data10 > 0) {
+            this.ShowCFUOAEBool = true;
+			return true;
+		} else {
+            return this.ShowCFUOAEBool;
+		}
+    }
+    public get ShowCFUOAEtext(): string {
+        if (this.ShowCFUOAEBoolCheck()) return "Stop correcting for unit of analysis error (resets current values)";
+        else return "Correct for unit of analysis error";
+    }
+	public ShowCFUOAE() {
+        if (this._OutcomesService.currentOutcome.data9 > 0 ||
+            this._OutcomesService.currentOutcome.data10 > 0) {
+            //we are currently correcting for unit of analysis...
+            //we'll wipe the data and set the backing field to false
+            this._OutcomesService.currentOutcome.data9 = 0;
+            this._OutcomesService.currentOutcome.data10 = 0;
+            this.ShowCFUOAEBool = false;
+        }
+        else {
+            //we currently are not "correcting", or we are, but no values have been entered, so flip backing field
+            this.ShowCFUOAEBool = !this.ShowCFUOAEBool;
+        }
+		//currentOutcome.isSelected = !currentOutcome.isSelected;
+		//this.ShowCFUOAEBool = !this.ShowCFUOAEBool;
 
-		this.ShowCFUOAEBool = !this.ShowCFUOAEBool;
 	}
 	public get SMD(): string {
 
@@ -102,7 +132,6 @@ export class OutcomesComponent implements OnInit, OnDestroy, AfterViewInit {
 		}
 	}
 	private _calculatedEffectSize: number = 0;
-
 	public CalculatedEffectSize(): number {
 
 		if (this._OutcomesService.currentOutcome.esDesc == 'Effect size') {
@@ -120,9 +149,7 @@ export class OutcomesComponent implements OnInit, OnDestroy, AfterViewInit {
 		}
 
 		return this._calculatedEffectSize;
-
 	}
-
 	public outcomeDescription: string = '';
 	public outcomeDescriptionModel: string = '';
 	public interventionDD: string = '';
@@ -156,13 +183,17 @@ export class OutcomesComponent implements OnInit, OnDestroy, AfterViewInit {
 	public get HasWriteRights(): boolean {
 		return this._ReviewerIdentityServ.HasWriteRights;
 	}
+	
 	public editOutcome(outcome: Outcome) {
 
 		if (outcome != null) {
 			this.ShowOutcomesStatistics = true;
 			this.ShowOutcomesList = false;
 			this._OutcomesService.currentOutcome = outcome;
-			this._OutcomesService.ItemSetId = outcome.itemSetId;
+            this._OutcomesService.ItemSetId = outcome.itemSetId;
+            if (this._OutcomesService.currentOutcome.data9 > 0 ||
+                this._OutcomesService.currentOutcome.data10 > 0) this.ShowCFUOAEBool = true;
+            else this.ShowCFUOAEBool = false;
 		}
 	}
 	removeWarning(outcome: Outcome, key: number) {
@@ -213,10 +244,13 @@ export class OutcomesComponent implements OnInit, OnDestroy, AfterViewInit {
 				//console.log('Just before creating outcome we have: ', this._OutcomesService.currentOutcome.outcomeCodes);
 				this._OutcomesService.Createoutcome(this._OutcomesService.currentOutcome).then(
 					() => {
+						console.log(JSON.stringify(this._OutcomesService.currentOutcome));
+
 							this._OutcomesService.FetchOutcomes(this._OutcomesService.currentOutcome.itemSetId);
 						}
 					);
 			} else {
+				console.log(JSON.stringify(this._OutcomesService.currentOutcome));
 				this._OutcomesService.Updateoutcome(this._OutcomesService.currentOutcome);
 			}
 		}
@@ -246,8 +280,5 @@ export class OutcomesComponent implements OnInit, OnDestroy, AfterViewInit {
 	ClearAndCancelEdit() {
 		this.ShowOutcomesList = false;
 		this._OutcomesService.outcomesChangedEE.emit();
-	}
-	Clear() {
-
 	}
 }

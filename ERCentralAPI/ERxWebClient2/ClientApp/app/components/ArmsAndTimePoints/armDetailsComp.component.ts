@@ -5,6 +5,7 @@ import { ConfirmationDialogService } from '../services/confirmation-dialog.servi
 import { Observable } from 'rxjs';
 import { EventEmitterService } from '../services/EventEmitter.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
+import { NgModel } from '@angular/forms';
 
 @Component({
 	selector: 'armDetailsComp',
@@ -61,8 +62,9 @@ export class armDetailsComp implements OnInit {
     }
     setArm(arm: iArm, key: number) {
 
+		this.editTitle = true;
 		this.currentKey = key;
-		this.currentTitle = arm.title;
+		this.title = arm.title;
 		this.currentArm = arm;
 	}
 
@@ -71,24 +73,19 @@ export class armDetailsComp implements OnInit {
     updateList(arm: iArm) {
 
 		this.editTitle = false;
-		this.armsList[this.currentKey].title = this.currentTitle;
-		this.item!.arms[this.currentKey].title = this.currentTitle;
+		this.armsList[this.currentKey].title = this.title;
+		this.item!.arms[this.currentKey].title = this.title;
 		this._armsService.UpdateArm(this.item!.arms[this.currentKey]);
-		this.ClearAndCancelEdit();
+		this.Clear();
 	}
 
-	ClearAndCancelEdit() {
+	Clear() {
 
 		this.editTitle = false;
-		this.currentTitle = '';
-
-	}
-
-	ClearAndCancelAdd() {
-
+		this.titleModel = '';
 		this.title = '';
-
 	}
+
 	
 	public openConfirmationDialogDeleteArms(key: number) {
 		this.confirmationDialogService.confirm('Please confirm', 'Deleting an Arm is a permanent operation and will delete all coding associated with the Arm.' +
@@ -153,6 +150,8 @@ export class armDetailsComp implements OnInit {
 
 			}
 		);
+
+		this.editTitle = false;
 	}
 
 	ActuallyRemove(key: number) {
@@ -182,7 +181,7 @@ export class armDetailsComp implements OnInit {
 			}
 			this.title = '';
 		}
-		this.ClearAndCancelAdd();
+		this.Clear();
 	}
 
 }

@@ -620,7 +620,7 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@SET_ID", ReadProperty(SetIdProperty)));
                     command.Parameters.Add(new SqlParameter("@REVIEW_ID", ReadProperty(ReviewIdProperty)));
                     command.Parameters.Add(new SqlParameter("@SET_ORDER", ReadProperty(SetOrderProperty)));
-                    command.ExecuteNonQuery();
+	                command.ExecuteNonQuery();
                 }
                 connection.Close();
             }

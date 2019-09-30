@@ -59,6 +59,11 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
    
     @ViewChild('ArmsCmp')
 	private ArmsCompRef!: any;
+	@ViewChild('TimePointsComp')
+	private TimePointsComp!: any;
+	//ArmDetailsComp
+	@ViewChild('ArmDetailsComp')
+	private ArmDetailsComp!: any;
 	@ViewChild('OutcomesCmp')
 	private OutcomesCmpRef!: OutcomesComponent;
     @ViewChild('ItemDetailsCmp')
@@ -132,10 +137,10 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
                 if (this.armservice.SelectedArm) this.SetArmCoding(this.armservice.SelectedArm.itemArmId);
                 else this.SetArmCoding(0);
             });
-            this.timePointsService.gotNewTimepoints.subscribe(() => {
+            //this.timePointsService.gotNewTimepoints.subscribe(() => {
 
-                console.log('need to do something here of course....');
-            });
+            //    console.log('need to do something here of course....');
+            //});
             this.ItemCodingService.ToggleLiveComparison.subscribe(() => {
                 this.ShowLiveComparison = !this.ShowLiveComparison;
             })
@@ -162,7 +167,9 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
             //this.ReviewSetsService.ItemCodingItemAttributeSaveCommandError.subscribe((cmdErr: any) => this.HandleItemAttributeSaveCommandError(cmdErr));
             //this.ReviewSetsService.ItemCodingItemAttributeSaveCommandExecuted.subscribe((cmd: ItemAttributeSaveCommand) => this.HandleItemAttributeSaveCommandDone(cmd));
         }
-    }
+	}
+
+	
 	public ShowingOutComes() {
         this.ShowOutComes = !this.ShowOutComes;
 	}
@@ -467,7 +474,10 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
     }
     goToItem(item: Item) {
         this.WipeHighlights();
-        this.clearItemData();
+		this.clearItemData();
+		//this.ArmsCompRef.Clear();
+		this.TimePointsComp.Clear();
+		this.ArmDetailsComp.Clear();
         console.log('what do you need me to do?' + item.itemId);
         this.router.navigate(['itemcoding', item.itemId]);
         this.item = item;
@@ -599,7 +609,10 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
     ItemChanged() {
         if (this.tabstrip) this.tabstrip.selectTab(0);
         this.WipeHighlights();
-        this.SetHighlights();
+		this.SetHighlights();
+		this.TimePointsComp.Clear();
+		this.ArmDetailsComp.Clear();
+		
     }
     WipeHighlights() {
         if (this.ItemDetailsCompRef) this.ItemDetailsCompRef.WipeHighlights();
@@ -622,9 +635,9 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
             this.HelpAndFeebackContext = "itemdetails\\codingrecord";
         }
         else if (e.title == 'PDF') {
-            if (this.HasDocForView && this.pdftroncontainer.currentDocId !== this.ItemDocsService.CurrentDocId) {
-                this.pdftroncontainer.loadDoc();//only load it if it's not there already
-            }
+            //if (this.HasDocForView && this.pdftroncontainer.currentDocId !== this.ItemDocsService.CurrentDocId) {
+                //this.pdftroncontainer.loadDoc();//only load it if it's not there already
+            //}
             this.HelpAndFeebackContext = "itemdetails\\pdf";//no record in DB for the help!!
         }
         else {

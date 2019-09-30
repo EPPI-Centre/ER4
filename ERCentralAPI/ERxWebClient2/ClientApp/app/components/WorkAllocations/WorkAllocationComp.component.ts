@@ -233,11 +233,21 @@ export class WorkAllocationComp implements OnInit {
 		}
 		
     }
-    public get CanRunQuickReport(): boolean {
+	public get CanRunQuickReport(): boolean {
+
+		//if (this.chosenFilter) {
+
+		//	console.log(this.chosenFilter);
+		//	console.log(this._comparisonsService.currentComparison);
+		//	console.log(this.chosenFilter.attributes.length);
+
+		//}
+
         if (this.chosenFilter == null || this._comparisonsService.currentComparison == null) {
             return false;
         }
-        else if (this._comparisonsService.currentComparison.setId == this.chosenFilter.set_id
+		else if (
+			this._comparisonsService.currentComparison.setId == this.chosenFilter.set_id
             && this._comparisonsService.currentComparison.setId > 0
             && this.chosenFilter.attributes.length > 0
         ) {
@@ -671,7 +681,7 @@ export class WorkAllocationComp implements OnInit {
 		this.openConfirmationDialogDeleteComp(comparisonId);
 	}
 	NotImplemented() {
-		alert('not implemented');
+		//alert('not implemented');
 	}
     public RefreshData() {
         this.getMembers();

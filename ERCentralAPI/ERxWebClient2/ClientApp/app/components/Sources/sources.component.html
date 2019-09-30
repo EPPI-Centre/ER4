@@ -9,7 +9,7 @@
             <kendo-tabstrip-tab [title]="'Manage Sources'" >
                 <ng-template kendoTabContent>
                     <div *ngIf="ReviewSources.length > 1" class="container" [ngClass]="{disableThisAndChildren:!CanWrite()}">
-                        <form *ngIf="CurrentSource" class="row" #CurrentSourceForm="ngForm">
+                        <form *ngIf="CurrentSource" class="row" #CurrentSourceForm="ngForm" (ngSubmit)="onSubmit()">
                             <div class=" col-6">
                                 <div class="form-group">
                                     <label for="source_Name">Source Name</label>
@@ -89,7 +89,7 @@
                                     <button type="submit" (click)="SaveSource()" class="btn btn-success ml-2 mr-2" [disabled]="!CurrentSourceForm.dirty || IsSourceNameValid() != 0 || !HasCurrentSourceDateofSearch() ">
                                         Save Changes
                                     </button>
-                                    <button class="btn btn-danger ml-1"
+                                    <button class="btn btn-danger ml-1" type="button"
                                             (click)="ConfirmDeleteSourceForever()"
                                             [disabled]="!CanDeleteSourceForever()">
                                         Delete

@@ -60,7 +60,8 @@ namespace BusinessLibrary.BusinessClasses
                     ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
                     command.CommandType = System.Data.CommandType.StoredProcedure;
                     command.Parameters.Add(new SqlParameter("@SEARCHES", _searches));
-                    command.ExecuteNonQuery();
+					command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
+					command.ExecuteNonQuery();
                 }
                 connection.Close();
             }

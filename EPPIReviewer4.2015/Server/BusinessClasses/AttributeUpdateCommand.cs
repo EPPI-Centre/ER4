@@ -11,8 +11,9 @@ using Csla.Silverlight;
 using System.ComponentModel;
 using Csla.DataPortalClient;
 using System.Threading;
+using BusinessLibrary.Security;
 
-#if!SILVERLIGHT
+#if !SILVERLIGHT
 using System.Data.SqlClient;
 using BusinessLibrary.Data;
 #endif
@@ -70,6 +71,7 @@ namespace BusinessLibrary.BusinessClasses
         {
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
+                ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
                 connection.Open();
                 using (SqlCommand command = new SqlCommand("st_AttributeSetLimitedUpdate", connection))
                 {
@@ -80,6 +82,7 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@ATTRIBUTE_NAME", _attributeName));
                     command.Parameters.Add(new SqlParameter("@ATTRIBUTE_DESCRIPTION", _attributeDescription));
                     command.Parameters.Add(new SqlParameter("@ATTRIBUTE_ORDER", _attributeOrder));
+                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
                     command.ExecuteNonQuery();
                 }
                 connection.Close();

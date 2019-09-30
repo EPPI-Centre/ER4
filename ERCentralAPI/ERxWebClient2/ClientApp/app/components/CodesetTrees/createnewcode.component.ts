@@ -189,6 +189,10 @@ export class CreateNewCodeComp implements OnInit, OnDestroy {
 
 
     }
+    onSubmit(): boolean {
+        console.log("create new code onSubmit");
+        return false;
+    }
     ngOnDestroy() {
 
     }
