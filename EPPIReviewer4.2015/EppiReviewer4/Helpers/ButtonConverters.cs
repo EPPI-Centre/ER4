@@ -462,6 +462,20 @@ namespace EppiReviewer4.Helpers
             throw new NotImplementedException();
         }
     }
+
+    public class EditIntVisibilityConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            var val = System.Convert.ToInt32(value);
+            return val == 1 ? Visibility.Visible : Visibility.Collapsed;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
     public class IsCodeTypeAvailable : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)

@@ -275,7 +275,19 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(BL_CC_TXProperty, value);
             }
         }
-        
+        public static readonly PropertyInfo<int> MagEnabledProperty = RegisterProperty<int>(new PropertyInfo<int>("MagEnabled", "MagEnabled Id", 0));
+        public int MagEnabled
+        {
+            get
+            {
+                return GetProperty(MagEnabledProperty);
+            }
+            set
+            {
+                SetProperty(MagEnabledProperty, value);
+            }
+        }
+
 
         //protected override void AddAuthorizationRules()
         //{
@@ -343,6 +355,7 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@SCREENING_AUTO_EXCLUDE", ReadProperty(ScreeningAutoExcludeProperty)));
                     command.Parameters.Add(new SqlParameter("@SCREENING_MODEL_RUNNING", ReadProperty(ScreeningModelRunningProperty)));
                     command.Parameters.Add(new SqlParameter("@SCREENING_INDEXED", ReadProperty(ScreeningIndexedProperty)));
+                    command.Parameters.Add(new SqlParameter("@MAG_ENABLED", ReadProperty(MagEnabledProperty)));
                     command.ExecuteNonQuery();
                 }
                 connection.Close();
@@ -399,6 +412,7 @@ namespace BusinessLibrary.BusinessClasses
                             LoadProperty<string>(BL_CC_ACCOUNT_CODEProperty, reader.GetString("BL_CC_ACCOUNT_CODE"));
                             LoadProperty<string>(BL_CC_AUTH_CODEProperty, reader.GetString("BL_CC_AUTH_CODE"));
                             LoadProperty<string>(BL_CC_TXProperty, reader.GetString("BL_CC_TX"));
+                            LoadProperty<int>(MagEnabledProperty, reader.GetInt32("MAG_ENABLED"));
                         }
                     }
                 }
