@@ -10,7 +10,7 @@
                  [ngClass]="{'col-md-5 col-lg-3' : !ShowOutComes
                  , 'col-md-6 col-lg-5' : ShowOutComes}">
                 <div *ngIf="IsServiceBusy()" class="k-loading-image"></div>
-                <div class="containsAtoolbar mb-1 small h-100 rounded" style="background-color: #f5f6fa;">
+                <div *ngIf="!ShowOutComes" class="containsAtoolbar mb-1 small h-100 rounded" style="background-color: #f5f6fa;">
 
                     <button kendoButton [icon]="'plus'" class="small m-1" title="Add child code..."
                             [disabled]="!HasWriteRights  || !CanCreateNewCode()" (click)="SetCreateNewCode()">
