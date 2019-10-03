@@ -273,8 +273,9 @@ namespace ERxWebClient2.Controllers
 						cmdIn._setID,
 						cmdIn._included,
 						cmdIn._withCodes,
-						cmdIn._title
-						);
+						cmdIn._title,
+                        0,
+                        "");
 					DataPortal<SearchCodeSetCheckCommand> dp = new DataPortal<SearchCodeSetCheckCommand>();
 					cmd = dp.Execute(cmd);
 

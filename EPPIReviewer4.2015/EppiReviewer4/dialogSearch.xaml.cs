@@ -32,6 +32,10 @@ namespace EppiReviewer4
         public void SetupDialog(string currentTab)
         {
             _currentTab = currentTab;
+            if (RadioButtonCodedByAnyone != null)
+            {
+                RadioButtonCodedByAnyone.IsChecked = true;
+            }
             if (ComboSearchTypeSelect != null)
             {
                 switch (ComboSearchTypeSelect.SelectedIndex)
@@ -42,6 +46,8 @@ namespace EppiReviewer4
                         dialogSearchGrid.RowDefinitions[3].MaxHeight = 0;
                         dialogSearchGrid.RowDefinitions[4].MaxHeight = 0;
                         dialogSearchGrid.RowDefinitions[5].MaxHeight = 0;
+                        dialogSearchGrid.RowDefinitions[7].MaxHeight = 0;
+                        dialogSearchGrid.RowDefinitions[8].MaxHeight = 0;
                         break;
 
                     case 1:
@@ -50,6 +56,8 @@ namespace EppiReviewer4
                         dialogSearchGrid.RowDefinitions[3].MaxHeight = 0;
                         dialogSearchGrid.RowDefinitions[4].MaxHeight = 0;
                         dialogSearchGrid.RowDefinitions[5].MaxHeight = 0;
+                        dialogSearchGrid.RowDefinitions[7].MaxHeight = 0;
+                        dialogSearchGrid.RowDefinitions[8].MaxHeight = 0;
                         break;
 
                     case 2:
@@ -60,6 +68,8 @@ namespace EppiReviewer4
                         tblockIDs.Visibility = System.Windows.Visibility.Visible;
                         dialogSearchGrid.RowDefinitions[4].MaxHeight = 0;
                         dialogSearchGrid.RowDefinitions[5].MaxHeight = 0;
+                        dialogSearchGrid.RowDefinitions[7].MaxHeight = 0;
+                        dialogSearchGrid.RowDefinitions[8].MaxHeight = 0;
                         break;
 
                     case 4:
@@ -68,6 +78,8 @@ namespace EppiReviewer4
                         dialogSearchGrid.RowDefinitions[3].MaxHeight = 0;
                         dialogSearchGrid.RowDefinitions[4].MaxHeight = 0;
                         dialogSearchGrid.RowDefinitions[5].MaxHeight = 0;
+                        dialogSearchGrid.RowDefinitions[7].MaxHeight = 35;
+                        dialogSearchGrid.RowDefinitions[8].MaxHeight = 0;
                         break;
 
                     case 5:
@@ -76,6 +88,8 @@ namespace EppiReviewer4
                         dialogSearchGrid.RowDefinitions[3].MaxHeight = 0;
                         dialogSearchGrid.RowDefinitions[4].MaxHeight = 0;
                         dialogSearchGrid.RowDefinitions[5].MaxHeight = 0;
+                        dialogSearchGrid.RowDefinitions[7].MaxHeight = 0;
+                        dialogSearchGrid.RowDefinitions[8].MaxHeight = 0;
                         break;
 
                     case 6:
@@ -85,6 +99,8 @@ namespace EppiReviewer4
                         tblockIDs.Visibility = System.Windows.Visibility.Collapsed;
                         dialogSearchGrid.RowDefinitions[4].MaxHeight = 35;
                         dialogSearchGrid.RowDefinitions[5].MaxHeight = 40;
+                        dialogSearchGrid.RowDefinitions[7].MaxHeight = 0;
+                        dialogSearchGrid.RowDefinitions[8].MaxHeight = 0;
                         break;
 
                     case 7:
@@ -93,6 +109,8 @@ namespace EppiReviewer4
                         dialogSearchGrid.RowDefinitions[3].MaxHeight = 0;
                         dialogSearchGrid.RowDefinitions[4].MaxHeight = 0;
                         dialogSearchGrid.RowDefinitions[5].MaxHeight = 0;
+                        dialogSearchGrid.RowDefinitions[7].MaxHeight = 0;
+                        dialogSearchGrid.RowDefinitions[8].MaxHeight = 0;
                         break;
                     case 8:
                         dialogSearchGrid.RowDefinitions[1].MaxHeight = 0;
@@ -100,6 +118,8 @@ namespace EppiReviewer4
                         dialogSearchGrid.RowDefinitions[3].MaxHeight = 0;
                         dialogSearchGrid.RowDefinitions[4].MaxHeight = 0;
                         dialogSearchGrid.RowDefinitions[5].MaxHeight = 0;
+                        dialogSearchGrid.RowDefinitions[7].MaxHeight = 0;
+                        dialogSearchGrid.RowDefinitions[8].MaxHeight = 0;
                         break;
                     case 9:
                         dialogSearchGrid.RowDefinitions[1].MaxHeight = 0;
@@ -107,6 +127,8 @@ namespace EppiReviewer4
                         dialogSearchGrid.RowDefinitions[3].MaxHeight = 0;
                         dialogSearchGrid.RowDefinitions[4].MaxHeight = 0;
                         dialogSearchGrid.RowDefinitions[5].MaxHeight = 0;
+                        dialogSearchGrid.RowDefinitions[7].MaxHeight = 0;
+                        dialogSearchGrid.RowDefinitions[8].MaxHeight = 0;
                         break;
                 }
                 
@@ -376,15 +398,25 @@ namespace EppiReviewer4
             if (rs == null)
             {
                 MessageBox.Show("Please select a review set first");
+                return;
             }
-            else
+            if (RadioButtonCodedByThisPerson.IsChecked == true &&
+                (ComboReviewContactsSearch.SelectedItem as ReviewContactNVL.NameValuePair) == null)
+            {
+                MessageBox.Show("Please select a reviewer (if you intend to filter by reviewer)");
+                return;
+            }
             {
                 DataPortal<SearchCodeSetCheckCommand> dp = new DataPortal<SearchCodeSetCheckCommand>();
                 SearchCodeSetCheckCommand command = new SearchCodeSetCheckCommand(
                     rs.SetId,
                     dialogSearchRadioButtonIncluded.IsChecked.Value,
                     hasCodes,
-                    rs.SetName);
+                    rs.SetName,
+                    RadioButtonCodedByThisPerson.IsChecked == true ?
+                        (ComboReviewContactsSearch.SelectedItem as ReviewContactNVL.NameValuePair).Key : 0,
+                    RadioButtonCodedByThisPerson.IsChecked == true ?
+                        (ComboReviewContactsSearch.SelectedItem as ReviewContactNVL.NameValuePair).Value : "");
                 dp.ExecuteCompleted += (o, e2) =>
                 {
                     dialogSearchBusyAnimation.IsRunning = false;
@@ -453,6 +485,16 @@ namespace EppiReviewer4
                 if (this.CloseWindowRequest != null)
                     this.CloseWindowRequest.Invoke(this, EventArgs.Empty);
             }
+        }
+
+        private void RadioButtonCodedByAnyone_Click(object sender, RoutedEventArgs e)
+        {
+            dialogSearchGrid.RowDefinitions[8].MaxHeight = 0;
+        }
+
+        private void RadioButtonCodedByThisPerson_Click(object sender, RoutedEventArgs e)
+        {
+            dialogSearchGrid.RowDefinitions[8].MaxHeight = 35;
         }
     }
 }

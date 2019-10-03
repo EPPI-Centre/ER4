@@ -20,6 +20,8 @@
             <RowDefinition Height="35"></RowDefinition>
             <RowDefinition Height="35"></RowDefinition>
             <RowDefinition Height="35"></RowDefinition>
+            <RowDefinition Height="35"></RowDefinition>
+            <RowDefinition Height="35"></RowDefinition>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="180"></ColumnDefinition>
@@ -62,8 +64,16 @@
             <RadioButton x:Name="dialogSearchRadioButtonIncluded" GroupName="dialogSearchGroupIncExcl" Content="Included" IsChecked="True" Margin="4,4,4,4"></RadioButton>
             <RadioButton x:Name="dialogSearchRadioButtonExcluded" GroupName="dialogSearchGroupIncExcl" Content="Excluded" Margin="14,4,4,4"></RadioButton>
         </StackPanel>
-        
-        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Grid.Row="8" Grid.Column="1">
+
+        <TextBlock Grid.Row="7" Grid.Column="0" Margin="4,4,4,4" HorizontalAlignment="Right" Text="Coded by" VerticalAlignment="Center"></TextBlock>
+        <StackPanel Grid.Row="7" Grid.Column="1" Orientation="Horizontal">
+            <RadioButton x:Name="RadioButtonCodedByAnyone" Content="Anyone" GroupName="RadioButtonCodedBy" Margin="4,4,4,4" HorizontalAlignment="Left" VerticalAlignment="Center" IsChecked="True" Click="RadioButtonCodedByAnyone_Click"></RadioButton>
+            <RadioButton x:Name="RadioButtonCodedByThisPerson" Content="This person" GroupName="RadioButtonCodedBy" Margin="4,4,4,4" HorizontalAlignment="Left" VerticalAlignment="Center" Click="RadioButtonCodedByThisPerson_Click"></RadioButton>
+        </StackPanel>
+
+        <ComboBox x:Name="ComboReviewContactsSearch" Grid.Row="8" Grid.Column="1" ItemsSource="{Binding Source={StaticResource ReviewContactNVLData}, Path=Data}" Margin="4,4,4,4"></ComboBox>
+
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Grid.Row="10" Grid.Column="1">
             <cslaXAML:BusyAnimation x:Name="dialogSearchBusyAnimation" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="2,2,2,2" />
             <Button x:Name="cmddialogSearchSearch" Content="Search" Width="80" Margin="4,4,4,4" Click="cmddialogSearchSearch_Click"></Button>
             <Button x:Name="cmddialogSearchCancel" Content="Cancel" Width="80" Margin="4,4,4,4" Click="cmddialogSearchCancel_Click" ></Button>
