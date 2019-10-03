@@ -35,217 +35,221 @@
         </div>
 
     </div>
-    
-    <div class="row col-12 p-1 m-1 mt-2">
+	<div *ngIf="ShowHighlights" class="row col-12 p-1 m-1 mt-2">
+		<button>Add relevant term</button>
+		<button>Add irrelevant term</button>
+		<button>Remove term</button>
+	</div>
+	<div class="row col-12 p-1 m-1 mt-2">
 
-        <div *ngIf="ShowHighlights" class="row col-12"><h4 [innerHTML]="HTitle"></h4></div>
-        <div *ngIf="!ShowHighlights" class="row col-12"><h4>{{item.title}}</h4></div>
-        <div *ngIf="ShowHighlights" class="row col-12 border-top   ml-0 pl-0"><b>Abstract:&nbsp;</b> <div [innerHTML]="HAbstract"></div></div>
-        <div *ngIf="!ShowHighlights" class="row col-12 border-top   ml-0 pl-0"><b>Abstract:&nbsp;</b> {{item.abstract}}</div>
+			<div *ngIf="ShowHighlights" class="row col-12" (textSelect)="renderRectangles($event)"><h4 [innerHTML]="HTitle"></h4></div>
+			<div *ngIf="!ShowHighlights" class="row col-12"  (textSelect)="renderRectangles($event)"><h4>{{item.title}}</h4></div>
+			<div *ngIf="ShowHighlights" class="row col-12 border-top   ml-0 pl-0" (textSelect)="renderRectangles($event)"><b>Abstract:&nbsp;</b> <div [innerHTML]="HAbstract"></div></div>
+			<div *ngIf="!ShowHighlights" class="row col-12 border-top   ml-0 pl-0" (textSelect)="renderRectangles($event)"><b>Abstract:&nbsp;</b> {{item.abstract}}</div>
 
-        <div class="row w-100 p-0 m-0 border-bottom   ">
-            <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Author(s) </div>
-            <div class="col p-1 m-1 bg-white">
-                {{item.authors}}
-            </div>
-        </div>
-        <div *ngIf="!FieldsByType(item.typeId).parentTitle.optional || showOptionalFields"
-             class="row w-100 p-0 m-0 border-bottom   ">
-            <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">{{FieldsByType(item.typeId).parentTitle.txt}}</div>
-            <div class="col p-1 m-1 bg-white">
-                {{item.parentTitle}}
-            </div>
-        </div>
+			<div class="row w-100 p-0 m-0 border-bottom   ">
+				<div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Author(s) </div>
+				<div class="col p-1 m-1 bg-white">
+					{{item.authors}}
+				</div>
+			</div>
+			<div *ngIf="!FieldsByType(item.typeId).parentTitle.optional || showOptionalFields"
+				 class="row w-100 p-0 m-0 border-bottom   ">
+				<div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">{{FieldsByType(item.typeId).parentTitle.txt}}</div>
+				<div class="col p-1 m-1 bg-white">
+					{{item.parentTitle}}
+				</div>
+			</div>
 
-        <div class="row w-100 p-0 m-0 border-bottom   ">
-            <div *ngIf="item.isDupilcate" class="col-4 row p-0 m-0">
-                <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Item is duplicate of</div>
-                <div class="col p-1 m-1 bg-white">{{item.masterItemId}}</div>
-            </div>
-            <div *ngIf="item.itemStatus == 'I'" class="col-4 row p-0 m-0">
-                <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Item is</div>
-                <div class="col p-1 m-1 bg-white">Included</div>
-            </div>
-            <div *ngIf="item.itemStatus == 'E'" class="col-4 row p-0 m-0">
-                <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Item is</div>
-                <div class="col p-1 m-1 bg-white">Excluded</div>
-            </div>
-            <div *ngIf="item.itemStatus == 'D'" class="col-4 row p-0 m-0 font-weight-bold">
-                <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Item is</div>
-                <div class="col p-1 m-1 bg-white">Deleted</div>
-            </div>
-            <div *ngIf="item.itemStatus == 'S' && ! item.isDupilcate" class="col-4 row p-0 m-0 font-weight-bold">
-                <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Item is:</div>
-                <div class="col p-1 m-1 bg-white">Part of a Deleted Source</div>
-            </div>
+			<div class="row w-100 p-0 m-0 border-bottom   ">
+				<div *ngIf="item.isDupilcate" class="col-4 row p-0 m-0">
+					<div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Item is duplicate of</div>
+					<div class="col p-1 m-1 bg-white">{{item.masterItemId}}</div>
+				</div>
+				<div *ngIf="item.itemStatus == 'I'" class="col-4 row p-0 m-0">
+					<div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Item is</div>
+					<div class="col p-1 m-1 bg-white">Included</div>
+				</div>
+				<div *ngIf="item.itemStatus == 'E'" class="col-4 row p-0 m-0">
+					<div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Item is</div>
+					<div class="col p-1 m-1 bg-white">Excluded</div>
+				</div>
+				<div *ngIf="item.itemStatus == 'D'" class="col-4 row p-0 m-0 font-weight-bold">
+					<div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Item is</div>
+					<div class="col p-1 m-1 bg-white">Deleted</div>
+				</div>
+				<div *ngIf="item.itemStatus == 'S' && ! item.isDupilcate" class="col-4 row p-0 m-0 font-weight-bold">
+					<div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Item is:</div>
+					<div class="col p-1 m-1 bg-white">Part of a Deleted Source</div>
+				</div>
 
-            <div class="col-4 row p-0 m-0">
-                <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:20px;">ID</div>
-                <div class="col p-1 m-1 bg-white">{{item.itemId}}</div>
-            </div>
-            <div class="col-4 row p-0 m-0">
-                <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Imported ID</div>
-                <div class="col p-1 m-1 bg-white">{{item.oldItemId}}</div>
-            </div>
-        </div>
-        <div *ngIf="!FieldsByType(item.typeId).parentAuthors.optional || showOptionalFields"
-             class="row w-100 p-0 m-0 border-bottom  ">
-            <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">{{FieldsByType(item.typeId).parentAuthors.txt}}</div>
-            <div class="col p-1 m-1 bg-white">
-                {{item.parentAuthors}}
-            </div>
-        </div>
-        <div class="row w-100 p-0 m-0 border-bottom  ">
-            <div class="w-50 row p-0 m-0">
-                <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Year</div>
-                <div class="col p-1 m-1 bg-white">
-                    {{item.year}}
-                </div>
-            </div>
-            <div *ngIf="!FieldsByType(item.typeId).standardNumber.optional || showOptionalFields"
-                 class="w-50 row p-0 m-0">
-                <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">{{FieldsByType(item.typeId).standardNumber.txt}}</div>
-                <div class="col p-1 m-1 bg-white">
-                    {{item.standardNumber}}
-                </div>
-            </div>
-        </div>
-        <div class="row w-100 p-0 m-0 border-bottom  ">
-            <div class="w-50 row p-0 m-0">
-                <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Short Title</div>
-                <div class="col p-1 m-1 bg-white">
-                    {{item.shortTitle}}
-                </div>
-            </div>
-            <div class="w-50 row p-0 m-0">
-                <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Pages</div>
-                <div class="col p-1 m-1 bg-white">
-                    {{item.pages}}
-                </div>
-            </div>
-        </div>
-        <div class="row w-100 p-0 m-0 border-bottom  ">
-            <div class="w-50 row p-0 m-0">
-                <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Volume</div>
-                <div class="col p-1 m-1 bg-white">
-                    {{item.volume}}
-                </div>
-            </div>
-            <div class="w-50 row p-0 m-0">
-                <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Issue</div>
-                <div class="col p-1 m-1 bg-white">
-                    {{item.issue}}
-                </div>
-            </div>
-        </div>
-        <div class="row w-100 p-0 m-0 border-bottom   ">
-            <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Url</div>
-            <div class="col p-1 m-1 bg-white text-nowrap" style="overflow:auto">
-                {{item.url}}
-            </div>
-        </div>
-        <div class="row w-100 p-0 m-0 border-bottom  ">
-            <div class="w-50 row p-0 m-0">
-                <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">DOI</div>
-                <div class="col p-1 m-1 bg-white " >
-                    {{item.doi}}
-                </div>
-            </div>
-            <div class="w-50 row p-0 m-0">
-                <div class="p-1 ml-1 mt-1" style="min-width:90px;">Availability</div>
-                <div class="col p-1 m-1 bg-white">
-                    {{item.availability}}
-                </div>
-            </div>
-        </div>
-        <div class="row w-100 p-0 m-0 border-bottom  ">
-            <div class="w-50 row p-0 m-0">
-                <div class="p-1 ml-1 " style="min-width:90px;">Edition</div>
-                <div class="col p-1 m-1 bg-white">
-                    {{item.edition}}
-                </div>
-            </div>
-            <div class="w-50 row p-0 m-0">
-                <div class="p-1 ml-1 " style="min-width:90px;">Publisher</div>
-                <div class="col p-1 m-1 bg-white">
-                    {{item.publisher}}
-                </div>
-            </div>
-        </div>
-        <div class="row w-100 p-0 m-0 border-bottom  ">
-            <div class="w-50 row p-0 m-0">
-                <div class="p-1 ml-1 " style="min-width:90px;">Month</div>
-                <div class="col p-1 m-1 bg-white">
-                    {{item.month}}
-                </div>
-            </div>
-            <div class="w-50 row p-0 m-0">
-                <div class="p-1 ml-1 " style="min-width:90px;">City</div>
-                <div class="col p-1 m-1 bg-white">
-                    {{item.city}}
-                </div>
-            </div>
-        </div>
-        <div class="row w-100 p-0 m-0 border-bottom  ">
-            <div class="w-50 row p-0 m-0">
-                <div class="p-1 ml-1 " style="min-width:90px;">Country</div>
-                <div class="col p-1 m-1 bg-white">
-                    {{item.country}}
-                </div>
-            </div>
-            <div class="w-50 row p-0 m-0">
-                <div class="p-1 ml-1 " style="min-width:90px;">Institution</div>
-                <div class="col p-1 m-1 bg-white">
-                    {{item.institution}}
-                </div>
-            </div>
-        </div>
-        <div class="row w-100 p-0 m-0 border-bottom  ">
-            <div class="w-50 row p-0 m-0">
-                <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Comments</div>
-                <div class="col p-1 m-1 bg-white" style="max-height:120px; overflow-y:auto;">
-                    {{item.comments}}
-                </div>
-            </div>
-            <div class="w-50 row p-0 m-0">
-                <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Keywords</div>
-                <div class="col p-1 m-1 bg-white" style="max-height:120px; overflow-y:auto;">
-                    {{item.keywords}}
-                </div>
-            </div>
-        </div>
-        <div class="row w-100 p-0 m-0 small">
-            <div class="col-3 row p-0 m-0 font-weight-bold">
-                Created by: {{item.createdBy}}
-            </div>
-            <div class="col-3 row p-0 m-0 ">
-                Created on: {{item.dateCreated}}
-            </div>
-            <div class="col-3 row p-0 m-0 font-weight-bold">
-                Edited by: {{item.editedBy}}
-            </div>
-            <div class="col-3 row p-0 m-0 ">
-                Edited on: {{item.dateEdited}}
-            </div>
-        </div>
-        <div class="row w-100 p-0 m-0 small">
-            <div *ngIf="CurrentItemAdditionalData && CurrentItemAdditionalData.source" class="col-6 row p-0 m-0 font-weight-bold">
-                Source: {{CurrentItemAdditionalData.source.source_Name}}
-            </div>
-            <div *ngIf="!CurrentItemAdditionalData || !CurrentItemAdditionalData.source" class="col-6 row p-0 m-0 font-weight-bold">
-                Source: N/A
-            </div>
-            <div *ngIf="CurrentItemAdditionalData && CurrentItemAdditionalData.duplicates" class="col-6 row py-0 pl-1 pr-0 m-0 ">
-                Duplicate IDs: <span *ngFor="let dup of CurrentItemAdditionalData.duplicates"
-                                     class="rounded alert-danger ml-1">{{dup.itemId}}</span>
-            </div>
-            <div *ngIf="!CurrentItemAdditionalData || !CurrentItemAdditionalData.duplicates" class="col-6 row p-0 m-0 ">
-                Duplicate IDs: N/A
-            </div>
-        </div>
+				<div class="col-4 row p-0 m-0">
+					<div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:20px;">ID</div>
+					<div class="col p-1 m-1 bg-white">{{item.itemId}}</div>
+				</div>
+				<div class="col-4 row p-0 m-0">
+					<div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Imported ID</div>
+					<div class="col p-1 m-1 bg-white">{{item.oldItemId}}</div>
+				</div>
+			</div>
+			<div *ngIf="!FieldsByType(item.typeId).parentAuthors.optional || showOptionalFields"
+				 class="row w-100 p-0 m-0 border-bottom  ">
+				<div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">{{FieldsByType(item.typeId).parentAuthors.txt}}</div>
+				<div class="col p-1 m-1 bg-white">
+					{{item.parentAuthors}}
+				</div>
+			</div>
+			<div class="row w-100 p-0 m-0 border-bottom  ">
+				<div class="w-50 row p-0 m-0">
+					<div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Year</div>
+					<div class="col p-1 m-1 bg-white">
+						{{item.year}}
+					</div>
+				</div>
+				<div *ngIf="!FieldsByType(item.typeId).standardNumber.optional || showOptionalFields"
+					 class="w-50 row p-0 m-0">
+					<div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">{{FieldsByType(item.typeId).standardNumber.txt}}</div>
+					<div class="col p-1 m-1 bg-white">
+						{{item.standardNumber}}
+					</div>
+				</div>
+			</div>
+			<div class="row w-100 p-0 m-0 border-bottom  ">
+				<div class="w-50 row p-0 m-0">
+					<div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Short Title</div>
+					<div class="col p-1 m-1 bg-white">
+						{{item.shortTitle}}
+					</div>
+				</div>
+				<div class="w-50 row p-0 m-0">
+					<div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Pages</div>
+					<div class="col p-1 m-1 bg-white">
+						{{item.pages}}
+					</div>
+				</div>
+			</div>
+			<div class="row w-100 p-0 m-0 border-bottom  ">
+				<div class="w-50 row p-0 m-0">
+					<div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Volume</div>
+					<div class="col p-1 m-1 bg-white">
+						{{item.volume}}
+					</div>
+				</div>
+				<div class="w-50 row p-0 m-0">
+					<div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Issue</div>
+					<div class="col p-1 m-1 bg-white">
+						{{item.issue}}
+					</div>
+				</div>
+			</div>
+			<div class="row w-100 p-0 m-0 border-bottom   ">
+				<div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Url</div>
+				<div class="col p-1 m-1 bg-white text-nowrap" style="overflow:auto">
+					{{item.url}}
+				</div>
+			</div>
+			<div class="row w-100 p-0 m-0 border-bottom  ">
+				<div class="w-50 row p-0 m-0">
+					<div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">DOI</div>
+					<div class="col p-1 m-1 bg-white ">
+						{{item.doi}}
+					</div>
+				</div>
+				<div class="w-50 row p-0 m-0">
+					<div class="p-1 ml-1 mt-1" style="min-width:90px;">Availability</div>
+					<div class="col p-1 m-1 bg-white">
+						{{item.availability}}
+					</div>
+				</div>
+			</div>
+			<div class="row w-100 p-0 m-0 border-bottom  ">
+				<div class="w-50 row p-0 m-0">
+					<div class="p-1 ml-1 " style="min-width:90px;">Edition</div>
+					<div class="col p-1 m-1 bg-white">
+						{{item.edition}}
+					</div>
+				</div>
+				<div class="w-50 row p-0 m-0">
+					<div class="p-1 ml-1 " style="min-width:90px;">Publisher</div>
+					<div class="col p-1 m-1 bg-white">
+						{{item.publisher}}
+					</div>
+				</div>
+			</div>
+			<div class="row w-100 p-0 m-0 border-bottom  ">
+				<div class="w-50 row p-0 m-0">
+					<div class="p-1 ml-1 " style="min-width:90px;">Month</div>
+					<div class="col p-1 m-1 bg-white">
+						{{item.month}}
+					</div>
+				</div>
+				<div class="w-50 row p-0 m-0">
+					<div class="p-1 ml-1 " style="min-width:90px;">City</div>
+					<div class="col p-1 m-1 bg-white">
+						{{item.city}}
+					</div>
+				</div>
+			</div>
+			<div class="row w-100 p-0 m-0 border-bottom  ">
+				<div class="w-50 row p-0 m-0">
+					<div class="p-1 ml-1 " style="min-width:90px;">Country</div>
+					<div class="col p-1 m-1 bg-white">
+						{{item.country}}
+					</div>
+				</div>
+				<div class="w-50 row p-0 m-0">
+					<div class="p-1 ml-1 " style="min-width:90px;">Institution</div>
+					<div class="col p-1 m-1 bg-white">
+						{{item.institution}}
+					</div>
+				</div>
+			</div>
+			<div class="row w-100 p-0 m-0 border-bottom  ">
+				<div class="w-50 row p-0 m-0">
+					<div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Comments</div>
+					<div class="col p-1 m-1 bg-white" style="max-height:120px; overflow-y:auto;">
+						{{item.comments}}
+					</div>
+				</div>
+				<div class="w-50 row p-0 m-0">
+					<div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Keywords</div>
+					<div class="col p-1 m-1 bg-white" style="max-height:120px; overflow-y:auto;">
+						{{item.keywords}}
+					</div>
+				</div>
+			</div>
+			<div class="row w-100 p-0 m-0 small">
+				<div class="col-3 row p-0 m-0 font-weight-bold">
+					Created by: {{item.createdBy}}
+				</div>
+				<div class="col-3 row p-0 m-0 ">
+					Created on: {{item.dateCreated}}
+				</div>
+				<div class="col-3 row p-0 m-0 font-weight-bold">
+					Edited by: {{item.editedBy}}
+				</div>
+				<div class="col-3 row p-0 m-0 ">
+					Edited on: {{item.dateEdited}}
+				</div>
+			</div>
+			<div class="row w-100 p-0 m-0 small">
+				<div *ngIf="CurrentItemAdditionalData && CurrentItemAdditionalData.source" class="col-6 row p-0 m-0 font-weight-bold">
+					Source: {{CurrentItemAdditionalData.source.source_Name}}
+				</div>
+				<div *ngIf="!CurrentItemAdditionalData || !CurrentItemAdditionalData.source" class="col-6 row p-0 m-0 font-weight-bold">
+					Source: N/A
+				</div>
+				<div *ngIf="CurrentItemAdditionalData && CurrentItemAdditionalData.duplicates" class="col-6 row py-0 pl-1 pr-0 m-0 ">
+					Duplicate IDs: <span *ngFor="let dup of CurrentItemAdditionalData.duplicates"
+							   class="rounded alert-danger ml-1">{{dup.itemId}}</span>
+				</div>
+				<div *ngIf="!CurrentItemAdditionalData || !CurrentItemAdditionalData.duplicates" class="col-6 row p-0 m-0 ">
+					Duplicate IDs: N/A
+				</div>
+			</div>
 
-    </div>
-</div>
+		</div>
+	</div>
 <div *ngIf="item" class="row col-12 mt-1 card card-body bg-light ml-1" style="overflow-x:auto;">
     <ItemDocListComp class="" [itemID]="item.itemId" [ShowViewButton]="ShowDocViewButton"></ItemDocListComp>
 </div>

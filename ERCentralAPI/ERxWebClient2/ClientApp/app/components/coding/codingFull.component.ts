@@ -168,7 +168,9 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
             //this.ReviewSetsService.ItemCodingItemAttributeSaveCommandExecuted.subscribe((cmd: ItemAttributeSaveCommand) => this.HandleItemAttributeSaveCommandDone(cmd));
         }
 	}
-
+	public RefreshTerms() {
+		this.ReviewerTermsService.Fetch();
+	}
 	
 	public ShowingOutComes() {
         this.ShowOutComes = !this.ShowOutComes;

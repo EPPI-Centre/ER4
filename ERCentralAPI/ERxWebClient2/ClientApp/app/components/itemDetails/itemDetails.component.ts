@@ -1,6 +1,6 @@
 import { Component, Inject, OnInit, EventEmitter, Output, Input } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Event } from '@angular/router';
 import { Router } from '@angular/router';
 import { Observable, Subject } from 'rxjs';
 import { Item, ItemListService, iAdditionalItemDetails } from '../services/ItemList.service';
@@ -9,6 +9,7 @@ import { ItemDocsService } from '../services/itemdocs.service';
 import { ModalService } from '../services/modal.service';
 import { Helpers } from '../helpers/HelperMethods';
 import { PriorityScreeningService } from '../services/PriorityScreening.service';
+import { TextSelectEvent } from "../helpers/text-select.directive";
 
 
 
@@ -46,12 +47,69 @@ export class itemDetailsComp implements OnInit {
         else {
             return this.ItemListService.CurrentItemAdditionalData;
         }
-    }
+	}
+	public hostRectangle!: SelectionRectangle | null;
+
+	private selectedText!: string;
+
 	ngOnInit() {
 
 
+		this.hostRectangle = null;
+		this.selectedText = "";
 
 	}
+
+	// I render the rectangles emitted by the [textSelect] directive.
+	public renderRectangles(event: TextSelectEvent): void {
+
+		//console.group("Text Select Event");
+		console.log("Text:", event.text);
+		//console.log("Viewport Rectangle:", event.viewportRectangle);
+		//console.log("Host Rectangle:", event.hostRectangle);
+		console.groupEnd();
+
+		// If a new selection has been created, the viewport and host rectangles will
+		// exist. Or, if a selection is being removed, the rectangles will be null.
+		if (event.hostRectangle) {
+
+			this.hostRectangle = event.hostRectangle;
+			this.selectedText = event.text;
+
+		} else {
+
+			this.hostRectangle = null;
+			this.selectedText = "";
+
+		}
+	}
+
+
+	// I share the selected text with friends :)
+	public shareSelection(): void {
+
+		console.group("Shared Text");
+		console.log(this.selectedText);
+		console.groupEnd();
+
+		if (document != null ) {
+			if (document.getSelection() != null) {
+				var selection = document.getSelection(); 
+				if (selection != null) {
+					selection.removeAllRanges();
+				}
+			}
+		}
+		// Now that we've shared the text, let's clear the current selection.
+
+		// CAUTION: In modern browsers, the above call triggers a "selectionchange"
+		// event, which implicitly calls our renderRectangles() callback. However,
+		// in IE, the above call doesn't appear to trigger the "selectionchange"
+		// event. As such, we need to remove the host rectangle explicitly.
+		this.hostRectangle = null;
+		this.selectedText = "";
+	}
+	//======================================================
 	Changed() {
 	//	alert('item changed');
 	//	//this.eventsTest.next();
@@ -94,13 +152,62 @@ export class itemDetailsComp implements OnInit {
             let searchString: string = "\"" + item.title + "\" " + item.authors;
             window.open("https://scholar.google.com/scholar?q=" + searchString);
         }
-    }
+	}
+	private selectedRange: string = '';
+
+	//public selectedText() {
+	//	var selection = window.getSelection();
+	//	var range = selection.getRangeAt(0);
+	//	var textEnd = range.endOffset;
+	//	this.selectedRange = selection.toString().substr(0, (textEnd)); 
+	//	console.log(this.selectedRange);
+	//}
+
+	public AddRelevantTerm() {
+
+		let s: string = this.selectedRange.trim().toLowerCase();
+		if (s == null || s.length == 0) return;
+		if (s.length > 50) return;
+		let terms : string[]  = s.split(" ", 50);
+		//removing empty from the abvoe array could happen here if there are any present
+		for (var i = 0; i < terms.length; i++) {
+
+			var term = terms[i];
+
+			//TrainingReviewerTerm cTrt = FindTerm(term);
+
+			//if (cTrt == null) {
+			//	TrainingReviewerTerm trt = new TrainingReviewerTerm();
+			//	trt.ReviewerTerm = term;
+			//	trt.Included = (sender as Button).Name == "cmdAddPositiveTerm";
+			//	CslaDataProvider provider = ((CslaDataProvider)App.Current.Resources["TrainingReviewerTermData"]);
+			//	if (provider != null) {
+			//		(provider.Data as TrainingReviewerTermList).Add(trt);
+			//		trt.BeginEdit();
+			//		trt.ApplyEdit();
+			//	}
+			//}
+			//else {//term is already there, see if we need to flip the Included flag
+			//	if (
+			//		(cTrt.Included && (sender as Button).Name == "cmdAddNegativeTerm")//adding as positive, but it's already there as negative
+			//		||
+			//		(!cTrt.Included && (sender as Button).Name == "cmdAddPositiveTerm")//adding as negative, but it's already there as positive
+			//	) {
+			//		cTrt.Included = !cTrt.Included;
+			//		cTrt.BeginSave(true);
+			//	}
+
+			//}
+			//RefreshHighlights();
+		}
+	}
 
     public SetHighlights() {
         if (this.item && this.ReviewerTermsService && this.ReviewerTermsService.TermsList.length > 0) {
             this.HTitle = this.item.title;
             this.HAbstract = this.item.abstract;
-            for (let term of this.ReviewerTermsService.TermsList) {
+			for (let term of this.ReviewerTermsService.TermsList) {
+				//console.log('something to do with the terms list here: ' + this.ReviewerTermsService.TermsList);
                 try {
                     if (term.reviewerTerm && term.reviewerTerm.length > 0) {
                         let lFirst = term.reviewerTerm.substr(0, 1);
@@ -156,6 +263,18 @@ export class itemDetailsComp implements OnInit {
     public FieldsByType(typeId: number) {
         return Helpers.FieldsByPubType(typeId);
     }
+}
+
+//export class TrainingReviewerTerm {
+
+
+//}
+
+interface SelectionRectangle {
+	left: number;
+	top: number;
+	width: number;
+	height: number;
 }
 
 

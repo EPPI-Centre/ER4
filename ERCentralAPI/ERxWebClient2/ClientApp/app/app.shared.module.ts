@@ -81,6 +81,7 @@ import { timePointsComp } from './components/ArmsAndTimePoints/timePointsComp.co
 import { OutcomesComponent } from './components/Outcomes/outcomes.component'
 import { EditCodeComp } from './components/CodesetTrees/editcode.component';
 import { SingleCodesetTreeCodingComponent } from './components/CodesetTrees/SingleCodesetTreeCoding.component';
+import { TextSelectDirective } from './components/helpers/text-select.directive';
 
 @NgModule({
     declarations: [
@@ -142,7 +143,8 @@ import { SingleCodesetTreeCodingComponent } from './components/CodesetTrees/Sing
 		codingRecordComp,
         OutcomesComponent,
 		EditCodeComp,
-		SingleCodesetTreeCodingComponent
+		SingleCodesetTreeCodingComponent,
+		TextSelectDirective
 	],
     providers: [
         EventEmitterService,
