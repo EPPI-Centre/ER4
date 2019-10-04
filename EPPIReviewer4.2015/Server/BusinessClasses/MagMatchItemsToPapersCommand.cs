@@ -85,13 +85,21 @@ namespace BusinessLibrary.BusinessClasses
                     command.CommandType = System.Data.CommandType.StoredProcedure;
                     command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
                     command.Parameters.Add(new SqlParameter("@CONTACT_ID", ri.UserId));
-                    command.Parameters.Add(new SqlParameter("@RESULT", ""));
+                    command.Parameters.Add(new SqlParameter("@RESULT", 0));
                     command.Parameters["@RESULT"].Direction = System.Data.ParameterDirection.Output;
                     command.ExecuteNonQuery();
                     string res = command.Parameters["@RESULT"].Value.ToString();
-                    _currentStatus = "The automated matching identified " +
-                        command.Parameters["@RESULT"].Value.ToString() + (res == "1" ? " possible match" :
-                        " possible matches");
+                    if (command.CommandText == "st_MatchItemsToPapersSingleItem")
+                    {
+                        _currentStatus = "The automated matching identified " +
+                       command.Parameters["@RESULT"].Value.ToString() + (res == "1" ? " possible match" :
+                       " possible matches");
+                    }
+                    else
+                    {
+                        _currentStatus = "Successfully added this review to the queue to be auto-matched";
+                    }
+                   
                 }
                 connection.Close();
             }
