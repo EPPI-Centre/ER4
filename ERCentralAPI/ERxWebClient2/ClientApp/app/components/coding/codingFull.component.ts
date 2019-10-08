@@ -101,7 +101,7 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
             this.router.navigate(['home']);
         }
         else {
-
+			this.RefreshTerms();
             this.outcomeSubscription = this._outcomeService.outcomesChangedEE.subscribe(
 
                 (res: any) => {
@@ -169,7 +169,11 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
         }
 	}
 	public RefreshTerms() {
-		this.ReviewerTermsService.Fetch();
+		
+		// need to reload the page 
+		// but the addition of the term is working
+		this.SetHighlights();
+		this.ReviewerTermsService.Fetch();		
 	}
 	
 	public ShowingOutComes() {
@@ -252,7 +256,11 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
         this.EditCodesPanel = "";
     }
 	IsServiceBusy(): boolean {
-		if (this._reviewSetsEditingService.IsBusy || this.reviewInfoService.IsBusy || this._outcomeService.IsBusy) return true;
+		if (this._reviewSetsEditingService.IsBusy ||
+			this.reviewInfoService.IsBusy || this._outcomeService.IsBusy
+			|| this.ReviewerTermsService.IsBusy) {
+			return true;
+		}
 		else return false;
 	}
 	CanWrite(): boolean {

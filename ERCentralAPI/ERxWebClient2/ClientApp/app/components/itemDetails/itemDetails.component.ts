@@ -4,7 +4,7 @@ import { ActivatedRoute, Event } from '@angular/router';
 import { Router } from '@angular/router';
 import { Observable, Subject } from 'rxjs';
 import { Item, ItemListService, iAdditionalItemDetails } from '../services/ItemList.service';
-import { ReviewerTermsService } from '../services/ReviewerTerms.service';
+import { ReviewerTermsService, ReviewerTerm } from '../services/ReviewerTerms.service';
 import { ItemDocsService } from '../services/itemdocs.service';
 import { ModalService } from '../services/modal.service';
 import { Helpers } from '../helpers/HelperMethods';
@@ -65,6 +65,7 @@ export class itemDetailsComp implements OnInit {
 
 		//console.group("Text Select Event");
 		console.log("Text:", event.text);
+
 		//console.log("Viewport Rectangle:", event.viewportRectangle);
 		//console.log("Host Rectangle:", event.hostRectangle);
 		console.groupEnd();
@@ -119,10 +120,12 @@ export class itemDetailsComp implements OnInit {
         this.HAbstract = "";
         this.HTitle = "";
     }
-    ShowHighlightsClicked() {
+	ShowHighlightsClicked() {
+
         if (this.item && this.ShowHighlights && this.HAbstract == '' && !(this.item.abstract == '')) {
             this.SetHighlights();
-        }
+		}
+		this.ShowHighlights = !this.ShowHighlights;
 	}
 	ItemChanged() {
 		alert('item changed!!');
@@ -154,58 +157,83 @@ export class itemDetailsComp implements OnInit {
         }
 	}
 	private selectedRange: string = '';
+	public RemoveTerm() {
 
-	//public selectedText() {
-	//	var selection = window.getSelection();
-	//	var range = selection.getRangeAt(0);
-	//	var textEnd = range.endOffset;
-	//	this.selectedRange = selection.toString().substr(0, (textEnd)); 
-	//	console.log(this.selectedRange);
-	//}
+		var findTerm = this.ReviewerTermsService.TermsList
+			.find(x => x.reviewerTerm == this.selectedText);
 
-	public AddRelevantTerm() {
-
-		let s: string = this.selectedRange.trim().toLowerCase();
-		if (s == null || s.length == 0) return;
-		if (s.length > 50) return;
-		let terms : string[]  = s.split(" ", 50);
-		//removing empty from the abvoe array could happen here if there are any present
-		for (var i = 0; i < terms.length; i++) {
-
-			var term = terms[i];
-
-			//TrainingReviewerTerm cTrt = FindTerm(term);
-
-			//if (cTrt == null) {
-			//	TrainingReviewerTerm trt = new TrainingReviewerTerm();
-			//	trt.ReviewerTerm = term;
-			//	trt.Included = (sender as Button).Name == "cmdAddPositiveTerm";
-			//	CslaDataProvider provider = ((CslaDataProvider)App.Current.Resources["TrainingReviewerTermData"]);
-			//	if (provider != null) {
-			//		(provider.Data as TrainingReviewerTermList).Add(trt);
-			//		trt.BeginEdit();
-			//		trt.ApplyEdit();
-			//	}
-			//}
-			//else {//term is already there, see if we need to flip the Included flag
-			//	if (
-			//		(cTrt.Included && (sender as Button).Name == "cmdAddNegativeTerm")//adding as positive, but it's already there as negative
-			//		||
-			//		(!cTrt.Included && (sender as Button).Name == "cmdAddPositiveTerm")//adding as negative, but it's already there as positive
-			//	) {
-			//		cTrt.Included = !cTrt.Included;
-			//		cTrt.BeginSave(true);
-			//	}
-
-			//}
-			//RefreshHighlights();
+		console.log('findTerm: ',findTerm);
+		if (findTerm) {
+			this.ReviewerTermsService.DeleteTerm(findTerm.trainingReviewerTermId);
 		}
+
+	}
+	public AddRelevantTerm(addRemoveBtn: boolean) {
+		if (this.selectedText != null) {
+			
+			let s: string = this.selectedText.trim().toLowerCase();
+			if (s == null || s.length == 0) return;
+			if (s.length > 50) return;
+			let terms: string[] = s.split(" ", 50);
+			console.log('terms: ' + terms);			//removing empty from the abvoe array could happen here if there are any present
+			for (var i = 0; i < terms.length; i++) {
+
+				var term = terms[i];
+				console.log(term + '\n');
+				//checks whether term is in the list already...
+				let cTrt: ReviewerTerm | null = this.FindTerm(term);
+
+					if (cTrt == null) {
+
+						let trt: ReviewerTerm = {} as ReviewerTerm;
+						trt.reviewerTerm = term;
+						trt.included = addRemoveBtn;
+						trt.itemTermDictionaryId = 0;
+						trt.trainingReviewerTermId = 0;
+						trt.term = term;
+						
+						if (this.ReviewerTermsService.TermsList != null) {
+							this.ReviewerTermsService.TermsList.push(trt as ReviewerTerm);
+
+							this.ReviewerTermsService.CreateTerm(trt);
+
+						}
+					}	//TODO
+					else {//term is already there, see if we need to flip the Included flag
+
+						if (
+							(cTrt.included || !cTrt.included)//adding as negative, but it's already there as positive
+						) {
+							cTrt.included = !cTrt.included;
+							//api call when everything above is correct
+							//cTrt.BeginSave(true);
+						}
+					}
+
+				this.ItemListService.getItem(this.ItemListService.currentItem.itemId);
+				this.RefreshHighlights();
+			}
+		}
+	}
+
+	public FindTerm(term: string): ReviewerTerm | null {
+
+		// TODO
+		return null;
+	}
+
+	public RefreshHighlights() {
+
+		this.ReviewerTermsService.Fetch();
+//		this.SetHighlights();
+
 	}
 
     public SetHighlights() {
         if (this.item && this.ReviewerTermsService && this.ReviewerTermsService.TermsList.length > 0) {
             this.HTitle = this.item.title;
-            this.HAbstract = this.item.abstract;
+			this.HAbstract = this.item.abstract;
+			console.log('set highlights called: ' + this.HAbstract);
 			for (let term of this.ReviewerTermsService.TermsList) {
 				//console.log('something to do with the terms list here: ' + this.ReviewerTermsService.TermsList);
                 try {
@@ -265,10 +293,14 @@ export class itemDetailsComp implements OnInit {
     }
 }
 
-//export class TrainingReviewerTerm {
+export class TrainingReviewerTerm {
 
+	public reviewId: number=0;
+	public reviewerTerm: string='';
+	public included: boolean = false;
+	public term: string='';
 
-//}
+}
 
 interface SelectionRectangle {
 	left: number;
