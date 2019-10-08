@@ -11,6 +11,8 @@ import { BusyAwareService } from '../helpers/BusyAwareService';
 
 export class ReviewerTermsService extends BusyAwareService {
 
+
+
     constructor(
         private _httpC: HttpClient,
         private modalService: ModalService,
@@ -53,14 +55,55 @@ export class ReviewerTermsService extends BusyAwareService {
 				this.RemoveBusy("Fetch");
 			}
         );
-    }
+	}
 
-    //public Save() {
-    //    if (this._TermsList != null)
-    //        localStorage.setItem('TermsList', JSON.stringify(this._TermsList));
-    //    else if (localStorage.getItem('TermsList'))//to be confirmed!! 
-    //        localStorage.removeItem('TermsList');
-    //}
+	public CreateTerm(trt: ReviewerTerm): any {
+
+
+		this._BusyMethods.push("CreateTerm");
+		console.log('Inside api: ',trt);
+		let body = JSON.stringify( trt );
+		return this._httpC.post<ReviewerTerm>(this._baseUrl + 'api/ReviewerTermList/CreateReviewerTerm',
+		body)
+			.subscribe(result => {
+
+				this._TermsList.push(result)
+				console.log('Testing here: ' , result);
+				this.Fetch();
+				this.RemoveBusy("CreateTerm");
+
+		},
+			error => {
+				this.modalService.GenericError(error);
+				this.RemoveBusy("CreateTerm");
+			}
+		);
+	}
+
+	public DeleteTerm(termId: number): any {
+
+		this._BusyMethods.push("DeleteTerm");
+
+		let body = JSON.stringify({ Value: termId });
+		return this._httpC.post<ReviewerTerm>(this._baseUrl + 'api/ReviewerTermList/DeleteReviewerTerm',
+			body)
+			.subscribe(result => {
+
+//				this._TermsList
+				this.Fetch();
+				this.RemoveBusy("DeleteTerm");
+
+			},
+			error => {
+
+					this.modalService.GenericError(error);
+					this.RemoveBusy("DeleteTerm");
+				}
+			);
+	}
+
+
+
 }
 export interface ReviewerTerm {
     trainingReviewerTermId: number;
