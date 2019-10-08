@@ -87,6 +87,13 @@
                            FactoryMethod="GetMagRelatedPapersRunList" 
                            DataChanged="CslaDataProvider_HandleDataChangeError">
         </cslaXAML:CslaDataProvider>
+        <cslaXAML:CslaDataProvider x:Key="MagReviewListData"
+                           ManageObjectLifetime="True"
+                           IsInitialLoadEnabled="False"
+                           ObjectType="BusinessLibrary.BusinessClasses.MagReviewList, BusinessLibrary, Version=..., Culture=neutral, PublicKeyToken=null"
+                           FactoryMethod="GetMagReviewList" 
+                           DataChanged="CslaDataProvider_HandleDataChangeError">
+        </cslaXAML:CslaDataProvider>
         <helper:ReverseBooleanConverter x:Key="ReverseBoolean" />
 
         <!--<helper:SelectedNotSelectedConverter x:Key="SelectedNotSelectedText" />
@@ -120,7 +127,7 @@
                 <ColumnDefinition Width="100*"></ColumnDefinition>
             </Grid.ColumnDefinitions>
 
-            <TextBlock x:Name="tbAcademicTitle" TextWrapping="Wrap" Grid.Column="0" Text="Microsoft Academic browser" FontSize="12" FontStyle="Italic" Margin="5,10,5,5"></TextBlock>
+            <TextBlock x:Name="tbAcademicTitle" TextWrapping="Wrap" Grid.Column="0" Text="Microsoft Academic Graph browser" FontSize="12" FontStyle="Italic" Margin="5,10,5,5"></TextBlock>
             <HyperlinkButton x:Name="HLShowSelected" Grid.Column="1" Content="Show selected (0)" Margin="0,5,5,5" HorizontalAlignment="Right" Width="105" Click="HLShowSelected_Click" IsTabStop="False"></HyperlinkButton>
             <HyperlinkButton x:Name="HLClearSelected" Grid.Column="1" Content="Clear selected" Margin="0,22,5,22" HorizontalAlignment="Right" VerticalAlignment="Center" Width="105" Height="16" Click="HLClearSelected_Click" IsTabStop="False"></HyperlinkButton>
             <HyperlinkButton x:Name="HLImportSelected" Grid.Column="1" Content="Import selected" Margin="0,0,5,5" HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="105" Height="16" Click="HLImportSelected_Click" IsTabStop="False"></HyperlinkButton>
@@ -129,6 +136,7 @@
             <HyperlinkButton x:Name="HLShowHistory" Grid.Column="2" Content="Show history" Margin="0,5,5,5" HorizontalAlignment="Center" VerticalAlignment="Bottom" Click="HLShowHistory_Click" IsTabStop="False"></HyperlinkButton>
             <HyperlinkButton x:Name="HLBack" Grid.Column="3" Content="Back" Margin="5,5,0,5" HorizontalAlignment="Left" Width="31" Click="HLBack_Click" IsTabStop="False"></HyperlinkButton>
             <HyperlinkButton x:Name="HLForward" Grid.Column="3" Content="Forward" Margin="0,5,5,5" HorizontalAlignment="Right" Width="49" Click="HLForward_Click" IsTabStop="False"></HyperlinkButton>
+            <HyperlinkButton x:Name="hlAdmin" Grid.Column="3" Content="Admin" Margin="0,5,5,5" HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="49" Click="hlAdmin_Click" IsTabStop="False"></HyperlinkButton>
 
         </Grid>
 
@@ -144,7 +152,7 @@
                 <Grid.RowDefinitions>
                     <RowDefinition Height="40"></RowDefinition>
                     <RowDefinition Height="Auto"></RowDefinition>
-                    
+
                     <RowDefinition Height="35"></RowDefinition>
                     <RowDefinition Height="*"></RowDefinition>
                 </Grid.RowDefinitions>
@@ -163,7 +171,7 @@
                         <ColumnDefinition Width="*"></ColumnDefinition>
                         <ColumnDefinition Width="*"></ColumnDefinition>
                     </Grid.ColumnDefinitions>
-                    
+
                     <TextBlock Grid.Row="0" Grid.Column="0" Text="All matched included records" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="5,5,5,5"></TextBlock>
                     <TextBlock Grid.Row="1" Grid.Column="0" Text="All matched excluded records" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="5,5,5,5"></TextBlock>
                     <TextBlock Grid.Row="2" Grid.Column="0" Text="All matched records in review" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="5,5,5,5"></TextBlock>
@@ -177,7 +185,7 @@
                         <HyperlinkButton x:Name="LBListMatchesExcluded" Margin="5,5,5,5" HorizontalAlignment="Left" VerticalAlignment="Center" Click="LBListMatchesExcluded_Click" IsTabStop="False"></HyperlinkButton>
                         <HyperlinkButton x:Name="lbItemListMatchesExcluded" Margin="1,5,5,5" HorizontalAlignment="Left" VerticalAlignment="Center" Content="(List)" Click="lbItemListMatchesExcluded_Click"  IsTabStop="False"></HyperlinkButton>
                     </StackPanel>
-                    
+
                     <HyperlinkButton x:Name="LBListAllInReview" Grid.Row="2" Grid.Column="1" Margin="0,5,5,5" HorizontalAlignment="Left" VerticalAlignment="Center" Click="LBListAllInReview_Click" IsTabStop="False"></HyperlinkButton>
                     <StackPanel Orientation="Horizontal" Grid.Row="3" Grid.Column="1">
                         <local:codesSelectControl x:Name="codesSelectControlMAGSelect" Margin="5,5,5,5" Width="100" Height="25" HorizontalAlignment="Left" VerticalAlignment="Center"></local:codesSelectControl>
@@ -187,12 +195,12 @@
                     <TextBox x:Name="tbGoToPaperId" Grid.Row="4" Grid.Column="1" Margin="5,5,5,5" Width="80" VerticalAlignment="Center" HorizontalAlignment="Left"></TextBox>
                 </Grid>
 
-            <TextBox x:Name="tbFindTopics" Grid.Row="2" Margin="5,5,5,0" TextChanged="tbFindTopics_TextChanged"></TextBox>
-            <ScrollViewer Grid.Row="3" Margin="5,0,5,5" HorizontalScrollBarVisibility="Disabled"  VerticalScrollBarVisibility="Auto">
-                <ToolkitRef:WrapPanel x:Name="WPFindTopics"  Orientation="Horizontal">
-                    <TextBlock Margin="5,5,5,5" Text="Search for topics in the box above. Wildcards work e.g. physic*"></TextBlock>
-                </ToolkitRef:WrapPanel>
-            </ScrollViewer>
+                <TextBox x:Name="tbFindTopics" Grid.Row="2" Margin="5,5,5,0" TextChanged="tbFindTopics_TextChanged"></TextBox>
+                <ScrollViewer Grid.Row="3" Margin="5,0,5,5" HorizontalScrollBarVisibility="Disabled"  VerticalScrollBarVisibility="Auto">
+                    <ToolkitRef:WrapPanel x:Name="WPFindTopics"  Orientation="Horizontal">
+                        <TextBlock Margin="5,5,5,5" Text="Search for topics in the box above. Wildcards work e.g. physic*"></TextBlock>
+                    </ToolkitRef:WrapPanel>
+                </ScrollViewer>
             </Grid>
 
             <!-- RHS grid -->
@@ -206,7 +214,7 @@
                 </Grid.RowDefinitions>
 
                 <TextBlock Grid.Row="0" FontSize="14" Margin="5,5,5,5" HorizontalAlignment="Center" VerticalAlignment="Center">Research and development</TextBlock>
-                
+
                 <ToolkitRef:WrapPanel Grid.Row="1" Margin="10,5,10,5" Orientation="Horizontal">
                     <TextBlock TextWrapping="Wrap"  Margin="0,0,0,0" Text="The algorithm to find new and related studies to the ones you have already identified depends on correctly matching your existing records into the Microsoft Academic dataset. While this process can be automated up to a point, some records cannot be matched with 100% confidence, and some cannot be matched at all. In order to improve performance, it can be helpful to check the lower confidence automatic matches for accuracy:"></TextBlock>
                     <TextBlock Margin="0,5,0,0" Text="Included: "></TextBlock>
@@ -236,17 +244,19 @@
             <!--
             <TextBlock x:Name="TBNumInReview" Grid.Column="1" Grid.Row="1" Text="N" HorizontalAlignment="Left" Margin="5,5,5,5"></TextBlock>
             -->
-            
-            
-        </Grid> <!-- end statusgrid -->
+
+
+        </Grid>
+        <!-- end statusgrid -->
+        
 
         <Grid x:Name="PaperGrid" Grid.Row="1" Visibility="Collapsed">
             <Grid.RowDefinitions>
-                    <RowDefinition x:Name="PaperGridHeadingRow" Height="61"></RowDefinition>
-                    <RowDefinition Height="35"></RowDefinition>
-                    <RowDefinition x:Name="PaperGridAbstractRow" Height="0"></RowDefinition>
-                    <RowDefinition Height="25"></RowDefinition>
-                    <RowDefinition Height="*"></RowDefinition>
+                <RowDefinition x:Name="PaperGridHeadingRow" Height="61"></RowDefinition>
+                <RowDefinition Height="35"></RowDefinition>
+                <RowDefinition x:Name="PaperGridAbstractRow" Height="0"></RowDefinition>
+                <RowDefinition Height="25"></RowDefinition>
+                <RowDefinition Height="*"></RowDefinition>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="300"></ColumnDefinition>
@@ -315,39 +325,39 @@
 
                     </Grid>
                 </radDock:RadPane>
-                
+
                 <radDock:RadPane Header="Cited by" CanUserClose="False" CanFloat="False">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="*"></RowDefinition>
                             <RowDefinition Height="auto"></RowDefinition>
                         </Grid.RowDefinitions>
-                    
-                    <telerikGridView:RadGridView x:Name="CitedByGrid" Grid.Row="0" AutoGenerateColumns="False" ShowGroupPanel="False"
+
+                        <telerikGridView:RadGridView x:Name="CitedByGrid" Grid.Row="0" AutoGenerateColumns="False" ShowGroupPanel="False"
                                     IsReadOnly="True" MinHeight="50" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                                     ItemsSource="{Binding PagedSource, ElementName=CitedByPager}"
                                     IsEnabled="{Binding Source={StaticResource CitedByListData}, Converter={StaticResource ReverseBoolean}, Path=IsBusy }"
                                     RowIndicatorVisibility="Collapsed"
                                     SelectionMode="Extended" ColumnWidth="*"
                                     IsSynchronizedWithCurrentItem="False">
-                        <telerikGridView:RadGridView.Columns>
-                            <telerikGridView:GridViewDataColumn Header="" DataMemberBinding="{Binding FullRecord}">
-                                <telerikGridView:GridViewDataColumn.CellTemplate>
-                                    <DataTemplate>
-                                        <TextBlock Text="{Binding FullRecord}" TextWrapping="Wrap" MouseLeftButtonUp="PaperListBibliographyGrid_MouseLeftButtonUp"/>
-                                    </DataTemplate>
-                                </telerikGridView:GridViewDataColumn.CellTemplate>
-                            </telerikGridView:GridViewDataColumn>
+                            <telerikGridView:RadGridView.Columns>
+                                <telerikGridView:GridViewDataColumn Header="" DataMemberBinding="{Binding FullRecord}">
+                                    <telerikGridView:GridViewDataColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding FullRecord}" TextWrapping="Wrap" MouseLeftButtonUp="PaperListBibliographyGrid_MouseLeftButtonUp"/>
+                                        </DataTemplate>
+                                    </telerikGridView:GridViewDataColumn.CellTemplate>
+                                </telerikGridView:GridViewDataColumn>
                                 <telerikGridView:GridViewDataColumn IsFilterable="False" IsSortable="True" CellStyle="{StaticResource cellSelectedNotSelected}" Width="75" Header="" DataMemberBinding="{Binding IsSelected, Mode=TwoWay}"></telerikGridView:GridViewDataColumn>
                             </telerikGridView:RadGridView.Columns>
-                    </telerikGridView:RadGridView>
+                        </telerikGridView:RadGridView>
 
                         <dpager:RadDataPager Grid.Row="1" x:Name="CitedByPager" IsTotalItemCountFixed="True"
                 DisplayMode="All" NumericButtonCount="10" Source="{Binding Source={StaticResource CitedByListData}, Path=Data}"
                 PageIndexChanging="CitedByPager_PageIndexChanging"></dpager:RadDataPager>
-                        
+
                     </Grid>
-                    
+
                 </radDock:RadPane>
                 <radDock:RadPane Header="Related" CanUserClose="False" CanFloat="False">
                     <telerikGridView:RadGridView x:Name="RelatedGrid" Grid.Column="1" Grid.Row="1" Grid.RowSpan="2" AutoGenerateColumns="False" ShowGroupPanel="False"
@@ -358,7 +368,7 @@
                                     SelectionMode="Extended" ColumnWidth="*"
                                     IsSynchronizedWithCurrentItem="False">
                         <telerikGridView:RadGridView.Columns>
-                            
+
                             <telerikGridView:GridViewDataColumn Header="" DataMemberBinding="{Binding FullRecord}">
                                 <telerikGridView:GridViewDataColumn.CellTemplate>
                                     <DataTemplate>
@@ -373,7 +383,8 @@
                 </radDock:RadPane>
 
             </radDock:RadPaneGroup>
-        </Grid> <!-- End papergrid -->
+        </Grid>
+        <!-- End papergrid -->
         
 
         <Grid x:Name="PaperListGrid" Grid.Row="1" Visibility="Collapsed">
@@ -421,7 +432,6 @@
                 DisplayMode="All" NumericButtonCount="10" Source="{Binding Source={StaticResource PaperListData}, Path=Data, Mode=TwoWay}"
                 PageIndexChanging="PaperListBibliographyPager_PageIndexChanging"></dpager:RadDataPager>
         </Grid>
-        
         <!-- end PaperListGrid -->
 
 
@@ -478,15 +488,15 @@
                 PageIndexChanging="TopicPaperListBibliographyPager_PageIndexChanging"></dpager:RadDataPager>
 
         </Grid>
-
         <!-- end TopicsGrid -->
-
 
 
         <Grid x:Name="HistoryGrid" Grid.Row="1" Visibility="Collapsed">
             <Grid.RowDefinitions>
                 <RowDefinition Height="*"></RowDefinition>
             </Grid.RowDefinitions>
+
+
 
             <telerikGridView:RadGridView x:Name="HistoryDataGrid" Grid.Row="1" AutoGenerateColumns="False" ShowGroupPanel="False"
                                     IsReadOnly="True" MinHeight="50" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
@@ -506,16 +516,16 @@
                     <telerikGridView:GridViewDataColumn Width="50" SortingState="None">
                         <telerikGridView:GridViewDataColumn.CellTemplate>
                             <DataTemplate>
-                                <HyperlinkButton Content="Delete" Click="HyperlinkButton_Click"/>
+                                <HyperlinkButton Content="Remove" Click="HyperlinkButton_Click"/>
                             </DataTemplate>
                         </telerikGridView:GridViewDataColumn.CellTemplate>
                     </telerikGridView:GridViewDataColumn>
                 </telerikGridView:RadGridView.Columns>
             </telerikGridView:RadGridView>
 
-        </Grid> <!-- end history grid -->
-        
-        
+        </Grid>
+        <!-- end history grid -->
+
 
         <Grid x:Name="RelatedPapersGrid" Grid.Row="1" Visibility="Collapsed">
             <Grid.RowDefinitions>
@@ -583,7 +593,7 @@
                 </ComboBox>
                 <HyperlinkButton x:Name="LBAddRelatedPapersRun" Content="Add new search for related papers" Grid.Row="6" Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Center" Click="LBAddRelatedPapersRun_Click" IsTabStop="False"></HyperlinkButton>
             </Grid>
-            
+
             <telerikGridView:RadGridView x:Name="RelatedPapersRunGrid" Grid.Row="7" AutoGenerateColumns="False" ShowGroupPanel="False"
                                     IsReadOnly="False" MinHeight="50" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                                     ItemsSource="{Binding Source={StaticResource RelatedPapersRunListData}, Path=Data, Mode=TwoWay}"
@@ -635,14 +645,44 @@
                             </DataTemplate>
                         </telerikGridView:GridViewDataColumn.CellTemplate>
                     </telerikGridView:GridViewDataColumn>
-                    
+
                 </telerikGridView:RadGridView.Columns>
 
             </telerikGridView:RadGridView>
 
-        </Grid> <!-- end Related Papers grid-->
+        </Grid>
+        <!-- end Related Papers grid-->
 
+        <Grid x:Name="AdminGrid" Grid.Row="1" Visibility="Collapsed">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="35"></RowDefinition>
+                <RowDefinition Height="*"></RowDefinition>
+            </Grid.RowDefinitions>
 
+            <StackPanel Grid.Row="0" Orientation="Horizontal">
+                <HyperlinkButton x:Name="hlAddMagReview" Content="Add this Review ID" Margin="5,5,5,5" Click="hlAddMagReview_Click"></HyperlinkButton>
+                <TextBox x:Name="tbAddMagReview" Margin="5,5,5,5" Width="80"></TextBox>
+                <HyperlinkButton Content="Refresh list" Margin="5,5,5,5" Click="HyperlinkButton_Click_7"></HyperlinkButton>
+            </StackPanel>
+
+            <telerikGridView:RadGridView x:Name="AdminDataGrid" Grid.Row="1" AutoGenerateColumns="True" ShowGroupPanel="False"
+                                    IsReadOnly="True" MinHeight="50" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                    ItemsSource="{Binding Source={StaticResource MagReviewListData}, Path=Data, Mode=TwoWay}"
+                                    RowIndicatorVisibility="Collapsed" CanUserSortColumns="False" 
+                                    SelectionMode="Extended" ColumnWidth="*"
+                                    IsSynchronizedWithCurrentItem="False">
+                <telerikGridView:RadGridView.Columns>
+                    
+                    <telerikGridView:GridViewDataColumn Width="50" SortingState="None">
+                        <telerikGridView:GridViewDataColumn.CellTemplate>
+                            <DataTemplate>
+                                <HyperlinkButton Content="Delete" Click="HyperlinkButton_Click_6"/>
+                            </DataTemplate>
+                        </telerikGridView:GridViewDataColumn.CellTemplate>
+                    </telerikGridView:GridViewDataColumn>
+                </telerikGridView:RadGridView.Columns>
+            </telerikGridView:RadGridView>
+        </Grid>
 
     </Grid>
 </UserControl>

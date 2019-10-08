@@ -97,6 +97,7 @@ namespace EppiReviewer4
             PaperListGrid.Visibility = Visibility.Collapsed;
             HistoryGrid.Visibility = Visibility.Collapsed;
             RelatedPapersGrid.Visibility = Visibility.Collapsed;
+            AdminGrid.Visibility = Visibility.Collapsed;
 
             DataPortal<MagCurrentInfo> dp = new DataPortal<MagCurrentInfo>();
             MagCurrentInfo mci = new MagCurrentInfo();
@@ -159,6 +160,26 @@ namespace EppiReviewer4
             PaperListGrid.Visibility = Visibility.Collapsed;
             HistoryGrid.Visibility = Visibility.Visible;
             RelatedPapersGrid.Visibility = Visibility.Collapsed;
+            AdminGrid.Visibility = Visibility.Collapsed;
+        }
+
+        // ********************************* ADMIN PAGE **********************************
+
+        private void ShowAdminPage()
+        {
+            StatusGrid.Visibility = Visibility.Collapsed;
+            PaperGrid.Visibility = Visibility.Collapsed;
+            TopicsGrid.Visibility = Visibility.Collapsed;
+            PaperListGrid.Visibility = Visibility.Collapsed;
+            HistoryGrid.Visibility = Visibility.Collapsed;
+            RelatedPapersGrid.Visibility = Visibility.Collapsed;
+            AdminGrid.Visibility = Visibility.Visible;
+
+            CslaDataProvider provider = this.Resources["MagReviewListData"] as CslaDataProvider;
+            provider.FactoryParameters.Clear();
+            MagPaperListSelectionCriteria selectionCriteria = new MagPaperListSelectionCriteria();
+            provider.FactoryMethod = "GetMagReviewList";
+            provider.Refresh();
         }
 
         // ******************************** PAPER DETAILS PAGE **************************************
@@ -171,6 +192,7 @@ namespace EppiReviewer4
             PaperListGrid.Visibility = Visibility.Collapsed;
             HistoryGrid.Visibility = Visibility.Collapsed;
             RelatedPapersGrid.Visibility = Visibility.Collapsed;
+            AdminGrid.Visibility = Visibility.Collapsed;
             CitationPane.SelectedIndex = 0;
 
             RTBPaperInfo.Text = FullRecord;
@@ -359,6 +381,7 @@ namespace EppiReviewer4
             PaperListGrid.Visibility = Visibility.Visible;
             HistoryGrid.Visibility = Visibility.Collapsed;
             RelatedPapersGrid.Visibility = Visibility.Collapsed;
+            AdminGrid.Visibility = Visibility.Collapsed;
 
             CslaDataProvider provider = this.Resources["PaperListData"] as CslaDataProvider;
             provider.FactoryParameters.Clear();
@@ -380,6 +403,7 @@ namespace EppiReviewer4
             PaperListGrid.Visibility = Visibility.Visible;
             HistoryGrid.Visibility = Visibility.Collapsed;
             RelatedPapersGrid.Visibility = Visibility.Collapsed;
+            AdminGrid.Visibility = Visibility.Collapsed;
 
             CslaDataProvider provider = this.Resources["PaperListData"] as CslaDataProvider;
             provider.FactoryParameters.Clear();
@@ -401,6 +425,7 @@ namespace EppiReviewer4
             PaperListGrid.Visibility = Visibility.Visible;
             HistoryGrid.Visibility = Visibility.Collapsed;
             RelatedPapersGrid.Visibility = Visibility.Collapsed;
+            AdminGrid.Visibility = Visibility.Collapsed;
 
             CslaDataProvider provider = this.Resources["PaperListData"] as CslaDataProvider;
             provider.FactoryParameters.Clear();
@@ -423,6 +448,7 @@ namespace EppiReviewer4
             PaperListGrid.Visibility = Visibility.Collapsed;
             HistoryGrid.Visibility = Visibility.Collapsed;
             RelatedPapersGrid.Visibility = Visibility.Collapsed;
+            AdminGrid.Visibility = Visibility.Collapsed;
 
             TBMainTopic.Text = FieldOfStudy;
 
@@ -441,6 +467,7 @@ namespace EppiReviewer4
             PaperListGrid.Visibility = Visibility.Visible;
             HistoryGrid.Visibility = Visibility.Collapsed;
             RelatedPapersGrid.Visibility = Visibility.Collapsed;
+            AdminGrid.Visibility = Visibility.Collapsed;
 
             CslaDataProvider provider = this.Resources["PaperListData"] as CslaDataProvider;
             provider.FactoryParameters.Clear();
@@ -464,6 +491,7 @@ namespace EppiReviewer4
             PaperListGrid.Visibility = Visibility.Collapsed;
             HistoryGrid.Visibility = Visibility.Collapsed;
             RelatedPapersGrid.Visibility = Visibility.Visible;
+            AdminGrid.Visibility = Visibility.Collapsed;
         }
 
         private void LBListMatchesIncluded_Click(object sender, RoutedEventArgs e)
@@ -489,6 +517,11 @@ namespace EppiReviewer4
                 0, "", "", 0, "", "", 0, "", "", 0);
             TBPaperListTitle.Text = "List of all matches in review (included and excluded)";
             ShowIncludedMatchesPage("all");
+        }
+
+        private void hlAdmin_Click(object sender, RoutedEventArgs e)
+        {
+            ShowAdminPage();
         }
 
         private void LBListAllRelatedItemsWithThisCode_Click(object sender, RoutedEventArgs e)
@@ -1737,7 +1770,69 @@ namespace EppiReviewer4
             dp2.BeginExecute(mrsc);
         }
 
-        
+        // ********************************** ADMIN PAGE ***********************************
+
+        private void HyperlinkButton_Click_6(object sender, RoutedEventArgs e)
+        {
+            MagReview mr = (sender as HyperlinkButton).DataContext as MagReview;
+            if (mr != null)
+            {
+                RememberThisMagReview = mr;
+                RadWindow.Confirm("Are you sure you want to remove MAG access from this review?", this.RemoveMagReview);
+            }
+        }
+
+        private MagReview RememberThisMagReview;
+
+        private void RemoveMagReview(object sender, WindowClosedEventArgs e)
+        {
+            var result = e.DialogResult;
+            if (result == true)
+            {
+                CslaDataProvider provider = this.Resources["MagReviewListData"] as CslaDataProvider;
+                if (provider != null)
+                {
+                    MagReviewList mrl = provider.Data as MagReviewList;
+                    if (mrl != null)
+                    {
+                        mrl.Remove(RememberThisMagReview);
+                    }
+                }
+            }
+        }
+
+        private void hlAddMagReview_Click(object sender, RoutedEventArgs e)
+        {
+            int id;
+            if (int.TryParse(tbAddMagReview.Text, out id))
+            {
+                MagReview mr = new MagReview();
+                mr.ReviewId = id;
+                mr.Name = "adding review...";
+                CslaDataProvider provider = this.Resources["MagReviewListData"] as CslaDataProvider;
+                if (provider != null)
+                {
+                    MagReviewList mrl = provider.Data as MagReviewList;
+                    if (mrl != null)
+                    {
+                        mrl.Add(mr);
+                        mrl.SaveItem(mr);
+                    }
+                }
+            }
+        }
+
+        private void HyperlinkButton_Click_7(object sender, RoutedEventArgs e)
+        {
+            CslaDataProvider provider = this.Resources["MagReviewListData"] as CslaDataProvider;
+            if (provider != null)
+            {
+                provider.Refresh();
+            }
+        }
+
+
+
 
 
 

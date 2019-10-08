@@ -259,7 +259,9 @@
     <Compile Include="BusinessClasses\MagPaperList.cs" />
     <Compile Include="BusinessClasses\MagRelatedPapersRun.cs" />
     <Compile Include="BusinessClasses\MagRelatedPapersRunList.cs" />
+    <Compile Include="BusinessClasses\MagReview.cs" />
     <Compile Include="BusinessClasses\MagReviewHasUpdatesToCheckCommand.cs" />
+    <Compile Include="BusinessClasses\MagReviewList.cs" />
     <Compile Include="BusinessClasses\MagReviewMagInfo.cs" />
     <Compile Include="BusinessClasses\MagRunSimulationCommand.cs" />
     <Compile Include="BusinessClasses\MetaAnalysisModerator.cs" />
