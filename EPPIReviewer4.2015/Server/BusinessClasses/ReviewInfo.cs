@@ -412,7 +412,7 @@ namespace BusinessLibrary.BusinessClasses
                             LoadProperty<string>(BL_CC_ACCOUNT_CODEProperty, reader.GetString("BL_CC_ACCOUNT_CODE"));
                             LoadProperty<string>(BL_CC_AUTH_CODEProperty, reader.GetString("BL_CC_AUTH_CODE"));
                             LoadProperty<string>(BL_CC_TXProperty, reader.GetString("BL_CC_TX"));
-                            //LoadProperty<int>(MagEnabledProperty, reader.GetInt32("MAG_ENABLED"));
+                            LoadProperty<int>(MagEnabledProperty, reader.GetInt32("MAG_ENABLED"));
                         }
                     }
                 }

@@ -792,7 +792,8 @@
                         </radDock:RadDocumentPane>
 
                         <radDock:RadDocumentPane Header="Microsoft Academic" x:Name="MicrosoftAcademic" Title="Microsoft Academic" CanUserClose="False" CanFloat="False" IsEnabled="True" 
-                                                 Visibility="{Binding Source={StaticResource ReviewInfoData}, Path=Data.MagEnabled, Converter={StaticResource EditIntVisibility}, Mode=OneWay}">
+                                                 Visibility="{Binding Source={StaticResource ReviewInfoData}, Path=Data.MagEnabled, Converter={StaticResource EditIntVisibility}, Mode=OneWay}"
+                                                 Activated="MicrosoftAcademic_Activated">
                             <Grid Width="auto">
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="35"></RowDefinition>

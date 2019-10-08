@@ -415,7 +415,7 @@ namespace EppiReviewer4
                 GetItemDocumentList(DataContext as Item);
                 GetItemArmList(DataContext as Item);
                 GetItemTimepointList(DataContext as Item);
-                GetMagPaperListData(DataContext as Item);
+                //GetMagPaperListData(DataContext as Item); now only loading data when tab is clicked
                 tbQuickCitation.DataContext = i;
 
 
@@ -2071,7 +2071,7 @@ namespace EppiReviewer4
                                 PaneItemDetails.SelectedIndex = 0;
                                 GetItemDocumentList(DataContext as Item);
                                 GetItemArmList(DataContext as Item);
-                                GetMagPaperListData(DataContext as Item);
+                                //GetMagPaperListData(DataContext as Item); now only loading data when tab is clicked
                                 tbQuickCitation.DataContext = DataContext as Item;
                                 GetItemTimepointList(DataContext as Item);
                                 dialogItemDetailsControl.BindTree(DataContext as Item);
@@ -2159,7 +2159,7 @@ namespace EppiReviewer4
                                 PaneItemDetails.SelectedIndex = 0;
                                 GetItemDocumentList(DataContext as Item);
                                 GetItemArmList(DataContext as Item);
-                                GetMagPaperListData(DataContext as Item);
+                                //GetMagPaperListData(DataContext as Item); now only loading data when tab is clicked
                                 tbQuickCitation.DataContext = DataContext as Item;
                                 GetItemTimepointList(DataContext as Item);
                                 dialogItemDetailsControl.BindTree(DataContext as Item);
@@ -3460,6 +3460,11 @@ namespace EppiReviewer4
                 }
             };
             dp.BeginExecute(GetMatches);
+        }
+
+        private void MicrosoftAcademic_Activated(object sender, EventArgs e)
+        {
+            GetMagPaperListData(DataContext as Item);
         }
 
         private void It_Saved(object sender, Csla.Core.SavedEventArgs e)
