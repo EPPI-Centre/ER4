@@ -10,6 +10,7 @@ import { ModalService } from '../services/modal.service';
 import { Helpers } from '../helpers/HelperMethods';
 import { PriorityScreeningService } from '../services/PriorityScreening.service';
 import { TextSelectEvent } from "../helpers/text-select.directive";
+import { ItemCodingService } from '../services/ItemCoding.service';
 
 
 
@@ -27,7 +28,8 @@ export class itemDetailsComp implements OnInit {
         public ItemDocsService: ItemDocsService,
         private PriorityScreeningService: PriorityScreeningService,
         private ItemListService: ItemListService,
-        private ModalService: ModalService
+		private ModalService: ModalService,
+		private ItemCodingService: ItemCodingService
     ) {}
 
     @Input() item: Item | undefined;
@@ -210,23 +212,31 @@ export class itemDetailsComp implements OnInit {
 						}
 					}
 
-				this.ItemListService.getItem(this.ItemListService.currentItem.itemId);
+				if (this.item) {
+					this.ItemCodingService.Fetch(this.item.itemId);
+				}
 				this.RefreshHighlights();
 			}
 		}
 	}
 
 	public FindTerm(term: string): ReviewerTerm | null {
-
 		// TODO
 		return null;
 	}
+	
+	public ShowHideTermsList() {
+
+		this.ReviewerTermsService._ShowHideTermsList = !this.ReviewerTermsService._ShowHideTermsList;
+		console.log(this.ReviewerTermsService._ShowHideTermsList);
+		//this.ReviewerTermsService.ShowHideTermsListEvent.emit();
+	}
 
 	public RefreshHighlights() {
-
 		this.ReviewerTermsService.Fetch();
-//		this.SetHighlights();
-
+		if (this.item) {
+			this.ItemCodingService.Fetch(this.item.itemId);
+		}
 	}
 
     public SetHighlights() {

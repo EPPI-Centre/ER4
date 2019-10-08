@@ -39,6 +39,10 @@
 		<button class="btn btn-outline-dark" (click)="AddRelevantTerm(true)">Add relevant term</button>
 		<button class="btn btn-outline-info" (click)="AddRelevantTerm(false)">Add irrelevant term</button>
 		<button class="btn btn-outline-danger" (click)="RemoveTerm()">Remove term</button>
+		<div class="col-md-4"></div>
+		<button class="btn btn-outline-primary pull-right" (click)="ShowHideTermsList()">
+		Show/Hide Terms List
+		</button>
 	</div>
 	<div class="row col-12 p-1 m-1 mt-2">
 
@@ -46,7 +50,7 @@
 			<div *ngIf="!ShowHighlights" class="row col-12"  (textSelect)="renderRectangles($event)"><h4>{{item.title}}</h4></div>
 			<div *ngIf="ShowHighlights" class="row col-12 border-top  ml-0 pl-0" (textSelect)="renderRectangles($event)"><b>Abstract:&nbsp;</b> <div [innerHTML]="HAbstract"></div></div>
 			<div *ngIf="!ShowHighlights" class="row col-12 border-top  ml-0 pl-0" (textSelect)="renderRectangles($event)"><b>Abstract:&nbsp;</b> {{item.abstract}}</div>
-
+			
 			<div class="row w-100 p-0 m-0 border-bottom   ">
 				<div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Author(s) </div>
 				<div class="col p-1 m-1 bg-white">

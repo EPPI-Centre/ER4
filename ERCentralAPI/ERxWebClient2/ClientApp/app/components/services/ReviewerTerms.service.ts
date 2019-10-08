@@ -1,4 +1,4 @@
-import { Component, Inject, Injectable } from '@angular/core';
+import { Component, Inject, Injectable, EventEmitter } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { AppComponent } from '../app/app.component'
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
@@ -40,7 +40,10 @@ export class ReviewerTermsService extends BusyAwareService {
         //    }
         //}
         return this._TermsList;
-    }
+	}
+
+	public ShowHideTermsListEvent: EventEmitter<boolean> = new EventEmitter();
+	public _ShowHideTermsList: boolean = false;
 
     public Fetch() {
 
@@ -61,7 +64,7 @@ export class ReviewerTermsService extends BusyAwareService {
 
 
 		this._BusyMethods.push("CreateTerm");
-		console.log('Inside api: ',trt);
+
 		let body = JSON.stringify( trt );
 		return this._httpC.post<ReviewerTerm>(this._baseUrl + 'api/ReviewerTermList/CreateReviewerTerm',
 		body)
@@ -98,6 +101,28 @@ export class ReviewerTermsService extends BusyAwareService {
 
 					this.modalService.GenericError(error);
 					this.RemoveBusy("DeleteTerm");
+				}
+			);
+	}
+
+	public UpdateTerm(term: ReviewerTerm): any {
+
+		this._BusyMethods.push("UpdateTerm");
+
+		let body = JSON.stringify(term);
+		return this._httpC.post<ReviewerTerm>(this._baseUrl + 'api/ReviewerTermList/UpdateReviewerTerm',
+			body)
+			.subscribe(result => {
+
+				//this._TermsList
+				this.Fetch();
+				this.RemoveBusy("UpdateTerm");
+
+			},
+				error => {
+
+					this.modalService.GenericError(error);
+					this.RemoveBusy("UpdateTerm");
 				}
 			);
 	}

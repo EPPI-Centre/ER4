@@ -1,0 +1,32 @@
+<div>
+	<div style=" height:400px; overflow:auto;" *ngIf="ReviewTermsServ.TermsList && ReviewTermsServ.TermsList.length > 0 ">
+		<table class="table table-bordered table-striped">
+			<thead>
+				<tr>
+					<th>Review Term</th>
+					<th>Update</th>
+					<th>Delete</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr *ngFor="let term of ReviewTermsServ.TermsList">
+					<td>
+						<input class="form-control d-table-cell" type="text" [(ngModel)]="term.reviewerTerm" />
+					</td>
+					<td>
+						<button class="btn-sm btn-outline-info"
+								(click)="ReviewTermsServ.UpdateTerm(term)">
+							Update
+						</button>
+					</td>
+					<td>
+						<button class="btn-sm btn-outline-danger"
+							(click)="ReviewTermsServ.DeleteTerm(term.trainingReviewerTermId)">
+						Delete
+						</button>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+</div>

@@ -82,6 +82,7 @@ import { OutcomesComponent } from './components/Outcomes/outcomes.component'
 import { EditCodeComp } from './components/CodesetTrees/editcode.component';
 import { SingleCodesetTreeCodingComponent } from './components/CodesetTrees/SingleCodesetTreeCoding.component';
 import { TextSelectDirective } from './components/helpers/text-select.directive';
+import { ReviewTermsListComp } from './components/ReviewTermsList/ReviewTermsListComp.component';
 
 @NgModule({
     declarations: [
@@ -144,7 +145,8 @@ import { TextSelectDirective } from './components/helpers/text-select.directive'
         OutcomesComponent,
 		EditCodeComp,
 		SingleCodesetTreeCodingComponent,
-		TextSelectDirective
+		TextSelectDirective,
+		ReviewTermsListComp
 	],
     providers: [
         EventEmitterService,

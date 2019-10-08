@@ -100,7 +100,10 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
         if (this.ReviewerIdentityServ.reviewerIdentity.userId == 0) {
             this.router.navigate(['home']);
         }
-        else {
+		else {
+
+
+
 			this.RefreshTerms();
             this.outcomeSubscription = this._outcomeService.outcomesChangedEE.subscribe(
 
@@ -157,7 +160,8 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
                         this.SetCoding();
                     }
                 }
-            );
+			);
+			this.ReviewerTermsService.ShowHideTermsListEvent
             this.ReloadItemCoding = this.ReviewSetsService.GetReviewStatsEmit.subscribe(
                 () => { this.SetCoding(); }
             );
