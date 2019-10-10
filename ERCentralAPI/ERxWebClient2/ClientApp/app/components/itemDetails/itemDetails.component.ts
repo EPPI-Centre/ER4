@@ -9,8 +9,8 @@ import { PriorityScreeningService } from '../services/PriorityScreening.service'
 import { TextSelectEvent } from "../helpers/text-select.directive";
 import { ItemCodingService } from '../services/ItemCoding.service';
 
-// Some code in here has been taken from a suggested github source will
-// fill it in later...
+// COPYRIGHTS BELONG TO THE FOLLOWING FOR ABILITY TO SELECT TEXT AND CAPTURE EVENT
+// https://www.bennadel.com/blog/3439-creating-a-medium-inspired-text-selection-directive-in-angular-5-2-10.htm
 
 @Component({
     selector: 'itemDetailsComp',
@@ -76,26 +76,6 @@ export class itemDetailsComp implements OnInit {
 
 		}
 	}
-
-
-	// I share the selected text with friends :)
-	public shareSelection(): void {
-
-		console.group("Shared Text");
-		console.groupEnd();
-
-		if (document != null ) {
-			if (document.getSelection() != null) {
-				var selection = document.getSelection(); 
-				if (selection != null) {
-					selection.removeAllRanges();
-				}
-			}
-		}
-		this.hostRectangle = null;
-		this.selectedText = "";
-	}
-	//======================================================
 
     public WipeHighlights() {
         this.HAbstract = "";
@@ -165,29 +145,33 @@ export class itemDetailsComp implements OnInit {
 				var term = terms[i];
 				console.log(term + '\n');
 				let cTrt: ReviewerTerm | null = this.FindTerm(term);
-					if (cTrt == null) {
-						let trt: ReviewerTerm = {} as ReviewerTerm;
-						trt.reviewerTerm = term;
-						trt.included = addRemoveBtn;
-						trt.itemTermDictionaryId = 0;
-						trt.trainingReviewerTermId = 0;
-						trt.term = term;
+				console.log('CTrt not null: ', cTrt);
+				if (cTrt == null) {
+					let trt: ReviewerTerm = {} as ReviewerTerm;
+					trt.reviewerTerm = term;
+					trt.included = addRemoveBtn;
+					trt.itemTermDictionaryId = 0;
+					trt.trainingReviewerTermId = 0;
+					trt.term = term;
 						
-						if (this.ReviewerTermsService.TermsList != null) {
-							this.ReviewerTermsService.TermsList.push(trt as ReviewerTerm);
-							this.ReviewerTermsService.CreateTerm(trt);
-						}
-					}	
-					else {//term is already there, see if we need to flip the Included flag
-						if (
-							(cTrt.included && addRemoveBtn)//adding as negative, but it's already there as positive
-							||
-							(cTrt.included && !addRemoveBtn)
-						) {
-							cTrt.included = !cTrt.included;
-							this.ReviewerTermsService.UpdateTerm(cTrt);
-						}
+					if (this.ReviewerTermsService.TermsList != null) {
+						this.ReviewerTermsService.TermsList.push(trt as ReviewerTerm);
+						this.ReviewerTermsService.CreateTerm(trt);
 					}
+				}	
+				else {//term is already there, see if we need to flip the Included flag
+					if (
+						
+						(cTrt.included && !addRemoveBtn)//adding as negative, but it's already there as positive
+						||
+						(!cTrt.included && addRemoveBtn)
+					) {
+						//console.log('got inside here');
+						cTrt.included = !cTrt.included;
+						this.ReviewerTermsService.UpdateTerm(cTrt);
+					}
+					//console.log('did not get inside the if: ', cTrt);
+				}
 				this.RefreshHighlights();
 				this.selectedText = '';
 			}

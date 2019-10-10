@@ -39,7 +39,7 @@ export class ReviewerTermsService extends BusyAwareService {
         );
 	}
 
-	public CreateTerm(trt: ReviewerTerm): any {
+	public CreateTerm(trt: ReviewerTerm) {
 
 		this._BusyMethods.push("CreateTerm");
 		let body = JSON.stringify( trt );
@@ -59,7 +59,7 @@ export class ReviewerTermsService extends BusyAwareService {
 		);
 	}
 
-	public DeleteTerm(termId: number): any {
+	public DeleteTerm(termId: number) {
 
 		this._BusyMethods.push("DeleteTerm");
 		let body = JSON.stringify({ Value: termId });
@@ -81,7 +81,7 @@ export class ReviewerTermsService extends BusyAwareService {
 			);
 	}
 
-	public UpdateTerm(term: ReviewerTerm): any {
+	public UpdateTerm(term: ReviewerTerm) {
 
 		this._BusyMethods.push("UpdateTerm");
 

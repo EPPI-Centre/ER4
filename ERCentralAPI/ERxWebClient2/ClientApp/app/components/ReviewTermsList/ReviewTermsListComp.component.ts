@@ -15,8 +15,7 @@ export class ReviewTermsListComp implements OnInit {
 	constructor(private router: Router,
 		private ReviewerIdentityServ: ReviewerIdentityService,
 		private ReviewTermsServ: ReviewerTermsService,
-		private ItemCodingService: ItemCodingService,
-		private ReviewerTermsService: ReviewerTermsService
+		private ItemCodingService: ItemCodingService
 
 	) {
 
