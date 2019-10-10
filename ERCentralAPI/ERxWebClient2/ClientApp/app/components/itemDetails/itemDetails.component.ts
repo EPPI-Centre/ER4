@@ -8,6 +8,7 @@ import { Helpers } from '../helpers/HelperMethods';
 import { PriorityScreeningService } from '../services/PriorityScreening.service';
 import { TextSelectEvent } from "../helpers/text-select.directive";
 import { ItemCodingService } from '../services/ItemCoding.service';
+import { ReviewerIdentityService } from '../services/revieweridentity.service';
 
 // COPYRIGHTS BELONG TO THE FOLLOWING FOR ABILITY TO SELECT TEXT AND CAPTURE EVENT
 // https://www.bennadel.com/blog/3439-creating-a-medium-inspired-text-selection-directive-in-angular-5-2-10.htm
@@ -27,7 +28,8 @@ export class itemDetailsComp implements OnInit {
         private PriorityScreeningService: PriorityScreeningService,
         private ItemListService: ItemListService,
 		private ModalService: ModalService,
-		private ItemCodingService: ItemCodingService
+		private ItemCodingService: ItemCodingService,
+		private ReviewerIdentityServ: ReviewerIdentityService
     ) {}
 
     @Input() item: Item | undefined;
@@ -189,7 +191,7 @@ export class itemDetailsComp implements OnInit {
 	public ShowHideTermsList() {
 
 		this.ReviewerTermsService._ShowHideTermsList = !this.ReviewerTermsService._ShowHideTermsList;
-		console.log(this.ReviewerTermsService._ShowHideTermsList);
+		//console.log(this.ReviewerTermsService._ShowHideTermsList);
 	}
 
 	public RefreshHighlights() {
@@ -237,7 +239,10 @@ export class itemDetailsComp implements OnInit {
 				}
 			}
 		}
-    }
+	}
+	public get HasWriteRights(): boolean {
+		return this.ReviewerIdentityServ.HasWriteRights;
+	}
     private cleanSpecialRegexChars(input: string): string {
         //need to replace these: [\^$.|?*+(){}
         let result = input.replace(/\\/g, "\\\\");

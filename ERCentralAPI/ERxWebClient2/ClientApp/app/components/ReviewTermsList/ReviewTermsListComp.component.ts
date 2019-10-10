@@ -45,5 +45,15 @@ export class ReviewTermsListComp implements OnInit {
 			}
 		}
 	}
+	public get HasWriteRights(): boolean {
+		return this.ReviewerIdentityServ.HasWriteRights;
+	}
+	public InsertNewRow() {
+
+		let newTerm: ReviewerTerm = {} as ReviewerTerm;
+		this.ReviewTermsServ.CreateTerm(newTerm);
+		this.ReviewTermsServ.TermsList.push(newTerm);
+
+	}
 }
  

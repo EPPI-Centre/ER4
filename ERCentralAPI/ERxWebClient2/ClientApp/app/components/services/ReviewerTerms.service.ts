@@ -21,8 +21,6 @@ export class ReviewerTermsService extends BusyAwareService {
     public get TermsList(): ReviewerTerm[] {
         return this._TermsList;
 	}
-
-	public ShowHideTermsListEvent: EventEmitter<boolean> = new EventEmitter();
 	public _ShowHideTermsList: boolean = false;
 
     public Fetch() {

@@ -93,7 +93,7 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
 	public itemId = new Subject<number>();
 	public ShowOutComes: boolean = false;
 	public get leftPanel(): string {
-		console.log("leftPanel", this.ReviewerTermsService._ShowHideTermsList, this.ShowingOutComes);
+		//console.log("leftPanel", this.ReviewerTermsService._ShowHideTermsList, this.ShowingOutComes);
 		if (this.ReviewerTermsService._ShowHideTermsList) return "Highlights";
 		else if (this.ShowOutComes) return "OutComes";
 		else return "";
@@ -169,7 +169,6 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
                     }
                 }
 			);
-			this.ReviewerTermsService.ShowHideTermsListEvent
             this.ReloadItemCoding = this.ReviewSetsService.GetReviewStatsEmit.subscribe(
                 () => { this.SetCoding(); }
             );
