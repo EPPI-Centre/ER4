@@ -2,8 +2,7 @@ import { OnInit, Component, Input } from "@angular/core";
 import { Router } from "@angular/router";
 import { ReviewerIdentityService } from "../services/revieweridentity.service";
 import { ReviewerTermsService, ReviewerTerm } from "../services/ReviewerTerms.service";
-
-import { ItemListService, Item } from "../services/ItemList.service";
+import {  Item } from "../services/ItemList.service";
 import { ItemCodingService } from "../services/ItemCoding.service";
 
 @Component({
@@ -34,7 +33,6 @@ export class ReviewTermsListComp implements OnInit {
 	public Update(term: ReviewerTerm) {
 		if (term) {
 			this.ReviewTermsServ.UpdateTerm(term);
-			this.ReviewerTermsService.Fetch();
 			if (this.item) {
 				this.ItemCodingService.Fetch(this.item.itemId);
 			}
@@ -44,7 +42,6 @@ export class ReviewTermsListComp implements OnInit {
 	public Remove(term: ReviewerTerm) {
 		if (term) {
 			this.ReviewTermsServ.DeleteTerm(term.trainingReviewerTermId);
-			this.ReviewerTermsService.Fetch();
 			if (this.item) {
 				this.ItemCodingService.Fetch(this.item.itemId);
 			}

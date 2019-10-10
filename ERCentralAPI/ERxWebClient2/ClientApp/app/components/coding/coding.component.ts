@@ -138,6 +138,13 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
         }
         else return false;
 	}
+	IsServiceBusy(): boolean {
+		if (this.reviewInfoService.IsBusy || this._outcomeService.IsBusy
+			|| this.ReviewerTermsService.IsBusy) {
+			return true;
+		}
+		else return false;
+	}
 	public RefreshTerms() {
 
 		//this.SetHighlights();
@@ -214,6 +221,7 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
 	private outcomeSubscription: Subscription | null = null;
 	ngOnInit() {
 
+		this.RefreshTerms();
         this.innerWidth = window.innerWidth;
 		//this.route.params.subscribe(params => {
 

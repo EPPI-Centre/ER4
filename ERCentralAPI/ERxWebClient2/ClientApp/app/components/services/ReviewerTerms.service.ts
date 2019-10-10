@@ -1,7 +1,5 @@
-import { Component, Inject, Injectable, EventEmitter } from '@angular/core';
-import { Observable, of } from 'rxjs';
-import { AppComponent } from '../app/app.component'
-import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
+import { Inject, Injectable, EventEmitter } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
 
@@ -43,9 +41,7 @@ export class ReviewerTermsService extends BusyAwareService {
 
 	public CreateTerm(trt: ReviewerTerm): any {
 
-
 		this._BusyMethods.push("CreateTerm");
-
 		let body = JSON.stringify( trt );
 		return this._httpC.post<ReviewerTerm>(this._baseUrl + 'api/ReviewerTermList/CreateReviewerTerm',
 		body)
@@ -66,12 +62,13 @@ export class ReviewerTermsService extends BusyAwareService {
 	public DeleteTerm(termId: number): any {
 
 		this._BusyMethods.push("DeleteTerm");
-
 		let body = JSON.stringify({ Value: termId });
 		return this._httpC.post<ReviewerTerm>(this._baseUrl + 'api/ReviewerTermList/DeleteReviewerTerm',
 			body)
 			.subscribe(result => {
 
+				let ind: number = this._TermsList.findIndex(x => x.trainingReviewerTermId == result.trainingReviewerTermId);
+				this._TermsList.splice(ind, 1);
 				this.Fetch();
 				this.RemoveBusy("DeleteTerm");
 
@@ -93,9 +90,11 @@ export class ReviewerTermsService extends BusyAwareService {
 			body)
 			.subscribe(result => {
 
+				let ind: number = this._TermsList.findIndex(x => x.trainingReviewerTermId == term.trainingReviewerTermId);
+				this._TermsList[ind] = result;
 				this.Fetch();
 				this.RemoveBusy("UpdateTerm");
-
+				return this.TermsList;
 			},
 				error => {
 

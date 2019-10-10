@@ -1,8 +1,5 @@
 import { Component, Inject, OnInit, EventEmitter, Output, Input } from '@angular/core';
-import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
-import { ActivatedRoute, Event } from '@angular/router';
 import { Router } from '@angular/router';
-import { Observable, Subject } from 'rxjs';
 import { Item, ItemListService, iAdditionalItemDetails } from '../services/ItemList.service';
 import { ReviewerTermsService, ReviewerTerm } from '../services/ReviewerTerms.service';
 import { ItemDocsService } from '../services/itemdocs.service';
@@ -57,24 +54,16 @@ export class itemDetailsComp implements OnInit {
 
 	ngOnInit() {
 
-
+		console.log(this.item);
 		this.hostRectangle = null;
 		this.selectedText = "";
 
 	}
 
-	// I render the rectangles emitted by the [textSelect] directive.
 	public renderRectangles(event: TextSelectEvent): void {
 
-		//console.group("Text Select Event");
-		//console.log("Text:", event.text);
-
-		//console.log("Viewport Rectangle:", event.viewportRectangle);
-		//console.log("Host Rectangle:", event.hostRectangle);
 		console.groupEnd();
 
-		// If a new selection has been created, the viewport and host rectangles will
-		// exist. Or, if a selection is being removed, the rectangles will be null.
 		if (event.hostRectangle) {
 
 			this.hostRectangle = event.hostRectangle;
@@ -93,7 +82,6 @@ export class itemDetailsComp implements OnInit {
 	public shareSelection(): void {
 
 		console.group("Shared Text");
-		//console.log(this.selectedText);
 		console.groupEnd();
 
 		if (document != null ) {
@@ -149,7 +137,6 @@ export class itemDetailsComp implements OnInit {
             window.open("https://scholar.google.com/scholar?q=" + searchString);
         }
 	}
-	//private selectedRange: string = '';
 	public RemoveTerm() {
 
 		if (this.selectedText != null && this.selectedText != '') {
@@ -157,13 +144,8 @@ export class itemDetailsComp implements OnInit {
 			var findTerm = this.ReviewerTermsService.TermsList
 				.find(x => x.reviewerTerm == this.selectedText);
 
-			//console.log('findTerm: ',findTerm);
 			if (findTerm) {
 				this.ReviewerTermsService.DeleteTerm(findTerm.trainingReviewerTermId);
-			}
-			if (this.item) {
-				console.log('item ',this.item);
-				this.ItemCodingService.Fetch(this.item.itemId);
 			}
 			this.RefreshHighlights();
 			this.selectedText = '';
@@ -178,16 +160,12 @@ export class itemDetailsComp implements OnInit {
 			if (s == null || s.length == 0) return;
 			if (s.length > 50) return;
 			let terms: string[] = s.split(" ", 50);
-			//console.log('terms: ' + terms);			//removing empty from the abvoe array could happen here if there are any present
 			for (var i = 0; i < terms.length; i++) {
 
 				var term = terms[i];
 				console.log(term + '\n');
-				//checks whether term is in the list already...
 				let cTrt: ReviewerTerm | null = this.FindTerm(term);
-
 					if (cTrt == null) {
-
 						let trt: ReviewerTerm = {} as ReviewerTerm;
 						trt.reviewerTerm = term;
 						trt.included = addRemoveBtn;
@@ -197,13 +175,10 @@ export class itemDetailsComp implements OnInit {
 						
 						if (this.ReviewerTermsService.TermsList != null) {
 							this.ReviewerTermsService.TermsList.push(trt as ReviewerTerm);
-
 							this.ReviewerTermsService.CreateTerm(trt);
-
 						}
 					}	
 					else {//term is already there, see if we need to flip the Included flag
-
 						if (
 							(cTrt.included && addRemoveBtn)//adding as negative, but it's already there as positive
 							||
@@ -223,7 +198,7 @@ export class itemDetailsComp implements OnInit {
 
 		var ind = this.ReviewerTermsService.TermsList.findIndex(x => x.reviewerTerm == term);
 		if (ind != -1) {
-			console.log('found term...:', this.ReviewerTermsService.TermsList[ind]);
+			//console.log('found term...:', this.ReviewerTermsService.TermsList[ind]);
 			return this.ReviewerTermsService.TermsList[ind];
 		} else {
 			return null;
@@ -237,8 +212,6 @@ export class itemDetailsComp implements OnInit {
 	}
 
 	public RefreshHighlights() {
-		this.ReviewerTermsService.Fetch();
-		console.log('calling reviewer term fetch');
 		if (this.item) {
 			this.ItemCodingService.Fetch(this.item.itemId);
 		}
@@ -309,12 +282,10 @@ export class itemDetailsComp implements OnInit {
 }
 
 export class TrainingReviewerTerm {
-
 	public reviewId: number=0;
 	public reviewerTerm: string='';
 	public included: boolean = false;
 	public term: string='';
-
 }
 
 interface SelectionRectangle {
