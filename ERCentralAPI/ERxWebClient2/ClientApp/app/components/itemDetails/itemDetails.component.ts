@@ -66,7 +66,7 @@ export class itemDetailsComp implements OnInit {
 	public renderRectangles(event: TextSelectEvent): void {
 
 		//console.group("Text Select Event");
-		console.log("Text:", event.text);
+		//console.log("Text:", event.text);
 
 		//console.log("Viewport Rectangle:", event.viewportRectangle);
 		//console.log("Host Rectangle:", event.hostRectangle);
@@ -92,7 +92,7 @@ export class itemDetailsComp implements OnInit {
 	public shareSelection(): void {
 
 		console.group("Shared Text");
-		console.log(this.selectedText);
+		//console.log(this.selectedText);
 		console.groupEnd();
 
 		if (document != null ) {
@@ -158,26 +158,36 @@ export class itemDetailsComp implements OnInit {
             window.open("https://scholar.google.com/scholar?q=" + searchString);
         }
 	}
-	private selectedRange: string = '';
+	//private selectedRange: string = '';
 	public RemoveTerm() {
 
-		var findTerm = this.ReviewerTermsService.TermsList
-			.find(x => x.reviewerTerm == this.selectedText);
+		if (this.selectedText != null && this.selectedText != '') {
+		
+			var findTerm = this.ReviewerTermsService.TermsList
+				.find(x => x.reviewerTerm == this.selectedText);
 
-		console.log('findTerm: ',findTerm);
-		if (findTerm) {
-			this.ReviewerTermsService.DeleteTerm(findTerm.trainingReviewerTermId);
+			//console.log('findTerm: ',findTerm);
+			if (findTerm) {
+				this.ReviewerTermsService.DeleteTerm(findTerm.trainingReviewerTermId);
+			}
+			if (this.item) {
+				console.log('item ',this.item);
+				this.ItemCodingService.Fetch(this.item.itemId);
+			}
+			this.RefreshHighlights();
+			this.selectedText = '';
 		}
 
 	}
 	public AddRelevantTerm(addRemoveBtn: boolean) {
-		if (this.selectedText != null) {
+
+		if (this.selectedText != null && this.selectedText != '') {
 			
 			let s: string = this.selectedText.trim().toLowerCase();
 			if (s == null || s.length == 0) return;
 			if (s.length > 50) return;
 			let terms: string[] = s.split(" ", 50);
-			console.log('terms: ' + terms);			//removing empty from the abvoe array could happen here if there are any present
+			//console.log('terms: ' + terms);			//removing empty from the abvoe array could happen here if there are any present
 			for (var i = 0; i < terms.length; i++) {
 
 				var term = terms[i];
@@ -212,10 +222,11 @@ export class itemDetailsComp implements OnInit {
 						}
 					}
 
-				if (this.item) {
-					this.ItemCodingService.Fetch(this.item.itemId);
-				}
+				//if (this.item) {
+				//	this.ItemCodingService.Fetch(this.item.itemId);
+				//}
 				this.RefreshHighlights();
+				this.selectedText = '';
 			}
 		}
 	}
@@ -234,6 +245,7 @@ export class itemDetailsComp implements OnInit {
 
 	public RefreshHighlights() {
 		this.ReviewerTermsService.Fetch();
+		console.log('calling reviewer term fetch');
 		if (this.item) {
 			this.ItemCodingService.Fetch(this.item.itemId);
 		}
@@ -243,7 +255,7 @@ export class itemDetailsComp implements OnInit {
         if (this.item && this.ReviewerTermsService && this.ReviewerTermsService.TermsList.length > 0) {
             this.HTitle = this.item.title;
 			this.HAbstract = this.item.abstract;
-			console.log('set highlights called: ' + this.HAbstract);
+			//console.log('set highlights called: ' + this.HAbstract);
 			for (let term of this.ReviewerTermsService.TermsList) {
 				//console.log('something to do with the terms list here: ' + this.ReviewerTermsService.TermsList);
                 try {

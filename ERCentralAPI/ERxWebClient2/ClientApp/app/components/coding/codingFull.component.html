@@ -52,7 +52,7 @@
 					</codesetTreeCoding>
 				</div>
 				<div [hidden]="!ReviewerTermsService._ShowHideTermsList">
-					<ReviewTermsListComp class="bg-light">
+					<ReviewTermsListComp  [item]="item" class="bg-light">
 					</ReviewTermsListComp>
 				</div>
 				<div *ngIf="ShowOutComes"

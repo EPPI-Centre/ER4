@@ -10,9 +10,7 @@ import { BusyAwareService } from '../helpers/BusyAwareService';
 })
 
 export class ReviewerTermsService extends BusyAwareService {
-
-
-
+	   
     constructor(
         private _httpC: HttpClient,
         private modalService: ModalService,
@@ -71,7 +69,7 @@ export class ReviewerTermsService extends BusyAwareService {
 			.subscribe(result => {
 
 				this._TermsList.push(result)
-				console.log('Testing here: ' , result);
+				//console.log('Testing here: ' , result);
 				this.Fetch();
 				this.RemoveBusy("CreateTerm");
 
@@ -126,9 +124,6 @@ export class ReviewerTermsService extends BusyAwareService {
 				}
 			);
 	}
-
-
-
 }
 export interface ReviewerTerm {
     trainingReviewerTermId: number;
