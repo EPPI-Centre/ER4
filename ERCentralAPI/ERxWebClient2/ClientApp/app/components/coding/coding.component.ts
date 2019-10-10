@@ -137,7 +137,12 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
             return true;
         }
         else return false;
-    }
+	}
+	public RefreshTerms() {
+
+		//this.SetHighlights();
+		this.ReviewerTermsService.Fetch();
+	}
     public ShowCodesInSmallScreen: boolean = false;
     public ShowHideCodes() {
         this.ShowCodesInSmallScreen = !this.ShowCodesInSmallScreen;

@@ -16,7 +16,6 @@ export class ReviewTermsListComp implements OnInit {
 	constructor(private router: Router,
 		private ReviewerIdentityServ: ReviewerIdentityService,
 		private ReviewTermsServ: ReviewerTermsService,
-		private ItemListServ: ItemListService,
 		private ItemCodingService: ItemCodingService,
 		private ReviewerTermsService: ReviewerTermsService
 
@@ -47,7 +46,6 @@ export class ReviewTermsListComp implements OnInit {
 			this.ReviewTermsServ.DeleteTerm(term.trainingReviewerTermId);
 			this.ReviewerTermsService.Fetch();
 			if (this.item) {
-				console.log('got in here', this.item);
 				this.ItemCodingService.Fetch(this.item.itemId);
 			}
 		}

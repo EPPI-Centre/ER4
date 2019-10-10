@@ -39,28 +39,38 @@
                 <div class="ml-1 mt-0 mr-1 pl-0 pr-0 w-100 row">
                     <itemDetailsPaginator [(item)]="item" Context="CodingOnly" [IsScreening]="IsScreening" (ItemChanged)="ItemChanged()" (GoToNextScreeningItemClicked)="GetItem()"
                                           class="col-12 col-sm  pr-0 pl-0 ml-1 mr-1"></itemDetailsPaginator>
-                    <div class="pr-0 pl-0 col-12 col-sm pr-0">
-                        <button class="page-link rounded pt-1 pb-1 mb-1 float-right" (click)="BackToMain()">
-                            Close/back
-                        </button>
-                        <div class="row bg-info float-right mb-1 pb-1 ml-1 mr-1">
-                            <div class="form-check-label ml-2 mr-0 row" for="exampleCheck1">
-                                Auto Advance?
-                                <input type="checkbox" class="ml-2 mt-2 mr-2" [(ngModel)]="CheckBoxAutoAdvanceVal" #CheckBoxAutoAdvance>
-                            </div>
-                        </div>
-                        <div *ngIf="HasTermList" class="row bg-info float-right mb-1 pb-1 ml-0 mr-0">
-                            <div class="form-check-label ml-2 mr-0 row" for="exampleCheck1">
-                                Show terms?
-                                <input type="checkbox" class="ml-2 mt-2 mr-2" [(ngModel)]="ShowHighlights" (click)="ShowHighlightsClicked()">
-                            </div>
-                        </div>
-                    </div>
+					<div class="pr-0 pl-0 col-12 col-sm pr-0">
+						<button class="page-link rounded pt-1 pb-1 mb-1 float-right" (click)="BackToMain()">
+							Close/back
+						</button>
+						<div class="row bg-info float-right mb-1 pb-1 ml-1 mr-1">
+							<div class="form-check-label ml-2 mr-0 row" for="exampleCheck1">
+								Auto Advance?
+								<input type="checkbox" class="ml-2 mt-2 mr-2" [(ngModel)]="CheckBoxAutoAdvanceVal" #CheckBoxAutoAdvance>
+							</div>
+						</div>
+						<button *ngIf="IsServiceBusy"
+								class="btn btn-sm btn-outline-success mx-1 my-0 py-1 px-2 ng-star-inserted"
+								(click)="RefreshTerms()">
+							<i class="fa fa-refresh" aria-hidden="true"></i>
+						</button>
+						<div *ngIf="!IsServiceBusy"
+							 class="ml-2 mt-1 pl-1 " style="display:inline-block;position:absolute; top:0.30em;">
+							<i class="fa fa-spinner fa-spin text-success mt-1 " style=""></i>
+						</div>
+						<div *ngIf="HasTermList" class="row bg-info float-right mb-1 pb-1 ml-0 mr-0">
+							<div class="form-check-label ml-2 mr-0 row" for="exampleCheck1">
+								Show terms?
+								<input type="checkbox" class="ml-2 mt-2 mr-2" [(ngModel)]="ShowHighlights" (click)="ShowHighlightsClicked()">
+							</div>
+						</div>
+					</div>
                 </div>
                 <kendo-tabstrip #tabstripCoding (tabSelect)="onTabSelect($event)" class="specialHideSystem" [keepTabContent]="true">
                     <kendo-tabstrip-tab [selected]="true" [title]="'Item Details'">
                         <ng-template kendoTabContent>
-                            <itemDetailsComp #ItemDetailsCmp [item]="item" [IsScreening]="IsScreening" [ShowHighlights]="ShowHighlights" [ShowDocViewButton]="true"></itemDetailsComp>
+                            <itemDetailsComp #ItemDetailsCmp [Context]="CodingOnly"
+											 [item]="item" [IsScreening]="IsScreening" [ShowHighlights]="ShowHighlights" [ShowDocViewButton]="true"></itemDetailsComp>
                         </ng-template>
                     </kendo-tabstrip-tab>
                     <kendo-tabstrip-tab [title]="'PDF'" [disabled]="!HasDocForView">

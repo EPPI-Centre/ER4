@@ -12,7 +12,8 @@ import { PriorityScreeningService } from '../services/PriorityScreening.service'
 import { TextSelectEvent } from "../helpers/text-select.directive";
 import { ItemCodingService } from '../services/ItemCoding.service';
 
-
+// Some code in here has been taken from a suggested github source will
+// fill it in later...
 
 @Component({
     selector: 'itemDetailsComp',
@@ -36,12 +37,12 @@ export class itemDetailsComp implements OnInit {
     @Input() ShowHighlights: boolean = false;
     @Input() CanEdit: boolean = false;
     @Input() IsScreening: boolean = false;
-    @Input() ShowDocViewButton: boolean = true;
+	@Input() ShowDocViewButton: boolean = true;
+	@Input() Context: string = "CodingFull";
     public HAbstract: string = "";
     public HTitle: string = "";
     public showOptionalFields = false;
 
-	private eventsTest: Subject<void> = new Subject<void>();
     public get CurrentItemAdditionalData(): iAdditionalItemDetails | null {
         if (this.IsScreening) {
             return this.PriorityScreeningService.CurrentItemAdditionalData;
@@ -103,20 +104,10 @@ export class itemDetailsComp implements OnInit {
 				}
 			}
 		}
-		// Now that we've shared the text, let's clear the current selection.
-
-		// CAUTION: In modern browsers, the above call triggers a "selectionchange"
-		// event, which implicitly calls our renderRectangles() callback. However,
-		// in IE, the above call doesn't appear to trigger the "selectionchange"
-		// event. As such, we need to remove the host rectangle explicitly.
 		this.hostRectangle = null;
 		this.selectedText = "";
 	}
 	//======================================================
-	Changed() {
-	//	alert('item changed');
-	//	//this.eventsTest.next();
-	}
 
     public WipeHighlights() {
         this.HAbstract = "";
@@ -210,21 +201,18 @@ export class itemDetailsComp implements OnInit {
 							this.ReviewerTermsService.CreateTerm(trt);
 
 						}
-					}	//TODO
+					}	
 					else {//term is already there, see if we need to flip the Included flag
 
 						if (
-							(cTrt.included || !cTrt.included)//adding as negative, but it's already there as positive
+							(cTrt.included && addRemoveBtn)//adding as negative, but it's already there as positive
+							||
+							(cTrt.included && !addRemoveBtn)
 						) {
 							cTrt.included = !cTrt.included;
-							//api call when everything above is correct
-							//cTrt.BeginSave(true);
+							this.ReviewerTermsService.UpdateTerm(cTrt);
 						}
 					}
-
-				//if (this.item) {
-				//	this.ItemCodingService.Fetch(this.item.itemId);
-				//}
 				this.RefreshHighlights();
 				this.selectedText = '';
 			}
@@ -232,15 +220,20 @@ export class itemDetailsComp implements OnInit {
 	}
 
 	public FindTerm(term: string): ReviewerTerm | null {
-		// TODO
-		return null;
+
+		var ind = this.ReviewerTermsService.TermsList.findIndex(x => x.reviewerTerm == term);
+		if (ind != -1) {
+			console.log('found term...:', this.ReviewerTermsService.TermsList[ind]);
+			return this.ReviewerTermsService.TermsList[ind];
+		} else {
+			return null;
+		}
 	}
 	
 	public ShowHideTermsList() {
 
 		this.ReviewerTermsService._ShowHideTermsList = !this.ReviewerTermsService._ShowHideTermsList;
 		console.log(this.ReviewerTermsService._ShowHideTermsList);
-		//this.ReviewerTermsService.ShowHideTermsListEvent.emit();
 	}
 
 	public RefreshHighlights() {

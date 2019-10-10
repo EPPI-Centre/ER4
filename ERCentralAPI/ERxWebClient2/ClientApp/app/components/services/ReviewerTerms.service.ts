@@ -18,25 +18,9 @@ export class ReviewerTermsService extends BusyAwareService {
     ) {
 		super();
     }
-
-
+	
     private _TermsList: ReviewerTerm[] = [];
     public get TermsList(): ReviewerTerm[] {
-        //if (this._TermsList && this._TermsList.length > 0 ) {
-        //    return this._TermsList;
-        //}
-        //else {
-        //    const TermsListJson = localStorage.getItem('TermsList');
-        //    let terms_Info: ReviewerTerm[] = TermsListJson !== null ? JSON.parse(TermsListJson) : [];
-
-        //    if (terms_Info == undefined || terms_Info == null ) {
-
-        //        return this._TermsList;
-        //    }
-        //    else {
-        //        this._TermsList = terms_Info;
-        //    }
-        //}
         return this._TermsList;
 	}
 
@@ -49,7 +33,6 @@ export class ReviewerTermsService extends BusyAwareService {
         return this._httpC.get<ReviewerTerm[]>(this._baseUrl + 'api/ReviewerTermList/Fetch').subscribe(result => {
 			this._TermsList = result;
 			this.RemoveBusy("Fetch");
-            //this.Save();
         },
 			error => {
 				this.modalService.GenericError(error);
@@ -69,7 +52,6 @@ export class ReviewerTermsService extends BusyAwareService {
 			.subscribe(result => {
 
 				this._TermsList.push(result)
-				//console.log('Testing here: ' , result);
 				this.Fetch();
 				this.RemoveBusy("CreateTerm");
 
@@ -90,7 +72,6 @@ export class ReviewerTermsService extends BusyAwareService {
 			body)
 			.subscribe(result => {
 
-//				this._TermsList
 				this.Fetch();
 				this.RemoveBusy("DeleteTerm");
 
@@ -112,7 +93,6 @@ export class ReviewerTermsService extends BusyAwareService {
 			body)
 			.subscribe(result => {
 
-				//this._TermsList
 				this.Fetch();
 				this.RemoveBusy("UpdateTerm");
 

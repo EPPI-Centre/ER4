@@ -102,7 +102,8 @@
 				<kendo-tabstrip #tabstripCoding (tabSelect)="onTabSelect($event)" class="specialHideSystem" [keepTabContent]="true">
 					<kendo-tabstrip-tab [selected]="true" [title]="'Item Details'">
 						<ng-template kendoTabContent>
-							<itemDetailsComp #ItemDetailsCmp [item]="item" [CanEdit]="HasWriteRights" [IsScreening]="IsScreening" [ShowHighlights]="ShowHighlights" ShowDocViewButton="true"></itemDetailsComp>
+							<itemDetailsComp #ItemDetailsCmp Context="CodingFull"
+											 [item]="item" [CanEdit]="HasWriteRights" [IsScreening]="IsScreening" [ShowHighlights]="ShowHighlights" ShowDocViewButton="true"></itemDetailsComp>
 						</ng-template>
 					</kendo-tabstrip-tab>
 			

@@ -36,11 +36,11 @@
 
     </div>
 	<div *ngIf="ShowHighlights" class="row col-12 p-1 m-1 mt-2">
-		<button class="btn btn-outline-dark" (click)="AddRelevantTerm(true)">Add relevant term</button>
-		<button class="btn btn-outline-info" (click)="AddRelevantTerm(false)">Add irrelevant term</button>
-		<button class="btn btn-outline-danger" (click)="RemoveTerm()">Remove term</button>
+		<button *ngIf="Context == 'CodingFull'" class="btn btn-outline-dark" (click)="AddRelevantTerm(true)">Add relevant term</button>
+		<button *ngIf="Context == 'CodingFull'" class="btn btn-outline-info" (click)="AddRelevantTerm(false)">Add irrelevant term</button>
+		<button *ngIf="Context == 'CodingFull'" class="btn btn-outline-danger" (click)="RemoveTerm()">Remove term</button>
 		<div class="col-md-4"></div>
-		<button class="btn btn-outline-primary pull-right" (click)="ShowHideTermsList()">
+		<button *ngIf="Context == 'CodingFull'" class="btn btn-outline-primary pull-right" (click)="ShowHideTermsList()">
 		Show/Hide Terms List
 		</button>
 	</div>
