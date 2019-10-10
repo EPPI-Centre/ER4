@@ -166,11 +166,9 @@ export class itemDetailsComp implements OnInit {
 						||
 						(!cTrt.included && addRemoveBtn)
 					) {
-						//console.log('got inside here');
 						cTrt.included = !cTrt.included;
 						this.ReviewerTermsService.UpdateTerm(cTrt);
 					}
-					//console.log('did not get inside the if: ', cTrt);
 				}
 				this.RefreshHighlights();
 				this.selectedText = '';
@@ -182,7 +180,6 @@ export class itemDetailsComp implements OnInit {
 
 		var ind = this.ReviewerTermsService.TermsList.findIndex(x => x.reviewerTerm == term);
 		if (ind != -1) {
-			//console.log('found term...:', this.ReviewerTermsService.TermsList[ind]);
 			return this.ReviewerTermsService.TermsList[ind];
 		} else {
 			return null;

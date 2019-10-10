@@ -35,6 +35,9 @@ export class ReviewerTermsService extends BusyAwareService {
 			error => {
 				this.modalService.GenericError(error);
 				this.RemoveBusy("Fetch");
+			},
+			() => {
+				this.RemoveBusy("Fetch");
 			}
         );
 	}
@@ -54,6 +57,9 @@ export class ReviewerTermsService extends BusyAwareService {
 		},
 			error => {
 				this.modalService.GenericError(error);
+				this.RemoveBusy("CreateTerm");
+			},
+			() => {
 				this.RemoveBusy("CreateTerm");
 			}
 		);
@@ -77,8 +83,10 @@ export class ReviewerTermsService extends BusyAwareService {
 
 					this.modalService.GenericError(error);
 					this.RemoveBusy("DeleteTerm");
-				}
-			);
+			}, () => {
+				this.RemoveBusy("DeleteTerm");
+			}
+		);
 	}
 
 	public UpdateTerm(term: ReviewerTerm) {
@@ -100,7 +108,9 @@ export class ReviewerTermsService extends BusyAwareService {
 
 					this.modalService.GenericError(error);
 					this.RemoveBusy("UpdateTerm");
-				}
+			}, () => {
+					this.RemoveBusy("UpdateTerm");
+			}
 			);
 	}
 }
