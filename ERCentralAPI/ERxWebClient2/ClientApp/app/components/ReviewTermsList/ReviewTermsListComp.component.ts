@@ -35,7 +35,6 @@ export class ReviewTermsListComp implements OnInit {
 			if (this.item) {
 				this.ItemCodingService.Fetch(this.item.itemId);
 			}
-
 		}
 	}
 	public Remove(term: ReviewerTerm) {

@@ -198,43 +198,45 @@ export class itemDetailsComp implements OnInit {
 		}
 	}
 
-    public SetHighlights() {
-        if (this.item && this.ReviewerTermsService && this.ReviewerTermsService.TermsList.length > 0) {
-            this.HTitle = this.item.title;
+	public SetHighlights() {
+		if (this.item) {
+			this.HTitle = this.item.title;
 			this.HAbstract = this.item.abstract;
-			//console.log('set highlights called: ' + this.HAbstract);
-			for (let term of this.ReviewerTermsService.TermsList) {
-				//console.log('something to do with the terms list here: ' + this.ReviewerTermsService.TermsList);
-                try {
-                    if (term.reviewerTerm && term.reviewerTerm.length > 0) {
-                        let lFirst = term.reviewerTerm.substr(0, 1);
-                        lFirst = lFirst.toLowerCase();
-                        let uFirst = lFirst.toUpperCase();
-                        let lTerm = lFirst + term.reviewerTerm.substr(1);
-                        let uTerm = uFirst + term.reviewerTerm.substr(1);
+			if (this.ReviewerTermsService && this.ReviewerTermsService.TermsList.length > 0) {
+				//console.log('set highlights called: ' + this.HAbstract);
+				for (let term of this.ReviewerTermsService.TermsList) {
+					//console.log('something to do with the terms list here: ' + this.ReviewerTermsService.TermsList);
+					try {
+						if (term.reviewerTerm && term.reviewerTerm.length > 0) {
+							let lFirst = term.reviewerTerm.substr(0, 1);
+							lFirst = lFirst.toLowerCase();
+							let uFirst = lFirst.toUpperCase();
+							let lTerm = lFirst + term.reviewerTerm.substr(1);
+							let uTerm = uFirst + term.reviewerTerm.substr(1);
 
-                        let reg = new RegExp(this.cleanSpecialRegexChars(lTerm), "g");
-                        let reg2 = new RegExp(this.cleanSpecialRegexChars(uTerm), "g");
-                        if (term.included) {
-                            this.HTitle = this.HTitle.replace(reg, "<span class='RelevantTerm'>" + lTerm + "</span>");
-                            this.HTitle = this.HTitle.replace(reg2, "<span class='RelevantTerm'>" + uTerm + "</span>");
-                            this.HAbstract = this.HAbstract.replace(reg, "<span class='RelevantTerm'>" + lTerm + "</span>");
-                            this.HAbstract = this.HAbstract.replace(reg2, "<span class='RelevantTerm'>" + uTerm + "</span>");
-                        }
-                        else {
-                            this.HTitle = this.HTitle.replace(reg, "<span class='IrrelevantTerm'>" + lTerm + "</span>");
-                            this.HTitle = this.HTitle.replace(reg2, "<span class='IrrelevantTerm'>" + uTerm + "</span>");
-                            this.HAbstract = this.HAbstract.replace(reg, "<span class='IrrelevantTerm'>" + lTerm + "</span>");
-                            this.HAbstract = this.HAbstract.replace(reg2, "<span class='IrrelevantTerm'>" + uTerm + "</span>");
-                        }
-                    }
-                }
-                catch (error) {
-                    console.log(error);
-                    this.ModalService.GenericErrorMessage("Sorry, the terms-highlighting system has encountered a problem. Please inform EPPI-Support.");
-                }
-            }
-        }
+							let reg = new RegExp(this.cleanSpecialRegexChars(lTerm), "g");
+							let reg2 = new RegExp(this.cleanSpecialRegexChars(uTerm), "g");
+							if (term.included) {
+								this.HTitle = this.HTitle.replace(reg, "<span class='RelevantTerm'>" + lTerm + "</span>");
+								this.HTitle = this.HTitle.replace(reg2, "<span class='RelevantTerm'>" + uTerm + "</span>");
+								this.HAbstract = this.HAbstract.replace(reg, "<span class='RelevantTerm'>" + lTerm + "</span>");
+								this.HAbstract = this.HAbstract.replace(reg2, "<span class='RelevantTerm'>" + uTerm + "</span>");
+							}
+							else {
+								this.HTitle = this.HTitle.replace(reg, "<span class='IrrelevantTerm'>" + lTerm + "</span>");
+								this.HTitle = this.HTitle.replace(reg2, "<span class='IrrelevantTerm'>" + uTerm + "</span>");
+								this.HAbstract = this.HAbstract.replace(reg, "<span class='IrrelevantTerm'>" + lTerm + "</span>");
+								this.HAbstract = this.HAbstract.replace(reg2, "<span class='IrrelevantTerm'>" + uTerm + "</span>");
+							}
+						}
+					}
+					catch (error) {
+						console.log(error);
+						this.ModalService.GenericErrorMessage("Sorry, the terms-highlighting system has encountered a problem. Please inform EPPI-Support.");
+					}
+				}
+			}
+		}
     }
     private cleanSpecialRegexChars(input: string): string {
         //need to replace these: [\^$.|?*+(){}

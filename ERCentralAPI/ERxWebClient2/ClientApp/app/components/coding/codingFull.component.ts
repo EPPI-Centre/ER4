@@ -24,6 +24,8 @@ import { CreateNewCodeComp } from '../CodesetTrees/createnewcode.component';
 import { ReviewSetsEditingService } from '../services/ReviewSetsEditing.service';
 import { OutcomesService } from '../services/outcomes.service';
 import { OutcomesComponent } from '../Outcomes/outcomes.component';
+import { read } from 'fs';
+import { concat } from '@progress/kendo-data-query/dist/npm/transducers';
 
 
 @Component({
@@ -90,6 +92,12 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
 	public itemSet?: ItemSet;
 	public itemId = new Subject<number>();
 	public ShowOutComes: boolean = false;
+	public get leftPanel(): string {
+		console.log("leftPanel", this.ReviewerTermsService._ShowHideTermsList, this.ShowingOutComes);
+		if (this.ReviewerTermsService._ShowHideTermsList) return "Highlights";
+		else if (this.ShowOutComes) return "OutComes";
+		else return "";
+	}
     private subGotScreeningItem: Subscription | null = null;
     public IsScreening: boolean = false;
 	public ShowHighlights: boolean = false;
