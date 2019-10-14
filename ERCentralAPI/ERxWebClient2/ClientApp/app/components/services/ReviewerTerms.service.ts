@@ -96,11 +96,11 @@ export class ReviewerTermsService extends BusyAwareService {
 			body)
 			.subscribe(result => {
 
-				let ind: number = this._TermsList.findIndex(x => x.trainingReviewerTermId == term.trainingReviewerTermId);
-				this._TermsList[ind] = result;
+				//let ind: number = this._TermsList.findIndex(x => x.trainingReviewerTermId == term.trainingReviewerTermId);
+				//this._TermsList[ind] = result;
 				this.Fetch();
 				this.RemoveBusy("UpdateTerm");
-				return this.TermsList;
+				//return this.TermsList;
 			},
 				error => {
 
@@ -109,7 +109,7 @@ export class ReviewerTermsService extends BusyAwareService {
 			}, () => {
 					this.RemoveBusy("UpdateTerm");
 			}
-			);
+		);
 	}
 }
 export interface ReviewerTerm {

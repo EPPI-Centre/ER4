@@ -29,8 +29,10 @@ export class ReviewTermsListComp implements OnInit {
 		else {
 		}
 	}
+	public RelevantOrIrrelvantAddition: boolean = false;
 	public Update(term: ReviewerTerm) {
 		if (term) {
+			term.included = this.RelevantOrIrrelvantAddition;
 			this.ReviewTermsServ.UpdateTerm(term);
 			if (this.item) {
 				this.ItemCodingService.Fetch(this.item.itemId);
@@ -51,6 +53,7 @@ export class ReviewTermsListComp implements OnInit {
 	public InsertNewRow() {
 
 		let newTerm: ReviewerTerm = {} as ReviewerTerm;
+		newTerm.included = this.RelevantOrIrrelvantAddition;
 		this.ReviewTermsServ.CreateTerm(newTerm);
 		this.ReviewTermsServ.TermsList.push(newTerm);
 

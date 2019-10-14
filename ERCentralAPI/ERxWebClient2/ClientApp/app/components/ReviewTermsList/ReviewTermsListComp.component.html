@@ -9,24 +9,34 @@
 				</tr>
 				<tr>
 					<th>
-					<button (click)="InsertNewRow()"
-							class="btn btn-sm btn-outline-primary">Add New Term</button>
+						<button (click)="InsertNewRow()"
+								class="btn btn-sm btn-outline-primary">
+							Add New Term
+						</button>
+						<div class="m-0 row col-md-7 form-control bg-light">
+							Relevant
+							<input class="col-md-3" type="checkbox"
+								[(ngModel)]="RelevantOrIrrelvantAddition" />
+						</div>
 					</th>
 				</tr>
 			</thead>
 			<tbody>
 				<tr *ngFor="let term of ReviewTermsServ.TermsList">
 					<td>
-						<input class="form-control d-table-cell" type="text" [(ngModel)]="term.reviewerTerm" />
+						<input class="form-control d-table-cell" type="text" 
+							   [(ngModel)]="term.reviewerTerm" />
 					</td>
 					<td>
-						<button [disabled]="!HasWriteRights" class="btn btn-sm btn-outline-info"
+						<button [disabled]="!HasWriteRights" 
+								class="btn btn-sm btn-outline-info"
 								(click)="Update(term)">
 							Update
 						</button>
 					</td>
 					<td>
-						<button class="btn btn-sm btn-outline-danger"
+						<button [disabled]="!HasWriteRights"
+								class="btn btn-sm btn-outline-danger"
 							(click)="Remove(term)">
 							Delete
 						</button> 

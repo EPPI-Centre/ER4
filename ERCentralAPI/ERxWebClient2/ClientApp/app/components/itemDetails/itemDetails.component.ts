@@ -121,7 +121,8 @@ export class itemDetailsComp implements OnInit {
 	}
 	public RemoveTerm() {
 
-		if (this.selectedText != null && this.selectedText != '') {
+		if (this.selectedText != null && this.selectedText != ''
+			&& this.ReviewerTermsService.TermsList.length > 0) {
 		
 			var findTerm = this.ReviewerTermsService.TermsList
 				.find(x => x.reviewerTerm == this.selectedText);
@@ -147,7 +148,7 @@ export class itemDetailsComp implements OnInit {
 				var term = terms[i];
 				console.log(term + '\n');
 				let cTrt: ReviewerTerm | null = this.FindTerm(term);
-				console.log('CTrt not null: ', cTrt);
+				//console.log('CTrt not null: ', cTrt);
 				if (cTrt == null) {
 					let trt: ReviewerTerm = {} as ReviewerTerm;
 					trt.reviewerTerm = term;
@@ -191,7 +192,6 @@ export class itemDetailsComp implements OnInit {
 	public ShowHideTermsList() {
 
 		this.ReviewerTermsService._ShowHideTermsList = !this.ReviewerTermsService._ShowHideTermsList;
-		//console.log(this.ReviewerTermsService._ShowHideTermsList);
 	}
 
 	public RefreshHighlights() {
