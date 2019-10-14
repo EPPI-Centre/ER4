@@ -16,8 +16,6 @@ body {
 	background-color: white;
 }
 
-
-
 .GreenIcon {
     color: green;
 }
@@ -32,6 +30,33 @@ body {
 .IrrelevantTerm {
     color: white;
     background-color: red;
+}
+.RelevantTermER4 {
+	color: white;
+	background-color: blue;
+}
+
+.IrrelevantTermER4 {
+	color: white;
+	background-color: forestgreen;
+}
+.RelevantTermBW {
+	color: white;
+	background-color: black;
+}
+
+.IrrelevantTermBW {
+	color: black;
+	background-color: white;
+}
+.RelevantTermFainter {
+	color: white;
+	background-color: lightgreen;
+}
+
+.IrrelevantTermFainter {
+	color: white;
+	background-color: lightcoral;
 }
 
 body {

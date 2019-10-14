@@ -100,7 +100,8 @@ import { ReviewTermsListComp } from './components/ReviewTermsList/ReviewTermsLis
         ImportCodesetsWizardComponent,
         codesetTree4CopyComponent,
 		codesetSelectorComponent,
-        armsComp,
+		armsComp,
+		armDetailsComp,
         FetchReadOnlyReviewsComponent,
         HomeComponent,
         ArchieCallBackComponent, 
@@ -129,7 +130,6 @@ import { ReviewTermsListComp } from './components/ReviewTermsList/ReviewTermsLis
         CodesetTree4QuickQuestionReportComponent,
         NewReviewComponent,
 		RunLingo3G,
-		armDetailsComp,
         WorkAllocationComp,
         WorkAllocationContactListComp,
         SiteAdminComponent,
@@ -153,7 +153,7 @@ import { ReviewTermsListComp } from './components/ReviewTermsList/ReviewTermsLis
 		{ provide: RouteReuseStrategy, useClass: CustomRouteReuseStrategy }
     ],
 	entryComponents: [InfoBoxModalContent, ModalDialogComponent, ConfirmationDialogComponent],
-    imports: [
+	imports: [
         AngularFontAwesomeModule,
 		DataTablesModule,
 		CommonModule,
@@ -174,7 +174,7 @@ import { ReviewTermsListComp } from './components/ReviewTermsList/ReviewTermsLis
 		ButtonsModule,
         NotificationModule,
         DatePickerModule,
-        LayoutModule,
+		LayoutModule,
         RouterModule.forRoot([
             { path: '', redirectTo: 'home', pathMatch: 'full' },
             { path: 'home', component: HomeComponent },
