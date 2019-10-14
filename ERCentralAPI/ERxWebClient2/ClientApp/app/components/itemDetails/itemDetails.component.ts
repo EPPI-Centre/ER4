@@ -9,6 +9,7 @@ import { PriorityScreeningService } from '../services/PriorityScreening.service'
 import { TextSelectEvent } from "../helpers/text-select.directive";
 import { ItemCodingService } from '../services/ItemCoding.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
+import { ButtonsModule } from '@progress/kendo-angular-buttons';
 
 // COPYRIGHTS BELONG TO THE FOLLOWING FOR ABILITY TO SELECT TEXT AND CAPTURE EVENT
 // https://www.bennadel.com/blog/3439-creating-a-medium-inspired-text-selection-directive-in-angular-5-2-10.htm
@@ -41,6 +42,53 @@ export class itemDetailsComp implements OnInit {
     public HAbstract: string = "";
     public HTitle: string = "";
     public showOptionalFields = false;
+	public data: Array<any> = [{
+		text: 'Current',
+		icon: 'paste-plain-text',
+		click: () => {
+			this.RelevantTermClass = 'RelevantTerm';
+			this.IrrelevantTermClass = 'IrrelevantTerm';
+			this.SetHighlights();
+			this.RefreshHighlights();
+			console.log('Keep Text Only');
+		}
+	}, {
+		text: 'ER4 style',
+		icon: 'paste-as-html',
+			click: () => {
+				this.RelevantTermClass = 'RelevantTermER4';
+				this.IrrelevantTermClass = 'IrrelevantTermER4';
+				this.SetHighlights();
+				this.RefreshHighlights();
+				console.log('Paste as HTML');
+			}
+	}, {
+		text: 'B & W',
+		icon: 'paste-markdown',
+			click: () => {
+				this.RelevantTermClass = 'RelevantTermBW';
+				this.IrrelevantTermClass = 'IrrelevantTermBW';
+				this.SetHighlights();
+				this.RefreshHighlights();
+				console.log('Paste Markdown');
+			}
+	}, {
+		text: 'Current: fainter',
+			click: () => {
+				this.RelevantTermClass = 'RelevantTermFainter';
+				this.IrrelevantTermClass = 'IrrelevantTermFainter';
+				this.SetHighlights();
+				this.RefreshHighlights();
+				console.log('Set Default Paste');
+			}
+		}];
+	public RelevantTermClass: string = 'RelevantTerm';
+	public IrrelevantTermClass: string = 'IrrelevantTerm';
+	public changeTermsColours() {
+
+		this.ShowHighlightsClicked();
+		alert('Change term colours here...');
+	}
 
     public get CurrentItemAdditionalData(): iAdditionalItemDetails | null {
         if (this.IsScreening) {
@@ -219,16 +267,16 @@ export class itemDetailsComp implements OnInit {
 							let reg = new RegExp(this.cleanSpecialRegexChars(lTerm), "g");
 							let reg2 = new RegExp(this.cleanSpecialRegexChars(uTerm), "g");
 							if (term.included) {
-								this.HTitle = this.HTitle.replace(reg, "<span class='RelevantTerm'>" + lTerm + "</span>");
-								this.HTitle = this.HTitle.replace(reg2, "<span class='RelevantTerm'>" + uTerm + "</span>");
-								this.HAbstract = this.HAbstract.replace(reg, "<span class='RelevantTerm'>" + lTerm + "</span>");
-								this.HAbstract = this.HAbstract.replace(reg2, "<span class='RelevantTerm'>" + uTerm + "</span>");
+								this.HTitle = this.HTitle.replace(reg, "<span class='" + this.RelevantTermClass + "'>" + lTerm + "</span>");
+								this.HTitle = this.HTitle.replace(reg2, "<span class='" + this.RelevantTermClass + "'>" + uTerm + "</span>");
+								this.HAbstract = this.HAbstract.replace(reg, "<span class='" + this.RelevantTermClass + "'>" + lTerm + "</span>");
+								this.HAbstract = this.HAbstract.replace(reg2, "<span class='" + this.RelevantTermClass + "'>" + uTerm + "</span>");
 							}
 							else {
-								this.HTitle = this.HTitle.replace(reg, "<span class='IrrelevantTerm'>" + lTerm + "</span>");
-								this.HTitle = this.HTitle.replace(reg2, "<span class='IrrelevantTerm'>" + uTerm + "</span>");
-								this.HAbstract = this.HAbstract.replace(reg, "<span class='IrrelevantTerm'>" + lTerm + "</span>");
-								this.HAbstract = this.HAbstract.replace(reg2, "<span class='IrrelevantTerm'>" + uTerm + "</span>");
+								this.HTitle = this.HTitle.replace(reg, "<span class='" + this.IrrelevantTermClass + "'>" + lTerm + "</span>");
+								this.HTitle = this.HTitle.replace(reg2, "<span class='" + this.IrrelevantTermClass + "'>" + uTerm + "</span>");
+								this.HAbstract = this.HAbstract.replace(reg, "<span class='" + this.IrrelevantTermClass + "'>" + lTerm + "</span>");
+								this.HAbstract = this.HAbstract.replace(reg2, "<span class='" + this.IrrelevantTermClass + "'>" + uTerm + "</span>");
 							}
 						}
 					}

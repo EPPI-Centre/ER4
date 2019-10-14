@@ -40,8 +40,11 @@
 		<button [disabled]="!HasWriteRights" *ngIf="Context == 'CodingFull'" class="btn btn-outline-info" (click)="AddRelevantTerm(false)">Add irrelevant term</button>
 		<button [disabled]="!HasWriteRights" *ngIf="Context == 'CodingFull'" class="btn btn-outline-danger" (click)="RemoveTerm()">Remove term</button>
 		<button *ngIf="Context == 'CodingFull'" class="btn btn-outline-primary" (click)="ShowHideTermsList()">
-		Show/Hide Terms List
+			Show/Hide Terms List
 		</button>
+		<kendo-splitbutton (buttonClick)="changeTermsColours()" [data]="data" [icon]="paste">
+			Select colour style 
+		</kendo-splitbutton>
 	</div>
 	<div class="row col-12 p-1 m-1 mt-2">
 
