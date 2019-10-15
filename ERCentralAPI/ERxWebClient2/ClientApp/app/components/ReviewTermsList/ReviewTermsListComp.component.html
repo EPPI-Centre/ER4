@@ -4,7 +4,7 @@
 			<thead>
 				<tr>
 					<th>Review Term</th>
-					<th class="small">Relevant?</th>
+					<th class="small bold"><b>Relevant?</b></th>
 					<th>&nbsp;</th>
                     <th>&nbsp;</th>
 				</tr>
@@ -20,17 +20,17 @@
                         </button>
                     </td>
                 </tr>
-                <tr *ngIf="ShowNewTermPanel">
-                    <td><input class="form-control col-6 " type="text" [(ngModel)]="newReviewTerm" /></td>
-                    <td><input class="form-control col-1" type="checkbox" [(ngModel)]="newReviewIncluded" /></td>
+                <tr *ngIf="ShowNewTermPanel" class="border border-info rounded">
+                    <td><input class="form-control" type="text" [(ngModel)]="newReviewTerm" /></td>
+                    <td><input class="form-control" type="checkbox" [(ngModel)]="newReviewIncluded" /></td>
                     <td>
                         <button [disabled]="newReviewTerm == ''" title="Save new term"
-                                class="btn btn-small btn-outline-primary" (click)="InsertNewRow()">
+                                class="btn btn-sm btn-outline-primary" (click)="InsertNewRow()">
                             <i class="fa fa-save"></i>
                         </button>
                     </td>
                     <td>
-                        <button class="btn btn-small btn-outline-dark" title="Cancel" (click)="OpenRowPanel()">
+                        <button class="btn btn-sm btn-outline-danger" title="Cancel" (click)="OpenRowPanel()">
                             <i class="fa fa-close"></i>
                         </button>
                     </td>
