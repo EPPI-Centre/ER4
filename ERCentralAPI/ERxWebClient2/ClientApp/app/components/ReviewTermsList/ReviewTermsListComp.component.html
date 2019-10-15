@@ -9,12 +9,15 @@
 		</div>
 		<div *ngIf="ShowNewTermPanel" style="min-width: 250px;">
 			<div class="row">
-				<input class="form-control col-md-6" type="text" [(ngModel)]="newReviewTerm" />
+				<div class="m-2">
+
+				</div>
+				<input class="form-control col-md-6 " type="text" [(ngModel)]="newReviewTerm" />
 				<input class="form-control col-md-1" type="checkbox" [(ngModel)]="newReviewIncluded" />
-			</div>
-			<div>
 				<button [disabled]="newReviewTerm == ''"
-						class="btn btn-small btn-outline-primary" (click)="InsertNewRow()">Add New Term</button>
+						class="btn btn-small btn-outline-primary" (click)="InsertNewRow()">
+					Add Term
+				</button>
 			</div>
 		</div>
 		<table class=" table-condensed border p-0 m-0" >

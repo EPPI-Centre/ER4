@@ -79,6 +79,9 @@ export class ReviewTermsListComp implements OnInit, OnDestroy {
 			newTerm.term = this.newReviewTerm;
 			this.ReviewTermsServ.CreateTerm(newTerm);
 			this.ReviewTermsServ.TermsList.push(newTerm);
+			this.newReviewTerm = '';
+			this.newReviewIncluded = false;
+			this.ShowNewTermPanel = false;
 		}
 	}
 }
