@@ -8,12 +8,11 @@
 			</button>
 		</div>
 		<div *ngIf="ShowNewTermPanel" style="min-width: 250px;">
-			<div class="row">
-				<div class="m-2">
-
+			<div class="row col-12">
+				<div class="">
 				</div>
-				<input class="form-control col-md-6 " type="text" [(ngModel)]="newReviewTerm" />
-				<input class="form-control col-md-1" type="checkbox" [(ngModel)]="newReviewIncluded" />
+				<input class="form-control col-6 " type="text" [(ngModel)]="newReviewTerm" />
+				<input class="form-control col-1" type="checkbox" [(ngModel)]="newReviewIncluded" />
 				<button [disabled]="newReviewTerm == ''"
 						class="btn btn-small btn-outline-primary" (click)="InsertNewRow()">
 					Add Term
