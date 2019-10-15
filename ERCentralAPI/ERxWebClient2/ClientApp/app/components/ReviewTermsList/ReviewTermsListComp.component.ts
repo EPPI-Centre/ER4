@@ -1,4 +1,4 @@
-import { OnInit, Component, Input } from "@angular/core";
+import { OnInit, Component, Input, OnDestroy, EventEmitter, Output } from "@angular/core";
 import { Router } from "@angular/router";
 import { ReviewerIdentityService } from "../services/revieweridentity.service";
 import { ReviewerTermsService, ReviewerTerm } from "../services/ReviewerTerms.service";
@@ -10,17 +10,19 @@ import { ItemCodingService } from "../services/ItemCoding.service";
 	templateUrl: './ReviewTermsListComp.component.html',
 })
 
-export class ReviewTermsListComp implements OnInit {
+export class ReviewTermsListComp implements OnInit, OnDestroy {
 
 	constructor(private router: Router,
 		private ReviewerIdentityServ: ReviewerIdentityService,
 		private ReviewTermsServ: ReviewerTermsService,
-		private ItemCodingService: ItemCodingService
+		private ItemCodingService: ItemCodingService,
+		private ReviewerTermsService: ReviewerTermsService
 
 	) {
 
 	}
 	@Input() item: Item | undefined;
+
 	ngOnInit() {
 
 		if (this.ReviewerIdentityServ.reviewerIdentity.userId == 0) {
@@ -29,15 +31,34 @@ export class ReviewTermsListComp implements OnInit {
 		else {
 		}
 	}
-	public RelevantOrIrrelvantAddition: boolean = false;
 	public Update(term: ReviewerTerm) {
 		if (term) {
-			term.included = this.RelevantOrIrrelvantAddition;
 			this.ReviewTermsServ.UpdateTerm(term);
 			if (this.item) {
 				this.ItemCodingService.Fetch(this.item.itemId);
 			}
 		}
+	}
+	scrollToBottom() {
+		const element = document.getElementById('box');
+		if (element) {
+			element.scrollIntoView({ behavior: 'smooth', block: 'end', inline: 'end' });
+		}
+	}
+	ngOnDestroy() {
+
+		this.Clear();
+
+	}
+	public Clear() {
+
+		this.ReviewerTermsService._ShowHideTermsList = false;
+		this.ShowNewTermPanel = false;
+	}
+	public ShowNewTermPanel: boolean = false;
+	public OpenRowPanel() {
+		this.ShowNewTermPanel = !this.ShowNewTermPanel;
+
 	}
 	public Remove(term: ReviewerTerm) {
 		if (term) {
@@ -53,10 +74,9 @@ export class ReviewTermsListComp implements OnInit {
 	public InsertNewRow() {
 
 		let newTerm: ReviewerTerm = {} as ReviewerTerm;
-		newTerm.included = this.RelevantOrIrrelvantAddition;
 		this.ReviewTermsServ.CreateTerm(newTerm);
 		this.ReviewTermsServ.TermsList.push(newTerm);
-
+		this.scrollToBottom();
 	}
 }
  

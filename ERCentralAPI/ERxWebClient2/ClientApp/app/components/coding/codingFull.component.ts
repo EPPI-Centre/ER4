@@ -519,7 +519,8 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
         //}
         //this.GetItemCoding();
     }
-    BackToMain() {
+	BackToMain() {
+		this.ShowHighlights = false;
         this.clearItemData();
         this.router.navigate(['Main']);
     }

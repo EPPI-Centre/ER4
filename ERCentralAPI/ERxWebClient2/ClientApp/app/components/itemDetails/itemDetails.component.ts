@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, EventEmitter, Output, Input } from '@angular/core';
+import { Component, Inject, OnInit, EventEmitter, Output, Input, ViewChild, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { Item, ItemListService, iAdditionalItemDetails } from '../services/ItemList.service';
 import { ReviewerTermsService, ReviewerTerm } from '../services/ReviewerTerms.service';
@@ -10,6 +10,7 @@ import { TextSelectEvent } from "../helpers/text-select.directive";
 import { ItemCodingService } from '../services/ItemCoding.service';
 import { ReviewerIdentityService, PersistingOptions } from '../services/revieweridentity.service';
 import { ButtonsModule } from '@progress/kendo-angular-buttons';
+import { ReviewTermsListComp } from '../ReviewTermsList/ReviewTermsListComp.component';
 
 // COPYRIGHTS BELONG TO THE FOLLOWING FOR ABILITY TO SELECT TEXT AND CAPTURE EVENT
 // https://www.bennadel.com/blog/3439-creating-a-medium-inspired-text-selection-directive-in-angular-5-2-10.htm
@@ -20,7 +21,7 @@ import { ButtonsModule } from '@progress/kendo-angular-buttons';
     providers: [],
     styles: []
 })
-export class itemDetailsComp implements OnInit {
+export class itemDetailsComp implements OnInit, OnDestroy {
 
     constructor(
         private router: Router,
@@ -39,6 +40,7 @@ export class itemDetailsComp implements OnInit {
     @Input() IsScreening: boolean = false;
 	@Input() ShowDocViewButton: boolean = true;
 	@Input() Context: string = "CodingFull";
+
     public HAbstract: string = "";
     public HTitle: string = "";
 	public showOptionalFields = false;
@@ -105,7 +107,15 @@ export class itemDetailsComp implements OnInit {
 
 	ngOnInit() {
 
-		console.log(this.item);
+		
+		this.hostRectangle = null;
+		this.selectedText = "";
+		this.ShowHighlights = false;
+				
+	}
+	ngOnDestroy() {
+
+		this.ShowHighlights = false;
 		this.hostRectangle = null;
 		this.selectedText = "";
 

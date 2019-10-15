@@ -1,45 +1,50 @@
 <div>
-	<div  style="max-height: 810px; height:680px; overflow: auto">
-		<table class="table table-bordered table-striped p-0 m-0 table-condensed">
+	<div style="max-height: 810px; height:680px; overflow: auto" >
+		<div>
+			<button (click)="OpenRowPanel()"
+					class="btn btn-sm btn-outline-primary">
+				<i class="fa fa-plus" aria-hidden="true"></i>
+				Open new term panel
+			</button>
+		</div>
+		<div *ngIf="ShowNewTermPanel">
+			<button (click)="InsertNewRow()"
+					class="btn btn-sm btn-outline-primary">
+				Add New Row
+			</button>
+		</div>
+		<table class=" table-condensed border p-0 m-0" >
 			<thead>
 				<tr>
 					<th>Review Term</th>
-					<th>Update</th>
+					<th>Inc/Exc</th>
+					<th>Save</th>
 					<th>Delete</th>
 				</tr>
-				<tr>
-					<th>
-						<button (click)="InsertNewRow()"
-								class="btn btn-sm btn-outline-primary">
-							Add New Term
-						</button>
-						<div class="m-0 row col-md-7 form-control bg-light">
-							Relevant
-							<input class="col-md-3" type="checkbox"
-								[(ngModel)]="RelevantOrIrrelvantAddition" />
-						</div>
-					</th>
-				</tr>
+
 			</thead>
-			<tbody>
-				<tr *ngFor="let term of ReviewTermsServ.TermsList">
+			<tbody id="box">
+				<tr  *ngFor="let term of ReviewTermsServ.TermsList">
 					<td>
-						<input class="form-control d-table-cell" type="text" 
+						<input class="form-control" type="text"
 							   [(ngModel)]="term.reviewerTerm" />
 					</td>
 					<td>
-						<button [disabled]="!HasWriteRights" 
+						<input class="form-control" type="checkbox" [(ngModel)]="term.included" />
+					</td>
+					<td>
+						<button [disabled]="!HasWriteRights"
 								class="btn btn-sm btn-outline-info"
 								(click)="Update(term)">
-							Update
+							<i class="fa fa-save" aria-hidden="true"></i>
 						</button>
 					</td>
 					<td>
 						<button [disabled]="!HasWriteRights"
 								class="btn btn-sm btn-outline-danger"
-							(click)="Remove(term)">
-							Delete
-						</button> 
+								(click)="Remove(term)">
+							<i class="fa fa-trash" aria-hidden="true"></i>
+						</button>
 					</td>
 				</tr>
 			</tbody>
