@@ -114,12 +114,10 @@ export class itemDetailsComp implements OnInit, OnDestroy {
 		);
 		this.hostRectangle = null;
 		this.selectedText = "";
-		this.ShowHighlights = false;
 				
 	}
 	ngOnDestroy() {
-
-		this.ShowHighlights = false;
+				
 		this.hostRectangle = null;
 		this.selectedText = "";
 		if (this.subscr) {
