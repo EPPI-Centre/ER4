@@ -100,7 +100,13 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
 	}
     private subGotScreeningItem: Subscription | null = null;
     public IsScreening: boolean = false;
-	public ShowHighlights: boolean = false;
+    public get ShowHighlights(): boolean {
+        return this.ReviewerIdentityServ.userOptions.ShowHighlight;
+    }
+    public set ShowHighlights(val: boolean) {
+        this.ReviewerIdentityServ.userOptions.ShowHighlight = val;
+        this.ReviewerIdentityServ.SaveOptions();//otherwise they won't persist...
+    }
 	public EditCodesPanel: string = "";
     ngOnInit() {
         //console.log('init!');
@@ -300,7 +306,12 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
     public get HasWriteRights(): boolean {
         return this.ReviewerIdentityServ.HasWriteRights
     }
-    public CheckBoxAutoAdvanceVal: boolean = false;
+    public get CheckBoxAutoAdvanceVal(): boolean {
+        return this.ReviewerIdentityServ.userOptions.AutoAdvance;
+    }
+    public set CheckBoxAutoAdvanceVal(val: boolean) {
+        this.ReviewerIdentityServ.userOptions.AutoAdvance = val;
+    }
     onSubmit(f: string) {
     }
     //@Output() criteriaChange = new EventEmitter();

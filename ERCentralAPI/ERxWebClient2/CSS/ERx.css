@@ -32,26 +32,26 @@ body {
     background-color: red;
 }
 .RelevantTermER4 {
-	color: white;
-	background-color: blue;
+	color: blue;
+	font-weight: bolder;
 }
 
 .IrrelevantTermER4 {
-	color: white;
-	background-color: forestgreen;
+    color: red;
+    font-weight: bolder;
 }
 .RelevantTermBW {
-	color: white;
-	background-color: black;
+    font-weight: bolder;
 }
 
 .IrrelevantTermBW {
-	color: black;
-	background-color: white;
+    font-weight: bolder;
+    text-decoration: line-through;
+    text-decoration-style: double;
 }
 .RelevantTermFainter {
-	color: white;
-	background-color: lightgreen;
+    color: white;
+    background-color: mediumseagreen;
 }
 
 .IrrelevantTermFainter {
