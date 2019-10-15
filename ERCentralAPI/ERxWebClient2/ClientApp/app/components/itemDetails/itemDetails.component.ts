@@ -41,7 +41,8 @@ export class itemDetailsComp implements OnInit {
 	@Input() Context: string = "CodingFull";
     public HAbstract: string = "";
     public HTitle: string = "";
-    public showOptionalFields = false;
+	public showOptionalFields = false;
+	public NoTextSelected: boolean = true;
 	public data: Array<any> = [{
 		text: 'Current',
 		icon: 'paste-plain-text',
@@ -118,12 +119,13 @@ export class itemDetailsComp implements OnInit {
 
 			this.hostRectangle = event.hostRectangle;
 			this.selectedText = event.text;
+			this.NoTextSelected = false;
 
 		} else {
 
 			this.hostRectangle = null;
 			this.selectedText = "";
-
+			this.NoTextSelected = true;
 		}
 	}
 
@@ -223,6 +225,7 @@ export class itemDetailsComp implements OnInit {
 				}
 				this.RefreshHighlights();
 				this.selectedText = '';
+				this.NoTextSelected = true;
 			}
 		}
 	}
@@ -246,6 +249,7 @@ export class itemDetailsComp implements OnInit {
 		if (this.item) {
 			this.ItemCodingService.Fetch(this.item.itemId);
 		}
+		this.NoTextSelected = true;
 	}
 
 	public SetHighlights() {
