@@ -8,7 +8,7 @@ import { Helpers } from '../helpers/HelperMethods';
 import { PriorityScreeningService } from '../services/PriorityScreening.service';
 import { TextSelectEvent } from "../helpers/text-select.directive";
 import { ItemCodingService } from '../services/ItemCoding.service';
-import { ReviewerIdentityService } from '../services/revieweridentity.service';
+import { ReviewerIdentityService, PersistingOptions } from '../services/revieweridentity.service';
 import { ButtonsModule } from '@progress/kendo-angular-buttons';
 
 // COPYRIGHTS BELONG TO THE FOLLOWING FOR ABILITY TO SELECT TEXT AND CAPTURE EVENT
@@ -110,7 +110,7 @@ export class itemDetailsComp implements OnInit {
 		this.selectedText = "";
 
 	}
-
+    
 	public renderRectangles(event: TextSelectEvent): void {
 
 		console.groupEnd();
@@ -249,6 +249,15 @@ export class itemDetailsComp implements OnInit {
 		if (this.item) {
 			this.ItemCodingService.Fetch(this.item.itemId);
 		}
+	}
+    SetHighlightStyle(style: string) {
+        if (!this.ReviewerIdentityServ.userOptions.persistingOptions) {
+            this.ReviewerIdentityServ.userOptions.persistingOptions = new PersistingOptions();
+        }
+        this.ReviewerIdentityServ.userOptions.persistingOptions.HighlightsStyle = style;
+        this.ReviewerIdentityServ.SaveOptions();//otherwise they won't persist...
+        this.SetHighlights();
+    }
 		this.NoTextSelected = true;
 	}
 
@@ -271,16 +280,16 @@ export class itemDetailsComp implements OnInit {
 							let reg = new RegExp(this.cleanSpecialRegexChars(lTerm), "g");
 							let reg2 = new RegExp(this.cleanSpecialRegexChars(uTerm), "g");
 							if (term.included) {
-								this.HTitle = this.HTitle.replace(reg, "<span class='" + this.RelevantTermClass + "'>" + lTerm + "</span>");
-								this.HTitle = this.HTitle.replace(reg2, "<span class='" + this.RelevantTermClass + "'>" + uTerm + "</span>");
-								this.HAbstract = this.HAbstract.replace(reg, "<span class='" + this.RelevantTermClass + "'>" + lTerm + "</span>");
-								this.HAbstract = this.HAbstract.replace(reg2, "<span class='" + this.RelevantTermClass + "'>" + uTerm + "</span>");
+								this.HTitle = this.HTitle.replace(reg, "<span class='" + this.ReviewerIdentityServ.userOptions.RelevantTermClass + "'>" + lTerm + "</span>");
+                                this.HTitle = this.HTitle.replace(reg2, "<span class='" + this.ReviewerIdentityServ.userOptions.RelevantTermClass + "'>" + uTerm + "</span>");
+                                this.HAbstract = this.HAbstract.replace(reg, "<span class='" + this.ReviewerIdentityServ.userOptions.RelevantTermClass + "'>" + lTerm + "</span>");
+                                this.HAbstract = this.HAbstract.replace(reg2, "<span class='" + this.ReviewerIdentityServ.userOptions.RelevantTermClass + "'>" + uTerm + "</span>");
 							}
 							else {
-								this.HTitle = this.HTitle.replace(reg, "<span class='" + this.IrrelevantTermClass + "'>" + lTerm + "</span>");
-								this.HTitle = this.HTitle.replace(reg2, "<span class='" + this.IrrelevantTermClass + "'>" + uTerm + "</span>");
-								this.HAbstract = this.HAbstract.replace(reg, "<span class='" + this.IrrelevantTermClass + "'>" + lTerm + "</span>");
-								this.HAbstract = this.HAbstract.replace(reg2, "<span class='" + this.IrrelevantTermClass + "'>" + uTerm + "</span>");
+                                this.HTitle = this.HTitle.replace(reg, "<span class='" + this.ReviewerIdentityServ.userOptions.IrrelevantTermClass + "'>" + lTerm + "</span>");
+                                this.HTitle = this.HTitle.replace(reg2, "<span class='" + this.ReviewerIdentityServ.userOptions.IrrelevantTermClass + "'>" + uTerm + "</span>");
+                                this.HAbstract = this.HAbstract.replace(reg, "<span class='" + this.ReviewerIdentityServ.userOptions.IrrelevantTermClass + "'>" + lTerm + "</span>");
+                                this.HAbstract = this.HAbstract.replace(reg2, "<span class='" + this.ReviewerIdentityServ.userOptions.IrrelevantTermClass + "'>" + uTerm + "</span>");
 							}
 						}
 					}

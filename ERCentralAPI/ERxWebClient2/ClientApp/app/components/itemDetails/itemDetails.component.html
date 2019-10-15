@@ -35,17 +35,28 @@
         </div>
 
     </div>
-	<div *ngIf="ShowHighlights" class="row col-12 p-1 m-1 mt-2" style="min-width: 200px;">
-		<button [disabled]="!HasWriteRights || NoTextSelected" *ngIf="Context == 'CodingFull'" class="btn btn-outline-success" (click)="AddRelevantTerm(true)">Add relevant term</button>
-		<button [disabled]="!HasWriteRights || NoTextSelected" *ngIf="Context == 'CodingFull'" class="btn btn-outline-info" (click)="AddRelevantTerm(false)">Add irrelevant term</button>
-		<button [disabled]="!HasWriteRights || NoTextSelected" *ngIf="Context == 'CodingFull'" class="btn btn-outline-danger" (click)="RemoveTerm()">Remove term</button>
-		<button *ngIf="Context == 'CodingFull'" class="btn btn-outline-primary" (click)="ShowHideTermsList()">
-			Show/Hide Terms List
-		</button>
-		<kendo-splitbutton (buttonClick)="changeTermsColours()" [data]="data" [icon]="paste">
-			Select colour style 
-		</kendo-splitbutton>
-	</div>
+    <div *ngIf="ShowHighlights" class="row col-12 p-1 mx-0" style="min-width: 200px;">
+        <button [disabled]="!HasWriteRights" *ngIf="Context == 'CodingFull'" class="btn btn-sm py-0 px-1 my-1 ml-0 mr-1 btn-outline-success" (click)="AddRelevantTerm(true)">Add relevant term</button>
+        <button [disabled]="!HasWriteRights" *ngIf="Context == 'CodingFull'" class="btn btn-sm py-0 px-1 my-1 ml-0 mr-1 btn-outline-info" (click)="AddRelevantTerm(false)">Add irrelevant term</button>
+        <button [disabled]="!HasWriteRights" *ngIf="Context == 'CodingFull'" class="btn btn-sm py-0 px-1 my-1 ml-0 mr-1 btn-outline-danger" (click)="RemoveTerm()">Remove term</button>
+        <button *ngIf="Context == 'CodingFull'" class="btn btn-sm py-0 px-1 my-1 ml-0 mr-1 btn-outline-primary" (click)="ShowHideTermsList()">
+            Show/Hide Terms
+        </button>
+        <div class="dropdown mr-1">
+            <button class="btn btn-outline-dark dropdown-toggle btn-sm px-1 py-0 my-1" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="fa fa-pencil" aria-hidden="true"></i>&nbsp;Change Style:
+            </button>
+            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                <a class="dropdown-item" [ngClass]="{'font-weight-bold' : HighlightsStyle == 'Default'}" (click)="SetHighlightStyle('Default')">Default</a>
+                <a class="dropdown-item" [ngClass]="{'font-weight-bold' : HighlightsStyle == 'EPPI-Reviewer 4'}" (click)="SetHighlightStyle('EPPI-Reviewer 4')">EPPI-Reviewer 4</a>
+                <a class="dropdown-item" [ngClass]="{'font-weight-bold' : HighlightsStyle == 'Black & White'}" (click)="SetHighlightStyle('Black & White')">Black &amp; White</a>
+                <a class="dropdown-item" [ngClass]="{'font-weight-bold' : HighlightsStyle == 'Subtle'}" (click)="SetHighlightStyle('Subtle')">Subtle</a>
+            </div>
+        </div>
+        <!--<kendo-splitbutton (buttonClick)="changeTermsColours()" [data]="data" [icon]="paste">
+            Select colour style
+        </kendo-splitbutton>-->
+    </div>
 	<div class="row col-12 p-1 m-1 mt-2">
 
 			<div *ngIf="ShowHighlights" class="row col-12" (textSelect)="renderRectangles($event)"><h4 [innerHTML]="HTitle"></h4></div>
