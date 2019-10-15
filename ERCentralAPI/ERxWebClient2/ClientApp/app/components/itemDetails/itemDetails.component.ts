@@ -11,6 +11,7 @@ import { ItemCodingService } from '../services/ItemCoding.service';
 import { ReviewerIdentityService, PersistingOptions } from '../services/revieweridentity.service';
 import { ButtonsModule } from '@progress/kendo-angular-buttons';
 import { ReviewTermsListComp } from '../ReviewTermsList/ReviewTermsListComp.component';
+import { Subscription } from 'rxjs';
 
 // COPYRIGHTS BELONG TO THE FOLLOWING FOR ABILITY TO SELECT TEXT AND CAPTURE EVENT
 // https://www.bennadel.com/blog/3439-creating-a-medium-inspired-text-selection-directive-in-angular-5-2-10.htm
@@ -104,10 +105,13 @@ export class itemDetailsComp implements OnInit, OnDestroy {
 	public hostRectangle!: SelectionRectangle | null;
 
 	private selectedText!: string;
-
+	private subscr: Subscription = new Subscription();
 	ngOnInit() {
 
-		
+		this.subscr  = this.ReviewerTermsService.setHighlights.subscribe(
+			() => { this.SetHighlights();}
+
+		);
 		this.hostRectangle = null;
 		this.selectedText = "";
 		this.ShowHighlights = false;
@@ -118,7 +122,9 @@ export class itemDetailsComp implements OnInit, OnDestroy {
 		this.ShowHighlights = false;
 		this.hostRectangle = null;
 		this.selectedText = "";
-
+		if (this.subscr) {
+			this.subscr.unsubscribe();
+		}
 	}
     
 	public renderRectangles(event: TextSelectEvent): void {

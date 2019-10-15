@@ -37,14 +37,10 @@ export class ReviewTermsListComp implements OnInit, OnDestroy {
 			if (this.item) {
 				this.ItemCodingService.Fetch(this.item.itemId);
 			}
+
 		}
 	}
-	scrollToBottom() {
-		const element = document.getElementById('box');
-		if (element) {
-			element.scrollIntoView({ behavior: 'smooth', block: 'end', inline: 'end' });
-		}
-	}
+	
 	ngOnDestroy() {
 
 		this.Clear();
@@ -71,12 +67,19 @@ export class ReviewTermsListComp implements OnInit, OnDestroy {
 	public get HasWriteRights(): boolean {
 		return this.ReviewerIdentityServ.HasWriteRights;
 	}
+
+	public newReviewTerm: string = '';
+	public newReviewIncluded: boolean = false;
+
 	public InsertNewRow() {
 
-		let newTerm: ReviewerTerm = {} as ReviewerTerm;
-		this.ReviewTermsServ.CreateTerm(newTerm);
-		this.ReviewTermsServ.TermsList.push(newTerm);
-		this.scrollToBottom();
+		if (this.newReviewTerm != '') {
+			let newTerm: ReviewerTerm = {} as ReviewerTerm;
+			newTerm.included = this.newReviewIncluded;
+			newTerm.term = this.newReviewTerm;
+			this.ReviewTermsServ.CreateTerm(newTerm);
+			this.ReviewTermsServ.TermsList.push(newTerm);
+		}
 	}
 }
  

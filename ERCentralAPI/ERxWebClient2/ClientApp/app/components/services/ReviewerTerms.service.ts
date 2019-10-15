@@ -1,4 +1,4 @@
-import { Inject, Injectable, EventEmitter } from '@angular/core';
+import { Inject, Injectable, EventEmitter, Output } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
@@ -16,7 +16,7 @@ export class ReviewerTermsService extends BusyAwareService {
     ) {
 		super();
     }
-	
+	@Output() setHighlights: EventEmitter<boolean> = new EventEmitter();
     private _TermsList: ReviewerTerm[] = [];
     public get TermsList(): ReviewerTerm[] {
         return this._TermsList;
@@ -28,6 +28,7 @@ export class ReviewerTermsService extends BusyAwareService {
 		this._BusyMethods.push("Fetch");
         return this._httpC.get<ReviewerTerm[]>(this._baseUrl + 'api/ReviewerTermList/Fetch').subscribe(result => {
 			this._TermsList = result;
+			this.setHighlights.emit();
 			this.RemoveBusy("Fetch");
         },
 			error => {
@@ -47,7 +48,6 @@ export class ReviewerTermsService extends BusyAwareService {
 		return this._httpC.post<ReviewerTerm>(this._baseUrl + 'api/ReviewerTermList/CreateReviewerTerm',
 		body)
 			.subscribe(result => {
-
 				this._TermsList.push(result)
 				this.Fetch();
 				this.RemoveBusy("CreateTerm");
@@ -70,7 +70,7 @@ export class ReviewerTermsService extends BusyAwareService {
 		return this._httpC.post<ReviewerTerm>(this._baseUrl + 'api/ReviewerTermList/DeleteReviewerTerm',
 			body)
 			.subscribe(result => {
-
+			
 				let ind: number = this._TermsList.findIndex(x => x.trainingReviewerTermId == result.trainingReviewerTermId);
 				this._TermsList.splice(ind, 1);
 				this.Fetch();
