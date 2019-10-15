@@ -249,6 +249,7 @@ export class itemDetailsComp implements OnInit {
 		if (this.item) {
 			this.ItemCodingService.Fetch(this.item.itemId);
 		}
+		this.NoTextSelected = true;
 	}
     SetHighlightStyle(style: string) {
         if (!this.ReviewerIdentityServ.userOptions.persistingOptions) {
@@ -258,8 +259,6 @@ export class itemDetailsComp implements OnInit {
         this.ReviewerIdentityServ.SaveOptions();//otherwise they won't persist...
         this.SetHighlights();
     }
-		this.NoTextSelected = true;
-	}
 
 	public SetHighlights() {
 		if (this.item) {
