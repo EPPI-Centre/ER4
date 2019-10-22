@@ -27,6 +27,7 @@ import { SearchComp } from '../Search/SearchComp.component';
 import { ComparisonComp } from '../Comparison/createnewcomparison.component';
 import { Comparison, ComparisonsService } from '../services/comparisons.service';
 import { codesetSelectorComponent } from '../CodesetTrees/codesetSelector.component';
+import { ConfigurableReportService, Report, ReportExecuteCommandParams } from '../services/configurablereport.service';
 
 @Component({
     selector: 'mainComp',
@@ -65,7 +66,8 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 		, private ReviewSetsEditingService: ReviewSetsEditingService
         , private workAllocationListService: WorkAllocationListService
 		, private ComparisonsService: ComparisonsService,
-		private searchService: searchService
+		private searchService: searchService,
+		private configurablereportServ: ConfigurableReportService
     ) {}
 	@ViewChild('WorkAllocationContactList') workAllocationsContactComp!: WorkAllocationContactListComp;
 	@ViewChild('WorkAllocationCollaborateList') workAllocationCollaborateComp!: WorkAllocationComp;
@@ -230,7 +232,27 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 	}
 	public AllocateChoice: string = '';
 	public AllIncOrExcShow: boolean = false;
+	public RunReportsShow: boolean = false;
+	public OrderByChoice: string = 'Short title';
+	public ItemsChoice: string = 'All included items';
+	public ReportChoice: Report = {} as Report;
+	public AddBulletstoCodes: boolean = false;
+	public AdditionalTextTag: string = '';
 	public AssignDocs: string = 'true';
+	public ItemIdModel: boolean = false;
+	public ImportedIdModel: boolean = false;
+	public ShortTitleModel: boolean = false;
+	public TitleModel: boolean = false;
+	public YearModel: boolean = false;
+	public AbstractModel: boolean = false;
+	public UncodedItemsModel: boolean = false;
+	public AdditionalTextTagModel: string = '';
+	public AddBulletsToCodesModel: boolean = false;
+	public AlignmentModel: boolean = false;
+	public ShowRiskOfBiasFigureModel: boolean = false;
+	public HorizontalAlignmentModel: boolean = false;
+	public VerticalAlignmentModel: boolean = false;
+	public OutcomesModel: boolean = false;
 	public AllocateRelevantItems() {
 
 		if (!this.AllIncOrExcShow) {
@@ -239,6 +261,74 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 		} else {
 
 			this.AllIncOrExcShow = false;
+		}
+	}
+	public CloseReportsSection() {
+
+		this.RunReportsShow = false;
+	}
+	public CanRunReports() : boolean {
+
+		return true;
+	}
+
+	public RunReports() {
+
+		if (!this.HasSelectedItems || !this.HasWriteRights) {
+			alert("Sorry: you don't have any items selected or you do not have permissions");
+			return;
+		}
+		let args: ReportExecuteCommandParams = {} as ReportExecuteCommandParams;
+		args.reportType = this.ReportChoice.reportType;
+		args.codes = this.ItemListService.SelectedItems.map(x => x.itemId.toString()).join();
+		args.reportId = this.ReportChoice.reportId;
+		args.showItemId = this.ItemIdModel;
+		args.showOldItemId = this.ImportedIdModel;
+		args.showOutcomes = this.OutcomesModel;
+		args.isHorizontal = this.HorizontalAlignmentModel;
+		args.orderBy = this.OrderByChoice;
+		args.title = this.ReportChoice.name;
+		args.attributeId = this. != null? : 0;
+		args.setId = this. != null? : 0;
+		
+
+		if (this.OutcomesModel == true &&
+			(this.ReportChoice).reportType == "Answer") {
+
+			if (args) {
+
+				this.configurablereportServ.FetchAnswerReport(args);
+
+			}
+		}else {// report type is a question as a test
+
+			if (args) {
+
+				this.configurablereportServ.FetchQuestionReport(args);
+			}
+		}
+
+		// TODO
+		//else if (cmdGo.DataContext != null) {
+		//}
+	}
+
+	public get ReportCollection(): Report[] | null {
+		return this.configurablereportServ.Reports;
+	}
+	public GetReports() {
+
+		this.configurablereportServ.FetchReports();
+	}
+	public RunConfigurableReports() {
+
+		if (!this.RunReportsShow) {
+			this.RunReportsShow = true;
+			this.GetReports();
+
+		} else {
+
+			this.RunReportsShow = false;
 		}
 	}
 	public isCollapsedCodeAllocate: boolean = false;
@@ -289,6 +379,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 	dtTrigger: Subject<any> = new Subject();
 	private ListSubType: string = '';
 	ngOnInit() {
+
 
         console.log("MainComp init: ", this.InstanceId);
         this._eventEmitter.PleaseSelectItemsListTab.subscribe(

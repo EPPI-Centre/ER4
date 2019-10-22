@@ -36,7 +36,7 @@ namespace BusinessLibrary.BusinessClasses
     public int BufferPosition = 0;
         
 #else
-        private ReportColumn() { }
+        public ReportColumn() { }
 #endif
 
         public override string ToString()
@@ -44,7 +44,7 @@ namespace BusinessLibrary.BusinessClasses
             return Name;
         }
 
-        private static PropertyInfo<int> ReportColumnIdProperty = RegisterProperty<int>(new PropertyInfo<int>("ReportColumnId", "ReportColumnId"));
+        public static readonly PropertyInfo<int> ReportColumnIdProperty = RegisterProperty<int>(new PropertyInfo<int>("ReportColumnId", "ReportColumnId"));
         public int ReportColumnId
         {
             get
@@ -53,7 +53,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> NameProperty = RegisterProperty<string>(new PropertyInfo<string>("Name", "Name", string.Empty));
+        public static readonly PropertyInfo<string> NameProperty = RegisterProperty<string>(new PropertyInfo<string>("Name", "Name", string.Empty));
         public string Name
         {
             get
@@ -66,7 +66,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> ColumnOrderProperty = RegisterProperty<int>(new PropertyInfo<int>("ColumnOrder", "ColumnOrder", 0));
+        public static readonly PropertyInfo<int> ColumnOrderProperty = RegisterProperty<int>(new PropertyInfo<int>("ColumnOrder", "ColumnOrder", 0));
         public int ColumnOrder
         {
             get
@@ -79,7 +79,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<ReportColumnCodeList> CodesProperty = RegisterProperty<ReportColumnCodeList>(new PropertyInfo<ReportColumnCodeList>("Codes", "Codes"));
+        public static readonly PropertyInfo<ReportColumnCodeList> CodesProperty = RegisterProperty<ReportColumnCodeList>(new PropertyInfo<ReportColumnCodeList>("Codes", "Codes"));
         public ReportColumnCodeList Codes
         {
             get

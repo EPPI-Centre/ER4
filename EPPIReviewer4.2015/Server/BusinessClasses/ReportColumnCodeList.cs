@@ -34,7 +34,7 @@ namespace BusinessLibrary.BusinessClasses
     }
 
 #else
-        private ReportColumnCodeList() { }
+        public ReportColumnCodeList() { }
 #endif
 
         internal static ReportColumnCodeList NewReportColumnCodeList()

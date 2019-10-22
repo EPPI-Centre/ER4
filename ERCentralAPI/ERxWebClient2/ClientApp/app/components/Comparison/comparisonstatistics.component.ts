@@ -140,6 +140,7 @@ export class ComparisonStatsComp implements OnInit {
 			);
 	}
 	public SendToComplete(members: string, listSubType: string, lockCoding: boolean) {
+		//console.log('testing', JSON.stringify({ members, listSubType, lockCoding}));
         this.lockCoding = lockCoding;
 		this.ListSubType = listSubType;
 		let currentComparison: Comparison = this._comparisonsService.currentComparison;
@@ -152,7 +153,7 @@ export class ComparisonStatsComp implements OnInit {
 			contact.contactId = currentComparison.contactId2;
 			contact.contactName = currentComparison.contactName2;
 			this.lstContacts.push(contact);
-
+			//console.log('testing', JSON.stringify(this.lstContacts));
 		}else if (members == '2And3') {
 			let contact = new Contact();
 			contact.contactId = currentComparison.contactId2;

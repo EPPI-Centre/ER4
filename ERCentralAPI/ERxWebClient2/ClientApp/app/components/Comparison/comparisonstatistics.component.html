@@ -151,10 +151,10 @@
                                 {{_comparisonsService.Statistics.SCAgreements1 }}  / {{_comparisonsService.Statistics.RawStats.n1vs2 }} (list)
                             </button>
                             <div class="col-3 m-0 p-0 px-1">
-                                <button class="btn btn-outline-primary w-100 mr-1 py-0 small" (click)="SendToComplete('1And3','Complete1vs3Sc', true)"
+                                <button class="btn btn-outline-primary w-100 mr-1 py-0 small" (click)="SendToComplete('1And2','Complete1vs2Sc', true)"
                                         style="margin-bottom: 1px; overflow-x:hidden"  
                                         [disabled]="!checkCanComplete1() || _comparisonsService.Statistics.SCAgreements1 == 0">Complete & Lock</button>
-                                <button class="btn btn-outline-info w-100 mr-1 mb-1 py-0 small" (click)="SendToComplete('1And3','Complete1vs3Sc', false)" 
+                                <button class="btn btn-outline-info w-100 mr-1 mb-1 py-0 small" (click)="SendToComplete('1And2','Complete1vs2Sc', false)" 
                                         [disabled]="!checkCanComplete1() || _comparisonsService.Statistics.SCAgreements1 == 0"> Complete</button>
                             </div>
                             <button class="btn btn-outline-success col-3 mb-1" (click)="LoadComparisonList(_comparisonsService.currentComparison.comparisonId, 'ComparisonDisagree1vs2Sc')"

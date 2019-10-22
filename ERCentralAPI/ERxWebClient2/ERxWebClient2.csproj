@@ -145,6 +145,12 @@
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ReadOnlySourceList.cs" Link="Models\ReadOnlySourceList.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ReadOnlyTemplateReview.cs" Link="Models\ReadOnlyTemplateReview.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ReadOnlyTemplateReviewList.cs" Link="Models\ReadOnlyTemplateReviewList.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\Report.cs" Link="Models\Report.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ReportColumn.cs" Link="Models\ReportColumn.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ReportColumnCode.cs" Link="Models\ReportColumnCode.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ReportColumnCodeList.cs" Link="Models\ReportColumnCodeList.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ReportColumnList.cs" Link="Models\ReportColumnList.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ReportList.cs" Link="Models\ReportList.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\Review.cs" Link="Models\Review.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ReviewContactList.cs" Link="Models\ReviewContactList.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ReviewSet.cs" Link="Models\ReviewSet.cs" />
