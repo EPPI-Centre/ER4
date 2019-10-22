@@ -28,6 +28,7 @@ import { ComparisonComp } from '../Comparison/createnewcomparison.component';
 import { Comparison, ComparisonsService } from '../services/comparisons.service';
 import { codesetSelectorComponent } from '../CodesetTrees/codesetSelector.component';
 import { ConfigurableReportService, Report, ReportExecuteCommandParams } from '../services/configurablereport.service';
+import { ReviewService } from '../services/review.service';
 
 @Component({
     selector: 'mainComp',
@@ -79,6 +80,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 	@ViewChild('SearchComp') SearchComp!: SearchComp;
 	@ViewChild('ComparisonComp') ComparisonComp!: ComparisonComp;
 	@ViewChild('CodeTreeAllocate') CodeTreeAllocate!: codesetSelectorComponent;
+	@ViewChild('CodingToolTreeReports') CodingToolTree!: codesetSelectorComponent;
 
     public get IsServiceBusy(): boolean {
         //console.log("mainfull IsServiceBusy", this.ItemListService, this.codesetStatsServ, this.SourcesService )
@@ -248,10 +250,8 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 	public UncodedItemsModel: boolean = false;
 	public AdditionalTextTagModel: string = '';
 	public AddBulletsToCodesModel: boolean = false;
-	public AlignmentModel: boolean = false;
 	public ShowRiskOfBiasFigureModel: boolean = false;
-	public HorizontalAlignmentModel: boolean = false;
-	public VerticalAlignmentModel: boolean = false;
+	public AlignmentModel: boolean = false;
 	public OutcomesModel: boolean = false;
 	public AllocateRelevantItems() {
 
@@ -271,13 +271,47 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 
 		return true;
 	}
+	public ShowCodeTree: boolean = false;
+	public ItemsChoiceChange() {
+		if (this.ItemsChoice == 'Items with this code') {
+			this.ShowCodeTree = true;
+		} else {
+			this.ShowCodeTree = false;
+		}
+	}
+	public ReportChoiceChange(item: Report) {
+		if (item) {
+			this.ReportChoice = item;
+		}
+	}
+	public DropdownSelectedCodingTool: singleNode | null = null;
+	public isCollapsedCodingTool: boolean = false;
+	public DropDownBasicCodingTool: ReviewSet = new ReviewSet();
+	public isCollapsedAllocateOptions: boolean = false;
+	CloseCodeDropDownCodingTool() {
 
+		if (this.CodingToolTree) {
+			this.DropdownSelectedCodingTool = this.CodingToolTree.SelectedNodeData;
+			console.log(JSON.stringify(this.DropdownSelectedCodingTool));
+		}
+		this.isCollapsedCodingTool = false;
+	}
 	public RunReports() {
-
+		console.log('report chocie is: ', this.ReportChoice);
 		if (!this.HasSelectedItems || !this.HasWriteRights) {
 			alert("Sorry: you don't have any items selected or you do not have permissions");
 			return;
 		}
+		let attribute: SetAttribute = new SetAttribute();
+		let reviewSet: ReviewSet = new ReviewSet();
+		if (this.DropdownSelectedCodingTool) {
+			if (this.DropdownSelectedCodingTool.nodeType =='ReviewSet') {
+				reviewSet = this.DropdownSelectedCodingTool as ReviewSet;
+			} else {
+				attribute = this.DropdownSelectedCodingTool as SetAttribute;
+			}
+		}
+		
 		let args: ReportExecuteCommandParams = {} as ReportExecuteCommandParams;
 		args.reportType = this.ReportChoice.reportType;
 		args.codes = this.ItemListService.SelectedItems.map(x => x.itemId.toString()).join();
@@ -285,11 +319,11 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 		args.showItemId = this.ItemIdModel;
 		args.showOldItemId = this.ImportedIdModel;
 		args.showOutcomes = this.OutcomesModel;
-		args.isHorizontal = this.HorizontalAlignmentModel;
+		args.isHorizontal = this.AlignmentModel;
 		args.orderBy = this.OrderByChoice;
 		args.title = this.ReportChoice.name;
-		args.attributeId = this. != null? : 0;
-		args.setId = this. != null? : 0;
+		args.attributeId = this.DropdownSelectedCodingTool != null ? attribute.attribute_id : 0;
+		args.setId = this.DropdownSelectedCodingTool != null ? reviewSet.set_id : 0;
 		
 
 		if (this.OutcomesModel == true &&
@@ -303,7 +337,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 		}else {// report type is a question as a test
 
 			if (args) {
-
+				console.log(args);
 				this.configurablereportServ.FetchQuestionReport(args);
 			}
 		}

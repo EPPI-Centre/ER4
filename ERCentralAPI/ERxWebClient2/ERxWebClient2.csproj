@@ -150,6 +150,7 @@
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ReportColumnCode.cs" Link="Models\ReportColumnCode.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ReportColumnCodeList.cs" Link="Models\ReportColumnCodeList.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ReportColumnList.cs" Link="Models\ReportColumnList.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ReportExecuteCommand.cs" Link="Models\ReportExecuteCommand.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ReportList.cs" Link="Models\ReportList.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\Review.cs" Link="Models\Review.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ReviewContactList.cs" Link="Models\ReviewContactList.cs" />

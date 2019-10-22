@@ -1,4 +1,4 @@
-import { Component, Inject, Injectable, EventEmitter, Output } from '@angular/core';
+import {  Inject, Injectable } from '@angular/core';
 import { HttpClient} from '@angular/common/http';
 import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
@@ -7,33 +7,7 @@ import { Helpers } from '../helpers/HelperMethods';
 @Injectable({
     providedIn: 'root',
 })
-
-// need to change all this for the relevant business objects in ER4 for reports...
-// Tuesday 22/10/2019
 export class ConfigurableReportService extends BusyAwareService {
-
-
-	FetchQuestionReport(Args: ReportExecuteCommandParams): any {
-
-
-        throw new Error("Method not implemented.");
-    }
-
-
-	FetchAnswerReport(Args: ReportExecuteCommandParams): any {
-
-
-
-
-		let reportHTML: string = '';
-		
-		//this.GenerateReportHTMLHere(res,
-		//	chosenAttFilter, chosenSetFilter, comparison);
-
-		Helpers.OpenInNewWindow(reportHTML, this._baseUrl);
-
-
-    }
 
 	constructor(
 		private _httpC: HttpClient,
@@ -63,9 +37,54 @@ export class ConfigurableReportService extends BusyAwareService {
 				
 			}
 		);
-    }
-	
-  
+	}
+
+	FetchQuestionReport(Args: ReportExecuteCommandParams): any {
+
+
+		this._BusyMethods.push("FetchQuestionReport");
+		let body = JSON.stringify({ Args });
+		this._httpC.post<string>(this._baseUrl + 'api/ReportList/FetchQuestionReport',
+		body)
+
+			.subscribe(result => {
+
+				console.log(result);
+
+				this.RemoveBusy("FetchQuestionReport");
+
+			}, error => {
+				this.RemoveBusy("FetchQuestionReport");
+				this.modalService.GenericErrorMessage(error);
+
+			}
+		);
+	}
+
+	FetchAnswerReport(Args: ReportExecuteCommandParams): any {
+
+		this._BusyMethods.push("FetchAnswerReport");
+		let body = JSON.stringify({ Args});
+		this._httpC.post<string>(this._baseUrl + 'api/ReportList/FetchAnswerReport',
+		body)
+
+			.subscribe(result => {
+
+				let reportHTML: string = result;
+
+				//this.GenerateReportHTMLHere(res,
+				//	chosenAttFilter, chosenSetFilter, comparison);
+
+				Helpers.OpenInNewWindow(reportHTML, this._baseUrl);
+				this.RemoveBusy("FetchAnswerReport");
+
+			}, error => {
+				this.RemoveBusy("FetchAnswerReport");
+				this.modalService.GenericErrorMessage(error);
+
+			}
+			);
+	}
 }
 export interface Report {
 
