@@ -5,6 +5,7 @@ import { ReviewSet,  SetAttribute, singleNode } from '../services/ReviewSets.ser
 import { Report, ConfigurableReportService, ReportAnswerExecuteCommandParams, ReportQuestionExecuteCommandParams } from '../services/configurablereport.service';
 import { codesetSelectorComponent } from '../CodesetTrees/codesetSelector.component';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
+import { EventEmitterService } from '../services/EventEmitter.service';
 
 @Component({
     selector: 'configurablereport',
@@ -17,7 +18,8 @@ export class configurablereportComp implements OnInit, OnDestroy {
         private ItemListService: ItemListService,
 		@Inject('BASE_URL') private _baseUrl: string,
 		private configurablereportServ: ConfigurableReportService,
-		private ReviewerIdentityServ: ReviewerIdentityService
+		private ReviewerIdentityServ: ReviewerIdentityService,
+		private EventEmitterServ: EventEmitterService
     ) { }
 
 	ngOnInit() {
@@ -63,7 +65,7 @@ export class configurablereportComp implements OnInit, OnDestroy {
 	}
 	public CloseReportsSection() {
 
-		this.RunReportsShow = false;
+		this.EventEmitterServ.CloseReportsSectionEmitter.emit();
 	}
 	public CanRunReports(): boolean {
 
