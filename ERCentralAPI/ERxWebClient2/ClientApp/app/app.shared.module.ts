@@ -83,6 +83,7 @@ import { EditCodeComp } from './components/CodesetTrees/editcode.component';
 import { SingleCodesetTreeCodingComponent } from './components/CodesetTrees/SingleCodesetTreeCoding.component';
 import { TextSelectDirective } from './components/helpers/text-select.directive';
 import { ReviewTermsListComp } from './components/ReviewTermsList/ReviewTermsListComp.component';
+import { configurablereportComp } from './components/Reports/configurablereport.component';
 
 @NgModule({
     declarations: [
@@ -146,7 +147,8 @@ import { ReviewTermsListComp } from './components/ReviewTermsList/ReviewTermsLis
 		EditCodeComp,
 		SingleCodesetTreeCodingComponent,
 		TextSelectDirective,
-		ReviewTermsListComp
+		ReviewTermsListComp,
+		configurablereportComp
 	],
     providers: [
         EventEmitterService,

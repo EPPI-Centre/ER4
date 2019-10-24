@@ -1,8 +1,10 @@
 import {  Inject, Injectable } from '@angular/core';
-import { HttpClient} from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams} from '@angular/common/http';
 import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
 import { Helpers } from '../helpers/HelperMethods';
+import { ReviewSet } from './ReviewSets.service';
+import { Subscription, Observable } from 'rxjs';
 
 @Injectable({
     providedIn: 'root',
@@ -27,7 +29,7 @@ export class ConfigurableReportService extends BusyAwareService {
 		this._httpC.get<Report[]>(this._baseUrl + 'api/ReportList/FetchReports')
 
 			.subscribe(result => {
-				console.log(result);
+
 				this._ReportList = result;
 				this.RemoveBusy("FetchReports");
 				
@@ -39,42 +41,34 @@ export class ConfigurableReportService extends BusyAwareService {
 		);
 	}
 
-	FetchQuestionReport(Args: ReportExecuteCommandParams): any {
-
+	private reportHTML: string = '';
+	FetchQuestionReport(args: ReportQuestionExecuteCommandParams) {
 
 		this._BusyMethods.push("FetchQuestionReport");
-		let body = JSON.stringify({ Args });
 		this._httpC.post<string>(this._baseUrl + 'api/ReportList/FetchQuestionReport',
-		body)
+			args
+		).toPromise()
+			.then(
+			(res: any) => {
 
-			.subscribe(result => {
-
-				console.log(result);
-
+				this.reportHTML = res;
+				Helpers.OpenInNewWindow(this.reportHTML, this._baseUrl);
 				this.RemoveBusy("FetchQuestionReport");
-
-			}, error => {
-				this.RemoveBusy("FetchQuestionReport");
-				this.modalService.GenericErrorMessage(error);
-
-			}
-		);
+				}	
+			); 
+		this.RemoveBusy("FetchQuestionReport");
+		
 	}
-
-	FetchAnswerReport(Args: ReportExecuteCommandParams): any {
+	FetchAnswerReport(args: ReportAnswerExecuteCommandParams) {
 
 		this._BusyMethods.push("FetchAnswerReport");
-		let body = JSON.stringify({ Args});
-		this._httpC.post<string>(this._baseUrl + 'api/ReportList/FetchAnswerReport',
-		body)
+		this._httpC.post<any>(this._baseUrl + 'api/ReportList/FetchAnswerReport', args
+			)
 
 			.subscribe(result => {
 
-				let reportHTML: string = result;
-
-				//this.GenerateReportHTMLHere(res,
-				//	chosenAttFilter, chosenSetFilter, comparison);
-
+				
+				let reportHTML: any = result.returnReport;
 				Helpers.OpenInNewWindow(reportHTML, this._baseUrl);
 				this.RemoveBusy("FetchAnswerReport");
 
@@ -83,8 +77,10 @@ export class ConfigurableReportService extends BusyAwareService {
 				this.modalService.GenericErrorMessage(error);
 
 			}
-			);
+		);
 	}
+
+
 }
 export interface Report {
 
@@ -94,7 +90,7 @@ export interface Report {
 	reportType: string;
 
 }
-export interface ReportExecuteCommandParams {
+export interface ReportAnswerExecuteCommandParams {
 	
 	reportType: string;
 	codes: string;
@@ -107,5 +103,31 @@ export interface ReportExecuteCommandParams {
 	title: string;
 	attributeId: number;
 	setId: number;
+	showRiskOfBias: boolean;
+	showUncodedItems: boolean;
+	showBullets: boolean;
+	txtInfoTag: string;
 
+}
+export interface ReportQuestionExecuteCommandParams {
+
+	isQuestion: boolean;
+	items: string;
+	reportId: number;
+	orderBy: string;
+	attributeId: number;
+	setId: number;
+	isHorizantal: boolean;
+	showItemId: boolean;
+	showOldID: boolean;
+	showOutcomes: boolean;
+	showFullTitle: boolean;
+	showAbstract: boolean;
+	showYear: boolean;
+	showShortTitle: boolean;
+	showRiskOfBias: boolean;
+	showUncodedItems: boolean;
+	showBullets: boolean;
+	txtInfoTag: string;
+	reviewSets: ReviewSet[]
 }

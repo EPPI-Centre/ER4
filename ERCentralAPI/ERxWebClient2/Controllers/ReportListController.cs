@@ -49,27 +49,65 @@ namespace ERxWebClient2.Controllers
         }
 
 		[HttpPost("[action]")]
-		public IActionResult FetchQuestionReport([FromBody] ArgsReportJSON args)
+		public JsonResult FetchQuestionReport([FromBody] ArgsQuestionReportJSON args)
 		{
 			try
 			{
 				SetCSLAUser4Writing();
-				ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
-				DataPortal<ReportList> dp = new DataPortal<ReportList>();
-				ReportList result = dp.Fetch();
-				return Ok(result);
+				ReviewerIdentity ri = ApplicationContext.User.Identity as ReviewerIdentity;
+
+				DataPortal<ReviewSetsList> dpFirst = new DataPortal<ReviewSetsList>();
+				ReviewSetsList reviewSets = dpFirst.Fetch();
+
+
+				DataPortal<ReportData> dp = new DataPortal<ReportData>();
+				ReportData report = dp.Fetch(new ReportDataSelectionCriteria(
+					  args.isQuestion
+					, args.items
+					, args.reportId
+					, args.orderBy
+					, args.attributeId
+					, args.setId
+					, args.isHorizantal
+					, args.showItemId
+					, args.showOldID
+					, args.showOutcomes
+					, args.showFullTitle
+					, args.showAbstract
+					, args.showYear
+					, args.showShortTitle
+					));
+
+
+				string htmlString = report.ReportContent(
+					args.isHorizantal,
+					args.showItemId
+					, args.showOldID
+					, args.showUncodedItems,
+					args.showBullets,
+					args.txtInfoTag
+					, args.orderBy
+					, args.showRiskOfBias
+					, reviewSets
+					, args.showFullTitle
+					, args.showAbstract
+					, args.showYear
+					, args.showShortTitle
+					);
+
+				return Json(htmlString);
 			}
 			catch (Exception e)
 			{
-				_logger.LogException(e, "Error with FetchQuestionReport");
-				return StatusCode(500, e.Message);
+				_logger.LogError(e, "Error with FetchQuestionReport", e.InnerException);
+				//return StatusCode(500, e.Message);
+				return Json(e.Message);
 			}
 		}
 
 
-
 		[HttpPost("[action]")]
-		public IActionResult FetchAnswerReport([FromBody] ArgsReportJSON args)
+		public IActionResult FetchAnswerReport([FromBody] ArgsAnswerReportJSON args)
 		{
 			try
 			{
@@ -80,7 +118,7 @@ namespace ERxWebClient2.Controllers
 					args.reportType,
 					args.codes,
 					args.reportId,
-					args.showItemId == true? true : false,
+					args.showItemId == true ? true : false,
 					args.showOldItemId == true ? true : false,
 					args.showOutcomes == true ? true : false,
 					args.isHorizontal == "true" ? true : false,
@@ -112,7 +150,7 @@ namespace ERxWebClient2.Controllers
 	}
 
 
-	public class ArgsReportJSON
+	public class ArgsAnswerReportJSON
 	{
 
 		public string reportType { get;  set; }
@@ -126,6 +164,33 @@ namespace ERxWebClient2.Controllers
 		public string title { get; set; }
 		public int attributeId  { get; set; }
 		public int setId  { get; set; }
+		public bool showRiskOfBias { get; set; }
+		public bool showUncodedItems { get; set; }
+		public bool showBullets { get; set; }
+		public string txtInfoTag { get; set; }
+
+	}
+
+	public class ArgsQuestionReportJSON
+	{
+		public bool isQuestion { get; set; }
+		public string items { get; set; }
+		public int reportId { get; set; }
+		public string orderBy { get; set; }
+		public int attributeId { get; set; }
+		public int setId { get; set; }
+		public bool isHorizantal { get; set; }
+		public bool showItemId { get; set; }
+		public bool showOldID { get; set; }
+		public bool showOutcomes { get; set; }
+		public bool showFullTitle { get; set; }
+		public bool showAbstract { get; set; }
+		public bool showYear { get; set; }
+		public bool showShortTitle { get; set; }
+		public bool showRiskOfBias { get; set; }
+		public bool showUncodedItems { get; set; }
+		public bool showBullets { get; set; }
+		public string txtInfoTag { get; set; }
 
 	}
 

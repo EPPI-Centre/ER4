@@ -27,8 +27,8 @@ import { SearchComp } from '../Search/SearchComp.component';
 import { ComparisonComp } from '../Comparison/createnewcomparison.component';
 import { Comparison, ComparisonsService } from '../services/comparisons.service';
 import { codesetSelectorComponent } from '../CodesetTrees/codesetSelector.component';
-import { ConfigurableReportService, Report, ReportExecuteCommandParams } from '../services/configurablereport.service';
-import { ReviewService } from '../services/review.service';
+import { ConfigurableReportService, Report, ReportAnswerExecuteCommandParams, ReportQuestionExecuteCommandParams } from '../services/configurablereport.service';
+
 
 @Component({
     selector: 'mainComp',
@@ -68,7 +68,8 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         , private workAllocationListService: WorkAllocationListService
 		, private ComparisonsService: ComparisonsService,
 		private searchService: searchService,
-		private configurablereportServ: ConfigurableReportService
+		private configurablereportServ: ConfigurableReportService,
+		@Inject('BASE_URL') private _baseUrl: string
     ) {}
 	@ViewChild('WorkAllocationContactList') workAllocationsContactComp!: WorkAllocationContactListComp;
 	@ViewChild('WorkAllocationCollaborateList') workAllocationCollaborateComp!: WorkAllocationComp;
@@ -297,7 +298,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 		this.isCollapsedCodingTool = false;
 	}
 	public RunReports() {
-		console.log('report chocie is: ', this.ReportChoice);
+		//console.log('report chocie is: ', this.ReportChoice);
 		if (!this.HasSelectedItems || !this.HasWriteRights) {
 			alert("Sorry: you don't have any items selected or you do not have permissions");
 			return;
@@ -311,38 +312,61 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 				attribute = this.DropdownSelectedCodingTool as SetAttribute;
 			}
 		}
-		
-		let args: ReportExecuteCommandParams = {} as ReportExecuteCommandParams;
-		args.reportType = this.ReportChoice.reportType;
-		args.codes = this.ItemListService.SelectedItems.map(x => x.itemId.toString()).join();
-		args.reportId = this.ReportChoice.reportId;
-		args.showItemId = this.ItemIdModel;
-		args.showOldItemId = this.ImportedIdModel;
-		args.showOutcomes = this.OutcomesModel;
-		args.isHorizontal = this.AlignmentModel;
-		args.orderBy = this.OrderByChoice;
-		args.title = this.ReportChoice.name;
-		args.attributeId = this.DropdownSelectedCodingTool != null ? attribute.attribute_id : 0;
-		args.setId = this.DropdownSelectedCodingTool != null ? reviewSet.set_id : 0;
-		
 
-		if (this.OutcomesModel == true &&
-			(this.ReportChoice).reportType == "Answer") {
+
+		if (this.ReportChoice.reportType == "Answer") {
+
+	
+			alert('is an answer type');
+			let args: ReportAnswerExecuteCommandParams = {} as ReportAnswerExecuteCommandParams;
+			args.reportType = this.ReportChoice.reportType;
+			args.codes = this.ItemListService.SelectedItems.map(x => x.itemId.toString()).join();
+			args.reportId = this.ReportChoice.reportId;
+			args.showItemId = this.ItemIdModel;
+			args.showOldItemId = this.ImportedIdModel;
+			args.showOutcomes = this.OutcomesModel;
+			args.isHorizontal = this.AlignmentModel;
+			args.orderBy = this.OrderByChoice;
+			args.title = this.ReportChoice.name;
+			args.attributeId = this.DropdownSelectedCodingTool != null ? attribute.attribute_id : 0;
+			args.setId = this.DropdownSelectedCodingTool != null ? reviewSet.set_id : 0;
+			args.showRiskOfBias = this.ShowRiskOfBiasFigureModel;
+			args.showBullets = this.AddBulletsToCodesModel;
+			args.showUncodedItems = this.UncodedItemsModel;
+			args.txtInfoTag = this.AdditionalTextTagModel;
 
 			if (args) {
-
 				this.configurablereportServ.FetchAnswerReport(args);
-
 			}
+
 		}else {// report type is a question as a test
 
+			let args: ReportQuestionExecuteCommandParams = {} as ReportQuestionExecuteCommandParams;
+			args.items = this.ItemListService.SelectedItems.map(x => x.itemId.toString()).join();
+			args.reportId = this.ReportChoice.reportId;
+			args.orderBy = this.OrderByChoice;
+			args.attributeId = this.DropdownSelectedCodingTool != null ? attribute.attribute_id : 0;
+			args.setId = this.DropdownSelectedCodingTool != null ? reviewSet.set_id : 0;
+			args.isHorizantal = this.AlignmentModel;
+			args.showItemId = this.ItemIdModel;
+			args.showOldID = this.ImportedIdModel;
+			args.showOutcomes = this.OutcomesModel;
+			args.showFullTitle = this.TitleModel;
+			args.showAbstract = this.AbstractModel;
+			args.showYear = this.YearModel;
+			args.showShortTitle = this.ShortTitleModel;
+			args.showRiskOfBias = this.ShowRiskOfBiasFigureModel;
+			args.showBullets = this.AddBulletsToCodesModel;
+			args.showUncodedItems = this.UncodedItemsModel;
+			args.txtInfoTag = this.AdditionalTextTagModel;
+
 			if (args) {
-				console.log(args);
+
+				//console.log('question report args: ', args);
 				this.configurablereportServ.FetchQuestionReport(args);
 			}
 		}
-
-		// TODO
+		// TODO ASK SERGIO about the logic here not totally clear from the ER4 code.
 		//else if (cmdGo.DataContext != null) {
 		//}
 	}

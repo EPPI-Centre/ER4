@@ -247,7 +247,7 @@ namespace BusinessLibrary.BusinessClasses
         }
 #endif
         // name
-        private static PropertyInfo<string> ReportNameProperty = RegisterProperty<string>(new PropertyInfo<string>("ReportName", "ReportName"));
+        public static readonly PropertyInfo<string> ReportNameProperty = RegisterProperty<string>(new PropertyInfo<string>("ReportName", "ReportName"));
         public string ReportName
         {
             get
@@ -256,7 +256,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
         // orderBy
-        private static PropertyInfo<string> OrderByProperty = RegisterProperty<string>(new PropertyInfo<string>("OrderBy", "OrderBy"));
+        public static readonly PropertyInfo<string> OrderByProperty = RegisterProperty<string>(new PropertyInfo<string>("OrderBy", "OrderBy"));
         public string OrderBy
         {
             get
@@ -269,7 +269,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
         // id
-        private static PropertyInfo<int> ReportIdProperty = RegisterProperty<int>(new PropertyInfo<int>("ReportId", "ReportId"));
+        public static readonly PropertyInfo<int> ReportIdProperty = RegisterProperty<int>(new PropertyInfo<int>("ReportId", "ReportId"));
         public int ReportId
         {
             get
@@ -278,7 +278,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
         // type (q | a)
-        private static PropertyInfo<bool> IsQuestionProperty = RegisterProperty<bool>(new PropertyInfo<bool>("IsQuestion", "IsQuestion"));
+        public static readonly PropertyInfo<bool> IsQuestionProperty = RegisterProperty<bool>(new PropertyInfo<bool>("IsQuestion", "IsQuestion"));
         public bool IsQuestion
         {
             get
@@ -287,7 +287,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
         // alignement (hor | ver)
-        private static PropertyInfo<bool> IsHorizontalProperty = RegisterProperty<bool>(new PropertyInfo<bool>("IsHorizontal", "IsHorizontal"));
+        public static readonly PropertyInfo<bool> IsHorizontalProperty = RegisterProperty<bool>(new PropertyInfo<bool>("IsHorizontal", "IsHorizontal"));
         public bool IsHorizontal
         {
             get
@@ -300,7 +300,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
         // Show Item_id
-        private static PropertyInfo<bool> ShowItemIdProperty = RegisterProperty<bool>(new PropertyInfo<bool>("ShowItemId", "ShowItemId"));
+        public static readonly PropertyInfo<bool> ShowItemIdProperty = RegisterProperty<bool>(new PropertyInfo<bool>("ShowItemId", "ShowItemId"));
         public bool ShowItemId
         {
             get
@@ -313,7 +313,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
         // show old item_id
-        private static PropertyInfo<bool> ShowOldItemIdProperty = RegisterProperty<bool>(new PropertyInfo<bool>("ShowOldItemId", "ShowOldItemId"));
+        public static readonly PropertyInfo<bool> ShowOldItemIdProperty = RegisterProperty<bool>(new PropertyInfo<bool>("ShowOldItemId", "ShowOldItemId"));
         public bool ShowOldItemId
         {
             get
@@ -326,7 +326,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
         // show outcomes
-        private static PropertyInfo<bool> ShowOutcomesProperty = RegisterProperty<bool>(new PropertyInfo<bool>("ShowOutcomes", "ShowOutcomes"));
+        public static readonly PropertyInfo<bool> ShowOutcomesProperty = RegisterProperty<bool>(new PropertyInfo<bool>("ShowOutcomes", "ShowOutcomes"));
         public bool ShowOutcomes
         {
             get
@@ -335,7 +335,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
         // Show a 'question' report as RiskOfBias Figures
-        private static PropertyInfo<bool> ShowRiskOfBiasProperty = RegisterProperty<bool>(new PropertyInfo<bool>("ShowRiskOfBias", "ShowRiskOfBias"));
+        public static readonly PropertyInfo<bool> ShowRiskOfBiasProperty = RegisterProperty<bool>(new PropertyInfo<bool>("ShowRiskOfBias", "ShowRiskOfBias"));
         public bool ShowRiskOfBias
         {
             get
@@ -347,7 +347,7 @@ namespace BusinessLibrary.BusinessClasses
                 LoadProperty(ShowRiskOfBiasProperty, value);
             }
         }
-        private static PropertyInfo<bool> ShowFullTitleProperty = RegisterProperty<bool>(new PropertyInfo<bool>("ShowFullTitle", "ShowFullTitle"));
+        public static readonly PropertyInfo<bool> ShowFullTitleProperty = RegisterProperty<bool>(new PropertyInfo<bool>("ShowFullTitle", "ShowFullTitle"));
         public bool ShowFullTitle
         {
             get { return ReadProperty(ShowFullTitleProperty); }
@@ -356,7 +356,7 @@ namespace BusinessLibrary.BusinessClasses
                 LoadProperty(ShowFullTitleProperty, value);
             }
         }
-        private static PropertyInfo<bool> ShowAbstractProperty = RegisterProperty<bool>(new PropertyInfo<bool>("ShowAbstract", "ShowAbstract"));
+        public static readonly PropertyInfo<bool> ShowAbstractProperty = RegisterProperty<bool>(new PropertyInfo<bool>("ShowAbstract", "ShowAbstract"));
         public bool ShowAbstract
         {
             get { return ReadProperty(ShowAbstractProperty); }
@@ -365,7 +365,7 @@ namespace BusinessLibrary.BusinessClasses
                 LoadProperty(ShowAbstractProperty, value);
             }
         }
-        private static PropertyInfo<bool> ShowYearProperty = RegisterProperty<bool>(new PropertyInfo<bool>("ShowYear", "ShowYear"));
+        public static readonly PropertyInfo<bool> ShowYearProperty = RegisterProperty<bool>(new PropertyInfo<bool>("ShowYear", "ShowYear"));
         public bool ShowYear
         {
             get { return ReadProperty(ShowYearProperty); }
@@ -374,7 +374,7 @@ namespace BusinessLibrary.BusinessClasses
                 LoadProperty(ShowYearProperty, value);
             }
         }
-        private static PropertyInfo<bool> ShowShortTitleProperty = RegisterProperty<bool>(new PropertyInfo<bool>("ShowShortTitle", "ShowShortTitle"));
+        public static readonly PropertyInfo<bool> ShowShortTitleProperty = RegisterProperty<bool>(new PropertyInfo<bool>("ShowShortTitle", "ShowShortTitle"));
         public bool ShowShortTitle
         {
             get { return ReadProperty(ShowShortTitleProperty); }
@@ -384,7 +384,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
         // List<columns>
-        private static PropertyInfo<MobileList<ReportColumnData>> ReportColumnsProperty = RegisterProperty(new PropertyInfo<MobileList<ReportColumnData>>("ReportColumns", "ReportColumns"));
+        public static readonly PropertyInfo<MobileList<ReportColumnData>> ReportColumnsProperty = RegisterProperty(new PropertyInfo<MobileList<ReportColumnData>>("ReportColumns", "ReportColumns"));
         public MobileList<ReportColumnData> ReportColumns
         {
             get
@@ -393,7 +393,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
         //List<ReportItem>
-        private static PropertyInfo<MobileList<ReportItem>> ReportItemsProperty = RegisterProperty(new PropertyInfo<MobileList<ReportItem>>("ReportItems", "ReportItems"));
+        public static readonly PropertyInfo<MobileList<ReportItem>> ReportItemsProperty = RegisterProperty(new PropertyInfo<MobileList<ReportItem>>("ReportItems", "ReportItems"));
         public MobileList<ReportItem> ReportItems
         {
             get
@@ -401,7 +401,7 @@ namespace BusinessLibrary.BusinessClasses
                 return GetProperty(ReportItemsProperty);
             }
         }
-        private static PropertyInfo<MobileList<ReportAttribute>> ReportAttributesProperty = RegisterProperty(new PropertyInfo<MobileList<ReportAttribute>>("ReportAttributes", "ReportAttributes"));
+        public static readonly PropertyInfo<MobileList<ReportAttribute>> ReportAttributesProperty = RegisterProperty(new PropertyInfo<MobileList<ReportAttribute>>("ReportAttributes", "ReportAttributes"));
         public MobileList<ReportAttribute> ReportAttributes
         {
             get
@@ -634,7 +634,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
         //use the report data to build the report in real time
- #if SILVERLIGHT       
+ //#if SILVERLIGHT       
         public string ReportContent(bool isHorizontal, bool showItemID, bool showOldItemID, bool hideEmpty, bool showBullets, string InfoTxt, string orderBy, bool doRiskOfBiasFigure, ReviewSetsList ReviewSets
             ,bool showFullTitle, bool showAbstract, bool showYear, bool showShortTitle)
         {
@@ -1020,7 +1020,7 @@ namespace BusinessLibrary.BusinessClasses
             }
            return res;
         }
-#endif
+//#endif
     }
     [Serializable]
     public class ReportColumnData : ReadOnlyBase<ReportColumnData>
@@ -1034,7 +1034,7 @@ namespace BusinessLibrary.BusinessClasses
             LoadProperty(ColumnRowsProperty, new MobileList<ColumnRow>());
         }
         //col_id
-        private static PropertyInfo<int> ColumnIdProperty = RegisterProperty<int>(new PropertyInfo<int>("ColumnId", "ColumnId"));
+        public static readonly PropertyInfo<int> ColumnIdProperty = RegisterProperty<int>(new PropertyInfo<int>("ColumnId", "ColumnId"));
         public int ColumnId
         {
             get
@@ -1043,7 +1043,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
         //col_name
-        private static PropertyInfo<string> ColumnNameProperty = RegisterProperty<string>(new PropertyInfo<string>("ColumnName", "ColumnName"));
+        public static readonly PropertyInfo<string> ColumnNameProperty = RegisterProperty<string>(new PropertyInfo<string>("ColumnName", "ColumnName"));
         public string ColumnName
         {
             get
@@ -1052,7 +1052,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
         //col order (sort by!)
-        private static PropertyInfo<int> ColumnOrderProperty = RegisterProperty<int>(new PropertyInfo<int>("ColumnOrder", "ColumnOrder"));
+        public static readonly PropertyInfo<int> ColumnOrderProperty = RegisterProperty<int>(new PropertyInfo<int>("ColumnOrder", "ColumnOrder"));
         public int ColumnOrder
         {
             get
@@ -1061,7 +1061,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
         //List<ColumnRow>
-        private static PropertyInfo<MobileList<ColumnRow>> ColumnRowsProperty = RegisterProperty<MobileList<ColumnRow>>(new PropertyInfo<MobileList<ColumnRow>>("ColumnRows", "ColumnRows"));
+        public static readonly PropertyInfo<MobileList<ColumnRow>> ColumnRowsProperty = RegisterProperty<MobileList<ColumnRow>>(new PropertyInfo<MobileList<ColumnRow>>("ColumnRows", "ColumnRows"));
         public MobileList<ColumnRow> ColumnRows
         {
             get
@@ -1082,7 +1082,7 @@ namespace BusinessLibrary.BusinessClasses
             LoadProperty(DisplayAddtlTxtProperty, DisplayAddtlTxt);
             LoadProperty(DisplayCodedTxtProperty, DisplayCodedTxt);
         }
-        private static PropertyInfo<int> RowIdProperty = RegisterProperty<int>(new PropertyInfo<int>("RowId", "RowId"));
+        public static readonly PropertyInfo<int> RowIdProperty = RegisterProperty<int>(new PropertyInfo<int>("RowId", "RowId"));
         public int RowId
         {
             get
@@ -1091,7 +1091,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
         //Row title (name AKA Column Name) USER_DEF_TEXT
-        private static PropertyInfo<string> RowNameProperty = RegisterProperty<string>(new PropertyInfo<string>("RowName", "RowName"));
+        public static readonly PropertyInfo<string> RowNameProperty = RegisterProperty<string>(new PropertyInfo<string>("RowName", "RowName"));
         public string RowName
         {
             get
@@ -1100,7 +1100,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
         //bool display code
-        private static PropertyInfo<bool> DisplayCodeProperty = RegisterProperty<bool>(new PropertyInfo<bool>("DisplayCode", "DisplayCode"));
+        public static readonly PropertyInfo<bool> DisplayCodeProperty = RegisterProperty<bool>(new PropertyInfo<bool>("DisplayCode", "DisplayCode"));
         public bool DisplayCode
         {
             get
@@ -1109,7 +1109,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
         //bool display add txt
-        private static PropertyInfo<bool> DisplayAddtlTxtProperty = RegisterProperty<bool>(new PropertyInfo<bool>("DisplayAddtlTxt", "DisplayAddtlTxt"));
+        public static readonly PropertyInfo<bool> DisplayAddtlTxtProperty = RegisterProperty<bool>(new PropertyInfo<bool>("DisplayAddtlTxt", "DisplayAddtlTxt"));
         public bool DisplayAddtlTxt
         {
             get
@@ -1118,7 +1118,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
         //bool display coded txt
-        private static PropertyInfo<bool> DisplayCodedTxtProperty = RegisterProperty<bool>(new PropertyInfo<bool>("DisplayCodedTxt", "DisplayCodedTxt"));
+        public static readonly PropertyInfo<bool> DisplayCodedTxtProperty = RegisterProperty<bool>(new PropertyInfo<bool>("DisplayCodedTxt", "DisplayCodedTxt"));
         public bool DisplayCodedTxt
         {
             get
@@ -1143,7 +1143,7 @@ namespace BusinessLibrary.BusinessClasses
             LoadProperty(ItemColumnsCodedTxtProperty, new MobileDictionary<int, MobileDictionary<ReportAttribute, MobileList<ReportCodedText>>>());
         }
         //item_ID
-        private static PropertyInfo<Int64> ItemIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("ItemId", "ItemId"));
+        public static readonly PropertyInfo<Int64> ItemIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("ItemId", "ItemId"));
         public Int64 ItemId
         {
             get
@@ -1152,7 +1152,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
         //ColumnDataRow_name
-        private static PropertyInfo<string> ShortTitleProperty = RegisterProperty<string>(new PropertyInfo<string>("ShortTitle", "ShortTitle"));
+        public static readonly PropertyInfo<string> ShortTitleProperty = RegisterProperty<string>(new PropertyInfo<string>("ShortTitle", "ShortTitle"));
         public string ShortTitle
         {
             get
@@ -1160,7 +1160,7 @@ namespace BusinessLibrary.BusinessClasses
                 return GetProperty(ShortTitleProperty);
             }
         }
-        private static PropertyInfo<string> FullTitleProperty = RegisterProperty<string>(new PropertyInfo<string>("FullTitle", "FullTitle"));
+        public static readonly PropertyInfo<string> FullTitleProperty = RegisterProperty<string>(new PropertyInfo<string>("FullTitle", "FullTitle"));
         public string FullTitle
         {
             get
@@ -1172,7 +1172,7 @@ namespace BusinessLibrary.BusinessClasses
         {
             LoadProperty(FullTitleProperty, fullTitle);
         }
-        private static PropertyInfo<string> AbstractProperty = RegisterProperty<string>(new PropertyInfo<string>("Abstract", "Abstract"));
+        public static readonly PropertyInfo<string> AbstractProperty = RegisterProperty<string>(new PropertyInfo<string>("Abstract", "Abstract"));
         public string Abstract
         {
             get
@@ -1184,7 +1184,7 @@ namespace BusinessLibrary.BusinessClasses
         {
             LoadProperty(AbstractProperty, abstractStr);
         }
-        private static PropertyInfo<string> YearProperty = RegisterProperty<string>(new PropertyInfo<string>("Year", "Year"));
+        public static readonly PropertyInfo<string> YearProperty = RegisterProperty<string>(new PropertyInfo<string>("Year", "Year"));
         public string Year
         {
             get
@@ -1197,7 +1197,7 @@ namespace BusinessLibrary.BusinessClasses
             LoadProperty(YearProperty, year);
         }
         //ColumnDataRow_name
-        private static PropertyInfo<string> RowNameProperty = RegisterProperty<string>(new PropertyInfo<string>("RowName", "RowName"));
+        public static readonly PropertyInfo<string> RowNameProperty = RegisterProperty<string>(new PropertyInfo<string>("RowName", "RowName"));
         public string RowName
         {
             get
@@ -1207,7 +1207,7 @@ namespace BusinessLibrary.BusinessClasses
         }
 
         //old item_ID
-        private static PropertyInfo<string> oldItemIdProperty = RegisterProperty<string>(new PropertyInfo<string>("oldItemId", "oldItemId"));
+        public static readonly PropertyInfo<string> oldItemIdProperty = RegisterProperty<string>(new PropertyInfo<string>("oldItemId", "oldItemId"));
         public string oldItemId
         {
             get
@@ -1216,7 +1216,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
         //all attributes for this item/report
-        private static PropertyInfo<MobileList<ReportAttribute>> ItemAttributesProperty = RegisterProperty(new PropertyInfo<MobileList<ReportAttribute>>("ItemAttributes", "ItemAttributes"));
+        public static readonly PropertyInfo<MobileList<ReportAttribute>> ItemAttributesProperty = RegisterProperty(new PropertyInfo<MobileList<ReportAttribute>>("ItemAttributes", "ItemAttributes"));
         public MobileList<ReportAttribute> ItemAttributes
         {
             get
@@ -1226,7 +1226,7 @@ namespace BusinessLibrary.BusinessClasses
         }
         //AllColumns, all rows, with true or false (whether the item is associated with the code represented by the row)
         //MobileDictionary<ColumnID, MobileDictionary<rowID, attributeID (0 if not present)>
-        private static PropertyInfo<MobileDictionary<int, MobileDictionary<int, MobileList<ReportAttribute>>>> ItemColumnsDataProperty = RegisterProperty(new PropertyInfo<MobileDictionary<int, MobileDictionary<int, MobileList<ReportAttribute>>>>("ItemColumnsData", "ItemColumnsData"));
+        public static readonly PropertyInfo<MobileDictionary<int, MobileDictionary<int, MobileList<ReportAttribute>>>> ItemColumnsDataProperty = RegisterProperty(new PropertyInfo<MobileDictionary<int, MobileDictionary<int, MobileList<ReportAttribute>>>>("ItemColumnsData", "ItemColumnsData"));
         public MobileDictionary<int, MobileDictionary<int, MobileList<ReportAttribute>>> ItemColumnsData
         {
             get
@@ -1236,7 +1236,7 @@ namespace BusinessLibrary.BusinessClasses
         }
         //NOT (!!) AllColumns, all rows, with string (text in the "info" box)
         //MobileDictionary<rowID, MobileDictionary<AttributeID, bool ("info" box)>
-        private static PropertyInfo<MobileDictionary<int, MobileDictionary<ReportAttribute, string>>> ItemColumnsInfoBoxProperty = RegisterProperty(new PropertyInfo<MobileDictionary<int, MobileDictionary<ReportAttribute, string>>>("ItemColumnsInfoBox", "ItemColumnsInfoBox"));
+        public static readonly PropertyInfo<MobileDictionary<int, MobileDictionary<ReportAttribute, string>>> ItemColumnsInfoBoxProperty = RegisterProperty(new PropertyInfo<MobileDictionary<int, MobileDictionary<ReportAttribute, string>>>("ItemColumnsInfoBox", "ItemColumnsInfoBox"));
         public MobileDictionary<int, MobileDictionary<ReportAttribute, string>> ItemColumnsInfoBox
         {
             get
@@ -1246,7 +1246,7 @@ namespace BusinessLibrary.BusinessClasses
         }
         //NOT (!!) AllColumns, all rows, with List<string> (coded text)
         //MobileDictionary<rowID, MobileDictionary<AttributeID, ReportCodedText>
-        private static PropertyInfo<MobileDictionary<int, MobileDictionary<ReportAttribute, MobileList<ReportCodedText>>>> ItemColumnsCodedTxtProperty = RegisterProperty(new PropertyInfo<MobileDictionary<int, MobileDictionary<ReportAttribute, MobileList<ReportCodedText>>>>("ItemColumnsCodedTxt", "ItemColumnsCodedTxt"));
+        public static readonly PropertyInfo<MobileDictionary<int, MobileDictionary<ReportAttribute, MobileList<ReportCodedText>>>> ItemColumnsCodedTxtProperty = RegisterProperty(new PropertyInfo<MobileDictionary<int, MobileDictionary<ReportAttribute, MobileList<ReportCodedText>>>>("ItemColumnsCodedTxt", "ItemColumnsCodedTxt"));
         public MobileDictionary<int, MobileDictionary<ReportAttribute, MobileList<ReportCodedText>>> ItemColumnsCodedTxt
         {
             get
@@ -1265,7 +1265,7 @@ namespace BusinessLibrary.BusinessClasses
             LoadProperty(AttributeNameProperty, attributeName);
             LoadProperty(ArmNameProperty, armName);
         }
-        private static PropertyInfo<Int64> AttributeIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("AttributeId", "AttributeId"));
+        public static readonly PropertyInfo<Int64> AttributeIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("AttributeId", "AttributeId"));
         public Int64 AttributeId
         {
             get
@@ -1274,7 +1274,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
         //ARMS! this becomes part of the identity for this row. A code can be applied to the same item, if it's applied to different arms.
-        private static PropertyInfo<string> ArmNameProperty = RegisterProperty<string>(new PropertyInfo<string>("ArmName", "ArmName"));
+        public static readonly PropertyInfo<string> ArmNameProperty = RegisterProperty<string>(new PropertyInfo<string>("ArmName", "ArmName"));
         public string ArmName
         {
             get
@@ -1283,7 +1283,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
         //ColumnDataRow_name
-        private static PropertyInfo<string> AttributeNameProperty = RegisterProperty<string>(new PropertyInfo<string>("AttributeName", "AttributeName"));
+        public static readonly PropertyInfo<string> AttributeNameProperty = RegisterProperty<string>(new PropertyInfo<string>("AttributeName", "AttributeName"));
         public string AttributeName
         {
             get
@@ -1311,7 +1311,7 @@ namespace BusinessLibrary.BusinessClasses
             LoadProperty(DocumentNameProperty, documentName);
             LoadProperty(CodedTextProperty, codedText);
         }
-        private static PropertyInfo<string> DocumentNameProperty = RegisterProperty<string>(new PropertyInfo<string>("DocumentName", "DocumentName"));
+        public static readonly PropertyInfo<string> DocumentNameProperty = RegisterProperty<string>(new PropertyInfo<string>("DocumentName", "DocumentName"));
         public string DocumentName
         {
             get
@@ -1320,7 +1320,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> CodedTextProperty = RegisterProperty<string>(new PropertyInfo<string>("CodedText", "CodedText"));
+        public static readonly PropertyInfo<string> CodedTextProperty = RegisterProperty<string>(new PropertyInfo<string>("CodedText", "CodedText"));
         public string CodedText
         {
             get
@@ -1332,7 +1332,7 @@ namespace BusinessLibrary.BusinessClasses
     [Serializable]
     public class ReportDataSelectionCriteria : BusinessBase //Csla.CriteriaBase
     {
-        private static PropertyInfo<bool> IsQuestionProperty = RegisterProperty<bool>(typeof(ReportDataSelectionCriteria), new PropertyInfo<bool>("IsQuestion", "IsQuestion"));
+        public static readonly PropertyInfo<bool> IsQuestionProperty = RegisterProperty<bool>(typeof(ReportDataSelectionCriteria), new PropertyInfo<bool>("IsQuestion", "IsQuestion"));
         public bool IsQuestion
         {
             get { return ReadProperty(IsQuestionProperty); }
@@ -1341,7 +1341,7 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(IsQuestionProperty, value);
             }
         }
-        private static PropertyInfo<string> ItemsProperty = RegisterProperty<string>(typeof(ReportDataSelectionCriteria), new PropertyInfo<string>("Items", "Items"));
+        public static readonly PropertyInfo<string> ItemsProperty = RegisterProperty<string>(typeof(ReportDataSelectionCriteria), new PropertyInfo<string>("Items", "Items"));
         public string Items
         {
             get { return ReadProperty(ItemsProperty); }
@@ -1350,7 +1350,7 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(ItemsProperty, value);
             }
         }
-        private static PropertyInfo<int> ReportIdProperty = RegisterProperty<int>(typeof(ReportDataSelectionCriteria), new PropertyInfo<int>("ReportId", "ReportId"));
+        public static readonly PropertyInfo<int> ReportIdProperty = RegisterProperty<int>(typeof(ReportDataSelectionCriteria), new PropertyInfo<int>("ReportId", "ReportId"));
         public int ReportId
         {
             get { return ReadProperty(ReportIdProperty); }
@@ -1359,7 +1359,7 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(ReportIdProperty, value);
             }
         }
-        private static PropertyInfo<string> OrderByProperty = RegisterProperty<string>(typeof(ReportDataSelectionCriteria), new PropertyInfo<string>("OrderBy", "OrderBy"));
+        public static readonly PropertyInfo<string> OrderByProperty = RegisterProperty<string>(typeof(ReportDataSelectionCriteria), new PropertyInfo<string>("OrderBy", "OrderBy"));
         public string OrderBy
         {
             get { return ReadProperty(OrderByProperty); }
@@ -1368,7 +1368,7 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(OrderByProperty, value);
             }
         }
-        private static PropertyInfo<Int64> AttributeIdProperty = RegisterProperty<Int64>(typeof(ReportDataSelectionCriteria), new PropertyInfo<Int64>("AttributeId", "AttributeId"));
+        public static readonly PropertyInfo<Int64> AttributeIdProperty = RegisterProperty<Int64>(typeof(ReportDataSelectionCriteria), new PropertyInfo<Int64>("AttributeId", "AttributeId"));
         public Int64 AttributeId
         {
             get { return ReadProperty(AttributeIdProperty); }
@@ -1377,7 +1377,7 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(AttributeIdProperty, value);
             }
         }
-        private static PropertyInfo<int> SetIdProperty = RegisterProperty<int>(typeof(ReportDataSelectionCriteria), new PropertyInfo<int>("SetId", "SetId"));
+        public static readonly PropertyInfo<int> SetIdProperty = RegisterProperty<int>(typeof(ReportDataSelectionCriteria), new PropertyInfo<int>("SetId", "SetId"));
         public int SetId
         {
             get { return ReadProperty(SetIdProperty); }
@@ -1387,7 +1387,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
         
-        private static PropertyInfo<bool> isHorizontalProperty = RegisterProperty<bool>(typeof(ReportDataSelectionCriteria), new PropertyInfo<bool>("isHorizontal", "isHorizontal"));
+        public static readonly PropertyInfo<bool> isHorizontalProperty = RegisterProperty<bool>(typeof(ReportDataSelectionCriteria), new PropertyInfo<bool>("isHorizontal", "isHorizontal"));
         public bool isHorizontal
         {
             get { return ReadProperty(isHorizontalProperty); }
@@ -1396,7 +1396,7 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(isHorizontalProperty, value);
             }
         }
-        private static PropertyInfo<bool> ShowItemIdProperty = RegisterProperty<bool>(typeof(ReportDataSelectionCriteria), new PropertyInfo<bool>("ShowItemId", "ShowItemId"));
+        public static readonly PropertyInfo<bool> ShowItemIdProperty = RegisterProperty<bool>(typeof(ReportDataSelectionCriteria), new PropertyInfo<bool>("ShowItemId", "ShowItemId"));
         public bool ShowItemId
         {
             get { return ReadProperty(ShowItemIdProperty); }
@@ -1405,7 +1405,7 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(ShowItemIdProperty, value);
             }
         }
-        private static PropertyInfo<bool> ShowOldItemIdProperty = RegisterProperty<bool>(typeof(ReportDataSelectionCriteria), new PropertyInfo<bool>("ShowOldItemId", "ShowOldItemId"));
+        public static readonly PropertyInfo<bool> ShowOldItemIdProperty = RegisterProperty<bool>(typeof(ReportDataSelectionCriteria), new PropertyInfo<bool>("ShowOldItemId", "ShowOldItemId"));
         public bool ShowOldItemId
         {
             get { return ReadProperty(ShowOldItemIdProperty); }
@@ -1414,7 +1414,7 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(ShowOldItemIdProperty, value);
             }
         }
-        private static PropertyInfo<bool> ShowOutcomesProperty = RegisterProperty<bool>(typeof(ReportDataSelectionCriteria), new PropertyInfo<bool>("ShowOutcomes", "ShowOutcomes"));
+        public static readonly PropertyInfo<bool> ShowOutcomesProperty = RegisterProperty<bool>(typeof(ReportDataSelectionCriteria), new PropertyInfo<bool>("ShowOutcomes", "ShowOutcomes"));
         public bool ShowOutcomes
         {
             get { return ReadProperty(ShowOutcomesProperty); }
@@ -1423,7 +1423,7 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(ShowOutcomesProperty, value);
             }
         }
-        private static PropertyInfo<bool> ShowFullTitleProperty = RegisterProperty<bool>(typeof(ReportDataSelectionCriteria), new PropertyInfo<bool>("ShowFullTitle", "ShowFullTitle"));
+        public static readonly PropertyInfo<bool> ShowFullTitleProperty = RegisterProperty<bool>(typeof(ReportDataSelectionCriteria), new PropertyInfo<bool>("ShowFullTitle", "ShowFullTitle"));
         public bool ShowFullTitle
         {
             get { return ReadProperty(ShowFullTitleProperty); }
@@ -1432,7 +1432,7 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(ShowFullTitleProperty, value);
             }
         }
-        private static PropertyInfo<bool> ShowAbstractProperty = RegisterProperty<bool>(typeof(ReportDataSelectionCriteria), new PropertyInfo<bool>("ShowAbstract", "ShowAbstract"));
+        public static readonly PropertyInfo<bool> ShowAbstractProperty = RegisterProperty<bool>(typeof(ReportDataSelectionCriteria), new PropertyInfo<bool>("ShowAbstract", "ShowAbstract"));
         public bool ShowAbstract
         {
             get { return ReadProperty(ShowAbstractProperty); }
@@ -1441,7 +1441,7 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(ShowAbstractProperty, value);
             }
         }
-        private static PropertyInfo<bool> ShowYearProperty = RegisterProperty<bool>(typeof(ReportDataSelectionCriteria), new PropertyInfo<bool>("ShowYear", "ShowYear"));
+        public static readonly PropertyInfo<bool> ShowYearProperty = RegisterProperty<bool>(typeof(ReportDataSelectionCriteria), new PropertyInfo<bool>("ShowYear", "ShowYear"));
         public bool ShowYear
         {
             get { return ReadProperty(ShowYearProperty); }
@@ -1450,7 +1450,7 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(ShowYearProperty, value);
             }
         }
-        private static PropertyInfo<bool> ShowShortTitleProperty = RegisterProperty<bool>(typeof(ReportDataSelectionCriteria), new PropertyInfo<bool>("ShowShortTitle", "ShowShortTitle"));
+        public static readonly PropertyInfo<bool> ShowShortTitleProperty = RegisterProperty<bool>(typeof(ReportDataSelectionCriteria), new PropertyInfo<bool>("ShowShortTitle", "ShowShortTitle"));
         public bool ShowShortTitle
         {
             get { return ReadProperty(ShowShortTitleProperty); }
