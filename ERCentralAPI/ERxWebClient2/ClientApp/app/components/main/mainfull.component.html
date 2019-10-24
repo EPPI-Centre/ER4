@@ -81,6 +81,10 @@
 														  [disabled]="!HasWriteRights"
 														  (click)="AllocateRelevantItems()">
 									</kendo-toolbar-button>
+									<kendo-toolbar-button [text]="'Export References'"
+														  [disabled]="!HasWriteRights || !HasSelectedItems"
+														  (click)="RunExportReferences()">
+									</kendo-toolbar-button>
 									<kendo-toolbar-button [text]="'Run Reports'"
 														  [disabled]="!HasWriteRights || !HasSelectedItems"
 														  (click)="RunConfigurableReports()">

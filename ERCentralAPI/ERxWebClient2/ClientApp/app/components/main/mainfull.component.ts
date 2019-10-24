@@ -102,6 +102,11 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
     }
 	tabsInitialized: boolean = false;
 
+	public RunExportReferences() {
+
+		alert('not implemented');
+	}
+
 	public DropdownSelectedCodeAllocate: singleNode | null = null;
     public stats: ReviewStatisticsCountsCommand | null = null;
     public countDown: any | undefined;
@@ -231,6 +236,16 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 						this.ItemListService.DeleteSelectedItems(this.ItemListService.SelectedItems);
 				}
 				});
+		}
+	}
+	public AllocateRelevantItems() {
+
+		if (!this.AllIncOrExcShow) {
+
+			this.AllIncOrExcShow = true;
+		} else {
+
+			this.AllIncOrExcShow = false;
 		}
 	}
 	public AllocateChoice: string = '';
