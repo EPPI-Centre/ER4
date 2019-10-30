@@ -1,5 +1,5 @@
 import {  Inject, Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders, HttpParams} from '@angular/common/http';
+import { HttpClient} from '@angular/common/http';
 import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
 import { Helpers } from '../helpers/HelperMethods';
@@ -92,7 +92,8 @@ export interface Report {
 
 }
 export interface ReportAnswerExecuteCommandParams {
-	
+
+	isQuestion: boolean;
 	reportType: string;
 	codes: string;
 	reportId: number;

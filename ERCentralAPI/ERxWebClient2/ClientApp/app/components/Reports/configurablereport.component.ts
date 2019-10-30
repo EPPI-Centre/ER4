@@ -22,12 +22,14 @@ export class configurablereportComp implements OnInit, OnDestroy {
     ) { }
 
 	ngOnInit() {
-	}
 
+		this.configurablereportServ.FetchReports();
+	}
+	// TODO NOT COMPLETE NEED TO CLEAR RELEVANT VARIABLES
 	ngOnDestroy() {
 
 	}	
-	public DropdownSelectedCodeAllocate: singleNode | null = null;
+
 	@ViewChild('CodingToolTreeReports') CodingToolTree!: codesetSelectorComponent;
 	@ViewChild('CodeTreeAllocate') CodeTreeAllocate!: codesetSelectorComponent;
 
@@ -42,17 +44,26 @@ export class configurablereportComp implements OnInit, OnDestroy {
 	public AssignDocs: string = 'true';
 	public ItemIdModel: boolean = false;
 	public ImportedIdModel: boolean = false;
-	public ShortTitleModel: boolean = false;
-	public TitleModel: boolean = true;
+	public ShortTitleModel: boolean = true;
+	public TitleModel: boolean = false;
 	public YearModel: boolean = false;
 	public AbstractModel: boolean = false;
 	public UncodedItemsModel: boolean = false;
-	public AdditionalTextTagModel: string = '';
+	public AdditionalTextTagModel: string = '[Info]';
 	public AddBulletsToCodesModel: boolean = false;
 	public ShowRiskOfBiasFigureModel: boolean = false;
 	public AlignmentHorizontalModel: boolean = true;
 	public AlignmentVerticalModel: boolean = false;
 	public OutcomesModel: boolean = false;
+	public DropdownSelectedCodeAllocate: singleNode | null = null;
+	public DropdownSelectedCodingTool: singleNode | null = null;
+	public isCollapsedCodingTool: boolean = false;
+	public DropDownBasicCodingTool: ReviewSet = new ReviewSet();
+	public isCollapsedAllocateOptions: boolean = false;
+	public ShowCodeTree: boolean = false;
+	public isCollapsedCodeAllocate: boolean = false;
+	public DropDownAllocateAtt: SetAttribute = new SetAttribute();
+
 	public AllocateRelevantItems() {
 
 		if (!this.AllIncOrExcShow) {
@@ -70,33 +81,28 @@ export class configurablereportComp implements OnInit, OnDestroy {
 	//TODO NOT COMPLETE SERGIO TO CHECK THE SPEC OF WHAT ENABLES THE REPORT TO BE SHOWN
 	public CanRunReports(): boolean {
 
-		if (this.ReportChoice == null || this.ReportChoice.name == ''
-			|| this.ItemsChoice == null || this.ItemsChoice == '') {
+		if (this.ReportChoice == null || this.ReportChoice.name == '') {
 
 			return false;
-
 		} else {
-
 			return true;
 		}
 	}
-	public ShowCodeTree: boolean = false;
+
 	public ItemsChoiceChange() {
 		if (this.ItemsChoice == 'Items with this code') {
 			this.ShowCodeTree = true;
 		} else {
 			this.ShowCodeTree = false;
 		}
+		console.log('ItemsChoiceChange: ', this.ItemsChoice );
 	}
 	public ReportChoiceChange(item: Report) {
 		if (item) {
 			this.ReportChoice = item;
 		}
+		console.log('ReportChoiceChange: ', this.ReportChoice);
 	}
-	public DropdownSelectedCodingTool: singleNode | null = null;
-	public isCollapsedCodingTool: boolean = false;
-	public DropDownBasicCodingTool: ReviewSet = new ReviewSet();
-	public isCollapsedAllocateOptions: boolean = false;
 
 	CloseCodeDropDownCodingTool() {
 
@@ -147,7 +153,7 @@ export class configurablereportComp implements OnInit, OnDestroy {
 			args.showBullets = this.AddBulletsToCodesModel;
 			args.showUncodedItems = this.UncodedItemsModel;
 			args.txtInfoTag = this.AdditionalTextTagModel;
-
+			args.isQuestion = false;
 
 			if (args) {
 				this.configurablereportServ.FetchAnswerReport(args);
@@ -186,7 +192,6 @@ export class configurablereportComp implements OnInit, OnDestroy {
 		//else if (cmdGo.DataContext != null) {
 		//}
 	}
-
 	public get ReportCollection(): Report[] | null {
 		return this.configurablereportServ.Reports;
 	}
@@ -205,8 +210,6 @@ export class configurablereportComp implements OnInit, OnDestroy {
 			this.RunReportsShow = false;
 		}
 	}
-	public isCollapsedCodeAllocate: boolean = false;
-	public DropDownAllocateAtt: SetAttribute = new SetAttribute();
 	public CloseCodeDropDownAllocate() {
 
 		if (this.CodeTreeAllocate) {

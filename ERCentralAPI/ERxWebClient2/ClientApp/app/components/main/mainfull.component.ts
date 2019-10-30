@@ -26,7 +26,7 @@ import { SearchComp } from '../Search/SearchComp.component';
 import { ComparisonComp } from '../Comparison/createnewcomparison.component';
 import { Comparison, ComparisonsService } from '../services/comparisons.service';
 import { codesetSelectorComponent } from '../CodesetTrees/codesetSelector.component';
-import { ConfigurableReportService, Report, ReportAnswerExecuteCommandParams, ReportQuestionExecuteCommandParams } from '../services/configurablereport.service';
+import { ConfigurableReportService } from '../services/configurablereport.service';
 import { Helpers } from '../helpers/HelperMethods';
 
 
@@ -84,6 +84,18 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 	@ViewChild('CodeTreeAllocate') CodeTreeAllocate!: codesetSelectorComponent;
 	@ViewChild('CodingToolTreeReports') CodingToolTree!: codesetSelectorComponent;
 
+	public DropdownSelectedCodeAllocate: singleNode | null = null;
+	public stats: ReviewStatisticsCountsCommand | null = null;
+	public countDown: any | undefined;
+	public count: number = 60;
+	public isSourcesPanelVisible: boolean = false;
+	public isReviewPanelCollapsed: boolean = false;
+	public isWorkAllocationsPanelCollapsed: boolean = false;
+	private statsSub: Subscription = new Subscription();
+	private InstanceId: number = Math.random();
+	public crossTabResult: any | 'none';
+	public CodesAreCollapsed: boolean = true;
+
     public get IsServiceBusy(): boolean {
         //console.log("mainfull IsServiceBusy", this.ItemListService, this.codesetStatsServ, this.SourcesService )
         return (this.reviewSetsService.IsBusy ||
@@ -105,7 +117,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 
 	//TODO
 	public RunExportReferences() {
-
+		alert('not implemented yet');
 	}
 	public ShowHideExportReferences(style: string): string {
 
@@ -143,17 +155,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 
 		saveAs(dataURI, "ExportedItems.html");
 	}
-	public DropdownSelectedCodeAllocate: singleNode | null = null;
-    public stats: ReviewStatisticsCountsCommand | null = null;
-    public countDown: any | undefined;
-    public count: number = 60;
-    public isSourcesPanelVisible: boolean = false;
-    public isReviewPanelCollapsed: boolean = false;
-    public isWorkAllocationsPanelCollapsed: boolean = false;
-    private statsSub: Subscription = new Subscription();
-    private InstanceId: number = Math.random();
-    public crossTabResult: any | 'none';
-    public CodesAreCollapsed: boolean = true;
+
     public ItemsWithThisCodeDDData: Array<any> = [{
         text: 'With this Code (Excluded)',
         click: () => {
