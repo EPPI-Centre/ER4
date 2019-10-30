@@ -31,6 +31,9 @@ export class ReviewTermsListComp implements OnInit, OnDestroy {
 		else {
 		}
 	}
+	public get TermsList(): ReviewerTerm[] {
+		return this.ReviewTermsServ.TermsList;
+	}
 	public Update(term: ReviewerTerm) {
 		if (term) {
 			this.ReviewTermsServ.UpdateTerm(term);

@@ -97,13 +97,6 @@ export class configurablereportComp implements OnInit, OnDestroy {
 		}
 		console.log('ItemsChoiceChange: ', this.ItemsChoice );
 	}
-	public ReportChoiceChange(item: Report) {
-		if (item) {
-			this.ReportChoice = item;
-		}
-		console.log('ReportChoiceChange: ', this.ReportChoice);
-	}
-
 	CloseCodeDropDownCodingTool() {
 
 		if (this.CodingToolTree) {
