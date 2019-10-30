@@ -4,7 +4,6 @@ import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
 import { Helpers } from '../helpers/HelperMethods';
 import { ReviewSet } from './ReviewSets.service';
-import { Subscription, Observable } from 'rxjs';
 
 @Injectable({
     providedIn: 'root',
@@ -17,7 +16,8 @@ export class ConfigurableReportService extends BusyAwareService {
         @Inject('BASE_URL') private _baseUrl: string
     ) {
         super();
-    }
+	}
+	private reportHTML: string = '';
     private _ReportList: Report[] | null = [];
 	public get Reports(): Report[] | null {
 		return this._ReportList;
@@ -41,7 +41,6 @@ export class ConfigurableReportService extends BusyAwareService {
 		);
 	}
 
-	private reportHTML: string = '';
 	FetchQuestionReport(args: ReportQuestionExecuteCommandParams) {
 
 		this._BusyMethods.push("FetchQuestionReport");
@@ -49,7 +48,7 @@ export class ConfigurableReportService extends BusyAwareService {
 			args
 		).toPromise()
 			.then(
-			(res: any) => {
+			(res: string) => {
 
 				this.reportHTML = res;
 				Helpers.OpenInNewWindow(this.reportHTML, this._baseUrl);
@@ -62,24 +61,26 @@ export class ConfigurableReportService extends BusyAwareService {
 	FetchAnswerReport(args: ReportAnswerExecuteCommandParams) {
 
 		this._BusyMethods.push("FetchAnswerReport");
-		this._httpC.post<any>(this._baseUrl + 'api/ReportList/FetchAnswerReport', args
+		this._httpC.post<ReportResult>(this._baseUrl
+			+ 'api/ReportList/FetchAnswerReport', args
 			)
 
 			.subscribe(result => {
-
-				
-				let reportHTML: any = result.returnReport;
+				let reportHTML: string = result.returnReport;
 				Helpers.OpenInNewWindow(reportHTML, this._baseUrl);
 				this.RemoveBusy("FetchAnswerReport");
 
 			}, error => {
 				this.RemoveBusy("FetchAnswerReport");
 				this.modalService.GenericErrorMessage(error);
-
 			}
 		);
 	}
+}
 
+export interface ReportResult
+{
+	returnReport: string;
 
 }
 export interface Report {

@@ -63,7 +63,7 @@
 					   [(ngModel)]="ShortTitleModel">Short Title
 			</div>
 			<div class="col-sm-12 col-md-6 row">
-				<input class="m-1 p-1" type="checkbox" value="false" name="Title"
+				<input [disabled]="true" class="m-1 p-1" type="checkbox" value="true" name="Title"
 					   [(ngModel)]="TitleModel">Title
 			</div>
 		</div>
@@ -121,10 +121,10 @@
 		<div class="col-md-1"></div>
 		<div class="col-5 row mb-1">
 			Alignment:
-			<input class="m-1 p-1" type="radio" value="true" name="Alignment"
-				   [(ngModel)]="AlignmentModel">Horizontal
-			<input class="m-1 p-1" type="radio" value="false" name="Alignment"
-				   [(ngModel)]="AlignmentModel">Vertical
+			<input class="m-1 p-1" type="radio" [value]="true" name="Alignment"
+				   [(ngModel)]="AlignmentHorizontalModel">Horizontal
+			<input class="m-1 p-1" type="radio" [value]="false" name="Alignment"
+				   [(ngModel)]="AlignmentVerticalModel">Vertical
 		</div>
 	</div>
 	<div class="col-12 row p-0 mx-1 justify-content-center">

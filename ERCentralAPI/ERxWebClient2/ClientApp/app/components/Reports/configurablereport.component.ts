@@ -1,5 +1,4 @@
 import { Component, OnInit, OnDestroy, Inject, ViewChild } from '@angular/core';
-import { ItemCodingService } from '../services/ItemCoding.service';
 import { ItemListService } from '../services/ItemList.service';
 import { ReviewSet,  SetAttribute, singleNode } from '../services/ReviewSets.service';
 import { Report, ConfigurableReportService, ReportAnswerExecuteCommandParams, ReportQuestionExecuteCommandParams } from '../services/configurablereport.service';
@@ -39,19 +38,20 @@ export class configurablereportComp implements OnInit, OnDestroy {
 	public ItemsChoice: string = 'All included items';
 	public ReportChoice: Report = {} as Report;
 	public AddBulletstoCodes: boolean = false;
-	public AdditionalTextTag: string = '';
+	public AdditionalTextTag: string = '[Info]';
 	public AssignDocs: string = 'true';
 	public ItemIdModel: boolean = false;
 	public ImportedIdModel: boolean = false;
 	public ShortTitleModel: boolean = false;
-	public TitleModel: boolean = false;
+	public TitleModel: boolean = true;
 	public YearModel: boolean = false;
 	public AbstractModel: boolean = false;
 	public UncodedItemsModel: boolean = false;
 	public AdditionalTextTagModel: string = '';
 	public AddBulletsToCodesModel: boolean = false;
 	public ShowRiskOfBiasFigureModel: boolean = false;
-	public AlignmentModel: boolean = false;
+	public AlignmentHorizontalModel: boolean = true;
+	public AlignmentVerticalModel: boolean = false;
 	public OutcomesModel: boolean = false;
 	public AllocateRelevantItems() {
 
@@ -67,9 +67,18 @@ export class configurablereportComp implements OnInit, OnDestroy {
 
 		this.EventEmitterServ.CloseReportsSectionEmitter.emit();
 	}
+	//TODO NOT COMPLETE SERGIO TO CHECK THE SPEC OF WHAT ENABLES THE REPORT TO BE SHOWN
 	public CanRunReports(): boolean {
 
-		return true;
+		if (this.ReportChoice == null || this.ReportChoice.name == ''
+			|| this.ItemsChoice == null || this.ItemsChoice == '') {
+
+			return false;
+
+		} else {
+
+			return true;
+		}
 	}
 	public ShowCodeTree: boolean = false;
 	public ItemsChoiceChange() {
@@ -106,7 +115,7 @@ export class configurablereportComp implements OnInit, OnDestroy {
 	public RunReports() {
 
 		if (!this.HasSelectedItems || !this.HasWriteRights) {
-			alert("Sorry: you don't have any items selected or you do not have permissions");
+			//alert("Sorry: you don't have any items selected or you do not have permissions");
 			return;
 		}
 		let attribute: SetAttribute = new SetAttribute();
@@ -119,11 +128,9 @@ export class configurablereportComp implements OnInit, OnDestroy {
 			}
 		}
 
-
 		if (this.ReportChoice.reportType == "Answer") {
 
-
-			alert('is an answer type');
+			//('this is an answer');
 			let args: ReportAnswerExecuteCommandParams = {} as ReportAnswerExecuteCommandParams;
 			args.reportType = this.ReportChoice.reportType;
 			args.codes = this.ItemListService.SelectedItems.map(x => x.itemId.toString()).join();
@@ -131,7 +138,7 @@ export class configurablereportComp implements OnInit, OnDestroy {
 			args.showItemId = this.ItemIdModel;
 			args.showOldItemId = this.ImportedIdModel;
 			args.showOutcomes = this.OutcomesModel;
-			args.isHorizontal = this.AlignmentModel;
+			args.isHorizontal = this.AlignmentHorizontalModel;
 			args.orderBy = this.OrderByChoice;
 			args.title = this.ReportChoice.name;
 			args.attributeId = this.DropdownSelectedCodingTool != null ? attribute.attribute_id : 0;
@@ -141,19 +148,21 @@ export class configurablereportComp implements OnInit, OnDestroy {
 			args.showUncodedItems = this.UncodedItemsModel;
 			args.txtInfoTag = this.AdditionalTextTagModel;
 
+
 			if (args) {
 				this.configurablereportServ.FetchAnswerReport(args);
 			}
 
 		} else {// report type is a question as a test
 
+			//alert('this is a question');
 			let args: ReportQuestionExecuteCommandParams = {} as ReportQuestionExecuteCommandParams;
 			args.items = this.ItemListService.SelectedItems.map(x => x.itemId.toString()).join();
 			args.reportId = this.ReportChoice.reportId;
 			args.orderBy = this.OrderByChoice;
 			args.attributeId = this.DropdownSelectedCodingTool != null ? attribute.attribute_id : 0;
 			args.setId = this.DropdownSelectedCodingTool != null ? reviewSet.set_id : 0;
-			args.isHorizantal = this.AlignmentModel;
+			args.isHorizantal = this.AlignmentHorizontalModel;
 			args.showItemId = this.ItemIdModel;
 			args.showOldID = this.ImportedIdModel;
 			args.showOutcomes = this.OutcomesModel;
@@ -165,6 +174,7 @@ export class configurablereportComp implements OnInit, OnDestroy {
 			args.showBullets = this.AddBulletsToCodesModel;
 			args.showUncodedItems = this.UncodedItemsModel;
 			args.txtInfoTag = this.AdditionalTextTagModel;
+			args.isQuestion = true;
 
 			if (args) {
 
@@ -206,7 +216,5 @@ export class configurablereportComp implements OnInit, OnDestroy {
 
 		}
 		this.isCollapsedCodeAllocate = false;
-
 	}
-
 }

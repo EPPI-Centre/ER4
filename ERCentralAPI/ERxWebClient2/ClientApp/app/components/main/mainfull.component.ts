@@ -1,9 +1,8 @@
-﻿import { Component, Inject, OnInit, ViewChild, AfterViewInit, OnDestroy, EventEmitter, Output, Input } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+﻿import { Component, Inject, OnInit, ViewChild, OnDestroy} from '@angular/core';
 import { Router } from '@angular/router';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { WorkAllocation, WorkAllocationListService } from '../services/WorkAllocationList.service'
-import { Criteria, ItemList } from '../services/ItemList.service'
+import { Criteria, ItemList, Item } from '../services/ItemList.service'
 import { WorkAllocationContactListComp } from '../WorkAllocations/WorkAllocationContactListComp.component';
 import { ItemListService } from '../services/ItemList.service'
 import { ItemListComp } from '../ItemList/itemListComp.component';
@@ -28,6 +27,7 @@ import { ComparisonComp } from '../Comparison/createnewcomparison.component';
 import { Comparison, ComparisonsService } from '../services/comparisons.service';
 import { codesetSelectorComponent } from '../CodesetTrees/codesetSelector.component';
 import { ConfigurableReportService, Report, ReportAnswerExecuteCommandParams, ReportQuestionExecuteCommandParams } from '../services/configurablereport.service';
+import { Helpers } from '../helpers/HelperMethods';
 
 
 @Component({
@@ -52,6 +52,8 @@ import { ConfigurableReportService, Report, ReportAnswerExecuteCommandParams, Re
 
 })
 export class MainFullReviewComponent implements OnInit, OnDestroy {
+
+	
     constructor(private router: Router,
         public ReviewerIdentityServ: ReviewerIdentityService,
         public reviewSetsService: ReviewSetsService,
@@ -74,7 +76,6 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 	@ViewChild('WorkAllocationContactList') workAllocationsContactComp!: WorkAllocationContactListComp;
 	@ViewChild('WorkAllocationCollaborateList') workAllocationCollaborateComp!: WorkAllocationComp;
     @ViewChild('tabstrip') public tabstrip!: TabStripComponent;
-    //@ViewChild('tabset') tabset!: NgbTabset;
     @ViewChild('ItemList') ItemListComponent!: ItemListComp;
     @ViewChild('FreqComp') FreqComponent!: frequenciesComp;
     @ViewChild('CrosstabsComp') CrosstabsComponent!: CrossTabsComp;
@@ -102,11 +103,46 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
     }
 	tabsInitialized: boolean = false;
 
+	//TODO
 	public RunExportReferences() {
 
-		alert('not implemented');
 	}
+	public ShowHideExportReferences(style: string): string {
 
+		let report: string = '';
+		let items: Item[] = this.ItemListService.ItemList.items.filter(found => found.isSelected == true);
+		for (var i = 0; i < items.length; i++) {
+			let currentItem: Item  = items[i];
+			
+			switch (style) {
+				case "Chicago":
+					report += "<p>" + ItemListService.GetCitation(currentItem) + "</p>";
+					break;
+				case "Harvard":
+					report += "<p>" + ItemListService.GetHarvardCitation(currentItem)+ "</p>";
+					break;
+				case "NICE":
+					report += "<p>" + ItemListService.GetNICECitation(currentItem) + "</p>";
+					break;
+				//case "BL":
+				//	report += review.BL_TX + Environment.NewLine +
+				//		i.GetBritishLibraryCitation() + Environment.NewLine + Environment.NewLine + Environment.NewLine + Environment.NewLine + Environment.NewLine;
+				//	break;
+				//case "BLCopyrightCleared":
+				//	report += review.BL_CC_TX + Environment.NewLine +
+				//		i.GetBritishLibraryCitation() + Environment.NewLine + Environment.NewLine + Environment.NewLine + Environment.NewLine + Environment.NewLine;
+				//	break;
+			}
+		}
+		//console.log('report: ', report);
+		return report;
+	}
+	public ExportReferences(report: string) {
+		
+		const dataURI = "data:text/plain;base64," + encodeBase64(report);
+
+		saveAs(dataURI, "ExportedItems.html");
+	}
 	public DropdownSelectedCodeAllocate: singleNode | null = null;
     public stats: ReviewStatisticsCountsCommand | null = null;
     public countDown: any | undefined;
@@ -139,9 +175,35 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
     public QuickReportsDDData: Array<any> = [{
         text: 'Quick Question Report',
         click: () => {
-            this.ShowHideQuickQuestionReport();
+			Helpers.OpenInNewWindow(this.ShowHideQuickQuestionReport(), this._baseUrl);
         }
-    }];
+	}];
+	public ExportReferencesDDData: Array<any> = [{
+			text: 'Harvard',
+			click: () => {
+				Helpers.OpenInNewWindow(this.ShowHideExportReferences('Harvard'), this._baseUrl);
+			}
+		},
+		{
+			text: 'Chicago',
+			click: () => {
+				Helpers.OpenInNewWindow(this.ShowHideExportReferences('Chicago'), this._baseUrl);
+			}
+		},
+		{
+			text: 'NICE Format',
+			click: () => {
+				Helpers.OpenInNewWindow(this.ShowHideExportReferences('NICE'), this._baseUrl);
+			}
+		},
+		{
+			text: 'Export Current page/selection',
+			click: () => {
+				//TODO nned Sergio to check this - - export to a table maybe if
+				// there is no specific grid available to do this.
+				this.ExportReferences(this.ShowHideExportReferences('Harvard'));
+			}
+		}];
     public ImportOrNewDDData: Array<any> = [{
         text: 'New Reference',
         click: () => {

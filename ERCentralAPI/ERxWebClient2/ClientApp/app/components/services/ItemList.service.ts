@@ -24,6 +24,7 @@ import { iTimePoint } from './timePoints.service';
 )
 
 export class ItemListService extends BusyAwareService {
+    
     constructor(
         private _httpC: HttpClient,
         @Inject('BASE_URL') private _baseUrl: string,
@@ -317,7 +318,106 @@ export class ItemListService extends BusyAwareService {
             inputAuthors = inputAuthors.substring(0, cI) + " and" + inputAuthors.substring(cI + 1);//.(inputAuthors.LastIndexOf(",") + 1, " and");
         }
         return inputAuthors;
-    }
+	}
+	public static GetNICECitation(currentItem: Item): any {
+		let retVal: string = "";
+
+		switch (currentItem.typeId) {
+
+			case 1: //Report
+				retVal = this.CleanAuthors(currentItem.authors) + " (" + currentItem.year + ") " + currentItem.title + ". " + currentItem.city + ": " + currentItem.publisher + ", " + currentItem.pages;
+				break;
+			case 2: //Book, Whole
+				retVal = this.CleanAuthors(currentItem.authors) + " (" + currentItem.year + ") " + currentItem.title + ". " + currentItem.city + ": " + currentItem.publisher;
+				break;
+			case 3: //Book, Chapter
+				retVal = this.CleanAuthors(currentItem.authors) + " (" + currentItem.year + ") " + currentItem.title + ". In: " + this.CleanAuthors(currentItem.parentAuthors) + ", editors. " + currentItem.parentTitle + ". " + currentItem.city + ": " + currentItem.publisher + ", p" + currentItem.pages;
+				break;
+			case 4: //Dissertation
+				retVal = this.CleanAuthors(currentItem.authors) + " (" + currentItem.year + ") " + currentItem.title + ". " + currentItem.edition + ", " + currentItem.institution + ".";
+				break;
+			case 5: //Conference Proceedings
+				retVal = this.CleanAuthors(currentItem.authors) + " (" + currentItem.year + ") " + currentItem.title + ". In: " + currentItem.parentTitle + ", " + currentItem.city + ". " + currentItem.publisher + ", p" + currentItem.pages;
+				break;
+			case 6: //Document From Internet Site
+				retVal = this.CleanAuthors(currentItem.authors) + " (" + currentItem.year + ") <a href='" + URL + "'>" + currentItem.title + "</a>. " + currentItem.publisher;
+				break;
+			case 7: //Web Site
+				retVal = this.CleanAuthors(currentItem.authors) + " (" + currentItem.year + ") <a href='" + URL + "'>" + currentItem.title + "</a> " + (currentItem.availability == "" ? "" : " [online; accessed: " + currentItem.availability + "]");
+				break;
+			case 8: //DVD, Video, Media
+				retVal = this.CleanAuthors(currentItem.authors) + " (" + currentItem.year + ") " + currentItem.title + (currentItem.availability == "" ? "" : " [online; accessed: " + currentItem.availability + "]");
+				break;
+			case 9: //Research project
+				retVal = this.CleanAuthors(currentItem.authors) + " (" + currentItem.year + ") " + currentItem.title + ". " + currentItem.city + ": " + currentItem.publisher + ", ";
+				break;
+			case 10: //Article In A Periodical
+				retVal = this.CleanAuthors(currentItem.authors) + " (" + currentItem.year + ") " + currentItem.title + ". " + this.CleanAuthors(currentItem.parentTitle) + " " + currentItem.volume + (currentItem.issue != "" ? "(" + currentItem.issue + ")" : "") + ", " + currentItem.pages;
+				break;
+			case 11: //Interview
+				retVal = this.CleanAuthors(currentItem.authors) + " (" + currentItem.year + ") " + currentItem.title + ". ";
+				break;
+			case 12: //Generic
+				retVal = this.CleanAuthors(currentItem.authors) + " (" + currentItem.year + ") " + currentItem.title + ". " + currentItem.city + ": " + currentItem.publisher;
+				break;
+			case 14: //Journal, Article
+				retVal = this.CleanAuthors(currentItem.authors) + " (" + currentItem.year + ") " + currentItem.title + ". " + this.CleanAuthors(currentItem.parentTitle) + " " + currentItem.volume + (currentItem.issue != "" ? "(" + currentItem.issue + ")" : "") + ", " + currentItem.pages;
+				break;
+		}
+		return retVal;
+	}
+	public static GetHarvardCitation(currentItem: Item): any {
+		console.log('Current item: ', currentItem);
+		let retVal:string = "";
+		switch (currentItem.typeId) {
+			case 1: //Report
+				retVal = this.CleanAuthors(currentItem.authors) + ". (" + currentItem.year + "). <i>" + currentItem.title + "</i>. " + currentItem.city + ": " + currentItem.publisher + ", pp." + currentItem.pages + ". " +
+					(currentItem.url == "" ? "" : "Available at: ") + URL + ".";
+				break;
+			case 2: //Book, Whole
+				retVal = this.CleanAuthors(currentItem.authors) + ". (" + currentItem.year + "). <i>" + currentItem.title + "</i>. " + currentItem.city + ": " + currentItem.publisher + ".";
+				break;
+			case 3: //Book, Chapter
+				retVal = this.CleanAuthors(currentItem.authors) + ". (" + currentItem.year + "). " + currentItem.title + ". In: " + this.CleanAuthors(currentItem.parentAuthors) + ", ed., <i>" + currentItem.parentTitle + ".</i> " + currentItem.city + ": " + currentItem.publisher + ", pp." + currentItem.pages + ".";
+				break;
+			case 4: //Dissertation
+				retVal = this.CleanAuthors(currentItem.authors) + ". (" + currentItem.year + "). <i>" + currentItem.title + "</i>. " + currentItem.edition + ". " + currentItem.institution + ".";
+				break;
+			case 5: //Conference Proceedings
+				retVal = this.CleanAuthors(currentItem.authors) + ". (" + currentItem.year + "). " + currentItem.title + ". In: " + currentItem.parentTitle + ". " + currentItem.city + ": " + currentItem.publisher + ", pp." + currentItem.pages + ". " +
+					(currentItem.url == "" ? "" : "Available at: ") + URL + ".";
+				break;
+			case 6: //Document From Internet Site
+				retVal = this.CleanAuthors(currentItem.authors) + ". (" + currentItem.year + "). <i>" + currentItem.title + "</i>. [online] " + currentItem.publisher + ". Available at: " + URL +
+					(currentItem.availability == "" ? "" : " [Accessed: " + currentItem.availability + "] ") + ".";
+				break;
+			case 7: //Web Site
+				retVal = this.CleanAuthors(currentItem.authors) + ". (" + currentItem.year + "). <i>" + currentItem.title + "</i>. [online] " + currentItem.publisher + ". Available at: " + URL +
+					(currentItem.availability == "" ? "" : " [Accessed: " + currentItem.availability + "] ") + ".";
+				break;
+			case 8: //DVD, Video, Media
+				retVal = "<i>" + currentItem.title + "</i>. " + " (" + currentItem.year + "). " + (currentItem.availability == "" ? "" : " [" + currentItem.availability + "] ") +
+					currentItem.city + ": " + this.CleanAuthors(currentItem.authors) + ".";
+				break;
+			case 9: //Research project
+				retVal = this.CleanAuthors(currentItem.authors) + ". (" + currentItem.year + "). <i>" + currentItem.title + "</i>. " + currentItem.city + ": " + currentItem.publisher + ".";
+				break;
+			case 10: //Article In A Periodical
+				retVal = this.CleanAuthors(currentItem.authors) + ". (" + currentItem.year + "). " + currentItem.title + ". <i>" + this.CleanAuthors(currentItem.parentTitle) + "</i>, " + currentItem.volume + (currentItem.issue != "" ? "(" + currentItem.issue + ")" : "") + ", pp." + currentItem.pages + ".";
+				break;
+			case 11: //Interview
+				retVal = this.CleanAuthors(currentItem.authors) + ". (" + currentItem.year + "). <i>" + currentItem.title + "</i>. ";
+				break;
+			case 12: //Generic
+				retVal = this.CleanAuthors(currentItem.authors) + ". (" + currentItem.year + "). <i>" + currentItem.title + "</i>. " + currentItem.city + ": " + currentItem.publisher + ".";
+				break;
+			case 14: //Journal, Article
+				retVal = this.CleanAuthors(currentItem.authors) + ". (" + currentItem.year + "). " + currentItem.title + ". <i>" + this.CleanAuthors(currentItem.parentTitle) + "</i>, " + currentItem.volume + (currentItem.issue != "" ? "(" + currentItem.issue + ")" : "") + ", pp." + currentItem.pages + ".";
+				break;
+		}
+		return retVal;
+	}
+
     public SaveItems(items: ItemList, crit: Criteria) {
         //console.log('saving items');
         items.items = orderBy(items.items, this.sort); 

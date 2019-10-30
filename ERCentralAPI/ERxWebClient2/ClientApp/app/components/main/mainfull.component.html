@@ -81,10 +81,14 @@
 														  [disabled]="!HasWriteRights"
 														  (click)="AllocateRelevantItems()">
 									</kendo-toolbar-button>
-									<kendo-toolbar-button [text]="'Export References'"
-														  [disabled]="!HasWriteRights || !HasSelectedItems"
-														  (click)="RunExportReferences()">
-									</kendo-toolbar-button>
+									<kendo-toolbar-splitbutton [text]="'Export References'" 
+															   (buttonClick)="ShowHideExportReferences()"
+															   [disabled]="!HasSelectedItems"
+															   [data]="ExportReferencesDDData"
+															   style="border-color: #04070b;background-color: #e1e4eb;">
+
+									</kendo-toolbar-splitbutton>
+
 									<kendo-toolbar-button [text]="'Run Reports'"
 														  [disabled]="!HasWriteRights || !HasSelectedItems"
 														  (click)="RunConfigurableReports()">
