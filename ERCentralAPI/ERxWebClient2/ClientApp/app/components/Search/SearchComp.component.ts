@@ -9,7 +9,7 @@ import { SortDescriptor, orderBy, State, process } from '@progress/kendo-data-qu
 import { ReviewSetsService,  ReviewSet, singleNode, SetAttribute } from '../services/ReviewSets.service';
 import { NotificationService } from '@progress/kendo-angular-notification';
 import { ClassifierService } from '../services/classifier.service';
-import {  ReviewInfoService } from '../services/ReviewInfo.service';
+import {  ReviewInfoService, Contact } from '../services/ReviewInfo.service';
 import { BuildModelService } from '../services/buildmodel.service';
 import { SourcesService } from '../services/sources.service';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
@@ -45,7 +45,8 @@ export class SearchComp implements OnInit, OnDestroy {
 		private _buildModelService: BuildModelService,
 		private notificationService: NotificationService,
 		private _sourcesService: SourcesService,
-		private confirmationDialogService: ConfirmationDialogService
+		private confirmationDialogService: ConfirmationDialogService,
+		private _reviewInfoService: ReviewInfoService
 	) {
 		
 	}
@@ -88,7 +89,13 @@ export class SearchComp implements OnInit, OnDestroy {
 	public searchTextModel: string = '';
 	public CurrentDropdownSelectedCode: singleNode | null = null;
 	public SearchVisualiseData!: Observable<any>[];
+	public SearchForAnyoneModel: boolean = true;
+	public SearchForPersonModel: boolean = false;
 
+	public get Contacts(): Contact[] {
+		return this._reviewInfoService.Contacts;
+	}
+	public ContactChoice: Contact = new Contact();
     @Output() PleaseOpenTheCodes = new EventEmitter();
 	@ViewChild('WithOrWithoutCodeSelector') WithOrWithoutCodeSelector!: codesetSelectorComponent;
 	//@ViewChild('WithOrWithoutCodeSelectorVisualise') WithOrWithoutCodeSelectorVisualise!: codesetSelectorComponent;
@@ -832,9 +839,10 @@ export class SearchComp implements OnInit, OnDestroy {
 
 		}
 	}
-
+	public ShowSearchForAnyone: boolean = false;
 	public nextDropDownList(num: number, val: string) {
 
+		this.ShowSearchForAnyone = false;
 		let typeElement: "success" | "error" | "none" | "warning" | "info" | undefined = undefined;
 		this.showTextBox = false;
 		this.selectedSearchDropDown = val;
@@ -867,6 +875,7 @@ export class SearchComp implements OnInit, OnDestroy {
 						}
 					);
 				this.dropDownList = this._reviewSetsService.ReviewSets;
+				this.ShowSearchForAnyone = true;
 				break;
 			}
 			case 6: {
@@ -991,7 +1000,6 @@ export class SearchComp implements OnInit, OnDestroy {
 	}
 
 	Clear() {
-
 		
 		this.CurrentDropdownSelectedCode = null;
 		this.selectedSearchCodeSetDropDown = '';
@@ -1004,7 +1012,6 @@ export class SearchComp implements OnInit, OnDestroy {
 		this.modelResultsSection = false;
 		this.LogicSection = false;
 	}
-
 }
 
 export interface ReadOnlySource {

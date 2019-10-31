@@ -30,6 +30,7 @@ import { ConfigurableReportService } from '../services/configurablereport.servic
 import { Helpers } from '../helpers/HelperMethods';
 
 
+
 @Component({
     selector: 'mainComp',
     templateUrl: './mainfull.component.html'
@@ -123,6 +124,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 
 		let report: string = '';
 		let items: Item[] = this.ItemListService.ItemList.items.filter(found => found.isSelected == true);
+				
 		for (var i = 0; i < items.length; i++) {
 			let currentItem: Item  = items[i];
 			
@@ -136,6 +138,9 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 				case "NICE":
 					report += "<p>" + ItemListService.GetNICECitation(currentItem) + "</p>";
 					break;
+				case "ExportTable":
+					report += "<tr>" + ItemListService.GetCitationForExport(currentItem) + "</tr>" ;
+					break;
 				//case "BL":
 				//	report += review.BL_TX + Environment.NewLine +
 				//		i.GetBritishLibraryCitation() + Environment.NewLine + Environment.NewLine + Environment.NewLine + Environment.NewLine + Environment.NewLine;
@@ -146,14 +151,24 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 				//	break;
 			}
 		}
-		//console.log('report: ', report);
+
 		return report;
 	}
 	public ExportReferences(report: string) {
 		
-		const dataURI = "data:text/plain;base64," + encodeBase64(report);
+		const dataURI = "data:text/plain;base64," +
+			encodeBase64(report);
 
+		console.log('report: ', dataURI);
 		saveAs(dataURI, "ExportedItems.html");
+	}
+	public ExportReferencesAsHTML(report: string) {
+
+		let wrapperStart: string = "<table border=\"1\" style=\"border-collapse: collapse\"><tr><td></td><td>Authors</td><td>Year</td><td>Title</td></tr>";
+		let wrapperEnd: string = "</table>";
+
+		var blob = new Blob([wrapperStart + report + wrapperEnd], { type: "text/html" });
+		saveAs(blob, "ExportedItems.html");
 	}
 
     public ItemsWithThisCodeDDData: Array<any> = [{
@@ -201,9 +216,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 		{
 			text: 'Export Current page/selection',
 			click: () => {
-				//TODO nned Sergio to check this - - export to a table maybe if
-				// there is no specific grid available to do this.
-				this.ExportReferences(this.ShowHideExportReferences('Harvard'));
+				this.ExportReferencesAsHTML(this.ShowHideExportReferences('ExportTable'));
 			}
 		}];
     public ImportOrNewDDData: Array<any> = [{

@@ -252,7 +252,59 @@ export class ItemListService extends BusyAwareService {
         cr.onlyIncluded = false;
         cr.showDeleted = true;
         this.FetchWithCrit(cr, "Excluded Items");
-    }
+	}
+	public static GetCitationForExport(Item: Item) {
+		let retVal: string = "";
+
+		switch (Item.typeId) {
+			case 1: //Report
+				retVal = "<td>" + ItemListService.CleanAuthors(Item.authors)  + "</td><td>" + Item.year + "</td><td>"  + Item.title.replace(/</g, "&lt;") + "</td><td>" + Item.city.replace(/</g, "&lt;") + "</td><td>" + ": " + Item.publisher.replace(/</g, "&lt;") + ". </td>";
+				break;
+			case 2: //Book, Whole
+				retVal = "<td>" + ItemListService.CleanAuthors(Item.authors) + ". " + "</td><td>" + Item.year + "</td><td>" + ". <i>" + Item.title.replace(/</g, "&lt;") + "</i>. " + "</td><td>" + Item.city.replace(/</g, "&lt;") + "</td><td>" + ": " + Item.publisher.replace(/</g, "&lt;") + ". </td>";
+				break;
+			case 3: //Book, Chapter
+				retVal = "<td>" + ItemListService.CleanAuthors(Item.authors) + ". " + "</td><td>" + Item.year + "</td><td>" + ". " + Item.title.replace(/</g, "&lt;") + ". In <i>" + "</td><td>" + Item.parentTitle.replace(/</g, "&lt;") + "</i>, edited by " + "</td><td>"  + ItemListService.CleanAuthors(Item.parentAuthors) + ", " +
+					+ "</td><td>" + Item.pages + "</td><td>" + ". " + Item.city + "</td><td>" + ": " + Item.publisher + ". </td>";
+				break;
+			case 4: //Dissertation
+				retVal = "<td>" + ItemListService.CleanAuthors(Item.authors) + ". " + "</td><td>" + Item.year + "</td><td>" + ". \"" + Item.title.replace(/</g, "&lt;") + "\". " + "</td><td>" + Item.edition.replace(/</g, "&lt;") + "</td><td>" + ", " + Item.institution.replace(/</g, "&lt;") + ". </td>";
+				break;
+			case 5: //Conference Proceedings
+				retVal = "<td>" + ItemListService.CleanAuthors(Item.authors) + ". " + "</td><td>" + Item.year + "</td><td>" + ". " + Item.title.replace(/</g, "&lt;") + "</td><td>" + ". Paper presented at " + Item.parentTitle.replace(/</g, "&lt;") + "</td><td>" + ", " + Item.city.replace(/</g, "&lt;") + "</td><td>" + ": " + Item.publisher.replace(/</g, "&lt;") + ". </td>";
+				break;
+			case 6: //Document From Internet Site
+				retVal = "<td>" + ItemListService.CleanAuthors(Item.authors) + ". " + "</td><td>" + Item.year + "</td><td>" + ". \"" + Item.title.replace(/</g, "&lt;") + "</td><td>" + "\". " + Item.publisher.replace(/</g, "&lt;") + ". " + "</td><td>"  + URL +
+					+ "</td><td>" + (Item.availability == "" ? "" : " [Accessed " + "</td><td>" + Item.availability.replace(/</g, "&lt;") + "] ") + ". </td>";
+				break;
+			case 7: //Web Site
+				retVal = "<td>" + ItemListService.CleanAuthors(Item.authors) + ". (" + Item.year + "). <i>" + Item.title.replace(/</g, "&lt;") + "</i>. " + "</td><td>" + Item.publisher.replace(/</g, "&lt;") + ". " + URL +
+					(Item.availability == "" ? "" : " [Accessed " + Item.availability.replace(/</g, "&lt;") + "] ") + ". </td>";
+				break;
+			case 8: //DVD, Video, Media
+				retVal = "<td>" + "\"" + Item.title.replace(/</g, "&lt;") + "\". " + "</td><td>" + Item.year + "</td><td>"  + ". " + (Item.availability == "" ? "" : " [" + Item.availability.replace(/</g, "&lt;") + "] ") +
+					+ "</td><td>" + Item.city + ": " + "</td><td>" + ItemListService.CleanAuthors(Item.authors) + ". </td>";
+				break;
+			case 9: //Research project
+				retVal = "<td>" + ItemListService.CleanAuthors(Item.authors) + ". " + "</td><td>" + Item.year + "</td><td>" + ". \"" + Item.title.replace(/</g, "&lt;") + "</td><td>" + "\". " + Item.city.replace(/</g, "&lt;") + "</td><td>" + ": " + Item.publisher.replace(/</g, "&lt;") + ". </td>";
+				break;
+			case 10: //Article In A Periodical
+				retVal = "<td>" + ItemListService.CleanAuthors(Item.authors) + ". " + "</td><td>" + Item.year + "</td><td>" + ". \"" + Item.title.replace(/</g, "&lt;") + "\". <i>" + "</td><td>" + Item.parentTitle.replace(/</g, "&lt;") + "</i> " + "</td><td>" + Item.volume + "</td><td>" + (Item.issue != "" ? "(" + Item.issue + ")" : "") + "</td><td>" + ":" + Item.pages + ". </td>";
+				break;
+			case 11: //Interview
+				retVal = "<td>" + ItemListService.CleanAuthors(Item.authors) + ". " + "</td><td>" + Item.year + "</td><td>"  + ". \"" + Item.title.replace(/</g, "&lt;") + "\". </td>";
+				break;
+			case 12: //Generic
+				retVal = "<td>" + ItemListService.CleanAuthors(Item.authors) + ". " + "</td><td>" + Item.year + "</td><td>" + ". \"" + Item.title.replace(/</g, "&lt;") + "</td><td>" + "\". " + Item.city.replace(/</g, "&lt;") + "</td><td>" + ": " + Item.publisher.replace(/</g, "&lt;") + ". </td>";
+				break;
+			case 14: //Journal, Article
+				retVal = "<td>" + Item.isIncluded + "</td><td>" + Item.authors + "</td><td>" + Item.year + "</td><td>"  + Item.title +  "</td>";
+				break;
+		}
+		//console.log("GetCitation for Item: ", Item, retVal);
+		return retVal;
+
+	}
     public static GetCitation(Item: Item): string {
         let retVal: string = "";
         switch (Item.typeId) {

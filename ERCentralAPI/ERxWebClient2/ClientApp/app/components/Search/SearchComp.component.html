@@ -20,14 +20,14 @@
 			</div>
 			<div class="col-11 col-md-4 pr-1 pl-1">
 				<div ngbDropdown>
-					<button  style="min-width: 50px; white-space:normal" class="btn alert-primary col-12 pr-1 pl-1 p-2 m-2" id="dropdownBasic1" ngbDropdownToggle (click)="isCollapsed=false ">{{selectedSearchDropDown}}</button>
+					<button style="min-width: 50px; white-space:normal" class="btn alert-primary col-12 pr-1 pl-1 p-2 m-2" id="dropdownBasic1" ngbDropdownToggle (click)="isCollapsed=false ">{{selectedSearchDropDown}}</button>
 					<div ngbDropdownMenu aria-labelledby="dropdownBasic1" class="mb-1 {white-space: normal;}">
 						<button (click)="nextDropDownList(1, 'With this code')" class="dropdown-item">With this code</button>
 						<button (click)="nextDropDownList(2, 'Without this code')" class="dropdown-item">Without this code</button>
 						<button (click)="nextDropDownList(3, 'With these internal IDs (comma separated)')" class="dropdown-item">With these internal IDs (comma separated)</button>
 						<button (click)="nextDropDownList(4, 'With these imported IDs (comma separated)')" class="dropdown-item">With these imported IDs (comma separated)</button>
-                        <button (click)="nextDropDownList(5, 'That have at least one code from this Coding Tool')" class="dropdown-item">That have at least one code from this Coding Tool</button>
-                        <button (click)="nextDropDownList(6, 'That don\'t have any codes from this Coding Tool')" class="dropdown-item">That don't have any codes from this Coding Tool</button>
+						<button (click)="nextDropDownList(5, 'That have at least one code from this Coding Tool')" class="dropdown-item">That have at least one code from this Coding Tool</button>
+						<button (click)="nextDropDownList(6, 'That don\'t have any codes from this Coding Tool')" class="dropdown-item">That don't have any codes from this Coding Tool</button>
 						<button (click)="nextDropDownList(7,'Containing this text')" class="dropdown-item">Containing this text</button>
 						<button (click)="nextDropDownList(8,'With at least one document uploaded')" class="dropdown-item">With at least one document uploaded</button>
 						<button (click)="nextDropDownList(9, 'Without any documents uploaded')" class="dropdown-item">Without any documents uploaded</button>
@@ -43,7 +43,7 @@
 				<button ngbDropdownAnchor class="btn btn-primary dropdown-toggle col-12 p-2 m-2" id="dropdownTree"
 						(click)="isCollapsed = !isCollapsed; dropdownBasic1 = false"
 						[attr.aria-expanded]="!isCollapsed" aria-controls="collapseCodeTree" style="min-width: 50px;">
-					 &nbsp;{{CurrentDropdownSelectedCode?.name}}
+					&nbsp;{{CurrentDropdownSelectedCode?.name}}
 				</button>
 				<div ngbDropdownMenu class="dropdown-menu" id="collapseCodeTree" [ngbCollapse]="!isCollapsed">
 					<codesetSelector [IsMultiSelect]="false" [WhatIsSelectable]="'SetAttribute'" [MaxHeight]="500" #WithOrWithoutCodeSelector
@@ -138,13 +138,43 @@
 						<b>&nbsp; Included </b>
 					</td>
 					<td>
-						<input  class="p-2 m-2" name="searchInclOrExclRB" type="radio" value="false" [(ngModel)]="searchInclOrExcl">
+						<input class="p-2 m-2" name="searchInclOrExclRB" type="radio" value="false" [(ngModel)]="searchInclOrExcl">
 
 						<b>&nbsp; Excluded</b>
 					</td>
 				</tr>
 			</table>
 		</div>
+		<div *ngIf="ShowSearchForAnyone" class="row">
+			<div class="col-12 col-md-4 mb-1 pr-1 pl-1 ">
+			</div>
+			<table class="col-md-4  p-2 m-2">
+				Coded By
+				<tr class="col-md-4">
+					<td>
+						<input class="p-2 m-2" name="SearchForWhom" type="radio" value="true" 
+							   [(ngModel)]="SearchForAnyoneModel">
+						<b>&nbsp; Anyone </b>
+					</td>
+					<td>
+						<input class="p-2 m-2" name="SearchForWhom" type="radio" value="false" 
+							   [(ngModel)]="SearchForPersonModel">
+						<b>&nbsp; This Person</b>
+					</td>
+				</tr>
+			</table>
+		</div>
+		<div *ngIf="SearchForPersonModel">
+			<!--<label class="col-md-5 pl-0">C Name:</label>-->
+			<select class="col-md-7 form-control mb-1" style="min-width:190px;"
+					[disabled]="!HasWriteRights" [(ngModel)]="ContactChoice">
+				<option *ngFor="let item of Contacts"
+						[ngValue]="item">
+					{{ item.name }}
+				</option>
+			</select>
+		</div>
+
 	</div>
 </div>
 <div id="LogicSection" [ngbCollapse]="!LogicSection">
