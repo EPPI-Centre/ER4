@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, ElementRef, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { WorkAllocation, WorkAllocationListService } from '../services/WorkAllocationList.service';
@@ -34,6 +34,7 @@ export class ItemListComp implements OnInit {
    
     //private sub: any;
     //@Output() loadDefault = new EventEmitter();
+	@ViewChild('exportItemsTable') exportItemsTable!: ElementRef;
 
     @Input() Context: string | undefined;
     @Input() ShowItemsTable: boolean = false;
