@@ -63,7 +63,11 @@ export class configurablereportComp implements OnInit, OnDestroy {
 	public ShowCodeTree: boolean = false;
 	public isCollapsedCodeAllocate: boolean = false;
 	public DropDownAllocateAtt: SetAttribute = new SetAttribute();
+	public showROB: boolean = false;
+	public showRiskOfBias() {
 
+		this.showROB = !this.showROB;
+	}
 	public AllocateRelevantItems() {
 
 		if (!this.AllIncOrExcShow) {
@@ -113,7 +117,7 @@ export class configurablereportComp implements OnInit, OnDestroy {
 	}
 	public RunReports() {
 
-		if (!this.HasSelectedItems || !this.HasWriteRights) {
+		if (!this.HasWriteRights) {
 			//alert("Sorry: you don't have any items selected or you do not have permissions");
 			return;
 		}

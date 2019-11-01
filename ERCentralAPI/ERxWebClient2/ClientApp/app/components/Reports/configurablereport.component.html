@@ -27,7 +27,7 @@
 					aria-controls="collapseCodeTreeCodingToolReports">
 				{{DropdownSelectedCodingTool?.name}}
 			</button>
-			<div class="dropdown-menu col-md-7" id="collapseCodeTreeCodingToolReports"
+			<div class="dropdown-menu col-md-5 pull-right" id="collapseCodeTreeCodingToolReports"
 				 [ngbCollapse]="!isCollapsedCodingTool">
 				<codesetSelector [IsMultiSelect]="false"
 								 [MaxHeight]="500" #CodingToolTreeReports
@@ -104,7 +104,12 @@
 		</div>
 	</div>
 	<div class="col-12 row p-0 my-2 mx-1 border-bottom">
-		<div class="col-md-6 row mb-1 border border-dark">
+		<div class="col-md-4">
+			<button class="btn btn-outline-info" (click)="showRiskOfBias()">
+				Show Risk Of Bias Options
+			</button>
+		</div>
+		<div *ngIf="showROB" class="col-md-6 row mb-1 border border-dark">
 			<div class="col">
 				<input class="m-1 p-1" type="checkbox" name="ShowRiskOfBiasFigure"
 					   [(ngModel)]="ShowRiskOfBiasFigureModel">Show Risk Of Bias Figure
