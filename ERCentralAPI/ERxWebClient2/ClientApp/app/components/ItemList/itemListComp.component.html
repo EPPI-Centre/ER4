@@ -160,7 +160,7 @@
                         <th  class="pr-1"></th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody  #exportItemsTable>
                     <tr *ngFor="let dataItem of this.ItemListService.ItemList.items">
                         <td class="p-1 pt-2">
                             <button class="btn btn-outline-primary btn-sm m-0" (click)="OpenItem(dataItem.itemId)">GO</button>

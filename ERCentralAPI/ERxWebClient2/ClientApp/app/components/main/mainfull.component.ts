@@ -1,4 +1,4 @@
-﻿import { Component, Inject, OnInit, ViewChild, OnDestroy} from '@angular/core';
+﻿import { Component, Inject, OnInit, ViewChild, OnDestroy, ElementRef, Renderer, AfterViewInit, Renderer2} from '@angular/core';
 import { Router } from '@angular/router';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { WorkAllocation, WorkAllocationListService } from '../services/WorkAllocationList.service'
@@ -28,7 +28,7 @@ import { Comparison, ComparisonsService } from '../services/comparisons.service'
 import { codesetSelectorComponent } from '../CodesetTrees/codesetSelector.component';
 import { ConfigurableReportService } from '../services/configurablereport.service';
 import { Helpers } from '../helpers/HelperMethods';
-
+import { ExcelService } from '../services/excel.service';
 
 
 @Component({
@@ -72,7 +72,8 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 		, private ComparisonsService: ComparisonsService,
 		private searchService: searchService,
 		private configurablereportServ: ConfigurableReportService,
-		@Inject('BASE_URL') private _baseUrl: string
+		@Inject('BASE_URL') private _baseUrl: string,
+		private excelService: ExcelService
     ) {}
 	@ViewChild('WorkAllocationContactList') workAllocationsContactComp!: WorkAllocationContactListComp;
 	@ViewChild('WorkAllocationCollaborateList') workAllocationCollaborateComp!: WorkAllocationComp;
@@ -84,6 +85,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 	@ViewChild('ComparisonComp') ComparisonComp!: ComparisonComp;
 	@ViewChild('CodeTreeAllocate') CodeTreeAllocate!: codesetSelectorComponent;
 	@ViewChild('CodingToolTreeReports') CodingToolTree!: codesetSelectorComponent;
+
 
 	public DropdownSelectedCodeAllocate: singleNode | null = null;
 	public stats: ReviewStatisticsCountsCommand | null = null;
@@ -120,9 +122,10 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 	public RunExportReferences() {
 		alert('not implemented yet');
 	}
-	public ShowHideExportReferences(style: string): string {
+	public ShowHideExportReferences(style: string): any {
 
 		let report: string = '';
+		let jsonReport: string []= [];
 		let items: Item[] = this.ItemListService.ItemList.items.filter(found => found.isSelected == true);
 				
 		for (var i = 0; i < items.length; i++) {
@@ -139,7 +142,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 					report += "<p>" + ItemListService.GetNICECitation(currentItem) + "</p>";
 					break;
 				case "ExportTable":
-					report += "<tr>" + ItemListService.GetCitationForExport(currentItem) + "</tr>" ;
+					jsonReport.push(ItemListService.GetCitationForExport(currentItem));
 					break;
 				//case "BL":
 				//	report += review.BL_TX + Environment.NewLine +
@@ -151,7 +154,6 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 				//	break;
 			}
 		}
-
 		return report;
 	}
 	public ExportReferences(report: string) {
@@ -162,13 +164,49 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 		console.log('report: ', dataURI);
 		saveAs(dataURI, "ExportedItems.html");
 	}
+	exportAsXLSX(report: string[]): void {
+
+		let data: any = report;
+		//let data: any = [{
+		//	eid: 'e101',
+		//	ename: 'ravi',
+		//	esal: 1000
+		//},
+		//{
+		//	eid: 'e102',
+		//	ename: 'ram',
+		//	esal: 2000
+		//},
+		//{
+		//	eid: 'e103',
+		//	ename: 'rajesh',
+		//	esal: 3000
+		//}];
+		console.log(data);
+		this.excelService.exportAsExcelFile(data, 'test');
+
+	}
 	public ExportReferencesAsHTML(report: string) {
 
-		let wrapperStart: string = "<table border=\"1\" style=\"border-collapse: collapse\"><tr><td></td><td>Authors</td><td>Year</td><td>Title</td></tr>";
-		let wrapperEnd: string = "</table>";
+		//var test = this.ItemListComponent.exportItemsTable.nativeElement;
+		//console.log(test.childNodes);
+		//console.dir(test);
+		//let outputHtml: ElementRef<any> = this.ItemListComponent.exportItemsTable.nativeElement;
+		//if (outputHtml.nativeElement != null) {
+			
+		//}
 
-		var blob = new Blob([wrapperStart + report + wrapperEnd], { type: "text/html" });
-		saveAs(blob, "ExportedItems.html");
+		//console.log(outputHtml);
+		//let wrapperStart: string = "<table border=\"1\" style=\"border-collapse: collapse\"><tr><td></td><td>Authors</td><td>Year</td><td>Title</td></tr>";
+		//let wrapperEnd: string = "</table>";
+		//if (outputHtml.nativeElement) {
+			
+			//console.log(outputHtml.innerHtml);
+		//}
+		//console.dir(outputHtml);
+		//var blob = new Blob([wrapperStart + report + wrapperEnd], { type: "text/html" });
+		//var blob = new Blob([test], { type: "text/html" });
+		//saveAs(blob, "ExportedItems.html");
 	}
 
     public ItemsWithThisCodeDDData: Array<any> = [{
@@ -216,7 +254,8 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 		{
 			text: 'Export Current page/selection',
 			click: () => {
-				this.ExportReferencesAsHTML(this.ShowHideExportReferences('ExportTable'));
+				//this.ExportReferencesAsHTML(this.ShowHideExportReferences('ExportTable'));
+				this.exportAsXLSX(this.ShowHideExportReferences('ExportTable'));
 			}
 		}];
     public ImportOrNewDDData: Array<any> = [{
@@ -601,10 +640,6 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         if (this.isSourcesPanelVisible) return '&uarr;';
         else return '&darr;';
     }
-	ngAfterViewInit() {
-		//this.tabsInitialized = true;
-		//console.log('tabs initialised');
-	}
 	IncludedItemsList() {
         this.IncludedItemsListNoTabChange();
 		this.tabstrip.selectTab(1);
