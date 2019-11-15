@@ -39,16 +39,16 @@ export class ItemListComp implements OnInit {
     @Input() Context: string | undefined;
     @Input() ShowItemsTable: boolean = false;
     public ShowOptions: boolean = false;
-    public ShowId: boolean = true;
-    public ShowImportedId: boolean = false;
-    public ShowShortTitle: boolean = true;
-    public ShowTitle: boolean = true;
-    public ShowYear: boolean = true;
-    public ShowAuthors: boolean = false;
-    public ShowJournal: boolean = false;
-    public ShowDocType: boolean = false;
-    public ShowInfo: boolean = false;
-    public ShowScore: boolean = false;
+    //public ShowId: boolean = true;
+    //public ShowImportedId: boolean = false;
+    //public ShowShortTitle: boolean = true;
+    //public ShowTitle: boolean = true;
+    //public ShowYear: boolean = true;
+    //public ShowAuthors: boolean = false;
+    //public ShowJournal: boolean = false;
+    //public ShowDocType: boolean = false;
+    //public ShowInfo: boolean = false;
+    //public ShowScore: boolean = false;
     public get allItemsSelected(): boolean {
         //console.log("get allItemsSelected:", this.ItemListService.ItemList.items);
         for (let i = 0; i < this.ItemListService.ItemList.items.length; i++) {

@@ -125,7 +125,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 	public ShowHideExportReferences(style: string): any {
 
 		let report: string = '';
-		let jsonReport: string []= [];
+		let jsonReport: any= [];
 		let items: Item[] = this.ItemListService.ItemList.items.filter(found => found.isSelected == true);
 				
 		for (var i = 0; i < items.length; i++) {
@@ -154,19 +154,26 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 				//	break;
 			}
 		}
-		return report;
+		if (report == '') {
+			console.log('wrong', jsonReport);
+			return jsonReport;
+		} else {
+			console.log('got in here');
+			return report;
+		}		
 	}
 	public ExportReferences(report: string) {
 		
 		const dataURI = "data:text/plain;base64," +
 			encodeBase64(report);
 
-		console.log('report: ', dataURI);
-		saveAs(dataURI, "ExportedItems.html");
+		console.log('EXPORT REFERENCES FUNCTION, report: ', dataURI);
+
+		//saveAs(dataURI, "ExportedItems.html");
 	}
 	exportAsXLSX(report: string[]): void {
 
-		let data: any = report;
+		//let data: any = report;
 		//let data: any = [{
 		//	eid: 'e101',
 		//	ename: 'ravi',
@@ -182,8 +189,9 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 		//	ename: 'rajesh',
 		//	esal: 3000
 		//}];
-		console.log(data);
-		this.excelService.exportAsExcelFile(data, 'test');
+		console.log('EXPORTASXLSX', report);
+
+		this.excelService.exportAsExcelFile(report, 'test');
 
 	}
 	public ExportReferencesAsHTML(report: string) {
@@ -255,7 +263,9 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 			text: 'Export Current page/selection',
 			click: () => {
 				//this.ExportReferencesAsHTML(this.ShowHideExportReferences('ExportTable'));
-				this.exportAsXLSX(this.ShowHideExportReferences('ExportTable'));
+				let testRefs: any = this.ShowHideExportReferences('ExportTable');
+				console.log(testRefs);
+				this.exportAsXLSX(testRefs);
 			}
 		}];
     public ImportOrNewDDData: Array<any> = [{
