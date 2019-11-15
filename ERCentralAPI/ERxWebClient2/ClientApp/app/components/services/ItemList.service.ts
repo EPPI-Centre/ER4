@@ -37,7 +37,16 @@ export class ItemListService extends BusyAwareService {
         //this.timerObj.subscribe(() => console.log("ItemListServID:", this.ID));
 	}
 
-
+	public ShowId: boolean = true;
+	public ShowImportedId: boolean = false;
+	public ShowShortTitle: boolean = true;
+	public ShowTitle: boolean = true;
+	public ShowYear: boolean = true;
+	public ShowAuthors: boolean = false;
+	public ShowJournal: boolean = false;
+	public ShowDocType: boolean = false;
+	public ShowInfo: boolean = false;
+	public ShowScore: boolean = false;
     private _IsInScreeningMode: boolean | null = null;
     public get IsInScreeningMode(): boolean {
         if (this._IsInScreeningMode !== null) return this._IsInScreeningMode;
@@ -254,10 +263,18 @@ export class ItemListService extends BusyAwareService {
         this.FetchWithCrit(cr, "Excluded Items");
 	}
 	public static GetCitationForExport(Item: Item) {
-		let retVal: string = "";
-		//let includedStr: string = Item.isIncluded == null ? '' : String(Item.isIncluded);
-		//let authors: string = Item.authors == null ? 'test authors' :  Item.parentAuthors;
-		retVal = "{ Included: \"I\""  + ", Authors: \"test author joe smith\" , Year: " + Item.year + ", Title: \"test\"}";//  + Item.title + "}" ;
+
+		let retVal: any;
+		// in here now just need the options object to list the fields required to be
+		// exported
+		retVal = {
+			Included: Item.itemStatus,
+			Authors: ItemListService.CleanAuthors(Item.authors),
+			Year: Item.year,
+			Title: Item.title
+			//,
+			//express: (ItemListService.ShowId ? true : undefined)
+		};              
 		return retVal;
 
 	}

@@ -27,43 +27,43 @@
             </button>
         </div>
         <div class="col-12 col-sm-6">
-            <input class="m-1" type="checkbox" [(ngModel)]="ShowId" />
+            <input class="m-1" type="checkbox" [(ngModel)]="ItemListService.ShowId" />
             Document ID
         </div>
         <div class="col-12 col-sm-6">
-            <input class="m-1" type="checkbox" [(ngModel)]="ShowImportedId" />
+            <input class="m-1" type="checkbox" [(ngModel)]="ItemListService.ShowImportedId" />
             Your document ID
         </div>
         <div class="col-12 col-sm-6">
-            <input class="m-1" type="checkbox" [(ngModel)]="ShowShortTitle" />
+            <input class="m-1" type="checkbox" [(ngModel)]="ItemListService.ShowShortTitle" />
             Short title
         </div>
         <div class="col-12 col-sm-6">
-            <input class="m-1" type="checkbox" [(ngModel)]="ShowAuthors" />
+            <input class="m-1" type="checkbox" [(ngModel)]="ItemListService.ShowAuthors" />
             Authors
         </div>
         <div class="col-12 col-sm-6">
-            <input class="m-1" type="checkbox" [(ngModel)]="ShowTitle" />
+            <input class="m-1" type="checkbox" [(ngModel)]="ItemListService.ShowTitle" />
             Title
         </div>
         <div class="col-12 col-sm-6">
-            <input class="m-1" type="checkbox" [(ngModel)]="ShowYear" />
+            <input class="m-1" type="checkbox" [(ngModel)]="ItemListService.ShowYear" />
             Year
         </div>
         <div class="col-12 col-sm-6">
-            <input class="m-1" type="checkbox" [(ngModel)]="ShowJournal" />
+            <input class="m-1" type="checkbox" [(ngModel)]="ItemListService.ShowJournal" />
             Journal
         </div>
         <div class="col-12 col-sm-6">
-            <input class="m-1" type="checkbox" [(ngModel)]="ShowDocType" />
+            <input class="m-1" type="checkbox" [(ngModel)]="ItemListService.ShowDocType" />
             Document type
         </div>
         <div class="col-12 col-sm-6">
-            <input class="m-1" type="checkbox" [(ngModel)]="ShowInfo" />
+            <input class="m-1" type="checkbox" [(ngModel)]="ItemListService.ShowInfo" />
             Info
         </div>
         <div class="col-12 col-sm-6">
-            <input class="m-1" type="checkbox" [(ngModel)]="ShowScore" />
+            <input class="m-1" type="checkbox" [(ngModel)]="ItemListService.ShowScore" />
             Score
         </div>
 
@@ -147,16 +147,16 @@
                                    [(ngModel)]="allItemsSelected" />
                         </th>
                         <th class="pl-0 pr-0"><div> </div></th>
-                        <th class="pr-0" [hidden]="!ShowId" (click)="ChangeSort('itemId')" style="cursor:pointer;">ID<span [innerHTML]="sortSymbol('itemId')"></span></th>
-                        <th class="pr-0" [hidden]="!ShowImportedId" (click)="ChangeSort('oldItemId')" style="cursor:pointer;">Your ID<span [innerHTML]="sortSymbol('oldItemId')"></span></th>
-                        <th class="pr-0" [hidden]="!ShowShortTitle" (click)="ChangeSort('shortTitle')" style="cursor:pointer;">Short title<span [innerHTML]="sortSymbol('shortTitle')"></span></th>
-                        <th class="pr-0" [hidden]="!ShowAuthors" (click)="ChangeSort('authors')" style="cursor:pointer;">Authors<span [innerHTML]="sortSymbol('authors')"></span></th>
-                        <th class="pr-0" [hidden]="!ShowTitle" (click)="ChangeSort('title')" style="cursor:pointer;">Title<span [innerHTML]="sortSymbol('title')"></span></th>
-                        <th class="pr-0" [hidden]="!ShowYear" (click)="ChangeSort('year')" style="cursor:pointer;">Year<span [innerHTML]="sortSymbol('year')"></span></th>
-                        <th class="pr-0" [hidden]="!ShowJournal" (click)="ChangeSort('parentTitle')" style="cursor:pointer;">Journal<span [innerHTML]="sortSymbol('parentTitle')"></span></th>
-                        <th class="pr-0" [hidden]="!ShowDocType" (click)="ChangeSort('typeName')" style="cursor:pointer;">Ref. Type<span [innerHTML]="sortSymbol('typeName')"></span></th>
-                        <th class="pr-0" [hidden]="!ShowInfo" (click)="ChangeSort('attributeAdditionalText')" style="cursor:pointer;">Info<span [innerHTML]="sortSymbol('attributeAdditionalText')"></span></th>
-                        <th class="pr-0" [hidden]="!ShowScore" (click)="ChangeSort('rank')" style="cursor:pointer;">Score<span [innerHTML]="sortSymbol('rank')"></span></th>
+                        <th class="pr-0" [hidden]="!ItemListService.ShowId" (click)="ChangeSort('itemId')" style="cursor:pointer;">ID<span [innerHTML]="sortSymbol('itemId')"></span></th>
+                        <th class="pr-0" [hidden]="!ItemListService.ShowImportedId" (click)="ChangeSort('oldItemId')" style="cursor:pointer;">Your ID<span [innerHTML]="sortSymbol('oldItemId')"></span></th>
+                        <th class="pr-0" [hidden]="!ItemListService.ShowShortTitle" (click)="ChangeSort('shortTitle')" style="cursor:pointer;">Short title<span [innerHTML]="sortSymbol('shortTitle')"></span></th>
+                        <th class="pr-0" [hidden]="!ItemListService.ShowAuthors" (click)="ChangeSort('authors')" style="cursor:pointer;">Authors<span [innerHTML]="sortSymbol('authors')"></span></th>
+                        <th class="pr-0" [hidden]="!ItemListService.ShowTitle" (click)="ChangeSort('title')" style="cursor:pointer;">Title<span [innerHTML]="sortSymbol('title')"></span></th>
+                        <th class="pr-0" [hidden]="!ItemListService.ShowYear" (click)="ChangeSort('year')" style="cursor:pointer;">Year<span [innerHTML]="sortSymbol('year')"></span></th>
+                        <th class="pr-0" [hidden]="!ItemListService.ShowJournal" (click)="ChangeSort('parentTitle')" style="cursor:pointer;">Journal<span [innerHTML]="sortSymbol('parentTitle')"></span></th>
+                        <th class="pr-0" [hidden]="!ItemListService.ShowDocType" (click)="ChangeSort('typeName')" style="cursor:pointer;">Ref. Type<span [innerHTML]="sortSymbol('typeName')"></span></th>
+                        <th class="pr-0" [hidden]="!ItemListService.ShowInfo" (click)="ChangeSort('attributeAdditionalText')" style="cursor:pointer;">Info<span [innerHTML]="sortSymbol('attributeAdditionalText')"></span></th>
+                        <th class="pr-0" [hidden]="!ItemListService.ShowScore" (click)="ChangeSort('rank')" style="cursor:pointer;">Score<span [innerHTML]="sortSymbol('rank')"></span></th>
                         <th  class="pr-1"></th>
                     </tr>
                 </thead>
@@ -172,34 +172,34 @@
                         <td class="pr-0 pl-0 bg-white">
                             <div class="mr-1 ml-1">{{dataItem.itemStatus}}</div>
                         </td>
-                        <td class="pr-0 " [hidden]="!ShowId" title="Item ID">
+                        <td class="pr-0 " [hidden]="!ItemListService.ShowId" title="Item ID">
                             {{dataItem.itemId}}
                         </td>
-                        <td class="pr-0 " [hidden]="!ShowImportedId" title="Your ID (Imported)">
+                        <td class="pr-0 " [hidden]="!ItemListService.ShowImportedId" title="Your ID (Imported)">
                             {{dataItem.oldItemId}}
                         </td>
-                        <td class="pr-0 " [hidden]="!ShowShortTitle" title="Short Title">
+                        <td class="pr-0 " [hidden]="!ItemListService.ShowShortTitle" title="Short Title">
                             {{dataItem.shortTitle}}
                         </td>
-                        <td class="pr-0 " [hidden]="!ShowAuthors" title="Authors">
+                        <td class="pr-0 " [hidden]="!ItemListService.ShowAuthors" title="Authors">
                             {{dataItem.authors}}
                         </td>
-                        <td class="pr-0 " [hidden]="!ShowTitle" title="Title">
+                        <td class="pr-0 " [hidden]="!ItemListService.ShowTitle" title="Title">
                             {{dataItem.title}}
                         </td>
-                        <td class="pr-0 " [hidden]="!ShowYear" title="Year">
+                        <td class="pr-0 " [hidden]="!ItemListService.ShowYear" title="Year">
                             {{dataItem.year}}
                         </td>
-                        <td class="pr-0 " [hidden]="!ShowJournal" title="Journal / Parent Title">
+                        <td class="pr-0 " [hidden]="!ItemListService.ShowJournal" title="Journal / Parent Title">
                             {{dataItem.parentTitle}}
                         </td>
-                        <td class="pr-0 " [hidden]="!ShowDocType" title="Reference Type">
+                        <td class="pr-0 " [hidden]="!ItemListService.ShowDocType" title="Reference Type">
                             {{dataItem.typeName}}
                         </td>
-                        <td class="pr-0 " [hidden]="!ShowInfo" title="InfoBox text (only when listing items with this code)">
+                        <td class="pr-0 " [hidden]="!ItemListService.ShowInfo" title="InfoBox text (only when listing items with this code)">
                             {{dataItem.attributeAdditionalText}}
                         </td>
-                        <td class="pr-0 " [hidden]="!ShowScore" title="Score (ML or text searches)">
+                        <td class="pr-0 " [hidden]="!ItemListService.ShowScore" title="Score (ML or text searches)">
                             {{dataItem.rank}}
                         </td>
                         <td class="pr-0"></td>
