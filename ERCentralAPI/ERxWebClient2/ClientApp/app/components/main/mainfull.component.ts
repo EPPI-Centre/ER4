@@ -142,7 +142,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 					report += "<p>" + ItemListService.GetNICECitation(currentItem) + "</p>";
 					break;
 				case "ExportTable":
-					jsonReport.push(ItemListService.GetCitationForExport(currentItem));
+					jsonReport.push(this.ItemListService.GetCitationForExport(currentItem));
 					break;
 				//case "BL":
 				//	report += review.BL_TX + Environment.NewLine +

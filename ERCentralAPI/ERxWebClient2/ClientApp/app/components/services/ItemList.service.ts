@@ -24,29 +24,21 @@ import { iTimePoint } from './timePoints.service';
 )
 
 export class ItemListService extends BusyAwareService {
-    
+
+	private _itemListOptions: ItemListOptions = new ItemListOptions();
     constructor(
         private _httpC: HttpClient,
         @Inject('BASE_URL') private _baseUrl: string,
 		private eventEmitterService: EventEmitterService,
 		private ModalService: ModalService
     ) {
-        super();
-        //this.timerObj = timer(5000, 5000).pipe(
-        //    takeUntil(this.killTrigger));
-        //this.timerObj.subscribe(() => console.log("ItemListServID:", this.ID));
+		super();
+		
 	}
 
-	public ShowId: boolean = true;
-	public ShowImportedId: boolean = false;
-	public ShowShortTitle: boolean = true;
-	public ShowTitle: boolean = true;
-	public ShowYear: boolean = true;
-	public ShowAuthors: boolean = false;
-	public ShowJournal: boolean = false;
-	public ShowDocType: boolean = false;
-	public ShowInfo: boolean = false;
-	public ShowScore: boolean = false;
+	public get GetListItemOptions(): ItemListOptions {
+		return this._itemListOptions;
+	}
     private _IsInScreeningMode: boolean | null = null;
     public get IsInScreeningMode(): boolean {
         if (this._IsInScreeningMode !== null) return this._IsInScreeningMode;
@@ -56,6 +48,7 @@ export class ItemListService extends BusyAwareService {
         this._IsInScreeningMode = state;
         //this.Save();
 	}
+	
     private _ItemList: ItemList = new ItemList();
     private _Criteria: Criteria = new Criteria();
     private _currentItem: Item = new Item();
@@ -262,19 +255,23 @@ export class ItemListService extends BusyAwareService {
         cr.showDeleted = true;
         this.FetchWithCrit(cr, "Excluded Items");
 	}
-	public static GetCitationForExport(Item: Item) {
+	public GetCitationForExport(Item: Item) {
 
 		let retVal: any;
-		// in here now just need the options object to list the fields required to be
-		// exported
 		retVal = {
 			Included: Item.itemStatus,
-			Authors: ItemListService.CleanAuthors(Item.authors),
-			Year: Item.year,
-			Title: Item.title
-			//,
-			//express: (ItemListService.ShowId ? true : undefined)
-		};              
+		}; 
+		if (this.GetListItemOptions.showId) retVal["ID"] = Item.itemId;
+		if (this.GetListItemOptions.showShortTitle) retVal["ShortTitle"] = Item.shortTitle;
+		if (this.GetListItemOptions.showTitle) retVal["Title"] = Item.title;
+		if (this.GetListItemOptions.showJournal) retVal["Journal"] = Item.parentTitle;
+		if (this.GetListItemOptions.showInfo) retVal["Info"] = Item.attributeAdditionalText;
+		if (this.GetListItemOptions.showImportedId) retVal["Your Id"] = Item.oldItemId;
+		if (this.GetListItemOptions.showAuthors) retVal["Authors"] = Item.authors;
+		if (this.GetListItemOptions.showYear) retVal["Year"] = Item.year;
+		if (this.GetListItemOptions.showDocType) retVal["Ref. Type"] = Item.typeName;
+		if (this.GetListItemOptions.showScore) retVal["Score"] = Item.rank;
+		console.log(retVal);
 		return retVal;
 
 	}
@@ -805,6 +802,22 @@ export class ItemListService extends BusyAwareService {
     //}
 
 }
+
+export class ItemListOptions {
+
+	public showId: boolean = true;
+	public showImportedId: boolean = false;
+	public showShortTitle: boolean = true;
+	public showTitle: boolean = true;
+	public showYear: boolean = true;
+	public showAuthors: boolean = false;
+	public showJournal: boolean = false;
+	public showDocType: boolean = false;
+	public showInfo: boolean = false;
+	public showScore: boolean = false;
+
+}
+
 
 export class ItemList {
     pagesize: number = 0;
