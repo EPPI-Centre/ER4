@@ -272,6 +272,8 @@ export class ItemListService extends BusyAwareService {
 			Authors: ItemListService.CleanAuthors(Item.authors),
 			Year: Item.year,
 			Title: Item.title
+			//,
+			//express: (ItemListService.ShowId ? true : undefined)
 		};              
 		return retVal;
 
