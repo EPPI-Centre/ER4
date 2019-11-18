@@ -5,12 +5,13 @@ import { Report, ConfigurableReportService, ReportAnswerExecuteCommandParams, Re
 import { codesetSelectorComponent } from '../CodesetTrees/codesetSelector.component';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { EventEmitterService } from '../services/EventEmitter.service';
+import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 
 @Component({
     selector: 'configurablereport',
     templateUrl: './configurablereport.component.html',
 })
-
+	
 export class configurablereportComp implements OnInit, OnDestroy {
 
     constructor(
@@ -18,13 +19,14 @@ export class configurablereportComp implements OnInit, OnDestroy {
 		@Inject('BASE_URL') private _baseUrl: string,
 		private configurablereportServ: ConfigurableReportService,
 		private ReviewerIdentityServ: ReviewerIdentityService,
-		private EventEmitterServ: EventEmitterService
+		private EventEmitterServ: EventEmitterService,
+		private _confirmationDialogService: ConfirmationDialogService
     ) { }
 
 	ngOnInit() {
 
-		this.configurablereportServ.FetchReports();
 	}
+
 	// TODO NOT COMPLETE NEED TO CLEAR RELEVANT VARIABLES
 	ngOnDestroy() {
 
@@ -80,7 +82,15 @@ export class configurablereportComp implements OnInit, OnDestroy {
 	}
 	public CloseReportsSection() {
 
+		this.Clear();
 		this.EventEmitterServ.CloseReportsSectionEmitter.emit();
+	
+	}
+	public Clear() {
+
+		this.configurablereportServ.FetchReports();
+		this.ReportChoice = {} as Report;
+
 	}
 	//TODO NOT COMPLETE SERGIO TO CHECK THE SPEC OF WHAT ENABLES THE REPORT TO BE SHOWN
 	public CanRunReports(): boolean {
@@ -101,6 +111,10 @@ export class configurablereportComp implements OnInit, OnDestroy {
 		}
 		console.log('ItemsChoiceChange: ', this.ItemsChoice );
 	}
+	public ReportChoiceChange() {
+		//this.ReportChoice = item;
+		console.log('ReportChoiceChange: ', this.ReportChoice.name);
+	}
 	CloseCodeDropDownCodingTool() {
 
 		if (this.CodingToolTree) {
@@ -112,13 +126,37 @@ export class configurablereportComp implements OnInit, OnDestroy {
 	public get HasSelectedItems(): boolean {
 		return this.ItemListService.HasSelectedItems;
 	}
+	public get HasReport(): boolean {
+
+		if (this.ReportChoice && this.ReportChoice.name) {
+			return this.ReportChoice.name.length > 0 ? true : false;
+		} else {
+			return false;
+		}
+		
+	}
 	public get HasWriteRights(): boolean {
 		return this.ReviewerIdentityServ.HasWriteRights;
 	}
 	public RunReports() {
 
+		if (this.ReportChoice == null || this.ReportChoice == undefined
+			|| this.ReportChoice.name == 'Please selected a generated report') {
+			return;
+		}
+
+		if (!this.HasSelectedItems && this.ItemsChoice == 'All selected items') {
+			this._confirmationDialogService.confirm('Report Message', 'Sorry you have not selected any items', false,
+			'', 'Ok')
+				.then({}
+			);
+			return;
+		}
 		if (!this.HasWriteRights) {
-			//alert("Sorry: you don't have any items selected or you do not have permissions");
+			this._confirmationDialogService.confirm('Report Message', 'Sorry you do not have permission', false,
+				'', 'Ok')
+				.then({}
+				);
 			return;
 		}
 		let attribute: SetAttribute = new SetAttribute();

@@ -3,7 +3,8 @@
 	<div class="row mt-2 mx-1 border-bottom">
 		<label class="col-md-5 pl-0">Report Name:</label>
 		<select class="col-md-7 form-control mb-1" style="min-width:190px;"
-				[disabled]="!HasWriteRights" [(ngModel)]="ReportChoice">
+				[disabled]="!HasWriteRights" [(ngModel)]="ReportChoice"
+				(change)="ReportChoiceChange()">
 			<option *ngFor="let item of ReportCollection"
 					[ngValue]="item">
 				{{ item.name }}
@@ -48,7 +49,7 @@
 	</div>
 
 	<div class="col-12 row p-0 my-2 mx-1 border-bottom">
-		<div class="col-2 pl-0 mb-1">Display as:</div>
+		<div class="col-2 pl-0 mb-1">Display:</div>
 		<div class="col-10 row mb-1" style="min-width: 400px;">
 			<div class="col-sm-12 col-md-6 row">
 				<input class="m-1 p-1" type="checkbox" value="true" name="ItemId"
@@ -134,7 +135,7 @@
 	</div>
 	<div class="col-12 row p-0 mx-1 justify-content-center">
 		<button type="submit" (click)="RunReports()" class="btn btn-success ml-2 mr-2"
-				[disabled]="!HasWriteRights">
+				[disabled]="!HasWriteRights || !HasReport ">
 			Run Report
 		</button>
 		<button class="btn btn-outline-secondary ml-1"

@@ -18,18 +18,23 @@ export class ConfigurableReportService extends BusyAwareService {
         super();
 	}
 	private reportHTML: string = '';
-    private _ReportList: Report[] | null = [];
+    private _ReportList: Report[] = [];
 	public get Reports(): Report[] | null {
 		return this._ReportList;
     }
   
 	public FetchReports() {
 
+		console.log('fetch reports debugging: ');
 		this._BusyMethods.push("FetchReports");
 		this._httpC.get<Report[]>(this._baseUrl + 'api/ReportList/FetchReports')
 
 			.subscribe(result => {
 
+				//var rep = {} as Report;
+				//rep.reportId = 1;
+				//rep.name = '';
+				//this._ReportList.push(rep);
 				this._ReportList = result;
 				this.RemoveBusy("FetchReports");
 				
@@ -43,12 +48,14 @@ export class ConfigurableReportService extends BusyAwareService {
 
 	FetchQuestionReport(args: ReportQuestionExecuteCommandParams) {
 
+		console.log('question reports debugging: ', args);
 		this._BusyMethods.push("FetchQuestionReport");
 		this._httpC.post<string>(this._baseUrl + 'api/ReportList/FetchQuestionReport',
 			args
 		).toPromise()
 			.then(
 			(res: string) => {
+
 
 				this.reportHTML = res;
 				Helpers.OpenInNewWindow(this.reportHTML, this._baseUrl);
@@ -59,6 +66,9 @@ export class ConfigurableReportService extends BusyAwareService {
 		
 	}
 	FetchAnswerReport(args: ReportAnswerExecuteCommandParams) {
+
+
+		console.log('answer reports debugging: ', args);
 
 		this._BusyMethods.push("FetchAnswerReport");
 		this._httpC.post<ReportResult>(this._baseUrl
