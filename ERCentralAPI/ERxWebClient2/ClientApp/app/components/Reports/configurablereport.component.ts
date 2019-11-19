@@ -72,26 +72,29 @@ export class configurablereportComp implements OnInit, OnDestroy {
 
 		this.showROB = !this.showROB;
 	}
-	public AllocateRelevantItems() {
+	//public AllocateRelevantItems() {
 
-		if (!this.AllIncOrExcShow) {
+	//	if (!this.AllIncOrExcShow) {
 
-			this.AllIncOrExcShow = true;
-		} else {
+	//		this.AllIncOrExcShow = true;
+	//	} else {
 
-			this.AllIncOrExcShow = false;
-		}
-	}
+	//		this.AllIncOrExcShow = false;
+	//	}
+	//}
 	public CloseReportsSection() {
 
 		this.Clear();
-		this.EventEmitterServ.CloseReportsSectionEmitter.emit();
 	
 	}
 	public Clear() {
 
+		//this.RunReportsShow = false;
 		this.configurablereportServ.FetchReports();
+		this.configurablereportServ.reportHTML = '';
 		this.ReportChoice = {} as Report;
+		this.ItemsChoice == 'Items with this code'
+		this.DropdownSelectedCodingTool = {} as singleNode;
 
 	}
 	//TODO NOT COMPLETE SERGIO TO CHECK THE SPEC OF WHAT ENABLES THE REPORT TO BE SHOWN
@@ -114,7 +117,7 @@ export class configurablereportComp implements OnInit, OnDestroy {
 		console.log('ItemsChoiceChange: ', this.ItemsChoice );
 	}
 	public ReportChoiceChange() {
-		//this.ReportChoice = item;
+
 		console.log('ReportChoiceChange: ', this.ReportChoice.name);
 	}
 	CloseCodeDropDownCodingTool() {
@@ -243,9 +246,8 @@ export class configurablereportComp implements OnInit, OnDestroy {
 	}
 	public CanSaveReport(): boolean {
 
+		if (this.configurablereportServ.reportHTML.length < 1) return false;
 		return true;
-		//if (this.configurablereportServ.reportHTML.length < 1) return false;
-		//return true;
 
 	}
 	public SaveAsHtml() {

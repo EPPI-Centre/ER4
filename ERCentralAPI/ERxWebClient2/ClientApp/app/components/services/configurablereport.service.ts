@@ -25,7 +25,6 @@ export class ConfigurableReportService extends BusyAwareService {
   
 	public FetchReports() {
 
-		console.log('fetch reports debugging: ');
 		this._BusyMethods.push("FetchReports");
 		this._httpC.get<Report[]>(this._baseUrl + 'api/ReportList/FetchReports')
 
@@ -44,7 +43,6 @@ export class ConfigurableReportService extends BusyAwareService {
 
 	FetchQuestionReport(args: ReportQuestionExecuteCommandParams) {
 
-		console.log('question reports debugging: ', args);
 		this._BusyMethods.push("FetchQuestionReport");
 		this._httpC.post<string>(this._baseUrl + 'api/ReportList/FetchQuestionReport',
 			args
@@ -61,9 +59,6 @@ export class ConfigurableReportService extends BusyAwareService {
 		
 	}
 	FetchAnswerReport(args: ReportAnswerExecuteCommandParams) {
-
-
-		console.log('answer reports debugging: ', args);
 
 		this._BusyMethods.push("FetchAnswerReport");
 		this._httpC.post<ReportResult>(this._baseUrl

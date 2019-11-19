@@ -19,17 +19,16 @@
 			<option>All included items</option>
 			<option>Items with this code</option>
 		</select>
-		<div class="row col-md-12" *ngIf="ShowCodeTree" ngbDropdown style="min-width:190px;">
+		<div class="row col-md-12 m-0 p-0" *ngIf="ShowCodeTree" ngbDropdown style="min-width:190px;">
 			<label class="col-md-5 pl-0">Coding Tool:</label>
-			<button ngbDropdownAnchor class="btn btn-outline-primary dropdown-toggle col-md-7"
-					id="collapseCodeTreeCodingToolReports"
+			<button ngbDropdownAnchor class="btn btn-outline-primary dropdown-toggle col-md-7 "
 					(click)="isCollapsedCodingTool = !isCollapsedCodingTool;
 														dropdownBasicCodingTool = false"
 					[attr.aria-expanded]="!collapseCodeTreeCodingToolReports"
 					aria-controls="collapseCodeTreeCodingToolReports">
 				{{DropdownSelectedCodingTool?.name}}
 			</button>
-			<div class="dropdown-menu col-md-5 pull-right" id="collapseCodeTreeCodingToolReports"
+			<div class="dropdown-menu col-md-5 ml-5" id="collapseCodeTreeCodingToolReports"
 				 [ngbCollapse]="!isCollapsedCodingTool">
 				<codesetSelector [IsMultiSelect]="false"
 								 [MaxHeight]="500" #CodingToolTreeReports

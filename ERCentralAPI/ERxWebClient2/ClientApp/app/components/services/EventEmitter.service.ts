@@ -10,7 +10,9 @@ export class EventEmitterService {
 	public nodeName: string = '';
 	public UserInput: string = '';
 	public CloseReportsSectionEmitter = new EventEmitter();
-	//public reconcilingArr: any[] = [];
+	//public allocateRelevantItems = new EventEmitter();
+	//public configurableReports = new EventEmitter();
+	
 
 	public tester() {
 
