@@ -68,20 +68,32 @@ export class configurablereportComp implements OnInit, OnDestroy {
 	public isCollapsedCodeAllocate: boolean = false;
 	public DropDownAllocateAtt: SetAttribute = new SetAttribute();
 	public showROB: boolean = false;
+	public reportHTML: string = '';
+
 	public showRiskOfBias() {
 
 		this.showROB = !this.showROB;
 	}
-	//public AllocateRelevantItems() {
+	public OpenInNewWindow() {
 
-	//	if (!this.AllIncOrExcShow) {
+		if (this.reportHTML.length < 1 ) return;
+		else if (this.reportHTML.length < 1) {
+			this.RunReports
+		}
+		else {//do the magic
 
-	//		this.AllIncOrExcShow = true;
-	//	} else {
+			console.log('got in here');
+			let Pagelink = "about:blank";
+			let pwa = window.open(Pagelink, "_new");
+			//let pwa = window.open("data:text/plain;base64," + btoa(this.AddHTMLFrame(this.ReportHTML)), "_new");
+			if (pwa) {
+				pwa.document.open();
 
-	//		this.AllIncOrExcShow = false;
-	//	}
-	//}
+				pwa.document.write(Helpers.AddHTMLFrame(this.reportHTML, this._baseUrl));
+				pwa.document.close();
+			}
+		}
+	}
 	public CloseReportsSection() {
 
 		this.Clear();
@@ -92,6 +104,7 @@ export class configurablereportComp implements OnInit, OnDestroy {
 		//this.RunReportsShow = false;
 		this.configurablereportServ.FetchReports();
 		this.configurablereportServ.reportHTML = '';
+		this.reportHTML = '';
 		this.ReportChoice = {} as Report;
 		this.ItemsChoice == 'Items with this code'
 		this.DropdownSelectedCodingTool = {} as singleNode;
@@ -196,7 +209,19 @@ export class configurablereportComp implements OnInit, OnDestroy {
 			args.isQuestion = false;
 
 			if (args) {
-				this.configurablereportServ.FetchAnswerReport(args);
+				var report = this.configurablereportServ.FetchAnswerReport(args);
+				if (report) {
+
+					report.toPromise().then(
+						
+						(res) => {
+	
+							this.reportHTML = res.returnReport
+							console.log('reporthtml: ', this.reportHTML);
+						}
+					);
+				
+				}
 			}
 
 		} else {// report type is a question as a test
@@ -224,14 +249,26 @@ export class configurablereportComp implements OnInit, OnDestroy {
 
 			if (args) {
 
-				//console.log('question report args: ', args);
-				this.configurablereportServ.FetchQuestionReport(args);
+				var report = this.configurablereportServ.FetchQuestionReport(args);
+				if (report) {
+
+					report.toPromise().then(
+					
+						(res) => {
+							
+								this.reportHTML = res.returnReport
+								console.log('reporthtml: ', this.reportHTML);
+							}
+						);
+					
+				}
 			}
 		}
 		// TODO ASK SERGIO about the logic here not totally clear from the ER4 code.
 		//else if (cmdGo.DataContext != null) {
 		//}
 	}
+
 	public get ReportCollection(): Report[] | null {
 		return this.configurablereportServ.Reports;
 	}
@@ -239,7 +276,7 @@ export class configurablereportComp implements OnInit, OnDestroy {
 		//if (this.JsonReport) this.SaveAsJson();
 		//else
 		this.SaveAsHtml();
-		console.log(this.configurablereportServ.reportHTML.length);
+		//console.log(this.configurablereportServ.reportHTML.length);
 	}
 	public get IsServiceBusy(): boolean {
 		return (this.configurablereportServ.IsBusy);
@@ -252,8 +289,9 @@ export class configurablereportComp implements OnInit, OnDestroy {
 	}
 	public SaveAsHtml() {
 
-		if (this.configurablereportServ.reportHTML.length < 1 ) return;
-		const dataURI = "data:text/plain;base64," + encodeBase64(Helpers.AddHTMLFrame(this.configurablereportServ.reportHTML, this._baseUrl));
+		if (this.reportHTML.length < 1) return;
+		//this.reportHTML = this.configurablereportServ.reportHTML;
+		const dataURI = "data:text/plain;base64," + encodeBase64(Helpers.AddHTMLFrame(this.reportHTML, this._baseUrl));
 		saveAs(dataURI, "ConfigurableReport.html");
 	}
 	public GetReports() {

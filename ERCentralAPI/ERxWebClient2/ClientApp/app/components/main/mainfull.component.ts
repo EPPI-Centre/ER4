@@ -73,8 +73,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 		private searchService: searchService,
 		private configurablereportServ: ConfigurableReportService,
 		@Inject('BASE_URL') private _baseUrl: string,
-		private excelService: ExcelService,
-		private _confirmationDialogService: ConfirmationDialogService,
+		private excelService: ExcelService
     ) {}
 	@ViewChild('WorkAllocationContactList') workAllocationsContactComp!: WorkAllocationContactListComp;
 	@ViewChild('WorkAllocationCollaborateList') workAllocationCollaborateComp!: WorkAllocationComp;
