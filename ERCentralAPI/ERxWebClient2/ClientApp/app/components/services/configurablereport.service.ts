@@ -17,7 +17,7 @@ export class ConfigurableReportService extends BusyAwareService {
     ) {
         super();
 	}
-	private reportHTML: string = '';
+	public reportHTML: string = '';
     private _ReportList: Report[] = [];
 	public get Reports(): Report[] | null {
 		return this._ReportList;
@@ -31,10 +31,6 @@ export class ConfigurableReportService extends BusyAwareService {
 
 			.subscribe(result => {
 
-				//var rep = {} as Report;
-				//rep.reportId = 1;
-				//rep.name = '';
-				//this._ReportList.push(rep);
 				this._ReportList = result;
 				this.RemoveBusy("FetchReports");
 				
@@ -62,7 +58,6 @@ export class ConfigurableReportService extends BusyAwareService {
 				this.RemoveBusy("FetchQuestionReport");
 				}	
 			); 
-		this.RemoveBusy("FetchQuestionReport");
 		
 	}
 	FetchAnswerReport(args: ReportAnswerExecuteCommandParams) {

@@ -6,6 +6,8 @@ import { codesetSelectorComponent } from '../CodesetTrees/codesetSelector.compon
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { EventEmitterService } from '../services/EventEmitter.service';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
+import { encodeBase64, saveAs } from '@progress/kendo-file-saver';
+import { Helpers } from '../helpers/HelperMethods';
 
 @Component({
     selector: 'configurablereport',
@@ -229,6 +231,28 @@ export class configurablereportComp implements OnInit, OnDestroy {
 	}
 	public get ReportCollection(): Report[] | null {
 		return this.configurablereportServ.Reports;
+	}
+	public SaveReport() {
+		//if (this.JsonReport) this.SaveAsJson();
+		//else
+		this.SaveAsHtml();
+		console.log(this.configurablereportServ.reportHTML.length);
+	}
+	public get IsServiceBusy(): boolean {
+		return (this.configurablereportServ.IsBusy);
+	}
+	public CanSaveReport(): boolean {
+
+		return true;
+		//if (this.configurablereportServ.reportHTML.length < 1) return false;
+		//return true;
+
+	}
+	public SaveAsHtml() {
+
+		if (this.configurablereportServ.reportHTML.length < 1 ) return;
+		const dataURI = "data:text/plain;base64," + encodeBase64(Helpers.AddHTMLFrame(this.configurablereportServ.reportHTML, this._baseUrl));
+		saveAs(dataURI, "ConfigurableReport.html");
 	}
 	public GetReports() {
 
