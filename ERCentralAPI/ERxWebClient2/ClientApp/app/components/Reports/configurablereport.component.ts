@@ -5,12 +5,15 @@ import { Report, ConfigurableReportService, ReportAnswerExecuteCommandParams, Re
 import { codesetSelectorComponent } from '../CodesetTrees/codesetSelector.component';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { EventEmitterService } from '../services/EventEmitter.service';
+import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
+import { encodeBase64, saveAs } from '@progress/kendo-file-saver';
+import { Helpers } from '../helpers/HelperMethods';
 
 @Component({
     selector: 'configurablereport',
     templateUrl: './configurablereport.component.html',
 })
-
+	
 export class configurablereportComp implements OnInit, OnDestroy {
 
     constructor(
@@ -18,13 +21,14 @@ export class configurablereportComp implements OnInit, OnDestroy {
 		@Inject('BASE_URL') private _baseUrl: string,
 		private configurablereportServ: ConfigurableReportService,
 		private ReviewerIdentityServ: ReviewerIdentityService,
-		private EventEmitterServ: EventEmitterService
+		private EventEmitterServ: EventEmitterService,
+		private _confirmationDialogService: ConfirmationDialogService
     ) { }
 
 	ngOnInit() {
 
-		this.configurablereportServ.FetchReports();
 	}
+
 	// TODO NOT COMPLETE NEED TO CLEAR RELEVANT VARIABLES
 	ngOnDestroy() {
 
@@ -64,23 +68,47 @@ export class configurablereportComp implements OnInit, OnDestroy {
 	public isCollapsedCodeAllocate: boolean = false;
 	public DropDownAllocateAtt: SetAttribute = new SetAttribute();
 	public showROB: boolean = false;
+	public reportHTML: string = '';
+
 	public showRiskOfBias() {
 
 		this.showROB = !this.showROB;
 	}
-	public AllocateRelevantItems() {
+	public OpenInNewWindow() {
 
-		if (!this.AllIncOrExcShow) {
+		if (this.reportHTML.length < 1 ) return;
+		else if (this.reportHTML.length < 1) {
+			this.RunReports
+		}
+		else {//do the magic
 
-			this.AllIncOrExcShow = true;
-		} else {
+			console.log('got in here');
+			let Pagelink = "about:blank";
+			let pwa = window.open(Pagelink, "_new");
+			//let pwa = window.open("data:text/plain;base64," + btoa(this.AddHTMLFrame(this.ReportHTML)), "_new");
+			if (pwa) {
+				pwa.document.open();
 
-			this.AllIncOrExcShow = false;
+				pwa.document.write(Helpers.AddHTMLFrame(this.reportHTML, this._baseUrl));
+				pwa.document.close();
+			}
 		}
 	}
 	public CloseReportsSection() {
 
-		this.EventEmitterServ.CloseReportsSectionEmitter.emit();
+		this.Clear();
+	
+	}
+	public Clear() {
+
+		//this.RunReportsShow = false;
+		this.configurablereportServ.FetchReports();
+		this.configurablereportServ.reportHTML = '';
+		this.reportHTML = '';
+		this.ReportChoice = {} as Report;
+		this.ItemsChoice == 'Items with this code'
+		this.DropdownSelectedCodingTool = {} as singleNode;
+
 	}
 	//TODO NOT COMPLETE SERGIO TO CHECK THE SPEC OF WHAT ENABLES THE REPORT TO BE SHOWN
 	public CanRunReports(): boolean {
@@ -101,6 +129,10 @@ export class configurablereportComp implements OnInit, OnDestroy {
 		}
 		console.log('ItemsChoiceChange: ', this.ItemsChoice );
 	}
+	public ReportChoiceChange() {
+
+		console.log('ReportChoiceChange: ', this.ReportChoice.name);
+	}
 	CloseCodeDropDownCodingTool() {
 
 		if (this.CodingToolTree) {
@@ -112,13 +144,37 @@ export class configurablereportComp implements OnInit, OnDestroy {
 	public get HasSelectedItems(): boolean {
 		return this.ItemListService.HasSelectedItems;
 	}
+	public get HasReport(): boolean {
+
+		if (this.ReportChoice && this.ReportChoice.name) {
+			return this.ReportChoice.name.length > 0 ? true : false;
+		} else {
+			return false;
+		}
+		
+	}
 	public get HasWriteRights(): boolean {
 		return this.ReviewerIdentityServ.HasWriteRights;
 	}
 	public RunReports() {
 
+		if (this.ReportChoice == null || this.ReportChoice == undefined
+			|| this.ReportChoice.name == 'Please selected a generated report') {
+			return;
+		}
+
+		if (!this.HasSelectedItems && this.ItemsChoice == 'All selected items') {
+			this._confirmationDialogService.confirm('Report Message', 'Sorry you have not selected any items', false,
+			'', 'Ok')
+				.then({}
+			);
+			return;
+		}
 		if (!this.HasWriteRights) {
-			//alert("Sorry: you don't have any items selected or you do not have permissions");
+			this._confirmationDialogService.confirm('Report Message', 'Sorry you do not have permission', false,
+				'', 'Ok')
+				.then({}
+				);
 			return;
 		}
 		let attribute: SetAttribute = new SetAttribute();
@@ -153,7 +209,17 @@ export class configurablereportComp implements OnInit, OnDestroy {
 			args.isQuestion = false;
 
 			if (args) {
-				this.configurablereportServ.FetchAnswerReport(args);
+				var report = this.configurablereportServ.FetchAnswerReport(args);
+				if (report) {
+
+					report.toPromise().then(
+						(res) => {
+							this.reportHTML = res.returnReport
+							console.log('reporthtml: ', this.reportHTML);
+						}
+					);
+				
+				}
 			}
 
 		} else {// report type is a question as a test
@@ -181,16 +247,46 @@ export class configurablereportComp implements OnInit, OnDestroy {
 
 			if (args) {
 
-				//console.log('question report args: ', args);
-				this.configurablereportServ.FetchQuestionReport(args);
+				var report = this.configurablereportServ.FetchQuestionReport(args);
+				if (report) {
+					report.toPromise().then(
+					
+						(res) => {
+								this.reportHTML = res.returnReport
+							}
+						);
+					
+				}
 			}
 		}
 		// TODO ASK SERGIO about the logic here not totally clear from the ER4 code.
 		//else if (cmdGo.DataContext != null) {
 		//}
 	}
+
 	public get ReportCollection(): Report[] | null {
 		return this.configurablereportServ.Reports;
+	}
+	public SaveReport() {
+		//if (this.JsonReport) this.SaveAsJson();
+		//else
+		this.SaveAsHtml();
+		//console.log(this.configurablereportServ.reportHTML.length);
+	}
+	public get IsServiceBusy(): boolean {
+		return (this.configurablereportServ.IsBusy);
+	}
+	public CanSaveReport(): boolean {
+
+		if (this.configurablereportServ.reportHTML.length < 1) return false;
+		return true;
+
+	}
+	public SaveAsHtml() {
+
+		if (this.reportHTML.length < 1) return;
+		const dataURI = "data:text/plain;base64," + encodeBase64(Helpers.AddHTMLFrame(this.reportHTML, this._baseUrl));
+		saveAs(dataURI, "ConfigurableReport.html");
 	}
 	public GetReports() {
 

@@ -72,8 +72,8 @@
 															   [data]="QuickReportsDDData"
 															   style="border-color: #04070b;background-color: #e1e4eb;"></kendo-toolbar-splitbutton>
 
-									<kendo-toolbar-button [text]="'Export to RIS'"
-														  [disabled]="!HasSelectedItems" (click)="ToRis()"></kendo-toolbar-button>
+									<!--<kendo-toolbar-button [text]="'Export to RIS'"
+														  [disabled]="!HasSelectedItems" (click)="ToRis()"></kendo-toolbar-button>-->
 									<kendo-toolbar-button [icon]="'delete'" [disabled]="!HasSelectedItems"
 														  (click)="DeleteRelevantItems()">
 									</kendo-toolbar-button>
@@ -81,8 +81,9 @@
 														  [disabled]="!HasWriteRights"
 														  (click)="AllocateRelevantItems()">
 									</kendo-toolbar-button>
-									<kendo-toolbar-splitbutton [text]="'Export References'" 
-															   (buttonClick)="ShowHideExportReferences()"
+									<kendo-toolbar-splitbutton [text]="'Export to RIS'"
+															   (click)="ShowHideExportReferences()"
+															   (buttonClick)="ToRis()"
 															   [disabled]="!HasSelectedItems"
 															   [data]="ExportReferencesDDData"
 															   style="border-color: #04070b;background-color: #e1e4eb;">

@@ -2,8 +2,8 @@ import {  Inject, Injectable } from '@angular/core';
 import { HttpClient} from '@angular/common/http';
 import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
-import { Helpers } from '../helpers/HelperMethods';
 import { ReviewSet } from './ReviewSets.service';
+import { Observable } from 'rxjs';
 
 @Injectable({
     providedIn: 'root',
@@ -17,8 +17,8 @@ export class ConfigurableReportService extends BusyAwareService {
     ) {
         super();
 	}
-	private reportHTML: string = '';
-    private _ReportList: Report[] | null = [];
+	public reportHTML: string = '';
+    private _ReportList: Report[] = [];
 	public get Reports(): Report[] | null {
 		return this._ReportList;
     }
@@ -29,7 +29,6 @@ export class ConfigurableReportService extends BusyAwareService {
 		this._httpC.get<Report[]>(this._baseUrl + 'api/ReportList/FetchReports')
 
 			.subscribe(result => {
-
 				this._ReportList = result;
 				this.RemoveBusy("FetchReports");
 				
@@ -41,40 +40,36 @@ export class ConfigurableReportService extends BusyAwareService {
 		);
 	}
 
-	FetchQuestionReport(args: ReportQuestionExecuteCommandParams) {
+	FetchQuestionReport(args: ReportQuestionExecuteCommandParams): Observable<ReportResult>   {
 
+		let res: ReportResult = {} as ReportResult;
 		this._BusyMethods.push("FetchQuestionReport");
-		this._httpC.post<string>(this._baseUrl + 'api/ReportList/FetchQuestionReport',
+		return this._httpC.post<string>(this._baseUrl + 'api/ReportList/FetchQuestionReport',
 			args
-		).toPromise()
-			.then(
-			(res: string) => {
-
-				this.reportHTML = res;
-				Helpers.OpenInNewWindow(this.reportHTML, this._baseUrl);
-				this.RemoveBusy("FetchQuestionReport");
-				}	
+		).map(
+				(result: string) => {
+					this.RemoveBusy("FetchQuestionReport");
+					res.returnReport = result;
+					return res;
+				}
 			); 
-		this.RemoveBusy("FetchQuestionReport");
-		
 	}
-	FetchAnswerReport(args: ReportAnswerExecuteCommandParams) {
+	FetchAnswerReport(args: ReportAnswerExecuteCommandParams): Observable<ReportResult>   {
 
 		this._BusyMethods.push("FetchAnswerReport");
-		this._httpC.post<ReportResult>(this._baseUrl
+		let res: ReportResult = {} as ReportResult;
+
+		return this._httpC.post<string>(this._baseUrl
 			+ 'api/ReportList/FetchAnswerReport', args
 			)
-
-			.subscribe(result => {
-				let reportHTML: string = result.returnReport;
-				Helpers.OpenInNewWindow(reportHTML, this._baseUrl);
+			.map(result => {
 				this.RemoveBusy("FetchAnswerReport");
+				res.returnReport = result;
+				return res;
 
-			}, error => {
-				this.RemoveBusy("FetchAnswerReport");
-				this.modalService.GenericErrorMessage(error);
 			}
 		);
+
 	}
 }
 

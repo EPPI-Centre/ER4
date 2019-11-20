@@ -5,6 +5,11 @@
 			<span *ngIf="ShowOptions">Close</span>
 			<span *ngIf="!ShowOptions">View</span>
 			Options
+
+		</div>
+		<div>
+			<button class="btn btn-sm btn-dark m-1 p-1" 
+					(click)="test()">Export table to HTML</button>
 		</div>
 	</div>
     <div *ngIf="ShowOptions"

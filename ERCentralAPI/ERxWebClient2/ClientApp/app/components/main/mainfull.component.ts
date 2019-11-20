@@ -168,28 +168,8 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 			encodeBase64(report);
 
 		console.log('EXPORT REFERENCES FUNCTION, report: ', dataURI);
-
-		//saveAs(dataURI, "ExportedItems.html");
 	}
 	exportAsXLSX(report: string[]): void {
-
-		//let data: any = report;
-		//let data: any = [{
-		//	eid: 'e101',
-		//	ename: 'ravi',
-		//	esal: 1000
-		//},
-		//{
-		//	eid: 'e102',
-		//	ename: 'ram',
-		//	esal: 2000
-		//},
-		//{
-		//	eid: 'e103',
-		//	ename: 'rajesh',
-		//	esal: 3000
-		//}];
-		console.log('EXPORTASXLSX', report);
 
 		this.excelService.exportAsExcelFile(report, 'test');
 
@@ -241,7 +221,8 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 			Helpers.OpenInNewWindow(this.ShowHideQuickQuestionReport(), this._baseUrl);
         }
 	}];
-	public ExportReferencesDDData: Array<any> = [{
+	public ExportReferencesDDData: Array<any> = [
+		{
 			text: 'Harvard',
 			click: () => {
 				Helpers.OpenInNewWindow(this.ShowHideExportReferences('Harvard'), this._baseUrl);
@@ -399,6 +380,9 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 		if (!this.AllIncOrExcShow) {
 
 			this.AllIncOrExcShow = true;
+			this.RunReportsShow = false;
+			this.ShowClusterCommand = false;
+
 		} else {
 
 			this.AllIncOrExcShow = false;
@@ -422,6 +406,8 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 
 		if (!this.RunReportsShow) {
 			this.RunReportsShow = true;
+			this.AllIncOrExcShow = false;
+			this.ShowClusterCommand = false;
 			this.GetReports();
 
 		} else {
@@ -437,12 +423,6 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 	private ListSubType: string = '';
 	ngOnInit() {
 
-		this._eventEmitter.CloseReportsSectionEmitter.subscribe(
-			() => {
-				this.CloseReportsSection();
-			}
-		)
-        console.log("MainComp init: ", this.InstanceId);
         this._eventEmitter.PleaseSelectItemsListTab.subscribe(
             () => {
                 this.tabstrip.selectTab(1);
@@ -505,8 +485,17 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         this._ShowQuickReport = false;
         this._ShowQuickQuestionReport = false;
     }
-    ShowHideClusterCommand() {
-        this.ShowClusterCommand =  !this.ShowClusterCommand;
+	ShowHideClusterCommand() {
+
+		if (!this.ShowClusterCommand) {
+			this.ShowClusterCommand = true;
+			this.AllIncOrExcShow = false;
+			this.RunReportsShow = false;
+
+		} else {
+
+			this.ShowClusterCommand = false;
+		}
     }
     CloseClusterCommand() {
         this.ShowClusterCommand = false;
