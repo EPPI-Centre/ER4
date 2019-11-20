@@ -213,9 +213,7 @@ export class configurablereportComp implements OnInit, OnDestroy {
 				if (report) {
 
 					report.toPromise().then(
-						
 						(res) => {
-	
 							this.reportHTML = res.returnReport
 							console.log('reporthtml: ', this.reportHTML);
 						}
@@ -251,13 +249,10 @@ export class configurablereportComp implements OnInit, OnDestroy {
 
 				var report = this.configurablereportServ.FetchQuestionReport(args);
 				if (report) {
-
 					report.toPromise().then(
 					
 						(res) => {
-							
 								this.reportHTML = res.returnReport
-								console.log('reporthtml: ', this.reportHTML);
 							}
 						);
 					
@@ -290,7 +285,6 @@ export class configurablereportComp implements OnInit, OnDestroy {
 	public SaveAsHtml() {
 
 		if (this.reportHTML.length < 1) return;
-		//this.reportHTML = this.configurablereportServ.reportHTML;
 		const dataURI = "data:text/plain;base64," + encodeBase64(Helpers.AddHTMLFrame(this.reportHTML, this._baseUrl));
 		saveAs(dataURI, "ConfigurableReport.html");
 	}

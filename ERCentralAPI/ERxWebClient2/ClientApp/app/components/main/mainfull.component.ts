@@ -221,7 +221,8 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 			Helpers.OpenInNewWindow(this.ShowHideQuickQuestionReport(), this._baseUrl);
         }
 	}];
-	public ExportReferencesDDData: Array<any> = [{
+	public ExportReferencesDDData: Array<any> = [
+		{
 			text: 'Harvard',
 			click: () => {
 				Helpers.OpenInNewWindow(this.ShowHideExportReferences('Harvard'), this._baseUrl);

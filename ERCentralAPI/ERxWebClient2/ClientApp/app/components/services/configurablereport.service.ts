@@ -2,9 +2,8 @@ import {  Inject, Injectable } from '@angular/core';
 import { HttpClient} from '@angular/common/http';
 import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
-import { Helpers } from '../helpers/HelperMethods';
 import { ReviewSet } from './ReviewSets.service';
-import { Observable, Subscription } from 'rxjs';
+import { Observable } from 'rxjs';
 
 @Injectable({
     providedIn: 'root',
@@ -30,7 +29,6 @@ export class ConfigurableReportService extends BusyAwareService {
 		this._httpC.get<Report[]>(this._baseUrl + 'api/ReportList/FetchReports')
 
 			.subscribe(result => {
-
 				this._ReportList = result;
 				this.RemoveBusy("FetchReports");
 				
@@ -50,10 +48,7 @@ export class ConfigurableReportService extends BusyAwareService {
 			args
 		).map(
 				(result: string) => {
-					//this.reportHTML = res;
-					//Helpers.OpenInNewWindow(this.reportHTML, this._baseUrl);
 					this.RemoveBusy("FetchQuestionReport");
-					//console.log(result);
 					res.returnReport = result;
 					return res;
 				}
@@ -68,9 +63,6 @@ export class ConfigurableReportService extends BusyAwareService {
 			+ 'api/ReportList/FetchAnswerReport', args
 			)
 			.map(result => {
-				//let reportHTML: string = result.returnReport;
-				//Helpers.OpenInNewWindow(reportHTML, this._baseUrl);
-				//console.log(result);
 				this.RemoveBusy("FetchAnswerReport");
 				res.returnReport = result;
 				return res;

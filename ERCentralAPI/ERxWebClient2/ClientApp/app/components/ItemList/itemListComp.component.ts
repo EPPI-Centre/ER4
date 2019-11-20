@@ -61,7 +61,10 @@ export class ItemListComp implements OnInit {
         for (let i = 0; i < this.ItemListService.ItemList.items.length; i++) {
             this.ItemListService.ItemList.items[i].isSelected = val;
             }
-    }
+	}
+	public test() {
+		alert('hello');
+	}
     private _LocalPageSize: number | null = null;
     public get LocalPageSize(): number {
         //console.log("get LocalPageSize", this._LocalPageSize);
