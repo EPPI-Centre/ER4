@@ -59,10 +59,22 @@ export class SearchComp implements OnInit, OnDestroy {
 		else {
 
 			this._reviewSetsService.selectedNode = null;
-
+			this.getMembers();
+			console.log(this.Contacts);
         }
-    }
+	}
+	getMembers() {
 
+		if (!this._reviewInfoService.ReviewInfo || this._reviewInfoService.ReviewInfo.reviewId < 1) {
+			this._reviewInfoService.Fetch();
+		}
+		this._reviewInfoService.FetchReviewMembers();
+
+	}
+
+	public get Contacts(): Contact[] {
+		return this._reviewInfoService.Contacts;
+	}
     //private InstanceId: number = Math.random();
 	public modelNum: number = 0;
 	public modelTitle: string = '';
@@ -89,12 +101,8 @@ export class SearchComp implements OnInit, OnDestroy {
 	public searchTextModel: string = '';
 	public CurrentDropdownSelectedCode: singleNode | null = null;
 	public SearchVisualiseData!: Observable<any>[];
-	public SearchForAnyoneModel: boolean = true;
-	public SearchForPersonModel: boolean = false;
+	public SearchForPeoplesModel: string = 'true';
 
-	public get Contacts(): Contact[] {
-		return this._reviewInfoService.Contacts;
-	}
 	public ContactChoice: Contact = new Contact();
     @Output() PleaseOpenTheCodes = new EventEmitter();
 	@ViewChild('WithOrWithoutCodeSelector') WithOrWithoutCodeSelector!: codesetSelectorComponent;
@@ -313,7 +321,12 @@ export class SearchComp implements OnInit, OnDestroy {
 			return true;
 		}
 		// Codes in set options next: ''
-        else if (this.selectedSearchDropDown == 'That have at least one code from this Coding Tool' && this.selectedSearchCodeSetDropDown != '') {
+		else if (this.selectedSearchDropDown == 'That have at least one code from this Coding Tool'
+			&& this.selectedSearchCodeSetDropDown != '' && this.SearchForPeoplesModel =='true') {
+			return true;
+		}
+		else if (this.selectedSearchDropDown == 'That have at least one code from this Coding Tool'
+			&& this.selectedSearchCodeSetDropDown != '' && this.SearchForPeoplesModel == 'false' && this.ContactChoice.contactId > 0) {
 			return true;
 		}
         else if (this.selectedSearchDropDown == "That don't have any codes from this Coding Tool" && this.selectedSearchCodeSetDropDown != '') {
@@ -687,7 +700,14 @@ export class SearchComp implements OnInit, OnDestroy {
 	refreshSearches() {
 		this._searchService.Fetch();
 	}
-	
+	public SearchForPersonModel: boolean = false;
+	SelectPerson(event: string) {
+		if (event == 'true') {
+			this.SearchForPersonModel = true;
+		} else {
+			this.SearchForPersonModel = false;
+		}
+	}
 	DeleteSearchSelected() {
 
 		// Need to check if user has rights to delete
@@ -802,7 +822,8 @@ export class SearchComp implements OnInit, OnDestroy {
 
 				this._searchService.cmdSearches._withCodes = 'true';
 				this._searchService.cmdSearches._title = this.selectedSearchCodeSetDropDown;
-
+				this._searchService.cmdSearches._contactId = this.ContactChoice.contactId;
+				this._searchService.cmdSearches._contactName = this.ContactChoice.contactName;
 				this._searchService.CreateSearch(this._searchService.cmdSearches, 'SearchCodeSetCheck');
 
 			}

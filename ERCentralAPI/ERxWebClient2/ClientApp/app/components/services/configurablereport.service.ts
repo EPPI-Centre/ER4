@@ -3,7 +3,6 @@ import { HttpClient} from '@angular/common/http';
 import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
 import { ReviewSet } from './ReviewSets.service';
-import { Observable } from 'rxjs';
 
 @Injectable({
     providedIn: 'root',
