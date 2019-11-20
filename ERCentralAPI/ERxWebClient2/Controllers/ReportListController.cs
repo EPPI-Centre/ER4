@@ -100,7 +100,6 @@ namespace ERxWebClient2.Controllers
 			catch (Exception e)
 			{
 				_logger.LogError(e, "Error with FetchQuestionReport", e.InnerException);
-				//return StatusCode(500, e.Message);
 				return Json(e.Message);
 			}
 		}
