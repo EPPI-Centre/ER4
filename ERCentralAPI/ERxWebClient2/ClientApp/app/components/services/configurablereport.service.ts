@@ -24,52 +24,47 @@ export class ConfigurableReportService extends BusyAwareService {
     }
   
 	public FetchReports() {
-
 		this._BusyMethods.push("FetchReports");
 		this._httpC.get<Report[]>(this._baseUrl + 'api/ReportList/FetchReports')
-
 			.subscribe(result => {
 				this._ReportList = result;
 				this.RemoveBusy("FetchReports");
-				
 			}, error => {
 				this.RemoveBusy("FetchReports");
 				this.modalService.GenericErrorMessage(error);
-				
 			}
 		);
 	}
-
-	FetchQuestionReport(args: ReportQuestionExecuteCommandParams): Observable<ReportResult>   {
-
-		let res: ReportResult = {} as ReportResult;
+	FetchQuestionReport(args: ReportQuestionExecuteCommandParams): Promise<string>   {
 		this._BusyMethods.push("FetchQuestionReport");
 		return this._httpC.post<string>(this._baseUrl + 'api/ReportList/FetchQuestionReport',
 			args
-		).map(
-				(result: string) => {
-					this.RemoveBusy("FetchQuestionReport");
-					res.returnReport = result;
-					return res;
-				}
-			); 
-	}
-	FetchAnswerReport(args: ReportAnswerExecuteCommandParams): Observable<ReportResult>   {
-
-		this._BusyMethods.push("FetchAnswerReport");
-		let res: ReportResult = {} as ReportResult;
-
-		return this._httpC.post<string>(this._baseUrl
-			+ 'api/ReportList/FetchAnswerReport', args
-			)
-			.map(result => {
-				this.RemoveBusy("FetchAnswerReport");
-				res.returnReport = result;
-				return res;
-
+		).toPromise().then(
+			(result) => {
+				this.RemoveBusy("FetchQuestionReport");
+				return result;
+			}, error => {
+				this.RemoveBusy("FetchQuestionReport");
+				this.modalService.GenericErrorMessage(error);
+				return error;
 			}
 		);
-
+	}
+	FetchAnswerReport(args: ReportAnswerExecuteCommandParams): Promise<ReportResult>   {
+		this._BusyMethods.push("FetchAnswerReport");
+		return this._httpC.post<ReportResult>(this._baseUrl
+			+ 'api/ReportList/FetchAnswerReport', args
+			)
+			.toPromise().then(
+				(result) => {
+						this.RemoveBusy("FetchAnswerReport");
+						return result;
+				}, error => {
+						this.RemoveBusy("FetchAnswerReport");
+						this.modalService.GenericErrorMessage(error);
+						return error;
+					}
+				);
 	}
 }
 

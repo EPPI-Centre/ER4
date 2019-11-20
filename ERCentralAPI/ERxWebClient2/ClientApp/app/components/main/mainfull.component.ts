@@ -174,29 +174,6 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 		this.excelService.exportAsExcelFile(report, 'test');
 
 	}
-	public ExportReferencesAsHTML(report: string) {
-
-		//var test = this.ItemListComponent.exportItemsTable.nativeElement;
-		//console.log(test.childNodes);
-		//console.dir(test);
-		//let outputHtml: ElementRef<any> = this.ItemListComponent.exportItemsTable.nativeElement;
-		//if (outputHtml.nativeElement != null) {
-			
-		//}
-
-		//console.log(outputHtml);
-		//let wrapperStart: string = "<table border=\"1\" style=\"border-collapse: collapse\"><tr><td></td><td>Authors</td><td>Year</td><td>Title</td></tr>";
-		//let wrapperEnd: string = "</table>";
-		//if (outputHtml.nativeElement) {
-			
-			//console.log(outputHtml.innerHtml);
-		//}
-		//console.dir(outputHtml);
-		//var blob = new Blob([wrapperStart + report + wrapperEnd], { type: "text/html" });
-		//var blob = new Blob([test], { type: "text/html" });
-		//saveAs(blob, "ExportedItems.html");
-	}
-
     public ItemsWithThisCodeDDData: Array<any> = [{
         text: 'With this Code (Excluded)',
         click: () => {
@@ -423,6 +400,11 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 	private ListSubType: string = '';
 	ngOnInit() {
 
+		this._eventEmitter.CloseReportsSectionEmitter.subscribe(
+			() => {
+				this.CloseReportsSection();
+			}
+		)
         this._eventEmitter.PleaseSelectItemsListTab.subscribe(
             () => {
                 this.tabstrip.selectTab(1);

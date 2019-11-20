@@ -29,7 +29,6 @@ export class configurablereportComp implements OnInit, OnDestroy {
 
 	}
 
-	// TODO NOT COMPLETE NEED TO CLEAR RELEVANT VARIABLES
 	ngOnDestroy() {
 
 	}	
@@ -71,7 +70,6 @@ export class configurablereportComp implements OnInit, OnDestroy {
 	public reportHTML: string = '';
 
 	public showRiskOfBias() {
-
 		this.showROB = !this.showROB;
 	}
 	public OpenInNewWindow() {
@@ -96,12 +94,12 @@ export class configurablereportComp implements OnInit, OnDestroy {
 	}
 	public CloseReportsSection() {
 
+		this.EventEmitterServ.CloseReportsSectionEmitter.emit();
 		this.Clear();
 	
 	}
 	public Clear() {
 
-		//this.RunReportsShow = false;
 		this.configurablereportServ.FetchReports();
 		this.configurablereportServ.reportHTML = '';
 		this.reportHTML = '';
@@ -110,7 +108,6 @@ export class configurablereportComp implements OnInit, OnDestroy {
 		this.DropdownSelectedCodingTool = {} as singleNode;
 
 	}
-	//TODO NOT COMPLETE SERGIO TO CHECK THE SPEC OF WHAT ENABLES THE REPORT TO BE SHOWN
 	public CanRunReports(): boolean {
 
 		if (this.ReportChoice == null || this.ReportChoice.name == '') {
@@ -120,21 +117,14 @@ export class configurablereportComp implements OnInit, OnDestroy {
 			return true;
 		}
 	}
-
 	public ItemsChoiceChange() {
 		if (this.ItemsChoice == 'Items with this code') {
 			this.ShowCodeTree = true;
 		} else {
 			this.ShowCodeTree = false;
 		}
-		console.log('ItemsChoiceChange: ', this.ItemsChoice );
-	}
-	public ReportChoiceChange() {
-
-		console.log('ReportChoiceChange: ', this.ReportChoice.name);
 	}
 	CloseCodeDropDownCodingTool() {
-
 		if (this.CodingToolTree) {
 			this.DropdownSelectedCodingTool = this.CodingToolTree.SelectedNodeData;
 			console.log(JSON.stringify(this.DropdownSelectedCodingTool));
@@ -145,13 +135,11 @@ export class configurablereportComp implements OnInit, OnDestroy {
 		return this.ItemListService.HasSelectedItems;
 	}
 	public get HasReport(): boolean {
-
 		if (this.ReportChoice && this.ReportChoice.name) {
 			return this.ReportChoice.name.length > 0 ? true : false;
 		} else {
 			return false;
 		}
-		
 	}
 	public get HasWriteRights(): boolean {
 		return this.ReviewerIdentityServ.HasWriteRights;
@@ -211,14 +199,11 @@ export class configurablereportComp implements OnInit, OnDestroy {
 			if (args) {
 				var report = this.configurablereportServ.FetchAnswerReport(args);
 				if (report) {
-
-					report.toPromise().then(
+					report.then(
 						(res) => {
 							this.reportHTML = res.returnReport
-							console.log('reporthtml: ', this.reportHTML);
 						}
 					);
-				
 				}
 			}
 
@@ -246,41 +231,29 @@ export class configurablereportComp implements OnInit, OnDestroy {
 			args.isQuestion = true;
 
 			if (args) {
-
-				var report = this.configurablereportServ.FetchQuestionReport(args);
-				if (report) {
-					report.toPromise().then(
-					
-						(res) => {
-								this.reportHTML = res.returnReport
-							}
-						);
-					
+				var stringReport = this.configurablereportServ.FetchQuestionReport(args);
+				if (stringReport) {
+					stringReport.then(
+						(result) => {
+							this.reportHTML = result;
+						}
+					);
 				}
 			}
 		}
-		// TODO ASK SERGIO about the logic here not totally clear from the ER4 code.
-		//else if (cmdGo.DataContext != null) {
-		//}
 	}
-
 	public get ReportCollection(): Report[] | null {
 		return this.configurablereportServ.Reports;
 	}
 	public SaveReport() {
-		//if (this.JsonReport) this.SaveAsJson();
-		//else
 		this.SaveAsHtml();
-		//console.log(this.configurablereportServ.reportHTML.length);
 	}
 	public get IsServiceBusy(): boolean {
 		return (this.configurablereportServ.IsBusy);
 	}
 	public CanSaveReport(): boolean {
-
 		if (this.configurablereportServ.reportHTML.length < 1) return false;
 		return true;
-
 	}
 	public SaveAsHtml() {
 
@@ -289,27 +262,20 @@ export class configurablereportComp implements OnInit, OnDestroy {
 		saveAs(dataURI, "ConfigurableReport.html");
 	}
 	public GetReports() {
-
 		this.configurablereportServ.FetchReports();
 	}
 	public RunConfigurableReports() {
-
 		if (!this.RunReportsShow) {
 			this.RunReportsShow = true;
 			this.GetReports();
-
 		} else {
-
 			this.RunReportsShow = false;
 		}
 	}
 	public CloseCodeDropDownAllocate() {
-
 		if (this.CodeTreeAllocate) {
-
 			this.DropdownSelectedCodeAllocate = this.CodeTreeAllocate.SelectedNodeData;
 			this.DropDownAllocateAtt = this.DropdownSelectedCodeAllocate as SetAttribute;
-
 		}
 		this.isCollapsedCodeAllocate = false;
 	}
