@@ -267,7 +267,37 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 				console.log(testRefs);
 				this.exportAsXLSX(testRefs);
 			}
-		}];
+        },
+        {
+            text: 'Export HTML table',
+            click: () => {
+                let tmp = document.getElementById('ItemsTable');
+                if (tmp) {
+                    //let report = Helpers.AddHTMLFrame(tmp.innerHTML, this._baseUrl);
+                    let removals = 
+                        [
+                            {
+                                searchFor: '<th></th><th class="pl-0 pr-0"><input class="m-1 ng-valid ng-dirty ng-touched" name="selectAll" style="zoom: 1.2;" type="checkbox" ng-reflect-name="selectAll" ng-reflect-model="true"></th>',
+                                changeTo: ""
+                            },
+                            {
+                                searchFor: '<td class="p-1 pt-2"><button class="btn btn-outline-primary btn-sm m-0">GO</button></td><td class="pl-0 pr-0 "><input class="m-1 ng-untouched ng-pristine ng-valid" style="zoom: 1.2;" type="checkbox" ng-reflect-model="true"></td>',
+                                changeTo: ""
+                            }
+                        ]
+                    let report = Helpers.CleanHTMLforExport(tmp.outerHTML, removals);
+                    const dataURI = "data:text/plain;base64," + encodeBase64(Helpers.AddHTMLFrame(report, this._baseUrl, "Items Table"));
+                    saveAs(dataURI, "Items Table.html");
+                }
+                //let t2 = this.ItemListComponent.exportItemsTable;
+                //if (t2) {
+                //    console.log(t2.nativeElement.outerHTML);
+                //    const dataURI = "data:text/plain;base64," + encodeBase64(Helpers.AddHTMLFrame(t2.nativeElement.outerHTML, this._baseUrl, "Items Table"));
+                //    saveAs(dataURI, "ItemsTable.html");
+                //}
+            }
+        }
+    ];
     public ImportOrNewDDData: Array<any> = [{
         text: 'New Reference',
         click: () => {

@@ -135,13 +135,13 @@
             </kendo-grid-column>
         </kendo-grid>-->
         <div style="max-height:500px;overflow:auto;">
-            <table class=" p-1 table table-striped"
+            <table class=" p-1 table table-striped" #exportItemsTable id="ItemsTable"
                    *ngIf="ShowItemsTable && ItemListService && ItemListService.ItemList && this.ItemListService.ItemList.items && this.ItemListService.ItemList.items.length > 0 && !this.ItemListService.IsBusy">
                 <thead>
                     <tr style="">
-                        <th ></th>
+                        <th></th>
                         <th class="pl-0 pr-0">
-                            <input  class="m-1" style="zoom: 1.2;"
+                            <input class="m-1" style="zoom: 1.2;"
                                    type="checkbox"
                                    name="selectAll"
                                    [(ngModel)]="allItemsSelected" />
@@ -157,10 +157,10 @@
                         <th class="pr-0" [hidden]="!ItemListService.GetListItemOptions.showDocType" (click)="ChangeSort('typeName')" style="cursor:pointer;">Ref. Type<span [innerHTML]="sortSymbol('typeName')"></span></th>
                         <th class="pr-0" [hidden]="!ItemListService.GetListItemOptions.showInfo" (click)="ChangeSort('attributeAdditionalText')" style="cursor:pointer;">Info<span [innerHTML]="sortSymbol('attributeAdditionalText')"></span></th>
                         <th class="pr-0" [hidden]="!ItemListService.GetListItemOptions.showScore" (click)="ChangeSort('rank')" style="cursor:pointer;">Score<span [innerHTML]="sortSymbol('rank')"></span></th>
-                        <th  class="pr-1"></th>
+                        <th class="pr-1"></th>
                     </tr>
                 </thead>
-                <tbody  #exportItemsTable>
+                <tbody>
                     <tr *ngFor="let dataItem of this.ItemListService.ItemList.items">
                         <td class="p-1 pt-2">
                             <button class="btn btn-outline-primary btn-sm m-0" (click)="OpenItem(dataItem.itemId)">GO</button>

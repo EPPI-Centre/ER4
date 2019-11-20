@@ -1,4 +1,6 @@
-﻿//this class should only contain static methods.
+﻿
+
+//this class should only contain static methods.
 //it's a collection of methods that can be used by any component/service. Main purpose is to avoid replication.
 //Please include a short description of the purpose of any method added in this class.
 export class Helpers {
@@ -128,13 +130,20 @@ export class Helpers {
     }
     //used to add link to stylesheet and HTML frame to HTML content, usually for reports
     //gets used to show and save reports.
-    public static AddHTMLFrame(report: string, baseUrl: string): string {
+    public static AddHTMLFrame(report: string, baseUrl: string, title?: string): string {
         //used to save reports
-        let res = "<HTML id='content'><HEAD><title>EPPI-Reviewer Coding Report</title><link rel='stylesheet' href='" + baseUrl + "/dist/vendor.css' /></HEAD><BODY class='m-2' id='body'>" + report;
+        if (title === undefined) title = ">EPPI-Reviewer Coding Report";
+        let res = "<HTML id='content'><HEAD><title>"+ title +"</title><link rel='stylesheet' href='" + baseUrl + "/dist/vendor.css' /></HEAD><BODY class='m-2' id='body'>" + report;
         //res += "<br /><a download='report.html' href='data:text/html;charset=utf-8," + report + "'>Save...</a></BODY></HTML>";
         //res += "<br />" + this.AddSaveMe() + "</BODY></HTML>";
         res += "</BODY></HTML>";
         return res;
+    }
+    public static CleanHTMLforExport(text: string, substitutions: SubstituteString[]):string {
+        for (let ss of substitutions) {
+            text = text.split(ss.searchFor).join(ss.changeTo);
+        }
+        return text;
     }
     //used to show reports in a throwaway new tab.
     public static OpenInNewWindow(ReportHTML: any, baseUrl: string) {
@@ -149,4 +158,8 @@ export class Helpers {
             pwa.document.close();
         }
     }
+}
+export interface SubstituteString {
+    searchFor: string;
+    changeTo: string;
 }
