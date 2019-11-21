@@ -175,7 +175,7 @@ export class configurablereportComp implements OnInit, OnDestroy {
 			}
 		}
 
-		if (this.ReportChoice.reportType == "Answer") {
+        if (this.ReportChoice.reportType == "Answer" && this.OutcomesModel) {
 
 			//('this is an answer');
 			let args: ReportAnswerExecuteCommandParams = {} as ReportAnswerExecuteCommandParams;
@@ -197,7 +197,7 @@ export class configurablereportComp implements OnInit, OnDestroy {
 			args.isQuestion = false;
 
 			if (args) {
-				var report = this.configurablereportServ.FetchAnswerReport(args);
+                var report = this.configurablereportServ.FetchOutcomesReport(args);
 				if (report) {
 					report.then(
 						(res) => {
@@ -228,7 +228,7 @@ export class configurablereportComp implements OnInit, OnDestroy {
 			args.showBullets = this.AddBulletsToCodesModel;
 			args.showUncodedItems = this.UncodedItemsModel;
 			args.txtInfoTag = this.AdditionalTextTagModel;
-			args.isQuestion = true;
+            args.isQuestion = this.ReportChoice.reportType == "Question" ? true : false;
 
 			if (args) {
 				var stringReport = this.configurablereportServ.FetchQuestionReport(args);

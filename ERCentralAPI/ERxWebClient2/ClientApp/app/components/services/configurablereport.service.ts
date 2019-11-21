@@ -49,17 +49,17 @@ export class ConfigurableReportService extends BusyAwareService {
 			}
 		);
 	}
-	FetchAnswerReport(args: ReportAnswerExecuteCommandParams): Promise<ReportResult>   {
-		this._BusyMethods.push("FetchAnswerReport");
+    FetchOutcomesReport(args: ReportAnswerExecuteCommandParams): Promise<ReportResult>   {
+        this._BusyMethods.push("FetchOutcomesReport");
 		return this._httpC.post<ReportResult>(this._baseUrl
-			+ 'api/ReportList/FetchAnswerReport', args
+            + 'api/ReportList/FetchOutcomesReport', args
 			)
 			.toPromise().then(
 				(result) => {
-						this.RemoveBusy("FetchAnswerReport");
+                    this.RemoveBusy("FetchOutcomesReport");
 						return result;
 				}, error => {
-						this.RemoveBusy("FetchAnswerReport");
+                    this.RemoveBusy("FetchOutcomesReport");
 						this.modalService.GenericErrorMessage(error);
 						return error;
 					}

@@ -106,7 +106,7 @@ namespace ERxWebClient2.Controllers
 
 
 		[HttpPost("[action]")]
-		public IActionResult FetchAnswerReport([FromBody] ArgsAnswerReportJSON args)
+		public IActionResult FetchOutcomesReport([FromBody] ArgsAnswerReportJSON args)
 		{
 			try
 			{
