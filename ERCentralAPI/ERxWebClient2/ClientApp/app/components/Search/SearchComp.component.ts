@@ -705,6 +705,7 @@ export class SearchComp implements OnInit, OnDestroy {
 		if (event == 'true') {
 			this.SearchForPersonModel = true;
 		} else {
+			this.ContactChoice = new Contact();
 			this.SearchForPersonModel = false;
 		}
 	}
