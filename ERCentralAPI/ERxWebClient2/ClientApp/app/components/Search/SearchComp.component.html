@@ -151,12 +151,12 @@
 			<table class="col-md-4  p-2 m-2">
 				<tr class="col-md-4" style="min-width: 250px;">
 					<td>
-						<input class="p-2 m-2" name="SearchForWhom" type="radio" value="false"
+						<input class="p-2 m-2" name="SearchForWhom" type="radio" value="true"
 							   [(ngModel)]="SearchForPeoplesModel"  (change)="SelectPerson('false')">
 						<b>&nbsp; Anyone &nbsp; &nbsp; &nbsp; </b>
 					</td>
 					<td>
-						&nbsp; &nbsp; &nbsp; &nbsp;  <input class="p-2 m-2" name="SearchForWhom" type="radio" value="true"
+						&nbsp; &nbsp; &nbsp; &nbsp;  <input class="p-2 m-2" name="SearchForWhom" type="radio" value="false"
 															[(ngModel)]="SearchForPeoplesModel" (change)="SelectPerson('true')">
 						<b>&nbsp; This Person</b>
 					</td>
