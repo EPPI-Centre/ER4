@@ -242,6 +242,19 @@ export class configurablereportComp implements OnInit, OnDestroy {
 			}
 		}
 	}
+	public OrderByChoiceChange() {
+		if (this.OrderByChoice == 'Item Id') {
+			this.ItemIdModel = true;
+		} else if (this.OrderByChoice == 'Imported Id') {
+			this.ImportedIdModel = true;
+		} else if (this.OrderByChoice == 'Short title') {
+			this.ShortTitleModel = true;
+		} else if (this.OrderByChoice == 'Title') {
+			this.TitleModel = true;
+		} else if (this.OrderByChoice == 'Year') {
+			this.YearModel = true;
+		}
+	}
 	public get ReportCollection(): Report[] | null {
 		return this.configurablereportServ.Reports;
 	}
