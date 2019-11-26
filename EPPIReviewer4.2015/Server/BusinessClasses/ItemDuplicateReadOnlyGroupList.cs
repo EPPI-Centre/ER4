@@ -22,11 +22,7 @@ namespace BusinessLibrary.BusinessClasses
     public class ItemDuplicateReadOnlyGroupList : ReadOnlyListBase<ItemDuplicateReadOnlyGroupList, ItemDuplicateReadOnlyGroup>
     {
         
-#if SILVERLIGHT
         public ItemDuplicateReadOnlyGroupList() { }
-#else
-        private ItemDuplicateReadOnlyGroupList() { }
-#endif
         public int CompletedCount
         {
             get

@@ -56,7 +56,7 @@ export class ModalService {
     }
     public GenericError(error: any) {
         this.confirm(
-            'Sorry, could not complete the operation. Error code is: ' + error.status + ". Error message is: " + error.statusText
+            'Sorry, could not complete the operation. Error code is: ' + error.status + " (" + error.statusText + '). Error Message is: "' + error.error +'".'
         );
     }
     public GenericErrorMessage(Message: string) {

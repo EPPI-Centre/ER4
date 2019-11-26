@@ -84,6 +84,7 @@ import { SingleCodesetTreeCodingComponent } from './components/CodesetTrees/Sing
 import { TextSelectDirective } from './components/helpers/text-select.directive';
 import { ReviewTermsListComp } from './components/ReviewTermsList/ReviewTermsListComp.component';
 import { configurablereportComp } from './components/Reports/configurablereport.component';
+import { DuplicatesComponent } from './components/Duplicates/duplicates.component';
 
 @NgModule({
     declarations: [
@@ -148,7 +149,8 @@ import { configurablereportComp } from './components/Reports/configurablereport.
 		SingleCodesetTreeCodingComponent,
 		TextSelectDirective,
 		ReviewTermsListComp,
-		configurablereportComp
+        configurablereportComp,
+        DuplicatesComponent
 	],
     providers: [
         EventEmitterService,
@@ -193,7 +195,8 @@ import { configurablereportComp } from './components/Reports/configurablereport.
 			{ path: 'EditCodeSets', component: ReviewSetsEditorComponent },
 			{ path: 'Reconciliation', component: ComparisonReconciliationComp},
             { path: 'ImportCodesets', component: ImportCodesetsWizardComponent },
-            { path: 'intropage', component: intropageComponent }, 
+            { path: 'intropage', component: intropageComponent },
+            { path: 'Duplicates', component: DuplicatesComponent }, 
             { path: 'SiteAdmin', component: SiteAdminComponent },
             { path: '**', redirectTo: 'home' }
         ])

@@ -158,6 +158,51 @@ export class Helpers {
             pwa.document.close();
         }
     }
+    public static LevDist(a: string, b: string) {
+        //ADAPTED  from: Clément kigiri https://gist.github.com/andrei-m/982927
+
+        if (a.length === 0) return b.length;
+        if (b.length === 0) return a.length;
+        let tmp, i, j, prev, val, row;
+        let len = Math.max(a.length, b.length);
+        // swap to save some memory O(min(a,b)) instead of O(a)
+        if (a.length > b.length) {
+            tmp = a;
+            a = b;
+            b = tmp;
+        }
+
+        row = Array(a.length + 1);
+        // init the row
+        for (i = 0; i <= a.length; i++) {
+            row[i] = i;
+        }
+
+        // fill in the rest
+        for (i = 1; i <= b.length; i++) {
+            prev = i;
+            for (j = 1; j <= a.length; j++) {
+                if (b[i - 1] === a[j - 1]) {
+                    val = row[j - 1]; // match
+                } else {
+                    val = Math.min(row[j - 1] + 1, // substitution
+                        Math.min(prev + 1,     // insertion
+                            row[j] + 1));  // deletion
+                }
+                row[j - 1] = prev;
+                prev = val;
+            }
+            row[a.length] = prev;
+        }
+        //return row[a.length];
+        let tmp2 = row[a.length] / len;
+        let res = 1 - tmp2;
+        //console.log("Lev dist st1: ", a);
+        //console.log("Lev dist st2: ", b);
+        //console.log("Lev dist: ", res);
+        //console.log("Lev dist: ", row[a.length], len, tmp2);
+        return res;
+    }
 }
 export interface SubstituteString {
     searchFor: string;

@@ -100,6 +100,11 @@
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemDocumentList.cs" Link="Models\ItemDocumentList.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemDocumentSaveBinCommand.cs" Link="Models\ItemDocumentSaveBinCommand.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemDocumentSaveCommand.cs" Link="Models\ItemDocumentSaveCommand.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemDuplicateGroup.cs" Link="Models\ItemDuplicateGroup.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemDuplicateGroupMember.cs" Link="Models\ItemDuplicateGroupMember.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemDuplicateManualGroupMember.cs" Link="Models\ItemDuplicateManualGroupMember.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemDuplicateReadOnlyGroup.cs" Link="Models\ItemDuplicateReadOnlyGroup.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemDuplicateReadOnlyGroupList.cs" Link="Models\ItemDuplicateReadOnlyGroupList.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemDuplicatesReadOnly.cs" Link="Models\ItemDuplicatesReadOnly.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemDuplicatesReadOnlyList.cs" Link="Models\ItemDuplicatesReadOnlyList.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemIncludeExcludeCommand.cs" Link="Models\ItemIncludeExcludeCommand.cs" />
