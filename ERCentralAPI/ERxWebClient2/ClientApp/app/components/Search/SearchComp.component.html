@@ -145,37 +145,43 @@
 				</tr>
 			</table>
 		</div>
-		<div *ngIf="ShowSearchForAnyone" class="row">
-			<div class="col-12 col-md-4 mb-1 pr-1 pl-1 pull-right">
+		<div class="row" *ngIf="ShowSearchForAnyone">
+			<div class="col-12 col-md-3 mb-1 pr-1 pl-1 pull-right">
 			</div>
+			<hr class="bg-primary col-md-4 m-2" />
+		</div>
+		<div *ngIf="ShowSearchForAnyone" class="row">
+			<div class="col-12 col-md-3 mb-1 pr-1 pl-1 pull-right">
+			</div>
+			<b class="col-md-1" style="min-width: 100px;">Coded By:</b>
 			<table class="col-md-4  p-2 m-2">
 				<tr class="col-md-4" style="min-width: 250px;">
 					<td>
 						<input class="p-2 m-2" name="SearchForWhom" type="radio" value="true"
-							   [(ngModel)]="SearchForPeoplesModel"  (change)="SelectPerson('false')">
+							   [(ngModel)]="SearchForPersonDropDown" (change)="SelectPerson('false')">
 						<b>&nbsp; Anyone &nbsp; &nbsp; &nbsp; </b>
 					</td>
 					<td>
 						&nbsp; &nbsp; &nbsp; &nbsp;  <input class="p-2 m-2" name="SearchForWhom" type="radio" value="false"
-															[(ngModel)]="SearchForPeoplesModel" (change)="SelectPerson('true')">
+													  [(ngModel)]="SearchForPersonDropDown" (change)="SelectPerson('true')">
 						<b>&nbsp; This Person</b>
 					</td>
 				</tr>
 			</table>
 		</div>
-		<div class="row" *ngIf="SearchForPersonModel">
+		<div class="row" *ngIf="ShowSearchForAnyone && SearchForPersonModel">
 			<div class="col-12 col-md-3 mb-1 pr-1 pl-1"></div>
 			<select class="btn-info col-11 col-md-4 form-control mb-1 pr-1 pl-1 p-2 m-2" name="rev2"
 					[disabled]="!HasWriteRights" [(ngModel)]="ContactChoice">
 				<option> </option>
-				<option *ngFor="let member of Contacts" 
+				<option *ngFor="let member of Contacts"
 						[ngValue]="member" [selected]="member == ContactChoice">
 					{{member.contactName}}
 				</option>
 			</select>
 		</div>
+		</div>
 	</div>
-</div>
 <div id="LogicSection" [ngbCollapse]="!LogicSection">
     <table class="table col-md-12 ">
         <tr>

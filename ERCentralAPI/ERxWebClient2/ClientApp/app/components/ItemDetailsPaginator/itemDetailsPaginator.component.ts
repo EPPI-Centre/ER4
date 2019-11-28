@@ -143,10 +143,6 @@ export class itemDetailsPaginatorComp implements OnInit, OnDestroy, AfterViewIni
 		
 		this.ItemListService.FetchLastPage();
 	}
-
-	test() {
-		alert('hello');
-	}
 	
 	goToItem(item: Item) {
 		//this.WipeHighlights();

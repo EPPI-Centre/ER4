@@ -150,9 +150,13 @@ export class itemDetailsComp implements OnInit, OnDestroy {
 	ShowHighlightsClicked() {
 
         if (this.item && this.ShowHighlights && this.HAbstract == '' && !(this.item.abstract == '')) {
-            this.SetHighlights();
+			this.SetHighlights();
+
 		}
 		this.ShowHighlights = !this.ShowHighlights;
+		if (!this.ShowHighlights) {
+			this.ReviewerTermsService._ShowHideTermsList = false;
+		}
 	}
 	ItemChanged() {
 		alert('item changed!!');

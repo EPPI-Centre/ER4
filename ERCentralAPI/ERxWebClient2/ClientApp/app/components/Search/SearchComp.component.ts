@@ -701,9 +701,12 @@ export class SearchComp implements OnInit, OnDestroy {
 		this._searchService.Fetch();
 	}
 	public SearchForPersonModel: boolean = false;
+	public SearchForPersonDropDown: string = 'true';
 	SelectPerson(event: string) {
+
 		if (event == 'true') {
 			this.SearchForPersonModel = true;
+
 		} else {
 			this.ContactChoice = new Contact();
 			this.SearchForPersonModel = false;
@@ -865,6 +868,8 @@ export class SearchComp implements OnInit, OnDestroy {
 	public nextDropDownList(num: number, val: string) {
 
 		this.ShowSearchForAnyone = false;
+		this.SearchForPersonModel = false;
+		this.SearchForPersonDropDown = 'true';
 		let typeElement: "success" | "error" | "none" | "warning" | "info" | undefined = undefined;
 		this.showTextBox = false;
 		this.selectedSearchDropDown = val;
@@ -874,10 +879,12 @@ export class SearchComp implements OnInit, OnDestroy {
 			case 1: {
 
 				this.dropDownList = this._reviewSetsService.ReviewSets;
+
 				break;
 			}
 			case 2: {
 				this.dropDownList = this._reviewSetsService.ReviewSets;
+
 				break;
 			}
 			case 3: {
@@ -898,6 +905,8 @@ export class SearchComp implements OnInit, OnDestroy {
 					);
 				this.dropDownList = this._reviewSetsService.ReviewSets;
 				this.ShowSearchForAnyone = true;
+				this.SearchForPersonDropDown = 'true';
+				this.SearchForPersonModel = false;
 				break;
 			}
 			case 6: {
@@ -908,6 +917,7 @@ export class SearchComp implements OnInit, OnDestroy {
 						}
 					);
 				this.dropDownList = this._reviewSetsService.ReviewSets;
+	
 				break;
 			}
 			default: {
@@ -1033,6 +1043,7 @@ export class SearchComp implements OnInit, OnDestroy {
 		this.NewSearchSection = false;
 		this.modelResultsSection = false;
 		this.LogicSection = false;
+		this.SearchForPersonModel = false;
 	}
 }
 

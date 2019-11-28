@@ -94,9 +94,16 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
 	public ShowOutComes: boolean = false;
 	public get leftPanel(): string {
 		//console.log("leftPanel", this.ReviewerTermsService._ShowHideTermsList, this.ShowingOutComes);
-		if (this.ReviewerTermsService._ShowHideTermsList) return "Highlights";
-		else if (this.ShowOutComes) return "OutComes";
-		else return "";
+		if (this.ReviewerTermsService._ShowHideTermsList) {
+			return "Highlights";
+		}	
+		else if 
+		(this.ShowOutComes) {
+			this.EditCodesPanel = "";
+			return "OutComes";
+		}
+		else
+		{ return ""; }
 	}
     private subGotScreeningItem: Subscription | null = null;
     public IsScreening: boolean = false;
@@ -197,8 +204,15 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
         this.ShowOutComes = !this.ShowOutComes;
 	}
 	public SetCreateNewCode() {
-        if (this.EditCodesPanel == "CreateNewCode") this.EditCodesPanel = "";
-        else this.EditCodesPanel = "CreateNewCode";
+		if (this.EditCodesPanel == "CreateNewCode") {
+			this.EditCodesPanel = "";
+		}
+		else {
+			this.EditCodesPanel = "CreateNewCode";
+			this.ShowOutComes = false;
+			this.OutcomesCmpRef.ShowOutcomesStatistics = false;
+			this.OutcomesCmpRef.ShowOutcomesList = false;
+		}
 	}
     public get HasTermList(): boolean {
         if (!this.ReviewerTermsService || !this.ReviewerTermsService.TermsList || !(this.ReviewerTermsService.TermsList.length > 0)) return false;
@@ -653,7 +667,11 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
         if (this.ItemDetailsCompRef) this.ItemDetailsCompRef.SetHighlights();
     }
     ShowHighlightsClicked() {
-        if (this.ItemDetailsCompRef) this.ItemDetailsCompRef.ShowHighlightsClicked(); else console.log('Ouch');
+		if (this.ItemDetailsCompRef) {
+			this.ItemDetailsCompRef.ShowHighlightsClicked();
+
+		}
+		else { console.log('Ouch'); }
     }
     onTabSelect(e: SelectEvent) {
 
