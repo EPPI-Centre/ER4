@@ -72,6 +72,36 @@ export class configurablereportComp implements OnInit, OnDestroy {
 	public showRiskOfBias() {
 		this.showROB = !this.showROB;
 	}
+	public AlwaysShow: boolean = false;
+	public RiskOfBias: boolean = false;
+	public outcomesHidden: boolean = false;
+	public ShowStandard() {
+
+		this.OutcomesModel = false;
+		this.RiskOfBias = false;
+		this.AlwaysShow = !this.AlwaysShow;
+
+	}
+	public ShowRiskOfBias() {
+
+		this.OutcomesModel = false;
+		this.AlwaysShow = !this.AlwaysShow;
+		if (this.AlwaysShow) {
+			this.RiskOfBias = true;
+		} else {
+			this.RiskOfBias = false;
+		}
+	}
+	public ShowOutcomes() {
+		this.RiskOfBias = false;
+		this.AlwaysShow = !this.AlwaysShow;
+		if (this.AlwaysShow) {
+			this.OutcomesModel = true;
+			this.outcomesHidden = true;
+		} else {
+			this.outcomesHidden = false;
+		}
+	}
 	public OpenInNewWindow() {
 
 		if (this.reportHTML.length < 1 ) return;

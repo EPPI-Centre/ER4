@@ -218,7 +218,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 			}
 		},
 		{
-			text: 'Export Current page/selection',
+			text: 'Excel',
 			click: () => {
 				//this.ExportReferencesAsHTML(this.ShowHideExportReferences('ExportTable'));
 				let testRefs: any = this.ShowHideExportReferences('ExportTable');
@@ -227,7 +227,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 			}
         },
         {
-            text: 'Export HTML table',
+            text: 'HTML',
             click: () => {
                 let tmp = document.getElementById('ItemsTable');
                 if (tmp) {
