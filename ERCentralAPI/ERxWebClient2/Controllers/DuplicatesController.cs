@@ -89,13 +89,26 @@ namespace ERxWebClient2.Controllers
                 if (SetCSLAUser4Writing())
                 {
                     DataPortal<ItemDuplicateGroup> dp = new DataPortal<ItemDuplicateGroup>();
-                    ItemDuplicateGroup result = dp.Fetch(new SingleCriteria<ItemDuplicateGroup, int>(crit.groupId));
-                    ItemDuplicateGroupMember item = result.Members.Find(found => found.ItemDuplicateId == crit.itemDuplicateId);
-                    if (item != null)
+                    ItemDuplicateGroup IDG = dp.Fetch(new SingleCriteria<ItemDuplicateGroup, int>(crit.groupId));
+                    bool ToSave = false;
+                    foreach (int mId in crit.itemDuplicateIds)
                     {
-                        item.IsDuplicate = crit.isDuplicate;
-                        item.IsChecked = true;
-                        item = item.Save();
+                        ItemDuplicateGroupMember item = IDG.Members.Find(found => found.ItemDuplicateId == mId);
+                        if (item != null)
+                        {
+                            item.IsDuplicate = crit.isDuplicate;
+                            item.IsChecked = true;
+                            ToSave = true;
+                            //item = item.Save();
+                        }
+                        else
+                        {
+                            return StatusCode(500, "Error: did not find member in this group");
+                        }
+                    }
+                    if (ToSave)
+                    {
+                        IDG = IDG.Save();
                         return Ok();
                     }
                     else
@@ -110,7 +123,7 @@ namespace ERxWebClient2.Controllers
             }
             catch (Exception e)
             {
-                _logger.LogException(e, "Error in MarkUnmarkMemberAsDuplicate. GroupId = " + crit.groupId + " memberID: " + crit.itemDuplicateId);
+                _logger.LogException(e, "Error in MarkUnmarkMemberAsDuplicate. GroupId = " + crit.groupId + " memberID: " + crit.itemDuplicateIds);
                 return StatusCode(500, e.Message);
             }
         }
@@ -121,9 +134,14 @@ namespace ERxWebClient2.Controllers
             {
                 if (SetCSLAUser4Writing())
                 {
+                    if (crit.itemDuplicateIds == null || crit.itemDuplicateIds.Length != 1)
+                    {
+                        return StatusCode(500, "Error: malformed request.");
+                    }
                     DataPortal<ItemDuplicateGroup> dp = new DataPortal<ItemDuplicateGroup>();
                     ItemDuplicateGroup IDG = dp.Fetch(new SingleCriteria<ItemDuplicateGroup, int>(crit.groupId));
-                    ItemDuplicateGroupMember item = IDG.Members.Find(found => found.ItemDuplicateId == crit.itemDuplicateId);
+
+                    ItemDuplicateGroupMember item = IDG.Members.Find(found => found.ItemDuplicateId == crit.itemDuplicateIds[0]);
                     long originalMaster = IDG.getMaster().ItemId;
                     Csla.Core.MobileList<ItemDuplicateGroupMember> list = IDG.Members;
                     foreach (ItemDuplicateGroupMember gm in list)
@@ -153,7 +171,7 @@ namespace ERxWebClient2.Controllers
             }
             catch (Exception e)
             {
-                _logger.LogException(e, "Error in MarkMemberAsMaster. GroupId = " + crit.groupId + " memberID: " + crit.itemDuplicateId);
+                _logger.LogException(e, "Error in MarkMemberAsMaster. GroupId = " + crit.groupId + " memberID: " + crit.itemDuplicateIds);
                 return StatusCode(500, e.Message);
             }
         }
@@ -163,7 +181,7 @@ namespace ERxWebClient2.Controllers
 	public class MarkUnmarkItemAsDuplicate
     {
 		public int groupId { get; set; }
-		public int itemDuplicateId { get; set; }
+		public int[] itemDuplicateIds { get; set; }
 		public bool isDuplicate { get; set; }
 	}
     
