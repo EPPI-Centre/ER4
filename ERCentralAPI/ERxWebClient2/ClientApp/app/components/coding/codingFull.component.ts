@@ -667,7 +667,11 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
         if (this.ItemDetailsCompRef) this.ItemDetailsCompRef.SetHighlights();
     }
     ShowHighlightsClicked() {
-        if (this.ItemDetailsCompRef) this.ItemDetailsCompRef.ShowHighlightsClicked(); else console.log('Ouch');
+		if (this.ItemDetailsCompRef) {
+			this.ItemDetailsCompRef.ShowHighlightsClicked();
+
+		}
+		else { console.log('Ouch'); }
     }
     onTabSelect(e: SelectEvent) {
 
