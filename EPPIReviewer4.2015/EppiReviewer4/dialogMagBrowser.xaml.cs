@@ -103,7 +103,6 @@ namespace EppiReviewer4
             MagCurrentInfo mci = new MagCurrentInfo();
             dp.FetchCompleted += (o, e2) =>
             {
-                //BusyLoading.IsRunning = false;
                 if (e2.Error != null)
                 {
                     RadWindow.Alert(e2.Error.Message);
@@ -121,14 +120,12 @@ namespace EppiReviewer4
                     }
                 }
             };
-            //BusyLoading.IsRunning = true;
             dp.BeginFetch(mci);
 
             DataPortal<MAgReviewMagInfoCommand> dp2 = new DataPortal<MAgReviewMagInfoCommand>();
             MAgReviewMagInfoCommand mrmic = new MAgReviewMagInfoCommand();
             dp2.ExecuteCompleted += (o, e2) =>
             {
-                //BusyLoading.IsRunning = false;
                 if (e2.Error != null)
                 {
                     RadWindow.Alert(e2.Error.Message);
@@ -146,8 +143,12 @@ namespace EppiReviewer4
                     LBMNotMatchedExcluded.Content = mrmic2.NNotMatchedExcluded.ToString();
                 }
             };
-            //BusyLoading.IsRunning = true;
             dp2.BeginExecute(mrmic);
+
+            CslaDataProvider provider = this.Resources["ClassifierContactModelListData"] as CslaDataProvider;
+            provider.Refresh();
+            CslaDataProvider provider1 = this.Resources["MagSimulationListData"] as CslaDataProvider;
+            provider1.Refresh();
         }
 
         // ********************************* HISTORY PAGE **********************************
@@ -180,6 +181,26 @@ namespace EppiReviewer4
             MagPaperListSelectionCriteria selectionCriteria = new MagPaperListSelectionCriteria();
             provider.FactoryMethod = "GetMagReviewList";
             provider.Refresh();
+
+            DataPortal<MagBlobDataCommand> dp2 = new DataPortal<MagBlobDataCommand>();
+            MagBlobDataCommand command = new MagBlobDataCommand();
+            dp2.ExecuteCompleted += (o, e2) =>
+            {
+                //BusyLoading.IsRunning = false;
+                if (e2.Error != null)
+                {
+                    RadWindow.Alert(e2.Error.Message);
+                }
+                else
+                {
+                    MagBlobDataCommand mb = e2.Object as MagBlobDataCommand;
+                    tbMagSas.Text = mb.LatestMagSasUri;
+                    tbLatestMag.Text = mb.LatestMAGName;
+                    tbReleaseNotes.Text = mb.ReleaseNotes;
+                }
+            };
+            //BusyLoading.IsRunning = true;
+            dp2.BeginExecute(command);
         }
 
         // ******************************** PAPER DETAILS PAGE **************************************
@@ -834,8 +855,7 @@ namespace EppiReviewer4
             provider.Refresh();
         }
 
-
-        // *********************** Showing / hiding abstracts *********************************
+        // *************************** Showing / hiding abstracts *********************************
         private void HLExpandContract_Click(object sender, RoutedEventArgs e)
         {
             HyperlinkButton hl = sender as HyperlinkButton;
@@ -920,6 +940,33 @@ namespace EppiReviewer4
                     if (mbhl != null)
                     {
                         mbhl.Remove(mbh);
+                        CheckForwardAndBackButtonState();
+                    }
+                }
+            }
+        }
+
+        private void lbClearHistory_Click(object sender, RoutedEventArgs e)
+        {
+            RadWindow.Confirm("Are you sure you want to clear your history?", this.doClearHistory);
+        }
+
+        private void doClearHistory(object sender, WindowClosedEventArgs e)
+        {
+            var result = e.DialogResult;
+            if (result == true)
+            {
+                CslaDataProvider provider = this.Resources["HistoryListData"] as CslaDataProvider;
+                if (provider != null)
+                {
+                    MagBrowseHistoryList mbhl = provider.Data as MagBrowseHistoryList;
+                    if (mbhl != null)
+                    {
+                        while (mbhl.Count > 1)
+                        {
+                            mbhl.RemoveAt(0);
+                        }
+                        CurrentBrowsePosition = 1;
                         CheckForwardAndBackButtonState();
                     }
                 }
@@ -1722,6 +1769,8 @@ namespace EppiReviewer4
             DateTime SimulationYear = Convert.ToDateTime("1/1/1753");
             DateTime CreatedDate = Convert.ToDateTime("1/1/1753");
             Int64 AttributeId = 0;
+            Int64 AttributeIdFilter = 0;
+            ClassifierContactModel UserModel = null;
             if (rbSimulationYear.IsChecked == true)
             {
                 SimulationYear = DatePickerSimulation.SelectedValue.Value;
@@ -1744,6 +1793,43 @@ namespace EppiReviewer4
                     return;
                 }
             }
+            if (cbSimulationFilterByThisCode.IsChecked == true)
+            {
+                if (codesSelectControlSimulationFilter.SelectedAttributeSet() != null)
+                {
+                    AttributeIdFilter = codesSelectControlSimulationFilter.SelectedAttributeSet().AttributeId;
+                }
+                else
+                {
+                    RadWindow.Alert("Please select a code if you want to filter by a code");
+                    return;
+                }
+            }
+            UserModel = comboSimulationUserModels.SelectedItem as ClassifierContactModel;
+
+            MagSimulation newSimulation = new MagSimulation();
+            newSimulation.Year = SimulationYear.Year;
+            newSimulation.CreatedDate = CreatedDate;
+            newSimulation.WithThisAttributeId = AttributeId;
+            newSimulation.FilteredByAttributeId = AttributeIdFilter;
+            newSimulation.SearchMethod = comboSimulationSearchMethod.SelectedItem.ToString();
+            newSimulation.NetworkStatistic = comboSimulationNetworkStats.SelectedItem.ToString();
+            newSimulation.StudyTypeClassifier = comboSimulationStudyTypeClassifier.SelectedItem.ToString();
+            newSimulation.UserClassifierModelId = (UserModel != null ? UserModel.ModelId : 0);
+            newSimulation.Status = "Pending";
+
+            CslaDataProvider provider = this.Resources["MagSimulationListData"] as CslaDataProvider;
+            if (provider != null)
+            {
+                MagSimulationList SimList = provider.Data as MagSimulationList;
+                if (SimList != null)
+                {
+                    SimList.Add(newSimulation);
+                    SimList.SaveItem(newSimulation);
+                }
+            }
+
+            /*
             DataPortal<MagRunSimulationCommand> dp2 = new DataPortal<MagRunSimulationCommand>();
             MagRunSimulationCommand mrsc = new MagRunSimulationCommand(SimulationYear, CreatedDate, AttributeId);
             dp2.ExecuteCompleted += (o, e2) =>
@@ -1753,21 +1839,32 @@ namespace EppiReviewer4
                 if (e2.Error != null)
                 {
                     RadWindow.Alert(e2.Error.Message);
-                    tbSimulationResults.Text = "error";
+                    //tbSimulationResults.Text = "error";
                 }
                 else
                 {
                     MagRunSimulationCommand mrsc2 = e2.Object as MagRunSimulationCommand;
                     if (mrsc2 != null)
                     {
-                        tbSimulationResults.Text = mrsc2.GetReport();
+                        //tbSimulationResults.Text = mrsc2.GetReport();
                     }
                 }
             };
             //BusyLoading.IsRunning = true;
-            tbSimulationResults.Text = "Working...";
+            //tbSimulationResults.Text = "Working...";
             lbRunSimulation.IsEnabled = false;
             dp2.BeginExecute(mrsc);
+            */
+        }
+
+        private void cbSimulationFilterByThisCode_Checked(object sender, RoutedEventArgs e)
+        {
+            codesSelectControlSimulationFilter.Visibility = Visibility.Visible;
+        }
+
+        private void cbSimulationFilterByThisCode_Unchecked(object sender, RoutedEventArgs e)
+        {
+            codesSelectControlSimulationFilter.Visibility = Visibility.Collapsed;
         }
 
         // ********************************** ADMIN PAGE ***********************************
@@ -1830,6 +1927,10 @@ namespace EppiReviewer4
                 provider.Refresh();
             }
         }
+
+        
+
+
 
 
 
