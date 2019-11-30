@@ -82,6 +82,9 @@ import { OutcomesComponent } from './components/Outcomes/outcomes.component'
 import { EditCodeComp } from './components/CodesetTrees/editcode.component';
 import { SingleCodesetTreeCodingComponent } from './components/CodesetTrees/SingleCodesetTreeCoding.component';
 import { TextSelectDirective } from './components/helpers/text-select.directive';
+import { ReviewTermsListComp } from './components/ReviewTermsList/ReviewTermsListComp.component';
+import { configurablereportComp } from './components/Reports/configurablereport.component';
+import { DuplicatesComponent } from './components/Duplicates/duplicates.component';
 
 @NgModule({
     declarations: [
@@ -99,7 +102,8 @@ import { TextSelectDirective } from './components/helpers/text-select.directive'
         ImportCodesetsWizardComponent,
         codesetTree4CopyComponent,
 		codesetSelectorComponent,
-        armsComp,
+		armsComp,
+		armDetailsComp,
         FetchReadOnlyReviewsComponent,
         HomeComponent,
         ArchieCallBackComponent, 
@@ -128,7 +132,6 @@ import { TextSelectDirective } from './components/helpers/text-select.directive'
         CodesetTree4QuickQuestionReportComponent,
         NewReviewComponent,
 		RunLingo3G,
-		armDetailsComp,
         WorkAllocationComp,
         WorkAllocationContactListComp,
         SiteAdminComponent,
@@ -144,14 +147,17 @@ import { TextSelectDirective } from './components/helpers/text-select.directive'
         OutcomesComponent,
 		EditCodeComp,
 		SingleCodesetTreeCodingComponent,
-		TextSelectDirective
+		TextSelectDirective,
+		ReviewTermsListComp,
+        configurablereportComp,
+        DuplicatesComponent
 	],
     providers: [
         EventEmitterService,
 		{ provide: RouteReuseStrategy, useClass: CustomRouteReuseStrategy }
     ],
 	entryComponents: [InfoBoxModalContent, ModalDialogComponent, ConfirmationDialogComponent],
-    imports: [
+	imports: [
         AngularFontAwesomeModule,
 		DataTablesModule,
 		CommonModule,
@@ -172,7 +178,7 @@ import { TextSelectDirective } from './components/helpers/text-select.directive'
 		ButtonsModule,
         NotificationModule,
         DatePickerModule,
-        LayoutModule,
+		LayoutModule,
         RouterModule.forRoot([
             { path: '', redirectTo: 'home', pathMatch: 'full' },
             { path: 'home', component: HomeComponent },
@@ -189,7 +195,8 @@ import { TextSelectDirective } from './components/helpers/text-select.directive'
 			{ path: 'EditCodeSets', component: ReviewSetsEditorComponent },
 			{ path: 'Reconciliation', component: ComparisonReconciliationComp},
             { path: 'ImportCodesets', component: ImportCodesetsWizardComponent },
-            { path: 'intropage', component: intropageComponent }, 
+            { path: 'intropage', component: intropageComponent },
+            { path: 'Duplicates', component: DuplicatesComponent }, 
             { path: 'SiteAdmin', component: SiteAdminComponent },
             { path: '**', redirectTo: 'home' }
         ])

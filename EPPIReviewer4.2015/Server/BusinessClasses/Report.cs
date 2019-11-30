@@ -26,7 +26,7 @@ namespace BusinessLibrary.BusinessClasses
     public Report() { Columns = ReportColumnList.NewReportColumnList(); }
         
 #else
-        private Report() { }
+        public Report() { }
 #endif
         
         public override string ToString()
@@ -34,7 +34,7 @@ namespace BusinessLibrary.BusinessClasses
             return Name;
         }
 
-        private static PropertyInfo<int> ReportIdProperty = RegisterProperty<int>(new PropertyInfo<int>("ReportId", "ReportId"));
+        public static readonly PropertyInfo<int> ReportIdProperty = RegisterProperty<int>(new PropertyInfo<int>("ReportId", "ReportId"));
         public int ReportId
         {
             get
@@ -43,7 +43,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> NameProperty = RegisterProperty<string>(new PropertyInfo<string>("Name", "Name", string.Empty));
+        public static readonly  PropertyInfo<string> NameProperty = RegisterProperty<string>(new PropertyInfo<string>("Name", "Name", string.Empty));
         public string Name
         {
             get
@@ -56,7 +56,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> DetailProperty = RegisterProperty<string>(new PropertyInfo<string>("Detail", "Detail", string.Empty));
+        public static readonly  PropertyInfo<string> DetailProperty = RegisterProperty<string>(new PropertyInfo<string>("Detail", "Detail", string.Empty));
         public string Detail
         {
             get
@@ -70,7 +70,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<ReportColumnList> ColumnsProperty = RegisterProperty<ReportColumnList>(new PropertyInfo<ReportColumnList>("Columns", "Columns"));
+        public static readonly  PropertyInfo<ReportColumnList> ColumnsProperty = RegisterProperty<ReportColumnList>(new PropertyInfo<ReportColumnList>("Columns", "Columns"));
         public ReportColumnList Columns
         {
             get
@@ -83,7 +83,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> ContactNameProperty = RegisterProperty<string>(new PropertyInfo<string>("ContactName", "ContactName", string.Empty));
+        public static readonly  PropertyInfo<string> ContactNameProperty = RegisterProperty<string>(new PropertyInfo<string>("ContactName", "ContactName", string.Empty));
         public string ContactName
         {
             get
@@ -96,7 +96,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> ReportTypeProperty = RegisterProperty<string>(new PropertyInfo<string>("ReportType", "ReportType", "Question"));
+        public static readonly  PropertyInfo<string> ReportTypeProperty = RegisterProperty<string>(new PropertyInfo<string>("ReportType", "ReportType", "Question"));
         public string ReportType
         {
             get

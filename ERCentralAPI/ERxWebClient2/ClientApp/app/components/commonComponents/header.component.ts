@@ -143,6 +143,7 @@ export class HeaderComponent implements OnInit {
     }
     Logout() {
         this.Clear();
+        this.ReviewerIdentityServ.LogOut();
         this.router.navigate(['home']);
     }
     ShowHideFeedback() {

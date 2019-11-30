@@ -151,6 +151,9 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
     GoToSources() {
         this.router.navigate(['sources']);
     }
+    GoToDuplicates() {
+        this.router.navigate(['Duplicates']);
+    }
 	IncludedItemsList() {
         this.ItemListService.GetIncludedItems();
 		this.tabSelectEvent.emit();

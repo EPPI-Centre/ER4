@@ -1,4 +1,6 @@
-﻿//this class should only contain static methods.
+﻿
+
+//this class should only contain static methods.
 //it's a collection of methods that can be used by any component/service. Main purpose is to avoid replication.
 //Please include a short description of the purpose of any method added in this class.
 export class Helpers {
@@ -128,13 +130,20 @@ export class Helpers {
     }
     //used to add link to stylesheet and HTML frame to HTML content, usually for reports
     //gets used to show and save reports.
-    public static AddHTMLFrame(report: string, baseUrl: string): string {
+    public static AddHTMLFrame(report: string, baseUrl: string, title?: string): string {
         //used to save reports
-        let res = "<HTML id='content'><HEAD><title>EPPI-Reviewer Coding Report</title><link rel='stylesheet' href='" + baseUrl + "/dist/vendor.css' /></HEAD><BODY class='m-2' id='body'>" + report;
+        if (title === undefined) title = ">EPPI-Reviewer Coding Report";
+        let res = "<HTML id='content'><HEAD><title>"+ title +"</title><link rel='stylesheet' href='" + baseUrl + "/dist/vendor.css' /></HEAD><BODY class='m-2' id='body'>" + report;
         //res += "<br /><a download='report.html' href='data:text/html;charset=utf-8," + report + "'>Save...</a></BODY></HTML>";
         //res += "<br />" + this.AddSaveMe() + "</BODY></HTML>";
         res += "</BODY></HTML>";
         return res;
+    }
+    public static CleanHTMLforExport(text: string, substitutions: SubstituteString[]):string {
+        for (let ss of substitutions) {
+            text = text.split(ss.searchFor).join(ss.changeTo);
+        }
+        return text;
     }
     //used to show reports in a throwaway new tab.
     public static OpenInNewWindow(ReportHTML: any, baseUrl: string) {
@@ -149,4 +158,57 @@ export class Helpers {
             pwa.document.close();
         }
     }
+    public static LevDist(a: string, b: string) {
+        //ADAPTED  from: Clément kigiri https://gist.github.com/andrei-m/982927
+
+        if (a.length === 0) return b.length;
+        if (b.length === 0) return a.length;
+        let tmp, i, j, prev, val, row;
+        let len = Math.max(a.length, b.length);
+        // swap to save some memory O(min(a,b)) instead of O(a)
+        if (a.length > b.length) {
+            tmp = a;
+            a = b;
+            b = tmp;
+        }
+
+        row = Array(a.length + 1);
+        // init the row
+        for (i = 0; i <= a.length; i++) {
+            row[i] = i;
+        }
+
+        // fill in the rest
+        for (i = 1; i <= b.length; i++) {
+            prev = i;
+            for (j = 1; j <= a.length; j++) {
+                if (b[i - 1] === a[j - 1]) {
+                    val = row[j - 1]; // match
+                } else {
+                    val = Math.min(row[j - 1] + 1, // substitution
+                        Math.min(prev + 1,     // insertion
+                            row[j] + 1));  // deletion
+                }
+                row[j - 1] = prev;
+                prev = val;
+            }
+            row[a.length] = prev;
+        }
+        //return row[a.length];
+        let tmp2 = row[a.length] / len;
+        let res = 1 - tmp2;
+        //console.log("Lev dist st1: ", a);
+        //console.log("Lev dist st2: ", b);
+        //console.log("Lev dist: ", res);
+        //console.log("Lev dist: ", row[a.length], len, tmp2);
+        return res;
+    }
+}
+export interface SubstituteString {
+    searchFor: string;
+    changeTo: string;
+}
+export class LocalSort {
+    SortBy: string = "";
+    Direction: boolean = true;//Ascending if true
 }

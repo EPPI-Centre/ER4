@@ -20,15 +20,15 @@ namespace BusinessLibrary.BusinessClasses
 {
     [Serializable]
     public class ItemDuplicateReadOnlyGroup : ReadOnlyBase<ItemDuplicateReadOnlyGroup>, INotifyPropertyChanged
-
     {
+        public ItemDuplicateReadOnlyGroup() { }
 
 #if SILVERLIGHT
-    public ItemDuplicateReadOnlyGroup() { }
-    public event PropertyChangedEventHandler PropertyChanged;
+    
+        public event PropertyChangedEventHandler PropertyChanged;
 
 #else
-        private ItemDuplicateReadOnlyGroup() { }
+        
         public new event PropertyChangedEventHandler PropertyChanged;
 #endif
         
@@ -45,7 +45,7 @@ namespace BusinessLibrary.BusinessClasses
             return this.ShortTitle;
         }
 
-        private static PropertyInfo<int> GroupIdProperty = RegisterProperty<int>(new PropertyInfo<int>("GroupId", "GroupId"));
+        public readonly static PropertyInfo<int> GroupIdProperty = RegisterProperty<int>(new PropertyInfo<int>("GroupId", "GroupId"));
         public int GroupId
         {
             get
@@ -54,7 +54,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<Int64> MasterItemIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("MasterItemId", "MasterItemId"));
+        public readonly static PropertyInfo<Int64> MasterItemIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("MasterItemId", "MasterItemId"));
         public Int64 MasterItemId
         {
             get
@@ -62,7 +62,7 @@ namespace BusinessLibrary.BusinessClasses
                 return GetProperty(MasterItemIdProperty);
             }
         }
-        private static PropertyInfo<string> ShortTitleProperty = RegisterProperty<string>(new PropertyInfo<string>("ShortTitle", "ShortTitle"));
+        public readonly static PropertyInfo<string> ShortTitleProperty = RegisterProperty<string>(new PropertyInfo<string>("ShortTitle", "ShortTitle"));
         public string ShortTitle
         {
             get
@@ -70,7 +70,7 @@ namespace BusinessLibrary.BusinessClasses
                 return GetProperty(ShortTitleProperty);
             }
         }
-        private static PropertyInfo<int> ReviewIdProperty = RegisterProperty<int>(new PropertyInfo<int>("ReviewId", "ReviewId"));
+        public readonly static PropertyInfo<int> ReviewIdProperty = RegisterProperty<int>(new PropertyInfo<int>("ReviewId", "ReviewId"));
         public int ReviewId
         {
             get
@@ -78,7 +78,7 @@ namespace BusinessLibrary.BusinessClasses
                 return GetProperty(ReviewIdProperty);
             }
         }
-        private static PropertyInfo<bool> IsCompleteProperty = RegisterProperty<bool>(new PropertyInfo<bool>("IsComplete", "IsComplete"));
+        public readonly static PropertyInfo<bool> IsCompleteProperty = RegisterProperty<bool>(new PropertyInfo<bool>("IsComplete", "IsComplete"));
         public bool IsComplete
         {
             get

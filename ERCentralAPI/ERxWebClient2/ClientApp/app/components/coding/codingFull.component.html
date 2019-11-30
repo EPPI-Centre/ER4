@@ -6,56 +6,60 @@
 			<div class="h-100 mh-100 pr-0 ">
         
         <div class="row d-flex flex-wrap-reverse ml-1 mr-1 ">
-            <div class="col-sm-12 pl-2 pr-2 align-self-end "
-                 [ngClass]="{'col-md-5 col-lg-3' : !ShowOutComes
+			<div class="col-sm-12 pl-2 pr-2 align-self-end "
+				 [ngClass]="{'col-md-5 col-lg-3' : !ShowOutComes
                  , 'col-md-6 col-lg-5' : ShowOutComes}">
-                <div *ngIf="IsServiceBusy()" class="k-loading-image"></div>
-                <div *ngIf="!ShowOutComes" class="containsAtoolbar mb-1 small h-100 rounded" style="background-color: #f5f6fa;">
+				<div *ngIf="IsServiceBusy()" class="k-loading-image"></div>
+				<div *ngIf="leftPanel ==''" class="containsAtoolbar mb-1 small h-100 rounded" style="background-color: #f5f6fa;">
 
-                    <button kendoButton [icon]="'plus'" class="small m-1" title="Add child code..."
-                            [disabled]="!HasWriteRights  || !CanCreateNewCode()" (click)="SetCreateNewCode()">
-                        <!--<i class="fa fa-plus" aria-hidden="true"></i>-->
-                    </button>
-                    <button kendoButton [icon]="'arrow-60-up'" class="small m-1" title="Move up Code/Tool..."
-                            [disabled]="!HasWriteRights  || !CanMoveNodeUp()" (click)="MoveUpNode()">
-                        <!--<i class="fa fa-plus" aria-hidden="true"></i>-->
-                    </button>
-                    <button kendoButton [icon]="'arrow-60-down'" class="small m-1" title="Move Down Code/Tool..."
-                            [disabled]="!HasWriteRights  || !CanMoveNodeDown()" (click)="MoveDownNode()"></button>
-                    <button kendoButton [icon]="'edit'" class="small m-1" title="Edit Code..."
-                            [disabled]="!HasWriteRights  || !CanEditCode()" (click)="EditCode()"></button>
-                </div>
-                <div class="col-12 bg-light" *ngIf="EditCodesPanel =='CreateNewCode'">
-                    <div class="col-12 small row px-0 py-1 m-0">
-                        Add child to:
-                        <div class="mx-1 border border-dark font-weight-bold "
-                             [ngClass]="{'alert-danger' : !CanCreateNewCode(), 'alert-primary' : CanCreateNewCode()}">&nbsp;{{CurrentNode?.name}}&nbsp;</div>
-                    </div>
-                    <div *ngIf="!CanCreateNewCode()" class="col-12 small row px-0 py-1 m-0 alert-danger"><b>Note:&nbsp;</b> form is disabled - this code can't have children.</div>
-                    <CreateNewCodeComp [IsSmall]="true" (closeCreateNew)="SetCreateNewCode()"></CreateNewCodeComp>
-                </div>
-                <div class="col-12 bg-light" *ngIf="EditCodesPanel =='EditCode'">
-                    <div class="col-12 small row px-0 py-1 m-0">
-                        Current Code Name:
-                        <div class="mx-1 border border-dark font-weight-bold "
-                             [ngClass]="{'alert-danger' : !CanEditCode(), 'alert-primary' : CanEditCode()}">&nbsp;{{CurrentNode?.name}}&nbsp;</div>
-                    </div>
-                    <div *ngIf="!CanEditCode()" class="col-12 small row px-0 py-1 m-0 alert-danger"><b>Note:&nbsp;</b> form is disabled - you can't edit this.</div>
-                    <EditCodeComp [IsSmall]="true" [UpdatingCode]="CurrentNode" (emitterCancel)="CancelActivity($event)"></EditCodeComp>
-                </div>
+					<button kendoButton [icon]="'plus'" class="small m-1" title="Add child code..."
+							[disabled]="!HasWriteRights  || !CanCreateNewCode()" (click)="SetCreateNewCode()">
+						<!--<i class="fa fa-plus" aria-hidden="true"></i>-->
+					</button>
+					<button kendoButton [icon]="'arrow-60-up'" class="small m-1" title="Move up Code/Tool..."
+							[disabled]="!HasWriteRights  || !CanMoveNodeUp()" (click)="MoveUpNode()">
+						<!--<i class="fa fa-plus" aria-hidden="true"></i>-->
+					</button>
+					<button kendoButton [icon]="'arrow-60-down'" class="small m-1" title="Move Down Code/Tool..."
+							[disabled]="!HasWriteRights  || !CanMoveNodeDown()" (click)="MoveDownNode()"></button>
+					<button kendoButton [icon]="'edit'" class="small m-1" title="Edit Code..."
+							[disabled]="!HasWriteRights  || !CanEditCode()" (click)="EditCode()"></button>
+				</div>
+				<div class="col-12 bg-light" *ngIf="EditCodesPanel =='CreateNewCode'">
+					<div class="col-12 small row px-0 py-1 m-0">
+						Add child to:
+						<div class="mx-1 border border-dark font-weight-bold "
+							 [ngClass]="{'alert-danger' : !CanCreateNewCode(), 'alert-primary' : CanCreateNewCode()}">&nbsp;{{CurrentNode?.name}}&nbsp;</div>
+					</div>
+					<div *ngIf="!CanCreateNewCode()" class="col-12 small row px-0 py-1 m-0 alert-danger"><b>Note:&nbsp;</b> form is disabled - this code can't have children.</div>
+					<CreateNewCodeComp [IsSmall]="true" (closeCreateNew)="SetCreateNewCode()"></CreateNewCodeComp>
+				</div>
+				<div class="col-12 bg-light" *ngIf="EditCodesPanel =='EditCode'">
+					<div class="col-12 small row px-0 py-1 m-0">
+						Current Code Name:
+						<div class="mx-1 border border-dark font-weight-bold "
+							 [ngClass]="{'alert-danger' : !CanEditCode(), 'alert-primary' : CanEditCode()}">&nbsp;{{CurrentNode?.name}}&nbsp;</div>
+					</div>
+					<div *ngIf="!CanEditCode()" class="col-12 small row px-0 py-1 m-0 alert-danger"><b>Note:&nbsp;</b> form is disabled - you can't edit this.</div>
+					<EditCodeComp [IsSmall]="true" [UpdatingCode]="CurrentNode" (emitterCancel)="CancelActivity($event)"></EditCodeComp>
+				</div>
 
-                <ArmsComp #ArmsCmp class="card-text"></ArmsComp>
-                <div [hidden]="ShowOutComes">
-                    <codesetTreeCoding #codesetTreeCoding class="bg-light"
-                                       [InitiateFetchPDFCoding]="ShouldFetchPDFCoding"
-                                       [ngClass]="{disableThisAndChildren:!CanChangeSelectedCode}">
-                    </codesetTreeCoding>
-                </div>
-                <div *ngIf="ShowOutComes"
-                     class="my-1 ml-0 pl-1 pr-0 container">
-                    <OutcomesComp #OutcomesCmp [item]="item"></OutcomesComp>
-                </div>
-            </div>
+				<ArmsComp #ArmsCmp [hidden]="leftPanel !==''" class="card-text"></ArmsComp>
+				<div [hidden]="leftPanel !==''">
+					<codesetTreeCoding #codesetTreeCoding class="bg-light"
+									   [InitiateFetchPDFCoding]="ShouldFetchPDFCoding"
+									   [ngClass]="{disableThisAndChildren:!CanChangeSelectedCode}">
+					</codesetTreeCoding>
+				</div>
+				<div *ngIf="leftPanel =='Highlights'">
+					<ReviewTermsListComp  [item]="item" class="bg-light">
+					</ReviewTermsListComp>
+				</div>
+				<div *ngIf="leftPanel =='OutComes'"
+					 class="my-1 ml-0 pl-1 pr-0 container">
+					<OutcomesComp #OutcomesCmp [item]="item"></OutcomesComp>
+				</div>
+			</div>
             <div class="col-sm-12 m-0 pr-0 pl-0"
                  [ngClass]="{'col-md-7 col-lg-9' : !ShowOutComes
                  , 'col-md-6 col-lg-7' : ShowOutComes}">
@@ -98,7 +102,8 @@
 				<kendo-tabstrip #tabstripCoding (tabSelect)="onTabSelect($event)" class="specialHideSystem" [keepTabContent]="true">
 					<kendo-tabstrip-tab [selected]="true" [title]="'Item Details'">
 						<ng-template kendoTabContent>
-							<itemDetailsComp #ItemDetailsCmp [item]="item" [CanEdit]="HasWriteRights" [IsScreening]="IsScreening" [ShowHighlights]="ShowHighlights" ShowDocViewButton="true"></itemDetailsComp>
+							<itemDetailsComp #ItemDetailsCmp Context="CodingFull"
+											 [item]="item" [CanEdit]="HasWriteRights" [IsScreening]="IsScreening" [ShowHighlights]="ShowHighlights" ShowDocViewButton="true"></itemDetailsComp>
 						</ng-template>
 					</kendo-tabstrip-tab>
 			

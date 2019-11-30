@@ -23,21 +23,15 @@ namespace BusinessLibrary.BusinessClasses
     [Serializable]
     public class ItemDuplicateManualGroupMember : ReadOnlyBase<ItemDuplicateManualGroupMember>
     {
-#if SILVERLIGHT
-    public ItemDuplicateManualGroupMember() { }
+        public ItemDuplicateManualGroupMember() { }
 
-        
-#else
-        private ItemDuplicateManualGroupMember() { }
-
-#endif
         #region datamembers
         public override string ToString()
         {
             return Title;
         }
 
-        private static PropertyInfo<Int64> ItemIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("ItemId", "ItemId"));
+        public readonly static PropertyInfo<Int64> ItemIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("ItemId", "ItemId"));
         public Int64 ItemId
         {
             get
@@ -47,7 +41,7 @@ namespace BusinessLibrary.BusinessClasses
         }
 
 
-        private static PropertyInfo<string> TitleProperty = RegisterProperty<string>(new PropertyInfo<string>("Title", "Title", string.Empty));
+        public readonly static PropertyInfo<string> TitleProperty = RegisterProperty<string>(new PropertyInfo<string>("Title", "Title", string.Empty));
         public string Title
         {
             get
@@ -56,7 +50,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> ParentTitleProperty = RegisterProperty<string>(new PropertyInfo<string>("ParentTitle", "ParentTitle", string.Empty));
+        public readonly static PropertyInfo<string> ParentTitleProperty = RegisterProperty<string>(new PropertyInfo<string>("ParentTitle", "ParentTitle", string.Empty));
         public string ParentTitle
         {
             get
@@ -65,7 +59,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> ShortTitleProperty = RegisterProperty<string>(new PropertyInfo<string>("ShortTitle", "ShortTitle", string.Empty));
+        public readonly static PropertyInfo<string> ShortTitleProperty = RegisterProperty<string>(new PropertyInfo<string>("ShortTitle", "ShortTitle", string.Empty));
         public string ShortTitle
         {
             get
@@ -74,7 +68,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> YearProperty = RegisterProperty<string>(new PropertyInfo<string>("Year", "Year", string.Empty));
+        public readonly static PropertyInfo<string> YearProperty = RegisterProperty<string>(new PropertyInfo<string>("Year", "Year", string.Empty));
         public string Year
         {
             get
@@ -83,7 +77,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> MonthProperty = RegisterProperty<string>(new PropertyInfo<string>("Month", "Month", string.Empty));
+        public readonly static PropertyInfo<string> MonthProperty = RegisterProperty<string>(new PropertyInfo<string>("Month", "Month", string.Empty));
         public string Month
         {
             get
@@ -92,7 +86,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> AuthorsProperty = RegisterProperty<string>(new PropertyInfo<string>("Authors", "Authors", string.Empty));
+        public readonly static PropertyInfo<string> AuthorsProperty = RegisterProperty<string>(new PropertyInfo<string>("Authors", "Authors", string.Empty));
         public string Authors
         {
             get
@@ -100,7 +94,7 @@ namespace BusinessLibrary.BusinessClasses
                 return GetProperty(AuthorsProperty);
             }
         }
-        private static PropertyInfo<string> ParentAuthorsProperty = RegisterProperty<string>(new PropertyInfo<string>("ParentAuthors", "ParentAuthors", string.Empty));
+        public readonly static PropertyInfo<string> ParentAuthorsProperty = RegisterProperty<string>(new PropertyInfo<string>("ParentAuthors", "ParentAuthors", string.Empty));
         public string ParentAuthors
         {
             get
@@ -109,7 +103,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> GroupIDProperty = RegisterProperty<int>(new PropertyInfo<int>("GroupID", "GroupID"));
+        public readonly static PropertyInfo<int> GroupIDProperty = RegisterProperty<int>(new PropertyInfo<int>("GroupID", "GroupID"));
         public int GroupID
         {
             get
@@ -117,7 +111,7 @@ namespace BusinessLibrary.BusinessClasses
                 return GetProperty(GroupIDProperty);
             }
         }
-        private static PropertyInfo<string> SourceProperty = RegisterProperty<string>(new PropertyInfo<string>("Source", "Source"));
+        public readonly static PropertyInfo<string> SourceProperty = RegisterProperty<string>(new PropertyInfo<string>("Source", "Source"));
         public string Source
         {
             get
@@ -126,7 +120,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> TypeNameProperty = RegisterProperty<string>(new PropertyInfo<string>("TypeName", "TypeName", string.Empty));
+        public readonly static PropertyInfo<string> TypeNameProperty = RegisterProperty<string>(new PropertyInfo<string>("TypeName", "TypeName", string.Empty));
         public string TypeName
         {
             get

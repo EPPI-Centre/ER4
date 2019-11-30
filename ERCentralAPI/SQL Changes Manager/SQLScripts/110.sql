@@ -1,5 +1,8 @@
-﻿/* To prevent any potential data loss issues, you should review this script in detail before running it outside the context of the database designer.*/
-IF COL_LENGTH('dbo.TB_REVIEW', 'MAG_ENABLED') IS NULL
+﻿Use Reviewer
+GO
+
+/* To prevent any potential data loss issues, you should review this script in detail before running it outside the context of the database designer.*/
+IF COL_LENGTH('TB_REVIEW', 'MAG_ENABLED') IS NULL
 begin
 BEGIN TRANSACTION
 SET QUOTED_IDENTIFIER ON
@@ -9,15 +12,18 @@ SET CONCAT_NULL_YIELDS_NULL ON
 SET ANSI_NULLS ON
 SET ANSI_PADDING ON
 SET ANSI_WARNINGS ON
+--select 1
 COMMIT
 BEGIN TRANSACTION
 ALTER TABLE dbo.TB_REVIEW ADD
 	MAG_ENABLED int NULL
 
 ALTER TABLE dbo.TB_REVIEW SET (LOCK_ESCALATION = TABLE)
+--select 2
 COMMIT
-update dbo.TB_REVIEW Set MAG_ENABLED = 0
 end
+GO
+update dbo.TB_REVIEW Set MAG_ENABLED = 0 where MAG_ENABLED is null
 
 USE [Reviewer]
 GO

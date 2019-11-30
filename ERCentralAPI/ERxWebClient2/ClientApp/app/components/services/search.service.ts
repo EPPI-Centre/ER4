@@ -126,6 +126,8 @@ export class SearchCodeCommand {
 	public _included: string = 'false';
 	public _withCodes: string = 'false';
 	public _searchId: number = 0;
+	public _contactId: number = 0;
+	public _contactName: string = '';
 
 }
 

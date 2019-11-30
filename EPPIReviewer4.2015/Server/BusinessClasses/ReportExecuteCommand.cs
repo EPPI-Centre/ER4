@@ -27,7 +27,7 @@ namespace BusinessLibrary.BusinessClasses
 #if SILVERLIGHT
     public ReportExecuteCommand(){}
 #else
-        protected ReportExecuteCommand() { }
+        public ReportExecuteCommand() { }
 #endif
 
         private string _report_type;
