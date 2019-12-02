@@ -1,9 +1,9 @@
 <div *ngIf="rowSelected == _comparisonsService.currentComparison.comparisonId ">
 
     <p class="mb-1">The statistics are based on the status of the database at the time the comparison was created.</p>
-    <kendo-tabstrip *ngIf="!CompleteSectionShow">
+   <kendo-tabstrip *ngIf="!CompleteSectionShow" (tabSelect)="onTabSelect($event)">
 
-        <kendo-tabstrip-tab *ngIf="tabSelected == 'AgreeStats'" [selected]="true" [title]="'Full'" class="px-1">
+        <kendo-tabstrip-tab  [selected]="selectedTab == 0" [title]="'Full'" class="px-1">
             <ng-template kendoTabContent>
                 <div class="col-12 row card bg-light ml-0 pl-1 mr-1 pr-1 rounded border-success">
 
@@ -127,7 +127,9 @@
         </kendo-tabstrip-tab>
 
 
-        <kendo-tabstrip-tab *ngIf="_comparisonsService.Statistics.RawStats.isScreening" [title]="'Include/Exclude Only'">
+        <kendo-tabstrip-tab [selected]="selectedTab == 1"
+							*ngIf="_comparisonsService.Statistics.RawStats.isScreening" 
+							[title]="'Include/Exclude Only'">
             <ng-template kendoTabContent>
                 <div class="col-12 row card bg-light ml-0 pl-1 mr-1 pr-1 rounded border-success">
                     <div class="col-12 row p-0 m-0">
@@ -244,7 +246,8 @@
         </kendo-tabstrip-tab>
 
     </kendo-tabstrip>
-    <kendo-tabstrip *ngIf="CompleteSectionShow">
+   
+	<kendo-tabstrip *ngIf="CompleteSectionShow">
         <kendo-tabstrip-tab [selected]="tabSelected == 'confirm'" [title]="lockCoding ? 'Complete & Lock Agreed Coding' : 'Complete Agreed Coding'">
             <ng-template kendoTabContent>
                 <div class="col-12 row card bg-light ml-0 pl-1 mr-1 pr-1 card-body rounded border-success">
@@ -276,7 +279,8 @@
             </ng-template>
         </kendo-tabstrip-tab>
     </kendo-tabstrip>
-    <ul>
+   
+	<ul>
         <li class="mb-1">
             Number of documents coded by <em>{{_comparisonsService.currentComparison.contactName1}}</em>: <b>{{_comparisonsService.Statistics.RawStats.nCoded1}}</b>
         </li>
