@@ -207,6 +207,8 @@
     <Compile Include="BusinessClasses\BulkCompleteUncompleteCommand.cs" />
     <Compile Include="BusinessClasses\CheckTicketExpirationCommand.cs" />
     <Compile Include="BusinessClasses\ClassifierCommand.cs" />
+    <Compile Include="BusinessClasses\ClassifierContactModel.cs" />
+    <Compile Include="BusinessClasses\ClassifierContactModelList.cs" />
     <Compile Include="BusinessClasses\ClassifierCreateCodesCommand.cs" />
     <Compile Include="BusinessClasses\ClassifierModel.cs" />
     <Compile Include="BusinessClasses\ClassifierModelList.cs" />
@@ -246,6 +248,7 @@
     <Compile Include="BusinessClasses\ItemTimepoint.cs" />
     <Compile Include="BusinessClasses\ItemTimepointDeleteWarningCommand.cs" />
     <Compile Include="BusinessClasses\ItemTimepointList.cs" />
+    <Compile Include="BusinessClasses\MagBlobDataCommand.cs" />
     <Compile Include="BusinessClasses\MagBrowseHistory.cs" />
     <Compile Include="BusinessClasses\MagBrowseHistoryList.cs" />
     <Compile Include="BusinessClasses\MagCurrentInfo.cs" />
@@ -264,6 +267,8 @@
     <Compile Include="BusinessClasses\MagReviewList.cs" />
     <Compile Include="BusinessClasses\MagReviewMagInfo.cs" />
     <Compile Include="BusinessClasses\MagRunSimulationCommand.cs" />
+    <Compile Include="BusinessClasses\MagSimulation.cs" />
+    <Compile Include="BusinessClasses\MagSimulationList.cs" />
     <Compile Include="BusinessClasses\MetaAnalysisModerator.cs" />
     <Compile Include="BusinessClasses\MetaAnalysisModeratorList.cs" />
     <Compile Include="BusinessClasses\MetaAnalysisModeratorReference.cs" />

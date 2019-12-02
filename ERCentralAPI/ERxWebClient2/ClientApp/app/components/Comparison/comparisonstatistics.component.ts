@@ -36,7 +36,8 @@ export class ComparisonStatsComp implements OnInit {
 	public CompleteSectionShow: boolean = false;
 	public tabSelected: string = 'AgreeStats';
     public lstContacts: Array<Contact> = new Array();
-    public lockCoding: boolean = true;
+	public lockCoding: boolean = true;
+	public Full: boolean = true;
 
 	@Input('rowSelected') rowSelected!: number;
 	@Output() setListSubType = new EventEmitter();
@@ -179,12 +180,31 @@ export class ComparisonStatsComp implements OnInit {
 		this.CompleteSectionShow = true;
 
 	}
+	public selectedTab: number = 0;
+	public onTabSelect(e: any) {
+		this.selectedTab = e.index
+		
+		if (this.selectedTab == 0) {
+			this.tabSelected = 'AgreeStats';
+		} else {
+			this.tabSelected = 'AgreeStats';
+		}
+	}
 	public CloseConfirm() {
 
-		this.tabSelected = 'AgreeStats';
+
+		if (this.selectedTab == 0) {
+			
+			this.tabSelected = 'AgreeStats';
+		}
+		if (this.selectedTab == 1) {
+			
+			this.selectedTab = 1;
+		}
 		this.CompleteSectionShow = false;
 		this.lstContacts = [];
 		this.ListSubType = '';
+		
 	}
 	LoadComparisons(comparison: Comparison, ListSubType: string) {
 
