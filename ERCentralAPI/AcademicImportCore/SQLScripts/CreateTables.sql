@@ -62,7 +62,7 @@ GO
 
 DROP TABLE IF EXISTS [dbo].[FieldsOfStudy]
 CREATE TABLE [dbo].[FieldsOfStudy](
-	[FieldOfStudyId] [bigint] NULL,
+	[FieldOfStudyId] [bigint] not NULL,
 	[Rank] [int] NULL,
 	[NormalizedName] [nvarchar](500) NULL,
 	[DisplayName] [nvarchar](500) NULL,
@@ -71,6 +71,10 @@ CREATE TABLE [dbo].[FieldsOfStudy](
 	[PaperCount] [bigint] NULL,
 	[CitationCount] [bigint] NULL,
 	[CreatedDate] [datetime] NULL
+	CONSTRAINT [PK_FieldsOfStudy] PRIMARY KEY CLUSTERED 
+	(
+		[FieldOfStudyId] ASC
+	)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 
 DROP TABLE IF EXISTS [dbo].[Journals]

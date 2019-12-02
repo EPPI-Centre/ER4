@@ -94,6 +94,20 @@
                            FactoryMethod="GetMagReviewList" 
                            DataChanged="CslaDataProvider_HandleDataChangeError">
         </cslaXAML:CslaDataProvider>
+        <cslaXAML:CslaDataProvider x:Key="ClassifierContactModelListData"
+                           ManageObjectLifetime="True"
+                           IsInitialLoadEnabled="False"
+                           ObjectType="BusinessLibrary.BusinessClasses.ClassifierContactModelList, BusinessLibrary, Version=..., Culture=neutral, PublicKeyToken=null"
+                           FactoryMethod="GetClassifierContactModelList" 
+                           DataChanged="CslaDataProvider_HandleDataChangeError">
+        </cslaXAML:CslaDataProvider>
+        <cslaXAML:CslaDataProvider x:Key="MagSimulationListData"
+                           ManageObjectLifetime="True"
+                           IsInitialLoadEnabled="False"
+                           ObjectType="BusinessLibrary.BusinessClasses.MagSimulationList, BusinessLibrary, Version=..., Culture=neutral, PublicKeyToken=null"
+                           FactoryMethod="GetMagSimulationList" 
+                           DataChanged="CslaDataProvider_HandleDataChangeError">
+        </cslaXAML:CslaDataProvider>
         <helper:ReverseBooleanConverter x:Key="ReverseBoolean" />
 
         <!--<helper:SelectedNotSelectedConverter x:Key="SelectedNotSelectedText" />
@@ -113,7 +127,7 @@
 
     </UserControl.Resources>
     
-    <Grid x:Name="LayoutRoot" Background="White">
+    <Grid  x:Name="LayoutRoot" Background="White">
         <Grid.RowDefinitions>
             <RowDefinition Height="60"></RowDefinition>
             <RowDefinition Height="*"></RowDefinition>
@@ -210,6 +224,9 @@
                     <RowDefinition Height="auto"></RowDefinition>
                     <RowDefinition Height="auto"></RowDefinition>
                     <RowDefinition Height="35"></RowDefinition>
+                    <RowDefinition Height="35"></RowDefinition>
+                    <RowDefinition Height="35"></RowDefinition>
+                    <RowDefinition Height="35"></RowDefinition>
                     <RowDefinition Height="*"></RowDefinition>
                 </Grid.RowDefinitions>
 
@@ -231,14 +248,61 @@
 
                 <TextBlock Grid.Row="2" Margin="10,20,5,5" TextWrapping="Wrap" Text="Test the performance of the various algorithms for locating relevant research against the data you have in your review. There are three ways of splitting your data between 'seed' and 'test' records: year of publication, the date a record entered the Microsoft Academic database, and based on items with a specific code. Please see the documentation for further information."></TextBlock>
                 <StackPanel Grid.Row="3" Orientation="Horizontal">
-                    <RadioButton x:Name="rbSimulationYear" Content="Year" GroupName="rbSimulation" IsChecked="True" Click="rbSimulationYear_Click" Tag="ShowDatePicker" Margin="5,5,5,5"></RadioButton>
-                    <RadioButton x:Name="rbSimulationCreatedDate" Content="Created date" GroupName="rbSimulation" IsChecked="False" Click="rbSimulationYear_Click" Tag="ShowDatePicker" Margin="5,5,5,5"></RadioButton>
-                    <RadioButton x:Name="rbSimulationWithThisCode" Content="With this code" GroupName="rbSimulation" IsChecked="False" Click="rbSimulationYear_Click" Tag="ShowCodesControl" Margin="5,5,5,5"></RadioButton>
-                    <telerik:RadDatePicker x:Name="DatePickerSimulation" SelectedValue="01/01/2010" Margin="5,5,5,5" Width="100" HorizontalAlignment="Center"></telerik:RadDatePicker>
+                    <RadioButton x:Name="rbSimulationYear" Content="Year" GroupName="rbSimulation" IsChecked="True" Click="rbSimulationYear_Click" Tag="ShowDatePicker" Margin="5,5,5,5" VerticalAlignment="Center"></RadioButton>
+                    <RadioButton x:Name="rbSimulationCreatedDate" Content="Created date" GroupName="rbSimulation" IsChecked="False" Click="rbSimulationYear_Click" Tag="ShowDatePicker" Margin="5,5,5,5" VerticalAlignment="Center"></RadioButton>
+                    <RadioButton x:Name="rbSimulationWithThisCode" Content="With this code" GroupName="rbSimulation" IsChecked="False" Click="rbSimulationYear_Click" Tag="ShowCodesControl" Margin="5,5,5,5" VerticalAlignment="Center"></RadioButton>
+                    <telerik:RadDatePicker x:Name="DatePickerSimulation" SelectedValue="01/01/2010" Margin="5,5,5,5" Width="100" HorizontalAlignment="Center" VerticalAlignment="Center"></telerik:RadDatePicker>
                     <local:codesSelectControl x:Name="codesSelectControlSimulation" Margin="5,5,5,5" Width="100" Height="25" VerticalAlignment="Center" Visibility="Collapsed"></local:codesSelectControl>
-                    <HyperlinkButton x:Name="lbRunSimulation" Content="Go!" Margin="5,5,5,5" IsTabStop="False" Click="lbRunSimulation_Click"></HyperlinkButton>
+                    <CheckBox x:Name="cbSimulationFilterByThisCode" Content="Filter by this code" IsChecked="False" Unchecked="cbSimulationFilterByThisCode_Unchecked" Checked="cbSimulationFilterByThisCode_Checked" Margin="5,5,5,5" VerticalAlignment="Center"></CheckBox>
+                    <local:codesSelectControl x:Name="codesSelectControlSimulationFilter" Margin="5,5,5,5" Width="100" Height="25" VerticalAlignment="Center" Visibility="Collapsed"></local:codesSelectControl>
+                    
                 </StackPanel>
-                <TextBox x:Name="tbSimulationResults" Grid.Row="4" Margin="5,5,5,5" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" IsReadOnly="True" FontFamily="Courier New"></TextBox>
+                <StackPanel Grid.Row="4" Orientation="Horizontal">
+                    <TextBlock Margin="5,5,5,5" Text="Search method" VerticalAlignment="Center"></TextBlock>
+                    <ComboBox x:Name="comboSimulationSearchMethod" Margin="5,5,5,5" VerticalAlignment="Center">
+                        <ComboBoxItem Content="Citations" Tag="Citations"></ComboBoxItem>
+                        <ComboBoxItem Content="Recommendations" Tag="Recommendations" IsSelected="True"></ComboBoxItem>
+                        <ComboBoxItem Content="Citations and recommendations" Tag="Citations and recommendations"></ComboBoxItem>
+                        <ComboBoxItem Content="Fields of study" Tag="Fields of study"></ComboBoxItem>
+                    </ComboBox>
+                    <TextBlock Margin="5,5,5,5" Text="Network statistic" VerticalAlignment="Center"></TextBlock>
+                    <ComboBox x:Name="comboSimulationNetworkStats" Margin="5,5,5,5" VerticalAlignment="Center">
+                        <ComboBoxItem Content="None" Tag="None" IsSelected="True"></ComboBoxItem>
+                        <ComboBoxItem Content="degree" Tag="degree"></ComboBoxItem>
+                        <ComboBoxItem Content="closeness" Tag="closeness"></ComboBoxItem>
+                        <ComboBoxItem Content="eigenscore" Tag="eigenscore"></ComboBoxItem>
+                        <ComboBoxItem Content="pagerank" Tag="pagerank"></ComboBoxItem>
+                        <ComboBoxItem Content="hubscore" Tag="hubscore"></ComboBoxItem>
+                        <ComboBoxItem Content="authscore" Tag="authscore"></ComboBoxItem>
+                    </ComboBox>
+                </StackPanel>
+                <StackPanel Grid.Row="5" Orientation="Horizontal">
+                    <TextBlock Margin="5,5,5,5" Text="Study type classifier" VerticalAlignment="Center"></TextBlock>
+                    <ComboBox x:Name="comboSimulationStudyTypeClassifier" Margin="5,5,5,5" VerticalAlignment="Center">
+                        <ComboBoxItem Content="None" Tag="None" IsSelected="True"></ComboBoxItem>
+                        <ComboBoxItem Content="RCT" Tag="RCT"></ComboBoxItem>
+                        <ComboBoxItem Content="Cochrane RCT" Tag="Cochrane RCT"></ComboBoxItem>
+                        <ComboBoxItem Content="Economic evaluation" Tag="Economic evaluation"></ComboBoxItem>
+                        <ComboBoxItem Content="Systematic review" Tag="systematic review"></ComboBoxItem>
+                    </ComboBox>
+                    <TextBlock Margin="5,5,5,5" Text="User defined classifier" VerticalAlignment="Center"></TextBlock>
+                    <ComboBox x:Name="comboSimulationUserModels" 
+                              ItemsSource="{Binding Source={StaticResource ClassifierContactModelListData}, Path=Data}"
+                              Margin="5,5,5,5" VerticalAlignment="Center"></ComboBox>
+                </StackPanel>
+                <HyperlinkButton x:Name="lbRunSimulation" Grid.Row="6" Content="Add new simulation" Margin="5,5,5,5" IsTabStop="False" Click="lbRunSimulation_Click" VerticalAlignment="Center"></HyperlinkButton>
+                <!--<TextBox x:Name="tbSimulationResults" Grid.Row="6" Margin="5,5,5,5" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" IsReadOnly="True" FontFamily="Courier New"></TextBox>-->
+
+                <telerikGridView:RadGridView x:Name="SimulationsGrid" Grid.Row="7" AutoGenerateColumns="True" ShowGroupPanel="False"
+                                    IsReadOnly="False" MinHeight="50" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                    ItemsSource="{Binding Source={StaticResource MagSimulationListData}, Path=Data, Mode=TwoWay}"
+                                    IsEnabled="{Binding Source={StaticResource MagSimulationListData}, Converter={StaticResource ReverseBoolean}, Path=IsBusy }"
+                                    RowIndicatorVisibility="Collapsed" CanUserSelect="False" Margin="10,20,10,20"
+                                    SelectionMode="Extended" ColumnWidth="*"
+                                    IsSynchronizedWithCurrentItem="False">
+                </telerikGridView:RadGridView>
+
+
             </Grid>
 
             <!--
@@ -493,9 +557,11 @@
 
         <Grid x:Name="HistoryGrid" Grid.Row="1" Visibility="Collapsed">
             <Grid.RowDefinitions>
+                <RowDefinition Height="40"></RowDefinition>
                 <RowDefinition Height="*"></RowDefinition>
             </Grid.RowDefinitions>
 
+            <HyperlinkButton x:Name="lbClearHistory" Margin="5,5,5,5" HorizontalAlignment="Center" VerticalAlignment="Center" Content="Clear History" Click="lbClearHistory_Click"></HyperlinkButton>
 
 
             <telerikGridView:RadGridView x:Name="HistoryDataGrid" Grid.Row="1" AutoGenerateColumns="False" ShowGroupPanel="False"
@@ -590,6 +656,7 @@
                     <ComboBoxItem Content="Papers in the bibliography of known items ('Bibliography')" Tag="Bibliography"></ComboBoxItem>
                     <ComboBoxItem Content="Papers that cite known items ('Cited by')" Tag="Cited by"></ComboBoxItem>
                     <ComboBoxItem Content="Bi-directional citation relationships" Tag="BiCitation"></ComboBoxItem>
+                    <ComboBoxItem Content="Bi-directional recommendation AND citation relationships ('Bi-Citation AND Recommendations)'" Tag="Bi-Citation AND Recommendations"></ComboBoxItem>
                 </ComboBox>
                 <HyperlinkButton x:Name="LBAddRelatedPapersRun" Content="Add new search for related papers" Grid.Row="6" Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Center" Click="LBAddRelatedPapersRun_Click" IsTabStop="False"></HyperlinkButton>
             </Grid>
@@ -656,16 +723,30 @@
         <Grid x:Name="AdminGrid" Grid.Row="1" Visibility="Collapsed">
             <Grid.RowDefinitions>
                 <RowDefinition Height="35"></RowDefinition>
+                <RowDefinition Height="35"></RowDefinition>
+                <RowDefinition Height="200"></RowDefinition>
+                <RowDefinition Height="35"></RowDefinition>
                 <RowDefinition Height="*"></RowDefinition>
             </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="100"></ColumnDefinition>
+                <ColumnDefinition Width="400"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
 
-            <StackPanel Grid.Row="0" Orientation="Horizontal">
+            <TextBlock Grid.Row="0" Grid.Column="0" Text="Latest MAG" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="5,5,5,5"></TextBlock>
+            <TextBox x:Name="tbLatestMag" Grid.Row="0" Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5,5,5,5" IsReadOnly="True"></TextBox>
+            <TextBlock Grid.Row="1" Grid.Column="0" Text="SAS Key" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="5,5,5,5"></TextBlock>
+            <TextBox x:Name="tbMagSas" Grid.Row="1" Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5,5,5,5" IsReadOnly="True"></TextBox>
+            <TextBlock Grid.Row="2" Grid.Column="0" Text="Release notes" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="5,5,5,5"></TextBlock>
+            <TextBox x:Name="tbReleaseNotes" Grid.Row="2" Grid.Column="1" Margin="5,5,5,5" IsReadOnly="True" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto"></TextBox>
+            
+            <StackPanel Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal">
                 <HyperlinkButton x:Name="hlAddMagReview" Content="Add this Review ID" Margin="5,5,5,5" Click="hlAddMagReview_Click"></HyperlinkButton>
                 <TextBox x:Name="tbAddMagReview" Margin="5,5,5,5" Width="80"></TextBox>
                 <HyperlinkButton Content="Refresh list" Margin="5,5,5,5" Click="HyperlinkButton_Click_7"></HyperlinkButton>
             </StackPanel>
 
-            <telerikGridView:RadGridView x:Name="AdminDataGrid" Grid.Row="1" AutoGenerateColumns="True" ShowGroupPanel="False"
+            <telerikGridView:RadGridView x:Name="AdminDataGrid" Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2" AutoGenerateColumns="True" ShowGroupPanel="False"
                                     IsReadOnly="True" MinHeight="50" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                                     ItemsSource="{Binding Source={StaticResource MagReviewListData}, Path=Data, Mode=TwoWay}"
                                     RowIndicatorVisibility="Collapsed" CanUserSortColumns="False" 

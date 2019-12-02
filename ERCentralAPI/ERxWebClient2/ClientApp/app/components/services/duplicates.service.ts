@@ -7,15 +7,16 @@ import { Router } from '@angular/router';
 import { ReviewerIdentityService } from './revieweridentity.service';
 import { NotificationService } from '@progress/kendo-angular-notification';
 import { NumericDictionary } from 'lodash';
+import { LocalSort } from '../helpers/HelperMethods';
 
 @Injectable({
     providedIn: 'root',
 })
 
-export class DuplicatesService extends BusyAwareService implements OnInit  {
+export class DuplicatesService extends BusyAwareService implements OnInit {
 
     constructor(
-		private _http: HttpClient,
+        private _http: HttpClient,
         private ReviewerIdentityServ: ReviewerIdentityService,
         private modalService: ModalService,
         private router: Router,
@@ -25,11 +26,12 @@ export class DuplicatesService extends BusyAwareService implements OnInit  {
     ) {
         super();
     }
-	ngOnInit() {
+    ngOnInit() {
         //this.FetchGroups(false);
-	}
+    }
     public DuplicateGroups: iReadOnlyDuplicatesGroup[] = [];
     public CurrentGroup: ItemDuplicateGroup | null = null;
+    public LocalSort: LocalSort = new LocalSort();
     public FetchGroups(FetchNew: boolean) {
         this._BusyMethods.push("FetchGroups");
         //check if we're allowed to do this, otherwise send user back to main
@@ -64,10 +66,10 @@ export class DuplicatesService extends BusyAwareService implements OnInit  {
                     type: { style: 'error', icon: true },
                     closable: true
                 });
-                    //.GenericErrorMessage("Sorry, execution might still be running, you need to wait for " + endMsg);
+                //.GenericErrorMessage("Sorry, execution might still be running, you need to wait for " + endMsg);
                 this.RemoveBusy("FetchGroups");
                 this.BackToMain();
-                return;
+                return ;
             } else {
                 localStorage.removeItem('DedupRev' + this.ReviewerIdentityServ.reviewerIdentity.reviewId);
             }
@@ -75,10 +77,11 @@ export class DuplicatesService extends BusyAwareService implements OnInit  {
 
         let body = JSON.stringify({ Value: FetchNew });
 
-        this._http.post<iReadOnlyDuplicatesGroup[]>(this._baseUrl + 'api/Duplicates/FetchGroups',
-            body).subscribe(result => {
+        return this._http.post<iReadOnlyDuplicatesGroup[]>(this._baseUrl + 'api/Duplicates/FetchGroups',
+            body).toPromise().then(result => {
                 this.DuplicateGroups = result;
                 //console.log(result);
+                this.DoSort();
                 this.RemoveBusy("FetchGroups");
                 if (this.DuplicateGroups.length > 0) {
                     if (this.CurrentGroup == null) {
@@ -108,43 +111,48 @@ export class DuplicatesService extends BusyAwareService implements OnInit  {
                 } else {
                     this.modalService.GenericError(error);
                 }
-			}
-			);
-			//return currentItem.arms;
-	}
+            }
+            );
+        //return currentItem.arms;
+    }
     public FetchGroupDetails(groupId: number) {
         this._BusyMethods.push("FetchGroupDetails");
         let body = JSON.stringify({ Value: groupId });
-        this._http.post<iItemDuplicateGroup>(this._baseUrl + 'api/Duplicates/FetchGroupDetails',
-            body).subscribe(result => {
+        return this._http.post<iItemDuplicateGroup>(this._baseUrl + 'api/Duplicates/FetchGroupDetails',
+            body).toPromise().then(result => {
                 let res = new ItemDuplicateGroup(result);
                 this.CurrentGroup = res;
                 //console.log(result);
                 this.RemoveBusy("FetchGroupDetails");
+                return this.CurrentGroup;
             }, error => {
+                this.CurrentGroup = null;
                 this.modalService.GenericError(error);
                 this.RemoveBusy("FetchGroupDetails");
+                return this.CurrentGroup;
             });
     }
-    public MarkUnmarkMemberAsDuplicate(toDo: MarkUnmarkItemAsDuplicate) {
+    public  MarkUnmarkMemberAsDuplicate(toDo: MarkUnmarkItemAsDuplicate) {
         this._BusyMethods.push("MarkUnmarkMemberAsDuplicate");
-        this._http.post(this._baseUrl + 'api/Duplicates/MarkUnmarkMemberAsDuplicate',
-            toDo).subscribe(result => {
+        return this._http.post(this._baseUrl + 'api/Duplicates/MarkUnmarkMemberAsDuplicate',
+            toDo).toPromise().then(result => {
                 if (this.CurrentGroup) {
-                    let found = this.CurrentGroup.members.find(ff => ff.itemDuplicateId == toDo.itemDuplicateId);
-                    if (found) {
-                        found.isDuplicate = toDo.isDuplicate;
-                        found.isChecked = true;
-                        if (this.CurrentGroup.members.length == this.CurrentGroup.members.filter(ff => ff.isChecked == true).length) {
-                            //whole group is checked, find it in the main list and update...
-                            let smallGr = this.DuplicateGroups.find(ff => ff.groupId == toDo.groupId);
-                            if (smallGr) {
-                                smallGr.isComplete = true;
+                    for (let affected of toDo.itemDuplicateIds) {
+                        let found = this.CurrentGroup.members.find(ff => ff.itemDuplicateId == affected);
+                        if (found) {
+                            found.isDuplicate = toDo.isDuplicate;
+                            found.isChecked = true;
+                            if (this.CurrentGroup.members.length == this.CurrentGroup.members.filter(ff => ff.isChecked == true).length) {
+                                //whole group is checked, find it in the main list and update...
+                                let smallGr = this.DuplicateGroups.find(ff => ff.groupId == toDo.groupId);
+                                if (smallGr) {
+                                    smallGr.isComplete = true;
+                                }
                             }
                         }
                     }
                 }
-                
+
                 this.RemoveBusy("MarkUnmarkMemberAsDuplicate");
             }, error => {
                 console.log("MarkUnmarkMemberAsDuplicate error", error);
@@ -157,14 +165,14 @@ export class DuplicatesService extends BusyAwareService implements OnInit  {
         this._http.post(this._baseUrl + 'api/Duplicates/MarkMemberAsMaster',
             toDo).subscribe(result => {
                 if (this.CurrentGroup) {
-                //whole group is not checked anymore!
+                    //whole group is not checked anymore!
                     let smallGr = this.DuplicateGroups.find(ff => ff.groupId == toDo.groupId);
                     if (smallGr) {
                         smallGr.isComplete = false;
                     }
                     let gm = this.CurrentGroup.Master;
-                    let member = this.CurrentGroup.members.find(ff => ff.itemDuplicateId == toDo.itemDuplicateId);
-                    if (gm.itemDuplicateId !== 0 ) {
+                    let member = this.CurrentGroup.members.find(ff => ff.itemDuplicateId == toDo.itemDuplicateIds[0]);
+                    if (gm.itemDuplicateId !== 0) {
                         gm.isMaster = false;
                         gm.isChecked = false;
                         gm.isDuplicate = false;
@@ -185,6 +193,89 @@ export class DuplicatesService extends BusyAwareService implements OnInit  {
                 this.RemoveBusy("MarkMemberAsMaster");
             });
     }
+    public currentCount = 0; public allDone: boolean = false; public ToDoCount = 0;
+    public async MarkAutomatically(similarity: number, coded: number, docs: number) {
+        this._BusyMethods.push("MarkAutomatically");
+        this.allDone = false;
+        this.currentCount = 0; this.ToDoCount = 0;
+        console.log("MarkAutomatically");
+        await this.FetchGroups(false);
+        //console.log("MarkAutomatically1");
+        if (this.DuplicateGroups.length == 0) {
+            this.RemoveBusy("MarkAutomatically");
+            return;
+        }
+        let ToDo = this.DuplicateGroups.filter(ff => ff.isComplete == false);
+        this.ToDoCount = ToDo.length;
+        while (this.currentCount < this.ToDoCount && this.allDone == false) {
+            //console.log("getting group", ToDo[this.currentCount].groupId);
+            let cGr = await this.FetchGroupDetails(ToDo[this.currentCount].groupId);
+            //console.log("cGr", cGr);
+            //console.log("got group", ToDo[this.currentCount].groupId);
+            if (this.CurrentGroup) {
+                //let toSave = false;
+                let IDs: number[] = [];
+                for (let cm of this.CurrentGroup.JustMembers) {
+                    if (
+                        !cm.isMaster
+                        && !cm.isDuplicate
+                        && !cm.isChecked
+                        && !cm.isExported
+                        && cm.similarityScore >= similarity
+                        && cm.codedCount <= coded
+                        && cm.docCount <= docs
+                        && this.CurrentGroup.HasOriginalMaster
+                    ) {
+                        cm.isChecked = true;
+                        cm.isDuplicate = true;
+                        IDs.push(cm.itemDuplicateId);
+                    }
+                }
+                if (IDs.length > 0) {
+                    console.log("Will update grp: " + this.CurrentGroup.groupID + " " + (this.currentCount + 1) + " of " + this.ToDoCount);
+                    let command: MarkUnmarkItemAsDuplicate = new MarkUnmarkItemAsDuplicate(this.CurrentGroup.groupID, 0, true);
+                    command.itemDuplicateIds = IDs;
+                    await this.MarkUnmarkMemberAsDuplicate(command);
+                    console.log("Updated grp: " + this.CurrentGroup.groupID + " " + (this.currentCount + 1) + " of " + this.ToDoCount);
+                }
+                this.currentCount++;
+            } else {
+                this.currentCount++;
+            }
+        }
+        this.RemoveBusy("MarkAutomatically");
+    }
+    public DoSort() {
+        console.log("doSort", this.LocalSort);
+        if (this.DuplicateGroups.length == 0 || this.LocalSort.SortBy == "") return;
+        for (let property of Object.getOwnPropertyNames(this.DuplicateGroups[0])) {
+            console.log("doSort2", property);
+            if (property == this.LocalSort.SortBy) {
+                this.DuplicateGroups.sort((a: any, b: any) => {
+                    if (this.LocalSort.Direction) {
+                        if (a[property] > b[property]) {
+                            return 1;
+                        } else if (a[property] < b[property]) {
+                            return -1;
+                        } else {
+                            return 0;
+                        }
+                    } else {
+                        if (a[property] > b[property]) {
+                            return -1;
+                        } else if (a[property] < b[property]) {
+                            return 1;
+                        } else {
+                            return 0;
+                        }
+                    }
+                });
+                break;
+            }
+            
+        }
+    }
+
     BackToMain() {
         this.router.navigate(['Main']);
     }
@@ -323,11 +414,11 @@ export class ItemDuplicateGroup {
 export class MarkUnmarkItemAsDuplicate {
     constructor(grId: number, memberId: number, isDup: boolean) {
         this.groupId = grId;
-        this.itemDuplicateId = memberId;
+        this.itemDuplicateIds.push(memberId);
         this.isDuplicate = isDup;
     }
     groupId: number;
-    itemDuplicateId: number;
+    itemDuplicateIds: number[] = [];
     isDuplicate: boolean;
 }
 
