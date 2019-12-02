@@ -116,6 +116,7 @@ export class DuplicatesService extends BusyAwareService implements OnInit {
         //return currentItem.arms;
     }
     public FetchGroupDetails(groupId: number) {
+        if (this.CurrentGroup && this.CurrentGroup.groupID == groupId && this.CurrentGroup.members.length > 0) return;//no need, we already have the details...
         this._BusyMethods.push("FetchGroupDetails");
         let body = JSON.stringify({ Value: groupId });
         return this._http.post<iItemDuplicateGroup>(this._baseUrl + 'api/Duplicates/FetchGroupDetails',
@@ -189,8 +190,8 @@ export class DuplicatesService extends BusyAwareService implements OnInit {
                 this.RemoveBusy("MarkMemberAsMaster");
             }, error => {
                 console.log("MarkMemberAsMaster error", error);
-                this.modalService.GenericError(error);
                 this.RemoveBusy("MarkMemberAsMaster");
+                this.modalService.GenericError(error);
             });
     }
     public currentCount = 0; public allDone: boolean = false; public ToDoCount = 0;
@@ -244,6 +245,29 @@ export class DuplicatesService extends BusyAwareService implements OnInit {
             }
         }
         this.RemoveBusy("MarkAutomatically");
+    }
+    public RemoveManualMember(itemId: number) {
+        if (!this.CurrentGroup || this.CurrentGroup.manualMembers.findIndex(ff => ff.itemId == itemId) == -1) return;
+        this._BusyMethods.push("RemoveManualMember");
+        let toDo = {
+            groupId: this.CurrentGroup.groupID,
+            itemId: itemId
+        }
+        this._http.post(this._baseUrl + 'api/Duplicates/RemoveManualMember',
+            toDo).subscribe(result => {
+                if (this.CurrentGroup && this.CurrentGroup.groupID == toDo.groupId) {
+                    //remove manual member from client!
+                    let ind = this.CurrentGroup.manualMembers.findIndex(ff => ff.itemId == itemId);
+                    if (ind != -1) {
+                        this.CurrentGroup.manualMembers.splice(ind, 1);
+                    }
+                }
+                this.RemoveBusy("RemoveManualMember");
+            }, error => {
+                console.log("RemoveManualMember error", error);
+                this.RemoveBusy("RemoveManualMember");
+                this.modalService.GenericError(error);
+            });
     }
     public DoSort() {
         console.log("doSort", this.LocalSort);
@@ -319,7 +343,20 @@ export interface iItemDuplicateGroup {
     addItems: number[],
     removeItemID: number
     members: iDuplicateGroupMember[];
-    manualMembers: any;
+    manualMembers: iManualGroupMember[];
+}
+export interface iManualGroupMember {
+    authors: string;
+    groupID: 235935
+    itemId: 218455
+    month: string;
+    parentAuthors: string;
+    parentTitle: string;
+    shortTitle: string;
+    source: string;
+    title: string;
+    typeName: string;
+    year: string;
 }
 
 export class DuplicateGroupMember {
@@ -392,7 +429,7 @@ export class ItemDuplicateGroup {
     addItems: number[] = [];
     removeItemID: number = 0;
     members: DuplicateGroupMember[] = [];
-    manualMembers: any = null;
+    manualMembers: iManualGroupMember[] = [];
     public get Master(): DuplicateGroupMember {
         for (let mb of this.members) {
             if (mb.isMaster) return mb;
@@ -411,6 +448,7 @@ export class ItemDuplicateGroup {
         else return NaN;
     }
 }
+
 export class MarkUnmarkItemAsDuplicate {
     constructor(grId: number, memberId: number, isDup: boolean) {
         this.groupId = grId;

@@ -175,7 +175,30 @@ namespace ERxWebClient2.Controllers
                 return StatusCode(500, e.Message);
             }
         }
-
+        [HttpPost("[action]")]
+        public IActionResult RemoveManualMember([FromBody] ManualMember crit)
+        {
+            try
+            {
+                if (SetCSLAUser4Writing())
+                {
+                    DataPortal<ItemDuplicateGroup> dp = new DataPortal<ItemDuplicateGroup>();
+                    ItemDuplicateGroup IDG = dp.Fetch(new SingleCriteria<ItemDuplicateGroup, int>(crit.groupId));
+                    IDG.RemoveItemID = crit.itemId;
+                    IDG = IDG.Save();
+                    return Ok();
+                }
+                else
+                {
+                    return Forbid();
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "Error in RemoveManualMember. GroupId = " + crit.groupId + " itemId: " + crit.itemId);
+                return StatusCode(500, e.Message);
+            }
+        }
     }
 
 	public class MarkUnmarkItemAsDuplicate
@@ -184,5 +207,9 @@ namespace ERxWebClient2.Controllers
 		public int[] itemDuplicateIds { get; set; }
 		public bool isDuplicate { get; set; }
 	}
-    
+    public class ManualMember
+    {
+        public int groupId { get; set; }
+        public long itemId { get; set; }
+    }
 }

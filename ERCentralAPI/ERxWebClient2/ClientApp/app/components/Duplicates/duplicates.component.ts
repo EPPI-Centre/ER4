@@ -7,6 +7,7 @@ import { NotificationService } from '@progress/kendo-angular-notification';
 import { DuplicatesService, iReadOnlyDuplicatesGroup, DuplicateGroupMember, MarkUnmarkItemAsDuplicate } from '../services/duplicates.service';
 import { Helpers, LocalSort } from '../helpers/HelperMethods';
 import { CodesetStatisticsService } from '../services/codesetstatistics.service';
+import { ItemListService } from '../services/ItemList.service';
 
 
 @Component({
@@ -36,7 +37,8 @@ export class DuplicatesComponent implements OnInit, OnDestroy {
         private _notificationService: NotificationService,
         private ConfirmationDialogService: ConfirmationDialogService,
         private CodesetStatisticsService: CodesetStatisticsService,
-        private DuplicatesService: DuplicatesService
+        private DuplicatesService: DuplicatesService,
+        private ItemListService: ItemListService
 	) { }
     ngOnInit() {
         this.DuplicatesService.currentCount = 0;
@@ -49,6 +51,7 @@ export class DuplicatesComponent implements OnInit, OnDestroy {
     public codedCr: number = 0;
     public docsCr: number = 0;
     public ActivePanel: string = "";
+    private HasAppliedChanges: boolean = false;
     public get IsServiceBusy(): boolean {
         //console.log("mainfull IsServiceBusy", this.ItemListService, this.codesetStatsServ, this.SourcesService )
         return (
@@ -144,11 +147,16 @@ export class DuplicatesComponent implements OnInit, OnDestroy {
     public MarkUnmarkItemAsDuplicate(member: DuplicateGroupMember, isDup: boolean) {
         let todo: MarkUnmarkItemAsDuplicate = new MarkUnmarkItemAsDuplicate(member.groupID, member.itemDuplicateId, isDup);
         this.DuplicatesService.MarkUnmarkMemberAsDuplicate(todo);
+        this.HasAppliedChanges = true;
     }
     
     public MarkAsMaster(member: DuplicateGroupMember) {
         let todo: MarkUnmarkItemAsDuplicate = new MarkUnmarkItemAsDuplicate(member.groupID, member.itemDuplicateId, false);
         this.DuplicatesService.MarkMemberAsMaster(todo);
+        this.HasAppliedChanges = true;
+    }
+    public RemoveManualMember(itemId: number) {
+        this.DuplicatesService.RemoveManualMember(itemId);
     }
     public Refresh() {
         this.DuplicatesService.FetchGroups(false);
@@ -175,7 +183,10 @@ export class DuplicatesComponent implements OnInit, OnDestroy {
         this.ConfirmationDialogService.confirm("Start Get New Duplicates?", innerMsg, false, "")
             .then(
                 (confirm: any) => {
-                    if (confirm) this.DuplicatesService.FetchGroups(true);
+                    if (confirm) {
+                        this.DuplicatesService.FetchGroups(true);
+                        this.HasAppliedChanges = true;
+                    }
                 }
             )
             .catch(() => { });
@@ -185,6 +196,7 @@ export class DuplicatesComponent implements OnInit, OnDestroy {
             .then(
                 (confirm: any) => {
                     if (confirm) {
+                        this.HasAppliedChanges = true;
                         this.StartMarkAutomatically();
                     }
                 }
@@ -214,12 +226,22 @@ export class DuplicatesComponent implements OnInit, OnDestroy {
     AdvancedMarkAutomaticallyShow() {
         this.ActivePanel = "AdvancedMarkAutomatically";
     }
+    GoToManualMembers() {
+        let el = document.getElementById('ManualMembersDiv');
+        console.log("GoToManualMembers", el);
+        if (el) el.scrollIntoView();
+    }
     ngOnDestroy() {
         this.Clear();
 	}
 	Clear() {
 	}
     BackToMain() {
+        if (this.HasAppliedChanges) {
+            this.CodesetStatisticsService.GetReviewStatisticsCountsCommand();
+            this.ItemListService.Refresh();
+        }
+        this.Clear();
         this.router.navigate(['Main']);
     }
 	 
