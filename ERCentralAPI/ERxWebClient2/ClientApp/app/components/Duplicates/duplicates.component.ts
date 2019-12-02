@@ -159,8 +159,18 @@ export class DuplicatesComponent implements OnInit, OnDestroy {
         this.DuplicatesService.RemoveManualMember(itemId);
     }
     public Refresh() {
+        if (this.DuplicatesService.DuplicateGroups.length == 0) this.DuplicatesService.CurrentGroup = null;
+        else if (
+            this.DuplicatesService.CurrentGroup != null
+            && this.DuplicatesService.DuplicateGroups.findIndex(
+                ff => this.DuplicatesService.CurrentGroup != null && ff.groupId == this.DuplicatesService.CurrentGroup.groupID
+            ) == -1
+        ) {//we have a list but current group isn't in it!
+            this.DuplicatesService.CurrentGroup = null;
+        }
         this.DuplicatesService.FetchGroups(false);
     }
+
     public GetNewDuplicates() {
         let innerMsg = ""
         let totalItems = this.CodesetStatisticsService.ReviewStats.itemsIncluded + this.CodesetStatisticsService.ReviewStats.itemsExcluded + this.CodesetStatisticsService.ReviewStats.itemsDeleted; 
@@ -234,14 +244,15 @@ export class DuplicatesComponent implements OnInit, OnDestroy {
     ngOnDestroy() {
         this.Clear();
 	}
-	Clear() {
+    Clear() {
+        //this.DuplicatesService.Clear();
 	}
     BackToMain() {
         if (this.HasAppliedChanges) {
             this.CodesetStatisticsService.GetReviewStatisticsCountsCommand();
             this.ItemListService.Refresh();
         }
-        this.Clear();
+        //this.Clear();
         this.router.navigate(['Main']);
     }
 	 

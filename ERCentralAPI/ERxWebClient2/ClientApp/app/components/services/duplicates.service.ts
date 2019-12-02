@@ -1,4 +1,4 @@
-import { Inject, Injectable, EventEmitter, Output, OnInit } from '@angular/core';
+import { Inject, Injectable, EventEmitter, Output, OnInit, OnDestroy } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
@@ -13,7 +13,7 @@ import { LocalSort } from '../helpers/HelperMethods';
     providedIn: 'root',
 })
 
-export class DuplicatesService extends BusyAwareService implements OnInit {
+export class DuplicatesService extends BusyAwareService implements OnInit, OnDestroy {
 
     constructor(
         private _http: HttpClient,
@@ -29,6 +29,7 @@ export class DuplicatesService extends BusyAwareService implements OnInit {
     ngOnInit() {
         //this.FetchGroups(false);
     }
+    public currentCount = 0; public allDone: boolean = false; public ToDoCount = 0;
     public DuplicateGroups: iReadOnlyDuplicatesGroup[] = [];
     public CurrentGroup: ItemDuplicateGroup | null = null;
     public LocalSort: LocalSort = new LocalSort();
@@ -84,7 +85,7 @@ export class DuplicatesService extends BusyAwareService implements OnInit {
                 this.DoSort();
                 this.RemoveBusy("FetchGroups");
                 if (this.DuplicateGroups.length > 0) {
-                    if (this.CurrentGroup == null) {
+                    if (this.CurrentGroup == null || result.findIndex(ff => this.CurrentGroup != null && ff.groupId == this.CurrentGroup.groupID) ==-1) {
                         const todo = this.DuplicateGroups.findIndex(found => found.isComplete == false);
                         if (todo > 0) this.FetchGroupDetails(this.DuplicateGroups[todo].groupId);
                         else this.FetchGroupDetails(this.DuplicateGroups[0].groupId);
@@ -194,7 +195,7 @@ export class DuplicatesService extends BusyAwareService implements OnInit {
                 this.modalService.GenericError(error);
             });
     }
-    public currentCount = 0; public allDone: boolean = false; public ToDoCount = 0;
+    
     public async MarkAutomatically(similarity: number, coded: number, docs: number) {
         this._BusyMethods.push("MarkAutomatically");
         this.allDone = false;
@@ -300,10 +301,20 @@ export class DuplicatesService extends BusyAwareService implements OnInit {
         }
     }
 
-    BackToMain() {
+    private BackToMain() {
         this.router.navigate(['Main']);
     }
-
+    public Clear() {
+        this.allDone = true;
+        this.currentCount = 0;
+        this.ToDoCount = 0;
+        this.DuplicateGroups = [];
+        this.CurrentGroup = null;
+        this.LocalSort = new LocalSort();
+    }
+    ngOnDestroy() {
+        this.Clear();
+    }
 }
 export interface iReadOnlyDuplicatesGroup {
     groupId: number;

@@ -34,35 +34,40 @@
             </tr>
             <tr *ngFor="let group of DuplicateGroups" (click)="FetchGroup(group.groupId); "
                 [ngClass]="MainListRowClass(group)">
-                <td style="cursor:pointer">{{group.isComplete}}</td>
-                <td style="cursor:pointer">{{group.groupId}}</td>
-                <td style="cursor:pointer">{{group.shortTitle}}</td>
+                <td style="cursor:pointer" class="py-1">{{group.isComplete}}</td>
+                <td style="cursor:pointer" class="py-1">{{group.groupId}}</td>
+                <td style="cursor:pointer" class="py-1">{{group.shortTitle}}</td>
             </tr>
         </table>
     </div>
-    <div *ngIf="CurrentGroup" class="col-8 col-xl-9 p-0">
+    <div class="col-8 col-xl-9 p-0">
         <div class="containsAtoolbar row alert-info ml-1 mr-0 my-0 p-0" style="background-color: #f5f6fa;">
             <button kendoButton class="ml-1" [title]="'Automatically generate codes'"
-                    (click)="Refresh()">Refresh</button>
+                    (click)="Refresh()">
+                Refresh
+            </button>
             <button kendoButton class="mx-1" [disabled]="!HasWriteRights"
                     (click)="GetNewDuplicates()">
                 Get New Duplicates
             </button>
             <kendo-splitbutton [text]="'Mark Automatically'"
-                                        (buttonClick)="MarkAutomatically()"
-                                        [disabled]="!HasWriteRights"
-                                        [data]="MarkAutomaticallyDDData"
-                                        style="border-color: #04070b;background-color: #e1e4eb;">
+                               (buttonClick)="MarkAutomatically()"
+                               [disabled]="!HasWriteRights"
+                               [data]="MarkAutomaticallyDDData"
+                               style="border-color: #04070b;background-color: #e1e4eb;">
             </kendo-splitbutton>
             <div class="align-self-center small ml-1 mr-0 my-0">&nbsp;<b>{{DuplicateGroups?.length}}</b>&nbsp;groups of possible duplicates loaded (<b>{{CompletedGroups}}</b> marked as completed).</div>
 
+        </div>
+        <div *ngIf="!CurrentGroup" class="m-3 p-2 alert-info">
+            Please click on the group to see the group details.
         </div>
         <div *ngIf="ActivePanel == 'AdvancedMarkAutomatically'" class="row m-1 alert-danger border border-danger rounded">
             <div class="row m-0 p-1">
                 <b>Advanced mark Automatically:</b>
                 You can change the thresholds to find more duplcates automatically. Please be careful, any change do the defaults could result in marking as duplicate the wrong items!
             </div>
-            <div  class="row m-1 p-0 w-100 alert-warning">
+            <div class="row m-1 p-0 w-100 alert-warning">
                 <div class="mt-1 ml-1">
                     Similarity threshold. Between 0.8 and 1.0. Deafault is 1. We don't expect many false positives above 0.96.<br />
                 </div>
@@ -77,7 +82,7 @@
                 </div>
             </div>
             <div class="row m-1 p-0 w-100 ">
-                <div  class="mt-1 ml-1">
+                <div class="mt-1 ml-1">
                     "Coded" threshold. Between 0 and 1000. Deafault is 0. Anything above 0 might mean you will hide some already done coding.<br />
                 </div>
                 <div class="ml-1">
@@ -106,9 +111,9 @@
                 <button [disabled]="!HasWriteRights" class="btn py-1 px-1 my-0 ml-1 mr-1 btn-outline-danger" (click)="StartAdvancedMarkAutomatically()">Start</button>
                 <button [disabled]="!HasWriteRights" class="btn py-1 px-3 my-0 ml-0 mr-1 btn-info" (click)="StopMarkAutomatically()">Cancel</button>
             </div>
-            
+
         </div>
-        <div class="mt-1 p-0" style="max-height:80vh; overflow:auto;">
+        <div *ngIf="CurrentGroup" class="mt-1 p-0" style="max-height:80vh; overflow:auto;">
             <table class="table-bordered table table-sm m-0 p-0">
                 <tr class="alert-info ">
                     <td class="font-weight-bold">Master Item ID:</td>
@@ -145,10 +150,9 @@
                     <td colspan="8" class="small p-0" style="line-height:0.4em;">&nbsp;</td>
                 </tr>
                 <tr *ngIf="CurrentGroup.manualMembers && CurrentGroup.manualMembers.length > 0">
-                    <td colspan="2">
-                        <button class="btn btn-sm py-1 px-1 my-0 ml-0 mr-1 btn-outline-primary" (click)="GoToManualMembers()">To Manual Members...</button>
-                    </td>
-                    <td colspan="6">This group contains&nbsp;{{CurrentGroup.manualMembers.length}}&nbsp;Manual members.</td>
+                    <td colspan="8">
+                        <button class="btn btn-sm py-1 px-1 my-0 ml-0 mr-3 btn-outline-primary" (click)="GoToManualMembers()">To Manual Members...</button>
+                    This group contains&nbsp;{{CurrentGroup.manualMembers.length}}&nbsp;Manual members.</td>
                 </tr>
                 <ng-container *ngFor="let member of CurrentGroup.JustMembers">
                     <tr class="bg-light">
@@ -214,10 +218,10 @@
                     </tr>
                     <tr *ngFor="let mMember of CurrentGroup.manualMembers">
                         <td>
-                            <button [disabled]="!HasWriteRights " 
-                                    class="btn btn-sm py-1 px-1 my-0 ml-0 mr-1 btn-outline-danger" 
+                            <button [disabled]="!HasWriteRights "
+                                    class="btn btn-sm py-1 px-1 my-0 ml-0 mr-1 btn-outline-danger"
                                     (click)="RemoveManualMember(mMember.itemId)">
-                            Remove
+                                Remove
                             </button>
                         </td>
                         <td>{{mMember.itemId}}</td>
@@ -227,9 +231,6 @@
                 </table>
             </div>
         </div>
-        </div>
-    <div *ngIf="!CurrentGroup" class="col-8 col-xl-9">
-        Please click on the group to see the group details.
     </div>
 </div>
 <statusbar class="row card p-0 ml-1 mr-1 mt-1 mb-2 card-body" resizable></statusbar>
