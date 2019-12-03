@@ -68,6 +68,8 @@ export class configurablereportComp implements OnInit, OnDestroy {
 	public DropDownAllocateAtt: SetAttribute = new SetAttribute();
 	public showROB: boolean = false;
 	public reportHTML: string = '';
+	public sectionShow: string = 'Standard';
+	public GeneratedReport: boolean = false;
 
 	public showRiskOfBias() {
 		this.showROB = !this.showROB;
@@ -79,27 +81,36 @@ export class configurablereportComp implements OnInit, OnDestroy {
 
 		this.OutcomesModel = false;
 		this.RiskOfBias = false;
-		this.AlwaysShow = !this.AlwaysShow;
 
+		if (this.sectionShow == 'Standard') {
+			this.sectionShow = ''
+
+		}else if (this.sectionShow == '') {
+			this.sectionShow = 'Standard';
+		}
+		console.log(this.sectionShow);
 	}
 	public ShowRiskOfBias() {
 
 		this.OutcomesModel = false;
-		this.AlwaysShow = !this.AlwaysShow;
-		if (this.AlwaysShow) {
-			this.RiskOfBias = true;
-		} else {
+		if (this.RiskOfBias) {
+			this.sectionShow = ''
 			this.RiskOfBias = false;
+		} else {
+			this.sectionShow = 'Standard';
+			this.RiskOfBias = true;
 		}
 	}
 	public ShowOutcomes() {
+
 		this.RiskOfBias = false;
-		this.AlwaysShow = !this.AlwaysShow;
-		if (this.AlwaysShow) {
+		if (!this.outcomesHidden) {
 			this.OutcomesModel = true;
 			this.outcomesHidden = true;
+			this.sectionShow = 'Standard'
 		} else {
 			this.outcomesHidden = false;
+			this.sectionShow = ''
 		}
 	}
 	public OpenInNewWindow() {
@@ -122,6 +133,11 @@ export class configurablereportComp implements OnInit, OnDestroy {
 			}
 		}
 	}
+	public ChangedReport(item: any) {
+		if (item != null || item != '') {
+			this.GeneratedReport = false;
+		}
+	}
 	public CloseReportsSection() {
 
 		this.EventEmitterServ.CloseReportsSectionEmitter.emit();
@@ -136,6 +152,7 @@ export class configurablereportComp implements OnInit, OnDestroy {
 		this.ReportChoice = {} as Report;
 		this.ItemsChoice == 'Items with this code'
 		this.DropdownSelectedCodingTool = {} as singleNode;
+		this.GeneratedReport = false;
 
 	}
 	public CanRunReports(): boolean {
@@ -266,6 +283,7 @@ export class configurablereportComp implements OnInit, OnDestroy {
 					stringReport.then(
 						(result) => {
 							this.reportHTML = result;
+							this.GeneratedReport = true;
 						}
 					);
 				}
