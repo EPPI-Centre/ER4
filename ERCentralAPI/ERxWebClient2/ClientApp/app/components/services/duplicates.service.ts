@@ -1,4 +1,4 @@
-import { Inject, Injectable, EventEmitter, Output, OnInit } from '@angular/core';
+import { Inject, Injectable, EventEmitter, Output, OnInit, OnDestroy } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
@@ -13,7 +13,7 @@ import { LocalSort } from '../helpers/HelperMethods';
     providedIn: 'root',
 })
 
-export class DuplicatesService extends BusyAwareService implements OnInit {
+export class DuplicatesService extends BusyAwareService implements OnInit, OnDestroy {
 
     constructor(
         private _http: HttpClient,
@@ -29,6 +29,7 @@ export class DuplicatesService extends BusyAwareService implements OnInit {
     ngOnInit() {
         //this.FetchGroups(false);
     }
+    public currentCount = 0; public allDone: boolean = false; public ToDoCount = 0;
     public DuplicateGroups: iReadOnlyDuplicatesGroup[] = [];
     public CurrentGroup: ItemDuplicateGroup | null = null;
     public LocalSort: LocalSort = new LocalSort();
@@ -84,7 +85,7 @@ export class DuplicatesService extends BusyAwareService implements OnInit {
                 this.DoSort();
                 this.RemoveBusy("FetchGroups");
                 if (this.DuplicateGroups.length > 0) {
-                    if (this.CurrentGroup == null) {
+                    if (this.CurrentGroup == null || result.findIndex(ff => this.CurrentGroup != null && ff.groupId == this.CurrentGroup.groupID) ==-1) {
                         const todo = this.DuplicateGroups.findIndex(found => found.isComplete == false);
                         if (todo > 0) this.FetchGroupDetails(this.DuplicateGroups[todo].groupId);
                         else this.FetchGroupDetails(this.DuplicateGroups[0].groupId);
@@ -116,6 +117,7 @@ export class DuplicatesService extends BusyAwareService implements OnInit {
         //return currentItem.arms;
     }
     public FetchGroupDetails(groupId: number) {
+        if (this.CurrentGroup && this.CurrentGroup.groupID == groupId && this.CurrentGroup.members.length > 0) return;//no need, we already have the details...
         this._BusyMethods.push("FetchGroupDetails");
         let body = JSON.stringify({ Value: groupId });
         return this._http.post<iItemDuplicateGroup>(this._baseUrl + 'api/Duplicates/FetchGroupDetails',
@@ -189,11 +191,11 @@ export class DuplicatesService extends BusyAwareService implements OnInit {
                 this.RemoveBusy("MarkMemberAsMaster");
             }, error => {
                 console.log("MarkMemberAsMaster error", error);
-                this.modalService.GenericError(error);
                 this.RemoveBusy("MarkMemberAsMaster");
+                this.modalService.GenericError(error);
             });
     }
-    public currentCount = 0; public allDone: boolean = false; public ToDoCount = 0;
+    
     public async MarkAutomatically(similarity: number, coded: number, docs: number) {
         this._BusyMethods.push("MarkAutomatically");
         this.allDone = false;
@@ -245,6 +247,29 @@ export class DuplicatesService extends BusyAwareService implements OnInit {
         }
         this.RemoveBusy("MarkAutomatically");
     }
+    public RemoveManualMember(itemId: number) {
+        if (!this.CurrentGroup || this.CurrentGroup.manualMembers.findIndex(ff => ff.itemId == itemId) == -1) return;
+        this._BusyMethods.push("RemoveManualMember");
+        let toDo = {
+            groupId: this.CurrentGroup.groupID,
+            itemId: itemId
+        }
+        this._http.post(this._baseUrl + 'api/Duplicates/RemoveManualMember',
+            toDo).subscribe(result => {
+                if (this.CurrentGroup && this.CurrentGroup.groupID == toDo.groupId) {
+                    //remove manual member from client!
+                    let ind = this.CurrentGroup.manualMembers.findIndex(ff => ff.itemId == itemId);
+                    if (ind != -1) {
+                        this.CurrentGroup.manualMembers.splice(ind, 1);
+                    }
+                }
+                this.RemoveBusy("RemoveManualMember");
+            }, error => {
+                console.log("RemoveManualMember error", error);
+                this.RemoveBusy("RemoveManualMember");
+                this.modalService.GenericError(error);
+            });
+    }
     public DoSort() {
         console.log("doSort", this.LocalSort);
         if (this.DuplicateGroups.length == 0 || this.LocalSort.SortBy == "") return;
@@ -276,10 +301,20 @@ export class DuplicatesService extends BusyAwareService implements OnInit {
         }
     }
 
-    BackToMain() {
+    private BackToMain() {
         this.router.navigate(['Main']);
     }
-
+    public Clear() {
+        this.allDone = true;
+        this.currentCount = 0;
+        this.ToDoCount = 0;
+        this.DuplicateGroups = [];
+        this.CurrentGroup = null;
+        this.LocalSort = new LocalSort();
+    }
+    ngOnDestroy() {
+        this.Clear();
+    }
 }
 export interface iReadOnlyDuplicatesGroup {
     groupId: number;
@@ -319,7 +354,20 @@ export interface iItemDuplicateGroup {
     addItems: number[],
     removeItemID: number
     members: iDuplicateGroupMember[];
-    manualMembers: any;
+    manualMembers: iManualGroupMember[];
+}
+export interface iManualGroupMember {
+    authors: string;
+    groupID: 235935
+    itemId: 218455
+    month: string;
+    parentAuthors: string;
+    parentTitle: string;
+    shortTitle: string;
+    source: string;
+    title: string;
+    typeName: string;
+    year: string;
 }
 
 export class DuplicateGroupMember {
@@ -392,7 +440,7 @@ export class ItemDuplicateGroup {
     addItems: number[] = [];
     removeItemID: number = 0;
     members: DuplicateGroupMember[] = [];
-    manualMembers: any = null;
+    manualMembers: iManualGroupMember[] = [];
     public get Master(): DuplicateGroupMember {
         for (let mb of this.members) {
             if (mb.isMaster) return mb;
@@ -411,6 +459,7 @@ export class ItemDuplicateGroup {
         else return NaN;
     }
 }
+
 export class MarkUnmarkItemAsDuplicate {
     constructor(grId: number, memberId: number, isDup: boolean) {
         this.groupId = grId;
