@@ -37,7 +37,8 @@ export class DuplicatesService extends BusyAwareService implements OnInit, OnDes
         this._BusyMethods.push("FetchGroups");
         //check if we're allowed to do this, otherwise send user back to main
         let lastcheckJSON = localStorage.getItem('DedupRev' + this.ReviewerIdentityServ.reviewerIdentity.reviewId);
-        console.log("Fetch groups ongoing check (J): ", lastcheckJSON);
+        let waitPeriod = 3;//in minutes...
+        //console.log("Fetch groups ongoing check (J): ", lastcheckJSON);
         if (lastcheckJSON) {
             let lastcheck = new Date(+lastcheckJSON);
             let now = new Date();
@@ -45,9 +46,9 @@ export class DuplicatesService extends BusyAwareService implements OnInit, OnDes
             let diff = now.getTime() - lastcheck.getTime();//in milliseconds...
             diff = diff / (1000 * 60);
             console.log("Fetch groups ongoing check: ", lastcheck, diff);
-            if (diff < 5) {
+            if (diff < waitPeriod) {
                 //we don't allow this user needs to wait and try again.
-                let diff2 = Math.round(5 - diff);//how long does the user need to wait?
+                let diff2 = Math.round(waitPeriod - diff);//how long does the user need to wait?
                 let endMsg = "";
                 if (diff2 == 0) {
                     endMsg = "less than one minute.";
@@ -61,7 +62,6 @@ export class DuplicatesService extends BusyAwareService implements OnInit, OnDes
                 this.NotificationService.show({
                     content: "Sorry, the \"Get New Duplicates\" execution might still be running, you need to wait for " + endMsg
                         + " If execution lasts more than a few hours, please contact EPPISupport.",
-                    hideAfter: 3000,
                     position: { horizontal: 'center', vertical: 'top' },
                     animation: { type: 'slide', duration: 400 },
                     type: { style: 'error', icon: true },
@@ -101,7 +101,7 @@ export class DuplicatesService extends BusyAwareService implements OnInit, OnDes
                     let now = new Date();
                     localStorage.setItem('DedupRev' + this.ReviewerIdentityServ.reviewerIdentity.reviewId, JSON.stringify(now.getTime()));
                     this.NotificationService.show({
-                        content: "Sorry, the \"Get New Duplicates\" execution might still be running, you need to wait for 5 minutes and try again. If execution lasts more than a few hours, please contact EPPISupport.",
+                        content: "Sorry, the \"Get New Duplicates\" execution might still be running, you need to wait for " + waitPeriod + " minutes and try again. If execution lasts more than a few hours, please contact EPPISupport.",
                         hideAfter: 3000,
                         position: { horizontal: 'center', vertical: 'top' },
                         animation: { type: 'slide', duration: 400 },
@@ -214,7 +214,7 @@ export class DuplicatesService extends BusyAwareService implements OnInit, OnDes
             let cGr = await this.FetchGroupDetails(ToDo[this.currentCount].groupId);
             //console.log("cGr", cGr);
             //console.log("got group", ToDo[this.currentCount].groupId);
-            if (this.CurrentGroup) {
+            if (this.CurrentGroup && this.CurrentGroup.isEditable) {
                 //let toSave = false;
                 let IDs: number[] = [];
                 for (let cm of this.CurrentGroup.JustMembers) {
@@ -245,6 +245,7 @@ export class DuplicatesService extends BusyAwareService implements OnInit, OnDes
                 this.currentCount++;
             }
         }
+        this.allDone = true;
         this.RemoveBusy("MarkAutomatically");
     }
     public RemoveManualMember(itemId: number) {
@@ -351,8 +352,9 @@ export interface iItemDuplicateGroup {
     groupID: number;
     originalMasterID: number;
     addGroupID: number;
-    addItems: number[],
-    removeItemID: number
+    addItems: number[];
+    removeItemID: number;
+    isEditable: boolean;
     members: iDuplicateGroupMember[];
     manualMembers: iManualGroupMember[];
 }
@@ -426,6 +428,7 @@ export class ItemDuplicateGroup {
             this.addGroupID = 0;
             this.addItems = [];
             this.removeItemID = 0;
+            this.isEditable = iItemDGroup.isEditable;
             this.members = [];
             this.manualMembers = iItemDGroup.manualMembers;
             for (let iMember of iItemDGroup.members) {
@@ -439,6 +442,7 @@ export class ItemDuplicateGroup {
     addGroupID: number = 0;
     addItems: number[] = [];
     removeItemID: number = 0;
+    isEditable: boolean = false;
     members: DuplicateGroupMember[] = [];
     manualMembers: iManualGroupMember[] = [];
     public get Master(): DuplicateGroupMember {

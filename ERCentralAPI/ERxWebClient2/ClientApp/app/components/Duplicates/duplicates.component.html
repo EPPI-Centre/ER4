@@ -10,7 +10,7 @@
      style="position: fixed; top: 35%; bottom:35%; height:30%; z-index:100; right:35%; left:35%; width:30%; min-height:100px; min-width:100px;">
     <div class="center">Please Wait...</div>
     <div *ngIf="IsServiceBusy" class="k-loading-image" style="position: fixed; top: 0%;"></div>
-    <div class="center">Processing item {{CurrentAutoGroup}} of {{TotalAutoAutoGroups}}...</div>
+    <div class="center">Processing group {{CurrentAutoGroup}} of {{TotalAutoAutoGroups}}...</div>
     <button 
             class="btn btn-sm py-1 px-1 my-0 ml-0 mr-1 btn-outline-info" (click)="StopMarkAutomatically()"
             style="z-index:20; position: absolute; bottom:2px; right:2px;">
@@ -197,10 +197,16 @@
                         <td *ngIf="member.isDuplicate && member.isChecked" class="font-weight-bold alert-success">Duplicate</td>
                         <td *ngIf="!member.isDuplicate && member.isChecked" class="font-weight-bold alert-success">NOT Duplicate</td>
                         <td *ngIf="!member.isChecked" class="bg-white">Not checked</td>
-                        <td colspan="6" class="bg-white">
+                        <td *ngIf="CurrentGroup.isEditable" colspan="6" class="bg-white">
                             <button *ngIf="!member.isChecked || !member.isDuplicate" [disabled]="!HasWriteRights || !member.isEditable " class="btn btn-sm py-1 px-1 my-0 ml-0 mr-1 btn-outline-success" (click)="MarkUnmarkItemAsDuplicate(member, true)">A Duplicate</button>
                             <button *ngIf="!member.isChecked || member.isDuplicate" [disabled]="!HasWriteRights || !member.isEditable" class="btn btn-sm py-1 px-1 my-0 ml-0 mr-1 btn-outline-info" (click)="MarkUnmarkItemAsDuplicate(member, false)">Not a Duplicate</button>
                             <button [disabled]="!HasWriteRights || !member.isEditable" class="btn btn-sm py-1 px-1 my-0 ml-0 mr-1 btn-outline-danger" (click)="MarkAsMaster(member)">Mark as Master</button>
+                        </td>
+                        <td *ngIf="HasWriteRights && !CurrentGroup.isEditable" colspan="6" class="alert-danger small">
+                            Entire group is read-only (current master might be marked as duplicate in another group).
+                        </td>
+                        <td *ngIf="!HasWriteRights && !CurrentGroup.isEditable" colspan="6" class="alert-danger small">
+                            Entire group is read-only (you don't have write-rights).
                         </td>
                     </tr>
                     <tr>
