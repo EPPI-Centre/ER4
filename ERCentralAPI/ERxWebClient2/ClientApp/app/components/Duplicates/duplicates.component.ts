@@ -212,7 +212,7 @@ export class DuplicatesComponent implements OnInit, OnDestroy {
                 }
             )
             .catch(() => { });
-        this.ActivePanel = "MarkAutomatically";
+        //this.ActivePanel = "MarkAutomatically";
         //this.DuplicatesService.MarkAutomatically(1, 0, 0);
     }
     private async StartMarkAutomatically() {
