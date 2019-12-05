@@ -1,0 +1,146 @@
+﻿<div class="containsAtoolbar">
+	<kendo-toolbar>
+		<kendo-toolbar-button [text]="'Selected'" (click)="Selected()" [disabled]="!HasWriteRights"></kendo-toolbar-button>
+		<kendo-toolbar-button [text]="'Clear Selected'" (click)="ClearSelected()" [disabled]="!HasWriteRights"></kendo-toolbar-button>
+		<kendo-toolbar-button [text]="'Import Selected'" (click)="ImportSelected()" [disabled]="!HasWriteRights"></kendo-toolbar-button>
+		<kendo-toolbar-button [text]="'Auto-update home'" (click)="AutoUpdateHome()" [disabled]="!HasWriteRights"></kendo-toolbar-button>
+		<kendo-toolbar-button [text]="'Advanced features'" (click)="AdvancedFeatures()" [disabled]="!HasWriteRights"></kendo-toolbar-button>
+		<kendo-toolbar-button [text]="'Show history'" (click)="ShowHistory()" [disabled]="!HasWriteRights"></kendo-toolbar-button>
+		<kendo-toolbar-button [text]="'Admin'" (click)="Admin()" [disabled]="!HasWriteRights"></kendo-toolbar-button>
+	</kendo-toolbar>
+</div>
+<div class="col-12 p-2 m-2">
+	<h4>Find related papers and set up review auto-updates</h4>
+	<p>
+	<a class="btn btn-primary" data-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
+			Add new search/auto-update
+	</a>
+	</p>
+</div>
+<div class="col-12 collapse" id="collapseExample" style="min-width:250px;">
+		<table class="col-8 table no-border">
+			<tbody>
+				<tr></tr>
+				<tr>
+					<th>Description</th>
+					<td><input type="text" class="form-control col-4" id="desc" /></td>
+					<td></td>
+					<td></td>
+				</tr>
+				<tr>
+					<th>Search based on</th>
+					<td>
+						<input class="m-1 p-1" type="radio" value="true" name="magSearchRadio"
+							   [(ngModel)]="searchAll">	All included items
+						<input class="m-1 p-1" type="radio" value="false" name="magSearchRadio"
+							   [(ngModel)]="searchAll">	Items with specified code
+					</td>
+				</tr>
+				<tr *ngIf="searchAll == 'false'">
+					<th>Select code</th>
+					<td>
+						<div ngbDropdown>
+							<button style="min-width: 50px; white-space:normal" [attr.aria-expanded]="!isCollapsed"
+									class="btn alert-primary col-6 p-2 m-0" id="dropdownBasic1"
+									ngbDropdownToggle (click)="isCollapsed = !isCollapsed; dropdownBasic1 = false">
+								{{CurrentDropdownSelectedCode?.name}}
+							</button>
+							<div ngbDropdownMenu aria-labelledby="dropdownBasic1" [ngbCollapse]="!isCollapsed">
+								<codesetSelector [IsMultiSelect]="false" [WhatIsSelectable]="'SetAttribute'"
+												 [MaxHeight]="500" #WithOrWithoutCodeSelector
+												 (selectedNodeInTree)="CloseCodeDropDown()" [rootsOnly]="false">
+								</codesetSelector>
+							</div>
+						</div>
+					</td>
+				</tr>
+				<tr>
+					<th></th>
+					<td>
+						<input type="checkbox" class="m-1 p-1" name="magSearchCheck" />
+						Auto-Update
+						<input type="radio" class="m-1 p-1" name="magDateRadio" value="true"
+							   [(ngModel)]="magDate" />
+						No date restriction
+						<input type="radio" class="m-1 p-1" name="magDateRadio" value="false"
+							   [(ngModel)]="magDate" />
+						Items dated:
+					</td>
+				</tr>
+				<tr *ngIf="magDate == 'false'">
+					<th>Items Dated From</th>
+					<td>
+						<div class="example-wrapper p-2 m-2" style="min-height: 100px">
+							<p>Select a date:</p>
+							<kendo-datepicker [(value)]="value"></kendo-datepicker>
+							<p>(use Alt+↓ to open the calendar, ← and →  to navigate, ↑ to increment and ↓ to decrement the value)</p>
+						</div>
+					</td>
+				</tr>
+				<tr>
+					<th>RCT Filter</th>
+					<td>
+						<input type="radio" class="m-1 p-1" name="magRCTRadio" value="true" />
+						No Filter
+						<input type="radio" class="m-1 p-1" name="magRCTRadio" value="false" />
+						High Sensitivity
+						<input type="radio" class="m-1 p-1" name="magRCTRadio" value="false" />
+						Higher specificity
+					</td>
+				</tr>
+				<tr>
+					<th>Search mode</th>
+					<td>
+						<div class="col-11 col-md-6 pr-1 pl-1">
+							<div ngbDropdown>
+								<button style="min-width: 50px; white-space:normal" class="btn alert-primary col-12 p-2 m-0"
+										id="dropdownBasic1" ngbDropdownToggle
+										(click)="isCollapsed=false "></button>
+								<div ngbDropdownMenu aria-labelledby="dropdownBasic1" class="mb-1 {white-space: normal;}">
+									<button (click)="ClickSearchMode(1)" class="dropdown-item">Papers 'recommended' by known items ('Recommended by')</button>
+									<button (click)="ClickSearchMode(2)" class="dropdown-item">Papers that 'recommended' known items ('That recommend')</button>
+									<button (click)="ClickSearchMode(3)" class="dropdown-item">Bi-directional recomendation relationships ('Recommendations')</button>
+									<button (click)="ClickSearchMode(4)" class="dropdown-item">Papers in the bibliography of know items ('Bibliography')</button>
+									<button (click)="ClickSearchMode(5)" class="dropdown-item">Papers that cite known items ('Cited by')</button>
+									<button (click)="ClickSearchMode(6)" class="dropdown-item">Bi-directional citation relationships </button>
+									<button (click)="ClickSearchMode(7)" class="dropdown-item">Bi-directional recomendation AND citation relationships ('Bi-Citation AND Recommendations')</button>
+								</div>
+							</div>
+						</div>
+					</td>
+				</tr>
+				<tr>
+					<td><button class="btn btn-warning" col-4 p-2 m-2> Add new search </button></td>
+				</tr>
+			</tbody>
+		</table>
+</div>
+<div style="min-height:200px; overflow:auto;" >
+	<table class="small table table-border  table-striped bg-light" *ngIf="_MAGService.MAGItems.Length > 0 ">
+		<thead>
+			<tr>
+				<th width="15">Description</th>
+				<th width="40">Mode</th>
+				<th width="140">Date from</th>
+				<th width="140">Date run</th>
+				<th width="140">All included</th>
+				<th width="140">With this code</th>
+				<th width="140">Filtered</th>
+				<th width="140">Re-run?</th>
+				<th width="140">Status</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr class="" *ngFor="let item of _MAGService.MAGItems; let i = index">
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td class="p-0" ><div class="btn btn-link mt-1"></div></td>
+				<td class="p-0 " ><div class="btn btn-link mt-1"></div></td>
+				<td class="p-0" ><div class="btn btn-link mt-1"></div></td>
+				<td class="p-0"><button class="btn btn-outline-danger p-1 m-1" [disabled]="!HasWriteRights" >Delete</button></td>
+			</tr>
+		</tbody>
+	</table>
+</div>
