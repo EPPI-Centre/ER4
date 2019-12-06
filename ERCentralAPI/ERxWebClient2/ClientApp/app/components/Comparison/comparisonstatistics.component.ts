@@ -154,7 +154,9 @@ export class ComparisonStatsComp implements OnInit {
 			contact.contactId = currentComparison.contactId2;
 			contact.contactName = currentComparison.contactName2;
 			this.lstContacts.push(contact);
-			//console.log('testing', JSON.stringify(this.lstContacts));
+			if (this._comparisonsService.Statistics) {
+				this._comparisonsService.Statistics.RawStats.canComplete1vs2 = false;
+			}
 		}else if (members == '2And3') {
 			let contact = new Contact();
 			contact.contactId = currentComparison.contactId2;
@@ -164,7 +166,9 @@ export class ComparisonStatsComp implements OnInit {
 			contact.contactId = currentComparison.contactId3;
 			contact.contactName = currentComparison.contactName3;
 			this.lstContacts.push(contact);
-
+			if (this._comparisonsService.Statistics) {
+				this._comparisonsService.Statistics.RawStats.canComplete2vs3 = false;
+			}
 		}else if (members == '1And3') {
 			let contact = new Contact();
 			contact.contactId = currentComparison.contactId1;
@@ -174,11 +178,13 @@ export class ComparisonStatsComp implements OnInit {
 			contact.contactId = currentComparison.contactId3;
 			contact.contactName = currentComparison.contactName3;
 			this.lstContacts.push(contact);
+			if (this._comparisonsService.Statistics) {
+				this._comparisonsService.Statistics.RawStats.canComplete1vs3 = false;
+			}
 		}
         this.tabSelected = 'confirm';
         this.selectedCompleteUser = new Contact();
 		this.CompleteSectionShow = true;
-
 	}
 	public selectedTab: number = 0;
 	public onTabSelect(e: any) {
