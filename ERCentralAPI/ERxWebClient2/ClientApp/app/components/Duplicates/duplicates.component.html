@@ -1,5 +1,5 @@
 <HeaderComponent PageTitle="Duplicates" Context="duplicates"></HeaderComponent>
-<button class="page-link rounded pt-1 pb-1 mb-1 float-right" style="position:absolute; right: 0; z-index:2000;" (click)="BackToMain()">
+<button class="page-link rounded pt-1 pb-1 mb-1 float-right" style="position:absolute; right: 0; z-index:2;" (click)="BackToMain()"><!-- z-index of close button set to 2: we don't want it to be clickable while dedup data service is busy...-->
     Close/back
 </button>
 <div *ngIf="IsServiceBusy && ActivePanel !== 'Running Mark Automatically'" 
@@ -60,7 +60,7 @@
 
         </div>
         <div *ngIf="!CurrentGroup" class="m-3 p-2 alert-info">
-            Please click on the group to see the group details.
+            Please click on a group to see the group details.
         </div>
         <div *ngIf="ActivePanel == 'AdvancedMarkAutomatically'" class="row m-1 alert-danger border border-danger rounded">
             <div class="row m-0 p-1">

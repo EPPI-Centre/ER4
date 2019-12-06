@@ -224,7 +224,7 @@ export class ComparisonsService extends BusyAwareService {
 			 },
 				 error => {
 					 this.RemoveBusy("FetchStats");
-					 this.modalService.SendBackHomeWithError(error);
+					 this.modalService.GenericError(error);
 				 }
              );
 	}
