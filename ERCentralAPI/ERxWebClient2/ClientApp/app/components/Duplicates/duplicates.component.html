@@ -64,12 +64,12 @@
         </div>
         <div *ngIf="ActivePanel == 'AdvancedMarkAutomatically'" class="row m-1 alert-danger border border-danger rounded">
             <div class="row m-0 p-1">
-                <b>Advanced mark Automatically:</b>
-                You can change the thresholds to find more duplcates automatically. Please be careful, any change do the defaults could result in marking as duplicate the wrong items!
+                <b>Advanced Mark Automatically:</b>
+                You can change the thresholds to find more duplicates automatically. Please be careful, any change to the defaults could result in marking as duplicate the wrong items!
             </div>
             <div class="row m-1 p-0 w-100 alert-warning">
                 <div class="mt-1 ml-1">
-                    Similarity threshold. Between 0.8 and 1.0. Deafault is 1. We don't expect many false positives above 0.96.<br />
+                    Similarity threshold. Between 0.8 and 1.0. Default is 1. We don't expect many false positives above 0.96.<br />
                 </div>
                 <div class="ml-1">
                     <kendo-numerictextbox [(ngModel)]="similarityCr"
@@ -83,7 +83,7 @@
             </div>
             <div class="row m-1 p-0 w-100 ">
                 <div class="mt-1 ml-1">
-                    "Coded" threshold. Between 0 and 1000. Deafault is 0. Anything above 0 might mean you will hide some already done coding.<br />
+                    "Coded" threshold. Between 0 and 1000. Default is 0. Anything above 0 might mean you will hide some already done coding.<br />
                 </div>
                 <div class="ml-1">
                     <kendo-numerictextbox [(ngModel)]="codedCr"
@@ -96,7 +96,7 @@
             </div>
             <div class="row m-1 p-0 w-100 alert-warning">
                 <div class="mt-1 ml-1">
-                    Number of uploaded documents threshold. Deafault is 0.<br />
+                    Number of uploaded documents threshold. Default is 0.<br />
                 </div>
                 <div class="ml-1">
                     <kendo-numerictextbox [(ngModel)]="docsCr"
