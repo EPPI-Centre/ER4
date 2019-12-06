@@ -196,6 +196,13 @@ export class DuplicatesComponent implements OnInit, OnDestroy {
                     if (confirm) {
                         this.DuplicatesService.FetchGroups(true);
                         this.HasAppliedChanges = true;
+                        this._notificationService.show({
+                            content: "Please wait (up to 5 minutes), looking for new duplicates!",
+                            animation: { type: 'slide', duration: 400 },
+                            position: { horizontal: 'center', vertical: 'top' },
+                            type: { style: "warning", icon: true },
+                            hideAfter: 20000
+                        });
                     }
                 }
             )
