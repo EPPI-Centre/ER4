@@ -512,7 +512,190 @@ BEGIN
 END
 GO
 
+USE [AcademicController]
+GO
+
+/****** Object:  StoredProcedure [dbo].[st_MagSimulations]    Script Date: 02/12/2019 10:27:28 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+
+-- =============================================
+-- Author:		James
+-- Create date: 
+-- Description:	List all simulations for a given review
+-- =============================================
+CREATE OR ALTER     PROCEDURE [dbo].[st_MagSimulations] 
+	-- Add the parameters for the stored procedure here
+	
+	@REVIEW_ID int
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+    -- Insert statements for procedure here
+	
+	SELECT ms.REVIEW_ID, ms.MAG_SIMULATION_ID, ms.YEAR, ms.CREATED_DATE, ms.WITH_THIS_ATTRIBUTE_ID, ms.FILTERED_BY_ATTRIBUTE_ID,
+		ms.SEARCH_METHOD, ms.NETWORK_STATISTIC, ms.STUDY_TYPE_CLASSIFIER, ms.USER_CLASSIFIER_MODEL_ID,
+		ms.STATUS, ms.tp, ms.FP, ms.FN, ms.TN, a.ATTRIBUTE_NAME FilteredByAttribute,
+		aa.ATTRIBUTE_NAME WithThisAttribute, cm.MODEL_TITLE from REVIEWER.DBO.TB_MAG_SIMULATION ms
+		left outer join Reviewer.dbo.TB_ATTRIBUTE a on a.ATTRIBUTE_ID = ms.FILTERED_BY_ATTRIBUTE_ID
+		left outer join Reviewer.dbo.TB_ATTRIBUTE aa on aa.ATTRIBUTE_ID = ms.WITH_THIS_ATTRIBUTE_ID
+		left outer join Reviewer.dbo.tb_CLASSIFIER_MODEL cm on cm.MODEL_ID = ms.USER_CLASSIFIER_MODEL_ID
+		WHERE ms.REVIEW_ID = @REVIEW_ID
+		
+END
+GO
+
+USE [AcademicController]
+GO
+
+/****** Object:  StoredProcedure [dbo].[st_MagSimulationInsert]    Script Date: 04/12/2019 19:30:02 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+
+-- =============================================
+-- Author:		James
+-- Create date: 
+-- Description:	List all mag papers in a given run
+-- =============================================
+CREATE OR ALTER     PROCEDURE [dbo].[st_MagSimulationInsert] 
+	-- Add the parameters for the stored procedure here
+	
+	@REVIEW_ID int = 0
+,	@YEAR INT = 0
+,	@CREATED_DATE DATETIME = NULL
+,	@WITH_THIS_ATTRIBUTE_ID BIGINT = 0
+,	@FILTERED_BY_ATTRIBUTE_ID BIGINT = 0
+,	@SEARCH_METHOD NVARCHAR(50) = NULL
+,	@NETWORK_STATISTIC NVARCHAR(50) = NULL
+,	@STUDY_TYPE_CLASSIFIER NVARCHAR(50) = NULL
+,	@USER_CLASSIFIER_MODEL_ID INT = NULL
+,	@STATUS NVARCHAR(50) = NULL
+,	@TP INT = 0
+,	@FP INT = 0
+,	@FN INT = 0
+,	@MAG_SIMULATION_ID INT OUTPUT
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+    -- Insert statements for procedure here
+
+	if @USER_CLASSIFIER_MODEL_ID = 0
+		set @USER_CLASSIFIER_MODEL_ID = null
+
+	INSERT INTO REVIEWER.DBO.TB_MAG_SIMULATION
+		(REVIEW_ID, YEAR, CREATED_DATE, WITH_THIS_ATTRIBUTE_ID, FILTERED_BY_ATTRIBUTE_ID, SEARCH_METHOD,
+		NETWORK_STATISTIC, STUDY_TYPE_CLASSIFIER, USER_CLASSIFIER_MODEL_ID, STATUS, TP, FP, FN)
+	VALUES(@REVIEW_ID, @YEAR, @CREATED_DATE, @WITH_THIS_ATTRIBUTE_ID, @FILTERED_BY_ATTRIBUTE_ID, @SEARCH_METHOD,
+		@NETWORK_STATISTIC, @STUDY_TYPE_CLASSIFIER, @USER_CLASSIFIER_MODEL_ID, @STATUS, @TP, @FP, @FN)
+
+	SET @MAG_SIMULATION_ID = @@IDENTITY
+END
+GO
+
+USE [AcademicController]
+GO
+
+/****** Object:  StoredProcedure [dbo].[st_MagSimulations]    Script Date: 04/12/2019 19:29:55 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+
+-- =============================================
+-- Author:		James
+-- Create date: 
+-- Description:	List all simulations for a given review
+-- =============================================
+CREATE OR ALTER     PROCEDURE [dbo].[st_MagSimulations] 
+	-- Add the parameters for the stored procedure here
+	
+	@REVIEW_ID int
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+    -- Insert statements for procedure here
+	
+	SELECT ms.REVIEW_ID, ms.MAG_SIMULATION_ID, ms.YEAR, ms.CREATED_DATE, ms.WITH_THIS_ATTRIBUTE_ID, ms.FILTERED_BY_ATTRIBUTE_ID,
+		ms.SEARCH_METHOD, ms.NETWORK_STATISTIC, ms.STUDY_TYPE_CLASSIFIER, ms.USER_CLASSIFIER_MODEL_ID,
+		ms.STATUS, ms.tp, ms.FP, ms.FN, a.ATTRIBUTE_NAME FilteredByAttribute,
+		aa.ATTRIBUTE_NAME WithThisAttribute, cm.MODEL_TITLE from REVIEWER.DBO.TB_MAG_SIMULATION ms
+		left outer join Reviewer.dbo.TB_ATTRIBUTE a on a.ATTRIBUTE_ID = ms.FILTERED_BY_ATTRIBUTE_ID
+		left outer join Reviewer.dbo.TB_ATTRIBUTE aa on aa.ATTRIBUTE_ID = ms.WITH_THIS_ATTRIBUTE_ID
+		left outer join Reviewer.dbo.tb_CLASSIFIER_MODEL cm on cm.MODEL_ID = ms.USER_CLASSIFIER_MODEL_ID
+		WHERE ms.REVIEW_ID = @REVIEW_ID
+		
+END
+GO
+
+
+USE [AcademicController]
+GO
+
+/****** Object:  StoredProcedure [dbo].[st_MagSimulationResults]    Script Date: 04/12/2019 22:02:17 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+
+-- =============================================
+-- Author:		James
+-- Create date: 
+-- Description:	List all results for a given simulation
+-- =============================================
+CREATE OR ALTER PROCEDURE [dbo].[st_MagSimulationResults] 
+	-- Add the parameters for the stored procedure here
+	
+	@MagSimulationId int
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+    -- Insert statements for procedure here
+	
+	SELECT msr.MAG_SIMULATION_ID, msr.PaperId, msr.INCLUDED, msr.FOUND, msr.STUDY_TYPE_CLASSIFIER_SCORE,
+		msr.USER_CLASSIFIER_MODEL_SCORE, msr.NETWORK_STATISTIC_SCORE, msr.FOS_DISTANCE_SCORE,
+		msr.ENSEMBLE_SCORE
+	from Reviewer.dbo.TB_MAG_SIMULATION_RESULT msr
+		WHERE msr.MAG_SIMULATION_ID = @MagSimulationId
+		
+END
+GO
 
 
 
 
+
+
+
+
+
+NEED TO ADD THE MAG_SIMULATION TABLES CREATE CODE
+
+ALSO - RE-GET THE LATEST SIMULATION STORED PROCS
