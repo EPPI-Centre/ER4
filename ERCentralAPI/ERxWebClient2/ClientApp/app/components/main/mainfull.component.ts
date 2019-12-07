@@ -29,6 +29,7 @@ import { codesetSelectorComponent } from '../CodesetTrees/codesetSelector.compon
 import { ConfigurableReportService } from '../services/configurablereport.service';
 import { Helpers } from '../helpers/HelperMethods';
 import { ExcelService } from '../services/excel.service';
+import { DuplicatesService } from '../services/duplicates.service';
 
 
 @Component({
@@ -69,6 +70,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         , private ItemCodingService: ItemCodingService
 		, private ReviewSetsEditingService: ReviewSetsEditingService
         , private workAllocationListService: WorkAllocationListService
+        , private DuplicatesService: DuplicatesService
 		, private ComparisonsService: ComparisonsService,
 		private searchService: searchService,
 		private configurablereportServ: ConfigurableReportService,
@@ -793,7 +795,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         this.codesetStatsServ.Clear();
 		this.SourcesService.Clear();
 		this.workAllocationListService.Clear();
-
+        this.DuplicatesService.Clear();
         if (this.FreqComponent) this.FreqComponent.Clear();
 		if (this.CrosstabsComponent) this.CrosstabsComponent.Clear();
 		if (this.workAllocationCollaborateComp) {

@@ -1,4 +1,4 @@
-import { Inject, Injectable, EventEmitter, Output, OnInit } from '@angular/core';
+import { Inject, Injectable, EventEmitter, Output, OnInit, OnDestroy } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
@@ -13,7 +13,7 @@ import { LocalSort } from '../helpers/HelperMethods';
     providedIn: 'root',
 })
 
-export class DuplicatesService extends BusyAwareService implements OnInit {
+export class DuplicatesService extends BusyAwareService implements OnInit, OnDestroy {
 
     constructor(
         private _http: HttpClient,
@@ -29,6 +29,7 @@ export class DuplicatesService extends BusyAwareService implements OnInit {
     ngOnInit() {
         //this.FetchGroups(false);
     }
+    public currentCount = 0; public allDone: boolean = false; public ToDoCount = 0;
     public DuplicateGroups: iReadOnlyDuplicatesGroup[] = [];
     public CurrentGroup: ItemDuplicateGroup | null = null;
     public LocalSort: LocalSort = new LocalSort();
@@ -36,7 +37,8 @@ export class DuplicatesService extends BusyAwareService implements OnInit {
         this._BusyMethods.push("FetchGroups");
         //check if we're allowed to do this, otherwise send user back to main
         let lastcheckJSON = localStorage.getItem('DedupRev' + this.ReviewerIdentityServ.reviewerIdentity.reviewId);
-        console.log("Fetch groups ongoing check (J): ", lastcheckJSON);
+        let waitPeriod = 3;//in minutes...
+        //console.log("Fetch groups ongoing check (J): ", lastcheckJSON);
         if (lastcheckJSON) {
             let lastcheck = new Date(+lastcheckJSON);
             let now = new Date();
@@ -44,9 +46,9 @@ export class DuplicatesService extends BusyAwareService implements OnInit {
             let diff = now.getTime() - lastcheck.getTime();//in milliseconds...
             diff = diff / (1000 * 60);
             console.log("Fetch groups ongoing check: ", lastcheck, diff);
-            if (diff < 5) {
+            if (diff < waitPeriod) {
                 //we don't allow this user needs to wait and try again.
-                let diff2 = Math.round(5 - diff);//how long does the user need to wait?
+                let diff2 = Math.round(waitPeriod - diff);//how long does the user need to wait?
                 let endMsg = "";
                 if (diff2 == 0) {
                     endMsg = "less than one minute.";
@@ -60,7 +62,6 @@ export class DuplicatesService extends BusyAwareService implements OnInit {
                 this.NotificationService.show({
                     content: "Sorry, the \"Get New Duplicates\" execution might still be running, you need to wait for " + endMsg
                         + " If execution lasts more than a few hours, please contact EPPISupport.",
-                    hideAfter: 3000,
                     position: { horizontal: 'center', vertical: 'top' },
                     animation: { type: 'slide', duration: 400 },
                     type: { style: 'error', icon: true },
@@ -84,7 +85,7 @@ export class DuplicatesService extends BusyAwareService implements OnInit {
                 this.DoSort();
                 this.RemoveBusy("FetchGroups");
                 if (this.DuplicateGroups.length > 0) {
-                    if (this.CurrentGroup == null) {
+                    if (this.CurrentGroup == null || result.findIndex(ff => this.CurrentGroup != null && ff.groupId == this.CurrentGroup.groupID) ==-1) {
                         const todo = this.DuplicateGroups.findIndex(found => found.isComplete == false);
                         if (todo > 0) this.FetchGroupDetails(this.DuplicateGroups[todo].groupId);
                         else this.FetchGroupDetails(this.DuplicateGroups[0].groupId);
@@ -100,7 +101,7 @@ export class DuplicatesService extends BusyAwareService implements OnInit {
                     let now = new Date();
                     localStorage.setItem('DedupRev' + this.ReviewerIdentityServ.reviewerIdentity.reviewId, JSON.stringify(now.getTime()));
                     this.NotificationService.show({
-                        content: "Sorry, the \"Get New Duplicates\" execution might still be running, you need to wait for 5 minutes and try again. If execution lasts more than a few hours, please contact EPPISupport.",
+                        content: "Sorry, the \"Get New Duplicates\" execution might still be running, you need to wait for " + waitPeriod + " minutes and try again. If execution lasts more than a few hours, please contact EPPISupport.",
                         hideAfter: 3000,
                         position: { horizontal: 'center', vertical: 'top' },
                         animation: { type: 'slide', duration: 400 },
@@ -116,6 +117,7 @@ export class DuplicatesService extends BusyAwareService implements OnInit {
         //return currentItem.arms;
     }
     public FetchGroupDetails(groupId: number) {
+        if (this.CurrentGroup && this.CurrentGroup.groupID == groupId && this.CurrentGroup.members.length > 0) return;//no need, we already have the details...
         this._BusyMethods.push("FetchGroupDetails");
         let body = JSON.stringify({ Value: groupId });
         return this._http.post<iItemDuplicateGroup>(this._baseUrl + 'api/Duplicates/FetchGroupDetails',
@@ -189,11 +191,11 @@ export class DuplicatesService extends BusyAwareService implements OnInit {
                 this.RemoveBusy("MarkMemberAsMaster");
             }, error => {
                 console.log("MarkMemberAsMaster error", error);
-                this.modalService.GenericError(error);
                 this.RemoveBusy("MarkMemberAsMaster");
+                this.modalService.GenericError(error);
             });
     }
-    public currentCount = 0; public allDone: boolean = false; public ToDoCount = 0;
+    
     public async MarkAutomatically(similarity: number, coded: number, docs: number) {
         this._BusyMethods.push("MarkAutomatically");
         this.allDone = false;
@@ -212,7 +214,7 @@ export class DuplicatesService extends BusyAwareService implements OnInit {
             let cGr = await this.FetchGroupDetails(ToDo[this.currentCount].groupId);
             //console.log("cGr", cGr);
             //console.log("got group", ToDo[this.currentCount].groupId);
-            if (this.CurrentGroup) {
+            if (this.CurrentGroup && this.CurrentGroup.isEditable) {
                 //let toSave = false;
                 let IDs: number[] = [];
                 for (let cm of this.CurrentGroup.JustMembers) {
@@ -243,7 +245,31 @@ export class DuplicatesService extends BusyAwareService implements OnInit {
                 this.currentCount++;
             }
         }
+        this.allDone = true;
         this.RemoveBusy("MarkAutomatically");
+    }
+    public RemoveManualMember(itemId: number) {
+        if (!this.CurrentGroup || this.CurrentGroup.manualMembers.findIndex(ff => ff.itemId == itemId) == -1) return;
+        this._BusyMethods.push("RemoveManualMember");
+        let toDo = {
+            groupId: this.CurrentGroup.groupID,
+            itemId: itemId
+        }
+        this._http.post(this._baseUrl + 'api/Duplicates/RemoveManualMember',
+            toDo).subscribe(result => {
+                if (this.CurrentGroup && this.CurrentGroup.groupID == toDo.groupId) {
+                    //remove manual member from client!
+                    let ind = this.CurrentGroup.manualMembers.findIndex(ff => ff.itemId == itemId);
+                    if (ind != -1) {
+                        this.CurrentGroup.manualMembers.splice(ind, 1);
+                    }
+                }
+                this.RemoveBusy("RemoveManualMember");
+            }, error => {
+                console.log("RemoveManualMember error", error);
+                this.RemoveBusy("RemoveManualMember");
+                this.modalService.GenericError(error);
+            });
     }
     public DoSort() {
         console.log("doSort", this.LocalSort);
@@ -276,10 +302,20 @@ export class DuplicatesService extends BusyAwareService implements OnInit {
         }
     }
 
-    BackToMain() {
+    private BackToMain() {
         this.router.navigate(['Main']);
     }
-
+    public Clear() {
+        this.allDone = true;
+        this.currentCount = 0;
+        this.ToDoCount = 0;
+        this.DuplicateGroups = [];
+        this.CurrentGroup = null;
+        this.LocalSort = new LocalSort();
+    }
+    ngOnDestroy() {
+        this.Clear();
+    }
 }
 export interface iReadOnlyDuplicatesGroup {
     groupId: number;
@@ -316,10 +352,24 @@ export interface iItemDuplicateGroup {
     groupID: number;
     originalMasterID: number;
     addGroupID: number;
-    addItems: number[],
-    removeItemID: number
+    addItems: number[];
+    removeItemID: number;
+    isEditable: boolean;
     members: iDuplicateGroupMember[];
-    manualMembers: any;
+    manualMembers: iManualGroupMember[];
+}
+export interface iManualGroupMember {
+    authors: string;
+    groupID: 235935
+    itemId: 218455
+    month: string;
+    parentAuthors: string;
+    parentTitle: string;
+    shortTitle: string;
+    source: string;
+    title: string;
+    typeName: string;
+    year: string;
 }
 
 export class DuplicateGroupMember {
@@ -378,6 +428,7 @@ export class ItemDuplicateGroup {
             this.addGroupID = 0;
             this.addItems = [];
             this.removeItemID = 0;
+            this.isEditable = iItemDGroup.isEditable;
             this.members = [];
             this.manualMembers = iItemDGroup.manualMembers;
             for (let iMember of iItemDGroup.members) {
@@ -391,8 +442,9 @@ export class ItemDuplicateGroup {
     addGroupID: number = 0;
     addItems: number[] = [];
     removeItemID: number = 0;
+    isEditable: boolean = false;
     members: DuplicateGroupMember[] = [];
-    manualMembers: any = null;
+    manualMembers: iManualGroupMember[] = [];
     public get Master(): DuplicateGroupMember {
         for (let mb of this.members) {
             if (mb.isMaster) return mb;
@@ -411,6 +463,7 @@ export class ItemDuplicateGroup {
         else return NaN;
     }
 }
+
 export class MarkUnmarkItemAsDuplicate {
     constructor(grId: number, memberId: number, isDup: boolean) {
         this.groupId = grId;

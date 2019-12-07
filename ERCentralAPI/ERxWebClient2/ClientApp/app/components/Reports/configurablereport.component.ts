@@ -1,6 +1,11 @@
+
+
+
+
+
 import { Component, OnInit, OnDestroy, Inject, ViewChild } from '@angular/core';
 import { ItemListService } from '../services/ItemList.service';
-import { ReviewSet,  SetAttribute, singleNode } from '../services/ReviewSets.service';
+import { ReviewSet, SetAttribute, singleNode } from '../services/ReviewSets.service';
 import { Report, ConfigurableReportService, ReportAnswerExecuteCommandParams, ReportQuestionExecuteCommandParams } from '../services/configurablereport.service';
 import { codesetSelectorComponent } from '../CodesetTrees/codesetSelector.component';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
@@ -10,20 +15,20 @@ import { encodeBase64, saveAs } from '@progress/kendo-file-saver';
 import { Helpers } from '../helpers/HelperMethods';
 
 @Component({
-    selector: 'configurablereport',
-    templateUrl: './configurablereport.component.html',
+	selector: 'configurablereport',
+	templateUrl: './configurablereport.component.html',
 })
-	
+
 export class configurablereportComp implements OnInit, OnDestroy {
 
-    constructor(
-        private ItemListService: ItemListService,
+	constructor(
+		private ItemListService: ItemListService,
 		@Inject('BASE_URL') private _baseUrl: string,
 		private configurablereportServ: ConfigurableReportService,
 		private ReviewerIdentityServ: ReviewerIdentityService,
 		private EventEmitterServ: EventEmitterService,
 		private _confirmationDialogService: ConfirmationDialogService
-    ) { }
+	) { }
 
 	ngOnInit() {
 
@@ -31,7 +36,7 @@ export class configurablereportComp implements OnInit, OnDestroy {
 
 	ngOnDestroy() {
 
-	}	
+	}
 
 	@ViewChild('CodingToolTreeReports') CodingToolTree!: codesetSelectorComponent;
 	@ViewChild('CodeTreeAllocate') CodeTreeAllocate!: codesetSelectorComponent;
@@ -68,6 +73,8 @@ export class configurablereportComp implements OnInit, OnDestroy {
 	public DropDownAllocateAtt: SetAttribute = new SetAttribute();
 	public showROB: boolean = false;
 	public reportHTML: string = '';
+	public sectionShow: string = 'Standard';
+	public GeneratedReport: boolean = false;
 
 	public showRiskOfBias() {
 		this.showROB = !this.showROB;
@@ -79,32 +86,41 @@ export class configurablereportComp implements OnInit, OnDestroy {
 
 		this.OutcomesModel = false;
 		this.RiskOfBias = false;
-		this.AlwaysShow = !this.AlwaysShow;
 
+		if (this.sectionShow == 'Standard') {
+			this.sectionShow = ''
+
+		} else if (this.sectionShow == '') {
+			this.sectionShow = 'Standard';
+		}
+		console.log(this.sectionShow);
 	}
 	public ShowRiskOfBias() {
 
 		this.OutcomesModel = false;
-		this.AlwaysShow = !this.AlwaysShow;
-		if (this.AlwaysShow) {
-			this.RiskOfBias = true;
-		} else {
+		if (this.RiskOfBias) {
+			this.sectionShow = ''
 			this.RiskOfBias = false;
+		} else {
+			this.sectionShow = 'Standard';
+			this.RiskOfBias = true;
 		}
 	}
 	public ShowOutcomes() {
+
 		this.RiskOfBias = false;
-		this.AlwaysShow = !this.AlwaysShow;
-		if (this.AlwaysShow) {
+		if (!this.outcomesHidden) {
 			this.OutcomesModel = true;
 			this.outcomesHidden = true;
+			this.sectionShow = 'Standard'
 		} else {
 			this.outcomesHidden = false;
+			this.sectionShow = ''
 		}
 	}
 	public OpenInNewWindow() {
 
-		if (this.reportHTML.length < 1 ) return;
+		if (this.reportHTML.length < 1) return;
 		else if (this.reportHTML.length < 1) {
 			this.RunReports
 		}
@@ -122,11 +138,16 @@ export class configurablereportComp implements OnInit, OnDestroy {
 			}
 		}
 	}
+	public ChangedReport(item: any) {
+		if (item != null || item != '') {
+			this.GeneratedReport = false;
+		}
+	}
 	public CloseReportsSection() {
 
 		this.EventEmitterServ.CloseReportsSectionEmitter.emit();
 		this.Clear();
-	
+
 	}
 	public Clear() {
 
@@ -136,6 +157,7 @@ export class configurablereportComp implements OnInit, OnDestroy {
 		this.ReportChoice = {} as Report;
 		this.ItemsChoice == 'Items with this code'
 		this.DropdownSelectedCodingTool = {} as singleNode;
+		this.GeneratedReport = false;
 
 	}
 	public CanRunReports(): boolean {
@@ -183,9 +205,9 @@ export class configurablereportComp implements OnInit, OnDestroy {
 
 		if (!this.HasSelectedItems && this.ItemsChoice == 'All selected items') {
 			this._confirmationDialogService.confirm('Report Message', 'Sorry you have not selected any items', false,
-			'', 'Ok')
+				'', 'Ok')
 				.then({}
-			);
+				);
 			return;
 		}
 		if (!this.HasWriteRights) {
@@ -205,7 +227,7 @@ export class configurablereportComp implements OnInit, OnDestroy {
 			}
 		}
 
-        if (this.ReportChoice.reportType == "Answer" && this.OutcomesModel) {
+		if (this.ReportChoice.reportType == "Answer" && this.OutcomesModel) {
 
 			//('this is an answer');
 			let args: ReportAnswerExecuteCommandParams = {} as ReportAnswerExecuteCommandParams;
@@ -227,7 +249,7 @@ export class configurablereportComp implements OnInit, OnDestroy {
 			args.isQuestion = false;
 
 			if (args) {
-                var report = this.configurablereportServ.FetchOutcomesReport(args);
+				var report = this.configurablereportServ.FetchOutcomesReport(args);
 				if (report) {
 					report.then(
 						(res) => {
@@ -258,7 +280,7 @@ export class configurablereportComp implements OnInit, OnDestroy {
 			args.showBullets = this.AddBulletsToCodesModel;
 			args.showUncodedItems = this.UncodedItemsModel;
 			args.txtInfoTag = this.AdditionalTextTagModel;
-            args.isQuestion = this.ReportChoice.reportType == "Question" ? true : false;
+			args.isQuestion = this.ReportChoice.reportType == "Question" ? true : false;
 
 			if (args) {
 				var stringReport = this.configurablereportServ.FetchQuestionReport(args);
@@ -266,6 +288,7 @@ export class configurablereportComp implements OnInit, OnDestroy {
 					stringReport.then(
 						(result) => {
 							this.reportHTML = result;
+							this.GeneratedReport = true;
 						}
 					);
 				}

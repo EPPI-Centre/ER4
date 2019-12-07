@@ -7,6 +7,7 @@ import { NotificationService } from '@progress/kendo-angular-notification';
 import { DuplicatesService, iReadOnlyDuplicatesGroup, DuplicateGroupMember, MarkUnmarkItemAsDuplicate } from '../services/duplicates.service';
 import { Helpers, LocalSort } from '../helpers/HelperMethods';
 import { CodesetStatisticsService } from '../services/codesetstatistics.service';
+import { ItemListService } from '../services/ItemList.service';
 
 
 @Component({
@@ -36,7 +37,8 @@ export class DuplicatesComponent implements OnInit, OnDestroy {
         private _notificationService: NotificationService,
         private ConfirmationDialogService: ConfirmationDialogService,
         private CodesetStatisticsService: CodesetStatisticsService,
-        private DuplicatesService: DuplicatesService
+        private DuplicatesService: DuplicatesService,
+        private ItemListService: ItemListService
 	) { }
     ngOnInit() {
         this.DuplicatesService.currentCount = 0;
@@ -49,6 +51,7 @@ export class DuplicatesComponent implements OnInit, OnDestroy {
     public codedCr: number = 0;
     public docsCr: number = 0;
     public ActivePanel: string = "";
+    private HasAppliedChanges: boolean = false;
     public get IsServiceBusy(): boolean {
         //console.log("mainfull IsServiceBusy", this.ItemListService, this.codesetStatsServ, this.SourcesService )
         return (
@@ -144,15 +147,30 @@ export class DuplicatesComponent implements OnInit, OnDestroy {
     public MarkUnmarkItemAsDuplicate(member: DuplicateGroupMember, isDup: boolean) {
         let todo: MarkUnmarkItemAsDuplicate = new MarkUnmarkItemAsDuplicate(member.groupID, member.itemDuplicateId, isDup);
         this.DuplicatesService.MarkUnmarkMemberAsDuplicate(todo);
+        this.HasAppliedChanges = true;
     }
     
     public MarkAsMaster(member: DuplicateGroupMember) {
         let todo: MarkUnmarkItemAsDuplicate = new MarkUnmarkItemAsDuplicate(member.groupID, member.itemDuplicateId, false);
         this.DuplicatesService.MarkMemberAsMaster(todo);
+        this.HasAppliedChanges = true;
+    }
+    public RemoveManualMember(itemId: number) {
+        this.DuplicatesService.RemoveManualMember(itemId);
     }
     public Refresh() {
+        if (this.DuplicatesService.DuplicateGroups.length == 0) this.DuplicatesService.CurrentGroup = null;
+        else if (
+            this.DuplicatesService.CurrentGroup != null
+            && this.DuplicatesService.DuplicateGroups.findIndex(
+                ff => this.DuplicatesService.CurrentGroup != null && ff.groupId == this.DuplicatesService.CurrentGroup.groupID
+            ) == -1
+        ) {//we have a list but current group isn't in it!
+            this.DuplicatesService.CurrentGroup = null;
+        }
         this.DuplicatesService.FetchGroups(false);
     }
+
     public GetNewDuplicates() {
         let innerMsg = ""
         let totalItems = this.CodesetStatisticsService.ReviewStats.itemsIncluded + this.CodesetStatisticsService.ReviewStats.itemsExcluded + this.CodesetStatisticsService.ReviewStats.itemsDeleted; 
@@ -175,7 +193,17 @@ export class DuplicatesComponent implements OnInit, OnDestroy {
         this.ConfirmationDialogService.confirm("Start Get New Duplicates?", innerMsg, false, "")
             .then(
                 (confirm: any) => {
-                    if (confirm) this.DuplicatesService.FetchGroups(true);
+                    if (confirm) {
+                        this.DuplicatesService.FetchGroups(true);
+                        this.HasAppliedChanges = true;
+                        this._notificationService.show({
+                            content: "Please wait (up to 5 minutes), looking for new duplicates!",
+                            animation: { type: 'slide', duration: 400 },
+                            position: { horizontal: 'center', vertical: 'top' },
+                            type: { style: "warning", icon: true },
+                            hideAfter: 20000
+                        });
+                    }
                 }
             )
             .catch(() => { });
@@ -185,12 +213,13 @@ export class DuplicatesComponent implements OnInit, OnDestroy {
             .then(
                 (confirm: any) => {
                     if (confirm) {
+                        this.HasAppliedChanges = true;
                         this.StartMarkAutomatically();
                     }
                 }
             )
             .catch(() => { });
-        this.ActivePanel = "MarkAutomatically";
+        //this.ActivePanel = "MarkAutomatically";
         //this.DuplicatesService.MarkAutomatically(1, 0, 0);
     }
     private async StartMarkAutomatically() {
@@ -214,12 +243,23 @@ export class DuplicatesComponent implements OnInit, OnDestroy {
     AdvancedMarkAutomaticallyShow() {
         this.ActivePanel = "AdvancedMarkAutomatically";
     }
+    GoToManualMembers() {
+        let el = document.getElementById('ManualMembersDiv');
+        console.log("GoToManualMembers", el);
+        if (el) el.scrollIntoView();
+    }
     ngOnDestroy() {
         this.Clear();
 	}
-	Clear() {
+    Clear() {
+        //this.DuplicatesService.Clear();
 	}
     BackToMain() {
+        if (this.HasAppliedChanges) {
+            this.CodesetStatisticsService.GetReviewStatisticsCountsCommand();
+            this.ItemListService.Refresh();
+        }
+        //this.Clear();
         this.router.navigate(['Main']);
     }
 	 
