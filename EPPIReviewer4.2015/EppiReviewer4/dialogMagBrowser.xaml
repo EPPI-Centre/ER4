@@ -397,7 +397,7 @@
                     <telerikGridView:GridViewDataColumn Header="TP" Width="45" SortingState="None" IsReadOnly="True">
                         <telerikGridView:GridViewDataColumn.CellTemplate>
                             <DataTemplate>
-                                <HyperlinkButton Content="{Binding TP}"/>
+                                <HyperlinkButton Content="{Binding TP}" Click="HyperlinkButton_Click_11"/>
                             </DataTemplate>
                         </telerikGridView:GridViewDataColumn.CellTemplate>
                     </telerikGridView:GridViewDataColumn>
@@ -405,7 +405,7 @@
                     <telerikGridView:GridViewDataColumn Header="FN" Width="45" SortingState="None" IsReadOnly="True">
                         <telerikGridView:GridViewDataColumn.CellTemplate>
                             <DataTemplate>
-                                <HyperlinkButton Content="{Binding FN}"/>
+                                <HyperlinkButton Content="{Binding FN}" Click="HyperlinkButton_Click_10"/>
                             </DataTemplate>
                         </telerikGridView:GridViewDataColumn.CellTemplate>
                     </telerikGridView:GridViewDataColumn>

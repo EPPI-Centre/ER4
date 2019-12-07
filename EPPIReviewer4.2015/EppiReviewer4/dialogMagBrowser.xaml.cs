@@ -28,6 +28,8 @@ namespace EppiReviewer4
         public event EventHandler<RoutedEventArgs> ListExcludedNotMatched;
         public event EventHandler<RoutedEventArgs> ListIncludedMatched;
         public event EventHandler<RoutedEventArgs> ListExcludedMatched;
+        public event EventHandler<RoutedEventArgs> ListSimulationTP;
+        public event EventHandler<RoutedEventArgs> ListSimulationFN;
         private DispatcherTimer timer;
         private int CurrentBrowsePosition = 0;
         private List<Int64> SelectedPaperIds;
@@ -1941,7 +1943,7 @@ namespace EppiReviewer4
                     if (mdsdc2 != null)
                     {
                         hlDownloadDataFromBrowser.Tag = mdsdc2.Data;
-                        RadWindow.Alert("Data downloaded to your browser. Click the link to download to your computer");
+                        RadWindow.Alert("Data downloaded to your browser.\n\rClick the link to download to your computer");
                         hlDownloadDataFromBrowser.Visibility = Visibility.Visible;
                     }
                 }
@@ -1966,6 +1968,16 @@ namespace EppiReviewer4
                 writer.Dispose();
                 writer.Close();
             }
+        }
+
+        private void HyperlinkButton_Click_10(object sender, RoutedEventArgs e)
+        {
+            this.ListSimulationFN.Invoke(sender, e);
+        }
+
+        private void HyperlinkButton_Click_11(object sender, RoutedEventArgs e)
+        {
+            this.ListSimulationTP.Invoke(sender, e);
         }
 
 
@@ -2030,9 +2042,6 @@ namespace EppiReviewer4
             }
         }
 
-       
-
-
-
+        
     }
 }
