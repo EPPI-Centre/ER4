@@ -250,6 +250,8 @@ namespace EppiReviewer4
             MagBrowserControl.ListExcludedNotMatched += MagBrowserControl_ListExcludedNotMatched;
             MagBrowserControl.ListIncludedMatched += MagBrowserControl_ListIncludedMatched;
             MagBrowserControl.ListExcludedMatched += MagBrowserControl_ListExcludedMatched;
+            MagBrowserControl.ListSimulationTP += MagBrowserControl_ListSimulationTP;
+            MagBrowserControl.ListSimulationFN += MagBrowserControl_ListSimulationFN;
             windowMagBrowser.Content = MagGrid;
             //end of windowMagBrowser
 
@@ -423,6 +425,8 @@ namespace EppiReviewer4
 
             SetMicrosoftAcademicAlertIcon();
         }
+
+        
 
         private void SetMicrosoftAcademicAlertIcon()
         {
@@ -6181,6 +6185,50 @@ on the right of the main screen");
             SelectionCritieraItemList.AttributeSetIdList = "";
             SelectionCritieraItemList.PageNumber = 0;
             LoadItemList();
+        }
+
+        private void MagBrowserControl_ListSimulationFN(object sender, RoutedEventArgs e)
+        {
+            windowMagBrowser.Close();
+            HyperlinkButton hl = sender as HyperlinkButton;
+            if (hl != null)
+            {
+                MagSimulation ms = hl.DataContext as MagSimulation;
+                if (ms != null)
+                {
+                    TextBlockShowing.Text = "Showing: false negatives from selected simulation";
+                    SelectionCritieraItemList = new SelectionCriteria();
+                    SelectionCritieraItemList.ListType = "MagSimulationFN";
+                    SelectionCritieraItemList.OnlyIncluded = true;
+                    SelectionCritieraItemList.ShowDeleted = false;
+                    SelectionCritieraItemList.AttributeSetIdList = "";
+                    SelectionCritieraItemList.PageNumber = 0;
+                    SelectionCritieraItemList.MagSimulationId = ms.MagSimulationId;
+                    LoadItemList();
+                }
+            }
+        }
+
+        private void MagBrowserControl_ListSimulationTP(object sender, RoutedEventArgs e)
+        {
+            windowMagBrowser.Close();
+            HyperlinkButton hl = sender as HyperlinkButton;
+            if (hl != null)
+            {
+                MagSimulation ms = hl.DataContext as MagSimulation;
+                if (ms != null)
+                {
+                    TextBlockShowing.Text = "Showing: true positives from selected simulation";
+                    SelectionCritieraItemList = new SelectionCriteria();
+                    SelectionCritieraItemList.ListType = "MagSimulationTP";
+                    SelectionCritieraItemList.OnlyIncluded = true;
+                    SelectionCritieraItemList.ShowDeleted = false;
+                    SelectionCritieraItemList.AttributeSetIdList = "";
+                    SelectionCritieraItemList.PageNumber = 0;
+                    SelectionCritieraItemList.MagSimulationId = ms.MagSimulationId;
+                    LoadItemList();
+                }
+            }
         }
 
         private void DialogCodingControl_launchMagBrowser(object sender, EventArgs e)
