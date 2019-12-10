@@ -1,4 +1,4 @@
-<div class="container px-1">
+<div class="container px-1 col-12">
 	<div *ngIf="IsServiceBusy" class="k-loading-image" style="position: fixed; top: 0%;"></div>
 	<div class="font-weight-bold">Reports</div>
 
@@ -10,109 +10,121 @@
 	</div>
 	<div *ngIf="sectionShow == 'Standard'">
 		<div class="row mt-2 mx-1 border-bottom">
-			<label class="col-md-5 pl-0">Report Name:</label>
-			<select class="col-md-7 form-control mb-1" style="min-width:190px;"
-					(change)="ChangedReport(item)"
-					[disabled]="!HasWriteRights" [(ngModel)]="ReportChoice">
-				<option *ngFor="let item of ReportCollection"
-						[ngValue]="item">
-					{{ item.name }}
-				</option>
-			</select>
-			<label class="col-md-5  pl-0">Items to include:</label>
-			<select class="col-md-7 form-control mb-1" style="min-width:190px;"
-					[disabled]="!HasWriteRights" [(ngModel)]="ItemsChoice"
-					(change)="ItemsChoiceChange()">
-				<option>All selected items</option>
-				<option>All included items</option>
-				<option>Items with this code</option>
-			</select>
-			<div class="row col-md-12 m-0 p-0" *ngIf="ShowCodeTree" ngbDropdown style="min-width:190px;">
-				<label class="col-md-5 pl-0">Coding Tool:</label>
-				<button ngbDropdownAnchor class="btn btn-outline-primary dropdown-toggle col-md-7 "
-						(click)="isCollapsedCodingTool = !isCollapsedCodingTool;
+			<div class="row col-12">
+				<label class="col-2 pl-0">Report Name:</label>
+				<select class="col-3 form-control mb-1" style="min-width:190px;"
+						(change)="ChangedReport(item)"
+						[disabled]="!HasWriteRights" [(ngModel)]="ReportChoice">
+					<option *ngFor="let item of ReportCollection"
+							[ngValue]="item">
+						{{ item.name }}
+					</option>
+				</select>
+
+				<div class="col-1 m-1">Display:</div>
+				<div class="col-6 row mb-1" style="min-width: 400px;">
+					<div class="col-3 row">
+						<input [disabled]="OrderByChoice=='Item Id'" class="m-1 p-1"
+							   type="checkbox" value="true" name="ItemId"
+							   [(ngModel)]="ItemIdModel">ItemId
+					</div>
+					<div class="col-3 row">
+						<input [disabled]="OrderByChoice=='Imported Id'" class="m-1 p-1" 
+							   type="checkbox" value="false" name="ImportedId"
+							   [(ngModel)]="ImportedIdModel">ImportedId
+					</div>
+					<div class="col-3 row">
+						<input [disabled]="OrderByChoice=='Short title'" class="m-1 p-1" 
+							   type="checkbox" value="true" name="ShortTitle"
+							   [(ngModel)]="ShortTitleModel">Short title
+					</div>
+					<div class="col-3 row">
+						<input [disabled]="OrderByChoice=='Title'" class="m-1 p-1" 
+							   type="checkbox" value="false" name="Title"
+							   [(ngModel)]="TitleModel">Title
+					</div>
+				</div>
+
+			</div>
+			<div class="row col-12">
+				<label class="col-2 pl-0">Items to include:</label>
+				<select class="col-3 form-control mb-1" style="min-width:190px;"
+						[disabled]="!HasWriteRights" [(ngModel)]="ItemsChoice"
+						(change)="ItemsChoiceChange()">
+					<option>All selected items</option>
+					<option>All included items</option>
+					<option>Items with this code</option>
+				</select>
+				<div class="col-1 p-2 m-2"></div>
+				<div class="col-12 col-md-6 row mb-1" style="min-width: 400px;">
+					<div class="col-3 row">
+						<input [disabled]="OrderByChoice=='Year'" class="m-1 p-1" type="checkbox" 
+							   value="true" name="Year"
+							   [(ngModel)]="YearModel">Year
+					</div>
+					<div class="col-3 row">
+						<input  class="m-1 p-1" type="checkbox" value="false" name="Abstract"
+							   [(ngModel)]="AbstractModel">Abstract
+					</div>
+					<div class="col-3 row">
+						<input class="m-1 p-1" type="checkbox" value="true" name="UncodedItems"
+							   [(ngModel)]="UncodedItemsModel">Uncoded Items
+					</div>
+					<div *ngIf="outcomesHidden"
+						 class="col-3 row">
+						<input class="m-1 p-1" type="checkbox" value="false" name="Outcomes"
+							   [(ngModel)]="OutcomesModel">Outcomes
+					</div>
+				</div>
+			</div>
+			<div class="row col-12">
+				<div class="row col-md-12 m-0 p-0" *ngIf="ShowCodeTree" ngbDropdown style="min-width:190px;">
+					<label class="col-1 pl-0">Coding Tool:</label>
+					<button ngbDropdownAnchor class="btn btn-outline-primary dropdown-toggle col-3"
+							(click)="isCollapsedCodingTool = !isCollapsedCodingTool;
 														dropdownBasicCodingTool = false"
-						[attr.aria-expanded]="!collapseCodeTreeCodingToolReports"
-						aria-controls="collapseCodeTreeCodingToolReports">
-					{{DropdownSelectedCodingTool?.name}}
-				</button>
-				<div class="dropdown-menu col-md-5 ml-5" id="collapseCodeTreeCodingToolReports"
-					 [ngbCollapse]="!isCollapsedCodingTool">
-					<codesetSelector [IsMultiSelect]="false"
-									 [MaxHeight]="500" #CodingToolTreeReports
-									 (selectedNodeInTree)="CloseCodeDropDownCodingTool()"
-									 [rootsOnly]="false">
-					</codesetSelector>
+							[attr.aria-expanded]="!collapseCodeTreeCodingToolReports"
+							aria-controls="collapseCodeTreeCodingToolReports">
+						{{DropdownSelectedCodingTool?.name}}
+					</button>
+					<div class="dropdown-menu col-5 ml-5" id="collapseCodeTreeCodingToolReports"
+						 [ngbCollapse]="!isCollapsedCodingTool">
+						<codesetSelector [IsMultiSelect]="false"
+										 [MaxHeight]="500" #CodingToolTreeReports
+										 (selectedNodeInTree)="CloseCodeDropDownCodingTool()"
+										 [rootsOnly]="false">
+						</codesetSelector>
+					</div>
 				</div>
 			</div>
-			<label class="col-12 col-sm-5 pl-0">Order by:</label>
-			<select class="col-sm-12 col-md-7 form-control mb-1" style="min-width:190px;"
-					[disabled]="!HasWriteRights" [(ngModel)]="OrderByChoice" (change)="OrderByChoiceChange()">
-				<option> Short title</option>
-				<option> Title</option>
-				<option> Year</option>
-				<option> Item Id</option>
-				<option> Imported Id</option>
-			</select>
-		</div>
-		<div class="col-12 row p-0 my-2 mx-1 border-bottom">
-			<div class="col-2 pl-0 mb-1">Display:</div>
-			<div class="col-10 row mb-1" style="min-width: 400px;">
-				<div class="col-sm-12 col-md-6 row">
-					<input class="m-1 p-1" type="checkbox" value="true" name="ItemId"
-						   [(ngModel)]="ItemIdModel">ItemId
-				</div>
-				<div class="col-sm-12 col-md-6 row">
-					<input class="m-1 p-1" type="checkbox" value="false" name="ImportedId"
-						   [(ngModel)]="ImportedIdModel">ImportedId
-				</div>
-				<div class="col-sm-12 col-md-6 row">
-					<input class="m-1 p-1" type="checkbox" value="true" name="ShortTitle"
-						   [(ngModel)]="ShortTitleModel">Short Title
-				</div>
-				<div class="col-sm-12 col-md-6 row">
-					<input class="m-1 p-1" type="checkbox" value="false" name="Title"
-						   [(ngModel)]="TitleModel">Title
-				</div>
+			<div class="row col-12">
+				<label class="col-2 pl-0">Order by:</label>
+				<select class="col-3 form-control mb-1" style="min-width:190px;"
+						[disabled]="!HasWriteRights" [(ngModel)]="OrderByChoice" (change)="OrderByChoiceChange()">
+					<option> Short title</option>
+					<option> Title</option>
+					<option> Year</option>
+					<option> Item Id</option>
+					<option> Imported Id</option>
+				</select>
 			</div>
-			<div class="col-2 pl-0 mb-1"></div>
-			<div class="col-10 row mb-1" style="min-width: 400px;">
-				<div class="col-sm-12 col-md-6 row">
-					<input class="m-1 p-1" type="checkbox" value="true" name="Year"
-						   [(ngModel)]="YearModel">Year
+						
+			<div class="col-12 row mb-1 border-bottom">
+				<div class="col-2 pl-0">
+					Additional Text Tag:
 				</div>
-				<div class="col-sm-12 col-md-6 row">
-					<input class="m-1 p-1" type="checkbox" value="false" name="Abstract"
-						   [(ngModel)]="AbstractModel">Abstract
+				<div class="col-3">
+					<input class="m-1 p-1 form-control" type="text" value="[info]" 
+				     name="AdditionalTextTag"	[(ngModel)]="AdditionalTextTagModel">
 				</div>
-				<div class="col-sm-12 col-md-6 row">
-					<input class="m-1 p-1" type="checkbox" value="true" name="UncodedItems"
-						   [(ngModel)]="UncodedItemsModel">Uncoded Items
-				</div>
-				<div *ngIf="outcomesHidden" class="col-sm-12 col-md-6 row">
-					<input class="m-1 p-1" type="checkbox" value="false" name="Outcomes"
-						   [(ngModel)]="OutcomesModel">Outcomes
-				</div>
-			</div>
-		</div>
-		<div class="col-12 row p-0 my-2 mx-1 border-bottom">
-			<div class="col-12 row mb-1">
-				<div class="col-2 pl-0 mb-1">
-					Additional Text Tag
-				</div>
-				<div class="col-5">
-					<input class="m-1 p-1 form-control" type="text" value="[info]" name="AdditionalTextTag"
-						   [(ngModel)]="AdditionalTextTagModel">
-				</div>
-				<div class="col-5">
+				<div class="col-3">
 					<input class="m-1 p-1" type="checkbox" value="false" name="AddBulletstoCodes"
-						   [(ngModel)]="AddBulletsToCodesModel">Add Bullets to Codes
+					[(ngModel)]="AddBulletsToCodesModel">Add Bullets to Codes
 				</div>
 			</div>
+
+			</div>
 		</div>
-
-
-	</div>
 	<div *ngIf="RiskOfBias">
 		<div class="col-12 row p-0 my-2 mx-1 border-bottom">
 			<div class="col-md-6 row mb-1 border border-dark">
@@ -140,27 +152,25 @@
 		</div>
 	</div>
 
-	<div class="col-12 row p-0 mx-1 justify-content-center" *ngIf="sectionShow == 'Standard'">
+	<div class="col-6 row p-0 mx-1 justify-content-center" *ngIf="sectionShow == 'Standard'">
 		<button type="submit" (click)="RunReports()" class="btn btn-success ml-2 mr-2"
 				[disabled]="!HasWriteRights || !HasReport ">
-			Get Report
+			Run/view
 		</button>
-		<button (click)="OpenInNewWindow()" [disabled]="!HasWriteRights || !GeneratedReport"
-				type="button" class="btn btn-outline-primary float-right">
+		<!--<button (click)="OpenInNewWindow()" [disabled]="!HasWriteRights || !GeneratedReport"
+				type="button" class="btn btn-outline-primary ">
 			&nbsp;View/Print&nbsp;
-		</button>
+		</button>-->
 		<button (click)="SaveReport()" [disabled]="!HasWriteRights || !GeneratedReport"
 				title="Save as Html (Supports opening in Word)"
-				type="button" class="btn btn-outline-primary float-right ml-1 mr-1">
+				type="button" class="btn btn-outline-primary  ml-1 mr-1">
 			<i class="fa fa-floppy-o" aria-hidden="true"></i>
 		</button>
 		<button class="btn btn-outline-secondary ml-1"
 				(click)="CloseReportsSection()">
 			Cancel
 		</button>
-
 	</div>
-
 </div>
 
 
