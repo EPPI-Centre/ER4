@@ -155,12 +155,12 @@
 	<div class="col-6 row p-0 mx-1 justify-content-center" *ngIf="sectionShow == 'Standard'">
 		<button type="submit" (click)="RunReports()" class="btn btn-success ml-2 mr-2"
 				[disabled]="!HasWriteRights || !HasReport ">
-			Get Report
+			Run/view
 		</button>
-		<button (click)="OpenInNewWindow()" [disabled]="!HasWriteRights || !GeneratedReport"
+		<!--<button (click)="OpenInNewWindow()" [disabled]="!HasWriteRights || !GeneratedReport"
 				type="button" class="btn btn-outline-primary ">
 			&nbsp;View/Print&nbsp;
-		</button>
+		</button>-->
 		<button (click)="SaveReport()" [disabled]="!HasWriteRights || !GeneratedReport"
 				title="Save as Html (Supports opening in Word)"
 				type="button" class="btn btn-outline-primary  ml-1 mr-1">
@@ -171,7 +171,6 @@
 			Cancel
 		</button>
 	</div>
-
 </div>
 
 

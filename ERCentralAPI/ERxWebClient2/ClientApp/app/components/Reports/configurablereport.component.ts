@@ -1,8 +1,3 @@
-
-
-
-
-
 import { Component, OnInit, OnDestroy, Inject, ViewChild } from '@angular/core';
 import { ItemListService } from '../services/ItemList.service';
 import { ReviewSet, SetAttribute, singleNode } from '../services/ReviewSets.service';
@@ -253,7 +248,10 @@ export class configurablereportComp implements OnInit, OnDestroy {
 				if (report) {
 					report.then(
 						(res) => {
-							this.reportHTML = res.returnReport
+							this.reportHTML = res.returnReport;
+							if (this.GeneratedReport) {
+								this.OpenInNewWindow();
+							}
 						}
 					);
 				}
@@ -289,11 +287,16 @@ export class configurablereportComp implements OnInit, OnDestroy {
 						(result) => {
 							this.reportHTML = result;
 							this.GeneratedReport = true;
+							if (this.GeneratedReport) {
+								this.OpenInNewWindow();
+							}
 						}
 					);
 				}
 			}
 		}
+
+
 	}
 	public OrderByChoiceChange() {
 		if (this.OrderByChoice == 'Item Id') {
