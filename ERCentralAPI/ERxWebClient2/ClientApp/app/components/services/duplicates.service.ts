@@ -111,6 +111,7 @@ export class DuplicatesService extends BusyAwareService implements OnInit, OnDes
                     this.BackToMain();
                 } else {
                     this.modalService.GenericError(error);
+                    this.BackToMain();//just in case, this will force a refresh which is safer...
                 }
             }
             );
@@ -272,10 +273,10 @@ export class DuplicatesService extends BusyAwareService implements OnInit, OnDes
             });
     }
     public DoSort() {
-        console.log("doSort", this.LocalSort);
+        //console.log("doSort", this.LocalSort);
         if (this.DuplicateGroups.length == 0 || this.LocalSort.SortBy == "") return;
         for (let property of Object.getOwnPropertyNames(this.DuplicateGroups[0])) {
-            console.log("doSort2", property);
+            //console.log("doSort2", property);
             if (property == this.LocalSort.SortBy) {
                 this.DuplicateGroups.sort((a: any, b: any) => {
                     if (this.LocalSort.Direction) {

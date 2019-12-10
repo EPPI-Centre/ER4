@@ -8,7 +8,10 @@
 <div *ngIf="IsServiceBusy && (ActivePanel == 'Running Mark Automatically')"
      class="border border-dark rounded bg-white"
      style="position: fixed; top: 35%; bottom:35%; height:30%; z-index:100; right:35%; left:35%; width:30%; min-height:100px; min-width:100px;">
-    <div class="center">Please Wait...</div>
+    <div class="row justify-content-center">
+        <h5>Marking Automatically</h5>
+    </div>
+    <div>Please Wait...</div>
     <div *ngIf="IsServiceBusy" class="k-loading-image" style="position: fixed; top: 0%;"></div>
     <div class="center">Processing group {{CurrentAutoGroup}} of {{TotalAutoAutoGroups}}...</div>
     <button 

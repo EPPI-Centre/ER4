@@ -117,16 +117,16 @@ export class DuplicatesComponent implements OnInit, OnDestroy {
         else return "bg-lev3";
     }
     public SortBy(fieldName: string) {
-        console.log("SortBy", fieldName);
+        //console.log("SortBy", fieldName);
         if (this.DuplicatesService.DuplicateGroups.length == 0) return;
         for (let property of Object.getOwnPropertyNames(this.DuplicatesService.DuplicateGroups[0])) {
             //console.log("SortByP", property);
             if (property == fieldName){
                 if (this.DuplicatesService.LocalSort.SortBy == fieldName) {
-                    console.log("SortBy", 1);
+                    //console.log("SortBy", 1);
                     this.DuplicatesService.LocalSort.Direction = !this.DuplicatesService.LocalSort.Direction;
                 } else {
-                    console.log("SortBy", 2);
+                    //console.log("SortBy", 2);
                     this.DuplicatesService.LocalSort.Direction = true;
                     this.DuplicatesService.LocalSort.SortBy = fieldName;
                 }
