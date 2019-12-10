@@ -24,19 +24,23 @@
 				<div class="col-1 m-1">Display:</div>
 				<div class="col-6 row mb-1" style="min-width: 400px;">
 					<div class="col-3 row">
-						<input class="m-1 p-1" type="checkbox" value="true" name="ItemId"
+						<input [disabled]="OrderByChoice=='Item Id'" class="m-1 p-1"
+							   type="checkbox" value="true" name="ItemId"
 							   [(ngModel)]="ItemIdModel">ItemId
 					</div>
 					<div class="col-3 row">
-						<input class="m-1 p-1" type="checkbox" value="false" name="ImportedId"
+						<input [disabled]="OrderByChoice=='Imported Id'" class="m-1 p-1" 
+							   type="checkbox" value="false" name="ImportedId"
 							   [(ngModel)]="ImportedIdModel">ImportedId
 					</div>
 					<div class="col-3 row">
-						<input class="m-1 p-1" type="checkbox" value="true" name="ShortTitle"
-							   [(ngModel)]="ShortTitleModel">Short Title
+						<input [disabled]="OrderByChoice=='Short title'" class="m-1 p-1" 
+							   type="checkbox" value="true" name="ShortTitle"
+							   [(ngModel)]="ShortTitleModel">Short title
 					</div>
 					<div class="col-3 row">
-						<input class="m-1 p-1" type="checkbox" value="false" name="Title"
+						<input [disabled]="OrderByChoice=='Title'" class="m-1 p-1" 
+							   type="checkbox" value="false" name="Title"
 							   [(ngModel)]="TitleModel">Title
 					</div>
 				</div>
@@ -54,11 +58,12 @@
 				<div class="col-1 p-2 m-2"></div>
 				<div class="col-12 col-md-6 row mb-1" style="min-width: 400px;">
 					<div class="col-3 row">
-						<input class="m-1 p-1" type="checkbox" value="true" name="Year"
+						<input [disabled]="OrderByChoice=='Year'" class="m-1 p-1" type="checkbox" 
+							   value="true" name="Year"
 							   [(ngModel)]="YearModel">Year
 					</div>
 					<div class="col-3 row">
-						<input class="m-1 p-1" type="checkbox" value="false" name="Abstract"
+						<input  class="m-1 p-1" type="checkbox" value="false" name="Abstract"
 							   [(ngModel)]="AbstractModel">Abstract
 					</div>
 					<div class="col-3 row">
