@@ -101,7 +101,7 @@ export class configurablereportComp implements OnInit, OnDestroy {
 		}
 	}
 	public onTabSelect(event: any) {
-		console.log(event.index);
+		
 		let index: number = event.index;
 		this.outcomesHidden = false;
 		this.OutcomesModel = false;
@@ -226,29 +226,27 @@ export class configurablereportComp implements OnInit, OnDestroy {
 				return true;
 			}
 		}
+		if (this.ItemsChoice == 'Items with this code') {
+			console.log('got in here');
+
+			if (this.DropdownSelectedCodingTool != null) {
+
+				console.log('actually got all the way');
+				if (this.DropdownSelectedCodingTool.name != '') {
+					return true;
+				} else {
+					return false;
+				}
+			}
+			else {
+				return false;
+			}
+		}
 		if (this.tabSelectedIndex == 0) {
 			//STANDARD
-			
-			
 			if (this.ItemsChoice == 'All included items') {
 				//not sure yet...
 
-			}
-			if (this.ItemsChoice == 'Items with this code') {
-				console.log('got in here');
-
-				if (this.DropdownSelectedCodingTool != null) {
-
-					console.log('actually got all the way');
-					if (this.DropdownSelectedCodingTool.name != '') {
-						return true;
-					} else {
-						return false;
-					}
-				}
-				else {
-					return false;
-				}
 			}
 		} else if (this.tabSelectedIndex == 1) {
 			//ROB
