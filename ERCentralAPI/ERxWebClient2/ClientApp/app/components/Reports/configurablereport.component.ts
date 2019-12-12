@@ -13,7 +13,6 @@ import { Helpers } from '../helpers/HelperMethods';
 	selector: 'configurablereport',
 	templateUrl: './configurablereport.component.html',
 })
-
 export class configurablereportComp implements OnInit, OnDestroy {
 
 	constructor(
@@ -28,11 +27,9 @@ export class configurablereportComp implements OnInit, OnDestroy {
 	ngOnInit() {
 
 	}
-
 	ngOnDestroy() {
 
 	}
-
 	@ViewChild('CodingToolTreeReports') CodingToolTree!: codesetSelectorComponent;
 	@ViewChild('CodeTreeAllocate') CodeTreeAllocate!: codesetSelectorComponent;
 
@@ -70,7 +67,9 @@ export class configurablereportComp implements OnInit, OnDestroy {
 	public reportHTML: string = '';
 	public sectionShow: string = 'Standard';
 	public GeneratedReport: boolean = false;
-
+	public QuestionReports: Report[] = [];
+	public AnswerReports: Report[] = [];
+	public tabSelectedIndex: number = 0;
 	public showRiskOfBias() {
 		this.showROB = !this.showROB;
 	}
@@ -99,6 +98,29 @@ export class configurablereportComp implements OnInit, OnDestroy {
 		} else {
 			this.sectionShow = 'Standard';
 			this.RiskOfBias = true;
+		}
+	}
+	public onTabSelect(event: any) {
+		
+		let index: number = event.index;
+		this.outcomesHidden = false;
+		this.OutcomesModel = false;
+		this.ShowRiskOfBiasFigureModel = false;
+		this.RiskOfBias = false;
+		if (index == 1) {
+			// ROB reports
+			this.tabSelectedIndex = 1;
+			this.RiskOfBias = true;
+			this.ShowRiskOfBiasFigureModel = true;
+			this.configurablereportServ.FetchReports(1);
+		} else if (index == 2) {
+			this.tabSelectedIndex = 2;
+			this.outcomesHidden = true;
+			this.OutcomesModel = true;
+			this.configurablereportServ.FetchReports(2);
+		} else {
+			this.tabSelectedIndex = 0;
+			this.configurablereportServ.FetchReports(0);
 		}
 	}
 	public ShowOutcomes() {
@@ -146,7 +168,7 @@ export class configurablereportComp implements OnInit, OnDestroy {
 	}
 	public Clear() {
 
-		this.configurablereportServ.FetchReports();
+		this.configurablereportServ.FetchReports(0);
 		this.configurablereportServ.reportHTML = '';
 		this.reportHTML = '';
 		this.ReportChoice = {} as Report;
@@ -174,7 +196,7 @@ export class configurablereportComp implements OnInit, OnDestroy {
 	CloseCodeDropDownCodingTool() {
 		if (this.CodingToolTree) {
 			this.DropdownSelectedCodingTool = this.CodingToolTree.SelectedNodeData;
-			console.log(JSON.stringify(this.DropdownSelectedCodingTool));
+			//console.log(JSON.stringify(this.DropdownSelectedCodingTool));
 		}
 		this.isCollapsedCodingTool = false;
 	}
@@ -191,7 +213,55 @@ export class configurablereportComp implements OnInit, OnDestroy {
 	public get HasWriteRights(): boolean {
 		return this.ReviewerIdentityServ.HasWriteRights;
 	}
-	public RunReports() {
+	public get CheckOptionsAreCorrectForReports(): boolean {
+
+		if (this.ReportChoice == null) {
+			return false;
+		}
+		if (this.ItemsChoice == 'All selected items') {
+			if (!this.HasSelectedItems) {
+				return false;
+			} else {
+				return true;
+			}
+		}
+		if (this.ItemsChoice == 'Items with this code') {
+			if (this.DropdownSelectedCodingTool != null) {
+				if (this.DropdownSelectedCodingTool.name != '') {
+					return true;
+				} else {
+					return false;
+				}
+			}
+			else {
+				return false;
+			}
+		}
+		if (this.tabSelectedIndex == 0) {
+			//STANDARD
+			if (this.ItemsChoice == 'All included items') {
+				//not sure yet...
+
+			}
+		} else if (this.tabSelectedIndex == 1) {
+			//ROB
+			if (!this.RiskOfBias) {
+				return false;
+			}
+
+		} else if (this.tabSelectedIndex == 2) {
+			//OUTCOME
+			if (this.ReportChoice == null) {
+				return false;
+			}
+			if (this.OutcomesModel == null) {
+				return false;
+			}
+
+		}
+		return false;
+	}
+	public RunReports()  {
 
 		if (this.ReportChoice == null || this.ReportChoice == undefined
 			|| this.ReportChoice.name == 'Please selected a generated report') {
@@ -239,7 +309,7 @@ export class configurablereportComp implements OnInit, OnDestroy {
 			args.setId = this.DropdownSelectedCodingTool != null ? reviewSet.set_id : 0;
 			args.showRiskOfBias = this.ShowRiskOfBiasFigureModel;
 			args.showBullets = this.AddBulletsToCodesModel;
-			args.showUncodedItems = this.UncodedItemsModel;
+			args.showUncodedItems = !this.UncodedItemsModel;
 			args.txtInfoTag = this.AdditionalTextTagModel;
 			args.isQuestion = false;
 
@@ -276,7 +346,7 @@ export class configurablereportComp implements OnInit, OnDestroy {
 			args.showShortTitle = this.ShortTitleModel;
 			args.showRiskOfBias = this.ShowRiskOfBiasFigureModel;
 			args.showBullets = this.AddBulletsToCodesModel;
-			args.showUncodedItems = this.UncodedItemsModel;
+			args.showUncodedItems = !this.UncodedItemsModel;
 			args.txtInfoTag = this.AdditionalTextTagModel;
 			args.isQuestion = this.ReportChoice.reportType == "Question" ? true : false;
 
@@ -331,7 +401,7 @@ export class configurablereportComp implements OnInit, OnDestroy {
 		saveAs(dataURI, "ConfigurableReport.html");
 	}
 	public GetReports() {
-		this.configurablereportServ.FetchReports();
+		this.configurablereportServ.FetchReports(0);
 	}
 	public RunConfigurableReports() {
 		if (!this.RunReportsShow) {

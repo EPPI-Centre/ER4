@@ -36,9 +36,9 @@ namespace ERxWebClient2.Controllers
             try
             {
                 SetCSLAUser();
-                ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+                ReviewerIdentity ri = ApplicationContext.User.Identity as ReviewerIdentity;
                 DataPortal<ReportList> dp = new DataPortal<ReportList>();
-                ReportList result = dp.Fetch();
+				ReportList result = dp.Fetch();
                 return Ok(result);
             }
             catch(Exception e)
