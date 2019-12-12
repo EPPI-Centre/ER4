@@ -6,7 +6,6 @@ import { Item } from './ItemList.service';
 import { Router } from '@angular/router';
 import { ReviewerIdentityService } from './revieweridentity.service';
 import { NotificationService } from '@progress/kendo-angular-notification';
-import { NumericDictionary } from 'lodash';
 import { LocalSort } from '../helpers/HelperMethods';
 
 @Injectable({
@@ -117,9 +116,11 @@ export class DuplicatesService extends BusyAwareService implements OnInit, OnDes
             );
         //return currentItem.arms;
     }
-    public FetchGroupDetails(groupId: number) {
+    public async FetchGroupDetails(groupId: number) {
         if (this.CurrentGroup && this.CurrentGroup.groupID == groupId && this.CurrentGroup.members.length > 0) return;//no need, we already have the details...
+        //await Helpers.Sleep(50);
         this._BusyMethods.push("FetchGroupDetails");
+        //await Helpers.Sleep(50);
         let body = JSON.stringify({ Value: groupId });
         return this._http.post<iItemDuplicateGroup>(this._baseUrl + 'api/Duplicates/FetchGroupDetails',
             body).toPromise().then(result => {
@@ -198,6 +199,7 @@ export class DuplicatesService extends BusyAwareService implements OnInit, OnDes
     }
     
     public async MarkAutomatically(similarity: number, coded: number, docs: number) {
+        //await Helpers.Sleep(50);
         this._BusyMethods.push("MarkAutomatically");
         this.allDone = false;
         this.currentCount = 0; this.ToDoCount = 0;
@@ -235,11 +237,11 @@ export class DuplicatesService extends BusyAwareService implements OnInit, OnDes
                     }
                 }
                 if (IDs.length > 0) {
-                    console.log("Will update grp: " + this.CurrentGroup.groupID + " " + (this.currentCount + 1) + " of " + this.ToDoCount);
+                    //console.log("Will update grp: " + this.CurrentGroup.groupID + " " + (this.currentCount + 1) + " of " + this.ToDoCount);
                     let command: MarkUnmarkItemAsDuplicate = new MarkUnmarkItemAsDuplicate(this.CurrentGroup.groupID, 0, true);
                     command.itemDuplicateIds = IDs;
                     await this.MarkUnmarkMemberAsDuplicate(command);
-                    console.log("Updated grp: " + this.CurrentGroup.groupID + " " + (this.currentCount + 1) + " of " + this.ToDoCount);
+                    //console.log("Updated grp: " + this.CurrentGroup.groupID + " " + (this.currentCount + 1) + " of " + this.ToDoCount);
                 }
                 this.currentCount++;
             } else {
@@ -248,6 +250,7 @@ export class DuplicatesService extends BusyAwareService implements OnInit, OnDes
         }
         this.allDone = true;
         this.RemoveBusy("MarkAutomatically");
+        //await Helpers.Sleep(50);
     }
     public RemoveManualMember(itemId: number) {
         if (!this.CurrentGroup || this.CurrentGroup.manualMembers.findIndex(ff => ff.itemId == itemId) == -1) return;

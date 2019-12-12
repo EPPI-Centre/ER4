@@ -80,11 +80,21 @@ export class DuplicatesComponent implements OnInit, OnDestroy {
     }
     public get CurrentAutoGroup(): number {
         if (this.DuplicatesService.allDone) {
-            this.ActivePanel = "";
+            if (this.ActivePanel !== "") {
+                //console.log("before?", this.ActivePanel);
+                this.ResetActivePanel();
+                //console.log("after?");
+            }
+            //this.ActivePanel = "";
             this.DuplicatesService.currentCount = 0;
             this.DuplicatesService.ToDoCount = 0;
         }
         return this.DuplicatesService.currentCount + 1;
+    }
+    private async ResetActivePanel() {
+        //small trick to avoid the ExpressionChangedAfterItHasBeenCheckedError dreaded error, sleep before resetting, to give time to NG to catch up on the visual side...
+        await Helpers.Sleep(20);
+        this.ActivePanel = "";
     }
     public get TotalAutoAutoGroups(): number {
         return this.DuplicatesService.ToDoCount;
@@ -240,7 +250,7 @@ export class DuplicatesComponent implements OnInit, OnDestroy {
         this.DuplicatesService.ToDoCount = 0;
         this.DuplicatesService.allDone = true;
     }
-    AdvancedMarkAutomaticallyShow() {
+    public async AdvancedMarkAutomaticallyShow() {
         this.ActivePanel = "AdvancedMarkAutomatically";
     }
     GoToManualMembers() {
