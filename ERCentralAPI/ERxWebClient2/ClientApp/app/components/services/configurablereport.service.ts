@@ -22,11 +22,21 @@ export class ConfigurableReportService extends BusyAwareService {
 		return this._ReportList;
     }
   
-	public FetchReports() {
+	public FetchReports(tabIndex: any | null) {
+
 		this._BusyMethods.push("FetchReports");
 		this._httpC.get<Report[]>(this._baseUrl + 'api/ReportList/FetchReports')
 			.subscribe(result => {
-				this._ReportList = result;
+
+				if (tabIndex == 1) {
+					this._ReportList = result.filter(x => x.reportType == 'Question');
+				} else if (tabIndex == 2) {
+					this._ReportList = result.filter(x => x.reportType == 'Answer');
+				}
+				else {
+					this._ReportList = result;
+				}
+
 				this.RemoveBusy("FetchReports");
 			}, error => {
 				this.RemoveBusy("FetchReports");

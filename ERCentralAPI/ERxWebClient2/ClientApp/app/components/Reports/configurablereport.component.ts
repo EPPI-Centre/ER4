@@ -70,6 +70,8 @@ export class configurablereportComp implements OnInit, OnDestroy {
 	public reportHTML: string = '';
 	public sectionShow: string = 'Standard';
 	public GeneratedReport: boolean = false;
+	public QuestionReports: Report[] = [];
+	public AnswerReports: Report[] = [];
 
 	public showRiskOfBias() {
 		this.showROB = !this.showROB;
@@ -100,6 +102,21 @@ export class configurablereportComp implements OnInit, OnDestroy {
 			this.sectionShow = 'Standard';
 			this.RiskOfBias = true;
 		}
+	}
+	public onTabSelect(event: any) {
+		console.log(event.index);
+		let index: number = event.index;
+		
+		//based on index call fetch differently
+		if (index == 1) {
+			// ROB reports
+			this.configurablereportServ.FetchReports(1);
+		}else if (index == 2) {
+			this.configurablereportServ.FetchReports(2);
+		} else {
+			this.configurablereportServ.FetchReports(0);
+		}
+
 	}
 	public ShowOutcomes() {
 
@@ -146,7 +163,7 @@ export class configurablereportComp implements OnInit, OnDestroy {
 	}
 	public Clear() {
 
-		this.configurablereportServ.FetchReports();
+		this.configurablereportServ.FetchReports(0);
 		this.configurablereportServ.reportHTML = '';
 		this.reportHTML = '';
 		this.ReportChoice = {} as Report;
@@ -239,7 +256,7 @@ export class configurablereportComp implements OnInit, OnDestroy {
 			args.setId = this.DropdownSelectedCodingTool != null ? reviewSet.set_id : 0;
 			args.showRiskOfBias = this.ShowRiskOfBiasFigureModel;
 			args.showBullets = this.AddBulletsToCodesModel;
-			args.showUncodedItems = this.UncodedItemsModel;
+			args.showUncodedItems = !this.UncodedItemsModel;
 			args.txtInfoTag = this.AdditionalTextTagModel;
 			args.isQuestion = false;
 
@@ -276,7 +293,7 @@ export class configurablereportComp implements OnInit, OnDestroy {
 			args.showShortTitle = this.ShortTitleModel;
 			args.showRiskOfBias = this.ShowRiskOfBiasFigureModel;
 			args.showBullets = this.AddBulletsToCodesModel;
-			args.showUncodedItems = this.UncodedItemsModel;
+			args.showUncodedItems = !this.UncodedItemsModel;
 			args.txtInfoTag = this.AdditionalTextTagModel;
 			args.isQuestion = this.ReportChoice.reportType == "Question" ? true : false;
 
@@ -331,7 +348,7 @@ export class configurablereportComp implements OnInit, OnDestroy {
 		saveAs(dataURI, "ConfigurableReport.html");
 	}
 	public GetReports() {
-		this.configurablereportServ.FetchReports();
+		this.configurablereportServ.FetchReports(0);
 	}
 	public RunConfigurableReports() {
 		if (!this.RunReportsShow) {
