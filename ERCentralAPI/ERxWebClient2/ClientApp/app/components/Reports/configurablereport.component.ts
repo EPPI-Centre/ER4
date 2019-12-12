@@ -221,17 +221,12 @@ export class configurablereportComp implements OnInit, OnDestroy {
 		if (this.ItemsChoice == 'All selected items') {
 			if (!this.HasSelectedItems) {
 				return false;
-
 			} else {
 				return true;
 			}
 		}
 		if (this.ItemsChoice == 'Items with this code') {
-			console.log('got in here');
-
 			if (this.DropdownSelectedCodingTool != null) {
-
-				console.log('actually got all the way');
 				if (this.DropdownSelectedCodingTool.name != '') {
 					return true;
 				} else {

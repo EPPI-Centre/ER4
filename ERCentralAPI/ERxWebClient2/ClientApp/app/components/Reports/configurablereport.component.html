@@ -61,52 +61,51 @@
 					<div *ngIf="sectionShow == 'Standard'">
 						<div class="row mt-2 mx-1 border-bottom">
 							<div class="row col-12">
-								<div class="col-1 m-1">Display:</div>
-								<div class="col-6 row mb-1" style="min-width: 400px;">
-									<div class="col-3 row">
+								<label class="col-1 pl-0">Display Options:</label>
+								<div class="col-2 row mb-1" style="min-width: 400px;">
+									<div class="col-12 row">
 										<input [disabled]="OrderByChoice=='Item Id'" class="m-1 p-1"
 											   type="checkbox" value="true" name="ItemId"
 											   [(ngModel)]="ItemIdModel">ItemId
 									</div>
-									<div class="col-3 row">
+									<div class="col-12 row">
 										<input [disabled]="OrderByChoice=='Imported Id'" class="m-1 p-1"
 											   type="checkbox" value="false" name="ImportedId"
 											   [(ngModel)]="ImportedIdModel">ImportedId
 									</div>
-									<div class="col-3 row">
+									<div class="col-12 row">
 										<input [disabled]="OrderByChoice=='Short title'" class="m-1 p-1"
 											   type="checkbox" value="true" name="ShortTitle"
 											   [(ngModel)]="ShortTitleModel">Short title
 									</div>
-									<div class="col-3 row">
+									<div class="col-12 row">
 										<input [disabled]="OrderByChoice=='Title'" class="m-1 p-1"
 											   type="checkbox" value="false" name="Title"
 											   [(ngModel)]="TitleModel">Title
 									</div>
 								</div>
 
-							</div>
-							<div class="row col-12">
+								<div class="row col-5">
 
-								<div class="col-1 p-2 m-2"></div>
-								<div class="col-12 col-md-6 row mb-1" style="min-width: 400px;">
-									<div class="col-3 row">
-										<input [disabled]="OrderByChoice=='Year'" class="m-1 p-1" type="checkbox"
-											   value="true" name="Year"
-											   [(ngModel)]="YearModel">Year
-									</div>
-									<div class="col-3 row">
-										<input class="m-1 p-1" type="checkbox" value="false" name="Abstract"
-											   [(ngModel)]="AbstractModel">Abstract
-									</div>
-									<div class="col-3 row">
-										<input class="m-1 p-1" type="checkbox" value="true" name="UncodedItems"
-											   [(ngModel)]="UncodedItemsModel">Uncoded Items
+									<div class="col-1 p-2 m-2"></div>
+									<div class="col-12 col-md-6 row mb-1" style="min-width: 400px;">
+										<div class="col-12 row">
+											<input [disabled]="OrderByChoice=='Year'" class="m-1 p-1" type="checkbox"
+												   value="true" name="Year"
+												   [(ngModel)]="YearModel">Year
+										</div>
+										<div class="col-12 row">
+											<input class="m-1 p-1" type="checkbox" value="false" name="Abstract"
+												   [(ngModel)]="AbstractModel">Abstract
+										</div>
+										<div class="col-12 row">
+											<input class="m-1 p-1" type="checkbox" value="true" name="UncodedItems"
+												   [(ngModel)]="UncodedItemsModel">Uncoded Items
+										</div>
 									</div>
 								</div>
 							</div>
-
-
+							
 
 							<div class="col-12 row mb-1 border-bottom">
 								<div class="col-2 pl-0">
@@ -170,19 +169,23 @@
 		</kendo-tabstrip>
 
 		<div class="col-12 row p-0 mx-1 justify-content-center" *ngIf="sectionShow == 'Standard'">
-			<button type="submit" (click)="RunReports()" class="btn btn-success ml-2 mr-2"
-					[disabled]="!CheckOptionsAreCorrectForReports || !HasReport ">
-				Run/view
-			</button>
-			<button (click)="SaveReport()" [disabled]="!HasWriteRights || !GeneratedReport"
-					title="Save as Html (Supports opening in Word)"
-					type="button" class="btn btn-outline-primary  ml-1 mr-1">
-				<i class="fa fa-floppy-o" aria-hidden="true"></i>
-			</button>
-			<button class="btn btn-outline-secondary ml-1"
-					(click)="CloseReportsSection()">
-				Cancel
-			</button>
+			<div class="col-1 m-0 p-0"></div>
+			<div class="col-3 m-0 p-0">
+				<button type="submit" (click)="RunReports()" class="btn btn-success ml-2 mr-2"
+						[disabled]="!CheckOptionsAreCorrectForReports || !HasReport ">
+					Run/view
+				</button>
+				<button (click)="SaveReport()" [disabled]="!HasWriteRights || !GeneratedReport"
+						title="Save as Html (Supports opening in Word)"
+						type="button" class="btn btn-outline-primary  ml-1 mr-1">
+					<i class="fa fa-floppy-o" aria-hidden="true"></i>
+				</button>
+				<button class="btn btn-outline-secondary ml-1"
+						(click)="CloseReportsSection()">
+					Cancel
+				</button>
+			</div>
+			<div class="col-8"></div>
 		</div>
 	</div>
 
