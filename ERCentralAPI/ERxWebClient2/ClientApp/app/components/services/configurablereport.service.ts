@@ -28,6 +28,8 @@ export class ConfigurableReportService extends BusyAwareService {
 		this._httpC.get<Report[]>(this._baseUrl + 'api/ReportList/FetchReports')
 			.subscribe(result => {
 
+
+
 				if (tabIndex == 1) {
 					this._ReportList = result.filter(x => x.reportType == 'Question');
 				} else if (tabIndex == 2) {
@@ -36,6 +38,9 @@ export class ConfigurableReportService extends BusyAwareService {
 				else {
 					this._ReportList = result;
 				}
+
+				//let emptyReport: Report = {} as Report;
+				//this._ReportList.push(emptyReport);
 
 				this.RemoveBusy("FetchReports");
 			}, error => {
