@@ -12,7 +12,7 @@
 			</select>
 		</div>
 		<div class="row col-md-12 m-0 p-0" *ngIf="ShowCodeTree" ngbDropdown style="min-width:190px;">
-			<label class="col-1 pl-0">Coding Tool:</label>
+			<label class="col-12 col-md-1 pl-0">Coding Tool:</label>
 			<button ngbDropdownAnchor class="btn btn-outline-primary dropdown-toggle col-3"
 					(click)="isCollapsedCodingTool = !isCollapsedCodingTool;
 														dropdownBasicCodingTool = false"
@@ -20,7 +20,7 @@
 					aria-controls="collapseCodeTreeCodingToolReports">
 				{{DropdownSelectedCodingTool?.name}}
 			</button>
-			<div class="dropdown-menu col-5 ml-5" id="collapseCodeTreeCodingToolReports"
+			<div class="dropdown-menu col-12 col-md-5 ml-5" id="collapseCodeTreeCodingToolReports"
 				 [ngbCollapse]="!isCollapsedCodingTool">
 				<codesetSelector [IsMultiSelect]="false"
 								 [MaxHeight]="500" #CodingToolTreeReports
@@ -30,8 +30,8 @@
 			</div>
 		</div>
 		<div class="row col-12">
-			<label class="col-1 pl-0">Order by:</label>
-			<select class="col-5 form-control mb-1" style="min-width:190px;"
+			<label class="col-12 col-md-1 pl-0">Order by:</label>
+			<select class="col-12 col-md-5 form-control mb-1" style="min-width:190px;"
 					[disabled]="!HasWriteRights" [(ngModel)]="OrderByChoice" (change)="OrderByChoiceChange()">
 				<option> Short title</option>
 				<option> Title</option>
@@ -42,14 +42,15 @@
 		</div>
 	</div>
 		<div class="font-weight-bold">Reports</div>
-		<kendo-tabstrip style="min-height:400px;" (tabSelect)="onTabSelect($event)">
+		<kendo-tabstrip style="min-height:400px; min-width: 400px;" (tabSelect)="onTabSelect($event)">
 			<kendo-tabstrip-tab [title]="'Standard'" [selected]="true">
 				<ng-template kendoTabContent>
 					<div *ngIf="sectionShow == 'Standard'">
+						<p><b>All Reports: </b></p>
 						<div class="row col-12">
-							<label class="col-1 pl-0">Report Name:</label>
+							<label class="col-12 col-md-1 pl-0">Report Name:</label>
 
-							<select class="col-5 form-control mb-1" style="min-width:190px;"
+							<select class="col-12 col-md-5 form-control mb-1" style="min-width:190px;"
 									(change)="ChangedReport(item)"
 									[disabled]="!HasWriteRights" [(ngModel)]="ReportChoice">
 								<option *ngFor="let item of ReportCollection"
@@ -60,8 +61,8 @@
 						</div>
 						<div class="row mt-2 mx-1 border-bottom">
 							<div class="row col-12">
-								<label class="col-1 pl-0">Display Options:</label>
-								<div class="col-2 row mb-1" style="min-width: 400px;">
+								<label class="col-12 col-md-1 pl-0">Display Options:</label>
+								<div class="col-12 col-md-2 row mb-1" style="min-width: 400px;">
 									<div class="col-12 row">
 										<input [disabled]="OrderByChoice=='Item Id'" class="m-1 p-1"
 											   type="checkbox" value="true" name="ItemId"
@@ -84,7 +85,7 @@
 									</div>
 								</div>
 
-								<div class="row col-5">
+								<div class="row col-12 col-md-5">
 
 									<div class="col-1 p-2 m-2"></div>
 									<div class="col-12 col-md-6 row mb-1" style="min-width: 400px;">
@@ -119,8 +120,8 @@
 										   [(ngModel)]="AddBulletsToCodesModel">Add Bullets to Codes
 								</div>
 							</div>
-							<div class="col-md-1"></div>
-							<div class="col-5 row mb-1" style="min-width:190px;">
+							<div class="col-12 col-md-1"></div>
+							<div class="col-12 col-md-5 row mb-1" style="min-width:190px;">
 								Alignment:
 								<input class="m-1 p-1" type="radio" [value]="true" name="Alignment"
 									   [(ngModel)]="AlignmentHorizontalModel">Horizontal
@@ -133,10 +134,11 @@
 			</kendo-tabstrip-tab>
 			<kendo-tabstrip-tab [title]="'Risk Of Bias'">
 				<ng-template kendoTabContent>
+					<p><b>Question Reports: </b></p>
 					<div class="row col-12">
-						<label class="col-1 pl-0">Report Name:</label>
+						<label class="col-12 col-md-1 pl-0">Report Name:</label>
 
-						<select class="col-5 form-control mb-1" style="min-width:190px;"
+						<select class="col-12 col-md-5 form-control mb-1" style="min-width:190px;"
 								(change)="ChangedReport(item)"
 								[disabled]="!HasWriteRights" [(ngModel)]="ReportChoice">
 							<option *ngFor="let item of ReportCollection"
@@ -146,7 +148,7 @@
 						</select>
 					</div>
 					<div class="col-12 row p-0 my-2 mx-1 border-bottom">
-						<div class="col-md-6 row mb-1 border border-dark">
+						<div class="col-12 col-md-6  row mb-1 border border-dark">
 							<div class="col">
 								<input [disabled]="true"
 									   class="m-1 p-1" type="checkbox" name="ShowRiskOfBiasFigure"
@@ -162,8 +164,8 @@
 							</div>
 						</div>
 					</div>
-					<div class="col-md-1"></div>
-					<div class="col-5 row mb-1" style="min-width:190px;">
+					<div class="col-12 col-md-1"></div>
+					<div class="col-12 col-md-5  row mb-1" style="min-width:190px;">
 						Alignment:
 						<input class="m-1 p-1" type="radio" [value]="true" name="Alignment"
 							   [(ngModel)]="AlignmentHorizontalModel">Horizontal
@@ -174,10 +176,12 @@
 			</kendo-tabstrip-tab>
 			<kendo-tabstrip-tab [title]="'Outcomes'">
 				<ng-template kendoTabContent>
+					<p><b>Answer Reports: </b></p>
 					<div class="row col-12">
-						<label class="col-1 pl-0">Report Name:</label>
 
-						<select class="col-5 form-control mb-1" style="min-width:190px;"
+						<label class="col-12 col-md-1  pl-0">Report Name:</label>
+
+						<select class="col-12 col-md-5  form-control mb-1" style="min-width:190px;"
 								(change)="ChangedReport(item)"
 								[disabled]="!HasWriteRights" [(ngModel)]="ReportChoice">
 							<option *ngFor="let item of ReportCollection"
@@ -198,9 +202,9 @@
 					<div class="row mt-2 mx-1 border-bottom">
 						<div class="row col-12">
 
-							<div  class="col-12 row p-0 my-2 mx-1 border-bottom">
+							<div class="col-12 row p-0 my-2 mx-1 border-bottom">
 								<div class="col-md-6 row mb-1 border border-dark">
-									
+
 									<div class="col">
 										<p>
 											Outcome description of tab from Sergio and Jeff goes here.
@@ -210,8 +214,8 @@
 								</div>
 							</div>
 						</div>
-						<div class="col-md-1"></div>
-						<div class="col-5 row mb-1" style="min-width:190px;">
+						<div class="col-12 col-md-1 "></div>
+						<div class="col-12 col-md-5  row mb-1" style="min-width:190px;">
 							Alignment:
 							<input class="m-1 p-1" type="radio" [value]="true" name="Alignment"
 								   [(ngModel)]="AlignmentHorizontalModel">Horizontal
@@ -223,8 +227,8 @@
 			</kendo-tabstrip-tab>
 		</kendo-tabstrip>
 		<div class="col-12 row p-0 mx-1 justify-content-center" *ngIf="sectionShow == 'Standard'">
-			<div class="col-1 m-0 p-0"></div>
-			<div class="col-3 m-0 p-0">
+			<div class="col-12 col-md-12  m-0 p-0"></div>
+			<div class="col-12 col-md-12  m-0 p-0">
 				<button type="submit" (click)="RunReports()" class="btn btn-success ml-2 mr-2"
 						[disabled]="!CheckOptionsAreCorrectForReports || !HasReport ">
 					Run/view
