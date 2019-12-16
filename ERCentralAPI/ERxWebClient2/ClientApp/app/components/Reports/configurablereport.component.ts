@@ -26,6 +26,14 @@ export class configurablereportComp implements OnInit, OnDestroy {
 
 	ngOnInit() {
 
+
+		this.configurablereportServ.FetchReports(0);
+		//if (this.configurablereportServ.Reports != null) {
+		//	this.ReportChoice = this.configurablereportServ.Reports[0];
+		//	console.log('report should nto be null initiliase: ', this.ReportChoice.name);
+		//}
+
+
 	}
 	ngOnDestroy() {
 
@@ -264,7 +272,7 @@ export class configurablereportComp implements OnInit, OnDestroy {
 	public RunReports()  {
 
 
-		console.log(this.AlignmentHorizontalModel);
+		//console.log('report should nto be null: ', this.ReportChoice.name);
 
 		if (this.ReportChoice == null || this.ReportChoice == undefined
 			|| this.ReportChoice.name == 'Please selected a generated report') {
@@ -385,7 +393,18 @@ export class configurablereportComp implements OnInit, OnDestroy {
 		}
 	}
 	public get ReportCollection(): Report[] | null {
-		return this.configurablereportServ.Reports;
+		if (this.configurablereportServ.Reports) {
+			let viewableReports: Report[] = [];
+			let dummyReport = {} as Report;
+			viewableReports.push(dummyReport);
+			for (var i = 0; i < this.configurablereportServ.Reports.length ; i++) {
+				viewableReports.push(this.configurablereportServ.Reports[i]);
+			}
+			this.configurablereportServ.Reports;
+			return viewableReports;
+		} else {
+			return null;
+		}
 	}
 	public SaveReport() {
 		this.SaveAsHtml();

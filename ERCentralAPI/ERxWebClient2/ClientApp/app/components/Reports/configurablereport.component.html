@@ -2,18 +2,6 @@
 	<div *ngIf="IsServiceBusy" class="k-loading-image" style="position: fixed; top: 0%;"></div>
 	<div style="min-width:190px;">
 		<div class="row col-12">
-			<label class="col-1 pl-0">Report Name:</label>
-
-			<select class="col-5 form-control mb-1" style="min-width:190px;"
-					(change)="ChangedReport(item)"
-					[disabled]="!HasWriteRights" [(ngModel)]="ReportChoice">
-				<option *ngFor="let item of ReportCollection"
-						[ngValue]="item">
-					{{ item.name }}
-				</option>
-			</select>
-		</div>
-		<div class="row col-12">
 			<label class="col-1 pl-0">Items:</label>
 			<select class="col-5 form-control mb-1"
 					[disabled]="!HasWriteRights" [(ngModel)]="ItemsChoice"
@@ -54,11 +42,22 @@
 		</div>
 	</div>
 		<div class="font-weight-bold">Reports</div>
-
 		<kendo-tabstrip style="min-height:400px;" (tabSelect)="onTabSelect($event)">
 			<kendo-tabstrip-tab [title]="'Standard'" [selected]="true">
 				<ng-template kendoTabContent>
 					<div *ngIf="sectionShow == 'Standard'">
+						<div class="row col-12">
+							<label class="col-1 pl-0">Report Name:</label>
+
+							<select class="col-5 form-control mb-1" style="min-width:190px;"
+									(change)="ChangedReport(item)"
+									[disabled]="!HasWriteRights" [(ngModel)]="ReportChoice">
+								<option *ngFor="let item of ReportCollection"
+										[ngValue]="item">
+									{{ item.name }}
+								</option>
+							</select>
+						</div>
 						<div class="row mt-2 mx-1 border-bottom">
 							<div class="row col-12">
 								<label class="col-1 pl-0">Display Options:</label>
@@ -105,7 +104,7 @@
 									</div>
 								</div>
 							</div>
-							
+
 
 							<div class="col-12 row mb-1 border-bottom">
 								<div class="col-2 pl-0">
@@ -134,40 +133,95 @@
 			</kendo-tabstrip-tab>
 			<kendo-tabstrip-tab [title]="'Risk Of Bias'">
 				<ng-template kendoTabContent>
-					<div>
-						<div class="col-12 row p-0 my-2 mx-1 border-bottom">
-							<div class="col-md-6 row mb-1 border border-dark">
-								<div class="col">
-									<input [disabled]="true"
-										   class="m-1 p-1" type="checkbox" name="ShowRiskOfBiasFigure"
-										   [(ngModel)]="ShowRiskOfBiasFigureModel">Show Risk Of Bias Figure
-								</div>
-								<div class="col">
-									<p>
-										- The order of the classification codes in the risk of bias codeset must be:
-										- Low (1 code only)
-										- High ( 1 code only)
-										- Unclear ( 1 or more)
-									</p>
-								</div>
-							</div>
+					<div class="row col-12">
+						<label class="col-1 pl-0">Report Name:</label>
 
+						<select class="col-5 form-control mb-1" style="min-width:190px;"
+								(change)="ChangedReport(item)"
+								[disabled]="!HasWriteRights" [(ngModel)]="ReportChoice">
+							<option *ngFor="let item of ReportCollection"
+									[ngValue]="item">
+								{{ item.name }}
+							</option>
+						</select>
+					</div>
+					<div class="col-12 row p-0 my-2 mx-1 border-bottom">
+						<div class="col-md-6 row mb-1 border border-dark">
+							<div class="col">
+								<input [disabled]="true"
+									   class="m-1 p-1" type="checkbox" name="ShowRiskOfBiasFigure"
+									   [(ngModel)]="ShowRiskOfBiasFigureModel">Show Risk Of Bias Figure
+							</div>
+							<div class="col">
+								<p>
+									- The order of the classification codes in the risk of bias codeset must be:
+									- Low (1 code only)
+									- High ( 1 code only)
+									- Unclear ( 1 or more)
+								</p>
+							</div>
 						</div>
+					</div>
+					<div class="col-md-1"></div>
+					<div class="col-5 row mb-1" style="min-width:190px;">
+						Alignment:
+						<input class="m-1 p-1" type="radio" [value]="true" name="Alignment"
+							   [(ngModel)]="AlignmentHorizontalModel">Horizontal
+						<input class="m-1 p-1" type="radio" [value]="false" name="Alignment"
+							   [(ngModel)]="AlignmentHorizontalModel">Vertical
 					</div>
 				</ng-template>
 			</kendo-tabstrip-tab>
 			<kendo-tabstrip-tab [title]="'Outcomes'">
 				<ng-template kendoTabContent>
-					<div *ngIf="outcomesHidden"
-						 class="col-3 row">
-						<input [disabled]="true"
-							   class="m-1 p-1" type="checkbox" value="true" name="Outcomes"
-							   [(ngModel)]="OutcomesModel">Outcomes
+					<div class="row col-12">
+						<label class="col-1 pl-0">Report Name:</label>
+
+						<select class="col-5 form-control mb-1" style="min-width:190px;"
+								(change)="ChangedReport(item)"
+								[disabled]="!HasWriteRights" [(ngModel)]="ReportChoice">
+							<option *ngFor="let item of ReportCollection"
+									[ngValue]="item">
+								{{ item.name }}
+							</option>
+						</select>
+
+						<div class="row col-12">
+							<div *ngIf="outcomesHidden"
+								 class="col-12 row">
+								<input [disabled]="true"
+									   class="m-1 p-1" type="checkbox" value="true" name="Outcomes"
+									   [(ngModel)]="OutcomesModel">Outcomes
+							</div>
+						</div>
+					</div>
+					<div class="row mt-2 mx-1 border-bottom">
+						<div class="row col-12">
+
+							<div  class="col-12 row p-0 my-2 mx-1 border-bottom">
+								<div class="col-md-6 row mb-1 border border-dark">
+									
+									<div class="col">
+										<p>
+											Outcome description of tab from Sergio and Jeff goes here.
+											[Respice finem.Respice finem.Respice finem.Respice finem.Respice finem.Respice finem.Respice finem.Respice finem.Respice finem.Respice finem.Respice finem.Respice finem.]
+										</p>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="col-md-1"></div>
+						<div class="col-5 row mb-1" style="min-width:190px;">
+							Alignment:
+							<input class="m-1 p-1" type="radio" [value]="true" name="Alignment"
+								   [(ngModel)]="AlignmentHorizontalModel">Horizontal
+							<input class="m-1 p-1" type="radio" [value]="false" name="Alignment"
+								   [(ngModel)]="AlignmentHorizontalModel">Vertical
+						</div>
 					</div>
 				</ng-template>
 			</kendo-tabstrip-tab>
 		</kendo-tabstrip>
-
 		<div class="col-12 row p-0 mx-1 justify-content-center" *ngIf="sectionShow == 'Standard'">
 			<div class="col-1 m-0 p-0"></div>
 			<div class="col-3 m-0 p-0">
