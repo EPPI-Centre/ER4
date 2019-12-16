@@ -68,7 +68,7 @@ namespace ERxWebClient2.Controllers
 					, args.orderBy
 					, args.attributeId
 					, args.setId
-					, args.isHorizantal
+					, args.isHorizontal
 					, args.showItemId
 					, args.showOldID
 					, args.showOutcomes
@@ -80,7 +80,7 @@ namespace ERxWebClient2.Controllers
 
 
 				string htmlString = report.ReportContent(
-					args.isHorizantal,
+					args.isHorizontal,
 					args.showItemId
 					, args.showOldID
 					, args.showUncodedItems,
@@ -178,7 +178,7 @@ namespace ERxWebClient2.Controllers
 		public string orderBy { get; set; }
 		public int attributeId { get; set; }
 		public int setId { get; set; }
-		public bool isHorizantal { get; set; }
+		public bool isHorizontal { get; set; }
 		public bool showItemId { get; set; }
 		public bool showOldID { get; set; }
 		public bool showOutcomes { get; set; }

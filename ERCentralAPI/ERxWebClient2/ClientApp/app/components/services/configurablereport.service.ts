@@ -123,7 +123,7 @@ export interface ReportQuestionExecuteCommandParams {
 	orderBy: string;
 	attributeId: number;
 	setId: number;
-	isHorizantal: boolean;
+	isHorizontal: boolean;
 	showItemId: boolean;
 	showOldID: boolean;
 	showOutcomes: boolean;

@@ -263,6 +263,9 @@ export class configurablereportComp implements OnInit, OnDestroy {
 	}
 	public RunReports()  {
 
+
+		console.log(this.AlignmentHorizontalModel);
+
 		if (this.ReportChoice == null || this.ReportChoice == undefined
 			|| this.ReportChoice.name == 'Please selected a generated report') {
 			return;
@@ -336,7 +339,7 @@ export class configurablereportComp implements OnInit, OnDestroy {
 			args.orderBy = this.OrderByChoice;
 			args.attributeId = this.DropdownSelectedCodingTool != null ? attribute.attribute_id : 0;
 			args.setId = this.DropdownSelectedCodingTool != null ? reviewSet.set_id : 0;
-			args.isHorizantal = this.AlignmentHorizontalModel;
+			args.isHorizontal = this.AlignmentHorizontalModel;
 			args.showItemId = this.ItemIdModel;
 			args.showOldID = this.ImportedIdModel;
 			args.showOutcomes = this.OutcomesModel;
