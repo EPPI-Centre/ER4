@@ -28,11 +28,6 @@ export class configurablereportComp implements OnInit, OnDestroy {
 
 
 		this.configurablereportServ.FetchReports(0);
-		//if (this.configurablereportServ.Reports != null) {
-		//	this.ReportChoice = this.configurablereportServ.Reports[0];
-		//	console.log('report should nto be null initiliase: ', this.ReportChoice.name);
-		//}
-
 
 	}
 	ngOnDestroy() {
@@ -109,12 +104,14 @@ export class configurablereportComp implements OnInit, OnDestroy {
 		}
 	}
 	public onTabSelect(event: any) {
-		
+
+		this.ReportChoice = {} as Report;
 		let index: number = event.index;
 		this.outcomesHidden = false;
 		this.OutcomesModel = false;
 		this.ShowRiskOfBiasFigureModel = false;
 		this.RiskOfBias = false;
+
 		if (index == 1) {
 			// ROB reports
 			this.tabSelectedIndex = 1;
@@ -131,6 +128,7 @@ export class configurablereportComp implements OnInit, OnDestroy {
 			this.configurablereportServ.FetchReports(0);
 		}
 	}
+
 	public ShowOutcomes() {
 
 		this.RiskOfBias = false;
@@ -271,9 +269,6 @@ export class configurablereportComp implements OnInit, OnDestroy {
 	}
 	public RunReports()  {
 
-
-		//console.log('report should nto be null: ', this.ReportChoice.name);
-
 		if (this.ReportChoice == null || this.ReportChoice == undefined
 			|| this.ReportChoice.name == 'Please selected a generated report') {
 			return;
@@ -303,6 +298,8 @@ export class configurablereportComp implements OnInit, OnDestroy {
 			}
 		}
 
+		console.log(this.ReportChoice.reportType);
+		console.log(this.OutcomesModel);
 		if (this.ReportChoice.reportType == "Answer" && this.OutcomesModel) {
 
 			//('this is an answer');
@@ -330,6 +327,7 @@ export class configurablereportComp implements OnInit, OnDestroy {
 					report.then(
 						(res) => {
 							this.reportHTML = res.returnReport;
+							this.GeneratedReport = true;
 							if (this.GeneratedReport) {
 								this.OpenInNewWindow();
 							}

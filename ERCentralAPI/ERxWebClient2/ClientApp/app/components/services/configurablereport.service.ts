@@ -71,7 +71,8 @@ export class ConfigurableReportService extends BusyAwareService {
 			)
 			.toPromise().then(
 				(result) => {
-                    this.RemoveBusy("FetchOutcomesReport");
+					this.RemoveBusy("FetchOutcomesReport");
+					console.log('service report', result); 
 						return result;
 				}, error => {
                     this.RemoveBusy("FetchOutcomesReport");
