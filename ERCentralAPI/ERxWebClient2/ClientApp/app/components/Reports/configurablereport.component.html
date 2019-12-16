@@ -150,27 +150,29 @@
 					<div class="col-12 row p-0 my-2 mx-1 border-bottom">
 						<div class="col-12 col-md-6  row mb-1 border border-dark">
 							<div class="col">
-								<input [disabled]="true"
+								<input [disabled]="true" [hidden]="true"
 									   class="m-1 p-1" type="checkbox" name="ShowRiskOfBiasFigure"
 									   [(ngModel)]="ShowRiskOfBiasFigureModel">Show Risk Of Bias Figure
 							</div>
 							<div class="col">
 								<p>
-									- The order of the classification codes in the risk of bias codeset must be:
-									- Low (1 code only)
-									- High ( 1 code only)
-									- Unclear ( 1 or more)
+									<ul>
+										The order of the classification codes in the risk of bias codeset must be:
+										<li> Low (1 code only)</li>
+										<li> High ( 1 code only)</li>
+										<li>Unclear ( 1 or more)</li>
+									</ul>
 								</p>
 							</div>
 						</div>
 					</div>
 					<div class="col-12 col-md-1"></div>
 					<div class="col-12 col-md-5  row mb-1" style="min-width:190px;">
-						Alignment:
+						<!--Alignment:
 						<input class="m-1 p-1" type="radio" [value]="true" name="Alignment"
 							   [(ngModel)]="AlignmentHorizontalModel">Horizontal
 						<input class="m-1 p-1" type="radio" [value]="false" name="Alignment"
-							   [(ngModel)]="AlignmentHorizontalModel">Vertical
+							   [(ngModel)]="AlignmentHorizontalModel">Vertical-->
 					</div>
 				</ng-template>
 			</kendo-tabstrip-tab>
@@ -193,7 +195,7 @@
 						<div class="row col-12">
 							<div *ngIf="outcomesHidden"
 								 class="col-12 row">
-								<input [disabled]="true"
+								<input [disabled]="true" [hidden]="true"
 									   class="m-1 p-1" type="checkbox" value="true" name="Outcomes"
 									   [(ngModel)]="OutcomesModel">Outcomes
 							</div>
@@ -216,11 +218,11 @@
 						</div>
 						<div class="col-12 col-md-1 "></div>
 						<div class="col-12 col-md-5  row mb-1" style="min-width:190px;">
-							Alignment:
+							<!--Alignment:
 							<input class="m-1 p-1" type="radio" [value]="true" name="Alignment"
 								   [(ngModel)]="AlignmentHorizontalModel">Horizontal
 							<input class="m-1 p-1" type="radio" [value]="false" name="Alignment"
-								   [(ngModel)]="AlignmentHorizontalModel">Vertical
+								   [(ngModel)]="AlignmentHorizontalModel">Vertical-->
 						</div>
 					</div>
 				</ng-template>
