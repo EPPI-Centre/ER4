@@ -27,7 +27,6 @@ namespace ERxWebClient2.Controllers
             try
             {
                 SetCSLAUser();
-                ReviewerIdentity ri = ApplicationContext.User.Identity as ReviewerIdentity;
                 DataPortal<ReportList> dp = new DataPortal<ReportList>();
 				ReportList result = dp.Fetch();
                 return Ok(result);
@@ -44,8 +43,7 @@ namespace ERxWebClient2.Controllers
 		{
 			try
 			{
-				SetCSLAUser4Writing();
-				ReviewerIdentity ri = ApplicationContext.User.Identity as ReviewerIdentity;
+                SetCSLAUser();
 
 				DataPortal<ReviewSetsList> dpFirst = new DataPortal<ReviewSetsList>();
 				ReviewSetsList reviewSets = dpFirst.Fetch();
@@ -101,7 +99,7 @@ namespace ERxWebClient2.Controllers
 		{
 			try
 			{
-				SetCSLAUser4Writing();
+                SetCSLAUser();
 				ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
 				DataPortal<ReportExecuteCommand> dp = new DataPortal<ReportExecuteCommand>();
 				ReportExecuteCommand command = new ReportExecuteCommand(
