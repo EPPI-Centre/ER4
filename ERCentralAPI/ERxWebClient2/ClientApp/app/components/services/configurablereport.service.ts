@@ -20,33 +20,30 @@ export class ConfigurableReportService extends BusyAwareService {
     private _ReportList: Report[] = [];
 	public get Reports(): Report[] | null {
 		return this._ReportList;
-    }
-  
-	public FetchReports(tabIndex: any | null) {
+	}
+	public get ReportCollectionROB(): Report[] | null {
+
+		return this._ReportList.filter(x => x.reportType == 'Question');
+			
+	}
+	public get ReportCollectionOutcomes(): Report[] | null {
+
+		return this._ReportList.filter(x => x.reportType == 'Answer');
+
+	}  
+	public FetchReports() {
 
 		this._BusyMethods.push("FetchReports");
 		this._httpC.get<Report[]>(this._baseUrl + 'api/ReportList/FetchReports')
 			.subscribe(result => {
 
-
-
-				if (tabIndex == 1) {
-					this._ReportList = result.filter(x => x.reportType == 'Question');
-				} else if (tabIndex == 2) {
-					this._ReportList = result.filter(x => x.reportType == 'Answer');
-				}
-				else {
-					this._ReportList = result;
-				}
-
-				//let emptyReport: Report = {} as Report;
-				//this._ReportList.push(emptyReport);
-
+				this._ReportList = result;
 				this.RemoveBusy("FetchReports");
 			}, error => {
 				this.RemoveBusy("FetchReports");
 				this.modalService.GenericErrorMessage(error);
 			}
+
 		);
 	}
 	FetchQuestionReport(args: ReportQuestionExecuteCommandParams): Promise<string>   {
@@ -62,6 +59,13 @@ export class ConfigurableReportService extends BusyAwareService {
 				this.modalService.GenericErrorMessage(error);
 				return error;
 			}
+		).catch(
+			(error) => {
+				console.log('error in FetchQuestionReport catch', error);
+				this.modalService.GenericErrorMessage(error);
+				this.RemoveBusy("FetchQuestionReport");
+				return error;
+			}
 		);
 	}
     FetchOutcomesReport(args: ReportAnswerExecuteCommandParams): Promise<ReportResult>   {
@@ -72,17 +76,23 @@ export class ConfigurableReportService extends BusyAwareService {
 			.toPromise().then(
 				(result) => {
 					this.RemoveBusy("FetchOutcomesReport");
-					console.log('service report', result); 
+					
 						return result;
 				}, error => {
                     this.RemoveBusy("FetchOutcomesReport");
 						this.modalService.GenericErrorMessage(error);
 						return error;
 					}
-				);
+		).catch(
+			(error) => {
+				console.log('error in FetchOutcomesReport catch', error);
+				this.modalService.GenericErrorMessage(error);
+				this.RemoveBusy("FetchOutcomesReport");
+				return error;
+			}
+		);
 	}
 }
-
 export interface ReportResult
 {
 	returnReport: string;

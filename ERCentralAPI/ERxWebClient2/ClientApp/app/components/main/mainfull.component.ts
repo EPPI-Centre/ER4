@@ -379,7 +379,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 
 	public GetReports() {
 
-		this.configurablereportServ.FetchReports(0);
+		this.configurablereportServ.FetchReports();
 	}
 	public RunConfigurableReports() {
 

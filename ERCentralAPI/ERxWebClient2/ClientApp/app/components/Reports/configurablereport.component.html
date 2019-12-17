@@ -52,8 +52,9 @@
 
 							<select class="col-12 col-md-5 form-control mb-1" style="min-width:190px;"
 									(change)="ChangedReport(item)"
-									[disabled]="!HasWriteRights" [(ngModel)]="ReportChoice">
-								<option *ngFor="let item of ReportCollection"
+									[disabled]="!HasWriteRights" [(ngModel)]="ReportChoiceStandard">
+								<option></option>
+								<option *ngFor="let item of configurablereportServ.Reports"
 										[ngValue]="item">
 									{{ item.name }}
 								</option>
@@ -140,21 +141,22 @@
 
 						<select class="col-12 col-md-5 form-control mb-1" style="min-width:190px;"
 								(change)="ChangedReport(item)"
-								[disabled]="!HasWriteRights" [(ngModel)]="ReportChoice">
-							<option *ngFor="let item of ReportCollection"
+								[disabled]="!HasWriteRights" [(ngModel)]="ReportChoiceROB">
+							<option></option>
+							<option *ngFor="let item of configurablereportServ.ReportCollectionROB"
 									[ngValue]="item">
 								{{ item.name }}
 							</option>
 						</select>
 					</div>
 					<div class="col-12 row p-0 my-2 mx-1 border-bottom">
-						<div class="col-12 col-md-6  row mb-1 border border-dark">
+						<div class="col-12 col-md-12  row mb-1 border border-dark">
 							<div class="col">
 								<input [disabled]="true" [hidden]="true"
 									   class="m-1 p-1" type="checkbox" name="ShowRiskOfBiasFigure"
 									   [(ngModel)]="ShowRiskOfBiasFigureModel">Show Risk Of Bias Figure
 							</div>
-							<div class="col">
+							<div class="col-12 col-md-12 " style="min-width:800px;">
 									<ul>
 										The order of the classification codes in the risk of bias codeset must be:
 										<li> Low (1 code only)</li>
@@ -166,11 +168,7 @@
 					</div>
 					<div class="col-12 col-md-1"></div>
 					<div class="col-12 col-md-5  row mb-1" style="min-width:190px;">
-						<!--Alignment:
-						<input class="m-1 p-1" type="radio" [value]="true" name="Alignment"
-							   [(ngModel)]="AlignmentHorizontalModel">Horizontal
-						<input class="m-1 p-1" type="radio" [value]="false" name="Alignment"
-							   [(ngModel)]="AlignmentHorizontalModel">Vertical-->
+
 					</div>
 				</ng-template>
 			</kendo-tabstrip-tab>
@@ -183,8 +181,9 @@
 
 						<select class="col-12 col-md-5  form-control mb-1" style="min-width:190px;"
 								(change)="ChangedReport(item)"
-								[disabled]="!HasWriteRights" [(ngModel)]="ReportChoice">
-							<option *ngFor="let item of ReportCollection"
+								[disabled]="!HasWriteRights" [(ngModel)]="ReportChoiceOutcomes">
+							<option></option>
+							<option *ngFor="let item of configurablereportServ.ReportCollectionOutcomes"
 									[ngValue]="item">
 								{{ item.name }}
 							</option>
@@ -199,7 +198,7 @@
 							</div>
 						</div>
 					</div>
-					<div class="row mt-2 mx-1 border-bottom">
+					<div class="row mt-2 mx-1 ">
 						<div class="row col-12">
 
 							<div class="col-12 row p-0 my-2 mx-1 border-bottom">
@@ -216,11 +215,6 @@
 						</div>
 						<div class="col-12 col-md-1 "></div>
 						<div class="col-12 col-md-5  row mb-1" style="min-width:190px;">
-							<!--Alignment:
-							<input class="m-1 p-1" type="radio" [value]="true" name="Alignment"
-								   [(ngModel)]="AlignmentHorizontalModel">Horizontal
-							<input class="m-1 p-1" type="radio" [value]="false" name="Alignment"
-								   [(ngModel)]="AlignmentHorizontalModel">Vertical-->
 						</div>
 					</div>
 				</ng-template>
@@ -230,7 +224,7 @@
 			<div class="col-12 col-md-12  m-0 p-0"></div>
 			<div class="col-12 col-md-12  m-0 p-0">
 				<button type="submit" (click)="RunReports()" class="btn btn-success ml-2 mr-2"
-						[disabled]="!CheckOptionsAreCorrectForReports || !HasReport ">
+						[disabled]="!CheckOptionsAreCorrectForReports ">
 					Run/view
 				</button>
 				<button (click)="SaveReport()" [disabled]="!HasWriteRights || !GeneratedReport"
