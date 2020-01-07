@@ -79,7 +79,6 @@ export class ConfigurableReportService extends BusyAwareService {
 			}, error => {
 				this.RemoveBusy("FetchROBReport");
 				this.modalService.GenericError(error);
-				// I do not understand below line
 				return "error";
 			}
 		).catch(
@@ -87,7 +86,6 @@ export class ConfigurableReportService extends BusyAwareService {
 				console.log('error in FetchROBReport catch', error);
 				this.modalService.GenericError(error);
 				this.RemoveBusy("FetchROBReport");
-				// I do not understand below line
 				return "error";
 			}
 		);

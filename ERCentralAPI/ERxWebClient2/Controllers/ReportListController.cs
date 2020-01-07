@@ -44,7 +44,7 @@ namespace ERxWebClient2.Controllers
 		{
 			try
 			{
-				SetCSLAUser4Writing();
+				SetCSLAUser();
 				ReviewerIdentity ri = ApplicationContext.User.Identity as ReviewerIdentity;
 
 				DataPortal<ReviewSetsList> dpFirst = new DataPortal<ReviewSetsList>();
@@ -84,15 +84,14 @@ namespace ERxWebClient2.Controllers
 					, args.showYear
 					, args.showShortTitle
 					);
-                //Random random = new Random();
-                //if (random.Next() != 34543) throw new Exception("I'm an error!!!!");
-                return Json(htmlString);
+
+				return Json(htmlString);
 			}
 			catch (Exception e)
 			{
 				_logger.LogError(e, "Error with FetchStandardReport", e.InnerException);
                 return StatusCode(500, e.Message);
-                //return Json(e.Message);
+       
 			}
 		}
 		
@@ -101,7 +100,7 @@ namespace ERxWebClient2.Controllers
 		{
 			try
 			{
-				SetCSLAUser4Writing();
+				SetCSLAUser();
 				ReviewerIdentity ri = ApplicationContext.User.Identity as ReviewerIdentity;
 
 				DataPortal<ReviewSetsList> dpFirst = new DataPortal<ReviewSetsList>();
@@ -148,7 +147,7 @@ namespace ERxWebClient2.Controllers
 			catch (Exception e)
 			{
 				_logger.LogError(e, "Error with FetchROBReport", e.InnerException);
-				return Json(e.Message);
+				return StatusCode(500, e.Message);
 			}
 		}
 		
@@ -157,7 +156,7 @@ namespace ERxWebClient2.Controllers
 		{
 			try
 			{
-				SetCSLAUser4Writing();
+				SetCSLAUser();
 				ReviewerIdentity ri = ApplicationContext.User.Identity as ReviewerIdentity;
 				DataPortal<ReportExecuteCommand> dp = new DataPortal<ReportExecuteCommand>();
 
@@ -174,7 +173,7 @@ namespace ERxWebClient2.Controllers
 					args.attributeId,
 					args.setId);
 				command = dp.Execute(command);
-
+	
 				return Ok(command);
 			}
 			catch (Exception e)
