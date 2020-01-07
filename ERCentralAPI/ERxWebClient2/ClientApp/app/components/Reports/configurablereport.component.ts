@@ -63,8 +63,6 @@ export class configurablereportComp implements OnInit, OnDestroy {
 	public DropDownBasicCodingTool: ReviewSet = new ReviewSet();
 	public isCollapsedAllocateOptions: boolean = false;
 	public ShowCodeTree: boolean = false;
-	public isCollapsedCodeAllocate: boolean = false;
-	public DropDownAllocateAtt: SetAttribute = new SetAttribute();
 	public showROB: boolean = false;
 	public reportHTML: string = '';
 	public sectionShow: string = 'Standard';
@@ -417,12 +415,5 @@ export class configurablereportComp implements OnInit, OnDestroy {
 		} else {
 			this.RunReportsShow = false;
 		}
-	}
-	public CloseCodeDropDownAllocate() {
-		if (this.CodeTreeAllocate) {
-			this.DropdownSelectedCodeAllocate = this.CodeTreeAllocate.SelectedNodeData;
-			this.DropDownAllocateAtt = this.DropdownSelectedCodeAllocate as SetAttribute;
-		}
-		this.isCollapsedCodeAllocate = false;
 	}
 }
