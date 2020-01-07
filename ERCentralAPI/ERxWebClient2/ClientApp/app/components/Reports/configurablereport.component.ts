@@ -39,6 +39,8 @@ export class configurablereportComp implements OnInit, OnDestroy {
 	@ViewChild('CodingToolTreeReports') CodingToolTree!: codesetSelectorComponent;
 	@ViewChild('CodeTreeAllocate') CodeTreeAllocate!: codesetSelectorComponent;
 
+
+	// Will go through and remove redundant variables if correct so far...
 	public AllocateChoice: string = '';
 	public AllIncOrExcShow: boolean = false;
 	public RunReportsShow: boolean = false;

@@ -1,4 +1,4 @@
-import {  Inject, Injectable } from '@angular/core';
+import { Inject, Injectable } from '@angular/core';
 import { HttpClient} from '@angular/common/http';
 import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
@@ -43,8 +43,6 @@ export class ConfigurableReportService extends BusyAwareService {
 	}
 	FetchStandardReport(args: ReportStandard): Promise<string> {
 
-
-		console.log(JSON.stringify(args.reportId));
 
 		this._BusyMethods.push("FetchStandardReport");
 		return this._httpC.post<string>(this._baseUrl + 'api/ReportList/FetchStandardReport',
