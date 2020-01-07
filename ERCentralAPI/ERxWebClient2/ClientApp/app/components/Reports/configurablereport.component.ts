@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, Inject, ViewChild } from '@angular/core';
 import { ItemListService } from '../services/ItemList.service';
 import { ReviewSet, SetAttribute, singleNode } from '../services/ReviewSets.service';
-import { Report, ConfigurableReportService, ReportAnswerExecuteCommandParams, ReportQuestionExecuteCommandParams } from '../services/configurablereport.service';
+import { Report, ConfigurableReportService, ReportStandard, ReportOutcomes, ReportRiskOfBias } from '../services/configurablereport.service';
 import { codesetSelectorComponent } from '../CodesetTrees/codesetSelector.component';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { EventEmitterService } from '../services/EventEmitter.service';
@@ -24,10 +24,14 @@ export class configurablereportComp implements OnInit, OnDestroy {
 		private _confirmationDialogService: ConfirmationDialogService
 	) { }
 
+	public ReportStandard: ReportStandard = new ReportStandard();
+	public ReportOutcomes: ReportOutcomes = new ReportOutcomes();
+	public ReportRiskOfBias: ReportRiskOfBias = new ReportRiskOfBias();
+
 	ngOnInit() {
 
-
 	}
+
 	ngOnDestroy() {
 
 		
@@ -217,16 +221,20 @@ export class configurablereportComp implements OnInit, OnDestroy {
 			return false;
 		}
 	}
+
 	public get HasWriteRights(): boolean {
 		return this.ReviewerIdentityServ.HasWriteRights;
 	}
+
 	public get CheckOptionsAreCorrectForReports(): boolean {
+
 
 		if (this.ItemsChoice == 'All selected items') {
 			if (!this.HasSelectedItems) {
 				return false;
 			} 
 		}
+
 		if (this.ItemsChoice == 'Items with this code') {
 			if (this.DropdownSelectedCodingTool != null) {
 				if (this.DropdownSelectedCodingTool.name != '') {
@@ -241,9 +249,8 @@ export class configurablereportComp implements OnInit, OnDestroy {
 		}
 		if (this.tabSelectedIndex == 0) {
 			//STANDARD
-
-			if (this.ReportChoiceStandard.reportId > 0) {
-
+			
+			if (this.ReportStandard.report.reportId > 0) {
 				return true;
 			} else {
 				return false;
@@ -251,26 +258,19 @@ export class configurablereportComp implements OnInit, OnDestroy {
 		} else if (this.tabSelectedIndex == 1) {
 			//ROB
 
-			if (!this.RiskOfBias) {
-				return false;
-			}
-			if (this.ReportChoiceROB.reportId > 0) {
+			if (this.ReportRiskOfBias.report.reportId > 0) {
 				return true;
 			}
 
 		} else if (this.tabSelectedIndex == 2) {
-			//OUTCOME
-
-			if (this.OutcomesModel == null) {
-				return false;
-			}
-			if (this.ReportChoiceOutcomes.reportId > 0) {
+			
+			if (this.ReportOutcomes.report.reportId > 0) {
 				return true;
 			}
 		}
-
 		return false;
 	}
+	
 	public RunReports()  {
 
 		if (!this.HasSelectedItems && this.ItemsChoice == 'All selected items') {
@@ -287,6 +287,7 @@ export class configurablereportComp implements OnInit, OnDestroy {
 				);
 			return;
 		}
+
 		let attribute: SetAttribute = new SetAttribute();
 		let reviewSet: ReviewSet = new ReviewSet();
 		if (this.DropdownSelectedCodingTool) {
@@ -297,69 +298,66 @@ export class configurablereportComp implements OnInit, OnDestroy {
 			}
 		}
 
-		console.log(this.ReportChoice.reportType);
-		console.log(this.OutcomesModel);
-		if (this.ReportChoiceOutcomes.reportId != 0 && this.OutcomesModel) {
+		if (this.tabSelectedIndex == 0) {
 
-			console.log('this is an answer');
-			let args: ReportAnswerExecuteCommandParams = {} as ReportAnswerExecuteCommandParams;
-			args.reportType = this.ReportChoice.reportType;
-			args.codes = this.ItemListService.SelectedItems.map(x => x.itemId.toString()).join();
-			args.reportId = this.ReportChoiceOutcomes.reportId;
-			args.showItemId = this.ItemIdModel;
-			args.showOldItemId = this.ImportedIdModel;
-			args.showOutcomes = this.OutcomesModel;
-			args.isHorizontal = this.AlignmentHorizontalModel;
-			args.orderBy = this.OrderByChoice;
-			args.title = this.ReportChoice.name;
-			args.attributeId = this.DropdownSelectedCodingTool != null ? attribute.attribute_id : 0;
-			args.setId = this.DropdownSelectedCodingTool != null ? reviewSet.set_id : 0;
-			args.showRiskOfBias = this.ShowRiskOfBiasFigureModel;
-			args.showBullets = this.AddBulletsToCodesModel;
-			args.showUncodedItems = !this.UncodedItemsModel;
-			args.txtInfoTag = this.AdditionalTextTagModel;
-			args.isQuestion = false;
+			this.RunStandardReports(attribute, reviewSet);
 
-			if (args) {
-				var report = this.configurablereportServ.FetchOutcomesReport(args);
-				if (report) {
-					report.then(
-						(res) => {
-							this.reportHTML = res.returnReport;
-							this.GeneratedReport = true;
-							if (this.GeneratedReport) {
-								this.OpenInNewWindow();
-								return;
+		} else if (this.tabSelectedIndex == 1) {
+
+			this.RunROBReports(attribute, reviewSet);
+
+		} else if (this.tabSelectedIndex == 2) {
+
+			this.RunOutcomesReports(attribute, reviewSet);
+
+		}
+	}
+
+	public RunStandardReports(attribute: SetAttribute, reviewSet: ReviewSet) {
+
+		if (this.ReportStandard.report.reportId != 0) {
+
+			this.ReportStandard.items = this.ItemListService.SelectedItems.map(x => x.itemId.toString()).join();
+			this.ReportStandard.orderBy = this.OrderByChoice;
+			this.ReportStandard.attributeId = this.DropdownSelectedCodingTool != null ? attribute.attribute_id : 0;
+			this.ReportStandard.setId = this.DropdownSelectedCodingTool != null ? reviewSet.set_id : 0;
+			this.ReportStandard.showRiskOfBias = false;
+			this.ReportStandard.isQuestion = true;
+			this.ReportStandard.reportId = this.ReportStandard.report.reportId;
+			
+			if (this.ReportStandard != null) {
+				var stringReport = this.configurablereportServ.FetchStandardReport(this.ReportStandard);
+				if (stringReport) {
+					stringReport.then(
+						(result) => {
+							if (result != 'error') {
+								this.reportHTML = result;
+								this.GeneratedReport = true;
+								if (this.GeneratedReport) {
+									this.OpenInNewWindow();
+									return;
+								}
 							}
 						}
 					);
 				}
 			}
+		}
+	}
+	public RunROBReports(attribute: SetAttribute, reviewSet: ReviewSet) {
 
-		} else if (this.ReportChoiceStandard.reportId != 0 || this.ReportChoiceROB.reportId != 0) {
+		if (this.ReportRiskOfBias.report.reportId) {
 
-			let args: ReportQuestionExecuteCommandParams = {} as ReportQuestionExecuteCommandParams;
-			args.items = this.ItemListService.SelectedItems.map(x => x.itemId.toString()).join();
-			args.reportId = this.ReportChoiceStandard.name == null ? this.ReportChoiceROB.reportId : this.ReportChoiceStandard.reportId; 
-			args.orderBy = this.OrderByChoice;
-			args.attributeId = this.DropdownSelectedCodingTool != null ? attribute.attribute_id : 0;
-			args.setId = this.DropdownSelectedCodingTool != null ? reviewSet.set_id : 0;
-			args.isHorizontal = this.AlignmentHorizontalModel;
-			args.showItemId = this.ItemIdModel;
-			args.showOldID = this.ImportedIdModel;
-			args.showOutcomes = this.OutcomesModel;
-			args.showFullTitle = this.TitleModel;
-			args.showAbstract = this.AbstractModel;
-			args.showYear = this.YearModel;
-			args.showShortTitle = this.ShortTitleModel;
-			args.showRiskOfBias = this.ShowRiskOfBiasFigureModel;
-			args.showBullets = this.AddBulletsToCodesModel;
-			args.showUncodedItems = !this.UncodedItemsModel;
-			args.txtInfoTag = this.AdditionalTextTagModel;
-			args.isQuestion = this.ReportChoice.reportType == "Question" ? true : false;
+			this.ReportRiskOfBias.items = this.ItemListService.SelectedItems.map(x => x.itemId.toString()).join();
+			this.ReportRiskOfBias.orderBy = this.OrderByChoice;
+			this.ReportRiskOfBias.attributeId = this.DropdownSelectedCodingTool != null ? attribute.attribute_id : 0;
+			this.ReportRiskOfBias.setId = this.DropdownSelectedCodingTool != null ? reviewSet.set_id : 0;
+			this.ReportRiskOfBias.isQuestion = true;
+			this.ReportRiskOfBias.reportId = this.ReportRiskOfBias.report.reportId;
+			this.ReportRiskOfBias.showRiskOfBias = true;
 
-			if (args) {
-				var stringReport = this.configurablereportServ.FetchQuestionReport(args);
+			if (this.ReportRiskOfBias) {
+				var stringReport = this.configurablereportServ.FetchROBReport(this.ReportRiskOfBias);
 				if (stringReport) {
 					stringReport.then(
 						(result) => {
@@ -374,9 +372,37 @@ export class configurablereportComp implements OnInit, OnDestroy {
 				}
 			}
 		}
+	}
+	public RunOutcomesReports(attribute: SetAttribute, reviewSet: ReviewSet) {
 
+		if (this.ReportOutcomes.report.reportId != 0) {
+
+			this.ReportOutcomes.reportId = this.ReportOutcomes.report.reportId;
+			this.ReportOutcomes.codes = this.ItemListService.SelectedItems.map(x => x.itemId.toString()).join();
+			this.ReportOutcomes.orderBy = this.OrderByChoice;
+			this.ReportOutcomes.attributeId = this.DropdownSelectedCodingTool != null ? attribute.attribute_id : 0;
+			this.ReportRiskOfBias.setId = this.DropdownSelectedCodingTool != null ? reviewSet.set_id : 0;
+			this.ReportOutcomes.showOutcomes = true;
+
+			if (this.ReportOutcomes) {
+				var report = this.configurablereportServ.FetchOutcomesReport(this.ReportOutcomes);
+				if (report) {
+					report.then(
+						(res) => {
+							this.reportHTML = res.returnReport;
+							this.GeneratedReport = true;
+							if (this.GeneratedReport) {
+								this.OpenInNewWindow();
+								return;
+							}
+						}
+					);
+				}
+			}
+		}
 
 	}
+
 	public OrderByChoiceChange() {
 		if (this.OrderByChoice == 'Item Id') {
 			this.ItemIdModel = true;
@@ -390,7 +416,6 @@ export class configurablereportComp implements OnInit, OnDestroy {
 			this.YearModel = true;
 		}
 	}
-
 	public SaveReport() {
 		this.SaveAsHtml();
 	}
@@ -425,4 +450,5 @@ export class configurablereportComp implements OnInit, OnDestroy {
 		}
 		this.isCollapsedCodeAllocate = false;
 	}
+
 }

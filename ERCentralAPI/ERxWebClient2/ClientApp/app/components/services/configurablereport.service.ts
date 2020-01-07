@@ -2,7 +2,6 @@ import {  Inject, Injectable } from '@angular/core';
 import { HttpClient} from '@angular/common/http';
 import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
-import { ReviewSet } from './ReviewSets.service';
 
 @Injectable({
     providedIn: 'root',
@@ -46,29 +45,61 @@ export class ConfigurableReportService extends BusyAwareService {
 
 		);
 	}
-	FetchQuestionReport(args: ReportQuestionExecuteCommandParams): Promise<string>   {
-		this._BusyMethods.push("FetchQuestionReport");
-		return this._httpC.post<string>(this._baseUrl + 'api/ReportList/FetchQuestionReport',
+	FetchStandardReport(args: ReportStandard): Promise<string> {
+
+
+		console.log(JSON.stringify(args.reportId));
+
+		this._BusyMethods.push("FetchStandardReport");
+		return this._httpC.post<string>(this._baseUrl + 'api/ReportList/FetchStandardReport',
 			args
 		).toPromise().then(
 			(result) => {
-				this.RemoveBusy("FetchQuestionReport");
+				this.RemoveBusy("FetchStandardReport");
+				console.log("FetchStandardReport got:", result);
 				return result;
+
 			}, error => {
-				this.RemoveBusy("FetchQuestionReport");
+				this.RemoveBusy("FetchStandardReport");
 				this.modalService.GenericErrorMessage(error);
-				return error;
+				return "error";
 			}
 		).catch(
 			(error) => {
-				console.log('error in FetchQuestionReport catch', error);
+				console.log('error in FetchStandardReport catch', error);
 				this.modalService.GenericErrorMessage(error);
-				this.RemoveBusy("FetchQuestionReport");
-				return error;
+				this.RemoveBusy("FetchStandardReport");
+				return "error";
 			}
 		);
 	}
-    FetchOutcomesReport(args: ReportAnswerExecuteCommandParams): Promise<ReportResult>   {
+	FetchROBReport(args: ReportRiskOfBias): Promise<string>   {
+
+		this._BusyMethods.push("FetchROBReport");
+		return this._httpC.post<string>(this._baseUrl + 'api/ReportList/FetchROBReport',
+			args
+		).toPromise().then(
+			(result) => {
+				this.RemoveBusy("FetchROBReport");
+				return result;
+			}, error => {
+				this.RemoveBusy("FetchROBReport");
+				this.modalService.GenericErrorMessage(error);
+				// I do not understand below line
+				return "error";
+			}
+		).catch(
+			(error) => {
+				console.log('error in FetchROBReport catch', error);
+				this.modalService.GenericErrorMessage(error);
+				this.RemoveBusy("FetchROBReport");
+				// I do not understand below line
+				return "error";
+			}
+		);
+	}
+	FetchOutcomesReport(args: ReportOutcomes): Promise<ReportResult>   {
+
         this._BusyMethods.push("FetchOutcomesReport");
 		return this._httpC.post<ReportResult>(this._baseUrl
             + 'api/ReportList/FetchOutcomesReport', args
@@ -92,6 +123,7 @@ export class ConfigurableReportService extends BusyAwareService {
 			}
 		);
 	}
+
 }
 export interface ReportResult
 {
@@ -106,45 +138,67 @@ export interface Report {
 	reportType: string;
 
 }
-export interface ReportAnswerExecuteCommandParams {
 
-	isQuestion: boolean;
-	reportType: string;
-	codes: string;
-	reportId: number;
-	showItemId: boolean;
-	showOldItemId: boolean;
-	showOutcomes: boolean;
-	isHorizontal: boolean;
-	orderBy: string;
-	title: string;
-	attributeId: number;
-	setId: number;
-	showRiskOfBias: boolean;
-	showUncodedItems: boolean;
-	showBullets: boolean;
-	txtInfoTag: string;
+export class ReportStandard {
+
+	items: string = '';
+	showFullTitle: boolean = false;
+	showAbstract: boolean = false;
+	showYear: boolean = false;
+	showShortTitle: boolean = false;
+	reportId: number = 0;
+	report: Report = {} as Report;
+	showItemId: boolean = false;
+	showOldItemId: boolean = false;
+	showOutcomes: boolean = false;
+	isHorizontal: boolean = false;
+	orderBy: string = '';
+	isQuestion: boolean = false;
+	attributeId: number = 0;
+	setId: number = 0;
+	showRiskOfBias: boolean = false;
+	showUncodedItems: boolean = false;
+	showBullets: boolean = false;
+	txtInfoTag: string = '';
+}
+
+export class ReportOutcomes {
+
+	reportType: string = '';
+	codes: string = '';
+	reportId: number = 0;
+	report: Report = {} as Report;
+	showItemId: boolean = false; 
+	showOldItemId: boolean = false; 
+	showOutcomes: boolean = false; 
+	isHorizontal: string = '';
+	orderBy: string = '';
+	title: string = '';
+	attributeId: number = 0;
+	setId: number = 0;
 
 }
-export interface ReportQuestionExecuteCommandParams {
 
-	isQuestion: boolean;
-	items: string;
-	reportId: number;
-	orderBy: string;
-	attributeId: number;
-	setId: number;
-	isHorizontal: boolean;
-	showItemId: boolean;
-	showOldID: boolean;
-	showOutcomes: boolean;
-	showFullTitle: boolean;
-	showAbstract: boolean;
-	showYear: boolean;
-	showShortTitle: boolean;
-	showRiskOfBias: boolean;
-	showUncodedItems: boolean;
-	showBullets: boolean;
-	txtInfoTag: string;
-	reviewSets: ReviewSet[]
+export class ReportRiskOfBias {
+
+	items: string = '';
+	showFullTitle: boolean = false;
+	showAbstract: boolean = false;
+	showYear: boolean = false;
+	showShortTitle: boolean = false;
+	reportId: number = 0;
+	report: Report = {} as Report;
+	showItemId: boolean = false;
+	showOldID: boolean = true;
+	showOutcomes: boolean = false;
+	isHorizontal: boolean = false;
+	orderBy: string = '';
+	isQuestion: boolean = false;
+	attributeId: number = 0;
+	setId: number = 0;
+	showRiskOfBias: boolean = false;
+	showUncodedItems: boolean = false;
+	showBullets: boolean = false;
+	txtInfoTag: string = '';
+
 }
