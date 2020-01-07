@@ -21,14 +21,10 @@ export class ConfigurableReportService extends BusyAwareService {
 		return this._ReportList;
 	}
 	public get ReportCollectionROB(): Report[] | null {
-
 		return this._ReportList.filter(x => x.reportType == 'Question');
-			
 	}
 	public get ReportCollectionOutcomes(): Report[] | null {
-
 		return this._ReportList.filter(x => x.reportType == 'Answer');
-
 	}  
 	public FetchReports() {
 
