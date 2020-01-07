@@ -119,11 +119,13 @@ export class ConfigurableReportService extends BusyAwareService {
 	}
 
 }
+
 export interface ReportResult
 {
 	returnReport: string;
 
 }
+
 export interface Report {
 
 	name: string;
@@ -194,5 +196,12 @@ export class ReportRiskOfBias {
 	showUncodedItems: boolean = false;
 	showBullets: boolean = false;
 	txtInfoTag: string = '';
+
+}
+
+export class CommonReportFields {
+
+	orderByChoice: string = 'Short title';
+	itemsChoice: string = 'All selected items';
 
 }

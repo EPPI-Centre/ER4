@@ -4,7 +4,7 @@
 		<div class="row col-12">
 			<label class="col-1 pl-0">Items:</label>
 			<select class="col-5 form-control mb-1"
-					[disabled]="!HasWriteRights" [(ngModel)]="ItemsChoice"
+					[disabled]="!HasWriteRights" [(ngModel)]="ReportCommonParams.itemsChoice"
 					(change)="ItemsChoiceChange()">
 				<option>All selected items</option>
 				<option>All included items</option>
@@ -32,7 +32,7 @@
 		<div class="row col-12">
 			<label class="col-12 col-md-1 pl-0">Order by:</label>
 			<select class="col-12 col-md-5 form-control mb-1" style="min-width:190px;"
-					[disabled]="!HasWriteRights" [(ngModel)]="OrderByChoice" (change)="OrderByChoiceChange()">
+					[disabled]="!HasWriteRights" [(ngModel)]="ReportCommonParams.orderByChoice" (change)="OrderByChoiceChange()">
 				<option> Short title</option>
 				<option> Title</option>
 				<option> Year</option>
