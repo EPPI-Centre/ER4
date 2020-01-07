@@ -130,7 +130,7 @@ namespace ERxWebClient2.Controllers
 					args.isHorizontal,
 					args.showItemId
 					, args.showOldID
-					, args.showUncodedItems,
+					,! args.showUncodedItems,
 					args.showBullets,
 					args.txtInfoTag
 					, args.orderBy

@@ -42,7 +42,7 @@
 		</div>
 	</div>
 		<div class="font-weight-bold">Reports</div>
-		<kendo-tabstrip style="min-height:400px; min-width: 400px;" (tabSelect)="onTabSelect($event)">
+		<kendo-tabstrip style="min-height:400px; min-width: 1400px;" (tabSelect)="onTabSelect($event)">
 			<kendo-tabstrip-tab [title]="'Standard'" [selected]="true">
 				<ng-template kendoTabContent>
 					<div *ngIf="sectionShow == 'Standard'">
@@ -157,12 +157,34 @@
 									   [(ngModel)]="ReportRiskOfBias.showRiskOfBias">Show Risk Of Bias Figure
 							</div>
 							<div class="col-12 col-md-12 " style="min-width:800px;">
-									<ul>
-										The order of the classification codes in the risk of bias codeset must be:
-										<li> Low (1 code only)</li>
-										<li> High ( 1 code only)</li>
-										<li> Unclear ( 1 or more)</li>
-									</ul>
+								<ul>
+									The order of the classification codes in the risk of bias codeset must be:
+									<li> Low (1 code only)</li>
+									<li> High ( 1 code only)</li>
+									<li> Unclear ( 1 or more)</li>
+								</ul>
+							</div>
+							<div class="col-12 col-md-2 row mb-1" style="min-width: 400px;">
+								<div class="col-12 row">
+									<input [disabled]="ReportCommonParams.orderByChoice == 'Item Id'" class="m-1 p-1"
+										   type="checkbox" value="true" name="ItemId"
+										   [(ngModel)]="ReportRiskOfBias.showItemId">ItemId
+								</div>
+								<div class="col-12 row">
+									<input [disabled]="ReportCommonParams.orderByChoice == 'Imported Id'" class="m-1 p-1"
+										   type="checkbox" value="false" name="ImportedId"
+										   [(ngModel)]="ReportRiskOfBias.showOldID">ImportedId
+								</div>
+								<div class="col-12 row">
+									<input [disabled]="ReportCommonParams.orderByChoice == 'Short title'" class="m-1 p-1"
+										   type="checkbox" value="true" name="ShortTitle"
+										   [(ngModel)]="ReportRiskOfBias.showShortTitle">Short title
+								</div>
+								<div class="col-12 row">
+									<input class="m-1 p-1"
+										   type="checkbox" value="false" name="UncodedItems"
+										   [(ngModel)]="ReportRiskOfBias.showUncodedItems">Uncoded Items
+								</div>
 							</div>
 						</div>
 					</div>
@@ -202,14 +224,18 @@
 						<div class="row col-12">
 
 							<div class="col-12 row p-0 my-2 mx-1 border-bottom">
-								<div class="col-md-6 row mb-1 border border-dark">
-
-									<div class="col">
-										<p>
-											Outcome description of tab from Sergio and Jeff goes here.
-											[Respice finem.Respice finem.Respice finem.Respice finem.Respice finem.Respice finem.Respice finem.Respice finem.Respice finem.Respice finem.Respice finem.Respice finem.]
-										</p>
-									</div>
+								<div class="col-12 row mb-1 border border-dark">
+										<div class="col-12 row">
+											<input [disabled]="ReportCommonParams.orderByChoice == 'Item Id'" class="m-1 p-1"
+												   type="checkbox" value="true" name="ItemId"
+												   [(ngModel)]="ReportOutcomes.showItemId">ItemId
+										</div>
+										<div class="col-12 row">
+											<input [disabled]="ReportCommonParams.orderByChoice == 'Imported Id'" class="m-1 p-1"
+												   type="checkbox" value="false" name="ImportedId"
+												   [(ngModel)]="ReportOutcomes.showOldItemId">ImportedId
+										</div>
+									
 								</div>
 							</div>
 						</div>

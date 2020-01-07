@@ -342,18 +342,25 @@ export class configurablereportComp implements OnInit, OnDestroy {
 
 		if (this.ReportCommonParams.orderByChoice == 'Item Id') {
 			this.ReportStandard.showItemId = true;
+			this.ReportOutcomes.showItemId = true;
+			this.ReportRiskOfBias.showItemId = true;
 
 		} else if (this.ReportCommonParams.orderByChoice == 'Imported Id') {
 			this.ReportStandard.showOldItemId = true;
+			this.ReportOutcomes.showOldItemId = true;
+			this.ReportRiskOfBias.showOldID = true;
 	
 		} else if (this.ReportCommonParams.orderByChoice == 'Short title') {
 			this.ReportStandard.showShortTitle = true;
+			this.ReportRiskOfBias.showShortTitle = true;
 		
 		} else if (this.ReportCommonParams.orderByChoice == 'Title') {
 			this.ReportStandard.showFullTitle = true;
+			this.ReportRiskOfBias.showFullTitle = true;
 
 		} else if (this.ReportCommonParams.orderByChoice == 'Year') {
 			this.ReportStandard.showYear = true;
+			this.ReportRiskOfBias.showYear = true;
 
 		}
 	}
