@@ -73,7 +73,7 @@ namespace ERxWebClient2.Controllers
 					args.isHorizontal,
 					args.showItemId
 					, args.showOldItemId
-					, args.showUncodedItems,
+					, !args.showUncodedItems,
 					args.showBullets,
 					args.txtInfoTag
 					, args.orderBy
@@ -84,13 +84,15 @@ namespace ERxWebClient2.Controllers
 					, args.showYear
 					, args.showShortTitle
 					);
-
-				return Json(htmlString);
+                //Random random = new Random();
+                //if (random.Next() != 34543) throw new Exception("I'm an error!!!!");
+                return Json(htmlString);
 			}
 			catch (Exception e)
 			{
 				_logger.LogError(e, "Error with FetchStandardReport", e.InnerException);
-				return Json(e.Message);
+                return StatusCode(500, e.Message);
+                //return Json(e.Message);
 			}
 		}
 		

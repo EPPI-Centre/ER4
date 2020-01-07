@@ -55,13 +55,13 @@ export class ConfigurableReportService extends BusyAwareService {
 
 			}, error => {
 				this.RemoveBusy("FetchStandardReport");
-				this.modalService.GenericErrorMessage(error);
+				this.modalService.GenericError(error);
 				return "error";
 			}
 		).catch(
 			(error) => {
 				console.log('error in FetchStandardReport catch', error);
-				this.modalService.GenericErrorMessage(error);
+				this.modalService.GenericError(error);
 				this.RemoveBusy("FetchStandardReport");
 				return "error";
 			}
@@ -78,14 +78,14 @@ export class ConfigurableReportService extends BusyAwareService {
 				return result;
 			}, error => {
 				this.RemoveBusy("FetchROBReport");
-				this.modalService.GenericErrorMessage(error);
+				this.modalService.GenericError(error);
 				// I do not understand below line
 				return "error";
 			}
 		).catch(
 			(error) => {
 				console.log('error in FetchROBReport catch', error);
-				this.modalService.GenericErrorMessage(error);
+				this.modalService.GenericError(error);
 				this.RemoveBusy("FetchROBReport");
 				// I do not understand below line
 				return "error";
@@ -101,19 +101,22 @@ export class ConfigurableReportService extends BusyAwareService {
 			.toPromise().then(
 				(result) => {
 					this.RemoveBusy("FetchOutcomesReport");
-					
 						return result;
 				}, error => {
                     this.RemoveBusy("FetchOutcomesReport");
-						this.modalService.GenericErrorMessage(error);
-						return error;
+                    this.modalService.GenericError(error);
+                    return {
+                        returnReport : 'error'
+                    };
 					}
 		).catch(
 			(error) => {
 				console.log('error in FetchOutcomesReport catch', error);
-				this.modalService.GenericErrorMessage(error);
+				this.modalService.GenericError(error);
 				this.RemoveBusy("FetchOutcomesReport");
-				return error;
+                return {
+                    returnReport: 'error'
+                };
 			}
 		);
 	}
@@ -141,21 +144,21 @@ export class ReportStandard {
 	showFullTitle: boolean = false;
 	showAbstract: boolean = false;
 	showYear: boolean = false;
-	showShortTitle: boolean = false;
+	showShortTitle: boolean = true;
 	reportId: number = 0;
 	report: Report = {} as Report;
 	showItemId: boolean = false;
 	showOldItemId: boolean = false;
 	showOutcomes: boolean = false;
-	isHorizontal: boolean = false;
+	isHorizontal: boolean = true;
 	orderBy: string = '';
 	isQuestion: boolean = false;
 	attributeId: number = 0;
 	setId: number = 0;
 	showRiskOfBias: boolean = false;
-	showUncodedItems: boolean = false;
+	showUncodedItems: boolean = true;
 	showBullets: boolean = false;
-	txtInfoTag: string = '';
+    txtInfoTag: string = '[info]';
 }
 
 export class ReportOutcomes {

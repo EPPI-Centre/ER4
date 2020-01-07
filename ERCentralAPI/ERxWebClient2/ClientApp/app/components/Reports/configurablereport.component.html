@@ -4,7 +4,7 @@
 		<div class="row col-12">
 			<label class="col-1 pl-0">Items:</label>
 			<select class="col-5 form-control mb-1"
-					[disabled]="!HasWriteRights" [(ngModel)]="ReportCommonParams.itemsChoice"
+					[(ngModel)]="ReportCommonParams.itemsChoice"
 					(change)="ItemsChoiceChange()">
 				<option>All selected items</option>
 				<option>All included items</option>
@@ -32,7 +32,7 @@
 		<div class="row col-12">
 			<label class="col-12 col-md-1 pl-0">Order by:</label>
 			<select class="col-12 col-md-5 form-control mb-1" style="min-width:190px;"
-					[disabled]="!HasWriteRights" [(ngModel)]="ReportCommonParams.orderByChoice" (change)="OrderByChoiceChange()">
+					[(ngModel)]="ReportCommonParams.orderByChoice" (change)="OrderByChoiceChange()">
 				<option> Short title</option>
 				<option> Title</option>
 				<option> Year</option>
@@ -52,7 +52,7 @@
 
 							<select class="col-12 col-md-5 form-control mb-1" style="min-width:190px;"
 									(change)="ChangedReport(item)"
-									[disabled]="!HasWriteRights" [(ngModel)]="ReportStandard.report">
+									[(ngModel)]="ReportStandard.report">
 								<option></option>
 								<option *ngFor="let item of configurablereportServ.Reports"
 										[ngValue]="item">
@@ -65,22 +65,22 @@
 								<label class="col-12 col-md-1 pl-0">Display Options:</label>
 								<div class="col-12 col-md-2 row mb-1" style="min-width: 400px;">
 									<div class="col-12 row">
-										<input [disabled]="ReportStandard.orderBy=='Item Id'" class="m-1 p-1"
+										<input [disabled]="ReportCommonParams.orderByChoice == 'Item Id'" class="m-1 p-1"
 											   type="checkbox" value="true" name="ItemId"
 											   [(ngModel)]="ReportStandard.showItemId">ItemId
 									</div>
 									<div class="col-12 row">
-										<input [disabled]="ReportStandard.orderBy=='Imported Id'" class="m-1 p-1"
+										<input [disabled]="ReportCommonParams.orderByChoice == 'Imported Id'" class="m-1 p-1"
 											   type="checkbox" value="false" name="ImportedId"
 											   [(ngModel)]="ReportStandard.showOldItemId">ImportedId
 									</div>
 									<div class="col-12 row">
-										<input [disabled]="ReportStandard.orderBy=='Short title'" class="m-1 p-1"
+										<input [disabled]="ReportCommonParams.orderByChoice == 'Short title'" class="m-1 p-1"
 											   type="checkbox" value="true" name="ShortTitle"
 											   [(ngModel)]="ReportStandard.showShortTitle">Short title
 									</div>
 									<div class="col-12 row">
-										<input [disabled]="ReportStandard.orderBy=='Title'" class="m-1 p-1"
+										<input [disabled]="ReportCommonParams.orderByChoice == 'Title'" class="m-1 p-1"
 											   type="checkbox" value="false" name="Title"
 											   [(ngModel)]="ReportStandard.showFullTitle">Title
 									</div>
@@ -91,7 +91,7 @@
 									<div class="col-1 p-2 m-2"></div>
 									<div class="col-12 col-md-6 row mb-1" style="min-width: 400px;">
 										<div class="col-12 row">
-											<input [disabled]="ReportStandard.orderBy=='Year'" class="m-1 p-1" type="checkbox"
+											<input [disabled]="ReportCommonParams.orderByChoice == 'Year'" class="m-1 p-1" type="checkbox"
 												   value="true" name="Year"
 												   [(ngModel)]="ReportStandard.showYear">Year
 										</div>
@@ -141,7 +141,7 @@
 
 						<select class="col-12 col-md-5 form-control mb-1" style="min-width:190px;"
 								(change)="ChangedReport(item)"
-								[disabled]="!HasWriteRights" [(ngModel)]="ReportRiskOfBias.report">
+								[(ngModel)]="ReportRiskOfBias.report">
 							<option></option>
 							<option *ngFor="let item of configurablereportServ.ReportCollectionROB"
 									[ngValue]="item">
@@ -181,7 +181,7 @@
 
 						<select class="col-12 col-md-5  form-control mb-1" style="min-width:190px;"
 								(change)="ChangedReport(item)"
-								[disabled]="!HasWriteRights" [(ngModel)]="ReportOutcomes.report">
+								[(ngModel)]="ReportOutcomes.report">
 							<option></option>
 							<option *ngFor="let item of configurablereportServ.ReportCollectionOutcomes"
 									[ngValue]="item">
@@ -227,7 +227,7 @@
 						[disabled]="!CheckOptionsAreCorrectForReports ">
 					Run/view
 				</button>
-				<button (click)="SaveReport()" [disabled]="!HasWriteRights || !GeneratedReport"
+				<button (click)="SaveReport()" [disabled]="!GeneratedReport"
 						title="Save as Html (Supports opening in Word)"
 						type="button" class="btn btn-outline-primary  ml-1 mr-1">
 					<i class="fa fa-floppy-o" aria-hidden="true"></i>

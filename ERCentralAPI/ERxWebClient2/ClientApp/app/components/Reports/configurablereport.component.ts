@@ -169,9 +169,7 @@ export class configurablereportComp implements OnInit, OnDestroy {
 			return false;
 		}
 	}
-	public get HasWriteRights(): boolean {
-		return this.ReviewerIdentityServ.HasWriteRights;
-	}
+
 	public get CheckOptionsAreCorrectForReports(): boolean {
 
 		if (this.ReportCommonParams.itemsChoice == 'All selected items') {
@@ -221,14 +219,6 @@ export class configurablereportComp implements OnInit, OnDestroy {
 				);
 			return;
 		}
-		if (!this.HasWriteRights) {
-			this._confirmationDialogService.confirm('Report Message', 'Sorry you do not have permission', false,
-				'', 'Ok')
-				.then({}
-				);
-			return;
-		}
-
 		let attribute: SetAttribute = new SetAttribute();
 		let reviewSet: ReviewSet = new ReviewSet();
 		if (this.DropdownSelectedCodingTool) {
@@ -263,7 +253,7 @@ export class configurablereportComp implements OnInit, OnDestroy {
 			this.ReportStandard.attributeId = this.DropdownSelectedCodingTool != null ? attribute.attribute_id : 0;
 			this.ReportStandard.setId = this.DropdownSelectedCodingTool != null ? reviewSet.set_id : 0;
 			this.ReportStandard.showRiskOfBias = false;
-			this.ReportStandard.isQuestion = true;
+			this.ReportStandard.isQuestion = this.ReportStandard.report.reportType == "Question";
 			this.ReportStandard.reportId = this.ReportStandard.report.reportId;
 			
 			if (this.ReportStandard != null) {
@@ -301,13 +291,15 @@ export class configurablereportComp implements OnInit, OnDestroy {
 				var stringReport = this.configurablereportServ.FetchROBReport(this.ReportRiskOfBias);
 				if (stringReport) {
 					stringReport.then(
-						(result) => {
-							this.reportHTML = result;
-							this.GeneratedReport = true;
-							if (this.GeneratedReport) {
-								this.OpenInNewWindow();
-								return;
-							}
+                        (result) => {
+                            if (result != 'error') {
+                                this.reportHTML = result;
+                                this.GeneratedReport = true;
+                                if (this.GeneratedReport) {
+                                    this.OpenInNewWindow();
+                                    return;
+                                }
+                            }
 						}
 					);
 				}
@@ -329,13 +321,15 @@ export class configurablereportComp implements OnInit, OnDestroy {
 				var report = this.configurablereportServ.FetchOutcomesReport(this.ReportOutcomes);
 				if (report) {
 					report.then(
-						(res) => {
-							this.reportHTML = res.returnReport;
-							this.GeneratedReport = true;
-							if (this.GeneratedReport) {
-								this.OpenInNewWindow();
-								return;
-							}
+                        (res) => {
+                            if (res.returnReport != 'error') {
+                                this.reportHTML = res.returnReport;
+                                this.GeneratedReport = true;
+                                if (this.GeneratedReport) {
+                                    this.OpenInNewWindow();
+                                    return;
+                                }
+                            }
 						}
 					);
 				}
