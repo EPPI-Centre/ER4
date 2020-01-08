@@ -30,7 +30,7 @@ export class configurablereportComp implements OnInit, OnDestroy {
 	public ReportCommonParams: CommonReportFields = new CommonReportFields();
 
 	ngOnInit() {
-
+        this.configurablereportServ.FetchReports();
 	}
 
 	ngOnDestroy() {
@@ -128,7 +128,7 @@ export class configurablereportComp implements OnInit, OnDestroy {
 	}
 	public Clear() {
 
-		this.configurablereportServ.FetchReports();
+		
 		this.configurablereportServ.reportHTML = '';
 		this.reportHTML = '';
 		this.ReportChoice = {} as Report;

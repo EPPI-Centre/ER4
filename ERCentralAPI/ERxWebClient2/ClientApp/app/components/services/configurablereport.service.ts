@@ -182,11 +182,11 @@ export class ReportRiskOfBias {
 	showFullTitle: boolean = false;
 	showAbstract: boolean = false;
 	showYear: boolean = false;
-	showShortTitle: boolean = false;
+	showShortTitle: boolean = true;
 	reportId: number = 0;
 	report: Report = {} as Report;
 	showItemId: boolean = false;
-	showOldID: boolean = true;
+	showOldID: boolean = false;
 	showOutcomes: boolean = false;
 	isHorizontal: boolean = false;
 	orderBy: string = '';
