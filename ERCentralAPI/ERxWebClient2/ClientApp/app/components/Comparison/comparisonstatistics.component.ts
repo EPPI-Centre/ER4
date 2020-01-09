@@ -206,15 +206,36 @@ export class ComparisonStatsComp implements OnInit {
 	LoadComparisons(comparison: Comparison, ListSubType: string) {
 
 		let crit = new Criteria();
-		crit.listType = ListSubType;
-		let typeMsg: string = '';
-		if (ListSubType.indexOf('Disagree') != -1) {
-			typeMsg = 'disagreements between';
-		} else {
-			typeMsg = 'agreements between';
-		}
-		let middleDescr: string = ' ' + comparison.contactName3 != '' ? ' and ' + comparison.contactName3 : '';
-		let listDescription: string = typeMsg + '  ' + comparison.contactName1 + ' and ' + comparison.contactName2 + middleDescr + ' using ' + comparison.setName;
+        crit.listType = ListSubType;
+        console.log("LoadComparisons", ListSubType, comparison);
+		//let typeMsg: string = '';
+		//if (ListSubType.indexOf('Disagree') != -1) {
+		//	typeMsg = 'disagreements between';
+		//} else {
+		//	typeMsg = 'agreements between';
+		//}
+		//let middleDescr: string = ' ' + comparison.contactName3 != '' ? ' and ' + comparison.contactName3 : '';
+		//let listDescription: string = typeMsg + '  ' + comparison.contactName1 + ' and ' + comparison.contactName2 + middleDescr + ' using ' + comparison.setName;
+
+        //the below follows the logic used in ER4...
+        let listDescription = "";
+        let type = "";
+        if (ListSubType.startsWith("ComparisonAgree")) {
+            type = "agreements between ";
+        }
+        else {
+            type = "disagreements between ";
+        }
+        if (ListSubType.endsWith("1vs2") || ListSubType.endsWith("1vs2Sc")) {
+            listDescription = type + comparison.contactName1 + " and " + comparison.contactName2;
+        }
+        else if (ListSubType.endsWith("2vs3") || ListSubType.endsWith("2vs3Sc")) {
+            listDescription = type + comparison.contactName2 + " and " + comparison.contactName3;
+        }
+        else if (ListSubType.endsWith("1vs3") || ListSubType.endsWith("1vs3Sc")) {
+            listDescription = type + comparison.contactName1 + " and " + comparison.contactName3;
+        }
+        listDescription += " using \"" + comparison.setName + "\" (Comparison: " + comparison.comparisonDate + ")";
 		crit.description = listDescription;
 		crit.listType = ListSubType;
 		crit.comparisonId = comparison.comparisonId;
