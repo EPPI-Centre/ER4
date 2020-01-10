@@ -102,8 +102,6 @@ export class configurablereportComp implements OnInit, OnDestroy {
 			this.RunReports
 		}
 		else {//do the magic
-
-			console.log('got in here');
 			let Pagelink = "about:blank";
 			let pwa = window.open(Pagelink, "_new");
 			//let pwa = window.open("data:text/plain;base64," + btoa(this.AddHTMLFrame(this.ReportHTML)), "_new");
