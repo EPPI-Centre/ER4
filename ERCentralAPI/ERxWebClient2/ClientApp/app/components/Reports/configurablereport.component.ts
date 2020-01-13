@@ -177,12 +177,10 @@ export class configurablereportComp implements OnInit, OnDestroy {
 		}
 		if (this.ReportCommonParams.itemsChoice == 'Items with this code') {
 			if (this.DropdownSelectedCodingTool != null) {
-				if (this.DropdownSelectedCodingTool.name != '') {
-				
-				} else {
-					return false;
-				}
-			}
+                if (this.DropdownSelectedCodingTool.name == '' || this.DropdownSelectedCodingTool.nodeType == 'ReviewSet') {
+                    return false;
+                }
+            }
 			else {
 				return false;
 			}

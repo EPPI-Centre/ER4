@@ -1,9 +1,9 @@
 <div class="container px-1 col-12 fullBordersInTabs">
 	<div *ngIf="IsServiceBusy" class="k-loading-image" style="position: fixed; top: 0%;"></div>
 	<div style="min-width:190px;">
-		<div class="row col-12">
-			<label class="col-1 pl-0">Items:</label>
-			<select class="col-5 form-control mb-1"
+		<div class="row col-12 m-0 p-0">
+			<label class="col-2 px-0 mt-1">Items:</label>
+			<select class="col-9 form-control mb-1"
 					[(ngModel)]="ReportCommonParams.itemsChoice"
 					(change)="ItemsChoiceChange()">
 				<option>All selected items</option>
@@ -11,27 +11,29 @@
 				<option>Items with this code</option>
 			</select>
 		</div>
-		<div class="row col-md-12 m-0 p-0" *ngIf="ShowCodeTree" ngbDropdown style="min-width:190px;">
-			<label class="col-12 col-md-1 pl-0">Coding Tool:</label>
-			<button ngbDropdownAnchor class="btn btn-outline-primary dropdown-toggle col-3"
-					(click)="isCollapsedCodingTool = !isCollapsedCodingTool;
+		<div class="row col-12 m-0 p-0" *ngIf="ShowCodeTree" ngbDropdown style="min-width:190px;">
+			<label class="col-2 px-0 mt-1">Selected code:</label>
+            <div class="col-9 m-0 p-0">
+                <button ngbDropdownAnchor class="btn btn-outline-primary dropdown-toggle col-12 mb-1"
+                        (click)="isCollapsedCodingTool = !isCollapsedCodingTool;
 														dropdownBasicCodingTool = false"
-					[attr.aria-expanded]="!collapseCodeTreeCodingToolReports"
-					aria-controls="collapseCodeTreeCodingToolReports">
-				{{DropdownSelectedCodingTool?.name}}
-			</button>
-			<div class="dropdown-menu col-12 col-md-5 ml-5" id="collapseCodeTreeCodingToolReports"
-				 [ngbCollapse]="!isCollapsedCodingTool">
-				<codesetSelector [IsMultiSelect]="false"
-								 [MaxHeight]="500" #CodingToolTreeReports
-								 (selectedNodeInTree)="CloseCodeDropDownCodingTool()"
-								 [rootsOnly]="false">
-				</codesetSelector>
-			</div>
+                        [attr.aria-expanded]="!collapseCodeTreeCodingToolReports"
+                        aria-controls="collapseCodeTreeCodingToolReports">
+                    {{DropdownSelectedCodingTool?.name}}
+                </button>
+                <div class="dropdown-menu col-12 ml-0 my-0" id="collapseCodeTreeCodingToolReports"
+                     [ngbCollapse]="!isCollapsedCodingTool">
+                    <codesetSelector [IsMultiSelect]="false" [WhatIsSelectable]="'SetAttribute'"
+                                     [MaxHeight]="400" #CodingToolTreeReports
+                                     (selectedNodeInTree)="CloseCodeDropDownCodingTool()"
+                                     [rootsOnly]="false">
+                    </codesetSelector>
+                </div>
+            </div>
 		</div>
-		<div class="row col-12">
-			<label class="col-12 col-md-1 pl-0">Order by:</label>
-			<select class="col-12 col-md-5 form-control mb-1" style="min-width:190px;"
+		<div class="row col-12 m-0 p-0">
+			<label class="col-2 px-0 mt-1">Order by:</label>
+			<select class="col-9 form-control mb-1" style="min-width:190px;"
 					[(ngModel)]="ReportCommonParams.orderByChoice" (change)="OrderByChoiceChange()">
 				<option> Short title</option>
 				<option> Title</option>
@@ -72,12 +74,12 @@
                                 <div class="col-12 row">
                                     <input [disabled]="ReportCommonParams.orderByChoice == 'Item Id'" class="m-1 p-1"
                                            type="checkbox" value="true" name="ItemId"
-                                           [(ngModel)]="ReportStandard.showItemId">ItemId
+                                           [(ngModel)]="ReportStandard.showItemId">Item Id
                                 </div>
                                 <div class="col-12 row">
                                     <input [disabled]="ReportCommonParams.orderByChoice == 'Imported Id'" class="m-1 p-1"
                                            type="checkbox" value="false" name="ImportedId"
-                                           [(ngModel)]="ReportStandard.showOldItemId">ImportedId
+                                           [(ngModel)]="ReportStandard.showOldItemId">Imported Id
                                 </div>
                                 <div class="col-12 row">
                                     <input [disabled]="ReportCommonParams.orderByChoice == 'Short title'" class="m-1 p-1"
@@ -169,7 +171,7 @@
                                 <div class="col-12 row">
                                     <input [disabled]="ReportCommonParams.orderByChoice == 'Item Id'" class="m-1 p-1"
                                            type="checkbox" value="true" name="ItemId"
-                                           [(ngModel)]="ReportRiskOfBias.showItemId">ItemId
+                                           [(ngModel)]="ReportRiskOfBias.showItemId">Item Id
                                 </div>
                                 <div class="col-12 row">
                                     <input [disabled]="ReportCommonParams.orderByChoice == 'Imported Id'" class="m-1 p-1"
@@ -231,7 +233,7 @@
                             <div class="col-12 row">
                                 <input [disabled]="ReportCommonParams.orderByChoice == 'Item Id'" class="m-1 p-1"
                                        type="checkbox" value="true" name="ItemId"
-                                       [(ngModel)]="ReportOutcomes.showItemId">ItemId
+                                       [(ngModel)]="ReportOutcomes.showItemId">Item Id
                             </div>
                             <div class="col-12 row mb-1">
                                 <input [disabled]="ReportCommonParams.orderByChoice == 'Imported Id'" class="m-1 p-1"
@@ -241,7 +243,7 @@
                         </div>
                         <div class="row col-12">
                             <p class="mt-3 mb-2 p-2 ml-1 alert-info rounded">
-                                <b>Outcomes reports</b> will produce a table containing Otucomes numeric data. The table is optimised to be computer-friendly, useful for <b>exporting data</b>.<br />
+                                <b>Outcomes reports</b> will produce a table containing numeric outcome data. The report is optimised for exporting data in a <b>tabular format</b>.<br />
                                 The table will include <b>only</b> outcomes for items associated with the codes included in the answer report selected.
                             </p>
                         </div>
