@@ -83,6 +83,12 @@
     <None Update="SQLScripts\130.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="SQLScripts\132.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="SQLScripts\134.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="SQLScripts\14.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
