@@ -236,6 +236,36 @@ begin
 end 
 GO
 
+Use [Reviewer]
+GO
+
+/* To prevent any potential data loss issues, you should review this script in detail before running it outside the context of the database designer.*/
+IF COL_LENGTH('TB_REVIEW', 'MAG_ENABLED') IS NULL
+begin
+BEGIN TRANSACTION
+SET QUOTED_IDENTIFIER ON
+SET ARITHABORT ON
+SET NUMERIC_ROUNDABORT OFF
+SET CONCAT_NULL_YIELDS_NULL ON
+SET ANSI_NULLS ON
+SET ANSI_PADDING ON
+SET ANSI_WARNINGS ON
+--select 1
+COMMIT
+BEGIN TRANSACTION
+ALTER TABLE dbo.TB_REVIEW ADD
+	MAG_ENABLED int NULL
+
+ALTER TABLE dbo.TB_REVIEW SET (LOCK_ESCALATION = TABLE)
+--select 2
+COMMIT
+end
+GO
+update dbo.TB_REVIEW Set MAG_ENABLED = 0 where MAG_ENABLED is null
+go
+
+
+
 USE [Reviewer]
 GO
 
@@ -245,44 +275,43 @@ GO
 
 SET QUOTED_IDENTIFIER ON
 GO
+IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES
+           WHERE TABLE_NAME = N'TB_MAG_SIMULATION')
+begin
+	CREATE TABLE [dbo].[TB_MAG_SIMULATION](
+		[MAG_SIMULATION_ID] [int] IDENTITY(1,1) NOT NULL,
+		[REVIEW_ID] [int] NULL,
+		[YEAR] [int] NULL,
+		[CREATED_DATE] [datetime] NULL,
+		[WITH_THIS_ATTRIBUTE_ID] [bigint] NULL,
+		[FILTERED_BY_ATTRIBUTE_ID] [bigint] NULL,
+		[SEARCH_METHOD] [nvarchar](50) NULL,
+		[NETWORK_STATISTIC] [nvarchar](50) NULL,
+		[STUDY_TYPE_CLASSIFIER] [nvarchar](50) NULL,
+		[USER_CLASSIFIER_MODEL_ID] [int] NULL,
+		[STATUS] [nvarchar](50) NULL,
+		[TP] [int] NULL,
+		[FP] [int] NULL,
+		[FN] [int] NULL,
+		[NSEEDS] [int] NULL,
+	 CONSTRAINT [PK_TB_MAG_SIMULATION] PRIMARY KEY CLUSTERED 
+	(
+		[MAG_SIMULATION_ID] ASC
+	)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+	) ON [PRIMARY]
 
-CREATE TABLE [dbo].[TB_MAG_SIMULATION](
-	[MAG_SIMULATION_ID] [int] IDENTITY(1,1) NOT NULL,
-	[REVIEW_ID] [int] NULL,
-	[YEAR] [int] NULL,
-	[CREATED_DATE] [datetime] NULL,
-	[WITH_THIS_ATTRIBUTE_ID] [bigint] NULL,
-	[FILTERED_BY_ATTRIBUTE_ID] [bigint] NULL,
-	[SEARCH_METHOD] [nvarchar](50) NULL,
-	[NETWORK_STATISTIC] [nvarchar](50) NULL,
-	[STUDY_TYPE_CLASSIFIER] [nvarchar](50) NULL,
-	[USER_CLASSIFIER_MODEL_ID] [int] NULL,
-	[STATUS] [nvarchar](50) NULL,
-	[TP] [int] NULL,
-	[FP] [int] NULL,
-	[FN] [int] NULL,
-	[NSEEDS] [int] NULL,
- CONSTRAINT [PK_TB_MAG_SIMULATION] PRIMARY KEY CLUSTERED 
-(
-	[MAG_SIMULATION_ID] ASC
-)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
-) ON [PRIMARY]
-GO
+	ALTER TABLE [dbo].[TB_MAG_SIMULATION]  WITH CHECK ADD  CONSTRAINT [FK_TB_MAG_SIMULATION_tb_CLASSIFIER_MODEL] FOREIGN KEY([USER_CLASSIFIER_MODEL_ID])
+	REFERENCES [dbo].[tb_CLASSIFIER_MODEL] ([MODEL_ID])
+	ON DELETE SET NULL
 
-ALTER TABLE [dbo].[TB_MAG_SIMULATION]  WITH CHECK ADD  CONSTRAINT [FK_TB_MAG_SIMULATION_tb_CLASSIFIER_MODEL] FOREIGN KEY([USER_CLASSIFIER_MODEL_ID])
-REFERENCES [dbo].[tb_CLASSIFIER_MODEL] ([MODEL_ID])
-ON DELETE SET NULL
-GO
+	ALTER TABLE [dbo].[TB_MAG_SIMULATION] CHECK CONSTRAINT [FK_TB_MAG_SIMULATION_tb_CLASSIFIER_MODEL]
 
-ALTER TABLE [dbo].[TB_MAG_SIMULATION] CHECK CONSTRAINT [FK_TB_MAG_SIMULATION_tb_CLASSIFIER_MODEL]
-GO
+	ALTER TABLE [dbo].[TB_MAG_SIMULATION]  WITH CHECK ADD  CONSTRAINT [FK_TB_MAG_SIMULATION_TB_REVIEW] FOREIGN KEY([REVIEW_ID])
+	REFERENCES [dbo].[TB_REVIEW] ([REVIEW_ID])
+	ON DELETE CASCADE
 
-ALTER TABLE [dbo].[TB_MAG_SIMULATION]  WITH CHECK ADD  CONSTRAINT [FK_TB_MAG_SIMULATION_TB_REVIEW] FOREIGN KEY([REVIEW_ID])
-REFERENCES [dbo].[TB_REVIEW] ([REVIEW_ID])
-ON DELETE CASCADE
-GO
-
-ALTER TABLE [dbo].[TB_MAG_SIMULATION] CHECK CONSTRAINT [FK_TB_MAG_SIMULATION_TB_REVIEW]
+	ALTER TABLE [dbo].[TB_MAG_SIMULATION] CHECK CONSTRAINT [FK_TB_MAG_SIMULATION_TB_REVIEW]
+end
 GO
 
 
@@ -295,33 +324,33 @@ GO
 
 SET QUOTED_IDENTIFIER ON
 GO
+IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES
+           WHERE TABLE_NAME = N'TB_MAG_SIMULATION_RESULT')
+begin
+	CREATE TABLE [dbo].[TB_MAG_SIMULATION_RESULT](
+		[MAG_SIMULATION_RESULT_ID] [int] IDENTITY(1,1) NOT NULL,
+		[MAG_SIMULATION_ID] [int] NULL,
+		[PaperId] [bigint] NULL,
+		[INCLUDED] [bit] NULL,
+		[FOUND] [bit] NULL,
+		[SEED] [bit] NULL,
+		[STUDY_TYPE_CLASSIFIER_SCORE] [float] NULL,
+		[USER_CLASSIFIER_MODEL_SCORE] [float] NULL,
+		[NETWORK_STATISTIC_SCORE] [float] NULL,
+		[FOS_DISTANCE_SCORE] [float] NULL,
+		[ENSEMBLE_SCORE] [float] NULL,
+	 CONSTRAINT [PK_TB_MAG_SIMULATION_RESULT] PRIMARY KEY CLUSTERED 
+	(
+		[MAG_SIMULATION_RESULT_ID] ASC
+	)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+	) ON [PRIMARY]
 
-CREATE TABLE [dbo].[TB_MAG_SIMULATION_RESULT](
-	[MAG_SIMULATION_RESULT_ID] [int] IDENTITY(1,1) NOT NULL,
-	[MAG_SIMULATION_ID] [int] NULL,
-	[PaperId] [bigint] NULL,
-	[INCLUDED] [bit] NULL,
-	[FOUND] [bit] NULL,
-	[SEED] [bit] NULL,
-	[STUDY_TYPE_CLASSIFIER_SCORE] [float] NULL,
-	[USER_CLASSIFIER_MODEL_SCORE] [float] NULL,
-	[NETWORK_STATISTIC_SCORE] [float] NULL,
-	[FOS_DISTANCE_SCORE] [float] NULL,
-	[ENSEMBLE_SCORE] [float] NULL,
- CONSTRAINT [PK_TB_MAG_SIMULATION_RESULT] PRIMARY KEY CLUSTERED 
-(
-	[MAG_SIMULATION_RESULT_ID] ASC
-)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
-) ON [PRIMARY]
-GO
+	ALTER TABLE [dbo].[TB_MAG_SIMULATION_RESULT]  WITH CHECK ADD  CONSTRAINT [FK_TB_MAG_SIMULATION_RESULT_TB_MAG_SIMULATION] FOREIGN KEY([MAG_SIMULATION_ID])
+	REFERENCES [dbo].[TB_MAG_SIMULATION] ([MAG_SIMULATION_ID])
+	ON DELETE CASCADE
 
-ALTER TABLE [dbo].[TB_MAG_SIMULATION_RESULT]  WITH CHECK ADD  CONSTRAINT [FK_TB_MAG_SIMULATION_RESULT_TB_MAG_SIMULATION] FOREIGN KEY([MAG_SIMULATION_ID])
-REFERENCES [dbo].[TB_MAG_SIMULATION] ([MAG_SIMULATION_ID])
-ON DELETE CASCADE
-GO
-
-ALTER TABLE [dbo].[TB_MAG_SIMULATION_RESULT] CHECK CONSTRAINT [FK_TB_MAG_SIMULATION_RESULT_TB_MAG_SIMULATION]
-GO
+	ALTER TABLE [dbo].[TB_MAG_SIMULATION_RESULT] CHECK CONSTRAINT [FK_TB_MAG_SIMULATION_RESULT_TB_MAG_SIMULATION]
+end
 
 
 USE [Reviewer]
@@ -415,11 +444,7 @@ go
 USE [Reviewer]
 GO
 
-/****** Object:  StoredProcedure [dbo].[st_ItemListMaybeMagMatches]    Script Date: 16/01/2020 15:54:51 ******/
-DROP PROCEDURE [dbo].[st_ItemListMaybeMagMatches]
-GO
-
-/****** Object:  StoredProcedure [dbo].[st_ItemListMaybeMagMatches]    Script Date: 16/01/2020 15:54:51 ******/
+/****** Object:  StoredProcedure [dbo].[st_ItemListMaybeMagMatches]    Script Date: 16/01/2020 17:42:33 ******/
 SET ANSI_NULLS ON
 GO
 
@@ -427,7 +452,7 @@ SET QUOTED_IDENTIFIER ON
 GO
 
 
-CREATE   procedure [dbo].[st_ItemListMaybeMagMatches]
+CREATE OR ALTER   procedure [dbo].[st_ItemListMaybeMagMatches]
 (
       @REVIEW_ID INT,
       @SHOW_INCLUDED BIT = 'true',
@@ -556,11 +581,7 @@ GO
 USE [Reviewer]
 GO
 
-/****** Object:  StoredProcedure [dbo].[st_ItemListMagSimulationTPFN]    Script Date: 16/01/2020 15:54:44 ******/
-DROP PROCEDURE [dbo].[st_ItemListMagSimulationTPFN]
-GO
-
-/****** Object:  StoredProcedure [dbo].[st_ItemListMagSimulationTPFN]    Script Date: 16/01/2020 15:54:44 ******/
+/****** Object:  StoredProcedure [dbo].[st_ItemListMagSimulationTPFN]    Script Date: 16/01/2020 17:43:15 ******/
 SET ANSI_NULLS ON
 GO
 
@@ -568,7 +589,7 @@ SET QUOTED_IDENTIFIER ON
 GO
 
 
-create   procedure [dbo].[st_ItemListMagSimulationTPFN]
+CREATE OR ALTER   procedure [dbo].[st_ItemListMagSimulationTPFN]
 (
       @REVIEW_ID INT,
       --@SHOW_INCLUDED BIT = 'true',
@@ -641,14 +662,13 @@ SELECT      @CurrentPage as N'@CurrentPage',
 GO
 
 
+
+
+
 USE [Reviewer]
 GO
 
-/****** Object:  StoredProcedure [dbo].[st_ItemListMagNoMatches]    Script Date: 16/01/2020 15:54:34 ******/
-DROP PROCEDURE [dbo].[st_ItemListMagNoMatches]
-GO
-
-/****** Object:  StoredProcedure [dbo].[st_ItemListMagNoMatches]    Script Date: 16/01/2020 15:54:34 ******/
+/****** Object:  StoredProcedure [dbo].[st_ItemListMagNoMatches]    Script Date: 16/01/2020 17:43:41 ******/
 SET ANSI_NULLS ON
 GO
 
@@ -656,7 +676,7 @@ SET QUOTED_IDENTIFIER ON
 GO
 
 
-CREATE   procedure [dbo].[st_ItemListMagNoMatches]
+CREATE OR ALTER   procedure [dbo].[st_ItemListMagNoMatches]
 (
       @REVIEW_ID INT,
       @SHOW_INCLUDED BIT = 'true',
@@ -730,11 +750,7 @@ GO
 USE [Reviewer]
 GO
 
-/****** Object:  StoredProcedure [dbo].[st_ItemListMagMatches]    Script Date: 16/01/2020 15:54:28 ******/
-DROP PROCEDURE [dbo].[st_ItemListMagMatches]
-GO
-
-/****** Object:  StoredProcedure [dbo].[st_ItemListMagMatches]    Script Date: 16/01/2020 15:54:28 ******/
+/****** Object:  StoredProcedure [dbo].[st_ItemListMagMatches]    Script Date: 16/01/2020 17:44:02 ******/
 SET ANSI_NULLS ON
 GO
 
@@ -742,7 +758,7 @@ SET QUOTED_IDENTIFIER ON
 GO
 
 
-CREATE   procedure [dbo].[st_ItemListMagMatches]
+CREATE OR ALTER   procedure [dbo].[st_ItemListMagMatches]
 (
       @REVIEW_ID INT,
       @SHOW_INCLUDED BIT = 'true',
@@ -810,6 +826,9 @@ SELECT      @CurrentPage as N'@CurrentPage',
             @TotalPages as N'@TotalPages',
             @TotalRows as N'@TotalRows'
 GO
+
+
+
 
 
 USE [Reviewer]
@@ -905,11 +924,7 @@ GO
 USE [Reviewer]
 GO
 
-/****** Object:  StoredProcedure [dbo].[st_CheckReviewHasUpdates]    Script Date: 16/01/2020 15:57:44 ******/
-DROP PROCEDURE [dbo].[st_CheckReviewHasUpdates]
-GO
-
-/****** Object:  StoredProcedure [dbo].[st_CheckReviewHasUpdates]    Script Date: 16/01/2020 15:57:44 ******/
+/****** Object:  StoredProcedure [dbo].[st_CheckReviewHasUpdates]    Script Date: 16/01/2020 17:44:52 ******/
 SET ANSI_NULLS ON
 GO
 
@@ -921,7 +936,7 @@ GO
 -- Create date: 
 -- Description:	Checks to see whether a review has any auto-identified studies for authors to check
 -- =============================================
-CREATE PROCEDURE [dbo].[st_CheckReviewHasUpdates] 
+CREATE OR ALTER PROCEDURE [dbo].[st_CheckReviewHasUpdates] 
 	-- Add the parameters for the stored procedure here
 	@REVIEW_id int = 0,
 	@NUpdates INT OUTPUT
@@ -944,32 +959,8 @@ END
 GO
 
 
-Use Reviewer
-GO
 
-/* To prevent any potential data loss issues, you should review this script in detail before running it outside the context of the database designer.*/
-IF COL_LENGTH('TB_REVIEW', 'MAG_ENABLED') IS NULL
-begin
-BEGIN TRANSACTION
-SET QUOTED_IDENTIFIER ON
-SET ARITHABORT ON
-SET NUMERIC_ROUNDABORT OFF
-SET CONCAT_NULL_YIELDS_NULL ON
-SET ANSI_NULLS ON
-SET ANSI_PADDING ON
-SET ANSI_WARNINGS ON
---select 1
-COMMIT
-BEGIN TRANSACTION
-ALTER TABLE dbo.TB_REVIEW ADD
-	MAG_ENABLED int NULL
 
-ALTER TABLE dbo.TB_REVIEW SET (LOCK_ESCALATION = TABLE)
---select 2
-COMMIT
-end
-GO
-update dbo.TB_REVIEW Set MAG_ENABLED = 0 where MAG_ENABLED is null
 
 USE [Reviewer]
 GO
@@ -1007,17 +998,16 @@ SET NOCOUNT ON
 	INSERT INTO TB_CONTACT_REVIEW_ROLE(REVIEW_CONTACT_ID, ROLE_NAME)
 	VALUES(@NEW_CONTACT_REVIEW_ID, 'AdminUser')
 	
-	
-	
-	
-
 SET NOCOUNT OFF
 
 GO
+
+
+
 USE [Reviewer]
 GO
 
-/****** Object:  StoredProcedure [dbo].[st_ReviewInfoUpdate]    Script Date: 02/10/2019 23:06:23 ******/
+/****** Object:  StoredProcedure [dbo].[st_ReviewInfoUpdate]    Script Date: 16/01/2020 17:47:30 ******/
 SET ANSI_NULLS ON
 GO
 
@@ -1064,7 +1054,7 @@ GO
 USE [Reviewer]
 GO
 
-/****** Object:  StoredProcedure [dbo].[st_ReviewMagEnabledUpdate]    Script Date: 06/10/2019 22:41:44 ******/
+/****** Object:  StoredProcedure [dbo].[st_ReviewMagEnabledUpdate]    Script Date: 16/01/2020 17:48:24 ******/
 SET ANSI_NULLS ON
 GO
 
@@ -1087,10 +1077,11 @@ UPDATE TB_REVIEW
 GO
 
 
+
 USE [Reviewer]
 GO
 
-/****** Object:  StoredProcedure [dbo].[st_ReviewMagEnabled]    Script Date: 06/10/2019 22:41:39 ******/
+/****** Object:  StoredProcedure [dbo].[st_ReviewMagEnabled]    Script Date: 16/01/2020 17:48:48 ******/
 SET ANSI_NULLS ON
 GO
 
@@ -1108,10 +1099,13 @@ select * from TB_REVIEW where MAG_ENABLED > 0
 GO
 
 
+
+
+
 USE [Reviewer]
 GO
 
-/****** Object:  StoredProcedure [dbo].[st_ClassifierContactModels]    Script Date: 29/11/2019 16:53:01 ******/
+/****** Object:  StoredProcedure [dbo].[st_ClassifierContactModels]    Script Date: 16/01/2020 17:49:22 ******/
 SET ANSI_NULLS ON
 GO
 
@@ -1143,4 +1137,6 @@ SET NOCOUNT OFF
 
 
 GO
+
+
 
