@@ -1,0 +1,1146 @@
+﻿-- *************************************** SERGIO - PLEASE CAN YOU REVIEW THIS BIT? ******************************
+/* To prevent any potential data loss issues, you should review this script in detail before running it outside the context of the database designer.*/
+BEGIN TRANSACTION
+SET QUOTED_IDENTIFIER ON
+SET ARITHABORT ON
+SET NUMERIC_ROUNDABORT OFF
+SET CONCAT_NULL_YIELDS_NULL ON
+SET ANSI_NULLS ON
+SET ANSI_PADDING ON
+SET ANSI_WARNINGS ON
+COMMIT
+BEGIN TRANSACTION
+GO
+ALTER TABLE dbo.TB_REVIEW SET (LOCK_ESCALATION = TABLE)
+GO
+COMMIT
+BEGIN TRANSACTION
+GO
+CREATE TABLE dbo.Tmp_tb_ITEM_MAG_MATCH
+	(
+	ITEM_ID bigint NOT NULL,
+	REVIEW_ID int NOT NULL,
+	PaperId bigint NOT NULL,
+	AutoMatchScore float(53) NULL,
+	ManualTrueMatch bit NULL,
+	ManualFalseMatch bit NULL
+	)  ON [PRIMARY]
+GO
+ALTER TABLE dbo.Tmp_tb_ITEM_MAG_MATCH SET (LOCK_ESCALATION = TABLE)
+GO
+IF EXISTS(SELECT * FROM INFORMATION_SCHEMA.TABLES
+           WHERE TABLE_NAME = N'tb_ITEM_MAG_MATCH')
+	 EXEC('INSERT INTO dbo.Tmp_tb_ITEM_MAG_MATCH (ITEM_ID, REVIEW_ID, PaperId, AutoMatchScore, ManualTrueMatch, ManualFalseMatch)
+		SELECT ITEM_ID, REVIEW_ID, PaperId, AutoMatchScore, ManualTrueMatch, ManualFalseMatch FROM dbo.tb_ITEM_MAG_MATCH WITH (HOLDLOCK TABLOCKX)')
+GO
+IF EXISTS(SELECT * FROM INFORMATION_SCHEMA.TABLES
+           WHERE TABLE_NAME = N'tb_ITEM_MAG_MATCH')
+		   DROP TABLE dbo.tb_ITEM_MAG_MATCH
+GO
+EXECUTE sp_rename N'dbo.Tmp_tb_ITEM_MAG_MATCH', N'tb_ITEM_MAG_MATCH', 'OBJECT' 
+GO
+ALTER TABLE dbo.tb_ITEM_MAG_MATCH ADD CONSTRAINT
+	FK_tb_ITEM_MAG_MATCH_TB_REVIEW FOREIGN KEY
+	(
+	REVIEW_ID
+	) REFERENCES dbo.TB_REVIEW
+	(
+	REVIEW_ID
+	) ON UPDATE  NO ACTION 
+	 ON DELETE  NO ACTION 
+	
+GO
+COMMIT
+
+/* To prevent any potential data loss issues, you should review this script in detail before running it outside the context of the database designer.*/
+BEGIN TRANSACTION
+SET QUOTED_IDENTIFIER ON
+SET ARITHABORT ON
+SET NUMERIC_ROUNDABORT OFF
+SET CONCAT_NULL_YIELDS_NULL ON
+SET ANSI_NULLS ON
+SET ANSI_PADDING ON
+SET ANSI_WARNINGS ON
+COMMIT
+BEGIN TRANSACTION
+GO
+ALTER TABLE dbo.TB_ITEM SET (LOCK_ESCALATION = TABLE)
+GO
+COMMIT
+BEGIN TRANSACTION
+GO
+ALTER TABLE dbo.tb_ITEM_MAG_MATCH ADD CONSTRAINT
+	FK_tb_ITEM_MAG_MATCH_TB_ITEM FOREIGN KEY
+	(
+	ITEM_ID
+	) REFERENCES dbo.TB_ITEM
+	(
+	ITEM_ID
+	) ON UPDATE  NO ACTION 
+	 ON DELETE  NO ACTION 
+	
+GO
+ALTER TABLE dbo.tb_ITEM_MAG_MATCH SET (LOCK_ESCALATION = TABLE)
+GO
+COMMIT
+
+USE [Reviewer]
+GO
+
+USE [Reviewer]
+
+GO
+CREATE NONCLUSTERED INDEX [NonClusteredIndex-20190911-093715] ON [dbo].[tb_ITEM_MAG_MATCH]
+(
+	[PaperId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON)
+
+GO
+
+USE [Reviewer]
+
+GO
+IF NOT EXISTS(SELECT * FROM INFORMATION_SCHEMA.TABLES
+           WHERE TABLE_NAME = N'TB_MAG_RELATED_PAPERS')
+	CREATE TABLE [dbo].[TB_MAG_RELATED_PAPERS](
+		[REVIEW_ID] [int] NOT NULL,
+		[MAG_RELATED_RUN_ID] [int] NOT NULL,
+		[PaperId] [bigint] NOT NULL,
+		[SimilarityScore] [float] NULL,
+		[PARENT_MAG_RELATED_RUN_ID] [int] NULL
+	) ON [PRIMARY]
+GO
+IF NOT EXISTS(SELECT * FROM INFORMATION_SCHEMA.TABLES
+           WHERE TABLE_NAME = N'TB_MAG_RELATED_RUN')
+	CREATE TABLE [dbo].[TB_MAG_RELATED_RUN](
+		[MAG_RELATED_RUN_ID] [int] IDENTITY(1,1) NOT NULL,
+		[REVIEW_ID] [int] NOT NULL,
+		[USER_DESCRIPTION] [nvarchar](1000) NULL,
+		[PaperIdList] [nvarchar](max) NULL,
+		[ATTRIBUTE_ID] [bigint] NOT NULL,
+		[ALL_INCLUDED] [bit] NULL,
+		[DATE_FROM] [datetime] NULL,
+		[DATE_RUN] [datetime] NULL,
+		[AUTO_RERUN] [bit] NULL,
+		[STATUS] [nvarchar](50) NULL,
+		[N_PAPERS] [int] NULL,
+		[PARENT_MAG_RELATED_RUN_ID] [int] NULL,
+		[MODE] [nvarchar](50) NULL,
+		[USER_STATUS] [nvarchar](50) NULL,
+		[Filtered] [nvarchar](50) NULL,
+	CONSTRAINT [PK_tb_MAG_RELATED_RUN] PRIMARY KEY CLUSTERED
+	(
+		[MAG_RELATED_RUN_ID] ASC
+	)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+	) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+
+IF NOT EXISTS(select * from sys.foreign_keys where [name] = 'FK_TB_MAG_RELATED_RUN_TB_REVIEW')
+begin
+	BEGIN TRANSACTION
+	ALTER TABLE dbo.TB_REVIEW SET (LOCK_ESCALATION = TABLE)
+	COMMIT
+	BEGIN TRANSACTION
+	ALTER TABLE dbo.TB_MAG_RELATED_RUN ADD CONSTRAINT
+		FK_TB_MAG_RELATED_RUN_TB_REVIEW FOREIGN KEY
+		(
+		REVIEW_ID
+		) REFERENCES dbo.TB_REVIEW
+		(
+		REVIEW_ID
+		) ON UPDATE  NO ACTION 
+		 ON DELETE  NO ACTION 
+	
+	ALTER TABLE dbo.TB_MAG_RELATED_RUN SET (LOCK_ESCALATION = TABLE)
+	COMMIT
+end 
+
+BEGIN TRANSACTION
+SET QUOTED_IDENTIFIER ON
+SET ARITHABORT ON
+SET NUMERIC_ROUNDABORT OFF
+SET CONCAT_NULL_YIELDS_NULL ON
+SET ANSI_NULLS ON
+SET ANSI_PADDING ON
+SET ANSI_WARNINGS ON
+COMMIT
+BEGIN TRANSACTION
+GO
+CREATE TABLE dbo.Tmp_TB_MAG_RELATED_PAPERS
+	(
+	MAG_RELATED_PAPERS_ID int NOT NULL IDENTITY (1, 1),
+	REVIEW_ID int NOT NULL,
+	MAG_RELATED_RUN_ID int NOT NULL,
+	PaperId bigint NOT NULL,
+	SimilarityScore float(53) NULL,
+	PARENT_MAG_RELATED_RUN_ID int NULL
+	)  ON [PRIMARY]
+GO
+ALTER TABLE dbo.Tmp_TB_MAG_RELATED_PAPERS SET (LOCK_ESCALATION = TABLE)
+GO
+SET IDENTITY_INSERT dbo.Tmp_TB_MAG_RELATED_PAPERS OFF
+GO
+IF EXISTS(SELECT * FROM INFORMATION_SCHEMA.TABLES
+           WHERE TABLE_NAME = N'TB_MAG_RELATED_PAPERS')
+	 EXEC('INSERT INTO dbo.Tmp_TB_MAG_RELATED_PAPERS (REVIEW_ID, MAG_RELATED_RUN_ID, PaperId, SimilarityScore, PARENT_MAG_RELATED_RUN_ID)
+		SELECT REVIEW_ID, MAG_RELATED_RUN_ID, PaperId, SimilarityScore, PARENT_MAG_RELATED_RUN_ID FROM dbo.TB_MAG_RELATED_PAPERS WITH (HOLDLOCK TABLOCKX)')
+GO
+IF EXISTS(SELECT * FROM INFORMATION_SCHEMA.TABLES
+           WHERE TABLE_NAME = N'TB_MAG_RELATED_PAPERS')
+DROP TABLE dbo.TB_MAG_RELATED_PAPERS
+GO
+EXECUTE sp_rename N'dbo.Tmp_TB_MAG_RELATED_PAPERS', N'TB_MAG_RELATED_PAPERS', 'OBJECT' 
+GO
+ALTER TABLE dbo.TB_MAG_RELATED_PAPERS ADD CONSTRAINT
+	PK_TB_MAG_RELATED_PAPERS PRIMARY KEY CLUSTERED 
+	(
+	MAG_RELATED_PAPERS_ID
+	) WITH( STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+
+GO
+COMMIT
+GO
+
+
+IF NOT EXISTS(select * from sys.foreign_keys where [name] = 'FK_TB_MAG_RELATED_PAPERS_TB_REVIEW')
+begin
+	BEGIN TRANSACTION
+	ALTER TABLE dbo.TB_MAG_RELATED_PAPERS ADD CONSTRAINT
+		FK_TB_MAG_RELATED_PAPERS_TB_REVIEW FOREIGN KEY
+		(
+		REVIEW_ID
+		) REFERENCES dbo.TB_REVIEW
+		(
+		REVIEW_ID
+		) ON UPDATE  NO ACTION 
+		 ON DELETE  NO ACTION 
+	
+	ALTER TABLE dbo.TB_MAG_RELATED_PAPERS SET (LOCK_ESCALATION = TABLE)
+	COMMIT
+end 
+
+IF NOT EXISTS(select * from sys.foreign_keys where [name] = 'FK_TB_MAG_RELATED_PAPERS_TB_MAG_RELATED_RUN')
+begin
+	BEGIN TRANSACTION
+	ALTER TABLE dbo.TB_MAG_RELATED_PAPERS ADD CONSTRAINT
+		FK_TB_MAG_RELATED_PAPERS_TB_MAG_RELATED_RUN FOREIGN KEY
+		(
+		MAG_RELATED_RUN_ID
+		) REFERENCES dbo.TB_MAG_RELATED_RUN
+		(
+		MAG_RELATED_RUN_ID
+		) ON UPDATE  NO ACTION 
+		 ON DELETE  NO ACTION 
+	
+	COMMIT
+end 
+GO
+
+USE [Reviewer]
+GO
+
+/****** Object:  Table [dbo].[TB_MAG_SIMULATION]    Script Date: 16/01/2020 15:45:29 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[TB_MAG_SIMULATION](
+	[MAG_SIMULATION_ID] [int] IDENTITY(1,1) NOT NULL,
+	[REVIEW_ID] [int] NULL,
+	[YEAR] [int] NULL,
+	[CREATED_DATE] [datetime] NULL,
+	[WITH_THIS_ATTRIBUTE_ID] [bigint] NULL,
+	[FILTERED_BY_ATTRIBUTE_ID] [bigint] NULL,
+	[SEARCH_METHOD] [nvarchar](50) NULL,
+	[NETWORK_STATISTIC] [nvarchar](50) NULL,
+	[STUDY_TYPE_CLASSIFIER] [nvarchar](50) NULL,
+	[USER_CLASSIFIER_MODEL_ID] [int] NULL,
+	[STATUS] [nvarchar](50) NULL,
+	[TP] [int] NULL,
+	[FP] [int] NULL,
+	[FN] [int] NULL,
+	[NSEEDS] [int] NULL,
+ CONSTRAINT [PK_TB_MAG_SIMULATION] PRIMARY KEY CLUSTERED 
+(
+	[MAG_SIMULATION_ID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+ALTER TABLE [dbo].[TB_MAG_SIMULATION]  WITH CHECK ADD  CONSTRAINT [FK_TB_MAG_SIMULATION_tb_CLASSIFIER_MODEL] FOREIGN KEY([USER_CLASSIFIER_MODEL_ID])
+REFERENCES [dbo].[tb_CLASSIFIER_MODEL] ([MODEL_ID])
+ON DELETE SET NULL
+GO
+
+ALTER TABLE [dbo].[TB_MAG_SIMULATION] CHECK CONSTRAINT [FK_TB_MAG_SIMULATION_tb_CLASSIFIER_MODEL]
+GO
+
+ALTER TABLE [dbo].[TB_MAG_SIMULATION]  WITH CHECK ADD  CONSTRAINT [FK_TB_MAG_SIMULATION_TB_REVIEW] FOREIGN KEY([REVIEW_ID])
+REFERENCES [dbo].[TB_REVIEW] ([REVIEW_ID])
+ON DELETE CASCADE
+GO
+
+ALTER TABLE [dbo].[TB_MAG_SIMULATION] CHECK CONSTRAINT [FK_TB_MAG_SIMULATION_TB_REVIEW]
+GO
+
+
+USE [Reviewer]
+GO
+
+/****** Object:  Table [dbo].[TB_MAG_SIMULATION_RESULT]    Script Date: 16/01/2020 15:50:09 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[TB_MAG_SIMULATION_RESULT](
+	[MAG_SIMULATION_RESULT_ID] [int] IDENTITY(1,1) NOT NULL,
+	[MAG_SIMULATION_ID] [int] NULL,
+	[PaperId] [bigint] NULL,
+	[INCLUDED] [bit] NULL,
+	[FOUND] [bit] NULL,
+	[SEED] [bit] NULL,
+	[STUDY_TYPE_CLASSIFIER_SCORE] [float] NULL,
+	[USER_CLASSIFIER_MODEL_SCORE] [float] NULL,
+	[NETWORK_STATISTIC_SCORE] [float] NULL,
+	[FOS_DISTANCE_SCORE] [float] NULL,
+	[ENSEMBLE_SCORE] [float] NULL,
+ CONSTRAINT [PK_TB_MAG_SIMULATION_RESULT] PRIMARY KEY CLUSTERED 
+(
+	[MAG_SIMULATION_RESULT_ID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+ALTER TABLE [dbo].[TB_MAG_SIMULATION_RESULT]  WITH CHECK ADD  CONSTRAINT [FK_TB_MAG_SIMULATION_RESULT_TB_MAG_SIMULATION] FOREIGN KEY([MAG_SIMULATION_ID])
+REFERENCES [dbo].[TB_MAG_SIMULATION] ([MAG_SIMULATION_ID])
+ON DELETE CASCADE
+GO
+
+ALTER TABLE [dbo].[TB_MAG_SIMULATION_RESULT] CHECK CONSTRAINT [FK_TB_MAG_SIMULATION_RESULT_TB_MAG_SIMULATION]
+GO
+
+
+USE [Reviewer]
+GO
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[st_ItemUpdate]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[st_ItemUpdate]
+GO
+
+/****** Object:  StoredProcedure [dbo].[st_ItemUpdate]    Script Date: 21/07/2019 08:26:51 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE procedure [dbo].[st_ItemUpdate]
+(
+	@ITEM_ID BIGINT
+,	@TITLE NVARCHAR(4000) = NULL
+,	@TYPE_ID TINYINT
+,	@PARENT_TITLE NVARCHAR(4000)
+,	@SHORT_TITLE NVARCHAR(70)
+,	@DATE_CREATED DATETIME = NULL
+,	@CREATED_BY NVARCHAR(50) = NULL
+,	@DATE_EDITED DATETIME = NULL
+,	@EDITED_BY NVARCHAR(50) = NULL
+,	@YEAR NCHAR(4) = NULL
+,	@MONTH NVARCHAR(10) = NULL
+,	@STANDARD_NUMBER NVARCHAR(255) = NULL
+,	@CITY NVARCHAR(100) = NULL
+,	@COUNTRY NVARCHAR(100) = NULL
+,	@PUBLISHER NVARCHAR(1000) = NULL
+,	@INSTITUTION NVARCHAR(1000) = NULL
+,	@VOLUME NVARCHAR(56) = NULL
+,	@PAGES NVARCHAR(50) = NULL
+,	@EDITION NVARCHAR(200) = NULL
+,	@ISSUE NVARCHAR(100) = NULL
+,	@IS_LOCAL BIT = NULL
+,	@AVAILABILITY NVARCHAR(255) = NULL
+,	@URL NVARCHAR(500) = NULL
+,	@COMMENTS NVARCHAR(MAX) = NULL
+,	@ABSTRACT NVARCHAR(MAX) = NULL
+,	@IS_INCLUDED BIT = NULL
+,	@REVIEW_ID INT
+,	@DOI NVARCHAR(500) = NULL
+,	@KEYWORDS NVARCHAR(MAX) = NULL
+,	@SEARCHTEXT NVARCHAR(500) = NULL
+)
+
+As
+
+SET NOCOUNT ON
+
+UPDATE TB_ITEM
+
+SET TITLE = @TITLE
+,	[TYPE_ID] = @TYPE_ID
+,	PARENT_TITLE = @PARENT_TITLE
+,	SHORT_TITLE = @SHORT_TITLE
+,	DATE_CREATED = @DATE_CREATED
+,	CREATED_BY = @CREATED_BY
+,	DATE_EDITED = @DATE_EDITED
+,	EDITED_BY = @EDITED_BY
+,	[YEAR] = @YEAR
+,	[MONTH] = @MONTH
+,	STANDARD_NUMBER = @STANDARD_NUMBER
+,	CITY = @CITY
+,	COUNTRY = @COUNTRY
+,	PUBLISHER = @PUBLISHER
+,	INSTITUTION = @INSTITUTION
+,	VOLUME = @VOLUME
+,	PAGES = @PAGES
+,	EDITION = @EDITION
+,	ISSUE = @ISSUE
+,	IS_LOCAL = @IS_LOCAL
+,	AVAILABILITY = @AVAILABILITY
+,	URL = @URL
+,	COMMENTS = @COMMENTS
+,	ABSTRACT = @ABSTRACT
+,	DOI = @DOI
+,	KEYWORDS = @KEYWORDS
+,	SearchText = @SEARCHTEXT
+
+WHERE ITEM_ID = @ITEM_ID
+
+UPDATE TB_ITEM_REVIEW
+SET IS_INCLUDED = @IS_INCLUDED 
+WHERE REVIEW_ID = @REVIEW_ID AND ITEM_ID = @ITEM_ID
+
+SET NOCOUNT OFF
+go
+
+USE [Reviewer]
+GO
+
+/****** Object:  StoredProcedure [dbo].[st_ItemListMaybeMagMatches]    Script Date: 16/01/2020 15:54:51 ******/
+DROP PROCEDURE [dbo].[st_ItemListMaybeMagMatches]
+GO
+
+/****** Object:  StoredProcedure [dbo].[st_ItemListMaybeMagMatches]    Script Date: 16/01/2020 15:54:51 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+CREATE   procedure [dbo].[st_ItemListMaybeMagMatches]
+(
+      @REVIEW_ID INT,
+      @SHOW_INCLUDED BIT = 'true',
+      @ATTRIBUTE_SET_ID_LIST NVARCHAR(MAX) = '',
+      
+      @PageNum INT = 1,
+      @PerPage INT = 3,
+      @CurrentPage INT OUTPUT,
+      @TotalPages INT OUTPUT,
+      @TotalRows INT OUTPUT 
+)
+with recompile
+As
+
+SET NOCOUNT ON
+
+declare @RowsToRetrieve int
+Declare @ID table (ItemID bigint primary key )
+IF (@ATTRIBUTE_SET_ID_LIST = '')
+BEGIN
+
+       --store IDs to build paged results as a simple join
+	  INSERT INTO @ID
+	  SELECT DISTINCT (I.ITEM_ID) FROM TB_ITEM I
+      INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_REVIEW.ITEM_ID = I.ITEM_ID AND 
+            TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID
+            AND TB_ITEM_REVIEW.IS_INCLUDED = @SHOW_INCLUDED
+			AND TB_ITEM_REVIEW.IS_DELETED = 'FALSE'
+			INNER JOIN tb_ITEM_MAG_MATCH IMM ON IMM.ITEM_ID = I.ITEM_ID AND IMM.AutoMatchScore < 0.70
+				and IMM.ManualFalseMatch = 'FALSE' and IMM.ManualTrueMatch = 'FALSE'
+	  SELECT @TotalRows = @@ROWCOUNT
+
+      set @TotalPages = @TotalRows/@PerPage
+
+      if @PageNum < 1
+      set @PageNum = 1
+
+      if @TotalRows % @PerPage != 0
+      set @TotalPages = @TotalPages + 1
+
+      set @RowsToRetrieve = @PerPage * @PageNum
+      set @CurrentPage = @PageNum;
+
+      WITH SearchResults AS
+      (
+      SELECT DISTINCT (ir.ITEM_ID), IS_DELETED, IS_INCLUDED, ir.MASTER_ITEM_ID,
+            ROW_NUMBER() OVER(order by SHORT_TITLE) RowNum
+      FROM TB_ITEM i
+			INNER JOIN TB_ITEM_REVIEW ir on i.ITEM_ID = ir.ITEM_ID
+			INNER JOIN @ID id on id.ItemID = ir.ITEM_ID
+            
+      )
+      Select SearchResults.ITEM_ID, II.[TYPE_ID], OLD_ITEM_ID, [dbo].fn_REBUILD_AUTHORS(II.ITEM_ID, 0) as AUTHORS,
+                  TITLE, PARENT_TITLE, SHORT_TITLE, DATE_CREATED, CREATED_BY, DATE_EDITED, EDITED_BY,
+                  [YEAR], [MONTH], STANDARD_NUMBER, CITY, COUNTRY, PUBLISHER, INSTITUTION, VOLUME, PAGES, EDITION, ISSUE, IS_LOCAL,
+                  AVAILABILITY, URL, ABSTRACT, COMMENTS, [TYPE_NAME], IS_DELETED, IS_INCLUDED, [dbo].fn_REBUILD_AUTHORS(II.ITEM_ID, 1) as PARENTAUTHORS
+                  , SearchResults.MASTER_ITEM_ID, DOI, KEYWORDS
+                  --, ROW_NUMBER() OVER(order by authors, TITLE) RowNum
+            FROM SearchResults
+                  INNER JOIN TB_ITEM II ON SearchResults.ITEM_ID = II.ITEM_ID
+                  INNER JOIN TB_ITEM_TYPE ON TB_ITEM_TYPE.[TYPE_ID] = II.[TYPE_ID]
+            WHERE RowNum > @RowsToRetrieve - @PerPage
+            AND RowNum <= @RowsToRetrieve
+            ORDER BY SHORT_TITLE
+END
+ELSE /* FILTER BY A LIST OF ATTRIBUTES */
+BEGIN
+	      SELECT @TotalRows = count(DISTINCT I.ITEM_ID)
+            FROM TB_ITEM_REVIEW I
+      INNER JOIN TB_ITEM_ATTRIBUTE ON TB_ITEM_ATTRIBUTE.ITEM_ID = I.ITEM_ID
+      INNER JOIN TB_ATTRIBUTE_SET ON TB_ATTRIBUTE_SET.ATTRIBUTE_ID = TB_ITEM_ATTRIBUTE.ATTRIBUTE_ID
+      INNER JOIN dbo.fn_Split_int(@ATTRIBUTE_SET_ID_LIST, ',') attribute_list ON attribute_list.value = TB_ATTRIBUTE_SET.ATTRIBUTE_SET_ID
+      INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_SET_ID = TB_ITEM_ATTRIBUTE.ITEM_SET_ID AND TB_ITEM_SET.IS_COMPLETED = 'TRUE'
+      INNER JOIN TB_REVIEW_SET ON TB_REVIEW_SET.SET_ID = TB_ITEM_SET.SET_ID AND TB_REVIEW_SET.REVIEW_ID = @REVIEW_ID -- Make sure the correct set is being used - the same code can appear in more than one set!
+	  INNER JOIN tb_ITEM_MAG_MATCH IMM ON IMM.ITEM_ID = I.ITEM_ID AND IMM.AutoMatchScore < 0.7
+				and IMM.ManualFalseMatch = 'FALSE' and IMM.ManualTrueMatch = 'FALSE'
+
+      WHERE I.IS_INCLUDED = @SHOW_INCLUDED
+            AND I.REVIEW_ID = @REVIEW_ID
+			AND I.IS_DELETED = 'FALSE'
+
+      set @TotalPages = @TotalRows/@PerPage
+
+      if @PageNum < 1
+      set @PageNum = 1
+
+      if @TotalRows % @PerPage != 0
+      set @TotalPages = @TotalPages + 1
+
+      set @RowsToRetrieve = @PerPage * @PageNum
+      set @CurrentPage = @PageNum;
+
+      WITH SearchResults AS
+      (
+      SELECT DISTINCT (I.ITEM_ID), IS_DELETED, IS_INCLUDED, TB_ITEM_REVIEW.MASTER_ITEM_ID, ADDITIONAL_TEXT,
+            ROW_NUMBER() OVER(order by SHORT_TITLE) RowNum
+      FROM TB_ITEM I
+       INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_REVIEW.ITEM_ID = I.ITEM_ID AND 
+            TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID
+            AND TB_ITEM_REVIEW.IS_INCLUDED = @SHOW_INCLUDED
+
+      INNER JOIN TB_ITEM_ATTRIBUTE ON TB_ITEM_ATTRIBUTE.ITEM_ID = I.ITEM_ID INNER JOIN TB_ATTRIBUTE_SET ON TB_ATTRIBUTE_SET.ATTRIBUTE_ID = TB_ITEM_ATTRIBUTE.ATTRIBUTE_ID INNER JOIN dbo.fn_Split_int(@ATTRIBUTE_SET_ID_LIST, ',') attribute_list ON attribute_list.value = TB_ATTRIBUTE_SET.ATTRIBUTE_SET_ID INNER JOIN TB_ITEM_SET ON TB_ITEM_SET.ITEM_SET_ID = TB_ITEM_ATTRIBUTE.ITEM_SET_ID AND TB_ITEM_SET.IS_COMPLETED = 'TRUE'
+      INNER JOIN TB_REVIEW_SET ON TB_REVIEW_SET.SET_ID = TB_ITEM_SET.SET_ID AND TB_REVIEW_SET.REVIEW_ID = @REVIEW_ID -- Make sure the correct set is being used - the same code can appear in more than one set!
+      )
+      Select SearchResults.ITEM_ID, II.[TYPE_ID], OLD_ITEM_ID, [dbo].fn_REBUILD_AUTHORS(II.ITEM_ID, 0) as AUTHORS,
+                  TITLE, PARENT_TITLE, SHORT_TITLE, DATE_CREATED, CREATED_BY, DATE_EDITED, EDITED_BY,
+                  [YEAR], [MONTH], STANDARD_NUMBER, CITY, COUNTRY, PUBLISHER, INSTITUTION, VOLUME, PAGES, EDITION, ISSUE, IS_LOCAL,
+                  AVAILABILITY, URL, ABSTRACT, COMMENTS, [TYPE_NAME], IS_DELETED, IS_INCLUDED, [dbo].fn_REBUILD_AUTHORS(II.ITEM_ID, 1) as PARENTAUTHORS
+                  , SearchResults.MASTER_ITEM_ID, DOI, KEYWORDS, ADDITIONAL_TEXT
+                  --, ROW_NUMBER() OVER(order by authors, TITLE) RowNum
+            FROM SearchResults
+                  INNER JOIN TB_ITEM II ON SearchResults.ITEM_ID = II.ITEM_ID
+                  INNER JOIN TB_ITEM_TYPE ON TB_ITEM_TYPE.[TYPE_ID] = II.[TYPE_ID]
+            WHERE RowNum > @RowsToRetrieve - @PerPage
+            AND RowNum <= @RowsToRetrieve 
+            ORDER BY SHORT_TITLE
+END
+
+SELECT      @CurrentPage as N'@CurrentPage',
+            @TotalPages as N'@TotalPages',
+            @TotalRows as N'@TotalRows'
+
+GO
+
+
+USE [Reviewer]
+GO
+
+/****** Object:  StoredProcedure [dbo].[st_ItemListMagSimulationTPFN]    Script Date: 16/01/2020 15:54:44 ******/
+DROP PROCEDURE [dbo].[st_ItemListMagSimulationTPFN]
+GO
+
+/****** Object:  StoredProcedure [dbo].[st_ItemListMagSimulationTPFN]    Script Date: 16/01/2020 15:54:44 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+create   procedure [dbo].[st_ItemListMagSimulationTPFN]
+(
+      @REVIEW_ID INT,
+      --@SHOW_INCLUDED BIT = 'true',
+	  @MAG_SIMULATION_ID INT,
+	  @FOUND BIT,
+      
+      @PageNum INT = 1,
+      @PerPage INT = 3,
+      @CurrentPage INT OUTPUT,
+      @TotalPages INT OUTPUT,
+      @TotalRows INT OUTPUT 
+)
+with recompile
+As
+
+SET NOCOUNT ON
+
+declare @RowsToRetrieve int
+Declare @ID table (ItemID bigint primary key )
+
+       --store IDs to build paged results as a simple join
+	  INSERT INTO @ID
+	  SELECT DISTINCT (I.ITEM_ID) FROM TB_ITEM_REVIEW I
+			INNER JOIN tb_ITEM_MAG_MATCH IMM ON IMM.ITEM_ID = I.ITEM_ID AND
+				(IMM.AutoMatchScore >= 0.70 or imm.ManualTrueMatch = 'true')
+				and not IMM.ManualFalseMatch = 'true'
+			INNER JOIN TB_MAG_SIMULATION_RESULT MSR ON MSR.PaperId = IMM.PaperId AND MSR.FOUND = @FOUND
+				AND MSR.INCLUDED = 'True' and msr.SEED = 'false' and msr.MAG_SIMULATION_ID = @MAG_SIMULATION_ID
+			WHERE I.REVIEW_ID = @REVIEW_ID AND I.IS_DELETED = 'FALSE'
+
+	  SELECT @TotalRows = @@ROWCOUNT
+
+      set @TotalPages = @TotalRows/@PerPage
+
+      if @PageNum < 1
+      set @PageNum = 1
+
+      if @TotalRows % @PerPage != 0
+      set @TotalPages = @TotalPages + 1
+
+      set @RowsToRetrieve = @PerPage * @PageNum
+      set @CurrentPage = @PageNum;
+
+      WITH SearchResults AS
+      (
+      SELECT DISTINCT (ir.ITEM_ID), IS_DELETED, IS_INCLUDED, ir.MASTER_ITEM_ID,
+            ROW_NUMBER() OVER(order by SHORT_TITLE) RowNum
+      FROM TB_ITEM i
+			INNER JOIN TB_ITEM_REVIEW ir on i.ITEM_ID = ir.ITEM_ID
+			INNER JOIN @ID id on id.ItemID = ir.ITEM_ID
+            
+      )
+      Select SearchResults.ITEM_ID, II.[TYPE_ID], OLD_ITEM_ID, [dbo].fn_REBUILD_AUTHORS(II.ITEM_ID, 0) as AUTHORS,
+                  TITLE, PARENT_TITLE, SHORT_TITLE, DATE_CREATED, CREATED_BY, DATE_EDITED, EDITED_BY,
+                  [YEAR], [MONTH], STANDARD_NUMBER, CITY, COUNTRY, PUBLISHER, INSTITUTION, VOLUME, PAGES, EDITION, ISSUE, IS_LOCAL,
+                  AVAILABILITY, URL, ABSTRACT, COMMENTS, [TYPE_NAME], IS_DELETED, IS_INCLUDED, [dbo].fn_REBUILD_AUTHORS(II.ITEM_ID, 1) as PARENTAUTHORS
+                  , SearchResults.MASTER_ITEM_ID, DOI, KEYWORDS
+                  --, ROW_NUMBER() OVER(order by authors, TITLE) RowNum
+            FROM SearchResults
+                  INNER JOIN TB_ITEM II ON SearchResults.ITEM_ID = II.ITEM_ID
+                  INNER JOIN TB_ITEM_TYPE ON TB_ITEM_TYPE.[TYPE_ID] = II.[TYPE_ID]
+            WHERE RowNum > @RowsToRetrieve - @PerPage
+            AND RowNum <= @RowsToRetrieve
+            ORDER BY SHORT_TITLE
+
+
+SELECT      @CurrentPage as N'@CurrentPage',
+            @TotalPages as N'@TotalPages',
+            @TotalRows as N'@TotalRows'
+GO
+
+
+USE [Reviewer]
+GO
+
+/****** Object:  StoredProcedure [dbo].[st_ItemListMagNoMatches]    Script Date: 16/01/2020 15:54:34 ******/
+DROP PROCEDURE [dbo].[st_ItemListMagNoMatches]
+GO
+
+/****** Object:  StoredProcedure [dbo].[st_ItemListMagNoMatches]    Script Date: 16/01/2020 15:54:34 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+CREATE   procedure [dbo].[st_ItemListMagNoMatches]
+(
+      @REVIEW_ID INT,
+      @SHOW_INCLUDED BIT = 'true',
+      
+      @PageNum INT = 1,
+      @PerPage INT = 3,
+      @CurrentPage INT OUTPUT,
+      @TotalPages INT OUTPUT,
+      @TotalRows INT OUTPUT 
+)
+with recompile
+As
+
+SET NOCOUNT ON
+
+declare @RowsToRetrieve int
+Declare @ID table (ItemID bigint primary key )
+
+       --store IDs to build paged results as a simple join
+	  INSERT INTO @ID SELECT DISTINCT (I.ITEM_ID)
+      FROM TB_ITEM I
+      INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_REVIEW.ITEM_ID = I.ITEM_ID AND 
+            TB_ITEM_REVIEW.REVIEW_ID = @REVIEW_ID
+            AND TB_ITEM_REVIEW.IS_INCLUDED = @SHOW_INCLUDED
+			AND TB_ITEM_REVIEW.IS_DELETED = 'FALSE'
+			left outer JOIN tb_ITEM_MAG_MATCH IMM ON IMM.ITEM_ID = I.ITEM_ID
+			where imm.ITEM_ID is null
+	  SELECT @TotalRows = @@ROWCOUNT
+
+      set @TotalPages = @TotalRows/@PerPage
+
+      if @PageNum < 1
+      set @PageNum = 1
+
+      if @TotalRows % @PerPage != 0
+      set @TotalPages = @TotalPages + 1
+
+      set @RowsToRetrieve = @PerPage * @PageNum
+      set @CurrentPage = @PageNum;
+
+      WITH SearchResults AS
+      (
+      SELECT DISTINCT (ir.ITEM_ID), IS_DELETED, IS_INCLUDED, ir.MASTER_ITEM_ID,
+            ROW_NUMBER() OVER(order by SHORT_TITLE) RowNum
+      FROM TB_ITEM i
+			INNER JOIN TB_ITEM_REVIEW ir on i.ITEM_ID = ir.ITEM_ID
+			INNER JOIN @ID id on id.ItemID = ir.ITEM_ID
+            
+      )
+      Select SearchResults.ITEM_ID, II.[TYPE_ID], OLD_ITEM_ID, [dbo].fn_REBUILD_AUTHORS(II.ITEM_ID, 0) as AUTHORS,
+                  TITLE, PARENT_TITLE, SHORT_TITLE, DATE_CREATED, CREATED_BY, DATE_EDITED, EDITED_BY,
+                  [YEAR], [MONTH], STANDARD_NUMBER, CITY, COUNTRY, PUBLISHER, INSTITUTION, VOLUME, PAGES, EDITION, ISSUE, IS_LOCAL,
+                  AVAILABILITY, URL, ABSTRACT, COMMENTS, [TYPE_NAME], IS_DELETED, IS_INCLUDED, [dbo].fn_REBUILD_AUTHORS(II.ITEM_ID, 1) as PARENTAUTHORS
+                  , SearchResults.MASTER_ITEM_ID, DOI, KEYWORDS
+                  --, ROW_NUMBER() OVER(order by authors, TITLE) RowNum
+            FROM SearchResults
+                  INNER JOIN TB_ITEM II ON SearchResults.ITEM_ID = II.ITEM_ID
+                  INNER JOIN TB_ITEM_TYPE ON TB_ITEM_TYPE.[TYPE_ID] = II.[TYPE_ID]
+            WHERE RowNum > @RowsToRetrieve - @PerPage
+            AND RowNum <= @RowsToRetrieve
+            ORDER BY SHORT_TITLE
+
+
+SELECT      @CurrentPage as N'@CurrentPage',
+            @TotalPages as N'@TotalPages',
+            @TotalRows as N'@TotalRows'
+
+GO
+
+
+USE [Reviewer]
+GO
+
+/****** Object:  StoredProcedure [dbo].[st_ItemListMagMatches]    Script Date: 16/01/2020 15:54:28 ******/
+DROP PROCEDURE [dbo].[st_ItemListMagMatches]
+GO
+
+/****** Object:  StoredProcedure [dbo].[st_ItemListMagMatches]    Script Date: 16/01/2020 15:54:28 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+CREATE   procedure [dbo].[st_ItemListMagMatches]
+(
+      @REVIEW_ID INT,
+      @SHOW_INCLUDED BIT = 'true',
+      
+      @PageNum INT = 1,
+      @PerPage INT = 3,
+      @CurrentPage INT OUTPUT,
+      @TotalPages INT OUTPUT,
+      @TotalRows INT OUTPUT 
+)
+with recompile
+As
+
+SET NOCOUNT ON
+
+declare @RowsToRetrieve int
+Declare @ID table (ItemID bigint primary key )
+
+       --store IDs to build paged results as a simple join
+	  INSERT INTO @ID
+	  SELECT DISTINCT (I.ITEM_ID) FROM TB_ITEM_REVIEW I
+			INNER JOIN tb_ITEM_MAG_MATCH IMM ON IMM.ITEM_ID = I.ITEM_ID AND
+				(IMM.AutoMatchScore >= 0.70 or imm.ManualTrueMatch = 'true')
+				and not IMM.ManualFalseMatch = 'true'
+			WHERE I.REVIEW_ID = @REVIEW_ID AND I.IS_INCLUDED = @SHOW_INCLUDED
+			AND I.IS_DELETED = 'FALSE'
+
+	  SELECT @TotalRows = @@ROWCOUNT
+
+      set @TotalPages = @TotalRows/@PerPage
+
+      if @PageNum < 1
+      set @PageNum = 1
+
+      if @TotalRows % @PerPage != 0
+      set @TotalPages = @TotalPages + 1
+
+      set @RowsToRetrieve = @PerPage * @PageNum
+      set @CurrentPage = @PageNum;
+
+      WITH SearchResults AS
+      (
+      SELECT DISTINCT (ir.ITEM_ID), IS_DELETED, IS_INCLUDED, ir.MASTER_ITEM_ID,
+            ROW_NUMBER() OVER(order by SHORT_TITLE) RowNum
+      FROM TB_ITEM i
+			INNER JOIN TB_ITEM_REVIEW ir on i.ITEM_ID = ir.ITEM_ID
+			INNER JOIN @ID id on id.ItemID = ir.ITEM_ID
+            
+      )
+      Select SearchResults.ITEM_ID, II.[TYPE_ID], OLD_ITEM_ID, [dbo].fn_REBUILD_AUTHORS(II.ITEM_ID, 0) as AUTHORS,
+                  TITLE, PARENT_TITLE, SHORT_TITLE, DATE_CREATED, CREATED_BY, DATE_EDITED, EDITED_BY,
+                  [YEAR], [MONTH], STANDARD_NUMBER, CITY, COUNTRY, PUBLISHER, INSTITUTION, VOLUME, PAGES, EDITION, ISSUE, IS_LOCAL,
+                  AVAILABILITY, URL, ABSTRACT, COMMENTS, [TYPE_NAME], IS_DELETED, IS_INCLUDED, [dbo].fn_REBUILD_AUTHORS(II.ITEM_ID, 1) as PARENTAUTHORS
+                  , SearchResults.MASTER_ITEM_ID, DOI, KEYWORDS
+                  --, ROW_NUMBER() OVER(order by authors, TITLE) RowNum
+            FROM SearchResults
+                  INNER JOIN TB_ITEM II ON SearchResults.ITEM_ID = II.ITEM_ID
+                  INNER JOIN TB_ITEM_TYPE ON TB_ITEM_TYPE.[TYPE_ID] = II.[TYPE_ID]
+            WHERE RowNum > @RowsToRetrieve - @PerPage
+            AND RowNum <= @RowsToRetrieve
+            ORDER BY SHORT_TITLE
+
+
+SELECT      @CurrentPage as N'@CurrentPage',
+            @TotalPages as N'@TotalPages',
+            @TotalRows as N'@TotalRows'
+GO
+
+
+USE [Reviewer]
+GO
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[st_ReviewContactForSiteAdmin]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[st_ReviewContactForSiteAdmin]
+GO
+/****** Object:  StoredProcedure [dbo].[st_ReviewContactForSiteAdmin]    Script Date: 08/09/2019 23:12:09 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE procedure [dbo].[st_ReviewContactForSiteAdmin]
+(
+	@CONTACT_ID INT
+	,@REVIEW_ID int
+)
+
+As
+
+SELECT 0 as REVIEW_CONTACT_ID, - r.REVIEW_ID as REVIEW_ID, rc.CONTACT_ID, REVIEW_NAME, 'AdminUser;' as ROLES
+	,own.CONTACT_NAME as 'OWNER', case when LR is null
+									then r.DATE_CREATED
+									else LR
+								 end
+								 as 'LAST_ACCESS'
+	, r.SHOW_SCREENING, r.SCREENING_CODE_SET_ID, r.SCREENING_MODE, r.SCREENING_WHAT_ATTRIBUTE_ID, r.SCREENING_N_PEOPLE
+	, r.SCREENING_RECONCILLIATION, r.SCREENING_AUTO_EXCLUDE, SCREENING_MODEL_RUNNING, SCREENING_INDEXED
+	, BL_ACCOUNT_CODE,BL_AUTH_CODE, BL_TX, BL_CC_ACCOUNT_CODE, BL_CC_AUTH_CODE, BL_CC_TX
+	, (SELECT SUM(N_PAPERS) from Reviewer.dbo.tb_MAG_RELATED_RUN MRR
+			WHERE REVIEW_ID = @REVIEW_ID  and USER_STATUS = 'Unchecked') NAutoUpdates
+FROM TB_CONTACT rc
+INNER JOIN TB_REVIEW r ON rc.CONTACT_ID = @CONTACT_ID and rc.IS_SITE_ADMIN = 1 and r.REVIEW_ID = @REVIEW_ID 
+inner join TB_CONTACT own on r.FUNDER_ID = own.CONTACT_ID
+left join (
+			select MAX(LAST_RENEWED) LR, REVIEW_ID
+			from ReviewerAdmin.dbo.TB_LOGON_TICKET  
+			where @CONTACT_ID = CONTACT_ID and REVIEW_ID = @REVIEW_ID
+			group by REVIEW_ID
+			) as t
+			on t.REVIEW_ID = r.REVIEW_ID
+WHERE rc.CONTACT_ID = @CONTACT_ID
+ORDER BY REVIEW_NAME
+
+GO
+
+USE [Reviewer]
+GO
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[st_ReviewContact]') AND type in (N'P', N'PC'))
+DROP PROCEDURE [dbo].[st_ReviewContact]
+GO
+/****** Object:  StoredProcedure [dbo].[st_ReviewContact]    Script Date: 08/09/2019 23:09:40 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE procedure [dbo].[st_ReviewContact]
+(
+	@CONTACT_ID INT
+)
+
+As
+
+SELECT REVIEW_CONTACT_ID, rc.REVIEW_ID, rc.CONTACT_ID, REVIEW_NAME, dbo.fn_REBUILD_ROLES(rc.REVIEW_CONTACT_ID) as ROLES
+	,own.CONTACT_NAME as 'OWNER', case when LR is null
+									then r.DATE_CREATED
+									else LR
+								 end
+								 as 'LAST_ACCESS'
+	, r.SHOW_SCREENING, r.SCREENING_CODE_SET_ID, r.SCREENING_MODE, r.SCREENING_WHAT_ATTRIBUTE_ID, r.SCREENING_N_PEOPLE
+	, r.SCREENING_RECONCILLIATION, r.SCREENING_AUTO_EXCLUDE, SCREENING_MODEL_RUNNING, SCREENING_INDEXED
+	, BL_ACCOUNT_CODE,BL_AUTH_CODE, BL_TX, BL_CC_ACCOUNT_CODE, BL_CC_AUTH_CODE, BL_CC_TX
+	, (SELECT SUM(N_PAPERS) from Reviewer.dbo.tb_MAG_RELATED_RUN MRR
+			WHERE REVIEW_ID = rc.REVIEW_ID  and USER_STATUS = 'Unchecked') NAutoUpdates
+FROM TB_REVIEW_CONTACT rc
+INNER JOIN TB_REVIEW r ON rc.REVIEW_ID = r.REVIEW_ID
+inner join TB_CONTACT own on r.FUNDER_ID = own.CONTACT_ID
+left join (
+			select MAX(LAST_RENEWED) LR, REVIEW_ID
+			from ReviewerAdmin.dbo.TB_LOGON_TICKET  
+			where @CONTACT_ID = CONTACT_ID
+			group by REVIEW_ID
+			) as t
+			on t.REVIEW_ID = r.REVIEW_ID
+WHERE rc.CONTACT_ID = @CONTACT_ID and (r.ARCHIE_ID is null OR r.ARCHIE_ID = 'prospective_______')
+ORDER BY REVIEW_NAME
+
+GO
+
+
+USE [Reviewer]
+GO
+
+/****** Object:  StoredProcedure [dbo].[st_CheckReviewHasUpdates]    Script Date: 16/01/2020 15:57:44 ******/
+DROP PROCEDURE [dbo].[st_CheckReviewHasUpdates]
+GO
+
+/****** Object:  StoredProcedure [dbo].[st_CheckReviewHasUpdates]    Script Date: 16/01/2020 15:57:44 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- =============================================
+-- Author:		James
+-- Create date: 
+-- Description:	Checks to see whether a review has any auto-identified studies for authors to check
+-- =============================================
+CREATE PROCEDURE [dbo].[st_CheckReviewHasUpdates] 
+	-- Add the parameters for the stored procedure here
+	@REVIEW_id int = 0,
+	@NUpdates INT OUTPUT
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+    select @NUpdates = sum(N_PAPERS) from Reviewer.dbo.tb_MAG_RELATED_RUN
+		where REVIEW_ID = @REVIEW_id
+		and USER_STATUS = 'Unchecked'
+
+	if @NUpdates is null
+	begin
+		set @NUpdates = 0
+	end
+END
+
+GO
+
+
+Use Reviewer
+GO
+
+/* To prevent any potential data loss issues, you should review this script in detail before running it outside the context of the database designer.*/
+IF COL_LENGTH('TB_REVIEW', 'MAG_ENABLED') IS NULL
+begin
+BEGIN TRANSACTION
+SET QUOTED_IDENTIFIER ON
+SET ARITHABORT ON
+SET NUMERIC_ROUNDABORT OFF
+SET CONCAT_NULL_YIELDS_NULL ON
+SET ANSI_NULLS ON
+SET ANSI_PADDING ON
+SET ANSI_WARNINGS ON
+--select 1
+COMMIT
+BEGIN TRANSACTION
+ALTER TABLE dbo.TB_REVIEW ADD
+	MAG_ENABLED int NULL
+
+ALTER TABLE dbo.TB_REVIEW SET (LOCK_ESCALATION = TABLE)
+--select 2
+COMMIT
+end
+GO
+update dbo.TB_REVIEW Set MAG_ENABLED = 0 where MAG_ENABLED is null
+
+USE [Reviewer]
+GO
+
+/****** Object:  StoredProcedure [dbo].[st_ReviewInsert]    Script Date: 02/10/2019 23:04:02 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE OR ALTER procedure [dbo].[st_ReviewInsert]
+(
+	@REVIEW_NAME NVARCHAR(255),
+	@CONTACT_ID INT,
+	@NEW_REVIEW_ID INT OUTPUT
+)
+
+As
+
+SET NOCOUNT ON
+
+	INSERT INTO TB_REVIEW(REVIEW_NAME, FUNDER_ID, DATE_CREATED, MAG_ENABLED)
+	VALUES (@REVIEW_NAME, @CONTACT_ID, CURRENT_TIMESTAMP, 0)
+
+	SET @NEW_REVIEW_ID = @@IDENTITY
+	
+	DECLARE @NEW_CONTACT_REVIEW_ID INT
+	
+	INSERT INTO TB_REVIEW_CONTACT(CONTACT_ID, REVIEW_ID)
+	VALUES (@CONTACT_ID, @NEW_REVIEW_ID)
+	
+	SET @NEW_CONTACT_REVIEW_ID = @@IDENTITY
+	
+	INSERT INTO TB_CONTACT_REVIEW_ROLE(REVIEW_CONTACT_ID, ROLE_NAME)
+	VALUES(@NEW_CONTACT_REVIEW_ID, 'AdminUser')
+	
+	
+	
+	
+
+SET NOCOUNT OFF
+
+GO
+USE [Reviewer]
+GO
+
+/****** Object:  StoredProcedure [dbo].[st_ReviewInfoUpdate]    Script Date: 02/10/2019 23:06:23 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE OR ALTER procedure [dbo].[st_ReviewInfoUpdate]
+(
+	@REVIEW_ID int
+,	@SCREENING_CODE_SET_ID int
+,	@SCREENING_MODE nvarchar(10)
+,	@SCREENING_RECONCILLIATION nvarchar(10)
+,	@SCREENING_WHAT_ATTRIBUTE_ID bigint
+,	@SCREENING_N_PEOPLE int
+,	@SCREENING_AUTO_EXCLUDE bit
+,	@SCREENING_MODEL_RUNNING bit
+,	@SCREENING_INDEXED bit
+,	@MAG_ENABLED INT
+)
+
+As
+
+SET NOCOUNT ON
+
+UPDATE TB_REVIEW
+	SET SCREENING_CODE_SET_ID = @SCREENING_CODE_SET_ID
+,		SCREENING_MODE = @SCREENING_MODE
+,		SCREENING_RECONCILLIATION = @SCREENING_RECONCILLIATION
+,		SCREENING_WHAT_ATTRIBUTE_ID = @SCREENING_WHAT_ATTRIBUTE_ID
+,		SCREENING_N_PEOPLE = @SCREENING_N_PEOPLE
+,		SCREENING_AUTO_EXCLUDE = @SCREENING_AUTO_EXCLUDE
+--,		SCREENING_MODEL_RUNNING = @SCREENING_MODEL_RUNNING
+,		SCREENING_INDEXED = @SCREENING_INDEXED
+,		MAG_ENABLED = @MAG_ENABLED
+WHERE REVIEW_ID = @REVIEW_ID
+	
+
+SET NOCOUNT OFF
+
+
+GO
+
+
+USE [Reviewer]
+GO
+
+/****** Object:  StoredProcedure [dbo].[st_ReviewMagEnabledUpdate]    Script Date: 06/10/2019 22:41:44 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+CREATE OR ALTER   procedure [dbo].[st_ReviewMagEnabledUpdate]
+(
+	@REVIEW_ID INT
+,	@MAG_ENABLED INT
+)
+As
+
+SET NOCOUNT ON
+
+UPDATE TB_REVIEW
+	SET MAG_ENABLED = @MAG_ENABLED
+	WHERE REVIEW_ID = @REVIEW_ID
+GO
+
+
+USE [Reviewer]
+GO
+
+/****** Object:  StoredProcedure [dbo].[st_ReviewMagEnabled]    Script Date: 06/10/2019 22:41:39 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+CREATE OR ALTER   procedure [dbo].[st_ReviewMagEnabled]
+
+As
+
+SET NOCOUNT ON
+
+select * from TB_REVIEW where MAG_ENABLED > 0
+GO
+
+
+USE [Reviewer]
+GO
+
+/****** Object:  StoredProcedure [dbo].[st_ClassifierContactModels]    Script Date: 29/11/2019 16:53:01 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE OR ALTER procedure [dbo].[st_ClassifierContactModels]
+(
+	@CONTACT_ID INT
+)
+
+As
+
+SET NOCOUNT ON
+
+	select MODEL_ID, MODEL_TITLE, CM.REVIEW_ID, A1.ATTRIBUTE_NAME ATTRIBUTE_ON, A2.ATTRIBUTE_NAME ATTRIBUTE_NOT_ON,
+		CONTACT_NAME, CM.CONTACT_ID, ACCURACY, AUC, [PRECISION], RECALL, R.REVIEW_NAME
+		from tb_CLASSIFIER_MODEL CM
+	INNER JOIN TB_ATTRIBUTE A1 ON A1.ATTRIBUTE_ID = CM.ATTRIBUTE_ID_ON
+	INNER JOIN TB_ATTRIBUTE A2 ON A2.ATTRIBUTE_ID = CM.ATTRIBUTE_ID_NOT_ON
+	INNER JOIN TB_CONTACT ON TB_CONTACT.CONTACT_ID = CM.CONTACT_ID
+	INNER JOIN TB_REVIEW_CONTACT RC ON RC.REVIEW_ID = CM.REVIEW_ID
+	INNER JOIN TB_REVIEW R ON R.REVIEW_ID = RC.REVIEW_ID
+	
+	where RC.CONTACT_ID = @CONTACT_ID
+	order by CM.REVIEW_ID, MODEL_ID
+
+SET NOCOUNT OFF
+
+
+GO
+
