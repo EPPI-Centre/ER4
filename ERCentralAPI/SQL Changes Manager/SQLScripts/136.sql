@@ -1,5 +1,8 @@
 ﻿-- *************************************** SERGIO - PLEASE CAN YOU REVIEW THIS BIT? ******************************
 /* To prevent any potential data loss issues, you should review this script in detail before running it outside the context of the database designer.*/
+Use [Reviewer]
+GO
+
 BEGIN TRANSACTION
 SET QUOTED_IDENTIFIER ON
 SET ARITHABORT ON
@@ -31,7 +34,7 @@ GO
 IF EXISTS(SELECT * FROM INFORMATION_SCHEMA.TABLES
            WHERE TABLE_NAME = N'tb_ITEM_MAG_MATCH')
 	 EXEC('INSERT INTO dbo.Tmp_tb_ITEM_MAG_MATCH (ITEM_ID, REVIEW_ID, PaperId, AutoMatchScore, ManualTrueMatch, ManualFalseMatch)
-		SELECT ITEM_ID, REVIEW_ID, PaperId, AutoMatchScore, ManualTrueMatch, ManualFalseMatch FROM dbo.tb_ITEM_MAG_MATCH WITH (HOLDLOCK TABLOCKX)')
+		SELECT ITEM_ID, REVIEW_ID, PaperId, AutoMatchScore, ManualTrueMatch, ManualFalseMatch FROM dbo.TB_ITEM_MAG_MATCH WITH (HOLDLOCK TABLOCKX)')
 GO
 IF EXISTS(SELECT * FROM INFORMATION_SCHEMA.TABLES
            WHERE TABLE_NAME = N'tb_ITEM_MAG_MATCH')
