@@ -29,6 +29,7 @@ import { codesetSelectorComponent } from '../CodesetTrees/codesetSelector.compon
 import { ConfigurableReportService } from '../services/configurablereport.service';
 import { Helpers } from '../helpers/HelperMethods';
 import { ExcelService } from '../services/excel.service';
+import { DuplicatesService } from '../services/duplicates.service';
 
 
 @Component({
@@ -69,6 +70,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         , private ItemCodingService: ItemCodingService
 		, private ReviewSetsEditingService: ReviewSetsEditingService
         , private workAllocationListService: WorkAllocationListService
+        , private DuplicatesService: DuplicatesService
 		, private ComparisonsService: ComparisonsService,
 		private searchService: searchService,
 		private configurablereportServ: ConfigurableReportService,
@@ -97,7 +99,9 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 	private statsSub: Subscription = new Subscription();
 	private InstanceId: number = Math.random();
 	public crossTabResult: any | 'none';
-	public CodesAreCollapsed: boolean = true;
+    public CodesAreCollapsed: boolean = true;
+    public DropDownAllocateAtt: SetAttribute = new SetAttribute();
+    public isCollapsedCodeAllocate: boolean = false;
 
     public get IsServiceBusy(): boolean {
         //console.log("mainfull IsServiceBusy", this.ItemListService, this.codesetStatsServ, this.SourcesService )
@@ -338,7 +342,46 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 			return true;
 		}
 		return false;
-	}
+    }
+    public RunAssignment() {
+
+        let itemIdsStr: string = "";
+        if (this.AllocateChoice !== 'Documents with this code') {
+            var itemids = this.ItemListService.SelectedItems.map(
+                x => x.itemId
+            );
+            itemIdsStr = itemids.toString();
+            console.log("itemIdsStr", itemIdsStr);
+        }
+
+        this.ItemListService.AssignDocumentsToIncOrExc(
+            this.AssignDocs,
+            itemIdsStr,
+            this.AllocateChoice == 'Documents with this code' ? this.DropDownAllocateAtt.attribute_id : 0,
+            this.AllocateChoice == 'Documents with this code' ? this.DropDownAllocateAtt.set_id : 0
+        ).then(
+
+            () => {
+
+                this.ItemListService.Refresh();
+                this.AllIncOrExcShow = false;
+                this.DropdownSelectedCodeAllocate = null;
+                this.AssignDocs = 'true';
+                this.AllocateChoice = 'Selected documents';
+            }
+        );
+    }
+    public CloseCodeDropDownAllocate() {
+
+        if (this.CodeTreeAllocate) {
+
+            this.DropdownSelectedCodeAllocate = this.CodeTreeAllocate.SelectedNodeData;
+            this.DropDownAllocateAtt = this.DropdownSelectedCodeAllocate as SetAttribute;
+
+        }
+        this.isCollapsedCodeAllocate = false;
+
+    }
 	public DeleteRelevantItems() {
 		if (this.ItemListService.SelectedItems != null &&
 			this.ItemListService.SelectedItems.length > 0) {
@@ -793,7 +836,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         this.codesetStatsServ.Clear();
 		this.SourcesService.Clear();
 		this.workAllocationListService.Clear();
-
+        this.DuplicatesService.Clear();
         if (this.FreqComponent) this.FreqComponent.Clear();
 		if (this.CrosstabsComponent) this.CrosstabsComponent.Clear();
 		if (this.workAllocationCollaborateComp) {

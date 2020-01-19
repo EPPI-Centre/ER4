@@ -15,6 +15,8 @@ using Telerik.Windows.Controls;
 using Csla.Xaml;
 using BusinessLibrary.Security;
 using System.Windows.Threading;
+using Telerik.Windows.Controls.ChartView;
+using System.IO;
 
 namespace EppiReviewer4
 {
@@ -26,6 +28,8 @@ namespace EppiReviewer4
         public event EventHandler<RoutedEventArgs> ListExcludedNotMatched;
         public event EventHandler<RoutedEventArgs> ListIncludedMatched;
         public event EventHandler<RoutedEventArgs> ListExcludedMatched;
+        public event EventHandler<RoutedEventArgs> ListSimulationTP;
+        public event EventHandler<RoutedEventArgs> ListSimulationFN;
         private DispatcherTimer timer;
         private int CurrentBrowsePosition = 0;
         private List<Int64> SelectedPaperIds;
@@ -1812,9 +1816,9 @@ namespace EppiReviewer4
             newSimulation.CreatedDate = CreatedDate;
             newSimulation.WithThisAttributeId = AttributeId;
             newSimulation.FilteredByAttributeId = AttributeIdFilter;
-            newSimulation.SearchMethod = comboSimulationSearchMethod.SelectedItem.ToString();
-            newSimulation.NetworkStatistic = comboSimulationNetworkStats.SelectedItem.ToString();
-            newSimulation.StudyTypeClassifier = comboSimulationStudyTypeClassifier.SelectedItem.ToString();
+            newSimulation.SearchMethod = (comboSimulationSearchMethod.SelectedItem as ComboBoxItem).Content.ToString();
+            newSimulation.NetworkStatistic = (comboSimulationNetworkStats.SelectedItem as ComboBoxItem).Content.ToString();
+            newSimulation.StudyTypeClassifier = (comboSimulationStudyTypeClassifier.SelectedItem as ComboBoxItem).Content.ToString();
             newSimulation.UserClassifierModelId = (UserModel != null ? UserModel.ModelId : 0);
             newSimulation.Status = "Pending";
 
@@ -1828,35 +1832,9 @@ namespace EppiReviewer4
                     SimList.SaveItem(newSimulation);
                 }
             }
-
-            /*
-            DataPortal<MagRunSimulationCommand> dp2 = new DataPortal<MagRunSimulationCommand>();
-            MagRunSimulationCommand mrsc = new MagRunSimulationCommand(SimulationYear, CreatedDate, AttributeId);
-            dp2.ExecuteCompleted += (o, e2) =>
-            {
-                //BusyLoading.IsRunning = false;
-                lbRunSimulation.IsEnabled = true;
-                if (e2.Error != null)
-                {
-                    RadWindow.Alert(e2.Error.Message);
-                    //tbSimulationResults.Text = "error";
-                }
-                else
-                {
-                    MagRunSimulationCommand mrsc2 = e2.Object as MagRunSimulationCommand;
-                    if (mrsc2 != null)
-                    {
-                        //tbSimulationResults.Text = mrsc2.GetReport();
-                    }
-                }
-            };
-            //BusyLoading.IsRunning = true;
-            //tbSimulationResults.Text = "Working...";
-            lbRunSimulation.IsEnabled = false;
-            dp2.BeginExecute(mrsc);
-            */
         }
 
+        
         private void cbSimulationFilterByThisCode_Checked(object sender, RoutedEventArgs e)
         {
             codesSelectControlSimulationFilter.Visibility = Visibility.Visible;
@@ -1866,6 +1844,142 @@ namespace EppiReviewer4
         {
             codesSelectControlSimulationFilter.Visibility = Visibility.Collapsed;
         }
+
+        private void HyperlinkButton_Click_8(object sender, RoutedEventArgs e)
+        {
+            HyperlinkButton hl = sender as HyperlinkButton;
+            if (hl == null)
+                return;
+            MagSimulation ms = hl.DataContext as MagSimulation;
+            if (ms == null)
+                return;
+            CslaDataProvider provider = this.Resources["MagSimulationListData"] as CslaDataProvider;
+            if (provider != null)
+            {
+                MagSimulationList SimList = provider.Data as MagSimulationList;
+                if (SimList != null)
+                {
+                    SimList.Remove(ms);
+                    //SimList.SaveItem(ms);
+                }
+            }
+        }
+
+        private int CurrentMagSimulationId; // Just stores the current SimulationId for the graph being displayed (the download data feature uses this)
+        private void HyperlinkButton_Click_9(object sender, RoutedEventArgs e)
+        {
+            MagSimulation ms = (sender as HyperlinkButton).DataContext as MagSimulation;
+            if (ms != null)
+            {
+                CurrentMagSimulationId = ms.MagSimulationId;
+                GridSimulationResults.Visibility = Visibility.Visible;
+                GridCreateSimulations.Visibility = Visibility.Collapsed;
+                GetDataBySpecifiedScore();
+            }
+        }
+
+        private void GetDataBySpecifiedScore()
+        {
+            hlDownloadDataFromBrowser.Visibility = Visibility.Collapsed;
+            CslaDataProvider provider = this.Resources["MagSimulationResultListData"] as CslaDataProvider;
+            if (provider != null)
+            {
+                string OrderBy = "Network"; // i.e. rbROCNetwork.IsChecked == true
+                
+                if (rbROCDistance.IsChecked == true)
+                {
+                    OrderBy = "FoS";
+                }
+                if (rbROCUserClassifier.IsChecked == true)
+                {
+                    OrderBy = "User";
+                }
+                if (rbROCStudyClassifier.IsChecked == true)
+                {
+                    OrderBy = "StudyType";
+                }
+                if (rbROCEnsemble.IsChecked == true)
+                {
+                    OrderBy = "Ensemble";
+                }
+                provider.FactoryParameters.Clear();
+                provider.FactoryParameters.Add(CurrentMagSimulationId);
+                provider.FactoryParameters.Add(OrderBy);
+                provider.FactoryMethod = "GetMagSimulationResultList";
+                provider.Refresh();
+
+                GridSimulationResults.Visibility = Visibility.Visible;
+                GridCreateSimulations.Visibility = Visibility.Collapsed;
+            }
+        }
+
+        private void hlCloseGraph_Click(object sender, RoutedEventArgs e)
+        {
+            GridSimulationResults.Visibility = Visibility.Collapsed;
+            GridCreateSimulations.Visibility = Visibility.Visible;
+        }
+
+        private void rbROCNetwork_Click(object sender, RoutedEventArgs e)
+        {
+            GetDataBySpecifiedScore();
+        }
+
+        private void hlDownloadData_Click(object sender, RoutedEventArgs e)
+        {
+            DataPortal<MagDownloadSimulationDataCommand> dp2 = new DataPortal<MagDownloadSimulationDataCommand>();
+            MagDownloadSimulationDataCommand mdsdc = new MagDownloadSimulationDataCommand(CurrentMagSimulationId);
+            hlDownloadDataFromBrowser.Visibility = Visibility.Collapsed;
+            dp2.ExecuteCompleted += (o, e2) =>
+            {
+                BusyLoadingSimulationData.IsRunning = false;
+                hlDownloadData.IsEnabled = true;
+                if (e2.Error != null)
+                {
+                    RadWindow.Alert(e2.Error.Message);
+                }
+                else
+                {
+                    MagDownloadSimulationDataCommand mdsdc2 = e2.Object as MagDownloadSimulationDataCommand;
+                    if (mdsdc2 != null)
+                    {
+                        hlDownloadDataFromBrowser.Tag = mdsdc2.Data;
+                        RadWindow.Alert("Data downloaded to your browser.\n\rClick the link to download to your computer");
+                        hlDownloadDataFromBrowser.Visibility = Visibility.Visible;
+                    }
+                }
+            };
+            BusyLoadingSimulationData.IsRunning = true;
+            hlDownloadData.IsEnabled = false;
+            dp2.BeginExecute(mdsdc);
+        }
+
+        private void hlDownloadDataFromBrowser_Click(object sender, RoutedEventArgs e)
+        {
+            string extension = "tsv";
+            SaveFileDialog dialog = new SaveFileDialog();
+            dialog.DefaultExt = extension;
+            dialog.Filter = String.Format("{1} files (*.{0})|*.{0}|All files (*.*)|*.*", extension, "tsv");
+            dialog.FilterIndex = 1;
+
+            if (dialog.ShowDialog() == true)
+            {
+                StreamWriter writer = new StreamWriter(dialog.OpenFile());
+                writer.WriteLine(hlDownloadDataFromBrowser.Tag.ToString());
+                writer.Dispose();
+                writer.Close();
+            }
+        }
+
+        private void HyperlinkButton_Click_10(object sender, RoutedEventArgs e)
+        {
+            this.ListSimulationFN.Invoke(sender, e);
+        }
+
+        private void HyperlinkButton_Click_11(object sender, RoutedEventArgs e)
+        {
+            this.ListSimulationTP.Invoke(sender, e);
+        }
+
 
         // ********************************** ADMIN PAGE ***********************************
 
@@ -1929,21 +2043,5 @@ namespace EppiReviewer4
         }
 
         
-
-
-
-
-
-
-
-
-
-
-
-
-
-        // 88888888888888888888888888888 NOT IMPLEMENTED YET 8888888888888888888888888888888888888888
-
-
     }
 }

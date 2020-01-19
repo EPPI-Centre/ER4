@@ -44,6 +44,17 @@ namespace BusinessLibrary.BusinessClasses
             }
             return null;
         }
+        public bool HasMagEnabledReviewsWithNewItems
+        {
+            get
+            {
+                foreach (ReadOnlyReview ror in this)
+                {
+                    if (ror.NAutoUpdates > 0) return true;
+                }
+                return false;
+            }
+        }
 #if !SILVERLIGHT
 
         private void DataPortal_Fetch(SingleCriteria<ReadOnlyReviewList, int> criteria)

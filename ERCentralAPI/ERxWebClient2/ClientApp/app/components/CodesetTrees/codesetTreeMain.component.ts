@@ -118,7 +118,7 @@ export class CodesetTreeMainComponent implements OnInit, OnDestroy, AfterViewIni
 		for (var i = 0; i < this.treeComponent.treeModel.roots.length; i++) {
 
 			rootsArr[i] = this.treeComponent.treeModel.roots[i];
-			console.log(rootsArr[i]);
+			//console.log(rootsArr[i]);
 		}
 
 	}
@@ -172,7 +172,7 @@ export class CodesetTreeMainComponent implements OnInit, OnDestroy, AfterViewIni
 	NodeSelected(node: singleNode) {
 
 		//alert(JSON.stringify(stuff));
-		console.log(JSON.stringify(node));
+		//console.log(JSON.stringify(node));
 
 		//if (this._eventEmitter.codingTreeVar == true) {
 

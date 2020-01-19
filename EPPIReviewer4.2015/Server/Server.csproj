@@ -252,6 +252,7 @@
     <Compile Include="BusinessClasses\MagBrowseHistory.cs" />
     <Compile Include="BusinessClasses\MagBrowseHistoryList.cs" />
     <Compile Include="BusinessClasses\MagCurrentInfo.cs" />
+    <Compile Include="BusinessClasses\MagDownloadSimulationDataCommand.cs" />
     <Compile Include="BusinessClasses\MagFieldOfStudy.cs" />
     <Compile Include="BusinessClasses\MagFieldOfStudyList.cs" />
     <Compile Include="BusinessClasses\MagItemMagRelatedPaperInsertCommand.cs" />
@@ -269,6 +270,8 @@
     <Compile Include="BusinessClasses\MagRunSimulationCommand.cs" />
     <Compile Include="BusinessClasses\MagSimulation.cs" />
     <Compile Include="BusinessClasses\MagSimulationList.cs" />
+    <Compile Include="BusinessClasses\MagSimulationResult.cs" />
+    <Compile Include="BusinessClasses\MagSimulationResultList.cs" />
     <Compile Include="BusinessClasses\MetaAnalysisModerator.cs" />
     <Compile Include="BusinessClasses\MetaAnalysisModeratorList.cs" />
     <Compile Include="BusinessClasses\MetaAnalysisModeratorReference.cs" />

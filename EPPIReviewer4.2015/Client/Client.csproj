@@ -441,6 +441,9 @@
     <Compile Include="..\Server\BusinessClasses\MagCurrentInfo.cs">
       <Link>BusinessClasses\MagCurrentInfo.cs</Link>
     </Compile>
+    <Compile Include="..\Server\BusinessClasses\MagDownloadSimulationDataCommand.cs">
+      <Link>BusinessClasses\MagDownloadSimulationDataCommand.cs</Link>
+    </Compile>
     <Compile Include="..\Server\BusinessClasses\MagFieldOfStudy.cs">
       <Link>BusinessClasses\MagFieldOfStudy.cs</Link>
     </Compile>
@@ -491,6 +494,12 @@
     </Compile>
     <Compile Include="..\Server\BusinessClasses\MagSimulationList.cs">
       <Link>BusinessClasses\MagSimulationList.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\MagSimulationResult.cs">
+      <Link>BusinessClasses\MagSimulationResult.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\MagSimulationResultList.cs">
+      <Link>BusinessClasses\MagSimulationResultList.cs</Link>
     </Compile>
     <Compile Include="..\Server\BusinessClasses\MetaAnalyse.cs">
       <Link>BusinessClasses\MetaAnalyse.cs</Link>

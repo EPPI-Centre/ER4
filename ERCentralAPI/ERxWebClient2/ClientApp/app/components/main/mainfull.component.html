@@ -91,7 +91,6 @@
 									</kendo-toolbar-splitbutton>
 
 									<kendo-toolbar-button [text]="'Run Reports'"
-														  [disabled]="!HasWriteRights"
 														  (click)="RunConfigurableReports()">
 									</kendo-toolbar-button>
 								</kendo-toolbar>
@@ -154,8 +153,8 @@
 									</div>
 								</div>
 							</div>
-							<div class="rounded alert alert-info col-lg-6 col-md-8 col-sm-10 d-flex container px-1"
-								 *ngIf="RunReportsShow">
+							<div class="rounded alert alert-info col-12 d-flex container px-1" 
+								 style="min-width:500px;overflow:auto;"	 *ngIf="RunReportsShow">
 								<configurablereport></configurablereport>
 							</div>
 							<quickcodingreport *ngIf="ShowQuickReport" (PleaseCloseMe)="CloseQuickReport()"></quickcodingreport>
@@ -197,8 +196,7 @@
 				</kendo-tabstrip>
                     <button *ngIf="!CodesAreCollapsed" class="btn btn-success p-1 vertical-text" (click)="ShowHideCodes()">
                         <div class="small">
-                            <i class="fa fa-arrow-up" aria-hidden="true"></i>
-                            Codes
+                            <i class="fa fa-arrow-up" aria-hidden="true">Codes</i>
                             <i class="fa fa-arrow-up" aria-hidden="true"></i>
                         </div>
                     </button>
