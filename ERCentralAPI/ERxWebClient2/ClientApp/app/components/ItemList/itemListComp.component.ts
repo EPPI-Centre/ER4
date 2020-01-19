@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, ElementRef, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { WorkAllocation, WorkAllocationListService } from '../services/WorkAllocationList.service';
@@ -34,20 +34,21 @@ export class ItemListComp implements OnInit {
    
     //private sub: any;
     //@Output() loadDefault = new EventEmitter();
+	@ViewChild('exportItemsTable') exportItemsTable!: ElementRef;
 
     @Input() Context: string | undefined;
     @Input() ShowItemsTable: boolean = false;
     public ShowOptions: boolean = false;
-    public ShowId: boolean = true;
-    public ShowImportedId: boolean = false;
-    public ShowShortTitle: boolean = true;
-    public ShowTitle: boolean = true;
-    public ShowYear: boolean = true;
-    public ShowAuthors: boolean = false;
-    public ShowJournal: boolean = false;
-    public ShowDocType: boolean = false;
-    public ShowInfo: boolean = false;
-    public ShowScore: boolean = false;
+    //public ShowId: boolean = true;
+    //public ShowImportedId: boolean = false;
+    //public ShowShortTitle: boolean = true;
+    //public ShowTitle: boolean = true;
+    //public ShowYear: boolean = true;
+    //public ShowAuthors: boolean = false;
+    //public ShowJournal: boolean = false;
+    //public ShowDocType: boolean = false;
+    //public ShowInfo: boolean = false;
+    //public ShowScore: boolean = false;
     public get allItemsSelected(): boolean {
         //console.log("get allItemsSelected:", this.ItemListService.ItemList.items);
         for (let i = 0; i < this.ItemListService.ItemList.items.length; i++) {
@@ -60,7 +61,10 @@ export class ItemListComp implements OnInit {
         for (let i = 0; i < this.ItemListService.ItemList.items.length; i++) {
             this.ItemListService.ItemList.items[i].isSelected = val;
             }
-    }
+	}
+	public test() {
+		alert('hello');
+	}
     private _LocalPageSize: number | null = null;
     public get LocalPageSize(): number {
         //console.log("get LocalPageSize", this._LocalPageSize);

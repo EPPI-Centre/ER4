@@ -56,7 +56,50 @@ export class ReviewerIdentityService implements OnDestroy {
         }
         return this._currentStatus;
     }
-
+    private _userOptions: UserOptions = new UserOptions();
+    public get userOptions(): UserOptions {
+        if (this._reviewerIdentity.userId == 0) {
+            this._userOptions = new UserOptions();
+        }
+        else if (this._userOptions.persistingOptions == null) {
+            const userJson = localStorage.getItem('currentErUserOptions'+ this._reviewerIdentity.userId);
+            let PuserOptions: PersistingOptions = userJson !== null ? JSON.parse(userJson) : new PersistingOptions();
+            if (PuserOptions == undefined || PuserOptions == null ) {
+                this._userOptions.persistingOptions = new PersistingOptions();
+            }
+            else {
+                this._userOptions.persistingOptions = PuserOptions;
+            }
+        }
+        return this._userOptions;
+    }
+    //always set the options to persist values by calling 
+        //this.ReviewerIdentityServ.userOptions = this.ReviewerIdentityServ.userOptions;
+    public set userOptions(options: UserOptions) {
+        this._userOptions = options;
+        if (this._userOptions.persistingOptions == null) {
+            const userJson = localStorage.getItem('currentErUserOptions' + this._reviewerIdentity.userId);
+            let PuserOptions: PersistingOptions = userJson !== null ? JSON.parse(userJson) : new PersistingOptions();
+            if (PuserOptions == undefined || PuserOptions == null) {
+                this._userOptions.persistingOptions = new PersistingOptions();
+            }
+            else {
+                this._userOptions.persistingOptions = PuserOptions;
+            }
+        }
+        this.SaveOptions();
+    }
+    public SaveOptions() {
+        console.log("Saving options: ", this._userOptions.persistingOptions);
+        if (this._reviewerIdentity.userId == 0) return;
+        if (this._userOptions.persistingOptions != null) {
+            localStorage.setItem('currentErUserOptions' + this.reviewerIdentity.userId, JSON.stringify(this._userOptions.persistingOptions));
+        }
+        else if (localStorage.getItem('currentErUserOptions' + this.reviewerIdentity.userId))//to be confirmed!! 
+        {
+            localStorage.removeItem('currentErUserOptions' + this.reviewerIdentity.userId);
+        }
+    }
     public get reviewerIdentity(): ReviewerIdentity {
 
         if (this._reviewerIdentity.userId == 0) {
@@ -139,6 +182,7 @@ export class ReviewerIdentityService implements OnDestroy {
 
     public LoginReq(u: string, p: string) {
         //(this.customRouteReuseStrategy as CustomRouteReuseStrategy).Clear();
+        this.userOptions = new UserOptions();
         let reqpar = new LoginCreds(u, p);
         return this._httpC.post<ReviewerIdentity>(this._baseUrl + 'api/Login/Login',
             reqpar).subscribe(ri => {
@@ -161,6 +205,7 @@ export class ReviewerIdentityService implements OnDestroy {
 
     public LoginViaArchieReq(code: string, state: string): Promise<ReviewerIdentity | undefined > {
         //(this.customRouteReuseStrategy as CustomRouteReuseStrategy).Clear();
+        this.userOptions = new UserOptions();
         let reqpar = new ArchieLoginCreds(code, state);
         if (this.reviewerIdentity.userId == 0 && this.reviewerIdentity.isAuthenticated
             && this.reviewerIdentity.ticket == ""
@@ -320,6 +365,7 @@ export class ReviewerIdentityService implements OnDestroy {
 
 
     public LoginToReview(RevId: number) {
+        this.userOptions = new UserOptions();
         //(this.customRouteReuseStrategy as CustomRouteReuseStrategy).Clear();
         this.KillLogonTicketTimer();//kills the timer
         let body = JSON.stringify({ Value: RevId });
@@ -347,7 +393,7 @@ export class ReviewerIdentityService implements OnDestroy {
     }
 
     public LoginToFullReview(RevId: number) {
-
+        this.userOptions = new UserOptions();
         //(this.customRouteReuseStrategy as CustomRouteReuseStrategy).Clear();
         this.KillLogonTicketTimer();
         let body = JSON.stringify({ Value: RevId });
@@ -376,6 +422,7 @@ export class ReviewerIdentityService implements OnDestroy {
     public LoginReqSA(u: string, p: string, rid: number) {
         //(this.customRouteReuseStrategy as CustomRouteReuseStrategy).Clear();
         this.KillLogonTicketTimer();
+        this.userOptions = new UserOptions();
         let cred = new LoginCredsSA(u, p, rid);//
         return this._httpC.post<ReviewerIdentity>(this._baseUrl + 'api/Login/LoginToReviewSA',
             cred).subscribe(ri => {
@@ -407,6 +454,9 @@ export class ReviewerIdentityService implements OnDestroy {
         {
             localStorage.removeItem('currentErUser');
         }
+    }
+    public LogOut() {
+        this.reviewerIdentity = new ReviewerIdentity();
     }
     getDaysLeftAccount() {
         return this.reviewerIdentity.daysLeftAccount;
@@ -635,6 +685,69 @@ export interface iCreateER4ContactViaArchieCommandJSON {
     sendNewsletter: boolean;
     createExampleReview: boolean;
     result: string;
+}
+export class UserOptions {
+    //these persist across sessions - saved to local-storage - if the set method in revieweridentityservice is called...
+    persistingOptions: PersistingOptions | null = null;
+    //all options below here persist in one session, disappear after it
+    AutoAdvance: boolean = false;
+    get ShowHighlight() : boolean {
+        if (this.persistingOptions == null) {
+            this.persistingOptions = new PersistingOptions();
+        }
+        return this.persistingOptions.ShowHighlight;
+    }
+    set ShowHighlight(val: boolean) {
+        if (this.persistingOptions == null) {
+            this.persistingOptions = new PersistingOptions();
+        }
+        this.persistingOptions.ShowHighlight = val;
+    }
+
+    public get RelevantTermClass(): string {
+        if (this.persistingOptions) {
+            if (this.persistingOptions.HighlightsStyle == 'EPPI-Reviewer 4') {
+                return 'RelevantTermER4';
+            }
+            else if (this.persistingOptions.HighlightsStyle == 'Black & White') {
+                return 'RelevantTermBW';
+            }
+            else if (this.persistingOptions.HighlightsStyle == 'Subtle') {
+                return 'RelevantTermFainter';
+            }
+            else { //should be: (this.ReviewerIdentityServ.userOptions.HighlightsStyle == 'Default')
+                return 'RelevantTerm';
+            }
+        }
+        else { //should be: (this.ReviewerIdentityServ.userOptions.HighlightsStyle == 'Default')
+            return 'RelevantTerm';
+        }
+    }
+
+
+    public get IrrelevantTermClass(): string {
+        if (this.persistingOptions) {
+            if (this.persistingOptions.HighlightsStyle == 'EPPI-Reviewer 4') {
+                return 'IrrelevantTermER4';
+            }
+            else if (this.persistingOptions.HighlightsStyle == 'Black & White') {
+                return 'IrrelevantTermBW';
+            }
+            else if (this.persistingOptions.HighlightsStyle == 'Subtle') {
+                return 'IrrelevantTermFainter';
+            }
+            else { //(style == 'Default')
+                return 'IrrelevantTerm';
+            }
+        }
+        else { //(style == 'Default')
+            return 'IrrelevantTerm';
+        }
+    }
+}
+export class PersistingOptions {
+    HighlightsStyle: string = "Default";
+    ShowHighlight: boolean = false;
 }
 
 

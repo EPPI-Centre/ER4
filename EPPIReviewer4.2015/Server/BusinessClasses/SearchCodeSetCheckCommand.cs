@@ -35,6 +35,8 @@ namespace BusinessLibrary.BusinessClasses
         private bool _isCoded;
         private string _setName;
         private int _searchId;
+        private int _coded_by_contactId;
+        private string _coded_by_contactName;
 
         public int SearchId
         {
@@ -44,12 +46,15 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        public SearchCodeSetCheckCommand(int setId, bool Included, bool isCoded, string setName)
+        public SearchCodeSetCheckCommand(int setId, bool Included, bool isCoded,
+            string setName, int codedByContactId, string codedByContactName)
         {
             _setId = setId;
             _included = Included;
             _isCoded = isCoded;
             _setName = setName;
+            _coded_by_contactId = codedByContactId;
+            _coded_by_contactName = codedByContactName;
         }
 
         protected override void OnGetState(Csla.Serialization.Mobile.SerializationInfo info, Csla.Core.StateMode mode)
@@ -60,6 +65,8 @@ namespace BusinessLibrary.BusinessClasses
             info.AddValue("_isCoded", _isCoded);
             info.AddValue("_setName", _setName);
             info.AddValue("_searchId", _searchId);
+            info.AddValue("_coded_by_contactId", _coded_by_contactId);
+            info.AddValue("_coded_by_contactName", _coded_by_contactName);
         }
         protected override void OnSetState(Csla.Serialization.Mobile.SerializationInfo info, Csla.Core.StateMode mode)
         {
@@ -68,6 +75,8 @@ namespace BusinessLibrary.BusinessClasses
             _isCoded = info.GetValue<bool>("_isCoded");
             _setName = info.GetValue<string>("_setName");
             _searchId = info.GetValue<int>("_searchId");
+            _coded_by_contactId = info.GetValue<int>("_coded_by_contactId");
+            _coded_by_contactName = info.GetValue<string>("_coded_by_contactName");
         }
 
 
@@ -87,8 +96,11 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@SET_ID", _setId));
                     command.Parameters.Add(new SqlParameter("@IS_CODED", _isCoded));
                     command.Parameters.Add(new SqlParameter("@INCLUDED", _included));
-                    command.Parameters.Add(new SqlParameter("@SEARCH_TITLE", _isCoded ? "Coded with: " + _setName : "Not coded with: " + _setName));
+                    command.Parameters.Add(new SqlParameter("@SEARCH_TITLE", (_isCoded ?
+                        "Coded with: " + _setName : "Not coded with: " + _setName) +
+                        (_coded_by_contactId == 0 ? "" : " [Coded by " + _coded_by_contactName + "]")));
                     command.Parameters.Add(new SqlParameter("@SEARCH_ID", 0));
+                    command.Parameters.Add(new SqlParameter("@CODED_BY_CONTACT_ID", _coded_by_contactId));
                     command.Parameters["@SEARCH_ID"].Direction = System.Data.ParameterDirection.Output;
                     command.ExecuteNonQuery();
                     _searchId = Convert.ToInt32(command.Parameters["@SEARCH_ID"].Value);

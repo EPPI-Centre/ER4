@@ -1,4 +1,15 @@
-﻿CREATE NONCLUSTERED INDEX [NonClusteredIndex-20180830-173955] ON [dbo].[Affiliations]
+﻿USE [AcademicCurrent]
+
+GO
+
+CREATE NONCLUSTERED INDEX [NonClusteredIndex-20190511-124448] ON [dbo].[PaperAuthorAffiliations]
+(
+	[PaperId] ASC,
+	[AuthorSequenceNumber] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON)
+GO
+
+CREATE NONCLUSTERED INDEX [NonClusteredIndex-20180830-173955] ON [dbo].[Affiliations]
 (
 	[AffiliationID] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON)
@@ -27,6 +38,12 @@ CREATE NONCLUSTERED INDEX [NonClusteredIndex-20180830-174301] ON [dbo].[PaperFie
 (
 	[PaperID] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON)
+
+CREATE NONCLUSTERED INDEX [NonClusteredIndex-20190913-123024] ON [dbo].[PaperFieldsOfStudy]
+(
+	[Score] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON)
+
 
 CREATE NONCLUSTERED INDEX [NonClusteredIndex-20180830-174409] ON [dbo].[PaperRecommendations]
 (
@@ -68,6 +85,8 @@ CREATE NONCLUSTERED INDEX [NonClusteredIndex-20180830-174707] ON [dbo].[PaperUrl
 	[PaperId] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON)
 GO
+
+/*
 CREATE FUNCTION [dbo].[fn_StripCharacters]
 (
     @String NVARCHAR(MAX), 
@@ -84,14 +103,5 @@ BEGIN
     RETURN @String
 
 END
-/*
-Alphabetic only:
-SELECT dbo.fn_StripCharacters('a1!s2@d3#f4$', '^a-z')
-Numeric only:
-SELECT dbo.fn_StripCharacters('a1!s2@d3#f4$', '^0-9')
-Alphanumeric only:
-SELECT dbo.fn_StripCharacters('a1!s2@d3#f4$', '^a-z0-9')
-Non-alphanumeric:
-SELECT dbo.fn_StripCharacters('a1!s2@d3#f4$', 'a-z0-9')
+
 */
-GO

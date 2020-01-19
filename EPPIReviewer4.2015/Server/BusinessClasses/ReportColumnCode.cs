@@ -27,7 +27,7 @@ namespace BusinessLibrary.BusinessClasses
 
         
 #else
-        private ReportColumnCode() { }
+        public ReportColumnCode() { }
 #endif
 
         public override string ToString()
@@ -40,7 +40,7 @@ namespace BusinessLibrary.BusinessClasses
             this.MarkNew();
         }
 
-        private static PropertyInfo<int> ReportColumnCodeIdProperty = RegisterProperty<int>(new PropertyInfo<int>("ReportColumnCodeId", "ReportColumnCodeId"));
+        public static readonly PropertyInfo<int> ReportColumnCodeIdProperty = RegisterProperty<int>(new PropertyInfo<int>("ReportColumnCodeId", "ReportColumnCodeId"));
         public int ReportColumnCodeId
         {
             get
@@ -49,7 +49,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> ReportColumnIdProperty = RegisterProperty<int>(new PropertyInfo<int>("ReportColumnId", "ReportColumnId"));
+        public static readonly PropertyInfo<int> ReportColumnIdProperty = RegisterProperty<int>(new PropertyInfo<int>("ReportColumnId", "ReportColumnId"));
         public int ReportColumnId
         {
             get
@@ -62,7 +62,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> CodeOrderProperty = RegisterProperty<int>(new PropertyInfo<int>("CodeOrder", "CodeOrder", 0));
+        public static readonly PropertyInfo<int> CodeOrderProperty = RegisterProperty<int>(new PropertyInfo<int>("CodeOrder", "CodeOrder", 0));
         public int CodeOrder
         {
             get
@@ -75,7 +75,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> SetIdProperty = RegisterProperty<int>(new PropertyInfo<int>("SetId", "SetId", 0));
+        public static readonly PropertyInfo<int> SetIdProperty = RegisterProperty<int>(new PropertyInfo<int>("SetId", "SetId", 0));
         public int SetId
         {
             get
@@ -88,7 +88,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<Int64> AttributeIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("AttributeId", "AttributeId"));
+        public static readonly PropertyInfo<Int64> AttributeIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("AttributeId", "AttributeId"));
         public Int64 AttributeId
         {
             get
@@ -101,7 +101,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<Int64> ParentAttributeIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("ParentAttributeId", "ParentAttributeId"));
+        public static readonly PropertyInfo<Int64> ParentAttributeIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("ParentAttributeId", "ParentAttributeId"));
         public Int64 ParentAttributeId
         {
             get
@@ -114,7 +114,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> ParentAttributeTextProperty = RegisterProperty<string>(new PropertyInfo<string>("ParentAttributeText", "ParentAttributeText", string.Empty));
+        public static readonly PropertyInfo<string> ParentAttributeTextProperty = RegisterProperty<string>(new PropertyInfo<string>("ParentAttributeText", "ParentAttributeText", string.Empty));
         public string ParentAttributeText
         {
             get
@@ -127,7 +127,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> UserDefTextProperty = RegisterProperty<string>(new PropertyInfo<string>("UserDefText", "UserDefText", string.Empty));
+        public static readonly PropertyInfo<string> UserDefTextProperty = RegisterProperty<string>(new PropertyInfo<string>("UserDefText", "UserDefText", string.Empty));
         public string UserDefText
         {
             get
@@ -140,7 +140,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<bool> DisplayCodeProperty = RegisterProperty<bool>(new PropertyInfo<bool>("DisplayCode", "DisplayCode", false));
+        public static readonly PropertyInfo<bool> DisplayCodeProperty = RegisterProperty<bool>(new PropertyInfo<bool>("DisplayCode", "DisplayCode", false));
         public bool DisplayCode
         {
             get
@@ -153,7 +153,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<bool> DisplayAdditionalTextProperty = RegisterProperty<bool>(new PropertyInfo<bool>("DisplayAdditionalText", "DisplayAdditionalText", false));
+        public static readonly PropertyInfo<bool> DisplayAdditionalTextProperty = RegisterProperty<bool>(new PropertyInfo<bool>("DisplayAdditionalText", "DisplayAdditionalText", false));
         public bool DisplayAdditionalText
         {
             get
@@ -166,7 +166,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<bool> DisplayCodedTextProperty = RegisterProperty<bool>(new PropertyInfo<bool>("DisplayCodedText", "DisplayCodedText", false));
+        public static readonly PropertyInfo<bool> DisplayCodedTextProperty = RegisterProperty<bool>(new PropertyInfo<bool>("DisplayCodedText", "DisplayCodedText", false));
         public bool DisplayCodedText
         {
             get

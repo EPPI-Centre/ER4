@@ -30,7 +30,8 @@ export class HomeComponent implements OnInit {
     }
     onLogin(u: string, p:string) {
         //this.ReviewerIdentityServ.Login(u, p);
-        localStorage.clear();
+        //localStorage.clear();
+        this.ReviewerIdentityServ.LogOut();
         this.ShowLoginFailed = false;
         this.ShowUsernameRequired = false;
         this.ShowPasswordRequired = false;
@@ -54,8 +55,9 @@ export class HomeComponent implements OnInit {
         this.ShowLoginFailed = true;
     }
     ngOnInit() {
-        localStorage.clear();
-        this.ReviewerIdentityServ.reviewerIdentity = new ReviewerIdentity();
+        //localStorage.clear();
+        this.ReviewerIdentityServ.LogOut();
+        //this.ReviewerIdentityServ.reviewerIdentity = new ReviewerIdentity();
         this.getVinfo();
     }
     getVinfo() {

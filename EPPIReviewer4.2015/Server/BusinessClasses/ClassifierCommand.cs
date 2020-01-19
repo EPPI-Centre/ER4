@@ -304,7 +304,7 @@ namespace BusinessLibrary.BusinessClasses
 				{
 
 #if (!CSLA_NETCORE)
-					blockBlobData.UploadFromStream(fileStream);//a comment
+					blockBlobData.UploadFromStream(fileStream);
 #else
 
 					await blockBlobData.UploadFromFileAsync(fileName);

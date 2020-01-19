@@ -1,9 +1,8 @@
-﻿import { Component, Inject, OnInit, ViewChild, AfterViewInit, OnDestroy, EventEmitter, Output, Input } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+﻿import { Component, Inject, OnInit, ViewChild, OnDestroy, ElementRef, Renderer, AfterViewInit, Renderer2} from '@angular/core';
 import { Router } from '@angular/router';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { WorkAllocation, WorkAllocationListService } from '../services/WorkAllocationList.service'
-import { Criteria, ItemList } from '../services/ItemList.service'
+import { Criteria, ItemList, Item } from '../services/ItemList.service'
 import { WorkAllocationContactListComp } from '../WorkAllocations/WorkAllocationContactListComp.component';
 import { ItemListService } from '../services/ItemList.service'
 import { ItemListComp } from '../ItemList/itemListComp.component';
@@ -27,6 +26,11 @@ import { SearchComp } from '../Search/SearchComp.component';
 import { ComparisonComp } from '../Comparison/createnewcomparison.component';
 import { Comparison, ComparisonsService } from '../services/comparisons.service';
 import { codesetSelectorComponent } from '../CodesetTrees/codesetSelector.component';
+import { ConfigurableReportService } from '../services/configurablereport.service';
+import { Helpers } from '../helpers/HelperMethods';
+import { ExcelService } from '../services/excel.service';
+import { DuplicatesService } from '../services/duplicates.service';
+
 
 @Component({
     selector: 'mainComp',
@@ -50,6 +54,8 @@ import { codesetSelectorComponent } from '../CodesetTrees/codesetSelector.compon
 
 })
 export class MainFullReviewComponent implements OnInit, OnDestroy {
+
+	
     constructor(private router: Router,
         public ReviewerIdentityServ: ReviewerIdentityService,
         public reviewSetsService: ReviewSetsService,
@@ -64,19 +70,38 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         , private ItemCodingService: ItemCodingService
 		, private ReviewSetsEditingService: ReviewSetsEditingService
         , private workAllocationListService: WorkAllocationListService
+        , private DuplicatesService: DuplicatesService
 		, private ComparisonsService: ComparisonsService,
-		private searchService: searchService
+		private searchService: searchService,
+		private configurablereportServ: ConfigurableReportService,
+		@Inject('BASE_URL') private _baseUrl: string,
+		private excelService: ExcelService
     ) {}
 	@ViewChild('WorkAllocationContactList') workAllocationsContactComp!: WorkAllocationContactListComp;
 	@ViewChild('WorkAllocationCollaborateList') workAllocationCollaborateComp!: WorkAllocationComp;
     @ViewChild('tabstrip') public tabstrip!: TabStripComponent;
-    //@ViewChild('tabset') tabset!: NgbTabset;
     @ViewChild('ItemList') ItemListComponent!: ItemListComp;
     @ViewChild('FreqComp') FreqComponent!: frequenciesComp;
     @ViewChild('CrosstabsComp') CrosstabsComponent!: CrossTabsComp;
 	@ViewChild('SearchComp') SearchComp!: SearchComp;
 	@ViewChild('ComparisonComp') ComparisonComp!: ComparisonComp;
 	@ViewChild('CodeTreeAllocate') CodeTreeAllocate!: codesetSelectorComponent;
+	@ViewChild('CodingToolTreeReports') CodingToolTree!: codesetSelectorComponent;
+
+
+	public DropdownSelectedCodeAllocate: singleNode | null = null;
+	public stats: ReviewStatisticsCountsCommand | null = null;
+	public countDown: any | undefined;
+	public count: number = 60;
+	public isSourcesPanelVisible: boolean = false;
+	public isReviewPanelCollapsed: boolean = false;
+	public isWorkAllocationsPanelCollapsed: boolean = false;
+	private statsSub: Subscription = new Subscription();
+	private InstanceId: number = Math.random();
+	public crossTabResult: any | 'none';
+    public CodesAreCollapsed: boolean = true;
+    public DropDownAllocateAtt: SetAttribute = new SetAttribute();
+    public isCollapsedCodeAllocate: boolean = false;
 
     public get IsServiceBusy(): boolean {
         //console.log("mainfull IsServiceBusy", this.ItemListService, this.codesetStatsServ, this.SourcesService )
@@ -97,17 +122,62 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
     }
 	tabsInitialized: boolean = false;
 
-	public DropdownSelectedCodeAllocate: singleNode | null = null;
-    public stats: ReviewStatisticsCountsCommand | null = null;
-    public countDown: any | undefined;
-    public count: number = 60;
-    public isSourcesPanelVisible: boolean = false;
-    public isReviewPanelCollapsed: boolean = false;
-    public isWorkAllocationsPanelCollapsed: boolean = false;
-    private statsSub: Subscription = new Subscription();
-    private InstanceId: number = Math.random();
-    public crossTabResult: any | 'none';
-    public CodesAreCollapsed: boolean = true;
+	//TODO
+	public RunExportReferences() {
+		alert('not implemented yet');
+	}
+	public ShowHideExportReferences(style: string): any {
+
+		let report: string = '';
+		let jsonReport: any= [];
+		let items: Item[] = this.ItemListService.ItemList.items.filter(found => found.isSelected == true);
+				
+		for (var i = 0; i < items.length; i++) {
+			let currentItem: Item  = items[i];
+			
+			switch (style) {
+				case "Chicago":
+					report += "<p>" + ItemListService.GetCitation(currentItem) + "</p>";
+					break;
+				case "Harvard":
+					report += "<p>" + ItemListService.GetHarvardCitation(currentItem)+ "</p>";
+					break;
+				case "NICE":
+					report += "<p>" + ItemListService.GetNICECitation(currentItem) + "</p>";
+					break;
+				case "ExportTable":
+					jsonReport.push(this.ItemListService.GetCitationForExport(currentItem));
+					break;
+				//case "BL":
+				//	report += review.BL_TX + Environment.NewLine +
+				//		i.GetBritishLibraryCitation() + Environment.NewLine + Environment.NewLine + Environment.NewLine + Environment.NewLine + Environment.NewLine;
+				//	break;
+				//case "BLCopyrightCleared":
+				//	report += review.BL_CC_TX + Environment.NewLine +
+				//		i.GetBritishLibraryCitation() + Environment.NewLine + Environment.NewLine + Environment.NewLine + Environment.NewLine + Environment.NewLine;
+				//	break;
+			}
+		}
+		if (report == '') {
+			console.log('wrong', jsonReport);
+			return jsonReport;
+		} else {
+			console.log('got in here');
+			return report;
+		}		
+	}
+	public ExportReferences(report: string) {
+		
+		const dataURI = "data:text/plain;base64," +
+			encodeBase64(report);
+
+		console.log('EXPORT REFERENCES FUNCTION, report: ', dataURI);
+	}
+	exportAsXLSX(report: string[]): void {
+
+		this.excelService.exportAsExcelFile(report, 'test');
+
+	}
     public ItemsWithThisCodeDDData: Array<any> = [{
         text: 'With this Code (Excluded)',
         click: () => {
@@ -129,9 +199,67 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
     public QuickReportsDDData: Array<any> = [{
         text: 'Quick Question Report',
         click: () => {
-            this.ShowHideQuickQuestionReport();
+			Helpers.OpenInNewWindow(this.ShowHideQuickQuestionReport(), this._baseUrl);
         }
-    }];
+	}];
+	public ExportReferencesDDData: Array<any> = [
+		{
+			text: 'Harvard',
+			click: () => {
+				Helpers.OpenInNewWindow(this.ShowHideExportReferences('Harvard'), this._baseUrl);
+			}
+		},
+		{
+			text: 'Chicago',
+			click: () => {
+				Helpers.OpenInNewWindow(this.ShowHideExportReferences('Chicago'), this._baseUrl);
+			}
+		},
+		{
+			text: 'NICE Format',
+			click: () => {
+				Helpers.OpenInNewWindow(this.ShowHideExportReferences('NICE'), this._baseUrl);
+			}
+		},
+		{
+			text: 'Excel',
+			click: () => {
+				//this.ExportReferencesAsHTML(this.ShowHideExportReferences('ExportTable'));
+				let testRefs: any = this.ShowHideExportReferences('ExportTable');
+				console.log(testRefs);
+				this.exportAsXLSX(testRefs);
+			}
+        },
+        {
+            text: 'HTML',
+            click: () => {
+                let tmp = document.getElementById('ItemsTable');
+                if (tmp) {
+                    //let report = Helpers.AddHTMLFrame(tmp.innerHTML, this._baseUrl);
+                    let removals = 
+                        [
+                            {
+                                searchFor: '<th></th><th class="pl-0 pr-0"><input class="m-1 ng-valid ng-dirty ng-touched" name="selectAll" style="zoom: 1.2;" type="checkbox" ng-reflect-name="selectAll" ng-reflect-model="true"></th>',
+                                changeTo: ""
+                            },
+                            {
+                                searchFor: '<td class="p-1 pt-2"><button class="btn btn-outline-primary btn-sm m-0">GO</button></td><td class="pl-0 pr-0 "><input class="m-1 ng-untouched ng-pristine ng-valid" style="zoom: 1.2;" type="checkbox" ng-reflect-model="true"></td>',
+                                changeTo: ""
+                            }
+                        ]
+                    let report = Helpers.CleanHTMLforExport(tmp.outerHTML, removals);
+                    const dataURI = "data:text/plain;base64," + encodeBase64(Helpers.AddHTMLFrame(report, this._baseUrl, "Items Table"));
+                    saveAs(dataURI, "Items Table.html");
+                }
+                //let t2 = this.ItemListComponent.exportItemsTable;
+                //if (t2) {
+                //    console.log(t2.nativeElement.outerHTML);
+                //    const dataURI = "data:text/plain;base64," + encodeBase64(Helpers.AddHTMLFrame(t2.nativeElement.outerHTML, this._baseUrl, "Items Table"));
+                //    saveAs(dataURI, "ItemsTable.html");
+                //}
+            }
+        }
+    ];
     public ImportOrNewDDData: Array<any> = [{
         text: 'New Reference',
         click: () => {
@@ -214,7 +342,46 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 			return true;
 		}
 		return false;
-	}
+    }
+    public RunAssignment() {
+
+        let itemIdsStr: string = "";
+        if (this.AllocateChoice !== 'Documents with this code') {
+            var itemids = this.ItemListService.SelectedItems.map(
+                x => x.itemId
+            );
+            itemIdsStr = itemids.toString();
+            console.log("itemIdsStr", itemIdsStr);
+        }
+
+        this.ItemListService.AssignDocumentsToIncOrExc(
+            this.AssignDocs,
+            itemIdsStr,
+            this.AllocateChoice == 'Documents with this code' ? this.DropDownAllocateAtt.attribute_id : 0,
+            this.AllocateChoice == 'Documents with this code' ? this.DropDownAllocateAtt.set_id : 0
+        ).then(
+
+            () => {
+
+                this.ItemListService.Refresh();
+                this.AllIncOrExcShow = false;
+                this.DropdownSelectedCodeAllocate = null;
+                this.AssignDocs = 'true';
+                this.AllocateChoice = 'Selected documents';
+            }
+        );
+    }
+    public CloseCodeDropDownAllocate() {
+
+        if (this.CodeTreeAllocate) {
+
+            this.DropdownSelectedCodeAllocate = this.CodeTreeAllocate.SelectedNodeData;
+            this.DropDownAllocateAtt = this.DropdownSelectedCodeAllocate as SetAttribute;
+
+        }
+        this.isCollapsedCodeAllocate = false;
+
+    }
 	public DeleteRelevantItems() {
 		if (this.ItemListService.SelectedItems != null &&
 			this.ItemListService.SelectedItems.length > 0) {
@@ -228,59 +395,45 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 				});
 		}
 	}
-	public AllocateChoice: string = '';
-	public AllIncOrExcShow: boolean = false;
-	public AssignDocs: string = 'true';
 	public AllocateRelevantItems() {
 
 		if (!this.AllIncOrExcShow) {
 
 			this.AllIncOrExcShow = true;
+			this.RunReportsShow = false;
+			this.ShowClusterCommand = false;
+
 		} else {
 
 			this.AllIncOrExcShow = false;
 		}
 	}
-	public isCollapsedCodeAllocate: boolean = false;
-	public DropDownAllocateAtt: SetAttribute = new SetAttribute();
-	public CloseCodeDropDownAllocate() {
+	public AllocateChoice: string = '';
+	public AllIncOrExcShow: boolean = false;
+	public RunReportsShow: boolean = false;
+	public AssignDocs: string = 'true';
 
-		if (this.CodeTreeAllocate) {
+	public CloseReportsSection() {
 
-			this.DropdownSelectedCodeAllocate = this.CodeTreeAllocate.SelectedNodeData;
-			this.DropDownAllocateAtt = this.DropdownSelectedCodeAllocate as SetAttribute;
-			
-		}
-		this.isCollapsedCodeAllocate = false;
-
+		this.RunReportsShow = false;
 	}
-	public RunAssignment() {
 
-        let itemIdsStr: string = "";
-        if (this.AllocateChoice !== 'Documents with this code') {
-            var itemids = this.ItemListService.SelectedItems.map(
-                x => x.itemId
-            );
-            itemIdsStr = itemids.toString();
-            console.log("itemIdsStr", itemIdsStr);
-        }
-		
-		this.ItemListService.AssignDocumentsToIncOrExc(
-			this.AssignDocs, 
-            itemIdsStr,
-            this.AllocateChoice == 'Documents with this code' ? this.DropDownAllocateAtt.attribute_id : 0,
-            this.AllocateChoice == 'Documents with this code' ? this.DropDownAllocateAtt.set_id : 0
-		).then(
+	public GetReports() {
 
-			() => {
-				
-				this.ItemListService.Refresh();
-				this.AllIncOrExcShow = false;
-				this.DropdownSelectedCodeAllocate = null;
-				this.AssignDocs = 'true';
-				this.AllocateChoice = 'Selected documents';
-			}
-		);
+		this.configurablereportServ.FetchReports();
+	}
+	public RunConfigurableReports() {
+
+		if (!this.RunReportsShow) {
+			this.RunReportsShow = true;
+			this.AllIncOrExcShow = false;
+			this.ShowClusterCommand = false;
+			this.GetReports();
+
+		} else {
+
+			this.RunReportsShow = false;
+		}
 	}
 	public CloseSection() {
 
@@ -290,7 +443,11 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 	private ListSubType: string = '';
 	ngOnInit() {
 
-        console.log("MainComp init: ", this.InstanceId);
+		this._eventEmitter.CloseReportsSectionEmitter.subscribe(
+			() => {
+				this.CloseReportsSection();
+			}
+		)
         this._eventEmitter.PleaseSelectItemsListTab.subscribe(
             () => {
                 this.tabstrip.selectTab(1);
@@ -353,8 +510,17 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         this._ShowQuickReport = false;
         this._ShowQuickQuestionReport = false;
     }
-    ShowHideClusterCommand() {
-        this.ShowClusterCommand =  !this.ShowClusterCommand;
+	ShowHideClusterCommand() {
+
+		if (!this.ShowClusterCommand) {
+			this.ShowClusterCommand = true;
+			this.AllIncOrExcShow = false;
+			this.RunReportsShow = false;
+
+		} else {
+
+			this.ShowClusterCommand = false;
+		}
     }
     CloseClusterCommand() {
         this.ShowClusterCommand = false;
@@ -528,10 +694,6 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         if (this.isSourcesPanelVisible) return '&uarr;';
         else return '&darr;';
     }
-	ngAfterViewInit() {
-		//this.tabsInitialized = true;
-		//console.log('tabs initialised');
-	}
 	IncludedItemsList() {
         this.IncludedItemsListNoTabChange();
 		this.tabstrip.selectTab(1);
@@ -674,7 +836,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         this.codesetStatsServ.Clear();
 		this.SourcesService.Clear();
 		this.workAllocationListService.Clear();
-
+        this.DuplicatesService.Clear();
         if (this.FreqComponent) this.FreqComponent.Clear();
 		if (this.CrosstabsComponent) this.CrosstabsComponent.Clear();
 		if (this.workAllocationCollaborateComp) {

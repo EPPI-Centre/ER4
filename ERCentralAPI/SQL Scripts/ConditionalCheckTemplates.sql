@@ -61,6 +61,28 @@ GO
 --CREATE statements go below...
 --END of CREATE a NEW TABLEs Example (2)
 
+--Add a FOREING KEY constrain...
+--we can easily check by the name of the FK relationship, so NOTE:
+--THIS WON'T WORK IF a different FK name is used elsewhere!
+-- a better way would be to join to the actual table, but it becomes cumbersome, so I hope this would be enough.
+IF NOT EXISTS(select * from sys.foreign_keys where [name] = 'FK_TB_MY_TABLE_TB_FOREIGNTABLE')
+BEGIN
+--might need to set some more things such as:
+--BEGIN TRANSACTION
+--	ALTER TABLE dbo.TB_FOREIGNTABLE (LOCK_ESCALATION = TABLE)
+--	COMMIT
+ALTER TABLE dbo.TB_MY_TABLE ADD CONSTRAINT
+		FK_TB_MY_TABLE_TB_FOREIGNTABLE FOREIGN KEY
+		(
+		FOREIGN_KEY_ID
+		) REFERENCES dbo.TB_FOREIGNTABLE
+		(
+		FOREIGN_KEY_ID
+		) ON UPDATE  NO ACTION 
+		 ON DELETE  NO ACTION 
+	
+END
+GO
 
 --EXPAND One or more column(s) example. This only works when we are adding to the lenght, obviously.
 IF COL_LENGTH('dbo.AAA', 'Char1') <= 50

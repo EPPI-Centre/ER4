@@ -462,6 +462,20 @@ namespace EppiReviewer4.Helpers
             throw new NotImplementedException();
         }
     }
+
+    public class EditIntVisibilityConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            var val = System.Convert.ToInt32(value);
+            return val == 1 ? Visibility.Visible : Visibility.Collapsed;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
     public class IsCodeTypeAvailable : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
@@ -476,6 +490,40 @@ namespace EppiReviewer4.Helpers
             throw new NotImplementedException();
         }
     }
+
+    /*
+     * JT - added these for the MAG integration. Didn't need in the end, but leaving code in case I do...
+     * 
+    public class SelectedNotSelectedConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            string val = value.ToString();
+            if (val == "False") return "Select";
+            else return "Unselect";
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public class SelectedNotSelectedInReviewConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            string val = value.ToString();
+            return val;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+    */
+
     public class ReconcilingCodesConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)

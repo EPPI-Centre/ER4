@@ -16,8 +16,6 @@ body {
 	background-color: white;
 }
 
-
-
 .GreenIcon {
     color: green;
 }
@@ -32,6 +30,33 @@ body {
 .IrrelevantTerm {
     color: white;
     background-color: red;
+}
+.RelevantTermER4 {
+	color: blue;
+	font-weight: bolder;
+}
+
+.IrrelevantTermER4 {
+    color: red;
+    font-weight: bolder;
+}
+.RelevantTermBW {
+    font-weight: bolder;
+}
+
+.IrrelevantTermBW {
+    font-weight: bolder;
+    text-decoration: line-through;
+    text-decoration-style: double;
+}
+.RelevantTermFainter {
+    color: white;
+    background-color: mediumseagreen;
+}
+
+.IrrelevantTermFainter {
+	color: white;
+	background-color: lightcoral;
 }
 
 body {
@@ -100,6 +125,11 @@ ul.k-tabstrip-items {
 ul.k-tabstrip-items li.k-item.k-state-active {
     border-color: rgba(33,37,41,0.45);
 }
+
+.fullBordersInTabs .k-tabstrip > .k-content {
+    border-color: rgba(33, 37, 41, 0.45);
+}
+
 .brightSwitch .k-switch-label-off {
     color: orange;
 }

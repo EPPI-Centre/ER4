@@ -8,6 +8,7 @@ import { ModalService } from '../services/modal.service';
 import { GridDataResult } from '@progress/kendo-angular-grid';
 import { SortDescriptor, orderBy } from '@progress/kendo-data-query';
 import { Helpers } from '../helpers/HelperMethods';
+import { EventEmitterService } from '../services/EventEmitter.service';
 
 @Component({
     selector: 'readonlyreviews',
@@ -23,8 +24,7 @@ export class FetchReadOnlyReviewsComponent implements OnInit, OnDestroy{
                 @Inject('BASE_URL') private _baseUrl: string,
                 private ReviewerIdentityServ: ReviewerIdentityService,
 		public _readonlyreviewsService: readonlyreviewsService,
-		private modalService: ModalService
-
+		private _eventEmitter: EventEmitterService
 	) {
 		
     }
@@ -98,7 +98,8 @@ export class FetchReadOnlyReviewsComponent implements OnInit, OnDestroy{
         this.ReviewerIdentityServ.LoginToReview(RevId);
     }
 
-    onFullSubmit(Ror: ReadOnlyReview) {
+	onFullSubmit(Ror: ReadOnlyReview) {
+		this._eventEmitter.CloseReportsSectionEmitter.emit();
         console.log('onFullSubmit: ', Ror);
         if (this.HasCodingOnlyRole(Ror)) return;
         let RevId: number = Ror.reviewId;

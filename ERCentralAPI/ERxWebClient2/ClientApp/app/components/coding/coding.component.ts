@@ -118,7 +118,13 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
 	public ShowOutComes: boolean = false;
     private subGotScreeningItem: Subscription | null = null;
     public IsScreening: boolean = false;
-    public ShowHighlights: boolean = false;
+    public get ShowHighlights(): boolean {
+        return this.ReviewerIdentityServ.userOptions.ShowHighlight;
+    }
+    public set ShowHighlights(val: boolean) {
+        this.ReviewerIdentityServ.userOptions.ShowHighlight = val;
+        this.ReviewerIdentityServ.SaveOptions();//otherwise they won't persist...
+    }
     public HAbstract: string = "";
     public HTitle: string = "";
     public HelpAndFeebackContext: string = "(codingui)itemdetails";
@@ -137,7 +143,19 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
             return true;
         }
         else return false;
-    }
+	}
+	IsServiceBusy(): boolean {
+		if (this.reviewInfoService.IsBusy || this._outcomeService.IsBusy
+			|| this.ReviewerTermsService.IsBusy) {
+			return true;
+		}
+		else return false;
+	}
+	public RefreshTerms() {
+
+		//this.SetHighlights();
+		this.ReviewerTermsService.Fetch();
+	}
     public ShowCodesInSmallScreen: boolean = false;
     public ShowHideCodes() {
         this.ShowCodesInSmallScreen = !this.ShowCodesInSmallScreen;
@@ -198,7 +216,12 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
         else if (this.ItemDocsService._itemDocs.filter(found => found.itemDocumentId == this.ItemDocsService.CurrentDocId).length > 0) return true;
         else return false;
     }
-    public CheckBoxAutoAdvanceVal: boolean = false;
+    public get CheckBoxAutoAdvanceVal(): boolean {
+        return this.ReviewerIdentityServ.userOptions.AutoAdvance;
+    }
+    public set CheckBoxAutoAdvanceVal(val: boolean) {
+        this.ReviewerIdentityServ.userOptions.AutoAdvance = val;
+    }
     onSubmit(f: string) {
     }
     //@Output() criteriaChange = new EventEmitter();
@@ -209,6 +232,7 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
 	private outcomeSubscription: Subscription | null = null;
 	ngOnInit() {
 
+		this.RefreshTerms();
         this.innerWidth = window.innerWidth;
 		//this.route.params.subscribe(params => {
 

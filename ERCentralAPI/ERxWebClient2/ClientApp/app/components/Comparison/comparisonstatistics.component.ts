@@ -36,7 +36,8 @@ export class ComparisonStatsComp implements OnInit {
 	public CompleteSectionShow: boolean = false;
 	public tabSelected: string = 'AgreeStats';
     public lstContacts: Array<Contact> = new Array();
-    public lockCoding: boolean = true;
+	public lockCoding: boolean = true;
+	public Full: boolean = true;
 
 	@Input('rowSelected') rowSelected!: number;
 	@Output() setListSubType = new EventEmitter();
@@ -140,6 +141,7 @@ export class ComparisonStatsComp implements OnInit {
 			);
 	}
 	public SendToComplete(members: string, listSubType: string, lockCoding: boolean) {
+		//console.log('testing', JSON.stringify({ members, listSubType, lockCoding}));
         this.lockCoding = lockCoding;
 		this.ListSubType = listSubType;
 		let currentComparison: Comparison = this._comparisonsService.currentComparison;
@@ -152,7 +154,6 @@ export class ComparisonStatsComp implements OnInit {
 			contact.contactId = currentComparison.contactId2;
 			contact.contactName = currentComparison.contactName2;
 			this.lstContacts.push(contact);
-
 		}else if (members == '2And3') {
 			let contact = new Contact();
 			contact.contactId = currentComparison.contactId2;
@@ -162,7 +163,6 @@ export class ComparisonStatsComp implements OnInit {
 			contact.contactId = currentComparison.contactId3;
 			contact.contactName = currentComparison.contactName3;
 			this.lstContacts.push(contact);
-
 		}else if (members == '1And3') {
 			let contact = new Contact();
 			contact.contactId = currentComparison.contactId1;
@@ -176,27 +176,66 @@ export class ComparisonStatsComp implements OnInit {
         this.tabSelected = 'confirm';
         this.selectedCompleteUser = new Contact();
 		this.CompleteSectionShow = true;
-
+	}
+	public selectedTab: number = 0;
+	public onTabSelect(e: any) {
+		this.selectedTab = e.index
+		
+		if (this.selectedTab == 0) {
+			this.tabSelected = 'AgreeStats';
+		} else {
+			this.tabSelected = 'AgreeStats';
+		}
 	}
 	public CloseConfirm() {
 
-		this.tabSelected = 'AgreeStats';
+
+		if (this.selectedTab == 0) {
+			
+			this.tabSelected = 'AgreeStats';
+		}
+		if (this.selectedTab == 1) {
+			
+			this.selectedTab = 1;
+		}
 		this.CompleteSectionShow = false;
 		this.lstContacts = [];
 		this.ListSubType = '';
+		
 	}
 	LoadComparisons(comparison: Comparison, ListSubType: string) {
 
 		let crit = new Criteria();
-		crit.listType = ListSubType;
-		let typeMsg: string = '';
-		if (ListSubType.indexOf('Disagree') != -1) {
-			typeMsg = 'disagreements between';
-		} else {
-			typeMsg = 'agreements between';
-		}
-		let middleDescr: string = ' ' + comparison.contactName3 != '' ? ' and ' + comparison.contactName3 : '';
-		let listDescription: string = typeMsg + '  ' + comparison.contactName1 + ' and ' + comparison.contactName2 + middleDescr + ' using ' + comparison.setName;
+        crit.listType = ListSubType;
+        console.log("LoadComparisons", ListSubType, comparison);
+		//let typeMsg: string = '';
+		//if (ListSubType.indexOf('Disagree') != -1) {
+		//	typeMsg = 'disagreements between';
+		//} else {
+		//	typeMsg = 'agreements between';
+		//}
+		//let middleDescr: string = ' ' + comparison.contactName3 != '' ? ' and ' + comparison.contactName3 : '';
+		//let listDescription: string = typeMsg + '  ' + comparison.contactName1 + ' and ' + comparison.contactName2 + middleDescr + ' using ' + comparison.setName;
+
+        //the below follows the logic used in ER4...
+        let listDescription = "";
+        let type = "";
+        if (ListSubType.startsWith("ComparisonAgree")) {
+            type = "agreements between ";
+        }
+        else {
+            type = "disagreements between ";
+        }
+        if (ListSubType.endsWith("1vs2") || ListSubType.endsWith("1vs2Sc")) {
+            listDescription = type + comparison.contactName1 + " and " + comparison.contactName2;
+        }
+        else if (ListSubType.endsWith("2vs3") || ListSubType.endsWith("2vs3Sc")) {
+            listDescription = type + comparison.contactName2 + " and " + comparison.contactName3;
+        }
+        else if (ListSubType.endsWith("1vs3") || ListSubType.endsWith("1vs3Sc")) {
+            listDescription = type + comparison.contactName1 + " and " + comparison.contactName3;
+        }
+        listDescription += " using \"" + comparison.setName + "\" (Comparison: " + comparison.comparisonDate + ")";
 		crit.description = listDescription;
 		crit.listType = ListSubType;
 		crit.comparisonId = comparison.comparisonId;

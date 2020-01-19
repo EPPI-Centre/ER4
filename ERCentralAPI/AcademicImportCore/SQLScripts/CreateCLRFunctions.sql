@@ -9,6 +9,7 @@ GO
 reconfigure
 GO
 
+
 ALTER ASSEMBLY UserFunctions
    WITH PERMISSION_SET = UNSAFE;
 go

@@ -24,6 +24,8 @@ import { CreateNewCodeComp } from '../CodesetTrees/createnewcode.component';
 import { ReviewSetsEditingService } from '../services/ReviewSetsEditing.service';
 import { OutcomesService } from '../services/outcomes.service';
 import { OutcomesComponent } from '../Outcomes/outcomes.component';
+import { read } from 'fs';
+import { concat } from '@progress/kendo-data-query/dist/npm/transducers';
 
 
 @Component({
@@ -90,9 +92,28 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
 	public itemSet?: ItemSet;
 	public itemId = new Subject<number>();
 	public ShowOutComes: boolean = false;
+	public get leftPanel(): string {
+		//console.log("leftPanel", this.ReviewerTermsService._ShowHideTermsList, this.ShowingOutComes);
+		if (this.ReviewerTermsService._ShowHideTermsList) {
+			return "Highlights";
+		}	
+		else if 
+		(this.ShowOutComes) {
+			this.EditCodesPanel = "";
+			return "OutComes";
+		}
+		else
+		{ return ""; }
+	}
     private subGotScreeningItem: Subscription | null = null;
     public IsScreening: boolean = false;
-	public ShowHighlights: boolean = false;
+    public get ShowHighlights(): boolean {
+        return this.ReviewerIdentityServ.userOptions.ShowHighlight;
+    }
+    public set ShowHighlights(val: boolean) {
+        this.ReviewerIdentityServ.userOptions.ShowHighlight = val;
+        this.ReviewerIdentityServ.SaveOptions();//otherwise they won't persist...
+    }
 	public EditCodesPanel: string = "";
     ngOnInit() {
         //console.log('init!');
@@ -100,8 +121,11 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
         if (this.ReviewerIdentityServ.reviewerIdentity.userId == 0) {
             this.router.navigate(['home']);
         }
-        else {
+		else {
 
+
+
+			this.RefreshTerms();
             this.outcomeSubscription = this._outcomeService.outcomesChangedEE.subscribe(
 
                 (res: any) => {
@@ -157,7 +181,7 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
                         this.SetCoding();
                     }
                 }
-            );
+			);
             this.ReloadItemCoding = this.ReviewSetsService.GetReviewStatsEmit.subscribe(
                 () => { this.SetCoding(); }
             );
@@ -168,14 +192,27 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
             //this.ReviewSetsService.ItemCodingItemAttributeSaveCommandExecuted.subscribe((cmd: ItemAttributeSaveCommand) => this.HandleItemAttributeSaveCommandDone(cmd));
         }
 	}
-
+	public RefreshTerms() {
+		
+		// need to reload the page 
+		// but the addition of the term is working
+		this.SetHighlights();
+		this.ReviewerTermsService.Fetch();		
+	}
 	
 	public ShowingOutComes() {
         this.ShowOutComes = !this.ShowOutComes;
 	}
 	public SetCreateNewCode() {
-        if (this.EditCodesPanel == "CreateNewCode") this.EditCodesPanel = "";
-        else this.EditCodesPanel = "CreateNewCode";
+		if (this.EditCodesPanel == "CreateNewCode") {
+			this.EditCodesPanel = "";
+		}
+		else {
+			this.EditCodesPanel = "CreateNewCode";
+			this.ShowOutComes = false;
+			this.OutcomesCmpRef.ShowOutcomesStatistics = false;
+			this.OutcomesCmpRef.ShowOutcomesList = false;
+		}
 	}
     public get HasTermList(): boolean {
         if (!this.ReviewerTermsService || !this.ReviewerTermsService.TermsList || !(this.ReviewerTermsService.TermsList.length > 0)) return false;
@@ -250,7 +287,11 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
         this.EditCodesPanel = "";
     }
 	IsServiceBusy(): boolean {
-		if (this._reviewSetsEditingService.IsBusy || this.reviewInfoService.IsBusy || this._outcomeService.IsBusy) return true;
+		if (this._reviewSetsEditingService.IsBusy ||
+			this.reviewInfoService.IsBusy || this._outcomeService.IsBusy
+			|| this.ReviewerTermsService.IsBusy) {
+			return true;
+		}
 		else return false;
 	}
 	CanWrite(): boolean {
@@ -279,7 +320,12 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
     public get HasWriteRights(): boolean {
         return this.ReviewerIdentityServ.HasWriteRights
     }
-    public CheckBoxAutoAdvanceVal: boolean = false;
+    public get CheckBoxAutoAdvanceVal(): boolean {
+        return this.ReviewerIdentityServ.userOptions.AutoAdvance;
+    }
+    public set CheckBoxAutoAdvanceVal(val: boolean) {
+        this.ReviewerIdentityServ.userOptions.AutoAdvance = val;
+    }
     onSubmit(f: string) {
     }
     //@Output() criteriaChange = new EventEmitter();
@@ -487,7 +533,7 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
         //}
         //this.GetItemCoding();
     }
-    BackToMain() {
+	BackToMain() {
         this.clearItemData();
         this.router.navigate(['Main']);
     }
@@ -621,7 +667,11 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
         if (this.ItemDetailsCompRef) this.ItemDetailsCompRef.SetHighlights();
     }
     ShowHighlightsClicked() {
-        if (this.ItemDetailsCompRef) this.ItemDetailsCompRef.ShowHighlightsClicked(); else console.log('Ouch');
+		if (this.ItemDetailsCompRef) {
+			this.ItemDetailsCompRef.ShowHighlightsClicked();
+
+		}
+		else { console.log('Ouch'); }
     }
     onTabSelect(e: SelectEvent) {
 

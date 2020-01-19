@@ -213,6 +213,12 @@
     <Compile Include="..\Server\BusinessClasses\ClassifierCommand.cs">
       <Link>BusinessClasses\ClassifierCommand.cs</Link>
     </Compile>
+    <Compile Include="..\Server\BusinessClasses\ClassifierContactModel.cs">
+      <Link>BusinessClasses\ClassifierContactModel.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\ClassifierContactModelList.cs">
+      <Link>BusinessClasses\ClassifierContactModelList.cs</Link>
+    </Compile>
     <Compile Include="..\Server\BusinessClasses\ClassifierCreateCodesCommand.cs">
       <Link>BusinessClasses\ClassifierCreateCodesCommand.cs</Link>
     </Compile>
@@ -422,6 +428,78 @@
     </Compile>
     <Compile Include="..\Server\BusinessClasses\ItemTypeNVLFactory.cs">
       <Link>BusinessClasses\ItemTypeNVLFactory.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\MagBlobDataCommand.cs">
+      <Link>BusinessClasses\MagBlobDataCommand.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\MagBrowseHistory.cs">
+      <Link>BusinessClasses\MagBrowseHistory.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\MagBrowseHistoryList.cs">
+      <Link>BusinessClasses\MagBrowseHistoryList.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\MagCurrentInfo.cs">
+      <Link>BusinessClasses\MagCurrentInfo.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\MagDownloadSimulationDataCommand.cs">
+      <Link>BusinessClasses\MagDownloadSimulationDataCommand.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\MagFieldOfStudy.cs">
+      <Link>BusinessClasses\MagFieldOfStudy.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\MagFieldOfStudyList.cs">
+      <Link>BusinessClasses\MagFieldOfStudyList.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\MagItemMagRelatedPaperInsertCommand.cs">
+      <Link>BusinessClasses\MagItemMagRelatedPaperInsertCommand.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\MagItemPaperInsertCommand.cs">
+      <Link>BusinessClasses\MagItemPaperInsertCommand.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\MagMatchItemsToPapersCommand.cs">
+      <Link>BusinessClasses\MagMatchItemsToPapersCommand.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\MagMatchItemToPaperManualCommand.cs">
+      <Link>BusinessClasses\MagMatchItemToPaperManualCommand.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\MagPaper.cs">
+      <Link>BusinessClasses\MagPaper.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\MagPaperList.cs">
+      <Link>BusinessClasses\MagPaperList.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\MagRelatedPapersRun.cs">
+      <Link>BusinessClasses\MagRelatedPapersRun.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\MagRelatedPapersRunList.cs">
+      <Link>BusinessClasses\MagRelatedPapersRunList.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\MagReview.cs">
+      <Link>BusinessClasses\MagReview.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\MagReviewHasUpdatesToCheckCommand.cs">
+      <Link>BusinessClasses\MagReviewHasUpdatesToCheckCommand.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\MagReviewList.cs">
+      <Link>BusinessClasses\MagReviewList.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\MagReviewMagInfo.cs">
+      <Link>BusinessClasses\MagReviewMagInfo.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\MagRunSimulationCommand.cs">
+      <Link>BusinessClasses\MagRunSimulationCommand.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\MagSimulation.cs">
+      <Link>BusinessClasses\MagSimulation.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\MagSimulationList.cs">
+      <Link>BusinessClasses\MagSimulationList.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\MagSimulationResult.cs">
+      <Link>BusinessClasses\MagSimulationResult.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\MagSimulationResultList.cs">
+      <Link>BusinessClasses\MagSimulationResultList.cs</Link>
     </Compile>
     <Compile Include="..\Server\BusinessClasses\MetaAnalyse.cs">
       <Link>BusinessClasses\MetaAnalyse.cs</Link>

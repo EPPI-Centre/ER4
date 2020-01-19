@@ -268,13 +268,13 @@ namespace ERxWebClient2.Controllers
 			{
                 if(SetCSLAUser4Writing())
 				{
-					
 					SearchCodeSetCheckCommand cmd = new SearchCodeSetCheckCommand(
 						cmdIn._setID,
 						cmdIn._included,
 						cmdIn._withCodes,
-						cmdIn._title
-						);
+						cmdIn._title,
+						cmdIn._contactId,
+                        cmdIn._contactName);
 					DataPortal<SearchCodeSetCheckCommand> dp = new DataPortal<SearchCodeSetCheckCommand>();
 					cmd = dp.Execute(cmd);
 
@@ -391,6 +391,8 @@ namespace ERxWebClient2.Controllers
 		public bool _withCodes = false;
 		public int _searchId = 0;
 		public string _searches = "";
+		public int _contactId = 0;
+		public string _contactName = "";
 	}
 }
 

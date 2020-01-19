@@ -48,7 +48,7 @@ namespace BusinessLibrary.BusinessClasses
             return true;
         }
         
-        private static PropertyInfo<int> GroupIDProperty = RegisterProperty<int>(new PropertyInfo<int>("GroupID", "GroupID"));
+        public readonly static PropertyInfo<int> GroupIDProperty = RegisterProperty<int>(new PropertyInfo<int>("GroupID", "GroupID"));
         public int GroupID
         {
             get
@@ -60,7 +60,7 @@ namespace BusinessLibrary.BusinessClasses
             //    SetProperty(GroupIDProperty, value);
             //}
         }
-        private static PropertyInfo<long> OriginalMasterIDProperty = RegisterProperty<long>(new PropertyInfo<long>("OriginalMasterID", "OriginalMasterID"));
+        public readonly static PropertyInfo<long> OriginalMasterIDProperty = RegisterProperty<long>(new PropertyInfo<long>("OriginalMasterID", "OriginalMasterID"));
         public long OriginalMasterID
         {
             get
@@ -68,7 +68,7 @@ namespace BusinessLibrary.BusinessClasses
                 return GetProperty(OriginalMasterIDProperty);
             }
         }
-        private static PropertyInfo<bool> IsEditableProperty = RegisterProperty<bool>(new PropertyInfo<bool>("IsEditable", "IsEditable"));
+        public readonly static PropertyInfo<bool> IsEditableProperty = RegisterProperty<bool>(new PropertyInfo<bool>("IsEditable", "IsEditable"));
         public bool IsEditable
         {
             get
@@ -82,7 +82,7 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(IsEditableProperty, value);
             }
         }
-        private static PropertyInfo<int> AddGroupIDProperty = RegisterProperty<int>(new PropertyInfo<int>("AddGroupID", "AddGroupID"));
+        public readonly static PropertyInfo<int> AddGroupIDProperty = RegisterProperty<int>(new PropertyInfo<int>("AddGroupID", "AddGroupID"));
         public int AddGroupID
         {
             get
@@ -94,7 +94,7 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(AddGroupIDProperty, value);
             }
         }
-        private static PropertyInfo<MobileList<long>> AddItemsProperty = RegisterProperty<MobileList<long>>(new PropertyInfo<MobileList<long>>("AddItemID", "AddItemID"));
+        public readonly static PropertyInfo<MobileList<long>> AddItemsProperty = RegisterProperty<MobileList<long>>(new PropertyInfo<MobileList<long>>("AddItemID", "AddItemID"));
         public MobileList<long> AddItems
         {
             get
@@ -106,7 +106,7 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(AddItemsProperty, value);
             }
         }
-        private static PropertyInfo<long> RemoveItemIDProperty = RegisterProperty<long>(new PropertyInfo<long>("RemoveItemID", "RemoveItemID"));
+        public readonly static PropertyInfo<long> RemoveItemIDProperty = RegisterProperty<long>(new PropertyInfo<long>("RemoveItemID", "RemoveItemID"));
         public long RemoveItemID
         {
             get
@@ -118,7 +118,7 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(RemoveItemIDProperty, value);
             }
         }
-        private static PropertyInfo<MobileList<ItemDuplicateGroupMember>> MembersProperty = RegisterProperty<MobileList<ItemDuplicateGroupMember>>(new PropertyInfo<MobileList<ItemDuplicateGroupMember>>("Members", "Members"));
+        public readonly static PropertyInfo<MobileList<ItemDuplicateGroupMember>> MembersProperty = RegisterProperty<MobileList<ItemDuplicateGroupMember>>(new PropertyInfo<MobileList<ItemDuplicateGroupMember>>("Members", "Members"));
         public MobileList<ItemDuplicateGroupMember> Members
         {
             get
@@ -130,7 +130,7 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(MembersProperty, value);
             }
         }
-        private static PropertyInfo<MobileList<ItemDuplicateManualGroupMember>> ManualMembersProperty = RegisterProperty<MobileList<ItemDuplicateManualGroupMember>>(new PropertyInfo<MobileList<ItemDuplicateManualGroupMember>>("ManualMembers", "ManualMembers"));
+        public readonly static PropertyInfo<MobileList<ItemDuplicateManualGroupMember>> ManualMembersProperty = RegisterProperty<MobileList<ItemDuplicateManualGroupMember>>(new PropertyInfo<MobileList<ItemDuplicateManualGroupMember>>("ManualMembers", "ManualMembers"));
         public MobileList<ItemDuplicateManualGroupMember> ManualMembers
         {
             get
@@ -169,7 +169,7 @@ namespace BusinessLibrary.BusinessClasses
         }
         
 #else
-        private ItemDuplicateGroup() 
+        public ItemDuplicateGroup() 
         {
             Members = new MobileList<ItemDuplicateGroupMember>();
         }
@@ -267,7 +267,7 @@ namespace BusinessLibrary.BusinessClasses
                     if (o.IsDirty)
                     {
                         toSave = true;
-                        o.Save(true);
+                        ItemDuplicateGroupMember oo = o.Save(true);
                     }
                 }
                 if (toSave)

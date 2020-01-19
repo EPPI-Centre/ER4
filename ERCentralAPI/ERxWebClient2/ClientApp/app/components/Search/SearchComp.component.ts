@@ -9,7 +9,7 @@ import { SortDescriptor, orderBy, State, process } from '@progress/kendo-data-qu
 import { ReviewSetsService,  ReviewSet, singleNode, SetAttribute } from '../services/ReviewSets.service';
 import { NotificationService } from '@progress/kendo-angular-notification';
 import { ClassifierService } from '../services/classifier.service';
-import {  ReviewInfoService } from '../services/ReviewInfo.service';
+import {  ReviewInfoService, Contact } from '../services/ReviewInfo.service';
 import { BuildModelService } from '../services/buildmodel.service';
 import { SourcesService } from '../services/sources.service';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
@@ -45,7 +45,8 @@ export class SearchComp implements OnInit, OnDestroy {
 		private _buildModelService: BuildModelService,
 		private notificationService: NotificationService,
 		private _sourcesService: SourcesService,
-		private confirmationDialogService: ConfirmationDialogService
+		private confirmationDialogService: ConfirmationDialogService,
+		private _reviewInfoService: ReviewInfoService
 	) {
 		
 	}
@@ -58,10 +59,22 @@ export class SearchComp implements OnInit, OnDestroy {
 		else {
 
 			this._reviewSetsService.selectedNode = null;
-
+			this.getMembers();
+			console.log(this.Contacts);
         }
-    }
+	}
+	getMembers() {
 
+		if (!this._reviewInfoService.ReviewInfo || this._reviewInfoService.ReviewInfo.reviewId < 1) {
+			this._reviewInfoService.Fetch();
+		}
+		this._reviewInfoService.FetchReviewMembers();
+
+	}
+
+	public get Contacts(): Contact[] {
+		return this._reviewInfoService.Contacts;
+	}
     //private InstanceId: number = Math.random();
 	public modelNum: number = 0;
 	public modelTitle: string = '';
@@ -88,7 +101,9 @@ export class SearchComp implements OnInit, OnDestroy {
 	public searchTextModel: string = '';
 	public CurrentDropdownSelectedCode: singleNode | null = null;
 	public SearchVisualiseData!: Observable<any>[];
+	public SearchForPeoplesModel: string = 'true';
 
+	public ContactChoice: Contact = new Contact();
     @Output() PleaseOpenTheCodes = new EventEmitter();
 	@ViewChild('WithOrWithoutCodeSelector') WithOrWithoutCodeSelector!: codesetSelectorComponent;
 	//@ViewChild('WithOrWithoutCodeSelectorVisualise') WithOrWithoutCodeSelectorVisualise!: codesetSelectorComponent;
@@ -306,7 +321,12 @@ export class SearchComp implements OnInit, OnDestroy {
 			return true;
 		}
 		// Codes in set options next: ''
-        else if (this.selectedSearchDropDown == 'That have at least one code from this Coding Tool' && this.selectedSearchCodeSetDropDown != '') {
+		else if (this.selectedSearchDropDown == 'That have at least one code from this Coding Tool'
+			&& this.selectedSearchCodeSetDropDown != '' && this.SearchForPeoplesModel =='true') {
+			return true;
+		}
+		else if (this.selectedSearchDropDown == 'That have at least one code from this Coding Tool'
+			&& this.selectedSearchCodeSetDropDown != '' && this.SearchForPeoplesModel == 'false' && this.ContactChoice.contactId > 0) {
 			return true;
 		}
         else if (this.selectedSearchDropDown == "That don't have any codes from this Coding Tool" && this.selectedSearchCodeSetDropDown != '') {
@@ -406,7 +426,7 @@ export class SearchComp implements OnInit, OnDestroy {
 		this.confirmationDialogService.confirm('Please confirm', 'Are you sure you want to delete the selected search(es)?', false, '')
 			.then(
 			(confirmed: any) => {
-					console.log('User confirmed:', confirmed);
+					//console.log('User confirmed:', confirmed);
 					if (confirmed) {
 						this.DeleteSearchSelected();
 					} else {
@@ -680,7 +700,18 @@ export class SearchComp implements OnInit, OnDestroy {
 	refreshSearches() {
 		this._searchService.Fetch();
 	}
-	
+	public SearchForPersonModel: boolean = false;
+	public SearchForPersonDropDown: string = 'true';
+	SelectPerson(event: string) {
+
+		if (event == 'true') {
+			this.SearchForPersonModel = true;
+
+		} else {
+			this.ContactChoice = new Contact();
+			this.SearchForPersonModel = false;
+		}
+	}
 	DeleteSearchSelected() {
 
 		// Need to check if user has rights to delete
@@ -691,9 +722,9 @@ export class SearchComp implements OnInit, OnDestroy {
 				lstStrSearchIds += this.DataSourceSearches.data[i].searchId + ',' ;
 			}
 		}
-		console.log(lstStrSearchIds);
-		if (this.CanWrite()) {
-			this._searchService.Delete(lstStrSearchIds);
+        //console.log(lstStrSearchIds, lstStrSearchIds.substring(0, lstStrSearchIds.length - 1));
+        if (this.CanWrite() && lstStrSearchIds.length > 1) {
+            this._searchService.Delete(lstStrSearchIds.substring(0, lstStrSearchIds.length -1));
 		}
 	}
 	public convertToIncEx(incEx: boolean): string  {
@@ -795,7 +826,8 @@ export class SearchComp implements OnInit, OnDestroy {
 
 				this._searchService.cmdSearches._withCodes = 'true';
 				this._searchService.cmdSearches._title = this.selectedSearchCodeSetDropDown;
-
+				this._searchService.cmdSearches._contactId = this.ContactChoice.contactId;
+				this._searchService.cmdSearches._contactName = this.ContactChoice.contactName;
 				this._searchService.CreateSearch(this._searchService.cmdSearches, 'SearchCodeSetCheck');
 
 			}
@@ -832,9 +864,12 @@ export class SearchComp implements OnInit, OnDestroy {
 
 		}
 	}
-
+	public ShowSearchForAnyone: boolean = false;
 	public nextDropDownList(num: number, val: string) {
 
+		this.ShowSearchForAnyone = false;
+		this.SearchForPersonModel = false;
+		this.SearchForPersonDropDown = 'true';
 		let typeElement: "success" | "error" | "none" | "warning" | "info" | undefined = undefined;
 		this.showTextBox = false;
 		this.selectedSearchDropDown = val;
@@ -844,10 +879,12 @@ export class SearchComp implements OnInit, OnDestroy {
 			case 1: {
 
 				this.dropDownList = this._reviewSetsService.ReviewSets;
+
 				break;
 			}
 			case 2: {
 				this.dropDownList = this._reviewSetsService.ReviewSets;
+
 				break;
 			}
 			case 3: {
@@ -867,6 +904,9 @@ export class SearchComp implements OnInit, OnDestroy {
 						}
 					);
 				this.dropDownList = this._reviewSetsService.ReviewSets;
+				this.ShowSearchForAnyone = true;
+				this.SearchForPersonDropDown = 'true';
+				this.SearchForPersonModel = false;
 				break;
 			}
 			case 6: {
@@ -877,6 +917,7 @@ export class SearchComp implements OnInit, OnDestroy {
 						}
 					);
 				this.dropDownList = this._reviewSetsService.ReviewSets;
+	
 				break;
 			}
 			default: {
@@ -991,7 +1032,6 @@ export class SearchComp implements OnInit, OnDestroy {
 	}
 
 	Clear() {
-
 		
 		this.CurrentDropdownSelectedCode = null;
 		this.selectedSearchCodeSetDropDown = '';
@@ -1003,8 +1043,8 @@ export class SearchComp implements OnInit, OnDestroy {
 		this.NewSearchSection = false;
 		this.modelResultsSection = false;
 		this.LogicSection = false;
+		this.SearchForPersonModel = false;
 	}
-
 }
 
 export interface ReadOnlySource {

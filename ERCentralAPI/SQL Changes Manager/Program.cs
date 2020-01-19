@@ -19,6 +19,7 @@ namespace SQL_Changes_Manager
         static void Main(string[] args)
         {
             if (GetAppSettings()) DoWork();
+            //Console.ReadLine(); // added by James so that I can see which scripts were run
         }
         static void DoWork()
         {
@@ -49,7 +50,7 @@ namespace SQL_Changes_Manager
                 }
             }
             List<int> scriptVns = GetFiles(CurrentVersionNumber);
-            if (scriptVns != null) LogMessageLine("Found " + scriptVns.Count.ToString() + " files to porcess.");
+            if (scriptVns != null) LogMessageLine("Found " + scriptVns.Count.ToString() + " files to process.");
             else LogMessageLine("No new files to process found, current V. N. is: " + CurrentVersionNumber.ToString() + ".");
             bool iserror = false;
             foreach (int vNumber in scriptVns)

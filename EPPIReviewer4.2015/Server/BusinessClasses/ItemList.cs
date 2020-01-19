@@ -595,6 +595,47 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@ATTRIBUTE_ID", criteria.XAxisAttributeId)); // x axis attribute id
                     command.Parameters.Add(new SqlParameter("@FILTER_ATTRIBUTE_ID", criteria.FilterAttributeId)); // filter attribute id
                     break;
+
+                case "MagMatchesNeedingChecking":
+                    command = new SqlCommand("st_ItemListMaybeMagMatches", connection);
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId)); // use the stored value so that noone can list items out of a review they aren't properly authenticated on
+                    command.Parameters.Add(new SqlParameter("@SHOW_INCLUDED", criteria.OnlyIncluded));
+                    command.Parameters.Add(new SqlParameter("@ATTRIBUTE_SET_ID_LIST", criteria.AttributeSetIdList));
+                    break;
+
+                case "MagMatchesNotMatched":
+                    command = new SqlCommand("st_ItemListMagNoMatches", connection);
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId)); // use the stored value so that noone can list items out of a review they aren't properly authenticated on
+                    command.Parameters.Add(new SqlParameter("@SHOW_INCLUDED", criteria.OnlyIncluded));
+                    break;
+
+                case "MagMatchesMatched":
+                    command = new SqlCommand("st_ItemListMagMatches", connection);
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId)); // use the stored value so that noone can list items out of a review they aren't properly authenticated on
+                    command.Parameters.Add(new SqlParameter("@SHOW_INCLUDED", criteria.OnlyIncluded));
+                    break;
+
+                case "MagSimulationTP":
+                    command = new SqlCommand("st_ItemListMagSimulationTPFN", connection);
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId)); // use the stored value so that noone can list items out of a review they aren't properly authenticated on
+                    //command.Parameters.Add(new SqlParameter("@SHOW_INCLUDED", criteria.OnlyIncluded));
+                    command.Parameters.Add(new SqlParameter("@MAG_SIMULATION_ID", criteria.MagSimulationId));
+                    command.Parameters.Add(new SqlParameter("@FOUND", true));
+                    break;
+
+                case "MagSimulationFN":
+                    command = new SqlCommand("st_ItemListMagSimulationTPFN", connection);
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId)); // use the stored value so that noone can list items out of a review they aren't properly authenticated on
+                    //command.Parameters.Add(new SqlParameter("@SHOW_INCLUDED", criteria.OnlyIncluded));
+                    command.Parameters.Add(new SqlParameter("@MAG_SIMULATION_ID", criteria.MagSimulationId));
+                    command.Parameters.Add(new SqlParameter("@FOUND", false));
+                    break;
+
                 default:
                     break;
             }
@@ -716,6 +757,16 @@ namespace BusinessLibrary.BusinessClasses
             set
             {
                 SetProperty(AttributeSetIdListProperty, value);
+            }
+        }
+
+        public static readonly PropertyInfo<int> MagSimulationIdProperty = RegisterProperty<int>(typeof(SelectionCriteria), new PropertyInfo<int>("MagSimulationId", "MagSimulationId", 0));
+        public int MagSimulationId
+        {
+            get { return ReadProperty(MagSimulationIdProperty); }
+            set
+            {
+                SetProperty(MagSimulationIdProperty, value);
             }
         }
 

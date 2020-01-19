@@ -27,7 +27,7 @@ namespace BusinessLibrary.BusinessClasses
 #if SILVERLIGHT
     public ReportExecuteCommand(){}
 #else
-        protected ReportExecuteCommand() { }
+        public ReportExecuteCommand() { }
 #endif
 
         private string _report_type;
@@ -534,7 +534,7 @@ namespace BusinessLibrary.BusinessClasses
                         }
                         if (_show_old_itemId == true)
                         {
-                            dr["Imported Id"] = reader["OLD_ITEM_ID"].ToString();
+                            dr["Imported Id"] = (reader["OLD_ITEM_ID"] == null ? "" : reader["OLD_ITEM_ID"].ToString());
                         }
                         dr["Outcome description"] = reader["OUTCOME_TITLE"].ToString();
 

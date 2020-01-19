@@ -116,6 +116,7 @@
 		"rxjs-compat": "^6.3.3",
 		"source-map-loader": "^0.2.4",
 		"ts-loader": "^6.0.4",
-		"uglifyjs-webpack-plugin": "^2.2.0"
+		"uglifyjs-webpack-plugin": "^2.2.0",
+		"xlsx": "^0.15.2"
 	}
 }

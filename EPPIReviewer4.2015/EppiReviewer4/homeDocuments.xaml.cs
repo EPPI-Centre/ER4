@@ -70,6 +70,9 @@ namespace EppiReviewer4
         private RadWindow windowItemReportWriter = new RadWindow();
         private dialogItemReportWriter dialogItemReportWriterControl = new dialogItemReportWriter();
 
+        private RadWindow windowMagBrowser = new RadWindow();
+        private dialogMagBrowser MagBrowserControl = new dialogMagBrowser();
+
         private RadWindow windowPleaseWait = new RadWindow();
         private BusyAnimation BusyPleaseWait = new BusyAnimation();
         
@@ -130,6 +133,7 @@ namespace EppiReviewer4
             
             dialogCodingControl.CloseWindowRequest += dCoding_CloseWindowRequest;
             dialogCodingControl.RunTrainingCommandRequest += dCoding_RunTrainingCommandRequest;
+            dialogCodingControl.launchMagBrowser += DialogCodingControl_launchMagBrowser;
             codingContent.Children.Add(dialogCodingControl);
             windowCoding.Content = codingContent;
             //end of dialogCoding
@@ -228,6 +232,28 @@ namespace EppiReviewer4
             grd.Children.Add(reportViewerControlDocuments);
             windowReportsDocuments.Content = grd;
             //end of windowReportsDocuments
+
+            //prepare windowMagBrowser
+            windowMagBrowser.Header = "Microsoft Academic Graph Browser. BETA version: all feedback welcome!";
+            windowMagBrowser.WindowStateChanged += new EventHandler(Helpers.WindowHelper.MaxOnly_WindowStateChanged);
+            windowMagBrowser.Style = Application.Current.Resources["CustomRadWindowStyle"] as Style;
+            windowMagBrowser.WindowState = WindowState.Maximized;
+            windowMagBrowser.WindowStartupLocation = Telerik.Windows.Controls.WindowStartupLocation.CenterScreen;
+            windowMagBrowser.RestrictedAreaMargin = thk;
+            windowMagBrowser.CanClose = true;
+            windowMagBrowser.Width = 500;
+            Grid MagGrid = new Grid();
+            MagGrid.Children.Add(MagBrowserControl);
+            MagBrowserControl.ListIncludedThatNeedMatching += MagBrowserControl_ListIncludedThatNeedMatching;
+            MagBrowserControl.ListExcludedThatNeedMatching += MagBrowserControl_ListExcludedThatNeedMatching;
+            MagBrowserControl.ListIncludedNotMatched += MagBrowserControl_ListIncludedNotMatched;
+            MagBrowserControl.ListExcludedNotMatched += MagBrowserControl_ListExcludedNotMatched;
+            MagBrowserControl.ListIncludedMatched += MagBrowserControl_ListIncludedMatched;
+            MagBrowserControl.ListExcludedMatched += MagBrowserControl_ListExcludedMatched;
+            MagBrowserControl.ListSimulationTP += MagBrowserControl_ListSimulationTP;
+            MagBrowserControl.ListSimulationFN += MagBrowserControl_ListSimulationFN;
+            windowMagBrowser.Content = MagGrid;
+            //end of windowMagBrowser
 
             //prepare windowSearchDocuments
             windowSearchDocuments.Header = "Search";
@@ -396,6 +422,41 @@ namespace EppiReviewer4
                 cmdScreeningRunSimulation.Visibility = Visibility.Visible;
                 cmdScreeningSimulationSave.Visibility = Visibility.Visible;
             }
+
+            SetMicrosoftAcademicAlertIcon();
+        }
+
+        
+
+        private void SetMicrosoftAcademicAlertIcon()
+        {
+            DataPortal<MagReviewHasUpdatesToCheckCommand> dp = new DataPortal<MagReviewHasUpdatesToCheckCommand>();
+            MagReviewHasUpdatesToCheckCommand check = new MagReviewHasUpdatesToCheckCommand();
+            dp.ExecuteCompleted += (o, e2) =>
+            {
+                //BusyLoading.IsRunning = false;
+                if (e2.Error != null)
+                {
+                    RadWindow.Alert(e2.Error.Message);
+                }
+                else
+                {
+                    MagReviewHasUpdatesToCheckCommand chk = e2.Object as MagReviewHasUpdatesToCheckCommand;
+                    if (chk != null)
+                    {
+                        if (chk.HasUpdates)
+                        {
+                            ImageMAGHasUpdates.Source = new BitmapImage(new Uri("Icons/MicrosoftAcademicICOAlert.png", UriKind.Relative));
+                        }
+                        else
+                        {
+                            ImageMAGHasUpdates.Source = new BitmapImage(new Uri("Icons/MicrosoftAcademicICO.png", UriKind.Relative));
+                        }
+                    }
+                }
+            };
+            //BusyLoading.IsRunning = true;
+            dp.BeginExecute(check);
         }
 
         private void CsetsProvider_DataChanged(object sender, EventArgs e)
@@ -4037,7 +4098,6 @@ on the right of the main screen");
         {
             CslaDataProvider provider = ((CslaDataProvider)this.Resources["ItemListData"]);
             
-            
             if (provider.Error != null)
             {
                 System.Windows.Browser.HtmlPage.Window.Alert(((Csla.Xaml.CslaDataProvider)sender).Error.Message);
@@ -6043,6 +6103,148 @@ on the right of the main screen");
             LoadCodeSets();
         }
 
-        
+        private void cmdMagBrowser_Click(object sender, RoutedEventArgs e)
+        {
+            MagBrowserControl.ShowMagBrowser();
+            windowMagBrowser.ShowDialog();
+        }
+
+        private void MagBrowserControl_ListIncludedThatNeedMatching(object sender, RoutedEventArgs e)
+        {
+            windowMagBrowser.Close();
+            TextBlockShowing.Text = "Showing: included items with low confidence Microsoft Academic matches (that are unchecked)";
+            SelectionCritieraItemList = new SelectionCriteria();
+            SelectionCritieraItemList.ListType = "MagMatchesNeedingChecking";
+            SelectionCritieraItemList.OnlyIncluded = true;
+            SelectionCritieraItemList.ShowDeleted = false;
+            SelectionCritieraItemList.AttributeSetIdList = "";
+            SelectionCritieraItemList.PageNumber = 0;
+            LoadItemList();
+        }
+
+        private void MagBrowserControl_ListExcludedThatNeedMatching(object sender, RoutedEventArgs e)
+        {
+            windowMagBrowser.Close();
+            TextBlockShowing.Text = "Showing: excluded items with low confidence Microsoft Academic matches (that are unchecked)";
+            SelectionCritieraItemList = new SelectionCriteria();
+            SelectionCritieraItemList.ListType = "MagMatchesNeedingChecking";
+            SelectionCritieraItemList.OnlyIncluded = false;
+            SelectionCritieraItemList.ShowDeleted = false;
+            SelectionCritieraItemList.AttributeSetIdList = "";
+            SelectionCritieraItemList.PageNumber = 0;
+            LoadItemList();
+        }
+
+        private void MagBrowserControl_ListExcludedNotMatched(object sender, RoutedEventArgs e)
+        {
+            windowMagBrowser.Close();
+            TextBlockShowing.Text = "Showing: excluded items that are not matched to any Microsoft Academic records";
+            SelectionCritieraItemList = new SelectionCriteria();
+            SelectionCritieraItemList.ListType = "MagMatchesNotMatched";
+            SelectionCritieraItemList.OnlyIncluded = false;
+            SelectionCritieraItemList.ShowDeleted = false;
+            SelectionCritieraItemList.AttributeSetIdList = "";
+            SelectionCritieraItemList.PageNumber = 0;
+            LoadItemList();
+        }
+
+        private void MagBrowserControl_ListIncludedNotMatched(object sender, RoutedEventArgs e)
+        {
+            windowMagBrowser.Close();
+            TextBlockShowing.Text = "Showing: included items that are not matched to any Microsoft Academic records";
+            SelectionCritieraItemList = new SelectionCriteria();
+            SelectionCritieraItemList.ListType = "MagMatchesNotMatched";
+            SelectionCritieraItemList.OnlyIncluded = true;
+            SelectionCritieraItemList.ShowDeleted = false;
+            SelectionCritieraItemList.AttributeSetIdList = "";
+            SelectionCritieraItemList.PageNumber = 0;
+            LoadItemList();
+        }
+
+        private void MagBrowserControl_ListExcludedMatched(object sender, RoutedEventArgs e)
+        {
+            windowMagBrowser.Close();
+            TextBlockShowing.Text = "Showing: excluded items that are matched to at least one Microsoft Academic record";
+            SelectionCritieraItemList = new SelectionCriteria();
+            SelectionCritieraItemList.ListType = "MagMatchesMatched";
+            SelectionCritieraItemList.OnlyIncluded = false;
+            SelectionCritieraItemList.ShowDeleted = false;
+            SelectionCritieraItemList.AttributeSetIdList = "";
+            SelectionCritieraItemList.PageNumber = 0;
+            LoadItemList();
+        }
+
+        private void MagBrowserControl_ListIncludedMatched(object sender, RoutedEventArgs e)
+        {
+            windowMagBrowser.Close();
+            TextBlockShowing.Text = "Showing: included items that are matched to at least one Microsoft Academic record";
+            SelectionCritieraItemList = new SelectionCriteria();
+            SelectionCritieraItemList.ListType = "MagMatchesMatched";
+            SelectionCritieraItemList.OnlyIncluded = true;
+            SelectionCritieraItemList.ShowDeleted = false;
+            SelectionCritieraItemList.AttributeSetIdList = "";
+            SelectionCritieraItemList.PageNumber = 0;
+            LoadItemList();
+        }
+
+        private void MagBrowserControl_ListSimulationFN(object sender, RoutedEventArgs e)
+        {
+            windowMagBrowser.Close();
+            HyperlinkButton hl = sender as HyperlinkButton;
+            if (hl != null)
+            {
+                MagSimulation ms = hl.DataContext as MagSimulation;
+                if (ms != null)
+                {
+                    TextBlockShowing.Text = "Showing: false negatives from selected simulation";
+                    SelectionCritieraItemList = new SelectionCriteria();
+                    SelectionCritieraItemList.ListType = "MagSimulationFN";
+                    SelectionCritieraItemList.OnlyIncluded = true;
+                    SelectionCritieraItemList.ShowDeleted = false;
+                    SelectionCritieraItemList.AttributeSetIdList = "";
+                    SelectionCritieraItemList.PageNumber = 0;
+                    SelectionCritieraItemList.MagSimulationId = ms.MagSimulationId;
+                    LoadItemList();
+                }
+            }
+        }
+
+        private void MagBrowserControl_ListSimulationTP(object sender, RoutedEventArgs e)
+        {
+            windowMagBrowser.Close();
+            HyperlinkButton hl = sender as HyperlinkButton;
+            if (hl != null)
+            {
+                MagSimulation ms = hl.DataContext as MagSimulation;
+                if (ms != null)
+                {
+                    TextBlockShowing.Text = "Showing: true positives from selected simulation";
+                    SelectionCritieraItemList = new SelectionCriteria();
+                    SelectionCritieraItemList.ListType = "MagSimulationTP";
+                    SelectionCritieraItemList.OnlyIncluded = true;
+                    SelectionCritieraItemList.ShowDeleted = false;
+                    SelectionCritieraItemList.AttributeSetIdList = "";
+                    SelectionCritieraItemList.PageNumber = 0;
+                    SelectionCritieraItemList.MagSimulationId = ms.MagSimulationId;
+                    LoadItemList();
+                }
+            }
+        }
+
+        private void DialogCodingControl_launchMagBrowser(object sender, EventArgs e)
+        {
+            MagPaper mp = sender as MagPaper;
+            if (mp != null)
+            {
+                MagBrowserControl.InitialiseBrowser();
+                MagBrowserControl.AddToBrowseHistory("Go to specific Paper Id: " + mp.PaperId.ToString(), "PaperDetail",
+                        mp.PaperId, mp.FullRecord, mp.Abstract, mp.LinkedITEM_ID, mp.URLs, mp.FindOnWeb, 0,
+                        "", "", 0);
+                MagBrowserControl.IncrementHistoryCount();
+                MagBrowserControl.ShowPaperDetailsPage(mp.PaperId, mp.FullRecord, mp.Abstract,
+                    mp.URLs, mp.FindOnWeb, mp.LinkedITEM_ID);
+                windowMagBrowser.ShowDialog();
+            }
+        }
     }
 }

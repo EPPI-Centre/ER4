@@ -81,6 +81,10 @@ import { timePointsComp } from './components/ArmsAndTimePoints/timePointsComp.co
 import { OutcomesComponent } from './components/Outcomes/outcomes.component'
 import { EditCodeComp } from './components/CodesetTrees/editcode.component';
 import { SingleCodesetTreeCodingComponent } from './components/CodesetTrees/SingleCodesetTreeCoding.component';
+import { TextSelectDirective } from './components/helpers/text-select.directive';
+import { ReviewTermsListComp } from './components/ReviewTermsList/ReviewTermsListComp.component';
+import { configurablereportComp } from './components/Reports/configurablereport.component';
+import { DuplicatesComponent } from './components/Duplicates/duplicates.component';
 
 @NgModule({
     declarations: [
@@ -98,7 +102,8 @@ import { SingleCodesetTreeCodingComponent } from './components/CodesetTrees/Sing
         ImportCodesetsWizardComponent,
         codesetTree4CopyComponent,
 		codesetSelectorComponent,
-        armsComp,
+		armsComp,
+		armDetailsComp,
         FetchReadOnlyReviewsComponent,
         HomeComponent,
         ArchieCallBackComponent, 
@@ -127,7 +132,6 @@ import { SingleCodesetTreeCodingComponent } from './components/CodesetTrees/Sing
         CodesetTree4QuickQuestionReportComponent,
         NewReviewComponent,
 		RunLingo3G,
-		armDetailsComp,
         WorkAllocationComp,
         WorkAllocationContactListComp,
         SiteAdminComponent,
@@ -142,14 +146,18 @@ import { SingleCodesetTreeCodingComponent } from './components/CodesetTrees/Sing
 		codingRecordComp,
         OutcomesComponent,
 		EditCodeComp,
-		SingleCodesetTreeCodingComponent
+		SingleCodesetTreeCodingComponent,
+		TextSelectDirective,
+		ReviewTermsListComp,
+        configurablereportComp,
+        DuplicatesComponent
 	],
     providers: [
         EventEmitterService,
 		{ provide: RouteReuseStrategy, useClass: CustomRouteReuseStrategy }
     ],
 	entryComponents: [InfoBoxModalContent, ModalDialogComponent, ConfirmationDialogComponent],
-    imports: [
+	imports: [
         AngularFontAwesomeModule,
 		DataTablesModule,
 		CommonModule,
@@ -170,7 +178,7 @@ import { SingleCodesetTreeCodingComponent } from './components/CodesetTrees/Sing
 		ButtonsModule,
         NotificationModule,
         DatePickerModule,
-        LayoutModule,
+		LayoutModule,
         RouterModule.forRoot([
             { path: '', redirectTo: 'home', pathMatch: 'full' },
             { path: 'home', component: HomeComponent },
@@ -187,7 +195,8 @@ import { SingleCodesetTreeCodingComponent } from './components/CodesetTrees/Sing
 			{ path: 'EditCodeSets', component: ReviewSetsEditorComponent },
 			{ path: 'Reconciliation', component: ComparisonReconciliationComp},
             { path: 'ImportCodesets', component: ImportCodesetsWizardComponent },
-            { path: 'intropage', component: intropageComponent }, 
+            { path: 'intropage', component: intropageComponent },
+            { path: 'Duplicates', component: DuplicatesComponent }, 
             { path: 'SiteAdmin', component: SiteAdminComponent },
             { path: '**', redirectTo: 'home' }
         ])

@@ -18,6 +18,7 @@
     >
      
     <UserControl.Resources>
+        <helper:EditIntVisibilityConverter x:Key="EditIntVisibility" />
         <cslaXAML:CslaDataProvider x:Key="ItemDocumentListData"
                            ManageObjectLifetime="True"
                            IsInitialLoadEnabled="False"
@@ -32,6 +33,13 @@
                            FactoryMethod="GetItemAttributePDFList"
                            DataChanged="ItemAttributePDFList_DataChanged"
                            />
+        <cslaXAML:CslaDataProvider x:Key="MagPaperListData"
+                           ManageObjectLifetime="True"
+                           IsInitialLoadEnabled="False"
+                           ObjectType="BusinessLibrary.BusinessClasses.MagPaperList, BusinessLibrary, Version=..., Culture=neutral, PublicKeyToken=null"
+                           FactoryMethod="GetMagPaperList" 
+                           DataChanged="CslaDataProvider_DataChanged_1">
+        </cslaXAML:CslaDataProvider>
 
         <Button x:Name="isEn" IsEnabled="{Binding HasWriteRights, Mode=OneWay}" ></Button>
         <Button x:Name="isEnorCodingOnly" IsEnabled="{Binding HasWriteRightsOrCodingOnly, Mode=OneWay}" ></Button>
@@ -173,7 +181,39 @@
                 </Setter.Value>
             </Setter>
         </Style>
-        
+        <DataTemplate x:Key="MagPaperDataTemplate">
+            <Grid Background="Beige" Margin="2,2,2,2">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"></RowDefinition>
+                    <RowDefinition Height="35"></RowDefinition>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"></ColumnDefinition>
+                    <ColumnDefinition Width="Auto"></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+                
+                <TextBox Grid.Row="0" Grid.Column="0" Height="Auto" Margin="5,5,5,5" Text="{Binding FullRecord}"
+                         TextWrapping="Wrap"
+                         HorizontalScrollBarVisibility="Hidden"
+                         BorderThickness="0"
+                         IsReadOnly="True"></TextBox>
+                <StackPanel Orientation="Vertical" Grid.Column="1">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Score: " Margin="5,5,2,5"></TextBlock>
+                        <TextBlock Text="{Binding AutoMatchScore}" Margin="2,5,5,5"></TextBlock>
+                    </StackPanel>
+                    <RadioButton Content="Correct match" Margin="5,5,5,5" IsChecked="{Binding ManualTrueMatch, Mode=TwoWay}" GroupName="{Binding PaperId}" Tag="True" Click="CheckBox_Click"></RadioButton>
+                    <RadioButton Content="Incorrect match" Margin="5,5,5,5" IsChecked="{Binding ManualFalseMatch, Mode=TwoWay}" GroupName="{Binding PaperId}" Tag="False" Click="CheckBox_Click"></RadioButton>
+                </StackPanel>
+                <StackPanel Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal">
+                    <TextBlock Text="PaperId:" Margin="5,5,5,5" VerticalAlignment="Center"></TextBlock>
+                    <TextBox Text="{Binding PaperId}" Margin="5,5,5,5" IsReadOnly="True" VerticalAlignment="Center" BorderThickness="0"></TextBox>
+                    <HyperlinkButton Content="View in the Microsoft Academic Browser" Margin="5,5,5,5" VerticalAlignment="Center" Click="HyperlinkButton_Click"></HyperlinkButton>
+                    <HyperlinkButton Content="View on the web" NavigateUri="{Binding FindOnWeb}" VerticalAlignment="Center" TargetName="_blank" Margin="5,5,5,5"></HyperlinkButton>
+                </StackPanel>
+            </Grid>
+        </DataTemplate>
+
     </UserControl.Resources>
     
     <Grid KeyUp="Grid_KeyUp">
@@ -713,7 +753,7 @@
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="25" />
                                         <RowDefinition Height="*" />
-                                        <RowDefinition Height="35" />
+                                        <RowDefinition Height="auto" />
                                     </Grid.RowDefinitions>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="100"></ColumnDefinition>
@@ -748,6 +788,69 @@
                                         <Image Source="Icons/RedX.png" Stretch="None" Width="25" Height="25" />
                                     </Button>
                                 </Grid>
+                            </Grid>
+                        </radDock:RadDocumentPane>
+
+                        <radDock:RadDocumentPane Header="Microsoft Academic" x:Name="MicrosoftAcademic" Title="Microsoft Academic" CanUserClose="False" CanFloat="False" IsEnabled="True" 
+                                                 Visibility="{Binding Source={StaticResource ReviewInfoData}, Path=Data.MagEnabled, Converter={StaticResource EditIntVisibility}, Mode=OneWay}"
+                                                 Activated="MicrosoftAcademic_Activated">
+                            <Grid Width="auto">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="35"></RowDefinition>
+                                    <RowDefinition Height="Auto"></RowDefinition>
+                                    <RowDefinition Height="35"></RowDefinition>
+                                    <RowDefinition Height="*"></RowDefinition>
+                                    <RowDefinition Height="35"></RowDefinition>
+                                    <RowDefinition Height="Auto"></RowDefinition>
+                                </Grid.RowDefinitions>
+
+                                <HyperlinkButton x:Name="hlManualMagLookup" Grid.Row="0" VerticalAlignment="Top" Content="Look up this record in Microsoft Academic" Margin="2,7,2,0" Click="hlManualMagLookup_Click" IsTabStop="False"></HyperlinkButton>
+                                
+                                <TextBlock Grid.Row="1" x:Name="tbQuickCitation" Text="{Binding QuickCitation}" FontWeight="Bold" FontSize="12" TextWrapping="Wrap" Margin="5,2,5,2"></TextBlock>
+                                <TextBlock Grid.Row="2" VerticalAlignment="Bottom" Text="Record(s) matched from Microsoft Academic:" Margin="5,3,5,1"></TextBlock>
+                                <telerik:RadListBox Grid.Row="3" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                        ItemsSource="{Binding Source={StaticResource MagPaperListData}, Path=Data, Mode=TwoWay}"
+                                        ItemTemplate="{StaticResource MagPaperDataTemplate}"
+                                        ScrollViewer.VerticalScrollBarVisibility="Visible"
+                                        VerticalAlignment="Stretch"
+                                        Margin="5,1,5,5">
+                                </telerik:RadListBox>
+
+                                <StackPanel Grid.Row="4" Orientation="Horizontal" Background="BlanchedAlmond">
+                                    <TextBlock Margin="5,7,5,5" Text="Look up specific Microsoft Academic ID:" VerticalAlignment="Center"></TextBlock>
+                                    <TextBox Margin="5,5,5,5" x:Name="tbFindMagPaperById" Width="80" VerticalAlignment="Top"></TextBox>
+                                    <HyperlinkButton Margin="5,7,5,5" Content="Go" VerticalAlignment="Center" Click="HyperlinkButton_Click_1"></HyperlinkButton>
+                                    <HyperlinkButton x:Name="lbHideMagPaperPreview" Margin="5,7,5,5" Content="(Hide preview)" Visibility="Collapsed" VerticalAlignment="Center" Click="HyperlinkButton_Click_2"></HyperlinkButton>
+                                </StackPanel>
+                                
+                                <Grid x:Name="GridLookupMagPaper" Grid.Row="5" Visibility="Collapsed" Background="BlanchedAlmond">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="*"></RowDefinition>
+                                            <RowDefinition Height="35"></RowDefinition>
+                                        </Grid.RowDefinitions>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"></ColumnDefinition>
+                                            <ColumnDefinition Width="Auto"></ColumnDefinition>
+                                        </Grid.ColumnDefinitions>
+
+                                        <TextBox Grid.Row="0" Grid.Column="0" Height="Auto" Margin="5,5,5,5" Text="{Binding FullRecord}"
+                                                 TextWrapping="Wrap" BorderThickness="0"
+                                            HorizontalScrollBarVisibility="Hidden"
+                                            IsReadOnly="True"></TextBox>
+                                            <StackPanel Orientation="Vertical" Grid.Column="1">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock Text="Score: " Margin="5,5,2,5"></TextBlock>
+                                                    <TextBlock Text="{Binding AutoMatchScore}" Margin="2,5,5,5"></TextBlock>
+                                                </StackPanel>
+                                                <RadioButton Content="Correct match" Margin="5,5,5,5" IsChecked="{Binding ManualTrueMatch, Mode=TwoWay}" GroupName="rbGroupManualMatch" Tag="True" Click="CheckBox_Click_1"></RadioButton>
+                                                <RadioButton Content="Incorrect match" Margin="5,5,5,5" IsChecked="{Binding ManualFalseMatch, Mode=TwoWay}" GroupName="rbGroupManualMatch" Tag="False"  Click="CheckBox_Click_1"></RadioButton>
+                                            </StackPanel>
+                                        <StackPanel Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal">
+                                            <HyperlinkButton Content="View in the Microsoft Academic Browser" Margin="5,5,5,5" Click="HyperlinkButton_Click"></HyperlinkButton>
+                                            <HyperlinkButton Content="View on the web" NavigateUri="{Binding FindOnWeb}" TargetName="_blank" Margin="5,5,5,5"></HyperlinkButton>
+                                        </StackPanel>
+                                    </Grid>
+                                
                             </Grid>
                         </radDock:RadDocumentPane>
                     </radDock:RadPaneGroup>

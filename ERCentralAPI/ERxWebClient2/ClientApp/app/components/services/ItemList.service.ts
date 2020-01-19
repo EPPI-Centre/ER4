@@ -24,19 +24,21 @@ import { iTimePoint } from './timePoints.service';
 )
 
 export class ItemListService extends BusyAwareService {
+
+	private _itemListOptions: ItemListOptions = new ItemListOptions();
     constructor(
         private _httpC: HttpClient,
         @Inject('BASE_URL') private _baseUrl: string,
 		private eventEmitterService: EventEmitterService,
 		private ModalService: ModalService
     ) {
-        super();
-        //this.timerObj = timer(5000, 5000).pipe(
-        //    takeUntil(this.killTrigger));
-        //this.timerObj.subscribe(() => console.log("ItemListServID:", this.ID));
+		super();
+		
 	}
 
-
+	public get GetListItemOptions(): ItemListOptions {
+		return this._itemListOptions;
+	}
     private _IsInScreeningMode: boolean | null = null;
     public get IsInScreeningMode(): boolean {
         if (this._IsInScreeningMode !== null) return this._IsInScreeningMode;
@@ -46,6 +48,7 @@ export class ItemListService extends BusyAwareService {
         this._IsInScreeningMode = state;
         //this.Save();
 	}
+	
     private _ItemList: ItemList = new ItemList();
     private _Criteria: Criteria = new Criteria();
     private _currentItem: Item = new Item();
@@ -251,7 +254,27 @@ export class ItemListService extends BusyAwareService {
         cr.onlyIncluded = false;
         cr.showDeleted = true;
         this.FetchWithCrit(cr, "Excluded Items");
-    }
+	}
+	public GetCitationForExport(Item: Item) {
+
+		let retVal: any;
+		retVal = {
+			Included: Item.itemStatus,
+		}; 
+		if (this.GetListItemOptions.showId) retVal["ID"] = Item.itemId;
+		if (this.GetListItemOptions.showShortTitle) retVal["ShortTitle"] = Item.shortTitle;
+		if (this.GetListItemOptions.showTitle) retVal["Title"] = Item.title;
+		if (this.GetListItemOptions.showJournal) retVal["Journal"] = Item.parentTitle;
+		if (this.GetListItemOptions.showInfo) retVal["Info"] = Item.attributeAdditionalText;
+		if (this.GetListItemOptions.showImportedId) retVal["Your Id"] = Item.oldItemId;
+		if (this.GetListItemOptions.showAuthors) retVal["Authors"] = Item.authors;
+		if (this.GetListItemOptions.showYear) retVal["Year"] = Item.year;
+		if (this.GetListItemOptions.showDocType) retVal["Ref. Type"] = Item.typeName;
+		if (this.GetListItemOptions.showScore) retVal["Score"] = Item.rank;
+		console.log(retVal);
+		return retVal;
+
+	}
     public static GetCitation(Item: Item): string {
         let retVal: string = "";
         switch (Item.typeId) {
@@ -317,7 +340,106 @@ export class ItemListService extends BusyAwareService {
             inputAuthors = inputAuthors.substring(0, cI) + " and" + inputAuthors.substring(cI + 1);//.(inputAuthors.LastIndexOf(",") + 1, " and");
         }
         return inputAuthors;
-    }
+	}
+	public static GetNICECitation(currentItem: Item): any {
+		let retVal: string = "";
+
+		switch (currentItem.typeId) {
+
+			case 1: //Report
+				retVal = this.CleanAuthors(currentItem.authors) + " (" + currentItem.year + ") " + currentItem.title + ". " + currentItem.city + ": " + currentItem.publisher + ", " + currentItem.pages;
+				break;
+			case 2: //Book, Whole
+				retVal = this.CleanAuthors(currentItem.authors) + " (" + currentItem.year + ") " + currentItem.title + ". " + currentItem.city + ": " + currentItem.publisher;
+				break;
+			case 3: //Book, Chapter
+				retVal = this.CleanAuthors(currentItem.authors) + " (" + currentItem.year + ") " + currentItem.title + ". In: " + this.CleanAuthors(currentItem.parentAuthors) + ", editors. " + currentItem.parentTitle + ". " + currentItem.city + ": " + currentItem.publisher + ", p" + currentItem.pages;
+				break;
+			case 4: //Dissertation
+				retVal = this.CleanAuthors(currentItem.authors) + " (" + currentItem.year + ") " + currentItem.title + ". " + currentItem.edition + ", " + currentItem.institution + ".";
+				break;
+			case 5: //Conference Proceedings
+				retVal = this.CleanAuthors(currentItem.authors) + " (" + currentItem.year + ") " + currentItem.title + ". In: " + currentItem.parentTitle + ", " + currentItem.city + ". " + currentItem.publisher + ", p" + currentItem.pages;
+				break;
+			case 6: //Document From Internet Site
+				retVal = this.CleanAuthors(currentItem.authors) + " (" + currentItem.year + ") <a href='" + URL + "'>" + currentItem.title + "</a>. " + currentItem.publisher;
+				break;
+			case 7: //Web Site
+				retVal = this.CleanAuthors(currentItem.authors) + " (" + currentItem.year + ") <a href='" + URL + "'>" + currentItem.title + "</a> " + (currentItem.availability == "" ? "" : " [online; accessed: " + currentItem.availability + "]");
+				break;
+			case 8: //DVD, Video, Media
+				retVal = this.CleanAuthors(currentItem.authors) + " (" + currentItem.year + ") " + currentItem.title + (currentItem.availability == "" ? "" : " [online; accessed: " + currentItem.availability + "]");
+				break;
+			case 9: //Research project
+				retVal = this.CleanAuthors(currentItem.authors) + " (" + currentItem.year + ") " + currentItem.title + ". " + currentItem.city + ": " + currentItem.publisher + ", ";
+				break;
+			case 10: //Article In A Periodical
+				retVal = this.CleanAuthors(currentItem.authors) + " (" + currentItem.year + ") " + currentItem.title + ". " + this.CleanAuthors(currentItem.parentTitle) + " " + currentItem.volume + (currentItem.issue != "" ? "(" + currentItem.issue + ")" : "") + ", " + currentItem.pages;
+				break;
+			case 11: //Interview
+				retVal = this.CleanAuthors(currentItem.authors) + " (" + currentItem.year + ") " + currentItem.title + ". ";
+				break;
+			case 12: //Generic
+				retVal = this.CleanAuthors(currentItem.authors) + " (" + currentItem.year + ") " + currentItem.title + ". " + currentItem.city + ": " + currentItem.publisher;
+				break;
+			case 14: //Journal, Article
+				retVal = this.CleanAuthors(currentItem.authors) + " (" + currentItem.year + ") " + currentItem.title + ". " + this.CleanAuthors(currentItem.parentTitle) + " " + currentItem.volume + (currentItem.issue != "" ? "(" + currentItem.issue + ")" : "") + ", " + currentItem.pages;
+				break;
+		}
+		return retVal;
+	}
+	public static GetHarvardCitation(currentItem: Item): any {
+		console.log('Current item: ', currentItem);
+		let retVal:string = "";
+		switch (currentItem.typeId) {
+			case 1: //Report
+				retVal = this.CleanAuthors(currentItem.authors) + ". (" + currentItem.year + "). <i>" + currentItem.title + "</i>. " + currentItem.city + ": " + currentItem.publisher + ", pp." + currentItem.pages + ". " +
+					(currentItem.url == "" ? "" : "Available at: ") + URL + ".";
+				break;
+			case 2: //Book, Whole
+				retVal = this.CleanAuthors(currentItem.authors) + ". (" + currentItem.year + "). <i>" + currentItem.title + "</i>. " + currentItem.city + ": " + currentItem.publisher + ".";
+				break;
+			case 3: //Book, Chapter
+				retVal = this.CleanAuthors(currentItem.authors) + ". (" + currentItem.year + "). " + currentItem.title + ". In: " + this.CleanAuthors(currentItem.parentAuthors) + ", ed., <i>" + currentItem.parentTitle + ".</i> " + currentItem.city + ": " + currentItem.publisher + ", pp." + currentItem.pages + ".";
+				break;
+			case 4: //Dissertation
+				retVal = this.CleanAuthors(currentItem.authors) + ". (" + currentItem.year + "). <i>" + currentItem.title + "</i>. " + currentItem.edition + ". " + currentItem.institution + ".";
+				break;
+			case 5: //Conference Proceedings
+				retVal = this.CleanAuthors(currentItem.authors) + ". (" + currentItem.year + "). " + currentItem.title + ". In: " + currentItem.parentTitle + ". " + currentItem.city + ": " + currentItem.publisher + ", pp." + currentItem.pages + ". " +
+					(currentItem.url == "" ? "" : "Available at: ") + URL + ".";
+				break;
+			case 6: //Document From Internet Site
+				retVal = this.CleanAuthors(currentItem.authors) + ". (" + currentItem.year + "). <i>" + currentItem.title + "</i>. [online] " + currentItem.publisher + ". Available at: " + URL +
+					(currentItem.availability == "" ? "" : " [Accessed: " + currentItem.availability + "] ") + ".";
+				break;
+			case 7: //Web Site
+				retVal = this.CleanAuthors(currentItem.authors) + ". (" + currentItem.year + "). <i>" + currentItem.title + "</i>. [online] " + currentItem.publisher + ". Available at: " + URL +
+					(currentItem.availability == "" ? "" : " [Accessed: " + currentItem.availability + "] ") + ".";
+				break;
+			case 8: //DVD, Video, Media
+				retVal = "<i>" + currentItem.title + "</i>. " + " (" + currentItem.year + "). " + (currentItem.availability == "" ? "" : " [" + currentItem.availability + "] ") +
+					currentItem.city + ": " + this.CleanAuthors(currentItem.authors) + ".";
+				break;
+			case 9: //Research project
+				retVal = this.CleanAuthors(currentItem.authors) + ". (" + currentItem.year + "). <i>" + currentItem.title + "</i>. " + currentItem.city + ": " + currentItem.publisher + ".";
+				break;
+			case 10: //Article In A Periodical
+				retVal = this.CleanAuthors(currentItem.authors) + ". (" + currentItem.year + "). " + currentItem.title + ". <i>" + this.CleanAuthors(currentItem.parentTitle) + "</i>, " + currentItem.volume + (currentItem.issue != "" ? "(" + currentItem.issue + ")" : "") + ", pp." + currentItem.pages + ".";
+				break;
+			case 11: //Interview
+				retVal = this.CleanAuthors(currentItem.authors) + ". (" + currentItem.year + "). <i>" + currentItem.title + "</i>. ";
+				break;
+			case 12: //Generic
+				retVal = this.CleanAuthors(currentItem.authors) + ". (" + currentItem.year + "). <i>" + currentItem.title + "</i>. " + currentItem.city + ": " + currentItem.publisher + ".";
+				break;
+			case 14: //Journal, Article
+				retVal = this.CleanAuthors(currentItem.authors) + ". (" + currentItem.year + "). " + currentItem.title + ". <i>" + this.CleanAuthors(currentItem.parentTitle) + "</i>, " + currentItem.volume + (currentItem.issue != "" ? "(" + currentItem.issue + ")" : "") + ", pp." + currentItem.pages + ".";
+				break;
+		}
+		return retVal;
+	}
+
     public SaveItems(items: ItemList, crit: Criteria) {
         //console.log('saving items');
         items.items = orderBy(items.items, this.sort); 
@@ -680,6 +802,22 @@ export class ItemListService extends BusyAwareService {
     //}
 
 }
+
+export class ItemListOptions {
+
+	public showId: boolean = true;
+	public showImportedId: boolean = false;
+	public showShortTitle: boolean = true;
+	public showTitle: boolean = true;
+	public showYear: boolean = true;
+	public showAuthors: boolean = false;
+	public showJournal: boolean = false;
+	public showDocType: boolean = false;
+	public showInfo: boolean = false;
+	public showScore: boolean = false;
+
+}
+
 
 export class ItemList {
     pagesize: number = 0;

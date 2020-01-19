@@ -1,0 +1,878 @@
+﻿<UserControl x:Class="EppiReviewer4.dialogMagBrowser"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:ToolkitRef="clr-namespace:System.Windows.Controls;assembly=System.Windows.Controls.Toolkit"
+    xmlns:radDock="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Controls.Docking"
+    xmlns:telerikGridView="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Controls.GridView"
+    xmlns:grid="clr-namespace:Telerik.Windows.Controls.GridView;assembly=Telerik.Windows.Controls.GridView"
+    xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
+    xmlns:cslaXAML="clr-namespace:Csla.Xaml;assembly=Csla.Xaml"
+    xmlns:dpager="clr-namespace:Telerik.Windows.Controls;assembly=Telerik.Windows.Controls.Data"
+    xmlns:local="clr-namespace:EppiReviewer4;assembly=EppiReviewer4"
+    mc:Ignorable="d"
+    xmlns:helper="clr-namespace:EppiReviewer4.Helpers"
+    d:DesignHeight="800" d:DesignWidth="1000">
+
+    <UserControl.Resources>
+
+        <cslaXAML:CslaDataProvider x:Key="PaperListData"
+                           ManageObjectLifetime="True"
+                           IsInitialLoadEnabled="False"
+                           ObjectType="BusinessLibrary.BusinessClasses.MagPaperList, BusinessLibrary, Version=..., Culture=neutral, PublicKeyToken=null"
+                           FactoryMethod="GetMagPaperList" 
+                           DataChanged="CslaDataProvider_DataChanged">
+        </cslaXAML:CslaDataProvider>
+        <cslaXAML:CslaDataProvider x:Key="PaperListAssociatedTopicsData"
+                           ManageObjectLifetime="True"
+                           IsInitialLoadEnabled="False"
+                           ObjectType="BusinessLibrary.BusinessClasses.MagFieldOfStudyList, BusinessLibrary, Version=..., Culture=neutral, PublicKeyToken=null"
+                           FactoryMethod="GetMagFieldOfStudyList" 
+                           DataChanged="CslaDataProvider_DataChanged_1">
+        </cslaXAML:CslaDataProvider>
+        <cslaXAML:CslaDataProvider x:Key="ParentTopicsData"
+                           ManageObjectLifetime="True"
+                           IsInitialLoadEnabled="False"
+                           ObjectType="BusinessLibrary.BusinessClasses.MagFieldOfStudyList, BusinessLibrary, Version=..., Culture=neutral, PublicKeyToken=null"
+                           FactoryMethod="GetMagFieldOfStudyList" 
+                           DataChanged="CslaDataProvider_HandleDataChangeError">
+        </cslaXAML:CslaDataProvider>
+        <cslaXAML:CslaDataProvider x:Key="TopicPaperListData"
+                           ManageObjectLifetime="True"
+                           IsInitialLoadEnabled="False"
+                           ObjectType="BusinessLibrary.BusinessClasses.MagPaperList, BusinessLibrary, Version=..., Culture=neutral, PublicKeyToken=null"
+                           FactoryMethod="GetMagPaperList" 
+                           DataChanged="CslaDataProvider_HandleDataChangeError">
+        </cslaXAML:CslaDataProvider>
+        <cslaXAML:CslaDataProvider x:Key="CitationPaperListData"
+                           ManageObjectLifetime="True"
+                           IsInitialLoadEnabled="False"
+                           ObjectType="BusinessLibrary.BusinessClasses.MagPaperList, BusinessLibrary, Version=..., Culture=neutral, PublicKeyToken=null"
+                           FactoryMethod="GetMagPaperList" 
+                           DataChanged="CslaDataProvider_HandleDataChangeError">
+        </cslaXAML:CslaDataProvider>
+        <cslaXAML:CslaDataProvider x:Key="CitedByListData"
+                           ManageObjectLifetime="True"
+                           IsInitialLoadEnabled="False"
+                           ObjectType="BusinessLibrary.BusinessClasses.MagPaperList, BusinessLibrary, Version=..., Culture=neutral, PublicKeyToken=null"
+                           FactoryMethod="GetMagPaperList" 
+                           DataChanged="CslaDataProvider_HandleDataChangeError">
+        </cslaXAML:CslaDataProvider>
+        <cslaXAML:CslaDataProvider x:Key="RecommendationsListData"
+                           ManageObjectLifetime="True"
+                           IsInitialLoadEnabled="False"
+                           ObjectType="BusinessLibrary.BusinessClasses.MagPaperList, BusinessLibrary, Version=..., Culture=neutral, PublicKeyToken=null"
+                           FactoryMethod="GetMagPaperList" 
+                           DataChanged="CslaDataProvider_HandleDataChangeError">
+        </cslaXAML:CslaDataProvider>
+        <cslaXAML:CslaDataProvider x:Key="HistoryListData"
+                           ManageObjectLifetime="True"
+                           IsInitialLoadEnabled="True"
+                           ObjectType="BusinessLibrary.BusinessClasses.MagBrowseHistoryList, BusinessLibrary, Version=..., Culture=neutral, PublicKeyToken=null"
+                           FactoryMethod="GetMagBrowseHistoryList" 
+                           DataChanged="CslaDataProvider_HandleDataChangeError">
+        </cslaXAML:CslaDataProvider>
+        <cslaXAML:CslaDataProvider x:Key="SearchTopicsData"
+                           ManageObjectLifetime="True"
+                           IsInitialLoadEnabled="False"
+                           ObjectType="BusinessLibrary.BusinessClasses.MagFieldOfStudyList, BusinessLibrary, Version=..., Culture=neutral, PublicKeyToken=null"
+                           FactoryMethod="GetMagFieldOfStudyList" 
+                           DataChanged="CslaDataProvider_HandleDataChangeError">
+        </cslaXAML:CslaDataProvider>
+        <cslaXAML:CslaDataProvider x:Key="RelatedPapersRunListData"
+                           ManageObjectLifetime="True"
+                           IsInitialLoadEnabled="False"
+                           ObjectType="BusinessLibrary.BusinessClasses.MagRelatedPapersRunList, BusinessLibrary, Version=..., Culture=neutral, PublicKeyToken=null"
+                           FactoryMethod="GetMagRelatedPapersRunList" 
+                           DataChanged="CslaDataProvider_HandleDataChangeError">
+        </cslaXAML:CslaDataProvider>
+        <cslaXAML:CslaDataProvider x:Key="MagReviewListData"
+                           ManageObjectLifetime="True"
+                           IsInitialLoadEnabled="False"
+                           ObjectType="BusinessLibrary.BusinessClasses.MagReviewList, BusinessLibrary, Version=..., Culture=neutral, PublicKeyToken=null"
+                           FactoryMethod="GetMagReviewList" 
+                           DataChanged="CslaDataProvider_HandleDataChangeError">
+        </cslaXAML:CslaDataProvider>
+        <cslaXAML:CslaDataProvider x:Key="ClassifierContactModelListData"
+                           ManageObjectLifetime="True"
+                           IsInitialLoadEnabled="False"
+                           ObjectType="BusinessLibrary.BusinessClasses.ClassifierContactModelList, BusinessLibrary, Version=..., Culture=neutral, PublicKeyToken=null"
+                           FactoryMethod="GetClassifierContactModelList" 
+                           DataChanged="CslaDataProvider_HandleDataChangeError">
+        </cslaXAML:CslaDataProvider>
+        <cslaXAML:CslaDataProvider x:Key="MagSimulationListData"
+                           ManageObjectLifetime="True"
+                           IsInitialLoadEnabled="False"
+                           ObjectType="BusinessLibrary.BusinessClasses.MagSimulationList, BusinessLibrary, Version=..., Culture=neutral, PublicKeyToken=null"
+                           FactoryMethod="GetMagSimulationList" 
+                           DataChanged="CslaDataProvider_HandleDataChangeError">
+        </cslaXAML:CslaDataProvider>
+        <cslaXAML:CslaDataProvider x:Key="MagSimulationResultListData"
+                           ManageObjectLifetime="True"
+                           IsInitialLoadEnabled="False"
+                           ObjectType="BusinessLibrary.BusinessClasses.MagSimulationResultList, BusinessLibrary, Version=..., Culture=neutral, PublicKeyToken=null"
+                           FactoryMethod="GetMagSimulationResultList" 
+                           DataChanged="CslaDataProvider_HandleDataChangeError">
+        </cslaXAML:CslaDataProvider>
+        <helper:ReverseBooleanConverter x:Key="ReverseBoolean" />
+
+        <!--<helper:SelectedNotSelectedConverter x:Key="SelectedNotSelectedText" />
+            Not using this now - simple binding is sufficient. Leaving in case I do need it. Refers to code in ButtonConverters.cs
+        -->
+
+        <Style TargetType="grid:GridViewCell" x:Name="cellSelectedNotSelected">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate>
+                        <HyperlinkButton x:Name="HLSelectUnSelect" Margin="5,2,5,2" VerticalAlignment="Center" HorizontalAlignment="Center" Click="HLSelectUnSelect_Click"
+                                    Content="{Binding CanBeSelected, Mode=TwoWay}" IsTabStop="False"></HyperlinkButton>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+    </UserControl.Resources>
+    
+    <Grid  x:Name="LayoutRoot" Background="White">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="60"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
+        </Grid.RowDefinitions>
+
+        <Grid x:Name="HeaderGrid" Grid.Row="0" Background="Beige">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="400*"></ColumnDefinition>
+                <ColumnDefinition Width="450*"></ColumnDefinition>
+                <ColumnDefinition Width="250*"></ColumnDefinition>
+                <ColumnDefinition Width="100*"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+
+            <TextBlock x:Name="tbAcademicTitle" TextWrapping="Wrap" Grid.Column="0" Text="Microsoft Academic Graph browser" FontSize="12" FontStyle="Italic" Margin="5,10,5,5"></TextBlock>
+            <HyperlinkButton x:Name="HLShowSelected" Grid.Column="1" Content="Show selected (0)" Margin="0,5,5,5" HorizontalAlignment="Right" Width="105" Click="HLShowSelected_Click" IsTabStop="False"></HyperlinkButton>
+            <HyperlinkButton x:Name="HLClearSelected" Grid.Column="1" Content="Clear selected" Margin="0,22,5,22" HorizontalAlignment="Right" VerticalAlignment="Center" Width="105" Height="16" Click="HLClearSelected_Click" IsTabStop="False"></HyperlinkButton>
+            <HyperlinkButton x:Name="HLImportSelected" Grid.Column="1" Content="Import selected" Margin="0,0,5,5" HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="105" Height="16" Click="HLImportSelected_Click" IsTabStop="False"></HyperlinkButton>
+            <HyperlinkButton x:Name="LBManageRelatedPapersRun" Grid.Column="2" Content="Auto-update home" Margin="0,5,5,5" HorizontalAlignment="Center" VerticalAlignment="Top" Click="LBManageRelatedPapersRun_Click" IsTabStop="False"></HyperlinkButton>
+            <HyperlinkButton x:Name="HLShowAdvanced" Grid.Column="2" Content="Advanced features" Margin="0,5,5,5" HorizontalAlignment="Center" VerticalAlignment="Center" Click="HLShowAdvanced_Click" IsTabStop="False"></HyperlinkButton>
+            <HyperlinkButton x:Name="HLShowHistory" Grid.Column="2" Content="Show history" Margin="0,5,5,5" HorizontalAlignment="Center" VerticalAlignment="Bottom" Click="HLShowHistory_Click" IsTabStop="False"></HyperlinkButton>
+            <HyperlinkButton x:Name="HLBack" Grid.Column="3" Content="Back" Margin="5,5,0,5" HorizontalAlignment="Left" Width="31" Click="HLBack_Click" IsTabStop="False"></HyperlinkButton>
+            <HyperlinkButton x:Name="HLForward" Grid.Column="3" Content="Forward" Margin="0,5,5,5" HorizontalAlignment="Right" Width="49" Click="HLForward_Click" IsTabStop="False"></HyperlinkButton>
+            <HyperlinkButton x:Name="hlAdmin" Grid.Column="3" Content="Admin" Margin="0,5,5,5" HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="49" Click="hlAdmin_Click" IsTabStop="False"></HyperlinkButton>
+
+        </Grid>
+
+        <Grid x:Name="StatusGrid" Grid.Row="1" Visibility="Collapsed">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"></ColumnDefinition>
+                <ColumnDefinition Width="*"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+
+            <Grid.RowDefinitions>
+                <RowDefinition Height="4*"></RowDefinition>
+                <RowDefinition Height="2*"></RowDefinition>
+            </Grid.RowDefinitions>
+
+            <!-- LHS grid-->
+            <Grid x:Name="GridCreateSimulations" Grid.Column="0" Grid.Row="0" Margin="5,10,10,10" Background="Beige" Visibility="Visible">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="35"></RowDefinition>
+                    <RowDefinition Height="auto"></RowDefinition>
+                    <RowDefinition Height="auto"></RowDefinition>
+                    <RowDefinition Height="30"></RowDefinition>
+                    <RowDefinition Height="30"></RowDefinition>
+                    <RowDefinition Height="30"></RowDefinition>
+                    <RowDefinition Height="30"></RowDefinition>
+                    <RowDefinition Height="*"></RowDefinition>
+                </Grid.RowDefinitions>
+
+                <TextBlock Grid.Row="0" FontSize="14" Margin="5,5,5,5" HorizontalAlignment="Center" VerticalAlignment="Center">Research and development</TextBlock>
+
+                <ToolkitRef:WrapPanel Grid.Row="1" Margin="10,5,10,5" Orientation="Horizontal">
+                    <TextBlock TextWrapping="Wrap"  Margin="0,0,0,0" Text="The algorithm to find new and related studies to the ones you have already identified depends on correctly matching your existing records into the Microsoft Academic dataset. While this process can be automated up to a point, some records cannot be matched with 100% confidence, and some cannot be matched at all. In order to improve performance, it can be helpful to check the lower confidence automatic matches for accuracy:"></TextBlock>
+                    <TextBlock Margin="0,5,0,0" Text="Included: "></TextBlock>
+                    <HyperlinkButton x:Name="LBManualCheckIncluded" Margin="0,5,0,0" Click="LBManualCheckIncluded_Click" IsTabStop="False"></HyperlinkButton>
+                    <TextBlock Margin="0,5,0,0" Text=" Excluded: "></TextBlock>
+                    <HyperlinkButton x:Name="LBManualCheckExcluded" Margin="0,5,0,0" Click="LBManualCheckExcluded_Click" IsTabStop="False"></HyperlinkButton>
+                    <TextBlock TextWrapping="Wrap" Margin="0,5,0,0" Text="In addition, there are likely to be a number of records which could not be matched at all: "></TextBlock>
+                    <TextBlock Margin="0,5,0,0" Text="Included: "></TextBlock>
+                    <HyperlinkButton x:Name="LBMNotMatchedIncluded" Content="N" Margin="0,5,0,0" Click="LBMNotMatchedIncluded_Click" IsTabStop="False"></HyperlinkButton>
+                    <TextBlock TextWrapping="Wrap" Margin="0,5,0,0" Text=" Excluded: "></TextBlock>
+                    <HyperlinkButton x:Name="LBMNotMatchedExcluded" Content="N" Margin="0,5,0,0" Click="LBMNotMatchedExcluded_Click" IsTabStop="False"></HyperlinkButton>
+                    <HyperlinkButton x:Name="LBMatchAllIncluded" Content="Run matching algorithm prior to conducting simulations below" Margin="5,5,0,0" Click="LBMatchAllIncluded_Click" IsTabStop="False"></HyperlinkButton>
+                </ToolkitRef:WrapPanel>
+
+                <TextBlock Grid.Row="2" Margin="10,20,5,5" TextWrapping="Wrap" Text="Test the performance of the various algorithms for locating relevant research against the data you have in your review. There are three ways of splitting your data between 'seed' and 'test' records: year of publication, the date a record entered the Microsoft Academic database, and based on items with a specific code. Please see the documentation for further information."></TextBlock>
+                <StackPanel Grid.Row="3" Orientation="Horizontal">
+                    <RadioButton x:Name="rbSimulationYear" Content="Year" GroupName="rbSimulation" IsChecked="True" Click="rbSimulationYear_Click" Tag="ShowDatePicker" Margin="5,5,5,5" VerticalAlignment="Center"></RadioButton>
+                    <RadioButton x:Name="rbSimulationCreatedDate" Content="Created date" GroupName="rbSimulation" IsChecked="False" Click="rbSimulationYear_Click" Tag="ShowDatePicker" Margin="5,5,5,5" VerticalAlignment="Center"></RadioButton>
+                    <RadioButton x:Name="rbSimulationWithThisCode" Content="With this code" GroupName="rbSimulation" IsChecked="False" Click="rbSimulationYear_Click" Tag="ShowCodesControl" Margin="5,5,5,5" VerticalAlignment="Center"></RadioButton>
+                    <telerik:RadDatePicker x:Name="DatePickerSimulation" SelectedValue="01/01/2010" Margin="5,5,5,5" Width="100" HorizontalAlignment="Center" VerticalAlignment="Center"></telerik:RadDatePicker>
+                    <local:codesSelectControl x:Name="codesSelectControlSimulation" Margin="5,5,5,5" Width="100" Height="25" VerticalAlignment="Center" Visibility="Collapsed"></local:codesSelectControl>
+                    <CheckBox x:Name="cbSimulationFilterByThisCode" Content="Filter by this code" IsChecked="False" Unchecked="cbSimulationFilterByThisCode_Unchecked" Checked="cbSimulationFilterByThisCode_Checked" Margin="5,5,5,5" VerticalAlignment="Center"></CheckBox>
+                    <local:codesSelectControl x:Name="codesSelectControlSimulationFilter" Margin="5,5,5,5" Width="100" Height="25" VerticalAlignment="Center" Visibility="Collapsed"></local:codesSelectControl>
+                    
+                </StackPanel>
+                <StackPanel Grid.Row="4" Orientation="Horizontal">
+                    <TextBlock Margin="5,5,5,5" Text="Search method" VerticalAlignment="Center"></TextBlock>
+                    <ComboBox x:Name="comboSimulationSearchMethod" Margin="5,5,5,5" VerticalAlignment="Center">
+                        <ComboBoxItem Content="Citations" Tag="Citations"></ComboBoxItem>
+                        <ComboBoxItem Content="Recommendations" Tag="Recommendations" IsSelected="True"></ComboBoxItem>
+                        <ComboBoxItem Content="Citations and recommendations" Tag="Citations and recommendations"></ComboBoxItem>
+                        <ComboBoxItem Content="Fields of study" Tag="Fields of study"></ComboBoxItem>
+                    </ComboBox>
+                    <TextBlock Margin="5,5,5,5" Text="Network statistic" VerticalAlignment="Center"></TextBlock>
+                    <ComboBox x:Name="comboSimulationNetworkStats" Margin="5,5,5,5" VerticalAlignment="Center">
+                        <ComboBoxItem Content="None" Tag="None" IsSelected="True"></ComboBoxItem>
+                        <ComboBoxItem Content="degree" Tag="degree"></ComboBoxItem>
+                        <ComboBoxItem Content="closeness" Tag="closeness"></ComboBoxItem>
+                        <ComboBoxItem Content="eigenscore" Tag="eigenscore"></ComboBoxItem>
+                        <ComboBoxItem Content="pagerank" Tag="pagerank"></ComboBoxItem>
+                        <ComboBoxItem Content="hubscore" Tag="hubscore"></ComboBoxItem>
+                        <ComboBoxItem Content="authscore" Tag="authscore"></ComboBoxItem>
+                        <ComboBoxItem Content="alpha" Tag="alpha"></ComboBoxItem>
+                    </ComboBox>
+                </StackPanel>
+                <StackPanel Grid.Row="5" Orientation="Horizontal">
+                    <TextBlock Margin="5,5,5,5" Text="Study type classifier" VerticalAlignment="Center"></TextBlock>
+                    <ComboBox x:Name="comboSimulationStudyTypeClassifier" Margin="5,5,5,5" VerticalAlignment="Center">
+                        <ComboBoxItem Content="None" Tag="None" IsSelected="True"></ComboBoxItem>
+                        <ComboBoxItem Content="RCT" Tag="RCT"></ComboBoxItem>
+                        <ComboBoxItem Content="Cochrane RCT" Tag="Cochrane RCT"></ComboBoxItem>
+                        <ComboBoxItem Content="Economic evaluation" Tag="Economic evaluation"></ComboBoxItem>
+                        <ComboBoxItem Content="Systematic review" Tag="systematic review"></ComboBoxItem>
+                    </ComboBox>
+                    <TextBlock Margin="5,5,5,5" Text="User defined classifier" VerticalAlignment="Center"></TextBlock>
+                    <ComboBox x:Name="comboSimulationUserModels" 
+                              ItemsSource="{Binding Source={StaticResource ClassifierContactModelListData}, Path=Data}"
+                              Margin="5,5,5,5" VerticalAlignment="Center"></ComboBox>
+                </StackPanel>
+                <HyperlinkButton x:Name="lbRunSimulation" Grid.Row="6" Content="Add new simulation" Margin="5,5,5,5" IsTabStop="False" Click="lbRunSimulation_Click" VerticalAlignment="Center"></HyperlinkButton>
+                <!--<TextBox x:Name="tbSimulationResults" Grid.Row="6" Margin="5,5,5,5" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" IsReadOnly="True" FontFamily="Courier New"></TextBox>-->
+
+            </Grid>
+
+            <Grid x:Name="GridSimulationResults" Grid.Column="0" Grid.Row="0" Margin="5,10,10,10" Background="Beige" Visibility="Collapsed">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"></RowDefinition>
+                    <RowDefinition Height="35"></RowDefinition>
+                    <RowDefinition Height="35"></RowDefinition>
+                </Grid.RowDefinitions>
+                <cslaXAML:BusyAnimation x:Name="loadingChartAnimation"  Grid.Row="0" Width="50" Height="50" HorizontalAlignment="Center" VerticalAlignment="Center" IsRunning="{Binding Source={StaticResource MagSimulationResultListData}, Path=IsBusy}"/>
+                <telerik:RadCartesianChart x:Name="ChartRoc" Grid.Row="0" Margin="10,10,10,10">
+                    <telerik:RadCartesianChart.Behaviors>
+                        <telerik:ChartTrackBallBehavior ShowIntersectionPoints="True"
+                                             ShowTrackInfo="False"/>
+                    </telerik:RadCartesianChart.Behaviors>
+                    <telerik:RadCartesianChart.HorizontalAxis>
+                        <telerik:LinearAxis Title="Number of items screened" Minimum="0"
+                                    LastLabelVisibility="Hidden"/>
+                    </telerik:RadCartesianChart.HorizontalAxis>
+                    <telerik:RadCartesianChart.VerticalAxis>
+                        <telerik:LinearAxis Title="Number of relevant items found"/>
+                    </telerik:RadCartesianChart.VerticalAxis>
+                    <telerik:RadCartesianChart.Series>
+                        <telerik:ScatterLineSeries XValueBinding="NumberScreened"
+                                           YValueBinding="CumulativeIncludeCount" 
+                                           ItemsSource="{Binding Source={StaticResource MagSimulationResultListData}, Path=Data}">
+                            <telerik:ScatterLineSeries.TrackBallTemplate>
+                                <DataTemplate>
+                                    <StackPanel>
+                                        <Rectangle Width="5"
+                                                            Height="5"
+                                                            Fill="Red"
+                                                            RenderTransformOrigin="0.5,0.5">
+                                            <Rectangle.RenderTransform>
+                                                <RotateTransform Angle="45"/>
+                                            </Rectangle.RenderTransform>
+                                        </Rectangle>
+                                        <Border Background="Bisque">
+                                            <TextBlock Text="{Binding DisplayContent}"/>
+                                        </Border>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </telerik:ScatterLineSeries.TrackBallTemplate>
+                        </telerik:ScatterLineSeries>
+                    </telerik:RadCartesianChart.Series>
+                </telerik:RadCartesianChart>
+
+                <StackPanel Orientation="Horizontal" Grid.Row="1">
+                    <RadioButton x:Name="rbROCNetwork" Content="Network" GroupName="RadioButtonGroupRoc" IsChecked="True" Margin="5,5,5,5" VerticalAlignment="Center" Click="rbROCNetwork_Click"></RadioButton>
+                    <RadioButton x:Name="rbROCDistance" Content="Topic distance" GroupName="RadioButtonGroupRoc" Margin="5,5,5,5" VerticalAlignment="Center" Click="rbROCNetwork_Click"></RadioButton>
+                    <RadioButton x:Name="rbROCUserClassifier" Content="User classifier" GroupName="RadioButtonGroupRoc" Margin="5,5,5,5" VerticalAlignment="Center" Click="rbROCNetwork_Click"></RadioButton>
+                    <RadioButton x:Name="rbROCStudyClassifier" Content="Study classifier" GroupName="RadioButtonGroupRoc" Margin="5,5,5,5" VerticalAlignment="Center" Click="rbROCNetwork_Click"></RadioButton>
+                    <RadioButton x:Name="rbROCEnsemble" Content="Ensemble" GroupName="RadioButtonGroupRoc" Margin="5,5,5,5" VerticalAlignment="Center" Click="rbROCNetwork_Click"></RadioButton>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Grid.Row="2">
+                    <HyperlinkButton x:Name="hlCloseGraph" Content="Close graph viewer" Margin="5,5,5,5" VerticalAlignment="Center" HorizontalAlignment="Left" Click="hlCloseGraph_Click"></HyperlinkButton>
+                    <HyperlinkButton x:Name="hlDownloadData" Content="Pull data to browser" Margin="5,5,5,5" VerticalAlignment="Center" HorizontalAlignment="Left" Click="hlDownloadData_Click"></HyperlinkButton>
+                    <HyperlinkButton x:Name="hlDownloadDataFromBrowser" Content="Download data" Margin="5,5,5,5" VerticalAlignment="Center" HorizontalAlignment="Left" Visibility="Collapsed" Click="hlDownloadDataFromBrowser_Click"></HyperlinkButton>
+                    <cslaXAML:BusyAnimation x:Name="BusyLoadingSimulationData" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </StackPanel>
+            </Grid>
+
+            <!--
+            <TextBlock x:Name="TBNumInReview" Grid.Column="1" Grid.Row="1" Text="N" HorizontalAlignment="Left" Margin="5,5,5,5"></TextBlock>
+            -->
+            
+            <!-- RHS grid -->
+            <Grid Grid.Column="1" Grid.Row="0" Margin="10,10,5,10" Background="Beige">
+
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="40"></RowDefinition>
+                    <RowDefinition Height="Auto"></RowDefinition>
+
+                    <RowDefinition Height="35"></RowDefinition>
+                    <RowDefinition Height="*"></RowDefinition>
+                </Grid.RowDefinitions>
+
+                <TextBlock Grid.Row="0" Text="Browse dataset" FontSize="14" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="5,5,5,5"></TextBlock>
+
+                <Grid Grid.Row="1">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="30"></RowDefinition>
+                        <RowDefinition Height="30"></RowDefinition>
+                        <RowDefinition Height="30"></RowDefinition>
+                        <RowDefinition Height="40"></RowDefinition>
+                        <RowDefinition Height="30"></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"></ColumnDefinition>
+                        <ColumnDefinition Width="*"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Grid.Row="0" Grid.Column="0" Text="All matched included records" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="5,5,5,5"></TextBlock>
+                    <TextBlock Grid.Row="1" Grid.Column="0" Text="All matched excluded records" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="5,5,5,5"></TextBlock>
+                    <TextBlock Grid.Row="2" Grid.Column="0" Text="All matched records in review" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="5,5,5,5"></TextBlock>
+                    <TextBlock Grid.Row="3" Grid.Column="0" Text="All matched records with this code" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="5,5,5,5"></TextBlock>
+
+                    <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal">
+                        <HyperlinkButton x:Name="LBListMatchesIncluded" Margin="5,5,5,5" HorizontalAlignment="Left" VerticalAlignment="Center" Click="LBListMatchesIncluded_Click" IsTabStop="False"></HyperlinkButton>
+                        <HyperlinkButton x:Name="lbItemListMatchesIncluded" Margin="1,5,5,5" HorizontalAlignment="Left" VerticalAlignment="Center" Content="(List)" Click="lbItemListMatchesIncluded_Click" IsTabStop="False"></HyperlinkButton>
+                    </StackPanel>
+                    <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal">
+                        <HyperlinkButton x:Name="LBListMatchesExcluded" Margin="5,5,5,5" HorizontalAlignment="Left" VerticalAlignment="Center" Click="LBListMatchesExcluded_Click" IsTabStop="False"></HyperlinkButton>
+                        <HyperlinkButton x:Name="lbItemListMatchesExcluded" Margin="1,5,5,5" HorizontalAlignment="Left" VerticalAlignment="Center" Content="(List)" Click="lbItemListMatchesExcluded_Click"  IsTabStop="False"></HyperlinkButton>
+                    </StackPanel>
+
+                    <HyperlinkButton x:Name="LBListAllInReview" Grid.Row="2" Grid.Column="1" Margin="0,5,5,5" HorizontalAlignment="Left" VerticalAlignment="Center" Click="LBListAllInReview_Click" IsTabStop="False"></HyperlinkButton>
+                    <StackPanel Orientation="Horizontal" Grid.Row="3" Grid.Column="1">
+                        <local:codesSelectControl x:Name="codesSelectControlMAGSelect" Margin="5,5,5,5" Width="100" Height="25" HorizontalAlignment="Left" VerticalAlignment="Center"></local:codesSelectControl>
+                        <HyperlinkButton x:Name="LBListAllRelatedItemsWithThisCode" Width="30" Margin="5,5,5,5" Content="Go!" VerticalAlignment="Center" Click="LBListAllRelatedItemsWithThisCode_Click" IsTabStop="False"></HyperlinkButton>
+                    </StackPanel>
+                    <HyperlinkButton x:Name="lbGoToPaperId" Grid.Row="4" Grid.Column="0" Margin="4,5,5,5" Content="Go to this Microsoft Academic Paper ID" VerticalAlignment="Center" HorizontalAlignment="Right" Click="lbGoToPaperId_Click" IsTabStop="False"></HyperlinkButton>
+                    <TextBox x:Name="tbGoToPaperId" Grid.Row="4" Grid.Column="1" Margin="5,5,5,5" Width="80" VerticalAlignment="Center" HorizontalAlignment="Left"></TextBox>
+                </Grid>
+
+                <TextBox x:Name="tbFindTopics" Grid.Row="2" Margin="5,5,5,0" TextChanged="tbFindTopics_TextChanged"></TextBox>
+                <ScrollViewer Grid.Row="3" Margin="5,0,5,5" HorizontalScrollBarVisibility="Disabled"  VerticalScrollBarVisibility="Auto">
+                    <ToolkitRef:WrapPanel x:Name="WPFindTopics"  Orientation="Horizontal">
+                        <TextBlock Margin="5,5,5,5" Text="Search for topics in the box above. Wildcards work e.g. physic*"></TextBlock>
+                    </ToolkitRef:WrapPanel>
+                </ScrollViewer>
+            </Grid>
+
+            <telerikGridView:RadGridView x:Name="SimulationsGrid" Grid.Row="1" Grid.ColumnSpan="2" AutoGenerateColumns="False" ShowGroupPanel="False"
+                                    IsReadOnly="False" MinHeight="50" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                    ItemsSource="{Binding Source={StaticResource MagSimulationListData}, Path=Data, Mode=TwoWay}"
+                                    IsEnabled="{Binding Source={StaticResource MagSimulationListData}, Converter={StaticResource ReverseBoolean}, Path=IsBusy }"
+                                    RowIndicatorVisibility="Collapsed" CanUserSelect="False" Margin="10,10,10,10"
+                                    SelectionMode="Extended" ColumnWidth="*"
+                                    IsSynchronizedWithCurrentItem="False">
+                <telerikGridView:RadGridView.Columns>
+                    <telerikGridView:GridViewDataColumn Header="Method" DataMemberBinding="{Binding SearchMethod}" IsFilterable="False"></telerikGridView:GridViewDataColumn>
+                    <telerikGridView:GridViewDataColumn Header="Status" DataMemberBinding="{Binding Status}" IsFilterable="False"></telerikGridView:GridViewDataColumn>
+                    <telerikGridView:GridViewDataColumn Header="Seed method" DataMemberBinding="{Binding SeedText}" IsFilterable="False"></telerikGridView:GridViewDataColumn>
+                    <telerikGridView:GridViewDataColumn Header="(Filter)" DataMemberBinding="{Binding FilteredByAttribute}" IsFilterable="False"></telerikGridView:GridViewDataColumn>
+                    <telerikGridView:GridViewDataColumn Header="Network stat" DataMemberBinding="{Binding NetworkStatistic}" IsFilterable="False"></telerikGridView:GridViewDataColumn>
+                    <telerikGridView:GridViewDataColumn Header="Study classifier" DataMemberBinding="{Binding StudyTypeClassifier}" IsFilterable="False"></telerikGridView:GridViewDataColumn>
+                    <telerikGridView:GridViewDataColumn Header="User classifier" DataMemberBinding="{Binding UserClassifierModel}" IsFilterable="False"></telerikGridView:GridViewDataColumn>
+                    <telerikGridView:GridViewDataColumn Width="40" SortingState="None" IsReadOnly="True">
+                        <telerikGridView:GridViewDataColumn.CellTemplate>
+                            <DataTemplate>
+                                <HyperlinkButton Content="ROC" Click="HyperlinkButton_Click_9"/>
+                            </DataTemplate>
+                        </telerikGridView:GridViewDataColumn.CellTemplate>
+                    </telerikGridView:GridViewDataColumn>
+                    <telerikGridView:GridViewDataColumn Header="Seeds" DataMemberBinding="{Binding NSeeds}" Width="60" IsFilterable="False"></telerikGridView:GridViewDataColumn>
+                    <telerikGridView:GridViewDataColumn Header="TP" Width="45" SortingState="None" IsReadOnly="True">
+                        <telerikGridView:GridViewDataColumn.CellTemplate>
+                            <DataTemplate>
+                                <HyperlinkButton Content="{Binding TP}" Click="HyperlinkButton_Click_11"/>
+                            </DataTemplate>
+                        </telerikGridView:GridViewDataColumn.CellTemplate>
+                    </telerikGridView:GridViewDataColumn>
+                    <telerikGridView:GridViewDataColumn Header="FP" DataMemberBinding="{Binding FP}" Width="45" IsFilterable="False"></telerikGridView:GridViewDataColumn>
+                    <telerikGridView:GridViewDataColumn Header="FN" Width="45" SortingState="None" IsReadOnly="True">
+                        <telerikGridView:GridViewDataColumn.CellTemplate>
+                            <DataTemplate>
+                                <HyperlinkButton Content="{Binding FN}" Click="HyperlinkButton_Click_10"/>
+                            </DataTemplate>
+                        </telerikGridView:GridViewDataColumn.CellTemplate>
+                    </telerikGridView:GridViewDataColumn>
+                    <telerikGridView:GridViewDataColumn Width="50" SortingState="None" IsReadOnly="True">
+                        <telerikGridView:GridViewDataColumn.CellTemplate>
+                            <DataTemplate>
+                                <HyperlinkButton Content="Delete" Click="HyperlinkButton_Click_8"/>
+                            </DataTemplate>
+                        </telerikGridView:GridViewDataColumn.CellTemplate>
+                    </telerikGridView:GridViewDataColumn>
+                 </telerikGridView:RadGridView.Columns>
+            </telerikGridView:RadGridView>
+
+        </Grid>
+        <!-- end statusgrid (really the r&d grid now) -->
+        
+
+        <Grid x:Name="PaperGrid" Grid.Row="1" Visibility="Collapsed">
+            <Grid.RowDefinitions>
+                <RowDefinition x:Name="PaperGridHeadingRow" Height="61"></RowDefinition>
+                <RowDefinition Height="35"></RowDefinition>
+                <RowDefinition x:Name="PaperGridAbstractRow" Height="0"></RowDefinition>
+                <RowDefinition Height="25"></RowDefinition>
+                <RowDefinition Height="*"></RowDefinition>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="300"></ColumnDefinition>
+                <ColumnDefinition Width="*"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+
+            <TextBox x:Name="RTBPaperInfo" Grid.Row="0" Grid.ColumnSpan="2" TextWrapping="Wrap" BorderThickness="0" FontSize="17" IsReadOnly="True" Text="Authors et al (2019) This is the really very much longer title of the paper, Journal name: volume(issue): pages" Margin="0,0,0,0" ></TextBox>
+
+            <StackPanel Grid.Row="1" Grid.ColumnSpan="2" Orientation="Horizontal">
+                <TextBlock x:Name="tbPaperAlreadyInReview" Margin="5,5,5,5" VerticalAlignment="Center" HorizontalAlignment="Left"></TextBlock>
+                <HyperlinkButton x:Name="hlAddPaperToSelectedList" Content="Add to selected list" FontStyle="Italic" Margin="5,5,5,5" VerticalAlignment="Center" HorizontalAlignment="Left" Click="hlAddPaperToSelectedList_Click" IsTabStop="False"></HyperlinkButton>
+            </StackPanel>
+            <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
+                <TextBlock Text="PaperId: " HorizontalAlignment="Right" VerticalAlignment="Center" Margin="5,5,0,5"></TextBlock>
+                <TextBox x:Name="tbPaperId" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,5,5,5" IsReadOnly="True"></TextBox>
+            </StackPanel>
+
+            <StackPanel Grid.Row="2" Grid.ColumnSpan="2" Orientation="Vertical">
+                <TextBox x:Name="tbAbstract" Grid.Row="2" Grid.ColumnSpan="2" TextWrapping="Wrap" ScrollViewer.VerticalScrollBarVisibility="Auto" BorderThickness="0"></TextBox>
+                <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto" BorderThickness="0">
+                    <ToolkitRef:WrapPanel x:Name="WPPaperURLs" Orientation="Horizontal">
+
+                    </ToolkitRef:WrapPanel>
+                </ScrollViewer>
+            </StackPanel>
+
+            <HyperlinkButton x:Name="hlFindOnWeb" Grid.Row="3" Grid.Column="0" Content="View on the web" HorizontalAlignment="Left" Margin="5,5,5,5" TargetName="_blank" IsTabStop="False"></HyperlinkButton>
+            <HyperlinkButton x:Name="HLExpandContract" Grid.Row="3" Grid.ColumnSpan="2" FontSize="13" HorizontalAlignment="Center" Content="&lt;&lt;&lt;Expand&gt;&gt;&gt;" Click="HLExpandContract_Click" Tag="expand" IsTabStop="False"></HyperlinkButton>
+
+            <ScrollViewer Grid.Column="0" Grid.Row="4" HorizontalScrollBarVisibility="Disabled"  VerticalScrollBarVisibility="Auto">
+                <ToolkitRef:WrapPanel x:Name="WPPaperTopics" Grid.Row="4" Grid.Column="0" Orientation="Horizontal">
+                    <TextBlock Margin="5,5,10,5" Text="Topics" FontStyle="Italic"></TextBlock>
+                    <HyperlinkButton Grid.Column="1" Content="Show selected (0)" Margin="0,5,5,5" HorizontalAlignment="Right" Width="105" IsTabStop="False"></HyperlinkButton>
+                </ToolkitRef:WrapPanel>
+            </ScrollViewer>
+
+            <radDock:RadPaneGroup x:Name="CitationPane" Grid.Row="4" Grid.Column="1" TabStripPlacement="Top">
+                <radDock:RadPane Header="References" Title="References" CanUserClose="False" CanFloat="False" CanUserPin="False" CanDockInDocumentHost="False" PaneHeaderVisibility="Collapsed">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"></RowDefinition>
+                            <RowDefinition Height="auto"></RowDefinition>
+                        </Grid.RowDefinitions>
+                        <telerikGridView:RadGridView x:Name="BibliographyGrid" Grid.Row="0" AutoGenerateColumns="False" ShowGroupPanel="False"
+                                    IsReadOnly="True" MinHeight="50" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                    ItemsSource="{Binding PagedSource, ElementName=BibliographyPager}"
+                                    IsEnabled="{Binding Source={StaticResource CitationPaperListData}, Converter={StaticResource ReverseBoolean}, Path=IsBusy }"
+                                    RowIndicatorVisibility="Collapsed" CanUserSelect="False"
+                                    SelectionMode="Extended" ColumnWidth="*"
+                                    IsSynchronizedWithCurrentItem="False">
+                            <telerikGridView:RadGridView.Columns>
+                                <telerikGridView:GridViewDataColumn Header="" DataMemberBinding="{Binding FullRecord}">
+                                    <telerikGridView:GridViewDataColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding FullRecord}" TextWrapping="Wrap" MouseLeftButtonUp="PaperListBibliographyGrid_MouseLeftButtonUp"/>
+                                        </DataTemplate>
+                                    </telerikGridView:GridViewDataColumn.CellTemplate>
+                                </telerikGridView:GridViewDataColumn>
+                                <telerikGridView:GridViewDataColumn IsFilterable="False" IsSortable="True" CellStyle="{StaticResource cellSelectedNotSelected}" Width="75" Header="" DataMemberBinding="{Binding IsSelected, Mode=TwoWay}"></telerikGridView:GridViewDataColumn>
+                            </telerikGridView:RadGridView.Columns>
+                        </telerikGridView:RadGridView>
+
+                        <dpager:RadDataPager Grid.Row="1" x:Name="BibliographyPager" IsTotalItemCountFixed="True"
+                DisplayMode="All" NumericButtonCount="10" Source="{Binding Source={StaticResource CitationPaperListData}, Path=Data}"
+                PageIndexChanging="BibliographyPager_PageIndexChanging"></dpager:RadDataPager>
+
+                    </Grid>
+                </radDock:RadPane>
+
+                <radDock:RadPane Header="Cited by" CanUserClose="False" CanFloat="False">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"></RowDefinition>
+                            <RowDefinition Height="auto"></RowDefinition>
+                        </Grid.RowDefinitions>
+
+                        <telerikGridView:RadGridView x:Name="CitedByGrid" Grid.Row="0" AutoGenerateColumns="False" ShowGroupPanel="False"
+                                    IsReadOnly="True" MinHeight="50" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                    ItemsSource="{Binding PagedSource, ElementName=CitedByPager}"
+                                    IsEnabled="{Binding Source={StaticResource CitedByListData}, Converter={StaticResource ReverseBoolean}, Path=IsBusy }"
+                                    RowIndicatorVisibility="Collapsed"
+                                    SelectionMode="Extended" ColumnWidth="*"
+                                    IsSynchronizedWithCurrentItem="False">
+                            <telerikGridView:RadGridView.Columns>
+                                <telerikGridView:GridViewDataColumn Header="" DataMemberBinding="{Binding FullRecord}">
+                                    <telerikGridView:GridViewDataColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding FullRecord}" TextWrapping="Wrap" MouseLeftButtonUp="PaperListBibliographyGrid_MouseLeftButtonUp"/>
+                                        </DataTemplate>
+                                    </telerikGridView:GridViewDataColumn.CellTemplate>
+                                </telerikGridView:GridViewDataColumn>
+                                <telerikGridView:GridViewDataColumn IsFilterable="False" IsSortable="True" CellStyle="{StaticResource cellSelectedNotSelected}" Width="75" Header="" DataMemberBinding="{Binding IsSelected, Mode=TwoWay}"></telerikGridView:GridViewDataColumn>
+                            </telerikGridView:RadGridView.Columns>
+                        </telerikGridView:RadGridView>
+
+                        <dpager:RadDataPager Grid.Row="1" x:Name="CitedByPager" IsTotalItemCountFixed="True"
+                DisplayMode="All" NumericButtonCount="10" Source="{Binding Source={StaticResource CitedByListData}, Path=Data}"
+                PageIndexChanging="CitedByPager_PageIndexChanging"></dpager:RadDataPager>
+
+                    </Grid>
+
+                </radDock:RadPane>
+                <radDock:RadPane Header="Related" CanUserClose="False" CanFloat="False">
+                    <telerikGridView:RadGridView x:Name="RelatedGrid" Grid.Column="1" Grid.Row="1" Grid.RowSpan="2" AutoGenerateColumns="False" ShowGroupPanel="False"
+                                    IsReadOnly="True" MinHeight="50" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                    ItemsSource="{Binding Source={StaticResource RecommendationsListData}, Path=Data, Mode=TwoWay}"
+                                    IsEnabled="{Binding Source={StaticResource RecommendationsListData}, Converter={StaticResource ReverseBoolean}, Path=IsBusy }"
+                                    RowIndicatorVisibility="Collapsed"
+                                    SelectionMode="Extended" ColumnWidth="*"
+                                    IsSynchronizedWithCurrentItem="False">
+                        <telerikGridView:RadGridView.Columns>
+
+                            <telerikGridView:GridViewDataColumn Header="" DataMemberBinding="{Binding FullRecord}">
+                                <telerikGridView:GridViewDataColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding FullRecord}" TextWrapping="Wrap" MouseLeftButtonUp="PaperListBibliographyGrid_MouseLeftButtonUp"/>
+                                    </DataTemplate>
+                                </telerikGridView:GridViewDataColumn.CellTemplate>
+                            </telerikGridView:GridViewDataColumn>
+                            <telerikGridView:GridViewDataColumn IsFilterable="False" IsSortable="True" CellStyle="{StaticResource cellSelectedNotSelected}" Width="75" Header="" DataMemberBinding="{Binding IsSelected, Mode=TwoWay}"></telerikGridView:GridViewDataColumn>
+                        </telerikGridView:RadGridView.Columns>
+                    </telerikGridView:RadGridView>
+                    <!-- n.b. no data pager needed here, as there are only 20 related documents-->
+                </radDock:RadPane>
+
+            </radDock:RadPaneGroup>
+        </Grid>
+        <!-- End papergrid -->
+        
+
+        <Grid x:Name="PaperListGrid" Grid.Row="1" Visibility="Collapsed">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="47"></RowDefinition>
+                <RowDefinition Height="*"></RowDefinition>
+                <RowDefinition Height="Auto"></RowDefinition>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="300"></ColumnDefinition>
+                <ColumnDefinition Width="*"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+
+            <TextBlock x:Name="TBPaperListTitle" FontSize="18" Text="" Grid.Row="0" Grid.ColumnSpan="2" Margin="5,20,5,5"></TextBlock>
+            <ScrollViewer Grid.Column="0" Grid.Row="1" Grid.RowSpan="2" HorizontalScrollBarVisibility="Disabled"  VerticalScrollBarVisibility="Auto">
+                <ToolkitRef:WrapPanel x:Name="WPTopTopics" ScrollViewer.VerticalScrollBarVisibility="Auto" Orientation="Horizontal">
+                    <TextBlock Margin="5,5,10,5" Text="Top Topics " FontStyle="Italic"></TextBlock>
+                    <HyperlinkButton Grid.Column="1" Content="Topic 1" Margin="0,5,5,5" HorizontalAlignment="Right" Width="105" IsTabStop="False"></HyperlinkButton>
+                </ToolkitRef:WrapPanel>
+            </ScrollViewer>
+
+            <TextBlock x:Name="tbCountPaperListGrid" Grid.Row="0" Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="5,5,10,5"></TextBlock>
+
+            <telerikGridView:RadGridView x:Name="PaperListBibliographyGrid" Grid.Column="1" Grid.Row="1" AutoGenerateColumns="False" ShowGroupPanel="False"
+                                    IsReadOnly="True" MinHeight="50" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                    ItemsSource="{Binding PagedSource, ElementName=PaperListBibliographyPager, Mode=TwoWay}"
+                                    IsEnabled="{Binding Source={StaticResource PaperListData}, Converter={StaticResource ReverseBoolean}, Path=IsBusy }"
+                                    RowIndicatorVisibility="Collapsed"
+                                    SelectionMode="Extended" ColumnWidth="*"
+                                    IsSynchronizedWithCurrentItem="False">
+                <telerikGridView:RadGridView.Columns>
+                    
+                    <telerikGridView:GridViewDataColumn DataMemberBinding="{Binding FullRecord}" Header="">
+                        <telerikGridView:GridViewDataColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding FullRecord}" TextWrapping="Wrap" MouseLeftButtonUp="PaperListBibliographyGrid_MouseLeftButtonUp"/>
+                            </DataTemplate>
+                        </telerikGridView:GridViewDataColumn.CellTemplate>
+                    </telerikGridView:GridViewDataColumn>
+                    <telerikGridView:GridViewDataColumn IsFilterable="False" IsSortable="True" CellStyle="{StaticResource cellSelectedNotSelected}" Width="75" Header="" DataMemberBinding="{Binding IsSelected, Mode=TwoWay}"></telerikGridView:GridViewDataColumn>
+                </telerikGridView:RadGridView.Columns>
+            </telerikGridView:RadGridView>
+
+            <dpager:RadDataPager Grid.Column="1" Grid.Row="3" x:Name="PaperListBibliographyPager" IsTotalItemCountFixed="True"
+                DisplayMode="All" NumericButtonCount="10" Source="{Binding Source={StaticResource PaperListData}, Path=Data, Mode=TwoWay}"
+                PageIndexChanging="PaperListBibliographyPager_PageIndexChanging"></dpager:RadDataPager>
+        </Grid>
+        <!-- end PaperListGrid -->
+
+
+        <Grid x:Name="TopicsGrid" Grid.Row="1" Visibility="Collapsed">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="50"></RowDefinition>
+                <RowDefinition Height="auto"></RowDefinition>
+                <RowDefinition Height="*"></RowDefinition>
+                <RowDefinition Height="auto"></RowDefinition>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="300"></ColumnDefinition>
+                <ColumnDefinition Width="*"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+
+            <TextBlock x:Name="TBMainTopic" FontSize="18" Text="Topic" Grid.Row="0" Grid.ColumnSpan="2" Margin="5,5,5,5"></TextBlock>
+            <TextBlock x:Name="tbCountTopicPaperListBibliographyGrid" Grid.Row="0" Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="5,5,10,5"></TextBlock>
+
+            <StackPanel Grid.Row="1" Grid.Column="0" Orientation="Vertical">
+                <ToolkitRef:WrapPanel x:Name="WPParentTopics" Orientation="Horizontal">
+                    <TextBlock Margin="5,5,10,5" Text="Parent Topics " FontStyle="Italic"></TextBlock>
+                    <HyperlinkButton Grid.Column="1" Content="Topic 1" Margin="0,5,5,5" HorizontalAlignment="Right" Width="105" IsTabStop="False"></HyperlinkButton>
+                </ToolkitRef:WrapPanel>
+            </StackPanel>
+
+            <ScrollViewer Grid.Row="2" Grid.Column="0" HorizontalScrollBarVisibility="Disabled"  VerticalScrollBarVisibility="Auto">
+                    <ToolkitRef:WrapPanel x:Name="WPChildTopics" Orientation="Horizontal" Margin="0, 15, 0, 0">
+                        <TextBlock Margin="5,5,10,5" Text="Child Topics " FontStyle="Italic"></TextBlock>
+                    <HyperlinkButton Grid.Column="1" Content="Topic 1" Margin="0,5,5,5" HorizontalAlignment="Right" Width="105" IsTabStop="False"></HyperlinkButton>
+                    </ToolkitRef:WrapPanel>
+                </ScrollViewer>
+
+            <telerikGridView:RadGridView x:Name="TopicPaperListBibliographyGrid" Grid.Column="1" Grid.Row="1" Grid.RowSpan="2" AutoGenerateColumns="False" ShowGroupPanel="False"
+                                    IsReadOnly="True" MinHeight="50" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                    ItemsSource="{Binding PagedSource, ElementName=TopicPaperListBibliographyPager}"
+                                    IsEnabled="{Binding Source={StaticResource TopicPaperListData}, Converter={StaticResource ReverseBoolean}, Path=IsBusy }"
+                                    RowIndicatorVisibility="Collapsed"
+                                    SelectionMode="Extended" ColumnWidth="*"
+                                    IsSynchronizedWithCurrentItem="False">
+                <telerikGridView:RadGridView.Columns>
+                    <telerikGridView:GridViewDataColumn Header="" DataMemberBinding="{Binding FullRecord}">
+                        <telerikGridView:GridViewDataColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding FullRecord}" TextWrapping="Wrap" MouseLeftButtonUp="PaperListBibliographyGrid_MouseLeftButtonUp"/>
+                            </DataTemplate>
+                        </telerikGridView:GridViewDataColumn.CellTemplate>
+                    </telerikGridView:GridViewDataColumn>
+                    <telerikGridView:GridViewDataColumn IsFilterable="False" IsSortable="True" CellStyle="{StaticResource cellSelectedNotSelected}" Width="75" Header="" DataMemberBinding="{Binding IsSelected, Mode=TwoWay}"></telerikGridView:GridViewDataColumn>
+                </telerikGridView:RadGridView.Columns>
+            </telerikGridView:RadGridView>
+
+            <dpager:RadDataPager Grid.Column="1" Grid.Row="3" x:Name="TopicPaperListBibliographyPager" IsTotalItemCountFixed="True"
+                DisplayMode="All"  NumericButtonCount="10" Source="{Binding Source={StaticResource TopicPaperListData}, Path=Data}"
+                PageIndexChanging="TopicPaperListBibliographyPager_PageIndexChanging"></dpager:RadDataPager>
+
+        </Grid>
+        <!-- end TopicsGrid -->
+
+
+        <Grid x:Name="HistoryGrid" Grid.Row="1" Visibility="Collapsed">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="40"></RowDefinition>
+                <RowDefinition Height="*"></RowDefinition>
+            </Grid.RowDefinitions>
+
+            <HyperlinkButton x:Name="lbClearHistory" Margin="5,5,5,5" HorizontalAlignment="Center" VerticalAlignment="Center" Content="Clear History" Click="lbClearHistory_Click"></HyperlinkButton>
+
+
+            <telerikGridView:RadGridView x:Name="HistoryDataGrid" Grid.Row="1" AutoGenerateColumns="False" ShowGroupPanel="False"
+                                    IsReadOnly="True" MinHeight="50" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                    ItemsSource="{Binding Source={StaticResource HistoryListData}, Path=Data, Mode=TwoWay}"
+                                    RowIndicatorVisibility="Collapsed" CanUserSortColumns="False" 
+                                    SelectionMode="Extended" ColumnWidth="*"
+                                    IsSynchronizedWithCurrentItem="False">
+                <telerikGridView:RadGridView.Columns>
+                    <telerikGridView:GridViewDataColumn Header="Pages browsed in order (earliest at the top)" DataMemberBinding="{Binding Title}"></telerikGridView:GridViewDataColumn>
+                    <telerikGridView:GridViewDataColumn Width="50" SortingState="None">
+                        <telerikGridView:GridViewDataColumn.CellTemplate>
+                            <DataTemplate>
+                                <HyperlinkButton Content="Go!" Margin="10, 0, 10, 0" Click="HyperlinkButton_Click_1"/>
+                            </DataTemplate>
+                        </telerikGridView:GridViewDataColumn.CellTemplate>
+                    </telerikGridView:GridViewDataColumn>
+                    <telerikGridView:GridViewDataColumn Width="50" SortingState="None">
+                        <telerikGridView:GridViewDataColumn.CellTemplate>
+                            <DataTemplate>
+                                <HyperlinkButton Content="Remove" Click="HyperlinkButton_Click"/>
+                            </DataTemplate>
+                        </telerikGridView:GridViewDataColumn.CellTemplate>
+                    </telerikGridView:GridViewDataColumn>
+                </telerikGridView:RadGridView.Columns>
+            </telerikGridView:RadGridView>
+
+        </Grid>
+        <!-- end history grid -->
+
+
+        <Grid x:Name="RelatedPapersGrid" Grid.Row="1" Visibility="Collapsed">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="140"></RowDefinition>
+                <RowDefinition Height="35"></RowDefinition>
+                <RowDefinition Height="0" x:Name="RowCreateNewRelatedPapersRun"></RowDefinition>
+                <RowDefinition Height="*"></RowDefinition>
+            </Grid.RowDefinitions>
+
+            <StackPanel Grid.Row="0" Orientation="Vertical">
+                <TextBlock FontSize="14" Margin="5,5,5,5">Find related papers and set up review auto-updates</TextBlock>
+                <TextBlock TextWrapping="Wrap"  Margin="5,10,5,5" Text="On this page you can set up tasks to find papers related to papers in your review automatically.&#10;
+&#10;You can look for related papers as a one-off exercise, or set up an auto update, that will look for new papers every time Microsoft Academic is updated (once or twice a month).
+&#10;Each time the process runs, a new row will be added to the table below, and items not previously identified will be added.
+&#10;Once new items have appeared in the list below, you can either preview them in this window by clicking the number, or import them into your review, and examine them as you would for any other batch of references. When you import them, they will appear as a new 'source' with the date/time of import.
+&#10;If you want to improve the performance of the algorithm, or undertake methodological work to evaluate its performance, click on the 'advanced' link above."></TextBlock>
+            </StackPanel>
+
+            <HyperlinkButton x:Name="LBAddNewRagRelatedPapersRun" Grid.Row="1" Margin="5,5,5,5" Content="Add new search for related papers / auto update search for review" Click="LBAddNewRagRelatedPapersRun_Click" Tag="ClickToOpen" IsTabStop="False"></HyperlinkButton>
+
+            <Grid Grid.Row="2">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="35"></RowDefinition>
+                    <RowDefinition Height="35"></RowDefinition>
+                    <RowDefinition Height="0" x:Name="RowSelectCodeRelatedPapersRun"></RowDefinition>
+                    <RowDefinition Height="35"></RowDefinition>
+                    <RowDefinition Height="35"></RowDefinition>
+                    <RowDefinition Height="35"></RowDefinition>
+                    <RowDefinition Height="35"></RowDefinition>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="120"></ColumnDefinition>
+                    <ColumnDefinition Width="*"></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Text="Description" Grid.Row="0" Grid.Column="0" Margin="5,5,5,5" VerticalAlignment="Center" HorizontalAlignment="Right"></TextBlock>
+                <TextBox x:Name="tbRelatedPapersRunDescription" Grid.Row="0" Grid.Column="1" Margin="5,5,5,5" VerticalAlignment="Center"></TextBox>
+                <TextBlock Text="Search based on" Grid.Row="1" Grid.Column="0" Margin="5,5,5,5" VerticalAlignment="Center" HorizontalAlignment="Right"></TextBlock>
+                <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Left">
+                    <RadioButton x:Name="RadioButtonRelatedPapersRunAllIncluded" Content="All included items in review" IsChecked="True" Margin="5,5,5,5" GroupName="RadioButtonsRelatedPapersRun" VerticalAlignment="Center" Tag="AllIncluded" Checked="RadioButton_Checked"></RadioButton>
+                    <RadioButton Content="Items with specified code" Margin="5,5,5,5" GroupName="RadioButtonsRelatedPapersRun" Tag="WithThisCode" VerticalAlignment="Center" Checked="RadioButton_Checked_1"></RadioButton>
+                </StackPanel>
+                <TextBlock Text="Select code" Grid.Row="2" Grid.Column="0" Margin="5,5,5,5" VerticalAlignment="Center" HorizontalAlignment="Right"></TextBlock>
+                <local:codesSelectControl x:Name="codesSelectControlRelatedPapersRun" VerticalAlignment="Center" HorizontalAlignment="Left" Grid.Column="1" Grid.Row="2" Margin="5,5,5,5" Width="150" Height="30"></local:codesSelectControl>
+                <StackPanel Grid.Row="3" Grid.Column="1" Orientation="Horizontal">
+                    <CheckBox x:Name="cbRelatedPapersRunAutoRun" Content="Auto-update search" Margin="5,5,5,5" VerticalAlignment="Center"></CheckBox>
+                    <RadioButton x:Name="RadioButtonRelatedPapersRunNoDateRestriction" Content="No date restriction" IsChecked="True" Margin="5,5,5,5" GroupName="RadioButtonsRelatedPapersDate" VerticalAlignment="Center" Checked="RadioButton_Checked_2"></RadioButton>
+                    <RadioButton Content="Items dated from" Margin="5,5,5,5" GroupName="RadioButtonsRelatedPapersDate" VerticalAlignment="Center" Checked="RadioButton_Checked_3"></RadioButton>
+                    <telerik:RadDatePicker x:Name="DatePickerRelatedPapersRun" Visibility="Collapsed" VerticalAlignment="Center"></telerik:RadDatePicker>
+                </StackPanel>
+                <TextBlock Text="RCT filter" Grid.Row="4" Grid.Column="0" Margin="5,5,5,5" VerticalAlignment="Center" HorizontalAlignment="Right"></TextBlock>
+                <StackPanel Grid.Row="4" Grid.Column="1" Orientation="Horizontal">
+                    <RadioButton x:Name="RBRelatedRCTFilterNone" Content="No filter" IsChecked="True" Margin="5,5,5,5" GroupName="RBGroupRCTFilter" VerticalAlignment="Center"></RadioButton>
+                    <RadioButton x:Name="RBRelatedRCTFilterSensitive" Content="High sensitivity" Margin="5,5,5,5" GroupName="RBGroupRCTFilter" VerticalAlignment="Center"></RadioButton>
+                    <RadioButton x:Name="RBRelatedRCTFilterPrecise" Content="Higher specificity" Margin="5,5,5,5" GroupName="RBGroupRCTFilter" VerticalAlignment="Center"></RadioButton>
+                </StackPanel>
+                <TextBlock Text="Search mode" Grid.Row="5" Grid.Column="0" Margin="5,5,5,5" VerticalAlignment="Center" HorizontalAlignment="Right"></TextBlock>
+                <ComboBox x:Name="ComboRelatedPapersMode" Grid.Row="5" Grid.Column="1" Margin="5,5,5,5" VerticalAlignment="Center" HorizontalAlignment="Left">
+                    <ComboBoxItem Content="Papers 'recommended' by known items ('Recommended by')" Tag="Recommended by"></ComboBoxItem>
+                    <ComboBoxItem Content="Papers that 'recommend' known items ('That recommend')" Tag="That recommend"></ComboBoxItem>
+                    <ComboBoxItem Content="Bi-directional recommendation relationships ('Recommendations')" Tag="Recommendations" IsSelected="True"></ComboBoxItem>
+                    <ComboBoxItem Content="Papers in the bibliography of known items ('Bibliography')" Tag="Bibliography"></ComboBoxItem>
+                    <ComboBoxItem Content="Papers that cite known items ('Cited by')" Tag="Cited by"></ComboBoxItem>
+                    <ComboBoxItem Content="Bi-directional citation relationships" Tag="BiCitation"></ComboBoxItem>
+                    <ComboBoxItem Content="Bi-directional recommendation AND citation relationships ('Bi-Citation AND Recommendations)'" Tag="Bi-Citation AND Recommendations"></ComboBoxItem>
+                </ComboBox>
+                <HyperlinkButton x:Name="LBAddRelatedPapersRun" Content="Add new search for related papers" Grid.Row="6" Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Center" Click="LBAddRelatedPapersRun_Click" IsTabStop="False"></HyperlinkButton>
+            </Grid>
+
+            <telerikGridView:RadGridView x:Name="RelatedPapersRunGrid" Grid.Row="7" AutoGenerateColumns="False" ShowGroupPanel="False"
+                                    IsReadOnly="False" MinHeight="50" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                    ItemsSource="{Binding Source={StaticResource RelatedPapersRunListData}, Path=Data, Mode=TwoWay}"
+                                    IsEnabled="{Binding Source={StaticResource RelatedPapersRunListData}, Converter={StaticResource ReverseBoolean}, Path=IsBusy }"
+                                    RowIndicatorVisibility="Collapsed" CanUserSelect="False" Margin="10,20,10,20"
+                                    SelectionMode="Extended" ColumnWidth="*"
+                                    IsSynchronizedWithCurrentItem="False">
+                <telerikGridView:RadGridView.Columns>
+                    <telerikGridView:GridViewDataColumn Header="Description" DataMemberBinding="{Binding UserDescription}" Width="70*"></telerikGridView:GridViewDataColumn>
+                    <telerikGridView:GridViewDataColumn Header="Mode" Width="120" DataMemberBinding="{Binding Mode}" IsReadOnly="True"></telerikGridView:GridViewDataColumn>
+                    <telerikGridView:GridViewDataColumn Header="Date from" DataMemberBinding="{Binding DateFrom}" Width="85" IsReadOnly="True"></telerikGridView:GridViewDataColumn>
+                    <telerikGridView:GridViewDataColumn Header="Date run" DataMemberBinding="{Binding DateRun}" Width="85" IsReadOnly="True"></telerikGridView:GridViewDataColumn>
+                    <telerikGridView:GridViewDataColumn Header="All included" Width="100" DataMemberBinding="{Binding AllIncluded}" IsReadOnly="True"></telerikGridView:GridViewDataColumn>
+                    <telerikGridView:GridViewDataColumn Header="With this code" Width="80*" DataMemberBinding="{Binding AttributeName}" IsReadOnly="True"></telerikGridView:GridViewDataColumn>
+                    <telerikGridView:GridViewDataColumn Header="Filtered" Width="65" DataMemberBinding="{Binding Filtered}" IsReadOnly="True"></telerikGridView:GridViewDataColumn>
+                    <telerikGridView:GridViewDataColumn Header="Re-run?" Width="80" IsReadOnly="False">
+                        <telerikGridView:GridViewDataColumn.CellTemplate>
+                            <DataTemplate>
+                                <CheckBox IsChecked="{Binding AutoReRun}" Checked="CheckBox_Checked" Unchecked="CheckBox_Unchecked"></CheckBox>
+                            </DataTemplate>
+                        </telerikGridView:GridViewDataColumn.CellTemplate>
+                    </telerikGridView:GridViewDataColumn>
+                    <telerikGridView:GridViewDataColumn Header="Status" Width="80" DataMemberBinding="{Binding Status}" IsReadOnly="True"></telerikGridView:GridViewDataColumn>
+                    <telerikGridView:GridViewDataColumn Width="50" SortingState="None" IsReadOnly="True">
+                        <telerikGridView:GridViewDataColumn.CellTemplate>
+                            <DataTemplate>
+                                <HyperlinkButton Content="Delete" Click="HyperlinkButton_Click_2"/>
+                            </DataTemplate>
+                        </telerikGridView:GridViewDataColumn.CellTemplate>
+                    </telerikGridView:GridViewDataColumn>
+                    <telerikGridView:GridViewDataColumn Width="73" SortingState="None" IsReadOnly="True">
+                        <telerikGridView:GridViewDataColumn.CellTemplate>
+                            <DataTemplate>
+                                <HyperlinkButton Content="{Binding UserStatus}" Click="HyperlinkButton_Click_5"/>
+                            </DataTemplate>
+                        </telerikGridView:GridViewDataColumn.CellTemplate>
+                    </telerikGridView:GridViewDataColumn>
+                    <telerikGridView:GridViewDataColumn Width="50" SortingState="None" IsReadOnly="True">
+                        <telerikGridView:GridViewDataColumn.CellTemplate>
+                            <DataTemplate>
+                                <HyperlinkButton Content="Import" Click="HyperlinkButton_Click_4"/>
+                            </DataTemplate>
+                        </telerikGridView:GridViewDataColumn.CellTemplate>
+                    </telerikGridView:GridViewDataColumn>
+                    <telerikGridView:GridViewDataColumn Width="50*" SortingState="None" IsReadOnly="True">
+                        <telerikGridView:GridViewDataColumn.CellTemplate>
+                            <DataTemplate>
+                                <HyperlinkButton Content="{Binding NPapers}" Click="HyperlinkButton_Click_3"/>
+                            </DataTemplate>
+                        </telerikGridView:GridViewDataColumn.CellTemplate>
+                    </telerikGridView:GridViewDataColumn>
+
+                </telerikGridView:RadGridView.Columns>
+
+            </telerikGridView:RadGridView>
+
+        </Grid>
+        <!-- end Related Papers grid-->
+
+        <Grid x:Name="AdminGrid" Grid.Row="1" Visibility="Collapsed">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="35"></RowDefinition>
+                <RowDefinition Height="35"></RowDefinition>
+                <RowDefinition Height="200"></RowDefinition>
+                <RowDefinition Height="35"></RowDefinition>
+                <RowDefinition Height="*"></RowDefinition>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="100"></ColumnDefinition>
+                <ColumnDefinition Width="400"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+
+            <TextBlock Grid.Row="0" Grid.Column="0" Text="Latest MAG" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="5,5,5,5"></TextBlock>
+            <TextBox x:Name="tbLatestMag" Grid.Row="0" Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5,5,5,5" IsReadOnly="True"></TextBox>
+            <TextBlock Grid.Row="1" Grid.Column="0" Text="SAS Key" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="5,5,5,5"></TextBlock>
+            <TextBox x:Name="tbMagSas" Grid.Row="1" Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5,5,5,5" IsReadOnly="True"></TextBox>
+            <TextBlock Grid.Row="2" Grid.Column="0" Text="Release notes" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="5,5,5,5"></TextBlock>
+            <TextBox x:Name="tbReleaseNotes" Grid.Row="2" Grid.Column="1" Margin="5,5,5,5" IsReadOnly="True" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto"></TextBox>
+            
+            <StackPanel Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal">
+                <HyperlinkButton x:Name="hlAddMagReview" Content="Add this Review ID" Margin="5,5,5,5" Click="hlAddMagReview_Click"></HyperlinkButton>
+                <TextBox x:Name="tbAddMagReview" Margin="5,5,5,5" Width="80"></TextBox>
+                <HyperlinkButton Content="Refresh list" Margin="5,5,5,5" Click="HyperlinkButton_Click_7"></HyperlinkButton>
+            </StackPanel>
+
+            <telerikGridView:RadGridView x:Name="AdminDataGrid" Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2" AutoGenerateColumns="True" ShowGroupPanel="False"
+                                    IsReadOnly="True" MinHeight="50" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                    ItemsSource="{Binding Source={StaticResource MagReviewListData}, Path=Data, Mode=TwoWay}"
+                                    RowIndicatorVisibility="Collapsed" CanUserSortColumns="False" 
+                                    SelectionMode="Extended" ColumnWidth="*"
+                                    IsSynchronizedWithCurrentItem="False">
+                <telerikGridView:RadGridView.Columns>
+                    
+                    <telerikGridView:GridViewDataColumn Width="50" SortingState="None">
+                        <telerikGridView:GridViewDataColumn.CellTemplate>
+                            <DataTemplate>
+                                <HyperlinkButton Content="Delete" Click="HyperlinkButton_Click_6"/>
+                            </DataTemplate>
+                        </telerikGridView:GridViewDataColumn.CellTemplate>
+                    </telerikGridView:GridViewDataColumn>
+                </telerikGridView:RadGridView.Columns>
+            </telerikGridView:RadGridView>
+        </Grid>
+
+    </Grid>
+</UserControl>

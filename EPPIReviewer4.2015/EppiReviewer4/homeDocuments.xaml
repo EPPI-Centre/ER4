@@ -30,6 +30,7 @@
         <helper:SourceNameStyleConverter x:Key="SourceNameStyleConverter"/>
         <helper:ReverseBooleanConverter x:Key="ReverseBoolean" />
         <helper:EditTrueFalseVisibilityConverter x:Key="EditTrueFalseVisibility" />
+        <helper:EditIntVisibilityConverter x:Key="EditIntVisibility" />
         <helper:ReverseEditTrueFalseVisibilityConverter x:Key="ReverseEditTrueFalseVisibility" />
         <!--<Button x:Name="isEn" IsEnabled="{Binding HasWriteRights, Mode=OneWay}" ></Button>-->
         
@@ -371,6 +372,11 @@
                                     </Button>
 
                                     <telerikNavigation:RadToolBarSeparator Margin="7,2,7,2" />
+
+                                    <Button x:Name="cmdMagBrowser" Click="cmdMagBrowser_Click" IsEnabled="{Binding Source={StaticResource isEn}, Path=IsEnabled, Mode=OneWay}" >
+                                        <Image x:Name="ImageMAGHasUpdates" Width="22" Height="22" Source="Icons/MicrosoftAcademicICO.png" Visibility="{Binding Source={StaticResource ReviewInfoData}, Path=Data.MagEnabled, Converter={StaticResource EditIntVisibility}, Mode=OneWay}"
+						                    ToolTipService.ToolTip="Explore and import records from Microsoft Academic" />
+                                    </Button> 
 
                                     <Button x:Name="cmdNewItem" Click="cmdNewItem_Click" IsEnabled="{Binding Source={StaticResource isEn}, Path=IsEnabled, Mode=OneWay}">
                                         <Image Width="22" Height="22" Source="Icons/NewItem.png"
@@ -2038,7 +2044,8 @@
         <!--<telerikNavigation:RadWindow x:Name="windowItemReportWriter" Header="Item coding reports" ResizeMode="CanResize" Width="450" Height="400"
             RestrictedAreaMargin="20" IsRestricted="True" WindowStartupLocation="CenterScreen">
             <Grid x:Name="GridItemReportWriter">
-                <local:dialogItemReportWriter x:Name="dialogItemReportWriterControl" LaunchReportViewer="dialogItemReportWriterControl_LaunchReportViewer"></local:dialogItemReportWriter>
+                <local:dialogItemReportWriter x:Name="dialogItemReportWriterControl" LaunchReportViewer="dialogItemReportWriterControl_Launch
+        iewer"></local:dialogItemReportWriter>
             </Grid>
         </telerikNavigation:RadWindow>-->
 

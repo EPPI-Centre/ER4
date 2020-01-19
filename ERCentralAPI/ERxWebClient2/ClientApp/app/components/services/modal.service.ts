@@ -7,7 +7,6 @@ import {
     ModalDialogComponent
 } from '../ModalDialog/ModalDialog.component';
 import { Router } from '@angular/router';
-//import * as _ from 'underscore';
 
 @Injectable({
     providedIn: 'root'
@@ -19,14 +18,14 @@ export class ModalService {
         private router: Router) { }
 
     private confirm(
-        prompt = 'Really?!', title = 'Error'
+        prompt = 'Really?!', title = 'Error', fullHTMLdoc = ''
     ): Observable<boolean> {
         const modal = this.ngbModal.open(
             ModalDialogComponent, { backdrop: 'static' });
 
         modal.componentInstance.prompt = prompt;
         modal.componentInstance.title = title;
-
+        modal.componentInstance.DetailsAsHTMLdoc = fullHTMLdoc;
         return from(modal.result).pipe(
             catchError(error => {
                 console.warn(error);
@@ -46,18 +45,61 @@ export class ModalService {
         });
     }
     public SendBackHomeWithError(error: any) {
-        this.confirm(
-            'Sorry, could not complete the operation. Error code is: ' + error.status + ". Error message is: " + error.statusText
-        ).subscribe(result => {
-            this.ngZone.run(() => this.router.navigate(['home']).then());
-        }, error => {
-            this.ngZone.run(() => this.router.navigate(['home']).then());
-        });
+        if (error.error) {
+            const FullE = error.error as string;
+            if (FullE.includes('<!DOCTYPE html')) {
+                //full error is an HTML (created by IIS, usually)
+                this.confirm(
+                    'Sorry, could not complete the operation. Error code is: ' + error.status + " (" + error.statusText + ').'
+                    , "Error"
+                    , FullE
+                ).subscribe(result => {
+                    this.ngZone.run(() => this.router.navigate(['home']).then());
+                }, error => {
+                    this.ngZone.run(() => this.router.navigate(['home']).then());
+                });
+            } else {
+                this.confirm(
+                    'Sorry, could not complete the operation. Error code is: ' + error.status + " (" + error.statusText + '). Error Message is: "' + error.error + '".'
+                ).subscribe(result => {
+                    this.ngZone.run(() => this.router.navigate(['home']).then());
+                }, error => {
+                    this.ngZone.run(() => this.router.navigate(['home']).then());
+                });
+            }
+        }
+        else {
+            this.confirm(
+                'Sorry, could not complete the operation. Error code is: ' + error.status + " (" + error.statusText + ').'
+            ).subscribe(result => {
+                this.ngZone.run(() => this.router.navigate(['home']).then());
+            }, error => {
+                this.ngZone.run(() => this.router.navigate(['home']).then());
+            });
+        }
     }
     public GenericError(error: any) {
-        this.confirm(
-            'Sorry, could not complete the operation. Error code is: ' + error.status + ". Error message is: " + error.statusText
-        );
+        if (error.error) {
+            const FullE = error.error as string;
+            if (FullE.includes('<!DOCTYPE html')) {
+                //full error is an HTML (created by IIS, usually)
+                this.confirm(
+                    'Sorry, could not complete the operation. Error code is: ' + error.status + " (" + error.statusText + ').'
+                    , "Error"
+                    , FullE
+                );
+            } else {
+                this.confirm(
+                    'Sorry, could not complete the operation. Error code is: ' + error.status + " (" + error.statusText + '). Error Message is: "' + error.error + '".'
+                );
+            }
+        }
+        else {
+            this.confirm(
+                'Sorry, could not complete the operation. Error code is: ' + error.status + " (" + error.statusText + ').'
+            );
+        }
+    
     }
     public GenericErrorMessage(Message: string) {
         this.confirm(Message);

@@ -233,7 +233,7 @@
         <TextBox Grid.Row="14" Name="itemComments" Grid.Column="1" Text="{Binding Comments, Mode=TwoWay}" Margin="3,3,3,3" TextWrapping="Wrap" AcceptsReturn="True" 
                  IsReadOnly="{Binding Source={StaticResource isEn}, Path=IsEnabled, Mode=OneWay, Converter={StaticResource ReverseBooleanConverter}}" VerticalScrollBarVisibility="Auto"></TextBox>
         <TextBlock Grid.Row="14" Grid.Column="2" Text="KeyWords" HorizontalAlignment="Right" Margin="3,6,3,3"></TextBlock>
-        <TextBox Grid.Row="14" Name="itemKeyWords" Grid.Column="4" Text="{Binding Keywords, Mode=TwoWay}" Margin="3,3,3,3"
+        <TextBox Grid.Row="14" Name="itemKeywords" Grid.Column="4" Text="{Binding Keywords, Mode=TwoWay}" Margin="3,3,3,3"
                  IsReadOnly="{Binding Source={StaticResource isEn}, Path=IsEnabled, Mode=OneWay, Converter={StaticResource ReverseBooleanConverter}}"
                  TextWrapping="Wrap" ScrollViewer.VerticalScrollBarVisibility="Auto"
                  AcceptsReturn="True" VerticalScrollBarVisibility="Auto"></TextBox>
