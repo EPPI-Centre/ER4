@@ -11,6 +11,7 @@ using Csla.Silverlight;
 using Csla.DataPortalClient;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
+using System.Globalization;
 
 #if !SILVERLIGHT
 using System.Data.SqlClient;
@@ -175,7 +176,7 @@ namespace BusinessLibrary.BusinessClasses
         {
             get
             {
-                return GetProperty(VolumeProperty);
+                return (GetProperty(VolumeProperty) != null) ? GetProperty(VolumeProperty) : "";
             }
         }
 
@@ -568,6 +569,89 @@ namespace BusinessLibrary.BusinessClasses
             returnValue.LoadProperty<bool>(ManualFalseMatchProperty, reader.GetBoolean("ManualFalseMatch"));
             returnValue.LoadProperty<double>(AutoMatchScoreProperty, reader.GetDouble("AutoMatchScore"));
 
+            returnValue.MarkOld();
+            return returnValue;
+        }
+
+        internal static MagPaper GetMagPaper(PaperMakes pm)
+        {
+            MagPaper returnValue = new MagPaper();
+            returnValue.LoadProperty<Int64>(PaperIdProperty, pm.Id);
+            returnValue.LoadProperty<string>(DOIProperty, pm.DOI);
+            returnValue.LoadProperty<string>(DocTypeProperty, pm.Pt);
+            returnValue.LoadProperty<string>(PaperTitleProperty, pm.Ti);
+            returnValue.LoadProperty<string>(OriginalTitleProperty, pm.Ti);
+            //returnValue.LoadProperty<string>(BookTitleProperty, reader.GetString("BookTitle"));
+            returnValue.LoadProperty<Int32>(YearProperty, pm.Y);
+            returnValue.LoadProperty<SmartDate>(DateProperty, pm.D);
+            returnValue.LoadProperty<string>(PublisherProperty, pm.PB);
+            returnValue.LoadProperty<Int64>(JournalIdProperty, pm.JJId);
+            returnValue.LoadProperty<string>(JournalProperty, pm.JJN);
+            //returnValue.LoadProperty<Int64>(ConferenceSeriesIdProperty, );
+            //returnValue.LoadProperty<Int64>(ConferenceInstanceIdProperty, reader.GetInt64("ConferenceInstanceId"));
+            returnValue.LoadProperty<string>(VolumeProperty, pm.V);
+            returnValue.LoadProperty<string>(FirstPageProperty, pm.FP);
+            returnValue.LoadProperty<string>(LastPageProperty, pm.LP);
+            //returnValue.LoadProperty<Int64>(ReferenceCountProperty, pm.RId.Count);
+            //returnValue.LoadProperty<Int64>(CitationCountProperty, reader.GetInt64("CitationCount"));
+            //returnValue.LoadProperty<int>(EstimatedCitationCountProperty, reader.GetInt32("EstimatedCitationCount"));
+            //returnValue.LoadProperty<SmartDate>(CreatedDateProperty, reader.GetSmartDate("CreatedDate"));
+            returnValue.LoadProperty<string>(AuthorsProperty, pm.AADAuN);
+            //returnValue.LoadProperty<Int64>(LinkedITEM_IDProperty, reader.GetInt64("ITEM_ID"));
+            returnValue.LoadProperty<string>(AbstractProperty, ReconstructInvertedAbstract(pm.IA));
+            //returnValue.LoadProperty<string>(URLsProperty, pm.S);
+            //returnValue.LoadProperty<bool>(ManualTrueMatchProperty, reader.GetBoolean("ManualTrueMatch"));
+            //returnValue.LoadProperty<bool>(ManualFalseMatchProperty, reader.GetBoolean("ManualFalseMatch"));
+            //returnValue.LoadProperty<double>(AutoMatchScoreProperty, reader.GetDouble("AutoMatchScore"));
+
+            returnValue.MarkOld();
+            return returnValue;
+        }
+
+        internal static MagPaper GetMagPaper(PaperAzureSearch pm, SafeDataReader reader)
+        {
+            TextInfo myTI = new CultureInfo("en-GB", false).TextInfo;
+            MagPaper returnValue = new MagPaper();
+            returnValue.LoadProperty<Int64>(PaperIdProperty, pm.id);
+            returnValue.LoadProperty<string>(DOIProperty, pm.doi);
+            //returnValue.LoadProperty<string>(DocTypeProperty, pm.Pt);
+            returnValue.LoadProperty<string>(PaperTitleProperty, myTI.ToTitleCase(pm.title == null ? "": pm.title));
+            returnValue.LoadProperty<string>(OriginalTitleProperty, myTI.ToTitleCase(pm.title == null ? "": pm.title));
+            //returnValue.LoadProperty<string>(BookTitleProperty, reader.GetString("BookTitle"));
+            returnValue.LoadProperty<Int32>(YearProperty, pm.year);
+            //returnValue.LoadProperty<SmartDate>(DateProperty, pm.D);
+            //returnValue.LoadProperty<string>(PublisherProperty, pm.PB);
+            //returnValue.LoadProperty<Int64>(JournalIdProperty, pm.JJId);
+            returnValue.LoadProperty<string>(JournalProperty, myTI.ToTitleCase(pm.journal == null ? "": pm.journal));
+            //returnValue.LoadProperty<Int64>(ConferenceSeriesIdProperty, );
+            //returnValue.LoadProperty<Int64>(ConferenceInstanceIdProperty, reader.GetInt64("ConferenceInstanceId"));
+            returnValue.LoadProperty<string>(VolumeProperty, pm.volume);
+            returnValue.LoadProperty<string>(IssueProperty, pm.issue);
+            returnValue.LoadProperty<string>(FirstPageProperty, pm.first_page);
+            returnValue.LoadProperty<string>(LastPageProperty, pm.last_page);
+            //returnValue.LoadProperty<Int64>(ReferenceCountProperty, pm.RId.Count);
+            //returnValue.LoadProperty<Int64>(CitationCountProperty, reader.GetInt64("CitationCount"));
+            //returnValue.LoadProperty<int>(EstimatedCitationCountProperty, reader.GetInt32("EstimatedCitationCount"));
+            //returnValue.LoadProperty<SmartDate>(CreatedDateProperty, reader.GetSmartDate("CreatedDate"));
+            string tmp = "";
+            foreach (string s in pm.authors)
+            {
+                if (tmp == "")
+                {
+                    tmp = s;
+                }
+                else
+                {
+                    tmp += ", " + s;
+                }
+            }
+            returnValue.LoadProperty<string>(AuthorsProperty, myTI.ToTitleCase(tmp));
+            returnValue.LoadProperty<Int64>(LinkedITEM_IDProperty, reader.GetInt64("ITEM_ID"));
+            //returnValue.LoadProperty<string>(AbstractProperty, ReconstructInvertedAbstract(pm.IA));
+            //returnValue.LoadProperty<string>(URLsProperty, pm.S);
+            returnValue.LoadProperty<bool>(ManualTrueMatchProperty, reader.GetBoolean("ManualTrueMatch"));
+            returnValue.LoadProperty<bool>(ManualFalseMatchProperty, reader.GetBoolean("ManualFalseMatch"));
+            returnValue.LoadProperty<double>(AutoMatchScoreProperty, reader.GetDouble("AutoMatchScore"));
             returnValue.MarkOld();
             return returnValue;
         }

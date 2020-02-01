@@ -110,12 +110,14 @@ namespace BusinessLibrary.BusinessClasses
                     var length = container.Name.Length;
                     int ind = container.Name.IndexOf("-", 0);
                     string dateStr = container.Name.Substring(ind + 1, length - ind - 1);
-                    DateTime date = Convert.ToDateTime(dateStr);
-                    if (date > LatestDateMAG)
+                    DateTime date;
+                    if (DateTime.TryParse(dateStr, out date)) // might be some other folder than MAG
                     {
-                        LatestDateMAG = date;
-                        _LatestMAGName = item;
-
+                        if (date > LatestDateMAG)
+                        {
+                            LatestDateMAG = date;
+                            _LatestMAGName = item;
+                        }
                     }
                 }
                 containerLatest = blobClient.GetContainerReference(_LatestMAGName);

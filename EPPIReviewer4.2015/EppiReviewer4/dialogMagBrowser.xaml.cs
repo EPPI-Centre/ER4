@@ -33,7 +33,7 @@ namespace EppiReviewer4
         private DispatcherTimer timer;
         private int CurrentBrowsePosition = 0;
         private List<Int64> SelectedPaperIds;
-        private int _maxFieldOfStudyPaperCount = 5000;
+        private int _maxFieldOfStudyPaperCount = 1000000;
         public dialogMagBrowser()
         {
             InitializeComponent();
@@ -1287,7 +1287,7 @@ namespace EppiReviewer4
             if (result == true)
             {
                 DataPortal<MagItemPaperInsertCommand> dp2 = new DataPortal<MagItemPaperInsertCommand>();
-                MagItemPaperInsertCommand command = new MagItemPaperInsertCommand(GetSelectedIds());
+                MagItemPaperInsertCommand command = new MagItemPaperInsertCommand(GetSelectedIds(), "SelectedPapers", 0);
                 dp2.ExecuteCompleted += (o, e2) =>
                 {
                     //BusyLoading.IsRunning = false;
@@ -1649,8 +1649,8 @@ namespace EppiReviewer4
                 if (RememberThisMagRelatedPapersRun != null)
                 {
                     int num_in_run = RememberThisMagRelatedPapersRun.NPapers;
-                    DataPortal<MagItemMagRelatedPaperInsertCommand> dp2 = new DataPortal<MagItemMagRelatedPaperInsertCommand>();
-                    MagItemMagRelatedPaperInsertCommand command = new MagItemMagRelatedPaperInsertCommand(RememberThisMagRelatedPapersRun.MagRelatedRunId);
+                    DataPortal<MagItemPaperInsertCommand> dp2 = new DataPortal<MagItemPaperInsertCommand>();
+                    MagItemPaperInsertCommand command = new MagItemPaperInsertCommand("", "RelatedPapersSearch", RememberThisMagRelatedPapersRun.MagRelatedRunId);
                     dp2.ExecuteCompleted += (o, e2) =>
                     {
                         //BusyLoading.IsRunning = false;

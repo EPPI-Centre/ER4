@@ -260,6 +260,7 @@
     <Compile Include="BusinessClasses\MagMatchItemsToPapersCommand.cs" />
     <Compile Include="BusinessClasses\MagMatchItemToPaperManualCommand.cs" />
     <Compile Include="BusinessClasses\MagPaper.cs" />
+    <Compile Include="BusinessClasses\MagPaperAzureSearch.cs" />
     <Compile Include="BusinessClasses\MagPaperList.cs" />
     <Compile Include="BusinessClasses\MagRelatedPapersRun.cs" />
     <Compile Include="BusinessClasses\MagRelatedPapersRunList.cs" />

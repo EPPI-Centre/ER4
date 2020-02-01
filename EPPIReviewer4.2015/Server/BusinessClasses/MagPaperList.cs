@@ -8,16 +8,46 @@ using Csla.Core;
 using Csla.Serialization;
 using Csla.Silverlight;
 using System.ComponentModel;
+using Newtonsoft.Json;
 //using Csla.Validation;
 
 #if !SILVERLIGHT
 using System.Data.SqlClient;
 using BusinessLibrary.Data;
 using BusinessLibrary.Security;
+using System.IO;
+using System.Net;
 #endif
 
 namespace BusinessLibrary.BusinessClasses
 {
+    public class PaperMakes
+    {
+        public string AAAuId { get; set; }
+        public string AADAuN { get; set; }
+        public string CC { get; set; }
+        public DateTime D { get; set; }
+        public string DN { get; set; }
+        public string DOI { get; set; }
+        public string FP { get; set; }
+        public string I { get; set; }
+        public string IA { get; set; }
+        public Int64 Id { get; set; }
+        public Int64 JJId { get; set; }
+        public string JJN { get; set; }
+        public string LP { get; set; }
+        public string PB { get; set; }
+        public string Pt { get; set; }
+        public List<Int64> RId { get; set; }
+        public List<string> S { get; set; }
+        public string Ti { get; set; }
+        public string V { get; set; }
+        public Int32 Y { get; set; }
+        //public IList<string> Roles { get; set; }
+    }
+
+    
+
     [Serializable]
     public class MagPaperList : DynamicBindingListBase<MagPaper>, System.ComponentModel.IPagedCollectionView, INotifyPropertyChanged
     {
@@ -338,9 +368,19 @@ namespace BusinessLibrary.BusinessClasses
        
 #else
 
+        const string URL = "http://eppimag.cloudapp.net/evaluate"; // need to get from AcademicController
+
+        public class MakesResponse
+        {
+            public string expr { get; set; }
+            public List<PaperMakes> entities { get; set; }
+        }
+        
 
         protected void DataPortal_Fetch(MagPaperListSelectionCriteria selectionCriteria)
         {
+            /*** OLD VERSION - USES LOCAL MAG RATHER THANK MAKES
+             
             ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
             RaiseListChangedEvents = false;
             PageSize = selectionCriteria.PageSize;
@@ -371,7 +411,191 @@ namespace BusinessLibrary.BusinessClasses
                 }
                 connection.Close();
             }
+            */
+
+            /* 
+             * VERSION 2 - USING MAKES API (VERSION 1 OF MAKES DOESN'T INCLUDE AUTHORS, ABSTRACTS, JOURNALS ETC, SO SWITCHING TO AZURE SEARCH LOOKUP ***
+            ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+            RaiseListChangedEvents = false;
+            PageSize = selectionCriteria.PageSize;
+            string Ids = "";
+            using (SqlConnection connection = new SqlConnection(DataConnection.AcademicControllerConnectionString))
+            {
+                connection.Open();
+                using (SqlCommand command = SpecifyListPaperIdsCommand(connection, selectionCriteria, ri))
+                {
+                    command.CommandTimeout = 500; // a bit longer, as some of these lists are long!
+                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId)); // use the stored value so that noone can list items out of a review they aren't properly authenticated on
+                    command.Parameters.Add(new SqlParameter("@PageNo", selectionCriteria.PageNumber + 1));
+                    command.Parameters.Add(new SqlParameter("@RowsPerPage", selectionCriteria.PageSize));
+                    command.Parameters.Add(new SqlParameter("@Total", 0));
+                    command.Parameters["@Total"].Direction = System.Data.ParameterDirection.Output;
+                    using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
+                    {
+                        while (reader.Read())
+                        {
+                            if (Ids == "")
+                            {
+                                Ids = "Id=" + reader["PaperId"].ToString();
+                            }
+                            else
+                            {
+                                Ids += ",Id=" + reader["PaperId"].ToString();
+                            }
+                        }
+                        reader.NextResult();
+                        if (reader.Read())
+                        {
+                            _pageIndex = selectionCriteria.PageNumber;
+                            _totalItemCount = reader.GetInt32("@Total");
+                        }
+                    }
+                }
+                connection.Close();
+            }
+
+            if (Ids != "")
+            {
+                string responseText = "";
+                WebRequest request = WebRequest.Create(URL + "?expr=Or(" + Ids + ")&attributes=AAAuId,AADAuN,CC,D,DN,DOI,FP,I,JJId,JJN,LP,PB,RId,S,Ti,V,Y&count=15");
+                WebResponse response = request.GetResponse();
+                using (Stream dataStream = response.GetResponseStream())
+                {
+                    StreamReader reader = new StreamReader(dataStream);
+                    responseText = reader.ReadToEnd();
+                }
+                response.Close();
+
+                var respJson = JsonConvert.DeserializeObject<MakesResponse>(responseText);
+
+                foreach (PaperMakes pm in respJson.entities)
+                {
+                    Add(MagPaper.GetMagPaper(pm));
+                }
+            }
+            */
+
+            ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+            RaiseListChangedEvents = false;
+            PageSize = selectionCriteria.PageSize;
+            using (SqlConnection connection = new SqlConnection(DataConnection.AcademicControllerConnectionString))
+            {
+                connection.Open();
+                using (SqlCommand command = SpecifyListPaperIdsCommand(connection, selectionCriteria, ri))
+                {
+                    command.CommandTimeout = 500; // a bit longer, as some of these lists are long!
+                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId)); // use the stored value so that noone can list items out of a review they aren't properly authenticated on
+                    command.Parameters.Add(new SqlParameter("@PageNo", selectionCriteria.PageNumber + 1));
+                    command.Parameters.Add(new SqlParameter("@RowsPerPage", selectionCriteria.PageSize));
+                    command.Parameters.Add(new SqlParameter("@Total", 0));
+                    command.Parameters["@Total"].Direction = System.Data.ParameterDirection.Output;
+                    using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
+                    {
+                        while (reader.Read())
+                        {
+                            PaperAzureSearch pas = MagPaperAzureSearch.GetPaperAzureSearch(reader["PaperId"].ToString());
+                            if (pas.id > 0)
+                            {
+                                Add(MagPaper.GetMagPaper(pas, reader));
+                            }
+                            else
+                            {
+                                Add(MagPaper.GetMagPaper(pas, reader));
+                            }
+                        }
+                        reader.NextResult();
+                        if (reader.Read())
+                        {
+                            _pageIndex = selectionCriteria.PageNumber;
+                            _totalItemCount = reader.GetInt32("@Total");
+                        }
+                    }
+                }
+                connection.Close();
+            }
+
             RaiseListChangedEvents = true;
+        }
+
+        private SqlCommand SpecifyListPaperIdsCommand(SqlConnection connection, MagPaperListSelectionCriteria criteria, ReviewerIdentity ri)
+        {
+            SqlCommand command = null;
+            switch (criteria.ListType)
+            {
+                case "ReviewMatchedPapers":
+                    command = new SqlCommand("st_ReviewMatchedPapersIds", connection);
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@INCLUDED", criteria.Included));
+                    this.IncludedOrExcluded = criteria.Included;
+                    this.PaperIds = ""; // probably unnecessary, but just in case...
+                    break;
+                case "ReviewMatchedPapersWithThisCode":
+                    command = new SqlCommand("st_ReviewMatchedPapersWithThisCodeIds", connection);
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@ATTRIBUTE_IDS", criteria.AttributeIds));
+                    this.AttributeIds = criteria.AttributeIds;
+                    this.PaperIds = ""; // probably unnecessary, but just in case...
+                    break;
+                case "ItemMatchedPapersList":
+                    command = new SqlCommand("st_ItemMatchedPapersIds", connection);
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@ITEM_ID", criteria.ITEM_ID));
+                    break;
+                case "CitationsList":
+                    command = new SqlCommand("st_PaperCitationsIds", connection);
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@PaperId", criteria.MagPaperId));
+                    this.PaperId = criteria.MagPaperId; // storing this in the object helps with paging
+                    break;
+                case "CitedByList":
+                    command = new SqlCommand("st_PaperCitedByIds", connection);
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@PaperId", criteria.MagPaperId));
+                    this.PaperId = criteria.MagPaperId;
+                    break;
+                case "RecommendationsList":
+                    command = new SqlCommand("st_PaperRecommendationsIds", connection);
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@PaperId", criteria.MagPaperId));
+                    this.PaperId = criteria.MagPaperId;
+                    break;
+                case "RecommendedByList":
+                    command = new SqlCommand("st_PaperRecommendedByIds", connection);
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@PaperId", criteria.MagPaperId));
+                    this.PaperId = criteria.MagPaperId;
+                    this.PaperIds = "";
+                    break;
+                case "PaperFieldsOfStudyList":
+                    command = new SqlCommand("st_FieldOfStudyPapersIds", connection);
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@FieldOfStudyId", criteria.FieldOfStudyId));
+                    this.FieldOfStudyId = criteria.FieldOfStudyId;
+                    break;
+                case "AuthorPaperList":
+                    // NOT IMPLEMENTED YET - CAN GET A LIST OF PAPERS BY GIVEN AUTHOR VIA AZURE SEARCH STORED PROC: st_AuthorPapersIds
+                    //command = new SqlCommand("st_AuthorPapers", connection);
+                    //command.CommandType = System.Data.CommandType.StoredProcedure;
+                    //command.Parameters.Add(new SqlParameter("@AuthorId", criteria.AuthorId));
+                    //this.AuthorId = criteria.AuthorId;
+                    break;
+                case "MagRelatedPapersRunList":
+                    command = new SqlCommand("st_MagRelatedPapersListIds", connection);
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@MAG_RELATED_RUN_ID", criteria.MagRelatedRunId));
+                    this.MagRelatedRunId = criteria.MagRelatedRunId;
+                    this.PaperIds = "";
+                    this.AttributeIds = "";
+                    break;
+                case "PaperListById":
+                    command = new SqlCommand("st_PaperListByIdIds", connection);
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@PaperIds", criteria.PaperIds));
+                    this.PaperIds = criteria.PaperIds;
+                    this._PaperId = 0;
+                    break;
+            }
+            return command;
         }
 
         private SqlCommand SpecifyListCommand(SqlConnection connection, MagPaperListSelectionCriteria criteria, ReviewerIdentity ri)

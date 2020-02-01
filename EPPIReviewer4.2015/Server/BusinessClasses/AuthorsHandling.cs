@@ -181,7 +181,7 @@ namespace AuthorsHandling
             return inSt.Trim(delim.ToCharArray());
         }
         
-        static AutH singleAuth(string AuthSt, int Rank, int OrigiN)
+        public static AutH singleAuth(string AuthSt, int Rank, int OrigiN)
         {
             AutH Au;
             string Second, First, Last, temP;
