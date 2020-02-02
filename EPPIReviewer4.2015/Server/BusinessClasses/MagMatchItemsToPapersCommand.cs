@@ -76,6 +76,8 @@ namespace BusinessLibrary.BusinessClasses
 
         protected override void DataPortal_Execute()
         {
+            MagPaperItemMatch.MatchItemToMag(_ITEM_ID);
+            /*
             using (SqlConnection connection = new SqlConnection(DataConnection.AcademicControllerConnectionString))
             {
                 connection.Open();
@@ -103,6 +105,7 @@ namespace BusinessLibrary.BusinessClasses
                 }
                 connection.Close();
             }
+            */
         }
 
         private SqlCommand SpecifyCommand(SqlConnection connection, ReviewerIdentity ri)

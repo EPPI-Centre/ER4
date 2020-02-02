@@ -3456,9 +3456,12 @@ namespace EppiReviewer4
                     provider.FactoryParameters.Add(selectionCriteria);
                     provider.FactoryMethod = "GetMagPaperList";
                     provider.Refresh();
-                    RadWindow.Alert(res.currentStatus);
+                    hlManualMagLookup.IsEnabled = true;
+                    hlManualMagLookup.Content = "Look up this record in Microsoft Academic";
                 }
             };
+            hlManualMagLookup.Content = "Looking up this record in Microsoft Academic...";
+            hlManualMagLookup.IsEnabled = false;
             dp.BeginExecute(GetMatches);
         }
 
