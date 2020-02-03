@@ -65,7 +65,42 @@ namespace BusinessLibrary.BusinessClasses
 
         protected override void DataPortal_Execute()
         {
-            MagPaperItemMatch.MatchItemToMag(_PaperId);
+            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+            {
+                connection.Open();
+                ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+                using (SqlCommand command = new SqlCommand("st_MagMatchedPaperManualEdit", connection))
+                {
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
+                    command.Parameters.Add(new SqlParameter("@ITEM_ID", _ITEM_ID));
+                    command.Parameters.Add(new SqlParameter("@PaperId", _PaperId));
+                    command.Parameters.Add(new SqlParameter("@ManualTrueMatch", _ManualTrueMatch));
+                    command.Parameters.Add(new SqlParameter("@ManualFalseMatch", _ManualFalseMatch));
+                    command.ExecuteNonQuery();
+                }
+                connection.Close();
+            }
+        }
+
+        public static void SaveManualMatchDecision(Int64 ItemId, Int64 PaperId, bool ManualTrueMatch, bool ManualFalseMatch)
+        {
+            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+            {
+                ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+                connection.Open();
+                using (SqlCommand command = new SqlCommand("st_MagMatchedPaperManualEdit", connection))
+                {
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
+                    command.Parameters.Add(new SqlParameter("@ITEM_ID", ItemId));
+                    command.Parameters.Add(new SqlParameter("@PaperId", PaperId));
+                    command.Parameters.Add(new SqlParameter("@ManualTrueMatch", ManualTrueMatch));
+                    command.Parameters.Add(new SqlParameter("@ManualFalseMatch", ManualFalseMatch));
+                    command.ExecuteNonQuery();
+                }
+                connection.Close();
+            }
         }
 
         

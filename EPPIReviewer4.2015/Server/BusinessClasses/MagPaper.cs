@@ -455,22 +455,8 @@ namespace BusinessLibrary.BusinessClasses
 
         protected override void DataPortal_Update()
         {
-            using (SqlConnection connection = new SqlConnection(DataConnection.AcademicControllerConnectionString))
-            {
-                ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
-                connection.Open();
-                using (SqlCommand command = new SqlCommand("st_ItemMatchedPaperUpdate", connection))
-                {
-                    command.CommandType = System.Data.CommandType.StoredProcedure;
-                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
-                    command.Parameters.Add(new SqlParameter("@ITEM_ID", ReadProperty(LinkedITEM_IDProperty)));
-                    command.Parameters.Add(new SqlParameter("@PaperId", ReadProperty(PaperIdProperty)));
-                    command.Parameters.Add(new SqlParameter("@ManualTrueMatch", ReadProperty(ManualTrueMatchProperty)));
-                    command.Parameters.Add(new SqlParameter("@ManualFalseMatch", ReadProperty(ManualFalseMatchProperty)));
-                    command.ExecuteNonQuery();
-                }
-                connection.Close();
-            }
+            MagMatchItemToPaperManualCommand.SaveManualMatchDecision(ReadProperty(LinkedITEM_IDProperty), ReadProperty(PaperIdProperty),
+                ReadProperty(ManualTrueMatchProperty), ReadProperty(ManualFalseMatchProperty));
         }
 
         protected override void DataPortal_DeleteSelf()

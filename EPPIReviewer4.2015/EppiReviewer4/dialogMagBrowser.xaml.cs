@@ -1431,7 +1431,7 @@ namespace EppiReviewer4
                     else
                     {
                         MagMatchItemsToPapersCommand res = e2.Object as MagMatchItemsToPapersCommand;
-                        RadWindow.Alert(res.currentStatus);
+                        //RadWindow.Alert("Records submitted for matching. This can take a while...");
                     }
                 };
                 dp.BeginExecute(GetMatches);

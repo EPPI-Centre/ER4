@@ -12,6 +12,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Azure.Search.Models;
 using Microsoft.Azure.Search;
+using System.Text.RegularExpressions;
 
 namespace BusinessLibrary.BusinessClasses
 {
@@ -51,7 +52,6 @@ namespace BusinessLibrary.BusinessClasses
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
                 connection.Open();
-
                 using (SqlCommand command = new SqlCommand("st_Item", connection))
                 {
                     command.CommandType = System.Data.CommandType.StoredProcedure;
@@ -63,12 +63,14 @@ namespace BusinessLibrary.BusinessClasses
                             i = Item.GetItem(reader);
                     }
                 }
+                connection.Close();
             }
 
             if (i != null)
             {
-                string title = i.Title.Replace(" ", "") != "" ? " title: " + i.Title.Replace(":", "") : "";
-                string journal = i.ParentTitle.Replace(" ", "") != "" ? " journal: " + i.ParentTitle.Replace(":", "") : "";
+                Regex rgx = new Regex("[^a-zA-Z0-9 -]");
+                string title = i.Title.Replace(" ", "") != "" ? " title: " + rgx.Replace(i.Title, " ").Replace("--", " ") : "";
+                string journal = i.ParentTitle.Replace(" ", "") != "" ? " journal: " + rgx.Replace(i.ParentTitle, " ") : "";
                 string authors = i.Authors.Replace(" ", "") != "" ? " authors: " + i.Authors.Replace(";", " ").Replace(":", "") : "";
                 string volume = i.Volume.Replace(" ", "") != "" ? " volume: " + i.Volume.Replace(":", "") : "";
                 string issue = i.Issue.Replace(" ", "") != "" ? " issue: " + i.Issue.Replace(":", "") : "";
@@ -80,7 +82,7 @@ namespace BusinessLibrary.BusinessClasses
                 {
                     Select = new[] { "id", "title", "journal", "year", "authors", "volume", "issue", "first_page" },
                     QueryType = QueryType.Full,
-                    Top = 5
+                    Top = 3
                 };
                 int topScoreIndex = -1;
                 double topScore = -1;
@@ -115,6 +117,8 @@ namespace BusinessLibrary.BusinessClasses
                             command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
                             command.Parameters.Add(new SqlParameter("@ITEM_ID", i.ItemId));
                             command.Parameters.Add(new SqlParameter("@PaperId", im.Document.id));
+                            command.Parameters.Add(new SqlParameter("@ManualTrueMatch", 0));
+                            command.Parameters.Add(new SqlParameter("@ManualFalseMatch", 0));
                             command.Parameters.Add(new SqlParameter("@AutoMatchScore", im.Document.matchingScore));
                             command.ExecuteNonQuery();
                         }
