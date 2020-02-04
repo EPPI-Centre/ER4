@@ -475,12 +475,75 @@ namespace BusinessLibrary.BusinessClasses
             }
             */
 
+            // new hybrid system: SQL where necessary, but AzSearch and MAKES where possible
+
+            string originalListType = selectionCriteria.ListType;
             ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
             RaiseListChangedEvents = false;
             PageSize = selectionCriteria.PageSize;
             using (SqlConnection connection = new SqlConnection(DataConnection.AcademicControllerConnectionString))
             {
                 connection.Open();
+                if (selectionCriteria.ListType == "CitationsList")
+                {
+                    selectionCriteria.ListType = "PaperListById"; // put the IDs into this list and then match up below to get the items in the review info
+                    if (selectionCriteria.MagPaperId != 0)
+                    {
+                        string responseText = "";
+                        WebRequest request = WebRequest.Create(URL + "?expr=Id=" + selectionCriteria.MagPaperId.ToString() +
+                            "&attributes=RId");
+                        WebResponse response = request.GetResponse();
+                        using (Stream dataStream = response.GetResponseStream())
+                        {
+                            StreamReader reader = new StreamReader(dataStream);
+                            responseText = reader.ReadToEnd();
+                        }
+                        response.Close();
+
+                        var respJson = JsonConvert.DeserializeObject<MakesResponse>(responseText);
+                        selectionCriteria.PaperIds = "";
+                        if (respJson.entities.Count == 1 && respJson.entities[0].RId != null)
+                        {
+                            foreach (Int64 RId in respJson.entities[0].RId)
+                            {
+                                selectionCriteria.PaperIds += selectionCriteria.PaperIds == "" ? RId.ToString() : "," + RId.ToString();
+                            }
+                        }
+                        selectionCriteria.ListType = originalListType;
+                        selectionCriteria.PaperIds = "";
+                    }
+                }
+
+                if (selectionCriteria.ListType == "CitedByList")
+                {
+                    selectionCriteria.ListType = "PaperListById"; // put the IDs into this list and then match up below to get the items in the review info
+                    if (selectionCriteria.MagPaperId != 0)
+                    {
+                        string responseText = "";
+                        WebRequest request = WebRequest.Create(URL + "?expr=RId=" + selectionCriteria.MagPaperId.ToString() +
+                            "&attributes=Id&count=100");
+                        WebResponse response = request.GetResponse();
+                        using (Stream dataStream = response.GetResponseStream())
+                        {
+                            StreamReader reader = new StreamReader(dataStream);
+                            responseText = reader.ReadToEnd();
+                        }
+                        response.Close();
+
+                        var respJson = JsonConvert.DeserializeObject<MakesResponse>(responseText);
+                        selectionCriteria.PaperIds = "";
+                        if (respJson.entities.Count > 0)
+                        {
+                            foreach (PaperMakes pm in respJson.entities)
+                            {
+                                selectionCriteria.PaperIds += selectionCriteria.PaperIds == "" ? pm.Id.ToString() : "," + pm.Id.ToString();
+                            }
+                        }
+                        selectionCriteria.ListType = originalListType;
+                        selectionCriteria.PaperIds = "";
+                    }
+                }
+
                 using (SqlCommand command = SpecifyListPaperIdsCommand(connection, selectionCriteria, ri))
                 {
                     command.CommandTimeout = 500; // a bit longer, as some of these lists are long!
