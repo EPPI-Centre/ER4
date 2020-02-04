@@ -509,8 +509,6 @@ namespace BusinessLibrary.BusinessClasses
                                 selectionCriteria.PaperIds += selectionCriteria.PaperIds == "" ? RId.ToString() : "," + RId.ToString();
                             }
                         }
-                        selectionCriteria.ListType = originalListType;
-                        selectionCriteria.PaperIds = "";
                     }
                 }
 
@@ -539,8 +537,6 @@ namespace BusinessLibrary.BusinessClasses
                                 selectionCriteria.PaperIds += selectionCriteria.PaperIds == "" ? pm.Id.ToString() : "," + pm.Id.ToString();
                             }
                         }
-                        selectionCriteria.ListType = originalListType;
-                        selectionCriteria.PaperIds = "";
                     }
                 }
 
@@ -575,6 +571,11 @@ namespace BusinessLibrary.BusinessClasses
                     }
                 }
                 connection.Close();
+                if (originalListType == "CitedByList" || originalListType == "CitationsList")
+                {
+                    selectionCriteria.ListType = originalListType;
+                    selectionCriteria.PaperIds = "";
+                }
             }
 
             RaiseListChangedEvents = true;
@@ -664,6 +665,7 @@ namespace BusinessLibrary.BusinessClasses
         private SqlCommand SpecifyListCommand(SqlConnection connection, MagPaperListSelectionCriteria criteria, ReviewerIdentity ri)
         {
             SqlCommand command = null;
+            /*
             switch (criteria.ListType)
             {
                 case "ReviewMatchedPapers":
@@ -737,8 +739,9 @@ namespace BusinessLibrary.BusinessClasses
                     this.PaperIds = criteria.PaperIds;
                     this._PaperId = 0;
                     break;
-            }
+            }*/
             return command;
+            
         }
 
 
