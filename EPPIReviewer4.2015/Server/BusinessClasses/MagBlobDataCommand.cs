@@ -11,8 +11,9 @@ using Csla.Silverlight;
 using System.ComponentModel;
 using Csla.DataPortalClient;
 using System.Threading;
+using System.Configuration;
 
-#if!SILVERLIGHT
+#if !SILVERLIGHT
 using BusinessLibrary.Data;
 using BusinessLibrary.Security;
 using Microsoft.WindowsAzure.Storage;
@@ -88,7 +89,7 @@ namespace BusinessLibrary.BusinessClasses
         private async Task ListMagDbsAndMeta()
         {
             string storageAccountName = "eppimag";
-            string storageAccountKey = "***REMOVED***";
+            string storageAccountKey = ConfigurationManager.AppSettings["MAGStorageAccountKey"];
 
             string storageConnectionString =
                 "DefaultEndpointsProtocol=https;AccountName=" + storageAccountName + ";AccountKey=";

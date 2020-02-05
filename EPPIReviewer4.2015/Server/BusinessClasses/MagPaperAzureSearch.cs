@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -34,12 +35,12 @@ namespace BusinessLibrary.BusinessClasses
         
         public static PaperAzureSearch GetPaperAzureSearch(string PaperId)
         {
-            PaperAzureSearch pas = new BusinessClasses.PaperAzureSearch();
+            PaperAzureSearch pas = new PaperAzureSearch();
 
             string responseText = "";
-            WebRequest request = WebRequest.Create(@"https://eppimag.search.windows.net/indexes/mag-index/docs/" + PaperId + @"?api-version=2017-11-11");
+            WebRequest request = WebRequest.Create(ConfigurationManager.AppSettings["AzureSearchBaseURL"] + @"docs/" + PaperId + @"?api-version=2017-11-11");
             request.ContentType = "application/json";
-            request.Headers.Add("api-key", "***REMOVED***");
+            request.Headers.Add("api-key", ConfigurationManager.AppSettings["AzureSearchMAGApi-key"]);
             try
             {
                 WebResponse response = request.GetResponse();

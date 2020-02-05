@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using Microsoft.Azure.Search.Models;
 using Microsoft.Azure.Search;
 using System.Text.RegularExpressions;
+using System.Configuration;
 
 namespace BusinessLibrary.BusinessClasses
 {
@@ -40,8 +41,7 @@ namespace BusinessLibrary.BusinessClasses
 
         private static SearchIndexClient CreateSearchIndexClient()
         {
-            string queryApiKey = "***REMOVED***";
-            SearchIndexClient indexClient = new SearchIndexClient("eppimag", "mag-index", new SearchCredentials(queryApiKey));
+            SearchIndexClient indexClient = new SearchIndexClient("eppimag", "mag-index", new SearchCredentials(ConfigurationManager.AppSettings["AzureSearchMAGApi-key"]));
             return indexClient;
         }
 

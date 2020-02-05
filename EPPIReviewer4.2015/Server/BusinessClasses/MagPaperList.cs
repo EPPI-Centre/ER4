@@ -9,6 +9,7 @@ using Csla.Serialization;
 using Csla.Silverlight;
 using System.ComponentModel;
 using Newtonsoft.Json;
+using System.Configuration;
 //using Csla.Validation;
 
 #if !SILVERLIGHT
@@ -368,8 +369,6 @@ namespace BusinessLibrary.BusinessClasses
        
 #else
 
-        const string URL = "http://eppimag.cloudapp.net/evaluate"; // need to get from AcademicController
-
         public class MakesResponse
         {
             public string expr { get; set; }
@@ -490,7 +489,7 @@ namespace BusinessLibrary.BusinessClasses
                     if (selectionCriteria.MagPaperId != 0)
                     {
                         string responseText = "";
-                        WebRequest request = WebRequest.Create(URL + "?expr=Id=" + selectionCriteria.MagPaperId.ToString() +
+                        WebRequest request = WebRequest.Create(ConfigurationManager.AppSettings["AzureMAKESBaseURL"] + @"?expr=Id=" + selectionCriteria.MagPaperId.ToString() +
                             "&attributes=RId");
                         WebResponse response = request.GetResponse();
                         using (Stream dataStream = response.GetResponseStream())
@@ -518,7 +517,7 @@ namespace BusinessLibrary.BusinessClasses
                     if (selectionCriteria.MagPaperId != 0)
                     {
                         string responseText = "";
-                        WebRequest request = WebRequest.Create(URL + "?expr=RId=" + selectionCriteria.MagPaperId.ToString() +
+                        WebRequest request = WebRequest.Create(ConfigurationManager.AppSettings["AzureMAKESBaseURL"] + "?expr=RId=" + selectionCriteria.MagPaperId.ToString() +
                             "&attributes=Id&count=100");
                         WebResponse response = request.GetResponse();
                         using (Stream dataStream = response.GetResponseStream())
