@@ -38,7 +38,6 @@ namespace BusinessLibrary.BusinessClasses
     }
     public static class MagPaperItemMatch
     {
-
         private static SearchIndexClient CreateSearchIndexClient()
         {
             SearchIndexClient indexClient = new SearchIndexClient("eppimag", "mag-index", new SearchCredentials(ConfigurationManager.AppSettings["AzureSearchMAGApi-key"]));

@@ -8,6 +8,10 @@ using Csla.Core;
 using Csla.Serialization;
 using Csla.Silverlight;
 using System.ComponentModel;
+using System.Net;
+using System.Configuration;
+using System.IO;
+using Newtonsoft.Json;
 //using Csla.Validation;
 
 #if !SILVERLIGHT
@@ -38,6 +42,30 @@ namespace BusinessLibrary.BusinessClasses
 #if SILVERLIGHT
        
 #else
+        public class FieldOfStudyMakes
+        {
+            public Int32 CC { get; set; }
+            public string DFN { get; set; }
+            public Int32 ECC { get; set; }
+            public Int32 FL { get; set; }
+            public string FN { get; set; }
+            public List<FieldOfStudyRelationshipMakes> FC { get; set; }
+            public List<FieldOfStudyRelationshipMakes> FP { get; set; }
+            public Int64 Id { get; set; }
+            public Int32 PC { get; set; }
+        }
+
+        public class FieldOfStudyRelationshipMakes
+        {
+            public Int64 FId { get; set; }
+            public string FN { get; set; }
+        }
+
+        private class MakesResponse
+        {
+            public string expr { get; set; }
+            public List<FieldOfStudyMakes> entities { get; set; }
+        }
 
         protected void DataPortal_Fetch(MagFieldOfStudyListSelectionCriteria selectionCriteria)
         {
@@ -81,11 +109,13 @@ namespace BusinessLibrary.BusinessClasses
                     command.CommandType = System.Data.CommandType.StoredProcedure;
                     command.Parameters.Add(new SqlParameter("@FieldOfStudyId", criteria.FieldOfStudyId));
                     break;
+                    /* NOT CURRENTLY IMPLEMENTED
                 case "FieldOfStudyRelatedFoSList":
                     command = new SqlCommand("st_FieldsOfStudyRelatedFoSList", connection);
                     command.CommandType = System.Data.CommandType.StoredProcedure;
                     command.Parameters.Add(new SqlParameter("@FieldOfStudyId", criteria.FieldOfStudyId));
                     break;
+                    */
                 case "FieldOfStudySearchList":
                     FullTextSearch fts = new FullTextSearch(criteria.SearchText);
                     command = new SqlCommand("st_FieldsOfStudySearch", connection);

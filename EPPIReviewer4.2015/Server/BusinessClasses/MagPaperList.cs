@@ -22,14 +22,17 @@ using System.Net;
 
 namespace BusinessLibrary.BusinessClasses
 {
+
     public class PaperMakes
     {
-        public string AAAuId { get; set; }
+        public string AAAuId { get; set; } // NB AUTHORS AREN'T USED AT THE MOMENT - WILL NEED FIXING SO THAT THEY ARE LISTS if / when we use MAKES for full bibliographic info
         public string AADAuN { get; set; }
         public string CC { get; set; }
         public DateTime D { get; set; }
         public string DN { get; set; }
         public string DOI { get; set; }
+        public Int64 FFId { get; set; }
+        public string FFN { get; set; }
         public string FP { get; set; }
         public string I { get; set; }
         public string IA { get; set; }
@@ -369,7 +372,7 @@ namespace BusinessLibrary.BusinessClasses
        
 #else
 
-        public class MakesResponse
+        private class MakesResponse
         {
             public string expr { get; set; }
             public List<PaperMakes> entities { get; set; }
@@ -558,7 +561,7 @@ namespace BusinessLibrary.BusinessClasses
                             }
                             else
                             {
-                                Add(MagPaper.GetMagPaper(pas, reader));
+                                //Add(MagPaper.GetMagPaper(pas, reader));
                             }
                         }
                         reader.NextResult();
