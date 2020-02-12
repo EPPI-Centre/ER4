@@ -17,6 +17,8 @@ import { ReviewInfoService } from '../services/ReviewInfo.service';
 import { NotificationService } from '@progress/kendo-angular-notification';
 import { itemAt } from '@progress/kendo-angular-grid/dist/es2015/data/data.iterators';
 import { OutcomesService } from '../services/outcomes.service';
+import { ReviewSetsEditingService } from '../services/ReviewSetsEditing.service';
+import { Subscription } from 'rxjs';
 
 @Component({
     selector: 'codesetTreeCoding',
@@ -47,19 +49,25 @@ export class CodesetTreeCodingComponent implements OnInit, OnDestroy, AfterViewI
        private ReviewInfoService: ReviewInfoService,
 	   private NotificationService: NotificationService,
 	   private _ItemCodingService: ItemCodingService,
-	   private _outcomeService: OutcomesService
+       private _outcomeService: OutcomesService,
+       private ReviewSetsEditingService: ReviewSetsEditingService
     ) { }
     //@ViewChild('ConfirmDeleteCoding') private ConfirmDeleteCoding: any;
     @ViewChild('ManualModal') private ManualModal: any;
     public showManualModal: boolean = false;
     @Input() InitiateFetchPDFCoding = false;
+    subRedrawTree: Subscription | null = null;
+
     ngOnInit() {
         if (this.ReviewerIdentityServ.reviewerIdentity.userId == 0 || this.ReviewerIdentityServ.reviewerIdentity.reviewId == 0) {
             this.router.navigate(['home']);
         }
         else {
             if (this.ReviewInfoService.Contacts.length == 0) this.ReviewInfoService.FetchReviewMembers();
-            this.ItemCodingService.DataChanged.subscribe(() => { this.CancelCompleteUncomplete(); } );
+            this.ItemCodingService.DataChanged.subscribe(() => { this.CancelCompleteUncomplete(); });
+            this.subRedrawTree = this.ReviewSetsEditingService.PleaseRedrawTheTree.subscribe(
+                () => { this.UpdateTree(); }
+            );
             //console.log("Review Ticket: " + this.ReviewerIdentityServ.reviewerIdentity.ticket);
             //let modalComp = this.modalService.open(InfoBoxModalContent);
             //modalComp.close();
@@ -361,7 +369,7 @@ export class CodesetTreeCodingComponent implements OnInit, OnDestroy, AfterViewI
 
     ngOnDestroy() {
         //this.ReviewerIdentityServ.reviewerIdentity = new ReviewerIdentity();
-        
+        if (this.subRedrawTree) this.subRedrawTree.unsubscribe();
         //console.log('killing reviewSets comp');
     }
 }

@@ -680,7 +680,11 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         cmd.setId = setId;
         this.reviewSetsService.ExecuteItemAttributeBulkDeleteCommand(cmd);
     }
-	
+    public RefreshCodingTools() {
+        this.reviewSetsService.GetReviewSets(false);
+    }
+
+
     public get ReviewPanelTogglingSymbol(): string {
         if (this.isReviewPanelCollapsed) return '&uarr;';
         else return '&darr;';
