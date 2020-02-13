@@ -23,34 +23,8 @@ using System.Net;
 namespace BusinessLibrary.BusinessClasses
 {
 
-    public class PaperMakes
-    {
-        public string AAAuId { get; set; } // NB AUTHORS AREN'T USED AT THE MOMENT - WILL NEED FIXING SO THAT THEY ARE LISTS if / when we use MAKES for full bibliographic info
-        public string AADAuN { get; set; }
-        public string CC { get; set; }
-        public DateTime D { get; set; }
-        public string DN { get; set; }
-        public string DOI { get; set; }
-        public Int64 FFId { get; set; }
-        public string FFN { get; set; }
-        public string FP { get; set; }
-        public string I { get; set; }
-        public string IA { get; set; }
-        public Int64 Id { get; set; }
-        public Int64 JJId { get; set; }
-        public string JJN { get; set; }
-        public string LP { get; set; }
-        public string PB { get; set; }
-        public string Pt { get; set; }
-        public List<Int64> RId { get; set; }
-        public List<string> S { get; set; }
-        public string Ti { get; set; }
-        public string V { get; set; }
-        public Int32 Y { get; set; }
-        //public IList<string> Roles { get; set; }
-    }
-
     
+
 
     [Serializable]
     public class MagPaperList : DynamicBindingListBase<MagPaper>, System.ComponentModel.IPagedCollectionView, INotifyPropertyChanged
@@ -372,11 +346,7 @@ namespace BusinessLibrary.BusinessClasses
        
 #else
 
-        private class MakesResponse
-        {
-            public string expr { get; set; }
-            public List<PaperMakes> entities { get; set; }
-        }
+        
         
 
         protected void DataPortal_Fetch(MagPaperListSelectionCriteria selectionCriteria)
@@ -415,8 +385,8 @@ namespace BusinessLibrary.BusinessClasses
             }
             */
 
-            /* 
-             * VERSION 2 - USING MAKES API (VERSION 1 OF MAKES DOESN'T INCLUDE AUTHORS, ABSTRACTS, JOURNALS ETC, SO SWITCHING TO AZURE SEARCH LOOKUP ***
+             // There are two types of list: one where we look up the items in SQL first, and one where the list comes from MAKES, and
+             // we do an SQL lookup to match up IDs.
             ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
             RaiseListChangedEvents = false;
             PageSize = selectionCriteria.PageSize;
@@ -424,6 +394,57 @@ namespace BusinessLibrary.BusinessClasses
             using (SqlConnection connection = new SqlConnection(DataConnection.AcademicControllerConnectionString))
             {
                 connection.Open();
+
+                // These lists start with an SQL query, and we then grab paper info from MAKES
+                if (selectionCriteria.ListType == "ReviewMatchedPapers" ||
+                    selectionCriteria.ListType == "ReviewMatchedPapersWithThisCode" ||
+                    selectionCriteria.ListType == "ItemMatchedPapersList" ||
+                    selectionCriteria.ListType == "MagRelatedPapersRunList" ||
+                    selectionCriteria.ListType == "PaperListById")
+                {
+                    using (SqlCommand command = SpecifyListPaperIdsCommand(connection, selectionCriteria, ri))
+                    {
+                        command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId)); // use the stored value so that noone can list items out of a review they aren't properly authenticated on
+                        command.Parameters.Add(new SqlParameter("@PageNo", selectionCriteria.PageNumber + 1));
+                        command.Parameters.Add(new SqlParameter("@RowsPerPage", selectionCriteria.PageSize));
+                        command.Parameters.Add(new SqlParameter("@Total", 0));
+                        command.Parameters["@Total"].Direction = System.Data.ParameterDirection.Output;
+                        
+                        using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
+                        {
+                            while (reader.Read())
+                            {
+                                Add(MagPaper.GetMagPaperFromMakes(reader.GetInt64("PaperId"), reader));
+
+                                //PaperAzureSearch pas = MagPaperAzureSearch.GetPaperAzureSearch(reader["PaperId"].ToString());
+                                //if (pas.id > 0)
+                                //{
+                                //    Add(MagPaper.GetMagPaper(pas, reader));
+                                //}
+                                //else
+                                //{
+                                //    //Add(MagPaper.GetMagPaper(pas, reader));
+                                //}
+                            }
+                            reader.NextResult();
+                            if (reader.Read())
+                            {
+                                _pageIndex = selectionCriteria.PageNumber;
+                                _totalItemCount = reader.GetInt32("@Total");
+                            }
+                        }
+                    }
+                }
+
+
+
+
+
+
+
+
+
+
                 using (SqlCommand command = SpecifyListPaperIdsCommand(connection, selectionCriteria, ri))
                 {
                     command.CommandTimeout = 500; // a bit longer, as some of these lists are long!
@@ -454,29 +475,14 @@ namespace BusinessLibrary.BusinessClasses
                     }
                 }
                 connection.Close();
-            }
+            
 
             if (Ids != "")
             {
-                string responseText = "";
-                WebRequest request = WebRequest.Create(URL + "?expr=Or(" + Ids + ")&attributes=AAAuId,AADAuN,CC,D,DN,DOI,FP,I,JJId,JJN,LP,PB,RId,S,Ti,V,Y&count=15");
-                WebResponse response = request.GetResponse();
-                using (Stream dataStream = response.GetResponseStream())
-                {
-                    StreamReader reader = new StreamReader(dataStream);
-                    responseText = reader.ReadToEnd();
-                }
-                response.Close();
-
-                var respJson = JsonConvert.DeserializeObject<MakesResponse>(responseText);
-
-                foreach (PaperMakes pm in respJson.entities)
-                {
-                    Add(MagPaper.GetMagPaper(pm));
-                }
+                
             }
-            */
 
+            /*
             // new hybrid system: SQL where necessary, but AzSearch and MAKES where possible
 
             string originalListType = selectionCriteria.ListType;
@@ -502,7 +508,7 @@ namespace BusinessLibrary.BusinessClasses
                         }
                         response.Close();
 
-                        var respJson = JsonConvert.DeserializeObject<MakesResponse>(responseText);
+                        var respJson = JsonConvert.DeserializeObject<MakesPaperResponse>(responseText);
                         selectionCriteria.PaperIds = "";
                         if (respJson.entities.Count == 1 && respJson.entities[0].RId != null)
                         {
@@ -512,72 +518,9 @@ namespace BusinessLibrary.BusinessClasses
                             }
                         }
                     }
-                }
+                }*/
+                
 
-                if (selectionCriteria.ListType == "CitedByList")
-                {
-                    selectionCriteria.ListType = "PaperListById"; // put the IDs into this list and then match up below to get the items in the review info
-                    if (selectionCriteria.MagPaperId != 0)
-                    {
-                        string responseText = "";
-                        WebRequest request = WebRequest.Create(ConfigurationManager.AppSettings["AzureMAKESBaseURL"] + "?expr=RId=" + selectionCriteria.MagPaperId.ToString() +
-                            "&attributes=Id&count=100");
-                        WebResponse response = request.GetResponse();
-                        using (Stream dataStream = response.GetResponseStream())
-                        {
-                            StreamReader reader = new StreamReader(dataStream);
-                            responseText = reader.ReadToEnd();
-                        }
-                        response.Close();
-
-                        var respJson = JsonConvert.DeserializeObject<MakesResponse>(responseText);
-                        selectionCriteria.PaperIds = "";
-                        if (respJson.entities.Count > 0)
-                        {
-                            foreach (PaperMakes pm in respJson.entities)
-                            {
-                                selectionCriteria.PaperIds += selectionCriteria.PaperIds == "" ? pm.Id.ToString() : "," + pm.Id.ToString();
-                            }
-                        }
-                    }
-                }
-
-                using (SqlCommand command = SpecifyListPaperIdsCommand(connection, selectionCriteria, ri))
-                {
-                    command.CommandTimeout = 500; // a bit longer, as some of these lists are long!
-                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId)); // use the stored value so that noone can list items out of a review they aren't properly authenticated on
-                    command.Parameters.Add(new SqlParameter("@PageNo", selectionCriteria.PageNumber + 1));
-                    command.Parameters.Add(new SqlParameter("@RowsPerPage", selectionCriteria.PageSize));
-                    command.Parameters.Add(new SqlParameter("@Total", 0));
-                    command.Parameters["@Total"].Direction = System.Data.ParameterDirection.Output;
-                    using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
-                    {
-                        while (reader.Read())
-                        {
-                            PaperAzureSearch pas = MagPaperAzureSearch.GetPaperAzureSearch(reader["PaperId"].ToString());
-                            if (pas.id > 0)
-                            {
-                                Add(MagPaper.GetMagPaper(pas, reader));
-                            }
-                            else
-                            {
-                                //Add(MagPaper.GetMagPaper(pas, reader));
-                            }
-                        }
-                        reader.NextResult();
-                        if (reader.Read())
-                        {
-                            _pageIndex = selectionCriteria.PageNumber;
-                            _totalItemCount = reader.GetInt32("@Total");
-                        }
-                    }
-                }
-                connection.Close();
-                if (originalListType == "CitedByList" || originalListType == "CitationsList")
-                {
-                    selectionCriteria.ListType = originalListType;
-                    selectionCriteria.PaperIds = "";
-                }
             }
 
             RaiseListChangedEvents = true;

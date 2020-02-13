@@ -129,16 +129,17 @@ namespace BusinessLibrary.BusinessClasses
 
                 foreach (string PaperId in _PaperIds.Split(','))
                 {
-                    PaperAzureSearch pas = MagPaperAzureSearch.GetPaperAzureSearch(PaperId);
-                    if (pas.id > 0)
+                    MagPaper mp = MagPaper.GetMagPaperFromMakes(Convert.ToInt64(PaperId), null);
+                    if (mp.PaperId > 0)
                     {
-                        for (int x = 0; x < pas.authors.Count; x++)
+                        string[] authors = mp.Authors.Split(',');
+                        for (int x = 0; x < authors.Count(); x++)
                         {
-                            AutH author = NormaliseAuth.singleAuth(myTI.ToTitleCase(pas.authors[x]), 0, 0);
+                            AutH author = NormaliseAuth.singleAuth(authors[x], 0, 0);
                             if (author != null)
                             {
                                 DataRow newAuthor = dtAuthors.NewRow();
-                                newAuthor["id"] = pas.id;
+                                newAuthor["id"] = mp.PaperId;
                                 newAuthor["GUID_JOB"] = GuidJob.ToString();
                                 newAuthor["first"] = author.LastName; // looks odd, but order is reversed in a MAG list
                                 newAuthor["second"] = author.MiddleName == "" ? author.MiddleName : author.FirstName;
@@ -149,20 +150,19 @@ namespace BusinessLibrary.BusinessClasses
                         }
 
                         DataRow dr = dtItems.NewRow();
-                        dr["id"] = pas.id;
-                        dr["year"] = pas.year;
-                        dr["journal"] = pas.journal != null ? myTI.ToTitleCase(pas.journal) : "";
-                        dr["volume"] = pas.volume;
-                        dr["issue"] = pas.issue;
-                        dr["pages"] = pas.first_page + "-" + pas.last_page;
-                        dr["title"] = pas.title != null ? myTI.ToTitleCase(pas.title) : "";
-                        dr["doi"] = pas.doi;
+                        dr["id"] = mp.PaperId;
+                        dr["year"] = mp.Year;
+                        dr["journal"] = mp.Journal != null ? myTI.ToTitleCase(mp.Journal) : "";
+                        dr["volume"] = mp.Volume;
+                        dr["issue"] = mp.Issue;
+                        dr["pages"] = mp.FirstPage + "-" + mp.LastPage;
+                        dr["title"] = mp.OriginalTitle;
+                        dr["doi"] = mp.DOI;
                         dr["GUID_JOB"] = GuidJob.ToString();
-                        dr["SearchText"] = Item.ToShortSearchText(pas.title);
+                        dr["SearchText"] = Item.ToShortSearchText(mp.PaperTitle);
                         dtItems.Rows.Add(dr);
                     }
                 }
-
 
                 using (SqlBulkCopy sbc = new SqlBulkCopy(connection))
                 {
