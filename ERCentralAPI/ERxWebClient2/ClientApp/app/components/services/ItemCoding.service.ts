@@ -69,6 +69,7 @@ export class ItemCodingService extends BusyAwareService {
                     let NewRealItemSet: ItemSet = new ItemSet(iSet);
                     this.ItemCodingList.push(NewRealItemSet);
                 }
+                this.RemoveBusy("Fetch");
                 this.DataChanged.emit();
                 //this.ReviewSetsService.AddItemData(result);
                 //this.Save();
@@ -80,7 +81,6 @@ export class ItemCodingService extends BusyAwareService {
                 }
                 this.modalService.SendBackHomeWithError(error);
             }
-            , () => { this.RemoveBusy("Fetch");}
             );
     }
 
@@ -308,15 +308,23 @@ export class ItemCodingService extends BusyAwareService {
     }
     //part of a small "normalise code" (avoid replication) quick win: called by coding page, coding full and PDFtroncontainer.
     public ApplyInsertOrUpdateItemAttribute(cmdResult: ItemAttributeSaveCommand, itemSet: ItemSet | null = null) {
-        //console.log("CmdResult", cmdResult);
+        console.log("ApplyInsertOrUpdateItemAttribute CmdResult", cmdResult);
         //console.log("itemSet", itemSet);
         let newItemA: ReadOnlyItemAttribute = new ReadOnlyItemAttribute();
+        if (itemSet) {
+            const index = (itemSet.itemAttributesList.findIndex(found => found.itemAttributeId == cmdResult.itemAttributeId))
+            if (index != -1) {
+                newItemA = itemSet.itemAttributesList.splice(index, 1)[0];
+            }
+        }
         newItemA.additionalText = cmdResult.additionalText;
         newItemA.armId = cmdResult.itemArmId;
         newItemA.armTitle = "";
         newItemA.attributeId = cmdResult.attributeId;
         newItemA.itemAttributeId = cmdResult.itemAttributeId;
-        if (itemSet) itemSet.itemAttributesList.push(newItemA);
+        if (itemSet) {
+            itemSet.itemAttributesList.push(newItemA);
+        }
         else {//didn't have the itemSet, so need to create it...
             let newItemSet: ItemSet = new ItemSet();
             newItemSet.contactId = this.ReviewerIdentityService.reviewerIdentity.userId;
