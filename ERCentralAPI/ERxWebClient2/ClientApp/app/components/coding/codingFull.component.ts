@@ -345,6 +345,7 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
     public IsServiceBusy4PDF(): boolean {
         if (this.ItemCodingService.IsBusy
             || this.ReviewSetsService.IsBusy
+            || this.ItemCodingService.IsBusy
             //|| this.armservice.IsBusy
             //|| this.ItemDocsService.IsBusy
         ) return true;

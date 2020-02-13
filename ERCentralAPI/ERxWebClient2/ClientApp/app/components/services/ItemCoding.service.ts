@@ -143,6 +143,7 @@ export class ItemCodingService extends BusyAwareService {
         if (!xAnnots || xAnnots.length == 0 || !defmtx || defmtx.length == 0) {
             console.log("Can't do, missing data:", xAnnots, defmtx, xmlDoc);
             this.RemoveBusy("SaveItemAttPDFCoding");
+            this.ngZone.run(() => this.IsBusy);
             return;
         }
         let matrix = defmtx[0].getAttribute("matrix");
@@ -288,6 +289,7 @@ export class ItemCodingService extends BusyAwareService {
                     //the ngZone thing makes sure Angular updates the visual structure.
                     this.ngZone.run(
                         () => {
+                            const check = this.IsBusy;
                             this.ReviewSetsService.AddItemData(this.ItemCodingList, this.ArmsService.SelectedArm == null ? 0 : this.ArmsService.SelectedArm.itemArmId);
                         }
                     );
@@ -309,6 +311,7 @@ export class ItemCodingService extends BusyAwareService {
     //part of a small "normalise code" (avoid replication) quick win: called by coding page, coding full and PDFtroncontainer.
     public ApplyInsertOrUpdateItemAttribute(cmdResult: ItemAttributeSaveCommand, itemSet: ItemSet | null = null) {
         console.log("ApplyInsertOrUpdateItemAttribute CmdResult", cmdResult);
+
         //console.log("itemSet", itemSet);
         let newItemA: ReadOnlyItemAttribute = new ReadOnlyItemAttribute();
         if (itemSet) {
@@ -361,7 +364,8 @@ export class ItemCodingService extends BusyAwareService {
     }
     public DeleteItemAttPDFCodingPage(page: number, itemAttributeId: number) {
         this._BusyMethods.push("DeleteItemAttPDFCodingPage");
-        console.log("DeleteItemAttPDFCodingPage", page, itemAttributeId);
+        this.ngZone.run(() => this.IsBusy);
+        console.log("DeleteItemAttPDFCodingPage", page, itemAttributeId, this._BusyMethods);
         let existing: ItemAttributePDF | undefined = undefined;
         
         if (this.CurrentItemAttPDFCoding.Criteria.itemAttributeId == itemAttributeId && this.CurrentItemAttPDFCoding.ItemAttPDFCoding) {
@@ -371,19 +375,26 @@ export class ItemCodingService extends BusyAwareService {
         if (existing == undefined) {
             //not good. We don't know what to delete...
             this.RemoveBusy("DeleteItemAttPDFCodingPage");
+            this.ngZone.run(() => this.IsBusy);
             this.modalService.GenericErrorMessage("Sorry, we can't find the PDF-coding to delete. \nNo Data was changed!\nIf the problem persists, please contact EPPISupport.")
             return;
         }
         let body = JSON.stringify({ Value: existing.itemAttributePDFId });
-        this._httpC.post<ItemAttributePDF>(this._baseUrl + "api/ItemSetList/DeletePDFCodingPage",
+        this._httpC.post<number>(this._baseUrl + "api/ItemSetList/DeletePDFCodingPage",
             body).subscribe(result => {
-                console.log("DeleteItemAttPDFCodingPage" , result);
+                console.log("DeleteItemAttPDFCodingPage", result, this._BusyMethods);
                 if (this._CurrentItemAttPDFCoding.ItemAttPDFCoding == null) {
                     this._CurrentItemAttPDFCoding.ItemAttPDFCoding = [];
                 }
-                let indexOfRes = this._CurrentItemAttPDFCoding.ItemAttPDFCoding.findIndex((found: ItemAttributePDF) => result.itemAttributePDFId == found.itemAttributePDFId)
-                if (indexOfRes == -1) this._CurrentItemAttPDFCoding.ItemAttPDFCoding.push(result);//add new page
-                else this._CurrentItemAttPDFCoding.ItemAttPDFCoding.splice(indexOfRes, 1, result);//replace existing - maybe we don't need to...
+                let indexOfRes = this._CurrentItemAttPDFCoding.ItemAttPDFCoding.findIndex((found: ItemAttributePDF) => result == found.itemAttributePDFId)
+                console.log("ItemAttPDFCoding before:", this._CurrentItemAttPDFCoding.ItemAttPDFCoding.length, this._CurrentItemAttPDFCoding.ItemAttPDFCoding);
+                if (indexOfRes >= -1) this._CurrentItemAttPDFCoding.ItemAttPDFCoding.splice(indexOfRes, 1);
+                console.log("ItemAttPDFCoding after:",
+                    this._CurrentItemAttPDFCoding.ItemAttPDFCoding.length, this._CurrentItemAttPDFCoding.ItemAttPDFCoding
+                    , this._BusyMethods
+                );
+                //if (indexOfRes == -1) this._CurrentItemAttPDFCoding.ItemAttPDFCoding.push(result);//add new page
+                //else this._CurrentItemAttPDFCoding.ItemAttPDFCoding.splice(indexOfRes, 1, result);//replace existing - maybe we don't need to...
                 //this._CurrentItemAttPDFCoding.Criteria = criteria;
                 //this._CurrentItemAttPDFCoding.ItemAttPDFCoding = result;
                 //this.ItemAttPDFCodingChanged.emit();
@@ -391,7 +402,10 @@ export class ItemCodingService extends BusyAwareService {
                 this.RemoveBusy("DeleteItemAttPDFCodingPage");
                 this.modalService.SendBackHomeWithError(error);
             }
-            , () => { this.RemoveBusy("DeleteItemAttPDFCodingPage"); }
+            , () => {
+                this.RemoveBusy("DeleteItemAttPDFCodingPage");
+                this.ngZone.run(() => this.IsBusy);
+            }
             );
 
     }
