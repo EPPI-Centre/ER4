@@ -321,7 +321,7 @@ namespace EppiReviewer4
             selectionCriteria3.MagPaperId = PaperId;
             provider3.FactoryParameters.Add(selectionCriteria3);
             provider3.FactoryMethod = "GetMagPaperList";
-            provider3.Refresh();
+            //provider3.Refresh();
 
             MagFieldOfStudyListSelectionCriteria selectionCriteria4 = new MagFieldOfStudyListSelectionCriteria();
             selectionCriteria4.ListType = "PaperFieldOfStudyList";
@@ -1149,7 +1149,7 @@ namespace EppiReviewer4
             ResetSelected("TopicPaperListData");
             ResetSelected("CitationPaperListData");
             ResetSelected("CitedByListData");
-            ResetSelected("RecommendationsListData");
+            //ResetSelected("RecommendationsListData");
         }
 
         private void ResetSelected(string ProviderName)
