@@ -459,6 +459,15 @@ namespace BusinessLibrary.BusinessClasses
                             break;
                         case "PaperListById":
                             searchString = "OR(Id=" + selectionCriteria.PaperIds.Replace(",", ", Id=") + ")";
+                            if (selectionCriteria.PaperIds != "")
+                            {
+                                _totalItemCount = selectionCriteria.PaperIds.ToCharArray().Count(c => c == ',') + 1;
+                            }
+                            else
+                            {
+                                _totalItemCount = 0;
+                                searchString = "";
+                            }
                             break;
                         case "RecommendationsList":
                             //searchString = "Composite(RId=" + selectionCriteria.MagPaperId.ToString() + ")";
