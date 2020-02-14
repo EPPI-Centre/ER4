@@ -575,45 +575,28 @@ namespace BusinessLibrary.BusinessClasses
 
         protected void DataPortal_Fetch(SingleCriteria<MagPaper, Int64> criteria) // used to return a specific Paper
         {
-            using (SqlConnection connection = new SqlConnection(DataConnection.AcademicControllerConnectionString))
+            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
                 ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
                 connection.Open();
-                using (SqlCommand command = new SqlCommand("st_Paper", connection))
+                using (SqlCommand command = new SqlCommand("st_MagPaper", connection))
                 {
                     command.CommandType = System.Data.CommandType.StoredProcedure;
                     command.Parameters.Add(new SqlParameter("@PaperId", criteria.Value));
+                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
                     using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
                     {
-                        if (reader.Read())
+                        PaperMakes pm = GetPaperMakesFromMakes(criteria.Value);
+                        if (pm != null)
                         {
-                            LoadProperty<Int64>(PaperIdProperty, reader.GetInt64("PaperID"));
-                            LoadProperty<string>(DOIProperty, reader.GetString("DOI"));
-                            LoadProperty<string>(DocTypeProperty, reader.GetString("DocType"));
-                            LoadProperty<string>(PaperTitleProperty, reader.GetString("PaperTitle"));
-                            LoadProperty<string>(OriginalTitleProperty, reader.GetString("OriginalTitle"));
-                            LoadProperty<string>(BookTitleProperty, reader.GetString("BookTitle"));
-                            LoadProperty<Int32>(YearProperty, reader.GetInt32("Year"));
-                            LoadProperty<SmartDate>(DateProperty, reader.GetSmartDate("Date"));
-                            LoadProperty<string>(PublisherProperty, reader.GetString("Publisher"));
-                            LoadProperty<Int64>(JournalIdProperty, reader.GetInt64("JournalId"));
-                            LoadProperty<string>(JournalProperty, reader.GetString("DisplayName"));
-                            LoadProperty<Int64>(ConferenceSeriesIdProperty, reader.GetInt64("ConferenceSeriesId"));
-                            LoadProperty<Int64>(ConferenceInstanceIdProperty, reader.GetInt64("ConferenceInstanceId"));
-                            LoadProperty<string>(VolumeProperty, reader.GetString("Volume"));
-                            LoadProperty<string>(FirstPageProperty, reader.GetString("FirstPage"));
-                            LoadProperty<string>(LastPageProperty, reader.GetString("LastPage"));
-                            LoadProperty<Int64>(ReferenceCountProperty, reader.GetInt64("ReferenceCount"));
-                            LoadProperty<Int64>(CitationCountProperty, reader.GetInt64("CitationCount"));
-                            LoadProperty<int>(EstimatedCitationCountProperty, reader.GetInt32("EstimatedCitationCount"));
-                            LoadProperty<SmartDate>(CreatedDateProperty, reader.GetSmartDate("CreatedDate"));
-                            LoadProperty<string>(AuthorsProperty, reader.GetString("Authors"));
-                            LoadProperty<Int64>(LinkedITEM_IDProperty, reader.GetInt64("ITEM_ID"));
-                            //LoadProperty<string>(AbstractProperty, ReconstructInvertedAbstract(reader.GetString("IndexedAbstract")));
-                            LoadProperty<string>(URLsProperty, reader.GetString("URLs"));
-                            LoadProperty<bool>(ManualTrueMatchProperty, reader.GetBoolean("ManualTrueMatch"));
-                            LoadProperty<bool>(ManualFalseMatchProperty, reader.GetBoolean("ManualFalseMatch"));
-                            LoadProperty<double>(AutoMatchScoreProperty, reader.GetDouble("AutoMatchScore"));
+                            if (reader.Read())
+                            {
+                                fillValues(this, pm, reader);
+                            }
+                            else
+                            {
+                                fillValues(this, pm, null);
+                            }
                         }
                     }
                 }
@@ -810,10 +793,17 @@ namespace BusinessLibrary.BusinessClasses
             }
             if (reader != null)
             {
-                returnValue.LoadProperty<Int64>(LinkedITEM_IDProperty, reader.GetInt64("ITEM_ID"));
-                returnValue.LoadProperty<bool>(ManualTrueMatchProperty, reader.GetBoolean("ManualTrueMatch"));
-                returnValue.LoadProperty<bool>(ManualFalseMatchProperty, reader.GetBoolean("ManualFalseMatch"));
-                returnValue.LoadProperty<double>(AutoMatchScoreProperty, reader.GetDouble("AutoMatchScore"));
+                try
+                {
+                    returnValue.LoadProperty<Int64>(LinkedITEM_IDProperty, reader.GetInt64("ITEM_ID"));
+                    returnValue.LoadProperty<bool>(ManualTrueMatchProperty, reader.GetBoolean("ManualTrueMatch"));
+                    returnValue.LoadProperty<bool>(ManualFalseMatchProperty, reader.GetBoolean("ManualFalseMatch"));
+                    returnValue.LoadProperty<double>(AutoMatchScoreProperty, reader.GetDouble("AutoMatchScore"));
+                }
+                catch
+                {
+                    // if the reader didn't read but we have a valid paper, it's not in the review
+                }
             }
         }
 

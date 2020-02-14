@@ -323,7 +323,7 @@ namespace BusinessLibrary.BusinessClasses
         protected override void DataPortal_Insert()
         {
             ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
-            using (SqlConnection connection = new SqlConnection(DataConnection.AcademicControllerConnectionString))
+            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
                 connection.Open();
                 using (SqlCommand command = new SqlCommand("st_MagSimulationInsert", connection))
@@ -351,23 +351,12 @@ namespace BusinessLibrary.BusinessClasses
 
         protected override void DataPortal_Update()
         {
-            using (SqlConnection connection = new SqlConnection(DataConnection.AcademicControllerConnectionString))
-            {
-                connection.Open();
-                using (SqlCommand command = new SqlCommand("st_MagSimulationUpdate", connection))
-                {
-                    command.CommandType = System.Data.CommandType.StoredProcedure;
-                    command.Parameters.Add(new SqlParameter("@MAG_SIMULATION_ID", ReadProperty(MagSimulationIdProperty)));
-                    // NOTHING TO UPDATE - SHOULDN'T GET CALLED
-                    command.ExecuteNonQuery();
-                }
-                connection.Close();
-            }
+            // There's nothing to update
         }
 
         protected override void DataPortal_DeleteSelf()
         {
-            using (SqlConnection connection = new SqlConnection(DataConnection.AcademicControllerConnectionString))
+            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
                 ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
                 connection.Open();

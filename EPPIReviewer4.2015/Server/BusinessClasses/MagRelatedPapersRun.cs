@@ -340,7 +340,7 @@ namespace BusinessLibrary.BusinessClasses
         protected override void DataPortal_Insert()
         {
             ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
-            using (SqlConnection connection = new SqlConnection(DataConnection.AcademicControllerConnectionString))
+            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
                 connection.Open();
                 using (SqlCommand command = new SqlCommand("st_MagRelatedPapersRunsInsert", connection))
@@ -368,7 +368,7 @@ namespace BusinessLibrary.BusinessClasses
         {
             if (this.UserDescription != "")
             {
-                using (SqlConnection connection = new SqlConnection(DataConnection.AcademicControllerConnectionString))
+                using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
                 {
                     connection.Open();
                     using (SqlCommand command = new SqlCommand("st_MagRelatedPapersRunsUpdate", connection))
@@ -386,7 +386,7 @@ namespace BusinessLibrary.BusinessClasses
 
         protected override void DataPortal_DeleteSelf()
         {
-            using (SqlConnection connection = new SqlConnection(DataConnection.AcademicControllerConnectionString))
+            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
                 ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
                 connection.Open();
