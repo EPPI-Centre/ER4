@@ -116,6 +116,7 @@ namespace BusinessLibrary.BusinessClasses
                 dtItems.Columns.Add("pages", typeof(string));
                 dtItems.Columns.Add("title", typeof(string));
                 dtItems.Columns.Add("doi", typeof(string));
+                dtItems.Columns.Add("abstract", typeof(string));
                 dtItems.Columns.Add("SearchText", typeof(string));
                 dtItems.Columns.Add("GUID_JOB");
 
@@ -158,6 +159,7 @@ namespace BusinessLibrary.BusinessClasses
                         dr["pages"] = mp.FirstPage + "-" + mp.LastPage;
                         dr["title"] = mp.OriginalTitle;
                         dr["doi"] = mp.DOI;
+                        dr["abstract"] = mp.Abstract;
                         dr["GUID_JOB"] = GuidJob.ToString();
                         dr["SearchText"] = Item.ToShortSearchText(mp.PaperTitle);
                         dtItems.Rows.Add(dr);

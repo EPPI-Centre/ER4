@@ -25,6 +25,78 @@ using BusinessLibrary.Security;
 
 namespace BusinessLibrary.BusinessClasses
 {
+    public class PaperMakesResponse
+    {
+        public string expr { get; set; }
+        public List<PaperMakes> entities { get; set; }
+    }
+
+    public class PaperMakes
+    {
+        public List<PaperMakesAuthor> AA { get; set; } 
+        public string BT { get; set; }
+        // not bothering with conference information - less important outside computer science
+        public Int32 CC { get; set; }
+        public DateTime D { get; set; }
+        public string DN { get; set; }
+        public string DOI { get; set; }
+        public Int32 ECC { get; set; }
+        public List<PaperMakesFieldOfStudy> F { get; set; }
+        public string FP { get; set; }
+        public string I { get; set; }
+        public PaperMakesInvertedAbstract IA { get; set; }
+        public Int64 Id { get; set; }
+        public PaperMakesJournal J { get; set; }
+        public string LP { get; set; }
+        public string PB { get; set; }
+        public string Pt { get; set; }
+        public List<Int64> RId { get; set; }
+        public List<PaperMakesSource> S { get; set; }
+        public string Ti { get; set; }
+        public string V { get; set; }
+        public string VFN { get; set; }
+        public string VSN { get; set; }
+        public Int32 Y { get; set; }
+    }
+
+    public class PaperMakesAuthor
+    {
+        public Int64 AfId { get; set; }
+        public string AfN { get; set; }
+        public Int64 AuId { get; set; }
+        public string AuN { get; set; }
+        public string DAuN { get; set; }
+        public string DAfN { get; set; }
+        public Int32 S { get; set; }
+    }
+
+    public class PaperMakesFieldOfStudy
+    {
+        public string DFN { get; set; }
+        public Int64 FId { get; set; }
+        public string FN { get; set; }
+    }
+
+    public class PaperMakesJournal
+    {
+        public Int64 JId { get; set; }
+        public string JN { get; set; }
+    }
+
+    public class PaperMakesSource
+    {
+        public string Ty { get; set; }
+        public string U { get; set; }
+    }
+
+    public class PaperMakesInvertedAbstract
+    {
+        public Int32 IndexLength { get; set; }
+        public Dictionary<string, int[]> InvertedIndex { get; set; }
+    }
+
+
+
     [Serializable]
     public class MagPaper : BusinessBase<MagPaper>
     {
@@ -36,76 +108,8 @@ namespace BusinessLibrary.BusinessClasses
         private MagPaper() { }
 #endif
 
-        public class PaperMakes
-        {
-            public List<PaperMakesAuthor> AA { get; set; } // NB AUTHORS AREN'T USED AT THE MOMENT - WILL NEED FIXING SO THAT THEY ARE LISTS if / when we use MAKES for full bibliographic info
-            public string BT { get; set; }
-            // not bothering with conference information - less important outside computer science
-            public string CC { get; set; }
-            public DateTime D { get; set; }
-            public string DN { get; set; }
-            public string DOI { get; set; }
-            public Int32 ECC { get; set; }
-            public List<PaperMakesFieldOfStudy> F { get; set; }
-            public string FP { get; set; }
-            public string I { get; set; }
-            public PaperMakesInvertedAbstract IA { get; set; }
-            public Int64 Id { get; set; }
-            public PaperMakesJournal J { get; set; }
-            public string LP { get; set; }
-            public string PB { get; set; }
-            public string Pt { get; set; }
-            public List<Int64> RId { get; set; }
-            public List<PaperMakesSource> S { get; set; }
-            public string Ti { get; set; }
-            public string V { get; set; }
-            public string VFN { get; set; }
-            public string VSN { get; set; }
-            public Int32 Y { get; set; }
-        }
-
-        public class PaperMakesAuthor
-        {
-            public Int64 AfId { get; set; }
-            public string AfN { get; set; }
-            public Int64 AuId { get; set; }
-            public string AuN { get; set; }
-            public string DAuN { get; set; }
-            public string DAfN { get; set; }
-            public Int32 S { get; set; }
-        }
-
-        public class PaperMakesFieldOfStudy
-        {
-            public string DFN { get; set; }
-            public Int64 FId { get; set; }
-            public string FN { get; set; }
-        }
-
-        public class PaperMakesJournal
-        {
-            public Int64 JId { get; set; }
-            public string JN { get; set; }
-        }
-
-        public class PaperMakesSource
-        {
-            public string Ty { get; set; }
-            public string U { get; set; }
-        }
-
-        public class PaperMakesInvertedAbstract
-        {
-            public Int32 IndexLength { get; set; }
-            public Dictionary<string, int[]> InvertedIndex { get; set; }
-        }
-
-        private class PaperMakesResponse
-        {
-            public string expr { get; set; }
-            public List<PaperMakes> entities { get; set; }
-        }
-
+        
+        
 
         public static void GetMagPaper(Int64 PaperId, EventHandler<DataPortalResult<MagPaper>> handler)
         {
@@ -288,6 +292,15 @@ namespace BusinessLibrary.BusinessClasses
             get
             {
                 return GetProperty(ReferenceCountProperty);
+            }
+        }
+
+        private static PropertyInfo<Int64> ReferencesProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("References", "References"));
+        public Int64 References
+        {
+            get
+            {
+                return GetProperty(ReferencesProperty);
             }
         }
 
@@ -645,9 +658,8 @@ namespace BusinessLibrary.BusinessClasses
             return returnValue;
         }
 
-        internal static MagPaper GetMagPaperFromMakes(Int64 PaperId, SafeDataReader reader)
+        public static PaperMakes GetPaperMakesFromMakes(Int64 PaperId)
         {
-            MagPaper returnValue = new MagPaper();
             var jsonsettings = new JsonSerializerSettings
             {
                 NullValueHandling = NullValueHandling.Ignore,
@@ -655,8 +667,9 @@ namespace BusinessLibrary.BusinessClasses
             };
 
             string responseText = "";
+            // n.b. if you change this request, you might need to change the similar request in MagPaperList
             WebRequest request = WebRequest.Create(ConfigurationManager.AppSettings["AzureMAKESBaseURL"] + @"?expr=Id=" +
-                PaperId.ToString() + "&attributes=AA.AfId,AA.DAfN,AA.DAuN,AA.AuId,Id,DN,DOI,Pt,Ti,Y,D,PB,J.JN,J.JId,V,FP,LP,RId,ECC,IA,S");
+                PaperId.ToString() + "&attributes=AA.AfId,AA.DAfN,AA.DAuN,AA.AuId,CC,Id,DN,DOI,Pt,Ti,Y,D,PB,J.JN,J.JId,V,FP,LP,RId,ECC,IA,S");
             WebResponse response = request.GetResponse();
             using (Stream dataStream = response.GetResponseStream())
             {
@@ -669,88 +682,22 @@ namespace BusinessLibrary.BusinessClasses
 
             if (respJson.entities != null && respJson.entities.Count > 0)
             {
-                PaperMakes pm = respJson.entities[0];
-                returnValue.LoadProperty<Int64>(PaperIdProperty, pm.Id);
-                returnValue.LoadProperty<string>(DOIProperty, pm.DOI);
-                returnValue.LoadProperty<string>(DocTypeProperty, pm.Pt);
-                returnValue.LoadProperty<string>(PaperTitleProperty, pm.Ti);
-                returnValue.LoadProperty<string>(OriginalTitleProperty, pm.DN);
-                //returnValue.LoadProperty<string>(BookTitleProperty, reader.GetString("BookTitle"));
-                returnValue.LoadProperty<Int32>(YearProperty, pm.Y);
-                returnValue.LoadProperty<SmartDate>(DateProperty, pm.D);
-                returnValue.LoadProperty<string>(PublisherProperty, pm.PB);
-                if (pm.J != null)
-                {
-                    returnValue.LoadProperty<Int64>(JournalIdProperty, pm.J.JId);
-                    returnValue.LoadProperty<string>(JournalProperty, pm.J.JN);
-                }
-                //returnValue.LoadProperty<Int64>(ConferenceSeriesIdProperty, );
-                //returnValue.LoadProperty<Int64>(ConferenceInstanceIdProperty, reader.GetInt64("ConferenceInstanceId"));
-                returnValue.LoadProperty<string>(VolumeProperty, pm.V);
-                returnValue.LoadProperty<string>(FirstPageProperty, pm.FP);
-                returnValue.LoadProperty<string>(LastPageProperty, pm.LP);
-                if (pm.RId != null)
-                    returnValue.LoadProperty<Int64>(ReferenceCountProperty, pm.RId.Count);
-                else
-                    returnValue.LoadProperty<Int64>(ReferenceCountProperty, 0);
-                //returnValue.LoadProperty<Int64>(CitationCountProperty, reader.GetInt64("CitationCount"));
-                returnValue.LoadProperty<int>(EstimatedCitationCountProperty, pm.ECC);
-                if (pm.AA != null)
-                {
-                    string a = "";
-                    foreach (PaperMakesAuthor pma in pm.AA)
-                    {
-                        if (a == "")
-                        {
-                            a = pma.DAuN;
-                        }
-                        else
-                        {
-                            a += ", " + pma.DAuN;
-                        }
-                    }
-                    returnValue.LoadProperty<string>(AuthorsProperty, a);
-                }
-                returnValue.LoadProperty<string>(AbstractProperty, ReconstructInvertedAbstract(pm.IA));
-                if (pm.S != null)
-                {
-                    string u = "";
-                    string p = "";
-                    foreach (PaperMakesSource pms in pm.S)
-                    {
-                        if (pms.Ty == "3")
-                        {
-                            if (p == "")
-                            {
-                                p = pms.U;
-                            }
-                            else
-                            {
-                                p += ";" + pms.U;
-                            }
-                        }
-                        else
-                        {
-                            if (u == "")
-                            {
-                                u = pms.U;
-                            }
-                            else
-                            {
-                                u += ";" + pms.U;
-                            }
-                        }
-                    }
-                    returnValue.LoadProperty<string>(URLsProperty, u);
-                    returnValue.LoadProperty<string>(PdfLinksProperty, u);
-                }
-                if (reader != null)
-                {
-                    returnValue.LoadProperty<Int64>(LinkedITEM_IDProperty, reader.GetInt64("ITEM_ID"));
-                    returnValue.LoadProperty<bool>(ManualTrueMatchProperty, reader.GetBoolean("ManualTrueMatch"));
-                    returnValue.LoadProperty<bool>(ManualFalseMatchProperty, reader.GetBoolean("ManualFalseMatch"));
-                    returnValue.LoadProperty<double>(AutoMatchScoreProperty, reader.GetDouble("AutoMatchScore"));
-                }
+                return respJson.entities[0];
+            }
+            else
+            {
+                return null;
+            }
+        }
+        
+
+        public static MagPaper GetMagPaperFromMakes(Int64 PaperId, SafeDataReader reader)
+        {
+            MagPaper returnValue = new MagPaper();
+            PaperMakes pm = GetPaperMakesFromMakes(PaperId);
+            if (pm != null)
+            {
+                fillValues(returnValue, pm, reader);
             }
             else
             {
@@ -758,7 +705,116 @@ namespace BusinessLibrary.BusinessClasses
             }
             returnValue.MarkOld();
             return returnValue;
+        }
 
+        internal static MagPaper GetMagPaperFromPaperMakes(PaperMakes pm, SafeDataReader reader)
+        {
+            MagPaper returnValue = new MagPaper();
+            if (pm != null)
+            {
+                fillValues(returnValue, pm, reader);
+            }
+            else
+            {
+                returnValue.LoadProperty<string>(OriginalTitleProperty, "ID not found in this version of MAG");
+            }
+            returnValue.MarkOld();
+            return returnValue;
+        }
+
+        public static void fillValues(MagPaper returnValue, PaperMakes pm, SafeDataReader reader)
+        {
+            returnValue.LoadProperty<Int64>(PaperIdProperty, pm.Id);
+            returnValue.LoadProperty<string>(DOIProperty, pm.DOI);
+            returnValue.LoadProperty<string>(DocTypeProperty, pm.Pt);
+            returnValue.LoadProperty<string>(PaperTitleProperty, pm.Ti);
+            returnValue.LoadProperty<string>(OriginalTitleProperty, pm.DN);
+            //returnValue.LoadProperty<string>(BookTitleProperty, reader.GetString("BookTitle"));
+            returnValue.LoadProperty<Int32>(YearProperty, pm.Y);
+            returnValue.LoadProperty<SmartDate>(DateProperty, pm.D);
+            returnValue.LoadProperty<string>(PublisherProperty, pm.PB);
+            if (pm.J != null)
+            {
+                returnValue.LoadProperty<Int64>(JournalIdProperty, pm.J.JId);
+                returnValue.LoadProperty<string>(JournalProperty, pm.J.JN);
+            }
+            //returnValue.LoadProperty<Int64>(ConferenceSeriesIdProperty, );
+            //returnValue.LoadProperty<Int64>(ConferenceInstanceIdProperty, reader.GetInt64("ConferenceInstanceId"));
+            returnValue.LoadProperty<string>(VolumeProperty, pm.V);
+            returnValue.LoadProperty<string>(FirstPageProperty, pm.FP);
+            returnValue.LoadProperty<string>(LastPageProperty, pm.LP);
+            if (pm.RId != null)
+            {
+                returnValue.LoadProperty<Int64>(ReferenceCountProperty, pm.RId.Count);
+                string r = "";
+                foreach (Int64 RId in pm.RId)
+                {
+                    if (r == "")
+                        r = RId.ToString();
+                    else
+                        r += "," + RId.ToString();
+                }
+            }
+            else
+                returnValue.LoadProperty<Int64>(ReferenceCountProperty, 0);
+            returnValue.LoadProperty<Int64>(CitationCountProperty, pm.CC);
+            returnValue.LoadProperty<int>(EstimatedCitationCountProperty, pm.ECC);
+            if (pm.AA != null)
+            {
+                string a = "";
+                foreach (PaperMakesAuthor pma in pm.AA)
+                {
+                    if (a == "")
+                    {
+                        a = pma.DAuN;
+                    }
+                    else
+                    {
+                        a += ", " + pma.DAuN;
+                    }
+                }
+                returnValue.LoadProperty<string>(AuthorsProperty, a);
+            }
+            returnValue.LoadProperty<string>(AbstractProperty, ReconstructInvertedAbstract(pm.IA));
+            if (pm.S != null)
+            {
+                string u = "";
+                string p = "";
+                foreach (PaperMakesSource pms in pm.S)
+                {
+                    if (pms.Ty == "3")
+                    {
+                        if (p == "")
+                        {
+                            p = pms.U;
+                        }
+                        else
+                        {
+                            p += ";" + pms.U;
+                        }
+                    }
+                    else
+                    {
+                        if (u == "")
+                        {
+                            u = pms.U;
+                        }
+                        else
+                        {
+                            u += ";" + pms.U;
+                        }
+                    }
+                }
+                returnValue.LoadProperty<string>(URLsProperty, u);
+                returnValue.LoadProperty<string>(PdfLinksProperty, u);
+            }
+            if (reader != null)
+            {
+                returnValue.LoadProperty<Int64>(LinkedITEM_IDProperty, reader.GetInt64("ITEM_ID"));
+                returnValue.LoadProperty<bool>(ManualTrueMatchProperty, reader.GetBoolean("ManualTrueMatch"));
+                returnValue.LoadProperty<bool>(ManualFalseMatchProperty, reader.GetBoolean("ManualFalseMatch"));
+                returnValue.LoadProperty<double>(AutoMatchScoreProperty, reader.GetDouble("AutoMatchScore"));
+            }
         }
 
         public static string ReconstructInvertedAbstract(PaperMakesInvertedAbstract ab)

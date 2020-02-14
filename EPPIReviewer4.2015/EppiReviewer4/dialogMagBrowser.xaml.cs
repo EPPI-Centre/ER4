@@ -816,17 +816,24 @@ namespace EppiReviewer4
 
         private void TopicPaperListBibliographyPager_PageIndexChanging(object sender, PageIndexChangingEventArgs e)
         {
-            CslaDataProvider provider = this.Resources["TopicPaperListData"] as CslaDataProvider;
-            MagPaperList mpl = provider.Data as MagPaperList;
-            provider.FactoryParameters.Clear();
-            MagPaperListSelectionCriteria selectionCriteria = new MagPaperListSelectionCriteria();
-            selectionCriteria.PageSize = 20;
-            selectionCriteria.PageNumber = e.NewPageIndex;
-            selectionCriteria.ListType = "PaperFieldsOfStudyList";
-            selectionCriteria.FieldOfStudyId = mpl.FieldOfStudyId;
-            provider.FactoryParameters.Add(selectionCriteria);
-            provider.FactoryMethod = "GetMagPaperList";
-            provider.Refresh();
+            if (e.NewPageIndex - e.OldPageIndex > 100)
+            {
+                RadWindow.Alert("Sorry, moving forward more than 100 pages at a time is not possible at present");
+            }
+            else
+            {
+                CslaDataProvider provider = this.Resources["TopicPaperListData"] as CslaDataProvider;
+                MagPaperList mpl = provider.Data as MagPaperList;
+                provider.FactoryParameters.Clear();
+                MagPaperListSelectionCriteria selectionCriteria = new MagPaperListSelectionCriteria();
+                selectionCriteria.PageSize = 20;
+                selectionCriteria.PageNumber = e.NewPageIndex;
+                selectionCriteria.ListType = "PaperFieldsOfStudyList";
+                selectionCriteria.FieldOfStudyId = mpl.FieldOfStudyId;
+                provider.FactoryParameters.Add(selectionCriteria);
+                provider.FactoryMethod = "GetMagPaperList";
+                provider.Refresh();
+            }
         }
 
         private void CitedByPager_PageIndexChanging(object sender, PageIndexChangingEventArgs e)
