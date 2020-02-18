@@ -59,18 +59,18 @@ export class SearchComp implements OnInit, OnDestroy {
 		else {
 
 			this._reviewSetsService.selectedNode = null;
-			this.getMembers();
-			console.log(this.Contacts);
+			//this.getMembers();
+			//console.log(this.Contacts);
         }
 	}
-	getMembers() {
+	//getMembers() {
 
-		if (!this._reviewInfoService.ReviewInfo || this._reviewInfoService.ReviewInfo.reviewId < 1) {
-			this._reviewInfoService.Fetch();
-		}
-		this._reviewInfoService.FetchReviewMembers();
+	//	if (!this._reviewInfoService.ReviewInfo || this._reviewInfoService.ReviewInfo.reviewId < 1) {
+	//		this._reviewInfoService.Fetch();
+	//	}
+	//	this._reviewInfoService.FetchReviewMembers();
 
-	}
+	//}
 
 	public get Contacts(): Contact[] {
 		return this._reviewInfoService.Contacts;

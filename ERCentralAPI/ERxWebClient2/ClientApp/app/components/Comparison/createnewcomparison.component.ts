@@ -61,14 +61,14 @@ export class ComparisonComp implements OnInit {
 		this.chosenFilter = null;
 		//this.selectedFilter = new SetAttribute();
 	}
-	getMembers() {
+	//getMembers() {
 
-		if (!this._reviewInfoService.ReviewInfo || this._reviewInfoService.ReviewInfo.reviewId < 1) {
-			this._reviewInfoService.Fetch();
-		}
-		this._reviewInfoService.FetchReviewMembers();
+	//	if (!this._reviewInfoService.ReviewInfo || this._reviewInfoService.ReviewInfo.reviewId < 1) {
+	//		this._reviewInfoService.Fetch();
+	//	}
+	//	this._reviewInfoService.FetchReviewMembers();
 
-	}
+	//}
 
 	getComparisons() {
 
@@ -197,8 +197,7 @@ export class ComparisonComp implements OnInit {
 
 	}
 	public RefreshData() {
-
-		this.getMembers();
+		//this.getMembers();
 		this.getComparisons();
 		this.selectedCodeSet = this.CodeSets[0];
 		this.chosenFilter = null;

@@ -63,7 +63,7 @@ export class CodesetTreeCodingComponent implements OnInit, OnDestroy, AfterViewI
             this.router.navigate(['home']);
         }
         else {
-            if (this.ReviewInfoService.Contacts.length == 0) this.ReviewInfoService.FetchReviewMembers();
+            //if (this.ReviewInfoService.Contacts.length == 0) this.ReviewInfoService.FetchReviewMembers();
             this.ItemCodingService.DataChanged.subscribe(() => { this.CancelCompleteUncomplete(); });
             this.subRedrawTree = this.ReviewSetsEditingService.PleaseRedrawTheTree.subscribe(
                 () => { this.UpdateTree(); }

@@ -44,6 +44,10 @@ export class ReviewerIdentityService implements OnDestroy {
     private killTrigger: Subject<void> = new Subject();
     private LogonTicketTimerSubscription: Subscription | null = null;
     private _currentStatus: string = 'No message yet.';
+    private _IsCodingOnly: boolean = false;
+    public get IsCodingOnly(): boolean {
+        return this._IsCodingOnly;
+    }
     public get currentStatus(): string {
         //console.log("getting status: ")
         if (!this.timerObj && this.reviewerIdentity.userId != 0
@@ -362,12 +366,22 @@ export class ReviewerIdentityService implements OnDestroy {
 
     }
 
-
-
-    public LoginToReview(RevId: number) {
+    private CommonPreLoginToReview() {
         this.userOptions = new UserOptions();
         //(this.customRouteReuseStrategy as CustomRouteReuseStrategy).Clear();
         this.KillLogonTicketTimer();//kills the timer
+        this.ReviewInfoService.Clear();
+    }
+    private CommonPostLoginToReview(isCodingOnly: boolean = false) {
+        this.StartLogonTicketTimer();
+        //this.Save();
+        this.ReviewInfoService.FetchAll();
+        this.ReviewerTermsService.Fetch();
+        this._IsCodingOnly = isCodingOnly;
+    }
+
+    public LoginToReview(RevId: number) {
+        this.CommonPreLoginToReview();
         let body = JSON.stringify({ Value: RevId });
         return this._httpC.post<ReviewerIdentity>(this._baseUrl + 'api/Login/LoginToReview',
             body).subscribe(ri => {
@@ -375,11 +389,8 @@ export class ReviewerIdentityService implements OnDestroy {
                 this.reviewerIdentity = ri;
 
                 if (this.reviewerIdentity.userId > 0 && this.reviewerIdentity.reviewId === RevId) {
-                    this.StartLogonTicketTimer();
-                    //this.Save();
-                    this.ReviewInfoService.Fetch();
-                    this.ReviewerTermsService.Fetch();
                     this.router.onSameUrlNavigation = "reload";
+                    this.CommonPostLoginToReview(true);
                     this.OpeningNewReview.emit();
                     this.router.navigate(['MainCodingOnly']);
                 }
@@ -393,9 +404,7 @@ export class ReviewerIdentityService implements OnDestroy {
     }
 
     public LoginToFullReview(RevId: number) {
-        this.userOptions = new UserOptions();
-        //(this.customRouteReuseStrategy as CustomRouteReuseStrategy).Clear();
-        this.KillLogonTicketTimer();
+        this.CommonPreLoginToReview();
         let body = JSON.stringify({ Value: RevId });
         return this._httpC.post<ReviewerIdentity>(this._baseUrl + 'api/Login/LoginToReview',
             body).subscribe(ri => {
@@ -405,9 +414,7 @@ export class ReviewerIdentityService implements OnDestroy {
                 if (this.reviewerIdentity.userId > 0 && this.reviewerIdentity.reviewId === RevId) {
 
                     //this.Save();
-                    this.StartLogonTicketTimer();
-                    this.ReviewInfoService.Fetch();
-                    this.ReviewerTermsService.Fetch();
+                    this.CommonPostLoginToReview(false);
                     this.router.onSameUrlNavigation = "reload";
                     this.router.navigate(['Main']);
                     this.OpeningNewReview.emit();
@@ -420,19 +427,14 @@ export class ReviewerIdentityService implements OnDestroy {
             );
     }
     public LoginReqSA(u: string, p: string, rid: number) {
-        //(this.customRouteReuseStrategy as CustomRouteReuseStrategy).Clear();
-        this.KillLogonTicketTimer();
-        this.userOptions = new UserOptions();
+        this.CommonPreLoginToReview();
         let cred = new LoginCredsSA(u, p, rid);//
         return this._httpC.post<ReviewerIdentity>(this._baseUrl + 'api/Login/LoginToReviewSA',
             cred).subscribe(ri => {
 
                 this.reviewerIdentity = ri;
                 if (this.reviewerIdentity.userId > 0 && this.reviewerIdentity.reviewId === rid) {
-                    this.StartLogonTicketTimer();
-                    this.ReviewInfoService.Fetch();
-                    this.ReviewerTermsService.Fetch();
-                    //this.router.navigate(['Main']);
+                    this.CommonPostLoginToReview(false);
                     this.OpeningNewReview.emit();
                 }
             }, error => {

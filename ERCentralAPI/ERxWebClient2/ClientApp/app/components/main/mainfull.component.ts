@@ -809,8 +809,9 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
     //}
 
     Reload() {
-        this.Clear();
         console.log('Reload mainfull');
+        this.Clear();
+        if (this.ReviewerIdentityServ.IsCodingOnly) return;
         this.reviewSetsService.GetReviewSets();
         this.isSourcesPanelVisible = false;
 		if (this.workAllocationsContactComp) this.workAllocationsContactComp.getWorkAllocationContactList();

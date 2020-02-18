@@ -6,6 +6,7 @@ import { AppComponent } from '../app/app.component'
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
+import { Helpers } from '../helpers/HelperMethods';
 
 @Injectable({
     providedIn: 'root',
@@ -22,7 +23,7 @@ export class ReviewInfoService extends BusyAwareService{
     }
 
 	private _ReviewContacts: Contact[] = [];
-    private _ReviewInfo: ReviewInfo = new ReviewInfo();;
+    private _ReviewInfo: ReviewInfo = new ReviewInfo();
     public get ReviewInfo(): ReviewInfo {
         //if (this._ReviewInfo.reviewId && this._ReviewInfo.reviewId != 0) {
         //    return this._ReviewInfo;
@@ -50,8 +51,12 @@ export class ReviewInfoService extends BusyAwareService{
 		}
 	}
 
+    public async FetchAll() {
+        this.Fetch();
+        await Helpers.Sleep(40);//just avoiding to send two requests exactly at the same time...
+        this.FetchReviewMembers();
+    }
 	public Fetch() {
-				
         this._BusyMethods.push("Fetch");
 		this._httpC.get<ReviewInfo>(this._baseUrl + 'api/ReviewInfo/ReviewInfo').subscribe(
 			rI => {
@@ -90,6 +95,10 @@ export class ReviewInfoService extends BusyAwareService{
         let ind = this._ReviewContacts.findIndex(found => found.contactId == ContactID);
         if (ind != -1) return this._ReviewContacts[ind].contactName;
         else return "N/A [Id:" + ContactID.toString() +"]";
+    }
+    public Clear() {
+        this._ReviewInfo = new ReviewInfo();
+        this._ReviewContacts = [];
     }
 }
 

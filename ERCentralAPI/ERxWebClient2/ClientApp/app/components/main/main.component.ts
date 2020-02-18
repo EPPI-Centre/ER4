@@ -85,7 +85,7 @@ export class MainComponent implements OnInit, OnDestroy, AfterViewInit {
 
     Reload() {
         this.Clear();
-        this.workAllocationsComp.getWorkAllocationContactList();
+        if (this.ReviewerIdentityServ.IsCodingOnly) this.workAllocationsComp.getWorkAllocationContactList();
     }
 
     Clear() {
