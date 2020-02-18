@@ -885,9 +885,9 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
     GoToSources() {
         this.router.navigate(['sources']);
     }
-    //ImportCodesetClick() {
-    //    this.router.navigate(['ImportCodesets']);
-    //}
+    ImportCodesetClick() {
+        this.router.navigate(['ImportCodesets']);
+    }
     ToRis() {
         if (!this.HasSelectedItems) return;
         const dataURI = "data:text/plain;base64," + encodeBase64(this.ItemListService.SelectedItemsToRIStext());

@@ -106,6 +106,10 @@ export class CodesetTreeCodingComponent implements OnInit, OnDestroy, AfterViewI
             this.ReviewInfoService.IsBusy ||
             this._outcomeService.IsBusy);
     }
+    public get IsReviewSetsServiceBusy(): boolean {
+        //console.log("mainfull IsServiceBusy", this.ItemListService, this.codesetStatsServ, this.SourcesService )
+        return (this.ReviewSetsService.IsBusy);
+    }
 	ngAfterViewInit() {
 	}
 	public attributeType: string = '';

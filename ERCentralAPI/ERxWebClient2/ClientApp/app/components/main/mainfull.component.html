@@ -74,7 +74,7 @@
 
 									<!--<kendo-toolbar-button [text]="'Export to RIS'"
 										  [disabled]="!HasSelectedItems" (click)="ToRis()"></kendo-toolbar-button>-->
-									<kendo-toolbar-button [icon]="'delete'" [disabled]="!HasSelectedItems"
+									<kendo-toolbar-button [icon]="'delete'" [disabled]="!HasSelectedItems || !HasWriteRights"
 														  (click)="DeleteRelevantItems()">
 									</kendo-toolbar-button>
 									<kendo-toolbar-button [text]="'In/Exclude'"
