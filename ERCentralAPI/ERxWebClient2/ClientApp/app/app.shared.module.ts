@@ -85,13 +85,13 @@ import { TextSelectDirective } from './components/helpers/text-select.directive'
 import { ReviewTermsListComp } from './components/ReviewTermsList/ReviewTermsListComp.component';
 import { configurablereportComp } from './components/Reports/configurablereport.component';
 import { DuplicatesComponent } from './components/Duplicates/duplicates.component';
-import { MAGComp } from './components/MAG/MAGComp.component';
+//import { MAGComp } from './components/MAG/MAGComp.component';
 
 @NgModule({
     declarations: [
 		AppComponent,
 		SearchComp,
-		MAGComp,
+		//MAGComp,
         frequenciesComp,
         frequenciesResultsComp,
         ReviewSetsEditorComponent,
