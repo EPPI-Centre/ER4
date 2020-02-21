@@ -707,6 +707,7 @@ namespace BusinessLibrary.BusinessClasses
 
         public static void fillValues(MagPaper returnValue, PaperMakes pm, SafeDataReader reader)
         {
+            TextInfo myTI = new CultureInfo("en-GB", false).TextInfo;
             returnValue.LoadProperty<Int64>(PaperIdProperty, pm.Id);
             returnValue.LoadProperty<string>(DOIProperty, pm.DOI);
             returnValue.LoadProperty<string>(DocTypeProperty, pm.Pt);
@@ -719,7 +720,7 @@ namespace BusinessLibrary.BusinessClasses
             if (pm.J != null)
             {
                 returnValue.LoadProperty<Int64>(JournalIdProperty, pm.J.JId);
-                returnValue.LoadProperty<string>(JournalProperty, pm.J.JN);
+                returnValue.LoadProperty<string>(JournalProperty, pm.J.JN != null ?  myTI.ToTitleCase(pm.J.JN) : "");
             }
             //returnValue.LoadProperty<Int64>(ConferenceSeriesIdProperty, );
             //returnValue.LoadProperty<Int64>(ConferenceInstanceIdProperty, reader.GetInt64("ConferenceInstanceId"));

@@ -78,8 +78,9 @@ namespace BusinessLibrary.BusinessClasses
             switch (selectionCriteria.ListType)
             {
                 case "PaperFieldOfStudyList":
-                    searchString = "OR(Id=" + selectionCriteria.PaperIdList.Replace(",", ", Id=") +
-                        @")&attributes=Id,F.DFN,F.FId,F.FN";
+                    searchString = selectionCriteria.PaperIdList == "" ? "" : 
+                        searchString = "OR(Id=" + selectionCriteria.PaperIdList.Replace(",", ", Id=") +
+                            @")&attributes=Id,F.DFN,F.FId,F.FN";
                     break;
                 case "FieldOfStudyParentsList":
                     searchString = "Id=" + selectionCriteria.FieldOfStudyId.ToString() +

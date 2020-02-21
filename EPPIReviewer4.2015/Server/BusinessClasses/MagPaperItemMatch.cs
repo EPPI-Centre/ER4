@@ -67,13 +67,14 @@ namespace BusinessLibrary.BusinessClasses
 
             if (i != null)
             {
-                Regex rgx = new Regex("[^a-zA-Z0-9 -]");
-                string title = i.Title.Replace(" ", "") != "" ? " title: " + rgx.Replace(i.Title, " ").Replace("--", " ") : "";
-                string journal = i.ParentTitle.Replace(" ", "") != "" ? " journal: " + rgx.Replace(i.ParentTitle, " ") : "";
-                string authors = i.Authors.Replace(" ", "") != "" ? " authors: " + i.Authors.Replace(";", " ").Replace(":", "") : "";
-                string volume = i.Volume.Replace(" ", "") != "" ? " volume: " + i.Volume.Replace(":", "") : "";
-                string issue = i.Issue.Replace(" ", "") != "" ? " issue: " + i.Issue.Replace(":", "") : "";
-                string first_page = i.FirstPage().Replace(" ", "") != "" ? " first_page: " + i.FirstPage().Replace(":", "") : "";
+                Regex rgx = new Regex("[^a-zA-Z0-9 ]");
+                string title = String.IsNullOrWhiteSpace(rgx.Replace(i.Title, " ").Replace("--", " ")) == false ? " title: " + rgx.Replace(i.Title, " ").Replace("--", " ").ToLower() : "";
+                string journal = String.IsNullOrWhiteSpace(rgx.Replace(i.ParentTitle, " ")) == false ? " journal: " + rgx.Replace(i.ParentTitle, " ").ToLower() : "";
+                string authors = String.IsNullOrWhiteSpace(rgx.Replace(i.Authors.Replace(";", " ").Replace(":", ""), " ")) == false ? " authors: " + rgx.Replace(i.Authors.Replace(";", " ").Replace(":", ""), " ").ToLower() : "";
+                //string authors = String.IsNullOrWhiteSpace(rgx.Replace(i.Institution.Replace(";", " ").Replace(":", ""), " ")) == false ? " authors: " + rgx.Replace(i.Institution.Replace(";", " ").Replace(":", ""), " ").ToLower() : "";
+                string volume = String.IsNullOrWhiteSpace(rgx.Replace(i.Volume.Replace(":", ""), " ")) == false ? " volume: " + rgx.Replace(i.Volume.Replace(":", ""), " ").ToLower() : "";
+                string issue = String.IsNullOrWhiteSpace(rgx.Replace(i.Issue.Replace(":", ""), " ")) == false ? " issue: " + rgx.Replace(i.Issue.Replace(":", ""), " ").ToLower() : "";
+                string first_page = String.IsNullOrWhiteSpace(rgx.Replace(i.FirstPage().Replace(":", ""), " ")) == false ? " first_page: " + rgx.Replace(i.FirstPage().Replace(":", ""), " ").ToLower() : "";
 
                 string searchString = title + journal + authors + volume + issue + first_page;
                 SearchIndexClient client = CreateSearchIndexClient();
