@@ -9,8 +9,12 @@ using Csla.Serialization;
 using Csla.Silverlight;
 //using Csla.Validation;
 using Csla.DataPortalClient;
+using Newtonsoft.Json;
+using System.Net;
+using System.IO;
+using System.Configuration;
 
-#if!SILVERLIGHT
+#if !SILVERLIGHT
 using System.Data.SqlClient;
 using BusinessLibrary.Data;
 using Csla.Data;
@@ -310,6 +314,7 @@ namespace BusinessLibrary.BusinessClasses
 
         protected void DataPortal_Fetch(SingleCriteria<MagFieldOfStudy, Int64> criteria) // used to return a specific FieldOfStudy
         {
+            /*
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
                 ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
@@ -332,19 +337,82 @@ namespace BusinessLibrary.BusinessClasses
                 }
                 connection.Close();
             }
+            */
         }
 
-        internal static MagFieldOfStudy GetMagFieldOfStudy(SafeDataReader reader)
+        internal static MagFieldOfStudy GetMagFieldOfStudy(FieldOfStudyMakes fos)
         {
             MagFieldOfStudy returnValue = new MagFieldOfStudy();
+            /*
             returnValue.LoadProperty<Int64>(FieldOfStudyIdProperty, reader.GetInt64("FieldOfStudyId"));
             returnValue.LoadProperty<string>(DisplayNameProperty, reader.GetString("DisplayName"));
             returnValue.LoadProperty<Int32>(num_timesProperty, reader.GetInt32("n_papers"));
             returnValue.LoadProperty<Int64>(PaperCountProperty, reader.GetInt64("PaperCount"));
             //returnValue.LoadProperty<decimal>(SimilarityScoreProperty, Convert.ToDecimal(reader.GetFloat("sum_similarity"))); // Getting the float data type into c# is a pain
+            */
+            returnValue.LoadProperty<Int64>(FieldOfStudyIdProperty, fos.Id);
+            returnValue.LoadProperty<string>(DisplayNameProperty, fos.DFN);
+            returnValue.LoadProperty<Int32>(num_timesProperty, fos.CC);
+            //returnValue.LoadProperty<Int64>(PaperCountProperty, fos.PC);
 
             returnValue.MarkOld();
             return returnValue;
+        }
+
+        internal static MagFieldOfStudy GetMagFieldOfStudyRelationship(FieldOfStudyRelationshipMakes fosrm)
+        {
+            MagFieldOfStudy returnValue = new MagFieldOfStudy();
+            returnValue.LoadProperty<Int64>(FieldOfStudyIdProperty, fosrm.FId);
+            returnValue.LoadProperty<string>(DisplayNameProperty, fosrm.FN);
+
+            returnValue.MarkOld();
+            return returnValue;
+        }
+
+        internal static MagFieldOfStudy GetMagFieldOfStudyFromPaperMakesFieldOfStudy(PaperMakesFieldOfStudy pmfos)
+        {
+            MagFieldOfStudy returnValue = new MagFieldOfStudy();
+            /*
+            returnValue.LoadProperty<Int64>(FieldOfStudyIdProperty, reader.GetInt64("FieldOfStudyId"));
+            returnValue.LoadProperty<string>(DisplayNameProperty, reader.GetString("DisplayName"));
+            returnValue.LoadProperty<Int32>(num_timesProperty, reader.GetInt32("n_papers"));
+            returnValue.LoadProperty<Int64>(PaperCountProperty, reader.GetInt64("PaperCount"));
+            //returnValue.LoadProperty<decimal>(SimilarityScoreProperty, Convert.ToDecimal(reader.GetFloat("sum_similarity"))); // Getting the float data type into c# is a pain
+            */
+            returnValue.LoadProperty<Int64>(FieldOfStudyIdProperty, pmfos.FId);
+            returnValue.LoadProperty<string>(DisplayNameProperty, pmfos.DFN);
+            //returnValue.LoadProperty<Int32>(num_timesProperty, pmfos.c);
+            //returnValue.LoadProperty<Int64>(PaperCountProperty, fos.PC);
+
+            returnValue.MarkOld();
+            return returnValue;
+        }
+
+        public static FieldOfStudyMakes GetPaperMakesFieldOfStudy(Int64 FosId)
+        {
+            var jsonsettings = new JsonSerializerSettings
+            {
+                NullValueHandling = NullValueHandling.Ignore,
+                MissingMemberHandling = MissingMemberHandling.Ignore
+            };
+
+            string responseText = "";
+            WebRequest request = WebRequest.Create(ConfigurationManager.AppSettings["AzureMAKESBaseURL"] + @"?expr=Id=" +
+                FosId.ToString() + @"&attributes=Id,CC,DFN,ECC,FL,FN,FC.FId,FC.FN,FP.FId,FP.FN");
+            WebResponse response = request.GetResponse();
+            using (Stream dataStream = response.GetResponseStream())
+            {
+                StreamReader sreader = new StreamReader(dataStream);
+                responseText = sreader.ReadToEnd();
+            }
+            response.Close();
+            var respJson = JsonConvert.DeserializeObject<MakesResponse>(responseText, jsonsettings);
+            if (respJson != null && respJson.entities != null && respJson.entities.Count > 0)
+            {
+                return respJson.entities[0];
+            }
+            else
+                return null;
         }
 
 #endif

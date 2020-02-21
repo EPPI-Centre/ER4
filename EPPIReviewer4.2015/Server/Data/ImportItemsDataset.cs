@@ -13,6 +13,7 @@ namespace BusinessLibrary.BusinessClasses.Data
         public DataTable TB_SOURCE;
         public DataTable TB_ITEM_AUTHOR;
         public DataTable TB_ITEM_REVIEW;
+        public DataTable TB_ITEM_MAG_MATCH;
         public ImportItemsDataset()
         {
             makeTB_Item();
@@ -20,6 +21,7 @@ namespace BusinessLibrary.BusinessClasses.Data
             makeTB_Source();
             makeTB_Item_Source();
             makeTB_Item_Review();
+            makeTB_Item_Mag_Match();
         }
         private void makeTB_Item()
         {
@@ -109,6 +111,9 @@ namespace BusinessLibrary.BusinessClasses.Data
             TB_ITEM.Columns.Add(tCol);
             tCol = new DataColumn("KEYWORDS", typeof(string));
             tCol.MaxLength = 2147483647;
+            TB_ITEM.Columns.Add(tCol);
+            tCol = new DataColumn("SearchText", typeof(string));
+            tCol.MaxLength = 500;
             TB_ITEM.Columns.Add(tCol);
 
         }
@@ -218,6 +223,33 @@ namespace BusinessLibrary.BusinessClasses.Data
             TB_ITEM_REVIEW.Columns.Add(tCol);
             tCol = new DataColumn("IS_DELETED", typeof(bool));
             TB_ITEM_REVIEW.Columns.Add(tCol);
+        }
+        private void makeTB_Item_Mag_Match()
+        {
+            TB_ITEM_MAG_MATCH = new DataTable("TB_ITEM_MAG_MATCH");
+            DataColumn tCol = new DataColumn("ITEM_ID", typeof(long));
+            tCol.AllowDBNull = false;
+            TB_ITEM_MAG_MATCH.Columns.Add(tCol);
+
+            tCol = new DataColumn("REVIEW_ID", typeof(int));
+            tCol.AllowDBNull = false;
+            TB_ITEM_MAG_MATCH.Columns.Add(tCol);
+
+            tCol = new DataColumn("PaperId", typeof(long));
+            tCol.AllowDBNull = false;
+            TB_ITEM_MAG_MATCH.Columns.Add(tCol);
+
+            tCol = new DataColumn("AutoMatchScore", typeof(Double));
+            tCol.AllowDBNull = false;
+            TB_ITEM_MAG_MATCH.Columns.Add(tCol);
+
+            tCol = new DataColumn("ManualTrueMatch", typeof(Boolean));
+            tCol.AllowDBNull = false;
+            TB_ITEM_MAG_MATCH.Columns.Add(tCol);
+
+            tCol = new DataColumn("ManualFalseMatch", typeof(Boolean));
+            tCol.AllowDBNull = false;
+            TB_ITEM_MAG_MATCH.Columns.Add(tCol);
         }
     }
 }

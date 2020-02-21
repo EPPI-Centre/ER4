@@ -680,7 +680,11 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         cmd.setId = setId;
         this.reviewSetsService.ExecuteItemAttributeBulkDeleteCommand(cmd);
     }
-	
+    public RefreshCodingTools() {
+        this.reviewSetsService.GetReviewSets(false);
+    }
+
+
     public get ReviewPanelTogglingSymbol(): string {
         if (this.isReviewPanelCollapsed) return '&uarr;';
         else return '&darr;';
@@ -805,8 +809,9 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
     //}
 
     Reload() {
-        this.Clear();
         console.log('Reload mainfull');
+        this.Clear();
+        if (this.ReviewerIdentityServ.IsCodingOnly) return;
         this.reviewSetsService.GetReviewSets();
         this.isSourcesPanelVisible = false;
 		if (this.workAllocationsContactComp) this.workAllocationsContactComp.getWorkAllocationContactList();
@@ -880,9 +885,9 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
     GoToSources() {
         this.router.navigate(['sources']);
     }
-    //ImportCodesetClick() {
-    //    this.router.navigate(['ImportCodesets']);
-    //}
+    ImportCodesetClick() {
+        this.router.navigate(['ImportCodesets']);
+    }
     ToRis() {
         if (!this.HasSelectedItems) return;
         const dataURI = "data:text/plain;base64," + encodeBase64(this.ItemListService.SelectedItemsToRIStext());

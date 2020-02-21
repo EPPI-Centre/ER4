@@ -1,9 +1,4 @@
-﻿ALTER DATABASE academiccurrent SET RECOVERY SIMPLE
-
-ALTER DATABASE academicnew SET TRUSTWORTHY ON;
-GO
-
-DROP TABLE IF EXISTS [dbo].[Affiliations]
+﻿DROP TABLE IF EXISTS [dbo].[Affiliations]
 CREATE TABLE [dbo].[Affiliations](
 	[AffiliationID] [bigint] NULL,
 	[Rank] [int] NULL,

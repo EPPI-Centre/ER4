@@ -33,7 +33,7 @@ namespace EppiReviewer4
         private DispatcherTimer timer;
         private int CurrentBrowsePosition = 0;
         private List<Int64> SelectedPaperIds;
-        private int _maxFieldOfStudyPaperCount = 5000;
+        private int _maxFieldOfStudyPaperCount = 1000000;
         public dialogMagBrowser()
         {
             InitializeComponent();
@@ -321,7 +321,7 @@ namespace EppiReviewer4
             selectionCriteria3.MagPaperId = PaperId;
             provider3.FactoryParameters.Add(selectionCriteria3);
             provider3.FactoryMethod = "GetMagPaperList";
-            provider3.Refresh();
+            //provider3.Refresh();
 
             MagFieldOfStudyListSelectionCriteria selectionCriteria4 = new MagFieldOfStudyListSelectionCriteria();
             selectionCriteria4.ListType = "PaperFieldOfStudyList";
@@ -816,17 +816,24 @@ namespace EppiReviewer4
 
         private void TopicPaperListBibliographyPager_PageIndexChanging(object sender, PageIndexChangingEventArgs e)
         {
-            CslaDataProvider provider = this.Resources["TopicPaperListData"] as CslaDataProvider;
-            MagPaperList mpl = provider.Data as MagPaperList;
-            provider.FactoryParameters.Clear();
-            MagPaperListSelectionCriteria selectionCriteria = new MagPaperListSelectionCriteria();
-            selectionCriteria.PageSize = 20;
-            selectionCriteria.PageNumber = e.NewPageIndex;
-            selectionCriteria.ListType = "PaperFieldsOfStudyList";
-            selectionCriteria.FieldOfStudyId = mpl.FieldOfStudyId;
-            provider.FactoryParameters.Add(selectionCriteria);
-            provider.FactoryMethod = "GetMagPaperList";
-            provider.Refresh();
+            if (e.NewPageIndex - e.OldPageIndex > 100)
+            {
+                RadWindow.Alert("Sorry, moving forward more than 100 pages at a time is not possible at present");
+            }
+            else
+            {
+                CslaDataProvider provider = this.Resources["TopicPaperListData"] as CslaDataProvider;
+                MagPaperList mpl = provider.Data as MagPaperList;
+                provider.FactoryParameters.Clear();
+                MagPaperListSelectionCriteria selectionCriteria = new MagPaperListSelectionCriteria();
+                selectionCriteria.PageSize = 20;
+                selectionCriteria.PageNumber = e.NewPageIndex;
+                selectionCriteria.ListType = "PaperFieldsOfStudyList";
+                selectionCriteria.FieldOfStudyId = mpl.FieldOfStudyId;
+                provider.FactoryParameters.Add(selectionCriteria);
+                provider.FactoryMethod = "GetMagPaperList";
+                provider.Refresh();
+            }
         }
 
         private void CitedByPager_PageIndexChanging(object sender, PageIndexChangingEventArgs e)
@@ -1149,7 +1156,7 @@ namespace EppiReviewer4
             ResetSelected("TopicPaperListData");
             ResetSelected("CitationPaperListData");
             ResetSelected("CitedByListData");
-            ResetSelected("RecommendationsListData");
+            //ResetSelected("RecommendationsListData");
         }
 
         private void ResetSelected(string ProviderName)
@@ -1287,7 +1294,7 @@ namespace EppiReviewer4
             if (result == true)
             {
                 DataPortal<MagItemPaperInsertCommand> dp2 = new DataPortal<MagItemPaperInsertCommand>();
-                MagItemPaperInsertCommand command = new MagItemPaperInsertCommand(GetSelectedIds());
+                MagItemPaperInsertCommand command = new MagItemPaperInsertCommand(GetSelectedIds(), "SelectedPapers", 0);
                 dp2.ExecuteCompleted += (o, e2) =>
                 {
                     //BusyLoading.IsRunning = false;
@@ -1431,7 +1438,7 @@ namespace EppiReviewer4
                     else
                     {
                         MagMatchItemsToPapersCommand res = e2.Object as MagMatchItemsToPapersCommand;
-                        RadWindow.Alert(res.currentStatus);
+                        //RadWindow.Alert("Records submitted for matching. This can take a while...");
                     }
                 };
                 dp.BeginExecute(GetMatches);
@@ -1649,8 +1656,8 @@ namespace EppiReviewer4
                 if (RememberThisMagRelatedPapersRun != null)
                 {
                     int num_in_run = RememberThisMagRelatedPapersRun.NPapers;
-                    DataPortal<MagItemMagRelatedPaperInsertCommand> dp2 = new DataPortal<MagItemMagRelatedPaperInsertCommand>();
-                    MagItemMagRelatedPaperInsertCommand command = new MagItemMagRelatedPaperInsertCommand(RememberThisMagRelatedPapersRun.MagRelatedRunId);
+                    DataPortal<MagItemPaperInsertCommand> dp2 = new DataPortal<MagItemPaperInsertCommand>();
+                    MagItemPaperInsertCommand command = new MagItemPaperInsertCommand("", "RelatedPapersSearch", RememberThisMagRelatedPapersRun.MagRelatedRunId);
                     dp2.ExecuteCompleted += (o, e2) =>
                     {
                         //BusyLoading.IsRunning = false;

@@ -19,6 +19,7 @@
      
     <UserControl.Resources>
         <helper:EditIntVisibilityConverter x:Key="EditIntVisibility" />
+        <helper:ReverseBooleanConverter x:Key="ReverseBoolean" />
         <cslaXAML:CslaDataProvider x:Key="ItemDocumentListData"
                            ManageObjectLifetime="True"
                            IsInitialLoadEnabled="False"
@@ -810,6 +811,7 @@
                                 <TextBlock Grid.Row="2" VerticalAlignment="Bottom" Text="Record(s) matched from Microsoft Academic:" Margin="5,3,5,1"></TextBlock>
                                 <telerik:RadListBox Grid.Row="3" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                                         ItemsSource="{Binding Source={StaticResource MagPaperListData}, Path=Data, Mode=TwoWay}"
+                                        IsEnabled="{Binding Source={StaticResource MagPaperListData}, Converter={StaticResource ReverseBoolean}, Path=IsBusy }"
                                         ItemTemplate="{StaticResource MagPaperDataTemplate}"
                                         ScrollViewer.VerticalScrollBarVisibility="Visible"
                                         VerticalAlignment="Stretch"

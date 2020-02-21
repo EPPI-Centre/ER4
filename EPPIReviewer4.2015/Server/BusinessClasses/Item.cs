@@ -170,6 +170,17 @@ namespace BusinessLibrary.BusinessClasses
             return value.Length <= maxLength ? value : value.Substring(0, maxLength);
         }
 
+        public string FirstPage()
+        {
+            if (Pages == "")
+                return "";
+            int i = this.Pages.IndexOf("-");
+            if (i == -1)
+                return Pages;
+            else
+                return Pages.Substring(0, i);
+        }
+
         private string CleanAuthors(string inputAuthors)
         {
             if (inputAuthors != "")

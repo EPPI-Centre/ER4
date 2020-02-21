@@ -55,8 +55,7 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
 		private timePointsService: timePointsService,
 		private notificationService: NotificationService,
 		private _reviewSetsEditingService: ReviewSetsEditingService,
-		private _outcomeService: OutcomesService,
-		private _ItemCodingService: ItemCodingService
+		private _outcomeService: OutcomesService
     ) { }
    
     @ViewChild('ArmsCmp')
@@ -135,7 +134,7 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
                     if (selectedNode && selectedNode.nodeType == 'SetAttribute') {
 
                         console.log('a node has been selected');
-                        var itemSet = this._ItemCodingService.FindItemSetBySetId(selectedNode.set_id);
+                        var itemSet = this.ItemCodingService.FindItemSetBySetId(selectedNode.set_id);
                         if (itemSet != null) {
                             this._outcomeService.ItemSetId = itemSet.itemSetId;
                             this._outcomeService.FetchOutcomes(itemSet.itemSetId);
@@ -209,9 +208,11 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
 		}
 		else {
 			this.EditCodesPanel = "CreateNewCode";
-			this.ShowOutComes = false;
-			this.OutcomesCmpRef.ShowOutcomesStatistics = false;
-			this.OutcomesCmpRef.ShowOutcomesList = false;
+            this.ShowOutComes = false;
+            if (this.OutcomesCmpRef) {
+                this.OutcomesCmpRef.ShowOutcomesStatistics = false;
+                this.OutcomesCmpRef.ShowOutcomesList = false;
+            }
 		}
 	}
     public get HasTermList(): boolean {
@@ -344,6 +345,7 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
     public IsServiceBusy4PDF(): boolean {
         if (this.ItemCodingService.IsBusy
             || this.ReviewSetsService.IsBusy
+            || this.ItemCodingService.IsBusy
             //|| this.armservice.IsBusy
             //|| this.ItemDocsService.IsBusy
         ) return true;

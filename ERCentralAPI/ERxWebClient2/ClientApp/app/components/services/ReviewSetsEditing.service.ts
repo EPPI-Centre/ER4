@@ -1,4 +1,4 @@
-﻿import { Component, Inject, Injectable } from '@angular/core';
+﻿import { Component, Inject, Injectable, Output, EventEmitter } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Observable, of, race } from 'rxjs';
@@ -28,8 +28,11 @@ export class ReviewSetsEditingService extends BusyAwareService {
     ) {
         super();
     }
-	private _SearchVisualiseData!: Observable<any>;
+    @Output() PleaseRedrawTheTree = new EventEmitter(); //IMPORTANT! Should be called by all editing API calls that do not return a promise...
+    //if an editing API call returns a promise, then what called has the responsibility of making sure changes are propagated.
+    //frequently this is done by calling a larger refresh in ReviewSets service.
 
+	private _SearchVisualiseData!: Observable<any>;
 	public get SearchVisualiseData(): Observable<any> {
 		return this._SearchVisualiseData;
 	}
@@ -96,6 +99,7 @@ export class ReviewSetsEditingService extends BusyAwareService {
                 this.RemoveBusy("SaveReviewSet");
                 //this.ItemCodingItemAttributeSaveCommandExecuted.emit(data);
                 //this._IsBusy = false;
+                this.PleaseRedrawTheTree.emit();
             }, error => {
                 this.RemoveBusy("SaveReviewSet");
                 this.modalService.GenericErrorMessage("Sorry, an ERROR occurred when saving your data. It's advisable to reload the page and verify that your latest change was saved.");
@@ -117,7 +121,10 @@ export class ReviewSetsEditingService extends BusyAwareService {
         }
         //console.log("saving reviewSet via command", rs, rsC);
         return this._httpC.post<iReviewSet>(this._baseUrl + 'api/Codeset/ReviewSetCreate', rsC).toPromise()
-            .then((res) => { this.RemoveBusy("SaveNewReviewSet"); return res; },
+            .then((res) => { 
+                this.RemoveBusy("SaveNewReviewSet"); 
+                this.PleaseRedrawTheTree.emit();
+                return res; },
             (err) => {
                 this.RemoveBusy("SaveNewReviewSet");
                 this.modalService.GenericErrorMessage(ErrMsg);
@@ -173,6 +180,7 @@ export class ReviewSetsEditingService extends BusyAwareService {
             .then(
                 (result) => {
                     this.RemoveBusy("ReviewSetDelete");
+                    this.PleaseRedrawTheTree.emit();
                     if (!result.successful) this.modalService.GenericErrorMessage(ErrMsg);
                     return result;
                 }
@@ -210,6 +218,8 @@ export class ReviewSetsEditingService extends BusyAwareService {
                 this.RemoveBusy("MoveSetAttribute");
                 //this.ItemCodingItemAttributeSaveCommandExecuted.emit(data);
                 //this._IsBusy = false;
+                //console.log("emit PleaseRedrawTheTree");
+                this.PleaseRedrawTheTree.emit();
             }, error => {
                 this.RemoveBusy("MoveSetAttribute");
                 this.modalService.GenericErrorMessage("Sorry, an ERROR occurred when saving your data. It's advisable to reload the page and verify that your latest change was saved.");
@@ -488,6 +498,7 @@ export class ReviewSetsEditingService extends BusyAwareService {
                 this.RemoveBusy("SaveNewAttribute"); 
                 Att.attribute_id = res.attributeId;
                 Att.attributeSetId = res.attributeSetId;
+                this.PleaseRedrawTheTree.emit();
                 return Att; 
             },
                 (err) => {
@@ -526,6 +537,7 @@ export class ReviewSetsEditingService extends BusyAwareService {
         return this._httpC.post<boolean>(this._baseUrl + 'api/Codeset/AttributeUpdate', Data).toPromise()
             .then((res) => {
                 this.RemoveBusy("UpdateAttribute");
+                this.PleaseRedrawTheTree.emit();
                 return res;
             },
             (err) => {
@@ -614,6 +626,7 @@ export class ReviewSetsEditingService extends BusyAwareService {
             .then(
                 (result) => {
                     this.RemoveBusy("SetAttributeDelete");
+                    this.PleaseRedrawTheTree.emit();
                     if (!result.successful) this.modalService.GenericErrorMessage(ErrMsg);
                     return result;
                 }
@@ -646,7 +659,8 @@ export class ReviewSetsEditingService extends BusyAwareService {
                 (result) => {
                     this.RemoveBusy("ReviewSetCopy");
                     if (!result) this.modalService.GenericErrorMessage(ErrMsg);
-                    console.log("I am returning this:", result);
+                    //console.log("I am returning this:", result);
+
                     return result;
                 }
                 , (error) => {
