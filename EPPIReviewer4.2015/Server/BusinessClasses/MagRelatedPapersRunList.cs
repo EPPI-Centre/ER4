@@ -31,7 +31,7 @@ namespace BusinessLibrary.BusinessClasses
 #if SILVERLIGHT
         public MagRelatedPapersRunList() { }
 #else
-        private MagRelatedPapersRunList() { }
+        public MagRelatedPapersRunList() { }
 #endif
 
 #if SILVERLIGHT

@@ -81,6 +81,12 @@ export class MAGComp implements OnInit {
 	public GoBack(): void {
 
 	}
+	public AddNewMAGSearch() {
+
+		
+
+	}
+
 }
 	
 export interface iMAG {
