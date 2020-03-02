@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ItemListService } from '../services/ItemList.service';
 import { searchService } from '../services/search.service';
-import { MAGService } from '../services/mag.service';
+import { MAGService, MagRelatedPapersRun } from '../services/mag.service';
 import { singleNode } from '../services/ReviewSets.service';
 import { codesetSelectorComponent } from '../CodesetTrees/codesetSelector.component';
 
@@ -17,7 +17,7 @@ export class MAGComp implements OnInit {
 
 	constructor(private router: Router,
 		private ReviewerIdentityServ: ReviewerIdentityService,
-		private _MAGService: MAGService,
+		private _magService: MAGService,
 		public _searchService: searchService,
 
 	) {
@@ -83,8 +83,10 @@ export class MAGComp implements OnInit {
 	}
 	public AddNewMAGSearch() {
 
-		
+	}
+	public doDeleteMagRelatedPapersRun(magRun: MagRelatedPapersRun) {
 
+		this._magService.Delete(magRun);
 	}
 
 }

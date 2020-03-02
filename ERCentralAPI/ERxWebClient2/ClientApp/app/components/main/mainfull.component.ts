@@ -29,6 +29,7 @@ import { codesetSelectorComponent } from '../CodesetTrees/codesetSelector.compon
 import { ConfigurableReportService } from '../services/configurablereport.service';
 import { Helpers } from '../helpers/HelperMethods';
 import { ExcelService } from '../services/excel.service';
+import { MAGService } from '../services/mag.service';
 
 
 @Component({
@@ -63,7 +64,8 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         private _eventEmitter: EventEmitterService,
 		private frequenciesService: frequenciesService
 		, private crosstabService: crosstabService
-        , private _searchService: searchService
+		, private _searchService: searchService
+		, private _magService: MAGService
         , private SourcesService: SourcesService
         , private ConfirmationDialogService: ConfirmationDialogService
         , private ItemCodingService: ItemCodingService
@@ -744,6 +746,12 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 			this.ShowItemsTable = false;
 			this.ShowSearchesAssign = true;
             this._searchService.Fetch();
+		}
+		else if (e.title == 'Microsoft Academic') {
+			this.HelpAndFeebackContext = "main\\microsoft";
+			this.ShowItemsTable = false;
+			//this.ShowSearchesAssign = true;
+			this._magService.Fetch();
 		}
 		else if (e.title == 'Collaborate') {
 			this.HelpAndFeebackContext = "main\\collaborate";
