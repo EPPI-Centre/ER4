@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using EPPIDataServices.Helpers;
+using System.Linq;
 
 namespace ERxWebClient2.Controllers
 {
@@ -42,21 +43,33 @@ namespace ERxWebClient2.Controllers
 		}
 
 		[HttpPost("[action]")]
-		public IActionResult DeleteMagRelatedPapersRun(MVCMagRelatedPapersRun magRelatedPapersRun)
+		public IActionResult CreateMagRelatedPapersRun([FromBody] MVCMagRelatedPapersRun magRun)
 		{
 			try
 			{
-				SetCSLAUser4Writing();
+				if (SetCSLAUser4Writing())
+				{
 
-				DataPortal<MagRelatedPapersRunList> dp = new DataPortal<MagRelatedPapersRunList>();
-				MagRelatedPapersRunList result = dp.Fetch();
+					MagRelatedPapersRun newMagRun = new MagRelatedPapersRun();
+					DataPortal<MagRelatedPapersRun> dp = new DataPortal<MagRelatedPapersRun>();
 
-				//var magRun = result.
+					newMagRun.AllIncluded = Convert.ToBoolean(magRun.allIncluded);
+					newMagRun.AttributeId = magRun.attributeId;
+					newMagRun.AutoReRun = Convert.ToBoolean(magRun.autoReRun);
+					newMagRun.DateFrom = (SmartDate)magRun.dateFrom;
+					newMagRun.Filtered = magRun.filtered;
+					newMagRun.Mode = magRun.mode;
+					newMagRun.NPapers = magRun.nPapers;
+					newMagRun.Status = magRun.status;
+					newMagRun.UserDescription = magRun.userDescription;
+					newMagRun.UserStatus = magRun.userStatus;
 
+					newMagRun = dp.Execute(newMagRun);
 
-				//result.Remove(magRelatedPapersRun);
-				
-				return Ok();
+					return Ok();
+
+				}
+				else return Forbid();
 			}
 			catch (Exception e)
 			{
@@ -65,15 +78,40 @@ namespace ERxWebClient2.Controllers
 			}
 		}
 
+		[HttpPost("[action]")]
+		public IActionResult DeleteMagRelatedPapersRun([FromBody] MVCMagRelatedPapersRun magRun)
+		{
+			try
+			{
+				if (SetCSLAUser4Writing())
+				{
+					DataPortal<MagRelatedPapersRunList> dp = new DataPortal<MagRelatedPapersRunList>();
+					MagRelatedPapersRunList result = dp.Fetch();
+
+					MagRelatedPapersRun currentMagRun = result.FirstOrDefault(x => x.MagRelatedRunId == magRun.magRelatedRunId);
+
+					currentMagRun.Delete();
+					currentMagRun = currentMagRun.Save();
+
+					return Ok();
+
+				}else return Forbid();
+			}
+			catch (Exception e)
+			{
+				_logger.LogException(e, "Getting a MagRelatedPapersRunes list has an error");
+				throw;
+			}
+		}
 	}
 
 
 	public class MVCMagRelatedPapersRun
 	{
-
+		
 		public int magRelatedRunId = 0;
 		public string userDescription = "";
-		public string paperIdList = "";
+		//public string paperIdList = "";
 		public int attributeId = 0;
 		public string allIncluded = "";
 		public string dateFrom = "";
@@ -82,7 +120,8 @@ namespace ERxWebClient2.Controllers
 		public string filtered = "";
 		public string status = "";
 		public string userStatus = "";
-		public long nPapers = 0;
+		public int nPapers = 0;
+
 	}
 
 }

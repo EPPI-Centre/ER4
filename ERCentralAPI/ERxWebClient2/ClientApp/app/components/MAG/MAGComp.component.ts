@@ -4,7 +4,7 @@ import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ItemListService } from '../services/ItemList.service';
 import { searchService } from '../services/search.service';
 import { MAGService, MagRelatedPapersRun } from '../services/mag.service';
-import { singleNode } from '../services/ReviewSets.service';
+import { singleNode, SetAttribute } from '../services/ReviewSets.service';
 import { codesetSelectorComponent } from '../CodesetTrees/codesetSelector.component';
 
 @Component({
@@ -43,9 +43,14 @@ export class MAGComp implements OnInit {
 		}
 		this.isCollapsed = false;
 	}
+	public desc: string = '';
 	public value: Date = new Date(2000, 2, 10);
 	public searchAll: string = 'true';
 	public magDate: string = 'true';
+	public magSearchCheck: boolean = false;
+	public magDateRadio: boolean = false;
+	public magRCTRadio: boolean = false;
+	public magMode: string = '';
 	public ToggleMAGPanel(): void {
 		this.ShowPanel = !this.ShowPanel;
 	}
@@ -81,11 +86,52 @@ export class MAGComp implements OnInit {
 	public GoBack(): void {
 
 	}
+
+	public ClickSearchMode(searchModeChoice: number) {
+
+		switch (searchModeChoice) {
+
+			case 1:
+				this.magMode = 'Recommended by';
+			case 2:
+				this.magMode = 'That recommend';
+			case 3:
+				this.magMode = 'Recommendations';
+			case 4:
+				this.magMode = 'Bibliography';
+			case 5:
+				this.magMode = 'Cited by';
+			case 6:
+				this.magMode = 'Bi-Citation';
+			case 6:
+				this.magMode = 'Bi-Citation AND Recommendations';
+
+			default:
+		}
+	}
+
+
 	public AddNewMAGSearch() {
+
+		let magRun: MagRelatedPapersRun = new MagRelatedPapersRun();
+
+		magRun.allIncluded = this.searchAll;
+		let att: SetAttribute = new SetAttribute();
+		if (this.CurrentDropdownSelectedCode != null) {
+			att = this.CurrentDropdownSelectedCode as SetAttribute;
+			magRun.attributeId = att.attribute_id;
+		}
+		magRun.autoReRun = this.magSearchCheck.toString();
+		magRun.filtered = this.magRCTRadio.toString();
+		magRun.mode = this.magMode;
+		magRun.userDescription = this.desc;
+
+		this._magService.Create(magRun);
 
 	}
 	public doDeleteMagRelatedPapersRun(magRun: MagRelatedPapersRun) {
 
+		console.log(JSON.stringify(magRun));
 		this._magService.Delete(magRun);
 	}
 

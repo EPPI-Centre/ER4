@@ -46,16 +46,16 @@ export class MAGService extends BusyAwareService {
 			);
 	}
 
-	Delete(value: MagRelatedPapersRun) {
+	Delete(magRun: MagRelatedPapersRun) {
 
+		console.log(JSON.stringify(magRun));
 		this._BusyMethods.push("Delete");
-		let body = JSON.stringify({ Value: value });
 		this._httpC.post<MagRelatedPapersRun>(this._baseUrl + 'api/MagRelatedPapersRunList/DeleteMagRelatedPapersRun',
-			body)
+			magRun)
 			.subscribe(result => {
 
 				this.RemoveBusy("Delete");
-				let tmpIndex: any = this.MagRelatedPapersRunList.findIndex(x => x.magRelatedRunId == Number(value.magRelatedRunId));
+				let tmpIndex: any = this.MagRelatedPapersRunList.findIndex(x => x.magRelatedRunId == Number(magRun.magRelatedRunId));
 				this.MagRelatedPapersRunList.splice(tmpIndex, 1);
 				this.Fetch();
 
@@ -66,14 +66,32 @@ export class MAGService extends BusyAwareService {
 			);
 	}
 
-	
+	Create(magRun: MagRelatedPapersRun) {
+
+
+		this._BusyMethods.push("Create");
+		this._httpC.post<MagRelatedPapersRun>(this._baseUrl + 'api/MagRelatedPapersRunList/CreateMagRelatedPapersRun',
+			magRun)
+			.subscribe(result => {
+
+				this.RemoveBusy("Create");
+				this.MagRelatedPapersRunList.push(result);
+				this.Fetch();
+
+			}, error => {
+				this.RemoveBusy("Create");
+				this.modalService.GenericError(error);
+			}
+			);
+	}
+
 }
 
 export class MagRelatedPapersRun {
 
 	magRelatedRunId: number = 0;
 	userDescription: string = '';
-	paperIdList: string = '';
+	//paperIdList: string = '';
 	attributeId: number = 0;
 	allIncluded: string = '';
 	dateFrom: string = '';

@@ -13,7 +13,7 @@
 	<h4>Find related papers and set up review auto-updates</h4>
 	<p>
 	<a class="btn btn-primary" data-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
-			Add new search/auto-update
+			Add new MAG search/auto-update
 	</a>
 	</p>
 </div>
@@ -23,7 +23,7 @@
 				<tr></tr>
 				<tr>
 					<th>Description</th>
-					<td><input type="text" class="form-control col-4" id="desc" /></td>
+					<td><input type="text" class="form-control col-4" id="desc" [(ngModel)]="desc" /></td>
 					<td></td>
 					<td></td>
 				</tr>
@@ -57,7 +57,7 @@
 				<tr>
 					<th></th>
 					<td>
-						<input type="checkbox" class="m-1 p-1" name="magSearchCheck" />
+						<input type="checkbox" class="m-1 p-1" name="magSearchCheck" [(ngModel)]="magSearchCheck" />
 						Auto-Update
 						<input type="radio" class="m-1 p-1" name="magDateRadio" value="true"
 							   [(ngModel)]="magDate" />
@@ -80,11 +80,11 @@
 				<tr>
 					<th>RCT Filter</th>
 					<td>
-						<input type="radio" class="m-1 p-1" name="magRCTRadio" value="true" />
+						<input type="radio" class="m-1 p-1" name="magRCTRadio" value="true" [(ngModel)]="magRCTRadio" />
 						No Filter
-						<input type="radio" class="m-1 p-1" name="magRCTRadio" value="false" />
+						<input type="radio" class="m-1 p-1" name="magRCTRadio" value="false" [(ngModel)]="magRCTRadio"/>
 						High Sensitivity
-						<input type="radio" class="m-1 p-1" name="magRCTRadio" value="false" />
+						<input type="radio" class="m-1 p-1" name="magRCTRadio" value="false" [(ngModel)]="magRCTRadio"/>
 						Higher specificity
 					</td>
 				</tr>
