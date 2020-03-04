@@ -1,4 +1,4 @@
-import {  Inject, Injectable, EventEmitter, Output } from '@angular/core';
+import { Inject, Injectable} from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
@@ -31,16 +31,14 @@ export class MAGService extends BusyAwareService {
 
 	Fetch() {
 
-		this._BusyMethods.push("Fetch");
+        this._BusyMethods.push("MagRelatedPapersRunFetch");
 		this._httpC.get<MagRelatedPapersRun[]>(this._baseUrl + 'api/MagRelatedPapersRunList/GetMagRelatedPapersRuns')
 			.subscribe(result => {
-				this.RemoveBusy("Fetch");
+                this.RemoveBusy("MagRelatedPapersRunFetch");
 				this.MagRelatedPapersRunList = result;
-				console.log(JSON.stringify(this.MagRelatedPapersRunList));
-				console.log('la la: ' + this.MagRelatedPapersRunList.length);
 			},
 				error => {
-					this.RemoveBusy("Fetch");
+                    this.RemoveBusy("MagRelatedPapersRunFetch");
 					this.modalService.GenericError(error);
 				}
 			);
@@ -48,19 +46,19 @@ export class MAGService extends BusyAwareService {
 
 	Delete(magRun: MagRelatedPapersRun) {
 
-		console.log(JSON.stringify(magRun));
-		this._BusyMethods.push("Delete");
+
+        this._BusyMethods.push("MagRelatedPapersRunDelete");
 		this._httpC.post<MagRelatedPapersRun>(this._baseUrl + 'api/MagRelatedPapersRunList/DeleteMagRelatedPapersRun',
 			magRun)
 			.subscribe(result => {
 
-				this.RemoveBusy("Delete");
-				let tmpIndex: any = this.MagRelatedPapersRunList.findIndex(x => x.magRelatedRunId == Number(magRun.magRelatedRunId));
+                this.RemoveBusy("MagRelatedPapersRunDelete");
+                let tmpIndex: any = this.MagRelatedPapersRunList.findIndex(x => x.magRelatedRunId == Number(result.magRelatedRunId));
 				this.MagRelatedPapersRunList.splice(tmpIndex, 1);
 				this.Fetch();
 
 			}, error => {
-				this.RemoveBusy("Delete");
+                this.RemoveBusy("MagRelatedPapersRunDelete");
 				this.modalService.GenericError(error);
 			}
 			);
@@ -69,17 +67,17 @@ export class MAGService extends BusyAwareService {
 	Create(magRun: MagRelatedPapersRun) {
 
 
-		this._BusyMethods.push("Create");
+        this._BusyMethods.push("MagRelatedPapersRunCreate");
 		this._httpC.post<MagRelatedPapersRun>(this._baseUrl + 'api/MagRelatedPapersRunList/CreateMagRelatedPapersRun',
 			magRun)
 			.subscribe(result => {
 
-				this.RemoveBusy("Create");
+                this.RemoveBusy("MagRelatedPapersRunCreate");
 				this.MagRelatedPapersRunList.push(result);
 				this.Fetch();
 
 			}, error => {
-				this.RemoveBusy("Create");
+                this.RemoveBusy("MagRelatedPapersRunCreate");
 				this.modalService.GenericError(error);
 			}
 			);
@@ -91,10 +89,10 @@ export class MagRelatedPapersRun {
 
 	magRelatedRunId: number = 0;
 	userDescription: string = '';
-	//paperIdList: string = '';
-	attributeId: number = 0;
+    attributeId: number = 0;
+    attributeName: string = '';
 	allIncluded: string = '';
-	dateFrom: string = '';
+    dateFrom: Date = new Date(2000, 2, 10);
 	autoReRun: string = '';
 	mode: string = '';
 	filtered: string = '';

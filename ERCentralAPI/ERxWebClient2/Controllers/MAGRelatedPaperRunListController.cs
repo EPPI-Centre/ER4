@@ -57,6 +57,7 @@ namespace ERxWebClient2.Controllers
 					newMagRun.AttributeId = magRun.attributeId;
 					newMagRun.AutoReRun = Convert.ToBoolean(magRun.autoReRun);
 					newMagRun.DateFrom = (SmartDate)magRun.dateFrom;
+                    newMagRun.AttributeName = magRun.attributeName;
 					newMagRun.Filtered = magRun.filtered;
 					newMagRun.Mode = magRun.mode;
 					newMagRun.NPapers = magRun.nPapers;
@@ -93,7 +94,7 @@ namespace ERxWebClient2.Controllers
 					currentMagRun.Delete();
 					currentMagRun = currentMagRun.Save();
 
-					return Ok();
+					return Ok(currentMagRun);
 
 				}else return Forbid();
 			}
@@ -113,8 +114,9 @@ namespace ERxWebClient2.Controllers
 		public string userDescription = "";
 		//public string paperIdList = "";
 		public int attributeId = 0;
+        public string attributeName = "";
 		public string allIncluded = "";
-		public string dateFrom = "";
+		public DateTime dateFrom = DateTime.Now;
 		public string autoReRun = "";
 		public string mode = "";
 		public string filtered = "";

@@ -1,7 +1,6 @@
 import { Component, OnInit, ViewChild} from '@angular/core';
 import { Router } from '@angular/router';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
-import { ItemListService } from '../services/ItemList.service';
 import { searchService } from '../services/search.service';
 import { MAGService, MagRelatedPapersRun } from '../services/mag.service';
 import { singleNode, SetAttribute } from '../services/ReviewSets.service';
@@ -27,13 +26,15 @@ export class MAGComp implements OnInit {
 	ngOnInit() {
 
 		
-	}
+    }
+
 	@ViewChild('WithOrWithoutCodeSelector') WithOrWithoutCodeSelector!: codesetSelectorComponent;
 	public CurrentDropdownSelectedCode: singleNode | null = null;
 	public ItemsWithCode: boolean = false;
 	public MAGItems: any[] = [];
 	public ShowPanel: boolean = false;
-	public isCollapsed: boolean = false;
+    public isCollapsed: boolean = false;
+
 	CanOnlySelectRoots() {
 		return true;
 	}
@@ -87,26 +88,34 @@ export class MAGComp implements OnInit {
 
 	}
 
-	public ClickSearchMode(searchModeChoice: number) {
+	public ClickSearchMode(searchModeChoice: string) {
 
 		switch (searchModeChoice) {
 
-			case 1:
-				this.magMode = 'Recommended by';
-			case 2:
-				this.magMode = 'That recommend';
-			case 3:
-				this.magMode = 'Recommendations';
-			case 4:
-				this.magMode = 'Bibliography';
-			case 5:
-				this.magMode = 'Cited by';
-			case 6:
-				this.magMode = 'Bi-Citation';
-			case 6:
-				this.magMode = 'Bi-Citation AND Recommendations';
+            case '1':
+                this.magMode = 'Recommended by';
+                break;
+            case '2':
+                this.magMode = 'That recommend';
+                break;
+            case '3':
+                this.magMode = 'Recommendations';
+                break;
+            case '4':
+                this.magMode = 'Bibliography';
+                break;
+            case '5':
+                this.magMode = 'Cited by';
+                break;
+            case '6':
+                this.magMode = 'Bi-Citation';
+                break;
+            case '7':
+                this.magMode = 'Bi-Citation AND Recommendations';
+                break;
 
-			default:
+            default:
+                break;
 		}
 	}
 
@@ -119,8 +128,10 @@ export class MAGComp implements OnInit {
 		let att: SetAttribute = new SetAttribute();
 		if (this.CurrentDropdownSelectedCode != null) {
 			att = this.CurrentDropdownSelectedCode as SetAttribute;
-			magRun.attributeId = att.attribute_id;
-		}
+            magRun.attributeId = att.attribute_id;
+            magRun.attributeName = att.name;
+        }
+        magRun.dateFrom = this.value;
 		magRun.autoReRun = this.magSearchCheck.toString();
 		magRun.filtered = this.magRCTRadio.toString();
 		magRun.mode = this.magMode;
@@ -137,6 +148,3 @@ export class MAGComp implements OnInit {
 
 }
 	
-export interface iMAG {
-
-}
