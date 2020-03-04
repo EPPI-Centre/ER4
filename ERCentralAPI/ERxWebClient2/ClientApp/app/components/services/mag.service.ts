@@ -1,4 +1,4 @@
-import {  Inject, Injectable, EventEmitter, Output } from '@angular/core';
+import {  Inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
@@ -31,16 +31,16 @@ export class MAGService extends BusyAwareService {
 
 	Fetch() {
 
-		this._BusyMethods.push("Fetch");
+        this._BusyMethods.push("MagRelatedPapersRunFetch");
 		this._httpC.get<MagRelatedPapersRun[]>(this._baseUrl + 'api/MagRelatedPapersRunList/GetMagRelatedPapersRuns')
 			.subscribe(result => {
-				this.RemoveBusy("Fetch");
+                this.RemoveBusy("MagRelatedPapersRunFetch");
 				this.MagRelatedPapersRunList = result;
-				console.log(JSON.stringify(this.MagRelatedPapersRunList));
-				console.log('la la: ' + this.MagRelatedPapersRunList.length);
+				//console.log(JSON.stringify(this.MagRelatedPapersRunList));
+				//console.log('la la: ' + this.MagRelatedPapersRunList.length);
 			},
 				error => {
-					this.RemoveBusy("Fetch");
+                    this.RemoveBusy("MagRelatedPapersRunFetch");
 					this.modalService.GenericError(error);
 				}
 			);
@@ -48,19 +48,19 @@ export class MAGService extends BusyAwareService {
 
 	Delete(value: MagRelatedPapersRun) {
 
-		this._BusyMethods.push("Delete");
+        this._BusyMethods.push("MagRelatedPapersRunDelete");
 		let body = JSON.stringify({ Value: value });
 		this._httpC.post<MagRelatedPapersRun>(this._baseUrl + 'api/MagRelatedPapersRunList/DeleteMagRelatedPapersRun',
 			body)
 			.subscribe(result => {
 
-				this.RemoveBusy("Delete");
-				let tmpIndex: any = this.MagRelatedPapersRunList.findIndex(x => x.magRelatedRunId == Number(value.magRelatedRunId));
+                this.RemoveBusy("MagRelatedPapersRunDelete");
+                let tmpIndex: any = this.MagRelatedPapersRunList.findIndex(x => x.magRelatedRunId == Number(result.magRelatedRunId));
 				this.MagRelatedPapersRunList.splice(tmpIndex, 1);
 				this.Fetch();
 
 			}, error => {
-				this.RemoveBusy("Delete");
+                this.RemoveBusy("MagRelatedPapersRunDelete");
 				this.modalService.GenericError(error);
 			}
 			);
