@@ -1,4 +1,4 @@
-import {  Inject, Injectable } from '@angular/core';
+import {  Inject, Injectable, EventEmitter, Output } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
@@ -31,49 +31,67 @@ export class MAGService extends BusyAwareService {
 
 	Fetch() {
 
-        this._BusyMethods.push("MagRelatedPapersRunFetch");
+		this._BusyMethods.push("Fetch");
 		this._httpC.get<MagRelatedPapersRun[]>(this._baseUrl + 'api/MagRelatedPapersRunList/GetMagRelatedPapersRuns')
 			.subscribe(result => {
-                this.RemoveBusy("MagRelatedPapersRunFetch");
+				this.RemoveBusy("Fetch");
 				this.MagRelatedPapersRunList = result;
-				//console.log(JSON.stringify(this.MagRelatedPapersRunList));
-				//console.log('la la: ' + this.MagRelatedPapersRunList.length);
+				console.log(JSON.stringify(this.MagRelatedPapersRunList));
+				console.log('la la: ' + this.MagRelatedPapersRunList.length);
 			},
 				error => {
-                    this.RemoveBusy("MagRelatedPapersRunFetch");
+					this.RemoveBusy("Fetch");
 					this.modalService.GenericError(error);
 				}
 			);
 	}
 
-	Delete(value: MagRelatedPapersRun) {
+	Delete(magRun: MagRelatedPapersRun) {
 
-        this._BusyMethods.push("MagRelatedPapersRunDelete");
-		let body = JSON.stringify({ Value: value });
+		console.log(JSON.stringify(magRun));
+		this._BusyMethods.push("Delete");
 		this._httpC.post<MagRelatedPapersRun>(this._baseUrl + 'api/MagRelatedPapersRunList/DeleteMagRelatedPapersRun',
-			body)
+			magRun)
 			.subscribe(result => {
 
-                this.RemoveBusy("MagRelatedPapersRunDelete");
-                let tmpIndex: any = this.MagRelatedPapersRunList.findIndex(x => x.magRelatedRunId == Number(result.magRelatedRunId));
+				this.RemoveBusy("Delete");
+				let tmpIndex: any = this.MagRelatedPapersRunList.findIndex(x => x.magRelatedRunId == Number(magRun.magRelatedRunId));
 				this.MagRelatedPapersRunList.splice(tmpIndex, 1);
 				this.Fetch();
 
 			}, error => {
-                this.RemoveBusy("MagRelatedPapersRunDelete");
+				this.RemoveBusy("Delete");
 				this.modalService.GenericError(error);
 			}
 			);
 	}
 
-	
+	Create(magRun: MagRelatedPapersRun) {
+
+
+		this._BusyMethods.push("Create");
+		this._httpC.post<MagRelatedPapersRun>(this._baseUrl + 'api/MagRelatedPapersRunList/CreateMagRelatedPapersRun',
+			magRun)
+			.subscribe(result => {
+
+				this.RemoveBusy("Create");
+				this.MagRelatedPapersRunList.push(result);
+				this.Fetch();
+
+			}, error => {
+				this.RemoveBusy("Create");
+				this.modalService.GenericError(error);
+			}
+			);
+	}
+
 }
 
 export class MagRelatedPapersRun {
 
 	magRelatedRunId: number = 0;
 	userDescription: string = '';
-	paperIdList: string = '';
+	//paperIdList: string = '';
 	attributeId: number = 0;
 	allIncluded: string = '';
 	dateFrom: string = '';
