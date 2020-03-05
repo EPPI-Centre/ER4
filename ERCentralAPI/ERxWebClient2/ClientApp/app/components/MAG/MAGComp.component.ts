@@ -68,25 +68,16 @@ export class MAGComp implements OnInit {
 	}
 	public ClearSelected(): void {
 
-	}
-	public ImportSelected(): void {
+    }
+    public CanDeleteMAGRun() : boolean {
 
-	}
-	public AutoUpdateHome(): void {
+        return true;
+    }
 
-	}
-	public AdvancedFeatures(): void{
+    public CanAddNewMAGSearch(): boolean {
 
-	}
-	public ShowHistory(): void {
-
-	}
-	public Admin(): void{
-
-	}
-	public GoBack(): void {
-
-	}
+        return true;
+    }
 
 	public ClickSearchMode(searchModeChoice: string) {
 

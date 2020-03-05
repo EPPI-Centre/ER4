@@ -129,7 +129,7 @@
                 </div>
             </div>
             <div class="col-12 m-1 p-1">
-                <div class="bold m-1 p-1"><button (click)="AddNewMAGSearch()" class="btn btn-warning" col-4 p-2 m-2> Add new search </button></div>
+                <div class="bold m-1 p-1"><button [disabled]="!CanAddNewMAGSearch()"  (click)="AddNewMAGSearch()" class="btn btn-warning" col-4 p-2 m-2> Add new search </button></div>
             </div>
         </div>
     </div>
@@ -165,7 +165,7 @@
                             <input class="m-1" type="checkbox" [(ngModel)]="item.autoReRun" />
                         </td>
                         <td>{{item.status}}</td>
-                        <td class="p-0"><button (click)="doDeleteMagRelatedPapersRun(item)" class="btn btn-outline-danger p-1 m-1">Delete</button></td>
+                        <td class="p-0"><button [disabled]="!CanDeleteMAGRun()" (click)="doDeleteMagRelatedPapersRun(item)" class="btn btn-outline-danger p-1 m-1">Delete</button></td>
                         <td class="p-0 "><button [disabled]="true" class="btn btn-outline-info p-1 m-1">{{item.userStatus}}</button></td>
                         <td class="p-0"><button [disabled]="true" class="btn btn-outline-primary p-1 m-1">Import</button></td>
                         <td class="p-0"><div class="btn btn-link mt-1">{{ item.nPapers}}</div></td>

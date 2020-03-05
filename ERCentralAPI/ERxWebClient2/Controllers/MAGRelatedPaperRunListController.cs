@@ -56,7 +56,7 @@ namespace ERxWebClient2.Controllers
 					newMagRun.AllIncluded = Convert.ToBoolean(magRun.allIncluded);
 					newMagRun.AttributeId = magRun.attributeId;
 					newMagRun.AutoReRun = Convert.ToBoolean(magRun.autoReRun);
-					newMagRun.DateFrom = (SmartDate)magRun.dateFrom;
+					newMagRun.DateFrom = magRun.dateFrom;
                     newMagRun.AttributeName = magRun.attributeName;
 					newMagRun.Filtered = magRun.filtered;
 					newMagRun.Mode = magRun.mode;
