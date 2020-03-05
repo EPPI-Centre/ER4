@@ -50,7 +50,7 @@ export class MAGComp implements OnInit {
 	public magDate: string = 'true';
 	public magSearchCheck: boolean = false;
 	public magDateRadio: boolean = false;
-	public magRCTRadio: boolean = false;
+    public magRCTRadio: string = 'NoFilter';
 	public magMode: string = '';
 	public ToggleMAGPanel(): void {
 		this.ShowPanel = !this.ShowPanel;
@@ -133,7 +133,7 @@ export class MAGComp implements OnInit {
         }
         magRun.dateFrom = this.value;
 		magRun.autoReRun = this.magSearchCheck.toString();
-		magRun.filtered = this.magRCTRadio.toString();
+		magRun.filtered = this.magRCTRadio;
 		magRun.mode = this.magMode;
 		magRun.userDescription = this.desc;
 
@@ -142,7 +142,7 @@ export class MAGComp implements OnInit {
 	}
 	public doDeleteMagRelatedPapersRun(magRun: MagRelatedPapersRun) {
 
-		console.log(JSON.stringify(magRun));
+		//console.log(JSON.stringify(magRun));
 		this._magService.Delete(magRun);
 	}
 
