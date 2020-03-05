@@ -67,14 +67,14 @@ namespace ERxWebClient2.Controllers
 
 					newMagRun = dp.Execute(newMagRun);
 
-					return Ok();
+					return Ok(newMagRun);
 
 				}
 				else return Forbid();
 			}
 			catch (Exception e)
 			{
-				_logger.LogException(e, "Getting a MagRelatedPapersRunes list has an error");
+				_logger.LogException(e, "Creating a MagRelatedPapersRun has an error");
 				throw;
 			}
 		}
@@ -100,7 +100,7 @@ namespace ERxWebClient2.Controllers
 			}
 			catch (Exception e)
 			{
-				_logger.LogException(e, "Getting a MagRelatedPapersRunes list has an error");
+				_logger.LogException(e, "Deleting a MagRelatedPapersRun list has an error");
 				throw;
 			}
 		}
@@ -112,7 +112,6 @@ namespace ERxWebClient2.Controllers
 		
 		public int magRelatedRunId = 0;
 		public string userDescription = "";
-		//public string paperIdList = "";
 		public int attributeId = 0;
         public string attributeName = "";
 		public string allIncluded = "";

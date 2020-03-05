@@ -2,16 +2,19 @@ import { Inject, Injectable} from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
+import { NotificationService } from '@progress/kendo-angular-notification';
 
 @Injectable({
     providedIn: 'root',
 })
 
 export class MAGService extends BusyAwareService {
+    
 
     constructor(
         private _httpC: HttpClient,
-		private modalService: ModalService,
+        private modalService: ModalService,
+        private notificationService: NotificationService,
         @Inject('BASE_URL') private _baseUrl: string
     ) {
         super();
@@ -52,6 +55,15 @@ export class MAGService extends BusyAwareService {
 			magRun)
 			.subscribe(result => {
 
+                if (result.magRelatedRunId > 0) {
+
+                    this.showBuildModelMessage('MAGRun was deleted');
+
+                } else {
+
+                    this.showBuildModelMessage(result.status);
+                }
+
                 this.RemoveBusy("MagRelatedPapersRunDelete");
                 let tmpIndex: any = this.MagRelatedPapersRunList.findIndex(x => x.magRelatedRunId == Number(result.magRelatedRunId));
 				this.MagRelatedPapersRunList.splice(tmpIndex, 1);
@@ -72,6 +84,14 @@ export class MAGService extends BusyAwareService {
 			magRun)
 			.subscribe(result => {
 
+                if (result.magRelatedRunId > 0) {
+
+                    this.showBuildModelMessage('MAGRun was created');
+
+                } else {
+
+                    this.showBuildModelMessage(result.status);
+                }
                 this.RemoveBusy("MagRelatedPapersRunCreate");
 				this.MagRelatedPapersRunList.push(result);
 				this.Fetch();
@@ -81,7 +101,18 @@ export class MAGService extends BusyAwareService {
 				this.modalService.GenericError(error);
 			}
 			);
-	}
+    }
+
+    showBuildModelMessage(notifyMsg: string) {
+
+        this.notificationService.show({
+            content: notifyMsg,
+            animation: { type: 'slide', duration: 400 },
+            position: { horizontal: 'center', vertical: 'top' },
+            type: { style: "info", icon: true },
+            closable: true
+        });
+    }
 
 }
 
