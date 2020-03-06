@@ -22,6 +22,13 @@ namespace BusinessLibrary.BusinessClasses
     [Serializable]
     public class MagCurrentInfo : BusinessBase<MagCurrentInfo>
     {
+        public static void GetMagCurrentInfo(EventHandler<DataPortalResult<MagCurrentInfo>> handler)
+        {
+            DataPortal<MagCurrentInfo> dp = new DataPortal<MagCurrentInfo>();
+            dp.FetchCompleted += handler;
+            dp.BeginFetch();
+        }
+
 #if SILVERLIGHT
     public MagCurrentInfo() { }
 
@@ -29,24 +36,66 @@ namespace BusinessLibrary.BusinessClasses
 #else
         private MagCurrentInfo() { }
 #endif
-
-        
-
-        private static PropertyInfo<string> CurrentAvailabilityProperty = RegisterProperty<string>(new PropertyInfo<string>("CurrentAvailability", "CurrentAvailability", string.Empty));
-        public string CurrentAvailability
+        private static PropertyInfo<int> MagCurrentInfoIdProperty = RegisterProperty<int>(new PropertyInfo<int>("MagCurrentInfoId", "MagCurrentInfoId", 0));
+        public int MagCurrentInfoId
         {
             get
             {
-                return GetProperty(CurrentAvailabilityProperty);
+                return GetProperty(MagCurrentInfoIdProperty);
             }
         }
-        
-        private static PropertyInfo<SmartDate> LastUpdatedProperty = RegisterProperty<SmartDate>(new PropertyInfo<SmartDate>("LastUpdated", "LastUpdated"));
-        public SmartDate LastUpdated
+
+        private static PropertyInfo<string> MagVersionProperty = RegisterProperty<string>(new PropertyInfo<string>("MagVersion", "MagVersion", ""));
+        public string MagVersion
         {
             get
             {
-                return GetProperty(LastUpdatedProperty);
+                return GetProperty(MagVersionProperty);
+            }
+        }
+
+        private static PropertyInfo<bool> MatchingAvailableProperty = RegisterProperty<bool>(new PropertyInfo<bool>("MatchingAvailable", "MatchingAvailable", true));
+        public bool MatchingAvailable
+        {
+            get
+            {
+                return GetProperty(MatchingAvailableProperty);
+            }
+        }
+
+        private static PropertyInfo<bool> MagOnlineProperty = RegisterProperty<bool>(new PropertyInfo<bool>("MagOnline", "MagOnline", true));
+        public bool MagOnline
+        {
+            get
+            {
+                return GetProperty(MagOnlineProperty);
+            }
+        }
+
+        private static PropertyInfo<DateTime> WhenLiveProperty = RegisterProperty<DateTime>(new PropertyInfo<DateTime>("WhenLive", "WhenLive"));
+        public DateTime WhenLive
+        {
+            get
+            {
+                return GetProperty(WhenLiveProperty);
+            }
+        }
+
+        private static PropertyInfo<string> MakesEndPointProperty = RegisterProperty<string>(new PropertyInfo<string>("MakesEndPoint", "MakesEndPoint", ""));
+        public string MakesEndPoint
+        {
+            get
+            {
+                return GetProperty(MakesEndPointProperty);
+            }
+        }
+
+        private static PropertyInfo<string> MakesDeploymentStatusProperty = RegisterProperty<string>(new PropertyInfo<string>("MakesDeploymentStatus", "MakesDeploymentStatus", ""));
+        public string MakesDeploymentStatus
+        {
+            get
+            {
+                return GetProperty(MakesDeploymentStatusProperty);
             }
         }
 
@@ -229,12 +278,18 @@ namespace BusinessLibrary.BusinessClasses
                 using (SqlCommand command = new SqlCommand("st_MagCurrentInfo", connection))
                 {
                     command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@MAKES_DEPLOYMENT_STATUS", "LIVE")); // only need live info for client side
                     using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
                     {
                         if (reader.Read())
                         {
-                            LoadProperty<string>(CurrentAvailabilityProperty, reader.GetString("current_availability"));
-                            LoadProperty<SmartDate>(LastUpdatedProperty, reader.GetSmartDate("current_version"));
+                            LoadProperty<int>(MagCurrentInfoIdProperty, reader.GetInt32("MAG_CURRENT_INFO_ID"));
+                            LoadProperty<string>(MagVersionProperty, reader.GetString("MAG_VERSION"));
+                            LoadProperty<DateTime>(WhenLiveProperty, reader.GetDateTime("WHEN_LIVE"));
+                            LoadProperty<bool>(MatchingAvailableProperty, reader.GetBoolean("MATCHING_AVAILABLE"));
+                            LoadProperty<bool>(MagOnlineProperty, reader.GetBoolean("MAG_ONLINE"));
+                            //LoadProperty<string>(MakesEndPointProperty, reader.GetString("MAKES_ENDPOINT")); // don't need to send this information back to the client (and probably shouldn't)
+                            //LoadProperty<string>(MakesDeploymentStatusProperty, reader.GetString("MAKES_DEPLOYMENT_STATUS"));
                         }
                     }
                 }
@@ -242,14 +297,44 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        internal static MagCurrentInfo GetMagCurrentInfo(SafeDataReader reader)
+        internal static MagCurrentInfo GetMagCurrentInfo(SafeDataReader reader) // not sure this is needed??
         {
             MagCurrentInfo returnValue = new MagCurrentInfo();
-            
-
             returnValue.MarkOld();
             return returnValue;
         }
+
+        public static MagCurrentInfo GetMagCurrentInfoServerSide(string MakesDeploymentStatus)
+        {
+            MagCurrentInfo returnValue = new MagCurrentInfo();
+            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+            {
+                connection.Open();
+                using (SqlCommand command = new SqlCommand("st_MagCurrentInfo", connection))
+                {
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@MAKES_DEPLOYMENT_STATUS", MakesDeploymentStatus));
+                    using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
+                    {
+                        if (reader.Read())
+                        {
+                            returnValue.LoadProperty<int>(MagCurrentInfoIdProperty, reader.GetInt32("MAG_CURRENT_INFO_ID"));
+                            returnValue.LoadProperty<string>(MagVersionProperty, reader.GetString("MAG_VERSION"));
+                            returnValue.LoadProperty<DateTime>(WhenLiveProperty, reader.GetDateTime("WHEN_LIVE"));
+                            returnValue.LoadProperty<bool>(MatchingAvailableProperty, reader.GetBoolean("MATCHING_AVAILABLE"));
+                            returnValue.LoadProperty<bool>(MagOnlineProperty, reader.GetBoolean("MAG_ONLINE"));
+                            returnValue.LoadProperty<string>(MakesEndPointProperty, reader.GetString("MAKES_ENDPOINT"));
+                            returnValue.LoadProperty<string>(MakesDeploymentStatusProperty, reader.GetString("MAKES_DEPLOYMENT_STATUS"));
+                        }
+                    }
+                }
+                connection.Close();
+            }
+            returnValue.MarkOld();
+            return returnValue;
+        }
+
+
 
 #endif
     }

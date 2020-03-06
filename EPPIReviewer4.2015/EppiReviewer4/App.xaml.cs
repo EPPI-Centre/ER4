@@ -253,6 +253,13 @@ namespace EppiReviewer4
             if (provider.Error != null)
                 System.Windows.Browser.HtmlPage.Window.Alert(((Csla.Xaml.CslaDataProvider)sender).Error.Message);
         }
+
+        private void CslaDataProvider_DataChanged_7(object sender, EventArgs e)
+        {
+            CslaDataProvider provider = ((CslaDataProvider)this.Resources["MagCurrentInfoData"]);
+            if (provider.Error != null)
+                System.Windows.Browser.HtmlPage.Window.Alert(((Csla.Xaml.CslaDataProvider)sender).Error.Message);
+        }
     }
 
 

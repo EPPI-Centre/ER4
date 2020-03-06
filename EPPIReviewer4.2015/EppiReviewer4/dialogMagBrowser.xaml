@@ -115,6 +115,13 @@
                            FactoryMethod="GetMagSimulationResultList" 
                            DataChanged="CslaDataProvider_HandleDataChangeError">
         </cslaXAML:CslaDataProvider>
+        <cslaXAML:CslaDataProvider x:Key="MagLogListData"
+                           ManageObjectLifetime="True"
+                           IsInitialLoadEnabled="False"
+                           ObjectType="BusinessLibrary.BusinessClasses.MagLogList, BusinessLibrary, Version=..., Culture=neutral, PublicKeyToken=null"
+                           FactoryMethod="GetMagLogList" 
+                           DataChanged="CslaDataProvider_HandleDataChangeError">
+        </cslaXAML:CslaDataProvider>
         <helper:ReverseBooleanConverter x:Key="ReverseBoolean" />
 
         <!--<helper:SelectedNotSelectedConverter x:Key="SelectedNotSelectedText" />
@@ -198,7 +205,9 @@
                     <HyperlinkButton x:Name="LBMNotMatchedIncluded" Content="N" Margin="0,5,0,0" Click="LBMNotMatchedIncluded_Click" IsTabStop="False"></HyperlinkButton>
                     <TextBlock TextWrapping="Wrap" Margin="0,5,0,0" Text=" Excluded: "></TextBlock>
                     <HyperlinkButton x:Name="LBMNotMatchedExcluded" Content="N" Margin="0,5,0,0" Click="LBMNotMatchedExcluded_Click" IsTabStop="False"></HyperlinkButton>
-                    <HyperlinkButton x:Name="LBMatchAllIncluded" Content="Run matching algorithm prior to conducting simulations below" Margin="5,5,0,0" Click="LBMatchAllIncluded_Click" IsTabStop="False"></HyperlinkButton>
+                    <HyperlinkButton x:Name="LBMatchAllIncluded" Content="Run matching algorithm prior to conducting simulations below"
+                                     Margin="5,5,0,0" Click="LBMatchAllIncluded_Click" IsTabStop="False"
+                                     IsEnabled="{Binding Source={StaticResource MagCurrentInfoData}, Path=Data.MatchingAvailable, Mode=OneWay}"></HyperlinkButton>
                 </ToolkitRef:WrapPanel>
 
                 <TextBlock Grid.Row="2" Margin="10,20,5,5" TextWrapping="Wrap" Text="Test the performance of the various algorithms for locating relevant research against the data you have in your review. There are three ways of splitting your data between 'seed' and 'test' records: year of publication, the date a record entered the Microsoft Academic database, and based on items with a specific code. Please see the documentation for further information."></TextBlock>
@@ -830,49 +839,90 @@
         <!-- end Related Papers grid-->
 
         <Grid x:Name="AdminGrid" Grid.Row="1" Visibility="Collapsed">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="35"></RowDefinition>
-                <RowDefinition Height="35"></RowDefinition>
-                <RowDefinition Height="200"></RowDefinition>
-                <RowDefinition Height="35"></RowDefinition>
-                <RowDefinition Height="*"></RowDefinition>
-            </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="100"></ColumnDefinition>
-                <ColumnDefinition Width="400"></ColumnDefinition>
+                <ColumnDefinition Width="500"></ColumnDefinition>
+                <ColumnDefinition Width="20"></ColumnDefinition>
+                <ColumnDefinition Width="*"></ColumnDefinition>
             </Grid.ColumnDefinitions>
-
-            <TextBlock Grid.Row="0" Grid.Column="0" Text="Latest MAG" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="5,5,5,5"></TextBlock>
-            <TextBox x:Name="tbLatestMag" Grid.Row="0" Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5,5,5,5" IsReadOnly="True"></TextBox>
-            <TextBlock Grid.Row="1" Grid.Column="0" Text="SAS Key" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="5,5,5,5"></TextBlock>
-            <TextBox x:Name="tbMagSas" Grid.Row="1" Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5,5,5,5" IsReadOnly="True"></TextBox>
-            <TextBlock Grid.Row="2" Grid.Column="0" Text="Release notes" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="5,5,5,5"></TextBlock>
-            <TextBox x:Name="tbReleaseNotes" Grid.Row="2" Grid.Column="1" Margin="5,5,5,5" IsReadOnly="True" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto"></TextBox>
             
-            <StackPanel Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal">
-                <HyperlinkButton x:Name="hlAddMagReview" Content="Add this Review ID" Margin="5,5,5,5" Click="hlAddMagReview_Click"></HyperlinkButton>
-                <TextBox x:Name="tbAddMagReview" Margin="5,5,5,5" Width="80"></TextBox>
-                <HyperlinkButton Content="Refresh list" Margin="5,5,5,5" Click="HyperlinkButton_Click_7"></HyperlinkButton>
-            </StackPanel>
+                <Grid x:Name="LHSGrid" Grid.Column="0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="35"></RowDefinition>
+                    <RowDefinition Height="35"></RowDefinition>
+                    <RowDefinition Height="200"></RowDefinition>
+                    <RowDefinition Height="35"></RowDefinition>
+                    <RowDefinition Height="*"></RowDefinition>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="100"></ColumnDefinition>
+                    <ColumnDefinition Width="400"></ColumnDefinition>
+                </Grid.ColumnDefinitions>
 
-            <telerikGridView:RadGridView x:Name="AdminDataGrid" Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2" AutoGenerateColumns="True" ShowGroupPanel="False"
-                                    IsReadOnly="True" MinHeight="50" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                                    ItemsSource="{Binding Source={StaticResource MagReviewListData}, Path=Data, Mode=TwoWay}"
-                                    RowIndicatorVisibility="Collapsed" CanUserSortColumns="False" 
-                                    SelectionMode="Extended" ColumnWidth="*"
-                                    IsSynchronizedWithCurrentItem="False">
-                <telerikGridView:RadGridView.Columns>
-                    
-                    <telerikGridView:GridViewDataColumn Width="50" SortingState="None">
-                        <telerikGridView:GridViewDataColumn.CellTemplate>
-                            <DataTemplate>
-                                <HyperlinkButton Content="Delete" Click="HyperlinkButton_Click_6"/>
-                            </DataTemplate>
-                        </telerikGridView:GridViewDataColumn.CellTemplate>
-                    </telerikGridView:GridViewDataColumn>
-                </telerikGridView:RadGridView.Columns>
-            </telerikGridView:RadGridView>
+                <TextBlock Grid.Row="0" Grid.Column="0" Text="Latest MAG" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="5,5,5,5"></TextBlock>
+                <TextBox x:Name="tbLatestMag" Grid.Row="0" Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5,5,5,5" IsReadOnly="True"></TextBox>
+                <TextBlock Grid.Row="1" Grid.Column="0" Text="SAS Key" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="5,5,5,5"></TextBlock>
+                <TextBox x:Name="tbMagSas" Grid.Row="1" Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5,5,5,5" IsReadOnly="True"></TextBox>
+                <TextBlock Grid.Row="2" Grid.Column="0" Text="Release notes" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="5,5,5,5"></TextBlock>
+                <TextBox x:Name="tbReleaseNotes" Grid.Row="2" Grid.Column="1" Margin="5,5,5,5" IsReadOnly="True" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto"></TextBox>
+
+                <StackPanel Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal">
+                    <HyperlinkButton x:Name="hlAddMagReview" Content="Add this Review ID" Margin="5,5,5,5" Click="hlAddMagReview_Click"></HyperlinkButton>
+                    <TextBox x:Name="tbAddMagReview" Margin="5,5,5,5" Width="80"></TextBox>
+                    <HyperlinkButton Content="Refresh list" Margin="5,5,5,5" Click="HyperlinkButton_Click_7"></HyperlinkButton>
+                </StackPanel>
+
+                <telerikGridView:RadGridView x:Name="AdminDataGrid" Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2" AutoGenerateColumns="True" ShowGroupPanel="False"
+                                        IsReadOnly="True" MinHeight="50" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                        ItemsSource="{Binding Source={StaticResource MagReviewListData}, Path=Data, Mode=TwoWay}"
+                                        RowIndicatorVisibility="Collapsed" CanUserSortColumns="False" 
+                                        SelectionMode="Extended" ColumnWidth="*"
+                                        IsSynchronizedWithCurrentItem="False">
+                    <telerikGridView:RadGridView.Columns>
+
+                        <telerikGridView:GridViewDataColumn Width="50" SortingState="None">
+                            <telerikGridView:GridViewDataColumn.CellTemplate>
+                                <DataTemplate>
+                                    <HyperlinkButton Content="Delete" Click="HyperlinkButton_Click_6"/>
+                                </DataTemplate>
+                            </telerikGridView:GridViewDataColumn.CellTemplate>
+                        </telerikGridView:GridViewDataColumn>
+                    </telerikGridView:RadGridView.Columns>
+                </telerikGridView:RadGridView>
+            </Grid> <!--end LHS Grid-->
+
+            <Grid x:Name="RHSGrid" Grid.Column="2">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="35"></RowDefinition>
+                    <RowDefinition Height="35"></RowDefinition>
+                    <RowDefinition Height="35"></RowDefinition>
+                    <RowDefinition Height="35"></RowDefinition>
+                    <RowDefinition Height="*"></RowDefinition>
+                </Grid.RowDefinitions>
+
+                <HyperlinkButton x:Name="LBCheckChangedPaperIds" Grid.Row="0" Content="Identify ID changes" Click="CheckChangedPaperIds_Click"></HyperlinkButton>
+                <HyperlinkButton x:Name="LBRefreshMagLogList" Grid.Row="1" Content="Refresh log table " Click="LBRefreshMagLogList_Click"></HyperlinkButton>
+                <HyperlinkButton x:Name="LBSwitchOffAutoRefreshLogList" Grid.Row="2" Content="Switch off auto refresh of table" Visibility="Collapsed" Click="LBSwitchOffAutoRefreshLogList_Click"></HyperlinkButton>
+
+                <telerikGridView:RadGridView x:Name="MagLogGrid" Grid.Row="4" AutoGenerateColumns="False" ShowGroupPanel="False"
+                                        IsReadOnly="True" MinHeight="50" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                        ItemsSource="{Binding Source={StaticResource MagLogListData}, Path=Data, Mode=TwoWay}"
+                                        RowIndicatorVisibility="Collapsed" CanUserSortColumns="False" 
+                                        SelectionMode="Extended" ColumnWidth="*"
+                                        IsSynchronizedWithCurrentItem="False">
+                    <telerikGridView:RadGridView.Columns>
+                        <telerikGridView:GridViewDataColumn Header="Job" DataMemberBinding="{Binding JobType}" Width="200"></telerikGridView:GridViewDataColumn>
+                        <telerikGridView:GridViewDataColumn Header="Submitted by" DataMemberBinding="{Binding ContactName}" Width="100"></telerikGridView:GridViewDataColumn>
+                        <telerikGridView:GridViewDataColumn Header="Job status" DataMemberBinding="{Binding JobStatus}" Width="100"></telerikGridView:GridViewDataColumn>
+                        <telerikGridView:GridViewDataColumn Header="When submitted" DataMemberBinding="{Binding TimeSubmitted}" Width="140"></telerikGridView:GridViewDataColumn>
+                        <telerikGridView:GridViewDataColumn Header="Job message" DataMemberBinding="{Binding JobMessage}" Width="*"></telerikGridView:GridViewDataColumn>
+                    </telerikGridView:RadGridView.Columns>
+                </telerikGridView:RadGridView>
+            </Grid>
+            
+            
         </Grid>
+        
+        <!--End Admin grid-->
 
     </Grid>
 </UserControl>
