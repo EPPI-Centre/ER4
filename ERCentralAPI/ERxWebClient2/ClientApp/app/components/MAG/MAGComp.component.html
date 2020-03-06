@@ -18,12 +18,13 @@
 	</p>
 </div>
 <div class="col-12 col-md-8 card collapse" id="collapseExample" style="min-width:450px; overflow:auto;">
-    <div class="col-12" style="min-width:450px; min-height:400px;overflow:auto;">
+    <div class="col-12" style="min-width:450px; min-height:500px;overflow:auto;">
 
         <div class="row col-12">
             <div class="col-5  m-1 p-1">
                 <div class=""><b>Description</b></div>
-                <input type="text" name="descName" #descName="ngModel" class="form-control col-12" id="desc" [(ngModel)]="desc" />
+                <input required minlength="4" type="text" id="descName" name="descName" #descName="ngModel" class="form-control col-12" 
+                       [(ngModel)]="desc" />
                 <div *ngIf="descName.invalid && (descName.dirty || descName.touched)"
                       class="alert alert-danger">
 
@@ -33,7 +34,6 @@
                     <div *ngIf="descName.errors.minlength">
                         Description must be at least 4 characters long.
                     </div>
-
                 </div>
             </div>
             <div class="col-1"></div>
@@ -129,7 +129,9 @@
                 </div>
             </div>
             <div class="col-12 m-1 p-1">
-                <div class="bold m-1 p-1"><button [disabled]="!CanAddNewMAGSearch()"  (click)="AddNewMAGSearch()" class="btn btn-warning" col-4 p-2 m-2> Add new search </button></div>
+                <div class="bold m-1 p-1">
+                <button [disabled]="!CanAddNewMAGSearch()"  (click)="AddNewMAGSearch()" class="btn btn-warning" col-4 p-2 m-2> 
+                    Add new search </button></div>
             </div>
         </div>
     </div>

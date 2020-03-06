@@ -1,10 +1,10 @@
 import { Component, OnInit, ViewChild} from '@angular/core';
-import { Router } from '@angular/router';
-import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { searchService } from '../services/search.service';
 import { MAGService, MagRelatedPapersRun } from '../services/mag.service';
 import { singleNode, SetAttribute } from '../services/ReviewSets.service';
 import { codesetSelectorComponent } from '../CodesetTrees/codesetSelector.component';
+import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
+import { ReviewerIdentityService } from '../services/revieweridentity.service';
 
 @Component({
 	selector: 'MAGComp',
@@ -14,10 +14,10 @@ import { codesetSelectorComponent } from '../CodesetTrees/codesetSelector.compon
 
 export class MAGComp implements OnInit {
 
-	constructor(private router: Router,
-		private ReviewerIdentityServ: ReviewerIdentityService,
+	constructor(private ConfirmationDialogService: ConfirmationDialogService,
 		private _magService: MAGService,
-		public _searchService: searchService,
+        public _searchService: searchService,
+        private _ReviewerIdentityServ: ReviewerIdentityService
 
 	) {
 
@@ -25,7 +25,7 @@ export class MAGComp implements OnInit {
 
 	ngOnInit() {
 
-		
+        this.Clear();
     }
 
 	@ViewChild('WithOrWithoutCodeSelector') WithOrWithoutCodeSelector!: codesetSelectorComponent;
@@ -33,7 +33,7 @@ export class MAGComp implements OnInit {
 	public ItemsWithCode: boolean = false;
 	public MAGItems: any[] = [];
 	public ShowPanel: boolean = false;
-    public isCollapsed: boolean = false;
+    public isCollapsed: boolean = true;
 
 	CanOnlySelectRoots() {
 		return true;
@@ -43,7 +43,7 @@ export class MAGComp implements OnInit {
 			this.CurrentDropdownSelectedCode = this.WithOrWithoutCodeSelector.SelectedNodeData;
 		}
 		this.isCollapsed = false;
-	}
+    }
 	public desc: string = '';
 	public value: Date = new Date(2000, 2, 10);
 	public searchAll: string = 'true';
@@ -55,10 +55,10 @@ export class MAGComp implements OnInit {
 	public ToggleMAGPanel(): void {
 		this.ShowPanel = !this.ShowPanel;
 	}
-	public HasWriteRights(): boolean{
+    public get HasWriteRights(): boolean {
+        return this._ReviewerIdentityServ.HasWriteRights;
+    }
 
-		return true;
-	}
 	public IsServiceBusy(): boolean {
 
 		return false;
@@ -66,17 +66,28 @@ export class MAGComp implements OnInit {
 	public Selected(): void {
 
 	}
-	public ClearSelected(): void {
+    Clear() {
+
+        this.CurrentDropdownSelectedCode = {} as SetAttribute;
+        this.desc = '';
+        this.ItemsWithCode = false;
+        this.magDate = '';
+        this.magMode = '';
 
     }
     public CanDeleteMAGRun() : boolean {
 
-        return true;
+        return this.HasWriteRights;
     }
 
     public CanAddNewMAGSearch(): boolean {
 
-        return true;
+        if (this.desc != '' && this.desc != null && this.HasWriteRights
+            ) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
 	public ClickSearchMode(searchModeChoice: string) {
@@ -133,9 +144,13 @@ export class MAGComp implements OnInit {
 	}
 	public doDeleteMagRelatedPapersRun(magRun: MagRelatedPapersRun) {
 
-		//console.log(JSON.stringify(magRun));
-		this._magService.Delete(magRun);
-	}
-
+        this.ConfirmationDialogService.confirm("Deleting the selected MAG run",
+            "Are you sure you want to delete MAG RUN:" + magRun.magRelatedRunId + "?", false, '')
+            .then((confirm: any) => {
+                if (confirm) {
+                    this._magService.Delete(magRun);
+                }
+            });
+        }
 }
 	
