@@ -27,12 +27,12 @@ namespace BusinessLibrary.BusinessClasses
 
         
 #else
-        private MagCurrentInfo() { }
+        public MagCurrentInfo() { }
 #endif
 
         
 
-        private static PropertyInfo<string> CurrentAvailabilityProperty = RegisterProperty<string>(new PropertyInfo<string>("CurrentAvailability", "CurrentAvailability", string.Empty));
+        public static readonly PropertyInfo<string> CurrentAvailabilityProperty = RegisterProperty<string>(new PropertyInfo<string>("CurrentAvailability", "CurrentAvailability", string.Empty));
         public string CurrentAvailability
         {
             get
@@ -40,8 +40,8 @@ namespace BusinessLibrary.BusinessClasses
                 return GetProperty(CurrentAvailabilityProperty);
             }
         }
-        
-        private static PropertyInfo<SmartDate> LastUpdatedProperty = RegisterProperty<SmartDate>(new PropertyInfo<SmartDate>("LastUpdated", "LastUpdated"));
+
+        public static readonly PropertyInfo<SmartDate> LastUpdatedProperty = RegisterProperty<SmartDate>(new PropertyInfo<SmartDate>("LastUpdated", "LastUpdated"));
         public SmartDate LastUpdated
         {
             get

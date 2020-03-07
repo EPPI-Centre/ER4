@@ -86,6 +86,7 @@ import { ReviewTermsListComp } from './components/ReviewTermsList/ReviewTermsLis
 import { configurablereportComp } from './components/Reports/configurablereport.component';
 import { DuplicatesComponent } from './components/Duplicates/duplicates.component';
 import { MAGComp } from './components/MAG/MAGComp.component';
+import { AdvancedMAGFeaturesComponent } from './components/MAG/AdvancedMAGFeatures.component';
 
 @NgModule({
     declarations: [
@@ -152,7 +153,8 @@ import { MAGComp } from './components/MAG/MAGComp.component';
 		TextSelectDirective,
 		ReviewTermsListComp,
         configurablereportComp,
-        DuplicatesComponent
+        DuplicatesComponent,
+        AdvancedMAGFeaturesComponent
 	],
     providers: [
         EventEmitterService,
@@ -189,7 +191,8 @@ import { MAGComp } from './components/MAG/MAGComp.component';
             { path: 'Main', component: MainFullReviewComponent }, 
             { path: 'MainCodingOnly', component: MainComponent }, 
 			{ path: 'sources', component: SourcesComponent },
-			{ path: 'BuildModel', component: BuildModelComponent },
+            { path: 'BuildModel', component: BuildModelComponent },
+            { path: 'AdvancedMAGFeatures', component: AdvancedMAGFeaturesComponent },
             { path: 'itemcodingOnly/:itemId', component: ItemCodingComp },
             { path: 'itemcoding/:itemId', component: ItemCodingFullComp },
             { path: 'EditItem/:itemId', component: editItemDetailsComp },

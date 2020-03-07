@@ -31,7 +31,7 @@ namespace BusinessLibrary.BusinessClasses
 #if SILVERLIGHT
         public MagSimulationList() { }
 #else
-        private MagSimulationList() { }
+        public MagSimulationList() { }
 #endif
 
 #if SILVERLIGHT

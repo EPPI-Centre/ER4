@@ -6,17 +6,18 @@ import { codesetSelectorComponent } from '../CodesetTrees/codesetSelector.compon
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Router } from '@angular/router';
+import { MAGAdvancedService } from '../services/magAdvanced.service';
 
 @Component({
-	selector: 'MAGComp',
-	templateUrl: './MAGComp.component.html',
+    selector: 'AdvancedMAGFeatures',
+    templateUrl: './AdvancedMAGFeatures.component.html',
 	providers: []
 })
 
-export class MAGComp implements OnInit {
+export class AdvancedMAGFeaturesComponent implements OnInit {
 
 	constructor(private ConfirmationDialogService: ConfirmationDialogService,
-		private _magService: MAGService,
+		private _magAdvancedService: MAGAdvancedService,
         public _searchService: searchService,
         private _ReviewerIdentityServ: ReviewerIdentityService,
         private router: Router
@@ -30,8 +31,6 @@ export class MAGComp implements OnInit {
         this.Clear();
     }
     public AdvancedFeatures() {
-        
-        this.router.navigate(['AdvancedMAGFeatures']);
 
         //navigate to the relevant page now and page should call the following:
         
@@ -50,6 +49,7 @@ export class MAGComp implements OnInit {
         //RelatedPapersGrid.Visibility = Visibility.Collapsed;
 
         //AdminGrid.Visibility = Visibility.Collapsed;
+
 
 
         //DataPortal < MagCurrentInfo > dp = new DataPortal<MagCurrentInfo>();
@@ -137,8 +137,14 @@ export class MAGComp implements OnInit {
         //provider1.Refresh();
 
         //}
+
+
+
     }
 
+    public Back() {
+        this.router.navigate(['AdvancedMAGFeatures']);
+    }
 
 	@ViewChild('WithOrWithoutCodeSelector') WithOrWithoutCodeSelector!: codesetSelectorComponent;
 	public CurrentDropdownSelectedCode: singleNode | null = null;
@@ -232,37 +238,11 @@ export class MAGComp implements OnInit {
                 break;
 		}
 	}
+    
+	public GetMAGCurrentInfo() {
 
-
-	public AddNewMAGSearch() {
-
-		let magRun: MagRelatedPapersRun = new MagRelatedPapersRun();
-
-		magRun.allIncluded = this.searchAll;
-		let att: SetAttribute = new SetAttribute();
-		if (this.CurrentDropdownSelectedCode != null) {
-			att = this.CurrentDropdownSelectedCode as SetAttribute;
-            magRun.attributeId = att.attribute_id;
-            magRun.attributeName = att.name;
-        }
-        magRun.dateFrom = this.value;
-		magRun.autoReRun = this.magSearchCheck.toString();
-		magRun.filtered = this.magRCTRadio;
-		magRun.mode = this.magMode;
-		magRun.userDescription = this.desc;
-
-		this._magService.Create(magRun);
-
+        this._magAdvancedService.Fetch();
 	}
-	public doDeleteMagRelatedPapersRun(magRun: MagRelatedPapersRun) {
 
-        this.ConfirmationDialogService.confirm("Deleting the selected MAG run",
-            "Are you sure you want to delete MAG RUN:" + magRun.magRelatedRunId + "?", false, '')
-            .then((confirm: any) => {
-                if (confirm) {
-                    this._magService.Delete(magRun);
-                }
-            });
-        }
 }
 	
