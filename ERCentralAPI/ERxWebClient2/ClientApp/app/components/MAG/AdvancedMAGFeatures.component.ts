@@ -241,8 +241,13 @@ export class AdvancedMAGFeaturesComponent implements OnInit {
     
 	public GetMAGCurrentInfo() {
 
-        this._magAdvancedService.Fetch();
+        this._magAdvancedService.FetchCurrentInfo();
 	}
 
+    public GetMagSimulationList() {
+
+        this._magAdvancedService.FetchMagSimulationList();
+
+    }
 }
 	
