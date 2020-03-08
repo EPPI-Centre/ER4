@@ -104,7 +104,38 @@ namespace ERxWebClient2.Controllers
 				throw;
 			}
 		}
-	}
+
+
+        [HttpPost("[action]")]
+        public IActionResult ImportMagRelatedPapers([FromBody] MVCMagRelatedPapersRun magRun)
+        {
+            try
+            {
+                if (SetCSLAUser4Writing())
+                {
+                    int num_in_run = magRun.nPapers;
+
+                    DataPortal<MagItemPaperInsertCommand> dp2 = new DataPortal<MagItemPaperInsertCommand>();
+
+                    MagItemPaperInsertCommand command = new MagItemPaperInsertCommand("", "RelatedPapersSearch", magRun.magRelatedRunId);
+
+                    dp2.BeginExecute(command);
+
+                    //return Ok(currentMagRun);
+
+                }
+                else return Forbid();
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "Deleting a MagRelatedPapersRun list has an error");
+                throw;
+            }
+        }
+
+
+
+    }
 
 
 	public class MVCMagRelatedPapersRun

@@ -6,6 +6,10 @@ import { codesetSelectorComponent } from '../CodesetTrees/codesetSelector.compon
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Router } from '@angular/router';
+import { Criteria, ItemListService } from '../services/ItemList.service';
+import { MagSimulation } from '../services/magAdvanced.service';
+import { EventEmitterService } from '../services/EventEmitter.service';
+
 
 @Component({
 	selector: 'MAGComp',
@@ -19,6 +23,8 @@ export class MAGComp implements OnInit {
 		private _magService: MAGService,
         public _searchService: searchService,
         private _ReviewerIdentityServ: ReviewerIdentityService,
+        private _itemListService: ItemListService,
+        private _eventEmitter: EventEmitterService,
         private router: Router
 
 	) {
@@ -170,7 +176,25 @@ export class MAGComp implements OnInit {
     public get HasWriteRights(): boolean {
         return this._ReviewerIdentityServ.HasWriteRights;
     }
+    public GetItems(item: MagSimulation) {
 
+
+            //let cr: Criteria = new Criteria();
+            //cr.onlyIncluded = dataItem.selected;
+            //cr.showDeleted = false;
+            //cr.pageNumber = 0;
+            //let ListDescription: string = dataItem.title;
+            //cr.listType = 'PaperListById';
+
+            //this._itemListService.FetchWithCrit(cr, ListDescription);
+            //this._eventEmitter.PleaseSelectItemsListTab.emit();
+        
+    }
+    public ImportMagSearchPapers(item: MagSimulation) {
+
+        this._magService.ImportMagPapers(item);
+
+    }
 	public IsServiceBusy(): boolean {
 
 		return false;

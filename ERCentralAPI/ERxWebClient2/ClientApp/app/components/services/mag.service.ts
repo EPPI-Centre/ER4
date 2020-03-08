@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
 import { NotificationService } from '@progress/kendo-angular-notification';
+import { MagSimulation } from './magAdvanced.service';
 
 @Injectable({
     providedIn: 'root',
@@ -112,6 +113,16 @@ export class MAGService extends BusyAwareService {
             type: { style: "info", icon: true },
             closable: true
         });
+    }
+
+    ImportMagPapers(item: MagSimulation) {
+
+        //int num_in_run = RememberThisMagRelatedPapersRun.NPapers;
+
+        //DataPortal < MagItemPaperInsertCommand > dp2 = new DataPortal<MagItemPaperInsertCommand>();
+
+        //MagItemPaperInsertCommand command = new MagItemPaperInsertCommand("", "RelatedPapersSearch", RememberThisMagRelatedPapersRun.MagRelatedRunId);
+
     }
 
 }
