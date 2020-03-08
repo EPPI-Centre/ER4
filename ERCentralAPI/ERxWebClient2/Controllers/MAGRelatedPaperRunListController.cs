@@ -118,10 +118,10 @@ namespace ERxWebClient2.Controllers
                     DataPortal<MagItemPaperInsertCommand> dp2 = new DataPortal<MagItemPaperInsertCommand>();
 
                     MagItemPaperInsertCommand command = new MagItemPaperInsertCommand("", "RelatedPapersSearch", magRun.magRelatedRunId);
-
+                    
                     dp2.BeginExecute(command);
 
-                    //return Ok(currentMagRun);
+                    return Ok();
 
                 }
                 else return Forbid();
