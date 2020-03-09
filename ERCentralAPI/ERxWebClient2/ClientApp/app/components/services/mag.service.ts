@@ -71,11 +71,11 @@ export class MAGService extends BusyAwareService {
 
                 if (result.magRelatedRunId > 0) {
 
-                    this.showBuildModelMessage('MAGRun was deleted');
+                    this.showMAGRunMessage('MAGRun was deleted');
 
                 } else {
 
-                    this.showBuildModelMessage(result.status);
+                    this.showMAGRunMessage(result.status);
                 }
 
                 this.RemoveBusy("MagRelatedPapersRunDelete");
@@ -100,11 +100,11 @@ export class MAGService extends BusyAwareService {
 
                 if (result.magRelatedRunId > 0) {
 
-                    this.showBuildModelMessage('MAGRun was created');
+                    this.showMAGRunMessage('MAGRun was created');
 
                 } else {
 
-                    this.showBuildModelMessage(result.status);
+                    this.showMAGRunMessage(result.status);
                 }
                 this.RemoveBusy("MagRelatedPapersRunCreate");
 				this.MagRelatedPapersRunList.push(result);
@@ -117,7 +117,7 @@ export class MAGService extends BusyAwareService {
 			);
     }
 
-    showBuildModelMessage(notifyMsg: string) {
+    showMAGRunMessage(notifyMsg: string) {
 
         this.notificationService.show({
             content: notifyMsg,
@@ -128,15 +128,34 @@ export class MAGService extends BusyAwareService {
         });
     }
 
-    ImportMagPapers(magRun: MagSimulation) {
+    ImportMagPapers(magRun: MagRelatedPapersRun) {
 
-        
+        let notificationMsg: string = '';
         this._BusyMethods.push("ImportMagRelatedPapers");
         this._httpC.post<MagItemPaperInsertCommand>(this._baseUrl + 'api/MagRelatedPapersRunList/ImportMagRelatedPapers',
             magRun)
             .subscribe(result => {
                 this.RemoveBusy("ImportMagRelatedPapers");
                 this.MagItemPaperInsert = result;
+
+                    if (result.nImported == magRun.nPapers) {
+
+                         notificationMsg += "Imported " + result.nImported + " out of " +
+                             magRun.nPapers + " items";
+
+                    }else if(result.nImported != 0) {
+
+                        notificationMsg += "Some of these items were already in your review.\n\nImported " +
+                            result.nImported + " out of " + magRun.nPapers +
+                            " new items";
+                    }
+                    else {
+
+                        notificationMsg += "All of these records were already in your review.";
+
+                    }
+                    this.showMAGRunMessage(notificationMsg);
+
             },
                 error => {
                     this.RemoveBusy("ImportMagRelatedPapers");
@@ -150,10 +169,10 @@ export class MAGService extends BusyAwareService {
 
 export class MagItemPaperInsertCommand {
 
-    _PaperIds: string = '';
-    _NImported: number = 0;
-    _SourceOfIds: string = '';
-    _MagRelatedRunId: number = 0;
+    paperIds: string = '';
+    nImported: number = 0;
+    sourceOfIds: string = '';
+    magRelatedRunId: number = 0;
 
 }
 
@@ -172,4 +191,14 @@ export class MagRelatedPapersRun {
 	userStatus: string = '';
 	nPapers: number = 0;
 	reviweIdId = 0;
+}
+
+
+export class MagPaperListSelectionCriteria {
+
+    pageSize: number = 20;
+    pageNumber: number = 0;
+    listType: string = "MagRelatedPapersRunList";
+    magRelatedRunId: number = 0;
+
 }

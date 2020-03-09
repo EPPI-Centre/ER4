@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild} from '@angular/core';
 import { searchService } from '../services/search.service';
-import { MAGService, MagRelatedPapersRun } from '../services/mag.service';
+import { MAGService, MagRelatedPapersRun, MagPaperListSelectionCriteria } from '../services/mag.service';
 import { singleNode, SetAttribute } from '../services/ReviewSets.service';
 import { codesetSelectorComponent } from '../CodesetTrees/codesetSelector.component';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
@@ -176,21 +176,27 @@ export class MAGComp implements OnInit {
     public get HasWriteRights(): boolean {
         return this._ReviewerIdentityServ.HasWriteRights;
     }
-    public GetItems(item: MagSimulation) {
+    public GetItems(item: MagRelatedPapersRun) {
+
+        
+        let selectionCriteria: MagPaperListSelectionCriteria = new MagPaperListSelectionCriteria();
+
+        selectionCriteria.pageSize = 20;
+
+        selectionCriteria.pageNumber = 0;
+
+        selectionCriteria.listType = "MagRelatedPapersRunList";
+
+        selectionCriteria.magRelatedRunId = item.magRelatedRunId;
+
+        //provider.FactoryParameters.Add(selectionCriteria);
+
+        //provider.FactoryMethod = "GetMagPaperList";
 
 
-            //let cr: Criteria = new Criteria();
-            //cr.onlyIncluded = dataItem.selected;
-            //cr.showDeleted = false;
-            //cr.pageNumber = 0;
-            //let ListDescription: string = dataItem.title;
-            //cr.listType = 'PaperListById';
-
-            //this._itemListService.FetchWithCrit(cr, ListDescription);
-            //this._eventEmitter.PleaseSelectItemsListTab.emit();
         
     }
-    public ImportMagSearchPapers(item: MagSimulation) {
+    public ImportMagSearchPapers(item: MagRelatedPapersRun) {
 
         this._magService.ImportMagPapers(item);
 
