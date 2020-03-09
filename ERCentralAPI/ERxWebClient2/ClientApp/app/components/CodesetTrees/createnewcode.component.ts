@@ -151,22 +151,23 @@ export class CreateNewCodeComp implements OnInit, OnDestroy {
 
 
         if (refreshTree) {
-            if (this._reviewSetsService.selectedNode) {
-                let IsSet: boolean = this._reviewSetsService.selectedNode.nodeType == "ReviewSet";
-                let Id: number = -1;
-                if (IsSet) Id = (this._reviewSetsService.selectedNode as ReviewSet).set_id;
-                else Id = (this._reviewSetsService.selectedNode as SetAttribute).attribute_id;
-                let sub: Subscription = this._reviewSetsService.GetReviewStatsEmit.subscribe(() => {
-                    console.log("trying to reselect: ", Id);
-                    if (IsSet) this._reviewSetsService.selectedNode = this._reviewSetsService.FindSetById(Id);
-                    else this._reviewSetsService.selectedNode = this._reviewSetsService.FindAttributeById(Id);
-                    if (sub) sub.unsubscribe();
-                }
-                    , () => { if (sub) sub.unsubscribe(); }
-                );
-                this._reviewSetsService.selectedNode = null;
-                this._reviewSetsService.GetReviewSets();
-            }
+            //if (this._reviewSetsService.selectedNode) {
+            //    let IsSet: boolean = this._reviewSetsService.selectedNode.nodeType == "ReviewSet";
+            //    let Id: number = -1;
+            //    if (IsSet) Id = (this._reviewSetsService.selectedNode as ReviewSet).set_id;
+            //    else Id = (this._reviewSetsService.selectedNode as SetAttribute).attribute_id;
+            //    let sub: Subscription = this._reviewSetsService.GetReviewStatsEmit.subscribe(() => {
+            //        console.log("trying to reselect: ", Id);
+            //        if (IsSet) this._reviewSetsService.selectedNode = this._reviewSetsService.FindSetById(Id);
+            //        else this._reviewSetsService.selectedNode = this._reviewSetsService.FindAttributeById(Id);
+            //        if (sub) sub.unsubscribe();
+            //    }
+            //        , () => { if (sub) sub.unsubscribe(); }
+            //    );
+            //    this._reviewSetsService.selectedNode = null;
+            //    this._reviewSetsService.GetReviewSets();
+            //}
+            this._reviewSetsEditingService.PleaseRedrawTheTree.emit();
         }
         this.closeCreateNew.emit();
         

@@ -11,8 +11,9 @@ using Csla.Silverlight;
 using System.ComponentModel;
 using Csla.DataPortalClient;
 using System.Threading;
+using System.Threading.Tasks;
 
-#if!SILVERLIGHT
+#if !SILVERLIGHT
 using System.Data.SqlClient;
 using BusinessLibrary.Data;
 using BusinessLibrary.Security;
@@ -74,35 +75,88 @@ namespace BusinessLibrary.BusinessClasses
 
 #if !SILVERLIGHT
 
-        protected override void DataPortal_Execute()
+        protected override async void DataPortal_Execute()
         {
-            using (SqlConnection connection = new SqlConnection(DataConnection.AcademicControllerConnectionString))
+            if (_FindOrRemove == "FindMatches")
             {
-                connection.Open();
-                ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
-                using (SqlCommand command = SpecifyCommand(connection, ri))
+                if (_ITEM_ID > 0)
                 {
-                    command.CommandType = System.Data.CommandType.StoredProcedure;
-                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
-                    command.Parameters.Add(new SqlParameter("@CONTACT_ID", ri.UserId));
-                    command.Parameters.Add(new SqlParameter("@RESULT", 0));
-                    command.Parameters["@RESULT"].Direction = System.Data.ParameterDirection.Output;
-                    command.ExecuteNonQuery();
-                    string res = command.Parameters["@RESULT"].Value.ToString();
-                    if (command.CommandText == "st_MatchItemsToPapersSingleItem")
-                    {
-                        _currentStatus = "The automated matching identified " +
-                       command.Parameters["@RESULT"].Value.ToString() + (res == "1" ? " possible match" :
-                       " possible matches");
-                    }
-                    else
-                    {
-                        _currentStatus = "Successfully added this review to the queue to be auto-matched";
-                    }
-                   
+                    MagPaperItemMatch.MatchItemToMag(_ITEM_ID);
                 }
-                connection.Close();
+                else
+                {
+                    ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+                    List<Int64> ItemIds = new List<long>();
+                    using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+                    {
+                        connection.Open();
+                        using (SqlCommand command = new SqlCommand("st_MagMatchItemsGetIdList", connection))
+                        {
+                            command.CommandType = System.Data.CommandType.StoredProcedure;
+                            command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
+                            command.Parameters.Add(new SqlParameter("@ATTRIBUTE_ID", _ATTRIBUTE_ID));
+                            using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
+                            {
+                                while (reader.Read())
+                                {
+                                    ItemIds.Add(reader.GetInt64("ITEM_ID"));
+                                }
+                            }
+                        }
+                        connection.Close();
+                    }
+                    int total = ItemIds.Count;
+                    if (total > 0)
+                    {
+                        if (total < 7)
+                        {
+                            foreach (Int64 ItemId in ItemIds)
+                            {
+                                MagPaperItemMatch.MatchItemToMag(ItemId);
+                            }
+                        }
+                        else
+                        {
+                            int NumPerList = total / 6;
+                            List<Int64> List1 = new List<long>();
+                            List<Int64> List2 = new List<long>();
+                            List<Int64> List3 = new List<long>();
+                            List<Int64> List4 = new List<long>();
+                            List<Int64> List5 = new List<long>();
+                            List<Int64> List6 = new List<long>();
+                            PutItemsInList(List1, ItemIds, 0, NumPerList);
+                            PutItemsInList(List2, ItemIds, NumPerList, NumPerList);
+                            PutItemsInList(List3, ItemIds, NumPerList * 2, NumPerList);
+                            PutItemsInList(List4, ItemIds, NumPerList * 3, NumPerList);
+                            PutItemsInList(List5, ItemIds, NumPerList * 4, NumPerList);
+                            PutItemsInList(List6, ItemIds, NumPerList * 5, total - (NumPerList * 5));
+                            Task.Run(() => { FindPaper(List1); });
+                            Task.Run(() => { FindPaper(List2); });
+                            Task.Run(() => { FindPaper(List3); });
+                            Task.Run(() => { FindPaper(List4); });
+                            Task.Run(() => { FindPaper(List5); });
+                            Task.Run(() => { FindPaper(List6); });
+                        }
+                    }
+                }
             }
+        }
+
+        private void FindPaper(List<Int64> ItemIds)
+        {
+            foreach (Int64 ItemId in ItemIds)
+            {
+               MagPaperItemMatch.MatchItemToMag(ItemId);
+            }
+        }
+
+        private List<Int64> PutItemsInList(List<Int64> dest, List<Int64> source, int from, int count)
+        {
+            for (int x = from; x < from + count; x++)
+            {
+                dest.Add(source[x]);
+            }
+            return dest;
         }
 
         private SqlCommand SpecifyCommand(SqlConnection connection, ReviewerIdentity ri)

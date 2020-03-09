@@ -1,16 +1,7 @@
 <div>
 	<div style="max-height: 810px; height:680px; overflow: auto" >
 		<table class=" table-condensed border p-0 m-0" >
-			<thead>
-				<tr>
-					<th><h3>Review Term</h3></th>
-					<th class="small bold"><h3>Relevant?</h3></th>
-					<th>&nbsp;</th>
-                    <th>&nbsp;</th>
-				</tr>
-
-			</thead>
-            <tbody id="box">
+            <thead>
                 <tr *ngIf="!ShowNewTermPanel">
                     <td colspan="4">
                         <button (click)="OpenRowPanel()"
@@ -20,6 +11,15 @@
                         </button>
                     </td>
                 </tr>
+                <tr>
+                    <th>Review Term</th>
+                    <td class="small font-weight-bold">Relevant?</td>
+                    <th>&nbsp;</th>
+                    <th>&nbsp;</th>
+                </tr>
+
+            </thead>
+            <tbody>
                 <tr *ngIf="ShowNewTermPanel" class="border border-info rounded">
                     <td><input class="form-control" type="text" [(ngModel)]="newReviewTerm" /></td>
                     <td><input class="form-control" type="checkbox" [(ngModel)]="newReviewIncluded" /></td>

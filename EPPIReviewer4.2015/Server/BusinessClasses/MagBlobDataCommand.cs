@@ -11,8 +11,9 @@ using Csla.Silverlight;
 using System.ComponentModel;
 using Csla.DataPortalClient;
 using System.Threading;
+using System.Configuration;
 
-#if!SILVERLIGHT
+#if !SILVERLIGHT
 using BusinessLibrary.Data;
 using BusinessLibrary.Security;
 using Microsoft.WindowsAzure.Storage;
@@ -88,7 +89,7 @@ namespace BusinessLibrary.BusinessClasses
         private async Task ListMagDbsAndMeta()
         {
             string storageAccountName = "eppimag";
-            string storageAccountKey = "***REMOVED***";
+            string storageAccountKey = ConfigurationManager.AppSettings["MAGStorageAccountKey"];
 
             string storageConnectionString =
                 "DefaultEndpointsProtocol=https;AccountName=" + storageAccountName + ";AccountKey=";
@@ -110,12 +111,14 @@ namespace BusinessLibrary.BusinessClasses
                     var length = container.Name.Length;
                     int ind = container.Name.IndexOf("-", 0);
                     string dateStr = container.Name.Substring(ind + 1, length - ind - 1);
-                    DateTime date = Convert.ToDateTime(dateStr);
-                    if (date > LatestDateMAG)
+                    DateTime date;
+                    if (DateTime.TryParse(dateStr, out date)) // might be some other folder than MAG
                     {
-                        LatestDateMAG = date;
-                        _LatestMAGName = item;
-
+                        if (date > LatestDateMAG)
+                        {
+                            LatestDateMAG = date;
+                            _LatestMAGName = item;
+                        }
                     }
                 }
                 containerLatest = blobClient.GetContainerReference(_LatestMAGName);

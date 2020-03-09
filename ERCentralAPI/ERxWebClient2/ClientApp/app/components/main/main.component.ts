@@ -58,6 +58,11 @@ export class MainComponent implements OnInit, OnDestroy, AfterViewInit {
 
 
     }
+    public get IsServiceBusy(): boolean {
+        return (this.ReviewInfoService.IsBusy ||
+            this.ReviewSetsService.IsBusy ||
+            this.ItemListService.IsBusy);
+    }
     toggleReviewPanel() {
         this.isReviewPanelCollapsed = !this.isReviewPanelCollapsed;
     }
@@ -85,7 +90,10 @@ export class MainComponent implements OnInit, OnDestroy, AfterViewInit {
 
     Reload() {
         this.Clear();
-        this.workAllocationsComp.getWorkAllocationContactList();
+        if (this.ReviewerIdentityServ.IsCodingOnly) {//might not be, if we're going to the full UI and this component isn't dead yet.
+            this.workAllocationsComp.getWorkAllocationContactList();
+            this.ReviewSetsService.GetReviewSets();
+        }
     }
 
     Clear() {

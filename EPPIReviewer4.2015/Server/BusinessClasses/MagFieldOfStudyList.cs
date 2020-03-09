@@ -8,7 +8,10 @@ using Csla.Core;
 using Csla.Serialization;
 using Csla.Silverlight;
 using System.ComponentModel;
-//using Csla.Validation;
+using System.Net;
+using System.Configuration;
+using System.IO;
+using Newtonsoft.Json;
 
 #if !SILVERLIGHT
 using System.Data.SqlClient;
@@ -18,6 +21,32 @@ using BusinessLibrary.Security;
 
 namespace BusinessLibrary.BusinessClasses
 {
+    public class FieldOfStudyMakes
+    {
+        public Int32 CC { get; set; }
+        public string DFN { get; set; }
+        public Int32 ECC { get; set; }
+        public Int32 FL { get; set; }
+        public string FN { get; set; }
+        public List<FieldOfStudyRelationshipMakes> FC { get; set; }
+        public List<FieldOfStudyRelationshipMakes> FP { get; set; }
+        public Int64 Id { get; set; }
+        public Int32 PC { get; set; }
+    }
+
+    public class FieldOfStudyRelationshipMakes
+    {
+        public Int64 FId { get; set; }
+        public string FN { get; set; }
+    }
+
+    public class MakesResponse
+    {
+        public string expr { get; set; }
+        public List<FieldOfStudyMakes> entities { get; set; }
+    }
+
+
     [Serializable]
     public class MagFieldOfStudyList : DynamicBindingListBase<MagFieldOfStudy>
     {
@@ -38,11 +67,110 @@ namespace BusinessLibrary.BusinessClasses
 #if SILVERLIGHT
        
 #else
+        
 
         protected void DataPortal_Fetch(MagFieldOfStudyListSelectionCriteria selectionCriteria)
         {
             ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
             RaiseListChangedEvents = false;
+            string searchString = "";
+
+            switch (selectionCriteria.ListType)
+            {
+                case "PaperFieldOfStudyList":
+                    searchString = selectionCriteria.PaperIdList == "" ? "" : 
+                        searchString = "OR(Id=" + selectionCriteria.PaperIdList.Replace(",", ", Id=") +
+                            @")&attributes=Id,F.DFN,F.FId,F.FN";
+                    break;
+                case "FieldOfStudyParentsList":
+                    searchString = "Id=" + selectionCriteria.FieldOfStudyId.ToString() +
+                        @"&attributes=Id,CC,DFN,ECC,FL,FN,FC.FId,FC.FN,FP.FId,FP.FN";
+                    break;
+                case "FieldOfStudyChildrenList":
+                    searchString = "Id=" + selectionCriteria.FieldOfStudyId.ToString() +
+                        @"&attributes=Id,CC,DFN,ECC,FL,FN,FC.FId,FC.FN,FP.FId,FP.FN";
+                    break;
+            }
+
+            if (searchString != "")
+            {
+
+                var jsonsettings = new JsonSerializerSettings
+                {
+                    NullValueHandling = NullValueHandling.Ignore,
+                    MissingMemberHandling = MissingMemberHandling.Ignore
+                };
+
+                string responseText = "";
+                WebRequest request = WebRequest.Create(ConfigurationManager.AppSettings["AzureMAKESBaseURL"] + @"?expr=" + searchString);
+                WebResponse response = request.GetResponse();
+                using (Stream dataStream = response.GetResponseStream())
+                {
+                    StreamReader sreader = new StreamReader(dataStream);
+                    responseText = sreader.ReadToEnd();
+                }
+                response.Close();
+
+                if (selectionCriteria.ListType == "PaperFieldOfStudyList") // these are paper entities not fields of study
+                {
+                    var fosDict = new Dictionary<string, int>();
+                    var respJson = JsonConvert.DeserializeObject<PaperMakesResponse>(responseText, jsonsettings);
+                    if (respJson.entities != null && respJson.entities.Count > 0)
+                    {
+                        foreach (PaperMakes fosm in respJson.entities)
+                        {
+                            foreach (PaperMakesFieldOfStudy pmfos in fosm.F)
+                            {
+                                string key = pmfos.FId.ToString() + "¬" + pmfos.DFN;
+                                if (!fosDict.ContainsKey(key))
+                                {
+                                    fosDict.Add(key, 1);
+                                }
+                                else
+                                {
+                                    fosDict[key] = fosDict[key] + 1;
+                                }
+                            }
+                        }
+                        foreach (KeyValuePair<string, int> eachFos in fosDict.OrderByDescending(val => val.Value))
+                        {
+                            PaperMakesFieldOfStudy newPmfos = new PaperMakesFieldOfStudy();
+                            newPmfos.FId = Convert.ToInt64(eachFos.Key.Split('¬')[0]);
+                            newPmfos.DFN = eachFos.Key.Split('¬')[1];
+                            Add(MagFieldOfStudy.GetMagFieldOfStudyFromPaperMakesFieldOfStudy(newPmfos));
+                        }
+                    }
+                }
+                else
+                {
+                    var respJson = JsonConvert.DeserializeObject<MakesResponse>(responseText, jsonsettings);
+                    if (respJson.entities != null && respJson.entities.Count > 0)
+                    {
+                        foreach (FieldOfStudyMakes fosm in respJson.entities)
+                        {
+                            if (selectionCriteria.ListType == "FieldOfStudyParentsList")
+                            {
+                                if (fosm.FP != null && fosm.FP.Count > 0)
+                                {
+                                    foreach (FieldOfStudyRelationshipMakes fosrm in fosm.FP)
+                                        Add(MagFieldOfStudy.GetMagFieldOfStudyRelationship(fosrm));
+                                }
+                            }
+                            else
+                            {
+                                if (fosm.FC != null && fosm.FC.Count > 0)
+                                {
+                                    foreach (FieldOfStudyRelationshipMakes fosrm in fosm.FC)
+                                        Add(MagFieldOfStudy.GetMagFieldOfStudyRelationship(fosrm));
+                                }
+                            }
+
+                        }
+                    }
+                }
+            }
+
+            /*
             using (SqlConnection connection = new SqlConnection(DataConnection.AcademicControllerConnectionString))
             {
                 connection.Open();
@@ -58,43 +186,48 @@ namespace BusinessLibrary.BusinessClasses
                 }
                 connection.Close();
             }
+            */
             RaiseListChangedEvents = true;
         }
 
-        private SqlCommand SpecifyListCommand(SqlConnection connection, MagFieldOfStudyListSelectionCriteria criteria, ReviewerIdentity ri)
-        {
-            SqlCommand command = null;
-            switch (criteria.ListType)
-            {
-                case "PaperFieldOfStudyList":
-                    command = new SqlCommand("st_AggregateFoSPaperList", connection);
-                    command.CommandType = System.Data.CommandType.StoredProcedure;
-                    command.Parameters.Add(new SqlParameter("@PaperIdList", criteria.PaperIdList));
-                    break;
-                case "FieldOfStudyParentsList":
-                    command = new SqlCommand("st_FieldsOfStudyParentsList", connection);
-                    command.CommandType = System.Data.CommandType.StoredProcedure;
-                    command.Parameters.Add(new SqlParameter("@FieldOfStudyId", criteria.FieldOfStudyId));
-                    break;
-                case "FieldOfStudyChildrenList":
-                    command = new SqlCommand("st_FieldsOfStudyChildrenList", connection);
-                    command.CommandType = System.Data.CommandType.StoredProcedure;
-                    command.Parameters.Add(new SqlParameter("@FieldOfStudyId", criteria.FieldOfStudyId));
-                    break;
-                case "FieldOfStudyRelatedFoSList":
-                    command = new SqlCommand("st_FieldsOfStudyRelatedFoSList", connection);
-                    command.CommandType = System.Data.CommandType.StoredProcedure;
-                    command.Parameters.Add(new SqlParameter("@FieldOfStudyId", criteria.FieldOfStudyId));
-                    break;
-                case "FieldOfStudySearchList":
-                    FullTextSearch fts = new FullTextSearch(criteria.SearchText);
-                    command = new SqlCommand("st_FieldsOfStudySearch", connection);
-                    command.CommandType = System.Data.CommandType.StoredProcedure;
-                    command.Parameters.Add(new SqlParameter("@SearchText", fts.NormalForm));
-                    break;
-            }
-            return command;
-        }
+        //private SqlCommand SpecifyListCommand(SqlConnection connection, MagFieldOfStudyListSelectionCriteria criteria, ReviewerIdentity ri)
+        //{
+        //    SqlCommand command = null;
+        //    switch (criteria.ListType)
+        //    {
+        //        case "PaperFieldOfStudyList":
+        //            command = new SqlCommand("st_AggregateFoSPaperList", connection);
+        //            command.CommandType = System.Data.CommandType.StoredProcedure;
+        //            command.Parameters.Add(new SqlParameter("@PaperIdList", criteria.PaperIdList));
+        //            break;
+        //        case "FieldOfStudyParentsList":
+        //            command = new SqlCommand("st_FieldsOfStudyParentsList", connection);
+        //            command.CommandType = System.Data.CommandType.StoredProcedure;
+        //            command.Parameters.Add(new SqlParameter("@FieldOfStudyId", criteria.FieldOfStudyId));
+        //            break;
+        //        case "FieldOfStudyChildrenList":
+        //            command = new SqlCommand("st_FieldsOfStudyChildrenList", connection);
+        //            command.CommandType = System.Data.CommandType.StoredProcedure;
+        //            command.Parameters.Add(new SqlParameter("@FieldOfStudyId", criteria.FieldOfStudyId));
+        //            break;
+        //            /* NOT CURRENTLY IMPLEMENTED
+        //        case "FieldOfStudyRelatedFoSList":
+        //            command = new SqlCommand("st_FieldsOfStudyRelatedFoSList", connection);
+        //            command.CommandType = System.Data.CommandType.StoredProcedure;
+        //            command.Parameters.Add(new SqlParameter("@FieldOfStudyId", criteria.FieldOfStudyId));
+        //            break;
+        //            */
+        //            /*
+        //        case "FieldOfStudySearchList":
+        //            FullTextSearch fts = new FullTextSearch(criteria.SearchText);
+        //            command = new SqlCommand("st_FieldsOfStudySearch", connection);
+        //            command.CommandType = System.Data.CommandType.StoredProcedure;
+        //            command.Parameters.Add(new SqlParameter("@SearchText", fts.NormalForm));
+        //            break;
+        //            */
+        //    }
+        //    return command;
+        //}
 
 
 
