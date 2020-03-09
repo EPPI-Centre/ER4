@@ -21,6 +21,7 @@
     <PackageReference Include="CSLA-ASPNETCORE-MVC" Version="4.7.200" />
     <PackageReference Include="CsvHelper" Version="12.0.1" />
     <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.8" />
+    <PackageReference Include="Microsoft.Azure.Search" Version="10.1.0" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.0.3" />
     <PackageReference Include="Serilog.AspNetCore" Version="2.1.2-dev-00028" />
     <PackageReference Include="Serilog.Extensions.Logging" Version="2.0.2" />
@@ -123,6 +124,7 @@
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\MagCurrentInfo.cs" Link="Models\MagCurrentInfo.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\MagItemPaperInsertCommand.cs" Link="Models\MagItemPaperInsertCommand.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\MagMatchItemsToPapersCommand.cs" Link="Models\MagMatchItemsToPapersCommand.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\MagMatchItemToPaperManualCommand.cs" Link="Models\MagMatchItemToPaperManualCommand.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\MagPaper.cs" Link="Models\MagPaper.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\MagRelatedPapersRun.cs" Link="Models\MagRelatedPapersRun.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\MagRelatedPapersRunList.cs" Link="Models\MagRelatedPapersRunList.cs" />

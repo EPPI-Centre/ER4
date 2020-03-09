@@ -31,7 +31,20 @@ export class MAGService extends BusyAwareService {
 	public set MagRelatedPapersRunList(magRun: MagRelatedPapersRun[]) {
 		this._MagRelatedPapersRunList = magRun;
 
-	}
+    }
+
+    private _MagItemPaperInsert: MagItemPaperInsertCommand = new MagItemPaperInsertCommand();
+
+    public get MagItemPaperInsert(): MagItemPaperInsertCommand{
+
+        return this._MagItemPaperInsert;
+
+    }
+
+    public set MagItemPaperInsert(magRunCmd: MagItemPaperInsertCommand) {
+        this._MagItemPaperInsert = magRunCmd;
+
+    }
 
 	Fetch() {
 
@@ -115,15 +128,32 @@ export class MAGService extends BusyAwareService {
         });
     }
 
-    ImportMagPapers(item: MagSimulation) {
+    ImportMagPapers(magRun: MagSimulation) {
 
-        //int num_in_run = RememberThisMagRelatedPapersRun.NPapers;
-
-        //DataPortal < MagItemPaperInsertCommand > dp2 = new DataPortal<MagItemPaperInsertCommand>();
-
-        //MagItemPaperInsertCommand command = new MagItemPaperInsertCommand("", "RelatedPapersSearch", RememberThisMagRelatedPapersRun.MagRelatedRunId);
+        
+        this._BusyMethods.push("ImportMagRelatedPapers");
+        this._httpC.post<MagItemPaperInsertCommand>(this._baseUrl + 'api/MagRelatedPapersRunList/ImportMagRelatedPapers',
+            magRun)
+            .subscribe(result => {
+                this.RemoveBusy("ImportMagRelatedPapers");
+                this.MagItemPaperInsert = result;
+            },
+                error => {
+                    this.RemoveBusy("ImportMagRelatedPapers");
+                    this.modalService.GenericError(error);
+                }
+            );
 
     }
+
+}
+
+export class MagItemPaperInsertCommand {
+
+    _PaperIds: string = '';
+    _NImported: number = 0;
+    _SourceOfIds: string = '';
+    _MagRelatedRunId: number = 0;
 
 }
 

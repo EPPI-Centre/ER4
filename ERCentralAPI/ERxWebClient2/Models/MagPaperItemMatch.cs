@@ -29,8 +29,7 @@ using Microsoft.Azure.Search;
 using System.Text.RegularExpressions;
 
 using System.Configuration;
-
-
+using Csla.Configuration;
 
 namespace BusinessLibrary.BusinessClasses
 
