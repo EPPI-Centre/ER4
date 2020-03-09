@@ -114,7 +114,8 @@ namespace ERxWebClient2.Controllers
 		public string userDescription = "";
 		public int attributeId = 0;
         public string attributeName = "";
-		public string allIncluded = "";
+		public bool allIncluded = false;
+		public string dateRun = "";
 		public DateTime dateFrom = DateTime.Now;
 		public string autoReRun = "";
 		public string mode = "";
@@ -122,7 +123,7 @@ namespace ERxWebClient2.Controllers
 		public string status = "";
 		public string userStatus = "";
 		public int nPapers = 0;
-
+		public int reviewIdId = 0;
 	}
 
 }

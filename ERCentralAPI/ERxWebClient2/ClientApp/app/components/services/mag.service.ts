@@ -49,7 +49,7 @@ export class MAGService extends BusyAwareService {
 
 	Delete(magRun: MagRelatedPapersRun) {
 
-
+		console.log(magRun);
         this._BusyMethods.push("MagRelatedPapersRunDelete");
 		this._httpC.post<MagRelatedPapersRun>(this._baseUrl + 'api/MagRelatedPapersRunList/DeleteMagRelatedPapersRun',
 			magRun)
@@ -130,5 +130,5 @@ export class MagRelatedPapersRun {
 	status: string = '';
 	userStatus: string = '';
 	nPapers: number = 0;
-	
+	reviweIdId = 0;
 }
