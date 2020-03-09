@@ -92,7 +92,7 @@ import { AdvancedMAGFeaturesComponent } from './components/MAG/AdvancedMAGFeatur
     declarations: [
 		AppComponent,
 		SearchComp,
-		MAGComp,
+		//MAGComp,
         frequenciesComp,
         frequenciesResultsComp,
         ReviewSetsEditorComponent,

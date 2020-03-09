@@ -223,10 +223,10 @@ namespace BusinessLibrary.BusinessClasses
 
         protected void DataPortal_Fetch()
         {
-            using (SqlConnection connection = new SqlConnection(DataConnection.AcademicControllerConnectionString))
+            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
                 connection.Open();
-                using (SqlCommand command = new SqlCommand("st_CurrentMagInfo", connection))
+                using (SqlCommand command = new SqlCommand("st_MagCurrentInfo", connection))
                 {
                     command.CommandType = System.Data.CommandType.StoredProcedure;
                     using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))

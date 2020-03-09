@@ -809,12 +809,12 @@ export class WorkAllocationComp implements OnInit {
 		this.dropdownBasicPerson = false
 		this.isCollapsedCodeStudies = false;
 	}
-	getMembers() {
-
-		if (!this.reviewInfoService.ReviewInfo || this.reviewInfoService.ReviewInfo.reviewId < 1) {
+    getMembers() {
+        if (!this.reviewInfoService.IsBusy && (!this.reviewInfoService.ReviewInfo || this.reviewInfoService.ReviewInfo.reviewId < 1)) {
 						this.reviewInfoService.Fetch();
 		}
-		this.reviewInfoService.FetchReviewMembers();
+        if (this.reviewInfoService.Contacts.length == 0)
+            this.reviewInfoService.FetchReviewMembers();
 
 	}
 	DeleteWorkAllocation(workAllocationId: number) {

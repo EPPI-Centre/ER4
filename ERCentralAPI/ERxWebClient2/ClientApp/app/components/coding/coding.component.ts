@@ -82,8 +82,7 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
         public ItemDocsService: ItemDocsService,
         private armservice: ArmsService,
 		private notificationService: NotificationService,
-		private _outcomeService: OutcomesService,
-		private _ItemCodingService: ItemCodingService
+		private _outcomeService: OutcomesService
     ) { }
 //     .codesInSmallScreen.collapse{
 //    display: block!important;
@@ -258,7 +257,7 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
 					if (selectedNode && selectedNode.nodeType == 'SetAttribute') {
 
 						console.log('a node has been selected');
-						var itemSet = this._ItemCodingService.FindItemSetBySetId(selectedNode.set_id);
+						var itemSet = this.ItemCodingService.FindItemSetBySetId(selectedNode.set_id);
 						if (itemSet != null) {
 							this._outcomeService.ItemSetId = itemSet.itemSetId;
 							this._outcomeService.FetchOutcomes(itemSet.itemSetId);

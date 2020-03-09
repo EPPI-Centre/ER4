@@ -224,7 +224,7 @@ export class ComparisonsService extends BusyAwareService {
 			 },
 				 error => {
 					 this.RemoveBusy("FetchStats");
-					 this.modalService.SendBackHomeWithError(error);
+					 this.modalService.GenericError(error);
 				 }
              );
 	}
@@ -323,24 +323,24 @@ export class ComparisonStatistics {
     }
     public RawStats: iComparisonStatistics;
     public comparisonID: number;
-	public get Agreements1(): number {
+    public get Agreements1vs2(): number {
 		
         return this.RawStats.n1vs2 - this.RawStats.disagreements1vs2;
     };
-	public get Agreements2(): number {
+    public get Agreements1vs3(): number {
         return this.RawStats.n1vs3 - this.RawStats.disagreements1vs3;
     };
-    public get Agreements3(): number {
+    public get Agreements2vs3(): number {
         return this.RawStats.n2vs3 - this.RawStats.disagreements2vs3;
 	};
-	public get SCAgreements1(): number {
+    public get SCAgreements1vs2(): number {
 		
 		return this.RawStats.n1vs2 - this.RawStats.scDisagreements1vs2;
 	};
-	public get SCAgreements2(): number {
+    public get SCAgreements1vs3(): number {
 		return this.RawStats.n1vs3 - this.RawStats.scDisagreements1vs3;
 	};
-	public get SCAgreements3(): number {
+    public get SCAgreements2vs3(): number {
 		return this.RawStats.n2vs3 - this.RawStats.scDisagreements2vs3;
 	};
 }

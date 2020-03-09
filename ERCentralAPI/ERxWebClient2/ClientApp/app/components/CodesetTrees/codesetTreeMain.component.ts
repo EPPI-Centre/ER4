@@ -12,6 +12,7 @@ import { frequenciesService } from '../services/frequencies.service';
 import { Injectable, EventEmitter } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { EventEmitterService } from '../services/EventEmitter.service';
+import { ReviewSetsEditingService } from '../services/ReviewSetsEditing.service';
 
 @Component({
     selector: 'codesetTreeMain',
@@ -36,7 +37,7 @@ export class CodesetTreeMainComponent implements OnInit, OnDestroy, AfterViewIni
         @Inject('BASE_URL') private _baseUrl: string,
         private ReviewerIdentityServ: ReviewerIdentityService,
        private ReviewSetsService: ReviewSetsService,
-
+       private ReviewSetsEditingService: ReviewSetsEditingService
 	) { }
 	
 	//@ViewChild('ManualModal') private ManualModal: any;
@@ -52,7 +53,7 @@ export class CodesetTreeMainComponent implements OnInit, OnDestroy, AfterViewIni
 
 	public showManualModal: boolean = false;
 
-	sub: Subscription = new Subscription();
+	subRedrawTree: Subscription | null = null;
 
 	public smallTree: string = '';
 
@@ -61,8 +62,10 @@ export class CodesetTreeMainComponent implements OnInit, OnDestroy, AfterViewIni
         if (this.ReviewerIdentityServ.reviewerIdentity.userId == 0 || this.ReviewerIdentityServ.reviewerIdentity.reviewId == 0) {
             this.router.navigate(['home']);
         }
-		else {
-
+        else {
+            this.subRedrawTree = this.ReviewSetsEditingService.PleaseRedrawTheTree.subscribe(
+                () => { this.RefreshLocalTree(); }
+            );
 			//this._eventEmitter.tabChange.subscribe(
 
 			//	(res: any) => {
@@ -91,11 +94,15 @@ export class CodesetTreeMainComponent implements OnInit, OnDestroy, AfterViewIni
 	@ViewChild('tree') treeComponent!: TreeComponent;
 	
 	ngAfterViewInit() {
-
 		//alert(this.tabSet);
-		
 	}
-
+    RefreshLocalTree() {
+        console.log("RefreshLocalTree (mainfull)", this.treeComponent);
+        if (this.treeComponent && this.treeComponent.treeModel) {
+            console.log("RefreshLocalTree (mainfull) doing it");
+            this.treeComponent.treeModel.update();
+        }
+    }
     get nodes(): singleNode[] | null {
 
 
@@ -118,7 +125,7 @@ export class CodesetTreeMainComponent implements OnInit, OnDestroy, AfterViewIni
 		for (var i = 0; i < this.treeComponent.treeModel.roots.length; i++) {
 
 			rootsArr[i] = this.treeComponent.treeModel.roots[i];
-			console.log(rootsArr[i]);
+			//console.log(rootsArr[i]);
 		}
 
 	}
@@ -172,7 +179,7 @@ export class CodesetTreeMainComponent implements OnInit, OnDestroy, AfterViewIni
 	NodeSelected(node: singleNode) {
 
 		//alert(JSON.stringify(stuff));
-		console.log(JSON.stringify(node));
+		//console.log(JSON.stringify(node));
 
 		//if (this._eventEmitter.codingTreeVar == true) {
 
@@ -203,7 +210,7 @@ export class CodesetTreeMainComponent implements OnInit, OnDestroy, AfterViewIni
 
     ngOnDestroy() {
         //this.ReviewerIdentityServ.reviewerIdentity = new ReviewerIdentity();
-		this.sub.unsubscribe();
+		if (this.subRedrawTree) this.subRedrawTree.unsubscribe();
         //console.log('killing reviewSets comp');
     }
 }

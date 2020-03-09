@@ -1146,7 +1146,49 @@ namespace BusinessLibrary.BusinessClasses.ImportItems
                 LoadProperty(KeywordsProperty, value);
             }
         }
-        #endregion
+        public static readonly PropertyInfo<string> SearchTextProperty = RegisterProperty<string>(new PropertyInfo<string>("SearchText", "SearchText", string.Empty));
+        public string SearchText
+        {
+            get { return GetProperty(SearchTextProperty); }
+            set
+            {
+                if (value.Length > 500) LoadProperty(SearchTextProperty, value.Substring(0, 500));
+                else LoadProperty(SearchTextProperty, value);
+            }
+        }
+
+        //keeping MAG-only fields on server-side, while comms with MAG happen here...
+#if !SILVERLIGHT
+        public static readonly PropertyInfo<Double> MAGMatchScoreProperty = RegisterProperty<Double>(new PropertyInfo<Double>("MAGMatchScore", "MAGMatchScore", 1.0));
+        public Double MAGMatchScore
+        {
+            get { return GetProperty(MAGMatchScoreProperty); }
+            set
+            {
+                LoadProperty(MAGMatchScoreProperty, value);
+            }
+        }
+
+        public static readonly PropertyInfo<bool> MAGManualTrueMatchProperty = RegisterProperty<bool>(new PropertyInfo<bool>("MAGManualTrueMatch", "MAGManualTrueMatch", false));
+        public bool MAGManualTrueMatch
+        {
+            get { return GetProperty(MAGManualTrueMatchProperty); }
+            set
+            {
+                LoadProperty(MAGManualTrueMatchProperty, value);
+            }
+        }
+        public static readonly PropertyInfo<bool> MAGManualFalseMatchProperty = RegisterProperty<bool>(new PropertyInfo<bool>("MAGManualFalseMatch", "MAGManualFalseMatch", false));
+        public bool MAGManualFalseMatch
+        {
+            get { return GetProperty(MAGManualFalseMatchProperty); }
+            set
+            {
+                LoadProperty(MAGManualFalseMatchProperty, value);
+            }
+        }
+#endif
+#endregion
 
         #region constructors
         internal static ItemIncomingData NewItem()
@@ -1384,6 +1426,18 @@ namespace BusinessLibrary.BusinessClasses.ImportItems
                 SetProperty(IsFirstProperty, value);
             }
         }
+        public static readonly PropertyInfo<bool> HasMAGScoresProperty = RegisterProperty<bool>(new PropertyInfo<bool>("HasMAGScores", "HasMAGScores", false));
+        public bool HasMAGScores
+        {
+            get
+            {
+                return GetProperty(HasMAGScoresProperty);
+            }
+            set
+            {
+                SetProperty(HasMAGScoresProperty, value);
+            }
+        }
         //protected override void AddAuthorizationRules()
         //{
         //    //string[] canWrite = new string[] { "AdminUser", "RegularUser", "ReadOnlyUser" };
@@ -1422,7 +1476,13 @@ namespace BusinessLibrary.BusinessClasses.ImportItems
             foreach (ItemIncomingData item in IncomingItems)
             {
                 AuthorsN = AuthorsN + item.AuthorsLi.Count + item.pAuthorsLi.Count;
-            } 
+            }
+            DataRow ItemR;
+            DataRow AuthorR;
+            DataRow ItemSourceR;
+            DataRow SourceR;
+            DataRow ItemReviewR;
+            
             if (IsFirst && IsLast) //old method save all in one go
             {
                 SeedTables(TDS, AuthorsN, Items_S, Author_S, Item_Source_S, Item_Review_S, ref Source_S);
@@ -1433,12 +1493,7 @@ namespace BusinessLibrary.BusinessClasses.ImportItems
                 //BusinessLibrary.BusinessClasses.TestDataSet.TB_SOURCERow SourceR;
                 //BusinessLibrary.BusinessClasses.TestDataSet.TB_ITEM_REVIEWRow ItemReviewR;
 
-                DataRow ItemR;
-                DataRow AuthorR;
-                DataRow ItemSourceR;
-                DataRow SourceR;
-                DataRow ItemReviewR;
-
+                
                 //put data in the source table
                 
 
@@ -1451,7 +1506,7 @@ namespace BusinessLibrary.BusinessClasses.ImportItems
                 {
                     //ItemR = (BusinessLibrary.BusinessClasses.TestDataSet.tb_ITEMRow)TDS.tb_ITEM.NewRow();
                     ItemR = TDS.TB_ITEM.NewRow();
-                    FillItemTB(TDS, ItemR, item, ri);
+                    FillItemTB(TDS, ItemR, item, review_ID, ri);
                     foreach (AutH Auth in item.AuthorsLi)
                     {
                         //AuthorR = (BusinessLibrary.BusinessClasses.TestDataSet.tb_ITEM_AUTHORRow)TDS.tb_ITEM_AUTHOR.NewRow();
@@ -1497,11 +1552,6 @@ namespace BusinessLibrary.BusinessClasses.ImportItems
                 //BusinessLibrary.BusinessClasses.TestDataSet.TB_ITEM_SOURCERow ItemSourceR;
                 //BusinessLibrary.BusinessClasses.TestDataSet.TB_SOURCERow SourceR;
 
-                DataRow ItemR;
-                DataRow AuthorR;
-                DataRow ItemSourceR;
-                DataRow SourceR;
-
                 //put data in the source table
                 SourceR = TDS.TB_SOURCE.NewRow();
                 FillSourceTB(TDS, SourceR, review_ID);
@@ -1511,7 +1561,7 @@ namespace BusinessLibrary.BusinessClasses.ImportItems
                 {
                     //ItemR = (BusinessLibrary.BusinessClasses.TestDataSet.tb_ITEMRow)TDS.tb_ITEM.NewRow();
                     ItemR = TDS.TB_ITEM.NewRow();
-                    FillItemTB(TDS, ItemR, item, ri);
+                    FillItemTB(TDS, ItemR, item, review_ID, ri);
                     foreach (AutH Auth in item.AuthorsLi)
                     {
                         //AuthorR = (BusinessLibrary.BusinessClasses.TestDataSet.tb_ITEM_AUTHORRow)TDS.tb_ITEM_AUTHOR.NewRow();
@@ -1550,17 +1600,13 @@ namespace BusinessLibrary.BusinessClasses.ImportItems
                 //BusinessLibrary.BusinessClasses.TestDataSet.tb_ITEMRow ItemR;
                 //BusinessLibrary.BusinessClasses.TestDataSet.tb_ITEM_AUTHORRow AuthorR;
                 //BusinessLibrary.BusinessClasses.TestDataSet.TB_ITEM_SOURCERow ItemSourceR;
-
-                DataRow ItemR;
-                DataRow AuthorR;
-                DataRow ItemSourceR;
-
+                
                 //put data in the item tables, tb_item, tb_item_source and TB_ITEM_AUTHOR
                 foreach (ItemIncomingData item in IncomingItems)
                 {
                     //ItemR = (BusinessLibrary.BusinessClasses.TestDataSet.tb_ITEMRow)TDS.tb_ITEM.NewRow();
                     ItemR = TDS.TB_ITEM.NewRow();
-                    FillItemTB(TDS, ItemR, item, ri);
+                    FillItemTB(TDS, ItemR, item, review_ID, ri);
                     foreach (AutH Auth in item.AuthorsLi)
                     {
                         //AuthorR = (BusinessLibrary.BusinessClasses.TestDataSet.tb_ITEM_AUTHORRow)TDS.tb_ITEM_AUTHOR.NewRow();
@@ -1731,7 +1777,7 @@ namespace BusinessLibrary.BusinessClasses.ImportItems
             //TDS.tb_ITEM_AUTHOR.Rows.Add(AuthorR);
             TDS.TB_ITEM_AUTHOR.Rows.Add(AuthorR);
         }
-        private void FillItemTB(Data.ImportItemsDataset TDS, DataRow ItemR, ItemIncomingData item, ReviewerIdentity ri)
+        private void FillItemTB(Data.ImportItemsDataset TDS, DataRow ItemR, ItemIncomingData item, int r_id, ReviewerIdentity ri)
         {
             //ItemR.ABSTRACT = item.Abstract;
             //ItemR.AVAILABILITY = item.Availability;
@@ -1788,7 +1834,23 @@ namespace BusinessLibrary.BusinessClasses.ImportItems
             ItemR["YEAR"] = item.Year;
             ItemR["DOI"] = item.DOI;
             ItemR["KEYWORDS"] = item.Keywords;
+            ItemR["SearchText"] = item.SearchText;
             TDS.TB_ITEM.Rows.Add(ItemR);
+            if (this.HasMAGScores)
+            {
+                Int64 MagId;
+                if (Int64.TryParse(item.OldItemId, out MagId))
+                {
+                    DataRow ItemMag = TDS.TB_ITEM_MAG_MATCH.NewRow();
+                    ItemMag["ITEM_ID"] = ItemR["ITEM_ID"];
+                    ItemMag["REVIEW_ID"] = r_id; //   
+                    ItemMag["PaperId"] = MagId;
+                    ItemMag["AutoMatchScore"] = item.MAGMatchScore;
+                    ItemMag["ManualTrueMatch"] = item.MAGManualTrueMatch;
+                    ItemMag["ManualFalseMatch"] = item.MAGManualFalseMatch;
+                    TDS.TB_ITEM_MAG_MATCH.Rows.Add(ItemMag);
+                }
+            }
         }
         private void BulkUpload(Data.ImportItemsDataset TDS, int Source_S)
         {
@@ -1891,7 +1953,20 @@ namespace BusinessLibrary.BusinessClasses.ImportItems
                     sbc.NotifyAfter = TDS.TB_ITEM_REVIEW.Rows.Count;
                     sbc.WriteToServer(TDS.TB_ITEM_REVIEW);
                 }
+                if (HasMAGScores)
+                {
+                    sbc.DestinationTableName = "tb_ITEM_MAG_MATCH";
+                    sbc.ColumnMappings.Clear();
+                    sbc.ColumnMappings.Add("ITEM_ID", "ITEM_ID");
+                    sbc.ColumnMappings.Add("REVIEW_ID", "REVIEW_ID");
+                    sbc.ColumnMappings.Add("PaperId", "PaperId");
+                    sbc.ColumnMappings.Add("AutoMatchScore", "AutoMatchScore");
+                    sbc.ColumnMappings.Add("ManualTrueMatch", "ManualTrueMatch");
+                    sbc.ColumnMappings.Add("ManualFalseMatch", "ManualFalseMatch");
 
+                    sbc.NotifyAfter = TDS.TB_ITEM_MAG_MATCH.Rows.Count;
+                    sbc.WriteToServer(TDS.TB_ITEM_MAG_MATCH);
+                }
                 //write TB_ITEM_SOURCE
                 sbc.DestinationTableName = "TB_ITEM_SOURCE";
                 sbc.ColumnMappings.Clear();

@@ -59,18 +59,18 @@ export class SearchComp implements OnInit, OnDestroy {
 		else {
 
 			this._reviewSetsService.selectedNode = null;
-			this.getMembers();
-			console.log(this.Contacts);
+			//this.getMembers();
+			//console.log(this.Contacts);
         }
 	}
-	getMembers() {
+	//getMembers() {
 
-		if (!this._reviewInfoService.ReviewInfo || this._reviewInfoService.ReviewInfo.reviewId < 1) {
-			this._reviewInfoService.Fetch();
-		}
-		this._reviewInfoService.FetchReviewMembers();
+	//	if (!this._reviewInfoService.ReviewInfo || this._reviewInfoService.ReviewInfo.reviewId < 1) {
+	//		this._reviewInfoService.Fetch();
+	//	}
+	//	this._reviewInfoService.FetchReviewMembers();
 
-	}
+	//}
 
 	public get Contacts(): Contact[] {
 		return this._reviewInfoService.Contacts;
@@ -426,7 +426,7 @@ export class SearchComp implements OnInit, OnDestroy {
 		this.confirmationDialogService.confirm('Please confirm', 'Are you sure you want to delete the selected search(es)?', false, '')
 			.then(
 			(confirmed: any) => {
-					console.log('User confirmed:', confirmed);
+					//console.log('User confirmed:', confirmed);
 					if (confirmed) {
 						this.DeleteSearchSelected();
 					} else {
@@ -722,9 +722,9 @@ export class SearchComp implements OnInit, OnDestroy {
 				lstStrSearchIds += this.DataSourceSearches.data[i].searchId + ',' ;
 			}
 		}
-		console.log(lstStrSearchIds);
-		if (this.CanWrite()) {
-			this._searchService.Delete(lstStrSearchIds);
+        //console.log(lstStrSearchIds, lstStrSearchIds.substring(0, lstStrSearchIds.length - 1));
+        if (this.CanWrite() && lstStrSearchIds.length > 1) {
+            this._searchService.Delete(lstStrSearchIds.substring(0, lstStrSearchIds.length -1));
 		}
 	}
 	public convertToIncEx(incEx: boolean): string  {

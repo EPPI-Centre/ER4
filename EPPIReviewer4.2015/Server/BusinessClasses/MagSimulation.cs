@@ -27,10 +27,10 @@ namespace BusinessLibrary.BusinessClasses
 
         
 #else
-        public MagSimulation() { }
+        private MagSimulation() { }
 #endif
 
-        public static readonly PropertyInfo<int> MagSimulationIdProperty = RegisterProperty<int>(new PropertyInfo<int>("MagSimulationId", "MagSimulationId", 0));
+        private static PropertyInfo<int> MagSimulationIdProperty = RegisterProperty<int>(new PropertyInfo<int>("MagSimulationId", "MagSimulationId", 0));
         public int MagSimulationId
         {
             get
@@ -39,7 +39,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        public static readonly PropertyInfo<int> ReviewIdProperty = RegisterProperty<int>(new PropertyInfo<int>("ReviewId", "ReviewId", 0));
+        private static PropertyInfo<int> ReviewIdProperty = RegisterProperty<int>(new PropertyInfo<int>("ReviewId", "ReviewId", 0));
         public int ReviewId
         {
             get
@@ -48,7 +48,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        public static readonly PropertyInfo<int> YearProperty = RegisterProperty<int>(new PropertyInfo<int>("Year", "Year"));
+        private static PropertyInfo<int> YearProperty = RegisterProperty<int>(new PropertyInfo<int>("Year", "Year"));
         public int Year
         {
             get
@@ -61,7 +61,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        public static readonly PropertyInfo<SmartDate> CreatedDateProperty = RegisterProperty<SmartDate>(new PropertyInfo<SmartDate>("CreatedDate", "CreatedDate"));
+        private static PropertyInfo<SmartDate> CreatedDateProperty = RegisterProperty<SmartDate>(new PropertyInfo<SmartDate>("CreatedDate", "CreatedDate"));
         public SmartDate CreatedDate
         {
             get
@@ -74,7 +74,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        public static readonly PropertyInfo<Int64> WithThisAttributeIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("WithThisAttributeId", "WithThisAttributeId"));
+        private static PropertyInfo<Int64> WithThisAttributeIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("WithThisAttributeId", "WithThisAttributeId"));
         public Int64 WithThisAttributeId
         {
             get
@@ -87,7 +87,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        public static readonly PropertyInfo<Int64> FilteredByAttributeIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("FilteredByAttributeId", "FilteredByAttributeId"));
+        private static PropertyInfo<Int64> FilteredByAttributeIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("FilteredByAttributeId", "FilteredByAttributeId"));
         public Int64 FilteredByAttributeId
         {
             get
@@ -100,7 +100,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        public static readonly PropertyInfo<string> SearchMethodProperty = RegisterProperty<string>(new PropertyInfo<string>("SearchMethod", "SearchMethod"));
+        private static PropertyInfo<string> SearchMethodProperty = RegisterProperty<string>(new PropertyInfo<string>("SearchMethod", "SearchMethod"));
         public string SearchMethod
         {
             get
@@ -113,7 +113,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        public static readonly PropertyInfo<string> NetworkStatisticProperty = RegisterProperty<string>(new PropertyInfo<string>("NetworkStatistic", "NetworkStatistic"));
+        private static PropertyInfo<string> NetworkStatisticProperty = RegisterProperty<string>(new PropertyInfo<string>("NetworkStatistic", "NetworkStatistic"));
         public string NetworkStatistic
         {
             get
@@ -126,7 +126,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        public static readonly PropertyInfo<string> StudyTypeClassifierProperty = RegisterProperty<string>(new PropertyInfo<string>("StudyTypeClassifier", "StudyTypeClassifier"));
+        private static PropertyInfo<string> StudyTypeClassifierProperty = RegisterProperty<string>(new PropertyInfo<string>("StudyTypeClassifier", "StudyTypeClassifier"));
         public string StudyTypeClassifier
         {
             get
@@ -139,7 +139,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        public static readonly PropertyInfo<int> UserClassifierModelIdProperty = RegisterProperty<int>(new PropertyInfo<int>("UserClassifierModelId", "UserClassifierModelId"));
+        private static PropertyInfo<int> UserClassifierModelIdProperty = RegisterProperty<int>(new PropertyInfo<int>("UserClassifierModelId", "UserClassifierModelId"));
         public int UserClassifierModelId
         {
             get
@@ -152,7 +152,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        public static readonly PropertyInfo<string> StatusProperty = RegisterProperty<string>(new PropertyInfo<string>("Status", "Status", ""));
+        private static PropertyInfo<string> StatusProperty = RegisterProperty<string>(new PropertyInfo<string>("Status", "Status", ""));
         public string Status
         {
             get
@@ -165,7 +165,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        public static readonly PropertyInfo<string> WithThisAttributeProperty = RegisterProperty<string>(new PropertyInfo<string>("WithThisAttribute", "WithThisAttribute", ""));
+        private static PropertyInfo<string> WithThisAttributeProperty = RegisterProperty<string>(new PropertyInfo<string>("WithThisAttribute", "WithThisAttribute", ""));
         public string WithThisAttribute
         {
             get
@@ -178,7 +178,24 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        public static readonly PropertyInfo<string> FilteredByAttributeProperty = RegisterProperty<string>(new PropertyInfo<string>("FilteredByAttribute", "FilteredByAttribute", ""));
+        private static PropertyInfo<string> SeedTextProperty = RegisterProperty<string>(new PropertyInfo<string>("SeedText", "SeedText", ""));
+        public string SeedText
+        {
+            get
+            {
+                if (GetProperty(YearProperty) != 1753)
+                {
+                    return "Publication before: " + GetProperty(YearProperty);
+                }
+                if (GetProperty(CreatedDateProperty) != Convert.ToDateTime("1/1/1753"))
+                {
+                    return "Created before: " + GetProperty(CreatedDateProperty).ToString();
+                }
+                return "With code: " + GetProperty(WithThisAttributeProperty);
+            }
+        }
+
+        private static PropertyInfo<string> FilteredByAttributeProperty = RegisterProperty<string>(new PropertyInfo<string>("FilteredByAttribute", "FilteredByAttribute", ""));
         public string FilteredByAttribute
         {
             get
@@ -191,7 +208,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        public static readonly PropertyInfo<string> UserClassifierModelProperty = RegisterProperty<string>(new PropertyInfo<string>("UserClassifierModel", "UserClassifierModel", ""));
+        private static PropertyInfo<string> UserClassifierModelProperty = RegisterProperty<string>(new PropertyInfo<string>("UserClassifierModel", "UserClassifierModel", ""));
         public string UserClassifierModel
         {
             get
@@ -204,7 +221,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        public static readonly PropertyInfo<int> TPProperty = RegisterProperty<int>(new PropertyInfo<int>("TP", "TP"));
+        private static PropertyInfo<int> TPProperty = RegisterProperty<int>(new PropertyInfo<int>("TP", "TP"));
         public int TP
         {
             get
@@ -217,7 +234,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        public static readonly PropertyInfo<int> FPProperty = RegisterProperty<int>(new PropertyInfo<int>("FP", "FP"));
+        private static PropertyInfo<int> FPProperty = RegisterProperty<int>(new PropertyInfo<int>("FP", "FP"));
         public int FP
         {
             get
@@ -230,20 +247,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        public static readonly PropertyInfo<int> TNProperty = RegisterProperty<int>(new PropertyInfo<int>("TN", "TN"));
-        public int TN
-        {
-            get
-            {
-                return GetProperty(TNProperty);
-            }
-            set
-            {
-                SetProperty(TNProperty, value);
-            }
-        }
-
-        public static readonly PropertyInfo<int> FNProperty = RegisterProperty<int>(new PropertyInfo<int>("FN", "FN"));
+        private static PropertyInfo<int> FNProperty = RegisterProperty<int>(new PropertyInfo<int>("FN", "FN"));
         public int FN
         {
             get
@@ -256,6 +260,36 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
+        private static PropertyInfo<int> NSeedsProperty = RegisterProperty<int>(new PropertyInfo<int>("NSeeds", "NSeeds"));
+        public int NSeeds
+        {
+            get
+            {
+                return GetProperty(NSeedsProperty);
+            }
+            set
+            {
+                SetProperty(NSeedsProperty, value);
+            }
+        }
+
+        private static PropertyInfo<float> PrecisionProperty = RegisterProperty<float>(new PropertyInfo<float>("Precision", "Precision"));
+        public float Precision
+        {
+            get
+            {
+                return TP / (TP + FP);
+            }
+        }
+
+        private static PropertyInfo<float> RecallProperty = RegisterProperty<float>(new PropertyInfo<float>("Recall", "Recall"));
+        public float Recall
+        {
+            get
+            {
+                return TP / (TP + FN);
+            }
+        }
 
 
         //protected override void AddAuthorizationRules()
@@ -289,7 +323,7 @@ namespace BusinessLibrary.BusinessClasses
         protected override void DataPortal_Insert()
         {
             ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
-            using (SqlConnection connection = new SqlConnection(DataConnection.AcademicControllerConnectionString))
+            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
                 connection.Open();
                 using (SqlCommand command = new SqlCommand("st_MagSimulationInsert", connection))
@@ -306,10 +340,6 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@STUDY_TYPE_CLASSIFIER", ReadProperty(StudyTypeClassifierProperty)));
                     command.Parameters.Add(new SqlParameter("@USER_CLASSIFIER_MODEL_ID", ReadProperty(UserClassifierModelIdProperty)));
                     command.Parameters.Add(new SqlParameter("@STATUS", ReadProperty(StatusProperty)));
-                    command.Parameters.Add(new SqlParameter("@TP", ReadProperty(TPProperty)));
-                    command.Parameters.Add(new SqlParameter("@FP", ReadProperty(FPProperty)));
-                    command.Parameters.Add(new SqlParameter("@TN", ReadProperty(TNProperty)));
-                    command.Parameters.Add(new SqlParameter("@FN", ReadProperty(FNProperty)));
                     command.Parameters.Add(new SqlParameter("@MAG_SIMULATION_ID", newid));
                     command.Parameters["@MAG_SIMULATION_ID"].Direction = System.Data.ParameterDirection.Output;
                     command.ExecuteNonQuery();
@@ -321,23 +351,12 @@ namespace BusinessLibrary.BusinessClasses
 
         protected override void DataPortal_Update()
         {
-            using (SqlConnection connection = new SqlConnection(DataConnection.AcademicControllerConnectionString))
-            {
-                connection.Open();
-                using (SqlCommand command = new SqlCommand("st_MagSimulationUpdate", connection))
-                {
-                    command.CommandType = System.Data.CommandType.StoredProcedure;
-                    command.Parameters.Add(new SqlParameter("@MAG_SIMULATION_ID", ReadProperty(MagSimulationIdProperty)));
-                    // NOTHING TO UPDATE - SHOULDN'T GET CALLED
-                    command.ExecuteNonQuery();
-                }
-                connection.Close();
-            }
+            // There's nothing to update
         }
 
         protected override void DataPortal_DeleteSelf()
         {
-            using (SqlConnection connection = new SqlConnection(DataConnection.AcademicControllerConnectionString))
+            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
                 ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
                 connection.Open();
@@ -368,7 +387,23 @@ namespace BusinessLibrary.BusinessClasses
                         if (reader.Read())
                         {
                             LoadProperty<Int32>(ReviewIdProperty, reader.GetInt32("REVIEW_ID"));
-                            
+                            LoadProperty<Int32>(MagSimulationIdProperty, reader.GetInt32("MAG_SIMULATION_ID"));
+                            LoadProperty<Int32>(YearProperty, reader.GetInt32("YEAR"));
+                            LoadProperty<SmartDate>(CreatedDateProperty, reader.GetSmartDate("CREATED_DATE"));
+                            LoadProperty<Int64>(WithThisAttributeIdProperty, reader.GetInt64("WITH_THIS_ATTRIBUTE_ID"));
+                            LoadProperty<Int64>(FilteredByAttributeIdProperty, reader.GetInt64("FILTERED_BY_ATTRIBUTE_ID"));
+                            LoadProperty<string>(SearchMethodProperty, reader.GetString("SEARCH_METHOD"));
+                            LoadProperty<string>(NetworkStatisticProperty, reader.GetString("NETWORK_STATISTIC"));
+                            LoadProperty<string>(StudyTypeClassifierProperty, reader.GetString("STUDY_TYPE_CLASSIFIER"));
+                            LoadProperty<Int32>(UserClassifierModelIdProperty, reader.GetInt32("USER_CLASSIFIER_MODEL_ID"));
+                            LoadProperty<string>(StatusProperty, reader.GetString("STATUS"));
+                            LoadProperty<Int32>(TPProperty, reader.GetInt32("TP"));
+                            LoadProperty<Int32>(FPProperty, reader.GetInt32("FP"));
+                            LoadProperty<Int32>(FNProperty, reader.GetInt32("FN"));
+                            LoadProperty<Int32>(NSeedsProperty, reader.GetInt32("NSEEDS"));
+                            LoadProperty<string>(WithThisAttributeProperty, reader.GetString("WithThisAttribute"));
+                            LoadProperty<string>(FilteredByAttributeProperty, reader.GetString("FilteredByAttribute"));
+                            LoadProperty<string>(UserClassifierModelProperty, reader.GetString("MODEL_TITLE"));
                         }
                     }
                 }
@@ -380,6 +415,7 @@ namespace BusinessLibrary.BusinessClasses
         {
             MagSimulation returnValue = new MagSimulation();
             returnValue.LoadProperty<Int32>(ReviewIdProperty, reader.GetInt32("REVIEW_ID"));
+            returnValue.LoadProperty<Int32>(MagSimulationIdProperty, reader.GetInt32("MAG_SIMULATION_ID"));
             returnValue.LoadProperty<Int32>(YearProperty, reader.GetInt32("YEAR"));
             returnValue.LoadProperty<SmartDate>(CreatedDateProperty, reader.GetSmartDate("CREATED_DATE"));
             returnValue.LoadProperty<Int64>(WithThisAttributeIdProperty, reader.GetInt64("WITH_THIS_ATTRIBUTE_ID"));
@@ -392,7 +428,7 @@ namespace BusinessLibrary.BusinessClasses
             returnValue.LoadProperty<Int32>(TPProperty, reader.GetInt32("TP"));
             returnValue.LoadProperty<Int32>(FPProperty, reader.GetInt32("FP"));
             returnValue.LoadProperty<Int32>(FNProperty, reader.GetInt32("FN"));
-            returnValue.LoadProperty<Int32>(TNProperty, reader.GetInt32("TN"));
+            returnValue.LoadProperty<Int32>(NSeedsProperty, reader.GetInt32("NSEEDS"));
             returnValue.LoadProperty<string>(WithThisAttributeProperty, reader.GetString("WithThisAttribute"));
             returnValue.LoadProperty<string>(FilteredByAttributeProperty, reader.GetString("FilteredByAttribute"));
             returnValue.LoadProperty<string>(UserClassifierModelProperty, reader.GetString("MODEL_TITLE"));
