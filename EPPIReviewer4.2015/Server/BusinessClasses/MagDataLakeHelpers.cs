@@ -50,7 +50,7 @@ namespace BusinessLibrary.BusinessClasses
                 Thread.Sleep(15000);
                 jobInfo = adlaJobClient.Job.Get(adlaAccountName, jobId);
             }
-            MagLog.SaveLogEntry(jobType, jobInfo.State.ToString(), "", ContactId);
+            MagLog.SaveLogEntry("DataLake: " + jobType, jobInfo.State.ToString(), "", ContactId);
             return jobInfo.Result.Value;
         }
 

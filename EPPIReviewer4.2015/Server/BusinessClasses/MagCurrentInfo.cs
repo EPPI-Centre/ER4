@@ -54,6 +54,16 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
+        private static PropertyInfo<string> MagFolderProperty = RegisterProperty<string>(new PropertyInfo<string>("MagFolder", "MagFolder", ""));
+        public string MagFolder
+        {
+            get
+            {
+                string [] tmp = MagVersion.Split('/');
+                return "mag-" + tmp[2] + "-" + tmp[1] + "-" + tmp[0];
+            }
+        }
+
         private static PropertyInfo<bool> MatchingAvailableProperty = RegisterProperty<bool>(new PropertyInfo<bool>("MatchingAvailable", "MatchingAvailable", true));
         public bool MatchingAvailable
         {

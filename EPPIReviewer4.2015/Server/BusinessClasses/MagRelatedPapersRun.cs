@@ -9,12 +9,20 @@ using Csla.Serialization;
 using Csla.Silverlight;
 //using Csla.Validation;
 using Csla.DataPortalClient;
+using System.IO;
+using System.Threading.Tasks;
 
-#if!SILVERLIGHT
+
+
+#if !SILVERLIGHT
 using System.Data.SqlClient;
 using BusinessLibrary.Data;
 using Csla.Data;
 using BusinessLibrary.Security;
+using System.Configuration;
+using Microsoft.WindowsAzure.Storage;
+using Microsoft.WindowsAzure.Storage.Blob;
+using System.Data;
 #endif
 
 namespace BusinessLibrary.BusinessClasses
@@ -359,6 +367,9 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters["@MAG_RELATED_RUN_ID"].Direction = System.Data.ParameterDirection.Output;
                     command.ExecuteNonQuery();
                     LoadProperty(MagRelatedRunIdProperty, command.Parameters["@MAG_RELATED_RUN_ID"].Value);
+
+                    // Run in separate thread and return this object to client
+                    Task.Run(() => { RunMagRelatedPapersRun(ri.UserId, ri.ReviewId); });
                 }
                 connection.Close();
             }
@@ -457,6 +468,153 @@ namespace BusinessLibrary.BusinessClasses
             returnValue.MarkOld();
             return returnValue;
         }
+
+        private void RunMagRelatedPapersRun(int ContactId, int ReviewId)
+        {
+            string uploadFileName = System.Web.HttpRuntime.AppDomainAppPath + @"UserTempUploads/RelatedRun" + MagRelatedRunId.ToString() + ".csv";
+
+            WriteSeedIdsFile(uploadFileName);
+            UploadSeedIdsFile(uploadFileName);
+            TriggerDataLakeJob(uploadFileName, ContactId);
+            DownloadResults(uploadFileName, ReviewId);
+        }
+
+        private void WriteSeedIdsFile(string uploadFileName)
+        {
+            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+            {
+
+                connection.Open();
+                using (SqlCommand command = new SqlCommand("st_MagRelatedPapersRunGetSeedIds", connection))
+                {
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@MAG_RELATED_RUN_ID", this.MagRelatedRunId));
+                    using (SafeDataReader reader = new SafeDataReader(command.ExecuteReader()))
+                    {
+                        if (reader.Read())
+                        {
+                            using (StreamWriter file = new StreamWriter(uploadFileName, false))
+                            {
+                                while (reader.Read())
+                                {
+                                    file.WriteLine(reader["PaperId"].ToString());
+                                }
+                            }
+                        }
+                    }
+                }
+                connection.Close();
+            }
+        }
+
+
+        private void UploadSeedIdsFile(string fileName)
+        {
+            string storageAccountName = ConfigurationManager.AppSettings["MAGStorageAccount"];
+            string storageAccountKey = ConfigurationManager.AppSettings["MAGStorageAccountKey"];
+
+            string storageConnectionString =
+                "DefaultEndpointsProtocol=https;AccountName=" + storageAccountName + ";AccountKey=";
+            storageConnectionString += storageAccountKey;
+
+            CloudStorageAccount storageAccount = CloudStorageAccount.Parse(storageConnectionString);
+            CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
+            CloudBlobContainer container = blobClient.GetContainerReference("uploads");
+            CloudBlockBlob blockBlobData;
+
+            blockBlobData = container.GetBlockBlobReference(Path.GetFileName(fileName));
+            using (var fileStream = System.IO.File.OpenRead(fileName))
+            {
+
+
+#if (!CSLA_NETCORE)
+                blockBlobData.UploadFromStream(fileStream);
+#else
+
+					await blockBlobData.UploadFromFileAsync(fileName);
+#endif
+
+            }
+            File.Delete(fileName);
+        }
+
+        private void TriggerDataLakeJob(string uploadFileName, int ContactId)
+        {
+            MagCurrentInfo MagInfo = MagCurrentInfo.GetMagCurrentInfoServerSide("LIVE");
+            MagDataLakeHelpers.ExecProc(@"[master].[dbo].[RelatedRun](""" + Path.GetFileName(uploadFileName) + "\",\"" +
+                Path.GetFileName(uploadFileName) + "\", \"" + MagInfo.MagFolder + "\",\"" + this.Mode + "\"," +
+                (this.DateFrom.ToString() != "" ? DateFrom.ToString() : "1753") + ");", true, "RelatedRun", ContactId, 12);
+        }
+
+        private void DownloadResults(string fileName, int ReviewId)
+        {
+            string storageAccountName = ConfigurationManager.AppSettings["MAGStorageAccount"];
+            string storageAccountKey = ConfigurationManager.AppSettings["MAGStorageAccountKey"];
+
+            string storageConnectionString =
+                "DefaultEndpointsProtocol=https;AccountName=" + storageAccountName + ";AccountKey=";
+            storageConnectionString += storageAccountKey;
+
+            CloudStorageAccount storageAccount = CloudStorageAccount.Parse(storageConnectionString);
+            CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
+            CloudBlobContainer containerUp = blobClient.GetContainerReference("uploads");
+            CloudBlobContainer containerDown = blobClient.GetContainerReference("results");
+
+            // cleaning up the file that was uploaded
+            CloudBlockBlob blockBlobUploadData = containerUp.GetBlockBlobReference(Path.GetFileName(fileName));
+            blockBlobUploadData.DeleteIfExists();
+
+            CloudBlockBlob blockBlobDownloadData = containerDown.GetBlockBlobReference(Path.GetFileName(fileName));
+            byte[] myFile = Encoding.UTF8.GetBytes(blockBlobDownloadData.DownloadText());
+
+            MemoryStream ms = new MemoryStream(myFile);
+
+            DataTable dt = new DataTable("Ids");
+            dt.Columns.Add("MAG_RELATED_PAPERS_ID");
+            dt.Columns.Add("REVIEW_ID");
+            dt.Columns.Add("MAG_RELATED_RUN_ID");
+            dt.Columns.Add("PaperId");
+            dt.Columns.Add("SimilarityScore");
+            dt.Columns.Add("PARENT_MAG_RELATED_RUN_ID");
+
+            using (var reader = new StreamReader(ms))
+            {
+                string line;
+                while ((line = reader.ReadLine()) != null)
+                {
+                    DataRow newRow = dt.NewRow();
+                    newRow["MAG_RELATED_PAPERS_ID"] = 0; // doesn't matter what is in here - it's auto-assigned in the database
+                    newRow["REVIEW_ID"] = ReviewId;
+                    newRow["MAG_RELATED_RUN_ID"] = this.MagRelatedRunId;
+                    newRow["PaperId"] = Convert.ToInt64(line);
+                    newRow["SimilarityScore"] = 0;
+                    newRow["PARENT_MAG_RELATED_RUN_ID"] = DBNull.Value;
+                    dt.Rows.Add(newRow);
+                }
+            }
+
+            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+            {
+                connection.Open();
+                using (SqlBulkCopy sbc = new SqlBulkCopy(connection))
+                {
+                    sbc.DestinationTableName = "TB_MAG_RELATED_PAPERS";
+                    sbc.BatchSize = 1000;
+                    sbc.WriteToServer(dt);
+                }
+
+                using (SqlCommand command = new SqlCommand("st_MagRelatedPapersRunsUpdatePostRun", connection))
+                {
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@MAG_RELATED_RUN_ID", ReadProperty(MagRelatedRunIdProperty)));
+                    command.Parameters.Add(new SqlParameter("@N_PAPERS", dt.Rows.Count));
+                    command.ExecuteNonQuery();
+                }
+                connection.Close();
+            }
+            blockBlobDownloadData.DeleteIfExists();
+        }
+
 
 #endif
     }
