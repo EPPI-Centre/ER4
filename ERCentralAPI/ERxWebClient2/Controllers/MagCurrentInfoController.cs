@@ -42,10 +42,31 @@ namespace ERxWebClient2.Controllers
             }
 		}
 
-	
+        [HttpPost("[action]")]
+        public IActionResult GetMagPaper([FromBody] SingleInt64Criteria Id)
+        {
+            try
+            {
+                SetCSLAUser();
 
-		
-	}
+                DataPortal<MagPaper> dp = new DataPortal<MagPaper>();
+                SingleCriteria<MagPaper, Int64> criteria =
+                    new SingleCriteria<MagPaper, Int64>(Id.Value);
+
+                var result = dp.Fetch(criteria);
+
+                return Ok(result);
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "Getting a MagRelatedPapersRunes list has an error");
+                throw;
+            }
+        }
+
+
+
+    }
 
 }
 

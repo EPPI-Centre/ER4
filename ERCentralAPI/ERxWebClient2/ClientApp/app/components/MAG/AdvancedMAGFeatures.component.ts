@@ -7,6 +7,7 @@ import { ConfirmationDialogService } from '../services/confirmation-dialog.servi
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Router } from '@angular/router';
 import { MAGAdvancedService } from '../services/magAdvanced.service';
+import { Criteria, ItemListService } from '../services/ItemList.service';
 
 @Component({
     selector: 'AdvancedMAGFeatures',
@@ -20,6 +21,7 @@ export class AdvancedMAGFeaturesComponent implements OnInit {
 		private _magAdvancedService: MAGAdvancedService,
         public _searchService: searchService,
         private _ReviewerIdentityServ: ReviewerIdentityService,
+        private _itemListService: ItemListService,
         private router: Router
 
 	) {
@@ -143,7 +145,7 @@ export class AdvancedMAGFeaturesComponent implements OnInit {
     }
 
     public Back() {
-        this.router.navigate(['AdvancedMAGFeatures']);
+        this.router.navigate(['Main']);
     }
 
 	@ViewChild('WithOrWithoutCodeSelector') WithOrWithoutCodeSelector!: codesetSelectorComponent;
@@ -152,7 +154,65 @@ export class AdvancedMAGFeaturesComponent implements OnInit {
 	public MAGItems: any[] = [];
 	public ShowPanel: boolean = false;
     public isCollapsed: boolean = true;
+    public magMatchedIncluded: number = 0;
+    public magMatchedExcluded: number = 0;
+    public magMatchedAll: number = 0;
+    public magMatchedWithThisCode: number = 0;
+    public magPaperId: number = 0;
+    public GetMatchedMagIncludedList() {
 
+        //"Showing: included items that are matched to at least one Microsoft Academic record";
+        let SelectionCritieraItemList: Criteria = new Criteria();
+        SelectionCritieraItemList.listType = "MagMatchesMatched";
+        SelectionCritieraItemList.onlyIncluded = true;
+        SelectionCritieraItemList.showDeleted = false;
+        SelectionCritieraItemList.attributeSetIdList = "";
+        SelectionCritieraItemList.pageNumber = 0;
+
+        this._itemListService.FetchWithCrit(SelectionCritieraItemList, "MagMatchesMatched");
+     
+    }
+    public GetMatchedMagExcludedList() {
+
+        let SelectionCritieraItemList: Criteria = new Criteria();
+        SelectionCritieraItemList.listType = "MagMatchesMatched";
+        SelectionCritieraItemList.onlyIncluded = false;
+        SelectionCritieraItemList.showDeleted = false;
+        SelectionCritieraItemList.attributeSetIdList = "";
+        SelectionCritieraItemList.pageNumber = 0;
+
+        this._itemListService.FetchWithCrit(SelectionCritieraItemList, "MagMatchesMatched");
+
+    }
+    public GetMatchedMagAllList() {
+
+        let SelectionCritieraItemList: Criteria = new Criteria();
+        SelectionCritieraItemList.listType = "MagMatchesMatched";
+        SelectionCritieraItemList.onlyIncluded = true;
+        SelectionCritieraItemList.showDeleted = false;
+        SelectionCritieraItemList.attributeSetIdList = "";
+        SelectionCritieraItemList.pageNumber = 0;
+
+        this._itemListService.FetchWithCrit(SelectionCritieraItemList, "MagMatchesMatched");
+
+    }
+    public GetMatchedMagWithCodeList() {
+
+        let SelectionCritieraItemList: Criteria = new Criteria();
+        SelectionCritieraItemList.listType = "MagMatchesMatched";
+        SelectionCritieraItemList.onlyIncluded = true;
+        SelectionCritieraItemList.showDeleted = false;
+        SelectionCritieraItemList.attributeSetIdList = "";
+        SelectionCritieraItemList.pageNumber = 0;
+
+        this._itemListService.FetchWithCrit(SelectionCritieraItemList, "MagMatchesMatched");
+
+    }
+    public GetMagPaper() {
+
+        this._magAdvancedService.FetchMagPaper(this.magPaperId);
+
+    }
 	CanOnlySelectRoots() {
 		return true;
 	}

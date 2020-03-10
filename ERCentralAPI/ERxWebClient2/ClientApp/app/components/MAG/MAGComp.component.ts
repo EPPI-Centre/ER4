@@ -6,8 +6,7 @@ import { codesetSelectorComponent } from '../CodesetTrees/codesetSelector.compon
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Router } from '@angular/router';
-import { Criteria, ItemListService } from '../services/ItemList.service';
-import { MagSimulation } from '../services/magAdvanced.service';
+import {  ItemListService } from '../services/ItemList.service';
 import { EventEmitterService } from '../services/EventEmitter.service';
 
 
@@ -34,6 +33,8 @@ export class MAGComp implements OnInit {
 	ngOnInit() {
 
         this.Clear();
+        this._magService.Fetch();
+
     }
     public AdvancedFeatures() {
         

@@ -192,6 +192,7 @@ import { AdvancedMAGFeaturesComponent } from './components/MAG/AdvancedMAGFeatur
             { path: 'MainCodingOnly', component: MainComponent }, 
 			{ path: 'sources', component: SourcesComponent },
             { path: 'BuildModel', component: BuildModelComponent },
+            { path: 'MAGFeatures', component: MAGComp },
             { path: 'AdvancedMAGFeatures', component: AdvancedMAGFeaturesComponent },
             { path: 'itemcodingOnly/:itemId', component: ItemCodingComp },
             { path: 'itemcoding/:itemId', component: ItemCodingFullComp },

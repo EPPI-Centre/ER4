@@ -77,7 +77,33 @@ export class MAGAdvancedService extends BusyAwareService {
 					this.modalService.GenericError(error);
 				}
 			);
-	}
+    }
+
+    public currentMagPaper: MagPaper = new MagPaper();
+
+    FetchMagPaper(Id: number) {
+
+        console.log(Id)
+        this._BusyMethods.push("FetchMagPaper");
+        let body = JSON.stringify({ Value: Id });
+        this._httpC.post<MagPaper>(this._baseUrl + 'api/MagCurrentInfo/GetMagPaper', body)
+            .subscribe(result => {
+                this.RemoveBusy("FetchMagPaper");
+                this.currentMagPaper = result;
+            },
+                error => {
+                    this.RemoveBusy("FetchMagPaper");
+                    this.modalService.GenericError(error);
+                }
+            );
+    }
+}
+
+export class MagPaper {
+
+
+
+
 
 }
 
