@@ -59,16 +59,16 @@ export class MAGAdvancedService extends BusyAwareService {
 
     FetchClassifierContactModelList() {
 
-        this._BusyMethods.push("FetchClassifierContactModelList");
+        this._BusyMethods.push("FetchClassifierContact");
 
-        this._httpC.get<ClassifierContactModel[]>(this._baseUrl + 'api/MagClassifierContactModelListController/FetchClassifierContactModelList')
+        this._httpC.get<ClassifierContactModel[]>(this._baseUrl + 'api/MagClassifierContactController/FetchClassifierContactList')
             .subscribe(result => {
-                this.RemoveBusy("FetchClassifierContactModelList");
-                this.ClassifierContactModelList = result;
-
+                this.RemoveBusy("FetchClassifierContact");
+                //this.ClassifierContactModelList = result;
+                //console.log(result);
             },
                 error => {
-                    this.RemoveBusy("FetchClassifierContactModelList");
+                    this.RemoveBusy("FetchClassifierContact");
                     this.modalService.GenericError(error);
                 }
             );

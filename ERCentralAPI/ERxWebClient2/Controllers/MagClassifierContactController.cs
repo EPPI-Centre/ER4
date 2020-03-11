@@ -12,19 +12,19 @@ namespace ERxWebClient2.Controllers
 {
     [Authorize]
     [Route("api/[controller]")]
-    public class MagClassifierContactModelListController : CSLAController
+    public class MagClassifierContactController : CSLAController
     {
 
         private readonly ILogger _logger;
 
-		public MagClassifierContactModelListController(ILogger<MagClassifierContactModelListController> logger)
+		public MagClassifierContactController(ILogger<MagClassifierContactController> logger)
         {
 
             _logger = logger;
         }
 
         [HttpGet("[action]")]
-        public IActionResult FetchClassifierContactModelList()
+        public IActionResult FetchClassifierContactList()
         {
 			try
             {

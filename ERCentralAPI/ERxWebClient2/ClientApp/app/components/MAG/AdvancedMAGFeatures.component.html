@@ -11,7 +11,7 @@
     </kendo-toolbar>
 </div>
 <div class="col-6 p-2 m-2 card">
-    <h5>Current Microsoft Academic Graph Dataset:<i> {{MagCurrentInfo}} </i></h5>
+    <h5>Current Microsoft Academic Graph Dataset:<i> {{_magAdvancedService.MagCurrentInfo}} </i></h5>
     
 </div>
 <div class="col-12 row bg-light">
@@ -187,9 +187,13 @@
 
             <div class=""><b>User Defined Classifier</b></div>
             <div ngbDropdown class="col-12 p-0 m-0">
-                <select (ngModelChange)="SetClassifierContactModel(item)">
-                    <option *ngFor="let item of _magAdvancedService.ClassifierContactModelList">{{item.}} </option>
+                <select class="form-control" name="ClassifierContactModelList">
+                    <option *ngFor="let item of _magAdvancedService.ClassifierContactModelList">
+                        [value]="type.key" [selected]="type.key == _reviewSetsService.ClassifierContactModelList[0].key"
+                        {{item.modelTitle}}
+                    </option>
                 </select>
+
             </div>
         </div>
      </div>

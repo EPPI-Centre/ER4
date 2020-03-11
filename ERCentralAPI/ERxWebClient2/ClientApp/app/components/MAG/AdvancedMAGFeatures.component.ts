@@ -30,11 +30,12 @@ export class AdvancedMAGFeaturesComponent implements OnInit {
 
 	ngOnInit() {
 
-        this.FetchClassifierContactModelList();
+        this.GetMAGCurrentInfo();
+        //this.GetContactModelList();
         this.Clear();
     }
 
-    FetchClassifierContactModelList() {
+    public GetContactModelList() {
 
        this._magAdvancedService.FetchClassifierContactModelList();
     }
@@ -167,12 +168,7 @@ export class AdvancedMAGFeaturesComponent implements OnInit {
     public magMatchedWithThisCode: number = 0;
     public magPaperId: number = 0;
     public currentClassifierContactModel: ClassifierContactModel = new ClassifierContactModel();
-    public SetClassifierContactModel(item: ClassifierContactModel) {
 
-        if (item != null) {
-            this.currentClassifierContactModel = item;
-        }
-    }
     public GetMatchedMagIncludedList() {
 
         //"Showing: included items that are matched to at least one Microsoft Academic record";
