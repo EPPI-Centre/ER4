@@ -10,7 +10,6 @@ import { NotificationService } from '@progress/kendo-angular-notification';
 
 export class MAGAdvancedService extends BusyAwareService {
     
-
     constructor(
         private _httpC: HttpClient,
         private modalService: ModalService,
@@ -38,12 +37,41 @@ export class MAGAdvancedService extends BusyAwareService {
     public get MagSimulationList(): MagSimulation[] {
 
         return this._MagSimulationList;
+    }
+
+    public set MagSimulationList(classifierContactModelList: MagSimulation[]) {
+        this._MagSimulationList = classifierContactModelList;
 
     }
 
-    public set MagSimulationList(magSimulationList: MagSimulation[]) {
-        this._MagSimulationList = magSimulationList;
+    private _ClassifierContactModelList: ClassifierContactModel[] = [];
 
+    public get ClassifierContactModelList(): ClassifierContactModel[] {
+
+        return this._ClassifierContactModelList;
+
+    }
+
+    public set ClassifierContactModelList(classifierContactModelList: ClassifierContactModel[]) {
+        this._ClassifierContactModelList = classifierContactModelList;
+
+    }
+
+    FetchClassifierContactModelList() {
+
+        this._BusyMethods.push("FetchClassifierContactModelList");
+
+        this._httpC.get<ClassifierContactModel[]>(this._baseUrl + 'api/MagClassifierContactModelListController/FetchClassifierContactModelList')
+            .subscribe(result => {
+                this.RemoveBusy("FetchClassifierContactModelList");
+                this.ClassifierContactModelList = result;
+
+            },
+                error => {
+                    this.RemoveBusy("FetchClassifierContactModelList");
+                    this.modalService.GenericError(error);
+                }
+            );
     }
 
     FetchMagSimulationList() {
@@ -90,6 +118,7 @@ export class MAGAdvancedService extends BusyAwareService {
             .subscribe(result => {
                 this.RemoveBusy("FetchMagPaper");
                 this.currentMagPaper = result;
+                console.log(result)
             },
                 error => {
                     this.RemoveBusy("FetchMagPaper");
@@ -99,12 +128,59 @@ export class MAGAdvancedService extends BusyAwareService {
     }
 }
 
+export class ClassifierContactModel {
+
+    modelId: number = 0;
+    modelTitle: string = '';
+    contactId: number = 0;
+    reviewId: number = 0;
+    reviewName: string = '';
+    contactName: string = '';
+    attributeOn: string = '';
+    attributeNotOn: string = '';
+    accuracy: number = 0;
+    auc: number = 0;
+    precision: number = 0;
+    recall: number = 0;
+
+}
+
 export class MagPaper {
 
-
-
-
-
+    externalMagLink: string = '';
+    fullRecord: string = '';
+    paperId: number = 0;
+    doi: string = '';
+    docType: string = '';
+    paperTitle: string = '';
+    originalTitle: string = '';
+    bookTitle: string = '';
+    year: number = 0;
+    smartDate: Date = new Date();
+    journalId: number = 0;
+    journal: string = '';
+    conferenceSeriesId: number = 0;
+    conferenceInstanceId: number = 0;
+    volume: string = '';
+    issue: string = '';
+    firstPage: string = '';
+    lastPage: string = '';
+    referenceCount: number = 0;
+    references: number = 0;
+    citationCount: number = 0;
+    estimatedCitationCount: number = 0;
+    createdDate: Date = new Date;
+    authors: string = '';
+    urls: string = '';
+    pdfLinks: string = '';
+    linkedITEM_ID: number = 0;
+    isSelected: boolean = false;
+    canBeSelected: boolean = false;
+    abstract: string = '';
+    autoMatchScore: number = 0;
+    manualTrueMatch: boolean = false;
+    manualFalseMatch: boolean = false;
+    findOnWeb: string = '';
 }
 
 export class MagCurrentInfo {

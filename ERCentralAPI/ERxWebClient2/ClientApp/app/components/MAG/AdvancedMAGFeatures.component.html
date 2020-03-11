@@ -33,9 +33,9 @@
         </div>
 
     </div>
-    <div class="col-5 card p-1 m-1">
+    <div class="col-5 card p-2 m-2">
         <h4 >Browse Dataset</h4>
-        <div>
+        <div class="col-8">
             <div>All matched included records 
                 <div class="btn btn-link mt-1" (click)="GetMatchedMagIncludedList()">{{magMatchedIncluded}}</div>
             </div>
@@ -56,7 +56,6 @@
                 <input type="text" name="magPaperId" id="magPaper" [(ngModel)]="magPaperId" class="form-control col-2 p-1 m-1" />
                 <button (click)="GetMagPaper()" class="btn btn-warning">Get MAG paper</button>
             </div>
-            
             <textarea class="col-12 card">Search for topics in the box above.  Wildcards work e.g. physic* </textarea>
         </div>
 
@@ -188,27 +187,14 @@
 
             <div class=""><b>User Defined Classifier</b></div>
             <div ngbDropdown class="col-12 p-0 m-0">
-                <button style="min-width: 50px; white-space:normal"
-                        class="btn alert-primary col-12 p-2 m-0"
-                        id="dropdownBasic1" ngbDropdownToggle
-                        (click)="isCollapsed=false ">
-                    {{magMode}}
-                </button>
-                <div ngbDropdownMenu aria-labelledby="dropdownBasic1" class="mb-1 {white-space: normal;}">
-                    <button (click)="ClickSearchMode('1')" class="dropdown-item">Papers 'recommended' by known items ('Recommended by')</button>
-                    <button (click)="ClickSearchMode('2')" class="dropdown-item">Papers that 'recommended' known items ('That recommend')</button>
-                    <button (click)="ClickSearchMode('3')" class="dropdown-item">Bi-directional recomendation relationships ('Recommendations')</button>
-                    <button (click)="ClickSearchMode('4')" class="dropdown-item">Papers in the bibliography of know items ('Bibliography')</button>
-                    <button (click)="ClickSearchMode('5')" class="dropdown-item">Papers that cite known items ('Cited by')</button>
-                    <button (click)="ClickSearchMode('6')" class="dropdown-item">Bi-directional citation relationships </button>
-                    <button (click)="ClickSearchMode('7')" class="dropdown-item">Bi-directional recomendation AND citation relationships ('Bi-Citation AND Recommendations')</button>
-                </div>
+                <select (ngModelChange)="SetClassifierContactModel(item)">
+                    <option *ngFor="let item of _magAdvancedService.ClassifierContactModelList">{{item.}} </option>
+                </select>
             </div>
         </div>
+     </div>
 
-    </div>
-
-    <div style="min-width:250px; overflow:auto;" >
+<div style="min-width:250px; overflow:auto;" >
         <table class="card col-12 small table table-border  table-striped bg-light">
             <thead>
                 <tr>

@@ -6,7 +6,7 @@ import { codesetSelectorComponent } from '../CodesetTrees/codesetSelector.compon
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Router } from '@angular/router';
-import { MAGAdvancedService } from '../services/magAdvanced.service';
+import { MAGAdvancedService, ClassifierContactModel } from '../services/magAdvanced.service';
 import { Criteria, ItemListService } from '../services/ItemList.service';
 
 @Component({
@@ -30,8 +30,15 @@ export class AdvancedMAGFeaturesComponent implements OnInit {
 
 	ngOnInit() {
 
+        this.FetchClassifierContactModelList();
         this.Clear();
     }
+
+    FetchClassifierContactModelList() {
+
+       this._magAdvancedService.FetchClassifierContactModelList();
+    }
+
     public AdvancedFeatures() {
 
         //navigate to the relevant page now and page should call the following:
@@ -159,6 +166,13 @@ export class AdvancedMAGFeaturesComponent implements OnInit {
     public magMatchedAll: number = 0;
     public magMatchedWithThisCode: number = 0;
     public magPaperId: number = 0;
+    public currentClassifierContactModel: ClassifierContactModel = new ClassifierContactModel();
+    public SetClassifierContactModel(item: ClassifierContactModel) {
+
+        if (item != null) {
+            this.currentClassifierContactModel = item;
+        }
+    }
     public GetMatchedMagIncludedList() {
 
         //"Showing: included items that are matched to at least one Microsoft Academic record";
