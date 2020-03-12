@@ -61,11 +61,11 @@ export class MAGAdvancedService extends BusyAwareService {
 
         this._BusyMethods.push("FetchClassifierContact");
 
-        this._httpC.get<ClassifierContactModel[]>(this._baseUrl + 'api/MagClassifierContactController/FetchClassifierContactList')
+        this._httpC.get<ClassifierContactModel[]>(this._baseUrl + 'api/MagClassifierContact/FetchClassifierContactList')
             .subscribe(result => {
                 this.RemoveBusy("FetchClassifierContact");
-                //this.ClassifierContactModelList = result;
-                //console.log(result);
+                this.ClassifierContactModelList = result;
+                console.log(result);
             },
                 error => {
                     this.RemoveBusy("FetchClassifierContact");
@@ -111,7 +111,6 @@ export class MAGAdvancedService extends BusyAwareService {
 
     FetchMagPaper(Id: number) {
 
-        console.log(Id)
         this._BusyMethods.push("FetchMagPaper");
         let body = JSON.stringify({ Value: Id });
         this._httpC.post<MagPaper>(this._baseUrl + 'api/MagCurrentInfo/GetMagPaper', body)
@@ -122,6 +121,21 @@ export class MAGAdvancedService extends BusyAwareService {
             },
                 error => {
                     this.RemoveBusy("FetchMagPaper");
+                    this.modalService.GenericError(error);
+                }
+            );
+    }
+
+    RunMatchingAlgorithm() {
+
+        this._BusyMethods.push("RunMatchingAlgorithm");
+        this._httpC.get<any>(this._baseUrl + 'api/MagMatchAll/RunMatchingAlgorithm')
+            .subscribe(result => {
+                this.RemoveBusy("RunMatchingAlgorithm");
+                
+            },
+                error => {
+                    this.RemoveBusy("RunMatchingAlgorithm");
                     this.modalService.GenericError(error);
                 }
             );

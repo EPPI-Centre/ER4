@@ -67,7 +67,7 @@
                 GoTo Microsoft Academic Paper ID:
                 <input type="text" name="magPaperId" id="magPaper" [(ngModel)]="magPaperId"
                        class="form-control col-5 p-1 m-1" />
-                <button (click)="GetMagPaper()" class="btn btn-warning">Get MAG paper</button>
+                <button class="btn btn-warning">Get MAG paper</button>
             </div>
             <div class="col-12 card bg-secondary">
                 <textarea>Search for topics in the box above.  Wildcards work e.g. physic* 
@@ -78,55 +78,55 @@
         </div>
 </div>
 
-<div class="col-12  card collapse row" id="collapseExample">
+<div class="col-12  card collapse" id="collapseExample">
 
-        <div class="col-5 p-1 m-1" >
-                <div class="col-12 m-1 p-1">
-                    <button class="btn btn-primary">Run Matching Algorithm</button>
-                    <p><i>NB: The matching algorithm should be run before the simulations below.</i></p>
-                </div>
-                <div class="col-12  m-1 p-1">
-                    <p class="m-2 p-2 card bg-info">
-                        Below test the performance of the various algorithms for identifying
-                        relevant studies against the data already in your review.
-                        There are three ways of splitting your data between 'seed' and 'test'
-                        records: 
-                            year of publication, the date a study entered the MAG
-                            database and items under a specific code.
-                        
-                        NB: Please see the documentation for further information.
-                    </p>
-                    <div class=" col-12"></div>
-                </div>
-                <div class="col-1"></div>
-                <div class="col-12 m-1 p-1">
-                    <div class=" "><b>Search based on</b></div>
-                    <div class="">
-                        <input type="radio" value="Year" checked name="magSearchRadio"
-                               [(ngModel)]="splitDataOn">	Year
-                        <input type="radio" value="CreatedDate" name="magSearchRadio"
-                               [(ngModel)]="splitDataOn">	Created date
-                        <input type="radio" value="WithThisCode" name="magSearchRadio"
-                               [(ngModel)]="splitDataOn">	With this code
-                    </div>
-                    <div class="col-12 m-1 p-1" *ngIf="splitDataOn == 'CreatedDate'">
-                        <div class="m-1 p-1"><b>Items Dated From</b></div>
-                        <div>
-                            <div class="example-wrapper p-2 m-2" style="min-height: 100px">
-                                <p>Select a date:</p>
-                                <kendo-datepicker [(value)]="value"></kendo-datepicker>
-                                <p>(use Alt+↓ to open the calendar, ← and →  to navigate, ↑ to increment and ↓ to decrement the value)</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+    <div class="col-12  row">
+        <div class="col-12">
+            <button (click)="RunMatchingAlgo()" class="btn btn-outline-success">Run Matching Algorithm</button>
+            <p><i>NB: The matching algorithm should be run before the simulations below.</i></p>
         </div>
-           
-        <div class="col-5 p-1 m-1 pull-right" >
-                <div *ngIf="searchAll == 'false'" class="m-1 p-1 col-5">
-                    <div class=""><b>Select code</b></div>
+        <div class="col-6">
+            <p class="card bg-info">
+                Below test the performance of the various algorithms for identifying
+                relevant studies against the data already in your review.
+                There are three ways of splitting your data between 'seed' and 'test'
+                records:
+                year of publication, the date a study entered the MAG
+                database and items under a specific code.
 
-                    <div ngbDropdown class="col-12 p-0 m-0">
+                <i>NB: Please see the documentation for further information.</i>
+            </p>
+            <div class=" col-12"></div>
+        </div>
+
+        <div class="col-1"></div>
+        <div class="col-6 m-1 p-1">
+            <div class="3"><b>Search based on</b></div>
+            <div class="9">
+                <input type="radio" value="Year" checked name="magSearchRadio"
+                       [(ngModel)]="splitDataOn">	Year
+                <input type="radio" value="CreatedDate" name="magSearchRadio"
+                       [(ngModel)]="splitDataOn">	Created date
+                <input type="radio" value="WithThisCode" name="magSearchRadio"
+                       [(ngModel)]="splitDataOn">	With this code
+            </div>
+            <div class="col-6 m-1 p-1" *ngIf="splitDataOn == 'CreatedDate'">
+                <div class="m-1 p-1"><b>Items Dated From</b></div>
+                <div>
+                    <div class="example-wrapper p-2 m-2" style="min-height: 100px">
+                        <p>Select a date:</p>
+                        <kendo-datepicker [(value)]="value"></kendo-datepicker>
+                        <p>(use Alt+↓ to open the calendar, ← and →  to navigate, ↑ to increment and ↓ to decrement the value)</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div *ngIf="searchAll == 'false'" class="m-1 p-1 col-6">
+
+            <div class="col-12 row">
+                <div class="col-3 p-1 m-1"><b>Select code</b></div>
+                    <div ngbDropdown class="col-9 p-1 m-1">
                         <button style="min-width: 250px; white-space:normal" [attr.aria-expanded]="!isCollapsed"
                                 class="btn alert-primary col-12 p-2 m-0" id="dropdownBasic1"
                                 ngbDropdownToggle (click)="isCollapsed = !isCollapsed; dropdownBasic1 = false">
@@ -139,78 +139,59 @@
                             </codesetSelector>
                         </div>
                     </div>
-            </div>
-
-
-            <div class=""><b>Search method</b></div>
-            <div ngbDropdown class="col-12 p-0 m-0">
-                <button style="min-width: 50px; white-space:normal"
-                        class="btn alert-primary col-12 p-2 m-0"
-                        id="dropdownBasic1" ngbDropdownToggle
-                        (click)="isCollapsed=false ">
-                    {{magMode}}
-                </button>
-                <div ngbDropdownMenu aria-labelledby="dropdownBasic1" class="mb-1 {white-space: normal;}">
-                    <button (click)="ClickSearchMode('1')" class="dropdown-item">Papers 'recommended' by known items ('Recommended by')</button>
-                    <button (click)="ClickSearchMode('2')" class="dropdown-item">Papers that 'recommended' known items ('That recommend')</button>
-                    <button (click)="ClickSearchMode('3')" class="dropdown-item">Bi-directional recomendation relationships ('Recommendations')</button>
-                    <button (click)="ClickSearchMode('4')" class="dropdown-item">Papers in the bibliography of know items ('Bibliography')</button>
-                    <button (click)="ClickSearchMode('5')" class="dropdown-item">Papers that cite known items ('Cited by')</button>
-                    <button (click)="ClickSearchMode('6')" class="dropdown-item">Bi-directional citation relationships </button>
-                    <button (click)="ClickSearchMode('7')" class="dropdown-item">Bi-directional recomendation AND citation relationships ('Bi-Citation AND Recommendations')</button>
                 </div>
             </div>
 
-            <div class=""><b>Network Statistic</b></div>
-            <div ngbDropdown class="col-12 p-0 m-0">
-                <button style="min-width: 50px; white-space:normal"
-                        class="btn alert-primary col-12 p-2 m-0"
-                        id="dropdownBasic1" ngbDropdownToggle
-                        (click)="isCollapsed=false ">
-                    {{magMode}}
-                </button>
-                <div ngbDropdownMenu aria-labelledby="dropdownBasic1" class="mb-1 {white-space: normal;}">
-                    <button (click)="ClickSearchMode('1')" class="dropdown-item">Papers 'recommended' by known items ('Recommended by')</button>
-                    <button (click)="ClickSearchMode('2')" class="dropdown-item">Papers that 'recommended' known items ('That recommend')</button>
-                    <button (click)="ClickSearchMode('3')" class="dropdown-item">Bi-directional recomendation relationships ('Recommendations')</button>
-                    <button (click)="ClickSearchMode('4')" class="dropdown-item">Papers in the bibliography of know items ('Bibliography')</button>
-                    <button (click)="ClickSearchMode('5')" class="dropdown-item">Papers that cite known items ('Cited by')</button>
-                    <button (click)="ClickSearchMode('6')" class="dropdown-item">Bi-directional citation relationships </button>
-                    <button (click)="ClickSearchMode('7')" class="dropdown-item">Bi-directional recomendation AND citation relationships ('Bi-Citation AND Recommendations')</button>
-                </div>
-            </div>
-
-            <div class=""><b>Study type classifier</b></div>
-            <div ngbDropdown class="col-12 p-0 m-0">
-                <button style="min-width: 50px; white-space:normal"
-                        class="btn alert-primary col-12 p-2 m-0"
-                        id="dropdownBasic1" ngbDropdownToggle
-                        (click)="isCollapsed=false ">
-                    {{magMode}}
-                </button>
-                <div ngbDropdownMenu aria-labelledby="dropdownBasic1" class="mb-1 {white-space: normal;}">
-                    <button (click)="ClickSearchMode('1')" class="dropdown-item">Papers 'recommended' by known items ('Recommended by')</button>
-                    <button (click)="ClickSearchMode('2')" class="dropdown-item">Papers that 'recommended' known items ('That recommend')</button>
-                    <button (click)="ClickSearchMode('3')" class="dropdown-item">Bi-directional recomendation relationships ('Recommendations')</button>
-                    <button (click)="ClickSearchMode('4')" class="dropdown-item">Papers in the bibliography of know items ('Bibliography')</button>
-                    <button (click)="ClickSearchMode('5')" class="dropdown-item">Papers that cite known items ('Cited by')</button>
-                    <button (click)="ClickSearchMode('6')" class="dropdown-item">Bi-directional citation relationships </button>
-                    <button (click)="ClickSearchMode('7')" class="dropdown-item">Bi-directional recomendation AND citation relationships ('Bi-Citation AND Recommendations')</button>
-                </div>
-            </div>
-
-            <div class=""><b>User Defined Classifier</b></div>
-            <div ngbDropdown class="col-12 p-0 m-0">
-                <select class="form-control" name="ClassifierContactModelList">
-                    <option *ngFor="let item of _magAdvancedService.ClassifierContactModelList">
-                        [value]="type.key" [selected]="type.key == _reviewSetsService.ClassifierContactModelList[0].key"
-                        {{item.modelTitle}}
-                    </option>
+        <div class="col-12 row">
+            <div class="col-1 p-1 m-1"><b>Search method</b></div>
+            <div ngbDropdown class="col-3 p-0 m-0">
+                <select  [(ngModel)]="SearchMethod" class="form-control" name="SearchMethod">
+                    <option IsSelected="True">Citations</option>
+                    <option>Recommendations</option>
+                    <option>Citations and recommendations</option>
+                    <option>Fields of study</option>
                 </select>
-
             </div>
-     </div>
-</div>
+            <div class="col-1"></div>
+            <div class="col-1 p-1 m-1"><b>Network Statistic</b></div>
+            <div ngbDropdown class="col-3 p-0 m-0">
+                <select [(ngModel)]="NetworkStatistic" class="form-control" name="NetworkStatistic">
+                    <option IsSelected="True">None</option>
+                    <option>degree</option>
+                    <option>closeness</option>
+                    <option>eigenscore</option>
+                    <option>pagerank</option>
+                    <option>hubscore</option>
+                    <option>authscore</option>
+                    <option>alpha</option>
+                </select>
+            </div>
+        </div>
+
+            <div class="col-12 row">
+                <div class="col-1 m-1 p-1"><b>Study type classifier</b></div>
+                <div ngbDropdown class="col-3 p-0 m-0">
+                    <select [(ngModel)]="StudyTypeClassifier" class="form-control" name="StudyTypeClassifier">
+                        <option IsSelected="True">None</option>
+                        <option>RCT</option>
+                        <option>Cochrane RCT</option>
+                        <option>Economic evaluation</option>
+                        <option>Systematic review</option>
+                    </select>
+                </div>
+                <div class="col-1"></div>
+                <div class="m-1 p-1 col-1"><b>User Defined Classifier</b></div>
+                <div class="col-3 p-0 m-0 dropdown">
+                    <select [(ngModel)]="UserDefinedClassifier" class="form-control" name="ClassifierContactModelList">
+                        <option *ngFor="let item of _magAdvancedService.ClassifierContactModelList" [value]="item">
+                            {{item.modelTitle}}
+                        </option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+    </div>
 
 <div style="min-width:250px; overflow:auto;" >
         <table class="card col-12 small table table-border  table-striped bg-light">
