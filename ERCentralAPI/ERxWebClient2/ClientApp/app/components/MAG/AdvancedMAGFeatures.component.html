@@ -11,13 +11,13 @@
     </kendo-toolbar>
 </div>
 <div class="col-6 p-2 m-2 card">
-    <h5>Current Microsoft Academic Graph Dataset:<i> {{_magAdvancedService.MagCurrentInfo}} </i></h5>
+    <h5>Current Microsoft Academic Graph Dataset:<i> {{_magAdvancedService.MagCurrentInfo.lastUpdated}} </i></h5>
     
 </div>
 <div class="col-12 row bg-light">
     <div class="col-5 card p-1 m-1 ">
-        <h4>Research And Development for Microsoft Academic Graph</h4>
-        <p class="m-2 p-2 card">
+        <h4 class="p-1 m-1 ">Research And Development for Microsoft Academic Graph</h4>
+        <p class="m-2 p-2 card bg-info">
             The algoirthm to find new and related studies to those already identified depends on
             correctly matching your existing studies with the MAG dataset.
             This can be somewhat automated; some studies cannot be matched
@@ -25,53 +25,68 @@
             In order to improve the matching accuracy, a check of the lower
             confidence level of automatic matches can be made.
         </p>
-        <div class=" col-6">
+        <div class="col-2">
+         
+        </div>
+        <div class="col-6">
             <button class="btn btn-primary p-2 m-2" data-toggle="collapse" href="#collapseExample"
-               role="button" aria-expanded="false" aria-controls="collapseExample">
+                    role="button" aria-expanded="false" aria-controls="collapseExample">
                 Seed and Test MAG
             </button>
         </div>
 
     </div>
-    <div class="col-5 card p-2 m-2">
+    <div class="col-6 card p-2 m-2">
         <h4 >Browse Dataset</h4>
-        <div class="col-8">
-            <div>All matched included records 
-                <div class="btn btn-link mt-1" (click)="GetMatchedMagIncludedList()">{{magMatchedIncluded}}</div>
+        <div class="col-12">
+            <div>
+                All matched included records
+                <div class="btn btn-link mt-1 col-5" (click)="GetMatchedMagIncludedList()">
+                    {{magMatchedIncluded}}
+                </div>
             </div>
             <div>
                 All matched excluded records
-                <div class="btn btn-link mt-1" (click)="GetMatchedMagExcludedList()">{{magMatchedExcluded}}</div>
+                <div class="btn btn-link mt-1 col-5" (click)="GetMatchedMagExcludedList()">
+                    {{magMatchedExcluded}}
+                </div>
             </div>
             <div>
                 All matched records in review
-                <div class="btn btn-link mt-1" (click)="GetMatchedMagAllList()">{{magMatchedAll}}</div>
+                <div class="btn btn-link mt-1 col-5" (click)="GetMatchedMagAllList()">
+                    {{magMatchedAll}}
+                </div>
             </div>
             <div>
                 All matched records with this code:
-                <div class="btn btn-link mt-1" (click)="GetMatchedMagWithCodeList()">{{magMatchedWithThisCode}}</div>
+                <div class="btn btn-link mt-1 col-4" (click)="GetMatchedMagWithCodeList()">
+                    {{magMatchedWithThisCode}}
+                </div>
             </div>
             <div class="col-12 row">
                 GoTo Microsoft Academic Paper ID:
-                <input type="text" name="magPaperId" id="magPaper" [(ngModel)]="magPaperId" class="form-control col-2 p-1 m-1" />
+                <input type="text" name="magPaperId" id="magPaper" [(ngModel)]="magPaperId"
+                       class="form-control col-5 p-1 m-1" />
                 <button (click)="GetMagPaper()" class="btn btn-warning">Get MAG paper</button>
             </div>
-            <textarea class="col-12 card">Search for topics in the box above.  Wildcards work e.g. physic* </textarea>
+            <div class="col-12 card bg-secondary">
+                <textarea>Search for topics in the box above.  Wildcards work e.g. physic* 
+                </textarea>
+            </div>
         </div>
 
-    </div>
+        </div>
 </div>
-<div class="col-6  card collapse row card" id="collapseExample"
-        style="min-width:450px; overflow:auto;">
-        <div class="col-6 p-2 m-2" style="min-width:450px; min-height:500px;overflow:auto;">
 
-            <div class="col-12">
+<div class="col-12  card collapse row" id="collapseExample">
+
+        <div class="col-5 p-1 m-1" >
                 <div class="col-12 m-1 p-1">
                     <button class="btn btn-primary">Run Matching Algorithm</button>
-                    <p><b>NB: The matching algorithm should be run before the simulations below.</b></p>
+                    <p><i>NB: The matching algorithm should be run before the simulations below.</i></p>
                 </div>
                 <div class="col-12  m-1 p-1">
-                    <p class="m-2 p-2 card">
+                    <p class="m-2 p-2 card bg-info">
                         Below test the performance of the various algorithms for identifying
                         relevant studies against the data already in your review.
                         There are three ways of splitting your data between 'seed' and 'test'
@@ -105,9 +120,9 @@
                         </div>
                     </div>
                 </div>
-            </div>
-
-            <div class="row col-12">
+        </div>
+           
+        <div class="col-5 p-1 m-1 pull-right" >
                 <div *ngIf="searchAll == 'false'" class="m-1 p-1 col-5">
                     <div class=""><b>Select code</b></div>
 
@@ -124,7 +139,6 @@
                             </codesetSelector>
                         </div>
                     </div>
-                </div>
             </div>
 
 
@@ -195,8 +209,8 @@
                 </select>
 
             </div>
-        </div>
      </div>
+</div>
 
 <div style="min-width:250px; overflow:auto;" >
         <table class="card col-12 small table table-border  table-striped bg-light">

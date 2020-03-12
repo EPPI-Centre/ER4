@@ -168,7 +168,7 @@ export class MAGComp implements OnInit {
 	public searchAll: string = 'true';
 	public magDate: string = 'true';
 	public magSearchCheck: boolean = false;
-	public magDateRadio: boolean = false;
+	public magDateRadio: string = 'true';
     public magRCTRadio: string = 'NoFilter';
 	public magMode: string = '';
 	public ToggleMAGPanel(): void {
