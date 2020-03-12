@@ -52,114 +52,13 @@ export class AdvancedMAGFeaturesComponent implements OnInit {
 
     public AdvancedFeatures() {
 
-        //navigate to the relevant page now and page should call the following:
-        
-        //private void ShowAdvancedPage() {
+        this.router.navigate(['AdvancedMAGFeatures']);
 
-        //StatusGrid.Visibility = Visibility.Visible;
+    }
 
-        //PaperGrid.Visibility = Visibility.Collapsed;
+    public AutoUpdateHome() {
 
-        //TopicsGrid.Visibility = Visibility.Collapsed;
-
-        //PaperListGrid.Visibility = Visibility.Collapsed;
-
-        //HistoryGrid.Visibility = Visibility.Collapsed;
-
-        //RelatedPapersGrid.Visibility = Visibility.Collapsed;
-
-        //AdminGrid.Visibility = Visibility.Collapsed;
-
-
-
-        //DataPortal < MagCurrentInfo > dp = new DataPortal<MagCurrentInfo>();
-
-        //MagCurrentInfo mci = new MagCurrentInfo();
-
-        //dp.FetchCompleted += (o, e2) => {
-
-        //    if (e2.Error != null) {
-
-        //        RadWindow.Alert(e2.Error.Message);
-
-        //    }
-
-        //    else {
-
-        //        MagCurrentInfo mci2 = e2.Object as MagCurrentInfo;
-
-        //        if (mci2.CurrentAvailability == "available") {
-
-        //            tbAcademicTitle.Text = "Microsoft Academic dataset last updated: " + mci2.LastUpdated.ToString();
-
-        //        }
-
-        //        else {
-
-        //            tbAcademicTitle.Text = "Microsoft Academic dataset currently unavailable";
-
-        //        }
-
-        //    }
-
-        //};
-
-        //dp.BeginFetch(mci);
-
-
-
-        //DataPortal < MAgReviewMagInfoCommand > dp2 = new DataPortal<MAgReviewMagInfoCommand>();
-
-        //MAgReviewMagInfoCommand mrmic = new MAgReviewMagInfoCommand();
-
-        //dp2.ExecuteCompleted += (o, e2) => {
-
-        //    if (e2.Error != null) {
-
-        //        RadWindow.Alert(e2.Error.Message);
-
-        //    }
-
-        //    else {
-
-        //        MAgReviewMagInfoCommand mrmic2 = e2.Object as MAgReviewMagInfoCommand;
-
-        //        //TBNumInReview.Text = mrmic2.NInReviewIncluded.ToString() + " / " + mrmic2.NInReviewExcluded.ToString();
-
-        //        LBListMatchesIncluded.Content = mrmic2.NMatchedAccuratelyIncluded.ToString();
-
-        //        LBListMatchesExcluded.Content = mrmic2.NMatchedAccuratelyExcluded.ToString();
-
-        //        LBListAllInReview.Content = (mrmic2.NMatchedAccuratelyIncluded + mrmic2.NMatchedAccuratelyExcluded).ToString();
-
-        //        LBManualCheckIncluded.Content = mrmic2.NRequiringManualCheckIncluded.ToString();
-
-        //        LBManualCheckExcluded.Content = mrmic2.NRequiringManualCheckExcluded.ToString();
-
-        //        LBMNotMatchedIncluded.Content = mrmic2.NNotMatchedIncluded.ToString();
-
-        //        LBMNotMatchedExcluded.Content = mrmic2.NNotMatchedExcluded.ToString();
-
-        //    }
-
-        //};
-
-        //dp2.BeginExecute(mrmic);
-
-
-
-        //CslaDataProvider provider = this.Resources["ClassifierContactModelListData"] as CslaDataProvider;
-
-        //provider.Refresh();
-
-        //CslaDataProvider provider1 = this.Resources["MagSimulationListData"] as CslaDataProvider;
-
-        //provider1.Refresh();
-
-        //}
-
-
-
+        this.router.navigate(['MAGFeatures']);
     }
 
     public Back() {

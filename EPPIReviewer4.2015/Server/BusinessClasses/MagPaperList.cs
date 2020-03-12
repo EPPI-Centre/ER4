@@ -40,7 +40,7 @@ namespace BusinessLibrary.BusinessClasses
 #if SILVERLIGHT
         public MagPaperList() { }
 #else
-        private MagPaperList() { }
+        public MagPaperList() { }
 #endif
         public string AllIds()
         {

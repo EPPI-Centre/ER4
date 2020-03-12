@@ -126,6 +126,7 @@
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\MagMatchItemsToPapersCommand.cs" Link="Models\MagMatchItemsToPapersCommand.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\MagMatchItemToPaperManualCommand.cs" Link="Models\MagMatchItemToPaperManualCommand.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\MagPaper.cs" Link="Models\MagPaper.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\MagPaperList.cs" Link="Models\MagPaperList.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\MagRelatedPapersRun.cs" Link="Models\MagRelatedPapersRun.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\MagRelatedPapersRunList.cs" Link="Models\MagRelatedPapersRunList.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\MagRunSimulationCommand.cs" Link="Models\MagRunSimulationCommand.cs" />
