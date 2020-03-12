@@ -27,10 +27,10 @@ namespace BusinessLibrary.BusinessClasses
 
         
 #else
-        private MagLog() { }
+        public MagLog() { }
 #endif
 
-        private static PropertyInfo<int> MagLogIdProperty = RegisterProperty<int>(new PropertyInfo<int>("MagLogId", "MagLogId"));
+        public static readonly PropertyInfo<int> MagLogIdProperty = RegisterProperty<int>(new PropertyInfo<int>("MagLogId", "MagLogId"));
         public int MagLogId
         {
             get
@@ -39,7 +39,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> JobTypeProperty = RegisterProperty<string>(new PropertyInfo<string>("JobType", "JobType", string.Empty));
+        public static readonly PropertyInfo<string> JobTypeProperty = RegisterProperty<string>(new PropertyInfo<string>("JobType", "JobType", string.Empty));
         public string JobType
         {
             get
@@ -52,7 +52,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> JobStatusProperty = RegisterProperty<string>(new PropertyInfo<string>("JobStatus", "JobStatus", string.Empty));
+        public static readonly PropertyInfo<string> JobStatusProperty = RegisterProperty<string>(new PropertyInfo<string>("JobStatus", "JobStatus", string.Empty));
         public string JobStatus
         {
             get
@@ -65,7 +65,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> JobMessageProperty = RegisterProperty<string>(new PropertyInfo<string>("JobMessage", "JobMessage", string.Empty));
+        public static readonly PropertyInfo<string> JobMessageProperty = RegisterProperty<string>(new PropertyInfo<string>("JobMessage", "JobMessage", string.Empty));
         public string JobMessage
         {
             get
@@ -78,7 +78,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> ContactNameProperty = RegisterProperty<string>(new PropertyInfo<string>("ContactName", "ContactName", string.Empty));
+        public static readonly PropertyInfo<string> ContactNameProperty = RegisterProperty<string>(new PropertyInfo<string>("ContactName", "ContactName", string.Empty));
         public string ContactName
         {
             get
@@ -91,7 +91,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> ContactIdProperty = RegisterProperty<int>(new PropertyInfo<int>("ContactId", "ContactId", 0));
+        public static readonly PropertyInfo<int> ContactIdProperty = RegisterProperty<int>(new PropertyInfo<int>("ContactId", "ContactId", 0));
         public int ContactId
         {
             get
@@ -104,7 +104,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<DateTime> TimeSubmittedProperty = RegisterProperty<DateTime>(new PropertyInfo<DateTime>("TimeSubmitted", "TimeSubmitted", 0));
+        public static readonly PropertyInfo<DateTime> TimeSubmittedProperty = RegisterProperty<DateTime>(new PropertyInfo<DateTime>("TimeSubmitted", "TimeSubmitted", 0));
         public DateTime TimeSubmitted
         {
             get
