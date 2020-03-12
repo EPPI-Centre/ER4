@@ -792,8 +792,9 @@
                             </Grid>
                         </radDock:RadDocumentPane>
 
-                        <radDock:RadDocumentPane Header="Microsoft Academic" x:Name="MicrosoftAcademic" Title="Microsoft Academic" CanUserClose="False" CanFloat="False" IsEnabled="True" 
+                        <radDock:RadDocumentPane Header="Microsoft Academic" x:Name="MicrosoftAcademic" Title="Microsoft Academic" CanUserClose="False" CanFloat="False"
                                                  Visibility="{Binding Source={StaticResource ReviewInfoData}, Path=Data.MagEnabled, Converter={StaticResource EditIntVisibility}, Mode=OneWay}"
+                                                 IsEnabled="{Binding Source={StaticResource MagCurrentInfoData}, Path=Data.MagOnline, Mode=OneWay}"
                                                  Activated="MicrosoftAcademic_Activated">
                             <Grid Width="auto">
                                 <Grid.RowDefinitions>
@@ -805,7 +806,11 @@
                                     <RowDefinition Height="Auto"></RowDefinition>
                                 </Grid.RowDefinitions>
 
-                                <HyperlinkButton x:Name="hlManualMagLookup" Grid.Row="0" VerticalAlignment="Top" Content="Look up this record in Microsoft Academic" Margin="2,7,2,0" Click="hlManualMagLookup_Click" IsTabStop="False"></HyperlinkButton>
+                                <HyperlinkButton x:Name="hlManualMagLookup" Grid.Row="0" VerticalAlignment="Top"
+                                                 Content="Look up this record in Microsoft Academic" Margin="2,7,2,0"
+                                                 Click="hlManualMagLookup_Click" IsTabStop="False"
+                                                 IsEnabled="{Binding Source={StaticResource MagCurrentInfoData}, Path=Data.MatchingAvailable, Mode=OneWay}"
+                                                 ></HyperlinkButton>
                                 
                                 <TextBlock Grid.Row="1" x:Name="tbQuickCitation" Text="{Binding QuickCitation}" FontWeight="Bold" FontSize="12" TextWrapping="Wrap" Margin="5,2,5,2"></TextBlock>
                                 <TextBlock Grid.Row="2" VerticalAlignment="Bottom" Text="Record(s) matched from Microsoft Academic:" Margin="5,3,5,1"></TextBlock>

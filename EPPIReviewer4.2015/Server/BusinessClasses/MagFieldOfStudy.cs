@@ -340,7 +340,7 @@ namespace BusinessLibrary.BusinessClasses
             */
         }
 
-        internal static MagFieldOfStudy GetMagFieldOfStudy(FieldOfStudyMakes fos)
+        internal static MagFieldOfStudy GetMagFieldOfStudy(MagMakesHelpers.FieldOfStudyMakes fos)
         {
             MagFieldOfStudy returnValue = new MagFieldOfStudy();
             /*
@@ -359,7 +359,7 @@ namespace BusinessLibrary.BusinessClasses
             return returnValue;
         }
 
-        internal static MagFieldOfStudy GetMagFieldOfStudyRelationship(FieldOfStudyRelationshipMakes fosrm)
+        internal static MagFieldOfStudy GetMagFieldOfStudyRelationship(MagMakesHelpers.FieldOfStudyRelationshipMakes fosrm)
         {
             MagFieldOfStudy returnValue = new MagFieldOfStudy();
             returnValue.LoadProperty<Int64>(FieldOfStudyIdProperty, fosrm.FId);
@@ -369,7 +369,7 @@ namespace BusinessLibrary.BusinessClasses
             return returnValue;
         }
 
-        internal static MagFieldOfStudy GetMagFieldOfStudyFromPaperMakesFieldOfStudy(PaperMakesFieldOfStudy pmfos)
+        internal static MagFieldOfStudy GetMagFieldOfStudyFromPaperMakesFieldOfStudy(MagMakesHelpers.PaperMakesFieldOfStudy pmfos)
         {
             MagFieldOfStudy returnValue = new MagFieldOfStudy();
             /*
@@ -388,32 +388,7 @@ namespace BusinessLibrary.BusinessClasses
             return returnValue;
         }
 
-        public static FieldOfStudyMakes GetPaperMakesFieldOfStudy(Int64 FosId)
-        {
-            var jsonsettings = new JsonSerializerSettings
-            {
-                NullValueHandling = NullValueHandling.Ignore,
-                MissingMemberHandling = MissingMemberHandling.Ignore
-            };
-
-            string responseText = "";
-            WebRequest request = WebRequest.Create(ConfigurationManager.AppSettings["AzureMAKESBaseURL"] + @"?expr=Id=" +
-                FosId.ToString() + @"&attributes=Id,CC,DFN,ECC,FL,FN,FC.FId,FC.FN,FP.FId,FP.FN");
-            WebResponse response = request.GetResponse();
-            using (Stream dataStream = response.GetResponseStream())
-            {
-                StreamReader sreader = new StreamReader(dataStream);
-                responseText = sreader.ReadToEnd();
-            }
-            response.Close();
-            var respJson = JsonConvert.DeserializeObject<MakesResponse>(responseText, jsonsettings);
-            if (respJson != null && respJson.entities != null && respJson.entities.Count > 0)
-            {
-                return respJson.entities[0];
-            }
-            else
-                return null;
-        }
+        
 
 #endif
     }

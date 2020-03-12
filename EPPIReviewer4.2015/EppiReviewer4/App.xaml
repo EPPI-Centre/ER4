@@ -120,6 +120,13 @@
                            FactoryMethod="GetItemTimepointList"
                            DataChanged="CslaDataProvider_DataChanged_6"
                            />
+            <cslaXAML:CslaDataProvider x:Key="MagCurrentInfoData"
+                           ManageObjectLifetime="True"
+                           IsInitialLoadEnabled="False"
+                           ObjectType="BusinessLibrary.BusinessClasses.MagCurrentInfo, BusinessLibrary, Version=..., Culture=neutral, PublicKeyToken=null"
+                           FactoryMethod="GetMagCurrentInfo"
+                           DataChanged="CslaDataProvider_DataChanged_7"
+                           />
             
         </ResourceDictionary>
 
