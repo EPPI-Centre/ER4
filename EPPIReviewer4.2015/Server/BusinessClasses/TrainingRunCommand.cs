@@ -392,7 +392,7 @@ namespace BusinessLibrary.BusinessClasses
                     catch (Exception e)
                     {
                         ERxWebClient2.Startup.Logger.LogError(e, "List creation in TrainingRunCommand failed", command.Parameters);
-
+                        
                         //the line below was (probably) creating the "review needs indexing" bug: when an exception happened (timeout?)
                         //then RevInfo.ScreeningIndexed = false was set in the lines below... (07/08/2019)
                         //MLreturnedEmptyLines = true;//send some signal that stuff didn't work...

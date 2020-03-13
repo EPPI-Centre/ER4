@@ -30,7 +30,7 @@ namespace ERxWebClient2.Controllers
             {
                 SetCSLAUser();
 
-                DataPortal<MagCurrentInfo > dp = new DataPortal<MagCurrentInfo>();
+                DataPortal<MagCurrentInfo> dp = new DataPortal<MagCurrentInfo>();
 				MagCurrentInfo result = dp.Fetch();
 
                 return Ok(result);
