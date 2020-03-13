@@ -472,9 +472,19 @@ namespace BusinessLibrary.BusinessClasses
 #if (!CSLA_NETCORE)
             string uploadFileName = System.Web.HttpRuntime.AppDomainAppPath + @"UserTempUploads/RelatedRun" + MagRelatedRunId.ToString() + ".csv";
 
-#else
-            DirectoryInfo tmpDir = System.IO.Directory.CreateDirectory("UserTempUploads");
-            string uploadFileName = tmpDir.FullName + "/" + @"UserTempUploads/RelatedRun" + MagRelatedRunId.ToString() + ".csv";
+#else       
+            string uploadFileName = "";
+            if (Directory.Exists("UserTempUploads"))
+            {
+                uploadFileName =  @"./UserTempUploads/RelatedRun" + MagRelatedRunId.ToString() + ".csv";
+            }
+            else
+            {
+                DirectoryInfo tmpDir = System.IO.Directory.CreateDirectory("UserTempUploads");
+                uploadFileName = tmpDir.FullName + "/" + @"UserTempUploads/RelatedRun" + MagRelatedRunId.ToString() + ".csv";
+
+            }
+
 #endif
 
             WriteSeedIdsFile(uploadFileName);

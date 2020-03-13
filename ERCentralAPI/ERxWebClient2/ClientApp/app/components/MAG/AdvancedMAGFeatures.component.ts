@@ -39,15 +39,17 @@ export class AdvancedMAGFeaturesComponent implements OnInit {
 
        this._magAdvancedService.FetchClassifierContactModelList();
     }
-    public RunMacthingAlgo() {
+    public RunMatchingAlgo() {
 
-        let msg: string = 'Are you sure you want to match all the items in your review\n to Microsoft Academic records?';
-        this.ConfirmationDialogService.confirm('MAG RUN ALERT', msg, false, '')
-            .then((confirm: any) => {
-                if (confirm) {
-                    this._magAdvancedService.RunMatchingAlgorithm();
-                }
-            });
+        this._magAdvancedService.RunMatchingAlgorithm();
+
+        //let msg: string = 'Are you sure you want to match all the items in your review\n to Microsoft Academic records?';
+        //this.ConfirmationDialogService.confirm('MAG RUN ALERT', msg, false, '')
+        //    .then((confirm: any) => {
+        //        if (confirm) {
+                    
+        //        }
+        //    });
     }
 
     public AdvancedFeatures() {

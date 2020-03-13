@@ -533,8 +533,18 @@ namespace BusinessLibrary.BusinessClasses
 #if (!CSLA_NETCORE)
                     string fileName = System.Web.HttpRuntime.AppDomainAppPath + TempPath + ri.UserId.ToString() + ".csv";
 #else
-                    DirectoryInfo tmpDir = System.IO.Directory.CreateDirectory("UserTempUploads");
-                    string fileName = tmpDir.FullName + "/" + ri.UserId.ToString() + ".csv";
+                    string fileName = "";
+                    if (Directory.Exists(@"\UserTempUploads"))
+                    {
+                         fileName = @".\UserTempUploads" + @"\" + ri.UserId.ToString() + ".csv";
+                    }
+                    else
+                    {
+                        DirectoryInfo tmpDir = System.IO.Directory.CreateDirectory(@"\UserTempUploads");
+                        fileName = tmpDir.FullName + @"\" + ri.UserId.ToString() + ".csv";
+                    }
+                    
+
                     //string fileName = Path.GetTempPath() + ri.UserId.ToString() + ".csv";
 #endif
                     using (SqlCommand command = new SqlCommand("st_TrainingWriteDataToAzure", connection))
