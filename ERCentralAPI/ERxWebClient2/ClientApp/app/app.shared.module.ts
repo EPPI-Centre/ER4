@@ -87,6 +87,7 @@ import { configurablereportComp } from './components/Reports/configurablereport.
 import { DuplicatesComponent } from './components/Duplicates/duplicates.component';
 import { MAGComp } from './components/MAG/MAGComp.component';
 import { AdvancedMAGFeaturesComponent } from './components/MAG/AdvancedMAGFeatures.component';
+import { MAGBrowser } from './components/MAG/MAGBrowser.component';
 
 @NgModule({
     declarations: [
@@ -154,7 +155,8 @@ import { AdvancedMAGFeaturesComponent } from './components/MAG/AdvancedMAGFeatur
 		ReviewTermsListComp,
         configurablereportComp,
         DuplicatesComponent,
-        AdvancedMAGFeaturesComponent
+        AdvancedMAGFeaturesComponent,
+        MAGBrowser
 	],
     providers: [
         EventEmitterService,
@@ -193,6 +195,7 @@ import { AdvancedMAGFeaturesComponent } from './components/MAG/AdvancedMAGFeatur
 			{ path: 'sources', component: SourcesComponent },
             { path: 'BuildModel', component: BuildModelComponent },
             { path: 'MAGFeatures', component: MAGComp },
+            { path: 'MAGBrowser', component: MAGBrowser },
             { path: 'AdvancedMAGFeatures', component: AdvancedMAGFeaturesComponent },
             { path: 'itemcodingOnly/:itemId', component: ItemCodingComp },
             { path: 'itemcoding/:itemId', component: ItemCodingFullComp },

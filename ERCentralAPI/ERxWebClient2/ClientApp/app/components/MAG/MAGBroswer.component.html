@@ -1,0 +1,45 @@
+﻿<div class="containsAtoolbar">
+    <kendo-toolbar>
+        <kendo-toolbar-button [text]="'Selected'" (click)="Selected()" [disabled]="HasWriteRights"></kendo-toolbar-button>
+        <kendo-toolbar-button [text]="'Clear Selected'" (click)="ClearSelected()" [disabled]="HasWriteRights"></kendo-toolbar-button>
+        <kendo-toolbar-button [text]="'Import Selected'" (click)="ImportSelected()" [disabled]="HasWriteRights"></kendo-toolbar-button>
+        <kendo-toolbar-button [text]="'Auto-update home'" (click)="AutoUpdateHome()" [disabled]="!HasWriteRights"></kendo-toolbar-button>
+        <kendo-toolbar-button [text]="'Advanced features'" (click)="AdvancedFeatures()" [disabled]="!HasWriteRights"></kendo-toolbar-button>
+        <kendo-toolbar-button [text]="'Show history'" (click)="ShowHistory()" [disabled]="HasWriteRights"></kendo-toolbar-button>
+        <kendo-toolbar-button [text]="'Admin'" (click)="Admin()" [disabled]="HasWriteRights"></kendo-toolbar-button>
+        <kendo-toolbar-button [text]="'Forward'" (click)="Forward()" [disabled]="HasWriteRights"></kendo-toolbar-button>
+        <kendo-toolbar-button [text]="'Back'" (click)="Back()" [disabled]="!HasWriteRights"></kendo-toolbar-button>
+    </kendo-toolbar>
+</div>
+<div class="col-6 p-2 m-2 card">
+    <h5>Current Microsoft Academic Browser</h5>
+    
+</div>
+
+
+<div class="col-12">
+    <div class="col-3">
+        PARENTS TOPICS
+    </div>
+    <div class="col-8">
+        <table class="card col-12 small table table-border  table-striped bg-light">
+            <thead>
+                <tr></tr>
+            </thead>
+            <tbody>
+                <tr *ngIf="_magAdvancedService.MagPapersMatchedList"
+                    class="" *ngFor="let item of _magAdvancedService.MagPapersMatchedList">
+                    <td>{{item.paperDetail}}</td>
+                </tr>
+            </tbody>
+        </table>
+        <div *ngIf="_magAdvancedService && _magAdvancedService.MagPapersMatchedList && _magAdvancedService.IsBusy">Loading items...</div>
+        <div *ngIf="_magAdvancedService && _magAdvancedService.MagPapersMatchedList 
+             && this._magAdvancedService.MagPapersMatchedList && this._magAdvancedService.MagPapersMatchedList.length == 0 && !_magAdvancedService.IsBusy"
+             class="p-2 font-weight-bold text-center text-info mt-1">No items to display</div>
+        <paginatorComp class="row ml-1 pt-1 mr-1 pr-1 border-top porder-info"></paginatorComp>
+    </div>
+    <div class="col-1">
+        SELECT OR IN REVIEW
+    </div>
+</div>
