@@ -41,15 +41,13 @@ export class AdvancedMAGFeaturesComponent implements OnInit {
     }
     public RunMatchingAlgo() {
 
-        this._magAdvancedService.RunMatchingAlgorithm();
-
-        //let msg: string = 'Are you sure you want to match all the items in your review\n to Microsoft Academic records?';
-        //this.ConfirmationDialogService.confirm('MAG RUN ALERT', msg, false, '')
-        //    .then((confirm: any) => {
-        //        if (confirm) {
-                    
-        //        }
-        //    });
+       let msg: string = 'Are you sure you want to match all the items in your review\n to Microsoft Academic records?';
+        this.ConfirmationDialogService.confirm('MAG RUN ALERT', msg, false, '')
+            .then((confirm: any) => {
+                if (confirm) {
+                    this._magAdvancedService.RunMatchingAlgorithm();
+                }
+            });
     }
 
     public AdvancedFeatures() {
