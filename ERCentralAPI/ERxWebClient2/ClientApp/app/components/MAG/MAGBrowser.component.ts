@@ -8,6 +8,7 @@ import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Router } from '@angular/router';
 import {  ItemListService } from '../services/ItemList.service';
 import { EventEmitterService } from '../services/EventEmitter.service';
+import { MAGAdvancedService } from '../services/magAdvanced.service';
 
 
 @Component({
@@ -19,7 +20,7 @@ import { EventEmitterService } from '../services/EventEmitter.service';
 export class MAGBrowser implements OnInit {
 
 	constructor(private ConfirmationDialogService: ConfirmationDialogService,
-		private _magService: MAGService,
+		private _magAdvancedService: MAGAdvancedService,
         public _searchService: searchService,
         private _ReviewerIdentityServ: ReviewerIdentityService,
         private _itemListService: ItemListService,
@@ -33,7 +34,7 @@ export class MAGBrowser implements OnInit {
 	ngOnInit() {
 
         this.Clear();
-        this._magService.Fetch();
+        //this._magService.Fetch();
 
     }
 
@@ -69,7 +70,7 @@ export class MAGBrowser implements OnInit {
     }
     public ImportMagSearchPapers(item: MagRelatedPapersRun) {
 
-        this._magService.ImportMagPapers(item);
+        //this._magService.ImportMagPapers(item);
 
     }
 	public IsServiceBusy(): boolean {
@@ -101,7 +102,20 @@ export class MAGBrowser implements OnInit {
         }
     }
 
+    public AdvancedFeatures() {
 
+        this.router.navigate(['AdvancedMAGFeatures']);
+
+    }
+
+    public AutoUpdateHome() {
+
+        this.router.navigate(['MAGFeatures']);
+    }
+
+    public Back() {
+        this.router.navigate(['Main']);
+    }
 	
 
 }

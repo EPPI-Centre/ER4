@@ -27,21 +27,20 @@
         PARENTS TOPICS
     </div>
     <div class="col-8">
-        <!--<table class="card col-12 small table table-border  table-striped bg-light">
+        <table class="card col-12 small table table-border  table-striped bg-light">
             <thead>
                 <tr></tr>
             </thead>
             <tbody>
-                <tr *ngIf="_magAdvancedService.MagPapersMatchedList"
-                    class="" *ngFor="let item of _magAdvancedService.MagPapersMatchedList">
-                    <td>{{item.paperDetail}}</td>
+                <tr *ngFor="let item of _magAdvancedService.MagPapersMatchedList">
+                    <td>{{item.title}}</td>
                 </tr>
             </tbody>
         </table>
         <div *ngIf="_magAdvancedService && _magAdvancedService.MagPapersMatchedList && _magAdvancedService.IsBusy">Loading items...</div>
         <div *ngIf="_magAdvancedService && _magAdvancedService.MagPapersMatchedList 
              && this._magAdvancedService.MagPapersMatchedList && this._magAdvancedService.MagPapersMatchedList.length == 0 && !_magAdvancedService.IsBusy"
-             class="p-2 font-weight-bold text-center text-info mt-1">No items to display</div>-->
+             class="p-2 font-weight-bold text-center text-info mt-1">No items to display</div>
         <paginatorComp class="row ml-1 pt-1 mr-1 pr-1 border-top porder-info"></paginatorComp>
     </div>
     <div class="col-1">

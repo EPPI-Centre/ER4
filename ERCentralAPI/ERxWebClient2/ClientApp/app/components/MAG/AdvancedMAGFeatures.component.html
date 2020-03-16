@@ -41,26 +41,26 @@
         <div class="col-12">
             <div>
                 All matched included records
-                <div class="btn btn-link mt-1 col-5" (click)="GetMatchedMagIncludedList()">
-                    {{magMatchedIncluded}}
+                <div class="btn btn-link mt-1 col-5" (click)="MAGBroswer('MatchedIncluded')">
+                    {{_magAdvancedService.magMatchedIncluded}}
                 </div>
             </div>
             <div>
                 All matched excluded records
-                <div class="btn btn-link mt-1 col-5" (click)="GetMatchedMagExcludedList()">
-                    {{magMatchedExcluded}}
+                <div class="btn btn-link mt-1 col-5"  (click)="MAGBroswer('MatchedExcluded')">
+                    {{_magAdvancedService.magMatchedExcluded}}
                 </div>
             </div>
             <div>
                 All matched records in review
-                <div class="btn btn-link mt-1 col-5" (click)="GetMatchedMagAllList()">
-                    {{magMatchedAll}}
+                <div class="btn btn-link mt-1 col-5"  (click)="MAGBroswer('MatchedAll')">
+                    {{_magAdvancedService.magMatchedAll}}
                 </div>
             </div>
             <div>
                 All matched records with this code:
-                <div class="btn btn-link mt-1 col-4" (click)="GetMatchedMagWithCodeList()">
-                    {{magMatchedWithThisCode}}
+                <div class="btn btn-link mt-1 col-4"  (click)="MAGBroswer('MatchedWithThisCode')">
+                    {{_magAdvancedService.magMatchedWithThisCode}}
                 </div>
             </div>
             <div class="col-12 row">

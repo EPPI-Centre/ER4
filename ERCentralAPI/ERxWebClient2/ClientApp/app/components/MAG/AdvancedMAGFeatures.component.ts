@@ -6,8 +6,10 @@ import { codesetSelectorComponent } from '../CodesetTrees/codesetSelector.compon
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Router } from '@angular/router';
-import { MAGAdvancedService, ClassifierContactModel } from '../services/magAdvanced.service';
+import { MAGAdvancedService, ClassifierContactModel, MagCurrentInfo } from '../services/magAdvanced.service';
 import { Criteria, ItemListService } from '../services/ItemList.service';
+import { Subscription } from 'rxjs';
+import { EventEmitterService } from '../services/EventEmitter.service';
 
 @Component({
     selector: 'AdvancedMAGFeatures',
@@ -22,16 +24,39 @@ export class AdvancedMAGFeaturesComponent implements OnInit {
         public _searchService: searchService,
         private _ReviewerIdentityServ: ReviewerIdentityService,
         private _itemListService: ItemListService,
+        private _eventEmitterService: EventEmitterService,
         private router: Router
 
 	) {
 
 	}
 
-	ngOnInit() {
+//    public sub: Subscription = new Subscription();
 
-        this.GetMAGCurrentInfo();
-        this.GetContactModelList();
+    ngOnInit() {
+
+        //this._itemListService.ListChanged.subscribe(
+        //    () => {
+
+        //        if (this._itemListService.ListDescription == "MagMatchesMatched"
+        //            && this._itemListService.ListCriteria.onlyIncluded == true) {
+
+        //            this._magMatchedIncluded = this._itemListService.ItemList.items.length;
+
+        //        } else if (this._itemListService.ListDescription == "MagMatchesMatched"
+        //            && this._itemListService.ListCriteria.onlyIncluded == false) {
+
+        //            this._magMatchedExcluded = this._itemListService.ItemList.items.length;
+
+        //        }
+        //    }
+    
+        //);
+
+        //this.GetMAGCurrentInfo();
+        //this.GetContactModelList();
+        this.GetMatchedMagIncludedList();
+        this.GetMatchedMagExcludedList();
         this.Clear();
     }
 
@@ -71,36 +96,42 @@ export class AdvancedMAGFeaturesComponent implements OnInit {
 	public MAGItems: any[] = [];
 	public ShowPanel: boolean = false;
     public isCollapsed: boolean = true;
-    public magMatchedIncluded: number = 0;
-    public magMatchedExcluded: number = 0;
+   
+
+   
     public magMatchedAll: number = 0;
     public magMatchedWithThisCode: number = 0;
     public magPaperId: number = 0;
     public currentClassifierContactModel: ClassifierContactModel = new ClassifierContactModel();
 
-    public GetMatchedMagIncludedList() {
+    public GetMatchedMagIncludedList(): void {
 
+
+        this._magAdvancedService.FetchMAGMatchesWithCrit("MagMatchesMatched");
         //"Showing: included items that are matched to at least one Microsoft Academic record";
-        let SelectionCritieraItemList: Criteria = new Criteria();
-        SelectionCritieraItemList.listType = "MagMatchesMatched";
-        SelectionCritieraItemList.onlyIncluded = true;
-        SelectionCritieraItemList.showDeleted = false;
-        SelectionCritieraItemList.attributeSetIdList = "";
-        SelectionCritieraItemList.pageNumber = 0;
+        //let SelectionCritieraItemList: Criteria = new Criteria();
+        //SelectionCritieraItemList.listType = "MagMatchesMatched";
+        //SelectionCritieraItemList.onlyIncluded = true;
+        //SelectionCritieraItemList.showDeleted = false;
+        //SelectionCritieraItemList.attributeSetIdList = "";
+        //SelectionCritieraItemList.pageNumber = 0;
 
-        this._itemListService.FetchWithCrit(SelectionCritieraItemList, "MagMatchesMatched");
-     
+        //this._itemListService.FetchWithCrit(SelectionCritieraItemList, "MagMatchesMatched");
+        //return this._itemListService.ItemList.items.length;
+             
     }
     public GetMatchedMagExcludedList() {
 
-        let SelectionCritieraItemList: Criteria = new Criteria();
-        SelectionCritieraItemList.listType = "MagMatchesMatched";
-        SelectionCritieraItemList.onlyIncluded = false;
-        SelectionCritieraItemList.showDeleted = false;
-        SelectionCritieraItemList.attributeSetIdList = "";
-        SelectionCritieraItemList.pageNumber = 0;
+        this._magAdvancedService.FetchMAGMatchesWithCritEx("MagMatchesMatched");
+        //let SelectionCritieraItemList: Criteria = new Criteria();
+        //SelectionCritieraItemList.listType = "MagMatchesMatched";
+        //SelectionCritieraItemList.onlyIncluded = false;
+        //SelectionCritieraItemList.showDeleted = false;
+        //SelectionCritieraItemList.attributeSetIdList = "";
+        //SelectionCritieraItemList.pageNumber = 0;
 
-        this._itemListService.FetchWithCrit(SelectionCritieraItemList, "MagMatchesMatched");
+        //this._itemListService.FetchWithCrit(SelectionCritieraItemList, "MagMatchesMatched");
+        //this._itemListService.ListChanged.emit();
 
     }
     public GetMatchedMagAllList() {
@@ -114,6 +145,14 @@ export class AdvancedMAGFeaturesComponent implements OnInit {
 
         this._itemListService.FetchWithCrit(SelectionCritieraItemList, "MagMatchesMatched");
 
+    }
+    public MAGBroswer(listType: string) {
+
+        if (listType == 'MatchedIncluded') {
+            this.GetMatchedMagIncludedList();
+        }
+        this.router.navigate(['MAGBrowser']);
+ 
     }
     public GetMatchedMagWithCodeList() {
 
@@ -217,11 +256,18 @@ export class AdvancedMAGFeaturesComponent implements OnInit {
                 break;
 		}
 	}
-    
-	public GetMAGCurrentInfo() {
+ //   private _magCurrentInfo: MagCurrentInfo = new MagCurrentInfo;
 
-        this._magAdvancedService.FetchCurrentInfo();
-	}
+ //   public get magCurrentInfo() {
+        
+ //       return this._magAdvancedService.MagCurrentInfo;
+ //   }
+
+ //   public set magCurrentInfo(value: MagCurrentInfo) {
+
+ //       this._magCurrentInfo = value;
+        
+	//}
 
     public GetMagSimulationList() {
 

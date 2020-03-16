@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
 import { NotificationService } from '@progress/kendo-angular-notification';
+import { ItemList, Criteria, Item } from './ItemList.service';
 
 @Injectable({
     providedIn: 'root',
@@ -17,6 +18,55 @@ export class MAGAdvancedService extends BusyAwareService {
         @Inject('BASE_URL') private _baseUrl: string
     ) {
         super();
+    }
+
+    private _magMatchedIncluded: number = 0;
+    private _magMatchedExcluded: number = 0;
+    private _magMatchedAll: number = 0;
+    private _magMatchedWithThisCode: number = 0;
+
+    public get magMatchedIncluded(): number {
+
+        return this._magMatchedIncluded;
+        
+    }
+
+    public set magMatchedIncluded(value: number) {
+
+        this._magMatchedExcluded = value;
+    }
+
+    public get magMatchedExcluded(): number {
+
+        return this._magMatchedExcluded;
+
+    }
+
+    public set magMatchedExcluded(value: number) {
+
+        this._magMatchedExcluded = value;
+    }
+
+    public get magMatchedAll(): number {
+
+        return this._magMatchedAll;
+
+    }
+
+    public set magMatchedAll(value: number) {
+
+        this._magMatchedAll = value;
+    }
+
+    public get magMatchedWithThisCode(): number {
+
+        return this._magMatchedWithThisCode;
+
+    }
+
+    public set magMatchedWithThisCode(value: number) {
+
+        this._magMatchedWithThisCode = value;
     }
 
     private _MagCurrentInfo: MagCurrentInfo = new MagCurrentInfo();
@@ -140,6 +190,60 @@ export class MAGAdvancedService extends BusyAwareService {
                 }
             );
     }
+    public ListDescription: string = '';
+    public TotalNumberOfMatchedPapers: number = 0;
+    private _Criteria: Criteria = new Criteria();
+
+
+    FetchMAGMatchesWithCrit( listDescription: string): any {
+
+        let SelectionCritieraItemList: Criteria = new Criteria();
+        SelectionCritieraItemList.listType = "MagMatchesMatched";
+        SelectionCritieraItemList.onlyIncluded = true;
+        SelectionCritieraItemList.showDeleted = false;
+        SelectionCritieraItemList.attributeSetIdList = "";
+        SelectionCritieraItemList.pageNumber = 0;
+
+        this._BusyMethods.push("FetchMAGMatchesWithCrit");
+
+        this.ListDescription = listDescription;
+        this._httpC.post<ItemList>(this._baseUrl + 'api/ItemList/Fetch', SelectionCritieraItemList)
+            .toPromise().then(
+                (list: ItemList) => {
+                    this.RemoveBusy("FetchMAGMatchesWithCrit");
+                    this._magMatchedIncluded = list.totalItemCount;
+                    this.MagPapersMatchedList = list.items;
+                    this.TotalNumberOfMatchedPapers = list.totalItemCount
+                }
+            );
+    }
+
+    FetchMAGMatchesWithCritEx(listDescription: string): any {
+
+        let SelectionCritieraItemList: Criteria = new Criteria();
+        SelectionCritieraItemList.listType = "MagMatchesMatched";
+        SelectionCritieraItemList.onlyIncluded = false;
+        SelectionCritieraItemList.showDeleted = false;
+        SelectionCritieraItemList.attributeSetIdList = "";
+        SelectionCritieraItemList.pageNumber = 0;
+
+        this._BusyMethods.push("FetchMAGMatchesWithCritEx");
+
+        this.ListDescription = listDescription;
+        this._httpC.post<ItemList>(this._baseUrl + 'api/ItemList/Fetch', SelectionCritieraItemList)
+            .toPromise().then(
+                (list: ItemList) => {
+                    this.RemoveBusy("FetchMAGMatchesWithCritEx");
+                    this._magMatchedExcluded = list.totalItemCount;
+                    this.MagPapersMatchedList = list.items;
+                    this.TotalNumberOfMatchedPapers = list.totalItemCount
+                }
+            );
+    }
+
+    public MagPapersMatchedList: Item[] = [];
+        
+
 }
 
 export class ClassifierContactModel {
