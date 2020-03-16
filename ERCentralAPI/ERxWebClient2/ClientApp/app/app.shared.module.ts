@@ -195,7 +195,7 @@ import { MAGBrowser } from './components/MAG/MAGBrowser.component';
 			{ path: 'sources', component: SourcesComponent },
             { path: 'BuildModel', component: BuildModelComponent },
             { path: 'MAGFeatures', component: MAGComp },
-            { path: 'MAGBrowser', component: MAGBrowser },
+            { path: 'Microsoft Academic Graph Browser', component: MAGBrowser },
             { path: 'AdvancedMAGFeatures', component: AdvancedMAGFeaturesComponent },
             { path: 'itemcodingOnly/:itemId', component: ItemCodingComp },
             { path: 'itemcoding/:itemId', component: ItemCodingFullComp },
