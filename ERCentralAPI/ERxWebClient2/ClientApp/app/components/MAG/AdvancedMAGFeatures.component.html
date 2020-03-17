@@ -3,8 +3,8 @@
 		<kendo-toolbar-button [text]="'Selected'" (click)="Selected()" [disabled]="HasWriteRights"></kendo-toolbar-button>
 		<kendo-toolbar-button [text]="'Clear Selected'" (click)="ClearSelected()" [disabled]="HasWriteRights"></kendo-toolbar-button>
 		<kendo-toolbar-button [text]="'Import Selected'" (click)="ImportSelected()" [disabled]="HasWriteRights"></kendo-toolbar-button>
-		<kendo-toolbar-button [text]="'Auto-update home'" (click)="AutoUpdateHome()" [disabled]="!HasWriteRights"></kendo-toolbar-button>
-		<kendo-toolbar-button [text]="'Advanced features'" (click)="AdvancedFeatures()" [disabled]="!HasWriteRights"></kendo-toolbar-button>
+		<!--<kendo-toolbar-button [text]="'Auto-update home'" (click)="AutoUpdateHome()" [disabled]="!HasWriteRights"></kendo-toolbar-button>
+		<kendo-toolbar-button [text]="'Advanced features'" (click)="AdvancedFeatures()" [disabled]="!HasWriteRights"></kendo-toolbar-button>-->
 		<kendo-toolbar-button [text]="'Show history'" (click)="ShowHistory()" [disabled]="HasWriteRights"></kendo-toolbar-button>
 		<kendo-toolbar-button [text]="'Admin'" (click)="Admin()" [disabled]="HasWriteRights"></kendo-toolbar-button>
         <kendo-toolbar-button [text]="'Back'" (click)="Back()" [disabled]="!HasWriteRights"></kendo-toolbar-button>
@@ -44,11 +44,17 @@
                 <div class="btn btn-link mt-1 col-5" (click)="MAGBroswer('MatchedIncluded')">
                     {{_magAdvancedService.magMatchedIncluded}}
                 </div>
+                <div class="btn btn-link mt-1 col-5" (click)="OpenMatchesInReview('MatchedIncluded')">
+                    (list)
+                </div>
             </div>
             <div>
                 All matched excluded records
-                <div class="btn btn-link mt-1 col-5"  (click)="MAGBroswer('MatchedExcluded')">
+                <div class="btn btn-link mt-1 col-5" (click)="MAGBroswer('MatchedExcluded')">
                     {{_magAdvancedService.magMatchedExcluded}}
+                </div>
+                <div class="btn btn-link mt-1 col-5" (click)="OpenMatchesInReview('MatchedExcluded')">
+                    (list)
                 </div>
             </div>
             <div>

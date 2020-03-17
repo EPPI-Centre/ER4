@@ -196,6 +196,7 @@ import { MAGBrowser } from './components/MAG/MAGBrowser.component';
             { path: 'BuildModel', component: BuildModelComponent },
             { path: 'MAGFeatures', component: MAGComp },
             { path: 'MAGBrowser', component: MAGBrowser },
+            { path: 'ItemList', component: ItemListComp},
             { path: 'AdvancedMAGFeatures', component: AdvancedMAGFeaturesComponent },
             { path: 'itemcodingOnly/:itemId', component: ItemCodingComp },
             { path: 'itemcoding/:itemId', component: ItemCodingFullComp },

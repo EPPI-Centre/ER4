@@ -182,7 +182,16 @@ export class ItemListComp implements OnInit {
 		this.ItemListService.FetchWithCrit(crit, listDescription );
 
 	}
+    public LoadMAGAllocList(ListSubType: string) {
 
+        let SelectionCritieraItemList: Criteria = new Criteria();
+        SelectionCritieraItemList.listType = "MagMatchesMatched";
+        SelectionCritieraItemList.onlyIncluded = true;
+        SelectionCritieraItemList.showDeleted = false;
+        SelectionCritieraItemList.attributeSetIdList = "";
+        SelectionCritieraItemList.pageNumber = 0;
+        this.ItemListService.FetchWithCrit(SelectionCritieraItemList, ListSubType);
+    }
     OpenItem(itemId: number) {
 
 		if (itemId > 0) {

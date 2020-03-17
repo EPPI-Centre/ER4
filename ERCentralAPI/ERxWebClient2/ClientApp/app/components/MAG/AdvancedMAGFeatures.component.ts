@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild} from '@angular/core';
+import { Component, OnInit, ViewChild, EventEmitter, Output} from '@angular/core';
 import { searchService } from '../services/search.service';
 import { MAGService, MagRelatedPapersRun } from '../services/mag.service';
 import { singleNode, SetAttribute } from '../services/ReviewSets.service';
@@ -32,6 +32,8 @@ export class AdvancedMAGFeaturesComponent implements OnInit {
 	}
 
 //    public sub: Subscription = new Subscription();
+    @Output() criteriaChange = new EventEmitter();
+    @Output() MAGAllocationClicked = new EventEmitter();
 
     ngOnInit() {
 
@@ -87,16 +89,21 @@ export class AdvancedMAGFeaturesComponent implements OnInit {
     }
 
     public Back() {
-        this.router.navigate(['Main']);
+       
     }
+    public OpenMatchesInReview(listType: string) {
 
+        this.ListSubType = listType;
+        this.criteriaChange.emit();
+        this.MAGAllocationClicked.emit();
+    }
 	@ViewChild('WithOrWithoutCodeSelector') WithOrWithoutCodeSelector!: codesetSelectorComponent;
 	public CurrentDropdownSelectedCode: singleNode | null = null;
 	public ItemsWithCode: boolean = false;
 	public MAGItems: any[] = [];
 	public ShowPanel: boolean = false;
     public isCollapsed: boolean = true;
-   
+    public ListSubType: string = '';
 
    
     public magMatchedAll: number = 0;

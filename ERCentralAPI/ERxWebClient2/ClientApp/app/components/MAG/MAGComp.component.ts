@@ -8,6 +8,7 @@ import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Router } from '@angular/router';
 import {  ItemListService } from '../services/ItemList.service';
 import { EventEmitterService } from '../services/EventEmitter.service';
+import { AdvancedMAGFeaturesComponent } from './AdvancedMAGFeatures.component';
 
 
 @Component({
@@ -29,6 +30,7 @@ export class MAGComp implements OnInit {
 	) {
 
 	}
+
 
 	ngOnInit() {
 
