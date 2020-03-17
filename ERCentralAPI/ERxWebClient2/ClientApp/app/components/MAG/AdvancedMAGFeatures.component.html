@@ -15,7 +15,7 @@
     
 </div>
 <div class="col-12 row bg-light">
-    <div class="col-5 card p-1 m-1 ">
+    <div class="col-5 card p-1 m-1 h-25">
         <h4 class="p-1 m-1 ">Research And Development for Microsoft Academic Graph</h4>
         <p class="m-2 p-2 card bg-info">
             The algoirthm to find new and related studies to those already identified depends on
@@ -29,50 +29,50 @@
          
         </div>
         <div class="col-6">
-            <button class="btn btn-primary p-2 m-2" data-toggle="collapse" href="#collapseExample"
+            <button class="btn btn-primary" data-toggle="collapse" href="#collapseExample"
                     role="button" aria-expanded="false" aria-controls="collapseExample">
                 Seed and Test MAG
             </button>
         </div>
 
     </div>
-    <div class="col-6 card p-2 m-2">
+    <div class="col-6 card p-1 m-1">
         <h4 >Browse Dataset</h4>
         <div class="col-12">
             <div>
                 All matched included records
-                <div class="btn btn-link mt-1 col-5" (click)="MAGBroswer('MatchedIncluded')">
+                <div class="btn btn-link p-0 m-0 col-4" (click)="MAGBroswer('MatchedIncluded')">
                     {{_magAdvancedService.magMatchedIncluded}}
                 </div>
-                <div class="btn btn-link mt-1 col-5" (click)="OpenMatchesInReview('MatchedIncluded')">
+                <div class="btn btn-link  p-0 m-0 c" (click)="OpenMatchesInReview('MatchedIncluded')">
                     (list)
                 </div>
             </div>
             <div>
                 All matched excluded records
-                <div class="btn btn-link mt-1 col-5" (click)="MAGBroswer('MatchedExcluded')">
+                <div class="btn btn-link p-0 m-0 col-4" (click)="MAGBroswer('MatchedExcluded')">
                     {{_magAdvancedService.magMatchedExcluded}}
                 </div>
-                <div class="btn btn-link mt-1 col-5" (click)="OpenMatchesInReview('MatchedExcluded')">
+                <div class="btn btn-link  p-0 m-0 c" (click)="OpenMatchesInReview('MatchedExcluded')">
                     (list)
                 </div>
             </div>
             <div>
                 All matched records in review
-                <div class="btn btn-link mt-1 col-5"  (click)="MAGBroswer('MatchedAll')">
+                <div class="btn btn-link p-0 m-0 col-4"  (click)="MAGBroswer('MatchedAll')">
                     {{_magAdvancedService.magMatchedAll}}
                 </div>
             </div>
             <div>
                 All matched records with this code:
-                <div class="btn btn-link mt-1 col-4"  (click)="MAGBroswer('MatchedWithThisCode')">
+                <div class="btn btn-link p-0 m-0 col-3"  (click)="MAGBroswer('MatchedWithThisCode')">
                     {{_magAdvancedService.magMatchedWithThisCode}}
                 </div>
             </div>
             <div class="col-12 row">
                 GoTo Microsoft Academic Paper ID:
                 <input type="text" name="magPaperId" id="magPaper" [(ngModel)]="magPaperId"
-                       class="form-control col-5 p-1 m-1" />
+                       class="form-control col-4 p-0 m-0 text-center" />
                 <button class="btn btn-warning">Get MAG paper</button>
             </div>
             <div class="col-12 card bg-secondary">
@@ -84,14 +84,14 @@
         </div>
 </div>
 
-<div class="col-12  card collapse" id="collapseExample">
+<div class="col-12  card collapse p-1 m-1" id="collapseExample">
 
     <div class="col-12  row">
         <div class="col-12">
             <button (click)="RunMatchingAlgo()" class="btn btn-outline-success">Run Matching Algorithm</button>
             <p><i>NB: The matching algorithm should be run before the simulations below.</i></p>
         </div>
-        <div class="col-6">
+        <div class="col-5">
             <p class="card bg-info">
                 Below test the performance of the various algorithms for identifying
                 relevant studies against the data already in your review.
@@ -109,7 +109,7 @@
         <div class="col-6 m-1 p-1">
             <div class="3"><b>Search based on</b></div>
             <div class="9">
-                <input type="radio" value="Year" checked name="magSearchRadio"
+                <input type="radio" value="Year" name="magSearchRadio"
                        [(ngModel)]="splitDataOn">	Year
                 <input type="radio" value="CreatedDate" name="magSearchRadio"
                        [(ngModel)]="splitDataOn">	Created date
@@ -128,7 +128,7 @@
             </div>
         </div>
 
-        <div *ngIf="searchAll == 'false'" class="m-1 p-1 col-6">
+        <div *ngIf="splitDataOn == 'WithThisCode'" class="m-1 p-1 col-6">
 
             <div class="col-12 row">
                 <div class="col-3 p-1 m-1"><b>Select code</b></div>
@@ -151,45 +151,48 @@
         <div class="col-12 row">
             <div class="col-1 p-1 m-1"><b>Search method</b></div>
             <div ngbDropdown class="col-3 p-0 m-0">
-                <select  [(ngModel)]="SearchMethod" class="form-control" name="SearchMethod">
-                    <option IsSelected="True">Citations</option>
-                    <option>Recommendations</option>
-                    <option>Citations and recommendations</option>
-                    <option>Fields of study</option>
-                </select>
+                <select class="col-12 form-control mb-1" name="SearchMethod" 
+                        [(ngModel)]="SearchMethod">
+                    <option *ngFor="let item of SearchMethods"
+                            [ngValue]="item" [selected]="item == SearchMethod">
+                        {{item}}
+              
+                </option>
+               </select>
+
             </div>
             <div class="col-1"></div>
             <div class="col-1 p-1 m-1"><b>Network Statistic</b></div>
             <div ngbDropdown class="col-3 p-0 m-0">
-                <select [(ngModel)]="NetworkStatistic" class="form-control" name="NetworkStatistic">
-                    <option IsSelected="True">None</option>
-                    <option>degree</option>
-                    <option>closeness</option>
-                    <option>eigenscore</option>
-                    <option>pagerank</option>
-                    <option>hubscore</option>
-                    <option>authscore</option>
-                    <option>alpha</option>
-                </select>
+                <select class="col-12 form-control mb-1" name="NetworkStat"
+                        [(ngModel)]="NetworkStat">
+                    <option *ngFor="let item of NetworkStats"
+                            [ngValue]="item" [selected]="item == NetworkStat">
+                        {{item}}
+                    </option>
+                </select>              
             </div>
         </div>
 
             <div class="col-12 row">
                 <div class="col-1 m-1 p-1"><b>Study type classifier</b></div>
                 <div ngbDropdown class="col-3 p-0 m-0">
-                    <select [(ngModel)]="StudyTypeClassifier" class="form-control" name="StudyTypeClassifier">
-                        <option IsSelected="True">None</option>
-                        <option>RCT</option>
-                        <option>Cochrane RCT</option>
-                        <option>Economic evaluation</option>
-                        <option>Systematic review</option>
+                   
+                    <select class="col-12 form-control mb-1" name="StudyTypeClassifier"
+                            [(ngModel)]="StudyTypeClassifier">
+                        <option *ngFor="let item of StudyTypeClassifiers"
+                                [ngValue]="item" [selected]="item == StudyTypeClassifier">
+                            {{item}}
+
+                        </option>
                     </select>
                 </div>
                 <div class="col-1"></div>
                 <div class="m-1 p-1 col-1"><b>User Defined Classifier</b></div>
                 <div class="col-3 p-0 m-0 dropdown">
                     <select [(ngModel)]="UserDefinedClassifier" class="form-control" name="ClassifierContactModelList">
-                        <option *ngFor="let item of _magAdvancedService.ClassifierContactModelList" [value]="item">
+                        <option *ngFor="let item of _magAdvancedService.ClassifierContactModelList" 
+                                [ngValue]="item" [selected]="item == UserDefinedClassifier">
                             {{item.modelTitle}}
                         </option>
                     </select>

@@ -56,7 +56,7 @@ export class AdvancedMAGFeaturesComponent implements OnInit {
         //);
 
         //this.GetMAGCurrentInfo();
-        //this.GetContactModelList();
+        this.GetContactModelList();
         this.GetMatchedMagIncludedList();
         this.GetMatchedMagExcludedList();
         this.Clear();
@@ -104,8 +104,31 @@ export class AdvancedMAGFeaturesComponent implements OnInit {
 	public ShowPanel: boolean = false;
     public isCollapsed: boolean = true;
     public ListSubType: string = '';
-
-   
+    public splitDataOn: string = 'Year';
+    public SearchMethod: string = 'Recommendations';
+    public SearchMethods: string[] = [  'Citations',
+                                'Recommendations',
+                                'Citations and recommendations',
+        'Fields of study'];
+    public NetworkStat: string = 'None';
+    public NetworkStats: string[] = [
+        'degree',
+        'closeness',
+        'eigenscore',
+        'pagerank',
+        'hubscore',
+        'authscore',
+        'alpha'
+    ];
+    public StudyTypeClassifier: string = 'None';
+    public StudyTypeClassifiers: string[] = [
+        'None',
+        'RCT',
+        'Cochrane RCT',
+        'Economic evaluation',
+        'Systematic review'
+    ];
+    public UserDefinedClassifier: string = '';
     public magMatchedAll: number = 0;
     public magMatchedWithThisCode: number = 0;
     public magPaperId: number = 0;
