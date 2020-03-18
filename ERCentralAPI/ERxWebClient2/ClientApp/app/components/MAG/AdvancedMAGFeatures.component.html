@@ -84,7 +84,7 @@
                         magPaperId must be at least 4 numbers long.
                     </div>
                 </div>
-                <button [disabled]="true" (click)="GetMagPaper()" class="btn btn-warning">Get MAG paper</button>
+                <button [disabled]="!CanGetMagPaper()" (click)="GetMagPaper()" class="btn btn-warning">Get MAG paper</button>
             </div>
             <div class="col-12 card bg-secondary">
                 <textarea>Search for topics in the box above.  Wildcards work e.g. physic* 

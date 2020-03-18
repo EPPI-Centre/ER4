@@ -196,6 +196,15 @@ export class AdvancedMAGFeaturesComponent implements OnInit {
         this._itemListService.FetchWithCrit(SelectionCritieraItemList, "MagMatchesMatched");
 
     }
+    public CanGetMagPaper(): boolean {
+
+        if (this.magPaperId != null && this.magPaperId > 0) {
+            return true;
+        } else {
+            return false;
+        }
+
+    }
     public GetMagPaper() {
 
         this._magAdvancedService.FetchMagPaper(this.magPaperId);
