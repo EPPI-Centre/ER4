@@ -73,7 +73,7 @@
                 GoTo Microsoft Academic Paper ID:
                 <input type="text" name="magPaperId" id="magPaper" [(ngModel)]="magPaperId"
                        class="form-control col-4 p-0 m-0 text-center" />
-                <button class="btn btn-warning">Get MAG paper</button>
+                <button (click)="GetMagPaper()" class="btn btn-warning">Get MAG paper</button>
             </div>
             <div class="col-12 card bg-secondary">
                 <textarea>Search for topics in the box above.  Wildcards work e.g. physic* 
