@@ -247,10 +247,16 @@ export class MAGAdvancedService extends BusyAwareService {
 
     public FetchMagPaperList(paperId: number) {
 
+        let crit: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
+        //test here but need a switch based on listtype
+        crit.included = 'Included';
+        crit.listType = 'ReviewMatchedPapers';
+        crit.pageSize = 20;
+        crit.magPaperId = paperId;
+
 
         this._BusyMethods.push("FetchMagPaperList");
-        let body = JSON.stringify({ Value: paperId });
-        this._httpC.post<MagPaperList>(this._baseUrl + 'api/MagCurrentInfo/GetMagPaperList', body)
+        this._httpC.post<MagPaperList>(this._baseUrl + 'api/MagCurrentInfo/GetMagPaperList', crit)
             .subscribe(result => {
                 this.RemoveBusy("FetchMagPaperList");
                 this.MagRIDMatchedPaperList = result;
@@ -267,26 +273,34 @@ export class MAGAdvancedService extends BusyAwareService {
 
 export class MagPaperList {
 
-
+    pageIndex : number = 0;
+    totalItemCount: number = 0;
+    pageSize: number = 0;
+    isPageChanging: boolean = false;
+    fieldOfStudyId: number = 0;
+    paperId: number = 0;
+    authorId: number = 0;
+    magRelatedRunId: number = 0;
+    paperIds: string = '';
+    includedOrExcluded: string = '';
+    attributeIds: string = '';
 
 }
 
-export class MVClkjdfg {
-
-
-
-    public Int64 MagPaperId
-    Int64 ITEM_ID
-    public string ListType
-    public Int64 FieldOfStudyId
-    public Int64 AuthorId
-    public int MagRelatedRunId
-    public string PaperIds
-    public string AttributeIds
-    public string Included
-    public int PageNumber
-    public int PageSize
-    public int NumResults
+export class MVCMagPaperListSelectionCriteria {
+       
+    magPaperId: number = 0;
+    iTEM_ID: number = 0;
+    listType: string = '';
+    fieldOfStudyId: number = 0;
+    authorId: number = 0;
+    magRelatedRunId: number = 0;
+    paperIds: string = '';
+    attributeIds: string = '';
+    included: string = '';
+    pageNumber: number = 0;
+    pageSize: number = 0;
+    numResults: number = 0;
 
 }
 

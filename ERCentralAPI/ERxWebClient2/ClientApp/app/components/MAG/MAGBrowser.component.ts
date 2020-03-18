@@ -35,7 +35,7 @@ export class MAGBrowser implements OnInit {
 
         this.Clear();
         //this._magService.Fetch();
-        this._magAdvancedService.FetchMagPaperList();
+        this._magAdvancedService.FetchMagPaperList(this._magAdvancedService.currentMagPaper.paperId);
     }
 
 	
