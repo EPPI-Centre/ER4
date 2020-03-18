@@ -242,7 +242,51 @@ export class MAGAdvancedService extends BusyAwareService {
     }
 
     public MagPapersMatchedList: Item[] = [];
-        
+    public MagRIDMatchedPaperList: MagPaperList = new MagPaperList();
+
+
+    public FetchMagPaperList(paperId: number) {
+
+
+        this._BusyMethods.push("FetchMagPaperList");
+        let body = JSON.stringify({ Value: paperId });
+        this._httpC.post<MagPaperList>(this._baseUrl + 'api/MagCurrentInfo/GetMagPaperList', body)
+            .subscribe(result => {
+                this.RemoveBusy("FetchMagPaperList");
+                this.MagRIDMatchedPaperList = result;
+                console.log(result)
+            },
+                error => {
+                    this.RemoveBusy("FetchMagPaperList");
+                    this.modalService.GenericError(error);
+                }
+            );
+    }
+
+}
+
+export class MagPaperList {
+
+
+
+}
+
+export class MVClkjdfg {
+
+
+
+    public Int64 MagPaperId
+    Int64 ITEM_ID
+    public string ListType
+    public Int64 FieldOfStudyId
+    public Int64 AuthorId
+    public int MagRelatedRunId
+    public string PaperIds
+    public string AttributeIds
+    public string Included
+    public int PageNumber
+    public int PageSize
+    public int NumResults
 
 }
 
