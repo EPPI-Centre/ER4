@@ -159,19 +159,24 @@ export class MAGAdvancedService extends BusyAwareService {
 
     public currentMagPaper: MagPaper = new MagPaper();
 
-    FetchMagPaper(Id: number) {
+    FetchMagPaper(Id: number) : Promise<void> {
 
         this._BusyMethods.push("FetchMagPaper");
         let body = JSON.stringify({ Value: Id });
-        this._httpC.post<MagPaper>(this._baseUrl + 'api/MagCurrentInfo/GetMagPaper', body)
-            .subscribe(result => {
+        return this._httpC.post<MagPaper>(this._baseUrl + 'api/MagCurrentInfo/GetMagPaper', body)
+            .toPromise().then(result => {
                 this.RemoveBusy("FetchMagPaper");
                 this.currentMagPaper = result;
-                console.log(result)
+                // should call the relevant methods after the above
+                //this.FetchMagPaperList(result.paperId);
+
+
+                //console.log(result)
             },
                 error => {
                     this.RemoveBusy("FetchMagPaper");
                     this.modalService.GenericError(error);
+                    
                 }
             );
     }
