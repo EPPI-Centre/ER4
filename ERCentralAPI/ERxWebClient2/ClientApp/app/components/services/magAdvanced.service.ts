@@ -19,7 +19,6 @@ export class MAGAdvancedService extends BusyAwareService {
     ) {
         super();
     }
-
     private _magMatchedIncluded: number = 0;
     private _magMatchedExcluded: number = 0;
     private _magMatchedAll: number = 0;
@@ -168,7 +167,7 @@ export class MAGAdvancedService extends BusyAwareService {
                 this.RemoveBusy("FetchMagPaper");
                 this.currentMagPaper = result;
                 // should call the relevant methods after the above
-                //this.FetchMagPaperList(result.paperId);
+                this.FetchMagPaperList(result.paperId);
 
 
                 //console.log(result)
@@ -255,7 +254,7 @@ export class MAGAdvancedService extends BusyAwareService {
         let crit: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
         //test here but need a switch based on listtype
         crit.included = 'Included';
-        crit.listType = 'ReviewMatchedPapers';
+        crit.listType = 'CitationsList';
         crit.pageSize = 20;
         crit.magPaperId = paperId;
 
