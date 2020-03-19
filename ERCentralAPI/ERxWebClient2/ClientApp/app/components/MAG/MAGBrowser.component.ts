@@ -50,7 +50,7 @@ export class MAGBrowser implements OnInit {
     public onTabSelect(e: any) {
 
         if (e.index == 0) {
-             this._magAdvancedService.FetchMagPaperList(this._magAdvancedService.currentMagPaper.paperId,'PaperFieldsOfStudyList');
+            this._magAdvancedService.FetchMagFieldOfStudyList(this._magAdvancedService.currentMagPaper.paperId,'PaperFieldsOfStudyList');
 
         } else if (e.index == 1) {
              this._magAdvancedService.FetchMagPaperList(this._magAdvancedService.currentMagPaper.paperId,'CitationsList');

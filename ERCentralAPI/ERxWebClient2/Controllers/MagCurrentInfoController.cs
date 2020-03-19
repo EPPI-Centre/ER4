@@ -96,11 +96,54 @@ namespace ERxWebClient2.Controllers
             }
             catch (Exception e)
             {
-                _logger.LogException(e, "Getting a GetMagPaperList list has an error");
+                _logger.LogException(e, "Getting a GetMagPaperList has an error");
                 throw;
             }
         }
+
+
+        [HttpPost("[action]")]
+        public IActionResult GetMagFieldOfStudyList([FromBody] MVCMagFieldOfStudyListSelectionCriteria crit)
+        {
+            try
+            {
+                SetCSLAUser();
+
+                DataPortal<MagFieldOfStudyList> dp = new DataPortal<MagFieldOfStudyList>();
+
+                MagFieldOfStudyListSelectionCriteria selectionCriteria =
+                    new MagFieldOfStudyListSelectionCriteria
+                    {
+                        FieldOfStudyId = crit.fieldOfStudyId,
+                        ListType = crit.listType,
+                        PaperIdList = crit.paperIdList,
+                        SearchText = crit.searchText                        
+                        
+                    };
+
+                var result = dp.Fetch(selectionCriteria);
+
+                return Ok(result);
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "Getting a MagFieldOfStudyList has an error");
+                throw;
+            }
+        }
+
     }
+
+
+    public class MVCMagFieldOfStudyListSelectionCriteria
+    {
+        public Int64 fieldOfStudyId { get; set; }
+        public string listType { get; set; }
+        public string paperIdList { get; set; }
+        public string searchText { get; set; }
+
+    }
+
 
     public class MVCMagPaperListSelectionCriteria
     {

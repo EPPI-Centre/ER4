@@ -293,6 +293,29 @@ export class MAGAdvancedService extends BusyAwareService {
             );
     }
 
+
+    FetchMagFieldOfStudyList() {
+
+        let crit: MVCMagFieldOfStudyListSelectionCriteria = new MVCMagFieldOfStudyListSelectionCriteria();
+
+
+
+        this._BusyMethods.push("FetchMagPaperList");
+        this._httpC.post<MagPaperList>(this._baseUrl + 'api/MagCurrentInfo/GetMagFieldOfStudyList', crit)
+            .subscribe(result => {
+                this.RemoveBusy("MagPaperFieldsList");
+
+                console.log(result)
+                this.MagPaperFieldsList = result;
+
+            },
+                error => {
+                    this.RemoveBusy("MagPaperFieldsList");
+                    this.modalService.GenericError(error);
+                }
+            );
+    }
+
 }
 
 export class MagPaperList {
@@ -308,6 +331,15 @@ export class MagPaperList {
     paperIds: string = '';
     includedOrExcluded: string = '';
     attributeIds: string = '';
+
+}
+
+export class MVCMagFieldOfStudyListSelectionCriteria {
+
+   fieldOfStudyId: number = 0;
+   listType: string = '';
+   paperIdList: string = '';
+   searchText: string = '';
 
 }
 
