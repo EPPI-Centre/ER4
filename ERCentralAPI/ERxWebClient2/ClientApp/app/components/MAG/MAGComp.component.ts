@@ -63,9 +63,9 @@ export class MAGComp implements OnInit {
 	public desc: string = '';
 	public value: Date = new Date(2000, 2, 10);
 	public searchAll: string = 'true';
-	public magDate: string = 'true';
+	//public magDate: string = 'true';
 	public magSearchCheck: boolean = false;
-	public magDateRadio: string = 'true';
+    public magDateRadio: string = 'true';
     public magRCTRadio: string = 'NoFilter';
 	public magMode: string = '';
 	public ToggleMAGPanel(): void {
@@ -111,7 +111,7 @@ export class MAGComp implements OnInit {
         this.CurrentDropdownSelectedCode = {} as SetAttribute;
         this.desc = '';
         this.ItemsWithCode = false;
-        this.magDate = '';
+        this.magDateRadio = 'true';
         this.magMode = '';
 
     }

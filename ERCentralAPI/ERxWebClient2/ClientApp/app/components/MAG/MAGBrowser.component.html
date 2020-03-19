@@ -11,20 +11,20 @@
         <kendo-toolbar-button [text]="'Back'" (click)="Back()" [disabled]="!HasWriteRights"></kendo-toolbar-button>
     </kendo-toolbar>
 </div>
-<div class="col-6 p-2 m-2 card">
-    <h4>Current Microsoft Academic Browser</h4>
+<div class="col-6 p-2 m-2 card bg-info">
+    <h4>Microsoft Academic Graph Browser</h4>
     
 </div>
 
 
-<div class="col-12">
+<div class="col-12 card bg-light" style="min-width:450px; min-height:500px;overflow:auto;">
     <h4>{{_magAdvancedService.currentMagPaper.fullRecord}}</h4>
     <div>
         <h5>Papers identified from auto-identification MAG run</h5>
         <!--<h5>Total number of mag papers in below list: {{_magAdvancedService.TotalNumberOfMatchedPapers}}</h5>-->
     </div>
     <kendo-tabstrip (tabSelect)="onTabSelect($event)">
-        <kendo-tabstrip-tab [title]="' PARENTS TOPICS'" [selected]="selectedTab == 0">
+        <kendo-tabstrip-tab [title]="'PARENTS TOPICS'" [selected]="selectedTab == 0">
             <ng-template kendoTabContent>
                 <div class="col-3" >
                     <div *ngFor="let item of _magAdvancedService.MagPaperFieldsList">

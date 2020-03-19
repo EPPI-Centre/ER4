@@ -10,14 +10,14 @@
         <kendo-toolbar-button [text]="'Back'" (click)="Back()" [disabled]="!HasWriteRights"></kendo-toolbar-button>
     </kendo-toolbar>
 </div>
-<div class="col-6 p-2 m-2 card">
+<div class="col-6 p-2 m-2 card bg-info">
     <h5>Current Microsoft Academic Graph Dataset:<i> {{_magAdvancedService.MagCurrentInfo.lastUpdated}} </i></h5>
     
 </div>
 <div class="col-12 row bg-light">
     <div class="col-5 card p-1 m-1 h-25">
         <h4 class="p-1 m-1 ">Research And Development for Microsoft Academic Graph</h4>
-        <p class="m-2 p-2 card bg-info">
+        <p class="m-2 p-2 card bg-light">
             The algoirthm to find new and related studies to those already identified depends on
             correctly matching your existing studies with the MAG dataset.
             This can be somewhat automated; some studies cannot be matched
@@ -103,7 +103,7 @@
             <p><i>NB: The matching algorithm should be run before the simulations below.</i></p>
         </div>
         <div class="col-5">
-            <p class="card bg-info">
+            <p class="card bg-light">
                 Below test the performance of the various algorithms for identifying
                 relevant studies against the data already in your review.
                 There are three ways of splitting your data between 'seed' and 'test'
@@ -185,36 +185,37 @@
             </div>
         </div>
 
-            <div class="col-12 row">
-                <div class="col-1 m-1 p-1"><b>Study type classifier</b></div>
-                <div ngbDropdown class="col-3 p-0 m-0">
-                   
-                    <select class="col-12 form-control mb-1" name="StudyTypeClassifier"
-                            [(ngModel)]="StudyTypeClassifier">
-                        <option *ngFor="let item of StudyTypeClassifiers"
-                                [ngValue]="item" [selected]="item == StudyTypeClassifier">
-                            {{item}}
+        <div class="col-12 row">
+            <div class="col-1 m-1 p-1"><b>Study type classifier</b></div>
+            <div ngbDropdown class="col-3 p-0 m-0">
 
-                        </option>
-                    </select>
-                </div>
-                <div class="col-1"></div>
-                <div class="m-1 p-1 col-1"><b>User Defined Classifier</b></div>
-                <div class="col-3 p-0 m-0 dropdown">
-                    <select [(ngModel)]="UserDefinedClassifier" class="form-control" name="ClassifierContactModelList">
-                        <option *ngFor="let item of _magAdvancedService.ClassifierContactModelList" 
-                                [ngValue]="item" [selected]="item == UserDefinedClassifier">
-                            {{item.modelTitle}}
-                        </option>
-                    </select>
-                </div>
+                <select class="col-12 form-control mb-1" name="StudyTypeClassifier"
+                        [(ngModel)]="StudyTypeClassifier">
+                    <option *ngFor="let item of StudyTypeClassifiers"
+                            [ngValue]="item" [selected]="item == StudyTypeClassifier">
+                        {{item}}
+
+                    </option>
+                </select>
             </div>
-        <div>
-            <button (click)="alert('not implemented')" class="btn btn-outline-light" >Add Simulation</button>
-        </div>
+            <div class="col-1"></div>
+            <div class="m-1 p-1 col-1"><b>User Defined Classifier</b></div>
+            <div class="col-3 p-0 m-0 dropdown">
+                <select [(ngModel)]="UserDefinedClassifier" class="form-control" name="ClassifierContactModelList">
+                    <option *ngFor="let item of _magAdvancedService.ClassifierContactModelList"
+                            [ngValue]="item" [selected]="item == UserDefinedClassifier">
+                        {{item.modelTitle}}
+                    </option>
+                </select>
+            </div>
+            <button [disabled]="!CanAddSimulation()" (click)="AddSimulation()"
+                    class="btn btn-warning p-1 m-1">
+                Add Simulation
+            </button>
         </div>
 
     </div>
+</div>
 
 <div style="min-width:250px; overflow:auto;" >
         <table class="card col-12 small table table-border  table-striped bg-light">

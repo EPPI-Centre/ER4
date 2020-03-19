@@ -61,7 +61,17 @@ export class AdvancedMAGFeaturesComponent implements OnInit {
         this.GetMatchedMagExcludedList();
         this.Clear();
     }
+    private _RunAlgorithmFirst: boolean = false;
+    public CanAddSimulation(): boolean
+    {
+        return this._RunAlgorithmFirst == true;
 
+    }
+    public AddSimulation(): void {
+
+        alert('add simulation');
+
+    }
     public GetContactModelList(): void {
 
        this._magAdvancedService.FetchClassifierContactModelList();
@@ -73,6 +83,7 @@ export class AdvancedMAGFeaturesComponent implements OnInit {
             .then((confirm: any) => {
                 if (confirm) {
                     this._magAdvancedService.RunMatchingAlgorithm();
+                    this._RunAlgorithmFirst = true;
                 }
             });
     }

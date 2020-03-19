@@ -9,7 +9,7 @@
 		<kendo-toolbar-button [text]="'Admin'" (click)="Admin()" [disabled]="HasWriteRights"></kendo-toolbar-button>
 	</kendo-toolbar>
 </div>
-<div class="col-8 p-2 m-2">
+<div class="col-8 p-2 m-2 card bg-info">
 	<h4>Find related papers and set up review auto-updates</h4>
 	<p>
 	<a class="btn btn-primary" data-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
@@ -40,9 +40,9 @@
             <div class="col-5 m-1 p-1">
                 <div class=" "><b>Search based on</b></div>
                 <div class="">
-                    <input type="radio" value="true" name="magSearchRadio"
+                    <input type="radio" value="true" name="searchAll"
                            [(ngModel)]="searchAll">	All included items
-                    <input type="radio" value="false" name="magSearchRadio"
+                    <input type="radio" value="false" name="searchAll"
                            [(ngModel)]="searchAll">	Items with specified code
                 </div>
             </div>
@@ -78,10 +78,10 @@
                         <input type="checkbox" class="" value="Auto-Update" name="magSearchCheck" [(ngModel)]="magSearchCheck" />
                         Auto-Update
                         <input type="radio" class="" name="magDateRadio" value="true"
-                               [(ngModel)]="magDate" />
+                               [(ngModel)]="magDateRadio" />
                         No date restriction
                         <input type="radio" class="" name="magDateRadio" value="false"
-                               [(ngModel)]="magDate" />
+                               [(ngModel)]="magDateRadio" />
                         Items dated:
                     </div>
                 </div>
@@ -99,7 +99,7 @@
                 </div>
             </div>
 
-            <div class="col-12 m-1 p-1" *ngIf="magDate == 'false'">
+            <div class="col-12 m-1 p-1" *ngIf="magDateRadio == 'false'">
                 <div class="m-1 p-1"><b>Items Dated From</b></div>
                 <div>
                     <div class="example-wrapper p-2 m-2" style="min-height: 100px">
@@ -129,14 +129,15 @@
                             <button (click)="ClickSearchMode('6')" class="dropdown-item">Bi-directional citation relationships </button>
                             <button (click)="ClickSearchMode('7')" class="dropdown-item">Bi-directional recomendation AND citation relationships ('Bi-Citation AND Recommendations')</button>
                         </div>
+                        
                     </div>
                 </div>
-                <div class="col-12 m-1 p-1">
-                    <div class="bold m-1 p-1">
-                        <button [disabled]="!CanAddNewMAGSearch()" (click)="AddNewMAGSearch()" class="btn btn-warning" col-4 p-2 m-2>
-                            Add new search
-                        </button>
-                    </div>
+                <div class="col-6 m-1 p-1 row">
+                    <div class="col-2"><b>           </b></div>
+                    <button [disabled]="!CanAddNewMAGSearch()" (click)="AddNewMAGSearch()" 
+                            class="btn btn-warning p-1 m-1">
+                        Add new search
+                    </button>
                 </div>
             </div>
         </div>
