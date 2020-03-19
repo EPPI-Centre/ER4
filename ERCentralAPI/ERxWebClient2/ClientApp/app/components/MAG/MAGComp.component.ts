@@ -65,7 +65,6 @@ export class MAGComp implements OnInit {
 	public desc: string = '';
 	public value: Date = new Date(2000, 2, 10);
 	public searchAll: string = 'true';
-	//public magDate: string = 'true';
 	public magSearchCheck: boolean = false;
     public magDateRadio: string = 'true';
     public magRCTRadio: string = 'NoFilter';
@@ -78,12 +77,19 @@ export class MAGComp implements OnInit {
     }
     public GetItems(item: MagRelatedPapersRun) {
 
+        console.log(item.magRelatedRunId );
         if (item.magRelatedRunId > 0) {
-            this._magService.Fetch(item.magRelatedRunId );
+            this._magService.Fetch(item.magRelatedRunId).then(
+                () => {
+                    console.log('List of papers: ', this._magService.MagPaperList);
+                    this.router.navigate(['MAGBrowser']);
+                }
+            );
         }
     }
     public ImportMagSearchPapers(item: MagRelatedPapersRun) {
-        console.log(item.status + ' : ' +  item.nPapers);
+        console.log(item.status + ' : ' + item.nPapers);
+   
         if (item.nPapers == 0) {
             this.ShowMAGRunMessage('There are no papers to import');
 

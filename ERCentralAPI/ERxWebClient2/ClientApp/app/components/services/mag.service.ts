@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
 import { NotificationService } from '@progress/kendo-angular-notification';
-import { MagSimulation } from './magAdvanced.service';
+import { MagSimulation, MagPaperList } from './magAdvanced.service';
 
 @Injectable({
     providedIn: 'root',
@@ -60,16 +60,21 @@ export class MAGService extends BusyAwareService {
             );
 
     }
-    Fetch(magRelatedRunId : number) {
+    public MagPaperList: MagPaperList = new MagPaperList();
 
-        //criteria here is incorrect...not a umber but a criteria is needed.... check ER4 first...
+    Fetch(Id : number) : Promise<void> {
+
         this._BusyMethods.push("MagRelatedPapersRunFetchId");
-        let body = JSON.stringify({Id: magRelatedRunId});
-        this._httpC.post<MagRelatedPapersRun[]>(this._baseUrl + 'api/MagRelatedPapersRunList/GetMagRelatedPapersRunsId',
+        let body = JSON.stringify({Value: Id});
+        return this._httpC.post<MagPaperList>(this._baseUrl + 'api/MagRelatedPapersRunList/GetMagRelatedPapersRunsId',
         body)
-			.subscribe(result => {
+            .toPromise().then(
+
+            (result) => {
                 this.RemoveBusy("MagRelatedPapersRunFetchId");
-				this.MagRelatedPapersRunList = result;
+                this.MagPaperList = result;
+                // then needs to navigate to MagBroswer for the papers...
+               
 			},
 				error => {
                     this.RemoveBusy("MagRelatedPaperMagRelatedPapersRunFetchIdsRunFetch");

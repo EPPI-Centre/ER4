@@ -43,17 +43,19 @@ namespace ERxWebClient2.Controllers
 
 
         [HttpPost("[action]")]
-        public IActionResult GetMagRelatedPapersRunsId(MVCMagPaperListSelectionCriteria crit)
+        public IActionResult GetMagRelatedPapersRunsId([FromBody] SingleIntCriteria Id)
         {
 			try
             {
                 SetCSLAUser();
 
-                DataPortal<MagRelatedPapersRunList> dp = new DataPortal<MagRelatedPapersRunList>();
+                DataPortal<MagPaperList> dp = new DataPortal<MagPaperList>();
                 MagPaperListSelectionCriteria criteria = new MagPaperListSelectionCriteria();
-                criteria.MagRelatedRunId = crit.magRelatedRunId;
+                criteria.ListType = "MagRelatedPapersRunList";
+                criteria.PageSize = 20;
+                criteria.MagRelatedRunId = Id.Value;
 
-				MagRelatedPapersRunList result = dp.Fetch(criteria);
+                MagPaperList result = dp.Fetch(criteria);
 
                 return Ok(result);
             }
