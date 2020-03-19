@@ -37,7 +37,7 @@ export class MAGComp implements OnInit {
 	ngOnInit() {
 
         this.Clear();
-        this._magService.Fetch();
+        //this._magService.Fetch();
 
     }
     public AdvancedFeatures() {
@@ -78,24 +78,12 @@ export class MAGComp implements OnInit {
     }
     public GetItems(item: MagRelatedPapersRun) {
 
-        
-        let selectionCriteria: MagPaperListSelectionCriteria = new MagPaperListSelectionCriteria();
-
-        selectionCriteria.pageSize = 20;
-
-        selectionCriteria.pageNumber = 0;
-
-        selectionCriteria.listType = "MagRelatedPapersRunList";
-
-        selectionCriteria.magRelatedRunId = item.magRelatedRunId;
-
-        //provider.FactoryParameters.Add(selectionCriteria);
-
-        //provider.FactoryMethod = "GetMagPaperList";
-
+        if (item.magRelatedRunId > 0) {
+            this._magService.Fetch(item.magRelatedRunId );
+        }
     }
     public ImportMagSearchPapers(item: MagRelatedPapersRun) {
-
+        console.log(item.status + ' : ' +  item.nPapers);
         if (item.nPapers == 0) {
             this.ShowMAGRunMessage('There are no papers to import');
 
@@ -103,12 +91,12 @@ export class MAGComp implements OnInit {
             this.ShowMAGRunMessage('Papers have already been imported');
 
         } else if (item.status == 'Checked') {
-            // msg needs fixing
+           
             let msg: string = 'Are you sure you want to import these items?\n(This set is already marked as \'checked\'.)';
             this.ImportMagRelatedPapersRun(item, msg);
 
         } else if (item.status == 'Unchecked') {
-            //msg needs fixing
+          
             let msg: string = 'Are you sure you want to import these items?';
             this.ImportMagRelatedPapersRun(item, msg);
         }
@@ -155,6 +143,15 @@ export class MAGComp implements OnInit {
         } else {
             return false;
         }
+    }
+    public CanImportMagPapers(item: MagRelatedPapersRun): boolean {
+
+        if (item != null && item.magRelatedRunId > 0 && this.HasWriteRights) {
+            return true;
+        } else {
+            return false;
+        }
+
     }
 
 	public ClickSearchMode(searchModeChoice: string) {

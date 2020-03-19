@@ -45,17 +45,34 @@ export class MAGService extends BusyAwareService {
         this._MagItemPaperInsert = magRunCmd;
 
     }
-
-	Fetch() {
-
+    FetchMagPaperList() {
+        
         this._BusyMethods.push("MagRelatedPapersRunFetch");
-		this._httpC.get<MagRelatedPapersRun[]>(this._baseUrl + 'api/MagRelatedPapersRunList/GetMagRelatedPapersRuns')
-			.subscribe(result => {
+        this._httpC.get<MagRelatedPapersRun[]>(this._baseUrl + 'api/MagRelatedPapersRunList/GetMagRelatedPapersRuns')
+            .subscribe(result => {
                 this.RemoveBusy("MagRelatedPapersRunFetch");
+                this.MagRelatedPapersRunList = result;
+            },
+                error => {
+                    this.RemoveBusy("MagRelatedPapersRunFetch");
+                    this.modalService.GenericError(error);
+                }
+            );
+
+    }
+    Fetch(magRelatedRunId : number) {
+
+        //criteria here is incorrect...not a umber but a criteria is needed.... check ER4 first...
+        this._BusyMethods.push("MagRelatedPapersRunFetchId");
+        let body = JSON.stringify({Id: magRelatedRunId});
+        this._httpC.post<MagRelatedPapersRun[]>(this._baseUrl + 'api/MagRelatedPapersRunList/GetMagRelatedPapersRunsId',
+        body)
+			.subscribe(result => {
+                this.RemoveBusy("MagRelatedPapersRunFetchId");
 				this.MagRelatedPapersRunList = result;
 			},
 				error => {
-                    this.RemoveBusy("MagRelatedPapersRunFetch");
+                    this.RemoveBusy("MagRelatedPaperMagRelatedPapersRunFetchIdsRunFetch");
 					this.modalService.GenericError(error);
 				}
 			);
@@ -81,7 +98,7 @@ export class MAGService extends BusyAwareService {
                 this.RemoveBusy("MagRelatedPapersRunDelete");
                 let tmpIndex: any = this.MagRelatedPapersRunList.findIndex(x => x.magRelatedRunId == Number(result.magRelatedRunId));
 				this.MagRelatedPapersRunList.splice(tmpIndex, 1);
-				this.Fetch();
+                this.FetchMagPaperList();
 
 			}, error => {
                 this.RemoveBusy("MagRelatedPapersRunDelete");
@@ -108,7 +125,7 @@ export class MAGService extends BusyAwareService {
                 }
                 this.RemoveBusy("MagRelatedPapersRunCreate");
 				this.MagRelatedPapersRunList.push(result);
-				this.Fetch();
+                this.Fetch(result.magRelatedRunId);
 
 			}, error => {
                 this.RemoveBusy("MagRelatedPapersRunCreate");

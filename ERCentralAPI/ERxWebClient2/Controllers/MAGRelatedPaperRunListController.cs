@@ -22,22 +22,44 @@ namespace ERxWebClient2.Controllers
 
             _logger = logger;
         }
-
         [HttpGet("[action]")]
         public IActionResult GetMagRelatedPapersRuns()
+        {
+            try
+            {
+                SetCSLAUser();
+
+                DataPortal<MagRelatedPapersRunList> dp = new DataPortal<MagRelatedPapersRunList>();
+                MagRelatedPapersRunList result = dp.Fetch();
+
+                return Ok(result);
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "Getting a MagRelatedPapersRuns list has an error");
+                throw;
+            }
+        }
+
+
+        [HttpPost("[action]")]
+        public IActionResult GetMagRelatedPapersRunsId(MVCMagPaperListSelectionCriteria crit)
         {
 			try
             {
                 SetCSLAUser();
 
                 DataPortal<MagRelatedPapersRunList> dp = new DataPortal<MagRelatedPapersRunList>();
-				MagRelatedPapersRunList result = dp.Fetch();
+                MagPaperListSelectionCriteria criteria = new MagPaperListSelectionCriteria();
+                criteria.MagRelatedRunId = crit.magRelatedRunId;
+
+				MagRelatedPapersRunList result = dp.Fetch(criteria);
 
                 return Ok(result);
             }
             catch (Exception e)
             {
-                _logger.LogException(e, "Getting a MagRelatedPapersRunes list has an error");
+                _logger.LogException(e, "Getting a MagRelatedPapersRunId list has an error");
                 throw;
             }
 		}

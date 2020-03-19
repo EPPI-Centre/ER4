@@ -795,11 +795,11 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 			this.ShowSearchesAssign = true;
             this._searchService.Fetch();
 		}
-		else if (e.title == 'Microsoft Academic') {
+        else if (e.title == 'Microsoft Academic Graph') {
 			this.HelpAndFeebackContext = "main\\microsoft";
 			this.ShowItemsTable = false;
 			//this.ShowSearchesAssign = true;
-			this._magService.Fetch();
+			this._magService.FetchMagPaperList();
 		}
 		else if (e.title == 'Collaborate') {
 			this.HelpAndFeebackContext = "main\\collaborate";
