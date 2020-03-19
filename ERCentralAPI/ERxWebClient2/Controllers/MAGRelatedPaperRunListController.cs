@@ -128,7 +128,7 @@ namespace ERxWebClient2.Controllers
             }
             catch (Exception e)
             {
-                _logger.LogException(e, "Deleting a MagRelatedPapersRun list has an error");
+                _logger.LogException(e, "Importing a MagRelatedPapersRun list has an error");
                 throw;
             }
         }

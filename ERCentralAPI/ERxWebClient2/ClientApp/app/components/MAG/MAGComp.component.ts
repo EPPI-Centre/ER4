@@ -98,15 +98,19 @@ export class MAGComp implements OnInit {
 
         if (item.nPapers == 0) {
             this.ShowMAGRunMessage('There are no papers to import');
+
         } else if (item.status == 'Imported') {
             this.ShowMAGRunMessage('Papers have already been imported');
-        } else if (item.status == 'Checked') {
-            // msg needs fixing
-            this.ImportMagRelatedPapersRun(item);
 
         } else if (item.status == 'Checked') {
+            // msg needs fixing
+            let msg: string = 'Are you sure you want to import these items?\n(This set is already marked as \'checked\'.)';
+            this.ImportMagRelatedPapersRun(item, msg);
+
+        } else if (item.status == 'Unchecked') {
             //msg needs fixing
-            this.ImportMagRelatedPapersRun(item);
+            let msg: string = 'Are you sure you want to import these items?';
+            this.ImportMagRelatedPapersRun(item, msg);
         }
         
 
@@ -205,10 +209,10 @@ export class MAGComp implements OnInit {
 		this._magService.Create(magRun);
 
     }
-    public ImportMagRelatedPapersRun(magRun: MagRelatedPapersRun) {
+    public ImportMagRelatedPapersRun(magRun: MagRelatedPapersRun, msg: string) {
 
         this.ConfirmationDialogService.confirm("Importing papers for the selected MAG run",
-            "Are you sure you want to import:" + magRun.nPapers + "papers ?", false, '')
+                msg, false, '')
             .then((confirm: any) => {
                 if (confirm) {
                     this._magService.ImportMagPapers(magRun);
