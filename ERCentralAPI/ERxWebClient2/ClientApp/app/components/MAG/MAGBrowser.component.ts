@@ -34,8 +34,7 @@ export class MAGBrowser implements OnInit {
 	ngOnInit() {
 
         this.Clear();
-        //this._magService.Fetch();
-        this._magAdvancedService.FetchMagPaperList(this._magAdvancedService.currentMagPaper.paperId);
+       
     }
 
 	
@@ -48,6 +47,23 @@ export class MAGBrowser implements OnInit {
     public magRCTRadio: string = 'NoFilter';
 	public magMode: string = '';
 
+    public onTabSelect(e: any) {
+
+        if (e.index == 0) {
+             this._magAdvancedService.FetchMagPaperList(this._magAdvancedService.currentMagPaper.paperId,'PaperFieldsOfStudyList');
+
+        } else if (e.index == 1) {
+             this._magAdvancedService.FetchMagPaperList(this._magAdvancedService.currentMagPaper.paperId,'CitationsList');
+
+        } else if (e.index == 2) {
+            this._magAdvancedService.FetchMagPaperList(this._magAdvancedService.currentMagPaper.paperId, 'CitationsBy');
+
+        } else if (e.index == 3) {
+            this._magAdvancedService.FetchMagPaperList(this._magAdvancedService.currentMagPaper.paperId, 'Recommendations');
+
+        }
+        console.log('testing tab: ', e.index );
+    }
 
     public get HasWriteRights(): boolean {
         return this._ReviewerIdentityServ.HasWriteRights;

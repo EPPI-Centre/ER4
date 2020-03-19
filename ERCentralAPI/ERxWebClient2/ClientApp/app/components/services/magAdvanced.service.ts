@@ -167,7 +167,7 @@ export class MAGAdvancedService extends BusyAwareService {
                 this.RemoveBusy("FetchMagPaper");
                 this.currentMagPaper = result;
                 // should call the relevant methods after the above
-                this.FetchMagPaperList(result.paperId);
+                //this.FetchMagPaperList(result.paperId);
 
 
                 //console.log(result)
@@ -246,15 +246,17 @@ export class MAGAdvancedService extends BusyAwareService {
     }
 
     public MagPapersMatchedList: Item[] = [];
-    public MagRIDMatchedPaperList: MagPaperList = new MagPaperList();
+    public MagReferencesPaperList: MagPaperList = new MagPaperList();
+    public MagCitationsPaperList: MagPaperList = new MagPaperList();
+    public MagRelatedPaperList: MagPaperList = new MagPaperList();
+    public MagPaperFieldsList: MagPaperList = new MagPaperList();
 
-
-    public FetchMagPaperList(paperId: number) {
+    public FetchMagPaperList(paperId: number, listType: string) {
 
         let crit: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
         //test here but need a switch based on listtype
         crit.included = 'Included';
-        crit.listType = 'CitationsList';
+        crit.listType = listType;
         crit.pageSize = 20;
         crit.magPaperId = paperId;
 
@@ -263,7 +265,25 @@ export class MAGAdvancedService extends BusyAwareService {
         this._httpC.post<MagPaperList>(this._baseUrl + 'api/MagCurrentInfo/GetMagPaperList', crit)
             .subscribe(result => {
                 this.RemoveBusy("FetchMagPaperList");
-                this.MagRIDMatchedPaperList = result;
+
+                if (listType == 'PaperFieldsOfStudyList') {
+
+                    this.MagPaperFieldsList = result;
+
+                } else if (listType == 'CitedByList') {
+
+                    this.MagReferencesPaperList = result;
+
+                } else if (listType == 'CitationsList') {
+
+                    this.MagCitationsPaperList = result;
+
+                } else if (listType == 'PaperListById'){
+
+                    //this.MagPapersMatchedList = result;
+
+                }
+                //this.MagRIDMatchedPaperList = result;
                 console.log(result)
             },
                 error => {

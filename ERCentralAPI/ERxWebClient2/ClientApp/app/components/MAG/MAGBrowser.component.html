@@ -23,27 +23,82 @@
         <h5>Papers identified from auto-identification MAG run</h5>
         <!--<h5>Total number of mag papers in below list: {{_magAdvancedService.TotalNumberOfMatchedPapers}}</h5>-->
     </div>
-    <div class="col-3">
-        PARENTS TOPICS
-    </div>
-    <div class="col-8">
-        <table class="card col-12 small table table-border  table-striped bg-light">
-            <thead>
-                <tr></tr>
-            </thead>
-            <tbody>
-                <tr *ngFor="let item of _magAdvancedService.MagRIDMatchedPaperList">
-                    <td>{{item.fullRecord}}</td>
-                </tr>
-            </tbody>
-        </table>
-        <div *ngIf="_magAdvancedService && _magAdvancedService.MagPapersMatchedList && _magAdvancedService.IsBusy">Loading items...</div>
-        <div *ngIf="_magAdvancedService && _magAdvancedService.MagPapersMatchedList 
+    <kendo-tabstrip (tabSelect)="onTabSelect($event)">
+        <kendo-tabstrip-tab [title]="' PARENTS TOPICS'" [selected]="selectedTab == 0">
+            <ng-template kendoTabContent>
+                <div class="col-3" *ngIf="_magAdvancedService.MagPaperFieldsList != null && _magAdvancedService.MagPaperFieldsList.Length > 0 ">
+                    <div *ngFor="let item of _magAdvancedService.MagPaperFieldsList">
+                       {{item}}
+                    </div>
+                </div>
+            </ng-template>
+        </kendo-tabstrip-tab>
+        <kendo-tabstrip-tab [title]="'References'"  [selected]="selectedTab == 1">
+            <ng-template kendoTabContent>
+                <div class="col-8" *ngIf="_magAdvancedService.MagReferencesPaperList != null && _magAdvancedService.MagReferencesPaperList.Length > 0 ">
+                    <table class="card col-12 small table table-border  table-striped bg-light">
+                        <thead>
+                            <tr></tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let item of _magAdvancedService.MagReferencesPaperList">
+                                <td>{{item.fullRecord}}</td>
+
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div *ngIf="_magAdvancedService && _magAdvancedService.MagPapersMatchedList && _magAdvancedService.IsBusy">Loading items...</div>
+                    <div *ngIf="_magAdvancedService && _magAdvancedService.MagPapersMatchedList
              && this._magAdvancedService.MagPapersMatchedList && this._magAdvancedService.MagPapersMatchedList.length == 0 && !_magAdvancedService.IsBusy"
-             class="p-2 font-weight-bold text-center text-info mt-1">No items to display</div>
-        <paginatorComp class="row ml-1 pt-1 mr-1 pr-1 border-top porder-info"></paginatorComp>
-    </div>
-    <div class="col-1">
-        SELECT OR IN REVIEW
-    </div>
+                         class="p-2 font-weight-bold text-center text-info mt-1">No items to display</div>
+                    <paginatorComp class="row ml-1 pt-1 mr-1 pr-1 border-top porder-info"></paginatorComp>
+                </div>
+            </ng-template>
+        </kendo-tabstrip-tab>
+
+        <kendo-tabstrip-tab [title]="'Citations'" [selected]="selectedTab == 2">
+            <ng-template kendoTabContent>
+                <div class="col-8" *ngIf="_magAdvancedService.MagCitationsPaperList != null && _magAdvancedService.MagCitationsPaperList.Length > 0 ">
+                    <table class="card col-12 small table table-border  table-striped bg-light">
+                        <thead>
+                            <tr></tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let item of _magAdvancedService.MagCitationsPaperList">
+                                <td>{{item.fullRecord}}</td>
+
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div *ngIf="_magAdvancedService && _magAdvancedService.MagPapersMatchedList && _magAdvancedService.IsBusy">Loading items...</div>
+                    <div *ngIf="_magAdvancedService && _magAdvancedService.MagPapersMatchedList
+             && this._magAdvancedService.MagPapersMatchedList && this._magAdvancedService.MagPapersMatchedList.length == 0 && !_magAdvancedService.IsBusy"
+                         class="p-2 font-weight-bold text-center text-info mt-1">No items to display</div>
+                    <paginatorComp class="row ml-1 pt-1 mr-1 pr-1 border-top porder-info"></paginatorComp>
+                </div>
+            </ng-template>
+        </kendo-tabstrip-tab>
+        <kendo-tabstrip-tab [title]="'Related'">
+            <ng-template kendoTabContent>
+                <div class="col-8" *ngIf="_magAdvancedService.MagRelatedPaperList != null && _magAdvancedService.MagRelatedPaperList.Length > 0 ">
+                    <table class="card col-12 small table table-border  table-striped bg-light">
+                        <thead>
+                            <tr></tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let item of _magAdvancedService.MagRelatedPaperList">
+                                <td>{{item.fullRecord}}</td>
+
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div *ngIf="_magAdvancedService && _magAdvancedService.MagPapersMatchedList && _magAdvancedService.IsBusy">Loading items...</div>
+                    <div *ngIf="_magAdvancedService && _magAdvancedService.MagPapersMatchedList
+             && this._magAdvancedService.MagPapersMatchedList && this._magAdvancedService.MagPapersMatchedList.length == 0 && !_magAdvancedService.IsBusy"
+                         class="p-2 font-weight-bold text-center text-info mt-1">No items to display</div>
+                    <paginatorComp class="row ml-1 pt-1 mr-1 pr-1 border-top porder-info"></paginatorComp>
+                </div>
+            </ng-template>
+        </kendo-tabstrip-tab>
+    </kendo-tabstrip>
 </div>
