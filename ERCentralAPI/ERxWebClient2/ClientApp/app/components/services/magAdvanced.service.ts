@@ -272,11 +272,11 @@ export class MAGAdvancedService extends BusyAwareService {
 
                 } else if (listType == 'CitedByList') {
 
-                    this.MagReferencesPaperList = result;
+                    this.MagCitationsPaperList = result;
 
                 } else if (listType == 'CitationsList') {
 
-                    this.MagCitationsPaperList = result;
+                    this.MagReferencesPaperList = result;
 
                 } else if (listType == 'PaperListById'){
 
@@ -294,11 +294,13 @@ export class MAGAdvancedService extends BusyAwareService {
     }
 
 
-    FetchMagFieldOfStudyList() {
+    FetchMagFieldOfStudyList(paperId: string) {
 
         let crit: MVCMagFieldOfStudyListSelectionCriteria = new MVCMagFieldOfStudyListSelectionCriteria();
-
-
+        crit.fieldOfStudyId = 0;
+        crit.listType = "PaperFieldOfStudyList";
+        crit.paperIdList = paperId;
+        crit.searchText = "";
 
         this._BusyMethods.push("FetchMagPaperList");
         this._httpC.post<MagPaperList>(this._baseUrl + 'api/MagCurrentInfo/GetMagFieldOfStudyList', crit)
