@@ -129,7 +129,7 @@ export class AdvancedMAGFeaturesComponent implements OnInit {
     public GetMatchedMagIncludedList(): void {
 
 
-        this._magAdvancedService.FetchMAGMatchesWithCrit("MagMatchesMatched");
+        this._magAdvancedService.FetchMagPaperList(,"MagMatchesMatched");
         //"Showing: included items that are matched to at least one Microsoft Academic record";
         //let SelectionCritieraItemList: Criteria = new Criteria();
         //SelectionCritieraItemList.listType = "MagMatchesMatched";
