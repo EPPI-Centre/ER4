@@ -9,6 +9,7 @@ import { Router } from '@angular/router';
 import {  ItemListService } from '../services/ItemList.service';
 import { EventEmitterService } from '../services/EventEmitter.service';
 import { AdvancedMAGFeaturesComponent } from './AdvancedMAGFeatures.component';
+import { NotificationService } from '@progress/kendo-angular-notification';
 
 
 @Component({
@@ -23,6 +24,7 @@ export class MAGComp implements OnInit {
 		private _magService: MAGService,
         public _searchService: searchService,
         private _ReviewerIdentityServ: ReviewerIdentityService,
+        private _notificationService: NotificationService,
         private _itemListService: ItemListService,
         private _eventEmitter: EventEmitterService,
         private router: Router
@@ -91,14 +93,35 @@ export class MAGComp implements OnInit {
 
         //provider.FactoryMethod = "GetMagPaperList";
 
-
-        
     }
     public ImportMagSearchPapers(item: MagRelatedPapersRun) {
 
-        this._magService.ImportMagPapers(item);
+        if (item.nPapers == 0) {
+            this.ShowMAGRunMessage('There are no papers to import');
+        } else if (item.status == 'Imported') {
+            this.ShowMAGRunMessage('Papers have already been imported');
+        } else if (item.status == 'Checked') {
+            // msg needs fixing
+            this.ImportMagRelatedPapersRun(item);
+
+        } else if (item.status == 'Checked') {
+            //msg needs fixing
+            this.ImportMagRelatedPapersRun(item);
+        }
+        
 
     }
+    private ShowMAGRunMessage(notifyMsg: string) {
+
+        this._notificationService.show({
+            content: notifyMsg,
+            animation: { type: 'slide', duration: 400 },
+            position: { horizontal: 'center', vertical: 'top' },
+            type: { style: "info", icon: true },
+            closable: true
+        });
+    }
+
 	public IsServiceBusy(): boolean {
 
 		return false;
@@ -181,8 +204,18 @@ export class MAGComp implements OnInit {
 
 		this._magService.Create(magRun);
 
-	}
-	public doDeleteMagRelatedPapersRun(magRun: MagRelatedPapersRun) {
+    }
+    public ImportMagRelatedPapersRun(magRun: MagRelatedPapersRun) {
+
+        this.ConfirmationDialogService.confirm("Importing papers for the selected MAG run",
+            "Are you sure you want to import:" + magRun.nPapers + "papers ?", false, '')
+            .then((confirm: any) => {
+                if (confirm) {
+                    this._magService.ImportMagPapers(magRun);
+                }
+            });
+    }
+	public DoDeleteMagRelatedPapersRun(magRun: MagRelatedPapersRun) {
 
         this.ConfirmationDialogService.confirm("Deleting the selected MAG run",
             "Are you sure you want to delete MAG RUN:" + magRun.magRelatedRunId + "?", false, '')

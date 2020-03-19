@@ -37,25 +37,6 @@ export class AdvancedMAGFeaturesComponent implements OnInit {
 
     ngOnInit() {
 
-        //this._itemListService.ListChanged.subscribe(
-        //    () => {
-
-        //        if (this._itemListService.ListDescription == "MagMatchesMatched"
-        //            && this._itemListService.ListCriteria.onlyIncluded == true) {
-
-        //            this._magMatchedIncluded = this._itemListService.ItemList.items.length;
-
-        //        } else if (this._itemListService.ListDescription == "MagMatchesMatched"
-        //            && this._itemListService.ListCriteria.onlyIncluded == false) {
-
-        //            this._magMatchedExcluded = this._itemListService.ItemList.items.length;
-
-        //        }
-        //    }
-    
-        //);
-
-        //this.GetMAGCurrentInfo();
         this.GetContactModelList();
         this.GetMatchedMagIncludedList();
         this.GetMatchedMagExcludedList();

@@ -173,7 +173,7 @@
                             <input class="m-1" type="checkbox" [(ngModel)]="item.autoReRun" />
                         </td>
                         <td>{{item.status}}</td>
-                        <td class="p-0"><button [disabled]="!CanDeleteMAGRun()" (click)="doDeleteMagRelatedPapersRun(item)" class="btn btn-outline-danger p-1 m-1">Delete</button></td>
+                        <td class="p-0"><button [disabled]="!CanDeleteMAGRun()" (click)="DoDeleteMagRelatedPapersRun(item)" class="btn btn-outline-danger p-1 m-1">Delete</button></td>
                         <td class="p-0 "><button [disabled]="true" class="btn btn-outline-info p-1 m-1">{{item.userStatus}}</button></td>
                         <td class="p-0"><button (click)="ImportMagSearchPapers(item)" [disabled]="true" class="btn btn-outline-primary p-1 m-1">Import</button></td>
                         <td class="p-0"><div (click)="GetItems(item)" class="btn btn-link mt-1">{{ item.nPapers}}</div></td>
