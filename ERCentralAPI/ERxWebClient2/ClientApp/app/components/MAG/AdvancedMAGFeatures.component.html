@@ -41,7 +41,7 @@
         <div class="col-12">
             <div>
                 All matched included records
-                <div class="btn btn-link p-0 m-0 col-4" (click)="MAGBroswer('MatchedIncluded')">
+                <div class="btn btn-link p-0 m-0 col-4" (click)="MAGBrowser('MatchedIncluded')">
                     {{_magAdvancedService.magMatchedIncluded}}
                 </div>
                 <div class="btn btn-link  p-0 m-0 c" (click)="OpenMatchesInReview('MatchedIncluded')">
@@ -50,7 +50,7 @@
             </div>
             <div>
                 All matched excluded records
-                <div class="btn btn-link p-0 m-0 col-4" (click)="MAGBroswer('MatchedExcluded')">
+                <div class="btn btn-link p-0 m-0 col-4" (click)="MAGBrowser('MatchedExcluded')">
                     {{_magAdvancedService.magMatchedExcluded}}
                 </div>
                 <div class="btn btn-link  p-0 m-0 c" (click)="OpenMatchesInReview('MatchedExcluded')">
@@ -59,13 +59,13 @@
             </div>
             <div>
                 All matched records in review
-                <div class="btn btn-link p-0 m-0 col-4"  (click)="MAGBroswer('MatchedAll')">
+                <div class="btn btn-link p-0 m-0 col-4"  (click)="MAGBrowser('MatchedAll')">
                     {{_magAdvancedService.magMatchedAll}}
                 </div>
             </div>
             <div>
                 All matched records with this code:
-                <div class="btn btn-link p-0 m-0 col-3"  (click)="MAGBroswer('MatchedWithThisCode')">
+                <div class="btn btn-link p-0 m-0 col-3"  (click)="MAGBrowser('MatchedWithThisCode')">
                     {{_magAdvancedService.magMatchedWithThisCode}}
                 </div>
             </div>
@@ -75,7 +75,7 @@
                        class="form-control col-4 p-0 m-0 text-center"
                        [(ngModel)]="magPaperId" />
                 <div *ngIf="magPaper.invalid && (magPaper.dirty || magPaper.touched)"
-                     class="alert alert-danger">
+                     class="col-5 alert alert-danger">
 
                     <div *ngIf="magPaper.errors.required">
                         magPaperId is required.

@@ -168,11 +168,18 @@ export class AdvancedMAGFeaturesComponent implements OnInit {
         this._itemListService.FetchWithCrit(SelectionCritieraItemList, "MagMatchesMatched");
 
     }
-    public MAGBroswer(listType: string) {
+    public MAGBrowser(listType: string) {
 
         if (listType == 'MatchedIncluded') {
             this.GetMatchedMagIncludedList();
+        } else if (listType == 'MatchedExcluded') {
+            this.GetMatchedMagExcludedList();
+        } else if (listType == 'MatchedAll') {
+            this.GetMatchedMagAllList();
+        } else if (listType == 'MatchedWithThisCode') {
+            this.GetMatchedMagWithCodeList();
         }
+        // silly way for now...
         this.router.navigate(['MAGBrowser']);
  
     }
