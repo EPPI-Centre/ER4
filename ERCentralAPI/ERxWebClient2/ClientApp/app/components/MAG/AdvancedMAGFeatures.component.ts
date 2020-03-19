@@ -6,7 +6,7 @@ import { codesetSelectorComponent } from '../CodesetTrees/codesetSelector.compon
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Router } from '@angular/router';
-import { MAGAdvancedService, ClassifierContactModel, MagCurrentInfo } from '../services/magAdvanced.service';
+import { MAGAdvancedService, ClassifierContactModel, MagCurrentInfo, MVCMagPaperListSelectionCriteria } from '../services/magAdvanced.service';
 import { Criteria, ItemListService } from '../services/ItemList.service';
 import { Subscription } from 'rxjs';
 import { EventEmitterService } from '../services/EventEmitter.service';
@@ -125,49 +125,6 @@ export class AdvancedMAGFeaturesComponent implements OnInit {
     public magMatchedWithThisCode: number = 0;
     public magPaperId: number = 0;
     public currentClassifierContactModel: ClassifierContactModel = new ClassifierContactModel();
-
-    public GetMatchedMagIncludedList(): void {
-
-
-        this._magAdvancedService.FetchMagPaperList(,"MagMatchesMatched");
-        //"Showing: included items that are matched to at least one Microsoft Academic record";
-        //let SelectionCritieraItemList: Criteria = new Criteria();
-        //SelectionCritieraItemList.listType = "MagMatchesMatched";
-        //SelectionCritieraItemList.onlyIncluded = true;
-        //SelectionCritieraItemList.showDeleted = false;
-        //SelectionCritieraItemList.attributeSetIdList = "";
-        //SelectionCritieraItemList.pageNumber = 0;
-
-        //this._itemListService.FetchWithCrit(SelectionCritieraItemList, "MagMatchesMatched");
-        //return this._itemListService.ItemList.items.length;
-             
-    }
-    public GetMatchedMagExcludedList() {
-
-        this._magAdvancedService.FetchMAGMatchesWithCritEx("MagMatchesMatched");
-        //let SelectionCritieraItemList: Criteria = new Criteria();
-        //SelectionCritieraItemList.listType = "MagMatchesMatched";
-        //SelectionCritieraItemList.onlyIncluded = false;
-        //SelectionCritieraItemList.showDeleted = false;
-        //SelectionCritieraItemList.attributeSetIdList = "";
-        //SelectionCritieraItemList.pageNumber = 0;
-
-        //this._itemListService.FetchWithCrit(SelectionCritieraItemList, "MagMatchesMatched");
-        //this._itemListService.ListChanged.emit();
-
-    }
-    public GetMatchedMagAllList() {
-
-        let SelectionCritieraItemList: Criteria = new Criteria();
-        SelectionCritieraItemList.listType = "MagMatchesMatched";
-        SelectionCritieraItemList.onlyIncluded = true;
-        SelectionCritieraItemList.showDeleted = false;
-        SelectionCritieraItemList.attributeSetIdList = "";
-        SelectionCritieraItemList.pageNumber = 0;
-
-        this._itemListService.FetchWithCrit(SelectionCritieraItemList, "MagMatchesMatched");
-
-    }
     public MAGBrowser(listType: string) {
 
         if (listType == 'MatchedIncluded') {
@@ -181,18 +138,52 @@ export class AdvancedMAGFeaturesComponent implements OnInit {
         }
         // silly way for now...
         this.router.navigate(['MAGBrowser']);
- 
+
     }
+    public GetMatchedMagIncludedList(): void {
+
+        let criteria: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
+        criteria.listType = "ReviewMatchedPapers";
+        criteria.included = "Included";
+        criteria.pageSize = 20;
+
+        this._magAdvancedService.FetchMagPaperList(criteria);
+        
+             
+    }
+    public GetMatchedMagExcludedList() {
+
+        let criteria: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
+        criteria.listType = "ReviewMatchedPapers";
+        criteria.included = "Excluded";
+        criteria.pageSize = 20;
+
+        this._magAdvancedService.FetchMagPaperList(criteria);
+
+    }
+    public GetMatchedMagAllList() {
+
+        let criteria: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
+        criteria.listType = "ReviewMatchedPapers";
+        criteria.included = "All";
+        criteria.pageSize = 20;
+
+        this._magAdvancedService.FetchMagPaperList(criteria);
+
+    }
+
     public GetMatchedMagWithCodeList() {
 
-        let SelectionCritieraItemList: Criteria = new Criteria();
-        SelectionCritieraItemList.listType = "MagMatchesMatched";
-        SelectionCritieraItemList.onlyIncluded = true;
-        SelectionCritieraItemList.showDeleted = false;
-        SelectionCritieraItemList.attributeSetIdList = "";
-        SelectionCritieraItemList.pageNumber = 0;
+        if (this.CurrentDropdownSelectedCode != null) {
+            
+            let criteria: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
+            criteria.listType = "ReviewMatchedPapersWithThisCode";
+            var att = this.CurrentDropdownSelectedCode as SetAttribute;
+            criteria.attributeIds = att.attribute_id.toString();
+            criteria.pageSize = 20;
 
-        this._itemListService.FetchWithCrit(SelectionCritieraItemList, "MagMatchesMatched");
+            this._magAdvancedService.FetchMagPaperList(criteria);
+        }
 
     }
     public CanGetMagPaper(): boolean {
