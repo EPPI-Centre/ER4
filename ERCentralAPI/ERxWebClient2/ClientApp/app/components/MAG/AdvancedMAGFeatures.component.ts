@@ -37,10 +37,17 @@ export class AdvancedMAGFeaturesComponent implements OnInit {
 
     ngOnInit() {
 
-        this.GetContactModelList();
-        this.GetMatchedMagIncludedList();
-        this.GetMatchedMagExcludedList();
-        this.Clear();
+        this.GetMagReviewMagInfoCommand();
+
+        //probably do not need the below
+        //this.GetContactModelList();
+        //this.GetMatchedMagIncludedList();
+        //this.GetMatchedMagExcludedList();
+        //this.Clear();
+    }
+    GetMagReviewMagInfoCommand(): any {
+
+        this._magAdvancedService.FetchMagReviewMagInfo();
     }
     private _RunAlgorithmFirst: boolean = false;
     public CanAddSimulation(): boolean

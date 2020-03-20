@@ -138,7 +138,24 @@ export class MAGAdvancedService extends BusyAwareService {
                 }
             );
     }
+    public AdvancedReviewInfo: MagReviewMagInfo = new MagReviewMagInfo();
+    FetchMagReviewMagInfo() {
 
+        this._BusyMethods.push("FetchMagReviewMagInfo");
+
+        this._httpC.get<MagReviewMagInfo>(this._baseUrl + 'api/MagCurrentInfo/GetMagReviewMagInfo')
+            .subscribe(result => {
+                this.RemoveBusy("FetchMagReviewMagInfo");
+                this.AdvancedReviewInfo = result;
+                console.log(JSON.stringify(result));
+            },
+                error => {
+                    this.RemoveBusy("FetchMagReviewMagInfo");
+                    this.modalService.GenericError(error);
+                }
+            );
+
+    }
 
     FetchCurrentInfo() {
 
@@ -261,10 +278,10 @@ export class MAGAdvancedService extends BusyAwareService {
         crit.magPaperId = paperId;
 
 
-        this._BusyMethods.push("FetchMagPaperList");
+        this._BusyMethods.push("FetchMagPaperListId");
         this._httpC.post<MagPaperList>(this._baseUrl + 'api/MagCurrentInfo/GetMagPaperList', crit)
             .subscribe(result => {
-                this.RemoveBusy("FetchMagPaperList");
+                this.RemoveBusy("FetchMagPaperListId");
 
                 if (listType == 'PaperFieldsOfStudyList') {
 
@@ -287,7 +304,7 @@ export class MAGAdvancedService extends BusyAwareService {
                 console.log(result)
             },
                 error => {
-                    this.RemoveBusy("FetchMagPaperList");
+                    this.RemoveBusy("FetchMagPaperListId");
                     this.modalService.GenericError(error);
                 }
             );
@@ -317,9 +334,12 @@ export class MAGAdvancedService extends BusyAwareService {
 
                     //this.MagPapersMatchedList = result;
 
+                } else if (crit.included = 'Included') {
+                    this.MagReferencesPaperList = result;
+                    console.log(crit);
+                    console.log(result)
                 }
-                //this.MagRIDMatchedPaperList = result;
-                console.log(result)
+                
             },
                 error => {
                     this.RemoveBusy("FetchMagPaperList");
@@ -354,6 +374,20 @@ export class MAGAdvancedService extends BusyAwareService {
             );
     }
 
+}
+
+export class MagReviewMagInfo {
+
+    reviewId: number = 0;
+    nInReviewIncluded: number = 0;
+    nInReviewExcluded: number = 0;
+    nMatchedAccuratelyIncluded: number = 0;
+    nMatchedAccuratelyExcluded: number = 0;
+    nRequiringManualCheckIncluded: number = 0;
+    nRequiringManualCheckExcluded: number = 0;
+    nNotMatchedIncluded: number = 0;
+    nNotMatchedExcluded: number = 0;
+    
 }
 
 export class MagPaperList {

@@ -51,25 +51,25 @@ export class MAGBrowser implements OnInit {
 
         if (e.index == 0) {
             //refactor again below once working criteria defined twice
-            this._magAdvancedService.FetchMagFieldOfStudyList(this._magAdvancedService.currentMagPaper.paperId.toString());
+            //this._magAdvancedService.FetchMagFieldOfStudyList(this._magAdvancedService.currentMagPaper.paperId.toString());
 
         } else if (e.index == 1) {
             let crit: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
             crit.magPaperId = this._magAdvancedService.currentMagPaper.paperId;
             crit.listType = 'CitationsList';
-            this._magAdvancedService.FetchMagPaperList(crit);
+           // this._magAdvancedService.FetchMagPaperList(crit);
 
         } else if (e.index == 2) {
             let crit: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
             crit.magPaperId = this._magAdvancedService.currentMagPaper.paperId;
             crit.listType = 'CitedByList';
-            this._magAdvancedService.FetchMagPaperList(crit);
+            //this._magAdvancedService.FetchMagPaperList(crit);
 
         } else if (e.index == 3) {
             let crit: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
             crit.magPaperId = this._magAdvancedService.currentMagPaper.paperId;
             crit.listType = 'Recommendations';
-            this._magAdvancedService.FetchMagPaperList(crit);
+            //this._magAdvancedService.FetchMagPaperList(crit);
 
         }
         console.log('testing tab: ', e.index );

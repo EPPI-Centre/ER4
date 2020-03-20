@@ -42,6 +42,25 @@ namespace ERxWebClient2.Controllers
             }
 		}
 
+        [HttpGet("[action]")]
+        public IActionResult GetMagReviewMagInfo()
+        {
+            try
+            {
+                SetCSLAUser();
+                MAgReviewMagInfoCommand cmd = new MAgReviewMagInfoCommand();
+                DataPortal<MAgReviewMagInfoCommand> dp = new DataPortal<MAgReviewMagInfoCommand>();
+                cmd = dp.Execute(cmd);
+
+                return Ok(cmd);
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "Getting a GetMagReviewMagInfo has an error");
+                throw;
+            }
+        }
+
         [HttpPost("[action]")]
         public IActionResult GetMagPaper([FromBody] SingleInt64Criteria Id)
         {
