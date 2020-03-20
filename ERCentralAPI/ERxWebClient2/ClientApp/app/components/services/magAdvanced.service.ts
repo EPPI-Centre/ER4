@@ -226,7 +226,7 @@ export class MAGAdvancedService extends BusyAwareService {
         let crit: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
         //test here but need a switch based on listtype
         //crit.included = 'Included';
-        crit.listType = "PaperListData";
+        crit.listType = "CitationsList";
         crit.pageSize = 20;
         crit.magPaperId = paperId;
         
@@ -287,12 +287,18 @@ export class MAGAdvancedService extends BusyAwareService {
 
             (result: MagPaper[]) => {
 
+                if (crit.listType == 'CitationsList') {
+                    this.PaperIds = "";
                     this.MagReferencesPaperList = result;
                     for (var i = 0; i < this.MagReferencesPaperList.length; i++) {
                         this.PaperIds += this.MagReferencesPaperList[i].paperId.toString() + ',';
                     }
                     this.PaperIds = this.PaperIds.substr(0, this.PaperIds.length - 1)
-                    console.log(this.PaperIds);
+                    //console.log(this.PaperIds);
+                } else if (crit.listType == 'CitedByList') {
+                    this.MagCitationsPaperList = result;
+
+                }                     
 
             },
                 error => {
