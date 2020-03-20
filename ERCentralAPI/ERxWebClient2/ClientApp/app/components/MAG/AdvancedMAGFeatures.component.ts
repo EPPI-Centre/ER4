@@ -147,8 +147,7 @@ export class AdvancedMAGFeaturesComponent implements OnInit {
             this.GetMatchedMagWithCodeList();
 
         }
-        // silly way for now...
-        this.router.navigate(['MAGBrowser']);
+       
 
     }
     public GetMatchedMagIncludedList(): void {
@@ -158,7 +157,11 @@ export class AdvancedMAGFeaturesComponent implements OnInit {
         criteria.included = "Included";
         criteria.pageSize = 20;
 
-        this._magAdvancedService.FetchMagPaperList(criteria);
+        this._magAdvancedService.FetchMagPaperList(criteria).then(
+            (result: any) => {
+                this.router.navigate(['MAGBrowser']);
+            }
+        );
        
     }
     public GetMatchedMagExcludedList() {

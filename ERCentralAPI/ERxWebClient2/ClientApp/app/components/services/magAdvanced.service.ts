@@ -254,7 +254,7 @@ export class MAGAdvancedService extends BusyAwareService {
                     this.PaperIds += this.MagReferencesPaperList[i].paperId.toString() + ',';
                 }
                 this.PaperIds = this.PaperIds.substr(0, this.PaperIds.length - 1)
-                console.log(this.PaperIds);
+                console.log('paperlistId papers: ', this.PaperIds);
 
                 //} else if (listType == 'PaperListById'){
 
@@ -262,7 +262,7 @@ export class MAGAdvancedService extends BusyAwareService {
 
                 //}
                 //this.MagRIDMatchedPaperList = result;
-                console.log(result)
+                console.log('paperlistId papers: ', result)
 
                 //this.FetchMagFieldOfStudyList(crit.magPaperId).then(
 
@@ -298,11 +298,18 @@ export class MAGAdvancedService extends BusyAwareService {
                     //console.log(this.PaperIds);
                 } else if (crit.listType == 'CitedByList') {
 
+                    console.log('got in here');
                     this.MagCitationsPaperList = result;
-
-                } else if (crit.listType == 'ReviewMatchedPapersList') {
-
+                    console.log(result);
+                } else if (crit.listType == 'ReviewMatchedPapers') {
+                    this.PaperIds = "";
                     this.ReviewMatchedPapersList = result;
+                    for (var i = 0; i < this.ReviewMatchedPapersList.length; i++) {
+                        this.PaperIds += this.ReviewMatchedPapersList[i].paperId.toString() + ',';
+                    }
+                    this.PaperIds = this.PaperIds.substr(0, this.PaperIds.length - 1)
+                    console.log('rvm list: ', this.ReviewMatchedPapersList);
+                    console.log('rvm papers: ', this.PaperIds);
                 }                     
 
             },

@@ -35,7 +35,7 @@
         </kendo-tabstrip-tab>
         <kendo-tabstrip-tab [title]="'References'"  [selected]="selectedTab == 1">
             <ng-template kendoTabContent>
-                <div class="col-8" >
+                <div class="col-8">
                     <table class="card col-12 small table table-border  table-striped bg-light">
                         <thead>
                             <tr></tr>
@@ -43,6 +43,17 @@
                         <tbody>
                             <tr *ngFor="let item of _magAdvancedService.MagReferencesPaperList">
                                 <td>{{item.fullRecord}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="card col-12 small table table-border  table-striped bg-light">
+                        <thead>
+                            <tr></tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let item of _magAdvancedService.ReviewMatchedPapersList">
+                                <td>{{item.fullRecord}}</td>
+
                             </tr>
                         </tbody>
                     </table>
@@ -69,18 +80,7 @@
                             </tr>
                         </tbody>
                     </table>
-                    <table class="card col-12 small table table-border  table-striped bg-light"
-                           *ngIf="_magAdvancedService.ReviewMatchedPapersList != null && _magAdvancedService.ReviewMatchedPapersList.Length > 0">
-                        <thead>
-                            <tr></tr>
-                        </thead>
-                        <tbody>
-                            <tr *ngFor="let item of _magAdvancedService.ReviewMatchedPapersList">
-                                <td>{{item.fullRecord}}</td>
-
-                            </tr>
-                        </tbody>
-                    </table>
+                   
                     <div *ngIf="_magAdvancedService && _magAdvancedService.MagPapersMatchedList && _magAdvancedService.IsBusy">Loading items...</div>
                     <div *ngIf="_magAdvancedService && _magAdvancedService.MagPapersMatchedList
              && this._magAdvancedService.MagPapersMatchedList && this._magAdvancedService.MagPapersMatchedList.length == 0 && !_magAdvancedService.IsBusy"
