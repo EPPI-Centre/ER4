@@ -94,6 +94,7 @@ public partial class PurchaseHistory : System.Web.UI.Page
     {
         int index = Convert.ToInt32(e.CommandArgument);
         string BillID = (string)gvBills.DataKeys[index].Value;
+        lblBillID.Text = BillID;
         switch (e.CommandName)
         {
             case "DETAILS":
@@ -115,6 +116,10 @@ public partial class PurchaseHistory : System.Web.UI.Page
                 IDataReader idr = Utils.GetReader(isAdmDB, "st_BillDetailsAccounts",
                     BillID);
                 IDataReader idr1 = Utils.GetReader(isAdmDB, "st_BillDetailsReviews",
+                    BillID);
+                IDataReader idr2 = Utils.GetReader(isAdmDB, "st_BillDetailsOutstandingFees",
+                    BillID);
+                IDataReader idr3 = Utils.GetReader(isAdmDB, "st_BillDetailsCredit",
                     BillID);
                 while (idr.Read())
                 {
@@ -164,22 +169,38 @@ public partial class PurchaseHistory : System.Web.UI.Page
                             newrow["NAME"] = idr1["NAME"].ToString();
                         }
                     }
-
-
-
-
-                    /*
-                    if (idr1["NAME"].ToString() == "")
-                        newrow["NAME"] = "Not setup";
-                    else
-                        newrow["NAME"] = idr1["NAME"].ToString();
-                    */
                     newrow["MONTHS"] = idr1["MONTHS"].ToString();
                     newrow["COST_PER_MONTH"] = idr1["PRICE_PER_MONTH"].ToString();
                     newrow["COST"] = idr1["COST"].ToString();
                     dt.Rows.Add(newrow);
                 }
                 idr1.Close();
+                while (idr2.Read())
+                {
+                    newrow = dt.NewRow();
+                    newrow["LINE_ID"] = idr2["LINE_ID"].ToString();
+                    newrow["TYPE"] = "Outstanding fee";
+                    newrow["AFFECTED_ID"] = "--";
+                    newrow["NAME"] = "--";
+                    newrow["MONTHS"] = "--";
+                    newrow["COST_PER_MONTH"] = "--";
+                    newrow["COST"] = idr2["COST"].ToString();
+                    dt.Rows.Add(newrow);
+                }
+                idr2.Close();
+                while (idr3.Read())
+                {
+                    newrow = dt.NewRow();
+                    newrow["LINE_ID"] = idr3["LINE_ID"].ToString();
+                    newrow["TYPE"] = "Credit purchase";
+                    newrow["AFFECTED_ID"] = "--";
+                    newrow["NAME"] = "--";
+                    newrow["MONTHS"] = "--";
+                    newrow["COST_PER_MONTH"] = "--";
+                    newrow["COST"] = idr3["COST"].ToString();
+                    dt.Rows.Add(newrow);
+                }
+                idr3.Close();
 
                 gvBillDetails.DataSource = dt;
                 gvBillDetails.DataBind();
@@ -214,8 +235,12 @@ public partial class PurchaseHistory : System.Web.UI.Page
             lblBillID.Text);
         IDataReader idr1 = Utils.GetReader(isAdmDB, "st_BillDetailsReviews",
             lblBillID.Text);
+        IDataReader idr3 = Utils.GetReader(isAdmDB, "st_BillDetailsOutstandingFees",
+            lblBillID.Text);
+        IDataReader idr4 = Utils.GetReader(isAdmDB, "st_BillDetailsCredit",
+            lblBillID.Text);
 
-        Response.Write("EPPI-Reviewer 4.0 invoice number: " + lblBillID.Text);
+        Response.Write("EPPI-Reviewer   invoice number: " + lblBillID.Text);
         Response.Write(Environment.NewLine);
         while (idr2.Read())
         {
@@ -239,8 +264,9 @@ public partial class PurchaseHistory : System.Web.UI.Page
             Response.Write(Environment.NewLine);
             Response.Write("Country: " + idr0["COUNTRY_NAME"].ToString());
             Response.Write(Environment.NewLine);
-            Response.Write("EU VAT Registration: " + idr0["EU_VAT_REG_NUMBER"].ToString());
-            Response.Write(Environment.NewLine);
+            // we aren't using EU VAT numbers for online purchases at this time (and maybe won't need to after Dec 2020 ;)
+            //Response.Write("EU VAT Registration: " + idr0["EU_VAT_REG_NUMBER"].ToString());
+            //Response.Write(Environment.NewLine);
         }
         idr0.Close();
         Response.Write(Environment.NewLine);
@@ -318,6 +344,28 @@ public partial class PurchaseHistory : System.Web.UI.Page
             Response.Write(Environment.NewLine);
         }
         idr1.Close();
+        while (idr3.Read())
+        {
+            Response.Write("Item ID: " + idr3["LINE_ID"].ToString());
+            Response.Write(Environment.NewLine);
+            Response.Write("Type: Outstanding fee");
+            Response.Write(Environment.NewLine);
+            Response.Write("Total cost: £" + idr3["COST"].ToString());
+            Response.Write(Environment.NewLine);
+            Response.Write(Environment.NewLine);
+        }
+        idr3.Close();
+        while (idr4.Read())
+        {
+            Response.Write("Item ID: " + idr4["LINE_ID"].ToString());
+            Response.Write(Environment.NewLine);
+            Response.Write("Type: Credit purchase");
+            Response.Write(Environment.NewLine);
+            Response.Write("Total cost: £" + idr4["COST"].ToString());
+            Response.Write(Environment.NewLine);
+            Response.Write(Environment.NewLine);
+        }
+        idr4.Close();
 
         Response.Write(Environment.NewLine);
         //Response.Write("Discount: £" + discount);
@@ -326,8 +374,10 @@ public partial class PurchaseHistory : System.Web.UI.Page
         {
             Response.Write("VAT: £" + vat);
             Response.Write(Environment.NewLine);
+            // add totalFee and vat to get the amount paid           
+            totalFee = (float.Parse(totalFee) + float.Parse(vat)).ToString();
         }
-        Response.Write("Total fee: £" + totalFee);
+        Response.Write("Total paid: £" + totalFee);
         Response.Write(Environment.NewLine);
         Response.End();
 

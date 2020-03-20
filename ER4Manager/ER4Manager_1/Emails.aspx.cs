@@ -40,7 +40,7 @@ public partial class Emails : System.Web.UI.Page
                     if (radTs != null)
                     {
                         radTs.SelectedIndex = 4;
-                        radTs.Tabs[4].Tabs[7].Selected = true;
+                        radTs.Tabs[4].Tabs[5].Selected = true;
                         //radTs.Tabs[3].Tabs[2].Width = 670;
                     }
                     System.Web.UI.WebControls.Label lbl1 = (Label)Master.FindControl("lblHeadingText");

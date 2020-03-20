@@ -241,18 +241,21 @@ function openReviewerList(ID) {
                 <tr>
                     <td style="width: 20%; background-color: #B6C6D6">
                         Priority screening</td>
-                    <td style="background-color: #FFFFCC" colspan="4">
+                    <td style="background-color: #FFFFCC" colspan="3">
                         <asp:CheckBox ID="cbShowScreening" runat="server" AutoPostBack="True" 
                             oncheckedchanged="cbShowScreening_CheckedChanged" Text="SHOW_SCREENING" />
                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                         <asp:CheckBox ID="cbAllowReviewerTerms" runat="server" AutoPostBack="True" 
                             oncheckedchanged="cbAllowReviewerTerms_CheckedChanged" 
-                            Text="ALLOW_REVIEWER_TERMS" />
-                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            Text="ALLOW_REVIEWER_TERMS" /><br />
                         <asp:CheckBox ID="cbAllowClusteredSearch" runat="server" AutoPostBack="True" 
                             oncheckedchanged="cbAllowClusteredSearch_CheckedChanged" 
                             Text="ALLOW_CLUSTERED_SEARCH" />
                     </td>
+                    <td style="background-color: #FFFFCC" colspan="4">
+                        <asp:CheckBox ID="cbEnableMag" runat="server" AutoPostBack="True" 
+                            oncheckedchanged="cbEnableMag_CheckedChanged" Text="ENABLE MAG" />
+                        </td>
                 </tr>
                 <tr>
                     <td style="width: 20%; background-color: #B6C6D6">
