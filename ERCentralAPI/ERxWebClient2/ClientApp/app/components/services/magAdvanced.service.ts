@@ -23,6 +23,7 @@ export class MAGAdvancedService extends BusyAwareService {
     private _magMatchedExcluded: number = 0;
     private _magMatchedAll: number = 0;
     private _magMatchedWithThisCode: number = 0;
+    public ReviewMatchedPapersList: MagPaper[] = [];
 
     public get magMatchedIncluded(): number {
 
@@ -296,8 +297,12 @@ export class MAGAdvancedService extends BusyAwareService {
                     this.PaperIds = this.PaperIds.substr(0, this.PaperIds.length - 1)
                     //console.log(this.PaperIds);
                 } else if (crit.listType == 'CitedByList') {
+
                     this.MagCitationsPaperList = result;
 
+                } else if (crit.listType == 'ReviewMatchedPapersList') {
+
+                    this.ReviewMatchedPapersList = result;
                 }                     
 
             },
