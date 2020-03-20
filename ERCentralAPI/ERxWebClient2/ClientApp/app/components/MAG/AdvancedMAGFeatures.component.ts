@@ -136,12 +136,16 @@ export class AdvancedMAGFeaturesComponent implements OnInit {
 
         if (listType == 'MatchedIncluded') {
             this.GetMatchedMagIncludedList();
+
         } else if (listType == 'MatchedExcluded') {
             this.GetMatchedMagExcludedList();
+
         } else if (listType == 'MatchedAll') {
             this.GetMatchedMagAllList();
+
         } else if (listType == 'MatchedWithThisCode') {
             this.GetMatchedMagWithCodeList();
+
         }
         // silly way for now...
         this.router.navigate(['MAGBrowser']);
@@ -155,8 +159,7 @@ export class AdvancedMAGFeaturesComponent implements OnInit {
         criteria.pageSize = 20;
 
         this._magAdvancedService.FetchMagPaperList(criteria);
-        
-             
+       
     }
     public GetMatchedMagExcludedList() {
 

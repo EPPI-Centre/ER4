@@ -213,54 +213,7 @@ export class MAGAdvancedService extends BusyAwareService {
     }
     public ListDescription: string = '';
     public TotalNumberOfMatchedPapers: number = 0;
-    private _Criteria: Criteria = new Criteria();
-
-
-    //FetchMAGMatchesWithCrit( listDescription: string): any {
-
-    //    let SelectionCritieraItemList: Criteria = new Criteria();
-    //    SelectionCritieraItemList.listType = "MagMatchesMatched";
-    //    SelectionCritieraItemList.onlyIncluded = true;
-    //    SelectionCritieraItemList.showDeleted = false;
-    //    SelectionCritieraItemList.attributeSetIdList = "";
-    //    SelectionCritieraItemList.pageNumber = 0;
-
-    //    this._BusyMethods.push("FetchMAGMatchesWithCrit");
-
-    //    this.ListDescription = listDescription;
-    //    this._httpC.post<ItemList>(this._baseUrl + 'api/ItemList/Fetch', SelectionCritieraItemList)
-    //        .toPromise().then(
-    //            (list: ItemList) => {
-    //                this.RemoveBusy("FetchMAGMatchesWithCrit");
-    //                this._magMatchedIncluded = list.totalItemCount;
-    //                this.MagPapersMatchedList = list.items;
-    //                this.TotalNumberOfMatchedPapers = list.totalItemCount
-    //            }
-    //        );
-    //}
-
-    //FetchMAGMatchesWithCritEx(listDescription: string): any {
-
-    //    let SelectionCritieraItemList: Criteria = new Criteria();
-    //    SelectionCritieraItemList.listType = "MagMatchesMatched";
-    //    SelectionCritieraItemList.onlyIncluded = false;
-    //    SelectionCritieraItemList.showDeleted = false;
-    //    SelectionCritieraItemList.attributeSetIdList = "";
-    //    SelectionCritieraItemList.pageNumber = 0;
-
-    //    this._BusyMethods.push("FetchMAGMatchesWithCritEx");
-
-    //    this.ListDescription = listDescription;
-    //    this._httpC.post<ItemList>(this._baseUrl + 'api/ItemList/Fetch', SelectionCritieraItemList)
-    //        .toPromise().then(
-    //            (list: ItemList) => {
-    //                this.RemoveBusy("FetchMAGMatchesWithCritEx");
-    //                this._magMatchedExcluded = list.totalItemCount;
-    //                this.MagPapersMatchedList = list.items;
-    //                this.TotalNumberOfMatchedPapers = list.totalItemCount
-    //            }
-    //        );
-    //}
+    
 
     public MagPapersMatchedList: Item[] = [];
     public MagReferencesPaperList: MagPaperList = new MagPaperList();
@@ -310,11 +263,14 @@ export class MAGAdvancedService extends BusyAwareService {
             );
     }
 
-    public FetchMagPaperList(crit: MVCMagPaperListSelectionCriteria) {
+
+    public FetchMagPaperList(crit: MVCMagPaperListSelectionCriteria): Promise<void> {
                
         this._BusyMethods.push("FetchMagPaperList");
-        this._httpC.post<MagPaperList>(this._baseUrl + 'api/MagCurrentInfo/GetMagPaperList', crit)
-            .subscribe(result => {
+        return this._httpC.post<MagPaperList>(this._baseUrl + 'api/MagCurrentInfo/GetMagPaperList', crit)
+            .toPromise().then(
+
+            (result: MagPaperList) => {
 
                 this.RemoveBusy("FetchMagPaperList");
 
@@ -334,11 +290,24 @@ export class MAGAdvancedService extends BusyAwareService {
 
                     //this.MagPapersMatchedList = result;
 
-                } else if (crit.included = 'Included') {
+                } else if (crit.included == 'Included' && crit.listType == 'ReviewMatchedPapers') {
+                    this.MagReferencesPaperList = result;
+                   
+                }
+                else if (crit.included == 'Excluded' && crit.listType == 'ReviewMatchedPapers') {
+                    this.MagReferencesPaperList = result;
+
+                }
+                else if (crit.included == 'All' && crit.listType == 'ReviewMatchedPapers') {
+                    this.MagReferencesPaperList = result;
+
+                }
+                else if (crit.included == '' && crit.listType == 'ReviewMatchedPapersWithThisCode') {
                     this.MagReferencesPaperList = result;
                     console.log(crit);
                     console.log(result)
                 }
+
                 
             },
                 error => {
