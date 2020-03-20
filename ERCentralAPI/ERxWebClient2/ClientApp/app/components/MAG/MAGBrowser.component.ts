@@ -36,7 +36,6 @@ export class MAGBrowser implements OnInit {
         this.Clear();
        
     }
-
 	
 	public desc: string = '';
 	public value: Date = new Date(2000, 2, 10);
@@ -51,7 +50,7 @@ export class MAGBrowser implements OnInit {
 
         if (e.index == 0) {
             //refactor again below once working criteria defined twice
-            this._magAdvancedService.FetchMagFieldOfStudyList(this._magAdvancedService.currentMagPaper.paperId.toString());
+            this._magAdvancedService.FetchMagFieldOfStudyList(this._magAdvancedService.PaperIds);
 
         } else if (e.index == 1) {
             let crit: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
