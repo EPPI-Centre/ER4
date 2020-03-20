@@ -53,9 +53,9 @@ export class MAGBrowser implements OnInit {
             this._magAdvancedService.FetchMagFieldOfStudyList(this._magAdvancedService.PaperIds);
 
         } else if (e.index == 1) {
-            let crit: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
-            crit.magPaperId = this._magAdvancedService.currentMagPaper.paperId;
-            crit.listType = 'CitationsList';
+            //let crit: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
+            //crit.magPaperId = this._magAdvancedService.currentMagPaper.paperId;
+            //crit.listType = 'CitationsList';
            // this._magAdvancedService.FetchMagPaperList(crit);
 
         } else if (e.index == 2) {
