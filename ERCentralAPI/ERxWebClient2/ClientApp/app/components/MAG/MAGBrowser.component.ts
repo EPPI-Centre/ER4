@@ -8,7 +8,7 @@ import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Router } from '@angular/router';
 import {  ItemListService } from '../services/ItemList.service';
 import { EventEmitterService } from '../services/EventEmitter.service';
-import { MAGAdvancedService } from '../services/magAdvanced.service';
+import { MAGAdvancedService, MVCMagPaperListSelectionCriteria } from '../services/magAdvanced.service';
 
 
 @Component({
@@ -50,16 +50,26 @@ export class MAGBrowser implements OnInit {
     public onTabSelect(e: any) {
 
         if (e.index == 0) {
+            //refactor again below once working criteria defined twice
             this._magAdvancedService.FetchMagFieldOfStudyList(this._magAdvancedService.currentMagPaper.paperId.toString());
 
         } else if (e.index == 1) {
-             this._magAdvancedService.FetchMagPaperList(this._magAdvancedService.currentMagPaper.paperId,'CitationsList');
+            let crit: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
+            crit.magPaperId = this._magAdvancedService.currentMagPaper.paperId;
+            crit.listType = 'CitationsList';
+            this._magAdvancedService.FetchMagPaperList(crit);
 
         } else if (e.index == 2) {
-            this._magAdvancedService.FetchMagPaperList(this._magAdvancedService.currentMagPaper.paperId, 'CitedByList');
+            let crit: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
+            crit.magPaperId = this._magAdvancedService.currentMagPaper.paperId;
+            crit.listType = 'CitedByList';
+            this._magAdvancedService.FetchMagPaperList(crit);
 
         } else if (e.index == 3) {
-            this._magAdvancedService.FetchMagPaperList(this._magAdvancedService.currentMagPaper.paperId, 'Recommendations');
+            let crit: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
+            crit.magPaperId = this._magAdvancedService.currentMagPaper.paperId;
+            crit.listType = 'Recommendations';
+            this._magAdvancedService.FetchMagPaperList(crit);
 
         }
         console.log('testing tab: ', e.index );
