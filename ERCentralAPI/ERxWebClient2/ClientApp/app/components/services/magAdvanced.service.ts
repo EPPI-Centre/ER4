@@ -344,6 +344,24 @@ export class MAGAdvancedService extends BusyAwareService {
             );
     }
 
+    public AddMagSimulation(newMagSimulation: MagSimulation) {
+
+        this._BusyMethods.push("AddMagSimulation");
+        return this._httpC.post<MagSimulation>(this._baseUrl + 'api/MAGSimulationList/CreateMagSimulation', newMagSimulation)
+            .toPromise().then(
+            (result: MagSimulation) => {
+
+                    this.RemoveBusy("AddMagSimulation");
+                    this.MagSimulationList.push(result);
+
+                },
+                error => {
+                    this.RemoveBusy("AddMagSimulation");
+                    this.modalService.GenericError(error);
+                }
+            );
+    }
+
 }
 
 export class MagReviewMagInfo {

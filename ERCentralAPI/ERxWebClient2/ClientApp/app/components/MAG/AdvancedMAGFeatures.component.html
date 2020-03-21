@@ -18,10 +18,12 @@
     <div class="col-5 card p-1 m-1 h-25">
         <h4 class="p-1 m-1 ">Research And Development for Microsoft Academic Graph</h4>
         <p class="m-2 p-2 card bg-light">
-            The algoirthm to find new and related studies to those already identified depends on
+            The algorithm to find new and related studies to those already identified depends on
             correctly matching your existing studies with the MAG dataset.
             This can be somewhat automated; some studies cannot be matched
-            with 100% confidence and some not at all.
+            with 100% confidence and some not at all. <br />
+            Included: {{_magAdvancedService.AdvancedReviewInfo.nRequiringManualCheckIncluded}} <br />
+            Excluded: {{_magAdvancedService.AdvancedReviewInfo.nRequiringManualCheckExcluded}} <br />
             In order to improve the matching accuracy, a check of the lower
             confidence level of automatic matches can be made.
         </p>

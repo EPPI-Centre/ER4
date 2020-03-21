@@ -6,7 +6,7 @@ import { codesetSelectorComponent } from '../CodesetTrees/codesetSelector.compon
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Router } from '@angular/router';
-import { MAGAdvancedService, ClassifierContactModel, MagCurrentInfo, MVCMagPaperListSelectionCriteria } from '../services/magAdvanced.service';
+import { MAGAdvancedService, ClassifierContactModel, MagCurrentInfo, MVCMagPaperListSelectionCriteria, MagSimulation } from '../services/magAdvanced.service';
 import { Criteria, ItemListService } from '../services/ItemList.service';
 import { Subscription } from 'rxjs';
 import { EventEmitterService } from '../services/EventEmitter.service';
@@ -57,7 +57,42 @@ export class AdvancedMAGFeaturesComponent implements OnInit {
     }
     public AddSimulation(): void {
 
-        alert('add simulation');
+        //fill all the properties and add to MagSimulation
+        //can use angular model idea here but refactor it to this
+        let newMagSimulation: MagSimulation = new MagSimulation();
+
+        if (this.splitDataOn == 'Year') {
+
+            // not yet implemented year on UI
+            newMagSimulation.year = 2016;
+
+        } else if (this.splitDataOn == 'WithThisCode') {
+
+            newMagSimulation.createdDate = new Date();
+
+        } else {
+            if (this.CurrentDropdownSelectedCode != null) {
+                let att = this.CurrentDropdownSelectedCode as SetAttribute;
+                newMagSimulation.withThisAttributeId = att.attribute_id;
+            }
+            
+        }
+        //not yet implemented a filter on the UI to do                
+        newMagSimulation.filteredByAttributeId = 0;
+        newMagSimulation.searchMethod = this.SearchMethod;
+        newMagSimulation.networkStatistic = this.NetworkStat;
+        if (this.StudyTypeClassifier != null) {
+            newMagSimulation.studyTypeClassifier = this.StudyTypeClassifier;
+        }
+        if (this.UserDefinedClassifier != null) {
+            // not yet implemented properly
+            newMagSimulation.userClassifierModelId = 0; //this.UserDefinedClassifier;
+        }
+    
+        newMagSimulation.status = "Pending";
+
+        //then call api
+        this._magAdvancedService.AddMagSimulation(newMagSimulation);
 
     }
     public GetContactModelList(): void {

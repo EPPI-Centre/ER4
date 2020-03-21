@@ -53,17 +53,22 @@ namespace ERxWebClient2.Controllers
 					MagSimulation newMagSimulation = new MagSimulation();
 					DataPortal<MagSimulation> dp = new DataPortal<MagSimulation>();
 
-                    //newMagRun.AllIncluded = Convert.ToBoolean(magRun.allIncluded);
-                    //newMagRun.AttributeId = magRun.attributeId;
-                    //newMagRun.AutoReRun = Convert.ToBoolean(magRun.autoReRun);
-                    //newMagRun.DateFrom = magRun.dateFrom;
-                    //               newMagRun.AttributeName = magRun.attributeName;
-                    //newMagRun.Filtered = magRun.filtered;
-                    //newMagRun.Mode = magRun.mode;
-                    //newMagRun.NPapers = magRun.nPapers;
-                    //newMagRun.Status = magRun.status;
-                    //newMagRun.UserDescription = magRun.userDescription;
-                    //newMagRun.UserStatus = magRun.userStatus;
+                    newMagSimulation.CreatedDate = magSimulation.createdDate;
+                    newMagSimulation.FilteredByAttribute = magSimulation.filteredByAttribute;
+                    newMagSimulation.FilteredByAttributeId = magSimulation.filteredByAttributeId;
+                    newMagSimulation.FN = magSimulation.FN;
+                    newMagSimulation.FP = magSimulation.FP;
+                    newMagSimulation.NetworkStatistic = magSimulation.networkStatistic;
+                    newMagSimulation.NSeeds = magSimulation.nSeeds;
+                    newMagSimulation.SearchMethod = magSimulation.searchMethod;
+                    newMagSimulation.Status = magSimulation.status;
+                    newMagSimulation.StudyTypeClassifier = magSimulation.studyTypeClassifier;
+                    newMagSimulation.TP = magSimulation.TP;
+                    newMagSimulation.UserClassifierModel = magSimulation.userClassifierModel;
+                    newMagSimulation.UserClassifierModelId = magSimulation.userClassifierModelId;
+                    newMagSimulation.WithThisAttribute = magSimulation.withThisAttribute;
+                    newMagSimulation.WithThisAttributeId = magSimulation.withThisAttributeId;
+                    newMagSimulation.Year = magSimulation.year;
 
                     newMagSimulation = dp.Execute(newMagSimulation);
 
@@ -123,6 +128,7 @@ namespace ERxWebClient2.Controllers
         public string withThisAttribute = "";
         public string filteredByAttribute = "";
         public string userClassifierModel  = "";
+        public int nSeeds = 0;
         public int TP = 0;
         public int FP = 0;
         public int FN = 0;
