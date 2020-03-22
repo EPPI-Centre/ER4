@@ -16,7 +16,7 @@
 </div>
 <div class="col-12 row bg-light">
     <div class="col-5 card p-1 m-1 h-25">
-        <h4 class="p-1 m-1 ">Research And Development for Microsoft Academic Graph</h4>
+        <h5 class="p-1 m-1 ">Research And Development for Microsoft Academic Graph</h5>
         <p class="m-2 p-2 card bg-light">
             The algorithm to find new and related studies to those already identified depends on
             correctly matching your existing studies with the MAG dataset.
@@ -25,13 +25,15 @@
             Included: {{_magAdvancedService.AdvancedReviewInfo.nRequiringManualCheckIncluded}} <br />
             Excluded: {{_magAdvancedService.AdvancedReviewInfo.nRequiringManualCheckExcluded}} <br />
             In order to improve the matching accuracy, a check of the lower
-            confidence level of automatic matches can be made.
+            confidence level of automatic matches can be made.<br />
+            Included: {{_magAdvancedService.AdvancedReviewInfo.nNotMatchedIncluded}} <br />
+            Excluded: {{_magAdvancedService.AdvancedReviewInfo.nNotMatchedExcluded}} <br />
         </p>
         <div class="col-2">
          
         </div>
         <div class="col-6">
-            <button class="btn btn-primary" data-toggle="collapse" href="#collapseExample"
+            <button class="btn btn-outline-primary" data-toggle="collapse" href="#collapseExample"
                     role="button" aria-expanded="false" aria-controls="collapseExample">
                 Seed and Test MAG
             </button>
@@ -39,7 +41,7 @@
 
     </div>
     <div class="col-6 card p-1 m-1">
-        <h4 >Browse Dataset</h4>
+        <h4 class="p-1 m-1">Browse Dataset</h4>
         <div class="col-12">
             <div>
                 All matched included records
@@ -100,78 +102,90 @@
 <div class="col-12 card collapse p-1 m-1" id="collapseExample" >
 
     <div class="col-12  row">
-        <div class="col-12">
+        <div class="col-5">
             <button (click)="RunMatchingAlgo()" class="btn btn-outline-success">Run Matching Algorithm</button>
             <p><i>NB: The matching algorithm should be run before the simulations below.</i></p>
         </div>
-        <div class="col-5">
-            <p class="card bg-light">
-                Below test the performance of the various algorithms for identifying
-                relevant studies against the data already in your review.
-                There are three ways of splitting your data between 'seed' and 'test'
-                records:
-                year of publication, the date a study entered the MAG
-                database and items under a specific code.
-
-                <i>NB: Please see the documentation for further information.</i>
-            </p>
-            <div class=" col-12"></div>
-        </div>
-
-        <div class="col-1"></div>
-        <div class="col-6 m-1 p-1">
-            <div class="3"><b>Search based on</b></div>
-            <div class="9">
-                <input type="radio" value="Year" name="magSearchRadio"
-                       [(ngModel)]="splitDataOn">	Year
-                <input type="radio" value="CreatedDate" name="magSearchRadio"
-                       [(ngModel)]="splitDataOn">	Created date
-                <input type="radio" value="WithThisCode" name="magSearchRadio"
-                       [(ngModel)]="splitDataOn">	With this code
+        <div class="col-6">
+            <div class="col-1"></div>
+            <div class="col-6 m-1 p-1">
+                <div class="3"><b>Search based on</b></div>
+                <div class="9">
+                    <input type="radio" value="Year" name="magSearchRadio"
+                           [(ngModel)]="splitDataOn">	Year
+                    <input type="radio" value="CreatedDate" name="magSearchRadio"
+                           [(ngModel)]="splitDataOn">	Created date
+                    <input type="radio" value="WithThisCode" name="magSearchRadio"
+                           [(ngModel)]="splitDataOn">	With this code
+                </div>
             </div>
-            <div class="col-6 m-1 p-1" *ngIf="splitDataOn == 'CreatedDate'">
-                <div class="m-1 p-1"><b>Items Dated From</b></div>
-                <div>
-                    <div class="example-wrapper p-2 m-2" style="min-height: 100px">
-                        <p>Select a date:</p>
-                        <kendo-datepicker [(value)]="value"></kendo-datepicker>
-                        <p>(use Alt+↓ to open the calendar, ← and →  to navigate, ↑ to increment and ↓ to decrement the value)</p>
-                    </div>
+            <div class="col-6 m-1 p-1">
+                <div class="3"></div>
+                <div class="9">
+                    <input type="radio" value="true" name="filterOn"
+                           [(ngModel)]="filterOn"> Filter
+                    <input type="radio" value="false" name="filterOn"
+                           [(ngModel)]="filterOn"> No filter
                 </div>
             </div>
         </div>
+        <div class="col-5 row">
+            <div class="col-12">
+                <p class="card bg-light">
+                    Below test the performance of the various algorithms for identifying
+                    relevant studies against the data already in your review.
+                    There are three ways of splitting your data between 'seed' and 'test'
+                    records:
+                    year of publication, the date a study entered the MAG
+                    database and items under a specific code.
 
-        <div *ngIf="splitDataOn == 'WithThisCode'" class="m-1 p-1 col-6">
+                    <i>NB: Please see the documentation for further information.</i>
+                </p>
+
+            </div>
+
+        </div>
+        <div class="col-6 m-1 p-1" *ngIf="splitDataOn == 'CreatedDate'">
+            <div class="m-1 p-1"><b>Items Dated From</b></div>
+            <div>
+                <div class="example-wrapper p-2 m-2" style="min-height: 100px">
+                    <p>Select a date:</p>
+                    <kendo-datepicker [(value)]="value"></kendo-datepicker>
+                    <p>(use Alt+↓ to open the calendar, ← and →  to navigate, ↑ to increment and ↓ to decrement the value)</p>
+                </div>
+            </div>
+        </div>
+        <div *ngIf="splitDataOn == 'WithThisCode' || filterOn == 'true'" class="m-1 p-1 col-6">
 
             <div class="col-12 row">
                 <div class="col-3 p-1 m-1"><b>Select code</b></div>
-                    <div ngbDropdown class="col-9 p-1 m-1">
-                        <button style="min-width: 250px; white-space:normal" [attr.aria-expanded]="!isCollapsed"
-                                class="btn alert-primary col-12 p-2 m-0" id="dropdownBasic1"
-                                ngbDropdownToggle (click)="isCollapsed = !isCollapsed; dropdownBasic1 = false">
-                            {{CurrentDropdownSelectedCode?.name}}
-                        </button>
-                        <div ngbDropdownMenu aria-labelledby="dropdownBasic1" [ngbCollapse]="!isCollapsed">
-                            <codesetSelector [IsMultiSelect]="false" [WhatIsSelectable]="'SetAttribute'"
-                                             [MaxHeight]="500" #WithOrWithoutCodeSelector
-                                             (selectedNodeInTree)="CloseCodeDropDown()" [rootsOnly]="false">
-                            </codesetSelector>
-                        </div>
+                <div ngbDropdown class="col-9 p-1 m-1">
+                    <button style="min-width: 250px; white-space:normal" [attr.aria-expanded]="!isCollapsed"
+                            class="btn alert-primary col-12 p-2 m-0" id="dropdownBasic1"
+                            ngbDropdownToggle (click)="isCollapsed = !isCollapsed; dropdownBasic1 = false">
+                        {{CurrentDropdownSelectedCode?.name}}
+                    </button>
+                    <div ngbDropdownMenu aria-labelledby="dropdownBasic1" [ngbCollapse]="!isCollapsed">
+                        <codesetSelector [IsMultiSelect]="false" [WhatIsSelectable]="'SetAttribute'"
+                                         [MaxHeight]="500" #WithOrWithoutCodeSelector
+                                         (selectedNodeInTree)="CloseCodeDropDown()" [rootsOnly]="false">
+                        </codesetSelector>
                     </div>
                 </div>
             </div>
+        </div>
 
         <div class="col-12 row">
             <div class="col-1 p-1 m-1"><b>Search method</b></div>
             <div ngbDropdown class="col-3 p-0 m-0">
-                <select class="col-12 form-control mb-1" name="SearchMethod" 
+                <select class="col-12 form-control mb-1" name="SearchMethod"
                         [(ngModel)]="SearchMethod">
                     <option *ngFor="let item of SearchMethods"
                             [ngValue]="item" [selected]="item == SearchMethod">
                         {{item}}
-              
-                </option>
-               </select>
+
+                    </option>
+                </select>
 
             </div>
             <div class="col-1"></div>
@@ -183,7 +197,7 @@
                             [ngValue]="item" [selected]="item == NetworkStat">
                         {{item}}
                     </option>
-                </select>              
+                </select>
             </div>
         </div>
 

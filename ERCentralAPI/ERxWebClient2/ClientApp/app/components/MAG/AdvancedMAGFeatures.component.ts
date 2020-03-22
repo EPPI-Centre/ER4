@@ -63,22 +63,30 @@ export class AdvancedMAGFeaturesComponent implements OnInit {
 
         if (this.splitDataOn == 'Year') {
 
-            // not yet implemented year on UI
+            // take the year from the date
             newMagSimulation.year = 2016;
 
-        } else if (this.splitDataOn == 'WithThisCode') {
+        } else if (this.splitDataOn == 'CreatedDate') {
 
             newMagSimulation.createdDate = new Date();
 
-        } else {
+        } else if (this.splitDataOn == 'WithThisCode') {
+
             if (this.CurrentDropdownSelectedCode != null) {
                 let att = this.CurrentDropdownSelectedCode as SetAttribute;
                 newMagSimulation.withThisAttributeId = att.attribute_id;
             }
-            
         }
-        //not yet implemented a filter on the UI to do                
-        newMagSimulation.filteredByAttributeId = 0;
+        if (this.filterOn == 'true') {
+            if (this.CurrentDropdownSelectedCode != null) {
+                let att = this.CurrentDropdownSelectedCode as SetAttribute;
+                newMagSimulation.filteredByAttributeId = att.attribute_id;
+            }
+        } else {
+            //not yet implemented a filter on the UI to do                
+            newMagSimulation.filteredByAttributeId = 0;
+        }
+
         newMagSimulation.searchMethod = this.SearchMethod;
         newMagSimulation.networkStatistic = this.NetworkStat;
         if (this.StudyTypeClassifier != null) {
@@ -90,8 +98,7 @@ export class AdvancedMAGFeaturesComponent implements OnInit {
         }
     
         newMagSimulation.status = "Pending";
-
-        //then call api
+        console.log(newMagSimulation);
         this._magAdvancedService.AddMagSimulation(newMagSimulation);
 
     }
@@ -264,7 +271,8 @@ export class AdvancedMAGFeaturesComponent implements OnInit {
 	public magSearchCheck: boolean = false;
 	public magDateRadio: boolean = false;
     public magRCTRadio: string = 'NoFilter';
-	public magMode: string = '';
+    public magMode: string = '';
+    public filterOn: string = 'false';
 	public ToggleMAGPanel(): void {
 		this.ShowPanel = !this.ShowPanel;
 	}
