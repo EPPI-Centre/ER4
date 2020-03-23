@@ -17,18 +17,18 @@
 <div class="col-12 row bg-light">
     <div class="col-5 card p-1 m-1 h-25">
         <h5 class="p-1 m-1 ">Research And Development for Microsoft Academic Graph</h5>
-        <p class="m-2 p-2 card bg-light">
+        <div class="m-2 p-2 card bg-light col-12 row">
             The algorithm to find new and related studies to those already identified depends on
             correctly matching your existing studies with the MAG dataset.
             This can be somewhat automated; some studies cannot be matched
             with 100% confidence and some not at all. <br />
-            Included: {{_magAdvancedService.AdvancedReviewInfo.nRequiringManualCheckIncluded}} <br />
-            Excluded: {{_magAdvancedService.AdvancedReviewInfo.nRequiringManualCheckExcluded}} <br />
+            <div class=" btn btn-link p-0 m-0 col-6"><b>Included: {{_magAdvancedService.AdvancedReviewInfo.nRequiringManualCheckIncluded}}</b></div> 
+            <div class=" btn btn-link p-0 m-0 col-6"><b>Excluded: {{_magAdvancedService.AdvancedReviewInfo.nRequiringManualCheckExcluded}} </b></div><br />
             In order to improve the matching accuracy, a check of the lower
             confidence level of automatic matches can be made.<br />
-            Included: {{_magAdvancedService.AdvancedReviewInfo.nNotMatchedIncluded}} <br />
-            Excluded: {{_magAdvancedService.AdvancedReviewInfo.nNotMatchedExcluded}} <br />
-        </p>
+            <div class=" btn btn-link p-0 m-0 col-6"><b>Included: {{_magAdvancedService.AdvancedReviewInfo.nNotMatchedIncluded}} </b></div>
+            <div class=" btn btn-link p-0 m-0 col-6"><b>Excluded: {{_magAdvancedService.AdvancedReviewInfo.nNotMatchedExcluded}} </b></div><br />
+        </div>
         <div class="col-2">
          
         </div>
@@ -78,8 +78,10 @@
                 <input required minlength="4" type="number" id="magPaperId" name="magPaperId" #magPaper="ngModel"
                        class="form-control col-4 p-0 m-0 text-center"
                        [(ngModel)]="magPaperId" />
+                <div class="col-1"></div>
+                <button [disabled]="!CanGetMagPaper()" (click)="GetMagPaper()" class="btn btn-warning">Get MAG paper</button>
                 <div *ngIf="magPaper.invalid && (magPaper.dirty || magPaper.touched)"
-                     class="col-5 alert alert-danger">
+                     class="col-12 alert alert-danger">
 
                     <div *ngIf="magPaper.errors.required">
                         magPaperId is required.
@@ -88,7 +90,7 @@
                         magPaperId must be at least 4 numbers long.
                     </div>
                 </div>
-                <button [disabled]="!CanGetMagPaper()" (click)="GetMagPaper()" class="btn btn-warning">Get MAG paper</button>
+
             </div>
             <div class="col-12 card bg-secondary">
                 <textarea>Search for topics in the box above.  Wildcards work e.g. physic* 
@@ -241,37 +243,37 @@
         <table class="card-body col-12 small table table-border  table-striped bg-light">
             <thead>
                 <tr>
-                    <th >Method</th>
-                    <th >Status</th>
-                    <th >Seed method</th>
-                    <th >(Filter)</th>
-                    <th >Network Stat</th>
-                    <th >Study classifier</th>
-                    <th >User classifier</th>
-                    <th >  </th>
-                    <th >Seeds</th>
-                    <th >TP</th>
-                    <th >FP</th>
-                    <th >FN</th>
-                    <th >TN</th>
-                    <th> Delete Simulation</th>
+                    <th width="15">Method</th>
+                    <th width="15">Status</th>
+                    <th width="15">Seed method</th>
+                    <th width="15">(Filter)</th>
+                    <th width="15">Network Stat</th>
+                    <th width="15">Study classifier</th>
+                    <th width="15">User classifier</th>
+                    <th width="15">  </th>
+                    <th width="15">Seeds</th>
+                    <th width="1">TP</th>
+                    <th width="1">FP</th>
+                    <th width="1">FN</th>
+                    <th width="1">TN</th>
+                    <th width="5"> Delete Simulation</th>
                 </tr>
             </thead>
             <tbody>
                 <tr class="" *ngFor="let item of _magAdvancedService.MagSimulationList">
-                    <td>{{item.searchMethod}}</td>
-                    <td>{{item.status}}</td>
-                    <td>{{item.searchMethod}}</td>
-                    <td>{{item.filteredByAttribute}}</td>
-                    <td> {{item.networkStatistic}}</td>
-                    <td>{{item.studyTypeClassifier}}</td>
-                    <td>{{item.userClassifierModel}}</td>
-                    <td>  </td>
-                    <td>{{item.status}}</td>
-                    <td class="p-0">{{item.TP}}</td>
-                    <td class="p-0 ">{{item.FP}}</td>
-                    <td class="p-0">{{item.FN}}</td>
-                    <td class="p-0">{{item.TN}}</td>
+                    <td >{{item.searchMethod}}</td>
+                    <td >{{item.status}}</td>
+                    <td >{{item.searchMethod}}</td>
+                    <td >{{item.filteredByAttribute}}</td>
+                    <td > {{item.networkStatistic}}</td>
+                    <td >{{item.studyTypeClassifier}}</td>
+                    <td >{{item.userClassifierModel}}</td>
+                    <td >  </td>
+                    <td >{{item.status}}</td>
+                    <td class=" btn-link " width="1">{{item.tp}}</td>
+                    <td class=" btn-link " width="1">{{item.fp}}</td>
+                    <td class=" btn-link" width="1">{{item.fn}}</td>
+                    <td class=" btn-link " width="1">{{item.tn}}</td>
                     <td><button class="btn btn-outline-danger" (click)="DeleteSimulation(item)"> Delete </button></td>
                 </tr>
             </tbody>

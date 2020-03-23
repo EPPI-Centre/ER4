@@ -224,7 +224,11 @@ export class AdvancedMAGFeaturesComponent implements OnInit {
         criteria.included = "Excluded";
         criteria.pageSize = 20;
 
-        this._magAdvancedService.FetchMagPaperList(criteria);
+        this._magAdvancedService.FetchMagPaperList(criteria).then(
+            (result: any) => {
+                this.router.navigate(['MAGBrowser']);
+            }
+        );
 
     }
     public GetMatchedMagAllList() {
@@ -234,7 +238,11 @@ export class AdvancedMAGFeaturesComponent implements OnInit {
         criteria.included = "All";
         criteria.pageSize = 20;
 
-        this._magAdvancedService.FetchMagPaperList(criteria);
+        this._magAdvancedService.FetchMagPaperList(criteria).then(
+            (result: any) => {
+                this.router.navigate(['MAGBrowser']);
+            }
+        );
 
     }
 
@@ -248,7 +256,11 @@ export class AdvancedMAGFeaturesComponent implements OnInit {
             criteria.attributeIds = att.attribute_id.toString();
             criteria.pageSize = 20;
 
-            this._magAdvancedService.FetchMagPaperList(criteria);
+            this._magAdvancedService.FetchMagPaperList(criteria).then(
+                (result: any) => {
+                    this.router.navigate(['MAGBrowser']);
+                }
+            );
         }
 
     }
