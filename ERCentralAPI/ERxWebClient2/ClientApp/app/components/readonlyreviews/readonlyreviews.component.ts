@@ -38,9 +38,7 @@ export class FetchReadOnlyReviewsComponent implements OnInit, OnDestroy{
 
 			//this.loadReviews();
             //this._readonlyreviewsService.Fetch(this.dtTrigger);
-            console.log('fetching reviews');
-            this._readonlyreviewsService.Fetch();
-            if (this.IsCochraneUser) this._readonlyreviewsService.FetchArchieReviews();
+            //this.getReviews();
         }
 	}
     allowUnsort: boolean = true;
@@ -116,13 +114,16 @@ export class FetchReadOnlyReviewsComponent implements OnInit, OnDestroy{
     }
 
     getReviews() {
-        //console.log('inside get reviews');
-        //when we're not in a review, we want the fresh list! otherwise we're OK with the existing one
-        if (this._readonlyreviewsService.ReadOnlyReviews.length == 0 || this.ReviewerIdentityServ.reviewerIdentity.reviewId == 0) {
+        console.log('fetching reviews');
+        this._readonlyreviewsService.Fetch();
+        if (this.IsCochraneUser) this._readonlyreviewsService.FetchArchieReviews();
+        ////console.log('inside get reviews');
+        ////when we're not in a review, we want the fresh list! otherwise we're OK with the existing one
+        //if (this._readonlyreviewsService.ReadOnlyReviews.length == 0 || this.ReviewerIdentityServ.reviewerIdentity.reviewId == 0) {
 
-            this._readonlyreviewsService.Fetch();
+        //    this._readonlyreviewsService.Fetch();
             
-        }
+        //}
 	}
 	//loadReviews() {
 

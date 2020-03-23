@@ -79,7 +79,7 @@ export class NewReviewComponent implements OnInit, OnDestroy {
 		}
 	}
     onFullSubmit(revId: number) {
-        this.readonlyreviewsService.Fetch();
+        //this.readonlyreviewsService.Fetch();
         this.CloseNewReview();
 		this._reviewerIdentityServ.LoginToFullReview(revId);
 	}

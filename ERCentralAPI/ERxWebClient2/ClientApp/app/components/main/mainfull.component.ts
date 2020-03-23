@@ -30,6 +30,7 @@ import { ConfigurableReportService } from '../services/configurablereport.servic
 import { Helpers } from '../helpers/HelperMethods';
 import { ExcelService } from '../services/excel.service';
 import { DuplicatesService } from '../services/duplicates.service';
+import { FetchReadOnlyReviewsComponent } from '../readonlyreviews/readonlyreviews.component';
 
 
 @Component({
@@ -86,7 +87,8 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 	@ViewChild('SearchComp') SearchComp!: SearchComp;
 	@ViewChild('ComparisonComp') ComparisonComp!: ComparisonComp;
 	@ViewChild('CodeTreeAllocate') CodeTreeAllocate!: codesetSelectorComponent;
-	@ViewChild('CodingToolTreeReports') CodingToolTree!: codesetSelectorComponent;
+    @ViewChild('CodingToolTreeReports') CodingToolTree!: codesetSelectorComponent;
+    @ViewChild(FetchReadOnlyReviewsComponent) private ReadOnlyReviewsComponent!: FetchReadOnlyReviewsComponent;
 
 
 	public DropdownSelectedCodeAllocate: singleNode | null = null;
@@ -735,6 +737,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 	//}
     toggleReviewPanel() {
         this.isReviewPanelCollapsed = !this.isReviewPanelCollapsed;
+        if (this.isReviewPanelCollapsed && this.ReadOnlyReviewsComponent) this.ReadOnlyReviewsComponent.getReviews();
     }
     toggleWorkAllocationsPanel() {
 		this.isWorkAllocationsPanelCollapsed = !this.isWorkAllocationsPanelCollapsed;

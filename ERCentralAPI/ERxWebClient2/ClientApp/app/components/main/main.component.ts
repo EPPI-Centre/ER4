@@ -65,6 +65,7 @@ export class MainComponent implements OnInit, OnDestroy, AfterViewInit {
     }
     toggleReviewPanel() {
         this.isReviewPanelCollapsed = !this.isReviewPanelCollapsed;
+        if (this.isReviewPanelCollapsed && this.ReadOnlyReviewsComponent) this.ReadOnlyReviewsComponent.getReviews();
     }
     getDaysLeftAccount() {
 
