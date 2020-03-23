@@ -145,12 +145,14 @@ export class FetchReadOnlyReviewsComponent implements OnInit, OnDestroy{
 	//	this.dataSource = new MatTableDataSource(this._readonlyreviewsService.ReadOnlyReviews);
 	//	this.dataSource.sort = this.sort1;
 	//}
-
+    Clear() {
+        this._readonlyreviewsService.Clear();
+    }
 	ngOnDestroy() {
 
         //this._readonlyreviewsService.ReadOnlyReviews = [];
         //this.dtTrigger.unsubscribe();
-
+        this.Clear();
     }
 
 }

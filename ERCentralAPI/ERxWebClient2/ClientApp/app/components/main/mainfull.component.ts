@@ -856,8 +856,9 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 		}
 		if (this.ComparisonComp) {
 			this.ComparisonComp.Clear();
-		}
-
+        }
+        if (this.ReadOnlyReviewsComponent) this.ReadOnlyReviewsComponent.Clear();
+        this.isReviewPanelCollapsed = false;
         //this.dtTrigger.unsubscribe();
         //if (this.statsSub) this.statsSub.unsubscribe();
         //this.statsSub = this.reviewSetsService.GetReviewStatsEmit.subscribe(
