@@ -85,32 +85,33 @@ namespace ERxWebClient2.Controllers
 			}
 		}
 
-		//[HttpPost("[action]")]
-		//public IActionResult DeleteMagRelatedPapersRun([FromBody] MVCMagRelatedPapersRun magRun)
-		//{
-		//	try
-		//	{
-		//		if (SetCSLAUser4Writing())
-		//		{
-		//			DataPortal<MagSimulationList> dp = new DataPortal<MagSimulationList>();
-		//			MagSimulationList result = dp.Fetch();
+        [HttpPost("[action]")]
+        public IActionResult DeleteMagSimulation([FromBody] MVCMagSimulation magSim)
+        {
+            try
+            {
+                if (SetCSLAUser4Writing())
+                {
+                    DataPortal<MagSimulationList> dp = new DataPortal<MagSimulationList>();
+                    MagSimulationList result = dp.Fetch();
 
-		//			MagRelatedPapersRun currentMagRun = result.FirstOrDefault(x => x.MagRelatedRunId == magRun.magRelatedRunId);
+                    MagSimulation currentMagSim = result.FirstOrDefault(x => x.MagSimulationId == magSim.magSimulationId);
 
-		//			currentMagRun.Delete();
-		//			currentMagRun = currentMagRun.Save();
+                    currentMagSim.Delete();
+                    currentMagSim = currentMagSim.Save();
 
-		//			return Ok(currentMagRun);
+                    return Ok(currentMagSim);
 
-		//		}else return Forbid();
-		//	}
-		//	catch (Exception e)
-		//	{
-		//		_logger.LogException(e, "Deleting a MagRelatedPapersRun list has an error");
-		//		throw;
-		//	}
-		//}
-	}
+                }
+                else return Forbid();
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "Deleting a DeleteMagSimulation list has an error");
+                throw;
+            }
+        }
+    }
 
 
 	public class MVCMagSimulation

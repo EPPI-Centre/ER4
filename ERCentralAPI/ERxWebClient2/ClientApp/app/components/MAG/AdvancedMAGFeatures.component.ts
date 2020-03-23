@@ -192,6 +192,17 @@ export class AdvancedMAGFeaturesComponent implements OnInit {
        
 
     }
+    public DeleteSimulation(item: MagSimulation) {
+
+        this.ConfirmationDialogService.confirm("Deleting the selected MAG simulation",
+            "Are you sure you want to delete MAG RUN:" + item.magSimulationId + "?", false, '')
+            .then((confirm: any) => {
+                if (confirm) {
+                    this._magAdvancedService.DeleteSimulation(item);
+                }
+            });
+    }
+
     public GetMatchedMagIncludedList(): void {
 
         let criteria: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();

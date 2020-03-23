@@ -254,6 +254,7 @@
                     <th >FP</th>
                     <th >FN</th>
                     <th >TN</th>
+                    <th> Delete Simulation</th>
                 </tr>
             </thead>
             <tbody>
@@ -271,6 +272,7 @@
                     <td class="p-0 ">{{item.FP}}</td>
                     <td class="p-0">{{item.FN}}</td>
                     <td class="p-0">{{item.TN}}</td>
+                    <td><button class="btn btn-outline-danger" (click)="DeleteSimulation(item)"> Delete </button></td>
                 </tr>
             </tbody>
         </table>
