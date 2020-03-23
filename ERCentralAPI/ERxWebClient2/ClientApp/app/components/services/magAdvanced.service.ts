@@ -346,9 +346,10 @@ export class MAGAdvancedService extends BusyAwareService {
     }
     public DeleteSimulation(item: MagSimulation) {
 
-        console.log(item);
+        console.log(item.magSimulationId);
         this._BusyMethods.push("DeleteSimulation");
-        return this._httpC.post<MagSimulation>(this._baseUrl + 'api/MAGSimulationList/DeleteMagSimulation', item)
+        let body = JSON.stringify({Value: item.magSimulationId });
+        return this._httpC.post<MagSimulation>(this._baseUrl + 'api/MAGSimulationList/DeleteMagSimulation', body)
             .toPromise().then(
                 (result: MagSimulation) => {
 

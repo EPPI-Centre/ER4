@@ -86,7 +86,7 @@ namespace ERxWebClient2.Controllers
 		}
 
         [HttpPost("[action]")]
-        public IActionResult DeleteMagSimulation([FromBody] MVCMagSimulation magSim)
+        public IActionResult DeleteMagSimulation([FromBody] SingleInt64Criteria magSimId)
         {
             try
             {
@@ -95,7 +95,7 @@ namespace ERxWebClient2.Controllers
                     DataPortal<MagSimulationList> dp = new DataPortal<MagSimulationList>();
                     MagSimulationList result = dp.Fetch();
 
-                    MagSimulation currentMagSim = result.FirstOrDefault(x => x.MagSimulationId == magSim.magSimulationId);
+                    MagSimulation currentMagSim = result.FirstOrDefault(x => x.MagSimulationId == magSimId.Value);
 
                     currentMagSim.Delete();
                     currentMagSim = currentMagSim.Save();
