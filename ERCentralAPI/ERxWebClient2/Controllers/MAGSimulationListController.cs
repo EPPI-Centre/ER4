@@ -80,6 +80,7 @@ namespace ERxWebClient2.Controllers
 			catch (Exception e)
 			{
 				_logger.LogException(e, "Creating a MagSimulation has an error");
+                //TODO investigating bug
 				throw;
 			}
 		}

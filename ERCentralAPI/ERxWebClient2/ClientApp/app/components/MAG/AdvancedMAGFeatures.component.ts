@@ -38,9 +38,9 @@ export class AdvancedMAGFeaturesComponent implements OnInit {
     ngOnInit() {
 
         this.GetMagReviewMagInfoCommand();
-
+        this.GetMagSimulationList();
         //probably do not need the below
-        //this.GetContactModelList();
+        this.GetContactModelList();
         //this.GetMatchedMagIncludedList();
         //this.GetMatchedMagExcludedList();
         //this.Clear();

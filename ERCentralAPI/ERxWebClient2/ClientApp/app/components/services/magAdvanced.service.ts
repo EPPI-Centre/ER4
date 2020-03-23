@@ -132,6 +132,7 @@ export class MAGAdvancedService extends BusyAwareService {
             .subscribe(result => {
                 this.RemoveBusy("GetMagSimulationList");
                 this.MagSimulationList = result;
+                console.log('mag simulation list: ', result);
             },
                 error => {
                     this.RemoveBusy("GetMagSimulationList");
