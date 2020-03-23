@@ -157,9 +157,12 @@
         </div>
         <div *ngIf="splitDataOn == 'WithThisCode' || filterOn == 'true'" class="m-1 p-1 col-6">
 
+            
             <div class="col-12 row">
-                <div class="col-3 p-1 m-1"><b>Select code</b></div>
-                <div ngbDropdown class="col-9 p-1 m-1">
+                <div class="col-1 p-1 m-1"></div>
+                <div class="col-12 p-1 m-1"><b>Select code</b></div>
+
+                <div ngbDropdown class="col-8 p-1 m-1">
                     <button style="min-width: 250px; white-space:normal" [attr.aria-expanded]="!isCollapsed"
                             class="btn alert-primary col-12 p-2 m-0" id="dropdownBasic1"
                             ngbDropdownToggle (click)="isCollapsed = !isCollapsed; dropdownBasic1 = false">
@@ -173,6 +176,7 @@
                     </div>
                 </div>
             </div>
+            
         </div>
 
         <div class="col-12 row">
@@ -189,7 +193,7 @@
 
             </div>
             <div class="col-1"></div>
-            <div class="col-1 p-1 m-1"><b>Network Statistic</b></div>
+            <div class="col-1 p-2 m-2"><b>Network Statistic</b></div>
             <div ngbDropdown class="col-3 p-0 m-0">
                 <select class="col-12 form-control mb-1" name="NetworkStat"
                         [(ngModel)]="NetworkStat">
@@ -234,22 +238,22 @@
 </div>
 
 <div style="min-width:250px; overflow:auto;" >
-        <table class="card col-12 small table table-border  table-striped bg-light">
+        <table class="card-body col-12 small table table-border  table-striped bg-light">
             <thead>
                 <tr>
-                    <th width="15">Method</th>
-                    <th width="40">Status</th>
-                    <th width="140">Seed method</th>
-                    <th width="140">(Filter)</th>
-                    <th width="140">Network Stat</th>
-                    <th width="140">Study classifier</th>
-                    <th width="140">User classifier</th>
-                    <th width="140">  </th>
-                    <th width="140">Seeds</th>
-                    <th width="140">TP</th>
-                    <th width="140">FP</th>
-                    <th width="140">FN</th>
-                    <th width="140">TN</th>
+                    <th >Method</th>
+                    <th >Status</th>
+                    <th >Seed method</th>
+                    <th >(Filter)</th>
+                    <th >Network Stat</th>
+                    <th >Study classifier</th>
+                    <th >User classifier</th>
+                    <th >  </th>
+                    <th >Seeds</th>
+                    <th >TP</th>
+                    <th >FP</th>
+                    <th >FN</th>
+                    <th >TN</th>
                 </tr>
             </thead>
             <tbody>

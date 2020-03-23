@@ -115,6 +115,7 @@ namespace ERxWebClient2.Controllers
 
 	public class MVCMagSimulation
 	{
+
         public int magSimulationId = 0;
         public int reviewId= 0;
         public int year = 0;

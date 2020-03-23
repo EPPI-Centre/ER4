@@ -278,6 +278,10 @@ namespace BusinessLibrary.BusinessClasses
         {
             get
             {
+                if ((TP + FP)==0)
+                {
+                    return 0;
+                }
                 return TP / (TP + FP);
             }
         }
@@ -287,6 +291,10 @@ namespace BusinessLibrary.BusinessClasses
         {
             get
             {
+                if ((TP + FN) == 0)
+                {
+                    return 0;
+                }
                 return TP / (TP + FN);
             }
         }

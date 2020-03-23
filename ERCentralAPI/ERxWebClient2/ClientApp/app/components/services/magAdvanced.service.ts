@@ -499,9 +499,9 @@ export class MagSimulation {
     withThisAttribute: string = '';
     filteredByAttribute: string = '';
     userClassifierModel: string = '';
-    TP: number = 0;
-    FP: number = 0;
-    FN: number = 0;
-    TN: number = 0;
+    tP: number = 0;
+    fP: number = 0;
+    fN: number = 0;
+    tN: number = 0;
 }
 
