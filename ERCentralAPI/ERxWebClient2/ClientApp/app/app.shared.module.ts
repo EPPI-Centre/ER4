@@ -85,6 +85,7 @@ import { TextSelectDirective } from './components/helpers/text-select.directive'
 import { ReviewTermsListComp } from './components/ReviewTermsList/ReviewTermsListComp.component';
 import { configurablereportComp } from './components/Reports/configurablereport.component';
 import { DuplicatesComponent } from './components/Duplicates/duplicates.component';
+import { codesetTree4Move } from './components/CodesetTrees/codesetTree4Move.component';
 //import { MAGComp } from './components/MAG/MAGComp.component';
 
 @NgModule({
@@ -152,7 +153,8 @@ import { DuplicatesComponent } from './components/Duplicates/duplicates.componen
 		TextSelectDirective,
 		ReviewTermsListComp,
         configurablereportComp,
-        DuplicatesComponent
+        DuplicatesComponent,
+        codesetTree4Move
 	],
     providers: [
         EventEmitterService,

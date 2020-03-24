@@ -32,7 +32,8 @@ export class EditCodeComp implements OnInit, OnDestroy {
     @Input() IsSmall: boolean = false;
     @Input() UpdatingCode: SetAttribute | null = null;
     @Output() emitterCancel = new EventEmitter();
-    ShowDeleteCode: boolean = false;
+    ShowPanel: string = "";
+    
     //public get UpdatingCode2(): SetAttribute | null {
     //    console.log("UpdatingCode2");
     //    return this.UpdatingCode;
@@ -86,6 +87,13 @@ export class EditCodeComp implements OnInit, OnDestroy {
         }
     }
 
+    get ReviewSetOfUpdatingCode(): ReviewSet | null {
+        if (this.UpdatingCode) {
+            return this.ReviewSetsService.FindSetById(this.UpdatingCode.set_id);
+        }
+        return null;
+    }
+
     UpdateCode() {
         if (!this.UpdatingCode || this.UpdatingCode.nodeType != "SetAttribute") {
             this.CancelActivity();
@@ -136,12 +144,16 @@ export class EditCodeComp implements OnInit, OnDestroy {
             );
     }
 
+    DoMoveBranch(DestinationBranch: singleNode) {
+        console.log("DoMoveBranch", DestinationBranch);
+        if (DestinationBranch == null) return;
+    }
 
     ShowDeleteCodesetClicked() {
         //console.log('0');
         if (!this.UpdatingCode) return;
         this._appliedCodes = -1;
-        this.ShowDeleteCode = true;
+        this.ShowPanel = 'DeleteCode';
         this.ReviewSetsEditingService.AttributeOrSetDeleteCheck(0, this.UpdatingCode.attributeSetId).then(
             success => {
                 //alert("did it");
@@ -154,8 +166,11 @@ export class EditCodeComp implements OnInit, OnDestroy {
             });
     }
     HideDeleteCodeset() {
-        this.ShowDeleteCode = false;
+        this.ShowPanel = '';
         this._appliedCodes = -1;
+    }
+    ShowMoveCodeClicked() {
+        this.ShowPanel = 'MoveCode';
     }
     DoDeleteCode() {
         if (!this.UpdatingCode) return;
