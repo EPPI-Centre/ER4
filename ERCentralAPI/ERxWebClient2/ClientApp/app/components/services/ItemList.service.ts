@@ -892,7 +892,7 @@ export class Criteria {
     endPage: number = 0;
     startIndex: number = 0;
     endIndex: number = 0;
-
+    magSimulationId: number = 0;
     workAllocationId: number = 0;
     comparisonId: number = 0;
     description: string = "";

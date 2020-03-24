@@ -15,22 +15,28 @@
     
 </div>
 <div class="col-12 row bg-light">
-    <div class="col-5 card p-1 m-1 h-25">
+    <div  *ngIf="!ShowGraphViewer" class="col-5 card p-1 m-1 h-25">
         <h5 class="p-1 m-1 ">Research And Development for Microsoft Academic Graph</h5>
         <div class="m-2 p-2 card bg-light col-12 row">
-            The algorithm to find new and related studies to those already identified depends on
-            correctly matching your existing studies with the MAG dataset.
-            This can be somewhat automated; some studies cannot be matched
-            with 100% confidence and some not at all. <br />
-            <div class=" btn btn-link p-0 m-0 col-6"><b>Included: {{_magAdvancedService.AdvancedReviewInfo.nRequiringManualCheckIncluded}}</b></div> 
-            <div class=" btn btn-link p-0 m-0 col-6"><b>Excluded: {{_magAdvancedService.AdvancedReviewInfo.nRequiringManualCheckExcluded}} </b></div><br />
-            In order to improve the matching accuracy, a check of the lower
-            confidence level of automatic matches can be made.<br />
-            <div class=" btn btn-link p-0 m-0 col-6"><b>Included: {{_magAdvancedService.AdvancedReviewInfo.nNotMatchedIncluded}} </b></div>
-            <div class=" btn btn-link p-0 m-0 col-6"><b>Excluded: {{_magAdvancedService.AdvancedReviewInfo.nNotMatchedExcluded}} </b></div><br />
+            The algorithm to find new and related studies to the ones you have
+            already identified depends on correctly matching your existing records into the Microsoft Academic dataset. While this process
+            can be automated up to a point, some records cannot be matched with 100% confidence, and some cannot be matched at all. In order
+            to improve performance, it can be helpful to check the lower confidence automatic matches for accuracy:. <br />
+            <div class=" btn btn-link p-0 m-0 col-6" (click)="OpenMatchesInReview('MagMatchesNeedingChecking')">
+            <b>Included: {{_magAdvancedService.AdvancedReviewInfo.nRequiringManualCheckIncluded}}</b>
+            </div>
+            <div class=" btn btn-link p-0 m-0 col-6" (click)="OpenMatchesInReview('MagMatchesNeedingChecking')">
+            <b>Excluded: {{_magAdvancedService.AdvancedReviewInfo.nRequiringManualCheckExcluded}} </b>
+                </div><br />
+            In addition, there are likely to be a number of records which could not be matched at all:<br />
+            <div class=" btn btn-link p-0 m-0 col-6" (click)="OpenMatchesInReview('MagMatchesNeedingChecking')">
+            <b>Included: {{_magAdvancedService.AdvancedReviewInfo.nNotMatchedIncluded}} </b>
+            </div>
+            <div class=" btn btn-link p-0 m-0 col-6" (click)="OpenMatchesInReview('MagMatchesNeedingChecking')">
+            <b>Excluded: {{_magAdvancedService.AdvancedReviewInfo.nNotMatchedExcluded}} </b>
+                </div><br />
         </div>
         <div class="col-2">
-         
         </div>
         <div class="col-6">
             <button class="btn btn-outline-primary" data-toggle="collapse" href="#collapseExample1"
@@ -38,7 +44,10 @@
                 Seed and Test MAG
             </button>
         </div>
-
+    </div>
+    <div *ngIf="ShowGraphViewer" class="col-5 card p-1 m-1 h-25">
+        <h5 class="p-1 m-1 ">Graph Viewer</h5>
+        
     </div>
     <div class="col-6 card p-1 m-1">
         <h4 class="p-1 m-1">Browse Dataset</h4>
@@ -48,8 +57,8 @@
                 <div class="btn btn-link p-0 m-0 col-4" (click)="MAGBrowser('MatchedIncluded')">
                     {{_magAdvancedService.AdvancedReviewInfo.nMatchedAccuratelyIncluded}}
                 </div>
-                <div class="btn btn-link  p-0 m-0 c" (click)="OpenMatchesInReview('MatchedIncluded')">
-                    (list)
+                <div class="btn btn-link  p-0 m-0 " (click)="OpenMatchesInReview('MatchedIncluded')">
+                    (List Papers)
                 </div>
             </div>
             <div>
@@ -57,8 +66,8 @@
                 <div class="btn btn-link p-0 m-0 col-4" (click)="MAGBrowser('MatchedExcluded')">
                     {{_magAdvancedService.AdvancedReviewInfo.nMatchedAccuratelyExcluded}}
                 </div>
-                <div class="btn btn-link  p-0 m-0 c" (click)="OpenMatchesInReview('MatchedExcluded')">
-                    (list)
+                <div class="btn btn-link  p-0 m-0 " (click)="OpenMatchesInReview('MatchedExcluded')">
+                    (List Papers)
                 </div>
             </div>
             <div>
@@ -69,8 +78,8 @@
             </div>
             <div class="col-12 row">
                 All matched records with this code:
-                <div  >
-                  <div ngbDropdown class="col-8 p-1 m-1">
+                <div>
+                    <div ngbDropdown class="col-8 p-1 m-1">
                         <button style="min-width: 250px; white-space:normal" [attr.aria-expanded]="!isCollapsed2"
                                 class="btn alert-primary col-12 p-2 m-0" id="dropdownBasic2"
                                 ngbDropdownToggle (click)="isCollapsed2 = !isCollapsed2; dropdownBasic2 = false">
@@ -90,7 +99,7 @@
                             [disabled]="!CanGetCodeMatches()"
                             (click)="MAGBrowser('MatchedWithThisCode')">
                         Get Matches with code
-                    </button> 
+                    </button>
                 </div>
             </div>
             <div class="col-12 row">
@@ -118,7 +127,7 @@
             </div>
         </div>
 
-        </div>
+    </div>
 </div>
 
 <div class="col-12 card collapse p-1 m-1" id="collapseExample1" >
@@ -288,12 +297,12 @@
                     <td > {{item.networkStatistic}}</td>
                     <td >{{item.studyTypeClassifier}}</td>
                     <td >{{item.userClassifierModel}}</td>
-                    <td >  </td>
+                    <td class=" btn-link " width="1" (click)="ShowGraph()"> ROC </td>
                     <td >{{item.status}}</td>
-                    <td class=" btn-link " width="1">{{item.tp}}</td>
-                    <td class=" btn-link " width="1">{{item.fp}}</td>
-                    <td class=" btn-link" width="1">{{item.fn}}</td>
-                    <td class=" btn-link " width="1">{{item.tn}}</td>
+                    <td class=" btn-link " width="1" (click)="OpenResultsInReview('tp', item.magSimulationId)">{{item.tp}}</td>
+                    <td  width="1" >{{item.fp}}</td>
+                    <td class=" btn-link" width="1" (click)="OpenResultsInReview('fn', item.magSimulationId)">{{item.fn}}</td>
+                    <td  width="1" >{{item.tn}}</td>
                     <td><button class="btn btn-outline-danger" (click)="DeleteSimulation(item)"> Delete </button></td>
                 </tr>
             </tbody>

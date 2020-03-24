@@ -34,7 +34,11 @@ export class AdvancedMAGFeaturesComponent implements OnInit {
 //    public sub: Subscription = new Subscription();
     @Output() criteriaChange = new EventEmitter();
     @Output() MAGAllocationClicked = new EventEmitter();
+    public ShowGraphViewer: boolean = false;
+    public ShowGraph() {
 
+        this.ShowGraphViewer = true;
+    }
     ngOnInit() {
 
         this.GetMagReviewMagInfoCommand();
@@ -134,6 +138,15 @@ export class AdvancedMAGFeaturesComponent implements OnInit {
     }
     public OpenMatchesInReview(listType: string) {
 
+        this.ListSubType = listType;
+        this.criteriaChange.emit();
+        this.MAGAllocationClicked.emit();
+    }
+
+    public OpenResultsInReview(listType: string, magSimId: number) {
+
+        this._magAdvancedService.ListDescription = listType;
+        this._magAdvancedService.CurrentMagSimId = magSimId;
         this.ListSubType = listType;
         this.criteriaChange.emit();
         this.MAGAllocationClicked.emit();

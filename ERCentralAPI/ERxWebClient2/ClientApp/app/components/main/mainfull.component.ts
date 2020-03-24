@@ -728,6 +728,10 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 		if (this.ItemListComponent) this.ItemListComponent.LoadWorkAllocList(workAlloc, this.workAllocationCollaborateComp.ListSubType);
 		else console.log('attempt failed');
     }
+    LoadMAGAllocList(magAlloc: number) {
+        if (this.ItemListComponent) this.ItemListComponent.LoadMAGAllocList(this.AdvancedMAG.ListSubType);
+        else console.log('attempt failed');
+    }
 
 	//ngOnChanges() {
 		//if (this.tabsInitialized) {

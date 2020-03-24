@@ -280,6 +280,7 @@ export class MAGAdvancedService extends BusyAwareService {
             );
     }
     public CurrentCriteria: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
+    public CurrentMagSimId: number = 0;
     public PaperIds: string = '';
     public FetchMagPaperList(crit: MVCMagPaperListSelectionCriteria): Promise<void> {
 

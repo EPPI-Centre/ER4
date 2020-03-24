@@ -7,6 +7,8 @@ import { GridDataResult } from '@progress/kendo-angular-grid';
 import { SortDescriptor, orderBy } from '@progress/kendo-data-query';
 import { _localeFactory } from '@angular/core/src/application_module';
 import { Comparison } from '../services/comparisons.service';
+import { MagPaperListSelectionCriteria } from '../services/mag.service';
+import { MAGAdvancedService } from '../services/magAdvanced.service';
 
 @Component({
     selector: 'ItemListComp',
@@ -17,7 +19,8 @@ export class ItemListComp implements OnInit {
 
     constructor(private router: Router, private ReviewerIdentityServ: ReviewerIdentityService,
         public ItemListService: ItemListService,
-		private _WorkAllocationService: WorkAllocationListService
+        private _WorkAllocationService: WorkAllocationListService,
+        private _magAdvancedService: MAGAdvancedService
     ) {
 
     }
@@ -184,11 +187,22 @@ export class ItemListComp implements OnInit {
 	}
     public LoadMAGAllocList(ListSubType: string) {
 
+        console.log('got in here load magallocate');
         let SelectionCritieraItemList: Criteria = new Criteria();
         SelectionCritieraItemList.listType = "MagMatchesMatched";
-        SelectionCritieraItemList.onlyIncluded = true;
+        if (ListSubType == 'MatchedIncluded') {
+            SelectionCritieraItemList.onlyIncluded = true;
+        } else if (ListSubType == 'MatchedExcluded') {
+            SelectionCritieraItemList.onlyIncluded = false;
+        } else if (ListSubType == 'MagMatchesNeedingChecking') {
+
+            SelectionCritieraItemList.attributeSetIdList = ;
+        }
+        if (this._magAdvancedService.ListDescription == 'MagSimulationTP' ||
+            this._magAdvancedService.ListDescription == 'MagSimulationFN') {
+            SelectionCritieraItemList.magSimulationId = this._magAdvancedService.CurrentMagSimId;
+        }
         SelectionCritieraItemList.showDeleted = false;
-        SelectionCritieraItemList.attributeSetIdList = "";
         SelectionCritieraItemList.pageNumber = 0;
         this.ItemListService.FetchWithCrit(SelectionCritieraItemList, ListSubType);
     }
