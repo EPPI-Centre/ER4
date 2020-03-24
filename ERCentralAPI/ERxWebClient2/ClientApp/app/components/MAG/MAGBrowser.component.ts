@@ -53,19 +53,23 @@ export class MAGBrowser implements OnInit {
             this._magAdvancedService.FetchMagFieldOfStudyList(this._magAdvancedService.PaperIds);
 
         } else if (e.index == 1) {
+
             if (this._magAdvancedService.ReviewMatchedPapersList.length > 0) {
+
+                //let crit: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
+                //crit.magPaperId = this._magAdvancedService.currentMagPaper.paperId;
+                //crit.listType = 'ReviewMatchedPapers';
+                //crit.included = 'Included';
+                //crit.pageSize = 20;
+                console.log(this._magAdvancedService.CurrentCriteria);
+                this._magAdvancedService.FetchMagPaperList(this._magAdvancedService.CurrentCriteria);
+
+            } else {
 
                 let crit: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
                 crit.magPaperId = this._magAdvancedService.currentMagPaper.paperId;
-                crit.listType = 'ReviewMatchedPapers';
-                crit.included = 'Included';
-                crit.pageSize = 20;
-                this._magAdvancedService.FetchMagPaperList(crit);
-            } else {
-                let crit: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
-                crit.magPaperId = this._magAdvancedService.currentMagPaper.paperId;
                 crit.listType = 'CitationsList';
-                this._magAdvancedService.FetchMagPaperList(crit);
+                this._magAdvancedService.FetchMagPaperList(this._magAdvancedService.CurrentCriteria);
             }
             
 

@@ -138,12 +138,15 @@ export class AdvancedMAGFeaturesComponent implements OnInit {
         this.criteriaChange.emit();
         this.MAGAllocationClicked.emit();
     }
-	@ViewChild('WithOrWithoutCodeSelector') WithOrWithoutCodeSelector!: codesetSelectorComponent;
-	public CurrentDropdownSelectedCode: singleNode | null = null;
+    @ViewChild('WithOrWithoutCodeSelector') WithOrWithoutCodeSelector!: codesetSelectorComponent;
+    @ViewChild('WithOrWithoutCodeSelector2') WithOrWithoutCodeSelector2!: codesetSelectorComponent;
+    public CurrentDropdownSelectedCode: singleNode | null = null;
+    public CurrentDropdownSelectedCode2: singleNode | null = null;
 	public ItemsWithCode: boolean = false;
 	public MAGItems: any[] = [];
 	public ShowPanel: boolean = false;
     public isCollapsed: boolean = true;
+    public isCollapsed2: boolean = true;
     public ListSubType: string = '';
     public splitDataOn: string = 'Year';
     public SearchMethod: string = 'Recommendations';
@@ -237,7 +240,7 @@ export class AdvancedMAGFeaturesComponent implements OnInit {
         criteria.listType = "ReviewMatchedPapers";
         criteria.included = "All";
         criteria.pageSize = 20;
-
+        this._magAdvancedService.CurrentCriteria = criteria;
         this._magAdvancedService.FetchMagPaperList(criteria).then(
             (result: any) => {
                 this.router.navigate(['MAGBrowser']);
@@ -245,16 +248,25 @@ export class AdvancedMAGFeaturesComponent implements OnInit {
         );
 
     }
+    public CanGetCodeMatches(): boolean {
 
+        if (this.CurrentDropdownSelectedCode2 != null) {
+            return true;
+        } else {
+            return false;
+        }
+
+    }
     public GetMatchedMagWithCodeList() {
 
-        if (this.CurrentDropdownSelectedCode != null) {
+        if (this.CurrentDropdownSelectedCode2 != null) {
             
             let criteria: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
             criteria.listType = "ReviewMatchedPapersWithThisCode";
-            var att = this.CurrentDropdownSelectedCode as SetAttribute;
+            var att = this.CurrentDropdownSelectedCode2 as SetAttribute;
             criteria.attributeIds = att.attribute_id.toString();
             criteria.pageSize = 20;
+            console.log('got in here');
 
             this._magAdvancedService.FetchMagPaperList(criteria).then(
                 (result: any) => {
@@ -286,6 +298,12 @@ export class AdvancedMAGFeaturesComponent implements OnInit {
 			this.CurrentDropdownSelectedCode = this.WithOrWithoutCodeSelector.SelectedNodeData;
 		}
 		this.isCollapsed = false;
+    }
+    CloseCodeDropDown2() {
+        if (this.WithOrWithoutCodeSelector2) {
+            this.CurrentDropdownSelectedCode2 = this.WithOrWithoutCodeSelector2.SelectedNodeData;
+        }
+        this.isCollapsed2 = false;
     }
 	public desc: string = '';
 	public value: Date = new Date(2000, 2, 10);

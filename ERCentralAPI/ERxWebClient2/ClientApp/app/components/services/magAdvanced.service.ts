@@ -279,10 +279,11 @@ export class MAGAdvancedService extends BusyAwareService {
                 }
             );
     }
-
+    public CurrentCriteria: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
     public PaperIds: string = '';
     public FetchMagPaperList(crit: MVCMagPaperListSelectionCriteria): Promise<void> {
-               
+
+        console.log(crit);
         this._BusyMethods.push("FetchMagPaperList");
         return this._httpC.post<MagPaper[]>(this._baseUrl + 'api/MagCurrentInfo/GetMagPaperList', crit)
             .toPromise().then(
@@ -311,7 +312,17 @@ export class MAGAdvancedService extends BusyAwareService {
                     this.PaperIds = this.PaperIds.substr(0, this.PaperIds.length - 1)
                     console.log('rvm list: ', this.ReviewMatchedPapersList);
                     console.log('rvm papers: ', this.PaperIds);
-                }                     
+                } else if (crit.listType == 'ReviewMatchedPapersWithThisCode') {
+                    this.PaperIds = "";
+                    this.ReviewMatchedPapersList = result;
+                    for (var i = 0; i < this.ReviewMatchedPapersList.length; i++) {
+                        this.PaperIds += this.ReviewMatchedPapersList[i].paperId.toString() + ',';
+                    }
+                    this.PaperIds = this.PaperIds.substr(0, this.PaperIds.length - 1)
+                    console.log('rvm list: ', this.ReviewMatchedPapersList);
+                    console.log('rvm papers: ', this.PaperIds);
+                    this.CurrentCriteria = crit;
+                }           
 
             },
                 error => {
