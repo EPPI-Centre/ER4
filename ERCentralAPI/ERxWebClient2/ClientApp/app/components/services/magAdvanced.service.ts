@@ -149,7 +149,7 @@ export class MAGAdvancedService extends BusyAwareService {
             .subscribe(result => {
                 this.RemoveBusy("FetchMagReviewMagInfo");
                 this.AdvancedReviewInfo = result;
-                console.log(JSON.stringify(result));
+                console.log('numbers in question: ',JSON.stringify(result));
             },
                 error => {
                     this.RemoveBusy("FetchMagReviewMagInfo");

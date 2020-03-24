@@ -194,9 +194,10 @@ export class ItemListComp implements OnInit {
             SelectionCritieraItemList.onlyIncluded = true;
         } else if (ListSubType == 'MatchedExcluded') {
             SelectionCritieraItemList.onlyIncluded = false;
+
         } else if (ListSubType == 'MagMatchesNeedingChecking') {
 
-            SelectionCritieraItemList.attributeSetIdList = ;
+           // SelectionCritieraItemList.attributeSetIdList = ;
         }
         if (this._magAdvancedService.ListDescription == 'MagSimulationTP' ||
             this._magAdvancedService.ListDescription == 'MagSimulationFN') {

@@ -15,7 +15,7 @@
     
 </div>
 <div class="col-12 row bg-light">
-    <div  *ngIf="!ShowGraphViewer" class="col-5 card p-1 m-1 h-25">
+    <div  *ngIf="!ShowGraphViewer" class="col-6 card p-0 m-0 h-25">
         <h5 class="p-1 m-1 ">Research And Development for Microsoft Academic Graph</h5>
         <div class="m-2 p-2 card bg-light col-12 row">
             The algorithm to find new and related studies to the ones you have
@@ -29,10 +29,10 @@
             <b>Excluded: {{_magAdvancedService.AdvancedReviewInfo.nRequiringManualCheckExcluded}} </b>
                 </div><br />
             In addition, there are likely to be a number of records which could not be matched at all:<br />
-            <div class=" btn btn-link p-0 m-0 col-6" (click)="OpenMatchesInReview('MagMatchesNeedingChecking')">
+            <div class=" btn btn-link p-0 m-0 col-6" (click)="OpenMatchesInReview('MagMatchesNotMatched')">
             <b>Included: {{_magAdvancedService.AdvancedReviewInfo.nNotMatchedIncluded}} </b>
             </div>
-            <div class=" btn btn-link p-0 m-0 col-6" (click)="OpenMatchesInReview('MagMatchesNeedingChecking')">
+            <div class=" btn btn-link p-0 m-0 col-6" (click)="OpenMatchesInReview('MagMatchesNotMatched')">
             <b>Excluded: {{_magAdvancedService.AdvancedReviewInfo.nNotMatchedExcluded}} </b>
                 </div><br />
         </div>
@@ -45,11 +45,11 @@
             </button>
         </div>
     </div>
-    <div *ngIf="ShowGraphViewer" class="col-5 card p-1 m-1 h-25">
+    <div *ngIf="ShowGraphViewer" class="col-6 card p-0 m-0 h-25">
         <h5 class="p-1 m-1 ">Graph Viewer</h5>
         
     </div>
-    <div class="col-6 card p-1 m-1">
+    <div class="col-6 card p-0 m-0">
         <h4 class="p-1 m-1">Browse Dataset</h4>
         <div class="col-12">
             <div>
@@ -78,7 +78,7 @@
             </div>
             <div class="col-12 row">
                 All matched records with this code:
-                <div>
+                <div class="col-5">
                     <div ngbDropdown class="col-8 p-1 m-1">
                         <button style="min-width: 250px; white-space:normal" [attr.aria-expanded]="!isCollapsed2"
                                 class="btn alert-primary col-12 p-2 m-0" id="dropdownBasic2"
@@ -93,9 +93,9 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-2 row">
-                    <div class="col-2"></div>
-                    <button class="btn btn-success p-2 m-2"
+                <div class="col-2">
+                    <div class="col-1"></div>
+                    <button class="btn btn-success p-2 m-2 "
                             [disabled]="!CanGetCodeMatches()"
                             (click)="MAGBrowser('MatchedWithThisCode')">
                         Get Matches with code
@@ -176,7 +176,7 @@
             </div>
 
         </div>
-        <div class="col-6 m-1 p-1" *ngIf="splitDataOn == 'CreatedDate'">
+        <div class="col-6 m-1 p-1" *ngIf="splitDataOn == 'CreatedDate' || splitDataOn == 'Year'">
             <div class="m-1 p-1"><b>Items Dated From</b></div>
             <div>
                 <div class="example-wrapper p-2 m-2" style="min-height: 100px">
@@ -268,8 +268,8 @@
     </div>
 </div>
 
-<div style="min-width:250px; overflow:auto;" >
-        <table class="card-body col-12 small table table-border  table-striped bg-light">
+<div style="min-width:150px; overflow:auto;"  class="card bg-light">
+        <table class=" col-6 table table-border  table-striped ">
             <thead>
                 <tr>
                     <th width="15">Method</th>
@@ -289,7 +289,7 @@
                 </tr>
             </thead>
             <tbody>
-                <tr class="" *ngFor="let item of _magAdvancedService.MagSimulationList">
+                <tr  *ngFor="let item of _magAdvancedService.MagSimulationList">
                     <td >{{item.searchMethod}}</td>
                     <td >{{item.status}}</td>
                     <td >{{item.searchMethod}}</td>
