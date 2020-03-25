@@ -2,12 +2,11 @@ import { Component, OnInit, Input, ElementRef, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { WorkAllocation, WorkAllocationListService } from '../services/WorkAllocationList.service';
-import { ItemListService, Criteria, Item, ItemList } from '../services/ItemList.service';
+import { ItemListService, Criteria } from '../services/ItemList.service';
 import { GridDataResult } from '@progress/kendo-angular-grid';
 import { SortDescriptor, orderBy } from '@progress/kendo-data-query';
 import { _localeFactory } from '@angular/core/src/application_module';
 import { Comparison } from '../services/comparisons.service';
-import { MagPaperListSelectionCriteria } from '../services/mag.service';
 import { MAGAdvancedService } from '../services/magAdvanced.service';
 
 @Component({

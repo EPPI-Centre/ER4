@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
 import { NotificationService } from '@progress/kendo-angular-notification';
-import { ItemList, Criteria, Item } from './ItemList.service';
+import { Item } from './ItemList.service';
 
 @Injectable({
     providedIn: 'root',
@@ -14,7 +14,6 @@ export class MAGAdvancedService extends BusyAwareService {
     constructor(
         private _httpC: HttpClient,
         private modalService: ModalService,
-        private notificationService: NotificationService,
         @Inject('BASE_URL') private _baseUrl: string
     ) {
         super();
@@ -24,50 +23,18 @@ export class MAGAdvancedService extends BusyAwareService {
     private _magMatchedAll: number = 0;
     private _magMatchedWithThisCode: number = 0;
     public ReviewMatchedPapersList: MagPaper[] = [];
-
-    public get magMatchedIncluded(): number {
-
-        return this._magMatchedIncluded;
-        
-    }
-
-    public set magMatchedIncluded(value: number) {
-
-        this._magMatchedExcluded = value;
-    }
-
-    public get magMatchedExcluded(): number {
-
-        return this._magMatchedExcluded;
-
-    }
-
-    public set magMatchedExcluded(value: number) {
-
-        this._magMatchedExcluded = value;
-    }
-
-    public get magMatchedAll(): number {
-
-        return this._magMatchedAll;
-
-    }
-
-    public set magMatchedAll(value: number) {
-
-        this._magMatchedAll = value;
-    }
-
-    public get magMatchedWithThisCode(): number {
-
-        return this._magMatchedWithThisCode;
-
-    }
-
-    public set magMatchedWithThisCode(value: number) {
-
-        this._magMatchedWithThisCode = value;
-    }
+    public AdvancedReviewInfo: MagReviewMagInfo = new MagReviewMagInfo();
+    public currentMagPaper: MagPaper = new MagPaper();
+    public ListDescription: string = '';
+    public TotalNumberOfMatchedPapers: number = 0;
+    public MagPapersMatchedList: Item[] = [];
+    public MagReferencesPaperList: MagPaper[] = [];
+    public MagCitationsPaperList: MagPaper[] = [];
+    public MagRelatedPaperList: MagPaper[] = [];
+    public MagPaperFieldsList: MagPaper[] = [];
+    public CurrentCriteria: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
+    public CurrentMagSimId: number = 0;
+    public PaperIds: string = '';
 
     private _MagCurrentInfo: MagCurrentInfo = new MagCurrentInfo();
 
@@ -106,99 +73,87 @@ export class MAGAdvancedService extends BusyAwareService {
         this._ClassifierContactModelList = classifierContactModelList;
 
     }
-
     FetchClassifierContactModelList() {
 
-        this._BusyMethods.push("FetchClassifierContact");
-
+        this._BusyMethods.push("FetchClassifierContactModelList");
         this._httpC.get<ClassifierContactModel[]>(this._baseUrl + 'api/MagClassifierContact/FetchClassifierContactList')
             .subscribe(result => {
-                this.RemoveBusy("FetchClassifierContact");
+                this.RemoveBusy("FetchClassifierContactModelList");
                 this.ClassifierContactModelList = result;
-                console.log(result);
+                //console.log(result);
             },
                 error => {
-                    this.RemoveBusy("FetchClassifierContact");
+                    this.RemoveBusy("FetchClassifierContactModelList");
                     this.modalService.GenericError(error);
                 }
             );
     }
-
     FetchMagSimulationList() {
 
-        this._BusyMethods.push("GetMagSimulationList");
-
+        this._BusyMethods.push("FetchMagSimulationList");
         this._httpC.get<MagSimulation[]>(this._baseUrl + 'api/MagSimulationList/GetMagSimulationList')
             .subscribe(result => {
-                this.RemoveBusy("GetMagSimulationList");
+                this.RemoveBusy("FetchMagSimulationList");
                 this.MagSimulationList = result;
-                console.log('mag simulation list: ', result);
+                //console.log('mag simulation list: ', result);
             },
                 error => {
-                    this.RemoveBusy("GetMagSimulationList");
+                    this.RemoveBusy("FetchMagSimulationList");
                     this.modalService.GenericError(error);
                 }
             );
     }
-    public AdvancedReviewInfo: MagReviewMagInfo = new MagReviewMagInfo();
     FetchMagReviewMagInfo() {
 
         this._BusyMethods.push("FetchMagReviewMagInfo");
-
         this._httpC.get<MagReviewMagInfo>(this._baseUrl + 'api/MagCurrentInfo/GetMagReviewMagInfo')
             .subscribe(result => {
                 this.RemoveBusy("FetchMagReviewMagInfo");
                 this.AdvancedReviewInfo = result;
-                console.log('numbers in question: ',JSON.stringify(result));
+                //console.log('numbers in question: ',JSON.stringify(result));
             },
                 error => {
                     this.RemoveBusy("FetchMagReviewMagInfo");
                     this.modalService.GenericError(error);
                 }
             );
-
     }
+    FetchMagCurrentInfo() {
 
-    FetchCurrentInfo() {
-
-        this._BusyMethods.push("MagRelatedPapersRunFetch");
-
+        this._BusyMethods.push("FetchMagCurrentInfo");
         this._httpC.get<MagCurrentInfo>(this._baseUrl + 'api/MagCurrentInfo/GetMagCurrentInfo')
 			.subscribe(result => {
-                this.RemoveBusy("MagRelatedPapersRunFetch");
+                this.RemoveBusy("FetchMagCurrentInfo");
                 this.MagCurrentInfo = result;
 			},
 				error => {
-                    this.RemoveBusy("MagRelatedPapersRunFetch");
+                    this.RemoveBusy("FetchMagCurrentInfo");
 					this.modalService.GenericError(error);
 				}
 			);
     }
+    FetchMagPaperId(Id: number) : Promise<void> {
 
-    public currentMagPaper: MagPaper = new MagPaper();
-
-    FetchMagPaper(Id: number) : Promise<void> {
-
-        this._BusyMethods.push("FetchMagPaper");
+        this._BusyMethods.push("FetchMagPaperId");
         let body = JSON.stringify({ Value: Id });
         return this._httpC.post<MagPaper>(this._baseUrl + 'api/MagCurrentInfo/GetMagPaper', body)
             .toPromise().then(result => {
-                this.RemoveBusy("FetchMagPaper");
+                this.RemoveBusy("FetchMagPaperId");
                 this.currentMagPaper = result;
                 // should call the relevant methods after the above
-                this.FetchMagPaperListId(result.paperId);
-
-
+                if (result.paperId != null && result.paperId > 0) {
+                    this.FetchMagPaperListId(result.paperId);
+                }
                 //console.log(result)
             },
                 error => {
-                    this.RemoveBusy("FetchMagPaper");
+                    this.RemoveBusy("FetchMagPaperId");
                     this.modalService.GenericError(error);
                     
                 }
             );
     }
-
+    //CHECK IF THERE SHOULD BE A RETURN HERE
     RunMatchingAlgorithm() {
 
         this._BusyMethods.push("RunMatchingAlgorithm");
@@ -213,15 +168,6 @@ export class MAGAdvancedService extends BusyAwareService {
                 }
             );
     }
-    public ListDescription: string = '';
-    public TotalNumberOfMatchedPapers: number = 0;
-    
-
-    public MagPapersMatchedList: Item[] = [];
-    public MagReferencesPaperList: MagPaper[]=  [];
-    public MagCitationsPaperList: MagPaper[] = [];
-    public MagRelatedPaperList: MagPaper[] = [];
-    public MagPaperFieldsList: MagPaper[] = [];
 
     public FetchMagPaperListId(paperId: number): Promise<void> {
 
@@ -235,42 +181,15 @@ export class MAGAdvancedService extends BusyAwareService {
         this._BusyMethods.push("FetchMagPaperListId");
         return this._httpC.post<MagPaper[]>(this._baseUrl + 'api/MagCurrentInfo/GetMagPaperList', crit)
             .toPromise().then(
-
             (result: any) => {
-
                 this.RemoveBusy("FetchMagPaperListId");
-
-                //if (listType == 'PaperFieldsOfStudyList') {
-
-                //    this.MagPaperFieldsList = result;
-
-                //} else if (listType == 'CitedByList') {
-
-                //    this.MagCitationsPaperList = result;
-
-                //} else if (listType == 'CitationsList') {
-
                 this.MagReferencesPaperList = result;
                 for (var i = 0; i < this.MagReferencesPaperList.length; i++) {
                     this.PaperIds += this.MagReferencesPaperList[i].paperId.toString() + ',';
                 }
                 this.PaperIds = this.PaperIds.substr(0, this.PaperIds.length - 1)
-                console.log('paperlistId papers: ', this.PaperIds);
-
-                //} else if (listType == 'PaperListById'){
-
-                //    //this.MagPapersMatchedList = result;
-
-                //}
-                //this.MagRIDMatchedPaperList = result;
-                console.log('paperlistId papers: ', result)
-
-                //this.FetchMagFieldOfStudyList(crit.magPaperId).then(
-
-                //    (result2: any) => { }
-                    
-                //)
-
+                //console.log('paperlistId papers: ', this.PaperIds);
+                //console.log('paperlistId papers: ', result)
 
             },
                 error => {
@@ -279,12 +198,9 @@ export class MAGAdvancedService extends BusyAwareService {
                 }
             );
     }
-    public CurrentCriteria: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
-    public CurrentMagSimId: number = 0;
-    public PaperIds: string = '';
     public FetchMagPaperList(crit: MVCMagPaperListSelectionCriteria): Promise<void> {
 
-        console.log(crit);
+        //console.log(crit);
         this._BusyMethods.push("FetchMagPaperList");
         return this._httpC.post<MagPaper[]>(this._baseUrl + 'api/MagCurrentInfo/GetMagPaperList', crit)
             .toPromise().then(
@@ -301,9 +217,9 @@ export class MAGAdvancedService extends BusyAwareService {
                     //console.log(this.PaperIds);
                 } else if (crit.listType == 'CitedByList') {
 
-                    console.log('got in here');
+                    //console.log('got in here');
                     this.MagCitationsPaperList = result;
-                    console.log(result);
+                    //console.log(result);
                 } else if (crit.listType == 'ReviewMatchedPapers') {
                     this.PaperIds = "";
                     this.ReviewMatchedPapersList = result;
@@ -311,8 +227,8 @@ export class MAGAdvancedService extends BusyAwareService {
                         this.PaperIds += this.ReviewMatchedPapersList[i].paperId.toString() + ',';
                     }
                     this.PaperIds = this.PaperIds.substr(0, this.PaperIds.length - 1)
-                    console.log('rvm list: ', this.ReviewMatchedPapersList);
-                    console.log('rvm papers: ', this.PaperIds);
+                    //console.log('rvm list: ', this.ReviewMatchedPapersList);
+                    //console.log('rvm papers: ', this.PaperIds);
                 } else if (crit.listType == 'ReviewMatchedPapersWithThisCode') {
                     this.PaperIds = "";
                     this.ReviewMatchedPapersList = result;
@@ -320,8 +236,8 @@ export class MAGAdvancedService extends BusyAwareService {
                         this.PaperIds += this.ReviewMatchedPapersList[i].paperId.toString() + ',';
                     }
                     this.PaperIds = this.PaperIds.substr(0, this.PaperIds.length - 1)
-                    console.log('rvm list: ', this.ReviewMatchedPapersList);
-                    console.log('rvm papers: ', this.PaperIds);
+                    //console.log('rvm list: ', this.ReviewMatchedPapersList);
+                    //console.log('rvm papers: ', this.PaperIds);
                     this.CurrentCriteria = crit;
                 }           
 
@@ -332,21 +248,20 @@ export class MAGAdvancedService extends BusyAwareService {
                 }
             );
     }
-
     FetchMagFieldOfStudyList(paperIds: string): Promise<void>{
 
         let crit: MVCMagFieldOfStudyListSelectionCriteria = new MVCMagFieldOfStudyListSelectionCriteria();
         crit.fieldOfStudyId = 0;
         crit.listType = "PaperFieldOfStudyList";
         crit.paperIdList = paperIds;
-        crit.searchText = "";
+        //THIS SEARCH TEXT NEEDS TO COME IN FROM THE FRONT
+        crit.searchText = ''; //searchText;
 
         this._BusyMethods.push("FetchMagPaperList");
         return this._httpC.post<MagPaper[]>(this._baseUrl + 'api/MagCurrentInfo/GetMagFieldOfStudyList', crit)
             .toPromise().then(
             (result: MagPaper[]) => {
                 this.RemoveBusy("MagPaperFieldsList");
-
                 this.MagPaperFieldsList = result;
 
             },
@@ -358,26 +273,28 @@ export class MAGAdvancedService extends BusyAwareService {
     }
     public DeleteSimulation(item: MagSimulation) {
 
-        console.log(item.magSimulationId);
+        //console.log(item.magSimulationId);
         this._BusyMethods.push("DeleteSimulation");
         let body = JSON.stringify({Value: item.magSimulationId });
         return this._httpC.post<MagSimulation>(this._baseUrl + 'api/MAGSimulationList/DeleteMagSimulation', body)
             .toPromise().then(
                 (result: MagSimulation) => {
 
-                    let ind: number = this.MagSimulationList.findIndex((x) => x.magSimulationId == item.magSimulationId);
                     this.RemoveBusy("DeleteSimulation");
-                    this.MagSimulationList.splice(ind,1);
+                    if (result != null && result.magSimulationId > 0) {
 
+                    let ind: number = this.MagSimulationList.findIndex((x) => x.magSimulationId == item.magSimulationId);
+                        if (ind > 0) {
+                            this.MagSimulationList.splice(ind, 1);
+                        }
+                    }
                 },
                 error => {
                     this.RemoveBusy("DeleteSimulation");
                     this.modalService.GenericError(error);
                 }
             );
-
     }
-
     public AddMagSimulation(newMagSimulation: MagSimulation) {
 
         this._BusyMethods.push("AddMagSimulation");
@@ -385,8 +302,11 @@ export class MAGAdvancedService extends BusyAwareService {
             .toPromise().then(
             (result: MagSimulation) => {
 
-                    this.RemoveBusy("AddMagSimulation");
-                    this.MagSimulationList.push(result);
+                this.RemoveBusy("AddMagSimulation");
+                    if (this.MagSimulationList != null && this.MagSimulationList.length > 0) {
+
+                        this.MagSimulationList.push(result);
+                    }
 
                 },
                 error => {
@@ -411,7 +331,7 @@ export class MagReviewMagInfo {
     nNotMatchedExcluded: number = 0;
     
 }
-
+// I DONT LIKE THIS NAME MAGPAPERLIST
 export class MagPaperList {
 
     pageIndex : number = 0;

@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild} from '@angular/core';
 import { searchService } from '../services/search.service';
-import { MAGService, MagRelatedPapersRun, MagPaperListSelectionCriteria } from '../services/mag.service';
+import { BasicMAGService, MagRelatedPapersRun, MagPaperListSelectionCriteria } from '../services/BasicMAG.service';
 import { singleNode, SetAttribute } from '../services/ReviewSets.service';
 import { codesetSelectorComponent } from '../CodesetTrees/codesetSelector.component';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
@@ -150,7 +150,7 @@ export class MAGBrowser implements OnInit {
 
     public AutoUpdateHome() {
 
-        this.router.navigate(['MAGFeatures']);
+        this.router.navigate(['BasicMAGFeatures']);
     }
 
     public Back() {

@@ -85,7 +85,7 @@ import { TextSelectDirective } from './components/helpers/text-select.directive'
 import { ReviewTermsListComp } from './components/ReviewTermsList/ReviewTermsListComp.component';
 import { configurablereportComp } from './components/Reports/configurablereport.component';
 import { DuplicatesComponent } from './components/Duplicates/duplicates.component';
-import { MAGComp } from './components/MAG/MAGComp.component';
+import { BasicMAGComp } from './components/MAG/BasicMAGComp.component';
 import { AdvancedMAGFeaturesComponent } from './components/MAG/AdvancedMAGFeatures.component';
 import { MAGBrowser } from './components/MAG/MAGBrowser.component';
 
@@ -93,7 +93,7 @@ import { MAGBrowser } from './components/MAG/MAGBrowser.component';
     declarations: [
 		AppComponent,
 		SearchComp,
-		MAGComp,
+        BasicMAGComp,
         frequenciesComp,
         frequenciesResultsComp,
         ReviewSetsEditorComponent,
@@ -194,7 +194,7 @@ import { MAGBrowser } from './components/MAG/MAGBrowser.component';
             { path: 'MainCodingOnly', component: MainComponent }, 
 			{ path: 'sources', component: SourcesComponent },
             { path: 'BuildModel', component: BuildModelComponent },
-            { path: 'MAGFeatures', component: MAGComp },
+            { path: 'BasicMAGFeatures', component: BasicMAGComp },
             { path: 'MAGBrowser', component: MAGBrowser },
             { path: 'ItemList', component: ItemListComp},
             { path: 'AdvancedMAGFeatures', component: AdvancedMAGFeaturesComponent },

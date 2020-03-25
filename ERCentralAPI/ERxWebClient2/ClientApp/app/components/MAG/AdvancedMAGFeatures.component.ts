@@ -1,15 +1,11 @@
 import { Component, OnInit, ViewChild, EventEmitter, Output} from '@angular/core';
 import { searchService } from '../services/search.service';
-import { MAGService, MagRelatedPapersRun } from '../services/mag.service';
 import { singleNode, SetAttribute } from '../services/ReviewSets.service';
 import { codesetSelectorComponent } from '../CodesetTrees/codesetSelector.component';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Router } from '@angular/router';
-import { MAGAdvancedService, ClassifierContactModel, MagCurrentInfo, MVCMagPaperListSelectionCriteria, MagSimulation } from '../services/magAdvanced.service';
-import { Criteria, ItemListService } from '../services/ItemList.service';
-import { Subscription } from 'rxjs';
-import { EventEmitterService } from '../services/EventEmitter.service';
+import { MAGAdvancedService, ClassifierContactModel,  MVCMagPaperListSelectionCriteria, MagSimulation } from '../services/magAdvanced.service';
 
 @Component({
     selector: 'AdvancedMAGFeatures',
@@ -23,17 +19,72 @@ export class AdvancedMAGFeaturesComponent implements OnInit {
 		private _magAdvancedService: MAGAdvancedService,
         public _searchService: searchService,
         private _ReviewerIdentityServ: ReviewerIdentityService,
-        private _itemListService: ItemListService,
-        private _eventEmitterService: EventEmitterService,
         private router: Router
 
 	) {
 
 	}
 
-//    public sub: Subscription = new Subscription();
     @Output() criteriaChange = new EventEmitter();
     @Output() MAGAllocationClicked = new EventEmitter();
+    @ViewChild('WithOrWithoutCodeSelector') WithOrWithoutCodeSelector!: codesetSelectorComponent;
+    @ViewChild('WithOrWithoutCodeSelector2') WithOrWithoutCodeSelector2!: codesetSelectorComponent;
+    public CurrentDropdownSelectedCode: singleNode | null = null;
+    public CurrentDropdownSelectedCode2: singleNode | null = null;
+    public ItemsWithCode: boolean = false;
+    public MAGItems: any[] = [];
+    public ShowPanel: boolean = false;
+    public isCollapsed: boolean = true;
+    public isCollapsed2: boolean = true;
+    public ListSubType: string = '';
+    public splitDataOn: string = 'Year';
+    public SearchMethod: string = 'Recommendations';
+    public SearchMethods: string[] = ['Citations',
+        'Recommendations',
+        'Citations and recommendations',
+        'Fields of study'];
+    public NetworkStat: string = 'None';
+    public NetworkStats: string[] = [
+        'degree',
+        'closeness',
+        'eigenscore',
+        'pagerank',
+        'hubscore',
+        'authscore',
+        'alpha'
+    ];
+    public StudyTypeClassifier: string = 'None';
+    public StudyTypeClassifiers: string[] = [
+        'None',
+        'RCT',
+        'Cochrane RCT',
+        'Economic evaluation',
+        'Systematic review'
+    ];
+    public SearchText: string = '';
+    public UserDefinedClassifier: string = '';
+    public magMatchedAll: number = 0;
+    public magMatchedWithThisCode: number = 0;
+    public magPaperId: number = 0;
+    public currentClassifierContactModel: ClassifierContactModel = new ClassifierContactModel();
+    public desc: string = '';
+    public value: Date = new Date(2000, 2, 10);
+    public searchAll: string = 'true';
+    public magDate: string = 'true';
+    public magSearchCheck: boolean = false;
+    public magDateRadio: boolean = false;
+    public magRCTRadio: string = 'NoFilter';
+    public magMode: string = '';
+    public filterOn: string = 'false';
+    public ToggleMAGPanel(): void {
+        this.ShowPanel = !this.ShowPanel;
+    }
+    public get HasWriteRights(): boolean {
+        return this._ReviewerIdentityServ.HasWriteRights;
+    }
+    public get IsServiceBusy(): boolean {
+        return this._magAdvancedService.IsBusy;
+    }
     public ShowGraphViewer: boolean = false;
     public ShowGraph() {
 
@@ -41,15 +92,25 @@ export class AdvancedMAGFeaturesComponent implements OnInit {
     }
     ngOnInit() {
 
-        this.GetMagReviewMagInfoCommand();
-        this.GetMagSimulationList();
-        //probably do not need the below
-        this.GetContactModelList();
-        //this.GetMatchedMagIncludedList();
-        //this.GetMatchedMagExcludedList();
-        //this.Clear();
+        if (this._ReviewerIdentityServ.reviewerIdentity.userId == 0 ||
+            this._ReviewerIdentityServ.reviewerIdentity.reviewId == 0) {
+            this.router.navigate(['home']);
+        }
+        else if (!this._ReviewerIdentityServ.HasWriteRights) {
+            this.router.navigate(['Main']);
+        }
+        else {
+
+            // maybe use getter setter pattern for this...!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            this.GetMagReviewMagInfoCommand();
+            this.GetMagSimulationList();
+            //probably do not need the below
+            this.GetContactModelList();
+        }
+        
+       
     }
-    GetMagReviewMagInfoCommand(): any {
+    GetMagReviewMagInfoCommand() {
 
         this._magAdvancedService.FetchMagReviewMagInfo();
     }
@@ -61,13 +122,11 @@ export class AdvancedMAGFeaturesComponent implements OnInit {
     }
     public AddSimulation(): void {
 
-        //fill all the properties and add to MagSimulation
-        //can use angular model idea here but refactor it to this
         let newMagSimulation: MagSimulation = new MagSimulation();
 
         if (this.splitDataOn == 'Year') {
 
-            // take the year from the date
+            // take the year from the date CONTROL !!!!!!!!!!!!!!!!!!!!!!
             newMagSimulation.year = 2016;
 
         } else if (this.splitDataOn == 'CreatedDate') {
@@ -130,7 +189,7 @@ export class AdvancedMAGFeaturesComponent implements OnInit {
 
     public AutoUpdateHome() {
 
-        this.router.navigate(['MAGFeatures']);
+        this.router.navigate(['BasicMAGFeatures']);
     }
 
     public Back() {
@@ -151,45 +210,7 @@ export class AdvancedMAGFeaturesComponent implements OnInit {
         this.criteriaChange.emit();
         this.MAGAllocationClicked.emit();
     }
-    @ViewChild('WithOrWithoutCodeSelector') WithOrWithoutCodeSelector!: codesetSelectorComponent;
-    @ViewChild('WithOrWithoutCodeSelector2') WithOrWithoutCodeSelector2!: codesetSelectorComponent;
-    public CurrentDropdownSelectedCode: singleNode | null = null;
-    public CurrentDropdownSelectedCode2: singleNode | null = null;
-	public ItemsWithCode: boolean = false;
-	public MAGItems: any[] = [];
-	public ShowPanel: boolean = false;
-    public isCollapsed: boolean = true;
-    public isCollapsed2: boolean = true;
-    public ListSubType: string = '';
-    public splitDataOn: string = 'Year';
-    public SearchMethod: string = 'Recommendations';
-    public SearchMethods: string[] = [  'Citations',
-                                'Recommendations',
-                                'Citations and recommendations',
-        'Fields of study'];
-    public NetworkStat: string = 'None';
-    public NetworkStats: string[] = [
-        'degree',
-        'closeness',
-        'eigenscore',
-        'pagerank',
-        'hubscore',
-        'authscore',
-        'alpha'
-    ];
-    public StudyTypeClassifier: string = 'None';
-    public StudyTypeClassifiers: string[] = [
-        'None',
-        'RCT',
-        'Cochrane RCT',
-        'Economic evaluation',
-        'Systematic review'
-    ];
-    public UserDefinedClassifier: string = '';
-    public magMatchedAll: number = 0;
-    public magMatchedWithThisCode: number = 0;
-    public magPaperId: number = 0;
-    public currentClassifierContactModel: ClassifierContactModel = new ClassifierContactModel();
+   
     public MAGBrowser(listType: string) {
 
         if (listType == 'MatchedIncluded') {
@@ -205,8 +226,6 @@ export class AdvancedMAGFeaturesComponent implements OnInit {
             this.GetMatchedMagWithCodeList();
 
         }
-       
-
     }
     public DeleteSimulation(item: MagSimulation) {
 
@@ -300,7 +319,7 @@ export class AdvancedMAGFeaturesComponent implements OnInit {
     }
     public GetMagPaper() {
 
-        this._magAdvancedService.FetchMagPaper(this.magPaperId);
+        this._magAdvancedService.FetchMagPaperId(this.magPaperId);
         this.router.navigate(['MAGBrowser']);
     }
 	CanOnlySelectRoots() {
@@ -318,32 +337,10 @@ export class AdvancedMAGFeaturesComponent implements OnInit {
         }
         this.isCollapsed2 = false;
     }
-	public desc: string = '';
-	public value: Date = new Date(2000, 2, 10);
-	public searchAll: string = 'true';
-	public magDate: string = 'true';
-	public magSearchCheck: boolean = false;
-	public magDateRadio: boolean = false;
-    public magRCTRadio: string = 'NoFilter';
-    public magMode: string = '';
-    public filterOn: string = 'false';
-	public ToggleMAGPanel(): void {
-		this.ShowPanel = !this.ShowPanel;
-	}
-    public get HasWriteRights(): boolean {
-        return this._ReviewerIdentityServ.HasWriteRights;
-    }
-
-	public IsServiceBusy(): boolean {
-
-		return false;
-	}
-	public Selected(): void {
-
-	}
     Clear() {
 
         this.CurrentDropdownSelectedCode = {} as SetAttribute;
+        this.CurrentDropdownSelectedCode2 = {} as SetAttribute;
         this.desc = '';
         this.ItemsWithCode = false;
         this.magDate = '';
@@ -351,7 +348,7 @@ export class AdvancedMAGFeaturesComponent implements OnInit {
 
     }
     public CanDeleteMAGRun() : boolean {
-
+        // other params like existence need to be checked here!!!!!!!!!!!!!!!!!!!!!
         return this.HasWriteRights;
     }
 
@@ -364,7 +361,6 @@ export class AdvancedMAGFeaturesComponent implements OnInit {
             return false;
         }
     }
-
 	public ClickSearchMode(searchModeChoice: string) {
 
 		switch (searchModeChoice) {
@@ -395,23 +391,10 @@ export class AdvancedMAGFeaturesComponent implements OnInit {
                 break;
 		}
 	}
- //   private _magCurrentInfo: MagCurrentInfo = new MagCurrentInfo;
-
- //   public get magCurrentInfo() {
-        
- //       return this._magAdvancedService.MagCurrentInfo;
- //   }
-
- //   public set magCurrentInfo(value: MagCurrentInfo) {
-
- //       this._magCurrentInfo = value;
-        
-	//}
-
     public GetMagSimulationList() {
 
         this._magAdvancedService.FetchMagSimulationList();
-
     }
+
 }
 	

@@ -190,10 +190,10 @@
                     </kendo-tabstrip-tab>
                     <kendo-tabstrip-tab [title]="'Microsoft Academic Graph'" [hidden]='true'>
                         <ng-template kendoTabContent>
-                            <MAGComp #MAGComp *ngIf="!isOn"
+                            <BasicMAGComp #MAGComp 
                                      class="bg-light">
 
-                            </MAGComp>
+                            </BasicMAGComp>
                         </ng-template>
                     </kendo-tabstrip-tab>
                     <kendo-tabstrip-tab [title]="'MAG Advanced Features'" [hidden]='true'>

@@ -1,58 +1,75 @@
 import { Component, OnInit, ViewChild} from '@angular/core';
 import { searchService } from '../services/search.service';
-import { MAGService, MagRelatedPapersRun, MagPaperListSelectionCriteria } from '../services/mag.service';
+import { BasicMAGService, MagRelatedPapersRun } from '../services/BasicMAG.service';
 import { singleNode, SetAttribute } from '../services/ReviewSets.service';
 import { codesetSelectorComponent } from '../CodesetTrees/codesetSelector.component';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Router } from '@angular/router';
-import {  ItemListService } from '../services/ItemList.service';
+import { ItemListService } from '../services/ItemList.service';
 import { EventEmitterService } from '../services/EventEmitter.service';
-import { AdvancedMAGFeaturesComponent } from './AdvancedMAGFeatures.component';
 import { NotificationService } from '@progress/kendo-angular-notification';
 
 
 @Component({
-	selector: 'MAGComp',
-	templateUrl: './MAGComp.component.html',
+	selector: 'BasicMAGComp',
+	templateUrl: './BasicMAGComp.component.html',
 	providers: []
 })
 
-export class MAGComp implements OnInit {
+export class BasicMAGComp implements OnInit {
 
 	constructor(private ConfirmationDialogService: ConfirmationDialogService,
-		private _magService: MAGService,
+        private _basicMAGService: BasicMAGService,
         public _searchService: searchService,
         private _ReviewerIdentityServ: ReviewerIdentityService,
         private _notificationService: NotificationService,
-        private _itemListService: ItemListService,
-        private _eventEmitter: EventEmitterService,
         private router: Router
 
 	) {
 
-	}
-
+    }
+    @ViewChild('WithOrWithoutCodeSelector') WithOrWithoutCodeSelector!: codesetSelectorComponent;
+    public CurrentDropdownSelectedCode: singleNode | null = null;
+    public ItemsWithCode: boolean = false;
+    public MAGItems: any[] = [];
+    public ShowPanel: boolean = false;
+    public isCollapsed: boolean = true;
+    public description: string = '';
+    public valueKendoDatepicker: Date = new Date(2000, 2, 10);
+    public searchAll: string = 'true';
+    public magSearchCheck: boolean = false;
+    public magDateRadio: string = 'true';
+    public magRCTRadio: string = 'NoFilter';
+    public magMode: string = '';
 
 	ngOnInit() {
 
-        this.Clear();
-        //this._magService.Fetch();
+        if (this._ReviewerIdentityServ.reviewerIdentity.userId == 0 ||
+            this._ReviewerIdentityServ.reviewerIdentity.reviewId == 0) {
+            this.router.navigate(['home']);
+        }
+        else if (!this._ReviewerIdentityServ.HasWriteRights) {
+            this.router.navigate(['Main']);
+        }
+        else {
+            //this.ReviewSetsEditingService.FetchReviewTemplates();
+        }
+
+    }
+    Clear() {
+
+        this.CurrentDropdownSelectedCode = {} as SetAttribute;
+        this.description = '';
+        this.ItemsWithCode = false;
+        this.magDateRadio = 'true';
+        this.magMode = '';
 
     }
     public AdvancedFeatures() {
         
         this.router.navigate(['AdvancedMAGFeatures']);
     }
-
-
-	@ViewChild('WithOrWithoutCodeSelector') WithOrWithoutCodeSelector!: codesetSelectorComponent;
-	public CurrentDropdownSelectedCode: singleNode | null = null;
-	public ItemsWithCode: boolean = false;
-	public MAGItems: any[] = [];
-	public ShowPanel: boolean = false;
-    public isCollapsed: boolean = true;
-
 	CanOnlySelectRoots() {
 		return true;
 	}
@@ -62,33 +79,29 @@ export class MAGComp implements OnInit {
 		}
 		this.isCollapsed = false;
     }
-	public desc: string = '';
-	public value: Date = new Date(2000, 2, 10);
-	public searchAll: string = 'true';
-	public magSearchCheck: boolean = false;
-    public magDateRadio: string = 'true';
-    public magRCTRadio: string = 'NoFilter';
-	public magMode: string = '';
 	public ToggleMAGPanel(): void {
 		this.ShowPanel = !this.ShowPanel;
 	}
     public get HasWriteRights(): boolean {
         return this._ReviewerIdentityServ.HasWriteRights;
     }
+    public get IsServiceBusy(): boolean {
+        return this._basicMAGService.IsBusy;
+    }
     public GetItems(item: MagRelatedPapersRun) {
 
-        console.log(item.magRelatedRunId );
+        //console.log(item.magRelatedRunId );
         if (item.magRelatedRunId > 0) {
-            this._magService.Fetch(item.magRelatedRunId).then(
+            this._basicMAGService.FetchMAGRelatedPaperRunsListId(item.magRelatedRunId).then(
                 () => {
-                    console.log('List of papers: ', this._magService.MagPaperList);
+                    //console.log('List of papers: ', this._magService.MagPaperList);
                     this.router.navigate(['MAGBrowser']);
                 }
             );
         }
     }
     public ImportMagSearchPapers(item: MagRelatedPapersRun) {
-        console.log(item.status + ' : ' + item.nPapers);
+        //console.log(item.status + ' : ' + item.nPapers);
    
         if (item.nPapers == 0) {
             this.ShowMAGRunMessage('There are no papers to import');
@@ -106,8 +119,6 @@ export class MAGComp implements OnInit {
             let msg: string = 'Are you sure you want to import these items?';
             this.ImportMagRelatedPapersRun(item, msg);
         }
-        
-
     }
     private ShowMAGRunMessage(notifyMsg: string) {
 
@@ -119,31 +130,12 @@ export class MAGComp implements OnInit {
             closable: true
         });
     }
-
-	public IsServiceBusy(): boolean {
-
-		return false;
-	}
-	public Selected(): void {
-
-	}
-    Clear() {
-
-        this.CurrentDropdownSelectedCode = {} as SetAttribute;
-        this.desc = '';
-        this.ItemsWithCode = false;
-        this.magDateRadio = 'true';
-        this.magMode = '';
-
-    }
     public CanDeleteMAGRun() : boolean {
-
         return this.HasWriteRights;
     }
-
     public CanAddNewMAGSearch(): boolean {
 
-        if (this.desc != '' && this.desc != null && this.HasWriteRights
+        if (this.description != '' && this.description != null && this.HasWriteRights
             ) {
             return true;
         } else {
@@ -152,14 +144,12 @@ export class MAGComp implements OnInit {
     }
     public CanImportMagPapers(item: MagRelatedPapersRun): boolean {
 
-        if (item != null && item.magRelatedRunId > 0 && this.HasWriteRights) {
+        if (item != null && item.magRelatedRunId > 0 && item.nPapers > 0 && this.HasWriteRights) {
             return true;
         } else {
             return false;
         }
-
     }
-
 	public ClickSearchMode(searchModeChoice: string) {
 
 		switch (searchModeChoice) {
@@ -191,7 +181,6 @@ export class MAGComp implements OnInit {
 		}
 	}
 
-
 	public AddNewMAGSearch() {
 
 		let magRun: MagRelatedPapersRun = new MagRelatedPapersRun();
@@ -203,13 +192,13 @@ export class MAGComp implements OnInit {
             magRun.attributeId = att.attribute_id;
             magRun.attributeName = att.name;
         }
-        magRun.dateFrom = this.value;
+        magRun.dateFrom = this.valueKendoDatepicker;
 		magRun.autoReRun = this.magSearchCheck.toString();
 		magRun.filtered = this.magRCTRadio;
 		magRun.mode = this.magMode;
-		magRun.userDescription = this.desc;
+		magRun.userDescription = this.description;
 
-		this._magService.Create(magRun);
+        this._basicMAGService.CreateMAGRelatedRun(magRun);
 
     }
     public ImportMagRelatedPapersRun(magRun: MagRelatedPapersRun, msg: string) {
@@ -218,7 +207,7 @@ export class MAGComp implements OnInit {
                 msg, false, '')
             .then((confirm: any) => {
                 if (confirm) {
-                    this._magService.ImportMagPapers(magRun);
+                    this._basicMAGService.ImportMagRelatedRunPapers(magRun);
                 }
             });
     }
@@ -228,7 +217,7 @@ export class MAGComp implements OnInit {
             "Are you sure you want to delete MAG RUN:" + magRun.magRelatedRunId + "?", false, '')
             .then((confirm: any) => {
                 if (confirm) {
-                    this._magService.Delete(magRun);
+                    this._basicMAGService.DeleteMAGRelatedRun(magRun);
                 }
             });
         }

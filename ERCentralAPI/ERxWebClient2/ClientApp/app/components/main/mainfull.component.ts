@@ -30,7 +30,7 @@ import { ConfigurableReportService } from '../services/configurablereport.servic
 import { Helpers } from '../helpers/HelperMethods';
 import { ExcelService } from '../services/excel.service';
 import { DuplicatesService } from '../services/duplicates.service';
-import { MAGService } from '../services/mag.service';
+import { BasicMAGService } from '../services/BasicMAG.service';
 import { AdvancedMAGFeaturesComponent } from '../MAG/AdvancedMAGFeatures.component';
 
 
@@ -67,7 +67,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 		private frequenciesService: frequenciesService
 		, private crosstabService: crosstabService
 		, private _searchService: searchService
-		, private _magService: MAGService
+		, private _basicMAGService: BasicMAGService
         , private SourcesService: SourcesService
         , private ConfirmationDialogService: ConfirmationDialogService
         , private ItemCodingService: ItemCodingService
@@ -803,7 +803,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 			this.HelpAndFeebackContext = "main\\microsoft";
 			this.ShowItemsTable = false;
 			//this.ShowSearchesAssign = true;
-			this._magService.FetchMagPaperList();
+            this._basicMAGService.FetchMagRelatedPapersRunList();
 		}
 		else if (e.title == 'Collaborate') {
 			this.HelpAndFeebackContext = "main\\collaborate";
