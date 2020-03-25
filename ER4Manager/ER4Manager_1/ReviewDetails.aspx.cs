@@ -111,6 +111,9 @@ public partial class ReviewDetails : System.Web.UI.Page
                             if (idr["ALLOW_CLUSTERED_SEARCH"].ToString() == "True")
                                 cbAllowClusteredSearch.Checked = true;
 
+                            if (idr["MAG_ENABLED"].ToString() == "1")
+                                cbEnableMag.Checked = true;
+
                             if (idr["ARCHIE_ID"].ToString() == "prospective_______")
                             {
                                 cbPotential.Checked = true;
@@ -890,6 +893,16 @@ public partial class ReviewDetails : System.Web.UI.Page
         bool isAdmDB = true;
         Utils.ExecuteSP(isAdmDB, Server, "st_PriorityScreeningTurnOnOff",
                 lblReviewID.Text, "AllowClusteredSearch", cbAllowClusteredSearch.Checked);
+    }
+    protected void cbEnableMag_CheckedChanged(object sender, EventArgs e)
+    {       
+        int setting = 0;
+        if (cbEnableMag.Checked)
+            setting = 1;
+
+        bool isAdmDB = true;
+        Utils.ExecuteSP(isAdmDB, Server, "st_EnableMag",
+                lblReviewID.Text, setting);
     }
     protected void cbPotential_CheckedChanged(object sender, EventArgs e)
     {

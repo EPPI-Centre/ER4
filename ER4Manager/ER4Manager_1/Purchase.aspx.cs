@@ -540,6 +540,8 @@ public partial class Purchase : System.Web.UI.Page
         int totalNewAccountFees = 0;
         int totalReviewFees = 0;
         int totalNewReviewFees = 0;
+        int totalCreditFee = 0;
+        int totalOutstandingFee = 0;
         bool addVAT = false;
         lblVatPercentage.Visible = false;
         lblVatTotal.Visible = false;
@@ -574,12 +576,27 @@ public partial class Purchase : System.Web.UI.Page
         {
             totalNewReviewFees += int.Parse(gvNewReviews.Rows[i].Cells[4].Text);
         }
+        if (Utils.IsNumeric(TBCredit.Text))
+        {
+            if (Utils.GetSessionString("EnableShopCredit") == "True")
+                totalCreditFee = int.Parse(TBCredit.Text);
+        }
+        if (Utils.IsNumeric(lblOutstandingFee.Text))
+        {
+            if (Utils.GetSessionString("EnableShopDebit") == "True")
+                totalOutstandingFee = int.Parse(lblOutstandingFee.Text);
+        }
+
         //canBuy = (totalAccountFees > 0 || totalNewAccountFees > 0 || totalNewReviewFees > 0 || totalReviewFees > 0);
-        canBuy = (totalAccountFees + totalNewAccountFees + totalNewReviewFees + totalReviewFees >= 10);
+        canBuy = (totalAccountFees + totalNewAccountFees + totalNewReviewFees + totalReviewFees + totalCreditFee + totalOutstandingFee >= 0);
         lblAccountFees.Text = "£" + (totalAccountFees + totalNewAccountFees).ToString();
         lblReviewFees.Text = "£" + (totalReviewFees + totalNewReviewFees).ToString();
+        if (Utils.GetSessionString("EnableShopCredit") == "True")
+            lblCreditfee.Text = "£" + (totalCreditFee).ToString();
+        if (Utils.GetSessionString("EnableShopDebit") == "True")
+            lblTotalOutstandingFee.Text = "£" + (totalOutstandingFee).ToString();
         lblNominalFee.Text = "£" + (totalAccountFees + totalReviewFees +
-            totalNewAccountFees + totalNewReviewFees).ToString();
+            totalNewAccountFees + totalNewReviewFees + totalCreditFee + totalOutstandingFee).ToString();
         if (addVAT == true)
         {
             lblVatPercentage.Text = vatRate.ToString() + "%";
@@ -908,10 +925,25 @@ public partial class Purchase : System.Web.UI.Page
             pnlPurchaseReview.Visible = true;
             pnlExistingReviews.Visible = true;
             pnlTotals.Visible = true;
+            if (Utils.GetSessionString("EnableShopCredit") == "True")
+                pnlPurchaseCredit.Visible = true;
+            if (Utils.GetSessionString("EnableShopDebit") == "True")
+                pnlPurchaseDebit.Visible = true;
         }
     }
     protected void getDraftBill()
     {
+        int outstandingFee = 0;
+        bool isAdmDB = true;
+        IDataReader idr1 = Utils.GetReader(isAdmDB, "st_OutstandingFeeByAccountID", Utils.GetSessionString("Contact_ID"));
+        while (idr1.Read())
+        {
+            if (idr1["STATUS"].ToString() == "Outstanding")
+                outstandingFee += int.Parse(idr1["AMOUNT"].ToString());
+        }
+        idr1.Close();
+
+
         //DateTime dayCreated;
         //DateTime dayExpires;
         DateTime today = DateTime.Today;
@@ -937,7 +969,7 @@ public partial class Purchase : System.Web.UI.Page
         dt2.Columns.Add(new DataColumn("COST", typeof(string)));
         Dictionary<string, string> newReviews = new Dictionary<string, string>();
         
-        bool isAdmDB = true;
+        isAdmDB = true;
         IDataReader idr = Utils.GetReader(isAdmDB, "st_BillGetDraft", Utils.GetSessionString("Contact_ID"));
         if (idr.Read())
         {
@@ -961,9 +993,9 @@ public partial class Purchase : System.Web.UI.Page
                         pnlPurchaseAccount.Visible = true;
                         newAccounts.Add(newrow["Bill_Line_ID"].ToString(), newrow["MONTHS_CREDIT"].ToString());
                     }
-                    else 
+                    else
                     {//it's an existing account
-                        
+
                         string accountCreatorID = "";
                         for (int i = 0; i < gvPurchasedAccounts.Rows.Count; i++)
                         {
@@ -1006,7 +1038,7 @@ public partial class Purchase : System.Web.UI.Page
                     }
                     else
                     {//it's an existing review
-                        
+
                         for (int i = 0; i < gvPurchasedReviews.Rows.Count; i++)
                         {
                             reviewID = gvPurchasedReviews.Rows[i].Cells[0].Text;
@@ -1031,6 +1063,47 @@ public partial class Purchase : System.Web.UI.Page
                         }
                     }
                 }
+                else if (idr["TYPE_NAME"].ToString() == "Credit purchase")
+                { //option 3: it's a credit purchase
+                    TBCredit.Text = (int.Parse(idr["MONTHS_CREDIT"].ToString()) * 5).ToString();
+                }                
+                else if (idr["TYPE_NAME"].ToString() == "Outstanding fee")
+                { //option 4: it's an outstanding fee
+
+                    // it might be an old draft bill and the outstanding fee needs updating
+                    if (outstandingFee.ToString() == idr["MONTHS_CREDIT"].ToString())
+                    {
+                        lblOutstandingFee.Text = (int.Parse(idr["MONTHS_CREDIT"].ToString()) * 1).ToString();
+                    }
+                    else
+                    {
+                        // update the draft bill
+                        SqlParameter[] paramList = new SqlParameter[3];
+                        paramList[0] = new SqlParameter("@bill_ID", SqlDbType.Int);
+                        paramList[0].Direction = ParameterDirection.Input;
+                        paramList[0].Value = Utils.GetSessionString("Draft_Bill_ID");
+
+                        paramList[1] = new SqlParameter("@OutstandingFeeAmount", SqlDbType.Int);
+                        paramList[1].Direction = ParameterDirection.Input;
+                        paramList[1].Value = outstandingFee;
+
+                        paramList[2] = new SqlParameter("@Result", SqlDbType.NVarChar);
+                        paramList[2].Direction = ParameterDirection.Output;
+                        paramList[2].Size = 100;
+                        paramList[2].Value = "";
+
+                        Utils.ExecuteSPWithReturnValues(true, Server, "st_BillAddOutstandingFee", paramList);
+                        string result = paramList[2].Value.ToString();
+                        if (result != "Success")
+                        {
+                            lblOutstandingFee.Text = outstandingFee.ToString();
+                        }
+                        else
+                        {
+                            // not sure what to do if it fails...
+                        }
+                    }
+                }                
             }
         }
         idr.Close();
@@ -1052,6 +1125,41 @@ public partial class Purchase : System.Web.UI.Page
             DropDownList ddl = ((DropDownList)gvNewReviews.Rows[i].FindControl("ddlExtendTmpReview"));
             ddl.SelectedValue = newReviews[gvNewReviews.Rows[i].Cells[0].Text];
         }
+
+        // if there are outstanding fees and a draft bill doesn't exist then create one.
+        if ((outstandingFee > 0) && (lblOutstandingFee.Text == "0"))
+        {
+            // there is an outstanding fee but it wasn't in the draft bill (if one exists)
+            if (Utils.GetSessionString("Draft_Bill_ID") == null)
+                MakeDraftBill();
+
+            // put it in the draft bill (this routine will update as well as create)
+            SqlParameter[] paramList = new SqlParameter[3];
+            paramList[0] = new SqlParameter("@bill_ID", SqlDbType.Int);
+            paramList[0].Direction = ParameterDirection.Input;
+            paramList[0].Value = Utils.GetSessionString("Draft_Bill_ID");
+
+            paramList[1] = new SqlParameter("@OutstandingFeeAmount", SqlDbType.Int);
+            paramList[1].Direction = ParameterDirection.Input;
+            paramList[1].Value = outstandingFee;
+
+            paramList[2] = new SqlParameter("@Result", SqlDbType.NVarChar);
+            paramList[2].Direction = ParameterDirection.Output;
+            paramList[2].Size = 100;
+            paramList[2].Value = "";
+
+            Utils.ExecuteSPWithReturnValues(true, Server, "st_BillAddOutstandingFee", paramList);
+            string result = paramList[2].Value.ToString();
+            if (result == "Success")
+            {
+                lblOutstandingFee.Text = outstandingFee.ToString();
+            }
+            else
+            {
+                // not sure what to do if it fails...
+            }
+        }
+
         calculateTotalFees();
     }
     protected void MakeDraftBill()
@@ -1250,6 +1358,19 @@ public partial class Purchase : System.Web.UI.Page
                        );
                     }
                 }
+                else if (idr["TYPE_NAME"].ToString() == "Credit purchase")
+                { //option 3: it's a credit purchase
+                    res.Add(buildXMLRequestLine
+                            (
+                                idr["LINE_ID"].ToString(),
+                                "Credit Purchase: ID = " + idr["AFFECTED_ID"].ToString() + ", " + numberMonths + " months.",
+                                currentAmount.ToString(),
+                                (VatRate * currentAmount).ToString(),
+                                VatRate.ToString(), (VatRate * currentAmount + currentAmount).ToString()
+                           )
+                       );
+                    TBCredit.Text = (int.Parse(idr["MONTHS_CREDIT"].ToString()) * 5).ToString();
+                }
             }
         }
         
@@ -1395,6 +1516,65 @@ public partial class Purchase : System.Web.UI.Page
                 buildPurchasedAccountsGrid();
                 getDraftBill();
             }
+        }
+    }
+
+    protected void BTAddCreditPurchase_Click(object sender, EventArgs e)
+    {
+        LblAddCreditResult.Text = "";
+        LblAddCreditResult.Visible = false;
+
+        // some cleanup...
+        if (TBCredit.Text.Contains("£"))
+            TBCredit.Text = TBCredit.Text.Replace("£", "");
+        if (TBCredit.Text.Contains("."))
+            TBCredit.Text = TBCredit.Text.Remove(TBCredit.Text.IndexOf("."));
+        TBCredit.Text = TBCredit.Text.Trim();
+
+        if (Utils.IsNumeric(TBCredit.Text))
+        {          
+            // it's a number, is it a £5 increment...
+            if ((int.Parse(TBCredit.Text) % 5 != 0))
+            {
+                TBCredit.Text = "0";
+                LblAddCreditResult.Text = "Must be in £5 increments";
+                LblAddCreditResult.Visible = true;
+            }
+
+            // it's a number so continue
+            if (Utils.GetSessionString("Draft_Bill_ID") == null)
+                    MakeDraftBill();
+
+            SqlParameter[] paramList = new SqlParameter[3];
+            paramList[0] = new SqlParameter("@bill_ID", SqlDbType.Int);
+            paramList[0].Direction = ParameterDirection.Input;
+            paramList[0].Value = Utils.GetSessionString("Draft_Bill_ID");
+
+            paramList[1] = new SqlParameter("@CreditAmount", SqlDbType.Int);
+            paramList[1].Direction = ParameterDirection.Input;
+            paramList[1].Value = int.Parse(TBCredit.Text);
+
+            paramList[2] = new SqlParameter("@Result", SqlDbType.NVarChar);
+            paramList[2].Direction = ParameterDirection.Output;
+            paramList[2].Size = 100;
+            paramList[2].Value = "";
+
+            Utils.ExecuteSPWithReturnValues(true, Server, "st_BillAddCredit", paramList);
+            string result = paramList[2].Value.ToString();
+            if (result != "Success")
+            {
+                LblAddAccountResult.Visible = true;
+                LblAddAccountResult.Text = result;
+            }
+            else
+            {
+                getDraftBill();
+            }
+        }
+        else
+        {
+            LblAddCreditResult.Text = "Invalid amount";
+            LblAddCreditResult.Visible = true;
         }
     }
 }

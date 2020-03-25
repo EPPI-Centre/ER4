@@ -35,7 +35,7 @@ public partial class RecentActivity : System.Web.UI.Page
                     {
                         radTs.SelectedIndex = 4;
                         radTs.Tabs[4].Tabs[0].Selected = true;
-                        radTs.Tabs[4].Tabs[8].Width = 90;
+                        //radTs.Tabs[4].Tabs[8].Width = 90;
                         //radTs.Tabs[3].Tabs[2].Width = 670;
                     }
                     System.Web.UI.WebControls.Label lbl1 = (Label)Master.FindControl("lblHeadingText");

@@ -52,14 +52,16 @@
 
                 <tr><td style="width:800px">
                                 <telerik:RadTabStrip ID="rtsMenu" runat="server"  MultiPageID="RadMultiPage1" 
-                                    Width="100%" SelectedIndex="5"
+                                    Width="100%" SelectedIndex="0"
                              Owner="rtsMenu" Skin="WebBlue" ResolvedRenderMode="Classic" >
                                     <Tabs>
                                         <Telerik:RadTab runat="server" NavigateUrl="~/Summary.aspx" 
-                                            Text="Summary">
+                                            Text="Summary" Selected="True" SelectedIndex="1">
                                             <Tabs>
                                                 <Telerik:RadTab runat="server" NavigateUrl="~/Summary.aspx" Text="Summary">
                                                 </Telerik:RadTab>
+                                                <telerik:RadTab runat="server" NavigateUrl="~/AssignCredit.aspx" Selected="True" Text="Assign credit" Visible="False">
+                                                </telerik:RadTab>
                                                 <Telerik:RadTab runat="server" Text="&amp;nbsp;" Enabled="False">
                                                 </Telerik:RadTab>
                                             </Tabs>
@@ -121,29 +123,30 @@
                                                 <Telerik:RadTab runat="server" NavigateUrl="~/TermsAndConditions.aspx" 
                                                     Text="Terms setup" Owner="">
                                                 </Telerik:RadTab>
-                                                <Telerik:RadTab runat="server" NavigateUrl="~/NewUser.aspx" Text="New users" 
-                                                    Owner="" Visible="False">
-                                                </Telerik:RadTab>
                                                 <Telerik:RadTab runat="server" NavigateUrl="~/MessageOfTheDay.aspx" 
                                                     Text="Msg of the day" Owner="">
                                                 </Telerik:RadTab>
                                                 <Telerik:RadTab runat="server" NavigateUrl="~/AccessSettings.aspx" 
                                                     Text="Access settings" Owner="">
                                                 </Telerik:RadTab>
-                                                <Telerik:RadTab runat="server" NavigateUrl="~/Newsletter.aspx" 
-                                                    Text="Newsletter" Owner="">
-                                                </Telerik:RadTab>
                                                 <Telerik:RadTab runat="server" NavigateUrl="~/Emails.aspx" Text="Emails" 
                                                     Owner="">
                                                 </Telerik:RadTab>
-                                                <telerik:RadTab runat="server" NavigateUrl="~/FilterBuilder.aspx" Text="Import filters">
+                                                <telerik:RadTab runat="server" NavigateUrl="~/PurchaseCredit.aspx" Text="Credit">
                                                 </telerik:RadTab>
-                                                <Telerik:RadTab runat="server" Enabled="False" Text="&amp;nbsp;">
+                                                <telerik:RadTab runat="server" NavigateUrl="~/OutstandingFees.aspx" Text="Outstanding fees">
+                                                </telerik:RadTab>
+                                                <telerik:RadTab runat="server" NavigateUrl="~/FilterBuilder.aspx" Text="Import filters" Visible="False">
+                                                </telerik:RadTab>
+                                                <Telerik:RadTab runat="server" NavigateUrl="~/Newsletter.aspx" 
+                                                    Text="Newsletter" Owner="" Visible="False">
+                                                </Telerik:RadTab>
+                                                <Telerik:RadTab runat="server" NavigateUrl="~/NewUser.aspx" Text="New users" 
+                                                    Owner="" Visible="False">
                                                 </Telerik:RadTab>
                                             </Tabs>
                                         </Telerik:RadTab>
-                                        <Telerik:RadTab runat="server" NavigateUrl="~/Codesets.aspx" Text="Utilities" 
-                                            Selected="True" SelectedIndex="2">
+                                        <Telerik:RadTab runat="server" NavigateUrl="~/Codesets.aspx" Text="Utilities" SelectedIndex="2">
                                             <Tabs>
                                                 <Telerik:RadTab runat="server" NavigateUrl="~/Codesets.aspx" Owner="" 
                                                     Text="Codesets">

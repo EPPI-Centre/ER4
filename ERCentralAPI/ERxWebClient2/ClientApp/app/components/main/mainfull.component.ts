@@ -30,6 +30,7 @@ import { ConfigurableReportService } from '../services/configurablereport.servic
 import { Helpers } from '../helpers/HelperMethods';
 import { ExcelService } from '../services/excel.service';
 import { DuplicatesService } from '../services/duplicates.service';
+import { FetchReadOnlyReviewsComponent } from '../readonlyreviews/readonlyreviews.component';
 import { BasicMAGService } from '../services/BasicMAG.service';
 //import { AdvancedMAGFeaturesComponent } from '../MAG/AdvancedMAGFeatures.component';
 
@@ -89,6 +90,8 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 	@ViewChild('SearchComp') SearchComp!: SearchComp;
 	@ViewChild('ComparisonComp') ComparisonComp!: ComparisonComp;
 	@ViewChild('CodeTreeAllocate') CodeTreeAllocate!: codesetSelectorComponent;
+    @ViewChild('CodingToolTreeReports') CodingToolTree!: codesetSelectorComponent;
+    @ViewChild(FetchReadOnlyReviewsComponent) private ReadOnlyReviewsComponent!: FetchReadOnlyReviewsComponent;
     @ViewChild('CodingToolTreeReports') CodingToolTree!: codesetSelectorComponent;
     //@ViewChild('AdvancedMAG') AdvancedMAG!: AdvancedMAGFeaturesComponent;
 
@@ -742,6 +745,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 	//}
     toggleReviewPanel() {
         this.isReviewPanelCollapsed = !this.isReviewPanelCollapsed;
+        if (this.isReviewPanelCollapsed && this.ReadOnlyReviewsComponent) this.ReadOnlyReviewsComponent.getReviews();
     }
     toggleWorkAllocationsPanel() {
 		this.isWorkAllocationsPanelCollapsed = !this.isWorkAllocationsPanelCollapsed;
@@ -866,8 +870,9 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 		}
 		if (this.ComparisonComp) {
 			this.ComparisonComp.Clear();
-		}
-
+        }
+        if (this.ReadOnlyReviewsComponent) this.ReadOnlyReviewsComponent.Clear();
+        this.isReviewPanelCollapsed = false;
         //this.dtTrigger.unsubscribe();
         //if (this.statsSub) this.statsSub.unsubscribe();
         //this.statsSub = this.reviewSetsService.GetReviewStatsEmit.subscribe(
