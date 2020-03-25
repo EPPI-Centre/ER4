@@ -33,7 +33,7 @@ export class EditCodeComp implements OnInit, OnDestroy {
     @Input() UpdatingCode: SetAttribute | null = null;
     @Output() emitterCancel = new EventEmitter();
     ShowPanel: string = "";
-    
+    ErrorMessage4CodeMove: string = "";
     //public get UpdatingCode2(): SetAttribute | null {
     //    console.log("UpdatingCode2");
     //    return this.UpdatingCode;
@@ -74,6 +74,7 @@ export class EditCodeComp implements OnInit, OnDestroy {
         else return false;
     }
     CancelActivity(refreshtree?: boolean) {
+        this.ErrorMessage4CodeMove = "";
         if (refreshtree && refreshtree == true) this.emitterCancel.emit(true);
         else this.emitterCancel.emit(false);
     }
@@ -144,9 +145,19 @@ export class EditCodeComp implements OnInit, OnDestroy {
             );
     }
 
-    DoMoveBranch(DestinationBranch: singleNode) {
-        console.log("DoMoveBranch", DestinationBranch);
-        if (DestinationBranch == null) return;
+    async DoMoveBranch(DestinationBranch: singleNode) {
+        //console.log("DoMoveBranch", DestinationBranch);
+        if (DestinationBranch == null || this.UpdatingCode == null) return;
+        else {
+            let res = await this.ReviewSetsEditingService.MoveSetAttributeInto(this.UpdatingCode, DestinationBranch);
+            if (res == false) {
+                console.log("Moving code failed (moving code, destination):", this.UpdatingCode, DestinationBranch);
+                this.ErrorMessage4CodeMove = "Sorry, moving this code failed. If the problem persists, please contact EPPISupport."
+            }
+            else {
+                this.CancelActivity();
+            }
+        }
     }
 
     ShowDeleteCodesetClicked() {

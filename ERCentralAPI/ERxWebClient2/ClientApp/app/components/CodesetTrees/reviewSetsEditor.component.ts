@@ -27,7 +27,9 @@ export class ReviewSetsEditorComponent implements OnInit, OnDestroy {
         private ReviewInfoService: ReviewInfoService
     ) { }
     ngOnInit() {
-        console.log
+        this.subRedrawTree = this.ReviewSetsEditingService.PleaseRedrawTheTree.subscribe(
+            () => { this.RefreshLocalTree(); }
+        );
         if (this.ReviewSetsEditingService.SetTypes.length == 0) {
             this.ReviewSetsEditingService.FetchSetTypes();
         }
@@ -37,6 +39,7 @@ export class ReviewSetsEditorComponent implements OnInit, OnDestroy {
     }
     @ViewChild('treeEditorComponent') treeEditorComponent!: CodesetTreeEditComponent;
     @ViewChild('CodeTypeSelect') CodeTypeSelect: any;
+    subRedrawTree: Subscription | null = null;
     public get HelpAndFeebackContext(): string {
         if (this._ActivityPanelName == 'ImportCodesets') return 'importcodesets';
         else return "editcodesets"
@@ -157,6 +160,12 @@ export class ReviewSetsEditorComponent implements OnInit, OnDestroy {
                     //alert("Sorry, creating the new codeset failed.");
                     //this.modalService.GenericErrorMessage(ErrMsg);
                 });
+    }
+    RefreshLocalTree() {
+        console.log("RefreshLocalTree (reviewSets editor)");
+        if (this.treeEditorComponent ) {
+            this.treeEditorComponent.RefreshLocalTree();
+        }
     }
     UpdateCodeSet() {
         if (!this.CurrentNode) return;
@@ -306,7 +315,7 @@ export class ReviewSetsEditorComponent implements OnInit, OnDestroy {
         this._ActivityPanelName = activityName;
     }
     CancelActivity(refreshTree?: boolean) {
-        console.log("CancelActivity", refreshTree);
+        //console.log("CancelActivity", refreshTree);
         if (refreshTree) {
             if (this.ReviewSetsService.selectedNode) {
                 let IsSet: boolean = this.ReviewSetsService.selectedNode.nodeType == "ReviewSet";
@@ -473,5 +482,6 @@ export class ReviewSetsEditorComponent implements OnInit, OnDestroy {
         this.router.navigate(['Main']);
     }
     ngOnDestroy() {
+        if (this.subRedrawTree != null) this.subRedrawTree.unsubscribe();
     }
 }

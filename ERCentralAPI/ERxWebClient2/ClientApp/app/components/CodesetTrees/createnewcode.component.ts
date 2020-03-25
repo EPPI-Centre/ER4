@@ -103,7 +103,7 @@ export class CreateNewCodeComp implements OnInit, OnDestroy {
         else {
             this._NewReviewSet.order = 0;
         }
-        console.log("What the hell?", this.CodeTypeSelect, this.CodeTypeSelect.nativeElement.selectedOptions, this.CodeTypeSelect.nativeElement.selectedOptions.length);
+        //console.log("What the hell?", this.CodeTypeSelect, this.CodeTypeSelect.nativeElement.selectedOptions, this.CodeTypeSelect.nativeElement.selectedOptions.length);
 
         if (this.CodeTypeSelect && this.CodeTypeSelect.nativeElement.selectedOptions && this.CodeTypeSelect.nativeElement.selectedOptions.length > 0) {
             this._NewCode.attribute_type_id = this.CodeTypeSelect.nativeElement.selectedOptions[0].value;
@@ -121,7 +121,7 @@ export class CreateNewCodeComp implements OnInit, OnDestroy {
                 success => {
                     if (success && this.CurrentNode) {
 						
-						console.log('The ones we have are: ', this._outcomeService.outcomesList);
+						//console.log('The ones we have are: ', this._outcomeService.outcomesList);
 						this.CurrentNode.attributes.push(success);
 						console.log('this is the current node: ', this.CurrentNode);
                         //this._reviewSetsService.GetReviewSets();
