@@ -182,6 +182,38 @@ export class BasicMAGService extends BusyAwareService {
                 }
             );
     }
+    UpdateMagRelatedRun(magRelatedRun: MagRelatedPapersRun): Promise<void> {
+
+        console.log(magRelatedRun);
+        this._BusyMethods.push("UpdateMagRelatedRun");
+        return this._httpC.post<MagRelatedPapersRun>(this._baseUrl + 'api/MagRelatedPapersRunList/UpdateMagRelatedRun',
+            magRelatedRun).
+        toPromise().then(
+
+            (result: MagRelatedPapersRun) => {
+
+                if (result.magRelatedRunId > 0) {
+                    let tmpIndex: any = this.MagRelatedPapersRunList.findIndex(x => x.magRelatedRunId == Number(result.magRelatedRunId));
+                    if (tmpIndex > -1) {
+                        console.log(tmpIndex);
+                        this.MagRelatedPapersRunList[tmpIndex] = result;
+                        //this.FetchMagRelatedPapersRunList();
+                    }
+                    this.showMAGRunMessage('MAG Run was updated');
+
+                } else {
+                    this.showMAGRunMessage('User status is: ' + result.userStatus);
+                }
+                this.RemoveBusy("UpdateMagRelatedRun");
+
+            }, error => {
+                this.RemoveBusy("UpdateMagRelatedRun");
+                this.modalService.GenericError(error);
+            }
+            );
+
+
+    }
 
 }
 export class MagItemPaperInsertCommand {
@@ -200,7 +232,7 @@ export class MagRelatedPapersRun {
     attributeName: string = '';
 	allIncluded: string = '';
     dateFrom: Date = new Date(2000, 2, 10);
-	autoReRun: string = '';
+    autoReRun: boolean = false;
 	mode: string = '';
 	filtered: string = '';
 	status: string = '';

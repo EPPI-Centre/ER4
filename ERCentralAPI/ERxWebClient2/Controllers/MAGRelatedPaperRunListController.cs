@@ -124,7 +124,7 @@ namespace ERxWebClient2.Controllers
 			}
 			catch (Exception e)
 			{
-				_logger.LogException(e, "Deleting a MagRelatedPapersRun list has an error");
+				_logger.LogException(e, "Deleting a MagRelatedPapersRun has an error");
 				throw;
 			}
 		}
@@ -152,17 +152,54 @@ namespace ERxWebClient2.Controllers
             }
             catch (Exception e)
             {
-                _logger.LogException(e, "Importing a MagRelatedPapersRun list has an error");
+                _logger.LogException(e, "Importing a MagRelatedPaper list has an error");
+                throw;
+            }
+        }
+
+        [HttpPost("[action]")]
+        public IActionResult UpdateMagRelatedRun([FromBody] MVCMagRelatedPapersRun magRun)
+        {
+            try
+            {
+                if (SetCSLAUser4Writing())
+                {
+                    DataPortal<MagRelatedPapersRunList> dp = new DataPortal<MagRelatedPapersRunList>();
+                    MagRelatedPapersRunList result = dp.Fetch();
+
+                    MagRelatedPapersRun currentMagRun = result.FirstOrDefault(x => x.MagRelatedRunId == magRun.magRelatedRunId);
+
+                    currentMagRun.AllIncluded = Convert.ToBoolean(magRun.allIncluded);
+                    currentMagRun.AttributeId = magRun.attributeId;
+                    currentMagRun.AutoReRun = Convert.ToBoolean(magRun.autoReRun);
+                    currentMagRun.DateFrom = magRun.dateFrom;
+                    currentMagRun.AttributeName = magRun.attributeName;
+                    currentMagRun.Filtered = magRun.filtered;
+                    currentMagRun.Mode = magRun.mode;
+                    currentMagRun.NPapers = magRun.nPapers;
+                    currentMagRun.Status = magRun.status;
+                    currentMagRun.UserDescription = magRun.userDescription;
+                    currentMagRun.UserStatus = magRun.userStatus;
+
+                    currentMagRun = currentMagRun.Save();
+
+                    return Ok(currentMagRun);
+
+                }
+                else return Forbid();
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "Updating a MagRelatedRunAutoReRun has an error");
                 throw;
             }
         }
 
 
-
     }
 
 
-	public class MVCMagRelatedPapersRun
+    public class MVCMagRelatedPapersRun
 	{
 		
 		public int magRelatedRunId = 0;
@@ -172,7 +209,7 @@ namespace ERxWebClient2.Controllers
 		public bool allIncluded = false;
 		public string dateRun = "";
 		public DateTime dateFrom = DateTime.Now;
-		public string autoReRun = "";
+        public bool autoReRun = false;
 		public string mode = "";
 		public string filtered = "";
 		public string status = "";

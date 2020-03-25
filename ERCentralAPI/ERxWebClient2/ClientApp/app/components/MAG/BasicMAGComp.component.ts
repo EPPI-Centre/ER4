@@ -120,6 +120,14 @@ export class BasicMAGComp implements OnInit {
             this.ImportMagRelatedPapersRun(item, msg);
         }
     }
+    public UpdateAutoReRun(magRelatedRun: MagRelatedPapersRun) {
+
+        magRelatedRun.autoReRun = !magRelatedRun.autoReRun;
+        if (magRelatedRun != null && magRelatedRun.magRelatedRunId > 0) {
+            this._basicMAGService.UpdateMagRelatedRun(magRelatedRun);
+        }
+
+    }
     private ShowMAGRunMessage(notifyMsg: string) {
 
         this._notificationService.show({
@@ -201,7 +209,7 @@ export class BasicMAGComp implements OnInit {
             magRun.attributeName = att.name;
         }
         magRun.dateFrom = this.valueKendoDatepicker;
-		magRun.autoReRun = this.magSearchCheck.toString();
+		magRun.autoReRun = this.magSearchCheck;
 		magRun.filtered = this.magRCTRadio;
 		magRun.mode = this.magMode;
 		magRun.userDescription = this.description;
