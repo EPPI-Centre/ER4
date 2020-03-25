@@ -92,7 +92,6 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 	@ViewChild('CodeTreeAllocate') CodeTreeAllocate!: codesetSelectorComponent;
     @ViewChild('CodingToolTreeReports') CodingToolTree!: codesetSelectorComponent;
     @ViewChild(FetchReadOnlyReviewsComponent) private ReadOnlyReviewsComponent!: FetchReadOnlyReviewsComponent;
-    @ViewChild('CodingToolTreeReports') CodingToolTree!: codesetSelectorComponent;
     //@ViewChild('AdvancedMAG') AdvancedMAG!: AdvancedMAGFeaturesComponent;
 
 	public DropdownSelectedCodeAllocate: singleNode | null = null;
