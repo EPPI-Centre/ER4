@@ -78,12 +78,13 @@ export class BasicMAGService extends BusyAwareService {
 				    }
 			    );
 	}
-	DeleteMAGRelatedRun(magRun: MagRelatedPapersRun) {
+	DeleteMAGRelatedRun(Id: number) {
 
 		//console.log(magRun);
         this._BusyMethods.push("DeleteMAGRelatedRun");
+        let body = JSON.stringify({Value: Id});
 		this._httpC.post<MagRelatedPapersRun>(this._baseUrl + 'api/MagRelatedPapersRunList/DeleteMagRelatedPapersRun',
-			magRun)
+			body)
 			    .subscribe(result => {
 
                     this.RemoveBusy("DeleteMAGRelatedRun");

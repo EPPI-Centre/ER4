@@ -133,6 +133,14 @@ export class BasicMAGComp implements OnInit {
     public CanDeleteMAGRun() : boolean {
         return this.HasWriteRights;
     }
+    public CanGetPapers(paperNumbers: number): boolean {
+        if (paperNumbers > 0 && this.HasWriteRights) {
+            return true;
+        } else {
+            return false;
+        }
+
+    }
     public CanAddNewMAGSearch(): boolean {
 
         if (this.description != '' && this.description != null && this.HasWriteRights
@@ -211,13 +219,13 @@ export class BasicMAGComp implements OnInit {
                 }
             });
     }
-	public DoDeleteMagRelatedPapersRun(magRun: MagRelatedPapersRun) {
+	public DoDeleteMagRelatedPapersRun(magRunId: number) {
 
         this.ConfirmationDialogService.confirm("Deleting the selected MAG run",
-            "Are you sure you want to delete MAG RUN:" + magRun.magRelatedRunId + "?", false, '')
+            "Are you sure you want to delete MAG run Id:" + magRunId + "?", false, '')
             .then((confirm: any) => {
                 if (confirm) {
-                    this._basicMAGService.DeleteMAGRelatedRun(magRun);
+                    this._basicMAGService.DeleteMAGRelatedRun(magRunId);
                 }
             });
         }

@@ -31,7 +31,7 @@ import { Helpers } from '../helpers/HelperMethods';
 import { ExcelService } from '../services/excel.service';
 import { DuplicatesService } from '../services/duplicates.service';
 import { BasicMAGService } from '../services/BasicMAG.service';
-import { AdvancedMAGFeaturesComponent } from '../MAG/AdvancedMAGFeatures.component';
+//import { AdvancedMAGFeaturesComponent } from '../MAG/AdvancedMAGFeatures.component';
 
 
 @Component({
@@ -90,7 +90,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 	@ViewChild('ComparisonComp') ComparisonComp!: ComparisonComp;
 	@ViewChild('CodeTreeAllocate') CodeTreeAllocate!: codesetSelectorComponent;
     @ViewChild('CodingToolTreeReports') CodingToolTree!: codesetSelectorComponent;
-    @ViewChild('AdvancedMAG') AdvancedMAG!: AdvancedMAGFeaturesComponent;
+    //@ViewChild('AdvancedMAG') AdvancedMAG!: AdvancedMAGFeaturesComponent;
 
 	public DropdownSelectedCodeAllocate: singleNode | null = null;
 	public stats: ReviewStatisticsCountsCommand | null = null;
@@ -728,10 +728,10 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 		if (this.ItemListComponent) this.ItemListComponent.LoadWorkAllocList(workAlloc, this.workAllocationCollaborateComp.ListSubType);
 		else console.log('attempt failed');
     }
-    LoadMAGAllocList(magAlloc: number) {
-        if (this.ItemListComponent) this.ItemListComponent.LoadMAGAllocList(this.AdvancedMAG.ListSubType);
-        else console.log('attempt failed');
-    }
+    //LoadMAGAllocList(magAlloc: number) {
+    //    if (this.ItemListComponent) this.ItemListComponent.LoadMAGAllocList(this.AdvancedMAG.ListSubType);
+    //    else console.log('attempt failed');
+    //}
 
 	//ngOnChanges() {
 		//if (this.tabsInitialized) {

@@ -86,8 +86,8 @@ import { ReviewTermsListComp } from './components/ReviewTermsList/ReviewTermsLis
 import { configurablereportComp } from './components/Reports/configurablereport.component';
 import { DuplicatesComponent } from './components/Duplicates/duplicates.component';
 import { BasicMAGComp } from './components/MAG/BasicMAGComp.component';
-import { AdvancedMAGFeaturesComponent } from './components/MAG/AdvancedMAGFeatures.component';
-import { MAGBrowser } from './components/MAG/MAGBrowser.component';
+//import { AdvancedMAGFeaturesComponent } from './components/MAG/AdvancedMAGFeatures.component';
+//import { MAGBrowser } from './components/MAG/MAGBrowser.component';
 
 @NgModule({
     declarations: [
@@ -155,8 +155,8 @@ import { MAGBrowser } from './components/MAG/MAGBrowser.component';
 		ReviewTermsListComp,
         configurablereportComp,
         DuplicatesComponent,
-        AdvancedMAGFeaturesComponent,
-        MAGBrowser
+        //AdvancedMAGFeaturesComponent,
+        //MAGBrowser
 	],
     providers: [
         EventEmitterService,
@@ -195,9 +195,9 @@ import { MAGBrowser } from './components/MAG/MAGBrowser.component';
 			{ path: 'sources', component: SourcesComponent },
             { path: 'BuildModel', component: BuildModelComponent },
             { path: 'BasicMAGFeatures', component: BasicMAGComp },
-            { path: 'MAGBrowser', component: MAGBrowser },
+            //{ path: 'MAGBrowser', component: MAGBrowser },
             { path: 'ItemList', component: ItemListComp},
-            { path: 'AdvancedMAGFeatures', component: AdvancedMAGFeaturesComponent },
+            //{ path: 'AdvancedMAGFeatures', component: AdvancedMAGFeaturesComponent },
             { path: 'itemcodingOnly/:itemId', component: ItemCodingComp },
             { path: 'itemcoding/:itemId', component: ItemCodingFullComp },
             { path: 'EditItem/:itemId', component: editItemDetailsComp },

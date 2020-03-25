@@ -104,7 +104,7 @@ namespace ERxWebClient2.Controllers
 		}
 
 		[HttpPost("[action]")]
-		public IActionResult DeleteMagRelatedPapersRun([FromBody] MVCMagRelatedPapersRun magRun)
+		public IActionResult DeleteMagRelatedPapersRun([FromBody] SingleInt64Criteria Id)
 		{
 			try
 			{
@@ -113,7 +113,7 @@ namespace ERxWebClient2.Controllers
 					DataPortal<MagRelatedPapersRunList> dp = new DataPortal<MagRelatedPapersRunList>();
 					MagRelatedPapersRunList result = dp.Fetch();
 
-					MagRelatedPapersRun currentMagRun = result.FirstOrDefault(x => x.MagRelatedRunId == magRun.magRelatedRunId);
+					MagRelatedPapersRun currentMagRun = result.FirstOrDefault(x => x.MagRelatedRunId == Id.Value);
 
 					currentMagRun.Delete();
 					currentMagRun = currentMagRun.Save();
