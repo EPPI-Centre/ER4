@@ -15,7 +15,7 @@ using System.Globalization;
 using System.Net;
 using System.Configuration;
 using System.IO;
-using Csla.Configuration;
+//using Csla.Configuration;
 
 #if !SILVERLIGHT
 using System.Data.SqlClient;

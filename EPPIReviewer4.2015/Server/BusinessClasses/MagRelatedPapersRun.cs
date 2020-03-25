@@ -11,7 +11,7 @@ using Csla.Silverlight;
 using Csla.DataPortalClient;
 using System.IO;
 using System.Threading.Tasks;
-using Csla.Configuration;
+//using Csla.Configuration;
 
 #if !SILVERLIGHT
 using System.Data.SqlClient;
