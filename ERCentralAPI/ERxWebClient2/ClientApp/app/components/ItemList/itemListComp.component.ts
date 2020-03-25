@@ -2,11 +2,12 @@ import { Component, OnInit, Input, ElementRef, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { WorkAllocation, WorkAllocationListService } from '../services/WorkAllocationList.service';
-import { ItemListService, Criteria, Item, ItemList } from '../services/ItemList.service';
+import { ItemListService, Criteria } from '../services/ItemList.service';
 import { GridDataResult } from '@progress/kendo-angular-grid';
 import { SortDescriptor, orderBy } from '@progress/kendo-data-query';
 import { _localeFactory } from '@angular/core/src/application_module';
 import { Comparison } from '../services/comparisons.service';
+import { MAGAdvancedService } from '../services/magAdvanced.service';
 
 @Component({
     selector: 'ItemListComp',
@@ -17,7 +18,8 @@ export class ItemListComp implements OnInit {
 
     constructor(private router: Router, private ReviewerIdentityServ: ReviewerIdentityService,
         public ItemListService: ItemListService,
-		private _WorkAllocationService: WorkAllocationListService
+        private _WorkAllocationService: WorkAllocationListService,
+        private _magAdvancedService: MAGAdvancedService
     ) {
 
     }
@@ -182,7 +184,28 @@ export class ItemListComp implements OnInit {
 		this.ItemListService.FetchWithCrit(crit, listDescription );
 
 	}
+    public LoadMAGAllocList(ListSubType: string) {
 
+        console.log('got in here load magallocate');
+        let SelectionCritieraItemList: Criteria = new Criteria();
+        SelectionCritieraItemList.listType = "MagMatchesMatched";
+        if (ListSubType == 'MatchedIncluded') {
+            SelectionCritieraItemList.onlyIncluded = true;
+        } else if (ListSubType == 'MatchedExcluded') {
+            SelectionCritieraItemList.onlyIncluded = false;
+
+        } else if (ListSubType == 'MagMatchesNeedingChecking') {
+
+           // SelectionCritieraItemList.attributeSetIdList = ;
+        }
+        if (this._magAdvancedService.ListDescription == 'MagSimulationTP' ||
+            this._magAdvancedService.ListDescription == 'MagSimulationFN') {
+            SelectionCritieraItemList.magSimulationId = this._magAdvancedService.CurrentMagSimId;
+        }
+        SelectionCritieraItemList.showDeleted = false;
+        SelectionCritieraItemList.pageNumber = 0;
+        this.ItemListService.FetchWithCrit(SelectionCritieraItemList, ListSubType);
+    }
     OpenItem(itemId: number) {
 
 		if (itemId > 0) {

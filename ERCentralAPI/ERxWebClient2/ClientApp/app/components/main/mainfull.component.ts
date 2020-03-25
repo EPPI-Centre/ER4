@@ -31,6 +31,8 @@ import { Helpers } from '../helpers/HelperMethods';
 import { ExcelService } from '../services/excel.service';
 import { DuplicatesService } from '../services/duplicates.service';
 import { FetchReadOnlyReviewsComponent } from '../readonlyreviews/readonlyreviews.component';
+import { BasicMAGService } from '../services/BasicMAG.service';
+//import { AdvancedMAGFeaturesComponent } from '../MAG/AdvancedMAGFeatures.component';
 
 
 @Component({
@@ -65,7 +67,8 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         private _eventEmitter: EventEmitterService,
 		private frequenciesService: frequenciesService
 		, private crosstabService: crosstabService
-        , private _searchService: searchService
+		, private _searchService: searchService
+		, private _basicMAGService: BasicMAGService
         , private SourcesService: SourcesService
         , private ConfirmationDialogService: ConfirmationDialogService
         , private ItemCodingService: ItemCodingService
@@ -89,7 +92,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 	@ViewChild('CodeTreeAllocate') CodeTreeAllocate!: codesetSelectorComponent;
     @ViewChild('CodingToolTreeReports') CodingToolTree!: codesetSelectorComponent;
     @ViewChild(FetchReadOnlyReviewsComponent) private ReadOnlyReviewsComponent!: FetchReadOnlyReviewsComponent;
-
+    //@ViewChild('AdvancedMAG') AdvancedMAG!: AdvancedMAGFeaturesComponent;
 
 	public DropdownSelectedCodeAllocate: singleNode | null = null;
 	public stats: ReviewStatisticsCountsCommand | null = null;
@@ -726,7 +729,11 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
     LoadWorkAllocList(workAlloc: WorkAllocation){
 		if (this.ItemListComponent) this.ItemListComponent.LoadWorkAllocList(workAlloc, this.workAllocationCollaborateComp.ListSubType);
 		else console.log('attempt failed');
-	}
+    }
+    //LoadMAGAllocList(magAlloc: number) {
+    //    if (this.ItemListComponent) this.ItemListComponent.LoadMAGAllocList(this.AdvancedMAG.ListSubType);
+    //    else console.log('attempt failed');
+    //}
 
 	//ngOnChanges() {
 		//if (this.tabsInitialized) {
@@ -794,6 +801,12 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 			this.ShowItemsTable = false;
 			this.ShowSearchesAssign = true;
             this._searchService.Fetch();
+		}
+        else if (e.title == 'Microsoft Academic Graph') {
+			this.HelpAndFeebackContext = "main\\microsoft";
+			this.ShowItemsTable = false;
+			//this.ShowSearchesAssign = true;
+            this._basicMAGService.FetchMagRelatedPapersRunList();
 		}
 		else if (e.title == 'Collaborate') {
 			this.HelpAndFeebackContext = "main\\collaborate";

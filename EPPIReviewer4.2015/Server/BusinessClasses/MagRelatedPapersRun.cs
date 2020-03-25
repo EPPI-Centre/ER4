@@ -11,8 +11,7 @@ using Csla.Silverlight;
 using Csla.DataPortalClient;
 using System.IO;
 using System.Threading.Tasks;
-
-
+//using Csla.Configuration;
 
 #if !SILVERLIGHT
 using System.Data.SqlClient;
@@ -35,10 +34,10 @@ namespace BusinessLibrary.BusinessClasses
 
         
 #else
-        private MagRelatedPapersRun() { }
+        public MagRelatedPapersRun() { }
 #endif
 
-        private static PropertyInfo<int> MagRelatedRunIdProperty = RegisterProperty<int>(new PropertyInfo<int>("MagRelatedRunId", "MagRelatedRunId", 0));
+        public static readonly PropertyInfo<int> MagRelatedRunIdProperty = RegisterProperty<int>(new PropertyInfo<int>("MagRelatedRunId", "MagRelatedRunId", 0));
         public int MagRelatedRunId
         {
             get
@@ -47,7 +46,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> ReviewIdIdProperty = RegisterProperty<int>(new PropertyInfo<int>("ReviewIdId", "ReviewIdId", 0));
+        public static readonly PropertyInfo<int> ReviewIdIdProperty = RegisterProperty<int>(new PropertyInfo<int>("ReviewIdId", "ReviewIdId", 0));
         public int ReviewIdId
         {
             get
@@ -56,7 +55,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> UserDescriptionProperty = RegisterProperty<string>(new PropertyInfo<string>("UserDescription", "UserDescription", string.Empty));
+        public static readonly PropertyInfo<string> UserDescriptionProperty = RegisterProperty<string>(new PropertyInfo<string>("UserDescription", "UserDescription", string.Empty));
         public string UserDescription
         {
             get
@@ -69,7 +68,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<Int64> AttributeIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("AttributeId", "AttributeId"));
+        public static readonly PropertyInfo<Int64> AttributeIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("AttributeId", "AttributeId"));
         public Int64 AttributeId
         {
             get
@@ -82,7 +81,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> AttributeNameProperty = RegisterProperty<string>(new PropertyInfo<string>("AttributeName", "AttributeName"));
+        public static readonly PropertyInfo<string> AttributeNameProperty = RegisterProperty<string>(new PropertyInfo<string>("AttributeName", "AttributeName"));
         public string AttributeName
         {
             get
@@ -95,7 +94,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<bool> AllIncludedProperty = RegisterProperty<bool>(new PropertyInfo<bool>("AllIncluded", "AllIncluded", false));
+        public static readonly PropertyInfo<bool> AllIncludedProperty = RegisterProperty<bool>(new PropertyInfo<bool>("AllIncluded", "AllIncluded", false));
         public bool AllIncluded
         {
             get
@@ -108,7 +107,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<SmartDate> DateFromProperty = RegisterProperty<SmartDate>(new PropertyInfo<SmartDate>("DateFrom", "DateFrom"));
+        public static readonly PropertyInfo<SmartDate> DateFromProperty = RegisterProperty<SmartDate>(new PropertyInfo<SmartDate>("DateFrom", "DateFrom"));
         public SmartDate DateFrom
         {
             get
@@ -121,7 +120,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<SmartDate> DateRunProperty = RegisterProperty<SmartDate>(new PropertyInfo<SmartDate>("DateRun", "DateRun"));
+        public static readonly PropertyInfo<SmartDate> DateRunProperty = RegisterProperty<SmartDate>(new PropertyInfo<SmartDate>("DateRun", "DateRun"));
         public SmartDate DateRun
         {
             get
@@ -133,7 +132,7 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(DateRunProperty, value);
             }
         }
-        private static PropertyInfo<string> StatusProperty = RegisterProperty<string>(new PropertyInfo<string>("Status", "Status", ""));
+        public static readonly PropertyInfo<string> StatusProperty = RegisterProperty<string>(new PropertyInfo<string>("Status", "Status", ""));
         public string Status
         {
             get
@@ -146,7 +145,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> UserStatusProperty = RegisterProperty<string>(new PropertyInfo<string>("UserStatus", "UserStatus", ""));
+        public static readonly PropertyInfo<string> UserStatusProperty = RegisterProperty<string>(new PropertyInfo<string>("UserStatus", "UserStatus", ""));
         public string UserStatus
         {
             get
@@ -158,7 +157,7 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(UserStatusProperty, value);
             }
         }
-        private static PropertyInfo<int> NPapersProperty = RegisterProperty<int>(new PropertyInfo<int>("NPapers", "NPapers", 0));
+        public static readonly PropertyInfo<int> NPapersProperty = RegisterProperty<int>(new PropertyInfo<int>("NPapers", "NPapers", 0));
         public int NPapers
         {
             get
@@ -170,7 +169,7 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(NPapersProperty, value);
             }
         }
-        private static PropertyInfo<string> ModeProperty = RegisterProperty<string>(new PropertyInfo<string>("Mode", "Mode"));
+        public static readonly PropertyInfo<string> ModeProperty = RegisterProperty<string>(new PropertyInfo<string>("Mode", "Mode"));
         public string Mode
         {
             get
@@ -183,7 +182,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> FilteredProperty = RegisterProperty<string>(new PropertyInfo<string>("Filtered", "Filtered"));
+        public static readonly PropertyInfo<string> FilteredProperty = RegisterProperty<string>(new PropertyInfo<string>("Filtered", "Filtered"));
         public string Filtered
         {
             get
@@ -196,7 +195,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
         /*
-        private static PropertyInfo<bool> CheckedProperty = RegisterProperty<bool>(new PropertyInfo<bool>("Checked", "Checked", false));
+        public static readonly PropertyInfo<bool> CheckedProperty = RegisterProperty<bool>(new PropertyInfo<bool>("Checked", "Checked", false));
         public bool Checked
         {
             get
@@ -208,8 +207,7 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(CheckedProperty, value);
             }
         }
-
-        private static PropertyInfo<bool> IrrelevantProperty = RegisterProperty<bool>(new PropertyInfo<bool>("Irrelevant", "Irrelevant", false));
+        public static readonly PropertyInfo<bool> IrrelevantProperty = RegisterProperty<bool>(new PropertyInfo<bool>("Irrelevant", "Irrelevant", false));
         public bool Irrelevant
         {
             get
@@ -222,7 +220,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
         */
-        private static PropertyInfo<bool> AutoReRunProperty = RegisterProperty<bool>(new PropertyInfo<bool>("AutoReRun", "AutoReRun", false));
+        public static readonly PropertyInfo<bool> AutoReRunProperty = RegisterProperty<bool>(new PropertyInfo<bool>("AutoReRun", "AutoReRun", false));
         public bool AutoReRun
         {
             get
@@ -248,7 +246,6 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(CitationsProperty, value);
             }
         }
-
         public static readonly PropertyInfo<MagRelatedPapersRunList> CitedByProperty = RegisterProperty<MagRelatedPapersRunList>(new PropertyInfo<MagRelatedPapersRunList>("CitedBy", "CitedBy"));
         public MagRelatedPapersRunList CitedBy
         {
@@ -261,7 +258,6 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(CitedByProperty, value);
             }
         }
-
         public static readonly PropertyInfo<MagRelatedPapersRunList> RecommendedProperty = RegisterProperty<MagRelatedPapersRunList>(new PropertyInfo<MagRelatedPapersRunList>("Recommended", "Recommended"));
         public MagRelatedPapersRunList Recommended
         {
@@ -274,7 +270,6 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(RecommendedProperty, value);
             }
         }
-
         public static readonly PropertyInfo<MagRelatedPapersRunList> RecommendedByProperty = RegisterProperty<MagRelatedPapersRunList>(new PropertyInfo<MagRelatedPapersRunList>("RecommendedBy", "RecommendedBy"));
         public MagRelatedPapersRunList RecommendedBy
         {
@@ -412,7 +407,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        protected void DataPortal_Fetch(SingleCriteria<MagRelatedPapersRun, Int64> criteria) 
+        protected void DataPortal_Fetch(SingleCriteria<MagRelatedPapersRun, Int64> criteria)
         {
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
@@ -471,12 +466,29 @@ namespace BusinessLibrary.BusinessClasses
 
         private void RunMagRelatedPapersRun(int ContactId, int ReviewId)
         {
+
+#if (!CSLA_NETCORE)
             string uploadFileName = System.Web.HttpRuntime.AppDomainAppPath + @"UserTempUploads/RelatedRun" + MagRelatedRunId.ToString() + ".csv";
 
+#else       
+            string uploadFileName = "";
+            if (Directory.Exists("UserTempUploads"))
+            {
+                uploadFileName =  @"./UserTempUploads/RelatedRun" + MagRelatedRunId.ToString() + ".csv";
+            }
+            else
+            {
+                DirectoryInfo tmpDir = System.IO.Directory.CreateDirectory("UserTempUploads");
+                uploadFileName = tmpDir.FullName + "/" + @"UserTempUploads/RelatedRun" + MagRelatedRunId.ToString() + ".csv";
+
+            }
+
+#endif
+
             WriteSeedIdsFile(uploadFileName);
-            UploadSeedIdsFile(uploadFileName);
+            UploadSeedIdsFileAsync(uploadFileName);
             TriggerDataLakeJob(uploadFileName, ContactId);
-            DownloadResults(uploadFileName, ReviewId);
+            DownloadResultsAsync(uploadFileName, ReviewId);
         }
 
         private void WriteSeedIdsFile(string uploadFileName)
@@ -508,10 +520,19 @@ namespace BusinessLibrary.BusinessClasses
         }
 
 
-        private void UploadSeedIdsFile(string fileName)
+        private async Task UploadSeedIdsFileAsync(string fileName)
         {
+
+#if (CSLA_NETCORE)
+
+            var configuration = ERxWebClient2.Startup.Configuration.GetSection("AzureMagSettings");
+            string storageAccountName = configuration["MAGStorageAccount"];
+            string storageAccountKey = configuration["MAGStorageAccountKey"];
+
+#else
             string storageAccountName = ConfigurationManager.AppSettings["MAGStorageAccount"];
             string storageAccountKey = ConfigurationManager.AppSettings["MAGStorageAccountKey"];
+#endif
 
             string storageConnectionString =
                 "DefaultEndpointsProtocol=https;AccountName=" + storageAccountName + ";AccountKey=";
@@ -531,7 +552,7 @@ namespace BusinessLibrary.BusinessClasses
                 blockBlobData.UploadFromStream(fileStream);
 #else
 
-					await blockBlobData.UploadFromFileAsync(fileName);
+                await blockBlobData.UploadFromFileAsync(fileName);
 #endif
 
             }
@@ -541,15 +562,26 @@ namespace BusinessLibrary.BusinessClasses
         private void TriggerDataLakeJob(string uploadFileName, int ContactId)
         {
             MagCurrentInfo MagInfo = MagCurrentInfo.GetMagCurrentInfoServerSide("LIVE");
+
             MagDataLakeHelpers.ExecProc(@"[master].[dbo].[RelatedRun](""" + Path.GetFileName(uploadFileName) + "\",\"" +
                 Path.GetFileName(uploadFileName) + "\", \"" + MagInfo.MagFolder + "\",\"" + this.Mode + "\"," +
                 (this.DateFrom.ToString() != "" ? DateFrom.ToString() : "1753") + ");", true, "RelatedRun", ContactId, 12);
+                    
         }
 
-        private void DownloadResults(string fileName, int ReviewId)
+        private async Task DownloadResultsAsync(string fileName, int ReviewId)
         {
+
+#if (CSLA_NETCORE)
+
+            var configuration = ERxWebClient2.Startup.Configuration.GetSection("AzureMagSettings");
+            string storageAccountName = configuration["MAGStorageAccount"];
+            string storageAccountKey = configuration["MAGStorageAccountKey"];
+
+#else
             string storageAccountName = ConfigurationManager.AppSettings["MAGStorageAccount"];
             string storageAccountKey = ConfigurationManager.AppSettings["MAGStorageAccountKey"];
+#endif
 
             string storageConnectionString =
                 "DefaultEndpointsProtocol=https;AccountName=" + storageAccountName + ";AccountKey=";
@@ -562,10 +594,11 @@ namespace BusinessLibrary.BusinessClasses
 
             // cleaning up the file that was uploaded
             CloudBlockBlob blockBlobUploadData = containerUp.GetBlockBlobReference(Path.GetFileName(fileName));
-            blockBlobUploadData.DeleteIfExists();
+            blockBlobUploadData.DeleteIfExistsAsync();
 
             CloudBlockBlob blockBlobDownloadData = containerDown.GetBlockBlobReference(Path.GetFileName(fileName));
-            byte[] myFile = Encoding.UTF8.GetBytes(blockBlobDownloadData.DownloadText());
+            string resultantString = await blockBlobDownloadData.DownloadTextAsync();
+            byte[] myFile = Encoding.UTF8.GetBytes(resultantString);
 
             MemoryStream ms = new MemoryStream(myFile);
 
@@ -612,7 +645,7 @@ namespace BusinessLibrary.BusinessClasses
                 }
                 connection.Close();
             }
-            blockBlobDownloadData.DeleteIfExists();
+            blockBlobDownloadData.DeleteIfExistsAsync();
         }
 
 

@@ -88,6 +88,7 @@ namespace ERxWebClient2.Controllers
                 CSLAcrit.PageNumber = crit.pageNumber;
                 CSLAcrit.PageSize = crit.pageSize;
                 CSLAcrit.WorkAllocationId = crit.workAllocationId;
+                CSLAcrit.MagSimulationId = crit.magSimulationId;
                 CSLAcrit.ComparisonId = crit.comparisonId;
                 CSLAcrit.Description = crit.description;
                 CSLAcrit.ContactId = crit.contactId;
@@ -339,6 +340,8 @@ namespace ERxWebClient2.Controllers
         public int endIndex { get; set; }
         public int workAllocationId { get; set; }
         public int comparisonId { get; set; }
+
+        public int magSimulationId { get; set; }
         public string description { get; set; }
         public int contactId { get; set; }
         public int setId { get; set; }

@@ -32,7 +32,7 @@ namespace BusinessLibrary.BusinessClasses
 #if SILVERLIGHT
         public MagLogList() { }
 #else
-        private MagLogList() { }
+        public MagLogList() { }
 #endif
 
 

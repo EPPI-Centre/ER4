@@ -38,7 +38,7 @@ namespace BusinessLibrary.BusinessClasses
 #if SILVERLIGHT
         public MagFieldOfStudyList() { }
 #else
-        private MagFieldOfStudyList() { }
+        public MagFieldOfStudyList() { }
 #endif
 
 #if SILVERLIGHT

@@ -76,7 +76,8 @@ namespace ERxWebClient2.Controllers
 			catch (Exception e)
 			{
 				_logger.LogException(e, "Work Allocation data portal error");
-				throw;
+                //throw;
+                return Ok();
 			}
 
 		}
