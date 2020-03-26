@@ -86,10 +86,9 @@ import { ReviewTermsListComp } from './components/ReviewTermsList/ReviewTermsLis
 import { configurablereportComp } from './components/Reports/configurablereport.component';
 import { DuplicatesComponent } from './components/Duplicates/duplicates.component';
 import { codesetTree4Move } from './components/CodesetTrees/codesetTree4Move.component';
-//import { MAGComp } from './components/MAG/MAGComp.component';
 import { BasicMAGComp } from './components/MAG/BasicMAGComp.component';
-//import { AdvancedMAGFeaturesComponent } from './components/MAG/AdvancedMAGFeatures.component';
-//import { MAGBrowser } from './components/MAG/MAGBrowser.component';
+import { AdvancedMAGFeaturesComponent } from './components/MAG/AdvancedMAGFeatures.component';
+import { MAGBrowser } from './components/MAG/MAGBrowser.component';
 
 @NgModule({
     declarations: [
@@ -157,7 +156,9 @@ import { BasicMAGComp } from './components/MAG/BasicMAGComp.component';
 		ReviewTermsListComp,
         configurablereportComp,
         DuplicatesComponent,
-        codesetTree4Move
+        codesetTree4Move,
+        AdvancedMAGFeaturesComponent,
+        MAGBrowser
 	],
     providers: [
         EventEmitterService,
@@ -196,9 +197,9 @@ import { BasicMAGComp } from './components/MAG/BasicMAGComp.component';
 			{ path: 'sources', component: SourcesComponent },
             { path: 'BuildModel', component: BuildModelComponent },
             { path: 'BasicMAGFeatures', component: BasicMAGComp },
-            //{ path: 'MAGBrowser', component: MAGBrowser },
+            { path: 'MAGBrowser', component: MAGBrowser },
             { path: 'ItemList', component: ItemListComp},
-            //{ path: 'AdvancedMAGFeatures', component: AdvancedMAGFeaturesComponent },
+            { path: 'AdvancedMAGFeatures', component: AdvancedMAGFeaturesComponent },
             { path: 'itemcodingOnly/:itemId', component: ItemCodingComp },
             { path: 'itemcoding/:itemId', component: ItemCodingFullComp },
             { path: 'EditItem/:itemId', component: editItemDetailsComp },

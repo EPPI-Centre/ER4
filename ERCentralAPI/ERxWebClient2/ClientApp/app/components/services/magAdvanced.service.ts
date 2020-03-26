@@ -208,12 +208,12 @@ export class MAGAdvancedService extends BusyAwareService {
             (result: MagPaper[]) => {
 
                 if (crit.listType == 'CitationsList') {
-                    this.PaperIds = "";
-                    this.MagReferencesPaperList = result;
-                    for (var i = 0; i < this.MagReferencesPaperList.length; i++) {
-                        this.PaperIds += this.MagReferencesPaperList[i].paperId.toString() + ',';
-                    }
-                    this.PaperIds = this.PaperIds.substr(0, this.PaperIds.length - 1)
+                    //this.PaperIds = "";
+                    this.MagCitationsPaperList = result;
+                    //for (var i = 0; i < this.MagCitationsPaperList.length; i++) {
+                    //    this.PaperIds += this.MagCitationsPaperList[i].paperId.toString() + ',';
+                    //}
+                    //this.PaperIds = this.PaperIds.substr(0, this.PaperIds.length - 1)
                     //console.log(this.PaperIds);
                 } else if (crit.listType == 'CitedByList') {
 

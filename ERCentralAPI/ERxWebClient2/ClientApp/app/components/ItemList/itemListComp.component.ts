@@ -186,17 +186,30 @@ export class ItemListComp implements OnInit {
 	}
     public LoadMAGAllocList(ListSubType: string) {
 
-        console.log('got in here load magallocate');
+        console.log('got in here load magallocate', ListSubType);
         let SelectionCritieraItemList: Criteria = new Criteria();
-        SelectionCritieraItemList.listType = "MagMatchesMatched";
+        SelectionCritieraItemList.listType = ListSubType;
         if (ListSubType == 'MatchedIncluded') {
+            SelectionCritieraItemList.listType ='MagMatchesMatched';
             SelectionCritieraItemList.onlyIncluded = true;
         } else if (ListSubType == 'MatchedExcluded') {
+            SelectionCritieraItemList.listType = 'MagMatchesMatched';
             SelectionCritieraItemList.onlyIncluded = false;
 
-        } else if (ListSubType == 'MagMatchesNeedingChecking') {
-
-           // SelectionCritieraItemList.attributeSetIdList = ;
+        } else if (ListSubType == 'MagMatchesNeedingCheckingInc') {
+            SelectionCritieraItemList.listType = 'MagMatchesNeedingChecking';
+            SelectionCritieraItemList.onlyIncluded = true;
+        } else if (ListSubType == 'MagMatchesNeedingCheckingExc') {
+            SelectionCritieraItemList.listType = 'MagMatchesNeedingChecking';
+            SelectionCritieraItemList.onlyIncluded = false;
+        }  else if (ListSubType == 'MagMatchesNotMatchedInc') {
+            SelectionCritieraItemList.listType = 'MagMatchesNotMatched';
+            SelectionCritieraItemList.onlyIncluded = true;
+        } else if (ListSubType == 'MagMatchesNotMatchedExc') {
+            SelectionCritieraItemList.listType = 'MagMatchesNotMatched';
+            SelectionCritieraItemList.onlyIncluded = false;
+        }else{
+            SelectionCritieraItemList.listType = "MagMatchesMatched";
         }
         if (this._magAdvancedService.ListDescription == 'MagSimulationTP' ||
             this._magAdvancedService.ListDescription == 'MagSimulationFN') {
