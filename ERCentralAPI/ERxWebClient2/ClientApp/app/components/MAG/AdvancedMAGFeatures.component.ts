@@ -88,7 +88,7 @@ export class AdvancedMAGFeaturesComponent implements OnInit {
     public ShowGraphViewer: boolean = false;
     public ShowGraph() {
 
-        this.ShowGraphViewer = true;
+        this.ShowGraphViewer = !this.ShowGraphViewer;
     }
     ngOnInit() {
 
