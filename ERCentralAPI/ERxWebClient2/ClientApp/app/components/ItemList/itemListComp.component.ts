@@ -190,7 +190,7 @@ export class ItemListComp implements OnInit {
         let SelectionCritieraItemList: Criteria = new Criteria();
         SelectionCritieraItemList.listType = ListSubType;
         if (ListSubType == 'MatchedIncluded') {
-            SelectionCritieraItemList.listType ='MagMatchesMatched';
+            SelectionCritieraItemList.listType = 'MagMatchesMatched';
             SelectionCritieraItemList.onlyIncluded = true;
         } else if (ListSubType == 'MatchedExcluded') {
             SelectionCritieraItemList.listType = 'MagMatchesMatched';
@@ -202,21 +202,29 @@ export class ItemListComp implements OnInit {
         } else if (ListSubType == 'MagMatchesNeedingCheckingExc') {
             SelectionCritieraItemList.listType = 'MagMatchesNeedingChecking';
             SelectionCritieraItemList.onlyIncluded = false;
-        }  else if (ListSubType == 'MagMatchesNotMatchedInc') {
+        } else if (ListSubType == 'MagMatchesNotMatchedInc') {
             SelectionCritieraItemList.listType = 'MagMatchesNotMatched';
             SelectionCritieraItemList.onlyIncluded = true;
         } else if (ListSubType == 'MagMatchesNotMatchedExc') {
             SelectionCritieraItemList.listType = 'MagMatchesNotMatched';
             SelectionCritieraItemList.onlyIncluded = false;
-        }else{
-            SelectionCritieraItemList.listType = "MagMatchesMatched";
-        }
-        if (this._magAdvancedService.ListDescription == 'MagSimulationTP' ||
-            this._magAdvancedService.ListDescription == 'MagSimulationFN') {
+        } else if (ListSubType == 'MagSimulationTP') {
+
+            SelectionCritieraItemList.listType = "MagSimulationTP";
             SelectionCritieraItemList.magSimulationId = this._magAdvancedService.CurrentMagSimId;
+
+        } else if (ListSubType == 'MagSimulationFN') {
+
+            SelectionCritieraItemList.listType = "MagSimulationFN";
+            SelectionCritieraItemList.magSimulationId = this._magAdvancedService.CurrentMagSimId;
+
+        }else {
+
+            SelectionCritieraItemList.listType = "MagMatchesMatched";
+            SelectionCritieraItemList.showDeleted = false;
+            SelectionCritieraItemList.pageNumber = 0;
+            
         }
-        SelectionCritieraItemList.showDeleted = false;
-        SelectionCritieraItemList.pageNumber = 0;
         this.ItemListService.FetchWithCrit(SelectionCritieraItemList, ListSubType);
     }
     OpenItem(itemId: number) {

@@ -21,18 +21,18 @@
             The algorithm to find new and related studies to the ones you have
             already identified depends on correctly matching your existing records into the Microsoft Academic dataset. While this process
             can be automated up to a point, some records cannot be matched with 100% confidence, and some cannot be matched at all. In order
-            to improve performance, it can be helpful to check the lower confidence automatic matches for accuracy:. <br />
-            <div class=" btn btn-link p-0 m-0 col-6" (click)="OpenMatchesInReview('MagMatchesNeedingCheckingInc')">
+            to improve performance, it can be helpful to check the lower confidence automatic matches for accuracy: <br />
+            <div class=" btn btn-link p-0 m-0 col-1" (click)="OpenMatchesInReview('MagMatchesNeedingCheckingInc')">
             <b>Included: {{_magAdvancedService.AdvancedReviewInfo.nRequiringManualCheckIncluded}}</b>
             </div>
-            <div class=" btn btn-link p-0 m-0 col-6" (click)="OpenMatchesInReview('MagMatchesNeedingCheckingExc')">
+            <div class=" btn btn-link p-0 m-0 col-1" (click)="OpenMatchesInReview('MagMatchesNeedingCheckingExc')">
             <b>Excluded: {{_magAdvancedService.AdvancedReviewInfo.nRequiringManualCheckExcluded}} </b>
-                </div><br />
+                </div>
             In addition, there are likely to be a number of records which could not be matched at all:<br />
-            <div class=" btn btn-link p-0 m-0 col-6" (click)="OpenMatchesInReview('MagMatchesNotMatchedInc')">
+            <div class=" btn btn-link p-0 m-0 col-1" (click)="OpenMatchesInReview('MagMatchesNotMatchedInc')">
             <b>Included: {{_magAdvancedService.AdvancedReviewInfo.nNotMatchedIncluded}} </b>
             </div>
-            <div class=" btn btn-link p-0 m-0 col-6" (click)="OpenMatchesInReview('MagMatchesNotMatchedExc')">
+            <div class=" btn btn-link p-0 m-0 col-1" (click)="OpenMatchesInReview('MagMatchesNotMatchedExc')">
             <b>Excluded: {{_magAdvancedService.AdvancedReviewInfo.nNotMatchedExcluded}} </b>
                 </div><br />
         </div>
@@ -279,7 +279,7 @@
                     <th width="15">Network Stat</th>
                     <th width="15">Study classifier</th>
                     <th width="15">User classifier</th>
-                    <th width="5">  </th>
+                    <th width="15"> ROC  </th>
                     <th width="15">Seeds</th>
                     <th width="1">TP</th>
                     <th width="1">FP</th>
@@ -297,11 +297,11 @@
                     <td > {{item.networkStatistic}}</td>
                     <td >{{item.studyTypeClassifier}}</td>
                     <td >{{item.userClassifierModel}}</td>
-                    <td class=" btn-link " width="1" (click)="ShowGraph()"> ROC </td>
+                    <td class="btn btn-link " width="1" (click)="ShowGraph()"> ROC </td>
                     <td >{{item.status}}</td>
-                    <td class=" btn-link " width="1" (click)="OpenResultsInReview('tp', item.magSimulationId)">{{item.tp}}</td>
+                    <td class="btn btn-link " width="1" (click)="OpenResultsInReview('MagSimulationTP', item.magSimulationId)">{{item.tp}}</td>
                     <td  width="1" >{{item.fp}}</td>
-                    <td class=" btn-link" width="1" (click)="OpenResultsInReview('fn', item.magSimulationId)">{{item.fn}}</td>
+                    <td class="btn btn-link" width="1" (click)="OpenResultsInReview('MagSimulationFN', item.magSimulationId)">{{item.fn}}</td>
                     <td  width="1" >{{item.tn}}</td>
                     <td><button class="btn btn-outline-danger" (click)="DeleteSimulation(item)"> Delete </button></td>
                 </tr>
