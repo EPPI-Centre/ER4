@@ -531,9 +531,9 @@ export class ReviewSetsEditingService extends BusyAwareService {
                     return false;
                 }
                 else {
-                    fS.attributes.splice(ind, 1);
+                    fS.attributes.splice(ind, 1);//remove code from where it was
                     if (ind < fS.attributes.length) {
-                        for (let ii = ind; ii++; ii < fS.attributes.length - 1) {
+                        for (let ii = ind; ii < fS.attributes.length; ii++) {
                             fS.attributes[ii].order--;
                         }
                     }
@@ -558,7 +558,7 @@ export class ReviewSetsEditingService extends BusyAwareService {
                 else {
                     fA.attributes.splice(ind, 1);
                     if (ind < fA.attributes.length) {
-                        for (let ii = ind; ii++; ii < fA.attributes.length - 1) {
+                        for (let ii = ind; ii < fA.attributes.length; ii++) {
                             fA.attributes[ii].order--;
                         }
                     }
@@ -583,7 +583,8 @@ export class ReviewSetsEditingService extends BusyAwareService {
                 else {
                     fA.attributes.splice(ind, 1);
                     if (ind < fA.attributes.length) {
-                        for (let ii = ind; ii++; ii < fA.attributes.length - 1) {
+                        for (let ii = ind; ii < fA.attributes.length; ii++) {
+                            console.log("reducing order for:", fA.attributes[ii].name, fA.attributes[ii].order);
                             fA.attributes[ii].order--;
                         }
                     }

@@ -146,7 +146,7 @@ export class EditCodeComp implements OnInit, OnDestroy {
     }
 
     async DoMoveBranch(DestinationBranch: singleNode) {
-        //console.log("DoMoveBranch", DestinationBranch);
+        console.log("DoMoveBranch", DestinationBranch, this.UpdateCode);
         if (DestinationBranch == null || this.UpdatingCode == null) return;
         else {
             let res = await this.ReviewSetsEditingService.MoveSetAttributeInto(this.UpdatingCode, DestinationBranch);
