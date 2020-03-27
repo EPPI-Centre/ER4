@@ -17,8 +17,8 @@
         <div *ngIf="ShowPanel == 'MoveCode' && ErrorMessage4CodeMove == ''" class="">
             <div class="p-1">Please select the <b>Destination Code</b> from the area below.</div>
             <div class="py-1 px-3 small alert-info border border-info rounded ">
-                You can move this code into another part of its coding tool, with all it child codes (if any), without affecting coding data.<br />
-                Some destination codes cannot receive the "to be moved" code. This might be because the move is impossible (can't move a code into one of its children) or because doing the move would make the current coding tool become too deep.
+                You can move this code into another part of its coding tool, with all its child codes (if any), without affecting coding data.<br /> 
+                Not all codes can be destination codes. This is because some moves are impossible (ex. you cannot move a code into one of its children) while others would break coding tool depth restrictions.
             </div>
             <div class="border border-primary rounded p-1 m-1">
                 <codesetTree4Move #codesetTree4Move [MaxHeight]="300" [SelectedCodeset]="ReviewSetOfUpdatingCode" [SelectedNode]="UpdatingCode"></codesetTree4Move>

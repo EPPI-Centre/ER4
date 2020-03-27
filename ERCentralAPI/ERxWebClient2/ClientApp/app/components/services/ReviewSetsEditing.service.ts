@@ -1102,7 +1102,7 @@ export class ReviewSet4Move extends ReviewSet implements singleNode4move {
 
     }
     private FindDepthOfBranch(branch: singleNode, startingDepth: number): number {//RECURSIVE!!!
-        console.log("FindDepthOfBranch (branch, starting Depth)", branch, startingDepth);
+        //console.log("FindDepthOfBranch (branch, starting Depth)", branch, startingDepth);
         if (branch.attributes.length > 0) {
             startingDepth++;
             let tmpMax = startingDepth;
