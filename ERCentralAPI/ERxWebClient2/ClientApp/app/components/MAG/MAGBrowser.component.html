@@ -17,24 +17,24 @@
 </div>
 
 
-<div class="col-12 card bg-light row" style="min-width:450px; min-height:500px;overflow:auto;">
+<div class="col-12 row" style="min-width:450px; min-height:500px;overflow:auto;">
     <h4>{{_magAdvancedService.currentMagPaper.fullRecord}}</h4>
-    <div>
-        <h5>Papers identified from auto-identification MAG run</h5>
-        <!--<h5>Total number of mag papers in below list: {{_magAdvancedService.TotalNumberOfMatchedPapers}}</h5>-->
-    </div>
+
 
     <div [title]="'TOPICS'" class="col-2">
-
-            <div *ngFor="let item of _magAdvancedService.MagPaperFieldsList">
-                {{item.displayName}}
-            </div>
+        <h5>Topics</h5>
+        <div *ngFor="let item of _magAdvancedService.MagPaperFieldsList">
+            {{item.displayName}}
+        </div>
 
     </div>
 
-    <div [title]="'References'" class="col-4">
-
-        <div >
+    <div [title]="'References'" class="col-6">
+        <div>
+            <h5>Papers identified from auto-identification MAG run</h5>
+            <!--<h5>Total number of mag papers in below list: {{_magAdvancedService.TotalNumberOfMatchedPapers}}</h5>-->
+        </div>
+        <div>
             <table class="card col-12 small table table-border  table-striped bg-light">
                 <thead>
                     <tr></tr>
@@ -109,11 +109,20 @@
         </div>
     </div>-->
 
-    <div [title]="'SELECTED'" class="col-1">
-
-            <div *ngFor="let item of _magAdvancedService.MagReferencesPaperList">
-                {{item.isSelected}}
-            </div>
-
+    <div [title]="'SELECTED'" class="col-2">
+        <h5>In Review Or Not</h5>
+        <table class="card col-12 small table table-border  table-striped bg-light">
+            <thead>
+                <tr></tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let item of _magAdvancedService.ReviewMatchedPapersList">
+                    <td><button (click)="InOutReview(item)" class="btn btn-outline-success">
+                        {{item.isSelected}}</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
     </div>
+
 </div>
