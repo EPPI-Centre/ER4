@@ -53,17 +53,17 @@ namespace ERxWebClient2.Controllers
 					MagSimulation newMagSimulation = new MagSimulation();
 					DataPortal<MagSimulation> dp = new DataPortal<MagSimulation>();
 
-                    newMagSimulation.CreatedDate = magSimulation.createdDate;
+                    newMagSimulation.CreatedDate = new SmartDate(magSimulation.createdDate);
                     newMagSimulation.FilteredByAttribute = magSimulation.filteredByAttribute;
                     newMagSimulation.FilteredByAttributeId = magSimulation.filteredByAttributeId;
-                    newMagSimulation.FN = magSimulation.FN;
-                    newMagSimulation.FP = magSimulation.FP;
+                    newMagSimulation.FN = magSimulation.fn;
+                    newMagSimulation.FP = magSimulation.fp;
                     newMagSimulation.NetworkStatistic = magSimulation.networkStatistic;
                     newMagSimulation.NSeeds = magSimulation.nSeeds;
                     newMagSimulation.SearchMethod = magSimulation.searchMethod;
                     newMagSimulation.Status = magSimulation.status;
                     newMagSimulation.StudyTypeClassifier = magSimulation.studyTypeClassifier;
-                    newMagSimulation.TP = magSimulation.TP;
+                    newMagSimulation.TP = magSimulation.tp;
                     newMagSimulation.UserClassifierModel = magSimulation.userClassifierModel;
                     newMagSimulation.UserClassifierModelId = magSimulation.userClassifierModelId;
                     newMagSimulation.WithThisAttribute = magSimulation.withThisAttribute;
@@ -117,9 +117,9 @@ namespace ERxWebClient2.Controllers
 	public class MVCMagSimulation
 	{
 
-        public int magSimulationId = 0;
-        public int reviewId= 0;
-        public int year = 0;
+        public int magSimulationId = 0;//
+        public int reviewId= 0;//
+        public int year = 0;//
         public DateTime createdDate = DateTime.Now;
         public int withThisAttributeId = 0;
         public int filteredByAttributeId = 0;
@@ -132,10 +132,11 @@ namespace ERxWebClient2.Controllers
         public string filteredByAttribute = "";
         public string userClassifierModel  = "";
         public int nSeeds = 0;
-        public int TP = 0;
-        public int FP = 0;
-        public int FN = 0;
-        public int TN = 0;
+        public int tp = 0;
+        public int fp = 0;
+        public int fn = 0;
+        public int tn = 0;
+
 	}
 
 }

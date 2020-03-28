@@ -415,7 +415,7 @@ export class MagPaper {
     references: number = 0;
     citationCount: number = 0;
     estimatedCitationCount: number = 0;
-    createdDate: Date = new Date;
+    createdDate: number = 0;
     authors: string = '';
     urls: string = '';
     pdfLinks: string = '';

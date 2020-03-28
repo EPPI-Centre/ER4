@@ -176,40 +176,41 @@
             </div>
 
         </div>
-        <div class="col-6 m-1 p-1" *ngIf="splitDataOn == 'CreatedDate' || splitDataOn == 'Year'">
-            <div class="m-1 p-1"><b>Items Dated From</b></div>
-            <div>
-                <div class="example-wrapper p-2 m-2" style="min-height: 100px">
-                    <p>Select a date:</p>
-                    <kendo-datepicker [(value)]="value"></kendo-datepicker>
-                    <p>(use Alt+↓ to open the calendar, ← and →  to navigate, ↑ to increment and ↓ to decrement the value)</p>
-                </div>
+        <div class="col-6 m-2 p-2 row" *ngIf="splitDataOn == 'CreatedDate' || splitDataOn == 'Year'">
+            <div class="col-1 m-0 p-0"></div>
+            <div class="col-3 m-0 p-0 "><b>Items Dated From</b></div>
+            <div class="example-wrapper col-8" style="min-height: 100px">
+                <kendo-datepicker [(value)]="kendoDateValue"></kendo-datepicker>
+                <p>(use Alt+↓ to open the calendar, ← and →  to navigate, ↑ to increment and ↓ to decrement the value)</p>
             </div>
         </div>
-        <div *ngIf="splitDataOn == 'WithThisCode' || filterOn == 'true'" class="m-1 p-1 col-6">
+        <div class="col-12 row" *ngIf="splitDataOn == 'WithThisCode' || filterOn == 'true'">
+            <div class="=col-6"></div>
+            <div class="col-6">
 
-            
-            <div class="col-12 row">
-                <div class="col-1 p-1 m-1"></div>
-                <div class="col-12 p-1 m-1"><b>Select code</b></div>
 
-                <div ngbDropdown class="col-8 p-1 m-1">
-                    <button style="min-width: 250px; white-space:normal" [attr.aria-expanded]="!isCollapsed"
-                            class="btn alert-primary col-12 p-2 m-0" id="dropdownBasic1"
-                            ngbDropdownToggle (click)="isCollapsed = !isCollapsed; dropdownBasic1 = false">
-                        {{CurrentDropdownSelectedCode?.name}}
-                    </button>
-                    <div ngbDropdownMenu aria-labelledby="dropdownBasic1" [ngbCollapse]="!isCollapsed">
-                        <codesetSelector [IsMultiSelect]="false" [WhatIsSelectable]="'SetAttribute'"
-                                         [MaxHeight]="500" #WithOrWithoutCodeSelector
-                                         (selectedNodeInTree)="CloseCodeDropDown()" [rootsOnly]="false">
-                        </codesetSelector>
+                <div class="col-12 row">
+                    <div class="col-1 p-1 m-1"></div>
+                    <div class="col-12 p-1 m-1"><b>Select code</b></div>
+
+                    <div ngbDropdown class="col-8 p-1 m-1">
+                        <button style="min-width: 250px; white-space:normal" [attr.aria-expanded]="!isCollapsed"
+                                class="btn alert-primary col-12 p-2 m-0" id="dropdownBasic1"
+                                ngbDropdownToggle (click)="isCollapsed = !isCollapsed; dropdownBasic1 = false">
+                            {{CurrentDropdownSelectedCode?.name}}
+                        </button>
+                        <div ngbDropdownMenu aria-labelledby="dropdownBasic1" [ngbCollapse]="!isCollapsed">
+                            <codesetSelector [IsMultiSelect]="false" [WhatIsSelectable]="'SetAttribute'"
+                                             [MaxHeight]="500" #WithOrWithoutCodeSelector
+                                             (selectedNodeInTree)="CloseCodeDropDown()" [rootsOnly]="false">
+                            </codesetSelector>
+                        </div>
                     </div>
                 </div>
-            </div>
-            
-        </div>
 
+            </div>
+
+        </div>
         <div class="col-12 row">
             <div class="col-1 p-1 m-1"><b>Search method</b></div>
             <div ngbDropdown class="col-3 p-0 m-0">
@@ -237,7 +238,7 @@
         </div>
 
         <div class="col-12 row">
-            <div class="col-1 m-1 p-1"><b>Study type classifier</b></div>
+            <div class="col-1 m-2 p-2"><b>Study type classifier</b></div>
             <div ngbDropdown class="col-3 p-0 m-0">
 
                 <select class="col-12 form-control mb-1" name="StudyTypeClassifier"
@@ -245,26 +246,28 @@
                     <option *ngFor="let item of StudyTypeClassifiers"
                             [ngValue]="item" [selected]="item == StudyTypeClassifier">
                         {{item}}
-
                     </option>
                 </select>
             </div>
             <div class="col-1"></div>
             <div class="m-1 p-1 col-1"><b>User Defined Classifier</b></div>
             <div class="col-3 p-0 m-0 dropdown">
-                <select [(ngModel)]="UserDefinedClassifier" class="form-control" name="ClassifierContactModelList">
+                <select [(ngModel)]="currentClassifierContactModel" class="form-control" name="currentClassifierContactModel">
                     <option *ngFor="let item of _magAdvancedService.ClassifierContactModelList"
-                            [ngValue]="item" [selected]="item == UserDefinedClassifier">
+                            [ngValue]="item" [selected]="item == currentClassifierContactModel">
                         {{item.modelTitle}}
                     </option>
                 </select>
             </div>
+
+        </div>
+        <div class="col-12">
+            <div class="col-10"></div>
             <button [disabled]="!CanAddSimulation()" (click)="AddSimulation()"
-                    class="btn btn-warning p-1 m-1">
+                    class="btn btn-warning p-2 m-2">
                 Add Simulation
             </button>
         </div>
-
     </div>
 </div>
 

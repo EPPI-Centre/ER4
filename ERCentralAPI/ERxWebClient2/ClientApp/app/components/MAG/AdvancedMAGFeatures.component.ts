@@ -68,7 +68,7 @@ export class AdvancedMAGFeaturesComponent implements OnInit {
     public magPaperId: number = 0;
     public currentClassifierContactModel: ClassifierContactModel = new ClassifierContactModel();
     public desc: string = '';
-    public value: Date = new Date(2000, 2, 10);
+    public kendoDateValue: Date = new Date(2000, 2, 10);
     public searchAll: string = 'true';
     public magDate: string = 'true';
     public magSearchCheck: boolean = false;
@@ -104,11 +104,8 @@ export class AdvancedMAGFeaturesComponent implements OnInit {
             // maybe use getter setter pattern for this...!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             this.GetMagReviewMagInfoCommand();
             this.GetMagSimulationList();
-            //probably do not need the below
             this.GetContactModelList();
         }
-        
-       
     }
     GetMagReviewMagInfoCommand() {
 
@@ -126,44 +123,52 @@ export class AdvancedMAGFeaturesComponent implements OnInit {
 
         if (this.splitDataOn == 'Year') {
 
-            // take the year from the date CONTROL !!!!!!!!!!!!!!!!!!!!!!
-            newMagSimulation.year = 2016;
+            console.log(this.kendoDateValue.getFullYear());
+            newMagSimulation.year = this.kendoDateValue.getFullYear();
 
         } else if (this.splitDataOn == 'CreatedDate') {
 
-            newMagSimulation.createdDate = new Date();
+            newMagSimulation.createdDate = this.kendoDateValue;
 
         } else if (this.splitDataOn == 'WithThisCode') {
 
             if (this.CurrentDropdownSelectedCode != null) {
                 let att = this.CurrentDropdownSelectedCode as SetAttribute;
                 newMagSimulation.withThisAttributeId = att.attribute_id;
+                newMagSimulation.withThisAttribute = att.attribute_name;
             }
         }
+        console.log('here', this.filterOn);
         if (this.filterOn == 'true') {
             if (this.CurrentDropdownSelectedCode != null) {
+                console.log('here2');
                 let att = this.CurrentDropdownSelectedCode as SetAttribute;
+                console.log('here3', att);
                 newMagSimulation.filteredByAttributeId = att.attribute_id;
+                newMagSimulation.filteredByAttribute = att.attribute_name;
             }
-        } else {
-            //not yet implemented a filter on the UI to do                
-            newMagSimulation.filteredByAttributeId = 0;
         }
-
         newMagSimulation.searchMethod = this.SearchMethod;
         newMagSimulation.networkStatistic = this.NetworkStat;
         if (this.StudyTypeClassifier != null) {
             newMagSimulation.studyTypeClassifier = this.StudyTypeClassifier;
         }
         if (this.UserDefinedClassifier != null) {
-            // not yet implemented properly
-            newMagSimulation.userClassifierModelId = 0; //this.UserDefinedClassifier;
+
+            newMagSimulation.userClassifierModel = this.currentClassifierContactModel.modelTitle;
+            newMagSimulation.userClassifierModelId = this.currentClassifierContactModel.modelId;
         }
-    
         newMagSimulation.status = "Pending";
         console.log(newMagSimulation);
-        this._magAdvancedService.AddMagSimulation(newMagSimulation);
 
+        let msg: string = 'Are you sure you want to create a new MAG Simulation?';
+        this.ConfirmationDialogService.confirm('MAG Simulation', msg, false, '')
+            .then((confirm: any) => {
+                if (confirm) {
+                    this._magAdvancedService.AddMagSimulation(newMagSimulation);
+                   
+                }
+            });
     }
     public GetContactModelList(): void {
 
