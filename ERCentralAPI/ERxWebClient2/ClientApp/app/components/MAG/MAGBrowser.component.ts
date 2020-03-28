@@ -118,11 +118,58 @@ export class MAGBrowser implements OnInit {
     //    console.log('testing tab: ', e.index );
     //}
 
-    public InOutReview(item: MagPaper) {
+    public SelectedPaperIds: number[] = [];
+    public ShowSelectedPapers: string = '';
+    private AddToSelectedList(paperId: number) {
 
-        // Update call to included paper in review...
+        if (!this.IsInSelectedList(paperId)) {
+            this.SelectedPaperIds.push(paperId);
+            this.UpdateSelectedCount();
+        }
+    }
+    private RemoveFromSelectedList(paperId: number): any {
+
+        let pos: number = this.SelectedPaperIds.indexOf(paperId);
+        if (pos > -1)
+            this.SelectedPaperIds.splice(pos, 1);
+        this.UpdateSelectedCount();
+    }
+    private IsInSelectedList(paperId: number): boolean {
+
+        if (this.SelectedPaperIds.indexOf(paperId) > -1)
+            return true;
+        else
+            return false;
+    }
+    private UpdateSelectedCount(): any {
+
+        this.ShowSelectedPapers = "Selected (" + this.SelectedPaperIds.length.toString() + ")";
+    }
+
+    public InOutReview(paper: MagPaper) {
+
+        if (paper.linkedITEM_ID == 0) {
+
+            if (paper.isSelected) {
+
+                this.RemoveFromSelectedList(paper.paperId);
+                paper.isSelected = false;
+            }
+            else {
+
+                this.AddToSelectedList(paper.paperId);
+                paper.isSelected = true;
+            }
+        }
+        else {
+            //change to notification
+            console.log("This paper is already in your review");
+        }
+        //NEED TO UPDATE PAPER TO API AT SMART POINT MAYNE HERE===================================****
+        // this._magAdvancedService.UpdateCurrentPaper();
 
     }
+
 
     public get HasWriteRights(): boolean {
         return this._ReviewerIdentityServ.HasWriteRights;
