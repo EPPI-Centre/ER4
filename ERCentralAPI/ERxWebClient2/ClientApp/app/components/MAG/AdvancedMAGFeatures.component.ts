@@ -6,6 +6,7 @@ import { ConfirmationDialogService } from '../services/confirmation-dialog.servi
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Router } from '@angular/router';
 import { MAGAdvancedService, ClassifierContactModel,  MVCMagPaperListSelectionCriteria, MagSimulation } from '../services/magAdvanced.service';
+import { EventEmitterService } from '../services/EventEmitter.service';
 
 @Component({
     selector: 'AdvancedMAGFeatures',
@@ -19,14 +20,14 @@ export class AdvancedMAGFeaturesComponent implements OnInit {
 		private _magAdvancedService: MAGAdvancedService,
         public _searchService: searchService,
         private _ReviewerIdentityServ: ReviewerIdentityService,
+        private _eventEmitter: EventEmitterService,
         private router: Router
 
 	) {
 
 	}
+        
 
-    @Output() criteriaChange = new EventEmitter();
-    @Output() MAGAllocationClicked = new EventEmitter();
     @ViewChild('WithOrWithoutCodeSelector') WithOrWithoutCodeSelector!: codesetSelectorComponent;
     @ViewChild('WithOrWithoutCodeSelector2') WithOrWithoutCodeSelector2!: codesetSelectorComponent;
     public CurrentDropdownSelectedCode: singleNode | null = null;
@@ -192,19 +193,15 @@ export class AdvancedMAGFeaturesComponent implements OnInit {
 
     }
 
-    public AutoUpdateHome() {
-
+    public Back() {
         this.router.navigate(['BasicMAGFeatures']);
     }
 
-    public Back() {
-       
-    }
     public OpenMatchesInReview(listType: string) {
 
         this.ListSubType = listType;
-        this.criteriaChange.emit();
-        this.MAGAllocationClicked.emit();
+        this._eventEmitter.criteriaMAGChange.emit(listType);
+        this._eventEmitter.MAGAllocationClicked.emit();
     }
 
     public OpenResultsInReview(listType: string, magSimId: number) {
@@ -212,8 +209,8 @@ export class AdvancedMAGFeaturesComponent implements OnInit {
         this._magAdvancedService.ListDescription = listType;
         this._magAdvancedService.CurrentMagSimId = magSimId;
         this.ListSubType = listType;
-        this.criteriaChange.emit();
-        this.MAGAllocationClicked.emit();
+        this._eventEmitter.criteriaMAGChange.emit(listType);
+        this._eventEmitter.MAGAllocationClicked.emit();
     }
    
     public MAGBrowser(listType: string) {

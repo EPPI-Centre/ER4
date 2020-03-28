@@ -53,9 +53,15 @@ export class BasicMAGComp implements OnInit {
             this.router.navigate(['Main']);
         }
         else {
-            //this.ReviewSetsEditingService.FetchReviewTemplates();
+          
+             this._basicMAGService.FetchMagRelatedPapersRunList();
+
         }
 
+    }
+
+    public Back() {
+        this.router.navigate(['Main']);
     }
     Clear() {
 

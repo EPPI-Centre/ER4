@@ -73,7 +73,7 @@
                                                                style="border-color: #04070b;background-color: #e1e4eb;"></kendo-toolbar-splitbutton>
 
                                     <!--<kendo-toolbar-button [text]="'Export to RIS'"
-                          [disabled]="!HasSelectedItems" (click)="ToRis()"></kendo-toolbar-button>-->
+    [disabled]="!HasSelectedItems" (click)="ToRis()"></kendo-toolbar-button>-->
                                     <kendo-toolbar-button [icon]="'delete'" [disabled]="!HasSelectedItems || !HasWriteRights"
                                                           (click)="DeleteRelevantItems()">
                                     </kendo-toolbar-button>
@@ -92,6 +92,9 @@
 
                                     <kendo-toolbar-button [text]="'Run Reports'"
                                                           (click)="RunConfigurableReports()">
+                                    </kendo-toolbar-button>
+                                    <kendo-toolbar-button [text]="'Microsoft Academic'"
+                                                          (click)="OpenBasicMAG()">
                                     </kendo-toolbar-button>
                                 </kendo-toolbar>
 
@@ -188,15 +191,15 @@
                                                 class="bg-light"></WorkAllocationComp>
                         </ng-template>
                     </kendo-tabstrip-tab>
-                    <kendo-tabstrip-tab [title]="'Microsoft Academic Graph'" [hidden]='true'>
+                    <!--<kendo-tabstrip-tab [title]="'Microsoft Academic Graph'" [hidden]='true'>
                         <ng-template kendoTabContent>
                             <BasicMAGComp #MAGComp 
                                      class="bg-light">
 
                             </BasicMAGComp>
                         </ng-template>
-                    </kendo-tabstrip-tab>
-                    <kendo-tabstrip-tab [title]="'MAG Advanced Features'" [hidden]='true'>
+                    </kendo-tabstrip-tab>-->
+                    <!--<kendo-tabstrip-tab [title]="'MAG Advanced Features'" [hidden]='true'>
                         <ng-template kendoTabContent>
                             <AdvancedMAGFeatures #AdvancedMAG
                                                 (MAGAllocationClicked)="GoToItemList()"
@@ -204,7 +207,7 @@
                                                  class="bg-light">
                             </AdvancedMAGFeatures>
                         </ng-template>
-                    </kendo-tabstrip-tab>
+                    </kendo-tabstrip-tab>-->
                 </kendo-tabstrip>
                     <button *ngIf="!CodesAreCollapsed" class="btn btn-success p-1 vertical-text" (click)="ShowHideCodes()">
                         <div class="small">
