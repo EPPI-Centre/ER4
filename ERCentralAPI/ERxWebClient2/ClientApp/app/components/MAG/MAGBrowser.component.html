@@ -56,9 +56,9 @@
                     </tr>
                 </tbody>
             </table>
-            <div *ngIf="_magAdvancedService && _magAdvancedService.MagPapersMatchedList && _magAdvancedService.IsBusy">Loading items...</div>
-            <div *ngIf="_magAdvancedService && _magAdvancedService.MagPapersMatchedList
-             && this._magAdvancedService.MagPapersMatchedList && this._magAdvancedService.MagPapersMatchedList.length == 0 && !_magAdvancedService.IsBusy"
+            <div *ngIf="_magAdvancedService && _magAdvancedService.MagReferencesPaperList && _magAdvancedService.IsBusy">Loading items...</div>
+            <div *ngIf="_magAdvancedService && _magAdvancedService.MagReferencesPaperList
+             && this._magAdvancedService.MagReferencesPaperList && this._magAdvancedService.MagReferencesPaperList.length == 0 && !_magAdvancedService.IsBusy"
                  class="p-2 font-weight-bold text-center text-info mt-1">No items to display</div>
             <paginatorComp class="row ml-1 pt-1 mr-1 pr-1 border-top porder-info"></paginatorComp>
         </div>
