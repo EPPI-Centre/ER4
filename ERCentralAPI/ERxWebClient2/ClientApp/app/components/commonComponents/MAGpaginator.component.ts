@@ -1,6 +1,6 @@
-import { Component, Inject, OnInit, EventEmitter, Output } from '@angular/core';
+import { Component,  OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { ItemListService, Criteria, Item, ItemList } from '../services/MagList.service';
+import { MAGListService } from '../services/MagList.service';
 
 
 @Component({
@@ -9,16 +9,14 @@ import { ItemListService, Criteria, Item, ItemList } from '../services/MagList.s
     providers: [],
     styles: ["button.disabled {color:black; }"]
 })
-export class paginatorComp implements OnInit {
+export class MAGpaginatorComp implements OnInit {
 
     constructor(private router: Router,
-        public MagListService: MagListService    // I would like to make this generic
+        public _magListService: MAGListService 
 
     ) {
 
 	}
-
-
     onSubmit(f: string) {
 
     }
@@ -27,7 +25,7 @@ export class paginatorComp implements OnInit {
     value = 1;
     onEnter(value: number) {
         this.value = value; 
-        this.MagListService.FetchParticularPage(value - 1);
+        this._magListService.FetchParticularPage(value - 1);
     }
     
     ngOnInit() {
@@ -36,19 +34,19 @@ export class paginatorComp implements OnInit {
 
     nextPage() {
        
-        this.MagListService.FetchNextPage();
+        this._magListService.FetchNextPage();
     }
     prevPage() {
       
-        this.MagListService.FetchPrevPage();
+        this._magListService.FetchPrevPage();
     }
     firstPage() {
      
-        this.MagListService.FetchFirstPage();
+        this._magListService.FetchFirstPage();
     }
     lastPage() {
        
-        this.MagListService.FetchLastPage();
+        this._magListService.FetchLastPage();
     }
     
 }

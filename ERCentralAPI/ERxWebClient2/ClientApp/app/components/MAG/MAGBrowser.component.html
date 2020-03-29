@@ -35,7 +35,7 @@
             <!--<h5>Total number of mag papers in below list: {{_magAdvancedService.TotalNumberOfMatchedPapers}}</h5>-->
         </div>
         <div>
-            <table class="card col-12 small table table-border  table-striped bg-light">
+            <!--<table class="card col-12 small table table-border  table-striped bg-light">
                 <thead>
                     <tr></tr>
                 </thead>
@@ -44,13 +44,13 @@
                         <td>{{item.fullRecord}}</td>
                     </tr>
                 </tbody>
-            </table>
+            </table>-->
             <table class="card col-12 small table table-border  table-striped bg-light">
                 <thead>
                     <tr></tr>
                 </thead>
                 <tbody>
-                    <tr *ngFor="let item of _magAdvancedService.ReviewMatchedPapersList">
+                    <tr *ngFor="let item of _magListService.MAGList.papers">
                         <td>{{item.fullRecord}}</td>
 
                     </tr>
@@ -60,7 +60,7 @@
             <div *ngIf="_magAdvancedService && _magAdvancedService.MagReferencesPaperList
              && this._magAdvancedService.MagReferencesPaperList && this._magAdvancedService.MagReferencesPaperList.length == 0 && !_magAdvancedService.IsBusy"
                  class="p-2 font-weight-bold text-center text-info mt-1">No items to display</div>
-            <paginatorComp class="row ml-1 pt-1 mr-1 pr-1 border-top porder-info"></paginatorComp>
+            <MAGpaginatorComp class="row ml-1 pt-1 mr-1 pr-1 border-top porder-info"></MAGpaginatorComp>
         </div>
     </div>
 

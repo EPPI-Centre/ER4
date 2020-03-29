@@ -89,6 +89,7 @@ import { codesetTree4Move } from './components/CodesetTrees/codesetTree4Move.com
 import { BasicMAGComp } from './components/MAG/BasicMAGComp.component';
 import { AdvancedMAGFeaturesComponent } from './components/MAG/AdvancedMAGFeatures.component';
 import { MAGBrowser } from './components/MAG/MAGBrowser.component';
+import { MAGpaginatorComp } from './components/commonComponents/MAGpaginator.component';
 
 @NgModule({
     declarations: [
@@ -158,7 +159,8 @@ import { MAGBrowser } from './components/MAG/MAGBrowser.component';
         DuplicatesComponent,
         codesetTree4Move,
         AdvancedMAGFeaturesComponent,
-        MAGBrowser
+        MAGBrowser,
+        MAGpaginatorComp
 	],
     providers: [
         EventEmitterService,

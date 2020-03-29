@@ -1,79 +1,87 @@
-import { Component, OnInit, ViewChild} from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { searchService } from '../services/search.service';
-import { BasicMAGService, MagRelatedPapersRun, MagPaperListSelectionCriteria } from '../services/BasicMAG.service';
-import { singleNode, SetAttribute } from '../services/ReviewSets.service';
-import { codesetSelectorComponent } from '../CodesetTrees/codesetSelector.component';
+import { MagRelatedPapersRun, MagPaperListSelectionCriteria, BasicMAGService } from '../services/BasicMAG.service';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Router } from '@angular/router';
-import {  ItemListService } from '../services/ItemList.service';
-import { EventEmitterService } from '../services/EventEmitter.service';
 import { MAGAdvancedService, MVCMagPaperListSelectionCriteria, MagPaper } from '../services/magAdvanced.service';
+import { MAGListService } from '../services/MagList.service';
 
 
 @Component({
-	selector: 'MAGBrowser',
-	templateUrl: './MAGBrowser.component.html',
-	providers: []
+    selector: 'MAGBrowser',
+    templateUrl: './MAGBrowser.component.html',
+    providers: []
 })
 
 export class MAGBrowser implements OnInit {
 
-	constructor(private ConfirmationDialogService: ConfirmationDialogService,
-		private _magAdvancedService: MAGAdvancedService,
+    constructor(private ConfirmationDialogService: ConfirmationDialogService,
+        private _magAdvancedService: MAGAdvancedService,
+        private _magListService: MAGListService,
         public _searchService: searchService,
         private _ReviewerIdentityServ: ReviewerIdentityService,
-        private _itemListService: ItemListService,
-        private _eventEmitter: EventEmitterService,
+        private _mAGListService: MAGListService,
         private router: Router
 
-	) {
+    ) {
 
-	}
+    }
 
-	ngOnInit() {
+    ngOnInit() {
 
-   
-            this._magAdvancedService.FetchMagFieldOfStudyList(this._magAdvancedService.PaperIds);
 
-            if (this._magAdvancedService.ReviewMatchedPapersList.length > 0) {
+        this._magAdvancedService.FetchMagFieldOfStudyList(this._magAdvancedService.PaperIds);
 
-                //let crit: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
-                //crit.magPaperId = this._magAdvancedService.currentMagPaper.paperId;
-                //crit.listType = 'ReviewMatchedPapers';
-                //crit.included = 'Included';
-                //crit.pageSize = 20;
-                console.log(this._magAdvancedService.CurrentCriteria);
-                this._magAdvancedService.FetchMagPaperList(this._magAdvancedService.CurrentCriteria);
+        // need a better check for list type later
+        //the basic page check first 
+        if (this._magListService.MAGList.papers && this._magListService.MAGList.papers.length > 0) {
+            
+            // do something change conditionbal here
 
-            } else {
+        } else if (this._magAdvancedService.ReviewMatchedPapersList.length > 0) {
 
-                let crit: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
-                crit.magPaperId = this._magAdvancedService.currentMagPaper.paperId;
-                crit.listType = 'CitationsList';
-                this._magAdvancedService.FetchMagPaperList(this._magAdvancedService.CurrentCriteria);
-            }
+            //let crit: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
+            //crit.magPaperId = this._magAdvancedService.currentMagPaper.paperId;
+            //crit.listType = 'ReviewMatchedPapers';
+            //crit.included = 'Included';
+            //crit.pageSize = 20;
+            console.log(this._magAdvancedService.CurrentCriteria);
+            this._magAdvancedService.FetchMagPaperList(this._magAdvancedService.CurrentCriteria);
+            this._mAGListService.MAGList.papers = this._magAdvancedService.ReviewMatchedPapersList;
 
+            //conditional below is wrong   100000 =====================================================
+        } else if (this._magListService.MAGList.papers.length > 100000) {
+
+            let crit: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
+            crit.magPaperId = this._magAdvancedService.currentMagPaper.paperId;
+            crit.listType = 'CitationsList';
+            this._magAdvancedService.FetchMagPaperList(this._magAdvancedService.CurrentCriteria);
+
+        } else if (this._magListService.MAGList.papers.length > 100000) {
             let crit1: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
+
             crit1.magPaperId = this._magAdvancedService.currentMagPaper.paperId;
             crit1.listType = 'CitedByList';
             this._magAdvancedService.FetchMagPaperList(crit1);
+            //all wrong
+        } else if (this._magListService.MAGList.papers.length > 100000) {
 
             let crit2: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
             crit2.magPaperId = this._magAdvancedService.currentMagPaper.paperId;
             crit2.listType = 'Recommendations';
             this._magAdvancedService.FetchMagPaperList(crit2);
-
+        }
     }
-       
-	public desc: string = '';
-	public value: Date = new Date(2000, 2, 10);
-	public searchAll: string = 'true';
-	public magDate: string = 'true';
-	public magSearchCheck: boolean = false;
-	public magDateRadio: string = 'true';
+
+    public desc: string = '';
+    public value: Date = new Date(2000, 2, 10);
+    public searchAll: string = 'true';
+    public magDate: string = 'true';
+    public magSearchCheck: boolean = false;
+    public magDateRadio: string = 'true';
     public magRCTRadio: string = 'NoFilter';
-	public magMode: string = '';
+    public magMode: string = '';
 
     //public onTabSelect(e: any) {
 
@@ -100,7 +108,7 @@ export class MAGBrowser implements OnInit {
     //            crit.listType = 'CitationsList';
     //            this._magAdvancedService.FetchMagPaperList(this._magAdvancedService.CurrentCriteria);
     //        }
-            
+
 
     //    } else if (e.index == 2) {
     //        let crit: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
@@ -175,7 +183,7 @@ export class MAGBrowser implements OnInit {
         return this._ReviewerIdentityServ.HasWriteRights;
     }
     public GetItems(item: MagRelatedPapersRun) {
-                
+
         let selectionCriteria: MagPaperListSelectionCriteria = new MagPaperListSelectionCriteria();
 
         selectionCriteria.pageSize = 20;
@@ -188,20 +196,20 @@ export class MAGBrowser implements OnInit {
 
 
 
-        
+
     }
     public ImportMagSearchPapers(item: MagRelatedPapersRun) {
 
         //this._magService.ImportMagPapers(item);
 
     }
-	public IsServiceBusy(): boolean {
+    public IsServiceBusy(): boolean {
 
-		return false;
-	}
-	public Selected(): void {
+        return false;
+    }
+    public Selected(): void {
 
-	}
+    }
     Clear() {
 
 
@@ -209,7 +217,7 @@ export class MAGBrowser implements OnInit {
         this.magMode = '';
 
     }
-    public CanDeleteMAGRun() : boolean {
+    public CanDeleteMAGRun(): boolean {
 
         return this.HasWriteRights;
     }
@@ -217,7 +225,7 @@ export class MAGBrowser implements OnInit {
     public CanAddNewMAGSearch(): boolean {
 
         if (this.desc != '' && this.desc != null && this.HasWriteRights
-            ) {
+        ) {
             return true;
         } else {
             return false;
@@ -238,7 +246,6 @@ export class MAGBrowser implements OnInit {
     public Back() {
         this.router.navigate(['AdvancedMAGFeatures']);
     }
-	
+
 
 }
-	

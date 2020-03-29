@@ -3,7 +3,8 @@ import { HttpClient } from '@angular/common/http';
 import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
 import { NotificationService } from '@progress/kendo-angular-notification';
-import { MagPaperList } from './magAdvanced.service';
+import { MagPaperList, MagPaper } from './magAdvanced.service';
+import { MAGListService } from './MagList.service';
 
 @Injectable({
     providedIn: 'root',
@@ -14,12 +15,14 @@ export class BasicMAGService extends BusyAwareService {
     constructor(
         private _httpC: HttpClient,
         private modalService: ModalService,
+        private _magListService: MAGListService,
         private notificationService: NotificationService,
         @Inject('BASE_URL') private _baseUrl: string
     ) {
         super();
     }
     public MagPaperList: MagPaperList = new MagPaperList();
+    public MagRelatedRunPapers: MagPaper[] = [];
 
 	private _MagRelatedPapersRunList: MagRelatedPapersRun[] = [];
 		
@@ -65,12 +68,18 @@ export class BasicMAGService extends BusyAwareService {
 
         this._BusyMethods.push("FetchMAGRelatedPaperRunsListId");
         let body = JSON.stringify({Value: Id});
-        return this._httpC.post<MagPaperList>(this._baseUrl + 'api/MagRelatedPapersRunList/GetMagRelatedPapersRunsId',
+        return this._httpC.post<MagList>(this._baseUrl + 'api/MagRelatedPapersRunList/GetMagRelatedPapersRunsId',
         body)
             .toPromise().then(
-                (result) => {
+            (result) => {
+
+                console.log(result);
                     this.RemoveBusy("FetchMAGRelatedPaperRunsListId");
-                    this.MagPaperList = result;
+                   // this.MagRelatedRunPapers = result;
+                    this._magListService.MAGList = result;
+                    this._magListService.ListCriteria.listType = "MagRelatedPapersRunList";
+                    this._magListService.ListCriteria.pageSize = 20;
+                    this._magListService.ListCriteria.magRelatedRunId = Id;
 			    },
 				    error => {
                         this.RemoveBusy("FetchMAGRelatedPaperRunsListId");
@@ -214,6 +223,15 @@ export class BasicMAGService extends BusyAwareService {
 
 
     }
+
+}
+export class MagList {
+
+    pagesize: number = 0;
+    pagecount: number = 0;
+    pageindex: number = 0;
+    totalItemCount: number = 0;
+    papers: MagPaper[] = [];
 
 }
 export class MagItemPaperInsertCommand {

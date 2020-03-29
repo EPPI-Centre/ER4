@@ -332,7 +332,7 @@ export class MagReviewMagInfo {
     nNotMatchedExcluded: number = 0;
     
 }
-// I DONT LIKE THIS NAME MAGPAPERLIST
+
 export class MagPaperList {
 
     pageIndex : number = 0;
@@ -346,8 +346,9 @@ export class MagPaperList {
     paperIds: string = '';
     includedOrExcluded: string = '';
     attributeIds: string = '';
-
 }
+
+
 
 export class MVCMagFieldOfStudyListSelectionCriteria {
 

@@ -57,7 +57,8 @@ namespace ERxWebClient2.Controllers
 
                 MagPaperList result = dp.Fetch(criteria);
 
-                return Ok(result);
+                //return Json(result);
+                return Ok(new MAGList4Json(result));
             }
             catch (Exception e)
             {
@@ -196,6 +197,33 @@ namespace ERxWebClient2.Controllers
         }
 
 
+    }
+
+    public class MAGList4Json
+    {
+        private MagPaperList _list;
+        public int pagesize
+        {
+            get { return _list.PageSize; }
+        }
+        public int pagecount
+        {
+            get { return _list.PageCount; }
+        }
+        public int pageindex
+        {
+            get { return _list.PageIndex; }
+        }
+        public int totalItemCount
+        {
+            get { return _list.TotalItemCount; }
+        }
+        public MagPaperList Papers
+        {
+            get { return _list; }
+        }
+        public MAGList4Json(MagPaperList list)
+        { _list = list; }
     }
 
 
