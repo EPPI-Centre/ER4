@@ -23,10 +23,17 @@
 
     <div [title]="'TOPICS'" class="col-2">
         <h5>Topics</h5>
-        <div *ngFor="let item of _magAdvancedService.MagPaperFieldsList">
-            {{item.displayName}}
-        </div>
+        <table class="card col-12 small table table-border  table-striped bg-light">
+            <thead>
+                <tr></tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let item of _magListService.MagPaperFieldsList">
+                    <td>{{item.displayName}}</td>
 
+                </tr>
+            </tbody>
+        </table>
     </div>
 
     <div [title]="'References'" class="col-6">
@@ -56,9 +63,8 @@
                     </tr>
                 </tbody>
             </table>
-            <div *ngIf="_magAdvancedService && _magAdvancedService.MagReferencesPaperList && _magAdvancedService.IsBusy">Loading items...</div>
-            <div *ngIf="_magAdvancedService && _magAdvancedService.MagReferencesPaperList
-             && this._magAdvancedService.MagReferencesPaperList && this._magAdvancedService.MagReferencesPaperList.length == 0 && !_magAdvancedService.IsBusy"
+            <div *ngIf="_magListService.MAGList && _magListService.MAGList.papers && _magListService.MAGList.IsBusy">Loading items...</div>
+            <div *ngIf="_magListService && _magListService.MAGList.papers.length == 0"
                  class="p-2 font-weight-bold text-center text-info mt-1">No items to display</div>
             <MAGpaginatorComp class="row ml-1 pt-1 mr-1 pr-1 border-top porder-info"></MAGpaginatorComp>
         </div>
@@ -116,7 +122,7 @@
                 <tr></tr>
             </thead>
             <tbody>
-                <tr *ngFor="let item of _magAdvancedService.ReviewMatchedPapersList">
+                <tr *ngFor="let item of _magListService.MAGList.papers">
                     <td><button (click)="InOutReview(item)" class="btn btn-outline-success">
                         {{item.isSelected}}</button>
                     </td>

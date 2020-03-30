@@ -228,6 +228,7 @@ export class BasicMAGService extends BusyAwareService {
 export class MagList {
 
     pagesize: number = 0;
+    paperIds: string = '';
     pagecount: number = 0;
     pageindex: number = 0;
     totalItemCount: number = 0;

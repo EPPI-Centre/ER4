@@ -83,6 +83,32 @@ namespace ERxWebClient2.Controllers
             }
         }
 
+        //
+        //[HttpPost("[action]")]
+        //public IActionResult UpdateMagPaper([FromBody] SingleInt64Criteria Id)
+        //{
+        //    try
+        //    {
+        //        SetCSLAUser();
+
+        //        DataPortal<MagPaper> dp = new DataPortal<MagPaper>();
+        //        SingleCriteria<MagPaper, Int64> criteria =
+        //            new SingleCriteria<MagPaper, Int64>(Id.Value);
+
+        //        var magPaper = dp.Fetch(criteria);
+
+        //        MagPaper result = dp.Update(magPaper);
+
+        //        return Ok(result);
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        _logger.LogException(e, "Getting a UpdateMagPaper has an error");
+        //        throw;
+        //    }
+        //}
+
+
         [HttpPost("[action]")]
         public IActionResult GetMagPaperList([FromBody] MVCMagPaperListSelectionCriteria crit)
         {

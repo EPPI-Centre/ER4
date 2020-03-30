@@ -9,6 +9,8 @@ import { Router } from '@angular/router';
 import { ItemListService } from '../services/ItemList.service';
 import { EventEmitterService } from '../services/EventEmitter.service';
 import { NotificationService } from '@progress/kendo-angular-notification';
+import { MAGListService } from '../services/MagList.service';
+import { MVCMagPaperListSelectionCriteria } from '../services/magAdvanced.service';
 
 
 @Component({
@@ -21,6 +23,7 @@ export class BasicMAGComp implements OnInit {
 
 	constructor(private ConfirmationDialogService: ConfirmationDialogService,
         private _basicMAGService: BasicMAGService,
+        private _MAGListService: MAGListService,
         public _searchService: searchService,
         private _ReviewerIdentityServ: ReviewerIdentityService,
         private _notificationService: NotificationService,
@@ -96,11 +99,12 @@ export class BasicMAGComp implements OnInit {
     }
     public GetItems(item: MagRelatedPapersRun) {
 
-        //console.log(item.magRelatedRunId );
         if (item.magRelatedRunId > 0) {
-            this._basicMAGService.FetchMAGRelatedPaperRunsListId(item.magRelatedRunId).then(
+
+            this._MAGListService.FetchMAGRelatedPaperRunsListId(item.magRelatedRunId)
+                .then(
+            //this._basicMAGService.FetchMAGRelatedPaperRunsListId(item.magRelatedRunId).then(
                 () => {
-                    //console.log('List of papers: ', this._magService.MagPaperList);
                     this.router.navigate(['MAGBrowser']);
                 }
             );

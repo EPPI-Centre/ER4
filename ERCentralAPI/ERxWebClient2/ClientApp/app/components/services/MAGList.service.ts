@@ -6,7 +6,7 @@ import { SortDescriptor, orderBy } from '@progress/kendo-data-query';
 
 import { ReadOnlySource } from './sources.service';
 import { EventEmitterService } from './EventEmitter.service';
-import { MagPaper, MVCMagPaperListSelectionCriteria, MagPaperList } from './magAdvanced.service';
+import { MagPaper, MVCMagPaperListSelectionCriteria, MagPaperList, MVCMagFieldOfStudyListSelectionCriteria } from './magAdvanced.service';
 import { MagList } from './BasicMAG.service';
 
 
@@ -23,7 +23,7 @@ export class MAGListService extends BusyAwareService {
     constructor(
         private _httpC: HttpClient,
         @Inject('BASE_URL') private _baseUrl: string,
-		private eventEmitterService: EventEmitterService,
+		private _eventEmitterService: EventEmitterService,
 		private ModalService: ModalService
     ) {
 		super();
@@ -37,7 +37,6 @@ export class MAGListService extends BusyAwareService {
  
     public ListDescription: string = "";
     @Output() PaperChanged = new EventEmitter();
-    @Output() ListChanged = new EventEmitter();
 
     public get MAGList(): MagList {
         return this._MAGList;
@@ -51,7 +50,62 @@ export class MAGListService extends BusyAwareService {
     public get currentPaper(): MagPaper {
         return this._currentPaper;
     }
-  
+    FetchMAGRelatedPaperRunsListId(Id: number): Promise<void> {
+
+        this._BusyMethods.push("FetchMAGRelatedPaperRunsListId");
+        this.ListCriteria.listType = "MagRelatedPapersRunList";
+        this.ListCriteria.pageSize = 20;
+        this.ListCriteria.magRelatedRunId = Id;
+
+        return this._httpC.post<MagList>(this._baseUrl + 'api/MagRelatedPapersRunList/GetMagRelatedPapersRunsId',
+            this.ListCriteria)
+            .toPromise().then(
+                (result) => {
+
+                    console.log(result);
+                    this.RemoveBusy("FetchMAGRelatedPaperRunsListId");
+                    this.MAGList = result;
+                    this.ListCriteria.paperIds = '';
+                    for (var i = 0; i < result.papers.length; i++) {
+                       
+                        this.ListCriteria.paperIds += result.papers[i].paperId.toString() + ',';
+                    }
+                    this.ListCriteria.paperIds = this.ListCriteria.paperIds.substr(0, this.ListCriteria.paperIds.length - 1);
+                    this.SavePapers(result.papers, this._Criteria);
+                    this.ListCriteria.pageNumber += 1;
+                    this.FetchMagFieldOfStudyList(this.ListCriteria.paperIds);
+
+                },
+                error => {
+                    this.RemoveBusy("FetchMAGRelatedPaperRunsListId");
+                    //this.modalService.GenericError(error);
+                }
+            );
+    }
+    public MagPaperFieldsList: MagPaper[] = [];
+    FetchMagFieldOfStudyList(paperIds: string): Promise<void> {
+
+        let crit: MVCMagFieldOfStudyListSelectionCriteria = new MVCMagFieldOfStudyListSelectionCriteria();
+        crit.fieldOfStudyId = 0;
+        crit.listType = "PaperFieldOfStudyList";
+        crit.paperIdList = paperIds;
+        //THIS SEARCH TEXT NEEDS TO COME IN FROM THE FRONT
+        crit.searchText = ''; //searchText;
+
+        this._BusyMethods.push("FetchMagPaperList");
+        return this._httpC.post<MagPaper[]>(this._baseUrl + 'api/MagCurrentInfo/GetMagFieldOfStudyList', crit)
+            .toPromise().then(
+                (result: MagPaper[]) => {
+                    this.RemoveBusy("MagPaperFieldsList");
+                    this.MagPaperFieldsList = result;
+                    console.log('paper field list: ', result);
+                },
+                error => {
+                    this.RemoveBusy("MagPaperFieldsList");
+                    //this.modalService.GenericError(error);
+                }
+            );
+    }
     public FetchWithCrit(crit: MVCMagPaperListSelectionCriteria, listDescription: string) {
         this._BusyMethods.push("FetchWithCrit");
         this._Criteria = crit;
@@ -70,7 +124,7 @@ export class MAGListService extends BusyAwareService {
                     console.log('papers result from controller are: ', list);
 
                     this.SavePapers(list, this._Criteria);
-                    //this.ListChanged.emit();
+
                     console.log('aksdjh: CHEKC: ', JSON.stringify(this.MAGList.papers.length));
 
                 }, error => {
@@ -106,7 +160,7 @@ export class MAGListService extends BusyAwareService {
 
     public SavePapers(papers: MagPaper[], crit: MVCMagPaperListSelectionCriteria) {
 
-        console.log('Inside savepapers', papers);
+        console.log('Inside savepapers sort descriptor is: ', this.sort);
 
         //papers = orderBy(papers, this.sort); 
 
@@ -213,10 +267,11 @@ export class MAGListService extends BusyAwareService {
     public FetchNextPage() {
         
         if (this.MAGList.pageindex < this.MAGList.pagecount-1) {
-            this._Criteria.pageNumber += 1;
+            this.MAGList.pageindex += 1;
         } else {
         }
-        this.FetchWithCrit(this._Criteria, this.ListDescription)
+        this.FetchMAGRelatedPaperRunsListId(this._Criteria.magRelatedRunId);
+        //this.FetchWithCrit(this._Criteria, this.ListDescription)
     }
     public FetchPrevPage() {
         if (this.MAGList.pageindex == 0 ) {
@@ -240,7 +295,7 @@ export class MAGListService extends BusyAwareService {
     }
 
     public sort: SortDescriptor[] = [{
-        field: 'shortTitle',
+        field: 'paperId',
         dir: 'asc'
     }];
     public sortChange(sort: SortDescriptor[]): void {

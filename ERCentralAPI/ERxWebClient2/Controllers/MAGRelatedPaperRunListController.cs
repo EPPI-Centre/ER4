@@ -43,17 +43,22 @@ namespace ERxWebClient2.Controllers
 
 
         [HttpPost("[action]")]
-        public IActionResult GetMagRelatedPapersRunsId([FromBody] SingleIntCriteria Id)
+        public IActionResult GetMagRelatedPapersRunsId([FromBody] MVCMagPaperListSelectionCriteria crit)
         {
 			try
             {
                 SetCSLAUser();
 
                 DataPortal<MagPaperList> dp = new DataPortal<MagPaperList>();
-                MagPaperListSelectionCriteria criteria = new MagPaperListSelectionCriteria();
-                criteria.ListType = "MagRelatedPapersRunList";
-                criteria.PageSize = 20;
-                criteria.MagRelatedRunId = Id.Value;
+                MagPaperListSelectionCriteria criteria = new MagPaperListSelectionCriteria
+                {
+                    ListType = crit.listType,
+                    PageSize = crit.pageSize,
+                    PageNumber = crit.pageNumber,
+                    MagRelatedRunId = crit.magRelatedRunId,
+                    Included = crit.included
+
+                };
 
                 MagPaperList result = dp.Fetch(criteria);
 
@@ -217,6 +222,10 @@ namespace ERxWebClient2.Controllers
         public int totalItemCount
         {
             get { return _list.TotalItemCount; }
+        }
+        public string paperIds
+        {
+            get { return _list.PaperIds; }
         }
         public MagPaperList Papers
         {

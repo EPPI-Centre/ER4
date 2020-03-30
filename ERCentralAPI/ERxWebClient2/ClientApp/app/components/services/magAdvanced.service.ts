@@ -4,6 +4,7 @@ import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
 import { NotificationService } from '@progress/kendo-angular-notification';
 import { Item } from './ItemList.service';
+import { MAGListService } from './MagList.service';
 
 @Injectable({
     providedIn: 'root',
@@ -14,14 +15,12 @@ export class MAGAdvancedService extends BusyAwareService {
     constructor(
         private _httpC: HttpClient,
         private modalService: ModalService,
+        //private _magListService: MAGListService,
         @Inject('BASE_URL') private _baseUrl: string
     ) {
         super();
     }
-    private _magMatchedIncluded: number = 0;
-    private _magMatchedExcluded: number = 0;
-    private _magMatchedAll: number = 0;
-    private _magMatchedWithThisCode: number = 0;
+   
     public ReviewMatchedPapersList: MagPaper[] = [];
     public AdvancedReviewInfo: MagReviewMagInfo = new MagReviewMagInfo();
     public currentMagPaper: MagPaper = new MagPaper();
@@ -153,6 +152,31 @@ export class MAGAdvancedService extends BusyAwareService {
                 }
             );
     }
+
+    //UpdateCurrentPaper(paperId : number) {
+
+    //    this._BusyMethods.push("UpdateCurrentPaper");
+    //    let body = JSON.stringify({ Value: paperId });
+    //    return this._httpC.post<MagPaper>(this._baseUrl + 'api/MagCurrentInfo/UpdateMagPaper', body)
+    //        .toPromise().then(result => {
+
+    //            this.RemoveBusy("UpdateCurrentPaper");
+    //            //this.currentMagPaper = result;
+    //            //// should call the relevant methods after the above
+    //            //if (result.paperId != null && result.paperId > 0) {
+    //            //    this.FetchMagPaperListId(result.paperId);
+    //            //}
+    //            //console.log(result)
+    //        },
+    //            error => {
+    //                this.RemoveBusy("UpdateCurrentPaper");
+    //                this.modalService.GenericError(error);
+
+    //            }
+    //        );
+
+    //}
+
     //CHECK IF THERE SHOULD BE A RETURN HERE
     RunMatchingAlgorithm() {
 
@@ -223,10 +247,14 @@ export class MAGAdvancedService extends BusyAwareService {
                 } else if (crit.listType == 'ReviewMatchedPapers') {
                     this.PaperIds = "";
                     this.ReviewMatchedPapersList = result;
+                    //this._magListService.MAGList.papers = result;
+                    //this._magListService.ListCriteria.listType = "ReviewMatchedPapers";
+                    //this._magListService.ListCriteria.pageSize = 20;
                     for (var i = 0; i < this.ReviewMatchedPapersList.length; i++) {
                         this.PaperIds += this.ReviewMatchedPapersList[i].paperId.toString() + ',';
                     }
                     this.PaperIds = this.PaperIds.substr(0, this.PaperIds.length - 1)
+                    //this._magListService.ListCriteria.paperIds = this.PaperIds;
                     console.log(result);
                     //console.log('rvm list: ', this.ReviewMatchedPapersList);
                     //console.log('rvm papers: ', this.PaperIds);
@@ -264,7 +292,7 @@ export class MAGAdvancedService extends BusyAwareService {
             (result: MagPaper[]) => {
                 this.RemoveBusy("MagPaperFieldsList");
                 this.MagPaperFieldsList = result;
-
+                console.log('paper field list: ', result);
             },
                 error => {
                     this.RemoveBusy("MagPaperFieldsList");

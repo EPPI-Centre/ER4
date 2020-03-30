@@ -11,7 +11,7 @@ export class EventEmitterService {
 	public nodeSelected: singleNode | null | undefined;
 	public nodeName: string = '';
 	public UserInput: string = '';
-	public CloseReportsSectionEmitter = new EventEmitter();
+    public CloseReportsSectionEmitter = new EventEmitter();
 	//public allocateRelevantItems = new EventEmitter();
 	//public configurableReports = new EventEmitter();
 	

@@ -6,6 +6,8 @@ import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Router } from '@angular/router';
 import { MAGAdvancedService, MVCMagPaperListSelectionCriteria, MagPaper } from '../services/magAdvanced.service';
 import { MAGListService } from '../services/MagList.service';
+import { Subscription } from 'rxjs';
+import { EventEmitterService } from '../services/EventEmitter.service';
 
 
 @Component({
@@ -19,6 +21,7 @@ export class MAGBrowser implements OnInit {
     constructor(private ConfirmationDialogService: ConfirmationDialogService,
         private _magAdvancedService: MAGAdvancedService,
         private _magListService: MAGListService,
+        private _eventEmitterService: EventEmitterService,
         public _searchService: searchService,
         private _ReviewerIdentityServ: ReviewerIdentityService,
         private _mAGListService: MAGListService,
@@ -30,8 +33,14 @@ export class MAGBrowser implements OnInit {
 
     ngOnInit() {
 
+        console.log('paperIds are: ',this._magListService.ListCriteria.paperIds);
 
-        this._magAdvancedService.FetchMagFieldOfStudyList(this._magAdvancedService.PaperIds);
+        //if (true) {
+
+        //}
+        //this._magAdvancedService.FetchMagFieldOfStudyList(this._magListService.ListCriteria.paperIds);
+
+
 
         // need a better check for list type later
         //the basic page check first 
@@ -82,50 +91,6 @@ export class MAGBrowser implements OnInit {
     public magDateRadio: string = 'true';
     public magRCTRadio: string = 'NoFilter';
     public magMode: string = '';
-
-    //public onTabSelect(e: any) {
-
-    //    if (e.index == 0) {
-    //        //refactor again below once working criteria defined twice
-    //        this._magAdvancedService.FetchMagFieldOfStudyList(this._magAdvancedService.PaperIds);
-
-    //    } else if (e.index == 1) {
-
-    //        if (this._magAdvancedService.ReviewMatchedPapersList.length > 0) {
-
-    //            //let crit: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
-    //            //crit.magPaperId = this._magAdvancedService.currentMagPaper.paperId;
-    //            //crit.listType = 'ReviewMatchedPapers';
-    //            //crit.included = 'Included';
-    //            //crit.pageSize = 20;
-    //            console.log(this._magAdvancedService.CurrentCriteria);
-    //            this._magAdvancedService.FetchMagPaperList(this._magAdvancedService.CurrentCriteria);
-
-    //        } else {
-
-    //            let crit: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
-    //            crit.magPaperId = this._magAdvancedService.currentMagPaper.paperId;
-    //            crit.listType = 'CitationsList';
-    //            this._magAdvancedService.FetchMagPaperList(this._magAdvancedService.CurrentCriteria);
-    //        }
-
-
-    //    } else if (e.index == 2) {
-    //        let crit: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
-    //        crit.magPaperId = this._magAdvancedService.currentMagPaper.paperId;
-    //        crit.listType = 'CitedByList';
-    //        this._magAdvancedService.FetchMagPaperList(crit);
-
-    //    } else if (e.index == 3) {
-    //        let crit: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
-    //        crit.magPaperId = this._magAdvancedService.currentMagPaper.paperId;
-    //        crit.listType = 'Recommendations';
-    //        this._magAdvancedService.FetchMagPaperList(crit);
-
-    //    }
-    //    console.log('testing tab: ', e.index );
-    //}
-
     public SelectedPaperIds: number[] = [];
     public ShowSelectedPapers: string = '';
     private AddToSelectedList(paperId: number) {
@@ -173,8 +138,9 @@ export class MAGBrowser implements OnInit {
             //change to notification
             console.log("This paper is already in your review");
         }
+
         //NEED TO UPDATE PAPER TO API AT SMART POINT MAYNE HERE===================================****
-        // this._magAdvancedService.UpdateCurrentPaper();
+        //this._magAdvancedService.UpdateCurrentPaper(paper.paperId);
 
     }
 
