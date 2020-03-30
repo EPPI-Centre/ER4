@@ -29,8 +29,7 @@
             </thead>
             <tbody>
                 <tr *ngFor="let item of _magListService.MagPaperFieldsList">
-                    <td>{{item.displayName}}</td>
-
+                    <td (click)="GetParentAndChildRelatedPapers(item)" class="btn btn-link mt-1">{{item.displayName}}</td>
                 </tr>
             </tbody>
         </table>

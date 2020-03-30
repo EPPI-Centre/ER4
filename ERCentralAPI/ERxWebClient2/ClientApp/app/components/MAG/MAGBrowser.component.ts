@@ -1,10 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { searchService } from '../services/search.service';
-import { MagRelatedPapersRun, MagPaperListSelectionCriteria, BasicMAGService } from '../services/BasicMAG.service';
+import { MagRelatedPapersRun, MagRelatedPaperListSelectionCriteria, BasicMAGService } from '../services/BasicMAG.service';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Router } from '@angular/router';
-import { MAGAdvancedService, MVCMagPaperListSelectionCriteria, MagPaper } from '../services/magAdvanced.service';
+import { MAGAdvancedService, MVCMagPaperListSelectionCriteria, MagPaper, MvcMagFieldOfStudyListSelectionCriteria, MagFieldOfStudy } from '../services/magAdvanced.service';
 import { MAGListService } from '../services/MagList.service';
 import { Subscription } from 'rxjs';
 import { EventEmitterService } from '../services/EventEmitter.service';
@@ -107,6 +107,69 @@ export class MAGBrowser implements OnInit {
             this.SelectedPaperIds.splice(pos, 1);
         this.UpdateSelectedCount();
     }
+    private _maxFieldOfStudyPaperCount : number = 1000000;
+    public WPParentTopics: string[] = [];
+    public WPChildTopics: string[] = [];
+    public GetParentAndChildRelatedPapers(item: MagPaper) {
+
+        let FieldOfStudyId: number = 0;
+        let FieldOfStudy: string = '';
+
+        this.GetParentAndChildFieldsOfStudy("FieldOfStudyParentsList", FieldOfStudyId, this.WPParentTopics, "Parent topics");
+        this.GetParentAndChildFieldsOfStudy("FieldOfStudyChildrenList", FieldOfStudyId, this.WPChildTopics, "Child topics");
+        this.GetPaperListForTopic(FieldOfStudyId);
+
+    }
+    GetPaperListForTopic(FieldOfStudyId: number): any {
+
+        let selectionCriteria: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
+        selectionCriteria.pageSize = 20;
+        selectionCriteria.pageNumber = 0;
+        selectionCriteria.listType = "PaperFieldsOfStudyList";
+        selectionCriteria.fieldOfStudyId = FieldOfStudyId;
+        
+        this._magAdvancedService.FetchMagPaperList(selectionCriteria).then(
+
+            
+            );
+
+    }
+    GetParentAndChildFieldsOfStudy(FieldOfStudy: string, FieldOfStudyId: number, WPParentTopics: any, arg3: string): any {
+
+        let selectionCriteria: MvcMagFieldOfStudyListSelectionCriteria = new MvcMagFieldOfStudyListSelectionCriteria();
+        selectionCriteria.listType = FieldOfStudy;
+        selectionCriteria.fieldOfStudyId = FieldOfStudyId;
+        this._magListService.FetchMagFieldOfStudyList(selectionCriteria).then(
+
+            (result: MagFieldOfStudy[] | void) => {
+
+                this.WPChildTopics = [];
+                if (result != null) {
+
+                    for (var i = 0; i < result.length; i++) {
+
+                        let newHl: string = result[i].fieldOfStudyId.toString();
+
+                        //if (result[i].paperCount > _maxFieldOfStudyPaperCount) {
+
+                        //        newHl.NavigateUri = new Uri("https://academic.microsoft.com/topic/" +
+                        //            result[i].fieldOfStudyId.ToString());
+                       
+                        //}
+                        //else {
+
+                        //        newHl.Click += HlNavigateToTopic_Click;
+                        //}
+
+                        this.WPChildTopics.push(newHl);
+
+                    }
+                }
+            }
+            
+            );
+
+    }
     private IsInSelectedList(paperId: number): boolean {
 
         if (this.SelectedPaperIds.indexOf(paperId) > -1)
@@ -150,7 +213,7 @@ export class MAGBrowser implements OnInit {
     }
     public GetItems(item: MagRelatedPapersRun) {
 
-        let selectionCriteria: MagPaperListSelectionCriteria = new MagPaperListSelectionCriteria();
+        let selectionCriteria: MagRelatedPaperListSelectionCriteria = new MagRelatedPaperListSelectionCriteria();
 
         selectionCriteria.pageSize = 20;
 

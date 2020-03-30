@@ -259,7 +259,7 @@ export class MagRelatedPapersRun {
 	nPapers: number = 0;
 	reviweIdId = 0;
 }
-export class MagPaperListSelectionCriteria {
+export class MagRelatedPaperListSelectionCriteria {
 
     pageSize: number = 20;
     pageNumber: number = 0;

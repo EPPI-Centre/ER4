@@ -6,7 +6,7 @@ import { SortDescriptor, orderBy } from '@progress/kendo-data-query';
 
 import { ReadOnlySource } from './sources.service';
 import { EventEmitterService } from './EventEmitter.service';
-import { MagPaper, MVCMagPaperListSelectionCriteria, MagPaperList, MVCMagFieldOfStudyListSelectionCriteria } from './magAdvanced.service';
+import { MagPaper, MVCMagPaperListSelectionCriteria,  MVCMagFieldOfStudyListSelectionCriteria, MagFieldOfStudy } from './magAdvanced.service';
 import { MagList } from './BasicMAG.service';
 
 
@@ -73,7 +73,13 @@ export class MAGListService extends BusyAwareService {
                     this.ListCriteria.paperIds = this.ListCriteria.paperIds.substr(0, this.ListCriteria.paperIds.length - 1);
                     this.SavePapers(result.papers, this._Criteria);
                     this.ListCriteria.pageNumber += 1;
-                    this.FetchMagFieldOfStudyList(this.ListCriteria.paperIds);
+                    let FieldsListcriteria: MVCMagFieldOfStudyListSelectionCriteria = new MVCMagFieldOfStudyListSelectionCriteria();
+                    FieldsListcriteria.fieldOfStudyId = 0;
+                    FieldsListcriteria.listType = "PaperFieldOfStudyList";
+                    FieldsListcriteria.paperIdList = this.ListCriteria.paperIds;
+                    //THIS SEARCH TEXT NEEDS TO COME IN FROM THE FRONT
+                    FieldsListcriteria.searchText = ''; //searchText;
+                    this.FetchMagFieldOfStudyList(FieldsListcriteria);
 
                 },
                 error => {
@@ -82,27 +88,23 @@ export class MAGListService extends BusyAwareService {
                 }
             );
     }
-    public MagPaperFieldsList: MagPaper[] = [];
-    FetchMagFieldOfStudyList(paperIds: string): Promise<void> {
-
-        let crit: MVCMagFieldOfStudyListSelectionCriteria = new MVCMagFieldOfStudyListSelectionCriteria();
-        crit.fieldOfStudyId = 0;
-        crit.listType = "PaperFieldOfStudyList";
-        crit.paperIdList = paperIds;
-        //THIS SEARCH TEXT NEEDS TO COME IN FROM THE FRONT
-        crit.searchText = ''; //searchText;
+    public MagPaperFieldsList: MagFieldOfStudy[] = [];
+    FetchMagFieldOfStudyList(criteria: MVCMagFieldOfStudyListSelectionCriteria): Promise<MagFieldOfStudy[] | void> {
 
         this._BusyMethods.push("FetchMagPaperList");
-        return this._httpC.post<MagPaper[]>(this._baseUrl + 'api/MagCurrentInfo/GetMagFieldOfStudyList', crit)
+        return this._httpC.post<MagFieldOfStudy[]>(this._baseUrl + 'api/MagCurrentInfo/GetMagFieldOfStudyList', criteria)
             .toPromise().then(
-                (result: MagPaper[]) => {
+            (result: MagFieldOfStudy[]) => {
+
                     this.RemoveBusy("MagPaperFieldsList");
                     this.MagPaperFieldsList = result;
                     console.log('paper field list: ', result);
+                    return result;
                 },
                 error => {
                     this.RemoveBusy("MagPaperFieldsList");
                     //this.modalService.GenericError(error);
+                    
                 }
             );
     }

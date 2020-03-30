@@ -404,6 +404,15 @@ export class MVCMagPaperListSelectionCriteria {
 
 }
 
+export class MvcMagFieldOfStudyListSelectionCriteria {
+
+    fieldOfStudyId: number = 0;
+    listType: string = '';
+    paperIdList: string = '';
+    searchText: string = '';
+
+}
+
 export class ClassifierContactModel {
 
     modelId: number = 0;
@@ -418,6 +427,22 @@ export class ClassifierContactModel {
     auc: number = 0;
     precision: number = 0;
     recall: number = 0;
+
+}
+
+export class MagFieldOfStudy {
+
+    fieldOfStudyId : number  = 0;
+    rank: number = 0;
+    normalizedName: string = '';
+    displayName: string = '';
+    mainType: string = '';
+    level: number = 0;
+    paperCount: number = 0;
+    citationCount: number = 0;
+    createdDate: Date = new Date();
+    num_times: number = 0;
+    externalMagLink: string = '';
 
 }
 
