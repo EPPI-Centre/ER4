@@ -108,17 +108,20 @@ export class MAGBrowser implements OnInit {
         this.UpdateSelectedCount();
     }
     private _maxFieldOfStudyPaperCount : number = 1000000;
-    public WPParentTopics: string[] = [];
-    public WPChildTopics: string[] = [];
-    public GetParentAndChildRelatedPapers(item: MagPaper) {
+    public WPParentTopics: MagFieldOfStudy[] = [];
+    public WPChildTopics: MagFieldOfStudy[] = [];
+    public GetParentAndChildRelatedPapers(item: MagFieldOfStudy) {
 
-        let FieldOfStudyId: number = 0;
-        let FieldOfStudy: string = '';
+        let FieldOfStudyId: number = item.fieldOfStudyId;
+        //let FieldOfStudy: string = '';
 
-        this.GetParentAndChildFieldsOfStudy("FieldOfStudyParentsList", FieldOfStudyId, this.WPParentTopics, "Parent topics");
-        this.GetParentAndChildFieldsOfStudy("FieldOfStudyChildrenList", FieldOfStudyId, this.WPChildTopics, "Child topics");
-        this.GetPaperListForTopic(FieldOfStudyId);
-
+        this.GetParentAndChildFieldsOfStudy("FieldOfStudyParentsList", FieldOfStudyId, "Parent topics").then(
+            () => {
+                this.GetParentAndChildFieldsOfStudy("FieldOfStudyChildrenList", FieldOfStudyId, "Child topics").then(
+                    () => {
+                        this.GetPaperListForTopic(FieldOfStudyId);
+                    });
+            });
     }
     GetPaperListForTopic(FieldOfStudyId: number): any {
 
@@ -128,47 +131,39 @@ export class MAGBrowser implements OnInit {
         selectionCriteria.listType = "PaperFieldsOfStudyList";
         selectionCriteria.fieldOfStudyId = FieldOfStudyId;
         
-        this._magAdvancedService.FetchMagPaperList(selectionCriteria).then(
-
-            
-            );
+        this._mAGListService.FetchWithCrit(selectionCriteria, "PaperFieldsOfStudyList");
 
     }
-    GetParentAndChildFieldsOfStudy(FieldOfStudy: string, FieldOfStudyId: number, WPParentTopics: any, arg3: string): any {
+    GetParentAndChildFieldsOfStudy(FieldOfStudy: string, FieldOfStudyId: number, ParentOrChild: string): Promise<void> {
 
         let selectionCriteria: MvcMagFieldOfStudyListSelectionCriteria = new MvcMagFieldOfStudyListSelectionCriteria();
         selectionCriteria.listType = FieldOfStudy;
         selectionCriteria.fieldOfStudyId = FieldOfStudyId;
-        this._magListService.FetchMagFieldOfStudyList(selectionCriteria).then(
+        return this._magListService.FetchMagFieldOfStudyList(selectionCriteria).then(
 
             (result: MagFieldOfStudy[] | void) => {
 
-                this.WPChildTopics = [];
                 if (result != null) {
-
                     for (var i = 0; i < result.length; i++) {
 
-                        let newHl: string = result[i].fieldOfStudyId.toString();
-
+                        let newHl: MagFieldOfStudy = result[i];
                         //if (result[i].paperCount > _maxFieldOfStudyPaperCount) {
-
                         //        newHl.NavigateUri = new Uri("https://academic.microsoft.com/topic/" +
                         //            result[i].fieldOfStudyId.ToString());
                        
                         //}
                         //else {
-
                         //        newHl.Click += HlNavigateToTopic_Click;
                         //}
-
-                        this.WPChildTopics.push(newHl);
-
+                        if (ParentOrChild == 'Parent topics') {
+                            this.WPParentTopics.push(newHl);
+                        } else {
+                            this.WPChildTopics.push(newHl);
+                        }
                     }
                 }
             }
-            
-            );
-
+        );
     }
     private IsInSelectedList(paperId: number): boolean {
 
