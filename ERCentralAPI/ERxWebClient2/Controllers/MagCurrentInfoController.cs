@@ -137,7 +137,7 @@ namespace ERxWebClient2.Controllers
 
                 var result = dp.Fetch(selectionCriteria);
 
-                return Ok(result);
+                return Ok(new MAGList4Json(result));
             }
             catch (Exception e)
             {

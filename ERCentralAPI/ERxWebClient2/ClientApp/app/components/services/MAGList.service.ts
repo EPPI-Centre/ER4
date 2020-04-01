@@ -6,7 +6,7 @@ import { SortDescriptor, orderBy } from '@progress/kendo-data-query';
 
 import { ReadOnlySource } from './sources.service';
 import { EventEmitterService } from './EventEmitter.service';
-import { MagPaper, MVCMagPaperListSelectionCriteria,  MVCMagFieldOfStudyListSelectionCriteria, MagFieldOfStudy } from './magAdvanced.service';
+import { MagPaper, MVCMagPaperListSelectionCriteria,  MVCMagFieldOfStudyListSelectionCriteria, MagFieldOfStudy, MagPaperList } from './magAdvanced.service';
 import { MagList } from './BasicMAG.service';
 
 
@@ -71,7 +71,7 @@ export class MAGListService extends BusyAwareService {
                         this.ListCriteria.paperIds += result.papers[i].paperId.toString() + ',';
                     }
                     this.ListCriteria.paperIds = this.ListCriteria.paperIds.substr(0, this.ListCriteria.paperIds.length - 1);
-                    this.SavePapers(result.papers, this._Criteria);
+                    this.SavePapers(result, this._Criteria);
                     this.ListCriteria.pageNumber += 1;
                     let FieldsListcriteria: MVCMagFieldOfStudyListSelectionCriteria = new MVCMagFieldOfStudyListSelectionCriteria();
                     FieldsListcriteria.fieldOfStudyId = 0;
@@ -119,11 +119,11 @@ export class MAGListService extends BusyAwareService {
         }
         console.log('criteria are: ', crit);
         this.ListDescription = listDescription;
-        this._httpC.post<MagPaper[]>(this._baseUrl + 'api/MagCurrentInfo/GetMagPaperList', crit)
+        this._httpC.post<MagList>(this._baseUrl + 'api/MagCurrentInfo/GetMagPaperList', crit)
             .subscribe(
                 list => {
 					//this._Criteria.numResults = this.MAGList.totalItemCount;
-                    console.log('papers result from controller are: ', list);
+                    console.log('Mag4Json list result from controller are: ', list);
 
                     this.SavePapers(list, this._Criteria);
 
@@ -160,13 +160,13 @@ export class MAGListService extends BusyAwareService {
     }
 
 
-    public SavePapers(papers: MagPaper[], crit: MVCMagPaperListSelectionCriteria) {
+    public SavePapers(list: MagList, crit: MVCMagPaperListSelectionCriteria) {
 
-        console.log('Inside savepapers sort descriptor is: ', this.sort);
+        console.log('Inside savepapers list detail is: ', list);
 
         //papers = orderBy(papers, this.sort); 
 
-        this._MAGList.papers = papers;
+        this._MAGList = list;
         this._Criteria = crit;
   
     }
