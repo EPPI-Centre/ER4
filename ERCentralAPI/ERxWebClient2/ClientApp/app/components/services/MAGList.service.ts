@@ -47,6 +47,9 @@ export class MAGListService extends BusyAwareService {
     public get ListCriteria(): MVCMagPaperListSelectionCriteria {
         return this._Criteria;
     }
+    public set ListCriteria(value: MVCMagPaperListSelectionCriteria) {
+        this._Criteria = value;
+    }
     public get currentPaper(): MagPaper {
         return this._currentPaper;
     }
@@ -62,7 +65,7 @@ export class MAGListService extends BusyAwareService {
             .toPromise().then(
                 (result) => {
 
-                    console.log(result);
+                    console.log('', result);
                     this.RemoveBusy("FetchMAGRelatedPaperRunsListId");
                     this.MAGList = result;
                     this.ListCriteria.paperIds = '';
@@ -73,6 +76,7 @@ export class MAGListService extends BusyAwareService {
                     this.ListCriteria.paperIds = this.ListCriteria.paperIds.substr(0, this.ListCriteria.paperIds.length - 1);
                     this.SavePapers(result, this._Criteria);
                     this.ListCriteria.pageNumber += 1;
+                    this.SavePapers(result, this.ListCriteria);
                     let FieldsListcriteria: MVCMagFieldOfStudyListSelectionCriteria = new MVCMagFieldOfStudyListSelectionCriteria();
                     FieldsListcriteria.fieldOfStudyId = 0;
                     FieldsListcriteria.listType = "PaperFieldOfStudyList";
@@ -122,12 +126,11 @@ export class MAGListService extends BusyAwareService {
         this._httpC.post<MagList>(this._baseUrl + 'api/MagCurrentInfo/GetMagPaperList', crit)
             .subscribe(
                 list => {
-					//this._Criteria.numResults = this.MAGList.totalItemCount;
-                    console.log('Mag4Json list result from controller are: ', list);
-
+                    console.log('list result from controller are: ', list);
+                    console.log('resultant crtiteria: ',this._Criteria);
                     this.SavePapers(list, this._Criteria);
 
-                    console.log('aksdjh: CHEKC: ', JSON.stringify(this.MAGList.papers.length));
+                    //console.log('aksdjh: CHEKC: ', JSON.stringify(this.MAGList.papers.length));
 
                 }, error => {
                     this.ModalService.GenericError(error);
@@ -272,8 +275,10 @@ export class MAGListService extends BusyAwareService {
             this.MAGList.pageindex += 1;
         } else {
         }
-        this.FetchMAGRelatedPaperRunsListId(this._Criteria.magRelatedRunId);
-        //this.FetchWithCrit(this._Criteria, this.ListDescription)
+        console.log('inside fetchnextPage: ', this.MAGList);
+        this._Criteria.pageNumber = this.MAGList.pageindex;
+        //this.FetchMAGRelatedPaperRunsListId(this._Criteria.magRelatedRunId);
+        this.FetchWithCrit(this._Criteria, this.ListDescription)
     }
     public FetchPrevPage() {
         if (this.MAGList.pageindex == 0 ) {

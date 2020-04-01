@@ -107,13 +107,17 @@ export class MAGBrowser implements OnInit {
             this.SelectedPaperIds.splice(pos, 1);
         this.UpdateSelectedCount();
     }
-    private _maxFieldOfStudyPaperCount : number = 1000000;
+    private _maxFieldOfStudyPaperCount: number = 1000000;
+    public ParentTopic: string = '';
     public WPParentTopics: MagFieldOfStudy[] = [];
     public WPChildTopics: MagFieldOfStudy[] = [];
     public GetParentAndChildRelatedPapers(item: MagFieldOfStudy) {
 
+
+        // this should reset the paper list page criteria
+       
         let FieldOfStudyId: number = item.fieldOfStudyId;
-        //let FieldOfStudy: string = '';
+        this.ParentTopic =  item.displayName;
 
         this.GetParentAndChildFieldsOfStudy("FieldOfStudyParentsList", FieldOfStudyId, "Parent topics").then(
             () => {
@@ -123,15 +127,17 @@ export class MAGBrowser implements OnInit {
                     });
             });
     }
+   
     GetPaperListForTopic(FieldOfStudyId: number): any {
 
-        let selectionCriteria: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
-        selectionCriteria.pageSize = 20;
-        selectionCriteria.pageNumber = 0;
-        selectionCriteria.listType = "PaperFieldsOfStudyList";
-        selectionCriteria.fieldOfStudyId = FieldOfStudyId;
-        
-        this._mAGListService.FetchWithCrit(selectionCriteria, "PaperFieldsOfStudyList");
+        let id = this._mAGListService.ListCriteria.magRelatedRunId;
+        this._mAGListService.ListCriteria = new MVCMagPaperListSelectionCriteria();
+        this._mAGListService.ListCriteria.magRelatedRunId = id;
+        this._mAGListService.ListCriteria.fieldOfStudyId = FieldOfStudyId;
+        this._mAGListService.ListCriteria.listType = "PaperFieldsOfStudyList";
+        this._mAGListService.ListCriteria.pageNumber = 0;
+        this._mAGListService.ListCriteria.pageSize = 20;
+        this._mAGListService.FetchWithCrit(this._mAGListService.ListCriteria, "PaperFieldsOfStudyList");
 
     }
     GetParentAndChildFieldsOfStudy(FieldOfStudy: string, FieldOfStudyId: number, ParentOrChild: string): Promise<void> {
@@ -157,6 +163,7 @@ export class MAGBrowser implements OnInit {
                         //}
                         if (ParentOrChild == 'Parent topics') {
                             this.WPParentTopics.push(newHl);
+
                         } else {
                             this.WPChildTopics.push(newHl);
                         }
