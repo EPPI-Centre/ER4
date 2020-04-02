@@ -28,15 +28,17 @@ export class AdvancedMAGFeaturesComponent implements OnInit {
 	}
         
 
-    @ViewChild('WithOrWithoutCodeSelector') WithOrWithoutCodeSelector!: codesetSelectorComponent;
+    @ViewChild('WithOrWithoutCodeSelector3') WithOrWithoutCodeSelector3!: codesetSelectorComponent;
     @ViewChild('WithOrWithoutCodeSelector2') WithOrWithoutCodeSelector2!: codesetSelectorComponent;
-    public CurrentDropdownSelectedCode: singleNode | null = null;
+    public CurrentDropdownSelectedCode3: singleNode | null = null;
     public CurrentDropdownSelectedCode2: singleNode | null = null;
     public ItemsWithCode: boolean = false;
     public MAGItems: any[] = [];
     public ShowPanel: boolean = false;
-    public isCollapsed: boolean = true;
-    public isCollapsed2: boolean = true;
+    public dropdownBasic2: boolean = false;
+    public dropdownBasic3: boolean = false;
+    public isCollapsed2: boolean = false;
+    public isCollapsed3: boolean = false;
     public ListSubType: string = '';
     public splitDataOn: string = 'Year';
     public SearchMethod: string = 'Recommendations';
@@ -69,7 +71,7 @@ export class AdvancedMAGFeaturesComponent implements OnInit {
     public magPaperId: number = 0;
     public currentClassifierContactModel: ClassifierContactModel = new ClassifierContactModel();
     public desc: string = '';
-    public kendoDateValue: Date = new Date(2000, 2, 10);
+    public kendoDateValue: Date = new Date();
     public searchAll: string = 'true';
     public magDate: string = 'true';
     public magSearchCheck: boolean = false;
@@ -133,17 +135,17 @@ export class AdvancedMAGFeaturesComponent implements OnInit {
 
         } else if (this.splitDataOn == 'WithThisCode') {
 
-            if (this.CurrentDropdownSelectedCode != null) {
-                let att = this.CurrentDropdownSelectedCode as SetAttribute;
+            if (this.CurrentDropdownSelectedCode2 != null) {
+                let att = this.CurrentDropdownSelectedCode2 as SetAttribute;
                 newMagSimulation.withThisAttributeId = att.attribute_id;
                 newMagSimulation.withThisAttribute = att.attribute_name;
             }
         }
         console.log('here', this.filterOn);
         if (this.filterOn == 'true') {
-            if (this.CurrentDropdownSelectedCode != null) {
+            if (this.CurrentDropdownSelectedCode2 != null) {
                 console.log('here2');
-                let att = this.CurrentDropdownSelectedCode as SetAttribute;
+                let att = this.CurrentDropdownSelectedCode2 as SetAttribute;
                 console.log('here3', att);
                 newMagSimulation.filteredByAttributeId = att.attribute_id;
                 newMagSimulation.filteredByAttribute = att.attribute_name;
@@ -327,11 +329,11 @@ export class AdvancedMAGFeaturesComponent implements OnInit {
 	CanOnlySelectRoots() {
 		return true;
 	}
-	CloseCodeDropDown() {
-		if (this.WithOrWithoutCodeSelector) {
-			this.CurrentDropdownSelectedCode = this.WithOrWithoutCodeSelector.SelectedNodeData;
+	CloseCodeDropDown3() {
+		if (this.WithOrWithoutCodeSelector3) {
+			this.CurrentDropdownSelectedCode3 = this.WithOrWithoutCodeSelector3.SelectedNodeData;
 		}
-		this.isCollapsed = false;
+		this.isCollapsed3 = false;
     }
     CloseCodeDropDown2() {
         if (this.WithOrWithoutCodeSelector2) {
@@ -341,8 +343,8 @@ export class AdvancedMAGFeaturesComponent implements OnInit {
     }
     Clear() {
 
-        this.CurrentDropdownSelectedCode = {} as SetAttribute;
         this.CurrentDropdownSelectedCode2 = {} as SetAttribute;
+        this.CurrentDropdownSelectedCode3 = {} as SetAttribute;
         this.desc = '';
         this.ItemsWithCode = false;
         this.magDate = '';

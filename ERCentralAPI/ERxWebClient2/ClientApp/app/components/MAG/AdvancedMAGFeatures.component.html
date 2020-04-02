@@ -79,13 +79,14 @@
             <div class="col-12 row">
                 All matched records with this code:
                 <div class="col-5">
-                    <div ngbDropdown class="col-8 p-1 m-1">
-                        <button style="min-width: 250px; white-space:normal" [attr.aria-expanded]="!isCollapsed2"
-                                class="btn alert-primary col-12 p-2 m-0" id="dropdownBasic2"
-                                ngbDropdownToggle (click)="isCollapsed2 = !isCollapsed2; dropdownBasic2 = false">
+                    <div ngbDropdown class="" style="min-width:150px;">
+                        <button ngbDropdownAnchor class="btn btn-outline-primary dropdown-toggle w-100"
+                                style="min-width: 250px; white-space:normal" [attr.aria-expanded]="!isCollapsed2"
+                                id="dropdownBasic2"
+                                (click)="isCollapsed2 = !isCollapsed2; dropdownBasic2 = false">
                             {{CurrentDropdownSelectedCode2?.name}}
                         </button>
-                        <div ngbDropdownMenu aria-labelledby="dropdownBasic2" [ngbCollapse]="!isCollapsed2">
+                        <div class="dropdown-menu" aria-labelledby="dropdownBasic2" [ngbCollapse]="!isCollapsed2">
                             <codesetSelector [IsMultiSelect]="false" [WhatIsSelectable]="'SetAttribute'"
                                              [MaxHeight]="500" #WithOrWithoutCodeSelector2
                                              (selectedNodeInTree)="CloseCodeDropDown2()" [rootsOnly]="false">
@@ -193,16 +194,17 @@
                     <div class="col-1 p-1 m-1"></div>
                     <div class="col-12 p-1 m-1"><b>Select code</b></div>
 
-                    <div ngbDropdown class="col-8 p-1 m-1">
-                        <button style="min-width: 250px; white-space:normal" [attr.aria-expanded]="!isCollapsed"
-                                class="btn alert-primary col-12 p-2 m-0" id="dropdownBasic1"
-                                ngbDropdownToggle (click)="isCollapsed = !isCollapsed; dropdownBasic1 = false">
-                            {{CurrentDropdownSelectedCode?.name}}
+                    <div ngbDropdown class="" style="min-width:150px;">
+                        <button ngbDropdownAnchor class="btn btn-outline-primary dropdown-toggle w-100"
+                                style="min-width: 250px; white-space:normal" [attr.aria-expanded]="!isCollapsed3"
+                                id="dropdownBasic3"
+                                (click)="isCollapsed3 = !isCollapsed3; dropdownBasic3 = false">
+                            {{CurrentDropdownSelectedCode3?.name}}
                         </button>
-                        <div ngbDropdownMenu aria-labelledby="dropdownBasic1" [ngbCollapse]="!isCollapsed">
+                        <div class="dropdown-menu" aria-labelledby="dropdownBasic3" [ngbCollapse]="!isCollapsed3">
                             <codesetSelector [IsMultiSelect]="false" [WhatIsSelectable]="'SetAttribute'"
-                                             [MaxHeight]="500" #WithOrWithoutCodeSelector
-                                             (selectedNodeInTree)="CloseCodeDropDown()" [rootsOnly]="false">
+                                             [MaxHeight]="500" #WithOrWithoutCodeSelector3
+                                             (selectedNodeInTree)="CloseCodeDropDown3()" [rootsOnly]="false">
                             </codesetSelector>
                         </div>
                     </div>

@@ -37,9 +37,10 @@ export class BasicMAGComp implements OnInit {
     public ItemsWithCode: boolean = false;
     public MAGItems: any[] = [];
     public ShowPanel: boolean = false;
-    public isCollapsed: boolean = true;
+    public isCollapsed: boolean = false;
+    public dropdownBasic1: boolean = false;
     public description: string = '';
-    public valueKendoDatepicker: Date = new Date(2000, 2, 10);
+    public valueKendoDatepicker: Date = new Date();
     public searchAll: string = 'true';
     public magSearchCheck: boolean = false;
     public magDateRadio: string = 'true';
@@ -83,10 +84,13 @@ export class BasicMAGComp implements OnInit {
 		return true;
 	}
 	CloseCodeDropDown() {
-		if (this.WithOrWithoutCodeSelector) {
-			this.CurrentDropdownSelectedCode = this.WithOrWithoutCodeSelector.SelectedNodeData;
-		}
-		this.isCollapsed = false;
+        
+        console.log(this.WithOrWithoutCodeSelector);
+        let node: SetAttribute = this.WithOrWithoutCodeSelector.SelectedNodeData as SetAttribute;
+        this.CurrentDropdownSelectedCode = node;
+
+        this.isCollapsed = false;
+       
     }
 	public ToggleMAGPanel(): void {
 		this.ShowPanel = !this.ShowPanel;
