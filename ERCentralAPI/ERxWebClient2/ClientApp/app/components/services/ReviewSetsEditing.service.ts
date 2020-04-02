@@ -213,18 +213,26 @@ export class ReviewSetsEditingService extends BusyAwareService {
             attributeOrder: attributeorder
         }
         //console.log("saving reviewSet via command", rs, rsC);
-        this._httpC.post<ReviewSetUpdateCommand>(this._baseUrl + 'api/Codeset/AttributeSetMove', rsC).subscribe(
+        return this._httpC.post<ReviewSetUpdateCommand>(this._baseUrl + 'api/Codeset/AttributeSetMove', rsC).toPromise().then(
             data => {
                 this.RemoveBusy("MoveSetAttribute");
                 //this.ItemCodingItemAttributeSaveCommandExecuted.emit(data);
                 //this._IsBusy = false;
                 //console.log("emit PleaseRedrawTheTree");
                 this.PleaseRedrawTheTree.emit();
+                return true;
             }, error => {
                 this.RemoveBusy("MoveSetAttribute");
+                console.log("Error moving Code: ", error);
                 this.modalService.GenericErrorMessage("Sorry, an ERROR occurred when saving your data. It's advisable to reload the page and verify that your latest change was saved.");
-            }, () => {
-                
+                return false;
+            }
+        ).catch(
+            caught => {
+                this.RemoveBusy("MoveSetAttribute");
+                console.log("Error moving Code: ", caught);
+                this.modalService.GenericErrorMessage("Sorry, an ERROR occurred when saving your data. It's advisable to reload the page and verify that your latest change was saved.");
+                return false;
             }
         );
     }
@@ -400,6 +408,7 @@ export class ReviewSetsEditingService extends BusyAwareService {
             SortingParent = Parent;
         }
         if (!swapper || index < 0) return;
+        await this.CheckChildrenOrder(SortingParent as singleNode);
         //all is good: do changes
         swapper.order = swapper.order - 1;
         Att.order = Att.order + 1;
@@ -436,6 +445,7 @@ export class ReviewSetsEditingService extends BusyAwareService {
             SortingParent = Parent;
         }
         if (!swapper || index < 0) return;
+        await this.CheckChildrenOrder(SortingParent as singleNode);
         //all is good: do changes
         swapper.order = swapper.order + 1;
         Att.order = Att.order - 1;
@@ -445,6 +455,190 @@ export class ReviewSetsEditingService extends BusyAwareService {
         });
     }
 
+    public async MoveSetAttributeInto(MovingAtt: SetAttribute, Destination: singleNode) {
+        //Destination might be a ReviewSet or a SetAttribute!
+        //first, we'll find Just the data needed to call the API, then we'll do changes locally IF API call succeeds...
+        let fromId: number = MovingAtt.parent_attribute_id;
+        let toId: number = 0; //zero if in the root, otherwise the attribute IDs of the parent. (fromId and toId)
+        let order = 0;
+        let dA: SetAttribute | null = null;
+        let dS: ReviewSet | null = null;
+        let fA: SetAttribute | null = null;
+        let fS: ReviewSet | null = null;
+        //we will try to do something, so we'll mark this service as busy (twice) - the one in here is because we want to let the reorg of the tree to happen while still busy
+        this._BusyMethods.push("MoveSetAttributeInto");
+        if (Destination.nodeType == "SetAttribute") {
+            //destination is not the root.
+            //console.log("move to a SetAttribute");
+            dA = this.ReviewSetsService.FindAttributeById((Destination as SetAttribute).attribute_id);
+            
+            if (dA) {
+                await this.CheckChildrenOrder(dA as singleNode);
+                toId = dA.attribute_id;
+                dA.attributes.sort((s1, s2) => {
+                    return s1.order - s2.order;
+                });
+                if (dA.attributes.length == 0) order = 0;
+                else order = dA.attributes[dA.attributes.length - 1].order + 1;
+            }
+            else {
+                console.log("ERROR! Didn't find the destination (SetAttribute).");
+                return false;
+            }
+        } else {
+            //destination is the root (a ReviewSet).
+            //console.log("move to the root");
+            dS = this.ReviewSetsService.FindSetById(Destination.set_id);
+            if (dS) {
+                await this.CheckChildrenOrder(dS as singleNode);
+                dS.attributes.sort((s1, s2) => {
+                    return s1.order - s2.order;
+                });
+                if (dS.attributes.length == 0) order = 0;
+                else order = dS.attributes[dS.attributes.length - 1].order + 1;
+            }
+            else {
+                console.log("ERROR! Didn't find the destination (root).");
+                return false;
+            }
+        }
+        
+        if (MovingAtt.parent_attribute_id == 0) {
+            //coming from the root
+            fS = this.ReviewSetsService.FindSetById(MovingAtt.set_id);
+            if (fS) await this.CheckChildrenOrder(fS as singleNode);
+        }
+        else {
+            //coming from a SetAttribute
+            fA = this.ReviewSetsService.FindAttributeById(MovingAtt.parent_attribute_id);
+            if (fA) await this.CheckChildrenOrder(fA as singleNode);
+        }
+        let result = await this.MoveSetAttribute(MovingAtt.attributeSetId, fromId, toId, order);
+        if (result) {
+            
+            //we have 4 cases where we can do something (from and to have been found), 3 of these make sense
+            if (fS != null && dS != null) {
+                //moving from root to root, shouldn't really happen!
+                //not sure what's best here, we'll return failure
+                this.RemoveBusy("MoveSetAttributeInto");
+                return false;
+            }
+            else if (fS != null && dA != null) {
+                //moving from root to somewhere inside
+                let ind = fS.attributes.findIndex(found => found.attribute_id == MovingAtt.attribute_id);
+                if (ind == -1) {
+                    this.RemoveBusy("MoveSetAttributeInto");
+                    return false;
+                }
+                else {
+                    fS.attributes.splice(ind, 1);//remove code from where it was
+                    if (ind < fS.attributes.length) {
+                        for (let ii = ind; ii < fS.attributes.length; ii++) {
+                            fS.attributes[ii].order--;
+                        }
+                    }
+                    fS.attributes.sort((s1, s2) => {
+                        return s1.order - s2.order;
+                    });
+                }
+                MovingAtt.parent_attribute_id = toId;
+                MovingAtt.order = order;
+                dA.attributes.push(MovingAtt);
+                dA.attributes.sort((s1, s2) => {
+                    return s1.order - s2.order;
+                });
+            }
+            else if (fA != null && dS != null) {
+                //moving from somewhere inside to root
+                let ind = fA.attributes.findIndex(found => found.attribute_id == MovingAtt.attribute_id);
+                if (ind == -1) {
+                    this.RemoveBusy("MoveSetAttributeInto");
+                    return false;
+                }
+                else {
+                    fA.attributes.splice(ind, 1);
+                    if (ind < fA.attributes.length) {
+                        for (let ii = ind; ii < fA.attributes.length; ii++) {
+                            fA.attributes[ii].order--;
+                        }
+                    }
+                    fA.attributes.sort((s1, s2) => {
+                        return s1.order - s2.order;
+                    });
+                }
+                MovingAtt.parent_attribute_id = toId;
+                MovingAtt.order = order;
+                dS.attributes.push(MovingAtt);
+                dS.attributes.sort((s1, s2) => {
+                    return s1.order - s2.order;
+                });
+            }
+            else if (fA != null && dA != null) {
+                //moving from somewhere inside, to somewhere else, still inside
+                let ind = fA.attributes.findIndex(found => found.attribute_id == MovingAtt.attribute_id);
+                if (ind == -1) {
+                    this.RemoveBusy("MoveSetAttributeInto");
+                    return false;
+                }
+                else {
+                    fA.attributes.splice(ind, 1);
+                    if (ind < fA.attributes.length) {
+                        for (let ii = ind; ii < fA.attributes.length; ii++) {
+                            console.log("reducing order for:", fA.attributes[ii].name, fA.attributes[ii].order);
+                            fA.attributes[ii].order--;
+                        }
+                    }
+                    fA.attributes.sort((s1, s2) => {
+                        return s1.order - s2.order;
+                    });
+                }
+                MovingAtt.parent_attribute_id = toId;
+                MovingAtt.order = order;
+                dA.attributes.push(MovingAtt);
+                dA.attributes.sort((s1, s2) => {
+                    return s1.order - s2.order;
+                });
+                let tmp: SetAttribute[] = [];
+                dA.attributes = dA.attributes.concat(tmp);
+            }
+            else {
+                //didn't find a reference to either origin or destination, can't do this!
+                this.RemoveBusy("MoveSetAttributeInto");
+                return false;
+            }
+            this.PleaseRedrawTheTree.emit();
+            this.RemoveBusy("MoveSetAttributeInto");
+            return true;
+        }
+        else {
+            //the API call failed (returned false)
+            this.RemoveBusy("MoveSetAttributeInto");
+            return false;
+        }
+    }
+
+    async CheckChildrenOrder(node: singleNode) {
+        let i: number = 0;
+        let changedSomething: boolean = false;
+        for (let sa of node.attributes) {
+            if (sa.order != i) {
+                sa.order = i;
+                changedSomething = true;
+                //do something to save change!
+                let res: boolean = await this.UpdateAttribute(sa as SetAttribute);
+                if (!res) break;
+                //recursive CheckAttributeSet of attributes?
+            }
+            i++;
+        }
+        if (changedSomething) {
+            //for sanity, sort by order;
+            this.ReviewSetsService.ReviewSets = this.ReviewSetsService.ReviewSets.sort((s1, s2) => {
+                return s1.order - s2.order;
+            });
+            this.PleaseRedrawTheTree.emit();
+        }
+    }
 
 
     public ReviewSetCheckCodingStatus(SetId: number): Promise<number> {//used to check how many incomplete items are here before moving to "normal" data entry
@@ -878,3 +1072,91 @@ export class PerformRandomAllocateCommand {
 	numericRandomSample: number = 0;
 	RandomSampleIncluded: string = '';
 }
+
+export interface singleNode4move extends singleNode {
+    CanMoveBranchInHere: boolean;
+}
+export class ReviewSet4Move extends ReviewSet implements singleNode4move {
+    constructor(reviewSet: ReviewSet, movingBrach: singleNode) {
+        super();
+        this.MovingBrach = movingBrach;
+        this.set_id = reviewSet.set_id;
+        this.reviewSetId = reviewSet.reviewSetId;
+        this.set_name = reviewSet.set_name;
+        this.order = reviewSet.order;
+        this.codingIsFinal = reviewSet.codingIsFinal;
+        this.allowEditingCodeset = reviewSet.allowEditingCodeset;
+        this.description = reviewSet.description;
+        this.nodeType = reviewSet.nodeType;
+        //console.log("type or the root (ReviewSet4Move):", this.nodeType);
+        this.setType = reviewSet.setType;
+        this.attributes = [];
+        this.MovingBrachDepth = this.FindDepthOfBranch(this.MovingBrach, 1);
+        this._canMoveBranchInHere = (this.MovingBrachDepth <= this.setType.maxDepth);
+        this._alreadyIsTheParent = movingBrach.parent == 0;
+        for (let att of reviewSet.attributes) {
+            let newA = new SetAttribute4Move(att, 1, this.MovingBrachDepth, this.setType.maxDepth, false, movingBrach.id, movingBrach.parent);
+            this.attributes.push(newA);
+        }
+
+
+    }
+    private FindDepthOfBranch(branch: singleNode, startingDepth: number): number {//RECURSIVE!!!
+        //console.log("FindDepthOfBranch (branch, starting Depth)", branch, startingDepth);
+        if (branch.attributes.length > 0) {
+            startingDepth++;
+            let tmpMax = startingDepth;
+            for (let a of branch.attributes) {
+                let Al = this.FindDepthOfBranch(a, startingDepth);
+                if (Al > tmpMax) tmpMax = Al;
+            }
+            startingDepth = tmpMax;
+        }
+        //console.log('FindDepthOfBranch', startingDepth);
+        return startingDepth;
+    }
+    private MovingBrach: singleNode;
+    private MovingBrachDepth: number;
+    private _canMoveBranchInHere: boolean;
+    private _alreadyIsTheParent: boolean;
+    get CanMoveBranchInHere(): boolean {
+        if (this._alreadyIsTheParent) return false;
+        return this._canMoveBranchInHere;
+    }
+}
+export class SetAttribute4Move extends SetAttribute implements singleNode4move {
+    constructor(setAttribute: SetAttribute, currentDepth: number, movingBranchDepth: number, maxDepth: number, alreadyCant: boolean, movingBranchRootId: string, movingBranchParentId: number) {
+        super();
+        this.attribute_id = setAttribute.attribute_id;
+        this.attribute_name = setAttribute.attribute_name;
+        this.order = setAttribute.order;
+        this.attribute_type = setAttribute.attribute_type;
+        this.attribute_type_id = setAttribute.attribute_type_id;
+        this.nodeType = setAttribute.nodeType;
+        this.attribute_set_desc = setAttribute.attribute_set_desc;
+        this.attributeSetId = setAttribute.attributeSetId;
+        this.parent_attribute_id = setAttribute.parent_attribute_id;
+        this.attribute_desc = setAttribute.attribute_desc;
+        this.set_id = setAttribute.set_id;
+        this.attribute_order = setAttribute.attribute_order;
+        if (this.attribute_id == movingBranchParentId) this._alreadyIsTheParent = true;
+        else this._alreadyIsTheParent = false;
+        if (alreadyCant) this._canMoveBranchInHere = false;
+        else if (currentDepth + movingBranchDepth > maxDepth) this._canMoveBranchInHere = false;
+        else if ("A" + this.attribute_id == movingBranchRootId) this._canMoveBranchInHere = false;
+        else this._canMoveBranchInHere = true;
+
+        for (let att of setAttribute.attributes) {
+            let newA = new SetAttribute4Move(att, currentDepth + 1, movingBranchDepth, maxDepth, !this._canMoveBranchInHere, movingBranchRootId, movingBranchParentId);
+            this.attributes.push(newA);
+        }
+    }
+    private _canMoveBranchInHere: boolean;
+    private _alreadyIsTheParent: boolean;
+    get CanMoveBranchInHere(): boolean {
+        //console.log('can move in here:', this.name, this._canMoveBranchInHere, this._alreadyIsTheParent);
+        if (this._alreadyIsTheParent) return false;
+        return this._canMoveBranchInHere;
+    }
+}
+

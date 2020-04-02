@@ -78,7 +78,6 @@ export class CodesetTreeEditComponent implements OnInit, OnDestroy {
                 changedSomething = true;
                 //do something to save change!
                 this.ReviewSetsEditingService.SaveReviewSet(rs);
-                //recursive CheckAttributeSet of attributes?
             }
             i++;
         }
