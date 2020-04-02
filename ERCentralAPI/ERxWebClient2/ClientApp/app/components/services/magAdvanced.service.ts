@@ -230,7 +230,7 @@ export class MAGAdvancedService extends BusyAwareService {
             .toPromise().then(
 
             (result: MagPaper[]) => {
-
+                this.RemoveBusy("FetchMagPaperList");
                 if (crit.listType == 'CitationsList') {
                     //this.PaperIds = "";
                     this.MagCitationsPaperList = result;

@@ -99,7 +99,8 @@ export class BasicMAGComp implements OnInit {
         return this._ReviewerIdentityServ.HasWriteRights;
     }
     public get IsServiceBusy(): boolean {
-        return this._basicMAGService.IsBusy;
+
+        return this._basicMAGService.IsBusy || this._MAGListService.IsBusy;
     }
     public GetItems(item: MagRelatedPapersRun) {
 

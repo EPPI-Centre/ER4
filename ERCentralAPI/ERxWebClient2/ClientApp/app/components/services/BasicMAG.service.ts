@@ -124,6 +124,7 @@ export class BasicMAGService extends BusyAwareService {
 			magRun)
 			.subscribe(result => {
 
+                this.RemoveBusy("MagRelatedPapersRunCreate");
                 if (result.magRelatedRunId > 0) {
 
                     this.showMAGRunMessage('MAGRun was created');
@@ -132,7 +133,6 @@ export class BasicMAGService extends BusyAwareService {
 
                     this.showMAGRunMessage(result.status);
                 }
-                this.RemoveBusy("MagRelatedPapersRunCreate");
 				this.MagRelatedPapersRunList.push(result);
                 this.FetchMAGRelatedPaperRunsListId(result.magRelatedRunId);
 
@@ -200,7 +200,7 @@ export class BasicMAGService extends BusyAwareService {
         toPromise().then(
 
             (result: MagRelatedPapersRun) => {
-
+                this.RemoveBusy("UpdateMagRelatedRun");
                 if (result.magRelatedRunId > 0) {
                     let tmpIndex: any = this.MagRelatedPapersRunList.findIndex(x => x.magRelatedRunId == Number(result.magRelatedRunId));
                     if (tmpIndex > -1) {
@@ -213,7 +213,7 @@ export class BasicMAGService extends BusyAwareService {
                 } else {
                     this.showMAGRunMessage('User status is: ' + result.userStatus);
                 }
-                this.RemoveBusy("UpdateMagRelatedRun");
+                
 
             }, error => {
                 this.RemoveBusy("UpdateMagRelatedRun");

@@ -30,7 +30,6 @@ export class MAGBrowser implements OnInit {
     ) {
 
     }
-
     ngOnInit() {
 
         console.log('paperIds are: ',this._magListService.ListCriteria.paperIds);
@@ -234,9 +233,9 @@ export class MAGBrowser implements OnInit {
         //this._magService.ImportMagPapers(item);
 
     }
-    public IsServiceBusy(): boolean {
+    public get IsServiceBusy(): boolean {
 
-        return false;
+        return this._mAGListService.IsBusy || this._magAdvancedService.IsBusy;
     }
     public Selected(): void {
 

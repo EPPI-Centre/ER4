@@ -100,13 +100,13 @@ export class MAGListService extends BusyAwareService {
             .toPromise().then(
             (result: MagFieldOfStudy[]) => {
 
-                    this.RemoveBusy("MagPaperFieldsList");
+                this.RemoveBusy("FetchMagPaperList");
                     this.MagPaperFieldsList = result;
                     console.log('paper field list: ', result);
                     return result;
                 },
                 error => {
-                    this.RemoveBusy("MagPaperFieldsList");
+                    this.RemoveBusy("FetchMagPaperList");
                     //this.modalService.GenericError(error);
                     
                 }
@@ -125,7 +125,8 @@ export class MAGListService extends BusyAwareService {
         this.ListDescription = listDescription;
         this._httpC.post<MagList>(this._baseUrl + 'api/MagCurrentInfo/GetMagPaperList', crit)
             .subscribe(
-                list => {
+            list => {
+                    this.RemoveBusy("FetchWithCrit");
                     console.log('list result from controller are: ', list);
                     console.log('resultant crtiteria: ',this._Criteria);
                     this.SavePapers(list, this._Criteria);
