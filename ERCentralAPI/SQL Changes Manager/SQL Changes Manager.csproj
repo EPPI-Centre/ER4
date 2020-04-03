@@ -137,6 +137,9 @@
     <None Update="SQLScripts\168.sql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="SQLScripts\170.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="SQLScripts\18.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
