@@ -112,7 +112,7 @@ export class MAGListService extends BusyAwareService {
                 }
             );
     }
-    public FetchWithCrit(crit: MVCMagPaperListSelectionCriteria, listDescription: string) {
+    public FetchWithCrit(crit: MVCMagPaperListSelectionCriteria, listDescription: string): Promise<void> {
         this._BusyMethods.push("FetchWithCrit");
         this._Criteria = crit;
         if (this._MAGList && this._MAGList.pagesize > 0
@@ -123,9 +123,10 @@ export class MAGListService extends BusyAwareService {
         }
         console.log('criteria are: ', crit);
         this.ListDescription = listDescription;
-        this._httpC.post<MagList>(this._baseUrl + 'api/MagCurrentInfo/GetMagPaperList', crit)
-            .subscribe(
-            list => {
+        return this._httpC.post<MagList>(this._baseUrl + 'api/MagCurrentInfo/GetMagPaperList', crit)
+            .toPromise().then(
+
+            (list: MagList) => {
                     this.RemoveBusy("FetchWithCrit");
                     console.log('list result from controller are: ', list);
                     console.log('resultant crtiteria: ',this._Criteria);
@@ -137,7 +138,6 @@ export class MAGListService extends BusyAwareService {
                     this.ModalService.GenericError(error);
                     this.RemoveBusy("FetchWithCrit");
                 }
-                , () => { this.RemoveBusy("FetchWithCrit"); }
             );
 	}
 

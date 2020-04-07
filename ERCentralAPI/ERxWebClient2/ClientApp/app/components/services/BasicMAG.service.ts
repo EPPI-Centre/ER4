@@ -108,7 +108,7 @@ export class BasicMAGService extends BusyAwareService {
                     let tmpIndex: number = this.MagRelatedPapersRunList.findIndex(x => x.magRelatedRunId == Number(result.magRelatedRunId));
                     if (tmpIndex > -1) {
                         this.MagRelatedPapersRunList.splice(tmpIndex, 1);
-                        this.FetchMagRelatedPapersRunList();
+                        //this.FetchMagRelatedPapersRunList();
                     }
 
 			    }, error => {
