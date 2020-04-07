@@ -46,7 +46,7 @@
                 <tr></tr>
             </thead>
             <tbody>
-                <tr *ngFor="let item of _magListService.MagPaperFieldsList">
+                <tr *ngFor="let item of _magBrowserService.MagPaperFieldsList">
                     <td (click)="GetParentAndChildRelatedPapers(item)" class="btn btn-link mt-1">{{item.displayName}}</td>
                 </tr>
             </tbody>
@@ -75,14 +75,14 @@
                     <tr></tr>
                 </thead>
                 <tbody>
-                    <tr *ngFor="let item of _magListService.MAGList.papers">
+                    <tr *ngFor="let item of _magBrowserService.MAGList.papers">
                         <td>{{item.fullRecord}}</td>
 
                     </tr>
                 </tbody>
             </table>
-            <div *ngIf="_magListService.MAGList && _magListService.MAGList.papers && _magListService.MAGList.IsBusy">Loading items...</div>
-            <div *ngIf="_magListService && _magListService.MAGList.papers.length == 0"
+            <div *ngIf="_magBrowserService.MAGList && _magBrowserService.MAGList.papers && _magBrowserService.MAGList.IsBusy">Loading items...</div>
+            <div *ngIf="_magBrowserService && _magBrowserService.MAGList.papers.length == 0"
                  class="p-2 font-weight-bold text-center text-info mt-1">No items to display</div>
             <MAGpaginatorComp class="row ml-1 pt-1 mr-1 pr-1 border-top porder-info"></MAGpaginatorComp>
         </div>
@@ -140,7 +140,7 @@
                 <tr></tr>
             </thead>
             <tbody>
-                <tr *ngFor="let item of _magListService.MAGList.papers">
+                <tr *ngFor="let item of _magBrowserService.MAGList.papers">
                     <td>
                         <button (click)="InOutReview(item)" class="btn btn-outline-success">
                             {{item.isSelected}}

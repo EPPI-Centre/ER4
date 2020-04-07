@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
 import { Item } from './ItemList.service';
+//import { MagList } from './BasicMAG.service';
 
 @Injectable({
     providedIn: 'root',
@@ -209,7 +210,7 @@ export class MAGAdvancedService extends BusyAwareService {
                 this.RemoveBusy("RunMatchingAlgorithm");
             });
     }
-
+    public MagList: MagList = new MagList();
     public FetchMagPaperListId(paperId: number): Promise<void> {
 
         console.log('advanced mag service 7');
@@ -221,17 +222,16 @@ export class MAGAdvancedService extends BusyAwareService {
         crit.magPaperId = paperId;
         
         this._BusyMethods.push("FetchMagPaperListId");
-        return this._httpC.post<MagPaper[]>(this._baseUrl + 'api/MagCurrentInfo/GetMagPaperList', crit)
+        return this._httpC.post<MagList>(this._baseUrl + 'api/MagCurrentInfo/GetMagPaperList', crit)
             .toPromise().then(
-            (result: any) => {
+            (result: MagList) => {
                 this.RemoveBusy("FetchMagPaperListId");
-                this.MagReferencesPaperList = result;
-                for (var i = 0; i < this.MagReferencesPaperList.length; i++) {
-                    this.PaperIds += this.MagReferencesPaperList[i].paperId.toString() + ',';
+                this.MagList = result;
+                this.PaperIds = '';
+                for (var i = 0; i < result.papers.length; i++) {
+                    this.PaperIds += result.papers[i].paperId.toString() + ',';
                 }
-                this.PaperIds = this.PaperIds.substr(0, this.PaperIds.length - 1)
-                //console.log('paperlistId papers: ', this.PaperIds);
-                console.log('paers:  ', result)
+                this.FetchMagFieldOfStudyList(this.PaperIds);
 
             },
                 error => {
@@ -306,6 +306,7 @@ export class MAGAdvancedService extends BusyAwareService {
                     this.RemoveBusy("FetchMagPaperList");
                 });
     }
+    // I THINK THIS IS NO LONGER NEEDED AFTER THE REFACTOR...WILL CHECK LATER ON...
     FetchMagFieldOfStudyList(paperIds: string): Promise<void>{
 
         console.log('advanced mag service 9');
@@ -560,3 +561,13 @@ export class MagSimulation {
     tn: number = 0;
 }
 
+export class MagList {
+
+    pagesize: number = 0;
+    paperIds: string = '';
+    pagecount: number = 0;
+    pageindex: number = 0;
+    totalItemCount: number = 0;
+    papers: MagPaper[] = [];
+
+}

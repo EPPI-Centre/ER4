@@ -1,43 +1,43 @@
 
-    <div *ngIf="_magListService.MAGList && _magListService.MAGList.papers.length > 0" class="pagination justify-content-start d-flex flex-wrap col-12 mb-1">
+    <div *ngIf="_magBrowserService.MAGList && _magBrowserService.MAGList.papers.length > 0" class="pagination justify-content-start d-flex flex-wrap col-12 mb-1">
         <div class="m-0">
-            <button [ngClass]="{disabled:_magListService.MAGList.pageindex + 1 === 1}"
-                    [disabled]="_magListService.MAGList.pageindex + 1 === 1"
+            <button [ngClass]="{disabled:_magBrowserService.MAGList.pageindex + 1 === 1}"
+                    [disabled]="_magBrowserService.MAGList.pageindex + 1 === 1"
                     class="page-link" (click)="firstPage()" >
                 First
             </button>
         </div>
         <div class="">
-            <button [ngClass]="{disabled:_magListService.MAGList.pageindex + 1 === 1}"
-                    [disabled]="_magListService.MAGList.pageindex + 1 === 1"
+            <button [ngClass]="{disabled:_magBrowserService.MAGList.pageindex + 1 === 1}"
+                    [disabled]="_magBrowserService.MAGList.pageindex + 1 === 1"
                     class="page-link" (click)="prevPage()" >
                 Previous
             </button>
         </div>
         <div class="p-1 " style="white-space: nowrap;">
             <span>Page:&nbsp;</span>
-            <input [attr.disabled]="_magListService.MAGList.pagecount === 1 ? '' : null"
-                   [disabled]="_magListService.MAGList.pagecount === 1"
+            <input [attr.disabled]="_magBrowserService.MAGList.pagecount === 1 ? '' : null"
+                   [disabled]="_magBrowserService.MAGList.pagecount === 1"
                    class="" #box (keyup.enter)="onEnter(box.value)"
-                   value="{{_magListService.MAGList.pageindex + 1}}"
+                   value="{{_magBrowserService.MAGList.pageindex + 1}}"
                    style="width:75px; min-width:75px">
-            &nbsp;of&nbsp;{{_magListService.MAGList.pagecount}}
+            &nbsp;of&nbsp;{{_magBrowserService.MAGList.pagecount}}
         </div>
         <div class="">
-            <button [ngClass]="{disabled:_magListService.MAGList.pageindex + 1 === _magListService.MAGList.pagecount}"
-                    [disabled]="_magListService.MAGList.pageindex + 1 === _magListService.MAGList.pagecount"
+            <button [ngClass]="{disabled:_magBrowserService.MAGList.pageindex + 1 === _magBrowserService.MAGList.pagecount}"
+                    [disabled]="_magBrowserService.MAGList.pageindex + 1 === _magBrowserService.MAGList.pagecount"
                     class="page-link" (click)="nextPage()">
                 Next
             </button>
         </div>
 		<div class="">
-			<button [ngClass]="{disabled:_magListService.MAGList.pageindex + 1 === _magListService.MAGList.pagecount}"
-					[disabled]="_magListService.MAGList.pageindex + 1 === _magListService.MAGList.pagecount"
+			<button [ngClass]="{disabled:_magBrowserService.MAGList.pageindex + 1 === _magBrowserService.MAGList.pagecount}"
+					[disabled]="_magBrowserService.MAGList.pageindex + 1 === _magBrowserService.MAGList.pagecount"
 					class="page-link" (click)="lastPage()">
 				Last
 			</button>
 		</div>
-        <div class="m-1 small align-content-end mt-lg-2 mt-md-2 mt-sm-2 mt-0" style="text-wrap:normal">Showing {{_magListService.MAGList.papers.length}} papers of {{_magListService.MAGList.totalItemCount}}</div>
+        <div class="m-1 small align-content-end mt-lg-2 mt-md-2 mt-sm-2 mt-0" style="text-wrap:normal">Showing {{_magBrowserService.MAGList.papers.length}} papers of {{_magBrowserService.MAGList.totalItemCount}}</div>
     </div>
 
     

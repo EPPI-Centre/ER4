@@ -5,8 +5,7 @@ import { ConfirmationDialogService } from '../services/confirmation-dialog.servi
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Router } from '@angular/router';
 import { MAGAdvancedService, MVCMagPaperListSelectionCriteria, MagPaper, MvcMagFieldOfStudyListSelectionCriteria, MagFieldOfStudy } from '../services/magAdvanced.service';
-import { MAGBrowserService } from '../services/MagList.service';
-import { Subscription } from 'rxjs';
+import { MAGBrowserService } from '../services/MAGBrowser.service';
 import { EventEmitterService } from '../services/EventEmitter.service';
 
 
@@ -18,10 +17,9 @@ import { EventEmitterService } from '../services/EventEmitter.service';
 
 export class MAGBrowser implements OnInit {
 
-    constructor(private ConfirmationDialogService: ConfirmationDialogService,
+    constructor(
         private _magAdvancedService: MAGAdvancedService,
-        private _magListService: MAGBrowserService,
-        private _eventEmitterService: EventEmitterService,
+        private _magBrowserService: MAGBrowserService,
         public _searchService: searchService,
         private _ReviewerIdentityServ: ReviewerIdentityService,
         private _mAGListService: MAGBrowserService,
@@ -32,7 +30,7 @@ export class MAGBrowser implements OnInit {
     }
     ngOnInit() {
 
-        console.log('paperIds are: ',this._magListService.ListCriteria.paperIds);
+        console.log('paperIds are: ',this._magBrowserService.ListCriteria.paperIds);
 
         //if (true) {
 
@@ -43,9 +41,10 @@ export class MAGBrowser implements OnInit {
 
         // need a better check for list type later
         //the basic page check first 
-        if (this._magListService.MAGList.papers && this._magListService.MAGList.papers.length > 0) {
+        if (this._mAGListService.MAGList.papers && this._mAGListService.MAGList.papers.length > 0) {
             
             // do something change conditionbal here
+
 
         } else if (this._magAdvancedService.ReviewMatchedPapersList.length > 0) {
 
@@ -59,21 +58,21 @@ export class MAGBrowser implements OnInit {
             this._mAGListService.MAGList.papers = this._magAdvancedService.ReviewMatchedPapersList;
 
             //conditional below is wrong   100000 =====================================================
-        } else if (this._magListService.MAGList.papers.length > 100000) {
+        } else if (this._magBrowserService.MAGList.papers.length > 100000) {
 
             let crit: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
             crit.magPaperId = this._magAdvancedService.currentMagPaper.paperId;
             crit.listType = 'CitationsList';
             this._magAdvancedService.FetchMagPaperList(this._magAdvancedService.CurrentCriteria);
 
-        } else if (this._magListService.MAGList.papers.length > 100000) {
+        } else if (this._magBrowserService.MAGList.papers.length > 100000) {
             let crit1: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
 
             crit1.magPaperId = this._magAdvancedService.currentMagPaper.paperId;
             crit1.listType = 'CitedByList';
             this._magAdvancedService.FetchMagPaperList(crit1);
             //all wrong
-        } else if (this._magListService.MAGList.papers.length > 100000) {
+        } else if (this._magBrowserService.MAGList.papers.length > 100000) {
 
             let crit2: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
             crit2.magPaperId = this._magAdvancedService.currentMagPaper.paperId;
@@ -81,7 +80,7 @@ export class MAGBrowser implements OnInit {
             this._magAdvancedService.FetchMagPaperList(crit2);
         }
     }
-
+    public Papers: MagPaper[] = [];
     public desc: string = '';
     public value: Date = new Date(2000, 2, 10);
     public searchAll: string = 'true';
@@ -144,7 +143,7 @@ export class MAGBrowser implements OnInit {
         let selectionCriteria: MvcMagFieldOfStudyListSelectionCriteria = new MvcMagFieldOfStudyListSelectionCriteria();
         selectionCriteria.listType = FieldOfStudy;
         selectionCriteria.fieldOfStudyId = FieldOfStudyId;
-        return this._magListService.FetchMagFieldOfStudyList(selectionCriteria).then(
+        return this._magBrowserService.FetchMagFieldOfStudyList(selectionCriteria).then(
 
             (result: MagFieldOfStudy[] | void) => {
 

@@ -227,7 +227,7 @@ namespace ERxWebClient2.Controllers
         {
             get { return _list.PaperIds; }
         }
-        public MagPaperList Papers
+        public MagPaperList papers
         {
             get { return _list; }
         }

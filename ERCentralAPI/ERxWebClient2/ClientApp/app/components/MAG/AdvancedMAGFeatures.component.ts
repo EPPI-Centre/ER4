@@ -323,8 +323,12 @@ export class AdvancedMAGFeaturesComponent implements OnInit {
     }
     public GetMagPaper() {
 
-        this._magAdvancedService.FetchMagPaperId(this.magPaperId);
-        this.router.navigate(['MAGBrowser']);
+        this._magAdvancedService.FetchMagPaperId(this.magPaperId).then(
+
+            () => {
+                this.router.navigate(['MAGBrowser']);
+            }
+        );
     }
 	CanOnlySelectRoots() {
 		return true;
