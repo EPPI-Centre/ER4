@@ -116,20 +116,20 @@ export class BasicMAGComp implements OnInit {
         }
     }
     public ImportMagSearchPapers(item: MagRelatedPapersRun) {
-        //console.log(item.status + ' : ' + item.nPapers);
+        console.log(item);
    
         if (item.nPapers == 0) {
             this.ShowMAGRunMessage('There are no papers to import');
 
-        } else if (item.status == 'Imported') {
+        } else if (item.userStatus == 'Imported') {
             this.ShowMAGRunMessage('Papers have already been imported');
 
-        } else if (item.status == 'Checked') {
+        } else if (item.userStatus == 'Checked') {
            
             let msg: string = 'Are you sure you want to import these items?\n(This set is already marked as \'checked\'.)';
             this.ImportMagRelatedPapersRun(item, msg);
 
-        } else if (item.status == 'Unchecked') {
+        } else if (item.userStatus == 'Unchecked') {
           
             let msg: string = 'Are you sure you want to import these items?';
             this.ImportMagRelatedPapersRun(item, msg);
@@ -216,14 +216,19 @@ export class BasicMAGComp implements OnInit {
 
 		let magRun: MagRelatedPapersRun = new MagRelatedPapersRun();
 
-		magRun.allIncluded = this.searchAll;
+        if (this.searchAll =='true') {
+            magRun.allIncluded = true;
+        } else {
+            magRun.allIncluded = false;
+        }
+		//magRun.allIncluded = this.searchAll;
 		let att: SetAttribute = new SetAttribute();
 		if (this.CurrentDropdownSelectedCode != null) {
 			att = this.CurrentDropdownSelectedCode as SetAttribute;
             magRun.attributeId = att.attribute_id;
             magRun.attributeName = att.name;
         }
-        magRun.dateFrom = this.valueKendoDatepicker;
+        magRun.dateFrom = this.valueKendoDatepicker.toDateString();
 		magRun.autoReRun = this.magSearchCheck;
 		magRun.filtered = this.magRCTRadio;
 		magRun.mode = this.magMode;

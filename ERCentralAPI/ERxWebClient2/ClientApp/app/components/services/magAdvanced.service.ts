@@ -73,7 +73,7 @@ export class MAGAdvancedService extends BusyAwareService {
 
     }
     FetchClassifierContactModelList() {
-
+        console.log('advanced mag service 1');
         this._BusyMethods.push("FetchClassifierContactModelList");
         this._httpC.get<ClassifierContactModel[]>(this._baseUrl + 'api/MagClassifierContact/FetchClassifierContactList')
             .subscribe(result => {
@@ -91,6 +91,7 @@ export class MAGAdvancedService extends BusyAwareService {
     }
     FetchMagSimulationList() {
 
+        console.log('advanced mag service 2');
         this._BusyMethods.push("FetchMagSimulationList");
         this._httpC.get<MagSimulation[]>(this._baseUrl + 'api/MagSimulationList/GetMagSimulationList')
             .subscribe(result => {
@@ -108,6 +109,7 @@ export class MAGAdvancedService extends BusyAwareService {
     }
     FetchMagReviewMagInfo() {
 
+        console.log('advanced mag service 3');
         this._BusyMethods.push("FetchMagReviewMagInfo");
         this._httpC.get<MagReviewMagInfo>(this._baseUrl + 'api/MagCurrentInfo/GetMagReviewMagInfo')
             .subscribe(result => {
@@ -125,6 +127,7 @@ export class MAGAdvancedService extends BusyAwareService {
     }
     FetchMagCurrentInfo() {
 
+        console.log('advanced mag service 4');
         this._BusyMethods.push("FetchMagCurrentInfo");
         this._httpC.get<MagCurrentInfo>(this._baseUrl + 'api/MagCurrentInfo/GetMagCurrentInfo')
 			.subscribe(result => {
@@ -141,6 +144,7 @@ export class MAGAdvancedService extends BusyAwareService {
     }
     FetchMagPaperId(Id: number) : Promise<void> {
 
+        console.log('advanced mag service 5');
         this._BusyMethods.push("FetchMagPaperId");
         let body = JSON.stringify({ Value: Id });
         return this._httpC.post<MagPaper>(this._baseUrl + 'api/MagCurrentInfo/GetMagPaper', body)
@@ -193,6 +197,7 @@ export class MAGAdvancedService extends BusyAwareService {
     //CHECK IF THERE SHOULD BE A RETURN HERE
     RunMatchingAlgorithm() {
 
+        console.log('advanced mag service 6');
         this._BusyMethods.push("RunMatchingAlgorithm");
         this._httpC.get<any>(this._baseUrl + 'api/MagMatchAll/RunMatchingAlgorithm')
             .subscribe(result => {
@@ -210,6 +215,7 @@ export class MAGAdvancedService extends BusyAwareService {
 
     public FetchMagPaperListId(paperId: number): Promise<void> {
 
+        console.log('advanced mag service 7');
         let crit: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
         //test here but need a switch based on listtype
         //crit.included = 'Included';
@@ -244,6 +250,7 @@ export class MAGAdvancedService extends BusyAwareService {
     }
     public FetchMagPaperList(crit: MVCMagPaperListSelectionCriteria): Promise<void> {
 
+        console.log('advanced mag service 8');
         //console.log(crit);
         this._BusyMethods.push("FetchMagPaperList");
         return this._httpC.post<MagPaper[]>(this._baseUrl + 'api/MagCurrentInfo/GetMagPaperList', crit)
@@ -304,6 +311,7 @@ export class MAGAdvancedService extends BusyAwareService {
     }
     FetchMagFieldOfStudyList(paperIds: string): Promise<void>{
 
+        console.log('advanced mag service 9');
         let crit: MVCMagFieldOfStudyListSelectionCriteria = new MVCMagFieldOfStudyListSelectionCriteria();
         crit.fieldOfStudyId = 0;
         crit.listType = "PaperFieldOfStudyList";
@@ -332,6 +340,7 @@ export class MAGAdvancedService extends BusyAwareService {
     }
     public DeleteSimulation(item: MagSimulation) {
 
+        console.log('advanced mag service 10');
         //console.log(item.magSimulationId);
         this._BusyMethods.push("DeleteSimulation");
         let body = JSON.stringify({Value: item.magSimulationId });
@@ -361,6 +370,7 @@ export class MAGAdvancedService extends BusyAwareService {
     }
     public AddMagSimulation(newMagSimulation: MagSimulation) {
 
+        console.log('advanced mag service 11');
         this._BusyMethods.push("AddMagSimulation");
         return this._httpC.post<MagSimulation>(this._baseUrl + 'api/MAGSimulationList/CreateMagSimulation', newMagSimulation)
             .toPromise().then(

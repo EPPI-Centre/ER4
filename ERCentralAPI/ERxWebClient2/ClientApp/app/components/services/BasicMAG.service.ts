@@ -51,7 +51,8 @@ export class BasicMAGService extends BusyAwareService {
     }
 
     FetchMagRelatedPapersRunList() {
-        
+
+        console.log('basic mag service 1');
         this._BusyMethods.push("FetchMagRelatedPapersRunList");
         this._httpC.get<MagRelatedPapersRun[]>(this._baseUrl + 'api/MagRelatedPapersRunList/GetMagRelatedPapersRuns')
             .subscribe(result => {
@@ -67,6 +68,8 @@ export class BasicMAGService extends BusyAwareService {
             });
     }
     FetchMAGRelatedPaperRunsListId(Id : number) : Promise<void> {
+
+        console.log('basic mag service 2');
 
         this._BusyMethods.push("FetchMAGRelatedPaperRunsListId");
         let body = JSON.stringify({Value: Id});
@@ -96,6 +99,8 @@ export class BasicMAGService extends BusyAwareService {
             );
 	}
 	DeleteMAGRelatedRun(Id: number) {
+
+        console.log('basic mag service 3');
 
 		//console.log(magRun);
         this._BusyMethods.push("DeleteMAGRelatedRun");
@@ -128,6 +133,8 @@ export class BasicMAGService extends BusyAwareService {
             });
 	}
 	CreateMAGRelatedRun(magRun: MagRelatedPapersRun) {
+
+        console.log('basic mag service 4');
 
         this._BusyMethods.push("MagRelatedPapersRunCreate");
 		this._httpC.post<MagRelatedPapersRun>(this._baseUrl + 'api/MagRelatedPapersRunList/CreateMagRelatedPapersRun',
@@ -164,12 +171,14 @@ export class BasicMAGService extends BusyAwareService {
             closable: true
         });
     }
-    ImportMagRelatedRunPapers(magRun: MagRelatedPapersRun) {
+    ImportMagRelatedRunPapers(magRelatedRun: MagRelatedPapersRun) {
+
+        console.log('basic mag service 5', magRelatedRun);
 
         let notificationMsg: string = '';
         this._BusyMethods.push("ImportMagRelatedRunPapers");
         this._httpC.post<MagItemPaperInsertCommand>(this._baseUrl + 'api/MagRelatedPapersRunList/ImportMagRelatedPapers',
-            magRun)
+            magRelatedRun)
             .subscribe(result => {
 
                 this.RemoveBusy("ImportMagRelatedRunPapers");
@@ -177,15 +186,15 @@ export class BasicMAGService extends BusyAwareService {
                 if (result.nImported != null) {
 
                 
-                    if (result.nImported == magRun.nPapers) {
+                    if (result.nImported == magRelatedRun.nPapers) {
 
                          notificationMsg += "Imported " + result.nImported + " out of " +
-                             magRun.nPapers + " items";
+                             magRelatedRun.nPapers + " items";
 
                     }else if(result.nImported != 0) {
 
                         notificationMsg += "Some of these items were already in your review.\n\nImported " +
-                            result.nImported + " out of " + magRun.nPapers +
+                            result.nImported + " out of " + magRelatedRun.nPapers +
                             " new items";
                     }
                     else {
@@ -206,6 +215,8 @@ export class BasicMAGService extends BusyAwareService {
             });
     }
     UpdateMagRelatedRun(magRelatedRun: MagRelatedPapersRun): Promise<void> {
+
+        console.log('basic mag service 6');
 
         console.log(magRelatedRun);
         this._BusyMethods.push("UpdateMagRelatedRun");
@@ -265,8 +276,9 @@ export class MagRelatedPapersRun {
 	userDescription: string = '';
     attributeId: number = 0;
     attributeName: string = '';
-	allIncluded: string = '';
-    dateFrom: Date = new Date(2000, 2, 10);
+    allIncluded: boolean = false;
+    dateRun: string = "";
+    dateFrom: string = "";
     autoReRun: boolean = false;
 	mode: string = '';
 	filtered: string = '';

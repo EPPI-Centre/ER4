@@ -29,8 +29,7 @@ export class MAGListService extends BusyAwareService {
 		super();
 		
 	}
-
-	
+    	
     private _MAGList: MagList = new MagList();
     private _Criteria: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
     private _currentPaper: MagPaper = new MagPaper();
@@ -55,6 +54,7 @@ export class MAGListService extends BusyAwareService {
     }
     FetchMAGRelatedPaperRunsListId(Id: number): Promise<void> {
 
+        console.log('MAGList service FetchMAGRelatedPaperRunsListId 1');
         this._BusyMethods.push("FetchMAGRelatedPaperRunsListId");
         this.ListCriteria.listType = "MagRelatedPapersRunList";
         this.ListCriteria.pageSize = 20;
@@ -100,6 +100,8 @@ export class MAGListService extends BusyAwareService {
     public MagPaperFieldsList: MagFieldOfStudy[] = [];
     FetchMagFieldOfStudyList(criteria: MVCMagFieldOfStudyListSelectionCriteria): Promise<MagFieldOfStudy[] | void> {
 
+        console.log('MAGList service 2');
+
         this._BusyMethods.push("FetchMagPaperList");
         return this._httpC.post<MagFieldOfStudy[]>(this._baseUrl + 'api/MagCurrentInfo/GetMagFieldOfStudyList', criteria)
             .toPromise().then(
@@ -123,6 +125,8 @@ export class MAGListService extends BusyAwareService {
             });
     }
     public FetchWithCrit(crit: MVCMagPaperListSelectionCriteria, listDescription: string): Promise<void> {
+
+        console.log('MAGList service 3');
         this._BusyMethods.push("FetchWithCrit");
         this._Criteria = crit;
         if (this._MAGList && this._MAGList.pagesize > 0
