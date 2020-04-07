@@ -84,8 +84,10 @@ export class MAGAdvancedService extends BusyAwareService {
                 error => {
                     this.RemoveBusy("FetchClassifierContactModelList");
                     this.modalService.GenericError(error);
-                }
-            );
+            },
+            () => {
+                this.RemoveBusy("FetchClassifierContactModelList");
+            });
     }
     FetchMagSimulationList() {
 
@@ -99,8 +101,10 @@ export class MAGAdvancedService extends BusyAwareService {
             error => {
                 this.RemoveBusy("FetchMagSimulationList");
                 this.modalService.GenericError(error);
-            }
-        );
+            },
+            () => {
+                this.RemoveBusy("FetchMagSimulationList");
+            });
     }
     FetchMagReviewMagInfo() {
 
@@ -114,8 +118,10 @@ export class MAGAdvancedService extends BusyAwareService {
                 error => {
                     this.RemoveBusy("FetchMagReviewMagInfo");
                     this.modalService.GenericError(error);
-                }
-            );
+            },
+            () => {
+                this.RemoveBusy("FetchMagReviewMagInfo");
+            });
     }
     FetchMagCurrentInfo() {
 
@@ -128,8 +134,10 @@ export class MAGAdvancedService extends BusyAwareService {
 				error => {
                     this.RemoveBusy("FetchMagCurrentInfo");
 					this.modalService.GenericError(error);
-				}
-			);
+            },
+            () => {
+                this.RemoveBusy("FetchMagCurrentInfo");
+            });
     }
     FetchMagPaperId(Id: number) : Promise<void> {
 
@@ -194,8 +202,10 @@ export class MAGAdvancedService extends BusyAwareService {
                 error => {
                     this.RemoveBusy("RunMatchingAlgorithm");
                     this.modalService.GenericError(error);
-                }
-            );
+            },
+            () => {
+                this.RemoveBusy("RunMatchingAlgorithm");
+            });
     }
 
     public FetchMagPaperListId(paperId: number): Promise<void> {

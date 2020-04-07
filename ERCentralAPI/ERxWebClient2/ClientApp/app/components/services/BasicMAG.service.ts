@@ -61,8 +61,10 @@ export class BasicMAGService extends BusyAwareService {
                 error => {
                     this.RemoveBusy("FetchMagRelatedPapersRunList");
                     this.modalService.GenericError(error);
-                }
-            );
+            },
+            () => {
+                this.RemoveBusy("FetchMagRelatedPapersRunList");
+            });
     }
     FetchMAGRelatedPaperRunsListId(Id : number) : Promise<void> {
 
@@ -120,8 +122,10 @@ export class BasicMAGService extends BusyAwareService {
 			    }, error => {
                     this.RemoveBusy("DeleteMAGRelatedRun");
 				    this.modalService.GenericError(error);
-			    }
-			);
+            },
+            () => {
+                this.RemoveBusy("DeleteMAGRelatedRun");
+            });
 	}
 	CreateMAGRelatedRun(magRun: MagRelatedPapersRun) {
 
@@ -145,8 +149,10 @@ export class BasicMAGService extends BusyAwareService {
 			}, error => {
                 this.RemoveBusy("MagRelatedPapersRunCreate");
 				this.modalService.GenericError(error);
-			}
-			);
+            },
+            () => {
+                this.RemoveBusy("MagRelatedPapersRunCreate");
+            });
     }
     showMAGRunMessage(notifyMsg: string) {
 
@@ -194,8 +200,10 @@ export class BasicMAGService extends BusyAwareService {
                 error => {
                     this.RemoveBusy("ImportMagRelatedRunPapers");
                     this.modalService.GenericError(error);
-                }
-            );
+            },
+            () => {
+                this.RemoveBusy("ImportMagRelatedRunPapers");
+            });
     }
     UpdateMagRelatedRun(magRelatedRun: MagRelatedPapersRun): Promise<void> {
 
