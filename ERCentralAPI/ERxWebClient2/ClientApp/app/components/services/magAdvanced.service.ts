@@ -2,9 +2,7 @@ import { Inject, Injectable} from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
-import { NotificationService } from '@progress/kendo-angular-notification';
 import { Item } from './ItemList.service';
-import { MAGListService } from './MagList.service';
 
 @Injectable({
     providedIn: 'root',
@@ -15,7 +13,6 @@ export class MAGAdvancedService extends BusyAwareService {
     constructor(
         private _httpC: HttpClient,
         private modalService: ModalService,
-        //private _magListService: MAGListService,
         @Inject('BASE_URL') private _baseUrl: string
     ) {
         super();

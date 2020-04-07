@@ -17,7 +17,7 @@ import { MagList } from './BasicMAG.service';
     }
 )
 
-export class MAGListService extends BusyAwareService {
+export class MAGBrowserService extends BusyAwareService {
 
 	//private _MAGListOptions: MAGListOptions = new MAGListOptions();
     constructor(

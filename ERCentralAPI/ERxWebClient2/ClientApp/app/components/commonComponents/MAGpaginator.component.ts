@@ -1,6 +1,6 @@
 import { Component,  OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { MAGListService } from '../services/MagList.service';
+import { MAGBrowserService } from '../services/MagList.service';
 
 
 @Component({
@@ -12,7 +12,7 @@ import { MAGListService } from '../services/MagList.service';
 export class MAGpaginatorComp implements OnInit {
 
     constructor(private router: Router,
-        public _magListService: MAGListService 
+        public _magListService: MAGBrowserService 
 
     ) {
 

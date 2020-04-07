@@ -4,7 +4,7 @@ import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
 import { NotificationService } from '@progress/kendo-angular-notification';
 import { MagPaperList, MagPaper } from './magAdvanced.service';
-import { MAGListService } from './MagList.service';
+import { MAGBrowserService } from './MAGBrowser.service';
 
 @Injectable({
     providedIn: 'root',
@@ -15,7 +15,7 @@ export class BasicMAGService extends BusyAwareService {
     constructor(
         private _httpC: HttpClient,
         private modalService: ModalService,
-        private _magListService: MAGListService,
+        private _magBrowserService: MAGBrowserService,
         private notificationService: NotificationService,
         @Inject('BASE_URL') private _baseUrl: string
     ) {
@@ -81,10 +81,10 @@ export class BasicMAGService extends BusyAwareService {
                 console.log(result);
                     this.RemoveBusy("FetchMAGRelatedPaperRunsListId");
                    // this.MagRelatedRunPapers = result;
-                    this._magListService.MAGList = result;
-                    this._magListService.ListCriteria.listType = "MagRelatedPapersRunList";
-                    this._magListService.ListCriteria.pageSize = 20;
-                    this._magListService.ListCriteria.magRelatedRunId = Id;
+                    this._magBrowserService.MAGList = result;
+                    this._magBrowserService.ListCriteria.listType = "MagRelatedPapersRunList";
+                    this._magBrowserService.ListCriteria.pageSize = 20;
+                    this._magBrowserService.ListCriteria.magRelatedRunId = Id;
 			    },
 				    error => {
                         this.RemoveBusy("FetchMAGRelatedPaperRunsListId");
@@ -231,7 +231,6 @@ export class BasicMAGService extends BusyAwareService {
                     if (tmpIndex > -1) {
                         console.log(tmpIndex);
                         this.MagRelatedPapersRunList[tmpIndex] = result;
-                        //this.FetchMagRelatedPapersRunList();
                     }
                     this.showMAGRunMessage('MAG Run was updated');
 

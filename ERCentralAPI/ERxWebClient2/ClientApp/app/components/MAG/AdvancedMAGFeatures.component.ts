@@ -7,7 +7,7 @@ import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Router } from '@angular/router';
 import { MAGAdvancedService, ClassifierContactModel,  MVCMagPaperListSelectionCriteria, MagSimulation } from '../services/magAdvanced.service';
 import { EventEmitterService } from '../services/EventEmitter.service';
-import { MAGListService } from '../services/MagList.service';
+import { MAGBrowserService } from '../services/MAGBrowser.service';
 
 @Component({
     selector: 'AdvancedMAGFeatures',
@@ -19,7 +19,7 @@ export class AdvancedMAGFeaturesComponent implements OnInit {
 
 	constructor(private ConfirmationDialogService: ConfirmationDialogService,
         private _magAdvancedService: MAGAdvancedService,
-        private _magListService: MAGListService,
+        private _magBrowserService: MAGBrowserService,
         public _searchService: searchService,
         private _ReviewerIdentityServ: ReviewerIdentityService,
         private _eventEmitter: EventEmitterService,
@@ -248,7 +248,7 @@ export class AdvancedMAGFeaturesComponent implements OnInit {
         criteria.included = "Included";
         criteria.pageSize = 20;
 
-        this._magListService.FetchWithCrit(criteria, "ReviewMatchedPapers").then(
+        this._magBrowserService.FetchWithCrit(criteria, "ReviewMatchedPapers").then(
         //this._magAdvancedService.FetchMagPaperList(criteria).then(
             (result: any) => {
                 this.router.navigate(['MAGBrowser']);

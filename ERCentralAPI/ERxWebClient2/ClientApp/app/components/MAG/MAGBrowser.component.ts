@@ -5,7 +5,7 @@ import { ConfirmationDialogService } from '../services/confirmation-dialog.servi
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Router } from '@angular/router';
 import { MAGAdvancedService, MVCMagPaperListSelectionCriteria, MagPaper, MvcMagFieldOfStudyListSelectionCriteria, MagFieldOfStudy } from '../services/magAdvanced.service';
-import { MAGListService } from '../services/MagList.service';
+import { MAGBrowserService } from '../services/MagList.service';
 import { Subscription } from 'rxjs';
 import { EventEmitterService } from '../services/EventEmitter.service';
 
@@ -20,11 +20,11 @@ export class MAGBrowser implements OnInit {
 
     constructor(private ConfirmationDialogService: ConfirmationDialogService,
         private _magAdvancedService: MAGAdvancedService,
-        private _magListService: MAGListService,
+        private _magListService: MAGBrowserService,
         private _eventEmitterService: EventEmitterService,
         public _searchService: searchService,
         private _ReviewerIdentityServ: ReviewerIdentityService,
-        private _mAGListService: MAGListService,
+        private _mAGListService: MAGBrowserService,
         private router: Router
 
     ) {

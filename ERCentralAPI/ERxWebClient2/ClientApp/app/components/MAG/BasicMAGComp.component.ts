@@ -9,7 +9,7 @@ import { Router } from '@angular/router';
 import { ItemListService } from '../services/ItemList.service';
 import { EventEmitterService } from '../services/EventEmitter.service';
 import { NotificationService } from '@progress/kendo-angular-notification';
-import { MAGListService } from '../services/MagList.service';
+import { MAGBrowserService } from '../services/MAGBrowser.service';
 import { MVCMagPaperListSelectionCriteria } from '../services/magAdvanced.service';
 
 
@@ -23,7 +23,7 @@ export class BasicMAGComp implements OnInit {
 
 	constructor(private ConfirmationDialogService: ConfirmationDialogService,
         private _basicMAGService: BasicMAGService,
-        private _MAGListService: MAGListService,
+        private _magBrowserService: MAGBrowserService,
         public _searchService: searchService,
         private _ReviewerIdentityServ: ReviewerIdentityService,
         private _notificationService: NotificationService,
@@ -100,13 +100,13 @@ export class BasicMAGComp implements OnInit {
     }
     public get IsServiceBusy(): boolean {
 
-        return this._basicMAGService.IsBusy || this._MAGListService.IsBusy;
+        return this._basicMAGService.IsBusy || this._magBrowserService.IsBusy;
     }
     public GetItems(item: MagRelatedPapersRun) {
 
         if (item.magRelatedRunId > 0) {
 
-            this._MAGListService.FetchMAGRelatedPaperRunsListId(item.magRelatedRunId)
+            this._magBrowserService.FetchMAGRelatedPaperRunsListId(item.magRelatedRunId)
                 .then(
             //this._basicMAGService.FetchMAGRelatedPaperRunsListId(item.magRelatedRunId).then(
                 () => {
