@@ -7,7 +7,6 @@ import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Router } from '@angular/router';
 import { MAGAdvancedService, ClassifierContactModel,  MVCMagPaperListSelectionCriteria, MagSimulation } from '../services/magAdvanced.service';
 import { EventEmitterService } from '../services/EventEmitter.service';
-import { MagList } from '../services/BasicMAG.service';
 import { MAGListService } from '../services/MagList.service';
 
 @Component({
@@ -29,7 +28,6 @@ export class AdvancedMAGFeaturesComponent implements OnInit {
 	) {
 
 	}
-        
 
     @ViewChild('WithOrWithoutCodeSelector3') WithOrWithoutCodeSelector3!: codesetSelectorComponent;
     @ViewChild('WithOrWithoutCodeSelector2') WithOrWithoutCodeSelector2!: codesetSelectorComponent;
@@ -106,11 +104,9 @@ export class AdvancedMAGFeaturesComponent implements OnInit {
             this.router.navigate(['Main']);
         }
         else {
-
-            // maybe use getter setter pattern for this...!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             this.GetMagReviewMagInfoCommand();
             this.GetMagSimulationList();
-            this.GetContactModelList();
+            this.GetClassifierContactModelList();
         }
     }
     GetMagReviewMagInfoCommand() {
@@ -176,7 +172,7 @@ export class AdvancedMAGFeaturesComponent implements OnInit {
                 }
             });
     }
-    public GetContactModelList(): void {
+    public GetClassifierContactModelList(): void {
 
        this._magAdvancedService.FetchClassifierContactModelList();
     }

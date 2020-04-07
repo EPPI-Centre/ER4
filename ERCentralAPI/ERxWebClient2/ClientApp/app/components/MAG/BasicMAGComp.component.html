@@ -1,4 +1,9 @@
-﻿<HeaderComponent></HeaderComponent>
+﻿<HeaderComponent Context="basicMAG"></HeaderComponent>
+
+<button class="page-link rounded pt-1 pb-1 mb-1 float-right"
+        style="position:absolute; right: 0; z-index:2000;" (click)="Back()">
+    Close/back
+</button>
 <div class="containsAtoolbar">
     <kendo-toolbar>
         <kendo-toolbar-button [text]="'Selected'" (click)="Selected()" [disabled]="HasWriteRights"></kendo-toolbar-button>
@@ -8,18 +13,16 @@
         <kendo-toolbar-button [text]="'Advanced features'" (click)="AdvancedFeatures()" [disabled]="!HasWriteRights"></kendo-toolbar-button>
         <kendo-toolbar-button [text]="'Show history'" (click)="ShowHistory()" [disabled]="HasWriteRights"></kendo-toolbar-button>
         <kendo-toolbar-button [text]="'Admin'" (click)="Admin()" [disabled]="HasWriteRights"></kendo-toolbar-button>
-         <kendo-toolbar-button [text]="'Back'" (click)="Back()" [disabled]="!HasWriteRights"></kendo-toolbar-button>
-
     </kendo-toolbar>
 </div>
 <div class="col-8 p-2 m-2 card bg-info" style="min-width:450px; overflow:auto;">
-	<h4>Find related papers and set up review auto-updates</h4>
-	<p>
-	<a class="btn btn-outline-primary" data-toggle="collapse" 
-       href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
-			Add new MAG search/auto-update
-	</a>
-	</p>
+    <h4>Find related papers and set up review auto-updates</h4>
+    <p>
+        <a class="btn btn-outline-primary" data-toggle="collapse"
+           href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
+            Add new MAG search/auto-update
+        </a>
+    </p>
 </div>
 <div *ngIf="IsServiceBusy" class="k-loading-image" style="position: fixed; top: 2%;"></div>
 <div class="col-xs-12 col-lg-8 card collapse" id="collapseExample" style="min-width:450px; overflow:auto;">
@@ -60,7 +63,7 @@
             <div class="m-1 p-1 col-5">
                 <div class=""><b>Select code</b></div>
 
-                <div  ngbDropdown class="" style="min-width:150px;">
+                <div ngbDropdown class="" style="min-width:150px;">
                     <button ngbDropdownAnchor class="btn btn-outline-primary dropdown-toggle w-100"
                             style="min-width: 250px; white-space:normal" [attr.aria-expanded]="!isCollapsed"
                             id="dropdownBasic1"
@@ -76,7 +79,7 @@
                 </div>
 
 
-              
+
             </div>
         </div>
 
@@ -186,7 +189,8 @@
                     <td class="p-0 ">
                         <button [disabled]="!CanImportMagPapers(item)" class="btn btn-outline-info p-1 m-1">
                             {{item.userStatus == '' ? 'Pending' : item.userStatus }}
-                        </button></td>
+                        </button>
+                    </td>
                     <td class="p-0"><button (click)="ImportMagSearchPapers(item)" [disabled]="!CanImportMagPapers(item)" class="btn btn-outline-primary p-1 m-1">Import</button></td>
                     <td class="p-0"><div (click)="GetItems(item)" class="btn btn-link mt-1">{{ item.nPapers}}</div></td>
                 </tr>

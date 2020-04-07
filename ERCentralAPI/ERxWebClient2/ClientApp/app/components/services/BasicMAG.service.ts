@@ -85,7 +85,13 @@ export class BasicMAGService extends BusyAwareService {
                         this.RemoveBusy("FetchMAGRelatedPaperRunsListId");
 					    this.modalService.GenericError(error);
 				    }
-			    );
+                ).catch (
+            (error) => {
+
+                this.modalService.GenericErrorMessage("error with FetchMAGRelatedPaperRunsListId");
+                this.RemoveBusy("FetchMAGRelatedPaperRunsListId");
+            }      
+            );
 	}
 	DeleteMAGRelatedRun(Id: number) {
 
@@ -219,11 +225,13 @@ export class BasicMAGService extends BusyAwareService {
                 this.RemoveBusy("UpdateMagRelatedRun");
                 this.modalService.GenericError(error);
             }
-            );
+            ).catch(
+                (error) => {
 
-
-    }
-
+                    this.modalService.GenericErrorMessage("error with UpdateMagRelatedRun");
+                    this.RemoveBusy("UpdateMagRelatedRun");
+                });
+        }
 }
 export class MagList {
 

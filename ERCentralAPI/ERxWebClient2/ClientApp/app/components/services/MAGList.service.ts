@@ -24,7 +24,7 @@ export class MAGListService extends BusyAwareService {
         private _httpC: HttpClient,
         @Inject('BASE_URL') private _baseUrl: string,
 		private _eventEmitterService: EventEmitterService,
-		private ModalService: ModalService
+        private modalService: ModalService,
     ) {
 		super();
 		
@@ -74,7 +74,7 @@ export class MAGListService extends BusyAwareService {
                         this.ListCriteria.paperIds += result.papers[i].paperId.toString() + ',';
                     }
                     this.ListCriteria.paperIds = this.ListCriteria.paperIds.substr(0, this.ListCriteria.paperIds.length - 1);
-                    this.SavePapers(result, this._Criteria);
+
                     this.ListCriteria.pageNumber += 1;
                     this.SavePapers(result, this.ListCriteria);
                     let FieldsListcriteria: MVCMagFieldOfStudyListSelectionCriteria = new MVCMagFieldOfStudyListSelectionCriteria();
@@ -90,7 +90,12 @@ export class MAGListService extends BusyAwareService {
                     this.RemoveBusy("FetchMAGRelatedPaperRunsListId");
                     //this.modalService.GenericError(error);
                 }
-            );
+            ).catch(
+                (error) => {
+
+                    this.modalService.GenericErrorMessage("error with FetchMAGRelatedPaperRunsListId");
+                    this.RemoveBusy("FetchMAGRelatedPaperRunsListId");
+                });
     }
     public MagPaperFieldsList: MagFieldOfStudy[] = [];
     FetchMagFieldOfStudyList(criteria: MVCMagFieldOfStudyListSelectionCriteria): Promise<MagFieldOfStudy[] | void> {
@@ -110,7 +115,12 @@ export class MAGListService extends BusyAwareService {
                     //this.modalService.GenericError(error);
                     
                 }
-            );
+            ).catch(
+            (error) => {
+
+                this.modalService.GenericErrorMessage("error with FetchMagPaperList");
+                this.RemoveBusy("FetchMagPaperList");
+            });
     }
     public FetchWithCrit(crit: MVCMagPaperListSelectionCriteria, listDescription: string): Promise<void> {
         this._BusyMethods.push("FetchWithCrit");
@@ -135,10 +145,15 @@ export class MAGListService extends BusyAwareService {
                     //console.log('aksdjh: CHEKC: ', JSON.stringify(this.MAGList.papers.length));
 
                 }, error => {
-                    this.ModalService.GenericError(error);
+                    this.modalService.GenericError(error);
                     this.RemoveBusy("FetchWithCrit");
                 }
-            );
+            ).catch(
+                (error) => {
+
+                    this.modalService.GenericErrorMessage("error with FetchWithCrit");
+                    this.RemoveBusy("FetchWithCrit");
+            });
 	}
 
 	

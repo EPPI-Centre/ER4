@@ -96,11 +96,11 @@ export class MAGAdvancedService extends BusyAwareService {
                 this.MagSimulationList = result;
                 //console.log('mag simulation list: ', result);
             },
-                error => {
-                    this.RemoveBusy("FetchMagSimulationList");
-                    this.modalService.GenericError(error);
-                }
-            );
+            error => {
+                this.RemoveBusy("FetchMagSimulationList");
+                this.modalService.GenericError(error);
+            }
+        );
     }
     FetchMagReviewMagInfo() {
 
@@ -150,7 +150,12 @@ export class MAGAdvancedService extends BusyAwareService {
                     this.modalService.GenericError(error);
                     
                 }
-            );
+            ).catch (
+                    (error) => {
+
+                        this.modalService.GenericErrorMessage("error with FetchMagPaperId");
+                        this.RemoveBusy("FetchMagPaperId");
+            });
     }
 
     //UpdateCurrentPaper(paperId : number) {
@@ -220,7 +225,12 @@ export class MAGAdvancedService extends BusyAwareService {
                     this.RemoveBusy("FetchMagPaperListId");
                     this.modalService.GenericError(error);
                 }
-            );
+                ).catch (
+                        (error) => {
+
+                            this.modalService.GenericErrorMessage("error with FetchMagPaperListId");
+                            this.RemoveBusy("FetchMagPaperListId");
+            });
     }
     public FetchMagPaperList(crit: MVCMagPaperListSelectionCriteria): Promise<void> {
 
@@ -275,7 +285,12 @@ export class MAGAdvancedService extends BusyAwareService {
                     this.RemoveBusy("FetchMagPaperList");
                     this.modalService.GenericError(error);
                 }
-            );
+            ).catch(
+                (error) => {
+
+                    this.modalService.GenericErrorMessage("error with FetchMagPaperList");
+                    this.RemoveBusy("FetchMagPaperList");
+                });
     }
     FetchMagFieldOfStudyList(paperIds: string): Promise<void>{
 
@@ -298,7 +313,12 @@ export class MAGAdvancedService extends BusyAwareService {
                     this.RemoveBusy("MagPaperFieldsList");
                     this.modalService.GenericError(error);
                 }
-            );
+            ).catch(
+                (error) => {
+
+                    this.modalService.GenericErrorMessage("error with MagPaperFieldsList");
+                    this.RemoveBusy("MagPaperFieldsList");
+                });
     }
     public DeleteSimulation(item: MagSimulation) {
 
@@ -322,7 +342,12 @@ export class MAGAdvancedService extends BusyAwareService {
                     this.RemoveBusy("DeleteSimulation");
                     this.modalService.GenericError(error);
                 }
-            );
+                ).catch(
+                (error) => {
+
+                    this.modalService.GenericErrorMessage("error with DeleteSimulation");
+                    this.RemoveBusy("DeleteSimulation");
+            });
     }
     public AddMagSimulation(newMagSimulation: MagSimulation) {
 
@@ -342,7 +367,12 @@ export class MAGAdvancedService extends BusyAwareService {
                     this.RemoveBusy("AddMagSimulation");
                     this.modalService.GenericError(error);
                 }
-            );
+            ).catch(
+            (error) => {
+
+                this.modalService.GenericErrorMessage("error with AddMagSimulation");
+                this.RemoveBusy("AddMagSimulation");
+            });
     }
 
 }

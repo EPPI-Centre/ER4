@@ -1,15 +1,19 @@
-﻿<HeaderComponent></HeaderComponent>
+﻿<HeaderComponent Context="advancedMAG"></HeaderComponent>
+<button class="page-link rounded pt-1 pb-1 mb-1 float-right"
+        style="position:absolute; right: 0; z-index:2000;" (click)="Back()">
+    Close/back
+</button>
 <div class="containsAtoolbar">
-	<kendo-toolbar>
-		<kendo-toolbar-button [text]="'Selected'" (click)="Selected()" [disabled]="HasWriteRights"></kendo-toolbar-button>
-		<kendo-toolbar-button [text]="'Clear Selected'" (click)="ClearSelected()" [disabled]="HasWriteRights"></kendo-toolbar-button>
-		<kendo-toolbar-button [text]="'Import Selected'" (click)="ImportSelected()" [disabled]="HasWriteRights"></kendo-toolbar-button>
-		<!--<kendo-toolbar-button [text]="'Auto-update home'" (click)="AutoUpdateHome()" [disabled]="!HasWriteRights"></kendo-toolbar-button>
-		<kendo-toolbar-button [text]="'Advanced features'" (click)="AdvancedFeatures()" [disabled]="!HasWriteRights"></kendo-toolbar-button>-->
-		<kendo-toolbar-button [text]="'Show history'" (click)="ShowHistory()" [disabled]="HasWriteRights"></kendo-toolbar-button>
-		<kendo-toolbar-button [text]="'Admin'" (click)="Admin()" [disabled]="HasWriteRights"></kendo-toolbar-button>
-        <kendo-toolbar-button [text]="'Back'" (click)="Back()" [disabled]="!HasWriteRights"></kendo-toolbar-button>
+    <kendo-toolbar>
+        <kendo-toolbar-button [text]="'Selected'" (click)="Selected()" [disabled]="HasWriteRights"></kendo-toolbar-button>
+        <kendo-toolbar-button [text]="'Clear Selected'" (click)="ClearSelected()" [disabled]="HasWriteRights"></kendo-toolbar-button>
+        <kendo-toolbar-button [text]="'Import Selected'" (click)="ImportSelected()" [disabled]="HasWriteRights"></kendo-toolbar-button>
+        <!--<kendo-toolbar-button [text]="'Auto-update home'" (click)="AutoUpdateHome()" [disabled]="!HasWriteRights"></kendo-toolbar-button>
+        <kendo-toolbar-button [text]="'Advanced features'" (click)="AdvancedFeatures()" [disabled]="!HasWriteRights"></kendo-toolbar-button>-->
+        <kendo-toolbar-button [text]="'Show history'" (click)="ShowHistory()" [disabled]="HasWriteRights"></kendo-toolbar-button>
+        <kendo-toolbar-button [text]="'Admin'" (click)="Admin()" [disabled]="HasWriteRights"></kendo-toolbar-button>
     </kendo-toolbar>
+    
 </div>
 <div class="col-6 p-2 m-2 card bg-info">
     <h5>Current Microsoft Academic Graph Dataset:<i> {{_magAdvancedService.MagCurrentInfo.lastUpdated}} </i></h5>

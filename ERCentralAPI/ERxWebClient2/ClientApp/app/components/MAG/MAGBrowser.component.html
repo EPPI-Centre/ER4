@@ -1,4 +1,8 @@
-﻿<HeaderComponent></HeaderComponent>
+﻿<HeaderComponent Context="MAGBrowser"></HeaderComponent>
+<button class="page-link rounded pt-1 pb-1 mb-1 float-right"
+        style="position:absolute; right: 0; z-index:2000;" (click)="Back()">
+    Close/back
+</button>
 <div class="containsAtoolbar">
     <kendo-toolbar>
         <kendo-toolbar-button [text]="'Selected'" (click)="Selected()" [disabled]="HasWriteRights"></kendo-toolbar-button>
@@ -9,12 +13,11 @@
         <kendo-toolbar-button [text]="'Show history'" (click)="ShowHistory()" [disabled]="HasWriteRights"></kendo-toolbar-button>
         <kendo-toolbar-button [text]="'Admin'" (click)="Admin()" [disabled]="HasWriteRights"></kendo-toolbar-button>
         <kendo-toolbar-button [text]="'Forward'" (click)="Forward()" [disabled]="HasWriteRights"></kendo-toolbar-button>
-        <kendo-toolbar-button [text]="'Back'" (click)="Back()" [disabled]="!HasWriteRights"></kendo-toolbar-button>
     </kendo-toolbar>
 </div>
 <div class="col-6 p-2 m-2 card bg-info">
     <h4>Microsoft Academic Graph Browser</h4>
-    
+
 </div>
 
 <div *ngIf="IsServiceBusy" class="k-loading-image" style="position: fixed; top: 2%;"></div>
@@ -66,6 +69,7 @@
                     </tr>
                 </tbody>
             </table>-->
+            c
             <table class="card col-12 small table table-border  table-striped bg-light">
                 <thead>
                     <tr></tr>
@@ -137,8 +141,10 @@
             </thead>
             <tbody>
                 <tr *ngFor="let item of _magListService.MAGList.papers">
-                    <td><button (click)="InOutReview(item)" class="btn btn-outline-success">
-                        {{item.isSelected}}</button>
+                    <td>
+                        <button (click)="InOutReview(item)" class="btn btn-outline-success">
+                            {{item.isSelected}}
+                        </button>
                     </td>
                 </tr>
             </tbody>
