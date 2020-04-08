@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
 import { Item } from './ItemList.service';
+import { MAGBrowserService } from './MAGBrowser.service';
 //import { MagList } from './BasicMAG.service';
 
 @Injectable({
@@ -13,6 +14,7 @@ export class MAGAdvancedService extends BusyAwareService {
     
     constructor(
         private _httpC: HttpClient,
+        private _magBrowserService: MAGBrowserService,
         private modalService: ModalService,
         @Inject('BASE_URL') private _baseUrl: string
     ) {
@@ -151,7 +153,20 @@ export class MAGAdvancedService extends BusyAwareService {
                 this.currentMagPaper = result;
                 // should call the relevant methods after the above
                 if (result.paperId != null && result.paperId > 0) {
-                    this.FetchMagPaperListId(result.paperId);
+
+                        let criteria: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
+                        criteria.listType = "CitationsList";
+                        criteria.magPaperId = result.paperId;
+                        criteria.pageSize = 20;
+
+                    this._magBrowserService.FetchWithCrit(criteria, "CitationsList").then(
+
+                        //NEED TO CALL CItatiosn by stuff here...
+
+                    );
+                        // GO BACK TO THIS IF YOU FIND THE ABOVE ATTEMPT FAILS.
+                        //this.FetchMagPaperListId(result.paperId);
+
                 }
                 //console.log(result)
             },
@@ -167,6 +182,21 @@ export class MAGAdvancedService extends BusyAwareService {
                         this.RemoveBusy("FetchMagPaperId");
             });
     }
+    //public GetMagPaper(): void {
+
+    //    let criteria: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
+    //    criteria.listType = "ReviewMatchedPapers";
+    //    criteria.included = "Included";
+    //    criteria.pageSize = 20;
+
+    //    this._magBrowserService.FetchWithCrit(criteria, "ReviewMatchedPapers").then(
+    //        //this._magAdvancedService.FetchMagPaperList(criteria).then(
+    //        (result: any) => {
+    //            this.router.navigate(['MAGBrowser']);
+    //        }
+    //    );
+
+    //}
 
     //UpdateCurrentPaper(paperId : number) {
 
@@ -317,23 +347,25 @@ export class MAGAdvancedService extends BusyAwareService {
         //THIS SEARCH TEXT NEEDS TO COME IN FROM THE FRONT
         crit.searchText = ''; //searchText;
 
-        this._BusyMethods.push("FetchMagPaperList");
-        return this._httpC.post<MagPaper[]>(this._baseUrl + 'api/MagCurrentInfo/GetMagFieldOfStudyList', crit)
+        this._BusyMethods.push("FetchMagFieldOfStudyList");
+        return this._httpC.post<MagFieldOfStudy[]>(this._baseUrl + 'api/MagCurrentInfo/GetMagFieldOfStudyList', crit)
             .toPromise().then(
-            (result: MagPaper[]) => {
-                this.RemoveBusy("MagPaperFieldsList");
-                this.MagPaperFieldsList = result;
+            (result: MagFieldOfStudy[]) => {
+                this.RemoveBusy("FetchMagFieldOfStudyList");
                 console.log('paper field list: ', result);
+//                this.MagPaperFieldsList = result;
+                this._magBrowserService.MagPaperFieldsList = result;
+                
             },
                 error => {
-                    this.RemoveBusy("MagPaperFieldsList");
+                    this.RemoveBusy("FetchMagFieldOfStudyList");
                     this.modalService.GenericError(error);
                 }
             ).catch(
                 (error) => {
 
                     this.modalService.GenericErrorMessage("error with MagPaperFieldsList");
-                    this.RemoveBusy("MagPaperFieldsList");
+                    this.RemoveBusy("FetchMagFieldOfStudyList");
                 });
     }
     public DeleteSimulation(item: MagSimulation) {

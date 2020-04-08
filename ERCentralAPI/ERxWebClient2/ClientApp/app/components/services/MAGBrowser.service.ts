@@ -4,7 +4,7 @@ import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
 import { SortDescriptor, orderBy } from '@progress/kendo-data-query';
 //import { MagPaper, MVCMagPaperListSelectionCriteria,  MVCMagFieldOfStudyListSelectionCriteria, MagFieldOfStudy } from './magAdvanced.service';
-import { MagList } from './BasicMAG.service';
+//import { MagList } from './BasicMAG.service';
 
 
 @Injectable({
@@ -140,8 +140,15 @@ export class MAGBrowserService extends BusyAwareService {
                     console.log('list result from controller are: ', list);
                     console.log('resultant crtiteria: ',this._Criteria);
                     this.SavePapers(list, this._Criteria);
+                    let criteria: MVCMagFieldOfStudyListSelectionCriteria = new MVCMagFieldOfStudyListSelectionCriteria();
+                    criteria.fieldOfStudyId = 0;
+                    criteria.listType = 'PaperFieldOfStudyList';
+                    criteria.paperIdList = this._Criteria.paperIds;
+                    criteria.searchText = '';
+                    this.FetchMagFieldOfStudyList(criteria).then(
+                        () => { return;}
+                    );
 
-                    //console.log('aksdjh: CHEKC: ', JSON.stringify(this.MAGList.papers.length));
 
                 }, error => {
                     this.modalService.GenericError(error);
@@ -182,12 +189,18 @@ export class MAGBrowserService extends BusyAwareService {
 
         console.log('Inside savepapers list detail is: ', list);
 
-        //papers = orderBy(papers, this.sort); 
-
+        //papers = orderBy(papers, this.sort);
+        this._Criteria.paperIds = '';
+        for (var i = 0; i < list.papers.length; i++) {
+            this._Criteria.paperIds += list.papers[i].paperId + ',';
+        }
+        this._Criteria.paperIds = this._Criteria.paperIds.substr(0, this._Criteria.paperIds.length - 2);
+        console.log('inside savepapers: ', this._Criteria.paperIds);
         this._MAGList = list;
         this._Criteria = crit;
-  
+       
     }
+
     private ChangingPaper(newPaper: MagPaper) {
 
         this._currentPaper = newPaper;
@@ -512,6 +525,17 @@ export class MagSimulation {
     fp: number = 0;
     fn: number = 0;
     tn: number = 0;
+}
+
+export class MagList {
+
+    pagesize: number = 0;
+    paperIds: string = '';
+    pagecount: number = 0;
+    pageindex: number = 0;
+    totalItemCount: number = 0;
+    papers: MagPaper[] = [];
+
 }
 
 

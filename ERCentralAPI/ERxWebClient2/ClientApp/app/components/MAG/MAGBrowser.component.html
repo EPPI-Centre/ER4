@@ -1,0 +1,155 @@
+﻿<HeaderComponent Context="MAGBrowser"></HeaderComponent>
+<button class="page-link rounded pt-1 pb-1 mb-1 float-right"
+        style="position:absolute; right: 0; z-index:2000;" (click)="Back()">
+    Close/back
+</button>
+<div class="containsAtoolbar">
+    <kendo-toolbar>
+        <kendo-toolbar-button [text]="'Selected'" (click)="Selected()" [disabled]="HasWriteRights"></kendo-toolbar-button>
+        <kendo-toolbar-button [text]="'Clear Selected'" (click)="ClearSelected()" [disabled]="HasWriteRights"></kendo-toolbar-button>
+        <kendo-toolbar-button [text]="'Import Selected'" (click)="ImportSelected()" [disabled]="HasWriteRights"></kendo-toolbar-button>
+        <kendo-toolbar-button [text]="'Auto-update home'" (click)="AutoUpdateHome()" [disabled]="!HasWriteRights"></kendo-toolbar-button>
+        <kendo-toolbar-button [text]="'Advanced features'" (click)="AdvancedFeatures()" [disabled]="!HasWriteRights"></kendo-toolbar-button>
+        <kendo-toolbar-button [text]="'Show history'" (click)="ShowHistory()" [disabled]="HasWriteRights"></kendo-toolbar-button>
+        <kendo-toolbar-button [text]="'Admin'" (click)="Admin()" [disabled]="HasWriteRights"></kendo-toolbar-button>
+        <kendo-toolbar-button [text]="'Forward'" (click)="Forward()" [disabled]="HasWriteRights"></kendo-toolbar-button>
+    </kendo-toolbar>
+</div>
+<div class="col-6 p-2 m-2 card bg-info">
+    <h4>Microsoft Academic Graph Browser</h4>
+
+</div>
+
+<div *ngIf="IsServiceBusy" class="k-loading-image" style="position: fixed; top: 2%;"></div>
+<div class="col-12 row" style="min-width:450px; min-height:500px;overflow:auto;">
+    <h4>{{_magAdvancedService.currentMagPaper.fullRecord}}</h4>
+
+
+    <div [title]="'TOPICS'" class="col-2">
+        <h5>Parent Topics</h5>
+        {{ParentTopic}}
+        <table class="card col-12 small table table-border  table-striped bg-light">
+            <thead>
+                <tr></tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let item of WPParentTopics">
+                    <td (click)="GetParentAndChildRelatedPapers(item)" class="btn btn-link mt-1">
+                        {{item.displayName }}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <h5>Children Topics</h5>
+        <table class="card col-12 small table table-border  table-striped bg-light">
+            <thead>
+                <tr></tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let item of _magBrowserService.MagPaperFieldsList">
+                    <td (click)="GetParentAndChildRelatedPapers(item)" class="btn btn-link mt-1">{{item.displayName}}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div [title]="'References'" class="col-6">
+        <div>
+            <h5>Papers identified from auto-identification MAG run</h5>
+            <!--<h5>Total number of mag papers in below list: {{_magAdvancedService.TotalNumberOfMatchedPapers}}</h5>-->
+        </div>
+        <div>
+            <!--<table class="card col-12 small table table-border  table-striped bg-light">
+                <thead>
+                    <tr></tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let item of _magAdvancedService.MagReferencesPaperList">
+                        <td>{{item.fullRecord}}</td>
+                    </tr>
+                </tbody>
+            </table>-->
+            c
+            <table class="card col-12 small table table-border  table-striped bg-light">
+                <thead>
+                    <tr></tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let item of _magBrowserService.MAGList.papers">
+                        <td>{{item.fullRecord}}</td>
+
+                    </tr>
+                </tbody>
+            </table>
+            <div *ngIf="_magBrowserService.MAGList && _magBrowserService.MAGList.papers && _magBrowserService.MAGList.IsBusy">Loading items...</div>
+            <div *ngIf="_magBrowserService && _magBrowserService.MAGList.papers.length == 0"
+                 class="p-2 font-weight-bold text-center text-info mt-1">No items to display</div>
+            <MAGpaginatorComp class="row ml-1 pt-1 mr-1 pr-1 border-top porder-info"></MAGpaginatorComp>
+        </div>
+    </div>
+
+    <!--<div [title]="'Citations'" class="col-4">
+
+        <div >
+            <table class="card col-12 small table table-border  table-striped bg-light">
+                <thead>
+                    <tr></tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let item of _magAdvancedService.MagCitationsPaperList">
+                        <td>{{item.fullRecord}}</td>
+
+                    </tr>
+                </tbody>
+            </table>
+
+            <div *ngIf="_magAdvancedService && _magAdvancedService.MagPapersMatchedList && _magAdvancedService.IsBusy">Loading items...</div>
+            <div *ngIf="_magAdvancedService && _magAdvancedService.MagPapersMatchedList
+             && this._magAdvancedService.MagPapersMatchedList && this._magAdvancedService.MagPapersMatchedList.length == 0 && !_magAdvancedService.IsBusy"
+                 class="p-2 font-weight-bold text-center text-info mt-1">No items to display</div>
+            <paginatorComp class="row ml-1 pt-1 mr-1 pr-1 border-top porder-info"></paginatorComp>
+        </div>
+    </div>
+
+    <div [title]="'Related'" class="col-4">
+
+        <div >
+            <table class="card col-12 small table table-border  table-striped bg-light">
+                <thead>
+                    <tr></tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let item of _magAdvancedService.MagRelatedPaperList">
+                        <td>{{item.fullRecord}}</td>
+
+                    </tr>
+                </tbody>
+            </table>
+            <div *ngIf="_magAdvancedService && _magAdvancedService.MagPapersMatchedList && _magAdvancedService.IsBusy">Loading items...</div>
+            <div *ngIf="_magAdvancedService && _magAdvancedService.MagPapersMatchedList
+                        && this._magAdvancedService.MagPapersMatchedList && this._magAdvancedService.MagPapersMatchedList.length == 0 && !_magAdvancedService.IsBusy"
+                 class="p-2 font-weight-bold text-center text-info mt-1">No items to display</div>
+            <paginatorComp class="row ml-1 pt-1 mr-1 pr-1 border-top porder-info"></paginatorComp>
+        </div>
+    </div>-->
+
+    <div [title]="'SELECTED'" class="col-2">
+        <h5>In Review Or Not</h5>
+        <table class="card col-12 small table table-border  table-striped bg-light">
+            <thead>
+                <tr></tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let item of _magBrowserService.MAGList.papers">
+                    <td>
+                        <button (click)="InOutReview(item)" class="btn btn-outline-success">
+                            {{item.isSelected}}
+                        </button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+</div>
+<statusbar></statusbar>
