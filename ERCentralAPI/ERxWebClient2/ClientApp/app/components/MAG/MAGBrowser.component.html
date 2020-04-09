@@ -21,11 +21,22 @@
 </div>
 
 <div *ngIf="IsServiceBusy" class="k-loading-image" style="position: fixed; top: 2%;"></div>
-<div class="col-12 row" style="min-width:450px; min-height:500px;overflow:auto;">
+<div class="col-12 row" style="min-width:450px; overflow:auto;">
     <h4>{{_magAdvancedService.currentMagPaper.fullRecord}}</h4>
 
+    <div class="col-12 row">
+        <div class="col-3"></div>
+        <div class="col-9">
+            <button class="btn btn-lg btn-warning" (click)="section['first'] = !section['first']; !section['second'] = section['second']">
+                References +-
+            </button>
+            <button class="btn btn-lg btn-info" (click)="section['second'] = !section['second']; !section['first'] = section['first']">
+                CitatedBy +-
+            </button>
+        </div>
+    </div>
 
-    <div [title]="'TOPICS'" class="col-2">
+    <div [title]="'TOPICS'" class="col-2" style="min-height:500px;">
         <h5>Parent Topics</h5>
         {{ParentTopic}}
         <table class="card col-12 small table table-border  table-striped bg-light">
@@ -37,6 +48,7 @@
                     <td (click)="GetParentAndChildRelatedPapers(item)" class="btn btn-link mt-1">
                         {{item.displayName }}
                     </td>
+
                 </tr>
             </tbody>
         </table>
@@ -53,11 +65,13 @@
         </table>
     </div>
 
-    <div [title]="'References'" class="col-6">
+    <div [title]="'References'" class="col-5" style="min-height:500px;" *ngIf="section['first']">
+
         <div>
             <h5>Papers identified from auto-identification MAG run</h5>
             <!--<h5>Total number of mag papers in below list: {{_magAdvancedService.TotalNumberOfMatchedPapers}}</h5>-->
         </div>
+
         <div>
             <!--<table class="card col-12 small table table-border  table-striped bg-light">
                 <thead>
@@ -69,7 +83,6 @@
                     </tr>
                 </tbody>
             </table>-->
-            c
             <table class="card col-12 small table table-border  table-striped bg-light">
                 <thead>
                     <tr></tr>
@@ -77,7 +90,11 @@
                 <tbody>
                     <tr *ngFor="let item of _magBrowserService.MAGList.papers">
                         <td>{{item.fullRecord}}</td>
-
+                        <td>
+                            <button (click)="InOutReview(item)" class="btn btn-outline-success">
+                                {{item.isSelected}}
+                            </button>
+                        </td>
                     </tr>
                 </tbody>
             </table>
@@ -88,38 +105,35 @@
         </div>
     </div>
 
-    <!--<div [title]="'Citations'" class="col-4">
-
-        <div >
+    <div [title]="'Citated By'" class="col-5" style="min-height:500px;" *ngIf="section['second']">
+        <div>
             <table class="card col-12 small table table-border  table-striped bg-light">
                 <thead>
                     <tr></tr>
                 </thead>
                 <tbody>
-                    <tr *ngFor="let item of _magAdvancedService.MagCitationsPaperList">
+                    <tr *ngFor="let item of _magBrowserService.MagCitationsPaperList.papers">
                         <td>{{item.fullRecord}}</td>
-
+                        <td>
+                            <button (click)="InOutReview(item)" class="btn btn-outline-success">
+                                {{item.isSelected}}
+                            </button>
+                        </td>
                     </tr>
                 </tbody>
             </table>
-
-            <div *ngIf="_magAdvancedService && _magAdvancedService.MagPapersMatchedList && _magAdvancedService.IsBusy">Loading items...</div>
-            <div *ngIf="_magAdvancedService && _magAdvancedService.MagPapersMatchedList
-             && this._magAdvancedService.MagPapersMatchedList && this._magAdvancedService.MagPapersMatchedList.length == 0 && !_magAdvancedService.IsBusy"
-                 class="p-2 font-weight-bold text-center text-info mt-1">No items to display</div>
-            <paginatorComp class="row ml-1 pt-1 mr-1 pr-1 border-top porder-info"></paginatorComp>
         </div>
     </div>
 
-    <div [title]="'Related'" class="col-4">
+    <!--<div [title]="'Related'" class="col-4">
 
-        <div >
+        <div>
             <table class="card col-12 small table table-border  table-striped bg-light">
                 <thead>
                     <tr></tr>
                 </thead>
                 <tbody>
-                    <tr *ngFor="let item of _magAdvancedService.MagRelatedPaperList">
+                    <tr *ngFor="let item of _magBrowserService.MagRelatedPaperList">
                         <td>{{item.fullRecord}}</td>
 
                     </tr>
@@ -132,8 +146,7 @@
             <paginatorComp class="row ml-1 pt-1 mr-1 pr-1 border-top porder-info"></paginatorComp>
         </div>
     </div>-->
-
-    <div [title]="'SELECTED'" class="col-2">
+    <!--<div [title]="'SELECTED'" class="col-1"  style="min-height:500px;">
         <h5>In Review Or Not</h5>
         <table class="card col-12 small table table-border  table-striped bg-light">
             <thead>
@@ -149,7 +162,7 @@
                 </tr>
             </tbody>
         </table>
-    </div>
+    </div>-->
 
 </div>
 <statusbar></statusbar>

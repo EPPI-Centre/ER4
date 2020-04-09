@@ -24,7 +24,8 @@ export class MAGBrowserService extends BusyAwareService {
 		super();
 		
 	}
-    	
+
+    public MagCitationsPaperList: MagList = new MagList();
     private _MAGList: MagList = new MagList();
     private _Criteria: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
     private _currentPaper: MagPaper = new MagPaper();
@@ -131,25 +132,17 @@ export class MAGBrowserService extends BusyAwareService {
             crit.pageSize = this._MAGList.pagesize;
         }
         console.log('criteria are: ', crit);
+        this.ListCriteria.paperIds = crit.paperIds;
         this.ListDescription = listDescription;
         return this._httpC.post<MagList>(this._baseUrl + 'api/MagCurrentInfo/GetMagPaperList', crit)
             .toPromise().then(
 
             (list: MagList) => {
+
                     this.RemoveBusy("FetchWithCrit");
-                    console.log('list result from controller are: ', list);
-                    console.log('resultant crtiteria: ',this._Criteria);
                     this.SavePapers(list, this._Criteria);
-                    let criteria: MVCMagFieldOfStudyListSelectionCriteria = new MVCMagFieldOfStudyListSelectionCriteria();
-                    criteria.fieldOfStudyId = 0;
-                    criteria.listType = 'PaperFieldOfStudyList';
-                    criteria.paperIdList = this._Criteria.paperIds;
-                    criteria.searchText = '';
-                    this.FetchMagFieldOfStudyList(criteria).then(
-                        () => { return;}
-                    );
-
-
+                    console.log('paperIds after save papers: ', this.ListCriteria.paperIds);
+                                    
                 }, error => {
                     this.modalService.GenericError(error);
                     this.RemoveBusy("FetchWithCrit");
@@ -187,17 +180,30 @@ export class MAGBrowserService extends BusyAwareService {
 
     public SavePapers(list: MagList, crit: MVCMagPaperListSelectionCriteria) {
 
-        console.log('Inside savepapers list detail is: ', list);
+        if (crit.listType == 'CitationsList' || crit.listType == 'ReviewMatchedPapers') {
 
-        //papers = orderBy(papers, this.sort);
-        this._Criteria.paperIds = '';
-        for (var i = 0; i < list.papers.length; i++) {
-            this._Criteria.paperIds += list.papers[i].paperId + ',';
-        }
-        this._Criteria.paperIds = this._Criteria.paperIds.substr(0, this._Criteria.paperIds.length - 2);
-        console.log('inside savepapers: ', this._Criteria.paperIds);
-        this._MAGList = list;
-        this._Criteria = crit;
+            this._Criteria.paperIds = '';
+            for (var i = 0; i < list.papers.length; i++) {
+                this._Criteria.paperIds += list.papers[i].paperId + ',';
+            }
+            this._Criteria.paperIds = this._Criteria.paperIds.substr(0, this._Criteria.paperIds.length - 2);
+            console.log('inside savepapers: ', this._Criteria.paperIds);
+            
+            this._MAGList = list;
+            this._Criteria = crit;
+           
+        } else if (crit.listType == 'CitedByList') {
+
+            this._Criteria.paperIds = '';
+            for (var i = 0; i < list.papers.length; i++) {
+                this._Criteria.paperIds += list.papers[i].paperId + ',';
+            }
+            this._Criteria.paperIds = this._Criteria.paperIds.substr(0, this._Criteria.paperIds.length - 2);
+            console.log('inside savepapers: ', this._Criteria.paperIds);
+            this.MagCitationsPaperList = list;
+            this._Criteria = crit;
+           
+        }      
        
     }
 

@@ -27,7 +27,9 @@ export class MAGBrowser implements OnInit {
     }
     ngOnInit() {
 
-        console.log('paperIds are: ',this._magBrowserService.ListCriteria.paperIds);
+        this.section['first'] = true;
+
+        //console.log('paperIds are: ',this._magBrowserService.ListCriteria.paperIds);
 
         //this._magAdvancedService.FetchMagFieldOfStudyList(this._magBrowserService.ListCriteria.paperIds);
 
@@ -90,6 +92,8 @@ export class MAGBrowser implements OnInit {
             this.UpdateSelectedCount();
         }
     }
+    section: any = [];
+    
     private RemoveFromSelectedList(paperId: number): any {
 
         let pos: number = this.SelectedPaperIds.indexOf(paperId);

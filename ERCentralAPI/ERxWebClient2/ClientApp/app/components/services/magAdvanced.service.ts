@@ -142,7 +142,7 @@ export class MAGAdvancedService extends BusyAwareService {
                 this.RemoveBusy("FetchMagCurrentInfo");
             });
     }
-    FetchMagPaperId(Id: number) : Promise<void> {
+    FetchMagPaperId(Id: number) : Promise<string> {
 
         console.log('advanced mag service 5');
         this._BusyMethods.push("FetchMagPaperId");
@@ -151,28 +151,59 @@ export class MAGAdvancedService extends BusyAwareService {
             .toPromise().then(result => {
                 this.RemoveBusy("FetchMagPaperId");
                 this.currentMagPaper = result;
+                
                 // should call the relevant methods after the above
                 if (result.paperId != null && result.paperId > 0) {
 
-                        let criteria: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
-                        criteria.listType = "CitationsList";
-                        criteria.magPaperId = result.paperId;
-                        criteria.pageSize = 20;
+                    let criteria: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
+                    criteria.listType = "CitationsList";
+                    criteria.magPaperId = result.paperId;
+                    criteria.pageSize = 20;
 
                     this._magBrowserService.FetchWithCrit(criteria, "CitationsList").then(
 
-                        //NEED TO CALL CItatiosn by stuff here...
+                        () => {
 
+                            this.PaperIds = this._magBrowserService.ListCriteria.paperIds;
+                            console.log('1 got in here:', this._magBrowserService.ListCriteria.paperIds);
+                            let criteria2: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
+                            criteria2.listType = "CitedByList";
+                            criteria2.magPaperId = result.paperId;
+                            criteria2.pageSize = 20;
+                            this._magBrowserService.FetchWithCrit(criteria2, "CitedByList").then(
+
+                                () => {
+                                    this.PaperIds = this._magBrowserService.ListCriteria.paperIds;
+                                    console.log('2 got in here:', this._magBrowserService.ListCriteria.paperIds);
+
+
+                                    let criteria12: MVCMagFieldOfStudyListSelectionCriteria = new MVCMagFieldOfStudyListSelectionCriteria();
+                                    criteria12.fieldOfStudyId = 0;
+                                    criteria12.listType = 'PaperFieldOfStudyList';
+                                    criteria12.paperIdList = this.PaperIds;
+                                    criteria12.searchText = ''; //TODO this will be populated by the user..
+
+                                    console.log('3 paperIds: ', this.PaperIds);
+                                    this._magBrowserService.FetchMagFieldOfStudyList(criteria12).then(
+
+                                        () => { return; }
+                                    );
+
+                            });
+                        }
                     );
                         // GO BACK TO THIS IF YOU FIND THE ABOVE ATTEMPT FAILS.
                         //this.FetchMagPaperListId(result.paperId);
-
                 }
-                //console.log(result)
+
+
+
+
             },
                 error => {
                     this.RemoveBusy("FetchMagPaperId");
                     this.modalService.GenericError(error);
+                    return error;
                     
                 }
             ).catch (

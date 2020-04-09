@@ -7,7 +7,7 @@ import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Router } from '@angular/router';
 import { MAGAdvancedService, ClassifierContactModel,  MVCMagPaperListSelectionCriteria, MagSimulation } from '../services/magAdvanced.service';
 import { EventEmitterService } from '../services/EventEmitter.service';
-import { MAGBrowserService } from '../services/MAGBrowser.service';
+import { MAGBrowserService, MVCMagFieldOfStudyListSelectionCriteria } from '../services/MAGBrowser.service';
 
 @Component({
     selector: 'AdvancedMAGFeatures',
@@ -251,7 +251,16 @@ export class AdvancedMAGFeaturesComponent implements OnInit {
         this._magBrowserService.FetchWithCrit(criteria, "ReviewMatchedPapers").then(
         //this._magAdvancedService.FetchMagPaperList(criteria).then(
             () => {
-                this.router.navigate(['MAGBrowser']);
+
+                let criteria2: MVCMagFieldOfStudyListSelectionCriteria = new MVCMagFieldOfStudyListSelectionCriteria();
+                criteria2.fieldOfStudyId = 0;
+                criteria2.listType = 'PaperFieldOfStudyList';
+                criteria2.paperIdList = this._magBrowserService.ListCriteria.paperIds;
+                criteria2.searchText = ''; //TODO this will be populated by the user..
+                this._magBrowserService.FetchMagFieldOfStudyList(criteria2).then(
+
+                    () => { this.router.navigate(['MAGBrowser']); }
+                );
             }
         );
        
@@ -322,22 +331,12 @@ export class AdvancedMAGFeaturesComponent implements OnInit {
 
     }
 
-    //public GetMagPaper() {
-
-    //    this._magAdvancedService.FetchMagPaperId(this.magPaperId).then(
-
-    //        () => {
-    //            this.router.navigate(['MAGBrowser']);
-    //        }
-    //    );
-    //}
     public GetMagPaper() {
 
         this._magAdvancedService.FetchMagPaperId(this.magPaperId).then(
 
-            () => {
-                    this.router.navigate(['MAGBrowser']);
-            }
+            () => { this.router.navigate(['MAGBrowser']); }
+             
         );
     }
 	CanOnlySelectRoots() {
