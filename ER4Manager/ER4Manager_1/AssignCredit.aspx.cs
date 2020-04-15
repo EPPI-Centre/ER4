@@ -367,7 +367,8 @@ public partial class AssignCredit : System.Web.UI.Page
 
         lblTotal.Text = "£" + totalFee.ToString();
         lblRemaining.Text = "£" + (int.Parse(Utils.GetSessionString("Remaining_Credit")) - totalFee).ToString();
-        if ((lblRemaining.Text.Contains("-")) || (lblRemaining.Text == "£0"))
+        //if ((lblRemaining.Text.Contains("-")) || (lblRemaining.Text == "£0"))
+        if (lblRemaining.Text.Contains("-"))
             cmdComplete.Enabled = false;
         else
             cmdComplete.Enabled = true;

@@ -180,7 +180,7 @@
                 </tr>
 
                 <tr>
-                    <td rowspan="2" style="width: 170px;">Add credit in £ (GBP) </td>
+                    <td rowspan="2" style="width: 170px;">Add credit in £ (GBP)<br />(excluding VAT) </td>
                     <td style="width: 250px;">Enter value in <b>£5</b> increments</td>
                     <td valign="bottom" rowspan="2">
                         <asp:Button ID="BTAddCreditPurchase" runat="server" Text="Add/Update" Enabled="true"
