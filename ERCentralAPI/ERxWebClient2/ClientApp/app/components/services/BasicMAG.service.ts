@@ -3,8 +3,8 @@ import { HttpClient } from '@angular/common/http';
 import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
 import { NotificationService } from '@progress/kendo-angular-notification';
-//import { MagPaperList, MagPaper } from './magAdvanced.service';
 import { MAGBrowserService } from './MAGBrowser.service';
+import { MagRelatedPapersRun, MagPaperList, MagPaper, MagList, MagItemPaperInsertCommand } from './MAGClasses.service';
 
 @Injectable({
     providedIn: 'root',
@@ -183,6 +183,9 @@ export class BasicMAGService extends BusyAwareService {
 
                 this.RemoveBusy("ImportMagRelatedRunPapers");
                 this.MagItemPaperInsert = result;
+
+                console.log('bRRRRRRRR: ', result);
+
                 if (result.nImported != null) {
 
                 
@@ -250,99 +253,4 @@ export class BasicMAGService extends BusyAwareService {
                     this.RemoveBusy("UpdateMagRelatedRun");
                 });
         }
-}
-export class MagList {
-
-    pagesize: number = 0;
-    paperIds: string = '';
-    pagecount: number = 0;
-    pageindex: number = 0;
-    totalItemCount: number = 0;
-    papers: MagPaper[] = [];
-
-}
-export class MagItemPaperInsertCommand {
-
-    paperIds: string = '';
-    nImported: number = 0;
-    sourceOfIds: string = '';
-    magRelatedRunId: number = 0;
-
-}
-export class MagRelatedPapersRun {
-
-	magRelatedRunId: number = 0;
-	userDescription: string = '';
-    attributeId: number = 0;
-    attributeName: string = '';
-    allIncluded: boolean = false;
-    dateRun: string = "";
-    dateFrom: string = "";
-    autoReRun: boolean = false;
-	mode: string = '';
-	filtered: string = '';
-	status: string = '';
-	userStatus: string = '';
-	nPapers: number = 0;
-	reviweIdId = 0;
-}
-export class MagRelatedPaperListSelectionCriteria {
-
-    pageSize: number = 20;
-    pageNumber: number = 0;
-    listType: string = "MagRelatedPapersRunList";
-    magRelatedRunId: number = 0;
-
-}
-export class MagPaper {
-
-    externalMagLink: string = '';
-    fullRecord: string = '';
-    paperId: number = 0;
-    doi: string = '';
-    docType: string = '';
-    paperTitle: string = '';
-    originalTitle: string = '';
-    bookTitle: string = '';
-    year: number = 0;
-    smartDate: Date = new Date();
-    journalId: number = 0;
-    journal: string = '';
-    conferenceSeriesId: number = 0;
-    conferenceInstanceId: number = 0;
-    volume: string = '';
-    issue: string = '';
-    firstPage: string = '';
-    lastPage: string = '';
-    referenceCount: number = 0;
-    references: number = 0;
-    citationCount: number = 0;
-    estimatedCitationCount: number = 0;
-    createdDate: number = 0;
-    authors: string = '';
-    urls: string = '';
-    pdfLinks: string = '';
-    linkedITEM_ID: number = 0;
-    isSelected: boolean = false;
-    canBeSelected: boolean = false;
-    abstract: string = '';
-    autoMatchScore: number = 0;
-    manualTrueMatch: boolean = false;
-    manualFalseMatch: boolean = false;
-    findOnWeb: string = '';
-}
-
-export class MagPaperList {
-
-    pageIndex: number = 0;
-    totalItemCount: number = 0;
-    pageSize: number = 0;
-    isPageChanging: boolean = false;
-    fieldOfStudyId: number = 0;
-    paperId: number = 0;
-    authorId: number = 0;
-    magRelatedRunId: number = 0;
-    paperIds: string = '';
-    includedOrExcluded: string = '';
-    attributeIds: string = '';
 }

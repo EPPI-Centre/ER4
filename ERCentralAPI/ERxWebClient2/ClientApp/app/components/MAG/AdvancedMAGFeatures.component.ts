@@ -1,13 +1,15 @@
-import { Component, OnInit, ViewChild, EventEmitter, Output} from '@angular/core';
+import { Component, OnInit, ViewChild} from '@angular/core';
 import { searchService } from '../services/search.service';
 import { singleNode, SetAttribute } from '../services/ReviewSets.service';
 import { codesetSelectorComponent } from '../CodesetTrees/codesetSelector.component';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Router } from '@angular/router';
-import { MAGAdvancedService, ClassifierContactModel,  MVCMagPaperListSelectionCriteria, MagSimulation } from '../services/magAdvanced.service';
+import { ClassifierContactModel,  MVCMagPaperListSelectionCriteria, MagSimulation } from '../services/MAGClasses.service';
 import { EventEmitterService } from '../services/EventEmitter.service';
-import { MAGBrowserService, MVCMagFieldOfStudyListSelectionCriteria } from '../services/MAGBrowser.service';
+import { MAGBrowserService } from '../services/MAGBrowser.service';
+import { MAGAdvancedService } from '../services/magAdvanced.service';
+import { MVCMagFieldOfStudyListSelectionCriteria } from '../services/MAGClasses.service';
 
 @Component({
     selector: 'AdvancedMAGFeatures',

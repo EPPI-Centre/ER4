@@ -88,7 +88,6 @@ import { DuplicatesComponent } from './components/Duplicates/duplicates.componen
 import { codesetTree4Move } from './components/CodesetTrees/codesetTree4Move.component';
 import { BasicMAGComp } from './components/MAG/BasicMAGComp.component';
 import { AdvancedMAGFeaturesComponent } from './components/MAG/AdvancedMAGFeatures.component';
-import { MAGBrowser } from './components/MAG/MAGBrowser.component';
 import { MAGpaginatorComp } from './components/commonComponents/MAGpaginator.component';
 
 @NgModule({
@@ -159,7 +158,6 @@ import { MAGpaginatorComp } from './components/commonComponents/MAGpaginator.com
         DuplicatesComponent,
         codesetTree4Move,
         AdvancedMAGFeaturesComponent,
-        MAGBrowser,
         MAGpaginatorComp
 	],
     providers: [
@@ -199,7 +197,6 @@ import { MAGpaginatorComp } from './components/commonComponents/MAGpaginator.com
 			{ path: 'sources', component: SourcesComponent },
             { path: 'BuildModel', component: BuildModelComponent },
             { path: 'BasicMAGFeatures', component: BasicMAGComp },
-            { path: 'MAGBrowser', component: MAGBrowser },
             { path: 'ItemList', component: ItemListComp},
             { path: 'AdvancedMAGFeatures', component: AdvancedMAGFeaturesComponent },
             { path: 'itemcodingOnly/:itemId', component: ItemCodingComp },

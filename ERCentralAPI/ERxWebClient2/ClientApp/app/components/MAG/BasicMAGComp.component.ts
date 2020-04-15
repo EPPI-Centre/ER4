@@ -1,16 +1,14 @@
 import { Component, OnInit, ViewChild} from '@angular/core';
 import { searchService } from '../services/search.service';
-import { BasicMAGService, MagRelatedPapersRun } from '../services/BasicMAG.service';
+import { BasicMAGService } from '../services/BasicMAG.service';
 import { singleNode, SetAttribute } from '../services/ReviewSets.service';
 import { codesetSelectorComponent } from '../CodesetTrees/codesetSelector.component';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Router } from '@angular/router';
-import { ItemListService } from '../services/ItemList.service';
-import { EventEmitterService } from '../services/EventEmitter.service';
 import { NotificationService } from '@progress/kendo-angular-notification';
 import { MAGBrowserService } from '../services/MAGBrowser.service';
-import { MVCMagPaperListSelectionCriteria } from '../services/magAdvanced.service';
+import { MagRelatedPapersRun } from '../services/MAGClasses.service';
 
 
 @Component({
