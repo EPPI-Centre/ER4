@@ -3,7 +3,9 @@ import { HttpClient } from '@angular/common/http';
 import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
 import { Item } from './ItemList.service';
-//import { MagList } from './BasicMAG.service';
+import { MAGBrowserService } from './MAGBrowser.service';
+import { MagPaper, MagReviewMagInfo, MVCMagPaperListSelectionCriteria, MagCurrentInfo, MagSimulation,
+ClassifierContactModel, MVCMagFieldOfStudyListSelectionCriteria, MagList, MagFieldOfStudy } from './MAGClasses.service';
 
 @Injectable({
     providedIn: 'root',
@@ -13,6 +15,7 @@ export class MAGAdvancedService extends BusyAwareService {
     
     constructor(
         private _httpC: HttpClient,
+        private _magBrowserService: MAGBrowserService,
         private modalService: ModalService,
         @Inject('BASE_URL') private _baseUrl: string
     ) {
@@ -140,7 +143,7 @@ export class MAGAdvancedService extends BusyAwareService {
                 this.RemoveBusy("FetchMagCurrentInfo");
             });
     }
-    FetchMagPaperId(Id: number) : Promise<void> {
+    FetchMagPaperId(Id: number) : Promise<string> {
 
         console.log('advanced mag service 5');
         this._BusyMethods.push("FetchMagPaperId");
@@ -149,15 +152,59 @@ export class MAGAdvancedService extends BusyAwareService {
             .toPromise().then(result => {
                 this.RemoveBusy("FetchMagPaperId");
                 this.currentMagPaper = result;
+                
                 // should call the relevant methods after the above
                 if (result.paperId != null && result.paperId > 0) {
-                    this.FetchMagPaperListId(result.paperId);
+
+                    let criteria: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
+                    criteria.listType = "CitationsList";
+                    criteria.magPaperId = result.paperId;
+                    criteria.pageSize = 20;
+
+                    this._magBrowserService.FetchWithCrit(criteria, "CitationsList").then(
+
+                        () => {
+
+                            this.PaperIds = this._magBrowserService.ListCriteria.paperIds;
+                            console.log('1 got in here:', this._magBrowserService.ListCriteria.paperIds);
+                            let criteria2: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
+                            criteria2.listType = "CitedByList";
+                            criteria2.magPaperId = result.paperId;
+                            criteria2.pageSize = 20;
+                            this._magBrowserService.FetchWithCrit(criteria2, "CitedByList").then(
+
+                                () => {
+                                    this.PaperIds = this._magBrowserService.ListCriteria.paperIds;
+                                    console.log('2 got in here:', this._magBrowserService.ListCriteria.paperIds);
+
+
+                                    let criteria12: MVCMagFieldOfStudyListSelectionCriteria = new MVCMagFieldOfStudyListSelectionCriteria();
+                                    criteria12.fieldOfStudyId = 0;
+                                    criteria12.listType = 'PaperFieldOfStudyList';
+                                    criteria12.paperIdList = this.PaperIds;
+                                    criteria12.searchText = ''; //TODO this will be populated by the user..
+
+                                    console.log('3 paperIds: ', this.PaperIds);
+                                    this._magBrowserService.FetchMagFieldOfStudyList(criteria12).then(
+
+                                        () => { return; }
+                                    );
+
+                            });
+                        }
+                    );
+                        // GO BACK TO THIS IF YOU FIND THE ABOVE ATTEMPT FAILS.
+                        //this.FetchMagPaperListId(result.paperId);
                 }
-                //console.log(result)
+
+
+
+
             },
                 error => {
                     this.RemoveBusy("FetchMagPaperId");
                     this.modalService.GenericError(error);
+                    return error;
                     
                 }
             ).catch (
@@ -167,6 +214,21 @@ export class MAGAdvancedService extends BusyAwareService {
                         this.RemoveBusy("FetchMagPaperId");
             });
     }
+    //public GetMagPaper(): void {
+
+    //    let criteria: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
+    //    criteria.listType = "ReviewMatchedPapers";
+    //    criteria.included = "Included";
+    //    criteria.pageSize = 20;
+
+    //    this._magBrowserService.FetchWithCrit(criteria, "ReviewMatchedPapers").then(
+    //        //this._magAdvancedService.FetchMagPaperList(criteria).then(
+    //        (result: any) => {
+    //            this.router.navigate(['MAGBrowser']);
+    //        }
+    //    );
+
+    //}
 
     //UpdateCurrentPaper(paperId : number) {
 
@@ -317,23 +379,25 @@ export class MAGAdvancedService extends BusyAwareService {
         //THIS SEARCH TEXT NEEDS TO COME IN FROM THE FRONT
         crit.searchText = ''; //searchText;
 
-        this._BusyMethods.push("FetchMagPaperList");
-        return this._httpC.post<MagPaper[]>(this._baseUrl + 'api/MagCurrentInfo/GetMagFieldOfStudyList', crit)
+        this._BusyMethods.push("FetchMagFieldOfStudyList");
+        return this._httpC.post<MagFieldOfStudy[]>(this._baseUrl + 'api/MagCurrentInfo/GetMagFieldOfStudyList', crit)
             .toPromise().then(
-            (result: MagPaper[]) => {
-                this.RemoveBusy("MagPaperFieldsList");
-                this.MagPaperFieldsList = result;
+            (result: MagFieldOfStudy[]) => {
+                this.RemoveBusy("FetchMagFieldOfStudyList");
                 console.log('paper field list: ', result);
+//                this.MagPaperFieldsList = result;
+                this._magBrowserService.MagPaperFieldsList = result;
+                
             },
                 error => {
-                    this.RemoveBusy("MagPaperFieldsList");
+                    this.RemoveBusy("FetchMagFieldOfStudyList");
                     this.modalService.GenericError(error);
                 }
             ).catch(
                 (error) => {
 
                     this.modalService.GenericErrorMessage("error with MagPaperFieldsList");
-                    this.RemoveBusy("MagPaperFieldsList");
+                    this.RemoveBusy("FetchMagFieldOfStudyList");
                 });
     }
     public DeleteSimulation(item: MagSimulation) {
@@ -392,182 +456,5 @@ export class MAGAdvancedService extends BusyAwareService {
                 this.RemoveBusy("AddMagSimulation");
             });
     }
-
-}
-
-export class MagReviewMagInfo {
-
-    reviewId: number = 0;
-    nInReviewIncluded: number = 0;
-    nInReviewExcluded: number = 0;
-    nMatchedAccuratelyIncluded: number = 0;
-    nMatchedAccuratelyExcluded: number = 0;
-    nRequiringManualCheckIncluded: number = 0;
-    nRequiringManualCheckExcluded: number = 0;
-    nNotMatchedIncluded: number = 0;
-    nNotMatchedExcluded: number = 0;
-    
-}
-
-export class MagPaperList {
-
-    pageIndex : number = 0;
-    totalItemCount: number = 0;
-    pageSize: number = 0;
-    isPageChanging: boolean = false;
-    fieldOfStudyId: number = 0;
-    paperId: number = 0;
-    authorId: number = 0;
-    magRelatedRunId: number = 0;
-    paperIds: string = '';
-    includedOrExcluded: string = '';
-    attributeIds: string = '';
-}
-
-
-
-export class MVCMagFieldOfStudyListSelectionCriteria {
-
-   fieldOfStudyId: number = 0;
-   listType: string = '';
-   paperIdList: string = '';
-   searchText: string = '';
-
-}
-
-export class MVCMagPaperListSelectionCriteria {
-       
-    magPaperId: number = 0;
-    iTEM_ID: number = 0;
-    listType: string = '';
-    fieldOfStudyId: number = 0;
-    authorId: number = 0;
-    magRelatedRunId: number = 0;
-    paperIds: string = '';
-    attributeIds: string = '';
-    included: string = '';
-    pageNumber: number = 0;
-    pageSize: number = 0;
-    numResults: number = 0;
-
-}
-
-export class MvcMagFieldOfStudyListSelectionCriteria {
-
-    fieldOfStudyId: number = 0;
-    listType: string = '';
-    paperIdList: string = '';
-    searchText: string = '';
-
-}
-
-export class ClassifierContactModel {
-
-    modelId: number = 0;
-    modelTitle: string = '';
-    contactId: number = 0;
-    reviewId: number = 0;
-    reviewName: string = '';
-    contactName: string = '';
-    attributeOn: string = '';
-    attributeNotOn: string = '';
-    accuracy: number = 0;
-    auc: number = 0;
-    precision: number = 0;
-    recall: number = 0;
-
-}
-
-export class MagFieldOfStudy {
-
-    fieldOfStudyId : number  = 0;
-    rank: number = 0;
-    normalizedName: string = '';
-    displayName: string = '';
-    mainType: string = '';
-    level: number = 0;
-    paperCount: number = 0;
-    citationCount: number = 0;
-    createdDate: Date = new Date();
-    num_times: number = 0;
-    externalMagLink: string = '';
-
-}
-
-export class MagPaper {
-
-    externalMagLink: string = '';
-    fullRecord: string = '';
-    paperId: number = 0;
-    doi: string = '';
-    docType: string = '';
-    paperTitle: string = '';
-    originalTitle: string = '';
-    bookTitle: string = '';
-    year: number = 0;
-    smartDate: Date = new Date();
-    journalId: number = 0;
-    journal: string = '';
-    conferenceSeriesId: number = 0;
-    conferenceInstanceId: number = 0;
-    volume: string = '';
-    issue: string = '';
-    firstPage: string = '';
-    lastPage: string = '';
-    referenceCount: number = 0;
-    references: number = 0;
-    citationCount: number = 0;
-    estimatedCitationCount: number = 0;
-    createdDate: number = 0;
-    authors: string = '';
-    urls: string = '';
-    pdfLinks: string = '';
-    linkedITEM_ID: number = 0;
-    isSelected: boolean = false;
-    canBeSelected: boolean = false;
-    abstract: string = '';
-    autoMatchScore: number = 0;
-    manualTrueMatch: boolean = false;
-    manualFalseMatch: boolean = false;
-    findOnWeb: string = '';
-}
-
-export class MagCurrentInfo {
-
-    currentAvailability: string = '';
-    lastUpdated: Date = new Date(2000, 2, 10);
-
-}
-
-export class MagSimulation {
-
-    magSimulationId: number = 0;
-    reviewId: number = 0;
-    year: number = 0;
-    createdDate: Date = new Date();
-    withThisAttributeId: number = 0;
-    filteredByAttributeId: number = 0;
-    searchMethod: string = '';
-    networkStatistic: string = '';
-    studyTypeClassifier: string = '';
-    userClassifierModelId: number = 0;
-    status: string = '';
-    withThisAttribute: string = '';
-    filteredByAttribute: string = '';
-    userClassifierModel: string = '';
-    tp: number = 0;
-    fp: number = 0;
-    fn: number = 0;
-    tn: number = 0;
-}
-
-export class MagList {
-
-    pagesize: number = 0;
-    paperIds: string = '';
-    pagecount: number = 0;
-    pageindex: number = 0;
-    totalItemCount: number = 0;
-    papers: MagPaper[] = [];
 
 }

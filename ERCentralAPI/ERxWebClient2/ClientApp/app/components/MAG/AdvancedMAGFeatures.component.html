@@ -1,0 +1,324 @@
+﻿<HeaderComponent Context="advancedMAG"></HeaderComponent>
+<button class="page-link rounded pt-1 pb-1 mb-1 float-right"
+        style="position:absolute; right: 0; z-index:2000;" (click)="Back()">
+    Close/back
+</button>
+<div class="containsAtoolbar">
+    <kendo-toolbar>
+        <kendo-toolbar-button [text]="'Selected'" (click)="Selected()" [disabled]="HasWriteRights"></kendo-toolbar-button>
+        <kendo-toolbar-button [text]="'Clear Selected'" (click)="ClearSelected()" [disabled]="HasWriteRights"></kendo-toolbar-button>
+        <kendo-toolbar-button [text]="'Import Selected'" (click)="ImportSelected()" [disabled]="HasWriteRights"></kendo-toolbar-button>
+        <!--<kendo-toolbar-button [text]="'Auto-update home'" (click)="AutoUpdateHome()" [disabled]="!HasWriteRights"></kendo-toolbar-button>
+        <kendo-toolbar-button [text]="'Advanced features'" (click)="AdvancedFeatures()" [disabled]="!HasWriteRights"></kendo-toolbar-button>-->
+        <kendo-toolbar-button [text]="'Show history'" (click)="ShowHistory()" [disabled]="HasWriteRights"></kendo-toolbar-button>
+        <kendo-toolbar-button [text]="'Admin'" (click)="Admin()" [disabled]="HasWriteRights"></kendo-toolbar-button>
+    </kendo-toolbar>
+    
+</div>
+<div style="min-width:450px; overflow:auto;">
+    <div class="col-6 p-2 m-2 card bg-info">
+        <h5>Current Microsoft Academic Graph Dataset:<i> {{_magAdvancedService.MagCurrentInfo.lastUpdated}} </i></h5>
+
+    </div>
+    <div *ngIf="IsServiceBusy" class="k-loading-image" style="position: fixed; top: 2%;"></div>
+    <div class="col-12 row bg-light">
+        <div *ngIf="!ShowGraphViewer" class="col-xs-12 col-lg-6 card p-0 m-0 h-25">
+            <h5 class="p-1 m-1 ">Research And Development for Microsoft Academic Graph</h5>
+            <div class="m-2 p-2 card bg-light col-12 row">
+                The algorithm to find new and related studies to the ones you have
+                already identified depends on correctly matching your existing records into the Microsoft Academic dataset. While this process
+                can be automated up to a point, some records cannot be matched with 100% confidence, and some cannot be matched at all. In order
+                to improve performance, it can be helpful to check the lower confidence automatic matches for accuracy: <br />
+                <div class=" btn btn-link p-0 m-0 col-1" (click)="OpenMatchesInReview('MagMatchesNeedingCheckingInc')">
+                    <b>Included: {{_magAdvancedService.AdvancedReviewInfo.nRequiringManualCheckIncluded}}</b>
+                </div>
+                <div class=" btn btn-link p-0 m-0 col-1" (click)="OpenMatchesInReview('MagMatchesNeedingCheckingExc')">
+                    <b>Excluded: {{_magAdvancedService.AdvancedReviewInfo.nRequiringManualCheckExcluded}} </b>
+                </div>
+                In addition, there are likely to be a number of records which could not be matched at all:<br />
+                <div class=" btn btn-link p-0 m-0 col-1" (click)="OpenMatchesInReview('MagMatchesNotMatchedInc')">
+                    <b>Included: {{_magAdvancedService.AdvancedReviewInfo.nNotMatchedIncluded}} </b>
+                </div>
+                <div class=" btn btn-link p-0 m-0 col-1" (click)="OpenMatchesInReview('MagMatchesNotMatchedExc')">
+                    <b>Excluded: {{_magAdvancedService.AdvancedReviewInfo.nNotMatchedExcluded}} </b>
+                </div><br />
+            </div>
+            <div class="col-2">
+            </div>
+            <div class="col-6">
+                <button class="btn btn-outline-primary" data-toggle="collapse" href="#collapseExample1"
+                        role="button" aria-expanded="false" aria-controls="collapseExample1">
+                    Seed and Test MAG
+                </button>
+            </div>
+        </div>
+        <div *ngIf="ShowGraphViewer" class="col-xs-12 col-lg-6 card p-0 m-0 h-25">
+            <h5 class="p-1 m-1 ">Graph Viewer</h5>
+
+        </div>
+        <div class="col-xs-12 col-lg-6 card p-0 m-0">
+            <h4 class="p-1 m-1">Browse Dataset</h4>
+            <div class="col-12">
+                <div>
+                    All matched included records
+                    <div class="btn btn-link p-0 m-0 col-4" (click)="MAGBrowser('MatchedIncluded')">
+                        {{_magAdvancedService.AdvancedReviewInfo.nMatchedAccuratelyIncluded}}
+                    </div>
+                    <div class="btn btn-link  p-0 m-0 " (click)="OpenMatchesInReview('MatchedIncluded')">
+                        (List Papers)
+                    </div>
+                </div>
+                <div>
+                    All matched excluded records
+                    <div class="btn btn-link p-0 m-0 col-4" (click)="MAGBrowser('MatchedExcluded')">
+                        {{_magAdvancedService.AdvancedReviewInfo.nMatchedAccuratelyExcluded}}
+                    </div>
+                    <div class="btn btn-link  p-0 m-0 " (click)="OpenMatchesInReview('MatchedExcluded')">
+                        (List Papers)
+                    </div>
+                </div>
+                <div>
+                    All matched records in review
+                    <div class="btn btn-link p-0 m-0 col-4" (click)="MAGBrowser('MatchedAll')">
+                        {{_magAdvancedService.AdvancedReviewInfo.nMatchedAccuratelyIncluded + _magAdvancedService.AdvancedReviewInfo.nMatchedAccuratelyExcluded}}
+                    </div>
+                </div>
+                <div class="col-12 row">
+                    All matched records with this code:
+                    <div class="col-5">
+                        <div ngbDropdown class="" style="min-width:150px;">
+                            <button ngbDropdownAnchor class="btn btn-outline-primary dropdown-toggle w-100"
+                                    style="min-width: 250px; white-space:normal" [attr.aria-expanded]="!isCollapsed2"
+                                    id="dropdownBasic2"
+                                    (click)="isCollapsed2 = !isCollapsed2; dropdownBasic2 = false">
+                                {{CurrentDropdownSelectedCode2?.name}}
+                            </button>
+                            <div class="dropdown-menu" aria-labelledby="dropdownBasic2" [ngbCollapse]="!isCollapsed2">
+                                <codesetSelector [IsMultiSelect]="false" [WhatIsSelectable]="'SetAttribute'"
+                                                 [MaxHeight]="500" #WithOrWithoutCodeSelector2
+                                                 (selectedNodeInTree)="CloseCodeDropDown2()" [rootsOnly]="false">
+                                </codesetSelector>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-2">
+                        <div class="col-1"></div>
+                        <button class="btn btn-success p-2 m-2 "
+                                [disabled]="!CanGetCodeMatches()"
+                                (click)="MAGBrowser('MatchedWithThisCode')">
+                            Get Matches with code
+                        </button>
+                    </div>
+                </div>
+                <div class="col-12 row">
+                    GoTo Microsoft Academic Paper ID:
+                    <input required minlength="4" type="number" id="magPaperId" name="magPaperId" #magPaper="ngModel"
+                           class="form-control col-4 p-1 m-1 text-center"
+                           [(ngModel)]="magPaperId" />
+                    <div class="col-1"></div>
+                    <button [disabled]="!CanGetMagPaper()" (click)="GetMagPaper()" class="btn btn-warning">Get MAG paper</button>
+                    <div *ngIf="magPaper.invalid && (magPaper.dirty || magPaper.touched)"
+                         class="col-12 alert alert-danger">
+
+                        <div *ngIf="magPaper.errors.required">
+                            magPaperId is required.
+                        </div>
+                        <div *ngIf="magPaper.errors.minlength">
+                            magPaperId must be at least 4 numbers long.
+                        </div>
+                    </div>
+
+                </div>
+                <div class="col-12 card bg-secondary">
+                    <textarea [(ngModel)]="SearchText">Search for topics in the box above.  Wildcards work e.g. physic* 
+                </textarea>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="col-xs-12 col-lg-12 card collapse p-1 m-1" id="collapseExample1">
+
+        <div class="col-12  row">
+            <div class="col-5">
+                <button (click)="RunMatchingAlgo()" class="btn btn-outline-success">Run Matching Algorithm</button>
+                <p><i>NB: The matching algorithm should be run before the simulations below.</i></p>
+            </div>
+            <div class="col-6">
+                <div class="col-1"></div>
+                <div class="col-6 m-1 p-1">
+                    <div class="3"><b>Search based on</b></div>
+                    <div class="9">
+                        <input type="radio" value="Year" name="magSearchRadio"
+                               [(ngModel)]="splitDataOn">	Year
+                        <input type="radio" value="CreatedDate" name="magSearchRadio"
+                               [(ngModel)]="splitDataOn">	Created date
+                        <input type="radio" value="WithThisCode" name="magSearchRadio"
+                               [(ngModel)]="splitDataOn">	With this code
+                    </div>
+                </div>
+                <div class="col-6 m-1 p-1">
+                    <div class="3"></div>
+                    <div class="9">
+                        <input type="radio" value="true" name="filterOn"
+                               [(ngModel)]="filterOn"> Filter
+                        <input type="radio" value="false" name="filterOn"
+                               [(ngModel)]="filterOn"> No filter
+                    </div>
+                </div>
+            </div>
+            <div class="col-5 row">
+                <div class="col-12">
+                    <p class="card bg-light">
+                        Below test the performance of the various algorithms for identifying
+                        relevant studies against the data already in your review.
+                        There are three ways of splitting your data between 'seed' and 'test'
+                        records:
+                        year of publication, the date a study entered the MAG
+                        database and items under a specific code.
+
+                        <i>NB: Please see the documentation for further information.</i>
+                    </p>
+
+                </div>
+
+            </div>
+            <div class="col-6 m-2 p-2 row" *ngIf="splitDataOn == 'CreatedDate' || splitDataOn == 'Year'">
+                <div class="col-1 m-0 p-0"></div>
+                <div class="col-3 m-0 p-0 "><b>Items Dated From</b></div>
+                <div class="example-wrapper col-8" style="min-height: 100px">
+                    <kendo-datepicker [(value)]="kendoDateValue"></kendo-datepicker>
+                    <p>(use Alt+↓ to open the calendar, ← and →  to navigate, ↑ to increment and ↓ to decrement the value)</p>
+                </div>
+            </div>
+            <div class="col-12 row" *ngIf="splitDataOn == 'WithThisCode' || filterOn == 'true'">
+                <div class="=col-6"></div>
+                <div class="col-6">
+
+
+                    <div class="col-12 row">
+                        <div class="col-1 p-1 m-1"></div>
+                        <div class="col-12 p-1 m-1"><b>Select code</b></div>
+
+                        <div ngbDropdown class="" style="min-width:150px;">
+                            <button ngbDropdownAnchor class="btn btn-outline-primary dropdown-toggle w-100"
+                                    style="min-width: 250px; white-space:normal" [attr.aria-expanded]="!isCollapsed3"
+                                    id="dropdownBasic3"
+                                    (click)="isCollapsed3 = !isCollapsed3; dropdownBasic3 = false">
+                                {{CurrentDropdownSelectedCode3?.name}}
+                            </button>
+                            <div class="dropdown-menu" aria-labelledby="dropdownBasic3" [ngbCollapse]="!isCollapsed3">
+                                <codesetSelector [IsMultiSelect]="false" [WhatIsSelectable]="'SetAttribute'"
+                                                 [MaxHeight]="500" #WithOrWithoutCodeSelector3
+                                                 (selectedNodeInTree)="CloseCodeDropDown3()" [rootsOnly]="false">
+                                </codesetSelector>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+            <div class="col-12 row">
+                <div class="col-1 p-1 m-1"><b>Search method</b></div>
+                <div ngbDropdown class="col-3 p-0 m-0">
+                    <select class="col-12 form-control mb-1" name="SearchMethod"
+                            [(ngModel)]="SearchMethod">
+                        <option *ngFor="let item of SearchMethods"
+                                [ngValue]="item" [selected]="item == SearchMethod">
+                            {{item}}
+
+                        </option>
+                    </select>
+
+                </div>
+                <div class="col-1"></div>
+                <div class="col-1 p-2 m-2"><b>Network Statistic</b></div>
+                <div ngbDropdown class="col-3 p-0 m-0">
+                    <select class="col-12 form-control mb-1" name="NetworkStat"
+                            [(ngModel)]="NetworkStat">
+                        <option *ngFor="let item of NetworkStats"
+                                [ngValue]="item" [selected]="item == NetworkStat">
+                            {{item}}
+                        </option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="col-12 row">
+                <div class="col-1 m-2 p-2"><b>Study type classifier</b></div>
+                <div ngbDropdown class="col-3 p-0 m-0">
+
+                    <select class="col-12 form-control mb-1" name="StudyTypeClassifier"
+                            [(ngModel)]="StudyTypeClassifier">
+                        <option *ngFor="let item of StudyTypeClassifiers"
+                                [ngValue]="item" [selected]="item == StudyTypeClassifier">
+                            {{item}}
+                        </option>
+                    </select>
+                </div>
+                <div class="col-1"></div>
+                <div class="m-1 p-1 col-1"><b>User Defined Classifier</b></div>
+                <div class="col-3 p-0 m-0 dropdown">
+                    <select [(ngModel)]="currentClassifierContactModel" class="form-control" name="currentClassifierContactModel">
+                        <option *ngFor="let item of _magAdvancedService.ClassifierContactModelList"
+                                [ngValue]="item" [selected]="item == currentClassifierContactModel">
+                            {{item.modelTitle}}
+                        </option>
+                    </select>
+                </div>
+
+            </div>
+            <div class="col-12">
+                <div class="col-10"></div>
+                <button [disabled]="!CanAddSimulation()" (click)="AddSimulation()"
+                        class="btn btn-warning p-2 m-2">
+                    Add Simulation
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div style="min-width:150px; overflow:auto;">
+        <table class="col-6 table table-border  table-striped ">
+            <thead>
+                <tr>
+                    <th width="15">Method</th>
+                    <th width="15">Status</th>
+                    <th width="15">Seed method</th>
+                    <th width="15">(Filter)</th>
+                    <th width="15">Network Stat</th>
+                    <th width="15">Study classifier</th>
+                    <th width="15">User classifier</th>
+                    <th width="15"> ROC  </th>
+                    <th width="15">Seeds</th>
+                    <th width="1">TP</th>
+                    <th width="1">FP</th>
+                    <th width="1">FN</th>
+                    <th width="1">TN</th>
+                    <th width="5"> Delete Simulation</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let item of _magAdvancedService.MagSimulationList">
+                    <td>{{item.searchMethod}}</td>
+                    <td>{{item.status}}</td>
+                    <td>{{item.searchMethod}}</td>
+                    <td>{{item.filteredByAttribute}}</td>
+                    <td> {{item.networkStatistic}}</td>
+                    <td>{{item.studyTypeClassifier}}</td>
+                    <td>{{item.userClassifierModel}}</td>
+                    <td class="btn btn-link " width="1" (click)="ShowGraph()"> ROC </td>
+                    <td>{{item.status}}</td>
+                    <td class="btn btn-link " width="1" (click)="OpenResultsInReview('MagSimulationTP', item.magSimulationId)">{{item.tp}}</td>
+                    <td width="1">{{item.fp}}</td>
+                    <td class="btn btn-link" width="1" (click)="OpenResultsInReview('MagSimulationFN', item.magSimulationId)">{{item.fn}}</td>
+                    <td width="1">{{item.tn}}</td>
+                    <td><button class="btn btn-outline-danger" (click)="DeleteSimulation(item)"> Delete </button></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+<statusbar></statusbar>
