@@ -119,10 +119,10 @@ namespace EppiReviewer4.Helpers
         }
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
-            if (value == null || !(value is string) || (string)value == "") return false;
+            if (value == null || !(value is string) || (string)value == "") return Visibility.Collapsed;
             string low = ((string)value).ToLower();
-            if (low == ".pdf") return true;
-            else return false;
+            if (low == ".pdf") return Visibility.Visible;
+            else return Visibility.Collapsed;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)

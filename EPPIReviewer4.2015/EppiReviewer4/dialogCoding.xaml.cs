@@ -121,6 +121,20 @@ namespace EppiReviewer4
             }
         }
         //end of read-only ui hack
+        public bool CodeTreeIsBusy
+        {
+            get
+            {
+                return this.codesTreeControl.Im_busy;
+            }
+        }
+        public bool CodeTreeIsIdle
+        {
+            get
+            {
+                return this.codesTreeControl.Im_idle;
+            }
+        }
 
         public dialogCoding()
         {
@@ -208,9 +222,17 @@ namespace EppiReviewer4
             TimePointTypeList tptl = new BusinessLibrary.BusinessClasses.TimePointTypeList();
             ComboTimepointMetricSelection.ItemsSource = new TimePointTypeList().TimepointTypes;
             ComboTimepointMetricSelection.SelectedIndex = 5;
+            codesTreeControl.PropertyChanged += CodesTreeControl_PropertyChanged;
         }
 
-        
+        private void CodesTreeControl_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == "Im_busy")
+            {
+                NotifyPropertyChanged("CodeTreeIsIdle");
+                NotifyPropertyChanged("CodeTreeIsBusy");
+            }
+        }
 
         private void CodesTreeControl_RequestReturnOutcomePaneToNormal(object sender, EventArgs e)
         {
