@@ -3548,8 +3548,9 @@ namespace EppiReviewer4
                             {//item didn't belong to this set, reload all sets, as this will make sure the current set gets the latest item_set_id
                                  //will become: get the new reviewSet and load just that
                                  LoadItemAttributes(itemData.ItemId); // JT - this was commented out, but removed comment 19/07/2018
-                                if (itemData.ItemId == (DataContext as Item).ItemId)
+                                if (itemData.ItemId == (DataContext as Item).ItemId && iad.ItemData != null)
                                 {//if this isn't true, it's because the UI has already moved to another item
+                                    //iad.ItemData can be null when user moved to another item, came back to the current one and the tree is refreshing...
                                     LoadItemAttributeSet(iad.ItemData.SetId, iad.ItemData.ItemId);
                                 }
                             }
@@ -3852,7 +3853,7 @@ namespace EppiReviewer4
 
         public void doCodeKeyDown(int index)
         {
-            if (CheckBoxHotkeys.IsChecked == true)
+            if (CheckBoxHotkeys.IsChecked == true && Im_idle)
             {
                 TreeView.SelectionChanged -= TreeView_SelectionChanged;
                 object o = TreeView.SelectedItem;
