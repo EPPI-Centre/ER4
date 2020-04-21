@@ -374,7 +374,7 @@ namespace BusinessLibrary.BusinessClasses
 
             foreach (KeyValuePair<string, string> replacement in charMap)
             {
-                text.Replace(replacement.Key, replacement.Value);
+                text = text.Replace(replacement.Key, replacement.Value);
             }
 
             text = rgx.Replace(text, " ").ToLower().Trim();
@@ -475,7 +475,11 @@ namespace BusinessLibrary.BusinessClasses
                                                 { "Ⅸ", "IX" },
                                                 { "Ⅹ", "X" },
                                                 { "Ⅺ", "XI" },
-                                                { "Ⅻ", "XII" }
+                                                { "Ⅻ", "XII" },
+                                                { "(r)", "" },
+                                                { "(R)", "" },
+                                                { "(c)", "" },
+                                                { "(C)", "" }
                                             };
         }
 
