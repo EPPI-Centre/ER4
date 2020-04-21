@@ -364,7 +364,10 @@ namespace BusinessLibrary.BusinessClasses
                     LoadProperty(MagRelatedRunIdProperty, command.Parameters["@MAG_RELATED_RUN_ID"].Value);
 
                     // Run in separate thread and return this object to client
-                    Task.Run(() => { RunMagRelatedPapersRun(ri.UserId, ri.ReviewId); });
+                    if (this.Mode != "New items in MAG") // New items in MAG runs periodically outside this process
+                    {
+                        Task.Run(() => { RunMagRelatedPapersRun(ri.UserId, ri.ReviewId); });
+                    }
                 }
                 connection.Close();
             }
@@ -594,7 +597,7 @@ namespace BusinessLibrary.BusinessClasses
 
             // cleaning up the file that was uploaded
             CloudBlockBlob blockBlobUploadData = containerUp.GetBlockBlobReference(Path.GetFileName(fileName));
-            blockBlobUploadData.DeleteIfExistsAsync();
+            //blockBlobUploadData.DeleteIfExistsAsync();
 
             CloudBlockBlob blockBlobDownloadData = containerDown.GetBlockBlobReference(Path.GetFileName(fileName));
             string resultantString = await blockBlobDownloadData.DownloadTextAsync();
@@ -608,7 +611,7 @@ namespace BusinessLibrary.BusinessClasses
             dt.Columns.Add("MAG_RELATED_RUN_ID");
             dt.Columns.Add("PaperId");
             dt.Columns.Add("SimilarityScore");
-            dt.Columns.Add("PARENT_MAG_RELATED_RUN_ID");
+            //dt.Columns.Add("PARENT_MAG_RELATED_RUN_ID");
 
             using (var reader = new StreamReader(ms))
             {
@@ -621,7 +624,7 @@ namespace BusinessLibrary.BusinessClasses
                     newRow["MAG_RELATED_RUN_ID"] = this.MagRelatedRunId;
                     newRow["PaperId"] = Convert.ToInt64(line);
                     newRow["SimilarityScore"] = 0;
-                    newRow["PARENT_MAG_RELATED_RUN_ID"] = DBNull.Value;
+                    //newRow["PARENT_MAG_RELATED_RUN_ID"] = DBNull.Value;
                     dt.Rows.Add(newRow);
                 }
             }
@@ -645,7 +648,7 @@ namespace BusinessLibrary.BusinessClasses
                 }
                 connection.Close();
             }
-            blockBlobDownloadData.DeleteIfExistsAsync();
+            //blockBlobDownloadData.DeleteIfExistsAsync();
         }
 
 
