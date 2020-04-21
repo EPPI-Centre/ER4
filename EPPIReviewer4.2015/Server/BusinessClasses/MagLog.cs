@@ -117,7 +117,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<DateTime> TimeUpdatedProperty = RegisterProperty<DateTime>(new PropertyInfo<DateTime>("TimeUpdated", "TimeUpdated", 0));
+        public static readonly PropertyInfo<DateTime> TimeUpdatedProperty = RegisterProperty<DateTime>(new PropertyInfo<DateTime>("TimeUpdated", "TimeUpdated", 0));
         public DateTime TimeUpdated
         {
             get

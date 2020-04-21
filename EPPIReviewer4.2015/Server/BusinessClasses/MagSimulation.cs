@@ -457,11 +457,23 @@ namespace BusinessLibrary.BusinessClasses
         private void RunSimulation(int ReviewId, int ContactId)
         {
             MagCurrentInfo mci = MagCurrentInfo.GetMagCurrentInfoServerSide("LIVE");
-            string uploadFileName = System.Web.HttpRuntime.AppDomainAppPath + @"UserTempUploads/" + TrainingRunCommand.NameBase + "_" +
+
+            string uploadFileName = "";
+            if (Directory.Exists("UserTempUploads"))
+            {
+                uploadFileName = @"UserTempUploads/" + TrainingRunCommand.NameBase + "_" +
                 "Simulation" + MagSimulationId.ToString() + ".tsv";
+            }
+            else
+            {
+                DirectoryInfo tmpDir = System.IO.Directory.CreateDirectory("UserTempUploads");
+                uploadFileName = tmpDir.FullName + "/" + @"UserTempUploads/" + TrainingRunCommand.NameBase + "_" +
+                "Simulation" + MagSimulationId.ToString() + ".tsv";
+
+            }
             string folderPrefix = /*"experiment-v2/" +*/ TrainingRunCommand.NameBase + "_Sim" + this.MagSimulationId.ToString();
             WriteIdFile(ReviewId, ContactId, uploadFileName);
-            UploadIdsFile(uploadFileName, folderPrefix);
+            UploadIdsFileAsync(uploadFileName, folderPrefix);
             SubmitCreatTrainFileJob(ContactId, folderPrefix);
             SubmitCreatInferenceFileJob(ContactId, folderPrefix);
             
@@ -470,7 +482,7 @@ namespace BusinessLibrary.BusinessClasses
                 "Results.tsv",
                 "Sim" + this.MagSimulationId.ToString() + "per_paper_tfidf.pickle", mci.MagFolder, "0", folderPrefix, "0") == "Succeeded")
             {
-                DownloadResults(folderPrefix, ReviewId);
+                DownloadResultsAsync(folderPrefix, ReviewId);
             }
             else
             {
@@ -478,7 +490,7 @@ namespace BusinessLibrary.BusinessClasses
             }
 
             // need to add cleaning up the files, but only once we've seen it in action for a while to help debugging
-            DownloadResults(folderPrefix, ReviewId);
+            DownloadResultsAsync(folderPrefix, ReviewId);
         }
 
         private void WriteIdFile(int ReviewId, int UserId, string fileName)
@@ -510,10 +522,19 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private void UploadIdsFile(string fileName, string FolderPrefix)
+        private async Task UploadIdsFileAsync(string fileName, string FolderPrefix)
         {
+
+#if (CSLA_NETCORE)
+
+            var configuration = ERxWebClient2.Startup.Configuration.GetSection("AzureMagSettings");
+            string storageAccountName = configuration["MAGStorageAccount"];
+            string storageAccountKey = configuration["MAGStorageAccountKey"];
+
+#else
             string storageAccountName = ConfigurationManager.AppSettings["MAGStorageAccount"];
             string storageAccountKey = ConfigurationManager.AppSettings["MAGStorageAccountKey"];
+#endif
 
             string storageConnectionString =
                 "DefaultEndpointsProtocol=https;AccountName=" + storageAccountName + ";AccountKey=";
@@ -556,10 +577,19 @@ namespace BusinessLibrary.BusinessClasses
                 (this.WithThisAttributeId == 0 ? this.Year.ToString() : "1753") + ");", true, "GenerateInferenceFile", ContactId, 10);
         }
 
-        private int DownloadResults(string folderPrefix, int ReviewId)
+        private async Task<int> DownloadResultsAsync(string folderPrefix, int ReviewId)
         {
+
+#if (CSLA_NETCORE)
+
+            var configuration = ERxWebClient2.Startup.Configuration.GetSection("AzureMagSettings");
+            string storageAccountName = configuration["MAGStorageAccount"];
+            string storageAccountKey = configuration["MAGStorageAccountKey"];
+
+#else
             string storageAccountName = ConfigurationManager.AppSettings["MAGStorageAccount"];
             string storageAccountKey = ConfigurationManager.AppSettings["MAGStorageAccountKey"];
+#endif
 
             string storageConnectionString =
                 "DefaultEndpointsProtocol=https;AccountName=" + storageAccountName + ";AccountKey=";
@@ -572,8 +602,12 @@ namespace BusinessLibrary.BusinessClasses
 
             CloudBlockBlob blockBlobDownloadData = containerDown.GetBlockBlobReference(folderPrefix + "/Results.tsv");
             CloudBlockBlob blockBlobIds = containerDown.GetBlockBlobReference(folderPrefix + "/Train.tsv");
-            byte[] myFile = Encoding.UTF8.GetBytes(blockBlobDownloadData.DownloadText());
-            byte[] myFileIds = Encoding.UTF8.GetBytes(blockBlobIds.DownloadText());
+
+            string resultantString = await blockBlobDownloadData.DownloadTextAsync();
+            byte[] myFile = Encoding.UTF8.GetBytes(resultantString);
+
+            string resultantStringFileIds = await blockBlobIds.DownloadTextAsync();
+            byte[] myFileIds = Encoding.UTF8.GetBytes(resultantStringFileIds);
 
             string SeedIds = "";
             MemoryStream msIds = new MemoryStream(myFileIds);

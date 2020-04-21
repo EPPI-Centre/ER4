@@ -34,14 +34,24 @@ namespace BusinessLibrary.BusinessClasses
             string ResultsFileName, string ModelFileName, string MagContainer, string PreFilterThreshold,
             string FolderName, string AcceptanceThreshold)
         {
-            var appSettings = ConfigurationManager.AppSettings;
-            string tenantID = appSettings["tenantID"];
-            string appClientId = appSettings["appClientId"];
-            string appClientSecret = appSettings["appClientSecret"];
-            string subscriptionId = appSettings["subscriptionId"];
-            string resourceGroup = appSettings["resourceGroup"];
-            string dataFactoryName = appSettings["dataFactoryName"];
-            string pipelineName = appSettings["pipelineName"];
+
+
+#if (CSLA_NETCORE)
+
+            var configuration = ERxWebClient2.Startup.Configuration.GetSection("AzureContReviewSettings");
+
+#else
+            var configuration = ConfigurationManager.AppSettings;
+
+#endif
+
+            string tenantID = configuration["tenantID"];
+            string appClientId = configuration["appClientId"];
+            string appClientSecret = configuration["appClientSecret"];
+            string subscriptionId = configuration["subscriptionId"];
+            string resourceGroup = configuration["resourceGroup"];
+            string dataFactoryName = configuration["dataFactoryName"];
+            string pipelineName = configuration["pipelineName"];
 
             int MagLogId = MagLog.SaveLogEntry("RunContReviewProcess", "started", "", ContactId);
             var context = new AuthenticationContext("https://login.windows.net/" + tenantID);
@@ -72,7 +82,7 @@ namespace BusinessLibrary.BusinessClasses
                 //{
                 //Console.WriteLine(" Activity " + run.ActivityName + " " + run.Status);
                 //}
-               
+
                 if (DateTime.Now.ToUniversalTime().AddMinutes(5) > result.ExpiresOn) // the token expires after an hour
                 {
                     count++;
@@ -86,7 +96,7 @@ namespace BusinessLibrary.BusinessClasses
                     if (accessToken == result.AccessToken)
                     {
                         MagLog.UpdateLogEntry("Access token not renewed (" + count.ToString() + ")", "RunContReviewProcess", MagLogId);
-                    } 
+                    }
                 }
 
                 Thread.Sleep(10 * 1000);
@@ -115,7 +125,7 @@ namespace BusinessLibrary.BusinessClasses
                         MagLog.UpdateLogEntry("Caught cloud error", "RunContReviewProcess", MagLogId);
                     }
                 }
-                
+
                 MagLog.UpdateLogEntry(runStatus, "RunContReviewProcess", MagLogId);
             }
             return runStatus;
@@ -125,27 +135,38 @@ namespace BusinessLibrary.BusinessClasses
             string ResultsFileName, string ModelFileName, string MagContainer, string PreFilterThreshold, string FolderName,
             string AcceptanceThreshold)
         {
+
+
             Dictionary<string, object> parameters = new Dictionary<string, object>();
-            var appSettings = ConfigurationManager.AppSettings;
 
-            TrainFileName = TrainFileName == "" ? appSettings["gold_standard_file"] : TrainFileName;
-            InferenceFileName = InferenceFileName == "" ? appSettings["new_papers_file"] : InferenceFileName;
-            ResultsFileName = ResultsFileName == "" ? appSettings["results_file_name"] : ResultsFileName;
-            ModelFileName = ModelFileName == "" ? appSettings["trained_model_filename"] : ModelFileName;
-            MagContainer = MagContainer == "" ? appSettings["mag_container"] : MagContainer;
-            PreFilterThreshold = PreFilterThreshold == "" ? appSettings["pre_filter_threshold"] : PreFilterThreshold;
-            AcceptanceThreshold = AcceptanceThreshold == "" ? appSettings["acceptance_threshold"] : AcceptanceThreshold;
 
-            parameters.Add("interactive", appSettings["interactive"]);
-            parameters.Add("make_train_set", appSettings["make_train_set"]);
-            parameters.Add("make_inference_set", appSettings["make_inference_set"]);
-            parameters.Add("review_run_version", appSettings["review_run_version"]);
-            parameters.Add("overwrite_raw_processed_data", appSettings["overwrite_raw_processed_data"]);
-            parameters.Add("mag_account_name", appSettings["mag_account_name"]);
-            parameters.Add("mag_account_key", appSettings["mag_account_key"]);
-            parameters.Add("gold_account_name", appSettings["gold_account_name"]);
-            parameters.Add("gold_account_key", appSettings["gold_account_key"]);
-            parameters.Add("gold_container", appSettings["gold_container"]);
+#if (CSLA_NETCORE)
+
+            var configuration = ERxWebClient2.Startup.Configuration.GetSection("AzureMagSettings");
+
+#else
+            var configuration = ConfigurationManager.AppSettings;
+
+#endif
+
+            TrainFileName = TrainFileName == "" ? configuration["gold_standard_file"] : TrainFileName;
+            InferenceFileName = InferenceFileName == "" ? configuration["new_papers_file"] : InferenceFileName;
+            ResultsFileName = ResultsFileName == "" ? configuration["results_file_name"] : ResultsFileName;
+            ModelFileName = ModelFileName == "" ? configuration["trained_model_filename"] : ModelFileName;
+            MagContainer = MagContainer == "" ? configuration["mag_container"] : MagContainer;
+            PreFilterThreshold = PreFilterThreshold == "" ? configuration["pre_filter_threshold"] : PreFilterThreshold;
+            AcceptanceThreshold = AcceptanceThreshold == "" ? configuration["acceptance_threshold"] : AcceptanceThreshold;
+
+            parameters.Add("interactive", configuration["interactive"]);
+            parameters.Add("make_train_set", configuration["make_train_set"]);
+            parameters.Add("make_inference_set", configuration["make_inference_set"]);
+            parameters.Add("review_run_version", configuration["review_run_version"]);
+            parameters.Add("overwrite_raw_processed_data", configuration["overwrite_raw_processed_data"]);
+            parameters.Add("mag_account_name", configuration["mag_account_name"]);
+            parameters.Add("mag_account_key", configuration["mag_account_key"]);
+            parameters.Add("gold_account_name", configuration["gold_account_name"]);
+            parameters.Add("gold_account_key", configuration["gold_account_key"]);
+            parameters.Add("gold_container", configuration["gold_container"]);
 
             parameters.Add("gold_standard_file", FolderName + "/" + TrainFileName);
             parameters.Add("new_papers_file", FolderName + "/" + InferenceFileName);
@@ -157,14 +178,14 @@ namespace BusinessLibrary.BusinessClasses
             parameters.Add("mag_container", MagContainer);
             parameters.Add("ml_experiment_folder", FolderName);
 
-            parameters.Add("training_set_storage_account_name", appSettings["training_set_storage_account_name"]);
-            parameters.Add("training_set_storage_key", appSettings["training_set_storage_key"]);
-            parameters.Add("training_set_container", appSettings["training_set_container"]);
-            parameters.Add("new_papers_account_name", appSettings["new_papers_account_name"]);
-            parameters.Add("new_papers_account_key", appSettings["new_papers_account_key"]);
-            parameters.Add("new_papers_container", appSettings["new_papers_container"]);
+            parameters.Add("training_set_storage_account_name", configuration["training_set_storage_account_name"]);
+            parameters.Add("training_set_storage_key", configuration["training_set_storage_key"]);
+            parameters.Add("training_set_container", configuration["training_set_container"]);
+            parameters.Add("new_papers_account_name", configuration["new_papers_account_name"]);
+            parameters.Add("new_papers_account_key", configuration["new_papers_account_key"]);
+            parameters.Add("new_papers_container", configuration["new_papers_container"]);
             parameters.Add("acceptance_threshold", AcceptanceThreshold);
-            parameters.Add("results_storage_container", appSettings["results_storage_container"]);
+            parameters.Add("results_storage_container", configuration["results_storage_container"]);
 
             parameters.Add("min_review_size", "5");
             parameters.Add("pre_filter_threshold", PreFilterThreshold);
