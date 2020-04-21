@@ -73,12 +73,23 @@ namespace BusinessLibrary.BusinessClasses
 
         private void doRunPipeline(int ReviewId, int ContactId)
         {
-            string uploadFileName = System.Web.HttpRuntime.AppDomainAppPath + @"UserTempUploads/" + "crSeeds.tsv";
+
+            string uploadFileName = "";
+            if (Directory.Exists("UserTempUploads"))
+            {
+                uploadFileName = @"UserTempUploads/" + "crSeeds.tsv";
+            }
+            else
+            {
+                DirectoryInfo tmpDir = System.IO.Directory.CreateDirectory("UserTempUploads");
+                uploadFileName = tmpDir.FullName + "/" + @"UserTempUploads/" + "crSeeds.tsv";
+
+            }
             string folderPrefix = Guid.NewGuid().ToString();
             int SeedIds = WriteSeedIdsFile(uploadFileName);
             int logId = MagLog.SaveLogEntry("ContReview", "started", "SeedIds: " + SeedIds.ToString(), ContactId);
 
-            UploadSeedIdsFileToBlob(uploadFileName, folderPrefix);
+            UploadSeedIdsFileToBlobAsync(uploadFileName, folderPrefix);
             MagLog.UpdateLogEntry("Running", "SeedIds uploaded: " + SeedIds.ToString(), logId);
 
             WriteNewIdsFileOnBlob(uploadFileName, ContactId, folderPrefix);
@@ -89,8 +100,9 @@ namespace BusinessLibrary.BusinessClasses
             MagLog.UpdateLogEntry("Running", "ADFPipelineComplete (" + SeedIds.ToString() + ")", logId);
 
             //folderPrefix = "56760d2d-e044-4f6f-8718-9a43c4e30a77";
-            int NewIds = DownloadResults(folderPrefix + "/crResults.tsv", ReviewId);
-            MagLog.UpdateLogEntry("Complete", "SeedIds: " + SeedIds.ToString() + "; NewIds: " + NewIds.ToString(), logId);
+            Task<int> NewIds = DownloadResultsAsync(folderPrefix + "/crResults.tsv", ReviewId);
+            NewIds.Wait();
+            MagLog.UpdateLogEntry("Complete", "SeedIds: " + SeedIds.ToString() + "; NewIds: " + NewIds.Result.ToString(), logId);
         }
 
         private int WriteSeedIdsFile(string uploadFileName)
@@ -124,10 +136,11 @@ namespace BusinessLibrary.BusinessClasses
             return lineCount;
         }
 
-        private void UploadSeedIdsFileToBlob(string fileName, string folderPrefix)
+        private async Task UploadSeedIdsFileToBlobAsync(string fileName, string folderPrefix)
         {
-            string storageAccountName = ConfigurationManager.AppSettings["MAGStorageAccount"];
-            string storageAccountKey = ConfigurationManager.AppSettings["MAGStorageAccountKey"];
+            var configuration = ERxWebClient2.Startup.Configuration.GetSection("AzureMagSettings");
+            string storageAccountName = configuration["MAGStorageAccount"];
+            string storageAccountKey = configuration["MAGStorageAccountKey"];
 
             string storageConnectionString =
                 "DefaultEndpointsProtocol=https;AccountName=" + storageAccountName + ";AccountKey=";
@@ -160,10 +173,11 @@ namespace BusinessLibrary.BusinessClasses
                 this._NextMagVersion + "\",\"" + folderPrefix + "/NewPapers.tsv" + "\",\"" + "experiments" + "\");", true, "GetNewPaperIds", ContactId, 10);
         }
 
-        private int DownloadResults(string fileName, int ReviewId)
+        private async Task<int> DownloadResultsAsync(string fileName, int ReviewId)
         {
-            string storageAccountName = ConfigurationManager.AppSettings["MAGStorageAccount"];
-            string storageAccountKey = ConfigurationManager.AppSettings["MAGStorageAccountKey"];
+            var configuration = ERxWebClient2.Startup.Configuration.GetSection("AzureMagSettings");
+            string storageAccountName = configuration["MAGStorageAccount"];
+            string storageAccountKey = configuration["MAGStorageAccountKey"];
 
             string storageConnectionString =
                 "DefaultEndpointsProtocol=https;AccountName=" + storageAccountName + ";AccountKey=";
@@ -174,8 +188,9 @@ namespace BusinessLibrary.BusinessClasses
             CloudBlobContainer container = blobClient.GetContainerReference("experiments");
 
             CloudBlockBlob blockBlobDownloadData = container.GetBlockBlobReference(fileName);
-            byte[] myFile = Encoding.UTF8.GetBytes(blockBlobDownloadData.DownloadText());
-
+            string resultantString = await blockBlobDownloadData.DownloadTextAsync();
+            byte[] myFile = Encoding.UTF8.GetBytes(resultantString);
+            
             MemoryStream ms = new MemoryStream(myFile);
 
             DataTable dt = new DataTable("Ids");
