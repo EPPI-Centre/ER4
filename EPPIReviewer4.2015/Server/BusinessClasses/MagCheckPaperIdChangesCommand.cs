@@ -76,20 +76,17 @@ namespace BusinessLibrary.BusinessClasses
             ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
             int ReviewId = ri.ReviewId; // we don't use this, but it checks we have a valid ticket
             int ContactId = ri.UserId; // putting to variable in case the user invalidates ticket
-            MagLog.SaveLogEntry("Started ID checking", "Started", "", ContactId);
+            int TaskMagLogId = MagLog.SaveLogEntry("Started ID checking", "Started", "", ContactId);
             string uploadFileName = System.Web.HttpRuntime.AppDomainAppPath + TempPath + "CheckPaperIdChanges.csv";
 
             WriteCurrentlyUsedPaperIdsToFile(uploadFileName);
             UploadIdsFile(uploadFileName);
             MagLog.SaveLogEntry("File Upload", "Complete", "", ContactId);
-            MagLog.SaveLogEntry("uSQL query", "Started", "", ContactId);
             SubmitJob(ContactId);
-            MagLog.SaveLogEntry("uSQL query", "Complete", "", ContactId);
             DownloadMissingIdsFile(uploadFileName);
-            MagLog.SaveLogEntry("Downloaded results", "Complete", "", ContactId);
-            MagLog.SaveLogEntry("Auto-match IDs", "Started", "", ContactId);
+            int AutoMatchMagLogId = MagLog.SaveLogEntry("Auto-match IDs", "Started", "", ContactId);
             LookupMissingIdsInNewMakes(ContactId);
-            MagLog.SaveLogEntry("Auto-match IDs", "Complete", "", ContactId);
+            MagLog.UpdateLogEntry("Complete", "", AutoMatchMagLogId);
             UpdateLiveIds();
             MagLog.SaveLogEntry("Live IDs updated", "Complete", "", ContactId);
         }

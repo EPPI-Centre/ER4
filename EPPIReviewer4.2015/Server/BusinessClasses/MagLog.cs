@@ -117,6 +117,19 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
+        private static PropertyInfo<DateTime> TimeUpdatedProperty = RegisterProperty<DateTime>(new PropertyInfo<DateTime>("TimeUpdated", "TimeUpdated", 0));
+        public DateTime TimeUpdated
+        {
+            get
+            {
+                return GetProperty(TimeUpdatedProperty);
+            }
+            set
+            {
+                SetProperty(TimeUpdatedProperty, value);
+            }
+        }
+
         //protected override void AddAuthorizationRules()
         //{
         //    //string[] canWrite = new string[] { "AdminUser", "RegularUser" };
@@ -165,6 +178,7 @@ namespace BusinessLibrary.BusinessClasses
             MagLog returnValue = new MagLog();
             returnValue.LoadProperty<int>(MagLogIdProperty, reader.GetInt32("MAG_LOG_ID"));
             returnValue.LoadProperty<DateTime>(TimeSubmittedProperty, reader.GetDateTime("TIME_SUBMITTED"));
+            returnValue.LoadProperty<DateTime>(TimeUpdatedProperty, reader.GetDateTime("TIME_UPDATED"));
             returnValue.LoadProperty<string>(ContactNameProperty, reader.GetString("CONTACT_NAME"));
             returnValue.LoadProperty<int>(ContactIdProperty, reader.GetInt32("CONTACT_ID"));
             returnValue.LoadProperty<string>(JobTypeProperty, reader.GetString("JOB_TYPE"));
@@ -175,8 +189,9 @@ namespace BusinessLibrary.BusinessClasses
             return returnValue;
         }
 
-        public static void SaveLogEntry(string jobType, string status, string message, int ContactId)
+        public static int SaveLogEntry(string jobType, string status, string message, int ContactId)
         {
+            int newLogId = 0;
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
                 connection.Open();
@@ -187,11 +202,34 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@JOB_TYPE", jobType));
                     command.Parameters.Add(new SqlParameter("@JOB_STATUS", status));
                     command.Parameters.Add(new SqlParameter("@JOB_MESSAGE", message));
+                    command.Parameters.Add(new SqlParameter("@MAG_LOG_ID", 0));
+                    command.Parameters["@MAG_LOG_ID"].Direction = System.Data.ParameterDirection.Output;
+                    command.ExecuteNonQuery();
+                    newLogId = Convert.ToInt32(command.Parameters["@MAG_LOG_ID"].Value.ToString());
+                }
+                connection.Close();
+            }
+            return newLogId;
+        }
+
+        public static void UpdateLogEntry(string status, string message, int MagLogId)
+        {
+            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+            {
+                connection.Open();
+                using (SqlCommand command = new SqlCommand("st_MagLogUpdate", connection))
+                {
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@MAG_LOG_ID", MagLogId));
+                    command.Parameters.Add(new SqlParameter("@JOB_STATUS", status));
+                    command.Parameters.Add(new SqlParameter("@JOB_MESSAGE", message));
                     command.ExecuteNonQuery();
                 }
                 connection.Close();
             }
         }
+
+
 
 #endif
 

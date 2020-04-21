@@ -9,12 +9,19 @@ using Csla.Serialization;
 using Csla.Silverlight;
 //using Csla.Validation;
 using Csla.DataPortalClient;
+using System.IO;
+using System.Configuration;
 
-#if!SILVERLIGHT
+
+#if !SILVERLIGHT
 using System.Data.SqlClient;
 using BusinessLibrary.Data;
 using Csla.Data;
 using BusinessLibrary.Security;
+using System.Threading.Tasks;
+using Microsoft.WindowsAzure.Storage;
+using Microsoft.WindowsAzure.Storage.Blob;
+using System.Data;
 #endif
 
 namespace BusinessLibrary.BusinessClasses
@@ -346,6 +353,8 @@ namespace BusinessLibrary.BusinessClasses
                     LoadProperty(MagSimulationIdProperty, command.Parameters["@MAG_SIMULATION_ID"].Value);
                 }
                 connection.Close();
+                // Run in separate thread and return this object to client
+                Task.Run(() => { RunSimulation(ri.ReviewId, ri.UserId); });
             }
         }
 
@@ -435,6 +444,223 @@ namespace BusinessLibrary.BusinessClasses
             returnValue.MarkOld();
             return returnValue;
         }
+
+
+        private void RunSimulation(int ReviewId, int ContactId)
+        {
+            MagCurrentInfo mci = MagCurrentInfo.GetMagCurrentInfoServerSide("LIVE");
+            string uploadFileName = System.Web.HttpRuntime.AppDomainAppPath + @"UserTempUploads/" + TrainingRunCommand.NameBase + "_" +
+                "Simulation" + MagSimulationId.ToString() + ".tsv";
+            string folderPrefix = /*"experiment-v2/" +*/ TrainingRunCommand.NameBase + "_Sim" + this.MagSimulationId.ToString();
+            WriteIdFile(ReviewId, ContactId, uploadFileName);
+            UploadIdsFile(uploadFileName, folderPrefix);
+            SubmitCreatTrainFileJob(ContactId, folderPrefix);
+            SubmitCreatInferenceFileJob(ContactId, folderPrefix);
+            
+            if (MagContReviewPipeline.runADFPieline(ContactId, "Train.tsv",
+                "Inference.tsv",
+                "Results.tsv",
+                "Sim" + this.MagSimulationId.ToString() + "per_paper_tfidf.pickle", mci.MagFolder, "0", folderPrefix, "0") == "Succeeded")
+            {
+                DownloadResults(folderPrefix, ReviewId);
+            }
+            else
+            {
+                // add log entry? (The ContReview object will already have logged an error)
+            }
+
+            // need to add cleaning up the files, but only once we've seen it in action for a while to help debugging
+            DownloadResults(folderPrefix, ReviewId);
+        }
+
+        private void WriteIdFile(int ReviewId, int UserId, string fileName)
+        {
+            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+            {
+                connection.Open();
+                using (SqlCommand command = new SqlCommand("st_MagSimulationGetIds", connection))
+                {
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    
+                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", ReviewId));
+                    command.Parameters.Add(new SqlParameter("@ATTRIBUTE_ID_FILTER", this.FilteredByAttributeId));
+                    command.Parameters.Add(new SqlParameter("@ATTRIBUTE_ID_SEED", this.WithThisAttributeId));
+                    using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
+                    {
+                        if (reader.Read())
+                        {
+                            using (StreamWriter file = new StreamWriter(fileName, false))
+                            {
+                                while (reader.Read())
+                                {
+                                    file.WriteLine(reader["PaperId"].ToString()+ "\t" + ReviewId.ToString() + "\t" + "1");
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        private void UploadIdsFile(string fileName, string FolderPrefix)
+        {
+            string storageAccountName = ConfigurationManager.AppSettings["MAGStorageAccount"];
+            string storageAccountKey = ConfigurationManager.AppSettings["MAGStorageAccountKey"];
+
+            string storageConnectionString =
+                "DefaultEndpointsProtocol=https;AccountName=" + storageAccountName + ";AccountKey=";
+            storageConnectionString += storageAccountKey;
+
+            CloudStorageAccount storageAccount = CloudStorageAccount.Parse(storageConnectionString);
+            CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
+            CloudBlobContainer container = blobClient.GetContainerReference("experiments");
+            CloudBlockBlob blockBlobData;
+
+            blockBlobData = container.GetBlockBlobReference(FolderPrefix + "/SeedIds.tsv");
+            using (var fileStream = System.IO.File.OpenRead(fileName))
+            {
+
+
+#if (!CSLA_NETCORE)
+                blockBlobData.UploadFromStream(fileStream);
+#else
+
+					await blockBlobData.UploadFromFileAsync(fileName);
+#endif
+
+            }
+            File.Delete(fileName);
+        }
+
+        private void SubmitCreatTrainFileJob(int ContactId, string folderPrefix)
+        {
+            MagCurrentInfo MagInfo = MagCurrentInfo.GetMagCurrentInfoServerSide("LIVE");
+            MagDataLakeHelpers.ExecProc(@"[master].[dbo].[GenerateTrainFile](""" + folderPrefix + "/SeedIds.tsv\",\"" +
+                folderPrefix + "/Train.tsv" + "\", \"" + MagInfo.MagFolder + "\",\"" + this.SearchMethod + "\"," +
+                this.Year.ToString() + ");", true, "GenerateTrainFile", ContactId, 10);
+        }
+
+        private void SubmitCreatInferenceFileJob(int ContactId, string folderPrefix)
+        {
+            MagCurrentInfo MagInfo = MagCurrentInfo.GetMagCurrentInfoServerSide("LIVE");
+            MagDataLakeHelpers.ExecProc(@"[master].[dbo].[GenerateInferenceFile](""" + folderPrefix + "/Train.tsv\",\"" +
+                folderPrefix + "/Inference.tsv" + "\", \"" + MagInfo.MagFolder + "\",\"" + this.SearchMethod + "\"," +
+                (this.WithThisAttributeId == 0 ? this.Year.ToString() : "1753") + ");", true, "GenerateInferenceFile", ContactId, 10);
+        }
+
+        private int DownloadResults(string folderPrefix, int ReviewId)
+        {
+            string storageAccountName = ConfigurationManager.AppSettings["MAGStorageAccount"];
+            string storageAccountKey = ConfigurationManager.AppSettings["MAGStorageAccountKey"];
+
+            string storageConnectionString =
+                "DefaultEndpointsProtocol=https;AccountName=" + storageAccountName + ";AccountKey=";
+            storageConnectionString += storageAccountKey;
+
+            CloudStorageAccount storageAccount = CloudStorageAccount.Parse(storageConnectionString);
+            CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
+            CloudBlobClient blobClientIds = storageAccount.CreateCloudBlobClient();
+            CloudBlobContainer containerDown = blobClient.GetContainerReference("experiments");
+
+            CloudBlockBlob blockBlobDownloadData = containerDown.GetBlockBlobReference(folderPrefix + "/Results.tsv");
+            CloudBlockBlob blockBlobIds = containerDown.GetBlockBlobReference(folderPrefix + "/Train.tsv");
+            byte[] myFile = Encoding.UTF8.GetBytes(blockBlobDownloadData.DownloadText());
+            byte[] myFileIds = Encoding.UTF8.GetBytes(blockBlobIds.DownloadText());
+
+            string SeedIds = "";
+            MemoryStream msIds = new MemoryStream(myFileIds);
+            using (var readerIds = new StreamReader(msIds))
+            {
+                string line;
+                bool firstTime = true;
+                while ((line = readerIds.ReadLine()) != null)
+                {
+                    string [] fields = line.Split('\t');
+                    if (firstTime == true)
+                    {
+                        SeedIds = fields[0];
+                        firstTime = false;
+                    }
+                    else
+                    {
+                        SeedIds += "," + fields[0];
+                    }
+                }
+            }
+
+            MemoryStream ms = new MemoryStream(myFile);
+
+            DataTable dt = new DataTable("Ids");
+            dt.Columns.Add("MAG_SIMULATION_RESULT_ID"); // can be anything
+            dt.Columns.Add("MAG_SIMULATION_ID");
+            dt.Columns.Add("PaperId");
+            dt.Columns.Add("INCLUDED");
+            dt.Columns.Add("FOUND");
+            dt.Columns.Add("SEED");
+            dt.Columns.Add("STUDY_TYPE_CLASSIFIER_SCORE");
+            dt.Columns.Add("USER_CLASSIFIER_MODEL_SCORE");
+            dt.Columns.Add("NETWORK_STATISTIC_SCORE");
+            dt.Columns.Add("FOS_DISTANCE_SCORE");
+            dt.Columns.Add("ENSEMBLE_SCORE");
+
+            string JobId = Guid.NewGuid().ToString();
+            int lineCount = 0;
+
+            using (var reader = new StreamReader(ms))
+            {
+                string line;
+                bool firstTime = true; // column headers
+                while ((line = reader.ReadLine()) != null)
+                {
+                    if (firstTime == false)
+                    {
+                        string[] fields = line.Split('\t');
+                        DataRow newRow = dt.NewRow();
+                        newRow["MAG_SIMULATION_RESULT_ID"] = 0; // identity column
+                        newRow["MAG_SIMULATION_ID"] = this.MagSimulationId;
+                        newRow["PaperId"] = fields[0];
+                        newRow["INCLUDED"] = "False";
+                        newRow["FOUND"] = "False";
+                        newRow["SEED"] = "False";
+                        newRow["STUDY_TYPE_CLASSIFIER_SCORE"] = fields[2];
+                        newRow["USER_CLASSIFIER_MODEL_SCORE"] = fields[2];
+                        newRow["NETWORK_STATISTIC_SCORE"] = fields[2];
+                        newRow["FOS_DISTANCE_SCORE"] = fields[2];
+                        newRow["ENSEMBLE_SCORE"] = fields[2];
+                        dt.Rows.Add(newRow);
+                        lineCount++;
+                    }
+                    else
+                    {
+                        firstTime = false;
+                    }
+                }
+            }
+
+            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+            {
+                connection.Open();
+                using (SqlBulkCopy sbc = new SqlBulkCopy(connection))
+                {
+                    sbc.DestinationTableName = "TB_MAG_SIMULATION_RESULT";
+                    sbc.BatchSize = 1000;
+                    sbc.WriteToServer(dt);
+                }
+
+                using (SqlCommand command = new SqlCommand("st_MagSimulationUpdatePostRun", connection))
+                {
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@MAG_SIMULATION_ID", this.MagSimulationId));
+                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", ReviewId));
+                    command.Parameters.Add(new SqlParameter("@SeedIds", SeedIds));
+                    command.ExecuteNonQuery();
+                }
+                connection.Close();
+            }
+            return lineCount;
+        }
+
+
 
 #endif
     }

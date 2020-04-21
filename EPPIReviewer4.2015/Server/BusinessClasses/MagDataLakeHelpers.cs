@@ -44,13 +44,22 @@ namespace BusinessLibrary.BusinessClasses
             string adlaAccountName, Guid jobId, bool doLogging, string jobType, int ContactId)
         {
             var jobInfo = adlaJobClient.Job.Get(adlaAccountName, jobId);
-            MagLog.SaveLogEntry("DataLake: " + jobType, jobInfo.State.ToString(), "", ContactId);
+            int MagLogId = MagLog.SaveLogEntry("DataLake: " + jobType, jobInfo.State.ToString(), "", ContactId);
             while (jobInfo.State != JobState.Ended)
             {
                 Thread.Sleep(15000);
                 jobInfo = adlaJobClient.Job.Get(adlaAccountName, jobId);
+                MagLog.UpdateLogEntry(jobInfo.State.ToString(), "", MagLogId);
             }
-            MagLog.SaveLogEntry("DataLake: " + jobType, jobInfo.State.ToString(), "", ContactId);
+            if (jobInfo.ErrorMessage != null && jobInfo.ErrorMessage.Count > 0)
+            {
+                MagLog.UpdateLogEntry(jobInfo.ErrorMessage[0].Description, jobInfo.ErrorMessage[0].Message, MagLogId);
+            }
+            else
+            {
+                MagLog.UpdateLogEntry(jobInfo.State.ToString(), "", MagLogId);
+            }
+            
             return jobInfo.Result.Value;
         }
 

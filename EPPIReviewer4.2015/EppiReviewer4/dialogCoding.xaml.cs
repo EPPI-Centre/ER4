@@ -358,7 +358,9 @@ namespace EppiReviewer4
         {
             cmdUploadFile.IsEnabled = false;
             cmdNext.IsEnabled = false;
+            cmdNextMag.IsEnabled = false;
             cmdPrevious.IsEnabled = false;
+            cmdPreviousMag.IsEnabled = false;
             codesTreeControl.IsEnabled = false;
             CodingRecordGrid.DataContext = null;
         }
@@ -388,18 +390,22 @@ namespace EppiReviewer4
                 if (GetPreviousItem() == null)
                 {
                     cmdPrevious.IsEnabled = false;
+                    cmdPreviousMag.IsEnabled = false;
                 }
                 else
                 {
                     cmdPrevious.IsEnabled = true;
+                    cmdPreviousMag.IsEnabled = true;
                 }
                 if (GetNextItem() == null)
                 {
                     cmdNext.IsEnabled = false;
+                    cmdNextMag.IsEnabled = false;
                 }
                 else
                 {
                     cmdNext.IsEnabled = true;
+                    cmdNextMag.IsEnabled = true;
                 }
                 int z = filteredItemList.IndexOf(DataContext as Item);
                 int IndexInFilteredList = filteredItemList.IndexOf(DataContext as Item);
@@ -409,8 +415,11 @@ namespace EppiReviewer4
                 //codesTreeControl.BindItem(DataContext as Item);
                 LoadAllItemSets((DataContext as Item).ItemId);
                 ClearCurrentTextDocument();
-                PaneItemDetails.SelectedIndex = 0;
-                
+                if (PaneItemDetails.SelectedIndex != 7) // i.e. don't change if we're on microsoft academic tab
+                    PaneItemDetails.SelectedIndex = 0;
+                else
+                    MicrosoftAcademic_Activated(null, null);
+
                 //(DataContext as Item).GetDocumentList();
                 GetItemDocumentList(DataContext as Item);
                 GetItemArmList(DataContext as Item);

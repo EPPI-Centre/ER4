@@ -98,16 +98,19 @@ namespace BusinessLibrary.BusinessClasses
                     {
                         foreach (MagMakesHelpers.PaperMakes fosm in pmr.entities)
                         {
-                            foreach (MagMakesHelpers.PaperMakesFieldOfStudy pmfos in fosm.F)
+                            if (fosm.F != null)
                             {
-                                string key = pmfos.FId.ToString() + "¬" + pmfos.DFN;
-                                if (!fosDict.ContainsKey(key))
+                                foreach (MagMakesHelpers.PaperMakesFieldOfStudy pmfos in fosm.F)
                                 {
-                                    fosDict.Add(key, 1);
-                                }
-                                else
-                                {
-                                    fosDict[key] = fosDict[key] + 1;
+                                    string key = pmfos.FId.ToString() + "¬" + pmfos.DFN;
+                                    if (!fosDict.ContainsKey(key))
+                                    {
+                                        fosDict.Add(key, 1);
+                                    }
+                                    else
+                                    {
+                                        fosDict[key] = fosDict[key] + 1;
+                                    }
                                 }
                             }
                         }

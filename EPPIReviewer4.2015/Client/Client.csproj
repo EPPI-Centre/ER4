@@ -58,6 +58,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>full</DebugType>
@@ -440,6 +441,9 @@
     </Compile>
     <Compile Include="..\Server\BusinessClasses\MagCheckPaperIdChangesCommand.cs">
       <Link>BusinessClasses\MagCheckPaperIdChangesCommand.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\MagContReviewPipelineRunCommand.cs">
+      <Link>BusinessClasses\MagContReviewPipelineRunCommand.cs</Link>
     </Compile>
     <Compile Include="..\Server\BusinessClasses\MagCurrentInfo.cs">
       <Link>BusinessClasses\MagCurrentInfo.cs</Link>

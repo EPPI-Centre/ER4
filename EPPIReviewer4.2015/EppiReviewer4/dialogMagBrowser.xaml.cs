@@ -123,6 +123,16 @@ namespace EppiReviewer4
                 }
             }
 
+            RefreshCounts();
+
+            CslaDataProvider provider3 = this.Resources["ClassifierContactModelListData"] as CslaDataProvider;
+            provider3.Refresh();
+            CslaDataProvider provider1 = this.Resources["MagSimulationListData"] as CslaDataProvider;
+            provider1.Refresh();
+        }
+
+        private void RefreshCounts()
+        {
             DataPortal<MAgReviewMagInfoCommand> dp2 = new DataPortal<MAgReviewMagInfoCommand>();
             MAgReviewMagInfoCommand mrmic = new MAgReviewMagInfoCommand();
             dp2.ExecuteCompleted += (o, e2) =>
@@ -145,11 +155,6 @@ namespace EppiReviewer4
                 }
             };
             dp2.BeginExecute(mrmic);
-
-            CslaDataProvider provider3 = this.Resources["ClassifierContactModelListData"] as CslaDataProvider;
-            provider3.Refresh();
-            CslaDataProvider provider1 = this.Resources["MagSimulationListData"] as CslaDataProvider;
-            provider1.Refresh();
         }
 
         // ********************************* HISTORY PAGE **********************************
@@ -1443,8 +1448,14 @@ namespace EppiReviewer4
                         //RadWindow.Alert("Records submitted for matching. This can take a while...");
                     }
                 };
+                lbRefreshCounts.Visibility = Visibility.Visible;
                 dp.BeginExecute(GetMatches);
             }
+        }
+
+        private void lbRefreshCounts_Click(object sender, RoutedEventArgs e)
+        {
+            RefreshCounts();
         }
 
 
@@ -1564,6 +1575,15 @@ namespace EppiReviewer4
                 }
             }
 
+        }
+
+        private void ComboRelatedPapersMode_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+        {
+            if (ComboRelatedPapersMode != null && ComboRelatedPapersMode.Items != null && ComboRelatedPapersMode.SelectedIndex == 7)
+            {
+                RadioButtonRelatedPapersRunAllIncluded.IsChecked = true;
+                RadioButtonRelatedPapersRunNoDateRestriction.IsChecked = true;
+            }
         }
 
         private void HyperlinkButton_Click_2(object sender, RoutedEventArgs e)
@@ -2116,5 +2136,28 @@ namespace EppiReviewer4
             LBSwitchOffAutoRefreshLogList.Visibility = Visibility.Collapsed;
             RadWindow.Alert("Ok, auto-refresh is switched off");
         }
+
+        private void LBRunContReviewPipeline_Click(object sender, RoutedEventArgs e)
+        {
+            CslaDataProvider provider = ((CslaDataProvider)App.Current.Resources["MagCurrentInfoData"]);
+            MagCurrentInfo mci = provider.Data as MagCurrentInfo;
+            DataPortal<MagContReviewPipelineRunCommand> dp2 = new DataPortal<MagContReviewPipelineRunCommand>();
+            MagContReviewPipelineRunCommand RunPipelineCommand = new MagContReviewPipelineRunCommand(mci.MagFolder, tbLatestMag.Text);
+            dp2.ExecuteCompleted += (o, e2) =>
+            {
+                if (e2.Error != null)
+                {
+                    RadWindow.Alert(e2.Error.Message);
+                }
+                else
+                {
+                    RadWindow.Alert("Pipeline running...");
+                }
+            };
+            LBRunContReviewPipeline.IsEnabled = false;
+            dp2.BeginExecute(RunPipelineCommand);
+        }
+
+        
     }
 }

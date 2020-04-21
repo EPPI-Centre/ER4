@@ -811,7 +811,24 @@
                                                  Click="hlManualMagLookup_Click" IsTabStop="False"
                                                  IsEnabled="{Binding Source={StaticResource MagCurrentInfoData}, Path=Data.MatchingAvailable, Mode=OneWay}"
                                                  ></HyperlinkButton>
+
+                                <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,5,5,5">
                                 
+                                    <HyperlinkButton x:Name="cmdPreviousMag" Click="cmdPrevious_Click" ToolTipService.ToolTip="Hotkey: Ctrl + shift + left arrow">
+                                        <StackPanel Orientation="Horizontal">
+                                            <Image Width="16" Height="16" Source="Icons/PreviousDocument.png"/>
+                                            <TextBlock Text="Previous" Margin="5,0,0,0"></TextBlock>
+                                        </StackPanel>
+                                    </HyperlinkButton>
+                                    <HyperlinkButton x:Name="cmdNextMag" Click="cmdNext_Click" ToolTipService.ToolTip="Hotkey: Ctrl + shift + right arrow">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="Next" Margin="0,0,5,0"></TextBlock>
+                                            <Image Width="16" Height="16" Source="Icons/NextDocument.png"/>
+                                        </StackPanel>
+                                    </HyperlinkButton>
+
+                                </StackPanel>
+
                                 <TextBlock Grid.Row="1" x:Name="tbQuickCitation" Text="{Binding QuickCitation}" FontWeight="Bold" FontSize="12" TextWrapping="Wrap" Margin="5,2,5,2"></TextBlock>
                                 <TextBlock Grid.Row="2" VerticalAlignment="Bottom" Text="Record(s) matched from Microsoft Academic:" Margin="5,3,5,1"></TextBlock>
                                 <telerik:RadListBox Grid.Row="3" ScrollViewer.HorizontalScrollBarVisibility="Disabled"

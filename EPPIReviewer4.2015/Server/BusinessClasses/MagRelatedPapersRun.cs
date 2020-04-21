@@ -369,7 +369,10 @@ namespace BusinessLibrary.BusinessClasses
                     LoadProperty(MagRelatedRunIdProperty, command.Parameters["@MAG_RELATED_RUN_ID"].Value);
 
                     // Run in separate thread and return this object to client
-                    Task.Run(() => { RunMagRelatedPapersRun(ri.UserId, ri.ReviewId); });
+                    if (this.Mode != "New items in MAG") // New items in MAG runs periodically outside this process
+                    {
+                        Task.Run(() => { RunMagRelatedPapersRun(ri.UserId, ri.ReviewId); });
+                    }
                 }
                 connection.Close();
             }
@@ -543,7 +546,7 @@ namespace BusinessLibrary.BusinessClasses
             MagCurrentInfo MagInfo = MagCurrentInfo.GetMagCurrentInfoServerSide("LIVE");
             MagDataLakeHelpers.ExecProc(@"[master].[dbo].[RelatedRun](""" + Path.GetFileName(uploadFileName) + "\",\"" +
                 Path.GetFileName(uploadFileName) + "\", \"" + MagInfo.MagFolder + "\",\"" + this.Mode + "\"," +
-                (this.DateFrom.ToString() != "" ? DateFrom.ToString() : "1753") + ");", true, "RelatedRun", ContactId, 12);
+                (this.DateFrom.ToString() != "" ? DateFrom.ToString() : "1753") + ");", true, "RelatedRun", ContactId, 10);
         }
 
         private void DownloadResults(string fileName, int ReviewId)
@@ -575,7 +578,7 @@ namespace BusinessLibrary.BusinessClasses
             dt.Columns.Add("MAG_RELATED_RUN_ID");
             dt.Columns.Add("PaperId");
             dt.Columns.Add("SimilarityScore");
-            dt.Columns.Add("PARENT_MAG_RELATED_RUN_ID");
+            //dt.Columns.Add("PARENT_MAG_RELATED_RUN_ID");
 
             using (var reader = new StreamReader(ms))
             {
@@ -588,7 +591,7 @@ namespace BusinessLibrary.BusinessClasses
                     newRow["MAG_RELATED_RUN_ID"] = this.MagRelatedRunId;
                     newRow["PaperId"] = Convert.ToInt64(line);
                     newRow["SimilarityScore"] = 0;
-                    newRow["PARENT_MAG_RELATED_RUN_ID"] = DBNull.Value;
+                    //newRow["PARENT_MAG_RELATED_RUN_ID"] = DBNull.Value;
                     dt.Rows.Add(newRow);
                 }
             }
