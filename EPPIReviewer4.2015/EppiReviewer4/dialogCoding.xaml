@@ -19,6 +19,8 @@
      
     <UserControl.Resources>
         <helper:EditIntVisibilityConverter x:Key="EditIntVisibility" />
+        <helper:EditTrueFalseVisibilityConverter x:Key="EditTrueFalseVisibility" />
+        <helper:ReverseEditTrueFalseVisibilityConverter x:Key="ReverseEditTrueFalseVisibility" />
         <helper:ReverseBooleanConverter x:Key="ReverseBoolean" />
         <cslaXAML:CslaDataProvider x:Key="ItemDocumentListData"
                            ManageObjectLifetime="True"
@@ -134,8 +136,12 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate>
-                        <Button x:Name="ViewDox" IsEnabled="{Binding Extension, Converter={StaticResource EnableViewPDF}}"
+                        <Border Visibility="{Binding Extension, Converter={StaticResource EnableViewPDF}}"  
+                                VerticalAlignment="Stretch" BorderThickness="0" Margin="0" HorizontalAlignment="Stretch">
+                            <Button x:Name="ViewDox" IsEnabled="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=UserControl }, Path=CodeTreeIsIdle, Mode=OneWay}"
                                 Content="View" Tag="{Binding ItemDocumentId}" Click="ViewDox_Click"></Button>
+                            
+                        </Border>
                         <!--<Button x:Name="ViewDox" IsEnabled="False"
                                 Content="View" Tag="{Binding ItemDocumentId}" Click="ViewDox_Click"></Button>-->
                     </ControlTemplate>
@@ -245,7 +251,8 @@
                                         <ColumnDefinition Width="*"></ColumnDefinition>
                                     </Grid.ColumnDefinitions>
 
-                                    <telerikGridView:RadGridView x:Name="GridDocuments" Grid.Column="1" ShowGroupPanel="False" Margin="3,3,3,3" ItemsSource="{Binding Source={StaticResource ItemDocumentListData}, Path=Data, Mode=TwoWay}" AutoGenerateColumns="False">
+                                    <telerikGridView:RadGridView x:Name="GridDocuments" Grid.Column="1" ShowGroupPanel="False" Margin="3,3,3,3" 
+                                                                 ItemsSource="{Binding Source={StaticResource ItemDocumentListData}, Path=Data, Mode=TwoWay}" AutoGenerateColumns="False">
                                         <telerikGridView:RadGridView.Columns>
                                             <telerikGridView:GridViewDataColumn Header="Title" DataMemberBinding="{Binding Title}" Width="*"></telerikGridView:GridViewDataColumn>
                                             <telerikGridView:GridViewDataColumn Header="Document" DataMemberBinding="{Binding ShortTitle}" Width="100" IsReadOnly="True"></telerikGridView:GridViewDataColumn>
@@ -259,6 +266,7 @@
                                     <StackPanel Orientation="Vertical">
                                         <Button x:Name="cmdUploadFile" IsEnabled="{Binding Source={StaticResource isEnorCodingOnly}, Path=IsEnabled, Mode=OneWay}" 
                                             Content="Upload" Grid.Column="0" Height="25" VerticalAlignment="Top" Click="cmdUploadFile_Click"  Margin="3,3,3,3"></Button>
+                                        
                                         <cslaXAML:BusyAnimation x:Name="busyDocList" IsRunning="{Binding Source={StaticResource ItemDocumentListData},Path=IsBusy}"></cslaXAML:BusyAnimation>
                                         <cslaXAML:BusyAnimation x:Name="busyUploading" IsRunning="False"></cslaXAML:BusyAnimation>
                                     </StackPanel>

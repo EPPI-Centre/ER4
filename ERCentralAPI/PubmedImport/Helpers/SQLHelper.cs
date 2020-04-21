@@ -255,7 +255,7 @@ namespace EPPIDataServices.Helpers
 
     }
 }
-#if(CSLA_NETCORE)
+#if (CSLA_NETCORE)
 namespace BusinessLibrary.Data
 {
     public static class DataConnection
@@ -275,6 +275,15 @@ namespace BusinessLibrary.Data
                 return Program.SqlHelper.ER4AdminDB;
             }
         }
+
+		public static string AcademicControllerConnectionString
+        {
+            get
+            {
+                return Program.SqlHelper.AcademicDB;
+            }
+        }
+
     }
 }
 #endif

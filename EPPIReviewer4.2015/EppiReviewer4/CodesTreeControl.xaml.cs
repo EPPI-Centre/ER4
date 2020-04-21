@@ -22,12 +22,20 @@ using Telerik.Windows.Documents.Selection;
 using System.Text.RegularExpressions;
 using Telerik.Windows.DragDrop;
 using Telerik.Windows.Controls.TreeView;
-
+using System.ComponentModel;
 
 namespace EppiReviewer4
 {
-    public partial class CodesTreeControl : UserControl
-    {
+    public partial class CodesTreeControl : UserControl, INotifyPropertyChanged
+    {//INotifyPropertyChanged is needed to notify UI that Im_busy and Im_idle may have changed (rebind busy status)
+        public event PropertyChangedEventHandler PropertyChanged;
+        public void NotifyPropertyChanged(string propertyName)
+        {
+            if (PropertyChanged != null)
+            {
+                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+            }
+        }
         private ItemDocument _CurrentTextDocument;
         private NewLinesHelper newLinesHelper;
         //public RichEdit rich;
@@ -67,7 +75,7 @@ namespace EppiReviewer4
         public event EventHandler RequestReturnOutcomePaneToNormal;
 
         private RadWClassifier windowClassifier = new RadWClassifier();
-
+        CslaDataProvider CodeSetsDataprovider = (App.Current.Resources["CodeSetsData"] as CslaDataProvider);
         //first bunch of lines to make the read-only UI work
         //public BusinessLibrary.Security.ReviewerIdentity ri;
         public bool HasWriteRights
@@ -85,6 +93,48 @@ namespace EppiReviewer4
             set { _controlContext = value; }
         }
 
+        private List<string> _busyMethods = new List<string>();
+        public bool Im_busy
+        {
+            get { return _busyMethods.Count > 0 || CodeSetsDataprovider.IsBusy; }
+        }
+        public bool Im_idle
+        {
+            get { return _busyMethods.Count == 0 && !CodeSetsDataprovider.IsBusy; }
+        }
+        public string Im_busyTxt
+        {
+            get {
+                if (Im_busy) return "Busy";
+                else return "Idle";
+            }
+        }
+        private void BusyChanged()
+        {
+            NotifyPropertyChanged("Im_idle");
+            NotifyPropertyChanged("Im_busy");
+            NotifyPropertyChanged("Im_busyTxt");
+        }
+        public void AddBusyMethod(string MethodName)
+        {
+            _busyMethods.Add(MethodName);
+            if (_busyMethods.Count >= 1)
+            {
+                BusyChanged();
+            }
+        }
+        public void RemoveBusyMethod(string MethodName)
+        {
+            int ind = _busyMethods.IndexOf(MethodName);
+            if (ind > -1)
+            {
+                _busyMethods.RemoveAt(ind);
+                if (_busyMethods.Count == 0)
+                {
+                    BusyChanged();
+                }
+            }
+        }
         //private bool LoadingAttributes = false;
         private BusinessLibrary.Security.ReviewerIdentity ri;
 
@@ -162,6 +212,14 @@ namespace EppiReviewer4
             // set up outcomes control
             dialogEditOutcome dialogEditOutcomeControl = new dialogEditOutcome();
             GridEditOutcome.Children.Add(dialogEditOutcomeControl);
+
+            CodeSetsDataprovider.PropertyChanged += CodeSetsDataprovider_PropertyChanged;
+            //CodeSetsDataprovider.DataChanged += CodeSetsDataProvider_DataChanged;
+        }
+
+        private void CodeSetsDataprovider_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == "IsBusy") BusyChanged();
         }
 
         private void DialogEditOutcomesControl_ShowEditOutcomeGrid(object sender, EventArgs e)
@@ -255,17 +313,17 @@ namespace EppiReviewer4
                 provider.DataChanged -= CodeSetsProvider_DataChanged;
                 provider.DataChanged += new EventHandler(CodeSetsProvider_DataChanged);
             }
-            Helpers.ReverseBooleanConverter rbc = new Helpers.ReverseBooleanConverter();
+            //Helpers.ReverseBooleanConverter rbc = new Helpers.ReverseBooleanConverter();
             Binding binding = new Binding();
-            binding.Converter = rbc;
-            binding.ConverterParameter = "IsBusy";
-            binding.Source = App.Current.Resources["CodeSetsData"] as CslaDataProvider;
-            binding.Path = new PropertyPath("IsBusy");
+            //binding.Converter = rbc;
+            //binding.ConverterParameter = "IsBusy";
+            binding.Source = this;
+            binding.Path = new PropertyPath("Im_idle");
             TreeView.SetBinding(RadTreeView.IsEnabledProperty, binding);
-            if (ControlContext == "dialogCoding" || ControlContext == "CodingOnly")
-            {
-                TreeView.IsEnabled = false;
-            }
+            //if (ControlContext == "dialogCoding" || ControlContext == "CodingOnly")
+            //{
+            //    TreeView.IsEnabled = false;
+            //}
         }
 
         private void CodeSetsProvider_DataChanged(object sender, EventArgs e)
@@ -443,6 +501,7 @@ namespace EppiReviewer4
 
         public void BindNew()
         {
+            AddBusyMethod("BindNew");
             if (TreeView == null)
             {
                 MakeTree();
@@ -455,7 +514,8 @@ namespace EppiReviewer4
                 reviewSets.ClearItemData();
                 reviewSets.LoadingAttributes = false;
             }
-            TreeView.IsEnabled = true;
+            RemoveBusyMethod("BindNew");
+            //TreeView.IsEnabled = true;
         }
 
         public void BindItem(Item Item)
@@ -720,7 +780,8 @@ namespace EppiReviewer4
                             DataPortal<ReadOnlyAttributeTextAllItemsList> dp = new DataPortal<ReadOnlyAttributeTextAllItemsList>();
                             dp.FetchCompleted += (o, e2) =>
                             {
-                                BusyLoading.IsRunning = false;
+                                RemoveBusyMethod("Report: all text coded with this code (all PDFs)");
+                                //BusyLoading.IsRunning = false;
                                 if (e2.Error != null)
                                 {
                                     MessageBox.Show(e2.Error.Message);
@@ -774,7 +835,8 @@ namespace EppiReviewer4
                                     windowReports.ShowDialog();
                                 }
                             };
-                            BusyLoading.IsRunning = true;
+                            AddBusyMethod("Report: all text coded with this code (all PDFs)");
+                            //BusyLoading.IsRunning = true;
                             dp.BeginFetch(new SingleCriteria<ReadOnlyAttributeTextAllItemsList, Int64>(attributeSet.AttributeSetId));
                         }
                     }
@@ -804,7 +866,8 @@ namespace EppiReviewer4
                                         rInfo);
                                     dp.ExecuteCompleted += (o, e2) =>
                                     {
-                                        BusyLoading.IsRunning = false;
+                                        RemoveBusyMethod("Insert ItemAttributeSaveCommand");
+                                        //BusyLoading.IsRunning = false;
                                         if (e2.Error != null)
                                         {
                                             MessageBox.Show(e2.Error.Message);
@@ -821,7 +884,8 @@ namespace EppiReviewer4
                                             CodeOrUnCodeSelectedText(attributeSet, "Code");
                                         }
                                     };
-                                    BusyLoading.IsRunning = true;
+                                    AddBusyMethod("Insert ItemAttributeSaveCommand");
+                                    //BusyLoading.IsRunning = true;
                                     dp.BeginExecute(command);
                                 }
                                 else
@@ -1377,12 +1441,14 @@ namespace EppiReviewer4
                 {
                     attributeSet.Saved += (o, e2) =>
                     {
-                        BusyLoading.IsRunning = false;
+                        RemoveBusyMethod("TreeView_Edited");
+                        //BusyLoading.IsRunning = false;
                         if (e2.Error != null)
                             MessageBox.Show(e2.Error.Message);
                     };
+                    AddBusyMethod("TreeView_Edited");
                     attributeSet.BeginSave(true);
-                    BusyLoading.IsRunning = true;
+                    //BusyLoading.IsRunning = true;
                 }
             }
             else
@@ -1395,21 +1461,24 @@ namespace EppiReviewer4
                     {
                         reviewSet.Saved += (o, e2) =>
                         {
-                            BusyLoading.IsRunning = false;
+                            RemoveBusyMethod("TreeView_Edited");
+                            //BusyLoading.IsRunning = false;
                             if (e2.Error != null)
                                 MessageBox.Show(e2.Error.Message);
                         };
+                        AddBusyMethod("TreeView_Edited");
                         reviewSet.BeginSave(true);
-                        BusyLoading.IsRunning = true;
+                        //BusyLoading.IsRunning = true;
                     }
                 }
             }
         }
-        public void MakeBusy()
-        {
-            BusyLoading.IsRunning = true;
-            if (TreeView != null) TreeView.IsEnabled = false;
-        }
+        //public void MakeBusy(string WhyBusy)
+        //{
+        //    AddBusyMethod(WhyBusy);
+        //    BusyLoading.IsRunning = true;
+        //    if (TreeView != null) TreeView.IsEnabled = false;
+        //}
         public void LoadItemAttributes(List<ItemSet> data)
         {
             doLoadItemAttributes(data);
@@ -1445,15 +1514,18 @@ namespace EppiReviewer4
                     ////DoLiveComparisons();
                     //TreeView.IsEnabled = true;
                 }
+                RemoveBusyMethod("LoadItemAttributes");
             };
-            BusyLoading.IsRunning = true;
+            AddBusyMethod("LoadItemAttributes");
+            //BusyLoading.IsRunning = true;
             //BusyLoadingAllAttributes.IsRunning = true;
-            TreeView.IsEnabled = false;
+            //TreeView.IsEnabled = false;
             dp.BeginFetch(new SingleCriteria<ItemSetList, Int64>(ItemId));
         }
 
         private void doLoadItemAttributes(List<ItemSet> data)
         {
+            AddBusyMethod("doLoadItemAttributes");
             // in case the dialog was closed with the outcomes editing open
             GridEditOutcome.Visibility = Visibility.Collapsed;
             CodingGrid.Visibility = Visibility.Visible;
@@ -1482,8 +1554,9 @@ namespace EppiReviewer4
             reviewSets.LoadingAttributes = true;
             reviewSets.SetItemData(data, CurrentArm);
             reviewSets.LoadingAttributes = false;
-            BusyLoading.IsRunning = false;
-            TreeView.IsEnabled = true;
+            RemoveBusyMethod("doLoadItemAttributes");
+            //BusyLoading.IsRunning = false;
+            //TreeView.IsEnabled = true;
         }
 
         private AttributeSet currentAttributeSet;
@@ -1527,7 +1600,8 @@ namespace EppiReviewer4
                     rInfo);
                 dp.ExecuteCompleted += (o, e2) =>
                 {
-                    BusyLoading.IsRunning = false;
+                    RemoveBusyMethod("saveAdditionaltext_Click");
+                    //BusyLoading.IsRunning = false;
                     if (e2.Error != null)
                     {
                         MessageBox.Show(e2.Error.Message);
@@ -1563,7 +1637,8 @@ namespace EppiReviewer4
                         reviewSets.LoadingAttributes = false;
                     }
                 };
-                BusyLoading.IsRunning = true;
+                AddBusyMethod("saveAdditionaltext_Click");
+                //BusyLoading.IsRunning = true;
                 dp.BeginExecute(command);
             }
             else // the checkbox wasn't previously selected, so we need to select and save it
@@ -1590,7 +1665,8 @@ namespace EppiReviewer4
                     rInfo);
                 dp.ExecuteCompleted += (o, e2) =>
                 {
-                    BusyLoading.IsRunning = false;
+                    RemoveBusyMethod("saveAdditionaltext_Click");
+                    //BusyLoading.IsRunning = false;
                     if (e2.Error != null)
                     {
                         //MessageBox.Show(e2.Error.Message);
@@ -1626,7 +1702,8 @@ namespace EppiReviewer4
                         reviewSets.LoadingAttributes = false;
                     }
                 };
-                BusyLoading.IsRunning = true;
+                AddBusyMethod("saveAdditionaltext_Click");
+                //BusyLoading.IsRunning = true;
                 dp.BeginExecute(command);
             }
             windowAdditionalText.Close();
@@ -2099,8 +2176,8 @@ namespace EppiReviewer4
                 0);
             dp.ExecuteCompleted += (o, e2) =>
             {
-                
-                BusyLoading.IsRunning = false;
+                RemoveBusyMethod("CodeOrUnCodeSelectedText");
+                //BusyLoading.IsRunning = false;
                 if (e2.Error != null)
                 {
                     MessageBox.Show(e2.Error.Message);
@@ -2111,7 +2188,8 @@ namespace EppiReviewer4
                     
                 }
             };
-            BusyLoading.IsRunning = true;
+            AddBusyMethod("CodeOrUnCodeSelectedText");
+            //BusyLoading.IsRunning = true;
             dp.BeginExecute(command);
         }
 
@@ -2120,7 +2198,8 @@ namespace EppiReviewer4
             DataPortal<ItemAttributeTextList> dp = new DataPortal<ItemAttributeTextList>();
             dp.FetchCompleted += (o, e2) =>
             {
-                BusyLoading.IsRunning = false;
+                RemoveBusyMethod("LoadItemAttributeTextList");
+                //BusyLoading.IsRunning = false;
                 if (e2.Error != null)
                 {
                     MessageBox.Show(e2.Error.Message);
@@ -2131,7 +2210,8 @@ namespace EppiReviewer4
                     HightlightSelectedCode();
                 }
             };
-            BusyLoading.IsRunning = true;
+            AddBusyMethod("LoadItemAttributeTextList");
+            //BusyLoading.IsRunning = true;
             dp.BeginFetch(new SingleCriteria<ItemAttributeTextList, Int64>(attributeSet.ItemData.ItemAttributeId));
         }
 
@@ -2209,12 +2289,13 @@ namespace EppiReviewer4
                         {
                             if (e2.Error != null)
                                 MessageBox.Show("Sorry - the move command failed on the server.\nPlease go to the 'my info tab' and reload your review");
-
-                            BusyLoading.IsRunning = false;
-                            TreeView.IsEnabled = true;
+                            RemoveBusyMethod("TreeView_PreviewDragEnded");
+                            //BusyLoading.IsRunning = false;
+                            //TreeView.IsEnabled = true;
                         };
-                        TreeView.IsEnabled = false;
-                        BusyLoading.IsRunning = true;
+                        AddBusyMethod("TreeView_PreviewDragEnded");
+                        //TreeView.IsEnabled = false;
+                        //BusyLoading.IsRunning = true;
                         dp.BeginExecute(command);
                     }
                     return; // don't want to get into the rest of the proc
@@ -2447,11 +2528,13 @@ namespace EppiReviewer4
                             if (e2.Error != null)
                                 MessageBox.Show("Sorry - the move command failed on the server.\nPlease go to the 'my info tab' and reload your review");
 
-                            BusyLoading.IsRunning = false;
-                            TreeView.IsEnabled = true;
+                            RemoveBusyMethod("TreeView_PreviewDragEnded2");
+                            //BusyLoading.IsRunning = false;
+                            //TreeView.IsEnabled = true;
                         };
-                        TreeView.IsEnabled = false;
-                        BusyLoading.IsRunning = true;
+                        AddBusyMethod("TreeView_PreviewDragEnded2");
+                        //TreeView.IsEnabled = false;
+                        //BusyLoading.IsRunning = true;
                         dp.BeginExecute(command);
                     }
                     return; // don't want to get into the rest of the proc
@@ -2658,12 +2741,13 @@ namespace EppiReviewer4
             {
                 if (e2.Error != null)
                     MessageBox.Show(e2.Error.Message);
-
-                BusyLoading.IsRunning = false;
-                TreeView.IsEnabled = true;
+                RemoveBusyMethod("DoMove");
+                //BusyLoading.IsRunning = false;
+                //TreeView.IsEnabled = true;
             };
-            TreeView.IsEnabled = false;
-            BusyLoading.IsRunning = true;
+            AddBusyMethod("DoMove");
+            //TreeView.IsEnabled = false;
+            //BusyLoading.IsRunning = true;
             dp.BeginExecute(command);
         }
 
@@ -3252,12 +3336,14 @@ namespace EppiReviewer4
                     MessageBox.Show(e2.Error.Message);
 
                 windowEditCodeSet.BusyEditCodeSet.IsRunning = false;
-                TreeView.IsEnabled = true;
+                RemoveBusyMethod("UpdateCodeset");
+                //TreeView.IsEnabled = true;
                 rs.SetIsClean();
                 rs.ApplyEdit();
                 windowEditCodeSet.Close();
             };
-            TreeView.IsEnabled = false;
+            AddBusyMethod("UpdateCodeset");
+            //TreeView.IsEnabled = false;
             windowEditCodeSet.BusyEditCodeSet.IsRunning = true;
             dp.BeginExecute(command);
         }
@@ -3350,14 +3436,16 @@ namespace EppiReviewer4
                 if (e2.Error != null)
                     MessageBox.Show(e2.Error.Message);
 
-                BusyLoading.IsRunning = false;
-                TreeView.IsEnabled = true;
+                RemoveBusyMethod("UpdateAttribute");
+                //BusyLoading.IsRunning = false;
+                //TreeView.IsEnabled = true;
                 attributeSet.SetIsClean();
                 attributeSet.ApplyEdit();
                 windowCodeProperties.Close();
             };
-            TreeView.IsEnabled = false;
-            BusyLoading.IsRunning = true;
+            AddBusyMethod("UpdateAttribute");
+            //TreeView.IsEnabled = false;
+            //BusyLoading.IsRunning = true;
             dp.BeginExecute(command);
         }
 
@@ -3412,7 +3500,6 @@ namespace EppiReviewer4
                     if (revS.ItemSetId == 0)
                     {
                         itemData.ItemSetId = 0;
-                        MakeBusy();//this is to prevent people from adding another ItemCode to a set that is about to receive and ItemSetID
                     }
                     else
                     {//item already belongs to this set
@@ -3441,8 +3528,8 @@ namespace EppiReviewer4
                         rInfo);
                     dp.ExecuteCompleted += (o, e2) =>
                     {
-                        
-                        BusyLoading.IsRunning = false;
+                        RemoveBusyMethod("cb_Click");
+                        //BusyLoading.IsRunning = false;
                         if (e2.Error != null)
                         {
                             //MessageBox.Show(e2.Error.Message);
@@ -3451,7 +3538,7 @@ namespace EppiReviewer4
                         }
                         else
                         {
-                            if (TreeView != null) TreeView.IsEnabled = true;
+                            //if (TreeView != null) TreeView.IsEnabled = true;
                             if ((RequestItemAdvance != null) && (CheckBoxAutoAdvance.IsChecked == true))
                             {
                                 ShowReminder(iad.AttributeName);
@@ -3461,8 +3548,9 @@ namespace EppiReviewer4
                             {//item didn't belong to this set, reload all sets, as this will make sure the current set gets the latest item_set_id
                                  //will become: get the new reviewSet and load just that
                                  LoadItemAttributes(itemData.ItemId); // JT - this was commented out, but removed comment 19/07/2018
-                                if (itemData.ItemId == (DataContext as Item).ItemId)
+                                if (itemData.ItemId == (DataContext as Item).ItemId && iad.ItemData != null)
                                 {//if this isn't true, it's because the UI has already moved to another item
+                                    //iad.ItemData can be null when user moved to another item, came back to the current one and the tree is refreshing...
                                     LoadItemAttributeSet(iad.ItemData.SetId, iad.ItemData.ItemId);
                                 }
                             }
@@ -3485,7 +3573,8 @@ namespace EppiReviewer4
                             }
                         }
                     };
-                    BusyLoading.IsRunning = true;
+                    AddBusyMethod("cb_Click");//this is to prevent people from adding another ItemCode to a set that is about to receive and ItemSetID
+                    //BusyLoading.IsRunning = true;
                     dp.BeginExecute(command);
                 }
                 else
@@ -3507,7 +3596,8 @@ namespace EppiReviewer4
                                 rInfo);
                             dp.ExecuteCompleted += (o, e2) =>
                             {
-                                BusyLoading.IsRunning = false;
+                                RemoveBusyMethod("cb_Click");
+                                //BusyLoading.IsRunning = false;
                                 if (e2.Error != null)
                                 {
                                     RadWindow.Alert("Warning: there was a problem saving your data." + Environment.NewLine + "Please close this window and try again.");
@@ -3542,7 +3632,8 @@ namespace EppiReviewer4
                                     this.SelectedItemChanged.Invoke(sender, e);//this is needed to notify the pdf viewer: coding in PDF may have been deleted.
                                 }
                             };
-                            BusyLoading.IsRunning = true;
+                            AddBusyMethod("cb_Click");
+                            //BusyLoading.IsRunning = true;
                             dp.BeginExecute(command);
                         }
                         else
@@ -3565,15 +3656,17 @@ namespace EppiReviewer4
                     reviewSets.LoadingAttributes = true;
                     reviewSets.SetItemSetData(e2.Object, ComboArms.Visibility == Visibility.Visible ? Convert.ToInt64((ComboArms.SelectedItem as ComboBoxItem).Tag) : 0);
                     reviewSets.LoadingAttributes = false;
-                    BusyLoading.IsRunning = false;
                     //BusyLoadingAllAttributes.IsRunning = false;
                     //DoLiveComparisons();
-                    TreeView.IsEnabled = true;
+                    RemoveBusyMethod("LoadItemAttributeSet");
+                    //BusyLoading.IsRunning = false;
+                    //TreeView.IsEnabled = true;
                 }
             };
-            BusyLoading.IsRunning = true;
             //BusyLoadingAllAttributes.IsRunning = true;
-            TreeView.IsEnabled = false;
+            AddBusyMethod("LoadItemAttributeSet");
+            //BusyLoading.IsRunning = true;
+            //TreeView.IsEnabled = false;
             dp.BeginFetch(new ItemSetSelectionCriteria(SetID, ItemID));
         }
 
@@ -3760,7 +3853,7 @@ namespace EppiReviewer4
 
         public void doCodeKeyDown(int index)
         {
-            if (CheckBoxHotkeys.IsChecked == true)
+            if (CheckBoxHotkeys.IsChecked == true && Im_idle)
             {
                 TreeView.SelectionChanged -= TreeView_SelectionChanged;
                 object o = TreeView.SelectedItem;
@@ -4198,10 +4291,15 @@ namespace EppiReviewer4
 
         private void cmdReloadAllSets_Click(object sender, RoutedEventArgs e)
         {
-            CslaDataProvider provider = (App.Current.Resources["CodeSetsData"] as CslaDataProvider);
-            if (provider == null) return;
-            provider.Refresh();
+            //AddBusyMethod("cmdReloadAllSets_Click");
+            if (CodeSetsDataprovider == null) return;
+            CodeSetsDataprovider.Refresh();
         }
+
+        //private void CodeSetsDataProvider_DataChanged(object sender, EventArgs e)
+        //{
+        //    RemoveBusyMethod("cmdReloadAllSets_Click");
+        //}
 
         public void ResetArms(ItemArmList arms)
         {

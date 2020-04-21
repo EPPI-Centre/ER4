@@ -149,6 +149,8 @@ public partial class JumpToWPMUCL : System.Web.UI.Page
         bool isAdmDB = true;
         float VatRate = 0, currentAmount;
         int numberMonths;
+        int credit;
+        int outstandingFee;
 
         IDataReader idr = Utils.GetReader(isAdmDB, "st_VatGet",
             Utils.GetSessionString("CountryID"));
@@ -221,6 +223,8 @@ public partial class JumpToWPMUCL : System.Web.UI.Page
             {
                 numberMonths = int.Parse(idr["MONTHS_CREDIT"].ToString());
                 currentAmount = float.Parse(idr["COST"].ToString());
+                credit = int.Parse(idr["MONTHS_CREDIT"].ToString()) * 5;
+                outstandingFee = int.Parse(idr["MONTHS_CREDIT"].ToString()) * 1;
                 if (numberMonths == 0 || currentAmount == 0) continue;
                 //option 1: if it's an account
                 if (idr["TYPE_NAME"].ToString() == "Professional")
@@ -268,6 +272,7 @@ public partial class JumpToWPMUCL : System.Web.UI.Page
                     }
                     else
                     {//it's an existing review
+
                         res.Add(buildXMLRequestLine
                             (
                                 idr["LINE_ID"].ToString(),
@@ -280,6 +285,30 @@ public partial class JumpToWPMUCL : System.Web.UI.Page
                            )
                        );
                     }
+                }
+                else if (idr["TYPE_NAME"].ToString() == "Credit purchase")
+                { //option 3: it's a credit purchase
+                    res.Add(buildXMLRequestLine
+                        (
+                            idr["LINE_ID"].ToString(),
+                            "Credit Purchase: £" + credit + ".00",                          
+                            currentAmount.ToString("F2"),
+                            (VatRate * credit).ToString("F2"),
+                            VatRate.ToString("F2"), (VatRate * credit + credit).ToString("F2")
+                        )
+                    );
+                }
+                else if (idr["TYPE_NAME"].ToString() == "Outstanding fee")
+                { //option 3: it's a credit purchase
+                    res.Add(buildXMLRequestLine
+                        (
+                            idr["LINE_ID"].ToString(),
+                            "Outstanding fee: £" + outstandingFee + ".00",
+                            currentAmount.ToString("F2"),
+                            (VatRate * outstandingFee).ToString("F2"),
+                            VatRate.ToString("F2"), (VatRate * outstandingFee + outstandingFee).ToString("F2")
+                        )
+                    );
                 }
             }
         }

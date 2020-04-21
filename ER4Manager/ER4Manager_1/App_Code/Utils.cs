@@ -1215,6 +1215,45 @@ public class Utils
         }
     }
 
+    public static string OutstandingFeeEmail(string mailTo, string contactName, string outstandingFee)
+    //function to let someone know there is an outstanding fee for previous unpaid account and/or review extensions 
+    {
+        string emailID = "11"; // this is based on the values in the database
+        MailMessage msg = new MailMessage();
+        msg.To.Add(mailTo);
+
+        msg.From = new MailAddress("eppisupport@ucl.ac.uk");
+
+        msg.Subject = "EPPI-Reviewer: Outstanding fee";
+        msg.IsBodyHtml = true;
+
+        bool isAdmDB = true;
+        IDataReader idr = Utils.GetReader(isAdmDB, "st_EmailGet", emailID);
+        if (idr.Read())
+        {
+            msg.Body = idr["EMAIL_MESSAGE"].ToString();
+        }
+        idr.Close();
+
+        msg.Body = msg.Body.Replace("ShowFeeHere", "&#163;" + outstandingFee + " (GBP)");
+        msg.Body = msg.Body.Replace("FullNameHere", contactName);
+
+        SmtpClient smtp = smtpClient();
+        try
+        {
+            smtp.Send(msg);
+            return "The email was sent successfully";
+        }
+        catch (Exception ex)
+        {
+            //NOTE: this is useful info when using the function from an admin account, 
+            //will allow the admin to know why the email could not be sent.
+            //OTOH is VERY DANGEROUS to include this in the forgotten password page: it's acessible to everyone,
+            //hence other code will be included in that page to handle this situation
+            return "<B>THERE WAS AN ERROR IN SENDING THE EMAIL.</B>";
+        }
+    }
+
 
     public static string VerifyAccountEmail(string mailTo, string newUser, string userName, string LinkUI, string CID, string BaseUrl, string stAdditional)
     {

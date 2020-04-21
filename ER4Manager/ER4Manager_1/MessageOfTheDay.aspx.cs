@@ -35,7 +35,7 @@ public partial class MessageOfTheDay : System.Web.UI.Page
                     if (radTs != null)
                     {
                         radTs.SelectedIndex = 4;
-                        radTs.Tabs[4].Tabs[4].Selected = true;
+                        radTs.Tabs[4].Tabs[3].Selected = true;
                         //radTs.Tabs[3].Tabs[2].Width = 670;
                     }
                     System.Web.UI.WebControls.Label lbl1 = (Label)Master.FindControl("lblHeadingText");

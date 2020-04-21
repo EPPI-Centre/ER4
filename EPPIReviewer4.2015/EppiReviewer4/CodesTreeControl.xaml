@@ -103,49 +103,47 @@
 
         </Grid.Resources>
 
-        <telerikNavigation:RadToolBar Grid.Row="0" HorizontalAlignment="Stretch"
+            <telerikNavigation:RadToolBar Grid.Row="0" HorizontalAlignment="Stretch"
 				                        VerticalAlignment="Top" x:Name="codesToolBar">
-
-            <Button x:Name="cmdNewCodeSet" Click="cmdNewCodeSet_Click" IsEnabled="{Binding Source={StaticResource isEn}, Path=IsEnabled, Mode=OneWay}">
-                <Image Width="22" Height="22" Source="Icons/NewCodeSet.png"
+                <Button x:Name="cmdNewCodeSet" Click="cmdNewCodeSet_Click" IsEnabled="{Binding Source={StaticResource isEn}, Path=IsEnabled, Mode=OneWay}">
+                    <Image Width="22" Height="22" Source="Icons/NewCodeSet.png"
 						                    ToolTipService.ToolTip="Create new code set" />
-            </Button>
+                </Button>
 
-            <Button x:Name="cmdCodeProperties" Click="cmdCodeProperties_Click" >
-                <Image Width="22" Height="22" Source="Icons/CodeSetProperties.png" 
+                <Button x:Name="cmdCodeProperties" Click="cmdCodeProperties_Click" >
+                    <Image Width="22" Height="22" Source="Icons/CodeSetProperties.png" 
 						                    ToolTipService.ToolTip="Code / code set properties" />
-            </Button>
+                </Button>
 
-            <!--<Button x:Name="cmdExpandAll" Click="cmdExpandAll_Click" >
+                <!--<Button x:Name="cmdExpandAll" Click="cmdExpandAll_Click" >
                 <Image Width="22" Height="22" Source="Icons/ExpandAll.png"
 						                    ToolTipService.ToolTip="Expand all codes" />
             </Button>-->
-            
-            <Button x:Name="cmdReloadAllSets" Click="cmdReloadAllSets_Click" >
-                <Image Width="19" Height="19" Source="Icons/view-refresh-7.png" Margin="3"
+
+                <Button x:Name="cmdReloadAllSets" Click="cmdReloadAllSets_Click" >
+                    <Image Width="19" Height="19" Source="Icons/view-refresh-7.png" Margin="3"
 						                    ToolTipService.ToolTip="Reload all codesets" />
-            </Button>
-            
-            <Button x:Name="cmdPrintCodeSet" Click="cmdPrintCodeSet_Click">
-                <Image Width="22" Height="22" Source="Icons/PrintCodeSet.png"
+                </Button>
+
+                <Button x:Name="cmdPrintCodeSet" Click="cmdPrintCodeSet_Click">
+                    <Image Width="22" Height="22" Source="Icons/PrintCodeSet.png"
 						                    ToolTipService.ToolTip="Print code set" />
-            </Button>
-            <Button x:Name="cmdConfigureCodesets" Click="cmdConfigureCodesets_Click" Visibility="{Binding Source={StaticResource isEn}, Path=IsEnabled, Mode=OneWay, Converter={StaticResource EditTrueFalseVisibility}}" >
-                <Image Width="22" Height="22" Source="Icons/wizard.png"
+                </Button>
+                <Button x:Name="cmdConfigureCodesets" Click="cmdConfigureCodesets_Click" Visibility="{Binding Source={StaticResource isEn}, Path=IsEnabled, Mode=OneWay, Converter={StaticResource EditTrueFalseVisibility}}" >
+                    <Image Width="22" Height="22" Source="Icons/wizard.png"
 						                    ToolTipService.ToolTip="Configure Review/Codesets" />
-            </Button>
-            <Button x:Name="cmdShowClassificationWindow" Click="cmdShowClassificationWindow_Click" IsEnabled="{Binding Source={StaticResource isEn}, Path=IsEnabled, Mode=OneWay}">
-                <Image Width="22" Height="22" Source="Icons/run-build-configure.png"
+                </Button>
+                <Button x:Name="cmdShowClassificationWindow" Click="cmdShowClassificationWindow_Click" IsEnabled="{Binding Source={StaticResource isEn}, Path=IsEnabled, Mode=OneWay}">
+                    <Image Width="22" Height="22" Source="Icons/run-build-configure.png"
 						                    ToolTipService.ToolTip="Open machine learning classification window" />
-            </Button>
+                </Button>
+                <CheckBox x:Name="CheckBoxAutoAdvance" Content="Auto advance" Margin="6,6,6,6" ToolTipService.ToolTip="Advances to the next document in the list when you select a code. Useful when you are screening lots of documents."></CheckBox>
 
-            <CheckBox x:Name="CheckBoxAutoAdvance" Content="Auto advance" Margin="6,6,6,6" ToolTipService.ToolTip="Advances to the next document in the list when you select a code. Useful when you are screening lots of documents."></CheckBox>
+                <CheckBox x:Name="CheckBoxHotkeys" Content="Hotkeys" Margin="6,6,6,6" Click="CheckBoxHotkeys_Click" ToolTipService.ToolTip="When checked, the answers to a selected question will be keyboard enabled to Ctrl-Shift 1-9."></CheckBox>
+                
+            </telerikNavigation:RadToolBar>
 
-            <CheckBox x:Name="CheckBoxHotkeys" Content="Hotkeys" Margin="6,6,6,6" Click="CheckBoxHotkeys_Click" ToolTipService.ToolTip="When checked, the answers to a selected question will be keyboard enabled to Ctrl-Shift 1-9."></CheckBox>
-
-        </telerikNavigation:RadToolBar>
-
-        <Border BorderBrush="CadetBlue" Margin="2,1,2,1" BorderThickness="1" Grid.Row="1" MaxHeight="34" x:Name="ArmsToolBar" Visibility="Collapsed" HorizontalAlignment="Stretch">
+            <Border BorderBrush="CadetBlue" Margin="2,1,2,1" BorderThickness="1" Grid.Row="1" MaxHeight="34" x:Name="ArmsToolBar" Visibility="Collapsed" HorizontalAlignment="Stretch">
             <StackPanel Orientation="Horizontal" Grid.Row="1" HorizontalAlignment="Stretch" telerikNavigation:RadToolBar.OverflowMode="Never"
 				                        VerticalAlignment="Top" >
                 <TextBlock VerticalAlignment="Center" Margin="1">Codes apply to:</TextBlock>
@@ -153,7 +151,7 @@
             </StackPanel>
         </Border>
 
-        <cslaXAML:BusyAnimation x:Name="BusyLoading" Grid.Row="3" HorizontalAlignment="Stretch" IsRunning="{Binding Source={StaticResource CodeSetsData}, Path=IsBusy}" />
+            <cslaXAML:BusyAnimation x:Name="BusyLoadingRefactored" Grid.Row="3" HorizontalAlignment="Stretch" IsRunning="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=UserControl }, Path=Im_busy, Mode=OneWay}" />
         <sdk:GridSplitter Grid.Row="4" Height="5" HorizontalAlignment="Stretch" VerticalAlignment="Top" Opacity="00"
                                ShowsPreview="True"/>
         <TextBox x:Name="TextBoxGuidance"  Margin="6,6,6,6" IsReadOnly="True" TextWrapping="Wrap" Grid.Row="4"

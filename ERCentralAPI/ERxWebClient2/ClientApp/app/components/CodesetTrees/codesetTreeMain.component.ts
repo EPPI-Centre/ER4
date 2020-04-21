@@ -97,9 +97,9 @@ export class CodesetTreeMainComponent implements OnInit, OnDestroy, AfterViewIni
 		//alert(this.tabSet);
 	}
     RefreshLocalTree() {
-        console.log("RefreshLocalTree (mainfull)", this.treeComponent);
+        //console.log("RefreshLocalTree (mainfull)", this.treeComponent);
         if (this.treeComponent && this.treeComponent.treeModel) {
-            console.log("RefreshLocalTree (mainfull) doing it");
+            console.log("RefreshLocalTree (mainfull)");
             this.treeComponent.treeModel.update();
         }
     }

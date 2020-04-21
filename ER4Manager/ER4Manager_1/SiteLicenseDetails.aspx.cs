@@ -1580,6 +1580,15 @@ public partial class SiteLicenseDetails : System.Web.UI.Page
                 // and then remove any reviews that are in previous packages
                 Utils.ExecuteSP(isAdmDB, Server, "st_RemoveReviewsFromPreviousPackages", lblSiteLicID.Text);
 
+                /*
+                // if it is the fixed model just leave the reviews where they are
+                if (ddlLicenseModel.SelectedValue == "1")
+                {
+                    // and then remove any reviews that are in previous packages
+                    Utils.ExecuteSP(isAdmDB, Server, "st_RemoveReviewsFromPreviousPackages", lblSiteLicID.Text);
+                }
+                */
+
                 // reload the grids
                 buildGrids();
             }

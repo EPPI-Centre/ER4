@@ -121,6 +121,30 @@
                                             </asp:RadioButtonList>
                                         </td>
                                     </tr>
+                                    <tr>
+                                        <td class="style1" valign="top">
+                                            Enable credit option in online shop.</td>
+                                        <td class="style2">
+                                            <asp:RadioButtonList ID="rblEnableShopCredit" runat="server" AutoPostBack="True" 
+                                                onselectedindexchanged="rblEnableShopCredit_SelectedIndexChanged" 
+                                                RepeatDirection="Horizontal">
+                                                <asp:ListItem Value="True">True</asp:ListItem>
+                                                <asp:ListItem Selected="True">False</asp:ListItem>
+                                            </asp:RadioButtonList>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="style1" valign="top">
+                                            Enable outstanding fee option in online shop.</td>
+                                        <td class="style2">
+                                            <asp:RadioButtonList ID="rblEnableShopDebit" runat="server" AutoPostBack="True" 
+                                                onselectedindexchanged="rblEnableShopDebit_SelectedIndexChanged" 
+                                                RepeatDirection="Horizontal">
+                                                <asp:ListItem Value="True">True</asp:ListItem>
+                                                <asp:ListItem Selected="True">False</asp:ListItem>
+                                            </asp:RadioButtonList>
+                                        </td>
+                                    </tr>
                                 </table>
                                 <br />
                                 <asp:TextBox ID="tbContactID" runat="server"></asp:TextBox>

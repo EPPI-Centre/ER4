@@ -34,9 +34,9 @@ namespace BusinessLibrary.BusinessClasses
 
         
 #else
-        private MagCurrentInfo() { }
+        public MagCurrentInfo() { }
 #endif
-        private static PropertyInfo<int> MagCurrentInfoIdProperty = RegisterProperty<int>(new PropertyInfo<int>("MagCurrentInfoId", "MagCurrentInfoId", 0));
+        public static readonly PropertyInfo<int> MagCurrentInfoIdProperty = RegisterProperty<int>(new PropertyInfo<int>("MagCurrentInfoId", "MagCurrentInfoId", 0));
         public int MagCurrentInfoId
         {
             get
@@ -45,7 +45,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> MagVersionProperty = RegisterProperty<string>(new PropertyInfo<string>("MagVersion", "MagVersion", ""));
+        public static readonly PropertyInfo<string> MagVersionProperty = RegisterProperty<string>(new PropertyInfo<string>("MagVersion", "MagVersion", ""));
         public string MagVersion
         {
             get
@@ -54,17 +54,17 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> MagFolderProperty = RegisterProperty<string>(new PropertyInfo<string>("MagFolder", "MagFolder", ""));
+        public static readonly PropertyInfo<string> MagFolderProperty = RegisterProperty<string>(new PropertyInfo<string>("MagFolder", "MagFolder", ""));
         public string MagFolder
         {
             get
             {
-                string [] tmp = MagVersion.Split('/');
+                string[] tmp = MagVersion.Split('/');
                 return "mag-" + tmp[2] + "-" + tmp[1] + "-" + tmp[0];
             }
         }
 
-        private static PropertyInfo<bool> MatchingAvailableProperty = RegisterProperty<bool>(new PropertyInfo<bool>("MatchingAvailable", "MatchingAvailable", true));
+        public static readonly PropertyInfo<bool> MatchingAvailableProperty = RegisterProperty<bool>(new PropertyInfo<bool>("MatchingAvailable", "MatchingAvailable", true));
         public bool MatchingAvailable
         {
             get
@@ -73,7 +73,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<bool> MagOnlineProperty = RegisterProperty<bool>(new PropertyInfo<bool>("MagOnline", "MagOnline", true));
+        public static readonly PropertyInfo<bool> MagOnlineProperty = RegisterProperty<bool>(new PropertyInfo<bool>("MagOnline", "MagOnline", true));
         public bool MagOnline
         {
             get
@@ -82,7 +82,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<DateTime> WhenLiveProperty = RegisterProperty<DateTime>(new PropertyInfo<DateTime>("WhenLive", "WhenLive"));
+        public static readonly PropertyInfo<DateTime> WhenLiveProperty = RegisterProperty<DateTime>(new PropertyInfo<DateTime>("WhenLive", "WhenLive"));
         public DateTime WhenLive
         {
             get
@@ -91,7 +91,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> MakesEndPointProperty = RegisterProperty<string>(new PropertyInfo<string>("MakesEndPoint", "MakesEndPoint", ""));
+        public static readonly PropertyInfo<string> MakesEndPointProperty = RegisterProperty<string>(new PropertyInfo<string>("MakesEndPoint", "MakesEndPoint", ""));
         public string MakesEndPoint
         {
             get
@@ -100,7 +100,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> MakesDeploymentStatusProperty = RegisterProperty<string>(new PropertyInfo<string>("MakesDeploymentStatus", "MakesDeploymentStatus", ""));
+        public static readonly PropertyInfo<string> MakesDeploymentStatusProperty = RegisterProperty<string>(new PropertyInfo<string>("MakesDeploymentStatus", "MakesDeploymentStatus", ""));
         public string MakesDeploymentStatus
         {
             get
@@ -122,7 +122,6 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(CitationsProperty, value);
             }
         }
-
         public static readonly PropertyInfo<MagCurrentInfoList> CitedByProperty = RegisterProperty<MagCurrentInfoList>(new PropertyInfo<MagCurrentInfoList>("CitedBy", "CitedBy"));
         public MagCurrentInfoList CitedBy
         {
@@ -135,7 +134,6 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(CitedByProperty, value);
             }
         }
-
         public static readonly PropertyInfo<MagCurrentInfoList> RecommendedProperty = RegisterProperty<MagCurrentInfoList>(new PropertyInfo<MagCurrentInfoList>("Recommended", "Recommended"));
         public MagCurrentInfoList Recommended
         {
@@ -148,7 +146,6 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(RecommendedProperty, value);
             }
         }
-
         public static readonly PropertyInfo<MagCurrentInfoList> RecommendedByProperty = RegisterProperty<MagCurrentInfoList>(new PropertyInfo<MagCurrentInfoList>("RecommendedBy", "RecommendedBy"));
         public MagCurrentInfoList RecommendedBy
         {

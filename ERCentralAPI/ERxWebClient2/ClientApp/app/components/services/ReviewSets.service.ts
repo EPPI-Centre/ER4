@@ -334,6 +334,7 @@ export class ReviewSetsService extends BusyAwareService {
         console.log('finishing addItemData');
         this.RemoveBusy("AddItemData");
     }
+
     public FindAttributeById(AttributeId: number): SetAttribute | null {
         let result: SetAttribute | null = null;
         for (let Set of this.ReviewSets) {
@@ -373,6 +374,8 @@ export class ReviewSetsService extends BusyAwareService {
         //console.log("AttributeCurrentLevel did NOT work:", interim, currentParent, Att);
         return BadRes;
     }
+
+
     private internalFindAttributeById(list: SetAttribute[], AttributeId: number): SetAttribute | null {
         let result: SetAttribute | null = null;
         for (let candidate of list) {

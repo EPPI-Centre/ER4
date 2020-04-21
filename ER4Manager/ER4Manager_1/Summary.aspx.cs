@@ -35,7 +35,8 @@ public partial class Summary : System.Web.UI.Page
                 {
                     radTs.SelectedIndex = 0;
                     radTs.Tabs[0].Tabs[0].Selected = true;
-                    radTs.Tabs[0].Tabs[1].Width = 700;
+                    radTs.Tabs[0].Tabs[1].Visible = false;
+                    radTs.Tabs[0].Tabs[2].Width = 700;
                 }
                 System.Web.UI.WebControls.Label lbl1 = (Label)Master.FindControl("lblHeadingText");
                 if (lbl1 != null)
@@ -45,6 +46,8 @@ public partial class Summary : System.Web.UI.Page
 
                 buildContactGrid();
                 buildOrganisationGrid();
+                buildCreditPurchaseGrid();
+                buildOutstandingFeeGrid();
                 buildContactPurchasesGrid();
                 buildShareableReviewGrid();
                 buildNonShareableReviewGrid();
@@ -52,7 +55,7 @@ public partial class Summary : System.Web.UI.Page
                 buildReviewGridCochraneProspective();
                 buildReviewGridCochraneFull();
             }
-
+            Utils.SetSessionString("Credit_Purchase_ID", "");
             rblPSShareableEnable.Attributes.Add("onclick", "if (confirm('If you are turning on Priority Screening please check the user manual for more details on how to use it.') == false) return false;");
         }
         else
@@ -203,6 +206,68 @@ public partial class Summary : System.Web.UI.Page
         if (dt2.Rows.Count != 0)
             pnlOrganisations.Visible = true;
     }
+
+    
+
+    private void buildCreditPurchaseGrid()
+    {
+        string remaining = "";
+        bool isAdmDB = true;
+        DataTable dt2 = new DataTable();
+        System.Data.DataRow newrow2;
+        dt2.Columns.Add(new DataColumn("CREDIT_PURCHASE_ID", typeof(string)));
+        dt2.Columns.Add(new DataColumn("DATE_PURCHASED", typeof(string)));
+        dt2.Columns.Add(new DataColumn("CREDIT_PURCHASED", typeof(string)));
+        dt2.Columns.Add(new DataColumn("CREDIT_REMAINING", typeof(string)));
+        IDataReader idr1 = Utils.GetReader(isAdmDB, "st_CreditPurchasesByPurchaser", Utils.GetSessionString("Contact_ID"));
+        while (idr1.Read())
+        {
+            newrow2 = dt2.NewRow();
+            newrow2["CREDIT_PURCHASE_ID"] = idr1["tv_credit_purchase_id"].ToString();
+            newrow2["DATE_PURCHASED"] = idr1["tv_date_purchased"].ToString();
+            newrow2["CREDIT_PURCHASED"] = idr1["tb_credit_purchased"].ToString();
+            remaining = idr1["tv_credit_remaining"].ToString();
+            if (remaining == "")
+                remaining = idr1["tb_credit_purchased"].ToString();
+            newrow2["CREDIT_REMAINING"] = remaining;
+            dt2.Rows.Add(newrow2);
+        }
+        idr1.Close();
+        gvCreditPurchases.DataSource = dt2;
+        gvCreditPurchases.DataBind();
+
+        if (dt2.Rows.Count == 0)
+            lblNoCreditPurchases.Visible = true;
+    }
+
+
+    private void buildOutstandingFeeGrid()
+    {
+        bool isAdmDB = true;
+        DataTable dt2 = new DataTable();
+        System.Data.DataRow newrow2;
+        dt2.Columns.Add(new DataColumn("OUTSTANDING_FEE_ID", typeof(string)));
+        dt2.Columns.Add(new DataColumn("DATE_CREATED", typeof(string)));
+        dt2.Columns.Add(new DataColumn("OUTSTANDING_FEE", typeof(string)));
+        IDataReader idr1 = Utils.GetReader(isAdmDB, "st_OutstandingFeeByAccountID", Utils.GetSessionString("Contact_ID"));
+        while (idr1.Read())
+        {
+            newrow2 = dt2.NewRow();
+            newrow2["OUTSTANDING_FEE_ID"] = idr1["OUTSTANDING_FEE_ID"].ToString();
+            newrow2["DATE_CREATED"] = idr1["DATE_CREATED"].ToString();
+            newrow2["OUTSTANDING_FEE"] = idr1["AMOUNT"].ToString();
+            dt2.Rows.Add(newrow2);
+        }
+        idr1.Close();
+        gvOutstandingFees.DataSource = dt2;
+        gvOutstandingFees.DataBind();
+
+        if (dt2.Rows.Count != 0)
+            pnlOutstandingFees.Visible = true;
+    }
+
+    
+
 
     private void buildContactPurchasesGrid()
     {
@@ -851,6 +916,10 @@ public partial class Summary : System.Web.UI.Page
                     else
                         tbShareableReviewName.Text = idr["REVIEW_NAME"].ToString();
                     */
+
+                    DateTime dayExpires;
+                    DateTime today = DateTime.Today;
+
                     DataTable dt = new DataTable();
                     System.Data.DataRow newrow;
 
@@ -861,26 +930,42 @@ public partial class Summary : System.Web.UI.Page
                     dt.Columns.Add(new DataColumn("IS_CODING_ONLY", typeof(string)));
                     dt.Columns.Add(new DataColumn("IS_READ_ONLY", typeof(string)));
                     dt.Columns.Add(new DataColumn("IS_ADMIN", typeof(string)));
-                    string test = "A";
-                    isAdmDB = true;
-                    IDataReader idr1 = Utils.GetReader(isAdmDB, "st_ReviewMembers_2",
+
+                    string expiryDate = "";
+                    isAdmDB = true;                 
+                    IDataReader idr1 = Utils.GetReader(isAdmDB, "st_ReviewMembers",
                         lblShareableReviewNumber.Text);
                     while (idr1.Read())
                     {
                         newrow = dt.NewRow();
+                        dayExpires = Convert.ToDateTime(idr1["expiry_date"].ToString());
+
+                        expiryDate = dayExpires.ToString();
+                        expiryDate = expiryDate.Remove(expiryDate.IndexOf(" "));
+
                         newrow["CONTACT_ID"] = idr1["CONTACT_ID"].ToString();
-                        newrow["CONTACT_NAME"] = idr1["CONTACT_NAME"].ToString();
-                        test = idr1["CONTACT_NAME"].ToString();
+                        if (dayExpires < today)
+                        {
+                            newrow["CONTACT_NAME"] = idr1["CONTACT_NAME"].ToString() + " (" + expiryDate + ")" + " Expired";
+                        }
+                        else
+                        {
+                            newrow["CONTACT_NAME"] = idr1["CONTACT_NAME"].ToString() + " (" + expiryDate + ")";
+                        }
+
+                        if (idr1["site_lic_id"].ToString() != "")
+                        {
+                            newrow["CONTACT_NAME"] = idr1["CONTACT_NAME"].ToString() + " (" + expiryDate + ")" + " in Site License #" +
+                                idr1["site_lic_id"].ToString();
+                        }
                         newrow["EMAIL"] = idr1["EMAIL"].ToString();
                         if ((idr1["LAST_LOGIN"].ToString() == null) || (idr1["LAST_LOGIN"].ToString() == ""))
                             newrow["LAST_LOGIN"] = "Never";
                         else
                             newrow["LAST_LOGIN"] = idr1["LAST_LOGIN"].ToString();
                         
-                        test = idr1["IS_CODING_ONLY"].ToString();
                         if (idr1["IS_CODING_ONLY"].ToString() == "True")
                             newrow["IS_CODING_ONLY"] = "True";
-                        test = idr1["IS_READ_ONLY"].ToString();
                         if (idr1["IS_READ_ONLY"].ToString() == "True")
                             newrow["IS_READ_ONLY"] = "True";
                         if (idr1["IS_ADMIN"].ToString() == "True")
@@ -923,8 +1008,33 @@ public partial class Summary : System.Web.UI.Page
                     }
                     idr.Close();
                 }
-                
-            
+
+                for (int i = 0; i < gvMembersOfReview.Rows.Count; i++)
+                {
+                    if (gvMembersOfReview.Rows[i].Cells[1].Text.Contains("Edit name"))
+                    {
+                        gvMembersOfReview.Rows[i].Cells[1].BackColor = System.Drawing.Color.PaleGreen;
+                    }
+                    if (gvMembersOfReview.Rows[i].Cells[1].Text.Contains("Not activated"))
+                    {
+                        gvMembersOfReview.Rows[i].Cells[1].BackColor = System.Drawing.Color.Yellow;
+                    }
+                    if (gvMembersOfReview.Rows[i].Cells[1].Text.Contains("Not activated"))
+                    {
+                        gvMembersOfReview.Rows[i].Cells[1].BackColor = System.Drawing.Color.Yellow;
+                    }
+                    if (gvMembersOfReview.Rows[i].Cells[1].Text.Contains("Expired"))
+                    {
+                        gvMembersOfReview.Rows[i].Cells[1].BackColor = System.Drawing.Color.Pink;
+                    }
+                    if (gvMembersOfReview.Rows[i].Cells[1].Text.Contains("Site License"))
+                    {
+                        gvMembersOfReview.Rows[i].Cells[1].BackColor = System.Drawing.Color.Aquamarine;
+                    }
+                }
+
+
+
                 /*
                 string SQL = "select REVIEW_NAME from TB_REVIEW where REVIEW_ID = '" + ReviewID + "'";
                 bool isAdmDB = false;
@@ -935,7 +1045,7 @@ public partial class Summary : System.Web.UI.Page
                 }
                 sdr.Close();
                 */
-                
+
                 break;
 
             default:
@@ -1093,32 +1203,50 @@ public partial class Summary : System.Web.UI.Page
         dt.Columns.Add(new DataColumn("CONTACT_NAME", typeof(string)));
         dt.Columns.Add(new DataColumn("EMAIL", typeof(string)));
         dt.Columns.Add(new DataColumn("LAST_LOGIN", typeof(string)));
-        dt.Columns.Add(new DataColumn("DATE_CREATED", typeof(string)));
-        dt.Columns.Add(new DataColumn("EXPIRY_DATE", typeof(string)));
+        dt.Columns.Add(new DataColumn("IS_CODING_ONLY", typeof(string)));
+        dt.Columns.Add(new DataColumn("IS_ADMIN", typeof(string)));
         */
+
         dt.Columns.Add(new DataColumn("CONTACT_ID", typeof(string)));
         dt.Columns.Add(new DataColumn("CONTACT_NAME", typeof(string)));
         dt.Columns.Add(new DataColumn("EMAIL", typeof(string)));
         dt.Columns.Add(new DataColumn("LAST_LOGIN", typeof(string)));
         dt.Columns.Add(new DataColumn("IS_CODING_ONLY", typeof(string)));
+        dt.Columns.Add(new DataColumn("IS_READ_ONLY", typeof(string)));
         dt.Columns.Add(new DataColumn("IS_ADMIN", typeof(string)));
 
+        string expiryDate = "";
         bool isAdmDB = true;
-        IDataReader idr = Utils.GetReader(isAdmDB, "st_ReviewMembers_1",
+        IDataReader idr = Utils.GetReader(isAdmDB, "st_ReviewMembers",
             reviewID);
         while (idr.Read())
         {
-            /*
             newrow = dt.NewRow();
+            expiryDate = idr["expiry_date"].ToString();
+            expiryDate = expiryDate.Remove(expiryDate.IndexOf(" "));
+
             newrow["CONTACT_ID"] = idr["CONTACT_ID"].ToString();
-            newrow["CONTACT_NAME"] = idr["CONTACT_NAME"].ToString();
+            newrow["CONTACT_NAME"] = idr["CONTACT_NAME"].ToString() + " (" + expiryDate + ")";
+            if (idr["site_lic_id"].ToString() != "")
+            {
+                newrow["CONTACT_NAME"] = idr["CONTACT_NAME"].ToString() + " (" + expiryDate + ")" + " in Site License #" +
+                    idr["site_lic_id"].ToString();
+            }
             newrow["EMAIL"] = idr["EMAIL"].ToString();
             if ((idr["LAST_LOGIN"].ToString() == null) || (idr["LAST_LOGIN"].ToString() == ""))
-                newrow["DATE_CREATED"] = "N/A";
+                newrow["LAST_LOGIN"] = "Never";
             else
                 newrow["LAST_LOGIN"] = idr["LAST_LOGIN"].ToString();
+
+            if (idr["IS_CODING_ONLY"].ToString() == "True")
+                newrow["IS_CODING_ONLY"] = "True";
+            if (idr["IS_READ_ONLY"].ToString() == "True")
+                newrow["IS_READ_ONLY"] = "True";
+            if (idr["IS_ADMIN"].ToString() == "True")
+                newrow["IS_ADMIN"] = "True";
             dt.Rows.Add(newrow);
-            */
+
+            /*
             newrow = dt.NewRow();
             newrow["CONTACT_ID"] = idr["CONTACT_ID"].ToString();
             newrow["CONTACT_NAME"] = idr["CONTACT_NAME"].ToString();
@@ -1133,7 +1261,7 @@ public partial class Summary : System.Web.UI.Page
             if (idr["IS_ADMIN"].ToString() == "True")
                 newrow["IS_ADMIN"] = "True";
             dt.Rows.Add(newrow);
-
+            */
         }
         idr.Close();
 
@@ -1147,6 +1275,16 @@ public partial class Summary : System.Web.UI.Page
             {
                 GridViewRow row = gvMembersOfReview.Rows[i];
                 CheckBox cb = ((CheckBox)row.FindControl("cbCodingOnly"));
+                cb.Checked = true;
+            }
+        }
+        // loop through gvMembersOfReview and set checkboxes
+        for (int i = 0; i < dt.Rows.Count; i++)
+        {
+            if (dt.Rows[i]["IS_READ_ONLY"].ToString() == "True")
+            {
+                GridViewRow row = gvMembersOfReview.Rows[i];
+                CheckBox cb = ((CheckBox)row.FindControl("cbReadOnly"));
                 cb.Checked = true;
             }
         }
@@ -2704,5 +2842,94 @@ public partial class Summary : System.Web.UI.Page
             LinkButton lb = (LinkButton)(e.Row.Cells[2].Controls[0]);
             lb.Attributes.Add("onclick", "if (confirm('Are you sure you want to remove yourself from this organisation?') == false) return false;");
         }
+    }
+
+
+    protected void gvCreditPurchases_RowCommand(object sender, GridViewCommandEventArgs e)
+    {
+        int index = Convert.ToInt32(e.CommandArgument);
+        string creditPurchaseID = (string)gvCreditPurchases.DataKeys[index].Value;
+        switch (e.CommandName)
+        {
+            case "DETAILS":
+                Utils.SetSessionString("Credit_Purchase_ID", creditPurchaseID);              
+                Utils.SetSessionString("Remaining_Credit", gvCreditPurchases.Rows[index].Cells[3].Text);
+                Utils.SetSessionString("Purchased_Credit", gvCreditPurchases.Rows[index].Cells[2].Text);
+                Server.Transfer("AssignCredit.aspx");
+                break;
+            case "HISTORY":
+                pnlHistory.Visible = true;
+                lblCreditPruchaseID.Text = creditPurchaseID;
+                DataTable dt = new DataTable();
+                System.Data.DataRow newrow;
+
+                dt.Columns.Add(new DataColumn("CREDIT_EXTENSION_ID", typeof(string)));
+                dt.Columns.Add(new DataColumn("TYPE", typeof(string)));
+                dt.Columns.Add(new DataColumn("ID", typeof(string)));
+                dt.Columns.Add(new DataColumn("NAME", typeof(string)));
+                dt.Columns.Add(new DataColumn("DATE_EXTENDED", typeof(string)));
+                dt.Columns.Add(new DataColumn("NUMBER_MONTHS", typeof(string)));
+                dt.Columns.Add(new DataColumn("COST", typeof(string)));
+
+                bool isAdmDB = true;
+                IDataReader idr = Utils.GetReader(isAdmDB, "st_CreditHistoryByPurchase",
+                    creditPurchaseID);
+                while (idr.Read())
+                {
+                    newrow = dt.NewRow();
+                    newrow["CREDIT_EXTENSION_ID"] = idr["tv_credit_extension_id"].ToString();
+                    newrow["TYPE"] = idr["tv_type_extended_name"].ToString();
+                    newrow["ID"] = idr["tv_id_extended"].ToString();
+                    newrow["NAME"] = idr["tv_name"].ToString();
+                    newrow["DATE_EXTENDED"] = idr["tv_date_extended"].ToString();
+                    newrow["NUMBER_MONTHS"] = idr["tv_months_extended"].ToString();
+                    newrow["COST"] = idr["tv_cost"].ToString();
+                    dt.Rows.Add(newrow);
+
+                }
+                idr.Close();
+
+                gvCreditHistroy.DataSource = dt;
+                gvCreditHistroy.DataBind();
+
+                break;
+            default:
+                break;
+        }
+    }
+
+    protected void gvCreditPurchases_RowEditing(object sender, GridViewEditEventArgs e)
+    {
+
+    }
+
+    protected void gvCreditPurchases_RowDataBound(object sender, GridViewRowEventArgs e)
+    {
+        if (e.Row.RowType == DataControlRowType.DataRow)
+        {
+            //LinkButton lb = (LinkButton)(e.Row.Cells[2].Controls[0]);
+            //lb.Attributes.Add("onclick", "if (confirm('Are you sure you want to remove yourself from this organisation?') == false) return false;");
+        }
+    }
+
+
+    protected void gvOutstandingFees_RowCommand(object sender, GridViewCommandEventArgs e)
+    {
+
+    }
+
+    protected void gvOutstandingFees_RowEditing(object sender, GridViewEditEventArgs e)
+    {
+
+    }
+
+    protected void gvOutstandingFees_RowDataBound(object sender, GridViewRowEventArgs e)
+    {
+
+    }
+
+    protected void lbHideHistory_Click(object sender, EventArgs e)
+    {
+        pnlHistory.Visible = false;
     }
 }

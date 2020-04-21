@@ -392,7 +392,7 @@ namespace BusinessLibrary.BusinessClasses
                     catch (Exception e)
                     {
                         ERxWebClient2.Startup.Logger.LogError(e, "List creation in TrainingRunCommand failed", command.Parameters);
-
+                        
                         //the line below was (probably) creating the "review needs indexing" bug: when an exception happened (timeout?)
                         //then RevInfo.ScreeningIndexed = false was set in the lines below... (07/08/2019)
                         //MLreturnedEmptyLines = true;//send some signal that stuff didn't work...
@@ -533,8 +533,18 @@ namespace BusinessLibrary.BusinessClasses
 #if (!CSLA_NETCORE)
                     string fileName = System.Web.HttpRuntime.AppDomainAppPath + TempPath + ri.UserId.ToString() + ".csv";
 #else
-                    DirectoryInfo tmpDir = System.IO.Directory.CreateDirectory("UserTempUploads");
-                    string fileName = tmpDir.FullName + "/" + ri.UserId.ToString() + ".csv";
+                    string fileName = "";
+                    if (Directory.Exists(@"\UserTempUploads"))
+                    {
+                         fileName = @".\UserTempUploads" + @"\" + ri.UserId.ToString() + ".csv";
+                    }
+                    else
+                    {
+                        DirectoryInfo tmpDir = System.IO.Directory.CreateDirectory(@"\UserTempUploads");
+                        fileName = tmpDir.FullName + @"\" + ri.UserId.ToString() + ".csv";
+                    }
+                    
+
                     //string fileName = Path.GetTempPath() + ri.UserId.ToString() + ".csv";
 #endif
                     using (SqlCommand command = new SqlCommand("st_TrainingWriteDataToAzure", connection))

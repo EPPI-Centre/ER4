@@ -32,7 +32,8 @@ export class EditCodeComp implements OnInit, OnDestroy {
     @Input() IsSmall: boolean = false;
     @Input() UpdatingCode: SetAttribute | null = null;
     @Output() emitterCancel = new EventEmitter();
-    ShowDeleteCode: boolean = false;
+    ShowPanel: string = "";
+    ErrorMessage4CodeMove: string = "";
     //public get UpdatingCode2(): SetAttribute | null {
     //    console.log("UpdatingCode2");
     //    return this.UpdatingCode;
@@ -73,6 +74,7 @@ export class EditCodeComp implements OnInit, OnDestroy {
         else return false;
     }
     CancelActivity(refreshtree?: boolean) {
+        this.ErrorMessage4CodeMove = "";
         if (refreshtree && refreshtree == true) this.emitterCancel.emit(true);
         else this.emitterCancel.emit(false);
     }
@@ -84,6 +86,13 @@ export class EditCodeComp implements OnInit, OnDestroy {
             let foundT = this.AllowedChildTypes.find(found => found.key == typeId);
             if (foundT) this.UpdatingCode.attribute_type = foundT.value;
         }
+    }
+
+    get ReviewSetOfUpdatingCode(): ReviewSet | null {
+        if (this.UpdatingCode) {
+            return this.ReviewSetsService.FindSetById(this.UpdatingCode.set_id);
+        }
+        return null;
     }
 
     UpdateCode() {
@@ -136,12 +145,26 @@ export class EditCodeComp implements OnInit, OnDestroy {
             );
     }
 
+    async DoMoveBranch(DestinationBranch: singleNode) {
+        console.log("DoMoveBranch", DestinationBranch, this.UpdateCode);
+        if (DestinationBranch == null || this.UpdatingCode == null) return;
+        else {
+            let res = await this.ReviewSetsEditingService.MoveSetAttributeInto(this.UpdatingCode, DestinationBranch);
+            if (res == false) {
+                console.log("Moving code failed (moving code, destination):", this.UpdatingCode, DestinationBranch);
+                this.ErrorMessage4CodeMove = "Sorry, moving this code failed. If the problem persists, please contact EPPISupport."
+            }
+            else {
+                this.CancelActivity();
+            }
+        }
+    }
 
     ShowDeleteCodesetClicked() {
         //console.log('0');
         if (!this.UpdatingCode) return;
         this._appliedCodes = -1;
-        this.ShowDeleteCode = true;
+        this.ShowPanel = 'DeleteCode';
         this.ReviewSetsEditingService.AttributeOrSetDeleteCheck(0, this.UpdatingCode.attributeSetId).then(
             success => {
                 //alert("did it");
@@ -154,8 +177,11 @@ export class EditCodeComp implements OnInit, OnDestroy {
             });
     }
     HideDeleteCodeset() {
-        this.ShowDeleteCode = false;
+        this.ShowPanel = '';
         this._appliedCodes = -1;
+    }
+    ShowMoveCodeClicked() {
+        this.ShowPanel = 'MoveCode';
     }
     DoDeleteCode() {
         if (!this.UpdatingCode) return;
