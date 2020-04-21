@@ -138,9 +138,16 @@ namespace BusinessLibrary.BusinessClasses
 
         private async Task UploadSeedIdsFileToBlobAsync(string fileName, string folderPrefix)
         {
+#if (CSLA_NETCORE)
+
             var configuration = ERxWebClient2.Startup.Configuration.GetSection("AzureMagSettings");
             string storageAccountName = configuration["MAGStorageAccount"];
             string storageAccountKey = configuration["MAGStorageAccountKey"];
+
+#else
+            string storageAccountName = ConfigurationManager.AppSettings["MAGStorageAccount"];
+            string storageAccountKey = ConfigurationManager.AppSettings["MAGStorageAccountKey"];
+#endif
 
             string storageConnectionString =
                 "DefaultEndpointsProtocol=https;AccountName=" + storageAccountName + ";AccountKey=";
@@ -175,9 +182,16 @@ namespace BusinessLibrary.BusinessClasses
 
         private async Task<int> DownloadResultsAsync(string fileName, int ReviewId)
         {
+#if (CSLA_NETCORE)
+
             var configuration = ERxWebClient2.Startup.Configuration.GetSection("AzureMagSettings");
             string storageAccountName = configuration["MAGStorageAccount"];
             string storageAccountKey = configuration["MAGStorageAccountKey"];
+
+#else
+            string storageAccountName = ConfigurationManager.AppSettings["MAGStorageAccount"];
+            string storageAccountKey = ConfigurationManager.AppSettings["MAGStorageAccountKey"];
+#endif
 
             string storageConnectionString =
                 "DefaultEndpointsProtocol=https;AccountName=" + storageAccountName + ";AccountKey=";

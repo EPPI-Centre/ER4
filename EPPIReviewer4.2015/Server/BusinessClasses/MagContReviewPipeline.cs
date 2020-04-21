@@ -35,7 +35,16 @@ namespace BusinessLibrary.BusinessClasses
             string FolderName, string AcceptanceThreshold)
         {
 
+
+#if (CSLA_NETCORE)
+
             var configuration = ERxWebClient2.Startup.Configuration.GetSection("AzureContReviewSettings");
+
+#else
+            var configuration = ConfigurationManager.AppSettings;
+
+#endif
+
             string tenantID = configuration["tenantID"];
             string appClientId = configuration["appClientId"];
             string appClientSecret = configuration["appClientSecret"];
@@ -73,7 +82,7 @@ namespace BusinessLibrary.BusinessClasses
                 //{
                 //Console.WriteLine(" Activity " + run.ActivityName + " " + run.Status);
                 //}
-               
+
                 if (DateTime.Now.ToUniversalTime().AddMinutes(5) > result.ExpiresOn) // the token expires after an hour
                 {
                     count++;
@@ -87,7 +96,7 @@ namespace BusinessLibrary.BusinessClasses
                     if (accessToken == result.AccessToken)
                     {
                         MagLog.UpdateLogEntry("Access token not renewed (" + count.ToString() + ")", "RunContReviewProcess", MagLogId);
-                    } 
+                    }
                 }
 
                 Thread.Sleep(10 * 1000);
@@ -116,7 +125,7 @@ namespace BusinessLibrary.BusinessClasses
                         MagLog.UpdateLogEntry("Caught cloud error", "RunContReviewProcess", MagLogId);
                     }
                 }
-                
+
                 MagLog.UpdateLogEntry(runStatus, "RunContReviewProcess", MagLogId);
             }
             return runStatus;
@@ -126,8 +135,19 @@ namespace BusinessLibrary.BusinessClasses
             string ResultsFileName, string ModelFileName, string MagContainer, string PreFilterThreshold, string FolderName,
             string AcceptanceThreshold)
         {
+
+
             Dictionary<string, object> parameters = new Dictionary<string, object>();
-            var configuration = ERxWebClient2.Startup.Configuration.GetSection("AzureContReviewSettings");
+
+
+#if (CSLA_NETCORE)
+
+            var configuration = ERxWebClient2.Startup.Configuration.GetSection("AzureMagSettings");
+
+#else
+            var configuration = ConfigurationManager.AppSettings;
+
+#endif
 
             TrainFileName = TrainFileName == "" ? configuration["gold_standard_file"] : TrainFileName;
             InferenceFileName = InferenceFileName == "" ? configuration["new_papers_file"] : InferenceFileName;
