@@ -902,10 +902,10 @@
                     <RowDefinition Height="*"></RowDefinition>
                 </Grid.RowDefinitions>
 
-                <HyperlinkButton x:Name="LBCheckChangedPaperIds" Grid.Row="0" Content="Identify ID changes" Click="CheckChangedPaperIds_Click"></HyperlinkButton>
-                <HyperlinkButton x:Name="LBRefreshMagLogList" Grid.Row="1" Content="Refresh log table " Click="LBRefreshMagLogList_Click"></HyperlinkButton>
-                <HyperlinkButton x:Name="LBSwitchOffAutoRefreshLogList" Grid.Row="2" Content="Switch off auto refresh of table" Visibility="Collapsed" Click="LBSwitchOffAutoRefreshLogList_Click"></HyperlinkButton>
-                <HyperlinkButton x:Name="LBRunContReviewPipeline" Grid.Row="3" Content="Run contreview pipeline" Click="LBRunContReviewPipeline_Click"></HyperlinkButton>
+                <HyperlinkButton x:Name="LBCheckChangedPaperIds" Grid.Row="0" Content="Identify ID changes" Click="CheckChangedPaperIds_Click" IsTabStop="False"></HyperlinkButton>
+                <HyperlinkButton x:Name="LBRefreshMagLogList" Grid.Row="1" Content="Refresh log table " Click="LBRefreshMagLogList_Click" IsTabStop="False"></HyperlinkButton>
+                <HyperlinkButton x:Name="LBRunContReviewPipeline" Grid.Row="2" Content="Run contreview pipeline" Click="LBRunContReviewPipeline_Click" IsTabStop="False"></HyperlinkButton>
+                <HyperlinkButton x:Name="LBSwitchOffAutoRefreshLogList" Grid.Row="3" Content="Switch off auto refresh of table" Visibility="Collapsed" Click="LBSwitchOffAutoRefreshLogList_Click" IsTabStop="False"></HyperlinkButton>
 
                 <telerikGridView:RadGridView x:Name="MagLogGrid" Grid.Row="4" AutoGenerateColumns="False" ShowGroupPanel="False"
                                         IsReadOnly="True" MinHeight="50" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
