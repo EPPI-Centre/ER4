@@ -56,6 +56,10 @@ public partial class OutstandingFees : System.Web.UI.Page
                         lblEmailSentMsg.Visible = false;
                         lblOutstandingFeeID.Text = Request.QueryString["ID"].ToString();
 
+                        cmdSaveNewOutstandingFee.Enabled = true;
+                        cmdDeleteOutstandingFee.Enabled = true;
+                        lbSelectAccount.Enabled = true;
+
                         bool isAdmDB = true;
                         IDataReader idr = Utils.GetReader(isAdmDB, "st_OutstandingFeeGet",
                             lblOutstandingFeeID.Text);
@@ -68,6 +72,7 @@ public partial class OutstandingFees : System.Web.UI.Page
                             tbOutstandingFee.Text = idr["AMOUNT"].ToString();
                             tbOutstandingFeeNotes.Text = idr["NOTES"].ToString();
                             tbDateGenerated.Text = idr["DATE_CREATED"].ToString();
+                            lblStatus.Text = idr["STATUS"].ToString();
                         }
                         idr.Close();
 
@@ -78,14 +83,22 @@ public partial class OutstandingFees : System.Web.UI.Page
                         lbLogInAs.Visible = true;
                         cmdDeleteOutstandingFee.Visible = true;
 
-
+                        if (lblStatus.Text == "Paid")
+                        {
+                            cmdSaveNewOutstandingFee.Enabled = false;
+                            cmdDeleteOutstandingFee.Enabled = false;
+                            lbSelectAccount.Enabled = false;
+                        }
                     }
 
                 }
                 
                 IBCalendar1.Attributes.Add("onclick", "JavaScript:openCalendar1('" +
                     "!1!" + tbDateGenerated.Text + "')");
-                lbSelectAccount.Attributes.Add("onclick", "JavaScript:openReviewerList('Please select')");
+                if (lblStatus.Text != "Paid")
+                {
+                    lbSelectAccount.Attributes.Add("onclick", "JavaScript:openReviewerList('Please select')");
+                }
                 cmdDeleteOutstandingFee.Attributes.Add("onclick", "if (confirm('Are you sure you wish to delete this outstanding fee?') == false) return false;");
 
             }
@@ -265,6 +278,7 @@ public partial class OutstandingFees : System.Web.UI.Page
         lbLogInAs.Visible = false;
         cmdDeleteOutstandingFee.Visible = false;
         lblEmailSentMsg.Visible = false;
+        lblStatus.Text = "Outstanding";
     }
 
     protected void cmdSaveNewOutstandingFee_Click(object sender, EventArgs e)
@@ -274,61 +288,78 @@ public partial class OutstandingFees : System.Web.UI.Page
         lbLogInAs.Visible = false;
         cmdDeleteOutstandingFee.Visible = false;
         bool dateOK = true;
+
+        // remove the £ sign
+        if (tbOutstandingFee.Text.Contains('£'))
+            tbOutstandingFee.Text = tbOutstandingFee.Text.Replace("£", "");
+
+        // remove any commas
+        if (tbOutstandingFee.Text.Contains(','))
+            tbOutstandingFee.Text = tbOutstandingFee.Text.Replace(",", "");
+
         if ((Utils.IsNumeric(tbOutstandingFee.Text)) && (lblAccountID.Text != "N/A")
-            && (tbDateGenerated.Text != ""))
+            && (tbDateGenerated.Text != "") && (!tbOutstandingFee.Text.Contains("-")))
         {
             // look for a decimal in the fee
             if (tbOutstandingFee.Text.Contains('.'))
                 tbOutstandingFee.Text = tbOutstandingFee.Text.Remove(tbOutstandingFee.Text.IndexOf('.'));
-
-
-            string dateCreated = "";
-            try
+           
+            // its an an int so check it is in £5 increments
+            if ((int.Parse(tbOutstandingFee.Text) % 5 == 0))
             {
-                DateTime registrationDate = Convert.ToDateTime(tbDateGenerated.Text);
-                dateCreated = registrationDate.ToString("yyyy-M-d hh:m:ss.mmm"); // this is case sensitive!
-            }
-            catch (Exception er)
-            {
-                lblOutstandingFeeError.Visible = true;
-                lblOutstandingFeeError.Text = "Incorrect date";
-                dateOK = false;
-            }
-
-
-            if (dateOK)
-            {
-                if (lblOutstandingFeeID.Text == "N/A")
-                    lblOutstandingFeeID.Text = "0";
-
-                bool isAdmDB = true;
-                Utils.ExecuteSP(isAdmDB, Server, "st_OutstandingFeeCreateOrEdit", lblOutstandingFeeID.Text,
-                        lblAccountID.Text, tbOutstandingFee.Text, dateCreated, tbOutstandingFeeNotes.Text);
-
-                if (cbWithEmail.Checked)
+                string dateCreated = "";
+                try
                 {
-                    // send out the email
-                    string sendResult = Utils.OutstandingFeeEmail(lblAccountEmail.Text, lblAccountName.Text, tbOutstandingFee.Text);
+                    DateTime registrationDate = Convert.ToDateTime(tbDateGenerated.Text);
+                    dateCreated = registrationDate.ToString("yyyy-M-d hh:m:ss.mmm"); // this is case sensitive!
+                }
+                catch (Exception er)
+                {
+                    lblOutstandingFeeError.Visible = true;
+                    lblOutstandingFeeError.Text = "Incorrect date";
+                    dateOK = false;
+                }
 
-                    if (sendResult.Contains("ERROR"))
+
+                if (dateOK)
+                {
+                    if (lblOutstandingFeeID.Text == "N/A")
+                        lblOutstandingFeeID.Text = "0";
+
+                    bool isAdmDB = true;
+                    Utils.ExecuteSP(isAdmDB, Server, "st_OutstandingFeeCreateOrEdit", lblOutstandingFeeID.Text,
+                            lblAccountID.Text, tbOutstandingFee.Text, dateCreated, tbOutstandingFeeNotes.Text);
+
+                    if (cbWithEmail.Checked)
                     {
-                        lblOutstandingFeeError.Visible = true;
-                        lblOutstandingFeeError.Text = "Unable to send email";
+                        // send out the email
+                        string sendResult = Utils.OutstandingFeeEmail(lblAccountEmail.Text, lblAccountName.Text, tbOutstandingFee.Text);
+
+                        if (sendResult.Contains("ERROR"))
+                        {
+                            lblOutstandingFeeError.Visible = true;
+                            lblOutstandingFeeError.Text = "Unable to send email";
+                        }
+                        else
+                        {
+                            lblEmailSentMsg.Visible = true;
+                            pnlOutstandingFeeDetails.Visible = false;
+                            lbNewOutstandingFee.Visible = true;
+                            radGVOutstandingFees.Rebind();
+                        }
                     }
                     else
                     {
-                        lblEmailSentMsg.Visible = true;
                         pnlOutstandingFeeDetails.Visible = false;
                         lbNewOutstandingFee.Visible = true;
                         radGVOutstandingFees.Rebind();
                     }
                 }
-                else
-                {
-                    pnlOutstandingFeeDetails.Visible = false;
-                    lbNewOutstandingFee.Visible = true;
-                    radGVOutstandingFees.Rebind();
-                }
+            }
+            else
+            {
+                lblOutstandingFeeError.Visible = true;
+                lblOutstandingFeeError.Text = "Must be in £5 increments";
             }
 
         }

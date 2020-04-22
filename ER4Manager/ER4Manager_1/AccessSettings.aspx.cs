@@ -178,6 +178,6 @@ public partial class AccessSettings : System.Web.UI.Page
         string SQL = "update TB_MANAGEMENT_SETTINGS set ENABLE_SHOP_DEBIT = '" +
             rblEnableShopDebit.SelectedValue + "'";
         Utils.ExecuteQuery(SQL, isAdmDB);
-        Utils.SetSessionString("EnableShopDebit", rblEnableShopCredit.SelectedValue);
+        Utils.SetSessionString("EnableShopDebit", rblEnableShopDebit.SelectedValue);
     }
 }

@@ -51,6 +51,7 @@ public partial class Purchase : System.Web.UI.Page
                 calculateTotalFees();
                 */
 
+                /*
                 bool isAdmDB = true;
                 IDataReader idr = Utils.GetReader(isAdmDB, "st_ManagementSettings");
                 if (idr.Read()) // it exists
@@ -62,7 +63,7 @@ public partial class Purchase : System.Web.UI.Page
                     }
                 }
                 idr.Close();
-
+                */
             }
             
             if (Utils.GetSessionString("PurchasesEnabled") == "True")
@@ -588,7 +589,7 @@ public partial class Purchase : System.Web.UI.Page
         }
 
         //canBuy = (totalAccountFees > 0 || totalNewAccountFees > 0 || totalNewReviewFees > 0 || totalReviewFees > 0);
-        canBuy = (totalAccountFees + totalNewAccountFees + totalNewReviewFees + totalReviewFees + totalCreditFee + totalOutstandingFee >= 0);
+        canBuy = (totalAccountFees + totalNewAccountFees + totalNewReviewFees + totalReviewFees + totalCreditFee + totalOutstandingFee > 0);
         lblAccountFees.Text = "£" + (totalAccountFees + totalNewAccountFees).ToString();
         lblReviewFees.Text = "£" + (totalReviewFees + totalNewReviewFees).ToString();
         if (Utils.GetSessionString("EnableShopCredit") == "True")
@@ -709,6 +710,9 @@ public partial class Purchase : System.Web.UI.Page
             cmdPurchase.Enabled = false;
             BTAddExistingReview.Enabled = false;
             BTAddExistingAccount.Enabled = false;
+
+            BTAddCreditPurchase.Enabled = false;
+            TBCredit.Enabled = false;
         }
     }
     protected void cmdAgree_Click(object sender, EventArgs e)
@@ -928,7 +932,21 @@ public partial class Purchase : System.Web.UI.Page
             if (Utils.GetSessionString("EnableShopCredit") == "True")
                 pnlPurchaseCredit.Visible = true;
             if (Utils.GetSessionString("EnableShopDebit") == "True")
-                pnlPurchaseDebit.Visible = true;
+            {
+                if (lblOutstandingFee.Text == "0")
+                {
+                    pnlPurchaseDebit.Visible = false;
+                }
+                else
+                {
+                    pnlPurchaseDebit.Visible = true;
+                }
+
+            }
+            else
+            {
+                pnlPurchaseDebit.Visible = false;
+            }
         }
     }
     protected void getDraftBill()
@@ -1066,41 +1084,50 @@ public partial class Purchase : System.Web.UI.Page
                 else if (idr["TYPE_NAME"].ToString() == "Credit purchase")
                 { //option 3: it's a credit purchase
                     TBCredit.Text = (int.Parse(idr["MONTHS_CREDIT"].ToString()) * 5).ToString();
-                }                
+                }
                 else if (idr["TYPE_NAME"].ToString() == "Outstanding fee")
                 { //option 4: it's an outstanding fee
-
-                    // it might be an old draft bill and the outstanding fee needs updating
-                    if (outstandingFee.ToString() == idr["MONTHS_CREDIT"].ToString())
+                    if (Utils.GetSessionString("EnableShopDebit") == "False")
                     {
-                        lblOutstandingFee.Text = (int.Parse(idr["MONTHS_CREDIT"].ToString()) * 1).ToString();
+                        // remove the outstanding fee from the draft bill
+                        isAdmDB = true;
+                        Utils.ExecuteSP(isAdmDB, Server, "st_BillRemoveOutstandingFee",
+                            Utils.GetSessionString("Draft_Bill_ID"));
                     }
                     else
-                    {
-                        // update the draft bill
-                        SqlParameter[] paramList = new SqlParameter[3];
-                        paramList[0] = new SqlParameter("@bill_ID", SqlDbType.Int);
-                        paramList[0].Direction = ParameterDirection.Input;
-                        paramList[0].Value = Utils.GetSessionString("Draft_Bill_ID");
-
-                        paramList[1] = new SqlParameter("@OutstandingFeeAmount", SqlDbType.Int);
-                        paramList[1].Direction = ParameterDirection.Input;
-                        paramList[1].Value = outstandingFee;
-
-                        paramList[2] = new SqlParameter("@Result", SqlDbType.NVarChar);
-                        paramList[2].Direction = ParameterDirection.Output;
-                        paramList[2].Size = 100;
-                        paramList[2].Value = "";
-
-                        Utils.ExecuteSPWithReturnValues(true, Server, "st_BillAddOutstandingFee", paramList);
-                        string result = paramList[2].Value.ToString();
-                        if (result != "Success")
+                    { 
+                        // it might be an old draft bill and the outstanding fee needs updating
+                        if (outstandingFee.ToString() == idr["MONTHS_CREDIT"].ToString())
                         {
-                            lblOutstandingFee.Text = outstandingFee.ToString();
+                            lblOutstandingFee.Text = (int.Parse(idr["MONTHS_CREDIT"].ToString()) * 1).ToString();
                         }
                         else
                         {
-                            // not sure what to do if it fails...
+                            // update the draft bill
+                            SqlParameter[] paramList = new SqlParameter[3];
+                            paramList[0] = new SqlParameter("@bill_ID", SqlDbType.Int);
+                            paramList[0].Direction = ParameterDirection.Input;
+                            paramList[0].Value = Utils.GetSessionString("Draft_Bill_ID");
+
+                            paramList[1] = new SqlParameter("@OutstandingFeeAmount", SqlDbType.Int);
+                            paramList[1].Direction = ParameterDirection.Input;
+                            paramList[1].Value = outstandingFee;
+
+                            paramList[2] = new SqlParameter("@Result", SqlDbType.NVarChar);
+                            paramList[2].Direction = ParameterDirection.Output;
+                            paramList[2].Size = 100;
+                            paramList[2].Value = "";
+
+                            Utils.ExecuteSPWithReturnValues(true, Server, "st_BillAddOutstandingFee", paramList);
+                            string result = paramList[2].Value.ToString();
+                            if (result != "Success")
+                            {
+                                lblOutstandingFee.Text = outstandingFee.ToString();
+                            }
+                            else
+                            {
+                                // not sure what to do if it fails...
+                            }
                         }
                     }
                 }                
@@ -1126,37 +1153,42 @@ public partial class Purchase : System.Web.UI.Page
             ddl.SelectedValue = newReviews[gvNewReviews.Rows[i].Cells[0].Text];
         }
 
-        // if there are outstanding fees and a draft bill doesn't exist then create one.
-        if ((outstandingFee > 0) && (lblOutstandingFee.Text == "0"))
+
+
+        if (Utils.GetSessionString("EnableShopDebit") == "True")
         {
-            // there is an outstanding fee but it wasn't in the draft bill (if one exists)
-            if (Utils.GetSessionString("Draft_Bill_ID") == null)
-                MakeDraftBill();
-
-            // put it in the draft bill (this routine will update as well as create)
-            SqlParameter[] paramList = new SqlParameter[3];
-            paramList[0] = new SqlParameter("@bill_ID", SqlDbType.Int);
-            paramList[0].Direction = ParameterDirection.Input;
-            paramList[0].Value = Utils.GetSessionString("Draft_Bill_ID");
-
-            paramList[1] = new SqlParameter("@OutstandingFeeAmount", SqlDbType.Int);
-            paramList[1].Direction = ParameterDirection.Input;
-            paramList[1].Value = outstandingFee;
-
-            paramList[2] = new SqlParameter("@Result", SqlDbType.NVarChar);
-            paramList[2].Direction = ParameterDirection.Output;
-            paramList[2].Size = 100;
-            paramList[2].Value = "";
-
-            Utils.ExecuteSPWithReturnValues(true, Server, "st_BillAddOutstandingFee", paramList);
-            string result = paramList[2].Value.ToString();
-            if (result == "Success")
+            // if there are outstanding fees and a draft bill doesn't exist then create one.
+            if ((outstandingFee > 0) && (lblOutstandingFee.Text == "0"))
             {
-                lblOutstandingFee.Text = outstandingFee.ToString();
-            }
-            else
-            {
-                // not sure what to do if it fails...
+                // there is an outstanding fee but it wasn't in the draft bill (if one exists)
+                if (Utils.GetSessionString("Draft_Bill_ID") == null)
+                    MakeDraftBill();
+
+                // put it in the draft bill (this routine will update as well as create)
+                SqlParameter[] paramList = new SqlParameter[3];
+                paramList[0] = new SqlParameter("@bill_ID", SqlDbType.Int);
+                paramList[0].Direction = ParameterDirection.Input;
+                paramList[0].Value = Utils.GetSessionString("Draft_Bill_ID");
+
+                paramList[1] = new SqlParameter("@OutstandingFeeAmount", SqlDbType.Int);
+                paramList[1].Direction = ParameterDirection.Input;
+                paramList[1].Value = outstandingFee;
+
+                paramList[2] = new SqlParameter("@Result", SqlDbType.NVarChar);
+                paramList[2].Direction = ParameterDirection.Output;
+                paramList[2].Size = 100;
+                paramList[2].Value = "";
+
+                Utils.ExecuteSPWithReturnValues(true, Server, "st_BillAddOutstandingFee", paramList);
+                string result = paramList[2].Value.ToString();
+                if (result == "Success")
+                {
+                    lblOutstandingFee.Text = outstandingFee.ToString();
+                }
+                else
+                {
+                    // not sure what to do if it fails...
+                }
             }
         }
 

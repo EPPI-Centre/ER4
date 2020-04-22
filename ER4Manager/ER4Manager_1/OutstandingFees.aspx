@@ -62,7 +62,7 @@
                     <asp:Label ID="lblOutstandingFeeID" runat="server" Text="N/A"></asp:Label>
                 </td>
 
-                <td colspan="1" align="left" style="border-left: medium none #C0C0C0; border-right: medium none #C0C0C0; border-top: medium solid #C0C0C0; border-bottom: medium none #C0C0C0; padding: 6px; width: 50%; height: 51px;" class="w-50">
+                <td colspan="2" align="left" style="border-left: medium none #C0C0C0; border-right: medium none #C0C0C0; border-top: medium solid #C0C0C0; border-bottom: medium none #C0C0C0; padding: 6px; width: 40%; height: 51px;" class="w-50">
                     <b>User account</b>
                     <asp:LinkButton ID="lbSelectAccount"
                         runat="server" Visible="True" Text="(select)"></asp:LinkButton>
@@ -75,13 +75,13 @@
                 </td>
 
                 <td colspan="1" align="left" style="border-left: medium none #C0C0C0; border-right: medium none #C0C0C0; border-top: medium solid #C0C0C0; border-bottom: medium none #C0C0C0; padding: 6px; width: 30%; height: 51px;">
-                    <b>Outstanding fee (£)</b><br />
+                    <b>Outstanding fee (in £5 increments)</b><br />
                     <asp:TextBox ID="tbOutstandingFee" runat="server" Width="90%"></asp:TextBox>
                 </td>
-                <td colspan="1" style="border-left: medium none #C0C0C0; border-right: medium solid #C0C0C0; border-top: medium solid #C0C0C0; border-bottom: medium none #C0C0C0; padding: 6px; vertical-align: middle; height: 51px;"></td>
+                <td colspan="1" style="border-left: medium none #C0C0C0; border-right: medium solid #C0C0C0; border-top: medium solid #C0C0C0; border-bottom: medium none #C0C0C0; padding: 6px; width: 10%; vertical-align: middle; height: 51px;"></td>
             </tr>
             <tr>
-                <td colspan="2" style="border-width: medium; border-color: #C0C0C0; border-style: none none none solid; padding: 6px; vertical-align: middle;">
+                <td colspan="3" style="border-width: medium; border-color: #C0C0C0; border-style: none none none solid; padding: 6px; vertical-align: middle;">
                     <b>Notes (optional)</b><br />
                     <asp:TextBox runat="server" ID="tbOutstandingFeeNotes" Width="95%" Rows="1"></asp:TextBox>
                     
@@ -101,20 +101,24 @@
             </tr>
 
             <tr>
-                <td colspan="2" style="border-width: medium; border-color: #C0C0C0; padding: 6px; border-style: none none solid solid;">
-                    <asp:Button ID="cmdSaveNewOutstandingFee" runat="server" Enabled="True" Text="Save" OnClick="cmdSaveNewOutstandingFee_Click" />
+                <td colspan="1" style="border-width: medium; border-color: #C0C0C0; padding: 6px; border-style: none none solid solid;">
+                    <asp:Button ID="cmdSaveNewOutstandingFee" runat="server" Enabled="True" Text="Save" OnClick="cmdSaveNewOutstandingFee_Click" style="height: 21px" />
                     &nbsp;&nbsp;
-                    <asp:CheckBox ID="cbWithEmail" runat="server" Text="with email" />
-                    &nbsp;&nbsp;
+                    <asp:CheckBox ID="cbWithEmail" runat="server" Text="with email" />                 
+                </td>
+                <td colspan="1" style="border-width: medium; border-color: #C0C0C0; padding: 6px; width: 15%; border-style: none none solid none;">
                     <asp:Label runat="server" ID="lblOutstandingFeeError" Visible="false" Font-Bold="True" ForeColor="Red" Text="Missing data"></asp:Label>
                 </td>
-                <td colspan="1" style="border-width: medium; border-color: #C0C0C0; padding: 6px; border-style: none none solid none;">
-                    
-                    <asp:Button ID="cmdDeleteOutstandingFee" runat="server" Enabled="True" OnClick="cmdDeleteOutstandingFee_Click" Text="Delete" Visible="False" />
-                    &nbsp;
-                    
+                <td colspan="1" style="border-width: medium; border-color: #C0C0C0; padding: 6px; width: 25%; border-style: none none solid none;">
+                    Status:
+                    <asp:Label ID="lblStatus" runat="server" Text="Outstanding"></asp:Label>
                 </td>
-                <td colspan="1" style="border-width: medium; border-color: #C0C0C0; border-style: none solid solid none; padding: 6px; vertical-align: middle;"></td>
+                <td colspan="1" style="border-width: medium; border-color: #C0C0C0; padding: 6px; border-style: none none solid none;">               
+                    <asp:Button ID="cmdDeleteOutstandingFee" runat="server" Enabled="True" OnClick="cmdDeleteOutstandingFee_Click" Text="Delete" Visible="False" />
+                   &nbsp;                    
+                </td>
+                <td colspan="1" style="border-width: medium; border-color: #C0C0C0; border-style: none solid solid none; padding: 6px; vertical-align: middle;">                   
+                </td>
                 
             </tr>
         </table>

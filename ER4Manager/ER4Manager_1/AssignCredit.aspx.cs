@@ -292,6 +292,7 @@ public partial class AssignCredit : System.Web.UI.Page
 
     protected void cmdComplete_Click(object sender, EventArgs e)
     {
+        bool reviewExtended = false;
         lblExtensionError.Visible = false;
         if (lblTotal.Text == "£0")
         {
@@ -307,6 +308,7 @@ public partial class AssignCredit : System.Web.UI.Page
                 Utils.ExecuteSP(isAdmDB, Server, "st_ApplyCreditToReview",
                     Utils.GetSessionString("Credit_Purchase_ID"), lblReviewID.Text,
                     ddlExtendReview.SelectedValue, Utils.GetSessionString("Contact_ID"));
+                reviewExtended = true;
             }
 
 
@@ -329,6 +331,11 @@ public partial class AssignCredit : System.Web.UI.Page
             pnlAssign.Visible = false;
             pnlReviewDetails.Visible = false;
             pnlReviewMembers.Visible = false;
+
+            // reload the review grid so the updated review expiry date is shown
+            if (reviewExtended == true)
+                buildReviewGrid();
+
         }
     }
 
@@ -380,10 +387,18 @@ public partial class AssignCredit : System.Web.UI.Page
     protected void cmdAddExistingAccount_Click(object sender, EventArgs e)
     {
         lblAccountMsg.Visible = false;
+        if (tbAddAccountID.Text.Contains(","))
+            tbAddAccountID.Text = tbAddAccountID.Text.Replace(",", "");
+
         if ((tbAddAccountID.Text == "") || (tbAddAccountEmail.Text == ""))
         {
             lblAccountMsg.Visible = true;
             lblAccountMsg.Text = "Missing details";
+        }
+        else if ((tbAddAccountID.Text.Contains(".")) || (tbAddAccountID.Text.Contains("-")))
+        {
+            lblAccountMsg.Visible = true;
+            lblAccountMsg.Text = "Invalid account ID";
         }
         else
         {
@@ -548,11 +563,19 @@ public partial class AssignCredit : System.Web.UI.Page
     {
         lblReviewMsg.Visible = false;
         ddlExtendReview.Enabled = true;
+        if (tbReviewID.Text.Contains(","))
+            tbReviewID.Text = tbReviewID.Text.Replace(",", "");
+
         bool reviewFound = false;
         if (tbReviewID.Text == "")
         {
             lblReviewMsg.Visible = true;
             lblReviewMsg.Text = "Missing review ID";
+        }
+        else if ((tbReviewID.Text.Contains(".")) || (tbReviewID.Text.Contains("-")))
+        {
+            lblReviewMsg.Visible = true;
+            lblReviewMsg.Text = "Invalid review ID";
         }
         else
         {
