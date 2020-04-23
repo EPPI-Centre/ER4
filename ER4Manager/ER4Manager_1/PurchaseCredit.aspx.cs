@@ -61,15 +61,24 @@ public partial class PurchaseCredit : System.Web.UI.Page
                             lblPurchaseID.Text);
                         if (idr.Read())
                         {
-
-                            lblPurchaserID.Text = idr["PURCHASER_CONTACT_ID"].ToString();
-                            lblPurchaserName.Text = idr["CONTACT_NAME"].ToString();
-                            lblPurchaserEmail.Text = idr["EMAIL"].ToString();
-                            tbCreditPurchased.Text = idr["CREDIT_PURCHASED"].ToString();
-                            tbPurchaseNotes.Text = idr["NOTES"].ToString();
-                            tbDatePurchased.Text = idr["DATE_PURCHASED"].ToString();
+                            lblPurchaserID.Text = idr["tv_credit_purchaser_id"].ToString();
+                            lblPurchaserName.Text = idr["tv_contact_name"].ToString();
+                            lblPurchaserEmail.Text = idr["tv_email"].ToString();
+                            tbCreditPurchased.Text = idr["tv_credit_purchased"].ToString();
+                            tbPurchaseNotes.Text = idr["tv_notes"].ToString();
+                            tbDatePurchased.Text = idr["tv_date_purchased"].ToString();
+                            lblRemaining.Text = idr["tv_credit_remaining"].ToString();
                         }
                         idr.Close();
+
+                        lblPurchaserError.Visible = false;
+                        cmdSaveNewPurchaser.Enabled = true;
+                        if (tbCreditPurchased.Text != lblRemaining.Text)
+                        {
+                            cmdSaveNewPurchaser.Enabled = false;
+                            lblPurchaserError.Visible = true;
+                            lblPurchaserError.Text = "Locked after usage";
+                        }
 
                         pnlPurchaseDetails.Visible = true;
                         lbNewInvoicedCreditPurchase.Visible = false;
@@ -317,6 +326,15 @@ public partial class PurchaseCredit : System.Web.UI.Page
         lblPurchaserError.Visible = false;
         lblPurchaserError.Text = "Missing data";
         bool dateOK = true;
+
+        // remove the £ sign
+        if (tbCreditPurchased.Text.Contains('£'))
+            tbCreditPurchased.Text = tbCreditPurchased.Text.Replace("£", "");
+
+        // remove any commas
+        if (tbCreditPurchased.Text.Contains(','))
+            tbCreditPurchased.Text = tbCreditPurchased.Text.Replace(",", "");
+
         if ((Utils.IsNumeric(tbCreditPurchased.Text)) && (lblPurchaserID.Text != "N/A")
             && (tbDatePurchased.Text != ""))
         {

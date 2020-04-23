@@ -101,10 +101,12 @@
                 <td colspan="2" style="border-width: medium; border-color: #C0C0C0; padding: 6px; border-style: none none solid solid;">
                     <asp:Button ID="cmdSaveNewPurchaser" runat="server" Enabled="True" Text="Save" OnClick="cmdSaveNewPurchaser_Click" />
                     &nbsp;&nbsp;
-                    <asp:Label runat="server" ID="lblPurchaserError" Visible="false" Font-Bold="True" ForeColor="Red" Text="Missing data"></asp:Label>
+                    <asp:Label runat="server" ID="lblPurchaserError" Font-Bold="True" Visible="false" ForeColor="Red" Text="Missing data"></asp:Label>
+                   
                 </td>
-                <td colspan="1" style="border-width: medium; border-color: #C0C0C0; padding: 6px; border-style: none none solid none;">
-                    
+                <td colspan="1" style="border-width: medium; border-color: #C0C0C0; padding: 6px; border-style: none none solid none;">                    
+                    <b>Remaining</b>: £
+                    <asp:Label ID="lblRemaining" runat="server" Text="N/A"></asp:Label>                    
                 </td>
                 <td colspan="1" style="border-width: medium; border-color: #C0C0C0; border-style: none solid solid none; padding: 6px; vertical-align: middle;"></td>
                 
