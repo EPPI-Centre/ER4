@@ -104,9 +104,10 @@ namespace BusinessLibrary.BusinessClasses
                 {
                     doComparison(i, pm);
                 }
+                double minMatchingScore = 0.25;
                 for (int inn = 0; inn < candidatePapersOnTitle.Count; inn++)
                 {
-                    if (candidatePapersOnTitle[inn].matchingScore < 0.25)
+                    if (candidatePapersOnTitle[inn].matchingScore < minMatchingScore)
                     {
                         candidatePapersOnTitle.RemoveAt(inn);
                         inn--;
@@ -123,7 +124,7 @@ namespace BusinessLibrary.BusinessClasses
                     foreach (MagMakesHelpers.PaperMakes pm in candidatePapersOnAuthorJournal)
                     {
                         var found = candidatePapersOnTitle.Find(e => e.Id == pm.Id);
-                        if (found == null)
+                        if (found == null && pm.matchingScore >= minMatchingScore)
                         {
                             candidatePapersOnTitle.Add(pm);
                         }
