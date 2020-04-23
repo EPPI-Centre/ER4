@@ -80,6 +80,10 @@
                     Cancel
                 </button>
             </div>
+            <div class="col-12 small alert-info p-1 m-1" *ngIf="UpdatingCode.extURL != ''">
+                <div>URL: {{UpdatingCode.extURL}}</div>
+                <div>Type: {{UpdatingCode.extType}}</div>
+            </div>
         </form>
     </div>
 </div>
@@ -140,6 +144,10 @@
                         [disabled]="!CanWrite() || !IsNewCodeNameValid()">
                     Delete Code...
                 </button>
+            </div>
+            <div class="col-12 mb-1" *ngIf="UpdatingCode.extURL != ''">
+                <div>URL: {{UpdatingCode.extURL}}</div>
+                <div>Type: {{UpdatingCode.extType}}</div>
             </div>
         </form>
 </div>

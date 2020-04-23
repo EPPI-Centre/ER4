@@ -426,6 +426,9 @@ namespace BusinessLibrary.BusinessClasses
         }
 
         public static readonly PropertyInfo<bool> UserCanEditURLsProperty = RegisterProperty<bool>(new PropertyInfo<bool>("UserCanEditURLs", "UserCanEditURLs", false));
+#if (CSLA_NETCORE)
+        [JsonProperty]
+#endif
         public bool UserCanEditURLs
         {
             get

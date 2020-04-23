@@ -91,6 +91,7 @@ export class ReviewSetsEditingService extends BusyAwareService {
             SetName: rs.set_name,
             setOrder: rs.order,
             setDescription: rs.description,
+            usersCanEditURLs: rs.userCanEditURLs,
             SetTypeId: rs.setType ? rs.setType.setTypeId : -1
         }
         //console.log("saving reviewSet via command", rs, rsC);
@@ -117,6 +118,7 @@ export class ReviewSetsEditingService extends BusyAwareService {
             SetName: rs.set_name,
             setOrder: rs.order,
             setDescription: rs.description,
+            usersCanEditURLs: rs.userCanEditURLs,
             SetTypeId: rs.setType ? rs.setType.setTypeId : -1
         }
         //console.log("saving reviewSet via command", rs, rsC);
@@ -727,6 +729,8 @@ export class ReviewSetsEditingService extends BusyAwareService {
         Data.parentAttributeId = Att.parent_attribute_id;
         Data.setId = Att.set_id;
         Data.attributeOrder = Att.order;
+        Data.extType = Att.extType;
+        Data.extURL = Att.extURL;
         //console.log("saving reviewSet via command", rs, rsC);
         return this._httpC.post<boolean>(this._baseUrl + 'api/Codeset/AttributeUpdate', Data).toPromise()
             .then((res) => {
@@ -992,6 +996,7 @@ export interface ReviewSetUpdateCommand
     setOrder: number;
     setDescription: string;
     SetTypeId: number;
+    usersCanEditURLs: boolean;
 }
 
 export interface AttributeSetMoveCommand {
@@ -1030,6 +1035,8 @@ export class Attribute4Saving {
     originalAttributeID: number = 0;
     setId: number = 0;
     attributeOrder: number = 0;
+    extURL: string = "";
+    extType: string = "";
 }
 export interface ReadOnlyTemplateReview {
     templateId: number;

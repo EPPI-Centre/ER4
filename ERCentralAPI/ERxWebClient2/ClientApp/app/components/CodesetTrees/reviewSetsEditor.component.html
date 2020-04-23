@@ -171,6 +171,9 @@
                             Delete Coding Tool...
                         </button>
                     </div>
+                    <div class="col-12 small alert-info p-1 m-1" *ngIf="CurrentNode.userCanEditURLs">
+                        This codeset is configured to allow linking codes to external ontologies/concepts. (Done by indicating their URL)
+                    </div>
                 </form>
             </div>
             <div *ngIf="ActivityPanelName == 'AddCode'" class="container card card-body bg-light">
