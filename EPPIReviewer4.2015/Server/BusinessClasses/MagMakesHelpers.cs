@@ -227,10 +227,97 @@ namespace BusinessLibrary.BusinessClasses
                 return null;
         }
 
-        public static List<PaperMakes> GetCandidateMatches(string text, string MakesDeploymentStatus = "LIVE")
+        public static List<PaperMakes> GetCandidateMatches(string text, string MakesDeploymentStatus = "LIVE", bool TryAgain = false)
         {
             List<PaperMakes> PaperList = new List<PaperMakes>();
             string searchText = CleanText(text);
+
+            if (searchText != "")
+            {
+                var jsonsettings = new JsonSerializerSettings
+                {
+                    NullValueHandling = NullValueHandling.Ignore,
+                    MissingMemberHandling = MissingMemberHandling.Ignore
+                };
+
+                string responseText = "";
+                MagCurrentInfo MagInfo = MagCurrentInfo.GetMagCurrentInfoServerSide(MakesDeploymentStatus);
+#if !CSLA_NETCORE
+                searchText = System.Web.HttpUtility.UrlEncode(searchText);
+#else
+                searchText = System.Web.HttpUtility.UrlEncode(searchText);
+#endif
+                string queryString =  @"/interpret?query=" +
+                    searchText + @"&complete=0&normalize=0&attributes=Id,DN,AA.AuN,J.JN,V,I,FP,Y&timeout=15000&entityCount=100";
+                string FullRequestStr = MagInfo.MakesEndPoint + queryString;
+                if (FullRequestStr.Length >= 2048 || queryString.Length >= 800)
+                {//this would fail entire URL is too long or the query string is.
+                    //we should URL encode the query string to know how long it is, as spaces become %20 so count for 3. Limit is 1024
+                    int attempts = 0;
+                    while ((FullRequestStr.Length >= 2048 || queryString.Length >=800) && attempts < 60)
+                    {
+                        attempts++;
+                        int truncateAt = searchText.LastIndexOf(' ');
+                        if (truncateAt != -1)
+                        {
+                            searchText = searchText.Substring(0, truncateAt);
+                            queryString = @"/interpret?query=" +
+                                searchText + @"&complete=0&normalize=0&attributes=Id,DN,AA.AuN,J.JN,V,I,FP,Y&timeout=15000&entityCount=100";
+                            FullRequestStr = MagInfo.MakesEndPoint + queryString;
+                        }
+                    }
+                }
+                WebRequest request = WebRequest.Create(FullRequestStr);
+                try
+                {
+                    WebResponse response = request.GetResponse();
+                    using (Stream dataStream = response.GetResponseStream())
+                    {
+                        StreamReader sreader = new StreamReader(dataStream);
+                        responseText = sreader.ReadToEnd();
+                    }
+                    response.Close();
+                }
+                catch (Exception e)
+                {
+#if !CSLA_NETCORE
+                    //not clear what to do on ER4, how do we log this?
+                    Console.WriteLine(e.Message, searchText);
+#else
+                    ERxWebClient2.Startup.Logger.LogError(e, "Searching on MAKES failed for text: ", searchText);
+#endif
+                    return PaperList;
+                }
+                var respJson = JsonConvert.DeserializeObject<MagMakesHelpers.MakesInterpretResponse>(responseText, jsonsettings);
+                if (respJson != null && respJson.interpretations != null && respJson.interpretations.Count > 0)
+                {
+                    foreach (MakesInterpretation i in respJson.interpretations)
+                    {
+                        foreach (MakesInterpretationRule r in i.rules)
+                        {
+                            foreach (PaperMakes pm in r.output.entities)
+                            {
+                                var found = PaperList.Find(e => e.Id == pm.Id);
+                                if (found == null)
+                                {
+                                    PaperList.Add(pm);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            if (TryAgain && PaperList.Count == 0)
+            {
+                PaperList = MagMakesHelpers.GetCandidateMatchesTake2(searchText, MakesDeploymentStatus);
+            }
+            return PaperList;
+        }
+
+        private static List<PaperMakes> GetCandidateMatchesTake2(string text, string MakesDeploymentStatus)
+        {//will try searching again, but truncating the search string when we find a problem word (if possible)
+            List<PaperMakes> PaperList = new List<PaperMakes>();
+            string searchText = RestoreGreekLetters(text);
 
             if (searchText != "")
             {
@@ -272,8 +359,10 @@ namespace BusinessLibrary.BusinessClasses
                     }
                 }
             }
+            
             return PaperList;
         }
+
 
         private static PaperMakesResponse doMakesRequest(string query, string appendPageInfo, string MakesDeploymentStatus)
         {
@@ -384,6 +473,23 @@ namespace BusinessLibrary.BusinessClasses
             }
             return text;
         }
+        private static string RestoreGreekLetters(string text)
+        {
+            
+            Dictionary<string, string> charMap = GreekLettersMap();
+
+            foreach (KeyValuePair<string, string> replacement in charMap)
+            {
+                Regex rx = new Regex("(?<![a-zA-Z])" + replacement.Key + "(?![a-zA-Z])");//the name of the letter, preceded and followed by something that is not a regular alphabet letter
+                text = rx.Replace(text, replacement.Value);
+            }
+
+            while (text.IndexOf("  ") != -1)
+            {
+                text = text.Replace("  ", " ");
+            }
+            return text;
+        }
 
         private static Dictionary<string, string> EuropeanCharacterMap()
         {
@@ -482,6 +588,39 @@ namespace BusinessLibrary.BusinessClasses
                                                 { "(C)", "" }
                                             };
         }
+
+        private static Dictionary<string, string> GreekLettersMap()
+        {
+            return new Dictionary<string, string>()
+            {
+                { "alpha", "α" },
+                { "beta", "β" },
+                { "gamma", "γ" },
+                { "delta", "δ" },
+                { "epsilon", "ε" },
+                { "zeta", "ζ" },
+                { "eta", "η" },
+                { "theta", "θ" },
+                { "iota", "ι" },
+                { "kappa", "κ" },
+                { "lambda", "λ" },
+                { "mu", "μ" },
+                { "nu", "ν" },
+                { "xi", "ξ" },
+                { "omicron", "ο" },
+                { "pi", "π" },
+                { "rho", "ρ" },
+                { "sigma", "σ" },
+                { "tau", "τ" },
+                { "upsilon", "υ" },
+                { "phi", "φ" },
+                { "chi", "χ" },
+                { "psi", "ψ" },
+                { "omega", "ω" }
+            };
+        }
+
+        public static Regex ProblemWords = new Regex("[^a-zA-Z]alpha[^a-zA-Z]|[^a-zA-Z]beta[^a-zA-Z]|[^a-zA-Z]gamma[^a-zA-Z]|[^a-zA-Z]delta[^a-zA-Z]|[^a-zA-Z]epsilon[^a-zA-Z]|[^a-zA-Z]zeta[^a-zA-Z]|[^a-zA-Z]eta[^a-zA-Z]|[^a-zA-Z]theta[^a-zA-Z]|[^a-zA-Z]iota[^a-zA-Z]|[^a-zA-Z]kappa[^a-zA-Z]|[^a-zA-Z]lambda[^a-zA-Z]|[^a-zA-Z]mu[^a-zA-Z]|[^a-zA-Z]nu[^a-zA-Z]|[^a-zA-Z]xi[^a-zA-Z]|[^a-zA-Z]omicron[^a-zA-Z]|[^a-zA-Z]pi[^a-zA-Z]|[^a-zA-Z]rho[^a-zA-Z]|[^a-zA-Z]sigma[^a-zA-Z]|[^a-zA-Z]tau[^a-zA-Z]|[^a-zA-Z]upsilon[^a-zA-Z]|[^a-zA-Z]phi[^a-zA-Z]|[^a-zA-Z]chi[^a-zA-Z]|[^a-zA-Z]psi[^a-zA-Z]|[^a-zA-Z]omega[^a-zA-Z]");
 
     }
 }
