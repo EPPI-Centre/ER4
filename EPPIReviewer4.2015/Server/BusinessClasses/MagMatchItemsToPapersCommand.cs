@@ -131,10 +131,10 @@ namespace BusinessLibrary.BusinessClasses
                             PutItemsInList(List4, ItemIds, NumPerList * 3, NumPerList);
                             PutItemsInList(List5, ItemIds, NumPerList * 4, NumPerList);
                             PutItemsInList(List6, ItemIds, NumPerList * 5, total - (NumPerList * 5));
-                            //Task.Run(() => { FindPaper(List1, ri.ReviewId , "t1"); });
-                            //Task.Run(() => { FindPaper(List2, ri.ReviewId, "t2"); });
-                            //Task.Run(() => { FindPaper(List3, ri.ReviewId, "t3"); });
-                            //Task.Run(() => { FindPaper(List4, ri.ReviewId, "t4"); });
+                            Task.Run(() => { FindPaper(List1, ri.ReviewId, "t1"); });
+                            Task.Run(() => { FindPaper(List2, ri.ReviewId, "t2"); });
+                            Task.Run(() => { FindPaper(List3, ri.ReviewId, "t3"); });
+                            Task.Run(() => { FindPaper(List4, ri.ReviewId, "t4"); });
                             Task.Run(() => { FindPaper(List5, ri.ReviewId, "t5"); });
                             Task.Run(() => { FindPaper(List6, ri.ReviewId, "t6"); });
                         }

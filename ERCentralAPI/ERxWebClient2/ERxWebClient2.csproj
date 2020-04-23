@@ -135,9 +135,11 @@
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\MagItemPaperInsertCommand.cs" Link="Models\MagItemPaperInsertCommand.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\MagLog.cs" Link="Models\MagLog.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\MagLogList.cs" Link="Models\MagLogList.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\MagMakesHelpers.cs" Link="Models\MagMakesHelpers.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\MagMatchItemsToPapersCommand.cs" Link="Models\MagMatchItemsToPapersCommand.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\MagMatchItemToPaperManualCommand.cs" Link="Models\MagMatchItemToPaperManualCommand.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\MagPaper.cs" Link="Models\MagPaper.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\MagPaperItemMatch.cs" Link="Models\MagPaperItemMatch.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\MagPaperList.cs" Link="Models\MagPaperList.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\MagRelatedPapersRun.cs" Link="Models\MagRelatedPapersRun.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\MagRelatedPapersRunList.cs" Link="Models\MagRelatedPapersRunList.cs" />

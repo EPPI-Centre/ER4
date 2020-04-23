@@ -42,7 +42,15 @@ namespace BusinessLibrary.BusinessClasses
     {
         private static SearchIndexClient CreateSearchIndexClient()
         {
+#if (!CSLA_NETCORE)
             SearchIndexClient indexClient = new SearchIndexClient("eppimag", "mag-index", new SearchCredentials(ConfigurationManager.AppSettings["AzureSearchMAGApi-key"]));
+            
+#else
+            var configuration = ERxWebClient2.Startup.Configuration.GetSection("AzureMagSettings");
+            string MAGApikey = configuration["AzureSearchMAGApi-key"];
+            SearchIndexClient indexClient = new SearchIndexClient("eppimag", "mag-index", new SearchCredentials(MAGApikey));
+
+#endif
             return indexClient;
         }
 

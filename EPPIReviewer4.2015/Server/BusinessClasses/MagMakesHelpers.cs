@@ -12,6 +12,9 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+#if (CSLA_NETCORE && !SILVERLIGHT)
+using Microsoft.Extensions.Logging;
+#endif
 
 namespace BusinessLibrary.BusinessClasses
 {
