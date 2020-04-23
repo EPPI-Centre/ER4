@@ -37,7 +37,7 @@ namespace ERxWebClient2.Controllers
             }
             catch (Exception e)
             {
-                _logger.LogException(e, "Getting a GetMagCurrentInfo has an error");
+                _logger.LogException(e, "Getting a MagCurrentInfo has an error");
                 throw;
             }
 		}
@@ -56,7 +56,7 @@ namespace ERxWebClient2.Controllers
             }
             catch (Exception e)
             {
-                _logger.LogException(e, "Getting a GetMagReviewMagInfo has an error");
+                _logger.LogException(e, "Getting a MagReviewMagInfo Command has an error");
                 throw;
             }
         }
@@ -78,7 +78,7 @@ namespace ERxWebClient2.Controllers
             }
             catch (Exception e)
             {
-                _logger.LogException(e, "Getting a GetMagPaper has an error");
+                _logger.LogException(e, "Getting a MagPaper has an error");
                 throw;
             }
         }
@@ -141,7 +141,7 @@ namespace ERxWebClient2.Controllers
             }
             catch (Exception e)
             {
-                _logger.LogException(e, "Getting a GetMagPaperList has an error");
+                _logger.LogException(e, "Getting a MagPaperList has an error");
                 throw;
             }
         }

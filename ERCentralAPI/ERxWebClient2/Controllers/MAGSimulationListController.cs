@@ -37,7 +37,7 @@ namespace ERxWebClient2.Controllers
             }
             catch (Exception e)
             {
-                _logger.LogException(e, "Getting a magSimulation list has an error");
+                _logger.LogException(e, "Getting a MAG Simulation list has an error");
                 throw;
             }
 		}
@@ -79,7 +79,7 @@ namespace ERxWebClient2.Controllers
 			}
 			catch (Exception e)
 			{
-				_logger.LogException(e, "Creating a MagSimulation has an error");
+				_logger.LogException(e, "Creating a MAG Simulation has an error");
                 //TODO investigating bug
 				throw;
 			}
@@ -107,7 +107,7 @@ namespace ERxWebClient2.Controllers
             }
             catch (Exception e)
             {
-                _logger.LogException(e, "Deleting a DeleteMagSimulation list has an error");
+                _logger.LogException(e, "Deleting a MAG Simulation list has an error");
                 throw;
             }
         }
@@ -117,9 +117,9 @@ namespace ERxWebClient2.Controllers
 	public class MVCMagSimulation
 	{
 
-        public int magSimulationId = 0;//
-        public int reviewId= 0;//
-        public int year = 0;//
+        public int magSimulationId = 0;
+        public int reviewId= 0;
+        public int year = 0;
         public DateTime createdDate = DateTime.Now;
         public int withThisAttributeId = 0;
         public int filteredByAttributeId = 0;
