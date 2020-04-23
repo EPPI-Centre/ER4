@@ -245,22 +245,20 @@ namespace BusinessLibrary.BusinessClasses
 
                 string responseText = "";
                 MagCurrentInfo MagInfo = MagCurrentInfo.GetMagCurrentInfoServerSide(MakesDeploymentStatus);
-#if !CSLA_NETCORE
-                searchText = System.Web.HttpUtility.UrlEncode(searchText);
-#else
-                searchText = System.Web.HttpUtility.UrlEncode(searchText);
-#endif
+
+                searchText = System.Web.HttpUtility.UrlEncode(searchText);//uses "+" for spaces, letting his happen when creating the request would put 20% for spaces => makes the querystring longer!
+
                 string queryString =  @"/interpret?query=" +
                     searchText + @"&complete=0&normalize=0&attributes=Id,DN,AA.AuN,J.JN,V,I,FP,Y&timeout=15000&entityCount=100";
                 string FullRequestStr = MagInfo.MakesEndPoint + queryString;
-                if (FullRequestStr.Length >= 2048 || queryString.Length >= 800)
+                if (FullRequestStr.Length >= 2048 || queryString.Length >= 1024)
                 {//this would fail entire URL is too long or the query string is.
-                    //we should URL encode the query string to know how long it is, as spaces become %20 so count for 3. Limit is 1024
                     int attempts = 0;
-                    while ((FullRequestStr.Length >= 2048 || queryString.Length >=800) && attempts < 60)
+                    int maxattempts = queryString.Count(found => found == '+');
+                    while ((FullRequestStr.Length >= 2048 || queryString.Length >=1024) && attempts < maxattempts)
                     {
                         attempts++;
-                        int truncateAt = searchText.LastIndexOf(' ');
+                        int truncateAt = searchText.LastIndexOf("+");
                         if (truncateAt != -1)
                         {
                             searchText = searchText.Substring(0, truncateAt);
@@ -622,8 +620,8 @@ namespace BusinessLibrary.BusinessClasses
                 { "omega", "ω" }
             };
         }
-
-        public static Regex ProblemWords = new Regex("[^a-zA-Z]alpha[^a-zA-Z]|[^a-zA-Z]beta[^a-zA-Z]|[^a-zA-Z]gamma[^a-zA-Z]|[^a-zA-Z]delta[^a-zA-Z]|[^a-zA-Z]epsilon[^a-zA-Z]|[^a-zA-Z]zeta[^a-zA-Z]|[^a-zA-Z]eta[^a-zA-Z]|[^a-zA-Z]theta[^a-zA-Z]|[^a-zA-Z]iota[^a-zA-Z]|[^a-zA-Z]kappa[^a-zA-Z]|[^a-zA-Z]lambda[^a-zA-Z]|[^a-zA-Z]mu[^a-zA-Z]|[^a-zA-Z]nu[^a-zA-Z]|[^a-zA-Z]xi[^a-zA-Z]|[^a-zA-Z]omicron[^a-zA-Z]|[^a-zA-Z]pi[^a-zA-Z]|[^a-zA-Z]rho[^a-zA-Z]|[^a-zA-Z]sigma[^a-zA-Z]|[^a-zA-Z]tau[^a-zA-Z]|[^a-zA-Z]upsilon[^a-zA-Z]|[^a-zA-Z]phi[^a-zA-Z]|[^a-zA-Z]chi[^a-zA-Z]|[^a-zA-Z]psi[^a-zA-Z]|[^a-zA-Z]omega[^a-zA-Z]");
+        //the below is a failed attempt, we're doing something more sophysticated, in the end [see RestoreGreekLetters(string text)]
+        //public static Regex ProblemWords = new Regex("[^a-zA-Z]alpha[^a-zA-Z]|[^a-zA-Z]beta[^a-zA-Z]|[^a-zA-Z]gamma[^a-zA-Z]|[^a-zA-Z]delta[^a-zA-Z]|[^a-zA-Z]epsilon[^a-zA-Z]|[^a-zA-Z]zeta[^a-zA-Z]|[^a-zA-Z]eta[^a-zA-Z]|[^a-zA-Z]theta[^a-zA-Z]|[^a-zA-Z]iota[^a-zA-Z]|[^a-zA-Z]kappa[^a-zA-Z]|[^a-zA-Z]lambda[^a-zA-Z]|[^a-zA-Z]mu[^a-zA-Z]|[^a-zA-Z]nu[^a-zA-Z]|[^a-zA-Z]xi[^a-zA-Z]|[^a-zA-Z]omicron[^a-zA-Z]|[^a-zA-Z]pi[^a-zA-Z]|[^a-zA-Z]rho[^a-zA-Z]|[^a-zA-Z]sigma[^a-zA-Z]|[^a-zA-Z]tau[^a-zA-Z]|[^a-zA-Z]upsilon[^a-zA-Z]|[^a-zA-Z]phi[^a-zA-Z]|[^a-zA-Z]chi[^a-zA-Z]|[^a-zA-Z]psi[^a-zA-Z]|[^a-zA-Z]omega[^a-zA-Z]");
 
     }
 }

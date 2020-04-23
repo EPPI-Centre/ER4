@@ -145,14 +145,14 @@ namespace BusinessLibrary.BusinessClasses
 
         private void FindPaper(List<Int64> ItemIds, int ReviewId, string taskname = "default")
         {
-            int counter = 1;
+            //int counter = 1;
             foreach (Int64 ItemId in ItemIds)
             {
                MagPaperItemMatch.MatchItemToMag(ItemId, ReviewId);
-                Console.WriteLine("Task: " + taskname + " item " + counter + " of " + ItemIds.Count);
-                counter++;
+                //Console.WriteLine("Task: " + taskname + " item " + counter + " of " + ItemIds.Count);
+                //counter++;
             }
-            Console.WriteLine("Finished Task: " + taskname + " done " + (counter -1).ToString() + " of " + ItemIds.Count);
+            //Console.WriteLine("Finished Task: " + taskname + " done " + (counter -1).ToString() + " of " + ItemIds.Count);
         }
 
         private List<Int64> PutItemsInList(List<Int64> dest, List<Int64> source, int from, int count)
