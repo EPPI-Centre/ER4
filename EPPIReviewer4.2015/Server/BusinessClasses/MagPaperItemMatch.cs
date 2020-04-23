@@ -42,7 +42,15 @@ namespace BusinessLibrary.BusinessClasses
     {
         private static SearchIndexClient CreateSearchIndexClient()
         {
+#if (!CSLA_NETCORE)
             SearchIndexClient indexClient = new SearchIndexClient("eppimag", "mag-index", new SearchCredentials(ConfigurationManager.AppSettings["AzureSearchMAGApi-key"]));
+            
+#else
+            var configuration = ERxWebClient2.Startup.Configuration.GetSection("AzureMagSettings");
+            string MAGApikey = configuration["AzureSearchMAGApi-key"];
+            SearchIndexClient indexClient = new SearchIndexClient("eppimag", "mag-index", new SearchCredentials(MAGApikey));
+
+#endif
             return indexClient;
         }
 
@@ -91,10 +99,18 @@ namespace BusinessLibrary.BusinessClasses
                 //DocumentSearchResult<MagPaperItemsMatch> results = client.Documents.Search<MagPaperItemsMatch>(searchString, parameters);
 
                 // similar code is used in MagCheckPaperIdChangesCommand
-                List<MagMakesHelpers.PaperMakes> candidatePapersOnTitle = MagMakesHelpers.GetCandidateMatches(i.Title);
+                List<MagMakesHelpers.PaperMakes> candidatePapersOnTitle = MagMakesHelpers.GetCandidateMatches(i.Title, "LIVE", true);
                 foreach (MagMakesHelpers.PaperMakes pm in candidatePapersOnTitle)
                 {
                     doComparison(i, pm);
+                }
+                for (int inn = 0; inn < candidatePapersOnTitle.Count; inn++)
+                {
+                    if (candidatePapersOnTitle[inn].matchingScore < 0.25)
+                    {
+                        candidatePapersOnTitle.RemoveAt(inn);
+                        inn--;
+                    }
                 }
                 // add in matching on journals / authors if we don't have an exact match on title
                 if (candidatePapersOnTitle.Count == 0 ||( candidatePapersOnTitle.Count > 0 && candidatePapersOnTitle.Max(t => t.matchingScore) < 0.7))

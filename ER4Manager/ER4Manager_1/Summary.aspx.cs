@@ -47,7 +47,10 @@ public partial class Summary : System.Web.UI.Page
                 buildContactGrid();
                 buildOrganisationGrid();
                 buildCreditPurchaseGrid();
-                buildOutstandingFeeGrid();
+                if (Utils.GetSessionString("EnableShopDebit") == "True")
+                {
+                    buildOutstandingFeeGrid();
+                }
                 buildContactPurchasesGrid();
                 buildShareableReviewGrid();
                 buildNonShareableReviewGrid();
@@ -238,6 +241,15 @@ public partial class Summary : System.Web.UI.Page
 
         if (dt2.Rows.Count == 0)
             lblNoCreditPurchases.Visible = true;
+
+        for (int i = 0; i < gvCreditPurchases.Rows.Count; i++)
+        {
+            if (gvCreditPurchases.Rows[i].Cells[3].Text == "0")
+            {
+                gvCreditPurchases.Rows[i].Cells[5].Enabled = false;
+            }
+        }
+
     }
 
 
@@ -2907,6 +2919,8 @@ public partial class Summary : System.Web.UI.Page
     {
         if (e.Row.RowType == DataControlRowType.DataRow)
         {
+            
+            
             //LinkButton lb = (LinkButton)(e.Row.Cells[2].Controls[0]);
             //lb.Attributes.Add("onclick", "if (confirm('Are you sure you want to remove yourself from this organisation?') == false) return false;");
         }

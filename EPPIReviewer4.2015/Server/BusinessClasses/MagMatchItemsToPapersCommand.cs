@@ -131,24 +131,28 @@ namespace BusinessLibrary.BusinessClasses
                             PutItemsInList(List4, ItemIds, NumPerList * 3, NumPerList);
                             PutItemsInList(List5, ItemIds, NumPerList * 4, NumPerList);
                             PutItemsInList(List6, ItemIds, NumPerList * 5, total - (NumPerList * 5));
-                            Task.Run(() => { FindPaper(List1, ri.ReviewId); });
-                            Task.Run(() => { FindPaper(List2, ri.ReviewId); });
-                            Task.Run(() => { FindPaper(List3, ri.ReviewId); });
-                            Task.Run(() => { FindPaper(List4, ri.ReviewId); });
-                            Task.Run(() => { FindPaper(List5, ri.ReviewId); });
-                            Task.Run(() => { FindPaper(List6, ri.ReviewId); });
+                            Task.Run(() => { FindPaper(List1, ri.ReviewId, "t1"); });
+                            Task.Run(() => { FindPaper(List2, ri.ReviewId, "t2"); });
+                            Task.Run(() => { FindPaper(List3, ri.ReviewId, "t3"); });
+                            Task.Run(() => { FindPaper(List4, ri.ReviewId, "t4"); });
+                            Task.Run(() => { FindPaper(List5, ri.ReviewId, "t5"); });
+                            Task.Run(() => { FindPaper(List6, ri.ReviewId, "t6"); });
                         }
                     }
                 }
             }
         }
 
-        private void FindPaper(List<Int64> ItemIds, int ReviewId)
+        private void FindPaper(List<Int64> ItemIds, int ReviewId, string taskname = "default")
         {
+            //int counter = 1;
             foreach (Int64 ItemId in ItemIds)
             {
                MagPaperItemMatch.MatchItemToMag(ItemId, ReviewId);
+                //Console.WriteLine("Task: " + taskname + " item " + counter + " of " + ItemIds.Count);
+                //counter++;
             }
+            //Console.WriteLine("Finished Task: " + taskname + " done " + (counter -1).ToString() + " of " + ItemIds.Count);
         }
 
         private List<Int64> PutItemsInList(List<Int64> dest, List<Int64> source, int from, int count)
