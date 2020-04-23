@@ -32,9 +32,11 @@ namespace BusinessLibrary.BusinessClasses
         private string _attributeName;
         private string _attributeDescription;
         private int _attributeOrder;
+        private string _extURL;
+        private string _extType;
 
         public AttributeUpdateCommand(Int64 attributeId, Int64 attributeSetId, int attributeTypeId, string attributeName, string attributeDescription,
-            int attributeOrder)
+            int attributeOrder, string extURL, string extType)
         {
             _attributeId = attributeId;
             _attributeSetId = attributeSetId;
@@ -42,6 +44,8 @@ namespace BusinessLibrary.BusinessClasses
             _attributeName = attributeName;
             _attributeDescription = attributeDescription;
             _attributeOrder = attributeOrder;
+            _extURL = extURL;
+            _extType = extType;
         }
 
         protected override void OnGetState(Csla.Serialization.Mobile.SerializationInfo info, Csla.Core.StateMode mode)
@@ -53,6 +57,8 @@ namespace BusinessLibrary.BusinessClasses
             info.AddValue("_attributeName", _attributeName);
             info.AddValue("_attributeDescription", _attributeDescription);
             info.AddValue("_attributeOrder", _attributeOrder);
+            info.AddValue("_extURL", _extURL);
+            info.AddValue("_extType", _extType);
         }
         protected override void OnSetState(Csla.Serialization.Mobile.SerializationInfo info, Csla.Core.StateMode mode)
         {
@@ -62,6 +68,8 @@ namespace BusinessLibrary.BusinessClasses
             _attributeName = info.GetValue<string>("_attributeName");
             _attributeDescription = info.GetValue<string>("_attributeDescription");
             _attributeOrder = info.GetValue<int>("_attributeOrder");
+            _extURL = info.GetValue<string>("_extURL");
+            _extType = info.GetValue<string>("_extType");
         }
 
 
@@ -83,6 +91,8 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@ATTRIBUTE_DESCRIPTION", _attributeDescription));
                     command.Parameters.Add(new SqlParameter("@ATTRIBUTE_ORDER", _attributeOrder));
                     command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
+                    command.Parameters.Add(new SqlParameter("@Ext_URL", _extURL));
+                    command.Parameters.Add(new SqlParameter("@Ext_Type", _extType));
                     command.ExecuteNonQuery();
                 }
                 connection.Close();

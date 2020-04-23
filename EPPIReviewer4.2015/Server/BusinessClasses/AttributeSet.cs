@@ -396,6 +396,34 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
+        public static readonly PropertyInfo<string> ExtURLProperty = RegisterProperty<string>(new PropertyInfo<string>("ExtURL", "Attribute Description", string.Empty));
+        [JsonProperty]
+        public string ExtURL
+        {
+            get
+            {
+                return GetProperty(ExtURLProperty);
+            }
+            set
+            {
+                SetProperty(ExtURLProperty, value);
+            }
+        }
+
+        public static readonly PropertyInfo<string> ExtTypeProperty = RegisterProperty<string>(new PropertyInfo<string>("ExtType", "Attribute Description", string.Empty));
+        [JsonProperty]
+        public string ExtType
+        {
+            get
+            {
+                return GetProperty(ExtTypeProperty);
+            }
+            set
+            {
+                SetProperty(ExtTypeProperty, value);
+            }
+        }
+
         public static readonly PropertyInfo<int> ContactIdProperty = RegisterProperty<int>(new PropertyInfo<int>("ContactId", "Contact Id", 0));
         public int ContactId
         {
@@ -639,6 +667,8 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@ATTRIBUTE_ORDER", ReadProperty(AttributeOrderProperty)));
                     command.Parameters.Add(new SqlParameter("@ATTRIBUTE_NAME", ReadProperty(AttributeNameProperty)));
                     command.Parameters.Add(new SqlParameter("@ATTRIBUTE_DESC", ReadProperty(AttributeDescriptionProperty)));
+                    command.Parameters.Add(new SqlParameter("@Ext_URL", ReadProperty(ExtURLProperty)));
+                    command.Parameters.Add(new SqlParameter("@Ext_Type", ReadProperty(ExtTypeProperty)));
                     command.Parameters.Add(new SqlParameter("@CONTACT_ID", ReadProperty(ContactIdProperty)));
                     if (OriginalAttributeID != null && OriginalAttributeID != 0)
                     {
@@ -680,6 +710,8 @@ namespace BusinessLibrary.BusinessClasses
                         command.Parameters.Add(new SqlParameter("@ATTRIBUTE_ORDER", ReadProperty(AttributeOrderProperty)));
                         command.Parameters.Add(new SqlParameter("@ATTRIBUTE_NAME", ReadProperty(AttributeNameProperty)));
                         command.Parameters.Add(new SqlParameter("@ATTRIBUTE_DESC", ReadProperty(AttributeDescriptionProperty)));
+                        command.Parameters.Add(new SqlParameter("@Ext_URL", ReadProperty(ExtURLProperty)));
+                        command.Parameters.Add(new SqlParameter("@Ext_Type", ReadProperty(ExtTypeProperty)));
                         command.Parameters.Add(new SqlParameter("@CONTACT_ID", ReadProperty(ContactIdProperty)));
 						command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
 						command.ExecuteNonQuery();
@@ -759,6 +791,8 @@ namespace BusinessLibrary.BusinessClasses
             returnValue.LoadProperty<string>(AttributeTypeProperty, reader.GetString("ATTRIBUTE_TYPE"));
             returnValue.LoadProperty<string>(AttributeNameProperty, reader.GetString("ATTRIBUTE_NAME"));
             returnValue.LoadProperty<string>(AttributeDescriptionProperty, reader.GetString("ATTRIBUTE_DESC"));
+            returnValue.LoadProperty<string>(ExtURLProperty, reader.GetString("Ext_URL"));
+            returnValue.LoadProperty<string>(ExtTypeProperty, reader.GetString("Ext_Type"));
             returnValue.LoadProperty<int>(ContactIdProperty, reader.GetInt32("CONTACT_ID"));
             
             return returnValue;
@@ -785,6 +819,8 @@ namespace BusinessLibrary.BusinessClasses
             returnValue.LoadProperty<string>(AttributeTypeProperty, reader.GetString("ATTRIBUTE_TYPE"));
             returnValue.LoadProperty<string>(AttributeNameProperty, reader.GetString("ATTRIBUTE_NAME"));
             returnValue.LoadProperty<string>(AttributeDescriptionProperty, reader.GetString("ATTRIBUTE_DESC"));
+            returnValue.LoadProperty<string>(ExtURLProperty, reader.GetString("Ext_URL"));
+            returnValue.LoadProperty<string>(ExtTypeProperty, reader.GetString("Ext_Type"));
             returnValue.LoadProperty<int>(ContactIdProperty, reader.GetInt32("CONTACT_ID"));
             returnValue.LoadProperty<int>(MaxDepthProperty, MaxDepth);
             return returnValue;

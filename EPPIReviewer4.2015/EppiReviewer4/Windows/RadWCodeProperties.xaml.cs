@@ -12,6 +12,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 
 using Telerik.Windows.Controls;
+using BusinessLibrary.BusinessClasses;
 
 namespace EppiReviewer4
 {
@@ -91,7 +92,21 @@ namespace EppiReviewer4
             editCodeType.IsEnabled = DoEnable;
             editCodeOrder.IsEnabled = DoEnable;
         }
-        
+
+        public void EnOrDisableEditURLs(bool DoEnable)
+        {
+            if (DoEnable)
+            {
+                RowExtURL.Height = new GridLength(35, GridUnitType.Auto);
+                RowExtType.Height = new GridLength(35, GridUnitType.Auto);
+            }
+            else
+            {
+                RowExtURL.Height = new GridLength(0);
+                RowExtType.Height = new GridLength(0);
+            }
+        }
+
         #region HANDLERS
         //put each XAML-declared handler in here, make it fire the corresponding event
         //EXAMPLE:

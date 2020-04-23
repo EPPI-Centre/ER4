@@ -133,6 +133,7 @@ namespace EppiReviewer4
             ToolTipService.SetToolTip(ChangeModeLinksStack, null);
             ToolTipService.SetToolTip(TextBlockEditCodeSetMethodSingle, null);
             ToolTipService.SetToolTip(TextBlockEditCodeSetMethodMultiple, null);
+            ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
             //complexity here disables changing of the data-entry mode for non-admins in case current set is the one set for screening.
             CslaDataProvider provider = App.Current.Resources["ReviewInfoData"] as CslaDataProvider;
             ReviewInfo reviewInfo =  new ReviewInfo();// = provider.Data as ReviewInfo;
@@ -144,7 +145,7 @@ namespace EppiReviewer4
                 && reviewInfo.ScreeningCodeSetId == rs.SetId
                 )
             {
-                ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+                
                 if (ri.Roles.Contains("AdminUser") || ri.IsSiteAdmin)
                 {
                     HyperLinkChangeMethodToMultiple.IsEnabled = DoEnable;
@@ -158,12 +159,22 @@ namespace EppiReviewer4
                     HyperLinkChangeMethodToMultiple.IsEnabled = false;
                     HyperLinkChangeMethodToSingle.IsEnabled = false;
                 }
+                
             }
             else
             {
                 HyperLinkChangeMethodToMultiple.IsEnabled = DoEnable;
                 HyperLinkChangeMethodToSingle.IsEnabled = DoEnable;
             }
+            if (ri.IsSiteAdmin)
+            {
+                GridRowUserCanEditURLs.Height = new GridLength(35, GridUnitType.Auto);
+            }
+            else
+            {
+                GridRowUserCanEditURLs.Height = new GridLength(0);
+            }
+
             TextBoxEditCodeSetName.IsEnabled = DoEnable;
         }
         private void PartialEnOrDisableEdit(bool DoEnable)

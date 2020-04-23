@@ -1308,7 +1308,18 @@ namespace EppiReviewer4
                 {
                     windowCodeProperties.EnOrDisableEdit(false);
                 }
-                else windowCodeProperties.EnOrDisableEdit(true);
+                else
+                {
+                    windowCodeProperties.EnOrDisableEdit(true);
+                }
+                if (rs == null || !rs.UserCanEditURLs)
+                {
+                    windowCodeProperties.EnOrDisableEditURLs(false);
+                }
+                else
+                {
+                    windowCodeProperties.EnOrDisableEditURLs(true);
+                }
                 windowCodeProperties.GridCodeProperties.DataContext = attributeSet;
                 //Csla.NameValueListBase<int, string>.NameValuePair t = (Csla.NameValueListBase<int, string>.NameValuePair)windowCodeProperties.editCodeType.SelectedItem;
                 foreach (Csla.NameValueListBase<int, string>.NameValuePair t in rs.SetType.AllowedCodeTypes)
@@ -1425,6 +1436,14 @@ namespace EppiReviewer4
                         windowCodeProperties.editCodeType.SelectedIndex = 0;//the first in the list
                     }
 
+                }
+                if (reviewSet == null || !reviewSet.UserCanEditURLs)
+                {
+                    windowCodeProperties.EnOrDisableEditURLs(false);
+                }
+                else
+                {
+                    windowCodeProperties.EnOrDisableEditURLs(true);
                 }
                 windowCodeProperties.ShowDialog();
             }
@@ -3328,7 +3347,8 @@ namespace EppiReviewer4
                 rs.CodingIsFinal,
                 rs.SetName,
                 rs.SetOrder,
-                rs.SetDescription
+                rs.SetDescription,
+                rs.UserCanEditURLs
                 );
             dp.ExecuteCompleted += (o, e2) =>
             {
@@ -3429,7 +3449,9 @@ namespace EppiReviewer4
                 attributeSet.AttributeTypeId,
                 attributeSet.AttributeName,
                 attributeSet.AttributeSetDescription,
-                attributeSet.AttributeOrder
+                attributeSet.AttributeOrder,
+                attributeSet.ExtURL,
+                attributeSet.ExtType
                 );
             dp.ExecuteCompleted += (o, e2) =>
             {

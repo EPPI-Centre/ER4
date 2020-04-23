@@ -32,8 +32,10 @@ namespace BusinessLibrary.BusinessClasses
         private string _SetName;
         private string _setDescription;
         private int _setOrder;
+        private bool _usersCanEditURLs;
 
-        public ReviewSetUpdateCommand(int reviewSetId, int setId, bool allowCodingEdits, bool codingIsFinal, string setName, int SetOrder, string setDescription)
+        public ReviewSetUpdateCommand(int reviewSetId, int setId, bool allowCodingEdits, bool codingIsFinal, string setName, int SetOrder, string setDescription,
+            bool usersCanEditURLs)
         {
             _ReviewSetId = reviewSetId;
             _SetId = setId;
@@ -42,6 +44,7 @@ namespace BusinessLibrary.BusinessClasses
             _SetName = setName;
             _setOrder = SetOrder;
             _setDescription = setDescription;
+            _usersCanEditURLs = usersCanEditURLs;
         }
 
         protected override void OnGetState(Csla.Serialization.Mobile.SerializationInfo info, Csla.Core.StateMode mode)
@@ -54,6 +57,7 @@ namespace BusinessLibrary.BusinessClasses
             info.AddValue("_SetName", _SetName);
             info.AddValue("_setOrder", _setOrder);
             info.AddValue("_setDescription", _setDescription);
+            info.AddValue("_usersCanEditURLs", _usersCanEditURLs);
         }
         protected override void OnSetState(Csla.Serialization.Mobile.SerializationInfo info, Csla.Core.StateMode mode)
         {
@@ -64,6 +68,7 @@ namespace BusinessLibrary.BusinessClasses
             _SetName = info.GetValue<string>("_SetName");
             _setOrder = info.GetValue<int>("_setOrder");
             _setDescription = info.GetValue<string>("_setDescription");
+            _usersCanEditURLs = info.GetValue<bool>("_usersCanEditURLs");
         }
 
 
@@ -86,7 +91,8 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@SET_ORDER", _setOrder));
                     command.Parameters.Add(new SqlParameter("@SET_DESCRIPTION", _setDescription));
 					command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
-					command.ExecuteNonQuery();
+                    command.Parameters.Add(new SqlParameter("@USER_CAN_EDIT_URLS", _usersCanEditURLs));
+                    command.ExecuteNonQuery();
                 }
                 connection.Close();
             }
