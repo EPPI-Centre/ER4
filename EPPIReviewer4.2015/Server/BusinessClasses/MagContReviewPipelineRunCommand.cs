@@ -71,7 +71,7 @@ namespace BusinessLibrary.BusinessClasses
             Task.Run(() => { doRunPipeline(ri.ReviewId, ri.UserId); });
         }
 
-        private void doRunPipeline(int ReviewId, int ContactId)
+        private async void doRunPipeline(int ReviewId, int ContactId)
         {
 
             string uploadFileName = "";
@@ -89,7 +89,7 @@ namespace BusinessLibrary.BusinessClasses
             int SeedIds = WriteSeedIdsFile(uploadFileName);
             int logId = MagLog.SaveLogEntry("ContReview", "started", "SeedIds: " + SeedIds.ToString(), ContactId);
 
-            UploadSeedIdsFileToBlobAsync(uploadFileName, folderPrefix);
+            await UploadSeedIdsFileToBlobAsync(uploadFileName, folderPrefix);
             MagLog.UpdateLogEntry("Running", "SeedIds uploaded: " + SeedIds.ToString(), logId);
 
             WriteNewIdsFileOnBlob(uploadFileName, ContactId, folderPrefix);

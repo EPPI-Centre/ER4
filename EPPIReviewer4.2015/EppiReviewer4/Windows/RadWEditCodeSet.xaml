@@ -50,6 +50,7 @@
                 <RowDefinition Height="35"></RowDefinition>
                 <RowDefinition Height="30"></RowDefinition>
                 <RowDefinition Height="35"></RowDefinition>
+                <RowDefinition Height="35" x:Name="GridRowUserCanEditURLs"></RowDefinition>
                 <RowDefinition Height="35"></RowDefinition>
                 <RowDefinition Height="105"></RowDefinition>
                 <RowDefinition Height="35"></RowDefinition>
@@ -78,14 +79,17 @@
                       Checked="CheckBoxEditCodeSetEditingAllowed_CheckedChanged" Unchecked="CheckBoxEditCodeSetEditingAllowed_CheckedChanged"
                       ToolTipService.ToolTip="Leave this checked while you are setting up your code set and 'lock' it later if you need to."></CheckBox>
 
-            <TextBlock Grid.Row="5" Grid.Column="0" Text="Index number" HorizontalAlignment="Right" Margin="6,6,6,6"></TextBlock>
-            <TextBox x:Name="TextBoxEditSetOrder" Grid.Row="5" Grid.Column="1" Margin="6,6,6,6" HorizontalAlignment="Stretch" Text="{Binding Path=SetOrder, Mode=TwoWay}"></TextBox>
-            <TextBlock Grid.Row="6" Grid.Column="0" Text="Description" HorizontalAlignment="Right" Margin="6,6,6,6"></TextBlock>
-            <TextBox x:Name="TextBoxEditDescription" Grid.Row="6" Grid.Column="1" Margin="6,6,6,6" HorizontalAlignment="Stretch" Text="{Binding Path=SetDescription, Mode=TwoWay}"
+        <TextBlock Grid.Row="5" Grid.Column="0" Margin="6,6,6,6" Text="Users can edit URLs?" HorizontalAlignment="Right"></TextBlock>
+        <CheckBox Grid.Row="5" Grid.Column="1" x:Name="CheckBoxUsersCanEditURLs" IsChecked="{Binding Path=UserCanEditURLs, Mode=TwoWay}" Margin="0,6,0,0"></CheckBox>
+
+        <TextBlock Grid.Row="6" Grid.Column="0" Text="Index number" HorizontalAlignment="Right" Margin="6,6,6,6"></TextBlock>
+            <TextBox x:Name="TextBoxEditSetOrder" Grid.Row="6" Grid.Column="1" Margin="6,6,6,6" HorizontalAlignment="Stretch" Text="{Binding Path=SetOrder, Mode=TwoWay}"></TextBox>
+            <TextBlock Grid.Row="7" Grid.Column="0" Text="Description" HorizontalAlignment="Right" Margin="6,6,6,6"></TextBlock>
+            <TextBox x:Name="TextBoxEditDescription" Grid.Row="7" Grid.Column="1" Margin="6,6,6,6" HorizontalAlignment="Stretch" Text="{Binding Path=SetDescription, Mode=TwoWay}"
                      VerticalAlignment="Stretch" TextWrapping="Wrap" MaxLength="2000" AcceptsReturn="True" HorizontalScrollBarVisibility="Auto" />
-            <cslaXAML:BusyAnimation x:Name="BusyEditCodeSet" Grid.Row="6" Grid.Column="0" Width="30" Height="30"/>
+            <cslaXAML:BusyAnimation x:Name="BusyEditCodeSet" Grid.Row="7" Grid.Column="0" Width="30" Height="30"/>
             
-            <Button x:Name="cmdSaveEditCodeSet" Content="Save" Grid.Row="7" Grid.Column="0" Margin="6,6,6,6" Click="cmdSaveEditCodeSet_Click" ></Button>
-            <Button x:Name="cmdCancelEditCodeset" Content="Cancel" Grid.Row="7" Grid.Column="1" Margin="6,6,6,6" Click="cmdCancelEditCodeset_Click"></Button>
+            <Button x:Name="cmdSaveEditCodeSet" Content="Save" Grid.Row="8" Grid.Column="0" Margin="6,6,6,6" Click="cmdSaveEditCodeSet_Click" ></Button>
+            <Button x:Name="cmdCancelEditCodeset" Content="Cancel" Grid.Row="8" Grid.Column="1" Margin="6,6,6,6" Click="cmdCancelEditCodeset_Click"></Button>
         </Grid>
 </telerik:RadWindow>

@@ -425,6 +425,19 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
+        public static readonly PropertyInfo<bool> UserCanEditURLsProperty = RegisterProperty<bool>(new PropertyInfo<bool>("UserCanEditURLs", "UserCanEditURLs", false));
+        public bool UserCanEditURLs
+        {
+            get
+            {
+                return GetProperty(UserCanEditURLsProperty);
+            }
+            set
+            {
+                SetProperty(UserCanEditURLsProperty, value);
+            }
+        }
+
         public static readonly PropertyInfo<bool> ItemSetIsCompletedProperty = RegisterProperty<bool>(new PropertyInfo<bool>("ItemSetIsCompleted", "ItemSetIsCompleted"));
         public bool ItemSetIsCompleted
         {
@@ -598,6 +611,7 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@ALLOW_CODING_EDITS", ReadProperty(AllowCodingEditsProperty)));
                     command.Parameters.Add(new SqlParameter("@CODING_IS_FINAL", ReadProperty(CodingIsFinalProperty)));
                     command.Parameters.Add(new SqlParameter("@SET_DESCRIPTION", ReadProperty(SetDescriptionProperty)));
+                    command.Parameters.Add(new SqlParameter("@USER_CAN_EDIT_URLS", ReadProperty(UserCanEditURLsProperty)));
 
                     command.Parameters.Add(new SqlParameter("@ITEM_SET_ID", ReadProperty(ItemSetIdProperty)));
                     command.Parameters.Add(new SqlParameter("@IS_COMPLETED", ReadProperty(ItemSetIsCompletedProperty)));
@@ -659,7 +673,8 @@ namespace BusinessLibrary.BusinessClasses
             returnValue.LoadProperty<int>(SetOrderProperty, reader.GetInt32("SET_ORDER"));
             returnValue.LoadProperty<string>(SetNameProperty, reader.GetString("SET_NAME"));
             returnValue.LoadProperty<string>(SetDescriptionProperty, reader.GetString("SET_DESCRIPTION"));
-            
+            returnValue.LoadProperty<bool>(UserCanEditURLsProperty, reader.GetBoolean("USER_CAN_EDIT_URLS"));
+
             //returnValue.LoadProperty<string>(SetTypeProperty, reader.GetString("SET_TYPE"));
             returnValue.TempMaxDepth = reader.GetInt32("MAX_DEPTH");
             returnValue.LoadProperty<bool>(ItemSetIsCompletedProperty, false);
@@ -680,6 +695,7 @@ namespace BusinessLibrary.BusinessClasses
             returnValue.LoadProperty<int>(SetOrderProperty, setOrder);
             returnValue.LoadProperty<string>(SetNameProperty, name);
             returnValue.LoadProperty<string>(SetDescriptionProperty, setDescription);
+            returnValue.LoadProperty<bool>(UserCanEditURLsProperty, false); // always false on copy
             returnValue.TempMaxDepth = 0;
             returnValue.LoadProperty<bool>(ItemSetIsCompletedProperty, false);
             return returnValue;
@@ -713,6 +729,7 @@ namespace BusinessLibrary.BusinessClasses
                             returnValue.LoadProperty<int>(SetTypeIdProperty, reader.GetInt32("SET_TYPE_ID"));
                             returnValue.LoadProperty<int>(SetOrderProperty, reader.GetInt32("SET_ORDER"));
                             returnValue.LoadProperty<string>(SetNameProperty, reader.GetString("SET_NAME"));
+                            returnValue.LoadProperty<bool>(UserCanEditURLsProperty, reader.GetBoolean("USER_CAN_EDIT_URLS"));
                             returnValue.LoadProperty<string>(SetDescriptionProperty, reader.GetString("SET_DESCRIPTION"));
                             returnValue.TempMaxDepth = reader.GetInt32("MAX_DEPTH");
                             returnValue.LoadProperty<bool>(ItemSetIsCompletedProperty, false);
