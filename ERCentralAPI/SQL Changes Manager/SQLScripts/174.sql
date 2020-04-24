@@ -17,7 +17,7 @@ begin
 	<p>If you have any questions about this please contact us at&nbsp;<a href="mailto:EPPIsupport@ioe.ac.uk"><span style="color: #0066cc;">EPPIsupport@ucl.ac.uk</span></a></p>
 	<p>&nbsp;</p>
 	<p>
-	EPPI-Reviewer 4 is developed and maintained by the EPPI-Centre of the UCL Institute of Education at the University of London, UK. To find out more about the work of the EPPI-Centre please visit our website <a href="http://eppi.ioe.ac.uk/"><span style="color: purple;">eppi.ioe.ac.uk</span></a>.<br />
+	EPPI-Reviewer is developed and maintained by the EPPI-Centre of the UCL Institute of Education at the University of London, UK. To find out more about the work of the EPPI-Centre please visit our website <a href="http://eppi.ioe.ac.uk/"><span style="color: purple;">eppi.ioe.ac.uk</span></a>.<br />
 	<br />
 	In case this message is unexpected, please don&rsquo;t hesitate to contact our support staff:<br />
 	<a href="mailto:EPPIsupport@ioe.ac.uk"><span style="color: #0066cc;">EPPIsupport@ucl.ac.uk</span></a><br />
