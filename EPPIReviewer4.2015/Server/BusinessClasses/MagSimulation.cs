@@ -472,7 +472,7 @@ namespace BusinessLibrary.BusinessClasses
 
             }
             string folderPrefix = /*"experiment-v2/" +*/ TrainingRunCommand.NameBase + "_Sim" + this.MagSimulationId.ToString();
-            WriteIdFile(ReviewId, ContactId, uploadFileName);
+            WriteIdFiles(ReviewId, ContactId, uploadFileName);
             UploadIdsFileAsync(uploadFileName, folderPrefix);
             SubmitCreatTrainFileJob(ContactId, folderPrefix);
             SubmitCreatInferenceFileJob(ContactId, folderPrefix);
@@ -493,7 +493,7 @@ namespace BusinessLibrary.BusinessClasses
             DownloadResultsAsync(folderPrefix, ReviewId);
         }
 
-        private void WriteIdFile(int ReviewId, int UserId, string fileName)
+        private void WriteIdFiles(int ReviewId, int UserId, string fileName)
         {
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
@@ -602,6 +602,7 @@ namespace BusinessLibrary.BusinessClasses
 
             CloudBlockBlob blockBlobDownloadData = containerDown.GetBlockBlobReference(folderPrefix + "/Results.tsv");
             CloudBlockBlob blockBlobIds = containerDown.GetBlockBlobReference(folderPrefix + "/Train.tsv");
+            CloudBlockBlob InferenceIds = containerDown.GetBlockBlobReference(folderPrefix + "/Train.tsv");
 
             string resultantString = await blockBlobDownloadData.DownloadTextAsync();
             byte[] myFile = Encoding.UTF8.GetBytes(resultantString);
@@ -610,6 +611,7 @@ namespace BusinessLibrary.BusinessClasses
             byte[] myFileIds = Encoding.UTF8.GetBytes(resultantStringFileIds);
 
             string SeedIds = "";
+            int SeedIdsCount = 0;
             MemoryStream msIds = new MemoryStream(myFileIds);
             using (var readerIds = new StreamReader(msIds))
             {
@@ -627,13 +629,14 @@ namespace BusinessLibrary.BusinessClasses
                     {
                         SeedIds += "," + fields[0];
                     }
+                    SeedIdsCount++;
                 }
             }
 
             MemoryStream ms = new MemoryStream(myFile);
 
             DataTable dt = new DataTable("Ids");
-            dt.Columns.Add("MAG_SIMULATION_RESULT_ID"); // can be anything
+            dt.Columns.Add("MAG_SIMULATION_RESULT_ID"); // can be anything - this is an identity column
             dt.Columns.Add("MAG_SIMULATION_ID");
             dt.Columns.Add("PaperId");
             dt.Columns.Add("INCLUDED");

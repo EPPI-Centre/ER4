@@ -467,7 +467,7 @@ namespace BusinessLibrary.BusinessClasses
             return returnValue;
         }
 
-        private void RunMagRelatedPapersRun(int ContactId, int ReviewId)
+        private async void RunMagRelatedPapersRun(int ContactId, int ReviewId)
         {
 
 #if (!CSLA_NETCORE)
@@ -489,9 +489,9 @@ namespace BusinessLibrary.BusinessClasses
 #endif
 
             WriteSeedIdsFile(uploadFileName);
-            UploadSeedIdsFileAsync(uploadFileName);
+            await UploadSeedIdsFileAsync(uploadFileName);
             TriggerDataLakeJob(uploadFileName, ContactId);
-            DownloadResultsAsync(uploadFileName, ReviewId);
+            await DownloadResultsAsync(uploadFileName, ReviewId);
         }
 
         private void WriteSeedIdsFile(string uploadFileName)
@@ -568,7 +568,7 @@ namespace BusinessLibrary.BusinessClasses
 
             MagDataLakeHelpers.ExecProc(@"[master].[dbo].[RelatedRun](""" + Path.GetFileName(uploadFileName) + "\",\"" +
                 Path.GetFileName(uploadFileName) + "\", \"" + MagInfo.MagFolder + "\",\"" + this.Mode + "\"," +
-                (this.DateFrom.ToString() != "" ? DateFrom.ToString() : "1753") + ");", true, "RelatedRun", ContactId, 12);
+                (this.DateFrom.ToString() != "" ? DateFrom.Date.Year.ToString() : "1753") + ");", true, "RelatedRun", ContactId, 10);
                     
         }
 
