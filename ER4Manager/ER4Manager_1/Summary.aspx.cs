@@ -244,7 +244,9 @@ public partial class Summary : System.Web.UI.Page
 
         for (int i = 0; i < gvCreditPurchases.Rows.Count; i++)
         {
-            if (gvCreditPurchases.Rows[i].Cells[3].Text == "0")
+            int test = -1;
+            int.TryParse(gvCreditPurchases.Rows[i].Cells[3].Text, out test);//if parsing fails, test becomes 0, which is OK, in this case
+            if (test <= 0)
             {
                 gvCreditPurchases.Rows[i].Cells[5].Enabled = false;
             }
