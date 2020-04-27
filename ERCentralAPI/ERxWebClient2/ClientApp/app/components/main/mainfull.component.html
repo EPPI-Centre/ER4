@@ -71,9 +71,6 @@
                                                                [disabled]="!HasSelectedItems"
                                                                [data]="QuickReportsDDData"
                                                                style="border-color: #04070b;background-color: #e1e4eb;"></kendo-toolbar-splitbutton>
-
-                                    <!--<kendo-toolbar-button [text]="'Export to RIS'"
-    [disabled]="!HasSelectedItems" (click)="ToRis()"></kendo-toolbar-button>-->
                                     <kendo-toolbar-button [icon]="'delete'" [disabled]="!HasSelectedItems || !HasWriteRights"
                                                           (click)="DeleteRelevantItems()">
                                     </kendo-toolbar-button>
@@ -93,7 +90,7 @@
                                     <kendo-toolbar-button [text]="'Run Reports'"
                                                           (click)="RunConfigurableReports()">
                                     </kendo-toolbar-button>
-                                    <kendo-toolbar-button [text]="'Microsoft Academic'"
+                                    <kendo-toolbar-button *ngIf="ReviewIsMagEnabled" [text]="'MAG'"
                                                           (click)="OpenBasicMAG()">
                                     </kendo-toolbar-button>
                                 </kendo-toolbar>
