@@ -32,6 +32,7 @@ import { ExcelService } from '../services/excel.service';
 import { DuplicatesService } from '../services/duplicates.service';
 import { FetchReadOnlyReviewsComponent } from '../readonlyreviews/readonlyreviews.component';
 import { BasicMAGService } from '../services/BasicMAG.service';
+import { ReviewInfoService } from '../services/ReviewInfo.service';
 //import { AdvancedMAGFeaturesComponent } from '../MAG/AdvancedMAGFeatures.component';
 
 
@@ -79,7 +80,8 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 		private searchService: searchService,
 		private configurablereportServ: ConfigurableReportService,
 		@Inject('BASE_URL') private _baseUrl: string,
-		private excelService: ExcelService
+        private excelService: ExcelService,
+        private reviewInfoService: ReviewInfoService,
     ) {}
 	@ViewChild('WorkAllocationContactList') workAllocationsContactComp!: WorkAllocationContactListComp;
 	@ViewChild('WorkAllocationCollaborateList') workAllocationCollaborateComp!: WorkAllocationComp;
@@ -324,7 +326,11 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 			//&& this.searchService.SearchList.length > 0
 		) return true;
 		else return false;
-	}
+    }
+    public get ReviewIsMagEnabled(): boolean {
+        if (this.reviewInfoService.ReviewInfo.magEnabled && this.ReviewerIdentityServ.reviewerIdentity.isSiteAdmin) return true;
+        return false;
+    }
     public ShowClusterCommand: boolean = false;
     public HelpAndFeebackContext: string = "main\\reviewhome";
 
