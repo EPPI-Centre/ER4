@@ -136,7 +136,7 @@ namespace BusinessLibrary.BusinessClasses
                         }
                         using (SqlCommand command = new SqlCommand("st_MagItemPaperInsertAvoidDuplicates", connection))
                         {
-                            //command.CommandTimeout = 300; 
+                            //command.CommandTimeout = 500; 
                             command.CommandType = System.Data.CommandType.StoredProcedure;
                             command.Parameters.Add(new SqlParameter("@MAG_IDs", IdsToCheck));
                             command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));

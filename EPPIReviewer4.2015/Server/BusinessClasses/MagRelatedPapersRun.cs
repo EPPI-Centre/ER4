@@ -11,6 +11,7 @@ using Csla.Silverlight;
 using Csla.DataPortalClient;
 using System.IO;
 using System.Threading.Tasks;
+
 //using Csla.Configuration;
 
 #if !SILVERLIGHT
@@ -22,6 +23,7 @@ using System.Configuration;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
 using System.Data;
+using System.Threading;
 #endif
 
 namespace BusinessLibrary.BusinessClasses
@@ -348,7 +350,7 @@ namespace BusinessLibrary.BusinessClasses
                 connection.Open();
                 using (SqlCommand command = new SqlCommand("st_MagRelatedPapersRunsInsert", connection))
                 {
-                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.CommandType = CommandType.StoredProcedure;
                     command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
                     command.Parameters.Add(new SqlParameter("@USER_DESCRIPTION", ReadProperty(UserDescriptionProperty)));
                     command.Parameters.Add(new SqlParameter("@PaperIdList", ""));
@@ -359,7 +361,7 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@MODE", ReadProperty(ModeProperty)));
                     command.Parameters.Add(new SqlParameter("@FILTERED", ReadProperty(FilteredProperty)));
                     command.Parameters.Add(new SqlParameter("@MAG_RELATED_RUN_ID", ReadProperty(MagRelatedRunIdProperty)));
-                    command.Parameters["@MAG_RELATED_RUN_ID"].Direction = System.Data.ParameterDirection.Output;
+                    command.Parameters["@MAG_RELATED_RUN_ID"].Direction = ParameterDirection.Output;
                     command.ExecuteNonQuery();
                     LoadProperty(MagRelatedRunIdProperty, command.Parameters["@MAG_RELATED_RUN_ID"].Value);
 
@@ -488,13 +490,13 @@ namespace BusinessLibrary.BusinessClasses
 
 #endif
 
-            WriteSeedIdsFile(uploadFileName);
+            WriteSeedIdsFile(uploadFileName, ReviewId);
             await UploadSeedIdsFileAsync(uploadFileName);
             TriggerDataLakeJob(uploadFileName, ContactId);
             await DownloadResultsAsync(uploadFileName, ReviewId);
         }
 
-        private void WriteSeedIdsFile(string uploadFileName)
+        private void WriteSeedIdsFile(string uploadFileName, int ReviewId)
         {
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
@@ -504,6 +506,8 @@ namespace BusinessLibrary.BusinessClasses
                 {
                     command.CommandType = System.Data.CommandType.StoredProcedure;
                     command.Parameters.Add(new SqlParameter("@MAG_RELATED_RUN_ID", this.MagRelatedRunId));
+                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", ReviewId));
+                    command.Parameters.Add(new SqlParameter("@ATTRIBUTE_ID", this.AttributeId));
                     using (SafeDataReader reader = new SafeDataReader(command.ExecuteReader()))
                     {
                         if (reader.Read())
