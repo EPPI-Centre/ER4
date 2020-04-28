@@ -29,29 +29,14 @@ export class MAGBrowser implements OnInit {
 
         this.section['first'] = true;
 
-        //console.log('paperIds are: ',this._magBrowserService.ListCriteria.paperIds);
-
-        //this._magAdvancedService.FetchMagFieldOfStudyList(this._magBrowserService.ListCriteria.paperIds);
-
-
-        // need a better check for list type later
-        //the basic page check first 
         if (this._magBrowserService.MAGList.papers && this._magBrowserService.MAGList.papers.length > 0) {
-            
-            // do something change conditionbal here
 
         } else if (this._magAdvancedService.ReviewMatchedPapersList.length > 0) {
 
-            //let crit: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
-            //crit.magPaperId = this._magAdvancedService.currentMagPaper.paperId;
-            //crit.listType = 'ReviewMatchedPapers';
-            //crit.included = 'Included';
-            //crit.pageSize = 20;
             console.log(this._magAdvancedService.CurrentCriteria);
             this._magAdvancedService.FetchMagPaperList(this._magAdvancedService.CurrentCriteria);
             this._magBrowserService.MAGList.papers = this._magAdvancedService.ReviewMatchedPapersList;
 
-            //conditional below is wrong   100000 =====================================================
         } else if (this._magBrowserService.MAGList.papers.length > 100000) {
 
             let crit: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
@@ -65,7 +50,7 @@ export class MAGBrowser implements OnInit {
             crit1.magPaperId = this._magAdvancedService.currentMagPaper.paperId;
             crit1.listType = 'CitedByList';
             this._magAdvancedService.FetchMagPaperList(crit1);
-            //all wrong
+
         } else if (this._magBrowserService.MAGList.papers.length > 100000) {
 
             let crit2: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
@@ -93,7 +78,12 @@ export class MAGBrowser implements OnInit {
         }
     }
     section: any = [];
-    
+    public SetCriteria(listType: string) {
+
+        console.log(listType);
+        this._magBrowserService.ListCriteria.listType = listType;
+
+    }
     private RemoveFromSelectedList(paperId: number): any {
 
         let pos: number = this.SelectedPaperIds.indexOf(paperId);
@@ -107,9 +97,6 @@ export class MAGBrowser implements OnInit {
     public WPChildTopics: MagFieldOfStudy[] = [];
     public GetParentAndChildRelatedPapers(item: MagFieldOfStudy) {
 
-
-        // this should reset the paper list page criteria
-       
         let FieldOfStudyId: number = item.fieldOfStudyId;
         this.ParentTopic =  item.displayName;
 
@@ -147,15 +134,7 @@ export class MAGBrowser implements OnInit {
                     for (var i = 0; i < result.length; i++) {
 
                         let newHl: MagFieldOfStudy = result[i];
-                        //if (result[i].paperCount > _maxFieldOfStudyPaperCount) {
-                        //        newHl.NavigateUri = new Uri("https://academic.microsoft.com/topic/" +
-                        //            result[i].fieldOfStudyId.ToString());
-                       
-                        //}
-                        //else {
-                        //        newHl.Click += HlNavigateToTopic_Click;
-                        //}
-                        if (ParentOrChild == 'Parent topics') {
+                          if (ParentOrChild == 'Parent topics') {
                             this.WPParentTopics.push(newHl);
 
                         } else {
@@ -194,40 +173,16 @@ export class MAGBrowser implements OnInit {
             }
         }
         else {
-            //change to notification
+
             console.log("This paper is already in your review");
         }
 
-        //NEED TO UPDATE PAPER TO API AT SMART POINT MAYNE HERE===================================****
-        //this._magAdvancedService.UpdateCurrentPaper(paper.paperId);
-
     }
-
 
     public get HasWriteRights(): boolean {
         return this._ReviewerIdentityServ.HasWriteRights;
     }
-    public GetItems(item: MagRelatedPapersRun) {
 
-        let selectionCriteria: MagRelatedPaperListSelectionCriteria = new MagRelatedPaperListSelectionCriteria();
-
-        selectionCriteria.pageSize = 20;
-
-        selectionCriteria.pageNumber = 0;
-
-        selectionCriteria.listType = "MagRelatedPapersRunList";
-
-        selectionCriteria.magRelatedRunId = item.magRelatedRunId;
-
-
-
-
-    }
-    public ImportMagSearchPapers(item: MagRelatedPapersRun) {
-
-        //this._magService.ImportMagPapers(item);
-
-    }
     public get IsServiceBusy(): boolean {
 
         return this._magBrowserService.IsBusy || this._magAdvancedService.IsBusy;
