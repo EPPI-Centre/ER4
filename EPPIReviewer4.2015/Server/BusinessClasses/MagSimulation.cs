@@ -489,6 +489,8 @@ namespace BusinessLibrary.BusinessClasses
         private void RunSimulation(int ReviewId, int ContactId)
         {
             MagCurrentInfo mci = MagCurrentInfo.GetMagCurrentInfoServerSide("LIVE");
+            AddClassifierScores();
+            return;
 
 #if (!CSLA_NETCORE)
             string uploadFileName = System.Web.HttpRuntime.AppDomainAppPath + @"UserTempUploads/Simulation" + MagSimulationId.ToString() + ".tsv";
@@ -827,6 +829,65 @@ namespace BusinessLibrary.BusinessClasses
                 connection.Close();
             }
             return lineCount;
+        }
+
+        private void AddClassifierScores()
+        {
+            List<Int64> Ids = new List<long>();
+            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+            {
+                connection.Open();
+                using (SqlCommand command = new SqlCommand("st_MagSimulationResults", connection))
+                {
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@MagSimulationId", 212)); // MagSimulationId));
+                    command.Parameters.Add(new SqlParameter("@OrderBy", "Network"));
+                    using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
+                    {
+                        while (reader.Read())
+                        {
+                            Ids.Add(reader.GetInt64("PaperId"));
+                        }
+                    }
+                }
+                connection.Close();
+            }
+
+            if (Ids.Count == 0)
+                return;
+
+            string fName = System.Web.HttpRuntime.AppDomainAppPath + @"UserTempUploads/Sim" + MagSimulationId.ToString() + ".csv";
+            using (System.IO.StreamWriter file = new System.IO.StreamWriter(fName))
+            {
+                file.WriteLine("\"ITEM_ID\",\"LABEL\",\"TITLE\",\"ABSTRACT\",\"KEYWORDS\"");
+                int count = 0;
+                //while (count < Ids.Count)
+                while (count < 500)
+                {
+                    string query = "";
+                    for (int i = count; i < Ids.Count && i < count + 100; i++)
+                    {
+                        if (query == "")
+                        {
+                            query = "Id=" + Ids[i].ToString();
+                        }
+                        else
+                        {
+                            query += ",Id=" + Ids[i].ToString();
+                        }
+                    }
+                    MagMakesHelpers.PaperMakesResponse resp = MagMakesHelpers.EvaluateExpressionNoPagingWithCount("OR(" + query + ")", "100");
+                    
+                    foreach (MagMakesHelpers.PaperMakes pm in resp.entities)
+                    {
+                        file.WriteLine("\"" + pm.Id.ToString() + "\"," +
+                                        "\"" + "0" + "\"," +
+                                        "\"" + MagMakesHelpers.CleanText(pm.Ti) + "\"," +
+                                        "\"" + MagMakesHelpers.CleanText(MagMakesHelpers.ReconstructInvertedAbstract(pm.IA)) + "\"," +
+                                        "\"" + "" + "\"");
+                    }
+                }
+            }
         }
 
 

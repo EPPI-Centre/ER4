@@ -189,6 +189,13 @@ namespace BusinessLibrary.BusinessClasses
             return doMakesRequest(query, "", MakesDeploymentStatus);
         }
 
+        public static PaperMakesResponse EvaluateExpressionNoPagingWithCount(string expression, string count, string MakesDeploymentStatus = "LIVE")
+        {
+            string query = query = @"/evaluate?expr=" + expression;
+            string appendPageInfo = @"&count=" + count;
+            return doMakesRequest(query, appendPageInfo, MakesDeploymentStatus);
+        }
+
         public static PaperMakesResponse EvaluateExpressionWithPaging(string searchString, string PageSize, string offSet, string MakesDeploymentStatus = "LIVE")
         {
             string query = query = @"/evaluate?expr=" + searchString;
@@ -457,7 +464,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static string CleanText(string text)
+        public static string CleanText(string text)
         {
             Regex rgx = new Regex("[^a-zA-Z0-9 ]");
             Dictionary<string, string> charMap = EuropeanCharacterMap();
