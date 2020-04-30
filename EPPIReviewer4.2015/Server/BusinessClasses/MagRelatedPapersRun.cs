@@ -473,6 +473,7 @@ namespace BusinessLibrary.BusinessClasses
         {
 
 #if (!CSLA_NETCORE)
+            //string folderPrefix = TrainingRunCommand.NameBase;
             string uploadFileName = System.Web.HttpRuntime.AppDomainAppPath + @"UserTempUploads/RelatedRun" + MagRelatedRunId.ToString() + ".csv";
 
 #else       

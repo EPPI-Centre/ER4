@@ -1426,16 +1426,38 @@ namespace EppiReviewer4
 
         private void LBMatchAllIncluded_Click(object sender, RoutedEventArgs e)
         {
-            RadWindow.Confirm("Are you sure you want to match all the items in your review\n to Microsoft Academic records?", OnShowWizardDialogClosed);
+            MatchOnAllOrFiltered = ((HyperlinkButton)sender).Tag.ToString();
+            if (MatchOnAllOrFiltered == "All")
+            {
+                RadWindow.Confirm("Are you sure you want to match all the items in your review\n to Microsoft Academic records?", OnShowWizardDialogClosed);
+            }
+            else
+            {
+                if (codesSelectControlMAGSelect.SelectedAttributeSet() == null)
+                {
+                    RadWindow.Alert("Please select a code");
+                }
+                else
+                {
+                    RadWindow.Confirm("Are you sure you want to match the items with this code\n to Microsoft Academic records?", OnShowWizardDialogClosed);
+                }
+            }
         }
+
+        private string MatchOnAllOrFiltered;
 
         private void OnShowWizardDialogClosed(object sender, WindowClosedEventArgs e)
         {
             if (e.DialogResult == true)
             {
+                Int64 AttributeId = 0;
+                if (MatchOnAllOrFiltered != "All")
+                {
+                    AttributeId = codesSelectControlMAGSelect.SelectedAttributeSet().AttributeId;
+                }
                 DataPortal<MagMatchItemsToPapersCommand> dp = new DataPortal<MagMatchItemsToPapersCommand>();
                 MagMatchItemsToPapersCommand GetMatches = new MagMatchItemsToPapersCommand("FindMatches",
-                    true, 0, 0);
+                    true, 0, AttributeId);
                 dp.ExecuteCompleted += (o, e2) =>
                 {
                     if (e2.Error != null)
@@ -1445,7 +1467,7 @@ namespace EppiReviewer4
                     else
                     {
                         MagMatchItemsToPapersCommand res = e2.Object as MagMatchItemsToPapersCommand;
-                        //RadWindow.Alert("Records submitted for matching. This can take a while...");
+                        RadWindow.Alert("Records submitted for matching. This can take a while...");
                     }
                 };
                 lbRefreshCounts.Visibility = Visibility.Visible;
@@ -1787,11 +1809,15 @@ namespace EppiReviewer4
                 if (rb.Tag.ToString() == "ShowCodesControl")
                 {
                     DatePickerSimulation.Visibility = Visibility.Collapsed;
+                    DatePickerSimulationEnd.Visibility = Visibility.Collapsed;
+                    tbEndDate.Visibility = Visibility.Collapsed;
                     codesSelectControlSimulation.Visibility = Visibility.Visible;
                 }
                 else
                 {
                     DatePickerSimulation.Visibility = Visibility.Visible;
+                    DatePickerSimulationEnd.Visibility = Visibility.Visible;
+                    tbEndDate.Visibility = Visibility.Visible;
                     codesSelectControlSimulation.Visibility = Visibility.Collapsed;
                 }
             }
@@ -1809,17 +1835,21 @@ namespace EppiReviewer4
             {
                 DateTime SimulationYear = Convert.ToDateTime("1/1/1753");
                 DateTime CreatedDate = Convert.ToDateTime("1/1/1753");
+                DateTime SimulationYearEnd = Convert.ToDateTime("1/1/2025");
+                DateTime CreatedDateEnd = Convert.ToDateTime("1/1/2025");
                 Int64 AttributeId = 0;
                 Int64 AttributeIdFilter = 0;
                 ClassifierContactModel UserModel = null;
                 if (rbSimulationYear.IsChecked == true)
                 {
                     SimulationYear = DatePickerSimulation.SelectedValue.Value;
+                    SimulationYearEnd = DatePickerSimulationEnd.SelectedValue.Value;
                     AttributeId = 0;
                 }
                 if (rbSimulationCreatedDate.IsChecked == true)
                 {
                     CreatedDate = DatePickerSimulation.SelectedValue.Value;
+                    CreatedDateEnd = DatePickerSimulationEnd.SelectedValue.Value;
                     AttributeId = 0;
                 }
                 if (rbSimulationWithThisCode.IsChecked == true)
@@ -1850,7 +1880,9 @@ namespace EppiReviewer4
 
                 MagSimulation newSimulation = new MagSimulation();
                 newSimulation.Year = SimulationYear.Year;
+                newSimulation.YearEnd = SimulationYearEnd.Year;
                 newSimulation.CreatedDate = CreatedDate;
+                newSimulation.CreatedDateEnd = CreatedDateEnd;
                 newSimulation.WithThisAttributeId = AttributeId;
                 newSimulation.FilteredByAttributeId = AttributeIdFilter;
                 newSimulation.SearchMethod = (comboSimulationSearchMethod.SelectedItem as ComboBoxItem).Content.ToString();

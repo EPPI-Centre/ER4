@@ -68,6 +68,19 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
+        public static readonly PropertyInfo<int> YearEndProperty = RegisterProperty<int>(new PropertyInfo<int>("YearEnd", "YearEnd"));
+        public int YearEnd
+        {
+            get
+            {
+                return GetProperty(YearEndProperty);
+            }
+            set
+            {
+                SetProperty(YearEndProperty, value);
+            }
+        }
+
         public static readonly PropertyInfo<SmartDate> CreatedDateProperty = RegisterProperty<SmartDate>(new PropertyInfo<SmartDate>("CreatedDate", "CreatedDate"));
         public SmartDate CreatedDate
         {
@@ -78,6 +91,19 @@ namespace BusinessLibrary.BusinessClasses
             set
             {
                 SetProperty(CreatedDateProperty, value);
+            }
+        }
+
+        public static readonly PropertyInfo<SmartDate> CreatedDateEndProperty = RegisterProperty<SmartDate>(new PropertyInfo<SmartDate>("CreatedDateEnd", "CreatedDateEnd"));
+        public SmartDate CreatedDateEnd
+        {
+            get
+            {
+                return GetProperty(CreatedDateEndProperty);
+            }
+            set
+            {
+                SetProperty(CreatedDateEndProperty, value);
             }
         }
 
@@ -192,11 +218,11 @@ namespace BusinessLibrary.BusinessClasses
             {
                 if (GetProperty(YearProperty) != 1753)
                 {
-                    return "Publication before: " + GetProperty(YearProperty);
+                    return "Pub before/end: " + GetProperty(YearProperty) + "/" + GetProperty(YearEndProperty);
                 }
                 if (GetProperty(CreatedDateProperty) != Convert.ToDateTime("1/1/1753"))
                 {
-                    return "Created before: " + GetProperty(CreatedDateProperty).ToString();
+                    return "Created before/end: " + GetProperty(CreatedDateProperty).ToString() + "/" + GetProperty(CreatedDateEndProperty);
                 }
                 return "With code: " + GetProperty(WithThisAttributeProperty);
             }
@@ -344,10 +370,12 @@ namespace BusinessLibrary.BusinessClasses
                 using (SqlCommand command = new SqlCommand("st_MagSimulationInsert", connection))
                 {
                     int newid = 0;
-                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.CommandType = CommandType.StoredProcedure;
                     command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
                     command.Parameters.Add(new SqlParameter("@YEAR", ReadProperty(YearProperty)));
+                    command.Parameters.Add(new SqlParameter("@YEAR_END", ReadProperty(YearEndProperty)));
                     command.Parameters.Add(new SqlParameter("@CREATED_DATE", CreatedDate.DBValue));
+                    command.Parameters.Add(new SqlParameter("@CREATED_DATE_END", CreatedDateEnd.DBValue));
                     command.Parameters.Add(new SqlParameter("@WITH_THIS_ATTRIBUTE_ID", ReadProperty(WithThisAttributeIdProperty)));
                     command.Parameters.Add(new SqlParameter("@FILTERED_BY_ATTRIBUTE_ID", ReadProperty(FilteredByAttributeIdProperty)));
                     command.Parameters.Add(new SqlParameter("@SEARCH_METHOD", ReadProperty(SearchMethodProperty)));
@@ -356,7 +384,7 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@USER_CLASSIFIER_MODEL_ID", ReadProperty(UserClassifierModelIdProperty)));
                     command.Parameters.Add(new SqlParameter("@STATUS", ReadProperty(StatusProperty)));
                     command.Parameters.Add(new SqlParameter("@MAG_SIMULATION_ID", newid));
-                    command.Parameters["@MAG_SIMULATION_ID"].Direction = System.Data.ParameterDirection.Output;
+                    command.Parameters["@MAG_SIMULATION_ID"].Direction = ParameterDirection.Output;
                     command.ExecuteNonQuery();
                     LoadProperty(MagSimulationIdProperty, command.Parameters["@MAG_SIMULATION_ID"].Value);
                 }
@@ -406,7 +434,9 @@ namespace BusinessLibrary.BusinessClasses
                             LoadProperty<Int32>(ReviewIdProperty, reader.GetInt32("REVIEW_ID"));
                             LoadProperty<Int32>(MagSimulationIdProperty, reader.GetInt32("MAG_SIMULATION_ID"));
                             LoadProperty<Int32>(YearProperty, reader.GetInt32("YEAR"));
+                            LoadProperty<Int32>(YearEndProperty, reader.GetInt32("YEAR_END"));
                             LoadProperty<SmartDate>(CreatedDateProperty, reader.GetSmartDate("CREATED_DATE"));
+                            LoadProperty<SmartDate>(CreatedDateEndProperty, reader.GetSmartDate("CREATED_DATE_END"));
                             LoadProperty<Int64>(WithThisAttributeIdProperty, reader.GetInt64("WITH_THIS_ATTRIBUTE_ID"));
                             LoadProperty<Int64>(FilteredByAttributeIdProperty, reader.GetInt64("FILTERED_BY_ATTRIBUTE_ID"));
                             LoadProperty<string>(SearchMethodProperty, reader.GetString("SEARCH_METHOD"));
@@ -434,7 +464,9 @@ namespace BusinessLibrary.BusinessClasses
             returnValue.LoadProperty<Int32>(ReviewIdProperty, reader.GetInt32("REVIEW_ID"));
             returnValue.LoadProperty<Int32>(MagSimulationIdProperty, reader.GetInt32("MAG_SIMULATION_ID"));
             returnValue.LoadProperty<Int32>(YearProperty, reader.GetInt32("YEAR"));
+            returnValue.LoadProperty<Int32>(YearEndProperty, reader.GetInt32("YEAR_END"));
             returnValue.LoadProperty<SmartDate>(CreatedDateProperty, reader.GetSmartDate("CREATED_DATE"));
+            returnValue.LoadProperty<SmartDate>(CreatedDateEndProperty, reader.GetSmartDate("CREATED_DATE_END"));
             returnValue.LoadProperty<Int64>(WithThisAttributeIdProperty, reader.GetInt64("WITH_THIS_ATTRIBUTE_ID"));
             returnValue.LoadProperty<Int64>(FilteredByAttributeIdProperty, reader.GetInt64("FILTERED_BY_ATTRIBUTE_ID"));
             returnValue.LoadProperty<string>(SearchMethodProperty, reader.GetString("SEARCH_METHOD"));
@@ -458,7 +490,25 @@ namespace BusinessLibrary.BusinessClasses
         {
             MagCurrentInfo mci = MagCurrentInfo.GetMagCurrentInfoServerSide("LIVE");
 
+#if (!CSLA_NETCORE)
+            string uploadFileName = System.Web.HttpRuntime.AppDomainAppPath + @"UserTempUploads/Simulation" + MagSimulationId.ToString() + ".tsv";
+
+#else       
             string uploadFileName = "";
+            if (Directory.Exists("UserTempUploads"))
+            {
+                uploadFileName =  @"./UserTempUploads/Simulation" + MagSimulationId.ToString() + ".tsv";
+            }
+            else
+            {
+                DirectoryInfo tmpDir = System.IO.Directory.CreateDirectory("UserTempUploads");
+                uploadFileName = tmpDir.FullName + "/" + @"UserTempUploads/Simulation" + MagSimulationId.ToString() + ".tsv";
+
+            }
+
+#endif
+
+            /*
             if (Directory.Exists("UserTempUploads"))
             {
                 uploadFileName = @"UserTempUploads/" + TrainingRunCommand.NameBase + "_" +
@@ -471,16 +521,25 @@ namespace BusinessLibrary.BusinessClasses
                 "Simulation" + MagSimulationId.ToString() + ".tsv";
 
             }
-            string folderPrefix = /*"experiment-v2/" +*/ TrainingRunCommand.NameBase + "_Sim" + this.MagSimulationId.ToString();
+            */
+            string folderPrefix = TrainingRunCommand.NameBase + "_Sim" + this.MagSimulationId.ToString();
+
             WriteIdFiles(ReviewId, ContactId, uploadFileName);
             UploadIdsFileAsync(uploadFileName, folderPrefix);
             SubmitCreatTrainFileJob(ContactId, folderPrefix);
             SubmitCreatInferenceFileJob(ContactId, folderPrefix);
+
+            if (CheckTrainAndInferenceFilesOk(folderPrefix) == false)
+            {
+                MagLog.SaveLogEntry("Simulation", "Failed", "Rev:" + ReviewId.ToString() + " Training files not uploaded / empty", ContactId);
+                return;
+            }
             
             if (MagContReviewPipeline.runADFPieline(ContactId, "Train.tsv",
                 "Inference.tsv",
                 "Results.tsv",
-                "Sim" + this.MagSimulationId.ToString() + "per_paper_tfidf.pickle", mci.MagFolder, "0", folderPrefix, "0") == "Succeeded")
+                "Sim" + this.MagSimulationId.ToString() + "per_paper_tfidf.pickle", mci.MagFolder, "0", folderPrefix, "0",
+                "Sim" + this.MagSimulationId.ToString(), "False") == "Succeeded")
             {
                 DownloadResultsAsync(folderPrefix, ReviewId);
             }
@@ -488,9 +547,9 @@ namespace BusinessLibrary.BusinessClasses
             {
                 // add log entry? (The ContReview object will already have logged an error)
             }
-
+            
             // need to add cleaning up the files, but only once we've seen it in action for a while to help debugging
-            DownloadResultsAsync(folderPrefix, ReviewId);
+            //DownloadResultsAsync(folderPrefix, ReviewId);
         }
 
         private void WriteIdFiles(int ReviewId, int UserId, string fileName)
@@ -566,7 +625,8 @@ namespace BusinessLibrary.BusinessClasses
             MagCurrentInfo MagInfo = MagCurrentInfo.GetMagCurrentInfoServerSide("LIVE");
             MagDataLakeHelpers.ExecProc(@"[master].[dbo].[GenerateTrainFile](""" + folderPrefix + "/SeedIds.tsv\",\"" +
                 folderPrefix + "/Train.tsv" + "\", \"" + MagInfo.MagFolder + "\",\"" + this.SearchMethod + "\"," +
-                this.Year.ToString() + ");", true, "GenerateTrainFile", ContactId, 10);
+                this.Year.ToString() + ",\"" + this.CreatedDate.ToString() + 
+                "\");", true, "GenerateTrainFile", ContactId, 10);
         }
 
         private void SubmitCreatInferenceFileJob(int ContactId, string folderPrefix)
@@ -574,7 +634,49 @@ namespace BusinessLibrary.BusinessClasses
             MagCurrentInfo MagInfo = MagCurrentInfo.GetMagCurrentInfoServerSide("LIVE");
             MagDataLakeHelpers.ExecProc(@"[master].[dbo].[GenerateInferenceFile](""" + folderPrefix + "/Train.tsv\",\"" +
                 folderPrefix + "/Inference.tsv" + "\", \"" + MagInfo.MagFolder + "\",\"" + this.SearchMethod + "\"," +
-                (this.WithThisAttributeId == 0 ? this.Year.ToString() : "1753") + ");", true, "GenerateInferenceFile", ContactId, 10);
+                (this.WithThisAttributeId == 0 ? this.Year.ToString() : "1753") + ",\"" +
+                (this.CreatedDate.Date.Year == 1753 ? "" : this.CreatedDate.ToString()) + "\"," +
+                this.YearEnd.ToString() + ",\"" + this.CreatedDateEnd.ToString() + "\");",
+                true, "GenerateInferenceFile", ContactId, 10);
+        }
+
+        private bool CheckTrainAndInferenceFilesOk(string folderPrefix)
+        {
+
+#if (CSLA_NETCORE)
+
+            var configuration = ERxWebClient2.Startup.Configuration.GetSection("AzureMagSettings");
+            string storageAccountName = configuration["MAGStorageAccount"];
+            string storageAccountKey = configuration["MAGStorageAccountKey"];
+
+#else
+            string storageAccountName = ConfigurationManager.AppSettings["MAGStorageAccount"];
+            string storageAccountKey = ConfigurationManager.AppSettings["MAGStorageAccountKey"];
+#endif
+
+            string storageConnectionString =
+                "DefaultEndpointsProtocol=https;AccountName=" + storageAccountName + ";AccountKey=";
+            storageConnectionString += storageAccountKey;
+
+            CloudStorageAccount storageAccount = CloudStorageAccount.Parse(storageConnectionString);
+            CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
+            CloudBlobContainer containerDown = blobClient.GetContainerReference("experiments");
+
+            CloudBlockBlob blockBlobIds = containerDown.GetBlockBlobReference(folderPrefix + "/Train.tsv");
+            CloudBlockBlob blockBlobInferenceIds = containerDown.GetBlockBlobReference(folderPrefix + "/Inference.tsv");
+            try
+            {
+                blockBlobIds.FetchAttributes();
+                blockBlobInferenceIds.FetchAttributes();
+            }
+            catch
+            {
+                return false;
+            }
+            if (blockBlobIds.Properties.Length > 0 && blockBlobInferenceIds.Properties.Length > 0)
+                return true;
+            else
+                return false;
         }
 
         private async Task<int> DownloadResultsAsync(string folderPrefix, int ReviewId)
@@ -597,18 +699,20 @@ namespace BusinessLibrary.BusinessClasses
 
             CloudStorageAccount storageAccount = CloudStorageAccount.Parse(storageConnectionString);
             CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
-            CloudBlobClient blobClientIds = storageAccount.CreateCloudBlobClient();
             CloudBlobContainer containerDown = blobClient.GetContainerReference("experiments");
 
             CloudBlockBlob blockBlobDownloadData = containerDown.GetBlockBlobReference(folderPrefix + "/Results.tsv");
-            CloudBlockBlob blockBlobIds = containerDown.GetBlockBlobReference(folderPrefix + "/Train.tsv");
-            CloudBlockBlob InferenceIds = containerDown.GetBlockBlobReference(folderPrefix + "/Train.tsv");
+            CloudBlockBlob blockBlobIds = containerDown.GetBlockBlobReference(folderPrefix + "/Train.tsv"); // we get the list of IDs so we know how many were selected by the datalake on publication / created date
+            CloudBlockBlob blockBlobInferenceIds = containerDown.GetBlockBlobReference(folderPrefix + "/Inference.tsv");
 
             string resultantString = await blockBlobDownloadData.DownloadTextAsync();
             byte[] myFile = Encoding.UTF8.GetBytes(resultantString);
 
             string resultantStringFileIds = await blockBlobIds.DownloadTextAsync();
             byte[] myFileIds = Encoding.UTF8.GetBytes(resultantStringFileIds);
+
+            string resultantStringInferenceIds = await blockBlobInferenceIds.DownloadTextAsync();
+            byte[] myFileInferenceIds = Encoding.UTF8.GetBytes(resultantStringInferenceIds);
 
             string SeedIds = "";
             int SeedIdsCount = 0;
@@ -633,6 +737,26 @@ namespace BusinessLibrary.BusinessClasses
                 }
             }
 
+            string InferenceIds = "";
+            MemoryStream msInferenceIds = new MemoryStream(myFileInferenceIds);
+            using (var readerInferenceIds = new StreamReader(msInferenceIds))
+            {
+                string line;
+                bool firstTime = true;
+                while ((line = readerInferenceIds.ReadLine()) != null)
+                {
+                    if (firstTime == true)
+                    {
+                        InferenceIds = line;
+                        firstTime = false;
+                    }
+                    else
+                    {
+                        InferenceIds += "," + line;
+                    }
+                }
+            }
+
             MemoryStream ms = new MemoryStream(myFile);
 
             DataTable dt = new DataTable("Ids");
@@ -640,8 +764,6 @@ namespace BusinessLibrary.BusinessClasses
             dt.Columns.Add("MAG_SIMULATION_ID");
             dt.Columns.Add("PaperId");
             dt.Columns.Add("INCLUDED");
-            dt.Columns.Add("FOUND");
-            dt.Columns.Add("SEED");
             dt.Columns.Add("STUDY_TYPE_CLASSIFIER_SCORE");
             dt.Columns.Add("USER_CLASSIFIER_MODEL_SCORE");
             dt.Columns.Add("NETWORK_STATISTIC_SCORE");
@@ -665,8 +787,6 @@ namespace BusinessLibrary.BusinessClasses
                         newRow["MAG_SIMULATION_ID"] = this.MagSimulationId;
                         newRow["PaperId"] = fields[0];
                         newRow["INCLUDED"] = "False";
-                        newRow["FOUND"] = "False";
-                        newRow["SEED"] = "False";
                         newRow["STUDY_TYPE_CLASSIFIER_SCORE"] = fields[2];
                         newRow["USER_CLASSIFIER_MODEL_SCORE"] = fields[2];
                         newRow["NETWORK_STATISTIC_SCORE"] = fields[2];
@@ -698,6 +818,10 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@MAG_SIMULATION_ID", this.MagSimulationId));
                     command.Parameters.Add(new SqlParameter("@REVIEW_ID", ReviewId));
                     command.Parameters.Add(new SqlParameter("@SeedIds", SeedIds));
+                    command.Parameters.Add(new SqlParameter("@NSeeds", SeedIdsCount));
+                    command.Parameters.Add(new SqlParameter("@InferenceIds", InferenceIds));
+                    command.Parameters.Add(new SqlParameter("@ATTRIBUTE_ID_FILTER", this.FilteredByAttributeId));
+                    command.Parameters.Add(new SqlParameter("@ATTRIBUTE_ID_SEED", this.WithThisAttributeId));
                     command.ExecuteNonQuery();
                 }
                 connection.Close();
