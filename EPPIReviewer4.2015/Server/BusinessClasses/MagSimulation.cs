@@ -486,7 +486,7 @@ namespace BusinessLibrary.BusinessClasses
         }
 
 
-        private void RunSimulation(int ReviewId, int ContactId)
+        private async void RunSimulation(int ReviewId, int ContactId)
         {
             MagCurrentInfo mci = MagCurrentInfo.GetMagCurrentInfoServerSide("LIVE");
 
@@ -525,11 +525,11 @@ namespace BusinessLibrary.BusinessClasses
             string folderPrefix = TrainingRunCommand.NameBase + "_Sim" + this.MagSimulationId.ToString();
 
             WriteIdFiles(ReviewId, ContactId, uploadFileName);
-            UploadIdsFileAsync(uploadFileName, folderPrefix);
+            await UploadIdsFileAsync(uploadFileName, folderPrefix);
             SubmitCreatTrainFileJob(ContactId, folderPrefix);
             SubmitCreatInferenceFileJob(ContactId, folderPrefix);
 
-            if (CheckTrainAndInferenceFilesOk(folderPrefix) == false)
+            if ((await CheckTrainAndInferenceFilesOk(folderPrefix)) == false)
             {
                 MagLog.SaveLogEntry("Simulation", "Failed", "Rev:" + ReviewId.ToString() + " Training files not uploaded / empty", ContactId);
                 return;
@@ -541,7 +541,7 @@ namespace BusinessLibrary.BusinessClasses
                 "Sim" + this.MagSimulationId.ToString() + "per_paper_tfidf.pickle", mci.MagFolder, "0", folderPrefix, "0",
                 "Sim" + this.MagSimulationId.ToString(), "False") == "Succeeded")
             {
-                DownloadResultsAsync(folderPrefix, ReviewId);
+                await DownloadResultsAsync(folderPrefix, ReviewId);
             }
             else
             {
@@ -608,14 +608,8 @@ namespace BusinessLibrary.BusinessClasses
             using (var fileStream = System.IO.File.OpenRead(fileName))
             {
 
-
-#if (!CSLA_NETCORE)
-                blockBlobData.UploadFromStream(fileStream);
-#else
-
-					await blockBlobData.UploadFromFileAsync(fileName);
-#endif
-
+                await blockBlobData.UploadFromStreamAsync(fileStream);
+                
             }
             File.Delete(fileName);
         }
@@ -640,7 +634,7 @@ namespace BusinessLibrary.BusinessClasses
                 true, "GenerateInferenceFile", ContactId, 10);
         }
 
-        private bool CheckTrainAndInferenceFilesOk(string folderPrefix)
+        private async Task<bool> CheckTrainAndInferenceFilesOk(string folderPrefix)
         {
 
 #if (CSLA_NETCORE)
@@ -666,8 +660,8 @@ namespace BusinessLibrary.BusinessClasses
             CloudBlockBlob blockBlobInferenceIds = containerDown.GetBlockBlobReference(folderPrefix + "/Inference.tsv");
             try
             {
-                blockBlobIds.FetchAttributes();
-                blockBlobInferenceIds.FetchAttributes();
+                await blockBlobIds.FetchAttributesAsync();
+                await blockBlobInferenceIds.FetchAttributesAsync();
             }
             catch
             {
