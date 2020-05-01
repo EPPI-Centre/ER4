@@ -501,7 +501,6 @@ namespace BusinessLibrary.BusinessClasses
         {
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
-
                 connection.Open();
                 using (SqlCommand command = new SqlCommand("st_MagRelatedPapersRunGetSeedIds", connection))
                 {

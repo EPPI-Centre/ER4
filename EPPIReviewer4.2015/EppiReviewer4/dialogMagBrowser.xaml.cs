@@ -51,6 +51,11 @@ namespace EppiReviewer4
 
         public void InitialiseBrowser()
         {
+            ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+            if (!ri.IsSiteAdmin)
+            {
+                hlAdmin.Visibility = Visibility.Collapsed;
+            }
             UpdateSelectedCount();
         }
 
