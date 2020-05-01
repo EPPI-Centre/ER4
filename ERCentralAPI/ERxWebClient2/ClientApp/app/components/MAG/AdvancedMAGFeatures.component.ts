@@ -20,7 +20,7 @@ import { MVCMagFieldOfStudyListSelectionCriteria } from '../services/MAGClasses.
 export class AdvancedMAGFeaturesComponent implements OnInit {
 
 	constructor(private ConfirmationDialogService: ConfirmationDialogService,
-        private _magAdvancedService: MAGAdvancedService,
+        public _magAdvancedService: MAGAdvancedService,
         private _magBrowserService: MAGBrowserService,
         public _searchService: searchService,
         private _ReviewerIdentityServ: ReviewerIdentityService,
@@ -30,7 +30,24 @@ export class AdvancedMAGFeaturesComponent implements OnInit {
 	) {
 
 	}
+    public Selected() {
 
+    }
+    public ClearSelected() {
+
+    }
+    public ImportSelected() {
+
+    }
+    public AutoUpdateHome() {
+
+    }
+    public ShowHistory() {
+
+    }
+    public Admin() {
+
+    }
     @ViewChild('WithOrWithoutCodeSelector3') WithOrWithoutCodeSelector3!: codesetSelectorComponent;
     @ViewChild('WithOrWithoutCodeSelector2') WithOrWithoutCodeSelector2!: codesetSelectorComponent;
     public CurrentDropdownSelectedCode3: singleNode | null = null;
