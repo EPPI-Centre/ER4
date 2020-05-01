@@ -241,7 +241,7 @@
                         <ComboBoxItem Content="RCT" Tag="RCT"></ComboBoxItem>
                         <ComboBoxItem Content="Cochrane RCT" Tag="Cochrane RCT"></ComboBoxItem>
                         <ComboBoxItem Content="Economic evaluation" Tag="Economic evaluation"></ComboBoxItem>
-                        <ComboBoxItem Content="Systematic review" Tag="systematic review"></ComboBoxItem>
+                        <ComboBoxItem Content="Systematic review" Tag="Systematic review"></ComboBoxItem>
                     </ComboBox>
                     <TextBlock Margin="5,5,5,5" Text="User defined classifier" VerticalAlignment="Center"></TextBlock>
                     <ComboBox x:Name="comboSimulationUserModels" 

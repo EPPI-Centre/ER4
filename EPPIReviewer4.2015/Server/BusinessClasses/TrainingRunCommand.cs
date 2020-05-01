@@ -768,7 +768,6 @@ namespace BusinessLibrary.BusinessClasses
         {//used to generate different files on the cloud, based on where this is running, as it could be any dev/test machine as well as the live one (EPI3).
             get
             {
-                //return ""; // added by JT on 04/12/2018, as adding anything to the filename makes all ML fail on my machine, and I can't see why!
                 string name = Environment.MachineName;
                 if (name.ToLower() == "epi3") return "";
                 else return name;

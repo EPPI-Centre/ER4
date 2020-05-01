@@ -16,6 +16,7 @@ using System.Configuration;
 #if !SILVERLIGHT
 using System.Data.SqlClient;
 using BusinessLibrary.Data;
+using BusinessLibrary;
 using Csla.Data;
 using BusinessLibrary.Security;
 using System.Threading.Tasks;
@@ -182,6 +183,19 @@ namespace BusinessLibrary.BusinessClasses
             set
             {
                 SetProperty(UserClassifierModelIdProperty, value);
+            }
+        }
+
+        public static readonly PropertyInfo<int> UserClassifierReviewIdProperty = RegisterProperty<int>(new PropertyInfo<int>("UserClassifierReviewId", "UserClassifierReviewId"));
+        public int UserClassifierReviewId
+        {
+            get
+            {
+                return GetProperty(UserClassifierReviewIdProperty);
+            }
+            set
+            {
+                SetProperty(UserClassifierReviewIdProperty, value);
             }
         }
 
@@ -382,6 +396,7 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@NETWORK_STATISTIC", ReadProperty(NetworkStatisticProperty)));
                     command.Parameters.Add(new SqlParameter("@STUDY_TYPE_CLASSIFIER", ReadProperty(StudyTypeClassifierProperty)));
                     command.Parameters.Add(new SqlParameter("@USER_CLASSIFIER_MODEL_ID", ReadProperty(UserClassifierModelIdProperty)));
+                    command.Parameters.Add(new SqlParameter("@USER_CLASSIFIER_REVIEW_ID", ReadProperty(UserClassifierReviewIdProperty)));
                     command.Parameters.Add(new SqlParameter("@STATUS", ReadProperty(StatusProperty)));
                     command.Parameters.Add(new SqlParameter("@MAG_SIMULATION_ID", newid));
                     command.Parameters["@MAG_SIMULATION_ID"].Direction = ParameterDirection.Output;
@@ -443,6 +458,7 @@ namespace BusinessLibrary.BusinessClasses
                             LoadProperty<string>(NetworkStatisticProperty, reader.GetString("NETWORK_STATISTIC"));
                             LoadProperty<string>(StudyTypeClassifierProperty, reader.GetString("STUDY_TYPE_CLASSIFIER"));
                             LoadProperty<Int32>(UserClassifierModelIdProperty, reader.GetInt32("USER_CLASSIFIER_MODEL_ID"));
+                            LoadProperty<Int32>(UserClassifierReviewIdProperty, reader.GetInt32("USER_CLASSIFIER_REVIEW_ID"));
                             LoadProperty<string>(StatusProperty, reader.GetString("STATUS"));
                             LoadProperty<Int32>(TPProperty, reader.GetInt32("TP"));
                             LoadProperty<Int32>(FPProperty, reader.GetInt32("FP"));
@@ -489,12 +505,17 @@ namespace BusinessLibrary.BusinessClasses
         private async void RunSimulation(int ReviewId, int ContactId)
         {
             MagCurrentInfo mci = MagCurrentInfo.GetMagCurrentInfoServerSide("LIVE");
-            AddClassifierScores();
-            return;
+            
 
 #if (!CSLA_NETCORE)
             string uploadFileName = System.Web.HttpRuntime.AppDomainAppPath + @"UserTempUploads/Simulation" + MagSimulationId.ToString() + ".tsv";
-
+            //SetProperty(MagSimulationIdProperty, 212);
+            // n.b.!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            //UserClassifierModelId = 1;
+            //UserClassifierReviewId = 10;
+            //StudyTypeClassifier = "RCT";
+            //AddClassifierScores(ReviewId.ToString());
+            //return;
 #else       
             string uploadFileName = "";
             if (Directory.Exists("UserTempUploads"))
@@ -825,8 +846,9 @@ namespace BusinessLibrary.BusinessClasses
             return lineCount;
         }
 
-        private void AddClassifierScores()
+        private async void AddClassifierScores(string ReviewId)
         {
+            
             List<Int64> Ids = new List<long>();
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
@@ -834,7 +856,7 @@ namespace BusinessLibrary.BusinessClasses
                 using (SqlCommand command = new SqlCommand("st_MagSimulationResults", connection))
                 {
                     command.CommandType = System.Data.CommandType.StoredProcedure;
-                    command.Parameters.Add(new SqlParameter("@MagSimulationId", 212)); // MagSimulationId));
+                    command.Parameters.Add(new SqlParameter("@MagSimulationId", MagSimulationId));
                     command.Parameters.Add(new SqlParameter("@OrderBy", "Network"));
                     using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
                     {
@@ -850,13 +872,22 @@ namespace BusinessLibrary.BusinessClasses
             if (Ids.Count == 0)
                 return;
 
+#if (!CSLA_NETCORE)
+
             string fName = System.Web.HttpRuntime.AppDomainAppPath + @"UserTempUploads/Sim" + MagSimulationId.ToString() + ".csv";
+#else
+                // same as comment above for same line
+                //SG Edit:
+                DirectoryInfo tmpDir = System.IO.Directory.CreateDirectory("UserTempUploads");
+                string fName = tmpDir.FullName + "/Sim" + MagSimulationId.ToString() + ".csv";
+                //string fName = AppDomain.CurrentDomain.BaseDirectory + TempPath + "ReviewID" + ri.ReviewId + "ContactId" + ri.UserId.ToString() + ".csv";
+#endif
+
             using (System.IO.StreamWriter file = new System.IO.StreamWriter(fName))
             {
-                file.WriteLine("\"ITEM_ID\",\"LABEL\",\"TITLE\",\"ABSTRACT\",\"KEYWORDS\"");
+                file.WriteLine("\"ITEM_ID\",\"LABEL\",\"TITLE\",\"ABSTRACT\",\"KEYWORDS\",\"REVIEW_ID\"");
                 int count = 0;
-                //while (count < Ids.Count)
-                while (count < 500)
+                while (count < Ids.Count)
                 {
                     string query = "";
                     for (int i = count; i < Ids.Count && i < count + 100; i++)
@@ -875,14 +906,149 @@ namespace BusinessLibrary.BusinessClasses
                     foreach (MagMakesHelpers.PaperMakes pm in resp.entities)
                     {
                         file.WriteLine("\"" + pm.Id.ToString() + "\"," +
-                                        "\"" + "0" + "\"," +
+                                        "\"" + "99" + "\"," +
                                         "\"" + MagMakesHelpers.CleanText(pm.Ti) + "\"," +
                                         "\"" + MagMakesHelpers.CleanText(MagMakesHelpers.ReconstructInvertedAbstract(pm.IA)) + "\"," +
-                                        "\"" + "" + "\"");
+                                        "\"" + "" + "\"," +
+                                        "\"" + ReviewId + "\"");
                     }
+                    count += 100;
                 }
             }
+            // this copied from ClassifierCommand. The keys should move to web.config
+            CloudStorageAccount storageAccount = CloudStorageAccount.Parse("***REMOVED***");
+            CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
+            CloudBlobContainer container = blobClient.GetContainerReference("attributemodeldata");
+            CloudBlockBlob blockBlobData;
+
+            string uploadedFileName = TrainingRunCommand.NameBase + "Sim" + this.MagSimulationId.ToString() + "StudyModelToScore.csv";
+            string resultsFile1 = @"attributemodels/" + TrainingRunCommand.NameBase + "Sim" + this.MagSimulationId.ToString() + "Results1.csv";
+            string resultsFile2 = @"attributemodels/" + TrainingRunCommand.NameBase + "Sim" + this.MagSimulationId.ToString() + "Results2.csv";
+            blockBlobData = container.GetBlockBlobReference(uploadedFileName);
+            using (var fileStream = System.IO.File.OpenRead(fName))
+            {
+
+
+#if (!CSLA_NETCORE)
+                blockBlobData.UploadFromStream(fileStream);
+#else
+
+					await blockBlobData.UploadFromFileAsync(fName);
+#endif
+
+            }
+            File.Delete(fName);
+
+            if (this.StudyTypeClassifier != "None")
+            {
+                int classifierId = 0;
+                string classifierName = "RCTModel";
+                switch (StudyTypeClassifier)
+                {
+                    case "RCT":
+                        classifierId = 0;
+                        classifierName = "RCTModel";
+                        break;
+                    case "Cochrane RCT":
+                        classifierId = -4;
+                        classifierName = "NewRCTModel";
+                        break;
+                    case "Economic evaluation":
+                        classifierId = -3;
+                        classifierName = "NHSEED";
+                        break;
+                    case "Systematic review":
+                        classifierId = -2;
+                        classifierName = "DARE";
+                        break;
+                }
+                await ClassifierCommand.InvokeBatchExecutionService(ReviewId, "ScoreModel", classifierId, @"attributemodeldata/" + uploadedFileName,
+                    @"attributemodels/" + classifierName + ".csv", resultsFile1, resultsFile2);
+
+                await insertResults(blobClient.GetContainerReference("attributemodels"), TrainingRunCommand.NameBase + "Sim" + this.MagSimulationId.ToString() + "Results1.csv", "STUDY_TYPE_CLASSIFIER_SCORE");
+                if (classifierId == -4)
+                {
+                    await insertResults(blobClient.GetContainerReference("attributemodels"), TrainingRunCommand.NameBase + "Sim" + this.MagSimulationId.ToString() + "Results2.csv", "STUDY_TYPE_CLASSIFIER_SCORE");
+                }
+            }
+
+            if (UserClassifierModelId > 0)
+            {
+                await ClassifierCommand.InvokeBatchExecutionService(ReviewId, "ScoreModel",  UserClassifierModelId, @"attributemodeldata/" + uploadedFileName,
+                    @"attributemodels/" + TrainingRunCommand.NameBase + "ReviewId" + UserClassifierReviewId.ToString() + "ModelId" + UserClassifierModelId.ToString() + ".csv", resultsFile1, resultsFile2);
+                await insertResults(blobClient.GetContainerReference("attributemodels"), TrainingRunCommand.NameBase + "Sim" + this.MagSimulationId.ToString() + "Results1.csv", "USER_CLASSIFIER_MODEL_SCORE");
+            }
+
+
+
         }
+
+        private async Task insertResults(CloudBlobContainer container, string FileName, string Field)
+        {
+            CloudBlockBlob blockBlobDataResults = container.GetBlockBlobReference(FileName);
+
+            string Results1 = await blockBlobDataResults.DownloadTextAsync();
+            byte[] myFile = Encoding.UTF8.GetBytes(Results1);
+
+            DataTable dt = new DataTable("Ids");
+            dt.Columns.Add("MAG_SIMULATION_ID");
+            dt.Columns.Add("PaperId");
+            dt.Columns.Add("SCORE");
+
+            MemoryStream msIds = new MemoryStream(myFile);
+            using (var readerIds = new StreamReader(msIds))
+            {
+                string line;
+                while ((line = readerIds.ReadLine()) != null)
+                {
+                    string[] fields = line.Split(',');
+
+                    // this check for extreme values copied from ClassifierCommand
+                    if (fields[0] == "1")
+                    {
+                        fields[0] = "0.999999";
+                    }
+                    else if (fields[0] == "0")
+                    {
+                        fields[0] = "0.000001";
+                    }
+                    else if (fields[0].Length > 2 && fields[0].Contains("E"))
+                    {
+                        double dbl = 0;
+                        double.TryParse(fields[0], out dbl);
+                        //if (dbl == 0.0) throw new Exception("Gotcha!");
+                        fields[0] = dbl.ToString("F10");
+                    }
+
+                    DataRow newRow = dt.NewRow();
+                    newRow["MAG_SIMULATION_ID"] = this.MagSimulationId;
+                    newRow["PaperId"] = fields[1];
+                    newRow["SCORE"] = fields[0];
+                    dt.Rows.Add(newRow);
+                }
+            }
+
+            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+            {
+                connection.Open();
+                using (SqlBulkCopy sbc = new SqlBulkCopy(connection))
+                {
+                    sbc.DestinationTableName = "TB_MAG_SIMULATION_CLASSIFIER_TEMP";
+                    sbc.BatchSize = 1000;
+                    sbc.WriteToServer(dt);
+                }
+
+                using (SqlCommand command = new SqlCommand("st_MagSimulationClassifierScoresUpdate", connection))
+                {
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@MAG_SIMULATION_ID", this.MagSimulationId));
+                    command.Parameters.Add(new SqlParameter("@Field", Field));
+                    command.ExecuteNonQuery();
+                }
+                connection.Close();
+            }
+        }
+
 
 
 
