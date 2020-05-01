@@ -4,7 +4,6 @@ import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Router } from '@angular/router';
 import { MVCMagPaperListSelectionCriteria, MagPaper, MvcMagFieldOfStudyListSelectionCriteria, MagFieldOfStudy } from '../services/MAGClasses.service';
 import { MAGBrowserService } from '../services/MAGBrowser.service';
-import { MagRelatedPapersRun, MagRelatedPaperListSelectionCriteria } from '../services/MAGClasses.service';
 import { MAGAdvancedService } from '../services/magAdvanced.service';
 
 
@@ -17,12 +16,29 @@ import { MAGAdvancedService } from '../services/magAdvanced.service';
 export class MAGBrowser implements OnInit {
 
     constructor(
-        private _magAdvancedService: MAGAdvancedService,
-        private _magBrowserService: MAGBrowserService,
+        public _magAdvancedService: MAGAdvancedService,
+        public _magBrowserService: MAGBrowserService,
         public _searchService: searchService,
         private _ReviewerIdentityServ: ReviewerIdentityService,
         private router: Router
     ) {
+
+    }
+
+    public ClearSelected() {
+
+    }
+    public ImportSelected() {
+
+    }
+
+    public ShowHistory() {
+
+    }
+    public Admin() {
+
+    }
+    public Forward() {
 
     }
     ngOnInit() {

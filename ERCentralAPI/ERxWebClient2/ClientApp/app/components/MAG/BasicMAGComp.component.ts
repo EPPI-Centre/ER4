@@ -20,7 +20,7 @@ import { MagRelatedPapersRun } from '../services/MAGClasses.service';
 export class BasicMAGComp implements OnInit {
 
 	constructor(private ConfirmationDialogService: ConfirmationDialogService,
-        private _basicMAGService: BasicMAGService,
+        public _basicMAGService: BasicMAGService,
         private _magBrowserService: MAGBrowserService,
         public _searchService: searchService,
         private _ReviewerIdentityServ: ReviewerIdentityService,
@@ -45,6 +45,24 @@ export class BasicMAGComp implements OnInit {
     public magRCTRadio: string = 'NoFilter';
     public magMode: string = '';
 
+    public Selected() {
+
+    }
+    public ClearSelected() {
+
+    }
+    public ImportSelected() {
+
+    }
+    public AutoUpdateHome() {
+
+    }
+    public ShowHistory() {
+
+    }
+    public Admin() {
+
+    }
 	ngOnInit() {
 
         if (this._ReviewerIdentityServ.reviewerIdentity.userId == 0 ||
