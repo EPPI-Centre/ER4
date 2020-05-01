@@ -509,13 +509,14 @@ namespace BusinessLibrary.BusinessClasses
 
 #if (!CSLA_NETCORE)
             string uploadFileName = System.Web.HttpRuntime.AppDomainAppPath + @"UserTempUploads/Simulation" + MagSimulationId.ToString() + ".tsv";
-            //SetProperty(MagSimulationIdProperty, 212);
-            // n.b.!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-            //UserClassifierModelId = 1;
-            //UserClassifierReviewId = 10;
-            //StudyTypeClassifier = "RCT";
-            //AddClassifierScores(ReviewId.ToString());
-            //return;
+            /*
+            SetProperty(MagSimulationIdProperty, 245);
+            UserClassifierModelId = 1;
+            UserClassifierReviewId = 10;
+            StudyTypeClassifier = "RCT";
+            await AddClassifierScores(ReviewId.ToString());
+            return;
+            */
 #else       
             string uploadFileName = "";
             if (Directory.Exists("UserTempUploads"))
@@ -565,6 +566,7 @@ namespace BusinessLibrary.BusinessClasses
                 "Sim" + this.MagSimulationId.ToString(), "False") == "Succeeded")
             {
                 await DownloadResultsAsync(folderPrefix, ReviewId);
+                await AddClassifierScores(ReviewId.ToString());
             }
             else
             {
@@ -572,7 +574,6 @@ namespace BusinessLibrary.BusinessClasses
             }
             
             // need to add cleaning up the files, but only once we've seen it in action for a while to help debugging
-            //DownloadResultsAsync(folderPrefix, ReviewId);
         }
 
         private void WriteIdFiles(int ReviewId, int UserId, string fileName)
@@ -846,9 +847,14 @@ namespace BusinessLibrary.BusinessClasses
             return lineCount;
         }
 
-        private async void AddClassifierScores(string ReviewId)
+        private async Task AddClassifierScores(string ReviewId)
         {
-            
+            // just return if we don't need to run the classifier(s)
+            if (UserClassifierModelId == 0 && StudyTypeClassifier == "None")
+            {
+                return;
+            }
+
             List<Int64> Ids = new List<long>();
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
@@ -978,9 +984,6 @@ namespace BusinessLibrary.BusinessClasses
                     @"attributemodels/" + TrainingRunCommand.NameBase + "ReviewId" + UserClassifierReviewId.ToString() + "ModelId" + UserClassifierModelId.ToString() + ".csv", resultsFile1, resultsFile2);
                 await insertResults(blobClient.GetContainerReference("attributemodels"), TrainingRunCommand.NameBase + "Sim" + this.MagSimulationId.ToString() + "Results1.csv", "USER_CLASSIFIER_MODEL_SCORE");
             }
-
-
-
         }
 
         private async Task insertResults(CloudBlobContainer container, string FileName, string Field)
