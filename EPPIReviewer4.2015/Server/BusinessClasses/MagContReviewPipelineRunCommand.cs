@@ -75,6 +75,7 @@ namespace BusinessLibrary.BusinessClasses
         {
 
             string uploadFileName = "";
+            /* Commenting out to see if the alternative below works on Jeff's laptop
             if (Directory.Exists("UserTempUploads"))
             {
                 uploadFileName = @"UserTempUploads/" + "crSeeds.tsv";
@@ -85,6 +86,18 @@ namespace BusinessLibrary.BusinessClasses
                 uploadFileName = tmpDir.FullName + "/" + @"UserTempUploads/" + "crSeeds.tsv";
 
             }
+            */
+
+#if (!CSLA_NETCORE)
+
+            uploadFileName = System.Web.HttpRuntime.AppDomainAppPath + @"UserTempUploads/" + "crSeeds.tsv";
+#else
+                // same as comment above for same line
+                //SG Edit:
+                DirectoryInfo tmpDir = System.IO.Directory.CreateDirectory("UserTempUploads");
+                uploadFileName = tmpDir.FullName + "/" + @"UserTempUploads/" + "crSeeds.tsv";
+#endif
+
             string folderPrefix = Guid.NewGuid().ToString();
             int SeedIds = WriteSeedIdsFile(uploadFileName);
             int logId = MagLog.SaveLogEntry("ContReview", "started", "SeedIds: " + SeedIds.ToString(), ContactId);
