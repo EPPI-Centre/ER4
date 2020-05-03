@@ -67,7 +67,6 @@ namespace BusinessLibrary.BusinessClasses
                 ModelFileName, MagContainer, PreFilterThreshold, FolderName, AcceptanceThreshold, ReviewRunVersion, OverwriteRawProcessedData);
 
             CreateRunResponse runResponse = client.Pipelines.CreateRunWithHttpMessagesAsync(resourceGroup, dataFactoryName, pipelineName, parameters: parameters).Result.Body;
-            //Console.WriteLine("Pipeline run ID: " + runResponse.RunId);
 
             // Get the run status for the pipeline and all the activities
             string runStatus = client.PipelineRuns.GetAsync(resourceGroup, dataFactoryName, runResponse.RunId).Result.Status;
@@ -125,7 +124,6 @@ namespace BusinessLibrary.BusinessClasses
                         MagLog.UpdateLogEntry("Caught cloud error", "RunContReviewProcess", MagLogId);
                     }
                 }
-
                 MagLog.UpdateLogEntry(runStatus, "RunContReviewProcess", MagLogId);
             }
             return runStatus;

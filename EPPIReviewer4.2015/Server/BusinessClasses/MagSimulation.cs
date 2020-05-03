@@ -596,7 +596,7 @@ namespace BusinessLibrary.BusinessClasses
                             {
                                 while (reader.Read())
                                 {
-                                    file.WriteLine(reader["PaperId"].ToString()+ "\t" + ReviewId.ToString() + "\t" + "1");
+                                    file.WriteLine(reader["PaperId"].ToString()+ "\t" + ReviewId.ToString() + "\t" + reader["Training"].ToString());
                                 }
                             }
                         }
@@ -721,7 +721,6 @@ namespace BusinessLibrary.BusinessClasses
 
             CloudBlockBlob blockBlobDownloadData = containerDown.GetBlockBlobReference(folderPrefix + "/Results.tsv");
             CloudBlockBlob blockBlobIds = containerDown.GetBlockBlobReference(folderPrefix + "/Train.tsv"); // we get the list of IDs so we know how many were selected by the datalake on publication / created date
-            CloudBlockBlob blockBlobInferenceIds = containerDown.GetBlockBlobReference(folderPrefix + "/Inference.tsv");
 
             string resultantString = await blockBlobDownloadData.DownloadTextAsync();
             byte[] myFile = Encoding.UTF8.GetBytes(resultantString);
@@ -729,53 +728,41 @@ namespace BusinessLibrary.BusinessClasses
             string resultantStringFileIds = await blockBlobIds.DownloadTextAsync();
             byte[] myFileIds = Encoding.UTF8.GetBytes(resultantStringFileIds);
 
-            string resultantStringInferenceIds = await blockBlobInferenceIds.DownloadTextAsync();
-            byte[] myFileInferenceIds = Encoding.UTF8.GetBytes(resultantStringInferenceIds);
-
             string SeedIds = "";
+            string InferenceIds = "";
             int SeedIdsCount = 0;
             MemoryStream msIds = new MemoryStream(myFileIds);
             using (var readerIds = new StreamReader(msIds))
             {
                 string line;
-                bool firstTime = true;
                 while ((line = readerIds.ReadLine()) != null)
                 {
                     string [] fields = line.Split('\t');
-                    if (firstTime == true)
+                    if (fields[2] == "1")
                     {
-                        SeedIds = fields[0];
-                        firstTime = false;
+                        SeedIdsCount++;
+                        if (SeedIds == "")
+                        {
+                            SeedIds = fields[0];
+                        }
+                        else
+                        {
+                            SeedIds += "," + fields[0];
+                        }
                     }
                     else
                     {
-                        SeedIds += "," + fields[0];
-                    }
-                    SeedIdsCount++;
-                }
-            }
-
-            string InferenceIds = "";
-            MemoryStream msInferenceIds = new MemoryStream(myFileInferenceIds);
-            using (var readerInferenceIds = new StreamReader(msInferenceIds))
-            {
-                string line;
-                bool firstTime = true;
-                while ((line = readerInferenceIds.ReadLine()) != null)
-                {
-                    if (firstTime == true)
-                    {
-                        InferenceIds = line;
-                        firstTime = false;
-                    }
-                    else
-                    {
-                        InferenceIds += "," + line;
+                        if (InferenceIds == "")
+                        {
+                            InferenceIds = fields[0];
+                        }
+                        else
+                        {
+                            InferenceIds += "," + fields[0];
+                        }
                     }
                 }
             }
-
-            MemoryStream ms = new MemoryStream(myFile);
 
             DataTable dt = new DataTable("Ids");
             dt.Columns.Add("MAG_SIMULATION_RESULT_ID"); // can be anything - this is an identity column
@@ -791,6 +778,7 @@ namespace BusinessLibrary.BusinessClasses
             string JobId = Guid.NewGuid().ToString();
             int lineCount = 0;
 
+            MemoryStream ms = new MemoryStream(myFile);
             using (var reader = new StreamReader(ms))
             {
                 string line;
