@@ -7,7 +7,7 @@ SET QUOTED_IDENTIFIER ON
 GO
 
 
-ALTER   procedure [dbo].[st_ItemListMagSimulationTPFN]
+create or ALTER   procedure [dbo].[st_ItemListMagSimulationTPFN]
 (
       @REVIEW_ID INT,
       --@SHOW_INCLUDED BIT = 'true',

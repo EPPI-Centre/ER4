@@ -11,6 +11,7 @@ using Csla.Silverlight;
 using Csla.DataPortalClient;
 using System.IO;
 using System.Configuration;
+using System.Threading;
 
 
 #if !SILVERLIGHT
@@ -505,6 +506,7 @@ namespace BusinessLibrary.BusinessClasses
         private async void RunSimulation(int ReviewId, int ContactId)
         {
             MagCurrentInfo mci = MagCurrentInfo.GetMagCurrentInfoServerSide("LIVE");
+            int MagLogId = MagLog.SaveLogEntry("ContReview process", "running", "Review: " + ReviewId.ToString() + ", simulation: " + MagSimulationId.ToString(), ContactId);
             
 
 #if (!CSLA_NETCORE)
@@ -531,48 +533,41 @@ namespace BusinessLibrary.BusinessClasses
             }
 
 #endif
-
-            /*
-            if (Directory.Exists("UserTempUploads"))
-            {
-                uploadFileName = @"UserTempUploads/" + TrainingRunCommand.NameBase + "_" +
-                "Simulation" + MagSimulationId.ToString() + ".tsv";
-            }
-            else
-            {
-                DirectoryInfo tmpDir = System.IO.Directory.CreateDirectory("UserTempUploads");
-                uploadFileName = tmpDir.FullName + "/" + @"UserTempUploads/" + TrainingRunCommand.NameBase + "_" +
-                "Simulation" + MagSimulationId.ToString() + ".tsv";
-
-            }
-            */
-            string folderPrefix = TrainingRunCommand.NameBase + "_Sim" + this.MagSimulationId.ToString();
+            
+            string folderPrefix = TrainingRunCommand.NameBase.ToLower() + "-sim" + this.MagSimulationId.ToString();
 
             WriteIdFiles(ReviewId, ContactId, uploadFileName);
             await UploadIdsFileAsync(uploadFileName, folderPrefix);
+            MagLog.UpdateLogEntry("running", "Sim: " + MagSimulationId.ToString() + ", file uploaded", MagLogId);
+
             SubmitCreatTrainFileJob(ContactId, folderPrefix);
             SubmitCreatInferenceFileJob(ContactId, folderPrefix);
 
             if ((await CheckTrainAndInferenceFilesOk(folderPrefix)) == false)
             {
-                MagLog.SaveLogEntry("Simulation", "Failed", "Rev:" + ReviewId.ToString() + " Training files not uploaded / empty", ContactId);
+                MagLog.UpdateLogEntry("failed", "Sim: " + MagSimulationId.ToString() + ", Training files not uploaded / empty", MagLogId);
                 return;
             }
-            
+            MagLog.UpdateLogEntry("running", "Sim: " + MagSimulationId.ToString() + ", datalake complete", MagLogId);
+
             if (MagContReviewPipeline.runADFPieline(ContactId, "Train.tsv",
                 "Inference.tsv",
                 "Results.tsv",
                 "Sim" + this.MagSimulationId.ToString() + "per_paper_tfidf.pickle", mci.MagFolder, "0", folderPrefix, "0",
                 "Sim" + this.MagSimulationId.ToString(), "False") == "Succeeded")
             {
+                MagLog.UpdateLogEntry("running", "Sim: " + MagSimulationId.ToString() + ", pipeline complete", MagLogId);
                 await DownloadResultsAsync(folderPrefix, ReviewId);
-                await AddClassifierScores(ReviewId.ToString());
+                await AddClassifierScores(ReviewId.ToString(), MagLogId);
             }
             else
             {
-                // add log entry? (The ContReview object will already have logged an error)
+                MagLog.UpdateLogEntry("failed", "Sim: " + MagSimulationId.ToString() + ", pipeline failed", MagLogId);
             }
             
+
+            //Thread.Sleep(30 * 1000); // this line for testing - delete after publish
+            MagLog.UpdateLogEntry("complete", "Sim: " + MagSimulationId.ToString(), MagLogId);
             // need to add cleaning up the files, but only once we've seen it in action for a while to help debugging
         }
 
@@ -607,7 +602,6 @@ namespace BusinessLibrary.BusinessClasses
 
         private async Task UploadIdsFileAsync(string fileName, string FolderPrefix)
         {
-
 #if (CSLA_NETCORE)
 
             var configuration = ERxWebClient2.Startup.Configuration.GetSection("AzureMagSettings");
@@ -619,21 +613,23 @@ namespace BusinessLibrary.BusinessClasses
             string storageAccountKey = ConfigurationManager.AppSettings["MAGStorageAccountKey"];
 #endif
 
-            string storageConnectionString =
-                "DefaultEndpointsProtocol=https;AccountName=" + storageAccountName + ";AccountKey=";
+            string storageConnectionString = "DefaultEndpointsProtocol=https;AccountName=" + storageAccountName + ";AccountKey=";
             storageConnectionString += storageAccountKey;
 
             CloudStorageAccount storageAccount = CloudStorageAccount.Parse(storageConnectionString);
             CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
             CloudBlobContainer container = blobClient.GetContainerReference("experiments");
+
+            // Once we can get the right libraries installed, we should refactor the blob storage code
+            //CloudBlobContainer container = await MagContReviewPipeline.GetNewContRunContainer(FolderPrefix);
+
             CloudBlockBlob blockBlobData;
 
-            blockBlobData = container.GetBlockBlobReference(FolderPrefix + "/SeedIds.tsv");
+            //blockBlobData = container.GetBlockBlobReference(FolderPrefix + "/SeedIds.tsv");
+            blockBlobData = container.GetBlockBlobReference("SeedIds.tsv");
             using (var fileStream = System.IO.File.OpenRead(fileName))
             {
-
                 await blockBlobData.UploadFromStreamAsync(fileStream);
-                
             }
             File.Delete(fileName);
         }
@@ -835,13 +831,14 @@ namespace BusinessLibrary.BusinessClasses
             return lineCount;
         }
 
-        private async Task AddClassifierScores(string ReviewId)
+        private async Task AddClassifierScores(string ReviewId, int MagLogId)
         {
             // just return if we don't need to run the classifier(s)
             if (UserClassifierModelId == 0 && StudyTypeClassifier == "None")
             {
                 return;
             }
+            MagLog.UpdateLogEntry("running", "Sim: " + MagSimulationId.ToString() + ", running classifiers", MagLogId);
 
             List<Int64> Ids = new List<long>();
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))

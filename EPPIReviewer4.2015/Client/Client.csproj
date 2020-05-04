@@ -439,6 +439,9 @@
     <Compile Include="..\Server\BusinessClasses\MagBrowseHistoryList.cs">
       <Link>BusinessClasses\MagBrowseHistoryList.cs</Link>
     </Compile>
+    <Compile Include="..\Server\BusinessClasses\MagCheckContReviewRunningCommand.cs">
+      <Link>BusinessClasses\MagCheckContReviewRunningCommand.cs</Link>
+    </Compile>
     <Compile Include="..\Server\BusinessClasses\MagCheckPaperIdChangesCommand.cs">
       <Link>BusinessClasses\MagCheckPaperIdChangesCommand.cs</Link>
     </Compile>

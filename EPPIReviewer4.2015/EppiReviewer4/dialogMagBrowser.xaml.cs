@@ -1838,73 +1838,105 @@ namespace EppiReviewer4
             var result = e.DialogResult;
             if (result == true)
             {
-                DateTime SimulationYear = Convert.ToDateTime("1/1/1753");
-                DateTime CreatedDate = Convert.ToDateTime("1/1/1753");
-                DateTime SimulationYearEnd = Convert.ToDateTime("1/1/2025");
-                DateTime CreatedDateEnd = Convert.ToDateTime("1/1/2025");
-                Int64 AttributeId = 0;
-                Int64 AttributeIdFilter = 0;
-                ClassifierContactModel UserModel = null;
-                if (rbSimulationYear.IsChecked == true)
+
+                DataPortal<MagCheckContReviewRunningCommand> dp = new DataPortal<MagCheckContReviewRunningCommand>();
+                MagCheckContReviewRunningCommand check = new MagCheckContReviewRunningCommand();
+                dp.ExecuteCompleted += (o, e2) =>
                 {
-                    SimulationYear = DatePickerSimulation.SelectedValue.Value;
-                    SimulationYearEnd = DatePickerSimulationEnd.SelectedValue.Value;
-                    AttributeId = 0;
-                }
-                if (rbSimulationCreatedDate.IsChecked == true)
-                {
-                    CreatedDate = DatePickerSimulation.SelectedValue.Value;
-                    CreatedDateEnd = DatePickerSimulationEnd.SelectedValue.Value;
-                    AttributeId = 0;
-                }
-                if (rbSimulationWithThisCode.IsChecked == true)
-                {
-                    if (codesSelectControlSimulation.SelectedAttributeSet() != null)
+                    //BusyLoading.IsRunning = false;
+                    if (e2.Error != null)
                     {
-                        AttributeId = codesSelectControlSimulation.SelectedAttributeSet().AttributeId;
+                        RadWindow.Alert(e2.Error.Message);
                     }
                     else
                     {
-                        RadWindow.Alert("Please select a code");
-                        return;
+                        MagCheckContReviewRunningCommand chk = e2.Object as MagCheckContReviewRunningCommand;
+                        if (chk != null)
+                        {
+                            if (chk.IsRunningMessage == "running")
+                            {
+                                RadWindow.Alert("Sorry, another pipeline is currently running");
+                            }
+                            else
+                            {
+                                RunSimulation();
+                            }
+                        }
                     }
-                }
-                if (cbSimulationFilterByThisCode.IsChecked == true)
-                {
-                    if (codesSelectControlSimulationFilter.SelectedAttributeSet() != null)
-                    {
-                        AttributeIdFilter = codesSelectControlSimulationFilter.SelectedAttributeSet().AttributeId;
-                    }
-                    else
-                    {
-                        RadWindow.Alert("Please select a code if you want to filter by a code");
-                        return;
-                    }
-                }
-                UserModel = comboSimulationUserModels.SelectedItem as ClassifierContactModel;
+                };
+                //BusyLoading.IsRunning = true;
+                dp.BeginExecute(check);
+            }
+        }
 
-                MagSimulation newSimulation = new MagSimulation();
-                newSimulation.Year = SimulationYear.Year;
-                newSimulation.YearEnd = SimulationYearEnd.Year;
-                newSimulation.CreatedDate = CreatedDate;
-                newSimulation.CreatedDateEnd = CreatedDateEnd;
-                newSimulation.WithThisAttributeId = AttributeId;
-                newSimulation.FilteredByAttributeId = AttributeIdFilter;
-                newSimulation.SearchMethod = (comboSimulationSearchMethod.SelectedItem as ComboBoxItem).Content.ToString();
-                newSimulation.NetworkStatistic = (comboSimulationNetworkStats.SelectedItem as ComboBoxItem).Content.ToString();
-                newSimulation.StudyTypeClassifier = (comboSimulationStudyTypeClassifier.SelectedItem as ComboBoxItem).Content.ToString();
-                newSimulation.UserClassifierModelId = (UserModel != null ? UserModel.ModelId : 0);
-                newSimulation.Status = "Pending";
-
-                CslaDataProvider provider = this.Resources["MagSimulationListData"] as CslaDataProvider;
-                if (provider != null)
+        private void RunSimulation()
+        {
+            DateTime SimulationYear = Convert.ToDateTime("1/1/1753");
+            DateTime CreatedDate = Convert.ToDateTime("1/1/1753");
+            DateTime SimulationYearEnd = Convert.ToDateTime("1/1/2025");
+            DateTime CreatedDateEnd = Convert.ToDateTime("1/1/2025");
+            Int64 AttributeId = 0;
+            Int64 AttributeIdFilter = 0;
+            ClassifierContactModel UserModel = null;
+            if (rbSimulationYear.IsChecked == true)
+            {
+                SimulationYear = DatePickerSimulation.SelectedValue.Value;
+                SimulationYearEnd = DatePickerSimulationEnd.SelectedValue.Value;
+                AttributeId = 0;
+            }
+            if (rbSimulationCreatedDate.IsChecked == true)
+            {
+                CreatedDate = DatePickerSimulation.SelectedValue.Value;
+                CreatedDateEnd = DatePickerSimulationEnd.SelectedValue.Value;
+                AttributeId = 0;
+            }
+            if (rbSimulationWithThisCode.IsChecked == true)
+            {
+                if (codesSelectControlSimulation.SelectedAttributeSet() != null)
                 {
-                    MagSimulationList SimList = provider.Data as MagSimulationList;
-                    if (SimList != null)
-                    {
-                        SimList.Add(newSimulation);
-                        SimList.SaveItem(newSimulation);
-                    }
+                    AttributeId = codesSelectControlSimulation.SelectedAttributeSet().AttributeId;
+                }
+                else
+                {
+                    RadWindow.Alert("Please select a code");
+                    return;
+                }
+            }
+            if (cbSimulationFilterByThisCode.IsChecked == true)
+            {
+                if (codesSelectControlSimulationFilter.SelectedAttributeSet() != null)
+                {
+                    AttributeIdFilter = codesSelectControlSimulationFilter.SelectedAttributeSet().AttributeId;
+                }
+                else
+                {
+                    RadWindow.Alert("Please select a code if you want to filter by a code");
+                    return;
+                }
+            }
+            UserModel = comboSimulationUserModels.SelectedItem as ClassifierContactModel;
+
+            MagSimulation newSimulation = new MagSimulation();
+            newSimulation.Year = SimulationYear.Year;
+            newSimulation.YearEnd = SimulationYearEnd.Year;
+            newSimulation.CreatedDate = CreatedDate;
+            newSimulation.CreatedDateEnd = CreatedDateEnd;
+            newSimulation.WithThisAttributeId = AttributeId;
+            newSimulation.FilteredByAttributeId = AttributeIdFilter;
+            newSimulation.SearchMethod = (comboSimulationSearchMethod.SelectedItem as ComboBoxItem).Content.ToString();
+            newSimulation.NetworkStatistic = (comboSimulationNetworkStats.SelectedItem as ComboBoxItem).Content.ToString();
+            newSimulation.StudyTypeClassifier = (comboSimulationStudyTypeClassifier.SelectedItem as ComboBoxItem).Content.ToString();
+            newSimulation.UserClassifierModelId = (UserModel != null ? UserModel.ModelId : 0);
+            newSimulation.Status = "Pending";
+
+            CslaDataProvider provider = this.Resources["MagSimulationListData"] as CslaDataProvider;
+            if (provider != null)
+            {
+                MagSimulationList SimList = provider.Data as MagSimulationList;
+                if (SimList != null)
+                {
+                    SimList.Add(newSimulation);
+                    SimList.SaveItem(newSimulation);
                 }
             }
         }
@@ -2188,6 +2220,47 @@ namespace EppiReviewer4
         }
 
         private void LBRunContReviewPipeline_Click(object sender, RoutedEventArgs e)
+        {
+            RadWindow.Confirm("Are you sure you want to run the pipeline?!", this.checkRunContReviewPipeline);
+        }
+
+        private void checkRunContReviewPipeline(object sender, WindowClosedEventArgs e)
+        {
+            var result = e.DialogResult;
+            if (result == true)
+            {
+
+                DataPortal<MagCheckContReviewRunningCommand> dp = new DataPortal<MagCheckContReviewRunningCommand>();
+                MagCheckContReviewRunningCommand check = new MagCheckContReviewRunningCommand();
+                dp.ExecuteCompleted += (o, e2) =>
+                {
+                    //BusyLoading.IsRunning = false;
+                    if (e2.Error != null)
+                    {
+                        RadWindow.Alert(e2.Error.Message);
+                    }
+                    else
+                    {
+                        MagCheckContReviewRunningCommand chk = e2.Object as MagCheckContReviewRunningCommand;
+                        if (chk != null)
+                        {
+                            if (chk.IsRunningMessage == "running")
+                            {
+                                RadWindow.Alert("Sorry, another pipeline is currently running");
+                            }
+                            else
+                            {
+                                DoRunContReviewPipeline();
+                            }
+                        }
+                    }
+                };
+                //BusyLoading.IsRunning = true;
+                dp.BeginExecute(check);
+            }
+        }
+
+        private void DoRunContReviewPipeline()
         {
             CslaDataProvider provider = ((CslaDataProvider)App.Current.Resources["MagCurrentInfoData"]);
             MagCurrentInfo mci = provider.Data as MagCurrentInfo;

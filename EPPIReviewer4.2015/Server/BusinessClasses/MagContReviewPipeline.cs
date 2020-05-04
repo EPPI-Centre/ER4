@@ -11,6 +11,9 @@ using System.Threading;
 //using Microsoft.Extensions.Configuration;
 //using Microsoft.Azure.KeyVault.Core;
 using System.Configuration;
+using Microsoft.WindowsAzure.Storage;
+using Microsoft.WindowsAzure.Storage.Blob;
+using System.Threading.Tasks;
 
 
 //using Azure.Identity;
@@ -195,5 +198,39 @@ namespace BusinessLibrary.BusinessClasses
             return parameters;
         }
 
+
+        /*
+         * 
+         * Revisit once we can get the right libraries installed!!!
+         * 
+        public static async Task<CloudBlobContainer> GetNewContRunContainer(string containerName)
+        {
+#if (CSLA_NETCORE)
+
+            var configuration = ERxWebClient2.Startup.Configuration.GetSection("AzureMagSettings");
+            string storageAccountName = configuration["MAGStorageAccount"];
+            string storageAccountKey = configuration["MAGStorageAccountKey"];
+
+#else
+            string storageAccountName = ConfigurationManager.AppSettings["MAGStorageAccount"];
+            string storageAccountKey = ConfigurationManager.AppSettings["MAGStorageAccountKey"];
+#endif
+
+            string storageConnectionString = "DefaultEndpointsProtocol=https;AccountName=" + storageAccountName + ";AccountKey=";
+            storageConnectionString += storageAccountKey;
+
+            CloudStorageAccount storageAccount = CloudStorageAccount.Parse(storageConnectionString);
+            CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
+
+            CloudBlobContainer container = blobClient.GetContainerReference("containerName");
+
+            await container.CreateAsync();
+
+            return container;
+
+            //CloudBlobContainer container = blobClient.GetContainerReference("experiments");
+
+        }
+        */
     }
 }

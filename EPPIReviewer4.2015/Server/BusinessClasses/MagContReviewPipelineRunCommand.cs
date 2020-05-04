@@ -39,8 +39,6 @@ namespace BusinessLibrary.BusinessClasses
 #else
         public MagContReviewPipelineRunCommand() { }
 #endif
-
-
         private string _CurrentMagVersion;
         private string _NextMagVersion;
 
@@ -97,25 +95,29 @@ namespace BusinessLibrary.BusinessClasses
                 DirectoryInfo tmpDir = System.IO.Directory.CreateDirectory("UserTempUploads");
                 uploadFileName = tmpDir.FullName + "/" + @"UserTempUploads/" + "crSeeds.tsv";
 #endif
-
+            int logId = MagLog.SaveLogEntry("ContReview process", "running", "Main update. starting", ContactId);
+            
             string folderPrefix = Guid.NewGuid().ToString();
             int SeedIds = WriteSeedIdsFile(uploadFileName);
-            int logId = MagLog.SaveLogEntry("ContReview", "started", "SeedIds: " + SeedIds.ToString(), ContactId);
-
+            MagLog.UpdateLogEntry("running", "Main update. SeedIds: " + SeedIds.ToString(), ContactId);
+            
             await UploadSeedIdsFileToBlobAsync(uploadFileName, folderPrefix);
-            MagLog.UpdateLogEntry("Running", "SeedIds uploaded: " + SeedIds.ToString(), logId);
+            MagLog.UpdateLogEntry("running", "Main update. SeedIds uploaded: " + SeedIds.ToString(), logId);
 
             WriteNewIdsFileOnBlob(uploadFileName, ContactId, folderPrefix);
-            MagLog.UpdateLogEntry("Running", "NewIds written (" + SeedIds.ToString() + ")", logId);
+            MagLog.UpdateLogEntry("running", "Main update. NewIds written (" + SeedIds.ToString() + ")", logId);
 
             MagContReviewPipeline.runADFPieline(ContactId, Path.GetFileName(uploadFileName), "NewPapers.tsv",
                 "crResults.tsv", "cr_per_paper_tfidf.pickle", _NextMagVersion, "1", folderPrefix, "0.01", "ContReview" + folderPrefix, "True");
-            MagLog.UpdateLogEntry("Running", "ADFPipelineComplete (" + SeedIds.ToString() + ")", logId);
+            MagLog.UpdateLogEntry("running", "Main update. ADFPipelineComplete (" + SeedIds.ToString() + ")", logId);
 
             //folderPrefix = "56760d2d-e044-4f6f-8718-9a43c4e30a77";
-            Task<int> NewIds = DownloadResultsAsync(folderPrefix + "/crResults.tsv", ReviewId);
-            NewIds.Wait();
-            MagLog.UpdateLogEntry("Complete", "SeedIds: " + SeedIds.ToString() + "; NewIds: " + NewIds.Result.ToString(), logId);
+            int NewIds = await DownloadResultsAsync(folderPrefix + "/crResults.tsv", ReviewId);
+            //Task<int> NewIds = DownloadResultsAsync(folderPrefix + "/crResults.tsv", ReviewId);
+            //NewIds.Wait();
+            
+            //Thread.Sleep(30 * 1000); int NewIds = 10; int SeedIds = 10; // this line for testing - can be deleted after publish
+            MagLog.UpdateLogEntry("Complete", "Main update. SeedIds: " + SeedIds.ToString() + "; NewIds: " + NewIds.ToString(), logId);
         }
 
         private int WriteSeedIdsFile(string uploadFileName)
