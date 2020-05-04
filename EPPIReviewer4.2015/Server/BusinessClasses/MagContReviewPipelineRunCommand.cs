@@ -108,7 +108,7 @@ namespace BusinessLibrary.BusinessClasses
             MagLog.UpdateLogEntry("running", "Main update. NewIds written (" + SeedIds.ToString() + ")", logId);
 
             MagContReviewPipeline.runADFPieline(ContactId, Path.GetFileName(uploadFileName), "NewPapers.tsv",
-                "crResults.tsv", "cr_per_paper_tfidf.pickle", _NextMagVersion, "0.5", folderPrefix, "0.02",
+                "crResults.tsv", "cr_per_paper_tfidf.pickle", _NextMagVersion, "1", folderPrefix, "0.02",
                 /* "ContReview" */ "v1" + folderPrefix, "True");
             MagLog.UpdateLogEntry("running", "Main update. ADFPipelineComplete (" + SeedIds.ToString() + ")", logId);
 
