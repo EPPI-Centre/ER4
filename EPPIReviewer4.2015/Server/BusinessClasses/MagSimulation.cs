@@ -554,7 +554,7 @@ namespace BusinessLibrary.BusinessClasses
                 "Inference.tsv",
                 "Results.tsv",
                 "Sim" + this.MagSimulationId.ToString() + "per_paper_tfidf.pickle", mci.MagFolder, "0", folderPrefix, "0",
-                "Sim" + this.MagSimulationId.ToString(), "False") == "Succeeded")
+                /*"Sim" + this.MagSimulationId.ToString()*/ "v1", "False") == "Succeeded")
             {
                 MagLog.UpdateLogEntry("running", "Sim: " + MagSimulationId.ToString() + ", pipeline complete", MagLogId);
                 await DownloadResultsAsync(folderPrefix, ReviewId);

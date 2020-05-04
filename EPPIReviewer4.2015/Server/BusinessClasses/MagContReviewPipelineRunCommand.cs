@@ -108,13 +108,11 @@ namespace BusinessLibrary.BusinessClasses
             MagLog.UpdateLogEntry("running", "Main update. NewIds written (" + SeedIds.ToString() + ")", logId);
 
             MagContReviewPipeline.runADFPieline(ContactId, Path.GetFileName(uploadFileName), "NewPapers.tsv",
-                "crResults.tsv", "cr_per_paper_tfidf.pickle", _NextMagVersion, "1", folderPrefix, "0.01", "ContReview" + folderPrefix, "True");
+                "crResults.tsv", "cr_per_paper_tfidf.pickle", _NextMagVersion, "0.5", folderPrefix, "0.02",
+                /* "ContReview" */ "v1" + folderPrefix, "True");
             MagLog.UpdateLogEntry("running", "Main update. ADFPipelineComplete (" + SeedIds.ToString() + ")", logId);
 
-            //folderPrefix = "56760d2d-e044-4f6f-8718-9a43c4e30a77";
             int NewIds = await DownloadResultsAsync(folderPrefix + "/crResults.tsv", ReviewId);
-            //Task<int> NewIds = DownloadResultsAsync(folderPrefix + "/crResults.tsv", ReviewId);
-            //NewIds.Wait();
             
             //Thread.Sleep(30 * 1000); int NewIds = 10; int SeedIds = 10; // this line for testing - can be deleted after publish
             MagLog.UpdateLogEntry("Complete", "Main update. SeedIds: " + SeedIds.ToString() + "; NewIds: " + NewIds.ToString(), logId);
