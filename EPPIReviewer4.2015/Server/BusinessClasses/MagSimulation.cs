@@ -622,11 +622,10 @@ namespace BusinessLibrary.BusinessClasses
 
             // Once we can get the right libraries installed, we should refactor the blob storage code
             //CloudBlobContainer container = await MagContReviewPipeline.GetNewContRunContainer(FolderPrefix);
+            //blockBlobData = container.GetBlockBlobReference("SeedIds.tsv");
 
-            CloudBlockBlob blockBlobData;
-
-            //blockBlobData = container.GetBlockBlobReference(FolderPrefix + "/SeedIds.tsv");
-            blockBlobData = container.GetBlockBlobReference("SeedIds.tsv");
+            CloudBlockBlob blockBlobData = container.GetBlockBlobReference(FolderPrefix + "/SeedIds.tsv");
+            
             using (var fileStream = System.IO.File.OpenRead(fileName))
             {
                 await blockBlobData.UploadFromStreamAsync(fileStream);
