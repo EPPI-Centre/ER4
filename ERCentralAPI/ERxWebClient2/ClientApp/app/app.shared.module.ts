@@ -90,6 +90,7 @@ import { BasicMAGComp } from './components/MAG/BasicMAGComp.component';
 import { AdvancedMAGFeaturesComponent } from './components/MAG/AdvancedMAGFeatures.component';
 import { MAGpaginatorComp } from './components/commonComponents/MAGpaginator.component';
 import { MAGBrowser } from './components/MAG/MAGBrowser.component';
+import { MAGBrowserHistory } from './components/MAG/MAGBrowserHistory.component';
 
 @NgModule({
     declarations: [
@@ -160,7 +161,8 @@ import { MAGBrowser } from './components/MAG/MAGBrowser.component';
         codesetTree4Move,
         AdvancedMAGFeaturesComponent,
         MAGpaginatorComp,
-        MAGBrowser
+        MAGBrowser,
+        MAGBrowserHistory
 	],
     providers: [
         EventEmitterService,
@@ -200,7 +202,8 @@ import { MAGBrowser } from './components/MAG/MAGBrowser.component';
             { path: 'BuildModel', component: BuildModelComponent },
             { path: 'BasicMAGFeatures', component: BasicMAGComp },
             { path: 'ItemList', component: ItemListComp },
-            { path: 'MAGBrowser', component: MAGBrowser }, 
+            { path: 'MAGBrowser', component: MAGBrowser },
+            { path: 'MAGBrowserHistory', component: MAGBrowserHistory},
             { path: 'AdvancedMAGFeatures', component: AdvancedMAGFeaturesComponent },
             { path: 'itemcodingOnly/:itemId', component: ItemCodingComp },
             { path: 'itemcoding/:itemId', component: ItemCodingFullComp },

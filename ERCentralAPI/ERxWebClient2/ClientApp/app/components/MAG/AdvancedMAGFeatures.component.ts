@@ -44,6 +44,7 @@ export class AdvancedMAGFeaturesComponent implements OnInit {
     }
     public ShowHistory() {
 
+        this.router.navigate(['MAGBrowserHistory']);
     }
     public Admin() {
 
