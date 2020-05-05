@@ -11,8 +11,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 })
 
 export class MAGBrowserHistory implements OnInit {
-
-   
+      
 
 	constructor(
         private _location: Location,
@@ -27,7 +26,7 @@ export class MAGBrowserHistory implements OnInit {
 
         this._activatedRoute.url.subscribe(() => {
 
-            console.log(this._activatedRoute.snapshot.url) ; // any time url changes, this callback is fired
+            console.log('testeroo: ', this._activatedRoute.snapshot.url) ; // any time url changes, this callback is fired
 
         });
 

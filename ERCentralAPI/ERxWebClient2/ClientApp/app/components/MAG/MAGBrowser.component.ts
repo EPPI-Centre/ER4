@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { MVCMagPaperListSelectionCriteria, MagPaper, MvcMagFieldOfStudyListSelectionCriteria, MagFieldOfStudy } from '../services/MAGClasses.service';
 import { MAGBrowserService } from '../services/MAGBrowser.service';
 import { MAGAdvancedService } from '../services/magAdvanced.service';
+import { MAGBrowserHistoryService } from '../services/MAGBrowserHistory.service';
 
 
 @Component({
@@ -15,14 +16,19 @@ import { MAGAdvancedService } from '../services/magAdvanced.service';
 
 export class MAGBrowser implements OnInit {
 
+    history: string [] = [];
+
     constructor(
         public _magAdvancedService: MAGAdvancedService,
         public _magBrowserService: MAGBrowserService,
         public _searchService: searchService,
         private _ReviewerIdentityServ: ReviewerIdentityService,
+        private _routingStateService: MAGBrowserHistoryService,
         private router: Router
     ) {
 
+        this.history = this._routingStateService.getHistory();
+        console.log('testing URL: ', this.history);
     }
 
     public ClearSelected() {

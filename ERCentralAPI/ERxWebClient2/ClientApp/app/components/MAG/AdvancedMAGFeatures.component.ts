@@ -10,6 +10,7 @@ import { EventEmitterService } from '../services/EventEmitter.service';
 import { MAGBrowserService } from '../services/MAGBrowser.service';
 import { MAGAdvancedService } from '../services/magAdvanced.service';
 import { MVCMagFieldOfStudyListSelectionCriteria } from '../services/MAGClasses.service';
+import { MAGBrowserHistoryService } from '../services/MAGBrowserHistory.service';
 
 @Component({
     selector: 'AdvancedMAGFeatures',
@@ -19,16 +20,20 @@ import { MVCMagFieldOfStudyListSelectionCriteria } from '../services/MAGClasses.
 
 export class AdvancedMAGFeaturesComponent implements OnInit {
 
+    history: string[] = [];
 	constructor(private ConfirmationDialogService: ConfirmationDialogService,
         public _magAdvancedService: MAGAdvancedService,
         private _magBrowserService: MAGBrowserService,
         public _searchService: searchService,
         private _ReviewerIdentityServ: ReviewerIdentityService,
         private _eventEmitter: EventEmitterService,
+        private _routingStateService: MAGBrowserHistoryService,
         private router: Router
 
-	) {
+    ) {
 
+        this.history = this._routingStateService.getHistory();
+        console.log('testing URL: ', this.history);
 	}
     public Selected() {
 

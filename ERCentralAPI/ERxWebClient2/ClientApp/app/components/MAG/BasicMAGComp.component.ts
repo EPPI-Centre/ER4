@@ -9,6 +9,7 @@ import { Router } from '@angular/router';
 import { NotificationService } from '@progress/kendo-angular-notification';
 import { MAGBrowserService } from '../services/MAGBrowser.service';
 import { MagRelatedPapersRun } from '../services/MAGClasses.service';
+import { MAGBrowserHistoryService } from '../services/MAGBrowserHistory.service';
 
 
 @Component({
@@ -25,9 +26,10 @@ export class BasicMAGComp implements OnInit {
         public _searchService: searchService,
         private _ReviewerIdentityServ: ReviewerIdentityService,
         private _notificationService: NotificationService,
+        private _routingStateService: MAGBrowserHistoryService,
         private router: Router
 
-	) {
+    ) {
 
     }
     @ViewChild('WithOrWithoutCodeSelector') WithOrWithoutCodeSelector!: codesetSelectorComponent;
@@ -65,6 +67,7 @@ export class BasicMAGComp implements OnInit {
     }
 	ngOnInit() {
 
+
         if (this._ReviewerIdentityServ.reviewerIdentity.userId == 0 ||
             this._ReviewerIdentityServ.reviewerIdentity.reviewId == 0) {
             this.router.navigate(['home']);
@@ -81,6 +84,7 @@ export class BasicMAGComp implements OnInit {
     }
 
     public Back() {
+        if (this._routingStateService.MAGSubscription) this._routingStateService.UnsubscribeMAGHistory();
         this.router.navigate(['Main']);
     }
     Clear() {
