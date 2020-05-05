@@ -61,6 +61,7 @@ export class BasicMAGComp implements OnInit {
     }
     public ShowHistory() {
 
+        this.router.navigate(['MAGBrowserHistory']);
     }
     public Admin() {
 

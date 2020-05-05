@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { searchService } from '../services/search.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
-import { Router } from '@angular/router';
+import { Router, NavigationEnd } from '@angular/router';
 import { MVCMagPaperListSelectionCriteria, MagPaper, MvcMagFieldOfStudyListSelectionCriteria, MagFieldOfStudy } from '../services/MAGClasses.service';
 import { MAGBrowserService } from '../services/MAGBrowser.service';
 import { MAGAdvancedService } from '../services/magAdvanced.service';
@@ -16,7 +16,7 @@ import { MAGBrowserHistoryService } from '../services/MAGBrowserHistory.service'
 
 export class MAGBrowser implements OnInit {
 
-    history: string [] = [];
+    history: NavigationEnd [] = [];
 
     constructor(
         public _magAdvancedService: MAGAdvancedService,
@@ -40,6 +40,7 @@ export class MAGBrowser implements OnInit {
 
     public ShowHistory() {
 
+        this.router.navigate(['MAGBrowserHistory']);
     }
     public Admin() {
 

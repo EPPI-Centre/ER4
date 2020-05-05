@@ -4,7 +4,7 @@ import { singleNode, SetAttribute } from '../services/ReviewSets.service';
 import { codesetSelectorComponent } from '../CodesetTrees/codesetSelector.component';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
-import { Router } from '@angular/router';
+import { Router, NavigationEnd } from '@angular/router';
 import { ClassifierContactModel,  MVCMagPaperListSelectionCriteria, MagSimulation } from '../services/MAGClasses.service';
 import { EventEmitterService } from '../services/EventEmitter.service';
 import { MAGBrowserService } from '../services/MAGBrowser.service';
@@ -20,7 +20,7 @@ import { MAGBrowserHistoryService } from '../services/MAGBrowserHistory.service'
 
 export class AdvancedMAGFeaturesComponent implements OnInit {
 
-    history: string[] = [];
+    history: NavigationEnd[] = [];
 	constructor(private ConfirmationDialogService: ConfirmationDialogService,
         public _magAdvancedService: MAGAdvancedService,
         private _magBrowserService: MAGBrowserService,

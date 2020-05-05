@@ -12,7 +12,7 @@ import { Subscription } from "rxjs";
 
 export class MAGBrowserHistoryService {
 
-    private history: any[] = [];
+    private history: NavigationEnd[] = [];
     public MAGSubscription: Subscription = new Subscription();
 
     constructor(
@@ -39,14 +39,14 @@ export class MAGBrowserHistoryService {
                     });
     }
 
-    public getHistory(): string[] {
+    public getHistory(): NavigationEnd[] {
 
         return this.history;
 
     }
 
 
-    public getPreviousUrl(): string {
+    public getPreviousUrl(): NavigationEnd {
 
         return this.history[this.history.length - 2] || '/index';
 
