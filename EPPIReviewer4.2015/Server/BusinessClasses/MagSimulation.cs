@@ -507,18 +507,10 @@ namespace BusinessLibrary.BusinessClasses
         {
             MagCurrentInfo mci = MagCurrentInfo.GetMagCurrentInfoServerSide("LIVE");
             int MagLogId = MagLog.SaveLogEntry("ContReview process", "running", "Review: " + ReviewId.ToString() + ", simulation: " + MagSimulationId.ToString(), ContactId);
-            
 
 #if (!CSLA_NETCORE)
             string uploadFileName = System.Web.HttpRuntime.AppDomainAppPath + @"UserTempUploads/Simulation" + MagSimulationId.ToString() + ".tsv";
-            /*
-            SetProperty(MagSimulationIdProperty, 245);
-            UserClassifierModelId = 1;
-            UserClassifierReviewId = 10;
-            StudyTypeClassifier = "RCT";
-            await AddClassifierScores(ReviewId.ToString());
-            return;
-            */
+            
 #else       
             string uploadFileName = "";
             if (Directory.Exists("UserTempUploads"))
@@ -554,7 +546,7 @@ namespace BusinessLibrary.BusinessClasses
                 "Inference.tsv",
                 "Results.tsv",
                 "Sim" + this.MagSimulationId.ToString() + "per_paper_tfidf.pickle", mci.MagFolder, "0", folderPrefix, "0",
-                /*"Sim" + this.MagSimulationId.ToString()*/ "v1", "False") == "Succeeded")
+                "v1", "False") == "Succeeded")
             {
                 MagLog.UpdateLogEntry("running", "Sim: " + MagSimulationId.ToString() + ", pipeline complete", MagLogId);
                 await DownloadResultsAsync(folderPrefix, ReviewId);
@@ -564,10 +556,7 @@ namespace BusinessLibrary.BusinessClasses
             {
                 MagLog.UpdateLogEntry("failed", "Sim: " + MagSimulationId.ToString() + ", pipeline failed", MagLogId);
             }
-            
-
-            //Thread.Sleep(30 * 1000); // this line for testing - delete after publish
-            MagLog.UpdateLogEntry("complete", "Sim: " + MagSimulationId.ToString(), MagLogId);
+            MagLog.UpdateLogEntry("Complete", "Sim: " + MagSimulationId.ToString(), MagLogId);
             // need to add cleaning up the files, but only once we've seen it in action for a while to help debugging
         }
 

@@ -1927,6 +1927,7 @@ namespace EppiReviewer4
             newSimulation.NetworkStatistic = (comboSimulationNetworkStats.SelectedItem as ComboBoxItem).Content.ToString();
             newSimulation.StudyTypeClassifier = (comboSimulationStudyTypeClassifier.SelectedItem as ComboBoxItem).Content.ToString();
             newSimulation.UserClassifierModelId = (UserModel != null ? UserModel.ModelId : 0);
+            newSimulation.UserClassifierReviewId = (UserModel != null ? UserModel.ReviewId : 0);
             newSimulation.Status = "Pending";
 
             CslaDataProvider provider = this.Resources["MagSimulationListData"] as CslaDataProvider;
