@@ -36,7 +36,7 @@ public partial class UserStatistics : System.Web.UI.Page
                     {
                         radTs.SelectedIndex = 4;
                         radTs.Tabs[4].Tabs[1].Selected = true;
-                        //radTs.Tabs[3].Tabs[2].Width = 670;
+                        radTs.Tabs[1].Tabs[1].Width = 550;
                     }
                     System.Web.UI.WebControls.Label lbl1 = (Label)Master.FindControl("lblHeadingText");
                     if (lbl1 != null)

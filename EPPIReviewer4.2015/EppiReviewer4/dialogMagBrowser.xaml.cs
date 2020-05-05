@@ -31,9 +31,11 @@ namespace EppiReviewer4
         public event EventHandler<RoutedEventArgs> ListSimulationTP;
         public event EventHandler<RoutedEventArgs> ListSimulationFN;
         private DispatcherTimer timer;
+        private DispatcherTimer AdminLogTimer;
         private int CurrentBrowsePosition = 0;
         private List<Int64> SelectedPaperIds;
         private int _maxFieldOfStudyPaperCount = 1000000;
+        //public MagCurrentInfo CurrentMagInfo;
         public dialogMagBrowser()
         {
             InitializeComponent();
@@ -41,10 +43,19 @@ namespace EppiReviewer4
             timer = new DispatcherTimer();
             timer.Interval = TimeSpan.FromSeconds(1);
             timer.Tick += Timer_Tick;
+
+            AdminLogTimer = new DispatcherTimer();
+            AdminLogTimer.Interval = TimeSpan.FromSeconds(10);
+            AdminLogTimer.Tick += AdminLogTimer_Tick;
         }
 
         public void InitialiseBrowser()
         {
+            ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+            if (!ri.IsSiteAdmin)
+            {
+                hlAdmin.Visibility = Visibility.Collapsed;
+            }
             UpdateSelectedCount();
         }
 
@@ -103,29 +114,30 @@ namespace EppiReviewer4
             RelatedPapersGrid.Visibility = Visibility.Collapsed;
             AdminGrid.Visibility = Visibility.Collapsed;
 
-            DataPortal<MagCurrentInfo> dp = new DataPortal<MagCurrentInfo>();
-            MagCurrentInfo mci = new MagCurrentInfo();
-            dp.FetchCompleted += (o, e2) =>
+            CslaDataProvider provider = ((CslaDataProvider)App.Current.Resources["MagCurrentInfoData"]);
+            MagCurrentInfo mci = provider.Data as MagCurrentInfo;
+            if (mci != null)
             {
-                if (e2.Error != null)
+                if (mci.MagOnline == true)
                 {
-                    RadWindow.Alert(e2.Error.Message);
+                    tbAcademicTitle.Text = "Microsoft Academic dataset: " + mci.MagVersion;
                 }
                 else
                 {
-                    MagCurrentInfo mci2 = e2.Object as MagCurrentInfo;
-                    if (mci2.CurrentAvailability == "available")
-                    {
-                        tbAcademicTitle.Text = "Microsoft Academic dataset last updated: " + mci2.LastUpdated.ToString();
-                    }
-                    else
-                    {
-                        tbAcademicTitle.Text = "Microsoft Academic dataset currently unavailable";
-                    }
+                    tbAcademicTitle.Text = "Microsoft Academic dataset currently unavailable";
                 }
-            };
-            dp.BeginFetch(mci);
+            }
 
+            RefreshCounts();
+
+            CslaDataProvider provider3 = this.Resources["ClassifierContactModelListData"] as CslaDataProvider;
+            provider3.Refresh();
+            CslaDataProvider provider1 = this.Resources["MagSimulationListData"] as CslaDataProvider;
+            provider1.Refresh();
+        }
+
+        private void RefreshCounts()
+        {
             DataPortal<MAgReviewMagInfoCommand> dp2 = new DataPortal<MAgReviewMagInfoCommand>();
             MAgReviewMagInfoCommand mrmic = new MAgReviewMagInfoCommand();
             dp2.ExecuteCompleted += (o, e2) =>
@@ -148,11 +160,6 @@ namespace EppiReviewer4
                 }
             };
             dp2.BeginExecute(mrmic);
-
-            CslaDataProvider provider = this.Resources["ClassifierContactModelListData"] as CslaDataProvider;
-            provider.Refresh();
-            CslaDataProvider provider1 = this.Resources["MagSimulationListData"] as CslaDataProvider;
-            provider1.Refresh();
         }
 
         // ********************************* HISTORY PAGE **********************************
@@ -185,6 +192,11 @@ namespace EppiReviewer4
             MagPaperListSelectionCriteria selectionCriteria = new MagPaperListSelectionCriteria();
             provider.FactoryMethod = "GetMagReviewList";
             provider.Refresh();
+
+            CslaDataProvider provider2 = this.Resources["MagLogListData"] as CslaDataProvider;
+            provider2.FactoryParameters.Clear();
+            provider2.FactoryMethod = "GetMagLogList";
+            provider2.Refresh();
 
             DataPortal<MagBlobDataCommand> dp2 = new DataPortal<MagBlobDataCommand>();
             MagBlobDataCommand command = new MagBlobDataCommand();
@@ -1419,16 +1431,38 @@ namespace EppiReviewer4
 
         private void LBMatchAllIncluded_Click(object sender, RoutedEventArgs e)
         {
-            RadWindow.Confirm("Are you sure you want to match all the items in your review\n to Microsoft Academic records?", OnShowWizardDialogClosed);
+            MatchOnAllOrFiltered = ((HyperlinkButton)sender).Tag.ToString();
+            if (MatchOnAllOrFiltered == "All")
+            {
+                RadWindow.Confirm("Are you sure you want to match all the items in your review\n to Microsoft Academic records?", OnShowWizardDialogClosed);
+            }
+            else
+            {
+                if (codesSelectControlMAGSelect.SelectedAttributeSet() == null)
+                {
+                    RadWindow.Alert("Please select a code");
+                }
+                else
+                {
+                    RadWindow.Confirm("Are you sure you want to match the items with this code\n to Microsoft Academic records?", OnShowWizardDialogClosed);
+                }
+            }
         }
+
+        private string MatchOnAllOrFiltered;
 
         private void OnShowWizardDialogClosed(object sender, WindowClosedEventArgs e)
         {
             if (e.DialogResult == true)
             {
+                Int64 AttributeId = 0;
+                if (MatchOnAllOrFiltered != "All")
+                {
+                    AttributeId = codesSelectControlMAGSelect.SelectedAttributeSet().AttributeId;
+                }
                 DataPortal<MagMatchItemsToPapersCommand> dp = new DataPortal<MagMatchItemsToPapersCommand>();
                 MagMatchItemsToPapersCommand GetMatches = new MagMatchItemsToPapersCommand("FindMatches",
-                    true, 0, 0);
+                    true, 0, AttributeId);
                 dp.ExecuteCompleted += (o, e2) =>
                 {
                     if (e2.Error != null)
@@ -1438,11 +1472,17 @@ namespace EppiReviewer4
                     else
                     {
                         MagMatchItemsToPapersCommand res = e2.Object as MagMatchItemsToPapersCommand;
-                        //RadWindow.Alert("Records submitted for matching. This can take a while...");
+                        RadWindow.Alert("Records submitted for matching. This can take a while...");
                     }
                 };
+                lbRefreshCounts.Visibility = Visibility.Visible;
                 dp.BeginExecute(GetMatches);
             }
+        }
+
+        private void lbRefreshCounts_Click(object sender, RoutedEventArgs e)
+        {
+            RefreshCounts();
         }
 
 
@@ -1562,6 +1602,15 @@ namespace EppiReviewer4
                 }
             }
 
+        }
+
+        private void ComboRelatedPapersMode_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+        {
+            if (ComboRelatedPapersMode != null && ComboRelatedPapersMode.Items != null && ComboRelatedPapersMode.SelectedIndex == 7)
+            {
+                RadioButtonRelatedPapersRunAllIncluded.IsChecked = true;
+                RadioButtonRelatedPapersRunNoDateRestriction.IsChecked = true;
+            }
         }
 
         private void HyperlinkButton_Click_2(object sender, RoutedEventArgs e)
@@ -1765,11 +1814,15 @@ namespace EppiReviewer4
                 if (rb.Tag.ToString() == "ShowCodesControl")
                 {
                     DatePickerSimulation.Visibility = Visibility.Collapsed;
+                    DatePickerSimulationEnd.Visibility = Visibility.Collapsed;
+                    tbEndDate.Visibility = Visibility.Collapsed;
                     codesSelectControlSimulation.Visibility = Visibility.Visible;
                 }
                 else
                 {
                     DatePickerSimulation.Visibility = Visibility.Visible;
+                    DatePickerSimulationEnd.Visibility = Visibility.Visible;
+                    tbEndDate.Visibility = Visibility.Visible;
                     codesSelectControlSimulation.Visibility = Visibility.Collapsed;
                 }
             }
@@ -1777,19 +1830,64 @@ namespace EppiReviewer4
 
         private void lbRunSimulation_Click(object sender, RoutedEventArgs e)
         {
+            RadWindow.Confirm("Are you sure you want to create and run this simulation study?", this.CreateAndRunSimulation);
+        }
+
+        private void CreateAndRunSimulation(object sender, WindowClosedEventArgs e)
+        {
+            var result = e.DialogResult;
+            if (result == true)
+            {
+
+                DataPortal<MagCheckContReviewRunningCommand> dp = new DataPortal<MagCheckContReviewRunningCommand>();
+                MagCheckContReviewRunningCommand check = new MagCheckContReviewRunningCommand();
+                dp.ExecuteCompleted += (o, e2) =>
+                {
+                    //BusyLoading.IsRunning = false;
+                    if (e2.Error != null)
+                    {
+                        RadWindow.Alert(e2.Error.Message);
+                    }
+                    else
+                    {
+                        MagCheckContReviewRunningCommand chk = e2.Object as MagCheckContReviewRunningCommand;
+                        if (chk != null)
+                        {
+                            if (chk.IsRunningMessage == "running")
+                            {
+                                RadWindow.Alert("Sorry, another pipeline is currently running");
+                            }
+                            else
+                            {
+                                RunSimulation();
+                            }
+                        }
+                    }
+                };
+                //BusyLoading.IsRunning = true;
+                dp.BeginExecute(check);
+            }
+        }
+
+        private void RunSimulation()
+        {
             DateTime SimulationYear = Convert.ToDateTime("1/1/1753");
             DateTime CreatedDate = Convert.ToDateTime("1/1/1753");
+            DateTime SimulationYearEnd = Convert.ToDateTime("1/1/2025");
+            DateTime CreatedDateEnd = Convert.ToDateTime("1/1/2025");
             Int64 AttributeId = 0;
             Int64 AttributeIdFilter = 0;
             ClassifierContactModel UserModel = null;
             if (rbSimulationYear.IsChecked == true)
             {
                 SimulationYear = DatePickerSimulation.SelectedValue.Value;
+                SimulationYearEnd = DatePickerSimulationEnd.SelectedValue.Value;
                 AttributeId = 0;
             }
             if (rbSimulationCreatedDate.IsChecked == true)
             {
                 CreatedDate = DatePickerSimulation.SelectedValue.Value;
+                CreatedDateEnd = DatePickerSimulationEnd.SelectedValue.Value;
                 AttributeId = 0;
             }
             if (rbSimulationWithThisCode.IsChecked == true)
@@ -1820,13 +1918,16 @@ namespace EppiReviewer4
 
             MagSimulation newSimulation = new MagSimulation();
             newSimulation.Year = SimulationYear.Year;
+            newSimulation.YearEnd = SimulationYearEnd.Year;
             newSimulation.CreatedDate = CreatedDate;
+            newSimulation.CreatedDateEnd = CreatedDateEnd;
             newSimulation.WithThisAttributeId = AttributeId;
             newSimulation.FilteredByAttributeId = AttributeIdFilter;
             newSimulation.SearchMethod = (comboSimulationSearchMethod.SelectedItem as ComboBoxItem).Content.ToString();
             newSimulation.NetworkStatistic = (comboSimulationNetworkStats.SelectedItem as ComboBoxItem).Content.ToString();
             newSimulation.StudyTypeClassifier = (comboSimulationStudyTypeClassifier.SelectedItem as ComboBoxItem).Content.ToString();
             newSimulation.UserClassifierModelId = (UserModel != null ? UserModel.ModelId : 0);
+            newSimulation.UserClassifierReviewId = (UserModel != null ? UserModel.ReviewId : 0);
             newSimulation.Status = "Pending";
 
             CslaDataProvider provider = this.Resources["MagSimulationListData"] as CslaDataProvider;
@@ -1841,7 +1942,6 @@ namespace EppiReviewer4
             }
         }
 
-        
         private void cbSimulationFilterByThisCode_Checked(object sender, RoutedEventArgs e)
         {
             codesSelectControlSimulationFilter.Visibility = Visibility.Visible;
@@ -2047,6 +2147,140 @@ namespace EppiReviewer4
             {
                 provider.Refresh();
             }
+        }
+
+        private void CheckChangedPaperIds_Click(object sender, RoutedEventArgs e)
+        {
+            RadWindow.Confirm("Are you sure?\nPlease check it is not already running first!", this.DoCheckChangedPaperIds);
+        }
+
+        private void DoCheckChangedPaperIds(object sender, WindowClosedEventArgs e)
+        {
+            var result = e.DialogResult;
+            if (result == true)
+            {
+                DataPortal<MagCheckPaperIdChangesCommand> dp = new DataPortal<MagCheckPaperIdChangesCommand>();
+                MagCheckPaperIdChangesCommand magCheck = new MagCheckPaperIdChangesCommand(tbLatestMag.Text);
+                dp.ExecuteCompleted += (o, e2) =>
+                {
+                    LBCheckChangedPaperIds.IsEnabled = true;
+                    if (e2.Error != null)
+                    {
+                        RadWindow.Alert(e2.Error.Message);
+                    }
+                    else
+                    {
+                        RadWindow.Alert("Ok, process running: see log below");
+                        SwitchOnAutoRefreshLogList();
+                    }
+                };
+                LBCheckChangedPaperIds.IsEnabled = false;
+                dp.BeginExecute(magCheck);
+            }
+        }
+
+        private void LBRefreshMagLogList_Click(object sender, RoutedEventArgs e)
+        {
+            CslaDataProvider provider = this.Resources["MagLogListData"] as CslaDataProvider;
+            provider.FactoryParameters.Clear();
+            provider.FactoryMethod = "GetMagLogList";
+            provider.Refresh();
+        }
+
+        private void AdminLogTimer_Tick(object sender, EventArgs e)
+        {
+            LBRefreshMagLogList_Click(sender, new RoutedEventArgs());
+        }
+
+        private void SwitchOnAutoRefreshLogList()
+        {
+            if (this.AdminLogTimer != null && this.AdminLogTimer.IsEnabled)
+            {
+                this.AdminLogTimer.Stop();
+                this.AdminLogTimer.Start();
+            }
+            else
+            {
+                if (this.timer != null)
+                {
+                    this.AdminLogTimer.Start();
+                }
+            }
+            LBSwitchOffAutoRefreshLogList.Visibility = Visibility.Visible;
+            LBRefreshMagLogList_Click(null, new RoutedEventArgs());
+        }
+
+        private void LBSwitchOffAutoRefreshLogList_Click(object sender, RoutedEventArgs e)
+        {
+            if (this.AdminLogTimer != null && this.AdminLogTimer.IsEnabled)
+            {
+                this.AdminLogTimer.Stop();
+            }
+            LBSwitchOffAutoRefreshLogList.Visibility = Visibility.Collapsed;
+            RadWindow.Alert("Ok, auto-refresh is switched off");
+        }
+
+        private void LBRunContReviewPipeline_Click(object sender, RoutedEventArgs e)
+        {
+            RadWindow.Confirm("Are you sure you want to run the pipeline?!", this.checkRunContReviewPipeline);
+        }
+
+        private void checkRunContReviewPipeline(object sender, WindowClosedEventArgs e)
+        {
+            var result = e.DialogResult;
+            if (result == true)
+            {
+
+                DataPortal<MagCheckContReviewRunningCommand> dp = new DataPortal<MagCheckContReviewRunningCommand>();
+                MagCheckContReviewRunningCommand check = new MagCheckContReviewRunningCommand();
+                dp.ExecuteCompleted += (o, e2) =>
+                {
+                    //BusyLoading.IsRunning = false;
+                    if (e2.Error != null)
+                    {
+                        RadWindow.Alert(e2.Error.Message);
+                    }
+                    else
+                    {
+                        MagCheckContReviewRunningCommand chk = e2.Object as MagCheckContReviewRunningCommand;
+                        if (chk != null)
+                        {
+                            if (chk.IsRunningMessage == "running")
+                            {
+                                RadWindow.Alert("Sorry, another pipeline is currently running");
+                            }
+                            else
+                            {
+                                DoRunContReviewPipeline();
+                            }
+                        }
+                    }
+                };
+                //BusyLoading.IsRunning = true;
+                dp.BeginExecute(check);
+            }
+        }
+
+        private void DoRunContReviewPipeline()
+        {
+            CslaDataProvider provider = ((CslaDataProvider)App.Current.Resources["MagCurrentInfoData"]);
+            MagCurrentInfo mci = provider.Data as MagCurrentInfo;
+            DataPortal<MagContReviewPipelineRunCommand> dp2 = new DataPortal<MagContReviewPipelineRunCommand>();
+            MagContReviewPipelineRunCommand RunPipelineCommand = new MagContReviewPipelineRunCommand(mci.MagFolder, tbLatestMag.Text);
+            dp2.ExecuteCompleted += (o, e2) =>
+            {
+                if (e2.Error != null)
+                {
+                    RadWindow.Alert(e2.Error.Message);
+                }
+                else
+                {
+                    RadWindow.Alert("Pipeline running...");
+                    SwitchOnAutoRefreshLogList();
+                }
+            };
+            LBRunContReviewPipeline.IsEnabled = false;
+            dp2.BeginExecute(RunPipelineCommand);
         }
 
         

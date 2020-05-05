@@ -30,6 +30,10 @@ import { ConfigurableReportService } from '../services/configurablereport.servic
 import { Helpers } from '../helpers/HelperMethods';
 import { ExcelService } from '../services/excel.service';
 import { DuplicatesService } from '../services/duplicates.service';
+import { FetchReadOnlyReviewsComponent } from '../readonlyreviews/readonlyreviews.component';
+import { BasicMAGService } from '../services/BasicMAG.service';
+import { ReviewInfoService } from '../services/ReviewInfo.service';
+//import { AdvancedMAGFeaturesComponent } from '../MAG/AdvancedMAGFeatures.component';
 
 
 @Component({
@@ -64,7 +68,8 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         private _eventEmitter: EventEmitterService,
 		private frequenciesService: frequenciesService
 		, private crosstabService: crosstabService
-        , private _searchService: searchService
+		, private _searchService: searchService
+		, private _basicMAGService: BasicMAGService
         , private SourcesService: SourcesService
         , private ConfirmationDialogService: ConfirmationDialogService
         , private ItemCodingService: ItemCodingService
@@ -75,7 +80,8 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 		private searchService: searchService,
 		private configurablereportServ: ConfigurableReportService,
 		@Inject('BASE_URL') private _baseUrl: string,
-		private excelService: ExcelService
+        private excelService: ExcelService,
+        private reviewInfoService: ReviewInfoService,
     ) {}
 	@ViewChild('WorkAllocationContactList') workAllocationsContactComp!: WorkAllocationContactListComp;
 	@ViewChild('WorkAllocationCollaborateList') workAllocationCollaborateComp!: WorkAllocationComp;
@@ -86,8 +92,9 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 	@ViewChild('SearchComp') SearchComp!: SearchComp;
 	@ViewChild('ComparisonComp') ComparisonComp!: ComparisonComp;
 	@ViewChild('CodeTreeAllocate') CodeTreeAllocate!: codesetSelectorComponent;
-	@ViewChild('CodingToolTreeReports') CodingToolTree!: codesetSelectorComponent;
-
+    @ViewChild('CodingToolTreeReports') CodingToolTree!: codesetSelectorComponent;
+    @ViewChild(FetchReadOnlyReviewsComponent) private ReadOnlyReviewsComponent!: FetchReadOnlyReviewsComponent;
+    //@ViewChild('AdvancedMAG') AdvancedMAG!: AdvancedMAGFeaturesComponent;
 
 	public DropdownSelectedCodeAllocate: singleNode | null = null;
 	public stats: ReviewStatisticsCountsCommand | null = null;
@@ -121,7 +128,10 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         return this.ReviewerIdentityServ.HasWriteRights;
     }
 	tabsInitialized: boolean = false;
+    public OpenBasicMAG() {
+        this.router.navigate(['BasicMAGFeatures']);
 
+    }
 	//TODO
 	public RunExportReferences() {
 		alert('not implemented yet');
@@ -316,7 +326,11 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 			//&& this.searchService.SearchList.length > 0
 		) return true;
 		else return false;
-	}
+    }
+    public get ReviewIsMagEnabled(): boolean {
+        if (this.reviewInfoService.ReviewInfo.magEnabled && this.ReviewerIdentityServ.reviewerIdentity.isSiteAdmin) return true;
+        return false;
+    }
     public ShowClusterCommand: boolean = false;
     public HelpAndFeebackContext: string = "main\\reviewhome";
 
@@ -457,7 +471,17 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 			(item: Comparison) => {
 				this.LoadComparisonList(item, this.ListSubType);
 			}
-		)
+        )
+            //(MAGAllocationClicked) = "GoToItemList()"
+            //    (criteriaChange) = 'LoadMAGAllocList($event)'
+        this._eventEmitter.criteriaMAGChange.subscribe(
+            (item: any) => {
+                this.router.navigate(['Main']);
+                this.GoToItemList();
+                this.LoadMAGAllocList(item);
+            }
+
+        )
 		//this.reviewSetsService.GetReviewSets();
         this.subOpeningReview = this.ReviewerIdentityServ.OpeningNewReview.subscribe(() => this.Reload());
         this.statsSub = this.reviewSetsService.GetReviewStatsEmit.subscribe(
@@ -724,7 +748,11 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
     LoadWorkAllocList(workAlloc: WorkAllocation){
 		if (this.ItemListComponent) this.ItemListComponent.LoadWorkAllocList(workAlloc, this.workAllocationCollaborateComp.ListSubType);
 		else console.log('attempt failed');
-	}
+    }
+    LoadMAGAllocList(ListSubType: string) {
+        if (this.ItemListComponent) this.ItemListComponent.LoadMAGAllocList(ListSubType);
+        else console.log('attempt failed');
+    }
 
 	//ngOnChanges() {
 		//if (this.tabsInitialized) {
@@ -735,6 +763,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 	//}
     toggleReviewPanel() {
         this.isReviewPanelCollapsed = !this.isReviewPanelCollapsed;
+        if (this.isReviewPanelCollapsed && this.ReadOnlyReviewsComponent) this.ReadOnlyReviewsComponent.getReviews();
     }
     toggleWorkAllocationsPanel() {
 		this.isWorkAllocationsPanelCollapsed = !this.isWorkAllocationsPanelCollapsed;
@@ -792,6 +821,12 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 			this.ShowSearchesAssign = true;
             this._searchService.Fetch();
 		}
+  //      else if (e.title == 'Microsoft Academic Graph') {
+		//	this.HelpAndFeebackContext = "main\\microsoft";
+		//	this.ShowItemsTable = false;
+		//	//this.ShowSearchesAssign = true;
+  //          this._basicMAGService.FetchMagRelatedPapersRunList();
+		//}
 		else if (e.title == 'Collaborate') {
 			this.HelpAndFeebackContext = "main\\collaborate";
 			if (this.workAllocationCollaborateComp) this.workAllocationCollaborateComp.RefreshData();
@@ -853,8 +888,9 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 		}
 		if (this.ComparisonComp) {
 			this.ComparisonComp.Clear();
-		}
-
+        }
+        if (this.ReadOnlyReviewsComponent) this.ReadOnlyReviewsComponent.Clear();
+        this.isReviewPanelCollapsed = false;
         //this.dtTrigger.unsubscribe();
         //if (this.statsSub) this.statsSub.unsubscribe();
         //this.statsSub = this.reviewSetsService.GetReviewStatsEmit.subscribe(

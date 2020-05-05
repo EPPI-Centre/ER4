@@ -122,6 +122,7 @@ export class ReviewInfo {
     bL_CC_ACCOUNT_CODE: string = "";
     bL_CC_AUTH_CODE: string = "";
     bL_CC_TX: string = "";
+    magEnabled: number = 0;
 
 }
 

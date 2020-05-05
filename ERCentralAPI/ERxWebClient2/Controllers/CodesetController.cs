@@ -73,7 +73,8 @@ namespace ERxWebClient2.Controllers
                         , data.CodingIsFinal
                         , data.SetName
                         , data.setOrder
-                        , data.setDescription);
+                        , data.setDescription
+                        , data.usersCanEditURLs);//i.e. no way to make sets accept URLs for codes in ERx, until we implement this...
                     DataPortal<ReviewSetUpdateCommand> dp = new DataPortal<ReviewSetUpdateCommand>();
                     cmd = dp.Execute(cmd);
                     return Ok(data);//if no error, all should be OK.
@@ -252,7 +253,9 @@ namespace ERxWebClient2.Controllers
                         data.attributeTypeId, 
                         data.attributeName, 
                         data.attributeSetDescription, 
-                        data.attributeOrder);
+                        data.attributeOrder,
+                        data.extURL,
+                        data.extType);
                     DataPortal<AttributeUpdateCommand> dp = new DataPortal<AttributeUpdateCommand>();
                     cmd = dp.Execute(cmd);
                     return Ok(true);//no point sending back anything, it worked...
@@ -418,6 +421,7 @@ namespace ERxWebClient2.Controllers
         public bool CodingIsFinal;//normal or comparison mode
         public bool AllowCodingEdits; //AllowCodingEdits can edit this codeset...
         public int SetTypeId;
+        public bool usersCanEditURLs;
     }
     public class AttributeMoveCommandJSON
     {
@@ -460,6 +464,8 @@ namespace ERxWebClient2.Controllers
         //two fields used as input only when updating
         public Int64 attributeSetId;
         public Int64 attributeId;
+        public string extURL;
+        public string extType;
     }
     public class ReviewSetCopyCommandJSON
     {

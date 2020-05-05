@@ -155,9 +155,12 @@ export class readonlyreviewsService extends BusyAwareService {
         if ((toBeDetermined as iErrorFromArchie).reason && (toBeDetermined as iErrorFromArchie).error) {
         return true
     }
-    return false
-}
-
+        return false;
+    }
+    Clear() {
+        this._ArchieReviews = [];
+        this._ReviewList = [];
+    }
     //public Save() {
     //    if (this._ReviewList.length > 0)
     //        localStorage.setItem('ReadOnlyReviews', JSON.stringify(this._ReviewList));

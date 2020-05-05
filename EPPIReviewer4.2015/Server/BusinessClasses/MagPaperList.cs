@@ -40,7 +40,7 @@ namespace BusinessLibrary.BusinessClasses
 #if SILVERLIGHT
         public MagPaperList() { }
 #else
-        private MagPaperList() { }
+        public MagPaperList() { }
 #endif
         public string AllIds()
         {
@@ -406,19 +406,17 @@ namespace BusinessLibrary.BusinessClasses
                     // AuthorPaperList. These query MAKES for the list of PaperIds and then we look up in our database to see whether they are
                     // in the review.
                 {
-                    PaperMakes mpParent = null;
-                    FieldOfStudyMakes fosParent = null;
-                    string queryOffset = "&offset=" + (PageIndex * 20).ToString();
+                    MagMakesHelpers.PaperMakes mpParent = null;
+                    MagMakesHelpers.FieldOfStudyMakes fosParent = null;
+                    string queryOffset = (PageIndex * 20).ToString();
 
-                    string searchString = ""; // interesting thing about MAG is that you just search by ID and it returns a paper, author, journal etc.
-                    // you don't need to specify the entity type, as it self-detects this from the ID
-
+                    string searchString = "";
                     switch (selectionCriteria.ListType)
                     {
                         case "PaperFieldsOfStudyList":
                             searchString = "Composite(F.FId=" + selectionCriteria.FieldOfStudyId.ToString() + ")";
                             this.FieldOfStudyId = selectionCriteria.FieldOfStudyId;
-                            fosParent = MagFieldOfStudy.GetPaperMakesFieldOfStudy(selectionCriteria.FieldOfStudyId);
+                            fosParent = MagMakesHelpers.EvaluateSingleFieldOfStudyId(selectionCriteria.FieldOfStudyId.ToString());
                             if (fosParent != null)
                             {
                                 _totalItemCount = fosParent.CC;
@@ -428,14 +426,14 @@ namespace BusinessLibrary.BusinessClasses
                             searchString = "RId=" + selectionCriteria.MagPaperId.ToString();
                             this.PaperIds = selectionCriteria.PaperIds;
                             this.PaperId = selectionCriteria.MagPaperId;
-                            mpParent = MagPaper.GetPaperMakesFromMakes(selectionCriteria.MagPaperId);
+                            mpParent = MagMakesHelpers.GetPaperMakesFromMakes(selectionCriteria.MagPaperId);
                             if (mpParent != null)
                             {
                                 _totalItemCount = mpParent.CC;
                             }
                             break;
                         case "CitationsList":
-                            mpParent = MagPaper.GetPaperMakesFromMakes(selectionCriteria.MagPaperId);
+                            mpParent = MagMakesHelpers.GetPaperMakesFromMakes(selectionCriteria.MagPaperId);
                             string ids = "";
                             if (mpParent != null && mpParent.RId != null)
                             {
@@ -454,7 +452,7 @@ namespace BusinessLibrary.BusinessClasses
                             searchString = "OR(Id=" + ids.Replace(",", ", Id=") + ")";
                             this.PaperIds = selectionCriteria.PaperIds;
                             this.PaperId = selectionCriteria.MagPaperId;
-                            queryOffset = "&offset=0";
+                            queryOffset = "0";
                             
                             break;
                         case "PaperListById":
@@ -479,6 +477,7 @@ namespace BusinessLibrary.BusinessClasses
 
                     if (searchString != "" && _totalItemCount > 0)
                     {
+                        /*
                         var jsonsettings = new JsonSerializerSettings
                         {
                             NullValueHandling = NullValueHandling.Ignore,
@@ -487,7 +486,8 @@ namespace BusinessLibrary.BusinessClasses
 
                         string responseText = "";
                         // n.b. if you change this request, you might need to change the similar request in MagPaper
-                        WebRequest request = WebRequest.Create(ConfigurationManager.AppSettings["AzureMAKESBaseURL"] + @"?expr=" +
+                        MagCurrentInfo MagInfo = MagCurrentInfo.GetMagCurrentInfoServerSide();
+                        WebRequest request = WebRequest.Create(MagInfo.MakesEndPoint + @"/evaluate?expr=" +
                             searchString + "&attributes=AA.AfId,AA.DAfN,AA.DAuN,AA.AuId,Id,CC,DN,DOI,Pt,Ti,Y,D,PB,J.JN,J.JId,V,FP,LP,RId,ECC,IA,S" +
                             @"&count=" + selectionCriteria.PageSize.ToString() + queryOffset);
                         WebResponse response = request.GetResponse();
@@ -498,11 +498,14 @@ namespace BusinessLibrary.BusinessClasses
                         }
                         response.Close();
 
-                        var respJson = JsonConvert.DeserializeObject<PaperMakesResponse>(responseText, jsonsettings);
+                        var respJson = JsonConvert.DeserializeObject<MagMakesHelpers.PaperMakesResponse>(responseText, jsonsettings);
+                        */
+                        MagMakesHelpers.PaperMakesResponse pmr = MagMakesHelpers.EvaluateExpressionWithPaging(searchString, selectionCriteria.PageSize.ToString(),
+                            queryOffset);
 
-                        if (respJson.entities != null && respJson.entities.Count > 0)
+                        if (pmr.entities != null && pmr.entities.Count > 0)
                         {
-                            foreach (PaperMakes pm in respJson.entities)
+                            foreach (MagMakesHelpers.PaperMakes pm in pmr.entities)
                             {
                                 MagPaper mp = MagPaper.GetMagPaperFromPaperMakes(pm, null);
                                 if (mp != null)

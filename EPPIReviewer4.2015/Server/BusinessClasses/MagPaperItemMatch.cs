@@ -17,6 +17,7 @@ using System.Configuration;
 
 namespace BusinessLibrary.BusinessClasses
 {
+    /*
     public class MagPaperItemsMatch
     {
         public Int64 id { get; set; }
@@ -36,25 +37,33 @@ namespace BusinessLibrary.BusinessClasses
         public double allAuthorsLeven { get; set; }
         public double matchingScore { get; set; }
     }
+    */
     public static class MagPaperItemMatch
     {
         private static SearchIndexClient CreateSearchIndexClient()
         {
+#if (!CSLA_NETCORE)
             SearchIndexClient indexClient = new SearchIndexClient("eppimag", "mag-index", new SearchCredentials(ConfigurationManager.AppSettings["AzureSearchMAGApi-key"]));
+            
+#else
+            var configuration = ERxWebClient2.Startup.Configuration.GetSection("AzureMagSettings");
+            string MAGApikey = configuration["AzureSearchMAGApi-key"];
+            SearchIndexClient indexClient = new SearchIndexClient("eppimag", "mag-index", new SearchCredentials(MAGApikey));
+
+#endif
             return indexClient;
         }
 
-        public static void MatchItemToMag(Int64 ItemId)
+        public static void MatchItemToMag(Int64 ItemId, int ReviewId)
         {
             Item i = null;
-            ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
                 connection.Open();
                 using (SqlCommand command = new SqlCommand("st_Item", connection))
                 {
                     command.CommandType = System.Data.CommandType.StoredProcedure;
-                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
+                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", ReviewId));
                     command.Parameters.Add(new SqlParameter("@ITEM_ID", ItemId));
                     using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
                     {
@@ -67,6 +76,8 @@ namespace BusinessLibrary.BusinessClasses
 
             if (i != null)
             {
+
+                /*
                 Regex rgx = new Regex("[^a-zA-Z0-9 ]");
                 string title = String.IsNullOrWhiteSpace(rgx.Replace(i.Title, " ").Replace("--", " ")) == false ? " title: " + rgx.Replace(i.Title, " ").Replace("--", " ").ToLower() : "";
                 string journal = String.IsNullOrWhiteSpace(rgx.Replace(i.ParentTitle, " ")) == false ? " journal: " + rgx.Replace(i.ParentTitle, " ").ToLower() : "";
@@ -84,42 +95,55 @@ namespace BusinessLibrary.BusinessClasses
                     QueryType = QueryType.Full,
                     Top = 3
                 };
-                int topScoreIndex = -1;
-                double topScore = -1;
-                int count = 0;
+                */
+                //DocumentSearchResult<MagPaperItemsMatch> results = client.Documents.Search<MagPaperItemsMatch>(searchString, parameters);
+
+                // similar code is used in MagCheckPaperIdChangesCommand
+                List<MagMakesHelpers.PaperMakes> candidatePapersOnTitle = MagMakesHelpers.GetCandidateMatches(i.Title, "LIVE", true);
+                foreach (MagMakesHelpers.PaperMakes pm in candidatePapersOnTitle)
+                {
+                    doComparison(i, pm);
+                }
+                double minMatchingScore = 0.25;
+                for (int inn = 0; inn < candidatePapersOnTitle.Count; inn++)
+                {
+                    if (candidatePapersOnTitle[inn].matchingScore < minMatchingScore)
+                    {
+                        candidatePapersOnTitle.RemoveAt(inn);
+                        inn--;
+                    }
+                }
+                // add in matching on journals / authors if we don't have an exact match on title
+                if (candidatePapersOnTitle.Count == 0 ||( candidatePapersOnTitle.Count > 0 && candidatePapersOnTitle.Max(t => t.matchingScore) < 0.7))
+                {
+                    List<MagMakesHelpers.PaperMakes> candidatePapersOnAuthorJournal = MagMakesHelpers.GetCandidateMatches(i.Authors + " " + i.ParentTitle);
+                    foreach (MagMakesHelpers.PaperMakes pm in candidatePapersOnAuthorJournal)
+                    {
+                        doComparison(i, pm);
+                    }
+                    foreach (MagMakesHelpers.PaperMakes pm in candidatePapersOnAuthorJournal)
+                    {
+                        var found = candidatePapersOnTitle.Find(e => e.Id == pm.Id);
+                        if (found == null && pm.matchingScore >= minMatchingScore)
+                        {
+                            candidatePapersOnTitle.Add(pm);
+                        }
+                    }
+                }
+
                 using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
                 {
                     connection.Open();
-                    DocumentSearchResult<MagPaperItemsMatch> results = client.Documents.Search<MagPaperItemsMatch>(searchString, parameters);
-                    foreach (SearchResult<MagPaperItemsMatch> im in results.Results)
-                    {
-                        im.Document.titleLeven = HaBoLevenshtein(im.Document.title, i.Title);
-                        im.Document.volumeMatch = im.Document.volume == i.Volume ? 1 : 0;
-                        im.Document.pageMatch = im.Document.first_page == i.FirstPage() ? 1 : 0;
-                        im.Document.yearMatch = im.Document.year.ToString() == i.Year ? 1 : 0;
-                        im.Document.journalJaro = Jaro(im.Document.journal, i.ParentTitle);
-                        im.Document.allAuthorsLeven = Jaro(getAuthors(im.Document.authors).Replace(",", " "), i.Authors.Replace(";", " "));
-                        im.Document.matchingScore = ((im.Document.titleLeven / 100 * 2.71) +
-                            (im.Document.volumeMatch * 0.02) +
-                            (im.Document.pageMatch * 0.18) +
-                            (im.Document.yearMatch * 0.82) +
-                            (im.Document.journalJaro * 0.55) +
-                            (im.Document.allAuthorsLeven / 100 * 1.25)) / 5.53;
-                        if (im.Document.matchingScore > topScore)
-                        {
-                            topScore = im.Document.matchingScore;
-                            topScoreIndex = count;
-                        }
-                        count++;
+                    foreach (MagMakesHelpers.PaperMakes pm in candidatePapersOnTitle) {
                         using (SqlCommand command = new SqlCommand("st_MagMatchedPapersInsert", connection))
                         {
                             command.CommandType = System.Data.CommandType.StoredProcedure;
-                            command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
+                            command.Parameters.Add(new SqlParameter("@REVIEW_ID", ReviewId));
                             command.Parameters.Add(new SqlParameter("@ITEM_ID", i.ItemId));
-                            command.Parameters.Add(new SqlParameter("@PaperId", im.Document.id));
+                            command.Parameters.Add(new SqlParameter("@PaperId", pm.Id));
                             command.Parameters.Add(new SqlParameter("@ManualTrueMatch", 0));
                             command.Parameters.Add(new SqlParameter("@ManualFalseMatch", 0));
-                            command.Parameters.Add(new SqlParameter("@AutoMatchScore", im.Document.matchingScore));
+                            command.Parameters.Add(new SqlParameter("@AutoMatchScore", pm.matchingScore));
                             command.ExecuteNonQuery();
                         }
                     }
@@ -128,22 +152,39 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static string getAuthors(string [] authors)
+        public static void doComparison(Item i, MagMakesHelpers.PaperMakes pm)
         {
-            string tmp = "";
-            foreach (string s in authors)
-            {
-                if (tmp == "")
-                {
-                    tmp = s;
-                }
-                else
-                {
-                    tmp += ", " + s;
-                }
-            }
-            return tmp;
+            pm.titleLeven = HaBoLevenshtein(pm.DN, i.Title);
+            pm.volumeMatch = pm.V == i.Volume ? 1 : 0;
+            pm.pageMatch = pm.FP == i.FirstPage() ? 1 : 0;
+            pm.yearMatch = pm.Y.ToString() == i.Year ? 1 : 0;
+            pm.journalJaro = pm.J != null ? Jaro(pm.J.JN, i.ParentTitle) : 0;
+            pm.allAuthorsLeven = Jaro(MagMakesHelpers.getAuthors(pm.AA).Replace(",", " "), i.Authors.Replace(";", " "));
+            pm.matchingScore = ((pm.titleLeven / 100 * 2.71) +
+                (pm.volumeMatch * 0.02) +
+                (pm.pageMatch * 0.18) +
+                (pm.yearMatch * 0.82) +
+                (pm.journalJaro * 0.55) +
+                (pm.allAuthorsLeven / 100 * 1.25)) / 5.53;
         }
+
+        public static void doMakesPapersComparison(MagMakesHelpers.PaperMakes i, MagMakesHelpers.PaperMakes pm)
+        {
+            pm.titleLeven = HaBoLevenshtein(pm.DN, i.DN);
+            pm.volumeMatch = pm.V == i.V ? 1 : 0;
+            pm.pageMatch = pm.FP == i.FP ? 1 : 0;
+            pm.yearMatch = pm.Y == i.Y ? 1 : 0;
+            pm.journalJaro = pm.J != null && i.J != null ? Jaro(pm.J.JN, i.J.JN) : 0;
+            pm.allAuthorsLeven = Jaro(MagMakesHelpers.getAuthors(pm.AA).Replace(",", " "), MagMakesHelpers.getAuthors(i.AA).Replace(",", " "));
+            pm.matchingScore = ((pm.titleLeven / 100 * 2.71) +
+                (pm.volumeMatch * 0.02) +
+                (pm.pageMatch * 0.18) +
+                (pm.yearMatch * 0.82) +
+                (pm.journalJaro * 0.55) +
+                (pm.allAuthorsLeven / 100 * 1.25)) / 5.53;
+        }
+
+        
 
         // *********************** copied from: https://github.com/admin2210/EditDistance *******************************
             private struct JaroMetrics

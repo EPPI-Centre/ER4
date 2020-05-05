@@ -58,6 +58,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>full</DebugType>
@@ -438,6 +439,15 @@
     <Compile Include="..\Server\BusinessClasses\MagBrowseHistoryList.cs">
       <Link>BusinessClasses\MagBrowseHistoryList.cs</Link>
     </Compile>
+    <Compile Include="..\Server\BusinessClasses\MagCheckContReviewRunningCommand.cs">
+      <Link>BusinessClasses\MagCheckContReviewRunningCommand.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\MagCheckPaperIdChangesCommand.cs">
+      <Link>BusinessClasses\MagCheckPaperIdChangesCommand.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\MagContReviewPipelineRunCommand.cs">
+      <Link>BusinessClasses\MagContReviewPipelineRunCommand.cs</Link>
+    </Compile>
     <Compile Include="..\Server\BusinessClasses\MagCurrentInfo.cs">
       <Link>BusinessClasses\MagCurrentInfo.cs</Link>
     </Compile>
@@ -455,6 +465,12 @@
     </Compile>
     <Compile Include="..\Server\BusinessClasses\MagItemPaperInsertCommand.cs">
       <Link>BusinessClasses\MagItemPaperInsertCommand.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\MagLog.cs">
+      <Link>BusinessClasses\MagLog.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\MagLogList.cs">
+      <Link>BusinessClasses\MagLogList.cs</Link>
     </Compile>
     <Compile Include="..\Server\BusinessClasses\MagMatchItemsToPapersCommand.cs">
       <Link>BusinessClasses\MagMatchItemsToPapersCommand.cs</Link>

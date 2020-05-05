@@ -191,17 +191,18 @@ export class ReviewSetsService extends BusyAwareService {
 
     public static digestJSONarray(data: iReviewSet[]): ReviewSet[] {
         let result: ReviewSet[] = [];
-        for (let iItemset of data) {
+        for (let iReviewSet of data) {
             let newSet: ReviewSet = new ReviewSet();
-            newSet.set_id = iItemset.setId;
-            newSet.reviewSetId = iItemset.reviewSetId;
-            newSet.set_name = iItemset.setName;
-            newSet.order = iItemset.setOrder;
-            newSet.codingIsFinal = iItemset.codingIsFinal;
-            newSet.allowEditingCodeset = iItemset.allowCodingEdits;
-            newSet.description = iItemset.setDescription;
-            newSet.setType = iItemset.setType;
-            newSet.attributes = ReviewSetsService.childrenFromJSONarray(iItemset.attributes.attributesList);
+            newSet.set_id = iReviewSet.setId;
+            newSet.reviewSetId = iReviewSet.reviewSetId;
+            newSet.set_name = iReviewSet.setName;
+            newSet.order = iReviewSet.setOrder;
+            newSet.codingIsFinal = iReviewSet.codingIsFinal;
+            newSet.allowEditingCodeset = iReviewSet.allowCodingEdits;
+            newSet.description = iReviewSet.setDescription;
+            newSet.setType = iReviewSet.setType;
+            newSet.userCanEditURLs = iReviewSet.userCanEditURLs;
+            newSet.attributes = ReviewSetsService.childrenFromJSONarray(iReviewSet.attributes.attributesList);
             result.push(newSet);
         }
         return result;
@@ -224,6 +225,7 @@ export class ReviewSetsService extends BusyAwareService {
             newSet.allowEditingCodeset = Itemset.allowEditingCodeset;
             newSet.description = newSet.description;
             newSet.setType = Itemset.setType;
+            newSet.userCanEditURLs = Itemset.userCanEditURLs;
             newSet.attributes = ReviewSetsService.childrenFromLocalJSONarray(Itemset.attributes);
             result.push(newSet);
         }
@@ -244,6 +246,8 @@ export class ReviewSetsService extends BusyAwareService {
             newAtt.attribute_desc = iAtt.attributeDescription;
             newAtt.set_id = iAtt.setId; 
             newAtt.attribute_order = iAtt.attributeOrder;
+            newAtt.extURL = iAtt.extURL;
+            newAtt.extType = iAtt.extType;
             newAtt.attributes = ReviewSetsService.childrenFromJSONarray(iAtt.attributes.attributesList);
             result.push(newAtt);
         }
@@ -264,6 +268,8 @@ export class ReviewSetsService extends BusyAwareService {
                 newAtt.attribute_set_desc = iAtt.attribute_set_desc;
                 newAtt.attribute_desc = iAtt.attribute_desc;
                 newAtt.set_id = iAtt.set_id;
+                newAtt.extURL = iAtt.extURL;
+                newAtt.extType = iAtt.extType;
                 if (iAtt.attributes) newAtt.attributes = ReviewSetsService.childrenFromLocalJSONarray(iAtt.attributes);
                 else newAtt.attributes = []; 
                 result.push(newAtt);
@@ -334,6 +340,7 @@ export class ReviewSetsService extends BusyAwareService {
         console.log('finishing addItemData');
         this.RemoveBusy("AddItemData");
     }
+
     public FindAttributeById(AttributeId: number): SetAttribute | null {
         let result: SetAttribute | null = null;
         for (let Set of this.ReviewSets) {
@@ -373,6 +380,8 @@ export class ReviewSetsService extends BusyAwareService {
         //console.log("AttributeCurrentLevel did NOT work:", interim, currentParent, Att);
         return BadRes;
     }
+
+
     private internalFindAttributeById(list: SetAttribute[], AttributeId: number): SetAttribute | null {
         let result: SetAttribute | null = null;
         for (let candidate of list) {
@@ -588,6 +597,7 @@ export class ReviewSet implements singleNode {
     armId: number = 0;
     armTitle: string = "";
     codingComplete: boolean = false;
+    userCanEditURLs: boolean = false;
 }
 export class SetAttribute implements singleNode {
     attribute_id: number = -1;
@@ -628,6 +638,8 @@ export class SetAttribute implements singleNode {
     armTitle: string = "";
     order: number = 0;
     codingComplete: boolean = false;
+    extURL: string = "";
+    extType: string = "";
 }
 
 export interface iReviewSet {
@@ -639,6 +651,7 @@ export interface iReviewSet {
     setOrder: number;
     codingIsFinal: boolean;
     allowCodingEdits: boolean;//despite the name, this refers to whether the codeset is editable
+    userCanEditURLs: boolean;
     attributes: iAttributesList;
 }
 export interface iAttributesList
@@ -658,6 +671,8 @@ export interface iAttributeSet {
     isSelected: boolean;
     setId: number;
     attributeOrder: number;
+    extURL: string;
+    extType: string;
 }
 export interface iSetType {
     setTypeId: number;

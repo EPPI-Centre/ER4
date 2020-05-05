@@ -31,10 +31,10 @@ namespace BusinessLibrary.BusinessClasses
 
         
 #else
-        private MagFieldOfStudy() { }
+        public MagFieldOfStudy() { }
 #endif
 
-        private static PropertyInfo<Int64> FieldOfStudyIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("FieldOfStudyId", "FieldOfStudyId"));
+        public static readonly PropertyInfo<Int64> FieldOfStudyIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("FieldOfStudyId", "FieldOfStudyId"));
         public Int64 FieldOfStudyId
         {
             get
@@ -43,7 +43,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> RankProperty = RegisterProperty<int>(new PropertyInfo<int>("Rank", "Rank", 0));
+        public static readonly PropertyInfo<int> RankProperty = RegisterProperty<int>(new PropertyInfo<int>("Rank", "Rank", 0));
         public int Rank
         {
             get
@@ -52,7 +52,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> NormalizedNameProperty = RegisterProperty<string>(new PropertyInfo<string>("NormalizedName", "NormalizedName", string.Empty));
+        public static readonly PropertyInfo<string> NormalizedNameProperty = RegisterProperty<string>(new PropertyInfo<string>("NormalizedName", "NormalizedName", string.Empty));
         public string NormalizedName
         {
             get
@@ -61,7 +61,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> DisplayNameProperty = RegisterProperty<string>(new PropertyInfo<string>("DisplayName", "DisplayName", string.Empty));
+        public static readonly PropertyInfo<string> DisplayNameProperty = RegisterProperty<string>(new PropertyInfo<string>("DisplayName", "DisplayName", string.Empty));
         public string DisplayName
         {
             get
@@ -70,7 +70,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> MainTypeProperty = RegisterProperty<string>(new PropertyInfo<string>("MainType", "MainType", string.Empty));
+        public static readonly PropertyInfo<string> MainTypeProperty = RegisterProperty<string>(new PropertyInfo<string>("MainType", "MainType", string.Empty));
         public string MainType
         {
             get
@@ -79,7 +79,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> LevelProperty = RegisterProperty<int>(new PropertyInfo<int>("Level", "Level", 0));
+        public static readonly PropertyInfo<int> LevelProperty = RegisterProperty<int>(new PropertyInfo<int>("Level", "Level", 0));
         public int Level
         {
             get
@@ -88,7 +88,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<Int64> PaperCountProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("PaperCount", "PaperCount"));
+        public static readonly PropertyInfo<Int64> PaperCountProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("PaperCount", "PaperCount"));
         public Int64 PaperCount
         {
             get
@@ -97,7 +97,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<Int64> CitationCountProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("CitationCount", "CitationCount"));
+        public static readonly PropertyInfo<Int64> CitationCountProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("CitationCount", "CitationCount"));
         public Int64 CitationCount
         {
             get
@@ -106,7 +106,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<SmartDate> CreatedDateProperty = RegisterProperty<SmartDate>(new PropertyInfo<SmartDate>("CreatedDate", "CreatedDate"));
+        public static readonly PropertyInfo<SmartDate> CreatedDateProperty = RegisterProperty<SmartDate>(new PropertyInfo<SmartDate>("CreatedDate", "CreatedDate"));
         public SmartDate CreatedDate
         {
             get
@@ -115,7 +115,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
         /*
-        private static PropertyInfo<decimal> ScoreProperty = RegisterProperty<decimal>(new PropertyInfo<decimal>("Score", "Score"));
+        public static readonly PropertyInfo<decimal> ScoreProperty = RegisterProperty<decimal>(new PropertyInfo<decimal>("Score", "Score"));
         public decimal Score
         {
             get
@@ -124,7 +124,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
         */
-        private static PropertyInfo<int> num_timesProperty = RegisterProperty<int>(new PropertyInfo<int>("num_times", "num_times"));
+        public static readonly PropertyInfo<int> num_timesProperty = RegisterProperty<int>(new PropertyInfo<int>("num_times", "num_times"));
         public int num_times
         {
             get
@@ -340,7 +340,7 @@ namespace BusinessLibrary.BusinessClasses
             */
         }
 
-        internal static MagFieldOfStudy GetMagFieldOfStudy(FieldOfStudyMakes fos)
+        internal static MagFieldOfStudy GetMagFieldOfStudy(MagMakesHelpers.FieldOfStudyMakes fos)
         {
             MagFieldOfStudy returnValue = new MagFieldOfStudy();
             /*
@@ -359,7 +359,7 @@ namespace BusinessLibrary.BusinessClasses
             return returnValue;
         }
 
-        internal static MagFieldOfStudy GetMagFieldOfStudyRelationship(FieldOfStudyRelationshipMakes fosrm)
+        internal static MagFieldOfStudy GetMagFieldOfStudyRelationship(MagMakesHelpers.FieldOfStudyRelationshipMakes fosrm)
         {
             MagFieldOfStudy returnValue = new MagFieldOfStudy();
             returnValue.LoadProperty<Int64>(FieldOfStudyIdProperty, fosrm.FId);
@@ -369,7 +369,7 @@ namespace BusinessLibrary.BusinessClasses
             return returnValue;
         }
 
-        internal static MagFieldOfStudy GetMagFieldOfStudyFromPaperMakesFieldOfStudy(PaperMakesFieldOfStudy pmfos)
+        internal static MagFieldOfStudy GetMagFieldOfStudyFromPaperMakesFieldOfStudy(MagMakesHelpers.PaperMakesFieldOfStudy pmfos)
         {
             MagFieldOfStudy returnValue = new MagFieldOfStudy();
             /*
@@ -388,32 +388,7 @@ namespace BusinessLibrary.BusinessClasses
             return returnValue;
         }
 
-        public static FieldOfStudyMakes GetPaperMakesFieldOfStudy(Int64 FosId)
-        {
-            var jsonsettings = new JsonSerializerSettings
-            {
-                NullValueHandling = NullValueHandling.Ignore,
-                MissingMemberHandling = MissingMemberHandling.Ignore
-            };
-
-            string responseText = "";
-            WebRequest request = WebRequest.Create(ConfigurationManager.AppSettings["AzureMAKESBaseURL"] + @"?expr=Id=" +
-                FosId.ToString() + @"&attributes=Id,CC,DFN,ECC,FL,FN,FC.FId,FC.FN,FP.FId,FP.FN");
-            WebResponse response = request.GetResponse();
-            using (Stream dataStream = response.GetResponseStream())
-            {
-                StreamReader sreader = new StreamReader(dataStream);
-                responseText = sreader.ReadToEnd();
-            }
-            response.Close();
-            var respJson = JsonConvert.DeserializeObject<MakesResponse>(responseText, jsonsettings);
-            if (respJson != null && respJson.entities != null && respJson.entities.Count > 0)
-            {
-                return respJson.entities[0];
-            }
-            else
-                return null;
-        }
+        
 
 #endif
     }

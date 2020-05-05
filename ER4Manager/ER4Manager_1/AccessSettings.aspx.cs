@@ -35,7 +35,7 @@ public partial class AccessSettings : System.Web.UI.Page
                     if (radTs != null)
                     {
                         radTs.SelectedIndex = 4;
-                        radTs.Tabs[4].Tabs[5].Selected = true;
+                        radTs.Tabs[4].Tabs[4].Selected = true;
                         //radTs.Tabs[3].Tabs[2].Width = 670;
                     }
                     System.Web.UI.WebControls.Label lbl1 = (Label)Master.FindControl("lblHeadingText");
@@ -74,7 +74,9 @@ public partial class AccessSettings : System.Web.UI.Page
             tbExampleReview.Text = sdr["EXAMPLE_NON_SHAREABLE_REVIEW_ID"].ToString();
             rblExampleReviewCopy.SelectedValue = sdr["ENABLE_EXAMPLE_REVIEW_COPY"].ToString();
             rblDataPresenter.SelectedValue = sdr["ENABLE_DATA_PRESENTER"].ToString();
-            rblPriorityScreeningEnableEnabler.SelectedValue = sdr["ENABLE_PRIORITY_SCREENING_ENABLER"].ToString(); 
+            rblPriorityScreeningEnableEnabler.SelectedValue = sdr["ENABLE_PRIORITY_SCREENING_ENABLER"].ToString();
+            rblEnableShopCredit.SelectedValue = sdr["ENABLE_SHOP_CREDIT"].ToString();
+            rblEnableShopDebit.SelectedValue = sdr["ENABLE_SHOP_DEBIT"].ToString();
         }
         sdr.Close();
     }
@@ -159,5 +161,23 @@ public partial class AccessSettings : System.Web.UI.Page
             rblPriorityScreeningEnableEnabler.SelectedValue + "'";
         Utils.ExecuteQuery(SQL, isAdmDB);
         Utils.SetSessionString("EnablePSEnabler", rblPriorityScreeningEnableEnabler.SelectedValue);
+    }
+
+    protected void rblEnableShopCredit_SelectedIndexChanged(object sender, EventArgs e)
+    {
+        bool isAdmDB = true;
+        string SQL = "update TB_MANAGEMENT_SETTINGS set ENABLE_SHOP_CREDIT = '" +
+            rblEnableShopCredit.SelectedValue + "'";
+        Utils.ExecuteQuery(SQL, isAdmDB);
+        Utils.SetSessionString("EnableShopCredit", rblEnableShopCredit.SelectedValue);
+    }
+
+    protected void rblEnableShopDebit_SelectedIndexChanged(object sender, EventArgs e)
+    {
+        bool isAdmDB = true;
+        string SQL = "update TB_MANAGEMENT_SETTINGS set ENABLE_SHOP_DEBIT = '" +
+            rblEnableShopDebit.SelectedValue + "'";
+        Utils.ExecuteQuery(SQL, isAdmDB);
+        Utils.SetSessionString("EnableShopDebit", rblEnableShopDebit.SelectedValue);
     }
 }

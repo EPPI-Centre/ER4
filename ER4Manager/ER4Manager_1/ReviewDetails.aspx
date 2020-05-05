@@ -126,12 +126,29 @@ function openReviewerList(ID) {
                     <td style="width: 30%; background-color: #FFFFCC">
                         <asp:DropDownList ID="ddlMonthsCredit" runat="server">
                             <asp:ListItem Value="0">0 Months</asp:ListItem>
+                            <asp:ListItem Value="1">1 Months</asp:ListItem>
+                            <asp:ListItem Value="2">2 Months</asp:ListItem>
                             <asp:ListItem Value="3">3 months</asp:ListItem>
+                            <asp:ListItem Value="4">4 months</asp:ListItem>
+                            <asp:ListItem Value="5">5 months</asp:ListItem>
                             <asp:ListItem Value="6">6 months</asp:ListItem>
+                            <asp:ListItem Value="7">7 months</asp:ListItem>
+                            <asp:ListItem Value="8">8 months</asp:ListItem>
                             <asp:ListItem Value="9">9 months</asp:ListItem>
+                            <asp:ListItem Value="10">10 months</asp:ListItem>
+                            <asp:ListItem Value="11">11 months</asp:ListItem>
                             <asp:ListItem Value="12">12 months</asp:ListItem>
+                            <asp:ListItem Value="13">13 months</asp:ListItem>
+                            <asp:ListItem Value="14">14 months</asp:ListItem>
                             <asp:ListItem Value="15">15 months</asp:ListItem>
+                            <asp:ListItem Value="16">16 months</asp:ListItem>
+                            <asp:ListItem Value="17">17 months</asp:ListItem>
                             <asp:ListItem Value="18">18 months</asp:ListItem>
+                            <asp:ListItem Value="19">19 months</asp:ListItem>
+                            <asp:ListItem Value="20">20 months</asp:ListItem>
+                            <asp:ListItem Value="21">21 months</asp:ListItem>
+                            <asp:ListItem Value="22">22 months</asp:ListItem>
+                            <asp:ListItem Value="23">23 months</asp:ListItem>
                             <asp:ListItem Value="24">24 months</asp:ListItem>
                         </asp:DropDownList>
 &nbsp; <b>set expiry to null and</b><br />
@@ -241,18 +258,21 @@ function openReviewerList(ID) {
                 <tr>
                     <td style="width: 20%; background-color: #B6C6D6">
                         Priority screening</td>
-                    <td style="background-color: #FFFFCC" colspan="4">
+                    <td style="background-color: #FFFFCC" colspan="3">
                         <asp:CheckBox ID="cbShowScreening" runat="server" AutoPostBack="True" 
                             oncheckedchanged="cbShowScreening_CheckedChanged" Text="SHOW_SCREENING" />
                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                         <asp:CheckBox ID="cbAllowReviewerTerms" runat="server" AutoPostBack="True" 
                             oncheckedchanged="cbAllowReviewerTerms_CheckedChanged" 
-                            Text="ALLOW_REVIEWER_TERMS" />
-                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            Text="ALLOW_REVIEWER_TERMS" /><br />
                         <asp:CheckBox ID="cbAllowClusteredSearch" runat="server" AutoPostBack="True" 
                             oncheckedchanged="cbAllowClusteredSearch_CheckedChanged" 
                             Text="ALLOW_CLUSTERED_SEARCH" />
                     </td>
+                    <td style="background-color: #FFFFCC" colspan="4">
+                        <asp:CheckBox ID="cbEnableMag" runat="server" AutoPostBack="True" 
+                            oncheckedchanged="cbEnableMag_CheckedChanged" Text="ENABLE MAG" />
+                        </td>
                 </tr>
                 <tr>
                     <td style="width: 20%; background-color: #B6C6D6">

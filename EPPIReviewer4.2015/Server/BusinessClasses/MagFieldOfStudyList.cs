@@ -21,30 +21,7 @@ using BusinessLibrary.Security;
 
 namespace BusinessLibrary.BusinessClasses
 {
-    public class FieldOfStudyMakes
-    {
-        public Int32 CC { get; set; }
-        public string DFN { get; set; }
-        public Int32 ECC { get; set; }
-        public Int32 FL { get; set; }
-        public string FN { get; set; }
-        public List<FieldOfStudyRelationshipMakes> FC { get; set; }
-        public List<FieldOfStudyRelationshipMakes> FP { get; set; }
-        public Int64 Id { get; set; }
-        public Int32 PC { get; set; }
-    }
-
-    public class FieldOfStudyRelationshipMakes
-    {
-        public Int64 FId { get; set; }
-        public string FN { get; set; }
-    }
-
-    public class MakesResponse
-    {
-        public string expr { get; set; }
-        public List<FieldOfStudyMakes> entities { get; set; }
-    }
+    
 
 
     [Serializable]
@@ -61,7 +38,7 @@ namespace BusinessLibrary.BusinessClasses
 #if SILVERLIGHT
         public MagFieldOfStudyList() { }
 #else
-        private MagFieldOfStudyList() { }
+        public MagFieldOfStudyList() { }
 #endif
 
 #if SILVERLIGHT
@@ -94,7 +71,7 @@ namespace BusinessLibrary.BusinessClasses
 
             if (searchString != "")
             {
-
+                /*
                 var jsonsettings = new JsonSerializerSettings
                 {
                     NullValueHandling = NullValueHandling.Ignore,
@@ -102,7 +79,8 @@ namespace BusinessLibrary.BusinessClasses
                 };
 
                 string responseText = "";
-                WebRequest request = WebRequest.Create(ConfigurationManager.AppSettings["AzureMAKESBaseURL"] + @"?expr=" + searchString);
+                MagCurrentInfo MagInfo = MagCurrentInfo.GetMagCurrentInfoServerSide();
+                WebRequest request = WebRequest.Create(MagInfo.MakesEndPoint + @"/evaluate?expr=" + searchString);
                 WebResponse response = request.GetResponse();
                 using (Stream dataStream = response.GetResponseStream())
                 {
@@ -110,31 +88,35 @@ namespace BusinessLibrary.BusinessClasses
                     responseText = sreader.ReadToEnd();
                 }
                 response.Close();
-
+                */
                 if (selectionCriteria.ListType == "PaperFieldOfStudyList") // these are paper entities not fields of study
                 {
                     var fosDict = new Dictionary<string, int>();
-                    var respJson = JsonConvert.DeserializeObject<PaperMakesResponse>(responseText, jsonsettings);
-                    if (respJson.entities != null && respJson.entities.Count > 0)
+                    //var respJson = JsonConvert.DeserializeObject<MagMakesHelpers.PaperMakesResponse>(responseText, jsonsettings);
+                    MagMakesHelpers.PaperMakesResponse pmr = MagMakesHelpers.EvaluateExpressionNoPaging(searchString);
+                    if (pmr.entities != null && pmr.entities.Count > 0)
                     {
-                        foreach (PaperMakes fosm in respJson.entities)
+                        foreach (MagMakesHelpers.PaperMakes fosm in pmr.entities)
                         {
-                            foreach (PaperMakesFieldOfStudy pmfos in fosm.F)
+                            if (fosm.F != null)
                             {
-                                string key = pmfos.FId.ToString() + "¬" + pmfos.DFN;
-                                if (!fosDict.ContainsKey(key))
+                                foreach (MagMakesHelpers.PaperMakesFieldOfStudy pmfos in fosm.F)
                                 {
-                                    fosDict.Add(key, 1);
-                                }
-                                else
-                                {
-                                    fosDict[key] = fosDict[key] + 1;
+                                    string key = pmfos.FId.ToString() + "¬" + pmfos.DFN;
+                                    if (!fosDict.ContainsKey(key))
+                                    {
+                                        fosDict.Add(key, 1);
+                                    }
+                                    else
+                                    {
+                                        fosDict[key] = fosDict[key] + 1;
+                                    }
                                 }
                             }
                         }
                         foreach (KeyValuePair<string, int> eachFos in fosDict.OrderByDescending(val => val.Value))
                         {
-                            PaperMakesFieldOfStudy newPmfos = new PaperMakesFieldOfStudy();
+                            MagMakesHelpers.PaperMakesFieldOfStudy newPmfos = new MagMakesHelpers.PaperMakesFieldOfStudy();
                             newPmfos.FId = Convert.ToInt64(eachFos.Key.Split('¬')[0]);
                             newPmfos.DFN = eachFos.Key.Split('¬')[1];
                             Add(MagFieldOfStudy.GetMagFieldOfStudyFromPaperMakesFieldOfStudy(newPmfos));
@@ -143,16 +125,17 @@ namespace BusinessLibrary.BusinessClasses
                 }
                 else
                 {
-                    var respJson = JsonConvert.DeserializeObject<MakesResponse>(responseText, jsonsettings);
-                    if (respJson.entities != null && respJson.entities.Count > 0)
+                    //var respJson = JsonConvert.DeserializeObject<MakesResponse>(responseText, jsonsettings);
+                    MagMakesHelpers.MakesResponseFoS mrFoS = MagMakesHelpers.EvaluateFieldOfStudyExpression(searchString);
+                    if (mrFoS.entities != null && mrFoS.entities.Count > 0)
                     {
-                        foreach (FieldOfStudyMakes fosm in respJson.entities)
+                        foreach (MagMakesHelpers.FieldOfStudyMakes fosm in mrFoS.entities)
                         {
                             if (selectionCriteria.ListType == "FieldOfStudyParentsList")
                             {
                                 if (fosm.FP != null && fosm.FP.Count > 0)
                                 {
-                                    foreach (FieldOfStudyRelationshipMakes fosrm in fosm.FP)
+                                    foreach (MagMakesHelpers.FieldOfStudyRelationshipMakes fosrm in fosm.FP)
                                         Add(MagFieldOfStudy.GetMagFieldOfStudyRelationship(fosrm));
                                 }
                             }
@@ -160,7 +143,7 @@ namespace BusinessLibrary.BusinessClasses
                             {
                                 if (fosm.FC != null && fosm.FC.Count > 0)
                                 {
-                                    foreach (FieldOfStudyRelationshipMakes fosrm in fosm.FC)
+                                    foreach (MagMakesHelpers.FieldOfStudyRelationshipMakes fosrm in fosm.FC)
                                         Add(MagFieldOfStudy.GetMagFieldOfStudyRelationship(fosrm));
                                 }
                             }

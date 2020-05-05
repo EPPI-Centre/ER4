@@ -15,11 +15,8 @@
                         Please click &quot;Continue&quot; to proceed:&nbsp;
                         </td>
                         <td>
-                            <asp:Panel runat="server" ID="pnlContinueToWPMUCL" Visible="false">
+                            <asp:Panel runat="server" ID="pnlContinueToWPMUCL" Visible="true">
                                 <a  href="JumpToWPMUCL.aspx" target="_blank" id="ContinueToWPMUCL"><font class="ContinueToWPM">&nbsp;</font></a>
-                            </asp:Panel>
-                            <asp:Panel runat="server" ID="pnlContinueToWPM" Visible="true">
-                                <a  href="JumpToWPM.aspx" target="_blank" id="ContinueToWPM"><font class="ContinueToWPM">&nbsp;</font></a>
                             </asp:Panel>
                         </td>
                     </tr>
@@ -137,6 +134,64 @@
             </table>
             <br />
         </asp:Panel>
+
+
+        <asp:Panel ID="pnlPurchaseDebit" runat="server" Visible="False">
+            <br />
+            <b>Outstanding fees:</b> from previous unpaid account and review extensions.
+             <br />
+            <table style="background-color: #E2E9EF" width="510px">
+                <tr>
+                    <td colspan="2">
+                        <asp:Label ID="Label1" runat="server" BackColor="#FF9966"
+                            Text="Label" Visible="False" ForeColor="Black"></asp:Label>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td style="width: 170px;">Fee (GBP) </td>
+                    <td><b>£</b>
+                        <asp:Label runat="server" ID="lblOutstandingFee" Font-Bold="True" Text="0"></asp:Label>
+                        <b>.00</b>
+                    </td>
+                </tr>
+                <tr>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                </tr>
+            </table>
+        </asp:Panel>
+
+
+
+        <asp:Panel ID="pnlPurchaseCredit" runat="server" Visible="False">
+            <br />
+            <b>Purchase credit:</b> can be applied to any user account or review at any time.
+             <br />
+            <table style="background-color: #E2E9EF">
+                <tr>
+                    <td colspan="3">
+                        <asp:Label ID="LblAddCreditResult" runat="server" BackColor="#FF9966"
+                            Text="Label" Visible="False" ForeColor="Black"></asp:Label>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td rowspan="2" style="width: 170px;">Add credit in £ (GBP)<br />(excluding VAT) </td>
+                    <td style="width: 250px;">Enter value in <b>£5</b> increments</td>
+                    <td valign="bottom" rowspan="2">
+                        <asp:Button ID="BTAddCreditPurchase" runat="server" Text="Add/Update" Enabled="true"
+                            OnClick="BTAddCreditPurchase_Click" /></td>
+                </tr>
+                <tr>
+
+                    <td>
+                        <asp:TextBox ID="TBCredit" runat="server" Width="248px"></asp:TextBox></td>
+                </tr>
+            </table>
+
+        </asp:Panel>
+
 
             <asp:Panel ID="pnlPurchasedAccounts" runat="server" Visible="False">
                 <b>
@@ -355,7 +410,7 @@
             
             <table  style="background-color:#E2E9EF">
             <tr>
-                <td colspan="3">
+                <td colspan="3" style="height: 18px">
                     <asp:Label ID="LblAddReviewResult" runat="server" BackColor="#FF9966" 
                         Text="Label" Visible="False" ForeColor="Black"></asp:Label>
                 </td>
@@ -368,7 +423,8 @@
                                 onclick="BTAddExistingReview_Click"  /></td>
                     </tr>
                     <tr>
-                        <td style="width:60px;"><asp:TextBox ID="TbxAddReviewID" runat="server" style="width:58px;"></asp:TextBox></td><td><asp:TextBox ID="TbxAddReviewName" runat="server" Width="298px"></asp:TextBox></td>
+                        <td style="width:60px;"><asp:TextBox ID="TbxAddReviewID" runat="server" style="width:58px;"></asp:TextBox></td>
+                        <td><asp:TextBox ID="TbxAddReviewName" runat="server" Width="298px"></asp:TextBox></td>
                     </tr>
             </table>
             <br />
@@ -435,9 +491,8 @@
                 </asp:GridView>
                 <br />
             </asp:Panel>
-        
-        
-            
+
+
 
             <asp:Panel ID="pnlTotals" runat="server" Visible="False">
                 <table style="width:90%;">
@@ -459,6 +514,32 @@
                             Review fees</td>
                         <td width="15%" style="text-align: right; height: 17px;">
                             <asp:Label ID="lblReviewFees" runat="server" Text="£0"></asp:Label>
+                        </td>
+                        <td width="2%" style="height: 17px">
+                            </td>
+                        <td width="18%" style="height: 17px">
+                            </td>
+                        <td width="30">
+                            &nbsp;</td>
+                    </tr>
+                    <tr>
+                        <td width="25%" style="height: 17px">
+                            Credit fees</td>
+                        <td width="15%" style="text-align: right; height: 17px;">
+                            <asp:Label ID="lblCreditfee" runat="server" Text="£0"></asp:Label>
+                        </td>
+                        <td width="2%" style="height: 17px">
+                            </td>
+                        <td width="18%" style="height: 17px">
+                            </td>
+                        <td width="30">
+                            &nbsp;</td>
+                    </tr>
+                    <tr>
+                        <td width="25%" style="height: 17px">
+                            Outstanding fees</td>
+                        <td width="15%" style="text-align: right; height: 17px;">
+                            <asp:Label ID="lblTotalOutstandingFee" runat="server" Text="£0"></asp:Label>
                         </td>
                         <td width="2%" style="height: 17px">
                             </td>

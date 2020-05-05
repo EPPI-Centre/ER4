@@ -315,7 +315,7 @@ namespace BusinessLibrary.BusinessClasses
 
 				_returnMessage = "Successful upload of data";
 
-				await InvokeBatchExecutionService(RevInfo, "BuildModel", modelId);
+				await InvokeBatchExecutionService(RevInfo.ReviewId.ToString(), "BuildModel", modelId, "", "", "", "");
 				// er4ml isharedkey =true
 				CloudBlobClient blobClientStats = storageAccount.CreateCloudBlobClient();
 				CloudBlobContainer containerStats = blobClient.GetContainerReference("attributemodels");
@@ -520,7 +520,16 @@ namespace BusinessLibrary.BusinessClasses
 				File.Delete(fileName);
 				_returnMessage = "Successful upload of data";
 
-				await InvokeBatchExecutionService(RevInfo, "ScoreModel", modelId);
+                string DataFile = @"attributemodeldata/" + TrainingRunCommand.NameBase + "ReviewId" + RevInfo.ReviewId.ToString() + "ModelId" + ModelIdForScoring(modelId) + "ToScore.csv";
+                string ModelFile = @"attributemodels/" + (modelId > 0 ? TrainingRunCommand.NameBase : "") + ReviewIdForScoring(modelId, RevInfo.ReviewId.ToString()) + ".csv";
+                string ResultsFile1 = @"attributemodels/" + TrainingRunCommand.NameBase + "ReviewId" + RevInfo.ReviewId.ToString() + "ModelId" + ModelIdForScoring(modelId) + "Scores.csv";
+                string ResultsFile2 = "";
+                if (modelId == -4)
+                {
+                    ResultsFile1 = "attributemodels/" + TrainingRunCommand.NameBase + "ReviewId" + RevInfo.ReviewId.ToString() + "ModelId" + ModelIdForScoring(modelId) + "RCTScores.csv";
+                    ResultsFile2 = @"attributemodels/" + TrainingRunCommand.NameBase + "ReviewId" + RevInfo.ReviewId.ToString() + "ModelId" + ModelIdForScoring(modelId) + "NonRCTScores.csv";
+                }
+				await InvokeBatchExecutionService(RevInfo.ReviewId.ToString(), "ScoreModel", modelId, DataFile, ModelFile, ResultsFile1, ResultsFile2);
 
 				if (modelId == -4) // new RCT model = two searches to create, one for the RCTs, one for the non-RCTs
 				{
@@ -742,7 +751,7 @@ namespace BusinessLibrary.BusinessClasses
 
 		}
 
-		private static string ModelIdForScoring(int modId)
+		public static string ModelIdForScoring(int modId)
 		{
 			string retval = "RCT";
 			if (modId > 0)
@@ -767,12 +776,12 @@ namespace BusinessLibrary.BusinessClasses
 
 			return retval;
 		}
-		private static string ReviewIdForScoring(int modId, int reviewId)
+		public static string ReviewIdForScoring(int modId, string reviewId)
 		{
 			string retval = "RCTModel";
 			if (modId > 0)
 			{
-				retval = "ReviewId" + reviewId.ToString() + "ModelId" + modId.ToString();
+				retval = "ReviewId" + reviewId + "ModelId" + modId.ToString();
 			}
 			else
 			if (modId == -2)
@@ -841,7 +850,7 @@ namespace BusinessLibrary.BusinessClasses
 
 		const int TimeOutInMilliseconds = 360 * 50000; // 5 hours?
 
-		static async Task InvokeBatchExecutionService(ReviewInfo revInfo, string ApiCall, int modelId)
+		public static async Task InvokeBatchExecutionService(string ReviewId, string ApiCall, int modelId, string DataFile, string ModelFile, string ResultsFile1, string ResultsFile2)
 		{
 			using (HttpClient client = new HttpClient())
 			{
@@ -860,9 +869,9 @@ namespace BusinessLibrary.BusinessClasses
 					{
 						GlobalParameters = new Dictionary<string, string>()
 						{
-							{ "DataFile", "attributemodeldata/" + TrainingRunCommand.NameBase + "ReviewId" + revInfo.ReviewId.ToString() + "ModelId" + modelId.ToString() + ".csv" },
-							{ "ModelFile", "attributemodels/" + TrainingRunCommand.NameBase + "ReviewId" + revInfo.ReviewId.ToString() + "ModelId" + modelId.ToString() + ".csv" },
-							{ "StatsFile", "attributemodels/" + TrainingRunCommand.NameBase + "ReviewId" + revInfo.ReviewId.ToString() + "ModelId" + modelId.ToString() + "Stats.csv" },
+							{ "DataFile", "attributemodeldata/" + TrainingRunCommand.NameBase + "ReviewId" + ReviewId + "ModelId" + modelId.ToString() + ".csv" },
+							{ "ModelFile", "attributemodels/" + TrainingRunCommand.NameBase + "ReviewId" + ReviewId + "ModelId" + modelId.ToString() + ".csv" },
+							{ "StatsFile", "attributemodels/" + TrainingRunCommand.NameBase + "ReviewId" + ReviewId + "ModelId" + modelId.ToString() + "Stats.csv" },
 						}
 					};
 				}
@@ -876,9 +885,9 @@ namespace BusinessLibrary.BusinessClasses
 						{
 							GlobalParameters = new Dictionary<string, string>()
 							{
-								{ "DataFile", @"attributemodeldata/" + TrainingRunCommand.NameBase + "ReviewId" + revInfo.ReviewId.ToString() + "ModelId" + ModelIdForScoring(modelId) + "ToScore.csv" },
-								{ "RCTResultsFile", @"attributemodels/" + TrainingRunCommand.NameBase + "ReviewId" + revInfo.ReviewId.ToString() + "ModelId" + ModelIdForScoring(modelId) + "RCTScores.csv" },
-								{ "NonRCTResultsFile", @"attributemodels/" + TrainingRunCommand.NameBase + "ReviewId" + revInfo.ReviewId.ToString() + "ModelId" + ModelIdForScoring(modelId) + "NonRCTScores.csv" },
+								{ "DataFile", DataFile },
+								{ "RCTResultsFile", ResultsFile1 },
+								{ "NonRCTResultsFile", ResultsFile2 },
 							}
 						};
 					}
@@ -890,9 +899,9 @@ namespace BusinessLibrary.BusinessClasses
 						{
 							GlobalParameters = new Dictionary<string, string>()
 							{
-								{ "DataFile", @"attributemodeldata/" + TrainingRunCommand.NameBase + "ReviewId" + revInfo.ReviewId.ToString() + "ModelId" + ModelIdForScoring(modelId) + "ToScore.csv" },
-								{ "ModelFile", @"attributemodels/" + (modelId > 0 ? TrainingRunCommand.NameBase : "") + ReviewIdForScoring(modelId, revInfo.ReviewId)  + ".csv" },
-								{ "ResultsFile", @"attributemodels/" + TrainingRunCommand.NameBase + "ReviewId" + revInfo.ReviewId.ToString() + "ModelId" + ModelIdForScoring(modelId) + "Scores.csv" },
+								{ "DataFile", DataFile },
+								{ "ModelFile", ModelFile },
+								{ "ResultsFile", ResultsFile1 },
 							}
 						};
 					}

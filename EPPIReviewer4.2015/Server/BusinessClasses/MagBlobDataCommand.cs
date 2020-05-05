@@ -88,7 +88,7 @@ namespace BusinessLibrary.BusinessClasses
 
         private async Task ListMagDbsAndMeta()
         {
-            string storageAccountName = "eppimag";
+            string storageAccountName = ConfigurationManager.AppSettings["MAGStorageAccount"];
             string storageAccountKey = ConfigurationManager.AppSettings["MAGStorageAccountKey"];
 
             string storageConnectionString =

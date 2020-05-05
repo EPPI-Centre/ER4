@@ -42,6 +42,11 @@ public partial class Login : System.Web.UI.Page
             Utils.SetSessionString("siteLicenseID", "0");
             Utils.SetSessionString("siteLicenseReviewID", "0");
             Utils.SetSessionString("EnablePSEnabler", "");
+            Utils.SetSessionString("EnableShopCredit", "0");
+            Utils.SetSessionString("EnableShopDebit", "0");
+            Utils.SetSessionString("Credit_Purchase_ID", "");
+            Utils.SetSessionString("Remaining_Credit", "");
+            Utils.SetSessionString("Purchased_Credit", "");
 
             try
             {
@@ -81,6 +86,8 @@ public partial class Login : System.Web.UI.Page
                 Utils.SetSessionString("PurchasesEnabled", idr["ENABLE_PURCHASES"].ToString());
                 Utils.SetSessionString("SendPasswordEnabled", idr["ENABLE_SEND_PASSWORD"].ToString());
                 Utils.SetSessionString("AdmEnableAll", idr["ADM_ENABLE_ALL"].ToString());
+                Utils.SetSessionString("EnableShopCredit", idr["ENABLE_SHOP_CREDIT"].ToString());
+                Utils.SetSessionString("EnableShopDebit", idr["ENABLE_SHOP_DEBIT"].ToString());
                 test1 = idr["ENABLE_EXAMPLE_REVIEW_CREATION"].ToString();
                 if (idr["ENABLE_EXAMPLE_REVIEW_CREATION"].ToString() == "True")
                 {

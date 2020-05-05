@@ -65,6 +65,7 @@ export class MainComponent implements OnInit, OnDestroy, AfterViewInit {
     }
     toggleReviewPanel() {
         this.isReviewPanelCollapsed = !this.isReviewPanelCollapsed;
+        if (this.isReviewPanelCollapsed && this.ReadOnlyReviewsComponent) this.ReadOnlyReviewsComponent.getReviews();
     }
     getDaysLeftAccount() {
 
@@ -94,12 +95,14 @@ export class MainComponent implements OnInit, OnDestroy, AfterViewInit {
             this.workAllocationsComp.getWorkAllocationContactList();
             this.ReviewSetsService.GetReviewSets();
         }
+        this.isReviewPanelCollapsed = false;
     }
 
     Clear() {
         this.ItemListService.SaveItems(new ItemList(), new Criteria());
         this.ReviewSetsService.Clear();
         this.workAllocationsComp.Clear();
+        if (this.ReadOnlyReviewsComponent) this.ReadOnlyReviewsComponent.Clear();
     }
     LoadWorkAllocList(workAlloc: WorkAllocation) {
 

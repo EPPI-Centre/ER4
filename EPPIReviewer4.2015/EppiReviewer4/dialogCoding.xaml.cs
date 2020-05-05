@@ -121,6 +121,20 @@ namespace EppiReviewer4
             }
         }
         //end of read-only ui hack
+        public bool CodeTreeIsBusy
+        {
+            get
+            {
+                return this.codesTreeControl.Im_busy;
+            }
+        }
+        public bool CodeTreeIsIdle
+        {
+            get
+            {
+                return this.codesTreeControl.Im_idle;
+            }
+        }
 
         public dialogCoding()
         {
@@ -208,9 +222,17 @@ namespace EppiReviewer4
             TimePointTypeList tptl = new BusinessLibrary.BusinessClasses.TimePointTypeList();
             ComboTimepointMetricSelection.ItemsSource = new TimePointTypeList().TimepointTypes;
             ComboTimepointMetricSelection.SelectedIndex = 5;
+            codesTreeControl.PropertyChanged += CodesTreeControl_PropertyChanged;
         }
 
-        
+        private void CodesTreeControl_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == "Im_busy")
+            {
+                NotifyPropertyChanged("CodeTreeIsIdle");
+                NotifyPropertyChanged("CodeTreeIsBusy");
+            }
+        }
 
         private void CodesTreeControl_RequestReturnOutcomePaneToNormal(object sender, EventArgs e)
         {
@@ -358,7 +380,9 @@ namespace EppiReviewer4
         {
             cmdUploadFile.IsEnabled = false;
             cmdNext.IsEnabled = false;
+            cmdNextMag.IsEnabled = false;
             cmdPrevious.IsEnabled = false;
+            cmdPreviousMag.IsEnabled = false;
             codesTreeControl.IsEnabled = false;
             CodingRecordGrid.DataContext = null;
         }
@@ -382,24 +406,28 @@ namespace EppiReviewer4
             if ((currentIndex > -1) && (currentIndex < itemList.Count))
             {
                 Item currentItem = itemList[currentIndex] as Item;
-                codesTreeControl.MakeBusy();
+                codesTreeControl.AddBusyMethod("BindTree");
                 currentItem.BeginEdit(); // MUST be before the item is bound to the form
                 this.DataContext = itemList[currentIndex];
                 if (GetPreviousItem() == null)
                 {
                     cmdPrevious.IsEnabled = false;
+                    cmdPreviousMag.IsEnabled = false;
                 }
                 else
                 {
                     cmdPrevious.IsEnabled = true;
+                    cmdPreviousMag.IsEnabled = true;
                 }
                 if (GetNextItem() == null)
                 {
                     cmdNext.IsEnabled = false;
+                    cmdNextMag.IsEnabled = false;
                 }
                 else
                 {
                     cmdNext.IsEnabled = true;
+                    cmdNextMag.IsEnabled = true;
                 }
                 int z = filteredItemList.IndexOf(DataContext as Item);
                 int IndexInFilteredList = filteredItemList.IndexOf(DataContext as Item);
@@ -409,8 +437,11 @@ namespace EppiReviewer4
                 //codesTreeControl.BindItem(DataContext as Item);
                 LoadAllItemSets((DataContext as Item).ItemId);
                 ClearCurrentTextDocument();
-                PaneItemDetails.SelectedIndex = 0;
-                
+                if (PaneItemDetails.SelectedIndex != 7) // i.e. don't change if we're on microsoft academic tab
+                    PaneItemDetails.SelectedIndex = 0;
+                else
+                    MicrosoftAcademic_Activated(null, null);
+
                 //(DataContext as Item).GetDocumentList();
                 GetItemDocumentList(DataContext as Item);
                 GetItemArmList(DataContext as Item);
@@ -420,6 +451,7 @@ namespace EppiReviewer4
 
 
                 dialogItemDetailsControl.BindTree(DataContext as Item);
+                codesTreeControl.RemoveBusyMethod("BindTree");
             }
             else
             {
@@ -487,6 +519,7 @@ namespace EppiReviewer4
             provider.FactoryParameters.Add(item.ItemId);
             provider.FactoryMethod = "GetItemArmList";
             GridArms.IsEnabled = false;
+            codesTreeControl.AddBusyMethod("GetItemArmList");//remove happens in the handler set above...
             provider.Refresh();
         }
 
@@ -516,9 +549,10 @@ namespace EppiReviewer4
                     CodingRecordGrid.IsEnabled = true;
                     BusyLoadingCodingRecord.IsRunning = false;
                     DoLiveComparisons();
+                    codesTreeControl.RemoveBusyMethod("LoadAllItemSets");
                 }
             };
-            codesTreeControl.MakeBusy();
+            codesTreeControl.AddBusyMethod("LoadAllItemSets");
             BusyLoadingCodingRecord.IsRunning = true;
             CodingRecordGrid.IsEnabled = false;
             dp.BeginFetch(new SingleCriteria<ItemSetList, Int64>(ItemId));
@@ -728,6 +762,7 @@ namespace EppiReviewer4
             DataPortal<ItemAttributesAllFullTextDetailsList> dp = new DataPortal<ItemAttributesAllFullTextDetailsList>();
             dp.FetchCompleted += (o, e2) =>
             {
+                codesTreeControl.RemoveBusyMethod("cmdViewText_Click");
                 if (e2.Error != null)
                 {
                     RadWindow.Alert(e2.Error.Message);
@@ -750,6 +785,7 @@ namespace EppiReviewer4
             };
             //BusyLoadingCodingRecord.IsRunning = true;
             //CodingRecordGrid.IsEnabled = false;
+            codesTreeControl.AddBusyMethod("cmdViewText_Click");
             dp.BeginFetch(new SingleCriteria<ItemAttributesAllFullTextDetailsList, Int64>(-(DataContext as Item).ItemId));
             
             //4 proceed as before
@@ -1456,6 +1492,7 @@ namespace EppiReviewer4
                 DataPortal<ItemAttributesAllFullTextDetailsList> dp = new DataPortal<ItemAttributesAllFullTextDetailsList>();
                 dp.FetchCompleted += (o, e2) =>
                     {
+                        codesTreeControl.RemoveBusyMethod("cmdRunComparison_Click");
                         ItemSetList isla = CodingRecordGrid.ItemsSource as ItemSetList;
                         //CodingRecordGrid.ItemsSource = null;
                         //CodingRecordGrid.UpdateLayout();
@@ -1479,6 +1516,7 @@ namespace EppiReviewer4
                     };
                 BusyLoadingCodingRecord.IsRunning = true;
                 CodingRecordGrid.IsEnabled = false;
+                codesTreeControl.AddBusyMethod("cmdRunComparison_Click");
                 dp.BeginFetch(new SingleCriteria<ItemAttributesAllFullTextDetailsList, Int64>((DataContext as Item).ItemId));
             }
         }
@@ -2562,7 +2600,8 @@ namespace EppiReviewer4
                     rInfo);
                 dp.ExecuteCompleted += (o2, e2) =>
                 {
-                    codesTreeControl.BusyLoading.IsRunning = false;
+                    codesTreeControl.RemoveBusyMethod("cmdApplyCodeClick");
+                    //codesTreeControl.BusyLoading.IsRunning = false;
                     if (e2.Error != null)
                     {
                         //MessageBox.Show(e2.Error.Message);
@@ -2588,7 +2627,8 @@ namespace EppiReviewer4
                         cmdApplyCodeClick(sender, e);
                     }
                 };
-                codesTreeControl.BusyLoading.IsRunning = true;
+                codesTreeControl.AddBusyMethod("cmdApplyCodeClick");
+                //codesTreeControl.BusyLoading.IsRunning = true;
                 dp.BeginExecute(command);
                 return;//we exit here as we'll recall the whole thing in the ExecuteCompleted block above.
             }
@@ -3121,6 +3161,7 @@ namespace EppiReviewer4
 
         private void ItemArmsDataChanged(object sender, EventArgs e)
         {
+            codesTreeControl.RemoveBusyMethod("GetItemArmList");
             this.IsEnabled = true;
             CslaDataProvider provider = App.Current.Resources["ItemArmsData"] as CslaDataProvider; ;
             if (provider.Error != null)

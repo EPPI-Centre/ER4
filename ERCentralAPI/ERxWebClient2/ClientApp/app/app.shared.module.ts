@@ -85,13 +85,17 @@ import { TextSelectDirective } from './components/helpers/text-select.directive'
 import { ReviewTermsListComp } from './components/ReviewTermsList/ReviewTermsListComp.component';
 import { configurablereportComp } from './components/Reports/configurablereport.component';
 import { DuplicatesComponent } from './components/Duplicates/duplicates.component';
-//import { MAGComp } from './components/MAG/MAGComp.component';
+import { codesetTree4Move } from './components/CodesetTrees/codesetTree4Move.component';
+import { BasicMAGComp } from './components/MAG/BasicMAGComp.component';
+import { AdvancedMAGFeaturesComponent } from './components/MAG/AdvancedMAGFeatures.component';
+import { MAGpaginatorComp } from './components/commonComponents/MAGpaginator.component';
+import { MAGBrowser } from './components/MAG/MAGBrowser.component';
 
 @NgModule({
     declarations: [
 		AppComponent,
 		SearchComp,
-		//MAGComp,
+        BasicMAGComp,
         frequenciesComp,
         frequenciesResultsComp,
         ReviewSetsEditorComponent,
@@ -152,7 +156,11 @@ import { DuplicatesComponent } from './components/Duplicates/duplicates.componen
 		TextSelectDirective,
 		ReviewTermsListComp,
         configurablereportComp,
-        DuplicatesComponent
+        DuplicatesComponent,
+        codesetTree4Move,
+        AdvancedMAGFeaturesComponent,
+        MAGpaginatorComp,
+        MAGBrowser
 	],
     providers: [
         EventEmitterService,
@@ -189,7 +197,11 @@ import { DuplicatesComponent } from './components/Duplicates/duplicates.componen
             { path: 'Main', component: MainFullReviewComponent }, 
             { path: 'MainCodingOnly', component: MainComponent }, 
 			{ path: 'sources', component: SourcesComponent },
-			{ path: 'BuildModel', component: BuildModelComponent },
+            { path: 'BuildModel', component: BuildModelComponent },
+            { path: 'BasicMAGFeatures', component: BasicMAGComp },
+            { path: 'ItemList', component: ItemListComp },
+            { path: 'MAGBrowser', component: MAGBrowser }, 
+            { path: 'AdvancedMAGFeatures', component: AdvancedMAGFeaturesComponent },
             { path: 'itemcodingOnly/:itemId', component: ItemCodingComp },
             { path: 'itemcoding/:itemId', component: ItemCodingFullComp },
             { path: 'EditItem/:itemId', component: editItemDetailsComp },

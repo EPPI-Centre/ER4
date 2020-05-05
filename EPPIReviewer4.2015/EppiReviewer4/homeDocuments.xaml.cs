@@ -457,6 +457,11 @@ namespace EppiReviewer4
             };
             //BusyLoading.IsRunning = true;
             dp.BeginExecute(check);
+
+            CslaDataProvider provider = ((CslaDataProvider)App.Current.Resources["MagCurrentInfoData"]);
+            provider.FactoryParameters.Clear();
+            provider.FactoryMethod = "GetMagCurrentInfo";
+            provider.Refresh();
         }
 
         private void CsetsProvider_DataChanged(object sender, EventArgs e)

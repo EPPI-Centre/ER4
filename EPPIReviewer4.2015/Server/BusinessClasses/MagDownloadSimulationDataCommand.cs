@@ -98,7 +98,6 @@ namespace BusinessLibrary.BusinessClasses
                             (!reader.IsDBNull("MAG_SIMULATION_ID") ? reader.GetInt32("MAG_SIMULATION_ID").ToString() : "") + "\t" +
                             (!reader.IsDBNull("PaperId") ? reader.GetInt64("PaperId").ToString() : "") + "\t" +
                             (!reader.IsDBNull("INCLUDED") ? reader.GetBoolean("INCLUDED").ToString() : "") + "\t" +
-                            (!reader.IsDBNull("FOUND") ? reader.GetBoolean("FOUND").ToString() : "") + "\t" +
                             (!reader.IsDBNull("STUDY_TYPE_CLASSIFIER_SCORE") ? reader.GetDouble("STUDY_TYPE_CLASSIFIER_SCORE").ToString() : "") + "\t" +
                             (!reader.IsDBNull("USER_CLASSIFIER_MODEL_SCORE") ? reader.GetDouble("USER_CLASSIFIER_MODEL_SCORE").ToString() : "") + "\t" +
                             (!reader.IsDBNull("NETWORK_STATISTIC_SCORE") ? reader.GetDouble("NETWORK_STATISTIC_SCORE").ToString() : "") + "\t" +
