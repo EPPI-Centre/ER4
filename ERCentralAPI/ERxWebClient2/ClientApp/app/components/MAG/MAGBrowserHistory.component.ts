@@ -67,5 +67,8 @@ export class MAGBrowserHistory implements OnInit {
 
         this.router.navigate(['AdvancedMAGFeatures']);
     }
+    public AutoUpdateHome() {
+        this.router.navigate(['BasicMAGFeatures']);
+    }
 
 }

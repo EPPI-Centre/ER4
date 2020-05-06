@@ -58,7 +58,7 @@ export class AdvancedMAGFeaturesComponent implements OnInit {
 
     }
     public AutoUpdateHome() {
-
+        this.router.navigate(['BasicMAGFeatures']);
     }
     public ShowHistory() {
 

@@ -47,6 +47,9 @@ export class MAGBrowser implements OnInit {
     public Admin() {
 
     }
+    public AutoUpdateHome() {
+        this.router.navigate(['BasicMAGFeatures']);
+    }
     public Forward() {
         this._location.forward();
     }
@@ -244,11 +247,6 @@ export class MAGBrowser implements OnInit {
         this.Clear();
         this.router.navigate(['AdvancedMAGFeatures']);
 
-    }
-
-    public AutoUpdateHome() {
-        this.Clear();
-        this.router.navigate(['BasicMAGFeatures']);
     }
          
 }
