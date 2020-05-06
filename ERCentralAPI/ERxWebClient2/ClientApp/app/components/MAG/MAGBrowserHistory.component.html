@@ -1,7 +1,7 @@
 ﻿<HeaderComponent Context="MAGBrowsingHistory"></HeaderComponent>
 
 <button class="page-link rounded pt-1 pb-1 mb-1 float-right"
-        style="position:absolute; right: 0; z-index:2000;" (click)="goBack()">
+        style="position:absolute; right: 0; z-index:2000;" (click)="Back()">
     Close/back
 </button>
 
@@ -14,6 +14,8 @@
         <kendo-toolbar-button [text]="'Auto-update home'" (click)="AutoUpdateHome()" [disabled]="HasWriteRights"></kendo-toolbar-button>
         <kendo-toolbar-button [text]="'Advanced features'" (click)="AdvancedFeatures()" [disabled]="!HasWriteRights"></kendo-toolbar-button>
         <kendo-toolbar-button [text]="'Admin'" (click)="Admin()" [disabled]="HasWriteRights"></kendo-toolbar-button>
+        <kendo-toolbar-button [text]="'Back'" (click)="Back()" [disabled]="!HasWriteRights"></kendo-toolbar-button>
+        <kendo-toolbar-button [text]="'Forward'" (click)="Forward()" [disabled]="!HasWriteRights"></kendo-toolbar-button>
     </kendo-toolbar>
 </div>
 <div class="col-6 p-2 m-2 card bg-secondary" style="min-width:450px; overflow:auto;">

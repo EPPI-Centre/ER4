@@ -1,4 +1,5 @@
-import { Component, OnInit, ViewChild} from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
+import { Location } from '@angular/common';
 import { searchService } from '../services/search.service';
 import { singleNode, SetAttribute } from '../services/ReviewSets.service';
 import { codesetSelectorComponent } from '../CodesetTrees/codesetSelector.component';
@@ -28,13 +29,25 @@ export class AdvancedMAGFeaturesComponent implements OnInit {
         private _ReviewerIdentityServ: ReviewerIdentityService,
         private _eventEmitter: EventEmitterService,
         private _routingStateService: MAGBrowserHistoryService,
+        private _location: Location,
         private router: Router
 
     ) {
 
         this.history = this._routingStateService.getHistory();
         console.log('testing URL: ', this.history);
-	}
+    }
+    public AdvancedFeatures() {
+
+        this.router.navigate(['AdvancedMAGFeatures']);
+
+    }
+    public Forward() {
+        this._location.forward();
+    }
+    public Back() {
+        this._location.back();
+    }
     public Selected() {
 
     }
@@ -213,15 +226,7 @@ export class AdvancedMAGFeaturesComponent implements OnInit {
             });
     }
 
-    public AdvancedFeatures() {
 
-        this.router.navigate(['AdvancedMAGFeatures']);
-
-    }
-
-    public Back() {
-        this.router.navigate(['BasicMAGFeatures']);
-    }
 
     public OpenMatchesInReview(listType: string) {
 

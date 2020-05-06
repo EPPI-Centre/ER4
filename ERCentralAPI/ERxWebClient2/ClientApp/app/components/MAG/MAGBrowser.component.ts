@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { Location } from '@angular/common';
 import { searchService } from '../services/search.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Router, NavigationEnd } from '@angular/router';
@@ -24,6 +25,7 @@ export class MAGBrowser implements OnInit {
         public _searchService: searchService,
         private _ReviewerIdentityServ: ReviewerIdentityService,
         private _routingStateService: MAGBrowserHistoryService,
+        private _location: Location,
         private router: Router
     ) {
 
@@ -46,7 +48,10 @@ export class MAGBrowser implements OnInit {
 
     }
     public Forward() {
-
+        this._location.forward();
+    }
+    public Back() {
+        this._location.back();
     }
     ngOnInit() {
 
@@ -245,11 +250,5 @@ export class MAGBrowser implements OnInit {
         this.Clear();
         this.router.navigate(['BasicMAGFeatures']);
     }
-
-    public Back() {
-        this.Clear();
-        this.router.navigate(['AdvancedMAGFeatures']);
-    }
-
-
+         
 }

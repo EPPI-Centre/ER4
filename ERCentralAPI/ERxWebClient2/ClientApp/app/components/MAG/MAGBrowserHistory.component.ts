@@ -3,6 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { MAGBrowserHistoryService } from '../services/MAGBrowserHistory.service';
 import { NavigationEnd, Router } from '@angular/router';
 import { MAGAdvancedService } from '../services/magAdvanced.service';
+import { ReviewerIdentityService } from '../services/revieweridentity.service';
 
 @Component({
     selector: 'MAGBrowserHistory',
@@ -16,6 +17,7 @@ export class MAGBrowserHistory implements OnInit {
         private _location: Location,
         public _MAGBrowserHistoryService: MAGBrowserHistoryService,
         private _magAdvancedService: MAGAdvancedService,
+        private _ReviewerIdentityServ: ReviewerIdentityService,
         private router: Router
 
     ) {
@@ -23,6 +25,9 @@ export class MAGBrowserHistory implements OnInit {
     }
 
     public MAGBrowsingHistory: NavigationEnd[] = [];
+    public get HasWriteRights(): boolean {
+        return this._ReviewerIdentityServ.HasWriteRights;
+    }
 
     ngOnInit() {
 
@@ -52,8 +57,15 @@ export class MAGBrowserHistory implements OnInit {
         return false;
     }
 
-    goBack() {
+    Back() {
         this._location.back();
+    }
+    Forward() {
+        this._location.forward();
+    }
+    public AdvancedFeatures() {
+
+        this.router.navigate(['AdvancedMAGFeatures']);
     }
 
 }
