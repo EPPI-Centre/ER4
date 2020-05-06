@@ -1,21 +1,24 @@
 import { Location } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { MAGBrowserHistoryService } from '../services/MAGBrowserHistory.service';
-import { NavigationEnd } from '@angular/router';
+import { NavigationEnd, Router } from '@angular/router';
+import { MAGAdvancedService } from '../services/magAdvanced.service';
 
 @Component({
     selector: 'MAGBrowserHistory',
     templateUrl: './MAGBrowserHistory.component.html',
-	providers: []
+    providers: []
 })
 
 export class MAGBrowserHistory implements OnInit {
-      
-	constructor(
-        private _location: Location,
-        public _MAGBrowserHistoryService: MAGBrowserHistoryService
 
-	) {
+    constructor(
+        private _location: Location,
+        public _MAGBrowserHistoryService: MAGBrowserHistoryService,
+        private _magAdvancedService: MAGAdvancedService,
+        private router: Router
+
+    ) {
 
     }
 
@@ -27,23 +30,21 @@ export class MAGBrowserHistory implements OnInit {
 
         console.log('really: ', this.MAGBrowsingHistory);
 
-        //this._activatedRoute.url.subscribe(() => {
+    }
 
-        //    console.log('testeroo: ', this._activatedRoute.snapshot.url) ; // any time url changes, this callback is fired
+    GoToUrl(url: string) {
 
-        //});
+        console.log(url);
+        this.router.navigate([url]);
+    }
 
+    RemoveUrl(item: NavigationEnd) {
 
-        //this._location.subscribe(
-        //    (value: any)=> {
-
-        //        console.log("locaton OnNext")
-        //        console.log(value);
-
-        //    }),
-        //    () => {
-        //        console.log("some error");
-        //    };
+        let id: number = item.id;
+        let index: number = this.MAGBrowsingHistory.findIndex(x => x.id == id);
+        if (index != -1) {
+        this.MAGBrowsingHistory.splice(index,1);
+        }
     }
 
     public get IsServiceBusy(): boolean {
@@ -56,4 +57,3 @@ export class MAGBrowserHistory implements OnInit {
     }
 
 }
-	

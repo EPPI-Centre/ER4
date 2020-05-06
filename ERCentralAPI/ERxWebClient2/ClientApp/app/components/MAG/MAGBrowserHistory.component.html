@@ -4,6 +4,8 @@
         style="position:absolute; right: 0; z-index:2000;" (click)="goBack()">
     Close/back
 </button>
+
+
 <div class="containsAtoolbar">
     <kendo-toolbar>
         <kendo-toolbar-button [text]="'Selected'" (click)="Selected()" [disabled]="HasWriteRights"></kendo-toolbar-button>
@@ -14,16 +16,37 @@
         <kendo-toolbar-button [text]="'Admin'" (click)="Admin()" [disabled]="HasWriteRights"></kendo-toolbar-button>
     </kendo-toolbar>
 </div>
-<div class="col-8 p-2 m-2 card bg-info" style="min-width:450px; overflow:auto;">
-    <h4>MAG Browsing History</h4>
+<div class="col-6 p-2 m-2 card bg-secondary" style="min-width:450px; overflow:auto;">
+    <h5>Current Microsoft Academic Graph Dataset:<i> {{_magAdvancedService.MagCurrentInfo.lastUpdated}} </i></h5>
+
+</div>
+<div class="col-6 p-2 m-2 card bg-info" style="min-width:450px; overflow:auto;">
+    <h4>MAG Browsing History </h4>
 </div>
 <div *ngIf="IsServiceBusy" class="k-loading-image" style="position: fixed; top: 2%;"></div>
 
 
-    <div *ngFor="let item of _MAGBrowserHistoryService.getHistory();">
-
-        <p>{{item.url}}</p>
-
-    </div>
+<div *ngFor="let item of _MAGBrowserHistoryService.getHistory()"  class="col-6 bg-light card" style="min-width:450px;" >
+    <table class="table table-responsive table-striped"  >
+        <thead>
+            <tr>
+                <th class="w-25">Url
+                </th>
+                <th class="w-25">Go to URL
+                </th>
+                <th class="w-25">
+                    Remove URL from history stack
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td class="w-25">{{item.url}}</td>
+                <td class="w-25"><button class="btn btn-success" (click)="GoToUrl(item.url)">GO</button></td>
+                <td class="w-25"><button class="btn btn-danger" (click)="RemoveUrl(item)">Remove</button></td>
+            </tr>
+        </tbody>
+    </table>
+</div>
 
 <statusbar></statusbar>
