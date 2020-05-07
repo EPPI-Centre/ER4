@@ -65,7 +65,7 @@ export class AdvancedMAGFeaturesComponent implements OnInit {
         this.router.navigate(['MAGBrowserHistory']);
     }
     public Admin() {
-
+        this.router.navigate(['MAGAdmin']);
     }
     @ViewChild('WithOrWithoutCodeSelector3') WithOrWithoutCodeSelector3!: codesetSelectorComponent;
     @ViewChild('WithOrWithoutCodeSelector2') WithOrWithoutCodeSelector2!: codesetSelectorComponent;

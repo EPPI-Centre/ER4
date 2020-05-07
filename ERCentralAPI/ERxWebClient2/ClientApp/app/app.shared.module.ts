@@ -91,6 +91,7 @@ import { AdvancedMAGFeaturesComponent } from './components/MAG/AdvancedMAGFeatur
 import { MAGpaginatorComp } from './components/commonComponents/MAGpaginator.component';
 import { MAGBrowser } from './components/MAG/MAGBrowser.component';
 import { MAGBrowserHistory } from './components/MAG/MAGBrowserHistory.component';
+import { MAGAdminComp } from './components/MAG/MAGAdmin.component';
 
 @NgModule({
     declarations: [
@@ -162,7 +163,8 @@ import { MAGBrowserHistory } from './components/MAG/MAGBrowserHistory.component'
         AdvancedMAGFeaturesComponent,
         MAGpaginatorComp,
         MAGBrowser,
-        MAGBrowserHistory
+        MAGBrowserHistory,
+        MAGAdminComp
 	],
     providers: [
         EventEmitterService,
@@ -202,6 +204,7 @@ import { MAGBrowserHistory } from './components/MAG/MAGBrowserHistory.component'
             { path: 'BuildModel', component: BuildModelComponent },
             { path: 'BasicMAGFeatures', component: BasicMAGComp },
             { path: 'ItemList', component: ItemListComp },
+            { path: 'MAGAdmin', component: MAGAdminComp},
             { path: 'MAGBrowser', component: MAGBrowser },
             { path: 'MAGBrowserHistory', component: MAGBrowserHistory},
             { path: 'AdvancedMAGFeatures', component: AdvancedMAGFeaturesComponent },

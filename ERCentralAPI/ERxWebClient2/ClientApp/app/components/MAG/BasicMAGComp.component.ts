@@ -64,7 +64,7 @@ export class BasicMAGComp implements OnInit {
         this.router.navigate(['MAGBrowserHistory']);
     }
     public Admin() {
-
+        this.router.navigate(['MAGAdmin']);
     }
 	ngOnInit() {
 

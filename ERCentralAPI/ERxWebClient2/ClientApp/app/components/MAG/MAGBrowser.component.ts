@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { Location } from '@angular/common';
 import { searchService } from '../services/search.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
@@ -7,6 +7,7 @@ import { MVCMagPaperListSelectionCriteria, MagPaper, MvcMagFieldOfStudyListSelec
 import { MAGBrowserService } from '../services/MAGBrowser.service';
 import { MAGAdvancedService } from '../services/magAdvanced.service';
 import { MAGBrowserHistoryService } from '../services/MAGBrowserHistory.service';
+import { KendoButtonService } from '@progress/kendo-angular-buttons/dist/es2015/button/button.service';
 
 
 @Component({
@@ -33,11 +34,12 @@ export class MAGBrowser implements OnInit {
         console.log('testing URL: ', this.history);
     }
 
-    public ClearSelected() {
+    @ViewChild('selectButton') selectButton!: KendoButtonService;
 
-    }
+  
     public ImportSelected() {
 
+        alert('not implemented yet!');
     }
 
     public ShowHistory() {
@@ -45,7 +47,7 @@ export class MAGBrowser implements OnInit {
         this.router.navigate(['MAGBrowserHistory']);
     }
     public Admin() {
-
+        this.router.navigate(['MAGAdmin']);
     }
     public AutoUpdateHome() {
         this.router.navigate(['BasicMAGFeatures']);
@@ -90,6 +92,8 @@ export class MAGBrowser implements OnInit {
             this._magAdvancedService.FetchMagPaperList(crit2);
         }
     }
+
+
     public Papers: MagPaper[] = [];
     public desc: string = '';
     public value: Date = new Date(2000, 2, 10);
@@ -107,6 +111,30 @@ export class MAGBrowser implements OnInit {
             this.SelectedPaperIds.push(paperId);
             this.UpdateSelectedCount();
         }
+    }
+    Selected() {
+
+        var id: any;
+        var selectedPapers: MagPaper[] = [];
+        console.log('well 1: ', this.SelectedPaperIds);
+        for (var i = 0; i < this.SelectedPaperIds.length; i++) {
+
+            var item = this._magBrowserService.MAGList.papers.filter(x => x.paperId == this.SelectedPaperIds[i])[0];
+            console.log('well 2: ', item);
+            if (item != null) {
+                selectedPapers.push(item);
+
+            }
+        }
+        //console.log('well 2: ', this._magBrowserService.MAGList.papers.filter(x => x.paperId == 2070527591));
+        if (selectedPapers.length > 0 ) {
+            this._magBrowserService.MAGList.papers = selectedPapers;
+        }
+        console.log('well 3: ', selectedPapers);
+    }
+    public ClearSelected() {
+
+        this.SelectedPaperIds = [];
     }
     section: any = [];
     public SetCriteria(listType: string) {
@@ -185,7 +213,7 @@ export class MAGBrowser implements OnInit {
             return false;
     }
     private UpdateSelectedCount(): any {
-
+        
         this.ShowSelectedPapers = "Selected (" + this.SelectedPaperIds.length.toString() + ")";
         this.SelectedButtonText = this.ShowSelectedPapers
         console.log('updating selected or unselected papers: ', this.ShowSelectedPapers);
@@ -193,6 +221,7 @@ export class MAGBrowser implements OnInit {
 
     public InOutReview(paper: MagPaper) {
 
+        console.log(this.SelectedPaperIds);
         if (paper.linkedITEM_ID == 0) {
 
             if (paper.isSelected) {
@@ -220,9 +249,6 @@ export class MAGBrowser implements OnInit {
     public get IsServiceBusy(): boolean {
 
         return this._magBrowserService.IsBusy || this._magAdvancedService.IsBusy;
-    }
-    public Selected(): void {
-
     }
     Clear() {
 

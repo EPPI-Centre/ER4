@@ -6,12 +6,12 @@ import { MAGAdvancedService } from '../services/magAdvanced.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 
 @Component({
-    selector: 'MAGBrowserHistory',
-    templateUrl: './MAGBrowserHistory.component.html',
+    selector: 'MAGAdmin',
+    templateUrl: './MAGAdmin.component.html',
     providers: []
 })
 
-export class MAGBrowserHistory implements OnInit {
+export class MAGAdminComp implements OnInit {
 
     constructor(
         private _location: Location,
@@ -69,9 +69,6 @@ export class MAGBrowserHistory implements OnInit {
     }
     public AutoUpdateHome() {
         this.router.navigate(['BasicMAGFeatures']);
-    }
-    public Admin() {
-        this.router.navigate(['MAGAdmin']);
     }
 
 }
