@@ -176,6 +176,7 @@ export class MAGBrowser implements OnInit {
             }
         );
     }
+    public SelectedButtonText: string = 'Selected';
     private IsInSelectedList(paperId: number): boolean {
 
         if (this.SelectedPaperIds.indexOf(paperId) > -1)
@@ -186,6 +187,8 @@ export class MAGBrowser implements OnInit {
     private UpdateSelectedCount(): any {
 
         this.ShowSelectedPapers = "Selected (" + this.SelectedPaperIds.length.toString() + ")";
+        this.SelectedButtonText = this.ShowSelectedPapers
+        console.log('updating selected or unselected papers: ', this.ShowSelectedPapers);
     }
 
     public InOutReview(paper: MagPaper) {
