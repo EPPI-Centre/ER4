@@ -83,14 +83,14 @@ namespace BusinessLibrary.BusinessClasses
 
             WriteCurrentlyUsedPaperIdsToFile(uploadFileName);
             UploadIdsFile(uploadFileName);
-            MagLog.SaveLogEntry("File Upload", "Complete", "", ContactId);
+            MagLog.UpdateLogEntry("Running", "ID checking: file uploaded", TaskMagLogId);
             SubmitJob(ContactId);
             int missingCount = DownloadMissingIdsFile(uploadFileName);
-            int AutoMatchMagLogId = MagLog.SaveLogEntry("Auto-match IDs n=" + missingCount.ToString(), "Started", "", ContactId);
-            LookupMissingIdsInNewMakes(ContactId, AutoMatchMagLogId, missingCount);
-            MagLog.UpdateLogEntry("Complete", "", AutoMatchMagLogId);
+            MagLog.UpdateLogEntry("Running", "Auto-match IDs n=" + missingCount.ToString(), TaskMagLogId);
+            LookupMissingIdsInNewMakes(ContactId, TaskMagLogId, missingCount);
+            MagLog.UpdateLogEntry("Running", "ID checking: lookups complete, updating live IDs", TaskMagLogId);
             UpdateLiveIds();
-            MagLog.SaveLogEntry("Live IDs updated", "Complete", "", ContactId);
+            MagLog.UpdateLogEntry("Complete", "ID checking complete", TaskMagLogId);
         }
 
         private void WriteCurrentlyUsedPaperIdsToFile(string fileName)
@@ -250,7 +250,10 @@ namespace BusinessLibrary.BusinessClasses
                                 if (candidatePapersOnDOI.Count == 0 || (candidatePapersOnDOI.Max(t => t.matchingScore) < 0.7))
                                 {
                                     // MagPaperItemMatch has similar code to the below
-                                    List<MagMakesHelpers.PaperMakes> candidatePapersOnTitle = MagMakesHelpers.GetCandidateMatches(pm.DN, "PENDING");
+                                    List<MagMakesHelpers.PaperMakes> candidatePapersOnTitle =
+                                        MagMakesHelpers.GetCandidateMatches(pm.DN, "PENDING");
+                                        //MagMakesHelpers.GetCandidateMatches(pm.DN + " | " + (pm.J != null && pm.J.JN != null ? pm.J.JN : "") +
+                                        //" | " + MagMakesHelpers.getAuthors(pm.AA), "PENDING");
 
                                     if (candidatePapersOnTitle != null && candidatePapersOnTitle.Count > 0)
                                     {

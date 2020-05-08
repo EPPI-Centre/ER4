@@ -154,16 +154,19 @@ namespace BusinessLibrary.BusinessClasses
                 {
                     connection.Open();
                     foreach (MagMakesHelpers.PaperMakes pm in candidatePapersOnDOI) {
-                        using (SqlCommand command = new SqlCommand("st_MagMatchedPapersInsert", connection))
+                        if (pm.matchingScore > 0.35)
                         {
-                            command.CommandType = System.Data.CommandType.StoredProcedure;
-                            command.Parameters.Add(new SqlParameter("@REVIEW_ID", ReviewId));
-                            command.Parameters.Add(new SqlParameter("@ITEM_ID", i.ItemId));
-                            command.Parameters.Add(new SqlParameter("@PaperId", pm.Id));
-                            command.Parameters.Add(new SqlParameter("@ManualTrueMatch", 0));
-                            command.Parameters.Add(new SqlParameter("@ManualFalseMatch", 0));
-                            command.Parameters.Add(new SqlParameter("@AutoMatchScore", pm.matchingScore));
-                            command.ExecuteNonQuery();
+                            using (SqlCommand command = new SqlCommand("st_MagMatchedPapersInsert", connection))
+                            {
+                                command.CommandType = System.Data.CommandType.StoredProcedure;
+                                command.Parameters.Add(new SqlParameter("@REVIEW_ID", ReviewId));
+                                command.Parameters.Add(new SqlParameter("@ITEM_ID", i.ItemId));
+                                command.Parameters.Add(new SqlParameter("@PaperId", pm.Id));
+                                command.Parameters.Add(new SqlParameter("@ManualTrueMatch", 0));
+                                command.Parameters.Add(new SqlParameter("@ManualFalseMatch", 0));
+                                command.Parameters.Add(new SqlParameter("@AutoMatchScore", pm.matchingScore));
+                                command.ExecuteNonQuery();
+                            }
                         }
                     }
                     connection.Close();

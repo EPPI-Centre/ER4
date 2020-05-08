@@ -240,11 +240,13 @@ namespace BusinessLibrary.BusinessClasses
         public static List<PaperMakes> GetCandidateMatches(string text, string MakesDeploymentStatus = "LIVE", bool TryAgain = false)
         {
             List<PaperMakes> PaperList = new List<PaperMakes>();
+            
             string searchText = CleanText(text);
+            /* Hard to tell whether it's better or worse removing stopwords
             searchText = removeStopwords(searchText);
             string[] words = searchText.Split(' ');
             searchText = string.Join(" ", words.Take(6));
-
+            */
             if (searchText != "")
             {
                 var jsonsettings = new JsonSerializerSettings
@@ -259,7 +261,8 @@ namespace BusinessLibrary.BusinessClasses
                 searchText = System.Web.HttpUtility.UrlEncode(searchText);//uses "+" for spaces, letting his happen when creating the request would put 20% for spaces => makes the querystring longer!
 
                 string queryString =  @"/interpret?query=" +
-                    searchText + @"&complete=1&normalize=1&attributes=Id,DN,AA.AuN,J.JN,V,I,FP,Y&timeout=30000&entityCount=100";
+                    searchText + "&entityCount=5&attributes=" + System.Web.HttpUtility.UrlEncode("Id,DN,AA.AuN,J.JN,V,I,FP,Y") +
+                    "&complete=0&count=100&offset=0&timeout=2000&model=latest";
                 string FullRequestStr = MagInfo.MakesEndPoint + queryString;
                 if (FullRequestStr.Length >= 2048 || queryString.Length >= 1024)
                 {//this would fail entire URL is too long or the query string is.
@@ -273,7 +276,8 @@ namespace BusinessLibrary.BusinessClasses
                         {
                             searchText = searchText.Substring(0, truncateAt);
                             queryString = @"/interpret?query=" +
-                                searchText + @"&complete=1&normalize=1&attributes=Id,DN,AA.AuN,J.JN,V,I,FP,Y&timeout=30000&entityCount=100";
+                                searchText + "&entityCount=5&attributes=" + System.Web.HttpUtility.UrlEncode("Id,DN,AA.AuN,J.JN,V,I,FP,Y") +
+                                "&complete=0&count=100&offset=0&timeout=2000&model=latest";
                             FullRequestStr = MagInfo.MakesEndPoint + queryString;
                         }
                     }
@@ -340,8 +344,11 @@ namespace BusinessLibrary.BusinessClasses
 
                 string responseText = "";
                 MagCurrentInfo MagInfo = MagCurrentInfo.GetMagCurrentInfoServerSide(MakesDeploymentStatus);
-                WebRequest request = WebRequest.Create(MagInfo.MakesEndPoint + @"/interpret?query=" +
-                    searchText + @"&complete=0&normalize=0&attributes=Id,DN,AA.AuN,J.JN,V,I,FP,Y&timeout=15000&entityCount=100");
+                string queryString = @"/interpret?query=" +
+                    searchText + "&entityCount=5&attributes=" + System.Web.HttpUtility.UrlEncode("Id,DN,AA.AuN,J.JN,V,I,FP,Y") +
+                    "&complete=0&count=100&offset=0&timeout=2000&model=latest";
+
+                WebRequest request = WebRequest.Create(MagInfo.MakesEndPoint + queryString);
                 WebResponse response = request.GetResponse();
                 using (Stream dataStream = response.GetResponseStream())
                 {
@@ -388,8 +395,11 @@ namespace BusinessLibrary.BusinessClasses
 
                 string responseText = "";
                 MagCurrentInfo MagInfo = MagCurrentInfo.GetMagCurrentInfoServerSide(MakesDeploymentStatus);
-                WebRequest request = WebRequest.Create(MagInfo.MakesEndPoint + @"/evaluate?expr=DOI='" + System.Web.HttpUtility.HtmlEncode(DOI) +
-                    @"'&attributes=Id,DN,AA.AuN,J.JN,V,I,FP,Y&timeout=15000&entityCount=10");
+                string queryString = @"/interpret?query=" +
+                    System.Web.HttpUtility.UrlEncode("DOI") + "&entityCount=5&attributes=" +
+                    System.Web.HttpUtility.UrlEncode("Id,DN,AA.AuN,J.JN,V,I,FP,Y") +
+                    "&complete=0&count=10&offset=0&timeout=2000&model=latest";
+                WebRequest request = WebRequest.Create(MagInfo.MakesEndPoint + queryString);
                 WebResponse response = request.GetResponse();
                 using (Stream dataStream = response.GetResponseStream())
                 {
