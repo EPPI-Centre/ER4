@@ -880,7 +880,12 @@
                 </Grid.ColumnDefinitions>
 
                 <TextBlock Grid.Row="0" Grid.Column="0" Text="Latest MAG" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="5,5,5,5"></TextBlock>
-                <TextBox x:Name="tbLatestMag" Grid.Row="0" Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5,5,5,5" IsReadOnly="True"></TextBox>
+                <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="1">
+                    <TextBox x:Name="tbLatestMag" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5,5,5,5" IsReadOnly="False"></TextBox>
+                    <TextBlock Margin="5,5,5,5" Text="Previous MAG version:" VerticalAlignment="Center"></TextBlock>
+                    <TextBox x:Name="tbPreviousMAG" Margin="5,5,5,5" VerticalAlignment="Center"></TextBox>
+                </StackPanel>
+                    
                 <TextBlock Grid.Row="1" Grid.Column="0" Text="SAS Key" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="5,5,5,5"></TextBlock>
                 <TextBox x:Name="tbMagSas" Grid.Row="1" Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5,5,5,5" IsReadOnly="True"></TextBox>
                 <TextBlock Grid.Row="2" Grid.Column="0" Text="Release notes" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="5,5,5,5"></TextBlock>
@@ -920,7 +925,8 @@
                     <RowDefinition Height="*"></RowDefinition>
                 </Grid.RowDefinitions>
 
-                <HyperlinkButton x:Name="LBCheckChangedPaperIds" Grid.Row="0" Content="Identify ID changes" Click="CheckChangedPaperIds_Click" IsTabStop="False"></HyperlinkButton>
+                
+                <HyperlinkButton x:Name="LBCheckChangedPaperIds" Grid.Row="0" Content="Identify ID changes BEFORE switching to new MAG" Click="CheckChangedPaperIds_Click" IsTabStop="False"></HyperlinkButton>
                 <HyperlinkButton x:Name="LBRefreshMagLogList" Grid.Row="1" Content="Refresh log table " Click="LBRefreshMagLogList_Click" IsTabStop="False"></HyperlinkButton>
                 <HyperlinkButton x:Name="LBRunContReviewPipeline" Grid.Row="2" Content="Run contreview pipeline" Click="LBRunContReviewPipeline_Click" IsTabStop="False"></HyperlinkButton>
                 <HyperlinkButton x:Name="LBSwitchOffAutoRefreshLogList" Grid.Row="3" Content="Switch off auto refresh of table" Visibility="Collapsed" Click="LBSwitchOffAutoRefreshLogList_Click" IsTabStop="False"></HyperlinkButton>

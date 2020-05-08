@@ -35,6 +35,8 @@ namespace BusinessLibrary.BusinessClasses
         private string _ReleaseNotes;
         private string _LatestMagSasUri;
         private string _LatestMAGName;
+        private string _PreviousMAGName;
+
         [Newtonsoft.Json.JsonProperty]
         public string ReleaseNotes
         {
@@ -58,6 +60,13 @@ namespace BusinessLibrary.BusinessClasses
                 return _LatestMAGName;
             }
         }
+        public string PreviousMAGName
+        {
+            get
+            {
+                return _PreviousMAGName;
+            }
+        }
 
         protected override void OnGetState(Csla.Serialization.Mobile.SerializationInfo info, Csla.Core.StateMode mode)
         {
@@ -65,12 +74,14 @@ namespace BusinessLibrary.BusinessClasses
             info.AddValue("_ReleaseNotes", _ReleaseNotes);
             info.AddValue("_LatestMagSasUri", _LatestMagSasUri);
             info.AddValue("_LatestMAGName", _LatestMAGName);
+            info.AddValue("_PreviousMAGName", _PreviousMAGName);
         }
         protected override void OnSetState(Csla.Serialization.Mobile.SerializationInfo info, Csla.Core.StateMode mode)
         {
             _ReleaseNotes = info.GetValue<string>("_ReleaseNotes");
             _LatestMagSasUri = info.GetValue<string>("_LatestMagSasUri");
             _LatestMAGName = info.GetValue<string>("_LatestMAGName");
+            _PreviousMAGName = info.GetValue<string>("_PreviousMAGName");
         }
 
 
@@ -104,6 +115,7 @@ namespace BusinessLibrary.BusinessClasses
                 List<string> ListContainers = await ListContainersWithPrefixAsync(blobClient, "mag-");
 
                 DateTime LatestDateMAG = new DateTime(2017, 1, 1);
+                _PreviousMAGName = "";
                 foreach (var item in ListContainers)
                 {
                     CloudBlobContainer container = blobClient.GetContainerReference(item);
@@ -116,6 +128,7 @@ namespace BusinessLibrary.BusinessClasses
                     {
                         if (date > LatestDateMAG)
                         {
+                            _PreviousMAGName = _LatestMAGName;
                             LatestDateMAG = date;
                             _LatestMAGName = item;
                         }

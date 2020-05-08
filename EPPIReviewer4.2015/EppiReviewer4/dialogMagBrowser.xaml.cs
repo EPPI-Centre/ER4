@@ -213,6 +213,7 @@ namespace EppiReviewer4
                     tbMagSas.Text = mb.LatestMagSasUri;
                     tbLatestMag.Text = mb.LatestMAGName;
                     tbReleaseNotes.Text = mb.ReleaseNotes;
+                    tbPreviousMAG.Text = mb.PreviousMAGName;
                 }
             };
             //BusyLoading.IsRunning = true;
@@ -2151,7 +2152,8 @@ namespace EppiReviewer4
 
         private void CheckChangedPaperIds_Click(object sender, RoutedEventArgs e)
         {
-            RadWindow.Confirm("Are you sure?\nPlease check it is not already running first!", this.DoCheckChangedPaperIds);
+            RadWindow.Confirm("Are you sure?\nPlease check it is not already running first!\nOld: " + tbPreviousMAG.Text + " new: " + tbLatestMag.Text,
+                this.DoCheckChangedPaperIds);
         }
 
         private void DoCheckChangedPaperIds(object sender, WindowClosedEventArgs e)
@@ -2222,7 +2224,7 @@ namespace EppiReviewer4
 
         private void LBRunContReviewPipeline_Click(object sender, RoutedEventArgs e)
         {
-            RadWindow.Confirm("Are you sure you want to run the pipeline?!", this.checkRunContReviewPipeline);
+            RadWindow.Confirm("Are you sure you want to run the pipeline?!\nOld mag: " + tbPreviousMAG.Text + " new mag: " + tbLatestMag.Text, this.checkRunContReviewPipeline);
         }
 
         private void checkRunContReviewPipeline(object sender, WindowClosedEventArgs e)
@@ -2266,7 +2268,7 @@ namespace EppiReviewer4
             CslaDataProvider provider = ((CslaDataProvider)App.Current.Resources["MagCurrentInfoData"]);
             MagCurrentInfo mci = provider.Data as MagCurrentInfo;
             DataPortal<MagContReviewPipelineRunCommand> dp2 = new DataPortal<MagContReviewPipelineRunCommand>();
-            MagContReviewPipelineRunCommand RunPipelineCommand = new MagContReviewPipelineRunCommand(mci.MagFolder, tbLatestMag.Text);
+            MagContReviewPipelineRunCommand RunPipelineCommand = new MagContReviewPipelineRunCommand(tbPreviousMAG.Text, tbLatestMag.Text);
             dp2.ExecuteCompleted += (o, e2) =>
             {
                 if (e2.Error != null)

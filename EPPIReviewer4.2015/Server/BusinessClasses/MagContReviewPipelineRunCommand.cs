@@ -97,7 +97,7 @@ namespace BusinessLibrary.BusinessClasses
 #endif
             int logId = MagLog.SaveLogEntry("ContReview process", "running", "Main update. starting", ContactId);
             
-            string folderPrefix = Guid.NewGuid().ToString();
+            string folderPrefix = TrainingRunCommand.NameBase + Guid.NewGuid().ToString();
             int SeedIds = WriteSeedIdsFile(uploadFileName);
             MagLog.UpdateLogEntry("running", "Main update. SeedIds: " + SeedIds.ToString(), ContactId);
             

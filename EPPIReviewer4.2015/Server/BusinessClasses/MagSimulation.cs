@@ -526,7 +526,7 @@ namespace BusinessLibrary.BusinessClasses
 
 #endif
             
-            string folderPrefix = TrainingRunCommand.NameBase.ToLower() + "-sim" + this.MagSimulationId.ToString();
+            string folderPrefix = TrainingRunCommand.NameBase.ToLower() + "sim" + this.MagSimulationId.ToString();
 
             WriteIdFiles(ReviewId, ContactId, uploadFileName);
             await UploadIdsFileAsync(uploadFileName, folderPrefix);
