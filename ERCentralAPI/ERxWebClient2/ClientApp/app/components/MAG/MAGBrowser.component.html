@@ -5,13 +5,13 @@
 </button>
 <div class="containsAtoolbar">
     <kendo-toolbar>
-        <kendo-toolbar-button [text]="'Selected'" (click)="Selected()" [disabled]="!HasWriteRights"></kendo-toolbar-button>
+        <kendo-toolbar-button [text]="'Selected'" (click)="AddToSelectedList()" [disabled]="!HasWriteRights"></kendo-toolbar-button>
         <kendo-toolbar-button [text]="'Clear Selected'" (click)="ClearSelected()" [disabled]="!HasWriteRights"></kendo-toolbar-button>
         <kendo-toolbar-button [text]="'Import Selected'" (click)="ImportSelected()" [disabled]="HasWriteRights"></kendo-toolbar-button>
-        <kendo-toolbar-button [text]="'Auto-update home'" (click)="AutoUpdateHome()" [disabled]="!HasWriteRights"></kendo-toolbar-button>
+        <kendo-toolbar-button [text]="'Auto-update home'" (click)="ShowAutoUpdateHome()" [disabled]="!HasWriteRights"></kendo-toolbar-button>
         <kendo-toolbar-button [text]="'Advanced features'" (click)="AdvancedFeatures()" [disabled]="!HasWriteRights"></kendo-toolbar-button>
-        <kendo-toolbar-button [text]="'Show history'" (click)="ShowHistory()" [disabled]="!HasWriteRights"></kendo-toolbar-button>
-        <kendo-toolbar-button [text]="'Admin'" (click)="Admin()" [disabled]="!HasWriteRights"></kendo-toolbar-button>
+        <kendo-toolbar-button [text]="'Show history'" (click)="ShowMAGBrowserHistory()" [disabled]="!HasWriteRights"></kendo-toolbar-button>
+        <kendo-toolbar-button [text]="'Admin'" (click)="ShowAdminPage()" [disabled]="!HasWriteRights"></kendo-toolbar-button>
         <kendo-toolbar-button [text]="'Back'" (click)="Back()" [disabled]="!HasWriteRights"></kendo-toolbar-button>
         <kendo-toolbar-button [text]="'Forward'" (click)="Forward()" [disabled]="!HasWriteRights"></kendo-toolbar-button>
     </kendo-toolbar>
@@ -55,7 +55,7 @@
         </table>
     </div>
 
-    <kendo-tabstrip #tabstripReferences (tabSelect)="onTabSelect($event)" class="col-5" [keepTabContent]="true">
+    <kendo-tabstrip #tabstripSelectedPapers class="col-5" [keepTabContent]="true">
         <kendo-tabstrip-tab [selected]="true" [title]="'References'">
             <ng-template kendoTabContent>
 
@@ -91,10 +91,9 @@
 
             </ng-template>
         </kendo-tabstrip-tab>
-
         <kendo-tabstrip-tab [title]="'Citated By'">
             <ng-template kendoTabContent>
-                <div [title]="'Citated By'" style="min-height:500px;min-width:450px; overflow:auto;" >
+                <div [title]="'Citated By'" style="min-height:500px;min-width:450px; overflow:auto;">
                     <div>
                         <table class="card col-12 small table table-border  table-striped bg-light">
                             <thead>
@@ -111,6 +110,30 @@
                                 </tr>
                             </tbody>
                         </table>
+                    </div>
+                </div>
+            </ng-template>
+        </kendo-tabstrip-tab>
+        <kendo-tabstrip-tab [title]="'Selected Papers'">
+            <ng-template kendoTabContent>
+                <div [title]="'Selected Papers'" style="min-height:500px;min-width:450px; overflow:auto;">
+                    <div>
+                        <table class="card col-12 small table table-border table-striped bg-light">
+                            <thead>
+                                <tr></tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let item of selectedPapers">
+                                    <td>{{item.fullRecord}}</td>
+                                    <td>
+                                        <button (click)="InOutReview(item)" class="btn btn-outline-success">
+                                            {{item.isSelected == true ? 'UnSelect' : 'Select'}}
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <!--<MAGpaginatorComp class="row ml-1 pt-1 mr-1 pr-1 border-top porder-info"></MAGpaginatorComp>-->
                     </div>
                 </div>
             </ng-template>

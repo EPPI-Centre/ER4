@@ -287,7 +287,7 @@ export class AdvancedMAGFeaturesComponent implements OnInit {
                 criteria2.listType = 'PaperFieldOfStudyList';
                 criteria2.paperIdList = this._magBrowserService.ListCriteria.paperIds;
                 criteria2.searchText = ''; //TODO this will be populated by the user..
-                this._magBrowserService.FetchMagFieldOfStudyList(criteria2).then(
+                this._magBrowserService.FetchMagFieldOfStudyList(criteria2, 'ReviewMatchedPapers').then(
 
                     () => { this.router.navigate(['MAGBrowser']); }
                 );

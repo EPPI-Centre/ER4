@@ -185,7 +185,7 @@ export class MAGAdvancedService extends BusyAwareService {
                                     criteria12.searchText = ''; //TODO this will be populated by the user..
 
                                     console.log('3 paperIds: ', this.PaperIds);
-                                    this._magBrowserService.FetchMagFieldOfStudyList(criteria12).then(
+                                    this._magBrowserService.FetchMagFieldOfStudyList(criteria12, 'CitationsList').then(
 
                                         () => { return; }
                                     );
