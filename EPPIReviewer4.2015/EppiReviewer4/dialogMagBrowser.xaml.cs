@@ -17,6 +17,7 @@ using BusinessLibrary.Security;
 using System.Windows.Threading;
 using Telerik.Windows.Controls.ChartView;
 using System.IO;
+using System.Text.RegularExpressions;
 
 namespace EppiReviewer4
 {
@@ -1393,7 +1394,7 @@ namespace EppiReviewer4
 
         private void tbFindTopics_TextChanged(object sender, TextChangedEventArgs e)
         {
-            if (tbFindTopics.Text.Length > 2)
+            if (CleanText(tbFindTopics.Text).Length > 2)
             {
                 if (this.timer != null && this.timer.IsEnabled)
                 {
@@ -1412,6 +1413,18 @@ namespace EppiReviewer4
             {
                 WPFindTopics.Children.Clear();
             }
+        }
+
+        public static string CleanText(string text)
+        {
+            Regex rgx = new Regex("[^a-zA-Z0-9 ]");
+            
+            text = rgx.Replace(text, " ").ToLower().Trim();
+            while (text.IndexOf("  ") != -1)
+            {
+                text = text.Replace("  ", " ");
+            }
+            return text;
         }
 
         private void Timer_Tick(object sender, EventArgs e)

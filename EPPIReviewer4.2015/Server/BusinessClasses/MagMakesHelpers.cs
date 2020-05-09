@@ -210,7 +210,7 @@ namespace BusinessLibrary.BusinessClasses
 
         public static MakesInterpretResponse InterpretQuery(string expression, string MakesDeploymentStatus = "LIVE")
         {
-            string query = @"/interpret?query=" + System.Web.HttpUtility.UrlEncode(expression);
+            string query = @"/interpret?query=" + System.Web.HttpUtility.UrlEncode(CleanText(expression));
             return doMakesInterpretRequest(query, "", MakesDeploymentStatus);
         }
 
