@@ -5,7 +5,6 @@
 </button>
 <div class="containsAtoolbar">
     <kendo-toolbar>
-        <kendo-toolbar-button [text]="'Selected'" (click)="AddToSelectedList()" [disabled]="!HasWriteRights"></kendo-toolbar-button>
         <kendo-toolbar-button [text]="'Clear Selected'" (click)="ClearSelected()" [disabled]="!HasWriteRights"></kendo-toolbar-button>
         <kendo-toolbar-button [text]="'Import Selected'" (click)="ImportSelected()" [disabled]="HasWriteRights"></kendo-toolbar-button>
         <kendo-toolbar-button [text]="'Auto-update home'" (click)="ShowAutoUpdateHome()" [disabled]="!HasWriteRights"></kendo-toolbar-button>
@@ -91,7 +90,7 @@
 
             </ng-template>
         </kendo-tabstrip-tab>
-        <kendo-tabstrip-tab [title]="'Citated By'">
+        <kendo-tabstrip-tab [title]="'Citated By'" [disabled]="HideCitatedBy()">
             <ng-template kendoTabContent>
                 <div [title]="'Citated By'" style="min-height:500px;min-width:450px; overflow:auto;">
                     <div>
@@ -100,7 +99,7 @@
                                 <tr></tr>
                             </thead>
                             <tbody>
-                                <tr *ngFor="let item of _magBrowserService.MagCitationsPaperList.papers">
+                                <tr *ngFor="let item of _magBrowserService.MagCitationsByPaperList.papers">
                                     <td>{{item.fullRecord}}</td>
                                     <td>
                                         <button (click)="InOutReview(item)" class="btn btn-outline-success">
@@ -114,7 +113,7 @@
                 </div>
             </ng-template>
         </kendo-tabstrip-tab>
-        <kendo-tabstrip-tab [title]="'Selected Papers'">
+        <kendo-tabstrip-tab [title]="'Selected Papers'" [disabled]="HideSelectedPapers()">
             <ng-template kendoTabContent>
                 <div [title]="'Selected Papers'" style="min-height:500px;min-width:450px; overflow:auto;">
                     <div>
@@ -139,8 +138,6 @@
             </ng-template>
         </kendo-tabstrip-tab>
     </kendo-tabstrip>
-
-
-
+    
 </div>
 <statusbar></statusbar>

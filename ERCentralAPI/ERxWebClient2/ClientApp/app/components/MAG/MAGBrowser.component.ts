@@ -69,13 +69,14 @@ export class MAGBrowser implements OnInit {
         if (!this.IsInSelectedList(paperId)) {
             this.SelectedPaperIds.push(paperId);
             this.UpdateSelectedCount();
+            this.AddToSelectedList();
         }
     }
     public AddToSelectedList() {
 
         for (var i = 0; i < this.SelectedPaperIds.length; i++) {
             var item = this._magBrowserService.MAGList.papers.filter(x => x.paperId == this.SelectedPaperIds[i])[0];
-            if (item != null) {
+            if (item != null && this.selectedPapers.findIndex(x => x.paperId == this.SelectedPaperIds[i]) == -1) {
                 this.selectedPapers.push(item);
             }
         }
@@ -144,6 +145,25 @@ export class MAGBrowser implements OnInit {
                 }
             }
         );
+    }
+    public HideCitatedBy(): boolean {
+
+        let len: number = this._magBrowserService.MagCitationsByPaperList.papers.length;
+        if (len > 0) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+    public HideSelectedPapers(): boolean {
+
+        let len: number = this.SelectedPaperIds.length;
+        if (len > 0) {
+            return false;
+        } else {
+            return true;
+        }
+
     }
     private IsInSelectedList(paperId: number): boolean {
 
