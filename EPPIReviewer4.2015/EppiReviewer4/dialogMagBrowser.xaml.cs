@@ -856,6 +856,9 @@ namespace EppiReviewer4
             {
                 CslaDataProvider provider = this.Resources["TopicPaperListData"] as CslaDataProvider;
                 MagPaperList mpl = provider.Data as MagPaperList;
+                mpl.PageSize = Convert.ToInt32((comboTopicPageSize.SelectedItem as ComboBoxItem).Tag);
+                TopicPaperListBibliographyPager.PageSize = Convert.ToInt32((comboTopicPageSize.SelectedItem as ComboBoxItem).Tag);
+                //TopicPaperListBibliographyPager.MoveToFirstPage();
                 provider.FactoryParameters.Clear();
                 MagPaperListSelectionCriteria selectionCriteria = new MagPaperListSelectionCriteria();
                 selectionCriteria.PageSize = Convert.ToInt32((comboTopicPageSize.SelectedItem as ComboBoxItem).Tag);
@@ -874,6 +877,8 @@ namespace EppiReviewer4
             {
                 CslaDataProvider provider = this.Resources["TopicPaperListData"] as CslaDataProvider;
                 MagPaperList mpl = provider.Data as MagPaperList;
+                mpl.PageSize = Convert.ToInt32((comboTopicPageSize.SelectedItem as ComboBoxItem).Tag);
+                TopicPaperListBibliographyPager.PageSize = Convert.ToInt32((comboTopicPageSize.SelectedItem as ComboBoxItem).Tag);
                 provider.FactoryParameters.Clear();
                 MagPaperListSelectionCriteria selectionCriteria = new MagPaperListSelectionCriteria();
                 selectionCriteria.PageSize = Convert.ToInt32((comboTopicPageSize.SelectedItem as ComboBoxItem).Tag);
