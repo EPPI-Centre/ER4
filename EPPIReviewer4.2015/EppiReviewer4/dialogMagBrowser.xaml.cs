@@ -669,6 +669,24 @@ namespace EppiReviewer4
             provider.Refresh();
         }
 
+        private void lbSelectAll_Click(object sender, RoutedEventArgs e)
+        {
+            CslaDataProvider provider = ((CslaDataProvider)this.Resources["TopicPaperListData"]);
+            if (provider != null && provider.Data != null)
+            {
+                AddAllToSelectedList(provider.Data as MagPaperList);
+            }
+        }
+
+        private void lbSelectAllPapers_Click(object sender, RoutedEventArgs e)
+        {
+            CslaDataProvider provider = ((CslaDataProvider)this.Resources["PaperListData"]);
+            if (provider != null && provider.Data != null)
+            {
+                AddAllToSelectedList(provider.Data as MagPaperList);
+            }
+        }
+
         private void CslaDataProvider_DataChanged_1(object sender, EventArgs e)
         {
             CslaDataProvider provider = ((CslaDataProvider)this.Resources["PaperListAssociatedTopicsData"]);
@@ -772,7 +790,7 @@ namespace EppiReviewer4
             CslaDataProvider provider = this.Resources["TopicPaperListData"] as CslaDataProvider;
             provider.FactoryParameters.Clear();
             MagPaperListSelectionCriteria selectionCriteria = new MagPaperListSelectionCriteria();
-            selectionCriteria.PageSize = 20;
+            selectionCriteria.PageSize = Convert.ToInt32((comboTopicPageSize.SelectedItem as ComboBoxItem).Tag);
             selectionCriteria.PageNumber = 0;
             selectionCriteria.ListType = "PaperFieldsOfStudyList";
             selectionCriteria.FieldOfStudyId = FieldOfStudyId;
@@ -839,8 +857,26 @@ namespace EppiReviewer4
                 MagPaperList mpl = provider.Data as MagPaperList;
                 provider.FactoryParameters.Clear();
                 MagPaperListSelectionCriteria selectionCriteria = new MagPaperListSelectionCriteria();
-                selectionCriteria.PageSize = 20;
+                selectionCriteria.PageSize = Convert.ToInt32((comboTopicPageSize.SelectedItem as ComboBoxItem).Tag);
                 selectionCriteria.PageNumber = e.NewPageIndex;
+                selectionCriteria.ListType = "PaperFieldsOfStudyList";
+                selectionCriteria.FieldOfStudyId = mpl.FieldOfStudyId;
+                provider.FactoryParameters.Add(selectionCriteria);
+                provider.FactoryMethod = "GetMagPaperList";
+                provider.Refresh();
+            }
+        }
+
+        private void comboTopicPageSize_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+        {
+            if (comboTopicPageSize != null && comboTopicPageSize.Items.Count > 0)
+            {
+                CslaDataProvider provider = this.Resources["TopicPaperListData"] as CslaDataProvider;
+                MagPaperList mpl = provider.Data as MagPaperList;
+                provider.FactoryParameters.Clear();
+                MagPaperListSelectionCriteria selectionCriteria = new MagPaperListSelectionCriteria();
+                selectionCriteria.PageSize = Convert.ToInt32((comboTopicPageSize.SelectedItem as ComboBoxItem).Tag);
+                selectionCriteria.PageNumber = 0;
                 selectionCriteria.ListType = "PaperFieldsOfStudyList";
                 selectionCriteria.FieldOfStudyId = mpl.FieldOfStudyId;
                 provider.FactoryParameters.Add(selectionCriteria);
@@ -1208,10 +1244,18 @@ namespace EppiReviewer4
 
         private void AddToSelectedList(Int64 PaperId)
         {
-            if (!IsInSelectedList(PaperId))
+            if (!IsInSelectedList(PaperId) && PaperId > 0)
             {
                 SelectedPaperIds.Add(PaperId);
                 UpdateSelectedCount();
+            }
+        }
+
+        private void AddAllToSelectedList(MagPaperList paperlist)
+        {
+            foreach (MagPaper p in paperlist)
+            {
+                AddToSelectedList(p.PaperId);
             }
         }
 
