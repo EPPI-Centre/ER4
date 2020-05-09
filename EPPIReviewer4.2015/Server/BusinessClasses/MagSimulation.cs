@@ -533,8 +533,13 @@ namespace BusinessLibrary.BusinessClasses
             MagLog.UpdateLogEntry("running", "Sim: " + MagSimulationId.ToString() + ", file uploaded", MagLogId);
 
             SubmitCreatTrainFileJob(ContactId, folderPrefix);
+            if (this.SearchMethod == "Extended network")
+            {
+                SubmitCreatExtendedTrainFileJob(ContactId, folderPrefix);
+            }
             SubmitCreatInferenceFileJob(ContactId, folderPrefix);
 
+            
             if ((await CheckTrainAndInferenceFilesOk(folderPrefix)) == false)
             {
                 MagLog.UpdateLogEntry("failed", "Sim: " + MagSimulationId.ToString() + ", Training files not uploaded / empty", MagLogId);
@@ -631,10 +636,20 @@ namespace BusinessLibrary.BusinessClasses
                 "\");", true, "GenerateTrainFile", ContactId, 10);
         }
 
+        private void SubmitCreatExtendedTrainFileJob(int ContactId, string folderPrefix)
+        {
+            MagCurrentInfo MagInfo = MagCurrentInfo.GetMagCurrentInfoServerSide("LIVE");
+            MagDataLakeHelpers.ExecProc(@"[master].[dbo].[GenerateExtendedTrainFile](""" + folderPrefix + "/Train.tsv\",\"" +
+                folderPrefix + "/ExtendedTrain.tsv" + "\", \"" + MagInfo.MagFolder + "\"," + 
+                this.Year.ToString() + ",\"" + this.CreatedDate.ToString() +
+                "\");", true, "GenerateExtendedTrainFile", ContactId, 10);
+        }
+
         private void SubmitCreatInferenceFileJob(int ContactId, string folderPrefix)
         {
             MagCurrentInfo MagInfo = MagCurrentInfo.GetMagCurrentInfoServerSide("LIVE");
-            MagDataLakeHelpers.ExecProc(@"[master].[dbo].[GenerateInferenceFile](""" + folderPrefix + "/Train.tsv\",\"" +
+            MagDataLakeHelpers.ExecProc(@"[master].[dbo].[GenerateInferenceFile](""" + folderPrefix +
+                (this.SearchMethod == "Extended network" ? "/ExtendedTrain.tsv\",\"" :  "/Train.tsv\",\"") +
                 folderPrefix + "/Inference.tsv" + "\", \"" + MagInfo.MagFolder + "\",\"" + this.SearchMethod + "\"," +
                 (this.WithThisAttributeId == 0 ? this.Year.ToString() : "1753") + ",\"" +
                 (this.CreatedDate.Date.Year == 1753 ? "" : this.CreatedDate.ToString()) + "\"," +
@@ -666,19 +681,34 @@ namespace BusinessLibrary.BusinessClasses
 
             CloudBlockBlob blockBlobIds = containerDown.GetBlockBlobReference(folderPrefix + "/Train.tsv");
             CloudBlockBlob blockBlobInferenceIds = containerDown.GetBlockBlobReference(folderPrefix + "/Inference.tsv");
+            CloudBlockBlob blockBlobExtendedTrainIds = containerDown.GetBlockBlobReference(folderPrefix + "/ExtendedTrain.tsv");
             try
             {
                 await blockBlobIds.FetchAttributesAsync();
                 await blockBlobInferenceIds.FetchAttributesAsync();
+                if (this.SearchMethod == "Extended network")
+                {
+                    await blockBlobExtendedTrainIds.FetchAttributesAsync();
+                }
             }
             catch
             {
                 return false;
             }
-            if (blockBlobIds.Properties.Length > 0 && blockBlobInferenceIds.Properties.Length > 0)
-                return true;
+            if (this.SearchMethod == "Extended network")
+            {
+                if (blockBlobIds.Properties.Length > 0 && blockBlobInferenceIds.Properties.Length > 0 && blockBlobExtendedTrainIds.Properties.Length > 0)
+                    return true;
+                else
+                    return false;
+            }
             else
-                return false;
+            {
+                if (blockBlobIds.Properties.Length > 0 && blockBlobInferenceIds.Properties.Length > 0)
+                    return true;
+                else
+                    return false;
+            }
         }
 
         private async Task<int> DownloadResultsAsync(string folderPrefix, int ReviewId)

@@ -221,6 +221,7 @@
                         <ComboBoxItem Content="BiCitation" Tag="BiCitation"></ComboBoxItem>
                         <ComboBoxItem Content="Recommendations" Tag="Recommendations" IsSelected="True"></ComboBoxItem>
                         <ComboBoxItem Content="Bi-Citation AND Recommendations" Tag="Bi-Citation AND Recommendations"></ComboBoxItem>
+                        <ComboBoxItem Content="Extended network" Tag="Extended network"></ComboBoxItem>
                     </ComboBox>
                     <TextBlock Margin="5,5,5,5" Text="Network statistic" VerticalAlignment="Center" Visibility="Collapsed"></TextBlock>
                     <ComboBox x:Name="comboSimulationNetworkStats" Margin="5,5,5,5" VerticalAlignment="Center" Visibility="Collapsed">

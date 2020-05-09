@@ -154,7 +154,6 @@ namespace BusinessLibrary.BusinessClasses
             public List<PaperMakes> entities { get; set; }
         }
 
-
         public static string getAuthors(List<PaperMakesAuthor> authors)
         {
             string tmp = "";
@@ -207,6 +206,12 @@ namespace BusinessLibrary.BusinessClasses
         {
             string query = @"/evaluate?expr=" + expression;
             return doMakesRequestFoS(query, "", MakesDeploymentStatus);
+        }
+
+        public static MakesInterpretResponse InterpretQuery(string expression, string MakesDeploymentStatus = "LIVE")
+        {
+            string query = @"/interpret?query=" + System.Web.HttpUtility.UrlEncode(expression);
+            return doMakesInterpretRequest(query, "", MakesDeploymentStatus);
         }
 
         public static FieldOfStudyMakes EvaluateSingleFieldOfStudyId(string FosId, string MakesDeploymentStatus = "LIVE")
@@ -431,7 +436,6 @@ namespace BusinessLibrary.BusinessClasses
             return PaperList;
         }
 
-
         private static PaperMakesResponse doMakesRequest(string query, string appendPageInfo, string MakesDeploymentStatus)
         {
             var jsonsettings = new JsonSerializerSettings
@@ -481,7 +485,30 @@ namespace BusinessLibrary.BusinessClasses
             return respJson;
         }
 
+        private static MakesInterpretResponse doMakesInterpretRequest(string query, string appendPageInfo, string MakesDeploymentStatus)
+        {
+            var jsonsettings = new JsonSerializerSettings
+            {
+                NullValueHandling = NullValueHandling.Ignore,
+                MissingMemberHandling = MissingMemberHandling.Ignore
+            };
 
+            string responseText = "";
+            MagCurrentInfo MagInfo = MagCurrentInfo.GetMagCurrentInfoServerSide(MakesDeploymentStatus);
+            WebRequest request = WebRequest.Create(MagInfo.MakesEndPoint + query +
+                "&entityCount=5&attributes=" + System.Web.HttpUtility.UrlEncode("AA.AfId,AA.AfN,AA.DAfN,AA.AuId,AA.AuN,AA.DAuN,AA.S,C.CId,C.CN,CC,D,DN,DOI,ECC,F.FId,F.DFN,F.FN,I,IA,Id,J.JId,J.JN,LP,PB,PCS.CId,PCS.CN,Pt,RId,S,Ti,Ty,V,VFN,VSN,W,Y") +
+                "&complete=1&count=10&normalize=1&model=latest");
+            WebResponse response = request.GetResponse();
+            using (Stream dataStream = response.GetResponseStream())
+            {
+                StreamReader sreader = new StreamReader(dataStream);
+                responseText = sreader.ReadToEnd();
+            }
+            response.Close();
+            
+            MakesInterpretResponse respJson = JsonConvert.DeserializeObject<MakesInterpretResponse>(responseText, jsonsettings);
+            return respJson;
+        }
 
 
         public static PaperMakes GetPaperMakesFromMakes(Int64 PaperId, string MakesDeploymentStatus = "LIVE")
