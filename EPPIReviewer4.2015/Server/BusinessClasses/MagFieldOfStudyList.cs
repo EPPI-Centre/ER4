@@ -67,28 +67,57 @@ namespace BusinessLibrary.BusinessClasses
                     searchString = "Id=" + selectionCriteria.FieldOfStudyId.ToString() +
                         @"&attributes=Id,CC,DFN,ECC,FL,FN,FC.FId,FC.FN,FP.FId,FP.FN";
                     break;
+                case "FieldOfStudySearchList":
+                    searchString = selectionCriteria.SearchText;
+                    break;
             }
 
             if (searchString != "")
             {
-                /*
-                var jsonsettings = new JsonSerializerSettings
+                if (selectionCriteria.ListType == "FieldOfStudySearchList")
                 {
-                    NullValueHandling = NullValueHandling.Ignore,
-                    MissingMemberHandling = MissingMemberHandling.Ignore
-                };
-
-                string responseText = "";
-                MagCurrentInfo MagInfo = MagCurrentInfo.GetMagCurrentInfoServerSide();
-                WebRequest request = WebRequest.Create(MagInfo.MakesEndPoint + @"/evaluate?expr=" + searchString);
-                WebResponse response = request.GetResponse();
-                using (Stream dataStream = response.GetResponseStream())
-                {
-                    StreamReader sreader = new StreamReader(dataStream);
-                    responseText = sreader.ReadToEnd();
+                    MagMakesHelpers.MakesInterpretResponse respJson = MagMakesHelpers.InterpretQuery(searchString);
+                    var fosDict = new Dictionary<string, int>();
+                    if (respJson != null && respJson.interpretations != null && respJson.interpretations.Count > 0)
+                    {
+                        foreach (MagMakesHelpers.MakesInterpretation i in respJson.interpretations)
+                        {
+                            foreach (MagMakesHelpers.MakesInterpretationRule r in i.rules)
+                            {
+                                foreach (MagMakesHelpers.PaperMakes pm in r.output.entities)
+                                {
+                                    if (pm.F != null)
+                                    {
+                                        foreach (MagMakesHelpers.PaperMakesFieldOfStudy pmfos in pm.F)
+                                        {
+                                            if (MagPaperItemMatch.HaBoLevenshtein(pmfos.DFN, selectionCriteria.SearchText) > 20)
+                                            {
+                                                string key = pmfos.FId.ToString() + "¬" + pmfos.DFN;
+                                                if (!fosDict.ContainsKey(key))
+                                                {
+                                                    fosDict.Add(key, 1);
+                                                }
+                                                else
+                                                {
+                                                    fosDict[key] = fosDict[key] + 1;
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    foreach (KeyValuePair<string, int> eachFos in fosDict.OrderByDescending(val => val.Value))
+                    {
+                        MagMakesHelpers.PaperMakesFieldOfStudy newPmfos = new MagMakesHelpers.PaperMakesFieldOfStudy();
+                        newPmfos.FId = Convert.ToInt64(eachFos.Key.Split('¬')[0]);
+                        newPmfos.DFN = eachFos.Key.Split('¬')[1];
+                        Add(MagFieldOfStudy.GetMagFieldOfStudyFromPaperMakesFieldOfStudy(newPmfos));
+                    }
+                    RaiseListChangedEvents = true;
+                    return;
                 }
-                response.Close();
-                */
                 if (selectionCriteria.ListType == "PaperFieldOfStudyList") // these are paper entities not fields of study
                 {
                     var fosDict = new Dictionary<string, int>();

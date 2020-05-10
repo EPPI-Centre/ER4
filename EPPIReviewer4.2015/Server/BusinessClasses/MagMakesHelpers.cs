@@ -154,7 +154,6 @@ namespace BusinessLibrary.BusinessClasses
             public List<PaperMakes> entities { get; set; }
         }
 
-
         public static string getAuthors(List<PaperMakesAuthor> authors)
         {
             string tmp = "";
@@ -209,6 +208,12 @@ namespace BusinessLibrary.BusinessClasses
             return doMakesRequestFoS(query, "", MakesDeploymentStatus);
         }
 
+        public static MakesInterpretResponse InterpretQuery(string expression, string MakesDeploymentStatus = "LIVE")
+        {
+            string query = @"/interpret?query=" + System.Web.HttpUtility.UrlEncode(CleanText(expression));
+            return doMakesInterpretRequest(query, "", MakesDeploymentStatus);
+        }
+
         public static FieldOfStudyMakes EvaluateSingleFieldOfStudyId(string FosId, string MakesDeploymentStatus = "LIVE")
         {
             var jsonsettings = new JsonSerializerSettings
@@ -240,8 +245,13 @@ namespace BusinessLibrary.BusinessClasses
         public static List<PaperMakes> GetCandidateMatches(string text, string MakesDeploymentStatus = "LIVE", bool TryAgain = false)
         {
             List<PaperMakes> PaperList = new List<PaperMakes>();
+            
             string searchText = CleanText(text);
-
+            /* Hard to tell whether it's better or worse removing stopwords
+            searchText = removeStopwords(searchText);
+            string[] words = searchText.Split(' ');
+            searchText = string.Join(" ", words.Take(6));
+            */
             if (searchText != "")
             {
                 var jsonsettings = new JsonSerializerSettings
@@ -256,7 +266,8 @@ namespace BusinessLibrary.BusinessClasses
                 searchText = System.Web.HttpUtility.UrlEncode(searchText);//uses "+" for spaces, letting his happen when creating the request would put 20% for spaces => makes the querystring longer!
 
                 string queryString =  @"/interpret?query=" +
-                    searchText + @"&complete=0&normalize=0&attributes=Id,DN,AA.AuN,J.JN,V,I,FP,Y&timeout=15000&entityCount=100";
+                    searchText + "&entityCount=5&attributes=" + System.Web.HttpUtility.UrlEncode("Id,DN,AA.AuN,J.JN,V,I,FP,Y") +
+                    "&complete=0&count=100&offset=0&timeout=2000&model=latest";
                 string FullRequestStr = MagInfo.MakesEndPoint + queryString;
                 if (FullRequestStr.Length >= 2048 || queryString.Length >= 1024)
                 {//this would fail entire URL is too long or the query string is.
@@ -270,7 +281,8 @@ namespace BusinessLibrary.BusinessClasses
                         {
                             searchText = searchText.Substring(0, truncateAt);
                             queryString = @"/interpret?query=" +
-                                searchText + @"&complete=0&normalize=0&attributes=Id,DN,AA.AuN,J.JN,V,I,FP,Y&timeout=15000&entityCount=100";
+                                searchText + "&entityCount=5&attributes=" + System.Web.HttpUtility.UrlEncode("Id,DN,AA.AuN,J.JN,V,I,FP,Y") +
+                                "&complete=0&count=100&offset=0&timeout=2000&model=latest";
                             FullRequestStr = MagInfo.MakesEndPoint + queryString;
                         }
                     }
@@ -337,8 +349,11 @@ namespace BusinessLibrary.BusinessClasses
 
                 string responseText = "";
                 MagCurrentInfo MagInfo = MagCurrentInfo.GetMagCurrentInfoServerSide(MakesDeploymentStatus);
-                WebRequest request = WebRequest.Create(MagInfo.MakesEndPoint + @"/interpret?query=" +
-                    searchText + @"&complete=0&normalize=0&attributes=Id,DN,AA.AuN,J.JN,V,I,FP,Y&timeout=15000&entityCount=100");
+                string queryString = @"/interpret?query=" +
+                    searchText + "&entityCount=5&attributes=" + System.Web.HttpUtility.UrlEncode("Id,DN,AA.AuN,J.JN,V,I,FP,Y") +
+                    "&complete=0&count=100&offset=0&timeout=2000&model=latest";
+
+                WebRequest request = WebRequest.Create(MagInfo.MakesEndPoint + queryString);
                 WebResponse response = request.GetResponse();
                 using (Stream dataStream = response.GetResponseStream())
                 {
@@ -346,7 +361,6 @@ namespace BusinessLibrary.BusinessClasses
                     responseText = sreader.ReadToEnd();
                 }
                 response.Close();
-
 
                 var respJson = JsonConvert.DeserializeObject<MagMakesHelpers.MakesInterpretResponse>(responseText, jsonsettings);
                 if (respJson != null && respJson.interpretations != null && respJson.interpretations.Count > 0)
@@ -371,6 +385,56 @@ namespace BusinessLibrary.BusinessClasses
             return PaperList;
         }
 
+        public static List<PaperMakes> GetCandidateMatchesOnDOI(string DOI, string MakesDeploymentStatus = "LIVE")
+        {//will try searching again, but truncating the search string when we find a problem word (if possible)
+            List<PaperMakes> PaperList = new List<PaperMakes>();
+            //string searchText = RestoreGreekLetters(text);
+
+            if (DOI != null && DOI != "")
+            {
+                var jsonsettings = new JsonSerializerSettings
+                {
+                    NullValueHandling = NullValueHandling.Ignore,
+                    MissingMemberHandling = MissingMemberHandling.Ignore
+                };
+
+                string responseText = "";
+                MagCurrentInfo MagInfo = MagCurrentInfo.GetMagCurrentInfoServerSide(MakesDeploymentStatus);
+                string queryString = @"/interpret?query=" +
+                    System.Web.HttpUtility.UrlEncode("DOI") + "&entityCount=5&attributes=" +
+                    System.Web.HttpUtility.UrlEncode("Id,DN,AA.AuN,J.JN,V,I,FP,Y") +
+                    "&complete=0&count=10&offset=0&timeout=2000&model=latest";
+                WebRequest request = WebRequest.Create(MagInfo.MakesEndPoint + queryString);
+                WebResponse response = request.GetResponse();
+                using (Stream dataStream = response.GetResponseStream())
+                {
+                    StreamReader sreader = new StreamReader(dataStream);
+                    responseText = sreader.ReadToEnd();
+                }
+                response.Close();
+
+                var respJson = JsonConvert.DeserializeObject<MagMakesHelpers.MakesInterpretResponse>(responseText, jsonsettings);
+                if (respJson != null && respJson.interpretations != null && respJson.interpretations.Count > 0)
+                {
+                    foreach (MakesInterpretation i in respJson.interpretations)
+                    {
+                        foreach (MakesInterpretationRule r in i.rules)
+                        {
+                            foreach (PaperMakes pm in r.output.entities)
+                            {
+                                var found = PaperList.Find(e => e.Id == pm.Id);
+                                if (found == null)
+                                {
+                                    PaperList.Add(pm);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            return PaperList;
+        }
 
         private static PaperMakesResponse doMakesRequest(string query, string appendPageInfo, string MakesDeploymentStatus)
         {
@@ -383,7 +447,7 @@ namespace BusinessLibrary.BusinessClasses
             string responseText = "";
             MagCurrentInfo MagInfo = MagCurrentInfo.GetMagCurrentInfoServerSide(MakesDeploymentStatus);
             WebRequest request = WebRequest.Create(MagInfo.MakesEndPoint + query +
-                "&attributes=AA.AfId,AA.DAfN,AA.DAuN,AA.AuId,CC,Id,DN,DOI,Pt,Ti,Y,D,PB,J.JN,J.JId,V,FP,LP,RId,ECC,IA,S" +
+                "&attributes=AA.AfId,AA.AuN,AA.DAfN,AA.DAuN,AA.AuId,CC,Id,DN,DOI,Pt,Ti,Y,D,PB,J.JN,J.JId,V,FP,LP,RId,ECC,IA,S" +
                 appendPageInfo);
             WebResponse response = request.GetResponse();
             using (Stream dataStream = response.GetResponseStream())
@@ -407,7 +471,7 @@ namespace BusinessLibrary.BusinessClasses
             string responseText = "";
             MagCurrentInfo MagInfo = MagCurrentInfo.GetMagCurrentInfoServerSide(MakesDeploymentStatus);
             WebRequest request = WebRequest.Create(MagInfo.MakesEndPoint + query +
-                "&attributes=AA.AfId,AA.DAfN,AA.DAuN,AA.AuId,CC,Id,DN,DOI,Pt,Ti,Y,D,PB,J.JN,J.JId,V,FP,LP,RId,ECC,IA,S" +
+                "&attributes=AA.AfId,AA.AuN,AA.DAfN,AA.DAuN,AA.AuId,CC,Id,DN,DOI,Pt,Ti,Y,D,PB,J.JN,J.JId,V,FP,LP,RId,ECC,IA,S" +
                 appendPageInfo);
             WebResponse response = request.GetResponse();
             using (Stream dataStream = response.GetResponseStream())
@@ -421,7 +485,30 @@ namespace BusinessLibrary.BusinessClasses
             return respJson;
         }
 
+        private static MakesInterpretResponse doMakesInterpretRequest(string query, string appendPageInfo, string MakesDeploymentStatus)
+        {
+            var jsonsettings = new JsonSerializerSettings
+            {
+                NullValueHandling = NullValueHandling.Ignore,
+                MissingMemberHandling = MissingMemberHandling.Ignore
+            };
 
+            string responseText = "";
+            MagCurrentInfo MagInfo = MagCurrentInfo.GetMagCurrentInfoServerSide(MakesDeploymentStatus);
+            WebRequest request = WebRequest.Create(MagInfo.MakesEndPoint + query +
+                "&entityCount=5&attributes=" + System.Web.HttpUtility.UrlEncode("AA.AfId,AA.AfN,AA.DAfN,AA.AuId,AA.AuN,AA.DAuN,AA.S,C.CId,C.CN,CC,D,DN,DOI,ECC,F.FId,F.DFN,F.FN,I,IA,Id,J.JId,J.JN,LP,PB,PCS.CId,PCS.CN,Pt,RId,S,Ti,Ty,V,VFN,VSN,W,Y") +
+                "&complete=1&count=10&normalize=1&model=latest");
+            WebResponse response = request.GetResponse();
+            using (Stream dataStream = response.GetResponseStream())
+            {
+                StreamReader sreader = new StreamReader(dataStream);
+                responseText = sreader.ReadToEnd();
+            }
+            response.Close();
+            
+            MakesInterpretResponse respJson = JsonConvert.DeserializeObject<MakesInterpretResponse>(responseText, jsonsettings);
+            return respJson;
+        }
 
 
         public static PaperMakes GetPaperMakesFromMakes(Int64 PaperId, string MakesDeploymentStatus = "LIVE")
@@ -626,6 +713,16 @@ namespace BusinessLibrary.BusinessClasses
                 { "psi", "ψ" },
                 { "omega", "ω" }
             };
+        }
+
+        private static string removeStopwords(string input)
+        {
+            string[] stopWords = { " and ", " for ", " are ", " from ", " have ", " results ", " based ", " between ", " can ", " has ", " analysis ", " been ", " not ", " method ", " also ", " new ", " its ", " all ", " but ", " during ", " after ", " into ", " other ", " our ", " non ", " present ", " most ", " only ", " however ", " associated ", " compared ", " des ", " related ", " proposed ", " about ", " each ", " obtained ", " increased ", " had ", " among ", " due ", " how ", " out ", " les ", " los ", " abstract ", " del ", " many ", " der ", " including ", " could ", " report ", " cases ", " possible ", " further ", " given ", " result ", " las ", " being ", " like ", " any ", " made ", " because ", " discussed ", " known ", " recent ", " findings ", " reported ", " considered ", " described ", " although ", " available ", " particular ", " provides ", " improved ", " here ", " need ", " improve ", " analyzed ", " either ", " produced ", " demonstrated ", " evaluated ", " provided ", " did ", " does ", " required ", " before ", " along ", " presents ", " having ", " much ", " near ", " demonstrate ", " iii ", " often ", " making ", " the ", " that ", " with ", " this ", " were ", " was ", " which ", " study ", " using ", " these ", " their ", " used ", " than ", " use ", " such ", " when ", " well ", " some ", " through ", " there ", " under ", " they ", " within ", " will ", " while ", " those ", " various ", " where ", " then ", " very ", " who ", " und ", " should ", " thus ", " suggest ", " them ", " therefore ", " since ", " une ", " what ", " whether ", " una ", " von ", " would ", " of ", " in ", " a ", " to ", " is ", " on ", " by ", " as ", " de ", " an ", " be ", " we ", " or ", " s ", " it ", " la ", " e ", " en ", " i ", " no ", " et ", " el ", " do ", " up ", " se ", " un ", " ii " };
+            foreach (string word in stopWords)
+            {
+                input = input.Replace(word, " ");
+            }
+            return input;
         }
         //the below is a failed attempt, we're doing something more sophysticated, in the end [see RestoreGreekLetters(string text)]
         //public static Regex ProblemWords = new Regex("[^a-zA-Z]alpha[^a-zA-Z]|[^a-zA-Z]beta[^a-zA-Z]|[^a-zA-Z]gamma[^a-zA-Z]|[^a-zA-Z]delta[^a-zA-Z]|[^a-zA-Z]epsilon[^a-zA-Z]|[^a-zA-Z]zeta[^a-zA-Z]|[^a-zA-Z]eta[^a-zA-Z]|[^a-zA-Z]theta[^a-zA-Z]|[^a-zA-Z]iota[^a-zA-Z]|[^a-zA-Z]kappa[^a-zA-Z]|[^a-zA-Z]lambda[^a-zA-Z]|[^a-zA-Z]mu[^a-zA-Z]|[^a-zA-Z]nu[^a-zA-Z]|[^a-zA-Z]xi[^a-zA-Z]|[^a-zA-Z]omicron[^a-zA-Z]|[^a-zA-Z]pi[^a-zA-Z]|[^a-zA-Z]rho[^a-zA-Z]|[^a-zA-Z]sigma[^a-zA-Z]|[^a-zA-Z]tau[^a-zA-Z]|[^a-zA-Z]upsilon[^a-zA-Z]|[^a-zA-Z]phi[^a-zA-Z]|[^a-zA-Z]chi[^a-zA-Z]|[^a-zA-Z]psi[^a-zA-Z]|[^a-zA-Z]omega[^a-zA-Z]");

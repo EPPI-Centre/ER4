@@ -35,6 +35,8 @@ namespace BusinessLibrary.BusinessClasses
 #endif
 
         private string _LatestMAGName;
+
+
         [Newtonsoft.Json.JsonProperty]
         
         public string LatestMAGName
@@ -81,14 +83,14 @@ namespace BusinessLibrary.BusinessClasses
 
             WriteCurrentlyUsedPaperIdsToFile(uploadFileName);
             UploadIdsFile(uploadFileName);
-            MagLog.SaveLogEntry("File Upload", "Complete", "", ContactId);
+            MagLog.UpdateLogEntry("Running", "ID checking: file uploaded", TaskMagLogId);
             SubmitJob(ContactId);
-            DownloadMissingIdsFile(uploadFileName);
-            int AutoMatchMagLogId = MagLog.SaveLogEntry("Auto-match IDs", "Started", "", ContactId);
-            LookupMissingIdsInNewMakes(ContactId);
-            MagLog.UpdateLogEntry("Complete", "", AutoMatchMagLogId);
+            int missingCount = DownloadMissingIdsFile(uploadFileName);
+            MagLog.UpdateLogEntry("Running", "Auto-match IDs n=" + missingCount.ToString(), TaskMagLogId);
+            LookupMissingIdsInNewMakes(ContactId, TaskMagLogId, missingCount);
+            MagLog.UpdateLogEntry("Running", "ID checking: lookups complete, updating live IDs", TaskMagLogId);
             UpdateLiveIds();
-            MagLog.SaveLogEntry("Live IDs updated", "Complete", "", ContactId);
+            MagLog.UpdateLogEntry("Complete", "ID checking complete", TaskMagLogId);
         }
 
         private void WriteCurrentlyUsedPaperIdsToFile(string fileName)
@@ -145,10 +147,10 @@ namespace BusinessLibrary.BusinessClasses
 
         private void SubmitJob(int ContactId)
         {
-            MagDataLakeHelpers.ExecProc(@"[master].[dbo].[GetPaperIdChanges](""not used"");", true, "GetPaperIdChanges", ContactId, 9);
+            MagDataLakeHelpers.ExecProc(@"[master].[dbo].[GetPaperIdChanges](""" + this.LatestMAGName + "\");", true, "GetPaperIdChanges", ContactId, 9);
         }
 
-        private void DownloadMissingIdsFile(string uploadFileName)
+        private int DownloadMissingIdsFile(string uploadFileName)
         {
             string storageAccountName = ConfigurationManager.AppSettings["MAGStorageAccount"];
             string storageAccountKey = ConfigurationManager.AppSettings["MAGStorageAccountKey"];
@@ -179,6 +181,7 @@ namespace BusinessLibrary.BusinessClasses
             dt.Columns.Add("ITEM_ID");
             dt.Columns.Add("NewAutoMatchScore");
 
+            int lineCount = 0;
             using (var reader = new StreamReader(ms))
             {
                 string line;
@@ -194,6 +197,7 @@ namespace BusinessLibrary.BusinessClasses
                     newRow["ITEM_ID"] = ITEM_ID;
                     newRow["NewAutoMatchScore"] = 0;
                     dt.Rows.Add(newRow);
+                    lineCount++;
                 }
             }
 
@@ -209,9 +213,10 @@ namespace BusinessLibrary.BusinessClasses
                 connection.Close();
             }
             blockBlobDownloadData.DeleteIfExists();
+            return lineCount;
         }
 
-        private void LookupMissingIdsInNewMakes(int ContactId)
+        private void LookupMissingIdsInNewMakes(int ContactId, int MagLogId, int missingCount)
         {
             int PaperTotalCount = 0;
             int PaperTotalFound = 0;
@@ -234,37 +239,59 @@ namespace BusinessLibrary.BusinessClasses
                             MagMakesHelpers.PaperMakes pm = MagMakesHelpers.GetPaperMakesFromMakes(SeekingPaperId);
                             if (pm != null)
                             {
-                                // MagPaperItemMatch has similar code to the below
-                                List<MagMakesHelpers.PaperMakes> candidatePapersOnTitle = MagMakesHelpers.GetCandidateMatches(pm.DN, "PENDING");
-
-                                if (candidatePapersOnTitle != null && candidatePapersOnTitle.Count > 0)
+                                List<MagMakesHelpers.PaperMakes> candidatePapersOnDOI = MagMakesHelpers.GetCandidateMatchesOnDOI(pm.DOI, "PENDING");
+                                if (candidatePapersOnDOI != null && candidatePapersOnDOI.Count > 0)
                                 {
-                                    foreach (MagMakesHelpers.PaperMakes cpm in candidatePapersOnTitle)
+                                    foreach (MagMakesHelpers.PaperMakes cpm in candidatePapersOnDOI)
                                     {
                                         MagPaperItemMatch.doMakesPapersComparison(pm, cpm);
                                     }
                                 }
-                                // add in matching on journals / authors if we don't have an exact match on title
-                                if (candidatePapersOnTitle.Count == 0 || (candidatePapersOnTitle.Max(t => t.matchingScore) < 0.7))
+                                if (candidatePapersOnDOI.Count == 0 || (candidatePapersOnDOI.Max(t => t.matchingScore) < 0.7))
                                 {
-                                    List<MagMakesHelpers.PaperMakes> candidatePapersOnAuthorJournal =
-                                        MagMakesHelpers.GetCandidateMatches(MagMakesHelpers.getAuthors(pm.AA) + " " + pm.J != null ? pm.J.JN : "");
-                                    foreach (MagMakesHelpers.PaperMakes cpm in candidatePapersOnAuthorJournal)
+                                    // MagPaperItemMatch has similar code to the below
+                                    List<MagMakesHelpers.PaperMakes> candidatePapersOnTitle =
+                                        MagMakesHelpers.GetCandidateMatches(pm.DN, "PENDING");
+                                        //MagMakesHelpers.GetCandidateMatches(pm.DN + " | " + (pm.J != null && pm.J.JN != null ? pm.J.JN : "") +
+                                        //" | " + MagMakesHelpers.getAuthors(pm.AA), "PENDING");
+
+                                    if (candidatePapersOnTitle != null && candidatePapersOnTitle.Count > 0)
                                     {
-                                        MagPaperItemMatch.doMakesPapersComparison(pm, cpm);
-                                    }
-                                    foreach (MagMakesHelpers.PaperMakes cpm in candidatePapersOnAuthorJournal)
-                                    {
-                                        var found = candidatePapersOnTitle.Find(e => e.Id == cpm.Id);
-                                        if (found == null)
+                                        foreach (MagMakesHelpers.PaperMakes cpm in candidatePapersOnTitle)
                                         {
-                                            candidatePapersOnTitle.Add(cpm);
+                                            MagPaperItemMatch.doMakesPapersComparison(pm, cpm);
+                                        }
+                                        foreach (MagMakesHelpers.PaperMakes cpm in candidatePapersOnTitle)
+                                        {
+                                            var found = candidatePapersOnDOI.Find(e => e.Id == cpm.Id);
+                                            if (found == null)
+                                            {
+                                                candidatePapersOnDOI.Add(cpm);
+                                            }
+                                        }
+                                    }
+                                    // add in matching on journals / authors if we don't have an exact match on title
+                                    if (candidatePapersOnTitle.Count == 0 || (candidatePapersOnTitle.Max(t => t.matchingScore) < 0.7))
+                                    {
+                                        List<MagMakesHelpers.PaperMakes> candidatePapersOnAuthorJournal =
+                                            MagMakesHelpers.GetCandidateMatches(MagMakesHelpers.getAuthors(pm.AA) + " " + (pm.J != null ? pm.J.JN : ""));
+                                        foreach (MagMakesHelpers.PaperMakes cpm in candidatePapersOnAuthorJournal)
+                                        {
+                                            MagPaperItemMatch.doMakesPapersComparison(pm, cpm);
+                                        }
+                                        foreach (MagMakesHelpers.PaperMakes cpm in candidatePapersOnAuthorJournal)
+                                        {
+                                            var found = candidatePapersOnDOI.Find(e => e.Id == cpm.Id);
+                                            if (found == null)
+                                            {
+                                                candidatePapersOnDOI.Add(cpm);
+                                            }
                                         }
                                     }
                                 }
-                                MagMakesHelpers.PaperMakes TopMatch = candidatePapersOnTitle.Aggregate((i1, i2) => i1.matchingScore > i2.matchingScore ? i1 : i2);
+                                MagMakesHelpers.PaperMakes TopMatch = candidatePapersOnDOI.Aggregate((i1, i2) => i1.matchingScore > i2.matchingScore ? i1 : i2);
 
-                                if (TopMatch.matchingScore > 0.2)
+                                if (TopMatch.matchingScore > 0.35)
                                 {
                                     PaperTotalFound++;
                                     using (SqlConnection connection2 = new SqlConnection(DataConnection.ConnectionString))
@@ -275,10 +302,12 @@ namespace BusinessLibrary.BusinessClasses
                                             command2.CommandType = CommandType.StoredProcedure;
                                             command2.Parameters.Add(new SqlParameter("@MagChangedPaperIdsId", rowId));
                                             command2.Parameters.Add(new SqlParameter("@NewPaperId", TopMatch.Id));
+                                            command2.Parameters.Add(new SqlParameter("@NewAutoMatchScore", TopMatch.matchingScore));
                                             command2.ExecuteNonQuery();
                                         }
                                         connection2.Close();
                                     }
+                                    MagLog.UpdateLogEntry("Running", "Updated " + PaperTotalFound.ToString() + " of " + missingCount.ToString(), MagLogId);
                                 }
 
                             }
@@ -328,7 +357,7 @@ namespace BusinessLibrary.BusinessClasses
                                     if (candidatePapersOnTitle.Count > 0)
                                     {
                                         MagMakesHelpers.PaperMakes TopMatch = candidatePapersOnTitle.Aggregate((i1, i2) => i1.matchingScore > i2.matchingScore ? i1 : i2);
-                                        if (TopMatch.matchingScore > 0.2) // not sure what the threshold should be???
+                                        if (TopMatch.matchingScore > 0.35) // not sure what the threshold should be???
                                         {
                                             PaperTotalFound++;
                                             using (SqlConnection connection2 = new SqlConnection(DataConnection.ConnectionString))
@@ -344,7 +373,7 @@ namespace BusinessLibrary.BusinessClasses
                                                 }
                                                 connection2.Close();
                                             }
-
+                                            MagLog.UpdateLogEntry("Running", "Updated " + PaperTotalFound.ToString() + " of " + missingCount.ToString(), MagLogId);
                                         }
                                     }
                                 }
