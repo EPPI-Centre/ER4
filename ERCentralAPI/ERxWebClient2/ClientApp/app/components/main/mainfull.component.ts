@@ -474,8 +474,6 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 				this.LoadComparisonList(item, this.ListSubType);
 			}
         )
-            //(MAGAllocationClicked) = "GoToItemList()"
-            //    (criteriaChange) = 'LoadMAGAllocList($event)'
         this._eventEmitter.criteriaMAGChange.subscribe(
             (item: any) => {
                 this.router.navigate(['Main']);
@@ -484,7 +482,6 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
             }
 
         )
-		//this.reviewSetsService.GetReviewSets();
         this.subOpeningReview = this.ReviewerIdentityServ.OpeningNewReview.subscribe(() => this.Reload());
         this.statsSub = this.reviewSetsService.GetReviewStatsEmit.subscribe(
             () => this.GetStats()

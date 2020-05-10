@@ -35,7 +35,7 @@ export class MAGAdvancedService extends BusyAwareService {
     public CurrentCriteria: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
     public CurrentMagSimId: number = 0;
     public PaperIds: string = '';
-
+    public MagList: MagList = new MagList();
     private _MagCurrentInfo: MagCurrentInfo = new MagCurrentInfo();
 
     public get MagCurrentInfo(): MagCurrentInfo{
@@ -74,7 +74,7 @@ export class MAGAdvancedService extends BusyAwareService {
 
     }
     FetchClassifierContactModelList() {
-        console.log('advanced mag service 1');
+        //console.log('advanced mag service 1');
         this._BusyMethods.push("FetchClassifierContactModelList");
         this._httpC.get<ClassifierContactModel[]>(this._baseUrl + 'api/MagClassifierContact/FetchClassifierContactList')
             .subscribe(result => {
@@ -92,7 +92,7 @@ export class MAGAdvancedService extends BusyAwareService {
     }
     FetchMagSimulationList() {
 
-        console.log('advanced mag service 2');
+        //console.log('advanced mag service 2');
         this._BusyMethods.push("FetchMagSimulationList");
         this._httpC.get<MagSimulation[]>(this._baseUrl + 'api/MagSimulationList/GetMagSimulationList')
             .subscribe(result => {
@@ -110,7 +110,7 @@ export class MAGAdvancedService extends BusyAwareService {
     }
     FetchMagReviewMagInfo() {
 
-        console.log('advanced mag service 3');
+        //console.log('advanced mag service 3');
         this._BusyMethods.push("FetchMagReviewMagInfo");
         this._httpC.get<MagReviewMagInfo>(this._baseUrl + 'api/MagCurrentInfo/GetMagReviewMagInfo')
             .subscribe(result => {
@@ -128,7 +128,7 @@ export class MAGAdvancedService extends BusyAwareService {
     }
     FetchMagCurrentInfo() {
 
-        console.log('advanced mag service 4');
+        //console.log('advanced mag service 4');
         this._BusyMethods.push("FetchMagCurrentInfo");
         this._httpC.get<MagCurrentInfo>(this._baseUrl + 'api/MagCurrentInfo/GetMagCurrentInfo')
 			.subscribe(result => {
@@ -145,7 +145,7 @@ export class MAGAdvancedService extends BusyAwareService {
     }
     FetchMagPaperId(Id: number) : Promise<string> {
 
-        console.log('advanced mag service 5');
+        //console.log('advanced mag service 5');
         this._BusyMethods.push("FetchMagPaperId");
         let body = JSON.stringify({ Value: Id });
         return this._httpC.post<MagPaper>(this._baseUrl + 'api/MagCurrentInfo/GetMagPaper', body)
@@ -156,36 +156,36 @@ export class MAGAdvancedService extends BusyAwareService {
                 // should call the relevant methods after the above
                 if (result.paperId != null && result.paperId > 0) {
 
-                    let criteria: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
-                    criteria.listType = "CitationsList";
-                    criteria.magPaperId = result.paperId;
-                    criteria.pageSize = 20;
+                    let criteriaCitationsList: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
+                    criteriaCitationsList.listType = "CitationsList";
+                    criteriaCitationsList.magPaperId = result.paperId;
+                    criteriaCitationsList.pageSize = 20;
 
-                    this._magBrowserService.FetchWithCrit(criteria, "CitationsList").then(
+                    this._magBrowserService.FetchWithCrit(criteriaCitationsList, "CitationsList").then(
 
                         () => {
 
                             this.PaperIds = this._magBrowserService.ListCriteria.paperIds;
-                            console.log('1 got in here:', this._magBrowserService.ListCriteria.paperIds);
-                            let criteria2: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
-                            criteria2.listType = "CitedByList";
-                            criteria2.magPaperId = result.paperId;
-                            criteria2.pageSize = 20;
-                            this._magBrowserService.FetchWithCrit(criteria2, "CitedByList").then(
+                            //console.log('1 got in here:', this._magBrowserService.ListCriteria.paperIds);
+                            let criteriaCitedBy: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
+                            criteriaCitedBy.listType = "CitedByList";
+                            criteriaCitedBy.magPaperId = result.paperId;
+                            criteriaCitedBy.pageSize = 20;
+                            this._magBrowserService.FetchWithCrit(criteriaCitedBy, "CitedByList").then(
 
                                 () => {
                                     this.PaperIds = this._magBrowserService.ListCriteria.paperIds;
-                                    console.log('2 got in here:', this._magBrowserService.ListCriteria.paperIds);
+                                    //console.log('2 got in here:', this._magBrowserService.ListCriteria.paperIds);
 
 
-                                    let criteria12: MVCMagFieldOfStudyListSelectionCriteria = new MVCMagFieldOfStudyListSelectionCriteria();
-                                    criteria12.fieldOfStudyId = 0;
-                                    criteria12.listType = 'PaperFieldOfStudyList';
-                                    criteria12.paperIdList = this.PaperIds;
-                                    criteria12.searchText = ''; //TODO this will be populated by the user..
+                                    let criteriaFOS: MVCMagFieldOfStudyListSelectionCriteria = new MVCMagFieldOfStudyListSelectionCriteria();
+                                    criteriaFOS.fieldOfStudyId = 0;
+                                    criteriaFOS.listType = 'PaperFieldOfStudyList';
+                                    criteriaFOS.paperIdList = this.PaperIds;
+                                    criteriaFOS.searchText = ''; //TODO this will be populated by the user..
 
-                                    console.log('3 paperIds: ', this.PaperIds);
-                                    this._magBrowserService.FetchMagFieldOfStudyList(criteria12, 'CitationsList').then(
+                                    //console.log('3 paperIds: ', this.PaperIds);
+                                    this._magBrowserService.FetchMagFieldOfStudyList(criteriaFOS, 'CitationsList').then(
 
                                         () => { return; }
                                     );
@@ -193,13 +193,7 @@ export class MAGAdvancedService extends BusyAwareService {
                             });
                         }
                     );
-                        // GO BACK TO THIS IF YOU FIND THE ABOVE ATTEMPT FAILS.
-                        //this.FetchMagPaperListId(result.paperId);
                 }
-
-
-
-
             },
                 error => {
                     this.RemoveBusy("FetchMagPaperId");
@@ -214,50 +208,9 @@ export class MAGAdvancedService extends BusyAwareService {
                         this.RemoveBusy("FetchMagPaperId");
             });
     }
-    //public GetMagPaper(): void {
-
-    //    let criteria: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
-    //    criteria.listType = "ReviewMatchedPapers";
-    //    criteria.included = "Included";
-    //    criteria.pageSize = 20;
-
-    //    this._magBrowserService.FetchWithCrit(criteria, "ReviewMatchedPapers").then(
-    //        //this._magAdvancedService.FetchMagPaperList(criteria).then(
-    //        (result: any) => {
-    //            this.router.navigate(['MAGBrowser']);
-    //        }
-    //    );
-
-    //}
-
-    //UpdateCurrentPaper(paperId : number) {
-
-    //    this._BusyMethods.push("UpdateCurrentPaper");
-    //    let body = JSON.stringify({ Value: paperId });
-    //    return this._httpC.post<MagPaper>(this._baseUrl + 'api/MagCurrentInfo/UpdateMagPaper', body)
-    //        .toPromise().then(result => {
-
-    //            this.RemoveBusy("UpdateCurrentPaper");
-    //            //this.currentMagPaper = result;
-    //            //// should call the relevant methods after the above
-    //            //if (result.paperId != null && result.paperId > 0) {
-    //            //    this.FetchMagPaperListId(result.paperId);
-    //            //}
-    //            //console.log(result)
-    //        },
-    //            error => {
-    //                this.RemoveBusy("UpdateCurrentPaper");
-    //                this.modalService.GenericError(error);
-
-    //            }
-    //        );
-
-    //}
-
-    //CHECK IF THERE SHOULD BE A RETURN HERE
     RunMatchingAlgorithm() {
 
-        console.log('advanced mag service 6');
+        //console.log('advanced mag service 6');
         this._BusyMethods.push("RunMatchingAlgorithm");
         this._httpC.get<any>(this._baseUrl + 'api/MagMatchAll/RunMatchingAlgorithm')
             .subscribe(result => {
@@ -272,46 +225,9 @@ export class MAGAdvancedService extends BusyAwareService {
                 this.RemoveBusy("RunMatchingAlgorithm");
             });
     }
-    public MagList: MagList = new MagList();
-
-    //public FetchMagPaperListId(paperId: number): Promise<void> {
-
-    //    console.log('advanced mag service 7');
-    //    let crit: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
-    //    //test here but need a switch based on listtype
-    //    //crit.included = 'Included';
-    //    crit.listType = "CitationsList";
-    //    crit.pageSize = 20;
-    //    crit.magPaperId = paperId;
-        
-    //    this._BusyMethods.push("FetchMagPaperListId");
-    //    return this._httpC.post<MagList>(this._baseUrl + 'api/MagCurrentInfo/GetMagPaperList', crit)
-    //        .toPromise().then(
-    //        (result: MagList) => {
-    //            this.RemoveBusy("FetchMagPaperListId");
-    //            this.MagList = result;
-    //            this.PaperIds = '';
-    //            for (var i = 0; i < result.papers.length; i++) {
-    //                this.PaperIds += result.papers[i].paperId.toString() + ',';
-    //            }
-    //            this.FetchMagFieldOfStudyList(this.PaperIds);
-
-    //        },
-    //            error => {
-    //                this.RemoveBusy("FetchMagPaperListId");
-    //                this.modalService.GenericError(error);
-    //            }
-    //            ).catch (
-    //                    (error) => {
-
-    //                        this.modalService.GenericErrorMessage("error with FetchMagPaperListId");
-    //                        this.RemoveBusy("FetchMagPaperListId");
-    //        });
-    //}
-
     public FetchMagPaperList(crit: MVCMagPaperListSelectionCriteria): Promise<void> {
 
-        console.log('advanced mag service 8');
+        //console.log('advanced mag service 8');
         //console.log(crit);
         this._BusyMethods.push("FetchMagPaperList");
         return this._httpC.post<MagPaper[]>(this._baseUrl + 'api/MagCurrentInfo/GetMagPaperList', crit)
@@ -326,12 +242,12 @@ export class MAGAdvancedService extends BusyAwareService {
                     //    this.PaperIds += this.MagCitationsPaperList[i].paperId.toString() + ',';
                     //}
                     //this.PaperIds = this.PaperIds.substr(0, this.PaperIds.length - 1)
-                    console.log(result);
+                    //console.log(result);
                 } else if (crit.listType == 'CitedByList') {
 
                     //console.log('got in here');
                     this.MagCitationsPaperList = result;
-                    console.log(result);
+                    //console.log(result);
                 } else if (crit.listType == 'ReviewMatchedPapers') {
                     this.PaperIds = "";
                     this.ReviewMatchedPapersList = result;
@@ -343,7 +259,7 @@ export class MAGAdvancedService extends BusyAwareService {
                     }
                     this.PaperIds = this.PaperIds.substr(0, this.PaperIds.length - 1)
                     //this._magListService.ListCriteria.paperIds = this.PaperIds;
-                    console.log(result);
+                    //console.log(result);
                     //console.log('rvm list: ', this.ReviewMatchedPapersList);
                     //console.log('rvm papers: ', this.PaperIds);
                 } else if (crit.listType == 'ReviewMatchedPapersWithThisCode') {
@@ -370,42 +286,8 @@ export class MAGAdvancedService extends BusyAwareService {
                     this.RemoveBusy("FetchMagPaperList");
                 });
     }
-    // I THINK THIS IS NO LONGER NEEDED AFTER THE REFACTOR...WILL CHECK LATER ON...
-//    FetchMagFieldOfStudyList(paperIds: string): Promise<void>{
-
-//        console.log('advanced mag service 9');
-//        let crit: MVCMagFieldOfStudyListSelectionCriteria = new MVCMagFieldOfStudyListSelectionCriteria();
-//        crit.fieldOfStudyId = 0;
-//        crit.listType = "PaperFieldOfStudyList";
-//        crit.paperIdList = paperIds;
-//        //THIS SEARCH TEXT NEEDS TO COME IN FROM THE FRONT
-//        crit.searchText = ''; //searchText;
-
-//        this._BusyMethods.push("FetchMagFieldOfStudyList");
-//        return this._httpC.post<MagFieldOfStudy[]>(this._baseUrl + 'api/MagCurrentInfo/GetMagFieldOfStudyList', crit)
-//            .toPromise().then(
-//            (result: MagFieldOfStudy[]) => {
-//                this.RemoveBusy("FetchMagFieldOfStudyList");
-//                console.log('paper field list: ', result);
-////                this.MagPaperFieldsList = result;
-//                this._magBrowserService.MagPaperFieldsList = result;
-                
-//            },
-//                error => {
-//                    this.RemoveBusy("FetchMagFieldOfStudyList");
-//                    this.modalService.GenericError(error);
-//                }
-//            ).catch(
-//                (error) => {
-
-//                    this.modalService.GenericErrorMessage("error with MagPaperFieldsList");
-//                    this.RemoveBusy("FetchMagFieldOfStudyList");
-//                });
-//    }
     public DeleteSimulation(item: MagSimulation) {
 
-        console.log('advanced mag service 10');
-        //console.log(item.magSimulationId);
         this._BusyMethods.push("DeleteSimulation");
         let body = JSON.stringify({Value: item.magSimulationId });
         return this._httpC.post<MagSimulation>(this._baseUrl + 'api/MAGSimulationList/DeleteMagSimulation', body)
@@ -415,10 +297,10 @@ export class MAGAdvancedService extends BusyAwareService {
                     this.RemoveBusy("DeleteSimulation");
                     if (result != null && result.magSimulationId > 0) {
 
-                    let ind: number = this.MagSimulationList.findIndex((x) => x.magSimulationId == item.magSimulationId);
-                        if (ind > 0) {
-                            this.MagSimulationList.splice(ind, 1);
-                        }
+                        let ind: number = this.MagSimulationList.findIndex((x) => x.magSimulationId == item.magSimulationId);
+                            if (ind > 0) {
+                                this.MagSimulationList.splice(ind, 1);
+                            }
                     }
                 },
                 error => {
@@ -428,13 +310,13 @@ export class MAGAdvancedService extends BusyAwareService {
                 ).catch(
                 (error) => {
 
-                    this.modalService.GenericErrorMessage("error with DeleteSimulation");
+                    this.modalService.GenericErrorMessage("error with DeleteSimulation: " + error);
                     this.RemoveBusy("DeleteSimulation");
             });
     }
     public AddMagSimulation(newMagSimulation: MagSimulation) {
 
-        console.log('advanced mag service 11');
+        //console.log('advanced mag service 11');
         this._BusyMethods.push("AddMagSimulation");
         return this._httpC.post<MagSimulation>(this._baseUrl + 'api/MAGSimulationList/CreateMagSimulation', newMagSimulation)
             .toPromise().then(

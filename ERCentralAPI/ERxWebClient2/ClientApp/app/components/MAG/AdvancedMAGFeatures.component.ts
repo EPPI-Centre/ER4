@@ -6,7 +6,7 @@ import { codesetSelectorComponent } from '../CodesetTrees/codesetSelector.compon
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Router, NavigationEnd } from '@angular/router';
-import { ClassifierContactModel,  MVCMagPaperListSelectionCriteria, MagSimulation } from '../services/MAGClasses.service';
+import { ClassifierContactModel, MVCMagPaperListSelectionCriteria, MagSimulation } from '../services/MAGClasses.service';
 import { EventEmitterService } from '../services/EventEmitter.service';
 import { MAGBrowserService } from '../services/MAGBrowser.service';
 import { MAGAdvancedService } from '../services/magAdvanced.service';
@@ -16,13 +16,13 @@ import { MAGBrowserHistoryService } from '../services/MAGBrowserHistory.service'
 @Component({
     selector: 'AdvancedMAGFeatures',
     templateUrl: './AdvancedMAGFeatures.component.html',
-	providers: []
+    providers: []
 })
 
 export class AdvancedMAGFeaturesComponent implements OnInit {
 
     history: NavigationEnd[] = [];
-	constructor(private ConfirmationDialogService: ConfirmationDialogService,
+    constructor(private ConfirmationDialogService: ConfirmationDialogService,
         public _magAdvancedService: MAGAdvancedService,
         private _magBrowserService: MAGBrowserService,
         public _searchService: searchService,
@@ -35,44 +35,32 @@ export class AdvancedMAGFeaturesComponent implements OnInit {
     ) {
 
         this.history = this._routingStateService.getHistory();
-        console.log('testing URL: ', this.history);
+        //console.log('testing URL: ', this.history);
     }
-    public AdvancedFeatures() {
+    ngOnInit() {
 
-        this.router.navigate(['AdvancedMAGFeatures']);
+        if (this._ReviewerIdentityServ.reviewerIdentity.userId == 0 ||
+            this._ReviewerIdentityServ.reviewerIdentity.reviewId == 0) {
+            this.router.navigate(['home']);
+        }
+        else if (!this._ReviewerIdentityServ.HasWriteRights) {
+            this.router.navigate(['Main']);
+        }
+        else {
 
+            this.GetMagReviewMagInfoCommand();
+            this.GetMagSimulationList();
+            this.GetClassifierContactModelList();
+        }
     }
-    public Forward() {
-        this._location.forward();
-    }
-    public Back() {
-        this._location.back();
-    }
-    public Selected() {
 
-    }
-    public ClearSelected() {
-
-    }
-    public ImportSelected() {
-
-    }
-    public AutoUpdateHome() {
-        this.router.navigate(['BasicMAGFeatures']);
-    }
-    public ShowHistory() {
-
-        this.router.navigate(['MAGBrowserHistory']);
-    }
-    public Admin() {
-        this.router.navigate(['MAGAdmin']);
-    }
     @ViewChild('WithOrWithoutCodeSelector3') WithOrWithoutCodeSelector3!: codesetSelectorComponent;
     @ViewChild('WithOrWithoutCodeSelector2') WithOrWithoutCodeSelector2!: codesetSelectorComponent;
+    private _RunAlgorithmFirst: boolean = false;
     public CurrentDropdownSelectedCode3: singleNode | null = null;
     public CurrentDropdownSelectedCode2: singleNode | null = null;
     public ItemsWithCode: boolean = false;
-    public MAGItems: any[] = [];
+    //public MAGItems: any[] = [];
     public ShowPanel: boolean = false;
     public dropdownBasic2: boolean = false;
     public dropdownBasic3: boolean = false;
@@ -106,18 +94,44 @@ export class AdvancedMAGFeaturesComponent implements OnInit {
     public SearchText: string = '';
     public UserDefinedClassifier: string = '';
     public magMatchedAll: number = 0;
-    public magMatchedWithThisCode: number = 0;
     public magPaperId: number = 0;
     public currentClassifierContactModel: ClassifierContactModel = new ClassifierContactModel();
-    public desc: string = '';
+    public description: string = '';
     public kendoDateValue: Date = new Date();
-    public searchAll: string = 'true';
     public magDate: string = 'true';
-    public magSearchCheck: boolean = false;
-    public magDateRadio: boolean = false;
-    public magRCTRadio: string = 'NoFilter';
     public magMode: string = '';
     public filterOn: string = 'false';
+    public AdvancedFeatures() {
+
+        this.router.navigate(['AdvancedMAGFeatures']);
+
+    }
+    public Forward() {
+        this._location.forward();
+    }
+    public Back() {
+        this._location.back();
+    }
+    public Selected() {
+        alert('not implemented');
+    }
+    public ClearSelected() {
+        alert('not implemented');
+    }
+    public ImportSelected() {
+        alert('not implemented');
+    }
+    public AutoUpdateHome() {
+        this.router.navigate(['BasicMAGFeatures']);
+    }
+    public ShowHistory() {
+
+        this.router.navigate(['MAGBrowserHistory']);
+    }
+    public Admin() {
+        this.router.navigate(['MAGAdmin']);
+    }
+    
     public ToggleMAGPanel(): void {
         this.ShowPanel = !this.ShowPanel;
     }
@@ -132,28 +146,11 @@ export class AdvancedMAGFeaturesComponent implements OnInit {
 
         this.ShowGraphViewer = !this.ShowGraphViewer;
     }
-    ngOnInit() {
-
-        if (this._ReviewerIdentityServ.reviewerIdentity.userId == 0 ||
-            this._ReviewerIdentityServ.reviewerIdentity.reviewId == 0) {
-            this.router.navigate(['home']);
-        }
-        else if (!this._ReviewerIdentityServ.HasWriteRights) {
-            this.router.navigate(['Main']);
-        }
-        else {
-            this.GetMagReviewMagInfoCommand();
-            this.GetMagSimulationList();
-            this.GetClassifierContactModelList();
-        }
-    }
     GetMagReviewMagInfoCommand() {
 
         this._magAdvancedService.FetchMagReviewMagInfo();
     }
-    private _RunAlgorithmFirst: boolean = false;
-    public CanAddSimulation(): boolean
-    {
+    public CanAddSimulation(): boolean {
         return this._RunAlgorithmFirst == true;
 
     }
@@ -163,7 +160,7 @@ export class AdvancedMAGFeaturesComponent implements OnInit {
 
         if (this.splitDataOn == 'Year') {
 
-            console.log(this.kendoDateValue.getFullYear());
+            //console.log(this.kendoDateValue.getFullYear());
             newMagSimulation.year = this.kendoDateValue.getFullYear();
 
         } else if (this.splitDataOn == 'CreatedDate') {
@@ -178,12 +175,12 @@ export class AdvancedMAGFeaturesComponent implements OnInit {
                 newMagSimulation.withThisAttribute = att.attribute_name;
             }
         }
-        console.log('here', this.filterOn);
+        //console.log('here', this.filterOn);
         if (this.filterOn == 'true') {
             if (this.CurrentDropdownSelectedCode2 != null) {
-                console.log('here2');
+                //console.log('here2');
                 let att = this.CurrentDropdownSelectedCode2 as SetAttribute;
-                console.log('here3', att);
+                //console.log('here3', att);
                 newMagSimulation.filteredByAttributeId = att.attribute_id;
                 newMagSimulation.filteredByAttribute = att.attribute_name;
             }
@@ -199,24 +196,24 @@ export class AdvancedMAGFeaturesComponent implements OnInit {
             newMagSimulation.userClassifierModelId = this.currentClassifierContactModel.modelId;
         }
         newMagSimulation.status = "Pending";
-        console.log(newMagSimulation);
+        //console.log(newMagSimulation);
 
         let msg: string = 'Are you sure you want to create a new MAG Simulation?';
         this.ConfirmationDialogService.confirm('MAG Simulation', msg, false, '')
             .then((confirm: any) => {
                 if (confirm) {
                     this._magAdvancedService.AddMagSimulation(newMagSimulation);
-                   
+
                 }
             });
     }
     public GetClassifierContactModelList(): void {
 
-       this._magAdvancedService.FetchClassifierContactModelList();
+        this._magAdvancedService.FetchClassifierContactModelList();
     }
     public RunMatchingAlgo() {
 
-       let msg: string = 'Are you sure you want to match all the items in your review\n to Microsoft Academic records?';
+        let msg: string = 'Are you sure you want to match all the items in your review\n to Microsoft Academic records?';
         this.ConfirmationDialogService.confirm('MAG RUN ALERT', msg, false, '')
             .then((confirm: any) => {
                 if (confirm) {
@@ -225,27 +222,25 @@ export class AdvancedMAGFeaturesComponent implements OnInit {
                 }
             });
     }
-
-
-
     public OpenMatchesInReview(listType: string) {
 
-        this.ListSubType = listType;
-        this._eventEmitter.criteriaMAGChange.emit(listType);
-        this._eventEmitter.MAGAllocationClicked.emit();
+        if (listType != null) {
+            this.ListSubType = listType;
+            this._eventEmitter.criteriaMAGChange.emit(listType);
+            this._eventEmitter.MAGAllocationClicked.emit();
+        }
     }
-
     public OpenResultsInReview(listType: string, magSimId: number) {
 
-        this._magAdvancedService.ListDescription = listType;
-        this._magAdvancedService.CurrentMagSimId = magSimId;
-        this.ListSubType = listType;
-        this._eventEmitter.criteriaMAGChange.emit(listType);
-        this._eventEmitter.MAGAllocationClicked.emit();
+        if (listType != null) {
+            this._magAdvancedService.ListDescription = listType;
+            this._magAdvancedService.CurrentMagSimId = magSimId;
+            this.ListSubType = listType;
+            this._eventEmitter.criteriaMAGChange.emit(listType);
+            this._eventEmitter.MAGAllocationClicked.emit();
+        }
     }
-   
     public MAGBrowser(listType: string) {
-
         if (listType == 'MatchedIncluded') {
             this.GetMatchedMagIncludedList();
 
@@ -257,29 +252,27 @@ export class AdvancedMAGFeaturesComponent implements OnInit {
 
         } else if (listType == 'MatchedWithThisCode') {
             this.GetMatchedMagWithCodeList();
-
         }
     }
     public DeleteSimulation(item: MagSimulation) {
-
-        this.ConfirmationDialogService.confirm("Deleting the selected MAG simulation",
-            "Are you sure you want to delete MAG RUN:" + item.magSimulationId + "?", false, '')
-            .then((confirm: any) => {
-                if (confirm) {
-                    this._magAdvancedService.DeleteSimulation(item);
-                }
-            });
+        if (item != null) {
+            this.ConfirmationDialogService.confirm("Deleting the selected MAG simulation",
+                "Are you sure you want to delete MAG RUN:" + item.magSimulationId + "?", false, '')
+                .then((confirm: any) => {
+                    if (confirm) {
+                        this._magAdvancedService.DeleteSimulation(item);
+                    }
+                });
+        }
     }
-
     public GetMatchedMagIncludedList(): void {
 
         let criteria: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
         criteria.listType = "ReviewMatchedPapers";
         criteria.included = "Included";
         criteria.pageSize = 20;
-
         this._magBrowserService.FetchWithCrit(criteria, "ReviewMatchedPapers").then(
-        //this._magAdvancedService.FetchMagPaperList(criteria).then(
+           
             () => {
 
                 let criteria2: MVCMagFieldOfStudyListSelectionCriteria = new MVCMagFieldOfStudyListSelectionCriteria();
@@ -293,7 +286,7 @@ export class AdvancedMAGFeaturesComponent implements OnInit {
                 );
             }
         );
-       
+
     }
     public GetMatchedMagExcludedList() {
 
@@ -335,7 +328,7 @@ export class AdvancedMAGFeaturesComponent implements OnInit {
     public GetMatchedMagWithCodeList() {
 
         if (this.CurrentDropdownSelectedCode2 != null) {
-            
+
             let criteria: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
             criteria.listType = "ReviewMatchedPapersWithThisCode";
             var att = this.CurrentDropdownSelectedCode2 as SetAttribute;
@@ -360,23 +353,22 @@ export class AdvancedMAGFeaturesComponent implements OnInit {
         }
 
     }
-
     public GetMagPaper() {
 
         this._magAdvancedService.FetchMagPaperId(this.magPaperId).then(
 
             () => { this.router.navigate(['MAGBrowser']); }
-             
+
         );
     }
-	CanOnlySelectRoots() {
-		return true;
-	}
-	CloseCodeDropDown3() {
-		if (this.WithOrWithoutCodeSelector3) {
-			this.CurrentDropdownSelectedCode3 = this.WithOrWithoutCodeSelector3.SelectedNodeData;
-		}
-		this.isCollapsed3 = false;
+    CanOnlySelectRoots() {
+        return true;
+    }
+    CloseCodeDropDown3() {
+        if (this.WithOrWithoutCodeSelector3) {
+            this.CurrentDropdownSelectedCode3 = this.WithOrWithoutCodeSelector3.SelectedNodeData;
+        }
+        this.isCollapsed3 = false;
     }
     CloseCodeDropDown2() {
         if (this.WithOrWithoutCodeSelector2) {
@@ -388,29 +380,28 @@ export class AdvancedMAGFeaturesComponent implements OnInit {
 
         this.CurrentDropdownSelectedCode2 = {} as SetAttribute;
         this.CurrentDropdownSelectedCode3 = {} as SetAttribute;
-        this.desc = '';
+        this.description = '';
         this.ItemsWithCode = false;
         this.magDate = '';
         this.magMode = '';
 
     }
-    public CanDeleteMAGRun() : boolean {
+    public CanDeleteMAGRun(): boolean {
         // other params like existence need to be checked here!!!!!!!!!!!!!!!!!!!!!
         return this.HasWriteRights;
     }
-
     public CanAddNewMAGSearch(): boolean {
 
-        if (this.desc != '' && this.desc != null && this.HasWriteRights
-            ) {
+        if (this.description != '' && this.description != null && this.HasWriteRights
+        ) {
             return true;
         } else {
             return false;
         }
     }
-	public ClickSearchMode(searchModeChoice: string) {
+    public ClickSearchMode(searchModeChoice: string) {
 
-		switch (searchModeChoice) {
+        switch (searchModeChoice) {
 
             case '1':
                 this.magMode = 'Recommended by';
@@ -436,12 +427,11 @@ export class AdvancedMAGFeaturesComponent implements OnInit {
 
             default:
                 break;
-		}
-	}
+        }
+    }
     public GetMagSimulationList() {
 
         this._magAdvancedService.FetchMagSimulationList();
     }
 
 }
-	
