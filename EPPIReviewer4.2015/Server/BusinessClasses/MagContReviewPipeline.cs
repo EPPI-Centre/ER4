@@ -180,7 +180,7 @@ namespace BusinessLibrary.BusinessClasses
 
             //mounts/training_datastore_ucl/experiment-v2/Incont2/experiment-v2/Incont2/per_paper_tfidf.pickle'
             parameters.Add("training_set_folder", FolderName);
-            parameters.Add("mag_container", MagContainer);
+            parameters.Add("mag_container", MagContainer); //"samples-mag-2020-03-23"); // 
             parameters.Add("ml_experiment_folder", FolderName);
             parameters.Add("min_review_size", "5");
 

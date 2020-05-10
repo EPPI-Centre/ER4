@@ -99,34 +99,53 @@ namespace BusinessLibrary.BusinessClasses
                 //DocumentSearchResult<MagPaperItemsMatch> results = client.Documents.Search<MagPaperItemsMatch>(searchString, parameters);
 
                 // similar code is used in MagCheckPaperIdChangesCommand
-                List<MagMakesHelpers.PaperMakes> candidatePapersOnTitle = MagMakesHelpers.GetCandidateMatches(i.Title, "LIVE", true);
-                foreach (MagMakesHelpers.PaperMakes pm in candidatePapersOnTitle)
+                List<MagMakesHelpers.PaperMakes> candidatePapersOnDOI = MagMakesHelpers.GetCandidateMatchesOnDOI(i.DOI, "LIVE");
+                if (candidatePapersOnDOI != null && candidatePapersOnDOI.Count > 0)
                 {
-                    doComparison(i, pm);
-                }
-                double minMatchingScore = 0.25;
-                for (int inn = 0; inn < candidatePapersOnTitle.Count; inn++)
-                {
-                    if (candidatePapersOnTitle[inn].matchingScore < minMatchingScore)
+                    foreach (MagMakesHelpers.PaperMakes cpm in candidatePapersOnDOI)
                     {
-                        candidatePapersOnTitle.RemoveAt(inn);
-                        inn--;
+                        MagPaperItemMatch.doComparison(i, cpm);
                     }
                 }
-                // add in matching on journals / authors if we don't have an exact match on title
-                if (candidatePapersOnTitle.Count == 0 ||( candidatePapersOnTitle.Count > 0 && candidatePapersOnTitle.Max(t => t.matchingScore) < 0.7))
+                if (candidatePapersOnDOI.Count == 0 || (candidatePapersOnDOI.Max(t => t.matchingScore) < 0.7))
                 {
-                    List<MagMakesHelpers.PaperMakes> candidatePapersOnAuthorJournal = MagMakesHelpers.GetCandidateMatches(i.Authors + " " + i.ParentTitle);
-                    foreach (MagMakesHelpers.PaperMakes pm in candidatePapersOnAuthorJournal)
+                    List<MagMakesHelpers.PaperMakes> candidatePapersOnTitle = MagMakesHelpers.GetCandidateMatches(i.Title, "LIVE", true);
+                    foreach (MagMakesHelpers.PaperMakes pm in candidatePapersOnTitle)
                     {
                         doComparison(i, pm);
                     }
-                    foreach (MagMakesHelpers.PaperMakes pm in candidatePapersOnAuthorJournal)
+                    double minMatchingScore = 0.25;
+                    for (int inn = 0; inn < candidatePapersOnTitle.Count; inn++)
                     {
-                        var found = candidatePapersOnTitle.Find(e => e.Id == pm.Id);
+                        if (candidatePapersOnTitle[inn].matchingScore < minMatchingScore)
+                        {
+                            candidatePapersOnTitle.RemoveAt(inn);
+                            inn--;
+                        }
+                    }
+                    foreach (MagMakesHelpers.PaperMakes pm in candidatePapersOnTitle)
+                    {
+                        var found = candidatePapersOnDOI.Find(e => e.Id == pm.Id);
                         if (found == null && pm.matchingScore >= minMatchingScore)
                         {
-                            candidatePapersOnTitle.Add(pm);
+                            candidatePapersOnDOI.Add(pm);
+                        }
+                    }
+                    // add in matching on journals / authors if we don't have an exact match on title
+                    if (candidatePapersOnTitle.Count == 0 || (candidatePapersOnTitle.Count > 0 && candidatePapersOnTitle.Max(t => t.matchingScore) < 0.7))
+                    {
+                        List<MagMakesHelpers.PaperMakes> candidatePapersOnAuthorJournal = MagMakesHelpers.GetCandidateMatches(i.Authors + " " + i.ParentTitle);
+                        foreach (MagMakesHelpers.PaperMakes pm in candidatePapersOnAuthorJournal)
+                        {
+                            doComparison(i, pm);
+                        }
+                        foreach (MagMakesHelpers.PaperMakes pm in candidatePapersOnAuthorJournal)
+                        {
+                            var found = candidatePapersOnDOI.Find(e => e.Id == pm.Id);
+                            if (found == null && pm.matchingScore >= minMatchingScore)
+                            {
+                                candidatePapersOnDOI.Add(pm);
+                            }
                         }
                     }
                 }
@@ -134,17 +153,20 @@ namespace BusinessLibrary.BusinessClasses
                 using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
                 {
                     connection.Open();
-                    foreach (MagMakesHelpers.PaperMakes pm in candidatePapersOnTitle) {
-                        using (SqlCommand command = new SqlCommand("st_MagMatchedPapersInsert", connection))
+                    foreach (MagMakesHelpers.PaperMakes pm in candidatePapersOnDOI) {
+                        if (pm.matchingScore > 0.35)
                         {
-                            command.CommandType = System.Data.CommandType.StoredProcedure;
-                            command.Parameters.Add(new SqlParameter("@REVIEW_ID", ReviewId));
-                            command.Parameters.Add(new SqlParameter("@ITEM_ID", i.ItemId));
-                            command.Parameters.Add(new SqlParameter("@PaperId", pm.Id));
-                            command.Parameters.Add(new SqlParameter("@ManualTrueMatch", 0));
-                            command.Parameters.Add(new SqlParameter("@ManualFalseMatch", 0));
-                            command.Parameters.Add(new SqlParameter("@AutoMatchScore", pm.matchingScore));
-                            command.ExecuteNonQuery();
+                            using (SqlCommand command = new SqlCommand("st_MagMatchedPapersInsert", connection))
+                            {
+                                command.CommandType = System.Data.CommandType.StoredProcedure;
+                                command.Parameters.Add(new SqlParameter("@REVIEW_ID", ReviewId));
+                                command.Parameters.Add(new SqlParameter("@ITEM_ID", i.ItemId));
+                                command.Parameters.Add(new SqlParameter("@PaperId", pm.Id));
+                                command.Parameters.Add(new SqlParameter("@ManualTrueMatch", 0));
+                                command.Parameters.Add(new SqlParameter("@ManualFalseMatch", 0));
+                                command.Parameters.Add(new SqlParameter("@AutoMatchScore", pm.matchingScore));
+                                command.ExecuteNonQuery();
+                            }
                         }
                     }
                     connection.Close();

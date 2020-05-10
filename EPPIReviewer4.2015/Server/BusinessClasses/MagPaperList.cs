@@ -408,7 +408,7 @@ namespace BusinessLibrary.BusinessClasses
                 {
                     MagMakesHelpers.PaperMakes mpParent = null;
                     MagMakesHelpers.FieldOfStudyMakes fosParent = null;
-                    string queryOffset = (PageIndex * 20).ToString();
+                    string queryOffset = (PageIndex * _pageSize).ToString();
 
                     string searchString = "";
                     switch (selectionCriteria.ListType)
@@ -517,6 +517,11 @@ namespace BusinessLibrary.BusinessClasses
                     }
                     
 
+                }
+
+                if (selectionCriteria.ListType == "PaperFieldsOfStudyList")
+                {
+                    _pageIndex = selectionCriteria.PageNumber;
                 }
 
                 /*
