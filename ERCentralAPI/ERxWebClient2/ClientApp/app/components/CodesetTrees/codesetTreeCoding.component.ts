@@ -410,6 +410,7 @@ export class CheckBoxClickedEventData {
 export class InfoBoxModalContent {
     @ViewChild('InfoBoxText')
     InfoBoxText!: ElementRef;
+
     @Input() InfoBoxTextInput: string = "";
     private canWrite: boolean = true;
     public get IsReadOnly(): boolean {
@@ -419,8 +420,11 @@ export class InfoBoxModalContent {
     }
     constructor(public activeModal: NgbActiveModal, private ReviewSetsService: ReviewSetsService) { }
     public focus(canWrite: boolean) {
+        //console.log("infobox focussing...", this.InfoBoxText);
         this.canWrite = canWrite;
-        this.InfoBoxText.nativeElement.focus();
+        setTimeout(() => this.InfoBoxText.nativeElement.focus(), 1);
+        //this.InfoBoxText.nativeElement.focus();
+        
     }
 }
 

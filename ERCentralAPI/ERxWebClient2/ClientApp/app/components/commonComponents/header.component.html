@@ -31,11 +31,14 @@
     </table>
 </div>
 <div [@PanelFeedbackAppear]="ActivePanel=='Feedback' ? 'expand' : 'collapse'"
-     class="card-body alert alert-success border border-dark p-0 mb-0 " style="max-height:400px;overflow-y:auto;overflow-x:hidden; max-width:98%; width:98%; margin-right:auto;margin-left:auto;">
+     class="card-body alert alert-success border border-dark p-0 mb-0 " style="max-height:430px;overflow-y:auto;overflow-x:hidden; max-width:98%; width:98%; margin-right:auto;margin-left:auto;">
     <button class="btn btn-success btn-sm ml-1 p-0 mr-0" (click)="ShowHideFeedback()" style="position:absolute; width:46px;zoom:0.8;right:0%;z-index:20">
         close
     </button>
     <div class=" col-12">Let us know what you think! All suggestions are welcome.</div>
+    <div class="small py-0 my-1 px-2 mx-3 alert-info rounded border border-info">
+    Please note that we read your suggestions eagerly, but this functionality is not intended to ask for support. Please contact EPPISupport, if you want to ask us questions.
+    </div>
     <div class="col-12">
         <textarea class="form-control my-3" id="newSetDescription"
                   [(ngModel)]="UserFeedback" maxlength="4000" rows="3"></textarea>
