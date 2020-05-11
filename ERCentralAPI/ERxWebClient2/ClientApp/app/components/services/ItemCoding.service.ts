@@ -1238,6 +1238,8 @@ class SetAttribute4ER4Json {
         this.AttributeSetDescription = att.attribute_set_desc;
         this.AttributeType = att.attribute_type;
         this.AttributeName = att.attribute_name;
+        this.ExtURL = att.extURL;
+        this.ExtType = att.extType;
         this.Attributes = new AttributesList4ER4Json(att.attributes);
     }
     AttributeSetId: number;
@@ -1246,6 +1248,8 @@ class SetAttribute4ER4Json {
     AttributeType: string;
     AttributeName: string;
     AttributeDescription: string = "";
+    ExtURL: string = "";
+    ExtType: string = "";
     Attributes: AttributesList4ER4Json;
 }
 class Item4ER4Json {
