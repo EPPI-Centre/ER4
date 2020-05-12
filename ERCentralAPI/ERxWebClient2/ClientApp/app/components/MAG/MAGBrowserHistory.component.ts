@@ -2,8 +2,8 @@ import { Location } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { MAGBrowserHistoryService } from '../services/MAGBrowserHistory.service';
 import { NavigationEnd, Router } from '@angular/router';
-import { MAGAdvancedService } from '../services/magAdvanced.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
+import { MAGAdvancedService } from '../services/magAdvanced.service';
 
 @Component({
     selector: 'MAGBrowserHistory',
@@ -16,7 +16,7 @@ export class MAGBrowserHistory implements OnInit {
     constructor(
         private _location: Location,
         public _MAGBrowserHistoryService: MAGBrowserHistoryService,
-        private _magAdvancedService: MAGAdvancedService,
+        public _magAdvancedService: MAGAdvancedService,
         private _ReviewerIdentityServ: ReviewerIdentityService,
         private router: Router
 
@@ -42,7 +42,6 @@ export class MAGBrowserHistory implements OnInit {
         console.log(url);
         this.router.navigate([url]);
     }
-
     RemoveUrl(item: NavigationEnd) {
 
         let id: number = item.id;
@@ -51,7 +50,9 @@ export class MAGBrowserHistory implements OnInit {
         this.MAGBrowsingHistory.splice(index,1);
         }
     }
-
+    public ClearHistory() {
+        this._MAGBrowserHistoryService.ClearHistory();
+    }
     public get IsServiceBusy(): boolean {
 
         return false;

@@ -44,7 +44,10 @@ export class MAGBrowserHistoryService {
         return this.history;
 
     }
+    public ClearHistory() {
 
+        this.history = [];
+    }
 
     public getPreviousUrl(): NavigationEnd {
 

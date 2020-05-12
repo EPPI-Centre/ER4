@@ -50,7 +50,7 @@
                 <div class=" "><b>Search based on</b></div>
                 <div class="">
                     <input type="radio" value="true" name="searchAll"
-                           [(ngModel)]="searchAll">	All included items
+                           [(ngModel)]="searchAll">	All included items in the review
                     <input type="radio" value="false" name="searchAll"
                            [(ngModel)]="searchAll">	Items with specified code
                 </div>
@@ -89,13 +89,13 @@
                 <div class=""></div>
                 <div class="">
                     <input type="checkbox" class="" value="Auto-Update" name="magSearchCheck" [(ngModel)]="magSearchCheck" />
-                    Auto-Update
+                    Auto-Update search based on new MAG content
                     <input type="radio" class="" name="magDateRadio" value="true"
                            [(ngModel)]="magDateRadio" />
                     No date restriction
                     <input type="radio" class="" name="magDateRadio" value="false"
                            [(ngModel)]="magDateRadio" />
-                    Items dated:
+                    Items dated from
                 </div>
             </div>
             <div class="col-1"></div>
@@ -176,7 +176,7 @@
                     <td>{{item.userDescription}}</td>
                     <td>{{item.mode}}</td>
                     <td>{{item.dateFrom}}</td>
-                    <td>Date run</td>
+                    <td>{{item.dateRun}}</td>
                     <td>
                         <input [disabled]="true" class="m-1" type="checkbox" [(ngModel)]="item.allIncluded" />
                     </td>

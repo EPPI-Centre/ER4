@@ -23,12 +23,12 @@
 
 </div>
 <div class="col-6 p-2 m-2 card bg-info" style="min-width:450px; overflow:auto;">
-    <h4>MAG Browsing History </h4>
+    <h4>MAG Browsing History</h4>
 </div>
 <div *ngIf="IsServiceBusy" class="k-loading-image" style="position: fixed; top: 2%;"></div>
 
-
-<div *ngFor="let item of _MAGBrowserHistoryService.getHistory()"  class="col-6 bg-light card" style="min-width:450px;" >
+<button class="btn btn-info  p-2 m-2 " (click)="ClearHistory()">Clear History </button>
+<div class="col-6 bg-light card" style="min-width:450px;" >
     <table class="table table-responsive table-striped"  >
         <thead>
             <tr>
@@ -42,7 +42,7 @@
             </tr>
         </thead>
         <tbody>
-            <tr>
+            <tr *ngFor="let item of _MAGBrowserHistoryService.getHistory()">
                 <td class="w-25">{{item.url}}</td>
                 <td class="w-25"><button class="btn btn-success" (click)="GoToUrl(item.url)">GO</button></td>
                 <td class="w-25"><button class="btn btn-danger" (click)="RemoveUrl(item)">Remove</button></td>
