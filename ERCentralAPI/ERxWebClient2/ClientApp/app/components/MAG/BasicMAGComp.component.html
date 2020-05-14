@@ -16,17 +16,24 @@
         <kendo-toolbar-button [text]="'Forward'" (click)="Forward()" [disabled]="!HasWriteRights"></kendo-toolbar-button>
     </kendo-toolbar>
 </div>
-<div class="col-8 p-2 m-2 card bg-info" style="min-width:450px; overflow:auto;">
+<div class="col-8 p-2 m-2 card bg-light" style="min-width:450px; overflow:auto;">
     <h4>Find related papers and set up review auto-updates</h4>
     <p>
-        <a class="btn btn-outline-primary" data-toggle="collapse"
-           href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
-            Add new MAG search/auto-update
-        </a>
+        On this page you can set up tasks to find papers related to papers in your review automatically.&#10;
+        &#10;You can look for related papers as a one-off exercise, or set up an auto update, that will look for new papers every time Microsoft Academic is updated (once or twice a month).
+        &#10;Each time the process runs, a new row will be added to the table below, and items not previously identified will be added.
+        &#10;Once new items have appeared in the list below, you can either preview them in this window by clicking the number, or import them into your review, and examine them as you would for any other batch of references. When you import them, they will appear as a new 'source' with the date/time of import.
+        &#10;If you want to improve the performance of the algorithm, or undertake methodological work to evaluate its performance, click on the 'advanced' link above.
     </p>
 </div>
 <div *ngIf="IsServiceBusy" class="k-loading-image" style="position: fixed; top: 2%;"></div>
-<div class="col-xs-12 col-lg-8 card collapse" id="collapseExample" style="min-width:750px;">
+<p>
+    <a class="btn btn-outline-primary m-2 p-2" data-toggle="collapse"
+       href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
+        Add new MAG search/auto-update
+    </a>
+</p>
+<div class="col-xs-12 col-lg-12 card collapse" id="collapseExample" style="min-width:750px;">
     <div class="col-12" style="min-width:750px;">
 
         <div class="row col-12">
@@ -156,47 +163,53 @@
             Add new search
         </button>
     </div>
-    <div class="card bg-light" style="min-width:250px; overflow:auto;" *ngIf="_basicMAGService.MagRelatedPapersRunList.length > 0">
-        <table class="col-12 small table table-border  table-striped ">
-            <thead>
-                <tr>
-                    <th width="15">Description</th>
-                    <th width="40">Mode</th>
-                    <th width="140">Date from</th>
-                    <th width="140">Date run</th>
-                    <th width="140">All included</th>
-                    <th width="140">With this code</th>
-                    <th width="140">Filtered</th>
-                    <th width="140">Re-run?</th>
-                    <th width="140">Status</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr class="" *ngFor="let item of _basicMAGService.MagRelatedPapersRunList">
-                    <td>{{item.userDescription}}</td>
-                    <td>{{item.mode}}</td>
-                    <td>{{item.dateFrom}}</td>
-                    <td>{{item.dateRun}}</td>
-                    <td>
-                        <input [disabled]="true" class="m-1" type="checkbox" [(ngModel)]="item.allIncluded" />
-                    </td>
-                    <td>{{item.attributeName}}</td>
-                    <td>{{item.filtered}}</td>
-                    <td>
-                        <input (click)="UpdateAutoReRun(item)" class="m-1" type="checkbox" [(ngModel)]="item.autoReRun" />
-                    </td>
-                    <td>{{item.status}}</td>
-                    <td class="p-0"><button [disabled]="!CanDeleteMAGRun()" (click)="DoDeleteMagRelatedPapersRun(item.magRelatedRunId)" class="btn btn-outline-danger p-1 m-1">Delete</button></td>
-                    <td class="p-0 ">
-                        <button [disabled]="!CanImportMagPapers(item)" class="btn btn-outline-info p-1 m-1">
-                            {{item.userStatus == '' ? 'Pending' : item.userStatus }}
-                        </button>
-                    </td>
-                    <td class="p-0"><button (click)="ImportMagSearchPapers(item)" [disabled]="!CanImportMagPapers(item)" class="btn btn-outline-primary p-1 m-1">Import</button></td>
-                    <td class="p-0"><div (click)="GetItems(item)" class="btn btn-link mt-1">{{ item.nPapers}}</div></td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
+
+</div>
+<div class="card bg-light" style="min-width:150px; overflow:auto;" *ngIf="_basicMAGService.MagRelatedPapersRunList.length > 0">
+    <table class="col-10 small table table-border  table-striped ">
+        <thead>
+            <tr>
+                <th width="6">Re-run?</th>
+                <th width="15">Status</th>
+                <th width="15"></th>
+                <th width="15"></th>
+                <th width="15"></th>
+                <th width="15"></th>
+                <th width="15">Description</th>
+                <th width="40">Mode</th>
+                <th width="15">Date from</th>
+                <th width="15">Date run</th>
+                <th width="15">All included</th>
+                <th width="15">With this code</th>
+                <th width="15">Filtered</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr class="" *ngFor="let item of _basicMAGService.MagRelatedPapersRunList">
+                <td>
+                    <input (click)="UpdateAutoReRun(item)" class="btn btn-sm btn-outline-warning p-1 m-1" [(ngModel)]="item.autoReRun" />
+                </td>
+                <td>{{item.status}}</td>
+                <td class="p-0"><button [disabled]="!CanDeleteMAGRun()" (click)="DoDeleteMagRelatedPapersRun(item.magRelatedRunId)" class="btn btn-sm btn-outline-danger p-1 m-1">Delete</button></td>
+                <td class="p-0 ">
+                    <button [disabled]="!CanImportMagPapers(item)" class="btn btn-sm btn-outline-info p-1 m-1">
+                        {{item.userStatus == '' ? 'Pending' : item.userStatus }}
+                    </button>
+                </td>
+                <td class="p-0"><button (click)="ImportMagSearchPapers(item)" [disabled]="!CanImportMagPapers(item)" class="btn btn-sm btn-outline-primary p-1 m-1">Import</button></td>
+                <td class="p-0"><div (click)="GetItems(item)" class="btn btn-link mt-1">{{ item.nPapers}}</div></td>
+
+                <td>{{item.userDescription}}</td>
+                <td>{{item.mode}}</td>
+                <td>{{item.dateFrom}}</td>
+                <td>{{item.dateRun}}</td>
+                <td>
+                    <input [disabled]="true" class="m-1" type="checkbox" [(ngModel)]="item.allIncluded" />
+                </td>
+                <td>{{item.attributeName}}</td>
+                <td>{{item.filtered}}</td>
+            </tr>
+        </tbody>
+    </table>
 </div>
 <statusbar></statusbar>

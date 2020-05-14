@@ -137,7 +137,8 @@ export class BasicMAGComp implements OnInit {
         }
     }
     public ImportMagSearchPapers(item: MagRelatedPapersRun) {
-        console.log(item);
+
+        console.log('testing mag import: ', item);
    
         if (item.nPapers == 0) {
             this.ShowMAGRunMessage('There are no papers to import');
@@ -263,7 +264,9 @@ export class BasicMAGComp implements OnInit {
     }
     public ImportMagRelatedPapersRun(magRun: MagRelatedPapersRun, msg: string) {
 
-        this.ConfirmationDialogService.confirm("Importing papers for the selected MAG run",
+        console.log('TESTING IMPORT MAG ITEMS: ', magRun);
+
+        this.ConfirmationDialogService.confirm("Importing papers for the selected MAG search",
                 msg, false, '')
             .then((confirm: any) => {
                 if (confirm) {
@@ -273,8 +276,8 @@ export class BasicMAGComp implements OnInit {
     }
 	public DoDeleteMagRelatedPapersRun(magRunId: number) {
 
-        this.ConfirmationDialogService.confirm("Deleting the selected MAG run",
-            "Are you sure you want to delete MAG run Id:" + magRunId + "?", false, '')
+        this.ConfirmationDialogService.confirm("Deleting the selected MAG search",
+            "Are you sure you want to delete MAG search Id:" + magRunId + "?", false, '')
             .then((confirm: any) => {
                 if (confirm) {
                     this._basicMAGService.DeleteMAGRelatedRun(magRunId);

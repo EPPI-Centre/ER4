@@ -112,7 +112,7 @@ export class BasicMAGService extends BusyAwareService {
                     this.RemoveBusy("DeleteMAGRelatedRun");
                     if (result.magRelatedRunId > 0) {
 
-                        this.showMAGRunMessage('MAGRun was deleted');
+                        this.showMAGRunMessage('MAG search was deleted');
 
                     } else {
 
@@ -144,7 +144,7 @@ export class BasicMAGService extends BusyAwareService {
                 this.RemoveBusy("MagRelatedPapersRunCreate");
                 if (result.magRelatedRunId > 0) {
 
-                    this.showMAGRunMessage('MAGRun was created');
+                    this.showMAGRunMessage('MAG search was created');
 
                 } else {
 
@@ -173,7 +173,7 @@ export class BasicMAGService extends BusyAwareService {
     }
     ImportMagRelatedRunPapers(magRelatedRun: MagRelatedPapersRun) {
 
-        console.log('basic mag service 5', magRelatedRun);
+        console.log('basic mag service 5 test for magRun: ', magRelatedRun);
 
         let notificationMsg: string = '';
         this._BusyMethods.push("ImportMagRelatedRunPapers");
@@ -235,7 +235,7 @@ export class BasicMAGService extends BusyAwareService {
                         console.log(tmpIndex);
                         this.MagRelatedPapersRunList[tmpIndex] = result;
                     }
-                    this.showMAGRunMessage('MAG Run was updated');
+                    this.showMAGRunMessage('MAG search was updated');
 
                 } else {
                     this.showMAGRunMessage('User status is: ' + result.userStatus);

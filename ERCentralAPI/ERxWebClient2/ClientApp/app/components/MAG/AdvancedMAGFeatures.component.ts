@@ -154,6 +154,88 @@ export class AdvancedMAGFeaturesComponent implements OnInit {
         return this._RunAlgorithmFirst == true;
 
     }
+    //==================================================================
+    // FROM ER4 GO THROUGH AND IMPLEMENT CLEANLY....
+    // ******************************* Find topics using search box ********************************
+
+    //private void tbFindTopics_TextChanged(object sender, TextChangedEventArgs e) {
+    //    if (CleanText(tbFindTopics.Text).Length > 2) {
+    //        if (this.timer != null && this.timer.IsEnabled) {
+    //            this.timer.Stop();
+    //            this.timer.Start();
+    //        }
+    //        else {
+    //            if (this.timer != null) {
+    //                this.timer.Start();
+    //            }
+    //        }
+    //    }
+    //    else {
+    //        WPFindTopics.Children.Clear();
+    //    }
+    //}
+
+    //public static string CleanText(string text) {
+    //    Regex rgx = new Regex("[^a-zA-Z0-9 ]");
+
+    //    text = rgx.Replace(text, " ").ToLower().Trim();
+    //    while (text.IndexOf("  ") != -1) {
+    //        text = text.Replace("  ", " ");
+    //    }
+    //    return text;
+    //}
+
+    //private void Timer_Tick(object sender, EventArgs e) {
+    //    this.timer.Stop();
+    //    if (tbFindTopics.Text.Length > 2) {
+    //        CslaDataProvider provider = this.Resources["SearchTopicsData"] as CslaDataProvider;
+    //        if (provider != null) {
+    //            MagFieldOfStudyListSelectionCriteria selectionCriteria = new MagFieldOfStudyListSelectionCriteria();
+    //            selectionCriteria.ListType = "FieldOfStudySearchList";
+    //            selectionCriteria.SearchText = tbFindTopics.Text;
+    //            DataPortal < MagFieldOfStudyList > dp = new DataPortal<MagFieldOfStudyList>();
+    //            MagFieldOfStudyList mfsl = new MagFieldOfStudyList();
+    //            dp.FetchCompleted += (o, e2) => {
+    //                WPFindTopics.Children.Clear();
+    //                MagFieldOfStudyList FosList = e2.Object as MagFieldOfStudyList;
+    //                double i = 15;
+    //                foreach(MagFieldOfStudy fos in FosList)
+    //                {
+    //                    HyperlinkButton newHl = new HyperlinkButton();
+    //                    newHl.Content = fos.DisplayName;
+    //                    newHl.Tag = fos.FieldOfStudyId.ToString();
+    //                    newHl.FontSize = i;
+    //                    newHl.IsTabStop = false;
+    //                    if (fos.PaperCount > _maxFieldOfStudyPaperCount) {
+    //                        newHl.NavigateUri = new Uri("https://academic.microsoft.com/topic/" +
+    //                            fos.FieldOfStudyId.ToString());
+    //                        newHl.TargetName = "_blank";
+    //                        newHl.Foreground = new SolidColorBrush(Colors.DarkGray);
+    //                        newHl.FontStyle = FontStyles.Italic;
+    //                    }
+    //                    else {
+    //                        newHl.Click += HlNavigateToTopic_Click;
+    //                    }
+    //                    newHl.Margin = new Thickness(5, 5, 5, 5);
+    //                    WPFindTopics.Children.Add(newHl);
+    //                    if (i > 10) {
+    //                        i -= 0.5;
+    //                    }
+    //                }
+    //            };
+    //            dp.BeginFetch(selectionCriteria);
+    //        }
+    //    }
+    //    else {
+    //        WPFindTopics.Children.Clear();
+    //        TextBlock tb = new TextBlock();
+    //        tb.Text = "Search for topics in the box above. Wildcards work e.g. physic*";
+    //        tb.Margin = new Thickness(5, 5, 5, 5);
+    //        WPFindTopics.Children.Add(tb);
+    //    }
+    //}
+    //==============================================================================================
+
     public AddSimulation(): void {
 
         let newMagSimulation: MagSimulation = new MagSimulation();
