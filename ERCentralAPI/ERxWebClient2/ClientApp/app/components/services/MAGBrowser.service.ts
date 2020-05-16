@@ -95,7 +95,7 @@ export class MAGBrowserService extends BusyAwareService {
                     return false;
                 });
     }
-    public FetchMagFieldOfStudyList(criteria: MVCMagFieldOfStudyListSelectionCriteria, goBackListType: string): Promise<MagFieldOfStudy[] | void> {
+    public FetchMagFieldOfStudyList(criteria: MVCMagFieldOfStudyListSelectionCriteria, goBackListType: string): Promise<MagFieldOfStudy[]> {
 
         console.log('MAGList service 2' + criteria);
 
@@ -113,13 +113,14 @@ export class MAGBrowserService extends BusyAwareService {
                 error => {
                     this.RemoveBusy("FetchMagPaperList");
                     this.modalService.GenericError(error);
-                    
+                    return error;
                 }
             ).catch(
             (error) => {
 
                 this.modalService.GenericErrorMessage("error with FetchMagPaperList: " + error);
                 this.RemoveBusy("FetchMagPaperList");
+                return error;
             });
     }
     public FetchWithCrit(crit: MVCMagPaperListSelectionCriteria, listDescription: string): Promise<boolean> {

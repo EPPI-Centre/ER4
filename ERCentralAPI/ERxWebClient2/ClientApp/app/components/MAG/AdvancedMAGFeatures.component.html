@@ -167,7 +167,13 @@
                 <div class="col-12 card bg-light">
                     <input type="text"  id="SearchTextTopics" (change)="UpdateTopicResults($event)"
                            placeholder="Search for topics here.  Entry of Wildcards work, e.g. physic* " />
-                    <textarea class="bg-light" [(ngModel)]="SearchTextTopicsResults"></textarea>
+                    <!--<textarea class="bg-light" [(ngModel)]="SearchTextTopicsResults"></textarea>-->
+                    <ul *ngFor="let item of SearchTextTopicsResults" class="col-6">
+                        <li (click)="FOSMAGBrowserNavigate()" class="btn btn-link col-2"
+                             [ngStyle]="{ 'font-size.em': item.fontSize,'background-color': 'light-blue', 'color': 'black'}">
+                            {{item.displayName}}
+                        </li>
+                    </ul>
                 </div>
             </div>
 

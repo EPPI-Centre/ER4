@@ -6,7 +6,7 @@ import { codesetSelectorComponent } from '../CodesetTrees/codesetSelector.compon
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Router, NavigationEnd } from '@angular/router';
-import { ClassifierContactModel, MVCMagPaperListSelectionCriteria, MagSimulation } from '../services/MAGClasses.service';
+import { ClassifierContactModel, MVCMagPaperListSelectionCriteria, MagSimulation, MagFieldOfStudy } from '../services/MAGClasses.service';
 import { EventEmitterService } from '../services/EventEmitter.service';
 import { MAGBrowserService } from '../services/MAGBrowser.service';
 import { MAGAdvancedService } from '../services/magAdvanced.service';
@@ -107,7 +107,8 @@ export class AdvancedMAGFeaturesComponent implements OnInit, OnDestroy {
         'Economic evaluation',
         'Systematic review'
     ];
-    public SearchTextTopics: string = '';
+    public SearchTextTopics: TopicLink[] = [];
+    public SearchTextTopicsResults: TopicLink[] = [];
     public UserDefinedClassifier: string = '';
     public magMatchedAll: number = 0;
     public magPaperId: number = 0;
@@ -172,7 +173,7 @@ export class AdvancedMAGFeaturesComponent implements OnInit, OnDestroy {
     }
 
     // ******************************* Find topics using search box ********************************
-    public WPFindTopics: string[] = [];
+    public WPFindTopics: MagFieldOfStudy[] = [];
     public tbFindTopics: string = '';
     public UpdateTopicResults(event: any) {
 
@@ -198,15 +199,53 @@ export class AdvancedMAGFeaturesComponent implements OnInit, OnDestroy {
             console.log('it si ssending: ' + criteriaFOSL.SearchTextTopics);
             this._magBrowserService.FetchMagFieldOfStudyList(criteriaFOSL, '').then(
 
-                (results: any) => {
-                    console.log('got back topics: ' + results);
+                (results: MagFieldOfStudy[]) => {
+                    console.log('got back topics: ' + results[0].displayName);
+
+                    //need to do the following when the list results come back:
+                    this.WPFindTopics = [];
+                    let FosList: MagFieldOfStudy[] = results;
+                    let i: number = 1.7;
+                    let cnt: number = 0;
+                    for (var fos of FosList)
+                    {
+                        console.log('got in here');
+                        let item: TopicLink = new TopicLink();
+                        item.displayName = fos.displayName;
+                        item.fontSize = i;
+                        item.fieldOfStudyId = fos.fieldOfStudyId;
+
+                        this.SearchTextTopicsResults[cnt] = item;
+
+    //                    HyperlinkButton newHl = new HyperlinkButton();
+    //                    newHl.Content = fos.DisplayName;
+    //                    newHl.Tag = fos.FieldOfStudyId.ToString();
+    //                    newHl.FontSize = i;
+    //                    newHl.IsTabStop = false;
+    //                    if (fos.PaperCount > _maxFieldOfStudyPaperCount) {
+    //                        newHl.NavigateUri = new Uri("https://academic.microsoft.com/topic/" +
+    //                            fos.FieldOfStudyId.ToString());
+    //                        newHl.TargetName = "_blank";
+    //                        newHl.Foreground = new SolidColorBrush(Colors.DarkGray);
+    //                        newHl.FontStyle = FontStyles.Italic;
+    //                    }
+    //                    else {
+    //                        newHl.Click += HlNavigateToTopic_Click;
+    //                    }
+    //                    newHl.Margin = new Thickness(5, 5, 5, 5);
+    //                    WPFindTopics.Children.Add(newHl);
+
+                        cnt += 1;
+                        if (i > 0.1) {
+                            i -= 0.05;
+                        }
+                    }
+                    console.log(this.SearchTextTopicsResults);
                     return;
                 }
             );
-
             // fill below in with the result...
-
-            //this.WPFindTopics = [];
+            this.WPFindTopics = [];
         }
     }
 
@@ -273,6 +312,11 @@ export class AdvancedMAGFeaturesComponent implements OnInit, OnDestroy {
     //    }
     //}
     //==============================================================================================
+
+    public FOSMAGBrowserNavigate() {
+
+        this.router.navigate(['MAGBrowser']);
+    }
 
     public AddSimulation(): void {
 
@@ -554,4 +598,12 @@ export class AdvancedMAGFeaturesComponent implements OnInit, OnDestroy {
         this._magAdvancedService.FetchMagSimulationList();
     }
 
+}
+
+export class TopicLink {
+
+    displayName: string = '';
+    fontSize: number = 0;
+    callToFOS: string = '';
+    fieldOfStudyId: number = 0;
 }
