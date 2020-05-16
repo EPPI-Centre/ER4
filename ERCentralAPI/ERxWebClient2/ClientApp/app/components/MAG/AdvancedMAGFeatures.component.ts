@@ -170,14 +170,11 @@ export class AdvancedMAGFeaturesComponent implements OnInit, OnDestroy {
         return this._RunAlgorithmFirst == true;
 
     }
-    public UpdateTopicResults(event: any) {
 
-        console.log('updating topics change: ' + event.target.value );
-    }
     // ******************************* Find topics using search box ********************************
     public WPFindTopics: string[] = [];
     public tbFindTopics: string = '';
-    private tbFindTopics_TextChanged() {
+    public UpdateTopicResults(event: any) {
 
         if (this.CleanText(this.tbFindTopics).length > 2) {
 
@@ -192,7 +189,24 @@ export class AdvancedMAGFeaturesComponent implements OnInit, OnDestroy {
             //}
         }
         else {
-            this.WPFindTopics = [];
+            
+            let criteriaFOSL: MVCMagFieldOfStudyListSelectionCriteria = new MVCMagFieldOfStudyListSelectionCriteria();
+            criteriaFOSL.fieldOfStudyId = 0;
+            criteriaFOSL.listType = 'FieldOfStudySearchList';
+            criteriaFOSL.paperIdList = '';
+            criteriaFOSL.SearchTextTopics = event.target.value; 
+            console.log('it si ssending: ' + criteriaFOSL.SearchTextTopics);
+            this._magBrowserService.FetchMagFieldOfStudyList(criteriaFOSL, '').then(
+
+                (results: any) => {
+                    console.log('got back topics: ' + results);
+                    return;
+                }
+            );
+
+            // fill below in with the result...
+
+            //this.WPFindTopics = [];
         }
     }
 

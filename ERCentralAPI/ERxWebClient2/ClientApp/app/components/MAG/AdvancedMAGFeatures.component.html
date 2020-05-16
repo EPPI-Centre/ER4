@@ -165,7 +165,7 @@
 
                 </div>
                 <div class="col-12 card bg-light">
-                    <input type="text"  id="SearchTextTopics" (keyup)="UpdateTopicResults($event)"
+                    <input type="text"  id="SearchTextTopics" (change)="UpdateTopicResults($event)"
                            placeholder="Search for topics here.  Entry of Wildcards work, e.g. physic* " />
                     <textarea class="bg-light" [(ngModel)]="SearchTextTopicsResults"></textarea>
                 </div>

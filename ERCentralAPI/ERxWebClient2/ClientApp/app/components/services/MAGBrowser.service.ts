@@ -97,7 +97,7 @@ export class MAGBrowserService extends BusyAwareService {
     }
     public FetchMagFieldOfStudyList(criteria: MVCMagFieldOfStudyListSelectionCriteria, goBackListType: string): Promise<MagFieldOfStudy[] | void> {
 
-        console.log('MAGList service 2');
+        console.log('MAGList service 2' + criteria);
 
         this._BusyMethods.push("FetchMagPaperList");
         return this._httpC.post<MagFieldOfStudy[]>(this._baseUrl + 'api/MagCurrentInfo/GetMagFieldOfStudyList', criteria)
