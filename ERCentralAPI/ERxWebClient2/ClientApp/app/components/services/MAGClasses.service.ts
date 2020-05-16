@@ -49,7 +49,7 @@ export class MagRelatedPapersRun {
     status: string = '';
     userStatus: string = '';
     nPapers: number = 0;
-    reviweIdId = 0;
+    reviewIdId = 0;
 }
 export class MagRelatedPaperListSelectionCriteria {
 
@@ -96,7 +96,7 @@ export class MVCMagFieldOfStudyListSelectionCriteria {
     fieldOfStudyId: number = 0;
     listType: string = '';
     paperIdList: string = '';
-    searchText: string = '';
+    SearchTextTopics: string = '';
 
 }
 
@@ -122,7 +122,7 @@ export class MvcMagFieldOfStudyListSelectionCriteria {
     fieldOfStudyId: number = 0;
     listType: string = '';
     paperIdList: string = '';
-    searchText: string = '';
+    SearchTextTopics: string = '';
 
 }
 

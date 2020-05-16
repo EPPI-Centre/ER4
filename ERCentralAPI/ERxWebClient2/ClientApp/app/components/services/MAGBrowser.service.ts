@@ -78,7 +78,7 @@ export class MAGBrowserService extends BusyAwareService {
                     FieldsListcriteria.listType = "PaperFieldOfStudyList";
                     FieldsListcriteria.paperIdList = this.ListCriteria.paperIds;
                     //THIS SEARCH TEXT NEEDS TO COME IN FROM THE FRONT
-                    FieldsListcriteria.searchText = ''; //searchText;
+                    FieldsListcriteria.SearchTextTopics = ''; //searchText;
                     this.FetchMagFieldOfStudyList(FieldsListcriteria, goBackListType);
                     return true;
                 },

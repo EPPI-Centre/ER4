@@ -126,7 +126,7 @@ export class MAGBrowser implements OnInit {
         let selectionCriteria: MvcMagFieldOfStudyListSelectionCriteria = new MvcMagFieldOfStudyListSelectionCriteria();
         selectionCriteria.listType = FieldOfStudy;
         selectionCriteria.fieldOfStudyId = FieldOfStudyId;
-
+        selectionCriteria.SearchTextTopics = '';
         return this._magBrowserService.FetchMagFieldOfStudyList(selectionCriteria, 'CitationsList').then(
 
             (result: MagFieldOfStudy[] | void) => {

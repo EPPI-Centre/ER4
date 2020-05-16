@@ -164,9 +164,10 @@
                     </div>
 
                 </div>
-                <div class="col-12 card bg-secondary">
-                    <textarea [(ngModel)]="SearchText">Search for topics in the box above.  Wildcards work e.g. physic* 
-                </textarea>
+                <div class="col-12 card bg-light">
+                    <input type="text"  id="SearchTextTopics" (keyup)="UpdateTopicResults($event)"
+                           placeholder="Search for topics here.  Entry of Wildcards work, e.g. physic* " />
+                    <textarea class="bg-light" [(ngModel)]="SearchTextTopicsResults"></textarea>
                 </div>
             </div>
 

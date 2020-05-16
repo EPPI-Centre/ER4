@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
 import { Location } from '@angular/common';
 import { searchService } from '../services/search.service';
 import { singleNode, SetAttribute } from '../services/ReviewSets.service';
@@ -12,6 +12,9 @@ import { MAGBrowserService } from '../services/MAGBrowser.service';
 import { MAGAdvancedService } from '../services/magAdvanced.service';
 import { MVCMagFieldOfStudyListSelectionCriteria } from '../services/MAGClasses.service';
 import { MAGBrowserHistoryService } from '../services/MAGBrowserHistory.service';
+import { Observable, interval, Subscription } from 'rxjs';
+import { take } from 'rxjs/operators'
+
 
 @Component({
     selector: 'AdvancedMAGFeatures',
@@ -19,7 +22,7 @@ import { MAGBrowserHistoryService } from '../services/MAGBrowserHistory.service'
     providers: []
 })
 
-export class AdvancedMAGFeaturesComponent implements OnInit {
+export class AdvancedMAGFeaturesComponent implements OnInit, OnDestroy {
 
     history: NavigationEnd[] = [];
     constructor(private ConfirmationDialogService: ConfirmationDialogService,
@@ -37,6 +40,8 @@ export class AdvancedMAGFeaturesComponent implements OnInit {
         this.history = this._routingStateService.getHistory();
         //console.log('testing URL: ', this.history);
     }
+    private takeOneNumber: Observable<number> = new Observable<number>();
+    private subsc: Subscription = new Subscription();
     ngOnInit() {
 
         if (this._ReviewerIdentityServ.reviewerIdentity.userId == 0 ||
@@ -48,14 +53,25 @@ export class AdvancedMAGFeaturesComponent implements OnInit {
         }
         else {
 
+            const numbers = interval(1000);
+            this.takeOneNumber = numbers.pipe(take(1000000));
+            this.subsc = this.takeOneNumber.subscribe(x =>
+                { console.log(' ' + x) }
+            );
             this.GetMagReviewMagInfoCommand();
             this.GetMagSimulationList();
             this.GetClassifierContactModelList();
         }
     }
+    ngOnDestroy() {
 
+        this.subsc.unsubscribe();
+
+    }
     @ViewChild('WithOrWithoutCodeSelector3') WithOrWithoutCodeSelector3!: codesetSelectorComponent;
     @ViewChild('WithOrWithoutCodeSelector2') WithOrWithoutCodeSelector2!: codesetSelectorComponent;
+
+
     private _RunAlgorithmFirst: boolean = false;
     public CurrentDropdownSelectedCode3: singleNode | null = null;
     public CurrentDropdownSelectedCode2: singleNode | null = null;
@@ -91,7 +107,7 @@ export class AdvancedMAGFeaturesComponent implements OnInit {
         'Economic evaluation',
         'Systematic review'
     ];
-    public SearchText: string = '';
+    public SearchTextTopics: string = '';
     public UserDefinedClassifier: string = '';
     public magMatchedAll: number = 0;
     public magPaperId: number = 0;
@@ -154,36 +170,44 @@ export class AdvancedMAGFeaturesComponent implements OnInit {
         return this._RunAlgorithmFirst == true;
 
     }
-    //==================================================================
-    // FROM ER4 GO THROUGH AND IMPLEMENT CLEANLY....
+    public UpdateTopicResults(event: any) {
+
+        console.log('updating topics change: ' + event.target.value );
+    }
     // ******************************* Find topics using search box ********************************
+    public WPFindTopics: string[] = [];
+    public tbFindTopics: string = '';
+    private tbFindTopics_TextChanged() {
 
-    //private void tbFindTopics_TextChanged(object sender, TextChangedEventArgs e) {
-    //    if (CleanText(tbFindTopics.Text).Length > 2) {
-    //        if (this.timer != null && this.timer.IsEnabled) {
-    //            this.timer.Stop();
-    //            this.timer.Start();
-    //        }
-    //        else {
-    //            if (this.timer != null) {
-    //                this.timer.Start();
-    //            }
-    //        }
-    //    }
-    //    else {
-    //        WPFindTopics.Children.Clear();
-    //    }
-    //}
+        if (this.CleanText(this.tbFindTopics).length > 2) {
 
-    //public static string CleanText(string text) {
-    //    Regex rgx = new Regex("[^a-zA-Z0-9 ]");
+            //if (this.timer != null && this.timer.IsEnabled) {
+            //    this.timer.Stop();
+            //    this.timer.Start();
+            //}
+            //else {
+            //    if (this.timer != null) {
+            //        this.timer.Start();
+            //    }
+            //}
+        }
+        else {
+            this.WPFindTopics = [];
+        }
+    }
 
-    //    text = rgx.Replace(text, " ").ToLower().Trim();
-    //    while (text.IndexOf("  ") != -1) {
-    //        text = text.Replace("  ", " ");
-    //    }
-    //    return text;
-    //}
+    public CleanText(text: string): string {
+        let rgx: RegExp = new RegExp('[^a-zA-Z0-9 ]');
+
+        text = text.replace(rgx, ' ').toLowerCase().trim();
+        
+        while (text.indexOf('  ') != -1) {
+            text = text.replace('  ', '  ');
+        }
+        return text;
+    }
+
+    // need to write this function in angular style...
 
     //private void Timer_Tick(object sender, EventArgs e) {
     //    this.timer.Stop();
@@ -361,7 +385,7 @@ export class AdvancedMAGFeaturesComponent implements OnInit {
                 criteria2.fieldOfStudyId = 0;
                 criteria2.listType = 'PaperFieldOfStudyList';
                 criteria2.paperIdList = this._magBrowserService.ListCriteria.paperIds;
-                criteria2.searchText = ''; //TODO this will be populated by the user..
+                criteria2.SearchTextTopics = ''; //TODO this will be populated by the user..
                 this._magBrowserService.FetchMagFieldOfStudyList(criteria2, 'ReviewMatchedPapers').then(
 
                     () => { this.router.navigate(['MAGBrowser']); }

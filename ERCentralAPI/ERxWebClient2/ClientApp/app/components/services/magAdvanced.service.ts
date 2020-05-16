@@ -182,7 +182,7 @@ export class MAGAdvancedService extends BusyAwareService {
                                     criteriaFOS.fieldOfStudyId = 0;
                                     criteriaFOS.listType = 'PaperFieldOfStudyList';
                                     criteriaFOS.paperIdList = this.PaperIds;
-                                    criteriaFOS.searchText = ''; //TODO this will be populated by the user..
+                                    criteriaFOS.SearchTextTopics = ''; //TODO this will be populated by the user..
 
                                     //console.log('3 paperIds: ', this.PaperIds);
                                     this._magBrowserService.FetchMagFieldOfStudyList(criteriaFOS, 'CitationsList').then(
