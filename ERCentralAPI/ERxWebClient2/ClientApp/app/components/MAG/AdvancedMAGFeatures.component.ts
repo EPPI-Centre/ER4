@@ -173,37 +173,24 @@ export class AdvancedMAGFeaturesComponent implements OnInit, OnDestroy {
     }
 
     // ******************************* Find topics using search box ********************************
-    public WPFindTopics: MagFieldOfStudy[] = [];
-    public tbFindTopics: string = '';
+    //public WPFindTopics: MagFieldOfStudy[] = [];
+    //public tbFindTopics: string = '';
     public UpdateTopicResults(event: any) {
 
-        if (this.CleanText(this.tbFindTopics).length > 2) {
+        let enteredSearchString: string = event.target.value;
 
-            //if (this.timer != null && this.timer.IsEnabled) {
-            //    this.timer.Stop();
-            //    this.timer.Start();
-            //}
-            //else {
-            //    if (this.timer != null) {
-            //        this.timer.Start();
-            //    }
-            //}
-        }
-        else {
-            
+        if (enteredSearchString.length > 2 ) {
+
             let criteriaFOSL: MVCMagFieldOfStudyListSelectionCriteria = new MVCMagFieldOfStudyListSelectionCriteria();
             criteriaFOSL.fieldOfStudyId = 0;
             criteriaFOSL.listType = 'FieldOfStudySearchList';
             criteriaFOSL.paperIdList = '';
             criteriaFOSL.SearchTextTopics = event.target.value; 
-            console.log('it si ssending: ' + criteriaFOSL.SearchTextTopics);
             this._magBrowserService.FetchMagFieldOfStudyList(criteriaFOSL, '').then(
 
                 (results: MagFieldOfStudy[]) => {
-                    console.log('got back topics: ' + results[0].displayName);
 
-                    //need to do the following when the list results come back:
-                    this.WPFindTopics = [];
+                    //this.WPFindTopics = [];
                     let FosList: MagFieldOfStudy[] = results;
                     let i: number = 1.7;
                     let cnt: number = 0;
@@ -216,25 +203,6 @@ export class AdvancedMAGFeaturesComponent implements OnInit, OnDestroy {
                         item.fieldOfStudyId = fos.fieldOfStudyId;
 
                         this.SearchTextTopicsResults[cnt] = item;
-
-    //                    HyperlinkButton newHl = new HyperlinkButton();
-    //                    newHl.Content = fos.DisplayName;
-    //                    newHl.Tag = fos.FieldOfStudyId.ToString();
-    //                    newHl.FontSize = i;
-    //                    newHl.IsTabStop = false;
-    //                    if (fos.PaperCount > _maxFieldOfStudyPaperCount) {
-    //                        newHl.NavigateUri = new Uri("https://academic.microsoft.com/topic/" +
-    //                            fos.FieldOfStudyId.ToString());
-    //                        newHl.TargetName = "_blank";
-    //                        newHl.Foreground = new SolidColorBrush(Colors.DarkGray);
-    //                        newHl.FontStyle = FontStyles.Italic;
-    //                    }
-    //                    else {
-    //                        newHl.Click += HlNavigateToTopic_Click;
-    //                    }
-    //                    newHl.Margin = new Thickness(5, 5, 5, 5);
-    //                    WPFindTopics.Children.Add(newHl);
-
                         cnt += 1;
                         if (i > 0.1) {
                             i -= 0.05;
@@ -244,11 +212,11 @@ export class AdvancedMAGFeaturesComponent implements OnInit, OnDestroy {
                     return;
                 }
             );
-            //WPFindTopics.Children.Clear();
-            //        TextBlock tb = new TextBlock();
-            //        tb.Text = "Search for topics in the box above. Wildcards work e.g. physic*";
-            //        tb.Margin = new Thickness(5, 5, 5, 5);
-            //        WPFindTopics.Children.Add(tb);
+
+        } else {
+
+            this.SearchTextTopics = [];
+            this.SearchTextTopicsResults = [];
         }
     }
 
@@ -269,42 +237,17 @@ export class AdvancedMAGFeaturesComponent implements OnInit, OnDestroy {
     }
     public GetParentAndChildRelatedPapers(FieldOfStudy: string, FieldOfStudyId: number) {
 
-        //this.ParentTopic = item.displayName;
+        this._magBrowserService.ParentTopic = FieldOfStudy;
 
-        this.GetParentAndChildFieldsOfStudy("FieldOfStudyParentsList", FieldOfStudyId, "Parent topics").then(
+        this._magBrowserService.GetParentAndChildFieldsOfStudy("FieldOfStudyParentsList", FieldOfStudyId, "Parent topics").then(
             () => {
-                this.GetParentAndChildFieldsOfStudy("FieldOfStudyChildrenList", FieldOfStudyId, "Child topics").then(
+                this._magBrowserService.GetParentAndChildFieldsOfStudy("FieldOfStudyChildrenList", FieldOfStudyId, "Child topics").then(
                     () => {
-                        //this.GetPaperListForTopic(FieldOfStudyId);
+                        this._magBrowserService.GetPaperListForTopic(FieldOfStudyId);
                     });
             });
     }
-    public GetParentAndChildFieldsOfStudy(FieldOfStudyList: string, FieldOfStudyId: number, ParentOrChild: string): Promise<void> {
-
-        let selectionCriteria: MvcMagFieldOfStudyListSelectionCriteria = new MvcMagFieldOfStudyListSelectionCriteria();
-        selectionCriteria.listType = FieldOfStudyList;
-        selectionCriteria.fieldOfStudyId = FieldOfStudyId;
-        selectionCriteria.SearchTextTopics = '';
-        return this._magBrowserService.FetchMagFieldOfStudyList(selectionCriteria, 'CitationsList').then(
-
-            (result: MagFieldOfStudy[] | void) => {
-
-                console.log('topics call...: ' + result);
-                //if (result != null) {
-                //    for (var i = 0; i < result.length; i++) {
-
-                //        let newHl: MagFieldOfStudy = result[i];
-                //        if (ParentOrChild == 'Parent topics') {
-                //            this.WPParentTopics.push(newHl);
-
-                //        } else {
-                //            this.WPChildTopics.push(newHl);
-                //        }
-                //    }
-                //}
-            }
-        );
-    }
+    
 
     public AddSimulation(): void {
 

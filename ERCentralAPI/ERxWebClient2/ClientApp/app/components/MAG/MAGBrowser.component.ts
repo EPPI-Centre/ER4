@@ -36,9 +36,9 @@ export class MAGBrowser implements OnInit {
     public ShowSelectedPapers: string = '';
     public selectedPapers: MagPaper[] = [];
     //private _maxFieldOfStudyPaperCount: number = 1000000;
-    public ParentTopic: string = '';
-    public WPParentTopics: MagFieldOfStudy[] = [];
-    public WPChildTopics: MagFieldOfStudy[] = [];
+    //public ParentTopic: string = '';
+    //public WPParentTopics: MagFieldOfStudy[] = [];
+    //public WPChildTopics: MagFieldOfStudy[] = [];
 
     ngOnInit() {
 
@@ -99,56 +99,57 @@ export class MAGBrowser implements OnInit {
     public GetParentAndChildRelatedPapers(item: MagFieldOfStudy) {
 
         let FieldOfStudyId: number = item.fieldOfStudyId;
-        this.ParentTopic =  item.displayName;
+        this._magBrowserService.ParentTopic =  item.displayName;
 
-        this.GetParentAndChildFieldsOfStudy("FieldOfStudyParentsList", FieldOfStudyId, "Parent topics").then(
+        this._magBrowserService.GetParentAndChildFieldsOfStudy("FieldOfStudyParentsList", FieldOfStudyId, "Parent topics").then(
             () => {
-                this.GetParentAndChildFieldsOfStudy("FieldOfStudyChildrenList", FieldOfStudyId, "Child topics").then(
+                this._magBrowserService.GetParentAndChildFieldsOfStudy("FieldOfStudyChildrenList", FieldOfStudyId, "Child topics").then(
                     () => {
-                        this.GetPaperListForTopic(FieldOfStudyId);
+                        this._magBrowserService.GetPaperListForTopic(FieldOfStudyId);
                     });
             });
     }
-    public GetPaperListForTopic(FieldOfStudyId: number): any {
 
-        console.log('we need to get in here...');
-        let id = this._magBrowserService.ListCriteria.magRelatedRunId;
-        this._magBrowserService.ListCriteria = new MVCMagPaperListSelectionCriteria();
-        this._magBrowserService.ListCriteria.magRelatedRunId = id;
-        this._magBrowserService.ListCriteria.fieldOfStudyId = FieldOfStudyId;
-        this._magBrowserService.ListCriteria.listType = "PaperFieldsOfStudyList";
-        this._magBrowserService.ListCriteria.pageNumber = 0;
-        this._magBrowserService.ListCriteria.pageSize = 20;
-        this._magBrowserService.FetchWithCrit(this._magBrowserService.ListCriteria, "PaperFieldsOfStudyList");
+    //public GetPaperListForTopic(FieldOfStudyId: number): any {
 
-    }
-    public GetParentAndChildFieldsOfStudy(FieldOfStudy: string, FieldOfStudyId: number, ParentOrChild: string): Promise<void> {
+    //    console.log('we need to get in here...');
+    //    let id = this._magBrowserService.ListCriteria.magRelatedRunId;
+    //    this._magBrowserService.ListCriteria = new MVCMagPaperListSelectionCriteria();
+    //    this._magBrowserService.ListCriteria.magRelatedRunId = id;
+    //    this._magBrowserService.ListCriteria.fieldOfStudyId = FieldOfStudyId;
+    //    this._magBrowserService.ListCriteria.listType = "PaperFieldsOfStudyList";
+    //    this._magBrowserService.ListCriteria.pageNumber = 0;
+    //    this._magBrowserService.ListCriteria.pageSize = 20;
+    //    this._magBrowserService.FetchWithCrit(this._magBrowserService.ListCriteria, "PaperFieldsOfStudyList");
 
-        console.log(' ' + FieldOfStudy + ' ' + FieldOfStudyId + ' ' + ParentOrChild);
+    //}
+    //public GetParentAndChildFieldsOfStudy(FieldOfStudy: string, FieldOfStudyId: number, ParentOrChild: string): Promise<void> {
 
-        let selectionCriteria: MvcMagFieldOfStudyListSelectionCriteria = new MvcMagFieldOfStudyListSelectionCriteria();
-        selectionCriteria.listType = FieldOfStudy;
-        selectionCriteria.fieldOfStudyId = FieldOfStudyId;
-        selectionCriteria.SearchTextTopics = '';
-        return this._magBrowserService.FetchMagFieldOfStudyList(selectionCriteria, 'CitationsList').then(
+    //    console.log(' ' + FieldOfStudy + ' ' + FieldOfStudyId + ' ' + ParentOrChild);
 
-            (result: MagFieldOfStudy[] | void) => {
+    //    let selectionCriteria: MvcMagFieldOfStudyListSelectionCriteria = new MvcMagFieldOfStudyListSelectionCriteria();
+    //    selectionCriteria.listType = FieldOfStudy;
+    //    selectionCriteria.fieldOfStudyId = FieldOfStudyId;
+    //    selectionCriteria.SearchTextTopics = '';
+    //    return this._magBrowserService.FetchMagFieldOfStudyList(selectionCriteria, 'CitationsList').then(
 
-                if (result != null) {
-                    for (var i = 0; i < result.length; i++) {
+    //        (result: MagFieldOfStudy[] | void) => {
 
-                        let newHl: MagFieldOfStudy = result[i];
-                          if (ParentOrChild == 'Parent topics') {
-                            this.WPParentTopics.push(newHl);
+    //            if (result != null) {
+    //                for (var i = 0; i < result.length; i++) {
 
-                        } else {
-                            this.WPChildTopics.push(newHl);
-                        }
-                    }
-                }
-            }
-        );
-    }
+    //                    let newHl: MagFieldOfStudy = result[i];
+    //                      if (ParentOrChild == 'Parent topics') {
+    //                          this._magBrowserService.WPParentTopics.push(newHl);
+
+    //                    } else {
+    //                          this._magBrowserService.WPChildTopics.push(newHl);
+    //                    }
+    //                }
+    //            }
+    //        }
+    //    );
+    //}
     public HideCitatedBy(): boolean {
 
         let len: number = this._magBrowserService.MagCitationsByPaperList.papers.length;

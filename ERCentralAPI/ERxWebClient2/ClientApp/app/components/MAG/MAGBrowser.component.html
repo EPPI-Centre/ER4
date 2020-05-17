@@ -27,13 +27,13 @@
 
     <div [title]="'TOPICS'" class="col-3" style="min-height:500px;min-width:450px; overflow:auto;">
         <h5>Parent Topics</h5>
-        {{ParentTopic}}
+        {{_magBrowserService.ParentTopic}}
         <table class="card col-12 small table table-border  table-striped bg-light">
             <thead>
                 <tr></tr>
             </thead>
             <tbody>
-                <tr *ngFor="let item of WPParentTopics">
+                <tr *ngFor="let item of _magBrowserService.WPParentTopics">
                     <td (click)="GetParentAndChildRelatedPapers(item)" class="btn btn-link mt-1">
                         {{item.displayName }}
                     </td>
