@@ -111,6 +111,7 @@ export class MAGBrowser implements OnInit {
     }
     public GetPaperListForTopic(FieldOfStudyId: number): any {
 
+        console.log('we need to get in here...');
         let id = this._magBrowserService.ListCriteria.magRelatedRunId;
         this._magBrowserService.ListCriteria = new MVCMagPaperListSelectionCriteria();
         this._magBrowserService.ListCriteria.magRelatedRunId = id;
@@ -122,6 +123,8 @@ export class MAGBrowser implements OnInit {
 
     }
     public GetParentAndChildFieldsOfStudy(FieldOfStudy: string, FieldOfStudyId: number, ParentOrChild: string): Promise<void> {
+
+        console.log(' ' + FieldOfStudy + ' ' + FieldOfStudyId + ' ' + ParentOrChild);
 
         let selectionCriteria: MvcMagFieldOfStudyListSelectionCriteria = new MvcMagFieldOfStudyListSelectionCriteria();
         selectionCriteria.listType = FieldOfStudy;

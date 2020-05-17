@@ -6,7 +6,7 @@ import { codesetSelectorComponent } from '../CodesetTrees/codesetSelector.compon
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Router, NavigationEnd } from '@angular/router';
-import { ClassifierContactModel, MVCMagPaperListSelectionCriteria, MagSimulation, MagFieldOfStudy } from '../services/MAGClasses.service';
+import { ClassifierContactModel, MVCMagPaperListSelectionCriteria, MagSimulation, MagFieldOfStudy, MvcMagFieldOfStudyListSelectionCriteria } from '../services/MAGClasses.service';
 import { EventEmitterService } from '../services/EventEmitter.service';
 import { MAGBrowserService } from '../services/MAGBrowser.service';
 import { MAGAdvancedService } from '../services/magAdvanced.service';
@@ -244,8 +244,11 @@ export class AdvancedMAGFeaturesComponent implements OnInit, OnDestroy {
                     return;
                 }
             );
-            // fill below in with the result...
-            this.WPFindTopics = [];
+            //WPFindTopics.Children.Clear();
+            //        TextBlock tb = new TextBlock();
+            //        tb.Text = "Search for topics in the box above. Wildcards work e.g. physic*";
+            //        tb.Margin = new Thickness(5, 5, 5, 5);
+            //        WPFindTopics.Children.Add(tb);
         }
     }
 
@@ -259,63 +262,48 @@ export class AdvancedMAGFeaturesComponent implements OnInit, OnDestroy {
         }
         return text;
     }
-
-    // need to write this function in angular style...
-
-    //private void Timer_Tick(object sender, EventArgs e) {
-    //    this.timer.Stop();
-    //    if (tbFindTopics.Text.Length > 2) {
-    //        CslaDataProvider provider = this.Resources["SearchTopicsData"] as CslaDataProvider;
-    //        if (provider != null) {
-    //            MagFieldOfStudyListSelectionCriteria selectionCriteria = new MagFieldOfStudyListSelectionCriteria();
-    //            selectionCriteria.ListType = "FieldOfStudySearchList";
-    //            selectionCriteria.SearchText = tbFindTopics.Text;
-    //            DataPortal < MagFieldOfStudyList > dp = new DataPortal<MagFieldOfStudyList>();
-    //            MagFieldOfStudyList mfsl = new MagFieldOfStudyList();
-    //            dp.FetchCompleted += (o, e2) => {
-    //                WPFindTopics.Children.Clear();
-    //                MagFieldOfStudyList FosList = e2.Object as MagFieldOfStudyList;
-    //                double i = 15;
-    //                foreach(MagFieldOfStudy fos in FosList)
-    //                {
-    //                    HyperlinkButton newHl = new HyperlinkButton();
-    //                    newHl.Content = fos.DisplayName;
-    //                    newHl.Tag = fos.FieldOfStudyId.ToString();
-    //                    newHl.FontSize = i;
-    //                    newHl.IsTabStop = false;
-    //                    if (fos.PaperCount > _maxFieldOfStudyPaperCount) {
-    //                        newHl.NavigateUri = new Uri("https://academic.microsoft.com/topic/" +
-    //                            fos.FieldOfStudyId.ToString());
-    //                        newHl.TargetName = "_blank";
-    //                        newHl.Foreground = new SolidColorBrush(Colors.DarkGray);
-    //                        newHl.FontStyle = FontStyles.Italic;
-    //                    }
-    //                    else {
-    //                        newHl.Click += HlNavigateToTopic_Click;
-    //                    }
-    //                    newHl.Margin = new Thickness(5, 5, 5, 5);
-    //                    WPFindTopics.Children.Add(newHl);
-    //                    if (i > 10) {
-    //                        i -= 0.5;
-    //                    }
-    //                }
-    //            };
-    //            dp.BeginFetch(selectionCriteria);
-    //        }
-    //    }
-    //    else {
-    //        WPFindTopics.Children.Clear();
-    //        TextBlock tb = new TextBlock();
-    //        tb.Text = "Search for topics in the box above. Wildcards work e.g. physic*";
-    //        tb.Margin = new Thickness(5, 5, 5, 5);
-    //        WPFindTopics.Children.Add(tb);
-    //    }
-    //}
-    //==============================================================================================
-
-    public FOSMAGBrowserNavigate() {
+    public FOSMAGBrowserNavigate(displayName: string, fieldOfStudyId: number) {
 
         this.router.navigate(['MAGBrowser']);
+        this.GetParentAndChildRelatedPapers(displayName, fieldOfStudyId);
+    }
+    public GetParentAndChildRelatedPapers(FieldOfStudy: string, FieldOfStudyId: number) {
+
+        //this.ParentTopic = item.displayName;
+
+        this.GetParentAndChildFieldsOfStudy("FieldOfStudyParentsList", FieldOfStudyId, "Parent topics").then(
+            () => {
+                this.GetParentAndChildFieldsOfStudy("FieldOfStudyChildrenList", FieldOfStudyId, "Child topics").then(
+                    () => {
+                        //this.GetPaperListForTopic(FieldOfStudyId);
+                    });
+            });
+    }
+    public GetParentAndChildFieldsOfStudy(FieldOfStudyList: string, FieldOfStudyId: number, ParentOrChild: string): Promise<void> {
+
+        let selectionCriteria: MvcMagFieldOfStudyListSelectionCriteria = new MvcMagFieldOfStudyListSelectionCriteria();
+        selectionCriteria.listType = FieldOfStudyList;
+        selectionCriteria.fieldOfStudyId = FieldOfStudyId;
+        selectionCriteria.SearchTextTopics = '';
+        return this._magBrowserService.FetchMagFieldOfStudyList(selectionCriteria, 'CitationsList').then(
+
+            (result: MagFieldOfStudy[] | void) => {
+
+                console.log('topics call...: ' + result);
+                //if (result != null) {
+                //    for (var i = 0; i < result.length; i++) {
+
+                //        let newHl: MagFieldOfStudy = result[i];
+                //        if (ParentOrChild == 'Parent topics') {
+                //            this.WPParentTopics.push(newHl);
+
+                //        } else {
+                //            this.WPChildTopics.push(newHl);
+                //        }
+                //    }
+                //}
+            }
+        );
     }
 
     public AddSimulation(): void {

@@ -197,7 +197,12 @@ export class MAGBrowserService extends BusyAwareService {
 
             this._MAGList = list;
             this._Criteria = crit;
-        }      
+        } else if (crit.listType == 'PaperFieldsOfStudyList') {
+
+            console.log('PaperFieldsOfStudyList call inside if else');
+            this._MAGList = list;
+            this._Criteria = crit;
+        }     
        
     }
     private ChangingPaper(newPaper: MagPaper) {
