@@ -180,16 +180,17 @@ export class BasicMAGService extends BusyAwareService {
         //magTestRun.attributeId = 116539;
         //magTestRun.attributeName = "INCLUDE";
         //magTestRun.autoReRun = false;
-        //magTestRun.dateFrom = "13/05/2020";
-        //magTestRun.dateRun = "13/05/2020";
+        //magTestRun.dateFrom = "24/03/2000";
+        //magTestRun.dateRun = "02/03/2020";
         //magTestRun.filtered = "NoFilter";
         //magTestRun.magRelatedRunId = 10;
         //magTestRun.mode = "Recommendations";
-        //magTestRun.nPapers = 82;
-        //magTestRun.reviewIdId = 517;
+        //magTestRun.nPapers = 51122;
+        //magTestRun.reviewIdId = 4503;
         //magTestRun.status = "Complete";
-        //magTestRun.userDescription = "just a search";
-        //magTestRun.userStatus = "Unchecked";
+        //magTestRun.userDescription = "test zero link";
+        //magTestRun.userStatus = "Checked";
+
 
         let notificationMsg: string = '';
         this._BusyMethods.push("ImportMagRelatedRunPapers");
