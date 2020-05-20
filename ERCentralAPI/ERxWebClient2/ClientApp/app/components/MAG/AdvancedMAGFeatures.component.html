@@ -9,6 +9,7 @@
         <kendo-toolbar-button [text]="'Clear Selected'" (click)="ClearSelected()" [disabled]="HasWriteRights"></kendo-toolbar-button>
         <kendo-toolbar-button [text]="'Import Selected'" (click)="ImportSelected()" [disabled]="HasWriteRights"></kendo-toolbar-button>
         <kendo-toolbar-button [text]="'Auto-update home'" (click)="AutoUpdateHome()" [disabled]="!HasWriteRights"></kendo-toolbar-button>
+        <kendo-toolbar-button [text]="'Matching MAG Items'" (click)="MatchingMAGItems()" [disabled]="!HasWriteRights"></kendo-toolbar-button>
         <kendo-toolbar-button [text]="'Show history'" (click)="ShowHistory()" [disabled]="!HasWriteRights"></kendo-toolbar-button>
         <kendo-toolbar-button [text]="'Admin'" (click)="Admin()" [disabled]="!HasWriteRights"></kendo-toolbar-button>
         <kendo-toolbar-button [text]="'Back'" (click)="Back()" [disabled]="!HasWriteRights"></kendo-toolbar-button>
@@ -17,35 +18,31 @@
     
 </div>
 <div style="min-width:450px; overflow:auto;">
-    <div class="col-6 p-2 m-2 card bg-info">
+    <div class="col-10 p-2 m-2 card alert-info  border-dark">
         <h5>Current Microsoft Academic Graph Dataset:<i> {{_magAdvancedService.MagCurrentInfo.lastUpdated}} </i></h5>
 
     </div>
     <div *ngIf="IsServiceBusy" class="k-loading-image" style="position: fixed; top: 2%;"></div>
-    <div class="col-12 row bg-light">
-        <div *ngIf="!ShowGraphViewer" class="col-xs-12 col-lg-6 card p-0 m-0 h-25">
+
+        <div *ngIf="!ShowGraphViewer" class="col-10 row alert-primary border border-dark p-2 m-2">
             <h5 class="p-1 m-1 ">Research And Development for Microsoft Academic Graph</h5>
-            <div class="m-2 p-2 card bg-light col-12 row">
+            <div class="m-2 p-2 col-12 row">
                 The algorithm to find new and related studies to the ones you have
                 already identified depends on correctly matching your existing records into the Microsoft Academic dataset. While this process
                 can be automated up to a point, some records cannot be matched with 100% confidence, and some cannot be matched at all.
-                <br />
                 In order
                 to improve performance, it can be helpful to check the lower confidence automatic matches for accuracy
-
                 Below test the performance of the various algorithms for identifying
                 relevant studies against the data already in your review.
-                <br />
                 There are three ways of splitting your data between 'seed' and 'test'
                 records:
                 year of publication, the date a study entered the MAG
                 database and items under a specific code.
-
+                <br />
                 <i>NB: Please see the documentation for further information.</i>
 
             </div>
-            <div class="col-2">
-            </div>
+
             <div class="col-6">
                 <button class="btn btn-outline-primary" data-toggle="collapse" href="#collapseExample1"
                         role="button" aria-expanded="false" aria-controls="collapseExample1">
@@ -57,131 +54,12 @@
             <h5 class="p-1 m-1 ">Graph Viewer</h5>
 
         </div>
-        <div class="col-xs-12 col-lg-6 card p-0 m-0">
-            <h4 class="p-1 m-1">Browse Dataset</h4>
-            <div class="col-12">
-                <div class="col-5">
-                    <button (click)="RunMatchingAlgo()" class="btn btn-outline-success">Run Matching Algorithm</button>
-                    <p><i>NB: The matching algorithm should be run before the simulations below.</i></p>
-                </div>
-                <div>
-                    All matched included records
-                    <div class="btn btn-link p-0 m-0 col-4" (click)="MAGBrowser('MatchedIncluded')">
-                        {{_magAdvancedService.AdvancedReviewInfo.nMatchedAccuratelyIncluded}}
-                    </div>
-                    <div class="btn btn-link  p-0 m-0 " (click)="OpenMatchesInReview('MatchedIncluded')">
-                        (List Papers)
-                    </div>
-                </div>
-                <div>
-                    All matched excluded records
-                    <div class="btn btn-link p-0 m-0 col-4" (click)="MAGBrowser('MatchedExcluded')">
-                        {{_magAdvancedService.AdvancedReviewInfo.nMatchedAccuratelyExcluded}}
-                    </div>
-                    <div class="btn btn-link  p-0 m-0 " (click)="OpenMatchesInReview('MatchedExcluded')">
-                        (List Papers)
-                    </div>
-                </div>
-                <div>
-                    All matched records in review
-                    <div class="btn btn-link p-0 m-0 col-4" (click)="MAGBrowser('MatchedAll')">
-                        {{_magAdvancedService.AdvancedReviewInfo.nMatchedAccuratelyIncluded + _magAdvancedService.AdvancedReviewInfo.nMatchedAccuratelyExcluded}}
-                    </div>
-                </div>
-
-                <div>
-                    Low confidence matches
-                    
-                    <div class=" btn btn-link p-0 m-0 col-4" (click)="OpenMatchesInReview('MagMatchesNeedingCheckingInc')">
-                        Included: {{_magAdvancedService.AdvancedReviewInfo.nRequiringManualCheckIncluded}}
-                    </div>
-                     
-                    <div class=" btn btn-link p-0 m-0 col-2" (click)="OpenMatchesInReview('MagMatchesNeedingCheckingExc')">
-                        Excluded:  {{_magAdvancedService.AdvancedReviewInfo.nRequiringManualCheckExcluded}} 
-                    </div>
-                </div>
-                <div>
-                    Records that could not be matched
-                    <div class=" btn btn-link p-0 m-0 col-3" (click)="OpenMatchesInReview('MagMatchesNotMatchedInc')">
-                        Included:  {{_magAdvancedService.AdvancedReviewInfo.nNotMatchedIncluded}} 
-                    </div>
-                    <div class=" btn btn-link p-0 m-0 col-2"  (click)="OpenMatchesInReview('MagMatchesNotMatchedExc')">
-                        Excluded:  {{_magAdvancedService.AdvancedReviewInfo.nNotMatchedExcluded}}
-                    </div>
-                </div>
 
 
-                <div class="col-12 row">
-                    Actions on items with this code:
-                    <div class="col-5">
-                        <div ngbDropdown class="" style="min-width:150px;">
-                            <button ngbDropdownAnchor class="btn btn-outline-primary dropdown-toggle w-100"
-                                    style="min-width: 250px; white-space:normal" [attr.aria-expanded]="!isCollapsed2"
-                                    id="dropdownBasic2"
-                                    (click)="isCollapsed2 = !isCollapsed2; dropdownBasic2 = false">
-                                {{CurrentDropdownSelectedCode2?.name}}
-                            </button>
-                            <div class="dropdown-menu" aria-labelledby="dropdownBasic2" [ngbCollapse]="!isCollapsed2">
-                                <codesetSelector [IsMultiSelect]="false" [WhatIsSelectable]="'SetAttribute'"
-                                                 [MaxHeight]="500" #WithOrWithoutCodeSelector2
-                                                 (selectedNodeInTree)="CloseCodeDropDown2()" [rootsOnly]="false">
-                                </codesetSelector>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-2">
-                        <div class="col-1"></div>
-                        <button class="btn btn-success p-2 m-2 "
-                                [disabled]="!CanGetCodeMatches()">
-                            List Items
-                        </button>
-                    </div>   
-                    <div class="col-2">
-                        <div class="col-1"></div>
-                        <button class="btn btn-success p-2 m-2 "
-                                [disabled]="!CanGetCodeMatches()"
-                                (click)="MAGBrowser('MatchedWithThisCode')">
-                            Auto-match items
-                        </button>
-                    </div>
-                </div>
-                <div class="col-12 row">
-                    GoTo Microsoft Academic Paper ID:
-                    <input required minlength="4" type="number" id="magPaperId" name="magPaperId" #magPaper="ngModel"
-                           class="form-control col-4 p-1 m-1 text-center"
-                           [(ngModel)]="magPaperId" />
-                    <div class="col-1"></div>
-                    <button [disabled]="!CanGetMagPaper()" (click)="GetMagPaper()" class="btn btn-warning">Get MAG paper</button>
-                    <div *ngIf="magPaper.invalid && (magPaper.dirty || magPaper.touched)"
-                         class="col-12 alert alert-danger">
+    
 
-                        <div *ngIf="magPaper.errors.required">
-                            magPaperId is required.
-                        </div>
-                        <div *ngIf="magPaper.errors.minlength">
-                            magPaperId must be at least 4 numbers long.
-                        </div>
-                    </div>
 
-                </div>
-                <div class="col-12 card bg-light">
-                    <input type="text" id="SearchTextTopics" (change)="UpdateTopicResults($event)"
-                           placeholder="Search for topics here.  Entry of Wildcards work, e.g. physic* " />
-                    <!--<textarea class="bg-light" [(ngModel)]="SearchTextTopicsResults"></textarea>-->
-                    <div class="col-12 card bg-light row">
-                        <div *ngFor="let item of SearchTextTopicsResults" class="col-2 list-group">
-                            <div (click)="FOSMAGBrowserNavigate(item.displayName, item.fieldOfStudyId)" class="btn btn-link list-group-item"
-                                 [ngStyle]="{ 'font-size.em': item.fontSize,'background-color': 'light-blue', 'color': 'black'}">
-                                {{item.displayName}}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-xs-12 col-lg-12 card collapse p-1 m-1" id="collapseExample1">
+    <div class="col-xs-12 col-lg-10 card collapse card collapse alert-warning border border-dark p-2 m-2" id="collapseExample1">
 
         <div class="col-12  row">
             
@@ -306,8 +184,8 @@
         </div>
     </div>
 
-    <div style="min-width:150px; overflow:auto;">
-        <table class="col-6 table table-border  table-striped ">
+
+        <table class="col-10 small table table-border alert-info   p-2 m-2  border border-dark" style="min-width:150px;overflow:auto;">
             <thead>
                 <tr>
                     <th width="15">Method</th>
@@ -345,6 +223,6 @@
                 </tr>
             </tbody>
         </table>
-    </div>
+
 </div>
 <statusbar></statusbar>

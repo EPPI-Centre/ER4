@@ -17,12 +17,12 @@ import { take } from 'rxjs/operators'
 
 
 @Component({
-    selector: 'AdvancedMAGFeatures',
-    templateUrl: './AdvancedMAGFeatures.component.html',
+    selector: 'MatchingMAGItems',
+    templateUrl: './MatchingMAGItems.component.html',
     providers: []
 })
 
-export class AdvancedMAGFeaturesComponent implements OnInit, OnDestroy {
+export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
 
     history: NavigationEnd[] = [];
     constructor(private ConfirmationDialogService: ConfirmationDialogService,
@@ -137,9 +137,6 @@ export class AdvancedMAGFeaturesComponent implements OnInit, OnDestroy {
     }
     public ImportSelected() {
         alert('not implemented');
-    }
-    public MatchingMAGItems() {
-        this.router.navigate(['MatchingMAGItems']);
     }
     public AutoUpdateHome() {
         this.router.navigate(['BasicMAGFeatures']);

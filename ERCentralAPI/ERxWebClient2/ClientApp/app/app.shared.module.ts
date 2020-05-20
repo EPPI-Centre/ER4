@@ -92,6 +92,7 @@ import { MAGpaginatorComp } from './components/commonComponents/MAGpaginator.com
 import { MAGBrowser } from './components/MAG/MAGBrowser.component';
 import { MAGBrowserHistory } from './components/MAG/MAGBrowserHistory.component';
 import { MAGAdminComp } from './components/MAG/MAGAdmin.component';
+import { MatchingMAGItemsComponent } from './components/MAG/MatchingMAGItems.component';
 
 @NgModule({
     declarations: [
@@ -164,7 +165,8 @@ import { MAGAdminComp } from './components/MAG/MAGAdmin.component';
         MAGpaginatorComp,
         MAGBrowser,
         MAGBrowserHistory,
-        MAGAdminComp
+        MAGAdminComp,
+        MatchingMAGItemsComponent
 	],
     providers: [
         EventEmitterService,
@@ -206,7 +208,8 @@ import { MAGAdminComp } from './components/MAG/MAGAdmin.component';
             { path: 'ItemList', component: ItemListComp },
             { path: 'MAGAdmin', component: MAGAdminComp},
             { path: 'MAGBrowser', component: MAGBrowser },
-            { path: 'MAGBrowserHistory', component: MAGBrowserHistory},
+            { path: 'MAGBrowserHistory', component: MAGBrowserHistory },
+            { path: 'MatchingMAGItems', component: MatchingMAGItemsComponent},
             { path: 'AdvancedMAGFeatures', component: AdvancedMAGFeaturesComponent },
             { path: 'itemcodingOnly/:itemId', component: ItemCodingComp },
             { path: 'itemcoding/:itemId', component: ItemCodingFullComp },

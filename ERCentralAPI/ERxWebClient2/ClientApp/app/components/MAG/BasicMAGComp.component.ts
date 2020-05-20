@@ -66,6 +66,9 @@ export class BasicMAGComp implements OnInit {
     public Admin() {
         this.router.navigate(['MAGAdmin']);
     }
+    public MatchingMAGItems() {
+        this.router.navigate(['MatchingMAGItems']);
+    }
 	ngOnInit() {
 
 
