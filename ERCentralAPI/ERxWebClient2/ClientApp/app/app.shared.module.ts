@@ -93,6 +93,7 @@ import { MAGBrowser } from './components/MAG/MAGBrowser.component';
 import { MAGBrowserHistory } from './components/MAG/MAGBrowserHistory.component';
 import { MAGAdminComp } from './components/MAG/MAGAdmin.component';
 import { MatchingMAGItemsComponent } from './components/MAG/MatchingMAGItems.component';
+import { WorkAllocationWizardComp } from './components/WorkAllocations/WorkAllocationWizardComp.component';
 
 @NgModule({
     declarations: [
@@ -167,6 +168,8 @@ import { MatchingMAGItemsComponent } from './components/MAG/MatchingMAGItems.com
         MAGBrowserHistory,
         MAGAdminComp,
         MatchingMAGItemsComponent
+        MAGAdminComp,
+        WorkAllocationWizardComp
 	],
     providers: [
         EventEmitterService,

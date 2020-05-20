@@ -144,7 +144,76 @@ namespace ERxWebClient2.Controllers
 				throw;
 			}
 		}
-	}
+        [HttpPost("[action]")]
+        public IActionResult ExecuteWorkAllocationFromWizardCommand([FromBody] WorkAllocationFromWizardCommandJSON cmdJSON)
+        {
+            try
+            {
+
+                if (SetCSLAUser4Writing())
+                {
+
+                    WorkAllocationFromWizardCommand cmd;
+                    if (cmdJSON.isPreview == 1)
+                    {
+                        cmd = new WorkAllocationFromWizardCommand
+                            (
+                                cmdJSON.filterType,
+                                cmdJSON.attributeIdFilter,
+                                cmdJSON.setIdFilter,
+                                cmdJSON.destination_Attribute_ID,
+                                cmdJSON.destination_Set_ID,
+                                cmdJSON.percentageOfWholePot,
+                                cmdJSON.included
+                            );
+                    }
+                    else
+                    {
+                        cmd = new WorkAllocationFromWizardCommand
+                            (
+                                cmdJSON.filterType,
+                                cmdJSON.attributeIdFilter,
+                                cmdJSON.setIdFilter,
+                                cmdJSON.destination_Attribute_ID,
+                                cmdJSON.destination_Set_ID,
+                                cmdJSON.percentageOfWholePot,
+                                cmdJSON.included,
+                                cmdJSON.isPreview,
+                                cmdJSON.work_to_do_setID,
+                                cmdJSON.oneGroupPerPerson,
+                                cmdJSON.peoplePerItem,
+                                cmdJSON.reviewersIds,
+                                cmdJSON.reviewerNames,
+                                cmdJSON.itemsPerEachReviewer,
+                                cmdJSON.groupsPrefix,
+                                cmdJSON.numberOfItemsToAssign
+                            );
+                    }
+                    DataPortal<WorkAllocationFromWizardCommand> dp = new DataPortal<WorkAllocationFromWizardCommand>();
+                    cmd = dp.Execute(cmd);
+                    WorkAllocationFromWizardCommandResult res = new WorkAllocationFromWizardCommandResult();
+                    if (cmdJSON.isPreview == 2)
+                    {
+                        res.preview = new List<List<string>>();
+                        foreach (Csla.Core.MobileList<string> ml in cmd.preview)
+                        {
+                            res.preview.Add(ml.ToList<string>());
+                        }
+                    }
+                    res.isSuccess = cmd.IsSuccess;
+                    res.numberOfAffectedItems = cmd.NumberOfAffectedItems;
+                    return Ok(res);
+                }
+                else return Forbid();
+
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "ExecuteWorkAllocationFromWizardCommand error");
+                throw;
+            }
+        }
+    }
 	public class WorkAllocationJSON
 	{
 		public int workAllocationId { get; set; }
@@ -159,4 +228,52 @@ namespace ERxWebClient2.Controllers
 		public int totalRemaining { get; set; }
 
 	}
+    public class WorkAllocationFromWizardCommandJSON
+    {
+        //partially based on PerformRandomAllocateCommandJSON 
+        public string filterType { get; set; }
+        public long attributeIdFilter { get; set; }
+        public int setIdFilter { get; set; }
+        public long destination_Attribute_ID { get; set; }
+        public int destination_Set_ID { get; set; }
+        public int percentageOfWholePot { get; set; }
+        public bool included { get; set; }
+
+        //public List<List<string>> preview = new List<List<string>>();
+        public int isPreview = 1;
+        public int work_to_do_setID; //"assign codes from this set"
+        public bool oneGroupPerPerson = false;
+        public int peoplePerItem = 1;
+        public string reviewersIds = "";
+        public string reviewerNames = "";
+        public string itemsPerEachReviewer = "";
+        public string groupsPrefix = "";
+        public int numberOfItemsToAssign = 0;
+        //public int _numberOfAffectedItems = 0;
+        //public bool isSuccess = false;
+    }
+    public class WorkAllocationFromWizardCommandResult
+    {
+        //partially based on PerformRandomAllocateCommandJSON 
+        //public string filterType { get; set; }
+        //public long attributeIdFilter { get; set; }
+        //public int setIdFilter { get; set; }
+        //public long destination_Attribute_ID { get; set; }
+        //public int destination_Set_ID { get; set; }
+        //public int percentageOfWholePot { get; set; }
+        //public bool included { get; set; }
+
+        public List<List<string>> preview = new List<List<string>>();
+        //public int isPreview = 1;
+        //public int work_to_do_setID; //"assign codes from this set"
+        //public bool oneGroupPerPerson = false;
+        //public int peoplePerItem = 1;
+        //public string reviewersIds = "";
+        //public string reviewerNames = "";
+        //public string itemsPerEachReviewer = "";
+        //public string groupsPrefix = "";
+        //public int numberOfItemsToAssign = 0;
+        public int numberOfAffectedItems = 0;
+        public bool isSuccess = false;
+    }
 }
