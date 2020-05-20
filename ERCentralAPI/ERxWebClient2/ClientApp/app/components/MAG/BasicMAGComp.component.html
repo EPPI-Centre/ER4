@@ -16,7 +16,7 @@
         <kendo-toolbar-button [text]="'Forward'" (click)="Forward()" [disabled]="!HasWriteRights"></kendo-toolbar-button>
     </kendo-toolbar>
 </div>
-<div class="col-8 p-2 m-2 card bg-light" style="min-width:450px; overflow:auto;">
+<div class="col-10 p-2 m-2 card alert-warning border border-dark" style="min-width:450px; overflow:auto;">
     <h4>Find related papers and set up review auto-updates</h4>
     <p>
         On this page you can set up tasks to find papers related to papers in your review automatically.&#10;
@@ -33,7 +33,7 @@
         Add new MAG search/auto-update
     </a>
 </p>
-<div class="col-xs-12 col-lg-12 card collapse" id="collapseExample" style="min-width:750px;">
+<div class="col-xs-12 col-lg-10 card collapse alert-primary border border-dark p-2 m-2" id="collapseExample" style="min-width:750px;">
     <div class="col-12" style="min-width:750px;">
 
         <div class="row col-12">
@@ -97,76 +97,82 @@
                 <div class="">
                     <input type="checkbox" class="" value="Auto-Update" name="magSearchCheck" [(ngModel)]="magSearchCheck" />
                     Auto-Update search based on new MAG content
-                    <input type="radio" class="" name="magDateRadio" value="true"
-                           [(ngModel)]="magDateRadio" />
-                    No date restriction
-                    <input type="radio" class="" name="magDateRadio" value="false"
-                           [(ngModel)]="magDateRadio" />
-                    Items dated from
-                </div>
-            </div>
-            <div class="col-1"></div>
-            <div class="col-5 m-1 p-1">
-                <div class=""><b>RCT Filter</b></div>
-                <div class="">
-                    <input type="radio" class="m-1 p-1" value="NoFilter" name="magRCTRadio" [(ngModel)]="magRCTRadio" />
-                    No Filter
-                    <input type="radio" class="m-1 p-1" value="HighSensitivity" name="magRCTRadio" [(ngModel)]="magRCTRadio" />
-                    High Sensitivity
-                    <input type="radio" class="m-1 p-1" value="HigherSpecificity" name="magRCTRadio" [(ngModel)]="magRCTRadio" />
-                    Higher specificity
+                   
+                   
                 </div>
             </div>
         </div>
-
-        <div class="col-12 m-1 p-1" *ngIf="magDateRadio == 'false'">
-            <div class="m-1 p-1"><b>Items Dated From</b></div>
-            <div>
-                <div class="example-wrapper p-2 m-2" style="min-height: 100px">
-                    <p>Select a date:</p>
-                    <kendo-datepicker [(value)]="valueKendoDatepicker"></kendo-datepicker>
-                    <p>(use Alt+↓ to open the calendar, ← and →  to navigate, ↑ to increment and ↓ to decrement the value)</p>
-                </div>
-            </div>
-        </div>
-
         <div class="row col-12">
             <div class="col-5 m-1 p-1">
-                <div class=""><b>Search mode</b></div>
-                <div ngbDropdown class="col-12 p-0 m-0">
-                    <button style="min-width: 50px; white-space:normal"
-                            class="btn alert-primary col-12 p-2 m-0"
-                            id="dropdownBasic1" ngbDropdownToggle
-                            (click)="isCollapsed=false ">
-                        {{magMode}}
-                    </button>
-                    <div ngbDropdownMenu aria-labelledby="dropdownBasic1" class="dropdown-menu" [ngbCollapse]="ShowPanel">
-                        <button (click)="ClickSearchMode('1')" class="dropdown-item">Papers 'recommended' by known items ('Recommended by')</button>
-                        <button (click)="ClickSearchMode('2')" class="dropdown-item">Papers that 'recommended' known items ('That recommend')</button>
-                        <button (click)="ClickSearchMode('3')" class="dropdown-item">Bi-directional recomendation relationships ('Recommendations')</button>
-                        <button (click)="ClickSearchMode('4')" class="dropdown-item">Papers in the bibliography of know items ('Bibliography')</button>
-                        <button (click)="ClickSearchMode('5')" class="dropdown-item">Papers that cite known items ('Cited by')</button>
-                        <button (click)="ClickSearchMode('6')" class="dropdown-item">Bi-directional citation relationships </button>
-                        <button (click)="ClickSearchMode('7')" class="dropdown-item">Bi-directional recomendation AND citation relationships ('Bi-Citation AND Recommendations')</button>
-                        <button (click)="ClickSearchMode('8')" class="dropdown-item">New items published on next deployment of MAG</button>
+                <input type="radio" class="" name="magDateRadio" value="true"
+                       [(ngModel)]="magDateRadio" />
+                No date restriction
+                <input type="radio" class="" name="magDateRadio" value="false"
+                       [(ngModel)]="magDateRadio" />
+                Start date to search from
+            </div>
+            <div class="col-1"></div>
+                <div class="col-5 m-1 p-1">
+                    <div class=""><b>RCT Filter</b></div>
+                    <div class="">
+                        <input type="radio" class="m-1 p-1" value="NoFilter" name="magRCTRadio" [(ngModel)]="magRCTRadio" />
+                        No Filter
+                        <input type="radio" class="m-1 p-1" value="HighSensitivity" name="magRCTRadio" [(ngModel)]="magRCTRadio" />
+                        High Sensitivity
+                        <input type="radio" class="m-1 p-1" value="HigherSpecificity" name="magRCTRadio" [(ngModel)]="magRCTRadio" />
+                        Higher specificity
                     </div>
-
                 </div>
             </div>
 
+            <div class="col-12 m-1 p-1" *ngIf="magDateRadio == 'false'">
+                <div class="m-1 p-1"><b>Items Dated From</b></div>
+                <div>
+                    <div class="example-wrapper p-2 m-2" style="min-height: 100px">
+                        <p>Select a date:</p>
+                        <kendo-datepicker [(value)]="valueKendoDatepicker"></kendo-datepicker>
+                        <p>(use Alt+↓ to open the calendar, ← and →  to navigate, ↑ to increment and ↓ to decrement the value)</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row col-12">
+                <div class="col-5 m-1 p-1">
+                    <div class=""><b>Search mode</b></div>
+                    <div ngbDropdown class="col-12 p-0 m-0">
+                        <button style="min-width: 50px; white-space:normal"
+                                class="btn btn-outline-primary col-12 p-2 m-0"
+                                id="dropdownBasic1" ngbDropdownToggle
+                                (click)="isCollapsed=false ">
+                            {{magMode}}
+                        </button>
+                        <div ngbDropdownMenu aria-labelledby="dropdownBasic1" class="dropdown-menu" [ngbCollapse]="ShowPanel">
+                            <button (click)="ClickSearchMode('1')" class="dropdown-item">Papers 'recommended' by known items ('Recommended by')</button>
+                            <button (click)="ClickSearchMode('2')" class="dropdown-item">Papers that 'recommended' known items ('That recommend')</button>
+                            <button (click)="ClickSearchMode('3')" class="dropdown-item">Bi-directional recomendation relationships ('Recommendations')</button>
+                            <button (click)="ClickSearchMode('4')" class="dropdown-item">Papers in the bibliography of know items ('Bibliography')</button>
+                            <button (click)="ClickSearchMode('5')" class="dropdown-item">Papers that cite known items ('Cited by')</button>
+                            <button (click)="ClickSearchMode('6')" class="dropdown-item">Bi-directional citation relationships </button>
+                            <button (click)="ClickSearchMode('7')" class="dropdown-item">Bi-directional recomendation AND citation relationships ('Bi-Citation AND Recommendations')</button>
+                            <button (click)="ClickSearchMode('8')" class="dropdown-item">New items published on next deployment of MAG</button>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
         </div>
-    </div>
     <div class="col-12 m-1 p-1 row">
         <div class="col-10"><b>           </b></div>
         <button [disabled]="!CanAddNewMAGSearch()" (click)="AddNewMAGSearch()"
-                class="btn btn-warning p-2 m-2">
-            Add new search
+                class="btn alert-warning rounded p-2 m-2 border border-dark" >
+            <b> Add new search</b>
         </button>
     </div>
 
 </div>
-<div class="card bg-light" style="min-width:150px; overflow:auto;" *ngIf="_basicMAGService.MagRelatedPapersRunList.length > 0">
-    <table class="col-10 small table table-border  table-striped ">
+<div *ngIf="_basicMAGService.MagRelatedPapersRunList.length > 0">
+    <table class="col-10  small table table-border alert-warning p-2 m-2  border border-dark" style="min-width:150px;overflow:auto;">
         <thead>
             <tr>
                 <th width="6">Re-run?</th>
@@ -187,16 +193,16 @@
         <tbody>
             <tr class="" *ngFor="let item of _basicMAGService.MagRelatedPapersRunList">
                 <td>
-                    <input (click)="UpdateAutoReRun(item)" class="btn btn-sm btn-outline-warning p-1 m-1" [(ngModel)]="item.autoReRun" />
+                    <input (click)="UpdateAutoReRun(item)" class="btn btn-sm alert-primary p-1 m-1" [(ngModel)]="item.autoReRun" />
                 </td>
-                <td>{{item.status}}</td>
-                <td class="p-0"><button [disabled]="!CanDeleteMAGRun()" (click)="DoDeleteMagRelatedPapersRun(item.magRelatedRunId)" class="btn btn-sm btn-outline-danger p-1 m-1">Delete</button></td>
+                <td>{{item.status  == 'Complete' ? 'Complete' : 'Pending'}}</td>
+                <td class="p-0"><button [disabled]="!CanDeleteMAGRun()" (click)="DoDeleteMagRelatedPapersRun(item.magRelatedRunId)" class="btn btn-sm alert-danger p-1 m-1">Delete</button></td>
                 <td class="p-0 ">
                     <button [disabled]="!CanImportMagPapers(item)" class="btn btn-sm btn-outline-info p-1 m-1">
-                        {{item.userStatus == '' ? 'Pending' : item.userStatus }}
+                        {{item.userStatus == '' ? 'Not Checked' : item.userStatus }}
                     </button>
                 </td>
-                <td class="p-0"><button (click)="ImportMagSearchPapers(item)" [disabled]="!CanImportMagPapers(item)" class="btn btn-sm btn-outline-primary p-1 m-1">Import</button></td>
+                <td class="p-0 "><button (click)="ImportMagSearchPapers(item)" [disabled]="!CanImportMagPapers(item)" class="btn btn-sm alert-success p-1 m-1">Import</button></td>
                 <td class="p-0"><div (click)="GetItems(item)" class="btn btn-link mt-1">{{ item.nPapers}}</div></td>
 
                 <td>{{item.userDescription}}</td>
