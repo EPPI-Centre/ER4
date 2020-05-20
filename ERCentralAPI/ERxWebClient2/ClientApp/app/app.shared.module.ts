@@ -92,6 +92,7 @@ import { MAGpaginatorComp } from './components/commonComponents/MAGpaginator.com
 import { MAGBrowser } from './components/MAG/MAGBrowser.component';
 import { MAGBrowserHistory } from './components/MAG/MAGBrowserHistory.component';
 import { MAGAdminComp } from './components/MAG/MAGAdmin.component';
+import { WorkAllocationWizardComp } from './components/WorkAllocations/WorkAllocationWizardComp.component';
 
 @NgModule({
     declarations: [
@@ -164,7 +165,8 @@ import { MAGAdminComp } from './components/MAG/MAGAdmin.component';
         MAGpaginatorComp,
         MAGBrowser,
         MAGBrowserHistory,
-        MAGAdminComp
+        MAGAdminComp,
+        WorkAllocationWizardComp
 	],
     providers: [
         EventEmitterService,

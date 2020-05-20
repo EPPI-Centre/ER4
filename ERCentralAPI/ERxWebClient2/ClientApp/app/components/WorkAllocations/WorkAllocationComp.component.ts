@@ -294,7 +294,7 @@ export class WorkAllocationComp implements OnInit {
 		}
 	}
     SetRelevantDropDownValues(selection: number) {
-        console.log("SetRelevantDropDownValues", JSON.stringify(selection));
+        //console.log("SetRelevantDropDownValues", JSON.stringify(selection));
         let ind = this.AllocateOptions.findIndex(found => found.key == selection);
 		if (ind > -1) this.selectedAllocated = this.
 			AllocateOptions[ind];
@@ -409,7 +409,14 @@ export class WorkAllocationComp implements OnInit {
 			this.PanelName = 'RandomlyAssignSection';
 		}
 	}
+    public DistributeWorkClick() {
 
+        if (this.PanelName == 'DistributeWork') {
+            this.PanelName = '';
+        } else {
+            this.PanelName = 'DistributeWork';
+        }
+    }
 	public CanCreateNewCode(): boolean {
 
 		if (this._reviewSetsService.selectedNode && this.CurrentCodeCanHaveChildren) return true;
