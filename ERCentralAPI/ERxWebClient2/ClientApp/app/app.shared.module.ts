@@ -167,7 +167,7 @@ import { WorkAllocationWizardComp } from './components/WorkAllocations/WorkAlloc
         MAGBrowser,
         MAGBrowserHistory,
         MAGAdminComp,
-        MatchingMAGItemsComponent
+        MatchingMAGItemsComponent,
         MAGAdminComp,
         WorkAllocationWizardComp
 	],
