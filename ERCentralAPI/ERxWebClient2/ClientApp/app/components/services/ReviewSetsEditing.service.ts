@@ -983,7 +983,63 @@ export class ReviewSetsEditingService extends BusyAwareService {
 					this.RemoveBusy("RandomlyAssignCodeToItem");
 				}
 			);
-	}
+    }
+    public async GetChangeDataEntryMessage(Set: ReviewSet, screeningCodeSetId: number): Promise<ChangeDataEntryMessage>{
+        let res: ChangeDataEntryMessage = new ChangeDataEntryMessage();
+            if (Set) {
+                if (Set.set_id == screeningCodeSetId) {
+                    res.DestinationDataEntryMode = "";
+                    res.ChangeDataEntryModeMessage = "This set is your current Screening Set (used for Priority Screening).";
+                    res.ChangeDataEntryModeMessage += "\r\nChanging the data entry mode would require to review/update the Priority Screening settings.";
+                    res.ChangeDataEntryModeMessage += "\r\nUnfortuately this feature is not currently implemented in the current App.";
+                    res.ChangeDataEntryModeMessage += "\r\nTo apply this change please use the full (Silverlight) version or EPPI-Reviewer 4.";
+                    res.DestinationDataEntryMode = "";
+                    res.CanChangeDataEntryMode = false;
+                }
+                else if (Set.codingIsFinal) {//moving to comparison data entry, easy!
+                    res.DestinationDataEntryMode = "Comparison";
+                    res.ChangeDataEntryModeMessage = "Are you sure you want to change to 'Comparison' data entry?";
+                    res.ChangeDataEntryModeMessage += "\r\nThis implies that you will have multiple users coding the same item using this Coding Tool and then reconciling the disagreements.";
+                    res.ChangeDataEntryModeMessage += "\r\nPlease ensure you have read the manual to check the implications of this.";
+                    res.ItemsWithIncompleteCoding = 0;
+                    res.CanChangeDataEntryMode = true;
+                }
+                else {//moving to normal data entry, need to check "troublesome items"
+                    res.DestinationDataEntryMode = "Normal";
+                    res.ChangeDataEntryModeMessage = "";
+                    await this.ReviewSetCheckCodingStatus(Set.set_id).then(
+                        success => {
+                            //alert("did it");
+                            res.ItemsWithIncompleteCoding = success;
+                            if (res.ItemsWithIncompleteCoding > 0) {
+                                res.ChangeDataEntryModeMessage = "You are about to change your data entry method to 'Normal', ";
+                                res.ChangeDataEntryModeMessage += "but there are '" + res.ItemsWithIncompleteCoding + "' items that should be completed before you proceed. ";
+                                res.ChangeDataEntryModeMessage += "You can view these incomplete items from the 'Review Home' screen.";
+                                res.CanChangeDataEntryMode = true;
+                            }
+                            else if (res.ItemsWithIncompleteCoding == 0) {
+                                res.ChangeDataEntryModeMessage = "You are about to change your data entry method to 'Normal'. \nThere are no potential data conflicts so it is safe to proceed.";
+                                res.CanChangeDataEntryMode = true;
+                            }
+                            else {//error in the service, returned -1
+                                res.ChangeDataEntryModeMessage = "Sorry, could not check coding status, thus, you should change the data entry mode. ";
+                                res.ChangeDataEntryModeMessage += "If the problem persist, please contact EPPISupport.";
+                                res.CanChangeDataEntryMode = false;
+                            }
+                        },
+                        error => {
+                            console.log("ERROR IN: ShowChangeDataEntryClicked API result", error);
+                            res.ChangeDataEntryModeMessage = "Sorry, could not check coding status, thus, you should change the data entry mode. ";
+                            res.ChangeDataEntryModeMessage += "If the problem persist, please contact EPPISupport.";
+                            res.CanChangeDataEntryMode = false;
+                        });
+                }
+
+            }
+        return res;
+        //this.ShowChangeDataEntry = true;
+    }
+
 }
 export interface ReviewSetUpdateCommand
     //(int reviewSetId, int setId, bool allowCodingEdits, bool codingIsFinal, string setName, int SetOrder, string setDescription)
@@ -1165,5 +1221,11 @@ export class SetAttribute4Move extends SetAttribute implements singleNode4move {
         if (this._alreadyIsTheParent) return false;
         return this._canMoveBranchInHere;
     }
+}
+export class ChangeDataEntryMessage {
+    ItemsWithIncompleteCoding: number = -1;
+    DestinationDataEntryMode: string = "";
+    ChangeDataEntryModeMessage: string = "Sorry could not check if you can do this";
+    CanChangeDataEntryMode: boolean = false;
 }
 

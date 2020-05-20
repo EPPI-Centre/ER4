@@ -121,6 +121,7 @@ export class WorkAllocationListService extends BusyAwareService {
                 if (cmd.isPreview == 1) {
                     //we're only getting how many items...
                     cmd.numberOfItemsToAssign = result.numberOfAffectedItems;
+                    this.RemoveBusy("RunAllocationFromWizardCommand");
                 }
             },
                 error => {

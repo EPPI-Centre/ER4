@@ -1,4 +1,4 @@
-<div class="col-12 p-1 m-2 rounded border container border-info">
+<div class="col-12 p-1 m-2 rounded border container border-info" style="min-width:650px; overflow:auto;">
     <div class="row my-1 mx-0 alert alert-success h4">
         Distribute work, step {{CurrentStep}}. {{CurrentStepName}}.
     </div>
@@ -49,8 +49,8 @@
                         </div>
                         <div ngbDropdown class="col-12 col-sm-10" style="min-width:200px;">
                             <button class="btn btn-outline-secondary dropdown-toggle col-12"
-                                    style="min-width: 200px; max-width:720px;"
-                                    (click)="isCollapsedAllocateOptions = false; isCollapsedCodingTool = false; isCollapsedCodeStudies = false;"
+                                    style="min-width: 350px; max-width:720px;"
+                                    (click)="isCollapsedAllocateOptions = false;"
                                     id="dropdownBasicCodingTool" ngbDropdownToggle>
                                 {{selectedCodeSetDropDown.name}}
                             </button>
@@ -69,7 +69,7 @@
                         <div ngbDropdown class="col-12 col-sm-10">
                             <button ngbDropdownAnchor class="btn btn-outline-secondary dropdown-toggle col-12"
                                     id="dropdownTreeRandomAllocate"
-                                    style="min-width: 200px; max-width:720px;"
+                                    style="min-width: 350px; max-width:720px;"
                                     (click)="isCollapsedAllocateOptions = !isCollapsedAllocateOptions;"
                                     [attr.aria-expanded]="!isCollapsedAllocateOptions" aria-controls="collapseCodeTreeWithWithout">
                                 {{DropdownWithWithoutSelectedCode?.name}}
@@ -128,7 +128,7 @@
                 <div class="align-self-center ml-2" *ngIf="workAllocationFromWizardCommand.numberOfItemsToAssign >= 0">Corresponding to <b>{{ItemsInTheSelectedPot}} items</b></div>
             </div>
             <div class="col-4 rounded border border-info alert-info small">
-                Given the criteria so far, will you use all the items thus identified or only a percentage? Click on "preview" to get the exact number of items you'll be using.
+                Given the criteria so far, will you use all the items thus identified or only a percentage? In order to proceed, you <b>must click "preview"</b>, so to get the exact number of items you'll be using.
             </div>
         </div>
         <div class="row justify-content-center">
@@ -140,7 +140,128 @@
             </button>
         </div>
     </div>
-    <div *ngIf="CurrentStep==2" class="col-12 p-1 m-2 rounded border container border-info">
+
+
+
+
+
+
+
+    <div *ngIf="CurrentStep==2" class="">
+        <div class="row my-1 mx-0 border-top" [ngClass]="{'DisabledStep' : !SelectionCriteriaIsValid}">
+            <div class="col-3">
+                1. Coding tool used for the coding round.
+            </div>
+            <div class="col-5">
+                <div ngbDropdown class="col-12 col-sm-10">
+                    <div ngbDropdown class="col-12 col-sm-10" style="min-width:200px;">
+                        <button class="btn btn-outline-secondary dropdown-toggle col-12"
+                                style="min-width: 350px; max-width:720px;"
+                                (click)="isCollapsedAllocateOptions = false;"
+                                id="dropdownBasicCodingTool" ngbDropdownToggle>
+                            {{WorkToDoSelectedCodeSet.name}}
+                        </button>
+                        <div ngbDropdownMenu aria-labelledby="dropdownBasicCodingTool">
+                            <button (click)="SetWorkToDoCodeSet(item)"
+                                    *ngFor="let item of CodeSets4WorkToDo;" class="dropdown-item">
+                                {{item.name}}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-4 rounded border border-info alert-info small">
+                You can assign coding work to people, by specifying which coding tool should be used for the current round. [This is the tool containing the codes that people will be adding to items as part of the work you are assigning.]
+            </div>
+        </div>
+        <div class="row my-1 mx-0 border-top" [ngClass]="{'DisabledStep' : !SelectionCriteriaIsValid}">
+            <div class="col-3">
+                2. How many people should code each item?
+            </div>
+            <div class="col-5 row m-0">
+                <div class="col-12 m-0">
+                    <kendo-numerictextbox [(ngModel)]="workAllocationFromWizardCommand.peoplePerItem"
+                                          [disabled]="!SelectionCriteriaIsValid"
+                                          [min]="1" [format]="'n0'"
+                                          [max]="3"
+                                          [step]="1"
+                                          [autoCorrect]="true"
+                                          (valueChange)="PeoplePerItemChanged()"
+                                          class="border border-dark rounded mt-1"
+                                          style="width: 90px;">
+                    </kendo-numerictextbox>
+                </div>
+                <div *ngIf="WorkToDoSelectedCodeSet.set_id < 1" class="alert-danger rounded row col-12 m-1">No Coding tool Selected</div>
+                <div *ngIf="WorkToDoSelectedCodeSet.set_id >= 1 && (WorkToDoSelectedCodeSet.codingIsFinal && workAllocationFromWizardCommand.peoplePerItem == 1)" 
+                     class="alert-success  rounded row col-12 m-1">
+                    Selected set is in normal coding: one person per item is appropriate.
+                </div>
+                <div *ngIf="WorkToDoSelectedCodeSet.set_id >= 1 && (WorkToDoSelectedCodeSet.codingIsFinal && workAllocationFromWizardCommand.peoplePerItem != 1)"
+                     class="alert-danger rounded row col-12 m-1">
+                    <div *ngIf="WorkToDoSelectedCodeSet.setType.setTypeId==6">
+                        Selected set is in normal coding: More thant one person per item is not appropriate. Please change the number of people per item to 1, as coding tools of "Administration" type cannot be configured for "Comparison" data-entry mode.
+                    </div>
+                    <div *ngIf="WorkToDoSelectedCodeSet.setType.setTypeId!=6" class="col-12 m-0 p-0">
+                        <div>
+                            Selected set is in normal coding: More thant one person per item is not appropriate. Please change the number of people per item, or the Data Entry mode of the coding tool (can be done below).
+                        </div>
+                        <div class="alert-light border border-danger rounded col-12 small">
+                            <div class="mt-1">Change to Data Entry Mode: {{WorkToDoSelectedCodeSetDataEntryM}}</div>
+                            <button class="btn btn-outline-danger btn-sm ml-1 mb-1" type="button" *ngIf="!ShowChangeDataEntry"
+                                    [disabled]="!CanEditSelectedSet"
+                                    (click)="ShowChangeDataEntryClicked()">
+                                Change
+                            </button>
+                            <div *ngIf="ShowChangeDataEntry" class="alert alert-danger">
+                                <div>{{ChangeDataEntryModeMessage}}</div>
+                                <button class="btn btn-outline-secondary btn-sm mb-1" (click)="HideChangeDataEntry()" type="button">Cancel</button>
+                                <div *ngIf="CanChangeDataEntryMode" class="alert alert-light">
+                                    Yes, change to
+                                    <button class="btn btn-outline-danger btn-sm ml-1 mr-1" type="button"
+                                            [disabled]="!CanWrite()" (click)="DoChangeDataEntry()">
+                                        {{DestinationDataEntryMode}}
+                                    </button>
+                                    mode.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div *ngIf="WorkToDoSelectedCodeSet.set_id >= 1 && (!WorkToDoSelectedCodeSet.codingIsFinal && workAllocationFromWizardCommand.peoplePerItem > 1)" 
+                     class="alert-success  rounded row col-12 m-1">
+                    Selected set is in comparison coding: more than one person per item is appropriate.
+                </div>
+                <div *ngIf="WorkToDoSelectedCodeSet.set_id >= 1 && (!WorkToDoSelectedCodeSet.codingIsFinal && workAllocationFromWizardCommand.peoplePerItem == 1)"
+                     class="alert-danger  rounded row col-12 m-1">
+                    <div>
+                        Selected set is in comparison coding: one person per item is not appropriate. Please change the number of people per item, or the Data Entry mode of the coding tool (can be done below).
+                    </div>
+                    <div class="alert-light border border-danger rounded col-12 small">
+                        <div class="mt-1">Change to Data Entry Mode: {{WorkToDoSelectedCodeSetDataEntryM}}</div>
+                        <button class="btn btn-outline-danger btn-sm ml-1 mb-1" type="button" *ngIf="!ShowChangeDataEntry"
+                                [disabled]="!CanEditSelectedSet"
+                                (click)="ShowChangeDataEntryClicked()">
+                            Change
+                        </button>
+                        <div *ngIf="ShowChangeDataEntry" class="alert alert-danger">
+                            <div>{{ChangeDataEntryModeMessage}}</div>
+                            <button class="btn btn-outline-secondary btn-sm mb-1" (click)="HideChangeDataEntry()" type="button">Cancel</button>
+                            <div *ngIf="CanChangeDataEntryMode" class="alert alert-light">
+                                Yes, change to
+                                <button class="btn btn-outline-danger btn-sm ml-1 mr-1" type="button"
+                                        [disabled]="!CanWrite()" (click)="DoChangeDataEntry()">
+                                    {{DestinationDataEntryMode}}
+                                </button>
+                                mode.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-4 rounded border border-info alert-info small">
+                Single coding or Multiple? You can use this wizard to arrange for a coding (or screening) exercise in which each reference will be coded (or screened) by one, two or three people.
+            </div>
+        </div>
         <div class="row justify-content-center">
             <button (click)="PreviousStep()" class=" pt-1 m-1 border border-dark rounded btn btn-outline-dark " style="min-width:100px">
                 Previous
@@ -153,6 +274,15 @@
             </button>
         </div>
     </div>
+
+
+
+
+
+
+
+
+
     <div *ngIf="CurrentStep==3" class="col-12 p-1 m-2 rounded border container border-info">
         <button (click)="PreviousStep()" class=" pt-1 m-1 border border-dark rounded btn btn-outline-dark " style="min-width:100px">
             Previous
