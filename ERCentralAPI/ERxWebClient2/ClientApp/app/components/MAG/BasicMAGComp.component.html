@@ -16,7 +16,7 @@
         <kendo-toolbar-button [text]="'Forward'" (click)="Forward()" [disabled]="!HasWriteRights"></kendo-toolbar-button>
     </kendo-toolbar>
 </div>
-<div class="col-8 p-2 m-2 card bg-light" style="min-width:450px; overflow:auto;">
+<div class="col-10 p-2 m-2 card alert-warning border border-dark" style="min-width:450px; overflow:auto;">
     <h4>Find related papers and set up review auto-updates</h4>
     <p>
         On this page you can set up tasks to find papers related to papers in your review automatically.&#10;
@@ -33,7 +33,7 @@
         Add new MAG search/auto-update
     </a>
 </p>
-<div class="col-xs-12 col-lg-12 card collapse" id="collapseExample" style="min-width:750px;">
+<div class="col-xs-12 col-lg-10 card collapse alert-primary border border-dark p-2 m-2" id="collapseExample" style="min-width:750px;">
     <div class="col-12" style="min-width:750px;">
 
         <div class="row col-12">
@@ -135,7 +135,7 @@
                 <div class=""><b>Search mode</b></div>
                 <div ngbDropdown class="col-12 p-0 m-0">
                     <button style="min-width: 50px; white-space:normal"
-                            class="btn alert-primary col-12 p-2 m-0"
+                            class="btn btn-outline-primary col-12 p-2 m-0"
                             id="dropdownBasic1" ngbDropdownToggle
                             (click)="isCollapsed=false ">
                         {{magMode}}
@@ -159,14 +159,14 @@
     <div class="col-12 m-1 p-1 row">
         <div class="col-10"><b>           </b></div>
         <button [disabled]="!CanAddNewMAGSearch()" (click)="AddNewMAGSearch()"
-                class="btn btn-warning p-2 m-2">
-            Add new search
+                class="btn alert-warning rounded p-2 m-2 border border-dark" >
+            <b> Add new search</b>
         </button>
     </div>
 
 </div>
-<div class="card bg-light" style="min-width:150px; overflow:auto;" *ngIf="_basicMAGService.MagRelatedPapersRunList.length > 0">
-    <table class="col-10 small table table-border  table-striped ">
+<div *ngIf="_basicMAGService.MagRelatedPapersRunList.length > 0">
+    <table class="col-10  small table table-border alert-warning p-2 m-2  border border-dark" style="min-width:150px;overflow:auto;">
         <thead>
             <tr>
                 <th width="6">Re-run?</th>
@@ -187,16 +187,16 @@
         <tbody>
             <tr class="" *ngFor="let item of _basicMAGService.MagRelatedPapersRunList">
                 <td>
-                    <input (click)="UpdateAutoReRun(item)" class="btn btn-sm btn-outline-warning p-1 m-1" [(ngModel)]="item.autoReRun" />
+                    <input (click)="UpdateAutoReRun(item)" class="btn btn-sm alert-primary p-1 m-1" [(ngModel)]="item.autoReRun" />
                 </td>
                 <td>{{item.status}}</td>
-                <td class="p-0"><button [disabled]="!CanDeleteMAGRun()" (click)="DoDeleteMagRelatedPapersRun(item.magRelatedRunId)" class="btn btn-sm btn-outline-danger p-1 m-1">Delete</button></td>
+                <td class="p-0"><button [disabled]="!CanDeleteMAGRun()" (click)="DoDeleteMagRelatedPapersRun(item.magRelatedRunId)" class="btn btn-sm alert-danger p-1 m-1">Delete</button></td>
                 <td class="p-0 ">
                     <button [disabled]="!CanImportMagPapers(item)" class="btn btn-sm btn-outline-info p-1 m-1">
                         {{item.userStatus == '' ? 'Pending' : item.userStatus }}
                     </button>
                 </td>
-                <td class="p-0"><button (click)="ImportMagSearchPapers(item)" [disabled]="!CanImportMagPapers(item)" class="btn btn-sm btn-outline-primary p-1 m-1">Import</button></td>
+                <td class="p-0 "><button (click)="ImportMagSearchPapers(item)" [disabled]="!CanImportMagPapers(item)" class="btn btn-sm alert-success p-1 m-1">Import</button></td>
                 <td class="p-0"><div (click)="GetItems(item)" class="btn btn-link mt-1">{{ item.nPapers}}</div></td>
 
                 <td>{{item.userDescription}}</td>
