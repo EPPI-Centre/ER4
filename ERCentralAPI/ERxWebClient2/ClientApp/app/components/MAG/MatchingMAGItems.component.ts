@@ -14,6 +14,7 @@ import { MVCMagFieldOfStudyListSelectionCriteria } from '../services/MAGClasses.
 import { MAGBrowserHistoryService } from '../services/MAGBrowserHistory.service';
 import { Observable, interval, Subscription } from 'rxjs';
 import { take } from 'rxjs/operators'
+import { BasicMAGService } from '../services/BasicMAG.service';
 
 
 @Component({
@@ -26,6 +27,7 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
 
     history: NavigationEnd[] = [];
     constructor(private ConfirmationDialogService: ConfirmationDialogService,
+        public _magBasicService: BasicMAGService,
         public _magAdvancedService: MAGAdvancedService,
         private _magBrowserService: MAGBrowserService,
         public _searchService: searchService,
@@ -312,8 +314,22 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
         this.ConfirmationDialogService.confirm('MAG RUN ALERT', msg, false, '')
             .then((confirm: any) => {
                 if (confirm) {
-                    this._magAdvancedService.RunMatchingAlgorithm();
+                    let res: string = '';
+                    var att = this.CurrentDropdownSelectedCode2 as SetAttribute;
+                    if (att != null && att.attribute_id > 0) {
+                        res = this._magAdvancedService.RunMatchingAlgorithm(att.attribute_id);
+                    } else {
+                       res =  this._magAdvancedService.RunMatchingAlgorithm(0);
+                    }
                     this._RunAlgorithmFirst = true;
+
+                    if (res != "erorr") {
+                        this._magBasicService.showMAGRunMessage('MAG Matching can take a while...');
+                    } else {
+                        this._magBasicService.showMAGRunMessage('MAG Matching has returned an error please contact your administrator');
+                    }
+                    
+                    
                 }
             });
     }
@@ -322,7 +338,7 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
         if (listType != null) {
             this.ListSubType = listType;
             this._eventEmitter.criteriaMAGChange.emit(listType);
-            this._eventEmitter.MAGAllocationClicked.emit();
+            //this._eventEmitter.MAGAllocationClicked.emit();
         }
     }
     public OpenResultsInReview(listType: string, magSimId: number) {
@@ -332,7 +348,7 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
             this._magAdvancedService.CurrentMagSimId = magSimId;
             this.ListSubType = listType;
             this._eventEmitter.criteriaMAGChange.emit(listType);
-            this._eventEmitter.MAGAllocationClicked.emit();
+            //this._eventEmitter.MAGAllocationClicked.emit();
         }
     }
     public MAGBrowser(listType: string) {

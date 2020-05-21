@@ -208,22 +208,27 @@ export class MAGAdvancedService extends BusyAwareService {
                         this.RemoveBusy("FetchMagPaperId");
             });
     }
-    RunMatchingAlgorithm() {
+    RunMatchingAlgorithm(attributeId: number) : string {
 
-        //console.log('advanced mag service 6');
+        console.log('RunMatchingAlgorithm');
         this._BusyMethods.push("RunMatchingAlgorithm");
-        this._httpC.get<any>(this._baseUrl + 'api/MagMatchAll/RunMatchingAlgorithm')
+        let body = JSON.stringify({ Value: attributeId});
+        this._httpC.post<boolean>(this._baseUrl + 'api/MagMatchAll/RunMatchingAlgorithm', body )
             .subscribe(result => {
                 this.RemoveBusy("RunMatchingAlgorithm");
-                
+                console.log('returned form matching algo' + result);
+                return result;
             },
                 error => {
                     this.RemoveBusy("RunMatchingAlgorithm");
                     this.modalService.GenericError(error);
+                    return error;
             },
             () => {
                 this.RemoveBusy("RunMatchingAlgorithm");
+                return ;
             });
+        return "error";
     }
     public FetchMagPaperList(crit: MVCMagPaperListSelectionCriteria): Promise<void> {
 

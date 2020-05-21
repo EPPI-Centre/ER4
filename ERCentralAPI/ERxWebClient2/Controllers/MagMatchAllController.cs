@@ -23,8 +23,8 @@ namespace ERxWebClient2.Controllers
             _logger = logger;
         }
 
-        [HttpGet("[action]")]
-        public IActionResult RunMatchingAlgorithm()
+        [HttpPost("[action]")]
+        public IActionResult RunMatchingAlgorithm([FromBody] SingleInt64Criteria attributeId)
         {
 			try
             {
@@ -32,14 +32,15 @@ namespace ERxWebClient2.Controllers
 
                 DataPortal<MagMatchItemsToPapersCommand> dp = new DataPortal<MagMatchItemsToPapersCommand>();
                 MagMatchItemsToPapersCommand GetMatches = new MagMatchItemsToPapersCommand("FindMatches",
-                   true, 0, 0);
+                   true, 0, attributeId.Value);
+
                 GetMatches = dp.Execute(GetMatches);
 
                 return Ok(GetMatches.currentStatus);
             }
             catch (Exception e)
             {
-                _logger.LogException(e, "Getting a MagRelatedPapersRunes list has an error");
+                _logger.LogException(e, "RunMatchingAlgorithm has an error");
                 throw;
             }
 		}

@@ -309,25 +309,25 @@ export class AdvancedMAGFeaturesComponent implements OnInit, OnDestroy {
 
         this._magAdvancedService.FetchClassifierContactModelList();
     }
-    public RunMatchingAlgo() {
+    //public RunMatchingAlgo() {
 
-        let msg: string = 'Are you sure you want to match all the items in your review\n to Microsoft Academic records?';
-        this.ConfirmationDialogService.confirm('MAG RUN ALERT', msg, false, '')
-            .then((confirm: any) => {
-                if (confirm) {
-                    this._magAdvancedService.RunMatchingAlgorithm();
-                    this._RunAlgorithmFirst = true;
-                }
-            });
-    }
-    public OpenMatchesInReview(listType: string) {
+    //    let msg: string = 'Are you sure you want to match all the items in your review\n to Microsoft Academic records?';
+    //    this.ConfirmationDialogService.confirm('MAG RUN ALERT', msg, false, '')
+    //        .then((confirm: any) => {
+    //            if (confirm) {
+    //                this._magAdvancedService.RunMatchingAlgorithm();
+    //                this._RunAlgorithmFirst = true;
+    //            }
+    //        });
+    //}
+    //public OpenMatchesInReview(listType: string) {
 
-        if (listType != null) {
-            this.ListSubType = listType;
-            this._eventEmitter.criteriaMAGChange.emit(listType);
-            this._eventEmitter.MAGAllocationClicked.emit();
-        }
-    }
+    //    if (listType != null) {
+    //        this.ListSubType = listType;
+    //        this._eventEmitter.criteriaMAGChange.emit(listType);
+    //        //this._eventEmitter.MAGAllocationClicked.emit();
+    //    }
+    //}
     public OpenResultsInReview(listType: string, magSimId: number) {
 
         if (listType != null) {
@@ -335,7 +335,7 @@ export class AdvancedMAGFeaturesComponent implements OnInit, OnDestroy {
             this._magAdvancedService.CurrentMagSimId = magSimId;
             this.ListSubType = listType;
             this._eventEmitter.criteriaMAGChange.emit(listType);
-            this._eventEmitter.MAGAllocationClicked.emit();
+            //this._eventEmitter.MAGAllocationClicked.emit();
         }
     }
     public MAGBrowser(listType: string) {

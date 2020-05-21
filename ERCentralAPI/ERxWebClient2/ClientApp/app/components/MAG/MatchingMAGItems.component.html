@@ -76,7 +76,7 @@
     </div>
 
 
-    <div class="col-lg-10 card alert-info border border-dark p-2 m-2 row">
+    <div class="col-lg-10 card alert-info border border-dark p-2 m-2 row " style="min-width:1050px;overflow:auto;">
         <h4>Actions on items with this code:</h4>
         <div class="row">
             <div class="col-4">
@@ -96,17 +96,16 @@
                 </div>
             </div>
             <div class="col-1">
-
                 <button class="btn btn-success p-2 m-2 "
-                        [disabled]="!CanGetCodeMatches()">
+                        [disabled]="!CanGetCodeMatches()"
+                         (click)="MAGBrowser('MatchedWithThisCode')">
                     List Items
                 </button>
             </div>
             <div class="col-1">
-
                 <button class="btn btn-success p-2 m-2 "
                         [disabled]="!CanGetCodeMatches()"
-                        (click)="MAGBrowser('MatchedWithThisCode')">
+                        (click)="RunMatchingAlgo()">
                     Auto-match items
                 </button>
             </div>
@@ -137,15 +136,17 @@
                 </div>
 
 
-                <div class="col-6 card ">
+                <div class="col-12 row alert-warning p-2 m-2">
 
                     <input class="col-12" type="text" id="SearchTextTopics" (change)="UpdateTopicResults($event)"
                            placeholder="Search for topics here.  Entry of Wildcards work, e.g. physic* " />
 
-                    <div *ngFor="let item of SearchTextTopicsResults" class="col-2 list-group">
-                        <div (click)="FOSMAGBrowserNavigate(item.displayName, item.fieldOfStudyId)" class="btn btn-link list-group-item"
-                             [ngStyle]="{ 'font-size.em': item.fontSize,'background-color': 'light-blue', 'color': 'black'}">
-                            {{item.displayName}}
+                    <div class="row " style="max-width:1250px;overflow:auto;">
+                        <div *ngFor="let item of SearchTextTopicsResults" class="list-group">
+                            <div (click)="FOSMAGBrowserNavigate(item.displayName, item.fieldOfStudyId)" class="col-3 btn border border-0"
+                                 [ngStyle]="{ 'font-size.em': item.fontSize,'background-color': 'light-blue', 'color': 'black'}">
+                                {{item.displayName}}
+                            </div>
                         </div>
                     </div>
                 </div>
