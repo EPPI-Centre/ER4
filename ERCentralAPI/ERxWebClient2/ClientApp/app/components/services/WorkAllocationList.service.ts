@@ -113,22 +113,39 @@ export class WorkAllocationListService extends BusyAwareService {
 
     }
 
-    public async RunAllocationFromWizardCommand(cmd: WorkAllocationFromWizardCommand) {
+    public RunAllocationFromWizardCommand(cmd: WorkAllocationFromWizardCommand): Promise<WorkAllocWizardResult> {
         this._BusyMethods.push("RunAllocationFromWizardCommand");
-        this._httpC.post<WorkAllocWizardResult>(this._baseUrl +
+        return this._httpC.post<WorkAllocWizardResult>(this._baseUrl +
             'api/WorkAllocationContactList/ExecuteWorkAllocationFromWizardCommand', cmd)
-            .subscribe((result) => {
+            .toPromise().then((result) => {
+                this.RemoveBusy("RunAllocationFromWizardCommand");
                 if (cmd.isPreview == 1) {
                     //we're only getting how many items...
                     cmd.numberOfItemsToAssign = result.numberOfAffectedItems;
-                    this.RemoveBusy("RunAllocationFromWizardCommand");
+                   
                 }
-            },
-                error => {
-                    this.modalService.GenericError(error);
-                    this.RemoveBusy("RunAllocationFromWizardCommand");
+                return result;
+            }, (error) => {
+                this.modalService.GenericError(error);
+                this.RemoveBusy("RunAllocationFromWizardCommand");
+                let res: WorkAllocWizardResult = {
+                    preview: null,
+                    numberOfAffectedItems: -1,
+                    isSuccess: false
+                };
+                return res;
+            })
+            .catch((err) => {
+                this.modalService.GenericError(err);
+                this.RemoveBusy("RunAllocationFromWizardCommand");
+                let res: WorkAllocWizardResult = {
+                    preview: null,
+                    numberOfAffectedItems: -1,
+                    isSuccess: false
                 }
-            );
+                return res;
+            });
+
     }
 
 	public Clear() {

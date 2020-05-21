@@ -187,7 +187,7 @@ namespace BusinessLibrary.BusinessClasses
                         command.Parameters.Add(new SqlParameter("@ReviewerNames", _reviewerNames));
                         command.Parameters.Add(new SqlParameter("@ItemsPerEachReviewer", _itemsPerEachReviewer));
                         command.Parameters.Add(new SqlParameter("@GroupsPrefix", _groupsPrefix));
-                        command.Parameters.Add(new SqlParameter("@NumberOfItemsToAssign", _included));
+                        command.Parameters.Add(new SqlParameter("@NumberOfItemsToAssign", _numberOfItemsToAssign));
                     }
                     SqlParameter par = new SqlParameter("@NumberOfAffectedItems", System.Data.SqlDbType.Int);
                     par.Direction = System.Data.ParameterDirection.Output;
@@ -199,26 +199,24 @@ namespace BusinessLibrary.BusinessClasses
                     {
                         using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
                         {
-                            
-                            
-                            if (reader.Read())
+
+                            preview = new MobileList<MobileList<string>>();
+                            int columnsN = reader.FieldCount;
+                            MobileList<string> FirstRow = new MobileList<string>();
+                            for (int i = 0; i < columnsN; i++)
                             {
-                                preview = new MobileList<MobileList<string>>();
-                                int columnsN = reader.FieldCount;
-                                MobileList<string> OneRow = new MobileList<string>();
+                                FirstRow.Add(reader.GetName(i));
+                            }
+                            preview.Add(FirstRow);
+                            MobileList<string> OneRow = new MobileList<string>();
+                            while (reader.Read())
+                            {
+                                OneRow = new MobileList<string>();
                                 for (int i = 0; i < columnsN; i++)
                                 {
-                                    OneRow.Add(reader[i].ToString());
+                                    OneRow.Add(reader.GetString(FirstRow[i]));
                                 }
                                 preview.Add(OneRow);
-                                while (reader.Read())
-                                {
-                                    OneRow = new MobileList<string>();
-                                    for (int i = 0; i < columnsN; i++)
-                                    {
-                                        OneRow.Add(reader[i].ToString());
-                                    }
-                                }
                             }
                         }
                     }

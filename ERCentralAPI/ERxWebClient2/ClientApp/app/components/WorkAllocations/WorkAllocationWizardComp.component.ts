@@ -1,11 +1,12 @@
 import { Component, Inject, OnInit, OnDestroy, ViewChild, Input, Output, EventEmitter, Attribute } from '@angular/core';
 import { ReviewSetsService, kvAllowedAttributeType, SetAttribute, ReviewSet, singleNode } from '../services/ReviewSets.service';
 import { ReviewSetsEditingService, ChangeDataEntryMessage } from '../services/ReviewSetsEditing.service';
-import { ReviewInfoService } from '../services/ReviewInfo.service';
+import { ReviewInfoService, Contact } from '../services/ReviewInfo.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
-import { WorkAllocationListService, WorkAllocationFromWizardCommand } from '../services/WorkAllocationList.service';
+import { WorkAllocationListService, WorkAllocationFromWizardCommand, WorkAllocWizardResult } from '../services/WorkAllocationList.service';
 import { kvSelectFrom } from './WorkAllocationComp.component';
 import { codesetSelectorComponent } from '../CodesetTrees/codesetSelector.component';
+import { forEach } from '@angular/router/src/utils/collection';
 
 
 @Component({
@@ -25,8 +26,10 @@ export class WorkAllocationWizardComp implements OnInit, OnDestroy {
 	) { }
     ngOnInit() { }
     @ViewChild('WithOrWithoutCode') WithOrWithoutCode!: codesetSelectorComponent;
+    @ViewChild('DropDownCodeDestination') DropDownCodeDestination!: codesetSelectorComponent;
     public CurrentStep: number = 1;
     public DropdownWithWithoutSelectedCode: singleNode | null = null;
+    public AllocationsDestination: singleNode | null = null;
     public selectedCodeSetDropDown: ReviewSet = new ReviewSet();
     public WorkToDoSelectedCodeSet: ReviewSet = new ReviewSet();
     public isCollapsedAllocateOptions: boolean = false;
@@ -36,7 +39,48 @@ export class WorkAllocationWizardComp implements OnInit, OnDestroy {
     private _CanChangeDataEntryMode: boolean = false;
     private _ItemsWithIncompleteCoding: number = -1;
     //public isCollapsedAllocateOptions: boolean = false;
+    private _contacts: SelectableContact[] = []; 
+    public DistributeWorkEvenly: boolean = true;
+    public WorkAllocWizardResult: WorkAllocWizardResult | null = null;
 
+    public get Contacts(): SelectableContact[] {
+        if (this._contacts.length == 0)
+            for (let c of this.ReviewInfoService.Contacts) {
+                let ec: SelectableContact = new SelectableContact();
+                ec.contactId = c.contactId;
+                ec.contactName = c.contactName;
+                this._contacts.push(ec);
+            }
+        return this._contacts;
+    }
+    public get AllContactsSelected(): boolean {
+        for (const c of this.Contacts) {
+            if (!c.IsSelected) return false;
+        }
+        return true;
+    }
+    public get EnoughContactsSelected(): boolean {
+        let count: number = 0
+        for (const c of this.Contacts) {
+            if (c.IsSelected) count++;
+        }
+        if (count >= this.workAllocationFromWizardCommand.peoplePerItem) return true;
+        else return false;
+    }
+    public get SelectedContacts(): SelectableContact[] {
+        return this._contacts.filter(found => found.IsSelected);
+    }
+    public SelectAllMembers(e: any) {
+        if (e.target.checked) {
+            for (const c of this.Contacts) {
+                c.IsSelected = true;
+            }
+        } else {
+            for (const c of this.Contacts) {
+                c.IsSelected = false;
+            }
+        }
+    }
     public workAllocationFromWizardCommand: WorkAllocationFromWizardCommand = new WorkAllocationFromWizardCommand();
     public NextStep() {
         if (this.CurrentStep < this.StepNames.length) this.CurrentStep++;
@@ -50,6 +94,19 @@ export class WorkAllocationWizardComp implements OnInit, OnDestroy {
         if (this.CurrentStep != 1) return false;
         if (this.workAllocationFromWizardCommand.numberOfItemsToAssign < 1) return false;
         return (this.CanGoToNextStep());
+    }
+    public CanGoToStep3(): boolean {
+        //console.log("CanGoToStep2()", this.CurrentStep, this.workAllocationFromWizardCommand.numberOfItemsToAssign);
+        if (this.CanSelectAllocationDestination == false) return false;
+        if (this.workAllocationFromWizardCommand.numberOfItemsToAssign < 1) return false;
+        if (this.AllocationsDestination == null || this.AllocationsDestination.set_id < 1) return false;
+        return (this.CanGoToNextStep());
+    }
+    public get CanSelectAllocationDestination(): boolean {
+        if (this.WorkToDoSelectedCodeSet.set_id < 1) return false;
+        if (!this.WorkToDoSelectedCodeSet.codingIsFinal && this.workAllocationFromWizardCommand.peoplePerItem == 1) return false;
+        if (this.WorkToDoSelectedCodeSet.codingIsFinal && this.workAllocationFromWizardCommand.peoplePerItem > 1) return false;
+        return true;
     }
     public PreviousStep() {
         if (this.CurrentStep > 1) this.CurrentStep--;
@@ -142,21 +199,76 @@ export class WorkAllocationWizardComp implements OnInit, OnDestroy {
         this.selectedCodeSetDropDown = new ReviewSet();
         this.isCollapsedAllocateOptions = false;
     }
+    CloseCodeDropDownCodeDestination() {
+        if (this.DropDownCodeDestination) {
+            this.AllocationsDestination = this.DropDownCodeDestination.SelectedNodeData;
+            if (this.AllocationsDestination) {
+                if (this.AllocationsDestination.nodeType == "SetAttribute") {
+                    this.workAllocationFromWizardCommand.destination_Attribute_ID = (this.AllocationsDestination as SetAttribute).attribute_id;
+                    this.workAllocationFromWizardCommand.destination_Set_ID = (this.AllocationsDestination as SetAttribute).set_id;
+                } else {
+                    this.workAllocationFromWizardCommand.destination_Attribute_ID = 0;
+                    this.workAllocationFromWizardCommand.destination_Set_ID = (this.AllocationsDestination as ReviewSet).set_id;
+                }
+            }
+        }
+        //this.ClearPot();
+        //this.workAllocationFromWizardCommand.setIdFilter = 0;
+        //this.selectedCodeSetDropDown = new ReviewSet();
+        this.isCollapsedAllocateOptions = false;
+    }
     setCodeSetDropDown(codeset: ReviewSet) {
         this.ClearPot();
         this.selectedCodeSetDropDown = codeset;
         this.workAllocationFromWizardCommand.setIdFilter = this.selectedCodeSetDropDown.set_id;
         this.workAllocationFromWizardCommand.attributeIdFilter = 0;
     }
-    GetPreview(previewLevel: number) {
+    async GetPreview(previewLevel: number) {
+        this.WorkAllocWizardResult = null;
         if (previewLevel != 1 && previewLevel != 2) previewLevel = 1;
         this.workAllocationFromWizardCommand.isPreview = previewLevel;
-        this.WorkAllocationListService.RunAllocationFromWizardCommand(this.workAllocationFromWizardCommand);
+        if (previewLevel == 1) this.WorkAllocationListService.RunAllocationFromWizardCommand(this.workAllocationFromWizardCommand);
+        else if (previewLevel == 2) {
+            //need to do work to create the correct data for the SQL side...
+            this.workAllocationFromWizardCommand.groupsPrefix = "Coding on '" + this.WorkToDoSelectedCodeSet.name + "'";
+            this.workAllocationFromWizardCommand.reviewerNames = "";
+            this.workAllocationFromWizardCommand.reviewersIds = "";
+            this.workAllocationFromWizardCommand.itemsPerEachReviewer = "";
+            const rex = /,/g;
+            if (this.DistributeWorkEvenly) {
+                //relatively easy, equal pots for each person, then distribute the reminder.
+                const NofPeople = this.SelectedContacts.length;
+                let Remainder: number = (this.workAllocationFromWizardCommand.numberOfItemsToAssign * this.workAllocationFromWizardCommand.peoplePerItem) % NofPeople;
+                let itemsPerPerson: number = ((this.workAllocationFromWizardCommand.numberOfItemsToAssign * this.workAllocationFromWizardCommand.peoplePerItem) - Remainder) / NofPeople;
+                for (let i: number = 0; i < NofPeople; i++) {
+                    this.workAllocationFromWizardCommand.reviewerNames += this.SelectedContacts[i].contactName.replace(rex, ' ') + ",";
+                    this.workAllocationFromWizardCommand.reviewersIds += this.SelectedContacts[i].contactId.toString() + ',';
+                    if (Remainder > 0) {
+                        Remainder--;
+                        this.workAllocationFromWizardCommand.itemsPerEachReviewer += (itemsPerPerson + 1).toString() + ",";
+                    } else this.workAllocationFromWizardCommand.itemsPerEachReviewer += itemsPerPerson.toString() + ",";
+
+                }
+                this.workAllocationFromWizardCommand.reviewerNames =
+                    this.workAllocationFromWizardCommand.reviewerNames.substring(0, this.workAllocationFromWizardCommand.reviewerNames.length - 1);
+                this.workAllocationFromWizardCommand.reviewersIds =
+                    this.workAllocationFromWizardCommand.reviewersIds.substring(0, this.workAllocationFromWizardCommand.reviewersIds.length - 1);
+                this.workAllocationFromWizardCommand.itemsPerEachReviewer =
+                    this.workAllocationFromWizardCommand.itemsPerEachReviewer.substring(0, this.workAllocationFromWizardCommand.itemsPerEachReviewer.length - 1);
+            }
+            let result: WorkAllocWizardResult | undefined = await this.WorkAllocationListService.RunAllocationFromWizardCommand(this.workAllocationFromWizardCommand);
+            console.log("WorkAllocWizardResult", result);
+            this.WorkAllocWizardResult = result;
+        }
+        else { }
     }
     SetWorkToDoCodeSet(codeset: ReviewSet) {
         this.WorkToDoSelectedCodeSet = codeset;
         codeset.codingIsFinal
         this.workAllocationFromWizardCommand.work_to_do_setID = codeset.set_id;
+    }
+    SelectMember(member: SelectableContact) {
+        member.IsSelected = !member.IsSelected;
     }
     PeoplePerItemChanged() {
         this.ShowChangeDataEntry = false;
@@ -191,6 +303,9 @@ export class WorkAllocationWizardComp implements OnInit, OnDestroy {
         this.ChangeDataEntryModeMessage = "";
         this._CanChangeDataEntryMode = false;
     }
+    ResetStep34() {
+
+    }
     ClearPot() {
         this.workAllocationFromWizardCommand.numberOfItemsToAssign = -1
     }
@@ -214,5 +329,10 @@ export class WorkAllocationWizardComp implements OnInit, OnDestroy {
     
     ngOnDestroy() {
     }
+}
+class SelectableContact extends Contact {
+    IsSelected: boolean = false;
+    //contactName: string = '';
+    //contactId: number = 0;
 }
 
