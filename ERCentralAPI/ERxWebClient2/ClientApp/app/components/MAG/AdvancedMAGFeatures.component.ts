@@ -195,7 +195,7 @@ export class AdvancedMAGFeaturesComponent implements OnInit, OnDestroy {
 
                     //this.WPFindTopics = [];
                     let FosList: MagFieldOfStudy[] = results;
-                    let i: number = 1.7;
+                    let i: number = 4;
                     let cnt: number = 0;
                     for (var fos of FosList)
                     {
@@ -207,8 +207,8 @@ export class AdvancedMAGFeaturesComponent implements OnInit, OnDestroy {
 
                         this.SearchTextTopicsResults[cnt] = item;
                         cnt += 1;
-                        if (i > 0.1) {
-                            i -= 0.05;
+                        if (i > 0.2) {
+                            i -= 0.01;
                         }
                     }
                     console.log(this.SearchTextTopicsResults);

@@ -28,8 +28,8 @@ export class MAGBrowserService extends BusyAwareService {
     private _Criteria: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
     private _currentPaper: MagPaper = new MagPaper();
     public ParentTopic: string = '';
-    public WPParentTopics: MagFieldOfStudy[] = [];
-    public WPChildTopics: MagFieldOfStudy[] = [];
+    public WPParentTopics: TopicLink[] = [];
+    public WPChildTopics: TopicLink[] = [];
     public ListDescription: string = '';
     @Output() PaperChanged = new EventEmitter();
 
@@ -50,7 +50,7 @@ export class MAGBrowserService extends BusyAwareService {
     }
     public GetPaperListForTopic(FieldOfStudyId: number): any {
 
-        console.log('we need to get in here...');
+        //console.log('we need to get in here...');
         let id = this.ListCriteria.magRelatedRunId;
         this.ListCriteria = new MVCMagPaperListSelectionCriteria();
         this.ListCriteria.magRelatedRunId = id;
@@ -63,6 +63,7 @@ export class MAGBrowserService extends BusyAwareService {
     }
     public GetParentAndChildFieldsOfStudy(FieldOfStudy: string, FieldOfStudyId: number, ParentOrChild: string): Promise<void> {
 
+
         console.log(' ' + FieldOfStudy + ' ' + FieldOfStudyId + ' ' + ParentOrChild);
 
         let selectionCriteria: MvcMagFieldOfStudyListSelectionCriteria = new MvcMagFieldOfStudyListSelectionCriteria();
@@ -71,21 +72,36 @@ export class MAGBrowserService extends BusyAwareService {
         selectionCriteria.SearchTextTopics = '';
         return this.FetchMagFieldOfStudyList(selectionCriteria, 'CitationsList').then(
 
-            (result: MagFieldOfStudy[] | void) => {
+            () => { }
+            //(result: MagFieldOfStudy[] | void) => {
 
-                if (result != null) {
-                    for (var i = 0; i < result.length; i++) {
+            //    if (result != null) {
 
-                        let newHl: MagFieldOfStudy = result[i];
-                        if (ParentOrChild == 'Parent topics') {
-                            this.WPParentTopics.push(newHl);
+            //        let FosList: MagFieldOfStudy[] = result;
+            //        let i: number = 1.7;
+            //        let j: number = 1.7;
+            //        for (var fos of FosList) {
+                       
+            //            let item: TopicLink = new TopicLink();
+            //            item.displayName = fos.displayName;
+            //            item.fontSize = i;
+            //            item.fieldOfStudyId = fos.fieldOfStudyId;
 
-                        } else {
-                            this.WPChildTopics.push(newHl);
-                        }
-                    }
-                }
-            }
+            //            if (ParentOrChild == 'Parent topics') {
+            //                this.WPParentTopics.push(item);
+            //                if (i > 0.1) {
+            //                    i -= 0.05;
+            //                }
+
+            //            } else {
+            //                this.WPChildTopics.push(item);
+            //                if (j > 0.1) {
+            //                    j -= 0.05;
+            //                }
+            //            }
+            //        }
+            //    }
+            //}
         );
     }
     public FetchMAGRelatedPaperRunsListById(Id: number): Promise<boolean> {
@@ -146,7 +162,39 @@ export class MAGBrowserService extends BusyAwareService {
             (result: MagFieldOfStudy[]) => {
 
                     this.RemoveBusy("FetchMagPaperList");
-                    this.MagPaperFieldsList = result;
+                    // try something here
+
+                        if (result != null) {
+
+                            let FosList: MagFieldOfStudy[] = result;
+                            let i: number = 2;
+                            let j: number = 2;
+                            for (var fos of FosList) {
+
+                                let item: TopicLink = new TopicLink();
+                                item.displayName = fos.displayName;
+                                item.fieldOfStudyId = fos.fieldOfStudyId;
+
+                                if (criteria.listType == 'FieldOfStudyParentsList') {
+                                    if (i > 0.1) {
+                                        i -= 0.01;
+                                    }
+                                    item.fontSize = i;
+                                    this.WPParentTopics.push(item);
+                                    
+
+                                } else {
+                                    if (j > 0.1) {
+                                        j -= 0.01;
+                                    }
+                                    item.fontSize = j;
+                                    this.WPChildTopics.push(item);
+                                   
+                                }
+                            }
+                        }
+
+                    // end try
                     console.log('paper field list: ', result);
                     this.ListCriteria.listType = goBackListType;
                     return result;
@@ -299,4 +347,13 @@ export class MAGBrowserService extends BusyAwareService {
     }
 
 }
+
+export class TopicLink {
+
+    displayName: string = '';
+    fontSize: number = 0;
+    callToFOS: string = '';
+    fieldOfStudyId: number = 0;
+}
+
 
