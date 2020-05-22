@@ -107,13 +107,14 @@ namespace BusinessLibrary.BusinessClasses
             info.AddValue("_attributeIdFilter", _attributeIdFilter);
             info.AddValue("_setIdFilter", _setIdFilter);
             info.AddValue("_destination_Attribute_ID", _destination_Attribute_ID);
-            info.AddValue("_work_to_do_setID", _work_to_do_setID);
+            info.AddValue("_destination_Set_ID", _destination_Set_ID);
             info.AddValue("_percentageOfWholePot", _percentageOfWholePot);
             info.AddValue("_included", _included);
 
 
             //info.AddValue("_preview", _preview);
             info.AddValue("_isPreview", _isPreview);
+            info.AddValue("_work_to_do_setID", _work_to_do_setID);
             info.AddValue("_oneGroupPerPerson", _oneGroupPerPerson);
             info.AddValue("_PeoplePerItem", _peoplePerItem);
             info.AddValue("_reviewersIds", _reviewersIds);
@@ -130,7 +131,8 @@ namespace BusinessLibrary.BusinessClasses
             _attributeIdFilter = info.GetValue<Int64>("_attributeIdFilter");
             _setIdFilter = info.GetValue<int>("_setIdFilter");
             _destination_Attribute_ID = info.GetValue<Int64>("_destination_Attribute_ID");
-            _work_to_do_setID = info.GetValue<int>("_work_to_do_setID");
+            _destination_Set_ID = info.GetValue<int>("_destination_Set_ID");
+             _work_to_do_setID = info.GetValue<int>("_work_to_do_setID");
             _percentageOfWholePot = info.GetValue<int>("_percentageOfWholePot");
             _included = info.GetValue<bool>("_included");
             //_preview = info.GetValue<MobileList<MobileList<string>>>("_preview");
