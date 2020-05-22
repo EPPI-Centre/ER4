@@ -338,20 +338,20 @@ export class AdvancedMAGFeaturesComponent implements OnInit, OnDestroy {
             //this._eventEmitter.MAGAllocationClicked.emit();
         }
     }
-    public MAGBrowser(listType: string) {
-        if (listType == 'MatchedIncluded') {
-            this.GetMatchedMagIncludedList();
+    //public MAGBrowser(listType: string) {
+    //    if (listType == 'MatchedIncluded') {
+    //        this.GetMatchedMagIncludedList();
 
-        } else if (listType == 'MatchedExcluded') {
-            this.GetMatchedMagExcludedList();
+    //    } else if (listType == 'MatchedExcluded') {
+    //        this.GetMatchedMagExcludedList();
 
-        } else if (listType == 'MatchedAll') {
-            this.GetMatchedMagAllList();
+    //    } else if (listType == 'MatchedAll') {
+    //        this.GetMatchedMagAllList();
 
-        } else if (listType == 'MatchedWithThisCode') {
-            this.GetMatchedMagWithCodeList();
-        }
-    }
+    //    } else if (listType == 'MatchedWithThisCode') {
+    //        this.GetMatchedMagWithCodeList();
+    //    }
+    //}
     public DeleteSimulation(item: MagSimulation) {
         if (item != null) {
             this.ConfirmationDialogService.confirm("Deleting the selected MAG simulation",
@@ -363,57 +363,57 @@ export class AdvancedMAGFeaturesComponent implements OnInit, OnDestroy {
                 });
         }
     }
-    public GetMatchedMagIncludedList(): void {
+    //public GetMatchedMagIncludedList(): void {
 
-        let criteria: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
-        criteria.listType = "ReviewMatchedPapers";
-        criteria.included = "Included";
-        criteria.pageSize = 20;
-        this._magBrowserService.FetchWithCrit(criteria, "ReviewMatchedPapers").then(
+    //    let criteria: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
+    //    criteria.listType = "ReviewMatchedPapers";
+    //    criteria.included = "Included";
+    //    criteria.pageSize = 20;
+    //    this._magBrowserService.FetchWithCrit(criteria, "ReviewMatchedPapers").then(
            
-            () => {
+    //        () => {
 
-                let criteria2: MVCMagFieldOfStudyListSelectionCriteria = new MVCMagFieldOfStudyListSelectionCriteria();
-                criteria2.fieldOfStudyId = 0;
-                criteria2.listType = 'PaperFieldOfStudyList';
-                criteria2.paperIdList = this._magBrowserService.ListCriteria.paperIds;
-                criteria2.SearchTextTopics = ''; //TODO this will be populated by the user..
-                this._magBrowserService.FetchMagFieldOfStudyList(criteria2, 'ReviewMatchedPapers').then(
+    //            let criteria2: MVCMagFieldOfStudyListSelectionCriteria = new MVCMagFieldOfStudyListSelectionCriteria();
+    //            criteria2.fieldOfStudyId = 0;
+    //            criteria2.listType = 'PaperFieldOfStudyList';
+    //            criteria2.paperIdList = this._magBrowserService.ListCriteria.paperIds;
+    //            criteria2.SearchTextTopics = ''; //TODO this will be populated by the user..
+    //            this._magBrowserService.FetchMagFieldOfStudyList(criteria2, 'ReviewMatchedPapers').then(
 
-                    () => { this.router.navigate(['MAGBrowser']); }
-                );
-            }
-        );
+    //                () => { this.router.navigate(['MAGBrowser']); }
+    //            );
+    //        }
+    //    );
 
-    }
-    public GetMatchedMagExcludedList() {
+    //}
+    //public GetMatchedMagExcludedList() {
 
-        let criteria: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
-        criteria.listType = "ReviewMatchedPapers";
-        criteria.included = "Excluded";
-        criteria.pageSize = 20;
+    //    let criteria: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
+    //    criteria.listType = "ReviewMatchedPapers";
+    //    criteria.included = "Excluded";
+    //    criteria.pageSize = 20;
 
-        this._magAdvancedService.FetchMagPaperList(criteria).then(
-            () => {
-                this.router.navigate(['MAGBrowser']);
-            }
-        );
+    //    this._magAdvancedService.FetchMagPaperList(criteria).then(
+    //        () => {
+    //            this.router.navigate(['MAGBrowser']);
+    //        }
+    //    );
 
-    }
-    public GetMatchedMagAllList() {
+    //}
+    //public GetMatchedMagAllList() {
 
-        let criteria: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
-        criteria.listType = "ReviewMatchedPapers";
-        criteria.included = "All";
-        criteria.pageSize = 20;
-        this._magAdvancedService.CurrentCriteria = criteria;
-        this._magAdvancedService.FetchMagPaperList(criteria).then(
-            () => {
-                this.router.navigate(['MAGBrowser']);
-            }
-        );
+    //    let criteria: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
+    //    criteria.listType = "ReviewMatchedPapers";
+    //    criteria.included = "All";
+    //    criteria.pageSize = 20;
+    //    this._magAdvancedService.CurrentCriteria = criteria;
+    //    this._magAdvancedService.FetchMagPaperList(criteria).then(
+    //        () => {
+    //            this.router.navigate(['MAGBrowser']);
+    //        }
+    //    );
 
-    }
+    //}
     public CanGetCodeMatches(): boolean {
 
         if (this.CurrentDropdownSelectedCode2 != null) {

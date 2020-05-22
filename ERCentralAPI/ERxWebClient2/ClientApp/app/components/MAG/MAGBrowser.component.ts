@@ -3,7 +3,7 @@ import { Location } from '@angular/common';
 import { searchService } from '../services/search.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Router, NavigationEnd } from '@angular/router';
-import { MVCMagPaperListSelectionCriteria, MagPaper, MvcMagFieldOfStudyListSelectionCriteria, MagFieldOfStudy } from '../services/MAGClasses.service';
+import { MVCMagPaperListSelectionCriteria, MagPaper, MvcMagFieldOfStudyListSelectionCriteria, MagFieldOfStudy, MagList } from '../services/MAGClasses.service';
 import { MAGBrowserService } from '../services/MAGBrowser.service';
 import { MAGAdvancedService } from '../services/magAdvanced.service';
 import { MAGBrowserHistoryService } from '../services/MAGBrowserHistory.service';
@@ -45,6 +45,11 @@ export class MAGBrowser implements OnInit, OnDestroy {
     ngOnDestroy() {
 
         this._magAdvancedService.currentMagPaper = new MagPaper();
+        this._magBrowserService.WPChildTopics = [];
+        this._magBrowserService.WPParentTopics = [];
+        this._magBrowserService.MAGList = new MagList();
+        this._magBrowserService.MagCitationsByPaperList = new MagList();
+        this.selectedPapers = [];
     }
 
     public ImportSelected() {
