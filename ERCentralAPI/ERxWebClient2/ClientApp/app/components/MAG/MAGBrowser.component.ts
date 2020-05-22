@@ -96,6 +96,8 @@ export class MAGBrowser implements OnInit {
 
         let FieldOfStudyId: number = item.fieldOfStudyId;
         this._magBrowserService.ParentTopic = item.displayName;
+        this._magBrowserService.WPChildTopics = [];
+        this._magBrowserService.WPParentTopics = [];
 
         this._magBrowserService.GetParentAndChildFieldsOfStudy("FieldOfStudyParentsList", FieldOfStudyId, "Parent topics").then(
             () => {

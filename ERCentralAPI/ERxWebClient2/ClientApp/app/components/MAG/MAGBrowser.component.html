@@ -28,7 +28,7 @@
     <div [title]="'TOPICS'" class="col-6" style="min-height:500px;min-width:450px; overflow:auto;">
         <h5>Parent Topics</h5>
         {{_magBrowserService.ParentTopic}}
-        <div class="card col-12 small table table-border  table-striped bg-light">
+        <div class="card col-12 small table table-border  table-striped alert-primary">
 
                 <div *ngFor="let item of _magBrowserService.WPParentTopics">
                     <div (click)="GetParentAndChildRelatedPapers(item)"  class="col-2 btn border border-0"
@@ -39,7 +39,7 @@
                 </div>
         </div>
         <h5>Children Topics</h5>
-        <div class="card col-12 small table table-border  table-striped bg-light ">
+        <div class="card col-12 small table table-border  table-striped alert-warning">
 
             <div class="row" >
                 <div *ngFor="let item of _magBrowserService.WPChildTopics">
