@@ -15,43 +15,41 @@
         <kendo-toolbar-button [text]="'Forward'" (click)="Forward()" [disabled]="!HasWriteRights"></kendo-toolbar-button>
     </kendo-toolbar>
 </div>
-<div class="col-6 p-2 m-2 card bg-info">
+<div class="col-10 p-2 m-2 card alert-primary  border-dark">
     <h4>Microsoft Academic Graph Browser</h4>
 
 </div>
 
 <div *ngIf="IsServiceBusy" class="k-loading-image" style="position: fixed; top: 2%;"></div>
-<div class="col-12 row" style="min-width:450px;max-height:950px; overflow:auto;">
+<div class="col-10 row alert-info border border-dark p-2 m-2 " style="min-width:450px;max-height:950px; overflow:auto;">
     <h4>{{_magAdvancedService.currentMagPaper.fullRecord}}</h4>
 
 
-    <div [title]="'TOPICS'" class="col-3" style="min-height:500px;min-width:450px; overflow:auto;">
+    <div [title]="'TOPICS'" class="col-6" style="min-height:500px;min-width:450px; overflow:auto;">
         <h5>Parent Topics</h5>
         {{_magBrowserService.ParentTopic}}
-        <table class="card col-12 small table table-border  table-striped bg-light">
-            <thead>
-                <tr></tr>
-            </thead>
-            <tbody>
-                <tr *ngFor="let item of _magBrowserService.WPParentTopics">
-                    <td (click)="GetParentAndChildRelatedPapers(item)" class="btn btn-link mt-1">
-                        {{item.displayName }}
-                    </td>
+        <div class="card col-12 small table table-border  table-striped bg-light">
 
-                </tr>
-            </tbody>
-        </table>
+                <div *ngFor="let item of _magBrowserService.WPParentTopics">
+                    <div (click)="GetParentAndChildRelatedPapers(item)"  class="col-2 btn border border-0"
+                                 [ngStyle]="{ 'font-size.em': item.fontSize,'background-color': 'light-blue', 'color': 'black'}">
+                        {{item.displayName }}
+                    </div>
+
+                </div>
+        </div>
         <h5>Children Topics</h5>
-        <table class="card col-12 small table table-border  table-striped bg-light">
-            <thead>
-                <tr></tr>
-            </thead>
-            <tbody>
-                <tr *ngFor="let item of _magBrowserService.MagPaperFieldsList">
-                    <td (click)="GetParentAndChildRelatedPapers(item)" class="btn btn-link mt-1">{{item.displayName}}</td>
-                </tr>
-            </tbody>
-        </table>
+        <div class="card col-12 small table table-border  table-striped bg-light ">
+
+            <div class="row" >
+                <div *ngFor="let item of _magBrowserService.WPChildTopics">
+                    <div (click)="GetParentAndChildRelatedPapers(item)" class="col-2 btn border border-0"
+                         [ngStyle]="{ 'font-size.em': item.fontSize,'background-color': 'light-blue', 'color': 'black'}">
+                        {{item.displayName}}
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <kendo-tabstrip #tabstripSelectedPapers class="col-5" [keepTabContent]="true">

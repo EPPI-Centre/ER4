@@ -145,7 +145,9 @@ export class MAGAdvancedService extends BusyAwareService {
     }
     FetchMagPaperId(Id: number) : Promise<string> {
 
-        //console.log('advanced mag service 5');
+        this._magBrowserService.WPChildTopics = [];
+        this._magBrowserService.WPParentTopics = [];
+        this._magBrowserService.ParentTopic = '';
         this._BusyMethods.push("FetchMagPaperId");
         let body = JSON.stringify({ Value: Id });
         return this._httpC.post<MagPaper>(this._baseUrl + 'api/MagCurrentInfo/GetMagPaper', body)
