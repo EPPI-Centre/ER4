@@ -44,12 +44,8 @@ export class MAGBrowser implements OnInit, OnDestroy {
 
     ngOnDestroy() {
 
-        this._magAdvancedService.currentMagPaper = new MagPaper();
-        this._magBrowserService.WPChildTopics = [];
-        this._magBrowserService.WPParentTopics = [];
-        this._magBrowserService.MAGList = new MagList();
-        this._magBrowserService.MagCitationsByPaperList = new MagList();
-        this.selectedPapers = [];
+        this._magBrowserService.Clear();
+        this.Clear();
     }
 
     public ImportSelected() {
@@ -109,6 +105,8 @@ export class MAGBrowser implements OnInit, OnDestroy {
         this._magBrowserService.ParentTopic = item.displayName;
         this._magBrowserService.WPChildTopics = [];
         this._magBrowserService.WPParentTopics = [];
+        this._magBrowserService.Clear();
+        this._magAdvancedService.currentMagPaper = new MagPaper();
 
         this._magBrowserService.GetParentAndChildFieldsOfStudy("FieldOfStudyParentsList", FieldOfStudyId, "Parent topics").then(
             () => {
@@ -179,7 +177,6 @@ export class MAGBrowser implements OnInit, OnDestroy {
     public Clear() {
 
         this.MAGPapers = [];
-        this._magAdvancedService.currentMagPaper = new MagPaper();
 
     }
     public CanDeleteMAGRun(): boolean {

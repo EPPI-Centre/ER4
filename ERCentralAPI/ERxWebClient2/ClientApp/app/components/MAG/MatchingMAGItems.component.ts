@@ -6,7 +6,7 @@ import { codesetSelectorComponent } from '../CodesetTrees/codesetSelector.compon
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Router, NavigationEnd } from '@angular/router';
-import { ClassifierContactModel, MVCMagPaperListSelectionCriteria, MagSimulation, MagFieldOfStudy, MvcMagFieldOfStudyListSelectionCriteria } from '../services/MAGClasses.service';
+import { ClassifierContactModel, MVCMagPaperListSelectionCriteria, MagSimulation, MagFieldOfStudy, MvcMagFieldOfStudyListSelectionCriteria, MagPaper } from '../services/MAGClasses.service';
 import { EventEmitterService } from '../services/EventEmitter.service';
 import { MAGBrowserService } from '../services/MAGBrowser.service';
 import { MAGAdvancedService } from '../services/magAdvanced.service';
@@ -233,11 +233,11 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
         return text;
     }
     public FOSMAGBrowserNavigate(displayName: string, fieldOfStudyId: number) {
-
-        this.router.navigate(['MAGBrowser']);
+        this._magAdvancedService.currentMagPaper = new MagPaper();
         this._magBrowserService.WPChildTopics = [];
         this._magBrowserService.WPParentTopics = [];
         this._magBrowserService.ParentTopic = '';
+        this.router.navigate(['MAGBrowser']);
         this.GetParentAndChildRelatedPapers(displayName, fieldOfStudyId);
     }
     public GetParentAndChildRelatedPapers(FieldOfStudy: string, FieldOfStudyId: number) {
@@ -356,6 +356,10 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
         }
     }
     public MAGBrowser(listType: string) {
+        this._magAdvancedService.currentMagPaper = new MagPaper();
+        this._magBrowserService.WPChildTopics = [];
+        this._magBrowserService.WPParentTopics = [];
+        this._magBrowserService.ParentTopic = '';
         if (listType == 'MatchedIncluded') {
             this.GetMatchedMagIncludedList();
 

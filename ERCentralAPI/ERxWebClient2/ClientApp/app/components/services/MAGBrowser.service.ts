@@ -346,6 +346,16 @@ export class MAGBrowserService extends BusyAwareService {
         return this._MAGList.papers.filter(found => found.isSelected == true);
     }
 
+    public Clear() {
+
+        this._currentPaper = new MagPaper();
+        this.WPChildTopics = [];
+        this.WPParentTopics = [];
+        this.MAGList = new MagList();
+        this.MagCitationsByPaperList = new MagList();
+
+    }
+
 }
 
 export class TopicLink {
