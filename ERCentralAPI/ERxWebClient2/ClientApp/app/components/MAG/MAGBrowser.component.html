@@ -21,27 +21,33 @@
 </div>
 
 <div *ngIf="IsServiceBusy" class="k-loading-image" style="position: fixed; top: 2%;"></div>
+
+<div *ngIf="_magAdvancedService.currentMagPaper.paperId > 0"
+     class="col-10 alert-warning border border-dark p-2 m-2 ">
+    <h4><b>{{_magAdvancedService.currentMagPaper.fullRecord}}</b></h4>
+    <b>Paper Id:</b> <h4>{{_magAdvancedService.currentMagPaper.paperId}}</h4>
+    <b>Abstract:</b> <p>{{_magAdvancedService.currentMagPaper.abstract}}</p>
+    <b>Pdf Links:</b> <p>{{_magAdvancedService.currentMagPaper.pdfLinks}}</p>
+</div>
 <div class="col-10 row alert-info border border-dark p-2 m-2 " style="min-width:450px;max-height:950px; overflow:auto;">
-    <h4>{{_magAdvancedService.currentMagPaper.fullRecord}}</h4>
-
-
+       
     <div [title]="'TOPICS'" class="col-6" style="min-height:500px;min-width:450px; overflow:auto;">
         <h5>Parent Topics</h5>
         {{_magBrowserService.ParentTopic}}
         <div class="card col-12 small table table-border  table-striped alert-primary">
 
-                <div *ngFor="let item of _magBrowserService.WPParentTopics">
-                    <div (click)="GetParentAndChildRelatedPapers(item)"  class="col-2 btn border border-0"
-                                 [ngStyle]="{ 'font-size.em': item.fontSize,'background-color': 'light-blue', 'color': 'black'}">
-                        {{item.displayName }}
-                    </div>
-
+            <div *ngFor="let item of _magBrowserService.WPParentTopics">
+                <div (click)="GetParentAndChildRelatedPapers(item)" class="col-2 btn border border-0"
+                     [ngStyle]="{ 'font-size.em': item.fontSize,'background-color': 'light-blue', 'color': 'black'}">
+                    {{item.displayName }}
                 </div>
+
+            </div>
         </div>
         <h5>Children Topics</h5>
         <div class="card col-12 small table table-border  table-striped alert-warning">
 
-            <div class="row" >
+            <div class="row">
                 <div *ngFor="let item of _magBrowserService.WPChildTopics">
                     <div (click)="GetParentAndChildRelatedPapers(item)" class="col-2 btn border border-0"
                          [ngStyle]="{ 'font-size.em': item.fontSize,'background-color': 'light-blue', 'color': 'black'}">
@@ -136,6 +142,6 @@
             </ng-template>
         </kendo-tabstrip-tab>
     </kendo-tabstrip>
-    
+
 </div>
 <statusbar></statusbar>

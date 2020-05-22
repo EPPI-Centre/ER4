@@ -235,11 +235,15 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
     public FOSMAGBrowserNavigate(displayName: string, fieldOfStudyId: number) {
 
         this.router.navigate(['MAGBrowser']);
+        this._magBrowserService.WPChildTopics = [];
+        this._magBrowserService.WPParentTopics = [];
+        this._magBrowserService.ParentTopic = '';
         this.GetParentAndChildRelatedPapers(displayName, fieldOfStudyId);
     }
     public GetParentAndChildRelatedPapers(FieldOfStudy: string, FieldOfStudyId: number) {
 
         this._magBrowserService.ParentTopic = FieldOfStudy;
+
 
         this._magBrowserService.GetParentAndChildFieldsOfStudy("FieldOfStudyParentsList", FieldOfStudyId, "Parent topics").then(
             () => {

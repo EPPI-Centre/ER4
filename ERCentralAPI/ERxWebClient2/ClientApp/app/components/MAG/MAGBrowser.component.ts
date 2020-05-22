@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Location } from '@angular/common';
 import { searchService } from '../services/search.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
@@ -15,7 +15,7 @@ import { MAGBrowserHistoryService } from '../services/MAGBrowserHistory.service'
     providers: []
 })
 
-export class MAGBrowser implements OnInit {
+export class MAGBrowser implements OnInit, OnDestroy {
 
     constructor(
         public _magAdvancedService: MAGAdvancedService,
@@ -39,6 +39,12 @@ export class MAGBrowser implements OnInit {
     ngOnInit() {
 
         this.browsingHistory = this._routingStateService.getHistory();
+        
+    }
+
+    ngOnDestroy() {
+
+        this._magAdvancedService.currentMagPaper = new MagPaper();
     }
 
     public ImportSelected() {
