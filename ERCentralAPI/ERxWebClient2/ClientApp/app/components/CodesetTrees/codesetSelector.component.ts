@@ -86,7 +86,7 @@ export class codesetSelectorComponent implements OnInit, OnDestroy, AfterViewIni
 					//else {
 					//	this._nodes.push(Rset);
 					//}
-                    if (Rset.setType.allowRandomAllocation) this._nodes.push(Rset);
+                    if (Rset.setType.allowRandomAllocation && Rset.allowEditingCodeset) this._nodes.push(Rset);
 				}
 			}
         }

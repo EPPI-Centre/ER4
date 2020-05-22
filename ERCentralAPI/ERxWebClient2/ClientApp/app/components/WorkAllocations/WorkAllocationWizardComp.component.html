@@ -1,4 +1,5 @@
 <div class="col-12 p-1 m-2 rounded border container border-info" style="min-width:650px; overflow:auto;">
+    <div *ngIf="IsServiceBusy()" class="k-loading-image" style="position: fixed; top: 0%; height:100%; max-height:100%"></div>
     <div class="row my-1 mx-0 alert alert-success h4">
         Distribute work, step {{CurrentStep}}. {{CurrentStepName}}.
     </div>
@@ -15,7 +16,7 @@
                             ({{IncludedExcludedText}}, {{workAllocationFromWizardCommand.percentageOfWholePot}}%)
                         </span>
                         <span *ngIf="workAllocationFromWizardCommand.filterType == 'All without any codes from this coding tool' || workAllocationFromWizardCommand.filterType == 'All with any codes from this coding tool'">
-                            AllocationsDestination?.name
+                            ({{selectedCodeSetDropDown?.name}}, {{workAllocationFromWizardCommand.percentageOfWholePot}}%)
                         </span>
                         <span *ngIf="workAllocationFromWizardCommand.filterType == 'All with this code' || workAllocationFromWizardCommand.filterType == 'All without this code'">
                             ({{DropdownWithWithoutSelectedCode?.name}}, {{IncludedExcludedText}}, {{workAllocationFromWizardCommand.percentageOfWholePot}}%)
@@ -46,14 +47,14 @@
     <div *ngIf="CurrentStep==1" class="">
         <div class="row my-1 mx-0">
             <div class="col-3">
-                1. Select items by this criterion:
+                1.1. Select items by this criterion:
             </div>
             <div class="col-5">
                 <select #AllocateOptionsDropDown class="form-control" name="AllocateOptions"
                         style="min-width: 200px; max-width:720px;" (change)="SetRelevantDropDownValues($event.target.value)">
                     <!--(click)="isCollapsedAllocateOptions = false; isCollapsedCodingTool = false"-->
                     <option *ngFor="let item of AllocateOptions" [value]="item.key"
-                            [selected]="item.key == workAllocationFromWizardCommand.filterType">
+                            [selected]="item.value == workAllocationFromWizardCommand.filterType">
                         {{item.value}}
                     </option>
                 </select>
@@ -107,7 +108,7 @@
         </div>
         <div class="row my-1 mx-0 border-top" [ngClass]="{'DisabledStep' : !SelectionCriteriaIsValid}">
             <div class="col-3">
-                2. Included or Excluded?
+                1.2. Included or Excluded?
             </div>
             <div class="col-5">
                 <div class="col-12 row justify-content-center justify-content-md-start m-1">
@@ -123,7 +124,7 @@
         </div>
         <div class="row my-1 mx-0 border-top" [ngClass]="{'DisabledStep' : !SelectionCriteriaIsValid}">
             <div class="col-3">
-                3. Percentage of references?
+                1.3. Percentage of references?
             </div>
             <div class="col-5 row m-0">
                 <div>
@@ -137,7 +138,7 @@
                                           class="border border-dark rounded mt-1"
                                           style="width: 100px;">
                     </kendo-numerictextbox>
-                    <button class=" pt-1 ml-2 rounded  btn btn-outline-primary" style="min-width:70px" [disabled]="!SelectionCriteriaIsValid" (click)="GetPreview(1)">
+                    <button class=" ml-2 mt-1 rounded  btn btn-outline-primary" style="min-width:70px" [disabled]="!SelectionCriteriaIsValid" (click)="GetPreviewOrDoit(1)">
                         Preview
                     </button>
                 </div>
@@ -148,10 +149,10 @@
             </div>
         </div>
         <div class="row justify-content-center mx-0">
-            <button class=" pt-1 m-1 border border-dark rounded  btn btn-success" style="min-width:100px" [disabled]="!CanGoToStep2()" (click)="NextStep()">
+            <button class=" pt-1 m-1 btn btn-success" style="min-width:100px" [disabled]="!CanGoToStep2()" (click)="NextStep()">
                 Next
             </button>
-            <button class=" pt-1 m-1 border border-dark rounded btn btn-outline-dark " style="min-width:100px">
+            <button class=" pt-1 m-1 btn btn-outline-dark " (click)="Cancel()" style="min-width:100px">
                 Cancel
             </button>
         </div>
@@ -179,7 +180,7 @@
                         </button>
                         <div ngbDropdownMenu aria-labelledby="dropdownBasicCodingTool">
                             <button (click)="SetWorkToDoCodeSet(item)"
-                                    *ngFor="let item of CodeSets4WorkToDo;" class="dropdown-item">
+                                    *ngFor="let item of CodeSets;" class="dropdown-item">
                                 {{item.name}}
                             </button>
                         </div>
@@ -187,7 +188,7 @@
                 </div>
             </div>
             <div class="col-4 rounded border border-info alert-info small">
-                You can assign coding work to people, by specifying which coding tool should be used for the current round. [This is the tool containing the codes that people will be adding to items as part of the work you are assigning.]
+                You can assign coding work to people by specifying which coding tool should be used for the current round. [This is the tool containing the codes that people will be adding to items as part of the work you are assigning.]
             </div>
         </div>
         <div class="row my-1 mx-0 border-top" [ngClass]="{'DisabledStep' : WorkToDoSelectedCodeSet.set_id < 1}">
@@ -296,7 +297,7 @@
                         {{AllocationsDestination?.name}}
                     </button>
                     <div ngbDropdownMenu class="dropdown-menu" id="collapseCodeTreeWithWithout" [ngbCollapse]="!isCollapsedAllocateOptions">
-                        <codesetSelector [IsMultiSelect]="false" 
+                        <codesetSelector [IsMultiSelect]="false"
                                          [WhatIsSelectable]="'RandomAllocation'" [MaxHeight]="500" #DropDownCodeDestination
                                          (selectedNodeInTree)="CloseCodeDropDownCodeDestination()"></codesetSelector>
                     </div>
@@ -308,13 +309,13 @@
             </div>
         </div>
         <div class="row justify-content-center mx-0">
-            <button (click)="PreviousStep()" class=" pt-1 m-1 border border-dark rounded btn btn-outline-dark " style="min-width:100px">
+            <button (click)="PreviousStep()" class=" pt-1 m-1 btn btn-outline-dark " style="min-width:100px">
                 Previous
             </button>
-            <button class=" pt-1 m-1 border border-dark rounded  btn btn-success" style="min-width:100px" [disabled]="!CanGoToStep3()" (click)="NextStep()">
+            <button class=" pt-1 m-1 btn btn-success" style="min-width:100px" [disabled]="!CanGoToStep3()" (click)="NextStep()">
                 Next
             </button>
-            <button class=" pt-1 m-1 border border-dark rounded btn btn-outline-dark " style="min-width:100px">
+            <button class=" pt-1 m-1 btn btn-outline-dark " (click)="Cancel()" style="min-width:100px">
                 Cancel
             </button>
         </div>
@@ -328,7 +329,7 @@
 
 
 
-    <div *ngIf="CurrentStep==3" class="col-12 p-1 m-2 rounded border container border-info">
+    <div *ngIf="CurrentStep==3" class="col-12 p-1 m-0 rounded border container border-info">
         <div class="row my-1 mx-0 border-top">
             <div class="col-2">
                 3.1. pick the reviewers. <br />
@@ -347,19 +348,26 @@
                 To Assign work, you need to define who will do the work. This wizard will guide you through the process of distributing work across the people you'll select in this step.
             </div>
         </div>
-        <div class="row my-1 mx-0 border-top" [ngClass]="{'DisabledStep' : !EnoughContactsSelected || this.workAllocationFromWizardCommand.peoplePerItem == 1}">
+        <div class="row my-1 mx-0 border-top" [ngClass]="{'DisabledStep' : !BarelyEnoughContactsSelected}">
             <div class="col-2">
                 3.2. Distribute work evenly?
-                <br /><div *ngIf="workAllocationFromWizardCommand.peoplePerItem == 1">Not applicable, all work goes to the same person.</div>
+                <br />
+                <!--<div *ngIf="workAllocationFromWizardCommand.peoplePerItem == 1" class="small rounded alert-info">
+                Not applicable, all work goes to the same person.
+                </div>-->
             </div>
             <div class="col-5">
-                <div class="col-12 row justify-content-center justify-content-md-start m-1">
-                    <input class="mt-1 mr-1 ml-sm-4" type="radio" name="Distributeworkevenlyn" [disabled]="!EnoughContactsSelected || this.workAllocationFromWizardCommand.peoplePerItem == 1"
-                           [value]="true" (click)="ResetStep34()" [(ngModel)]="DistributeWorkEvenly">
-                    <div class="mr-2">Yes</div>
-                    <input class="mt-1 mr-1" type="radio" name="Distributeworkevenlyn" [disabled]="!EnoughContactsSelected  || this.workAllocationFromWizardCommand.peoplePerItem == 1"
-                           [value]="false" (click)="ResetStep34()" [(ngModel)]="DistributeWorkEvenly">
-                    <div class="mr-2">No</div>
+                <div class="col-12 row justify-content-center m-1">
+                    <div class="d-block rounded border border-info m-1">
+                        <input class="mt-1 mx-1 d-inline" type="radio" name="Distributeworkevenlyn" [disabled]="!BarelyEnoughContactsSelected"
+                               [value]="true" (click)="ResetStep34()" [(ngModel)]="DistributeWorkEvenly">
+                        <div class="mr-2 d-inline">Yes</div>
+                    </div>
+                    <div class="d-block rounded border border-info m-1">
+                        <input class="mt-1 mx-1 d-inline" type="radio" name="Distributeworkevenlyn" [disabled]="!CanDistributeUnevenly"
+                               [value]="false" (click)="ResetStep34()" [(ngModel)]="DistributeWorkEvenly">
+                        <div class="mr-2 d-inline">No</div>
+                    </div>
                 </div>
             </div>
             <div class="col-5 rounded border border-info alert-info small">
@@ -372,16 +380,16 @@
                 3.3 One group per person or shared groups?
             </div>
             <div class="col-5">
-                <div class="col-12 row justify-content-center justify-content-md-start m-1">
-                    <div class="d-block">
-                        <input class="mt-1 mr-1 ml-sm-4" type="radio" [disabled]="!EnoughContactsSelected" name="1groupPerPerson"
-                               [value]="true" (click)="ResetStep34()" [(ngModel)]="workAllocationFromWizardCommand.oneGroupPerPerson">
-                        <div class="mr-2">One group per person</div>
+                <div class="col-12 row justify-content-center m-1">
+                    <div class="d-block rounded border border-info m-1">
+                        <input class="mt-1 mx-1 d-inline" type="radio" [disabled]="!EnoughContactsSelected" name="1groupPerPerson"
+                               [value]="false" (click)="WipePreview()" [(ngModel)]="workAllocationFromWizardCommand.oneGroupPerPerson">
+                        <div class="mr-2 d-inline">Shared groups</div>
                     </div>
-                    <div class="d-block">
-                        <input class="mt-1 mr-1" type="radio" [disabled]="!EnoughContactsSelected" name="1groupPerPerson"
-                               [value]="false" (click)="ResetStep34()" [(ngModel)]="workAllocationFromWizardCommand.oneGroupPerPerson">
-                        <div class="mr-2">Shared groups</div>
+                    <div class="d-block rounded border border-info m-1">
+                        <input class="mt-1 mx-1 d-inline" type="radio" [disabled]="!EnoughContactsSelected" name="1groupPerPerson"
+                               [value]="true" (click)="WipePreview()" [(ngModel)]="workAllocationFromWizardCommand.oneGroupPerPerson">
+                        <div class="mr-2 d-inline">One group per person</div>
                     </div>
                 </div>
             </div>
@@ -405,12 +413,24 @@
                 3.4 Naming the allocation codes.
             </div>
             <div class="col-6">
-                Allocation prefix will be: &quot; <span class="font-weight-bold">Coding on '{{WorkToDoSelectedCodeSet.name}}'</span>&quot;
+                Allocation prefix will be:
+                <span *ngIf="workAllocationFromWizardCommand.groupsPrefix == ''" class="font-weight-bold">Coding on '{{WorkToDoSelectedCodeSet.name}}'</span>
+                <span *ngIf="workAllocationFromWizardCommand.groupsPrefix != ''" class="font-weight-bold">{{workAllocationFromWizardCommand.groupsPrefix}}</span>
+
+                <button class=" pt-1 m-1 rounded btn btn-sm btn-outline-primary " (click)="ShowEditCodesPrefixClicked()">
+                    Edit
+                </button>
+                <div *ngIf="ShowEditCodesPrefix">
+                    <input type="text" [(ngModel)]="workAllocationFromWizardCommand.groupsPrefix" />
+                    <button class=" pt-1 m-1 rounded btn btn-sm btn-outline-dark " (click)="ShowEditCodesPrefixClicked()">
+                        Close
+                    </button>
+                </div>
             </div>
             <div class="col-4 rounded border border-info alert-info small">
-                You may now pick the exact details of who will get how many items.
-                You <b>must click "preview"</b> in order to double check if your current plan is possible in practice and get a detailed preview of what will happen
-                if you clicked "Assign work!".
+                The wizard will create a number of Allocation Codes, used to group together references and drive Coding Assingments.
+                These codes should have meaningful names, to help keeping track of their purpose.
+                The system will auto-generate these names, but you may edit their default prefix here.
             </div>
         </div>
         <div class="row my-1 mx-0 border-top">
@@ -418,16 +438,89 @@
                 3.4 Details and Preview.
             </div>
             <div class="col-6">
-                <div *ngIf="DistributeWorkEvenly">
-                    <button class=" pt-1 ml-2 rounded  btn btn-outline-primary" style="min-width:70px" [disabled]="!SelectionCriteriaIsValid" (click)="GetPreview(2)">
+                <div *ngIf="DistributeWorkEvenly" class="row justify-content-center mt-1">
+                    <button class=" pt-1 ml-2 rounded  btn btn-outline-primary" style="min-width:70px" [disabled]="!EnoughContactsSelected" (click)="GetPreviewOrDoit(2)">
                         Preview
                     </button>
                 </div>
-                <div *ngIf="!DistributeWorkEvenly">
-                    aaa
+                <div *ngIf="!DistributeWorkEvenly && EnoughContactsSelected" class="col-12 row m-0 p-0">
+                    <div class="col-12 row m-0 p-0">
+                        <div *ngFor="let member of SelectedContacts" class="border border-secondary rounded my-0 mx-1 p-1 col small" [ngClass]="{'alert-success' : member.NumberOfItems > 0}">
+                            <div class="d-inline">{{member.contactName}}</div>
+                            <button *ngIf="member.NumberOfItems == 0 && !AllManualAssignmentsDone" class=" px-1 py-0 mx-1 my-0 rounded  btn btn-sm btn-outline-primary" (click)="ShowAddManualMember(member)">
+                                Add
+                            </button>
+                            <div *ngIf="member.NumberOfItems > 0">
+                                ({{member.NumberOfItems}})
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 row mx-2 my-1 p-2 rounded border border-info ">
+                        <div class=""> Number of Items that need to be assigned: <b>{{ToBeManuallyAssignedStill}}</b></div>
+                        <button class=" px-1 py-0 mx-1 my-0 btn btn-sm btn-outline-primary" (click)="DistributeRemainingManualAssignTable()">
+                            Distribute remaining
+                        </button>
+                        <button class=" px-1 py-0 mx-1 my-0 btn btn-sm btn-outline-danger" (click)="ResetManualAssignTable()">
+                            Reset
+                        </button>
+                    </div>
+                    <div *ngIf="ToAddManualMember != null" class="col-12">
+                        Adding <b class="mr-1">{{ToAddManualMember.contactName}}</b>
+                        <kendo-numerictextbox #NofItemstoAssigntoPerson
+                                              [(ngModel)]="ToAddManualMember.NumberOfItems"
+                                              [min]="1" [format]="'n0'"
+                                              [max]="workAllocationFromWizardCommand.numberOfItemsToAssign"
+                                              [step]="1"
+                                              [autoCorrect]="true"
+                                              class="border border-dark rounded mt-1"
+                                              style="">
+                        </kendo-numerictextbox>
+                        <button class=" ml-2 mt-1 rounded  btn btn-outline-success" (click)="AddManualMemberToTable()">
+                            Add
+                        </button>
+                        <button class=" ml-2 mt-1 rounded  btn btn-outline-dark" (click)="HideAddManualMember()">
+                            Cancel
+                        </button>
+                    </div>
+                    <div *ngIf="ManualAssignTable[0].length > 0" class="col-12 row">
+                        <div *ngIf="ManualAssignTable[0].length > 0" class="col">
+                            First round<br />
+                            <div *ngFor="let member of ManualAssignTable[0]" class="border border-secondary rounded my-0 mx-1 p-1 " [ngClass]="{'alert-success' : member.NumberOfItems > 0}">
+                                <div class="d-inline">{{member.contactName}} ({{member.NumberOfItems}} items)</div>
+                                <button *ngIf="IsLastInManualAssignTable(member)" class=" px-1 py-0 mx-1 my-0 rounded  btn btn-sm btn-outline-danger" (click)="RemoveLastManualMember()">
+                                    Remove
+                                </button>
+                            </div>
+                        </div>
+                        <div *ngIf="workAllocationFromWizardCommand.peoplePerItem > 1" class="col">
+                            Second round<br />
+                            <div *ngFor="let member of ManualAssignTable[1]" class="border border-secondary rounded my-0 mx-1 p-1 " [ngClass]="{'alert-success' : member.NumberOfItems > 0}">
+                                <div class="d-inline">{{member.contactName}} ({{member.NumberOfItems}} items)</div>
+                                <button *ngIf="IsLastInManualAssignTable(member)" class=" px-1 py-0 mx-1 my-0 rounded  btn btn-sm btn-outline-danger" (click)="RemoveLastManualMember()">
+                                    Remove
+                                </button>
+                            </div>
+                        </div>
+                        <div *ngIf="workAllocationFromWizardCommand.peoplePerItem > 2" class="col">
+                            Third round<br />
+                            <div *ngFor="let member of ManualAssignTable[2]" class="border border-secondary rounded my-0 mx-1 p-1 " [ngClass]="{'alert-success' : member.NumberOfItems > 0}">
+                                <div class="d-inline">{{member.contactName}} ({{member.NumberOfItems}} items)</div>
+                                <button *ngIf="IsLastInManualAssignTable(member)" class=" px-1 py-0 mx-1 my-0 rounded  btn btn-sm btn-outline-danger" (click)="RemoveLastManualMember()">
+                                    Remove
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div *ngIf="AllManualAssignmentsDone" class="row sol-12 justify-content-center mt-1 row mx-0 px-0">
+                        <button class=" pt-1 ml-2 rounded  btn btn-outline-primary" style="min-width:70px" (click)="GetPreviewOrDoit(2)">
+                            Preview
+                        </button>
+                    </div>
                 </div>
-                
-                <div *ngIf="WorkAllocWizardResult != null" class="col-12" style="max-height:300px;max-width:600px;overflow:auto;">
+
+
+                <div *ngIf="WorkAllocWizardResult != null &&  WorkAllocWizardResult.preview != undefined" class="col-12 mt-1" style="max-height:300px;max-width:600px;overflow:auto;">
+                    Preview:
                     <table class="table table-sm table-bordered table-striped">
                         <tr *ngFor="let row of WorkAllocWizardResult.preview;let i = index">
                             <td *ngFor="let cell of row" class="small" [ngClass]="{'font-weight-bold alert-info': i== 0}">{{cell}}</td>
@@ -444,13 +537,15 @@
 
 
         <div class="row justify-content-center mx-0">
-            <button (click)="PreviousStep()" class=" pt-1 m-1 border border-dark rounded btn btn-outline-dark " style="min-width:100px">
+            <button (click)="PreviousStep(); ResetStep34();" class=" pt-1 m-1 rounded btn btn-outline-dark " style="min-width:100px">
                 Previous
             </button>
-            <!--<button class=" pt-1 m-1 border border-dark rounded  btn btn-success" style="min-width:100px" (disabled)="!CanGoToNextStep()" (click)="NextStep()">
-            Next
-        </button>-->
-            <button class=" pt-1 m-1 border border-dark rounded btn btn-outline-dark " style="min-width:100px">
+            <button class=" pt-1 m-1 rounded  btn btn-success" style="min-width:100px"
+                    [disabled]="!(WorkAllocWizardResult != null &&  WorkAllocWizardResult.preview != undefined && WorkAllocWizardResult.isSuccess)"
+                    (click)="GetPreviewOrDoit(0)">
+                Do it!
+            </button>
+            <button class=" pt-1 m-1 rounded btn btn-outline-dark" (click)="Cancel()" style="min-width:100px">
                 Cancel
             </button>
         </div>

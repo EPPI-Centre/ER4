@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, OnDestroy, ViewChild, Input, Output, EventEmitter, Attribute } from '@angular/core';
+import { Component, Inject, OnInit, OnDestroy, ViewChild, Input, Output, EventEmitter, Attribute, ElementRef } from '@angular/core';
 import { ReviewSetsService, kvAllowedAttributeType, SetAttribute, ReviewSet, singleNode } from '../services/ReviewSets.service';
 import { ReviewSetsEditingService, ChangeDataEntryMessage } from '../services/ReviewSetsEditing.service';
 import { ReviewInfoService, Contact } from '../services/ReviewInfo.service';
@@ -6,7 +6,8 @@ import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { WorkAllocationListService, WorkAllocationFromWizardCommand, WorkAllocWizardResult } from '../services/WorkAllocationList.service';
 import { kvSelectFrom } from './WorkAllocationComp.component';
 import { codesetSelectorComponent } from '../CodesetTrees/codesetSelector.component';
-import { forEach } from '@angular/router/src/utils/collection';
+import { NumericTextBoxComponent } from '@progress/kendo-angular-inputs';
+import { ModalService } from '../services/modal.service';
 
 
 @Component({
@@ -19,6 +20,7 @@ import { forEach } from '@angular/router/src/utils/collection';
 export class WorkAllocationWizardComp implements OnInit, OnDestroy {
     constructor(
         private ReviewSetsService: ReviewSetsService,
+        private modalService: ModalService,
         private ReviewSetsEditingService: ReviewSetsEditingService,
         private ReviewInfoService: ReviewInfoService,
         private ReviewerIdentityService: ReviewerIdentityService,
@@ -27,6 +29,9 @@ export class WorkAllocationWizardComp implements OnInit, OnDestroy {
     ngOnInit() { }
     @ViewChild('WithOrWithoutCode') WithOrWithoutCode!: codesetSelectorComponent;
     @ViewChild('DropDownCodeDestination') DropDownCodeDestination!: codesetSelectorComponent;
+    @ViewChild('NofItemstoAssigntoPerson') NofItemstoAssigntoPerson!: NumericTextBoxComponent;
+
+    @Output() emitterCancel = new EventEmitter();
     public CurrentStep: number = 1;
     public DropdownWithWithoutSelectedCode: singleNode | null = null;
     public AllocationsDestination: singleNode | null = null;
@@ -42,6 +47,11 @@ export class WorkAllocationWizardComp implements OnInit, OnDestroy {
     private _contacts: SelectableContact[] = []; 
     public DistributeWorkEvenly: boolean = true;
     public WorkAllocWizardResult: WorkAllocWizardResult | null = null;
+    public ShowEditCodesPrefix: boolean = false;
+    private _manualAssignCol1: SelectableContact[] = [];
+    private _manualAssignCol2: SelectableContact[] = [];
+    private _manualAssignCol3: SelectableContact[] = [];
+    public ToAddManualMember: SelectableContact | null = null;
 
     public get Contacts(): SelectableContact[] {
         if (this._contacts.length == 0)
@@ -59,7 +69,7 @@ export class WorkAllocationWizardComp implements OnInit, OnDestroy {
         }
         return true;
     }
-    public get EnoughContactsSelected(): boolean {
+    public get BarelyEnoughContactsSelected(): boolean {
         let count: number = 0
         for (const c of this.Contacts) {
             if (c.IsSelected) count++;
@@ -67,10 +77,23 @@ export class WorkAllocationWizardComp implements OnInit, OnDestroy {
         if (count >= this.workAllocationFromWizardCommand.peoplePerItem) return true;
         else return false;
     }
+    public get CanDistributeUnevenly(): boolean {
+        let count: number = 0
+        for (const c of this.Contacts) {
+            if (c.IsSelected) count++;
+        }
+        if (count > this.workAllocationFromWizardCommand.peoplePerItem) return true;
+        else return false;
+    }
+    public get EnoughContactsSelected(): boolean {
+        if (this.DistributeWorkEvenly) return this.BarelyEnoughContactsSelected;
+        else return this.CanDistributeUnevenly;
+    }
     public get SelectedContacts(): SelectableContact[] {
         return this._contacts.filter(found => found.IsSelected);
     }
     public SelectAllMembers(e: any) {
+        this.ResetStep34();
         if (e.target.checked) {
             for (const c of this.Contacts) {
                 c.IsSelected = true;
@@ -111,7 +134,7 @@ export class WorkAllocationWizardComp implements OnInit, OnDestroy {
     public PreviousStep() {
         if (this.CurrentStep > 1) this.CurrentStep--;
     }
-    private _stepNames: string[] = ["", "Identify items to distribute", "Indentify the work to assign", "Distribute the work"];
+    private _stepNames: string[] = ["", "Identify items to distribute", "Indentify the work to assign", "Distribution rules"];
     public get StepNames(): string[] {
         return this._stepNames;
     } 
@@ -122,13 +145,13 @@ export class WorkAllocationWizardComp implements OnInit, OnDestroy {
     public get CodeSets(): ReviewSet[] {
         return this.ReviewSetsService.ReviewSets;
     }
-    public get CodeSets4WorkToDo(): ReviewSet[] {
-        //we can't have "circular relations - i.e. select items with some criteria that is affected by the allocations!
-        return this.ReviewSetsService.ReviewSets.filter(found =>
-            found.set_id != this.workAllocationFromWizardCommand.setIdFilter 
-            && (!this.DropdownWithWithoutSelectedCode || found.set_id != this.DropdownWithWithoutSelectedCode.set_id)
-            );
-    }
+    //public get CodeSets4WorkToDo(): ReviewSet[] {
+    //    //we can't have "circular relations - i.e. select items with some criteria that is affected by the allocations!
+    //    return this.ReviewSetsService.ReviewSets.filter(found =>
+    //        found.set_id != this.workAllocationFromWizardCommand.setIdFilter 
+    //        && (!this.DropdownWithWithoutSelectedCode || found.set_id != this.DropdownWithWithoutSelectedCode.set_id)
+    //        );
+    //}
     private _allocateOptions: kvSelectFrom[] = [{ key: 0, value: '[Please select]' },
         { key: 1, value: 'No code / coding tool filter' },
         { key: 2, value: 'All without any codes from this coding tool' },
@@ -166,7 +189,47 @@ export class WorkAllocationWizardComp implements OnInit, OnDestroy {
         //console.log("CanChangeDataEntryMode", this._CanChangeDataEntryMode, this.CanWrite(), this._ItemsWithIncompleteCoding)
         return (this._CanChangeDataEntryMode && this.CanWrite() && this._ItemsWithIncompleteCoding != -1);
     }
+    public get ManualAssignTable(): SelectableContact[][] {
+        const res: SelectableContact[][] = [];
+        res.push(this._manualAssignCol1);
+        if (this.workAllocationFromWizardCommand.peoplePerItem > 1) {
+            res.push(this._manualAssignCol2);
+        }
+        if (this.workAllocationFromWizardCommand.peoplePerItem > 2) {
+            res.push(this._manualAssignCol3);
+        } 
+        return res;
+    }
+    public IsLastInManualAssignTable(c: SelectableContact): boolean {//we can only remove the last element, from this table 
+        if (this._manualAssignCol3.length > 0 && this.workAllocationFromWizardCommand.peoplePerItem == 3) {
+            return (this._manualAssignCol3[this._manualAssignCol3.length -1] == c );
+        }
+        else if (this._manualAssignCol2.length > 0 && this.workAllocationFromWizardCommand.peoplePerItem > 1) {
+            return (this._manualAssignCol2[this._manualAssignCol2.length - 1] == c);
+        }
+        else if (this._manualAssignCol1.length > 0) {
+            return (this._manualAssignCol1[this._manualAssignCol1.length - 1] == c);
+        }
+        return true;
+    }
+    public get AllManualAssignmentsDone(): boolean {
+        const target = this.workAllocationFromWizardCommand.numberOfItemsToAssign * this.workAllocationFromWizardCommand.peoplePerItem;
+        let assigned: number = 0;
+        this._manualAssignCol1.forEach(el => assigned += el.NumberOfItems);
+        this._manualAssignCol2.forEach(el => assigned += el.NumberOfItems);
+        this._manualAssignCol3.forEach(el => assigned += el.NumberOfItems);
+        return target <= assigned;
+    }
+    public get ToBeManuallyAssignedStill(): number {
+        const target = this.workAllocationFromWizardCommand.numberOfItemsToAssign * this.workAllocationFromWizardCommand.peoplePerItem;
+        let assigned: number = 0;
+        this._manualAssignCol1.forEach(el => assigned += el.NumberOfItems);
+        this._manualAssignCol2.forEach(el => assigned += el.NumberOfItems);
+        this._manualAssignCol3.forEach(el => assigned += el.NumberOfItems);
+        return target - assigned;
+    }
     IsServiceBusy(): boolean {
+        //console.log("IsWizardService busy?", this.ReviewSetsService.IsBusy, this.ReviewSetsEditingService.IsBusy, this.ReviewInfoService.IsBusy, this.WorkAllocationListService.IsBusy)
         if (this.ReviewSetsService.IsBusy || this.ReviewSetsEditingService.IsBusy || this.ReviewInfoService.IsBusy || this.WorkAllocationListService.IsBusy) return true;
         else return false;
     }
@@ -183,8 +246,11 @@ export class WorkAllocationWizardComp implements OnInit, OnDestroy {
     }
 
     SetRelevantDropDownValues(selection: number) {
-        //console.log("SetRelevantDropDownValues", JSON.stringify(selection));
+        console.log("SetRelevantDropDownValues", JSON.stringify(selection));
         this.ClearPot();
+        //if user is going back and forth, ensure "future" choices still make sense, so force user to re do it...
+        this.ResetStep34();
+        this.WorkToDoSelectedCodeSet = new ReviewSet();
         let ind = this.AllocateOptions.findIndex(found => found.key == selection);
         if (ind > 0) this.workAllocationFromWizardCommand.filterType = this.AllocateOptions[ind].value;
         else this.workAllocationFromWizardCommand.filterType = "";
@@ -219,18 +285,25 @@ export class WorkAllocationWizardComp implements OnInit, OnDestroy {
     }
     setCodeSetDropDown(codeset: ReviewSet) {
         this.ClearPot();
+        //if user is going back and forth, ensure "future" choices still make sense, so force user to re do it...
+        this.ResetStep34();
+        this.WorkToDoSelectedCodeSet = new ReviewSet();
         this.selectedCodeSetDropDown = codeset;
         this.workAllocationFromWizardCommand.setIdFilter = this.selectedCodeSetDropDown.set_id;
         this.workAllocationFromWizardCommand.attributeIdFilter = 0;
     }
-    async GetPreview(previewLevel: number) {
+    async GetPreviewOrDoit(previewLevel: number) {
         this.WorkAllocWizardResult = null;
-        if (previewLevel != 1 && previewLevel != 2) previewLevel = 1;
+        if (previewLevel < 0 && previewLevel > 2) previewLevel = 1;
         this.workAllocationFromWizardCommand.isPreview = previewLevel;
-        if (previewLevel == 1) this.WorkAllocationListService.RunAllocationFromWizardCommand(this.workAllocationFromWizardCommand);
+        if (this.workAllocationFromWizardCommand.groupsPrefix == "")
+            this.workAllocationFromWizardCommand.groupsPrefix = "Coding on '" + this.WorkToDoSelectedCodeSet.name + "'";
+        if (previewLevel == 1) {
+            // value for this.workAllocationFromWizardCommand.numberOfItemsToAssign gets set within the service...
+            this.WorkAllocationListService.RunAllocationFromWizardCommand(this.workAllocationFromWizardCommand);
+        }
         else if (previewLevel == 2) {
             //need to do work to create the correct data for the SQL side...
-            this.workAllocationFromWizardCommand.groupsPrefix = "Coding on '" + this.WorkToDoSelectedCodeSet.name + "'";
             this.workAllocationFromWizardCommand.reviewerNames = "";
             this.workAllocationFromWizardCommand.reviewersIds = "";
             this.workAllocationFromWizardCommand.itemsPerEachReviewer = "";
@@ -247,27 +320,252 @@ export class WorkAllocationWizardComp implements OnInit, OnDestroy {
                         Remainder--;
                         this.workAllocationFromWizardCommand.itemsPerEachReviewer += (itemsPerPerson + 1).toString() + ",";
                     } else this.workAllocationFromWizardCommand.itemsPerEachReviewer += itemsPerPerson.toString() + ",";
-
+                }                
+            } else {
+                const people = this.SelectedContacts.filter(found => found.NumberOfItems > 0);
+                for (let person of people) {
+                    this.workAllocationFromWizardCommand.reviewerNames += person.contactName.replace(rex, ' ') + ",";
+                    this.workAllocationFromWizardCommand.reviewersIds += person.contactId.toString() + ",";
+                    this.workAllocationFromWizardCommand.itemsPerEachReviewer += person.NumberOfItems.toString() + ",";
                 }
-                this.workAllocationFromWizardCommand.reviewerNames =
-                    this.workAllocationFromWizardCommand.reviewerNames.substring(0, this.workAllocationFromWizardCommand.reviewerNames.length - 1);
-                this.workAllocationFromWizardCommand.reviewersIds =
-                    this.workAllocationFromWizardCommand.reviewersIds.substring(0, this.workAllocationFromWizardCommand.reviewersIds.length - 1);
-                this.workAllocationFromWizardCommand.itemsPerEachReviewer =
-                    this.workAllocationFromWizardCommand.itemsPerEachReviewer.substring(0, this.workAllocationFromWizardCommand.itemsPerEachReviewer.length - 1);
             }
-            let result: WorkAllocWizardResult | undefined = await this.WorkAllocationListService.RunAllocationFromWizardCommand(this.workAllocationFromWizardCommand);
-            console.log("WorkAllocWizardResult", result);
-            this.WorkAllocWizardResult = result;
+            this.workAllocationFromWizardCommand.reviewerNames =
+                this.workAllocationFromWizardCommand.reviewerNames.substring(0, this.workAllocationFromWizardCommand.reviewerNames.length - 1);
+            this.workAllocationFromWizardCommand.reviewersIds =
+                this.workAllocationFromWizardCommand.reviewersIds.substring(0, this.workAllocationFromWizardCommand.reviewersIds.length - 1);
+            this.workAllocationFromWizardCommand.itemsPerEachReviewer =
+                this.workAllocationFromWizardCommand.itemsPerEachReviewer.substring(0, this.workAllocationFromWizardCommand.itemsPerEachReviewer.length - 1);
+            let result: WorkAllocWizardResult = await this.WorkAllocationListService.RunAllocationFromWizardCommand(this.workAllocationFromWizardCommand);
+            //console.log("WorkAllocWizardResult", result);
+            if (result.isSuccess) this.WorkAllocWizardResult = result;
+            else {
+
+                this.modalService.GenericErrorMessage("Gettin the preview failed, this usually happens when the situation changed and the list of items you want to assign is now different.");
+            }
         }
-        else { }
+        else {
+
+            let result: WorkAllocWizardResult = await this.WorkAllocationListService.RunAllocationFromWizardCommand(this.workAllocationFromWizardCommand);
+            if (result.isSuccess) {
+                this.WorkAllocationListService.FetchAll();
+                this.ReviewSetsService.GetReviewSets(false);
+                this.Cancel();
+            } else {
+                this.modalService.GenericErrorMessage("Gettin the preview failed, this usually happens when the situation changed and the list of items you want to assign is now different.");
+                this.ResetStep34();
+            }
+        }
+    }
+    ShowAddManualMember(member: SelectableContact) {
+        this.ToAddManualMember = member.CloneAndAssingOneItem();
+        //let's pick a decent default value
+        const tbmas = this.ToBeManuallyAssignedStill;
+        if (tbmas < this.workAllocationFromWizardCommand.numberOfItemsToAssign) {
+            this.ToAddManualMember.NumberOfItems = tbmas;
+        } else {
+            this.ToAddManualMember.NumberOfItems = Math.round(this.workAllocationFromWizardCommand.numberOfItemsToAssign / 2);
+        }
+        if (this.NofItemstoAssigntoPerson) {
+            //console.log("input found immediately");
+            setTimeout(() => this.NofItemstoAssigntoPerson.focus(), 1);
+        } else {
+            //console.log("input not yet found");
+            setTimeout(() => {
+                if (this.NofItemstoAssigntoPerson) {
+                    this.NofItemstoAssigntoPerson.focus();
+                    //console.log("input found later");
+                }
+            }, 5);
+        }
+    }
+    HideAddManualMember() {
+        this.ToAddManualMember = null;
+    }
+    AddManualMemberToTable() {
+        this.WipePreview();
+        const colN = this.workAllocationFromWizardCommand.peoplePerItem;
+        let done: boolean = false;
+        let inCurrentCol: number = 0;
+        if (this.ToAddManualMember != null) {
+            for (let m of this._manualAssignCol1) {
+                inCurrentCol += m.NumberOfItems;
+            }
+            if (inCurrentCol < this.workAllocationFromWizardCommand.numberOfItemsToAssign) {
+                //we have room in this column
+                if (this.workAllocationFromWizardCommand.numberOfItemsToAssign - inCurrentCol >= this.ToAddManualMember.NumberOfItems) {
+                    //easy, we can add person to this column
+                    this._manualAssignCol1.push(this.ToAddManualMember);
+                    this.UpdateSelectedContact(this.ToAddManualMember.contactId, this.ToAddManualMember.NumberOfItems);
+                    this.ToAddManualMember = null;
+                    return;
+                }
+                else {
+                    //we need to split this person in two: some in this column, some in the next.
+                    //items for this person minus items we can add in current column
+                    const leftover = this.ToAddManualMember.NumberOfItems - (this.workAllocationFromWizardCommand.numberOfItemsToAssign - inCurrentCol); 
+                    //new cloned person to add in the next column
+                    const cloned:SelectableContact = this.ToAddManualMember.CloneAndAssingOneItem();
+                    cloned.NumberOfItems = leftover;
+                    this.ToAddManualMember.NumberOfItems = this.ToAddManualMember.NumberOfItems - leftover;
+                    this._manualAssignCol1.push(this.ToAddManualMember);
+                    this._manualAssignCol2.push(cloned);
+                    if (this.workAllocationFromWizardCommand.peoplePerItem > 1) {
+                        this.UpdateSelectedContact(this.ToAddManualMember.contactId, this.ToAddManualMember.NumberOfItems + leftover);
+                    }
+                    else {//we won't use the second column, so leftover is a throwaway
+                        this.UpdateSelectedContact(this.ToAddManualMember.contactId, this.ToAddManualMember.NumberOfItems);
+                    }
+                    this.ToAddManualMember = null;
+                    return;
+                }
+            }
+            //do it again, for second column
+            inCurrentCol = 0;
+            for (let m of this._manualAssignCol2) {
+                inCurrentCol += m.NumberOfItems;
+            }
+            if (inCurrentCol < this.workAllocationFromWizardCommand.numberOfItemsToAssign) {
+                //we have room in this column
+                if (this.workAllocationFromWizardCommand.numberOfItemsToAssign - inCurrentCol >= this.ToAddManualMember.NumberOfItems) {
+                    //easy, we can add person to this column
+                    this._manualAssignCol2.push(this.ToAddManualMember);
+                    this.UpdateSelectedContact(this.ToAddManualMember.contactId, this.ToAddManualMember.NumberOfItems);
+                    this.ToAddManualMember = null;
+                    return;
+                }
+                else {
+                    //we need to split this person in two: some in this column, some in the next.
+                    //items for this person minus items we can add in current column
+                    const leftover = this.ToAddManualMember.NumberOfItems - (this.workAllocationFromWizardCommand.numberOfItemsToAssign - inCurrentCol);
+                    //new cloned person to add in the next column
+                    const cloned: SelectableContact = this.ToAddManualMember.CloneAndAssingOneItem();
+                    cloned.NumberOfItems = leftover;
+                    this.ToAddManualMember.NumberOfItems = this.ToAddManualMember.NumberOfItems - leftover;
+                    this._manualAssignCol2.push(this.ToAddManualMember);
+                    this._manualAssignCol3.push(cloned);
+                    if (this.workAllocationFromWizardCommand.peoplePerItem > 2) {
+                        this.UpdateSelectedContact(this.ToAddManualMember.contactId, this.ToAddManualMember.NumberOfItems + leftover);
+                    }
+                    else {//we won't use the third column, so leftover is a throwaway
+                        this.UpdateSelectedContact(this.ToAddManualMember.contactId, this.ToAddManualMember.NumberOfItems);
+                    }
+                    this.ToAddManualMember = null;
+                    return;
+                }
+            }
+            //do it again, for third column
+            inCurrentCol = 0;
+            for (let m of this._manualAssignCol3) {
+                inCurrentCol += m.NumberOfItems;
+            }
+            if (inCurrentCol < this.workAllocationFromWizardCommand.numberOfItemsToAssign) {
+                //we have room in this column
+                if (this.workAllocationFromWizardCommand.numberOfItemsToAssign - inCurrentCol >= this.ToAddManualMember.NumberOfItems) {
+                    //easy, we can add person to this column
+                    this._manualAssignCol3.push(this.ToAddManualMember);
+                    this.UpdateSelectedContact(this.ToAddManualMember.contactId, this.ToAddManualMember.NumberOfItems);
+                    this.ToAddManualMember = null;
+                    return;
+                }
+                else {
+                    //we need to split this person in two: some in this column, some in the next.
+                    //items for this person minus items we can add in current column
+                    const leftover = this.ToAddManualMember.NumberOfItems - (this.workAllocationFromWizardCommand.numberOfItemsToAssign - inCurrentCol);
+                    //new cloned person to add in the next column
+                    const cloned: SelectableContact = this.ToAddManualMember.CloneAndAssingOneItem();
+                    cloned.NumberOfItems = leftover;
+                    this.ToAddManualMember.NumberOfItems = this.ToAddManualMember.NumberOfItems - leftover;
+                    this._manualAssignCol3.push(this.ToAddManualMember);
+                    //can't add the leftover, we don't support _manualAssignCol4
+                    //this._manualAssignCol4.push(cloned);
+                    //leftover is a throwaway
+                    this.UpdateSelectedContact(this.ToAddManualMember.contactId, this.ToAddManualMember.NumberOfItems);
+                    this.ToAddManualMember = null;
+                    return;
+                }
+            }
+        }
+    }
+    private UpdateSelectedContact(id: number, assignedItems: number) {
+        //console.log("UpdateSelectedContact", id, assignedItems);
+        let c = this.SelectedContacts.find(found => found.contactId == id);
+        if (c != undefined) {
+            c.NumberOfItems = assignedItems;
+        }
+    }
+    RemoveLastManualMember() {
+        //contact might appear in 2 columns, so we need to check
+        this.WipePreview();
+        let con: SelectableContact | undefined = undefined;
+        if (this._manualAssignCol3.length > 0) {
+            con = this._manualAssignCol3.pop();
+            if (this._manualAssignCol3.length == 0) {
+                let con2 = this._manualAssignCol2.find(found => con != undefined && found.contactId == con.contactId)
+                if (con2 != undefined) {
+                    this._manualAssignCol2.pop();
+                }
+            }
+            //we also need to reset the pot for this person in this.Contacts
+            let con3 = this.Contacts.find(found => con != undefined && found.contactId == con.contactId);
+            if (con3 != undefined) con3.NumberOfItems = 0;
+            return;
+        }
+        else if (this._manualAssignCol2.length > 0) {
+            con = this._manualAssignCol2.pop();
+            if (this._manualAssignCol2.length == 0) {
+                let con2 = this._manualAssignCol1.find(found => con != undefined && found.contactId == con.contactId)
+                if (con2 != undefined) {
+                    this._manualAssignCol1.pop();
+                }
+            }
+            //we also need to reset the pot for this person in this.Contacts
+            let con3 = this.Contacts.find(found => con != undefined && found.contactId == con.contactId);
+            if (con3 != undefined) con3.NumberOfItems = 0;
+            return;
+        }
+        else if (this._manualAssignCol1.length > 0) {
+            con = this._manualAssignCol1.pop();
+            //we also need to reset the pot for this person in this.Contacts
+            let con3 = this.Contacts.find(found => con != undefined && found.contactId == con.contactId);
+            if (con3 != undefined) con3.NumberOfItems = 0;
+            return;
+        }
+    }
+    DistributeRemainingManualAssignTable() {
+        this.WipePreview();
+        let remaining = this.Contacts.filter(found => found.IsSelected && found.NumberOfItems == 0);
+        const NofPeople = remaining.length;
+        if (NofPeople == 0) return;
+        const NtoAssign = this.ToBeManuallyAssignedStill;
+        let Remainder: number = (NtoAssign) % NofPeople;
+        let itemsPerPerson: number = (NtoAssign - Remainder) / NofPeople;
+        for (let p of remaining) {
+            if (Remainder > 0) {
+                p.NumberOfItems = itemsPerPerson + 1;
+                Remainder--;
+            } else p.NumberOfItems = itemsPerPerson;
+            const toAdd = p.CloneAndAssingOneItem();
+            toAdd.NumberOfItems = p.NumberOfItems;
+            this.ToAddManualMember = toAdd;
+            this.AddManualMemberToTable();
+        }
+    }
+    ResetManualAssignTable() {
+        this.WipePreview();
+        this._manualAssignCol1 = [];
+        this._manualAssignCol2 = [];
+        this._manualAssignCol3 = [];
+        for (let c of this.Contacts) {
+            c.NumberOfItems = 0;
+        }
     }
     SetWorkToDoCodeSet(codeset: ReviewSet) {
         this.WorkToDoSelectedCodeSet = codeset;
-        codeset.codingIsFinal
+        this.workAllocationFromWizardCommand.groupsPrefix = "Coding on '" + this.WorkToDoSelectedCodeSet.name + "'";
         this.workAllocationFromWizardCommand.work_to_do_setID = codeset.set_id;
     }
     SelectMember(member: SelectableContact) {
+        this.ResetStep34();
         member.IsSelected = !member.IsSelected;
     }
     PeoplePerItemChanged() {
@@ -303,13 +601,23 @@ export class WorkAllocationWizardComp implements OnInit, OnDestroy {
         this.ChangeDataEntryModeMessage = "";
         this._CanChangeDataEntryMode = false;
     }
-    ResetStep34() {
-
+    ShowEditCodesPrefixClicked() {
+        if (this.ShowEditCodesPrefix == false && this.workAllocationFromWizardCommand.groupsPrefix == "") {
+            this.workAllocationFromWizardCommand.groupsPrefix = "Coding on '" + this.WorkToDoSelectedCodeSet.name + "'";
+        }
+        this.ShowEditCodesPrefix = !this.ShowEditCodesPrefix;
     }
+    
+
     ClearPot() {
         this.workAllocationFromWizardCommand.numberOfItemsToAssign = -1
     }
-    
+    ResetStep34() {
+        this.ResetManualAssignTable();
+    }
+    WipePreview() {
+        this.WorkAllocWizardResult = null;
+    }
     //public get CurrentCodeCanHaveChildren(): boolean {
     //    //safety first, if anything didn't work as expexcted return false;
     //    if (!this.CanWrite()) return false;
@@ -324,7 +632,8 @@ export class WorkAllocationWizardComp implements OnInit, OnDestroy {
     //    else return this.ReviewSetsService.selectedNode;
     //}
    
-    CancelActivity() {
+    Cancel() {
+        this.emitterCancel.emit();
     }
     
     ngOnDestroy() {
@@ -334,5 +643,14 @@ class SelectableContact extends Contact {
     IsSelected: boolean = false;
     //contactName: string = '';
     //contactId: number = 0;
+    NumberOfItems: number = 0;
+    CloneAndAssingOneItem(): SelectableContact {
+        let res: SelectableContact = new SelectableContact();
+        res.contactId = this.contactId;
+        res.contactName = this.contactName;
+        res.NumberOfItems = 1;
+        return res;
+    }
 }
+
 
