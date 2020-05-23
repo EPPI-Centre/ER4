@@ -27,51 +27,61 @@
                     class="btn btn-success">Run Matching Algorithm</button>
         </div>
         <div class="p-2 m-2 ">
-            <div>
-                All matched included records
-                <div class="btn btn-link p-0 m-0 col-4" (click)="MAGBrowser('MatchedIncluded')">
-                    {{_magAdvancedService.AdvancedReviewInfo.nMatchedAccuratelyIncluded}}
-                </div>
-                <div class="btn btn-link  p-0 m-0 " (click)="OpenMatchesInReview('MatchedIncluded')">
-                    (List Papers)
-                </div>
-            </div>
-            <div>
-                All matched excluded records
-                <div class="btn btn-link p-0 m-0 col-4" (click)="MAGBrowser('MatchedExcluded')">
-                    {{_magAdvancedService.AdvancedReviewInfo.nMatchedAccuratelyExcluded}}
-                </div>
-                <div class="btn btn-link  p-0 m-0 " (click)="OpenMatchesInReview('MatchedExcluded')">
-                    (List Papers)
-                </div>
-            </div>
-            <div>
-                All matched records in review
-                <div class="btn btn-link p-0 m-0 col-4" (click)="MAGBrowser('MatchedAll')">
-                    {{_magAdvancedService.AdvancedReviewInfo.nMatchedAccuratelyIncluded + _magAdvancedService.AdvancedReviewInfo.nMatchedAccuratelyExcluded}}
-                </div>
-            </div>
+            <table class="col-12 border border-black alert-primary tabel table-striped" >
+                <thead>
+                    <tr>
+                        <th>All matched included records</th>
+                        <th>All matched excluded records</th>
+                        <th>All matched records in review</th>
+                        <th>Low confidence matched items</th>
+                        <th>Records that could not be matched</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <div class="btn btn-link p-2 m-2 " (click)="MAGBrowser('MatchedIncluded')">
+                                {{_magAdvancedService.AdvancedReviewInfo.nMatchedAccuratelyIncluded}}
+                            </div>
+                            <div class="btn btn-link  p-2 m-2 col-2" (click)="OpenMatchesInReview('MatchedIncluded')">
+                                (List Papers)
+                            </div>
+                        </td>
+                        <td>
 
-            <div>
-                Low confidence matched items &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            <div class="btn btn-link  p-2 m-2 " (click)="MAGBrowser('MatchedExcluded')">
+                                {{_magAdvancedService.AdvancedReviewInfo.nMatchedAccuratelyExcluded}}
+                            </div>
+                            <div class="btn btn-link p-2 m-2 col-2" (click)="OpenMatchesInReview('MatchedExcluded')">
+                                (List Papers)
+                            </div>
+                        </td>
+                        <td>
 
-                <div class=" btn btn-link p-0 m-0 col-3" (click)="OpenMatchesInReview('MagMatchesNeedingCheckingInc')">
-                    Included: {{_magAdvancedService.AdvancedReviewInfo.nRequiringManualCheckIncluded}}
-                </div>
+                            <div class="btn btn-link  p-2 m-2  " (click)="MAGBrowser('MatchedAll')">
+                                {{_magAdvancedService.AdvancedReviewInfo.nMatchedAccuratelyIncluded + _magAdvancedService.AdvancedReviewInfo.nMatchedAccuratelyExcluded}}
+                            </div>
+                        </td>
+                        <td>
+                            <div class=" btn btn-link  p-2 m-2 " (click)="OpenMatchesInReview('MagMatchesNeedingCheckingInc')">
+                                Included: {{_magAdvancedService.AdvancedReviewInfo.nRequiringManualCheckIncluded}}
+                            </div>
 
-                <div class=" btn btn-link p-0 m-0 " (click)="OpenMatchesInReview('MagMatchesNeedingCheckingExc')">
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Excluded:  {{_magAdvancedService.AdvancedReviewInfo.nRequiringManualCheckExcluded}}
-                </div>
-            </div>
-            <div>
-                Records that could not be matched 
-                <div class=" btn btn-link p-0 m-0 col-3" (click)="OpenMatchesInReview('MagMatchesNotMatchedInc')">
-                    Included:  {{_magAdvancedService.AdvancedReviewInfo.nNotMatchedIncluded}}
-                </div>
-                <div class=" btn btn-link p-0 m-0 col-2" (click)="OpenMatchesInReview('MagMatchesNotMatchedExc')">
-                    Excluded:  {{_magAdvancedService.AdvancedReviewInfo.nNotMatchedExcluded}}
-                </div>
-            </div>
+                            <div class=" btn btn-link p-2 m-2 col-2" (click)="OpenMatchesInReview('MagMatchesNeedingCheckingExc')">
+                                Excluded:  {{_magAdvancedService.AdvancedReviewInfo.nRequiringManualCheckExcluded}}
+                            </div>
+                        </td>
+                        <td>
+                            <div class=" btn btn-link  p-2 m-2 " (click)="OpenMatchesInReview('MagMatchesNotMatchedInc')">
+                                Included:  {{_magAdvancedService.AdvancedReviewInfo.nNotMatchedIncluded}}
+                            </div>
+                            <div class=" btn btn-link p-2 m-2 col-2" (click)="OpenMatchesInReview('MagMatchesNotMatchedExc')">
+                                Excluded:  {{_magAdvancedService.AdvancedReviewInfo.nNotMatchedExcluded}}
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
     </div>
 
@@ -138,10 +148,10 @@
 
                 <div class="col-12 row alert-warning p-2 m-2">
 
-                    <input class="col-12" type="text" id="SearchTextTopics" (change)="UpdateTopicResults($event)"
+                    <input class="col-6" type="text" id="SearchTextTopics" (change)="UpdateTopicResults($event)"
                            placeholder="Search for topics here.  Entry of Wildcards work, e.g. physic* " />
 
-                    <div class="row " style="max-width:1250px;overflow:auto;">
+                    <div class="row " style="max-width:1450px;overflow:auto;">
                         <div *ngFor="let item of SearchTextTopicsResults" class="list-group">
                             <div (click)="FOSMAGBrowserNavigate(item.displayName, item.fieldOfStudyId)" class="col-3 btn border border-0"
                                  [ngStyle]="{ 'font-size.em': item.fontSize,'background-color': 'light-blue', 'color': 'black'}">
@@ -150,7 +160,5 @@
                         </div>
                     </div>
                 </div>
-            </div>
-
-
+    </div>
 <statusbar></statusbar>

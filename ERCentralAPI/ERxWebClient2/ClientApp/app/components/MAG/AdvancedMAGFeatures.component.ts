@@ -72,7 +72,7 @@ export class AdvancedMAGFeaturesComponent implements OnInit, OnDestroy {
     @ViewChild('WithOrWithoutCodeSelector2') WithOrWithoutCodeSelector2!: codesetSelectorComponent;
 
 
-    private _RunAlgorithmFirst: boolean = false;
+
     public CurrentDropdownSelectedCode3: singleNode | null = null;
     public CurrentDropdownSelectedCode2: singleNode | null = null;
     public ItemsWithCode: boolean = false;
@@ -171,7 +171,7 @@ export class AdvancedMAGFeaturesComponent implements OnInit, OnDestroy {
         this._magAdvancedService.FetchMagReviewMagInfo();
     }
     public CanAddSimulation(): boolean {
-        return this._RunAlgorithmFirst == true;
+        return this._magAdvancedService._RunAlgorithmFirst == true;
 
     }
 

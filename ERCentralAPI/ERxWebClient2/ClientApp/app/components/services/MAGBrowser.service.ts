@@ -177,7 +177,7 @@ export class MAGBrowserService extends BusyAwareService {
 
                                 if (criteria.listType == 'FieldOfStudyParentsList') {
                                     if (i > 0.1) {
-                                        i -= 0.01;
+                                        i -= 0.005;
                                     }
                                     item.fontSize = i;
                                     this.WPParentTopics.push(item);
@@ -185,7 +185,7 @@ export class MAGBrowserService extends BusyAwareService {
 
                                 } else {
                                     if (j > 0.1) {
-                                        j -= 0.01;
+                                        j -= 0.005;
                                     }
                                     item.fontSize = j;
                                     this.WPChildTopics.push(item);

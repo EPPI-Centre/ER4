@@ -74,7 +74,7 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
     @ViewChild('WithOrWithoutCodeSelector2') WithOrWithoutCodeSelector2!: codesetSelectorComponent;
 
 
-    private _RunAlgorithmFirst: boolean = false;
+
     public CurrentDropdownSelectedCode3: singleNode | null = null;
     public CurrentDropdownSelectedCode2: singleNode | null = null;
     public ItemsWithCode: boolean = false;
@@ -169,10 +169,10 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
 
         this._magAdvancedService.FetchMagReviewMagInfo();
     }
-    public CanAddSimulation(): boolean {
-        return this._RunAlgorithmFirst == true;
+    //public CanAddSimulation(): boolean {
+    //    return this._RunAlgorithmFirst == true;
 
-    }
+    //}
 
     // ******************************* Find topics using search box ********************************
     //public WPFindTopics: MagFieldOfStudy[] = [];
@@ -325,7 +325,7 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
                     } else {
                        res =  this._magAdvancedService.RunMatchingAlgorithm(0);
                     }
-                    this._RunAlgorithmFirst = true;
+                    this._magAdvancedService._RunAlgorithmFirst = true;
 
                     if (res != "erorr") {
                         this._magBasicService.showMAGRunMessage('MAG Matching can take a while...');

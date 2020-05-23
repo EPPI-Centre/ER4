@@ -21,7 +21,7 @@ export class MAGAdvancedService extends BusyAwareService {
     ) {
         super();
     }
-   
+    public _RunAlgorithmFirst: boolean = false;
     public ReviewMatchedPapersList: MagPaper[] = [];
     public AdvancedReviewInfo: MagReviewMagInfo = new MagReviewMagInfo();
     public currentMagPaper: MagPaper = new MagPaper();
