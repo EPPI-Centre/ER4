@@ -6,7 +6,7 @@ import { codesetSelectorComponent } from '../CodesetTrees/codesetSelector.compon
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Router, NavigationEnd } from '@angular/router';
-import { ClassifierContactModel, MVCMagPaperListSelectionCriteria, MagSimulation, MagFieldOfStudy, MvcMagFieldOfStudyListSelectionCriteria } from '../services/MAGClasses.service';
+import { ClassifierContactModel,  MagSimulation, MagFieldOfStudy, TopicLink } from '../services/MAGClasses.service';
 import { EventEmitterService } from '../services/EventEmitter.service';
 import { MAGBrowserService } from '../services/MAGBrowser.service';
 import { MAGAdvancedService } from '../services/magAdvanced.service';
@@ -38,7 +38,6 @@ export class AdvancedMAGFeaturesComponent implements OnInit, OnDestroy {
     ) {
 
         this.history = this._routingStateService.getHistory();
-        //console.log('testing URL: ', this.history);
     }
     private takeOneNumber: Observable<number> = new Observable<number>();
     private subsc: Subscription = new Subscription();
@@ -70,8 +69,6 @@ export class AdvancedMAGFeaturesComponent implements OnInit, OnDestroy {
     }
     @ViewChild('WithOrWithoutCodeSelector3') WithOrWithoutCodeSelector3!: codesetSelectorComponent;
     @ViewChild('WithOrWithoutCodeSelector2') WithOrWithoutCodeSelector2!: codesetSelectorComponent;
-
-
 
     public CurrentDropdownSelectedCode3: singleNode | null = null;
     public CurrentDropdownSelectedCode2: singleNode | null = null;
@@ -119,9 +116,7 @@ export class AdvancedMAGFeaturesComponent implements OnInit, OnDestroy {
     public magMode: string = '';
     public filterOn: string = 'false';
     public AdvancedFeatures() {
-
         this.router.navigate(['AdvancedMAGFeatures']);
-
     }
     public Forward() {
         this._location.forward();
@@ -151,7 +146,6 @@ export class AdvancedMAGFeaturesComponent implements OnInit, OnDestroy {
     public Admin() {
         this.router.navigate(['MAGAdmin']);
     }
-    
     public ToggleMAGPanel(): void {
         this.ShowPanel = !this.ShowPanel;
     }
@@ -166,18 +160,14 @@ export class AdvancedMAGFeaturesComponent implements OnInit, OnDestroy {
 
         this.ShowGraphViewer = !this.ShowGraphViewer;
     }
-    GetMagReviewMagInfoCommand() {
+    public GetMagReviewMagInfoCommand() {
 
         this._magAdvancedService.FetchMagReviewMagInfo();
     }
     public CanAddSimulation(): boolean {
         return this._magAdvancedService._RunAlgorithmFirst == true;
 
-    }
-
-    // ******************************* Find topics using search box ********************************
-    //public WPFindTopics: MagFieldOfStudy[] = [];
-    //public tbFindTopics: string = '';
+    }    
     public UpdateTopicResults(event: any) {
 
         let enteredSearchString: string = event.target.value;
@@ -222,7 +212,6 @@ export class AdvancedMAGFeaturesComponent implements OnInit, OnDestroy {
             this.SearchTextTopicsResults = [];
         }
     }
-
     public CleanText(text: string): string {
         let rgx: RegExp = new RegExp('[^a-zA-Z0-9 ]');
 
@@ -250,15 +239,10 @@ export class AdvancedMAGFeaturesComponent implements OnInit, OnDestroy {
                     });
             });
     }
-    
-
     public AddSimulation(): void {
 
         let newMagSimulation: MagSimulation = new MagSimulation();
-
         if (this.splitDataOn == 'Year') {
-
-            //console.log(this.kendoDateValue.getFullYear());
             newMagSimulation.year = this.kendoDateValue.getFullYear();
 
         } else if (this.splitDataOn == 'CreatedDate') {
@@ -306,7 +290,6 @@ export class AdvancedMAGFeaturesComponent implements OnInit, OnDestroy {
             });
     }
     public GetClassifierContactModelList(): void {
-
         this._magAdvancedService.FetchClassifierContactModelList();
     }
     //public RunMatchingAlgo() {
@@ -338,20 +321,6 @@ export class AdvancedMAGFeaturesComponent implements OnInit, OnDestroy {
             //this._eventEmitter.MAGAllocationClicked.emit();
         }
     }
-    //public MAGBrowser(listType: string) {
-    //    if (listType == 'MatchedIncluded') {
-    //        this.GetMatchedMagIncludedList();
-
-    //    } else if (listType == 'MatchedExcluded') {
-    //        this.GetMatchedMagExcludedList();
-
-    //    } else if (listType == 'MatchedAll') {
-    //        this.GetMatchedMagAllList();
-
-    //    } else if (listType == 'MatchedWithThisCode') {
-    //        this.GetMatchedMagWithCodeList();
-    //    }
-    //}
     public DeleteSimulation(item: MagSimulation) {
         if (item != null) {
             this.ConfirmationDialogService.confirm("Deleting the selected MAG simulation",
@@ -363,102 +332,51 @@ export class AdvancedMAGFeaturesComponent implements OnInit, OnDestroy {
                 });
         }
     }
-    //public GetMatchedMagIncludedList(): void {
+    //public CanGetCodeMatches(): boolean {
 
-    //    let criteria: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
-    //    criteria.listType = "ReviewMatchedPapers";
-    //    criteria.included = "Included";
-    //    criteria.pageSize = 20;
-    //    this._magBrowserService.FetchWithCrit(criteria, "ReviewMatchedPapers").then(
-           
-    //        () => {
-
-    //            let criteria2: MVCMagFieldOfStudyListSelectionCriteria = new MVCMagFieldOfStudyListSelectionCriteria();
-    //            criteria2.fieldOfStudyId = 0;
-    //            criteria2.listType = 'PaperFieldOfStudyList';
-    //            criteria2.paperIdList = this._magBrowserService.ListCriteria.paperIds;
-    //            criteria2.SearchTextTopics = ''; //TODO this will be populated by the user..
-    //            this._magBrowserService.FetchMagFieldOfStudyList(criteria2, 'ReviewMatchedPapers').then(
-
-    //                () => { this.router.navigate(['MAGBrowser']); }
-    //            );
-    //        }
-    //    );
+    //    if (this.CurrentDropdownSelectedCode2 != null) {
+    //        return true;
+    //    } else {
+    //        return false;
+    //    }
 
     //}
-    //public GetMatchedMagExcludedList() {
+    //public GetMatchedMagWithCodeList() {
 
-    //    let criteria: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
-    //    criteria.listType = "ReviewMatchedPapers";
-    //    criteria.included = "Excluded";
-    //    criteria.pageSize = 20;
+    //    if (this.CurrentDropdownSelectedCode2 != null) {
 
-    //    this._magAdvancedService.FetchMagPaperList(criteria).then(
-    //        () => {
-    //            this.router.navigate(['MAGBrowser']);
-    //        }
-    //    );
+    //        let criteria: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
+    //        criteria.listType = "ReviewMatchedPapersWithThisCode";
+    //        var att = this.CurrentDropdownSelectedCode2 as SetAttribute;
+    //        criteria.attributeIds = att.attribute_id.toString();
+    //        criteria.pageSize = 20;
+    //        console.log('got in here');
 
-    //}
-    //public GetMatchedMagAllList() {
-
-    //    let criteria: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
-    //    criteria.listType = "ReviewMatchedPapers";
-    //    criteria.included = "All";
-    //    criteria.pageSize = 20;
-    //    this._magAdvancedService.CurrentCriteria = criteria;
-    //    this._magAdvancedService.FetchMagPaperList(criteria).then(
-    //        () => {
-    //            this.router.navigate(['MAGBrowser']);
-    //        }
-    //    );
+    //        this._magAdvancedService.FetchMagPaperList(criteria).then(
+    //            () => {
+    //                this.router.navigate(['MAGBrowser']);
+    //            }
+    //        );
+    //    }
 
     //}
-    public CanGetCodeMatches(): boolean {
+    //public CanGetMagPaper(): boolean {
 
-        if (this.CurrentDropdownSelectedCode2 != null) {
-            return true;
-        } else {
-            return false;
-        }
+    //    if (this.magPaperId != null && this.magPaperId > 0) {
+    //        return true;
+    //    } else {
+    //        return false;
+    //    }
 
-    }
-    public GetMatchedMagWithCodeList() {
+    //}
+    //public GetMagPaper() {
 
-        if (this.CurrentDropdownSelectedCode2 != null) {
+    //    this._magAdvancedService.FetchMagPaperId(this.magPaperId).then(
 
-            let criteria: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
-            criteria.listType = "ReviewMatchedPapersWithThisCode";
-            var att = this.CurrentDropdownSelectedCode2 as SetAttribute;
-            criteria.attributeIds = att.attribute_id.toString();
-            criteria.pageSize = 20;
-            console.log('got in here');
+    //        () => { this.router.navigate(['MAGBrowser']); }
 
-            this._magAdvancedService.FetchMagPaperList(criteria).then(
-                () => {
-                    this.router.navigate(['MAGBrowser']);
-                }
-            );
-        }
-
-    }
-    public CanGetMagPaper(): boolean {
-
-        if (this.magPaperId != null && this.magPaperId > 0) {
-            return true;
-        } else {
-            return false;
-        }
-
-    }
-    public GetMagPaper() {
-
-        this._magAdvancedService.FetchMagPaperId(this.magPaperId).then(
-
-            () => { this.router.navigate(['MAGBrowser']); }
-
-        );
-    }
+    //    );
+    //}
     CanOnlySelectRoots() {
         return true;
     }
@@ -528,16 +446,6 @@ export class AdvancedMAGFeaturesComponent implements OnInit, OnDestroy {
         }
     }
     public GetMagSimulationList() {
-
         this._magAdvancedService.FetchMagSimulationList();
     }
-
-}
-
-export class TopicLink {
-
-    displayName: string = '';
-    fontSize: number = 0;
-    callToFOS: string = '';
-    fieldOfStudyId: number = 0;
 }

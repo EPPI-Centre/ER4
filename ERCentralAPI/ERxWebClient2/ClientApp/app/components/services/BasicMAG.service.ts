@@ -23,21 +23,18 @@ export class BasicMAGService extends BusyAwareService {
     }
     public MagPaperList: MagPaperList = new MagPaperList();
     public MagRelatedRunPapers: MagPaper[] = [];
+    private _MagRelatedPapersRunList: MagRelatedPapersRun[] = [];
+    private _MagItemPaperInsert: MagItemPaperInsertCommand = new MagItemPaperInsertCommand();
 
-	private _MagRelatedPapersRunList: MagRelatedPapersRun[] = [];
-		
 	public get MagRelatedPapersRunList(): MagRelatedPapersRun[] {
 
 		return this._MagRelatedPapersRunList;
 
 	}
-
 	public set MagRelatedPapersRunList(magRun: MagRelatedPapersRun[]) {
 		this._MagRelatedPapersRunList = magRun;
 
     }
-
-    private _MagItemPaperInsert: MagItemPaperInsertCommand = new MagItemPaperInsertCommand();
 
     public get MagItemPaperInsert(): MagItemPaperInsertCommand{
 
@@ -173,25 +170,6 @@ export class BasicMAGService extends BusyAwareService {
     }
     ImportMagRelatedRunPapers(magRelatedRun: MagRelatedPapersRun) {
 
-        console.log('basic mag service 5 test for magRun: ', magRelatedRun);
-
-        //let magTestRun: MagRelatedPapersRun = new MagRelatedPapersRun();
-        //magTestRun.allIncluded = false;
-        //magTestRun.attributeId = 116539;
-        //magTestRun.attributeName = "INCLUDE";
-        //magTestRun.autoReRun = false;
-        //magTestRun.dateFrom = "24/03/2000";
-        //magTestRun.dateRun = "02/03/2020";
-        //magTestRun.filtered = "NoFilter";
-        //magTestRun.magRelatedRunId = 10;
-        //magTestRun.mode = "Recommendations";
-        //magTestRun.nPapers = 51122;
-        //magTestRun.reviewIdId = 4503;
-        //magTestRun.status = "Complete";
-        //magTestRun.userDescription = "test zero link";
-        //magTestRun.userStatus = "Checked";
-
-
         let notificationMsg: string = '';
         this._BusyMethods.push("ImportMagRelatedRunPapers");
         this._httpC.post<MagItemPaperInsertCommand>(this._baseUrl + 'api/MagRelatedPapersRunList/ImportMagRelatedPapers',
@@ -200,9 +178,6 @@ export class BasicMAGService extends BusyAwareService {
 
                 this.RemoveBusy("ImportMagRelatedRunPapers");
                 this.MagItemPaperInsert = result;
-
-                console.log('bRRRRRRRR: ', result);
-
                 if (result.nImported != null) {
 
                 
@@ -257,7 +232,6 @@ export class BasicMAGService extends BusyAwareService {
                 } else {
                     this.showMAGRunMessage('User status is: ' + result.userStatus);
                 }
-                
 
             }, error => {
                 this.RemoveBusy("UpdateMagRelatedRun");

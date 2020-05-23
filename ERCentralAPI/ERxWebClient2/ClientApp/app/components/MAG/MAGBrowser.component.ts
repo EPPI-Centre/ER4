@@ -3,10 +3,11 @@ import { Location } from '@angular/common';
 import { searchService } from '../services/search.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Router, NavigationEnd } from '@angular/router';
-import { MVCMagPaperListSelectionCriteria, MagPaper, MvcMagFieldOfStudyListSelectionCriteria, MagFieldOfStudy, MagList } from '../services/MAGClasses.service';
+import { MagPaper,  MagFieldOfStudy } from '../services/MAGClasses.service';
 import { MAGBrowserService } from '../services/MAGBrowser.service';
 import { MAGAdvancedService } from '../services/magAdvanced.service';
 import { MAGBrowserHistoryService } from '../services/MAGBrowserHistory.service';
+import { NotificationService } from '@progress/kendo-angular-notification';
 
 
 @Component({
@@ -24,6 +25,7 @@ export class MAGBrowser implements OnInit, OnDestroy {
         private _ReviewerIdentityServ: ReviewerIdentityService,
         private _routingStateService: MAGBrowserHistoryService,
         private _location: Location,
+        public _notificationService: NotificationService,
         private router: Router
     ) {
 
@@ -41,13 +43,24 @@ export class MAGBrowser implements OnInit, OnDestroy {
         this.browsingHistory = this._routingStateService.getHistory();
         
     }
-
     ngOnDestroy() {
 
         this._magBrowserService.Clear();
         this.Clear();
     }
+    showMAGRunMessage(notifyMsg: string) {
 
+        this._notificationService.show({
+            content: notifyMsg,
+            animation: { type: 'slide', duration: 400 },
+            position: { horizontal: 'center', vertical: 'top' },
+            type: { style: "info", icon: true },
+            closable: true
+        });
+    }
+    public AdvancedFeatures() {
+        this.router.navigate(['AdvancedMAGFeatures']);
+    }
     public ImportSelected() {
 
         alert('not implemented yet!');
@@ -85,7 +98,6 @@ export class MAGBrowser implements OnInit, OnDestroy {
         }
     }
     public ClearSelected() {
-        //this is not efficient but may not matter on such a small list
         for (var i = 0; i < this._magBrowserService.MAGList.papers.length; i++) {
            this._magBrowserService.MAGList.papers[i].isSelected = false;
         }
@@ -163,7 +175,7 @@ export class MAGBrowser implements OnInit, OnDestroy {
         }
         else {
 
-            console.log("This paper is already in your review");
+            this.showMAGRunMessage("This paper is already in your review");
         }
 
     }
@@ -192,8 +204,4 @@ export class MAGBrowser implements OnInit, OnDestroy {
             return false;
         }
     }
-    public AdvancedFeatures() {
-        this.router.navigate(['AdvancedMAGFeatures']);
-    }
-         
 }

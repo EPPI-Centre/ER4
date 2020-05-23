@@ -6,7 +6,7 @@ import { codesetSelectorComponent } from '../CodesetTrees/codesetSelector.compon
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Router, NavigationEnd } from '@angular/router';
-import { ClassifierContactModel, MVCMagPaperListSelectionCriteria, MagSimulation, MagFieldOfStudy, MvcMagFieldOfStudyListSelectionCriteria, MagPaper } from '../services/MAGClasses.service';
+import { ClassifierContactModel, MVCMagPaperListSelectionCriteria, MagSimulation, MagFieldOfStudy, MvcMagFieldOfStudyListSelectionCriteria, MagPaper, TopicLink } from '../services/MAGClasses.service';
 import { EventEmitterService } from '../services/EventEmitter.service';
 import { MAGBrowserService } from '../services/MAGBrowser.service';
 import { MAGAdvancedService } from '../services/magAdvanced.service';
@@ -15,7 +15,6 @@ import { MAGBrowserHistoryService } from '../services/MAGBrowserHistory.service'
 import { Observable, interval, Subscription } from 'rxjs';
 import { take } from 'rxjs/operators'
 import { BasicMAGService } from '../services/BasicMAG.service';
-
 
 @Component({
     selector: 'MatchingMAGItems',
@@ -40,10 +39,8 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
     ) {
 
         this.history = this._routingStateService.getHistory();
-        //console.log('testing URL: ', this.history);
     }
-    private takeOneNumber: Observable<number> = new Observable<number>();
-    private subsc: Subscription = new Subscription();
+   
     ngOnInit() {
 
         if (this._ReviewerIdentityServ.reviewerIdentity.userId == 0 ||
@@ -61,7 +58,7 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
                 { console.log(' ' + x) }
             );
             this.GetMagReviewMagInfoCommand();
-            this.GetMagSimulationList();
+            //this.GetMagSimulationList();
             this.GetClassifierContactModelList();
         }
     }
@@ -72,13 +69,12 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
     }
     @ViewChild('WithOrWithoutCodeSelector3') WithOrWithoutCodeSelector3!: codesetSelectorComponent;
     @ViewChild('WithOrWithoutCodeSelector2') WithOrWithoutCodeSelector2!: codesetSelectorComponent;
-
-
-
+    
+    private takeOneNumber: Observable<number> = new Observable<number>();
+    private subsc: Subscription = new Subscription();
     public CurrentDropdownSelectedCode3: singleNode | null = null;
     public CurrentDropdownSelectedCode2: singleNode | null = null;
     public ItemsWithCode: boolean = false;
-    //public MAGItems: any[] = [];
     public ShowPanel: boolean = false;
     public dropdownBasic2: boolean = false;
     public dropdownBasic3: boolean = false;
@@ -150,7 +146,6 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
     public Admin() {
         this.router.navigate(['MAGAdmin']);
     }
-    
     public ToggleMAGPanel(): void {
         this.ShowPanel = !this.ShowPanel;
     }
@@ -169,14 +164,6 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
 
         this._magAdvancedService.FetchMagReviewMagInfo();
     }
-    //public CanAddSimulation(): boolean {
-    //    return this._RunAlgorithmFirst == true;
-
-    //}
-
-    // ******************************* Find topics using search box ********************************
-    //public WPFindTopics: MagFieldOfStudy[] = [];
-    //public tbFindTopics: string = '';
     public UpdateTopicResults(event: any) {
 
         let enteredSearchString: string = event.target.value;
@@ -221,7 +208,6 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
             this.SearchTextTopicsResults = [];
         }
     }
-
     public CleanText(text: string): string {
         let rgx: RegExp = new RegExp('[^a-zA-Z0-9 ]');
 
@@ -253,8 +239,6 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
                     });
             });
     }
-    
-
     public AddSimulation(): void {
 
         let newMagSimulation: MagSimulation = new MagSimulation();
@@ -342,7 +326,6 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
         if (listType != null) {
             this.ListSubType = listType;
             this._eventEmitter.criteriaMAGChange.emit(listType);
-            //this._eventEmitter.MAGAllocationClicked.emit();
         }
     }
     public OpenResultsInReview(listType: string, magSimId: number) {
@@ -352,7 +335,6 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
             this._magAdvancedService.CurrentMagSimId = magSimId;
             this.ListSubType = listType;
             this._eventEmitter.criteriaMAGChange.emit(listType);
-            //this._eventEmitter.MAGAllocationClicked.emit();
         }
     }
     public MAGBrowser(listType: string) {
@@ -506,7 +488,6 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
 
     }
     public CanDeleteMAGRun(): boolean {
-        // other params like existence need to be checked here!!!!!!!!!!!!!!!!!!!!!
         return this.HasWriteRights;
     }
     public CanAddNewMAGSearch(): boolean {
@@ -518,47 +499,40 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
             return false;
         }
     }
-    public ClickSearchMode(searchModeChoice: string) {
+    //public ClickSearchMode(searchModeChoice: string) {
 
-        switch (searchModeChoice) {
+    //    switch (searchModeChoice) {
 
-            case '1':
-                this.magMode = 'Recommended by';
-                break;
-            case '2':
-                this.magMode = 'That recommend';
-                break;
-            case '3':
-                this.magMode = 'Recommendations';
-                break;
-            case '4':
-                this.magMode = 'Bibliography';
-                break;
-            case '5':
-                this.magMode = 'Cited by';
-                break;
-            case '6':
-                this.magMode = 'Bi-Citation';
-                break;
-            case '7':
-                this.magMode = 'Bi-Citation AND Recommendations';
-                break;
+    //        case '1':
+    //            this.magMode = 'Recommended by';
+    //            break;
+    //        case '2':
+    //            this.magMode = 'That recommend';
+    //            break;
+    //        case '3':
+    //            this.magMode = 'Recommendations';
+    //            break;
+    //        case '4':
+    //            this.magMode = 'Bibliography';
+    //            break;
+    //        case '5':
+    //            this.magMode = 'Cited by';
+    //            break;
+    //        case '6':
+    //            this.magMode = 'Bi-Citation';
+    //            break;
+    //        case '7':
+    //            this.magMode = 'Bi-Citation AND Recommendations';
+    //            break;
 
-            default:
-                break;
-        }
-    }
-    public GetMagSimulationList() {
+    //        default:
+    //            break;
+    //    }
+    //}
+    //public GetMagSimulationList() {
 
-        this._magAdvancedService.FetchMagSimulationList();
-    }
+    //    this._magAdvancedService.FetchMagSimulationList();
+    //}
 
 }
 
-export class TopicLink {
-
-    displayName: string = '';
-    fontSize: number = 0;
-    callToFOS: string = '';
-    fieldOfStudyId: number = 0;
-}

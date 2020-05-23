@@ -20,9 +20,6 @@ export class MAGBrowserHistoryService {
         private router: Router
 
     ) { }
-
-
-
     public loadRouting(): void {
 
         console.log('loading routing');
@@ -40,7 +37,6 @@ export class MAGBrowserHistoryService {
     }
 
     public getHistory(): NavigationEnd[] {
-
         return this.history;
 
     }
@@ -48,17 +44,12 @@ export class MAGBrowserHistoryService {
 
         this.history = [];
     }
-
     public getPreviousUrl(): NavigationEnd {
 
         return this.history[this.history.length - 2] || '/index';
-
     }
-
     public UnsubscribeMAGHistory() {
 
         this.MAGSubscription.unsubscribe();
-
     }
-
 }

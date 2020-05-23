@@ -226,7 +226,7 @@ export class MagSimulation {
     tn: number = 0;
 }
 
-export class KeyValue {//used in more than one place...
+export class KeyValue {
     constructor(k: string, v: string) {
         this.key = k;
         this.value = v;
@@ -234,4 +234,13 @@ export class KeyValue {//used in more than one place...
     key: string;
     value: string;
 }
+
+export class TopicLink {
+
+    displayName: string = '';
+    fontSize: number = 0;
+    callToFOS: string = '';
+    fieldOfStudyId: number = 0;
+}
+
 
