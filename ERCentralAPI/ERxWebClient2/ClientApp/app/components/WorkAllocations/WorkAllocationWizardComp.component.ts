@@ -339,8 +339,7 @@ export class WorkAllocationWizardComp implements OnInit, OnDestroy {
             //console.log("WorkAllocWizardResult", result);
             if (result.isSuccess) this.WorkAllocWizardResult = result;
             else {
-
-                this.modalService.GenericErrorMessage("Gettin the preview failed, this usually happens when the situation changed and the list of items you want to assign is now different.");
+                this.ErrorAndBackToStart();
             }
         }
         else {
@@ -351,10 +350,16 @@ export class WorkAllocationWizardComp implements OnInit, OnDestroy {
                 this.ReviewSetsService.GetReviewSets(false);
                 this.Cancel();
             } else {
-                this.modalService.GenericErrorMessage("Gettin the preview failed, this usually happens when the situation changed and the list of items you want to assign is now different.");
-                this.ResetStep34();
+                this.ErrorAndBackToStart();
             }
         }
+    }
+    ErrorAndBackToStart() {
+        this.modalService.GenericErrorMessage("Gettin the preview failed, this usually happens when the situation changed and the list of items you want to assign is now different. Please start again.");
+        this.ResetStep34();
+        this.ClearPot();
+        this.PreviousStep();
+        this.PreviousStep();
     }
     ShowAddManualMember(member: SelectableContact) {
         this.ToAddManualMember = member.CloneAndAssingOneItem();
