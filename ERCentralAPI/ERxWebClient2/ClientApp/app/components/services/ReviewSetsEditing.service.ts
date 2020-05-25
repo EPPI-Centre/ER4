@@ -138,16 +138,21 @@ export class ReviewSetsEditingService extends BusyAwareService {
                 return null;
             });
     }
-    public AttributeOrSetDeleteCheck(SetId: number, AttributeSetId:number): Promise<number> {//get how many items have coding in a codeset or section therein
+    public AttributeOrSetDeleteCheck(SetId: number, AttributeSetId: number): Promise<AttributeSetDeleteWarningCommandResult> {//get how many items have coding in a codeset or section therein
         this._BusyMethods.push("AttributeOrSetDeleteCheck");
         let ErrMsg = "Something went wrong: could not check how many items would be affected. \r\n If the problem persists, please contact EPPISupport.";
         let body: AttributeOrSetDeleteCheckCommandJSON = {
             attributeSetId: AttributeSetId,
             setId: SetId
         };
-        return this._httpC.post<number>(this._baseUrl + 'api/Codeset/AttributeOrSetDeleteCheck', body).toPromise()
+        const errorRes: AttributeSetDeleteWarningCommandResult = {
+            numItems: -1,
+            numAllocations: -1
+        }
+
+        return this._httpC.post<AttributeSetDeleteWarningCommandResult>(this._baseUrl + 'api/Codeset/AttributeOrSetDeleteCheck', body).toPromise()
             .then(
-                (result) => {
+            (result) => {
                     //console.log("ReviewSetCheckCodingStatus", result);
                     this.RemoveBusy("AttributeOrSetDeleteCheck");
                     return result;
@@ -156,7 +161,7 @@ export class ReviewSetsEditingService extends BusyAwareService {
                     console.log("AttributeOrSetDeleteCheck Err", error);
                     this.RemoveBusy("AttributeOrSetDeleteCheck");
                     this.modalService.GenericErrorMessage(ErrMsg);
-                    return -1;
+                    return errorRes;
                 }
             )
             .catch(
@@ -164,7 +169,7 @@ export class ReviewSetsEditingService extends BusyAwareService {
                     console.log("AttributeOrSetDeleteCheck catch", error);
                     this.RemoveBusy("AttributeOrSetDeleteCheck");
                     this.modalService.GenericErrorMessage(ErrMsg);
-                    return -1;
+                    return errorRes;
                 }
             );
     }
@@ -1078,6 +1083,10 @@ export interface AttributeDeleteCommand {
 export interface AttributeOrSetDeleteCheckCommandJSON {
     attributeSetId: number;
     setId: number;
+}
+export interface AttributeSetDeleteWarningCommandResult {
+    numItems: number;
+    numAllocations: number;
 }
 export class Attribute4Saving {
     attributeSetId: number = 0;

@@ -94,7 +94,10 @@ export class ReviewSetsEditorComponent implements OnInit, OnDestroy {
     public get appliedCodes(): number {
         return this._appliedCodes;
     }
-    
+    private _AllocationsAffected: number = -1;
+    public get AllocationsAffected(): number {
+        return this._AllocationsAffected;
+    }
     ShowDeleteCodeset: boolean = false;
     ShowDeleteCodesetClicked() {
         //console.log('0');
@@ -105,11 +108,13 @@ export class ReviewSetsEditorComponent implements OnInit, OnDestroy {
                 if (Set) {
                     //console.log('2');
                     this._appliedCodes = -1;
-                    this.ShowDeleteCodeset = true;
+                    this._AllocationsAffected = -1;
                     this.ReviewSetsEditingService.AttributeOrSetDeleteCheck(Set.set_id, 0).then(
                         success => {
                             //alert("did it");
-                            this._appliedCodes = success;
+                            this.ShowDeleteCodeset = true;
+                            this._appliedCodes = success.numItems;
+                            this._AllocationsAffected = success.numAllocations;
                             //return result;
                         },
                         error => {
@@ -119,25 +124,26 @@ export class ReviewSetsEditorComponent implements OnInit, OnDestroy {
                 }
             }
         }
-        else if (this.ActivityPanelName == "EditCode" && this._UpdatingCode) {
-            this._appliedCodes = -1;
-            this.ShowDeleteCodeset = true;
-            this.ReviewSetsEditingService.AttributeOrSetDeleteCheck(0, this._UpdatingCode.attributeSetId).then(
-                success => {
-                    //alert("did it");
-                    this._appliedCodes = success;
-                    //return result;
-                },
-                error => {
-                    //alert("Sorry, creating the new codeset failed.");
-                    //this.modalService.GenericErrorMessage(ErrMsg);
-                });
-        }
+        //else if (this.ActivityPanelName == "EditCode" && this._UpdatingCode) {
+        //    this._appliedCodes = -1;
+        //    this.ShowDeleteCodeset = true;
+        //    this.ReviewSetsEditingService.AttributeOrSetDeleteCheck(0, this._UpdatingCode.attributeSetId).then(
+        //        success => {
+        //            //alert("did it");
+        //            this._appliedCodes = success.NumItems;
+        //            //return result;
+        //        },
+        //        error => {
+        //            //alert("Sorry, creating the new codeset failed.");
+        //            //this.modalService.GenericErrorMessage(ErrMsg);
+        //        });
+        //}
 
     }
     HideDeleteCodeset() {
         this.ShowDeleteCodeset = false;
         this._appliedCodes = -1;
+        this._AllocationsAffected = -1
     }
     DoDeleteCodeset() {
         if (!this.CurrentNode) return;
@@ -352,6 +358,7 @@ export class ReviewSetsEditorComponent implements OnInit, OnDestroy {
         this.ShowChangeDataEntry = false;
         this.ShowDeleteCodeset = false;
         this._appliedCodes = -1;
+        this._AllocationsAffected = -1;
         this._ItemsWithIncompleteCoding = -1;
         this._CanChangeDataEntryMode = false;
         this.DestinationDataEntryMode = "";

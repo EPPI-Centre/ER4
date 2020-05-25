@@ -95,7 +95,9 @@
             <div *ngIf="ActivityPanelName == 'EditCodeset' && CurrentNode != null" class="container card card-body bg-light">
                 <div *ngIf="ShowDeleteCodeset" class="alert alert-danger">
                     <div>Are you sure you want to delete '{{CurrentNode.name}}' and all its codes?</div>
-                    <div>This will affect codes you have assigned to <strong>{{appliedCodes}}</strong> items. All this coding will be deleted!</div>
+                    <div *ngIf="appliedCodes > 0">This will affect codes you have assigned to <strong>{{appliedCodes}}</strong> items. All this coding will be deleted!</div>
+                    <div *ngIf="AllocationsAffected == 1">Moreover, there is <strong>one</strong> coding assigment that is driven by a code within this coding tool. If you delete it, it will become impossible to edit the corresponding allocation!</div>
+                    <div *ngIf="AllocationsAffected > 1">Moreover, there are <strong>{{AllocationsAffected}}</strong> coding assigments that are driven by codes within this coding tool. If you delete it, it will become impossible to edit the corresponding allocations!</div>
                     <div>
                         <button class="btn btn-outline-secondary ml-1" (click)="HideDeleteCodeset()" style="width:200px;">No</button>
                         <button class="btn btn-danger ml-1" (click)="DoDeleteCodeset()"
