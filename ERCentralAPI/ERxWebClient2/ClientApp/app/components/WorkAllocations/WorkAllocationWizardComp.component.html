@@ -420,8 +420,8 @@
                 <button class=" pt-1 m-1 rounded btn btn-sm btn-outline-primary " (click)="ShowEditCodesPrefixClicked()">
                     Edit
                 </button>
-                <div *ngIf="ShowEditCodesPrefix">
-                    <input type="text" [(ngModel)]="workAllocationFromWizardCommand.groupsPrefix" />
+                <div *ngIf="ShowEditCodesPrefix" class="col-12">
+                    <input type="text" [(ngModel)]="workAllocationFromWizardCommand.groupsPrefix" class="w-75" />
                     <button class=" pt-1 m-1 rounded btn btn-sm btn-outline-dark " (click)="ShowEditCodesPrefixClicked()">
                         Close
                     </button>
@@ -482,9 +482,9 @@
                             Cancel
                         </button>
                     </div>
-                    <div *ngIf="ManualAssignTable[0].length > 0" class="col-12 row">
-                        <div *ngIf="ManualAssignTable[0].length > 0" class="col">
-                            First round<br />
+                    <div class="col-12 row">
+                        <div class="col">
+                            First round:<br />
                             <div *ngFor="let member of ManualAssignTable[0]" class="border border-secondary rounded my-0 mx-1 p-1 " [ngClass]="{'alert-success' : member.NumberOfItems > 0}">
                                 <div class="d-inline">{{member.contactName}} ({{member.NumberOfItems}} items)</div>
                                 <button *ngIf="IsLastInManualAssignTable(member)" class=" px-1 py-0 mx-1 my-0 rounded  btn btn-sm btn-outline-danger" (click)="RemoveLastManualMember()">
@@ -493,7 +493,7 @@
                             </div>
                         </div>
                         <div *ngIf="workAllocationFromWizardCommand.peoplePerItem > 1" class="col">
-                            Second round<br />
+                            Second round:<br />
                             <div *ngFor="let member of ManualAssignTable[1]" class="border border-secondary rounded my-0 mx-1 p-1 " [ngClass]="{'alert-success' : member.NumberOfItems > 0}">
                                 <div class="d-inline">{{member.contactName}} ({{member.NumberOfItems}} items)</div>
                                 <button *ngIf="IsLastInManualAssignTable(member)" class=" px-1 py-0 mx-1 my-0 rounded  btn btn-sm btn-outline-danger" (click)="RemoveLastManualMember()">
@@ -502,7 +502,7 @@
                             </div>
                         </div>
                         <div *ngIf="workAllocationFromWizardCommand.peoplePerItem > 2" class="col">
-                            Third round<br />
+                            Third round:<br />
                             <div *ngFor="let member of ManualAssignTable[2]" class="border border-secondary rounded my-0 mx-1 p-1 " [ngClass]="{'alert-success' : member.NumberOfItems > 0}">
                                 <div class="d-inline">{{member.contactName}} ({{member.NumberOfItems}} items)</div>
                                 <button *ngIf="IsLastInManualAssignTable(member)" class=" px-1 py-0 mx-1 my-0 rounded  btn btn-sm btn-outline-danger" (click)="RemoveLastManualMember()">
@@ -511,8 +511,8 @@
                             </div>
                         </div>
                     </div>
-                    <div *ngIf="AllManualAssignmentsDone" class="row sol-12 justify-content-center mt-1 row mx-0 px-0">
-                        <button class=" pt-1 ml-2 rounded  btn btn-outline-primary" style="min-width:70px" (click)="GetPreviewOrDoit(2)">
+                    <div *ngIf="AllManualAssignmentsDone" class="row justify-content-center mt-1 mx-0 px-0">
+                        <button class=" pt-1 ml-2 rounded btn btn-outline-primary" style="min-width:70px" (click)="GetPreviewOrDoit(2)">
                             Preview
                         </button>
                     </div>
