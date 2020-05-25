@@ -1468,14 +1468,14 @@ namespace BusinessLibrary.BusinessClasses
         }
 
         // *********************** BEGIN TOSHORTSEARCHTEXT **********************
-        // Similar to the SQL CLR version, but doesn't use SQL strings
 
         private static readonly Lazy<Regex> alphaNumericRegex = new Lazy<Regex>(() => new Regex("[^a-zA-Z0-9]"));
 
         public static string ToShortSearchText(string ss)
         {
-            if (ss == "") return "";
-
+            if (ss == "")
+                return "";
+            ss = MagMakesHelpers.CleanText(ss);
             ss = RemoveLanguageAndThesisText(ss);
             string r = Truncate(ToSimpleText(RemoveDiacritics(ss))
                     .Replace("a", "")
@@ -1485,6 +1485,28 @@ namespace BusinessLibrary.BusinessClasses
                     .Replace("u", "")
                     .Replace("ize", "")
                     .Replace("ise", ""), 500);
+
+            // additional tweak to reduce the length of longer strings and often reduce noise
+            if (r.Length < 20)
+                return r;
+            else if (r.Length <= 30)
+            {
+                r = r.Substring(0, r.Length - 5);
+            }
+            else
+                // JT more radical change - truncate at 30 characters
+                r = r.Substring(0, 30);
+            //else if (r.Length <= 44)
+            //{
+            //    r = r.Substring(0, r.Length - 10);
+            //}
+            //else
+            //{
+            //    //int cutting = r.Length / 4;
+            //    //r = r.Substring(0, r.Length - cutting);
+            //    
+            //    r = r.Substring(0, 40);
+            //}
             return r;
         }
 
@@ -1517,6 +1539,7 @@ namespace BusinessLibrary.BusinessClasses
             if (s.EndsWith("]"))
             {
                 int i = s.LastIndexOf('[');
+                //int i = s.IndexOf('[');
                 if ((s.Length - i) * 4 < s.Length)
                 {
                     s = s.Substring(0, i).TrimEnd(' ');

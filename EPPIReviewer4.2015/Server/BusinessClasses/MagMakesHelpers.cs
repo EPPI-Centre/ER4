@@ -555,7 +555,6 @@ namespace BusinessLibrary.BusinessClasses
         {
             Regex rgx = new Regex("[^a-zA-Z0-9 ]");
             Dictionary<string, string> charMap = EuropeanCharacterMap();
-
             foreach (KeyValuePair<string, string> replacement in charMap)
             {
                 text = text.Replace(replacement.Key, replacement.Value);
@@ -567,6 +566,19 @@ namespace BusinessLibrary.BusinessClasses
                 text = text.Replace("  ", " ");
             }
             return text;
+        }
+        public static string RemoveTextInParentheses(string s)
+        {
+            s = s.TrimEnd(' ');
+            if (s.EndsWith("]"))
+            {
+                int i = s.LastIndexOf('[');
+                if ((s.Length - i) * 4 < s.Length)
+                {
+                    s = s.Substring(0, i).TrimEnd(' ');
+                }
+            }
+            return s;
         }
         private static string RestoreGreekLetters(string text)
         {
@@ -680,7 +692,8 @@ namespace BusinessLibrary.BusinessClasses
                                                 { "(r)", "" },
                                                 { "(R)", "" },
                                                 { "(c)", "" },
-                                                { "(C)", "" }
+                                                { "(C)", "" },
+                                                { "™", "" }
                                             };
         }
 
@@ -715,7 +728,7 @@ namespace BusinessLibrary.BusinessClasses
             };
         }
 
-        private static string removeStopwords(string input)
+        public static string removeStopwords(string input)
         {
             string[] stopWords = { " and ", " for ", " are ", " from ", " have ", " results ", " based ", " between ", " can ", " has ", " analysis ", " been ", " not ", " method ", " also ", " new ", " its ", " all ", " but ", " during ", " after ", " into ", " other ", " our ", " non ", " present ", " most ", " only ", " however ", " associated ", " compared ", " des ", " related ", " proposed ", " about ", " each ", " obtained ", " increased ", " had ", " among ", " due ", " how ", " out ", " les ", " los ", " abstract ", " del ", " many ", " der ", " including ", " could ", " report ", " cases ", " possible ", " further ", " given ", " result ", " las ", " being ", " like ", " any ", " made ", " because ", " discussed ", " known ", " recent ", " findings ", " reported ", " considered ", " described ", " although ", " available ", " particular ", " provides ", " improved ", " here ", " need ", " improve ", " analyzed ", " either ", " produced ", " demonstrated ", " evaluated ", " provided ", " did ", " does ", " required ", " before ", " along ", " presents ", " having ", " much ", " near ", " demonstrate ", " iii ", " often ", " making ", " the ", " that ", " with ", " this ", " were ", " was ", " which ", " study ", " using ", " these ", " their ", " used ", " than ", " use ", " such ", " when ", " well ", " some ", " through ", " there ", " under ", " they ", " within ", " will ", " while ", " those ", " various ", " where ", " then ", " very ", " who ", " und ", " should ", " thus ", " suggest ", " them ", " therefore ", " since ", " une ", " what ", " whether ", " una ", " von ", " would ", " of ", " in ", " a ", " to ", " is ", " on ", " by ", " as ", " de ", " an ", " be ", " we ", " or ", " s ", " it ", " la ", " e ", " en ", " i ", " no ", " et ", " el ", " do ", " up ", " se ", " un ", " ii " };
             foreach (string word in stopWords)

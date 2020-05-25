@@ -107,15 +107,20 @@ namespace BusinessLibrary.BusinessClasses
             WriteNewIdsFileOnBlob(uploadFileName, ContactId, folderPrefix);
             MagLog.UpdateLogEntry("running", "Main update. NewIds written (" + SeedIds.ToString() + ")", logId);
 
-            MagContReviewPipeline.runADFPieline(ContactId, Path.GetFileName(uploadFileName), "NewPapers.tsv",
-                "crResults.tsv", "cr_per_paper_tfidf.pickle", _NextMagVersion, "1", folderPrefix, "0.02",
-                /* "ContReview" */ "v1" + folderPrefix, "True");
-            MagLog.UpdateLogEntry("running", "Main update. ADFPipelineComplete (" + SeedIds.ToString() + ")", logId);
-
-            int NewIds = await DownloadResultsAsync(folderPrefix + "/crResults.tsv", ReviewId);
-            
+            if ((MagContReviewPipeline.runADFPieline(ContactId, Path.GetFileName(uploadFileName), "NewPapers.tsv",
+                "crResults.tsv", "cr_per_paper_tfidf.pickle", _NextMagVersion, "0", folderPrefix, "0.1",
+                /* "ContReview" */ "v1" /* + folderPrefix */, "True")) == "Succeeded")
+            {
+                MagLog.UpdateLogEntry("running", "Main update. ADFPipelineComplete (" + SeedIds.ToString() + ")", logId);
+                int NewIds = await DownloadResultsAsync(folderPrefix + "/crResults.tsv", ReviewId);
+                MagLog.UpdateLogEntry("Complete", "Main update. SeedIds: " + SeedIds.ToString() + "; NewIds: " + NewIds.ToString(), logId);
+            }
+            else
+            {
+                MagLog.UpdateLogEntry("failed", "Main update failed at run contreview", logId);
+            }
             //Thread.Sleep(30 * 1000); int NewIds = 10; int SeedIds = 10; // this line for testing - can be deleted after publish
-            MagLog.UpdateLogEntry("Complete", "Main update. SeedIds: " + SeedIds.ToString() + "; NewIds: " + NewIds.ToString(), logId);
+            
         }
 
         private int WriteSeedIdsFile(string uploadFileName)

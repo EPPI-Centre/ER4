@@ -381,7 +381,12 @@ namespace BusinessLibrary.BusinessClasses
                         {
                             while (reader.Read())
                             {
-                                Add(MagPaper.GetMagPaperFromMakes(reader.GetInt64("PaperId"), reader));
+                                MagPaper newRow = MagPaper.GetMagPaperFromMakes(reader.GetInt64("PaperId"), reader);
+                                if (selectionCriteria.ListType == "MagRelatedPapersRunList")
+                                {
+                                    newRow.SimilarityScore = reader.GetDouble("SimilarityScore");
+                                }
+                                Add(newRow);
 
                                 //PaperAzureSearch pas = MagPaperAzureSearch.GetPaperAzureSearch(reader["PaperId"].ToString());
                                 //if (pas.id > 0)

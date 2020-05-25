@@ -628,6 +628,13 @@
                             </DataTemplate>
                         </telerikGridView:GridViewDataColumn.CellTemplate>
                     </telerikGridView:GridViewDataColumn>
+                    <telerikGridView:GridViewDataColumn Width="50">
+                        <telerikGridView:GridViewDataColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding SimilarityScore, StringFormat=N4}" MouseLeftButtonUp="PaperListBibliographyGrid_MouseLeftButtonUp" HorizontalAlignment="Center" VerticalAlignment="Top"/>
+                            </DataTemplate>
+                        </telerikGridView:GridViewDataColumn.CellTemplate>
+                    </telerikGridView:GridViewDataColumn>
                     <telerikGridView:GridViewDataColumn IsFilterable="False" IsSortable="True" CellStyle="{StaticResource cellSelectedNotSelected}" Width="75" Header="" DataMemberBinding="{Binding IsSelected, Mode=TwoWay}"></telerikGridView:GridViewDataColumn>
                 </telerikGridView:RadGridView.Columns>
             </telerikGridView:RadGridView>
