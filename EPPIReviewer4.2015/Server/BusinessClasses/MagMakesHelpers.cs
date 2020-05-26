@@ -693,7 +693,7 @@ namespace BusinessLibrary.BusinessClasses
                                                 { "(R)", "" },
                                                 { "(c)", "" },
                                                 { "(C)", "" },
-                                                { "™", "" }
+                                                { "™", "" } // JT added this one (not in MAG team's list)
                                             };
         }
 

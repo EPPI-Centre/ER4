@@ -41,11 +41,16 @@ namespace BusinessLibrary.BusinessClasses
 #endif
         private string _CurrentMagVersion;
         private string _NextMagVersion;
+        private double _scoreThreshold;
+        private double _fosThreshold;
 
-        public MagContReviewPipelineRunCommand(string CurrentMagVersion, string NextMagVersion)
+        public MagContReviewPipelineRunCommand(string CurrentMagVersion, string NextMagVersion,
+            double scoreThreshold, double fosThreshold)
         {
             _CurrentMagVersion = CurrentMagVersion;
             _NextMagVersion = NextMagVersion;
+            _scoreThreshold = scoreThreshold;
+            _fosThreshold = fosThreshold;
         }
 
         protected override void OnGetState(Csla.Serialization.Mobile.SerializationInfo info, StateMode mode)
@@ -53,11 +58,15 @@ namespace BusinessLibrary.BusinessClasses
             base.OnGetState(info, mode);
             info.AddValue("_CurrentMagVersion", _CurrentMagVersion);
             info.AddValue("_NextMagVersion", _NextMagVersion);
+            info.AddValue("_scoreThreshold", _scoreThreshold);
+            info.AddValue("_fosThreshold", _fosThreshold);
         }
         protected override void OnSetState(Csla.Serialization.Mobile.SerializationInfo info, StateMode mode)
         {
             _CurrentMagVersion = info.GetValue<string>("_CurrentMagVersion");
             _NextMagVersion = info.GetValue<string>("_NextMagVersion");
+            _scoreThreshold = info.GetValue<double>("_scoreThreshold");
+            _fosThreshold = info.GetValue<double>("_fosThreshold");
         }
 
 
@@ -108,12 +117,14 @@ namespace BusinessLibrary.BusinessClasses
             MagLog.UpdateLogEntry("running", "Main update. NewIds written (" + SeedIds.ToString() + ")", logId);
 
             if ((MagContReviewPipeline.runADFPieline(ContactId, Path.GetFileName(uploadFileName), "NewPapers.tsv",
-                "crResults.tsv", "cr_per_paper_tfidf.pickle", _NextMagVersion, "0", folderPrefix, "0.1",
-                /* "ContReview" */ "v1" /* + folderPrefix */, "True")) == "Succeeded")
+                "crResults.tsv", "cr_per_paper_tfidf.pickle", _NextMagVersion, _fosThreshold.ToString(), folderPrefix,
+                _scoreThreshold.ToString(), "v1", "True")) == "Succeeded")
             {
                 MagLog.UpdateLogEntry("running", "Main update. ADFPipelineComplete (" + SeedIds.ToString() + ")", logId);
                 int NewIds = await DownloadResultsAsync(folderPrefix + "/crResults.tsv", ReviewId);
-                MagLog.UpdateLogEntry("Complete", "Main update. SeedIds: " + SeedIds.ToString() + "; NewIds: " + NewIds.ToString(), logId);
+                MagLog.UpdateLogEntry("Complete", "Main update. SeedIds: " + SeedIds.ToString() + "; NewIds: " +
+                    NewIds.ToString() + " FoS:" + _fosThreshold.ToString() + "Score threshold: " + _scoreThreshold.ToString()
+                    , logId);
             }
             else
             {

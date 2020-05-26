@@ -253,7 +253,6 @@ namespace BusinessLibrary.BusinessClasses
                         {
                             unmatched.Add(group[i]);
                         }
-                        
                     }
                 }
             }
@@ -344,7 +343,7 @@ namespace BusinessLibrary.BusinessClasses
             double ret = 0;
             double titleSimilarity = MagPaperItemMatch.HaBoLevenshtein(ic1.TITLE, ic2.TITLE);
 
-            // if titles don't reach threshold return without further tests
+            //if titles don't reach threshold return without further tests
             //if (titleSimilarity < 80)
                 //return 0;
 
@@ -441,6 +440,17 @@ namespace BusinessLibrary.BusinessClasses
             if ((ic1.TITLE.IndexOf("erratum") > -1 && ic2.TITLE.IndexOf("erratum") < 0) ||
                 (ic2.TITLE.IndexOf("erratum") > -1 && ic1.TITLE.IndexOf("erratum") < 0))
                 ret = Math.Min(ret, 0.75);
+
+            // if first page numbers different AND journal different then can't be an auto-match
+            if ((ic1.PARENT_TITLE != "" && ic2.PARENT_TITLE != "") &&
+                MagPaperItemMatch.HaBoLevenshtein(ic1.PARENT_TITLE, ic2.PARENT_TITLE) < 75 &&
+                (ic1.PAGES != "" && ic2.PAGES != "") &&
+                ic1.GetFirstPage() != ic2.GetFirstPage())
+            {
+                ret = Math.Min(ret, 0.75);
+            }
+
+
             return ret;
         }
 

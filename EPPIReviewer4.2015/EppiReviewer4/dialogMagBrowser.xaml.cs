@@ -2330,7 +2330,12 @@ namespace EppiReviewer4
             CslaDataProvider provider = ((CslaDataProvider)App.Current.Resources["MagCurrentInfoData"]);
             MagCurrentInfo mci = provider.Data as MagCurrentInfo;
             DataPortal<MagContReviewPipelineRunCommand> dp2 = new DataPortal<MagContReviewPipelineRunCommand>();
-            MagContReviewPipelineRunCommand RunPipelineCommand = new MagContReviewPipelineRunCommand(tbPreviousMAG.Text, tbLatestMag.Text);
+            MagContReviewPipelineRunCommand RunPipelineCommand =
+                new MagContReviewPipelineRunCommand(
+                    tbPreviousMAG.Text,
+                    tbLatestMag.Text,
+                    EditScoreThreshold.Value.Value,
+                    EditFoSThreshold.Value.Value);
             dp2.ExecuteCompleted += (o, e2) =>
             {
                 if (e2.Error != null)
