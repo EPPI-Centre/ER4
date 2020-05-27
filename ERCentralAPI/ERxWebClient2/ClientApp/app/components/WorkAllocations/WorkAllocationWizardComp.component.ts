@@ -134,7 +134,7 @@ export class WorkAllocationWizardComp implements OnInit, OnDestroy {
     public PreviousStep() {
         if (this.CurrentStep > 1) this.CurrentStep--;
     }
-    private _stepNames: string[] = ["", "Identify items to distribute", "Indentify the work to assign", "Distribution rules"];
+    private _stepNames: string[] = ["", "select the references to code.", "choose the coding to be done.", "assign coding work to people."];
     public get StepNames(): string[] {
         return this._stepNames;
     } 
