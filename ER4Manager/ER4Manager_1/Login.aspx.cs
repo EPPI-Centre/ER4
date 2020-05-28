@@ -47,6 +47,7 @@ public partial class Login : System.Web.UI.Page
             Utils.SetSessionString("Credit_Purchase_ID", "");
             Utils.SetSessionString("Remaining_Credit", "");
             Utils.SetSessionString("Purchased_Credit", "");
+            Utils.SetSessionString("AccessWDSetup", "0");
 
             try
             {
@@ -161,6 +162,18 @@ public partial class Login : System.Web.UI.Page
             }
             else
             {
+                // everything is good for login
+
+                // check if they can access the WebDB setup screen
+                isAdmDB = true;
+                IDataReader idr = Utils.GetReader(isAdmDB, "st_ContactAccessControl",
+                    Utils.GetSessionString("Contact_ID"), "WebDBSetup ");
+                if (idr.Read()) // it exists
+                {
+                    Utils.SetSessionString("AccessWDSetup", "1");
+                }
+                idr.Close();
+
                 Server.Transfer("Summary.aspx");
             }
             
