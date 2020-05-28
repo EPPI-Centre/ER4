@@ -795,9 +795,26 @@ namespace EppiReviewer4
             selectionCriteria.PageNumber = 0;
             selectionCriteria.ListType = "PaperFieldsOfStudyList";
             selectionCriteria.FieldOfStudyId = FieldOfStudyId;
+            selectionCriteria.DateFrom = datePickerFilterTopicPapersFrom.SelectedDate == null ? "" :
+                datePickerFilterTopicPapersFrom.SelectedDate.Value.Year.ToString() + "-" +
+                PadZero(datePickerFilterTopicPapersFrom.SelectedDate.Value.Month.ToString()) + "-" +
+                PadZero(datePickerFilterTopicPapersFrom.SelectedDate.Value.Day.ToString());
+            selectionCriteria.DateTo = datePickerFilterTopicPapersTo.SelectedDate == null ? "" :
+                datePickerFilterTopicPapersTo.SelectedDate.Value.Year.ToString() + "-" +
+                PadZero(datePickerFilterTopicPapersTo.SelectedDate.Value.Month.ToString()) + "-" +
+                PadZero(datePickerFilterTopicPapersTo.SelectedDate.Value.Day.ToString());
             provider.FactoryParameters.Add(selectionCriteria);
             provider.FactoryMethod = "GetMagPaperList";
             provider.Refresh();
+        }
+
+        private string PadZero(string s)
+        {
+            if (s.Length == 1)
+            {
+                s = "0" + s;
+            }
+            return s;
         }
 
         private void PaperListBibliographyGrid_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
@@ -808,6 +825,11 @@ namespace EppiReviewer4
                 paper.Abstract, paper.LinkedITEM_ID, paper.URLs, paper.FindOnWeb, 0, "", "", 0);
             ShowPaperDetailsPage(paper.PaperId, paper.FullRecord, paper.Abstract, paper.URLs,
                 paper.FindOnWeb, paper.LinkedITEM_ID);
+        }
+
+        private void datePickerFilterTopics_SelectionChanged(object sender, Telerik.Windows.Controls.SelectionChangedEventArgs e)
+        {
+            //getPaperListForTopic(FieldOfStudyId);
         }
 
         // **************************** Managing page changes on the paper grid list views *****************
@@ -863,6 +885,14 @@ namespace EppiReviewer4
                 MagPaperListSelectionCriteria selectionCriteria = new MagPaperListSelectionCriteria();
                 selectionCriteria.PageSize = Convert.ToInt32((comboTopicPageSize.SelectedItem as ComboBoxItem).Tag);
                 selectionCriteria.PageNumber = e.NewPageIndex;
+                selectionCriteria.DateFrom = datePickerFilterTopicPapersFrom.SelectedDate == null ? "" :
+                datePickerFilterTopicPapersFrom.SelectedDate.Value.Year.ToString() + "-" +
+                PadZero(datePickerFilterTopicPapersFrom.SelectedDate.Value.Month.ToString()) + "-" +
+                PadZero(datePickerFilterTopicPapersFrom.SelectedDate.Value.Day.ToString());
+                selectionCriteria.DateTo = datePickerFilterTopicPapersTo.SelectedDate == null ? "" :
+                    datePickerFilterTopicPapersTo.SelectedDate.Value.Year.ToString() + "-" +
+                    PadZero(datePickerFilterTopicPapersTo.SelectedDate.Value.Month.ToString()) + "-" +
+                    PadZero(datePickerFilterTopicPapersTo.SelectedDate.Value.Day.ToString());
                 selectionCriteria.ListType = "PaperFieldsOfStudyList";
                 selectionCriteria.FieldOfStudyId = mpl.FieldOfStudyId;
                 provider.FactoryParameters.Add(selectionCriteria);
@@ -883,12 +913,25 @@ namespace EppiReviewer4
                 MagPaperListSelectionCriteria selectionCriteria = new MagPaperListSelectionCriteria();
                 selectionCriteria.PageSize = Convert.ToInt32((comboTopicPageSize.SelectedItem as ComboBoxItem).Tag);
                 selectionCriteria.PageNumber = 0;
+                selectionCriteria.DateFrom = datePickerFilterTopicPapersFrom.SelectedDate == null ? "" :
+                datePickerFilterTopicPapersFrom.SelectedDate.Value.Year.ToString() + "-" +
+                PadZero(datePickerFilterTopicPapersFrom.SelectedDate.Value.Month.ToString()) + "-" +
+                PadZero(datePickerFilterTopicPapersFrom.SelectedDate.Value.Day.ToString());
+                selectionCriteria.DateTo = datePickerFilterTopicPapersTo.SelectedDate == null ? "" :
+                    datePickerFilterTopicPapersTo.SelectedDate.Value.Year.ToString() + "-" +
+                    PadZero(datePickerFilterTopicPapersTo.SelectedDate.Value.Month.ToString()) + "-" +
+                    PadZero(datePickerFilterTopicPapersTo.SelectedDate.Value.Day.ToString());
                 selectionCriteria.ListType = "PaperFieldsOfStudyList";
                 selectionCriteria.FieldOfStudyId = mpl.FieldOfStudyId;
                 provider.FactoryParameters.Add(selectionCriteria);
                 provider.FactoryMethod = "GetMagPaperList";
                 provider.Refresh();
             }
+        }
+
+        private void hlRefreshTopicPaperListData_Click(object sender, RoutedEventArgs e)
+        {
+            comboTopicPageSize_SelectionChanged(sender, null);
         }
 
         private void CitedByPager_PageIndexChanging(object sender, PageIndexChangingEventArgs e)
@@ -1572,7 +1615,8 @@ namespace EppiReviewer4
         {
             if (RowSelectCodeRelatedPapersRun != null)
             {
-                RowSelectCodeRelatedPapersRun.Height = new GridLength(0);
+                //RowSelectCodeRelatedPapersRun.Height = new GridLength(0);
+                codesSelectControlRelatedPapersRun.Visibility = Visibility.Collapsed;
             }
         }
 
@@ -1580,7 +1624,8 @@ namespace EppiReviewer4
         {
             if (RowSelectCodeRelatedPapersRun != null)
             {
-                RowSelectCodeRelatedPapersRun.Height = new GridLength(50, GridUnitType.Auto);
+                //RowSelectCodeRelatedPapersRun.Height = new GridLength(50, GridUnitType.Auto);
+                codesSelectControlRelatedPapersRun.Visibility = Visibility.Visible;
             }
         }
 
@@ -1600,27 +1645,20 @@ namespace EppiReviewer4
             }
         }
 
-        private void LBAddRelatedPapersRun_Click(object sender, RoutedEventArgs e)
+        private MagRelatedPapersRun GetMagRelatedPapersRunValues(AttributeSet attribute)
         {
             MagRelatedPapersRun mrpr = new MagRelatedPapersRun();
-            if (RadioButtonRelatedPapersRunAllIncluded.IsChecked == true)
+            mrpr.UserDescription = tbRelatedPapersRunDescription.Text;
+            if (attribute == null)
             {
                 mrpr.AllIncluded = true;
                 mrpr.AttributeId = 0;
             }
             else
             {
-                if (codesSelectControlRelatedPapersRun.SelectedAttributeSet() == null)
-                {
-                    RadWindow.Alert("Please select an attribute");
-                    return;
-                }
-                else
-                {
-                    mrpr.AttributeId = codesSelectControlRelatedPapersRun.SelectedAttributeSet().AttributeId;
-                    mrpr.AttributeName = codesSelectControlRelatedPapersRun.SelectedAttributeSet().AttributeName;
-                    mrpr.AllIncluded = false;
-                }
+                mrpr.AttributeId = attribute.AttributeId;
+                mrpr.AttributeName = attribute.AttributeName;
+                mrpr.AllIncluded = false;
             }
             mrpr.AutoReRun = cbRelatedPapersRunAutoRun.IsChecked == true ? true : false;
             if (RadioButtonRelatedPapersRunNoDateRestriction.IsChecked == true)
@@ -1629,50 +1667,128 @@ namespace EppiReviewer4
             }
             else
             {
-                if (DatePickerRelatedPapersRun.SelectedDate != null)
+                mrpr.DateFrom = DatePickerRelatedPapersRun.SelectedDate;
+            }
+            mrpr.Status = "Pending";
+            mrpr.Filtered = RBRelatedRCTFilterNone.IsChecked.Value ? "None" : RBRelatedRCTFilterPrecise.IsChecked.Value ? "Precise" : "Sensitive";
+            mrpr.Mode = (ComboRelatedPapersMode.SelectedItem as ComboBoxItem).Tag.ToString();
+
+            return mrpr;
+        }
+
+        private void DoAddRelatedRun(object sender, WindowClosedEventArgs e)
+        {
+            var result = e.DialogResult;
+            if (result == true)
+            {
+                MagRelatedPapersRun mrpr = null;
+                CslaDataProvider provider = this.Resources["RelatedPapersRunListData"] as CslaDataProvider;
+                if (provider != null)
                 {
-                    mrpr.DateFrom = DatePickerRelatedPapersRun.SelectedDate;
-                }
-                else
-                {
-                    RadWindow.Alert("Please select a date to date items from");
-                    return;
+                    MagRelatedPapersRunList mrprl = provider.Data as MagRelatedPapersRunList;
+                    if (mrprl != null)
+                    {
+                        if (RadioButtonRelatedPapersRunAllIncluded.IsChecked == true)
+                        {
+                            mrpr = GetMagRelatedPapersRunValues(null);
+                            mrprl.Add(mrpr);
+                            mrprl.SaveItem(mrpr);
+                        }
+                        else
+                        {
+                            if (RadioButtonRelatedPapersRunWithCode.IsChecked == true)
+                            {
+                                mrpr = GetMagRelatedPapersRunValues(codesSelectControlRelatedPapersRun.SelectedAttributeSet());
+                                mrprl.Add(mrpr);
+                                mrprl.SaveItem(mrpr);
+                            }
+                            else
+                            {
+                                foreach (AttributeSet aSet in codesSelectControlRelatedPapersRun.SelectedAttributeSet().Attributes)
+                                {
+                                    mrpr = GetMagRelatedPapersRunValues(aSet);
+                                    mrprl.Add(mrpr);
+                                    mrprl.SaveItem(mrpr);
+                                }
+                            }
+                        }
+                        RowCreateNewRelatedPapersRun.Height = new GridLength(0);
+                        LBAddNewRagRelatedPapersRun.Content = "Add new search for related papers / auto update search for review";
+                        LBAddNewRagRelatedPapersRun.Tag = "ClickToOpen";
+                    }
                 }
             }
+        }
+
+        private void LBAddRelatedPapersRun_Click(object sender, RoutedEventArgs e)
+        {
             if (tbRelatedPapersRunDescription.Text == "")
             {
                 RadWindow.Alert("Please enter a description");
                 return;
             }
-            else
+
+            if (RadioButtonRelatedPapersRunNoDateRestriction.IsChecked == false &&
+                DatePickerRelatedPapersRun.SelectedDate == null)
             {
-                mrpr.UserDescription = tbRelatedPapersRunDescription.Text;
-            }
-            CslaDataProvider provider = this.Resources["RelatedPapersRunListData"] as CslaDataProvider;
-            if (provider != null)
-            {
-                MagRelatedPapersRunList mrprl = provider.Data as MagRelatedPapersRunList;
-                if (mrprl != null)
-                {
-                    mrpr.Status = "Pending";
-                    mrpr.Filtered = RBRelatedRCTFilterNone.IsChecked.Value ? "None" : RBRelatedRCTFilterPrecise.IsChecked.Value ? "Precise" : "Sensitive";
-                    mrpr.Mode = (ComboRelatedPapersMode.SelectedItem as ComboBoxItem).Tag.ToString();
-                    mrprl.Add(mrpr);
-                    mrprl.SaveItem(mrpr);
-                    RowCreateNewRelatedPapersRun.Height = new GridLength(0);
-                    LBAddNewRagRelatedPapersRun.Content = "Add new search for related papers / auto update search for review";
-                    LBAddNewRagRelatedPapersRun.Tag = "ClickToOpen";
-                }
+                RadWindow.Alert("Please select a date to date items from");
+                return;
             }
 
+            if (RadioButtonRelatedPapersRunChildrenOfCode.IsChecked == true)
+            {
+                if (codesSelectControlRelatedPapersRun.SelectedAttributeSet() == null ||
+                    (codesSelectControlRelatedPapersRun.SelectedAttributeSet() != null &&
+                    codesSelectControlRelatedPapersRun.SelectedAttributeSet().Attributes.Count == 0))
+                {
+                    RadWindow.Alert("Please select a parent code (with child codes)");
+                    return;
+                }
+                else
+                {
+                    RadWindow.Confirm("Are you sure you want to create a search for each of these codes?\nThis will create" +
+                       codesSelectControlRelatedPapersRun.SelectedAttributeSet().Attributes.Count.ToString() +
+                       " individual searches.", this.DoAddRelatedRun);
+                    return;
+                }
+            }
+            else
+            {
+                if (RadioButtonRelatedPapersRunWithCode.IsChecked == true &&
+                    codesSelectControlRelatedPapersRun.SelectedAttributeSet() == null)
+                {
+                    RadWindow.Alert("Please select a code to filter by");
+                    return;
+                }
+            }
+            RadWindow.Confirm("Are you sure you want to create this search?", this.DoAddRelatedRun);
         }
+
 
         private void ComboRelatedPapersMode_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
         {
             if (ComboRelatedPapersMode != null && ComboRelatedPapersMode.Items != null && ComboRelatedPapersMode.SelectedIndex == 7)
             {
-                RadioButtonRelatedPapersRunAllIncluded.IsChecked = true;
+                cbRelatedPapersRunAutoRun.IsEnabled = true;
                 RadioButtonRelatedPapersRunNoDateRestriction.IsChecked = true;
+                RadioButtonRelatedPapersRunChildrenOfCode.IsEnabled = true;
+                RadioButtonRelatedPapersRunNoDateRestriction.IsChecked = true;
+                RadioButtonRelatedPapersRunDateFilter.IsEnabled = false;
+                DatePickerRelatedPapersRun.SelectedDate = null;
+            }
+            else
+            {
+                if (cbRelatedPapersRunAutoRun != null)
+                {
+                    cbRelatedPapersRunAutoRun.IsEnabled = false;
+                    cbRelatedPapersRunAutoRun.IsChecked = false;
+                    if (RadioButtonRelatedPapersRunChildrenOfCode.IsChecked == true)
+                    {
+                        RadioButtonRelatedPapersRunAllIncluded.IsChecked = true;
+                        RadioButtonRelatedPapersRunChildrenOfCode.IsEnabled = false;
+                    }
+                    RadioButtonRelatedPapersRunDateFilter.IsEnabled = true;
+                }
             }
         }
 
@@ -1901,7 +2017,6 @@ namespace EppiReviewer4
             var result = e.DialogResult;
             if (result == true)
             {
-
                 DataPortal<MagCheckContReviewRunningCommand> dp = new DataPortal<MagCheckContReviewRunningCommand>();
                 MagCheckContReviewRunningCommand check = new MagCheckContReviewRunningCommand();
                 dp.ExecuteCompleted += (o, e2) =>
@@ -1991,6 +2106,8 @@ namespace EppiReviewer4
             newSimulation.StudyTypeClassifier = (comboSimulationStudyTypeClassifier.SelectedItem as ComboBoxItem).Content.ToString();
             newSimulation.UserClassifierModelId = (UserModel != null ? UserModel.ModelId : 0);
             newSimulation.UserClassifierReviewId = (UserModel != null ? UserModel.ReviewId : 0);
+            newSimulation.FosThreshold = SimulationEditScoreThreshold.Value.Value;
+            newSimulation.ScoreThreshold = SimulationEditScoreThreshold.Value.Value;
             newSimulation.Status = "Pending";
 
             CslaDataProvider provider = this.Resources["MagSimulationListData"] as CslaDataProvider;
@@ -2017,20 +2134,29 @@ namespace EppiReviewer4
 
         private void HyperlinkButton_Click_8(object sender, RoutedEventArgs e)
         {
-            HyperlinkButton hl = sender as HyperlinkButton;
-            if (hl == null)
-                return;
-            MagSimulation ms = hl.DataContext as MagSimulation;
-            if (ms == null)
-                return;
-            CslaDataProvider provider = this.Resources["MagSimulationListData"] as CslaDataProvider;
-            if (provider != null)
+            RadWindow.Confirm("Are you sure you want to delete this simulation?", this.DoDeleteSimulation);
+        }
+
+        private void DoDeleteSimulation(object sender, WindowClosedEventArgs e)
+        {
+            var result = e.DialogResult;
+            if (result == true)
             {
-                MagSimulationList SimList = provider.Data as MagSimulationList;
-                if (SimList != null)
+                HyperlinkButton hl = sender as HyperlinkButton;
+                if (hl == null)
+                    return;
+                MagSimulation ms = hl.DataContext as MagSimulation;
+                if (ms == null)
+                    return;
+                CslaDataProvider provider = this.Resources["MagSimulationListData"] as CslaDataProvider;
+                if (provider != null)
                 {
-                    SimList.Remove(ms);
-                    //SimList.SaveItem(ms);
+                    MagSimulationList SimList = provider.Data as MagSimulationList;
+                    if (SimList != null)
+                    {
+                        SimList.Remove(ms);
+                        //SimList.SaveItem(ms);
+                    }
                 }
             }
         }

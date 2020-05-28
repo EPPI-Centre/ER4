@@ -154,7 +154,29 @@ namespace BusinessLibrary.BusinessClasses
             public List<PaperMakes> entities { get; set; }
         }
 
-        public static string getAuthors(List<PaperMakesAuthor> authors)
+        public class MakesCalcHistogramResponse
+        {
+            public string expr { get; set; }
+            public int num_entities { get; set; }
+            public List<histograms> histograms { get; set; }
+        }
+
+        public class histograms
+        {
+            public string attribute { get; set; }
+            public string distinct_values { get; set; }
+            public int total_count { get; set; }
+            public List<histogram> histogram { get; set; }
+        }
+        public class histogram
+        {
+            public string value { get; set; }
+            public double logprob { get; set; }
+            public int count { get; set; }
+        }
+
+
+            public static string getAuthors(List<PaperMakesAuthor> authors)
         {
             string tmp = "";
             if (authors != null)
@@ -212,6 +234,12 @@ namespace BusinessLibrary.BusinessClasses
         {
             string query = @"/interpret?query=" + System.Web.HttpUtility.UrlEncode(CleanText(expression));
             return doMakesInterpretRequest(query, "", MakesDeploymentStatus);
+        }
+
+        public static MakesCalcHistogramResponse CalcHistoramCount(string expression, string MakesDeploymentStatus = "LIVE")
+        {
+            string query = @"/calchistogram?expr=" + expression;
+            return doMakesCalcHistogramRequest(query, MakesDeploymentStatus);
         }
 
         public static FieldOfStudyMakes EvaluateSingleFieldOfStudyId(string FosId, string MakesDeploymentStatus = "LIVE")
@@ -401,7 +429,7 @@ namespace BusinessLibrary.BusinessClasses
                 string responseText = "";
                 MagCurrentInfo MagInfo = MagCurrentInfo.GetMagCurrentInfoServerSide(MakesDeploymentStatus);
                 string queryString = @"/interpret?query=" +
-                    System.Web.HttpUtility.UrlEncode("DOI") + "&entityCount=5&attributes=" +
+                    System.Web.HttpUtility.UrlEncode(DOI.ToUpper()) + "&entityCount=5&attributes=" +
                     System.Web.HttpUtility.UrlEncode("Id,DN,AA.AuN,J.JN,V,I,FP,Y") +
                     "&complete=0&count=10&offset=0&timeout=2000&model=latest";
                 WebRequest request = WebRequest.Create(MagInfo.MakesEndPoint + queryString);
@@ -507,6 +535,30 @@ namespace BusinessLibrary.BusinessClasses
             response.Close();
             
             MakesInterpretResponse respJson = JsonConvert.DeserializeObject<MakesInterpretResponse>(responseText, jsonsettings);
+            return respJson;
+        }
+
+        private static MakesCalcHistogramResponse doMakesCalcHistogramRequest(string query, string MakesDeploymentStatus)
+        {
+            var jsonsettings = new JsonSerializerSettings
+            {
+                NullValueHandling = NullValueHandling.Ignore,
+                MissingMemberHandling = MissingMemberHandling.Ignore
+            };
+
+            string responseText = "";
+            MagCurrentInfo MagInfo = MagCurrentInfo.GetMagCurrentInfoServerSide(MakesDeploymentStatus);
+            WebRequest request = WebRequest.Create(MagInfo.MakesEndPoint + query +
+                "&attributes=" + System.Web.HttpUtility.UrlEncode("F.FN,Id"));
+            WebResponse response = request.GetResponse();
+            using (Stream dataStream = response.GetResponseStream())
+            {
+                StreamReader sreader = new StreamReader(dataStream);
+                responseText = sreader.ReadToEnd();
+            }
+            response.Close();
+
+            MakesCalcHistogramResponse respJson = JsonConvert.DeserializeObject<MakesCalcHistogramResponse>(responseText, jsonsettings);
             return respJson;
         }
 

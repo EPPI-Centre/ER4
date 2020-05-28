@@ -320,10 +320,10 @@ namespace BusinessLibrary.BusinessClasses
             }
             // if we've put some items in the unmatched group, we circulate round again to see if they
             // make a distinct group of their own
-            // we only do this once (no empirical basis, so can adjust upwards if necessary)
+            // we do this 9 times. I've not seen a situation where more than a couple is needed though
             if (unmatched.Count > 1 && iteration < 10)
             {
-                MakeComparisons(unmatched, iteration + 1); // only one lot of recursion
+                MakeComparisons(unmatched, iteration + 1);
             }
         }
 

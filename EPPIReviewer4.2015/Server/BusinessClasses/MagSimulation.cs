@@ -269,6 +269,41 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
+        public static readonly PropertyInfo<double> FosThresholdProperty = RegisterProperty<double>(new PropertyInfo<double>("FosThreshold", "FosThreshold"));
+        public double FosThreshold
+        {
+            get
+            {
+                return GetProperty(FosThresholdProperty);
+            }
+            set
+            {
+                SetProperty(FosThresholdProperty, value);
+            }
+        }
+
+        public static readonly PropertyInfo<double> ScoreThresholdProperty = RegisterProperty<double>(new PropertyInfo<double>("ScoreThreshold", "ScoreThreshold"));
+        public double ScoreThreshold
+        {
+            get
+            {
+                return GetProperty(ScoreThresholdProperty);
+            }
+            set
+            {
+                SetProperty(ScoreThresholdProperty, value);
+            }
+        }
+
+        public static readonly PropertyInfo<string> ThresholdsProperty = RegisterProperty<string>(new PropertyInfo<string>("Thresholds", "Thresholds", ""));
+        public string Thresholds
+        {
+            get
+            {
+                return ScoreThreshold.ToString("0.00") + " / " + FosThreshold.ToString("0.00");
+            }
+        }
+
         public static readonly PropertyInfo<int> TPProperty = RegisterProperty<int>(new PropertyInfo<int>("TP", "TP"));
         public int TP
         {
@@ -400,6 +435,8 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@USER_CLASSIFIER_REVIEW_ID", ReadProperty(UserClassifierReviewIdProperty)));
                     command.Parameters.Add(new SqlParameter("@STATUS", ReadProperty(StatusProperty)));
                     command.Parameters.Add(new SqlParameter("@MAG_SIMULATION_ID", newid));
+                    command.Parameters.Add(new SqlParameter("@FOS_THRESHOLD", ReadProperty(FosThresholdProperty)));
+                    command.Parameters.Add(new SqlParameter("@SCORE_THRESHOLD", ReadProperty(ScoreThresholdProperty)));
                     command.Parameters["@MAG_SIMULATION_ID"].Direction = ParameterDirection.Output;
                     command.ExecuteNonQuery();
                     LoadProperty(MagSimulationIdProperty, command.Parameters["@MAG_SIMULATION_ID"].Value);
@@ -468,6 +505,8 @@ namespace BusinessLibrary.BusinessClasses
                             LoadProperty<string>(WithThisAttributeProperty, reader.GetString("WithThisAttribute"));
                             LoadProperty<string>(FilteredByAttributeProperty, reader.GetString("FilteredByAttribute"));
                             LoadProperty<string>(UserClassifierModelProperty, reader.GetString("MODEL_TITLE"));
+                            LoadProperty<double>(FosThresholdProperty, reader.GetDouble("FOS_THRESHOLD"));
+                            LoadProperty<double>(ScoreThresholdProperty, reader.GetDouble("SCORE_THRESHOLD"));
                         }
                     }
                 }
@@ -498,6 +537,8 @@ namespace BusinessLibrary.BusinessClasses
             returnValue.LoadProperty<string>(WithThisAttributeProperty, reader.GetString("WithThisAttribute"));
             returnValue.LoadProperty<string>(FilteredByAttributeProperty, reader.GetString("FilteredByAttribute"));
             returnValue.LoadProperty<string>(UserClassifierModelProperty, reader.GetString("MODEL_TITLE"));
+            returnValue.LoadProperty<double>(FosThresholdProperty, reader.GetDouble("FOS_THRESHOLD"));
+            returnValue.LoadProperty<double>(ScoreThresholdProperty, reader.GetDouble("SCORE_THRESHOLD"));
             returnValue.MarkOld();
             return returnValue;
         }
@@ -550,7 +591,11 @@ namespace BusinessLibrary.BusinessClasses
             if (MagContReviewPipeline.runADFPieline(ContactId, "Train.tsv",
                 "Inference.tsv",
                 "Results.tsv",
-                "Sim" + this.MagSimulationId.ToString() + "per_paper_tfidf.pickle", mci.MagFolder, "0", folderPrefix, "0",
+                "Sim" + this.MagSimulationId.ToString() + "per_paper_tfidf.pickle",
+                mci.MagFolder,
+                FosThreshold.ToString(),
+                folderPrefix,
+                ScoreThreshold.ToString(),
                 "v1", "False") == "Succeeded")
             {
                 MagLog.UpdateLogEntry("running", "Sim: " + MagSimulationId.ToString() + ", pipeline complete", MagLogId);

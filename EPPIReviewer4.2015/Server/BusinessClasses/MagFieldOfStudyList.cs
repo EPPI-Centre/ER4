@@ -282,7 +282,7 @@ namespace BusinessLibrary.BusinessClasses
                 }
             }
 
-            public static readonly PropertyInfo<string> SearchTextProperty = RegisterProperty<string>(typeof(MagFieldOfStudyListSelectionCriteria), new PropertyInfo<string>("SearchText", "SearchText", ""));
+        public static readonly PropertyInfo<string> SearchTextProperty = RegisterProperty<string>(typeof(MagFieldOfStudyListSelectionCriteria), new PropertyInfo<string>("SearchText", "SearchText", ""));
             public string SearchText
             {
                 get { return ReadProperty(SearchTextProperty); }

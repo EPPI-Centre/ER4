@@ -419,12 +419,43 @@ namespace BusinessLibrary.BusinessClasses
                     switch (selectionCriteria.ListType)
                     {
                         case "PaperFieldsOfStudyList":
-                            searchString = "Composite(F.FId=" + selectionCriteria.FieldOfStudyId.ToString() + ")";
+                            searchString = "Composite(F.FId=" + selectionCriteria.FieldOfStudyId.ToString() + ")";                          
+                            if (selectionCriteria.DateFrom != "" && selectionCriteria.DateTo != "")
+                            {
+                                searchString = "AND(" + searchString + ",D=['" + selectionCriteria.DateFrom + "','" +
+                                    selectionCriteria.DateTo + "'])";
+                            }
+                            else
+                            {
+                                if (selectionCriteria.DateFrom != "")
+                                {
+                                    searchString = "AND(" + searchString + ",D>='" + selectionCriteria.DateFrom + "')";
+                                }
+                                else
+                                {
+                                    if (selectionCriteria.DateTo != "") // though think this is always true here
+                                    {
+                                        searchString = "AND(" + searchString + ",D<='" + selectionCriteria.DateTo + "')";
+                                    }
+                                }
+                            }
                             this.FieldOfStudyId = selectionCriteria.FieldOfStudyId;
+                            /*
                             fosParent = MagMakesHelpers.EvaluateSingleFieldOfStudyId(selectionCriteria.FieldOfStudyId.ToString());
                             if (fosParent != null)
                             {
                                 _totalItemCount = fosParent.CC;
+                            }
+                            */
+                            // replaced the above with this, so that the count is correct even with date filters
+                            MagMakesHelpers.MakesCalcHistogramResponse resp = MagMakesHelpers.CalcHistoramCount(searchString);
+                            foreach (MagMakesHelpers.histograms hs in resp.histograms)
+                            {
+                                if (hs.attribute == "Id")
+                                {
+                                    _totalItemCount = hs.total_count;
+                                    break;
+                                }
                             }
                             break;
                         case "CitedByList":
@@ -844,6 +875,26 @@ namespace BusinessLibrary.BusinessClasses
             set
             {
                 SetProperty(IncludedProperty, value);
+            }
+        }
+
+        public static readonly PropertyInfo<string> DateFromProperty = RegisterProperty<string>(typeof(MagPaperListSelectionCriteria), new PropertyInfo<string>("DateFrom", "DateFrom", ""));
+        public string DateFrom
+        {
+            get { return ReadProperty(DateFromProperty); }
+            set
+            {
+                SetProperty(DateFromProperty, value);
+            }
+        }
+
+        public static readonly PropertyInfo<string> DateToProperty = RegisterProperty<string>(typeof(MagPaperListSelectionCriteria), new PropertyInfo<string>("DateTo", "DateTo", ""));
+        public string DateTo
+        {
+            get { return ReadProperty(DateToProperty); }
+            set
+            {
+                SetProperty(DateToProperty, value);
             }
         }
 
