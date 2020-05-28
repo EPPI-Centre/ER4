@@ -57,7 +57,15 @@ export class MAGBrowserHistory implements OnInit {
 
         return false;
     }
+    public Selected() {
 
+    }
+    public ClearSelected() {
+
+    }
+    public ImportSelected() {
+
+    }
     Back() {
         this._location.back();
     }

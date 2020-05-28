@@ -16,7 +16,7 @@ export class MAGAdminComp implements OnInit {
     constructor(
         private _location: Location,
         public _MAGBrowserHistoryService: MAGBrowserHistoryService,
-        private _magAdvancedService: MAGAdvancedService,
+        public _magAdvancedService: MAGAdvancedService,
         private _ReviewerIdentityServ: ReviewerIdentityService,
         private router: Router
 
@@ -56,7 +56,15 @@ export class MAGAdminComp implements OnInit {
 
         return false;
     }
+    public Selected() {
 
+    }
+    public ClearSelected() {
+
+    }
+    public ImportSelected() {
+
+    }
     Back() {
         this._location.back();
     }

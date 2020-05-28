@@ -10,7 +10,7 @@ import { NotificationService } from '@progress/kendo-angular-notification';
 import { MAGBrowserService } from '../services/MAGBrowser.service';
 import { MagRelatedPapersRun } from '../services/MAGClasses.service';
 import { MAGBrowserHistoryService } from '../services/MAGBrowserHistory.service';
-
+import { Location } from '@angular/common';
 
 @Component({
 	selector: 'BasicMAGComp',
@@ -27,6 +27,7 @@ export class BasicMAGComp implements OnInit {
         private _ReviewerIdentityServ: ReviewerIdentityService,
         private _notificationService: NotificationService,
         private _routingStateService: MAGBrowserHistoryService,
+        private _location: Location,
         private router: Router
 
     ) {
@@ -49,6 +50,9 @@ export class BasicMAGComp implements OnInit {
 
     public Selected() {
 
+    }
+    public Forward() {
+        this._location.forward();
     }
     public ClearSelected() {
 
