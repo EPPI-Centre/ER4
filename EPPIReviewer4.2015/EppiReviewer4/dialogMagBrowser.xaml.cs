@@ -2132,8 +2132,17 @@ namespace EppiReviewer4
             codesSelectControlSimulationFilter.Visibility = Visibility.Collapsed;
         }
 
+        private MagSimulation CurrentlySelectedMagSimulation;
+
         private void HyperlinkButton_Click_8(object sender, RoutedEventArgs e)
         {
+            HyperlinkButton hl = sender as HyperlinkButton;
+            if (hl == null)
+                return;
+            MagSimulation ms = hl.DataContext as MagSimulation;
+            if (ms == null)
+                return;
+            CurrentlySelectedMagSimulation = ms;
             RadWindow.Confirm("Are you sure you want to delete this simulation?", this.DoDeleteSimulation);
         }
 
@@ -2142,11 +2151,7 @@ namespace EppiReviewer4
             var result = e.DialogResult;
             if (result == true)
             {
-                HyperlinkButton hl = sender as HyperlinkButton;
-                if (hl == null)
-                    return;
-                MagSimulation ms = hl.DataContext as MagSimulation;
-                if (ms == null)
+                if (CurrentlySelectedMagSimulation == null)
                     return;
                 CslaDataProvider provider = this.Resources["MagSimulationListData"] as CslaDataProvider;
                 if (provider != null)
@@ -2154,8 +2159,43 @@ namespace EppiReviewer4
                     MagSimulationList SimList = provider.Data as MagSimulationList;
                     if (SimList != null)
                     {
-                        SimList.Remove(ms);
+                        SimList.Remove(CurrentlySelectedMagSimulation);
                         //SimList.SaveItem(ms);
+                    }
+                }
+            }
+        }
+
+        private void HyperlinkButton_Click_12(object sender, RoutedEventArgs e)
+        {
+            HyperlinkButton hl = sender as HyperlinkButton;
+            if (hl == null)
+                return;
+            MagSimulation ms = hl.DataContext as MagSimulation;
+            if (ms == null)
+                return;
+            CurrentlySelectedMagSimulation = ms;
+            RadWindow.Confirm("Are you sure you want to download these data?" + ms.Status, this.DoDownloadSimulationDataOnFail);
+        }
+
+        private void DoDownloadSimulationDataOnFail(object sender, WindowClosedEventArgs e)
+        {
+            var result = e.DialogResult;
+            if (result == true)
+            {
+                if (CurrentlySelectedMagSimulation == null)
+                    return;
+
+                CurrentlySelectedMagSimulation.BeginEdit();
+                CurrentlySelectedMagSimulation.Status = "Attempting download";
+                CurrentlySelectedMagSimulation.BeginSave();
+                CslaDataProvider provider = this.Resources["MagSimulationListData"] as CslaDataProvider;
+                if (provider != null)
+                {
+                    MagSimulationList SimList = provider.Data as MagSimulationList;
+                    if (SimList != null)
+                    {
+                        SimList.SaveItem(CurrentlySelectedMagSimulation);
                     }
                 }
             }
