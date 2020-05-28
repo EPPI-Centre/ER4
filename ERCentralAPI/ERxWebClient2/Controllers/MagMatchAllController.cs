@@ -44,6 +44,29 @@ namespace ERxWebClient2.Controllers
                 throw;
             }
 		}
+
+        //call from itemdetails tab...
+        [HttpPost("[action]")]
+        public IActionResult MagMatchItemsToPapers([FromBody] SingleInt64Criteria itemId)
+        {
+            try
+            {
+                SetCSLAUser();
+
+                DataPortal<MagMatchItemsToPapersCommand> dp = new DataPortal<MagMatchItemsToPapersCommand>();
+                MagMatchItemsToPapersCommand GetMatches = new MagMatchItemsToPapersCommand("FindMatches",
+                   false, itemId.Value, 0);
+
+                GetMatches = dp.Execute(GetMatches);
+
+                return Ok(GetMatches);
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "MagMatchItemsToPapers has an error");
+                throw;
+            }
+        }
     }
 
 }

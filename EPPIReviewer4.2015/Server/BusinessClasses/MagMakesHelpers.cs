@@ -527,6 +527,8 @@ namespace BusinessLibrary.BusinessClasses
 
         public static string ReconstructInvertedAbstract(PaperMakesInvertedAbstract ab)
         {
+
+            if (ab == null) { return ""; }
             try
             {
                 //var j = (JObject)JsonConvert.DeserializeObject(str);
