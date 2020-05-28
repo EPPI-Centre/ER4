@@ -389,7 +389,6 @@ export class WorkAllocationWizardComp implements OnInit, OnDestroy {
     AddManualMemberToTable() {
         this.WipePreview();
         const colN = this.workAllocationFromWizardCommand.peoplePerItem;
-        let done: boolean = false;
         let inCurrentCol: number = 0;
         if (this.ToAddManualMember != null) {
             for (let m of this._manualAssignCol1) {
@@ -413,8 +412,8 @@ export class WorkAllocationWizardComp implements OnInit, OnDestroy {
                     cloned.NumberOfItems = leftover;
                     this.ToAddManualMember.NumberOfItems = this.ToAddManualMember.NumberOfItems - leftover;
                     this._manualAssignCol1.push(this.ToAddManualMember);
-                    this._manualAssignCol2.push(cloned);
-                    if (this.workAllocationFromWizardCommand.peoplePerItem > 1) {
+                    if (colN > 1) {
+                        this._manualAssignCol2.push(cloned);
                         this.UpdateSelectedContact(this.ToAddManualMember.contactId, this.ToAddManualMember.NumberOfItems + leftover);
                     }
                     else {//we won't use the second column, so leftover is a throwaway
@@ -447,8 +446,8 @@ export class WorkAllocationWizardComp implements OnInit, OnDestroy {
                     cloned.NumberOfItems = leftover;
                     this.ToAddManualMember.NumberOfItems = this.ToAddManualMember.NumberOfItems - leftover;
                     this._manualAssignCol2.push(this.ToAddManualMember);
-                    this._manualAssignCol3.push(cloned);
-                    if (this.workAllocationFromWizardCommand.peoplePerItem > 2) {
+                    if (colN > 2) {
+                        this._manualAssignCol3.push(cloned);
                         this.UpdateSelectedContact(this.ToAddManualMember.contactId, this.ToAddManualMember.NumberOfItems + leftover);
                     }
                     else {//we won't use the third column, so leftover is a throwaway
@@ -476,7 +475,7 @@ export class WorkAllocationWizardComp implements OnInit, OnDestroy {
                     //we need to split this person in two: some in this column, some in the next.
                     //items for this person minus items we can add in current column
                     const leftover = this.ToAddManualMember.NumberOfItems - (this.workAllocationFromWizardCommand.numberOfItemsToAssign - inCurrentCol);
-                    //new cloned person to add in the next column
+                    //new cloned person to add in the next column, we'll throw it away, unless we'll start supporting quadruple coding...
                     const cloned: SelectableContact = this.ToAddManualMember.CloneAndAssingOneItem();
                     cloned.NumberOfItems = leftover;
                     this.ToAddManualMember.NumberOfItems = this.ToAddManualMember.NumberOfItems - leftover;

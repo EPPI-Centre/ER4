@@ -397,18 +397,6 @@
                 <strong>Shared groups</strong>: each group identifies references by the combination of people who will be coding them. Creates numerous "coding assigments".<br />
                 <strong>One group per person</strong>: each group identifies the references that will be coded by a single person. Creates the smallest possible number of "coding assigments".
                
-                <!--In many cases (when each reference is to be coded by more than one person), it is possible to assign the same work in two different ways.
-                (1) You can create one allocation group (an admin code) and a corresponding coding assignment per person
-                (each group/assignment will overlap with other groups/assigments).
-                (2) Or, you can create "shared" groups, where each group is used to create two or more assignments,
-                one for each person who will code the same group of references.<br />
-                Strategy (1) can be useful because it minimises the number of coding assignments and makes it easier to follow progress.
-                However, it does not make it immediately apparent what comparisons you'll need to create,
-                in order to reconcile all items and find all potential disagreements.<br />
-                Strategy 2 creates less groups, but many more assignments, making progress somewhat harder to track.
-                It has the advantage that the groups created can be used to guide the creation of comparisons,
-                as you'll know exactly who got assigned the same batch of references.-->
-
             </div>
         </div>
         <div class="row my-1 mx-0 border-top">
@@ -426,12 +414,12 @@
                 <div *ngIf="ShowEditCodesPrefix" class="col-12">
                     <input type="text" [(ngModel)]="workAllocationFromWizardCommand.groupsPrefix" class="w-75" />
                     <button class=" pt-1 m-1 rounded btn btn-sm btn-outline-dark " (click)="ShowEditCodesPrefixClicked()">
-                        Close
+                        Save
                     </button>
                 </div>
             </div>
             <div class="col-4 rounded border border-info alert-info small">
-                The groups of references (Allocation Codes), should have meaningful names. This helps tracking their purpose as the work progresses.
+                The groups of references (Allocation Codes) should have meaningful names, to help indicate their purpose.
             </div>
         </div>
         <div class="row my-1 mx-0 border-top">
@@ -457,7 +445,7 @@
                         </div>
                     </div>
                     <div class="col-12 row mx-2 my-1 p-2 rounded border border-info ">
-                        <div class=""> Number of Items that need to be assigned: <b>{{ToBeManuallyAssignedStill}}</b></div>
+                        <div class=""> Remaining items: <strong>{{ToBeManuallyAssignedStill}}</strong> (of {{workAllocationFromWizardCommand.peoplePerItem}} * {{workAllocationFromWizardCommand.numberOfItemsToAssign}} = {{workAllocationFromWizardCommand.peoplePerItem * workAllocationFromWizardCommand.numberOfItemsToAssign}})</div>
                         <button class=" px-1 py-0 mx-1 my-0 btn btn-sm btn-outline-primary" (click)="DistributeRemainingManualAssignTable()">
                             Distribute remaining
                         </button>
@@ -485,7 +473,7 @@
                     </div>
                     <div class="col-12 row">
                         <div class="col">
-                            First round:<br />
+                            First batch:<br />
                             <div *ngFor="let member of ManualAssignTable[0]" class="border border-secondary rounded my-0 mx-1 p-1 " [ngClass]="{'alert-success' : member.NumberOfItems > 0}">
                                 <div class="d-inline">{{member.contactName}} ({{member.NumberOfItems}} items)</div>
                                 <button *ngIf="IsLastInManualAssignTable(member)" class=" px-1 py-0 mx-1 my-0 rounded  btn btn-sm btn-outline-danger" (click)="RemoveLastManualMember()">
@@ -494,7 +482,7 @@
                             </div>
                         </div>
                         <div *ngIf="workAllocationFromWizardCommand.peoplePerItem > 1" class="col">
-                            Second round:<br />
+                            Second batch:<br />
                             <div *ngFor="let member of ManualAssignTable[1]" class="border border-secondary rounded my-0 mx-1 p-1 " [ngClass]="{'alert-success' : member.NumberOfItems > 0}">
                                 <div class="d-inline">{{member.contactName}} ({{member.NumberOfItems}} items)</div>
                                 <button *ngIf="IsLastInManualAssignTable(member)" class=" px-1 py-0 mx-1 my-0 rounded  btn btn-sm btn-outline-danger" (click)="RemoveLastManualMember()">
@@ -503,7 +491,7 @@
                             </div>
                         </div>
                         <div *ngIf="workAllocationFromWizardCommand.peoplePerItem > 2" class="col">
-                            Third round:<br />
+                            Third batch:<br />
                             <div *ngFor="let member of ManualAssignTable[2]" class="border border-secondary rounded my-0 mx-1 p-1 " [ngClass]="{'alert-success' : member.NumberOfItems > 0}">
                                 <div class="d-inline">{{member.contactName}} ({{member.NumberOfItems}} items)</div>
                                 <button *ngIf="IsLastInManualAssignTable(member)" class=" px-1 py-0 mx-1 my-0 rounded  btn btn-sm btn-outline-danger" (click)="RemoveLastManualMember()">
@@ -553,56 +541,5 @@
         </div>
     </div>
 </div>
-
-
-
-
-
-
-
-
-
-<!--<div  class="card container-fluid mt-1 bg-light  m-1 p-1 form-group">
-    <h2>I'm the new wizard, fool!</h2>
-    <form class="row" #NewCodeFromCollaborate="ngForm" (ngSubmit)="onSubmit()">
-        <div class="col-12">
-            <div class="form-group">
-                <label for="Codeset_TypeCollaborate">Code Type*</label>
-                <select #CodeTypeSelectCollaborate class="form-control" name="NewCode_TypeCollaborate"
-                        [disabled]="!CurrentCodeCanHaveChildren">
-                    <option *ngFor="let type of _reviewSetsService.AllowedChildTypesOfSelectedNode" [value]="type.key" [selected]="type.key == _reviewSetsService.AllowedChildTypesOfSelectedNode[0].key">
-                        {{type.value}}
-                    </option>
-                </select>
-            </div>
-        </div>
-        <div class="form-group col-12">
-            <label for="source_NameCollaborate">Code Name*</label>
-            <input type="text" class="form-control" id="AttName" [disabled]="!CurrentCodeCanHaveChildren"
-                   [(ngModel)]="NewCode.attribute_name" name="attribute_name"
-                   #name="ngModel">
-            <span [hidden]="IsNewCodeNameValid()"
-                  class="alert alert-danger small p-1">
-                Name is required
-            </span>
-        </div>
-        <div class="form-group col-12 mt-2">
-            <label for="newSetDescriptionCollaborate">Description (optional)</label>
-            <textarea class="form-control" id="newSetDescription" [disabled]="!CurrentCodeCanHaveChildren"
-                      [(ngModel)]="NewCode.attribute_set_desc" name="newAttDescription" rows="3"></textarea>
-        </div>
-        <div class="col-12">
-            <button type="submit" (click)="CreateNewCode()"
-                    class="btn btn-success ml-2 mr-2"
-                    [disabled]="!NewCodeFromCollaborate.dirty || !IsNewCodeNameValid() || !CurrentCodeCanHaveChildren">
-                Create
-            </button>
-            <button class="btn btn-outline-secondary ml-2 mr-2" type="button"
-                    (click)="CancelActivity()">
-                Cancel
-            </button>
-        </div>
-    </form>
-</div>-->
 
 
