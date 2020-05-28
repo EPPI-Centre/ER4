@@ -94,6 +94,7 @@ import { MAGBrowserHistory } from './components/MAG/MAGBrowserHistory.component'
 import { MAGAdminComp } from './components/MAG/MAGAdmin.component';
 import { MatchingMAGItemsComponent } from './components/MAG/MatchingMAGItems.component';
 import { WorkAllocationWizardComp } from './components/WorkAllocations/WorkAllocationWizardComp.component';
+import { microsoftAcademicComp } from './components/MAG/microsoftAcademic.component';
 
 @NgModule({
     declarations: [
@@ -169,7 +170,8 @@ import { WorkAllocationWizardComp } from './components/WorkAllocations/WorkAlloc
         MAGAdminComp,
         MatchingMAGItemsComponent,
         MAGAdminComp,
-        WorkAllocationWizardComp
+        WorkAllocationWizardComp,
+        microsoftAcademicComp
 	],
     providers: [
         EventEmitterService,
@@ -211,6 +213,7 @@ import { WorkAllocationWizardComp } from './components/WorkAllocations/WorkAlloc
             { path: 'ItemList', component: ItemListComp },
             { path: 'MAGAdmin', component: MAGAdminComp},
             { path: 'MAGBrowser', component: MAGBrowser },
+            { path: 'microsoftAcademic', component: microsoftAcademicComp },
             { path: 'MAGBrowserHistory', component: MAGBrowserHistory },
             { path: 'MatchingMAGItems', component: MatchingMAGItemsComponent},
             { path: 'AdvancedMAGFeatures', component: AdvancedMAGFeaturesComponent },
