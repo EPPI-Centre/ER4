@@ -2142,6 +2142,11 @@ namespace EppiReviewer4
             MagSimulation ms = hl.DataContext as MagSimulation;
             if (ms == null)
                 return;
+            if (ms.Status == "Running" || ms.Status == "Pending")
+            {
+                RadWindow.Alert("Sorry, can't delete this simulation");
+                return;
+            }
             CurrentlySelectedMagSimulation = ms;
             RadWindow.Confirm("Are you sure you want to delete this simulation?", this.DoDeleteSimulation);
         }
