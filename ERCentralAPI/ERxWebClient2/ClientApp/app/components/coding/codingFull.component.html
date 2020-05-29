@@ -128,7 +128,7 @@
 							<codingRecordComp [item]="item"></codingRecordComp>
 						</ng-template>
 					</kendo-tabstrip-tab>
-					<kendo-tabstrip-tab [title]="'Microsoft Academic'">
+					<kendo-tabstrip-tab *ngIf="ShowMagTab" [title]="'Microsoft Academic'">
 						<ng-template kendoTabContent>
 							<microsoftAcademicComp [ItemID]="itemID"></microsoftAcademicComp>
 						</ng-template>
