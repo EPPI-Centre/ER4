@@ -167,6 +167,7 @@
             <HyperlinkButton x:Name="hlAdmin" Grid.Column="3" Content="Admin" Margin="0,5,5,5" HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="49" Click="hlAdmin_Click" IsTabStop="False"></HyperlinkButton>
 
         </Grid>
+        <!-- end header grid -->
 
         <Grid x:Name="StatusGrid" Grid.Row="1" Visibility="Collapsed">
             <Grid.ColumnDefinitions>
@@ -1007,7 +1008,14 @@
                     <telerikGridView:RadGridView.Columns>
                         <telerikGridView:GridViewDataColumn Header="Job" DataMemberBinding="{Binding JobType}" Width="220"></telerikGridView:GridViewDataColumn>
                         <telerikGridView:GridViewDataColumn Header="Submitted by" DataMemberBinding="{Binding ContactName}" Width="100"></telerikGridView:GridViewDataColumn>
-                        <telerikGridView:GridViewDataColumn Header="Job status" DataMemberBinding="{Binding JobStatus}" Width="100"></telerikGridView:GridViewDataColumn>
+                        <telerikGridView:GridViewDataColumn Header="Method" DataMemberBinding="{Binding SearchMethod}" IsFilterable="False"></telerikGridView:GridViewDataColumn>
+                        <telerikGridView:GridViewDataColumn Width="80" SortingState="None" IsReadOnly="True" Header="Job Status">
+                            <telerikGridView:GridViewDataColumn.CellTemplate>
+                                <DataTemplate>
+                                    <HyperlinkButton Content="{Binding JobStatus}" Click="HyperlinkButton_Click_13"/>
+                                </DataTemplate>
+                            </telerikGridView:GridViewDataColumn.CellTemplate>
+                        </telerikGridView:GridViewDataColumn>
                         <telerikGridView:GridViewDataColumn Header="When submitted" DataMemberBinding="{Binding TimeSubmitted}" Width="140"></telerikGridView:GridViewDataColumn>
                         <telerikGridView:GridViewDataColumn Header="When updated" DataMemberBinding="{Binding TimeUpdated}" Width="140"></telerikGridView:GridViewDataColumn>
                         <telerikGridView:GridViewDataColumn Header="Job message" DataMemberBinding="{Binding JobMessage}" Width="*"></telerikGridView:GridViewDataColumn>

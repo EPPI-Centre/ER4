@@ -222,7 +222,7 @@ namespace EppiReviewer4
         }
 
         // ******************************** PAPER DETAILS PAGE **************************************
-        public void ShowPaperDetailsPage(Int64 PaperId, string FullRecord, string Abstract, string URLs, 
+        public void ShowPaperDetailsPage(Int64 PaperId, string FullRecord, string Abstract, string URLs,
             string FindOnWeb, Int64 LinkedITEM_ID)
         {
             StatusGrid.Visibility = Visibility.Collapsed;
@@ -605,7 +605,7 @@ namespace EppiReviewer4
 
         private void LBManualCheckExcluded_Click(object sender, RoutedEventArgs e)
         {
-            this.ListExcludedThatNeedMatching.Invoke(sender, e);            
+            this.ListExcludedThatNeedMatching.Invoke(sender, e);
         }
 
         private void LBMNotMatchedIncluded_Click(object sender, RoutedEventArgs e)
@@ -1103,7 +1103,7 @@ namespace EppiReviewer4
                                 ShowAdvancedPage();
                                 break;
                             case "PaperDetail":
-                                ShowPaperDetailsPage(mbh.PaperId, mbh.PaperFullRecord, mbh.PaperAbstract, mbh.URLs, 
+                                ShowPaperDetailsPage(mbh.PaperId, mbh.PaperFullRecord, mbh.PaperAbstract, mbh.URLs,
                                     mbh.FindOnWeb, mbh.LinkedITEM_ID);
                                 break;
                             case "MatchesIncluded":
@@ -1151,7 +1151,7 @@ namespace EppiReviewer4
         }
 
         private void HyperlinkButton_Click_1(object sender, RoutedEventArgs e)
-        { 
+        {
             MagBrowseHistory mbh = (sender as HyperlinkButton).DataContext as MagBrowseHistory;
             if (mbh != null)
             {
@@ -1425,7 +1425,7 @@ namespace EppiReviewer4
                         {
                             RadWindow.Alert("All of these records were already in your review.");
                         }
-                        
+
                         SelectedPaperIds.Clear();
                         ClearSelectionsFromPaperLists();
                         UpdateSelectedCount();
@@ -1466,7 +1466,7 @@ namespace EppiReviewer4
         public static string CleanText(string text)
         {
             Regex rgx = new Regex("[^a-zA-Z0-9 ]");
-            
+
             text = rgx.Replace(text, " ").ToLower().Trim();
             while (text.IndexOf("  ") != -1)
             {
@@ -2174,8 +2174,20 @@ namespace EppiReviewer4
             MagSimulation ms = hl.DataContext as MagSimulation;
             if (ms == null)
                 return;
+            if (ms.TP > 0 || ms.FN > 0 || ms.FP > 0) // i.e. data are downloaded already
+                return;
+            if (ms.Status == "Pending" || ms.Status == "Complete" || ms.Status == "Failed")
+            {
+                RadWindow.Alert("Data not available for download");
+                return;
+            }
+            if (ms.CreatedDate.Date.AddHours(3) > DateTime.Now)
+            {
+                RadWindow.Alert("Job running less than 3 hours");
+                return;
+            }
             CurrentlySelectedMagSimulation = ms;
-            RadWindow.Confirm("Are you sure you want to download these data?" + ms.Status, this.DoDownloadSimulationDataOnFail);
+            RadWindow.Confirm("Are you sure you want to download these data?", this.DoDownloadSimulationDataOnFail);
         }
 
         private void DoDownloadSimulationDataOnFail(object sender, WindowClosedEventArgs e)
@@ -2221,7 +2233,7 @@ namespace EppiReviewer4
             if (provider != null)
             {
                 string OrderBy = "Network"; // i.e. rbROCNetwork.IsChecked == true
-                
+
                 if (rbROCDistance.IsChecked == true)
                 {
                     OrderBy = "FoS";
@@ -2481,7 +2493,7 @@ namespace EppiReviewer4
                             }
                             else
                             {
-                                DoRunContReviewPipeline();
+                                DoRunContReviewPipeline("", 0, "Pipeline running...");
                             }
                         }
                     }
@@ -2491,7 +2503,7 @@ namespace EppiReviewer4
             }
         }
 
-        private void DoRunContReviewPipeline()
+        private void DoRunContReviewPipeline(string specificFolder, int MagLogId, string AlertText)
         {
             CslaDataProvider provider = ((CslaDataProvider)App.Current.Resources["MagCurrentInfoData"]);
             MagCurrentInfo mci = provider.Data as MagCurrentInfo;
@@ -2501,7 +2513,9 @@ namespace EppiReviewer4
                     tbPreviousMAG.Text,
                     tbLatestMag.Text,
                     EditScoreThreshold.Value.Value,
-                    EditFoSThreshold.Value.Value);
+                    EditFoSThreshold.Value.Value,
+                    specificFolder,
+                    MagLogId);
             dp2.ExecuteCompleted += (o, e2) =>
             {
                 if (e2.Error != null)
@@ -2510,7 +2524,7 @@ namespace EppiReviewer4
                 }
                 else
                 {
-                    RadWindow.Alert("Pipeline running...");
+                    RadWindow.Alert(AlertText);
                     SwitchOnAutoRefreshLogList();
                 }
             };
@@ -2518,6 +2532,44 @@ namespace EppiReviewer4
             dp2.BeginExecute(RunPipelineCommand);
         }
 
-        
+        private void HyperlinkButton_Click_13(object sender, RoutedEventArgs e)
+        {
+            HyperlinkButton hl = sender as HyperlinkButton;
+            if (hl == null)
+                return;
+            MagLog ml = hl.DataContext as MagLog;
+            if (ml == null)
+                return;
+            if (ml.TimeUpdated.AddHours(2) > DateTime.Now)
+            {
+                RadWindow.Alert("Time since last log update < 2 hours");
+                return;
+            }
+            if (ml.JobStatus.ToLower() != "running")
+            {
+                RadWindow.Alert("Job not running");
+                return;
+            }
+            CurrentlySelectedMagLogForFailedDataDownload = ml;
+            RadWindow.Confirm("Are you sure you want to download these data?", this.DoDownloadContReviewDataOnFail);
+        }
+
+        private MagLog CurrentlySelectedMagLogForFailedDataDownload;
+
+        private void DoDownloadContReviewDataOnFail(object sender, WindowClosedEventArgs e)
+        {
+            var result = e.DialogResult;
+            if (result == true && CurrentlySelectedMagLogForFailedDataDownload != null)
+            {
+                MagLog ml = CurrentlySelectedMagLogForFailedDataDownload;
+                if (ml.JobMessage.IndexOf("Folder:") < 0)
+                {
+                    RadWindow.Alert("Can't find folder id");
+                    return;
+                }
+                string folder = ml.JobMessage.Substring(ml.JobMessage.IndexOf("Folder:")).Replace("Folder:", "");
+                DoRunContReviewPipeline(folder, ml.MagLogId, "Downloading data from folder: " + folder);
+            }
+        }
     }
 }
