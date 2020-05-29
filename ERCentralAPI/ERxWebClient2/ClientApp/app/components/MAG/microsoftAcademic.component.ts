@@ -16,7 +16,7 @@ export class microsoftAcademicComp implements OnInit, OnDestroy {
 
     constructor(private router: Router, 
         @Inject('BASE_URL') private _baseUrl: string,
-        private _magAdvancedService: MAGAdvancedService,
+        public _magAdvancedService: MAGAdvancedService,
         private _ItemCodingService: ItemCodingService
     ) { }
 

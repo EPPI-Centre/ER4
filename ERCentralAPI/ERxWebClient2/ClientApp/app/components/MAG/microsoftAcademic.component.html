@@ -5,8 +5,8 @@
     <h5><b>should be item details of some sort here quickCitation...here...</b></h5>
     <b>Record(s) matched from Microsoft Academic:</b>
 
-    <h5 class="alert-warning" *ngIf="_magAdvancedService.MagReferencesPaperList.papers == null">Loading...</h5>
-    <div class="card col-12 " style="overflow:auto;" *ngIf="_magAdvancedService.MagReferencesPaperList.papers != null">
+    <h5 class="alert-warning" *ngIf="_magAdvancedService.MagReferencesPaperList == null">Loading...</h5>
+    <div class="card col-12 " style="overflow:auto;" *ngIf="_magAdvancedService.MagReferencesPaperList != null">
         <table class="table table-bordered table-responsive-md table-striped text-center">
             <thead>
                 <tr>
