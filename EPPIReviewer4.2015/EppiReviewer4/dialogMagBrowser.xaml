@@ -467,7 +467,7 @@
             </telerikGridView:RadGridView>
 
         </Grid>
-        <!-- end statusgrid (really the r&d grid now) -->
+        <!-- end statusgrid (really the advanced features grid now) -->
         
 
         <Grid x:Name="PaperGrid" Grid.Row="1" Visibility="Collapsed">

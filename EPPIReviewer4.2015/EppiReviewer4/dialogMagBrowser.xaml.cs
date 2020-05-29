@@ -1767,7 +1767,8 @@ namespace EppiReviewer4
 
         private void ComboRelatedPapersMode_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
         {
-            if (ComboRelatedPapersMode != null && ComboRelatedPapersMode.Items != null && ComboRelatedPapersMode.SelectedIndex == 7)
+            if (ComboRelatedPapersMode != null && ComboRelatedPapersMode.Items != null &&
+                ComboRelatedPapersMode.SelectedIndex == 7)
             {
                 cbRelatedPapersRunAutoRun.IsEnabled = true;
                 RadioButtonRelatedPapersRunNoDateRestriction.IsChecked = true;
@@ -1782,12 +1783,19 @@ namespace EppiReviewer4
                 {
                     cbRelatedPapersRunAutoRun.IsEnabled = false;
                     cbRelatedPapersRunAutoRun.IsChecked = false;
-                    if (RadioButtonRelatedPapersRunChildrenOfCode.IsChecked == true)
-                    {
-                        RadioButtonRelatedPapersRunAllIncluded.IsChecked = true;
-                        RadioButtonRelatedPapersRunChildrenOfCode.IsEnabled = false;
-                    }
+                }
+                if (RadioButtonRelatedPapersRunChildrenOfCode != null && 
+                    RadioButtonRelatedPapersRunChildrenOfCode.IsChecked == true)
+                {
+                    RadioButtonRelatedPapersRunAllIncluded.IsChecked = true;
+                }
+                if (RadioButtonRelatedPapersRunDateFilter != null)
+                {
                     RadioButtonRelatedPapersRunDateFilter.IsEnabled = true;
+                }
+                if (RadioButtonRelatedPapersRunChildrenOfCode != null)
+                {
+                    RadioButtonRelatedPapersRunChildrenOfCode.IsEnabled = false;
                 }
             }
         }
@@ -2106,7 +2114,7 @@ namespace EppiReviewer4
             newSimulation.StudyTypeClassifier = (comboSimulationStudyTypeClassifier.SelectedItem as ComboBoxItem).Content.ToString();
             newSimulation.UserClassifierModelId = (UserModel != null ? UserModel.ModelId : 0);
             newSimulation.UserClassifierReviewId = (UserModel != null ? UserModel.ReviewId : 0);
-            newSimulation.FosThreshold = SimulationEditScoreThreshold.Value.Value;
+            newSimulation.FosThreshold = SimulationEditFoSThreshold.Value.Value;
             newSimulation.ScoreThreshold = SimulationEditScoreThreshold.Value.Value;
             newSimulation.Status = "Pending";
 
