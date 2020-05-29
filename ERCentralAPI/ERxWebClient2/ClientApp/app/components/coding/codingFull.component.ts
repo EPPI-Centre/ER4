@@ -306,6 +306,16 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
 			return false;
 		}
     }
+
+    public get ShowMagTab(): boolean {
+        if (
+            this.reviewInfoService.ReviewInfo.magEnabled
+            && this.ReviewerIdentityServ.reviewerIdentity.isSiteAdmin //remove this 2nd condition when MAG features are ready for publish
+        ) {
+            return true;
+        }
+        else return false
+    }
     public get CurrentNode(): singleNode | null {
         return this.ReviewSetsService.selectedNode;
     }
