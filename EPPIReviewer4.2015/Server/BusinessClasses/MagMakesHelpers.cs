@@ -154,7 +154,29 @@ namespace BusinessLibrary.BusinessClasses
             public List<PaperMakes> entities { get; set; }
         }
 
-        public static string getAuthors(List<PaperMakesAuthor> authors)
+        public class MakesCalcHistogramResponse
+        {
+            public string expr { get; set; }
+            public int num_entities { get; set; }
+            public List<histograms> histograms { get; set; }
+        }
+
+        public class histograms
+        {
+            public string attribute { get; set; }
+            public string distinct_values { get; set; }
+            public int total_count { get; set; }
+            public List<histogram> histogram { get; set; }
+        }
+        public class histogram
+        {
+            public string value { get; set; }
+            public double logprob { get; set; }
+            public int count { get; set; }
+        }
+
+
+            public static string getAuthors(List<PaperMakesAuthor> authors)
         {
             string tmp = "";
             if (authors != null)
@@ -212,6 +234,12 @@ namespace BusinessLibrary.BusinessClasses
         {
             string query = @"/interpret?query=" + System.Web.HttpUtility.UrlEncode(CleanText(expression));
             return doMakesInterpretRequest(query, "", MakesDeploymentStatus);
+        }
+
+        public static MakesCalcHistogramResponse CalcHistoramCount(string expression, string MakesDeploymentStatus = "LIVE")
+        {
+            string query = @"/calchistogram?expr=" + expression;
+            return doMakesCalcHistogramRequest(query, MakesDeploymentStatus);
         }
 
         public static FieldOfStudyMakes EvaluateSingleFieldOfStudyId(string FosId, string MakesDeploymentStatus = "LIVE")
@@ -401,7 +429,7 @@ namespace BusinessLibrary.BusinessClasses
                 string responseText = "";
                 MagCurrentInfo MagInfo = MagCurrentInfo.GetMagCurrentInfoServerSide(MakesDeploymentStatus);
                 string queryString = @"/interpret?query=" +
-                    System.Web.HttpUtility.UrlEncode("DOI") + "&entityCount=5&attributes=" +
+                    System.Web.HttpUtility.UrlEncode(DOI.ToUpper()) + "&entityCount=5&attributes=" +
                     System.Web.HttpUtility.UrlEncode("Id,DN,AA.AuN,J.JN,V,I,FP,Y") +
                     "&complete=0&count=10&offset=0&timeout=2000&model=latest";
                 WebRequest request = WebRequest.Create(MagInfo.MakesEndPoint + queryString);
@@ -510,6 +538,30 @@ namespace BusinessLibrary.BusinessClasses
             return respJson;
         }
 
+        private static MakesCalcHistogramResponse doMakesCalcHistogramRequest(string query, string MakesDeploymentStatus)
+        {
+            var jsonsettings = new JsonSerializerSettings
+            {
+                NullValueHandling = NullValueHandling.Ignore,
+                MissingMemberHandling = MissingMemberHandling.Ignore
+            };
+
+            string responseText = "";
+            MagCurrentInfo MagInfo = MagCurrentInfo.GetMagCurrentInfoServerSide(MakesDeploymentStatus);
+            WebRequest request = WebRequest.Create(MagInfo.MakesEndPoint + query +
+                "&attributes=" + System.Web.HttpUtility.UrlEncode("F.FN,Id"));
+            WebResponse response = request.GetResponse();
+            using (Stream dataStream = response.GetResponseStream())
+            {
+                StreamReader sreader = new StreamReader(dataStream);
+                responseText = sreader.ReadToEnd();
+            }
+            response.Close();
+
+            MakesCalcHistogramResponse respJson = JsonConvert.DeserializeObject<MakesCalcHistogramResponse>(responseText, jsonsettings);
+            return respJson;
+        }
+
 
         public static PaperMakes GetPaperMakesFromMakes(Int64 PaperId, string MakesDeploymentStatus = "LIVE")
         {
@@ -557,7 +609,6 @@ namespace BusinessLibrary.BusinessClasses
         {
             Regex rgx = new Regex("[^a-zA-Z0-9 ]");
             Dictionary<string, string> charMap = EuropeanCharacterMap();
-
             foreach (KeyValuePair<string, string> replacement in charMap)
             {
                 text = text.Replace(replacement.Key, replacement.Value);
@@ -569,6 +620,19 @@ namespace BusinessLibrary.BusinessClasses
                 text = text.Replace("  ", " ");
             }
             return text;
+        }
+        public static string RemoveTextInParentheses(string s)
+        {
+            s = s.TrimEnd(' ');
+            if (s.EndsWith("]"))
+            {
+                int i = s.LastIndexOf('[');
+                if ((s.Length - i) * 4 < s.Length)
+                {
+                    s = s.Substring(0, i).TrimEnd(' ');
+                }
+            }
+            return s;
         }
         private static string RestoreGreekLetters(string text)
         {
@@ -682,7 +746,8 @@ namespace BusinessLibrary.BusinessClasses
                                                 { "(r)", "" },
                                                 { "(R)", "" },
                                                 { "(c)", "" },
-                                                { "(C)", "" }
+                                                { "(C)", "" },
+                                                { "™", "" } // JT added this one (not in MAG team's list)
                                             };
         }
 
@@ -717,7 +782,7 @@ namespace BusinessLibrary.BusinessClasses
             };
         }
 
-        private static string removeStopwords(string input)
+        public static string removeStopwords(string input)
         {
             string[] stopWords = { " and ", " for ", " are ", " from ", " have ", " results ", " based ", " between ", " can ", " has ", " analysis ", " been ", " not ", " method ", " also ", " new ", " its ", " all ", " but ", " during ", " after ", " into ", " other ", " our ", " non ", " present ", " most ", " only ", " however ", " associated ", " compared ", " des ", " related ", " proposed ", " about ", " each ", " obtained ", " increased ", " had ", " among ", " due ", " how ", " out ", " les ", " los ", " abstract ", " del ", " many ", " der ", " including ", " could ", " report ", " cases ", " possible ", " further ", " given ", " result ", " las ", " being ", " like ", " any ", " made ", " because ", " discussed ", " known ", " recent ", " findings ", " reported ", " considered ", " described ", " although ", " available ", " particular ", " provides ", " improved ", " here ", " need ", " improve ", " analyzed ", " either ", " produced ", " demonstrated ", " evaluated ", " provided ", " did ", " does ", " required ", " before ", " along ", " presents ", " having ", " much ", " near ", " demonstrate ", " iii ", " often ", " making ", " the ", " that ", " with ", " this ", " were ", " was ", " which ", " study ", " using ", " these ", " their ", " used ", " than ", " use ", " such ", " when ", " well ", " some ", " through ", " there ", " under ", " they ", " within ", " will ", " while ", " those ", " various ", " where ", " then ", " very ", " who ", " und ", " should ", " thus ", " suggest ", " them ", " therefore ", " since ", " une ", " what ", " whether ", " una ", " von ", " would ", " of ", " in ", " a ", " to ", " is ", " on ", " by ", " as ", " de ", " an ", " be ", " we ", " or ", " s ", " it ", " la ", " e ", " en ", " i ", " no ", " et ", " el ", " do ", " up ", " se ", " un ", " ii " };
             foreach (string word in stopWords)

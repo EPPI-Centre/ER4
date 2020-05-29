@@ -269,6 +269,41 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
+        public static readonly PropertyInfo<double> FosThresholdProperty = RegisterProperty<double>(new PropertyInfo<double>("FosThreshold", "FosThreshold"));
+        public double FosThreshold
+        {
+            get
+            {
+                return GetProperty(FosThresholdProperty);
+            }
+            set
+            {
+                SetProperty(FosThresholdProperty, value);
+            }
+        }
+
+        public static readonly PropertyInfo<double> ScoreThresholdProperty = RegisterProperty<double>(new PropertyInfo<double>("ScoreThreshold", "ScoreThreshold"));
+        public double ScoreThreshold
+        {
+            get
+            {
+                return GetProperty(ScoreThresholdProperty);
+            }
+            set
+            {
+                SetProperty(ScoreThresholdProperty, value);
+            }
+        }
+
+        public static readonly PropertyInfo<string> ThresholdsProperty = RegisterProperty<string>(new PropertyInfo<string>("Thresholds", "Thresholds", ""));
+        public string Thresholds
+        {
+            get
+            {
+                return ScoreThreshold.ToString("0.00") + " / " + FosThreshold.ToString("0.00");
+            }
+        }
+
         public static readonly PropertyInfo<int> TPProperty = RegisterProperty<int>(new PropertyInfo<int>("TP", "TP"));
         public int TP
         {
@@ -400,6 +435,8 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@USER_CLASSIFIER_REVIEW_ID", ReadProperty(UserClassifierReviewIdProperty)));
                     command.Parameters.Add(new SqlParameter("@STATUS", ReadProperty(StatusProperty)));
                     command.Parameters.Add(new SqlParameter("@MAG_SIMULATION_ID", newid));
+                    command.Parameters.Add(new SqlParameter("@FOS_THRESHOLD", ReadProperty(FosThresholdProperty)));
+                    command.Parameters.Add(new SqlParameter("@SCORE_THRESHOLD", ReadProperty(ScoreThresholdProperty)));
                     command.Parameters["@MAG_SIMULATION_ID"].Direction = ParameterDirection.Output;
                     command.ExecuteNonQuery();
                     LoadProperty(MagSimulationIdProperty, command.Parameters["@MAG_SIMULATION_ID"].Value);
@@ -412,7 +449,9 @@ namespace BusinessLibrary.BusinessClasses
 
         protected override void DataPortal_Update()
         {
-            // There's nothing to update
+            // using the 'update' to download results where the ContReviewPipeline thread got killed by IIS
+            ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+            Task.Run(() => { DownloadResultsPostFail(ri.ReviewId, ri.UserId); });
         }
 
         protected override void DataPortal_DeleteSelf()
@@ -468,6 +507,8 @@ namespace BusinessLibrary.BusinessClasses
                             LoadProperty<string>(WithThisAttributeProperty, reader.GetString("WithThisAttribute"));
                             LoadProperty<string>(FilteredByAttributeProperty, reader.GetString("FilteredByAttribute"));
                             LoadProperty<string>(UserClassifierModelProperty, reader.GetString("MODEL_TITLE"));
+                            LoadProperty<double>(FosThresholdProperty, reader.GetDouble("FOS_THRESHOLD"));
+                            LoadProperty<double>(ScoreThresholdProperty, reader.GetDouble("SCORE_THRESHOLD"));
                         }
                     }
                 }
@@ -498,6 +539,8 @@ namespace BusinessLibrary.BusinessClasses
             returnValue.LoadProperty<string>(WithThisAttributeProperty, reader.GetString("WithThisAttribute"));
             returnValue.LoadProperty<string>(FilteredByAttributeProperty, reader.GetString("FilteredByAttribute"));
             returnValue.LoadProperty<string>(UserClassifierModelProperty, reader.GetString("MODEL_TITLE"));
+            returnValue.LoadProperty<double>(FosThresholdProperty, reader.GetDouble("FOS_THRESHOLD"));
+            returnValue.LoadProperty<double>(ScoreThresholdProperty, reader.GetDouble("SCORE_THRESHOLD"));
             returnValue.MarkOld();
             return returnValue;
         }
@@ -507,6 +550,7 @@ namespace BusinessLibrary.BusinessClasses
         {
             MagCurrentInfo mci = MagCurrentInfo.GetMagCurrentInfoServerSide("LIVE");
             int MagLogId = MagLog.SaveLogEntry("ContReview process", "running", "Review: " + ReviewId.ToString() + ", simulation: " + MagSimulationId.ToString(), ContactId);
+            UpdateSimulationRecord("Running");
 
 #if (!CSLA_NETCORE)
             string uploadFileName = System.Web.HttpRuntime.AppDomainAppPath + @"UserTempUploads/Simulation" + MagSimulationId.ToString() + ".tsv";
@@ -550,19 +594,52 @@ namespace BusinessLibrary.BusinessClasses
             if (MagContReviewPipeline.runADFPieline(ContactId, "Train.tsv",
                 "Inference.tsv",
                 "Results.tsv",
-                "Sim" + this.MagSimulationId.ToString() + "per_paper_tfidf.pickle", mci.MagFolder, "0", folderPrefix, "0",
+                "Sim" + this.MagSimulationId.ToString() + "per_paper_tfidf.pickle",
+                mci.MagFolder,
+                FosThreshold.ToString(),
+                folderPrefix,
+                ScoreThreshold.ToString(),
                 "v1", "False") == "Succeeded")
             {
                 MagLog.UpdateLogEntry("running", "Sim: " + MagSimulationId.ToString() + ", pipeline complete", MagLogId);
                 await DownloadResultsAsync(folderPrefix, ReviewId);
-                await AddClassifierScores(ReviewId.ToString(), MagLogId);
+                await AddClassifierScores(ReviewId.ToString());
             }
             else
             {
-                MagLog.UpdateLogEntry("failed", "Sim: " + MagSimulationId.ToString() + ", pipeline failed", MagLogId);
+                MagLog.UpdateLogEntry("Failed", "Sim: " + MagSimulationId.ToString() + ", pipeline failed", MagLogId);
+                UpdateSimulationRecord("Pipeline failed");
             }
             MagLog.UpdateLogEntry("Complete", "Sim: " + MagSimulationId.ToString(), MagLogId);
             // need to add cleaning up the files, but only once we've seen it in action for a while to help debugging
+        }
+
+        private async void DownloadResultsPostFail(int ReviewId, int ContactId)
+        {
+            string folderPrefix = TrainingRunCommand.NameBase.ToLower() + "sim" + this.MagSimulationId.ToString();
+            if ((await CheckResultsFileOk(folderPrefix)) == false)
+            {
+                UpdateSimulationRecord("Download failed");
+                return;
+            }
+            await DownloadResultsAsync(folderPrefix, ReviewId);
+            await AddClassifierScores(ReviewId.ToString()); //, MagLogId);
+        }
+
+        private void UpdateSimulationRecord(string status)
+        {
+            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+            {
+                connection.Open();
+                using (SqlCommand command = new SqlCommand("st_MagSimulationUpdateStatus", connection))
+                {
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@MAG_SIMULATION_ID", this.MagSimulationId));
+                    command.Parameters.Add(new SqlParameter("@STATUS", status));
+                    command.ExecuteNonQuery();
+                }
+                connection.Close();
+            }
         }
 
         private void WriteIdFiles(int ReviewId, int UserId, string fileName)
@@ -711,6 +788,44 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
+        private async Task<bool> CheckResultsFileOk(string folderPrefix)
+        {
+
+#if (CSLA_NETCORE)
+
+            var configuration = ERxWebClient2.Startup.Configuration.GetSection("AzureMagSettings");
+            string storageAccountName = configuration["MAGStorageAccount"];
+            string storageAccountKey = configuration["MAGStorageAccountKey"];
+
+#else
+            string storageAccountName = ConfigurationManager.AppSettings["MAGStorageAccount"];
+            string storageAccountKey = ConfigurationManager.AppSettings["MAGStorageAccountKey"];
+#endif
+
+            string storageConnectionString =
+                "DefaultEndpointsProtocol=https;AccountName=" + storageAccountName + ";AccountKey=";
+            storageConnectionString += storageAccountKey;
+
+            CloudStorageAccount storageAccount = CloudStorageAccount.Parse(storageConnectionString);
+            CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
+            CloudBlobContainer containerDown = blobClient.GetContainerReference("experiments");
+
+            CloudBlockBlob blockBlobResults = containerDown.GetBlockBlobReference(folderPrefix + "/Results.tsv");
+            try
+            {
+                await blockBlobResults.FetchAttributesAsync();
+            }
+            catch
+            {
+                return false;
+            }
+
+            if (blockBlobResults.Properties.Length > 0)
+                return true;
+            else
+                return false;
+        }
+
         private async Task<int> DownloadResultsAsync(string folderPrefix, int ReviewId)
         {
 
@@ -849,15 +964,15 @@ namespace BusinessLibrary.BusinessClasses
             return lineCount;
         }
 
-        private async Task AddClassifierScores(string ReviewId, int MagLogId)
+        private async Task AddClassifierScores(string ReviewId)
         {
             // just return if we don't need to run the classifier(s)
             if (UserClassifierModelId == 0 && StudyTypeClassifier == "None")
             {
                 return;
             }
-            MagLog.UpdateLogEntry("running", "Sim: " + MagSimulationId.ToString() + ", running classifiers", MagLogId);
-
+            //MagLog.UpdateLogEntry("running", "Sim: " + MagSimulationId.ToString() + ", running classifiers", MagLogId);
+            UpdateSimulationRecord("Running classifiers");
             List<Int64> Ids = new List<long>();
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
