@@ -360,6 +360,7 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@AUTO_RERUN", ReadProperty(AutoReRunProperty)));
                     command.Parameters.Add(new SqlParameter("@MODE", ReadProperty(ModeProperty)));
                     command.Parameters.Add(new SqlParameter("@FILTERED", ReadProperty(FilteredProperty)));
+                    command.Parameters.Add(new SqlParameter("@STATUS", ReadProperty(StatusProperty)));
                     command.Parameters.Add(new SqlParameter("@MAG_RELATED_RUN_ID", ReadProperty(MagRelatedRunIdProperty)));
                     command.Parameters["@MAG_RELATED_RUN_ID"].Direction = ParameterDirection.Output;
                     command.ExecuteNonQuery();

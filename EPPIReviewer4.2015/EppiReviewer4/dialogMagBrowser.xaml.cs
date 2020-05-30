@@ -1669,10 +1669,13 @@ namespace EppiReviewer4
             {
                 mrpr.DateFrom = DatePickerRelatedPapersRun.SelectedDate;
             }
-            mrpr.Status = "Pending";
+            mrpr.Status = "Running";
             mrpr.Filtered = RBRelatedRCTFilterNone.IsChecked.Value ? "None" : RBRelatedRCTFilterPrecise.IsChecked.Value ? "Precise" : "Sensitive";
             mrpr.Mode = (ComboRelatedPapersMode.SelectedItem as ComboBoxItem).Tag.ToString();
-
+            if (mrpr.Mode == "New items in MAG")
+            {
+                mrpr.Status = "Pending";
+            }
             return mrpr;
         }
 
@@ -1808,8 +1811,16 @@ namespace EppiReviewer4
                 MagRelatedPapersRun pr = hlb.DataContext as MagRelatedPapersRun;
                 if (pr != null)
                 {
-                    RememberThisMagRelatedPapersRun = pr;
-                    RadWindow.Confirm("Are you sure you want to delete this row?", this.doDeleteMagRelatedPapersRun);
+                    if (pr.Status == "Running")
+                    {
+                        RadWindow.Alert("Sorry - can't delete this row until it has finished running");
+                        return;
+                    }
+                    else
+                    {
+                        RememberThisMagRelatedPapersRun = pr;
+                        RadWindow.Confirm("Are you sure you want to delete this row?", this.doDeleteMagRelatedPapersRun);
+                    }
                 }
             }
         }
