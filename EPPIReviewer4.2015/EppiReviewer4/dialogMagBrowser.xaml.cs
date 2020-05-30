@@ -522,6 +522,20 @@ namespace EppiReviewer4
 
         private void ShowRelatedPapersPage()
         {
+            CslaDataProvider prov = ((CslaDataProvider)App.Current.Resources["MagCurrentInfoData"]);
+            MagCurrentInfo mci = prov.Data as MagCurrentInfo;
+            if (mci != null)
+            {
+                if (mci.MagOnline == true)
+                {
+                    tbAcademicTitle.Text = "Microsoft Academic dataset: " + mci.MagVersion;
+                }
+                else
+                {
+                    tbAcademicTitle.Text = "Microsoft Academic dataset currently unavailable";
+                }
+            }
+
             CslaDataProvider provider = this.Resources["RelatedPapersRunListData"] as CslaDataProvider;
             provider.Refresh();
             StatusGrid.Visibility = Visibility.Collapsed;
