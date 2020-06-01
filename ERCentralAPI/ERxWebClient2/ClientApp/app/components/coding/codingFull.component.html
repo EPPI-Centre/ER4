@@ -106,7 +106,7 @@
 											 [item]="item" [CanEdit]="HasWriteRights" [IsScreening]="IsScreening" [ShowHighlights]="ShowHighlights" ShowDocViewButton="true"></itemDetailsComp>
 						</ng-template>
 					</kendo-tabstrip-tab>
-			
+
 					<kendo-tabstrip-tab [title]="'Arms and Timepoints'">
 						<ng-template kendoTabContent>
 							<div *ngIf="item">
@@ -126,6 +126,11 @@
 					<kendo-tabstrip-tab [title]="'Coding Record'">
 						<ng-template kendoTabContent>
 							<codingRecordComp [item]="item"></codingRecordComp>
+						</ng-template>
+					</kendo-tabstrip-tab>
+					<kendo-tabstrip-tab *ngIf="ShowMagTab" [title]="'Microsoft Academic'">
+						<ng-template kendoTabContent>
+							<microsoftAcademicComp [ItemID]="itemID"></microsoftAcademicComp>
 						</ng-template>
 					</kendo-tabstrip-tab>
 					<!--<kendo-tabstrip-tab [title]="'Study timepoints'">

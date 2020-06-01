@@ -21,7 +21,7 @@ namespace BusinessLibrary.BusinessClasses
     [Serializable]
     public class ItemDuplicateReadOnlyGroupList : ReadOnlyListBase<ItemDuplicateReadOnlyGroupList, ItemDuplicateReadOnlyGroup>
     {
-        
+
         public ItemDuplicateReadOnlyGroupList() { }
         public int CompletedCount
         {
@@ -38,7 +38,7 @@ namespace BusinessLibrary.BusinessClasses
                 return res;
             }
         }
-        public static void getItemDuplicateReadOnlyGroupList(bool getNew , EventHandler<DataPortalResult<ItemDuplicateReadOnlyGroupList>> handler)
+        public static void getItemDuplicateReadOnlyGroupList(bool getNew, EventHandler<DataPortalResult<ItemDuplicateReadOnlyGroupList>> handler)
         {
             DataPortal<ItemDuplicateReadOnlyGroupList> dp = new DataPortal<ItemDuplicateReadOnlyGroupList>();
             dp.FetchCompleted += handler;
@@ -70,7 +70,7 @@ namespace BusinessLibrary.BusinessClasses
                     command.CommandTimeout = 300;
                     command.ExecuteNonQuery();
                     if (command.Parameters["@RETURN_VALUE"].Value.ToString() == "-2")
-                    { 
+                    {
                         this.Clear();
                         throw new DataPortalException("Execution still Running", this);
                     }
@@ -126,7 +126,7 @@ namespace BusinessLibrary.BusinessClasses
                     command.ExecuteNonQuery();
                     //using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
                     //{
-                       
+
                     //    while (reader.Read())
                     //    {
                     //        if (reader[0] != null) r += reader[0].ToString() + Environment.NewLine;
@@ -186,14 +186,14 @@ namespace BusinessLibrary.BusinessClasses
         }
 
         public GroupListSelectionCriteria(Type type, int GroupId)
-            //: base(type)
+        //: base(type)
         {
             LoadProperty(GroupIdProperty, GroupId);
             LoadProperty(ItemIdsProperty, "0");
         }
 
         public GroupListSelectionCriteria(Type type, string ItemIds)
-            //: base(type)
+        //: base(type)
         {
 
             LoadProperty(ItemIdsProperty, ItemIds);
@@ -201,7 +201,7 @@ namespace BusinessLibrary.BusinessClasses
 
         }
 #if !SILVERLIGHT 
-        public GroupListSelectionCriteria(){}
+        public GroupListSelectionCriteria() { }
 #endif
     }
 }

@@ -86,7 +86,12 @@ namespace ERxWebClient2.Controllers
 					newMagRun.AllIncluded = Convert.ToBoolean(magRun.allIncluded);
 					newMagRun.AttributeId = magRun.attributeId;
 					newMagRun.AutoReRun = Convert.ToBoolean(magRun.autoReRun);
-					newMagRun.DateFrom = magRun.dateFrom;
+                    DateTime dtFrom = new DateTime();
+                    bool resultDateFrom = DateTime.TryParse(magRun.dateFrom, out dtFrom);
+                    if (resultDateFrom)
+                    {
+                        newMagRun.DateFrom = dtFrom;
+                    }
                     newMagRun.AttributeName = magRun.attributeName;
 					newMagRun.Filtered = magRun.filtered;
 					newMagRun.Mode = magRun.mode;
@@ -178,7 +183,12 @@ namespace ERxWebClient2.Controllers
                     currentMagRun.AllIncluded = Convert.ToBoolean(magRun.allIncluded);
                     currentMagRun.AttributeId = magRun.attributeId;
                     currentMagRun.AutoReRun = Convert.ToBoolean(magRun.autoReRun);
-                    currentMagRun.DateFrom = magRun.dateFrom;
+                    DateTime dtFrom = new DateTime();
+                    bool resultDateFrom = DateTime.TryParse(magRun.dateFrom, out dtFrom);
+                    if (resultDateFrom)
+                    {
+                        currentMagRun.DateFrom = dtFrom;
+                    }
                     currentMagRun.AttributeName = magRun.attributeName;
                     currentMagRun.Filtered = magRun.filtered;
                     currentMagRun.Mode = magRun.mode;
@@ -245,7 +255,7 @@ namespace ERxWebClient2.Controllers
         public string attributeName = "";
 		public bool allIncluded = false;
 		public string dateRun = "";
-		public DateTime dateFrom = DateTime.Now;
+		public string dateFrom = "";
         public bool autoReRun = false;
 		public string mode = "";
 		public string filtered = "";

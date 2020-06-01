@@ -174,6 +174,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
+        // Also see the algorithm in ItemDuplicateReadOnlyGroupList.cs. They should (probably) be identical
         public static void doComparison(Item i, MagMakesHelpers.PaperMakes pm)
         {
             pm.titleLeven = HaBoLevenshtein(pm.DN, i.Title);
@@ -286,7 +287,7 @@ namespace BusinessLibrary.BusinessClasses
                 return result;
             }
 
-        private static double Jaro(this string s1, string s2)
+        public static double Jaro(this string s1, string s2)
         {
             if (string.IsNullOrEmpty(s1) || string.IsNullOrEmpty(s2)) return 0.0;
 

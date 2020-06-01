@@ -48,7 +48,12 @@ export class EditCodeComp implements OnInit, OnDestroy {
     }
     private _appliedCodes: number = -1;
     public get appliedCodes(): number {
+        //console.log("appliedCodes", this._appliedCodes);
         return this._appliedCodes;
+    }
+    private _AllocationsAffected: number = -1;
+    public get AllocationsAffected(): number {
+        return this._AllocationsAffected;
     }
     public get AllowedChildTypes(): kvAllowedAttributeType[] {
         return this.ReviewSetsService.AllowedChildTypesOfSelectedNode;
@@ -164,11 +169,15 @@ export class EditCodeComp implements OnInit, OnDestroy {
         //console.log('0');
         if (!this.UpdatingCode) return;
         this._appliedCodes = -1;
-        this.ShowPanel = 'DeleteCode';
+        this._AllocationsAffected = -1;
         this.ReviewSetsEditingService.AttributeOrSetDeleteCheck(0, this.UpdatingCode.attributeSetId).then(
             success => {
                 //alert("did it");
-                this._appliedCodes = success;
+                
+                this.ShowPanel = 'DeleteCode';
+                this._appliedCodes = success.numItems;
+                this._AllocationsAffected = success.numAllocations;
+                //console.log("ShowDeleteCodesetClicked", success, this._appliedCodes);
                 //return result;
             },
             error => {
@@ -179,6 +188,7 @@ export class EditCodeComp implements OnInit, OnDestroy {
     HideDeleteCodeset() {
         this.ShowPanel = '';
         this._appliedCodes = -1;
+        this._AllocationsAffected = -1;
     }
     ShowMoveCodeClicked() {
         this.ShowPanel = 'MoveCode';

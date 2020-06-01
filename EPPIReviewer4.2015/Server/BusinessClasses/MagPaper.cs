@@ -383,7 +383,19 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        
+        public static readonly PropertyInfo<double> SimilarityScoreProperty = RegisterProperty<double>(new PropertyInfo<double>("SimilarityScore", "SimilarityScore"));
+        public double SimilarityScore
+        {
+            get
+            {
+                return GetProperty(SimilarityScoreProperty);
+            }
+            set
+            {
+                SetProperty(SimilarityScoreProperty, value);
+            }
+        }
+
 
 
         /*

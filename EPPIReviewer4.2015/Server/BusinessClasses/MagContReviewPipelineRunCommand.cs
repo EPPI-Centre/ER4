@@ -41,11 +41,20 @@ namespace BusinessLibrary.BusinessClasses
 #endif
         private string _CurrentMagVersion;
         private string _NextMagVersion;
+        private double _scoreThreshold;
+        private double _fosThreshold;
+        private string _specificFolder;
+        private int _MagLogId;
 
-        public MagContReviewPipelineRunCommand(string CurrentMagVersion, string NextMagVersion)
+        public MagContReviewPipelineRunCommand(string CurrentMagVersion, string NextMagVersion,
+            double scoreThreshold, double fosThreshold, string specificFolder, int magLogId)
         {
             _CurrentMagVersion = CurrentMagVersion;
             _NextMagVersion = NextMagVersion;
+            _scoreThreshold = scoreThreshold;
+            _fosThreshold = fosThreshold;
+            _specificFolder = specificFolder;
+            _MagLogId = magLogId;
         }
 
         protected override void OnGetState(Csla.Serialization.Mobile.SerializationInfo info, StateMode mode)
@@ -53,11 +62,20 @@ namespace BusinessLibrary.BusinessClasses
             base.OnGetState(info, mode);
             info.AddValue("_CurrentMagVersion", _CurrentMagVersion);
             info.AddValue("_NextMagVersion", _NextMagVersion);
+            info.AddValue("_scoreThreshold", _scoreThreshold);
+            info.AddValue("_fosThreshold", _fosThreshold);
+            info.AddValue("_specificFolder", _specificFolder);
+            info.AddValue("_MagLogId", _MagLogId);
+
         }
         protected override void OnSetState(Csla.Serialization.Mobile.SerializationInfo info, StateMode mode)
         {
             _CurrentMagVersion = info.GetValue<string>("_CurrentMagVersion");
             _NextMagVersion = info.GetValue<string>("_NextMagVersion");
+            _scoreThreshold = info.GetValue<double>("_scoreThreshold");
+            _fosThreshold = info.GetValue<double>("_fosThreshold");
+            _specificFolder = info.GetValue<string>("_specificFolder");
+            _MagLogId = info.GetValue<int>("_MagLogId");
         }
 
 
@@ -66,7 +84,14 @@ namespace BusinessLibrary.BusinessClasses
         protected override void DataPortal_Execute()
         {
             ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
-            Task.Run(() => { doRunPipeline(ri.ReviewId, ri.UserId); });
+            if (_specificFolder == "")
+            {
+                Task.Run(() => { doRunPipeline(ri.ReviewId, ri.UserId); });
+            }
+            else
+            {
+                Task.Run(() => { doDownloadResultsOnly(ri.ReviewId, ri.UserId); });
+            }
         }
 
         private async void doRunPipeline(int ReviewId, int ContactId)
@@ -99,23 +124,41 @@ namespace BusinessLibrary.BusinessClasses
             
             string folderPrefix = TrainingRunCommand.NameBase + Guid.NewGuid().ToString();
             int SeedIds = WriteSeedIdsFile(uploadFileName);
-            MagLog.UpdateLogEntry("running", "Main update. SeedIds: " + SeedIds.ToString(), ContactId);
+            MagLog.UpdateLogEntry("running", "Main update. SeedIds: " + SeedIds.ToString() + " Folder:" + folderPrefix,
+                ContactId);
             
             await UploadSeedIdsFileToBlobAsync(uploadFileName, folderPrefix);
-            MagLog.UpdateLogEntry("running", "Main update. SeedIds uploaded: " + SeedIds.ToString(), logId);
+            MagLog.UpdateLogEntry("running", "Main update. SeedIds uploaded: " + SeedIds.ToString() +
+                " Folder:" + folderPrefix, logId);
 
             WriteNewIdsFileOnBlob(uploadFileName, ContactId, folderPrefix);
-            MagLog.UpdateLogEntry("running", "Main update. NewIds written (" + SeedIds.ToString() + ")", logId);
+            MagLog.UpdateLogEntry("running", "Main update. NewIds written (" + SeedIds.ToString() + ")" +
+                " Folder:" + folderPrefix, logId);
 
-            MagContReviewPipeline.runADFPieline(ContactId, Path.GetFileName(uploadFileName), "NewPapers.tsv",
-                "crResults.tsv", "cr_per_paper_tfidf.pickle", _NextMagVersion, "1", folderPrefix, "0.02",
-                /* "ContReview" */ "v1" + folderPrefix, "True");
-            MagLog.UpdateLogEntry("running", "Main update. ADFPipelineComplete (" + SeedIds.ToString() + ")", logId);
-
-            int NewIds = await DownloadResultsAsync(folderPrefix + "/crResults.tsv", ReviewId);
-            
+            if ((MagContReviewPipeline.runADFPieline(ContactId, Path.GetFileName(uploadFileName), "NewPapers.tsv",
+                "crResults.tsv", "cr_per_paper_tfidf.pickle", _NextMagVersion, _fosThreshold.ToString(), folderPrefix,
+                _scoreThreshold.ToString(), "v1", "True")) == "Succeeded")
+            {
+                MagLog.UpdateLogEntry("running", "Main update. ADFPipelineComplete (" + SeedIds.ToString() + ")" +
+                    " Folder:" + folderPrefix, logId);
+                int NewIds = await DownloadResultsAsync(folderPrefix + "/crResults.tsv", ReviewId);
+                MagLog.UpdateLogEntry("Complete", "Main update. SeedIds: " + SeedIds.ToString() + "; NewIds: " +
+                    NewIds.ToString() + " FoS:" + _fosThreshold.ToString() + "Score threshold: " + _scoreThreshold.ToString() +
+                    " Folder:" + folderPrefix, logId);
+            }
+            else
+            {
+                MagLog.UpdateLogEntry("failed", "Main update failed at run contreview", logId);
+            }
             //Thread.Sleep(30 * 1000); int NewIds = 10; int SeedIds = 10; // this line for testing - can be deleted after publish
-            MagLog.UpdateLogEntry("Complete", "Main update. SeedIds: " + SeedIds.ToString() + "; NewIds: " + NewIds.ToString(), logId);
+            
+        }
+
+        private async void doDownloadResultsOnly(int ReviewId, int ContactId)
+        {
+            int NewIds = await DownloadResultsAsync(_specificFolder + "/crResults.tsv", ReviewId);
+            MagLog.UpdateLogEntry("Complete", "Main update downloaded on request. Folder:" +
+                _specificFolder, _MagLogId);
         }
 
         private int WriteSeedIdsFile(string uploadFileName)

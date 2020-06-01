@@ -28,6 +28,7 @@ namespace BusinessLibrary.BusinessClasses
         private Int64 _attributeSetId;
         private int _setId;
         private Int64 _numItems;
+        private int _numAllocations;
 
 
         public AttributeSetDeleteWarningCommand(Int64 attributeSetId, int setId)
@@ -41,18 +42,25 @@ namespace BusinessLibrary.BusinessClasses
             get { return _numItems; }
         }
 
+        public int NumAllocations
+        {
+            get { return _numAllocations; }
+        }
+
         protected override void OnGetState(Csla.Serialization.Mobile.SerializationInfo info, Csla.Core.StateMode mode)
         {
             base.OnGetState(info, mode);
             info.AddValue("_attributeSetId", _attributeSetId);
             info.AddValue("_setId", _setId);
             info.AddValue("_numItems", _numItems);
+            info.AddValue("_numAllocations", _numAllocations); 
         }
         protected override void OnSetState(Csla.Serialization.Mobile.SerializationInfo info, Csla.Core.StateMode mode)
         {
             _attributeSetId = info.GetValue<Int64>("_attributeSetId");
             _numItems = info.GetValue<Int64>("_numItems");
-            _setId = info.GetValue<int>("_setId");
+            _numAllocations = info.GetValue<int>("_numAllocations"); 
+             _setId = info.GetValue<int>("_setId");
         }
 
 
@@ -76,8 +84,11 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@ATTRIBUTE_SET_ID", _attributeSetId));
                     command.Parameters.Add(new SqlParameter("@SET_ID", _setId));
                     command.Parameters["@NUM_ITEMS"].Direction = System.Data.ParameterDirection.Output;
+                    command.Parameters.Add(new SqlParameter("@NUM_ALLOCATIONS", System.Data.SqlDbType.Int));
+                    command.Parameters["@NUM_ALLOCATIONS"].Direction = System.Data.ParameterDirection.Output;
                     command.ExecuteNonQuery();
                     _numItems = (Int64)command.Parameters["@NUM_ITEMS"].Value;
+                    _numAllocations = (int)command.Parameters["@NUM_ALLOCATIONS"].Value;
                 }
                 connection.Close();
             }

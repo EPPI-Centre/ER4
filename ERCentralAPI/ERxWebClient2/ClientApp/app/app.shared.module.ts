@@ -90,6 +90,11 @@ import { BasicMAGComp } from './components/MAG/BasicMAGComp.component';
 import { AdvancedMAGFeaturesComponent } from './components/MAG/AdvancedMAGFeatures.component';
 import { MAGpaginatorComp } from './components/commonComponents/MAGpaginator.component';
 import { MAGBrowser } from './components/MAG/MAGBrowser.component';
+import { MAGBrowserHistory } from './components/MAG/MAGBrowserHistory.component';
+import { MAGAdminComp } from './components/MAG/MAGAdmin.component';
+import { MatchingMAGItemsComponent } from './components/MAG/MatchingMAGItems.component';
+import { WorkAllocationWizardComp } from './components/WorkAllocations/WorkAllocationWizardComp.component';
+import { microsoftAcademicComp } from './components/MAG/microsoftAcademic.component';
 
 @NgModule({
     declarations: [
@@ -160,7 +165,13 @@ import { MAGBrowser } from './components/MAG/MAGBrowser.component';
         codesetTree4Move,
         AdvancedMAGFeaturesComponent,
         MAGpaginatorComp,
-        MAGBrowser
+        MAGBrowser,
+        MAGBrowserHistory,
+        MAGAdminComp,
+        MatchingMAGItemsComponent,
+        MAGAdminComp,
+        WorkAllocationWizardComp,
+        microsoftAcademicComp
 	],
     providers: [
         EventEmitterService,
@@ -200,7 +211,11 @@ import { MAGBrowser } from './components/MAG/MAGBrowser.component';
             { path: 'BuildModel', component: BuildModelComponent },
             { path: 'BasicMAGFeatures', component: BasicMAGComp },
             { path: 'ItemList', component: ItemListComp },
-            { path: 'MAGBrowser', component: MAGBrowser }, 
+            { path: 'MAGAdmin', component: MAGAdminComp},
+            { path: 'MAGBrowser', component: MAGBrowser },
+            { path: 'microsoftAcademic', component: microsoftAcademicComp },
+            { path: 'MAGBrowserHistory', component: MAGBrowserHistory },
+            { path: 'MatchingMAGItems', component: MatchingMAGItemsComponent},
             { path: 'AdvancedMAGFeatures', component: AdvancedMAGFeaturesComponent },
             { path: 'itemcodingOnly/:itemId', component: ItemCodingComp },
             { path: 'itemcoding/:itemId', component: ItemCodingFullComp },

@@ -178,7 +178,10 @@ namespace ERxWebClient2.Controllers
                     AttributeSetDeleteWarningCommand cmd = new AttributeSetDeleteWarningCommand(data.attributeSetId, data.setId);
                     DataPortal<AttributeSetDeleteWarningCommand> dp = new DataPortal<AttributeSetDeleteWarningCommand>();
                     cmd = dp.Execute(cmd);
-                    return Ok(cmd.NumItems);
+                    AttributeSetDeleteWarningCommandResult result = new AttributeSetDeleteWarningCommandResult();
+                    result.NumAllocations = cmd.NumAllocations;
+                    result.NumItems = cmd.NumItems;
+                    return Ok(result);
                 }
                 else return Forbid();
             }
@@ -449,6 +452,11 @@ namespace ERxWebClient2.Controllers
     {
         public Int64 attributeSetId;
         public int setId;
+    }
+    public class AttributeSetDeleteWarningCommandResult
+    {
+        public Int64 NumItems;
+        public int NumAllocations;
     }
     public class AttributeSetCreateOrUpdateJSON
     {

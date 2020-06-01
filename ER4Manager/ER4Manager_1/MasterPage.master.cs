@@ -56,7 +56,11 @@ public partial class MasterPage : System.Web.UI.MasterPage
                 rtsMenu.Tabs[5].Tabs[1].Visible = true;
             }
 
-            
+            if (Utils.GetSessionString("AccessWDSetup") == "1")
+            {
+                rtsMenu.Tabs[5].Tabs[1].Visible = true;
+            }
+
             //switch (ContentPlaceHolder1.ID)
             //{
             //    case "RootSummary":

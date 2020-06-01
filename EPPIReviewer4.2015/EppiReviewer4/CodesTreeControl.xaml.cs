@@ -2790,15 +2790,36 @@ namespace EppiReviewer4
                     }
                     else
                     {
-                        windowCheckAttributeDelete.TextBlockCheckDeleteCodeDetails.Text = "This will directly affect codes you have assigned to " + e2.Object.NumItems.ToString() + " items";
-                        if ((attributeSet.Attributes != null) && (attributeSet.Attributes.Count > 0))
-                        {
-                            windowCheckAttributeDelete.TextBlockCheckDeleteCodeDetails.Text += " plus any codes associated with its 'child' codes.";
+                        if (e2.Object.NumAllocations > 0)
+                        {//people can't delete this code
+                            windowCheckAttributeDelete.cmdDeleteCode.IsEnabled = false;
+                            windowCheckAttributeDelete.TextBlockCheckDeleteCodeDetails.Text = "Sorry, you cannot delete this code and all its children.";
+                            if (e2.Object.NumAllocations == 1)
+                            {
+                                windowCheckAttributeDelete.TextBlockCheckDeleteCodeDetails.Text 
+                                += Environment.NewLine + "This is because this code is used to drive one coding assignment. You need to delete this allocation first.";
+                            }
+                            else
+                            {
+                                windowCheckAttributeDelete.TextBlockCheckDeleteCodeDetails.Text
+                                += Environment.NewLine + "This is because this code is used to drive "
+                                + e2.Object.NumAllocations.ToString() 
+                                + " coding assignment. You need to delete these allocations first.";
+                            }
                         }
                         else
                         {
-                            windowCheckAttributeDelete.TextBlockCheckDeleteCodeDetails.Text += ".";
-                            windowCheckAttributeDelete.TextBlockCheckDeleteCodeDetails.Text.Replace("directly ", "");
+                            windowCheckAttributeDelete.cmdDeleteCode.IsEnabled = true;
+                            windowCheckAttributeDelete.TextBlockCheckDeleteCodeDetails.Text = "This will directly affect codes you have assigned to " + e2.Object.NumItems.ToString() + " items";
+                            if ((attributeSet.Attributes != null) && (attributeSet.Attributes.Count > 0))
+                            {
+                                windowCheckAttributeDelete.TextBlockCheckDeleteCodeDetails.Text += " plus any codes associated with its 'child' codes.";
+                            }
+                            else
+                            {
+                                windowCheckAttributeDelete.TextBlockCheckDeleteCodeDetails.Text += ".";
+                                windowCheckAttributeDelete.TextBlockCheckDeleteCodeDetails.Text.Replace("directly ", "");
+                            }
                         }
                     }
                 };
@@ -2833,6 +2854,18 @@ namespace EppiReviewer4
                     else
                     {
                         windowCheckAttributeDelete.TextBlockCheckDeleteCodeDetails.Text = "This will affect codes you have assigned to " + e2.Object.NumItems.ToString() + " items.";
+                        if (e2.Object.NumAllocations == 1)
+                        {
+                            windowCheckAttributeDelete.TextBlockCheckDeleteCodeDetails.Text += Environment.NewLine
+                                + "Moreover, there is one coding assigment that is driven by a code within this coding tool. If you delete it, it will become impossible to edit the corresponding allocation!";
+                        }
+                        else if (e2.Object.NumAllocations > 1)
+                        {
+                            windowCheckAttributeDelete.TextBlockCheckDeleteCodeDetails.Text += Environment.NewLine
+                                + "Moreover, there is are "
+                                + e2.Object.NumAllocations.ToString() + 
+                                " coding assigments that are driven by codes within this coding tool. If you delete it, it will become impossible to edit the corresponding allocation!";
+                        }
                     }
                 };
                 windowCheckAttributeDelete.BusyCheckAttributeDelete.IsRunning = true;

@@ -2,16 +2,34 @@
 <div *ngIf="!IsSmall" class="card container-fluid mt-1 bg-light  m-1 p-1 form-group">
     <div  class="container card card-body bg-light">
         <div *ngIf="ShowPanel == 'DeleteCode'" class="alert alert-danger">
-            <div>Are you sure you want to delete '{{UpdatingCode.attribute_name}}' and all its children?</div>
-            <div>This will affect codes assigned to <strong>{{appliedCodes}}</strong> items. All this coding will be deleted!</div>
-            <div>Also all codes assigned to '{{UpdatingCode.attribute_name}}' children (if any) <strong>will be lost</strong>.</div>
-            <div>
-                <button class="btn btn-outline-secondary ml-1" (click)="HideDeleteCodeset()" style="width:200px;">No</button>
-                <button class="btn btn-danger ml-1" (click)="DoDeleteCode()"
-                        [disabled]="!CanWrite() "
-                        style="width:80px;">
-                    Yes
-                </button>
+            <div *ngIf="AllocationsAffected < 1 && appliedCodes != -1">
+                <div>Are you sure you want to delete '{{UpdatingCode.attribute_name}}' and all its children?</div>
+                <div *ngIf="appliedCodes == 1">This will affect <strong>one</strong> item that has been assigned to this code (this coding will be deleted)!</div>
+                <div *ngIf="appliedCodes > 1">This will affect codes assigned to <strong>{{appliedCodes}}</strong> items. All this coding will be deleted!</div>
+                <div>Also all codes assigned to '<strong>{{UpdatingCode.attribute_name}}</strong>' children (if any) <strong>will be lost</strong>.</div>
+                <div>
+                    <button class="btn btn-outline-secondary ml-1" (click)="HideDeleteCodeset()" style="width:200px;">No</button>
+                    <button class="btn btn-danger ml-1" (click)="DoDeleteCode()"
+                            [disabled]="!CanWrite() "
+                            style="width:80px;">
+                        Yes
+                    </button>
+                </div>
+            </div>
+            <div *ngIf="AllocationsAffected > 0">
+                <div class="font-weight-bold">Sorry, you cannot delete '{{UpdatingCode.attribute_name}}' and all its children.</div>
+                <div *ngIf="AllocationsAffected == 1">This is because this code is used to drive <strong>one</strong> coding assigment. You need to delete this coding assigment first.</div>
+                <div *ngIf="AllocationsAffected > 1">This is because this code is used to drive <strong>{{AllocationsAffected}}</strong> coding assigments. You need to delete these coding assigments first.</div>
+                <div>
+                    <button class="btn btn-outline-secondary ml-1" (click)="HideDeleteCodeset()" style="width:200px;">Cancel</button>
+                </div>
+            </div>
+            <div *ngIf="appliedCodes == -1">
+                <div *ngIf="IsServiceBusy()">Loading...</div>
+                <div *ngIf="!IsServiceBusy()">This check failed, cannot delete code. Please cancel.</div>
+                <div>
+                    <button class="btn btn-outline-secondary ml-1" (click)="HideDeleteCodeset()" style="width:200px;">Cancel</button>
+                </div>
             </div>
         </div>
         <div *ngIf="ShowPanel == 'MoveCode' && ErrorMessage4CodeMove == ''" class="">
@@ -91,10 +109,12 @@
 
 <div *ngIf="IsSmall" class="row small mx-0">
 
-        <div *ngIf="ShowDeleteCode" class="alert alert-danger">
+    <div *ngIf="ShowPanel == 'DeleteCode'" class="alert alert-danger">
+        <div *ngIf="AllocationsAffected < 1 && appliedCodes != -1">
             <div>Are you sure you want to delete '{{UpdatingCode.attribute_name}}' and all its children?</div>
-            <div>This will affect codes assigned to <strong>{{appliedCodes}}</strong> items. All this coding will be deleted!</div>
-            <div>Also all codes assigned to '{{UpdatingCode.attribute_name}}' children (if any) <strong>will be lost</strong>.</div>
+            <div *ngIf="appliedCodes == 1">This will affect <strong>one</strong> item that has been assigned to this code (this coding will be deleted)!</div>
+            <div *ngIf="appliedCodes > 1">This will affect codes assigned to <strong>{{appliedCodes}}</strong> items. All this coding will be deleted!</div>
+            <div>Also all codes assigned to '<strong>{{UpdatingCode.attribute_name}}</strong>' children (if any) <strong>will be lost</strong>.</div>
             <div>
                 <button class="btn btn-sm btn-outline-secondary ml-1" (click)="HideDeleteCodeset()" style="width:80px;">No</button>
                 <button class="btn btn-sm btn-danger ml-1" (click)="DoDeleteCode()"
@@ -104,6 +124,22 @@
                 </button>
             </div>
         </div>
+        <div *ngIf="AllocationsAffected > 0">
+            <div class="font-weight-bold">Sorry, you cannot delete '{{UpdatingCode.attribute_name}}' and all its children.</div>
+            <div *ngIf="AllocationsAffected == 1">This is because this code is used to drive <strong>one</strong> coding assigment. You need to delete this coding assigment first.</div>
+            <div *ngIf="AllocationsAffected > 1">This is because this code is used to drive <strong>{{AllocationsAffected}}</strong> coding assigments. You need to delete these coding assigments first.</div>
+            <div>
+                <button class="btn btn-outline-secondary ml-1" (click)="HideDeleteCodeset()" style="width:200px;">Cancel</button>
+            </div>
+        </div>
+        <div *ngIf="appliedCodes == -1">
+            <div *ngIf="IsServiceBusy()">Loading...</div>
+            <div *ngIf="!IsServiceBusy()">This check failed, cannot delete code. Please cancel.</div>
+            <div>
+                <button class="btn btn-outline-secondary ml-1" (click)="HideDeleteCodeset()" style="width:200px;">Cancel</button>
+            </div>
+        </div>
+    </div>
         <form class="row" #EditCodeFrom="ngForm" (ngSubmit)="onSubmit()">
             <div class="col-12">
                 <div class="form-group">
@@ -150,4 +186,4 @@
                 <div>Type: {{UpdatingCode.extType}}</div>
             </div>
         </form>
-</div>
+    </div>

@@ -162,8 +162,8 @@ namespace ERxWebClient2.Controllers
                         FieldOfStudyId = crit.fieldOfStudyId,
                         ListType = crit.listType,
                         PaperIdList = crit.paperIdList,
-                        SearchText = crit.searchText                        
-                        
+                        SearchText = crit.SearchTextTopics
+
                     };
 
                 var result = dp.Fetch(selectionCriteria);
@@ -185,7 +185,7 @@ namespace ERxWebClient2.Controllers
         public Int64 fieldOfStudyId { get; set; }
         public string listType { get; set; }
         public string paperIdList { get; set; }
-        public string searchText { get; set; }
+        public string SearchTextTopics { get; set; }
 
     }
 

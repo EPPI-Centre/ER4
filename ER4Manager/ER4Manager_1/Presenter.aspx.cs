@@ -39,7 +39,7 @@ public partial class Presenter : System.Web.UI.Page
                         radTs.SelectedIndex = 5;
                         radTs.Tabs[5].Tabs[1].Selected = true;
                         radTs.Tabs[5].Tabs[5].Width = 550;
-                        if (Utils.GetSessionString("EnableDataPresenter") == "True")
+                        if ((Utils.GetSessionString("EnableDataPresenter") == "True") || (Utils.GetSessionString("AccessWDSetup") == "1"))
                         {
                             radTs.Tabs[5].Tabs[5].Width = 430;
                         }

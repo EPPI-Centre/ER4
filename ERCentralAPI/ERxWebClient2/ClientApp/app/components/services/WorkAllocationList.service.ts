@@ -111,7 +111,41 @@ export class WorkAllocationListService extends BusyAwareService {
 			}
 		 );
 
-	}
+    }
+
+    public RunAllocationFromWizardCommand(cmd: WorkAllocationFromWizardCommand): Promise<WorkAllocWizardResult> {
+        this._BusyMethods.push("RunAllocationFromWizardCommand");
+        return this._httpC.post<WorkAllocWizardResult>(this._baseUrl +
+            'api/WorkAllocationContactList/ExecuteWorkAllocationFromWizardCommand', cmd)
+            .toPromise().then((result) => {
+                this.RemoveBusy("RunAllocationFromWizardCommand");
+                if (cmd.isPreview == 1) {
+                    //we're only getting how many items...
+                    cmd.numberOfItemsToAssign = result.numberOfAffectedItems;
+                }
+                return result;
+            }, (error) => {
+                this.modalService.GenericError(error);
+                this.RemoveBusy("RunAllocationFromWizardCommand");
+                let res: WorkAllocWizardResult = {
+                    preview: null,
+                    numberOfAffectedItems: -1,
+                    isSuccess: false
+                };
+                return res;
+            })
+            .catch((err) => {
+                this.modalService.GenericError(err);
+                this.RemoveBusy("RunAllocationFromWizardCommand");
+                let res: WorkAllocWizardResult = {
+                    preview: null,
+                    numberOfAffectedItems: -1,
+                    isSuccess: false
+                }
+                return res;
+            });
+
+    }
 
 	public Clear() {
 		this._allWorkAllocationsForReview = [];
@@ -136,4 +170,29 @@ export class WorkAllocation {
 export class WorkAllocationSublist {
     workAllocationId: number = 0;
     listSubtype: string = "";
+}
+export class WorkAllocationFromWizardCommand {
+    //partially based on PerformRandomAllocateCommandJSON 
+    filterType: string = "";
+    attributeIdFilter: number = 0;
+    setIdFilter: number = 0;
+    destination_Attribute_ID: number = 0;
+    destination_Set_ID: number = 0;
+    percentageOfWholePot: number = 100;
+    included: boolean = true;
+
+    isPreview:number = 1;
+    work_to_do_setID: number = 0;; //"assign codes from this set"
+    oneGroupPerPerson: boolean = false;
+    peoplePerItem: number = 1;
+    reviewersIds: string = "";
+    reviewerNames: string = "";
+    itemsPerEachReviewer: string = "";
+    groupsPrefix: string = "";
+    numberOfItemsToAssign: number = -1;
+}
+export interface WorkAllocWizardResult {
+    preview: any;
+    numberOfAffectedItems: number;
+    isSuccess: boolean;
 }

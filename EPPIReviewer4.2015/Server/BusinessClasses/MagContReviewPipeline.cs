@@ -56,7 +56,7 @@ namespace BusinessLibrary.BusinessClasses
             string dataFactoryName = configuration["dataFactoryName"];
             string pipelineName = configuration["pipelineName"];
 
-            int MagLogId = MagLog.SaveLogEntry("RunContReviewProcess", "started", "", ContactId);
+            int MagLogId = MagLog.SaveLogEntry("RunContReviewProcess", "started", "Folder:" + FolderName, ContactId);
             var context = new AuthenticationContext("https://login.windows.net/" + tenantID);
             ClientCredential cc = new ClientCredential(appClientId, appClientSecret);
             AuthenticationResult result = context.AcquireTokenAsync("https://management.azure.com/", cc).Result;
@@ -111,7 +111,8 @@ namespace BusinessLibrary.BusinessClasses
                     }
                     else
                     {
-                        MagLog.UpdateLogEntry("Error getting client", "RunContReviewProcess", MagLogId);
+                        MagLog.UpdateLogEntry("Error getting client", "RunContReviewProcess Folder:" + FolderName,
+                            MagLogId);
                     }
                 }
                 catch (Microsoft.Rest.Azure.CloudException e)
@@ -124,10 +125,11 @@ namespace BusinessLibrary.BusinessClasses
                         {
                             SubscriptionId = subscriptionId
                         };
-                        MagLog.UpdateLogEntry("Caught cloud error", "RunContReviewProcess", MagLogId);
+                        MagLog.UpdateLogEntry("Caught cloud error", "RunContReviewProcess Folder:" + FolderName,
+                            MagLogId);
                     }
                 }
-                MagLog.UpdateLogEntry(runStatus, "RunContReviewProcess", MagLogId);
+                MagLog.UpdateLogEntry(runStatus, "RunContReviewProcess Folder:" + FolderName, MagLogId);
             }
             return runStatus;
         }

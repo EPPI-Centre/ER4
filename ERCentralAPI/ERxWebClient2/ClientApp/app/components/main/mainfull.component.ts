@@ -33,6 +33,7 @@ import { DuplicatesService } from '../services/duplicates.service';
 import { FetchReadOnlyReviewsComponent } from '../readonlyreviews/readonlyreviews.component';
 import { BasicMAGService } from '../services/BasicMAG.service';
 import { ReviewInfoService } from '../services/ReviewInfo.service';
+import { MAGBrowserHistoryService } from '../services/MAGBrowserHistory.service';
 //import { AdvancedMAGFeaturesComponent } from '../MAG/AdvancedMAGFeatures.component';
 
 
@@ -82,6 +83,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 		@Inject('BASE_URL') private _baseUrl: string,
         private excelService: ExcelService,
         private reviewInfoService: ReviewInfoService,
+        private _routingStateService: MAGBrowserHistoryService
     ) {}
 	@ViewChild('WorkAllocationContactList') workAllocationsContactComp!: WorkAllocationContactListComp;
 	@ViewChild('WorkAllocationCollaborateList') workAllocationCollaborateComp!: WorkAllocationComp;
@@ -472,8 +474,6 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 				this.LoadComparisonList(item, this.ListSubType);
 			}
         )
-            //(MAGAllocationClicked) = "GoToItemList()"
-            //    (criteriaChange) = 'LoadMAGAllocList($event)'
         this._eventEmitter.criteriaMAGChange.subscribe(
             (item: any) => {
                 this.router.navigate(['Main']);
@@ -482,7 +482,6 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
             }
 
         )
-		//this.reviewSetsService.GetReviewSets();
         this.subOpeningReview = this.ReviewerIdentityServ.OpeningNewReview.subscribe(() => this.Reload());
         this.statsSub = this.reviewSetsService.GetReviewStatsEmit.subscribe(
             () => this.GetStats()
@@ -492,6 +491,10 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
             || (this.reviewSetsService.ReviewSets.length > 0 && this.codesetStatsServ.tmpCodesets.length == 0)
         ) this.Reload();
         //this.searchService.Fetch();
+
+        
+        console.log('got his');
+        this._routingStateService.loadRouting();
 	}
 	public LoadComparisonList(comparison: Comparison, ListSubType: string) {
 
@@ -938,6 +941,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
             this.subOpeningReview.unsubscribe();			
         }
         if (this.statsSub) this.statsSub.unsubscribe();
+        if (this._routingStateService.MAGSubscription) this._routingStateService.UnsubscribeMAGHistory();
     }
 }
 

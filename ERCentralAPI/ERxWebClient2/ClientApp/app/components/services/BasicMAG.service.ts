@@ -23,21 +23,18 @@ export class BasicMAGService extends BusyAwareService {
     }
     public MagPaperList: MagPaperList = new MagPaperList();
     public MagRelatedRunPapers: MagPaper[] = [];
+    private _MagRelatedPapersRunList: MagRelatedPapersRun[] = [];
+    private _MagItemPaperInsert: MagItemPaperInsertCommand = new MagItemPaperInsertCommand();
 
-	private _MagRelatedPapersRunList: MagRelatedPapersRun[] = [];
-		
 	public get MagRelatedPapersRunList(): MagRelatedPapersRun[] {
 
 		return this._MagRelatedPapersRunList;
 
 	}
-
 	public set MagRelatedPapersRunList(magRun: MagRelatedPapersRun[]) {
 		this._MagRelatedPapersRunList = magRun;
 
     }
-
-    private _MagItemPaperInsert: MagItemPaperInsertCommand = new MagItemPaperInsertCommand();
 
     public get MagItemPaperInsert(): MagItemPaperInsertCommand{
 
@@ -112,7 +109,7 @@ export class BasicMAGService extends BusyAwareService {
                     this.RemoveBusy("DeleteMAGRelatedRun");
                     if (result.magRelatedRunId > 0) {
 
-                        this.showMAGRunMessage('MAGRun was deleted');
+                        this.showMAGRunMessage('MAG search was deleted');
 
                     } else {
 
@@ -144,7 +141,7 @@ export class BasicMAGService extends BusyAwareService {
                 this.RemoveBusy("MagRelatedPapersRunCreate");
                 if (result.magRelatedRunId > 0) {
 
-                    this.showMAGRunMessage('MAGRun was created');
+                    this.showMAGRunMessage('MAG search was created');
 
                 } else {
 
@@ -173,8 +170,6 @@ export class BasicMAGService extends BusyAwareService {
     }
     ImportMagRelatedRunPapers(magRelatedRun: MagRelatedPapersRun) {
 
-        console.log('basic mag service 5', magRelatedRun);
-
         let notificationMsg: string = '';
         this._BusyMethods.push("ImportMagRelatedRunPapers");
         this._httpC.post<MagItemPaperInsertCommand>(this._baseUrl + 'api/MagRelatedPapersRunList/ImportMagRelatedPapers',
@@ -183,9 +178,6 @@ export class BasicMAGService extends BusyAwareService {
 
                 this.RemoveBusy("ImportMagRelatedRunPapers");
                 this.MagItemPaperInsert = result;
-
-                console.log('bRRRRRRRR: ', result);
-
                 if (result.nImported != null) {
 
                 
@@ -235,12 +227,11 @@ export class BasicMAGService extends BusyAwareService {
                         console.log(tmpIndex);
                         this.MagRelatedPapersRunList[tmpIndex] = result;
                     }
-                    this.showMAGRunMessage('MAG Run was updated');
+                    this.showMAGRunMessage('MAG search was updated');
 
                 } else {
                     this.showMAGRunMessage('User status is: ' + result.userStatus);
                 }
-                
 
             }, error => {
                 this.RemoveBusy("UpdateMagRelatedRun");

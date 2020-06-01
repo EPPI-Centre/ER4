@@ -9,7 +9,8 @@ import { Router } from '@angular/router';
 import { NotificationService } from '@progress/kendo-angular-notification';
 import { MAGBrowserService } from '../services/MAGBrowser.service';
 import { MagRelatedPapersRun } from '../services/MAGClasses.service';
-
+import { MAGBrowserHistoryService } from '../services/MAGBrowserHistory.service';
+import { Location } from '@angular/common';
 
 @Component({
 	selector: 'BasicMAGComp',
@@ -25,9 +26,11 @@ export class BasicMAGComp implements OnInit {
         public _searchService: searchService,
         private _ReviewerIdentityServ: ReviewerIdentityService,
         private _notificationService: NotificationService,
+        private _routingStateService: MAGBrowserHistoryService,
+        private _location: Location,
         private router: Router
 
-	) {
+    ) {
 
     }
     @ViewChild('WithOrWithoutCodeSelector') WithOrWithoutCodeSelector!: codesetSelectorComponent;
@@ -48,6 +51,9 @@ export class BasicMAGComp implements OnInit {
     public Selected() {
 
     }
+    public Forward() {
+        this._location.forward();
+    }
     public ClearSelected() {
 
     }
@@ -59,11 +65,16 @@ export class BasicMAGComp implements OnInit {
     }
     public ShowHistory() {
 
+        this.router.navigate(['MAGBrowserHistory']);
     }
     public Admin() {
-
+        this.router.navigate(['MAGAdmin']);
+    }
+    public MatchingMAGItems() {
+        this.router.navigate(['MatchingMAGItems']);
     }
 	ngOnInit() {
+
 
         if (this._ReviewerIdentityServ.reviewerIdentity.userId == 0 ||
             this._ReviewerIdentityServ.reviewerIdentity.reviewId == 0) {
@@ -81,6 +92,7 @@ export class BasicMAGComp implements OnInit {
     }
 
     public Back() {
+        if (this._routingStateService.MAGSubscription) this._routingStateService.UnsubscribeMAGHistory();
         this.router.navigate(['Main']);
     }
     Clear() {
@@ -122,7 +134,7 @@ export class BasicMAGComp implements OnInit {
 
         if (item.magRelatedRunId > 0) {
 
-            this._magBrowserService.FetchMAGRelatedPaperRunsListId(item.magRelatedRunId)
+            this._magBrowserService.FetchMAGRelatedPaperRunsListById(item.magRelatedRunId)
                 .then(
             //this._basicMAGService.FetchMAGRelatedPaperRunsListId(item.magRelatedRunId).then(
                 () => {
@@ -132,7 +144,8 @@ export class BasicMAGComp implements OnInit {
         }
     }
     public ImportMagSearchPapers(item: MagRelatedPapersRun) {
-        console.log(item);
+
+        console.log('testing mag import: ', item);
    
         if (item.nPapers == 0) {
             this.ShowMAGRunMessage('There are no papers to import');
@@ -222,6 +235,9 @@ export class BasicMAGComp implements OnInit {
             case '7':
                 this.magMode = 'Bi-Citation AND Recommendations';
                 break;
+            case '8':
+                this.magMode = 'New items published on next deployment of MAG';
+                break;
 
             default:
                 break;
@@ -255,7 +271,9 @@ export class BasicMAGComp implements OnInit {
     }
     public ImportMagRelatedPapersRun(magRun: MagRelatedPapersRun, msg: string) {
 
-        this.ConfirmationDialogService.confirm("Importing papers for the selected MAG run",
+        console.log('TESTING IMPORT MAG ITEMS: ', magRun);
+
+        this.ConfirmationDialogService.confirm("Importing papers for the selected MAG search",
                 msg, false, '')
             .then((confirm: any) => {
                 if (confirm) {
@@ -265,8 +283,8 @@ export class BasicMAGComp implements OnInit {
     }
 	public DoDeleteMagRelatedPapersRun(magRunId: number) {
 
-        this.ConfirmationDialogService.confirm("Deleting the selected MAG run",
-            "Are you sure you want to delete MAG run Id:" + magRunId + "?", false, '')
+        this.ConfirmationDialogService.confirm("Deleting the selected MAG search",
+            "Are you sure you want to delete MAG search Id:" + magRunId + "?", false, '')
             .then((confirm: any) => {
                 if (confirm) {
                     this._basicMAGService.DeleteMAGRelatedRun(magRunId);

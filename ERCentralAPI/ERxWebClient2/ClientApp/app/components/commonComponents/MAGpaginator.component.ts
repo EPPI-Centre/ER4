@@ -1,7 +1,5 @@
 import { Component,  OnInit } from '@angular/core';
-import { Router } from '@angular/router';
 import { MAGBrowserService } from '../services/MAGBrowser.service';
-
 
 @Component({
     selector: 'MAGpaginatorComp',
@@ -11,16 +9,13 @@ import { MAGBrowserService } from '../services/MAGBrowser.service';
 })
 export class MAGpaginatorComp implements OnInit {
 
-    constructor(private router: Router,
-        public _magBrowserService: MAGBrowserService 
-
+    constructor(public _magBrowserService: MAGBrowserService 
     ) {
 
 	}
     onSubmit(f: string) {
 
     }
-    private sub: any;
 
     value = 1;
     onEnter(value: number) {
@@ -31,7 +26,6 @@ export class MAGpaginatorComp implements OnInit {
     ngOnInit() {
 	
     }
-
     nextPage() {
        
         this._magBrowserService.FetchNextPage();
@@ -48,7 +42,6 @@ export class MAGpaginatorComp implements OnInit {
        
         this._magBrowserService.FetchLastPage();
     }
-    
 }
 
 

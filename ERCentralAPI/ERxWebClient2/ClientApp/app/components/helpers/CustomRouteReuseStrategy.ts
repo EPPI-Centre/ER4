@@ -42,9 +42,9 @@ export class CustomRouteReuseStrategy implements RouteReuseStrategy, OnDestroy {
     //shouldReuseRoute(future: ActivatedRouteSnapshot, curr: ActivatedRouteSnapshot): boolean {
     //EEEEK!!? the line above causes the log message to report the current page as the future one, so I'll swap the paramaters around...
     shouldReuseRoute(curr: ActivatedRouteSnapshot, future: ActivatedRouteSnapshot): boolean {
-        console.log("shouldReuseRoute:", "future", future.routeConfig, "current", curr.routeConfig, "return: ", future.routeConfig === curr.routeConfig);
+        //console.log("shouldReuseRoute:", "future", future.routeConfig, "current", curr.routeConfig, "return: ", future.routeConfig === curr.routeConfig);
         if (future && future.routeConfig && future.routeConfig.path) {
-            console.log("shouldReuseRoute, GOINGTO:" + future.routeConfig.path);
+            //console.log("shouldReuseRoute, GOINGTO:" + future.routeConfig.path);
             this.GoingTo = future.routeConfig.path;
         }
         //if (curr.routeConfig === null && future.routeConfig === null) {
@@ -78,11 +78,11 @@ export class CustomRouteReuseStrategy implements RouteReuseStrategy, OnDestroy {
         if (route.routeConfig && route.routeConfig.path) {
             //console.log("should detatch?", route.routeConfig, this.routesToCache);
             if (this.routesToCache.indexOf(route.routeConfig.path.toLowerCase()) > -1) {
-                console.log("shouldDetach, will return true!!!!!!!!!!!!!!!!!", route);
+                //console.log("shouldDetach, will return true!!!!!!!!!!!!!!!!!", route);
                 return true;
             }
         }
-        console.log("shouldDetach, will return false.", route);
+        //console.log("shouldDetach, will return false.", route);
         return false;
         //let detach: boolean = true;
         //console.log("detaching", route, "return: ", detach);
