@@ -1,13 +1,13 @@
 <div class="card p-1 m-1 alert-light">
-    <h5 class="font-weight-bold btn btn-link">
+    <h5 class="font-weight-bold btn btn-link" (click)="fetchMAGMatches()">
         Look up this record in Microsoft Record
     </h5>
-    <h5><b>should be item details of some sort here quickCitation...here...</b></h5>
+    <h5><b>{{item.title}}</b></h5>
     <b>Record(s) matched from Microsoft Academic:</b>
 
-    <h5 class="alert-warning" *ngIf="_magAdvancedService.MagReferencesPaperList == null">Loading...</h5>
+    <h5 class="alert-warning" *ngIf="_magAdvancedService.MagReferencesPaperList.papers == null">Loading...</h5>
     <div class="card col-12 alert-primary" style="overflow:auto;" *ngIf="_magAdvancedService.MagReferencesPaperList != null">
-        <table class="table table-bordered table-responsive-md table-striped text-center alert-primary">
+        <table class="table table-bordered table-responsive-md table-striped text-center small alert-primary">
             <thead>
                 <tr>
                     <th class="text-center">Full MAG record</th>
@@ -16,31 +16,42 @@
             </thead>
             <tbody>
                 <tr *ngFor="let magPaper of _magAdvancedService.MagReferencesPaperList.papers">
-                    <td >
+                    <td>
                         <div class="col-12">{{magPaper.fullRecord}}</div>
                     </td>
-                    <td >
-                        <div class="col-12 p-2 m-2">
+                    <td class="w-25">
+                        <div class="col-12 ">
                             Score: {{magPaper.autoMatchScore}}
                         </div>
                         <div class="col-12">
-                            Correct Match:  <input class="p-2 m-2" name="magMatchRadio" id="magMatchRadio" type="radio" />
+                            Correct Match:  <input class="" name="magMatchRadio" id="magMatchRadio" type="radio" />
                         </div>
-                        <div class="col-12 p-2 m-2">
-                            Incorrect Match:<input class="p-2 m-2" name="magMatchRadio" id="magMatchRadio" type="radio" />
+                        <div class="col-12 ">
+                            Incorrect Match:<input class="" name="magMatchRadio" id="magMatchRadio" type="radio" />
                         </div>
                     </td>
                 </tr>
         </tbody>
         </table>
-    <div class="col-12 p-2 m-2">
-        <div class="col-12 text-center">
-            <p><b>Look up specific Microsoft Academic ID:</b></p>
-            <input required minlength="4" type="number" id="magPaperId" name="magPaperId" #magPaper="ngModel"
-                   class="text-center"
-                   [(ngModel)]="magPaperId" />
-            <button (click)="GetMagPaper()" class="btn btn-outline-primary  p-2 m-2">GO</button>
+        <div class="col-12 p-2 m-2 row">
+            <div class="col-12 text-center">
+                <p><b>Look up specific Microsoft Academic ID:</b></p>
+                <input required minlength="4" type="number" id="magPaperId" name="magPaperId" #magPaper="ngModel"
+                       class="alert text-center"
+                       [(ngModel)]="magPaperId" />
+                <button (click)="GetMagPaper()" [disabled]="!CanGetMagPaper()" class="btn btn-outline-primary  p-2 m-2">GO</button>
+            </div>
+            <div class="col-4"></div>
+            <div *ngIf="magPaper.invalid && (magPaper.dirty || magPaper.touched)"
+                 class="col-4 alert alert-danger text-center">
+
+                <div *ngIf="magPaper.errors.required">
+                    magPaperId is required.
+                </div>
+                <div *ngIf="magPaper.errors.minlength">
+                    magPaperId must be at least 4 numbers long.
+                </div>
+            </div>
         </div>
-    </div>
 </div>
 </div>
