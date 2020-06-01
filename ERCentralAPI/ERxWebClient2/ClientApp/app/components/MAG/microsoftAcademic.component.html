@@ -1,13 +1,13 @@
 <div class="card p-1 m-1 alert-light">
-    <h5 class="font-weight-bold btn-link">
+    <h5 class="font-weight-bold btn btn-link">
         Look up this record in Microsoft Record
     </h5>
     <h5><b>should be item details of some sort here quickCitation...here...</b></h5>
     <b>Record(s) matched from Microsoft Academic:</b>
 
     <h5 class="alert-warning" *ngIf="_magAdvancedService.MagReferencesPaperList == null">Loading...</h5>
-    <div class="card col-12 " style="overflow:auto;" *ngIf="_magAdvancedService.MagReferencesPaperList != null">
-        <table class="table table-bordered table-responsive-md table-striped text-center">
+    <div class="card col-12 alert-primary" style="overflow:auto;" *ngIf="_magAdvancedService.MagReferencesPaperList != null">
+        <table class="table table-bordered table-responsive-md table-striped text-center alert-primary">
             <thead>
                 <tr>
                     <th class="text-center">Full MAG record</th>
@@ -16,19 +16,29 @@
             </thead>
             <tbody>
                 <tr *ngFor="let magPaper of _magAdvancedService.MagReferencesPaperList.papers">
-                    <td style="width: 150px;">{{magPaper.fullRecord}}</td>
-                    <td style="width: 15px;">
-                        Score:{{magPaper.autoMatchScore}}
-                        Correct Match:<input name="magMatchRadio" id="magMatchRadio" type="radio" />
-                        Incorrect Match:<input name="magMatchRadio" id="magMatchRadio" type="radio" />
+                    <td >
+                        <div class="col-12">{{magPaper.fullRecord}}</div>
+                    </td>
+                    <td >
+                        <div class="col-12 p-2 m-2">
+                            Score: {{magPaper.autoMatchScore}}
+                        </div>
+                        <div class="col-12">
+                            Correct Match:  <input class="p-2 m-2" name="magMatchRadio" id="magMatchRadio" type="radio" />
+                        </div>
+                        <div class="col-12 p-2 m-2">
+                            Incorrect Match:<input class="p-2 m-2" name="magMatchRadio" id="magMatchRadio" type="radio" />
+                        </div>
                     </td>
                 </tr>
-            </tbody>
+        </tbody>
         </table>
-        <div class="col-12 row p-2 m-2">
-            Look up specific Microsoft Academic ID:
-            <input type="text" class="form-control col-2  p-2 m-2" />
+    <div class="col-12 p-2 m-2">
+        <div class="col-12 text-center">
+            <p><b>Look up specific Microsoft Academic ID:</b></p>
+            <input type="text" class="col-2  p-2 m-2" />
             <button class="btn btn-outline-primary  p-2 m-2">GO</button>
         </div>
     </div>
+</div>
 </div>
