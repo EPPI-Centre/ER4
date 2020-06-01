@@ -23,6 +23,7 @@ export class microsoftAcademicComp implements OnInit, OnDestroy {
     @Input() ItemID: number = 0;
     private _MagPaperList: MagPaper[] = [];
     private sub: Subscription = new Subscription();
+    public magPaperId: number = 0;
     ngOnInit() {
         this.sub = this._ItemCodingService.DataChanged.subscribe(
             () => {
@@ -34,6 +35,14 @@ export class microsoftAcademicComp implements OnInit, OnDestroy {
     public get IsServiceBusy(): boolean {
 
         return this._magAdvancedService.IsBusy;
+    }
+    public GetMagPaper() {
+
+        this._magAdvancedService.FetchMagPaperId(this.magPaperId).then(
+
+            () => { this.router.navigate(['MAGBrowser']); }
+
+        );
     }
     private fetchMAGMatches() {
 

@@ -36,8 +36,10 @@
     <div class="col-12 p-2 m-2">
         <div class="col-12 text-center">
             <p><b>Look up specific Microsoft Academic ID:</b></p>
-            <input type="text" class="col-2  p-2 m-2" />
-            <button class="btn btn-outline-primary  p-2 m-2">GO</button>
+            <input required minlength="4" type="number" id="magPaperId" name="magPaperId" #magPaper="ngModel"
+                   class="text-center"
+                   [(ngModel)]="magPaperId" />
+            <button (click)="GetMagPaper()" class="btn btn-outline-primary  p-2 m-2">GO</button>
         </div>
     </div>
 </div>
