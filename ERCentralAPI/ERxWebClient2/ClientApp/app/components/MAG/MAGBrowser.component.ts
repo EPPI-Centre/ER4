@@ -120,9 +120,9 @@ export class MAGBrowser implements OnInit, OnDestroy {
         this._magBrowserService.Clear();
         this._magAdvancedService.currentMagPaper = new MagPaper();
 
-        this._magBrowserService.GetParentAndChildFieldsOfStudy("FieldOfStudyParentsList", FieldOfStudyId, "Parent topics").then(
+        this._magBrowserService.GetParentAndChildFieldsOfStudy("FieldOfStudyParentsList", FieldOfStudyId).then(
             () => {
-                this._magBrowserService.GetParentAndChildFieldsOfStudy("FieldOfStudyChildrenList", FieldOfStudyId, "Child topics").then(
+                this._magBrowserService.GetParentAndChildFieldsOfStudy("FieldOfStudyChildrenList", FieldOfStudyId).then(
                     () => {
                         this._magBrowserService.GetPaperListForTopic(FieldOfStudyId);
                     });

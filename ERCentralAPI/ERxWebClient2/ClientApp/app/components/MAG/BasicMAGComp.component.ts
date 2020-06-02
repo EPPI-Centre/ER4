@@ -136,10 +136,9 @@ export class BasicMAGComp implements OnInit {
 
             this._magBrowserService.FetchMAGRelatedPaperRunsListById(item.magRelatedRunId)
                 .then(
-            //this._basicMAGService.FetchMAGRelatedPaperRunsListId(item.magRelatedRunId).then(
-                () => {
-                    this.router.navigate(['MAGBrowser']);
-                }
+                    () => {
+                        this.router.navigate(['MAGBrowser']);
+                    }
             );
         }
     }

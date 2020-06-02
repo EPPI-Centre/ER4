@@ -231,9 +231,9 @@ export class AdvancedMAGFeaturesComponent implements OnInit, OnDestroy {
 
         this._magBrowserService.ParentTopic = FieldOfStudy;
 
-        this._magBrowserService.GetParentAndChildFieldsOfStudy("FieldOfStudyParentsList", FieldOfStudyId, "Parent topics").then(
+        this._magBrowserService.GetParentAndChildFieldsOfStudy("FieldOfStudyParentsList", FieldOfStudyId).then(
             () => {
-                this._magBrowserService.GetParentAndChildFieldsOfStudy("FieldOfStudyChildrenList", FieldOfStudyId, "Child topics").then(
+                this._magBrowserService.GetParentAndChildFieldsOfStudy("FieldOfStudyChildrenList", FieldOfStudyId).then(
                     () => {
                         this._magBrowserService.GetPaperListForTopic(FieldOfStudyId);
                     });
