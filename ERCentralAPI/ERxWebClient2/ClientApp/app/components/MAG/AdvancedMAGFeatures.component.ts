@@ -10,10 +10,8 @@ import { ClassifierContactModel,  MagSimulation, MagFieldOfStudy, TopicLink } fr
 import { EventEmitterService } from '../services/EventEmitter.service';
 import { MAGBrowserService } from '../services/MAGBrowser.service';
 import { MAGAdvancedService } from '../services/magAdvanced.service';
-import { MVCMagFieldOfStudyListSelectionCriteria } from '../services/MAGClasses.service';
 import { MAGBrowserHistoryService } from '../services/MAGBrowserHistory.service';
-import { Observable, interval, Subscription } from 'rxjs';
-import { take } from 'rxjs/operators'
+import { interval, Subscription } from 'rxjs';
 
 
 @Component({
@@ -39,7 +37,6 @@ export class AdvancedMAGFeaturesComponent implements OnInit, OnDestroy {
 
         this.history = this._routingStateService.getHistory();
     }
-    private takeOneNumber: Observable<number> = new Observable<number>();
     private subsc: Subscription = new Subscription();
     ngOnInit() {
 
@@ -51,12 +48,6 @@ export class AdvancedMAGFeaturesComponent implements OnInit, OnDestroy {
             this.router.navigate(['Main']);
         }
         else {
-
-            //const numbers = interval(1000);
-            //this.takeOneNumber = numbers.pipe(take(1000000));
-            //this.subsc = this.takeOneNumber.subscribe(x =>
-            //    { console.log(' ' + x) }
-            //);
             this.GetMagReviewMagInfoCommand();
             this.GetMagSimulationList();
             this.GetClassifierContactModelList();
@@ -114,9 +105,6 @@ export class AdvancedMAGFeaturesComponent implements OnInit, OnDestroy {
     public magDate: string = 'true';
     public magMode: string = '';
     public filterOn: string = 'false';
-    //public AdvancedFeatures() {
-    //    this.router.navigate(['AdvancedMAGFeatures']);
-    //}
     public Forward() {
         this._location.forward();
     }
@@ -145,9 +133,6 @@ export class AdvancedMAGFeaturesComponent implements OnInit, OnDestroy {
     public Admin() {
         this.router.navigate(['MAGAdmin']);
     }
-    //public ToggleMAGPanel(): void {
-    //    this.ShowPanel = !this.ShowPanel;
-    //}
     public get HasWriteRights(): boolean {
         return this._ReviewerIdentityServ.HasWriteRights;
     }
@@ -167,77 +152,6 @@ export class AdvancedMAGFeaturesComponent implements OnInit, OnDestroy {
         return this._magAdvancedService._RunAlgorithmFirst == true;
 
     }    
-    //public UpdateTopicResults(event: any) {
-
-    //    let enteredSearchString: string = event.target.value;
-
-    //    if (enteredSearchString.length > 2 ) {
-
-    //        let criteriaFOSL: MVCMagFieldOfStudyListSelectionCriteria = new MVCMagFieldOfStudyListSelectionCriteria();
-    //        criteriaFOSL.fieldOfStudyId = 0;
-    //        criteriaFOSL.listType = 'FieldOfStudySearchList';
-    //        criteriaFOSL.paperIdList = '';
-    //        criteriaFOSL.SearchTextTopics = event.target.value; 
-    //        this._magBrowserService.FetchMagFieldOfStudyList(criteriaFOSL, '').then(
-
-    //            (results: MagFieldOfStudy[]) => {
-
-    //                //this.WPFindTopics = [];
-    //                let FosList: MagFieldOfStudy[] = results;
-    //                let i: number = 4;
-    //                let cnt: number = 0;
-    //                for (var fos of FosList)
-    //                {
-    //                    console.log('got in here');
-    //                    let item: TopicLink = new TopicLink();
-    //                    item.displayName = fos.displayName;
-    //                    item.fontSize = i;
-    //                    item.fieldOfStudyId = fos.fieldOfStudyId;
-
-    //                    this.SearchTextTopicsResults[cnt] = item;
-    //                    cnt += 1;
-    //                    if (i > 0.2) {
-    //                        i -= 0.01;
-    //                    }
-    //                }
-    //                console.log(this.SearchTextTopicsResults);
-    //                return;
-    //            }
-    //        );
-
-    //    } else {
-
-    //        this.SearchTextTopics = [];
-    //        this.SearchTextTopicsResults = [];
-    //    }
-    //}
-    //public CleanText(text: string): string {
-    //    let rgx: RegExp = new RegExp('[^a-zA-Z0-9 ]');
-
-    //    text = text.replace(rgx, ' ').toLowerCase().trim();
-        
-    //    while (text.indexOf('  ') != -1) {
-    //        text = text.replace('  ', '  ');
-    //    }
-    //    return text;
-    //}
-    //public FOSMAGBrowserNavigate(displayName: string, fieldOfStudyId: number) {
-
-    //    this.router.navigate(['MAGBrowser']);
-    //    this.GetParentAndChildRelatedPapers(displayName, fieldOfStudyId);
-    //}
-    //public GetParentAndChildRelatedPapers(FieldOfStudy: string, FieldOfStudyId: number) {
-
-    //    this._magBrowserService.ParentTopic = FieldOfStudy;
-
-    //    this._magBrowserService.GetParentAndChildFieldsOfStudy("FieldOfStudyParentsList", FieldOfStudyId).then(
-    //        () => {
-    //            this._magBrowserService.GetParentAndChildFieldsOfStudy("FieldOfStudyChildrenList", FieldOfStudyId).then(
-    //                () => {
-    //                    this._magBrowserService.GetPaperListForTopic(FieldOfStudyId);
-    //                });
-    //        });
-    //}
     public AddSimulation(): void {
 
         let newMagSimulation: MagSimulation = new MagSimulation();
@@ -312,22 +226,12 @@ export class AdvancedMAGFeaturesComponent implements OnInit, OnDestroy {
                 });
         }
     }
-   
-    //CanOnlySelectRoots() {
-    //    return true;
-    //}
     CloseCodeDropDown3() {
         if (this.WithOrWithoutCodeSelector3) {
             this.CurrentDropdownSelectedCode3 = this.WithOrWithoutCodeSelector3.SelectedNodeData;
         }
         this.isCollapsed3 = false;
     }
-    //CloseCodeDropDown2() {
-    //    if (this.WithOrWithoutCodeSelector2) {
-    //        this.CurrentDropdownSelectedCode2 = this.WithOrWithoutCodeSelector2.SelectedNodeData;
-    //    }
-    //    this.isCollapsed2 = false;
-    //}
     Clear() {
 
         this.CurrentDropdownSelectedCode2 = {} as SetAttribute;
@@ -338,49 +242,6 @@ export class AdvancedMAGFeaturesComponent implements OnInit, OnDestroy {
         this.magMode = '';
 
     }
-    //public CanDeleteMAGRun(): boolean {
-    //    // other params like existence need to be checked here!!!!!!!!!!!!!!!!!!!!!
-    //    return this.HasWriteRights;
-    //}
-    //public CanAddNewMAGSearch(): boolean {
-
-    //    if (this.description != '' && this.description != null && this.HasWriteRights
-    //    ) {
-    //        return true;
-    //    } else {
-    //        return false;
-    //    }
-    //}
-    //public ClickSearchMode(searchModeChoice: string) {
-
-    //    switch (searchModeChoice) {
-
-    //        case '1':
-    //            this.magMode = 'Recommended by';
-    //            break;
-    //        case '2':
-    //            this.magMode = 'That recommend';
-    //            break;
-    //        case '3':
-    //            this.magMode = 'Recommendations';
-    //            break;
-    //        case '4':
-    //            this.magMode = 'Bibliography';
-    //            break;
-    //        case '5':
-    //            this.magMode = 'Cited by';
-    //            break;
-    //        case '6':
-    //            this.magMode = 'Bi-Citation';
-    //            break;
-    //        case '7':
-    //            this.magMode = 'Bi-Citation AND Recommendations';
-    //            break;
-
-    //        default:
-    //            break;
-    //    }
-    //}
     public GetMagSimulationList() {
         this._magAdvancedService.FetchMagSimulationList();
     }

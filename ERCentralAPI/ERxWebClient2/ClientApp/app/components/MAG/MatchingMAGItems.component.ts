@@ -58,7 +58,6 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
                 { console.log(' ' + x) }
             );
             this.GetMagReviewMagInfoCommand();
-            //this.GetMagSimulationList();
             this.GetClassifierContactModelList();
         }
     }
@@ -231,9 +230,9 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
         this._magBrowserService.ParentTopic = FieldOfStudy;
 
 
-        this._magBrowserService.GetParentAndChildFieldsOfStudy("FieldOfStudyParentsList", FieldOfStudyId, "Parent topics").then(
+        this._magBrowserService.GetParentAndChildFieldsOfStudy("FieldOfStudyParentsList", FieldOfStudyId).then(
             () => {
-                this._magBrowserService.GetParentAndChildFieldsOfStudy("FieldOfStudyChildrenList", FieldOfStudyId, "Child topics").then(
+                this._magBrowserService.GetParentAndChildFieldsOfStudy("FieldOfStudyChildrenList", FieldOfStudyId).then(
                     () => {
                         this._magBrowserService.GetPaperListForTopic(FieldOfStudyId);
                     });
@@ -499,40 +498,6 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
             return false;
         }
     }
-    //public ClickSearchMode(searchModeChoice: string) {
-
-    //    switch (searchModeChoice) {
-
-    //        case '1':
-    //            this.magMode = 'Recommended by';
-    //            break;
-    //        case '2':
-    //            this.magMode = 'That recommend';
-    //            break;
-    //        case '3':
-    //            this.magMode = 'Recommendations';
-    //            break;
-    //        case '4':
-    //            this.magMode = 'Bibliography';
-    //            break;
-    //        case '5':
-    //            this.magMode = 'Cited by';
-    //            break;
-    //        case '6':
-    //            this.magMode = 'Bi-Citation';
-    //            break;
-    //        case '7':
-    //            this.magMode = 'Bi-Citation AND Recommendations';
-    //            break;
-
-    //        default:
-    //            break;
-    //    }
-    //}
-    //public GetMagSimulationList() {
-
-    //    this._magAdvancedService.FetchMagSimulationList();
-    //}
-
+  
 }
 
