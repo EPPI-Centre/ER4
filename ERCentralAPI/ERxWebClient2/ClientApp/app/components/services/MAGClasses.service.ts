@@ -1,18 +1,16 @@
 import { Inject, Injectable} from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BusyAwareService } from '../helpers/BusyAwareService';
 
 @Injectable({
     providedIn: 'root',
 })
 
-export class MAGClassesService extends BusyAwareService {
+export class MAGClassesService  {
 
     constructor(
         private _httpC: HttpClient,
         @Inject('BASE_URL') private _baseUrl: string
     ) {
-        super();
     }
 }
 

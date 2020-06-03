@@ -50,17 +50,20 @@ export class MAGBrowserService extends BusyAwareService {
     }
     public GetPaperListForTopic(FieldOfStudyId: number): any {
 
-        let id = this.ListCriteria.magRelatedRunId;
-        this.ListCriteria = new MVCMagPaperListSelectionCriteria();
-        this.ListCriteria.magRelatedRunId = id;
-        this.ListCriteria.fieldOfStudyId = FieldOfStudyId;
-        this.ListCriteria.listType = "PaperFieldsOfStudyList";
-        this.ListCriteria.pageNumber = 0;
-        this.ListCriteria.pageSize = 20;
-        this.FetchWithCrit(this.ListCriteria, "PaperFieldsOfStudyList");
+        if (FieldOfStudyId != null) {
 
+            let id = this.ListCriteria.magRelatedRunId;
+            this.ListCriteria = new MVCMagPaperListSelectionCriteria();
+            this.ListCriteria.magRelatedRunId = id;
+            this.ListCriteria.fieldOfStudyId = FieldOfStudyId;
+            this.ListCriteria.listType = "PaperFieldsOfStudyList";
+            this.ListCriteria.pageNumber = 0;
+            this.ListCriteria.pageSize = 20;
+            this.FetchWithCrit(this.ListCriteria, "PaperFieldsOfStudyList");
+
+        }
     }
-    public GetParentAndChildFieldsOfStudy(FieldOfStudy: string, FieldOfStudyId: number, ParentOrChild: string): Promise<void> {
+    public GetParentAndChildFieldsOfStudy(FieldOfStudy: string, FieldOfStudyId: number): Promise<void> {
 
         let selectionCriteria: MvcMagFieldOfStudyListSelectionCriteria = new MvcMagFieldOfStudyListSelectionCriteria();
         selectionCriteria.listType = FieldOfStudy;
@@ -73,7 +76,6 @@ export class MAGBrowserService extends BusyAwareService {
     }
     public FetchMAGRelatedPaperRunsListById(Id: number): Promise<boolean> {
         var goBackListType: string = 'MagRelatedPapersRunList';
-        console.log('MAGList service FetchMAGRelatedPaperRunsListId 1');
         this._BusyMethods.push("FetchMAGRelatedPaperRunsListId");
         this.ListCriteria.listType = "MagRelatedPapersRunList";
         this.ListCriteria.pageSize = 20;
@@ -84,7 +86,6 @@ export class MAGBrowserService extends BusyAwareService {
             .toPromise().then(
                 (result) => {
 
-                    console.log('', result);
                     this.RemoveBusy("FetchMAGRelatedPaperRunsListId");
                     this.MAGList = result;
                     this.ListCriteria.paperIds = '';
@@ -100,7 +101,7 @@ export class MAGBrowserService extends BusyAwareService {
                     FieldsListcriteria.fieldOfStudyId = 0;
                     FieldsListcriteria.listType = "PaperFieldOfStudyList";
                     FieldsListcriteria.paperIdList = this.ListCriteria.paperIds;
-                    //THIS SEARCH TEXT NEEDS TO COME IN FROM THE FRONT
+                    //TODO THIS SEARCH TEXT NEEDS TO COME IN FROM THE FRONT
                     FieldsListcriteria.SearchTextTopics = ''; //searchText;
                     this.FetchMagFieldOfStudyList(FieldsListcriteria, goBackListType);
                     return true;
@@ -172,7 +173,6 @@ export class MAGBrowserService extends BusyAwareService {
     }
     public FetchWithCrit(crit: MVCMagPaperListSelectionCriteria, listDescription: string): Promise<boolean> {
 
-        console.log('MAGList service 3');
         this._BusyMethods.push("FetchWithCrit");
         this._Criteria = crit;
 
@@ -182,7 +182,6 @@ export class MAGBrowserService extends BusyAwareService {
         ) {
             crit.pageSize = this._MAGList.pagesize;
         }
-        console.log('criteria are: ', crit);
 
         this.ListCriteria.paperIds = crit.paperIds;
         this.ListDescription = listDescription;
@@ -194,9 +193,7 @@ export class MAGBrowserService extends BusyAwareService {
 
                     this.RemoveBusy("FetchWithCrit");
                     this.SavePapers(list, this._Criteria);
-
-                console.log('paperIds after save papers: ', this.ListCriteria.paperIds);
-                return true;
+                    return true;
                                     
                 }, error => {
                     this.modalService.GenericError(error);
@@ -220,8 +217,6 @@ export class MAGBrowserService extends BusyAwareService {
                 this._Criteria.paperIds += list.papers[i].paperId + ',';
             }
             this._Criteria.paperIds = this._Criteria.paperIds.substr(0, this._Criteria.paperIds.length - 2);
-            console.log('inside savepapers: ', this._Criteria.paperIds);
-            
             this._MAGList = list;
             this._Criteria = crit;
            
@@ -232,7 +227,6 @@ export class MAGBrowserService extends BusyAwareService {
                 this._Criteria.paperIds += list.papers[i].paperId + ',';
             }
             this._Criteria.paperIds = this._Criteria.paperIds.substr(0, this._Criteria.paperIds.length - 2);
-            console.log('inside savepapers: ', this._Criteria.paperIds);
             this.MagCitationsByPaperList = list;
             this._Criteria = crit;
            
@@ -242,7 +236,6 @@ export class MAGBrowserService extends BusyAwareService {
             this._Criteria = crit;
         } else if (crit.listType == 'PaperFieldsOfStudyList') {
 
-            console.log('PaperFieldsOfStudyList call inside if else');
             this._MAGList = list;
             this._Criteria = crit;
         }     
@@ -255,10 +248,8 @@ export class MAGBrowserService extends BusyAwareService {
     }
 	public getPaper(paperId: number): MagPaper {
 
-        console.log('getting MagPaper');
         let ff = this.MAGList.papers.find(found => found.paperId == paperId);
         if (ff != undefined && ff != null) {
-            console.log('first emit');
             this.ChangingPaper(ff);
             return ff;
         }
@@ -267,6 +258,7 @@ export class MAGBrowserService extends BusyAwareService {
             return new MagPaper();
         }
     }
+    //Paging methods
     public FetchNextPage() {
         if (this.MAGList.pageindex < this.MAGList.pagecount-1) {
             this.MAGList.pageindex += 1;

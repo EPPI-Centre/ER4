@@ -4,6 +4,7 @@ import { MAGAdvancedService } from '../services/magAdvanced.service';
 import { MagPaper } from '../services/MAGClasses.service';
 import { ItemCodingService } from '../services/ItemCoding.service';
 import { Subscription } from 'rxjs';
+import { Item } from '../services/ItemList.service';
 
 @Component({
    
@@ -20,10 +21,14 @@ export class microsoftAcademicComp implements OnInit, OnDestroy {
         private _ItemCodingService: ItemCodingService
     ) { }
 
-    @Input() ItemID: number = 0;
+    @Input() item: Item = new Item;
     private _MagPaperList: MagPaper[] = [];
     private sub: Subscription = new Subscription();
+    public magPaperId: number = 0;
     ngOnInit() {
+
+
+
         this.sub = this._ItemCodingService.DataChanged.subscribe(
             () => {
                 this._magAdvancedService.MagReferencesPaperList = [];
@@ -35,9 +40,26 @@ export class microsoftAcademicComp implements OnInit, OnDestroy {
 
         return this._magAdvancedService.IsBusy;
     }
+    public GetMagPaper() {
+
+        this._magAdvancedService.FetchMagPaperId(this.magPaperId).then(
+
+            () => { this.router.navigate(['MAGBrowser']); }
+
+        );
+    }
+    public CanGetMagPaper(): boolean {
+
+        if (this.magPaperId != null && this.magPaperId > 0) {
+            return true;
+        } else {
+            return false;
+        }
+
+    }
     private fetchMAGMatches() {
 
-        let res: any = this._magAdvancedService.MagMatchItemsToPapers(this.ItemID);
+        let res: any = this._magAdvancedService.MagMatchItemsToPapers(this.item.itemId);
         if (res != null) {
             console.log('fetchMAGMatches: ' + JSON.stringify(res));
             this.MagPaperList = res;

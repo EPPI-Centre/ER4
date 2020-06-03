@@ -52,70 +52,29 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
         }
         else {
 
-            const numbers = interval(1000);
-            this.takeOneNumber = numbers.pipe(take(1000000));
-            this.subsc = this.takeOneNumber.subscribe(x =>
-                { console.log(' ' + x) }
-            );
+            //const numbers = interval(1000);
+            //this.takeOneNumber = numbers.pipe(take(1000000));
+            //this.subsc = this.takeOneNumber.subscribe(x =>
+            //    { console.log(' ' + x) }
+            //);
             this.GetMagReviewMagInfoCommand();
-            //this.GetMagSimulationList();
-            this.GetClassifierContactModelList();
         }
     }
     ngOnDestroy() {
 
-        this.subsc.unsubscribe();
+        //this.subsc.unsubscribe();
 
     }
-    @ViewChild('WithOrWithoutCodeSelector3') WithOrWithoutCodeSelector3!: codesetSelectorComponent;
     @ViewChild('WithOrWithoutCodeSelector2') WithOrWithoutCodeSelector2!: codesetSelectorComponent;
-    
-    private takeOneNumber: Observable<number> = new Observable<number>();
-    private subsc: Subscription = new Subscription();
-    public CurrentDropdownSelectedCode3: singleNode | null = null;
+
+    //private subsc: Subscription = new Subscription();
     public CurrentDropdownSelectedCode2: singleNode | null = null;
-    public ItemsWithCode: boolean = false;
-    public ShowPanel: boolean = false;
     public dropdownBasic2: boolean = false;
-    public dropdownBasic3: boolean = false;
     public isCollapsed2: boolean = false;
-    public isCollapsed3: boolean = false;
     public ListSubType: string = '';
-    public splitDataOn: string = 'Year';
-    public SearchMethod: string = 'Recommendations';
-    public SearchMethods: string[] = ['Citations',
-        'Recommendations',
-        'Citations and recommendations',
-        'Fields of study'];
-    public NetworkStat: string = 'None';
-    public NetworkStats: string[] = [
-        'degree',
-        'closeness',
-        'eigenscore',
-        'pagerank',
-        'hubscore',
-        'authscore',
-        'alpha'
-    ];
-    public StudyTypeClassifier: string = 'None';
-    public StudyTypeClassifiers: string[] = [
-        'None',
-        'RCT',
-        'Cochrane RCT',
-        'Economic evaluation',
-        'Systematic review'
-    ];
     public SearchTextTopics: TopicLink[] = [];
     public SearchTextTopicsResults: TopicLink[] = [];
-    public UserDefinedClassifier: string = '';
-    public magMatchedAll: number = 0;
     public magPaperId: number = 0;
-    public currentClassifierContactModel: ClassifierContactModel = new ClassifierContactModel();
-    public description: string = '';
-    public kendoDateValue: Date = new Date();
-    public magDate: string = 'true';
-    public magMode: string = '';
-    public filterOn: string = 'false';
     public AdvancedFeatures() {
 
         this.router.navigate(['AdvancedMAGFeatures']);
@@ -146,19 +105,11 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
     public Admin() {
         this.router.navigate(['MAGAdmin']);
     }
-    public ToggleMAGPanel(): void {
-        this.ShowPanel = !this.ShowPanel;
-    }
     public get HasWriteRights(): boolean {
         return this._ReviewerIdentityServ.HasWriteRights;
     }
     public get IsServiceBusy(): boolean {
         return this._magAdvancedService.IsBusy;
-    }
-    public ShowGraphViewer: boolean = false;
-    public ShowGraph() {
-
-        this.ShowGraphViewer = !this.ShowGraphViewer;
     }
     GetMagReviewMagInfoCommand() {
 
@@ -208,16 +159,6 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
             this.SearchTextTopicsResults = [];
         }
     }
-    public CleanText(text: string): string {
-        let rgx: RegExp = new RegExp('[^a-zA-Z0-9 ]');
-
-        text = text.replace(rgx, ' ').toLowerCase().trim();
-        
-        while (text.indexOf('  ') != -1) {
-            text = text.replace('  ', '  ');
-        }
-        return text;
-    }
     public FOSMAGBrowserNavigate(displayName: string, fieldOfStudyId: number) {
         this._magAdvancedService.currentMagPaper = new MagPaper();
         this._magBrowserService.WPChildTopics = [];
@@ -231,70 +172,13 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
         this._magBrowserService.ParentTopic = FieldOfStudy;
 
 
-        this._magBrowserService.GetParentAndChildFieldsOfStudy("FieldOfStudyParentsList", FieldOfStudyId, "Parent topics").then(
+        this._magBrowserService.GetParentAndChildFieldsOfStudy("FieldOfStudyParentsList", FieldOfStudyId).then(
             () => {
-                this._magBrowserService.GetParentAndChildFieldsOfStudy("FieldOfStudyChildrenList", FieldOfStudyId, "Child topics").then(
+                this._magBrowserService.GetParentAndChildFieldsOfStudy("FieldOfStudyChildrenList", FieldOfStudyId).then(
                     () => {
                         this._magBrowserService.GetPaperListForTopic(FieldOfStudyId);
                     });
             });
-    }
-    public AddSimulation(): void {
-
-        let newMagSimulation: MagSimulation = new MagSimulation();
-
-        if (this.splitDataOn == 'Year') {
-
-            //console.log(this.kendoDateValue.getFullYear());
-            newMagSimulation.year = this.kendoDateValue.getFullYear();
-
-        } else if (this.splitDataOn == 'CreatedDate') {
-
-            newMagSimulation.createdDate = this.kendoDateValue;
-
-        } else if (this.splitDataOn == 'WithThisCode') {
-
-            if (this.CurrentDropdownSelectedCode2 != null) {
-                let att = this.CurrentDropdownSelectedCode2 as SetAttribute;
-                newMagSimulation.withThisAttributeId = att.attribute_id;
-                newMagSimulation.withThisAttribute = att.attribute_name;
-            }
-        }
-        //console.log('here', this.filterOn);
-        if (this.filterOn == 'true') {
-            if (this.CurrentDropdownSelectedCode2 != null) {
-                //console.log('here2');
-                let att = this.CurrentDropdownSelectedCode2 as SetAttribute;
-                //console.log('here3', att);
-                newMagSimulation.filteredByAttributeId = att.attribute_id;
-                newMagSimulation.filteredByAttribute = att.attribute_name;
-            }
-        }
-        newMagSimulation.searchMethod = this.SearchMethod;
-        newMagSimulation.networkStatistic = this.NetworkStat;
-        if (this.StudyTypeClassifier != null) {
-            newMagSimulation.studyTypeClassifier = this.StudyTypeClassifier;
-        }
-        if (this.UserDefinedClassifier != null) {
-
-            newMagSimulation.userClassifierModel = this.currentClassifierContactModel.modelTitle;
-            newMagSimulation.userClassifierModelId = this.currentClassifierContactModel.modelId;
-        }
-        newMagSimulation.status = "Pending";
-        //console.log(newMagSimulation);
-
-        let msg: string = 'Are you sure you want to create a new MAG Simulation?';
-        this.ConfirmationDialogService.confirm('MAG Simulation', msg, false, '')
-            .then((confirm: any) => {
-                if (confirm) {
-                    this._magAdvancedService.AddMagSimulation(newMagSimulation);
-
-                }
-            });
-    }
-    public GetClassifierContactModelList(): void {
-
-        this._magAdvancedService.FetchClassifierContactModelList();
     }
     public RunMatchingAlgo() {
 
@@ -328,15 +212,6 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
             this._eventEmitter.criteriaMAGChange.emit(listType);
         }
     }
-    public OpenResultsInReview(listType: string, magSimId: number) {
-
-        if (listType != null) {
-            this._magAdvancedService.ListDescription = listType;
-            this._magAdvancedService.CurrentMagSimId = magSimId;
-            this.ListSubType = listType;
-            this._eventEmitter.criteriaMAGChange.emit(listType);
-        }
-    }
     public MAGBrowser(listType: string) {
         this._magAdvancedService.currentMagPaper = new MagPaper();
         this._magBrowserService.WPChildTopics = [];
@@ -353,17 +228,6 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
 
         } else if (listType == 'MatchedWithThisCode') {
             this.GetMatchedMagWithCodeList();
-        }
-    }
-    public DeleteSimulation(item: MagSimulation) {
-        if (item != null) {
-            this.ConfirmationDialogService.confirm("Deleting the selected MAG simulation",
-                "Are you sure you want to delete MAG RUN:" + item.magSimulationId + "?", false, '')
-                .then((confirm: any) => {
-                    if (confirm) {
-                        this._magAdvancedService.DeleteSimulation(item);
-                    }
-                });
         }
     }
     public GetMatchedMagIncludedList(): void {
@@ -462,77 +326,13 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
 
         );
     }
-    CanOnlySelectRoots() {
-        return true;
-    }
-    CloseCodeDropDown3() {
-        if (this.WithOrWithoutCodeSelector3) {
-            this.CurrentDropdownSelectedCode3 = this.WithOrWithoutCodeSelector3.SelectedNodeData;
-        }
-        this.isCollapsed3 = false;
-    }
     CloseCodeDropDown2() {
         if (this.WithOrWithoutCodeSelector2) {
             this.CurrentDropdownSelectedCode2 = this.WithOrWithoutCodeSelector2.SelectedNodeData;
         }
         this.isCollapsed2 = false;
     }
-    Clear() {
-
-        this.CurrentDropdownSelectedCode2 = {} as SetAttribute;
-        this.CurrentDropdownSelectedCode3 = {} as SetAttribute;
-        this.description = '';
-        this.ItemsWithCode = false;
-        this.magDate = '';
-        this.magMode = '';
-
-    }
-    public CanDeleteMAGRun(): boolean {
-        return this.HasWriteRights;
-    }
-    public CanAddNewMAGSearch(): boolean {
-
-        if (this.description != '' && this.description != null && this.HasWriteRights
-        ) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-    //public ClickSearchMode(searchModeChoice: string) {
-
-    //    switch (searchModeChoice) {
-
-    //        case '1':
-    //            this.magMode = 'Recommended by';
-    //            break;
-    //        case '2':
-    //            this.magMode = 'That recommend';
-    //            break;
-    //        case '3':
-    //            this.magMode = 'Recommendations';
-    //            break;
-    //        case '4':
-    //            this.magMode = 'Bibliography';
-    //            break;
-    //        case '5':
-    //            this.magMode = 'Cited by';
-    //            break;
-    //        case '6':
-    //            this.magMode = 'Bi-Citation';
-    //            break;
-    //        case '7':
-    //            this.magMode = 'Bi-Citation AND Recommendations';
-    //            break;
-
-    //        default:
-    //            break;
-    //    }
-    //}
-    //public GetMagSimulationList() {
-
-    //    this._magAdvancedService.FetchMagSimulationList();
-    //}
-
+  
+  
 }
 
