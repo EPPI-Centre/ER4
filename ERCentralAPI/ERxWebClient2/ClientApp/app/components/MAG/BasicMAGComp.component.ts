@@ -35,8 +35,6 @@ export class BasicMAGComp implements OnInit {
     }
     @ViewChild('WithOrWithoutCodeSelector') WithOrWithoutCodeSelector!: codesetSelectorComponent;
     public CurrentDropdownSelectedCode: singleNode | null = null;
-    //public ItemsWithCode: boolean = false;
-    //public MAGItems: any[] = [];
     public ShowPanel: boolean = false;
     public isCollapsed: boolean = false;
     public dropdownBasic1: boolean = false;
@@ -71,7 +69,6 @@ export class BasicMAGComp implements OnInit {
         this.router.navigate(['MatchingMAGItems']);
     }
     public Back() {
-       // if (this._routingStateService.MAGSubscription) this._routingStateService.UnsubscribeMAGHistory();
         this.router.navigate(['Main']);
     }
 	ngOnInit() {
@@ -96,7 +93,6 @@ export class BasicMAGComp implements OnInit {
 
         this.CurrentDropdownSelectedCode = {} as SetAttribute;
         this.description = '';
-       // this.ItemsWithCode = false;
         this.magDateRadio = 'true';
         this.magMode = '';
 
@@ -110,9 +106,6 @@ export class BasicMAGComp implements OnInit {
         this.isCollapsed = false;
        
     }
-	//public ToggleMAGPanel(): void {
-	//	this.ShowPanel = !this.ShowPanel;
-	//}
     public get HasWriteRights(): boolean {
         return this._ReviewerIdentityServ.HasWriteRights;
     }
@@ -174,14 +167,6 @@ export class BasicMAGComp implements OnInit {
     public CanDeleteMAGRun() : boolean {
         return this.HasWriteRights;
     }
-    //public CanGetPapers(paperNumbers: number): boolean {
-    //    if (paperNumbers > 0 && this.HasWriteRights) {
-    //        return true;
-    //    } else {
-    //        return false;
-    //    }
-
-    //}
     public CanAddNewMAGSearch(): boolean {
 
         if (this.description != '' && this.description != null && this.HasWriteRights
