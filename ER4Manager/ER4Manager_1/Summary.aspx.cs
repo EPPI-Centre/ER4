@@ -952,26 +952,34 @@ public partial class Summary : System.Web.UI.Page
                     while (idr1.Read())
                     {
                         newrow = dt.NewRow();
-                        dayExpires = Convert.ToDateTime(idr1["expiry_date"].ToString());
-
-                        expiryDate = dayExpires.ToString();
-                        expiryDate = expiryDate.Remove(expiryDate.IndexOf(" "));
-
                         newrow["CONTACT_ID"] = idr1["CONTACT_ID"].ToString();
-                        if (dayExpires < today)
-                        {
-                            newrow["CONTACT_NAME"] = idr1["CONTACT_NAME"].ToString() + " (" + expiryDate + ")" + " Expired";
-                        }
-                        else
-                        {
-                            newrow["CONTACT_NAME"] = idr1["CONTACT_NAME"].ToString() + " (" + expiryDate + ")";
-                        }
-
+                        
                         if (idr1["site_lic_id"].ToString() != "")
                         {
                             newrow["CONTACT_NAME"] = idr1["CONTACT_NAME"].ToString() + " (" + expiryDate + ")" + " in Site License #" +
                                 idr1["site_lic_id"].ToString();
                         }
+                        else if ((idr1["expiry_date"].ToString() == null) || (idr1["expiry_date"].ToString() == ""))
+                        {
+                            newrow["CONTACT_NAME"] = idr1["CONTACT_NAME"].ToString() + " (N/A) Not activated";
+                        }
+                        else
+                        {
+                            dayExpires = Convert.ToDateTime(idr1["expiry_date"].ToString());
+
+                            expiryDate = dayExpires.ToString();
+                            expiryDate = expiryDate.Remove(expiryDate.IndexOf(" "));
+                            if (dayExpires < today)
+                            {
+                                newrow["CONTACT_NAME"] = idr1["CONTACT_NAME"].ToString() + " (" + expiryDate + ")" + " Expired";
+                            }
+                            else
+                            {
+                                newrow["CONTACT_NAME"] = idr1["CONTACT_NAME"].ToString() + " (" + expiryDate + ")";
+                            }
+                        }
+                        
+
                         newrow["EMAIL"] = idr1["EMAIL"].ToString();
                         if ((idr1["LAST_LOGIN"].ToString() == null) || (idr1["LAST_LOGIN"].ToString() == ""))
                             newrow["LAST_LOGIN"] = "Never";
@@ -1236,16 +1244,35 @@ public partial class Summary : System.Web.UI.Page
         while (idr.Read())
         {
             newrow = dt.NewRow();
-            expiryDate = idr["expiry_date"].ToString();
-            expiryDate = expiryDate.Remove(expiryDate.IndexOf(" "));
-
             newrow["CONTACT_ID"] = idr["CONTACT_ID"].ToString();
-            newrow["CONTACT_NAME"] = idr["CONTACT_NAME"].ToString() + " (" + expiryDate + ")";
             if (idr["site_lic_id"].ToString() != "")
             {
                 newrow["CONTACT_NAME"] = idr["CONTACT_NAME"].ToString() + " (" + expiryDate + ")" + " in Site License #" +
                     idr["site_lic_id"].ToString();
             }
+            else if ((idr["expiry_date"].ToString() == null) || (idr["expiry_date"].ToString() == ""))
+            {
+                newrow["CONTACT_NAME"] = idr["CONTACT_NAME"].ToString() + " (N/A) Not Activated";
+            }
+            else
+            {
+                DateTime dayExpires = Convert.ToDateTime(idr["expiry_date"].ToString());
+                DateTime today = DateTime.Today;
+                expiryDate = dayExpires.ToString();
+                expiryDate = expiryDate.Remove(expiryDate.IndexOf(" "));
+                if (dayExpires < today)
+                {
+                    newrow["CONTACT_NAME"] = idr["CONTACT_NAME"].ToString() + " (" + expiryDate + ")" + " Expired";
+                }
+                else
+                {
+                    newrow["CONTACT_NAME"] = idr["CONTACT_NAME"].ToString() + " (" + expiryDate + ")";
+                }
+            }
+
+            //newrow["CONTACT_ID"] = idr["CONTACT_ID"].ToString();
+            //newrow["CONTACT_NAME"] = idr["CONTACT_NAME"].ToString() + " (" + expiryDate + ")";
+            
             newrow["EMAIL"] = idr["EMAIL"].ToString();
             if ((idr["LAST_LOGIN"].ToString() == null) || (idr["LAST_LOGIN"].ToString() == ""))
                 newrow["LAST_LOGIN"] = "Never";
