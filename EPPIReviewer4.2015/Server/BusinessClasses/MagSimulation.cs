@@ -304,6 +304,19 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
+        public static readonly PropertyInfo<int> ReviewSampleSizeProperty = RegisterProperty<int>(new PropertyInfo<int>("ReviewSampleSize", "ReviewSampleSize", 20));
+        public int ReviewSampleSize
+        {
+            get
+            {
+                return GetProperty(ReviewSampleSizeProperty);
+            }
+            set
+            {
+                SetProperty(ReviewSampleSizeProperty, value);
+            }
+        }
+
         public static readonly PropertyInfo<int> TPProperty = RegisterProperty<int>(new PropertyInfo<int>("TP", "TP"));
         public int TP
         {
@@ -599,7 +612,9 @@ namespace BusinessLibrary.BusinessClasses
                 FosThreshold.ToString(),
                 folderPrefix,
                 ScoreThreshold.ToString(),
-                "v1", "False") == "Succeeded")
+                "v1",
+                "False",
+                ReviewSampleSize.ToString()) == "Succeeded")
             {
                 MagLog.UpdateLogEntry("running", "Sim: " + MagSimulationId.ToString() + ", pipeline complete", MagLogId);
                 await DownloadResultsAsync(folderPrefix, ReviewId);
