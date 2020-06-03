@@ -490,10 +490,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
             || (this.reviewSetsService.ReviewSets == undefined && this.codesetStatsServ.tmpCodesets == undefined)
             || (this.reviewSetsService.ReviewSets.length > 0 && this.codesetStatsServ.tmpCodesets.length == 0)
         ) this.Reload();
-        //this.searchService.Fetch();
-
         
-        console.log('got his');
         this._routingStateService.loadRouting();
 	}
 	public LoadComparisonList(comparison: Comparison, ListSubType: string) {
