@@ -35,8 +35,8 @@ export class BasicMAGComp implements OnInit {
     }
     @ViewChild('WithOrWithoutCodeSelector') WithOrWithoutCodeSelector!: codesetSelectorComponent;
     public CurrentDropdownSelectedCode: singleNode | null = null;
-    public ItemsWithCode: boolean = false;
-    public MAGItems: any[] = [];
+    //public ItemsWithCode: boolean = false;
+    //public MAGItems: any[] = [];
     public ShowPanel: boolean = false;
     public isCollapsed: boolean = false;
     public dropdownBasic1: boolean = false;
@@ -60,9 +60,6 @@ export class BasicMAGComp implements OnInit {
     public ImportSelected() {
 
     }
-    public AutoUpdateHome() {
-
-    }
     public ShowHistory() {
 
         this.router.navigate(['MAGBrowserHistory']);
@@ -72,6 +69,10 @@ export class BasicMAGComp implements OnInit {
     }
     public MatchingMAGItems() {
         this.router.navigate(['MatchingMAGItems']);
+    }
+    public Back() {
+       // if (this._routingStateService.MAGSubscription) this._routingStateService.UnsubscribeMAGHistory();
+        this.router.navigate(['Main']);
     }
 	ngOnInit() {
 
@@ -91,26 +92,15 @@ export class BasicMAGComp implements OnInit {
 
     }
 
-    public Back() {
-        if (this._routingStateService.MAGSubscription) this._routingStateService.UnsubscribeMAGHistory();
-        this.router.navigate(['Main']);
-    }
     Clear() {
 
         this.CurrentDropdownSelectedCode = {} as SetAttribute;
         this.description = '';
-        this.ItemsWithCode = false;
+       // this.ItemsWithCode = false;
         this.magDateRadio = 'true';
         this.magMode = '';
 
     }
-    public AdvancedFeatures() {
-        
-        this.router.navigate(['AdvancedMAGFeatures']);
-    }
-	CanOnlySelectRoots() {
-		return true;
-	}
 	CloseCodeDropDown() {
         
         console.log(this.WithOrWithoutCodeSelector);
@@ -120,9 +110,9 @@ export class BasicMAGComp implements OnInit {
         this.isCollapsed = false;
        
     }
-	public ToggleMAGPanel(): void {
-		this.ShowPanel = !this.ShowPanel;
-	}
+	//public ToggleMAGPanel(): void {
+	//	this.ShowPanel = !this.ShowPanel;
+	//}
     public get HasWriteRights(): boolean {
         return this._ReviewerIdentityServ.HasWriteRights;
     }
@@ -184,14 +174,14 @@ export class BasicMAGComp implements OnInit {
     public CanDeleteMAGRun() : boolean {
         return this.HasWriteRights;
     }
-    public CanGetPapers(paperNumbers: number): boolean {
-        if (paperNumbers > 0 && this.HasWriteRights) {
-            return true;
-        } else {
-            return false;
-        }
+    //public CanGetPapers(paperNumbers: number): boolean {
+    //    if (paperNumbers > 0 && this.HasWriteRights) {
+    //        return true;
+    //    } else {
+    //        return false;
+    //    }
 
-    }
+    //}
     public CanAddNewMAGSearch(): boolean {
 
         if (this.description != '' && this.description != null && this.HasWriteRights
@@ -242,7 +232,6 @@ export class BasicMAGComp implements OnInit {
                 break;
 		}
 	}
-
 	public AddNewMAGSearch() {
 
 		let magRun: MagRelatedPapersRun = new MagRelatedPapersRun();
@@ -252,7 +241,6 @@ export class BasicMAGComp implements OnInit {
         } else {
             magRun.allIncluded = false;
         }
-		//magRun.allIncluded = this.searchAll;
 		let att: SetAttribute = new SetAttribute();
 		if (this.CurrentDropdownSelectedCode != null) {
 			att = this.CurrentDropdownSelectedCode as SetAttribute;
@@ -270,9 +258,7 @@ export class BasicMAGComp implements OnInit {
     }
     public ImportMagRelatedPapersRun(magRun: MagRelatedPapersRun, msg: string) {
 
-        console.log('TESTING IMPORT MAG ITEMS: ', magRun);
-
-        this.ConfirmationDialogService.confirm("Importing papers for the selected MAG search",
+       this.ConfirmationDialogService.confirm("Importing papers for the selected MAG search",
                 msg, false, '')
             .then((confirm: any) => {
                 if (confirm) {
