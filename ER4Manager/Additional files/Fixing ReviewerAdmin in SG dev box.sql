@@ -804,4 +804,43 @@ SET NOCOUNT OFF
 
 GO
 
+USE [ReviewerAdmin]
+GO
+/****** Object:  StoredProcedure [dbo].[st_ReviewRemoveMember_1]    Script Date: 6/3/2020 10:55:40 AM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
 
+
+CREATE or ALTER procedure [dbo].[st_ReviewRemoveMember_1]
+(
+	@REVIEW_ID int,
+	@CONTACT_ID int
+)
+
+As
+
+SET NOCOUNT ON
+
+	declare @funder_id int
+	
+	select @funder_id = FUNDER_ID from Reviewer.dbo.TB_REVIEW
+	where REVIEW_ID = @REVIEW_ID
+	
+	if @funder_id != @CONTACT_ID
+	begin
+		delete Reviewer.dbo.TB_CONTACT_REVIEW_ROLE from Reviewer.dbo.TB_CONTACT_REVIEW_ROLE crr
+		inner join Reviewer.dbo.TB_REVIEW_CONTACT rc
+		on rc.REVIEW_CONTACT_ID = crr.REVIEW_CONTACT_ID
+		and rc.CONTACT_ID = @CONTACT_ID
+		and rc.REVIEW_ID = @REVIEW_ID
+	                
+		delete from Reviewer.dbo.TB_REVIEW_CONTACT 
+		where CONTACT_ID = @CONTACT_ID
+		and REVIEW_ID = @REVIEW_ID
+    end
+		
+
+SET NOCOUNT OFF
+GO
