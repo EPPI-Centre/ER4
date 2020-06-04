@@ -39,6 +39,9 @@ public partial class EmailEdit : System.Web.UI.Page
                     }
                     idr.Close();
 
+                    if ((lblEmailID.Text == "9") || (lblEmailID.Text == "10"))
+                        lbSendTestEmail.Enabled = false;
+
                     cmdSave.Attributes.Add("onclick", "if (confirm('Are you sure you are updating the correct email? Do you wish to continue?') == false) return false;");
                 }
             }
@@ -55,11 +58,27 @@ public partial class EmailEdit : System.Web.UI.Page
 
     protected void cmdSave_Click(object sender, EventArgs e)
     {
+        int length = RadEditor.Content.Length;
+        
         bool isAdmDB = true;
         Utils.ExecuteSP(isAdmDB, Server, "st_EmailUpdate",
-            lblEmailID.Text, tbEmailName.Text, RadEditor.Content); ///*RadEditor.Content*/
-        //Utils.ExecuteSP(isAdmDB, Server, "st_EmailUpdate_1", lblEmailID.Text, "abc");
-                                                       
+            lblEmailID.Text, tbEmailName.Text, RadEditor.Content);
+
+        /*
+        lblEmailTooLong.Visible = false;
+        if (length <= 4000)
+        {
+            bool isAdmDB = true;
+            Utils.ExecuteSP(isAdmDB, Server, "st_EmailUpdate",
+                lblEmailID.Text, tbEmailName.Text, RadEditor.Content);
+        }
+        else
+        {
+            lblEmailTooLong.Visible = true;
+            lblEmailTooLong.Text = "Message is too long: " + length + "characters. (> 4000)";
+        }
+        //<asp:Label ID="lblEmailTooLong" runat="server" Visible="false" Font-Bold="True" Text="" ForeColor="#FF3300"></asp:Label>
+        */
     }
     protected void lbClose_Click(object sender, EventArgs e)
     {
@@ -75,18 +94,50 @@ public partial class EmailEdit : System.Web.UI.Page
     protected void lbSendTestEmail_Click(object sender, EventArgs e)
     {
         string sendResult = "";
+        //string emailTo = "EPPISupport@ucl.ac.uk";
+        string emailTo = "jeff.brunton@outlook.com";
         switch (lblEmailID.Text)
         {
-            case ("1"): // new account email
-                sendResult = Utils.VerifyAccountEmail("EPPISupport@ucl.ac.uk",
-                    "EPPISupport", "EPPISupport", "FAKE_NEWAccount_UI", "0", "InvalidURL", "THIS is a test from the edit Email page");
+            case ("1"): // WelcomeEmail(string mailTo, string newUser, string userName, string exDate, string stAdditional)
+                sendResult = Utils.WelcomeEmail(emailTo,
+                    "FakeName", "FakeUsername", "01/01/2020", "THIS is a test from the edit Email page");
                 return;
-            case ("2"): // forgotten password
-                sendResult = Utils.ForgottenPmail("EPPISupport@ucl.ac.uk", "EPPISupport", "FAKE_LINK_UI", "0", "InvalidURL", "THIS is a test from the edit Email page");
+            case ("2"): // ForgottenPmail(string mailTo, string stCont, string LinkUI, string CID, string BaseUrl, string stAdditional)
+                sendResult = Utils.ForgottenPmail(emailTo, 
+                    "FakeName", "FAKE_LINK_UI", "0", "FakeInvalidURL", "THIS is a test from the edit Email page");
                 return;
-            case ("3"): // review invitation
-                sendResult = Utils.InviteEmail("EPPISupport@ucl.ac.uk",
-                    "EPPISupport", "test review 1", "Jeff Brunton", "j.brunton@ucl.ac.uk", "");
+            case ("3"): // InviteEmail(string mailTo, string inviteeName, string reviewName, string inviterName,
+                            //string inviterEmail, string emailAccountMsg)
+                sendResult = Utils.InviteEmail(emailTo,
+                    "FakeInviteeName", "FakeReviewName", "FakeInviterName", "FakeInviterEmail", "FakeDetails about some issue with your account");
+                return;
+            case ("4"): // GhostUserActivationEmail(string mailTo, string Fullname, string PurcharserName, string LinkUI, 
+                            //string CID, string BaseUrl, string stAdditional)
+                sendResult = Utils.GhostUserActivationEmail(emailTo,
+                    "FakeName", "FakePurchaserName", "FAKE_LINK_UI", "0", "FakeInvalidURL", "THIS is a test from the edit Email page");
+                return;
+            case ("5"): // ReviewCreationErrorEmail(string mailTo, string contactID, string errorMessage)
+                sendResult = Utils.ReviewCreationErrorEmail(emailTo,
+                    "0", "Fake message about why the review creation failed");
+                return;
+            case ("6"): // ForgottenUsernameMail(string mailTo, string stCont, string UserName, string stAdditional)
+                sendResult = Utils.ForgottenUsernameMail(emailTo,
+                    "FakeName", "FakeUserName", "");
+                return;
+            case ("7"): // VerifyAccountEmail(string mailTo, string newUser, string userName, string LinkUI, string CID, 
+                            //string BaseUrl, string stAdditional)
+                sendResult = Utils.VerifyAccountEmail(emailTo,
+                    "FakeName", "FakeUserName", "FAKE_LINK_UI", "0", "FakeInvalidURL", "");
+                return;
+            case ("8"): // GhostCreditTransferEmail(string mailTo, string Fullname, string PurcharserName, string Months, 
+                            //string NewDate, string stAdditional)
+                sendResult = Utils.GhostCreditTransferEmail(emailTo,
+                    "FakeName", "FakePurchaserName", "3", "25/10/2020", "");
+                return;
+            // 9 and 10 are not emails
+            case ("11"): // OutstandingFeeEmail(string mailTo, string contactName, string outstandingFee)
+                sendResult = Utils.OutstandingFeeEmail(emailTo,
+                    "FakeName", "120");
                 return;
             default:
                 return;
