@@ -1475,8 +1475,8 @@ namespace BusinessLibrary.BusinessClasses
         {
             if (ss == "")
                 return "";
-            ss = MagMakesHelpers.CleanText(ss);
             ss = RemoveLanguageAndThesisText(ss);
+            ss = MagMakesHelpers.CleanText(ss);
             string r = Truncate(ToSimpleText(RemoveDiacritics(ss))
                     .Replace("a", "")
                     .Replace("e", "")
@@ -1532,18 +1532,25 @@ namespace BusinessLibrary.BusinessClasses
         }
 
         // This added by JT. Removes [German] and [Master's thesis] etc from the end of the string
-        // so long as the text removed isn't more than 25% of the length of the title
+        // so long as the text removed isn't more than 33% of the length of the title
         public static string RemoveLanguageAndThesisText(string s)
         {
-            s = s.TrimEnd(' ');
-            if (s.EndsWith("]"))
+            s = s.Trim();
+            int max = 4; //we'll remove a max of four sequences of [abc][def][ghk]...
+            int counter = 1;
+            while (counter < max)
             {
-                int i = s.LastIndexOf('[');
-                //int i = s.IndexOf('[');
-                if ((s.Length - i) * 4 < s.Length)
+                if (s.EndsWith("]"))
                 {
-                    s = s.Substring(0, i).TrimEnd(' ');
+                    int i = s.LastIndexOf('[');
+                    if (i > 0 && (s.Length - i) * 3 < s.Length)
+                    {
+                        s = s.Substring(0, i).Trim();
+                        counter++;
+                    }
+                    else break;
                 }
+                else break;
             }
             return s;
         }
