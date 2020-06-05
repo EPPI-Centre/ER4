@@ -730,6 +730,9 @@
     <Compile Include="..\Server\BusinessClasses\ReviewStatisticsReviewerList.cs">
       <Link>BusinessClasses\ReviewStatisticsReviewerList.cs</Link>
     </Compile>
+    <Compile Include="..\Server\BusinessClasses\RobotReviewerCommand.cs">
+      <Link>BusinessClasses\RobotReviewerCommand.cs</Link>
+    </Compile>
     <Compile Include="..\Server\BusinessClasses\Search.cs">
       <Link>BusinessClasses\Search.cs</Link>
     </Compile>

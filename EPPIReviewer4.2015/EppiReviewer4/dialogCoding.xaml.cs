@@ -79,6 +79,7 @@ namespace EppiReviewer4
         private RadWindow WindowRaduploadContainer = new RadWindow();
         private RadUpload RadUp = new RadUpload();
         private RadWCheckArmDelete WindowCheckArmDelete = new RadWCheckArmDelete();
+        private RadWRobots WindowRobots = new RadWRobots();
         private RadWCheckTimepointDelete WindowCheckTimepointDelete = new RadWCheckTimepointDelete();
 
         private double CurrentcodesTreeContainerWidth = 330;
@@ -200,6 +201,7 @@ namespace EppiReviewer4
             windowConfirmDocDelete.cmdDeleteDoc_Clicked+=new EventHandler<RoutedEventArgs>(cmdDeleteDoc_Click);
             windowResetPdfCoding.Closed += new EventHandler<WindowClosedEventArgs>(windowResetPdfCoding_Closed);
             WindowCheckArmDelete.cmdArmDeletedInWindow += WindowCheckArmDelete_cmdArmDeletedInWindow;
+            WindowRobots.closeWindowRobots += WindowRobotsClose;
             WindowCheckTimepointDelete.cmdTimepointDeletedInWindow += WindowCheckTimepointDelete_cmdTimepointDeletedInWindow;
 
             //end hooking up radW events
@@ -3509,6 +3511,22 @@ namespace EppiReviewer4
         private void MicrosoftAcademic_Activated(object sender, EventArgs e)
         {
             GetMagPaperListData(DataContext as Item);
+        }
+
+        private void cmdRobotAutoCode_Click(object sender, RoutedEventArgs e)
+        {
+            WindowRobots.SelectedItemDocument = (sender as Button).DataContext as ItemDocument;
+            Item thisItem = DataContext as Item;
+            WindowRobots.SelectedTitle = thisItem.Title;
+            WindowRobots.SelectedAbstract = thisItem.Abstract;
+            WindowRobots.ShowDialog();
+        }
+        private void WindowRobotsClose(object sender, RoutedEventArgs e)
+        {
+            Item thisItem = DataContext as Item;
+            codesTreeControl.ReloadAllSets();
+            BindTree(thisItem);
+            WindowRobots.Close();
         }
 
         private void It_Saved(object sender, Csla.Core.SavedEventArgs e)

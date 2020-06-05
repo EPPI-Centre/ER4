@@ -201,6 +201,30 @@ namespace BusinessLibrary.BusinessClasses
             return returnValue;
         }
 
+        public AttributeSet GetSetByExt_URL(string val)
+        {
+            AttributeSet retVal = null;
+            foreach (AttributeSet atset in Attributes)
+            {
+                if (atset.ExtURL == val)
+                {
+                    return atset;
+                }
+                else
+                {
+                    if (atset.Attributes.Count > 0)
+                    {
+                        retVal = atset.GetSetByExt_URL(val);
+                        if (retVal != null)
+                        {
+                            return retVal;
+                        }
+                    }
+                }
+            }
+            return retVal;
+        }
+
         public void ClearItemData()
         {
             this.ItemData = null;

@@ -4347,6 +4347,11 @@ namespace EppiReviewer4
         private void cmdReloadAllSets_Click(object sender, RoutedEventArgs e)
         {
             //AddBusyMethod("cmdReloadAllSets_Click");
+            ReloadAllSets();
+        }
+
+        public void ReloadAllSets()
+        {
             if (CodeSetsDataprovider == null) return;
             CodeSetsDataprovider.Refresh();
         }
