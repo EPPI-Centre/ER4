@@ -2553,7 +2553,8 @@ namespace EppiReviewer4
                     EditScoreThreshold.Value.Value,
                     EditFoSThreshold.Value.Value,
                     specificFolder,
-                    MagLogId);
+                    MagLogId,
+                    Convert.ToInt32(EditReviewSampleSize.Value.Value));
             dp2.ExecuteCompleted += (o, e2) =>
             {
                 if (e2.Error != null)

@@ -158,6 +158,16 @@
                 </Setter.Value>
             </Setter>
         </Style>
+        <Style TargetType="grid:GridViewCell" x:Name="cellStyleRobot">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate>
+                        <Button x:Name="cmdRobotAutoCode" IsEnabled="{Binding Source={StaticResource isEnorCodingOnly}, Path=IsEnabled, Mode=OneWay}" 
+                                Content="Robot" Tag="{Binding ItemDocumentId}"  Click="cmdRobotAutoCode_Click"></Button>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
         
         <Style TargetType="grid:GridViewCell" x:Name="cellStyleCodingReport">
             <Setter Property="Template">
@@ -257,6 +267,7 @@
                                             <telerikGridView:GridViewDataColumn Header="Title" DataMemberBinding="{Binding Title}" Width="*"></telerikGridView:GridViewDataColumn>
                                             <telerikGridView:GridViewDataColumn Header="Document" DataMemberBinding="{Binding ShortTitle}" Width="100" IsReadOnly="True"></telerikGridView:GridViewDataColumn>
                                             <telerikGridView:GridViewDataColumn Header="Extension" IsReadOnly="True" DataMemberBinding="{Binding Extension}"></telerikGridView:GridViewDataColumn>
+                                            <telerikGridView:GridViewDataColumn IsFilterable="False" IsSortable="False" CellStyle="{StaticResource cellStyleRobot}" Width="50" Header="Robot" DataMemberBinding="{Binding ItemDocumentId}"></telerikGridView:GridViewDataColumn>
                                             <telerikGridView:GridViewDataColumn IsFilterable="False" IsSortable="False" CellStyle="{StaticResource cellStyleDelFile}" Width="60" Header="Delete" DataMemberBinding="{Binding ItemDocumentId}"></telerikGridView:GridViewDataColumn>
                                             <telerikGridView:GridViewDataColumn IsFilterable="False" IsSortable="False" CellStyle="{StaticResource cellStyleText}" Width="60" Header="View text" DataMemberBinding="{Binding Title}"></telerikGridView:GridViewDataColumn>
                                             <telerikGridView:GridViewDataColumn IsFilterable="False" IsSortable="False" CellStyle="{StaticResource cellStylePdf}" Width="80" Header="Download" DataMemberBinding="{Binding Title}"></telerikGridView:GridViewDataColumn>

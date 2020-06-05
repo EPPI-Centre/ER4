@@ -18,6 +18,17 @@
                 <tr *ngFor="let magPaper of _magAdvancedService.MagReferencesPaperList.papers">
                     <td>
                         <div class="col-12">{{magPaper.fullRecord}}</div>
+                        <div class="col-3">
+                            {{magPaper.paperId}}
+                        </div>
+                        <div class="col-3 btn btn-link" (click)="GetMagPaperRef(magPaper.paperId)">
+                            View in MAG Browser
+                        </div>
+                        <div class="col-3 btn btn-link">
+                            <a href="https://academic.microsoft.com/paper/{{magPaper.paperId}}/reference" target="_blank">
+                                View on the internet
+                            </a>
+                        </div>
                     </td>
                     <td class="w-25">
                         <div class="col-12 ">
@@ -30,6 +41,7 @@
                             Incorrect Match:<input class="" name="magMatchRadio" id="magMatchRadio" type="radio" />
                         </div>
                     </td>
+
                 </tr>
         </tbody>
         </table>

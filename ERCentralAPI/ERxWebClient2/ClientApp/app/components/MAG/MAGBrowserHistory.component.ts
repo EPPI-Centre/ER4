@@ -33,8 +33,6 @@ export class MAGBrowserHistory implements OnInit {
 
         this.MAGBrowsingHistory = this._MAGBrowserHistoryService.getHistory();
 
-        console.log('really: ', this.MAGBrowsingHistory);
-
     }
 
     GoToUrl(url: string) {

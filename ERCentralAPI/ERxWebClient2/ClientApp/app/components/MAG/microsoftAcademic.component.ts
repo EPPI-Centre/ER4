@@ -25,6 +25,7 @@ export class microsoftAcademicComp implements OnInit, OnDestroy {
     private _MagPaperList: MagPaper[] = [];
     private sub: Subscription = new Subscription();
     public magPaperId: number = 0;
+    public magPaperRefId: number = 0;
     ngOnInit() {
 
 
@@ -43,6 +44,14 @@ export class microsoftAcademicComp implements OnInit, OnDestroy {
     public GetMagPaper() {
 
         this._magAdvancedService.FetchMagPaperId(this.magPaperId).then(
+
+            () => { this.router.navigate(['MAGBrowser']); }
+
+        );
+    }
+    public GetMagPaperRef(magPaperRefId: number) {
+
+        this._magAdvancedService.FetchMagPaperId(magPaperRefId).then(
 
             () => { this.router.navigate(['MAGBrowser']); }
 

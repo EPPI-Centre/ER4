@@ -25,8 +25,8 @@ export class MAGBrowserHistoryService {
             .subscribe(
                     ( url: any) =>
                     {
-                        var test = url as NavigationEnd;
-                        this.history = [...this.history, test];
+                        var navigationURL = url as NavigationEnd;
+                        this.history = [...this.history, navigationURL];
                     });
     }
     public getHistory(): NavigationEnd[] {
