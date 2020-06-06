@@ -428,8 +428,9 @@ namespace BusinessLibrary.BusinessClasses
 
                 string responseText = "";
                 MagCurrentInfo MagInfo = MagCurrentInfo.GetMagCurrentInfoServerSide(MakesDeploymentStatus);
-                string queryString = @"/interpret?query=" +
-                    System.Web.HttpUtility.UrlEncode(DOI.ToUpper()) + "&entityCount=5&attributes=" +
+                string queryString = @"/evaluate?expr=DOI='" +
+                    System.Web.HttpUtility.UrlEncode(DOI.ToUpper().Replace("HTTPS://DX.DOI.ORG/", "").Replace("HTTP://DX.DOI.ORG/", ""))
+                    + "'&entityCount=5&attributes=" +
                     System.Web.HttpUtility.UrlEncode("Id,DN,AA.AuN,J.JN,V,I,FP,Y") +
                     "&complete=0&count=10&offset=0&timeout=2000&model=latest";
                 WebRequest request = WebRequest.Create(MagInfo.MakesEndPoint + queryString);
@@ -441,26 +442,19 @@ namespace BusinessLibrary.BusinessClasses
                 }
                 response.Close();
 
-                var respJson = JsonConvert.DeserializeObject<MagMakesHelpers.MakesInterpretResponse>(responseText, jsonsettings);
-                if (respJson != null && respJson.interpretations != null && respJson.interpretations.Count > 0)
+                var respJson = JsonConvert.DeserializeObject<MagMakesHelpers.PaperMakesResponse>(responseText, jsonsettings);
+                if (respJson != null && respJson.entities != null && respJson.entities.Count > 0)
                 {
-                    foreach (MakesInterpretation i in respJson.interpretations)
+                    foreach (PaperMakes i in respJson.entities)
                     {
-                        foreach (MakesInterpretationRule r in i.rules)
+                        var found = PaperList.Find(e => e.Id == i.Id);
+                        if (found == null)
                         {
-                            foreach (PaperMakes pm in r.output.entities)
-                            {
-                                var found = PaperList.Find(e => e.Id == pm.Id);
-                                if (found == null)
-                                {
-                                    PaperList.Add(pm);
-                                }
-                            }
+                            PaperList.Add(i);
                         }
                     }
                 }
             }
-
             return PaperList;
         }
 

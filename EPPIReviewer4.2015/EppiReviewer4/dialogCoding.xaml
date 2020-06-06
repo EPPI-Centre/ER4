@@ -825,11 +825,19 @@
                                     <RowDefinition Height="Auto"></RowDefinition>
                                 </Grid.RowDefinitions>
 
-                                <HyperlinkButton x:Name="hlManualMagLookup" Grid.Row="0" VerticalAlignment="Top"
+                                <StackPanel Orientation="Horizontal" Grid.Row="0">
+                                    <HyperlinkButton x:Name="hlManualMagLookup" VerticalAlignment="Top"
                                                  Content="Look up this record in Microsoft Academic" Margin="2,7,2,0"
-                                                 Click="hlManualMagLookup_Click" IsTabStop="False"
+                                                 Click="hlManualMagLookup_Click" IsTabStop="False" Tag="Lookup"
                                                  IsEnabled="{Binding Source={StaticResource MagCurrentInfoData}, Path=Data.MatchingAvailable, Mode=OneWay}"
                                                  ></HyperlinkButton>
+                                    <HyperlinkButton x:Name="hlManualMagClear" VerticalAlignment="Top"
+                                                 Content="Clear Microsoft Academic matches from this record" Margin="7,7,2,0"
+                                                 Click="hlManualMagLookup_Click" IsTabStop="False" Tag="Clear"
+                                                 IsEnabled="{Binding Source={StaticResource MagCurrentInfoData}, Path=Data.MatchingAvailable, Mode=OneWay}"
+                                                 ></HyperlinkButton>
+                                </StackPanel>
+                                
 
                                 <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,5,5,5">
                                 

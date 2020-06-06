@@ -3478,9 +3478,25 @@ namespace EppiReviewer4
 
         private void hlManualMagLookup_Click(object sender, RoutedEventArgs e)
         {
+            HyperlinkButton hl = sender as HyperlinkButton;
+            if (hl.Tag.ToString() == "Lookup")
+            {
+                ManualMagLookupOrClear("FindMatches");
+                return;
+            }
+            RadWindow.Confirm("Are you sure you want to clear matches from this item?", this.ManualMagMatchesClearConfirm);
+        }
+
+        private void ManualMagMatchesClearConfirm(object sender, WindowClosedEventArgs e)
+        {
+            ManualMagLookupOrClear("clear");
+        }
+
+        private void ManualMagLookupOrClear(string FindOrClear)
+        {
             Item i = this.DataContext as Item;
             DataPortal<MagMatchItemsToPapersCommand> dp = new DataPortal<MagMatchItemsToPapersCommand>();
-            MagMatchItemsToPapersCommand GetMatches = new MagMatchItemsToPapersCommand("FindMatches",
+            MagMatchItemsToPapersCommand GetMatches = new MagMatchItemsToPapersCommand(FindOrClear,
                 false, i.ItemId, 0);
             dp.ExecuteCompleted += (o, e2) =>
             {
@@ -3500,11 +3516,13 @@ namespace EppiReviewer4
                     provider.FactoryMethod = "GetMagPaperList";
                     provider.Refresh();
                     hlManualMagLookup.IsEnabled = true;
+                    hlManualMagClear.IsEnabled = true;
                     hlManualMagLookup.Content = "Look up this record in Microsoft Academic";
                 }
             };
             hlManualMagLookup.Content = "Looking up this record in Microsoft Academic...";
             hlManualMagLookup.IsEnabled = false;
+            hlManualMagClear.IsEnabled = false;
             dp.BeginExecute(GetMatches);
         }
 
