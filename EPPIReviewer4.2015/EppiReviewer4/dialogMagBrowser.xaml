@@ -362,7 +362,7 @@
                     <HyperlinkButton x:Name="LbClearAllMatchesInReview" Grid.Row="1" Grid.Column="0" Content="Clear all matches in review" Margin="5,5,5,5" Click="LbClearAllMatchesInReview_Click"  Tag="ALL" IsTabStop="False" HorizontalAlignment="Right" VerticalAlignment="Center"
                                      IsEnabled="{Binding Source={StaticResource MagCurrentInfoData}, Path=Data.MatchingAvailable, Mode=OneWay}"></HyperlinkButton>
 
-                    <telerik:RadBusyIndicator x:Name="busyIndicatorMatches" Grid.Row="0" Grid.RowSpan="3" Grid.Column="1" Background="Transparent" BorderBrush="Transparent" />
+                    <telerik:RadBusyIndicator x:Name="busyIndicatorMatches" Grid.Row="0" Grid.RowSpan="7" Grid.Column="1" Background="Transparent" BorderBrush="Transparent" />
                     
                     <TextBlock Grid.Row="2" Grid.Column="0" Text="All matched included records" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="4,3,4,3"></TextBlock>
                     <TextBlock Grid.Row="3" Grid.Column="0" Text="All matched excluded records" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="4,3,4,3"></TextBlock>
