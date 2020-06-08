@@ -33,7 +33,7 @@ export class microsoftAcademicComp implements OnInit, OnDestroy {
         this.sub = this._ItemCodingService.DataChanged.subscribe(
             () => {
                 this._magAdvancedService.MagReferencesPaperList = [];
-                this.fetchMAGMatches();
+                this.FetchMAGMatches();
             }
         );
     }
@@ -66,14 +66,24 @@ export class microsoftAcademicComp implements OnInit, OnDestroy {
         }
 
     }
-    private fetchMAGMatches() {
+    private FetchMAGMatches() {
 
         let res: any = this._magAdvancedService.MagMatchItemsToPapers(this.item.itemId);
         if (res != null) {
             console.log('fetchMAGMatches: ' + JSON.stringify(res));
             this.MagPaperList = res;
-            console.log('this.MagPaperList is: ' + JSON.stringify(this.MagPaperList));
+        } else {
+            console.log('fetchMAGMatches is empty: ' + JSON.stringify(res));
+            this.MagPaperList = [];
         }
+    }
+    public ClearMAGMatches() {
+
+        let res: any = this._magAdvancedService.ClearMagMatchItemsToPapers(this.item.itemId);
+        
+        console.log('fetchMAGMatches is empty: ' + JSON.stringify(res));
+        this._magAdvancedService.MagReferencesPaperList = [];
+        
     }
     public get MagPaperList() {
 

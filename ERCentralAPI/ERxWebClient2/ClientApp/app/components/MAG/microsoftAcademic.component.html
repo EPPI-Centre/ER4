@@ -1,11 +1,16 @@
 <div class="card p-1 m-1 alert-light">
-    <h5 class="font-weight-bold btn btn-link" (click)="fetchMAGMatches()">
-        Look up this record in Microsoft Record
-    </h5>
+    <div class="col-12 row">
+        <h5 class="font-weight-bold btn btn-link col-6" (click)="FetchMAGMatches()">
+            Look up this record in Microsoft Academic
+        </h5>
+        <h5 class="font-weight-bold btn btn-link col-6" (click)="ClearMAGMatches()">
+            Clear Microsoft Academic matches from this record
+        </h5>
+    </div>
     <h5><b>{{item.title}}</b></h5>
     <b>Record(s) matched from Microsoft Academic:</b>
 
-    <h5 class="alert-warning" *ngIf="_magAdvancedService.MagReferencesPaperList.papers == null">Loading...</h5>
+    <h5 class="alert-warning" *ngIf="IsServiceBusy">Loading...</h5>
     <div class="card col-12 alert-primary" style="overflow:auto;" *ngIf="_magAdvancedService.MagReferencesPaperList != null">
         <table class="table table-bordered table-responsive-md table-striped text-center small alert-primary">
             <thead>
@@ -43,7 +48,7 @@
                     </td>
 
                 </tr>
-        </tbody>
+            </tbody>
         </table>
         <div class="col-12 p-2 m-2 row">
             <div class="col-12 text-center">
@@ -65,5 +70,5 @@
                 </div>
             </div>
         </div>
-</div>
+    </div>
 </div>
