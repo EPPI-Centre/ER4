@@ -7,6 +7,8 @@ using EPPIDataServices.Helpers;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Serilog;
 
@@ -32,6 +34,7 @@ namespace ERxWebClient2
 
         public static void Main(string[] args)
         {
+            
 
             //Without logging to the Datbase
             Log.Logger = new LoggerConfiguration()
@@ -40,6 +43,8 @@ namespace ERxWebClient2
                 .CreateLogger();
 
             BuildWebHost(args).Run();
+
+            
         }
 
         public static SQLHelper SqlHelper;
@@ -57,8 +62,8 @@ namespace ERxWebClient2
                 .UseStartup<Startup>()
                 .UseSerilog()//!!!!!!!!!!!!!!!!!!!
                 .Build();
+               
 
-       
     }
 
 }

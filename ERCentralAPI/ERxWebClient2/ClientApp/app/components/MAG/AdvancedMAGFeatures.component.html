@@ -177,24 +177,24 @@
             <div class="col-12 row">
                 <div class="col-1 m-2 p-2"><b>Score Threshold</b></div>
                 <div class="col-3 p-0 m-0">
-                    <kendo-numerictextbox [(ngModel)]="ScoreThreshold"
+                    <!--<kendo-numerictextbox [(ngModel)]="ScoreThreshold"
                                           [min]="0" 
                                            [step]="step"
                                           [max]="1"
                                           [autoCorrect]="true"
                                           class="border border-dark rounded"
-                                          style="width: 110px;"></kendo-numerictextbox>
+                                          style="width: 110px;"></kendo-numerictextbox>-->
                 </div>
                 <div class="col-1"></div>
                 <div class="m-1 p-1 col-1"><b>FoS Threshold</b></div>
                 <div class="col-3 p-0 m-0">
-                    <kendo-numerictextbox [(ngModel)]="FoSThreshold"
+                    <!--<kendo-numerictextbox [(ngModel)]="FoSThreshold"
                                           [min]="0" 
                                            [step]="step"
                                           [max]="1"
                                           [autoCorrect]="true"
                                           class="border border-dark rounded"
-                                          style="width: 110px;"></kendo-numerictextbox>
+                                          style="width: 110px;"></kendo-numerictextbox>-->
                 </div>
             </div>
             <div class="col-12">
@@ -203,6 +203,8 @@
                         class="btn btn-warning p-2 m-2">
                     Add Simulation
                 </button>
+                <button (click)="GetRandomString()">TestHosted Pattern</button>
+                <input type="text" [(ngModel)]="RandomString">
             </div>
         </div>
     </div>

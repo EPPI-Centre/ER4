@@ -37,6 +37,17 @@ export class AdvancedMAGFeaturesComponent implements OnInit, OnDestroy {
 
         this.history = this._routingStateService.getHistory();
     }
+    public RandomString: string = '';
+    public GetRandomString() {
+
+        this._magAdvancedService.GetRandomString();
+        console.log('in component: ' + this.RandomString);
+
+    }
+    public GetTestBTask() {
+
+        this._magAdvancedService.GetTestBTask();
+    }
     private subsc: Subscription = new Subscription();
     ngOnInit() {
 

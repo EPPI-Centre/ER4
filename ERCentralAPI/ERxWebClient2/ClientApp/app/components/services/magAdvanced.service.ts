@@ -6,6 +6,7 @@ import { Item } from './ItemList.service';
 import { MAGBrowserService } from './MAGBrowser.service';
 import { MagPaper, MagReviewMagInfo, MVCMagPaperListSelectionCriteria, MagCurrentInfo, MagSimulation,
         ClassifierContactModel, MVCMagFieldOfStudyListSelectionCriteria, MagList } from './MAGClasses.service';
+import { Subscription, Observable } from 'rxjs';
 
 
 @Injectable({
@@ -13,7 +14,9 @@ import { MagPaper, MagReviewMagInfo, MVCMagPaperListSelectionCriteria, MagCurren
 })
 
 export class MAGAdvancedService extends BusyAwareService {
-    
+
+
+
     constructor(
         private _httpC: HttpClient,
         private _magBrowserService: MAGBrowserService,
@@ -40,6 +43,41 @@ export class MAGAdvancedService extends BusyAwareService {
     private _MagCurrentInfo: MagCurrentInfo = new MagCurrentInfo();
     private _ClassifierContactModelList: ClassifierContactModel[] = [];
     private _MagSimulationList: MagSimulation[] = [];
+
+
+    public GetRandomString() {
+
+        this._httpC.get<any>(this._baseUrl + 'api/MAGSimulationList/GetRandomString' )
+                .subscribe(result => {
+
+                    console.log(JSON.stringify(result));
+                },
+                    error => {
+                        console.log(error);
+                    },
+                    () => {
+                        
+                    }
+                );
+    }
+
+    public GetTestBTask() {
+
+        this._httpC.get<any>(this._baseUrl + 'api/MAGSimulationList/GetTestBTask')
+            .subscribe(result => {
+
+                console.log(JSON.stringify(result));
+            },
+                error => {
+                    console.log(error);
+                },
+                () => {
+
+                }
+            );
+
+    }
+
 
     public get MagCurrentInfo(): MagCurrentInfo{
         return this._MagCurrentInfo;

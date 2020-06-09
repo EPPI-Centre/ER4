@@ -14,9 +14,25 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.StaticFiles;
+using Microsoft.Extensions.Hosting;
+using IHostingEnvironment = Microsoft.AspNetCore.Hosting.IHostingEnvironment;
 
 namespace ERxWebClient2
 {
+
+    public static class ServiceCollectionHostedServiceExtensions
+    {
+        /// <summary>
+        /// Add an <see cref="IHostedService"/> registration for the given type.
+        /// </summary>
+        /// <typeparam name="THostedService">An <see cref="IHostedService"/> to register.</typeparam>
+        /// <param name="services">The <see cref="IServiceCollection"/> to register with.</param>
+        /// <returns>The original <see cref="IServiceCollection"/>.</returns>
+        public static IServiceCollection AddHostedService<THostedService>(this IServiceCollection services)
+            where THostedService : class, IHostedService
+            => services.AddTransient<IHostedService, THostedService>();
+    }
+
     public class Startup
     {
         public Startup(IConfiguration configuration, ILogger<Program> logger)
@@ -59,11 +75,16 @@ namespace ERxWebClient2
                 options.SerializerSettings.CheckAdditionalContent = true;
                 
                 options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
-            });
+            }).AddControllersAsServices();
+
+            services.AddSingleton<RandomStringProvider>();
+            services.AddSingleton<IHostedService, DataRefreshService>();
+
         }
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
