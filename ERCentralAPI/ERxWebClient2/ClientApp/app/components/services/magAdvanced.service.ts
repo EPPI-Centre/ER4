@@ -217,6 +217,25 @@ export class MAGAdvancedService extends BusyAwareService {
                 });
         return [];
     }
+    public ClearAllMAGMatches(attributeId: number): MagPaper[] {
+
+        this._BusyMethods.push("ClearAllMAGMatches");
+        let body = JSON.stringify({ Value: attributeId });
+        this._httpC.post<MagPaper[]>(this._baseUrl + 'api/MagMatchAll/ClearAllMAGMatches', body)
+            .subscribe(() => {
+                this.RemoveBusy("ClearAllMAGMatches");
+                return [];
+            },
+                error => {
+                    this.RemoveBusy("ClearAllMAGMatches");
+                    this.modalService.GenericError(error);
+                    return error;
+                },
+                () => {
+                    this.RemoveBusy("ClearAllMAGMatches");
+                });
+        return [];
+    }
     public ClearMagMatchItemsToPapers(itemId: number): MagPaper[] {
 
         this._BusyMethods.push("ClearMagMatchItemsToPapers");
@@ -224,14 +243,6 @@ export class MAGAdvancedService extends BusyAwareService {
         this._httpC.post<MagPaper[]>(this._baseUrl + 'api/MagMatchAll/ClearMagMatchItemsToPapers', body)
             .subscribe(() => {
                 this.RemoveBusy("ClearMagMatchItemsToPapers");
-                //let crit: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
-                //crit.listType = 'ItemMatchedPapersList';
-                //crit.iTEM_ID = itemId;
-                //this.FetchMagPaperList(crit).then(
-                //    (result) => {
-                //        return result;
-                //    }
-                //);
                 return [];
             },
                 error => {
