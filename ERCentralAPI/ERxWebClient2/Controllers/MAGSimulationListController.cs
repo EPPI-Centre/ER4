@@ -16,10 +16,12 @@ namespace ERxWebClient2.Controllers
     {
 
         private readonly ILogger _logger;
+        private readonly RandomStringProvider _randomStringProvider;
 
-		public MagSimulationListController(ILogger<MagSimulationListController> logger)
+		public MagSimulationListController(ILogger<MagSimulationListController> logger,
+            RandomStringProvider randomStringProvider)
         {
-
+            _randomStringProvider = randomStringProvider;
             _logger = logger;
         }
 
@@ -111,6 +113,15 @@ namespace ERxWebClient2.Controllers
                 throw;
             }
         }
+
+
+        [HttpGet("[action]")]
+        public IActionResult GetRandomString()
+        {
+
+            return Json(_randomStringProvider.RandomString);
+        }
+
     }
 
 
