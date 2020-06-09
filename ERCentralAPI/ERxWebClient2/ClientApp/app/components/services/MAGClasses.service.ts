@@ -211,6 +211,9 @@ export class MagSimulation {
     withThisAttributeId: number = 0;
     filteredByAttributeId: number = 0;
     searchMethod: string = '';
+    fosThreshold: number = 0;
+    scoreThreshold: number = 0;
+    thresholds: string = '';
     networkStatistic: string = '';
     studyTypeClassifier: string = '';
     userClassifierModelId: number = 0;
