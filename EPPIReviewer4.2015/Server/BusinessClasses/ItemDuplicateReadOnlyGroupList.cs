@@ -7,6 +7,7 @@ using Csla.Security;
 using Csla.Core;
 using Csla.Serialization;
 using Csla.Silverlight;
+using Microsoft.AspNetCore.Http;
 //using Csla.Validation;
 
 #if !SILVERLIGHT
@@ -133,6 +134,13 @@ namespace BusinessLibrary.BusinessClasses
 
         protected void FindNewDuplicates(SqlConnection connection)
         {
+            //HttpContext httpContext;
+            
+
+            //var services = HttpContext.RequestServices;
+            //var log = (ILog)services.GetService(typeof(ILog));
+
+
             //ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
             SetShortSearchText();
             //see: https://codingcanvas.com/using-hostingenvironment-queuebackgroundworkitem-to-run-background-tasks-in-asp-net/

@@ -7,6 +7,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using EPPIDataServices.Helpers;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.Extensions.Hosting;
 
 namespace ERxWebClient2.Controllers
 {
@@ -17,10 +20,13 @@ namespace ERxWebClient2.Controllers
 
         private readonly ILogger _logger;
         private readonly RandomStringProvider _randomStringProvider;
+        private readonly IHostedService _service;
 
 		public MagSimulationListController(ILogger<MagSimulationListController> logger,
-            RandomStringProvider randomStringProvider)
+            RandomStringProvider randomStringProvider,
+            IHostedService service)
         {
+            _service = service;
             _randomStringProvider = randomStringProvider;
             _logger = logger;
         }
@@ -118,7 +124,8 @@ namespace ERxWebClient2.Controllers
         [HttpGet("[action]")]
         public IActionResult GetRandomString()
         {
-
+            var services = HttpContext.RequestServices;
+            _service.StopAsync(new CancellationToken());
             return Json(_randomStringProvider.RandomString);
         }
 
