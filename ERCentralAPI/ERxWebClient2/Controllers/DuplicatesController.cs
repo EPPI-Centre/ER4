@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 using EPPIDataServices.Helpers;
+using System.Threading;
 
 namespace ERxWebClient2.Controllers
 {
@@ -24,6 +25,7 @@ namespace ERxWebClient2.Controllers
     {
 
         private readonly ILogger _logger;
+        
 
         public DuplicatesController(ILogger<ReviewerTermListController> logger)
         {
@@ -36,6 +38,11 @@ namespace ERxWebClient2.Controllers
             try
             {
                 SetCSLAUser();
+                if (crit.Value)
+                {
+                    //we may need to stop the long-lasting "get new duplicates" task, so we pass the 
+                    _logger.LogWarning("I'm logging a request to get new dups");
+                }
                 DataPortal<ItemDuplicateReadOnlyGroupList> dp = new DataPortal<ItemDuplicateReadOnlyGroupList>();
                 ItemDuplicateReadOnlyGroupList result = dp.Fetch(new SingleCriteria<ItemDuplicateReadOnlyGroupList, bool>(crit.Value));
                 return Ok(result);

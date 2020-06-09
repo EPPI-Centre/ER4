@@ -16,8 +16,10 @@ using BusinessLibrary.Data;
 using BusinessLibrary.Security;
 using AuthorsHandling;
 using System.Threading;
-//using System.Web.Hosting;
 using System.Data;
+#if !CSLA_NETCORE
+using System.Web.Hosting;
+#endif
 #endif
 
 namespace BusinessLibrary.BusinessClasses
@@ -129,14 +131,21 @@ namespace BusinessLibrary.BusinessClasses
                 }
             }
         }
-
-
+#if CSLA_NETCORE
+        public CancellationToken cancellationToken;
+#endif
         protected void FindNewDuplicates(SqlConnection connection)
         {
             //ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
             SetShortSearchText();
             //see: https://codingcanvas.com/using-hostingenvironment-queuebackgroundworkitem-to-run-background-tasks-in-asp-net/
-            //HostingEnvironment.QueueBackgroundWorkItem(cancellationToken => FindNewDuplicatesNewVersion(cancellationToken));
+#if CSLA_NETCORE
+            //System.Threading.Tasks.Task t = new System.Threading.Tasks.Task(() => FindNewDuplicatesNewVersion(ERxWebClient2.Startup.Signaller.GlobalCancellationToken), ERxWebClient2.Startup.Signaller.GlobalCancellationToken);
+            //System.Threading.Tasks.Task.Run(() => FindNewDuplicatesNewVersion(ERxWebClient2.Startup.Signaller._stoppingCts.Token), ERxWebClient2.Startup.Signaller._stoppingCts.Token);
+            
+#else
+            HostingEnvironment.QueueBackgroundWorkItem(cancellationToken => FindNewDuplicatesNewVersion(cancellationToken));
+#endif
             
             //we now  want to wait about 3m to keep the user waiting...
             //we check if it's still running every "sleeptime" for up to 10 times in total.
@@ -369,7 +378,7 @@ namespace BusinessLibrary.BusinessClasses
         }
 
         
-        private void FindNewDuplicatesNewVersion(CancellationToken cancellationToken = default(CancellationToken))
+        private void FindNewDuplicatesNewVersion(CancellationToken cancellationToken )
         {
             if (ResultsCache == null) PerpareResultsCache();//initialises and perpares the columns...
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
@@ -388,19 +397,35 @@ namespace BusinessLibrary.BusinessClasses
                             int counter = 0;//used to check if IIS wants us to cancel
                             while (reader.Read())
                             {
-                                if (counter == 1000)
-                                {
-                                    counter = 0;
-                                    if (cancellationToken.IsCancellationRequested)
-                                    {
-                                        throw new Exception("Cancel request was received");
-                                    }
+
+#if CSLA_NETCORE
+                                //if (ERxWebClient2.Startup.Signaller._stoppingCts.Token.IsCancellationRequested)
+                                //{//if we got a request to cancel, we're going to!
+                                //    Console.WriteLine("[FindNewDuplicatesNewVersion], " + cancellationToken.IsCancellationRequested + " !!! " + ERxWebClient2.Startup.Signaller._stoppingCts.Token.IsCancellationRequested.ToString());
+                                //    throw new Exception("Cancel request was received");
+                                //}
+                                //else Console.Write(".");
+#else
+                                if (cancellationToken.IsCancellationRequested)
+                                {//if we got a request to cancel, we're going to!
+                                    throw new Exception("Cancel request was received");
                                 }
+           
+#endif
+
+                                if (cancellationToken.IsCancellationRequested)
+                                {//if we got a request to cancel, we're going to!
+                                    throw new Exception("Cancel request was received");
+                                }
+
                                 counter++;
                                 string tmp = reader["SearchText"].ToString();
                                 if (currentSearchText != tmp && CurrentGroup.Count > 0)
                                 {
                                     if (CurrentGroup.Count > 0) MakeComparisons(CurrentGroup, 1);
+
+
+
                                     //will go and save current batch of results. We do it here as we're starting to look at a new set items, possibly to be into their own group
                                     if (ResultsCache.Rows.Count > 800) FlushCache(); 
                                     CurrentGroup.Clear();
@@ -901,7 +926,7 @@ namespace BusinessLibrary.BusinessClasses
         }
 
 #endif
-    }
+        }
     [Serializable]
     public class GroupListSelectionCriteria : Csla.CriteriaBase<GroupListSelectionCriteria>
     {

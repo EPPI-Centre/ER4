@@ -36,7 +36,7 @@ namespace ERxWebClient2
             //Without logging to the Datbase
             Log.Logger = new LoggerConfiguration()
                 .WriteTo.File(CreateLogFileName())
-                .MinimumLevel.Error()
+                //.MinimumLevel.Error()
                 .CreateLogger();
 
             BuildWebHost(args).Run();
@@ -54,6 +54,7 @@ namespace ERxWebClient2
                 //    logging.AddConsole();
                 //    logging.AddDebug();
                 //})
+                .UseShutdownTimeout(TimeSpan.FromSeconds(2))
                 .UseStartup<Startup>()
                 .UseSerilog()//!!!!!!!!!!!!!!!!!!!
                 .Build();
