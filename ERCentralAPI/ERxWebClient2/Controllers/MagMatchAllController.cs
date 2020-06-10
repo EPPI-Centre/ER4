@@ -77,8 +77,30 @@ namespace ERxWebClient2.Controllers
                 SetCSLAUser();
 
                 DataPortal<MagMatchItemsToPapersCommand> dp = new DataPortal<MagMatchItemsToPapersCommand>();
-                MagMatchItemsToPapersCommand GetMatches = new MagMatchItemsToPapersCommand("clear",
+                MagMatchItemsToPapersCommand GetMatches = new MagMatchItemsToPapersCommand("Clear",
                    false, itemId.Value, 0);
+
+                GetMatches = dp.Execute(GetMatches);
+
+                return Ok(GetMatches);
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "MagMatchItemsToPapers has an error");
+                throw;
+            }
+        }
+
+        [HttpPost("[action]")]
+        public IActionResult ClearAllMAGMatches([FromBody] SingleInt64Criteria attributeId)
+        {
+            try
+            {
+                SetCSLAUser();
+
+                DataPortal<MagMatchItemsToPapersCommand> dp = new DataPortal<MagMatchItemsToPapersCommand>();
+                MagMatchItemsToPapersCommand GetMatches = new MagMatchItemsToPapersCommand("Clear",
+                   true, 0, attributeId.Value);
 
                 GetMatches = dp.Execute(GetMatches);
 

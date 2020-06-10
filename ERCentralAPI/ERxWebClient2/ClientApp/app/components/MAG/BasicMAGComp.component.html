@@ -61,6 +61,8 @@
                            [(ngModel)]="searchAll">	All included items in the review
                     <input type="radio" value="false" name="searchAll"
                            [(ngModel)]="searchAll">	Items with specified code
+                    <input [disabled]="magMode != 'New items published on next deployment of MAG'" type="radio" value="false" name="searchAll"
+                           [(ngModel)]="searchAll">	Multiple searches with each child of this code
                 </div>
             </div>
         </div>
@@ -96,10 +98,9 @@
             <div class="col-5 m-1 p-1">
                 <div class=""></div>
                 <div class="">
-                    <input type="checkbox" class="" value="Auto-Update" name="magSearchCheck" [(ngModel)]="magSearchCheck" />
+                    <input  [disabled]="magMode != 'New items published on next deployment of MAG'"
+                      type="checkbox" class="" value="Auto-Update" name="magSearchCheck" [(ngModel)]="magSearchCheck" />
                     Auto-Update search based on new MAG content
-                   
-                   
                 </div>
             </div>
         </div>
@@ -108,9 +109,10 @@
                 <input type="radio" class="" name="magDateRadio" value="true"
                        [(ngModel)]="magDateRadio" />
                 No date restriction
-                <input type="radio" class="" name="magDateRadio" value="false"
+                <input [disabled]="magMode == 'New items published on next deployment of MAG'"
+                       type="radio" class="" name="magDateRadio" value="false"
                        [(ngModel)]="magDateRadio" />
-                Start date to search from
+                Items dated from
             </div>
             <div class="col-1"></div>
                 <div class="col-5 m-1 p-1">

@@ -104,6 +104,9 @@ export class AdvancedMAGFeaturesComponent implements OnInit, OnDestroy {
     public magDate: string = 'true';
     public magMode: string = '';
     public filterOn: string = 'false';
+    public ScoreThreshold: number = 0;
+    public FoSThreshold: number = 0;
+    public step: number = 0.1;
     public Forward() {
         this._location.forward();
     }
@@ -180,7 +183,9 @@ export class AdvancedMAGFeaturesComponent implements OnInit, OnDestroy {
             }
         }
         newMagSimulation.searchMethod = this.SearchMethod;
-        newMagSimulation.networkStatistic = this.NetworkStat;
+        newMagSimulation.fosThreshold = this.FoSThreshold;
+        newMagSimulation.scoreThreshold = this.ScoreThreshold;
+        //newMagSimulation.networkStatistic = this.NetworkStat;
         if (this.StudyTypeClassifier != null) {
             newMagSimulation.studyTypeClassifier = this.StudyTypeClassifier;
         }

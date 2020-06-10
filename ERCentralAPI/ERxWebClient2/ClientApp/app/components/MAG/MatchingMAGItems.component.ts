@@ -15,6 +15,8 @@ import { MAGBrowserHistoryService } from '../services/MAGBrowserHistory.service'
 import { Observable, interval, Subscription } from 'rxjs';
 import { take } from 'rxjs/operators'
 import { BasicMAGService } from '../services/BasicMAG.service';
+import { notImplemented } from '@angular/core/src/render3/util';
+import { NotificationService } from '@progress/kendo-angular-notification';
 
 @Component({
     selector: 'MatchingMAGItems',
@@ -34,13 +36,14 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
         private _eventEmitter: EventEmitterService,
         private _routingStateService: MAGBrowserHistoryService,
         private _location: Location,
+        private _notificationService: NotificationService,
         private router: Router
 
     ) {
 
         this.history = this._routingStateService.getHistory();
     }
-   
+
     ngOnInit() {
 
         if (this._ReviewerIdentityServ.reviewerIdentity.userId == 0 ||
@@ -104,6 +107,49 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
     }
     public Admin() {
         this.router.navigate(['MAGAdmin']);
+    }
+    public ClearAllMatching() {
+
+        this.ConfirmationDialogService.confirm("Are you sure you wish to clear all matching in your review?", "", false, "")
+            .then(
+                (confirm: any) => {
+                    if (confirm) {
+                        this._magAdvancedService.ClearAllMAGMatches(0);
+                        this._notificationService.show({
+                            content: "Clearing all matches!",
+                            animation: { type: 'slide', duration: 400 },
+                            position: { horizontal: 'center', vertical: 'top' },
+                            type: { style: "warning", icon: true },
+                            hideAfter: 20000
+                        });
+                    }
+                }
+            )
+            .catch(() => { });
+     
+           
+    }
+    public ClearMatches() {
+
+        this.ConfirmationDialogService.confirm("Are you sure you wish to clear all matching for this attribute?", "", false, "")
+            .then(
+                (confirm: any) => {
+                    if (confirm) {
+                        let attribute = this.CurrentDropdownSelectedCode2 as SetAttribute;
+                        if (attribute != null) {
+                            this._magAdvancedService.ClearAllMAGMatches(attribute.attribute_id);
+                        }
+                        this._notificationService.show({
+                            content: "Clearing all matches for specific attribute!",
+                            animation: { type: 'slide', duration: 400 },
+                            position: { horizontal: 'center', vertical: 'top' },
+                            type: { style: "warning", icon: true },
+                            hideAfter: 20000
+                        });
+                    }
+                }
+            )
+     
     }
     public get HasWriteRights(): boolean {
         return this._ReviewerIdentityServ.HasWriteRights;

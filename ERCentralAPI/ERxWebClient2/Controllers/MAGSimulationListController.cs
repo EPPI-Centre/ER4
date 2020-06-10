@@ -58,7 +58,8 @@ namespace ERxWebClient2.Controllers
                     newMagSimulation.FilteredByAttributeId = magSimulation.filteredByAttributeId;
                     newMagSimulation.FN = magSimulation.fn;
                     newMagSimulation.FP = magSimulation.fp;
-                    newMagSimulation.NetworkStatistic = magSimulation.networkStatistic;
+                    newMagSimulation.ScoreThreshold = magSimulation.scoreThreshold;
+                    newMagSimulation.FosThreshold = magSimulation.FosThreshold;
                     newMagSimulation.NSeeds = magSimulation.nSeeds;
                     newMagSimulation.SearchMethod = magSimulation.searchMethod;
                     newMagSimulation.Status = magSimulation.status;
@@ -124,6 +125,9 @@ namespace ERxWebClient2.Controllers
         public int withThisAttributeId = 0;
         public int filteredByAttributeId = 0;
         public string searchMethod = "";
+        public double scoreThreshold = 0;
+        public double FosThreshold = 0;
+        public string thresholds = "";
         public string networkStatistic = "";
         public string studyTypeClassifier  = "";
         public int userClassifierModelId = 0;
