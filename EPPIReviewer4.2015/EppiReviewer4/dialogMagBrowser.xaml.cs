@@ -591,19 +591,19 @@ namespace EppiReviewer4
             {
                 if (codesSelectControlMAGSelect.SelectedAttributes().Count == 0)
                 {
-                    attributeIDs = codesSelectControlMAGSelect.SelectedAttributeSet().AttributeSetId.ToString();
+                    attributeIDs = codesSelectControlMAGSelect.SelectedAttributeSet().AttributeId.ToString();
                     attributeNames = codesSelectControlMAGSelect.SelectedAttributeSet().AttributeName.ToString();
                 }
                 foreach (AttributeSet attribute in codesSelectControlMAGSelect.SelectedAttributes())
                 {
                     if (attributeIDs == "")
                     {
-                        attributeIDs = attribute.AttributeSetId.ToString();
+                        attributeIDs = attribute.AttributeId.ToString();
                         attributeNames = attribute.AttributeName;
                     }
                     else
                     {
-                        attributeIDs += "," + attribute.AttributeSetId.ToString();
+                        attributeIDs += "," + attribute.AttributeId.ToString();
                         attributeNames += ", OR " + attribute.AttributeName;
                     }
                 }
