@@ -469,7 +469,7 @@ namespace BusinessLibrary.BusinessClasses
             string responseText = "";
             MagCurrentInfo MagInfo = MagCurrentInfo.GetMagCurrentInfoServerSide(MakesDeploymentStatus);
             WebRequest request = WebRequest.Create(MagInfo.MakesEndPoint + query +
-                "&attributes=AA.AfId,AA.AuN,AA.DAfN,AA.DAuN,AA.AuId,CC,Id,DN,DOI,Pt,Ti,Y,D,PB,J.JN,J.JId,V,FP,LP,RId,ECC,IA,S" +
+                "&attributes=AA.AfId,AA.AuN,AA.DAfN,AA.DAuN,AA.AuId,CC,Id,DN,DOI,Pt,Ti,Y,D,PB,I,J.JN,J.JId,V,FP,LP,RId,ECC,IA,S" +
                 appendPageInfo);
             WebResponse response = request.GetResponse();
             using (Stream dataStream = response.GetResponseStream())
@@ -493,7 +493,7 @@ namespace BusinessLibrary.BusinessClasses
             string responseText = "";
             MagCurrentInfo MagInfo = MagCurrentInfo.GetMagCurrentInfoServerSide(MakesDeploymentStatus);
             WebRequest request = WebRequest.Create(MagInfo.MakesEndPoint + query +
-                "&attributes=AA.AfId,AA.AuN,AA.DAfN,AA.DAuN,AA.AuId,CC,Id,DN,DOI,Pt,Ti,Y,D,PB,J.JN,J.JId,V,FP,LP,RId,ECC,IA,S" +
+                "&attributes=AA.AfId,AA.AuN,AA.DAfN,AA.DAuN,AA.AuId,CC,Id,DN,DOI,Pt,Ti,Y,D,PB,I,J.JN,J.JId,V,FP,LP,RId,ECC,IA,S" +
                 appendPageInfo);
             WebResponse response = request.GetResponse();
             using (Stream dataStream = response.GetResponseStream())

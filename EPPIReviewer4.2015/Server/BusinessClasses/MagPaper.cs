@@ -62,7 +62,8 @@ namespace BusinessLibrary.BusinessClasses
         {
             get
             {
-                return Authors + " (" + Year.ToString() + ") " + OriginalTitle + ". " + Journal + ". " + Volume.ToString() + " (" + Issue + ") " + FirstPage + "-" + LastPage;
+                return Authors + " (" + Year.ToString() + ") " + OriginalTitle + ". " + Journal + ". " +
+                    Volume.ToString() + (Issue == "" || Issue == null ? "" :  " (" + Issue + ") ") + FirstPage + "-" + LastPage;
             }
         }
 
@@ -640,6 +641,7 @@ namespace BusinessLibrary.BusinessClasses
             //returnValue.LoadProperty<Int64>(ConferenceSeriesIdProperty, );
             //returnValue.LoadProperty<Int64>(ConferenceInstanceIdProperty, reader.GetInt64("ConferenceInstanceId"));
             returnValue.LoadProperty<string>(VolumeProperty, pm.V);
+            returnValue.LoadProperty<string>(IssueProperty, pm.I);
             returnValue.LoadProperty<string>(FirstPageProperty, pm.FP);
             returnValue.LoadProperty<string>(LastPageProperty, pm.LP);
             if (pm.RId != null)
