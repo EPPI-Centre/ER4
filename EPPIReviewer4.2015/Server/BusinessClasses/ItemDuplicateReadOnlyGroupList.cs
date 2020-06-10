@@ -7,6 +7,7 @@ using Csla.Security;
 using Csla.Core;
 using Csla.Serialization;
 using Csla.Silverlight;
+using ERxWebClient2;
 //using Csla.Validation;
 
 #if !SILVERLIGHT
@@ -133,6 +134,7 @@ namespace BusinessLibrary.BusinessClasses
         }
 #if CSLA_NETCORE
         public CancellationToken cancellationToken;
+        private int ServiceID = 0;
 #endif
         protected void FindNewDuplicates(SqlConnection connection)
         {
@@ -140,13 +142,14 @@ namespace BusinessLibrary.BusinessClasses
             SetShortSearchText();
             //see: https://codingcanvas.com/using-hostingenvironment-queuebackgroundworkitem-to-run-background-tasks-in-asp-net/
 #if CSLA_NETCORE
+            //ServiceID = Startup.ID();
             //System.Threading.Tasks.Task t = new System.Threading.Tasks.Task(() => FindNewDuplicatesNewVersion(ERxWebClient2.Startup.Signaller.GlobalCancellationToken), ERxWebClient2.Startup.Signaller.GlobalCancellationToken);
-            //System.Threading.Tasks.Task.Run(() => FindNewDuplicatesNewVersion(ERxWebClient2.Startup.Signaller._stoppingCts.Token), ERxWebClient2.Startup.Signaller._stoppingCts.Token);
-            
+            //System.Threading.Tasks.Task.Run(() => FindNewDuplicatesNewVersion(ERxWebClient2.Startup.Signaller._cts.Token), ERxWebClient2.Startup.Signaller._cts.Token);
+            FindNewDuplicatesNewVersion(Startup.GlobalCancellationToken);
 #else
             HostingEnvironment.QueueBackgroundWorkItem(cancellationToken => FindNewDuplicatesNewVersion(cancellationToken));
 #endif
-            
+
             //we now  want to wait about 3m to keep the user waiting...
             //we check if it's still running every "sleeptime" for up to 10 times in total.
             int counter = 0;
@@ -380,6 +383,7 @@ namespace BusinessLibrary.BusinessClasses
         
         private void FindNewDuplicatesNewVersion(CancellationToken cancellationToken )
         {
+            Console.WriteLine("[FindNewDuplicatesNewVersion], LocalID: " + ServiceID );
             if (ResultsCache == null) PerpareResultsCache();//initialises and perpares the columns...
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
@@ -388,6 +392,7 @@ namespace BusinessLibrary.BusinessClasses
                 {
                     using (SqlCommand command = new SqlCommand("st_ItemDuplicatesGetCandidatesOnSearchText", connection))
                     {
+                        
                         command.CommandType = System.Data.CommandType.StoredProcedure;
                         command.Parameters.Add(new SqlParameter("@REVIEW_ID", _RevId));
                         using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
@@ -398,20 +403,21 @@ namespace BusinessLibrary.BusinessClasses
                             while (reader.Read())
                             {
 
-#if CSLA_NETCORE
-                                //if (ERxWebClient2.Startup.Signaller._stoppingCts.Token.IsCancellationRequested)
-                                //{//if we got a request to cancel, we're going to!
-                                //    Console.WriteLine("[FindNewDuplicatesNewVersion], " + cancellationToken.IsCancellationRequested + " !!! " + ERxWebClient2.Startup.Signaller._stoppingCts.Token.IsCancellationRequested.ToString());
-                                //    throw new Exception("Cancel request was received");
-                                //}
-                                //else Console.Write(".");
-#else
-                                if (cancellationToken.IsCancellationRequested)
-                                {//if we got a request to cancel, we're going to!
-                                    throw new Exception("Cancel request was received");
-                                }
+//#if CSLA_NETCORE
+//                                if (ERxWebClient2.Startup.Signaller._cts.Token.IsCancellationRequested || Startup.ID() != ServiceID)
+//                                {//if we got a request to cancel, we're going to!
+//                                    //Console.WriteLine("[FindNewDuplicatesNewVersion], " + cancellationToken.IsCancellationRequested + " !!! " + ERxWebClient2.Startup.Signaller._cts.Token.IsCancellationRequested.ToString());
+//                                    Console.WriteLine("ha!");
+//                                    throw new Exception("Cancel request was received");
+//                                }
+//                                else Console.Write("." + Startup.ID() + ".|");
+//#else
+//                                if (cancellationToken.IsCancellationRequested)
+//                                {//if we got a request to cancel, we're going to!
+//                                    throw new Exception("Cancel request was received");
+//                                }
            
-#endif
+//#endif
 
                                 if (cancellationToken.IsCancellationRequested)
                                 {//if we got a request to cancel, we're going to!

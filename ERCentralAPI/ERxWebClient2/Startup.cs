@@ -17,6 +17,27 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.Hosting;
 using System.Threading;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+
+namespace Microsoft.Extensions.DependencyInjection
+{
+    public static class ServiceCollectionHostedServiceExtensions
+    {
+        /// <summary>
+        /// Add an <see cref="IHostedService"/> registration for the given type.
+        /// </summary>
+        /// <typeparam name="THostedService">An <see cref="IHostedService"/> to register.</typeparam>
+        /// <param name="services">The <see cref="IServiceCollection"/> to register with.</param>
+        /// <returns>The original <see cref="IServiceCollection"/>.</returns>
+        //public static IServiceCollection AddHostedService2<HostedService>(this IServiceCollection services)
+        //    where THostedService : class, IHostedService
+        //{
+        //    services.TryAddEnumerable(ServiceDescriptor.Singleton<IHostedService, THostedService>());
+
+        //    return services;
+        //}
+    }
+}
 
 namespace ERxWebClient2
 {
@@ -32,8 +53,46 @@ namespace ERxWebClient2
         //makes the logger available within CSLA objects, used in TrainingRunCommand, list may grow...
         public static ILogger<Program> Logger { get; private set; }
         public static IConfiguration Configuration { get; private set; }
-        public static IncomingEthTxService Signaller { get; private set; }
 
+        private static CancellationTokenSource Cts = new CancellationTokenSource();
+        public static CancellationToken GlobalCancellationToken
+        {
+            get { return Cts.Token; }
+        }
+        public static void SignalShuttingDown()
+        {
+            Cts.Cancel();
+        }
+
+        //private static IApplicationBuilder appB;
+        //public static IncomingEthTxService Signaller {
+        //    get {
+        //        var serviceProvider = appB.ApplicationServices;
+        //        if (serviceProvider != null)
+        //        {
+
+        //            var hostingEnv = serviceProvider.GetService<IHostedService>();
+        //            if (hostingEnv != null)
+        //                return (IncomingEthTxService)hostingEnv;
+        //        }
+        //        return null;
+        //    }
+        //}
+
+        //public static IServiceProvider Sprov;
+        //public static int ID()
+        //{
+        //    int res = 0;
+        //    var serviceProvider = appB.ApplicationServices;
+        //    if (serviceProvider != null)
+        //    {
+
+        //        var hostingEnv = serviceProvider.GetService<IHostedService>();
+        //        if (hostingEnv != null)
+        //            return ((IncomingEthTxService)hostingEnv).ID;
+        //    }
+        //    return res;
+        //}
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
@@ -56,8 +115,8 @@ namespace ERxWebClient2
                 });
 
             services.AddSingleton(Configuration);
-            services.AddSingleton<IHostedService, IncomingEthTxService>();
-            //services.AddHostedService<IncomingEthTxService>();
+            //services.AddSingleton<IHostedService, IncomingEthTxService>();
+            services.AddHostedService<IncomingEthTxService>();
             services.AddMvc().AddJsonOptions(options =>
             {//this is needed to allow serialising CSLA child objects:
                 //they all have a "Parent" field which creates a reference loop.
@@ -69,6 +128,7 @@ namespace ERxWebClient2
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, Microsoft.AspNetCore.Hosting.IHostingEnvironment env)
         {
+            
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -104,9 +164,7 @@ namespace ERxWebClient2
                     name: "spa-fallback",
                     defaults: new { controller = "Home", action = "Index" });
             });
-            var serviceProvider = app.ApplicationServices;
-            var hostingEnv = serviceProvider.GetService<IHostedService>();
-            Signaller = (IncomingEthTxService)hostingEnv;
+            
         }
     }
     //public abstract class BackgroundService : IHostedService, IDisposable
@@ -182,10 +240,11 @@ namespace ERxWebClient2
         // Example untested base class code kindly provided by David Fowler: https://gist.github.com/davidfowl/a7dd5064d9dcf35b6eae1a7953d615e3
 
         private Task _executingTask;
-        private CancellationTokenSource _cts;
-
+        public CancellationTokenSource _cts;
+        public int ID = new Random().Next();
         public Task StartAsync(CancellationToken cancellationToken)
         {
+            Console.WriteLine("HostedService StartAsync" + " ID: " + ID.ToString());
             // Create a linked token so we can trigger cancellation outside of this token's cancellation
             _cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
 
@@ -198,6 +257,8 @@ namespace ERxWebClient2
 
         public virtual async Task StopAsync(CancellationToken cancellationToken)
         {
+            Console.WriteLine("HostedService StopAsync" + " ID: " + ID.ToString());
+            Startup.SignalShuttingDown();
             // Stop called without start
             if (_executingTask == null)
             {
@@ -235,7 +296,7 @@ namespace ERxWebClient2
             while (!stoppingToken.IsCancellationRequested)
             {
                 
-                Console.WriteLine("[IncomingEthTxService] Service is Running");
+                Console.WriteLine("[IncomingEthTxService] Service is Running" + " ID: " + ID.ToString());
 
                 // Run something
                 //while (queued.Count > 0)
@@ -264,12 +325,12 @@ namespace ERxWebClient2
         }
         public override async Task StopAsync(CancellationToken stoppingToken)
         {
-            Console.WriteLine("[IncomingEthTxService] in StopAsync1, " + stoppingToken.IsCancellationRequested);
+            Console.WriteLine("[IncomingEthTxService] in StopAsync1, " + stoppingToken.IsCancellationRequested + " ID: " + ID.ToString());
             await base.StopAsync(stoppingToken);
             // Run your graceful clean-up actions
-            Console.WriteLine("[IncomingEthTxService] in StopAsync2, " + stoppingToken.IsCancellationRequested);// + " " + _stoppingCts.Token.IsCancellationRequested);
+            Console.WriteLine("[IncomingEthTxService] in StopAsync2, " + stoppingToken.IsCancellationRequested + " ID: " + ID.ToString());// + " " + _stoppingCts.Token.IsCancellationRequested);
             Thread.Sleep(50 * 1000);//50s
-            Logger.LogCritical("[IncomingEthTxService] in StopAsync, " + stoppingToken.IsCancellationRequested);
+            Logger.LogCritical("[IncomingEthTxService] in StopAsync, " + stoppingToken.IsCancellationRequested + " ID: " + ID.ToString());
         }
     }
 }

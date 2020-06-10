@@ -29,7 +29,7 @@ namespace ERxWebClient2
             //if (!System.IO.File.Exists(LogFilename)) System.IO.File.Create(LogFilename);
             return LogFilename;
         }
-
+        public static IServiceProvider Sprov;
         public static void Main(string[] args)
         {
 
@@ -39,9 +39,22 @@ namespace ERxWebClient2
                 //.MinimumLevel.Error()
                 .CreateLogger();
 
-            BuildWebHost(args).Run();
+            IWebHost h = BuildWebHost(args);//.Run();
+            h.Run();
+            Sprov = h.Services;
+           
         }
-
+        public static int ID()
+        {
+            int res = 0;
+            if (Sprov != null)
+            {
+                var hostingEnv = Sprov.GetService(typeof(IncomingEthTxService));
+                if (hostingEnv != null)
+                    return ((IncomingEthTxService)hostingEnv).ID;
+            }
+            return res;
+        }
         public static SQLHelper SqlHelper;
         //internal static EPPILogger Logger;
 
