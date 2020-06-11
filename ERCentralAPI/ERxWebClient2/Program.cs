@@ -7,6 +7,7 @@ using EPPIDataServices.Helpers;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Serilog;
 
@@ -71,8 +72,6 @@ namespace ERxWebClient2
                 .UseStartup<Startup>()
                 .UseSerilog()//!!!!!!!!!!!!!!!!!!!
                 .Build();
-
-       
     }
 
 }

@@ -53,7 +53,7 @@ namespace ERxWebClient2
         //makes the logger available within CSLA objects, used in TrainingRunCommand, list may grow...
         public static ILogger<Program> Logger { get; private set; }
         public static IConfiguration Configuration { get; private set; }
-
+        public static int ID = new Random().Next();
         private static CancellationTokenSource Cts = new CancellationTokenSource();
         public static CancellationToken GlobalCancellationToken
         {
@@ -116,7 +116,7 @@ namespace ERxWebClient2
 
             services.AddSingleton(Configuration);
             //services.AddSingleton<IHostedService, IncomingEthTxService>();
-            services.AddHostedService<IncomingEthTxService>();
+            services.AddHostedService<TimedHostedService>();
             services.AddMvc().AddJsonOptions(options =>
             {//this is needed to allow serialising CSLA child objects:
                 //they all have a "Parent" field which creates a reference loop.
@@ -279,8 +279,7 @@ namespace ERxWebClient2
         // cancellation is requested
         protected abstract Task ExecuteAsync(CancellationToken cancellationToken);
     }
-
-
+    
     public class IncomingEthTxService : HostedService
     {
         public ILogger<IHostedService> Logger { get; private set; }
@@ -331,6 +330,77 @@ namespace ERxWebClient2
             Console.WriteLine("[IncomingEthTxService] in StopAsync2, " + stoppingToken.IsCancellationRequested + " ID: " + ID.ToString());// + " " + _stoppingCts.Token.IsCancellationRequested);
             Thread.Sleep(50 * 1000);//50s
             Logger.LogCritical("[IncomingEthTxService] in StopAsync, " + stoppingToken.IsCancellationRequested + " ID: " + ID.ToString());
+        }
+    }
+
+    public class HelloWorldHostedService : BackgroundService
+    {
+        public int ID = new Random().Next();
+        protected async override Task ExecuteAsync(CancellationToken stoppingToken)
+        {
+            Console.WriteLine("[HelloWorldHostedService] Service started" + " ID: " + ID.ToString() + " Startup ID: " + Startup.ID);
+            while (!stoppingToken.IsCancellationRequested)
+            {
+                Console.WriteLine("[HelloWorldHostedService] Service is Running" + " ID: " + ID.ToString() + " Startup ID: " + Startup.ID);
+                await Task.Delay(4000, stoppingToken);
+            }
+            Console.WriteLine("[HelloWorldHostedService] Service is about to end" + " ID: " + ID.ToString() + " Startup ID: " + Startup.ID);
+        }
+        public async override Task StopAsync(CancellationToken stoppingToken)
+        {
+            Console.WriteLine(DateTime.Now.ToShortTimeString() + "[HelloWorldHostedService] Service is in StopAsync" + " ID: " + ID.ToString() + " Startup ID: " + Startup.ID);
+            await Task.Delay(4, stoppingToken);
+            await base.StopAsync(stoppingToken);
+        }
+    }
+
+
+    internal class TimedHostedService : IHostedService, IDisposable
+    {
+        private Timer _timer;
+        private readonly int ID = new Random().Next();
+        private readonly Microsoft.AspNetCore.Hosting.IApplicationLifetime _appLifetime;
+
+        public TimedHostedService(Microsoft.AspNetCore.Hosting.IApplicationLifetime appLifetime)
+        {
+            _appLifetime = appLifetime;
+        }
+        public Task StartAsync(CancellationToken cancellationToken)
+        {
+            Console.WriteLine(DateTime.Now.ToString("HH:mm:ss:ff") + " Timed Background Service is starting, with ID: " + ID );
+            _appLifetime.ApplicationStarted.Register(OnStarted);
+            _appLifetime.ApplicationStopping.Register(OnStopping);
+            _appLifetime.ApplicationStopped.Register(OnStopped);
+            _timer = new Timer(DoWork, null, TimeSpan.Zero, TimeSpan.FromSeconds(5));
+            return Task.CompletedTask;
+        }
+        private void DoWork(object state)
+        {
+            Console.WriteLine(DateTime.Now.ToString("HH:mm:ss:ff") + " Timed Background Service is working, with ID: " + ID);
+        }
+        public Task StopAsync(CancellationToken cancellationToken)
+        {
+            Console.WriteLine(DateTime.Now.ToString("HH:mm:ss:ff") + " Timed Background Service is stopping, with ID: " + ID);
+            _timer?.Change(Timeout.Infinite, 0);
+            return Task.CompletedTask;
+        }
+        public void Dispose()
+        {
+            _timer?.Dispose();
+        }
+        private void OnStarted()
+        {
+            Console.WriteLine(DateTime.Now.ToString("HH:mm:ss:ff") + " Timed Background Srv OnStarted(), with ID: " + ID);
+        }
+
+        private void OnStopping()
+        {
+            Console.WriteLine(DateTime.Now.ToString("HH:mm:ss:ff") + " Timed Background Srv OnStopping(), with ID: " + ID);
+        }
+
+        private void OnStopped()
+        {
+            Console.WriteLine(DateTime.Now.ToString("HH:mm:ss:ff") + " Timed Background Srv OnStopped(), with ID: " + ID);
         }
     }
 }
