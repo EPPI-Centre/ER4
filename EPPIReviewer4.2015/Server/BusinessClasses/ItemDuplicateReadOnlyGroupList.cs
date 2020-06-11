@@ -16,7 +16,9 @@ using BusinessLibrary.Data;
 using BusinessLibrary.Security;
 using AuthorsHandling;
 using System.Threading;
-//using System.Web.Hosting;
+#if !CSLA_NETCORE
+using System.Web.Hosting;
+#endif
 using System.Data;
 #endif
 
@@ -56,11 +58,13 @@ namespace BusinessLibrary.BusinessClasses
         }
 #if !SILVERLIGHT
         private int _RevId = 0;
+        private int _Cid = 0;
         private void DataPortal_Fetch(SingleCriteria<ItemDuplicateReadOnlyGroupList, bool> criteria)
         {
             IsReadOnly = false;
             ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
             _RevId = ri.ReviewId;
+            _Cid = ri.UserId;
             RaiseListChangedEvents = false;
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
@@ -386,6 +390,7 @@ namespace BusinessLibrary.BusinessClasses
                     {
                         command.CommandType = System.Data.CommandType.StoredProcedure;
                         command.Parameters.Add(new SqlParameter("@REVIEW_ID", _RevId));
+                        command.Parameters.Add(new SqlParameter("@CONTACT_ID", _Cid));
                         using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
                         {
                             string currentSearchText = "";
