@@ -58,6 +58,7 @@ namespace BusinessLibrary.BusinessClasses
         }
 #if !SILVERLIGHT
         private int _RevId = 0;
+        private bool CachedCriteriaValue = false ;
         private int _Cid = 0;
         private void DataPortal_Fetch(SingleCriteria<ItemDuplicateReadOnlyGroupList, bool> criteria)
         {
@@ -66,11 +67,12 @@ namespace BusinessLibrary.BusinessClasses
             _RevId = ri.ReviewId;
             _Cid = ri.UserId;
             RaiseListChangedEvents = false;
+            CachedCriteriaValue = criteria.Value;//might change in CheckOngoing(...)
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
                 connection.Open();
-                CheckOngoing(connection, true);
-                if (criteria.Value == true)
+                CheckOngoing(connection, true, true);
+                if (CachedCriteriaValue == true)
                 {
 #if OLDDEDUP
                     FindNewDuplicatesOld(connection);
@@ -137,12 +139,14 @@ namespace BusinessLibrary.BusinessClasses
 
         protected void FindNewDuplicates(SqlConnection connection)
         {
-            //ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+            
             SetShortSearchText();
-            //see: https://codingcanvas.com/using-hostingenvironment-queuebackgroundworkitem-to-run-background-tasks-in-asp-net/
+            //line above might take time, so let's check again that noone else triggered this...
+            CheckOngoing(connection, true, false);
 #if CSLA_NETCORE
-            FindNewDuplicatesNewVersion();
+            System.Threading.Tasks.Task.Run(() => FindNewDuplicatesNewVersion());
 #else
+            //see: https://codingcanvas.com/using-hostingenvironment-queuebackgroundworkitem-to-run-background-tasks-in-asp-net/
             HostingEnvironment.QueueBackgroundWorkItem(cancellationToken => FindNewDuplicatesNewVersion(cancellationToken));
 #endif
             //HostingEnvironment.QueueBackgroundWorkItem(cancellationToken => FindNewDuplicatesNewVersion(cancellationToken));
@@ -155,17 +159,19 @@ namespace BusinessLibrary.BusinessClasses
             while (StillRunning && counter < 9)
             {
                 Thread.Sleep(sleepTime);
-                StillRunning = CheckOngoing(connection, false);//passing false so not to throw an exception if we think it's still running for real.
+                //passing once=false so not to throw an exception if we think it's still running for real.
+                //passing shouldrestart=false so not to try re-triggering a "get new duplicates" routine as we just did it...
+                StillRunning = CheckOngoing(connection, false, false);//passing once=false so not to throw an exception if we think it's still running for real.
                 counter++;
             }
             if (StillRunning)
             {
                 Thread.Sleep(sleepTime);
-                StillRunning = CheckOngoing(connection, true);//this is the last check, will throw an exception if it's still running.
+                StillRunning = CheckOngoing(connection, true, false);//this is the last check, will throw an exception if it's still running.
             }
             
         }
-        private bool CheckOngoing(SqlConnection AlreadyOpenConnection, bool once = true)
+        private bool CheckOngoing(SqlConnection AlreadyOpenConnection, bool once = true, bool shouldRestart = false)
         {
 #if OLDDEDUP
                 using (SqlCommand command = new SqlCommand("st_ItemDuplicateGroupCheckOngoing", AlreadyOpenConnection))
@@ -208,17 +214,24 @@ namespace BusinessLibrary.BusinessClasses
                 }
                 else if (command.Parameters["@RETURN_VALUE"].Value.ToString() == "-3")
                 {//we could start "get new duplicates" straight away, or tell the user to do it...
-                    this.Clear();
-                    throw new DataPortalException("Previous Execution failed." + Environment.NewLine
-                        + "Please try to \"Get new duplicates\" once more." + Environment.NewLine
-                        + "If this message appears again, please contact EPPI-reviewer Support Staff.", this);
+                    if (shouldRestart)
+                    {//we want to trigger "GetNewDuplicates" silently. This happens when we're checking if a getnewduplicates is running at the very start.
+                        CachedCriteriaValue = true;
+                    }
+                    else
+                    {//this happened _after_ the first check, so something is wrong and we might as well let the user know.
+                        this.Clear();
+                        throw new DataPortalException("Previous Execution failed." + Environment.NewLine
+                            + "Please try to \"Get new duplicates\" once more." + Environment.NewLine
+                            + "If this message appears again, please contact EPPI-reviewer Support Staff.", this);
+                    }
                 }
                 else if (command.Parameters["@RETURN_VALUE"].Value.ToString() == "-4")
                 {//we'll see if this happens frequently: 10 attempts in a row failed!
                     this.Clear();
                     throw new DataPortalException("Multiple previous executions failed!" + Environment.NewLine
                         + "This indicates there is a problem with this review." + Environment.NewLine
-                        + "Please contact EPPI-reviewer Support Staff.", this);
+                        + "Please contact EPPI-Reviewer Support Staff.", this);
                 }
             }
 #endif
@@ -388,6 +401,7 @@ namespace BusinessLibrary.BusinessClasses
                 {
                     using (SqlCommand command = new SqlCommand("st_ItemDuplicatesGetCandidatesOnSearchText", connection))
                     {
+                        ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
                         command.CommandType = System.Data.CommandType.StoredProcedure;
                         command.Parameters.Add(new SqlParameter("@REVIEW_ID", _RevId));
                         command.Parameters.Add(new SqlParameter("@CONTACT_ID", _Cid));
@@ -395,16 +409,12 @@ namespace BusinessLibrary.BusinessClasses
                         {
                             string currentSearchText = "";
                             List<ItemComparison> CurrentGroup = new List<ItemComparison>();
-                            int counter = 0;//used to check if IIS wants us to cancel
+                            int counter = 0;//used when debugging
                             while (reader.Read())
                             {
-                                if (counter == 1000)
+                                if (cancellationToken.IsCancellationRequested)
                                 {
-                                    counter = 0;
-                                    if (cancellationToken.IsCancellationRequested)
-                                    {
-                                        throw new Exception("Cancel request was received");
-                                    }
+                                    throw new Exception("Cancel request was received");
                                 }
                                 counter++;
                                 string tmp = reader["SearchText"].ToString();
