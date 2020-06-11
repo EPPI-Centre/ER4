@@ -136,8 +136,13 @@ namespace BusinessLibrary.BusinessClasses
             //ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
             SetShortSearchText();
             //see: https://codingcanvas.com/using-hostingenvironment-queuebackgroundworkitem-to-run-background-tasks-in-asp-net/
+#if CSLA_NETCORE
+            FindNewDuplicatesNewVersion();
+#else
+            HostingEnvironment.QueueBackgroundWorkItem(cancellationToken => FindNewDuplicatesNewVersion(cancellationToken));
+#endif
             //HostingEnvironment.QueueBackgroundWorkItem(cancellationToken => FindNewDuplicatesNewVersion(cancellationToken));
-            
+
             //we now  want to wait about 3m to keep the user waiting...
             //we check if it's still running every "sleeptime" for up to 10 times in total.
             int counter = 0;
@@ -901,7 +906,7 @@ namespace BusinessLibrary.BusinessClasses
         }
 
 #endif
-    }
+        }
     [Serializable]
     public class GroupListSelectionCriteria : Csla.CriteriaBase<GroupListSelectionCriteria>
     {
