@@ -1107,6 +1107,8 @@ namespace EppiReviewer4
                             newAset.AttributeName = source.AttributeName;
                             newAset.ExtURL = source.ExtURL;
                             newAset.ExtType = source.ExtType;
+                            newAset.OriginalAttributeId = source.OriginalAttributeId > 0 ? source.OriginalAttributeId :
+                                source.AttributeId;
                             //hook AttSet.Saved to AttSetSavedForCopying
                             newAset.Saved += new EventHandler<Csla.Core.SavedEventArgs>(AttSetSavedForCopying);
                             //open copying window;
@@ -1186,6 +1188,8 @@ namespace EppiReviewer4
                 newAset.AttributeName = astp.Original.AttributeName;
                 newAset.ExtType = astp.Original.ExtType;
                 newAset.ExtURL = astp.Original.ExtType;
+                newAset.OriginalAttributeId = astp.Original.OriginalAttributeId > 0 ? astp.Original.OriginalAttributeId :
+                    astp.Original.AttributeId;
                 //hook AttSet.Saved to AttSetSavedForCopying
                 newAset.Saved += new EventHandler<Csla.Core.SavedEventArgs>(AttSetSavedForCopying);
                 windowCopyingCodes.ProgressTxt.Text = (toPlist.IndexOf(astp) +1).ToString() + " of " + toPlist.Count;

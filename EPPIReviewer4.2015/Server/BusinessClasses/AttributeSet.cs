@@ -316,6 +316,20 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
+        public static readonly PropertyInfo<Int64> OriginalAttributeIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("OriginalAttributeId", "OriginalAttributeId"));
+        [JsonProperty]
+        public Int64 OriginalAttributeId
+        {
+            get
+            {
+                return GetProperty(OriginalAttributeIdProperty);
+            }
+            set
+            {
+                SetProperty(OriginalAttributeIdProperty, value);
+            }
+        }
+
         public static readonly PropertyInfo<Int64> ParentAttributeIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("ParentAttributeId", "ParentAttributeId"));
 #if (CSLA_NETCORE)
         [JsonProperty]
@@ -670,7 +684,7 @@ namespace BusinessLibrary.BusinessClasses
         }
 
 #if !SILVERLIGHT
-        public Int64? OriginalAttributeID;//used when copying codesets
+        // public Int64? OriginalAttributeID;//used when copying codesets JT changing to proper property June 2020
         protected override void DataPortal_Insert()
         {
             AddNew();
@@ -694,10 +708,7 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@Ext_URL", ReadProperty(ExtURLProperty)));
                     command.Parameters.Add(new SqlParameter("@Ext_Type", ReadProperty(ExtTypeProperty)));
                     command.Parameters.Add(new SqlParameter("@CONTACT_ID", ReadProperty(ContactIdProperty)));
-                    if (OriginalAttributeID != null && OriginalAttributeID != 0)
-                    {
-                        command.Parameters.Add(new SqlParameter("@ORIGINAL_ATTRIBUTE_ID", OriginalAttributeID));
-                    }
+                    command.Parameters.Add(new SqlParameter("@ORIGINAL_ATTRIBUTE_ID", OriginalAttributeId));
                     command.Parameters.Add(new SqlParameter("@NEW_ATTRIBUTE_SET_ID", 0));
                     command.Parameters["@NEW_ATTRIBUTE_SET_ID"].Direction = System.Data.ParameterDirection.Output;
                     command.Parameters.Add(new SqlParameter("@NEW_ATTRIBUTE_ID", 0));
@@ -738,6 +749,7 @@ namespace BusinessLibrary.BusinessClasses
                         command.Parameters.Add(new SqlParameter("@Ext_Type", ReadProperty(ExtTypeProperty)));
                         command.Parameters.Add(new SqlParameter("@CONTACT_ID", ReadProperty(ContactIdProperty)));
 						command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
+                        // I don't think there's a use case to 'update' originalAttributeId
 						command.ExecuteNonQuery();
                     }
                     connection.Close();
@@ -808,6 +820,7 @@ namespace BusinessLibrary.BusinessClasses
             returnValue.LoadProperty<Int64>(AttributeSetIdProperty, reader.GetInt64("ATTRIBUTE_SET_ID"));
             returnValue.LoadProperty<int>(SetIdProperty, reader.GetInt32("SET_ID"));
             returnValue.LoadProperty<Int64>(AttributeIdProperty, reader.GetInt64("ATTRIBUTE_ID"));
+            returnValue.LoadProperty<Int64>(OriginalAttributeIdProperty, reader.GetInt64("ORIGINAL_ATTRIBUTE_ID"));
             returnValue.LoadProperty<Int64>(ParentAttributeIdProperty, reader.GetInt64("PARENT_ATTRIBUTE_ID"));
             returnValue.LoadProperty<int>(AttributeTypeIdProperty, reader.GetInt32("ATTRIBUTE_TYPE_ID"));
             returnValue.LoadProperty<string>(AttributeSetDescriptionProperty, reader.GetString("ATTRIBUTE_SET_DESC"));
@@ -836,6 +849,7 @@ namespace BusinessLibrary.BusinessClasses
             returnValue.LoadProperty<Int64>(AttributeSetIdProperty, reader.GetInt64("ATTRIBUTE_SET_ID"));
             returnValue.LoadProperty<int>(SetIdProperty, reader.GetInt32("SET_ID"));
             returnValue.LoadProperty<Int64>(AttributeIdProperty, reader.GetInt64("ATTRIBUTE_ID"));
+            returnValue.LoadProperty<Int64>(OriginalAttributeIdProperty, reader.GetInt64("ORIGINAL_ATTRIBUTE_ID"));
             returnValue.LoadProperty<Int64>(ParentAttributeIdProperty, reader.GetInt64("PARENT_ATTRIBUTE_ID"));
             returnValue.LoadProperty<int>(AttributeTypeIdProperty, reader.GetInt32("ATTRIBUTE_TYPE_ID"));
             returnValue.LoadProperty<string>(AttributeSetDescriptionProperty, reader.GetString("ATTRIBUTE_SET_DESC"));

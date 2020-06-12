@@ -49,12 +49,63 @@ namespace EppiReviewer4
 
         private void HyperlinkButton_Click_1(object sender, RoutedEventArgs e)
         {
+            if (rbRobotReviewer.IsChecked == true)
+            {
+                DoRobotReviewer(sender, e);
+            }
+            else
+            {
+                DoHBCP(sender, e);
+            }
+        }
+
+        private void DoRobotReviewer(object sender, RoutedEventArgs e)
+        {
             ReviewSet rs = dialogRobotsComboSelectCodeSet.SelectedItem as ReviewSet;
             if (rs != null)
             {
                 if (rs.RobotReviewerValidated() == false)
                 {
                     RadWindow.Alert("Please select a RobotReviewer compatible coding tool");
+                    return;
+                }
+
+                DataPortal<RobotReviewerCommand> dp2 = new DataPortal<RobotReviewerCommand>();
+                RobotReviewerCommand rr = new RobotReviewerCommand(SelectedTitle, SelectedAbstract);
+                rr.SelectedReviewSet = rs;
+                rr.SelectedItemDocument = SelectedItemDocument;
+                dp2.ExecuteCompleted += (o, e2) =>
+                {
+                    Thread.Sleep(4000); // this is such an annoying hack! Seems no way of getting the command object NOT to run async...
+                    busyIndicatorRobots.IsBusy = false;
+                    hlCancel.IsEnabled = true;
+                    hlGo.IsEnabled = true;
+                    if (e2.Error != null)
+                    {
+                        RadWindow.Alert(e2.Error.Message);
+                    }
+                    else
+                    {
+                        RobotReviewerCommand rr2 = e2.Object as RobotReviewerCommand;
+                        this.closeWindowRobots.Invoke(sender, e);
+                        //RadWindow.Alert(rr2.ReturnMessage);
+                    }
+                };
+                busyIndicatorRobots.IsBusy = true;
+                hlCancel.IsEnabled = false;
+                hlGo.IsEnabled = false;
+                dp2.BeginExecute(rr);
+            }
+        }
+
+        private void DoHBCP(object sender, RoutedEventArgs e)
+        {
+            ReviewSet rs = dialogRobotsComboSelectCodeSet.SelectedItem as ReviewSet;
+            if (rs != null)
+            {
+                if (rs.RobotReviewerValidated() == false)
+                {
+                    RadWindow.Alert("Please select a HBCP compatible coding tool");
                     return;
                 }
 
