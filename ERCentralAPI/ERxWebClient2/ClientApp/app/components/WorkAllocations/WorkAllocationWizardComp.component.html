@@ -101,7 +101,8 @@
                 </div>
             </div>
             <div class="col-4 rounded border border-info alert-info small">
-                Select the references based on previous coding, or all of the references in your review.
+                Select the references based on previous coding, or if you have not yet begun coding, 
+                select ‘No code/coding tool filter’ to include all of the references in your review.
             </div>
         </div>
         <div class="row my-1 mx-0 border-top" [ngClass]="{'DisabledStep' : !SelectionCriteriaIsValid}">
@@ -336,7 +337,7 @@
     <div *ngIf="CurrentStep==3" class="col-12 p-1 m-0 rounded border container border-info">
         <div class="row my-1 mx-0 border-top">
             <div class="col-2">
-                3.1. Select at least {{this.workAllocationFromWizardCommand.peoplePerItem}} reviewer:
+                3.1. Select at least {{this.workAllocationFromWizardCommand.peoplePerItem}} reviewer(s):
             </div>
             <div class="col-6 row m-0 p-0 ">
                 <div *ngIf="Contacts.length > 4" class="col-12">
