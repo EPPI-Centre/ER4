@@ -580,7 +580,7 @@ namespace BusinessLibrary.BusinessClasses
             AttributeSet aset = SelectedReviewSet.GetSetByExt_URL(ExtUrl);
             if (aset != null)
             {
-                if (aset.IsSelected == false) // i.e. no attribute exists - we just save a new attribute
+                if (aset.IsSelected == false) // i.e. no item_attribute record exists - we just save a new one
                 {
                     using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
                     {
@@ -606,7 +606,7 @@ namespace BusinessLibrary.BusinessClasses
                         connection.Close();
                     }
                 }
-                else // i.e. we can't save a new attribute - need to update an existing one
+                else // i.e. we can't save a new item attribute record - need to update an existing one
                 {
                     using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
                     {
@@ -649,8 +649,8 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@PDFTRON_XML", ""));
                     command.Parameters.Add(new SqlParameter("@ITEM_ATTRIBUTE_PDF_ID", 0));
                     command.Parameters["@ITEM_ATTRIBUTE_PDF_ID"].Direction = System.Data.ParameterDirection.Output;
-                    command.ExecuteNonQuery();
-                    Int64 ItemAttributePdfId = (Int64)command.Parameters["@ITEM_ATTRIBUTE_PDF_ID"].Value;
+                    //command.ExecuteNonQuery();
+                    //Int64 ItemAttributePdfId = (Int64)command.Parameters["@ITEM_ATTRIBUTE_PDF_ID"].Value;
                 }
                 connection.Close();
             }
@@ -680,7 +680,7 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@NEW_ATTRIBUTE_ID", 0));
                     command.Parameters["@NEW_ATTRIBUTE_SET_ID"].Direction = System.Data.ParameterDirection.Output;
                     command.Parameters["@NEW_ATTRIBUTE_ID"].Direction = System.Data.ParameterDirection.Output;
-                    //command.ExecuteNonQuery();
+                    command.ExecuteNonQuery();
                     NewAttributeSetId = (Int64)command.Parameters["@NEW_ATTRIBUTE_SET_ID"].Value;
                     NewAttributeId = (Int64)command.Parameters["@NEW_ATTRIBUTE_ID"].Value;
                 }
@@ -698,7 +698,7 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters["@NEW_ITEM_ATTRIBUTE_ID"].Direction = System.Data.ParameterDirection.Output;
                     command.Parameters.Add(new SqlParameter("@NEW_ITEM_SET_ID", 0));
                     command.Parameters["@NEW_ITEM_SET_ID"].Direction = System.Data.ParameterDirection.Output;
-                    //command.ExecuteNonQuery();
+                    command.ExecuteNonQuery();
                     Int64 _ItemAttributeId = (Int64)command.Parameters["@NEW_ITEM_ATTRIBUTE_ID"].Value;
                     Int64 _itemSetId = (Int64)command.Parameters["@NEW_ITEM_SET_ID"].Value;
                 }
@@ -714,5 +714,251 @@ namespace BusinessLibrary.BusinessClasses
 
     }
 
-    
+    public class RobotReviewerReturn
+    {
+        public RobotReviewerRoot[] Property1 { get; set; }
+    }
+
+    public class RobotReviewerRoot
+    {
+        public string ti { get; set; }
+        public string ab { get; set; }
+        public string fullText { get; set; }
+        public Rct_Bot rct_bot { get; set; }
+        public Pico_Span_Bot pico_span_bot { get; set; }
+        public Bias_Bot bias_bot { get; set; }
+        public Pico_Bot pico_bot { get; set; }
+        public Sample_Size_Bot sample_size_bot { get; set; }
+        public Punchline_Bot punchline_bot { get; set; }
+        public Bias_Ab_Bot bias_ab_bot { get; set; }
+        public Human_Bot human_bot { get; set; }
+    }
+
+    public class Rct_Bot
+    {
+        public string model { get; set; }
+        public float score { get; set; }
+        public string threshold_type { get; set; }
+        public float threshold_value { get; set; }
+        public bool is_rct { get; set; }
+        public bool is_rct_precise { get; set; }
+        public bool is_rct_balanced { get; set; }
+        public bool is_rct_sensitive { get; set; }
+        public int ptyp_rct { get; set; }
+    }
+
+    public class Pico_Span_Bot
+    {
+        public string[] population { get; set; }
+        public string[] interventions { get; set; }
+        public string[] outcomes { get; set; }
+        public float[][] population_berts { get; set; }
+        public float[][] interventions_berts { get; set; }
+        public float[][] outcomes_berts { get; set; }
+        public Population_Mesh[] population_mesh { get; set; }
+        public Interventions_Mesh[] interventions_mesh { get; set; }
+        public Outcomes_Mesh[] outcomes_mesh { get; set; }
+    }
+
+    public class Population_Mesh
+    {
+        public string mesh_term { get; set; }
+        public string mesh_ui { get; set; }
+        public string cui { get; set; }
+    }
+
+    public class Interventions_Mesh
+    {
+        public string mesh_term { get; set; }
+        public string mesh_ui { get; set; }
+        public string cui { get; set; }
+    }
+
+    public class Outcomes_Mesh
+    {
+        public string mesh_term { get; set; }
+        public string mesh_ui { get; set; }
+        public string cui { get; set; }
+    }
+
+    public class Bias_Bot
+    {
+        public Random_Sequence_Generation random_sequence_generation { get; set; }
+        public Allocation_Concealment allocation_concealment { get; set; }
+        public Blinding_Participants_Personnel blinding_participants_personnel { get; set; }
+        public Blinding_Outcome_Assessment blinding_outcome_assessment { get; set; }
+    }
+
+    public class Random_Sequence_Generation
+    {
+        public string judgement { get; set; }
+        public Annotation[] annotations { get; set; }
+    }
+
+    public class Annotation
+    {
+        public string text { get; set; }
+        public int start_index { get; set; }
+    }
+
+    public class Allocation_Concealment
+    {
+        public string judgement { get; set; }
+        public Annotation1[] annotations { get; set; }
+    }
+
+    public class Annotation1
+    {
+        public string text { get; set; }
+        public int start_index { get; set; }
+    }
+
+    public class Blinding_Participants_Personnel
+    {
+        public string judgement { get; set; }
+        public Annotation2[] annotations { get; set; }
+    }
+
+    public class Annotation2
+    {
+        public string text { get; set; }
+        public int start_index { get; set; }
+    }
+
+    public class Blinding_Outcome_Assessment
+    {
+        public string judgement { get; set; }
+        public Annotation3[] annotations { get; set; }
+    }
+
+    public class Annotation3
+    {
+        public string text { get; set; }
+        public int start_index { get; set; }
+    }
+
+    public class Pico_Bot
+    {
+        public Participants participants { get; set; }
+        public Interventions interventions { get; set; }
+        public Outcomes outcomes { get; set; }
+    }
+
+    public class Participants
+    {
+        public Annotation4[] annotations { get; set; }
+    }
+
+    public class Annotation4
+    {
+        public string text { get; set; }
+        public int start_index { get; set; }
+    }
+
+    public class Interventions
+    {
+        public Annotation5[] annotations { get; set; }
+    }
+
+    public class Annotation5
+    {
+        public string text { get; set; }
+        public int start_index { get; set; }
+    }
+
+    public class Outcomes
+    {
+        public Annotation6[] annotations { get; set; }
+    }
+
+    public class Annotation6
+    {
+        public string text { get; set; }
+        public int start_index { get; set; }
+    }
+
+    public class Sample_Size_Bot
+    {
+        public string num_randomized { get; set; }
+    }
+
+    public class Punchline_Bot
+    {
+        public string punchline_text { get; set; }
+        public string effect { get; set; }
+    }
+
+    public class Bias_Ab_Bot
+    {
+        public Random_Sequence_Generation1 random_sequence_generation { get; set; }
+        public Allocation_Concealment1 allocation_concealment { get; set; }
+        public Blinding_Participants_Personnel1 blinding_participants_personnel { get; set; }
+        public Blinding_Outcome_Assessment1 blinding_outcome_assessment { get; set; }
+    }
+
+    public class Random_Sequence_Generation1
+    {
+        public string judgement { get; set; }
+    }
+
+    public class Allocation_Concealment1
+    {
+        public string judgement { get; set; }
+    }
+
+    public class Blinding_Participants_Personnel1
+    {
+        public string judgement { get; set; }
+    }
+
+    public class Blinding_Outcome_Assessment1
+    {
+        public string judgement { get; set; }
+    }
+
+    public class Human_Bot
+    {
+        public bool is_human { get; set; }
+    }
+
+
+
+
+    public class CurrentStatus
+    {
+        public string state { get; set; }
+        public Meta meta { get; set; }
+    }
+
+    public class Meta
+    {
+        public string status { get; set; }
+        public string task { get; set; }
+    }
+
+
+    class ReportId
+    {
+        public string key { get; set; }
+        public string value { get; set; }
+    }
+
+    class Waiting
+    {
+        public string state { get; set; }
+    }
+
+    class upload_data
+    {
+        public List<RequestDoc> articles { get; set; }
+        public string[] robots { get; set; }
+        public string filter_rcts { get; set; }
+    }
+
+    class RequestDoc
+    {
+        public string ti { get; set; }
+        public string ab { get; set; }
+        public string fullText { get; set; }
+    }
 }

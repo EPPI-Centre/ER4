@@ -230,7 +230,7 @@ namespace BusinessLibrary.BusinessClasses
             AttributeSet retVal = null;
             foreach (AttributeSet atset in Attributes)
             {
-                if (atset.AttributeName == val)
+                if (atset.AttributeName.Trim().ToLower() == val)
                 {
                     return atset;
                 }

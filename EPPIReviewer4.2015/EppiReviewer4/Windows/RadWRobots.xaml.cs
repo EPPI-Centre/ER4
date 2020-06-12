@@ -110,13 +110,13 @@ namespace EppiReviewer4
                     return;
                 }
                 */
-                DataPortal<RobotReviewerCommand> dp2 = new DataPortal<RobotReviewerCommand>();
-                RobotReviewerCommand rr = new RobotReviewerCommand(SelectedTitle, SelectedAbstract);
-                rr.SelectedReviewSet = rs;
-                rr.SelectedItemDocument = SelectedItemDocument;
+                DataPortal<RobotHBCPCommand> dp2 = new DataPortal<RobotHBCPCommand>();
+                RobotHBCPCommand rh = new RobotHBCPCommand("5", "10%2C20", "0.2");
+                rh.SelectedReviewSet = rs;
+                rh.SelectedItemDocument = SelectedItemDocument;
                 dp2.ExecuteCompleted += (o, e2) =>
                 {
-                    Thread.Sleep(4000); // same hack as above. I prefer to do the sleep here than server side
+                    Thread.Sleep(3000); // same hack as above. I prefer to do the sleep here than server side
                     busyIndicatorRobots.IsBusy = false;
                     hlCancel.IsEnabled = true;
                     hlGo.IsEnabled = true;
@@ -126,7 +126,7 @@ namespace EppiReviewer4
                     }
                     else
                     {
-                        RobotReviewerCommand rr2 = e2.Object as RobotReviewerCommand;
+                        RobotHBCPCommand rh2 = e2.Object as RobotHBCPCommand;
                         this.closeWindowRobots.Invoke(sender, e);
                         //RadWindow.Alert(rr2.ReturnMessage);
                     }
@@ -134,7 +134,7 @@ namespace EppiReviewer4
                 busyIndicatorRobots.IsBusy = true;
                 hlCancel.IsEnabled = false;
                 hlGo.IsEnabled = false;
-                dp2.BeginExecute(rr);
+                dp2.BeginExecute(rh);
             }
         }
     }
