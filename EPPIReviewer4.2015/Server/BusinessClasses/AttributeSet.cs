@@ -342,7 +342,7 @@ namespace BusinessLibrary.BusinessClasses
 
         public static readonly PropertyInfo<Int64> OriginalAttributeIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("OriginalAttributeId", "OriginalAttributeId"));
         [JsonProperty]
-        public Int64 OriginalAttributeId
+        public Int64 OriginalAttributeID
         {
             get
             {
@@ -732,7 +732,7 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@Ext_URL", ReadProperty(ExtURLProperty)));
                     command.Parameters.Add(new SqlParameter("@Ext_Type", ReadProperty(ExtTypeProperty)));
                     command.Parameters.Add(new SqlParameter("@CONTACT_ID", ReadProperty(ContactIdProperty)));
-                    command.Parameters.Add(new SqlParameter("@ORIGINAL_ATTRIBUTE_ID", OriginalAttributeId));
+                    command.Parameters.Add(new SqlParameter("@ORIGINAL_ATTRIBUTE_ID", OriginalAttributeID));
                     command.Parameters.Add(new SqlParameter("@NEW_ATTRIBUTE_SET_ID", 0));
                     command.Parameters["@NEW_ATTRIBUTE_SET_ID"].Direction = System.Data.ParameterDirection.Output;
                     command.Parameters.Add(new SqlParameter("@NEW_ATTRIBUTE_ID", 0));
