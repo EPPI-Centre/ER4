@@ -12,6 +12,7 @@ import { MAGBrowserService } from '../services/MAGBrowser.service';
 import { MAGAdvancedService } from '../services/magAdvanced.service';
 import { MAGBrowserHistoryService } from '../services/MAGBrowserHistory.service';
 import { interval, Subscription } from 'rxjs';
+import { NotificationService } from '@progress/kendo-angular-notification';
 
 
 @Component({
@@ -31,6 +32,7 @@ export class AdvancedMAGFeaturesComponent implements OnInit, OnDestroy {
         private _eventEmitter: EventEmitterService,
         private _routingStateService: MAGBrowserHistoryService,
         private _location: Location,
+        private _notificationService: NotificationService,
         private router: Router
 
     ) {
@@ -71,20 +73,20 @@ export class AdvancedMAGFeaturesComponent implements OnInit, OnDestroy {
     public ListSubType: string = '';
     public splitDataOn: string = 'Year';
     public SearchMethod: string = 'Recommendations';
-    public SearchMethods: string[] = ['Citations',
+    public SearchMethods: string[] = ['Bi-Citation',
         'Recommendations',
-        'Citations and recommendations',
-        'Fields of study'];
-    public NetworkStat: string = 'None';
-    public NetworkStats: string[] = [
-        'degree',
-        'closeness',
-        'eigenscore',
-        'pagerank',
-        'hubscore',
-        'authscore',
-        'alpha'
-    ];
+        'Bi-Citation and Recommendations',
+        'Extended Network'];
+    //public NetworkStat: string = 'None';
+    //public NetworkStats: string[] = [
+    //    'degree',
+    //    'closeness',
+    //    'eigenscore',
+    //    'pagerank',
+    //    'hubscore',
+    //    'authscore',
+    //    'alpha'
+    //];
     public StudyTypeClassifier: string = 'None';
     public StudyTypeClassifiers: string[] = [
         'None',
@@ -106,7 +108,18 @@ export class AdvancedMAGFeaturesComponent implements OnInit, OnDestroy {
     public filterOn: string = 'false';
     public ScoreThreshold: number = 0;
     public FoSThreshold: number = 0;
-    public step: number = 0.1;
+    public stepScore: number = 0.01;
+    public stepFoS: number = 0.05;
+    private ShowMAGSimulationMessage(notifyMsg: string) {
+
+        this._notificationService.show({
+            content: notifyMsg,
+            animation: { type: 'slide', duration: 400 },
+            position: { horizontal: 'center', vertical: 'top' },
+            type: { style: "info", icon: true },
+            closable: true
+        });
+    }
     public Forward() {
         this._location.forward();
     }
@@ -154,7 +167,11 @@ export class AdvancedMAGFeaturesComponent implements OnInit, OnDestroy {
         return this._magAdvancedService._RunAlgorithmFirst == true;
 
     }    
-    public AddSimulation(): void {
+    private CheckContReviewPipelineState(): boolean {
+
+        return this._magAdvancedService.CheckContReviewPipelineState();
+    }
+    private AddActualSimulation(): void {
 
         let newMagSimulation: MagSimulation = new MagSimulation();
         if (this.splitDataOn == 'Year') {
@@ -205,6 +222,21 @@ export class AdvancedMAGFeaturesComponent implements OnInit, OnDestroy {
 
                 }
             });
+
+    }
+    public AddSimulation(): void {
+
+        let pipelineRunning: boolean = this.CheckContReviewPipelineState();
+        if (!pipelineRunning) {
+
+            let msg: string = 'Sorry, another pipeline is currently running';
+            this.ShowMAGSimulationMessage(msg);
+            return;
+
+        } else {
+
+            this.AddActualSimulation();
+        }
     }
     public GetClassifierContactModelList(): void {
         this._magAdvancedService.FetchClassifierContactModelList();

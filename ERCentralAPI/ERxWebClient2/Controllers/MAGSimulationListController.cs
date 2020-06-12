@@ -112,10 +112,37 @@ namespace ERxWebClient2.Controllers
                 throw;
             }
         }
+
+
+        [HttpGet("[action]")]
+        public IActionResult MagCheckContReviewRunningCommand()
+        {
+            try
+            {
+                if (SetCSLAUser4Writing())
+                {
+                    DataPortal<MagCheckContReviewRunningCommand> dp = new DataPortal<MagCheckContReviewRunningCommand>();
+                    MagCheckContReviewRunningCommand check = new MagCheckContReviewRunningCommand();
+
+                    check = dp.Execute(check);
+
+                    return Ok(check);
+
+                }
+                else return Forbid();
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "MagCheckContReviewRunningCommand has an error");
+                throw;
+            }
+        }
+
+
     }
 
 
-	public class MVCMagSimulation
+    public class MVCMagSimulation
 	{
 
         public int magSimulationId = 0;

@@ -59,6 +59,30 @@ export class MAGAdvancedService extends BusyAwareService {
     public set ClassifierContactModelList(classifierContactModelList: ClassifierContactModel[]) {
         this._ClassifierContactModelList = classifierContactModelList;
     }
+    public CheckContReviewPipelineState(): boolean {
+
+        this._BusyMethods.push("CheckContReviewPipelineState");
+        this._httpC.get<MagCheckContReviewRunningCommand>(this._baseUrl + 'api/MAGSimulationList/MagCheckContReviewRunningCommand')
+            .subscribe(result => {
+                this.RemoveBusy("CheckContReviewPipelineState");
+                if (result != null) {
+                    if (result.isRunningMessage == 'isRunning') {
+                        return false;
+                    } else {
+                        return true;
+                    }
+                }
+            },
+                error => {
+                    this.RemoveBusy("CheckContReviewPipelineState");
+                    this.modalService.GenericError(error);
+                },
+                () => {
+                    this.RemoveBusy("CheckContReviewPipelineState");
+                });
+        return false;
+
+    }
     public FetchClassifierContactModelList() {
         this._BusyMethods.push("FetchClassifierContactModelList");
         this._httpC.get<ClassifierContactModel[]>(this._baseUrl + 'api/MagClassifierContact/FetchClassifierContactList')
@@ -367,4 +391,10 @@ export class MAGAdvancedService extends BusyAwareService {
                     this.RemoveBusy("FetchMagSimulationList");
                 });
     }
+}
+
+export class MagCheckContReviewRunningCommand {
+
+    isRunningMessage: string = '';
+
 }
