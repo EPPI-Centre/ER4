@@ -93,7 +93,7 @@ namespace BusinessLibrary.BusinessClasses
             destAtt.ExtURL = SourceAtt.ExtURL;
             destAtt.AttributeDescription = SourceAtt.AttributeDescription;
             destAtt.ContactId = ri.UserId;
-            destAtt.OriginalAttributeId = SourceAtt.AttributeId;
+            destAtt.OriginalAttributeID = SourceAtt.AttributeId;
             destAtt = destAtt.Save(true);
             foreach (AttributeSet aSet in SourceAtt.Attributes)
             {

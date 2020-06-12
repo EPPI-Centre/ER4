@@ -6,16 +6,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="SQLScripts\236.sql" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Include="SQLScripts\236.sql">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Compile>
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="2.1.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" Version="2.1.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="2.1.0" />
@@ -250,6 +240,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="SQLScripts\234.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="SQLScripts\236.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="SQLScripts\27.sql">
