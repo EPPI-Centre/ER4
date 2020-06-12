@@ -103,19 +103,20 @@ namespace EppiReviewer4
             ReviewSet rs = dialogRobotsComboSelectCodeSet.SelectedItem as ReviewSet;
             if (rs != null)
             {
-                if (rs.RobotReviewerValidated() == false)
+                /* No validation check at the moment. If a given attribute isn't present it just doesn't get a result
+                if (rs.HBCPValidated() == false)
                 {
                     RadWindow.Alert("Please select a HBCP compatible coding tool");
                     return;
                 }
-
+                */
                 DataPortal<RobotReviewerCommand> dp2 = new DataPortal<RobotReviewerCommand>();
                 RobotReviewerCommand rr = new RobotReviewerCommand(SelectedTitle, SelectedAbstract);
                 rr.SelectedReviewSet = rs;
                 rr.SelectedItemDocument = SelectedItemDocument;
                 dp2.ExecuteCompleted += (o, e2) =>
                 {
-                    Thread.Sleep(4000); // this is such an annoying hack! Seems no way of getting the command object NOT to run async...
+                    Thread.Sleep(4000); // same hack as above. I prefer to do the sleep here than server side
                     busyIndicatorRobots.IsBusy = false;
                     hlCancel.IsEnabled = true;
                     hlGo.IsEnabled = true;

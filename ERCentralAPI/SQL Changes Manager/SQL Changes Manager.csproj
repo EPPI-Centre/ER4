@@ -6,11 +6,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="SQLScripts\JT change on commit.sql" />
+    <None Remove="SQLScripts\236.sql" />
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="SQLScripts\JT change on commit.sql" />
+    <Compile Include="SQLScripts\236.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Compile>
   </ItemGroup>
 
   <ItemGroup>

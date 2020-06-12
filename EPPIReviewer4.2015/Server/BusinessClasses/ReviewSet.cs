@@ -493,6 +493,30 @@ namespace BusinessLibrary.BusinessClasses
             return retVal;
         }
 
+        public AttributeSet GetSetByName(string val) // gets the first occurence of a given AttributeName
+        {
+            AttributeSet retVal = null;
+            foreach (AttributeSet atset in Attributes)
+            {
+                if (atset.AttributeName == val)
+                {
+                    return atset;
+                }
+                else
+                {
+                    if (atset.Attributes.Count > 0)
+                    {
+                        retVal = atset.GetSetByName(val);
+                        if (retVal != null)
+                        {
+                            return retVal;
+                        }
+                    }
+                }
+            }
+            return retVal;
+        }
+
         public static readonly PropertyInfo<bool> ItemSetIsLockedProperty = RegisterProperty<bool>(new PropertyInfo<bool>("ItemSetIsLocked", "ItemSetIsLocked"));
         public bool ItemSetIsLocked
         {

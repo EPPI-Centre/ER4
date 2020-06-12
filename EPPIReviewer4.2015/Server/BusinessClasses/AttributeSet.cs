@@ -225,6 +225,30 @@ namespace BusinessLibrary.BusinessClasses
             return retVal;
         }
 
+        public AttributeSet GetSetByName(string val)
+        {
+            AttributeSet retVal = null;
+            foreach (AttributeSet atset in Attributes)
+            {
+                if (atset.AttributeName == val)
+                {
+                    return atset;
+                }
+                else
+                {
+                    if (atset.Attributes.Count > 0)
+                    {
+                        retVal = atset.GetSetByName(val);
+                        if (retVal != null)
+                        {
+                            return retVal;
+                        }
+                    }
+                }
+            }
+            return retVal;
+        }
+
         public void ClearItemData()
         {
             this.ItemData = null;

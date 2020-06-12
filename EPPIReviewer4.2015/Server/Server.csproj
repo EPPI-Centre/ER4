@@ -426,6 +426,7 @@
     <Compile Include="BusinessClasses\ReadOnlyTemplateReviewList.cs" />
     <Compile Include="BusinessClasses\ReviewInfo.cs" />
     <Compile Include="BusinessClasses\ReviewSetCopyCommand.cs" />
+    <Compile Include="BusinessClasses\RobotHBCPCommand.cs" />
     <Compile Include="BusinessClasses\RobotReviewerCommand.cs" />
     <Compile Include="BusinessClasses\SearchNullAbstract.cs" />
     <Compile Include="BusinessClasses\SearchVisualise.cs" />
