@@ -3,6 +3,10 @@ body {
 	margin: 0;
 }
 
+.sortable {
+    cursor: pointer;
+}
+
 .basic-container {
 	padding: 5px;
 }

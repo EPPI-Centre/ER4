@@ -270,12 +270,12 @@ export class AdvancedMAGFeaturesComponent implements OnInit, OnDestroy {
     }
     Clear() {
 
-        this.CurrentDropdownSelectedCode2 = {} as SetAttribute;
-        this.CurrentDropdownSelectedCode3 = {} as SetAttribute;
-        this.description = '';
-        this.ItemsWithCode = false;
-        this.magDate = '';
-        this.magMode = '';
+        //this.CurrentDropdownSelectedCode2 = {} as SetAttribute;
+        //this.CurrentDropdownSelectedCode3 = {} as SetAttribute;
+        //this.description = '';
+        //this.ItemsWithCode = false;
+        //this.magDate = '';
+        //this.magMode = '';
 
     }
     public GetMagSimulationList() {
