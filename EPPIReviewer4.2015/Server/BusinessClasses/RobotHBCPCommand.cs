@@ -132,19 +132,45 @@ namespace BusinessLibrary.BusinessClasses
             JArray jArray = JArray.Parse(job.ToString());
             int errors = 0;
 
+            List<HBCPRoot> attributeList = new List<HBCPRoot>();
+
+
             foreach (dynamic d in jArray)
             {
                 try
                 {
                     HBCPRoot atr = JsonConvert.DeserializeObject<HBCPRoot>(d.ToString());
-                    SaveAttribute(atr.attribute.name, "Value: " + atr.value + Environment.NewLine +
-                        "Context: " + atr.context + Environment.NewLine +
-                        "Page number: " + atr.page, ri.ReviewId, ri.UserId);
+                    attributeList.Add(atr as HBCPRoot);
                 }
                 catch
                 {
                     errors++;
                 }
+            }
+            for (int i = 0; i < attributeList.Count; i++)
+            {
+                if (attributeList[i].attribute.id == "")
+                {
+                    continue; // i.e. we've already saved it
+                }
+                attributeList[i].context = "Value: " + attributeList[i].value + Environment.NewLine +
+                    "Context: " + attributeList[i].context + Environment.NewLine +
+                    "Page number: " + attributeList[i].page;
+
+                // consolidate any other occurences of the same attribute
+                for (int c = i + 1; c < attributeList.Count; c++)
+                {
+                    if (attributeList[i].attribute.id == attributeList[c].attribute.id &&
+                        attributeList[i].attribute.id != "")
+                    {
+                        attributeList[i].context += Environment.NewLine + Environment.NewLine +
+                            "Value: " + attributeList[c].value + Environment.NewLine +
+                            "Context: " + attributeList[c].context + Environment.NewLine +
+                            "Page number: " + attributeList[c].page;
+                        attributeList[c].attribute.id = "";
+                    }
+                }
+                SaveAttribute(attributeList[i].attribute.name, attributeList[i].context, ri.ReviewId, ri.UserId);
             }
             if (errors == 0)
             {
