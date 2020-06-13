@@ -22,6 +22,7 @@ namespace EppiReviewer4.Windows
     public partial class windowSearchVisualise : ChildWindow
     {
         public event EventHandler<RoutedEventArgs> CodesCreated;
+        public event EventHandler<RoutedEventArgs> SearchClassifierScoresCompleted;
         public windowSearchVisualise()
         {
             InitializeComponent();
@@ -54,6 +55,7 @@ namespace EppiReviewer4.Windows
         //}
 
         public int SearchId { get; set; }
+        public int SearchNo { get; set; }
         private string _SearchName;
         public string SearchName
         {
@@ -120,6 +122,74 @@ namespace EppiReviewer4.Windows
         public void UnhookMe()
         {
             codesSelectControlAllocate.UnhookMe();
+        }
+
+        private void rbSearchScoreMoreThan_Click(object sender, RoutedEventArgs e)
+        {
+            tbSearchScore.Visibility = Visibility.Collapsed;
+            SearchScoreNumericUpDown2.Visibility = Visibility.Collapsed;
+        }
+
+        private void rbSearchScoreLessThan_Click(object sender, RoutedEventArgs e)
+        {
+            tbSearchScore.Visibility = Visibility.Collapsed;
+            SearchScoreNumericUpDown2.Visibility = Visibility.Collapsed;
+        }
+
+        private void rbSearchScoreMoreBetween_Click(object sender, RoutedEventArgs e)
+        {
+            tbSearchScore.Visibility = Visibility.Visible;
+            SearchScoreNumericUpDown2.Visibility = Visibility.Visible;
+        }
+
+        private void hlSearchScore_Click(object sender, RoutedEventArgs e)
+        {
+            if (rbSearchScoreBetween.IsChecked == true && SearchScoreNumericUpDown1.Value.Value >
+                SearchScoreNumericUpDown2.Value.Value)
+            {
+                RadWindow.Alert("Second value should not be lower than the first!");
+                return;
+            }
+            string searchType = "More";
+            string searchDesc = "Search #" + SearchNo.ToString() + " scores more than " +
+                SearchScoreNumericUpDown1.Value.Value.ToString();
+            if (rbSearchScoreLessThan.IsChecked == true)
+            {
+                searchType = "Less";
+                searchDesc = "Search #" + SearchNo.ToString() + " scores less than " +
+                    SearchScoreNumericUpDown1.Value.Value.ToString();
+            }
+            if (rbSearchScoreBetween.IsChecked == true)
+            {
+                searchType = "Between";
+                searchDesc = "Search #" + SearchNo.ToString() + " scores between " +
+                    SearchScoreNumericUpDown1.Value.Value.ToString() +
+                    " and " + SearchScoreNumericUpDown2.Value.Value.ToString();
+            }
+            DataPortal<SearchClassifierScoresCommand> dp = new DataPortal<SearchClassifierScoresCommand>();
+            SearchClassifierScoresCommand command = new SearchClassifierScoresCommand(
+                searchType,
+                Convert.ToInt32(SearchScoreNumericUpDown1.Value.Value),
+                Convert.ToInt32(SearchScoreNumericUpDown2.Value.Value),
+                SearchId,
+                searchDesc);
+            dp.ExecuteCompleted += (o, e2) =>
+            {
+                BusyGeneratingCodes.IsRunning = false;
+                this.IsEnabled = true;
+                if (e2.Error != null)
+                {
+                    RadWindow.Alert(e2.Error.Message);
+                }
+                else
+                {
+                    SearchClassifierScoresCompleted.Invoke(sender, e);
+                    this.DialogResult = true;// closes the window
+                }
+            };
+            BusyGeneratingCodes.IsRunning = true;
+            this.IsEnabled = false;
+            dp.BeginExecute(command);
         }
     }
 }

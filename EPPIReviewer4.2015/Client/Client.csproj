@@ -739,6 +739,9 @@
     <Compile Include="..\Server\BusinessClasses\Search.cs">
       <Link>BusinessClasses\Search.cs</Link>
     </Compile>
+    <Compile Include="..\Server\BusinessClasses\SearchClassifierScoresCommand.cs">
+      <Link>BusinessClasses\SearchClassifierScoresCommand.cs</Link>
+    </Compile>
     <Compile Include="..\Server\BusinessClasses\SearchCodesCommand.cs">
       <Link>BusinessClasses\SearchCodesCommand.cs</Link>
     </Compile>

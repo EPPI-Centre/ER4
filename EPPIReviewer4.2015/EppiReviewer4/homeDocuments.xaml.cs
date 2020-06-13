@@ -6092,15 +6092,22 @@ on the right of the main screen");
             {
                 dlgWindowVisualiseSearch = new Windows.windowSearchVisualise();
                 dlgWindowVisualiseSearch.CodesCreated += DlgWindowVisualiseSearch_CodesCreated;
+                dlgWindowVisualiseSearch.SearchClassifierScoresCompleted += VisualiseSearchClassifierScoreSearchCompleted;
             }
             Search sch = (sender as Button).DataContext as Search;
             if (sch != null)
             {
                 dlgWindowVisualiseSearch.SearchId = sch.SearchId;
+                dlgWindowVisualiseSearch.SearchNo = sch.SearchNo;
                 dlgWindowVisualiseSearch.SearchName = sch.Title;
                 dlgWindowVisualiseSearch.getSearchData(sch.SearchId);
                 dlgWindowVisualiseSearch.Show();
             }
+        }
+
+        private void VisualiseSearchClassifierScoreSearchCompleted(object sender, RoutedEventArgs e)
+        {
+            ReloadSearchList();
         }
 
         private void DlgWindowVisualiseSearch_CodesCreated(object sender, RoutedEventArgs e)
