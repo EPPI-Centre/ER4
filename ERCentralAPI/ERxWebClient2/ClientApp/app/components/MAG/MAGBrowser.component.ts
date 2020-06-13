@@ -37,7 +37,11 @@ export class MAGBrowser implements OnInit, OnDestroy {
     public SelectedPaperIds: number[] = [];
     public ShowSelectedPapers: string = '';
     public selectedPapers: MagPaper[] = [];
+    public isShowDivIf = false;
 
+    public toggleDisplayDivIf() {
+        this.isShowDivIf = !this.isShowDivIf;
+    }
     ngOnInit() {
 
         this.browsingHistory = this._routingStateService.getHistory();
@@ -57,6 +61,14 @@ export class MAGBrowser implements OnInit, OnDestroy {
             type: { style: "info", icon: true },
             closable: true
         });
+    }
+    public GetMagPaperRef(magPaperRefId: number) {
+
+        this._magAdvancedService.FetchMagPaperId(magPaperRefId).then(
+
+            //() => { this.router.navigate(['MAGBrowser']); }
+
+        );
     }
     public AdvancedFeatures() {
         this.router.navigate(['AdvancedMAGFeatures']);
@@ -188,7 +200,8 @@ export class MAGBrowser implements OnInit, OnDestroy {
     }
     public Clear() {
 
-        this.MAGPapers = [];
+        console.log('called clear on for Magpapers in component ');
+        //this.MAGPapers = [];
 
     }
     public CanDeleteMAGRun(): boolean {

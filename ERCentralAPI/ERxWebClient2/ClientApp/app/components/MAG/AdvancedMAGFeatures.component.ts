@@ -120,34 +120,6 @@ export class AdvancedMAGFeaturesComponent implements OnInit, OnDestroy {
             closable: true
         });
     }
-    public Forward() {
-        this._location.forward();
-    }
-    public Back() {
-        this._location.back();
-    }
-    public Selected() {
-        alert('not implemented');
-    }
-    public ClearSelected() {
-        alert('not implemented');
-    }
-    public ImportSelected() {
-        alert('not implemented');
-    }
-    public MatchingMAGItems() {
-        this.router.navigate(['MatchingMAGItems']);
-    }
-    public AutoUpdateHome() {
-        this.router.navigate(['BasicMAGFeatures']);
-    }
-    public ShowHistory() {
-
-        this.router.navigate(['MAGBrowserHistory']);
-    }
-    public Admin() {
-        this.router.navigate(['MAGAdmin']);
-    }
     public get HasWriteRights(): boolean {
         return this._ReviewerIdentityServ.HasWriteRights;
     }
@@ -270,12 +242,12 @@ export class AdvancedMAGFeaturesComponent implements OnInit, OnDestroy {
     }
     Clear() {
 
-        this.CurrentDropdownSelectedCode2 = {} as SetAttribute;
-        this.CurrentDropdownSelectedCode3 = {} as SetAttribute;
-        this.description = '';
-        this.ItemsWithCode = false;
-        this.magDate = '';
-        this.magMode = '';
+        //this.CurrentDropdownSelectedCode2 = {} as SetAttribute;
+        //this.CurrentDropdownSelectedCode3 = {} as SetAttribute;
+        //this.description = '';
+        //this.ItemsWithCode = false;
+        //this.magDate = '';
+        //this.magMode = '';
 
     }
     public GetMagSimulationList() {
