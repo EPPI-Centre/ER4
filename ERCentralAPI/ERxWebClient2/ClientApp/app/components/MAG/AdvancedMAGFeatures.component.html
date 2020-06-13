@@ -3,20 +3,7 @@
         style="position:absolute; right: 0; z-index:2000;" (click)="Back()">
     Close/back
 </button>
-<div class="containsAtoolbar">
-    <kendo-toolbar>
-        <kendo-toolbar-button [text]="'Selected'" (click)="Selected()" [disabled]="HasWriteRights"></kendo-toolbar-button>
-        <kendo-toolbar-button [text]="'Clear Selected'" (click)="ClearSelected()" [disabled]="HasWriteRights"></kendo-toolbar-button>
-        <kendo-toolbar-button [text]="'Import Selected'" (click)="ImportSelected()" [disabled]="HasWriteRights"></kendo-toolbar-button>
-        <kendo-toolbar-button [text]="'Auto-update home'" (click)="AutoUpdateHome()" [disabled]="!HasWriteRights"></kendo-toolbar-button>
-        <kendo-toolbar-button [text]="'Matching MAG Items'" (click)="MatchingMAGItems()" [disabled]="!HasWriteRights"></kendo-toolbar-button>
-        <kendo-toolbar-button [text]="'Show history'" (click)="ShowHistory()" [disabled]="!HasWriteRights"></kendo-toolbar-button>
-        <!--<kendo-toolbar-button [text]="'Admin'" (click)="Admin()" [disabled]="!HasWriteRights"></kendo-toolbar-button>-->
-        <kendo-toolbar-button [text]="'Back'" (click)="Back()" [disabled]="!HasWriteRights"></kendo-toolbar-button>
-        <kendo-toolbar-button [text]="'Forward'" (click)="Forward()" [disabled]="!HasWriteRights"></kendo-toolbar-button>
-    </kendo-toolbar>
-    
-</div>
+<MAGHeaderBar></MAGHeaderBar>
 <div style="min-width:450px; overflow:auto;">
     <div class="p-2 m-2 card alert-info  border-dark">
         <h5>Current Microsoft Academic Graph Dataset:<i> {{_magAdvancedService.MagCurrentInfo.lastUpdated}} </i></h5>

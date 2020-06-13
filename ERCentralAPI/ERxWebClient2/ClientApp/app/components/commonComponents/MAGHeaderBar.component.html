@@ -1,0 +1,35 @@
+<nav class="navbar navbar-fixed-top navbar-dark bg-inverse">
+
+    <div class="container col-12">
+
+        <!--<a class="navbar-brand">MAG Pages</a>-->
+
+        <ul class="nav navbar navbar-dark border border-dark alert-secondary card-body">
+
+            <li class="nav-item"><a class="btn nav-link border border-info" (click)="Selected()">Selected</a></li>
+
+            <li class="nav-item"><a class="btn nav-link border border-info" (click)="ClearSelected()">Clear Selected</a></li>
+
+            <li class="nav-item"><a class="btn nav-link border border-info" (click)="ImportSelected()">Import Selected</a></li>
+
+            <li class="nav-item"><a class="btn nav-link border border-info" (click)="AutoUpdateHome()">Auto-Update Home</a></li>
+
+            <li class="nav-item"><a class="btn nav-link border border-info" (click)="AdvancedFeatures()">Advanced Features</a></li>
+
+            <li class="nav-item"><a class="btn nav-link border border-info" (click)="ShowHistory()">Show History</a></li>
+
+            <li class="nav-item"><a class="btn nav-link border border-info" (click)="MatchingMAGItems()">Matching MAG Items</a></li>
+
+            <li class="nav-item"><a class="btn nav-link border border-info" (click)="Back()">Back</a></li>
+
+            <li class="nav-item"><a class="btn nav-link border border-info" (click)="Forward()">Forward</a></li>
+
+        </ul>
+
+    </div>
+
+</nav>
+
+
+
+<router-outlet></router-outlet>

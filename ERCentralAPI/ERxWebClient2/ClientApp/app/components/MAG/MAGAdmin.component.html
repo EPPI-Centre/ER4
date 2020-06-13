@@ -5,19 +5,7 @@
     Close/back
 </button>
 
-
-<div class="containsAtoolbar">
-    <kendo-toolbar>
-        <kendo-toolbar-button [text]="'Selected'" (click)="Selected()" [disabled]="HasWriteRights"></kendo-toolbar-button>
-        <kendo-toolbar-button [text]="'Clear Selected'" (click)="ClearSelected()" [disabled]="HasWriteRights"></kendo-toolbar-button>
-        <kendo-toolbar-button [text]="'Import Selected'" (click)="ImportSelected()" [disabled]="HasWriteRights"></kendo-toolbar-button>
-        <kendo-toolbar-button [text]="'Auto-update home'" (click)="AutoUpdateHome()" [disabled]="!HasWriteRights"></kendo-toolbar-button>
-        <kendo-toolbar-button [text]="'Advanced features'" (click)="AdvancedFeatures()" [disabled]="!HasWriteRights"></kendo-toolbar-button>
-        <!--<kendo-toolbar-button [text]="'MAGBrowser'" (click)="MAGBrowser()" [disabled]="HasWriteRights"></kendo-toolbar-button>-->
-        <kendo-toolbar-button [text]="'Back'" (click)="Back()" [disabled]="!HasWriteRights"></kendo-toolbar-button>
-        <kendo-toolbar-button [text]="'Forward'" (click)="Forward()" [disabled]="!HasWriteRights"></kendo-toolbar-button>
-    </kendo-toolbar>
-</div>
+<MAGHeaderBar></MAGHeaderBar>
 <div class="col-10 p-2 m-2 card bg-light" style="min-width:450px; overflow:auto;">
     <h4>MAG Admin </h4>
 </div>
