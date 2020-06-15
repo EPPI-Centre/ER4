@@ -120,6 +120,12 @@ export class AdvancedMAGFeaturesComponent implements OnInit, OnDestroy {
             closable: true
         });
     }
+    public Forward() {
+        this._location.forward();
+    }
+    public Back() {
+        this._location.back();
+    }
     public get HasWriteRights(): boolean {
         return this._ReviewerIdentityServ.HasWriteRights;
     }

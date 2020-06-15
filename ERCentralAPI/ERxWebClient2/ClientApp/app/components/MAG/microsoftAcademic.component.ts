@@ -66,7 +66,7 @@ export class microsoftAcademicComp implements OnInit, OnDestroy {
         }
 
     }
-    private FetchMAGMatches() {
+    public FetchMAGMatches() {
 
         let res: any = this._magAdvancedService.MagMatchItemsToPapers(this.item.itemId);
         if (res != null) {
