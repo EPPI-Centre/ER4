@@ -31,6 +31,8 @@ export class MAGBrowserService extends BusyAwareService {
     public WPParentTopics: TopicLink[] = [];
     public WPChildTopics: TopicLink[] = [];
     public ListDescription: string = '';
+    public selectedPapers: MagPaper[] = [];
+    public SelectedPaperIds: number[] = [];
     @Output() PaperChanged = new EventEmitter();
 
     public get MAGList(): MagList {
