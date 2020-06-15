@@ -60,6 +60,8 @@ namespace BusinessLibrary.BusinessClasses
         private int _RevId = 0;
         private bool CachedCriteriaValue = false ;
         private int _Cid = 0;
+        Comparator comparator;
+        private DataTable ResultsCache = null;
         private void DataPortal_Fetch(SingleCriteria<ItemDuplicateReadOnlyGroupList, bool> criteria)
         {
             IsReadOnly = false;
@@ -142,7 +144,7 @@ namespace BusinessLibrary.BusinessClasses
             
             SetShortSearchText();
             //line above might take time, so let's check again that noone else triggered this...
-            CheckOngoing(connection, true, false);
+            CheckOngoing(connection, true, true);//shouldrestart = true: don't throw an exception if it should restart, we are restarting...
 #if CSLA_NETCORE
             System.Threading.Tasks.Task.Run(() => FindNewDuplicatesNewVersion());
 #else
@@ -293,7 +295,7 @@ namespace BusinessLibrary.BusinessClasses
             //}
         }
         //ItemComparison LastMaster = new ItemComparison();
-        DataTable ResultsCache = null;
+        
         private void FlushCache()
         {
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
@@ -396,6 +398,7 @@ namespace BusinessLibrary.BusinessClasses
             if (ResultsCache == null) PerpareResultsCache();//initialises and perpares the columns...
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
+                comparator = new Comparator();
                 connection.Open();
                 try
                 {
@@ -427,12 +430,12 @@ namespace BusinessLibrary.BusinessClasses
                                     //currentSearchText = tmp;
                                 }
                                 currentSearchText = tmp;
-                                ItemComparison newItem = ReadItemComparison(reader, 0);
+                                ItemComparison newItem = new ItemComparison(reader, 0);
                                 if (!AlreadyInGroup(CurrentGroup, newItem))
                                 {
                                     CurrentGroup.Add(newItem);
                                 }
-                                newItem = ReadItemComparison(reader, 1);
+                                newItem = new ItemComparison(reader, 1);
                                 if (!AlreadyInGroup(CurrentGroup, newItem))
                                 {
                                     CurrentGroup.Add(newItem);
@@ -488,7 +491,7 @@ namespace BusinessLibrary.BusinessClasses
                 {
                     if (group[i].IS_MASTER == 0)
                     {
-                        double matchingScore = CompareItems(group[0], group[i]);
+                        double matchingScore = comparator.CompareItems(group[0], group[i]);
                         if (matchingScore > 0.7)
                         {
                             AddDuplicate(group[0], group[i], matchingScore);
@@ -518,7 +521,7 @@ namespace BusinessLibrary.BusinessClasses
                     {
                         if (ic.ITEM_ID != existingMaster.ITEM_ID && ic.IS_MASTER == 0)
                         {
-                            double matchingScore = CompareItems(existingMaster, ic);
+                            double matchingScore = comparator.CompareItems(existingMaster, ic);
                             if (matchingScore > 0.7)
                             {
                                 AddDuplicate(existingMaster, ic, matchingScore);
@@ -547,7 +550,7 @@ namespace BusinessLibrary.BusinessClasses
                     {
                         if (ic.ITEM_ID != candidateMaster.ITEM_ID && ic.IS_MASTER == 0)
                         {
-                            double matchingScore = CompareItems(candidateMaster, ic);
+                            double matchingScore = comparator.CompareItems(candidateMaster, ic);
                             if (matchingScore > 0.7)
                             {
                                 AddDuplicate(candidateMaster, ic, matchingScore);
@@ -590,307 +593,7 @@ namespace BusinessLibrary.BusinessClasses
             ResultsCache.Columns.Add(new DataColumn("IsNew", false.GetType()));
             ResultsCache.Columns.Add(new DataColumn("score", double.MaxValue.GetType()));
         }
-
-        //little tricks to ensure costly operations are done only once
-        private void ClearPrivateComparisonValues()
-        {
-            _ptitleLev = -1.1;
-            _ptitleJaro = -1.1;
-        }
-        private double _ptitleLev = -1.1;
-        private double ptitleLev(ItemComparison ic1, ItemComparison ic2)
-        {
-            if (_ptitleLev == -1.1)
-            {
-                _ptitleLev = MagPaperItemMatch.HaBoLevenshtein(ic1.PARENT_TITLE, ic2.PARENT_TITLE);
-            }
-            return _ptitleLev;
-        }
-        private double _ptitleJaro = -1.1;
-        private double ptitleJaro(ItemComparison ic1, ItemComparison ic2)
-        {
-            if (_ptitleJaro == -1.1)
-            {
-                _ptitleJaro = MagPaperItemMatch.Jaro(ic1.PARENT_TITLE, ic2.PARENT_TITLE);
-            }
-            return _ptitleJaro;
-        }
-        private Double CompareItems(ItemComparison ic1, ItemComparison ic2)
-        {
-            ClearPrivateComparisonValues();
-            double ret = 0;
-            double titleSimilarity = MagPaperItemMatch.HaBoLevenshtein(ic1.TITLE, ic2.TITLE);
-
-            //if titles don't reach threshold return without further tests
-            //if (titleSimilarity < 80)
-            //return 0;
-
-            // essentially identical in all respects
-            // not parsing authors, as this takes more time
-            if (ic1.TITLE == ic2.TITLE &&
-                ic1.ABSTRACT == ic2.ABSTRACT &&
-                ic1.PARENT_TITLE == ic2.PARENT_TITLE &&
-                ic1.PAGES == ic2.PAGES &&
-                ic1.DOI == ic2.DOI &&
-                ic1.VOLUME == ic2.VOLUME &&
-                ic1.ISSUE == ic2.ISSUE &&
-                ic1.YEAR == ic2.YEAR &&
-                (MagMakesHelpers.CleanText(ic1.AUTHORS) == MagMakesHelpers.CleanText(ic2.AUTHORS)))
-            {
-                return 1;
-            }
-
-            // Exact matches on DOI, Volume, first page and title > 90 similar
-            if (titleSimilarity > 90 &&
-                ic1.DOI != "" && ic2.DOI != "" &&
-                ic1.VOLUME != "" && ic2.VOLUME != "" &&
-                ic1.GetFirstPage() != "" && ic2.GetFirstPage() != "" &&
-                ic1.DOI == ic2.DOI &&
-                ic1.VOLUME == ic2.VOLUME &&
-                ic1.GetFirstPage() == ic2.GetFirstPage())
-            {
-                return 0.99;
-            }
-
-            // almost exact matches on title, abstract and journal
-            // all fields MUST be present with meaningful length
-            if (ic1.TITLE != "" && ic2.TITLE != "" &&
-                titleSimilarity > 90 &&
-                ic1.ABSTRACT.Length > 50 && ic2.ABSTRACT.Length > 50 &&
-                ic1.PARENT_TITLE.Length > 5 && ic2.PARENT_TITLE.Length > 5 && titleSimilarity > 90 &&
-                ptitleLev(ic1, ic2) > 90 &&
-                MagPaperItemMatch.HaBoLevenshtein(ic1.ABSTRACT, ic2.ABSTRACT) > 90 )
-            {
-                return 0.98;
-            }
-
-            // Title and journal similarity > 80 plus exact matches on 4 other fields where present
-            if (titleSimilarity > 80 &&
-
-                // similarity on journals > 80 where both fields present
-                ((ic1.PARENT_TITLE.Length > 5 && ic2.PARENT_TITLE.Length > 5 &&
-                ptitleLev(ic1, ic2) > 80) ||
-                (ic1.PARENT_TITLE.Length <= 5 || ic2.PARENT_TITLE.Length <= 5)) &&
-
-                // matches on DOI where both fields present
-                ((ic1.DOI.Length > 5 && ic2.DOI.Length > 5 &&
-                CompareDOIs(ic1.DOI, ic2.DOI) == true) ||
-                (ic1.DOI.Length <= 5 || ic2.DOI.Length <= 5)) &&
-
-                // exact match on year where both fields present
-                ((ic1.YEAR != "" && ic2.YEAR != "" && ic1.YEAR == ic2.YEAR) ||
-                (ic1.YEAR == "" || ic2.YEAR == "")) &&
-
-                // exact match on issue where both fields present
-                ((ic1.ISSUE != "" && ic2.ISSUE != "" && ic1.ISSUE == ic2.ISSUE) ||
-                (ic1.ISSUE == "" || ic2.ISSUE == "")) &&
-
-                // exact match on start page where both fields present
-                ((ic1.GetFirstPage() != "" && ic2.GetFirstPage() != "" && ic1.GetFirstPage() == ic2.GetFirstPage()) ||
-                (ic1.GetFirstPage() == "" || ic2.GetFirstPage() == "")))
-            {
-                return 0.97;
-            }
-
-            // If none of the above, just calculate the basic similarity score
-            int volumeMatch = ic1.VOLUME == ic2.VOLUME ? 1 : 0;
-            int pageMatch = ic1.GetFirstPage() == ic2.GetFirstPage() ? 1 : 0;
-            int yearMatch = ic1.YEAR == ic2.YEAR ? 1 : 0; 
-            double journalJaro = ic1.PARENT_TITLE != null ? ptitleLev(ic1, ic2) : 0;
-            //double allAuthorsJaro = MagPaperItemMatch.Jaro(reader["AUTHORS"].ToString().Replace(",", " "),
-            //readerCandidates["AUTHORS"].ToString().Replace(",", " "));
-            //double allAuthorsCompare = CompareAuthors(ic1, ic2);
-            ret = ((titleSimilarity / 100 * 1.75) +
-                (volumeMatch * 0.5) +
-                (pageMatch * 0.5) +
-                (yearMatch * 0.5) +
-                (journalJaro / 100 * 1) +
-                (CompareAuthors(ic1, ic2) * 1.25)) / 5.5;
-
-            // Final sanity checks to prevent auto-matches on questionable records
-
-            // if pages and year are present, but don't match, this needs manual check
-            if ((ic1.PAGES != "" && ic2.PAGES != "" && ic1.GetFirstPage() != ic2.GetFirstPage()) &&
-                (ic1.YEAR != "" && ic2.YEAR != "" && ic1.YEAR != ic2.YEAR))
-                ret = Math.Min(ret, 0.75);
-
-            // check for erratum
-            if ((ic1.TITLE.IndexOf("erratum") > -1 && ic2.TITLE.IndexOf("erratum") < 0) ||
-                (ic2.TITLE.IndexOf("erratum") > -1 && ic1.TITLE.IndexOf("erratum") < 0))
-                ret = Math.Min(ret, 0.75);
-
-            // if first page numbers different AND journal different then can't be an auto-match
-            if ((ic1.PARENT_TITLE != "" && ic2.PARENT_TITLE != "") &&
-                ptitleLev(ic1, ic2) < 75 &&
-                (ic1.PAGES != "" && ic2.PAGES != "") &&
-                ic1.GetFirstPage() != ic2.GetFirstPage())
-            {
-                ret = Math.Min(ret, 0.75);
-            }
-
-
-            return ret;
-        }
-
-        private bool CompareDOIs(string doi1, string doi2)
-        {
-            // compare using substrings to take account of whether or not
-            // the 'http' bit is included in one but not the other
-            if (doi1.Length > doi2.Length)
-            {
-                if (doi1.IndexOf(doi2) > 0)
-                    return true;
-            }
-            else
-            {
-                if (doi2.IndexOf(doi1) > 0)
-                    return true;
-            }
-            return false;
-        }
-
-        private double CompareAuthors(ItemComparison ic1, ItemComparison ic2)
-        {
-            double ret = 0;
-            int totalAuthors = ic1.GetAuthors().Count;
-            double lastWithLast = 0;
-            double firstWithLast = 0;
-            foreach (AutH author in ic1.GetAuthors())
-            {
-                foreach (AutH auth2 in ic2.GetAuthors())
-                {
-                    if (author.LastName.Length > 2 && MagMakesHelpers.CleanText(author.LastName) ==
-                        MagMakesHelpers.CleanText(auth2.LastName))
-                    {
-                        lastWithLast++;
-                        break;
-                    }
-                }
-            }
-            foreach (AutH author in ic1.GetAuthors())
-            {
-                foreach (AutH auth2 in ic2.GetAuthors())
-                {
-                    if (author.LastName.Length > 2 && MagMakesHelpers.CleanText(author.LastName) ==
-                        MagMakesHelpers.CleanText(auth2.FirstName))
-                    {
-                        firstWithLast++;
-                        break;
-                    }
-                }
-            }
-            ret = Math.Max(lastWithLast / totalAuthors, firstWithLast / totalAuthors);
-            return ret > 0.3 ? ret : 0;
-        }
-
-        private class ItemComparison
-        {
-            public Int64 ITEM_ID { get; set; }
-            public string AUTHORS { get; set; }
-            public string TITLE { get; set; }
-            public string PARENT_TITLE { get; set; }
-            public string YEAR { get; set; }
-            public string VOLUME { get; set; }
-            public string PAGES { get; set; }
-            public string ISSUE { get; set; }
-            public string DOI { get; set; }
-            public string ABSTRACT { get; set; }
-            public Int32 HAS_CODES { get; set; }
-            public Int32 IS_MASTER { get; set; }
-            public double MatchingScore { get; set; }
-
-            private AutorsList _AutorsList = null;
-            public AutorsList GetAuthors()
-            {
-                if (_AutorsList == null)
-                {
-                    string[] authors = AUTHORS.Split(';');
-                    AutorsList alist = new AutorsList();
-                    for (int x = 0; x < authors.Count(); x++)
-                    {
-                        if (authors[x] != " " && authors[x] != "")
-                            alist.Add(NormaliseAuth.singleAuth(authors[x], x + 1, 0));
-                    }
-                    this._AutorsList = alist;
-                }
-                return _AutorsList;
-            }
-            private string _FirstPage = null;
-            public string GetFirstPage()
-            { 
-                if (_FirstPage == null)
-                {
-                    if (PAGES == "")
-                        _FirstPage = "";
-                    int i = PAGES.IndexOf("-");
-                    if (i == -1)
-                        _FirstPage = PAGES;
-                    else
-                        _FirstPage = PAGES.Substring(0, i);
-                }
-                return _FirstPage;
-            }
-        }
-        class MatchedItems
-        {
-            public ItemComparison MasterItem;
-            public ItemComparison matchedItem;
-            public double matchingScore;
-            public MatchedItems()
-            {
-                matchingScore = 0;
-            }
-            public MatchedItems(ItemComparison master, ItemComparison match, double score)
-            {
-                MasterItem = master;
-                matchedItem = match;
-                matchingScore = score;
-            }
-        }
-
-        private ItemComparison ReadItemComparison(SafeDataReader reader, int index)
-        {
-            ItemComparison ic = new ItemComparison();
-            if (index == 0)
-            {
-                ic.ITEM_ID = reader.GetInt64("ITEM_ID");
-                ic.AUTHORS = reader.GetString("AUTHORS");
-                ic.TITLE = reader.GetString("TITLE");
-                ic.PARENT_TITLE = MagMakesHelpers.CleanText(reader.GetString("PARENT_TITLE").Replace("&", "and"));
-                ic.YEAR = reader.GetString("YEAR");
-                ic.VOLUME = reader.GetString("VOLUME");
-                ic.PAGES = reader.GetString("PAGES");
-                ic.ISSUE = reader.GetString("ISSUE");
-                ic.DOI = reader.GetString("DOI");
-                ic.ABSTRACT = reader.GetString("ABSTRACT");
-                ic.HAS_CODES = reader.GetInt32("HAS_CODES");
-                ic.IS_MASTER = reader.GetInt32("IS_MASTER");
-            }
-            else
-            {
-                ic.ITEM_ID = reader.GetInt64("ITEM_ID2");
-                ic.AUTHORS = reader.GetString("AUTHORS2");
-                ic.TITLE = reader.GetString("TITLE2");
-                ic.PARENT_TITLE = MagMakesHelpers.CleanText(reader.GetString("PARENT_TITLE2").Replace("&", "and"));
-                ic.YEAR = reader.GetString("YEAR2");
-                ic.VOLUME = reader.GetString("VOLUME2");
-                ic.PAGES = reader.GetString("PAGES2");
-                ic.ISSUE = reader.GetString("ISSUE2");
-                ic.DOI = reader.GetString("DOI2");
-                ic.ABSTRACT = reader.GetString("ABSTRACT2");
-                ic.HAS_CODES = reader.GetInt32("HAS_CODES2");
-                ic.IS_MASTER = reader.GetInt32("IS_MASTER2");
-            }
-            if (ic.TITLE.IndexOf("Erratum") == -1)
-                ic.TITLE = MagMakesHelpers.RemoveTextInParentheses(ic.TITLE);
-            ic.TITLE = MagMakesHelpers.CleanText(ic.TITLE);
-            return ic;
-        }
-
-
-
-
-
+        
 
         private void DataPortal_Fetch(GroupListSelectionCriteria criteria)
         {
@@ -920,8 +623,290 @@ namespace BusinessLibrary.BusinessClasses
             RaiseListChangedEvents = true;
         }
 
-#endif
+        internal class ItemComparison
+        {
+            public Int64 ITEM_ID { get; set; }
+            public string AUTHORS { get; set; }
+            public string TITLE { get; set; }
+            public string PARENT_TITLE { get; set; }
+            public string YEAR { get; set; }
+            public string VOLUME { get; set; }
+            public string PAGES { get; set; }
+            public string ISSUE { get; set; }
+            public string DOI { get; set; }
+            public string ABSTRACT { get; set; }
+            public Int32 HAS_CODES { get; set; }
+            public Int32 IS_MASTER { get; set; }
+            public double MatchingScore { get; set; }
+            public ItemComparison() { }
+            public ItemComparison (SafeDataReader reader, int index)
+            {
+                if (index == 0)
+                {
+                    ITEM_ID = reader.GetInt64("ITEM_ID");
+                    AUTHORS = reader.GetString("AUTHORS");
+                    TITLE = reader.GetString("TITLE");
+                    PARENT_TITLE = MagMakesHelpers.CleanText(reader.GetString("PARENT_TITLE").Replace("&", "and"));
+                    YEAR = reader.GetString("YEAR");
+                    VOLUME = reader.GetString("VOLUME");
+                    PAGES = reader.GetString("PAGES");
+                    ISSUE = reader.GetString("ISSUE");
+                    DOI = reader.GetString("DOI");
+                    ABSTRACT = reader.GetString("ABSTRACT");
+                    HAS_CODES = reader.GetInt32("HAS_CODES");
+                    IS_MASTER = reader.GetInt32("IS_MASTER");
+                }
+                else
+                {
+                    ITEM_ID = reader.GetInt64("ITEM_ID2");
+                    AUTHORS = reader.GetString("AUTHORS2");
+                    TITLE = reader.GetString("TITLE2");
+                    PARENT_TITLE = MagMakesHelpers.CleanText(reader.GetString("PARENT_TITLE2").Replace("&", "and"));
+                    YEAR = reader.GetString("YEAR2");
+                    VOLUME = reader.GetString("VOLUME2");
+                    PAGES = reader.GetString("PAGES2");
+                    ISSUE = reader.GetString("ISSUE2");
+                    DOI = reader.GetString("DOI2");
+                    ABSTRACT = reader.GetString("ABSTRACT2");
+                    HAS_CODES = reader.GetInt32("HAS_CODES2");
+                    IS_MASTER = reader.GetInt32("IS_MASTER2");
+                }
+                if (TITLE.IndexOf("Erratum") == -1)
+                    TITLE = MagMakesHelpers.RemoveTextInParentheses(TITLE);
+                TITLE = MagMakesHelpers.CleanText(TITLE);
+            }
+
+            private AutorsList _AutorsList = null;
+            public AutorsList GetAuthors()
+            {
+                if (_AutorsList == null && AUTHORS.Length > 0)
+                {
+                    string[] authors = AUTHORS.Split(';');
+                    AutorsList alist = new AutorsList();
+                    for (int x = 0; x < authors.Count(); x++)
+                    {
+                        if (authors[x] != " " && authors[x] != "")
+                            alist.Add(NormaliseAuth.singleAuth(authors[x], x + 1, 0));
+                    }
+                    this._AutorsList = alist;
+                }
+                return _AutorsList;
+            }
+            private string _FirstPage = null;
+            public string GetFirstPage()
+            { 
+                if (_FirstPage == null)
+                {
+                    if (PAGES == "")
+                        _FirstPage = "";
+                    int i = PAGES.IndexOf("-");
+                    if (i == -1)
+                        _FirstPage = PAGES;
+                    else
+                        _FirstPage = PAGES.Substring(0, i);
+                }
+                return _FirstPage;
+            }
         }
+        internal class Comparator
+        {
+            //little tricks to ensure costly operations are done only once
+            private void ClearPrivateComparisonValues()
+            {
+                _ptitleLev = -1.1;
+                _ptitleJaro = -1.1;
+            }
+            private double _ptitleLev = -1.1;
+            private double ptitleLev(ItemComparison ic1, ItemComparison ic2)
+            {
+                if (_ptitleLev == -1.1)
+                {
+                    _ptitleLev = MagPaperItemMatch.HaBoLevenshtein(ic1.PARENT_TITLE, ic2.PARENT_TITLE);
+                }
+                return _ptitleLev;
+            }
+            private double _ptitleJaro = -1.1;
+            private double ptitleJaro(ItemComparison ic1, ItemComparison ic2)
+            {
+                if (_ptitleJaro == -1.1)
+                {
+                    _ptitleJaro = MagPaperItemMatch.Jaro(ic1.PARENT_TITLE, ic2.PARENT_TITLE);
+                }
+                return _ptitleJaro;
+            }
+            
+            public Double CompareItems(ItemComparison ic1, ItemComparison ic2)
+            {
+                ClearPrivateComparisonValues();
+                double ret = 0;
+                double titleSimilarity = MagPaperItemMatch.HaBoLevenshtein(ic1.TITLE, ic2.TITLE);
+
+                //if titles don't reach threshold return without further tests
+                //if (titleSimilarity < 80)
+                //return 0;
+
+                // essentially identical in all respects
+                // not parsing authors, as this takes more time
+                if (ic1.TITLE == ic2.TITLE &&
+                    ic1.ABSTRACT == ic2.ABSTRACT &&
+                    ic1.PARENT_TITLE == ic2.PARENT_TITLE &&
+                    ic1.PAGES == ic2.PAGES &&
+                    ic1.DOI == ic2.DOI &&
+                    ic1.VOLUME == ic2.VOLUME &&
+                    ic1.ISSUE == ic2.ISSUE &&
+                    ic1.YEAR == ic2.YEAR &&
+                    (MagMakesHelpers.CleanText(ic1.AUTHORS) == MagMakesHelpers.CleanText(ic2.AUTHORS)))
+                {
+                    return 1;
+                }
+
+                // Exact matches on DOI, Volume, first page and title > 90 similar
+                if (titleSimilarity > 90 &&
+                    ic1.DOI != "" && ic2.DOI != "" &&
+                    ic1.VOLUME != "" && ic2.VOLUME != "" &&
+                    ic1.GetFirstPage() != "" && ic2.GetFirstPage() != "" &&
+                    ic1.DOI == ic2.DOI &&
+                    ic1.VOLUME == ic2.VOLUME &&
+                    ic1.GetFirstPage() == ic2.GetFirstPage())
+                {
+                    return 0.99;
+                }
+
+                // almost exact matches on title, abstract and journal
+                // all fields MUST be present with meaningful length
+                if (ic1.TITLE != "" && ic2.TITLE != "" &&
+                    titleSimilarity > 90 &&
+                    ic1.ABSTRACT.Length > 50 && ic2.ABSTRACT.Length > 50 &&
+                    ic1.PARENT_TITLE.Length > 5 && ic2.PARENT_TITLE.Length > 5 && titleSimilarity > 90 &&
+                    ptitleLev(ic1, ic2) > 90 &&
+                    MagPaperItemMatch.HaBoLevenshtein(ic1.ABSTRACT, ic2.ABSTRACT) > 90)
+                {
+                    return 0.98;
+                }
+
+                // Title and journal similarity > 80 plus exact matches on 4 other fields where present
+                if (titleSimilarity > 80 &&
+
+                    // similarity on journals > 80 where both fields present
+                    ((ic1.PARENT_TITLE.Length > 5 && ic2.PARENT_TITLE.Length > 5 &&
+                    ptitleLev(ic1, ic2) > 80) ||
+                    (ic1.PARENT_TITLE.Length <= 5 || ic2.PARENT_TITLE.Length <= 5)) &&
+
+                    // matches on DOI where both fields present
+                    ((ic1.DOI.Length > 5 && ic2.DOI.Length > 5 &&
+                    CompareDOIs(ic1.DOI, ic2.DOI) == true) ||
+                    (ic1.DOI.Length <= 5 || ic2.DOI.Length <= 5)) &&
+
+                    // exact match on year where both fields present
+                    ((ic1.YEAR != "" && ic2.YEAR != "" && ic1.YEAR == ic2.YEAR) ||
+                    (ic1.YEAR == "" || ic2.YEAR == "")) &&
+
+                    // exact match on issue where both fields present
+                    ((ic1.ISSUE != "" && ic2.ISSUE != "" && ic1.ISSUE == ic2.ISSUE) ||
+                    (ic1.ISSUE == "" || ic2.ISSUE == "")) &&
+
+                    // exact match on start page where both fields present
+                    ((ic1.GetFirstPage() != "" && ic2.GetFirstPage() != "" && ic1.GetFirstPage() == ic2.GetFirstPage()) ||
+                    (ic1.GetFirstPage() == "" || ic2.GetFirstPage() == "")))
+                {
+                    return 0.97;
+                }
+
+                // If none of the above, just calculate the basic similarity score
+                int volumeMatch = ic1.VOLUME == ic2.VOLUME ? 1 : 0;
+                int pageMatch = ic1.GetFirstPage() == ic2.GetFirstPage() ? 1 : 0;
+                int yearMatch = ic1.YEAR == ic2.YEAR ? 1 : 0;
+                double journalJaro = ic1.PARENT_TITLE != null ? ptitleLev(ic1, ic2) : 0;
+                //double allAuthorsJaro = MagPaperItemMatch.Jaro(reader["AUTHORS"].ToString().Replace(",", " "),
+                //readerCandidates["AUTHORS"].ToString().Replace(",", " "));
+                //double allAuthorsCompare = CompareAuthors(ic1, ic2);
+                ret = ((titleSimilarity / 100 * 1.75) +
+                    (volumeMatch * 0.5) +
+                    (pageMatch * 0.5) +
+                    (yearMatch * 0.5) +
+                    (journalJaro / 100 * 1) +
+                    (CompareAuthors(ic1, ic2) * 1.25)) / 5.5;
+
+                // Final sanity checks to prevent auto-matches on questionable records
+
+                // if pages and year are present, but don't match, this needs manual check
+                if ((ic1.PAGES != "" && ic2.PAGES != "" && ic1.GetFirstPage() != ic2.GetFirstPage()) &&
+                    (ic1.YEAR != "" && ic2.YEAR != "" && ic1.YEAR != ic2.YEAR))
+                    ret = Math.Min(ret, 0.75);
+
+                // check for erratum
+                if ((ic1.TITLE.IndexOf("erratum") > -1 && ic2.TITLE.IndexOf("erratum") < 0) ||
+                    (ic2.TITLE.IndexOf("erratum") > -1 && ic1.TITLE.IndexOf("erratum") < 0))
+                    ret = Math.Min(ret, 0.75);
+
+                // if first page numbers different AND journal different then can't be an auto-match
+                if ((ic1.PARENT_TITLE != "" && ic2.PARENT_TITLE != "") &&
+                    ptitleLev(ic1, ic2) < 75 &&
+                    (ic1.PAGES != "" && ic2.PAGES != "") &&
+                    ic1.GetFirstPage() != ic2.GetFirstPage())
+                {
+                    ret = Math.Min(ret, 0.75);
+                }
+
+
+                return ret;
+            }
+
+            private bool CompareDOIs(string doi1, string doi2)
+            {
+                // compare using substrings to take account of whether or not
+                // the 'http' bit is included in one but not the other
+                if (doi1.Length > doi2.Length)
+                {
+                    if (doi1.IndexOf(doi2) > 0)
+                        return true;
+                }
+                else
+                {
+                    if (doi2.IndexOf(doi1) > 0)
+                        return true;
+                }
+                return false;
+            }
+            private double CompareAuthors(ItemComparison ic1, ItemComparison ic2)
+            {
+                double ret = 0;
+                int totalAuthors = ic1.GetAuthors().Count;
+                double lastWithLast = 0;
+                double firstWithLast = 0;
+                foreach (AutH author in ic1.GetAuthors())
+                {
+                    foreach (AutH auth2 in ic2.GetAuthors())
+                    {
+                        if (author.LastName.Length > 2 && MagMakesHelpers.CleanText(author.LastName) ==
+                            MagMakesHelpers.CleanText(auth2.LastName))
+                        {
+                            lastWithLast++;
+                            break;
+                        }
+                    }
+                }
+                foreach (AutH author in ic1.GetAuthors())
+                {
+                    foreach (AutH auth2 in ic2.GetAuthors())
+                    {
+                        if (author.LastName.Length > 2 && MagMakesHelpers.CleanText(author.LastName) ==
+                            MagMakesHelpers.CleanText(auth2.FirstName))
+                        {
+                            firstWithLast++;
+                            break;
+                        }
+                    }
+                }
+                ret = Math.Max(lastWithLast / totalAuthors, firstWithLast / totalAuthors);
+                return ret > 0.3 ? ret : 0;
+            }
+        }
+#endif
+    }
+
+
+
     [Serializable]
     public class GroupListSelectionCriteria : Csla.CriteriaBase<GroupListSelectionCriteria>
     {
@@ -946,10 +931,8 @@ namespace BusinessLibrary.BusinessClasses
         public GroupListSelectionCriteria(Type type, string ItemIds)
         //: base(type)
         {
-
             LoadProperty(ItemIdsProperty, ItemIds);
             LoadProperty(GroupIdProperty, 0);
-
         }
 #if !SILVERLIGHT 
         public GroupListSelectionCriteria() { }

@@ -315,6 +315,7 @@ namespace BusinessLibrary.BusinessClasses
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
                 connection.Open();
+#if OLDDEDUP
                 using (SqlCommand command = new SqlCommand("st_ItemDuplicateGroupMemberUpdate", connection))
                 {//@memberID //@is_checked //@is_duplicate //@is_master
                     command.CommandType = System.Data.CommandType.StoredProcedure;
@@ -335,6 +336,31 @@ namespace BusinessLibrary.BusinessClasses
                     command.ExecuteNonQuery();
                 }
                 connection.Close();
+#else
+                using (SqlCommand command = new SqlCommand("st_ItemDuplicateGroupMemberUpdateWithScore", connection))
+                {//@memberID //@is_checked //@is_duplicate //@is_master
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add("@groupID", System.Data.SqlDbType.Int);
+                    command.Parameters["@groupID"].Value = GroupID;
+
+                    command.Parameters.Add("@memberID", System.Data.SqlDbType.Int);
+                    command.Parameters["@memberID"].Value = ItemDuplicateId;
+
+                    command.Parameters.Add("@is_checked", System.Data.SqlDbType.Bit);
+                    command.Parameters["@is_checked"].Value = IsChecked;
+
+                    command.Parameters.Add("@is_duplicate", System.Data.SqlDbType.Bit);
+                    command.Parameters["@is_duplicate"].Value = IsDuplicate;
+
+                    command.Parameters.Add("@is_master", System.Data.SqlDbType.Bit);
+                    command.Parameters["@is_master"].Value = IsMaster;
+
+                    command.Parameters.Add("@score", System.Data.SqlDbType.Float);
+                    command.Parameters["@score"].Value = SimilarityScore;
+                    command.ExecuteNonQuery();
+                }
+                connection.Close();
+#endif
             }
         }
 
@@ -378,6 +404,6 @@ namespace BusinessLibrary.BusinessClasses
 #endif
 
 
-    }
+                }
 }
 
