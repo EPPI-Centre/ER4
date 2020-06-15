@@ -6,16 +6,13 @@ import { codesetSelectorComponent } from '../CodesetTrees/codesetSelector.compon
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Router, NavigationEnd } from '@angular/router';
-import { ClassifierContactModel, MVCMagPaperListSelectionCriteria, MagSimulation, MagFieldOfStudy, MvcMagFieldOfStudyListSelectionCriteria, MagPaper, TopicLink } from '../services/MAGClasses.service';
+import { MVCMagPaperListSelectionCriteria, MagFieldOfStudy, MagPaper, TopicLink } from '../services/MAGClasses.service';
 import { EventEmitterService } from '../services/EventEmitter.service';
 import { MAGBrowserService } from '../services/MAGBrowser.service';
 import { MAGAdvancedService } from '../services/magAdvanced.service';
 import { MVCMagFieldOfStudyListSelectionCriteria } from '../services/MAGClasses.service';
 import { MAGBrowserHistoryService } from '../services/MAGBrowserHistory.service';
-import { Observable, interval, Subscription } from 'rxjs';
-import { take } from 'rxjs/operators'
 import { BasicMAGService } from '../services/BasicMAG.service';
-import { notImplemented } from '@angular/core/src/render3/util';
 import { NotificationService } from '@progress/kendo-angular-notification';
 
 @Component({
@@ -54,12 +51,6 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
             this.router.navigate(['Main']);
         }
         else {
-
-            //const numbers = interval(1000);
-            //this.takeOneNumber = numbers.pipe(take(1000000));
-            //this.subsc = this.takeOneNumber.subscribe(x =>
-            //    { console.log(' ' + x) }
-            //);
             this.GetMagReviewMagInfoCommand();
         }
     }
@@ -70,7 +61,6 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
     }
     @ViewChild('WithOrWithoutCodeSelector2') WithOrWithoutCodeSelector2!: codesetSelectorComponent;
 
-    //private subsc: Subscription = new Subscription();
     public CurrentDropdownSelectedCode2: singleNode | null = null;
     public dropdownBasic2: boolean = false;
     public isCollapsed2: boolean = false;
@@ -83,30 +73,8 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
         this.router.navigate(['AdvancedMAGFeatures']);
 
     }
-    public Forward() {
-        this._location.forward();
-    }
     public Back() {
         this._location.back();
-    }
-    public Selected() {
-        alert('not implemented');
-    }
-    public ClearSelected() {
-        alert('not implemented');
-    }
-    public ImportSelected() {
-        alert('not implemented');
-    }
-    public AutoUpdateHome() {
-        this.router.navigate(['BasicMAGFeatures']);
-    }
-    public ShowHistory() {
-
-        this.router.navigate(['MAGBrowserHistory']);
-    }
-    public Admin() {
-        this.router.navigate(['MAGAdmin']);
     }
     public ClearAllMatching() {
 
@@ -378,7 +346,6 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
         }
         this.isCollapsed2 = false;
     }
-  
   
 }
 

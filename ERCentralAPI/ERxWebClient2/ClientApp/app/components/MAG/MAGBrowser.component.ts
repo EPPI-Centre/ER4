@@ -39,9 +39,7 @@ export class MAGBrowser implements OnInit, OnDestroy {
     public selectedPapers: MagPaper[] = [];
     public isShowDivIf = false;
 
-    public toggleDisplayDivIf() {
-        this.isShowDivIf = !this.isShowDivIf;
-    }
+
     ngOnInit() {
 
         this.browsingHistory = this._routingStateService.getHistory();
@@ -51,6 +49,9 @@ export class MAGBrowser implements OnInit, OnDestroy {
 
         this._magBrowserService.Clear();
         this.Clear();
+    }
+    public toggleDisplayDivIf() {
+        this.isShowDivIf = !this.isShowDivIf;
     }
     showMAGRunMessage(notifyMsg: string) {
 
@@ -69,25 +70,6 @@ export class MAGBrowser implements OnInit, OnDestroy {
             //() => { this.router.navigate(['MAGBrowser']); }
 
         );
-    }
-    public AdvancedFeatures() {
-        this.router.navigate(['AdvancedMAGFeatures']);
-    }
-    public ImportSelected() {
-
-        alert('not implemented yet!');
-    }
-    public ShowMAGBrowserHistory() {
-        this.router.navigate(['MAGBrowserHistory']);
-    }
-    public ShowAdminPage() {
-        this.router.navigate(['MAGAdmin']);
-    }
-    public ShowAutoUpdateHome() {
-        this.router.navigate(['BasicMAGFeatures']);
-    }
-    public Forward() {
-        this._location.forward();
     }
     public Back() {
         this._location.back();

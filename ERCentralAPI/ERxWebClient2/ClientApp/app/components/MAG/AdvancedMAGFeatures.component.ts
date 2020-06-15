@@ -6,9 +6,8 @@ import { codesetSelectorComponent } from '../CodesetTrees/codesetSelector.compon
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Router, NavigationEnd } from '@angular/router';
-import { ClassifierContactModel,  MagSimulation, MagFieldOfStudy, TopicLink } from '../services/MAGClasses.service';
+import { ClassifierContactModel,  MagSimulation, TopicLink } from '../services/MAGClasses.service';
 import { EventEmitterService } from '../services/EventEmitter.service';
-import { MAGBrowserService } from '../services/MAGBrowser.service';
 import { MAGAdvancedService } from '../services/magAdvanced.service';
 import { MAGBrowserHistoryService } from '../services/MAGBrowserHistory.service';
 import { interval, Subscription } from 'rxjs';
@@ -26,7 +25,6 @@ export class AdvancedMAGFeaturesComponent implements OnInit, OnDestroy {
     history: NavigationEnd[] = [];
     constructor(private ConfirmationDialogService: ConfirmationDialogService,
         public _magAdvancedService: MAGAdvancedService,
-        private _magBrowserService: MAGBrowserService,
         public _searchService: searchService,
         private _ReviewerIdentityServ: ReviewerIdentityService,
         private _eventEmitter: EventEmitterService,
@@ -77,16 +75,6 @@ export class AdvancedMAGFeaturesComponent implements OnInit, OnDestroy {
         'Recommendations',
         'Bi-Citation and Recommendations',
         'Extended Network'];
-    //public NetworkStat: string = 'None';
-    //public NetworkStats: string[] = [
-    //    'degree',
-    //    'closeness',
-    //    'eigenscore',
-    //    'pagerank',
-    //    'hubscore',
-    //    'authscore',
-    //    'alpha'
-    //];
     public StudyTypeClassifier: string = 'None';
     public StudyTypeClassifiers: string[] = [
         'None',
@@ -119,9 +107,6 @@ export class AdvancedMAGFeaturesComponent implements OnInit, OnDestroy {
             type: { style: "info", icon: true },
             closable: true
         });
-    }
-    public Forward() {
-        this._location.forward();
     }
     public Back() {
         this._location.back();
@@ -219,7 +204,6 @@ export class AdvancedMAGFeaturesComponent implements OnInit, OnDestroy {
     public GetClassifierContactModelList(): void {
         this._magAdvancedService.FetchClassifierContactModelList();
     }
-
     public OpenResultsInReview(listType: string, magSimId: number) {
 
         if (listType != null) {
