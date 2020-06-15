@@ -34,7 +34,13 @@ export class MAGBrowserService extends BusyAwareService {
     public selectedPapers: MagPaper[] = [];
     public SelectedPaperIds: number[] = [];
     @Output() PaperChanged = new EventEmitter();
-
+    public ClearSelected() {
+        for (var i = 0; i < this.MAGList.papers.length; i++) {
+            this.MAGList.papers[i].isSelected = false;
+        }
+        this.SelectedPaperIds = [];
+        this.selectedPapers = [];
+    }
     public get MAGList(): MagList {
         return this._MAGList;
     }
