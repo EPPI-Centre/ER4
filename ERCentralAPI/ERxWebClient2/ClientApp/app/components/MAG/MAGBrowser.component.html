@@ -130,7 +130,7 @@
                                         <tr></tr>
                                     </thead>
                                     <tbody>
-                                        <tr *ngFor="let item of selectedPapers">
+                                        <tr *ngFor="let item of _magBrowserService.selectedPapers">
                                             <td>{{item.fullRecord}}</td>
                                             <td>
                                                 <button (click)="InOutReview(item)" class="btn btn-outline-success">

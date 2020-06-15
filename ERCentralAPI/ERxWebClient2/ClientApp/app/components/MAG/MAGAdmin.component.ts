@@ -56,27 +56,9 @@ export class MAGAdminComp implements OnInit {
 
         return false;
     }
-    public Selected() {
-
-    }
-    public ClearSelected() {
-
-    }
-    public ImportSelected() {
-
-    }
+   
     Back() {
         this._location.back();
-    }
-    Forward() {
-        this._location.forward();
-    }
-    public AdvancedFeatures() {
-
-        this.router.navigate(['AdvancedMAGFeatures']);
-    }
-    public AutoUpdateHome() {
-        this.router.navigate(['BasicMAGFeatures']);
     }
 
 }

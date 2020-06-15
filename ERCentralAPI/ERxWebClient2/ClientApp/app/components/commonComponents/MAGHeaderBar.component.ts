@@ -1,6 +1,7 @@
 import { Component,  OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { Location } from '@angular/common';
+import { MAGBrowserService } from '../services/MAGBrowser.service';
 
 
 @Component({
@@ -13,13 +14,22 @@ export class MAGHeaderBarComp implements OnInit {
 
     constructor(private router: Router,
         private _location: Location,
+        private _magBrowserService: MAGBrowserService
     ) {
 
 	}
     ngOnInit() {
 	
     }
+    public SelectedItems() : boolean {
 
+        if (this._magBrowserService.selectedPapers != null && 
+            this._magBrowserService.selectedPapers.length >0 ) {
+            return false;
+        } else {
+            return true;
+        }
+    }
     public Forward() {
         this._location.forward();
     }
@@ -33,7 +43,7 @@ export class MAGHeaderBarComp implements OnInit {
         alert('not implemented');
     }
     public ClearSelected() {
-        alert('not implemented');
+        this._magBrowserService.ClearSelected();
     }
     public ImportSelected() {
         alert('not implemented');

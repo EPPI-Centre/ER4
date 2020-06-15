@@ -109,7 +109,7 @@ namespace ERxWebClient2.Controllers
                     if (ToSave)
                     {
                         IDG = IDG.Save();
-                        return Ok();
+                        return Ok(IDG);
                     }
                     else
                     {
@@ -162,7 +162,7 @@ namespace ERxWebClient2.Controllers
                     IDG.Members = null;
                     IDG.Members = list;
                     IDG = IDG.Save();
-                    return Ok();
+                    return Ok(IDG);
                 }
                 else
                 {

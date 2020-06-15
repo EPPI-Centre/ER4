@@ -9,7 +9,6 @@ import { Router } from '@angular/router';
 import { NotificationService } from '@progress/kendo-angular-notification';
 import { MAGBrowserService } from '../services/MAGBrowser.service';
 import { MagRelatedPapersRun } from '../services/MAGClasses.service';
-import { MAGBrowserHistoryService } from '../services/MAGBrowserHistory.service';
 import { Location } from '@angular/common';
 
 @Component({
@@ -26,7 +25,6 @@ export class BasicMAGComp implements OnInit {
         public _searchService: searchService,
         private _ReviewerIdentityServ: ReviewerIdentityService,
         private _notificationService: NotificationService,
-        private _routingStateService: MAGBrowserHistoryService,
         private _location: Location,
         private router: Router
 
@@ -45,32 +43,8 @@ export class BasicMAGComp implements OnInit {
     public magDateRadio: string = 'true';
     public magRCTRadio: string = 'NoFilter';
     public magMode: string = '';
+        
 
-    public Selected() {
-
-    }
-    public Forward() {
-        this._location.forward();
-    }
-    public ClearSelected() {
-
-    }
-    public ImportSelected() {
-
-    }
-    public ShowHistory() {
-
-        this.router.navigate(['MAGBrowserHistory']);
-    }
-    public Admin() {
-        this.router.navigate(['MAGAdmin']);
-    }
-    public MatchingMAGItems() {
-        this.router.navigate(['MatchingMAGItems']);
-    }
-    public Back() {
-        this.router.navigate(['Main']);
-    }
 	ngOnInit() {
 
 
@@ -88,7 +62,9 @@ export class BasicMAGComp implements OnInit {
         }
 
     }
-
+    public Back() {
+        this.router.navigate(['Main']);
+    }
     Clear() {
 
         //this.CurrentDropdownSelectedCode = {} as SetAttribute;

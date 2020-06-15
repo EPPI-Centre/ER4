@@ -6,12 +6,6 @@
 
         <ul class="nav navbar navbar-dark border border-dark alert-secondary card-body">
 
-            <li class="nav-item"><a class="btn nav-link border border-info" (click)="Selected()">Selected</a></li>
-
-            <li class="nav-item"><a class="btn nav-link border border-info" (click)="ClearSelected()">Clear Selected</a></li>
-
-            <li class="nav-item"><a class="btn nav-link border border-info" (click)="ImportSelected()">Import Selected</a></li>
-
             <li class="nav-item"><a class="btn nav-link border border-info" (click)="AutoUpdateHome()">Auto-Update Home</a></li>
 
             <li class="nav-item"><a class="btn nav-link border border-info" (click)="AdvancedFeatures()">Advanced Features</a></li>
@@ -23,6 +17,12 @@
             <li class="nav-item"><a class="btn nav-link border border-info" (click)="Back()">Back</a></li>
 
             <li class="nav-item"><a class="btn nav-link border border-info" (click)="Forward()">Forward</a></li>
+
+            <li class="nav-item"><a [hidden]="SelectedItems()" class="btn nav-link border border-info" (click)="Selected()">Selected</a></li>
+
+            <li class="nav-item"><a [hidden]="SelectedItems()" class="btn nav-link border border-info" (click)="ClearSelected()">Clear Selected</a></li>
+
+            <li class="nav-item"><a [hidden]="SelectedItems()" class="btn nav-link border border-info" (click)="ImportSelected()">Import Selected</a></li>
 
         </ul>
 

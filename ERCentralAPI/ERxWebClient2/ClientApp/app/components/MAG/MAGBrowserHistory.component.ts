@@ -25,16 +25,15 @@ export class MAGBrowserHistory implements OnInit {
     }
 
     public MAGBrowsingHistory: NavigationEnd[] = [];
-    public get HasWriteRights(): boolean {
-        return this._ReviewerIdentityServ.HasWriteRights;
-    }
 
     ngOnInit() {
 
         this.MAGBrowsingHistory = this._MAGBrowserHistoryService.getHistory();
 
     }
-
+    public get HasWriteRights(): boolean {
+        return this._ReviewerIdentityServ.HasWriteRights;
+    }
     GoToUrl(url: string) {
 
         console.log(url);
@@ -55,30 +54,7 @@ export class MAGBrowserHistory implements OnInit {
 
         return false;
     }
-    public Selected() {
-
-    }
-    public ClearSelected() {
-
-    }
-    public ImportSelected() {
-
-    }
     Back() {
         this._location.back();
     }
-    Forward() {
-        this._location.forward();
-    }
-    public AdvancedFeatures() {
-
-        this.router.navigate(['AdvancedMAGFeatures']);
-    }
-    public AutoUpdateHome() {
-        this.router.navigate(['BasicMAGFeatures']);
-    }
-    public Admin() {
-        this.router.navigate(['MAGAdmin']);
-    }
-
 }
