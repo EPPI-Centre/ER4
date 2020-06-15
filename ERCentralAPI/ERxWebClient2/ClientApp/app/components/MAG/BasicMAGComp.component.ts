@@ -67,10 +67,10 @@ export class BasicMAGComp implements OnInit {
     }
     Clear() {
 
-        //this.CurrentDropdownSelectedCode = {} as SetAttribute;
-        //this.description = '';
-        //this.magDateRadio = 'true';
-        //this.magMode = '';
+        this.CurrentDropdownSelectedCode = {} as SetAttribute;
+        this.description = '';
+        this.magDateRadio = 'true';
+        this.magMode = '';
 
     }
 	CloseCodeDropDown() {

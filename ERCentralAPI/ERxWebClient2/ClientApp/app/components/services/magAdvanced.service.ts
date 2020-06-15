@@ -59,6 +59,27 @@ export class MAGAdvancedService extends BusyAwareService {
     public set ClassifierContactModelList(classifierContactModelList: ClassifierContactModel[]) {
         this._ClassifierContactModelList = classifierContactModelList;
     }
+    public UpdateMagPaper(matchCorrect: boolean, paperId: number) {
+
+        this._BusyMethods.push("UpdateMagPaper");
+        let body = JSON.stringify({ manualTrueMatchProperty: matchCorrect, magPaperId:  paperId});
+        this._httpC.post<any>(this._baseUrl + 'api/MagCurrentInfo/UpdateMagPaper', body)
+            .subscribe(result => {
+                this.RemoveBusy("UpdateMagPaper");
+                return result;
+            },
+                error => {
+                    this.RemoveBusy("UpdateMagPaper");
+                    this.modalService.GenericError(error);
+                    return error;
+                },
+                () => {
+                    this.RemoveBusy("UpdateMagPaper");
+                    return;
+                });
+        return "error";
+
+    }
     public CheckContReviewPipelineState(): boolean {
 
         this._BusyMethods.push("CheckContReviewPipelineState");

@@ -40,7 +40,7 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
 
         this.history = this._routingStateService.getHistory();
     }
-
+    public SearchTextTopic: string = '';
     ngOnInit() {
 
         if (this._ReviewerIdentityServ.reviewerIdentity.userId == 0 ||
@@ -123,23 +123,23 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
         return this._ReviewerIdentityServ.HasWriteRights;
     }
     public get IsServiceBusy(): boolean {
-        return this._magAdvancedService.IsBusy;
+
+        return this._magBrowserService.IsBusy || this._magAdvancedService.IsBusy;
     }
     GetMagReviewMagInfoCommand() {
 
         this._magAdvancedService.FetchMagReviewMagInfo();
     }
-    public UpdateTopicResults(event: any) {
+    public UpdateTopicResults() {
 
-        let enteredSearchString: string = event.target.value;
-
-        if (enteredSearchString.length > 2 ) {
+        
+        if (this.SearchTextTopic.length > 2 ) {
 
             let criteriaFOSL: MVCMagFieldOfStudyListSelectionCriteria = new MVCMagFieldOfStudyListSelectionCriteria();
             criteriaFOSL.fieldOfStudyId = 0;
             criteriaFOSL.listType = 'FieldOfStudySearchList';
             criteriaFOSL.paperIdList = '';
-            criteriaFOSL.SearchTextTopics = event.target.value; 
+            criteriaFOSL.SearchTextTopics = this.SearchTextTopic;
             this._magBrowserService.FetchMagFieldOfStudyList(criteriaFOSL, '').then(
 
                 (results: MagFieldOfStudy[]) => {
@@ -159,10 +159,9 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
                         this.SearchTextTopicsResults[cnt] = item;
                         cnt += 1;
                         if (i > 0.1) {
-                            i -= 0.05;
+                            i -= 0.01;
                         }
                     }
-                    console.log(this.SearchTextTopicsResults);
                     return;
                 }
             );

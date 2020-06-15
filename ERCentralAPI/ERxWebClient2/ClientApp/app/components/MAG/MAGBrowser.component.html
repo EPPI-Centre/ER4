@@ -20,10 +20,15 @@
             View on the internet
         </a>
     </div>
-    <button class="btn btn-link" (click)=toggleDisplayDivIf()>Show Abstract</button>
+    <button class="btn btn-link" (click)=toggleDisplayDivIf()>{{isShowDivIf == true ? 'Hide Abstract' : 'Show Abstract'}}</button>
     <div *ngIf="isShowDivIf">
         <b>Abstract:</b> <p>{{_magAdvancedService.currentMagPaper.abstract}}</p>
-        <b>Pdf Links:</b> <p>{{_magAdvancedService.currentMagPaper.pdfLinks}}</p>
+        <b>Pdf Links:</b> 
+        <div *ngFor="let item of GetPDFLinks()">
+            <a href="{{item}}" target="_blank">
+                {{item}}
+            </a>
+        </div>
     </div>
 </div>
     <div class="row border border-dark alert-primary p-2 m-2">
@@ -33,8 +38,9 @@
     <div class="row alert-info border border-dark p-2 m-2 " style="min-width:450px;max-height:950px; overflow:auto;">
 
         <div [title]="'TOPICS'" class="col-6" style="min-height:500px;min-width:450px; overflow:auto;">
+            <b>Current parent topic:</b> {{_magBrowserService.ParentTopic}}
             <h5>Parent Topics</h5>
-            {{_magBrowserService.ParentTopic}}
+
             <div class="card col-12 small table table-border  table-striped alert-primary">
 
                 <div *ngFor="let item of _magBrowserService.WPParentTopics">
@@ -78,7 +84,7 @@
                                 <tbody>
                                     <tr style="cursor: pointer;" *ngFor="let item of _magBrowserService.MAGList.papers">
                                         <td (click)="GetMagPaperRef(item.paperId)">
-                                            {{item.fullRecord}}
+                                            {{item.shortRecord}}
                                         </td>
                                         <td>
                                             <button (click)="InOutReview(item)" class="btn btn-outline-success">
@@ -97,7 +103,7 @@
 
                 </ng-template>
             </kendo-tabstrip-tab>
-            <kendo-tabstrip-tab [title]="'Citated By'" [disabled]="HideCitatedBy()">
+            <kendo-tabstrip-tab [title]="'Cited By'" [disabled]="HideCitatedBy()">
                 <ng-template kendoTabContent>
                     <div [title]="'Citated By'" style="min-height:500px;min-width:450px; overflow:auto;">
                         <div>
@@ -130,8 +136,8 @@
                                         <tr></tr>
                                     </thead>
                                     <tbody>
-                                        <tr *ngFor="let item of _magBrowserService.selectedPapers">
-                                            <td>{{item.fullRecord}}</td>
+                                        <tr style="cursor: pointer;" *ngFor="let item of _magBrowserService.selectedPapers">
+                                            <td (click)="GetMagPaperRef(item.paperId)">{{item.fullRecord}}</td>
                                             <td>
                                                 <button (click)="InOutReview(item)" class="btn btn-outline-success">
                                                     {{item.isSelected == true ? 'UnSelect' : 'Select'}}

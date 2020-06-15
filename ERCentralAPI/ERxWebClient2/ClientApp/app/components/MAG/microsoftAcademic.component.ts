@@ -102,7 +102,12 @@ export class microsoftAcademicComp implements OnInit, OnDestroy {
 	ngOnDestroy() {
 
         this.sub.unsubscribe();
-	}
+    }
+    public UpdateMagPaper(matchCorrect: boolean, paperId: number) {
+
+        //this._magAdvancedService.UpdateMagPaper(matchCorrect, paperId);
+
+    }
 }
 
 
