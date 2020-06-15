@@ -498,7 +498,7 @@ namespace BusinessLibrary.BusinessClasses
             AttributeSet retVal = null;
             foreach (AttributeSet atset in Attributes)
             {
-                if (atset.AttributeName == val)
+                if (atset.AttributeName.Trim().ToLower() == val.Trim().ToLower())
                 {
                     return atset;
                 }
@@ -506,7 +506,7 @@ namespace BusinessLibrary.BusinessClasses
                 {
                     if (atset.Attributes.Count > 0)
                     {
-                        retVal = atset.GetSetByName(val);
+                        retVal = atset.GetSetByName(val.Trim().ToLower());
                         if (retVal != null)
                         {
                             return retVal;
