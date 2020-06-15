@@ -43,7 +43,7 @@ export class MAGHeaderBarComp implements OnInit {
         alert('not implemented');
     }
     public ClearSelected() {
-        alert('not implemented');
+        this._magBrowserService.ClearSelected();
     }
     public ImportSelected() {
         alert('not implemented');

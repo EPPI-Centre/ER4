@@ -91,13 +91,15 @@ export class MAGBrowser implements OnInit, OnDestroy {
             }
         }
     }
-    public ClearSelected() {
-        for (var i = 0; i < this._magBrowserService.MAGList.papers.length; i++) {
-           this._magBrowserService.MAGList.papers[i].isSelected = false;
-        }
-        this._magBrowserService.SelectedPaperIds = [];
-        this._magBrowserService.selectedPapers = [];
-    }
+    //public ClearSelected() {
+
+       
+        //for (var i = 0; i < this._magBrowserService.MAGList.papers.length; i++) {
+        //   this._magBrowserService.MAGList.papers[i].isSelected = false;
+        //}
+        //this._magBrowserService.SelectedPaperIds = [];
+        //this._magBrowserService.selectedPapers = [];
+    //}
     private RemovePaperFromSelectedList(paperId: number): any {
 
         let pos: number = this._magBrowserService.SelectedPaperIds.indexOf(paperId);
