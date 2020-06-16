@@ -4362,12 +4362,19 @@ namespace EppiReviewer4
         {
             if (CodeSetsDataprovider == null) return;
             CodeSetsDataprovider.Refresh();
+            if (ControlContext == "CodingOnly" || ControlContext == "dialogCoding")
+            {
+                CodeSetsDataprovider.DataChanged += CodeSetsDataProvider_ReloadedAllSets;
+            }
         }
 
-        //private void CodeSetsDataProvider_DataChanged(object sender, EventArgs e)
-        //{
-        //    RemoveBusyMethod("cmdReloadAllSets_Click");
-        //}
+        private void CodeSetsDataProvider_ReloadedAllSets(object sender, EventArgs e)
+        {
+            CodeSetsDataprovider.DataChanged -= CodeSetsDataProvider_ReloadedAllSets;
+            //BindItem((DataContext as Item));
+            Item itm = (DataContext as Item);
+            if (itm != null) LoadItemAttributes((DataContext as Item).ItemId);
+        }
 
         public void ResetArms(ItemArmList arms)
         {

@@ -473,6 +473,7 @@ export class ItemCodingService extends BusyAwareService {
             let cSets: ReviewSet4ER4Json[] = [];
             for (let rs of this._ReviewSetsToReportOn) {
                 let setForReport = new ReviewSet4ER4Json(rs);
+                console.log("adding this set to report", setForReport);
                 cSets.push(setForReport);
             }
             this.jsonReport.CodeSets = cSets;
@@ -1240,6 +1241,7 @@ class SetAttribute4ER4Json {
         this.AttributeName = att.attribute_name;
         this.ExtURL = att.extURL;
         this.ExtType = att.extType;
+        this.OriginalAttributeID = att.originalAttributeID;
         this.Attributes = new AttributesList4ER4Json(att.attributes);
     }
     AttributeSetId: number;
@@ -1250,6 +1252,7 @@ class SetAttribute4ER4Json {
     AttributeDescription: string = "";
     ExtURL: string = "";
     ExtType: string = "";
+    OriginalAttributeID: number = 0;
     Attributes: AttributesList4ER4Json;
 }
 class Item4ER4Json {
