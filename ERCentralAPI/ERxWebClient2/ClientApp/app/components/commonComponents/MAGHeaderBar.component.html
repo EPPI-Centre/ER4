@@ -1,35 +1,15 @@
-<nav class="navbar navbar-fixed-top navbar-dark bg-inverse">
-
-    <div class="container col-12">
-
-        <!--<a class="navbar-brand">MAG Pages</a>-->
-
-        <ul class="nav navbar navbar-dark border border-dark alert-secondary card-body">
-
-            <li class="nav-item"><a class="btn nav-link border border-info" (click)="AutoUpdateHome()">Auto-Update Home</a></li>
-
-            <li class="nav-item"><a class="btn nav-link border border-info" (click)="AdvancedFeatures()">Advanced Features</a></li>
-
-            <li class="nav-item"><a class="btn nav-link border border-info" (click)="ShowHistory()">Show History</a></li>
-
-            <li class="nav-item"><a class="btn nav-link border border-info" (click)="MatchingMAGItems()">Matching MAG Items</a></li>
-
-            <li class="nav-item"><a class="btn nav-link border border-info" (click)="Back()">Back</a></li>
-
-            <li class="nav-item"><a class="btn nav-link border border-info" (click)="Forward()">Forward</a></li>
-
-            <li class="nav-item"><a [hidden]="SelectedItems()" class="btn nav-link border border-info" (click)="Selected()">Selected</a></li>
-
-            <li class="nav-item"><a [hidden]="SelectedItems()" class="btn nav-link border border-info" (click)="ClearSelected()">Clear Selected</a></li>
-
-            <li class="nav-item"><a [hidden]="SelectedItems()" class="btn nav-link border border-info" (click)="ImportSelected()">Import Selected</a></li>
-
-        </ul>
-
-    </div>
-
-</nav>
-
-
+<div class="containsAtoolbar">
+    <kendo-toolbar>
+        <kendo-toolbar-button [text]="'Auto-Update Home'" (click)="AutoUpdateHome()" [disabled]="!HasWriteRights" aria-controls="collapseExample"></kendo-toolbar-button>
+        <kendo-toolbar-button [text]="'MAG Simulations'" (click)="AdvancedFeatures()" [disabled]="!HasWriteRights"></kendo-toolbar-button>
+        <kendo-toolbar-button [text]="'Show History'" (click)="ShowHistory()" [disabled]="!HasWriteRights"></kendo-toolbar-button>
+        <kendo-toolbar-button [text]="'Matching MAG Items'" (click)="MatchingMAGItems()" [disabled]="!HasWriteRights"></kendo-toolbar-button>
+        <kendo-toolbar-button [text]="'Back'" (click)="Back()" [disabled]="!HasWriteRights"></kendo-toolbar-button>
+        <kendo-toolbar-button [text]="'Forward'" (click)="Forward()" [disabled]="!HasWriteRights"></kendo-toolbar-button>
+        <kendo-toolbar-button [text]="'Selected'" (click)="Selected()" [disabled]="!HasWriteRights"></kendo-toolbar-button>
+        <kendo-toolbar-button [text]="'Clear Selected'" (click)="ClearSelected()" [disabled]="!HasWriteRights"></kendo-toolbar-button>
+        <kendo-toolbar-button [text]="'Import Selected'" (click)="ImportSelected()" [disabled]="!HasWriteRights"></kendo-toolbar-button>
+    </kendo-toolbar>
+</div>
 
 <router-outlet></router-outlet>

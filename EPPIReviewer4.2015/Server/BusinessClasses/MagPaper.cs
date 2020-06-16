@@ -66,7 +66,19 @@ namespace BusinessLibrary.BusinessClasses
                     Volume.ToString() + (Issue == "" || Issue == null ? "" :  " (" + Issue + ") ") + FirstPage + "-" + LastPage;
             }
         }
-
+        public string ShortRecord
+        {
+            get
+            {
+                string shortednedAuthors = Authors;
+                if (Authors.Length > 25)
+                {
+                    shortednedAuthors = Authors.Substring(0, 25);
+                }
+                return shortednedAuthors  + "... (" + Year.ToString() + ") " + OriginalTitle + ". " + Journal + ". " +
+                    Volume.ToString() + (Issue == "" || Issue == null ? "" : " (" + Issue + ") ") + FirstPage + "-" + LastPage;
+            }
+        }
         public static readonly PropertyInfo<Int64> PaperIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("PaperId", "PaperId"));
         public Int64 PaperId
         {

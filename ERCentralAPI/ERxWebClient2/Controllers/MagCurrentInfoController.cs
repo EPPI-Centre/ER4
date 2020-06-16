@@ -83,30 +83,40 @@ namespace ERxWebClient2.Controllers
             }
         }
 
-        //
-        //[HttpPost("[action]")]
-        //public IActionResult UpdateMagPaper([FromBody] SingleInt64Criteria Id)
-        //{
-        //    try
-        //    {
-        //        SetCSLAUser();
+  
+        [HttpPost("[action]")]
+        public IActionResult UpdateMagPaper([FromBody] MVCMagPaperCorrectnessState magPaperState)
+        {
+            try
+            {
+                SetCSLAUser();
 
-        //        DataPortal<MagPaper> dp = new DataPortal<MagPaper>();
-        //        SingleCriteria<MagPaper, Int64> criteria =
-        //            new SingleCriteria<MagPaper, Int64>(Id.Value);
+                DataPortal<MagPaper> dp = new DataPortal<MagPaper>();
+                SingleCriteria<MagPaper, Int64> criteria =
+                    new SingleCriteria<MagPaper, Int64>(magPaperState.magPaperId);
 
-        //        var magPaper = dp.Fetch(criteria);
+                var magPaper = dp.Fetch(criteria);
+                if (magPaperState.manualTrueMatchProperty)
+                {
+                    magPaper.ManualTrueMatch = true;
+                    magPaper.ManualFalseMatch = false;
+                }
+                else
+                {
+                    magPaper.ManualTrueMatch = false;
+                    magPaper.ManualFalseMatch = true;
+                }
 
-        //        MagPaper result = dp.Update(magPaper);
+                magPaper = dp.Update(magPaper);
 
-        //        return Ok(result);
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        _logger.LogException(e, "Getting a UpdateMagPaper has an error");
-        //        throw;
-        //    }
-        //}
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "Getting a UpdateMagPaper has an error");
+                throw;
+            }
+        }
 
 
         [HttpPost("[action]")]
@@ -179,6 +189,13 @@ namespace ERxWebClient2.Controllers
 
     }
 
+    public class MVCMagPaperCorrectnessState
+    {
+
+        public bool manualTrueMatchProperty { get; set; }
+
+        public Int64 magPaperId { get; set; }
+    }
 
     public class MVCMagFieldOfStudyListSelectionCriteria
     {
