@@ -679,14 +679,17 @@ namespace BusinessLibrary.BusinessClasses
             private AutorsList _AutorsList = null;
             public AutorsList GetAuthors()
             {
-                if (_AutorsList == null && AUTHORS.Length > 0)
+                if (_AutorsList == null)
                 {
-                    string[] authors = AUTHORS.Split(';');
                     AutorsList alist = new AutorsList();
-                    for (int x = 0; x < authors.Count(); x++)
+                    if (AUTHORS.Length > 0)
                     {
-                        if (authors[x] != " " && authors[x] != "")
-                            alist.Add(NormaliseAuth.singleAuth(authors[x], x + 1, 0));
+                        string[] authors = AUTHORS.Split(';');
+                        for (int x = 0; x < authors.Count(); x++)
+                        {
+                            if (authors[x] != " " && authors[x] != "")
+                                alist.Add(NormaliseAuth.singleAuth(authors[x], x + 1, 0));
+                        }
                     }
                     this._AutorsList = alist;
                 }
@@ -871,7 +874,8 @@ namespace BusinessLibrary.BusinessClasses
             private double CompareAuthors(ItemComparison ic1, ItemComparison ic2)
             {
                 double ret = 0;
-                int totalAuthors = ic1.GetAuthors().Count;
+                int totalAuthors = 0;
+                if (ic1.GetAuthors() != null) totalAuthors = ic1.GetAuthors().Count;
                 double lastWithLast = 0;
                 double firstWithLast = 0;
                 foreach (AutH author in ic1.GetAuthors())
