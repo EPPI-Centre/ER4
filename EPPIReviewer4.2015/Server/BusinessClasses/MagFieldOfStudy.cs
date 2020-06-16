@@ -21,6 +21,7 @@ using Csla.Data;
 using BusinessLibrary.Security;
 #endif
 
+
 namespace BusinessLibrary.BusinessClasses
 {
     [Serializable]
