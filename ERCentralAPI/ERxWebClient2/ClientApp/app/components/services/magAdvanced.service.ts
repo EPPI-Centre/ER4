@@ -59,26 +59,43 @@ export class MAGAdvancedService extends BusyAwareService {
     public set ClassifierContactModelList(classifierContactModelList: ClassifierContactModel[]) {
         this._ClassifierContactModelList = classifierContactModelList;
     }
-    public UpdateMagPaper(matchCorrect: boolean, paperId: number) {
+    public UpdateMagPaper(matchCorrect: boolean, paperId: number, itemId: number) : Promise<any> {
 
         this._BusyMethods.push("UpdateMagPaper");
-        let body = JSON.stringify({ manualTrueMatchProperty: matchCorrect, magPaperId:  paperId});
-        this._httpC.post<any>(this._baseUrl + 'api/MagCurrentInfo/UpdateMagPaper', body)
-            .subscribe(result => {
+        let body = JSON.stringify({ manualTrueMatchProperty: matchCorrect, magPaperId:  paperId, itemId: itemId});
+        return this._httpC.post<any>(this._baseUrl + 'api/MagCurrentInfo/UpdateMagPaper', body)
+            .toPromise().then((result: any) => {
                 this.RemoveBusy("UpdateMagPaper");
-                return result;
-            },
-                error => {
+
+                    return this.GetUpdatedMagPaperList(itemId);
+                        
+                },
+                (error: any) => {
                     this.RemoveBusy("UpdateMagPaper");
                     this.modalService.GenericError(error);
                     return error;
-                },
-                () => {
-                    this.RemoveBusy("UpdateMagPaper");
-                    return;
-                });
-        return "error";
+                })
+        
+    }
+    public GetUpdatedMagPaperList(itemId: number): any {
 
+            let crit: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
+            crit.listType = 'ItemMatchedPapersList';
+            crit.iTEM_ID = itemId;
+            this.FetchMagPaperList(crit).then(
+                (result: MagPaper[]) => {
+                    console.log('called papers again: ' + JSON.stringify(result));
+                        return result;
+                    }
+            ),(error: any) => {
+                this.RemoveBusy("magmatchitemstopapers");
+                this.modalService.GenericError(error);
+                return error;
+            },
+            () => {
+                this.RemoveBusy("magmatchitemstopapers");
+                return;
+            };
     }
     public CheckContReviewPipelineState(): boolean {
 

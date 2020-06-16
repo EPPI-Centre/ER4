@@ -40,12 +40,13 @@
                             Score: {{magPaper.autoMatchScore}}
                         </div>
                         <div class="col-12">
-                            Correct Match:  <input class="" (click)="UpdateMagPaper(true, magPaper.paperId)"
-                                             value ="{{magPaper.manualTrueMatch}}"     name="magMatchRadio" id="magMatchRadio" type="radio" />
+                            Correct Match:  <input (click)="UpdateMagPaper(true, magPaper.paperId)" [(ngModel)]="magPaper.manualTrueMatch" 
+                                                [value] ="true" name="magMatchRadio"  type="radio" />
                         </div>
                         <div class="col-12 ">
-                            Incorrect Match:<input class="" (click)="UpdateMagPaper(false,magPaper.paperId)"
-                                               value ="{{magPaper.manualFalseMatch}}"     name="magMatchRadio" id="magMatchRadio" type="radio" />
+                            Incorrect Match:<input  (click)="UpdateMagPaper(false, magPaper.paperId)"
+                                                [value] ="false" [(ngModel)]="magPaper.manualTrueMatch"     
+                                                   name="magMatchRadio"  type="radio" />
                         </div>
                     </td>
 

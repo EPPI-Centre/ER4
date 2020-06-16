@@ -103,9 +103,10 @@ export class microsoftAcademicComp implements OnInit, OnDestroy {
 
         this.sub.unsubscribe();
     }
-    public UpdateMagPaper(matchCorrect: boolean, paperId: number) {
+    
+    public UpdateMagPaper(match: boolean, paperId: number) {
 
-        //this._magAdvancedService.UpdateMagPaper(matchCorrect, paperId);
+        this._magAdvancedService.UpdateMagPaper(match, paperId, this.item.itemId);
 
     }
 }

@@ -90,30 +90,18 @@ namespace ERxWebClient2.Controllers
             try
             {
                 SetCSLAUser();
+                var test = !magPaperState.manualTrueMatchProperty;
+                DataPortal<MagMatchItemToPaperManualCommand> dp = new DataPortal<MagMatchItemToPaperManualCommand>();
+                MagMatchItemToPaperManualCommand cmd = new MagMatchItemToPaperManualCommand(magPaperState.itemId,
+                    magPaperState.magPaperId, magPaperState.manualTrueMatchProperty, test);
 
-                DataPortal<MagPaper> dp = new DataPortal<MagPaper>();
-                SingleCriteria<MagPaper, Int64> criteria =
-                    new SingleCriteria<MagPaper, Int64>(magPaperState.magPaperId);
-
-                var magPaper = dp.Fetch(criteria);
-                if (magPaperState.manualTrueMatchProperty)
-                {
-                    magPaper.ManualTrueMatch = true;
-                    magPaper.ManualFalseMatch = false;
-                }
-                else
-                {
-                    magPaper.ManualTrueMatch = false;
-                    magPaper.ManualFalseMatch = true;
-                }
-
-                magPaper = dp.Update(magPaper);
+                cmd = dp.Execute(cmd);
 
                 return Ok();
             }
             catch (Exception e)
             {
-                _logger.LogException(e, "Getting a UpdateMagPaper has an error");
+                _logger.LogException(e, "Updating a Mag Paper has produced error!");
                 throw;
             }
         }
@@ -191,7 +179,7 @@ namespace ERxWebClient2.Controllers
 
     public class MVCMagPaperCorrectnessState
     {
-
+        public Int64 itemId { get; set; }
         public bool manualTrueMatchProperty { get; set; }
 
         public Int64 magPaperId { get; set; }
