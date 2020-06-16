@@ -76,7 +76,6 @@ namespace EppiReviewer4
                 rr.SelectedItemDocument = SelectedItemDocument;
                 dp2.ExecuteCompleted += (o, e2) =>
                 {
-                    Thread.Sleep(4000); // this is such an annoying hack! Seems no way of getting the command object NOT to run async...
                     busyIndicatorRobots.IsBusy = false;
                     hlCancel.IsEnabled = true;
                     hlGo.IsEnabled = true;

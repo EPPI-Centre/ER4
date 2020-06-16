@@ -4371,9 +4371,9 @@ namespace EppiReviewer4
         private void CodeSetsDataProvider_ReloadedAllSets(object sender, EventArgs e)
         {
             CodeSetsDataprovider.DataChanged -= CodeSetsDataProvider_ReloadedAllSets;
-            //BindItem((DataContext as Item));
             Item itm = (DataContext as Item);
-            if (itm != null) LoadItemAttributes((DataContext as Item).ItemId);
+            if (itm != null) //LoadItemAttributes((DataContext as Item).ItemId);
+                BindItem(DataContext as Item);
         }
 
         public void ResetArms(ItemArmList arms)

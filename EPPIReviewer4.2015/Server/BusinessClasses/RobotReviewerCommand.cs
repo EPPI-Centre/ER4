@@ -93,6 +93,7 @@ namespace BusinessLibrary.BusinessClasses
         protected override void DataPortal_Execute()
         {
             DoRobot();
+            Thread.Sleep(7000);
         }
 
         private async Task DoRobot()
@@ -111,6 +112,8 @@ namespace BusinessLibrary.BusinessClasses
                 NullValueHandling = NullValueHandling.Ignore,
                 MissingMemberHandling = MissingMemberHandling.Ignore
             };
+
+            SelectedReviewSet.Attributes.RaiseListChangedEvents = false;
 
             var UploadData = new upload_data();
             List<RequestDoc> ls = new List<RequestDoc>();
