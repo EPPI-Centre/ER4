@@ -49,13 +49,13 @@
 
         </telerik:RadCartesianChart>
         <StackPanel Orientation="Horizontal" Grid.Row="2">
-            <HyperlinkButton x:Name="hlSearchScore" Content="Find items scoring " Margin="3,3,3,3" VerticalAlignment="Center" IsTabStop="False" Click="hlSearchScore_Click"></HyperlinkButton>
+            <HyperlinkButton x:Name="hlSearchScore" Content="Find items scoring " Margin="3,3,3,3" VerticalAlignment="Center" Click="hlSearchScore_Click"></HyperlinkButton>
             <RadioButton x:Name="rbSearchScoreMoreThan" GroupName="rbGroupSearchScore" Content="more than" Margin="1,3,3,3" IsChecked="True" Click="rbSearchScoreMoreThan_Click" VerticalAlignment="Center"></RadioButton>
             <RadioButton x:Name="rbSearchScoreLessThan" GroupName="rbGroupSearchScore" Content="less than" Margin="1,3,3,3" Click="rbSearchScoreLessThan_Click" VerticalAlignment="Center"></RadioButton>
             <RadioButton x:Name="rbSearchScoreBetween" GroupName="rbGroupSearchScore" Content="between" Margin="1,3,3,3" Click="rbSearchScoreMoreBetween_Click" VerticalAlignment="Center"></RadioButton>
-            <telerik:RadNumericUpDown x:Name="SearchScoreNumericUpDown1" Minimum="0" Maximum="100" SmallChange="1" Width="20" VerticalAlignment="Center" Value="50" IsInteger="True" Margin="1,3,3,3"></telerik:RadNumericUpDown>
+            <telerik:RadNumericUpDown x:Name="SearchScoreNumericUpDown1" Minimum="0" Maximum="100" SmallChange="1" Width="20" VerticalAlignment="Center" Value="50" IsInteger="True" Margin="1,3,3,3" ></telerik:RadNumericUpDown>
             <TextBlock x:Name="tbSearchScore" Text="and" Margin="3,3,3,3" Visibility="Collapsed" VerticalAlignment="Center"></TextBlock>
-            <telerik:RadNumericUpDown x:Name="SearchScoreNumericUpDown2" Minimum="0" Maximum="100" SmallChange="1" Width="30" IsInteger="True" VerticalAlignment="Center" Value="50" Margin="1,3,3,3" Visibility="Collapsed"></telerik:RadNumericUpDown>
+            <telerik:RadNumericUpDown x:Name="SearchScoreNumericUpDown2" Minimum="0" Maximum="100" SmallChange="1" Width="30" IsInteger="True" VerticalAlignment="Center" Value="50" Margin="1,3,3,3" Visibility="Collapsed" ></telerik:RadNumericUpDown>
             
         </StackPanel>
         <Button x:Name="SaveButton" Content="Save" Click="SaveButton_Click" Width="60" Height="23" HorizontalAlignment="Right" Margin="0,4,65,0" Grid.Row="2" />

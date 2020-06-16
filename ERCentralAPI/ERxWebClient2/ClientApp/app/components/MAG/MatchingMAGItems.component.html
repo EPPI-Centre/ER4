@@ -77,7 +77,7 @@
             </table>
         </div>
     </div>
-
+    <div *ngIf="IsServiceBusy" class="k-loading-image" style="position: fixed; top: 2%;"></div>
 
     <div class="card alert-info border border-dark p-2 m-2 row " style="min-width:1050px;">
         <h4>Actions on items with this code:</h4>
@@ -147,10 +147,11 @@
 
 
                 <div class="col-12 row alert-warning p-2 m-2">
-
-                    <input class="col-6" type="text" id="SearchTextTopics" (change)="UpdateTopicResults($event)"
-                           placeholder="Search for topics here.  Entry of Wildcards work, e.g. physic* " />
-
+                    <div class="col-12 row">
+                        <input class="col-6" type="text" id="SearchTextTopic" [(ngModel)]="SearchTextTopic"
+                               placeholder="Search for topics here.  Entry of Wildcards work, e.g. physic* " />
+                        <button class="btn alert-primary" (click)="UpdateTopicResults()"> Search Topics</button>
+                    </div>
                     <div class="row " style="max-width:1450px;overflow:auto;">
                         <div *ngFor="let item of SearchTextTopicsResults" class="list-group">
                             <div (click)="FOSMAGBrowserNavigate(item.displayName, item.fieldOfStudyId)" class="col-3 btn border border-0"

@@ -2,24 +2,28 @@ import { Component,  OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { Location } from '@angular/common';
 import { MAGBrowserService } from '../services/MAGBrowser.service';
+import { ReviewerIdentityService } from '../services/revieweridentity.service';
 
 
 @Component({
     selector: 'MAGHeaderBar',
     templateUrl: './MAGHeaderBar.component.html',
     providers: []
-    //styles: ["button.disabled {color:black; }"]
 })
 export class MAGHeaderBarComp implements OnInit {
 
     constructor(private router: Router,
         private _location: Location,
-        private _magBrowserService: MAGBrowserService
+        private _magBrowserService: MAGBrowserService,
+        private _ReviewerIdentityServ: ReviewerIdentityService
     ) {
 
 	}
     ngOnInit() {
 	
+    }
+    public get HasWriteRights(): boolean {
+        return this._ReviewerIdentityServ.HasWriteRights;
     }
     public SelectedItems() : boolean {
 
@@ -63,26 +67,6 @@ export class MAGHeaderBarComp implements OnInit {
     }
   
 }
-
-//export const routerConfig: Routes = [
-//    { path: 'BasicMAGFeatures', component: BasicMAGComp },
-//    { path: 'AdvancedMAGFeatures', component: AdvancedMAGFeaturesComponent },
-//    { path: 'MAGBrowser', component: MAGBrowser },
-//    {
-
-//        path: '',
-//        redirectTo: '/home',
-//        pathMatch: 'full'
-
-//    },
-//    {
-
-//        path: '**',
-//        redirectTo: '/home',
-//        pathMatch: 'full'
-//    }
-
-//];
 
 
 

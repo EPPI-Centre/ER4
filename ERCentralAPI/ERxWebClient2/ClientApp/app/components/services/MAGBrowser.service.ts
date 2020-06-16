@@ -147,7 +147,7 @@ export class MAGBrowserService extends BusyAwareService {
 
                                 if (criteria.listType == 'FieldOfStudyParentsList') {
                                     if (i > 0.1) {
-                                        i -= 0.005;
+                                        i -= 0.008;
                                     }
                                     item.fontSize = i;
                                     this.WPParentTopics.push(item);
@@ -155,7 +155,7 @@ export class MAGBrowserService extends BusyAwareService {
 
                                 } else {
                                     if (j > 0.1) {
-                                        j -= 0.005;
+                                        j -= 0.008;
                                     }
                                     item.fontSize = j;
                                     this.WPChildTopics.push(item);
@@ -301,11 +301,11 @@ export class MAGBrowserService extends BusyAwareService {
     public Clear() {
 
         console.log('called clear on MAGBrowser service ');
-        //this._currentPaper = new MagPaper();
-        //this.WPChildTopics = [];
-        //this.WPParentTopics = [];
-        //this.MAGList = new MagList();
-        //this.MagCitationsByPaperList = new MagList();
+        this._currentPaper = new MagPaper();
+        this.WPChildTopics = [];
+        this.WPParentTopics = [];
+        this.MAGList = new MagList();
+        this.MagCitationsByPaperList = new MagList();
 
     }
 }

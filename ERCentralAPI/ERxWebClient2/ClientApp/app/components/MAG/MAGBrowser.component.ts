@@ -53,6 +53,19 @@ export class MAGBrowser implements OnInit, OnDestroy {
     public toggleDisplayDivIf() {
         this.isShowDivIf = !this.isShowDivIf;
     }
+    public GetPDFLinks() : string[] {
+
+        let links: string = this._magAdvancedService.currentMagPaper.pdfLinks;
+        if (links != null && links != '') {
+
+
+            var pdfLinks = links.split(';');
+            console.log(pdfLinks);
+            return pdfLinks;
+        } else {
+            return [];      
+        }
+    }
     showMAGRunMessage(notifyMsg: string) {
 
         this._notificationService.show({
@@ -91,15 +104,6 @@ export class MAGBrowser implements OnInit, OnDestroy {
             }
         }
     }
-    //public ClearSelected() {
-
-       
-        //for (var i = 0; i < this._magBrowserService.MAGList.papers.length; i++) {
-        //   this._magBrowserService.MAGList.papers[i].isSelected = false;
-        //}
-        //this._magBrowserService.SelectedPaperIds = [];
-        //this._magBrowserService.selectedPapers = [];
-    //}
     private RemovePaperFromSelectedList(paperId: number): any {
 
         let pos: number = this._magBrowserService.SelectedPaperIds.indexOf(paperId);
@@ -184,8 +188,8 @@ export class MAGBrowser implements OnInit, OnDestroy {
     }
     public Clear() {
 
-        console.log('called clear on for Magpapers in component ');
-        //this.MAGPapers = [];
+        this._magAdvancedService.currentMagPaper = new MagPaper();
+        this.MAGPapers = [];
 
     }
     public CanDeleteMAGRun(): boolean {
