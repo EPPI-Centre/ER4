@@ -96,14 +96,15 @@ namespace BusinessLibrary.BusinessClasses
 
 #if !SILVERLIGHT
 
-        protected override async void DataPortal_Execute()
-        {
-            await DoRobot();
-        }
-
-        private async Task DoRobot()
+        protected override void DataPortal_Execute()
         {
             ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+            bool result = Task.Run(() => DoRobot(ri.ReviewId, ri.UserId)).GetAwaiter().GetResult(); 
+        }
+
+        private async Task<bool> DoRobot(int ReviewId, int UserId)
+        {
+            bool result = true;
 #if (CSLA_NETCORE)
 
             var configuration = ERxWebClient2.Startup.Configuration.GetSection("AzureMagSettings");
@@ -119,7 +120,7 @@ namespace BusinessLibrary.BusinessClasses
             };
 
             string endpoint = configuration["RobotHBCPEndpoint"];
-            byte[] document = GetPdfDoc(SelectedItemDocument.ItemDocumentId, ri.ReviewId);
+            byte[] document = GetPdfDoc(SelectedItemDocument.ItemDocumentId, ReviewId);
 
             MultipartFormDataContent mpf = new MultipartFormDataContent("file");
             mpf.Add(new StreamContent(new MemoryStream(document)), "file", SelectedItemDocument.Title);
@@ -144,6 +145,7 @@ namespace BusinessLibrary.BusinessClasses
                 }
                 catch
                 {
+                    result = false;
                     errors++;
                 }
             }
@@ -170,7 +172,7 @@ namespace BusinessLibrary.BusinessClasses
                         attributeList[c].attribute.id = "";
                     }
                 }
-                SaveAttribute(attributeList[i].attribute.name, attributeList[i].context, ri.ReviewId, ri.UserId);
+                SaveAttribute(attributeList[i].attribute.name, attributeList[i].context, ReviewId, UserId);
             }
             if (errors == 0)
             {
@@ -180,6 +182,7 @@ namespace BusinessLibrary.BusinessClasses
             {
                 _message = "Completed with " + errors.ToString() + " errors";
             }
+            return result;
         }
 
         private string GetTextSpans(string[] strings)
@@ -303,8 +306,6 @@ namespace BusinessLibrary.BusinessClasses
             }
             return ret;
         }
-
-
 
 
 #endif

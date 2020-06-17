@@ -92,20 +92,17 @@ namespace BusinessLibrary.BusinessClasses
 
         protected override void DataPortal_Execute()
         {
-            DoRobot();
-            Thread.Sleep(7000);
+            ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+            bool result = Task.Run(() => DoRobot(ri.ReviewId, ri.UserId)).GetAwaiter().GetResult();
         }
 
-        private async Task DoRobot()
+        private async Task<bool> DoRobot(int ReviewId, int UserId)
         {
-            ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+            bool res = true;
 #if (CSLA_NETCORE)
-
             var configuration = ERxWebClient2.Startup.Configuration.GetSection("AzureMagSettings");
-
 #else
             var configuration = ConfigurationManager.AppSettings;
-
 #endif
             var jsonsettings = new JsonSerializerSettings
             {
@@ -139,9 +136,10 @@ namespace BusinessLibrary.BusinessClasses
             var partial = await response.Content.ReadAsAsync<object>();
             var reportId = JsonConvert.DeserializeObject<Dictionary<string, string>>(partial.ToString());
 
-            bool keepWating = true;
-            while (keepWating)
+            bool keepWating = true; int counter = 0;
+            while (keepWating && counter <= 60)// wait 1s for no more than 60 times
             {
+                counter++;
                 Thread.Sleep(1000);
                 var c2 = new HttpClient();
                 var r2 = await c2.GetAsync(endpoint + "report-status/" + reportId["report_id"]);
@@ -169,23 +167,24 @@ namespace BusinessLibrary.BusinessClasses
                 Rct_Bot rct = JsonConvert.DeserializeObject<Rct_Bot>(d.rct_bot.ToString());
                 if (rct.is_rct_balanced == true)
                 {
-                    SaveAttribute("RR2", rct.score.ToString(), ri.ReviewId, ri.UserId);
+                    SaveAttribute("RR2", rct.score.ToString(), ReviewId, UserId);
                 }
                 if (rct.is_rct_precise == true)
                 {
-                    SaveAttribute("RR3", rct.score.ToString(), ri.ReviewId, ri.UserId);
+                    SaveAttribute("RR3", rct.score.ToString(), ReviewId, UserId);
                 }
                 if (rct.is_rct_sensitive == true)
                 {
-                    SaveAttribute("RR4", rct.score.ToString(), ri.ReviewId, ri.UserId);
+                    SaveAttribute("RR4", rct.score.ToString(), ReviewId, UserId);
                 }
                 if (rct.is_rct == true)
                 {
-                    SaveAttribute("RR5", rct.score.ToString(), ri.ReviewId, ri.UserId);
+                    SaveAttribute("RR5", rct.score.ToString(), ReviewId, UserId);
                 }
             }
             catch
             {
+                res = false;
                 errors = "Error processing rct_bot";
             }
             // ***** PICO span bot - includes PICO pdf spans and  MeSH terms
@@ -195,7 +194,7 @@ namespace BusinessLibrary.BusinessClasses
                 string tmp = GetTextSpans(pico_span.population);
                 if (tmp != "")
                 {
-                    Int64 ItemAttributeId = SaveAttribute("RR8", tmp, ri.ReviewId, ri.UserId);
+                    Int64 ItemAttributeId = SaveAttribute("RR8", tmp, ReviewId, UserId);
                     for (int i = 0; i < pico_span.population.Count(); i++)
                     {
                         SaveAnnotation(pico_span.population[i], ItemAttributeId);
@@ -204,7 +203,7 @@ namespace BusinessLibrary.BusinessClasses
                 tmp = GetTextSpans(pico_span.interventions);
                 if (tmp != "")
                 {
-                    Int64 ItemAttributeId = SaveAttribute("RR9", tmp, ri.ReviewId, ri.UserId);
+                    Int64 ItemAttributeId = SaveAttribute("RR9", tmp, ReviewId, UserId);
                     for (int i = 0; i < pico_span.interventions.Count(); i++)
                     {
                         SaveAnnotation(pico_span.interventions[i], ItemAttributeId);
@@ -213,7 +212,7 @@ namespace BusinessLibrary.BusinessClasses
                 tmp = GetTextSpans(pico_span.outcomes);
                 if (tmp != "")
                 {
-                    Int64 ItemAttributeId = SaveAttribute("RR10", tmp, ri.ReviewId, ri.UserId);
+                    Int64 ItemAttributeId = SaveAttribute("RR10", tmp, ReviewId, UserId);
                     for (int i = 0; i < pico_span.outcomes.Count(); i++)
                     {
                         SaveAnnotation(pico_span.outcomes[i], ItemAttributeId);
@@ -228,11 +227,11 @@ namespace BusinessLibrary.BusinessClasses
                     AttributeSet aMesh = p_mesh.GetSetByExt_URL(p.mesh_ui);
                     if (aMesh == null)
                     {
-                        AddMeSHAttribute(p.mesh_term, p.mesh_ui, p.cui, p_mesh, ri.UserId, ri.ReviewId);
+                        AddMeSHAttribute(p.mesh_term, p.mesh_ui, p.cui, p_mesh, UserId, ReviewId);
                     }
                     else
                     {
-                        SaveAttribute(p.mesh_ui, "", ri.ReviewId, ri.UserId);
+                        SaveAttribute(p.mesh_ui, "", ReviewId, UserId);
                     }
                 }
                 AttributeSet i_mesh = SelectedReviewSet.GetSetByExt_URL("RR13");
@@ -241,11 +240,11 @@ namespace BusinessLibrary.BusinessClasses
                     AttributeSet aMesh = i_mesh.GetSetByExt_URL(i.mesh_ui);
                     if (aMesh == null)
                     {
-                        AddMeSHAttribute(i.mesh_term, i.mesh_ui, i.cui, i_mesh, ri.UserId, ri.ReviewId);
+                        AddMeSHAttribute(i.mesh_term, i.mesh_ui, i.cui, i_mesh, UserId, ReviewId);
                     }
                     else
                     {
-                        SaveAttribute(i.mesh_ui, "", ri.ReviewId, ri.UserId);
+                        SaveAttribute(i.mesh_ui, "", ReviewId, UserId);
                     }
                 }
                 AttributeSet o_mesh = SelectedReviewSet.GetSetByExt_URL("RR14");
@@ -254,16 +253,17 @@ namespace BusinessLibrary.BusinessClasses
                     AttributeSet aMesh = o_mesh.GetSetByExt_URL(o.mesh_ui);
                     if (aMesh == null)
                     {
-                        AddMeSHAttribute(o.mesh_term, o.mesh_ui, o.cui, o_mesh, ri.UserId, ri.ReviewId);
+                        AddMeSHAttribute(o.mesh_term, o.mesh_ui, o.cui, o_mesh, UserId, ReviewId);
                     }
                     else
                     {
-                        SaveAttribute(o.mesh_ui, "", ri.ReviewId, ri.UserId);
+                        SaveAttribute(o.mesh_ui, "", ReviewId, UserId);
                     }
                 }
             }
             catch
             {
+                res = false;
                 if (errors == "")
                 {
                     errors = "Error processing pico_span_bot";
@@ -291,7 +291,7 @@ namespace BusinessLibrary.BusinessClasses
                 }
                 if (tmp != "")
                 {
-                    Int64 itemAttributeId = SaveAttribute("RR47", tmp, ri.ReviewId, ri.UserId);
+                    Int64 itemAttributeId = SaveAttribute("RR47", tmp, ReviewId, UserId);
                     foreach (Annotation4 a in pico.participants.annotations)
                     {
                         SaveAnnotation(a.text, itemAttributeId);
@@ -312,7 +312,7 @@ namespace BusinessLibrary.BusinessClasses
                 }
                 if (tmp != "")
                 {
-                    Int64 itemAttributeId = SaveAttribute("RR48", tmp, ri.ReviewId, ri.UserId);
+                    Int64 itemAttributeId = SaveAttribute("RR48", tmp, ReviewId, UserId);
                     foreach (Annotation5 a in pico.interventions.annotations)
                     {
                         SaveAnnotation(a.text, itemAttributeId);
@@ -332,7 +332,7 @@ namespace BusinessLibrary.BusinessClasses
                 }
                 if (tmp != "")
                 {
-                    Int64 itemAttributeId = SaveAttribute("RR49", tmp, ri.ReviewId, ri.UserId);
+                    Int64 itemAttributeId = SaveAttribute("RR49", tmp, ReviewId, UserId);
                     foreach (Annotation6 a in pico.outcomes.annotations)
                     {
                         SaveAnnotation(a.text, itemAttributeId);
@@ -341,6 +341,7 @@ namespace BusinessLibrary.BusinessClasses
             }
             catch
             {
+                res = false;
                 if (errors == "")
                 {
                     errors = "Error processing pico_bot";
@@ -368,7 +369,7 @@ namespace BusinessLibrary.BusinessClasses
                         tmp += Environment.NewLine + Environment.NewLine + a.text;
                     }
                 }
-                Int64 ItemAttributeId = SaveAttribute(ExtURL, tmp, ri.ReviewId, ri.UserId);
+                Int64 ItemAttributeId = SaveAttribute(ExtURL, tmp, ReviewId, UserId);
                 foreach (Annotation a in bias.random_sequence_generation.annotations)
                 {
                     SaveAnnotation(a.text, ItemAttributeId);
@@ -387,7 +388,7 @@ namespace BusinessLibrary.BusinessClasses
                         tmp += Environment.NewLine + Environment.NewLine + a.text;
                     }
                 }
-                ItemAttributeId = SaveAttribute(ExtURL, tmp, ri.ReviewId, ri.UserId);
+                ItemAttributeId = SaveAttribute(ExtURL, tmp, ReviewId, UserId);
                 foreach (Annotation1 a in bias.allocation_concealment.annotations)
                 {
                     SaveAnnotation(a.text, ItemAttributeId);
@@ -406,7 +407,7 @@ namespace BusinessLibrary.BusinessClasses
                         tmp += Environment.NewLine + Environment.NewLine + a.text;
                     }
                 }
-                ItemAttributeId = SaveAttribute(ExtURL, tmp, ri.ReviewId, ri.UserId);
+                ItemAttributeId = SaveAttribute(ExtURL, tmp, ReviewId, UserId);
                 foreach (Annotation2 a in bias.blinding_participants_personnel.annotations)
                 {
                     SaveAnnotation(a.text, ItemAttributeId);
@@ -425,7 +426,7 @@ namespace BusinessLibrary.BusinessClasses
                         tmp += Environment.NewLine + Environment.NewLine + a.text;
                     }
                 }
-                ItemAttributeId = SaveAttribute(ExtURL, tmp, ri.ReviewId, ri.UserId);
+                ItemAttributeId = SaveAttribute(ExtURL, tmp, ReviewId, UserId);
                 foreach (Annotation3 a in bias.blinding_outcome_assessment.annotations)
                 {
                     SaveAnnotation(a.text, ItemAttributeId);
@@ -433,6 +434,7 @@ namespace BusinessLibrary.BusinessClasses
             }
             catch
             {
+                res = false;
                 if (errors == "")
                 {
                     errors = "Error processing bias_bot";
@@ -447,10 +449,11 @@ namespace BusinessLibrary.BusinessClasses
             try
             {
                 Sample_Size_Bot sample = JsonConvert.DeserializeObject<Sample_Size_Bot>(d.sample_size_bot.ToString());
-                SaveAttribute("RR42", sample.num_randomized, ri.ReviewId, ri.UserId);
+                SaveAttribute("RR42", sample.num_randomized, ReviewId, UserId);
             }
             catch
             {
+                res = false;
                 if (errors == "")
                 {
                     errors = "Error processing sample_size_bot";
@@ -465,11 +468,12 @@ namespace BusinessLibrary.BusinessClasses
             try
             {
                 Punchline_Bot punch = JsonConvert.DeserializeObject<Punchline_Bot>(d.punchline_bot.ToString());
-                SaveAttribute("RR44", punch.punchline_text, ri.ReviewId, ri.UserId);
-                SaveAttribute("RR45", punch.effect, ri.ReviewId, ri.UserId);
+                SaveAttribute("RR44", punch.punchline_text, ReviewId, UserId);
+                SaveAttribute("RR45", punch.effect, ReviewId, UserId);
             }
             catch
             {
+                res = false;
                 if (errors == "")
                 {
                     errors = "Error processing punchline_bot";
@@ -486,39 +490,40 @@ namespace BusinessLibrary.BusinessClasses
                 Bias_Ab_Bot bias_ab = JsonConvert.DeserializeObject<Bias_Ab_Bot>(d.bias_ab_bot.ToString());
                 if (bias_ab.random_sequence_generation.judgement == "low")
                 {
-                    SaveAttribute("RR30", "", ri.ReviewId, ri.UserId);
+                    SaveAttribute("RR30", "", ReviewId, UserId);
                 }
                 else
                 {
-                    SaveAttribute("RR31", "", ri.ReviewId, ri.UserId);
+                    SaveAttribute("RR31", "", ReviewId, UserId);
                 }
                 if (bias_ab.allocation_concealment.judgement == "low")
                 {
-                    SaveAttribute("RR33", "", ri.ReviewId, ri.UserId);
+                    SaveAttribute("RR33", "", ReviewId, UserId);
                 }
                 else
                 {
-                    SaveAttribute("RR34", "", ri.ReviewId, ri.UserId);
+                    SaveAttribute("RR34", "", ReviewId, UserId);
                 }
                 if (bias_ab.blinding_participants_personnel.judgement == "low")
                 {
-                    SaveAttribute("RR36", "", ri.ReviewId, ri.UserId);
+                    SaveAttribute("RR36", "", ReviewId, UserId);
                 }
                 else
                 {
-                    SaveAttribute("RR37", "", ri.ReviewId, ri.UserId);
+                    SaveAttribute("RR37", "", ReviewId, UserId);
                 }
                 if (bias_ab.blinding_outcome_assessment.judgement == "low")
                 {
-                    SaveAttribute("RR39", "", ri.ReviewId, ri.UserId);
+                    SaveAttribute("RR39", "", ReviewId, UserId);
                 }
                 else
                 {
-                    SaveAttribute("RR40", "", ri.ReviewId, ri.UserId);
+                    SaveAttribute("RR40", "", ReviewId, UserId);
                 }
             }
             catch
             {
+                res = false;
                 if (errors == "")
                 {
                     errors = "Error processing bias_ab_bot";
@@ -535,11 +540,12 @@ namespace BusinessLibrary.BusinessClasses
                 Human_Bot h = JsonConvert.DeserializeObject<Human_Bot>(d.human_bot.ToString());
                 if (h.is_human)
                 {
-                    SaveAttribute("RR6", "", ri.ReviewId, ri.UserId);
+                    SaveAttribute("RR6", "", ReviewId, UserId);
                 }
             }
             catch
             {
+                res = false;
                 if (errors == "")
                 {
                     errors = "Error processing human_bot";
@@ -558,6 +564,7 @@ namespace BusinessLibrary.BusinessClasses
             {
                 _message = "RobotReviewer completed with no errors";
             }
+            return res;
         }
 
         private string GetTextSpans(string [] strings)
