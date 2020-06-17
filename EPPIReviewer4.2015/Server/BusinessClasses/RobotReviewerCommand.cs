@@ -124,6 +124,7 @@ namespace BusinessLibrary.BusinessClasses
             UploadData.articles = ls;
             UploadData.robots = s;
             UploadData.filter_rcts = "none";
+            string errors = "";
 
             var json = JsonConvert.SerializeObject(UploadData);
             var data = new StringContent(json, Encoding.UTF8, "application/json");
@@ -137,7 +138,7 @@ namespace BusinessLibrary.BusinessClasses
             var reportId = JsonConvert.DeserializeObject<Dictionary<string, string>>(partial.ToString());
 
             bool keepWating = true; int counter = 0;
-            while (keepWating && counter <= 60)// wait 1s for no more than 60 times
+            while (keepWating)// wait 1s for no more than 60 times
             {
                 counter++;
                 Thread.Sleep(1000);
@@ -150,419 +151,426 @@ namespace BusinessLibrary.BusinessClasses
                 {
                     keepWating = false;
                 }
-            }
-
-            var c3 = new HttpClient();
-            var r3 = await c3.GetAsync(endpoint + "report/" + reportId["report_id"]);
-            var part3 = await r3.Content.ReadAsStringAsync();
-            var job3 = JsonConvert.DeserializeObject(part3);
-            JArray jArray = JArray.Parse(job3.ToString());
-            dynamic d = jArray.First;
-
-            string errors = "";
-
-            // ********** RCT bot first ********
-            try
-            {
-                Rct_Bot rct = JsonConvert.DeserializeObject<Rct_Bot>(d.rct_bot.ToString());
-                if (rct.is_rct_balanced == true)
+                if (counter > 60)
                 {
-                    SaveAttribute("RR2", rct.score.ToString(), ReviewId, UserId);
-                }
-                if (rct.is_rct_precise == true)
-                {
-                    SaveAttribute("RR3", rct.score.ToString(), ReviewId, UserId);
-                }
-                if (rct.is_rct_sensitive == true)
-                {
-                    SaveAttribute("RR4", rct.score.ToString(), ReviewId, UserId);
-                }
-                if (rct.is_rct == true)
-                {
-                    SaveAttribute("RR5", rct.score.ToString(), ReviewId, UserId);
+                    keepWating = false;
+                    _message = "Error: RobotReviewer did not return results.";
+                    errors = "error";
                 }
             }
-            catch
-            {
-                res = false;
-                errors = "Error processing rct_bot";
-            }
-            // ***** PICO span bot - includes PICO pdf spans and  MeSH terms
-            try
-            {
-                Pico_Span_Bot pico_span = JsonConvert.DeserializeObject<Pico_Span_Bot>(d.pico_span_bot.ToString());
-                string tmp = GetTextSpans(pico_span.population);
-                if (tmp != "")
-                {
-                    Int64 ItemAttributeId = SaveAttribute("RR8", tmp, ReviewId, UserId);
-                    for (int i = 0; i < pico_span.population.Count(); i++)
-                    {
-                        SaveAnnotation(pico_span.population[i], ItemAttributeId);
-                    }
-                }
-                tmp = GetTextSpans(pico_span.interventions);
-                if (tmp != "")
-                {
-                    Int64 ItemAttributeId = SaveAttribute("RR9", tmp, ReviewId, UserId);
-                    for (int i = 0; i < pico_span.interventions.Count(); i++)
-                    {
-                        SaveAnnotation(pico_span.interventions[i], ItemAttributeId);
-                    }
-                }
-                tmp = GetTextSpans(pico_span.outcomes);
-                if (tmp != "")
-                {
-                    Int64 ItemAttributeId = SaveAttribute("RR10", tmp, ReviewId, UserId);
-                    for (int i = 0; i < pico_span.outcomes.Count(); i++)
-                    {
-                        SaveAnnotation(pico_span.outcomes[i], ItemAttributeId);
-                    }
-                }
 
-                // Now go through the MeSH terms - part of the same bot
+            if (errors == "")
+            {
+                var c3 = new HttpClient();
+                var r3 = await c3.GetAsync(endpoint + "report/" + reportId["report_id"]);
+                var part3 = await r3.Content.ReadAsStringAsync();
+                var job3 = JsonConvert.DeserializeObject(part3);
+                JArray jArray = JArray.Parse(job3.ToString());
+                dynamic d = jArray.First;
 
-                AttributeSet p_mesh = SelectedReviewSet.GetSetByExt_URL("RR12");
-                foreach (Population_Mesh p in pico_span.population_mesh)
+                // ********** RCT bot first ********
+                try
                 {
-                    AttributeSet aMesh = p_mesh.GetSetByExt_URL(p.mesh_ui);
-                    if (aMesh == null)
+                    Rct_Bot rct = JsonConvert.DeserializeObject<Rct_Bot>(d.rct_bot.ToString());
+                    if (rct.is_rct_balanced == true)
                     {
-                        AddMeSHAttribute(p.mesh_term, p.mesh_ui, p.cui, p_mesh, UserId, ReviewId);
+                        SaveAttribute("RR2", rct.score.ToString(), ReviewId, UserId);
+                    }
+                    if (rct.is_rct_precise == true)
+                    {
+                        SaveAttribute("RR3", rct.score.ToString(), ReviewId, UserId);
+                    }
+                    if (rct.is_rct_sensitive == true)
+                    {
+                        SaveAttribute("RR4", rct.score.ToString(), ReviewId, UserId);
+                    }
+                    if (rct.is_rct == true)
+                    {
+                        SaveAttribute("RR5", rct.score.ToString(), ReviewId, UserId);
+                    }
+                }
+                catch
+                {
+                    res = false;
+                    errors = "possibly incomplete data: rct_bot";
+                }
+                // ***** PICO span bot - includes PICO pdf spans and  MeSH terms
+                try
+                {
+                    Pico_Span_Bot pico_span = JsonConvert.DeserializeObject<Pico_Span_Bot>(d.pico_span_bot.ToString());
+                    string tmp = GetTextSpans(pico_span.population);
+                    if (tmp != "")
+                    {
+                        Int64 ItemAttributeId = SaveAttribute("RR8", tmp, ReviewId, UserId);
+                        for (int i = 0; i < pico_span.population.Count(); i++)
+                        {
+                            SaveAnnotation(pico_span.population[i], ItemAttributeId);
+                        }
+                    }
+                    tmp = GetTextSpans(pico_span.interventions);
+                    if (tmp != "")
+                    {
+                        Int64 ItemAttributeId = SaveAttribute("RR9", tmp, ReviewId, UserId);
+                        for (int i = 0; i < pico_span.interventions.Count(); i++)
+                        {
+                            SaveAnnotation(pico_span.interventions[i], ItemAttributeId);
+                        }
+                    }
+                    tmp = GetTextSpans(pico_span.outcomes);
+                    if (tmp != "")
+                    {
+                        Int64 ItemAttributeId = SaveAttribute("RR10", tmp, ReviewId, UserId);
+                        for (int i = 0; i < pico_span.outcomes.Count(); i++)
+                        {
+                            SaveAnnotation(pico_span.outcomes[i], ItemAttributeId);
+                        }
+                    }
+
+                    // Now go through the MeSH terms - part of the same bot
+
+                    AttributeSet p_mesh = SelectedReviewSet.GetSetByExt_URL("RR12");
+                    foreach (Population_Mesh p in pico_span.population_mesh)
+                    {
+                        AttributeSet aMesh = p_mesh.GetSetByExt_URL(p.mesh_ui);
+                        if (aMesh == null)
+                        {
+                            AddMeSHAttribute(p.mesh_term, p.mesh_ui, p.cui, p_mesh, UserId, ReviewId);
+                        }
+                        else
+                        {
+                            SaveAttribute(p.mesh_ui, "", ReviewId, UserId);
+                        }
+                    }
+                    AttributeSet i_mesh = SelectedReviewSet.GetSetByExt_URL("RR13");
+                    foreach (Interventions_Mesh i in pico_span.interventions_mesh)
+                    {
+                        AttributeSet aMesh = i_mesh.GetSetByExt_URL(i.mesh_ui);
+                        if (aMesh == null)
+                        {
+                            AddMeSHAttribute(i.mesh_term, i.mesh_ui, i.cui, i_mesh, UserId, ReviewId);
+                        }
+                        else
+                        {
+                            SaveAttribute(i.mesh_ui, "", ReviewId, UserId);
+                        }
+                    }
+                    AttributeSet o_mesh = SelectedReviewSet.GetSetByExt_URL("RR14");
+                    foreach (Outcomes_Mesh o in pico_span.outcomes_mesh)
+                    {
+                        AttributeSet aMesh = o_mesh.GetSetByExt_URL(o.mesh_ui);
+                        if (aMesh == null)
+                        {
+                            AddMeSHAttribute(o.mesh_term, o.mesh_ui, o.cui, o_mesh, UserId, ReviewId);
+                        }
+                        else
+                        {
+                            SaveAttribute(o.mesh_ui, "", ReviewId, UserId);
+                        }
+                    }
+                }
+                catch
+                {
+                    res = false;
+                    if (errors == "")
+                    {
+                        errors = "possibly incomplete data: pico_span_bot";
                     }
                     else
                     {
-                        SaveAttribute(p.mesh_ui, "", ReviewId, UserId);
+                        errors += ", pico_span_bot";
                     }
                 }
-                AttributeSet i_mesh = SelectedReviewSet.GetSetByExt_URL("RR13");
-                foreach (Interventions_Mesh i in pico_span.interventions_mesh)
+
+                try // PICO bot - text spans incl pdf annotations
                 {
-                    AttributeSet aMesh = i_mesh.GetSetByExt_URL(i.mesh_ui);
-                    if (aMesh == null)
+                    Pico_Bot pico = JsonConvert.DeserializeObject<Pico_Bot>(d.pico_bot.ToString());
+                    string tmp = "";
+                    foreach (Annotation4 a5 in pico.participants.annotations)
                     {
-                        AddMeSHAttribute(i.mesh_term, i.mesh_ui, i.cui, i_mesh, UserId, ReviewId);
+                        if (tmp == "")
+                        {
+                            tmp = a5.text;
+                        }
+                        else
+                        {
+                            tmp += Environment.NewLine + Environment.NewLine + a5.text;
+                        }
+                    }
+                    if (tmp != "")
+                    {
+                        Int64 itemAttributeId = SaveAttribute("RR47", tmp, ReviewId, UserId);
+                        foreach (Annotation4 a in pico.participants.annotations)
+                        {
+                            SaveAnnotation(a.text, itemAttributeId);
+                        }
+
+                    }
+                    tmp = "";
+                    foreach (Annotation5 a5 in pico.interventions.annotations)
+                    {
+                        if (tmp == "")
+                        {
+                            tmp = a5.text;
+                        }
+                        else
+                        {
+                            tmp += Environment.NewLine + Environment.NewLine + a5.text;
+                        }
+                    }
+                    if (tmp != "")
+                    {
+                        Int64 itemAttributeId = SaveAttribute("RR48", tmp, ReviewId, UserId);
+                        foreach (Annotation5 a in pico.interventions.annotations)
+                        {
+                            SaveAnnotation(a.text, itemAttributeId);
+                        }
+                    }
+                    tmp = "";
+                    foreach (Annotation6 a5 in pico.outcomes.annotations)
+                    {
+                        if (tmp == "")
+                        {
+                            tmp = a5.text;
+                        }
+                        else
+                        {
+                            tmp += Environment.NewLine + Environment.NewLine + a5.text;
+                        }
+                    }
+                    if (tmp != "")
+                    {
+                        Int64 itemAttributeId = SaveAttribute("RR49", tmp, ReviewId, UserId);
+                        foreach (Annotation6 a in pico.outcomes.annotations)
+                        {
+                            SaveAnnotation(a.text, itemAttributeId);
+                        }
+                    }
+                }
+                catch
+                {
+                    res = false;
+                    if (errors == "")
+                    {
+                        errors = "possibly incomplete data: pico_bot";
                     }
                     else
                     {
-                        SaveAttribute(i.mesh_ui, "", ReviewId, UserId);
+                        errors += ", pico_bot";
                     }
                 }
-                AttributeSet o_mesh = SelectedReviewSet.GetSetByExt_URL("RR14");
-                foreach (Outcomes_Mesh o in pico_span.outcomes_mesh)
+
+                // *********** bias bot (on full text, including pdf snippets) ************
+                try
                 {
-                    AttributeSet aMesh = o_mesh.GetSetByExt_URL(o.mesh_ui);
-                    if (aMesh == null)
+                    Bias_Bot bias = JsonConvert.DeserializeObject<Bias_Bot>(d.bias_bot.ToString());
+                    string ExtURL = bias.random_sequence_generation.judgement == "low" ? "RR17" : "RR18";
+                    string tmp = "";
+                    foreach (Annotation a in bias.random_sequence_generation.annotations)
                     {
-                        AddMeSHAttribute(o.mesh_term, o.mesh_ui, o.cui, o_mesh, UserId, ReviewId);
+                        if (tmp == "")
+                        {
+                            tmp = a.text;
+                        }
+                        else
+                        {
+                            tmp += Environment.NewLine + Environment.NewLine + a.text;
+                        }
+                    }
+                    Int64 ItemAttributeId = SaveAttribute(ExtURL, tmp, ReviewId, UserId);
+                    foreach (Annotation a in bias.random_sequence_generation.annotations)
+                    {
+                        SaveAnnotation(a.text, ItemAttributeId);
+                    }
+
+                    ExtURL = bias.allocation_concealment.judgement == "low" ? "RR20" : "RR21";
+                    tmp = "";
+                    foreach (Annotation1 a in bias.allocation_concealment.annotations)
+                    {
+                        if (tmp == "")
+                        {
+                            tmp = a.text;
+                        }
+                        else
+                        {
+                            tmp += Environment.NewLine + Environment.NewLine + a.text;
+                        }
+                    }
+                    ItemAttributeId = SaveAttribute(ExtURL, tmp, ReviewId, UserId);
+                    foreach (Annotation1 a in bias.allocation_concealment.annotations)
+                    {
+                        SaveAnnotation(a.text, ItemAttributeId);
+                    }
+
+                    ExtURL = bias.blinding_participants_personnel.judgement == "low" ? "RR23" : "RR24";
+                    tmp = "";
+                    foreach (Annotation2 a in bias.blinding_participants_personnel.annotations)
+                    {
+                        if (tmp == "")
+                        {
+                            tmp = a.text;
+                        }
+                        else
+                        {
+                            tmp += Environment.NewLine + Environment.NewLine + a.text;
+                        }
+                    }
+                    ItemAttributeId = SaveAttribute(ExtURL, tmp, ReviewId, UserId);
+                    foreach (Annotation2 a in bias.blinding_participants_personnel.annotations)
+                    {
+                        SaveAnnotation(a.text, ItemAttributeId);
+                    }
+
+                    ExtURL = bias.blinding_outcome_assessment.judgement == "low" ? "RR26" : "RR27";
+                    tmp = "";
+                    foreach (Annotation3 a in bias.blinding_outcome_assessment.annotations)
+                    {
+                        if (tmp == "")
+                        {
+                            tmp = a.text;
+                        }
+                        else
+                        {
+                            tmp += Environment.NewLine + Environment.NewLine + a.text;
+                        }
+                    }
+                    ItemAttributeId = SaveAttribute(ExtURL, tmp, ReviewId, UserId);
+                    foreach (Annotation3 a in bias.blinding_outcome_assessment.annotations)
+                    {
+                        SaveAnnotation(a.text, ItemAttributeId);
+                    }
+                }
+                catch
+                {
+                    res = false;
+                    if (errors == "")
+                    {
+                        errors = "possibly incomplete data: bias_bot";
                     }
                     else
                     {
-                        SaveAttribute(o.mesh_ui, "", ReviewId, UserId);
+                        errors += ", bias_bot";
                     }
                 }
-            }
-            catch
-            {
-                res = false;
-                if (errors == "")
-                {
-                    errors = "Error processing pico_span_bot";
-                }
-                else
-                {
-                    errors += ", pico_span_bot";
-                }
-            }
 
-            try // PICO bot - text spans incl pdf annotations
-            {
-                Pico_Bot pico = JsonConvert.DeserializeObject<Pico_Bot>(d.pico_bot.ToString());
-                string tmp = "";
-                foreach (Annotation4 a5 in pico.participants.annotations)
+                // SAMPLE SIZE BOT
+                try
                 {
-                    if (tmp == "")
+                    Sample_Size_Bot sample = JsonConvert.DeserializeObject<Sample_Size_Bot>(d.sample_size_bot.ToString());
+                    SaveAttribute("RR42", sample.num_randomized, ReviewId, UserId);
+                }
+                catch
+                {
+                    res = false;
+                    if (errors == "")
                     {
-                        tmp = a5.text;
+                        errors = "possibly incomplete data: sample_size_bot";
                     }
                     else
                     {
-                        tmp += Environment.NewLine + Environment.NewLine + a5.text;
+                        errors += ", sample_size_bot";
                     }
                 }
-                if (tmp != "")
-                {
-                    Int64 itemAttributeId = SaveAttribute("RR47", tmp, ReviewId, UserId);
-                    foreach (Annotation4 a in pico.participants.annotations)
-                    {
-                        SaveAnnotation(a.text, itemAttributeId);
-                    }
 
-                }
-                tmp = "";
-                foreach (Annotation5 a5 in pico.interventions.annotations)
+                // PUNCHLINE BOT
+                try
                 {
-                    if (tmp == "")
+                    Punchline_Bot punch = JsonConvert.DeserializeObject<Punchline_Bot>(d.punchline_bot.ToString());
+                    SaveAttribute("RR44", punch.punchline_text, ReviewId, UserId);
+                    SaveAttribute("RR45", punch.effect, ReviewId, UserId);
+                }
+                catch
+                {
+                    res = false;
+                    if (errors == "")
                     {
-                        tmp = a5.text;
+                        errors = "possibly incomplete data: punchline_bot";
                     }
                     else
                     {
-                        tmp += Environment.NewLine + Environment.NewLine + a5.text;
+                        errors += ", punchline_bot";
                     }
                 }
-                if (tmp != "")
+
+                // BIAS ON ABSTRACT
+                try
                 {
-                    Int64 itemAttributeId = SaveAttribute("RR48", tmp, ReviewId, UserId);
-                    foreach (Annotation5 a in pico.interventions.annotations)
+                    Bias_Ab_Bot bias_ab = JsonConvert.DeserializeObject<Bias_Ab_Bot>(d.bias_ab_bot.ToString());
+                    if (bias_ab.random_sequence_generation.judgement == "low")
                     {
-                        SaveAnnotation(a.text, itemAttributeId);
-                    }
-                }
-                tmp = "";
-                foreach (Annotation6 a5 in pico.outcomes.annotations)
-                {
-                    if (tmp == "")
-                    {
-                        tmp = a5.text;
+                        SaveAttribute("RR30", "", ReviewId, UserId);
                     }
                     else
                     {
-                        tmp += Environment.NewLine + Environment.NewLine + a5.text;
+                        SaveAttribute("RR31", "", ReviewId, UserId);
                     }
-                }
-                if (tmp != "")
-                {
-                    Int64 itemAttributeId = SaveAttribute("RR49", tmp, ReviewId, UserId);
-                    foreach (Annotation6 a in pico.outcomes.annotations)
+                    if (bias_ab.allocation_concealment.judgement == "low")
                     {
-                        SaveAnnotation(a.text, itemAttributeId);
-                    }
-                }
-            }
-            catch
-            {
-                res = false;
-                if (errors == "")
-                {
-                    errors = "Error processing pico_bot";
-                }
-                else
-                {
-                    errors += ", pico_bot";
-                }
-            }
-
-            // *********** bias bot (on full text, including pdf snippets) ************
-            try
-            {
-                Bias_Bot bias = JsonConvert.DeserializeObject<Bias_Bot>(d.bias_bot.ToString());
-                string ExtURL = bias.random_sequence_generation.judgement == "low" ? "RR17" : "RR18";
-                string tmp = "";
-                foreach (Annotation a in bias.random_sequence_generation.annotations)
-                {
-                    if (tmp == "")
-                    {
-                        tmp = a.text;
+                        SaveAttribute("RR33", "", ReviewId, UserId);
                     }
                     else
                     {
-                        tmp += Environment.NewLine + Environment.NewLine + a.text;
+                        SaveAttribute("RR34", "", ReviewId, UserId);
                     }
-                }
-                Int64 ItemAttributeId = SaveAttribute(ExtURL, tmp, ReviewId, UserId);
-                foreach (Annotation a in bias.random_sequence_generation.annotations)
-                {
-                    SaveAnnotation(a.text, ItemAttributeId);
-                }
-
-                ExtURL = bias.allocation_concealment.judgement == "low" ? "RR20" : "RR21";
-                tmp = "";
-                foreach (Annotation1 a in bias.allocation_concealment.annotations)
-                {
-                    if (tmp == "")
+                    if (bias_ab.blinding_participants_personnel.judgement == "low")
                     {
-                        tmp = a.text;
+                        SaveAttribute("RR36", "", ReviewId, UserId);
                     }
                     else
                     {
-                        tmp += Environment.NewLine + Environment.NewLine + a.text;
+                        SaveAttribute("RR37", "", ReviewId, UserId);
                     }
-                }
-                ItemAttributeId = SaveAttribute(ExtURL, tmp, ReviewId, UserId);
-                foreach (Annotation1 a in bias.allocation_concealment.annotations)
-                {
-                    SaveAnnotation(a.text, ItemAttributeId);
-                }
-
-                ExtURL = bias.blinding_participants_personnel.judgement == "low" ? "RR23" : "RR24";
-                tmp = "";
-                foreach (Annotation2 a in bias.blinding_participants_personnel.annotations)
-                {
-                    if (tmp == "")
+                    if (bias_ab.blinding_outcome_assessment.judgement == "low")
                     {
-                        tmp = a.text;
+                        SaveAttribute("RR39", "", ReviewId, UserId);
                     }
                     else
                     {
-                        tmp += Environment.NewLine + Environment.NewLine + a.text;
+                        SaveAttribute("RR40", "", ReviewId, UserId);
                     }
                 }
-                ItemAttributeId = SaveAttribute(ExtURL, tmp, ReviewId, UserId);
-                foreach (Annotation2 a in bias.blinding_participants_personnel.annotations)
+                catch
                 {
-                    SaveAnnotation(a.text, ItemAttributeId);
-                }
-
-                ExtURL = bias.blinding_outcome_assessment.judgement == "low" ? "RR26" : "RR27";
-                tmp = "";
-                foreach (Annotation3 a in bias.blinding_outcome_assessment.annotations)
-                {
-                    if (tmp == "")
+                    res = false;
+                    if (errors == "")
                     {
-                        tmp = a.text;
+                        errors = "possibly incomplete data: bias_ab_bot";
                     }
                     else
                     {
-                        tmp += Environment.NewLine + Environment.NewLine + a.text;
+                        errors += ", bias_ab_bot";
                     }
                 }
-                ItemAttributeId = SaveAttribute(ExtURL, tmp, ReviewId, UserId);
-                foreach (Annotation3 a in bias.blinding_outcome_assessment.annotations)
-                {
-                    SaveAnnotation(a.text, ItemAttributeId);
-                }
-            }
-            catch
-            {
-                res = false;
-                if (errors == "")
-                {
-                    errors = "Error processing bias_bot";
-                }
-                else
-                {
-                    errors += ", bias_bot";
-                }
-            }
 
-            // SAMPLE SIZE BOT
-            try
-            {
-                Sample_Size_Bot sample = JsonConvert.DeserializeObject<Sample_Size_Bot>(d.sample_size_bot.ToString());
-                SaveAttribute("RR42", sample.num_randomized, ReviewId, UserId);
-            }
-            catch
-            {
-                res = false;
-                if (errors == "")
+                // Human study classifier
+                try
                 {
-                    errors = "Error processing sample_size_bot";
+                    Human_Bot h = JsonConvert.DeserializeObject<Human_Bot>(d.human_bot.ToString());
+                    if (h.is_human)
+                    {
+                        SaveAttribute("RR6", "", ReviewId, UserId);
+                    }
                 }
-                else
+                catch
                 {
-                    errors += ", sample_size_bot";
+                    res = false;
+                    if (errors == "")
+                    {
+                        errors = "possibly incomplete data: human_bot";
+                    }
+                    else
+                    {
+                        errors += ", human_bot";
+                    }
                 }
-            }
 
-            // PUNCHLINE BOT
-            try
-            {
-                Punchline_Bot punch = JsonConvert.DeserializeObject<Punchline_Bot>(d.punchline_bot.ToString());
-                SaveAttribute("RR44", punch.punchline_text, ReviewId, UserId);
-                SaveAttribute("RR45", punch.effect, ReviewId, UserId);
-            }
-            catch
-            {
-                res = false;
-                if (errors == "")
+                if (errors != "")
                 {
-                    errors = "Error processing punchline_bot";
+                    _message = "RobotReviewer retured " + errors;
                 }
                 else
                 {
-                    errors += ", punchline_bot";
+                    _message = "RobotReviewer completed with no errors";
                 }
-            }
-
-            // BIAS ON ABSTRACT
-            try
-            {
-                Bias_Ab_Bot bias_ab = JsonConvert.DeserializeObject<Bias_Ab_Bot>(d.bias_ab_bot.ToString());
-                if (bias_ab.random_sequence_generation.judgement == "low")
-                {
-                    SaveAttribute("RR30", "", ReviewId, UserId);
-                }
-                else
-                {
-                    SaveAttribute("RR31", "", ReviewId, UserId);
-                }
-                if (bias_ab.allocation_concealment.judgement == "low")
-                {
-                    SaveAttribute("RR33", "", ReviewId, UserId);
-                }
-                else
-                {
-                    SaveAttribute("RR34", "", ReviewId, UserId);
-                }
-                if (bias_ab.blinding_participants_personnel.judgement == "low")
-                {
-                    SaveAttribute("RR36", "", ReviewId, UserId);
-                }
-                else
-                {
-                    SaveAttribute("RR37", "", ReviewId, UserId);
-                }
-                if (bias_ab.blinding_outcome_assessment.judgement == "low")
-                {
-                    SaveAttribute("RR39", "", ReviewId, UserId);
-                }
-                else
-                {
-                    SaveAttribute("RR40", "", ReviewId, UserId);
-                }
-            }
-            catch
-            {
-                res = false;
-                if (errors == "")
-                {
-                    errors = "Error processing bias_ab_bot";
-                }
-                else
-                {
-                    errors += ", bias_ab_bot";
-                }
-            }
-
-            // Human study classifier
-            try
-            {
-                Human_Bot h = JsonConvert.DeserializeObject<Human_Bot>(d.human_bot.ToString());
-                if (h.is_human)
-                {
-                    SaveAttribute("RR6", "", ReviewId, UserId);
-                }
-            }
-            catch
-            {
-                res = false;
-                if (errors == "")
-                {
-                    errors = "Error processing human_bot";
-                }
-                else
-                {
-                    errors += ", human_bot";
-                }
-            }
-            
-            if (errors != "")
-            {
-                _message = "RobotReviewer completed with errors: " + errors;
-            }
-            else
-            {
-                _message = "RobotReviewer completed with no errors";
             }
             return res;
         }

@@ -87,7 +87,7 @@ namespace EppiReviewer4
                     {
                         RobotReviewerCommand rr2 = e2.Object as RobotReviewerCommand;
                         this.closeWindowRobots.Invoke(sender, e);
-                        //RadWindow.Alert(rr2.ReturnMessage);
+                        RadWindow.Alert(rr2.ReturnMessage);
                     }
                 };
                 busyIndicatorRobots.IsBusy = true;
@@ -127,7 +127,7 @@ namespace EppiReviewer4
                     {
                         RobotHBCPCommand rh2 = e2.Object as RobotHBCPCommand;
                         this.closeWindowRobots.Invoke(sender, e);
-                        //RadWindow.Alert(rr2.ReturnMessage);
+                        RadWindow.Alert(rh2.ReturnMessage);
                     }
                 };
                 busyIndicatorRobots.IsBusy = true;
