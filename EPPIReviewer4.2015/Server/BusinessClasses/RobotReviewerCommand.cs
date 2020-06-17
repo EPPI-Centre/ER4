@@ -151,7 +151,7 @@ namespace BusinessLibrary.BusinessClasses
                 {
                     keepWating = false;
                 }
-                if (counter > 60)
+                if (counter > 30)
                 {
                     keepWating = false;
                     _message = "Error: RobotReviewer did not return results.";
