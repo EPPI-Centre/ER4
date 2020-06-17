@@ -1304,7 +1304,10 @@ namespace EppiReviewer4
                     CurrentTextDocument = null;
                     codesTreeControl.CurrentTextDocument = null;
                     codesTreeControl.ShowCodeTxtOptions = false;
-                    rich.Document = null;
+                    if (PaneItemDetails[1] != null && PaneItemDetails[1].IsSelected) PaneItemDetails.SelectedIndex = 0;
+                    ClearCurrentTextDocument();
+                    //rich_Loaded(sender, e);
+                    //rich.Document = null;
                 }
                 if (PaneItemDetails[5] != null && PaneItemDetails[5].Control.IsEnabled)
                 {
