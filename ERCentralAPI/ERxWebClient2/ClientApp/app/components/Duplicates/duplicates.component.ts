@@ -8,6 +8,7 @@ import { DuplicatesService, iReadOnlyDuplicatesGroup, DuplicateGroupMember, Mark
 import { Helpers, LocalSort } from '../helpers/HelperMethods';
 import { CodesetStatisticsService } from '../services/codesetstatistics.service';
 import { ItemListService } from '../services/ItemList.service';
+import { EventEmitterService } from '../services/EventEmitter.service';
 
 
 @Component({
@@ -38,7 +39,9 @@ export class DuplicatesComponent implements OnInit, OnDestroy {
         private ConfirmationDialogService: ConfirmationDialogService,
         private CodesetStatisticsService: CodesetStatisticsService,
         private DuplicatesService: DuplicatesService,
-        private ItemListService: ItemListService
+        private ItemListService: ItemListService,
+        private eventsService: EventEmitterService,
+        private confirmationDialogService: ConfirmationDialogService
 	) { }
     ngOnInit() {
         this.DuplicatesService.currentCount = 0;
@@ -51,6 +54,7 @@ export class DuplicatesComponent implements OnInit, OnDestroy {
     public codedCr: number = 0;
     public docsCr: number = 0;
     public ActivePanel: string = "";
+    public lowThresholdWarningActive: string = "";
     private HasAppliedChanges: boolean = false;
     public get IsServiceBusy(): boolean {
         //console.log("mainfull IsServiceBusy", this.ItemListService, this.codesetStatsServ, this.SourcesService )
@@ -219,7 +223,7 @@ export class DuplicatesComponent implements OnInit, OnDestroy {
             .catch(() => { });
     }
     public MarkAutomatically() {
-        this.ConfirmationDialogService.confirm("Mark Automatically?", "This could take some time and you won't be able to use EPPI-Reviewer while it's happening. <br/ > Whowever, you can cancel this process at any time", false, "")
+        this.ConfirmationDialogService.confirm("Mark Automatically?", "This could take some time and you won't be able to use EPPI-Reviewer while it's happening. <br/ > However, you can cancel this process at any time", false, "")
             .then(
                 (confirm: any) => {
                     if (confirm) {
@@ -232,6 +236,35 @@ export class DuplicatesComponent implements OnInit, OnDestroy {
         //this.ActivePanel = "MarkAutomatically";
         //this.DuplicatesService.MarkAutomatically(1, 0, 0);
     }
+    private async ShowLowThresholdWarning(value: number) {
+        await Helpers.Sleep(20);
+        if (this.similarityCr < 0.8) {
+            this.lowThresholdWarningActive = "true";
+        }
+        else {
+            this.lowThresholdWarningActive = "false";
+        }
+    }
+    public openConfirmationDialogAutoMatchWithLowThreshold() {
+
+        this.confirmationDialogService.confirm('Please confirm', 'You are setting a low threshold that could erroneously mark some items as duplicates.' +
+            '<br />Please type \'I confirm\' in the box below if you are sure you want to proceed.', true, this.confirmationDialogService.UserInputTextArms)
+            .then(
+                (confirm: any) => {
+
+                    //console.log('Text entered is the following: ' + confirm + ' ' + this.eventsService.UserInput );
+
+                    if (confirm && this.eventsService.UserInput == 'I confirm') {
+
+                        this.StartAdvancedMarkAutomaticallyWithLowThreshold();
+
+                    } else {
+
+                    }
+                }
+            )
+            .catch(() => console.log('User dismissed the dialog (e.g., by using ESC, clicking the cross icon, or clicking outside the dialog)'));
+    }
     private async StartMarkAutomatically() {
         await Helpers.Sleep(20);
         this.ActivePanel = "Running Mark Automatically";
@@ -239,6 +272,17 @@ export class DuplicatesComponent implements OnInit, OnDestroy {
         this.DuplicatesService.MarkAutomatically(1, 0, 0);
     }
     private async StartAdvancedMarkAutomatically() {
+        if (this.similarityCr >= 0.8) {
+            await Helpers.Sleep(20);
+            this.ActivePanel = "Running Mark Automatically";
+            await Helpers.Sleep(20);
+            this.DuplicatesService.MarkAutomatically(this.similarityCr, this.codedCr, this.docsCr);
+        }
+        else {
+            this.openConfirmationDialogAutoMatchWithLowThreshold();
+        }
+    }
+    private async StartAdvancedMarkAutomaticallyWithLowThreshold() {
         await Helpers.Sleep(20);
         this.ActivePanel = "Running Mark Automatically";
         await Helpers.Sleep(20);
