@@ -12,6 +12,7 @@ import { MAGAdvancedService } from '../services/magAdvanced.service';
 import { MAGBrowserHistoryService } from '../services/MAGBrowserHistory.service';
 import { interval, Subscription } from 'rxjs';
 import { NotificationService } from '@progress/kendo-angular-notification';
+import { MAGSimulationService } from '../services/MAGSimulation.service';
 
 
 @Component({
@@ -24,6 +25,7 @@ export class AdvancedMAGFeaturesComponent implements OnInit, OnDestroy {
 
     history: NavigationEnd[] = [];
     constructor(private ConfirmationDialogService: ConfirmationDialogService,
+        private _magSimulationService: MAGSimulationService,
         public _magAdvancedService: MAGAdvancedService,
         public _searchService: searchService,
         private _ReviewerIdentityServ: ReviewerIdentityService,
@@ -181,7 +183,7 @@ export class AdvancedMAGFeaturesComponent implements OnInit, OnDestroy {
         this.ConfirmationDialogService.confirm('MAG Simulation', msg, false, '')
             .then((confirm: any) => {
                 if (confirm) {
-                    this._magAdvancedService.AddMagSimulation(newMagSimulation);
+                    this._magSimulationService.AddMagSimulation(newMagSimulation);
 
                 }
             });
@@ -219,7 +221,7 @@ export class AdvancedMAGFeaturesComponent implements OnInit, OnDestroy {
                 "Are you sure you want to delete MAG RUN:" + item.magSimulationId + "?", false, '')
                 .then((confirm: any) => {
                     if (confirm) {
-                        this._magAdvancedService.DeleteSimulation(item);
+                        this._magSimulationService.DeleteSimulation(item);
                     }
                 });
         }
@@ -241,6 +243,6 @@ export class AdvancedMAGFeaturesComponent implements OnInit, OnDestroy {
 
     }
     public GetMagSimulationList() {
-        this._magAdvancedService.FetchMagSimulationList();
+        this._magSimulationService.FetchMagSimulationList();
     }
 }

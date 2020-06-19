@@ -245,4 +245,11 @@ export class TopicLink {
     fieldOfStudyId: number = 0;
 }
 
+export class MagCheckContReviewRunningCommand {
+
+    isRunningMessage: string = '';
+
+}
+
+
 

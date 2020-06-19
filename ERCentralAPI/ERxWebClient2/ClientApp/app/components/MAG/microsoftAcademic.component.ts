@@ -45,17 +45,20 @@ export class microsoftAcademicComp implements OnInit, OnDestroy {
 
         this._magAdvancedService.FetchMagPaperId(this.magPaperId).then(
 
-            () => { this.router.navigate(['MAGBrowser']); }
+            (result: MagPaper) => {
 
-        );
+                this._magAdvancedService.PostFetchMagPaperCalls(result);
+            });
+
     }
     public GetMagPaperRef(magPaperRefId: number) {
 
         this._magAdvancedService.FetchMagPaperId(magPaperRefId).then(
 
-            () => { this.router.navigate(['MAGBrowser']); }
+            (result: MagPaper) => {
 
-        );
+                this._magAdvancedService.PostFetchMagPaperCalls(result);
+            });
     }
     public CanGetMagPaper(): boolean {
 

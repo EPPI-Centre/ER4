@@ -34,9 +34,7 @@ export class MAGBrowser implements OnInit, OnDestroy {
     public browsingHistory: NavigationEnd[] = [];
     public MAGPapers: MagPaper[] = [];
     public description: string = '';
-    //public SelectedPaperIds: number[] = [];
     public ShowSelectedPapers: string = '';
-    //public selectedPapers: MagPaper[] = [];
     public isShowDivIf = false;
 
 
@@ -54,13 +52,9 @@ export class MAGBrowser implements OnInit, OnDestroy {
         this.isShowDivIf = !this.isShowDivIf;
     }
     public GetPDFLinks() : string[] {
-
         let links: string = this._magAdvancedService.currentMagPaper.pdfLinks;
         if (links != null && links != '') {
-
-
             var pdfLinks = links.split(';');
-            console.log(pdfLinks);
             return pdfLinks;
         } else {
             return [];      
@@ -80,9 +74,11 @@ export class MAGBrowser implements OnInit, OnDestroy {
 
         this._magAdvancedService.FetchMagPaperId(magPaperRefId).then(
 
-            //() => { this.router.navigate(['MAGBrowser']); }
+            (result: MagPaper) => {
 
-        );
+                this._magAdvancedService.PostFetchMagPaperCalls(result);
+            });
+     
     }
     public Back() {
         this._location.back();

@@ -335,10 +335,12 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
 
         this._magAdvancedService.FetchMagPaperId(this.magPaperId).then(
 
-            () => { this.router.navigate(['MAGBrowser']); }
+            (result: MagPaper) => {
 
-        );
+                this._magAdvancedService.PostFetchMagPaperCalls(result);
+            });
     }
+
     CloseCodeDropDown2() {
         if (this.WithOrWithoutCodeSelector2) {
             this.CurrentDropdownSelectedCode2 = this.WithOrWithoutCodeSelector2.SelectedNodeData;
