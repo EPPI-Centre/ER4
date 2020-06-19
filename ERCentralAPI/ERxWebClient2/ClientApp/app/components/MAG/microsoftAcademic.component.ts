@@ -1,11 +1,10 @@
 import { Component, OnInit, OnDestroy, Inject, Input} from '@angular/core';
 import { Router } from '@angular/router';
 import { MAGAdvancedService } from '../services/magAdvanced.service';
-import { MagPaper, MVCMagPaperListSelectionCriteria, MVCMagFieldOfStudyListSelectionCriteria } from '../services/MAGClasses.service';
+import { MagPaper } from '../services/MAGClasses.service';
 import { ItemCodingService } from '../services/ItemCoding.service';
 import { Subscription } from 'rxjs';
 import { Item } from '../services/ItemList.service';
-import { MAGBrowserService } from '../services/MAGBrowser.service';
 
 @Component({
    
@@ -19,8 +18,7 @@ export class microsoftAcademicComp implements OnInit, OnDestroy {
     constructor(private router: Router, 
         @Inject('BASE_URL') private _baseUrl: string,
         public _magAdvancedService: MAGAdvancedService,
-        private _ItemCodingService: ItemCodingService,
-        private _magBrowserService: MAGBrowserService
+        private _ItemCodingService: ItemCodingService
     ) { }
 
     @Input() item: Item = new Item;
