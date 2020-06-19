@@ -128,12 +128,12 @@ export class MAGBrowserService extends BusyAwareService {
                 });
     }
     public FetchMagFieldOfStudyList(criteria: MVCMagFieldOfStudyListSelectionCriteria, goBackListType: string): Promise<MagFieldOfStudy[]> {
-        this._BusyMethods.push("FetchMagPaperList");
+        this._BusyMethods.push("FetchMagFieldOfStudyList");
         return this._httpC.post<MagFieldOfStudy[]>(this._baseUrl + 'api/MagCurrentInfo/GetMagFieldOfStudyList', criteria)
             .toPromise().then(
             (result: MagFieldOfStudy[]) => {
 
-                    this.RemoveBusy("FetchMagPaperList");
+                    this.RemoveBusy("FetchMagFieldOfStudyList");
                         if (result != null) {
 
                             let FosList: MagFieldOfStudy[] = result;
@@ -167,15 +167,15 @@ export class MAGBrowserService extends BusyAwareService {
                     return result;
                 },
                 error => {
-                    this.RemoveBusy("FetchMagPaperList");
+                    this.RemoveBusy("FetchMagFieldOfStudyList");
                     this.modalService.GenericError(error);
                     return error;
                 }
             ).catch(
             (error) => {
 
-                this.modalService.GenericErrorMessage("error with FetchMagPaperList: " + error);
-                this.RemoveBusy("FetchMagPaperList");
+                    this.modalService.GenericErrorMessage("error with FetchMagFieldOfStudyList: " + error);
+                    this.RemoveBusy("FetchMagFieldOfStudyList");
                 return error;
             });
     }
