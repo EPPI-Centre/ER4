@@ -84,7 +84,7 @@
                                           style="width: 110px;"
                                           (valueChange)="ShowLowThresholdWarning($event)"></kendo-numerictextbox>
                 </div>
-                <div *ngIf="lowThresholdWarningActive == 'true'" class="col-12 rounded border border-info alert-info m-1 p-1 " style.visibility="hidden">
+                <div *ngIf="lowThresholdWarningActive == 'true'" class="col-12 rounded border border-info alert-info m-0 p-1 " style.visibility="hidden">
                     Warning! You have set a rather low threshold for auto-matching that could result in false positives!
                 </div>
             </div>
