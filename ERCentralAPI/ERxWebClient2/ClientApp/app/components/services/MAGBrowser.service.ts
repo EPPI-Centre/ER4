@@ -300,13 +300,15 @@ export class MAGBrowserService extends BusyAwareService {
     }
     public Clear() {
 
-        console.log('called clear on MAGBrowser service ');
         this._currentPaper = new MagPaper();
-        this.WPChildTopics = [];
-        this.WPParentTopics = [];
         this.MAGList = new MagList();
         this.MagCitationsByPaperList = new MagList();
-
+        this.ClearTopics();
+    }
+    public ClearTopics() {
+        this.ParentTopic = '';
+        this.WPChildTopics = [];
+        this.WPParentTopics = [];
     }
 }
 

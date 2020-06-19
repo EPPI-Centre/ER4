@@ -3,7 +3,7 @@ import { Location } from '@angular/common';
 import { searchService } from '../services/search.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Router, NavigationEnd } from '@angular/router';
-import { MagPaper,  MagFieldOfStudy } from '../services/MAGClasses.service';
+import { MagPaper,  MagFieldOfStudy, MVCMagPaperListSelectionCriteria, MVCMagFieldOfStudyListSelectionCriteria } from '../services/MAGClasses.service';
 import { MAGBrowserService } from '../services/MAGBrowser.service';
 import { MAGAdvancedService } from '../services/magAdvanced.service';
 import { MAGBrowserHistoryService } from '../services/MAGBrowserHistory.service';
@@ -80,9 +80,11 @@ export class MAGBrowser implements OnInit, OnDestroy {
 
         this._magAdvancedService.FetchMagPaperId(magPaperRefId).then(
 
-            //() => { this.router.navigate(['MAGBrowser']); }
+            (result: MagPaper) => {
 
-        );
+                this._magAdvancedService.PostFetchMagPaperCalls(result);
+            });
+     
     }
     public Back() {
         this._location.back();

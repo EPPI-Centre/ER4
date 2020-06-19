@@ -1,10 +1,11 @@
 import { Component, OnInit, OnDestroy, Inject, Input} from '@angular/core';
 import { Router } from '@angular/router';
 import { MAGAdvancedService } from '../services/magAdvanced.service';
-import { MagPaper } from '../services/MAGClasses.service';
+import { MagPaper, MVCMagPaperListSelectionCriteria, MVCMagFieldOfStudyListSelectionCriteria } from '../services/MAGClasses.service';
 import { ItemCodingService } from '../services/ItemCoding.service';
 import { Subscription } from 'rxjs';
 import { Item } from '../services/ItemList.service';
+import { MAGBrowserService } from '../services/MAGBrowser.service';
 
 @Component({
    
@@ -18,7 +19,8 @@ export class microsoftAcademicComp implements OnInit, OnDestroy {
     constructor(private router: Router, 
         @Inject('BASE_URL') private _baseUrl: string,
         public _magAdvancedService: MAGAdvancedService,
-        private _ItemCodingService: ItemCodingService
+        private _ItemCodingService: ItemCodingService,
+        private _magBrowserService: MAGBrowserService
     ) { }
 
     @Input() item: Item = new Item;
@@ -45,17 +47,20 @@ export class microsoftAcademicComp implements OnInit, OnDestroy {
 
         this._magAdvancedService.FetchMagPaperId(this.magPaperId).then(
 
-            () => { this.router.navigate(['MAGBrowser']); }
+            (result: MagPaper) => {
 
-        );
+                this._magAdvancedService.PostFetchMagPaperCalls(result);
+            });
+
     }
     public GetMagPaperRef(magPaperRefId: number) {
 
         this._magAdvancedService.FetchMagPaperId(magPaperRefId).then(
 
-            () => { this.router.navigate(['MAGBrowser']); }
+            (result: MagPaper) => {
 
-        );
+                this._magAdvancedService.PostFetchMagPaperCalls(result);
+            });
     }
     public CanGetMagPaper(): boolean {
 
