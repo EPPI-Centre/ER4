@@ -45,11 +45,11 @@
     </div>
     <div class="col-8 col-xl-9 p-0">
         <div class="containsAtoolbar row alert-info ml-1 mr-0 my-0 p-0" style="background-color: #f5f6fa;">
-            <button kendoButton class="ml-1" [title]="'Automatically generate codes'"
+            <button kendoButton class="ml-1" [title]="'Get the current list of groups'"
                     (click)="Refresh()">
                 Refresh
             </button>
-            <button kendoButton class="mx-1" [disabled]="!HasWriteRights"
+            <button kendoButton class="mx-1" [disabled]="!HasWriteRights" [title]="'Look for new duplicates'"
                     (click)="GetNewDuplicates()">
                 Get New Duplicates
             </button>
