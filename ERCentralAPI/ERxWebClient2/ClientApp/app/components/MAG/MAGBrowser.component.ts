@@ -52,13 +52,9 @@ export class MAGBrowser implements OnInit, OnDestroy {
         this.isShowDivIf = !this.isShowDivIf;
     }
     public GetPDFLinks() : string[] {
-
         let links: string = this._magAdvancedService.currentMagPaper.pdfLinks;
         if (links != null && links != '') {
-
-
             var pdfLinks = links.split(';');
-            console.log(pdfLinks);
             return pdfLinks;
         } else {
             return [];      

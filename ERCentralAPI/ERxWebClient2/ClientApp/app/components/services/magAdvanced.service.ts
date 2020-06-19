@@ -94,7 +94,7 @@ export class MAGAdvancedService extends BusyAwareService {
                 return;
             };
     }
-    // the two below need refactoring
+
     public FetchMagPaperList(crit: MVCMagPaperListSelectionCriteria): Promise<MagPaper[]> {
         this._BusyMethods.push("FetchMagPaperList");
         return this._httpC.post<MagPaper[]>(this._baseUrl + 'api/MagCurrentInfo/GetMagPaperList', crit)
@@ -103,26 +103,16 @@ export class MAGAdvancedService extends BusyAwareService {
                 (result: MagPaper[]) => {
                     this.RemoveBusy("FetchMagPaperList");
 
-                    //TODO might not be needed anymore after recent changes
-                    if (crit.listType == 'CitationsList') {
-                        this.MagCitationsPaperList = result;
-                    } else if (crit.listType == 'CitedByList') {
-                        this.MagCitationsPaperList = result;
-                    } else if (crit.listType == 'ReviewMatchedPapers') {
-                        this.ReviewMatchedPapersList = result;
-                        for (var i = 0; i < this.ReviewMatchedPapersList.length; i++) {
-                            this.PaperIds += this.ReviewMatchedPapersList[i].paperId.toString() + ',';
-                        }
-                        this.PaperIds = this.PaperIds.substr(0, this.PaperIds.length - 1)
-                    } else if (crit.listType == 'ReviewMatchedPapersWithThisCode') {
-                        this.PaperIds = "";
+                    if (crit.listType == 'ReviewMatchedPapers' || crit.listType == 'ReviewMatchedPapersWithThisCode') {
                         this.ReviewMatchedPapersList = result;
                         for (var i = 0; i < this.ReviewMatchedPapersList.length; i++) {
                             this.PaperIds += this.ReviewMatchedPapersList[i].paperId.toString() + ',';
                         }
                         this.PaperIds = this.PaperIds.substr(0, this.PaperIds.length - 1)
                         this.CurrentCriteria = crit;
-                    } else if (crit.listType == 'ItemMatchedPapersList') {
+
+                    } else if(crit.listType == 'ItemMatchedPapersList') {
+
                         this.MagReferencesPaperList = result;
                     }
                     return result;
@@ -140,7 +130,7 @@ export class MAGAdvancedService extends BusyAwareService {
                     return error;
                 });
     }
-
+    // above needs refactoring
     public FetchMagPaperId(Id: number): Promise<MagPaper> {
 
         this._magBrowserService.ClearTopics();
