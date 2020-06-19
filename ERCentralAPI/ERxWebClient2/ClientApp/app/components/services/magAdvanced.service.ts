@@ -5,7 +5,7 @@ import { BusyAwareService } from '../helpers/BusyAwareService';
 import { Item } from './ItemList.service';
 import { MAGBrowserService } from './MAGBrowser.service';
 import { MagPaper, MagReviewMagInfo, MVCMagPaperListSelectionCriteria, MagCurrentInfo, MagSimulation,
-        ClassifierContactModel, MVCMagFieldOfStudyListSelectionCriteria, MagList } from './MAGClasses.service';
+        ClassifierContactModel, MVCMagFieldOfStudyListSelectionCriteria, MagList, MagCheckContReviewRunningCommand } from './MAGClasses.service';
 
 
 @Injectable({
@@ -39,19 +39,11 @@ export class MAGAdvancedService extends BusyAwareService {
     public MagList: MagList = new MagList();
     private _MagCurrentInfo: MagCurrentInfo = new MagCurrentInfo();
     private _ClassifierContactModelList: ClassifierContactModel[] = [];
-    private _MagSimulationList: MagSimulation[] = [];
-
     public get MagCurrentInfo(): MagCurrentInfo{
         return this._MagCurrentInfo;
     }
     public set MagCurrentInfo(magInfo: MagCurrentInfo) {
         this._MagCurrentInfo = magInfo;
-    }
-    public get MagSimulationList(): MagSimulation[] {
-        return this._MagSimulationList;
-    }
-    public set MagSimulationList(classifierContactModelList: MagSimulation[]) {
-        this._MagSimulationList = classifierContactModelList;
     }
     public get ClassifierContactModelList(): ClassifierContactModel[] {
         return this._ClassifierContactModelList;
@@ -59,7 +51,8 @@ export class MAGAdvancedService extends BusyAwareService {
     public set ClassifierContactModelList(classifierContactModelList: ClassifierContactModel[]) {
         this._ClassifierContactModelList = classifierContactModelList;
     }
-    public UpdateMagPaper(matchCorrect: boolean, paperId: number, itemId: number) : Promise<any> {
+
+    public UpdateMagPaper(matchCorrect: boolean, paperId: number, itemId: number): Promise<any> {
 
         this._BusyMethods.push("UpdateMagPaper");
         let body = JSON.stringify({ manualTrueMatchProperty: matchCorrect, magPaperId:  paperId, itemId: itemId});
@@ -362,77 +355,6 @@ export class MAGAdvancedService extends BusyAwareService {
                     return error;
                 });
     }
-    //CRUD Simulation methods
-    public DeleteSimulation(item: MagSimulation) {
-
-        this._BusyMethods.push("DeleteSimulation");
-        let body = JSON.stringify({Value: item.magSimulationId });
-        return this._httpC.post<MagSimulation>(this._baseUrl + 'api/MAGSimulationList/DeleteMagSimulation', body)
-            .toPromise().then(
-                (result: MagSimulation) => {
-
-                    this.RemoveBusy("DeleteSimulation");
-                    if (result != null && result.magSimulationId > 0) {
-
-                        let ind: number = this.MagSimulationList.findIndex((x) => x.magSimulationId == item.magSimulationId);
-                            if (ind > 0) {
-                                this.MagSimulationList.splice(ind, 1);
-                            }
-                    }
-                },
-                error => {
-                    this.RemoveBusy("DeleteSimulation");
-                    this.modalService.GenericError(error);
-                }
-                ).catch(
-                (error) => {
-
-                    this.modalService.GenericErrorMessage("error with DeleteSimulation: " + error);
-                    this.RemoveBusy("DeleteSimulation");
-            });
-    }
-    public AddMagSimulation(newMagSimulation: MagSimulation) {
-        this._BusyMethods.push("AddMagSimulation");
-        return this._httpC.post<MagSimulation>(this._baseUrl + 'api/MAGSimulationList/CreateMagSimulation', newMagSimulation)
-            .toPromise().then(
-            (result: MagSimulation) => {
-
-                this.RemoveBusy("AddMagSimulation");
-                    if (this.MagSimulationList != null && this.MagSimulationList.length > 0) {
-
-                        this.MagSimulationList.push(result);
-                    }
-                },
-                error => {
-                    this.RemoveBusy("AddMagSimulation");
-                    this.modalService.GenericError(error);
-                }
-            ).catch(
-            (error) => {
-
-                this.modalService.GenericErrorMessage("error with AddMagSimulation");
-                this.RemoveBusy("AddMagSimulation");
-            });
-    }
-    public FetchMagSimulationList() {
-        this._BusyMethods.push("FetchMagSimulationList");
-        this._httpC.get<MagSimulation[]>(this._baseUrl + 'api/MagSimulationList/GetMagSimulationList')
-            .subscribe(result => {
-                this.RemoveBusy("FetchMagSimulationList");
-                this.MagSimulationList = result;
-            },
-                error => {
-                    this.RemoveBusy("FetchMagSimulationList");
-                    this.modalService.GenericError(error);
-                },
-                () => {
-                    this.RemoveBusy("FetchMagSimulationList");
-                });
-    }
-}
-
-export class MagCheckContReviewRunningCommand {
-
-    isRunningMessage: string = '';
 
 }
+
