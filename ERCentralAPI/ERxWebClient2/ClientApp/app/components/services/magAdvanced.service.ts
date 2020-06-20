@@ -198,7 +198,7 @@ export class MAGAdvancedService extends BusyAwareService {
     public CheckContReviewPipelineState(): boolean {
 
         this._BusyMethods.push("CheckContReviewPipelineState");
-        this._httpC.get<MagCheckContReviewRunningCommand>(this._baseUrl + 'api/MAGSimulationList/MagCheckContReviewRunningCommand')
+        this._httpC.get<MagCheckContReviewRunningCommand>(this._baseUrl + 'api/MagCurrentInfo/MagCheckContReviewRunningCommand')
             .subscribe(result => {
                 this.RemoveBusy("CheckContReviewPipelineState");
                 if (result != null) {
