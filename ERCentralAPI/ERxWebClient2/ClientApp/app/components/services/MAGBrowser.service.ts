@@ -193,6 +193,7 @@ export class MAGBrowserService extends BusyAwareService {
                 }
             );
     }
+    //refactor
     public SavePapers(list: MagList, crit: MVCMagPaperListSelectionCriteria) {
 
         if (crit.listType == 'CitationsList' || crit.listType == 'ReviewMatchedPapers') {

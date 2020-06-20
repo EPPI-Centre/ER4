@@ -12,12 +12,12 @@ namespace ERxWebClient2.Controllers
 {
     [Authorize]
     [Route("api/[controller]")]
-    public class MagFieldOfStudyList : CSLAController
+    public class MagFieldOfStudyListController : CSLAController
     {
 
         private readonly ILogger _logger;
 
-		public MagFieldOfStudyList(ILogger<MagFieldOfStudyList> logger)
+		public MagFieldOfStudyListController(ILogger<MagFieldOfStudyListController> logger)
         {
 
             _logger = logger;

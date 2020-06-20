@@ -3,7 +3,7 @@ import { Location } from '@angular/common';
 import { searchService } from '../services/search.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Router, NavigationEnd } from '@angular/router';
-import { MagPaper,  MagFieldOfStudy } from '../services/MAGClasses.service';
+import { MagPaper,  MagFieldOfStudy, MVCMagFieldOfStudyListSelectionCriteria } from '../services/MAGClasses.service';
 import { MAGBrowserService } from '../services/MAGBrowser.service';
 import { MAGAdvancedService } from '../services/magAdvanced.service';
 import { MAGBrowserHistoryService } from '../services/MAGBrowserHistory.service';
@@ -36,7 +36,7 @@ export class MAGBrowser implements OnInit, OnDestroy {
     public description: string = '';
     public ShowSelectedPapers: string = '';
     public isShowDivIf = false;
-
+    public currentFieldOfStudy: MagFieldOfStudy = new MagFieldOfStudy();
 
     ngOnInit() {
 
@@ -109,17 +109,25 @@ export class MAGBrowser implements OnInit, OnDestroy {
     }
     public GetParentAndChildRelatedPapers(item: MagFieldOfStudy) {
 
-        let FieldOfStudyId: number = item.fieldOfStudyId;
+        this.currentFieldOfStudy = item;
         this._magBrowserService.ParentTopic = item.displayName;
         this._magBrowserService.WPChildTopics = [];
         this._magBrowserService.WPParentTopics = [];
         this._magBrowserService.Clear();
         this._magAdvancedService.currentMagPaper = new MagPaper();
 
-        this._magBrowserService.GetParentAndChildFieldsOfStudy("FieldOfStudyParentsList", FieldOfStudyId);
-        this._magBrowserService.GetParentAndChildFieldsOfStudy("FieldOfStudyChildrenList", FieldOfStudyId);
-        this._magBrowserService.GetPaperListForTopic(FieldOfStudyId);
+        this._magBrowserService.GetParentAndChildFieldsOfStudy("FieldOfStudyParentsList", this.currentFieldOfStudy.fieldOfStudyId );
+        this._magBrowserService.GetParentAndChildFieldsOfStudy("FieldOfStudyChildrenList", this.currentFieldOfStudy.fieldOfStudyId );
+        this._magBrowserService.GetPaperListForTopic(this.currentFieldOfStudy.fieldOfStudyId );
 
+    }
+    public SetPageSize(size: number) {
+
+        this._magBrowserService.pageSize = size;
+        if (this.currentFieldOfStudy != null && this.currentFieldOfStudy.fieldOfStudyId > 0) {
+            this.GetParentAndChildRelatedPapers(this.currentFieldOfStudy);
+        }
+        
     }
     public HideCitatedBy(): boolean {
 
