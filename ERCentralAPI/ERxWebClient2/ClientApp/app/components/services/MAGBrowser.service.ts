@@ -81,7 +81,7 @@ export class MAGBrowserService extends BusyAwareService {
         return this.FetchMagFieldOfStudyList(selectionCriteria, 'CitationsList');
 
     }
-    public FetchMAGRelatedPaperRunsListById(Id: number): Promise<boolean> {
+    public FetchMAGRelatedPaperRunsListById(Id: number) {
         var goBackListType: string = 'MagRelatedPapersRunList';
         this._BusyMethods.push("FetchMAGRelatedPaperRunsListId");
         this.ListCriteria.listType = "MagRelatedPapersRunList";
@@ -90,7 +90,7 @@ export class MAGBrowserService extends BusyAwareService {
 
         return this._httpC.post<MagList>(this._baseUrl + 'api/MagRelatedPapersRunList/GetMagRelatedPapersRunsId',
             this.ListCriteria)
-            .toPromise().then(
+            .subscribe(
                 (result) => {
 
                     this.RemoveBusy("FetchMAGRelatedPaperRunsListId");
@@ -118,13 +118,7 @@ export class MAGBrowserService extends BusyAwareService {
                     this.modalService.GenericError(error);
                     return false;
                 }
-            ).catch(
-                (error) => {
-
-                    this.modalService.GenericErrorMessage("error with FetchMAGRelatedPaperRunsListId");
-                    this.RemoveBusy("FetchMAGRelatedPaperRunsListId");
-                    return false;
-                });
+            );
     }
     public FetchMagFieldOfStudyList(criteria: MVCMagFieldOfStudyListSelectionCriteria, goBackListType: string) {
         this._BusyMethods.push("FetchMagFieldOfStudyList");
@@ -184,7 +178,7 @@ export class MAGBrowserService extends BusyAwareService {
         this.ListDescription = listDescription;
 
         return this._httpC.post<MagList>(this._baseUrl + 'api/MagPaperList/GetMagPaperList', crit)
-            .subscribe(
+            .toPromise().then(
 
             (list: MagList) => {
 

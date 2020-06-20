@@ -140,31 +140,31 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
             criteriaFOSL.listType = 'FieldOfStudySearchList';
             criteriaFOSL.paperIdList = '';
             criteriaFOSL.SearchTextTopics = this.SearchTextTopic;
-            this._magBrowserService.FetchMagFieldOfStudyList(criteriaFOSL, '').then(
+            this._magBrowserService.FetchMagFieldOfStudyList(criteriaFOSL, '');
+            //topromise().then(
+            //    (results: MagFieldOfStudy[]) => {
 
-                (results: MagFieldOfStudy[]) => {
+            //        //this.WPFindTopics = [];
+            //        let FosList: MagFieldOfStudy[] = results;
+            //        let i: number = 1.7;
+            //        let cnt: number = 0;
+            //        for (var fos of FosList)
+            //        {
+            //            console.log('got in here');
+            //            let item: TopicLink = new TopicLink();
+            //            item.displayName = fos.displayName;
+            //            item.fontSize = i;
+            //            item.fieldOfStudyId = fos.fieldOfStudyId;
 
-                    //this.WPFindTopics = [];
-                    let FosList: MagFieldOfStudy[] = results;
-                    let i: number = 1.7;
-                    let cnt: number = 0;
-                    for (var fos of FosList)
-                    {
-                        console.log('got in here');
-                        let item: TopicLink = new TopicLink();
-                        item.displayName = fos.displayName;
-                        item.fontSize = i;
-                        item.fieldOfStudyId = fos.fieldOfStudyId;
-
-                        this.SearchTextTopicsResults[cnt] = item;
-                        cnt += 1;
-                        if (i > 0.1) {
-                            i -= 0.01;
-                        }
-                    }
-                    return;
-                }
-            );
+            //            this.SearchTextTopicsResults[cnt] = item;
+            //            cnt += 1;
+            //            if (i > 0.1) {
+            //                i -= 0.01;
+            //            }
+            //        }
+            //        return;
+            //    }
+            //);
 
         } else {
 
@@ -252,10 +252,9 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
                 criteria2.listType = 'PaperFieldOfStudyList';
                 criteria2.paperIdList = this._magBrowserService.ListCriteria.paperIds;
                 criteria2.SearchTextTopics = ''; //TODO this will be populated by the user..
-                this._magBrowserService.FetchMagFieldOfStudyList(criteria2, 'ReviewMatchedPapers').then(
+                this._magBrowserService.FetchMagFieldOfStudyList(criteria2, 'ReviewMatchedPapers');
 
-                    () => { this.router.navigate(['MAGBrowser']); }
-                );
+                 this.router.navigate(['MAGBrowser']);
             }
         );
 

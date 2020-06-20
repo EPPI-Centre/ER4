@@ -25,7 +25,7 @@ export class AdvancedMAGFeaturesComponent implements OnInit, OnDestroy {
 
     history: NavigationEnd[] = [];
     constructor(private ConfirmationDialogService: ConfirmationDialogService,
-        private _magSimulationService: MAGSimulationService,
+        public _magSimulationService: MAGSimulationService,
         public _magAdvancedService: MAGAdvancedService,
         public _searchService: searchService,
         private _ReviewerIdentityServ: ReviewerIdentityService,
