@@ -183,15 +183,9 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
     public GetParentAndChildRelatedPapers(FieldOfStudy: string, FieldOfStudyId: number) {
 
         this._magBrowserService.ParentTopic = FieldOfStudy;
-
-
-        this._magBrowserService.GetParentAndChildFieldsOfStudy("FieldOfStudyParentsList", FieldOfStudyId).then(
-            () => {
-                this._magBrowserService.GetParentAndChildFieldsOfStudy("FieldOfStudyChildrenList", FieldOfStudyId).then(
-                    () => {
-                        this._magBrowserService.GetPaperListForTopic(FieldOfStudyId);
-                    });
-            });
+        this._magBrowserService.GetParentAndChildFieldsOfStudy("FieldOfStudyParentsList", FieldOfStudyId);
+        this._magBrowserService.GetParentAndChildFieldsOfStudy("FieldOfStudyChildrenList", FieldOfStudyId);
+        this._magBrowserService.GetPaperListForTopic(FieldOfStudyId);
     }
     public RunMatchingAlgo() {
 
