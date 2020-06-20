@@ -92,7 +92,10 @@ namespace ERxWebClient2.Controllers
                         NumResults = crit.numResults,
                         PageNumber = crit.pageNumber,
                         PageSize = crit.pageSize,
-                        PaperIds = crit.paperIds
+                        PaperIds = crit.paperIds,
+                        DateFrom = crit.dateFrom,
+                        DateTo = crit.dateTo
+                
                     };
 
                 var result = dp.Fetch(selectionCriteria);
@@ -129,6 +132,8 @@ namespace ERxWebClient2.Controllers
         public int pageSize { get; set; }
         public int numResults { get; set; }
 
+        public string dateFrom { get; set; }
+        public string dateTo { get; set; }
     }
 
 }

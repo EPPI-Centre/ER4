@@ -3,11 +3,12 @@ import { Location } from '@angular/common';
 import { searchService } from '../services/search.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Router, NavigationEnd } from '@angular/router';
-import { MagPaper,  MagFieldOfStudy, MVCMagFieldOfStudyListSelectionCriteria } from '../services/MAGClasses.service';
+import { MagPaper,  MagFieldOfStudy } from '../services/MAGClasses.service';
 import { MAGBrowserService } from '../services/MAGBrowser.service';
 import { MAGAdvancedService } from '../services/magAdvanced.service';
 import { MAGBrowserHistoryService } from '../services/MAGBrowserHistory.service';
 import { NotificationService } from '@progress/kendo-angular-notification';
+
 
 
 @Component({
@@ -37,6 +38,8 @@ export class MAGBrowser implements OnInit, OnDestroy {
     public ShowSelectedPapers: string = '';
     public isShowDivIf = false;
     public currentFieldOfStudy: MagFieldOfStudy = new MagFieldOfStudy();
+    public dateAfterValue: Date = new Date(2000, 2, 10);
+    public dateBeforeValue: Date = new Date(2000, 2, 10);
 
     ngOnInit() {
 
@@ -47,6 +50,13 @@ export class MAGBrowser implements OnInit, OnDestroy {
 
         this._magBrowserService.Clear();
         this.Clear();
+    }
+    public RefreshItems() {
+
+        this._magBrowserService.ListCriteria.dateFrom = this.dateAfterValue.toString();
+        this._magBrowserService.ListCriteria.dateTo = this.dateBeforeValue.toString();
+        this.GetParentAndChildRelatedPapers(this.currentFieldOfStudy);
+
     }
     public toggleDisplayDivIf() {
         this.isShowDivIf = !this.isShowDivIf;
