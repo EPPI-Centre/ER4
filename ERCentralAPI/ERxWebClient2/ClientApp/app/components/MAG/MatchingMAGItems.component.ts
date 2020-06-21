@@ -65,8 +65,7 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
     public dropdownBasic2: boolean = false;
     public isCollapsed2: boolean = false;
     public ListSubType: string = '';
-    public SearchTextTopics: TopicLink[] = [];
-    public SearchTextTopicsResults: TopicLink[] = [];
+
     public magPaperId: number = 0;
     public AdvancedFeatures() {
 
@@ -140,36 +139,13 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
             criteriaFOSL.listType = 'FieldOfStudySearchList';
             criteriaFOSL.paperIdList = '';
             criteriaFOSL.SearchTextTopics = this.SearchTextTopic;
-            this._magBrowserService.FetchMagFieldOfStudyList(criteriaFOSL, '');
-            //topromise().then(
-            //    (results: MagFieldOfStudy[]) => {
-
-            //        //this.WPFindTopics = [];
-            //        let FosList: MagFieldOfStudy[] = results;
-            //        let i: number = 1.7;
-            //        let cnt: number = 0;
-            //        for (var fos of FosList)
-            //        {
-            //            console.log('got in here');
-            //            let item: TopicLink = new TopicLink();
-            //            item.displayName = fos.displayName;
-            //            item.fontSize = i;
-            //            item.fieldOfStudyId = fos.fieldOfStudyId;
-
-            //            this.SearchTextTopicsResults[cnt] = item;
-            //            cnt += 1;
-            //            if (i > 0.1) {
-            //                i -= 0.01;
-            //            }
-            //        }
-            //        return;
-            //    }
-            //);
+            this._magBrowserService.FetchMagFieldOfStudyList(criteriaFOSL, 'matchingMagPageList');
+            
 
         } else {
 
-            this.SearchTextTopics = [];
-            this.SearchTextTopicsResults = [];
+            this._magBrowserService.SearchTextTopics = [];
+            this._magBrowserService.SearchTextTopicsResults = [];
         }
     }
     public FOSMAGBrowserNavigate(displayName: string, fieldOfStudyId: number) {

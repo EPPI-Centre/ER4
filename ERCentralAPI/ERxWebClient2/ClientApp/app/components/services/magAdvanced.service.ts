@@ -160,7 +160,7 @@ export class MAGAdvancedService extends BusyAwareService {
     }
     public PostFetchMagPaperCalls(result: MagPaper) {
 
-      
+        console.log('post fetch called');
             if (result.paperId != null && result.paperId > 0) {
 
                 let criteriaCitationsList: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
