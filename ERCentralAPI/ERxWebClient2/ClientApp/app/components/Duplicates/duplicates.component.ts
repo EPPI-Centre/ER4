@@ -54,7 +54,11 @@ export class DuplicatesComponent implements OnInit, OnDestroy {
     public codedCr: number = 0;
     public docsCr: number = 0;
     public ActivePanel: string = "";
-    public lowThresholdWarningActive: string = "";
+    //public lowThresholdWarningActive: boolean = "";
+    public get lowThresholdWarningActive(): boolean {
+        if (this.similarityCr < 0.8) return true;
+        else return false;
+    }
     private HasAppliedChanges: boolean = false;
     public get IsServiceBusy(): boolean {
         //console.log("mainfull IsServiceBusy", this.ItemListService, this.codesetStatsServ, this.SourcesService )
@@ -236,30 +240,24 @@ export class DuplicatesComponent implements OnInit, OnDestroy {
         //this.ActivePanel = "MarkAutomatically";
         //this.DuplicatesService.MarkAutomatically(1, 0, 0);
     }
-    private async ShowLowThresholdWarning(value: number) {
-        await Helpers.Sleep(20);
-        if (this.similarityCr < 0.8) {
-            this.lowThresholdWarningActive = "true";
-        }
-        else {
-            this.lowThresholdWarningActive = "false";
-        }
-    }
+    //private async ShowLowThresholdWarning(value: number) {
+    //    await Helpers.Sleep(20);
+    //    if (this.similarityCr < 0.8) {
+    //        this.lowThresholdWarningActive = "true";
+    //    }
+    //    else {
+    //        this.lowThresholdWarningActive = "false";
+    //    }
+    //}
     public openConfirmationDialogAutoMatchWithLowThreshold() {
 
         this.confirmationDialogService.confirm('Please confirm', 'You are setting a low threshold that could erroneously mark some items as duplicates.' +
             '<br />Please type \'I confirm\' in the box below if you are sure you want to proceed.', true, this.confirmationDialogService.UserInputTextArms)
             .then(
                 (confirm: any) => {
-
                     //console.log('Text entered is the following: ' + confirm + ' ' + this.eventsService.UserInput );
-
                     if (confirm && this.eventsService.UserInput == 'I confirm') {
-
-                        this.StartAdvancedMarkAutomaticallyWithLowThreshold();
-
-                    } else {
-
+                        this.DoAdvancedMarkAutomatically();
                     }
                 }
             )
@@ -273,16 +271,13 @@ export class DuplicatesComponent implements OnInit, OnDestroy {
     }
     private async StartAdvancedMarkAutomatically() {
         if (this.similarityCr >= 0.8) {
-            await Helpers.Sleep(20);
-            this.ActivePanel = "Running Mark Automatically";
-            await Helpers.Sleep(20);
-            this.DuplicatesService.MarkAutomatically(this.similarityCr, this.codedCr, this.docsCr);
+            this.DoAdvancedMarkAutomatically();
         }
         else {
             this.openConfirmationDialogAutoMatchWithLowThreshold();
         }
     }
-    private async StartAdvancedMarkAutomaticallyWithLowThreshold() {
+    private async DoAdvancedMarkAutomatically() {
         await Helpers.Sleep(20);
         this.ActivePanel = "Running Mark Automatically";
         await Helpers.Sleep(20);
