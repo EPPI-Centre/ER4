@@ -129,7 +129,7 @@ export class MAGBrowserService extends BusyAwareService {
     }
     public FetchMagFieldOfStudyList(criteria: MVCMagFieldOfStudyListSelectionCriteria, goBackListType: string): Promise<MagFieldOfStudy[]> {
         this._BusyMethods.push("FetchMagFieldOfStudyList");
-        return this._httpC.post<MagFieldOfStudy[]>(this._baseUrl + 'api/MagCurrentInfo/GetMagFieldOfStudyList', criteria)
+        return this._httpC.post<MagFieldOfStudy[]>(this._baseUrl + 'api/MagFieldOfStudyList/GetMagFieldOfStudyList', criteria)
             .toPromise().then(
             (result: MagFieldOfStudy[]) => {
 
@@ -194,7 +194,7 @@ export class MAGBrowserService extends BusyAwareService {
         this.ListCriteria.paperIds = crit.paperIds;
         this.ListDescription = listDescription;
 
-        return this._httpC.post<MagList>(this._baseUrl + 'api/MagCurrentInfo/GetMagPaperList', crit)
+        return this._httpC.post<MagList>(this._baseUrl + 'api/MagPaperList/GetMagPaperList', crit)
             .toPromise().then(
 
             (list: MagList) => {
