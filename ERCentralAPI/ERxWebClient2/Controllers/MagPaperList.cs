@@ -52,14 +52,25 @@ namespace ERxWebClient2.Controllers
             try
             {
                 SetCSLAUser();
-                var test = !magPaperState.manualTrueMatchProperty;
-                DataPortal<MagMatchItemToPaperManualCommand> dp = new DataPortal<MagMatchItemToPaperManualCommand>();
+
+                DataPortal<MagPaper> dp = new DataPortal<MagPaper>();
+                SingleCriteria<MagPaper, Int64> criteria =
+                    new SingleCriteria<MagPaper, Int64>(magPaperState.magPaperId);
+
+                var magPaper = dp.Fetch(criteria);
+
+
+                var manualFalseMatchProperty = !magPaperState.manualTrueMatchProperty;
+                DataPortal<MagPaper> dp2 = new DataPortal<MagPaper>();
                 MagMatchItemToPaperManualCommand cmd = new MagMatchItemToPaperManualCommand(magPaperState.itemId,
-                    magPaperState.magPaperId, magPaperState.manualTrueMatchProperty, test);
+                    magPaperState.magPaperId, magPaperState.manualTrueMatchProperty, manualFalseMatchProperty);
 
-                cmd = dp.Execute(cmd);
+                
+                magPaper.ManualFalseMatch = !magPaperState.manualTrueMatchProperty;
+                magPaper.ManualTrueMatch = magPaperState.manualTrueMatchProperty;
+                magPaper = dp.Update(magPaper);
 
-                return Ok();
+                return Ok(magPaper);
             }
             catch (Exception e)
             {
