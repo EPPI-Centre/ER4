@@ -65,7 +65,8 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
     public dropdownBasic2: boolean = false;
     public isCollapsed2: boolean = false;
     public ListSubType: string = '';
-
+    public SearchTextTopics: TopicLink[] = [];
+    public SearchTextTopicsResults: TopicLink[] = [];
     public magPaperId: number = 0;
     public AdvancedFeatures() {
 
@@ -139,13 +140,36 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
             criteriaFOSL.listType = 'FieldOfStudySearchList';
             criteriaFOSL.paperIdList = '';
             criteriaFOSL.SearchTextTopics = this.SearchTextTopic;
-            this._magBrowserService.FetchMagFieldOfStudyList(criteriaFOSL, 'matchingMagPageList');
-            
+            this._magBrowserService.FetchMagFieldOfStudyList(criteriaFOSL, '').then(
+
+                (results: MagFieldOfStudy[]) => {
+
+                    //this.WPFindTopics = [];
+                    let FosList: MagFieldOfStudy[] = results;
+                    let i: number = 1.7;
+                    let cnt: number = 0;
+                    for (var fos of FosList)
+                    {
+                        console.log('got in here');
+                        let item: TopicLink = new TopicLink();
+                        item.displayName = fos.displayName;
+                        item.fontSize = i;
+                        item.fieldOfStudyId = fos.fieldOfStudyId;
+
+                        this.SearchTextTopicsResults[cnt] = item;
+                        cnt += 1;
+                        if (i > 0.1) {
+                            i -= 0.01;
+                        }
+                    }
+                    return;
+                }
+            );
 
         } else {
 
-            this._magBrowserService.SearchTextTopics = [];
-            this._magBrowserService.SearchTextTopicsResults = [];
+            this.SearchTextTopics = [];
+            this.SearchTextTopicsResults = [];
         }
     }
     public FOSMAGBrowserNavigate(displayName: string, fieldOfStudyId: number) {
@@ -159,9 +183,15 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
     public GetParentAndChildRelatedPapers(FieldOfStudy: string, FieldOfStudyId: number) {
 
         this._magBrowserService.ParentTopic = FieldOfStudy;
-        this._magBrowserService.GetParentAndChildFieldsOfStudy("FieldOfStudyParentsList", FieldOfStudyId);
-        this._magBrowserService.GetParentAndChildFieldsOfStudy("FieldOfStudyChildrenList", FieldOfStudyId);
-        this._magBrowserService.GetPaperListForTopic(FieldOfStudyId);
+
+
+        this._magBrowserService.GetParentAndChildFieldsOfStudy("FieldOfStudyParentsList", FieldOfStudyId).then(
+            () => {
+                this._magBrowserService.GetParentAndChildFieldsOfStudy("FieldOfStudyChildrenList", FieldOfStudyId).then(
+                    () => {
+                        this._magBrowserService.GetPaperListForTopic(FieldOfStudyId);
+                    });
+            });
     }
     public RunMatchingAlgo() {
 
@@ -228,9 +258,10 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
                 criteria2.listType = 'PaperFieldOfStudyList';
                 criteria2.paperIdList = this._magBrowserService.ListCriteria.paperIds;
                 criteria2.SearchTextTopics = ''; //TODO this will be populated by the user..
-                this._magBrowserService.FetchMagFieldOfStudyList(criteria2, 'ReviewMatchedPapers');
+                this._magBrowserService.FetchMagFieldOfStudyList(criteria2, 'ReviewMatchedPapers').then(
 
-                 this.router.navigate(['MAGBrowser']);
+                    () => { this.router.navigate(['MAGBrowser']); }
+                );
             }
         );
 

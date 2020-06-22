@@ -153,7 +153,7 @@
                         <button class="btn alert-primary" (click)="UpdateTopicResults()"> Search Topics</button>
                     </div>
                     <div class="row " style="max-width:1450px;overflow:auto;">
-                        <div *ngFor="let item of _magBrowserService.SearchTextTopicsResults" class="list-group">
+                        <div *ngFor="let item of SearchTextTopicsResults" class="list-group">
                             <div (click)="FOSMAGBrowserNavigate(item.displayName, item.fieldOfStudyId)" class="col-3 btn border border-0"
                                  [ngStyle]="{ 'font-size.em': item.fontSize,'background-color': 'light-blue', 'color': 'black'}">
                                 {{item.displayName}}
