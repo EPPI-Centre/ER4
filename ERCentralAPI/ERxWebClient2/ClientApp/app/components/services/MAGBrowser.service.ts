@@ -71,7 +71,7 @@ export class MAGBrowserService extends BusyAwareService {
 
         }
     }
-    public GetParentAndChildFieldsOfStudy(FieldOfStudy: string, FieldOfStudyId: number): Promise<void> {
+    public GetParentAndChildFieldsOfStudy(FieldOfStudy: string, FieldOfStudyId: number): Promise<boolean> {
 
         let selectionCriteria: MvcMagFieldOfStudyListSelectionCriteria = new MvcMagFieldOfStudyListSelectionCriteria();
         selectionCriteria.listType = FieldOfStudy;
@@ -79,7 +79,16 @@ export class MAGBrowserService extends BusyAwareService {
         selectionCriteria.SearchTextTopics = '';
         return this.FetchMagFieldOfStudyList(selectionCriteria, 'CitationsList').then(
 
-            () => { return; }
+            (result: MagFieldOfStudy[]) => {
+                if (result != null && result.length > 0) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }, ((error) => {
+ 
+                this.modalService.GenericError(error);
+                return false;})
         );
     }
     public FetchMAGRelatedPaperRunsListById(Id: number): Promise<boolean> {

@@ -56,11 +56,11 @@ export class MAGAdvancedService extends BusyAwareService {
         this._ClassifierContactModelList = classifierContactModelList;
     }
 
-    public UpdateMagPaper(matchCorrect: boolean, paperId: number, itemId: number): Promise<any> {
+    public UpdateMagPaper(matchCorrect: boolean, paperId: number, itemId: number): Promise<MagPaper[]> {
 
         this._BusyMethods.push("UpdateMagPaper");
         let body = JSON.stringify({ manualTrueMatchProperty: matchCorrect, magPaperId:  paperId, itemId: itemId});
-        return this._httpC.post<any>(this._baseUrl + 'api/MagPaperList/UpdateMagPaper', body)
+        return this._httpC.post<MagPaper[]>(this._baseUrl + 'api/MagPaperList/UpdateMagPaper', body)
             .toPromise().then((result: any) => {
                 this.RemoveBusy("UpdateMagPaper");
 
@@ -74,7 +74,7 @@ export class MAGAdvancedService extends BusyAwareService {
                 })
         
     }
-    public GetUpdatedMagPaperList(itemId: number): any {
+    public GetUpdatedMagPaperList(itemId: number): MagPaper[] {
 
             let crit: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
             crit.listType = 'ItemMatchedPapersList';
@@ -93,6 +93,7 @@ export class MAGAdvancedService extends BusyAwareService {
                 this.RemoveBusy("magmatchitemstopapers");
                 return;
             };
+        return [];
     }
 
     public FetchMagPaperList(crit: MVCMagPaperListSelectionCriteria): Promise<MagPaper[]> {
