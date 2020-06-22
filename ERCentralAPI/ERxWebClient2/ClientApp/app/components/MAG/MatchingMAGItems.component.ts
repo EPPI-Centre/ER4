@@ -280,7 +280,7 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
             criteria.listType = "ReviewMatchedPapersWithThisCode";
             var att = this.CurrentDropdownSelectedCode2 as SetAttribute;
             criteria.attributeIds = att.attribute_id.toString();
-            criteria.pageSize = this._magBrowserService.pageSize;
+            criteria.pageSize = 20;
             console.log('got in here');
 
             this._magAdvancedService.FetchMagPaperList(criteria).then(

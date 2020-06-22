@@ -63,18 +63,6 @@
                     </div>
                 </div>
             </div>
-
-            <div class="col-12" *ngIf="HideCitatedBy()">
-                After date value is: {{dateAfterValue  }}
-                Before value is: {{dateBeforeValue }}
-                <p><b>After this date:</b></p>
-                <kendo-datepicker [(value)]="dateAfterValue"></kendo-datepicker>
-                <p><b>Before this date:</b></p>
-                <kendo-datepicker [(value)]="dateBeforeValue"></kendo-datepicker>
-                <button class="btn alert-primary" (click)="RefreshItems()">Refresh items</button>
-            </div>
-
-
         </div>
 
         <kendo-tabstrip #tabstripSelectedPapers class="col-6" [keepTabContent]="true">
