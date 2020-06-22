@@ -36,16 +36,16 @@ export class BasicMAGService extends BusyAwareService {
 
     }
 
-    public get MagItemPaperInsert(): MagItemPaperInsertCommand {
+    //public get MagItemPaperInsert(): MagItemPaperInsertCommand {
 
-        return this._MagItemPaperInsert;
+    //    return this._MagItemPaperInsert;
 
-    }
+    //}
 
-    public set MagItemPaperInsert(magRunCmd: MagItemPaperInsertCommand) {
-        this._MagItemPaperInsert = magRunCmd;
+    //public set MagItemPaperInsert(magRunCmd: MagItemPaperInsertCommand) {
+    //    this._MagItemPaperInsert = magRunCmd;
 
-    }
+    //}
 
     FetchMagRelatedPapersRunList() {
 
@@ -159,7 +159,7 @@ export class BasicMAGService extends BusyAwareService {
             .subscribe(result => {
 
                 this.RemoveBusy("ImportMagRelatedRunPapers");
-                this.MagItemPaperInsert = result;
+                //this.MagItemPaperInsert = result;
                 if (result.nImported != null) {
                     if (result.nImported == magRelatedRun.nPapers) {
 
