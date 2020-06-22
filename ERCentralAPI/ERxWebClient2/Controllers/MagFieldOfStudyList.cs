@@ -56,13 +56,13 @@ namespace ERxWebClient2.Controllers
 
     }
 
-    public class MVCMagFieldOfStudyListSelectionCriteria
-    {
-        public Int64 fieldOfStudyId { get; set; }
-        public string listType { get; set; }
-        public string paperIdList { get; set; }
-        public string SearchTextTopics { get; set; }
+    //public class MVCMagFieldOfStudyListSelectionCriteria
+    //{
+    //    public Int64 fieldOfStudyId { get; set; }
+    //    public string listType { get; set; }
+    //    public string paperIdList { get; set; }
+    //    public string SearchTextTopics { get; set; }
 
-    }
+    //}
 }
 

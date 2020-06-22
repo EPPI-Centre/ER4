@@ -177,13 +177,13 @@ namespace ERxWebClient2.Controllers
 
     }
 
-    public class MVCMagPaperCorrectnessState
-    {
-        public Int64 itemId { get; set; }
-        public bool manualTrueMatchProperty { get; set; }
+    //public class MVCMagPaperCorrectnessState
+    //{
+    //    public Int64 itemId { get; set; }
+    //    public bool manualTrueMatchProperty { get; set; }
 
-        public Int64 magPaperId { get; set; }
-    }
+    //    public Int64 magPaperId { get; set; }
+    //}
 
     public class MVCMagFieldOfStudyListSelectionCriteria
     {
@@ -195,22 +195,22 @@ namespace ERxWebClient2.Controllers
     }
 
 
-    public class MVCMagPaperListSelectionCriteria
-    {
-        public Int64 magPaperId { get; set; }
-        public Int64 iTEM_ID { get; set; }
-        public string listType { get; set; }
-        public Int64 fieldOfStudyId { get; set; }
-        public Int64 authorId { get; set; }
-        public int magRelatedRunId { get; set; }
-        public string paperIds { get; set; }
-        public string attributeIds { get; set; }
-        public string included { get; set; }
-        public int pageNumber { get; set; }
-        public int pageSize { get; set; }
-        public int numResults { get; set; }
+    //public class MVCMagPaperListSelectionCriteria
+    //{
+    //    public Int64 magPaperId { get; set; }
+    //    public Int64 iTEM_ID { get; set; }
+    //    public string listType { get; set; }
+    //    public Int64 fieldOfStudyId { get; set; }
+    //    public Int64 authorId { get; set; }
+    //    public int magRelatedRunId { get; set; }
+    //    public string paperIds { get; set; }
+    //    public string attributeIds { get; set; }
+    //    public string included { get; set; }
+    //    public int pageNumber { get; set; }
+    //    public int pageSize { get; set; }
+    //    public int numResults { get; set; }
 
-    }
+    //}
 
 }
 
