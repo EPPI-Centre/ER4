@@ -45,11 +45,11 @@
     </div>
     <div class="col-8 col-xl-9 p-0">
         <div class="containsAtoolbar row alert-info ml-1 mr-0 my-0 p-0" style="background-color: #f5f6fa;">
-            <button kendoButton class="ml-1" [title]="'Get the current list of groups'"
+            <button kendoButton class="ml-1" [title]="'Automatically generate codes'"
                     (click)="Refresh()">
                 Refresh
             </button>
-            <button kendoButton class="mx-1" [disabled]="!HasWriteRights" [title]="'Look for new duplicates'"
+            <button kendoButton class="mx-1" [disabled]="!HasWriteRights"
                     (click)="GetNewDuplicates()">
                 Get New Duplicates
             </button>
@@ -84,7 +84,7 @@
                                           style="width: 110px;"
                                           (valueChange)="ShowLowThresholdWarning($event)"></kendo-numerictextbox>
                 </div>
-                <div *ngIf="lowThresholdWarningActive == 'true'" class="col-12 rounded border border-info alert-info m-0 p-1 " style.visibility="hidden">
+                <div *ngIf="lowThresholdWarningActive == 'true'" class="col-12 rounded border border-info alert-info m-1 p-1 " style.visibility="hidden">
                     Warning! You have set a rather low threshold for auto-matching that could result in false positives!
                 </div>
             </div>
