@@ -93,6 +93,27 @@ export class MAGBrowserService extends BusyAwareService {
                 return false;})
         );
     }
+    FetchMAGRelatedPaperRunsListId(Id: number) {
+
+        this._BusyMethods.push("FetchMAGRelatedPaperRunsListId");
+        let body = JSON.stringify({ Value: Id });
+        return this._httpC.post<MagList>(this._baseUrl + 'api/MagRelatedPapersRunList/GetMagRelatedPapersRunsId',
+            body)
+            .subscribe(
+                (result) => {
+
+                    this.RemoveBusy("FetchMAGRelatedPaperRunsListId");
+                    this.MAGList = result;
+                    this.ListCriteria.listType = "MagRelatedPapersRunList";
+                    this.ListCriteria.pageSize = 20;
+                    this.ListCriteria.magRelatedRunId = Id;
+                },
+                error => {
+                    this.RemoveBusy("FetchMAGRelatedPaperRunsListId");
+                    this.modalService.GenericErrorMessage('an api call error with FetchMAGRelatedPaperRunsListId: ' + error);
+                }
+            );
+    }
     public FetchMAGRelatedPaperRunsListById(Id: number): Promise<boolean> {
         var goBackListType: string = 'MagRelatedPapersRunList';
         this._BusyMethods.push("FetchMAGRelatedPaperRunsListId");
