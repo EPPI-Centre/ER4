@@ -45,7 +45,7 @@
         <StackPanel Orientation="Vertical">
             <TextBlock Text="Please enter the threshold values with care:" FontWeight="Bold"/>
             <TextBlock Text="Auto Assignement cannot be undone."/>
-            <TextBlock Text="Too much threshold adjustment could result in incorrectly marked duplicates." TextWrapping="Wrap"/>
+            <TextBlock Text="." TextWrapping="Wrap"/>
             <Grid Margin="4">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition/>

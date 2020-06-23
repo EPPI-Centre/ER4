@@ -8,6 +8,7 @@ using System.Data.SqlClient;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -315,9 +316,10 @@ namespace BusinessLibrary.BusinessClasses
                         }
                     }
                 }
-                WebRequest request = WebRequest.Create(FullRequestStr);
+                //WebRequest request = WebRequest.Create(FullRequestStr);
                 try
                 {
+                    /*
                     WebResponse response = request.GetResponse();
                     using (Stream dataStream = response.GetResponseStream())
                     {
@@ -325,6 +327,29 @@ namespace BusinessLibrary.BusinessClasses
                         responseText = sreader.ReadToEnd();
                     }
                     response.Close();
+                    */
+                    HttpClient client = new HttpClient();
+                    var response = client.GetAsync(FullRequestStr).Result;
+
+                    var resp = response.Content.ReadAsStringAsync().Result;
+                    var respJson = JsonConvert.DeserializeObject<MagMakesHelpers.MakesInterpretResponse>(resp, jsonsettings);
+                    if (respJson != null && respJson.interpretations != null && respJson.interpretations.Count > 0)
+                    {
+                        foreach (MakesInterpretation i in respJson.interpretations)
+                        {
+                            foreach (MakesInterpretationRule r in i.rules)
+                            {
+                                foreach (PaperMakes pm in r.output.entities)
+                                {
+                                    var found = PaperList.Find(e => e.Id == pm.Id);
+                                    if (found == null)
+                                    {
+                                        PaperList.Add(pm);
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
                 catch (Exception e)
                 {
@@ -336,24 +361,8 @@ namespace BusinessLibrary.BusinessClasses
 #endif
                     return PaperList;
                 }
-                var respJson = JsonConvert.DeserializeObject<MagMakesHelpers.MakesInterpretResponse>(responseText, jsonsettings);
-                if (respJson != null && respJson.interpretations != null && respJson.interpretations.Count > 0)
-                {
-                    foreach (MakesInterpretation i in respJson.interpretations)
-                    {
-                        foreach (MakesInterpretationRule r in i.rules)
-                        {
-                            foreach (PaperMakes pm in r.output.entities)
-                            {
-                                var found = PaperList.Find(e => e.Id == pm.Id);
-                                if (found == null)
-                                {
-                                    PaperList.Add(pm);
-                                }
-                            }
-                        }
-                    }
-                }
+                
+                
             }
             if (TryAgain && PaperList.Count == 0)
             {
