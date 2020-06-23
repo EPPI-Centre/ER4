@@ -37,7 +37,6 @@ export class MAGBrowser implements OnInit, OnDestroy {
     public ShowSelectedPapers: string = '';
     public isShowDivIf = false;
 
-
     ngOnInit() {
 
         this.browsingHistory = this._routingStateService.getHistory();
@@ -47,6 +46,13 @@ export class MAGBrowser implements OnInit, OnDestroy {
 
         this._magBrowserService.Clear();
         this.Clear();
+    }
+    public UpdatePageSize(pageSize: number) {
+
+        if (pageSize != null && pageSize > 0) {
+            this._magBrowserService.pageSize = pageSize;
+            this.GetParentAndChildRelatedPapers(this._magBrowserService.currentFieldOfStudy);
+        }
     }
     public toggleDisplayDivIf() {
         this.isShowDivIf = !this.isShowDivIf;
@@ -108,7 +114,7 @@ export class MAGBrowser implements OnInit, OnDestroy {
         this.UpdateSelectedCount();
     }
     public GetParentAndChildRelatedPapers(item: MagFieldOfStudy) {
-
+        this._magBrowserService.currentFieldOfStudy = item;
         let FieldOfStudyId: number = item.fieldOfStudyId;
         this._magBrowserService.ParentTopic = item.displayName;
         this._magBrowserService.WPChildTopics = [];

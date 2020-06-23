@@ -109,6 +109,7 @@ export class microsoftAcademicComp implements OnInit, OnDestroy {
     
     public UpdateMagPaper(match: boolean, paperId: number) {
 
+
         this._magAdvancedService.UpdateMagPaper(match, paperId, this.item.itemId);
 
     }

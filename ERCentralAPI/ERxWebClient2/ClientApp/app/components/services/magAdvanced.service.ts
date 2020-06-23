@@ -56,11 +56,11 @@ export class MAGAdvancedService extends BusyAwareService {
         this._ClassifierContactModelList = classifierContactModelList;
     }
 
-    public UpdateMagPaper(matchCorrect: boolean, paperId: number, itemId: number): Promise<any> {
+    public UpdateMagPaper(matchCorrect: boolean, paperId: number, itemId: number): Promise<MagPaper[]> {
 
         this._BusyMethods.push("UpdateMagPaper");
         let body = JSON.stringify({ manualTrueMatchProperty: matchCorrect, magPaperId:  paperId, itemId: itemId});
-        return this._httpC.post<any>(this._baseUrl + 'api/MagCurrentInfo/UpdateMagPaper', body)
+        return this._httpC.post<MagPaper[]>(this._baseUrl + 'api/MagPaperList/UpdateMagPaper', body)
             .toPromise().then((result: any) => {
                 this.RemoveBusy("UpdateMagPaper");
 
@@ -74,7 +74,7 @@ export class MAGAdvancedService extends BusyAwareService {
                 })
         
     }
-    public GetUpdatedMagPaperList(itemId: number): any {
+    public GetUpdatedMagPaperList(itemId: number): MagPaper[] {
 
             let crit: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
             crit.listType = 'ItemMatchedPapersList';
@@ -93,11 +93,12 @@ export class MAGAdvancedService extends BusyAwareService {
                 this.RemoveBusy("magmatchitemstopapers");
                 return;
             };
+        return [];
     }
 
     public FetchMagPaperList(crit: MVCMagPaperListSelectionCriteria): Promise<MagPaper[]> {
         this._BusyMethods.push("FetchMagPaperList");
-        return this._httpC.post<MagPaper[]>(this._baseUrl + 'api/MagCurrentInfo/GetMagPaperList', crit)
+        return this._httpC.post<MagPaper[]>(this._baseUrl + 'api/MagPaperList/GetMagPaperList', crit)
             .toPromise().then(
 
                 (result: MagPaper[]) => {
@@ -136,7 +137,7 @@ export class MAGAdvancedService extends BusyAwareService {
         this._magBrowserService.ClearTopics();
         this._BusyMethods.push("FetchMagPaperId");
         let body = JSON.stringify({ Value: Id });
-        return this._httpC.post<MagPaper>(this._baseUrl + 'api/MagCurrentInfo/GetMagPaper', body)
+        return this._httpC.post<MagPaper>(this._baseUrl + 'api/MagPaperList/GetMagPaper', body)
             .toPromise().then(result => {
 
                 this.RemoveBusy("FetchMagPaperId");
@@ -199,7 +200,7 @@ export class MAGAdvancedService extends BusyAwareService {
     public CheckContReviewPipelineState(): boolean {
 
         this._BusyMethods.push("CheckContReviewPipelineState");
-        this._httpC.get<MagCheckContReviewRunningCommand>(this._baseUrl + 'api/MAGSimulationList/MagCheckContReviewRunningCommand')
+        this._httpC.get<MagCheckContReviewRunningCommand>(this._baseUrl + 'api/MagCurrentInfo/MagCheckContReviewRunningCommand')
             .subscribe(result => {
                 this.RemoveBusy("CheckContReviewPipelineState");
                 if (result != null) {
