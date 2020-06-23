@@ -40,8 +40,7 @@ export class DuplicatesComponent implements OnInit, OnDestroy {
         private CodesetStatisticsService: CodesetStatisticsService,
         private DuplicatesService: DuplicatesService,
         private ItemListService: ItemListService,
-        private eventsService: EventEmitterService,
-        private confirmationDialogService: ConfirmationDialogService
+        private eventsService: EventEmitterService
 	) { }
     ngOnInit() {
         this.DuplicatesService.currentCount = 0;
@@ -251,8 +250,8 @@ export class DuplicatesComponent implements OnInit, OnDestroy {
     //}
     public openConfirmationDialogAutoMatchWithLowThreshold() {
 
-        this.confirmationDialogService.confirm('Please confirm', 'You are setting a low threshold that could erroneously mark some items as duplicates.' +
-            '<br />Please type \'I confirm\' in the box below if you are sure you want to proceed.', true, this.confirmationDialogService.UserInputTextArms)
+        this.ConfirmationDialogService.confirm('Please confirm', 'You are setting a low threshold that could erroneously mark some items as duplicates.' +
+            '<br />Please type \'I confirm\' in the box below if you are sure you want to proceed.', true, this.ConfirmationDialogService.UserInputTextArms)
             .then(
                 (confirm: any) => {
                     //console.log('Text entered is the following: ' + confirm + ' ' + this.eventsService.UserInput );
@@ -269,7 +268,7 @@ export class DuplicatesComponent implements OnInit, OnDestroy {
         await Helpers.Sleep(20);
         this.DuplicatesService.MarkAutomatically(1, 0, 0);
     }
-    private async StartAdvancedMarkAutomatically() {
+    public StartAdvancedMarkAutomatically() {
         if (this.similarityCr >= 0.8) {
             this.DoAdvancedMarkAutomatically();
         }
