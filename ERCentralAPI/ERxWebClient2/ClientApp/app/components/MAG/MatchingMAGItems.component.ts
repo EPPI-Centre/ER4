@@ -202,19 +202,21 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
                     let res: string = '';
                     var att = this.CurrentDropdownSelectedCode2 as SetAttribute;
                     if (att != null && att.attribute_id > 0) {
-                        res = this._magAdvancedService.RunMatchingAlgorithm(att.attribute_id);
+                        this._magAdvancedService.RunMatchingAlgorithm(att.attribute_id).then(
+                            (result) => { res = result;}
+                            );
                     } else {
-                       res =  this._magAdvancedService.RunMatchingAlgorithm(0);
+                        this._magAdvancedService.RunMatchingAlgorithm(0).then(
+                            (result) => { res = result; }
+                        );
                     }
                     this._magAdvancedService._RunAlgorithmFirst = true;
 
-                    if (res != "erorr") {
+                    if (res != "error") {
                         this._magBasicService.showMAGRunMessage('MAG Matching can take a while...');
                     } else {
                         this._magBasicService.showMAGRunMessage('MAG Matching has returned an error please contact your administrator');
                     }
-                    
-                    
                 }
             });
     }

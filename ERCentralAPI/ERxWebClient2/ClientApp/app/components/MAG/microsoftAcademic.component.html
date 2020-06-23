@@ -38,16 +38,17 @@
                     <td class="w-25">
                         <div class="col-12 ">
                             Score: {{magPaper.autoMatchScore}}
-                            true Match: {{magPaper.manualTrueMatch}}
-                            false Match: {{magPaper.manualFalseMatch}}
+                            True Match: {{magPaper.manualTrueMatch}}
+                            Current One Match: {{currentMagPaperLinkItem.manualTrueMatch}}
                         </div>
                         <div class="col-12">
-                            Correct Match:  <input (click)="UpdateMagPaper(true, magPaper.paperId)" [(ngModel)]="magPaper.manualTrueMatch" 
-                                                [value]=true name="magMatchRadio"  type="radio" />
+                            Correct Match:   <input (click)="UpdateMagPaper(true, magPaper.paperId)" 
+                                                ng-model="currentMagPaperLinkItem.manualTrueMatch" ng-value="true" 
+                                                    name="magMatchRadio"  type="radio" />
                         </div>
                         <div class="col-12 ">
-                            Incorrect Match:<input  (click)="UpdateMagPaper(false, magPaper.paperId)"
-                                                [value]=false [(ngModel)]="magPaper.manualTrueMatch"     
+                            Incorrect Match: <input  (click)="UpdateMagPaper(false, magPaper.paperId)"
+                                                ng-model="currentMagPaperLinkItem.manualTrueMatch" ng-value="true"  
                                                    name="magMatchRadio"  type="radio" />
                         </div>
                     </td>

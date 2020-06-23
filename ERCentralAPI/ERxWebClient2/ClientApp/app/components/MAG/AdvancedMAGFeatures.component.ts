@@ -40,6 +40,7 @@ export class AdvancedMAGFeaturesComponent implements OnInit, OnDestroy {
         this.history = this._routingStateService.getHistory();
     }
     private subsc: Subscription = new Subscription();
+    
     ngOnInit() {
 
         if (this._ReviewerIdentityServ.reviewerIdentity.userId == 0 ||
@@ -50,6 +51,7 @@ export class AdvancedMAGFeaturesComponent implements OnInit, OnDestroy {
             this.router.navigate(['Main']);
         }
         else {
+            
             this.GetMagReviewMagInfoCommand();
             this.GetMagSimulationList();
             this.GetClassifierContactModelList();
@@ -134,7 +136,11 @@ export class AdvancedMAGFeaturesComponent implements OnInit, OnDestroy {
     }    
     private CheckContReviewPipelineState(): boolean {
 
-        return this._magAdvancedService.CheckContReviewPipelineState();
+        this._magAdvancedService.CheckContReviewPipelineState().then(
+
+                (result: boolean) => { return result; }
+            );
+        return false;
     }
     private AddActualSimulation(): void {
 
@@ -184,15 +190,14 @@ export class AdvancedMAGFeaturesComponent implements OnInit, OnDestroy {
             .then((confirm: any) => {
                 if (confirm) {
                     this._magSimulationService.AddMagSimulation(newMagSimulation);
-
                 }
             });
-
     }
+
     public AddSimulation(): void {
 
         let pipelineRunning: boolean = this.CheckContReviewPipelineState();
-        if (!pipelineRunning) {
+        if (pipelineRunning) {
 
             let msg: string = 'Sorry, another pipeline is currently running';
             this.ShowMAGSimulationMessage(msg);

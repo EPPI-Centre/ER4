@@ -82,7 +82,7 @@ namespace ERxWebClient2.Controllers
 
                 GetMatches = dp.Execute(GetMatches);
 
-                return Ok(GetMatches);
+                return Ok(GetMatches.currentStatus);
             }
             catch (Exception e)
             {
@@ -104,7 +104,7 @@ namespace ERxWebClient2.Controllers
 
                 GetMatches = dp.Execute(GetMatches);
 
-                return Ok(GetMatches);
+                return Ok(GetMatches.currentStatus);
             }
             catch (Exception e)
             {
