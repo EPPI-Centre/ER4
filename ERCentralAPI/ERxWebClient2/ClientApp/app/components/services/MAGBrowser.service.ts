@@ -4,7 +4,7 @@ import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
 import {
     MagList, MagPaper, MVCMagFieldOfStudyListSelectionCriteria,
-    MVCMagPaperListSelectionCriteria, MagFieldOfStudy, MvcMagFieldOfStudyListSelectionCriteria, TopicLink
+    MVCMagPaperListSelectionCriteria, MagFieldOfStudy, MvcMagFieldOfStudyListSelectionCriteria, TopicLink, MagItemPaperInsertCommand
 } from '../services/MAGClasses.service';
 
 @Injectable({
@@ -13,6 +13,7 @@ import {
 )
 
 export class MAGBrowserService extends BusyAwareService {
+
 
     constructor(
         private _httpC: HttpClient,
@@ -77,6 +78,24 @@ export class MAGBrowserService extends BusyAwareService {
         } else {
             return false;
         }
+    }
+    public ImportMagRelatedSelectedPapers(selectedPapers: number[]): Promise<MagItemPaperInsertCommand | void> {
+
+        let selectedPapersStr: string = selectedPapers.join(',');
+        this._BusyMethods.push("ImportMagRelatedSelectedPapers");
+        let body = JSON.stringify({ Value: selectedPapersStr });
+        return this._httpC.post<MagItemPaperInsertCommand>(this._baseUrl + 'api/MagRelatedPapersRunList/ImportMagRelatedSelectedPapers',
+            body)
+            .toPromise().then(
+                (result: MagItemPaperInsertCommand) => {
+                    this.RemoveBusy("ImportMagRelatedSelectedPapers");
+                    return result;
+                },
+                error => {
+                    this.RemoveBusy("ImportMagRelatedSelectedPapers");
+                    this.modalService.GenericErrorMessage('an api call error with ImportMagRelatedSelectedPapers: ' + error);
+                }
+            );
     }
     public GetParentAndChildFieldsOfStudy(FieldOfStudy: string, FieldOfStudyId: number): Promise<boolean> {
 
