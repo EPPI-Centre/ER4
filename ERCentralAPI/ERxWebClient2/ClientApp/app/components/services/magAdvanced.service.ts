@@ -34,7 +34,7 @@ export class MAGAdvancedService extends BusyAwareService {
     public ListDescription: string = '';
     public TotalNumberOfMatchedPapers: number = 0;
     public MagPapersMatchedList: Item[] = [];
-    public MagReferencesPaperList: MagPaper[] = [];
+    public MagReferencesPaperList: MagList = new MagList();
     public MagCitationsPaperList: MagPaper[] = [];
     public MagRelatedPaperList: MagPaper[] = [];
     public MagPaperFieldsList: MagPaper[] = [];

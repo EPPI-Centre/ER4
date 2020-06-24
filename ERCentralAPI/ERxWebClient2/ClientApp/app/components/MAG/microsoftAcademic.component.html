@@ -38,6 +38,7 @@
                     <td class="w-25">
                         <div class="col-12 ">
                             Score: {{magPaper.autoMatchScore}}
+                            CurrentMagPaper: {{this.currentMagPaperLinkItem.manualTrueMatch}}
                         </div>
                         <div class="col-12">
                             Correct Match:   <input (click)="UpdateMagPaper(true, magPaper.paperId)" 
