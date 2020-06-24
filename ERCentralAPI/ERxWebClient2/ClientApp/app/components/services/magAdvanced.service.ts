@@ -99,13 +99,13 @@ export class MAGAdvancedService extends BusyAwareService {
     //    return [];
     //}
 
-    public FetchMagPaperList(crit: MVCMagPaperListSelectionCriteria): Promise<MagPaper[]> {
+    public FetchMagPaperList(crit: MVCMagPaperListSelectionCriteria): any {
         this._BusyMethods.push("FetchMagPaperList");
-        let promise = new Promise<MagPaper[]>(() => {
-            this._httpC.post<MagPaper[]>(this._baseUrl + 'api/MagPaperList/GetMagPaperList', crit)
+        //let promise = new Promise<MagPaper[]>(() => {
+         return   this._httpC.post<any>(this._baseUrl + 'api/MagPaperList/GetMagPaperList', crit)
                 .toPromise().then(
 
-                    (result: MagPaper[]) => {
+                    (result: any) => {
                         this.RemoveBusy("FetchMagPaperList");
 
                         if (crit.listType == 'ReviewMatchedPapers' || crit.listType == 'ReviewMatchedPapersWithThisCode') {
@@ -118,6 +118,7 @@ export class MAGAdvancedService extends BusyAwareService {
 
                         } else if (crit.listType == 'ItemMatchedPapersList') {
 
+                            console.log('FetchMagPaperList got in here: ' + JSON.stringify(result));
                             this.MagReferencesPaperList = result;
                         }
                         return result;
@@ -134,8 +135,8 @@ export class MAGAdvancedService extends BusyAwareService {
                         this.RemoveBusy("FetchMagPaperList");
                         return error;
                     });
-        });
-        return promise;
+        //});
+        //return promise;
     }
     // above needs refactoring
     public FetchMagPaperId(Id: number): Promise<MagPaper> {
@@ -302,7 +303,7 @@ export class MAGAdvancedService extends BusyAwareService {
                 crit.listType = 'ItemMatchedPapersList';
                 crit.iTEM_ID = itemId;
                 this.FetchMagPaperList(crit).then(
-                    (result) => {
+                    (result: any) => {
                         return result;
                         }
                     );
