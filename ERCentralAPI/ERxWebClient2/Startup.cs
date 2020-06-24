@@ -63,7 +63,7 @@ namespace ERxWebClient2
         {
             Cts.Cancel();
         }
-
+        public static bool needsToShutDown = false;
         //private static IApplicationBuilder appB;
         //public static IncomingEthTxService Signaller {
         //    get {
@@ -396,6 +396,7 @@ namespace ERxWebClient2
         private void OnStopping()
         {
             Console.WriteLine(DateTime.Now.ToString("HH:mm:ss:ff") + " Timed Background Srv OnStopping(), with ID: " + ID);
+            Startup.needsToShutDown = true;
         }
 
         private void OnStopped()

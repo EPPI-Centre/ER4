@@ -34,8 +34,6 @@ using CsvHelper;
 
 #if (!CSLA_NETCORE)
 using Microsoft.VisualBasic.FileIO;
-#else
-using AspNetCore.Http.Extensions;
 #endif
 
 using System.Data;
@@ -918,13 +916,8 @@ namespace BusinessLibrary.BusinessClasses
 					await WriteFailedResponse(response);
 					return;
 				}
-
-#if (!CSLA_NETCORE)
 				string jobId = await response.Content.ReadAsAsync<string>();
-#else
-				string jobId = await response.Content.ReadAsJsonAsync<string>();
 
-#endif
 
 				// start the job
 				response = await client.PostAsync(BaseUrl + "/" + jobId + "/start?api-version=2.0", null);
@@ -945,13 +938,9 @@ namespace BusinessLibrary.BusinessClasses
 						await WriteFailedResponse(response);
 						return;
 					}
-
-#if (!CSLA_NETCORE)
+                    
 					BatchScoreStatus status = await response.Content.ReadAsAsync<BatchScoreStatus>();
-#else
-					BatchScoreStatus status = await response.Content.ReadAsJsonAsync<BatchScoreStatus>();
 
-#endif
 
 					if (watch.ElapsedMilliseconds > TimeOutInMilliseconds)
 					{

@@ -2,8 +2,10 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.1</TargetFramework>
+    <RuntimeFrameworkVersion>2.1.5</RuntimeFrameworkVersion>
     <TypeScriptCompileBlocked>true</TypeScriptCompileBlocked>
     <TypeScriptToolsVersion>Latest</TypeScriptToolsVersion>
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
@@ -20,13 +22,14 @@
     <PackageReference Include="AspNetCore.Http.Extensions" Version="1.0.1" />
     <PackageReference Include="CSLA-ASPNETCORE-MVC" Version="4.7.200" />
     <PackageReference Include="CsvHelper" Version="12.0.1" />
-    <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.8" />
+    <PackageReference Include="Microsoft.AspNetCore.All" Version="2.1.19" />
     <PackageReference Include="Microsoft.Azure.DataLake.Store" Version="1.1.19" />
     <PackageReference Include="Microsoft.Azure.Management.DataFactory" Version="4.8.0" />
     <PackageReference Include="Microsoft.Azure.Management.DataLake.Analytics" Version="3.0.1" />
     <PackageReference Include="Microsoft.Azure.Management.DataLake.Store" Version="2.2.1" />
     <PackageReference Include="Microsoft.Azure.Management.Fluent" Version="1.31.1" />
     <PackageReference Include="Microsoft.Azure.Search" Version="10.1.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="2.8.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.4" />
     <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="3.1.4" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.0.3" />
@@ -258,9 +261,6 @@
   <ItemGroup>
     <Reference Include="EPPIiFilter">
       <HintPath>..\Dlls\EPPIiFilter.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Web.Extensions">
-      <HintPath>..\..\..\..\..\..\..\..\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.6.1\System.Web.Extensions.dll</HintPath>
     </Reference>
   </ItemGroup>
 

@@ -59,11 +59,13 @@ namespace BusinessLibrary.BusinessClasses
         }
 #if !SILVERLIGHT
         private int _RevId = 0;
+        private int _Cid = 0;
         private void DataPortal_Fetch(SingleCriteria<ItemDuplicateReadOnlyGroupList, bool> criteria)
         {
             IsReadOnly = false;
             ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
             _RevId = ri.ReviewId;
+            _Cid = ri.UserId;
             RaiseListChangedEvents = false;
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
@@ -383,7 +385,7 @@ namespace BusinessLibrary.BusinessClasses
         
         private void FindNewDuplicatesNewVersion(CancellationToken cancellationToken )
         {
-            Console.WriteLine("[FindNewDuplicatesNewVersion], LocalID: " + ServiceID );
+            Console.WriteLine("[FindNewDuplicatesNewVersion], HelperId: " + Startup.ID);
             if (ResultsCache == null) PerpareResultsCache();//initialises and perpares the columns...
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
@@ -395,6 +397,8 @@ namespace BusinessLibrary.BusinessClasses
                         
                         command.CommandType = System.Data.CommandType.StoredProcedure;
                         command.Parameters.Add(new SqlParameter("@REVIEW_ID", _RevId));
+                        command.Parameters.Add(new SqlParameter("@CONTACT_ID", _Cid));
+
                         using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
                         {
                             string currentSearchText = "";
@@ -419,6 +423,13 @@ namespace BusinessLibrary.BusinessClasses
            
 //#endif
 
+#if CSLA_NETCORE
+                                if (Startup.needsToShutDown)
+                                {//if we got a request to cancel, we're going to!
+                                    throw new Exception("Cancel request was received");
+                                }
+#endif
+
                                 if (cancellationToken.IsCancellationRequested)
                                 {//if we got a request to cancel, we're going to!
                                     throw new Exception("Cancel request was received");
@@ -433,7 +444,11 @@ namespace BusinessLibrary.BusinessClasses
 
 
                                     //will go and save current batch of results. We do it here as we're starting to look at a new set items, possibly to be into their own group
-                                    if (ResultsCache.Rows.Count > 800) FlushCache(); 
+                                    if (ResultsCache.Rows.Count > 800)
+                                    {
+                                        Console.WriteLine("[FindNewDuplicatesNewVersion FlushCache], HelperId: " + Startup.ID);
+                                        FlushCache();
+                                    }
                                     CurrentGroup.Clear();
                                     //currentSearchText = tmp;
                                 }
