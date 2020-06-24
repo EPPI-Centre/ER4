@@ -102,6 +102,11 @@ export class AdvancedMAGFeaturesComponent implements OnInit, OnDestroy {
     public FoSThreshold: number = 0;
     public stepScore: number = 0.01;
     public stepFoS: number = 0.05;
+
+    public get MagSimulationList(): MagSimulation[] {
+        return this._magSimulationService.MagSimulationList;
+    }
+
     private ShowMAGSimulationMessage(notifyMsg: string) {
 
         this._notificationService.show({
