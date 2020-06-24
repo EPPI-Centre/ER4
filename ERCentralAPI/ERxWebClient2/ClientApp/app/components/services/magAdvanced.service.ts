@@ -10,7 +10,6 @@ import { MagPaper, MagReviewMagInfo, MVCMagPaperListSelectionCriteria, MagCurren
     MagFieldOfStudy
 } from './MAGClasses.service';
 import { Router } from '@angular/router';
-import { Subscription } from 'rxjs';
 
 
 @Injectable({
@@ -65,8 +64,6 @@ export class MAGAdvancedService extends BusyAwareService {
         return this._httpC.post<MagPaper>(this._baseUrl + 'api/MagPaperList/UpdateMagPaper', body)
             .toPromise().then((result: any) => {
                 this.RemoveBusy("UpdateMagPaper");
-
-                    //return this.GetUpdatedMagPaperList(itemId);
                     return result;    
                 },
                 (error: any) => {
@@ -77,35 +74,12 @@ export class MAGAdvancedService extends BusyAwareService {
         
     }
 
-    //public GetUpdatedMagPaperList(itemId: number): MagPaper[] {
-
-    //        let crit: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
-    //        crit.listType = 'ItemMatchedPapersList';
-    //        crit.iTEM_ID = itemId;
-    //        this.FetchMagPaperList(crit).then(
-    //            (result: MagPaper[]) => {
-    //                console.log('called papers again: ' + JSON.stringify(result));
-    //                    return result;
-    //                }
-    //        ),(error: any) => {
-    //            this.RemoveBusy("magmatchitemstopapers");
-    //            this.modalService.GenericError(error);
-    //            return error;
-    //        },
-    //        () => {
-    //            this.RemoveBusy("magmatchitemstopapers");
-    //            return;
-    //        };
-    //    return [];
-    //}
-
-    public FetchMagPaperList(crit: MVCMagPaperListSelectionCriteria): Promise<MagPaper[]> {
+    public FetchMagPaperList(crit: MVCMagPaperListSelectionCriteria): any {
         this._BusyMethods.push("FetchMagPaperList");
-        let promise = new Promise<MagPaper[]>(() => {
-            this._httpC.post<MagPaper[]>(this._baseUrl + 'api/MagPaperList/GetMagPaperList', crit)
+         return   this._httpC.post<any>(this._baseUrl + 'api/MagPaperList/GetMagPaperList', crit)
                 .toPromise().then(
 
-                    (result: MagPaper[]) => {
+                    (result: any) => {
                         this.RemoveBusy("FetchMagPaperList");
 
                         if (crit.listType == 'ReviewMatchedPapers' || crit.listType == 'ReviewMatchedPapersWithThisCode') {
@@ -118,6 +92,7 @@ export class MAGAdvancedService extends BusyAwareService {
 
                         } else if (crit.listType == 'ItemMatchedPapersList') {
 
+                            console.log('FetchMagPaperList got in here: ' + JSON.stringify(result));
                             this.MagReferencesPaperList = result;
                         }
                         return result;
@@ -134,10 +109,7 @@ export class MAGAdvancedService extends BusyAwareService {
                         this.RemoveBusy("FetchMagPaperList");
                         return error;
                     });
-        });
-        return promise;
     }
-    // above needs refactoring
     public FetchMagPaperId(Id: number): Promise<MagPaper> {
 
         this._magBrowserService.ClearTopics();
@@ -220,11 +192,9 @@ export class MAGAdvancedService extends BusyAwareService {
                     this.RemoveBusy("CheckContReviewPipelineState");
                     if (result != null) {
                         if (result.isRunningMessage == 'running') {
-                            console.log( JSON.stringify(result.isRunningMessage));
                             return true;
                         } else if (result.isRunningMessage == 'failed')
                         {
-                            console.log(JSON.stringify(result.isRunningMessage));
                             return true;
                         } else {
                             return false;
@@ -291,31 +261,27 @@ export class MAGAdvancedService extends BusyAwareService {
                     return error;
                 });
     }
-    public MagMatchItemsToPapers(itemId: number): MagPaper[] {
+    public MagMatchItemsToPapers(itemId: number): Promise<MagPaper[]> {
 
         this._BusyMethods.push("MagMatchItemsToPapers");
         let body = JSON.stringify({ Value: itemId });
-        this._httpC.post<MagPaper[]>(this._baseUrl + 'api/MagMatchAll/MagMatchItemsToPapers', body)
-            .subscribe(() => {
+        return this._httpC.post<MagPaper[]>(this._baseUrl + 'api/MagMatchAll/MagMatchItemsToPapers', body)
+            .toPromise().then(() => {
                 this.RemoveBusy("MagMatchItemsToPapers");
                 let crit: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
                 crit.listType = 'ItemMatchedPapersList';
                 crit.iTEM_ID = itemId;
                 this.FetchMagPaperList(crit).then(
-                    (result) => {
+                    (result: any) => {
                         return result;
-                        }
-                    );
-                },
+                    }
+                );
+            },
                 error => {
                     this.RemoveBusy("MagMatchItemsToPapers");
                     this.modalService.GenericError(error);
                     return error;
-                },
-                () => {
-                    this.RemoveBusy("MagMatchItemsToPapers");
                 });
-        return [];
     }
     public ClearAllMAGMatches(attributeId: number): Promise<string> {
 

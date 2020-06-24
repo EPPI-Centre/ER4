@@ -58,7 +58,7 @@ export class MAGBrowserService extends BusyAwareService {
     public get currentPaper(): MagPaper {
         return this._currentPaper;
     }
-    public GetPaperListForTopic(FieldOfStudyId: number): any {
+    public GetPaperListForTopic(FieldOfStudyId: number): boolean | undefined {
 
         if (FieldOfStudyId != null) {
 
@@ -69,8 +69,13 @@ export class MAGBrowserService extends BusyAwareService {
             this.ListCriteria.listType = "PaperFieldsOfStudyList";
             this.ListCriteria.pageNumber = 0;
             this.ListCriteria.pageSize = this.pageSize;
-            this.FetchWithCrit(this.ListCriteria, "PaperFieldsOfStudyList");
+            this.FetchWithCrit(this.ListCriteria, "PaperFieldsOfStudyList").then(
 
+                    (res: boolean) => { return res; }
+                );
+
+        } else {
+            return false;
         }
     }
     public GetParentAndChildFieldsOfStudy(FieldOfStudy: string, FieldOfStudyId: number): Promise<boolean> {
@@ -143,8 +148,16 @@ export class MAGBrowserService extends BusyAwareService {
                     FieldsListcriteria.paperIdList = this.ListCriteria.paperIds;
                     //TODO THIS SEARCH TEXT NEEDS TO COME IN FROM THE FRONT
                     FieldsListcriteria.SearchTextTopics = ''; //searchText;
-                    this.FetchMagFieldOfStudyList(FieldsListcriteria, goBackListType);
-                    return true;
+                    return this.FetchMagFieldOfStudyList(FieldsListcriteria, goBackListType).then(
+
+                        (res: MagFieldOfStudy[]) => {
+                            if (res != null) {
+                                return true;
+                            } else {
+                                return false;
+                            }
+                        }
+                    );
                 },
                 error => {
                     this.RemoveBusy("FetchMAGRelatedPaperRunsListId");
