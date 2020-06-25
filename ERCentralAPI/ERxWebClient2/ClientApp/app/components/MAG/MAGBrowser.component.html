@@ -1,4 +1,4 @@
-﻿<HeaderComponent Context="MAGBrowser"></HeaderComponent>
+﻿<HeaderComponent #headerComponent Context="MAGBrowser"></HeaderComponent>
 <button class="page-link rounded pt-1 pb-1 mb-1 float-right"
         style="position:absolute; right: 0; z-index:2000;" (click)="Back()">
     Close/back
@@ -65,7 +65,7 @@
             </div>
         </div>
 
-        <kendo-tabstrip #tabstripSelectedPapers class="col-6" [keepTabContent]="true">
+        <kendo-tabstrip #tabSelectedPapers (tabSelect)="onTabSelect($event)" class="col-6" [keepTabContent]="true">
             <kendo-tabstrip-tab [selected]="true" [title]="'References'">
                 <ng-template kendoTabContent>
 
@@ -137,7 +137,7 @@
                 </ng-template>
             </kendo-tabstrip-tab>
         
-            <kendo-tabstrip-tab [title]="'Selected Papers'" [disabled]="HideSelectedPapers()">
+            <kendo-tabstrip-tab #tabSelectedPapers [title]="'Selected Papers'" [disabled]="HideSelectedPapers()">
                     <ng-template kendoTabContent>
                         <div [title]="'Selected Papers'" style="min-height:500px;min-width:450px; overflow:auto;">
                             <div>

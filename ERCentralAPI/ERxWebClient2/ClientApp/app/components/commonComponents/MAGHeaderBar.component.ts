@@ -1,11 +1,12 @@
-import { Component,  OnInit } from '@angular/core';
+import { Component,  OnInit, ViewChild, EventEmitter } from '@angular/core';
 import { Router } from '@angular/router';
 import { Location } from '@angular/common';
 import { MAGBrowserService } from '../services/MAGBrowser.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { MagItemPaperInsertCommand } from '../services/MAGClasses.service';
 import { NotificationService } from '@progress/kendo-angular-notification';
-
+import { EventEmitterService } from '../services/EventEmitter.service';
+import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 
 @Component({
     selector: 'MAGHeaderBar',
@@ -18,10 +19,14 @@ export class MAGHeaderBarComp implements OnInit {
         private _location: Location,
         private _magBrowserService: MAGBrowserService,
         private _ReviewerIdentityServ: ReviewerIdentityService,
-        public _notificationService: NotificationService
+        public _notificationService: NotificationService,
+        public _eventEmitterService: EventEmitterService,
+        public _confirmationDialogService: ConfirmationDialogService
     ) {
 
-	}
+    }
+
+    
     ngOnInit() {
 	
     }
@@ -38,18 +43,22 @@ export class MAGHeaderBarComp implements OnInit {
         }
     }
     public Forward() {
+
         this._location.forward();
     }
     public Back() {
+
         this._location.back();
     }
     public AdvancedFeatures() {
+
         this.router.navigate(['AdvancedMAGFeatures']);
     }
     public Selected() {
-        alert('not implemented');
+        this._eventEmitterService.selectedButtonPressed.emit();
     }
     public ClearSelected() {
+
         this._magBrowserService.ClearSelected();
     }
     showMAGRunMessage(notifyMsg: string) {
@@ -63,6 +72,17 @@ export class MAGHeaderBarComp implements OnInit {
         });
     }
     public ImportSelected() {
+
+        let msg: string = 'Are you sure you want to import the selected MAG papers into your review?';
+        this._confirmationDialogService.confirm('MAG Import', msg, false, '')
+            .then((confirm: any) => {
+                if (confirm) {
+                    this.ConfirmedImport();
+                }
+            });
+    }
+    public ConfirmedImport() {
+
         let notificationMsg: string = '';
         this._magBrowserService.ImportMagRelatedSelectedPapers(this._magBrowserService.SelectedPaperIds).then(
 
