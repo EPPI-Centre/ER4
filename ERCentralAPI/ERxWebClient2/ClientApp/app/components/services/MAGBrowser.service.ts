@@ -4,7 +4,7 @@ import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
 import {
     MagList, MagPaper, MVCMagFieldOfStudyListSelectionCriteria,
-    MVCMagPaperListSelectionCriteria, MagFieldOfStudy, MvcMagFieldOfStudyListSelectionCriteria, TopicLink
+    MVCMagPaperListSelectionCriteria, MagFieldOfStudy, MvcMagFieldOfStudyListSelectionCriteria, TopicLink, MagItemPaperInsertCommand
 } from '../services/MAGClasses.service';
 
 @Injectable({
@@ -13,6 +13,7 @@ import {
 )
 
 export class MAGBrowserService extends BusyAwareService {
+
 
     constructor(
         private _httpC: HttpClient,
@@ -58,7 +59,7 @@ export class MAGBrowserService extends BusyAwareService {
     public get currentPaper(): MagPaper {
         return this._currentPaper;
     }
-    public GetPaperListForTopic(FieldOfStudyId: number): any {
+    public GetPaperListForTopic(FieldOfStudyId: number): boolean | undefined {
 
         if (FieldOfStudyId != null) {
 
@@ -69,9 +70,32 @@ export class MAGBrowserService extends BusyAwareService {
             this.ListCriteria.listType = "PaperFieldsOfStudyList";
             this.ListCriteria.pageNumber = 0;
             this.ListCriteria.pageSize = this.pageSize;
-            this.FetchWithCrit(this.ListCriteria, "PaperFieldsOfStudyList");
+            this.FetchWithCrit(this.ListCriteria, "PaperFieldsOfStudyList").then(
 
+                    (res: boolean) => { return res; }
+                );
+
+        } else {
+            return false;
         }
+    }
+    public ImportMagRelatedSelectedPapers(selectedPapers: number[]): Promise<MagItemPaperInsertCommand | void> {
+
+        let selectedPapersStr: string = selectedPapers.join(',');
+        this._BusyMethods.push("ImportMagRelatedSelectedPapers");
+        let body = JSON.stringify({ Value: selectedPapersStr });
+        return this._httpC.post<MagItemPaperInsertCommand>(this._baseUrl + 'api/MagRelatedPapersRunList/ImportMagRelatedSelectedPapers',
+            body)
+            .toPromise().then(
+                (result: MagItemPaperInsertCommand) => {
+                    this.RemoveBusy("ImportMagRelatedSelectedPapers");
+                    return result;
+                },
+                error => {
+                    this.RemoveBusy("ImportMagRelatedSelectedPapers");
+                    this.modalService.GenericErrorMessage('an api call error with ImportMagRelatedSelectedPapers: ' + error);
+                }
+            );
     }
     public GetParentAndChildFieldsOfStudy(FieldOfStudy: string, FieldOfStudyId: number): Promise<boolean> {
 
@@ -143,8 +167,16 @@ export class MAGBrowserService extends BusyAwareService {
                     FieldsListcriteria.paperIdList = this.ListCriteria.paperIds;
                     //TODO THIS SEARCH TEXT NEEDS TO COME IN FROM THE FRONT
                     FieldsListcriteria.SearchTextTopics = ''; //searchText;
-                    this.FetchMagFieldOfStudyList(FieldsListcriteria, goBackListType);
-                    return true;
+                    return this.FetchMagFieldOfStudyList(FieldsListcriteria, goBackListType).then(
+
+                        (res: MagFieldOfStudy[]) => {
+                            if (res != null) {
+                                return true;
+                            } else {
+                                return false;
+                            }
+                        }
+                    );
                 },
                 error => {
                     this.RemoveBusy("FetchMAGRelatedPaperRunsListId");

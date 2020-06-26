@@ -1,9 +1,12 @@
-import { Component,  OnInit } from '@angular/core';
+import { Component,  OnInit, ViewChild, EventEmitter } from '@angular/core';
 import { Router } from '@angular/router';
 import { Location } from '@angular/common';
 import { MAGBrowserService } from '../services/MAGBrowser.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
-
+import { MagItemPaperInsertCommand } from '../services/MAGClasses.service';
+import { NotificationService } from '@progress/kendo-angular-notification';
+import { EventEmitterService } from '../services/EventEmitter.service';
+import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 
 @Component({
     selector: 'MAGHeaderBar',
@@ -15,10 +18,15 @@ export class MAGHeaderBarComp implements OnInit {
     constructor(private router: Router,
         private _location: Location,
         private _magBrowserService: MAGBrowserService,
-        private _ReviewerIdentityServ: ReviewerIdentityService
+        private _ReviewerIdentityServ: ReviewerIdentityService,
+        public _notificationService: NotificationService,
+        public _eventEmitterService: EventEmitterService,
+        public _confirmationDialogService: ConfirmationDialogService
     ) {
 
-	}
+    }
+
+    
     ngOnInit() {
 	
     }
@@ -35,22 +43,69 @@ export class MAGHeaderBarComp implements OnInit {
         }
     }
     public Forward() {
+
         this._location.forward();
     }
     public Back() {
+
         this._location.back();
     }
     public AdvancedFeatures() {
+
         this.router.navigate(['AdvancedMAGFeatures']);
     }
     public Selected() {
-        alert('not implemented');
+        this._eventEmitterService.selectedButtonPressed.emit();
     }
     public ClearSelected() {
+
         this._magBrowserService.ClearSelected();
     }
+    showMAGRunMessage(notifyMsg: string) {
+
+        this._notificationService.show({
+            content: notifyMsg,
+            animation: { type: 'slide', duration: 400 },
+            position: { horizontal: 'center', vertical: 'top' },
+            type: { style: "info", icon: true },
+            closable: true
+        });
+    }
     public ImportSelected() {
-        alert('not implemented');
+
+        let msg: string = 'Are you sure you want to import the selected MAG papers into your review?';
+        this._confirmationDialogService.confirm('MAG Import', msg, false, '')
+            .then((confirm: any) => {
+                if (confirm) {
+                    this.ConfirmedImport();
+                }
+            });
+    }
+    public ConfirmedImport() {
+
+        let notificationMsg: string = '';
+        this._magBrowserService.ImportMagRelatedSelectedPapers(this._magBrowserService.SelectedPaperIds).then(
+
+            (result: MagItemPaperInsertCommand | void) => {
+                if (result != null && result.nImported != null) {
+                    if (result.nImported == this._magBrowserService.SelectedPaperIds.length) {
+
+                        notificationMsg += "Imported " + result.nImported + " out of " +
+                            this._magBrowserService.SelectedPaperIds.length + " items";
+
+                    } else if (result.nImported != 0) {
+
+                        notificationMsg += "Some of these items were already in your review.\n\nImported " +
+                            result.nImported + " out of " + this._magBrowserService.SelectedPaperIds.length +
+                            " new items";
+                    }
+                    else {
+                        notificationMsg += "All of these records were already in your review.";
+                    }
+                    this.showMAGRunMessage(notificationMsg);
+                }
+            });
+       
     }
     public MatchingMAGItems() {
         this.router.navigate(['MatchingMAGItems']);

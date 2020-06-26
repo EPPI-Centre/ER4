@@ -129,6 +129,7 @@ export class BasicMAGService extends BusyAwareService {
             closable: true
         });
     }
+
     ImportMagRelatedRunPapers(magRelatedRun: MagRelatedPapersRun) {
 
         let notificationMsg: string = '';

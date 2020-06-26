@@ -33,7 +33,7 @@ export class microsoftAcademicComp implements OnInit, OnDestroy {
 
         this.sub = this._ItemCodingService.DataChanged.subscribe(
             () => {
-                this._magAdvancedService.MagReferencesPaperList = [];
+                this._magAdvancedService.MagReferencesPaperList.papers = [];
                 this.FetchMAGMatches();
             }
         );
@@ -86,7 +86,7 @@ export class microsoftAcademicComp implements OnInit, OnDestroy {
         let res: any = this._magAdvancedService.ClearMagMatchItemsToPapers(this.item.itemId);
         
         console.log('fetchMAGMatches is empty: ' + JSON.stringify(res));
-        this._magAdvancedService.MagReferencesPaperList = [];
+        this._magAdvancedService.MagReferencesPaperList.papers = [];
         
     }
     public get MagPaperList() {
@@ -111,12 +111,33 @@ export class microsoftAcademicComp implements OnInit, OnDestroy {
     public UpdateMagPaper(match: boolean, paperId: number) {
 
 
-        this._magAdvancedService.UpdateMagPaper(match, paperId, this.item.itemId).then(
-            (result: MagPaper) => {
-                    this.currentMagPaperLinkItem = result;
-                }
+        var MagPapers = this._magAdvancedService.MagReferencesPaperList;
+        console.log(JSON.stringify(MagPapers));
+        if (MagPapers.papers.length > 0) {
+
+            var paper = MagPapers.papers.find((x) => x.paperId == paperId);
+
+            if (paper != null) {
+                this.currentMagPaperLinkItem = paper;
+            } else {
+                return;
+            }
+
+
+            if (match) {
+                this.currentMagPaperLinkItem.manualTrueMatch = true;
+            } else {
+                this.currentMagPaperLinkItem.manualFalseMatch = true;
+            }
+
+            this._magAdvancedService.UpdateMagPaper(match, paperId, this.item.itemId).then(
+                //(result: MagPaper) => {
+                //        this.currentMagPaperLinkItem = result;
+                //    }
             );
 
+        }
+      
     }
 }
 

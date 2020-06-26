@@ -65,12 +65,19 @@ namespace ERxWebClient2.Controllers
                 MagMatchItemToPaperManualCommand cmd = new MagMatchItemToPaperManualCommand(magPaperState.itemId,
                     magPaperState.magPaperId, magPaperState.manualTrueMatchProperty, manualFalseMatchProperty);
 
-                
-                magPaper.ManualFalseMatch = !magPaperState.manualTrueMatchProperty;
-                magPaper.ManualTrueMatch = magPaperState.manualTrueMatchProperty;
-                magPaper = dp.Update(magPaper);
+                if (magPaper.LinkedITEM_ID > 0)
+                {
+                    magPaper.ManualFalseMatch = !magPaperState.manualTrueMatchProperty;
+                    magPaper.ManualTrueMatch = magPaperState.manualTrueMatchProperty;
+                    magPaper = dp.Update(magPaper);
+                    return Ok(magPaper);
+                }
+                else
+                {
+                    throw new Exception("magPaper has a LinkedITEM_ID of 0!");
+                }
 
-                return Ok(magPaper);
+                
             }
             catch (Exception e)
             {

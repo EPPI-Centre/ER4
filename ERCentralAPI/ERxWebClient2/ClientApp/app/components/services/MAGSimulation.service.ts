@@ -2,9 +2,7 @@ import { Inject, Injectable} from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
-import { NotificationService } from '@progress/kendo-angular-notification';
-import { MAGBrowserService } from './MAGBrowser.service';
-import { MagRelatedPapersRun, MagPaperList, MagPaper, MagList, MagItemPaperInsertCommand, MagSimulation } from './MAGClasses.service';
+import {  MagPaperList, MagPaper,   MagSimulation } from './MAGClasses.service';
 
 @Injectable({
     providedIn: 'root',
@@ -15,8 +13,6 @@ export class MAGSimulationService extends BusyAwareService {
     constructor(
         private _httpC: HttpClient,
         private modalService: ModalService,
-        private _magBrowserService: MAGBrowserService,
-        private notificationService: NotificationService,
         @Inject('BASE_URL') private _baseUrl: string
     ) {
         super();
@@ -78,7 +74,7 @@ export class MAGSimulationService extends BusyAwareService {
             ).catch(
                 (error) => {
 
-                    this.modalService.GenericErrorMessage("error with AddMagSimulation");
+                    this.modalService.GenericErrorMessage("error with AddMagSimulation" + error);
                     this.RemoveBusy("AddMagSimulation");
                 });
     }

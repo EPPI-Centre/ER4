@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { Location } from '@angular/common';
 import { searchService } from '../services/search.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
@@ -8,6 +8,9 @@ import { MAGBrowserService } from '../services/MAGBrowser.service';
 import { MAGAdvancedService } from '../services/magAdvanced.service';
 import { MAGBrowserHistoryService } from '../services/MAGBrowserHistory.service';
 import { NotificationService } from '@progress/kendo-angular-notification';
+import { TabStripComponent } from '@progress/kendo-angular-layout';
+import { EventEmitterService } from '../services/EventEmitter.service';
+import { SelectEvent } from '@progress/kendo-angular-upload';
 
 
 @Component({
@@ -26,11 +29,12 @@ export class MAGBrowser implements OnInit, OnDestroy {
         private _routingStateService: MAGBrowserHistoryService,
         private _location: Location,
         public _notificationService: NotificationService,
+        public _eventEmitterService: EventEmitterService,
         private router: Router
     ) {
 
     }
-
+    @ViewChild('tabSelectedPapers') public tabstrip!: TabStripComponent;
     public browsingHistory: NavigationEnd[] = [];
     public MAGPapers: MagPaper[] = [];
     public description: string = '';
@@ -39,11 +43,22 @@ export class MAGBrowser implements OnInit, OnDestroy {
 
     ngOnInit() {
 
+        this._eventEmitterService.selectedButtonPressed.subscribe(
+            () => {
+                if (this.tabstrip != null) {
+                    this.tabstrip.selectTab(2);
+                }
+            }
+        );
         this.browsingHistory = this._routingStateService.getHistory();
         
     }
+    public onTabSelect(e: SelectEvent) {
+        console.log('selected tab: ' + this.tabstrip.tabs.length);
+    }
     ngOnDestroy() {
 
+        
         this._magBrowserService.Clear();
         this.Clear();
     }

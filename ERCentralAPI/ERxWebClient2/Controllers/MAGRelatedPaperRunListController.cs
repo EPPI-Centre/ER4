@@ -168,6 +168,34 @@ namespace ERxWebClient2.Controllers
             }
         }
 
+
+        [HttpPost("[action]")]
+        public IActionResult ImportMagRelatedSelectedPapers([FromBody] SingleStringCriteria magSelectedPapers)
+        {
+            try
+            {
+                if (SetCSLAUser4Writing())
+                {
+                    
+
+                    DataPortal<MagItemPaperInsertCommand> dp2 = new DataPortal<MagItemPaperInsertCommand>();
+
+                    MagItemPaperInsertCommand command = new MagItemPaperInsertCommand(magSelectedPapers.Value, "SelectedPapers", 0);
+
+                    command = dp2.Execute(command);
+
+                    return Ok(command);
+
+                }
+                else return Forbid();
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "Importing a MagRelatedPaper list has an error");
+                throw;
+            }
+        }
+
         [HttpPost("[action]")]
         public IActionResult UpdateMagRelatedRun([FromBody] MVCMagRelatedPapersRun magRun)
         {
@@ -212,6 +240,11 @@ namespace ERxWebClient2.Controllers
         }
 
 
+    }
+
+    public class MVCSelectedPapers
+    {
+        public string selectedPapers { get; set; }
     }
 
     public class MAGList4Json
