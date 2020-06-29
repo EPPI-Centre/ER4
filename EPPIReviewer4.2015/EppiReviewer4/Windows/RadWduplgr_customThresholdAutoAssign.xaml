@@ -59,8 +59,8 @@
                 <TextBlock Text="Similarity Threshold: "
                                HorizontalAlignment="Right" VerticalAlignment="Center" Grid.Column="0" Grid.Row="0"/>
                 <StackPanel Orientation="Horizontal" Grid.Column="1" Grid.Row="0">
-                    <input:RadNumericUpDown x:Name="duplGr_SimilarityThresholdnum" Value="1" Minimum="0.8" Maximum="1" SmallChange="0.01"  ValueFormat="Numeric" NumberDecimalDigits="2" 
-                               HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                    <input:RadNumericUpDown x:Name="duplGr_SimilarityThresholdnum" Value="1" Minimum="0.7" Maximum="1" SmallChange="0.01"  ValueFormat="Numeric" NumberDecimalDigits="2" 
+                               HorizontalAlignment="Left" VerticalAlignment="Center" ValueChanged="duplGr_SimilarityThresholdnum_ValueChanged"/>
                     <TextBlock Text=" (Default = 1.00)" VerticalAlignment="Center"/>
                 </StackPanel>
                 <TextBlock Text="Codes Threshold: " TextWrapping="Wrap" 
@@ -82,6 +82,10 @@
 
 
             </Grid>
+            <TextBlock x:Name="tbThresholdWarning1" Margin="5,5,5,0" Text="Warning: this is a low auto-match threshold that might result" Visibility="Collapsed"></TextBlock>
+        <TextBlock x:Name="tbThresholdWarning3" Margin="5,0,5,5" Text="in false positive duplicate matches." Visibility="Collapsed"></TextBlock>
+        <TextBlock x:Name="tbThresholdWarning2" Margin="5,5,5,5" Text="Please type 'I confirm' if you want to proceed." Visibility="Collapsed"></TextBlock>
+            <TextBox x:Name="tbLowThresholdConfirm" Margin="5,5,5,5" Width="100" TextChanged="tbLowThresholdConfirm_TextChanged" Visibility="Collapsed"></TextBox>
             <Button x:Name="Dupl_DoAutoAssignFromCustomWindwo" Content=" Mark Automatically " Click="Dupl_DoAutoAssignFromCustomWindwo_Click" HorizontalAlignment="Center" Margin="2"/>
         </StackPanel>
 </telerik:RadWindow>
