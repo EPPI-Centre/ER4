@@ -36,7 +36,10 @@ export class ItemCodingService extends BusyAwareService {
     //public itemID = new Subject<number>();
     private _CurrentItemAttPDFCoding: ItemAttPDFCoding = new ItemAttPDFCoding();
     private _PerItemReport: boolean = true;
-    private _stopQuickReport: boolean = false;
+    //if PerItemReport, _stopQuickReport gets flipped from outside (set method below) as "Cancel",
+    //otherise it's the variable that control execution of per-page reports and acts as "cancel" from the outside.
+    //thus, it needs to be true whenever a report is actually NOT running...
+    private _stopQuickReport: boolean = true;
     private _CodingReport: string = "";
     public get CodingReport(): string {
         return this._CodingReport;
@@ -90,6 +93,7 @@ export class ItemCodingService extends BusyAwareService {
                     this.ItemCodingList.push(NewRealItemSet);
                 }
                 this.RemoveBusy("Fetch");
+                //console.log("emitting!");
                 this.DataChanged.emit();
                 //this.ReviewSetsService.AddItemData(result);
                 //this.Save();
@@ -449,6 +453,7 @@ export class ItemCodingService extends BusyAwareService {
     public Clear() {
         this._ItemsToReport = [];
         this._CodingReport = "";
+        this._stopQuickReport = true;//gets set to false when we start fetching a report...
         this._PerItemReport = true;
         this.jsonReport = new JsonReport();
         this._CurrentItemIndex4QuickCodingReport = 0;
@@ -501,7 +506,8 @@ export class ItemCodingService extends BusyAwareService {
         this.InterimGetItemCodingForReport(isJson);
         this.RemoveBusy("FetchCodingReport");
     }
-    public FetchSingleCodingReport(itemSet: ItemSet, item:Item): string {
+    public FetchSingleCodingReport(itemSet: ItemSet, item: Item): string {
+        // not setting this._stopQuickReport as this is coming from ItemDetails/Coding record - might need to change if we'll call this method from the quickcodingreport component.
         let result: string = "";
         let reviewSet = this.ReviewSetsService.FindSetById(itemSet.setId);
         if (!reviewSet) return result;
@@ -519,10 +525,12 @@ export class ItemCodingService extends BusyAwareService {
     }
 
     private InterimGetItemCodingForReport(isJson: boolean) {
+        let GotCancelled: boolean = false;
         if (this.stopQuickReport == true) {
             //makes the index jump forward so that below this.QuickCodingReportIsRunning will return "false" triggering the gracious end of recursion.
             this._CurrentItemIndex4QuickCodingReport = this._ItemsToReport.length + 1;
             this._stopQuickReport = false;
+            GotCancelled = true;
         }
         if (!this.SelfSubscription4QuickCodingReport) {
             //initiate recursion, ugh!
@@ -544,10 +552,14 @@ export class ItemCodingService extends BusyAwareService {
                 );
             }
         }
-        if (!this.QuickCodingReportIsRunning)  {
+        if (!this.QuickCodingReportIsRunning )  {
             if (this.SelfSubscription4QuickCodingReport) {
                 this.SelfSubscription4QuickCodingReport.unsubscribe();
                 this.SelfSubscription4QuickCodingReport = null;
+            }
+            if (GotCancelled) {//we don't want to show partial results!
+                this.jsonReport = new JsonReport();
+                this._CodingReport = "";
             }
             return;
         }
@@ -880,6 +892,7 @@ export class ItemCodingService extends BusyAwareService {
         this._CodingReport = "";
         this.jsonReport = new JsonReport();
         this._stopQuickReport = false;
+        this._PerItemReport = true;
         if (!Items || Items.length < 1) {
             return;
         }
@@ -889,15 +902,19 @@ export class ItemCodingService extends BusyAwareService {
         //this.RemoveBusy("FetchQuickQuestionReport");
     }
     private InterimGetItemCodingForQuestionReport(nodesToReportOn: singleNode[], options: QuickQuestionReportOptions) {
-        if (this.stopQuickReport == true) {
+        let GotCancelled: boolean = false;
+        //console.log("in InterimGetItemCodingForQuestionReport", this._CurrentItemIndex4QuickCodingReport);
+        if (this._stopQuickReport == true) {
             //makes the index jump forward so that below this.QuickCodingReportIsRunning will return "false" triggering the gracious end of recursion.
             this._CurrentItemIndex4QuickCodingReport = this._ItemsToReport.length + 1;
             this._stopQuickReport = false;
+            GotCancelled = true;
         }
         if (!this.SelfSubscription4QuickCodingReport) {
             //initiate recursion, ugh!
             this.SelfSubscription4QuickCodingReport = this.DataChanged.subscribe(
-				() => {
+                () => {
+                    //console.log("in QQ rep subscription, this._CurrentItemIndex4QuickCodingReport:", this._CurrentItemIndex4QuickCodingReport);
                     this.AddToQuickQuestionReport(nodesToReportOn, options);
                     this._CurrentItemIndex4QuickCodingReport++;
                     this.InterimGetItemCodingForQuestionReport(nodesToReportOn, options);
@@ -905,10 +922,15 @@ export class ItemCodingService extends BusyAwareService {
             );
         }
         if (!this.QuickCodingReportIsRunning) {
+            //console.log("QuickQ rep isn't running (in interim fetch)", GotCancelled);
             if (this.SelfSubscription4QuickCodingReport) {
                 this.SelfSubscription4QuickCodingReport.unsubscribe();
                 this.SelfSubscription4QuickCodingReport = null;
                 if (this._CodingReport.length != 0) this._CodingReport += "</table>";
+            }
+            if (GotCancelled) {//we don't want to show partial results!
+                //this.jsonReport = new JsonReport();
+                this._CodingReport = "";
             }
             return;
         }
@@ -941,6 +963,7 @@ export class ItemCodingService extends BusyAwareService {
         }
         this.AddQuestionCodingToReport(nodesToReportOn, options);
         this._CodingReport += "</tr>";
+        //console.log("end of AddToQuickQuestionReport");
     }
     AddQuestionCodingToReport(nodesToReportOn: singleNode[], options: QuickQuestionReportOptions) {
         for (let node of nodesToReportOn) {
@@ -1685,10 +1708,7 @@ class QuickCodingReportDataSelectionCriteria {
     public itemsSelectionCriteria: Criteria = new Criteria();
     public setIds: string = "";
 }
-class QuickCodingReportData {
-    public items: ItemList = new ItemList();
-    public itemSets: ItemSet[] = [];
-}
+
 interface iQuickCodingReportData {
     pageSize: number;
     pageCount: number;

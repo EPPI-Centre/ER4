@@ -64,13 +64,13 @@ export class QuickCodingReportComponent implements OnInit, OnDestroy {
         return false;
     }
     public get ReportIsMassive(): boolean {
-        if (this.GettingReport) return false;
+        //if (this.GettingReport) return false;
         if (!this.JsonReport && this.ReportHTML.length > 2500000) {
-            console.log("Report lenght:", this.ReportHTML.length);
+            //console.log("Report lenght:", this.ReportHTML.length);
             return true;
         }
         if (this.JsonReport && this.JsonReportContent.length > 2500000) {
-            console.log("Report lenght:", this.JsonReportContent.length);
+            //console.log("Report lenght:", this.JsonReportContent.length);
             return true;
         }
         return false;
@@ -88,7 +88,10 @@ export class QuickCodingReportComponent implements OnInit, OnDestroy {
         this._JsonReportContent = "";
         this.ItemCodingService.Clear();
         this.ItemCodingService.stopQuickReport = false;
-        if (!this.CanStartReport) return;
+        if (!this.CanStartReport) {
+            //console.log("Can't start report");
+            return;
+        }
         else if (this.Aim == '') {
             this.IsShortReport = true;
             console.log("Checkpoint 2");
@@ -248,6 +251,7 @@ export class QuickCodingReportComponent implements OnInit, OnDestroy {
             else return false;
         }
         else if (this.Aim == 'QuickQuestionReport') {
+            //console.log("QuickQuestionReport?");
             if (this.HasSelectedQuestions && this.ItemListService.HasSelectedItems) return true;
             else return false;
         }
