@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Text;
 using Csla;
 using Csla.Security;
 using Csla.Core;
@@ -10,21 +7,23 @@ using Csla.Silverlight;
 //using Csla.Validation;
 using Csla.DataPortalClient;
 using System.IO;
-using System.Configuration;
-using System.Threading;
-using System.Globalization;
+using System.Threading.Tasks;
+using System;
 
+
+//using Csla.Configuration;
 
 #if !SILVERLIGHT
 using System.Data.SqlClient;
 using BusinessLibrary.Data;
-using BusinessLibrary;
 using Csla.Data;
 using BusinessLibrary.Security;
-using System.Threading.Tasks;
+using System.Configuration;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
 using System.Data;
+using System.Threading;
+using System.Collections.Generic;
 #endif
 
 namespace BusinessLibrary.BusinessClasses
@@ -561,20 +560,7 @@ namespace BusinessLibrary.BusinessClasses
 
 
         private async void RunSimulation(int ReviewId, int ContactId)
-        {
-            //this should be called when the application starts...
-            // this should be moved to its own file as it is working but choosing best place
-            var currentMagContainerName  = await UpdateMagCurrentInfoTableWithMostRecentMagDBOnAzureAsync();
-            if (currentMagContainerName != "")
-            {
-                int startIndex = currentMagContainerName.IndexOf("-");
-                string mag_version = currentMagContainerName.Substring(startIndex+1, currentMagContainerName.Length - startIndex-1).Replace("-", "/");
-                mag_version = swapDateFormat(mag_version); 
-                string unformattedDate = currentMagContainerName.Substring(startIndex, currentMagContainerName.Length - startIndex).Replace("-", "");
-                string makes_endpoint = " http://eppimag" + unformattedDate + ".westeurope.cloudapp.azure.com";
-                UpdateSQLMagCurrentInfoTable(mag_version, makes_endpoint);
-            }
-
+        {            
             MagCurrentInfo mci = MagCurrentInfo.GetMagCurrentInfoServerSide("LIVE");
             int MagLogId = MagLog.SaveLogEntry("ContReview process", "running", "Review: " + ReviewId.ToString() + ", simulation: " + MagSimulationId.ToString(), ContactId);
             UpdateSimulationRecord("Running");
@@ -643,107 +629,6 @@ namespace BusinessLibrary.BusinessClasses
             // need to add cleaning up the files, but only once we've seen it in action for a while to help debugging
         }
 
-        private string swapDateFormat(string mag_version)
-        {
-            var date = DateTime.ParseExact(mag_version, "yyyy/MM/dd",
-                                   CultureInfo.InvariantCulture);
-
-            return date.ToString("dd/MM/yyy");
-        }
-
-        private void UpdateSQLMagCurrentInfoTable(string mag_version, string makes_endpoint)
-        {
-            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
-            {
-                connection.Open();
-                using (SqlCommand command = new SqlCommand("st_MagUpdateCurrentInfoLatestMag", connection))
-                {
-                    command.CommandType = System.Data.CommandType.StoredProcedure;
-                    command.Parameters.Add(new SqlParameter("@MAG_VERSION", mag_version));
-                    command.Parameters.Add(new SqlParameter("@MAKES_ENDPOINT", makes_endpoint));
-                    command.ExecuteNonQuery();
-                }
-                connection.Close();
-            }
-        }
-
-        private async Task<string> UpdateMagCurrentInfoTableWithMostRecentMagDBOnAzureAsync()
-        {
-            var configuration = ERxWebClient2.Startup.Configuration.GetSection("AzureMagSettings");
-            string storageAccountName = configuration["MAGStorageAccount"];
-            string storageAccountKey = configuration["MAGStorageAccountKey"];
-
-            string storageConnectionString = "DefaultEndpointsProtocol=https;AccountName=" + storageAccountName + ";AccountKey=";
-            storageConnectionString += storageAccountKey;
-
-            CloudStorageAccount storageAccount = CloudStorageAccount.Parse(storageConnectionString);
-            CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
-            //CloudBlobContainer container = blobClient.GetContainerReference("experiments");
-            //here need  list
-            var magContainers = await ListContainersWithPrefixAsync(blobClient, "mag-");
-            //use LINQ to list them in date order
-            var orderedMagContainers = magContainers.OrderByDescending(x => x.Name);
-
-            var mostRecentMag  = orderedMagContainers.FirstOrDefault();
-            if (mostRecentMag != null)
-            {
-                return mostRecentMag.Name;
-            }
-            else
-            {
-                return String.Empty;
-            }
-        }
-
-        private async Task<IEnumerable<CloudBlobContainer>> ListContainersWithPrefixAsync(CloudBlobClient blobClient,
-                                                        string prefix)
-        {
-            Console.WriteLine("List all containers beginning with prefix {0}, plus container metadata:", prefix);
-
-            try
-            {
-                ContainerResultSegment resultSegment = null;
-                BlobContinuationToken continuationToken = null;
-
-                do
-                {
-                    // List containers beginning with the specified prefix, returning segments of 5 results each.
-                    // Passing null for the maxResults parameter returns the max number of results (up to 5000).
-                    // Requesting the container's metadata with the listing operation populates the metadata,
-                    // so it's not necessary to also call FetchAttributes() to read the metadata.
-                    resultSegment = await blobClient.ListContainersSegmentedAsync(
-                        prefix, ContainerListingDetails.Metadata, 5, continuationToken, null, null);
-
-                    // Enumerate the containers returned.
-                    foreach (var container in resultSegment.Results)
-                    {
-                        Console.WriteLine("\tContainer:" + container.Name);
-
-                        // Write the container's metadata keys and values.
-                        foreach (var metadataItem in container.Metadata)
-                        {
-                            Console.WriteLine("\t\tMetadata key: " + metadataItem.Key);
-                            Console.WriteLine("\t\tMetadata value: " + metadataItem.Value);
-                        }
-                    }
-
-                    // Get the continuation token. If not null, get the next segment.
-                    continuationToken = resultSegment.ContinuationToken;
-
-                } while (continuationToken != null);
-
-                return resultSegment.Results;
-
-            }
-            catch (StorageException e)
-            {
-                Console.WriteLine("HTTP error code {0} : {1}",
-                                    e.RequestInformation.HttpStatusCode,
-                                    e.RequestInformation.ErrorCode);
-                Console.WriteLine(e.Message);
-                return null;
-            }
-        }
 
         private async void DownloadResultsPostFail(int ReviewId, int ContactId)
         {
