@@ -208,6 +208,8 @@ export class MagSimulation {
     magSimulationId: number = 0;
     reviewId: number = 0;
     year: number = 0;
+    yearEnd: number = 0;
+    createdEndDate: Date = new Date();
     createdDate: Date = new Date();
     withThisAttributeId: number = 0;
     filteredByAttributeId: number = 0;
@@ -218,6 +220,7 @@ export class MagSimulation {
     networkStatistic: string = '';
     studyTypeClassifier: string = '';
     userClassifierModelId: number = 0;
+    userClassifierReviewId: number = 0;
     status: string = '';
     withThisAttribute: string = '';
     filteredByAttribute: string = '';

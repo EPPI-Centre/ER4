@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Text;
 using Csla;
 using Csla.Security;
 using Csla.Core;
@@ -10,20 +7,23 @@ using Csla.Silverlight;
 //using Csla.Validation;
 using Csla.DataPortalClient;
 using System.IO;
-using System.Configuration;
-using System.Threading;
+using System.Threading.Tasks;
+using System;
 
+
+//using Csla.Configuration;
 
 #if !SILVERLIGHT
 using System.Data.SqlClient;
 using BusinessLibrary.Data;
-using BusinessLibrary;
 using Csla.Data;
 using BusinessLibrary.Security;
-using System.Threading.Tasks;
+using System.Configuration;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
 using System.Data;
+using System.Threading;
+using System.Collections.Generic;
 #endif
 
 namespace BusinessLibrary.BusinessClasses
@@ -560,7 +560,7 @@ namespace BusinessLibrary.BusinessClasses
 
 
         private async void RunSimulation(int ReviewId, int ContactId)
-        {
+        {            
             MagCurrentInfo mci = MagCurrentInfo.GetMagCurrentInfoServerSide("LIVE");
             int MagLogId = MagLog.SaveLogEntry("ContReview process", "running", "Review: " + ReviewId.ToString() + ", simulation: " + MagSimulationId.ToString(), ContactId);
             UpdateSimulationRecord("Running");
@@ -628,6 +628,7 @@ namespace BusinessLibrary.BusinessClasses
             MagLog.UpdateLogEntry("Complete", "Sim: " + MagSimulationId.ToString(), MagLogId);
             // need to add cleaning up the files, but only once we've seen it in action for a while to help debugging
         }
+
 
         private async void DownloadResultsPostFail(int ReviewId, int ContactId)
         {

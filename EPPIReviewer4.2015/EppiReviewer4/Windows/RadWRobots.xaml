@@ -20,6 +20,7 @@
             <RowDefinition Height="35"></RowDefinition>
             <RowDefinition Height="35"></RowDefinition>
             <RowDefinition Height="35"></RowDefinition>
+            <RowDefinition Height="50"></RowDefinition>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="200"></ColumnDefinition>
@@ -37,6 +38,7 @@
 
         <HyperlinkButton x:Name="hlGo" Grid.Row="2" Grid.Column="0" Content="Send to robot!" HorizontalAlignment="Center" VerticalAlignment="Center" IsTabStop="False" Click="HyperlinkButton_Click_1"></HyperlinkButton>
         <HyperlinkButton x:Name="hlCancel" Grid.Row="2" Grid.Column="1" Content="Close / cancel" HorizontalAlignment="Center" VerticalAlignment="Center" IsTabStop="False" Click="HyperlinkButton_Click"></HyperlinkButton>
-        
+
+        <HyperlinkButton x:Name="hlHelp" Grid.Row="3" Grid.Column="0" TargetName="_blank" NavigateUri="http://eppi.ioe.ac.uk/cms/Default.aspx?tabid=3772" Content="About these robots" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="5,5,5,5"></HyperlinkButton>
     </Grid>
 </telerik:RadWindow>
