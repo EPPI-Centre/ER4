@@ -77,7 +77,7 @@ export class AdvancedMAGFeaturesComponent implements OnInit, OnDestroy {
     public SearchMethod: string = 'Recommendations';
     public SearchMethods: string[] = ['Bi-Citation',
         'Recommendations',
-        'Bi-Citation and Recommendations',
+        'Bi-Citation AND Recommendations',
         'Extended Network'];
     public StudyTypeClassifier: string = 'None';
     public StudyTypeClassifiers: string[] = [
@@ -95,6 +95,7 @@ export class AdvancedMAGFeaturesComponent implements OnInit, OnDestroy {
     public currentClassifierContactModel: ClassifierContactModel = new ClassifierContactModel();
     public description: string = '';
     public kendoDateValue: Date = new Date();
+    public kendoEndDateValue: Date = new Date();
     public magDate: string = 'true';
     public magMode: string = '';
     public filterOn: string = 'false';
@@ -150,12 +151,12 @@ export class AdvancedMAGFeaturesComponent implements OnInit, OnDestroy {
     private AddActualSimulation(): void {
 
         let newMagSimulation: MagSimulation = new MagSimulation();
-        if (this.splitDataOn == 'Year') {
-            newMagSimulation.year = this.kendoDateValue.getFullYear();
+        if (this.splitDataOn == 'Year' || this.splitDataOn == 'CreatedDate') {
 
-        } else if (this.splitDataOn == 'CreatedDate') {
-
+            newMagSimulation.year = 1753; //this.kendoDateValue.getFullYear();
+            newMagSimulation.yearEnd = this.kendoEndDateValue.getFullYear();
             newMagSimulation.createdDate = this.kendoDateValue;
+            newMagSimulation.createdEndDate = this.kendoEndDateValue;
 
         } else if (this.splitDataOn == 'WithThisCode') {
 
@@ -186,6 +187,7 @@ export class AdvancedMAGFeaturesComponent implements OnInit, OnDestroy {
 
             newMagSimulation.userClassifierModel = this.currentClassifierContactModel.modelTitle;
             newMagSimulation.userClassifierModelId = this.currentClassifierContactModel.modelId;
+            newMagSimulation.userClassifierReviewId = this.currentClassifierContactModel.reviewId;
         }
         newMagSimulation.status = "Pending";
         //console.log(newMagSimulation);

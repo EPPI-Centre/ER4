@@ -79,7 +79,13 @@
                 <div class="col-3 m-0 p-0 "><b>Items Dated From</b></div>
                 <div class="example-wrapper col-8" style="min-height: 100px">
                     <kendo-datepicker [(value)]="kendoDateValue"></kendo-datepicker>
-                    <p>(use Alt+↓ to open the calendar, ← and →  to navigate, ↑ to increment and ↓ to decrement the value)</p>
+                </div>
+            </div>
+            <div class="col-5 m-2 p-2 row" *ngIf="splitDataOn == 'CreatedDate' || splitDataOn == 'Year'">
+                <div class="col-1 m-0 p-0"></div>
+                <div class="col-3 m-0 p-0 "><b>End date</b></div>
+                <div class="example-wrapper col-8" style="min-height: 100px">
+                    <kendo-datepicker [(value)]="kendoEndDateValue"></kendo-datepicker>
                 </div>
             </div>
             <div class="col-12 row" *ngIf="splitDataOn == 'WithThisCode' || filterOn == 'true'">
@@ -165,8 +171,8 @@
                 <div class="col-1 m-2 p-2"><b>Score Threshold</b></div>
                 <div class="col-3 p-0 m-0">
                     <kendo-numerictextbox [(ngModel)]="ScoreThreshold"
-                                          [min]="0" 
-                                           [step]="stepScore"
+                                          [min]="0"
+                                          [step]="stepScore"
                                           [max]="1"
                                           [autoCorrect]="true"
                                           class="border border-dark rounded"
@@ -176,8 +182,8 @@
                 <div class="m-1 p-1 col-1"><b>FoS Threshold</b></div>
                 <div class="col-3 p-0 m-0">
                     <kendo-numerictextbox [(ngModel)]="FoSThreshold"
-                                          [min]="0" 
-                                           [step]="stepFoS"
+                                          [min]="0"
+                                          [step]="stepFoS"
                                           [max]="1"
                                           [autoCorrect]="true"
                                           class="border border-dark rounded"
