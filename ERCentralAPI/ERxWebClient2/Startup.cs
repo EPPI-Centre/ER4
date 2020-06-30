@@ -103,9 +103,6 @@ namespace ERxWebClient2
                     defaults: new { controller = "Home", action = "Index" });
             });
 
-            //Testing
-            MagCurrentInfo.UpdateMagCurrentInfo();
-
         }
     }
 }

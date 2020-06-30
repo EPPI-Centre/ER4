@@ -88,5 +88,46 @@ namespace EppiReviewer4
             if (Dupl_DoAutoAssignFromCustomWindwo_Clicked != null) Dupl_DoAutoAssignFromCustomWindwo_Clicked.Invoke(sender, e);
         }
         #endregion
+
+        private void duplGr_SimilarityThresholdnum_ValueChanged(object sender, RadRangeBaseValueChangedEventArgs e)
+        {
+            if (duplGr_SimilarityThresholdnum != null && tbThresholdWarning2 != null &&
+                tbThresholdWarning3 != null && duplGr_SimilarityThresholdnum.Value.Value < 0.799)
+            {
+                tbThresholdWarning1.Visibility = Visibility.Visible;
+                tbThresholdWarning3.Visibility = Visibility.Visible;
+                tbThresholdWarning2.Visibility = Visibility.Visible;
+                tbLowThresholdConfirm.Visibility = Visibility.Visible;
+                tbLowThresholdConfirm.Text = "";
+                Dupl_DoAutoAssignFromCustomWindwo.IsEnabled = false;
+            }
+            else
+            {
+                if (duplGr_SimilarityThresholdnum != null && tbThresholdWarning2 != null &&
+                    tbThresholdWarning1 != null && tbThresholdWarning3 != null)
+                {
+                    tbThresholdWarning1.Visibility = Visibility.Collapsed;
+                    tbThresholdWarning3.Visibility = Visibility.Collapsed;
+                    tbThresholdWarning2.Visibility = Visibility.Collapsed;
+                    tbLowThresholdConfirm.Visibility = Visibility.Collapsed;
+                    Dupl_DoAutoAssignFromCustomWindwo.IsEnabled = true;
+                }
+            }
+        }
+
+        private void tbLowThresholdConfirm_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (tbLowThresholdConfirm != null && tbLowThresholdConfirm.Visibility == Visibility.Visible)
+            {
+                if (tbLowThresholdConfirm.Text.ToLower() == "i confirm")
+                {
+                    Dupl_DoAutoAssignFromCustomWindwo.IsEnabled = true;
+                }
+                else
+                {
+                    Dupl_DoAutoAssignFromCustomWindwo.IsEnabled = false;
+                }
+            }
+        }
     }
 }
