@@ -180,7 +180,7 @@
             <tbody>
                 <tr class="" *ngFor="let item of _basicMAGService.MagRelatedPapersRunList">
                     <td class="p-0">
-                        <button (click)="UpdateAutoReRun(item)" class="btn btn-sm btn-outline-primary p-1 m-1" style="min-width:60px;">
+                        <button md-tooltip='ReRun the same Search' (click)="UpdateAutoReRun(item)" class="btn btn-sm btn-outline-primary p-1 m-1" style="min-width:60px;">
                             {{item.autoReRun}}
                         </button>
                         <!--<input (click)="UpdateAutoReRun(item)" class="btn btn-sm btn-outline-primary p-1 m-1" [(ngModel)]="item.autoReRun" />-->
