@@ -158,6 +158,7 @@
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\PerformClusterCommand.cs" Link="Models\PerformClusterCommand.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\PerformRandomAllocateCommand.cs" Link="Models\PerformRandomAllocateCommand.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\PubMedSearch.cs" Link="Models\PubMedSearch.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\QuickCodingReportData.cs" Link="Models\QuickCodingReportData.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ReadOnlyArchieReview.cs" Link="Models\ReadOnlyArchieReview.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ReadOnlyArchieReviewList.cs" Link="Models\ReadOnlyArchieReviewList.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ReadOnlyImportFilterRule.cs" Link="Models\ReadOnlyImportFilterRule.cs" />

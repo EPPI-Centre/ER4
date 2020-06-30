@@ -365,78 +365,34 @@ namespace ERxWebClient2.Controllers
             }
         }
 
-		//      [HttpPost("[action]")]
-		//public IActionResult CompleteCoding([FromBody] JObject data)
-		//{
-		//	try
-		//	{
-		//		if (SetCSLAUser4Writing())
-		//		{
-		//			ReconcilingItem recon = data.GetValue("ReconcilingItem").ToObject<ReconcilingItem>();
-		//			Comparison comparison = data.GetValue("Comparison").ToObject<Comparison>();
-		//			int bt = Convert.ToInt16(data.GetValue("contactID").ToString());
-		//			bool CompleteOrNot = Convert.ToBoolean(data.GetValue("CompleteOrNot").ToString());
-		//			bool LockOrNot = Convert.ToBoolean(data.GetValue("LockOrNot").ToString());
-		//			ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
-		//			DataPortal<ItemSetCompleteCommand> dp = new DataPortal<ItemSetCompleteCommand>();
-		//			long isi = -1; string completor = ""; ItemSetCompleteCommand command;
-		//			if (CompleteOrNot)
-		//			{
-		//				if (comparison.ContactId1 == bt)
-		//				{
-		//					isi = recon._ItemSetR1;
-		//					completor = comparison.ContactName1;
-		//				}
-		//				else if (comparison.ContactId2 == bt)
-		//				{
-		//					isi = recon._ItemSetR2;
-		//					completor = comparison.ContactName2;
-		//				}
-		//				else if (comparison.ContactId3 == bt)
-		//				{
-		//					isi = recon._ItemSetR3;
-		//					completor = comparison.ContactName3;
-		//				}
-		//				command = new ItemSetCompleteCommand(isi, true, LockOrNot);
-		//			}
-		//			else
-		//			{
-		//				int completedByID = recon._CompletedByID;
-		//				if (comparison.ContactId1 == completedByID)
-		//				{
-		//					isi = recon._ItemSetR1;
-		//				}
-		//				else if (comparison.ContactId2 == completedByID)
-		//				{
-		//					isi = recon._ItemSetR2;
-		//				}
-		//				else if (comparison.ContactId3 == completedByID)
-		//				{
-		//					isi = recon._ItemSetR3;
-		//				}
-		//				else
-		//				{
-		//					isi = recon._CompletedItemSetID;
-		//				}
-		//				command = new ItemSetCompleteCommand(isi, false, LockOrNot);
-		//			}
 
-		//			command = dp.Execute(command);
+        [HttpPost("[action]")]
+        public IActionResult FetchQuickCodingReportPage([FromBody] MVCQuickCodingReportDataSelectionCriteria crit)
+        {
+            try
+            {
+                SetCSLAUser();
+                DataPortal<QuickCodingReportData> dp = new DataPortal<QuickCodingReportData>();
+                QuickCodingReportDataSelectionCriteria criteria = crit.CSLAReportDataSelectionCriteria();
+                QuickCodingReportData result = dp.Fetch(criteria);
+                foreach (ItemSet iSet in result.ItemSets)
+                {
+                    foreach (ReadOnlyItemAttribute roia in iSet.ItemAttributesList)
+                    {
+                        roia.ItemAttributeFullTextDetails.Sort();
+                    }
+                }
+                return Ok(result);
 
-		//			return Ok();
-		//		}
-		//		else return Forbid();
-
-		//	}
-		//	catch (Exception e)
-		//	{
-		//		_logger.LogException(e, "Comparison complete or uncomplete data portal error");
-		//		throw;
-		//	}
-		//}
-
-
-	}
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Error when fetching a CodingReportPage");
+                return StatusCode(500, e.Message);
+            }
+        }
+        
+    }
 
     public class MVCItemAttributeSaveCommand
     {
@@ -559,4 +515,17 @@ namespace ERxWebClient2.Controllers
         public MVCItemAttributeSaveCommand createInfo;
         public ItemAttributePDF iaPDFpage;
     }
+    public class MVCQuickCodingReportDataSelectionCriteria
+    {
+        public SelCritMVC itemsSelectionCriteria { get; set; }
+        public string setIds { get; set; }
+        public QuickCodingReportDataSelectionCriteria CSLAReportDataSelectionCriteria()
+        {
+            QuickCodingReportDataSelectionCriteria res = new QuickCodingReportDataSelectionCriteria();
+            res.SetIds = setIds;
+            res.ItemsSelectionCriteria = itemsSelectionCriteria.CSLACriteria;
+            return res;
+        }
+    }
+
 }
