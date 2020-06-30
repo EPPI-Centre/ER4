@@ -1,13 +1,18 @@
-<div class="card p-1 m-1 alert-light">
-    <h5 class="font-weight-bold btn-link">
-        Look up this record in Microsoft Record
-    </h5>
-    <h5><b>should be item details of some sort here quickCitation...here...</b></h5>
+<div class="card p-1 m-1 alert-light" style="min-width: 750px">
+    <div class="col-12 row">
+        <h5 class="font-weight-bold btn btn-link col-6 pull-left" (click)="FetchMAGMatches()">
+            Look up this record in Microsoft Academic
+        </h5>
+        <h5 class="font-weight-bold btn btn-link col-6 pull-right" (click)="ClearMAGMatches()">
+            Clear Microsoft Academic matches from this record
+        </h5>
+    </div>
+    <h5><b>{{item.title}}</b></h5>
     <b>Record(s) matched from Microsoft Academic:</b>
 
-    <h5 class="alert-warning" *ngIf="_magAdvancedService.MagReferencesPaperList == null">Loading...</h5>
-    <div class="card col-12 " style="overflow:auto;" *ngIf="_magAdvancedService.MagReferencesPaperList != null">
-        <table class="table table-bordered table-responsive-md table-striped text-center">
+    <h5 class="alert-warning" *ngIf="IsServiceBusy">Loading...</h5>
+    <div class="card col-12 alert-primary" style="overflow:auto;" *ngIf="_magAdvancedService.MagReferencesPaperList != null">
+        <table class="table table-bordered table-responsive-md table-striped text-center small alert-primary">
             <thead>
                 <tr>
                     <th class="text-center">Full MAG record</th>
@@ -16,19 +21,59 @@
             </thead>
             <tbody>
                 <tr *ngFor="let magPaper of _magAdvancedService.MagReferencesPaperList.papers">
-                    <td style="width: 150px;">{{magPaper.fullRecord}}</td>
-                    <td style="width: 15px;">
-                        Score:{{magPaper.autoMatchScore}}
-                        Correct Match:<input name="magMatchRadio" id="magMatchRadio" type="radio" />
-                        Incorrect Match:<input name="magMatchRadio" id="magMatchRadio" type="radio" />
+                    <td>
+                        <div class="col-12">{{magPaper.fullRecord}}</div>
+                        <div class="col-3">
+                            {{magPaper.paperId}}
+                        </div>
+                        <div class="col-3 btn btn-link pull-left" (click)="GetMagPaperRef(magPaper.paperId)">
+                            View in MAG Browser
+                        </div>
+                        <div class="col-3 btn btn-link pull-right">
+                            <a href="https://academic.microsoft.com/paper/{{magPaper.paperId}}/reference" target="_blank">
+                                View on the internet
+                            </a>
+                        </div>
                     </td>
+                    <td class="w-25">
+                        <div class="col-12 ">
+                            Score: {{magPaper.autoMatchScore}}
+                            CurrentMagPaper: {{this.currentMagPaperLinkItem.manualTrueMatch}}
+                        </div>
+                        <div class="col-12">
+                            Correct Match:   <input (click)="UpdateMagPaper(true, magPaper.paperId)" 
+                                                ng-model="magPaper.manualTrueMatch" ng-value="true" 
+                                                    name="magMatchRadio"  type="radio" />
+                        </div>
+                        <div class="col-12 ">
+                            Incorrect Match: <input  (click)="UpdateMagPaper(false, magPaper.paperId)"
+                                                ng-model="magPaper.manualTrueMatch" ng-value="true"  
+                                                   name="magMatchRadio"  type="radio" />
+                        </div>
+                    </td>
+
                 </tr>
             </tbody>
         </table>
-        <div class="col-12 row p-2 m-2">
-            Look up specific Microsoft Academic ID:
-            <input type="text" class="form-control col-2  p-2 m-2" />
-            <button class="btn btn-outline-primary  p-2 m-2">GO</button>
+        <div class="col-12 p-2 m-2 row">
+            <div class="col-12 text-center">
+                <p><b>Look up specific Microsoft Academic ID:</b></p>
+                <input required minlength="4" type="number" id="magPaperId" name="magPaperId" #magPaper="ngModel"
+                       class="alert text-center"
+                       [(ngModel)]="magPaperId" />
+                <button (click)="GetMagPaper()" [disabled]="!CanGetMagPaper()" class="btn btn-outline-primary  p-2 m-2">GO</button>
+            </div>
+            <div class="col-4"></div>
+            <div *ngIf="magPaper.invalid && (magPaper.dirty || magPaper.touched)"
+                 class="col-4 alert alert-danger text-center">
+
+                <div *ngIf="magPaper.errors.required">
+                    magPaperId is required.
+                </div>
+                <div *ngIf="magPaper.errors.minlength">
+                    magPaperId must be at least 4 numbers long.
+                </div>
+            </div>
         </div>
     </div>
 </div>

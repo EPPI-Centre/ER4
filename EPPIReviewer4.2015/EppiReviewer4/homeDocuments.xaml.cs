@@ -417,7 +417,7 @@ namespace EppiReviewer4
             cmdScreeningRunSimulation.Visibility = ri.IsSiteAdmin ? Visibility.Visible : System.Windows.Visibility.Collapsed;
             cmdScreeningSimulationSave.Visibility = ri.IsSiteAdmin ? Visibility.Visible : System.Windows.Visibility.Collapsed;
             if (ri.UserId == 1451 || ri.UserId == 1576 || ri.UserId == 4688 
-                || ri.UserId == 6258 || ri.UserId == 6545 || ri.UserId == 11817) //Alison, Ian, Dylan,  Hollie Melton from York CRD, Joshua Pink from NICE and Albert Harkema
+                || ri.UserId == 6258 || ri.UserId == 6545 || ri.UserId == 11817 || ri.UserId == 1095) //Alison, Ian, Dylan,  Hollie Melton from York CRD, Claire, Joshua Pink from NICE and Albert Harkema
             {
                 cmdScreeningRunSimulation.Visibility = Visibility.Visible;
                 cmdScreeningSimulationSave.Visibility = Visibility.Visible;
@@ -6092,15 +6092,22 @@ on the right of the main screen");
             {
                 dlgWindowVisualiseSearch = new Windows.windowSearchVisualise();
                 dlgWindowVisualiseSearch.CodesCreated += DlgWindowVisualiseSearch_CodesCreated;
+                dlgWindowVisualiseSearch.SearchClassifierScoresCompleted += VisualiseSearchClassifierScoreSearchCompleted;
             }
             Search sch = (sender as Button).DataContext as Search;
             if (sch != null)
             {
                 dlgWindowVisualiseSearch.SearchId = sch.SearchId;
+                dlgWindowVisualiseSearch.SearchNo = sch.SearchNo;
                 dlgWindowVisualiseSearch.SearchName = sch.Title;
                 dlgWindowVisualiseSearch.getSearchData(sch.SearchId);
                 dlgWindowVisualiseSearch.Show();
             }
+        }
+
+        private void VisualiseSearchClassifierScoreSearchCompleted(object sender, RoutedEventArgs e)
+        {
+            ReloadSearchList();
         }
 
         private void DlgWindowVisualiseSearch_CodesCreated(object sender, RoutedEventArgs e)

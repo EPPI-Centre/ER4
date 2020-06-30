@@ -59,6 +59,7 @@ export class PdfTronContainer implements OnInit, AfterViewInit, OnDestroy {
     }
     public get CanWritePDFCoding(): string {
         if (!this.ItemCodingService.SelectedSetAttribute) return "No Code";
+        if (this.ReviewSetsService.IsBusy) return "Busy";
         else if (!this.ReviewSetsService.CanWriteCoding(this.ItemCodingService.SelectedSetAttribute) && this.ReviewerIdentityServ.HasWriteRights) return "Coding locked";
         else if (!this.ReviewerIdentityServ.HasWriteRights) return "Read Only";
         else return "yes";

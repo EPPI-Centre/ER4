@@ -1,21 +1,10 @@
-﻿<HeaderComponent Context="MAGBrowser"></HeaderComponent>
+﻿<HeaderComponent #headerComponent Context="MAGBrowser"></HeaderComponent>
 <button class="page-link rounded pt-1 pb-1 mb-1 float-right"
         style="position:absolute; right: 0; z-index:2000;" (click)="Back()">
     Close/back
 </button>
-<div class="containsAtoolbar">
-    <kendo-toolbar>
-        <kendo-toolbar-button [text]="'Clear Selected'" (click)="ClearSelected()" [disabled]="!HasWriteRights"></kendo-toolbar-button>
-        <kendo-toolbar-button [text]="'Import Selected'" (click)="ImportSelected()" [disabled]="HasWriteRights"></kendo-toolbar-button>
-        <kendo-toolbar-button [text]="'Auto-update home'" (click)="ShowAutoUpdateHome()" [disabled]="!HasWriteRights"></kendo-toolbar-button>
-        <kendo-toolbar-button [text]="'Advanced features'" (click)="AdvancedFeatures()" [disabled]="!HasWriteRights"></kendo-toolbar-button>
-        <kendo-toolbar-button [text]="'Show history'" (click)="ShowMAGBrowserHistory()" [disabled]="!HasWriteRights"></kendo-toolbar-button>
-        <!--<kendo-toolbar-button [text]="'Admin'" (click)="ShowAdminPage()" [disabled]="!HasWriteRights"></kendo-toolbar-button>-->
-        <kendo-toolbar-button [text]="'Back'" (click)="Back()" [disabled]="!HasWriteRights"></kendo-toolbar-button>
-        <kendo-toolbar-button [text]="'Forward'" (click)="Forward()" [disabled]="!HasWriteRights"></kendo-toolbar-button>
-    </kendo-toolbar>
-</div>
-<div class="col-10 p-2 m-2 card alert-primary  border-dark">
+<MAGHeaderBar></MAGHeaderBar>
+<div class="p-2 m-2 card alert-primary  border-dark">
     <h4>Microsoft Academic Graph Browser</h4>
 
 </div>
@@ -23,125 +12,157 @@
 <div *ngIf="IsServiceBusy" class="k-loading-image" style="position: fixed; top: 2%;"></div>
 
 <div *ngIf="_magAdvancedService.currentMagPaper.paperId > 0"
-     class="col-10 alert-warning border border-dark p-2 m-2 ">
+     class="alert-warning border border-dark p-2 m-2 ">
     <h4><b>{{_magAdvancedService.currentMagPaper.fullRecord}}</b></h4>
     <b>Paper Id:</b> <h4>{{_magAdvancedService.currentMagPaper.paperId}}</h4>
-    <b>Abstract:</b> <p>{{_magAdvancedService.currentMagPaper.abstract}}</p>
-    <b>Pdf Links:</b> <p>{{_magAdvancedService.currentMagPaper.pdfLinks}}</p>
-</div>
-<div class="col-10 row alert-info border border-dark p-2 m-2 " style="min-width:450px;max-height:950px; overflow:auto;">
-       
-    <div [title]="'TOPICS'" class="col-6" style="min-height:500px;min-width:450px; overflow:auto;">
-        <h5>Parent Topics</h5>
-        {{_magBrowserService.ParentTopic}}
-        <div class="card col-12 small table table-border  table-striped alert-primary">
-
-            <div *ngFor="let item of _magBrowserService.WPParentTopics">
-                <div (click)="GetParentAndChildRelatedPapers(item)" class="col-2 btn border border-0"
-                     [ngStyle]="{ 'font-size.em': item.fontSize,'background-color': 'light-blue', 'color': 'black'}">
-                    {{item.displayName }}
-                </div>
-
-            </div>
-        </div>
-        <h5>Children Topics</h5>
-        <div class="card col-12 small table table-border  table-striped alert-warning">
-
-            <div class="row">
-                <div *ngFor="let item of _magBrowserService.WPChildTopics">
-                    <div (click)="GetParentAndChildRelatedPapers(item)" class="col-2 btn border border-0"
-                         [ngStyle]="{ 'font-size.em': item.fontSize,'background-color': 'light-blue', 'color': 'black'}">
-                        {{item.displayName}}
-                    </div>
-                </div>
-            </div>
+    <div class="btn btn-link">
+        <a href="https://academic.microsoft.com/paper/{{_magAdvancedService.currentMagPaper.paperId}}/reference" target="_blank">
+            View on the internet
+        </a>
+    </div>
+    <button class="btn btn-link" (click)=toggleDisplayDivIf()>{{isShowDivIf == true ? 'Hide Abstract' : 'Show Abstract'}}</button>
+    <div *ngIf="isShowDivIf">
+        <b>Abstract:</b> <p>{{_magAdvancedService.currentMagPaper.abstract}}</p>
+        <b>Pdf Links:</b> 
+        <div *ngFor="let item of GetPDFLinks()">
+            <a href="{{item}}" target="_blank">
+                {{item}}
+            </a>
         </div>
     </div>
-
-    <kendo-tabstrip #tabstripSelectedPapers class="col-5" [keepTabContent]="true">
-        <kendo-tabstrip-tab [selected]="true" [title]="'References'">
-            <ng-template kendoTabContent>
-
-                <div [title]="'References'" style="min-height:500px;min-width:450px; overflow:auto;">
-
-                    <div>
-                        <h5>Papers identified from auto-identification MAG run</h5>
-                        <!--<h5>Total number of mag papers in below list: {{_magAdvancedService.TotalNumberOfMatchedPapers}}</h5>-->
-                    </div>
-
-                    <div>
-                        <table class="card col-12 small table table-border table-striped bg-light">
-                            <thead>
-                                <tr></tr>
-                            </thead>
-                            <tbody>
-                                <tr *ngFor="let item of _magBrowserService.MAGList.papers">
-                                    <td>{{item.fullRecord}}</td>
-                                    <td>
-                                        <button (click)="InOutReview(item)" class="btn btn-outline-success">
-                                            {{item.isSelected == true ? 'UnSelect' : 'Select'}}
-                                        </button>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                        <div *ngIf="_magBrowserService.MAGList && _magBrowserService.MAGList.papers && _magBrowserService.MAGList.IsBusy">Loading items...</div>
-                        <div *ngIf="_magBrowserService && _magBrowserService.MAGList.papers.length == 0"
-                             class="p-2 font-weight-bold text-center text-info mt-1">No items to display</div>
-                        <MAGpaginatorComp class="row ml-1 pt-1 mr-1 pr-1 border-top porder-info"></MAGpaginatorComp>
-                    </div>
-                </div>
-
-            </ng-template>
-        </kendo-tabstrip-tab>
-        <kendo-tabstrip-tab [title]="'Citated By'" [disabled]="HideCitatedBy()">
-            <ng-template kendoTabContent>
-                <div [title]="'Citated By'" style="min-height:500px;min-width:450px; overflow:auto;">
-                    <div>
-                        <table class="card col-12 small table table-border  table-striped bg-light">
-                            <thead>
-                                <tr></tr>
-                            </thead>
-                            <tbody>
-                                <tr *ngFor="let item of _magBrowserService.MagCitationsByPaperList.papers">
-                                    <td>{{item.fullRecord}}</td>
-                                    <td>
-                                        <button (click)="InOutReview(item)" class="btn btn-outline-success">
-                                            {{item.isSelected}}
-                                        </button>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </ng-template>
-        </kendo-tabstrip-tab>
-        <kendo-tabstrip-tab [title]="'Selected Papers'" [disabled]="HideSelectedPapers()">
-            <ng-template kendoTabContent>
-                <div [title]="'Selected Papers'" style="min-height:500px;min-width:450px; overflow:auto;">
-                    <div>
-                        <table class="card col-12 small table table-border table-striped bg-light">
-                            <thead>
-                                <tr></tr>
-                            </thead>
-                            <tbody>
-                                <tr *ngFor="let item of selectedPapers">
-                                    <td>{{item.fullRecord}}</td>
-                                    <td>
-                                        <button (click)="InOutReview(item)" class="btn btn-outline-success">
-                                            {{item.isSelected == true ? 'UnSelect' : 'Select'}}
-                                        </button>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                        <!--<MAGpaginatorComp class="row ml-1 pt-1 mr-1 pr-1 border-top porder-info"></MAGpaginatorComp>-->
-                    </div>
-                </div>
-            </ng-template>
-        </kendo-tabstrip-tab>
-    </kendo-tabstrip>
-
 </div>
-<statusbar></statusbar>
+    <div class="row border border-dark alert-primary p-2 m-2">
+        <div class="col-10"></div>
+        <div class="col-2 pull-right">Total number of papers in this list: {{_magBrowserService.MAGList.totalItemCount}}</div>
+    </div>
+    <div class="row alert-info border border-dark p-2 m-2 " style="min-width:450px;max-height:950px; overflow:auto;">
+
+        <div [title]="'TOPICS'" class="col-6" style="min-height:500px;min-width:450px; overflow:auto;">
+            <b>Current parent topic:</b> {{_magBrowserService.ParentTopic}}
+            <h5>Parent Topics</h5>
+
+            <div class="card col-12 small table table-border  table-striped alert-primary">
+
+                <div *ngFor="let item of _magBrowserService.WPParentTopics">
+                    <div (click)="GetParentAndChildRelatedPapers(item)" class="col-2 btn border border-0"
+                         [ngStyle]="{ 'font-size.em': item.fontSize,'background-color': 'light-blue', 'color': 'black'}">
+                        {{item.displayName }}
+                    </div>
+
+                </div>
+            </div>
+            <h5>Children Topics</h5>
+            <div class="card col-12 small table table-border  table-striped alert-warning">
+
+                <div class="row">
+                    <div *ngFor="let item of _magBrowserService.WPChildTopics">
+                        <div (click)="GetParentAndChildRelatedPapers(item)" class="col-2 btn border border-0"
+                             [ngStyle]="{ 'font-size.em': item.fontSize,'background-color': 'light-blue', 'color': 'black'}">
+                            {{item.displayName}}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <kendo-tabstrip #tabSelectedPapers (tabSelect)="onTabSelect($event)" class="col-6" [keepTabContent]="true">
+            <kendo-tabstrip-tab [selected]="true" [title]="'References'">
+                <ng-template kendoTabContent>
+
+                    <div [title]="'References'" style="min-height:500px;min-width:450px; overflow:auto;">
+
+                        <div>
+                            <h5>Papers identified from auto-identification MAG run</h5>
+                            <!--<h5>Total number of mag papers in below list: {{_magAdvancedService.TotalNumberOfMatchedPapers}}</h5>-->
+                        </div>
+
+                        <div>
+                            <table class="card col-12 small table table-border table-striped bg-light sortable">
+                                <thead>
+                                    <tr></tr>
+                                </thead>
+                                <tbody>
+                                    <tr style="cursor: pointer;" *ngFor="let item of _magBrowserService.MAGList.papers">
+                                        <td (click)="GetMagPaperRef(item.paperId)">
+                                            {{item.shortRecord}}
+                                        </td>
+                                        <td>
+                                            <button (click)="InOutReview(item)" class="btn btn-outline-success">
+                                                {{item.isSelected == true ? 'UnSelect' : 'Select'}}
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div *ngIf="_magBrowserService.MAGList && _magBrowserService.MAGList.papers && _magBrowserService.MAGList.IsBusy">Loading items...</div>
+                            <div *ngIf="_magBrowserService && _magBrowserService.MAGList.papers.length == 0"
+                                 class="p-2 font-weight-bold text-center text-info mt-1">No items to display</div>
+                            <div class="col-12 row">
+                                <MAGpaginatorComp class="row ml-1 pt-1 mr-1 pr-1 border-top porder-info"></MAGpaginatorComp>
+                                <div *ngIf="_magBrowserService.currentFieldOfStudy.fieldOfStudyId > 0">
+                                    <select (change)="UpdatePageSize($event.target.value)">
+                                        <option [value]="20">20</option>
+                                        <option [value]="50">50</option>
+                                        <option [value]="100">100</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                </ng-template>
+            </kendo-tabstrip-tab>
+            <kendo-tabstrip-tab [title]="'Cited By'" [disabled]="HideCitatedBy()">
+                <ng-template kendoTabContent>
+                    <div [title]="'Citated By'" style="min-height:500px;min-width:450px; overflow:auto;">
+                        <div>
+                            <table class="card col-12 small table table-border  table-striped bg-light">
+                                <thead>
+                                    <tr></tr>
+                                </thead>
+                                <tbody>
+                                    <tr style="cursor: pointer;" *ngFor="let item of _magBrowserService.MagCitationsByPaperList.papers">
+                                        <td (click)="GetMagPaperRef(item.paperId)">{{item.fullRecord}}</td>
+                                        <td>
+                                            <button (click)="InOutReview(item)" class="btn btn-outline-success">
+                                                {{item.isSelected}}
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </ng-template>
+            </kendo-tabstrip-tab>
+        
+            <kendo-tabstrip-tab #tabSelectedPapers [title]="'Selected Papers'" [disabled]="HideSelectedPapers()">
+                    <ng-template kendoTabContent>
+                        <div [title]="'Selected Papers'" style="min-height:500px;min-width:450px; overflow:auto;">
+                            <div>
+                                <table class="card col-12 small table table-border table-striped bg-light">
+                                    <thead>
+                                        <tr></tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr style="cursor: pointer;" *ngFor="let item of _magBrowserService.selectedPapers">
+                                            <td (click)="GetMagPaperRef(item.paperId)">{{item.fullRecord}}</td>
+                                            <td>
+                                                <button (click)="InOutReview(item)" class="btn btn-outline-success">
+                                                    {{item.isSelected == true ? 'UnSelect' : 'Select'}}
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <!--<MAGpaginatorComp class="row ml-1 pt-1 mr-1 pr-1 border-top porder-info"></MAGpaginatorComp>-->
+                            </div>
+                        </div>
+                    </ng-template>
+                </kendo-tabstrip-tab>
+            
+            </kendo-tabstrip>
+
+    </div>
+    <statusbar></statusbar>

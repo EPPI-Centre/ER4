@@ -564,6 +564,9 @@
     <Compile Include="Windows\RadWRiskOfBias.xaml.cs">
       <DependentUpon>RadWRiskOfBias.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Windows\RadWRobots.xaml.cs">
+      <DependentUpon>RadWRobots.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Windows\RadWSaveDiagram.xaml.cs">
       <DependentUpon>RadWSaveDiagram.xaml</DependentUpon>
     </Compile>
@@ -697,6 +700,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Windows\RadWCheckTimepointDelete.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\RadWRobots.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

@@ -3,28 +3,21 @@
         style="position:absolute; right: 0; z-index:2000;" (click)="Back()">
     Close/back
 </button>
-<div class="containsAtoolbar">
-    <kendo-toolbar>
-        <kendo-toolbar-button [text]="'Selected'" (click)="Selected()" [disabled]="HasWriteRights"></kendo-toolbar-button>
-        <kendo-toolbar-button [text]="'Clear Selected'" (click)="ClearSelected()" [disabled]="HasWriteRights"></kendo-toolbar-button>
-        <kendo-toolbar-button [text]="'Import Selected'" (click)="ImportSelected()" [disabled]="HasWriteRights"></kendo-toolbar-button>
-        <kendo-toolbar-button [text]="'Auto-update home'" (click)="AutoUpdateHome()" [disabled]="!HasWriteRights"></kendo-toolbar-button>
-        <kendo-toolbar-button [text]="'Advanced features'" (click)="AdvancedFeatures()" [disabled]="!HasWriteRights"></kendo-toolbar-button>
-        <kendo-toolbar-button [text]="'Show history'" (click)="ShowHistory()" [disabled]="!HasWriteRights"></kendo-toolbar-button>
-        <!--<kendo-toolbar-button [text]="'Admin'" (click)="Admin()" [disabled]="!HasWriteRights"></kendo-toolbar-button>-->
-        <kendo-toolbar-button [text]="'Back'" (click)="Back()" [disabled]="!HasWriteRights"></kendo-toolbar-button>
-        <kendo-toolbar-button [text]="'Forward'" (click)="Forward()" [disabled]="!HasWriteRights"></kendo-toolbar-button>
-    </kendo-toolbar>
-
-</div>
+<MAGHeaderBar></MAGHeaderBar>
 
 
 
-    <div class="col-10 p-2 m-2 card alert-primary border border-dark">
+    <div class="p-2 m-2 card alert-primary border border-dark">
         <h4 class="p-1 m-1">Summary: MAG data in this review</h4>
         <div class="col-5">
-            <button (click)="RunMatchingAlgo()" 
-                    class="btn btn-success">Run Matching Algorithm</button>
+            <button (click)="RunMatchingAlgo()"
+                    class="btn alert-success p-1 m-1">
+                Run Matching Algorithm
+            </button>
+            <button (click)="ClearAllMatching()"
+                    class="btn alert-danger p-1 m-1">
+                Clear all Matches in Review
+            </button>
         </div>
         <div class="p-2 m-2 ">
             <table class="col-12 border border-black alert-primary tabel table-striped" >
@@ -84,12 +77,12 @@
             </table>
         </div>
     </div>
+    <div *ngIf="IsServiceBusy" class="k-loading-image" style="position: fixed; top: 2%;"></div>
 
-
-    <div class="col-lg-10 card alert-info border border-dark p-2 m-2 row " style="min-width:1050px;">
+    <div class="card alert-info border border-dark p-2 m-2 row " style="min-width:1050px;">
         <h4>Actions on items with this code:</h4>
         <div class="row">
-            <div class="col-4">
+            <div class="col-3">
                 <div ngbDropdown class="" style="min-width:150px;">
                     <button ngbDropdownAnchor class="btn btn-outline-primary dropdown-toggle w-100"
                             style="min-width: 250px; white-space:normal" [attr.aria-expanded]="!isCollapsed2"
@@ -105,23 +98,30 @@
                     </div>
                 </div>
             </div>
-            <div class="col-1">
-                <button class="btn btn-success p-2 m-2 "
+            <div class="col-2">
+                <button class="btn alert-success p-2 m-2 "
                         [disabled]="!CanGetCodeMatches()"
-                         (click)="MAGBrowser('MatchedWithThisCode')">
+                        (click)="MAGBrowser('MatchedWithThisCode')">
                     List Items
                 </button>
             </div>
-            <div class="col-1">
-                <button class="btn btn-success p-2 m-2 "
+            <div class="col-2">
+                <button class="btn alert-success p-2 m-2 "
                         [disabled]="!CanGetCodeMatches()"
                         (click)="RunMatchingAlgo()">
                     Auto-match items
                 </button>
             </div>
+            <div class="col-2">
+                <button class="btn alert-danger p-2 m-2 "
+                        [disabled]="!CanGetCodeMatches()"
+                        (click)="ClearMatches()">
+                    Clear Matches
+                </button>
+            </div>
         </div>
     </div>
-    <div class="col-10 p-2 m-2 card alert-warning border border-dark row">
+    <div class="p-2 m-2 card alert-warning border border-dark row">
             <h4 class="col-12">GoTo Microsoft Academic Paper ID:</h4>
             <div class="col-12 row p-2 m-2">
                 <input required minlength="4" type="number" id="magPaperId" name="magPaperId" #magPaper="ngModel"
@@ -147,10 +147,11 @@
 
 
                 <div class="col-12 row alert-warning p-2 m-2">
-
-                    <input class="col-6" type="text" id="SearchTextTopics" (change)="UpdateTopicResults($event)"
-                           placeholder="Search for topics here.  Entry of Wildcards work, e.g. physic* " />
-
+                    <div class="col-12 row">
+                        <input class="col-6" type="text" id="SearchTextTopic" [(ngModel)]="SearchTextTopic"
+                               placeholder="Search for topics here.  Entry of Wildcards work, e.g. physic* " />
+                        <button class="btn alert-primary" (click)="UpdateTopicResults()"> Search Topics</button>
+                    </div>
                     <div class="row " style="max-width:1450px;overflow:auto;">
                         <div *ngFor="let item of SearchTextTopicsResults" class="list-group">
                             <div (click)="FOSMAGBrowserNavigate(item.displayName, item.fieldOfStudyId)" class="col-3 btn border border-0"

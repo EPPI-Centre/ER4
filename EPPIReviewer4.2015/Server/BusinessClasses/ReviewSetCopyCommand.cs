@@ -89,6 +89,8 @@ namespace BusinessLibrary.BusinessClasses
             destAtt.AttributeSetDescription = SourceAtt.AttributeSetDescription;
             destAtt.AttributeOrder = SourceAtt.AttributeOrder;
             destAtt.AttributeName = SourceAtt.AttributeName;
+            destAtt.ExtType = SourceAtt.ExtType;
+            destAtt.ExtURL = SourceAtt.ExtURL;
             destAtt.AttributeDescription = SourceAtt.AttributeDescription;
             destAtt.ContactId = ri.UserId;
             destAtt.OriginalAttributeID = SourceAtt.AttributeId;

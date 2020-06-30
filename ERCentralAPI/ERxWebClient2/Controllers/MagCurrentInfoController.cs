@@ -61,151 +61,33 @@ namespace ERxWebClient2.Controllers
             }
         }
 
-        [HttpPost("[action]")]
-        public IActionResult GetMagPaper([FromBody] SingleInt64Criteria Id)
+        [HttpGet("[action]")]
+        public IActionResult MagCheckContReviewRunningCommand()
         {
             try
             {
-                SetCSLAUser();
+                if (SetCSLAUser4Writing())
+                {
+                    DataPortal<MagCheckContReviewRunningCommand> dp = new DataPortal<MagCheckContReviewRunningCommand>();
+                    MagCheckContReviewRunningCommand check = new MagCheckContReviewRunningCommand();
 
-                DataPortal<MagPaper> dp = new DataPortal<MagPaper>();
-                SingleCriteria<MagPaper, Int64> criteria =
-                    new SingleCriteria<MagPaper, Int64>(Id.Value);
+                    check = dp.Execute(check);
 
-                var result = dp.Fetch(criteria);
+                    return Ok(check);
 
-                return Ok(result);
+                }
+                else return Forbid();
             }
             catch (Exception e)
             {
-                _logger.LogException(e, "Getting a MagPaper has an error");
-                throw;
-            }
-        }
-
-        //
-        //[HttpPost("[action]")]
-        //public IActionResult UpdateMagPaper([FromBody] SingleInt64Criteria Id)
-        //{
-        //    try
-        //    {
-        //        SetCSLAUser();
-
-        //        DataPortal<MagPaper> dp = new DataPortal<MagPaper>();
-        //        SingleCriteria<MagPaper, Int64> criteria =
-        //            new SingleCriteria<MagPaper, Int64>(Id.Value);
-
-        //        var magPaper = dp.Fetch(criteria);
-
-        //        MagPaper result = dp.Update(magPaper);
-
-        //        return Ok(result);
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        _logger.LogException(e, "Getting a UpdateMagPaper has an error");
-        //        throw;
-        //    }
-        //}
-
-
-        [HttpPost("[action]")]
-        public IActionResult GetMagPaperList([FromBody] MVCMagPaperListSelectionCriteria crit)
-        {
-            try
-            {
-                SetCSLAUser();
-
-                DataPortal<MagPaperList> dp = new DataPortal<MagPaperList>();
-
-                MagPaperListSelectionCriteria selectionCriteria =
-                    new MagPaperListSelectionCriteria
-                    {
-                        AttributeIds = crit.attributeIds,
-                        AuthorId = crit.authorId,
-                        FieldOfStudyId = crit.fieldOfStudyId,
-                        Included = crit.included,
-                        ITEM_ID = crit.iTEM_ID,
-                        ListType = crit.listType,
-                        MagPaperId = crit.magPaperId,
-                        MagRelatedRunId = crit.magRelatedRunId,
-                        NumResults = crit.numResults,
-                        PageNumber = crit.pageNumber,
-                        PageSize = crit.pageSize,
-                        PaperIds = crit.paperIds
-                    };
-
-                var result = dp.Fetch(selectionCriteria);
-
-                return Ok(new MAGList4Json(result));
-            }
-            catch (Exception e)
-            {
-                _logger.LogException(e, "Getting a MagPaperList has an error");
+                _logger.LogException(e, "MagCheckContReviewRunningCommand has an error");
                 throw;
             }
         }
 
 
-        [HttpPost("[action]")]
-        public IActionResult GetMagFieldOfStudyList([FromBody] MVCMagFieldOfStudyListSelectionCriteria crit)
-        {
-            try
-            {
-                SetCSLAUser();
-
-                DataPortal<MagFieldOfStudyList> dp = new DataPortal<MagFieldOfStudyList>();
-
-                MagFieldOfStudyListSelectionCriteria selectionCriteria =
-                    new MagFieldOfStudyListSelectionCriteria
-                    {
-                        FieldOfStudyId = crit.fieldOfStudyId,
-                        ListType = crit.listType,
-                        PaperIdList = crit.paperIdList,
-                        SearchText = crit.SearchTextTopics
-
-                    };
-
-                var result = dp.Fetch(selectionCriteria);
-
-                return Ok(result);
-            }
-            catch (Exception e)
-            {
-                _logger.LogException(e, "Getting a MagFieldOfStudyList has an error");
-                throw;
-            }
-        }
-
     }
 
-
-    public class MVCMagFieldOfStudyListSelectionCriteria
-    {
-        public Int64 fieldOfStudyId { get; set; }
-        public string listType { get; set; }
-        public string paperIdList { get; set; }
-        public string SearchTextTopics { get; set; }
-
-    }
-
-
-    public class MVCMagPaperListSelectionCriteria
-    {
-        public Int64 magPaperId { get; set; }
-        public Int64 iTEM_ID { get; set; }
-        public string listType { get; set; }
-        public Int64 fieldOfStudyId { get; set; }
-        public Int64 authorId { get; set; }
-        public int magRelatedRunId { get; set; }
-        public string paperIds { get; set; }
-        public string attributeIds { get; set; }
-        public string included { get; set; }
-        public int pageNumber { get; set; }
-        public int pageSize { get; set; }
-        public int numResults { get; set; }
-
-    }
-
+  
 }
 

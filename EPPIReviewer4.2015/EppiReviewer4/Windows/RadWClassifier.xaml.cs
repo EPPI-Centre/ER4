@@ -471,5 +471,94 @@ namespace EppiReviewer4
             //}
 
         }
+
+        private void HyperlinkButton_Click(object sender, RoutedEventArgs e)
+        {
+            CurrentSelectedClassifierModel = (sender as HyperlinkButton).DataContext as ClassifierModel;
+            RadWindow.Confirm("Are you sure you want to rebuild this classifier?", this.DoRebuildClassifier);
+        }
+
+        ClassifierModel CurrentSelectedClassifierModel;
+
+        private void DoRebuildClassifier(object sender, WindowClosedEventArgs e)
+        {
+            var result = e.DialogResult;
+            if (result == true)
+            {
+                BuildClassifier(CurrentSelectedClassifierModel.ModelTitle,
+                    CurrentSelectedClassifierModel.AttributeIdOn,
+                    CurrentSelectedClassifierModel.AttributeIdNotOn,
+                    CurrentSelectedClassifierModel.ModelId);
+            }
+        }
+
+        private void BuildClassifier(string modelTitle, Int64 TrainOn, Int64 TrainNotOn, int modelId)
+        {
+            CslaDataProvider provider = App.Current.Resources["ReviewInfoData"] as CslaDataProvider;
+            ReviewInfo RevInfo = provider.Data as ReviewInfo;
+
+            DataPortal<ClassifierCommand> dp = new DataPortal<ClassifierCommand>();
+            ClassifierCommand command = new ClassifierCommand(
+                modelTitle,
+                TrainOn,
+                TrainNotOn,
+                0,
+                modelId,
+                -1);
+            dp.ExecuteCompleted += (o, e2) =>
+            {
+                        //BusyLoading.IsRunning = false;
+                        textUploadingDataBuild.Visibility = Visibility.Collapsed;
+                cmdBuildModel.IsEnabled = true;
+                        //cmdLearnAndApplyModel.IsEnabled = true;
+                        cmdApplyModel.IsEnabled = true;
+                if (e2.Error != null)
+                {
+                    RadWindow.Alert(e2.Error.Message);
+                }
+                else
+                {
+                    if ((e2.Object as ClassifierCommand).ReturnMessage == "Already running")
+                    {
+                        RadWindow.Alert("You have a classification task in progress." +
+                            Environment.NewLine + " Please wait until it has completed before starting another.");
+                    }
+                    else
+                        if ((e2.Object as ClassifierCommand).ReturnMessage == "Insufficient data")
+                    {
+                        RadWindow.Alert("Sorry, insufficient data for training." + Environment.NewLine +
+                            "Please ensure you have at least 5 items for the classifier" + Environment.NewLine +
+                            "to 'learn' from. (For good performance, many more.)");
+                    }
+                    else
+                    if ((e2.Object as ClassifierCommand).ReturnMessage == "BuildFailed")
+                    {
+                        RadWindow.Alert("Sorry, building the model failed." + Environment.NewLine +
+                            "This is probably because your data set is too small." +
+                            "If possible, try again with more data.");
+                    }
+                    else
+                    {
+                        RadWindow.Alert("Your data have been successfully uploaded to the server." + Environment.NewLine +
+                        "Building models can take a long time, so you can continue to work" + Environment.NewLine +
+                        "on other things, refreshing the list of models from time to time");
+                    }
+                            /*
+                            RadWindow.Alert((e2.Object as ClassifierCommand).ReturnMessage);
+                            CslaDataProvider provider2 = this.Resources["ClassifierModelListData"] as CslaDataProvider;
+                            if (provider2 != null)
+                                provider2.Refresh();
+                            */
+                }
+            };
+            //BusyLoading.IsRunning = true;
+            textUploadingDataBuild.Visibility = Visibility.Visible;
+            cmdBuildModel.IsEnabled = false;
+            cmdApplyModel.IsEnabled = false;
+            //cmdLearnAndApplyModel.IsEnabled = false;
+            command.RevInfo = RevInfo;
+            dp.BeginExecute(command);
+        }
+
     }
 }

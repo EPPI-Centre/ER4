@@ -143,6 +143,7 @@ namespace EppiReviewer4
             MAgReviewMagInfoCommand mrmic = new MAgReviewMagInfoCommand();
             dp2.ExecuteCompleted += (o, e2) =>
             {
+                busyIndicatorMatches.IsBusy = false;
                 if (e2.Error != null)
                 {
                     RadWindow.Alert(e2.Error.Message);
@@ -160,6 +161,7 @@ namespace EppiReviewer4
                     LBMNotMatchedExcluded.Content = mrmic2.NNotMatchedExcluded.ToString();
                 }
             };
+            busyIndicatorMatches.IsBusy = true;
             dp2.BeginExecute(mrmic);
         }
 
@@ -589,19 +591,19 @@ namespace EppiReviewer4
             {
                 if (codesSelectControlMAGSelect.SelectedAttributes().Count == 0)
                 {
-                    attributeIDs = codesSelectControlMAGSelect.SelectedAttributeSet().AttributeSetId.ToString();
+                    attributeIDs = codesSelectControlMAGSelect.SelectedAttributeSet().AttributeId.ToString();
                     attributeNames = codesSelectControlMAGSelect.SelectedAttributeSet().AttributeName.ToString();
                 }
                 foreach (AttributeSet attribute in codesSelectControlMAGSelect.SelectedAttributes())
                 {
                     if (attributeIDs == "")
                     {
-                        attributeIDs = attribute.AttributeSetId.ToString();
+                        attributeIDs = attribute.AttributeId.ToString();
                         attributeNames = attribute.AttributeName;
                     }
                     else
                     {
-                        attributeIDs += "," + attribute.AttributeSetId.ToString();
+                        attributeIDs += "," + attribute.AttributeId.ToString();
                         attributeNames += ", OR " + attribute.AttributeName;
                     }
                 }
@@ -1600,6 +1602,57 @@ namespace EppiReviewer4
             }
         }
 
+        private void LbClearAllMatchesInReview_Click(object sender, RoutedEventArgs e)
+        {
+            HyperlinkButton hl = sender as HyperlinkButton;
+            MatchOnAllOrFiltered = ((HyperlinkButton)sender).Tag.ToString();
+            if (hl == null)
+                return;
+            if (hl.Tag.ToString() == "ALL")
+            {
+                RadWindow.Confirm("Are you sure you want to clear all matches in your review?", this.OnShowCheckClearMatchesDialogClosed);
+            }
+            else
+            {
+                if (codesSelectControlMAGSelect.SelectedAttributeSet() == null)
+                {
+                    RadWindow.Alert("Please select a code");
+                    return;
+                }
+                RadWindow.Confirm("Are you sure you want to clear all matches with this code?", this.OnShowCheckClearMatchesDialogClosed);
+            }
+        }
+
+        private void OnShowCheckClearMatchesDialogClosed(object sender, WindowClosedEventArgs e)
+        {
+            if (e.DialogResult == true)
+            {
+                Int64 AttributeId = 0;
+                if (MatchOnAllOrFiltered != "ALL")
+                {
+                    AttributeId = codesSelectControlMAGSelect.SelectedAttributeSet().AttributeId;
+                }
+                DataPortal<MagMatchItemsToPapersCommand> dp = new DataPortal<MagMatchItemsToPapersCommand>();
+                MagMatchItemsToPapersCommand ClearMatches = new MagMatchItemsToPapersCommand("Clear",
+                    true, 0, AttributeId);
+                dp.ExecuteCompleted += (o, e2) =>
+                {
+                    if (e2.Error != null)
+                    {
+                        RadWindow.Alert(e2.Error.Message);
+                    }
+                    else
+                    {
+                        MagMatchItemsToPapersCommand res = e2.Object as MagMatchItemsToPapersCommand;
+                        RadWindow.Alert("Record(s) cleared");
+                        RefreshCounts();
+                    }
+                };
+                //lbRefreshCounts.Visibility = Visibility.Visible;
+                dp.BeginExecute(ClearMatches);
+            }
+        }
+
         private void lbRefreshCounts_Click(object sender, RoutedEventArgs e)
         {
             RefreshCounts();
@@ -2553,7 +2606,8 @@ namespace EppiReviewer4
                     EditScoreThreshold.Value.Value,
                     EditFoSThreshold.Value.Value,
                     specificFolder,
-                    MagLogId);
+                    MagLogId,
+                    Convert.ToInt32(EditReviewSampleSize.Value.Value));
             dp2.ExecuteCompleted += (o, e2) =>
             {
                 if (e2.Error != null)
@@ -2609,5 +2663,6 @@ namespace EppiReviewer4
                 DoRunContReviewPipeline(folder, ml.MagLogId, "Downloading data from folder: " + folder);
             }
         }
+
     }
 }

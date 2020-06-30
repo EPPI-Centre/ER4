@@ -14,6 +14,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.StaticFiles;
+using BusinessLibrary.BusinessClasses;
 
 namespace ERxWebClient2
 {
@@ -52,6 +53,7 @@ namespace ERxWebClient2
                 });
 
             services.AddSingleton(Configuration);
+      
 
             services.AddMvc().AddJsonOptions(options =>
             {//this is needed to allow serialising CSLA child objects:
@@ -64,6 +66,7 @@ namespace ERxWebClient2
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -99,6 +102,7 @@ namespace ERxWebClient2
                     name: "spa-fallback",
                     defaults: new { controller = "Home", action = "Index" });
             });
+
         }
     }
 }

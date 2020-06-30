@@ -35,7 +35,8 @@ namespace BusinessLibrary.BusinessClasses
 
         public static string runADFPieline(int ContactId, string TrainFileName, string InferenceFileName,
             string ResultsFileName, string ModelFileName, string MagContainer, string PreFilterThreshold,
-            string FolderName, string AcceptanceThreshold, string ReviewRunVersion, string OverwriteRawProcessedData)
+            string FolderName, string AcceptanceThreshold, string ReviewRunVersion, string OverwriteRawProcessedData,
+            string ReviewSampleSize)
         {
 
 
@@ -67,7 +68,8 @@ namespace BusinessLibrary.BusinessClasses
             };
 
             Dictionary<string, object> parameters = readParameters(TrainFileName, InferenceFileName, ResultsFileName,
-                ModelFileName, MagContainer, PreFilterThreshold, FolderName, AcceptanceThreshold, ReviewRunVersion, OverwriteRawProcessedData);
+                ModelFileName, MagContainer, PreFilterThreshold, FolderName, AcceptanceThreshold, ReviewRunVersion,
+                OverwriteRawProcessedData, ReviewSampleSize);
 
             CreateRunResponse runResponse = client.Pipelines.CreateRunWithHttpMessagesAsync(resourceGroup, dataFactoryName, pipelineName, parameters: parameters).Result.Body;
 
@@ -136,9 +138,9 @@ namespace BusinessLibrary.BusinessClasses
 
         private static Dictionary<string, object> readParameters(string TrainFileName, string InferenceFileName,
             string ResultsFileName, string ModelFileName, string MagContainer, string PreFilterThreshold, string FolderName,
-            string AcceptanceThreshold, string ReviewRunVersion, string OverwriteRawProcessedData)
+            string AcceptanceThreshold, string ReviewRunVersion, string OverwriteRawProcessedData,
+            string ReviewSampleSize)
         {
-
 
             Dictionary<string, object> parameters = new Dictionary<string, object>();
 
@@ -179,6 +181,7 @@ namespace BusinessLibrary.BusinessClasses
             parameters.Add("review_run_version", ReviewRunVersion);
             parameters.Add("acceptance_threshold", AcceptanceThreshold);
             parameters.Add("pre_filter_threshold", PreFilterThreshold);
+            parameters.Add("sample_size", ReviewSampleSize);
 
             //mounts/training_datastore_ucl/experiment-v2/Incont2/experiment-v2/Incont2/per_paper_tfidf.pickle'
             parameters.Add("training_set_folder", FolderName);
@@ -193,9 +196,6 @@ namespace BusinessLibrary.BusinessClasses
             parameters.Add("new_papers_account_key", configuration["new_papers_account_key"]);
             parameters.Add("new_papers_container", configuration["new_papers_container"]);
             parameters.Add("results_storage_container", configuration["results_storage_container"]);
-
-            
-            
 
             return parameters;
         }

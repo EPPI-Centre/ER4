@@ -454,6 +454,69 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
+        // At the moment this checks that *every* compatible code is present
+        // we could change to just ensure that at least one is present, if we
+        // get feedback to suggest that authors want more flexibility
+        public bool RobotReviewerValidated()
+        {
+            for (int i = 1; i < 49; i++)
+            {
+                if (GetSetByExt_URL("RR" + i.ToString()) == null)
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        public AttributeSet GetSetByExt_URL(string val)
+        {
+            AttributeSet retVal = null;
+            foreach (AttributeSet atset in Attributes)
+            {
+                if (atset.ExtURL == val)
+                {
+                    return atset;
+                }
+                else
+                {
+                    if (atset.Attributes.Count > 0)
+                    {
+                        retVal = atset.GetSetByExt_URL(val);
+                        if (retVal != null)
+                        {
+                            return retVal;
+                        }
+                    }
+                }
+            }
+            return retVal;
+        }
+
+        public AttributeSet GetSetByName(string val) // gets the first occurence of a given AttributeName
+        {
+            AttributeSet retVal = null;
+            foreach (AttributeSet atset in Attributes)
+            {
+                if (atset.AttributeName.Trim().ToLower() == val.Trim().ToLower())
+                {
+                    return atset;
+                }
+                else
+                {
+                    if (atset.Attributes.Count > 0)
+                    {
+                        retVal = atset.GetSetByName(val.Trim().ToLower());
+                        if (retVal != null)
+                        {
+                            return retVal;
+                        }
+                    }
+                }
+            }
+            return retVal;
+        }
+
         public static readonly PropertyInfo<bool> ItemSetIsLockedProperty = RegisterProperty<bool>(new PropertyInfo<bool>("ItemSetIsLocked", "ItemSetIsLocked"));
         public bool ItemSetIsLocked
         {
@@ -523,7 +586,7 @@ namespace BusinessLibrary.BusinessClasses
             this.Delete();
             this.BeginSave();
         }
-         
+
         //protected override void AddAuthorizationRules()
         //{
         //    //string[] canWrite = new string[] { "AdminUser", "RegularUser" };

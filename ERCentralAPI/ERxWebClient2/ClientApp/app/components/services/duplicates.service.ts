@@ -138,26 +138,29 @@ export class DuplicatesService extends BusyAwareService implements OnInit, OnDes
     }
     public  MarkUnmarkMemberAsDuplicate(toDo: MarkUnmarkItemAsDuplicate) {
         this._BusyMethods.push("MarkUnmarkMemberAsDuplicate");
-        return this._http.post(this._baseUrl + 'api/Duplicates/MarkUnmarkMemberAsDuplicate',
+        return this._http.post<iItemDuplicateGroup>(this._baseUrl + 'api/Duplicates/MarkUnmarkMemberAsDuplicate',
             toDo).toPromise().then(result => {
-                if (this.CurrentGroup) {
-                    for (let affected of toDo.itemDuplicateIds) {
-                        let found = this.CurrentGroup.members.find(ff => ff.itemDuplicateId == affected);
-                        if (found) {
-                            found.isDuplicate = toDo.isDuplicate;
-                            found.isChecked = true;
-                            if (this.CurrentGroup.members.length == this.CurrentGroup.members.filter(ff => ff.isChecked == true).length) {
-                                //whole group is checked, find it in the main list and update...
-                                let smallGr = this.DuplicateGroups.find(ff => ff.groupId == toDo.groupId);
-                                if (smallGr) {
-                                    smallGr.isComplete = true;
-                                }
-                            }
-                        }
-                    }
-                }
-
+                //if (this.CurrentGroup) {
+                //    for (let affected of toDo.itemDuplicateIds) {
+                //        let found = this.CurrentGroup.members.find(ff => ff.itemDuplicateId == affected);
+                //        if (found) {
+                //            found.isDuplicate = toDo.isDuplicate;
+                //            found.isChecked = true;
+                //            if (this.CurrentGroup.members.length == this.CurrentGroup.members.filter(ff => ff.isChecked == true).length) {
+                //                //whole group is checked, find it in the main list and update...
+                //                let smallGr = this.DuplicateGroups.find(ff => ff.groupId == toDo.groupId);
+                //                if (smallGr) {
+                //                    smallGr.isComplete = true;
+                //                }
+                //            }
+                //        }
+                //    }
+                //}
                 this.RemoveBusy("MarkUnmarkMemberAsDuplicate");
+                let smallGr = this.DuplicateGroups.find(f => f.groupId == result.groupID);
+                this.CurrentGroup = new ItemDuplicateGroup(result);
+                if (smallGr && (this.CurrentGroup.members.length == this.CurrentGroup.members.filter(ff => ff.isChecked == true).length))
+                    smallGr.isComplete = true;
             }, error => {
                 console.log("MarkUnmarkMemberAsDuplicate error", error);
                 this.modalService.GenericError(error);
@@ -166,31 +169,34 @@ export class DuplicatesService extends BusyAwareService implements OnInit, OnDes
     }
     public MarkMemberAsMaster(toDo: MarkUnmarkItemAsDuplicate) {
         this._BusyMethods.push("MarkMemberAsMaster");
-        this._http.post(this._baseUrl + 'api/Duplicates/MarkMemberAsMaster',
+        this._http.post<ItemDuplicateGroup>(this._baseUrl + 'api/Duplicates/MarkMemberAsMaster',
             toDo).subscribe(result => {
-                if (this.CurrentGroup) {
-                    //whole group is not checked anymore!
-                    let smallGr = this.DuplicateGroups.find(ff => ff.groupId == toDo.groupId);
-                    if (smallGr) {
-                        smallGr.isComplete = false;
-                    }
-                    let gm = this.CurrentGroup.Master;
-                    let member = this.CurrentGroup.members.find(ff => ff.itemDuplicateId == toDo.itemDuplicateIds[0]);
-                    if (gm.itemDuplicateId !== 0) {
-                        gm.isMaster = false;
-                        gm.isChecked = false;
-                        gm.isDuplicate = false;
-                    }
-                    if (member) {
-                        member.isMaster = true;
-                        member.isChecked = true;
-                        member.isDuplicate = false;
-                    }
-                    if (gm.itemDuplicateId == 0 || !member) {
-                        this.FetchGroupDetails(toDo.groupId);
-                    }
-                }
+                //if (this.CurrentGroup) {
+                //    //whole group is not checked anymore!
+                //    let smallGr = this.DuplicateGroups.find(ff => ff.groupId == toDo.groupId);
+                //    if (smallGr) {
+                //        smallGr.isComplete = false;
+                //    }
+                //    let gm = this.CurrentGroup.Master;
+                //    let member = this.CurrentGroup.members.find(ff => ff.itemDuplicateId == toDo.itemDuplicateIds[0]);
+                //    if (gm.itemDuplicateId !== 0) {
+                //        gm.isMaster = false;
+                //        gm.isChecked = false;
+                //        gm.isDuplicate = false;
+                //    }
+                //    if (member) {
+                //        member.isMaster = true;
+                //        member.isChecked = true;
+                //        member.isDuplicate = false;
+                //    }
+                //    if (gm.itemDuplicateId == 0 || !member) {
+                //        this.FetchGroupDetails(toDo.groupId);
+                //    }
+                //}
                 this.RemoveBusy("MarkMemberAsMaster");
+                let smallGr = this.DuplicateGroups.find(f => f.groupId == result.groupID);
+                this.CurrentGroup = new ItemDuplicateGroup(result);
+                if (smallGr) smallGr.isComplete = false;
             }, error => {
                 console.log("MarkMemberAsMaster error", error);
                 this.RemoveBusy("MarkMemberAsMaster");

@@ -34,8 +34,6 @@ using CsvHelper;
 
 #if (!CSLA_NETCORE)
 using Microsoft.VisualBasic.FileIO;
-#else
-using AspNetCore.Http.Extensions;
 #endif
 
 using System.Data;
@@ -146,29 +144,46 @@ namespace BusinessLibrary.BusinessClasses
 				ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
 				int newModelId = 0;
 				connection.Open();
-				using (SqlCommand command = new SqlCommand("st_ClassifierSaveModel", connection))
-				{
-					command.CommandType = System.Data.CommandType.StoredProcedure;
-					command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
-					command.Parameters.Add(new SqlParameter("@MODEL_TITLE", _title + " (in progress...)"));
-					command.Parameters.Add(new SqlParameter("@CONTACT_ID", ri.UserId));
-					command.Parameters.Add(new SqlParameter("@ATTRIBUTE_ID_ON", _attributeIdOn));
-					command.Parameters.Add(new SqlParameter("@ATTRIBUTE_ID_NOT_ON", _attributeIdNotOn));
-					command.Parameters.Add(new SqlParameter("@NEW_MODEL_ID", 0));
-					command.Parameters["@NEW_MODEL_ID"].Direction = System.Data.ParameterDirection.Output;
-					command.ExecuteNonQuery();
-					newModelId = Convert.ToInt32(command.Parameters["@NEW_MODEL_ID"].Value);
-				}
-				if (newModelId == 0) // i.e. another train session is running / it's not been the specified length of time between running training yet
-				{
-					_returnMessage = "Already running";
-					return;
-				}
-				else
-				{
-					_returnMessage = "";
-				}
-				// Don't need to send / return the modelId any more, but keeping in so that we have a record of proper async syntax
+
+                if (_classifierId == -1) // building a new classifier
+                {
+                    using (SqlCommand command = new SqlCommand("st_ClassifierSaveModel", connection))
+                    {
+                        command.CommandType = System.Data.CommandType.StoredProcedure;
+                        command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
+                        command.Parameters.Add(new SqlParameter("@MODEL_TITLE", _title + " (in progress...)"));
+                        command.Parameters.Add(new SqlParameter("@CONTACT_ID", ri.UserId));
+                        command.Parameters.Add(new SqlParameter("@ATTRIBUTE_ID_ON", _attributeIdOn));
+                        command.Parameters.Add(new SqlParameter("@ATTRIBUTE_ID_NOT_ON", _attributeIdNotOn));
+                        command.Parameters.Add(new SqlParameter("@NEW_MODEL_ID", 0));
+                        command.Parameters["@NEW_MODEL_ID"].Direction = System.Data.ParameterDirection.Output;
+                        command.ExecuteNonQuery();
+                        newModelId = Convert.ToInt32(command.Parameters["@NEW_MODEL_ID"].Value);
+                    }
+                    if (newModelId == 0) // i.e. another train session is running / it's not been the specified length of time between running training yet
+                    {
+                        _returnMessage = "Already running";
+                        return;
+                    }
+                    else
+                    {
+                        _returnMessage = "";
+                    }
+                }
+                else
+                {
+                    _returnMessage = "";
+                    newModelId = _classifierId; // we're rebuilding an existing classifier
+
+                    using (SqlCommand command2 = new SqlCommand("st_ClassifierUpdateModelTitle", connection))
+                    {
+                        command2.CommandType = System.Data.CommandType.StoredProcedure;
+
+                        command2.Parameters.Add(new SqlParameter("@MODEL_ID", _classifierId));
+                        command2.Parameters.Add(new SqlParameter("@TITLE", _title + " (rebuilding...)"));
+                        command2.ExecuteNonQuery();
+                    }
+                }
 				int ModelId = await UploadDataAndBuildModelAsync(newModelId);
 
 				if (_returnMessage == "Insufficient data")
@@ -182,10 +197,11 @@ namespace BusinessLibrary.BusinessClasses
 					}
 				}
 
-				//if (applyToo == true)
-				//{
-				//    DoApplyClassifier(ModelId);
-				//}
+                //if (applyToo == true)
+                //{
+                //    DoApplyClassifier(ModelId);
+                //}
+                connection.Close();
 			}
 		}
 		
@@ -239,7 +255,8 @@ namespace BusinessLibrary.BusinessClasses
 
 #if (!CSLA_NETCORE)
 
-				string fileName = System.Web.HttpRuntime.AppDomainAppPath + TempPath + "ReviewID" + ri.ReviewId + "ContactId" + ri.UserId.ToString() + ".csv";
+				string fileName = System.Web.HttpRuntime.AppDomainAppPath + TempPath + "ReviewID" + ri.ReviewId.ToString() +
+                    modelId.ToString() + "ContactId" + ri.UserId.ToString() + ".csv";
 #else
                 // This may need to be changed for production
                 // 19-12-2018 Sergio mentions this file will not
@@ -919,12 +936,9 @@ namespace BusinessLibrary.BusinessClasses
 					return;
 				}
 
-#if (!CSLA_NETCORE)
-				string jobId = await response.Content.ReadAsAsync<string>();
-#else
-				string jobId = await response.Content.ReadAsJsonAsync<string>();
 
-#endif
+				string jobId = await response.Content.ReadAsAsync<string>();
+
 
 				// start the job
 				response = await client.PostAsync(BaseUrl + "/" + jobId + "/start?api-version=2.0", null);
@@ -946,12 +960,9 @@ namespace BusinessLibrary.BusinessClasses
 						return;
 					}
 
-#if (!CSLA_NETCORE)
-					BatchScoreStatus status = await response.Content.ReadAsAsync<BatchScoreStatus>();
-#else
-					BatchScoreStatus status = await response.Content.ReadAsJsonAsync<BatchScoreStatus>();
 
-#endif
+					BatchScoreStatus status = await response.Content.ReadAsAsync<BatchScoreStatus>();
+
 
 					if (watch.ElapsedMilliseconds > TimeOutInMilliseconds)
 					{

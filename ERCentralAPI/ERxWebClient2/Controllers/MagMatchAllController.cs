@@ -45,7 +45,7 @@ namespace ERxWebClient2.Controllers
             }
 		}
 
-        //call from itemdetails tab...
+       
         [HttpPost("[action]")]
         public IActionResult MagMatchItemsToPapers([FromBody] SingleInt64Criteria itemId)
         {
@@ -67,6 +67,53 @@ namespace ERxWebClient2.Controllers
                 throw;
             }
         }
+
+
+        [HttpPost("[action]")]
+        public IActionResult ClearMagMatchItemsToPapers([FromBody] SingleInt64Criteria itemId)
+        {
+            try
+            {
+                SetCSLAUser();
+
+                DataPortal<MagMatchItemsToPapersCommand> dp = new DataPortal<MagMatchItemsToPapersCommand>();
+                MagMatchItemsToPapersCommand GetMatches = new MagMatchItemsToPapersCommand("Clear",
+                   false, itemId.Value, 0);
+
+                GetMatches = dp.Execute(GetMatches);
+
+                return Ok(GetMatches.currentStatus);
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "MagMatchItemsToPapers has an error");
+                throw;
+            }
+        }
+
+        [HttpPost("[action]")]
+        public IActionResult ClearAllMAGMatches([FromBody] SingleInt64Criteria attributeId)
+        {
+            try
+            {
+                SetCSLAUser();
+
+                DataPortal<MagMatchItemsToPapersCommand> dp = new DataPortal<MagMatchItemsToPapersCommand>();
+                MagMatchItemsToPapersCommand GetMatches = new MagMatchItemsToPapersCommand("Clear",
+                   true, 0, attributeId.Value);
+
+                GetMatches = dp.Execute(GetMatches);
+
+                return Ok(GetMatches.currentStatus);
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "MagMatchItemsToPapers has an error");
+                throw;
+            }
+        }
+
+
     }
 
 }

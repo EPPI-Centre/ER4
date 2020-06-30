@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Text;
 using Csla;
 using Csla.Security;
 using Csla.Core;
@@ -9,12 +6,26 @@ using Csla.Serialization;
 using Csla.Silverlight;
 //using Csla.Validation;
 using Csla.DataPortalClient;
+using System.IO;
+using System.Threading.Tasks;
+using System;
 
-#if!SILVERLIGHT
+//using Csla.Configuration;
+
+#if !SILVERLIGHT
 using System.Data.SqlClient;
 using BusinessLibrary.Data;
 using Csla.Data;
 using BusinessLibrary.Security;
+using System.Configuration;
+using Microsoft.WindowsAzure.Storage;
+using Microsoft.WindowsAzure.Storage.Blob;
+using System.Data;
+using System.Threading;
+using System.Collections;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
 #endif
 
 namespace BusinessLibrary.BusinessClasses
@@ -341,7 +352,7 @@ namespace BusinessLibrary.BusinessClasses
             return returnValue;
         }
 
-
+       
 
 #endif
     }

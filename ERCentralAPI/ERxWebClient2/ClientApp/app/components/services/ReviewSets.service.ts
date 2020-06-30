@@ -248,6 +248,7 @@ export class ReviewSetsService extends BusyAwareService {
             newAtt.attribute_order = iAtt.attributeOrder;
             newAtt.extURL = iAtt.extURL;
             newAtt.extType = iAtt.extType;
+            newAtt.originalAttributeID = iAtt.originalAttributeID;
             newAtt.attributes = ReviewSetsService.childrenFromJSONarray(iAtt.attributes.attributesList);
             result.push(newAtt);
         }
@@ -625,6 +626,7 @@ export class SetAttribute implements singleNode {
     }
     parent_attribute_id: number = -1;;
     attribute_type_id: number = -1;;
+    originalAttributeID: number = -1;
     attributes: SetAttribute[] = [];
     
     allowEditingCodeset: boolean = false;//not used for attributes
@@ -673,6 +675,7 @@ export interface iAttributeSet {
     attributeOrder: number;
     extURL: string;
     extType: string;
+    originalAttributeID: number;
 }
 export interface iSetType {
     setTypeId: number;

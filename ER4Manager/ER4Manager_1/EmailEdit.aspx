@@ -15,21 +15,30 @@
 
         <div>
             <br />
-        
-        
-        <asp:Button ID="cmdSave" runat="server" Text="Save" OnClick="cmdSave_Click" />
-        
-        &nbsp;&nbsp;&nbsp;
-            <asp:LinkButton ID="lbClose" runat="server" onclick="lbClose_Click">Close</asp:LinkButton>
-&nbsp;&nbsp;&nbsp; Email name:
+
+            <table width="680px">
+                <tr>
+                    <td>
+                        <asp:Button ID="cmdSave" runat="server" Text="Save" OnClick="cmdSave_Click" />
+
+                        &nbsp;&nbsp;&nbsp;
+            <asp:LinkButton ID="lbClose" runat="server" OnClick="lbClose_Click">Close</asp:LinkButton>
+                        &nbsp;&nbsp;&nbsp;
+                        </td>
+                    <td>
+
+                        Email name:
             <asp:TextBox ID="tbEmailName" runat="server">N/A</asp:TextBox>
-&nbsp;&nbsp; Email ID:
+                        &nbsp;&nbsp; Email ID:
             <asp:Label ID="lblEmailID" runat="server" Font-Bold="True" Text="N/A"></asp:Label>
-&nbsp;<br />
+                        &nbsp;
+                    </td>
+                </tr>
+            </table>
             <br />
 
             <telerik:RadEditor runat="server" ID="RadEditor" Height="350px" 
-                MaxHtmlLength="2000">
+                MaxHtmlLength="4000">
     <Tools>
         <telerik:EditorToolGroup> 
              <telerik:EditorTool Name="Bold" />
@@ -44,6 +53,10 @@
              <telerik:EditorTool Name="Paste"/>
          </telerik:EditorToolGroup>
     </Tools>
+<Content>
+</Content>
+
+<TrackChangesSettings CanAcceptTrackChanges="False"></TrackChangesSettings>
 </telerik:RadEditor>
 
 
@@ -52,7 +65,7 @@
         
             <br />
             <asp:LinkButton ID="lbSendTestEmail" runat="server" 
-                onclick="lbSendTestEmail_Click">Send test </asp:LinkButton>
+                onclick="lbSendTestEmail_Click" Enabled="True">Send test </asp:LinkButton>
             This will send a test message to <a href="mailto:EPPISupport@ucl.ac.uk">
             EPPISupport@ucl.ac.uk</a><br />
             <br />

@@ -4,6 +4,7 @@ import { MAGAdvancedService } from '../services/magAdvanced.service';
 import { MagPaper } from '../services/MAGClasses.service';
 import { ItemCodingService } from '../services/ItemCoding.service';
 import { Subscription } from 'rxjs';
+import { Item } from '../services/ItemList.service';
 
 @Component({
    
@@ -20,14 +21,20 @@ export class microsoftAcademicComp implements OnInit, OnDestroy {
         private _ItemCodingService: ItemCodingService
     ) { }
 
-    @Input() ItemID: number = 0;
+    @Input() item: Item = new Item;
     private _MagPaperList: MagPaper[] = [];
     private sub: Subscription = new Subscription();
+    public magPaperId: number = 0;
+    public magPaperRefId: number = 0;
+    public currentMagPaperLinkItem: MagPaper = new MagPaper();
     ngOnInit() {
+
+
+
         this.sub = this._ItemCodingService.DataChanged.subscribe(
             () => {
-                this._magAdvancedService.MagReferencesPaperList = [];
-                this.fetchMAGMatches();
+                this._magAdvancedService.MagReferencesPaperList.papers = [];
+                this.FetchMAGMatches();
             }
         );
     }
@@ -35,14 +42,52 @@ export class microsoftAcademicComp implements OnInit, OnDestroy {
 
         return this._magAdvancedService.IsBusy;
     }
-    private fetchMAGMatches() {
+    public GetMagPaper() {
 
-        let res: any = this._magAdvancedService.MagMatchItemsToPapers(this.ItemID);
+        this._magAdvancedService.FetchMagPaperId(this.magPaperId).then(
+
+            (result: MagPaper) => {
+
+                this._magAdvancedService.PostFetchMagPaperCalls(result);
+            });
+
+    }
+    public GetMagPaperRef(magPaperRefId: number) {
+
+        this._magAdvancedService.FetchMagPaperId(magPaperRefId).then(
+
+            (result: MagPaper) => {
+
+                this._magAdvancedService.PostFetchMagPaperCalls(result);
+            });
+    }
+    public CanGetMagPaper(): boolean {
+
+        if (this.magPaperId != null && this.magPaperId > 0) {
+            return true;
+        } else {
+            return false;
+        }
+
+    }
+    public FetchMAGMatches() {
+
+        let res: any = this._magAdvancedService.MagMatchItemsToPapers(this.item.itemId);
         if (res != null) {
             console.log('fetchMAGMatches: ' + JSON.stringify(res));
             this.MagPaperList = res;
-            console.log('this.MagPaperList is: ' + JSON.stringify(this.MagPaperList));
+        } else {
+            console.log('fetchMAGMatches is empty: ' + JSON.stringify(res));
+            this.MagPaperList = [];
         }
+    }
+    public ClearMAGMatches() {
+
+        let res: any = this._magAdvancedService.ClearMagMatchItemsToPapers(this.item.itemId);
+        
+        console.log('fetchMAGMatches is empty: ' + JSON.stringify(res));
+        this._magAdvancedService.MagReferencesPaperList.papers = [];
+        
     }
     public get MagPaperList() {
 
@@ -61,7 +106,39 @@ export class microsoftAcademicComp implements OnInit, OnDestroy {
 	ngOnDestroy() {
 
         this.sub.unsubscribe();
-	}
+    }
+    
+    public UpdateMagPaper(match: boolean, paperId: number) {
+
+
+        var MagPapers = this._magAdvancedService.MagReferencesPaperList;
+        console.log(JSON.stringify(MagPapers));
+        if (MagPapers.papers.length > 0) {
+
+            var paper = MagPapers.papers.find((x) => x.paperId == paperId);
+
+            if (paper != null) {
+                this.currentMagPaperLinkItem = paper;
+            } else {
+                return;
+            }
+
+
+            if (match) {
+                this.currentMagPaperLinkItem.manualTrueMatch = true;
+            } else {
+                this.currentMagPaperLinkItem.manualFalseMatch = true;
+            }
+
+            this._magAdvancedService.UpdateMagPaper(match, paperId, this.item.itemId).then(
+                //(result: MagPaper) => {
+                //        this.currentMagPaperLinkItem = result;
+                //    }
+            );
+
+        }
+      
+    }
 }
 
 

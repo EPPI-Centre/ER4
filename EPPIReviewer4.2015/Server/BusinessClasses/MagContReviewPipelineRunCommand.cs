@@ -44,10 +44,11 @@ namespace BusinessLibrary.BusinessClasses
         private double _scoreThreshold;
         private double _fosThreshold;
         private string _specificFolder;
+        private int _reviewSampleSize;
         private int _MagLogId;
 
         public MagContReviewPipelineRunCommand(string CurrentMagVersion, string NextMagVersion,
-            double scoreThreshold, double fosThreshold, string specificFolder, int magLogId)
+            double scoreThreshold, double fosThreshold, string specificFolder, int magLogId, int reviewSampleSize)
         {
             _CurrentMagVersion = CurrentMagVersion;
             _NextMagVersion = NextMagVersion;
@@ -55,6 +56,7 @@ namespace BusinessLibrary.BusinessClasses
             _fosThreshold = fosThreshold;
             _specificFolder = specificFolder;
             _MagLogId = magLogId;
+            _reviewSampleSize = reviewSampleSize;
         }
 
         protected override void OnGetState(Csla.Serialization.Mobile.SerializationInfo info, StateMode mode)
@@ -65,6 +67,7 @@ namespace BusinessLibrary.BusinessClasses
             info.AddValue("_scoreThreshold", _scoreThreshold);
             info.AddValue("_fosThreshold", _fosThreshold);
             info.AddValue("_specificFolder", _specificFolder);
+            info.AddValue("_reviewSampleSize", _reviewSampleSize);
             info.AddValue("_MagLogId", _MagLogId);
 
         }
@@ -75,6 +78,7 @@ namespace BusinessLibrary.BusinessClasses
             _scoreThreshold = info.GetValue<double>("_scoreThreshold");
             _fosThreshold = info.GetValue<double>("_fosThreshold");
             _specificFolder = info.GetValue<string>("_specificFolder");
+            _reviewSampleSize = info.GetValue<int>("_reviewSampleSize");
             _MagLogId = info.GetValue<int>("_MagLogId");
         }
 
@@ -137,7 +141,7 @@ namespace BusinessLibrary.BusinessClasses
 
             if ((MagContReviewPipeline.runADFPieline(ContactId, Path.GetFileName(uploadFileName), "NewPapers.tsv",
                 "crResults.tsv", "cr_per_paper_tfidf.pickle", _NextMagVersion, _fosThreshold.ToString(), folderPrefix,
-                _scoreThreshold.ToString(), "v1", "True")) == "Succeeded")
+                _scoreThreshold.ToString(), "v1", "True", _reviewSampleSize.ToString())) == "Succeeded")
             {
                 MagLog.UpdateLogEntry("running", "Main update. ADFPipelineComplete (" + SeedIds.ToString() + ")" +
                     " Folder:" + folderPrefix, logId);

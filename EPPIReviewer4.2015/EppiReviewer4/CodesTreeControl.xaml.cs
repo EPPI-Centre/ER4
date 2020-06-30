@@ -1105,6 +1105,10 @@ namespace EppiReviewer4
                             newAset.AttributeSetDescription = source.AttributeSetDescription;
                             newAset.AttributeDescription = source.AttributeDescription;
                             newAset.AttributeName = source.AttributeName;
+                            newAset.ExtURL = source.ExtURL;
+                            newAset.ExtType = source.ExtType;
+                            newAset.OriginalAttributeID = source.OriginalAttributeID > 0 ? source.OriginalAttributeID :
+                                source.AttributeId;
                             //hook AttSet.Saved to AttSetSavedForCopying
                             newAset.Saved += new EventHandler<Csla.Core.SavedEventArgs>(AttSetSavedForCopying);
                             //open copying window;
@@ -1182,6 +1186,10 @@ namespace EppiReviewer4
                 newAset.AttributeSetDescription = astp.Original.AttributeSetDescription;
                 newAset.AttributeDescription = astp.Original.AttributeDescription;
                 newAset.AttributeName = astp.Original.AttributeName;
+                newAset.ExtType = astp.Original.ExtType;
+                newAset.ExtURL = astp.Original.ExtType;
+                newAset.OriginalAttributeID = astp.Original.OriginalAttributeID > 0 ? astp.Original.OriginalAttributeID :
+                    astp.Original.AttributeId;
                 //hook AttSet.Saved to AttSetSavedForCopying
                 newAset.Saved += new EventHandler<Csla.Core.SavedEventArgs>(AttSetSavedForCopying);
                 windowCopyingCodes.ProgressTxt.Text = (toPlist.IndexOf(astp) +1).ToString() + " of " + toPlist.Count;
@@ -4347,14 +4355,26 @@ namespace EppiReviewer4
         private void cmdReloadAllSets_Click(object sender, RoutedEventArgs e)
         {
             //AddBusyMethod("cmdReloadAllSets_Click");
-            if (CodeSetsDataprovider == null) return;
-            CodeSetsDataprovider.Refresh();
+            ReloadAllSets();
         }
 
-        //private void CodeSetsDataProvider_DataChanged(object sender, EventArgs e)
-        //{
-        //    RemoveBusyMethod("cmdReloadAllSets_Click");
-        //}
+        public void ReloadAllSets()
+        {
+            if (CodeSetsDataprovider == null) return;
+            CodeSetsDataprovider.Refresh();
+            if (ControlContext == "CodingOnly" || ControlContext == "dialogCoding")
+            {
+                CodeSetsDataprovider.DataChanged += CodeSetsDataProvider_ReloadedAllSets;
+            }
+        }
+
+        private void CodeSetsDataProvider_ReloadedAllSets(object sender, EventArgs e)
+        {
+            CodeSetsDataprovider.DataChanged -= CodeSetsDataProvider_ReloadedAllSets;
+            Item itm = (DataContext as Item);
+            if (itm != null) //LoadItemAttributes((DataContext as Item).ItemId);
+                BindItem(DataContext as Item);
+        }
 
         public void ResetArms(ItemArmList arms)
         {

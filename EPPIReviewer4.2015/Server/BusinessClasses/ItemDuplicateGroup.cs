@@ -11,11 +11,11 @@ using Csla.Rules;
 using Csla.Rules.CommonRules;
 //using Csla.Validation;
 
-#if!SILVERLIGHT
+#if !SILVERLIGHT
 using System.Data.SqlClient;
 using BusinessLibrary.Data;
+using static BusinessLibrary.BusinessClasses.ItemDuplicateReadOnlyGroupList;
 using BusinessLibrary.Security;
-
 #endif
 
 namespace BusinessLibrary.BusinessClasses
@@ -159,30 +159,30 @@ namespace BusinessLibrary.BusinessClasses
         {
             BusinessRules.AddRule(new IsNotInRole(AuthorizationActions.EditObject, "ReadOnlyUser" )); 
         }
-#if SILVERLIGHT
-        public ItemDuplicateGroup() { }
         public bool ShowScores()
         {
             ItemDuplicateGroupMember mb = getMaster();
             if (mb != null && mb.ItemId == OriginalMasterID) return true;
             return false;
         }
+#if SILVERLIGHT
+        public ItemDuplicateGroup() { }
         
 #else
         public ItemDuplicateGroup() 
         {
             Members = new MobileList<ItemDuplicateGroupMember>();
         }
-        
+
 #endif
 
 
 #if !SILVERLIGHT
-        
+        int RevID;
         protected override void DataPortal_Update()
         {
             ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
-            int RevID = ri.ReviewId;
+            RevID = ri.ReviewId;
             bool toSave = false; 
             if (AddGroupID != 0)
             {
@@ -261,7 +261,13 @@ namespace BusinessLibrary.BusinessClasses
             }
             else
             {
-                
+#if !OLDDEDUP
+                //if group has a non-original master and at least one member requires "saving changes"
+                if (!ShowScores() && Members.Find(o => o.IsDirty) != null)//recalculate scores, since now we can!
+                {// we do this now, as we'll then save individual members...
+                    ReScore();
+                }
+#endif
                 foreach (ItemDuplicateGroupMember o in this.Members)
                 {
                     if (o.IsDirty)
@@ -272,7 +278,6 @@ namespace BusinessLibrary.BusinessClasses
                 }
                 if (toSave)
                 {
-                    
                     using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
                     {
                         connection.Open();
@@ -297,7 +302,69 @@ namespace BusinessLibrary.BusinessClasses
                 DataPortal_Fetch(new SingleCriteria<ItemDuplicateGroup, int>(this.GroupID));
             }
         }
+        private void ReScore()
+        {
+            //3 phases: (1) get item details for all members. (2) recalculate. (3) save data (includes lying, as we'll update also the OriginalItemID field).
 
+            //fetch data
+            string IDs = "";
+            ItemDuplicateGroupMember MasterMember = this.getMaster();
+            if (MasterMember == null) return;//can't do anything sensible without it...
+            foreach (ItemDuplicateGroupMember m in this.Members)
+            {
+                IDs += m.ItemId + ",";
+            }
+            IDs = IDs.TrimEnd(',');
+            ItemComparison MasterComparator = new ItemComparison();
+            List<ItemComparison> rescoreGroup = new List<ItemComparison>();
+            using (SqlConnection conn = new SqlConnection(DataConnection.ConnectionString))
+            {
+                conn.Open();
+                using (SqlCommand cmd = new SqlCommand("st_ItemDuplicatesGetGroupMembersForScoring", conn))
+                {
+                    
+                    cmd.CommandType = System.Data.CommandType.StoredProcedure;
+                    cmd.Parameters.Add(new SqlParameter("@REVIEW_ID", RevID));
+                    cmd.Parameters.Add(new SqlParameter("@ITEM_IDS", IDs));
+                    using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(cmd.ExecuteReader()))
+                    {
+                        while (reader.Read())
+                        {
+                            ItemComparison member = new ItemComparison(reader, 0);
+                            if (member.ITEM_ID != MasterMember.ItemId) rescoreGroup.Add(member);
+                            else
+                            {//this is our new master
+                                MasterComparator = member;
+                            }
+                        }
+                    }
+                }
+                if (MasterComparator.ITEM_ID == 0 || rescoreGroup.Count < 1) return;//something didn't add up and we can't do anything...
+                //(2) rescore all;
+                Comparator comparer = new Comparator();
+                foreach (ItemComparison m in rescoreGroup)
+                {
+                    ItemDuplicateGroupMember gm = this.Members.Find(found => m.ITEM_ID == found.ItemId);
+                    if (gm != null)
+                    {
+                        gm.SimilarityScore = comparer.CompareItems(MasterComparator, m);
+                    }
+                }
+                MasterMember.SimilarityScore = 1;//always for the master member!
+                //(3) update group Master: we'll save item members elsewhere, but we need to change the "ORIGINAL_MASTER_ID" field of this group so that new scores will show.
+                using (SqlCommand cmd = new SqlCommand("st_ItemDuplicatesGetGroupChangeOriginalMasterId", conn))
+                {
+                    long MasterID = this.getMaster().ItemId;
+                    cmd.CommandType = System.Data.CommandType.StoredProcedure;
+                    cmd.Parameters.Add(new SqlParameter("@REVIEW_ID", RevID));
+                    cmd.Parameters.Add(new SqlParameter("@GROUP_ID", GroupID));
+                    cmd.Parameters.Add(new SqlParameter("@NEWMASTER_ID", MasterComparator.ITEM_ID));
+                    cmd.ExecuteNonQuery();
+                }
+
+            }
+            
+        }
 
         protected void DataPortal_Fetch(SingleCriteria<ItemDuplicateGroup, int> criteria)
         {

@@ -8,6 +8,7 @@ using System.Data.SqlClient;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -315,9 +316,10 @@ namespace BusinessLibrary.BusinessClasses
                         }
                     }
                 }
-                WebRequest request = WebRequest.Create(FullRequestStr);
+                //WebRequest request = WebRequest.Create(FullRequestStr);
                 try
                 {
+                    /*
                     WebResponse response = request.GetResponse();
                     using (Stream dataStream = response.GetResponseStream())
                     {
@@ -325,6 +327,29 @@ namespace BusinessLibrary.BusinessClasses
                         responseText = sreader.ReadToEnd();
                     }
                     response.Close();
+                    */
+                    HttpClient client = new HttpClient();
+                    var response = client.GetAsync(FullRequestStr).Result;
+
+                    var resp = response.Content.ReadAsStringAsync().Result;
+                    var respJson = JsonConvert.DeserializeObject<MagMakesHelpers.MakesInterpretResponse>(resp, jsonsettings);
+                    if (respJson != null && respJson.interpretations != null && respJson.interpretations.Count > 0)
+                    {
+                        foreach (MakesInterpretation i in respJson.interpretations)
+                        {
+                            foreach (MakesInterpretationRule r in i.rules)
+                            {
+                                foreach (PaperMakes pm in r.output.entities)
+                                {
+                                    var found = PaperList.Find(e => e.Id == pm.Id);
+                                    if (found == null)
+                                    {
+                                        PaperList.Add(pm);
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
                 catch (Exception e)
                 {
@@ -336,24 +361,8 @@ namespace BusinessLibrary.BusinessClasses
 #endif
                     return PaperList;
                 }
-                var respJson = JsonConvert.DeserializeObject<MagMakesHelpers.MakesInterpretResponse>(responseText, jsonsettings);
-                if (respJson != null && respJson.interpretations != null && respJson.interpretations.Count > 0)
-                {
-                    foreach (MakesInterpretation i in respJson.interpretations)
-                    {
-                        foreach (MakesInterpretationRule r in i.rules)
-                        {
-                            foreach (PaperMakes pm in r.output.entities)
-                            {
-                                var found = PaperList.Find(e => e.Id == pm.Id);
-                                if (found == null)
-                                {
-                                    PaperList.Add(pm);
-                                }
-                            }
-                        }
-                    }
-                }
+                
+                
             }
             if (TryAgain && PaperList.Count == 0)
             {
@@ -428,8 +437,9 @@ namespace BusinessLibrary.BusinessClasses
 
                 string responseText = "";
                 MagCurrentInfo MagInfo = MagCurrentInfo.GetMagCurrentInfoServerSide(MakesDeploymentStatus);
-                string queryString = @"/interpret?query=" +
-                    System.Web.HttpUtility.UrlEncode(DOI.ToUpper()) + "&entityCount=5&attributes=" +
+                string queryString = @"/evaluate?expr=DOI='" +
+                    System.Web.HttpUtility.UrlEncode(DOI.ToUpper().Trim().Replace("HTTPS://DX.DOI.ORG/", "").Replace("HTTP://DX.DOI.ORG/", ""))
+                    + "'&entityCount=5&attributes=" +
                     System.Web.HttpUtility.UrlEncode("Id,DN,AA.AuN,J.JN,V,I,FP,Y") +
                     "&complete=0&count=10&offset=0&timeout=2000&model=latest";
                 WebRequest request = WebRequest.Create(MagInfo.MakesEndPoint + queryString);
@@ -441,26 +451,19 @@ namespace BusinessLibrary.BusinessClasses
                 }
                 response.Close();
 
-                var respJson = JsonConvert.DeserializeObject<MagMakesHelpers.MakesInterpretResponse>(responseText, jsonsettings);
-                if (respJson != null && respJson.interpretations != null && respJson.interpretations.Count > 0)
+                var respJson = JsonConvert.DeserializeObject<MagMakesHelpers.PaperMakesResponse>(responseText, jsonsettings);
+                if (respJson != null && respJson.entities != null && respJson.entities.Count > 0)
                 {
-                    foreach (MakesInterpretation i in respJson.interpretations)
+                    foreach (PaperMakes i in respJson.entities)
                     {
-                        foreach (MakesInterpretationRule r in i.rules)
+                        var found = PaperList.Find(e => e.Id == i.Id);
+                        if (found == null)
                         {
-                            foreach (PaperMakes pm in r.output.entities)
-                            {
-                                var found = PaperList.Find(e => e.Id == pm.Id);
-                                if (found == null)
-                                {
-                                    PaperList.Add(pm);
-                                }
-                            }
+                            PaperList.Add(i);
                         }
                     }
                 }
             }
-
             return PaperList;
         }
 
@@ -475,7 +478,7 @@ namespace BusinessLibrary.BusinessClasses
             string responseText = "";
             MagCurrentInfo MagInfo = MagCurrentInfo.GetMagCurrentInfoServerSide(MakesDeploymentStatus);
             WebRequest request = WebRequest.Create(MagInfo.MakesEndPoint + query +
-                "&attributes=AA.AfId,AA.AuN,AA.DAfN,AA.DAuN,AA.AuId,CC,Id,DN,DOI,Pt,Ti,Y,D,PB,J.JN,J.JId,V,FP,LP,RId,ECC,IA,S" +
+                "&attributes=AA.AfId,AA.AuN,AA.DAfN,AA.DAuN,AA.AuId,CC,Id,DN,DOI,Pt,Ti,Y,D,PB,I,J.JN,J.JId,V,FP,LP,RId,ECC,IA,S" +
                 appendPageInfo);
             WebResponse response = request.GetResponse();
             using (Stream dataStream = response.GetResponseStream())
@@ -499,7 +502,7 @@ namespace BusinessLibrary.BusinessClasses
             string responseText = "";
             MagCurrentInfo MagInfo = MagCurrentInfo.GetMagCurrentInfoServerSide(MakesDeploymentStatus);
             WebRequest request = WebRequest.Create(MagInfo.MakesEndPoint + query +
-                "&attributes=AA.AfId,AA.AuN,AA.DAfN,AA.DAuN,AA.AuId,CC,Id,DN,DOI,Pt,Ti,Y,D,PB,J.JN,J.JId,V,FP,LP,RId,ECC,IA,S" +
+                "&attributes=AA.AfId,AA.AuN,AA.DAfN,AA.DAuN,AA.AuId,CC,Id,DN,DOI,Pt,Ti,Y,D,PB,I,J.JN,J.JId,V,FP,LP,RId,ECC,IA,S" +
                 appendPageInfo);
             WebResponse response = request.GetResponse();
             using (Stream dataStream = response.GetResponseStream())

@@ -1,0 +1,44 @@
+﻿<telerik:RadWindow x:Class="EppiReviewer4.RadWRobots"
+		xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+		xmlns:csla="clr-namespace:Csla.Silverlight;assembly=Csla"
+        xmlns:cslaXAML="clr-namespace:Csla.Xaml;assembly=Csla.Xaml"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+		xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
+		           Header="Robots: automatic coding"
+                   Width="510"
+                   CanClose="False"
+                   CanMove="True" 
+                   IsRestricted="True"
+                   ResizeMode="NoResize"
+                   RestoreMinimizedLocation="True"
+                   RestrictedAreaMargin="20"
+                   WindowStartupLocation="CenterScreen"
+                   WindowState="Normal"
+                   >
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="35"></RowDefinition>
+            <RowDefinition Height="35"></RowDefinition>
+            <RowDefinition Height="35"></RowDefinition>
+            <RowDefinition Height="50"></RowDefinition>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="200"></ColumnDefinition>
+            <ColumnDefinition Width="300"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+
+        <TextBlock Grid.Row="0" Grid.Column="0" Text="Select robot" Margin="5,5,5,5" HorizontalAlignment="Right" VerticalAlignment="Center"></TextBlock>
+        <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal">
+            <RadioButton x:Name="rbRobotReviewer" GroupName="SelectRobot" Content="RobotReviewer" Margin="5,5,5,5" IsChecked="True" VerticalAlignment="Center"></RadioButton>
+            <RadioButton x:Name="rbRobotHBCP" GroupName="SelectRobot" Content="HBCP" Margin="5,5,5,5" IsChecked="False" VerticalAlignment="Center"></RadioButton>
+        </StackPanel>
+        <TextBlock Grid.Row="1" Grid.Column="0" Text="Select coding tool" Margin="5,5,5,5" HorizontalAlignment="Right" VerticalAlignment="Center"></TextBlock>
+        <ComboBox x:Name="dialogRobotsComboSelectCodeSet" Grid.Row="1" Grid.Column="1" Margin="5,5,5,5" ItemsSource="{Binding Source={StaticResource CodeSetsData}, Path=Data, Mode=OneWay}"></ComboBox>
+        <telerik:RadBusyIndicator x:Name="busyIndicatorRobots" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="0" Grid.RowSpan="2" />
+
+        <HyperlinkButton x:Name="hlGo" Grid.Row="2" Grid.Column="0" Content="Send to robot!" HorizontalAlignment="Center" VerticalAlignment="Center" IsTabStop="False" Click="HyperlinkButton_Click_1"></HyperlinkButton>
+        <HyperlinkButton x:Name="hlCancel" Grid.Row="2" Grid.Column="1" Content="Close / cancel" HorizontalAlignment="Center" VerticalAlignment="Center" IsTabStop="False" Click="HyperlinkButton_Click"></HyperlinkButton>
+
+        <HyperlinkButton x:Name="hlHelp" Grid.Row="3" Grid.Column="0" TargetName="_blank" NavigateUri="http://eppi.ioe.ac.uk/cms/Default.aspx?tabid=3772" Content="About these robots" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="5,5,5,5"></HyperlinkButton>
+    </Grid>
+</telerik:RadWindow>

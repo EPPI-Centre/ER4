@@ -265,6 +265,18 @@ public partial class Purchase : System.Web.UI.Page
                     }
 
                 }
+                if (gvPurchasedAccounts.Rows[i].Cells[1].Text.Contains("Not activated"))
+                {
+                    gvPurchasedAccounts.Rows[i].Cells[4].BackColor = System.Drawing.Color.LightGray;
+                    gvPurchasedAccounts.Rows[i].Cells[4].ToolTip = "User accounts must be activated before they can be extended";
+                    DropDownList ddl = (DropDownList)gvPurchasedAccounts.Rows[i].Cells[5].FindControl("ddlExtendAccount");
+                    if (ddl != null)
+                    {
+                        ddl.Enabled = false;
+                        ddl.SelectedIndex = 0;
+                        ddl.ToolTip = "User accounts must be activated before they can be extended";
+                    }
+                }
             }
         }
     }

@@ -6,14 +6,13 @@ import { codesetSelectorComponent } from '../CodesetTrees/codesetSelector.compon
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Router, NavigationEnd } from '@angular/router';
-import { ClassifierContactModel,  MagSimulation, MagFieldOfStudy, TopicLink } from '../services/MAGClasses.service';
+import { ClassifierContactModel,  MagSimulation, TopicLink } from '../services/MAGClasses.service';
 import { EventEmitterService } from '../services/EventEmitter.service';
-import { MAGBrowserService } from '../services/MAGBrowser.service';
 import { MAGAdvancedService } from '../services/magAdvanced.service';
-import { MVCMagFieldOfStudyListSelectionCriteria } from '../services/MAGClasses.service';
 import { MAGBrowserHistoryService } from '../services/MAGBrowserHistory.service';
-import { Observable, interval, Subscription } from 'rxjs';
-import { take } from 'rxjs/operators'
+import { interval, Subscription } from 'rxjs';
+import { NotificationService } from '@progress/kendo-angular-notification';
+import { MAGSimulationService } from '../services/MAGSimulation.service';
 
 
 @Component({
@@ -26,21 +25,22 @@ export class AdvancedMAGFeaturesComponent implements OnInit, OnDestroy {
 
     history: NavigationEnd[] = [];
     constructor(private ConfirmationDialogService: ConfirmationDialogService,
+        private _magSimulationService: MAGSimulationService,
         public _magAdvancedService: MAGAdvancedService,
-        private _magBrowserService: MAGBrowserService,
         public _searchService: searchService,
         private _ReviewerIdentityServ: ReviewerIdentityService,
         private _eventEmitter: EventEmitterService,
         private _routingStateService: MAGBrowserHistoryService,
         private _location: Location,
+        private _notificationService: NotificationService,
         private router: Router
 
     ) {
 
         this.history = this._routingStateService.getHistory();
     }
-    private takeOneNumber: Observable<number> = new Observable<number>();
     private subsc: Subscription = new Subscription();
+    
     ngOnInit() {
 
         if (this._ReviewerIdentityServ.reviewerIdentity.userId == 0 ||
@@ -51,12 +51,7 @@ export class AdvancedMAGFeaturesComponent implements OnInit, OnDestroy {
             this.router.navigate(['Main']);
         }
         else {
-
-            const numbers = interval(1000);
-            this.takeOneNumber = numbers.pipe(take(1000000));
-            this.subsc = this.takeOneNumber.subscribe(x =>
-                { console.log(' ' + x) }
-            );
+            
             this.GetMagReviewMagInfoCommand();
             this.GetMagSimulationList();
             this.GetClassifierContactModelList();
@@ -68,12 +63,10 @@ export class AdvancedMAGFeaturesComponent implements OnInit, OnDestroy {
 
     }
     @ViewChild('WithOrWithoutCodeSelector3') WithOrWithoutCodeSelector3!: codesetSelectorComponent;
-    @ViewChild('WithOrWithoutCodeSelector2') WithOrWithoutCodeSelector2!: codesetSelectorComponent;
 
     public CurrentDropdownSelectedCode3: singleNode | null = null;
     public CurrentDropdownSelectedCode2: singleNode | null = null;
     public ItemsWithCode: boolean = false;
-    //public MAGItems: any[] = [];
     public ShowPanel: boolean = false;
     public dropdownBasic2: boolean = false;
     public dropdownBasic3: boolean = false;
@@ -82,20 +75,10 @@ export class AdvancedMAGFeaturesComponent implements OnInit, OnDestroy {
     public ListSubType: string = '';
     public splitDataOn: string = 'Year';
     public SearchMethod: string = 'Recommendations';
-    public SearchMethods: string[] = ['Citations',
+    public SearchMethods: string[] = ['Bi-Citation',
         'Recommendations',
-        'Citations and recommendations',
-        'Fields of study'];
-    public NetworkStat: string = 'None';
-    public NetworkStats: string[] = [
-        'degree',
-        'closeness',
-        'eigenscore',
-        'pagerank',
-        'hubscore',
-        'authscore',
-        'alpha'
-    ];
+        'Bi-Citation AND Recommendations',
+        'Extended Network'];
     public StudyTypeClassifier: string = 'None';
     public StudyTypeClassifiers: string[] = [
         'None',
@@ -112,42 +95,31 @@ export class AdvancedMAGFeaturesComponent implements OnInit, OnDestroy {
     public currentClassifierContactModel: ClassifierContactModel = new ClassifierContactModel();
     public description: string = '';
     public kendoDateValue: Date = new Date();
+    public kendoEndDateValue: Date = new Date();
     public magDate: string = 'true';
     public magMode: string = '';
     public filterOn: string = 'false';
-    public AdvancedFeatures() {
-        this.router.navigate(['AdvancedMAGFeatures']);
+    public ScoreThreshold: number = 0;
+    public FoSThreshold: number = 0;
+    public stepScore: number = 0.01;
+    public stepFoS: number = 0.05;
+
+    public get MagSimulationList(): MagSimulation[] {
+        return this._magSimulationService.MagSimulationList;
     }
-    public Forward() {
-        this._location.forward();
+
+    private ShowMAGSimulationMessage(notifyMsg: string) {
+
+        this._notificationService.show({
+            content: notifyMsg,
+            animation: { type: 'slide', duration: 400 },
+            position: { horizontal: 'center', vertical: 'top' },
+            type: { style: "info", icon: true },
+            closable: true
+        });
     }
     public Back() {
         this._location.back();
-    }
-    public Selected() {
-        alert('not implemented');
-    }
-    public ClearSelected() {
-        alert('not implemented');
-    }
-    public ImportSelected() {
-        alert('not implemented');
-    }
-    public MatchingMAGItems() {
-        this.router.navigate(['MatchingMAGItems']);
-    }
-    public AutoUpdateHome() {
-        this.router.navigate(['BasicMAGFeatures']);
-    }
-    public ShowHistory() {
-
-        this.router.navigate(['MAGBrowserHistory']);
-    }
-    public Admin() {
-        this.router.navigate(['MAGAdmin']);
-    }
-    public ToggleMAGPanel(): void {
-        this.ShowPanel = !this.ShowPanel;
     }
     public get HasWriteRights(): boolean {
         return this._ReviewerIdentityServ.HasWriteRights;
@@ -168,86 +140,23 @@ export class AdvancedMAGFeaturesComponent implements OnInit, OnDestroy {
         return this._magAdvancedService._RunAlgorithmFirst == true;
 
     }    
-    public UpdateTopicResults(event: any) {
+    private CheckContReviewPipelineState(): boolean {
 
-        let enteredSearchString: string = event.target.value;
+        this._magAdvancedService.CheckContReviewPipelineState().then(
 
-        if (enteredSearchString.length > 2 ) {
-
-            let criteriaFOSL: MVCMagFieldOfStudyListSelectionCriteria = new MVCMagFieldOfStudyListSelectionCriteria();
-            criteriaFOSL.fieldOfStudyId = 0;
-            criteriaFOSL.listType = 'FieldOfStudySearchList';
-            criteriaFOSL.paperIdList = '';
-            criteriaFOSL.SearchTextTopics = event.target.value; 
-            this._magBrowserService.FetchMagFieldOfStudyList(criteriaFOSL, '').then(
-
-                (results: MagFieldOfStudy[]) => {
-
-                    //this.WPFindTopics = [];
-                    let FosList: MagFieldOfStudy[] = results;
-                    let i: number = 4;
-                    let cnt: number = 0;
-                    for (var fos of FosList)
-                    {
-                        console.log('got in here');
-                        let item: TopicLink = new TopicLink();
-                        item.displayName = fos.displayName;
-                        item.fontSize = i;
-                        item.fieldOfStudyId = fos.fieldOfStudyId;
-
-                        this.SearchTextTopicsResults[cnt] = item;
-                        cnt += 1;
-                        if (i > 0.2) {
-                            i -= 0.01;
-                        }
-                    }
-                    console.log(this.SearchTextTopicsResults);
-                    return;
-                }
+                (result: boolean) => { return result; }
             );
-
-        } else {
-
-            this.SearchTextTopics = [];
-            this.SearchTextTopicsResults = [];
-        }
+        return false;
     }
-    public CleanText(text: string): string {
-        let rgx: RegExp = new RegExp('[^a-zA-Z0-9 ]');
-
-        text = text.replace(rgx, ' ').toLowerCase().trim();
-        
-        while (text.indexOf('  ') != -1) {
-            text = text.replace('  ', '  ');
-        }
-        return text;
-    }
-    public FOSMAGBrowserNavigate(displayName: string, fieldOfStudyId: number) {
-
-        this.router.navigate(['MAGBrowser']);
-        this.GetParentAndChildRelatedPapers(displayName, fieldOfStudyId);
-    }
-    public GetParentAndChildRelatedPapers(FieldOfStudy: string, FieldOfStudyId: number) {
-
-        this._magBrowserService.ParentTopic = FieldOfStudy;
-
-        this._magBrowserService.GetParentAndChildFieldsOfStudy("FieldOfStudyParentsList", FieldOfStudyId, "Parent topics").then(
-            () => {
-                this._magBrowserService.GetParentAndChildFieldsOfStudy("FieldOfStudyChildrenList", FieldOfStudyId, "Child topics").then(
-                    () => {
-                        this._magBrowserService.GetPaperListForTopic(FieldOfStudyId);
-                    });
-            });
-    }
-    public AddSimulation(): void {
+    private AddActualSimulation(): void {
 
         let newMagSimulation: MagSimulation = new MagSimulation();
-        if (this.splitDataOn == 'Year') {
-            newMagSimulation.year = this.kendoDateValue.getFullYear();
+        if (this.splitDataOn == 'Year' || this.splitDataOn == 'CreatedDate') {
 
-        } else if (this.splitDataOn == 'CreatedDate') {
-
+            newMagSimulation.year = 1753; //this.kendoDateValue.getFullYear();
+            newMagSimulation.yearEnd = this.kendoEndDateValue.getFullYear();
             newMagSimulation.createdDate = this.kendoDateValue;
+            newMagSimulation.createdEndDate = this.kendoEndDateValue;
 
         } else if (this.splitDataOn == 'WithThisCode') {
 
@@ -268,7 +177,9 @@ export class AdvancedMAGFeaturesComponent implements OnInit, OnDestroy {
             }
         }
         newMagSimulation.searchMethod = this.SearchMethod;
-        newMagSimulation.networkStatistic = this.NetworkStat;
+        newMagSimulation.fosThreshold = this.FoSThreshold;
+        newMagSimulation.scoreThreshold = this.ScoreThreshold;
+        //newMagSimulation.networkStatistic = this.NetworkStat;
         if (this.StudyTypeClassifier != null) {
             newMagSimulation.studyTypeClassifier = this.StudyTypeClassifier;
         }
@@ -276,6 +187,7 @@ export class AdvancedMAGFeaturesComponent implements OnInit, OnDestroy {
 
             newMagSimulation.userClassifierModel = this.currentClassifierContactModel.modelTitle;
             newMagSimulation.userClassifierModelId = this.currentClassifierContactModel.modelId;
+            newMagSimulation.userClassifierReviewId = this.currentClassifierContactModel.reviewId;
         }
         newMagSimulation.status = "Pending";
         //console.log(newMagSimulation);
@@ -284,33 +196,28 @@ export class AdvancedMAGFeaturesComponent implements OnInit, OnDestroy {
         this.ConfirmationDialogService.confirm('MAG Simulation', msg, false, '')
             .then((confirm: any) => {
                 if (confirm) {
-                    this._magAdvancedService.AddMagSimulation(newMagSimulation);
-
+                    this._magSimulationService.AddMagSimulation(newMagSimulation);
                 }
             });
+    }
+
+    public AddSimulation(): void {
+
+        let pipelineRunning: boolean = this.CheckContReviewPipelineState();
+        if (pipelineRunning) {
+
+            let msg: string = 'Sorry, another pipeline is currently running';
+            this.ShowMAGSimulationMessage(msg);
+            return;
+
+        } else {
+
+            this.AddActualSimulation();
+        }
     }
     public GetClassifierContactModelList(): void {
         this._magAdvancedService.FetchClassifierContactModelList();
     }
-    //public RunMatchingAlgo() {
-
-    //    let msg: string = 'Are you sure you want to match all the items in your review\n to Microsoft Academic records?';
-    //    this.ConfirmationDialogService.confirm('MAG RUN ALERT', msg, false, '')
-    //        .then((confirm: any) => {
-    //            if (confirm) {
-    //                this._magAdvancedService.RunMatchingAlgorithm();
-    //                this._RunAlgorithmFirst = true;
-    //            }
-    //        });
-    //}
-    //public OpenMatchesInReview(listType: string) {
-
-    //    if (listType != null) {
-    //        this.ListSubType = listType;
-    //        this._eventEmitter.criteriaMAGChange.emit(listType);
-    //        //this._eventEmitter.MAGAllocationClicked.emit();
-    //    }
-    //}
     public OpenResultsInReview(listType: string, magSimId: number) {
 
         if (listType != null) {
@@ -318,7 +225,6 @@ export class AdvancedMAGFeaturesComponent implements OnInit, OnDestroy {
             this._magAdvancedService.CurrentMagSimId = magSimId;
             this.ListSubType = listType;
             this._eventEmitter.criteriaMAGChange.emit(listType);
-            //this._eventEmitter.MAGAllocationClicked.emit();
         }
     }
     public DeleteSimulation(item: MagSimulation) {
@@ -327,70 +233,16 @@ export class AdvancedMAGFeaturesComponent implements OnInit, OnDestroy {
                 "Are you sure you want to delete MAG RUN:" + item.magSimulationId + "?", false, '')
                 .then((confirm: any) => {
                     if (confirm) {
-                        this._magAdvancedService.DeleteSimulation(item);
+                        this._magSimulationService.DeleteSimulation(item);
                     }
                 });
         }
-    }
-    //public CanGetCodeMatches(): boolean {
-
-    //    if (this.CurrentDropdownSelectedCode2 != null) {
-    //        return true;
-    //    } else {
-    //        return false;
-    //    }
-
-    //}
-    //public GetMatchedMagWithCodeList() {
-
-    //    if (this.CurrentDropdownSelectedCode2 != null) {
-
-    //        let criteria: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
-    //        criteria.listType = "ReviewMatchedPapersWithThisCode";
-    //        var att = this.CurrentDropdownSelectedCode2 as SetAttribute;
-    //        criteria.attributeIds = att.attribute_id.toString();
-    //        criteria.pageSize = 20;
-    //        console.log('got in here');
-
-    //        this._magAdvancedService.FetchMagPaperList(criteria).then(
-    //            () => {
-    //                this.router.navigate(['MAGBrowser']);
-    //            }
-    //        );
-    //    }
-
-    //}
-    //public CanGetMagPaper(): boolean {
-
-    //    if (this.magPaperId != null && this.magPaperId > 0) {
-    //        return true;
-    //    } else {
-    //        return false;
-    //    }
-
-    //}
-    //public GetMagPaper() {
-
-    //    this._magAdvancedService.FetchMagPaperId(this.magPaperId).then(
-
-    //        () => { this.router.navigate(['MAGBrowser']); }
-
-    //    );
-    //}
-    CanOnlySelectRoots() {
-        return true;
     }
     CloseCodeDropDown3() {
         if (this.WithOrWithoutCodeSelector3) {
             this.CurrentDropdownSelectedCode3 = this.WithOrWithoutCodeSelector3.SelectedNodeData;
         }
         this.isCollapsed3 = false;
-    }
-    CloseCodeDropDown2() {
-        if (this.WithOrWithoutCodeSelector2) {
-            this.CurrentDropdownSelectedCode2 = this.WithOrWithoutCodeSelector2.SelectedNodeData;
-        }
-        this.isCollapsed2 = false;
     }
     Clear() {
 
@@ -402,50 +254,7 @@ export class AdvancedMAGFeaturesComponent implements OnInit, OnDestroy {
         this.magMode = '';
 
     }
-    public CanDeleteMAGRun(): boolean {
-        // other params like existence need to be checked here!!!!!!!!!!!!!!!!!!!!!
-        return this.HasWriteRights;
-    }
-    public CanAddNewMAGSearch(): boolean {
-
-        if (this.description != '' && this.description != null && this.HasWriteRights
-        ) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-    public ClickSearchMode(searchModeChoice: string) {
-
-        switch (searchModeChoice) {
-
-            case '1':
-                this.magMode = 'Recommended by';
-                break;
-            case '2':
-                this.magMode = 'That recommend';
-                break;
-            case '3':
-                this.magMode = 'Recommendations';
-                break;
-            case '4':
-                this.magMode = 'Bibliography';
-                break;
-            case '5':
-                this.magMode = 'Cited by';
-                break;
-            case '6':
-                this.magMode = 'Bi-Citation';
-                break;
-            case '7':
-                this.magMode = 'Bi-Citation AND Recommendations';
-                break;
-
-            default:
-                break;
-        }
-    }
     public GetMagSimulationList() {
-        this._magAdvancedService.FetchMagSimulationList();
+        this._magSimulationService.FetchMagSimulationList();
     }
 }

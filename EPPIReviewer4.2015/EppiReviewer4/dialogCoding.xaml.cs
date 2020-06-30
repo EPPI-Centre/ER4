@@ -79,6 +79,7 @@ namespace EppiReviewer4
         private RadWindow WindowRaduploadContainer = new RadWindow();
         private RadUpload RadUp = new RadUpload();
         private RadWCheckArmDelete WindowCheckArmDelete = new RadWCheckArmDelete();
+        private RadWRobots WindowRobots = new RadWRobots();
         private RadWCheckTimepointDelete WindowCheckTimepointDelete = new RadWCheckTimepointDelete();
 
         private double CurrentcodesTreeContainerWidth = 330;
@@ -200,6 +201,7 @@ namespace EppiReviewer4
             windowConfirmDocDelete.cmdDeleteDoc_Clicked+=new EventHandler<RoutedEventArgs>(cmdDeleteDoc_Click);
             windowResetPdfCoding.Closed += new EventHandler<WindowClosedEventArgs>(windowResetPdfCoding_Closed);
             WindowCheckArmDelete.cmdArmDeletedInWindow += WindowCheckArmDelete_cmdArmDeletedInWindow;
+            WindowRobots.closeWindowRobots += WindowRobotsClose;
             WindowCheckTimepointDelete.cmdTimepointDeletedInWindow += WindowCheckTimepointDelete_cmdTimepointDeletedInWindow;
 
             //end hooking up radW events
@@ -1302,7 +1304,10 @@ namespace EppiReviewer4
                     CurrentTextDocument = null;
                     codesTreeControl.CurrentTextDocument = null;
                     codesTreeControl.ShowCodeTxtOptions = false;
-                    rich.Document = null;
+                    if (PaneItemDetails[1] != null && PaneItemDetails[1].IsSelected) PaneItemDetails.SelectedIndex = 0;
+                    ClearCurrentTextDocument();
+                    //rich_Loaded(sender, e);
+                    //rich.Document = null;
                 }
                 if (PaneItemDetails[5] != null && PaneItemDetails[5].Control.IsEnabled)
                 {
@@ -3476,9 +3481,25 @@ namespace EppiReviewer4
 
         private void hlManualMagLookup_Click(object sender, RoutedEventArgs e)
         {
+            HyperlinkButton hl = sender as HyperlinkButton;
+            if (hl.Tag.ToString() == "Lookup")
+            {
+                ManualMagLookupOrClear("FindMatches");
+                return;
+            }
+            RadWindow.Confirm("Are you sure you want to clear matches from this item?", this.ManualMagMatchesClearConfirm);
+        }
+
+        private void ManualMagMatchesClearConfirm(object sender, WindowClosedEventArgs e)
+        {
+            ManualMagLookupOrClear("clear");
+        }
+
+        private void ManualMagLookupOrClear(string FindOrClear)
+        {
             Item i = this.DataContext as Item;
             DataPortal<MagMatchItemsToPapersCommand> dp = new DataPortal<MagMatchItemsToPapersCommand>();
-            MagMatchItemsToPapersCommand GetMatches = new MagMatchItemsToPapersCommand("FindMatches",
+            MagMatchItemsToPapersCommand GetMatches = new MagMatchItemsToPapersCommand(FindOrClear,
                 false, i.ItemId, 0);
             dp.ExecuteCompleted += (o, e2) =>
             {
@@ -3498,17 +3519,35 @@ namespace EppiReviewer4
                     provider.FactoryMethod = "GetMagPaperList";
                     provider.Refresh();
                     hlManualMagLookup.IsEnabled = true;
+                    hlManualMagClear.IsEnabled = true;
                     hlManualMagLookup.Content = "Look up this record in Microsoft Academic";
                 }
             };
             hlManualMagLookup.Content = "Looking up this record in Microsoft Academic...";
             hlManualMagLookup.IsEnabled = false;
+            hlManualMagClear.IsEnabled = false;
             dp.BeginExecute(GetMatches);
         }
 
         private void MicrosoftAcademic_Activated(object sender, EventArgs e)
         {
             GetMagPaperListData(DataContext as Item);
+        }
+
+        private void cmdRobotAutoCode_Click(object sender, RoutedEventArgs e)
+        {
+            WindowRobots.SelectedItemDocument = (sender as Button).DataContext as ItemDocument;
+            Item thisItem = DataContext as Item;
+            WindowRobots.SelectedTitle = thisItem.Title;
+            WindowRobots.SelectedAbstract = thisItem.Abstract;
+            WindowRobots.ShowDialog();
+        }
+        private void WindowRobotsClose(object sender, RoutedEventArgs e)
+        {
+            Item thisItem = DataContext as Item;
+            codesTreeControl.ReloadAllSets();
+            BindTree(thisItem);
+            WindowRobots.Close();
         }
 
         private void It_Saved(object sender, Csla.Core.SavedEventArgs e)

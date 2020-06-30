@@ -876,6 +876,11 @@ public partial class Summary : System.Web.UI.Page
         switch (e.CommandName)
         {
             case "EDT":
+
+                buildMembersOfReview(ReviewID);
+
+
+                /*
                 rblPSShareableEnable.Visible = false;
                 lblPSShareableReview.Visible = false;
                 pnlBritLibCodesShared.Visible = false;
@@ -923,13 +928,6 @@ public partial class Summary : System.Web.UI.Page
                         }
                         
                     }
-
-                    /*
-                    if ((idr["REVIEW_NAME"].ToString() == null) || (idr["REVIEW_NAME"].ToString() == ""))
-                        tbShareableReviewName.Text = "Not activated";
-                    else
-                        tbShareableReviewName.Text = idr["REVIEW_NAME"].ToString();
-                    */
 
                     DateTime dayExpires;
                     DateTime today = DateTime.Today;
@@ -1054,20 +1052,7 @@ public partial class Summary : System.Web.UI.Page
                         gvMembersOfReview.Rows[i].Cells[1].BackColor = System.Drawing.Color.Aquamarine;
                     }
                 }
-
-
-
-                /*
-                string SQL = "select REVIEW_NAME from TB_REVIEW where REVIEW_ID = '" + ReviewID + "'";
-                bool isAdmDB = false;
-                SqlDataReader sdr = Utils.ReturnReader(SQL, isAdmDB);
-                if (sdr.Read())
-                {
-                    tbShareableReviewName.Text = sdr["REVIEW_NAME"].ToString();
-                }
-                sdr.Close();
                 */
-
                 break;
 
             default:
@@ -1217,17 +1202,188 @@ public partial class Summary : System.Web.UI.Page
     }
     private void buildMembersOfReview(string reviewID)
     {
-        DataTable dt = new DataTable();
-        System.Data.DataRow newrow;
+        rblPSShareableEnable.Visible = false;
+        lblPSShareableReview.Visible = false;
+        pnlBritLibCodesShared.Visible = false;
+        pnlEditShareableReview.Visible = true;
+        lblShareableReviewNumber.Text = reviewID;
+        bool isAdmDB = true;
+        IDataReader idr = Utils.GetReader(isAdmDB, "st_ReviewDetails",
+            reviewID);
+        if (idr.Read())
+        {
+            if ((idr["REVIEW_NAME"].ToString() == null) || (idr["REVIEW_NAME"].ToString() == ""))
+            {
+                if ((idr["EXPIRY_DATE"].ToString() == null) || (idr["EXPIRY_DATE"].ToString() == ""))
+                {
+                    tbShareableReviewName.Text = "Not activated";
+                    cmdSaveShareableReview.Text = "Save and activate";
+                    lbInviteReviewer.Enabled = false;
+                }
+                else
+                {
+                    tbShareableReviewName.Text = "Edit name";
+                    cmdSaveShareableReview.Text = "Save";
+                    lbInviteReviewer.Enabled = true;
+                }
+            }
+            else
+            {
+                if ((idr["EXPIRY_DATE"].ToString() == null) || (idr["EXPIRY_DATE"].ToString() == ""))
+                {
+                    cmdSaveShareableReview.Text = "Save and activate";
+                    lbInviteReviewer.Enabled = false;
+                }
+                else
+                {
+                    cmdSaveShareableReview.Text = "Save";
+                    lbInviteReviewer.Enabled = true;
+                }
+                tbShareableReviewName.Text = idr["REVIEW_NAME"].ToString();
+                if (Utils.GetSessionString("EnablePSEnabler") == "True")
+                {
+                    rblPSShareableEnable.Visible = true;
+                    lblPSShareableReview.Visible = true;
+                    string test1 = idr["SHOW_SCREENING"].ToString();
+                    rblPSShareableEnable.SelectedValue = idr["SHOW_SCREENING"].ToString();
+                }
+
+            }
+
+            DateTime dayExpires;
+            DateTime today = DateTime.Today;
+
+            DataTable dt = new DataTable();
+            System.Data.DataRow newrow;
+
+            dt.Columns.Add(new DataColumn("CONTACT_ID", typeof(string)));
+            dt.Columns.Add(new DataColumn("CONTACT_NAME", typeof(string)));
+            dt.Columns.Add(new DataColumn("EMAIL", typeof(string)));
+            dt.Columns.Add(new DataColumn("LAST_LOGIN", typeof(string)));
+            dt.Columns.Add(new DataColumn("IS_CODING_ONLY", typeof(string)));
+            dt.Columns.Add(new DataColumn("IS_READ_ONLY", typeof(string)));
+            dt.Columns.Add(new DataColumn("IS_ADMIN", typeof(string)));
+
+            string expiryDate = "";
+            isAdmDB = true;
+            IDataReader idr1 = Utils.GetReader(isAdmDB, "st_ReviewMembers",
+                lblShareableReviewNumber.Text);
+            while (idr1.Read())
+            {
+                newrow = dt.NewRow();
+                newrow["CONTACT_ID"] = idr1["CONTACT_ID"].ToString();
+
+                if (idr1["site_lic_id"].ToString() != "")
+                {
+                    newrow["CONTACT_NAME"] = idr1["CONTACT_NAME"].ToString() + " (" + expiryDate + ")" + " in Site License #" +
+                        idr1["site_lic_id"].ToString();
+                }
+                else if ((idr1["expiry_date"].ToString() == null) || (idr1["expiry_date"].ToString() == ""))
+                {
+                    newrow["CONTACT_NAME"] = idr1["CONTACT_NAME"].ToString() + " (N/A) Not activated";
+                }
+                else
+                {
+                    dayExpires = Convert.ToDateTime(idr1["expiry_date"].ToString());
+
+                    expiryDate = dayExpires.ToString();
+                    expiryDate = expiryDate.Remove(expiryDate.IndexOf(" "));
+                    if (dayExpires < today)
+                    {
+                        newrow["CONTACT_NAME"] = idr1["CONTACT_NAME"].ToString() + " (" + expiryDate + ")" + " Expired";
+                    }
+                    else
+                    {
+                        newrow["CONTACT_NAME"] = idr1["CONTACT_NAME"].ToString() + " (" + expiryDate + ")";
+                    }
+                }
+
+
+                newrow["EMAIL"] = idr1["EMAIL"].ToString();
+                if ((idr1["LAST_LOGIN"].ToString() == null) || (idr1["LAST_LOGIN"].ToString() == ""))
+                    newrow["LAST_LOGIN"] = "Never";
+                else
+                    newrow["LAST_LOGIN"] = idr1["LAST_LOGIN"].ToString();
+
+                if (idr1["IS_CODING_ONLY"].ToString() == "True")
+                    newrow["IS_CODING_ONLY"] = "True";
+                if (idr1["IS_READ_ONLY"].ToString() == "True")
+                    newrow["IS_READ_ONLY"] = "True";
+                if (idr1["IS_ADMIN"].ToString() == "True")
+                    newrow["IS_ADMIN"] = "True";
+                dt.Rows.Add(newrow);
+            }
+            idr1.Close();
+
+            gvMembersOfReview.DataSource = dt;
+            gvMembersOfReview.DataBind();
+
+            // loop through gvMembersOfReview and set checkboxes
+            for (int i = 0; i < dt.Rows.Count; i++)
+            {
+                if (dt.Rows[i]["IS_CODING_ONLY"].ToString() == "True")
+                {
+                    GridViewRow row = gvMembersOfReview.Rows[i];
+                    CheckBox cb = ((CheckBox)row.FindControl("cbCodingOnly"));
+                    cb.Checked = true;
+                }
+            }
+            // loop through gvMembersOfReview and set checkboxes
+            for (int i = 0; i < dt.Rows.Count; i++)
+            {
+                if (dt.Rows[i]["IS_READ_ONLY"].ToString() == "True")
+                {
+                    GridViewRow row = gvMembersOfReview.Rows[i];
+                    CheckBox cb = ((CheckBox)row.FindControl("cbReadOnly"));
+                    cb.Checked = true;
+                }
+            }
+            for (int i = 0; i < dt.Rows.Count; i++)
+            {
+                if (dt.Rows[i]["IS_ADMIN"].ToString() == "True")
+                {
+                    GridViewRow row = gvMembersOfReview.Rows[i];
+                    CheckBox cb = ((CheckBox)row.FindControl("cbReviewAdmin"));
+                    cb.Checked = true;
+                }
+            }
+            idr.Close();
+        }
+
+        for (int i = 0; i < gvMembersOfReview.Rows.Count; i++)
+        {
+            if (gvMembersOfReview.Rows[i].Cells[1].Text.Contains("Edit name"))
+            {
+                gvMembersOfReview.Rows[i].Cells[1].BackColor = System.Drawing.Color.PaleGreen;
+            }
+            if (gvMembersOfReview.Rows[i].Cells[1].Text.Contains("Not activated"))
+            {
+                gvMembersOfReview.Rows[i].Cells[1].BackColor = System.Drawing.Color.Yellow;
+            }
+            if (gvMembersOfReview.Rows[i].Cells[1].Text.Contains("Not activated"))
+            {
+                gvMembersOfReview.Rows[i].Cells[1].BackColor = System.Drawing.Color.Yellow;
+            }
+            if (gvMembersOfReview.Rows[i].Cells[1].Text.Contains("Expired"))
+            {
+                gvMembersOfReview.Rows[i].Cells[1].BackColor = System.Drawing.Color.Pink;
+            }
+            if (gvMembersOfReview.Rows[i].Cells[1].Text.Contains("Site License"))
+            {
+                gvMembersOfReview.Rows[i].Cells[1].BackColor = System.Drawing.Color.Aquamarine;
+            }
+        }
+
+
+
+
+
+
+
 
         /*
-        dt.Columns.Add(new DataColumn("CONTACT_ID", typeof(string)));
-        dt.Columns.Add(new DataColumn("CONTACT_NAME", typeof(string)));
-        dt.Columns.Add(new DataColumn("EMAIL", typeof(string)));
-        dt.Columns.Add(new DataColumn("LAST_LOGIN", typeof(string)));
-        dt.Columns.Add(new DataColumn("IS_CODING_ONLY", typeof(string)));
-        dt.Columns.Add(new DataColumn("IS_ADMIN", typeof(string)));
-        */
+        DataTable dt = new DataTable();
+        System.Data.DataRow newrow;
 
         dt.Columns.Add(new DataColumn("CONTACT_ID", typeof(string)));
         dt.Columns.Add(new DataColumn("CONTACT_NAME", typeof(string)));
@@ -1269,9 +1425,6 @@ public partial class Summary : System.Web.UI.Page
                     newrow["CONTACT_NAME"] = idr["CONTACT_NAME"].ToString() + " (" + expiryDate + ")";
                 }
             }
-
-            //newrow["CONTACT_ID"] = idr["CONTACT_ID"].ToString();
-            //newrow["CONTACT_NAME"] = idr["CONTACT_NAME"].ToString() + " (" + expiryDate + ")";
             
             newrow["EMAIL"] = idr["EMAIL"].ToString();
             if ((idr["LAST_LOGIN"].ToString() == null) || (idr["LAST_LOGIN"].ToString() == ""))
@@ -1286,23 +1439,6 @@ public partial class Summary : System.Web.UI.Page
             if (idr["IS_ADMIN"].ToString() == "True")
                 newrow["IS_ADMIN"] = "True";
             dt.Rows.Add(newrow);
-
-            /*
-            newrow = dt.NewRow();
-            newrow["CONTACT_ID"] = idr["CONTACT_ID"].ToString();
-            newrow["CONTACT_NAME"] = idr["CONTACT_NAME"].ToString();
-            newrow["EMAIL"] = idr["EMAIL"].ToString();
-            if ((idr["LAST_LOGIN"].ToString() == null) || (idr["LAST_LOGIN"].ToString() == ""))
-                newrow["LAST_LOGIN"] = "Never";
-            else
-                newrow["LAST_LOGIN"] = idr["LAST_LOGIN"].ToString();
-
-            if (idr["IS_CODING_ONLY"].ToString() == "True")
-                newrow["IS_CODING_ONLY"] = "True";
-            if (idr["IS_ADMIN"].ToString() == "True")
-                newrow["IS_ADMIN"] = "True";
-            dt.Rows.Add(newrow);
-            */
         }
         idr.Close();
 
@@ -1339,6 +1475,7 @@ public partial class Summary : System.Web.UI.Page
             }
         }
         idr.Close();
+        */
     }
 
     protected void cmdInvite_Click(object sender, EventArgs e)

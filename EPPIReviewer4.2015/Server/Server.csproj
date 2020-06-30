@@ -42,7 +42,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;OLDDEDUPP</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
@@ -426,6 +426,9 @@
     <Compile Include="BusinessClasses\ReadOnlyTemplateReviewList.cs" />
     <Compile Include="BusinessClasses\ReviewInfo.cs" />
     <Compile Include="BusinessClasses\ReviewSetCopyCommand.cs" />
+    <Compile Include="BusinessClasses\RobotHBCPCommand.cs" />
+    <Compile Include="BusinessClasses\RobotReviewerCommand.cs" />
+    <Compile Include="BusinessClasses\SearchClassifierScoresCommand.cs" />
     <Compile Include="BusinessClasses\SearchNullAbstract.cs" />
     <Compile Include="BusinessClasses\SearchVisualise.cs" />
     <Compile Include="BusinessClasses\SearchVisualiseList.cs" />

@@ -3,28 +3,15 @@
         style="position:absolute; right: 0; z-index:2000;" (click)="Back()">
     Close/back
 </button>
-<div class="containsAtoolbar">
-    <kendo-toolbar>
-        <kendo-toolbar-button [text]="'Selected'" (click)="Selected()" [disabled]="HasWriteRights"></kendo-toolbar-button>
-        <kendo-toolbar-button [text]="'Clear Selected'" (click)="ClearSelected()" [disabled]="HasWriteRights"></kendo-toolbar-button>
-        <kendo-toolbar-button [text]="'Import Selected'" (click)="ImportSelected()" [disabled]="HasWriteRights"></kendo-toolbar-button>
-        <kendo-toolbar-button [text]="'Auto-update home'" (click)="AutoUpdateHome()" [disabled]="!HasWriteRights"></kendo-toolbar-button>
-        <kendo-toolbar-button [text]="'Matching MAG Items'" (click)="MatchingMAGItems()" [disabled]="!HasWriteRights"></kendo-toolbar-button>
-        <kendo-toolbar-button [text]="'Show history'" (click)="ShowHistory()" [disabled]="!HasWriteRights"></kendo-toolbar-button>
-        <!--<kendo-toolbar-button [text]="'Admin'" (click)="Admin()" [disabled]="!HasWriteRights"></kendo-toolbar-button>-->
-        <kendo-toolbar-button [text]="'Back'" (click)="Back()" [disabled]="!HasWriteRights"></kendo-toolbar-button>
-        <kendo-toolbar-button [text]="'Forward'" (click)="Forward()" [disabled]="!HasWriteRights"></kendo-toolbar-button>
-    </kendo-toolbar>
-    
-</div>
+<MAGHeaderBar></MAGHeaderBar>
 <div style="min-width:450px; overflow:auto;">
-    <div class="col-10 p-2 m-2 card alert-info  border-dark">
+    <div class="p-2 m-2 card alert-info  border-dark">
         <h5>Current Microsoft Academic Graph Dataset:<i> {{_magAdvancedService.MagCurrentInfo.lastUpdated}} </i></h5>
 
     </div>
     <div *ngIf="IsServiceBusy" class="k-loading-image" style="position: fixed; top: 2%;"></div>
 
-        <div *ngIf="!ShowGraphViewer" class="col-10 row alert-primary border border-dark p-2 m-2">
+        <div *ngIf="!ShowGraphViewer" class="row alert-primary border border-dark p-2 m-2 card">
             <h5 class="p-1 m-1 ">Research And Development for Microsoft Academic Graph</h5>
             <div class="m-2 p-2 col-12 row">
                 The algorithm to find new and related studies to the ones you have
@@ -59,10 +46,10 @@
     
 
 
-    <div class="col-xs-12 col-lg-10 card collapse card collapse alert-warning border border-dark p-2 m-2" id="collapseExample1">
+    <div class="card collapse alert-warning border border-dark p-2 m-2" id="collapseExample1">
 
         <div class="col-12  row">
-            
+
             <div class="col-4">
                 <div class="col-1"></div>
                 <div class="col-6 m-1 p-1">
@@ -92,7 +79,13 @@
                 <div class="col-3 m-0 p-0 "><b>Items Dated From</b></div>
                 <div class="example-wrapper col-8" style="min-height: 100px">
                     <kendo-datepicker [(value)]="kendoDateValue"></kendo-datepicker>
-                    <p>(use Alt+↓ to open the calendar, ← and →  to navigate, ↑ to increment and ↓ to decrement the value)</p>
+                </div>
+            </div>
+            <div class="col-5 m-2 p-2 row" *ngIf="splitDataOn == 'CreatedDate' || splitDataOn == 'Year'">
+                <div class="col-1 m-0 p-0"></div>
+                <div class="col-3 m-0 p-0 "><b>End date</b></div>
+                <div class="example-wrapper col-8" style="min-height: 100px">
+                    <kendo-datepicker [(value)]="kendoEndDateValue"></kendo-datepicker>
                 </div>
             </div>
             <div class="col-12 row" *ngIf="splitDataOn == 'WithThisCode' || filterOn == 'true'">
@@ -138,16 +131,16 @@
 
                 </div>
                 <div class="col-1"></div>
-                <div class="col-1 p-2 m-2"><b>Network Statistic</b></div>
-                <div ngbDropdown class="col-3 p-0 m-0">
-                    <select class="col-12 form-control mb-1" name="NetworkStat"
-                            [(ngModel)]="NetworkStat">
-                        <option *ngFor="let item of NetworkStats"
-                                [ngValue]="item" [selected]="item == NetworkStat">
-                            {{item}}
-                        </option>
-                    </select>
-                </div>
+                <!--<div class="col-1 p-2 m-2"><b>Network Statistic</b></div>
+        <div ngbDropdown class="col-3 p-0 m-0">
+            <select class="col-12 form-control mb-1" name="NetworkStat"
+                    [(ngModel)]="NetworkStat">
+                <option *ngFor="let item of NetworkStats"
+                        [ngValue]="item" [selected]="item == NetworkStat">
+                    {{item}}
+                </option>
+            </select>
+        </div>-->
             </div>
 
             <div class="col-12 row">
@@ -174,9 +167,33 @@
                 </div>
 
             </div>
+            <div class="col-12 row">
+                <div class="col-1 m-2 p-2"><b>Score Threshold</b></div>
+                <div class="col-3 p-0 m-0">
+                    <kendo-numerictextbox [(ngModel)]="ScoreThreshold"
+                                          [min]="0"
+                                          [step]="stepScore"
+                                          [max]="1"
+                                          [autoCorrect]="true"
+                                          class="border border-dark rounded"
+                                          style="width: 110px;"></kendo-numerictextbox>
+                </div>
+                <div class="col-1"></div>
+                <div class="m-1 p-1 col-1"><b>FoS Threshold</b></div>
+                <div class="col-3 p-0 m-0">
+                    <kendo-numerictextbox [(ngModel)]="FoSThreshold"
+                                          [min]="0"
+                                          [step]="stepFoS"
+                                          [max]="1"
+                                          [autoCorrect]="true"
+                                          class="border border-dark rounded"
+                                          style="width: 110px;"></kendo-numerictextbox>
+                </div>
+            </div>
             <div class="col-12">
                 <div class="col-10"></div>
-                <button [disabled]="!CanAddSimulation()" (click)="AddSimulation()"
+                <!--[disabled]="!CanAddSimulation()"-->
+                <button (click)="AddSimulation()"
                         class="btn btn-warning p-2 m-2">
                     Add Simulation
                 </button>
@@ -184,14 +201,15 @@
         </div>
     </div>
 
-
-        <table class="col-10 small table table-border alert-info   p-2 m-2  border border-dark" style="min-width:150px;overflow:auto;">
+    <div class="col-12 alert-info p-2 m-2 border border-dark card">
+        <table class="table table-border" style="min-width:150px;overflow:auto;">
             <thead>
                 <tr>
                     <th width="15">Method</th>
                     <th width="15">Status</th>
                     <th width="15">Seed method</th>
                     <th width="15">(Filter)</th>
+                    <th width="15">Thresholds</th>
                     <th width="15">Network Stat</th>
                     <th width="15">Study classifier</th>
                     <th width="15">User classifier</th>
@@ -205,11 +223,12 @@
                 </tr>
             </thead>
             <tbody>
-                <tr *ngFor="let item of _magAdvancedService.MagSimulationList">
+                <tr *ngFor="let item of MagSimulationList">
                     <td>{{item.searchMethod}}</td>
                     <td>{{item.status}}</td>
                     <td>{{item.searchMethod}}</td>
                     <td>{{item.filteredByAttribute}}</td>
+                    <td>{{item.thresholds}}</td>
                     <td> {{item.networkStatistic}}</td>
                     <td>{{item.studyTypeClassifier}}</td>
                     <td>{{item.userClassifierModel}}</td>
@@ -223,6 +242,6 @@
                 </tr>
             </tbody>
         </table>
-
+    </div>
 </div>
 <statusbar></statusbar>

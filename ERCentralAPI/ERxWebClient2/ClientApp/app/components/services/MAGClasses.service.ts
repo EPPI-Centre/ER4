@@ -1,18 +1,16 @@
 import { Inject, Injectable} from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BusyAwareService } from '../helpers/BusyAwareService';
 
 @Injectable({
     providedIn: 'root',
 })
 
-export class MAGClassesService extends BusyAwareService {
+export class MAGClassesService  {
 
     constructor(
         private _httpC: HttpClient,
         @Inject('BASE_URL') private _baseUrl: string
     ) {
-        super();
     }
 }
 
@@ -163,6 +161,7 @@ export class MagPaper {
 
     externalMagLink: string = '';
     fullRecord: string = '';
+    shortRecord: string = '';
     paperId: number = 0;
     doi: string = '';
     docType: string = '';
@@ -209,13 +208,19 @@ export class MagSimulation {
     magSimulationId: number = 0;
     reviewId: number = 0;
     year: number = 0;
+    yearEnd: number = 0;
+    createdEndDate: Date = new Date();
     createdDate: Date = new Date();
     withThisAttributeId: number = 0;
     filteredByAttributeId: number = 0;
     searchMethod: string = '';
+    fosThreshold: number = 0;
+    scoreThreshold: number = 0;
+    thresholds: string = '';
     networkStatistic: string = '';
     studyTypeClassifier: string = '';
     userClassifierModelId: number = 0;
+    userClassifierReviewId: number = 0;
     status: string = '';
     withThisAttribute: string = '';
     filteredByAttribute: string = '';
@@ -242,5 +247,12 @@ export class TopicLink {
     callToFOS: string = '';
     fieldOfStudyId: number = 0;
 }
+
+export class MagCheckContReviewRunningCommand {
+
+    isRunningMessage: string = '';
+
+}
+
 
 

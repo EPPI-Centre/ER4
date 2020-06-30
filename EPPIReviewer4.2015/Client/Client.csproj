@@ -730,8 +730,17 @@
     <Compile Include="..\Server\BusinessClasses\ReviewStatisticsReviewerList.cs">
       <Link>BusinessClasses\ReviewStatisticsReviewerList.cs</Link>
     </Compile>
+    <Compile Include="..\Server\BusinessClasses\RobotHBCPCommand.cs">
+      <Link>BusinessClasses\RobotHBCPCommand.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\RobotReviewerCommand.cs">
+      <Link>BusinessClasses\RobotReviewerCommand.cs</Link>
+    </Compile>
     <Compile Include="..\Server\BusinessClasses\Search.cs">
       <Link>BusinessClasses\Search.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\SearchClassifierScoresCommand.cs">
+      <Link>BusinessClasses\SearchClassifierScoresCommand.cs</Link>
     </Compile>
     <Compile Include="..\Server\BusinessClasses\SearchCodesCommand.cs">
       <Link>BusinessClasses\SearchCodesCommand.cs</Link>
