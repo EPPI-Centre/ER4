@@ -480,6 +480,7 @@ namespace BusinessLibrary.BusinessClasses
 
 
 #else       
+            string downloadFilename = "RelatedRun" + MagRelatedRunId.ToString() + ".csv";
             string uploadFileName = "";
             if (Directory.Exists("UserTempUploads"))
             {
@@ -497,7 +498,7 @@ namespace BusinessLibrary.BusinessClasses
             WriteSeedIdsFile(uploadFileName, ReviewId);
             await UploadSeedIdsFileAsync(uploadFileName);
             TriggerDataLakeJob(uploadFileName, ContactId);
-            await DownloadResultsAsync(uploadFileName, ReviewId);
+            await DownloadResultsAsync(downloadFilename, ReviewId);
         }
 
         private void WriteSeedIdsFile(string uploadFileName, int ReviewId)
