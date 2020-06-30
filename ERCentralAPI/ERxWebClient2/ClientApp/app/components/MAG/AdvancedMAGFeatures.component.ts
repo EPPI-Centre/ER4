@@ -153,10 +153,11 @@ export class AdvancedMAGFeaturesComponent implements OnInit, OnDestroy {
         let newMagSimulation: MagSimulation = new MagSimulation();
         if (this.splitDataOn == 'Year' || this.splitDataOn == 'CreatedDate') {
 
-            newMagSimulation.year = 1753; //this.kendoDateValue.getFullYear();
+            newMagSimulation.year = this.kendoDateValue.getFullYear();
             newMagSimulation.yearEnd = this.kendoEndDateValue.getFullYear();
             newMagSimulation.createdDate = this.kendoDateValue;
             newMagSimulation.createdEndDate = this.kendoEndDateValue;
+            console.log(JSON.stringify(newMagSimulation));
 
         } else if (this.splitDataOn == 'WithThisCode') {
 
