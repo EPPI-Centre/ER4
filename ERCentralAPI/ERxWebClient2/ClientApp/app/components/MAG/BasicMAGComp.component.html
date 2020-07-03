@@ -188,7 +188,7 @@
                     <td>{{item.status  == 'Complete' ? 'Complete' : 'Pending'}}</td>
                     <td class="p-0"><button [disabled]="!CanDeleteMAGRun()" (click)="DoDeleteMagRelatedPapersRun(item.magRelatedRunId)" class="btn btn-sm alert-danger p-1 m-1">Delete</button></td>
                     <td class="p-0 ">
-                        <button [disabled]="!CanImportMagPapers(item)" class="btn btn-sm btn-outline-info p-1 m-1">
+                        <button (click)="CheckedStatus(item.userStatus)" [disabled]="!CanImportMagPapers(item)" class="btn btn-sm btn-outline-info p-1 m-1">
                             {{item.userStatus == '' ? 'Not Checked' : item.userStatus }}
                         </button>
                     </td>

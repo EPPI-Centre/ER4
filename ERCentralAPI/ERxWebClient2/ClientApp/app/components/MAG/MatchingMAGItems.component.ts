@@ -338,8 +338,13 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
         this._magAdvancedService.FetchMagPaperId(this.magPaperId).then(
 
             (result: MagPaper) => {
+                
+                if (result.paperId != null && result.paperId > 0) {
+                    this._magAdvancedService.PostFetchMagPaperCalls(result);
+                } else {
 
-                this._magAdvancedService.PostFetchMagPaperCalls(result);
+                    this._magBasicService.showMAGRunMessage('Microsoft academic could not find the paperId!');
+                }
             });
     }
 

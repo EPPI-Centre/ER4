@@ -192,7 +192,26 @@ export class BasicMAGComp implements OnInit {
             default:
                 break;
 		}
-	}
+    }
+    public CheckedStatus(status: string) {
+
+        let msg: string = "";
+        if (status == 'Checked') {
+
+            msg = 'you have marked this search as checked';
+        } else if (status == 'Unchecked') {
+            msg = 'you have marked this search as unchecked';
+        } else if (status == 'Waiting') {
+            msg = 'this search is in a waiting state';
+        } else if (status == 'Imported') {
+            msg = 'you have imported these papers already in this search';
+        } else {
+            msg = 'there is an error in the status';
+        }
+
+        this.ShowMAGRunMessage(msg);
+
+    }
 	public AddNewMAGSearch() {
 
 		let magRun: MagRelatedPapersRun = new MagRelatedPapersRun();
