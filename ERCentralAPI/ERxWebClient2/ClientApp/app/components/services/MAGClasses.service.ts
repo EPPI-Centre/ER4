@@ -112,6 +112,8 @@ export class MVCMagPaperListSelectionCriteria {
     pageNumber: number = 0;
     pageSize: number = 0;
     numResults: number = 0;
+    dateFrom: string = '';
+    dateTo: string = '';
 
 }
 

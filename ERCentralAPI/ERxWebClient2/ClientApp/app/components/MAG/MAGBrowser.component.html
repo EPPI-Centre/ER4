@@ -63,6 +63,23 @@
                     </div>
                 </div>
             </div>
+            <div class="row col-12" *ngIf="_magAdvancedService.currentMagPaper.paperId == 0">
+                <div class="col-5 row" >
+                    <div class="col-1 m-0 p-0"></div>
+                    <div class="col-3 m-0 p-0 "><b>After this date:</b></div>
+                    <div class="example-wrapper col-8" style="min-height: 100px">
+                        <kendo-datepicker [(value)]="kendoAfterDateValue"></kendo-datepicker>
+                    </div>
+                </div>
+                <div class="col-5  row" >
+                    <div class="col-1 m-0 p-0"></div>
+                    <div class="col-3 m-0 p-0 "><b>Before this date:</b></div>
+                    <div class="example-wrapper col-8" style="min-height: 100px">
+                        <kendo-datepicker [(value)]="kendoBeforeDateValue"></kendo-datepicker>
+                    </div>
+                </div>
+                <button (click)="RefreshPapersBetweenDates()" class="btn alert-success col-1 h-25">Refresh</button>
+            </div>
         </div>
 
         <kendo-tabstrip #tabSelectedPapers (tabSelect)="onTabSelect($event)" class="col-6" [keepTabContent]="true">
