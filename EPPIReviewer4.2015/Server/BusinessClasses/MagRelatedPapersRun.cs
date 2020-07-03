@@ -477,7 +477,7 @@ namespace BusinessLibrary.BusinessClasses
             //string folderPrefix = TrainingRunCommand.NameBase;
             string uploadFileName = System.Web.HttpRuntime.AppDomainAppPath + @"UserTempUploads/" + TrainingRunCommand.NameBase +
                 "RelatedRun" + MagRelatedRunId.ToString() + ".csv";
-
+            string downloadFilename = uploadFileName;
 
 #else       
             string downloadFilename = "RelatedRun" + MagRelatedRunId.ToString() + ".csv";
