@@ -79,6 +79,28 @@ export class MAGBrowserService extends BusyAwareService {
             return false;
         }
     }
+    public GetPaperListForTopicsAfterRefresh(fieldOfStudy: MagFieldOfStudy, dateFrom: string, dateTo: string): boolean | undefined {
+
+        if (fieldOfStudy.fieldOfStudyId != null) {
+
+            let id = this.ListCriteria.magRelatedRunId;
+            this.ListCriteria = new MVCMagPaperListSelectionCriteria();
+            this.ListCriteria.magRelatedRunId = id;
+            this.ListCriteria.fieldOfStudyId = fieldOfStudy.fieldOfStudyId;
+            this.ListCriteria.listType = "PaperFieldsOfStudyList";
+            this.ListCriteria.pageNumber = 0;
+            this.ListCriteria.pageSize = this.pageSize;
+            this.ListCriteria.dateFrom = dateFrom;
+            this.ListCriteria.dateTo = dateTo;
+            this.FetchWithCrit(this.ListCriteria, "PaperFieldsOfStudyList").then(
+
+                (res: boolean) => { return res; }
+            );
+
+        } else {
+            return false;
+        }
+    }
     public ImportMagRelatedSelectedPapers(selectedPapers: number[]): Promise<MagItemPaperInsertCommand | void> {
 
         let selectedPapersStr: string = selectedPapers.join(',');

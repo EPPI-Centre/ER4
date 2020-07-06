@@ -40,6 +40,9 @@ export class MAGBrowser implements OnInit, OnDestroy {
     public description: string = '';
     public ShowSelectedPapers: string = '';
     public isShowDivIf = false;
+    public kendoAfterDateValue: Date = new Date();
+    public kendoBeforeDateValue: Date = new Date();
+
 
     ngOnInit() {
 
@@ -52,6 +55,12 @@ export class MAGBrowser implements OnInit, OnDestroy {
         );
         this.browsingHistory = this._routingStateService.getHistory();
         
+    }
+    public RefreshPapersBetweenDates() {
+
+        this._magBrowserService.GetPaperListForTopicsAfterRefresh(this._magBrowserService.currentFieldOfStudy,
+            this.kendoAfterDateValue.toUTCString(), this.kendoBeforeDateValue.toUTCString());
+
     }
     public onTabSelect(e: SelectEvent) {
         console.log('selected tab: ' + this.tabstrip.tabs.length);
