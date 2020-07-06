@@ -1,9 +1,10 @@
 import { Location } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { MAGBrowserHistoryService } from '../services/MAGBrowserHistory.service';
-import { NavigationEnd, Router } from '@angular/router';
-import { MAGAdvancedService } from '../services/magAdvanced.service';
+import {  Router } from '@angular/router';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
+import { MAGAdminService } from '../services/MAGAdmin.service';
+import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 
 @Component({
     selector: 'MAGAdmin',
@@ -16,49 +17,34 @@ export class MAGAdminComp implements OnInit {
     constructor(
         private _location: Location,
         public _MAGBrowserHistoryService: MAGBrowserHistoryService,
-        public _magAdvancedService: MAGAdvancedService,
+        public _magAdminService: MAGAdminService,
         private _ReviewerIdentityServ: ReviewerIdentityService,
+        public _confirmationDialogService: ConfirmationDialogService,
         private router: Router
 
     ) {
 
     }
+    public previousMAG: string = '';
+    public latestMag: string = '';
 
-    public MAGBrowsingHistory: NavigationEnd[] = [];
-    public get HasWriteRights(): boolean {
-        return this._ReviewerIdentityServ.HasWriteRights;
+    public DoCheckChangedPaperIds() {
+
+        let msg: string = "Are you sure?\nPlease check it is not already running first!\nOld: "
+            + this.previousMAG + " new: " + this.latestMag;
+        this._confirmationDialogService.confirm('MAG Admin', msg, false, '')
+            .then((confirm: any) => {
+                if (confirm) {
+                    this._magAdminService.DoCheckChangedPaperIds(latestMag);
+                }
+            });
+        
     }
-
     ngOnInit() {
 
-        this.MAGBrowsingHistory = this._MAGBrowserHistoryService.getHistory();
-
-        console.log('really: ', this.MAGBrowsingHistory);
 
     }
 
-    GoToUrl(url: string) {
-
-        console.log(url);
-        this.router.navigate([url]);
-    }
-
-    RemoveUrl(item: NavigationEnd) {
-
-        let id: number = item.id;
-        let index: number = this.MAGBrowsingHistory.findIndex(x => x.id == id);
-        if (index != -1) {
-        this.MAGBrowsingHistory.splice(index,1);
-        }
-    }
-
-    public get IsServiceBusy(): boolean {
-
-        return false;
-    }
    
-    Back() {
-        this._location.back();
-    }
 
 }

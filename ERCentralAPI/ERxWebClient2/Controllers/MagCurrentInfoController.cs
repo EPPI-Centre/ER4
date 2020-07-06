@@ -85,6 +85,28 @@ namespace ERxWebClient2.Controllers
             }
         }
 
+        [HttpPost("[action]")]
+        public IActionResult DoCheckChangedPaperIds([FromBody] SingleStringCriteria latestMag)
+        {
+            try
+            {
+                SetCSLAUser();
+
+                DataPortal<MagCheckPaperIdChangesCommand> dp = new DataPortal<MagCheckPaperIdChangesCommand>();
+                MagCheckPaperIdChangesCommand magCheck = new MagCheckPaperIdChangesCommand(latestMag.Value);
+
+
+                magCheck = dp.Execute(magCheck);
+
+                return Ok(magCheck.LatestMAGName);
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "DoCheckChangedPaperIds has an error");
+                throw;
+            }
+        }
+
 
     }
 

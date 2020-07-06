@@ -6,11 +6,13 @@
 </button>
 
 <MAGHeaderBar></MAGHeaderBar>
-<div class="col-10 p-2 m-2 card bg-light" style="min-width:450px; overflow:auto;">
+<div class="col-12 p-2 m-2 card bg-light" style="min-width:450px; overflow:auto;">
     <h4>MAG Admin </h4>
 </div>
-<div class="col-10 p-2 m-2 card bg-secondary" style="min-width:450px; overflow:auto;">
+<div class="col-12 p-2 m-2 card bg-secondary" style="min-width:450px; overflow:auto;">
     <h5>Current Microsoft Academic Graph Dataset:<i> {{_magAdvancedService.MagCurrentInfo.lastUpdated}} </i></h5>
+    <h5>Previous Microsoft Academic Graph Dataset:<i> {{_magAdvancedService.MagCurrentInfo.previousUpdated}} </i></h5>
+    <button class="btn alert-info" (click)="DoCheckChangedPaperIds()">Idenitfy ID changes</button>
     <h5>Shared Access Key (SAS):</h5>
     <textarea>
             sdfgsdfgsdg
@@ -23,14 +25,42 @@
     </textarea>
 </div>
 
-
-<div class="col-10 p-2 m-2 card bg-light" style="min-width:450px; overflow:auto;">
-    <h4>Actions: </h4>
+<div class="col-12 p-2 m-2 card bg-secondary" style="min-width:450px; overflow:auto;">
+    
+    <button class="btn alert-secondary">Run the ContReview Pipeline</button>
     
 </div>
 
-<div class="col-10 p-2 m-2 card bg-light" style="min-width:450px; overflow:auto;">
-    <h4>Job History: </h4>
+
+<div class="col-12 p-2 m-2 card bg-light" style="min-width:450px; overflow:auto;">
+    <h4>Log History: </h4>
+    <button class="btn alert-success">Refresh Log Table</button>
+    <div class="col-12 alert-info p-2 m-2 border border-dark card">
+        <table class="table table-border" style="min-width:150px;overflow:auto;">
+            <thead>
+                <tr>
+                    <th width="15">Job</th>
+                    <th width="15">Submitted by</th>
+                    <th width="15">Method</th>
+                    <th width="15">Job Status</th>
+                    <th width="15">When submitted</th>
+                    <th width="15">When updated</th>
+                    <th >Job Message</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let item of MagJobList">
+                    <td>{{item.job}}</td>
+                    <td>{{item.}}</td>
+                    <td>{{item.}}</td>
+                    <td>{{item.}}</td>
+                    <td>{{item.}}</td>
+                    <td> {{item.}}</td>
+                    <td>{{item.}}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
 </div>
 
 

@@ -129,6 +129,7 @@
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemTypeNVL.cs" Link="Models\ItemTypeNVL.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemTypeNVLFactory.cs" Link="Models\ItemTypeNVLFactory.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\MagCheckContReviewRunningCommand.cs" Link="Models\MagCheckContReviewRunningCommand.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\MagCheckPaperIdChangesCommand.cs" Link="Models\MagCheckPaperIdChangesCommand.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\MagContReviewPipeline.cs" Link="Models\MagContReviewPipeline.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\MagContReviewPipelineRunCommand.cs" Link="Models\MagContReviewPipelineRunCommand.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\MagCurrentInfo.cs" Link="Models\MagCurrentInfo.cs" />
