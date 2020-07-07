@@ -48,8 +48,8 @@ export class QuickCodingReportComponent implements OnInit, OnDestroy {
     }
     private _JsonReportContent: string = "";
     public get JsonReportContent(): string {
-        if (!this.JsonReport) return "";
-        if ((this.ItemCodingService.jsonReport.CodeSets.length > 0 || this.ItemCodingService.jsonReport.References.length > 0) && this._JsonReportContent == "") {
+        if (!this.JsonReport || this.GettingReport) return "";
+        if ((this.ItemCodingService.jsonReport.CodeSets.length > 0 && this.ItemCodingService.jsonReport.References.length > 0) && this._JsonReportContent == "") {
             console.log("jRepCon");
             let step = JSON.stringify(this.ItemCodingService.jsonReport);
             step = step.replace(/,"Attributes":\{"AttributesList":\[]\}/g, "");
@@ -152,7 +152,7 @@ export class QuickCodingReportComponent implements OnInit, OnDestroy {
     }
     private LongReportIsDone() {
         const check = this.ReportPanelName;
-        console.log("LongReportIsDone:", check);
+        //console.log("LongReportIsDone:", check, this.ItemCodingService.jsonReport.References.length);
         if (check == 'NotifyChrome' || check == 'NotifyLong') {
             if (this.ReportIsMassive) this.SaveReport();
             else this.OpenInNewWindow();
@@ -224,7 +224,7 @@ export class QuickCodingReportComponent implements OnInit, OnDestroy {
             }
         }
         else {
-            if (this.ReportHTML.length < 1 && !this.CanStartReport) return;
+            if (this.JsonReportContent.length < 1 && !this.CanStartReport) return;
             else if (this.JsonReportContent.length < 1 && this.CanStartReport) {
                 console.log("Checkpoint 5.2!!");
                 this.StartQuickReport();
@@ -236,7 +236,7 @@ export class QuickCodingReportComponent implements OnInit, OnDestroy {
                 if (pwa) {
                     pwa.document.open();
 
-                    pwa.document.write(this.JsonReportContent, this._baseUrl);
+                    pwa.document.write(this.JsonReportContent);
                     pwa.document.close();
                 }
             }
