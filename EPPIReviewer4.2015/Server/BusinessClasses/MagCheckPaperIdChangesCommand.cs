@@ -103,15 +103,8 @@ namespace BusinessLibrary.BusinessClasses
             UploadIdsFile(uploadFileName);
             MagLog.UpdateLogEntry("Running", "ID checking: file uploaded", TaskMagLogId);
             SubmitJob(ContactId);
-
-#if (!CSLA_NETCORE)
-
-            int missingCount = DownloadMissingIdsFile(uploadFileName);
-
-#else
+            
             int missingCount = await DownloadMissingIdsFile(uploadFileName);
-
-#endif
 
             MagLog.UpdateLogEntry("Running", "Auto-match IDs n=" + missingCount.ToString(), TaskMagLogId);
             LookupMissingIdsInNewMakes(ContactId, TaskMagLogId, missingCount);
