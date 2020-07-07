@@ -35,7 +35,7 @@ export class MAGAdminComp implements OnInit {
         this._confirmationDialogService.confirm('MAG Admin', msg, false, '')
             .then((confirm: any) => {
                 if (confirm) {
-                    this._magAdminService.DoCheckChangedPaperIds(latestMag);
+                    this._magAdminService.DoCheckChangedPaperIds(this.latestMag);
                 }
             });
         
