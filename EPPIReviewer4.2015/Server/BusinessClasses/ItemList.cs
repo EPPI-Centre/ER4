@@ -385,7 +385,11 @@ namespace BusinessLibrary.BusinessClasses
 #if SILVERLIGHT
        
 #else
-
+        //method used to create an itemList as a child object
+        public static ItemList GetItemList(SelectionCriteria criteria)
+        {
+            return DataPortal.Fetch<ItemList>(criteria);
+        }
         int retryCount = 0;//used to avoid endless loop in try-catch-(manual)retry
         protected void DataPortal_Fetch(SelectionCriteria criteria)
         {
