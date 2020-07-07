@@ -27,7 +27,12 @@ export class MAGAdminComp implements OnInit {
     }
     public previousMAG: string = '';
     public latestMag: string = '';
-
+    public ScoreThreshold: number = 0.20;
+    public FoSThreshold: number = 0.20;
+    public SampleSize: number = 20;
+    public stepScore: number = 0.01;
+    public stepFoS: number = 0.05;
+    public stepSampleSize: number = 0.01;
     public DoCheckChangedPaperIds() {
 
         let msg: string = "Are you sure?\nPlease check it is not already running first!\nOld: "

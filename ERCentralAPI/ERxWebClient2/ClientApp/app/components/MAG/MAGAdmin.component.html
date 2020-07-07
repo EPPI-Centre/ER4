@@ -15,20 +15,16 @@
 
         <div class="col-lg-7">
             <div class="card-footer h-100">
-
-                    
-
                         <h2 class="card-title"></h2>
 
-                        <h5>Current Microsoft Academic Graph Dataset:<i>  </i></h5>
-                        <h5>Previous Microsoft Academic Graph Dataset:<i> </i></h5>
+                        <h2 class="font-weight-light">Current Microsoft Academic Graph Dataset:<i>  </i></h2>
+                        <h2 class="font-weight-light">Previous Microsoft Academic Graph Dataset:<i> </i></h2>
                         <div class="bg-light">
-                            <h5>Shared Access Key (SAS):</h5>
+                            <h5 class="font-weight-light">Shared Access Key (SAS):</h5>
+                            <p class="form-control col-12 ">
+                            sdfgsdfgsdg
 
-                            <textarea class="form-control col-12">
-                        sdfgsdfgsdg
-
-                        </textarea>
+                            </p>
                         </div>
                    
                     
@@ -37,7 +33,7 @@
             <div class="card-footer">
 
                 <h5>MAG Release Notes:</h5>
-                <textarea class="form-control col-12">
+                <textarea class="form-control col-12 h-25">
                             sdfgsdfgsdg
 
                  </textarea>
@@ -108,18 +104,55 @@
 
                     <h2 class="card-title">ContReview Pipeline</h2>
 
-                    <p class="card-text">This kicks of the Azure ML pipeline to train and infer from a set of data</p>
+                    <p class="card-text">Choose your thresholds and then kick off the Azure ML pipeline to train and infer from a set of data</p>
 
                 </div>
 
-                <div class="card-footer">
+                <div class="card-text small row col-12">
+                   
+                        
+                            <div>
+                                
+                                <span class="col-3 p-2 m-2 small">
 
-                    <a  class="btn btn-primary btn-sm">Run the ContReview Pipeline</a>
+                                    <kendo-numerictextbox [(ngModel)]="ScoreThreshold"
+                                                          [min]="0"
+                                                          [step]="stepScore"
+                                                          [max]="1"
+                                                          [autoCorrect]="true"
+                                                          class="border border-dark rounded"
+                                                          style="width: 110px;"></kendo-numerictextbox>
+                                </span>
 
+                                
+                                <span class="col-3  p-2 m-2 small">
+                                    <kendo-numerictextbox [(ngModel)]="FoSThreshold"
+                                                          [min]="0"
+                                                          [step]="stepFoS"
+                                                          [max]="1"
+                                                          [autoCorrect]="true"
+                                                          class="border border-dark rounded"
+                                                          style="width: 110px;"></kendo-numerictextbox>
+                                </span>
+
+                               
+                                <span class="col-3  p-2 m-2 small">
+                                    <kendo-numerictextbox [(ngModel)]="SampleSize"
+                                                          [min]="0"
+                                                          [step]="stepSampleSize"
+                                                          [max]="1"
+                                                          [autoCorrect]="true"
+                                                          class="border border-dark rounded"
+                                                          style="min-width: 110px;"></kendo-numerictextbox>
+                                </span>
+                                <span class=" p-2 m-2 small col-3 pull-right" style="width: 110px;">
+                                    <a class="btn btn-primary btn-sm text-white">Run Pipeline</a>
+                                </span>
+                            </div>
+                      
+                    
                 </div>
-
             </div>
-
         </div>
 
         <!-- /.col-md-4 -->
@@ -154,15 +187,17 @@
 
                 <div class="card-body">
 
-                    <h2 class="card-title">Card Three</h2>
+                    <h2 class="card-title">Review Info</h2>
 
-                    <p class="card-text">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Rem magni quas ex numquam, maxime minus quam molestias corporis quod, ea minima accusamus.</p>
+                    <p class="card-text">Add another review to the MAG infrastructure</p>
 
                 </div>
 
                 <div class="card-footer">
 
-                    <a href="#" class="btn btn-primary btn-sm">More Info</a>
+                    <a class="btn btn-primary btn-sm">Add this review ID:</a>
+                    1234
+                    <a class="btn btn-secondary btn-sm">Refresh List</a>
 
                 </div>
 
