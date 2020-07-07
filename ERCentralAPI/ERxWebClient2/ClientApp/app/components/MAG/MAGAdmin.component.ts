@@ -40,6 +40,9 @@ export class MAGAdminComp implements OnInit {
             });
         
     }
+    public RefreshLogTable() {
+
+    }
     ngOnInit() {
 
 

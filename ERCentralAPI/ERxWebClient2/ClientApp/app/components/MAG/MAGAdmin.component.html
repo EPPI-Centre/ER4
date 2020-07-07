@@ -6,104 +6,92 @@
 </button>
 
 <MAGHeaderBar></MAGHeaderBar>
-<div class="col-12 p-2 m-2 card bg-light" style="min-width:450px; overflow:auto;">
-    <h4>MAG Admin </h4>
-</div>
-<!--<div class="col-12 p-2 m-2 card bg-secondary" style="min-width:450px; overflow:auto;">
-    <h5>Current Microsoft Academic Graph Dataset:<i> {{_magAdvancedService.MagCurrentInfo.lastUpdated}} </i></h5>
-    <h5>Previous Microsoft Academic Graph Dataset:<i> {{_magAdvancedService.MagCurrentInfo.previousUpdated}} </i></h5>
-    <button class="btn alert-info" (click)="DoCheckChangedPaperIds()">Idenitfy ID changes</button>
-    <h5>Shared Access Key (SAS):</h5>
-    <textarea>
-            sdfgsdfgsdg
-
-    </textarea>
-    <h5>MAG Release Notes:</h5>
-    <textarea>
-            sdfgsdfgsdg
-
-    </textarea>
-</div>
-
-<div class="col-12 p-2 m-2 card bg-secondary" style="min-width:450px; overflow:auto;">
-
-    <button class="btn alert-secondary">Run the ContReview Pipeline</button>
-
-</div>
-
-
-<div class="col-12 p-2 m-2 card bg-light" style="min-width:450px; overflow:auto;">
-    <h4>Log History: </h4>
-    <button class="btn alert-success">Refresh Log Table</button>
-    <div class="col-12 alert-info p-2 m-2 border border-dark card">
-        <table class="table table-border" style="min-width:150px;overflow:auto;">
-            <thead>
-                <tr>
-                    <th width="15">Job</th>
-                    <th width="15">Submitted by</th>
-                    <th width="15">Method</th>
-                    <th width="15">Job Status</th>
-                    <th width="15">When submitted</th>
-                    <th width="15">When updated</th>
-                    <th >Job Message</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr *ngFor="let item of MagJobList">
-                    <td>{{item.job}}</td>
-                    <td>{{item.}}</td>
-                    <td>{{item.}}</td>
-                    <td>{{item.}}</td>
-                    <td>{{item.}}</td>
-                    <td> {{item.}}</td>
-                    <td>{{item.}}</td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-</div>-->
-
-<div class="container">
 
 
 
-    <!-- Heading Row -->
+<div class="container col-12">
 
     <div class="row align-items-center my-5">
 
         <div class="col-lg-7">
+            <div class="card-footer h-100">
 
-            <img class="img-fluid rounded mb-4 mb-lg-0" src="http://placehold.it/900x400" alt="">
+                    
 
-        </div>
+                        <h2 class="card-title"></h2>
 
-        <!-- /.col-lg-8 -->
+                        <h5>Current Microsoft Academic Graph Dataset:<i>  </i></h5>
+                        <h5>Previous Microsoft Academic Graph Dataset:<i> </i></h5>
+                        <div class="bg-light">
+                            <h5>Shared Access Key (SAS):</h5>
+
+                            <textarea class="form-control col-12">
+                        sdfgsdfgsdg
+
+                        </textarea>
+                        </div>
+                   
+                    
+            </div>
+
+            <div class="card-footer">
+
+                <h5>MAG Release Notes:</h5>
+                <textarea class="form-control col-12">
+                            sdfgsdfgsdg
+
+                 </textarea>
+
+            </div>
+
+            </div>
+
 
         <div class="col-lg-5">
 
-            <h1 class="font-weight-light">Business Name or Tagline</h1>
+            <h1 class="font-weight-light">Microsoft Academic Graph Admin</h1>
 
-            <p>This is a template that is great for small businesses. It doesn't have too much fancy flare to it, but it makes a great use of the standard Bootstrap core components. Feel free to use this template for any project you want!</p>
+            <p>Please click the below button to check for Paper ID changes before updating your MAG current info!</p>
 
-            <a class="btn btn-primary" href="#">Call to Action!</a>
+            <a class="btn btn-primary btn-sm text-white" (click)="DoCheckChangedPaperIds()">Idenitfy ID changes</a>
 
         </div>
-
-        <!-- /.col-md-4 -->
-
     </div>
 
-    <!-- /.row -->
-    <!-- Call to Action Well -->
-
-    <div class="card text-white bg-secondary my-5 py-4 text-center">
-
+    <div class="card  alert-secondary my-5 py-4 text-left">
+        <h2 class="font-weight-light p-2 m-2">Log history</h2>
         <div class="card-body">
+            <a class="btn btn-primary btn-sm  text-white" (click)="RefreshLogTable()">Refresh Log Table</a>
+            <div class="col-12 p-2 m-2 card bg-light" style="min-width:450px; overflow:auto;">
 
-            <p class="text-white m-0">This call to action card is a great place to showcase some important information or display a clever tagline!</p>
-
+                <div class="col-12 alert-secondary p-2 m-2 card">
+                    <table class="table table-responsive table-striped"  style="min-width:150px;overflow:auto;">
+                        <thead>
+                            <tr>
+                                <th >Job</th>
+                                <th >Submitted by</th>
+                                <th >Method</th>
+                                <th >Job Status</th>
+                                <th >When submitted</th>
+                                <th >When updated</th>
+                                <th>Job Message</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let item of MagJobList">
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
-
     </div>
 
 
@@ -118,15 +106,15 @@
 
                 <div class="card-body">
 
-                    <h2 class="card-title">Card One</h2>
+                    <h2 class="card-title">ContReview Pipeline</h2>
 
-                    <p class="card-text">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Rem magni quas ex numquam, maxime minus quam molestias corporis quod, ea minima accusamus.</p>
+                    <p class="card-text">This kicks of the Azure ML pipeline to train and infer from a set of data</p>
 
                 </div>
 
                 <div class="card-footer">
 
-                    <a href="#" class="btn btn-primary btn-sm">More Info</a>
+                    <a  class="btn btn-primary btn-sm">Run the ContReview Pipeline</a>
 
                 </div>
 
@@ -142,15 +130,15 @@
 
                 <div class="card-body">
 
-                    <h2 class="card-title">Card Two</h2>
+                    <h2 class="card-title">Update to the latest MAG!</h2>
 
-                    <p class="card-text">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quod tenetur ex natus at dolorem enim! Nesciunt pariatur voluptatem sunt quam eaque, vel, non in id dolore voluptates quos eligendi labore.</p>
+                    <p class="card-text">Clicking the below button will query Azure for the latest MAG info</p>
 
                 </div>
 
                 <div class="card-footer">
 
-                    <a href="#" class="btn btn-primary btn-sm">More Info</a>
+                    <a href="#" class="btn btn-primary btn-sm">Update MAG Info</a>
 
                 </div>
 
