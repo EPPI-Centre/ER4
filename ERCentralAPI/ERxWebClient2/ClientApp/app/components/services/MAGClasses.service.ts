@@ -198,7 +198,7 @@ export class MagPaper {
     findOnWeb: string = '';
 }
 
-export class MagCurrentInfo {
+export class MagCurrentInfoShort {
 
     currentAvailability: string = '';
     lastUpdated: Date = new Date(2000, 2, 10);
@@ -276,5 +276,26 @@ export class MAGLog {
 export class MAGLogList {
 
     magLogList: MAGLog[] = [];
+}
+export class MAGReview {
+
+    reviewId: number = 0;
+    name: string = '';
+
+}
+export class MAGReviewList {
+
+    magReviewList: MAGReview[] = [];
+}
+export class MagCurrentInfo {
+
+    magCurrentInfoId: number = 0;
+    magVersion: string = '';
+    magFolder: string = '';
+    matchingAvailable: boolean = false;
+    magOnline: boolean = false;
+    whenLive: Date = new Date();
+    makesEndPoint: string = '';
+    makesDeploymentStatus: string = '';
 }
 

@@ -42,6 +42,24 @@ namespace ERxWebClient2.Controllers
             }
 		}
 
+        [HttpPost("[action]")]
+        public IActionResult UpdateMagCurrentInfo()
+        {
+            try
+            {
+                SetCSLAUser();
+                MagCurrentInfo obj = new MagCurrentInfo();
+                DataPortal<MagCurrentInfo> dp = new DataPortal<MagCurrentInfo>();
+                obj = dp.Update(obj);    
+                return Ok(obj);
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "Getting a MagCurrentInfo has an error");
+                throw;
+            }
+        }
+
         [HttpGet("[action]")]
         public IActionResult GetMagReviewMagInfo()
         {

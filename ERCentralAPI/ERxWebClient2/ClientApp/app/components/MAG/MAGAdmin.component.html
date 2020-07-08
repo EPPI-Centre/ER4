@@ -40,7 +40,7 @@
         </div>
     </div>
     <div class="row">
-        <div class="col-md-4 mb-5">
+        <div class="col-md-4 mb-5" style="max-height: 310px;">
             <div class="card h-100">
                 <div class="card-body">
 
@@ -88,14 +88,14 @@
         </div>
 
 
-        <div class="col-md-4 mb-5">
+        <div class="col-md-4 mb-5" style="max-height: 310px;">
             <div class="card h-100">
                 <div class="card-body">
                     <h2 class="card-title">Update to the latest MAG!</h2>
                     <p class="card-text">Clicking the below button will query Azure for the latest MAG info</p>
                 </div>
                 <div class="card-footer">
-                    <a href="#" class="btn btn-primary btn-sm">Update MAG Info</a>
+                    <a href="#" class="btn btn-primary btn-sm" (click)="UpdateMagInfo()">Update MAG Info</a>
                 </div>
             </div>
         </div>
@@ -108,8 +108,25 @@
                 <div class="card-body">
 
                     <h2 class="card-title">Review Info</h2>
-
                     <p class="card-text">Add another review to the MAG infrastructure</p>
+                    <div class="col-12 alert-secondary p-2 m-2 card">
+                        <table class="table table-sm text-small table-responsive table-striped" style="min-width:150px;overflow:auto;">
+                            <thead>
+                                <tr>
+                                    <th width="15">Delete</th>
+                                    <th width="15">ReviewID</th>
+                                    <th width="15">ReviewName</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let item of MagReviewList">
+                                    <td></td>
+                                    <td>{{item.reviewId}}</td>
+                                    <td>{{item.name}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
 
                 </div>
 

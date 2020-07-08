@@ -254,6 +254,7 @@ namespace BusinessLibrary.BusinessClasses
 
         protected override void DataPortal_Update()
         {
+            UpdateMagCurrentInfo();
             /*
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {

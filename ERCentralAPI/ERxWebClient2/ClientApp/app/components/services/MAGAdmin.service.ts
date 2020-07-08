@@ -2,7 +2,7 @@ import { Injectable, Inject } from "@angular/core";
 import { ModalService } from "./modal.service";
 import { HttpClient } from "@angular/common/http";
 import { BusyAwareService } from "../helpers/BusyAwareService";
-import { MAGBlobCommand, MAGLog, MAGLogList } from "./MAGClasses.service";
+import { MAGBlobCommand, MAGLog, MAGLogList, MAGReview, MagCurrentInfo } from "./MAGClasses.service";
 
 @Injectable({
 
@@ -10,13 +10,8 @@ import { MAGBlobCommand, MAGLog, MAGLogList } from "./MAGClasses.service";
 
 })
 export class MAGAdminService extends BusyAwareService {
-    CheckContReviewPipeLine() {
-        throw new Error("Method not implemented.");
-    }
 
- 
-
-
+    
     constructor(
         private _httpC: HttpClient,
         private modalService: ModalService,
@@ -29,6 +24,8 @@ export class MAGAdminService extends BusyAwareService {
     public latestMAGName: string = '';
     public previousMAGName: string = '';
     public MAGLogList: MAGLog[] = [];
+    public MAGReviewList: MAGReview[] = [];
+    public MagCurrentInfo: MagCurrentInfo = new MagCurrentInfo();
     public DoCheckChangedPaperIds(magLatest: string ) {
 
         this._BusyMethods.push("DoCheckChangedPaperIds");
@@ -91,6 +88,46 @@ export class MAGAdminService extends BusyAwareService {
                     this.RemoveBusy("GetMAGLogList");
                 });
 
+    }
+    GetMAGReviewList() {
+        this._BusyMethods.push("MAGReviewList");
+
+        this._httpC.get<MAGReview[]>(this._baseUrl + 'api/MagReviewList/GetMagReviewList')
+            .subscribe(result => {
+                this.RemoveBusy("MAGReviewList");
+                if (result != null) {
+                    console.log(result)
+                    this.MAGReviewList = result;
+                }
+            },
+                error => {
+                    this.RemoveBusy("MAGReviewList");
+                    this.modalService.GenericError(error);
+                },
+                () => {
+                    this.RemoveBusy("MAGReviewList");
+                });
+
+
+    }
+    public UpdateMagCurrentInfo() {
+        this._BusyMethods.push("UpdateMagCurrentInfo");
+
+        this._httpC.get<MagCurrentInfo>(this._baseUrl + 'api/MagCurrentInfo/UpdateMagCurrentInfo')
+            .subscribe(result => {
+                this.RemoveBusy("UpdateMagCurrentInfo");
+                if (result != null) {
+                    console.log(result)
+                    this.MagCurrentInfo = result;
+                }
+            },
+                error => {
+                    this.RemoveBusy("UpdateMagCurrentInfo");
+                    this.modalService.GenericError(error);
+                },
+                () => {
+                    this.RemoveBusy("UpdateMagCurrentInfo");
+                });
     }
    
    
