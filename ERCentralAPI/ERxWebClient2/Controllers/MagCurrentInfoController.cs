@@ -108,6 +108,31 @@ namespace ERxWebClient2.Controllers
         }
 
 
+        [HttpGet("[action]")]
+        public IActionResult GetMAGBlobCommand()
+        {
+            try
+            {
+                SetCSLAUser();
+
+                DataPortal<MagBlobDataCommand> dp = new DataPortal<MagBlobDataCommand>();
+                MagBlobDataCommand command = new MagBlobDataCommand();
+
+
+                command = dp.Execute(command);
+
+                return Ok(command);
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "GetMAGBlobCommand has an error");
+                throw;
+            }
+        }
+
+
+
+
     }
 
   

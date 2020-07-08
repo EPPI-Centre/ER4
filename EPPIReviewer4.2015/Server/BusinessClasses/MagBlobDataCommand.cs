@@ -99,8 +99,16 @@ namespace BusinessLibrary.BusinessClasses
 
         private async Task ListMagDbsAndMeta()
         {
+#if (CSLA_NETCORE)
+
+            var configuration = ERxWebClient2.Startup.Configuration.GetSection("AzureMagSettings");
+            string storageAccountName = configuration["MAGStorageAccount"];
+            string storageAccountKey = configuration["MAGStorageAccountKey"];
+
+#else
             string storageAccountName = ConfigurationManager.AppSettings["MAGStorageAccount"];
             string storageAccountKey = ConfigurationManager.AppSettings["MAGStorageAccountKey"];
+#endif
 
             string storageConnectionString =
                 "DefaultEndpointsProtocol=https;AccountName=" + storageAccountName + ";AccountKey=";

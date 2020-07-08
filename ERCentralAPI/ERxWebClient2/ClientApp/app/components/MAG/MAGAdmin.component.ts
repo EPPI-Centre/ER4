@@ -5,6 +5,7 @@ import {  Router } from '@angular/router';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { MAGAdminService } from '../services/MAGAdmin.service';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
+import { MAGLog } from '../services/MAGClasses.service';
 
 @Component({
     selector: 'MAGAdmin',
@@ -15,12 +16,12 @@ import { ConfirmationDialogService } from '../services/confirmation-dialog.servi
 export class MAGAdminComp implements OnInit {
 
     constructor(
-        private _location: Location,
         public _MAGBrowserHistoryService: MAGBrowserHistoryService,
         public _magAdminService: MAGAdminService,
         private _ReviewerIdentityServ: ReviewerIdentityService,
         public _confirmationDialogService: ConfirmationDialogService,
-        private router: Router
+        private router: Router,
+        public _location: Location
 
     ) {
 
@@ -46,12 +47,23 @@ export class MAGAdminComp implements OnInit {
         
     }
     public RefreshLogTable() {
-
+        this._magAdminService.GetMAGLogList();
+    }
+    public Back() {
+        this._location.back();
+    }
+    public get MagLogList(): MAGLog[] {
+        return this._magAdminService.MAGLogList;
     }
     ngOnInit() {
 
+        if (this._magAdminService != null) {
 
+            this._magAdminService.GetMAGBlobCommand();
+            this.RefreshLogTable();
+        }
     }
+    
 
    
 

@@ -232,7 +232,6 @@ export class MagSimulation {
     fn: number = 0;
     tn: number = 0;
 }
-
 export class KeyValue {
     constructor(k: string, v: string) {
         this.key = k;
@@ -241,7 +240,6 @@ export class KeyValue {
     key: string;
     value: string;
 }
-
 export class TopicLink {
 
     displayName: string = '';
@@ -249,12 +247,34 @@ export class TopicLink {
     callToFOS: string = '';
     fieldOfStudyId: number = 0;
 }
-
 export class MagCheckContReviewRunningCommand {
 
     isRunningMessage: string = '';
 
 }
+export class MAGBlobCommand {
 
+    releaseNotes: string = '';
+    latestMagSasUri: string = '';
+    latestMAGName: string = '';
+    previousMAGName: string ='';
 
+}
+
+export class MAGLog {
+
+    magLogId: number = 0;
+    jobType: string = '';
+    jobStatus: string = '';
+    jobMessage: string = '';
+    contactName: string = '';
+    contactId: number = 0;
+    timeSubmitted: Date = new Date();
+    timeUpdated: Date = new Date();
+
+}
+export class MAGLogList {
+
+    magLogList: MAGLog[] = [];
+}
 
