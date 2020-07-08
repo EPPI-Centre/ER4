@@ -6,6 +6,8 @@ import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { MAGAdminService } from '../services/MAGAdmin.service';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 import { MAGLog } from '../services/MAGClasses.service';
+import { timer } from "rxjs";
+import { MAGAdvancedService } from '../services/magAdvanced.service';
 
 @Component({
     selector: 'MAGAdmin',
@@ -20,7 +22,7 @@ export class MAGAdminComp implements OnInit {
         public _magAdminService: MAGAdminService,
         private _ReviewerIdentityServ: ReviewerIdentityService,
         public _confirmationDialogService: ConfirmationDialogService,
-        private router: Router,
+        private _magAdvancedService: MAGAdvancedService,
         public _location: Location
 
     ) {
@@ -34,6 +36,8 @@ export class MAGAdminComp implements OnInit {
     public stepScore: number = 0.01;
     public stepFoS: number = 0.05;
     public stepSampleSize: number = 0.01;
+    public isRunning: boolean = false;
+
     public DoCheckChangedPaperIds() {
 
         let msg: string = "Are you sure?\nPlease check it is not already running first!\nOld: "
@@ -55,6 +59,10 @@ export class MAGAdminComp implements OnInit {
     public get MagLogList(): MAGLog[] {
         return this._magAdminService.MAGLogList;
     }
+    public CheckContReviewPipeLine() {
+
+        this._magAdvancedService.CheckContReviewPipelineState();
+    }
     ngOnInit() {
 
         if (this._magAdminService != null) {
@@ -62,9 +70,6 @@ export class MAGAdminComp implements OnInit {
             this._magAdminService.GetMAGBlobCommand();
             this.RefreshLogTable();
         }
-    }
-    
-
-   
+    }  
 
 }

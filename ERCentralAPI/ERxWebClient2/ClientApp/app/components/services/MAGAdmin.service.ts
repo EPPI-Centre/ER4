@@ -10,6 +10,9 @@ import { MAGBlobCommand, MAGLog, MAGLogList } from "./MAGClasses.service";
 
 })
 export class MAGAdminService extends BusyAwareService {
+    CheckContReviewPipeLine() {
+        throw new Error("Method not implemented.");
+    }
 
  
 
@@ -44,6 +47,9 @@ export class MAGAdminService extends BusyAwareService {
                 () => {
                     this.RemoveBusy("DoCheckChangedPaperIds");
                 });
+    }
+    private SwitchOnAutoRefreshLogList() {
+        this.GetMAGLogList();
     }
     public GetMAGBlobCommand() {
         this._BusyMethods.push("GetMAGBlobCommand");
@@ -86,8 +92,6 @@ export class MAGAdminService extends BusyAwareService {
                 });
 
     }
-    SwitchOnAutoRefreshLogList() {
-        throw new Error("Method not implemented.");
-    }
+   
    
 }
