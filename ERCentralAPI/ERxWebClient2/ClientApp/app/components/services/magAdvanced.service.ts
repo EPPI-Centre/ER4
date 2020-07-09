@@ -4,7 +4,7 @@ import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
 import { Item } from './ItemList.service';
 import { MAGBrowserService } from './MAGBrowser.service';
-import { MagPaper, MagReviewMagInfo, MVCMagPaperListSelectionCriteria, MagCurrentInfo, 
+import { MagPaper, MagReviewMagInfo, MVCMagPaperListSelectionCriteria, MagCurrentInfoShort, 
     ClassifierContactModel, MVCMagFieldOfStudyListSelectionCriteria, MagList,
     MagCheckContReviewRunningCommand,
     MagFieldOfStudy
@@ -42,12 +42,12 @@ export class MAGAdvancedService extends BusyAwareService {
     public CurrentMagSimId: number = 0;
     public PaperIds: string = '';
     public MagList: MagList = new MagList();
-    private _MagCurrentInfo: MagCurrentInfo = new MagCurrentInfo();
+    private _MagCurrentInfo: MagCurrentInfoShort = new MagCurrentInfoShort();
     private _ClassifierContactModelList: ClassifierContactModel[] = [];
-    public get MagCurrentInfo(): MagCurrentInfo{
+    public get MagCurrentInfo(): MagCurrentInfoShort{
         return this._MagCurrentInfo;
     }
-    public set MagCurrentInfo(magInfo: MagCurrentInfo) {
+    public set MagCurrentInfo(magInfo: MagCurrentInfoShort) {
         this._MagCurrentInfo = magInfo;
     }
     public get ClassifierContactModelList(): ClassifierContactModel[] {

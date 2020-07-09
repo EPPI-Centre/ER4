@@ -107,6 +107,9 @@ export class MAGHeaderBarComp implements OnInit {
             });
        
     }
+    public MagAdmin() {
+        this.router.navigate(['MAGAdmin']);
+    }
     public MatchingMAGItems() {
         this.router.navigate(['MatchingMAGItems']);
     }

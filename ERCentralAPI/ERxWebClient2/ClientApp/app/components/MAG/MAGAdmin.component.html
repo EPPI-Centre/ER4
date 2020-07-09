@@ -6,33 +6,184 @@
 </button>
 
 <MAGHeaderBar></MAGHeaderBar>
-<div class="col-10 p-2 m-2 card bg-light" style="min-width:450px; overflow:auto;">
-    <h4>MAG Admin </h4>
-</div>
-<div class="col-10 p-2 m-2 card bg-secondary" style="min-width:450px; overflow:auto;">
-    <h5>Current Microsoft Academic Graph Dataset:<i> {{_magAdvancedService.MagCurrentInfo.lastUpdated}} </i></h5>
-    <h5>Shared Access Key (SAS):</h5>
-    <textarea>
-            sdfgsdfgsdg
-        
-    </textarea>
-    <h5>MAG Release Notes:</h5>
-    <textarea>
-            sdfgsdfgsdg
-        
-    </textarea>
-</div>
+
+<div class="container col-12">
+
+    <div class="row align-items-center my-5">
+
+        <div class="col-lg-7 ">
+            <div class="card-footer h-100 ">
+                <h2 class="card-title"></h2>
+                <h2 class="font-weight-light text-sm-left">Current Microsoft Academic Graph Dataset:<i>{{_magAdminService.latestMAGName}}  </i></h2>
+                <h2 class="font-weight-light">Previous Microsoft Academic Graph Dataset:<i>{{_magAdminService.previousMAGName}} </i></h2>
+                <div class="card-footer ">
+                    <h3 class="font-weight-light">Shared Access Key (SAS):</h3>
+                    <p class="form-control col-12 h-25  border border-dark">
+                        {{_magAdminService.latestMagSasUri}}
+                    </p>
+                </div>
+            </div>
+            <div class="card-footer h-100">
+                <h3 class="font-weight-light">MAG Release Notes:</h3>
+                <textarea  style="min-height:100px"  class="form-control col-12  border border-dark">
+                       {{_magAdminService.releaseNotes}}
+                 </textarea>
+            </div>
+        </div>
+        <div class="col-lg-5">
+
+            <h1 class="font-weight-light">Microsoft Academic Graph Admin</h1>
+
+            <p>Please click the below button to check for Paper ID changes before updating your MAG current info!</p>
+
+            <a class="btn btn-primary btn-sm text-white" (click)="DoCheckChangedPaperIds()">Idenitfy ID changes</a>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4 mb-5" style="max-height: 310px;">
+            <div class="card h-100">
+                <div class="card-body">
+
+                    <h2 class="card-title">ContReview Pipeline</h2>
+
+                    <p class="card-text">Choose your thresholds and then kick off the Azure ML pipeline to train and infer from a set of data</p>
+
+                </div>
+                <div class="card-text small row col-12">
+                    <div>
+                        <span class="col-3 p-2 m-2 small">
+
+                            <kendo-numerictextbox [(ngModel)]="ScoreThreshold"
+                                                  [min]="0"
+                                                  [step]="stepScore"
+                                                  [max]="1"
+                                                  [autoCorrect]="true"
+                                                  class="border border-dark rounded"
+                                                  style="width: 110px;"></kendo-numerictextbox>
+                        </span>
+                        <span class="col-3  p-2 m-2 small">
+                            <kendo-numerictextbox [(ngModel)]="FoSThreshold"
+                                                  [min]="0"
+                                                  [step]="stepFoS"
+                                                  [max]="1"
+                                                  [autoCorrect]="true"
+                                                  class="border border-dark rounded"
+                                                  style="width: 110px;"></kendo-numerictextbox>
+                        </span>
+                        <span class="col-3  p-2 m-2 small">
+                            <kendo-numerictextbox [(ngModel)]="SampleSize"
+                                                  [min]="0"
+                                                  [step]="stepSampleSize"
+                                                  [max]="1"
+                                                  [autoCorrect]="true"
+                                                  class="border border-dark rounded"
+                                                  style="min-width: 110px;"></kendo-numerictextbox>
+                        </span>
+                        <span class=" p-2 m-2 small col-3 pull-right" style="width: 110px;">
+                            <a class="btn btn-primary btn-sm text-white" (click)="CheckContReviewPipeLine()">Run Pipeline</a>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
 
 
-<div class="col-10 p-2 m-2 card bg-light" style="min-width:450px; overflow:auto;">
-    <h4>Actions: </h4>
-    
-</div>
+        <div class="col-md-4 mb-5" style="max-height: 310px;">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h2 class="card-title">Update to the latest MAG!</h2>
+                    <p class="card-text">Clicking the below button will query Azure for the latest MAG info</p>
+                </div>
+                <div class="card-footer">
+                    <a href="#" class="btn btn-primary btn-sm" (click)="UpdateMagInfo()">Update MAG Info</a>
+                </div>
+            </div>
+        </div>
 
-<div class="col-10 p-2 m-2 card bg-light" style="min-width:450px; overflow:auto;">
-    <h4>Job History: </h4>
-</div>
 
+        <div class="col-md-4 mb-5">
+
+            <div class="card h-100">
+
+                <div class="card-body">
+
+                    <h2 class="card-title">Review Info</h2>
+                    <p class="card-text">Add another review to the MAG infrastructure</p>
+                    <div class="col-12 alert-secondary p-2 m-2 card">
+                        <table class="table table-sm text-small table-responsive table-striped" style="min-width:150px;overflow:auto;">
+                            <thead>
+                                <tr>
+                                    <th width="15">Delete</th>
+                                    <th width="15">ReviewID</th>
+                                    <th width="15">ReviewName</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let item of MagReviewList">
+                                    <td></td>
+                                    <td>{{item.reviewId}}</td>
+                                    <td>{{item.name}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                </div>
+
+                <div class="card-footer">
+
+                    <a class="btn btn-primary btn-sm">Add this review ID:</a>
+                    1234
+                    <a class="btn btn-secondary btn-sm">Refresh List</a>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card col-lg-8 alert-secondary my-5 py-4 text-left">
+        <div class="col-lg-12 row">
+            <div class="p-0 m-0 my-1 col-lg-3">
+                <h2 class="font-weight-light">Log history</h2>
+            </div>
+            <div class="p-0 m-0 my-1 col-lg-2">
+                <a class="btn btn-primary btn-sm text-white align-content-center" (click)="RefreshLogTable()">Refresh Log Table</a>
+            </div>
+        </div>
+            <div class="card-body">
+
+            <!--<div class="p-2 m-2 card bg-light" style="min-width:450px; overflow:auto;">-->
+
+                <div class="col-12 alert-secondary p-2 m-2 card">
+                    <table class="table table-sm text-small table-responsive table-striped" style="min-width:150px;overflow:auto;">
+                        <thead>
+                            <tr>
+                                <th width="15">Job</th>
+                                <th width="15">Submitted by</th>
+                                <th width="15">Job Status</th>
+                                <th width="15">When submitted</th>
+                                <th width="15">When updated</th>
+                                <th width="15">Job Message</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let item of MagLogList">
+                                <td>{{item.jobType}}</td>
+                                <td>{{item.contactName}}</td>
+                                <td>{{item.jobStatus}}</td>
+                                <td>{{item.timeSubmitted}}</td>
+                                <td>{{item.timeUpdated}}</td>
+                                <td>{{item.jobMessage}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            <!--</div>-->
+       
+            </div>
+    </div>
+
+
+</div>
 
 <div *ngIf="IsServiceBusy" class="k-loading-image" style="position: fixed; top: 2%;"></div>
 

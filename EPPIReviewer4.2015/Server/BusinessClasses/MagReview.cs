@@ -27,12 +27,12 @@ namespace BusinessLibrary.BusinessClasses
 
         
 #else
-        private MagReview() { }
+        public  MagReview() { }
 #endif
 
         
 
-        private static PropertyInfo<int> ReviewIdProperty = RegisterProperty<int>(new PropertyInfo<int>("ReviewId", "ReviewId", 0));
+        public static readonly PropertyInfo<int> ReviewIdProperty = RegisterProperty<int>(new PropertyInfo<int>("ReviewId", "ReviewId", 0));
         public int ReviewId
         {
             get
@@ -45,7 +45,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> NameProperty = RegisterProperty<string>(new PropertyInfo<string>("Name", "Name", string.Empty));
+        public static readonly PropertyInfo<string> NameProperty = RegisterProperty<string>(new PropertyInfo<string>("Name", "Name", string.Empty));
         public string Name
         {
             get

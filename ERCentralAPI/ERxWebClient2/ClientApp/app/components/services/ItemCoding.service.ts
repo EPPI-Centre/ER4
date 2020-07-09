@@ -630,6 +630,7 @@ export class ItemCodingService extends BusyAwareService {
                 }
             }
         }
+        //console.log("Json report add item:", jItem.ItemId, jItem.Codes.length, this.jsonReport.References.length);
         this.jsonReport.References.push(jItem);
     }
     private writeCodingReportAttributesWithArms(itemSet: ItemSet, attributeSet: SetAttribute) :string {
@@ -1184,6 +1185,8 @@ export class ItemCodingService extends BusyAwareService {
                 //console.log("Reporting on item", itm);
                 this._ItemsToReport = [itm];
                 this._ItemCodingList = Data.itemSets.filter(found => found.itemId == itm.itemId).map(im => { return new ItemSet(im); });
+
+                //console.log("Reporting on item (Item id, len):", this._ItemsToReport[0].itemId, this._ItemCodingList.length);
                 if (isJson) this.AddToJSONQuickCodingReport();
                 else this.AddToQuickCodingReport();
             }

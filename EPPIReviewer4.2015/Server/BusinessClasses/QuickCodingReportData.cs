@@ -72,8 +72,7 @@ namespace BusinessLibrary.BusinessClasses
 
         protected void DataPortal_Fetch(QuickCodingReportDataSelectionCriteria criteria)
         {
-            DataPortal<ItemList> dp = new DataPortal<ItemList>();
-            LoadProperty(ItemsProperty, dp.Fetch(criteria.ItemsSelectionCriteria));
+            LoadProperty(ItemsProperty, ItemList.GetItemList(criteria.ItemsSelectionCriteria));
             ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
             PerpareInputTable();
             if (InputTable.Rows.Count == 0) return;

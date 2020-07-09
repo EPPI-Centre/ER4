@@ -73,19 +73,39 @@ namespace BusinessLibrary.BusinessClasses
             Task.Run(() => { RunCheckUpdates(); });
         }
 
-        private void RunCheckUpdates()
+        private async Task RunCheckUpdates()
         {
             ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
             int ReviewId = ri.ReviewId; // we don't use this, but it checks we have a valid ticket
             int ContactId = ri.UserId; // putting to variable in case the user invalidates ticket
             int TaskMagLogId = MagLog.SaveLogEntry("Started ID checking", "Started", "", ContactId);
+
+#if (!CSLA_NETCORE)
             string uploadFileName = System.Web.HttpRuntime.AppDomainAppPath + TempPath + "CheckPaperIdChanges.csv";
+            //string downloadFilename = uploadFileName;
+
+#else       
+            string uploadFileName = TempPath + "CheckPaperIdChanges.csv";
+
+            if (Directory.Exists(TempPath))
+            {
+                uploadFileName = @"./"+ TempPath + "/" + "CheckPaperIdChanges.csv";
+            }
+            else
+            {
+                DirectoryInfo tmpDir = System.IO.Directory.CreateDirectory(TempPath);
+                uploadFileName = tmpDir.FullName + "/" + @"./" + TempPath + "/" + "CheckPaperIdChanges.csv";
+            }
+#endif
+
 
             WriteCurrentlyUsedPaperIdsToFile(uploadFileName);
             UploadIdsFile(uploadFileName);
             MagLog.UpdateLogEntry("Running", "ID checking: file uploaded", TaskMagLogId);
             SubmitJob(ContactId);
-            int missingCount = DownloadMissingIdsFile(uploadFileName);
+            
+            int missingCount = await DownloadMissingIdsFile(uploadFileName);
+
             MagLog.UpdateLogEntry("Running", "Auto-match IDs n=" + missingCount.ToString(), TaskMagLogId);
             LookupMissingIdsInNewMakes(ContactId, TaskMagLogId, missingCount);
             MagLog.UpdateLogEntry("Running", "ID checking: lookups complete, updating live IDs", TaskMagLogId);
@@ -115,10 +135,19 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private void UploadIdsFile(string fileName)
+        private async Task UploadIdsFile(string fileName)
         {
+
+#if (CSLA_NETCORE)
+
+            var configuration = ERxWebClient2.Startup.Configuration.GetSection("AzureMagSettings");
+            string storageAccountName = configuration["MAGStorageAccount"];
+            string storageAccountKey = configuration["MAGStorageAccountKey"];
+
+#else
             string storageAccountName = ConfigurationManager.AppSettings["MAGStorageAccount"];
             string storageAccountKey = ConfigurationManager.AppSettings["MAGStorageAccountKey"];
+#endif
 
             string storageConnectionString =
                 "DefaultEndpointsProtocol=https;AccountName=" + storageAccountName + ";AccountKey=";
@@ -138,7 +167,9 @@ namespace BusinessLibrary.BusinessClasses
                 blockBlobData.UploadFromStream(fileStream);
 #else
 
-					await blockBlobData.UploadFromFileAsync(fileName);
+				await blockBlobData.UploadFromFileAsync(fileName);
+
+
 #endif
 
             }
@@ -150,10 +181,22 @@ namespace BusinessLibrary.BusinessClasses
             MagDataLakeHelpers.ExecProc(@"[master].[dbo].[GetPaperIdChanges](""" + this.LatestMAGName + "\");", true, "GetPaperIdChanges", ContactId, 9);
         }
 
-        private int DownloadMissingIdsFile(string uploadFileName)
+        private async Task<int> DownloadMissingIdsFile(string uploadFileName)
         {
+
+#if (CSLA_NETCORE)
+
+            var configuration = ERxWebClient2.Startup.Configuration.GetSection("AzureMagSettings");
+            string storageAccountName = configuration["MAGStorageAccount"];
+            string storageAccountKey = configuration["MAGStorageAccountKey"];
+
+#else
             string storageAccountName = ConfigurationManager.AppSettings["MAGStorageAccount"];
             string storageAccountKey = ConfigurationManager.AppSettings["MAGStorageAccountKey"];
+#endif
+
+            //string storageAccountName = ConfigurationManager.AppSettings["MAGStorageAccount"];
+            //string storageAccountKey = ConfigurationManager.AppSettings["MAGStorageAccountKey"];
 
             string storageConnectionString =
                 "DefaultEndpointsProtocol=https;AccountName=" + storageAccountName + ";AccountKey=";
@@ -166,10 +209,27 @@ namespace BusinessLibrary.BusinessClasses
 
             // cleaning up the file that was uploaded
             CloudBlockBlob blockBlobUploadData = containerUp.GetBlockBlobReference(Path.GetFileName(uploadFileName));
-            blockBlobUploadData.DeleteIfExists();
+
+
+#if (!CSLA_NETCORE)
+                blockBlobUploadData.DeleteIfExists();
+#else
+
+                await blockBlobUploadData.DeleteIfExistsAsync();
+#endif
+
+
 
             CloudBlockBlob blockBlobDownloadData = containerDown.GetBlockBlobReference(Path.GetFileName("CheckPaperIdChangesResults.tsv"));
-            byte[] myFile = Encoding.UTF8.GetBytes(blockBlobDownloadData.DownloadText());
+
+#if (!CSLA_NETCORE)
+             byte[] myFile = Encoding.UTF8.GetBytes(blockBlobDownloadData.DownloadText());
+#else
+            string resultantString = await blockBlobDownloadData.DownloadTextAsync();
+            byte[] myFile = Encoding.UTF8.GetBytes(resultantString);
+
+#endif
+
 
             MemoryStream ms = new MemoryStream(myFile);
 
@@ -212,7 +272,15 @@ namespace BusinessLibrary.BusinessClasses
                 }
                 connection.Close();
             }
-            blockBlobDownloadData.DeleteIfExists();
+
+#if (!CSLA_NETCORE)
+                blockBlobDownloadData.DeleteIfExists();
+#else
+
+            await blockBlobDownloadData.DeleteIfExistsAsync();
+#endif
+
+
             return lineCount;
         }
 

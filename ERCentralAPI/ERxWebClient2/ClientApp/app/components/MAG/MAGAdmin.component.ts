@@ -1,9 +1,14 @@
 import { Location } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { MAGBrowserHistoryService } from '../services/MAGBrowserHistory.service';
-import { NavigationEnd, Router } from '@angular/router';
-import { MAGAdvancedService } from '../services/magAdvanced.service';
+import {  Router } from '@angular/router';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
+import { MAGAdminService } from '../services/MAGAdmin.service';
+import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
+import { MAGLog, MAGReview } from '../services/MAGClasses.service';
+import { timer } from "rxjs";
+import { MAGAdvancedService } from '../services/magAdvanced.service';
+import { NotificationService } from '@progress/kendo-angular-notification';
 
 @Component({
     selector: 'MAGAdmin',
@@ -14,51 +19,85 @@ import { ReviewerIdentityService } from '../services/revieweridentity.service';
 export class MAGAdminComp implements OnInit {
 
     constructor(
-        private _location: Location,
         public _MAGBrowserHistoryService: MAGBrowserHistoryService,
-        public _magAdvancedService: MAGAdvancedService,
+        public _magAdminService: MAGAdminService,
         private _ReviewerIdentityServ: ReviewerIdentityService,
-        private router: Router
+        public _confirmationDialogService: ConfirmationDialogService,
+        private _magAdvancedService: MAGAdvancedService,
+        public _location: Location,
+        public _notificationService: NotificationService
 
     ) {
 
     }
+    public previousMAG: string = '';
+    public latestMag: string = '';
+    public ScoreThreshold: number = 0.20;
+    public FoSThreshold: number = 0.20;
+    public SampleSize: number = 20;
+    public stepScore: number = 0.01;
+    public stepFoS: number = 0.05;
+    public stepSampleSize: number = 0.01;
+    public isRunning: boolean = false;
 
-    public MAGBrowsingHistory: NavigationEnd[] = [];
-    public get HasWriteRights(): boolean {
-        return this._ReviewerIdentityServ.HasWriteRights;
+    public DoCheckChangedPaperIds() {
+
+        let msg: string = "Are you sure?\nPlease check it is not already running first!\nOld: "
+            + this.previousMAG + " new: " + this.latestMag;
+        this._confirmationDialogService.confirm('MAG Admin', msg, false, '')
+            .then((confirm: any) => {
+                if (confirm) {
+                    this._magAdminService.DoCheckChangedPaperIds(this.latestMag);
+                }
+            });
+        
     }
-
-    ngOnInit() {
-
-        this.MAGBrowsingHistory = this._MAGBrowserHistoryService.getHistory();
-
-        console.log('really: ', this.MAGBrowsingHistory);
-
+    public RefreshLogTable() {
+        this._magAdminService.GetMAGLogList();
     }
-
-    GoToUrl(url: string) {
-
-        console.log(url);
-        this.router.navigate([url]);
-    }
-
-    RemoveUrl(item: NavigationEnd) {
-
-        let id: number = item.id;
-        let index: number = this.MAGBrowsingHistory.findIndex(x => x.id == id);
-        if (index != -1) {
-        this.MAGBrowsingHistory.splice(index,1);
-        }
-    }
-
-    public get IsServiceBusy(): boolean {
-
-        return false;
-    }
-   
-    Back() {
+    public Back() {
         this._location.back();
     }
+    public get MagLogList(): MAGLog[] {
+        return this._magAdminService.MAGLogList;
+    }
+    public get MagReviewList(): MAGReview[] {
+        return this._magAdminService.MAGReviewList;
+    }
+    public UpdateMagInfo() {
+        this._magAdminService.UpdateMagCurrentInfo();
+    }
+    showMAGRunMessage(notifyMsg: string) {
+        this._notificationService.show({
+            content: notifyMsg,
+            animation: { type: 'slide', duration: 400 },
+            position: { horizontal: 'center', vertical: 'top' },
+            type: { style: "info", icon: true },
+            closable: true
+        });
+    }
+    public CheckContReviewPipeLine() {
+
+        let running: boolean = false;
+        let msg: string = '';
+        this._magAdvancedService.CheckContReviewPipelineState().then(
+            (result) => { running = result; }
+            );
+        if (running) {
+            msg = 'There is a MAG pipeline already running!';
+        } else {
+            msg = 'Running pipline...';
+        }
+        this.showMAGRunMessage(msg);
+    }
+    ngOnInit() {
+
+        if (this._magAdminService != null) {
+
+            this._magAdminService.GetMAGBlobCommand();
+            this._magAdminService.GetMAGReviewList();
+            this.RefreshLogTable();
+        }
+    }  
 
 }
