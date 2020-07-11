@@ -13,7 +13,7 @@
 
 <div *ngIf="_magAdvancedService.currentMagPaper.paperId > 0"
      class="alert-warning border border-dark p-2 m-2 ">
-    <h4><b>{{_magAdvancedService.currentMagPaper.fullRecord}}</b></h4>
+    <h4><b>{{_magAdvancedService.currentMagPaper.shortRecord}}</b></h4>
     <b>Paper Id:</b> <h4>{{_magAdvancedService.currentMagPaper.paperId}}</h4>
     <div class="btn btn-link">
         <a href="https://academic.microsoft.com/paper/{{_magAdvancedService.currentMagPaper.paperId}}/reference" target="_blank">
@@ -23,7 +23,7 @@
     <button class="btn btn-link" (click)=toggleDisplayDivIf()>{{isShowDivIf == true ? 'Hide Abstract' : 'Show Abstract'}}</button>
     <div *ngIf="isShowDivIf">
         <b>Abstract:</b> <p>{{_magAdvancedService.currentMagPaper.abstract}}</p>
-        <b>Pdf Links:</b> 
+        <b>Pdf Links:</b>
         <div *ngFor="let item of GetPDFLinks()">
             <a href="{{item}}" target="_blank">
                 {{item}}
@@ -35,7 +35,7 @@
         <div class="col-10"></div>
         <div class="col-2 pull-right">Total number of papers in this list: {{_magBrowserService.MAGList.totalItemCount}}</div>
     </div>
-    <div class="row alert-info border border-dark p-2 m-2 " style="min-width:450px;max-height:950px; overflow:auto;">
+    <div class="col-lg-12 row alert-info border border-dark p-2 m-2 " style="min-width:450px;max-height:950px; overflow:auto;">
 
         <div [title]="'TOPICS'" class="col-6" style="min-height:500px;min-width:450px; overflow:auto;">
             <b>Current parent topic:</b> {{_magBrowserService.ParentTopic}}
@@ -63,26 +63,26 @@
                     </div>
                 </div>
             </div>
-            <div class="row col-12" *ngIf="_magAdvancedService.currentMagPaper.paperId == 0">
-                <div class="col-5 row" >
+            <div class="row" *ngIf="_magAdvancedService.currentMagPaper.paperId == 0">
+                <div class="col-md-4 row" >
                     <div class="col-1 m-0 p-0"></div>
                     <div class="col-3 m-0 p-0 "><b>After this date:</b></div>
                     <div class="example-wrapper col-8" style="min-height: 100px">
                         <kendo-datepicker [(value)]="kendoAfterDateValue"></kendo-datepicker>
                     </div>
                 </div>
-                <div class="col-5  row" >
+                <div class="col-md-4  row" >
                     <div class="col-1 m-0 p-0"></div>
                     <div class="col-3 m-0 p-0 "><b>Before this date:</b></div>
                     <div class="example-wrapper col-8" style="min-height: 100px">
                         <kendo-datepicker [(value)]="kendoBeforeDateValue"></kendo-datepicker>
                     </div>
                 </div>
-                <button (click)="RefreshPapersBetweenDates()" class="btn alert-success col-1 h-25">Refresh</button>
+                <button (click)="RefreshPapersBetweenDates()" class="btn alert-success h-25">Refresh</button>
             </div>
         </div>
 
-        <kendo-tabstrip #tabSelectedPapers (tabSelect)="onTabSelect($event)" class="col-6" [keepTabContent]="true">
+        <kendo-tabstrip #tabSelectedPapers (tabSelect)="onTabSelect($event)" class="col-md-6" [keepTabContent]="true">
             <kendo-tabstrip-tab [selected]="true" [title]="'References'">
                 <ng-template kendoTabContent>
 
