@@ -88,6 +88,10 @@ export class MAGAdminComp implements OnInit {
         }
         this.showMAGRunMessage(msg);
     }
+    public get IsServiceBusy(): boolean {
+
+        return this._magAdminService.IsBusy;
+    }
     ngOnInit() {
 
         if (this._magAdminService != null) {

@@ -49,13 +49,12 @@ namespace ERxWebClient2.Controllers
             {
                 //Some issue here with the way that I am calling Update
                 //it is not the correct way with Data_Portal constraints.
-                //SetCSLAUser();
+                SetCSLAUser();
                 //var currentInfo = GetMagCurrentInfo();
 
                 //MagCurrentInfo obj = currentInfo.Value;
                 //DataPortal<MagCurrentInfo> dp = new DataPortal<MagCurrentInfo>();
-                //obj = dp.Update(obj);    
-                //return Ok(obj);
+                //obj = dp.Update(obj);
                 return Ok();
             }
             catch (Exception e)
