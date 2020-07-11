@@ -1,12 +1,10 @@
 import { Location } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { MAGBrowserHistoryService } from '../services/MAGBrowserHistory.service';
-import {  Router } from '@angular/router';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { MAGAdminService } from '../services/MAGAdmin.service';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 import { MAGLog, MAGReview } from '../services/MAGClasses.service';
-import { timer } from "rxjs";
 import { MAGAdvancedService } from '../services/magAdvanced.service';
 import { NotificationService } from '@progress/kendo-angular-notification';
 
@@ -21,7 +19,6 @@ export class MAGAdminComp implements OnInit {
     constructor(
         public _MAGBrowserHistoryService: MAGBrowserHistoryService,
         public _magAdminService: MAGAdminService,
-        private _ReviewerIdentityServ: ReviewerIdentityService,
         public _confirmationDialogService: ConfirmationDialogService,
         private _magAdvancedService: MAGAdvancedService,
         public _location: Location,
@@ -66,6 +63,7 @@ export class MAGAdminComp implements OnInit {
     }
     public UpdateMagInfo() {
         this._magAdminService.UpdateMagCurrentInfo();
+      
     }
     showMAGRunMessage(notifyMsg: string) {
         this._notificationService.show({

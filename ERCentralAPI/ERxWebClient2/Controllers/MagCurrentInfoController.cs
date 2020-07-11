@@ -24,7 +24,7 @@ namespace ERxWebClient2.Controllers
         }
 
         [HttpGet("[action]")]
-        public IActionResult GetMagCurrentInfo()
+        public ActionResult<MagCurrentInfo> GetMagCurrentInfo()
         {
 			try
             {
@@ -33,7 +33,7 @@ namespace ERxWebClient2.Controllers
                 DataPortal<MagCurrentInfo> dp = new DataPortal<MagCurrentInfo>();
 				MagCurrentInfo result = dp.Fetch();
 
-                return Ok(result);
+                return result;
             }
             catch (Exception e)
             {
@@ -42,16 +42,21 @@ namespace ERxWebClient2.Controllers
             }
 		}
 
-        [HttpPost("[action]")]
+        [HttpGet("[action]")]
         public IActionResult UpdateMagCurrentInfo()
         {
             try
             {
-                SetCSLAUser();
-                MagCurrentInfo obj = new MagCurrentInfo();
-                DataPortal<MagCurrentInfo> dp = new DataPortal<MagCurrentInfo>();
-                obj = dp.Update(obj);    
-                return Ok(obj);
+                //Some issue here with the way that I am calling Update
+                //it is not the correct way with Data_Portal constraints.
+                //SetCSLAUser();
+                //var currentInfo = GetMagCurrentInfo();
+
+                //MagCurrentInfo obj = currentInfo.Value;
+                //DataPortal<MagCurrentInfo> dp = new DataPortal<MagCurrentInfo>();
+                //obj = dp.Update(obj);    
+                //return Ok(obj);
+                return Ok();
             }
             catch (Exception e)
             {

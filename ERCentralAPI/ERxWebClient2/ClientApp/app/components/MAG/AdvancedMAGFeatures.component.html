@@ -48,9 +48,9 @@
 
     <div class="card collapse alert-warning border border-dark p-2 m-2" id="collapseExample1">
 
-        <div class="col-12  row">
+        <div class="col-lg-12  row">
 
-            <div class="col-4">
+            <div class="col-md-4">
                 <div class="col-1"></div>
                 <div class="col-6 m-1 p-1">
                     <div class="3"><b>Search based on</b></div>
@@ -74,22 +74,22 @@
                 </div>
             </div>
 
-            <div class="col-5 m-2 p-2 row" *ngIf="splitDataOn == 'CreatedDate' || splitDataOn == 'Year'">
+            <div class="col-md-3 m-2 p-2 row" *ngIf="splitDataOn == 'CreatedDate' || splitDataOn == 'Year'">
                 <div class="col-1 m-0 p-0"></div>
                 <div class="col-3 m-0 p-0 "><b>Items Dated From</b></div>
                 <div class="example-wrapper col-8" style="min-height: 100px">
                     <kendo-datepicker [(value)]="kendoDateValue"></kendo-datepicker>
                 </div>
             </div>
-            <div class="col-5 m-2 p-2 row" *ngIf="splitDataOn == 'CreatedDate' || splitDataOn == 'Year'">
+            <div class="col-md-3 m-2 p-2 row" *ngIf="splitDataOn == 'CreatedDate' || splitDataOn == 'Year'">
                 <div class="col-1 m-0 p-0"></div>
                 <div class="col-3 m-0 p-0 "><b>End date</b></div>
                 <div class="example-wrapper col-8" style="min-height: 100px">
                     <kendo-datepicker [(value)]="kendoEndDateValue"></kendo-datepicker>
                 </div>
             </div>
-            <div class="col-12 row" *ngIf="splitDataOn == 'WithThisCode' || filterOn == 'true'">
-                <div class="=col-6"></div>
+            <div class="col-lg-12 row" *ngIf="splitDataOn == 'WithThisCode' || filterOn == 'true'">
+                <div class="col-6"></div>
                 <div class="col-6">
 
 
@@ -116,10 +116,10 @@
                 </div>
 
             </div>
-            <div class="col-12"></div>
-            <div class="col-12 row">
-                <div class="col-1 p-1 m-1"><b>Search method</b></div>
-                <div ngbDropdown class="col-3 p-0 m-0">
+            <div class="col-md-12"></div>
+            <div class="col-lg-12 row">
+                <div class="p-2 m-2"><b>Search method</b></div>
+                <div ngbDropdown class="col-md-3 p-0 m-0">
                     <select class="col-12 form-control mb-1" name="SearchMethod"
                             [(ngModel)]="SearchMethod">
                         <option *ngFor="let item of SearchMethods"
@@ -143,9 +143,9 @@
         </div>-->
             </div>
 
-            <div class="col-12 row">
-                <div class="col-1 m-2 p-2"><b>Study type classifier</b></div>
-                <div ngbDropdown class="col-3 p-0 m-0">
+            <div class="col-lg-12 row">
+                <div class="m-2 p-2"><b>Study type classifier</b></div>
+                <div ngbDropdown class="col-md-3 p-0 m-0">
 
                     <select class="col-12 form-control mb-1" name="StudyTypeClassifier"
                             [(ngModel)]="StudyTypeClassifier">
@@ -156,8 +156,8 @@
                     </select>
                 </div>
                 <div class="col-1"></div>
-                <div class="m-1 p-1 col-1"><b>User Defined Classifier</b></div>
-                <div class="col-3 p-0 m-0 dropdown">
+                <div class="m-1 p-1"><b>User Defined Classifier</b></div>
+                <div class="col-md-3 p-0 m-0 dropdown">
                     <select [(ngModel)]="currentClassifierContactModel" class="form-control" name="currentClassifierContactModel">
                         <option *ngFor="let item of _magAdvancedService.ClassifierContactModelList"
                                 [ngValue]="item" [selected]="item == currentClassifierContactModel">
@@ -167,9 +167,9 @@
                 </div>
 
             </div>
-            <div class="col-12 row">
-                <div class="col-1 m-2 p-2"><b>Score Threshold</b></div>
-                <div class="col-3 p-0 m-0">
+            <div class="col-lg-12 row">
+                <div class=" m-2 p-2"><b>Score Threshold</b></div>
+                <div class="col-md-2 p-0 m-0">
                     <kendo-numerictextbox [(ngModel)]="ScoreThreshold"
                                           [min]="0"
                                           [step]="stepScore"
@@ -178,9 +178,9 @@
                                           class="border border-dark rounded"
                                           style="width: 110px;"></kendo-numerictextbox>
                 </div>
-                <div class="col-1"></div>
-                <div class="m-1 p-1 col-1"><b>FoS Threshold</b></div>
-                <div class="col-3 p-0 m-0">
+               
+                <div class="m-2 p-2"><b>FoS Threshold</b></div>
+                <div class="col-md-2 p-0 m-0">
                     <kendo-numerictextbox [(ngModel)]="FoSThreshold"
                                           [min]="0"
                                           [step]="stepFoS"
@@ -190,7 +190,7 @@
                                           style="width: 110px;"></kendo-numerictextbox>
                 </div>
             </div>
-            <div class="col-12">
+            <div class="col-lg-12">
                 <div class="col-10"></div>
                 <!--[disabled]="!CanAddSimulation()"-->
                 <button (click)="AddSimulation()"

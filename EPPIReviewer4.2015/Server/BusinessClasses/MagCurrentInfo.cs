@@ -70,8 +70,15 @@ namespace BusinessLibrary.BusinessClasses
         {
             get
             {
-                string[] tmp = MagVersion.Split('/');
-                return "mag-" + tmp[2] + "-" + tmp[1] + "-" + tmp[0];
+                if (MagVersion != null || MagVersion != "")
+                {
+                    string[] tmp = MagVersion.Split('/');
+                    return "mag-" + tmp[2] + "-" + tmp[1] + "-" + tmp[0];
+                }
+                else
+                {
+                    return "";
+                }
             }
         }
 
