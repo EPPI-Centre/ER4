@@ -64,17 +64,17 @@
                 </div>
             </div>
             <div class="row" *ngIf="_magAdvancedService.currentMagPaper.paperId == 0">
-                <div class="col-md-4 row" >
+                <div class="col-lg-4 " >
                     <div class="col-1 m-0 p-0"></div>
-                    <div class="col-3 m-0 p-0 "><b>After this date:</b></div>
-                    <div class="example-wrapper col-8" style="min-height: 100px">
+                    <div class="col-md-3 m-0 p-0 "><b>After this date:</b></div>
+                    <div class="example-wrapper col-md-8" >
                         <kendo-datepicker [(value)]="kendoAfterDateValue"></kendo-datepicker>
                     </div>
                 </div>
-                <div class="col-md-4  row" >
+                <div class="col-lg-4 " >
                     <div class="col-1 m-0 p-0"></div>
-                    <div class="col-3 m-0 p-0 "><b>Before this date:</b></div>
-                    <div class="example-wrapper col-8" style="min-height: 100px">
+                    <div class="col-md-3 m-0 p-0 "><b>Before this date:</b></div>
+                    <div class="example-wrapper col-md-8" >
                         <kendo-datepicker [(value)]="kendoBeforeDateValue"></kendo-datepicker>
                     </div>
                 </div>

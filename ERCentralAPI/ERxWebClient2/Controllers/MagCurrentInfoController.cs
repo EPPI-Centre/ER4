@@ -42,20 +42,21 @@ namespace ERxWebClient2.Controllers
             }
 		}
 
-        [HttpGet("[action]")]
-        public IActionResult UpdateMagCurrentInfo()
+        [HttpPost("[action]")]
+        public IActionResult UpdateMagCurrentInfo([FromBody] Object test)
         {
             try
             {
                 //Some issue here with the way that I am calling Update
                 //it is not the correct way with Data_Portal constraints.
                 SetCSLAUser();
+                DataPortal<MagCurrentInfo> dp = new DataPortal<MagCurrentInfo>();
+                var currentInfo = dp.Fetch();
                 //var currentInfo = GetMagCurrentInfo();
 
-                //MagCurrentInfo obj = currentInfo.Value;
-                //DataPortal<MagCurrentInfo> dp = new DataPortal<MagCurrentInfo>();
-                //obj = dp.Update(obj);
-                return Ok();
+                DataPortal<MagCurrentInfo> dp2 = new DataPortal<MagCurrentInfo>();
+                currentInfo = dp.Update(currentInfo);
+                return Ok(currentInfo);
             }
             catch (Exception e)
             {

@@ -112,8 +112,9 @@ export class MAGAdminService extends BusyAwareService {
     }
     public UpdateMagCurrentInfo() {
         this._BusyMethods.push("UpdateMagCurrentInfo");
-
-        this._httpC.get<MagCurrentInfo>(this._baseUrl + 'api/MagCurrentInfo/UpdateMagCurrentInfo')
+        let test: object = new Object();
+        let body = JSON.stringify({ Value : test});
+        this._httpC.post<MagCurrentInfo>(this._baseUrl + 'api/MagCurrentInfo/UpdateMagCurrentInfo', body)
             .subscribe(result => {
                 this.RemoveBusy("UpdateMagCurrentInfo");
                 if (result != null) {

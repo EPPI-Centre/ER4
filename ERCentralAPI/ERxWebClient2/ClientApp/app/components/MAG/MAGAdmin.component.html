@@ -95,7 +95,7 @@
                     <p class="card-text">Clicking the below button will query Azure for the latest MAG info</p>
                 </div>
                 <div class="card-footer">
-                    <a href="#" class="btn btn-primary btn-sm" (click)="UpdateMagInfo()">Update MAG Info</a>
+                    <a href="#" [disabled]="true" class="btn btn-primary btn-sm" (click)="UpdateMagInfo()">Update MAG Info</a>
                 </div>
             </div>
         </div>

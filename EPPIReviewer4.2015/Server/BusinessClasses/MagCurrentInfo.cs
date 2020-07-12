@@ -261,7 +261,8 @@ namespace BusinessLibrary.BusinessClasses
 
         protected override void DataPortal_Update()
         {
-            UpdateMagCurrentInfo();
+            Task.Run(() =>  { UpdateMagCurrentInfo(); });
+            
             /*
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
@@ -370,7 +371,7 @@ namespace BusinessLibrary.BusinessClasses
                 mag_version = swapDateFormat(mag_version);
                 string unformattedDate = currentMagContainerName.Substring(startIndex, currentMagContainerName.Length - startIndex).Replace("-", "");
                 string makes_endpoint = " http://eppimag" + unformattedDate + ".westeurope.cloudapp.azure.com";
-                UpdateSQLMagCurrentInfoTable(mag_version, makes_endpoint);
+                await UpdateSQLMagCurrentInfoTable(mag_version, makes_endpoint);
             }
         }
 
@@ -451,7 +452,7 @@ namespace BusinessLibrary.BusinessClasses
             return date.ToString("dd/MM/yyy");
         }
 
-        private static void UpdateSQLMagCurrentInfoTable(string mag_version, string makes_endpoint)
+        private static Task UpdateSQLMagCurrentInfoTable(string mag_version, string makes_endpoint)
         {
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
@@ -465,6 +466,7 @@ namespace BusinessLibrary.BusinessClasses
                 }
                 connection.Close();
             }
+            return Task.CompletedTask;
         }
 
 
