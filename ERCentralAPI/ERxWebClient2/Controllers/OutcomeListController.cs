@@ -154,7 +154,7 @@ namespace ERxWebClient2.Controllers
 					DataPortal<OutcomeItemList> dp = new DataPortal<OutcomeItemList>();
 					OutcomeItemList result = dp.Fetch(criteria);
 					Outcome editOutcome = result.FirstOrDefault(x => x.OutcomeId == outcomeId);
-
+					
 					outcomeData.Populate(editOutcome);
 					
 					editOutcome = editOutcome.Save();

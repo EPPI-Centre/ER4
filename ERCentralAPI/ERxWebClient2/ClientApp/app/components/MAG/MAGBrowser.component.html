@@ -37,7 +37,7 @@
     </div>
     <div class="col-lg-12 row alert-info border border-dark p-2 m-2 " style="min-width:450px;max-height:950px; overflow:auto;">
 
-        <div [title]="'TOPICS'" class="col-6" style="min-height:500px;min-width:450px; overflow:auto;">
+        <div [title]="'TOPICS'" class="col-lg-6 col-md-12" style="min-height:500px;min-width:450px; overflow:auto;">
             <b>Current parent topic:</b> {{_magBrowserService.ParentTopic}}
             <h5>Parent Topics</h5>
 
@@ -82,7 +82,7 @@
             </div>
         </div>
 
-        <kendo-tabstrip #tabSelectedPapers (tabSelect)="onTabSelect($event)" class="col-md-6" [keepTabContent]="true">
+        <kendo-tabstrip #tabSelectedPapers (tabSelect)="onTabSelect($event)" class="col-lg-6 col-md-12" [keepTabContent]="true">
             <kendo-tabstrip-tab [selected]="true" [title]="'References'">
                 <ng-template kendoTabContent>
 

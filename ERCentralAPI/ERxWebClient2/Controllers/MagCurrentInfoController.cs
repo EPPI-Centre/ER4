@@ -47,15 +47,11 @@ namespace ERxWebClient2.Controllers
         {
             try
             {
-                //Some issue here with the way that I am calling Update
-                //it is not the correct way with Data_Portal constraints.
                 SetCSLAUser();
                 DataPortal<MagCurrentInfo> dp = new DataPortal<MagCurrentInfo>();
                 var currentInfo = dp.Fetch();
-                //var currentInfo = GetMagCurrentInfo();
 
-                DataPortal<MagCurrentInfo> dp2 = new DataPortal<MagCurrentInfo>();
-                currentInfo = dp.Update(currentInfo);
+                currentInfo = currentInfo.Save();
                 return Ok(currentInfo);
             }
             catch (Exception e)
