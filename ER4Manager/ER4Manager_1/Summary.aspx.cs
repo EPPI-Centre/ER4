@@ -131,7 +131,9 @@ public partial class Summary : System.Web.UI.Page
 
     private void buildContactGrid()
     {
+        DateTime dayCreated;
         DateTime dayExpires;
+        DateTime lastLogin;
         DateTime today = DateTime.Today;
         DataTable dt = new DataTable();
         System.Data.DataRow newrow;
@@ -158,14 +160,20 @@ public partial class Summary : System.Web.UI.Page
             if ((idr["LAST_LOGIN"].ToString() == null) || (idr["LAST_LOGIN"].ToString() == ""))
                 newrow["DATE_CREATED"] = "N/A";
             else
-                newrow["LAST_LOGIN"] = idr["LAST_LOGIN"].ToString();
+            {
+                lastLogin = Convert.ToDateTime(idr["LAST_LOGIN"].ToString());
+                newrow["LAST_LOGIN"] = lastLogin.ToString("dd MMM yyyy HH:mm");
+            }
             newrow["HOURS"] = idr["active_hours"].ToString();
-            newrow["DATE_CREATED"] = idr["DATE_CREATED"].ToString();
+
+            dayCreated = Convert.ToDateTime(idr["DATE_CREATED"].ToString());
+            newrow["DATE_CREATED"] = dayCreated.ToString("dd MMM yyyy");
+
             dayExpires = Convert.ToDateTime(idr["EXPIRY_DATE"].ToString());
-            newrow["EXPIRY_DATE"] = dayExpires.ToShortDateString();
+            newrow["EXPIRY_DATE"] = dayExpires.ToString("dd MMM yyyy");
             if (dayExpires < today)
             {
-                newrow["EXPIRY_DATE"] = dayExpires.ToShortDateString() + " Expired";
+                newrow["EXPIRY_DATE"] = dayExpires.ToString("dd MMM yyyy") + " Expired";
             }
             if (idr["SITE_LIC_ID"] != null && idr["SITE_LIC_ID"].ToString() != "")
             {
@@ -214,6 +222,7 @@ public partial class Summary : System.Web.UI.Page
 
     private void buildCreditPurchaseGrid()
     {
+        DateTime dayPurchased;
         string remaining = "";
         bool isAdmDB = true;
         DataTable dt2 = new DataTable();
@@ -227,7 +236,11 @@ public partial class Summary : System.Web.UI.Page
         {
             newrow2 = dt2.NewRow();
             newrow2["CREDIT_PURCHASE_ID"] = idr1["tv_credit_purchase_id"].ToString();
-            newrow2["DATE_PURCHASED"] = idr1["tv_date_purchased"].ToString();
+
+            dayPurchased = Convert.ToDateTime(idr1["tv_date_purchased"].ToString());
+            newrow2["DATE_PURCHASED"] = dayPurchased.ToString("dd MMM yyyy");
+
+            //newrow2["DATE_PURCHASED"] = idr1["tv_date_purchased"].ToString();
             newrow2["CREDIT_PURCHASED"] = idr1["tb_credit_purchased"].ToString();
             remaining = idr1["tv_credit_remaining"].ToString();
             if (remaining == "")
@@ -257,6 +270,7 @@ public partial class Summary : System.Web.UI.Page
 
     private void buildOutstandingFeeGrid()
     {
+        DateTime dayCreated;
         bool isAdmDB = true;
         DataTable dt2 = new DataTable();
         System.Data.DataRow newrow2;
@@ -268,7 +282,11 @@ public partial class Summary : System.Web.UI.Page
         {
             newrow2 = dt2.NewRow();
             newrow2["OUTSTANDING_FEE_ID"] = idr1["OUTSTANDING_FEE_ID"].ToString();
-            newrow2["DATE_CREATED"] = idr1["DATE_CREATED"].ToString();
+
+            dayCreated = Convert.ToDateTime(idr1["DATE_CREATED"].ToString());
+            newrow2["DATE_PURCHASED"] = dayCreated.ToString("dd MMM yyyy");
+
+            //newrow2["DATE_CREATED"] = idr1["DATE_CREATED"].ToString();
             newrow2["OUTSTANDING_FEE"] = idr1["AMOUNT"].ToString();
             dt2.Rows.Add(newrow2);
         }
@@ -287,6 +305,7 @@ public partial class Summary : System.Web.UI.Page
     {
         DateTime dayCreated;
         DateTime dayExpires;
+        DateTime lastLogin;
         DateTime today = DateTime.Today;
         DataTable dt = new DataTable();
         System.Data.DataRow newrow;
@@ -320,23 +339,28 @@ public partial class Summary : System.Web.UI.Page
                 newrow["EMAIL"] = idr["EMAIL"].ToString();
 
             if ((idr["LAST_LOGIN"].ToString() == null) || (idr["LAST_LOGIN"].ToString() == ""))
+            {
                 newrow["LAST_LOGIN"] = "N/A";
+            }
             else
-                newrow["LAST_LOGIN"] = idr["LAST_LOGIN"].ToString();
+            {
+                lastLogin = Convert.ToDateTime(idr["LAST_LOGIN"].ToString());
+                newrow["LAST_LOGIN"] = lastLogin.ToString("dd MMM yyyy HH:mm");
+            }
 
             dayCreated = Convert.ToDateTime(idr["DATE_CREATED"].ToString());
-            newrow["DATE_CREATED"] = idr["DATE_CREATED"].ToString();
+            newrow["DATE_CREATED"] = dayCreated.ToString("dd MMM yyyy");
 
             if (idr["EXPIRY_DATE"].ToString() != "")
             {
                 dayExpires = Convert.ToDateTime(idr["EXPIRY_DATE"].ToString());
                 if (dayExpires < today)
                 {
-                    newrow["EXPIRY_DATE"] = dayExpires.ToShortDateString() + "  Expired";
+                    newrow["EXPIRY_DATE"] = dayExpires.ToString("dd MMM yyyy") + "  Expired";
                 }
                 else
                 {
-                    newrow["EXPIRY_DATE"] = dayExpires.ToShortDateString();
+                    newrow["EXPIRY_DATE"] = dayExpires.ToString("dd MMM yyyy");
                 }
                 if  (idr["SITE_LIC_ID"].ToString() != null && idr["SITE_LIC_ID"].ToString() != "")
                 {
@@ -467,6 +491,8 @@ public partial class Summary : System.Web.UI.Page
     private void buildShareableReviewGrid()
     {
         DateTime dayExpires;
+        DateTime dayCreated;
+        DateTime lastLogin;
         DateTime today = DateTime.Today;
         DataTable dt = new DataTable();
         System.Data.DataRow newrow;
@@ -503,15 +529,27 @@ public partial class Summary : System.Web.UI.Page
                 newrow["REVIEW_NAME"] = idr["REVIEW_NAME"].ToString();
 
             if ((idr["DATE_CREATED"].ToString() == null) || (idr["DATE_CREATED"].ToString() == ""))
+            {
                 newrow["DATE_CREATED"] = "N/A";
+            }
             else
-                newrow["DATE_CREATED"] = idr["DATE_CREATED"].ToString();
+            {
+                dayCreated = Convert.ToDateTime(idr["DATE_CREATED"].ToString());
+                newrow["DATE_CREATED"] = dayCreated.ToString("dd MMM yyyy");
+                //newrow["DATE_CREATED"] = idr["DATE_CREATED"].ToString();
+            }
 
             test = idr["LAST_LOGIN"].ToString();
             if ((idr["LAST_LOGIN"].ToString() == null) || (idr["LAST_LOGIN"].ToString() == ""))
+            {
                 newrow["LAST_LOGIN"] = "N/A";
+            }
             else
-                newrow["LAST_LOGIN"] = idr["LAST_LOGIN"].ToString();
+            {
+                lastLogin = Convert.ToDateTime(idr["LAST_LOGIN"].ToString());
+                newrow["LAST_LOGIN"] = lastLogin.ToString("dd MMM yyyy HH:ss");
+                //newrow["LAST_LOGIN"] = idr["LAST_LOGIN"].ToString();
+            }
 
             //newrow["MONTHS_CREDIT"] = idr["MONTHS_CREDIT"].ToString();
 
@@ -524,10 +562,12 @@ public partial class Summary : System.Web.UI.Page
                 dayExpires = Convert.ToDateTime(idr["EXPIRY_DATE"].ToString());
                 if (dayExpires < today)
                 {
-                    newrow["EXPIRY_DATE"] = dayExpires.ToShortDateString() + "  Expired";
+                    newrow["EXPIRY_DATE"] = dayExpires.ToString("dd MMM yyyy") + "  Expired";
                 }
                 else
-                    newrow["EXPIRY_DATE"] = dayExpires.ToShortDateString();
+                {
+                    newrow["EXPIRY_DATE"] = dayExpires.ToString("dd MMM yyyy");
+                }
 
                 if (idr["SITE_LIC_ID"].ToString() != null && idr["SITE_LIC_ID"].ToString() != "")
                 {
