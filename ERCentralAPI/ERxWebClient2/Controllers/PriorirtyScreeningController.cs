@@ -116,5 +116,58 @@ namespace ERxWebClient2.Controllers
                 return StatusCode(500, e.Message);
             }
         }
+        [HttpGet("[action]")]
+        public IActionResult GetTrainingScreeningCriteriaList()
+        {
+            try
+            {
+                SetCSLAUser();
+                TrainingScreeningCriteriaList result = DataPortal.Fetch<TrainingScreeningCriteriaList>();
+                return Ok(result);
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "Error with the dataportal TrainingScreeningCriteriaList");
+                return StatusCode(500, e.Message);
+            }
+        }
+        [HttpPost("[action]")]
+        public IActionResult UpdateTrainingScreeningCriteria([FromBody] TrainingScreeningCriteriaMVC crit)
+        {
+            try
+            {
+                if (SetCSLAUser4Writing())
+                {
+                    TrainingScreeningCriteriaList result = DataPortal.Fetch<TrainingScreeningCriteriaList>();
+                    TrainingScreeningCriteria updating = result.First(found => found.TrainingScreeningCriteriaId == crit.trainingScreeningCriteriaId);
+                    if (updating == null) return NotFound();
+                    if (crit.deleted)
+                    {
+                        updating.Delete();
+                        TrainingScreeningCriteria deleted = updating.Save(true);
+                        result.Remove(updating);
+                    }
+                    else
+                    {
+                        updating.Included = crit.included;
+                        updating = updating.Save(true);
+                    }
+                    return Ok(result);
+                }
+                else return Forbid();
+            }
+            catch (Exception e)
+            {
+                string json = JsonConvert.SerializeObject(crit);
+                _logger.LogError(e, "Dataportal Error with updating TrainingScreeningCriteria: {0}", json);
+                return StatusCode(500, e.Message);
+            }
+        }
+    }
+    public class TrainingScreeningCriteriaMVC
+    {
+        public int trainingScreeningCriteriaId { get; set; }
+        public bool included { get; set; }
+        public bool deleted { get; set; }
     }
 }

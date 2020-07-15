@@ -26,13 +26,8 @@ namespace BusinessLibrary.BusinessClasses
             dp.FetchCompleted += handler;
             dp.BeginFetch();
         }
-
-
-#if SILVERLIGHT
+        
         public TrainingScreeningCriteriaList() { }
-#else
-        private TrainingScreeningCriteriaList() { }
-#endif
 
 
 #if SILVERLIGHT

@@ -229,6 +229,10 @@
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\TrainingReviewerTerm.cs" Link="Models\TrainingReviewerTerm.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\TrainingReviewerTermList.cs" Link="Models\TrainingReviewerTermList.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\TrainingRunCommand.cs" Link="Models\TrainingRunCommand.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\TrainingScreeningCriteria.cs" Link="Models\TrainingScreeningCriteria.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\TrainingScreeningCriteriaList.cs" Link="Models\TrainingScreeningCriteriaList.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\TrainingScreeningCriteriaListDeleteAllCommand.cs" Link="Models\TrainingScreeningCriteriaListDeleteAllCommand.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\TrainingSetScreeningCodeSetCommand.cs" Link="Models\TrainingSetScreeningCodeSetCommand.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\WorkAllocation.cs" Link="Models\WorkAllocation.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\WorkAllocationContactList.cs" Link="Models\WorkAllocationContactList.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\WorkAllocationFromWizardCommand.cs" Link="Models\WorkAllocationFromWizardCommand.cs" />

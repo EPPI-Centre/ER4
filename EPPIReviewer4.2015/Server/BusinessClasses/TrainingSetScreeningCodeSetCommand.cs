@@ -26,11 +26,7 @@ namespace BusinessLibrary.BusinessClasses
     [Serializable]
     public class TrainingSetScreeningCodeSetCommand : CommandBase<TrainingSetScreeningCodeSetCommand>
     {
-#if SILVERLIGHT
         public TrainingSetScreeningCodeSetCommand() { }
-#else
-        protected TrainingSetScreeningCodeSetCommand() { }
-#endif
 
         private int _codeSetId;
 
