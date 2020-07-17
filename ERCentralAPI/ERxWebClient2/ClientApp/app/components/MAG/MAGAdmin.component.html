@@ -120,7 +120,11 @@
                             </thead>
                             <tbody>
                                 <tr *ngFor="let item of MagReviewList">
-                                    <td></td>
+                                    <td>
+                                        <button class="btn alert-danger" 
+                                                (click)="DeleteReview(item)">
+                                        Delete
+                                            </button></td>
                                     <td>{{item.reviewId}}</td>
                                     <td>{{item.name}}</td>
                                 </tr>
@@ -132,9 +136,9 @@
 
                 <div class="card-footer">
 
-                    <a class="btn btn-primary btn-sm">Add this review ID:</a>
-                    1234
-                    <a class="btn btn-secondary btn-sm">Refresh List</a>
+                    <a (click)="AddReviewWithThisId()" class="btn btn-primary btn-sm">Add this review ID:</a>
+                    <input type="text" [(ngModel)]="reviewId" />
+                    <a (click)="RefreshReviewList()" class="btn btn-secondary btn-sm">Refresh List</a>
 
                 </div>
             </div>

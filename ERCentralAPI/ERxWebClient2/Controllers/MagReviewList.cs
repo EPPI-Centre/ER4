@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using EPPIDataServices.Helpers;
+using System.Linq;
 
 namespace ERxWebClient2.Controllers
 {
@@ -12,7 +13,6 @@ namespace ERxWebClient2.Controllers
     [Route("api/[controller]")]
     public class MagReviewListController : CSLAController
     {
-
         private readonly ILogger _logger;
 
 		public MagReviewListController(ILogger<MagReviewListController> logger)
@@ -42,7 +42,54 @@ namespace ERxWebClient2.Controllers
             }
         }
 
-    }
+        [HttpPost("[action]")]
+        public IActionResult AddReviewToMagList([FromBody] SingleIntCriteria reviewId)
+        {
 
+            try
+            {
+                SetCSLAUser4Writing();
+
+                MagReview mr = new MagReview();
+                mr.ReviewId = reviewId.Value;
+                mr.Name = "adding review...";
+
+                DataPortal<MagReviewList> dp2 = new DataPortal<MagReviewList>();
+                var magReviewList = dp2.Fetch();
+                magReviewList.Add(mr);
+                magReviewList.SaveItem(mr);
+
+                return Ok(mr);
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "Adding a review to a MagReviewList has an error");
+                throw;
+            }
+        }
+
+        [HttpPost("[action]")]
+        public IActionResult DeleteReview([FromBody] SingleIntCriteria reviewId)
+        {
+            try
+            {
+                SetCSLAUser4Writing();
+
+
+                DataPortal<MagReviewList> dp2 = new DataPortal<MagReviewList>();
+                var magReviewList = dp2.Fetch();
+
+                var mr = magReviewList.Where(x => x.ReviewId == reviewId.Value).FirstOrDefault();
+                magReviewList.Remove(mr);
+
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "Deleting a review from a MagReviewList has an error");
+                throw;
+            }
+        }
+    }
 }
 

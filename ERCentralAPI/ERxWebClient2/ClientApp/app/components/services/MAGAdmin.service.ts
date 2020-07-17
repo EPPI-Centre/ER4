@@ -11,6 +11,7 @@ import { MAGBlobCommand, MAGLog, MAGLogList, MAGReview, MagCurrentInfo } from ".
 })
 export class MAGAdminService extends BusyAwareService {
 
+
     
     constructor(
         private _httpC: HttpClient,
@@ -43,6 +44,43 @@ export class MAGAdminService extends BusyAwareService {
                 },
                 () => {
                     this.RemoveBusy("DoCheckChangedPaperIds");
+                });
+    }
+    public AddReview(reviewId: number) {
+
+        this._BusyMethods.push("AddReview");
+        let body = JSON.stringify({ Value: reviewId });
+        this._httpC.post<MAGReview>(this._baseUrl + 'api/MagReviewList/AddReviewToMagList', body)
+            .toPromise().then( (result) => {
+                this.RemoveBusy("AddReview");
+                this.MAGReviewList.push(result);
+                return true;
+            },
+            (error) => {
+                this.RemoveBusy("AddReview");
+                this.modalService.GenericError(error);
+            });
+    }
+    public DeleteReview(reviewId: number) {
+
+        this._BusyMethods.push("DeleteReview");
+        let body = JSON.stringify({ Value: reviewId });
+        this._httpC.post<boolean>(this._baseUrl + 'api/MagReviewList/DeleteReview', body)
+            .toPromise().then(() => {
+                this.RemoveBusy("DeleteReview");
+
+                let index: number = this.MAGReviewList.findIndex(x => x.reviewId == reviewId);
+                console.log('got in here index 1', index);
+
+                if (index > -1) {
+                    console.log('got in here index 2', index);
+                    this.MAGReviewList.splice(index, 1);
+                }
+                return true;
+            },
+                (error) => {
+                    this.RemoveBusy("DeleteReview");
+                    this.modalService.GenericError(error);
                 });
     }
     private SwitchOnAutoRefreshLogList() {
@@ -91,7 +129,6 @@ export class MAGAdminService extends BusyAwareService {
     }
     GetMAGReviewList() {
         this._BusyMethods.push("MAGReviewList");
-
         this._httpC.get<MAGReview[]>(this._baseUrl + 'api/MagReviewList/GetMagReviewList')
             .subscribe(result => {
                 this.RemoveBusy("MAGReviewList");
@@ -100,15 +137,13 @@ export class MAGAdminService extends BusyAwareService {
                     this.MAGReviewList = result;
                 }
             },
-                error => {
-                    this.RemoveBusy("MAGReviewList");
-                    this.modalService.GenericError(error);
-                },
-                () => {
-                    this.RemoveBusy("MAGReviewList");
-                });
-
-
+            error => {
+                this.RemoveBusy("MAGReviewList");
+                this.modalService.GenericError(error);
+            },
+            () => {
+                this.RemoveBusy("MAGReviewList");
+            });
     }
     public UpdateMagCurrentInfo() {
         this._BusyMethods.push("UpdateMagCurrentInfo");

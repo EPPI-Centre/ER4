@@ -36,6 +36,7 @@ export class MAGAdminComp implements OnInit {
     public stepFoS: number = 0.05;
     public stepSampleSize: number = 0.01;
     public isRunning: boolean = false;
+    public reviewId: number = 0;
 
     public DoCheckChangedPaperIds() {
 
@@ -64,6 +65,22 @@ export class MAGAdminComp implements OnInit {
     public UpdateMagInfo() {
         this._magAdminService.UpdateMagCurrentInfo();
       
+    }
+    public AddReviewWithThisId() {
+
+        if (this.reviewId != null && this.reviewId >0) {
+            this._magAdminService.AddReview(this.reviewId);
+        }
+    } 
+    public DeleteReview(magReview: MAGReview) {
+        console.log("got in here");
+        if (magReview.reviewId != null ) {
+            this._magAdminService.DeleteReview(magReview.reviewId);
+        }
+    }
+    public RefreshReviewList() {
+
+        this._magAdminService.GetMAGReviewList();
     }
     showMAGRunMessage(notifyMsg: string) {
         this._notificationService.show({
