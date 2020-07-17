@@ -22,20 +22,16 @@ namespace BusinessLibrary.BusinessClasses
     [Serializable]
     public class TrainingScreeningCriteria : BusinessBase<TrainingScreeningCriteria>
     {
-#if SILVERLIGHT
+
     public TrainingScreeningCriteria() { }
 
-        
-#else
-        private TrainingScreeningCriteria() { }
-#endif
 
         public override string ToString()
         {
             return AttributeName;
         }
 
-        private static PropertyInfo<int> TrainingScreeningCriteriaIdProperty = RegisterProperty<int>(new PropertyInfo<int>("TrainingScreeningCriteriaId", "TrainingScreeningCriteriaId"));
+        public static readonly PropertyInfo<int> TrainingScreeningCriteriaIdProperty = RegisterProperty<int>(new PropertyInfo<int>("TrainingScreeningCriteriaId", "TrainingScreeningCriteriaId"));
         public int TrainingScreeningCriteriaId
         {
             get
@@ -44,7 +40,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<Int64> AttributeIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("AttributeId", "AttributeId"));
+        public static readonly PropertyInfo<Int64> AttributeIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("AttributeId", "AttributeId"));
         public Int64 AttributeId
         {
             get
@@ -57,7 +53,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> AttributeNameProperty = RegisterProperty<string>(new PropertyInfo<string>("AttributeName", "AttributeName", string.Empty));
+        public static readonly PropertyInfo<string> AttributeNameProperty = RegisterProperty<string>(new PropertyInfo<string>("AttributeName", "AttributeName", string.Empty));
         public string AttributeName
         {
             get
@@ -70,7 +66,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<bool> IncludedProperty = RegisterProperty<bool>(new PropertyInfo<bool>("Included", "Included"));
+        public static readonly PropertyInfo<bool> IncludedProperty = RegisterProperty<bool>(new PropertyInfo<bool>("Included", "Included"));
         public bool Included
         {
             get

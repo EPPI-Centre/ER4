@@ -39,22 +39,11 @@ export class PriorityScreeningService extends BusyAwareService {
     }
     private _TrainingList: Training[] = [];
     public get TrainingList(): Training[]{
-        //if (this._TrainingList && this.TrainingList.length > 0) {
-        //    return this._TrainingList;
-        //}
-        //else {
-        //    const TrainingListJson = localStorage.getItem('TrainingList');
-        //    let tTrainingList: Training[] = TrainingListJson !== null ? JSON.parse(TrainingListJson) : [];
-            
-        //    if (tTrainingList == undefined || tTrainingList == null || tTrainingList.length == 0) {
-        //        return this._TrainingList;
-        //    }
-        //    else {
-        //        //console.log("Got User from LS");
-        //        this._TrainingList = tTrainingList;
-        //    }
-        //}
         return this._TrainingList;
+    }
+    private _TrainingScreeningCriteria: iTrainingScreeningCriteria[] = [];
+    public get TrainingScreeningCriteria(): iTrainingScreeningCriteria[] {
+        return this._TrainingScreeningCriteria;
     }
 
     private subtrainingList: Subscription | null = null;
@@ -213,17 +202,53 @@ export class PriorityScreeningService extends BusyAwareService {
 		}
         );
     }
-    //private _PreviousItem: Item = new Item();
-    //public get PreviousItem(): Item {
-    //    return this._PreviousItem;
-    //}
-    //public HasNextItem(): boolean {
-    //    if (this._NextItem.itemId == 0) return false;
-    //    else return true;
-    //}
+
     public HasPreviousItem(): boolean {
         if (this.CurrentItemIndex > 0 && this.ScreenedItemIds.length > 0) return true;
         else return false;
+    }
+    public GetTrainingScreeningCriteriaList() {
+        this._BusyMethods.push("GetTrainingScreeningCriteriaList");
+        this._httpC.get<iTrainingScreeningCriteria[]>(this._baseUrl + 'api/PriorirtyScreening/GetTrainingScreeningCriteriaList').subscribe(
+            list => {
+                this._TrainingScreeningCriteria = list;
+                this.RemoveBusy("GetTrainingScreeningCriteriaList");
+                //this.Save();
+            }, error => {
+                this.RemoveBusy("GetTrainingScreeningCriteriaList");
+                this.modalService.GenericError(error);
+            }
+        );
+    }
+    public UpdateTrainingScreeningCriteria(crit: iTrainingScreeningCriteria) {
+        let body: iUpdatingTrainingScreeningCriteria = {
+            trainingScreeningCriteriaId: crit.trainingScreeningCriteriaId
+            , included: crit.included
+            , deleted: false
+        };
+        this.internalUpdateTrainingScreeningCriteria(body);
+    }
+    public DeleteTrainingScreeningCriteria(crit: iTrainingScreeningCriteria) {
+        let body: iUpdatingTrainingScreeningCriteria = {
+            trainingScreeningCriteriaId: crit.trainingScreeningCriteriaId
+            , included: crit.included
+            , deleted: true
+        };
+        this.internalUpdateTrainingScreeningCriteria(body);
+    }
+    private internalUpdateTrainingScreeningCriteria(crit: iUpdatingTrainingScreeningCriteria) {
+        this._BusyMethods.push("UpdateTrainingScreeningCriteria");
+        return this._httpC.post<iTrainingScreeningCriteria[]>(this._baseUrl +
+            'api/PriorirtyScreening/UpdateTrainingScreeningCriteria', crit)
+            .subscribe(
+            (list: iTrainingScreeningCriteria[]) => {
+                this.RemoveBusy("UpdateTrainingScreeningCriteria");
+                this._TrainingScreeningCriteria = list;
+                },
+                error => {
+                    this.RemoveBusy("UpdateTrainingScreeningCriteria");
+                    this.modalService.GenericError(error);
+                });
     }
 }
 export interface Training {
@@ -254,4 +279,15 @@ export interface TrainingNextItem {
 export interface TrainingPreviousItem {
     itemId: number;
     item: Item;
+}
+export interface iTrainingScreeningCriteria {
+    trainingScreeningCriteriaId: number;
+    attributeId: number;
+    attributeName: string;
+    included: boolean;
+}
+export interface iUpdatingTrainingScreeningCriteria {
+    trainingScreeningCriteriaId: number;
+    deleted: boolean;
+    included: boolean;
 }
