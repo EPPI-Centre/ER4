@@ -75,7 +75,6 @@ namespace ERxWebClient2.Controllers
             {
                 SetCSLAUser4Writing();
 
-
                 DataPortal<MagReviewList> dp2 = new DataPortal<MagReviewList>();
                 var magReviewList = dp2.Fetch();
 

@@ -15,6 +15,12 @@
      class="alert-warning border border-dark p-2 m-2 ">
     <h4><b>{{_magAdvancedService.currentMagPaper.shortRecord}}</b></h4>
     <b>Paper Id:</b> <h4>{{_magAdvancedService.currentMagPaper.paperId}}</h4>
+    <div *ngIf="!this._magAdvancedService.currentMagPaper.isSelected">
+        <button  class="btn alert-success" (click)="AddRemoveCurrentPaperToSelectedList()">Add to selected list</button>
+    </div>
+    <div  *ngIf="this._magAdvancedService.currentMagPaper.isSelected">
+        <button class="btn alert-danger" (click)="AddRemoveCurrentPaperToSelectedList()">Remove from selected list</button>
+    </div>
     <div class="btn btn-link">
         <a href="https://academic.microsoft.com/paper/{{_magAdvancedService.currentMagPaper.paperId}}/reference" target="_blank">
             View on the internet
@@ -31,10 +37,11 @@
         </div>
     </div>
 </div>
-    <div class="row border border-dark alert-primary p-2 m-2">
-        <div class="col-10"></div>
-        <div class="col-2 pull-right">Total number of papers in this list: {{_magBrowserService.MAGList.totalItemCount}}</div>
-    </div>
+<div class="row border border-dark alert-primary p-2 m-2">
+    <div class="col-6"></div>
+    <div *ngIf="_magBrowserService.MAGList.papers.length != 0 " class="col-3 pull-right">Total number of selected papers: {{ShowSelectedPapers}}</div>
+    <div class="col-3 pull-right">Total number of papers in this list: {{_magBrowserService.MAGList.totalItemCount}}</div>
+</div>
     <div class="col-lg-12 row alert-info border border-dark p-2 m-2 " style="min-width:450px;max-height:950px; overflow:auto;">
 
         <div [title]="'TOPICS'" class="col-lg-6 col-md-12" style="min-height:500px;min-width:450px; overflow:auto;">
@@ -90,7 +97,7 @@
 
                         <div>
                             <h5>Papers identified from auto-identification MAG run</h5>
-                            <!--<h5>Total number of mag papers in below list: {{_magAdvancedService.TotalNumberOfMatchedPapers}}</h5>-->
+                            
                         </div>
 
                         <div>
