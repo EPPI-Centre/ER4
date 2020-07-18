@@ -54,6 +54,10 @@ namespace BusinessLibrary.BusinessClasses
             {
                 return GetProperty(MagCurrentInfoIdProperty);
             }
+            set
+            {
+                SetProperty(MagCurrentInfoIdProperty, value);
+            }
         }
 
         public static readonly PropertyInfo<string> MagVersionProperty = RegisterProperty<string>(new PropertyInfo<string>("MagVersion", "MagVersion", ""));
@@ -62,6 +66,10 @@ namespace BusinessLibrary.BusinessClasses
             get
             {
                 return GetProperty(MagVersionProperty);
+            }
+            set
+            {
+                SetProperty(MagVersionProperty, value);
             }
         }
 
@@ -80,6 +88,10 @@ namespace BusinessLibrary.BusinessClasses
                     return "";
                 }
             }
+            set
+            {
+                SetProperty(MagFolderProperty, value);
+            }
         }
 
         public static readonly PropertyInfo<bool> MatchingAvailableProperty = RegisterProperty<bool>(new PropertyInfo<bool>("MatchingAvailable", "MatchingAvailable", true));
@@ -88,6 +100,10 @@ namespace BusinessLibrary.BusinessClasses
             get
             {
                 return GetProperty(MatchingAvailableProperty);
+            }
+            set
+            {
+                SetProperty(MatchingAvailableProperty, value);
             }
         }
 
@@ -98,6 +114,10 @@ namespace BusinessLibrary.BusinessClasses
             {
                 return GetProperty(MagOnlineProperty);
             }
+            set
+            {
+                SetProperty(MagOnlineProperty, value);
+            }
         }
 
         public static readonly PropertyInfo<DateTime> WhenLiveProperty = RegisterProperty<DateTime>(new PropertyInfo<DateTime>("WhenLive", "WhenLive"));
@@ -106,6 +126,10 @@ namespace BusinessLibrary.BusinessClasses
             get
             {
                 return GetProperty(WhenLiveProperty);
+            }
+            set
+            {
+                SetProperty(WhenLiveProperty, value);
             }
         }
 
@@ -116,6 +140,10 @@ namespace BusinessLibrary.BusinessClasses
             {
                 return GetProperty(MakesEndPointProperty);
             }
+            set
+            {
+                SetProperty(MakesEndPointProperty, value);
+            }
         }
 
         public static readonly PropertyInfo<string> MakesDeploymentStatusProperty = RegisterProperty<string>(new PropertyInfo<string>("MakesDeploymentStatus", "MakesDeploymentStatus", ""));
@@ -124,6 +152,10 @@ namespace BusinessLibrary.BusinessClasses
             get
             {
                 return GetProperty(MakesDeploymentStatusProperty);
+            }
+            set
+            {
+                SetProperty(MakesDeploymentStatusProperty, value);
             }
         }
 
@@ -261,8 +293,28 @@ namespace BusinessLibrary.BusinessClasses
 
         protected override void DataPortal_Update()
         {
-            Task.Run(() =>  { UpdateMagCurrentInfo(); });
             
+            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+            {
+                ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+                connection.Open();
+                using (SqlCommand command = new SqlCommand("st_MagUpdateCurrentInfoLatestMag", connection))
+                {
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@MAG_VERSION", ReadProperty(MagVersionProperty)));
+                    command.Parameters.Add(new SqlParameter("@WHEN_LIVE", ReadProperty(WhenLiveProperty)));
+                    command.Parameters.Add(new SqlParameter("@MATCHING_AVAILABLE", ReadProperty(MatchingAvailableProperty)));
+                    command.Parameters.Add(new SqlParameter("@MAG_ONLINE", ReadProperty(MagOnlineProperty)));
+                    command.Parameters.Add(new SqlParameter("@MAKES_ENDPOINT", ReadProperty(MakesEndPointProperty)));
+                    command.Parameters.Add(new SqlParameter("@MAKES_DEPLOYMENT_STATUS", ReadProperty(MakesDeploymentStatusProperty)));
+                    command.ExecuteNonQuery();
+                    MarkOld();
+                }
+                connection.Close();
+            }
+
+            //Task.Run(() =>  { UpdateMagCurrentInfo(); });
+
             /*
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
@@ -315,8 +367,9 @@ namespace BusinessLibrary.BusinessClasses
                             LoadProperty<DateTime>(WhenLiveProperty, reader.GetDateTime("WHEN_LIVE"));
                             LoadProperty<bool>(MatchingAvailableProperty, reader.GetBoolean("MATCHING_AVAILABLE"));
                             LoadProperty<bool>(MagOnlineProperty, reader.GetBoolean("MAG_ONLINE"));
-                            //LoadProperty<string>(MakesEndPointProperty, reader.GetString("MAKES_ENDPOINT")); // don't need to send this information back to the client (and probably shouldn't)
-                            //LoadProperty<string>(MakesDeploymentStatusProperty, reader.GetString("MAKES_DEPLOYMENT_STATUS"));
+                            LoadProperty<string>(MakesEndPointProperty, reader.GetString("MAKES_ENDPOINT")); // don't need to send this information back to the client (and probably shouldn't)
+                            LoadProperty<string>(MakesDeploymentStatusProperty, reader.GetString("MAKES_DEPLOYMENT_STATUS"));
+                            MarkOld();
                         }
                     }
                 }
@@ -361,9 +414,9 @@ namespace BusinessLibrary.BusinessClasses
             return returnValue;
         }
 
-        public async static void UpdateMagCurrentInfo()
+        public static void UpdateMagCurrentInfoStatic()
         {
-            var currentMagContainerName = await UpdateMagCurrentInfoTableWithMostRecentMagDBOnAzureAsync();
+            var currentMagContainerName = UpdateMagCurrentInfoTableWithMostRecentMagDBOnAzureAsync();
             if (currentMagContainerName != "")
             {
                 int startIndex = currentMagContainerName.IndexOf("-");
@@ -371,11 +424,12 @@ namespace BusinessLibrary.BusinessClasses
                 mag_version = swapDateFormat(mag_version);
                 string unformattedDate = currentMagContainerName.Substring(startIndex, currentMagContainerName.Length - startIndex).Replace("-", "");
                 string makes_endpoint = " http://eppimag" + unformattedDate + ".westeurope.cloudapp.azure.com";
-                await UpdateSQLMagCurrentInfoTable(mag_version, makes_endpoint);
+                UpdateSQLMagCurrentInfoTable(mag_version, makes_endpoint);
             }
+      
         }
 
-        private async static Task<string> UpdateMagCurrentInfoTableWithMostRecentMagDBOnAzureAsync()
+        private static string UpdateMagCurrentInfoTableWithMostRecentMagDBOnAzureAsync()
         {
 
 #if (CSLA_NETCORE)
@@ -397,7 +451,7 @@ namespace BusinessLibrary.BusinessClasses
             CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
             //CloudBlobContainer container = blobClient.GetContainerReference("experiments");
             //here need  list
-            var magContainers = await ListContainersWithPrefixAsync(blobClient, "mag-");
+            var magContainers = ListContainersWithPrefixAsync(blobClient, "mag-");
             //use LINQ to list them in date order
             var orderedMagContainers = magContainers.OrderByDescending(x => x.Name);
 
@@ -412,7 +466,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static async Task<IEnumerable<CloudBlobContainer>> ListContainersWithPrefixAsync(CloudBlobClient blobClient,
+        private static IEnumerable<CloudBlobContainer> ListContainersWithPrefixAsync(CloudBlobClient blobClient,
                                                         string prefix)
         {
             try
@@ -422,8 +476,8 @@ namespace BusinessLibrary.BusinessClasses
 
                 do
                 {
-                    resultSegment = await blobClient.ListContainersSegmentedAsync(
-                        prefix, ContainerListingDetails.Metadata, 5, continuationToken, null, null);
+                    resultSegment = blobClient.ListContainersSegmentedAsync(
+                        prefix, ContainerListingDetails.Metadata, 5, continuationToken, null, null).Result;
 
 
                     // Get the continuation token. If not null, get the next segment.

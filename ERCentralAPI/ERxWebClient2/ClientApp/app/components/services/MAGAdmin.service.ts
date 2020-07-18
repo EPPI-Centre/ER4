@@ -146,10 +146,10 @@ export class MAGAdminService extends BusyAwareService {
             });
     }
     public UpdateMagCurrentInfo() {
+
         this._BusyMethods.push("UpdateMagCurrentInfo");
-        let test: object = new Object();
-        let body = JSON.stringify({ Value : test});
-        this._httpC.post<MagCurrentInfo>(this._baseUrl + 'api/MagCurrentInfo/UpdateMagCurrentInfo', body)
+        let magCurrentInfo: MagCurrentInfo = this.MagCurrentInfo;
+        this._httpC.post<MagCurrentInfo>(this._baseUrl + 'api/MagCurrentInfo/UpdateMagCurrentInfo', magCurrentInfo)
             .subscribe(result => {
                 this.RemoveBusy("UpdateMagCurrentInfo");
                 if (result != null) {
@@ -165,6 +165,24 @@ export class MAGAdminService extends BusyAwareService {
                     this.RemoveBusy("UpdateMagCurrentInfo");
                 });
     }
-   
+
+    public FetchMagCurrentInfo() {
+        this._BusyMethods.push("FetchMagCurrentInfo");
+        this._httpC.get<MagCurrentInfo>(this._baseUrl + 'api/MagCurrentInfo/GetMagCurrentInfo')
+            .subscribe(result => {
+                this.RemoveBusy("FetchMagCurrentInfo");
+                if (result != null) {
+                    console.log(result)
+                    this.MagCurrentInfo = result;
+                }
+            },
+                error => {
+                    this.RemoveBusy("FetchMagCurrentInfo");
+                    this.modalService.GenericError(error);
+                },
+                () => {
+                    this.RemoveBusy("FetchMagCurrentInfo");
+                });
+    }
    
 }

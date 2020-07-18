@@ -64,7 +64,6 @@ export class MAGAdminComp implements OnInit {
     }
     public UpdateMagInfo() {
         this._magAdminService.UpdateMagCurrentInfo();
-      
     }
     public AddReviewWithThisId() {
 
@@ -116,6 +115,7 @@ export class MAGAdminComp implements OnInit {
             this._magAdminService.GetMAGBlobCommand();
             this._magAdminService.GetMAGReviewList();
             this.RefreshLogTable();
+            this._magAdminService.FetchMagCurrentInfo();
         }
     }  
 

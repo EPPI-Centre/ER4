@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using EPPIDataServices.Helpers;
 using System.Linq;
+using Microsoft.Azure.Management.DataFactory.Models;
 
 namespace ERxWebClient2.Controllers
 {
@@ -33,7 +34,7 @@ namespace ERxWebClient2.Controllers
                 DataPortal<MagCurrentInfo> dp = new DataPortal<MagCurrentInfo>();
 				MagCurrentInfo result = dp.Fetch();
 
-                return result;
+                return Ok(result);
             }
             catch (Exception e)
             {
@@ -43,16 +44,24 @@ namespace ERxWebClient2.Controllers
 		}
 
         [HttpPost("[action]")]
-        public IActionResult UpdateMagCurrentInfo([FromBody] Object test)
+        public IActionResult UpdateMagCurrentInfo([FromBody] MVCMagCurrentInfo magCurrentInfo)
         {
             try
             {
                 SetCSLAUser();
                 DataPortal<MagCurrentInfo> dp = new DataPortal<MagCurrentInfo>();
-                var currentInfo = dp.Fetch();
+                var magSQLCurrentInfo = MagCurrentInfo.GetMagCurrentInfoServerSide("Live");
 
-                currentInfo = currentInfo.Save();
-                return Ok(currentInfo);
+                
+                magSQLCurrentInfo.MagVersion = magCurrentInfo.magVersion;
+                magSQLCurrentInfo.MakesDeploymentStatus = magCurrentInfo.makesDeploymentStatus;
+                magSQLCurrentInfo.MakesEndPoint = magCurrentInfo.makesEndPoint;
+                magSQLCurrentInfo.MagFolder = magCurrentInfo.magFolder;
+                magSQLCurrentInfo.MagOnline = Convert.ToBoolean(magCurrentInfo.magOnline);
+                magSQLCurrentInfo.MatchingAvailable = Convert.ToBoolean(magCurrentInfo.matchingAvailable);
+
+                magSQLCurrentInfo = magSQLCurrentInfo.Save(true);
+                return Ok(magSQLCurrentInfo);
             }
             catch (Exception e)
             {
@@ -79,7 +88,7 @@ namespace ERxWebClient2.Controllers
                 throw;
             }
         }
-
+                
         [HttpGet("[action]")]
         public IActionResult MagCheckContReviewRunningCommand()
         {
@@ -155,5 +164,18 @@ namespace ERxWebClient2.Controllers
     }
 
   
+}
+
+public class MVCMagCurrentInfo
+{
+    public int magCurrentInfoId { get; set; }
+    public string magFolder { get; set; }
+    public string magVersion { get; set; }
+    public string whenLive { get; set; }
+    public string matchingAvailable { get; set; }
+    public string magOnline { get; set; }
+    public string makesEndPoint { get; set; }
+    public string makesDeploymentStatus { get; set; }
+
 }
 

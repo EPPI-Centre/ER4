@@ -93,9 +93,25 @@
                 <div class="card-body">
                     <h2 class="card-title">Update to the latest MAG!</h2>
                     <p class="card-text">Clicking the below button will query Azure for the latest MAG info</p>
+                    <table class="table table-sm text-small table-responsive table-striped" style="min-width:150px;overflow:auto;">
+                        <thead>
+                            <tr>
+                                <th width="15">MAG_VERSION</th>
+                                <th width="15">MAKES_ENDPOINT</th>
+                                <th width="15">MAKES_DEPLOYMENT_STATUS</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>{{_magAdminService.MagCurrentInfo.magVersion}}</td>
+                                <td>{{_magAdminService.MagCurrentInfo.makesEndPoint}}</td>
+                                <td>{{_magAdminService.MagCurrentInfo.makesDeploymentStatus}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
                 <div class="card-footer">
-                    <a href="#" [hidden]="true" class="btn btn-primary btn-sm" (click)="UpdateMagInfo()">Update MAG Info</a>
+                    <a href="#" [hidden]="false" class="btn btn-primary btn-sm" (click)="UpdateMagInfo()">Update MAG Info</a>
                 </div>
             </div>
         </div>

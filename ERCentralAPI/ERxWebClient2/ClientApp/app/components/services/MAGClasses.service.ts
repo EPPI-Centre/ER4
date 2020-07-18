@@ -294,7 +294,7 @@ export class MagCurrentInfo {
     magFolder: string = '';
     matchingAvailable: boolean = false;
     magOnline: boolean = false;
-    whenLive: Date = new Date();
+    whenLive: string = '';
     makesEndPoint: string = '';
     makesDeploymentStatus: string = '';
 }
