@@ -43,7 +43,10 @@ export class MAGBrowser implements OnInit, OnDestroy {
     public kendoAfterDateValue: Date = new Date();
     public kendoBeforeDateValue: Date = new Date();
     public isCurrentSelected: boolean = false;
-
+    public ShowOriginalPapers: boolean = false;
+    public ShowOriginal() {
+        this.ShowOriginalPapers = !this.ShowOriginalPapers;
+    }
     ngOnInit() {
 
         this._eventEmitterService.selectedButtonPressed.subscribe(
@@ -54,7 +57,8 @@ export class MAGBrowser implements OnInit, OnDestroy {
             }
         );
         this.browsingHistory = this._routingStateService.getHistory();
-        
+        this._magBrowserService.MAGOriginalList.papers = this._magBrowserService.MAGList.papers;
+        this._magBrowserService.OrigListCriteria = this._magBrowserService.ListCriteria;
     }
     public AddRemoveCurrentPaperToSelectedList() {
 

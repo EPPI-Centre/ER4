@@ -96,6 +96,7 @@ import { MatchingMAGItemsComponent } from './components/MAG/MatchingMAGItems.com
 import { WorkAllocationWizardComp } from './components/WorkAllocations/WorkAllocationWizardComp.component';
 import { microsoftAcademicComp } from './components/MAG/microsoftAcademic.component';
 import { MAGHeaderBarComp } from './components/commonComponents/MAGHeaderBar.component';
+import { MAGOrigpaginatorComp } from './components/commonComponents/MAGOrigpaginator.component';
 
 @NgModule({
     declarations: [
@@ -166,6 +167,7 @@ import { MAGHeaderBarComp } from './components/commonComponents/MAGHeaderBar.com
         codesetTree4Move,
         AdvancedMAGFeaturesComponent,
         MAGpaginatorComp,
+        MAGOrigpaginatorComp,
         MAGBrowser,
         MAGBrowserHistory,
         MAGAdminComp,
