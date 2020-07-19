@@ -58,33 +58,32 @@ export class MAGBrowserHistoryService extends BusyAwareService  {
     public AddToBrowseHistory(item: MagBrowseHistoryItem ) {
 
         this._BusyMethods.push("AddToBrowseHistory");
-        return this._httpC.post<MagBrowseHistoryItem>(this._baseUrl + 'api/MagHistoryList/AddToBrowseHistory', item)
-            .toPromise().then( () => {
+        return this._httpC.post<MagBrowseHistoryItem>(this._baseUrl + 'api/MagBrowseHistoryList/AddToBrowseHistory', item)
+            .toPromise().then(() => {
                 this.RemoveBusy("AddToBrowseHistory");
                 return;
             },
-            (error: any) => {
-                this.RemoveBusy("AddToBrowseHistory");
-                this.modalService.GenericError(error);
-                return error;
-            })
+                (error: any) => {
+                    this.RemoveBusy("AddToBrowseHistory");
+                    //this.modalService.GenericError(error);
+                    return error;
+                });
     }
 
     public FetchMAGBrowserHistory() {
 
         this._BusyMethods.push("FetchMAGBrowserHistory");
-        return this._httpC.get<MagBrowseHistoryItem[]>(this._baseUrl + 'api/MagHistoryList/GetMAGBrowseHistory')
+        return this._httpC.get<MagBrowseHistoryItem[]>(this._baseUrl + 'api/MagBrowseHistoryList/GetMagBrowseHistoryList')
             .toPromise().then((result) => {
                 this.RemoveBusy("FetchMAGBrowserHistory");
                 console.log(result);
                 return;
             },
-                (error: any) => {
-                    this.RemoveBusy("FetchMAGBrowserHistory");
-                    this.modalService.GenericError(error);
-                    return error;
-                })
-
+            (error: any) => {
+                this.RemoveBusy("FetchMAGBrowserHistory");
+                //this.modalService.GenericError(error);
+                return error;
+            });
     }
 
 }

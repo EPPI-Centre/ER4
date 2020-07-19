@@ -58,48 +58,29 @@ namespace ERxWebClient2.Controllers
             }
             catch (Exception e)
             {
-                _logger.LogException(e, "AddToBrowseHistory has an error");
+                _logger.LogException(e, "Adding To a MAG Browser History List has an error");
                 throw;
             }
         }
 
-        //[HttpPost("[action]")]
-        //public IActionResult GetMagBrowseHistoryList([FromBody] MVCMagBrowseHistoryItem MagBrowseHistoryItem)
-        //{
-        //    try
-        //    {
-        //        SetCSLAUser();
+        [HttpGet("[action]")]
+        public IActionResult GetMagBrowseHistoryList()
+        {
+            try
+            {
+                SetCSLAUser();
 
-        //        DataPortal<MagBrowseHistoryList> dp = new DataPortal<MagBrowseHistoryList>();
+                DataPortal<MagBrowseHistoryList> dp = new DataPortal<MagBrowseHistoryList>();
 
-        //        MagBrowseHistoryListSelectionCriteria selectionCriteria =
-        //            new MagBrowseHistoryListSelectionCriteria
-        //            {
-        //                AttributeIds = crit.attributeIds,
-        //                AuthorId = crit.authorId,
-        //                FieldOfStudyId = crit.fieldOfStudyId,
-        //                Included = crit.included,
-        //                ITEM_ID = crit.iTEM_ID,
-        //                ListType = crit.listType,
-        //                MagPaperId = crit.magPaperId,
-        //                MagRelatedRunId = crit.magRelatedRunId,
-        //                NumResults = crit.numResults,
-        //                PageNumber = crit.pageNumber,
-        //                PageSize = crit.pageSize,
-        //                PaperIds = crit.paperIds,
-        //                DateFrom = crit.dateFrom,
-        //                DateTo = crit.dateTo
-        //            };
-
-        //        var result = dp.Fetch(selectionCriteria);
-        //        return Ok(new MAGList4Json(result));
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        _logger.LogException(e, "Getting a MagBrowseHistoryList has an error");
-        //        throw;
-        //    }
-        //}
+                var result = dp.Fetch();
+                return Ok(result);
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "Getting a Mag Browser History List has an error");
+                throw;
+            }
+        }
 
     }
     public class MVCMagBrowseHistoryItem

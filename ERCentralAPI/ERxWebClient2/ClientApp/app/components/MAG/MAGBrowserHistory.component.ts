@@ -29,7 +29,7 @@ export class MAGBrowserHistory implements OnInit {
     ngOnInit() {
 
         this.MAGBrowsingHistory = this._MAGBrowserHistoryService.getHistory();
-
+        this.fetchMAGHistory();
     }
     public get HasWriteRights(): boolean {
         return this._ReviewerIdentityServ.HasWriteRights;
@@ -56,5 +56,9 @@ export class MAGBrowserHistory implements OnInit {
     }
     Back() {
         this._location.back();
+    }
+    fetchMAGHistory() {
+
+        this._MAGBrowserHistoryService.FetchMAGBrowserHistory();
     }
 }
