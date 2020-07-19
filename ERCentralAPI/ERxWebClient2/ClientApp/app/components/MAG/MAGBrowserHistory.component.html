@@ -30,8 +30,8 @@
             </tr>
         </thead>
         <tbody>
-            <tr *ngFor="let item of _MAGBrowserHistoryService.getHistory()">
-                <td class="w-25">{{item.url}}</td>
+            <tr *ngFor="let item of _MAGBrowserHistoryList">
+                <td class="w-25">{{item.title}}</td>
                 <td class="w-25"><button class="btn btn-success" (click)="GoToUrl(item.url)">GO</button></td>
                 <td class="w-25"><button class="btn btn-danger" (click)="RemoveUrl(item)">Remove</button></td>
             </tr>
