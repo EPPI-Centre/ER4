@@ -3,10 +3,11 @@ import { Router } from '@angular/router';
 import { Location } from '@angular/common';
 import { MAGBrowserService } from '../services/MAGBrowser.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
-import { MagItemPaperInsertCommand } from '../services/MAGClasses.service';
+import { MagItemPaperInsertCommand, MagBrowseHistoryItem } from '../services/MAGClasses.service';
 import { NotificationService } from '@progress/kendo-angular-notification';
 import { EventEmitterService } from '../services/EventEmitter.service';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
+import { MAGBrowserHistoryService } from '../services/MAGBrowserHistory.service';
 
 @Component({
     selector: 'MAGHeaderBar',
@@ -21,7 +22,8 @@ export class MAGHeaderBarComp implements OnInit {
         private _ReviewerIdentityServ: ReviewerIdentityService,
         public _notificationService: NotificationService,
         public _eventEmitterService: EventEmitterService,
-        public _confirmationDialogService: ConfirmationDialogService
+        public _confirmationDialogService: ConfirmationDialogService,
+        public _mAGBrowserHistoryService: MAGBrowserHistoryService
     ) {
 
     }
@@ -117,7 +119,9 @@ export class MAGHeaderBarComp implements OnInit {
         this.router.navigate(['BasicMAGFeatures']);
     }
     public ShowHistory() {
-
+        let item: MagBrowseHistoryItem = new MagBrowseHistoryItem("View browse history", "History", 0, "", "", 0, "", "", 0, "", "", 0);
+        
+        this._mAGBrowserHistoryService.AddToBrowseHistory(item);
         this.router.navigate(['MAGBrowserHistory']);
     }
     public Admin() {

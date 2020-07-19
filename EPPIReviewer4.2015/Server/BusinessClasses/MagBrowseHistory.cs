@@ -27,10 +27,10 @@ namespace BusinessLibrary.BusinessClasses
 
         
 #else
-        private MagBrowseHistory() { }
+        public MagBrowseHistory() { }
 #endif
 
-        private static PropertyInfo<string> TitleProperty = RegisterProperty<string>(new PropertyInfo<string>("Title", "Title", string.Empty));
+        public static readonly PropertyInfo<string> TitleProperty = RegisterProperty<string>(new PropertyInfo<string>("Title", "Title", string.Empty));
         public string Title
         {
             get
@@ -43,7 +43,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> BrowseTypeProperty = RegisterProperty<string>(new PropertyInfo<string>("BrowseType", "BrowseType", string.Empty));
+        public static readonly PropertyInfo<string> BrowseTypeProperty = RegisterProperty<string>(new PropertyInfo<string>("BrowseType", "BrowseType", string.Empty));
         public string BrowseType
         {
             get
@@ -56,7 +56,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<Int64> PaperIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("PaperId", "PaperId"));
+        public static readonly PropertyInfo<Int64> PaperIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("PaperId", "PaperId"));
         public Int64 PaperId
         {
             get
@@ -69,7 +69,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<Int64> LinkedITEM_IDProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("LinkedITEM_ID", "LinkedITEM_ID"));
+        public static readonly PropertyInfo<Int64> LinkedITEM_IDProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("LinkedITEM_ID", "LinkedITEM_ID"));
         public Int64 LinkedITEM_ID
         {
             get
@@ -82,7 +82,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> PaperFullRecordProperty = RegisterProperty<string>(new PropertyInfo<string>("PaperFullRecord", "PaperFullRecord", string.Empty));
+        public static readonly PropertyInfo<string> PaperFullRecordProperty = RegisterProperty<string>(new PropertyInfo<string>("PaperFullRecord", "PaperFullRecord", string.Empty));
         public string PaperFullRecord
         {
             get
@@ -95,7 +95,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> PaperAbstractProperty = RegisterProperty<string>(new PropertyInfo<string>("PaperAbstract", "PaperAbstract", string.Empty));
+        public static readonly PropertyInfo<string> PaperAbstractProperty = RegisterProperty<string>(new PropertyInfo<string>("PaperAbstract", "PaperAbstract", string.Empty));
         public string PaperAbstract
         {
             get
@@ -108,7 +108,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> URLsProperty = RegisterProperty<string>(new PropertyInfo<string>("URLs", "URLs", string.Empty));
+        public static readonly PropertyInfo<string> URLsProperty = RegisterProperty<string>(new PropertyInfo<string>("URLs", "URLs", string.Empty));
         public string URLs
         {
             get
@@ -121,7 +121,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> FindOnWebProperty = RegisterProperty<string>(new PropertyInfo<string>("FindOnWeb", "FindOnWeb", string.Empty));
+        public static readonly PropertyInfo<string> FindOnWebProperty = RegisterProperty<string>(new PropertyInfo<string>("FindOnWeb", "FindOnWeb", string.Empty));
         public string FindOnWeb
         {
             get
@@ -134,7 +134,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<Int64> FieldOfStudyIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("FieldOfStudyId", "FieldOfStudyId"));
+        public static readonly PropertyInfo<Int64> FieldOfStudyIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("FieldOfStudyId", "FieldOfStudyId"));
         public Int64 FieldOfStudyId
         {
             get
@@ -147,7 +147,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> FieldOfStudyProperty = RegisterProperty<string>(new PropertyInfo<string>("FieldOfStudy", "FieldOfStudy", string.Empty));
+        public static readonly PropertyInfo<string> FieldOfStudyProperty = RegisterProperty<string>(new PropertyInfo<string>("FieldOfStudy", "FieldOfStudy", string.Empty));
         public string FieldOfStudy
         {
             get
@@ -160,7 +160,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<Int64> ContactIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("ContactId", "ContactId"));
+        public static readonly PropertyInfo<Int64> ContactIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("ContactId", "ContactId"));
         public Int64 ContactId
         {
             get
@@ -173,7 +173,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<SmartDate> DateBrowsedProperty = RegisterProperty<SmartDate>(new PropertyInfo<SmartDate>("DateBrowsed", "DateBrowsed"));
+        public static readonly PropertyInfo<SmartDate> DateBrowsedProperty = RegisterProperty<SmartDate>(new PropertyInfo<SmartDate>("DateBrowsed", "DateBrowsed"));
         public SmartDate DateBrowsed
         {
             get
@@ -186,7 +186,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> AttributeIdsProperty = RegisterProperty<string>(new PropertyInfo<string>("AttributeIds", "AttributeIds", string.Empty));
+        public static readonly PropertyInfo<string> AttributeIdsProperty = RegisterProperty<string>(new PropertyInfo<string>("AttributeIds", "AttributeIds", string.Empty));
         public string AttributeIds
         {
             get
@@ -199,7 +199,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<int> MagRelatedRunIdProperty = RegisterProperty<int>(new PropertyInfo<int>("MagRelatedRunId", "MagRelatedRunId", 0));
+        public static readonly PropertyInfo<int> MagRelatedRunIdProperty = RegisterProperty<int>(new PropertyInfo<int>("MagRelatedRunId", "MagRelatedRunId", 0));
         public int MagRelatedRunId
         {
             get

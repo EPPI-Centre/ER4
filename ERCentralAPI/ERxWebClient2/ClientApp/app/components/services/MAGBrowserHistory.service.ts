@@ -1,7 +1,12 @@
-import { Injectable } from "@angular/core";
+import { Injectable, Inject } from "@angular/core";
 import { Router,  NavigationEnd } from '@angular/router';
 import { filter } from "rxjs/operators";
 import { Subscription } from "rxjs";
+import { MAGBrowserService } from "./MAGBrowser.service";
+import { HttpClient } from "@angular/common/http";
+import { ModalService } from "./modal.service";
+import { BusyAwareService } from "../helpers/BusyAwareService";
+import { MagBrowseHistoryItem } from "./MAGClasses.service";
 
 @Injectable({
 
@@ -9,14 +14,18 @@ import { Subscription } from "rxjs";
 
 })
 
-export class MAGBrowserHistoryService {
+export class MAGBrowserHistoryService extends BusyAwareService  {
     private history: NavigationEnd[] = [];
     public MAGSubscription: Subscription = new Subscription();
     constructor(
-
-        private router: Router
-
-    ) { }
+        private _httpC: HttpClient,
+        private _magBrowserService: MAGBrowserService,
+        private modalService: ModalService,
+        private router: Router,
+        @Inject('BASE_URL') private _baseUrl: string
+    ) {
+        super();
+    }
     public loadRouting(): void {
 
         this.MAGSubscription = this.router.events
@@ -45,4 +54,20 @@ export class MAGBrowserHistoryService {
 
         this.MAGSubscription.unsubscribe();
     }
+
+    public AddToBrowseHistory(item: MagBrowseHistoryItem ) {
+
+        this._BusyMethods.push("AddToBrowseHistory");
+        return this._httpC.post<MagBrowseHistoryItem>(this._baseUrl + 'api/MagHistoryList/AddToBrowseHistory', item)
+            .toPromise().then( () => {
+                this.RemoveBusy("AddToBrowseHistory");
+                return;
+            },
+            (error: any) => {
+                this.RemoveBusy("AddToBrowseHistory");
+                this.modalService.GenericError(error);
+                return error;
+            })
+    }
+
 }

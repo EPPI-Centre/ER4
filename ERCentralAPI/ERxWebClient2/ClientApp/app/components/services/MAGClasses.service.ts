@@ -299,3 +299,32 @@ export class MagCurrentInfo {
     makesDeploymentStatus: string = '';
 }
 
+export class MagBrowseHistoryItem {
+    constructor(title: string, browseType: string, paperId: number, paperFullRecord: string,
+        paperAbstract: string, linkedITEM_ID: number, uRLs: string, findOnWeb: string, fieldOfStudyId: number,
+        fieldOfStudy: string, attributeIds: string, magRelatedRunId: number) {
+        this.title = title;
+        this.browseType = browseType;
+        this.paperId = paperId;
+        this.paperFullRecord = paperFullRecord;
+        this.paperAbstract = paperAbstract;
+        this.linkedITEM_ID = linkedITEM_ID;
+        this.uRLs = uRLs;
+        this.findOnWeb = findOnWeb;
+    }
+    title: string = '';
+    browseType: string = '';
+    paperId: number = 0;
+    paperFullRecord: string = '';
+    paperAbstract: string = '';
+    fieldOfStudyId: number = 0;
+    fieldOfStudy: string = '';
+    attributeIds: string = '';
+    magRelatedRunId: number = 0;
+    linkedITEM_ID: number = 0;
+    uRLs: string = '';
+    findOnWeb: string = '';
+    contactId: number = 0;
+    dateBrowsed: Date = new Date();
+}
+
