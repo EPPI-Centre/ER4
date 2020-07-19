@@ -3,7 +3,7 @@ import { Location } from '@angular/common';
 import { searchService } from '../services/search.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Router, NavigationEnd } from '@angular/router';
-import { MagPaper,  MagFieldOfStudy } from '../services/MAGClasses.service';
+import { MagPaper,  MagFieldOfStudy, MagBrowseHistoryItem } from '../services/MAGClasses.service';
 import { MAGBrowserService } from '../services/MAGBrowser.service';
 import { MAGAdvancedService } from '../services/magAdvanced.service';
 import { MAGBrowserHistoryService } from '../services/MAGBrowserHistory.service';
@@ -30,7 +30,8 @@ export class MAGBrowser implements OnInit, OnDestroy {
         private _location: Location,
         public _notificationService: NotificationService,
         public _eventEmitterService: EventEmitterService,
-        private router: Router
+        private router: Router,
+        public _mAGBrowserHistoryService: MAGBrowserHistoryService
     ) {
 
     }
@@ -110,8 +111,14 @@ export class MAGBrowser implements OnInit, OnDestroy {
         });
     }
     public GetMagPaperRef(magPaperRefId: number) {
+
         this._magAdvancedService.FetchMagPaperId(magPaperRefId).then(
             (result: MagPaper) => {
+
+                let magBrowseItem: MagBrowseHistoryItem = new MagBrowseHistoryItem("Browse paper: " + result.fullRecord, "PaperDetail", result.paperId, result.fullRecord,
+                    result.abstract, result.linkedITEM_ID, result.urls, result.findOnWeb, 0, "", "", 0);
+                this._mAGBrowserHistoryService.AddToBrowseHistory(magBrowseItem);
+
                 this._magAdvancedService.PostFetchMagPaperCalls(result);
             });
     }
@@ -151,6 +158,13 @@ export class MAGBrowser implements OnInit, OnDestroy {
         }
     }
     public GetParentAndChildRelatedPapers(item: MagFieldOfStudy) {
+
+        let magBrowseItem: MagBrowseHistoryItem = new MagBrowseHistoryItem("Browse topic: " +
+            item.displayName, "BrowseTopic", 0, "", "", 0, "", "",
+            item.fieldOfStudyId, item.displayName, "", 0);
+        this._mAGBrowserHistoryService.AddToBrowseHistory(magBrowseItem);
+
+
         this._magBrowserService.currentFieldOfStudy = item;
         let FieldOfStudyId: number = item.fieldOfStudyId;
         this._magBrowserService.ParentTopic = item.displayName;

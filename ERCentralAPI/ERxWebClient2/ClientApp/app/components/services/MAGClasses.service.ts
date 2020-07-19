@@ -311,6 +311,10 @@ export class MagBrowseHistoryItem {
         this.linkedITEM_ID = linkedITEM_ID;
         this.uRLs = uRLs;
         this.findOnWeb = findOnWeb;
+        this.fieldOfStudyId = fieldOfStudyId;
+        this.fieldOfStudy = fieldOfStudy;
+        this.attributeIds = attributeIds;
+        this.magRelatedRunId = magRelatedRunId;
     }
     title: string = '';
     browseType: string = '';

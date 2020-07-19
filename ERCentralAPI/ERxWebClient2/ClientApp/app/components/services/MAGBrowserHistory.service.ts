@@ -70,4 +70,21 @@ export class MAGBrowserHistoryService extends BusyAwareService  {
             })
     }
 
+    public FetchMAGBrowserHistory() {
+
+        this._BusyMethods.push("FetchMAGBrowserHistory");
+        return this._httpC.get<MagBrowseHistoryItem[]>(this._baseUrl + 'api/MagHistoryList/GetMAGBrowseHistory')
+            .toPromise().then((result) => {
+                this.RemoveBusy("FetchMAGBrowserHistory");
+                console.log(result);
+                return;
+            },
+                (error: any) => {
+                    this.RemoveBusy("FetchMAGBrowserHistory");
+                    this.modalService.GenericError(error);
+                    return error;
+                })
+
+    }
+
 }

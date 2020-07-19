@@ -6,7 +6,7 @@ import { codesetSelectorComponent } from '../CodesetTrees/codesetSelector.compon
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Router, NavigationEnd } from '@angular/router';
-import { MVCMagPaperListSelectionCriteria, MagFieldOfStudy, MagPaper, TopicLink } from '../services/MAGClasses.service';
+import { MVCMagPaperListSelectionCriteria, MagFieldOfStudy, MagPaper, TopicLink, MagBrowseHistoryItem } from '../services/MAGClasses.service';
 import { EventEmitterService } from '../services/EventEmitter.service';
 import { MAGBrowserService } from '../services/MAGBrowser.service';
 import { MAGAdvancedService } from '../services/magAdvanced.service';
@@ -34,7 +34,8 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
         private _routingStateService: MAGBrowserHistoryService,
         private _location: Location,
         private _notificationService: NotificationService,
-        private router: Router
+        private router: Router,
+        public _mAGBrowserHistoryService: MAGBrowserHistoryService
 
     ) {
 
@@ -247,6 +248,9 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
     }
     public GetMatchedMagIncludedList(): void {
 
+        let item: MagBrowseHistoryItem = new MagBrowseHistoryItem("List of all included matches", "MatchesIncluded", 0, "", "", 0, "", "", 0, "", "", 0);
+        this._mAGBrowserHistoryService.AddToBrowseHistory(item);
+
         let criteria: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
         criteria.listType = "ReviewMatchedPapers";
         criteria.included = "Included";
@@ -270,6 +274,9 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
     }
     public GetMatchedMagExcludedList() {
 
+        let item: MagBrowseHistoryItem = new MagBrowseHistoryItem("List of all excluded matches", "MatchesExcluded", 0, "", "", 0, "", "", 0, "", "", 0);
+        this._mAGBrowserHistoryService.AddToBrowseHistory(item);
+
         let criteria: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
         criteria.listType = "ReviewMatchedPapers";
         criteria.included = "Excluded";
@@ -283,6 +290,10 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
 
     }
     public GetMatchedMagAllList() {
+
+        let item: MagBrowseHistoryItem = new MagBrowseHistoryItem("List of all matches in review (included and excluded)", "MatchesIncludedAndExcluded",
+            0, "", "", 0, "", "", 0, "", "", 0);
+        this._mAGBrowserHistoryService.AddToBrowseHistory(item);
 
         let criteria: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
         criteria.listType = "ReviewMatchedPapers";
@@ -308,13 +319,16 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
     public GetMatchedMagWithCodeList() {
 
         if (this.CurrentDropdownSelectedCode2 != null) {
+                                  
 
             let criteria: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
             criteria.listType = "ReviewMatchedPapersWithThisCode";
             var att = this.CurrentDropdownSelectedCode2 as SetAttribute;
             criteria.attributeIds = att.attribute_id.toString();
             criteria.pageSize = 20;
-            console.log('got in here');
+            let item: MagBrowseHistoryItem = new MagBrowseHistoryItem("List of all item matches with this code", "ReviewMatchedPapersWithThisCode", 0,
+                "", "", 0, "", "", 0, "", criteria.attributeIds, 0);
+            this._mAGBrowserHistoryService.AddToBrowseHistory(item);
 
             this._magAdvancedService.FetchMagPaperList(criteria).then(
                 () => {
@@ -340,6 +354,11 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
             (result: MagPaper) => {
                 
                 if (result.paperId != null && result.paperId > 0) {
+
+                    let magBrowseItem: MagBrowseHistoryItem = new MagBrowseHistoryItem("Go to specific Paper Id: " + result.fullRecord, "PaperDetail", result.paperId, result.fullRecord,
+                        result.abstract, result.linkedITEM_ID, result.urls, result.findOnWeb, 0, "", "", 0);
+                    this._mAGBrowserHistoryService.AddToBrowseHistory(magBrowseItem);
+
                     this._magAdvancedService.PostFetchMagPaperCalls(result);
                 } else {
 
