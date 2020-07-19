@@ -117,6 +117,7 @@ export class MAGBrowser implements OnInit, OnDestroy {
 
                 let magBrowseItem: MagBrowseHistoryItem = new MagBrowseHistoryItem("Browse paper: " + result.fullRecord, "PaperDetail", result.paperId, result.fullRecord,
                     result.abstract, result.linkedITEM_ID, result.urls, result.findOnWeb, 0, "", "", 0);
+                this._mAGBrowserHistoryService.IncrementHistoryCount();
                 this._mAGBrowserHistoryService.AddToBrowseHistory(magBrowseItem);
 
                 this._magAdvancedService.PostFetchMagPaperCalls(result);
@@ -162,6 +163,7 @@ export class MAGBrowser implements OnInit, OnDestroy {
         let magBrowseItem: MagBrowseHistoryItem = new MagBrowseHistoryItem("Browse topic: " +
             item.displayName, "BrowseTopic", 0, "", "", 0, "", "",
             item.fieldOfStudyId, item.displayName, "", 0);
+        this._mAGBrowserHistoryService.IncrementHistoryCount();
         this._mAGBrowserHistoryService.AddToBrowseHistory(magBrowseItem);
 
 

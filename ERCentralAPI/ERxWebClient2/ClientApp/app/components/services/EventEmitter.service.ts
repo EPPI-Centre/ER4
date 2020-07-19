@@ -13,6 +13,7 @@ export class EventEmitterService {
 	public UserInput: string = '';
 	public CloseReportsSectionEmitter = new EventEmitter();
 	public selectedButtonPressed: EventEmitter<boolean> = new EventEmitter();
+	public getMatchedIncludedItemsEvent: EventEmitter<boolean> = new EventEmitter();
 	//public allocateRelevantItems = new EventEmitter();
 	//public configurableReports = new EventEmitter();
 	
@@ -21,7 +22,6 @@ export class EventEmitterService {
 
 		alert('event emitter getting called here!!');
 	}
-
 	constructor() {
 
 	}

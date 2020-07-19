@@ -58,6 +58,7 @@ export class MAGHeaderBarComp implements OnInit {
     }
     public Selected() {
         let item: MagBrowseHistoryItem = new MagBrowseHistoryItem("List of all selected papers", "SelectedPapers", 0, "", "", 0, "", "", 0, "", "", 0);
+        this._mAGBrowserHistoryService.IncrementHistoryCount();
         this._mAGBrowserHistoryService.AddToBrowseHistory(item);
         this._eventEmitterService.selectedButtonPressed.emit();
     }
@@ -113,21 +114,25 @@ export class MAGHeaderBarComp implements OnInit {
     }
     public MagAdmin() {
         let item: MagBrowseHistoryItem = new MagBrowseHistoryItem("MAGAdmin", "Admin", 0, "", "", 0, "", "", 0, "", "", 0);
+        this._mAGBrowserHistoryService.IncrementHistoryCount();
         this._mAGBrowserHistoryService.AddToBrowseHistory(item);
         this.router.navigate(['MAGAdmin']);
     }
     public MatchingMAGItems() {
         let item: MagBrowseHistoryItem = new MagBrowseHistoryItem("Matching page", "matching", 0, "", "", 0, "", "", 0, "", "", 0)
+        this._mAGBrowserHistoryService.IncrementHistoryCount();
         this._mAGBrowserHistoryService.AddToBrowseHistory(item);
         this.router.navigate(['MatchingMAGItems']);
     }
     public AutoUpdateHome() {
         let item: MagBrowseHistoryItem = new MagBrowseHistoryItem("Manage review updates / find related papers", "RelatedPapers", 0, "", "", 0, "", "", 0, "", "", 0);
+        this._mAGBrowserHistoryService.IncrementHistoryCount();
         this._mAGBrowserHistoryService.AddToBrowseHistory(item);
         this.router.navigate(['BasicMAGFeatures']);
     }
     public ShowHistory() {
         let item: MagBrowseHistoryItem = new MagBrowseHistoryItem("View browse history", "History", 0, "", "", 0, "", "", 0, "", "", 0);
+        this._mAGBrowserHistoryService.IncrementHistoryCount();
         this._mAGBrowserHistoryService.AddToBrowseHistory(item);
         this.router.navigate(['MAGBrowserHistory']);
     }

@@ -1,10 +1,11 @@
 import { Location } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, EventEmitter } from '@angular/core';
 import { MAGBrowserHistoryService } from '../services/MAGBrowserHistory.service';
 import { NavigationEnd, Router } from '@angular/router';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { MAGAdvancedService } from '../services/magAdvanced.service';
 import { MagBrowseHistoryItem } from '../services/MAGClasses.service';
+import { EventEmitterService } from '../services/EventEmitter.service';
 
 @Component({
     selector: 'MAGBrowserHistory',
@@ -19,15 +20,14 @@ export class MAGBrowserHistory implements OnInit {
         public _MAGBrowserHistoryService: MAGBrowserHistoryService,
         public _magAdvancedService: MAGAdvancedService,
         private _ReviewerIdentityServ: ReviewerIdentityService,
-        private router: Router
-
+        private router: Router,
+        public _eventEmitterService: EventEmitterService
     ) {
 
     }
-    public currentBrowsePosition: number = 0;
+
     //public MAGBrowsingHistory: NavigationEnd[] = [];
     public magBrowseHistoryList: MagBrowseHistoryItem[] = [];
-
     ngOnInit() {
 
         //this.MAGBrowsingHistory = this._MAGBrowserHistoryService.getHistory();
@@ -36,10 +36,11 @@ export class MAGBrowserHistory implements OnInit {
     public get HasWriteRights(): boolean {
         return this._ReviewerIdentityServ.HasWriteRights;
     }
-    GoToUrl(url: string) {
+    GoToUrl(index: number) {
 
-        console.log(url);
-        this.router.navigate([url]);
+        console.log('go to url', index);
+        //this.router.navigate([url]);
+        this.NavigateToThisPoint(index);
     }
     //RemoveUrl(item: NavigationEnd) {
 
@@ -65,14 +66,16 @@ export class MAGBrowserHistory implements OnInit {
     }
 
     public NavigateToThisPoint(browsePosition: number) {
+      
+        if (browsePosition > -1) {
 
-        if (browsePosition > 0) {
-
-            this.currentBrowsePosition = browsePosition;
-           
-            if (this.magBrowseHistoryList != null && browsePosition <= this.magBrowseHistoryList.length) {
-                                                
-                let mbh: MagBrowseHistoryItem = this.magBrowseHistoryList[browsePosition - 1];
+            this._MAGBrowserHistoryService.currentBrowsePosition = browsePosition;
+            console.log('browsePosition', browsePosition);
+            console.log('this.magBrowseHistoryList.length', this.magBrowseHistoryList.length);
+            if (this._MAGBrowserHistoryService._MAGBrowserHistoryList != null && browsePosition <= this._MAGBrowserHistoryService._MAGBrowserHistoryList.length) {
+                console.log('inside navigate to this point second if');
+                let mbh: MagBrowseHistoryItem = this._MAGBrowserHistoryService._MAGBrowserHistoryList[browsePosition];
+                console.log('inside navigate to this point object:', JSON.stringify(mbh));
                     switch (mbh.browseType) {
                         case "History":
                             this.ShowHistoryPage();
@@ -85,6 +88,7 @@ export class MAGBrowserHistory implements OnInit {
                                 mbh.findOnWeb, mbh.linkedITEM_ID);
                             break;
                         case "MatchesIncluded":
+                            console.log('inside Matches Included');
                             this.ShowMAGMatchesPage("included");
                             break;
                         case "MatchesExcluded":
@@ -124,7 +128,8 @@ export class MAGBrowserHistory implements OnInit {
         alert('not implemented yet');
     }
     public ShowMAGMatchesPage(incOrExc: string) {
-        alert('not implemented yet');
+
+        this._eventEmitterService.getMatchedIncludedItemsEvent.emit();
     }
     public ShowAllWithThisCode(attributeIds: string) {
         alert('not implemented yet');

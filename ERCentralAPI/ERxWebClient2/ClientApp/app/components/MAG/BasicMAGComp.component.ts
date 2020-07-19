@@ -97,6 +97,7 @@ export class BasicMAGComp implements OnInit {
 
             let magBrowseItem: MagBrowseHistoryItem = new MagBrowseHistoryItem("Papers identified from auto-identification run", "MagRelatedPapersRunList", 0,
                 "", "", 0, "", "", 0, "", "", item.magRelatedRunId);
+            this._mAGBrowserHistoryService.IncrementHistoryCount();
             this._mAGBrowserHistoryService.AddToBrowseHistory(magBrowseItem);
 
             this._magBrowserService.FetchMAGRelatedPaperRunsListById(item.magRelatedRunId)
