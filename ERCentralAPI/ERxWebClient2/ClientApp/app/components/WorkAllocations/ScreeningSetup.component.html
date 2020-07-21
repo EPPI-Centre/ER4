@@ -1,0 +1,628 @@
+<div class="col-12 p-0 mx-1 rounded border container border-info" style="min-width:650px; overflow:auto;">
+    <div *ngIf="IsServiceBusy()" class="k-loading-image" style="position: fixed; top: 0%; height:100%; max-height:100%"></div>
+    <div *ngIf="CurrentStep == 0">
+        Start wizard or see all config?
+        <div class="col-10 center rounded border border-info alert-info ">
+            You can setup and review your screening settings in two ways:
+            <ol>
+                <li>Via the guided steps wizard (preferred)</li>
+                <li>By viewing all settings in one go (useful for monitoring)</li>
+            </ol>
+        </div>
+        <div class="col-10 center rounded border border-success">
+            <button class=" pt-1 m-1 btn btn-success" style="min-width:100px" [disabled]="!CanGoToStep2()" (click)="NextStep()">
+                Next
+            </button>
+            <button class=" pt-1 m-1 btn btn-outline-primary" style="min-width:100px" [disabled]="!CanGoToStep2()" (click)="GoToAllinOneStep()">
+                All in one
+            </button>
+            <button class=" pt-1 m-1 btn btn-outline-dark " (click)="Cancel()" style="min-width:100px">
+                Cancel
+            </button>
+        </div>
+    </div>
+    <!--This is the actual Wizard part-->
+    <div *ngIf="CurrentStep > 0 && CurrentStep < 4">
+        <div class="row my-1 mx-0 alert alert-success h4">
+            Setup Screening - Step {{CurrentStep}}: {{CurrentStepName}}
+        </div>
+        <div class="col-12 rounded border border-info alert-info m-1 p-1 ">
+            This wizard will help you set up your coding assignments in 3 guided steps:<br />
+            <ol class="pl-4 mb-0">
+                <li [ngClass]="{'font-weight-bold' : CurrentStep==1}">
+                    <div class="row m-0">
+                        Select the references to code
+                        <div *ngIf="workAllocationFromWizardCommand.numberOfItemsToAssign > 0" class="small border border-success rounded bg-light ml-1 px-1">
+                            N of items: {{ItemsInTheSelectedPot}}
+                            | {{workAllocationFromWizardCommand.filterType}}
+                            <span *ngIf="workAllocationFromWizardCommand.filterType == 'No code / coding tool filter'">
+                                ({{IncludedExcludedText}}, {{workAllocationFromWizardCommand.percentageOfWholePot}}%)
+                            </span>
+                            <span *ngIf="workAllocationFromWizardCommand.filterType == 'All without any codes from this coding tool' || workAllocationFromWizardCommand.filterType == 'All with any codes from this coding tool'">
+                                ({{selectedCodeSetDropDown?.name}}, {{workAllocationFromWizardCommand.percentageOfWholePot}}%)
+                            </span>
+                            <span *ngIf="workAllocationFromWizardCommand.filterType == 'All with this code' || workAllocationFromWizardCommand.filterType == 'All without this code'">
+                                ({{DropdownWithWithoutSelectedCode?.name}}, {{IncludedExcludedText}}, {{workAllocationFromWizardCommand.percentageOfWholePot}}%)
+                            </span>
+                        </div>
+                    </div>
+                </li>
+                <li [ngClass]="{'font-weight-bold' : CurrentStep==2}">
+                    <div class="row m-0">
+                        Choose the coding to be done
+                        <div *ngIf="CanSelectAllocationDestination" class="small border border-success rounded bg-light ml-1 px-1">
+                            Work on: {{WorkToDoSelectedCodeSet.name}}
+                            <span *ngIf="workAllocationFromWizardCommand.peoplePerItem == 1">
+                                | One person per item
+                            </span>
+                            <span *ngIf="workAllocationFromWizardCommand.peoplePerItem > 1">
+                                | {{workAllocationFromWizardCommand.peoplePerItem}} people per item
+                            </span>
+                            <span *ngIf="AllocationsDestination">
+                                | create allocation codes in: {{AllocationsDestination.name}}
+                            </span>
+                        </div>
+                    </div>
+                </li>
+                <li [ngClass]="{'font-weight-bold' : CurrentStep==3}">Assign the coding to each reviewer</li>
+            </ol>
+        </div>
+        <div *ngIf="CurrentStep==1" class="">
+            <!--<div class="row my-1 mx-0">
+                <div class="col-3">
+                    1.1. Select your references:
+                </div>
+                <div class="col-5">
+                    <select #AllocateOptionsDropDown class="form-control" name="AllocateOptions"
+                            style="min-width: 200px; max-width:720px;" (change)="SetRelevantDropDownValues($event.target.value)">
+                        <option *ngFor="let item of AllocateOptions" [value]="item.key"
+                                [selected]="item.value == workAllocationFromWizardCommand.filterType">
+                            {{item.value}}
+                        </option>
+                    </select>
+                    <div *ngIf="workAllocationFromWizardCommand.filterType != ''">
+                        <div *ngIf="workAllocationFromWizardCommand.filterType == 'No code / coding tool filter'">You will use all {{IncludedExcludedText}} items.</div>
+                        <div *ngIf="workAllocationFromWizardCommand.filterType == 'All without any codes from this coding tool' || workAllocationFromWizardCommand.filterType == 'All with any codes from this coding tool'">
+                            <div class="col-12" style="">
+                                Select Coding Tool:
+                            </div>
+                            <div ngbDropdown class="col-12 col-sm-10" style="min-width:200px;">
+                                <button class="btn btn-outline-secondary dropdown-toggle col-12"
+                                        style="min-width: 350px; max-width:720px;"
+                                        (click)="isCollapsedAllocateOptions = false;"
+                                        id="dropdownBasicCodingTool" ngbDropdownToggle>
+                                    {{selectedCodeSetDropDown.name}}
+                                </button>
+                                <div ngbDropdownMenu aria-labelledby="dropdownBasicCodingTool">
+                                    <button (click)="setCodeSetDropDown(item)"
+                                            *ngFor="let item of CodeSets;" class="dropdown-item">
+                                        {{item.name}}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div *ngIf="workAllocationFromWizardCommand.filterType == 'All with this code' || workAllocationFromWizardCommand.filterType == 'All without this code'">
+                            <div class="col-12">
+                                Select code:
+                            </div>
+                            <div ngbDropdown class="col-12 col-sm-10">
+                                <button ngbDropdownAnchor class="btn btn-outline-secondary dropdown-toggle col-12"
+                                        id="dropdownTreeRandomAllocate"
+                                        style="min-width: 350px; max-width:720px;"
+                                        (click)="isCollapsedAllocateOptions = !isCollapsedAllocateOptions;"
+                                        [attr.aria-expanded]="!isCollapsedAllocateOptions" aria-controls="collapseCodeTreeWithWithout">
+                                    {{DropdownWithWithoutSelectedCode?.name}}
+                                </button>
+                                <div ngbDropdownMenu class="dropdown-menu" id="collapseCodeTreeWithWithout" [ngbCollapse]="!isCollapsedAllocateOptions">
+                                    <codesetSelector [IsMultiSelect]="false"
+                                                     [WhatIsSelectable]="'SetAttribute'" [MaxHeight]="500" #WithOrWithoutCode
+                                                     (selectedNodeInTree)="CloseCodeDropDownCodeWithWithout()"></codesetSelector>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-4 rounded border border-info alert-info small">
+                    Select the references based on previous coding, or if you have not yet begun coding,
+                    select ‘No code/coding tool filter’ to include all of the references in your review.
+                </div>
+            </div>
+            <div class="row my-1 mx-0 border-top" [ngClass]="{'DisabledStep' : !SelectionCriteriaIsValid}">
+                <div class="col-3">
+                    1.2. Included (I) or Excluded (E)?
+                </div>
+                <div class="col-5">
+                    <div class="col-12 row justify-content-center justify-content-md-start m-1">
+                        <input class="mt-1 mr-1 ml-sm-4" type="radio" [disabled]="!SelectionCriteriaIsValid" [value]="true" (click)="ClearPot()" [(ngModel)]="workAllocationFromWizardCommand.included">
+                        <div class="mr-2">Included</div>
+                        <input class="mt-1 mr-1" type="radio" [value]="false" [disabled]="!SelectionCriteriaIsValid" (click)="ClearPot()" [(ngModel)]="workAllocationFromWizardCommand.included">
+                        <div class="mr-2">Excluded</div>
+                    </div>
+                </div>
+                <div class="col-4 rounded border border-info alert-info small">
+                    Restrict the selected references based on their (I) Include or (E) Exclude flag.
+                </div>
+            </div>
+            <div class="row my-1 mx-0 border-top" [ngClass]="{'DisabledStep' : !SelectionCriteriaIsValid}">
+                <div class="col-3">
+                    1.3. Percentage of references:
+                </div>
+                <div class="col-5 row m-0">
+                    <div>
+                        <kendo-numerictextbox [(ngModel)]="workAllocationFromWizardCommand.percentageOfWholePot"
+                                              [disabled]="!SelectionCriteriaIsValid"
+                                              [min]="1" [format]="'n0'"
+                                              [max]="100"
+                                              [step]="1"
+                                              [autoCorrect]="true"
+                                              (valueChange)="ClearPot()"
+                                              class="border border-dark rounded mt-1"
+                                              style="width: 100px;">
+                        </kendo-numerictextbox>
+                        <button class=" ml-2 mt-1 rounded  btn btn-outline-primary" style="min-width:70px" [disabled]="!SelectionCriteriaIsValid" (click)="GetPreviewOrDoit(1)">
+                            Preview
+                        </button>
+                    </div>
+                    <div class="align-self-center ml-2" *ngIf="workAllocationFromWizardCommand.numberOfItemsToAssign >= 0">
+                        Number of references: <strong>{{ItemsInTheSelectedPot}}</strong>.
+                    </div>
+                </div>
+                <div class="col-4 rounded border border-info alert-info small">
+                    Select a percentage of the references identified in steps 1.1 and 1.2.  <br />
+                    You <strong>must</strong> click "preview" to proceed.
+                </div>
+            </div>-->
+            <div class="row justify-content-center mx-0">
+                <button class=" pt-1 m-1 btn btn-success" style="min-width:100px" [disabled]="!CanGoToStep2()" (click)="NextStep()">
+                    Next
+                </button>
+                <button class=" pt-1 m-1 btn btn-outline-dark " (click)="Cancel()" style="min-width:100px">
+                    Cancel
+                </button>
+            </div>
+        </div>
+
+
+        <div *ngIf="CurrentStep==2" class="">
+            <!--<div class="row my-1 mx-0 border-top">
+                <div class="col-3">
+                    2.1. Select the coding tool:
+                </div>
+                <div class="col-5">
+                    <div ngbDropdown class="col-12 col-sm-10">
+                        <div ngbDropdown class="col-12 col-sm-10" style="min-width:200px;">
+                            <button class="btn btn-outline-secondary dropdown-toggle col-12"
+                                    style="min-width: 350px; max-width:720px;"
+                                    (click)="isCollapsedAllocateOptions = false;"
+                                    id="dropdownBasicCodingTool" ngbDropdownToggle>
+                                {{WorkToDoSelectedCodeSet.name}}
+                            </button>
+                            <div ngbDropdownMenu aria-labelledby="dropdownBasicCodingTool">
+                                <button (click)="SetWorkToDoCodeSet(item)"
+                                        *ngFor="let item of CodeSets;" class="dropdown-item">
+                                    {{item.name}}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-4 rounded border border-info alert-info small">
+                    Select the coding tool that will be used by reviewers.
+                </div>
+            </div>
+            <div class="row my-1 mx-0 border-top" [ngClass]="{'DisabledStep' : WorkToDoSelectedCodeSet.set_id < 1}">
+                <div class="col-3">
+                    2.2. How many people should code each item?
+                </div>
+                <div class="col-5 row m-0">
+                    <div class="col-12 m-0">
+                        <kendo-numerictextbox [(ngModel)]="workAllocationFromWizardCommand.peoplePerItem"
+                                              [disabled]="WorkToDoSelectedCodeSet.set_id < 1"
+                                              [min]="1" [format]="'n0'"
+                                              [max]="3"
+                                              [step]="1"
+                                              [autoCorrect]="true"
+                                              (valueChange)="PeoplePerItemChanged()"
+                                              class="border border-dark rounded mt-1"
+                                              style="width: 90px;">
+                        </kendo-numerictextbox>
+                    </div>
+                    <div *ngIf="WorkToDoSelectedCodeSet.set_id < 1" class="alert-danger rounded row col-12 m-1">No Coding tool Selected</div>
+                    <div *ngIf="WorkToDoSelectedCodeSet.set_id >= 1 && (WorkToDoSelectedCodeSet.codingIsFinal && workAllocationFromWizardCommand.peoplePerItem == 1)"
+                         class="alert-success  rounded row col-12 m-1">
+                        The selected coding tool is set for single coding (Normal Data Entry): one person per item is appropriate.
+                    </div>
+                    <div *ngIf="WorkToDoSelectedCodeSet.set_id >= 1 && (WorkToDoSelectedCodeSet.codingIsFinal && workAllocationFromWizardCommand.peoplePerItem != 1)"
+                         class="alert-danger rounded row col-12 m-1">
+                        <div *ngIf="WorkToDoSelectedCodeSet.setType.setTypeId==6">
+                            The selected coding tool is set for single coding (Normal Data Entry).<br />
+                            Please change the number of people per item to 1: coding tools of "Administration" type cannot be configured for Comparison Data Entry.
+                        </div>
+                        <div *ngIf="WorkToDoSelectedCodeSet.setType.setTypeId!=6" class="col-12 m-0 p-0">
+                            <div>
+                                The selected coding tool is set for single coding (Normal Data Entry).<br />
+                                Do you wish to change the data entry mode to Comparison Coding?
+                            </div>
+                            <div class="alert-light border border-danger rounded col-12 small">
+                                <div class="mt-1">Change to Data Entry Mode: {{WorkToDoSelectedCodeSetDataEntryM}}</div>
+                                <button class="btn btn-outline-danger btn-sm ml-1 mb-1" type="button" *ngIf="!ShowChangeDataEntry"
+                                        [disabled]="!CanEditSelectedSet"
+                                        (click)="ShowChangeDataEntryClicked()">
+                                    Change
+                                </button>
+                                <div *ngIf="ShowChangeDataEntry" class="alert alert-danger">
+                                    <div>{{ChangeDataEntryModeMessage}}</div>
+                                    <button class="btn btn-outline-secondary btn-sm mb-1" (click)="HideChangeDataEntry()" type="button">Cancel</button>
+                                    <div *ngIf="CanChangeDataEntryMode" class="alert alert-light">
+                                        Yes, change to
+                                        <button class="btn btn-outline-danger btn-sm ml-1 mr-1" type="button"
+                                                [disabled]="!CanWrite()" (click)="DoChangeDataEntry()">
+                                            {{DestinationDataEntryMode}}
+                                        </button>
+                                        mode.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div *ngIf="WorkToDoSelectedCodeSet.set_id >= 1 && (!WorkToDoSelectedCodeSet.codingIsFinal && workAllocationFromWizardCommand.peoplePerItem > 1)"
+                         class="alert-success  rounded row col-12 m-1">
+                        The selected coding tool is set for multiple coding (Comparison Data Entry): more than one person per item is appropriate.
+                    </div>
+                    <div *ngIf="WorkToDoSelectedCodeSet.set_id >= 1 && (!WorkToDoSelectedCodeSet.codingIsFinal && workAllocationFromWizardCommand.peoplePerItem == 1)"
+                         class="alert-danger  rounded row col-12 m-1">
+                        <div>
+                            The selected coding tool is set for multiple coding (Comparison Data Entry).<br />
+                            Do you wish to change the data entry mode to Normal coding?
+                        </div>
+                        <div class="alert-light border border-danger rounded col-12 small">
+                            <div class="mt-1">Change to Data Entry Mode: {{WorkToDoSelectedCodeSetDataEntryM}}</div>
+                            <button class="btn btn-outline-danger btn-sm ml-1 mb-1" type="button" *ngIf="!ShowChangeDataEntry"
+                                    [disabled]="!CanEditSelectedSet"
+                                    (click)="ShowChangeDataEntryClicked()">
+                                Change
+                            </button>
+                            <div *ngIf="ShowChangeDataEntry" class="alert alert-danger">
+                                <div>{{ChangeDataEntryModeMessage}}</div>
+                                <button class="btn btn-outline-secondary btn-sm mb-1" (click)="HideChangeDataEntry()" type="button">Cancel</button>
+                                <div *ngIf="CanChangeDataEntryMode" class="alert alert-light">
+                                    Yes, change to
+                                    <button class="btn btn-outline-danger btn-sm ml-1 mr-1" type="button"
+                                            [disabled]="!CanWrite()" (click)="DoChangeDataEntry()">
+                                        {{DestinationDataEntryMode}}
+                                    </button>
+                                    mode.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-4 rounded border border-info alert-info small">
+                    Select the number of reviewers that will be coding each item (up to three). <br />
+                    [Is the coding tool you picked in the suitable data-entry mode (Normal or Comparison data-entry)?]
+                </div>
+            </div>
+            <div class="row my-1 mx-0 border-top" [ngClass]="{'DisabledStep' : !CanSelectAllocationDestination}">
+                <div class="col-3">
+                    2.3. Create reference groups here:
+                </div>
+                <div class="col-5">
+                    <div class="col-12">
+                        Select code:
+                    </div>
+                    <div ngbDropdown class="col-12 col-sm-10">
+                        <button ngbDropdownAnchor class="btn btn-outline-secondary dropdown-toggle col-12"
+                                id="dropdownTreeRandomAllocateTarget"
+                                [disabled]="!CanSelectAllocationDestination"
+                                style="min-width: 350px; max-width:720px;"
+                                (click)="isCollapsedAllocateOptions = !isCollapsedAllocateOptions;"
+                                [attr.aria-expanded]="!isCollapsedAllocateOptions" aria-controls="collapseCodeTreeWithWithout">
+                            {{AllocationsDestination?.name}}
+                        </button>
+                        <div ngbDropdownMenu class="dropdown-menu" id="collapseCodeTreeWithWithout" [ngbCollapse]="!isCollapsedAllocateOptions">
+                            <codesetSelector [IsMultiSelect]="false"
+                                             [WhatIsSelectable]="'RandomAllocation'" [MaxHeight]="500" #DropDownCodeDestination
+                                             (selectedNodeInTree)="CloseCodeDropDownCodeDestination()"></codesetSelector>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-4 rounded border border-info alert-info small">
+                    Select a location where the groups of references will be stored. These groups are used to assign work to reviewers and track progress.
+                </div>
+            </div>-->
+            <div class="row justify-content-center mx-0">
+                <button (click)="PreviousStep()" class=" pt-1 m-1 btn btn-outline-dark " style="min-width:100px">
+                    Previous
+                </button>
+                <button class=" pt-1 m-1 btn btn-success" style="min-width:100px" [disabled]="!CanGoToStep3()" (click)="NextStep()">
+                    Next
+                </button>
+                <button class=" pt-1 m-1 btn btn-outline-dark " (click)="Cancel()" style="min-width:100px">
+                    Cancel
+                </button>
+            </div>
+        </div>
+
+
+        <div *ngIf="CurrentStep==3" class="col-12 p-1 m-0 rounded border container border-info">
+            <!--<div class="row my-1 mx-0 border-top">
+                <div class="col-2">
+                    3.1. Select at least {{this.workAllocationFromWizardCommand.peoplePerItem}} reviewer(s):
+                </div>
+                <div class="col-6 row m-0 p-0 ">
+                    <div *ngIf="Contacts.length > 4" class="col-12">
+                        Select All: <input type="checkbox" class="d-inline mr-1" [ngModel]="AllContactsSelected" (click)="SelectAllMembers($event)" />
+                    </div>
+                    <div *ngFor="let member of Contacts" class="border border-secondary rounded my-0 mx-1 p-1 " [ngClass]="{'alert-success' : member.IsSelected}">
+                        <input type="checkbox" class="d-inline mr-1" [ngModel]="member.IsSelected" (click)="SelectMember(member)" />
+                        <div class="d-inline">{{member.contactName}}</div>
+                    </div>
+                </div>
+                <div class="col-4 rounded border border-info alert-info small">
+                    Select the reviewers who will do the coding.
+                </div>
+            </div>
+            <div class="row my-1 mx-0 border-top" [ngClass]="{'DisabledStep' : !BarelyEnoughContactsSelected}">
+                <div class="col-2">
+                    3.2. Distribute the work:
+                </div>
+                <div class="col-5">
+                    <div class="col-12 row justify-content-center m-1">
+                        <div class="d-block rounded border border-info m-1">
+                            <input class="mt-1 mx-1 d-inline" type="radio" name="Distributeworkevenlyn" [disabled]="!BarelyEnoughContactsSelected"
+                                   [value]="true" (click)="ResetStep34()" [(ngModel)]="DistributeWorkEvenly">
+                            <div class="mr-2 d-inline">Evenly</div>
+                        </div>
+                        <div class="d-block rounded border border-info m-1">
+                            <input class="mt-1 mx-1 d-inline" type="radio" name="Distributeworkevenlyn" [disabled]="!CanDistributeUnevenly"
+                                   [value]="false" (click)="ResetStep34()" [(ngModel)]="DistributeWorkEvenly">
+                            <div class="mr-2 d-inline">Manually</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-5 rounded border border-info alert-info small">
+                    <strong>Evenly</strong>: all reviewers automatically get the same number of references.<br />
+                    <strong>Manually</strong>: you'll distribute the references to each reviewer.
+                </div>
+            </div>
+            <div class="row my-1 mx-0 border-top" [ngClass]="{'DisabledStep' : !EnoughContactsSelected || workAllocationFromWizardCommand.peoplePerItem == 1}">
+                <div class="col-2">
+                    3.3 One group per person or shared groups?
+                </div>
+                <div class="col-5">
+                    <div class="col-12 row justify-content-center m-1">
+                        <div class="d-block rounded border border-info m-1">
+                            <input class="mt-1 mx-1 d-inline" type="radio" [disabled]="!EnoughContactsSelected" name="1groupPerPerson"
+                                   [value]="false" (click)="WipePreview()" [(ngModel)]="workAllocationFromWizardCommand.oneGroupPerPerson">
+                            <div class="mr-2 d-inline">Shared groups</div>
+                        </div>
+                        <div class="d-block rounded border border-info m-1">
+                            <input class="mt-1 mx-1 d-inline" type="radio" [disabled]="!EnoughContactsSelected" name="1groupPerPerson"
+                                   [value]="true" (click)="WipePreview()" [(ngModel)]="workAllocationFromWizardCommand.oneGroupPerPerson">
+                            <div class="mr-2 d-inline">One group per person</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-5 rounded border border-info alert-info small" style="max-height:150px; overflow-y:auto">
+                    <span *ngIf="workAllocationFromWizardCommand.peoplePerItem == 1">This setting has no effect when each reference will be coded by one person only. <br /></span>
+                    <strong>Shared groups</strong>: each group identifies references by the combination of people who will be coding them. Creates numerous "coding assignments".<br />
+                    <strong>One group per person</strong>: each group identifies the references that will be coded by a single person. Creates the smallest possible number of "coding assigments".
+
+                </div>
+            </div>
+            <div class="row my-1 mx-0 border-top">
+                <div class="col-2">
+                    3.4 Naming the allocation codes.
+                </div>
+                <div class="col-6">
+                    Allocation prefix will be:
+                    <span *ngIf="workAllocationFromWizardCommand.groupsPrefix == ''" class="font-weight-bold">Coding on '{{WorkToDoSelectedCodeSet.name}}'</span>
+                    <span *ngIf="workAllocationFromWizardCommand.groupsPrefix != ''" class="font-weight-bold">{{workAllocationFromWizardCommand.groupsPrefix}}</span>
+
+                    <button class=" pt-1 m-1 rounded btn btn-sm btn-outline-primary " (click)="ShowEditCodesPrefixClicked()">
+                        Edit
+                    </button>
+                    <div *ngIf="ShowEditCodesPrefix" class="col-12">
+                        <input type="text" [(ngModel)]="workAllocationFromWizardCommand.groupsPrefix" class="w-75" />
+                        <button class=" pt-1 m-1 rounded btn btn-sm btn-outline-dark " (click)="ShowEditCodesPrefixClicked()">
+                            Save
+                        </button>
+                    </div>
+                </div>
+                <div class="col-4 rounded border border-info alert-info small">
+                    The groups of references (Allocation Codes) should have meaningful names, to help indicate their purpose.
+                </div>
+            </div>
+            <div class="row my-1 mx-0 border-top">
+                <div class="col-2">
+                    3.5 Details and Preview.
+                </div>
+                <div class="col-6">
+                    <div *ngIf="DistributeWorkEvenly" class="row justify-content-center mt-1">
+                        <button class=" pt-1 ml-2 rounded  btn btn-outline-primary" style="min-width:70px" [disabled]="!EnoughContactsSelected" (click)="GetPreviewOrDoit(2)">
+                            Preview
+                        </button>
+                    </div>
+                    <div *ngIf="!DistributeWorkEvenly && EnoughContactsSelected" class="col-12 row m-0 p-0">
+                        <div class="col-12 row m-0 p-0">
+                            <div *ngFor="let member of SelectedContacts" class="border border-secondary rounded my-0 mx-1 p-1 col small" [ngClass]="{'alert-success' : member.NumberOfItems > 0}">
+                                <div class="d-inline">{{member.contactName}}</div>
+                                <button *ngIf="member.NumberOfItems == 0 && !AllManualAssignmentsDone" class=" px-1 py-0 mx-1 my-0 rounded  btn btn-sm btn-outline-primary" (click)="ShowAddManualMember(member)">
+                                    Add
+                                </button>
+                                <div *ngIf="member.NumberOfItems > 0">
+                                    ({{member.NumberOfItems}})
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 row mx-2 my-1 p-2 rounded border border-info ">
+                            <div class=""> Remaining items: <strong>{{ToBeManuallyAssignedStill}}</strong> (of {{workAllocationFromWizardCommand.peoplePerItem}} * {{workAllocationFromWizardCommand.numberOfItemsToAssign}} = {{workAllocationFromWizardCommand.peoplePerItem * workAllocationFromWizardCommand.numberOfItemsToAssign}})</div>
+                            <button class=" px-1 py-0 mx-1 my-0 btn btn-sm btn-outline-primary" (click)="DistributeRemainingManualAssignTable()">
+                                Distribute remaining
+                            </button>
+                            <button class=" px-1 py-0 mx-1 my-0 btn btn-sm btn-outline-danger" (click)="ResetManualAssignTable()">
+                                Reset
+                            </button>
+                        </div>
+                        <div *ngIf="ToAddManualMember != null" class="col-12">
+                            Adding <b class="mr-1">{{ToAddManualMember.contactName}}</b>
+                            <kendo-numerictextbox #NofItemstoAssigntoPerson
+                                                  [(ngModel)]="ToAddManualMember.NumberOfItems"
+                                                  [min]="1" [format]="'n0'"
+                                                  [max]="workAllocationFromWizardCommand.numberOfItemsToAssign"
+                                                  [step]="1"
+                                                  [autoCorrect]="true"
+                                                  class="border border-dark rounded mt-1"
+                                                  style="">
+                            </kendo-numerictextbox>
+                            <button class=" ml-2 mt-1 rounded  btn btn-outline-success" (click)="AddManualMemberToTable()">
+                                Add
+                            </button>
+                            <button class=" ml-2 mt-1 rounded  btn btn-outline-dark" (click)="HideAddManualMember()">
+                                Cancel
+                            </button>
+                        </div>
+                        <div class="col-12 row">
+                            <div class="col">
+                                First batch:<br />
+                                <div *ngFor="let member of ManualAssignTable[0]" class="border border-secondary rounded my-0 mx-1 p-1 " [ngClass]="{'alert-success' : member.NumberOfItems > 0}">
+                                    <div class="d-inline">{{member.contactName}} ({{member.NumberOfItems}} items)</div>
+                                    <button *ngIf="IsLastInManualAssignTable(member)" class=" px-1 py-0 mx-1 my-0 rounded  btn btn-sm btn-outline-danger" (click)="RemoveLastManualMember()">
+                                        Remove
+                                    </button>
+                                </div>
+                            </div>
+                            <div *ngIf="workAllocationFromWizardCommand.peoplePerItem > 1" class="col">
+                                Second batch:<br />
+                                <div *ngFor="let member of ManualAssignTable[1]" class="border border-secondary rounded my-0 mx-1 p-1 " [ngClass]="{'alert-success' : member.NumberOfItems > 0}">
+                                    <div class="d-inline">{{member.contactName}} ({{member.NumberOfItems}} items)</div>
+                                    <button *ngIf="IsLastInManualAssignTable(member)" class=" px-1 py-0 mx-1 my-0 rounded  btn btn-sm btn-outline-danger" (click)="RemoveLastManualMember()">
+                                        Remove
+                                    </button>
+                                </div>
+                            </div>
+                            <div *ngIf="workAllocationFromWizardCommand.peoplePerItem > 2" class="col">
+                                Third batch:<br />
+                                <div *ngFor="let member of ManualAssignTable[2]" class="border border-secondary rounded my-0 mx-1 p-1 " [ngClass]="{'alert-success' : member.NumberOfItems > 0}">
+                                    <div class="d-inline">{{member.contactName}} ({{member.NumberOfItems}} items)</div>
+                                    <button *ngIf="IsLastInManualAssignTable(member)" class=" px-1 py-0 mx-1 my-0 rounded  btn btn-sm btn-outline-danger" (click)="RemoveLastManualMember()">
+                                        Remove
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div *ngIf="AllManualAssignmentsDone" class="row col-12 justify-content-center mt-1 mx-0 px-0">
+                            <button class=" pt-1 ml-2 rounded btn btn-outline-primary" style="min-width:70px" (click)="GetPreviewOrDoit(2)">
+                                Preview
+                            </button>
+                        </div>
+                    </div>
+
+
+                    <div *ngIf="WorkAllocWizardResult != null &&  WorkAllocWizardResult.preview != undefined" class="col-12 mt-1" style="max-height:300px;max-width:600px;overflow:auto;">
+                        Preview:
+                        <span *ngIf="workAllocationFromWizardCommand.peoplePerItem > 1 && workAllocationFromWizardCommand.oneGroupPerPerson">(one group per person)</span>
+                        <span *ngIf="workAllocationFromWizardCommand.peoplePerItem > 1 && !workAllocationFromWizardCommand.oneGroupPerPerson">(shared groups)</span>
+                        <table class="table table-sm table-bordered table-striped">
+                            <tr *ngFor="let row of WorkAllocWizardResult.preview;let i = index">
+                                <td *ngFor="let cell of row" class="small" [ngClass]="{'font-weight-bold alert-info': i== 0}">{{cell}}</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                <div class="col-4 rounded border border-info alert-info small">
+                    <span *ngIf="!DistributeWorkEvenly">Please distribute the references among the reviewers.<br /></span>
+                    You <strong>must</strong> click "Preview" to check if your distributions are possible and meet your requirements.
+                </div>
+            </div>-->
+
+
+            <div class="row justify-content-center mx-0">
+                <button (click)="PreviousStep(); ResetStep34();" class=" pt-1 m-1 rounded btn btn-outline-dark " style="min-width:100px">
+                    Previous
+                </button>
+                <button class=" pt-1 m-1 rounded  btn btn-success" style="min-width:100px"
+                        [disabled]="!(WorkAllocWizardResult != null &&  WorkAllocWizardResult.preview != undefined && WorkAllocWizardResult.isSuccess)"
+                        (click)="GetPreviewOrDoit(0)">
+                    Do it!
+                </button>
+                <button class=" pt-1 m-1 rounded btn btn-outline-dark" (click)="Cancel()" style="min-width:100px">
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+    <!--All config and summary-->
+    <div *ngIf="CurrentStep == 4" class="row m-1 p-1">
+        <div class="col-12 col-lg-6 p-1">
+            <div class="border border-primary rounded m-0 p-1">
+                Panel 1 - configuation:
+                <div class="col-12 border border-primary rounded my-1 p-0">
+                    Panel 1.1 - general configuation:
+                </div>
+                <div class="col-12 border border-primary rounded m-0 p-0">
+                    Panel 1.2 - training codes:
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-lg-6 p-1">
+            <div class="border border-primary rounded m-0 p-1">
+                Panel 2 - progress:
+                <div class="col-12 border border-primary rounded my-1 p-1">
+                    <kendo-chart [title]="{ text: 'Screening progress' }">
+                        <kendo-chart-series>
+                            <kendo-chart-series-item 
+                                                     type="scatterLine"
+                                                     [data]="TrainingList"
+                                                     xField="totalN" yField="totalIncludes">
+
+                            </kendo-chart-series-item>
+                        </kendo-chart-series>
+                        <kendo-chart-x-axis>
+                            <kendo-chart-x-axis-item [title]="{ text: 'Total Items' }"
+                                                     [labels]="{ format: '{0}' }"
+                                                     >
+                            </kendo-chart-x-axis-item>
+                        </kendo-chart-x-axis>
+                        <kendo-chart-y-axis>
+                            <kendo-chart-y-axis-item [title]="{ text: 'Included' }"
+                                                     [labels]="{ format: '{0}' }"
+                                                     >
+                            </kendo-chart-y-axis-item>
+                        </kendo-chart-y-axis>
+                        <kendo-chart-tooltip format="{1} included, of {0} screened" class="small">
+                        </kendo-chart-tooltip>
+                    </kendo-chart>
+                </div>
+                <div class="col-12 border border-primary rounded m-0 p-0">
+                    Panel 2.2 - progress table:
+                    <div class="small ">
+                        <div class="row font-weight-bold border-bottom border-top border-dark mx-1" [style.max-width.px]="faketablerow.offsetWidth - 1">
+                            <div class="col-1 p-1 border-left border-right">#</div>
+                            <div class="col-2 p-1 border-right">Date</div>
+                            <div class="col-3 p-1 border-right">By </div>
+                            <div class="col-2 p-1 border-right">Included</div>
+                            <div class="col-2 p-1 border-right">Excluded</div>
+                            <div class="col-2 p-1 border-right">Total</div>
+                        </div>
+                        <div class="m-0 p-0 " style="max-height: 300px; overflow:auto; min-width:200px;">
+                            <div *ngFor="let item of TrainingList" class="row border-bottom border-info mx-1">
+                                <div class="col-1 p-1 border-left border-right">{{item.iteration}}</div>
+                                <div class="col-2 p-1 border-right small">{{FormatDate(item.endTime)}}</div>
+                                <div class="col-3 p-1 border-right">{{item.contactName}}</div>
+                                <div class="col-2 p-1 border-right">{{item.totalIncludes}}</div>
+                                <div class="col-2 p-1 border-right">{{item.totalExcludes}}</div>
+                                <div class="col-2 p-1 border-right">{{item.totalN}}</div>
+                            </div>
+                            <div class="row mx-1" #faketablerow style="max-height:1px;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+

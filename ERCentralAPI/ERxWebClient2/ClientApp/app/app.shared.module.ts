@@ -96,6 +96,7 @@ import { MatchingMAGItemsComponent } from './components/MAG/MatchingMAGItems.com
 import { WorkAllocationWizardComp } from './components/WorkAllocations/WorkAllocationWizardComp.component';
 import { microsoftAcademicComp } from './components/MAG/microsoftAcademic.component';
 import { MAGHeaderBarComp } from './components/commonComponents/MAGHeaderBar.component';
+import { ScreeningSetupComp } from './components/WorkAllocations/ScreeningSetup.component';
 
 @NgModule({
     declarations: [
@@ -173,7 +174,8 @@ import { MAGHeaderBarComp } from './components/commonComponents/MAGHeaderBar.com
         MAGAdminComp,
         WorkAllocationWizardComp,
         microsoftAcademicComp,
-        MAGHeaderBarComp
+        MAGHeaderBarComp,
+        ScreeningSetupComp
 	],
     providers: [
         EventEmitterService,

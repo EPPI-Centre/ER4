@@ -417,6 +417,13 @@ export class WorkAllocationComp implements OnInit {
             this.PanelName = 'DistributeWork';
         }
     }
+    ScreeningSetupClick() {
+        if (this.PanelName == 'ScreeningSetup') {
+            this.PanelName = '';
+        } else {
+            this.PanelName = 'ScreeningSetup';
+        }
+    }
 	public CanCreateNewCode(): boolean {
 
 		if (this._reviewSetsService.selectedNode && this.CurrentCodeCanHaveChildren) return true;

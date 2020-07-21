@@ -261,10 +261,10 @@ export interface Training {
     nTrainingItemsExc: number;
     contactName: string;
     c: number;
-    tP: number;
-    tN: number;
-    fP: number;
-    fN: number;
+    tp: number;
+    tn: number;
+    fp: number;
+    fn: number;
     totalN: number;
     totalIncludes: number;
     totalExcludes: number;
