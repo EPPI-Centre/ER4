@@ -6,7 +6,7 @@ import { AppComponent } from '../app/app.component'
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ItemSet } from './ItemCoding.service';
-import { ReviewInfo, ReviewInfoService } from './ReviewInfo.service';
+import { ReviewInfo, ReviewInfoService, iReviewInfo } from './ReviewInfo.service';
 import { Item, iAdditionalItemDetails } from './ItemList.service';
 import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
@@ -69,6 +69,7 @@ export class PriorityScreeningService extends BusyAwareService {
         setTimeout(() => {
             //console.log("I'm done waiting");
             this.Fetch();
+            this.ReviewInfoService.Fetch();
         }, waitSeconds * 1000);
         
     }
@@ -189,11 +190,13 @@ export class PriorityScreeningService extends BusyAwareService {
         }
         //let totalscreened = this._TrainingList
     }
-	private RunNewTrainingCommand() {
+	public RunNewTrainingCommand(delayedFetch:boolean = true) {
 		this._BusyMethods.push("RunNewTrainingCommand");
-        return this._httpC.get<any>(this._baseUrl + 'api/PriorirtyScreening/TrainingRunCommand').subscribe(tL => {
+        return this._httpC.get<iReviewTrainingRunCommand>(this._baseUrl + 'api/PriorirtyScreening/TrainingRunCommand').subscribe(tL => {
             //this.DelayedFetch(1 * 6);//seconds to wait...
-            this.DelayedFetch(30 * 60);//seconds to wait... 30m, a decent guess of how long the retraining will take.
+            this.ReviewInfoService.ReviewInfo = new ReviewInfo(tL.RevInfo);
+            console.log("Received RevInfo:", tL.RevInfo);
+            if (delayedFetch) this.DelayedFetch(30 * 60);//seconds to wait... 30m, a decent guess of how long the retraining will take.
             //key is that user will get the next item from the current list (server side) even before receiving the "training" record via this current mechanism.
 			this.RemoveBusy("RunNewTrainingCommand");
 		}, error => {
@@ -220,10 +223,10 @@ export class PriorityScreeningService extends BusyAwareService {
             }
         );
     }
-    public UpdateTrainingScreeningCriteria(crit: iTrainingScreeningCriteria) {
+    public FlipTrainingScreeningCriteria(crit: iTrainingScreeningCriteria) {
         let body: iUpdatingTrainingScreeningCriteria = {
             trainingScreeningCriteriaId: crit.trainingScreeningCriteriaId
-            , included: crit.included
+            , included: !crit.included
             , deleted: false
         };
         this.internalUpdateTrainingScreeningCriteria(body);
@@ -290,4 +293,11 @@ export interface iUpdatingTrainingScreeningCriteria {
     trainingScreeningCriteriaId: number;
     deleted: boolean;
     included: boolean;
+}
+
+export interface iReviewTrainingRunCommand {
+    RevInfo: iReviewInfo;
+    ReportBack: string;
+    Parameters: string;
+    SimulationResults: string;
 }

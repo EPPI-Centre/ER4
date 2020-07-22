@@ -561,9 +561,105 @@
                 Panel 1 - configuation:
                 <div class="col-12 border border-primary rounded my-1 p-0">
                     Panel 1.1 - general configuation:
+                    <div class="row m-2 p-1 alert-info rounded">
+                        <div class="col-12 p-0 m-0 rounded alert-light">
+                            <button class="m-1 py-0 px-1 btn btn-outline-primary" (click)="StartScreening()">
+                                Begin Screening
+                            </button>
+                            <button class="m-1 py-0 px-1 btn btn-outline-secondary" (click)="GenerateList()">
+                                (Re)Generate List
+                            </button>
+                            <button class="m-1 py-0 px-1 btn btn-outline-warning" (click)="SaveOptions()">
+                                Save
+                            </button>
+                            <button *ngIf="!IsServiceBusy()" class="btn btn-sm btn-outline-success mx-1 my-1 py-1 px-2 ng-star-inserted" (click)="RefreshAll()">
+                                <i class="fa fa-refresh" aria-hidden="true"></i>
+                            </button>
+                            <span style="position: relative; bottom: -4px;">Edit? &nbsp;</span> <span class="">
+                                <!--<span class="small brightSwitch">-->
+                                <kendo-switch name="CanEditSW" class="small small mt-1"
+                                              [disabled]="!CanWrite()"
+                                              [(ngModel)]="AllowEditOnStep4"
+                                              [onLabel]="'Yes'"
+                                              [offLabel]="'No'"></kendo-switch>
+                            </span>
+                        </div>
+                        <div class="col-12 row p-0 mx-0 my-1 ">
+                            <div class="d-block rounded alert-light border-light m-1 px-1">Review is indexed: <strong>{{revInfo.screeningIndexed ? "Yes" : "No"}}</strong></div>
+                            <div class="d-block rounded alert-light border-light m-1 px-1">Screening List is present: <strong>{{revInfo.screeningListIsGood ? "Yes" : "No"}}</strong></div>
+                            <div class="d-block rounded alert-light border-light m-1 px-1">Training is running: <strong>{{revInfo.screeningModelRunning ? "Yes" : "No"}}</strong></div>
+                        </div>
+                        <div *ngIf="!AllowEditOnStep4" class="col-12 row p-0 mx-0 my-1 ">
+                            <div class="d-block rounded alert-light border-light  m-1 px-1">Screening tool: <strong>{{GetCodingToolName(revInfo.screeningCodeSetId)}}</strong></div>
+                            <div class="d-block rounded alert-light border-light  m-1 px-1">Screening mode: <strong>{{revInfo.screeningMode}}</strong></div>
+                            <div *ngIf="revInfo.screeningWhatAttributeId > 0" class="d-block rounded alert-light border-light m-1 px-1">
+                                Screen items with this code: 
+                                <strong>{{GetAttributeName(revInfo.screeningWhatAttributeId)}}</strong>
+                            </div>
+                            <div *ngIf="revInfo.screeningWhatAttributeId <= 0" class="d-block rounded alert-light border-light m-1 px-1">
+                                Screening <strong>all</strong> items.
+                            </div>
+                            <div *ngIf="revInfo.screeningNPeople > 1">
+                                <div class="d-block rounded alert-light border-light m-1 px-1">
+                                    Reconciliation mode: <strong>{{revInfo.screeningReconcilliation}}</strong>
+                                </div>
+                                <div class="d-block rounded alert-light border-light m-1 px-1">
+                                    N of people screening each item: <strong>{{revInfo.screeningNPeople}}</strong>
+                                </div>
+                            </div>
+                            <div *ngIf="revInfo.screeningNPeople <= 1">
+                                <div class="d-block rounded alert-light border-light m-1 px-1">
+                                    N of people screening each item: <strong>1</strong>
+                                </div>
+                            </div>
+
+                        </div>
+                        <div *ngIf="AllowEditOnStep4" class="col-12 row p-0 mx-0 my-1 ">
+                            Editing activated
+                            this.screeningCodeSetId = iRnfo.screeningCodeSetId;
+                            this.screeningMode = iRnfo.screeningMode;
+                            this.screeningReconcilliation = iRnfo.screeningReconcilliation;
+                            this.screeningWhatAttributeId = iRnfo.screeningWhatAttributeId;
+                            this.screeningNPeople = iRnfo.screeningNPeople;
+                            this.screeningAutoExclude = iRnfo.screeningAutoExclude;
+                        </div>
+                    </div>
+
+
                 </div>
                 <div class="col-12 border border-primary rounded m-0 p-0">
                     Panel 1.2 - training codes:
+                    <table class="table table-striped table-sm">
+                        <tr>
+                            <th >
+                                Code name
+                            </th>
+                            <th>
+                                Include/Exclude
+                            </th>
+                            <th>
+                                Delete
+                            </th>
+                        </tr>
+                        <tr *ngFor="let item of TrainingScreeningCriteriaList">
+                            <td>
+                                {{item.attributeName}}
+                            </td>
+                            <td>
+                                <span class="rounded border p-1" [ngClass]="{'alert-success border-success': item.included, 'alert-danger border-danger' : !item.included}">
+                                    {{item.included ? 'Include' : 'Exclude'}}
+                                </span>
+                                <button class="m-1 py-0 px-1 btn btn-sm btn-outline-primary" (click)="FlipTrainingScreeningCriteria(item)">
+                                    Change
+                                </button>
+                            </td>
+                            <td>
+                                <button class="m-1 py-0 px-1 btn btn-sm btn-outline-danger " (click)="DeleteTrainingScreeningCriteria(item)">
+                                    Delete
+                                </button>
+                            </td>
+                        </tr>
+                    </table>
                 </div>
             </div>
         </div>
@@ -598,7 +694,7 @@
                 </div>
                 <div class="col-12 border border-primary rounded m-0 p-0">
                     Panel 2.2 - progress table:
-                    <div class="small ">
+                    <!--<div class="small ">
                         <div class="row font-weight-bold border-bottom border-top border-dark mx-1" [style.max-width.px]="faketablerow.offsetWidth - 1">
                             <div class="col-1 p-1 border-left border-right">#</div>
                             <div class="col-2 p-1 border-right">Date</div>
@@ -618,7 +714,34 @@
                             </div>
                             <div class="row mx-1" #faketablerow style="max-height:1px;"></div>
                         </div>
-                    </div>
+                    </div>-->
+                    <kendo-grid [data]="TrainingListData"
+                                [pageSize]="TrainingListData.length"
+                                scrollable="virtual"
+                                [height]="300">
+                        <kendo-grid-column field="iteration" [width]="1" title="#" 
+                                           headerClass="p-1 m-0 font-weight-bold small" 
+                                           class="p-1 m-0 small"></kendo-grid-column>
+                        <kendo-grid-column field="endTime" title="Date" [width]="3"
+                                           headerClass="p-1 m-0 font-weight-bold small" 
+                                           class="p-1 m-0 small">
+                            <ng-template kendoGridCellTemplate let-dataItem>
+                                {{FormatDate(dataItem.endTime)}}
+                            </ng-template>
+                        </kendo-grid-column>
+                        <kendo-grid-column field="contactName" title="By" [width]="3"
+                                           headerClass="p-1 m-0 font-weight-bold small" 
+                                           class="p-1 m-0 small"></kendo-grid-column>
+                        <kendo-grid-column field="totalIncludes" title="Included" [width]="2"
+                                           headerClass="p-1 m-0 font-weight-bold small" 
+                                           class="p-1 m-0 small"></kendo-grid-column>
+                        <kendo-grid-column field="totalExcludes" title="Excluded" [width]="2"
+                                           headerClass="p-1 m-0 font-weight-bold small" 
+                                           class="p-1 m-0 small"></kendo-grid-column>
+                        <kendo-grid-column field="totalN" title="Total" [width]="2"
+                                           headerClass="p-1 m-0 font-weight-bold small" 
+                                           class="p-1 m-0 small"></kendo-grid-column>
+                    </kendo-grid>
                 </div>
             </div>
         </div>

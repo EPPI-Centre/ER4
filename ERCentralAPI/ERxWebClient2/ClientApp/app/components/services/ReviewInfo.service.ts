@@ -1,4 +1,4 @@
-import { Component, Inject, Injectable } from '@angular/core';
+import { Component, Inject, Injectable, EventEmitter, Output } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Observable, of } from 'rxjs';
@@ -21,27 +21,16 @@ export class ReviewInfoService extends BusyAwareService{
     ) {
         super();
     }
-
+    @Output() ReviewInfoChanged = new EventEmitter();
 	private _ReviewContacts: Contact[] = [];
     private _ReviewInfo: ReviewInfo = new ReviewInfo();
     public get ReviewInfo(): ReviewInfo {
-        //if (this._ReviewInfo.reviewId && this._ReviewInfo.reviewId != 0) {
-        //    return this._ReviewInfo;
-        //}
-        //else {
-        //    const RevInfoJson = localStorage.getItem('ReviewInfo');
-        //    let rev_Info: ReviewInfo = RevInfoJson !== null ? JSON.parse(RevInfoJson) : new ReviewInfo();
-  
-        //    if (rev_Info == undefined || rev_Info == null || rev_Info.reviewId == 0) {
-
-        //        return this._ReviewInfo;
-        //    }
-        //    else {
-        //        this._ReviewInfo = rev_Info;
-        //    }
-        //}
         return this._ReviewInfo;
-	}
+    }
+    public set ReviewInfo(ri: ReviewInfo) {
+        this.ReviewInfoChanged.emit();
+        this._ReviewInfo = ri;
+    }
 	public get Contacts(): Contact[] {
 
 		if (this._ReviewContacts) return this._ReviewContacts;
@@ -60,8 +49,9 @@ export class ReviewInfoService extends BusyAwareService{
         this._BusyMethods.push("Fetch");
 		this._httpC.get<iReviewInfo>(this._baseUrl + 'api/ReviewInfo/ReviewInfo').subscribe(
 			rI => {
-            this._ReviewInfo = new ReviewInfo(rI);
-            this.RemoveBusy("Fetch");
+            this.ReviewInfo = new ReviewInfo(rI);
+                this.RemoveBusy("Fetch");
+                //console.log("fetched revinfo:", this._ReviewInfo);
             //this.Save();
         }, error => {
             this.RemoveBusy("Fetch");
@@ -76,7 +66,7 @@ export class ReviewInfoService extends BusyAwareService{
             .subscribe(
             (result: iReviewInfo) => {
                 this.RemoveBusy("Update");
-                this._ReviewInfo = new ReviewInfo(result);
+                this.ReviewInfo = new ReviewInfo(result);
             },
             error => {
                 this.RemoveBusy("Update");

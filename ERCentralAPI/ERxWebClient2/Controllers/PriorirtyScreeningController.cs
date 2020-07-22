@@ -97,16 +97,17 @@ namespace ERxWebClient2.Controllers
                 if (SetCSLAUser4Writing())
                 {
                     TrainingRunCommand command = new TrainingRunCommand();
-                    DataPortal<ReviewInfo> dpInfo = new DataPortal<ReviewInfo>();
-                    ReviewInfo revInfo = dpInfo.Fetch();
+                    ReviewInfo revInfo = DataPortal.Fetch<ReviewInfo>();
                     command.RevInfo = revInfo;
                     DataPortal<TrainingRunCommand> dp = new DataPortal<TrainingRunCommand>();
                     //Task<TrainingRunCommand> doIt = new Task<TrainingRunCommand>(() => dp.Execute(command), );
                     //doIt.Start();
                     TrainingRunCommand result = dp.Execute(command);
-
+                    System.Threading.Thread.Sleep(15*1000);
+                    ReviewInfo rInfo = DataPortal.Fetch<ReviewInfo>();
+                    result.RevInfo = rInfo;
                     //return Ok(result);
-                    return Ok(command);
+                    return Ok(result);
                 }
                 else return Forbid();
             }

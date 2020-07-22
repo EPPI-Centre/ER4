@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, OnDestroy, ViewChild, Input, Output, EventEmitter, Attribute, ElementRef } from '@angular/core';
+import { Component, Inject, OnInit, OnDestroy, ViewChild, Input, Output, EventEmitter, Attribute, ElementRef, NgZone, AfterViewInit } from '@angular/core';
 import { ReviewSetsService, kvAllowedAttributeType, SetAttribute, ReviewSet, singleNode } from '../services/ReviewSets.service';
 import { ReviewSetsEditingService, ChangeDataEntryMessage } from '../services/ReviewSetsEditing.service';
 import { ReviewInfoService, Contact, ReviewInfo } from '../services/ReviewInfo.service';
@@ -8,8 +8,12 @@ import { kvSelectFrom } from './WorkAllocationComp.component';
 import { codesetSelectorComponent } from '../CodesetTrees/codesetSelector.component';
 import { NumericTextBoxComponent } from '@progress/kendo-angular-inputs';
 import { ModalService } from '../services/modal.service';
-import { PriorityScreeningService, Training } from '../services/PriorityScreening.service';
+import { PriorityScreeningService, Training, iTrainingScreeningCriteria } from '../services/PriorityScreening.service';
 import { Helpers } from '../helpers/HelperMethods';
+import { GridDataResult } from '@progress/kendo-angular-grid';
+import { ItemListService } from '../services/ItemList.service';
+import { Subscription } from 'rxjs';
+import { Router } from '@angular/router';
 
 
 @Component({
@@ -19,28 +23,37 @@ import { Helpers } from '../helpers/HelperMethods';
     providers: []
 })
 
-export class ScreeningSetupComp implements OnInit, OnDestroy {
+export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
     constructor(
+        private router: Router,
         private ReviewSetsService: ReviewSetsService,
         private modalService: ModalService,
         private ReviewSetsEditingService: ReviewSetsEditingService,
         private ReviewInfoService: ReviewInfoService,
         private ReviewerIdentityService: ReviewerIdentityService,
         private PriorityScreeningService: PriorityScreeningService,
-        private WorkAllocationListService: WorkAllocationListService
+        private WorkAllocationListService: WorkAllocationListService,
+        private ItemListService: ItemListService
 	) { }
     ngOnInit() {
-        this.revInfo = this.ReviewInfoService.ReviewInfo.Clone();
-        if (this.revInfo.showScreening && this.PriorityScreeningService.TrainingList.length == 0) {
-            this.PriorityScreeningService.Fetch();
+        this.PriorityScreeningService.Fetch();
+        this.RevInfoSub = this.ReviewInfoService.ReviewInfoChanged.subscribe(this.RefreshRevinfo());
+    }
+    ngAfterViewInit() {
+        if (this.ReviewInfoService.ReviewInfo.showScreening == false) this.Cancel();
+        else {
+            this.revInfo = this.ReviewInfoService.ReviewInfo.Clone();
+            this.PriorityScreeningService.GetTrainingScreeningCriteriaList();
         }
     }
-
     public revInfo: ReviewInfo = new ReviewInfo();
     @Output() emitterCancel = new EventEmitter();
     public CurrentStep: number = 0;
     private _stepNames: string[] = ["Start", "select the references to code.", "choose the coding to be done.", "assign coding work to people.", "Show all settings"];
-    
+    @ViewChild('faketablerow') faketablerow!: ElementRef;
+    private subGotPriorityScreeningData: Subscription | null = null;
+    private RevInfoSub: Subscription | null = null;
+    public AllowEditOnStep4: boolean = false;
 
 
     public get StepNames(): string[] {
@@ -50,8 +63,8 @@ export class ScreeningSetupComp implements OnInit, OnDestroy {
         if (this.CurrentStep <= this.StepNames.length) return this.StepNames[this.CurrentStep];
         else return '';
     }
-
-
+    
+    
 
     public PreviousStep() {
         if (this.CurrentStep > 1) this.CurrentStep--;
@@ -80,7 +93,12 @@ export class ScreeningSetupComp implements OnInit, OnDestroy {
     }
     IsServiceBusy(): boolean {
         //console.log("IsWizardService busy?", this.ReviewSetsService.IsBusy, this.ReviewSetsEditingService.IsBusy, this.ReviewInfoService.IsBusy, this.WorkAllocationListService.IsBusy)
-        if (this.ReviewSetsService.IsBusy || this.ReviewSetsEditingService.IsBusy || this.ReviewInfoService.IsBusy || this.WorkAllocationListService.IsBusy) return true;
+        if (this.ReviewSetsService.IsBusy
+            || this.PriorityScreeningService.IsBusy
+            || this.ReviewSetsEditingService.IsBusy
+            || this.ReviewInfoService.IsBusy
+            || this.WorkAllocationListService.IsBusy
+        ) return true;
         else return false;
     }
     CanWrite(): boolean {
@@ -105,22 +123,70 @@ export class ScreeningSetupComp implements OnInit, OnDestroy {
     public get TrainingList(): Training[] {
         return this.PriorityScreeningService.TrainingList;
     }
+    public get TrainingListData(): GridDataResult {
+        return {
+            data: this.PriorityScreeningService.TrainingList,
+            total: this.PriorityScreeningService.TrainingList.length,
+        };
+    }
+    public get TrainingScreeningCriteriaList(): iTrainingScreeningCriteria[] {
+        return this.PriorityScreeningService.TrainingScreeningCriteria;
+    }
     FormatDate(DateSt: string): string {
         return Helpers.FormatDate2(DateSt);
+    }
+    GetCodingToolName(setId:number): string {
+        const set = this.ReviewSetsService.FindSetById(setId);
+        if (set != null) return set.set_name;
+        else return "Not configured...";
+    }
+    GetAttributeName(AttId: number): string {
+        const Att = this.ReviewSetsService.FindAttributeById(AttId);
+        if (Att != null) return Att.attribute_name;
+        else return "Not configured...";
     }
 
 
 
 
+    DeleteTrainingScreeningCriteria(crit: iTrainingScreeningCriteria) {
+        this.PriorityScreeningService.DeleteTrainingScreeningCriteria(crit);
+    }
+    FlipTrainingScreeningCriteria(crit: iTrainingScreeningCriteria) {
+        this.PriorityScreeningService.FlipTrainingScreeningCriteria(crit);
+    }
+    RefreshRevinfo() {
+        this.revInfo = this.ReviewInfoService.ReviewInfo.Clone();
+    }
+    StartScreening() {
+        //alert('Start Screening: not implemented');
+        this.ItemListService.IsInScreeningMode = true;
+        this.subGotPriorityScreeningData = this.PriorityScreeningService.gotList.subscribe(this.ContinueStartScreening());
+        this.PriorityScreeningService.Fetch();
 
+    }
+    ContinueStartScreening() {
+        if (this.subGotPriorityScreeningData) this.subGotPriorityScreeningData.unsubscribe();
+        this.router.navigate(['itemcoding', 'PriorityScreening']);
+    }
+    GenerateList() {
+        this.PriorityScreeningService.RunNewTrainingCommand(false);
+    }
+    SaveOptions() {
 
-
-
+    }
+    RefreshAll() {
+        this.PriorityScreeningService.GetTrainingScreeningCriteriaList();
+        this.ReviewInfoService.Fetch();
+    }
     Cancel() {
+        console.log("cancel screening");
         this.emitterCancel.emit();
     }
 
     ngOnDestroy() {
+        if (this.subGotPriorityScreeningData) this.subGotPriorityScreeningData.unsubscribe();
+        if (this.RevInfoSub) this.RevInfoSub.unsubscribe();
     }
 
 
