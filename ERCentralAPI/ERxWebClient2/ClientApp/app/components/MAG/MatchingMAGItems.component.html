@@ -4,154 +4,196 @@
     Close/back
 </button>
 <MAGHeaderBar></MAGHeaderBar>
+<div class="container col-12">
+    <div class="row" style="vertical-align:top">
+        <div class="col-lg-4">
+            <h2 class="card-title"></h2>
+            <h4>Summary: MAG data in this review</h4>
+        </div>
 
-
-
-    <div class="p-2 m-2 card alert-primary border border-dark">
-        <h4 class="p-1 m-1">Summary: MAG data in this review</h4>
-        <div class="col-5">
+        <div class="col-lg-8">
+            <h2 class="card-title"></h2>
             <button (click)="RunMatchingAlgo()"
-                    class="btn alert-success p-1 m-1">
+                    class="btn btn-primary btn-sm text-white">
                 Run Matching Algorithm
-            </button>
+            </button>&nbsp;&nbsp;
             <button (click)="ClearAllMatching()"
-                    class="btn alert-danger p-1 m-1">
+                    class="btn btn-secondary btn-sm text-white">
                 Clear all Matches in Review
             </button>
-        </div>
-        <div class="p-2 m-2 ">
-            <table class="col-lg-12 border border-black alert-primary tabel table-striped" >
-                <thead>
-                    <tr>
-                        <th>All matched included records</th>
-                        <th>All matched excluded records</th>
-                        <th>All matched records in review</th>
-                        <th>Low confidence matched items</th>
-                        <th>Records that could not be matched</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td >
-                            <div class="btn btn-link p-2 m-2 " (click)="MAGBrowser('MatchedIncluded')">
-                                {{_magAdvancedService.AdvancedReviewInfo.nMatchedAccuratelyIncluded}}
-                            </div>
-                            <div class="btn btn-link  p-2 m-2 " (click)="OpenMatchesInReview('MatchedIncluded')">
-                                (List Papers)
-                            </div>
-                        </td>
-                        <td >
 
-                            <div class="btn btn-link  p-2 m-2 " (click)="MAGBrowser('MatchedExcluded')">
-                                {{_magAdvancedService.AdvancedReviewInfo.nMatchedAccuratelyExcluded}}
-                            </div>
-                            <div class="btn btn-link p-2 m-2 " (click)="OpenMatchesInReview('MatchedExcluded')">
-                                (List Papers)
-                            </div>
-                        </td>
-                        <td >
-
-                            <div class="btn btn-link  p-2 m-2  " (click)="MAGBrowser('MatchedAll')">
-                                {{_magAdvancedService.AdvancedReviewInfo.nMatchedAccuratelyIncluded + _magAdvancedService.AdvancedReviewInfo.nMatchedAccuratelyExcluded}}
-                            </div>
-                        </td>
-                        <td >
-                            <div class=" btn btn-link  p-2 m-2 " (click)="OpenMatchesInReview('MagMatchesNeedingCheckingInc')">
-                                Included: {{_magAdvancedService.AdvancedReviewInfo.nRequiringManualCheckIncluded}}
-                            </div>
-
-                            <div class=" btn btn-link p-2 m-2 " (click)="OpenMatchesInReview('MagMatchesNeedingCheckingExc')">
-                                Excluded:  {{_magAdvancedService.AdvancedReviewInfo.nRequiringManualCheckExcluded}}
-                            </div>
-                        </td>
-                        <td >
-                            <div class=" btn btn-link  p-2 m-2 " (click)="OpenMatchesInReview('MagMatchesNotMatchedInc')">
-                                Included:  {{_magAdvancedService.AdvancedReviewInfo.nNotMatchedIncluded}}
-                            </div>
-                            <div class=" btn btn-link p-2 m-2" (click)="OpenMatchesInReview('MagMatchesNotMatchedExc')">
-                                Excluded:  {{_magAdvancedService.AdvancedReviewInfo.nNotMatchedExcluded}}
-                            </div>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
         </div>
     </div>
+
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="table-responsive">
+                <table class="table align-middle table-striped table-sm text-small">
+                    <thead>
+                        <tr>
+                            <th>All matched included records</th>
+                            <th>All matched excluded records</th>
+                            <th>All matched records in review</th>
+                            <th>Low confidence matched items</th>
+                            <th>Records that could not be matched</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <div class="btn btn-link p-2 m-2 " (click)="MAGBrowser('MatchedIncluded')">
+                                    {{_magAdvancedService.AdvancedReviewInfo.nMatchedAccuratelyIncluded}}
+                                </div>
+                                <div class="btn btn-link  p-2 m-2 " (click)="OpenMatchesInReview('MatchedIncluded')">
+                                    (List Papers)
+                                </div>
+                            </td>
+                            <td>
+
+                                <div class="btn btn-link  p-2 m-2 " (click)="MAGBrowser('MatchedExcluded')">
+                                    {{_magAdvancedService.AdvancedReviewInfo.nMatchedAccuratelyExcluded}}
+                                </div>
+                                <div class="btn btn-link p-2 m-2 " (click)="OpenMatchesInReview('MatchedExcluded')">
+                                    (List Papers)
+                                </div>
+                            </td>
+                            <td>
+
+                                <div class="btn btn-link  p-2 m-2  " (click)="MAGBrowser('MatchedAll')">
+                                    {{_magAdvancedService.AdvancedReviewInfo.nMatchedAccuratelyIncluded + _magAdvancedService.AdvancedReviewInfo.nMatchedAccuratelyExcluded}}
+                                </div>
+                            </td>
+                            <td>
+                                <div class=" btn btn-link  p-2 m-2 " (click)="OpenMatchesInReview('MagMatchesNeedingCheckingInc')">
+                                    Included: {{_magAdvancedService.AdvancedReviewInfo.nRequiringManualCheckIncluded}}
+                                </div>
+
+                                <div class=" btn btn-link p-2 m-2 " (click)="OpenMatchesInReview('MagMatchesNeedingCheckingExc')">
+                                    Excluded:  {{_magAdvancedService.AdvancedReviewInfo.nRequiringManualCheckExcluded}}
+                                </div>
+                            </td>
+                            <td>
+                                <div class=" btn btn-link  p-2 m-2 " (click)="OpenMatchesInReview('MagMatchesNotMatchedInc')">
+                                    Included:  {{_magAdvancedService.AdvancedReviewInfo.nNotMatchedIncluded}}
+                                </div>
+                                <div class=" btn btn-link p-2 m-2" (click)="OpenMatchesInReview('MagMatchesNotMatchedExc')">
+                                    Excluded:  {{_magAdvancedService.AdvancedReviewInfo.nNotMatchedExcluded}}
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+
     <div *ngIf="IsServiceBusy" class="k-loading-image" style="position: fixed; top: 2%;"></div>
+    <div class="card">
+        <div class="card-body">
 
-    <div class="card alert-info border border-dark p-2 m-2 row " style="min-width:1050px;">
-        <h4>Actions on items with this code:</h4>
-        <div class="row">
-            <div class="col-3">
-                <div ngbDropdown class="" style="min-width:150px;">
-                    <button ngbDropdownAnchor class="btn btn-outline-primary dropdown-toggle w-100"
-                            style="min-width: 250px; white-space:normal" [attr.aria-expanded]="!isCollapsed2"
-                            id="dropdownBasic2"
-                            (click)="isCollapsed2 = !isCollapsed2; dropdownBasic2 = false">
-                        {{CurrentDropdownSelectedCode2?.name}}
-                    </button>
-                    <div class="dropdown-menu" aria-labelledby="dropdownBasic2" [ngbCollapse]="!isCollapsed2">
-                        <codesetSelector [IsMultiSelect]="false" [WhatIsSelectable]="'SetAttribute'"
-                                         [MaxHeight]="500" #WithOrWithoutCodeSelector2
-                                         (selectedNodeInTree)="CloseCodeDropDown2()" [rootsOnly]="false">
-                        </codesetSelector>
+            <h4 class="card-title">Actions on items with this code</h4>
+            <div class="col-12 alert-secondary card" style="padding:10px">
+                <div class="row">
+
+
+                    <div class="col-lg-6" style="vertical-align:middle;padding-bottom:10px">
+                        <div ngbDropdown class="" style="min-width:150px;">
+                            <button ngbDropdownAnchor class="btn btn-outline-primary dropdown-toggle w-100"
+                                    style="min-width: 250px; white-space:normal" [attr.aria-expanded]="!isCollapsed2"
+                                    id="dropdownBasic2"
+                                    (click)="isCollapsed2 = !isCollapsed2; dropdownBasic2 = false">
+                                {{CurrentDropdownSelectedCode2?.name}}
+                            </button>
+                            <div class="dropdown-menu" aria-labelledby="dropdownBasic2" [ngbCollapse]="!isCollapsed2">
+                                <codesetSelector [IsMultiSelect]="false" [WhatIsSelectable]="'SetAttribute'"
+                                                 [MaxHeight]="500" #WithOrWithoutCodeSelector2
+                                                 (selectedNodeInTree)="CloseCodeDropDown2()" [rootsOnly]="false">
+                                </codesetSelector>
+                            </div>
+                        </div>
                     </div>
+
+                    <div class="col-lg-6">
+                        <button class="btn btn-primary btn-sm text-white"
+                                [disabled]="!CanGetCodeMatches()"
+                                (click)="MAGBrowser('MatchedWithThisCode')">
+                            List Items
+                        </button>
+                        &nbsp;
+                        <button class="btn btn-primary btn-sm text-white"
+                                [disabled]="!CanGetCodeMatches()"
+                                (click)="RunMatchingAlgo()">
+                            Auto-match items
+                        </button>
+                        &nbsp;
+                        <button class="btn btn-secondary btn-sm text-white"
+                                [disabled]="!CanGetCodeMatches()"
+                                (click)="ClearMatches()">
+                            Clear Matches
+                        </button>
+                    </div>
+
                 </div>
-            </div>
-            <div class="col-2">
-                <button class="btn alert-success p-2 m-2 "
-                        [disabled]="!CanGetCodeMatches()"
-                        (click)="MAGBrowser('MatchedWithThisCode')">
-                    List Items
-                </button>
-            </div>
-            <div class="col-2">
-                <button class="btn alert-success p-2 m-2 "
-                        [disabled]="!CanGetCodeMatches()"
-                        (click)="RunMatchingAlgo()">
-                    Auto-match items
-                </button>
-            </div>
-            <div class="col-2">
-                <button class="btn alert-danger p-2 m-2 "
-                        [disabled]="!CanGetCodeMatches()"
-                        (click)="ClearMatches()">
-                    Clear Matches
-                </button>
+
+
             </div>
         </div>
     </div>
-    <div class="p-2 m-2 card alert-warning border border-dark row">
-            <h4 class="col-12">GoTo Microsoft Academic Paper ID:</h4>
-            <div class="col-12 row p-2 m-2">
-                <input required minlength="4" type="number" id="magPaperId" name="magPaperId" #magPaper="ngModel"
-                       class="form-control col-3 p-1 m-1 text-center"
-                       [(ngModel)]="magPaperId" />
-                <div class=" col-3 ">
-                    <button [disabled]="!CanGetMagPaper()" (click)="GetMagPaper()"
-                            class="btn alert-primary">
-                        Get MAG paper
-                    </button>
-                    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <div class="row col-12">
+
+                <div class="col-md-6 mb-5">
+                    <h4 class="card-title">Locate by MAG Paper ID</h4>
+                    <table>
+                        <tr>
+                            <td>
+                                <input required minlength="4" type="number" id="magPaperId" name="magPaperId" #magPaper="ngModel"
+                                       class="form-control text-center"
+                                       [(ngModel)]="magPaperId" />
+                            </td>
+                            <td style="padding-left: 10px;">
+                                <button [disabled]="!CanGetMagPaper()" (click)="GetMagPaper()"
+                                        class="btn btn-primary btn-sm text-white">
+                                    Get MAG paper
+                                </button>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td colspan="2">
+                                <div *ngIf="magPaper.invalid && (magPaper.dirty || magPaper.touched)"
+                                     class="alert alert-danger">
+
+                                    <div *ngIf="magPaper.errors.required">
+                                        Paper ID is required.
+                                    </div>
+                                    <div *ngIf="magPaper.errors.minlength">
+                                        Paper ID must be at least 4 numbers long.
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+
                 </div>
-                <div *ngIf="magPaper.invalid && (magPaper.dirty || magPaper.touched)"
-                     class="col-3 alert alert-danger">
 
-                    <div *ngIf="magPaper.errors.required">
-                        magPaperId is required.
-                    </div>
-                    <div *ngIf="magPaper.errors.minlength">
-                        magPaperId must be at least 4 numbers long.
-                    </div>
-                </div>
+                <div class="col-md-6 mb-5">
+                    <h4 class="card-title">Search MAG by topic</h4>
+                    <table>
+                        <tr>
+                            <td style="width:85%">
+                                <input style="width:99%" type="text" id="SearchTextTopic" [(ngModel)]="SearchTextTopic"
+                                       placeholder="Search for topics here.  Entry of Wildcards work, e.g. physic* " />
 
-
-                <div class="col-12 row alert-warning p-2 m-2">
-                    <div class="col-12 row">
-                        <input class="col-6" type="text" id="SearchTextTopic" [(ngModel)]="SearchTextTopic"
-                               placeholder="Search for topics here.  Entry of Wildcards work, e.g. physic* " />
-                        <button class="btn alert-primary" (click)="UpdateTopicResults()"> Search Topics</button>
-                    </div>
+                            </td>
+                            <td style="padding-left: 5px;">
+                                <button (click)="UpdateTopicResults()" class="btn btn-primary btn-sm text-white">Search Topics</button>
+                            </td>
+                        </tr>
+                    </table>
                     <div class="row " style="max-width:1450px;overflow:auto;">
                         <div *ngFor="let item of SearchTextTopicsResults" class="list-group">
                             <div (click)="FOSMAGBrowserNavigate(item.displayName, item.fieldOfStudyId)" class="col-3 btn border border-0"
@@ -161,5 +203,9 @@
                         </div>
                     </div>
                 </div>
+
+            </div>
+        </div>
     </div>
+</div>
 <statusbar></statusbar>
