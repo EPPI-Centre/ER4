@@ -10,10 +10,10 @@
             </ol>
         </div>
         <div class="col-10 center rounded border border-success">
-            <button class=" pt-1 m-1 btn btn-success" style="min-width:100px" [disabled]="!CanGoToStep2()" (click)="NextStep()">
+            <button class=" pt-1 m-1 btn btn-success" style="min-width:100px" [disabled]="!CanWrite()" (click)="NextStep()">
                 Next
             </button>
-            <button class=" pt-1 m-1 btn btn-outline-primary" style="min-width:100px" [disabled]="!CanGoToStep2()" (click)="GoToAllinOneStep()">
+            <button class=" pt-1 m-1 btn btn-outline-primary" style="min-width:100px" (click)="GoToAllinOneStep()">
                 All in one
             </button>
             <button class=" pt-1 m-1 btn btn-outline-dark " (click)="Cancel()" style="min-width:100px">
@@ -558,7 +558,18 @@
     <div *ngIf="CurrentStep == 4" class="row m-1 p-1">
         <div class="col-12 col-lg-6 p-1">
             <div class="border border-primary rounded m-0 p-1">
-                Panel 1 - configuation:
+                <div class="row m-0 p-0 ">
+
+                    <div class="col">Panel 1 - configuation:</div>
+                        <div class="float-right mt-1">Edit all Settings? &nbsp;</div> <div class="brightSwitch float-right">
+                            <!--<span class="small brightSwitch">-->
+                            <kendo-switch name="CanEditSW" class=""
+                                          [disabled]="!CanWrite()"
+                                          [(ngModel)]="AllowEditOnStep4"
+                                          [onLabel]="'Yes'" (click)="CheckIfCancelEditAllOptions()"
+                                          [offLabel]="'No'"></kendo-switch>
+                        </div>
+                </div>
                 <div class="col-12 border border-primary rounded my-1 p-0">
                     Panel 1.1 - general configuation:
                     <div class="row m-2 p-1 alert-info rounded">
@@ -569,20 +580,11 @@
                             <button class="m-1 py-0 px-1 btn btn-outline-secondary" (click)="GenerateList()">
                                 (Re)Generate List
                             </button>
-                            <button class="m-1 py-0 px-1 btn btn-outline-warning" (click)="SaveOptions()">
-                                Save
-                            </button>
+                            
                             <button *ngIf="!IsServiceBusy()" class="btn btn-sm btn-outline-success mx-1 my-1 py-1 px-2 ng-star-inserted" (click)="RefreshAll()">
                                 <i class="fa fa-refresh" aria-hidden="true"></i>
                             </button>
-                            <span style="position: relative; bottom: -4px;">Edit? &nbsp;</span> <span class="">
-                                <!--<span class="small brightSwitch">-->
-                                <kendo-switch name="CanEditSW" class="small small mt-1"
-                                              [disabled]="!CanWrite()"
-                                              [(ngModel)]="AllowEditOnStep4"
-                                              [onLabel]="'Yes'"
-                                              [offLabel]="'No'"></kendo-switch>
-                            </span>
+
                         </div>
                         <div class="col-12 row p-0 mx-0 my-1 ">
                             <div class="d-block rounded alert-light border-light m-1 px-1">Review is indexed: <strong>{{revInfo.screeningIndexed ? "Yes" : "No"}}</strong></div>
@@ -590,11 +592,12 @@
                             <div class="d-block rounded alert-light border-light m-1 px-1">Training is running: <strong>{{revInfo.screeningModelRunning ? "Yes" : "No"}}</strong></div>
                         </div>
                         <div *ngIf="!AllowEditOnStep4" class="col-12 row p-0 mx-0 my-1 ">
-                            <div class="d-block rounded alert-light border-light  m-1 px-1">Screening tool: <strong>{{GetCodingToolName(revInfo.screeningCodeSetId)}}</strong></div>
+                            <div class="d-block rounded alert-light border-light  m-1 px-1">Screening tool: <strong>{{GetCodingToolName()}}</strong></div>
                             <div class="d-block rounded alert-light border-light  m-1 px-1">Screening mode: <strong>{{revInfo.screeningMode}}</strong></div>
                             <div *ngIf="revInfo.screeningWhatAttributeId > 0" class="d-block rounded alert-light border-light m-1 px-1">
-                                Screen items with this code: 
-                                <strong>{{GetAttributeName(revInfo.screeningWhatAttributeId)}}</strong>
+                                Screen items with this code:
+                                <strong *ngIf="ItemsWithThisAttribute == null" class="alert-danger">Not Set</strong>
+                                <strong *ngIf="ItemsWithThisAttribute !== null">{{ItemsWithThisAttribute.attribute_name}}</strong>
                             </div>
                             <div *ngIf="revInfo.screeningWhatAttributeId <= 0" class="d-block rounded alert-light border-light m-1 px-1">
                                 Screening <strong>all</strong> items.
@@ -614,24 +617,111 @@
                             </div>
 
                         </div>
-                        <div *ngIf="AllowEditOnStep4" class="col-12 row p-0 mx-0 my-1 ">
-                            Editing activated
-                            this.screeningCodeSetId = iRnfo.screeningCodeSetId;
-                            this.screeningMode = iRnfo.screeningMode;
-                            this.screeningReconcilliation = iRnfo.screeningReconcilliation;
-                            this.screeningWhatAttributeId = iRnfo.screeningWhatAttributeId;
-                            this.screeningNPeople = iRnfo.screeningNPeople;
-                            this.screeningAutoExclude = iRnfo.screeningAutoExclude;
+                        <div *ngIf="AllowEditOnStep4" class="col-12 p-1 mx-0 my-1 text-body rounded background bg-white">
+                            <div class="row justify-content-center">
+                                <div class="font-weight-bold text-primary">
+                                    Edit all Screening Settings:
+                                </div>
+                            </div>
+                            <div class="row m-0 p-0">
+                                <div class="col-3 p-0 mt-2">
+                                    Screeening Tool:
+                                </div>
+                                <div class="d-block my-1 col-9 p-0">
+                                    <div ngbDropdown class="" style="min-width:200px;">
+                                        <button class="btn btn-outline-secondary dropdown-toggle"
+                                                style="min-width: 200px; max-width:720px;"
+                                                (click)="isCollapsedAllocateOptions = false;"
+                                                id="dropdownBasicCodingTool" ngbDropdownToggle>
+                                            {{GetCodingToolName()}}
+                                        </button>
+                                        <div ngbDropdownMenu aria-labelledby="dropdownBasicCodingTool">
+                                            <button (click)="setCodeSetDropDown(item)"
+                                                    *ngFor="let item of ScreeningTools;" class="dropdown-item">
+                                                {{item.name}}
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row m-0 p-0">
+                                <div class="col-3 p-0 mt-2">
+                                    Screeening Mode:
+                                </div>
+                                <div class="d-block my-1 col-9 p-0">
+                                    <select class="rounded btn border border-info dropdonw-toggle" name="ScreeningModeOptionsSelect"
+                                            style="min-width: 200px; max-width:720px;" (change)="SetScreeningMode($event.target.value)">
+                                        <option *ngFor="let item of ScreeningModeOptions" [value]="item"
+                                                [selected]="item.value == revInfo.screeningMode">
+                                            {{item.value}}
+                                        </option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row m-0 p-0">
+                                <div class="col-3 p-0 mt-1">What to screen:</div>
+                                <div class="col-9 p-0 mx-0 row">
+                                    <div class=" d-block rounded border border-info my-1 mr-1 p-0">
+                                        <input class="mt-1 mx-1 d-inline" type="radio" [disabled]="false" name="whatToScreen"
+                                               [value]="true" (click)="ChangeWhatToScreen()" [(ngModel)]="ScreenAllItems">
+                                        <div class="mr-2 d-inline">All Items</div>
+                                    </div>
+                                    <div class=" d-block rounded border border-info p-0 m-1">
+                                        <input class="mt-1 mx-1 d-inline" type="radio" [disabled]="false" name="whatToScreen"
+                                               [value]="false" (click)="ChangeWhatToScreen()" [(ngModel)]="ScreenAllItems">
+                                        <div class="mr-2 d-inline">Items with this code:</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div *ngIf="!ScreenAllItems" class="row m-0 p-0">
+                                <div class="col-3 p-0 mt-2">Pick the code:</div>
+                                <div class="d-block my-1 col-9 p-0">
+                                    <div ngbDropdown class="">
+                                        <button ngbDropdownAnchor class="btn btn-outline-secondary dropdown-toggle"
+                                                id="dropdownTreeRandomAllocate"
+                                                style="min-width: 200px; max-width:720px;"
+                                                (click)="isCollapsedAllocateOptions = !isCollapsedAllocateOptions;"
+                                                [attr.aria-expanded]="!isCollapsedAllocateOptions" aria-controls="collapseCodeTreeWithWithout">
+                                            {{DropdownWithWithoutSelectedCode?.name}}
+                                        </button>
+                                        <div ngbDropdownMenu class="dropdown-menu" id="collapseCodeTreeWithWithout" [ngbCollapse]="!isCollapsedAllocateOptions">
+                                            <codesetSelector [IsMultiSelect]="false"
+                                                             [WhatIsSelectable]="'SetAttribute'" [MaxHeight]="500" #WithOrWithoutCode
+                                                             (selectedNodeInTree)="CloseCodeDropDownCodeWithWithout()"></codesetSelector>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                            <div  class="row m-0 p-0">
+                                <div class="m-2 p-1 rounded border border-info" >
+                                    <button class="m-1 py-1 px-1 btn btn-danger" (click)="SaveOptions()">
+                                        Save
+                                    </button>
+                                    <button class="m-1 py-1 px-4 btn btn-outline-dark  " (click)="CancelEditingAllOptions()">
+                                        Cancel 
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
 
                 </div>
                 <div class="col-12 border border-primary rounded m-0 p-0">
-                    Panel 1.2 - training codes:
+                    <div class="row p-0 m-0">
+                        <div>Panel 1.2 - training codes:</div>
+                        <div class="alert-info rounded border border-info p-2 m-1 small">
+                            This is the list used by the machine to <strong>learn</strong> from your choiches.<br />
+                            As the machine only evaluates titles and abstracts, you <strong>should not</strong> include in this list codes that rely on <strong>data that does not appear in titles and abstract</strong>. 
+                            Typically, these will represent reasons for exclusion, one example would be <strong>"Exclude on Date"</strong> codes.<br />
+                            Changes to this are <strong>saved immediately</strong>!
+
+                        </div>
+                    </div>
                     <table class="table table-striped table-sm">
                         <tr>
-                            <th >
+                            <th>
                                 Code name
                             </th>
                             <th>
@@ -645,16 +735,16 @@
                             <td>
                                 {{item.attributeName}}
                             </td>
-                            <td>
-                                <span class="rounded border p-1" [ngClass]="{'alert-success border-success': item.included, 'alert-danger border-danger' : !item.included}">
+                            <td class="row m-0">
+                                <div class="rounded border px-1 py-0 my-1" [ngClass]="{'alert-success border-success': item.included, 'alert-danger border-danger' : !item.included}">
                                     {{item.included ? 'Include' : 'Exclude'}}
-                                </span>
-                                <button class="m-1 py-0 px-1 btn btn-sm btn-outline-primary" (click)="FlipTrainingScreeningCriteria(item)">
+                                </div>
+                                <button class="m-1 py-0 px-1 btn btn-sm btn-outline-primary" [disabled]="!AllowEditOnStep4" (click)="FlipTrainingScreeningCriteria(item)">
                                     Change
                                 </button>
                             </td>
                             <td>
-                                <button class="m-1 py-0 px-1 btn btn-sm btn-outline-danger " (click)="DeleteTrainingScreeningCriteria(item)">
+                                <button class="m-1 py-0 px-1 btn btn-sm btn-outline-danger " [disabled]="!AllowEditOnStep4" (click)="DeleteTrainingScreeningCriteria(item)">
                                     Delete
                                 </button>
                             </td>
@@ -669,23 +759,19 @@
                 <div class="col-12 border border-primary rounded my-1 p-1">
                     <kendo-chart [title]="{ text: 'Screening progress' }">
                         <kendo-chart-series>
-                            <kendo-chart-series-item 
-                                                     type="scatterLine"
+                            <kendo-chart-series-item type="scatterLine"
                                                      [data]="TrainingList"
                                                      xField="totalN" yField="totalIncludes">
-
                             </kendo-chart-series-item>
                         </kendo-chart-series>
                         <kendo-chart-x-axis>
                             <kendo-chart-x-axis-item [title]="{ text: 'Total Items' }"
-                                                     [labels]="{ format: '{0}' }"
-                                                     >
+                                                     [labels]="{ format: '{0}' }">
                             </kendo-chart-x-axis-item>
                         </kendo-chart-x-axis>
                         <kendo-chart-y-axis>
                             <kendo-chart-y-axis-item [title]="{ text: 'Included' }"
-                                                     [labels]="{ format: '{0}' }"
-                                                     >
+                                                     [labels]="{ format: '{0}' }">
                             </kendo-chart-y-axis-item>
                         </kendo-chart-y-axis>
                         <kendo-chart-tooltip format="{1} included, of {0} screened" class="small">
@@ -694,27 +780,6 @@
                 </div>
                 <div class="col-12 border border-primary rounded m-0 p-0">
                     Panel 2.2 - progress table:
-                    <!--<div class="small ">
-                        <div class="row font-weight-bold border-bottom border-top border-dark mx-1" [style.max-width.px]="faketablerow.offsetWidth - 1">
-                            <div class="col-1 p-1 border-left border-right">#</div>
-                            <div class="col-2 p-1 border-right">Date</div>
-                            <div class="col-3 p-1 border-right">By </div>
-                            <div class="col-2 p-1 border-right">Included</div>
-                            <div class="col-2 p-1 border-right">Excluded</div>
-                            <div class="col-2 p-1 border-right">Total</div>
-                        </div>
-                        <div class="m-0 p-0 " style="max-height: 300px; overflow:auto; min-width:200px;">
-                            <div *ngFor="let item of TrainingList" class="row border-bottom border-info mx-1">
-                                <div class="col-1 p-1 border-left border-right">{{item.iteration}}</div>
-                                <div class="col-2 p-1 border-right small">{{FormatDate(item.endTime)}}</div>
-                                <div class="col-3 p-1 border-right">{{item.contactName}}</div>
-                                <div class="col-2 p-1 border-right">{{item.totalIncludes}}</div>
-                                <div class="col-2 p-1 border-right">{{item.totalExcludes}}</div>
-                                <div class="col-2 p-1 border-right">{{item.totalN}}</div>
-                            </div>
-                            <div class="row mx-1" #faketablerow style="max-height:1px;"></div>
-                        </div>
-                    </div>-->
                     <kendo-grid [data]="TrainingListData"
                                 [pageSize]="TrainingListData.length"
                                 scrollable="virtual"

@@ -164,10 +164,64 @@ namespace ERxWebClient2.Controllers
                 return StatusCode(500, e.Message);
             }
         }
+        [HttpPost("[action]")]
+        public IActionResult AddTrainingScreeningCriteria([FromBody] TrainingScreeningCriteriaMVC crit)
+        {
+            try
+            {
+                if (SetCSLAUser4Writing())
+                {
+                    TrainingScreeningCriteria newC = new TrainingScreeningCriteria();
+                    newC.AttributeId = crit.trainingScreeningCriteriaId;//we are cheating here, and using the CriteriaId to store the attributeID...
+                    newC.Included = crit.included;
+                    newC.ApplyEdit();
+                    newC = DataPortal.Update(newC);
+                    
+                    TrainingScreeningCriteriaList result = DataPortal.Fetch<TrainingScreeningCriteriaList>();
+                    return Ok(result);
+                }
+                else return Forbid();
+            }
+            catch (Exception e)
+            {
+                string json = JsonConvert.SerializeObject(crit);
+                _logger.LogError(e, "Dataportal Error with updating AddTrainingScreeningCriteria: {0}", json);
+                return StatusCode(500, e.Message);
+            }
+        }
+        [HttpPost("[action]")]
+        public IActionResult ReplaceTrainingScreeningCriteriaList([FromBody] TrainingScreeningCriteriaMVC[] crit)
+        {
+            try
+            {
+                if (SetCSLAUser4Writing())
+                {
+                    TrainingScreeningCriteriaListDeleteAllCommand cmd = new TrainingScreeningCriteriaListDeleteAllCommand();
+                    cmd = DataPortal.Execute<TrainingScreeningCriteriaListDeleteAllCommand>(cmd);
+                    foreach (TrainingScreeningCriteriaMVC input in crit)
+                    {
+                        TrainingScreeningCriteria newC = new TrainingScreeningCriteria();
+                        newC.AttributeId = input.trainingScreeningCriteriaId;//we are cheating here, and using the CriteriaId to store the attributeID...
+                        newC.Included = input.included;
+                        newC.ApplyEdit();
+                        newC = DataPortal.Update(newC);
+                    }
+                    TrainingScreeningCriteriaList result = DataPortal.Fetch<TrainingScreeningCriteriaList>();
+                    return Ok(result);
+                }
+                else return Forbid();
+            }
+            catch (Exception e)
+            {
+                string json = JsonConvert.SerializeObject(crit);
+                _logger.LogError(e, "Dataportal Error with updating ReplaceTrainingScreeningCriteriaList: {0}", json);
+                return StatusCode(500, e.Message);
+            }
+        }
     }
     public class TrainingScreeningCriteriaMVC
     {
-        public int trainingScreeningCriteriaId { get; set; }
+        public long trainingScreeningCriteriaId { get; set; }
         public bool included { get; set; }
         public bool deleted { get; set; }
     }

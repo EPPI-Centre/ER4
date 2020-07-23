@@ -1,6 +1,6 @@
 <div class="containsAtoolbar">
     <kendo-toolbar class="small" style="background-color: #f5f6fa;">
-        <kendo-toolbar-button [text]="'Screening'" (click)="ScreeningSetupClick()" [disabled]="!HasWriteRights"></kendo-toolbar-button>
+        <kendo-toolbar-button *ngIf="ScreeningEnabled" [text]="'Screening'" (click)="ScreeningSetupClick()"></kendo-toolbar-button>
         <kendo-toolbar-button [text]="'Distribute Work'" (click)="DistributeWorkClick()" [disabled]="!HasWriteRights"></kendo-toolbar-button>
         <kendo-toolbar-button [text]="'Create reference groups'" (click)="RandomlyAssign()" [disabled]="!HasWriteRights"></kendo-toolbar-button>
         <kendo-toolbar-button [text]="'Create new code'" (click)="NewCodeSectionOpen()" [disabled]="!HasWriteRights  || !CanCreateNewCode()"></kendo-toolbar-button>
