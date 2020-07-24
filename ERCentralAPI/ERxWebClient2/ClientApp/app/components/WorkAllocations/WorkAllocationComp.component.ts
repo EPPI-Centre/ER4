@@ -31,7 +31,7 @@ export class WorkAllocationComp implements OnInit {
 		private _reviewSetsService: ReviewSetsService,
 		private _reviewSetsEditingService: ReviewSetsEditingService,
 		public _comparisonsService: ComparisonsService,
-		private _notificationService: NotificationService,
+        private _notificationService: NotificationService,
 		 @Inject('BASE_URL') private _baseUrl: string
     ) { }
 
@@ -117,6 +117,9 @@ export class WorkAllocationComp implements OnInit {
     public get ShowComparisonsText(): string {
         if (this.ShowComparisons) return "Collapse";
         else return "Expand";
+    }
+    public get ScreeningEnabled(): boolean {
+        return this.reviewInfoService.ReviewInfo.showScreening;
     }
 	public get AllocateOptions(): kvSelectFrom[] {
 		
@@ -415,6 +418,13 @@ export class WorkAllocationComp implements OnInit {
             this.PanelName = '';
         } else {
             this.PanelName = 'DistributeWork';
+        }
+    }
+    ScreeningSetupClick() {
+        if (this.PanelName == 'ScreeningSetup') {
+            this.PanelName = '';
+        } else {
+            this.PanelName = 'ScreeningSetup';
         }
     }
 	public CanCreateNewCode(): boolean {

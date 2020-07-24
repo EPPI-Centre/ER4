@@ -614,6 +614,9 @@ public partial class Summary : System.Web.UI.Page
     }
     private void buildNonShareableReviewGrid()
     {
+        DateTime dateCreated;
+        DateTime lastAccessed;
+
         DataTable dt = new DataTable();
         System.Data.DataRow newrow;
 
@@ -629,14 +632,28 @@ public partial class Summary : System.Web.UI.Page
             newrow = dt.NewRow();
             newrow["REVIEW_ID"] = idr["REVIEW_ID"].ToString();
             newrow["REVIEW_NAME"] = idr["REVIEW_NAME"].ToString();
+
             if ((idr["DATE_CREATED"].ToString() == null) || (idr["DATE_CREATED"].ToString() == ""))
+            {
                 newrow["DATE_CREATED"] = "N/A";
+            }
             else
-                newrow["DATE_CREATED"] = idr["DATE_CREATED"].ToString();
+            {
+                //newrow["DATE_CREATED"] = idr["DATE_CREATED"].ToString();
+                dateCreated = Convert.ToDateTime(idr["DATE_CREATED"].ToString());
+                newrow["DATE_CREATED"] = dateCreated.ToString("dd MMM yyyy");
+            }
+
             if ((idr["CREATED"].ToString() == null) || (idr["CREATED"].ToString() == ""))
+            {
                 newrow["LAST_LOGIN"] = "N/A";
+            }
             else
-                newrow["LAST_LOGIN"] = idr["CREATED"].ToString();
+            {
+                //newrow["LAST_LOGIN"] = idr["CREATED"].ToString();
+                lastAccessed = Convert.ToDateTime(idr["CREATED"].ToString());
+                newrow["LAST_LOGIN"] = lastAccessed.ToString("dd MMM yyyy HH:mm");
+            }
             dt.Rows.Add(newrow);
         }
         idr.Close();
@@ -650,6 +667,8 @@ public partial class Summary : System.Web.UI.Page
 
     private void buildOtherShareableReviewGrid()
     {
+        DateTime dateCreated;
+        DateTime lastAccessed;
         DataTable dt = new DataTable();
         System.Data.DataRow newrow;
 
@@ -668,13 +687,24 @@ public partial class Summary : System.Web.UI.Page
             newrow["REVIEW_NAME"] = idr["REVIEW_NAME"].ToString();
             newrow["REVIEW_OWNER"] = idr["REVIEW_OWNER"].ToString();
             if ((idr["DATE_REVIEW_CREATED"].ToString() == null) || (idr["DATE_REVIEW_CREATED"].ToString() == ""))
+            {
                 newrow["DATE_CREATED"] = "Never";
+            }
             else
-                newrow["DATE_CREATED"] = idr["DATE_REVIEW_CREATED"].ToString();
+            {
+                dateCreated = Convert.ToDateTime(idr["DATE_REVIEW_CREATED"].ToString());
+                newrow["DATE_CREATED"] = dateCreated.ToString("dd MMM yyyy");
+            }
+
             if ((idr["LAST_ACCESSED_BY_CONTACT"].ToString() == null) || (idr["LAST_ACCESSED_BY_CONTACT"].ToString() == ""))
+            {
                 newrow["LAST_LOGIN"] = "Never";
+            }
             else
-                newrow["LAST_LOGIN"] = idr["LAST_ACCESSED_BY_CONTACT"].ToString();
+            {
+                lastAccessed = Convert.ToDateTime(idr["LAST_ACCESSED_BY_CONTACT"].ToString());
+                newrow["LAST_LOGIN"] = lastAccessed.ToString("dd MMM yyyy HH:mm");
+            }
             dt.Rows.Add(newrow);
         }
         idr.Close();
@@ -1291,6 +1321,7 @@ public partial class Summary : System.Web.UI.Page
             }
 
             DateTime dayExpires;
+            DateTime lastAccessed;
             DateTime today = DateTime.Today;
 
             DataTable dt = new DataTable();
@@ -1326,8 +1357,9 @@ public partial class Summary : System.Web.UI.Page
                 {
                     dayExpires = Convert.ToDateTime(idr1["expiry_date"].ToString());
 
-                    expiryDate = dayExpires.ToString();
-                    expiryDate = expiryDate.Remove(expiryDate.IndexOf(" "));
+                    expiryDate = dayExpires.ToString("dd MMM yyyy");
+                    //expiryDate = dayExpires.ToString();
+                    //expiryDate = expiryDate.Remove(expiryDate.IndexOf(" "));
                     if (dayExpires < today)
                     {
                         newrow["CONTACT_NAME"] = idr1["CONTACT_NAME"].ToString() + " (" + expiryDate + ")" + " Expired";
@@ -1338,12 +1370,17 @@ public partial class Summary : System.Web.UI.Page
                     }
                 }
 
-
                 newrow["EMAIL"] = idr1["EMAIL"].ToString();
                 if ((idr1["LAST_LOGIN"].ToString() == null) || (idr1["LAST_LOGIN"].ToString() == ""))
+                {
                     newrow["LAST_LOGIN"] = "Never";
+                }
                 else
-                    newrow["LAST_LOGIN"] = idr1["LAST_LOGIN"].ToString();
+                {
+                    lastAccessed = Convert.ToDateTime(idr1["LAST_LOGIN"].ToString());
+                    newrow["LAST_LOGIN"] = lastAccessed.ToString("dd MMM yyyy HH:mm");
+                    //newrow["LAST_LOGIN"] = idr1["LAST_LOGIN"].ToString();
+                }
 
                 if (idr1["IS_CODING_ONLY"].ToString() == "True")
                     newrow["IS_CODING_ONLY"] = "True";
@@ -1894,6 +1931,9 @@ public partial class Summary : System.Web.UI.Page
         System.Data.DataRow newrow;
         string test = "aa";
 
+        DateTime dateCreated;
+        DateTime lastAccessed;
+
         dt.Columns.Add(new DataColumn("REVIEW_ID", typeof(string)));
         dt.Columns.Add(new DataColumn("REVIEW_NAME", typeof(string)));
         dt.Columns.Add(new DataColumn("DATE_CREATED", typeof(string)));
@@ -1907,18 +1947,34 @@ public partial class Summary : System.Web.UI.Page
             newrow = dt.NewRow();
             newrow["REVIEW_ID"] = idr["REVIEW_ID"].ToString();
             newrow["REVIEW_NAME"] = idr["REVIEW_NAME"].ToString();
+
             if ((idr["DATE_CREATED"].ToString() == null) || (idr["DATE_CREATED"].ToString() == ""))
+            {
                 newrow["DATE_CREATED"] = "N/A";
+            }
             else
-                newrow["DATE_CREATED"] = idr["DATE_CREATED"].ToString();
+            {
+                dateCreated = Convert.ToDateTime(idr["DATE_CREATED"].ToString());
+                newrow["DATE_CREATED"] = dateCreated.ToString("dd MMM yyyy");
+                //newrow["DATE_CREATED"] = idr["DATE_CREATED"].ToString();
+            }
+
             if (idr["ARCHIE_ID"].ToString() == "prospective_______")
                 newrow["ARCHIE_ID"] = "Prospective";
             else
                 newrow["ARCHIE_ID"] = idr["ARCHIE_ID"].ToString();
+
             if ((idr["CREATED"].ToString() == null) || (idr["CREATED"].ToString() == ""))
+            {
                 newrow["LAST_LOGIN"] = "N/A";
+            }
             else
-                newrow["LAST_LOGIN"] = idr["CREATED"].ToString();
+            {
+                lastAccessed = Convert.ToDateTime(idr["CREATED"].ToString());
+                newrow["LAST_LOGIN"] = lastAccessed.ToString("dd MMM yyyy HH:mm");
+                //newrow["LAST_LOGIN"] = idr["CREATED"].ToString();
+            }
+
             dt.Rows.Add(newrow);
         }
         idr.Close();
@@ -1981,6 +2037,7 @@ public partial class Summary : System.Web.UI.Page
                     lbInviteReviewerCochrane.Visible = true;
                 pnlEditShareableReviewCochrane.Visible = true;
                 lblShareableReviewNumberCochrane.Text = ReviewID;
+                DateTime lastAccessed;
                 bool isAdmDB = true;
                 IDataReader idr = Utils.GetReader(isAdmDB, "st_ReviewDetails",
                     ReviewID);
@@ -2016,10 +2073,17 @@ public partial class Summary : System.Web.UI.Page
                         newrow["CONTACT_NAME"] = idr1["CONTACT_NAME"].ToString();
                         test = idr1["CONTACT_NAME"].ToString();
                         newrow["EMAIL"] = idr1["EMAIL"].ToString();
+
                         if ((idr1["LAST_LOGIN"].ToString() == null) || (idr1["LAST_LOGIN"].ToString() == ""))
+                        {
                             newrow["LAST_LOGIN"] = "Never";
+                        }
                         else
-                            newrow["LAST_LOGIN"] = idr1["LAST_LOGIN"].ToString();
+                        {
+                            lastAccessed = Convert.ToDateTime(idr["LAST_LOGIN"].ToString());
+                            newrow["LAST_LOGIN"] = lastAccessed.ToString("dd MMM yyyy HH:mm");
+                            //newrow["LAST_LOGIN"] = idr1["LAST_LOGIN"].ToString();
+                        }
 
                         test = idr1["IS_CODING_ONLY"].ToString();
                         if (idr1["IS_CODING_ONLY"].ToString() == "True")
@@ -2206,6 +2270,7 @@ public partial class Summary : System.Web.UI.Page
     {
         bool isPersonLoggedInAReviewAdmin = false;
         string test;
+        DateTime lastAccessed;
         DataTable dt = new DataTable();
         System.Data.DataRow newrow;
 
@@ -2226,10 +2291,18 @@ public partial class Summary : System.Web.UI.Page
             newrow["CONTACT_ID"] = idr["CONTACT_ID"].ToString();
             newrow["CONTACT_NAME"] = idr["CONTACT_NAME"].ToString();
             newrow["EMAIL"] = idr["EMAIL"].ToString();
+
+
             if ((idr["LAST_LOGIN"].ToString() == null) || (idr["LAST_LOGIN"].ToString() == ""))
+            {
                 newrow["LAST_LOGIN"] = "Never";
+            }
             else
-                newrow["LAST_LOGIN"] = idr["LAST_LOGIN"].ToString();
+            {
+                lastAccessed = Convert.ToDateTime(idr["LAST_LOGIN"].ToString());
+                newrow["LAST_LOGIN"] = lastAccessed.ToString("dd MMM yyyy HH:mm");
+                //newrow["LAST_LOGIN"] = idr["LAST_LOGIN"].ToString();
+            }
 
             if (idr["IS_CODING_ONLY"].ToString() == "True")
                 newrow["IS_CODING_ONLY"] = "True";
@@ -2453,6 +2526,8 @@ public partial class Summary : System.Web.UI.Page
         DataTable dt = new DataTable();
         System.Data.DataRow newrow;
         string test = "aa";
+        DateTime lastAccessed;
+        DateTime dateCreated;
 
         dt.Columns.Add(new DataColumn("REVIEW_ID", typeof(string)));
         dt.Columns.Add(new DataColumn("REVIEW_NAME", typeof(string)));
@@ -2467,18 +2542,38 @@ public partial class Summary : System.Web.UI.Page
             newrow = dt.NewRow();
             newrow["REVIEW_ID"] = idr["REVIEW_ID"].ToString();
             newrow["REVIEW_NAME"] = idr["REVIEW_NAME"].ToString();
+
+
             if ((idr["DATE_CREATED"].ToString() == null) || (idr["DATE_CREATED"].ToString() == ""))
+            {
                 newrow["DATE_CREATED"] = "N/A";
+            }
             else
-                newrow["DATE_CREATED"] = idr["DATE_CREATED"].ToString();
+            {
+                dateCreated = Convert.ToDateTime(idr["DATE_CREATED"].ToString());
+                newrow["DATE_CREATED"] = dateCreated.ToString("dd MMM yyyy");
+                //newrow["DATE_CREATED"] = idr["DATE_CREATED"].ToString();
+            }
+
+
             if (idr["ARCHIE_ID"].ToString() == "prospective_______")
                 newrow["ARCHIE_ID"] = "Prospective";
             else
                 newrow["ARCHIE_ID"] = idr["ARCHIE_ID"].ToString();
+
+
             if ((idr["CREATED"].ToString() == null) || (idr["CREATED"].ToString() == ""))
+            {
                 newrow["LAST_LOGIN"] = "N/A";
+            }
             else
-                newrow["LAST_LOGIN"] = idr["CREATED"].ToString();
+            {
+                lastAccessed = Convert.ToDateTime(idr["CREATED"].ToString());
+                newrow["LAST_LOGIN"] = lastAccessed.ToString("dd MMM yyyy HH:mm");
+                //newrow["LAST_LOGIN"] = idr["CREATED"].ToString();
+            }
+
+
             dt.Rows.Add(newrow);
         }
         idr.Close();
@@ -2537,6 +2632,7 @@ public partial class Summary : System.Web.UI.Page
                 lblPSFullCochraneReviewEnable.Visible = false;
                 rblPSFullCochraneReviewEnable.Visible = false;
                 lblShareableReviewNumberCochraneFull.Text = ReviewID;
+                DateTime lastAccessed;
                 bool isAdmDB = true;
                 IDataReader idr = Utils.GetReader(isAdmDB, "st_ReviewDetails",
                     ReviewID);
@@ -2571,10 +2667,17 @@ public partial class Summary : System.Web.UI.Page
                         newrow["CONTACT_NAME"] = idr1["CONTACT_NAME"].ToString();
                         test = idr1["CONTACT_NAME"].ToString();
                         newrow["EMAIL"] = idr1["EMAIL"].ToString();
+
                         if ((idr1["LAST_LOGIN"].ToString() == null) || (idr1["LAST_LOGIN"].ToString() == ""))
+                        {
                             newrow["LAST_LOGIN"] = "Never";
+                        }
                         else
-                            newrow["LAST_LOGIN"] = idr1["LAST_LOGIN"].ToString();
+                        {                            
+                            lastAccessed = Convert.ToDateTime(idr["LAST_LOGIN"].ToString());
+                            newrow["LAST_LOGIN"] = lastAccessed.ToString("dd MMM yyyy HH:mm");
+                            //newrow["LAST_LOGIN"] = idr1["LAST_LOGIN"].ToString();
+                        }
 
                         test = idr1["IS_CODING_ONLY"].ToString();
                         if (idr1["IS_CODING_ONLY"].ToString() == "True")
@@ -2749,6 +2852,7 @@ public partial class Summary : System.Web.UI.Page
     private void buildMembersOfReviewCochraneFull(string reviewID)
     {
         string test = "abc";
+        DateTime lastAccessed;
         bool isPersonLoggedInAReviewAdmin = false;
         DataTable dt = new DataTable();
         System.Data.DataRow newrow;
@@ -2770,10 +2874,17 @@ public partial class Summary : System.Web.UI.Page
             newrow["CONTACT_ID"] = idr["CONTACT_ID"].ToString();
             newrow["CONTACT_NAME"] = idr["CONTACT_NAME"].ToString();
             newrow["EMAIL"] = idr["EMAIL"].ToString();
+
             if ((idr["LAST_LOGIN"].ToString() == null) || (idr["LAST_LOGIN"].ToString() == ""))
+            {
                 newrow["LAST_LOGIN"] = "Never";
+            }
             else
-                newrow["LAST_LOGIN"] = idr["LAST_LOGIN"].ToString();
+            {
+                lastAccessed = Convert.ToDateTime(idr["LAST_LOGIN"].ToString());
+                newrow["LAST_LOGIN"] = lastAccessed.ToString("dd MMM yyyy HH:mm");
+                //newrow["LAST_LOGIN"] = idr["LAST_LOGIN"].ToString();
+            }
 
             if (idr["IS_CODING_ONLY"].ToString() == "True")
                 newrow["IS_CODING_ONLY"] = "True";
@@ -3077,6 +3188,7 @@ public partial class Summary : System.Web.UI.Page
                 break;
             case "HISTORY":
                 pnlHistory.Visible = true;
+                DateTime dateExtended;
                 lblCreditPruchaseID.Text = creditPurchaseID;
                 DataTable dt = new DataTable();
                 System.Data.DataRow newrow;
@@ -3099,7 +3211,11 @@ public partial class Summary : System.Web.UI.Page
                     newrow["TYPE"] = idr["tv_type_extended_name"].ToString();
                     newrow["ID"] = idr["tv_id_extended"].ToString();
                     newrow["NAME"] = idr["tv_name"].ToString();
-                    newrow["DATE_EXTENDED"] = idr["tv_date_extended"].ToString();
+
+                    dateExtended = Convert.ToDateTime(idr["tv_date_extended"].ToString());
+                    newrow["DATE_EXTENDED"] = dateExtended.ToString("dd MMM yyyy");
+                    //newrow["DATE_EXTENDED"] = idr["tv_date_extended"].ToString();
+
                     newrow["NUMBER_MONTHS"] = idr["tv_months_extended"].ToString();
                     newrow["COST"] = idr["tv_cost"].ToString();
                     dt.Rows.Add(newrow);

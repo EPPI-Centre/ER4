@@ -6,10 +6,12 @@ import { AppComponent } from '../app/app.component'
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ItemSet } from './ItemCoding.service';
-import { ReviewInfo, ReviewInfoService } from './ReviewInfo.service';
+import { ReviewInfo, ReviewInfoService, iReviewInfo } from './ReviewInfo.service';
 import { Item, iAdditionalItemDetails } from './ItemList.service';
 import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
+import { ReviewSet, SetAttribute } from './ReviewSets.service';
+import { forEach } from '@angular/router/src/utils/collection';
 
 
 //see: https://stackoverflow.com/questions/34031448/typescript-typeerror-myclass-myfunction-is-not-a-function
@@ -69,6 +71,7 @@ export class PriorityScreeningService extends BusyAwareService {
         setTimeout(() => {
             //console.log("I'm done waiting");
             this.Fetch();
+            this.ReviewInfoService.Fetch();
         }, waitSeconds * 1000);
         
     }
@@ -189,11 +192,13 @@ export class PriorityScreeningService extends BusyAwareService {
         }
         //let totalscreened = this._TrainingList
     }
-	private RunNewTrainingCommand() {
+	public RunNewTrainingCommand(delayedFetch:boolean = true) {
 		this._BusyMethods.push("RunNewTrainingCommand");
-        return this._httpC.get<any>(this._baseUrl + 'api/PriorirtyScreening/TrainingRunCommand').subscribe(tL => {
+        return this._httpC.get<iReviewTrainingRunCommand>(this._baseUrl + 'api/PriorirtyScreening/TrainingRunCommand').subscribe(tL => {
             //this.DelayedFetch(1 * 6);//seconds to wait...
-            this.DelayedFetch(30 * 60);//seconds to wait... 30m, a decent guess of how long the retraining will take.
+            this.ReviewInfoService.ReviewInfo = new ReviewInfo(tL.RevInfo);
+            console.log("Received RevInfo:", tL.RevInfo);
+            if (delayedFetch) this.DelayedFetch(30 * 60);//seconds to wait... 30m, a decent guess of how long the retraining will take.
             //key is that user will get the next item from the current list (server side) even before receiving the "training" record via this current mechanism.
 			this.RemoveBusy("RunNewTrainingCommand");
 		}, error => {
@@ -220,10 +225,10 @@ export class PriorityScreeningService extends BusyAwareService {
             }
         );
     }
-    public UpdateTrainingScreeningCriteria(crit: iTrainingScreeningCriteria) {
+    public FlipTrainingScreeningCriteria(crit: iTrainingScreeningCriteria) {
         let body: iUpdatingTrainingScreeningCriteria = {
             trainingScreeningCriteriaId: crit.trainingScreeningCriteriaId
-            , included: crit.included
+            , included: !crit.included
             , deleted: false
         };
         this.internalUpdateTrainingScreeningCriteria(body);
@@ -238,7 +243,7 @@ export class PriorityScreeningService extends BusyAwareService {
     }
     private internalUpdateTrainingScreeningCriteria(crit: iUpdatingTrainingScreeningCriteria) {
         this._BusyMethods.push("UpdateTrainingScreeningCriteria");
-        return this._httpC.post<iTrainingScreeningCriteria[]>(this._baseUrl +
+        this._httpC.post<iTrainingScreeningCriteria[]>(this._baseUrl +
             'api/PriorirtyScreening/UpdateTrainingScreeningCriteria', crit)
             .subscribe(
             (list: iTrainingScreeningCriteria[]) => {
@@ -249,6 +254,58 @@ export class PriorityScreeningService extends BusyAwareService {
                     this.RemoveBusy("UpdateTrainingScreeningCriteria");
                     this.modalService.GenericError(error);
                 });
+    }
+    public AddTrainingScreeningCriteria(SetAtt: SetAttribute) {
+        this._BusyMethods.push("AddTrainingScreeningCriteria");
+        if (SetAtt.attribute_type_id != 10 && SetAtt.attribute_type_id != 11) {
+            //not a screening code-type!
+            return;
+        }
+        let body: iUpdatingTrainingScreeningCriteria = {
+            trainingScreeningCriteriaId: SetAtt.attribute_id
+            , included: (SetAtt.attribute_type_id == 10)
+            , deleted: false
+        };
+        this._httpC.post<iTrainingScreeningCriteria[]>(this._baseUrl +
+            'api/PriorirtyScreening/AddTrainingScreeningCriteria', body)
+            .subscribe(
+            (list: iTrainingScreeningCriteria[]) => {
+                this.RemoveBusy("AddTrainingScreeningCriteria");
+                this._TrainingScreeningCriteria = list;
+                },
+                error => {
+                    this.RemoveBusy("AddTrainingScreeningCriteria");
+                    this.modalService.GenericError(error);
+                });
+    }
+    public ReplaceTrainingScreeningCriteriaList(set: ReviewSet): Promise<boolean> {
+        this._BusyMethods.push("ReplaceTrainingScreeningCriteriaList");
+        let Data: iUpdatingTrainingScreeningCriteria[] = [];
+        for (let aSet of set.attributes) {
+            Data.push({
+                trainingScreeningCriteriaId: aSet.attribute_id,
+                deleted: false,
+                included: aSet.attribute_type_id == 10
+            });
+        }
+        return this._httpC.post<iTrainingScreeningCriteria[]>(this._baseUrl +
+            'api/PriorirtyScreening/ReplaceTrainingScreeningCriteriaList', Data)
+            .toPromise().then(
+                success => {
+                    this.RemoveBusy("ReplaceTrainingScreeningCriteriaList");
+                    this._TrainingScreeningCriteria = success;
+                    return true;
+                },
+                error => {
+                    this.RemoveBusy("ReplaceTrainingScreeningCriteriaList");
+                    this.modalService.SendBackHomeWithError(error);
+                    return false;
+            }).catch(caught => {
+                this.RemoveBusy("ReplaceTrainingScreeningCriteriaList");
+                this.modalService.SendBackHomeWithError(caught);
+                return false;
+            }
+            );
     }
 }
 export interface Training {
@@ -261,10 +318,10 @@ export interface Training {
     nTrainingItemsExc: number;
     contactName: string;
     c: number;
-    tP: number;
-    tN: number;
-    fP: number;
-    fN: number;
+    tp: number;
+    tn: number;
+    fp: number;
+    fn: number;
     totalN: number;
     totalIncludes: number;
     totalExcludes: number;
@@ -290,4 +347,11 @@ export interface iUpdatingTrainingScreeningCriteria {
     trainingScreeningCriteriaId: number;
     deleted: boolean;
     included: boolean;
+}
+
+export interface iReviewTrainingRunCommand {
+    RevInfo: iReviewInfo;
+    ReportBack: string;
+    Parameters: string;
+    SimulationResults: string;
 }
