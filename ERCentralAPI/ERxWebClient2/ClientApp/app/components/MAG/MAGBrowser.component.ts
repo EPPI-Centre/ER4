@@ -3,7 +3,7 @@ import { Location } from '@angular/common';
 import { searchService } from '../services/search.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Router, NavigationEnd } from '@angular/router';
-import { MagPaper,  MagFieldOfStudy, MagBrowseHistoryItem } from '../services/MAGClasses.service';
+import { MagPaper,  MagFieldOfStudy, MagBrowseHistoryItem, topicInfo } from '../services/MAGClasses.service';
 import { MAGBrowserService } from '../services/MAGBrowser.service';
 import { MAGAdvancedService } from '../services/magAdvanced.service';
 import { MAGBrowserHistoryService } from '../services/MAGBrowserHistory.service';
@@ -57,6 +57,14 @@ export class MAGBrowser implements OnInit, OnDestroy {
                 }
             }
         );
+        this._eventEmitterService.getTopicsEvent.subscribe(
+            (topicInfo: topicInfo) => {
+                console.log('got there..')
+                this._magBrowserService.GetParentAndChildFieldsOfStudy(topicInfo.fieldOfStudy, topicInfo.fieldOfStudyId).then(
+                    () => { this.router.navigate(['MAGBrowser']); }
+                    );
+            }
+        );
         this.browsingHistory = this._routingStateService.getHistory();
         this._magBrowserService.MAGOriginalList.papers = this._magBrowserService.MAGList.papers;
         this._magBrowserService.OrigListCriteria = this._magBrowserService.ListCriteria;
@@ -78,6 +86,7 @@ export class MAGBrowser implements OnInit, OnDestroy {
     }
     ngOnDestroy() {
 
+        this._eventEmitterService.getTopicsEvent.unsubscribe();
         this._magBrowserService.Clear();
         this.Clear();
     }

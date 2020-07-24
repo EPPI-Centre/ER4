@@ -1,5 +1,6 @@
 import { Injectable, EventEmitter } from '@angular/core';
 import { singleNode } from './ReviewSets.service';
+import { topicInfo } from './MAGClasses.service';
 
 @Injectable()
 export class EventEmitterService {
@@ -16,9 +17,15 @@ export class EventEmitterService {
 	public getMatchedIncludedItemsEvent: EventEmitter<boolean> = new EventEmitter();
 	public getMatchedExcludedItemsEvent: EventEmitter<boolean> = new EventEmitter();
 	public getMatchedAllItemsEvent: EventEmitter<boolean> = new EventEmitter();
+	public getTopicsEvent: EventEmitter<topicInfo> = new EventEmitter<topicInfo>();
 	//public allocateRelevantItems = new EventEmitter();
 	//public configurableReports = new EventEmitter();
 	
+
+	public tester() {
+
+		alert('event emitter getting called here!!');
+	}
 	constructor() {
 
 	}

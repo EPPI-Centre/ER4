@@ -1,12 +1,14 @@
 import { Location } from '@angular/common';
-import { Component, OnInit, EventEmitter } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { MAGBrowserHistoryService } from '../services/MAGBrowserHistory.service';
-import { NavigationEnd, Router } from '@angular/router';
+import {  Router } from '@angular/router';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { MAGAdvancedService } from '../services/magAdvanced.service';
-import { MagBrowseHistoryItem } from '../services/MAGClasses.service';
+import { MagBrowseHistoryItem, topicInfo } from '../services/MAGClasses.service';
 import { EventEmitterService } from '../services/EventEmitter.service';
 import { of } from 'rxjs';
+import { MAGBrowserService } from '../services/MAGBrowser.service';
+import { MAGClassesService } from '../services/MAGClasses.service';
 
 @Component({
     selector: 'MAGBrowserHistory',
@@ -22,7 +24,8 @@ export class MAGBrowserHistory implements OnInit {
         public _magAdvancedService: MAGAdvancedService,
         private _ReviewerIdentityServ: ReviewerIdentityService,
         private router: Router,
-        public _eventEmitterService: EventEmitterService
+        public _eventEmitterService: EventEmitterService,
+        private _magBrowserService: MAGBrowserService
     ) {
 
     }
@@ -89,7 +92,6 @@ export class MAGBrowserHistory implements OnInit {
                                 mbh.findOnWeb, mbh.linkedITEM_ID);
                             break;
                         case "MatchesIncluded":
-                            console.log('inside Matches Included');
                             this.ShowMAGMatchesPage("included");
                             break;
                         case "MatchesExcluded":
@@ -148,7 +150,12 @@ export class MAGBrowserHistory implements OnInit {
         alert('not implemented yet');
     }
     public ShowTopicPage(fieldOfStudyId: number, fieldOfStudy: string) {
-        alert('not implemented yet');
+
+        let topicData: topicInfo = new topicInfo();
+        topicData.fieldOfStudy = fieldOfStudy;
+        topicData.fieldOfStudyId = fieldOfStudyId;
+        this._eventEmitterService.getTopicsEvent.emit(topicData);
+
     }
     public ShowSelectedPapersPage() {
         alert('not implemented yet');

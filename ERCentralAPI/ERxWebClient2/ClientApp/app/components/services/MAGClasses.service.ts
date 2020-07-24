@@ -332,3 +332,9 @@ export class MagBrowseHistoryItem {
     dateBrowsed: Date = new Date();
 }
 
+export class topicInfo {
+
+    fieldOfStudyId: number = 0;
+    fieldOfStudy: string = '';
+
+}
