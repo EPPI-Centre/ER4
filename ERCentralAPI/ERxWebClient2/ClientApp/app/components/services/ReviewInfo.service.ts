@@ -21,7 +21,7 @@ export class ReviewInfoService extends BusyAwareService{
     ) {
         super();
     }
-    @Output() ReviewInfoChanged = new EventEmitter();
+    @Output() ReviewInfoChanged = new EventEmitter<void>();
 	private _ReviewContacts: Contact[] = [];
     private _ReviewInfo: ReviewInfo = new ReviewInfo();
     public get ReviewInfo(): ReviewInfo {

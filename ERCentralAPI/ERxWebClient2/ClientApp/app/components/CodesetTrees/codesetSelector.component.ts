@@ -66,29 +66,32 @@ export class codesetSelectorComponent implements OnInit, OnDestroy, AfterViewIni
         }
 		else {
 
-			if (this.WhatIsSelectable == 'RandomAllocation') {
+            if (this.WhatIsSelectable == 'RandomAllocation') {
 
-				this._nodes = [];
-				for (let Rset of this.ReviewSetsService.ReviewSets) {
-					//if (Rset.setType.allowRandomAllocation == false) {
-					//	let newSet = new ReviewSet()
-     //                   newSet.set_id = Rset.set_id;
-     //                   newSet.reviewSetId = Rset.reviewSetId;
-					//	newSet.set_name = Rset.set_name;
-					//	newSet.set_order = Rset.set_order;
-					//	newSet.setType = Rset.setType;
-					//	newSet.nodeType = Rset.nodeType;
-					//	newSet.allowEditingCodeset = Rset.allowEditingCodeset;
-					//	newSet.codingIsFinal = Rset.codingIsFinal;
-					//	newSet.description = Rset.description;
-					//	this._nodes.push(newSet);
-					//}
-					//else {
-					//	this._nodes.push(Rset);
-					//}
+                this._nodes = [];
+                for (let Rset of this.ReviewSetsService.ReviewSets) {
+                    //if (Rset.setType.allowRandomAllocation == false) {
+                    //	let newSet = new ReviewSet()
+                    //                   newSet.set_id = Rset.set_id;
+                    //                   newSet.reviewSetId = Rset.reviewSetId;
+                    //	newSet.set_name = Rset.set_name;
+                    //	newSet.set_order = Rset.set_order;
+                    //	newSet.setType = Rset.setType;
+                    //	newSet.nodeType = Rset.nodeType;
+                    //	newSet.allowEditingCodeset = Rset.allowEditingCodeset;
+                    //	newSet.codingIsFinal = Rset.codingIsFinal;
+                    //	newSet.description = Rset.description;
+                    //	this._nodes.push(newSet);
+                    //}
+                    //else {
+                    //	this._nodes.push(Rset);
+                    //}
                     if (Rset.setType.allowRandomAllocation && Rset.allowEditingCodeset) this._nodes.push(Rset);
-				}
-			}
+                }
+            }
+            else if (this.WhatIsSelectable == 'ScreeningCodes') {
+                this._nodes = this.ReviewSetsService.ReviewSets.filter(found => found.setType.setTypeName == "Screening");
+            }
         }
 	}
 
@@ -132,11 +135,11 @@ export class codesetSelectorComponent implements OnInit, OnDestroy, AfterViewIni
 		if (this.ReviewSetsService && this.ReviewSetsService.ReviewSets
 			&& this.ReviewSetsService.ReviewSets.length > 0) {
 
-			if (this.WhatIsSelectable == 'RandomAllocation') {
+            if (this.WhatIsSelectable == 'RandomAllocation' || this.WhatIsSelectable == 'ScreeningCodes') {
 				//console.log("get nodes in Random alloc mode");
 				return this._nodes;
-				
-			} else {
+            }
+            else {
 				//console.log("get nodes NOT in Random alloc mode");
 				return  this.ReviewSetsService.ReviewSets;
 			}
@@ -210,9 +213,8 @@ export class codesetSelectorComponent implements OnInit, OnDestroy, AfterViewIni
 
 
 		//alert(JSON.stringify(node));
-		// So far six possible paths of logic
-		if (this.WhatIsSelectable == "SetAttribute" && this.IsMultiSelect==false) {
-
+		
+        if (this.WhatIsSelectable == "SetAttribute" && this.IsMultiSelect == false) {
 			if (node.nodeType == "SetAttribute") {
 				//console.log(JSON.stringify(node));
 				//this.SelectedCodeDescription = node.description.replace(/\r\n/g, '<br />').replace(/\r/g, '<br />').replace(/\n/g, '<br />');
@@ -220,6 +222,14 @@ export class codesetSelectorComponent implements OnInit, OnDestroy, AfterViewIni
                 this.SignalGoodNodeSelection(node);
 			}
 
+        }
+        else if (this.WhatIsSelectable == 'ScreeningCodes' && this.IsMultiSelect == false) {
+            if (node.nodeType == "SetAttribute") {
+                const SA = (node as SetAttribute);
+                if (SA) {
+                    if (SA.attribute_type_id == 10 || SA.attribute_type_id == 11) this.SignalGoodNodeSelection(node);
+                }
+            }
         }
         else if (this.WhatIsSelectable == 'RandomAllocation') {
 			if (node != null) {

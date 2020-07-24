@@ -243,7 +243,7 @@ export class PriorityScreeningService extends BusyAwareService {
     }
     private internalUpdateTrainingScreeningCriteria(crit: iUpdatingTrainingScreeningCriteria) {
         this._BusyMethods.push("UpdateTrainingScreeningCriteria");
-        return this._httpC.post<iTrainingScreeningCriteria[]>(this._baseUrl +
+        this._httpC.post<iTrainingScreeningCriteria[]>(this._baseUrl +
             'api/PriorirtyScreening/UpdateTrainingScreeningCriteria', crit)
             .subscribe(
             (list: iTrainingScreeningCriteria[]) => {
@@ -252,6 +252,29 @@ export class PriorityScreeningService extends BusyAwareService {
                 },
                 error => {
                     this.RemoveBusy("UpdateTrainingScreeningCriteria");
+                    this.modalService.GenericError(error);
+                });
+    }
+    public AddTrainingScreeningCriteria(SetAtt: SetAttribute) {
+        this._BusyMethods.push("AddTrainingScreeningCriteria");
+        if (SetAtt.attribute_type_id != 10 && SetAtt.attribute_type_id != 11) {
+            //not a screening code-type!
+            return;
+        }
+        let body: iUpdatingTrainingScreeningCriteria = {
+            trainingScreeningCriteriaId: SetAtt.attribute_id
+            , included: (SetAtt.attribute_type_id == 10)
+            , deleted: false
+        };
+        this._httpC.post<iTrainingScreeningCriteria[]>(this._baseUrl +
+            'api/PriorirtyScreening/AddTrainingScreeningCriteria', body)
+            .subscribe(
+            (list: iTrainingScreeningCriteria[]) => {
+                this.RemoveBusy("AddTrainingScreeningCriteria");
+                this._TrainingScreeningCriteria = list;
+                },
+                error => {
+                    this.RemoveBusy("AddTrainingScreeningCriteria");
                     this.modalService.GenericError(error);
                 });
     }
