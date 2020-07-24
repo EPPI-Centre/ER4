@@ -99,10 +99,13 @@ public partial class AssignCredit : System.Web.UI.Page
                 dayExpires = Convert.ToDateTime(idr["EXPIRY_DATE"].ToString());
                 if (dayExpires < today)
                 {
-                    newrow["EXPIRY_DATE"] = dayExpires.ToShortDateString() + "  Expired";
+                    newrow["EXPIRY_DATE"] = dayExpires.ToString("dd MMM yyyy") + "  Expired";
                 }
                 else
-                    newrow["EXPIRY_DATE"] = dayExpires.ToShortDateString();
+                {
+                    newrow["EXPIRY_DATE"] = dayExpires.ToString("dd MMM yyyy");
+                    //newrow["EXPIRY_DATE"] = dayExpires.ToShortDateString();
+                }
 
                 if (idr["SITE_LIC_ID"].ToString() != null && idr["SITE_LIC_ID"].ToString() != "")
                 {
@@ -159,6 +162,7 @@ public partial class AssignCredit : System.Web.UI.Page
                 lblAvailable.Text = "£" + Utils.GetSessionString("Remaining_Credit");
                 lblRemaining.Text = "£" + Utils.GetSessionString("Remaining_Credit");
 
+                DateTime lastAccessed;
                 DateTime dayExpires;
                 DateTime today = DateTime.Today;
 
@@ -186,24 +190,35 @@ public partial class AssignCredit : System.Web.UI.Page
                     dayExpires = Convert.ToDateTime(idr1["EXPIRY_DATE"].ToString());
                     if (dayExpires < today)
                     {
-                        newrow["EXPIRY_DATE"] = dayExpires.ToShortDateString() + "  Expired";
+                        newrow["EXPIRY_DATE"] = dayExpires.ToString("dd MMM yyyy") + "  Expired";
+                        //newrow["EXPIRY_DATE"] = dayExpires.ToShortDateString() + "  Expired";
                     }
                     else
                     {
-                        newrow["EXPIRY_DATE"] = expiryDate;
+                        newrow["EXPIRY_DATE"] = dayExpires.ToString("dd MMM yyyy");
+                        //newrow["EXPIRY_DATE"] = expiryDate;
                     }
 
 
                     if (idr1["site_lic_id"].ToString() != "")
                     {
-                        newrow["EXPIRY_DATE"] = expiryDate + " in Site License #" +
+                        newrow["EXPIRY_DATE"] = dayExpires.ToString("dd MMM yyyy") + " in Site License #" +
                             idr1["site_lic_id"].ToString();
+                        //newrow["EXPIRY_DATE"] = expiryDate + " in Site License #" +
+                        //    idr1["site_lic_id"].ToString();
                     }
                     newrow["EMAIL"] = idr1["EMAIL"].ToString();
+
                     if ((idr1["LAST_LOGIN"].ToString() == null) || (idr1["LAST_LOGIN"].ToString() == ""))
+                    {
                         newrow["LAST_LOGIN"] = "Never";
+                    }
                     else
-                        newrow["LAST_LOGIN"] = idr1["LAST_LOGIN"].ToString();
+                    {
+                        lastAccessed = Convert.ToDateTime(idr1["LAST_LOGIN"].ToString());
+                        newrow["LAST_LOGIN"] = lastAccessed.ToString("dd MMM yyyy HH:ss");
+                        //newrow["LAST_LOGIN"] = idr1["LAST_LOGIN"].ToString();
+                    }
 
                     newrow["COST"] = "0";
 
@@ -609,11 +624,13 @@ public partial class AssignCredit : System.Web.UI.Page
                         dayExpires = Convert.ToDateTime(idr["EXPIRY_DATE"].ToString());
                         if (dayExpires < today)
                         {
-                            lblExpiryDate.Text = dayExpires.ToShortDateString() + "  Expired";
+                            lblExpiryDate.Text = dayExpires.ToString("dd MMM yyyy") + "  Expired";
+                            //lblExpiryDate.Text = dayExpires.ToShortDateString() + "  Expired";
                         }
                         else
                         {
-                            lblExpiryDate.Text = dayExpires.ToShortDateString();
+                            lblExpiryDate.Text = dayExpires.ToString("dd MMM yyyy");
+                            //lblExpiryDate.Text = dayExpires.ToShortDateString();
                         }
                     }
 

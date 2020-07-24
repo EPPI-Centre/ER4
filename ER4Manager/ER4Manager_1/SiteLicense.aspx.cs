@@ -108,6 +108,12 @@ public partial class SiteLicense : System.Web.UI.Page
                         dt1.Columns.Add(new DataColumn("DATE_CREATED", typeof(string)));
                         int counter = 0;
 
+                        DateTime dateCreated;
+                        DateTime dateOfferCreated;
+                        DateTime validFrom;
+                        DateTime expiryDate;
+
+
                         // Why am I getting the package data first? If there are not any packages
                         // it affects what is displayed in the sections that follow. So, perhaps there
                         // is a valid reason.
@@ -116,7 +122,7 @@ public partial class SiteLicense : System.Web.UI.Page
                         //IDataReader idr = Utils.GetReader(isAdmDB, "st_Site_Lic_Get_all_Packages", "0", 
                         //    Utils.GetSessionString("Contact_ID"));
                         // 
-                        
+
                         // added JB Jun26
                         IDataReader idr;
                         if (selectedSiteLicenseID != "0")
@@ -132,19 +138,21 @@ public partial class SiteLicense : System.Web.UI.Page
                         while (idr.Read())
                         {
                             newrow1 = dt1.NewRow();
+                            dateOfferCreated = Convert.ToDateTime(idr["DATE_CREATED"].ToString());
+ 
                             newrow1["SITE_LIC_DETAILS_ID"] = idr["SITE_LIC_DETAILS_ID"].ToString();
                             if (idr["IS_ACTIVE"].ToString() == "True")
-                                newrow1["DATE_CREATED"] = "Offer - " + idr["DATE_CREATED"].ToString();
+                                newrow1["DATE_CREATED"] = "Offer - " + dateOfferCreated.ToString("dd MMM yyyy");
                             if (idr["IS_ACTIVE"].ToString() == "False")
                             {
                                 if (counter == 0)
                                 {
-                                    newrow1["DATE_CREATED"] = "Latest - " + idr["DATE_CREATED"].ToString();
+                                    newrow1["DATE_CREATED"] = "Latest - " + dateOfferCreated.ToString("dd MMM yyyy");
                                     itemToSelect = idr["SITE_LIC_DETAILS_ID"].ToString();
                                     counter += 1;
                                 }
                                 else
-                                    newrow1["DATE_CREATED"] = "Expired - " + idr["DATE_CREATED"].ToString();
+                                    newrow1["DATE_CREATED"] = "Expired - " + dateOfferCreated.ToString("dd MMM yyyy");
                             }
                             dt1.Rows.Add(newrow1);
                         }
@@ -197,14 +205,20 @@ public partial class SiteLicense : System.Web.UI.Page
                                 tbTelephone.Text = idr["TELEPHONE"].ToString();
                                 tbNotes.Text = idr["NOTES"].ToString();
                                 lblSiteLicID.Text = idr["SITE_LIC_ID"].ToString();
-                                lblDateCreated.Text = idr["DATE_CREATED"].ToString();
+
+                                dateCreated = Convert.ToDateTime(idr["DATE_CREATED"].ToString());
+                                lblDateCreated.Text = dateCreated.ToString("dd MMM yyyy");
+                                //lblDateCreated.Text = idr["DATE_CREATED"].ToString();
 
                                 lblSiteLicenseDetailsID.Text = idr["SITE_LIC_DETAILS_ID"].ToString();
                                 lblNumberMonths.Text = idr["MONTHS"].ToString();
                                 lblNumberAccounts.Text = idr["ACCOUNTS_ALLOWANCE"].ToString();
                                 lblNumberReviews.Text = idr["REVIEWS_ALLOWANCE"].ToString();
                                 lblTotalFee.Text = (int.Parse(idr["PRICE_PER_MONTH"].ToString()) * int.Parse(lblNumberMonths.Text)).ToString();
-                                lblValidFrom.Text = idr["VALID_FROM"].ToString();
+
+                                validFrom = Convert.ToDateTime(idr["VALID_FROM"].ToString());
+                                lblValidFrom.Text = validFrom.ToString("dd MMM yyyy");
+                                //lblValidFrom.Text = idr["VALID_FROM"].ToString();
 
                                 string test = idr["ALLOW_REVIEW_OWNERSHIP_CHANGE"].ToString();
                                 if (idr["ALLOW_REVIEW_OWNERSHIP_CHANGE"].ToString() == "True")
@@ -250,7 +264,10 @@ public partial class SiteLicense : System.Web.UI.Page
                                         lblExpiryDate.BackColor = ColorTranslator.FromHtml("#E2E9EF");
                                         lblExpiryDate.Font.Bold = false;
                                     }
-                                    lblExpiryDate.Text = idr["EXPIRY_DATE"].ToString();
+
+                                    expiryDate = Convert.ToDateTime(idr["EXPIRY_DATE"].ToString());
+                                    lblExpiryDate.Text = expiryDate.ToString("dd MMM yyyy");
+                                    //lblExpiryDate.Text = idr["EXPIRY_DATE"].ToString();
                                 }
                                 lblIsActivated.Text = "Yes";
                                 lbPackageHistory.Enabled = true;
@@ -268,13 +285,31 @@ public partial class SiteLicense : System.Web.UI.Page
                                     tbTelephone.Text = idr["TELEPHONE"].ToString();
                                     tbNotes.Text = idr["NOTES"].ToString();
                                     lblSiteLicID.Text = idr["SITE_LIC_ID"].ToString();
-                                    lblDateCreated.Text = idr["DATE_CREATED"].ToString();
+
+                                    dateCreated = Convert.ToDateTime(idr["DATE_CREATED"].ToString());
+                                    lblDateCreated.Text = dateCreated.ToString("dd MMM yyyy");
+                                    //lblDateCreated.Text = idr["DATE_CREATED"].ToString();
 
                                     lblSiteLicenseDetailsID.Text = idr["SITE_LIC_DETAILS_ID"].ToString();
                                     lblNumberMonths.Text = idr["MONTHS"].ToString();
                                     lblNumberAccounts.Text = idr["ACCOUNTS_ALLOWANCE"].ToString();
                                     lblNumberReviews.Text = idr["REVIEWS_ALLOWANCE"].ToString();
                                     lblTotalFee.Text = (int.Parse(idr["PRICE_PER_MONTH"].ToString()) * int.Parse(lblNumberMonths.Text)).ToString();
+
+                                    if (idr["VALID_FROM"].ToString() == "")
+                                    {
+                                        lblValidFrom.Text = "N/A";
+                                        cmdAddAccount.Enabled = false;
+                                        cmdAddReview.Enabled = false;
+                                        lblDetailsHeading.Text = "There are not any activated packages associated with this license";
+                                    }
+                                    else
+                                    {
+                                        validFrom = Convert.ToDateTime(idr["VALID_FROM"].ToString());
+                                        lblValidFrom.Text = validFrom.ToString("dd MMM yyyy");
+                                    }
+
+                                    /*
                                     lblValidFrom.Text = idr["VALID_FROM"].ToString();
                                     if (lblValidFrom.Text == "")
                                     {
@@ -283,9 +318,24 @@ public partial class SiteLicense : System.Web.UI.Page
                                         cmdAddReview.Enabled = false;
                                         lblDetailsHeading.Text = "There are not any activated packages associated with this license";
                                     }
+                                    */
+
+                                    if (idr["EXPIRY_DATE"].ToString() == "")
+                                    {
+                                        lblExpiryDate.Text = "N/A";
+                                    }
+                                    else
+                                    {
+                                        expiryDate = Convert.ToDateTime(idr["EXPIRY_DATE"].ToString());
+                                        lblExpiryDate.Text = expiryDate.ToString("dd MMM yyyy");
+                                    }
+
+                                    /*
                                     lblExpiryDate.Text = idr["EXPIRY_DATE"].ToString();
                                     if (lblExpiryDate.Text == "")
                                         lblExpiryDate.Text = "N/A";
+                                    */
+
                                     lblIsActivated.Text = "No";
                                     lbPackageHistory.Enabled = true;
                                     lbExtensionHistory.Enabled = true;
@@ -326,7 +376,10 @@ public partial class SiteLicense : System.Web.UI.Page
                                 tbTelephone.Text = idr["TELEPHONE"].ToString();
                                 tbNotes.Text = idr["NOTES"].ToString();
                                 lblSiteLicID.Text = idr["SITE_LIC_ID"].ToString();
-                                lblDateCreated.Text = idr["DATE_CREATED"].ToString();
+
+                                dateCreated = Convert.ToDateTime(idr["DATE_CREATED"].ToString());
+                                lblDateCreated.Text = dateCreated.ToString("dd MMM yyyy");
+                                //lblDateCreated.Text = idr["DATE_CREATED"].ToString();
                             }
                             idr.Close();
 
@@ -796,6 +849,8 @@ public partial class SiteLicense : System.Web.UI.Page
         cmdAddReview.Enabled = true;
         lblExpiryDate.Font.Bold = false;
         lblExpiryDate.BackColor = ColorTranslator.FromHtml("#E2E9EF");
+        DateTime validFrom;
+        DateTime expiryDate;
         bool isAdmDB = true;
         IDataReader idr = Utils.GetReader(isAdmDB, "st_Site_Lic_Get_Package", ddlPackages.SelectedValue);
         while (idr.Read())
@@ -808,7 +863,11 @@ public partial class SiteLicense : System.Web.UI.Page
                 int.Parse(idr["MONTHS"].ToString())).ToString();
             if (idr["IS_ACTIVE"].ToString() == "False")
             {
-                lblValidFrom.Text = idr["VALID_FROM"].ToString();
+
+                validFrom = Convert.ToDateTime(idr["VALID_FROM"].ToString());
+                lblValidFrom.Text = validFrom.ToString("dd MMM yyyy");
+                //lblValidFrom.Text = idr["VALID_FROM"].ToString();
+
                 if (ddlPackages.SelectedItem.Text.StartsWith("Expired"))
                 {
                     lblExpiryDate.Text = "Expired";
@@ -830,7 +889,10 @@ public partial class SiteLicense : System.Web.UI.Page
                         lblExpiryDate.BackColor = ColorTranslator.FromHtml("#E2E9EF");
                         lblExpiryDate.Font.Bold = false;
                     }
-                    lblExpiryDate.Text = idr["EXPIRY_DATE"].ToString();
+
+                    expiryDate = Convert.ToDateTime(idr["EXPIRY_DATE"].ToString());
+                    lblExpiryDate.Text = expiryDate.ToString("dd MMM yyyy");
+                    //lblExpiryDate.Text = idr["EXPIRY_DATE"].ToString();
                 }
                 lblIsActivated.Text = "Yes";
             }
@@ -982,6 +1044,10 @@ public partial class SiteLicense : System.Web.UI.Page
         string selectedSiteLicenseID = ddlYourSiteLicenses.SelectedValue;
         bool isAdmDB = true;
         string itemToSelect = "";
+        DateTime validFrom;
+        DateTime expiryDate;
+        DateTime dateOfferCreated;
+
         DataTable dt1 = new DataTable();
         System.Data.DataRow newrow1;
         dt1.Columns.Add(new DataColumn("SITE_LIC_DETAILS_ID", typeof(string)));
@@ -1012,19 +1078,20 @@ public partial class SiteLicense : System.Web.UI.Page
         while (idr.Read())
         {
             newrow1 = dt1.NewRow();
+            dateOfferCreated = Convert.ToDateTime(idr["DATE_CREATED"].ToString());
             newrow1["SITE_LIC_DETAILS_ID"] = idr["SITE_LIC_DETAILS_ID"].ToString();
             if (idr["IS_ACTIVE"].ToString() == "True")
-                newrow1["DATE_CREATED"] = "Offer - " + idr["DATE_CREATED"].ToString();
+                newrow1["DATE_CREATED"] = "Offer - " + dateOfferCreated.ToString("dd MMM yyyy");
             if (idr["IS_ACTIVE"].ToString() == "False")
             {
                 if (counter == 0)
                 {
-                    newrow1["DATE_CREATED"] = "Latest - " + idr["DATE_CREATED"].ToString();
+                    newrow1["DATE_CREATED"] = "Latest - " + dateOfferCreated.ToString("dd MMM yyyy");
                     itemToSelect = idr["SITE_LIC_DETAILS_ID"].ToString();
                     counter += 1;
                 }
                 else
-                    newrow1["DATE_CREATED"] = "Expired - " + idr["DATE_CREATED"].ToString();
+                    newrow1["DATE_CREATED"] = "Expired - " + dateOfferCreated.ToString("dd MMM yyyy");
             }
             dt1.Rows.Add(newrow1);
         }
@@ -1038,7 +1105,7 @@ public partial class SiteLicense : System.Web.UI.Page
         lblExpiryDate.Font.Bold = false;
         lblExpiryDate.BackColor = ColorTranslator.FromHtml("#E2E9EF");
 
-
+        
         if (ddlPackages.Items.Count != 0)
         {
             // license details are available
@@ -1084,7 +1151,10 @@ public partial class SiteLicense : System.Web.UI.Page
                 lblNumberAccounts.Text = idr["ACCOUNTS_ALLOWANCE"].ToString();
                 lblNumberReviews.Text = idr["REVIEWS_ALLOWANCE"].ToString();
                 lblTotalFee.Text = (int.Parse(idr["PRICE_PER_MONTH"].ToString()) * int.Parse(lblNumberMonths.Text)).ToString();
-                lblValidFrom.Text = idr["VALID_FROM"].ToString();
+
+                validFrom = Convert.ToDateTime(idr["VALID_FROM"].ToString());
+                lblValidFrom.Text = validFrom.ToString("dd MMM yyyy");
+                //lblValidFrom.Text = idr["VALID_FROM"].ToString();
 
                 string test = idr["ALLOW_REVIEW_OWNERSHIP_CHANGE"].ToString();
                 if (idr["ALLOW_REVIEW_OWNERSHIP_CHANGE"].ToString() == "True")
@@ -1130,7 +1200,9 @@ public partial class SiteLicense : System.Web.UI.Page
                         lblExpiryDate.BackColor = ColorTranslator.FromHtml("#E2E9EF");
                         lblExpiryDate.Font.Bold = false;
                     }
-                    lblExpiryDate.Text = idr["EXPIRY_DATE"].ToString();
+                    expiryDate = Convert.ToDateTime(idr["EXPIRY_DATE"].ToString());
+                    lblExpiryDate.Text = expiryDate.ToString("dd MMM yyyy");
+                    //lblExpiryDate.Text = idr["EXPIRY_DATE"].ToString();
                 }
                 lblIsActivated.Text = "Yes";
                 lbPackageHistory.Enabled = true;
@@ -1155,6 +1227,22 @@ public partial class SiteLicense : System.Web.UI.Page
                     lblNumberAccounts.Text = idr["ACCOUNTS_ALLOWANCE"].ToString();
                     lblNumberReviews.Text = idr["REVIEWS_ALLOWANCE"].ToString();
                     lblTotalFee.Text = (int.Parse(idr["PRICE_PER_MONTH"].ToString()) * int.Parse(lblNumberMonths.Text)).ToString();
+
+
+                    if (idr["VALID_FROM"].ToString() == "")
+                    {
+                        lblValidFrom.Text = "N/A";
+                        cmdAddAccount.Enabled = false;
+                        cmdAddReview.Enabled = false;
+                        lblDetailsHeading.Text = "There are not any activated packages associated with this license";
+                    }
+                    else
+                    {
+                        validFrom = Convert.ToDateTime(idr["VALID_FROM"].ToString());
+                        lblValidFrom.Text = validFrom.ToString("dd MMM yyyy");
+                    }
+
+                    /*
                     lblValidFrom.Text = idr["VALID_FROM"].ToString();
                     if (lblValidFrom.Text == "")
                     {
@@ -1163,9 +1251,23 @@ public partial class SiteLicense : System.Web.UI.Page
                         cmdAddReview.Enabled = false;
                         lblDetailsHeading.Text = "There are not any activated packages associated with this license";
                     }
+                    */
+
+                    if (idr["EXPIRY_DATE"].ToString() == "")
+                    {
+                        lblExpiryDate.Text = "N/A";
+                    }
+                    else
+                    {
+                        expiryDate = Convert.ToDateTime(idr["EXPIRY_DATE"].ToString());
+                        lblExpiryDate.Text = expiryDate.ToString("dd MMM yyyy");
+                    }
+                    /*
                     lblExpiryDate.Text = idr["EXPIRY_DATE"].ToString();
                     if (lblExpiryDate.Text == "")
                         lblExpiryDate.Text = "N/A";
+                    */
+
                     lblIsActivated.Text = "No";
                     lbPackageHistory.Enabled = true;
                     lbExtensionHistory.Enabled = true;

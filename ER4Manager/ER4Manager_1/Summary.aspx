@@ -161,7 +161,7 @@
                     <asp:BoundField DataField="CREDIT_PURCHASE_ID" HeaderText="PurchaseID">
                         <HeaderStyle BackColor="#B6C6D6" />
                     </asp:BoundField>
-                    <asp:BoundField DataField="DATE_PURCHASED" HeaderText="Date">
+                    <asp:BoundField DataField="DATE_PURCHASED" HeaderText="Date purchased">
                         <HeaderStyle BackColor="#B6C6D6" />
                     </asp:BoundField>
                     <asp:BoundField DataField="CREDIT_PURCHASED" HeaderText="Amount (£)">
@@ -203,7 +203,7 @@
                     <asp:BoundField DataField="NAME" HeaderText="Name">
                         <HeaderStyle BackColor="#B6C6D6" />
                     </asp:BoundField>
-                    <asp:BoundField DataField="DATE_EXTENDED" HeaderText="Date">
+                    <asp:BoundField DataField="DATE_EXTENDED" HeaderText="Date extended">
                         <HeaderStyle BackColor="#B6C6D6" />
                     </asp:BoundField>
                     <asp:BoundField DataField="NUMBER_MONTHS" HeaderText="Months">
