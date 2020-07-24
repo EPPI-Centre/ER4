@@ -14,6 +14,7 @@ import { GridDataResult } from '@progress/kendo-angular-grid';
 import { ItemListService } from '../services/ItemList.service';
 import { Subscription } from 'rxjs';
 import { Router } from '@angular/router';
+import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 
 
 @Component({
@@ -31,6 +32,7 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
         private ReviewSetsEditingService: ReviewSetsEditingService,
         private ReviewInfoService: ReviewInfoService,
         private ReviewerIdentityService: ReviewerIdentityService,
+        private ConfirmationDialogService: ConfirmationDialogService,
         private PriorityScreeningService: PriorityScreeningService,
         private WorkAllocationListService: WorkAllocationListService,
         private ItemListService: ItemListService
@@ -54,7 +56,18 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
     private subGotPriorityScreeningData: Subscription | null = null;
     private RevInfoSub: Subscription | null = null;
     public AllowEditOnStep4: boolean = false;
-
+    public ScreenAllItems: boolean = true;
+    private _ItemsWithThisAttribute: SetAttribute | null = null;
+    public selectedCodeSetDropDown: ReviewSet | null = null;
+    public isCollapsedAllocateOptions: boolean = false;
+    private _ScreeningModeOptions: kvSelectFrom[] = [
+        { key: 0, value: '[Please select]' },
+        { key: 1, value: 'Priority' },
+        { key: 2, value: 'Random' }
+    ];
+    public get ScreeningModeOptions(): kvSelectFrom[] {
+        return this._ScreeningModeOptions;
+    }
 
     public get StepNames(): string[] {
         return this._stepNames;
@@ -64,7 +77,15 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
         else return '';
     }
     
-    
+    public get ItemsWithThisAttribute(): SetAttribute | null {
+        if (this.revInfo.screeningWhatAttributeId > 0
+            && (this._ItemsWithThisAttribute == null || this._ItemsWithThisAttribute.attribute_id != this.revInfo.screeningWhatAttributeId)) {
+            this._ItemsWithThisAttribute = this.ReviewSetsService.FindAttributeById(this.revInfo.screeningWhatAttributeId)
+        } else {
+            this._ItemsWithThisAttribute = null;
+        }
+        return this._ItemsWithThisAttribute;
+    }
 
     public PreviousStep() {
         if (this.CurrentStep > 1) this.CurrentStep--;
@@ -135,28 +156,117 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
     FormatDate(DateSt: string): string {
         return Helpers.FormatDate2(DateSt);
     }
-    GetCodingToolName(setId:number): string {
-        const set = this.ReviewSetsService.FindSetById(setId);
-        if (set != null) return set.set_name;
-        else return "Not configured...";
+
+
+    //GetAttributeName(AttId: number): string {
+    //    const Att = this.ReviewSetsService.FindAttributeById(AttId);
+    //    if (Att != null) return Att.attribute_name;
+    //    else return "Not configured...";
+    //}
+    public get ScreeningTools(): ReviewSet[] {
+        return this.ReviewSetsService.ReviewSets.filter(found => found.setType.setTypeName == "Screening")
     }
-    GetAttributeName(AttId: number): string {
-        const Att = this.ReviewSetsService.FindAttributeById(AttId);
-        if (Att != null) return Att.attribute_name;
-        else return "Not configured...";
+    public get ConfigurationIsValid(): boolean {
+        if (this.revInfo.screeningCodeSetId < 1) return false;//don't know what to screen
+        if (this.revInfo.screeningWhatAttributeId < 0) return false; //0 if screen all items more than 0 if screen items with this code
+        if (!this.ScreenAllItems && this.revInfo.screeningWhatAttributeId < 1) return false;//screen items with this code: need a valid AttributeId
+        if (this.ScreenAllItems && this.revInfo.screeningWhatAttributeId != 0) return false;//screen all items: need this to be 0
+        if (this.PriorityScreeningService.TrainingScreeningCriteria.length == 0) return false;//no codes to learn from
+        if (this.ScreeningModeOptions.findIndex(found => found.value == this.revInfo.screeningMode) < 1) return false;//type of list isn't set.
+        //check data entry mode...
+        const set = this.ReviewSetsService.FindSetById(this.revInfo.screeningCodeSetId);
+        if (set == null) return false;//uh? Chosen set isn't in review!
+        if (this.revInfo.screeningNPeople > 1) {//multiple people per item:
+            if (set.codingIsFinal) return false;//but codeset is in "normal" data entry.
+            else if (this.revInfo.screeningReconcilliation == "Single") return false;//reconciliation set to auto complete
+        } else {//one person per item...
+            if (!set.codingIsFinal) return false;//but codeset is in "comparison" data entry.
+            else if (this.revInfo.screeningReconcilliation !== "Single") return false;//reconciliation NOT set to auto complete
+        }
+        return true;//no concern found
     }
-
-
-
-
+    //case 0:
+    //    RevInfo.ScreeningReconcilliation = "Single"; Single (auto completes)
+    //break;
+    //                case 1:
+    //    RevInfo.ScreeningReconcilliation = "no compl";
+    //break;
+    //                case 2:
+    //    RevInfo.ScreeningReconcilliation = "auto code";
+    //break;
+    //                case 3:
+    //    RevInfo.ScreeningReconcilliation = "auto excl";
+    //break;
+    //                case 4:
+    //    RevInfo.ScreeningReconcilliation = "auto safet";
+    //break;
+    ChangeWhatToScreen() {
+        //do something?
+    }
+    CloseCodeDropDownCodeWithWithout() {
+        if (this.WithOrWithoutCode) {
+            this.DropdownWithWithoutSelectedCode = this.WithOrWithoutCode.SelectedNodeData;
+            this.revInfo.screeningWhatAttributeId = (this.DropdownWithWithoutSelectedCode as SetAttribute).attribute_id;
+        }
+        //this.ClearPot();
+        //this.workAllocationFromWizardCommand.setIdFilter = 0;
+        //this.selectedCodeSetDropDown = new ReviewSet();
+        this.isCollapsedAllocateOptions = false;
+    }
+    setCodeSetDropDown(codeset: ReviewSet) {
+        this.selectedCodeSetDropDown = codeset;
+        if (this.revInfo.screeningCodeSetId !== codeset.set_id) {
+            this.revInfo.screeningCodeSetId = codeset.set_id;
+            this.ConfirmationDialogService.confirm("Update training codes?",
+                "You have <em>changed</em> the screening tool.<br /> Would you like to automatically update the list of training codes?<br />Training codes are <strong>important</strong>! They define what the machine will learn from, so <strong>please check</strong> that they are correct, in any case."
+                , false, "", "Yes please (I'll check)", "No, I'll do it myself"
+                , "lg")
+                .then((confirmed: any) => {
+                if (confirmed) {
+                    this.DoResetTrainingCodes();
+                }
+            }).catch(() => { });
+        }
+    }
+    DoResetTrainingCodes() {
+        if (this.selectedCodeSetDropDown) this.PriorityScreeningService.ReplaceTrainingScreeningCriteriaList(this.selectedCodeSetDropDown);
+    }
     DeleteTrainingScreeningCriteria(crit: iTrainingScreeningCriteria) {
         this.PriorityScreeningService.DeleteTrainingScreeningCriteria(crit);
     }
     FlipTrainingScreeningCriteria(crit: iTrainingScreeningCriteria) {
         this.PriorityScreeningService.FlipTrainingScreeningCriteria(crit);
     }
+    SetScreeningMode(selection: kvSelectFrom) {
+        if (selection.key > 0) {
+            this.revInfo.screeningMode = selection.value;
+        } else {
+            this.revInfo.screeningMode = "";
+        }
+        //console.log("SetRelevantDropDownValues", JSON.stringify(selection));
+        //this.ClearPot();
+        ////if user is going back and forth, ensure "future" choices still make sense, so force user to re do it...
+        //this.ResetStep34();
+        //this.WorkToDoSelectedCodeSet = new ReviewSet();
+        //let ind = this.AllocateOptions.findIndex(found => found.key == selection);
+        //if (ind > 0) this.workAllocationFromWizardCommand.filterType = this.AllocateOptions[ind].value;
+        //else this.workAllocationFromWizardCommand.filterType = "";
+    }
     RefreshRevinfo() {
+        //if we're editing, we should ask for "permission"...
+        this.DoRefreshRevinfo();
+    }
+    DoRefreshRevinfo() {
         this.revInfo = this.ReviewInfoService.ReviewInfo.Clone();
+        this.GetScreeningTool(this.ReviewInfoService.ReviewInfo.screeningCodeSetId);
+    }
+    GetScreeningTool(setId: number) {
+        const set = this.ReviewSetsService.FindSetById(setId);
+        if (set != null) this.selectedCodeSetDropDown = set;
+    }
+    GetCodingToolName(): string {
+        if (this.selectedCodeSetDropDown == null) return "Not Configured...";
+        else return this.selectedCodeSetDropDown.set_name;
     }
     StartScreening() {
         //alert('Start Screening: not implemented');
@@ -179,6 +289,15 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
         this.PriorityScreeningService.GetTrainingScreeningCriteriaList();
         this.ReviewInfoService.Fetch();
     }
+    async CheckIfCancelEditAllOptions() {
+        await Helpers.Sleep(80);
+        console.log("CheckIfCancelEditAllOptions:", this.AllowEditOnStep4);
+        if (this.AllowEditOnStep4 == false) this.CancelEditingAllOptions();
+    }
+    CancelEditingAllOptions() {
+        this.RefreshRevinfo();
+        this.AllowEditOnStep4 = false;
+    }
     Cancel() {
         console.log("cancel screening");
         this.emitterCancel.emit();
@@ -198,9 +317,7 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
 
     public DropdownWithWithoutSelectedCode: singleNode | null = null;
     public AllocationsDestination: singleNode | null = null;
-    public selectedCodeSetDropDown: ReviewSet = new ReviewSet();
     public WorkToDoSelectedCodeSet: ReviewSet = new ReviewSet();
-    public isCollapsedAllocateOptions: boolean = false;
     public ShowChangeDataEntry: boolean = false;
     public DestinationDataEntryMode: string = "";
     public ChangeDataEntryModeMessage: string = ""; 
@@ -279,15 +396,7 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
     }
     
 
-    private _allocateOptions: kvSelectFrom[] = [{ key: 0, value: '[Please select]' },
-        { key: 1, value: 'No code / coding tool filter' },
-        { key: 2, value: 'All without any codes from this coding tool' },
-        { key: 3, value: 'All with any codes from this coding tool' },
-        { key: 4, value: 'All with this code' },
-        { key: 5, value: 'All without this code' }];
-    public get AllocateOptions(): kvSelectFrom[] {
-        return this._allocateOptions;
-    }
+
     public get SelectionCriteriaIsValid(): boolean {
         //const crit = this.workAllocationFromWizardCommand;
         //if (crit.filterType == '') return false;
@@ -352,27 +461,7 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
         return 0;//!!
     }
 
-
-    SetRelevantDropDownValues(selection: number) {
-        //console.log("SetRelevantDropDownValues", JSON.stringify(selection));
-        //this.ClearPot();
-        ////if user is going back and forth, ensure "future" choices still make sense, so force user to re do it...
-        //this.ResetStep34();
-        //this.WorkToDoSelectedCodeSet = new ReviewSet();
-        //let ind = this.AllocateOptions.findIndex(found => found.key == selection);
-        //if (ind > 0) this.workAllocationFromWizardCommand.filterType = this.AllocateOptions[ind].value;
-        //else this.workAllocationFromWizardCommand.filterType = "";
-    }
-    CloseCodeDropDownCodeWithWithout() {
-        //if (this.WithOrWithoutCode) {
-        //    this.DropdownWithWithoutSelectedCode = this.WithOrWithoutCode.SelectedNodeData;
-        //    this.workAllocationFromWizardCommand.attributeIdFilter = (this.DropdownWithWithoutSelectedCode as SetAttribute).attribute_id;
-        //}
-        //this.ClearPot();
-        //this.workAllocationFromWizardCommand.setIdFilter = 0;
-        //this.selectedCodeSetDropDown = new ReviewSet();
-        //this.isCollapsedAllocateOptions = false;
-    }
+    
     CloseCodeDropDownCodeDestination() {
         //if (this.DropDownCodeDestination) {
         //    this.AllocationsDestination = this.DropDownCodeDestination.SelectedNodeData;
@@ -388,15 +477,7 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
         //}
         //this.isCollapsedAllocateOptions = false;
     }
-    setCodeSetDropDown(codeset: ReviewSet) {
-        //this.ClearPot();
-        ////if user is going back and forth, ensure "future" choices still make sense, so force user to re do it...
-        //this.ResetStep34();
-        //this.WorkToDoSelectedCodeSet = new ReviewSet();
-        //this.selectedCodeSetDropDown = codeset;
-        //this.workAllocationFromWizardCommand.setIdFilter = this.selectedCodeSetDropDown.set_id;
-        //this.workAllocationFromWizardCommand.attributeIdFilter = 0;
-    }
+    
     async GetPreviewOrDoit(previewLevel: number) {
         //this.WorkAllocWizardResult = null;
         //if (previewLevel < 0 && previewLevel > 2) previewLevel = 1;

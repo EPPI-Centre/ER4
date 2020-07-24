@@ -10,6 +10,8 @@ import { ReviewInfo, ReviewInfoService, iReviewInfo } from './ReviewInfo.service
 import { Item, iAdditionalItemDetails } from './ItemList.service';
 import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
+import { ReviewSet, SetAttribute } from './ReviewSets.service';
+import { forEach } from '@angular/router/src/utils/collection';
 
 
 //see: https://stackoverflow.com/questions/34031448/typescript-typeerror-myclass-myfunction-is-not-a-function
@@ -252,6 +254,35 @@ export class PriorityScreeningService extends BusyAwareService {
                     this.RemoveBusy("UpdateTrainingScreeningCriteria");
                     this.modalService.GenericError(error);
                 });
+    }
+    public ReplaceTrainingScreeningCriteriaList(set: ReviewSet): Promise<boolean> {
+        this._BusyMethods.push("ReplaceTrainingScreeningCriteriaList");
+        let Data: iUpdatingTrainingScreeningCriteria[] = [];
+        for (let aSet of set.attributes) {
+            Data.push({
+                trainingScreeningCriteriaId: aSet.attribute_id,
+                deleted: false,
+                included: aSet.attribute_type_id == 10
+            });
+        }
+        return this._httpC.post<iTrainingScreeningCriteria[]>(this._baseUrl +
+            'api/PriorirtyScreening/ReplaceTrainingScreeningCriteriaList', Data)
+            .toPromise().then(
+                success => {
+                    this.RemoveBusy("ReplaceTrainingScreeningCriteriaList");
+                    this._TrainingScreeningCriteria = success;
+                    return true;
+                },
+                error => {
+                    this.RemoveBusy("ReplaceTrainingScreeningCriteriaList");
+                    this.modalService.SendBackHomeWithError(error);
+                    return false;
+            }).catch(caught => {
+                this.RemoveBusy("ReplaceTrainingScreeningCriteriaList");
+                this.modalService.SendBackHomeWithError(caught);
+                return false;
+            }
+            );
     }
 }
 export interface Training {
