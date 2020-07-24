@@ -6,6 +6,7 @@ import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { MAGAdvancedService } from '../services/magAdvanced.service';
 import { MagBrowseHistoryItem } from '../services/MAGClasses.service';
 import { EventEmitterService } from '../services/EventEmitter.service';
+import { of } from 'rxjs';
 
 @Component({
     selector: 'MAGBrowserHistory',
@@ -129,7 +130,16 @@ export class MAGBrowserHistory implements OnInit {
     }
     public ShowMAGMatchesPage(incOrExc: string) {
 
-        this._eventEmitterService.getMatchedIncludedItemsEvent.emit();
+        if (incOrExc == 'included') {
+            this._eventEmitterService.getMatchedIncludedItemsEvent.emit();
+        } else if (incOrExc == 'excluded') {
+            this._eventEmitterService.getMatchedExcludedItemsEvent.emit();
+        } else if (incOrExc == 'all') {
+            this._eventEmitterService.getMatchedAllItemsEvent.emit();
+        } else {
+//          there is an error
+        }
+        
     }
     public ShowAllWithThisCode(attributeIds: string) {
         alert('not implemented yet');

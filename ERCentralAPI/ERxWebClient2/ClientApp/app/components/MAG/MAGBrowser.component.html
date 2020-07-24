@@ -40,7 +40,7 @@
 <div class="row border border-dark alert-primary p-2 m-2">
     <div class="col-6"></div>
     <div *ngIf="_magBrowserService.MAGList.papers.length != 0 " class="col-3 pull-right">Total number of selected papers: {{ShowSelectedPapers}}</div>
-    <div class="col-3 pull-right">Total number of papers in this list: {{_magBrowserService.MAGList.totalItemCount}}</div>
+    <div class="col-3 pull-right">Total number of papers in this list: {{_magBrowserService.MAGOriginalList.totalItemCount}}</div>
     <div>
         <button class="btn alert-primary" (click)="ShowOriginal()">Show Original Search For Papers</button>
     </div>

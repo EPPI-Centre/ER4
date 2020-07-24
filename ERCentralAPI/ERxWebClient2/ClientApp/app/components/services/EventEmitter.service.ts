@@ -14,14 +14,11 @@ export class EventEmitterService {
 	public CloseReportsSectionEmitter = new EventEmitter();
 	public selectedButtonPressed: EventEmitter<boolean> = new EventEmitter();
 	public getMatchedIncludedItemsEvent: EventEmitter<boolean> = new EventEmitter();
+	public getMatchedExcludedItemsEvent: EventEmitter<boolean> = new EventEmitter();
+	public getMatchedAllItemsEvent: EventEmitter<boolean> = new EventEmitter();
 	//public allocateRelevantItems = new EventEmitter();
 	//public configurableReports = new EventEmitter();
 	
-
-	public tester() {
-
-		alert('event emitter getting called here!!');
-	}
 	constructor() {
 
 	}

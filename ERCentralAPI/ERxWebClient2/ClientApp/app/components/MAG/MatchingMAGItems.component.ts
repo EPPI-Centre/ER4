@@ -6,7 +6,8 @@ import { codesetSelectorComponent } from '../CodesetTrees/codesetSelector.compon
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Router, NavigationEnd } from '@angular/router';
-import { MVCMagPaperListSelectionCriteria, MagFieldOfStudy, MagPaper, TopicLink, MagBrowseHistoryItem } from '../services/MAGClasses.service';
+import { MVCMagPaperListSelectionCriteria, MagFieldOfStudy, MagPaper, TopicLink, MagBrowseHistoryItem }
+    from '../services/MAGClasses.service';
 import { EventEmitterService } from '../services/EventEmitter.service';
 import { MAGBrowserService } from '../services/MAGBrowser.service';
 import { MAGAdvancedService } from '../services/magAdvanced.service';
@@ -14,7 +15,6 @@ import { MVCMagFieldOfStudyListSelectionCriteria } from '../services/MAGClasses.
 import { MAGBrowserHistoryService } from '../services/MAGBrowserHistory.service';
 import { BasicMAGService } from '../services/BasicMAG.service';
 import { NotificationService } from '@progress/kendo-angular-notification';
-import { Subscription } from 'rxjs';
 
 @Component({
     selector: 'MatchingMAGItems',
@@ -45,11 +45,19 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
     //public sub: Subscription = new Subscription();
     public SearchTextTopic: string = '';
     ngOnInit() {
-
-
          this._eventEmitterService.getMatchedIncludedItemsEvent.subscribe(
             () => {
                 this.GetMatchedMagIncludedList();
+            }
+        );
+        this._eventEmitterService.getMatchedExcludedItemsEvent.subscribe(
+            () => {
+                this.GetMatchedMagExcludedList();
+            }
+        );
+        this._eventEmitterService.getMatchedAllItemsEvent.subscribe(
+            () => {
+                this.GetMatchedMagAllList();
             }
         );
         if (this._ReviewerIdentityServ.reviewerIdentity.userId == 0 ||
@@ -62,16 +70,11 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
         else {
             this.GetMagReviewMagInfoCommand();
         }
-
-
-
     }
     ngOnDestroy() {
         //if (this.sub != null) {
         //    this.sub.unsubscribe();
         //}
-        
-
     }
     @ViewChild('WithOrWithoutCodeSelector2') WithOrWithoutCodeSelector2!: codesetSelectorComponent;
 
