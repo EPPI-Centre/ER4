@@ -192,8 +192,8 @@ export class MAGBrowserHistory implements OnInit {
 
     }
     public ShowSelectedPapersPage() {
-
-        alert('not implemented yet');
+        this.router.navigate(['MAGBrowser']);
+        this._magBrowserService.onTabSelect(2);
     }
     public ShowRelatedPapersPage() {
 

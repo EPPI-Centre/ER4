@@ -1,4 +1,4 @@
-import { Inject, Injectable, EventEmitter, Output } from '@angular/core';
+import { Inject, Injectable, EventEmitter, Output, ViewChild } from '@angular/core';
 import { HttpClient  } from '@angular/common/http';
 import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
@@ -6,6 +6,7 @@ import {
     MagList, MagPaper, MVCMagFieldOfStudyListSelectionCriteria,
     MVCMagPaperListSelectionCriteria, MagFieldOfStudy, MvcMagFieldOfStudyListSelectionCriteria, TopicLink, MagItemPaperInsertCommand
 } from '../services/MAGClasses.service';
+import { SelectEvent, TabStripComponent } from '@progress/kendo-angular-layout';
 
 @Injectable({
 	    providedIn: 'root',
@@ -22,7 +23,7 @@ export class MAGBrowserService extends BusyAwareService {
     ) {
 		super();
 	}
-
+    @ViewChild('tabSelectedPapers') public tabstrip!: TabStripComponent;
     public MagCitationsByPaperList: MagList = new MagList();
     public MagPaperFieldsList: MagFieldOfStudy[] = [];
     private _MAGList: MagList = new MagList();
@@ -133,6 +134,10 @@ export class MAGBrowserService extends BusyAwareService {
                     this.modalService.GenericErrorMessage('an api call error with ImportMagRelatedSelectedPapers: ' + error);
                 }
             );
+    }
+    public onTabSelect(tabNum: number) {
+
+        this.tabstrip.selectTab(tabNum);
     }
     public GetParentAndChildFieldsOfStudy(FieldOfStudy: string, FieldOfStudyId: number): Promise<boolean> {
 

@@ -57,7 +57,14 @@ export class MAGBrowser implements OnInit, OnDestroy {
         this._eventEmitterService.selectedButtonPressed.subscribe(
             () => {
                 if (this.tabstrip != null) {
+                    
                     this.tabstrip.selectTab(2);
+                    let magBrowseItem: MagBrowseHistoryItem = new MagBrowseHistoryItem("Browse topic: SelectedPapers "
+                        , "SelectedPapers", 0, "", "", 0, "", "",
+                        0, "", "", 0);
+                    this._mAGBrowserHistoryService.IncrementHistoryCount();
+                    this._mAGBrowserHistoryService.AddToBrowseHistory(magBrowseItem);
+
                 }
             }
         );
@@ -94,8 +101,9 @@ export class MAGBrowser implements OnInit, OnDestroy {
             this.kendoAfterDateValue.toUTCString(), this.kendoBeforeDateValue.toUTCString());
 
     }
-    public onTabSelect(e: SelectEvent) {
-       //TODO REMOVE
+    onTabSelect(e: any) {
+
+        this.tabstrip.selectTab(e.index);
     }
     ngOnDestroy() {
 
@@ -241,14 +249,15 @@ export class MAGBrowser implements OnInit, OnDestroy {
         if (paper.linkedITEM_ID == 0) {
 
             if (paper.isSelected) {
- 
+
+
                 this.RemovePaperFromSelectedList(paper.paperId);
                 paper.isSelected = false;
             }
             else {
                 this.AddPaperToSelectedList(paper.paperId);
                 paper.isSelected = true;
-            }
+            }            
         }
         else {
             this.showMAGRunMessage("This paper is already in your review");

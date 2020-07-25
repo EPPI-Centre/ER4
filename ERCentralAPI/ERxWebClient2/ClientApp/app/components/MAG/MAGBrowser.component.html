@@ -201,7 +201,7 @@
                 </ng-template>
             </kendo-tabstrip-tab>
         
-            <kendo-tabstrip-tab #tabSelectedPapers [title]="'Selected Papers'" [disabled]="HideSelectedPapers()">
+            <kendo-tabstrip-tab #tabSelectedPapers (tabSelect)="onTabSelect($event)" [title]="'Selected Papers'" [disabled]="HideSelectedPapers()">
                     <ng-template kendoTabContent>
                         <div [title]="'Selected Papers'" style="min-height:500px;min-width:450px; overflow:auto;">
                             <div>
