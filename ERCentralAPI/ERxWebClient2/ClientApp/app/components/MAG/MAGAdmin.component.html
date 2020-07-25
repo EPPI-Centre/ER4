@@ -107,20 +107,21 @@
                     <table>
                         <tr>
                             <td>
-                                <input type="text" class="form-control small" id="reviewID" placeholder="Review ID" width="30">
+                                <input  [(ngModel)]="reviewId"  type="text" class="form-control small" id="reviewID" placeholder="Review ID" width="30">
                             </td>
                             <td>
-                                <a class="btn btn-success btn-lg text-white align-content-center fa fa-plus"></a>
+                                <a  class="btn btn-success btn-lg text-white align-content-center fa fa-plus" (click)="AddReviewWithThisId()"></a>
                             </td>
                             <td>
-                                <a class="btn btn-info btn-lg text-white align-content-center fa fa-refresh"></a>
+                                <a class="btn btn-info btn-lg text-white align-content-center fa fa-refresh" (click)="RefreshReviewList()"></a>
                             </td>
                         </tr>
                     </table>
 
                     <div class="col-12 alert-secondary p-2 m-2 card">
 
-                        <table class="table table-sm text-small table-responsive table-striped" style="min-width:150px;max-height:600px;overflow:auto;">
+                        <table class="table table-sm text-small table-responsive table-striped" 
+                               style="min-width:150px;max-height:600px;overflow:auto;">
                             <thead>
                                 <tr>
                                     <th width="15">Delete</th>
@@ -130,13 +131,17 @@
                             </thead>
                             <tbody>
                                 <tr *ngFor="let item of MagReviewList">
-                                    <td></td>
+                                    <td>
+                                        <button class="btn alert-danger"
+                                                (click)="DeleteReview(item)">
+                                            Delete
+                                        </button>
+                                    </td>
                                     <td>{{item.reviewId}}</td>
                                     <td>{{item.name}}</td>
                                 </tr>
                             </tbody>
                         </table>
-
                     </div>
                 </div>
             </div>

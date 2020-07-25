@@ -31,9 +31,10 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr *ngFor="let item of _MAGBrowserHistoryService.getHistory()">
-                                    <td class="btn btn-link mt-1" (click)="GoToUrl(item.url)">{{item.url}}</td>
-                                    <td class="w-25"><button class="btn-outline-danger btn-lg fa fa-trash" (click)="RemoveUrl(item)"></button></td>
+                                <tr *ngFor="let item of _MAGBrowserHistoryService._MAGBrowserHistoryList;  let i = index">
+                                    
+                                    <td class="btn btn-link mt-1" (click)="GoToUrl(i)">{{item.title}}</td>
+                                    <td class="w-25"><button class="btn-outline-danger btn-lg fa fa-trash" (click)="RemoveUrl(i)"></button></td>
                                 </tr>
                             </tbody>
                         </table>
