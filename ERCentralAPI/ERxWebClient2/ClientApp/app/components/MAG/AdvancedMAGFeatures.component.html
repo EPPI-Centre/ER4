@@ -242,7 +242,7 @@
             <div class="row col-12 p-0">
                 <!--[disabled]="!CanAddSimulation()"-->
                 <button (click)="AddSimulation()"
-                        class="btn btn-primary p-2 m-2">
+                        class="btn btn-success p-2 m-2  fa fa-plus">
                     Add Simulation
                 </button>
             </div>
@@ -299,7 +299,7 @@
                             <td width="1">{{item.fp}}</td>
                             <td class="btn btn-link" width="1" (click)="OpenResultsInReview('MagSimulationFN', item.magSimulationId)">{{item.fn}}</td>
                             <td width="1">{{item.tn}}</td>
-                            <td><button class="btn btn-warning btn-sm text-white align-content-center" (click)="DeleteSimulation(item)"> Delete </button></td>
+                            <td><button class="btn btn-danger btn-sm text-white align-content-center  fa fa-trash" (click)="DeleteSimulation(item)">  </button></td>
                         </tr>
                     </tbody>
                 </table>
