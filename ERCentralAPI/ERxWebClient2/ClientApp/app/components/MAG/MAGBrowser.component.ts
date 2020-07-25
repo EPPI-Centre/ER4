@@ -11,6 +11,7 @@ import { NotificationService } from '@progress/kendo-angular-notification';
 import { TabStripComponent } from '@progress/kendo-angular-layout';
 import { EventEmitterService } from '../services/EventEmitter.service';
 import { SelectEvent } from '@progress/kendo-angular-upload';
+import { Subscription } from 'rxjs';
 
 
 @Component({
@@ -48,6 +49,9 @@ export class MAGBrowser implements OnInit, OnDestroy {
     public ShowOriginal() {
         this.ShowOriginalPapers = !this.ShowOriginalPapers;
     }
+    public getTopicsSub: Subscription | null = null;
+    public getAttriubteIdsSub: Subscription | null = null;
+
     ngOnInit() {
 
         this._eventEmitterService.selectedButtonPressed.subscribe(
@@ -57,12 +61,21 @@ export class MAGBrowser implements OnInit, OnDestroy {
                 }
             }
         );
-        this._eventEmitterService.getTopicsEvent.subscribe(
-            (topicInfo: topicInfo) => {
-                console.log('got there..')
+        this.getTopicsSub = this._eventEmitterService.getTopicsEvent.subscribe(
+            (topicInfo: any) => {
+
+                console.log('got there..8: ', JSON.stringify(topicInfo));
+
                 this._magBrowserService.GetParentAndChildFieldsOfStudy(topicInfo.fieldOfStudy, topicInfo.fieldOfStudyId).then(
                     () => { this.router.navigate(['MAGBrowser']); }
-                    );
+                );
+            }
+        );
+        //getAttributeIdsEvent
+        this.getAttriubteIdsSub = this._eventEmitterService.getAttributeIdsEvent.subscribe(
+            (attriubteIds: any) => {
+                console.log('got there..9: ', JSON.stringify(attriubteIds));
+                () => { this.router.navigate(['MAGBrowser']); }
             }
         );
         this.browsingHistory = this._routingStateService.getHistory();
@@ -86,7 +99,9 @@ export class MAGBrowser implements OnInit, OnDestroy {
     }
     ngOnDestroy() {
 
-        this._eventEmitterService.getTopicsEvent.unsubscribe();
+        //if (this.getTopicsSub) {
+        //    this.getTopicsSub.unsubscribe();
+        //}
         this._magBrowserService.Clear();
         this.Clear();
     }

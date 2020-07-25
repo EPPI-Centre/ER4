@@ -190,6 +190,11 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
         }
     }
     public FOSMAGBrowserNavigate(displayName: string, fieldOfStudyId: number) {
+
+        let magBrowseItem: MagBrowseHistoryItem = new MagBrowseHistoryItem(displayName, "BrowseTopic", 0,
+            "", "", 0, "", "", fieldOfStudyId, displayName, "", 0);
+        this._mAGBrowserHistoryService.IncrementHistoryCount();
+        this._mAGBrowserHistoryService.AddToBrowseHistory(magBrowseItem);
         this._magAdvancedService.currentMagPaper = new MagPaper();
         this._magBrowserService.WPChildTopics = [];
         this._magBrowserService.WPParentTopics = [];

@@ -531,7 +531,7 @@ namespace BusinessLibrary.BusinessClasses
                 {
                     connection.Open();
 #if (!CSLA_NETCORE)
-                    string fileName = System.Web.HttpRuntime.AppDomainAppPath + TempPath + ri.UserId.ToString() + ".csv";
+                    string fileName = ""; // System.Web.HttpRuntime.AppDomainAppPath + TempPath + ri.UserId.ToString() + ".csv";
 #else
                     string fileName = "";
                     if (Directory.Exists(@"\UserTempUploads"))

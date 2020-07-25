@@ -6,7 +6,7 @@ import { codesetSelectorComponent } from '../CodesetTrees/codesetSelector.compon
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Router, NavigationEnd } from '@angular/router';
-import { ClassifierContactModel,  MagSimulation, TopicLink } from '../services/MAGClasses.service';
+import { ClassifierContactModel,  MagSimulation, TopicLink, MagBrowseHistoryItem } from '../services/MAGClasses.service';
 import { EventEmitterService } from '../services/EventEmitter.service';
 import { MAGAdvancedService } from '../services/magAdvanced.service';
 import { MAGBrowserHistoryService } from '../services/MAGBrowserHistory.service';
@@ -30,14 +30,14 @@ export class AdvancedMAGFeaturesComponent implements OnInit, OnDestroy {
         public _searchService: searchService,
         private _ReviewerIdentityServ: ReviewerIdentityService,
         private _eventEmitter: EventEmitterService,
-        private _routingStateService: MAGBrowserHistoryService,
+        private _mAGBrowserHistoryService: MAGBrowserHistoryService,
         private _location: Location,
         private _notificationService: NotificationService,
         private router: Router
 
     ) {
 
-        this.history = this._routingStateService.getHistory();
+        //this.history = this._routingStateService.getHistory();
     }
     private subsc: Subscription = new Subscription();
     
@@ -55,6 +55,10 @@ export class AdvancedMAGFeaturesComponent implements OnInit, OnDestroy {
             this.GetMagReviewMagInfoCommand();
             this.GetMagSimulationList();
             this.GetClassifierContactModelList();
+            let magBrowseItem: MagBrowseHistoryItem = new MagBrowseHistoryItem("Advanced", "Advanced", 0,
+                "", "", 0, "", "", 0, "", "", 0);
+            this._mAGBrowserHistoryService.IncrementHistoryCount();
+            this._mAGBrowserHistoryService.AddToBrowseHistory(magBrowseItem);
         }
     }
     ngOnDestroy() {
