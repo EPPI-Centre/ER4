@@ -59,18 +59,26 @@ export class ReviewInfoService extends BusyAwareService{
         }
 		);
     }
-    public Update(rInfo: ReviewInfo) {
+    public Update(rInfo: ReviewInfo): Promise<boolean> {
         this._BusyMethods.push("Update");
         return this._httpC.post<iReviewInfo>(this._baseUrl +
             'api/ReviewInfo/UpdateReviewInfo', rInfo)
-            .subscribe(
+            .toPromise().then(
             (result: iReviewInfo) => {
                 this.RemoveBusy("Update");
                 this.ReviewInfo = new ReviewInfo(result);
+                return true;
             },
             error => {
                 this.RemoveBusy("Update");
                 this.modalService.SendBackHomeWithError(error);
+                return false;
+            }
+        ).catch(
+            error => {
+                this.RemoveBusy("Update");
+                this.modalService.SendBackHomeWithError(error);
+                return false;
             });
     }
 

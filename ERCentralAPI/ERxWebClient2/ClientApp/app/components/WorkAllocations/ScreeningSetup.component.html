@@ -1,20 +1,19 @@
-<div class="col-12 p-0 mx-1 rounded border container border-info" style="min-width:650px; overflow:auto;">
+<div class="col-12 p-1 mx-1 rounded border container border-info" style="min-width:650px; overflow:auto;">
     <div *ngIf="IsServiceBusy()" class="k-loading-image" style="position: fixed; top: 0%; height:100%; max-height:100%"></div>
     <div *ngIf="CurrentStep == 0">
-        Start wizard or see all config?
         <div class="col-10 center rounded border border-info alert-info ">
             You can setup and review your screening settings in two ways:
             <ol>
                 <li>Via the guided steps wizard (preferred)</li>
-                <li>By viewing all settings in one go (useful for monitoring)</li>
+                <li>By viewing progress and then editing all settings from there</li>
             </ol>
         </div>
         <div class="col-10 center rounded border border-success">
             <button class=" pt-1 m-1 btn btn-success" style="min-width:100px" [disabled]="!CanWrite()" (click)="NextStep()">
-                Next
+                Setup Wizard
             </button>
             <button class=" pt-1 m-1 btn btn-outline-primary" style="min-width:100px" (click)="GoToAllinOneStep()">
-                All in one
+                View Progress and Status
             </button>
             <button class=" pt-1 m-1 btn btn-outline-dark " (click)="Cancel()" style="min-width:100px">
                 Cancel
@@ -23,156 +22,65 @@
     </div>
     <!--This is the actual Wizard part-->
     <div *ngIf="CurrentStep > 0 && CurrentStep < 4">
-        <div class="row my-1 mx-0 alert alert-success h4">
+        <div class="row my-1 mx-0 alert alert-success h5">
             Setup Screening - Step {{CurrentStep}}: {{CurrentStepName}}
         </div>
-        <div class="col-12 rounded border border-info alert-info m-1 p-1 ">
-            This wizard will help you set up your coding assignments in 3 guided steps:<br />
+        <div class="col-12 rounded border border-info alert-info m-0 p-1 ">
+            This wizard will help you setting up (priority) screening:<br />
             <ol class="pl-4 mb-0">
                 <li [ngClass]="{'font-weight-bold' : CurrentStep==1}">
                     <div class="row m-0">
-                        Select the references to code
-                        <div *ngIf="workAllocationFromWizardCommand.numberOfItemsToAssign > 0" class="small border border-success rounded bg-light ml-1 px-1">
-                            N of items: {{ItemsInTheSelectedPot}}
-                            | {{workAllocationFromWizardCommand.filterType}}
-                            <span *ngIf="workAllocationFromWizardCommand.filterType == 'No code / coding tool filter'">
-                                ({{IncludedExcludedText}}, {{workAllocationFromWizardCommand.percentageOfWholePot}}%)
+                        Screening tool and what to screen:
+                        <div *ngIf="selectedCodeSetDropDown !== null" class="border font-weight-normal border-success rounded bg-light ml-1 px-1">
+                            Tool: {{GetCodingToolName()}}
+                            <span *ngIf="ScreenAllItems">
+                                | All Items
                             </span>
-                            <span *ngIf="workAllocationFromWizardCommand.filterType == 'All without any codes from this coding tool' || workAllocationFromWizardCommand.filterType == 'All with any codes from this coding tool'">
-                                ({{selectedCodeSetDropDown?.name}}, {{workAllocationFromWizardCommand.percentageOfWholePot}}%)
-                            </span>
-                            <span *ngIf="workAllocationFromWizardCommand.filterType == 'All with this code' || workAllocationFromWizardCommand.filterType == 'All without this code'">
-                                ({{DropdownWithWithoutSelectedCode?.name}}, {{IncludedExcludedText}}, {{workAllocationFromWizardCommand.percentageOfWholePot}}%)
+                            <span *ngIf="!ScreenAllItems && DropdownWithWithoutSelectedCode != null">
+                                | Items with this code: {{DropdownWithWithoutSelectedCode?.name}}
                             </span>
                         </div>
                     </div>
                 </li>
                 <li [ngClass]="{'font-weight-bold' : CurrentStep==2}">
                     <div class="row m-0">
-                        Choose the coding to be done
-                        <div *ngIf="CanSelectAllocationDestination" class="small border border-success rounded bg-light ml-1 px-1">
-                            Work on: {{WorkToDoSelectedCodeSet.name}}
-                            <span *ngIf="revInfo.screeningNPeople == 1">
+                        How to screen:
+                        <div *ngIf="revInfo.screeningMode !=''" class="border font-weight-normal border-success rounded bg-light ml-1 px-1">
+                            Mode: {{revInfo.screeningMode}}
+                            <span *ngIf="selectedCodeSetDropDown != null && selectedCodeSetDropDown.codingIsFinal && revInfo.screeningNPeople == 0">
                                 | One person per item
                             </span>
                             <span *ngIf="revInfo.screeningNPeople > 1">
                                 | {{revInfo.screeningNPeople}} people per item
                             </span>
-                            <span *ngIf="AllocationsDestination">
-                                | create allocation codes in: {{AllocationsDestination.name}}
-                            </span>
                         </div>
                     </div>
                 </li>
-                <li [ngClass]="{'font-weight-bold' : CurrentStep==3}">Assign the coding to each reviewer</li>
+                <li [ngClass]="{'font-weight-bold' : CurrentStep==3}">Automation options</li>
             </ol>
         </div>
         <div *ngIf="CurrentStep==1" class="">
-            <!--<div class="row my-1 mx-0">
-                <div class="col-3">
-                    1.1. Select your references:
-                </div>
-                <div class="col-5">
-                    <select #AllocateOptionsDropDown class="form-control" name="AllocateOptions"
-                            style="min-width: 200px; max-width:720px;" (change)="SetRelevantDropDownValues($event.target.value)">
-                        <option *ngFor="let item of AllocateOptions" [value]="item.key"
-                                [selected]="item.value == workAllocationFromWizardCommand.filterType">
-                            {{item.value}}
-                        </option>
-                    </select>
-                    <div *ngIf="workAllocationFromWizardCommand.filterType != ''">
-                        <div *ngIf="workAllocationFromWizardCommand.filterType == 'No code / coding tool filter'">You will use all {{IncludedExcludedText}} items.</div>
-                        <div *ngIf="workAllocationFromWizardCommand.filterType == 'All without any codes from this coding tool' || workAllocationFromWizardCommand.filterType == 'All with any codes from this coding tool'">
-                            <div class="col-12" style="">
-                                Select Coding Tool:
-                            </div>
-                            <div ngbDropdown class="col-12 col-sm-10" style="min-width:200px;">
-                                <button class="btn btn-outline-secondary dropdown-toggle col-12"
-                                        style="min-width: 350px; max-width:720px;"
-                                        (click)="isCollapsedAllocateOptions = false;"
-                                        id="dropdownBasicCodingTool" ngbDropdownToggle>
-                                    {{selectedCodeSetDropDown.name}}
-                                </button>
-                                <div ngbDropdownMenu aria-labelledby="dropdownBasicCodingTool">
-                                    <button (click)="setCodeSetDropDown(item)"
-                                            *ngFor="let item of CodeSets;" class="dropdown-item">
-                                        {{item.name}}
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                        <div *ngIf="workAllocationFromWizardCommand.filterType == 'All with this code' || workAllocationFromWizardCommand.filterType == 'All without this code'">
-                            <div class="col-12">
-                                Select code:
-                            </div>
-                            <div ngbDropdown class="col-12 col-sm-10">
-                                <button ngbDropdownAnchor class="btn btn-outline-secondary dropdown-toggle col-12"
-                                        id="dropdownTreeRandomAllocate"
-                                        style="min-width: 350px; max-width:720px;"
-                                        (click)="isCollapsedAllocateOptions = !isCollapsedAllocateOptions;"
-                                        [attr.aria-expanded]="!isCollapsedAllocateOptions" aria-controls="collapseCodeTreeWithWithout">
-                                    {{DropdownWithWithoutSelectedCode?.name}}
-                                </button>
-                                <div ngbDropdownMenu class="dropdown-menu" id="collapseCodeTreeWithWithout" [ngbCollapse]="!isCollapsedAllocateOptions">
-                                    <codesetSelector [IsMultiSelect]="false"
-                                                     [WhatIsSelectable]="'SetAttribute'" [MaxHeight]="500" #WithOrWithoutCode
-                                                     (selectedNodeInTree)="CloseCodeDropDownCodeWithWithout()"></codesetSelector>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+            <div class="row my-1 mx-0">
+                <div class="col-8">
+                    <ng-container *ngTemplateOutlet="TemplateScreeningTool"></ng-container>
                 </div>
                 <div class="col-4 rounded border border-info alert-info small">
-                    Select the references based on previous coding, or if you have not yet begun coding,
-                    select ‘No code/coding tool filter’ to include all of the references in your review.
+                    This is the tool you will use to screen your references. Note that <strong>priority screening</strong> (the "active learning" system) looks at tile and abstract only,
+                    so it might be some use for screening on Full-Text, but is specifically designed to assist screening on <strong>tile and abstract</strong>.
                 </div>
             </div>
-            <div class="row my-1 mx-0 border-top" [ngClass]="{'DisabledStep' : !SelectionCriteriaIsValid}">
-                <div class="col-3">
-                    1.2. Included (I) or Excluded (E)?
-                </div>
-                <div class="col-5">
-                    <div class="col-12 row justify-content-center justify-content-md-start m-1">
-                        <input class="mt-1 mr-1 ml-sm-4" type="radio" [disabled]="!SelectionCriteriaIsValid" [value]="true" (click)="ClearPot()" [(ngModel)]="workAllocationFromWizardCommand.included">
-                        <div class="mr-2">Included</div>
-                        <input class="mt-1 mr-1" type="radio" [value]="false" [disabled]="!SelectionCriteriaIsValid" (click)="ClearPot()" [(ngModel)]="workAllocationFromWizardCommand.included">
-                        <div class="mr-2">Excluded</div>
-                    </div>
+            <div class="row my-1 mx-0" [ngClass]="{'DisabledStep' : !CanChangeWhatToScreen}">
+                <div class="col-8">
+                    <ng-container *ngTemplateOutlet="TemplateScreenWhat"></ng-container>
                 </div>
                 <div class="col-4 rounded border border-info alert-info small">
-                    Restrict the selected references based on their (I) Include or (E) Exclude flag.
+                    You can restrict screening to "All items with this code", or screen all items available in the review. Most frequently, you'll screen all items.
                 </div>
             </div>
-            <div class="row my-1 mx-0 border-top" [ngClass]="{'DisabledStep' : !SelectionCriteriaIsValid}">
-                <div class="col-3">
-                    1.3. Percentage of references:
-                </div>
-                <div class="col-5 row m-0">
-                    <div>
-                        <kendo-numerictextbox [(ngModel)]="workAllocationFromWizardCommand.percentageOfWholePot"
-                                              [disabled]="!SelectionCriteriaIsValid"
-                                              [min]="1" [format]="'n0'"
-                                              [max]="100"
-                                              [step]="1"
-                                              [autoCorrect]="true"
-                                              (valueChange)="ClearPot()"
-                                              class="border border-dark rounded mt-1"
-                                              style="width: 100px;">
-                        </kendo-numerictextbox>
-                        <button class=" ml-2 mt-1 rounded  btn btn-outline-primary" style="min-width:70px" [disabled]="!SelectionCriteriaIsValid" (click)="GetPreviewOrDoit(1)">
-                            Preview
-                        </button>
-                    </div>
-                    <div class="align-self-center ml-2" *ngIf="workAllocationFromWizardCommand.numberOfItemsToAssign >= 0">
-                        Number of references: <strong>{{ItemsInTheSelectedPot}}</strong>.
-                    </div>
-                </div>
-                <div class="col-4 rounded border border-info alert-info small">
-                    Select a percentage of the references identified in steps 1.1 and 1.2.  <br />
-                    You <strong>must</strong> click "preview" to proceed.
-                </div>
-            </div>-->
             <div class="row justify-content-center mx-0">
+                <button (click)="PreviousStep()" class=" pt-1 m-1 btn btn-outline-dark " style="min-width:100px">
+                    Previous
+                </button>
                 <button class=" pt-1 m-1 btn btn-success" style="min-width:100px" [disabled]="!CanGoToStep2()" (click)="NextStep()">
                     Next
                 </button>
@@ -184,152 +92,46 @@
 
 
         <div *ngIf="CurrentStep==2" class="">
-            <!--<div class="row my-1 mx-0 border-top">
-                <div class="col-3">
-                    2.1. Select the coding tool:
+            <div class="row my-1 mx-0 " [ngClass]="{'DisabledStep' : !CanGoToStep2()}">
+                <div class="col-7">
+                    <ng-container *ngTemplateOutlet="TemplateScreeeningMode"></ng-container>
                 </div>
-                <div class="col-5">
-                    <div ngbDropdown class="col-12 col-sm-10">
-                        <div ngbDropdown class="col-12 col-sm-10" style="min-width:200px;">
-                            <button class="btn btn-outline-secondary dropdown-toggle col-12"
-                                    style="min-width: 350px; max-width:720px;"
-                                    (click)="isCollapsedAllocateOptions = false;"
-                                    id="dropdownBasicCodingTool" ngbDropdownToggle>
-                                {{WorkToDoSelectedCodeSet.name}}
-                            </button>
-                            <div ngbDropdownMenu aria-labelledby="dropdownBasicCodingTool">
-                                <button (click)="SetWorkToDoCodeSet(item)"
-                                        *ngFor="let item of CodeSets;" class="dropdown-item">
-                                    {{item.name}}
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-4 rounded border border-info alert-info small">
-                    Select the coding tool that will be used by reviewers.
+                <div class="col-5 rounded border border-info alert-info small">
+                    Use "Priority Screening" or randomise the order in which items are screened? <br />
+                    Note that it is <strong>recommended</strong> to enable Priority Screening only after you have found a good number of both "Included" and "Excluded" items (this is called <em>Seeding</em>).<br />
+                    Priority Screening will use a randomised list if it is not seeded and will switch to priority mode when a <em>minimal</em> amount of seeding data is available.<br />
+                    Manual seeding is <strong>recommended</strong> because it allows the machine to learn from better data.
+                    Thus, you may want to start by picking "random" and then change to "Priority" only after you have found a <strong>representative</strong> sample of "Included" items.
+                    Proceeding in this way also allows to evaluate how many "Includes" you expect to find overall (useful to decide when to stop screening, if needed).
                 </div>
             </div>
-            <div class="row my-1 mx-0 border-top" [ngClass]="{'DisabledStep' : WorkToDoSelectedCodeSet.set_id < 1}">
-                <div class="col-3">
-                    2.2. How many people should code each item?
+
+            <div *ngIf="revInfo.screeningMode == 'Priority'" class="row my-1 mx-0 border-top" [ngClass]="{'DisabledStep' : !CanWrite()}">
+                <div class="col-7">
+                    <ng-container *ngTemplateOutlet="TemplateTrainingCriteriaList"></ng-container>
+                    <div class="col-12 font-weight-bold text-danger">Confirm: <input type="text" maxlength="30" [(ngModel)]="ConfirmTrainingListIsGood" /> </div>
                 </div>
-                <div class="col-5 row m-0">
-                    <div class="col-12 m-0">
-                        <kendo-numerictextbox [(ngModel)]="workAllocationFromWizardCommand.peoplePerItem"
-                                              [disabled]="WorkToDoSelectedCodeSet.set_id < 1"
-                                              [min]="1" [format]="'n0'"
-                                              [max]="3"
-                                              [step]="1"
-                                              [autoCorrect]="true"
-                                              (valueChange)="PeoplePerItemChanged()"
-                                              class="border border-dark rounded mt-1"
-                                              style="width: 90px;">
-                        </kendo-numerictextbox>
-                    </div>
-                    <div *ngIf="WorkToDoSelectedCodeSet.set_id < 1" class="alert-danger rounded row col-12 m-1">No Coding tool Selected</div>
-                    <div *ngIf="WorkToDoSelectedCodeSet.set_id >= 1 && (selectedCodeSetDropDown.codingIsFinal && workAllocationFromWizardCommand.peoplePerItem == 1)"
-                         class="alert-success  rounded row col-12 m-1">
-                        The selected coding tool is set for single coding (Normal Data Entry): one person per item is appropriate.
-                    </div>
-                    <div *ngIf="WorkToDoSelectedCodeSet.set_id >= 1 && (selectedCodeSetDropDown.codingIsFinal && workAllocationFromWizardCommand.peoplePerItem != 1)"
-                         class="alert-danger rounded row col-12 m-1">
-                        <div *ngIf="WorkToDoSelectedCodeSet.setType.setTypeId==6">
-                            The selected coding tool is set for single coding (Normal Data Entry).<br />
-                            Please change the number of people per item to 1: coding tools of "Administration" type cannot be configured for Comparison Data Entry.
-                        </div>
-                        <div *ngIf="WorkToDoSelectedCodeSet.setType.setTypeId!=6" class="col-12 m-0 p-0">
-                            <div>
-                                The selected coding tool is set for single coding (Normal Data Entry).<br />
-                                Do you wish to change the data entry mode to Comparison Coding?
-                            </div>
-                            <div class="alert-light border border-danger rounded col-12 small">
-                                <div class="mt-1">Change to Data Entry Mode: {{WorkToDoSelectedCodeSetDataEntryM}}</div>
-                                <button class="btn btn-outline-danger btn-sm ml-1 mb-1" type="button" *ngIf="!ShowChangeDataEntry"
-                                        [disabled]="!CanEditSelectedSet"
-                                        (click)="ShowChangeDataEntryClicked()">
-                                    Change
-                                </button>
-                                <div *ngIf="ShowChangeDataEntry" class="alert alert-danger">
-                                    <div>{{ChangeDataEntryModeMessage}}</div>
-                                    <button class="btn btn-outline-secondary btn-sm mb-1" (click)="HideChangeDataEntry()" type="button">Cancel</button>
-                                    <div *ngIf="CanChangeDataEntryMode" class="alert alert-light">
-                                        Yes, change to
-                                        <button class="btn btn-outline-danger btn-sm ml-1 mr-1" type="button"
-                                                [disabled]="!CanWrite()" (click)="DoChangeDataEntry()">
-                                            {{DestinationDataEntryMode}}
-                                        </button>
-                                        mode.
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div *ngIf="WorkToDoSelectedCodeSet.set_id >= 1 && (!selectedCodeSetDropDown.codingIsFinal && workAllocationFromWizardCommand.peoplePerItem > 1)"
-                         class="alert-success  rounded row col-12 m-1">
-                        The selected coding tool is set for multiple coding (Comparison Data Entry): more than one person per item is appropriate.
-                    </div>
-                    <div *ngIf="WorkToDoSelectedCodeSet.set_id >= 1 && (!selectedCodeSetDropDown.codingIsFinal && workAllocationFromWizardCommand.peoplePerItem == 1)"
-                         class="alert-danger  rounded row col-12 m-1">
-                        <div>
-                            The selected coding tool is set for multiple coding (Comparison Data Entry).<br />
-                            Do you wish to change the data entry mode to Normal coding?
-                        </div>
-                        <div class="alert-light border border-danger rounded col-12 small">
-                            <div class="mt-1">Change to Data Entry Mode: {{WorkToDoSelectedCodeSetDataEntryM}}</div>
-                            <button class="btn btn-outline-danger btn-sm ml-1 mb-1" type="button" *ngIf="!ShowChangeDataEntry"
-                                    [disabled]="!CanEditSelectedSet"
-                                    (click)="ShowChangeDataEntryClicked()">
-                                Change
-                            </button>
-                            <div *ngIf="ShowChangeDataEntry" class="alert alert-danger">
-                                <div>{{ChangeDataEntryModeMessage}}</div>
-                                <button class="btn btn-outline-secondary btn-sm mb-1" (click)="HideChangeDataEntry()" type="button">Cancel</button>
-                                <div *ngIf="CanChangeDataEntryMode" class="alert alert-light">
-                                    Yes, change to
-                                    <button class="btn btn-outline-danger btn-sm ml-1 mr-1" type="button"
-                                            [disabled]="!CanWrite()" (click)="DoChangeDataEntry()">
-                                        {{DestinationDataEntryMode}}
-                                    </button>
-                                    mode.
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-4 rounded border border-info alert-info small">
-                    Select the number of reviewers that will be coding each item (up to three). <br />
-                    [Is the coding tool you picked in the suitable data-entry mode (Normal or Comparison data-entry)?]
+                <div class="col-5 rounded border border-info alert-info small">
+                    This is the list used by the machine to <strong>learn</strong> from your choiches.<br />
+                    As the machine only evaluates titles and abstracts, you <strong>should not</strong> include codes that rely on <strong>data that does not appear in titles and abstract</strong>.
+                    A typical type of codes that shouldn't appear below is <strong>"Exclude on Date"</strong>.<br />
+                    Changes made here are <strong>saved immediately</strong>!<br />
+                    To proceed, you need to type "I've checked" in the "<em class="text-danger">Confirm</em>" box.
+                    This is because it is <strong>extremely important</strong> that the list of codes used to train the machine does not include codes that might confuse the machine.
                 </div>
             </div>
-            <div class="row my-1 mx-0 border-top" [ngClass]="{'DisabledStep' : !CanSelectAllocationDestination}">
-                <div class="col-3">
-                    2.3. Create reference groups here:
+
+
+            <div class="row my-1 mx-0 " [ngClass]="{'DisabledStep' : !CanChangePeoplePerItem}">
+                <div class="col-7">
+                    <ng-container *ngTemplateOutlet="TemplatePeoplePerItem"></ng-container>
                 </div>
-                <div class="col-5">
-                    <div class="col-12">
-                        Select code:
-                    </div>
-                    <div ngbDropdown class="col-12 col-sm-10">
-                        <button ngbDropdownAnchor class="btn btn-outline-secondary dropdown-toggle col-12"
-                                id="dropdownTreeRandomAllocateTarget"
-                                [disabled]="!CanSelectAllocationDestination"
-                                style="min-width: 350px; max-width:720px;"
-                                (click)="isCollapsedAllocateOptions = !isCollapsedAllocateOptions;"
-                                [attr.aria-expanded]="!isCollapsedAllocateOptions" aria-controls="collapseCodeTreeWithWithout">
-                            {{AllocationsDestination?.name}}
-                        </button>
-                        <div ngbDropdownMenu class="dropdown-menu" id="collapseCodeTreeWithWithout" [ngbCollapse]="!isCollapsedAllocateOptions">
-                            <codesetSelector [IsMultiSelect]="false"
-                                             [WhatIsSelectable]="'RandomAllocation'" [MaxHeight]="500" #DropDownCodeDestination
-                                             (selectedNodeInTree)="CloseCodeDropDownCodeDestination()"></codesetSelector>
-                        </div>
-                    </div>
+                <div class="col-5 rounded border border-info alert-info small">
+                    How many people should screen each item? This is always <strong>one</strong> if the screening tool is in "Normal data entry" mode. <br />
+                    Otherwise, for <em>double/multiple screening</em> it should be at least <strong>two</strong>, and can be risen to up to the number of review members.<br />
+                    Please note that rising this number to more than three is <strong>not recommended</strong> (would make reconciliations very time consuming).
                 </div>
-                <div class="col-4 rounded border border-info alert-info small">
-                    Select a location where the groups of references will be stored. These groups are used to assign work to reviewers and track progress.
-                </div>
-            </div>-->
+            </div>
             <div class="row justify-content-center mx-0">
                 <button (click)="PreviousStep()" class=" pt-1 m-1 btn btn-outline-dark " style="min-width:100px">
                     Previous
@@ -345,210 +147,66 @@
 
 
         <div *ngIf="CurrentStep==3" class="col-12 p-1 m-0 rounded border container border-info">
-            <!--<div class="row my-1 mx-0 border-top">
-                <div class="col-2">
-                    3.1. Select at least {{this.workAllocationFromWizardCommand.peoplePerItem}} reviewer(s):
-                </div>
-                <div class="col-6 row m-0 p-0 ">
-                    <div *ngIf="Contacts.length > 4" class="col-12">
-                        Select All: <input type="checkbox" class="d-inline mr-1" [ngModel]="AllContactsSelected" (click)="SelectAllMembers($event)" />
-                    </div>
-                    <div *ngFor="let member of Contacts" class="border border-secondary rounded my-0 mx-1 p-1 " [ngClass]="{'alert-success' : member.IsSelected}">
-                        <input type="checkbox" class="d-inline mr-1" [ngModel]="member.IsSelected" (click)="SelectMember(member)" />
-                        <div class="d-inline">{{member.contactName}}</div>
-                    </div>
+            <div class="row my-1 mx-0 ">
+                <div class="col-8">
+                    <ng-container *ngTemplateOutlet="TemplateReconciliationMode"></ng-container>
                 </div>
                 <div class="col-4 rounded border border-info alert-info small">
-                    Select the reviewers who will do the coding.
+                    Optional policy to automatically complete some of the coding added to the chosen screening tool.
+                    <strong>Things to note:</strong><br />
+                    <ul class="mb-1 pl-1">
+                        <li>This applies to all codes added from the screening tool, regardless of how it's done.</li>
+                        <li>Automatically completed items will not participate in comparisons, making it harder to measure inter-rater agreements.</li>
+                        <li>This setting has no effect if the screening tool is in "Normal" data entry mode.</li>
+                    </ul>
                 </div>
             </div>
-            <div class="row my-1 mx-0 border-top" [ngClass]="{'DisabledStep' : !BarelyEnoughContactsSelected}">
-                <div class="col-2">
-                    3.2. Distribute the work:
+            <div class="row my-1 mx-0 " [ngClass]="{'DisabledStep' : !CanChangeAutoExcludeAndIndexing}">
+                <div class="col-8">
+                    <ng-container *ngTemplateOutlet="TemplateAutoExclude"></ng-container>
                 </div>
-                <div class="col-5">
-                    <div class="col-12 row justify-content-center m-1">
-                        <div class="d-block rounded border border-info m-1">
-                            <input class="mt-1 mx-1 d-inline" type="radio" name="Distributeworkevenlyn" [disabled]="!BarelyEnoughContactsSelected"
-                                   [value]="true" (click)="ResetStep34()" [(ngModel)]="DistributeWorkEvenly">
-                            <div class="mr-2 d-inline">Evenly</div>
-                        </div>
-                        <div class="d-block rounded border border-info m-1">
-                            <input class="mt-1 mx-1 d-inline" type="radio" name="Distributeworkevenlyn" [disabled]="!CanDistributeUnevenly"
-                                   [value]="false" (click)="ResetStep34()" [(ngModel)]="DistributeWorkEvenly">
-                            <div class="mr-2 d-inline">Manually</div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-5 rounded border border-info alert-info small">
-                    <strong>Evenly</strong>: all reviewers automatically get the same number of references.<br />
-                    <strong>Manually</strong>: you'll distribute the references to each reviewer.
-                </div>
-            </div>
-            <div class="row my-1 mx-0 border-top" [ngClass]="{'DisabledStep' : !EnoughContactsSelected || workAllocationFromWizardCommand.peoplePerItem == 1}">
-                <div class="col-2">
-                    3.3 One group per person or shared groups?
-                </div>
-                <div class="col-5">
-                    <div class="col-12 row justify-content-center m-1">
-                        <div class="d-block rounded border border-info m-1">
-                            <input class="mt-1 mx-1 d-inline" type="radio" [disabled]="!EnoughContactsSelected" name="1groupPerPerson"
-                                   [value]="false" (click)="WipePreview()" [(ngModel)]="workAllocationFromWizardCommand.oneGroupPerPerson">
-                            <div class="mr-2 d-inline">Shared groups</div>
-                        </div>
-                        <div class="d-block rounded border border-info m-1">
-                            <input class="mt-1 mx-1 d-inline" type="radio" [disabled]="!EnoughContactsSelected" name="1groupPerPerson"
-                                   [value]="true" (click)="WipePreview()" [(ngModel)]="workAllocationFromWizardCommand.oneGroupPerPerson">
-                            <div class="mr-2 d-inline">One group per person</div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-5 rounded border border-info alert-info small" style="max-height:150px; overflow-y:auto">
-                    <span *ngIf="workAllocationFromWizardCommand.peoplePerItem == 1">This setting has no effect when each reference will be coded by one person only. <br /></span>
-                    <strong>Shared groups</strong>: each group identifies references by the combination of people who will be coding them. Creates numerous "coding assignments".<br />
-                    <strong>One group per person</strong>: each group identifies the references that will be coded by a single person. Creates the smallest possible number of "coding assigments".
-
-                </div>
-            </div>
-            <div class="row my-1 mx-0 border-top">
-                <div class="col-2">
-                    3.4 Naming the allocation codes.
-                </div>
-                <div class="col-6">
-                    Allocation prefix will be:
-                    <span *ngIf="workAllocationFromWizardCommand.groupsPrefix == ''" class="font-weight-bold">Coding on '{{WorkToDoSelectedCodeSet.name}}'</span>
-                    <span *ngIf="workAllocationFromWizardCommand.groupsPrefix != ''" class="font-weight-bold">{{workAllocationFromWizardCommand.groupsPrefix}}</span>
-
-                    <button class=" pt-1 m-1 rounded btn btn-sm btn-outline-primary " (click)="ShowEditCodesPrefixClicked()">
-                        Edit
-                    </button>
-                    <div *ngIf="ShowEditCodesPrefix" class="col-12">
-                        <input type="text" [(ngModel)]="workAllocationFromWizardCommand.groupsPrefix" class="w-75" />
-                        <button class=" pt-1 m-1 rounded btn btn-sm btn-outline-dark " (click)="ShowEditCodesPrefixClicked()">
-                            Save
-                        </button>
-                    </div>
-                </div>
+                
                 <div class="col-4 rounded border border-info alert-info small">
-                    The groups of references (Allocation Codes) should have meaningful names, to help indicate their purpose.
+                    The "Auto Exclude" option means that the Exclude (E) flag will be automatically assigned to items when an Exclude code is assigned and (automatically) completed.<br /> 
+                    <strong>Important:</strong> the auto exclusion <strong>does not happen</strong> when manually completing some coding (either on a per item basis or via reconciliations).
+                    
                 </div>
             </div>
-            <div class="row my-1 mx-0 border-top">
-                <div class="col-2">
-                    3.5 Details and Preview.
+            <div class="row my-1 mx-0 " [ngClass]="{'DisabledStep' : !CanChangeAutoExcludeAndIndexing}">
+                <div class="col-8">
+                    <ng-container *ngTemplateOutlet="TemplateIndexing"></ng-container>
                 </div>
-                <div class="col-6">
-                    <div *ngIf="DistributeWorkEvenly" class="row justify-content-center mt-1">
-                        <button class=" pt-1 ml-2 rounded  btn btn-outline-primary" style="min-width:70px" [disabled]="!EnoughContactsSelected" (click)="GetPreviewOrDoit(2)">
-                            Preview
-                        </button>
-                    </div>
-                    <div *ngIf="!DistributeWorkEvenly && EnoughContactsSelected" class="col-12 row m-0 p-0">
-                        <div class="col-12 row m-0 p-0">
-                            <div *ngFor="let member of SelectedContacts" class="border border-secondary rounded my-0 mx-1 p-1 col small" [ngClass]="{'alert-success' : member.NumberOfItems > 0}">
-                                <div class="d-inline">{{member.contactName}}</div>
-                                <button *ngIf="member.NumberOfItems == 0 && !AllManualAssignmentsDone" class=" px-1 py-0 mx-1 my-0 rounded  btn btn-sm btn-outline-primary" (click)="ShowAddManualMember(member)">
-                                    Add
-                                </button>
-                                <div *ngIf="member.NumberOfItems > 0">
-                                    ({{member.NumberOfItems}})
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-12 row mx-2 my-1 p-2 rounded border border-info ">
-                            <div class=""> Remaining items: <strong>{{ToBeManuallyAssignedStill}}</strong> (of {{workAllocationFromWizardCommand.peoplePerItem}} * {{workAllocationFromWizardCommand.numberOfItemsToAssign}} = {{workAllocationFromWizardCommand.peoplePerItem * workAllocationFromWizardCommand.numberOfItemsToAssign}})</div>
-                            <button class=" px-1 py-0 mx-1 my-0 btn btn-sm btn-outline-primary" (click)="DistributeRemainingManualAssignTable()">
-                                Distribute remaining
-                            </button>
-                            <button class=" px-1 py-0 mx-1 my-0 btn btn-sm btn-outline-danger" (click)="ResetManualAssignTable()">
-                                Reset
-                            </button>
-                        </div>
-                        <div *ngIf="ToAddManualMember != null" class="col-12">
-                            Adding <b class="mr-1">{{ToAddManualMember.contactName}}</b>
-                            <kendo-numerictextbox #NofItemstoAssigntoPerson
-                                                  [(ngModel)]="ToAddManualMember.NumberOfItems"
-                                                  [min]="1" [format]="'n0'"
-                                                  [max]="workAllocationFromWizardCommand.numberOfItemsToAssign"
-                                                  [step]="1"
-                                                  [autoCorrect]="true"
-                                                  class="border border-dark rounded mt-1"
-                                                  style="">
-                            </kendo-numerictextbox>
-                            <button class=" ml-2 mt-1 rounded  btn btn-outline-success" (click)="AddManualMemberToTable()">
-                                Add
-                            </button>
-                            <button class=" ml-2 mt-1 rounded  btn btn-outline-dark" (click)="HideAddManualMember()">
-                                Cancel
-                            </button>
-                        </div>
-                        <div class="col-12 row">
-                            <div class="col">
-                                First batch:<br />
-                                <div *ngFor="let member of ManualAssignTable[0]" class="border border-secondary rounded my-0 mx-1 p-1 " [ngClass]="{'alert-success' : member.NumberOfItems > 0}">
-                                    <div class="d-inline">{{member.contactName}} ({{member.NumberOfItems}} items)</div>
-                                    <button *ngIf="IsLastInManualAssignTable(member)" class=" px-1 py-0 mx-1 my-0 rounded  btn btn-sm btn-outline-danger" (click)="RemoveLastManualMember()">
-                                        Remove
-                                    </button>
-                                </div>
-                            </div>
-                            <div *ngIf="workAllocationFromWizardCommand.peoplePerItem > 1" class="col">
-                                Second batch:<br />
-                                <div *ngFor="let member of ManualAssignTable[1]" class="border border-secondary rounded my-0 mx-1 p-1 " [ngClass]="{'alert-success' : member.NumberOfItems > 0}">
-                                    <div class="d-inline">{{member.contactName}} ({{member.NumberOfItems}} items)</div>
-                                    <button *ngIf="IsLastInManualAssignTable(member)" class=" px-1 py-0 mx-1 my-0 rounded  btn btn-sm btn-outline-danger" (click)="RemoveLastManualMember()">
-                                        Remove
-                                    </button>
-                                </div>
-                            </div>
-                            <div *ngIf="workAllocationFromWizardCommand.peoplePerItem > 2" class="col">
-                                Third batch:<br />
-                                <div *ngFor="let member of ManualAssignTable[2]" class="border border-secondary rounded my-0 mx-1 p-1 " [ngClass]="{'alert-success' : member.NumberOfItems > 0}">
-                                    <div class="d-inline">{{member.contactName}} ({{member.NumberOfItems}} items)</div>
-                                    <button *ngIf="IsLastInManualAssignTable(member)" class=" px-1 py-0 mx-1 my-0 rounded  btn btn-sm btn-outline-danger" (click)="RemoveLastManualMember()">
-                                        Remove
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                        <div *ngIf="AllManualAssignmentsDone" class="row col-12 justify-content-center mt-1 mx-0 px-0">
-                            <button class=" pt-1 ml-2 rounded btn btn-outline-primary" style="min-width:70px" (click)="GetPreviewOrDoit(2)">
-                                Preview
-                            </button>
-                        </div>
-                    </div>
-
-
-                    <div *ngIf="WorkAllocWizardResult != null &&  WorkAllocWizardResult.preview != undefined" class="col-12 mt-1" style="max-height:300px;max-width:600px;overflow:auto;">
-                        Preview:
-                        <span *ngIf="workAllocationFromWizardCommand.peoplePerItem > 1 && workAllocationFromWizardCommand.oneGroupPerPerson">(one group per person)</span>
-                        <span *ngIf="workAllocationFromWizardCommand.peoplePerItem > 1 && !workAllocationFromWizardCommand.oneGroupPerPerson">(shared groups)</span>
-                        <table class="table table-sm table-bordered table-striped">
-                            <tr *ngFor="let row of WorkAllocWizardResult.preview;let i = index">
-                                <td *ngFor="let cell of row" class="small" [ngClass]="{'font-weight-bold alert-info': i== 0}">{{cell}}</td>
-                            </tr>
-                        </table>
-                    </div>
+                <div class="col-4 rounded border border-info alert-info small" style="max-height:150px; overflow-y:auto">
+                    Active Learning relies on an <em>Index</em> of all words contained in the titles and abstracts. 
+                    When this index is not up to date, the machine will produce sub-optimal results.<br />
+                    EPPI-Reviewer keeps track of whether it's necessary to (re)build the index, 
+                    but you can manually force the indexing to happen (once) via this setting. 
+                    If you are setting up screening for the first time, please ensure that the indexing will happen (default).
                 </div>
-                <div class="col-4 rounded border border-info alert-info small">
-                    <span *ngIf="!DistributeWorkEvenly">Please distribute the references among the reviewers.<br /></span>
-                    You <strong>must</strong> click "Preview" to check if your distributions are possible and meet your requirements.
-                </div>
-            </div>-->
-
-
+            </div>
             <div class="row justify-content-center mx-0">
-                <button (click)="PreviousStep(); ResetStep34();" class=" pt-1 m-1 rounded btn btn-outline-dark " style="min-width:100px">
-                    Previous
-                </button>
-                <button class=" pt-1 m-1 rounded  btn btn-success" style="min-width:100px"
-                        [disabled]="!(WorkAllocWizardResult != null &&  WorkAllocWizardResult.preview != undefined && WorkAllocWizardResult.isSuccess)"
-                        (click)="GetPreviewOrDoit(0)">
-                    Do it!
-                </button>
-                <button class=" pt-1 m-1 rounded btn btn-outline-dark" (click)="Cancel()" style="min-width:100px">
-                    Cancel
-                </button>
+                <div class="col-8 row align-content-end justify-content-center mx-0">
+                    <div>
+                        <button (click)="PreviousStep(); ResetStep34();" class=" pt-1 m-1 rounded btn btn-outline-dark " style="min-width:100px">
+                            Previous
+                        </button>
+                        <button class=" pt-1 m-1 rounded  btn btn-outline-success" style="min-width:90px"
+                                [disabled]="!CanSaveConfiguration" (click)="SaveOptionsAndGoToStep4()">
+                            Save settings
+                        </button>
+                        <button class=" pt-1 m-1 rounded  btn btn-success" style="min-width:120px"
+                                [disabled]="!CanSaveConfiguration" (click)="SaveOptionsAndCreateList()">
+                            Save and Create List
+                        </button>
+                        <button class=" pt-1 m-1 rounded btn btn-outline-dark" (click)="Cancel()" style="min-width:100px">
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+                <div class="col-4 rounded border border-info alert-info small" style="max-height:150px; overflow-y:auto">
+                    In order to begin screening, a screening list needs to be present and up-to-date. Thus, in most cases you'll want to click on "Save and Create List", which will also close this panel.<br />
+                    Clicking "Save settings" will bring you to a summary page, where you can click "Create list" if needed and/or edit all settings.
+                </div>
             </div>
         </div>
     </div>
@@ -556,11 +214,14 @@
 
     <!--All config and summary-->
     <div *ngIf="CurrentStep == 4" class="row m-1 p-1">
-        <div class="col-12 col-lg-6 p-1">
+        <div class="col-md-12 col-lg-7 col-xl-6 p-1">
             <div class="border border-primary rounded m-0 p-1">
                 <div class="row m-0 p-0 ">
+                    <button class=" pt-1 m-1 rounded btn btn-outline-dark" (click)="Cancel()" style="min-width:100px">
+                        Close
+                    </button>
                     <div class="col">
-                        
+
                         <div class="brightSwitch row float-right">
                             <div class="mt-1 mr-1">Edit all Settings?</div>
                             <kendo-switch name="CanEditSW" class=""
@@ -577,10 +238,9 @@
                             <button class="m-1 py-0 px-1 btn btn-outline-primary" (click)="StartScreening()">
                                 Begin Screening
                             </button>
-                            <button class="m-1 py-0 px-1 btn btn-outline-secondary" (click)="GenerateList()">
+                            <button class="m-1 py-0 px-1 btn btn-outline-secondary" [disabled]="!CanWrite()" (click)="GenerateList()">
                                 (Re)Generate List
                             </button>
-                            
                             <button *ngIf="!IsServiceBusy()" class="btn btn-sm btn-outline-success mx-1 my-1 py-1 px-2 ng-star-inserted" (click)="RefreshAll()">
                                 <i class="fa fa-refresh" aria-hidden="true"></i>
                             </button>
@@ -623,216 +283,21 @@
                                     Edit all Screening Settings:
                                 </div>
                             </div>
-                            <div class="row m-0 p-0">
-                                <div class="col-4 p-0 mt-2">
-                                    Screeening Tool:
-                                </div>
-                                <div class="d-block my-1 col-8 p-0">
-                                    <div ngbDropdown class="" style="min-width:200px;">
-                                        <button class="btn btn-outline-secondary dropdown-toggle"
-                                                style="min-width: 200px; max-width:720px;"
-                                                (click)="isCollapsedAllocateOptions = false;"
-                                                id="dropdownBasicCodingTool" ngbDropdownToggle>
-                                            {{GetCodingToolName()}}
-                                        </button>
-                                        <div ngbDropdownMenu aria-labelledby="dropdownBasicCodingTool">
-                                            <button (click)="setCodeSetDropDown(item)"
-                                                    *ngFor="let item of ScreeningTools;" class="dropdown-item">
-                                                {{item.name}}
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row m-0 p-0">
-                                <div class="col-4 p-0 mt-2">
-                                    Screeening Mode:
-                                </div>
-                                <div class="d-block my-1 col-8 p-0">
-                                    <select class="rounded btn border border-info dropdonw-toggle" name="ScreeningModeOptionsSelect"
-                                            style="min-width: 200px; max-width:720px;" (change)="SetScreeningMode($event.target.value)">
-                                        <option *ngFor="let item of ScreeningModeOptions" [value]="item.value"
-                                                [selected]="item.value == revInfo.screeningMode">
-                                            {{item.value}}
-                                        </option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="row border-top border-info m-0 p-0">
-                                <div class="col-3 p-0 mt-1">What to screen:</div>
-                                <div class="col-9 p-0 mx-0 row">
-                                    <div class=" d-block rounded border border-info my-1 mr-1 p-0">
-                                        <input class="mt-1 mx-1 d-inline" type="radio" [disabled]="false" name="whatToScreen"
-                                               [value]="true" (click)="ChangeWhatToScreen()" [(ngModel)]="ScreenAllItems">
-                                        <div class="mr-2 d-inline">All Items</div>
-                                    </div>
-                                    <div class=" d-block rounded border border-info p-0 m-1">
-                                        <input class="mt-1 mx-1 d-inline" type="radio" [disabled]="false" name="whatToScreen"
-                                               [value]="false" (click)="ChangeWhatToScreen()" [(ngModel)]="ScreenAllItems">
-                                        <div class="mr-2 d-inline">Items with this code:</div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div *ngIf="!ScreenAllItems" class="row m-0 p-0">
-                                <div class="col-3 p-0 mt-2">Pick the code:</div>
-                                <div class="d-block my-1 col-9 p-0">
-                                    <div ngbDropdown class="">
-                                        <button ngbDropdownAnchor class="btn btn-outline-secondary dropdown-toggle"
-                                                id="dropdownTreeRandomAllocate"
-                                                style="min-width: 200px; max-width:720px;"
-                                                (click)="isCollapsedAllocateOptions = !isCollapsedAllocateOptions;"
-                                                [attr.aria-expanded]="!isCollapsedAllocateOptions" aria-controls="collapseCodeTreeWithWithout">
-                                            {{DropdownWithWithoutSelectedCode?.name}}
-                                        </button>
-                                        <div ngbDropdownMenu class="dropdown-menu" id="collapseCodeTreeWithWithout" [ngbCollapse]="!isCollapsedAllocateOptions">
-                                            <codesetSelector [IsMultiSelect]="false"
-                                                             [WhatIsSelectable]="'SetAttribute'" [MaxHeight]="500" #WithOrWithoutCode
-                                                             (selectedNodeInTree)="CloseCodeDropDownCodeWithWithout()"></codesetSelector>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
 
-                            <div class="row m-0 p-0">
-                                <div class="col-4 p-0 mt-2">N. of people per item:</div>
-                                <div *ngIf="selectedCodeSetDropDown && !selectedCodeSetDropDown.codingIsFinal" class="col-8 p-0 mx-0 row">
-                                    <kendo-numerictextbox [(ngModel)]="revInfo.screeningNPeople"
-                                                          [disabled]="!CanWrite()"
-                                                          [min]="1" [format]="'n0'"
-                                                          [max]="Contacts.length > 10 ? 10 : Contacts.length"
-                                                          [step]="1"
-                                                          [autoCorrect]="true"
-                                                          (valueChange)="{}"
-                                                          class="border border-dark rounded mb-1"
-                                                          style="width: 100px;">
-                                    </kendo-numerictextbox>
-                                </div>
-                                <div *ngIf="selectedCodeSetDropDown !=null && selectedCodeSetDropDown.codingIsFinal" class="col-8 p-0 mt-1 mx-0 row ">
-                                    <div class="rounded alert-info small m-1 p-1"><strong>One</strong> (Screening set is in "Normal" data entry mode).</div>
-                                    <div *ngIf="CanEditSelectedSet && !ShowChangeDataEntry" class="rounded alert-light small mx-1 my-0 p-0">
-                                        Click
-                                        <button class="btn btn-outline-danger btn-sm ml-1 px-1 py-0 mb-1" type="button" *ngIf="!ShowChangeDataEntry"
-                                                [disabled]="!CanEditSelectedSet"
-                                                (click)="ShowChangeDataEntryClicked()">
-                                            here
-                                        </button>
-                                        to enable changing its data entry mode.
-                                    </div>
-                                </div>
-                                <div *ngIf="!selectedCodeSetDropDown == null" class="col-8 p-0 mt-1 mx-0 row">
-                                    <div class="rounded alert-danger small m-1 p-1">Please select the screening tool first..</div>
-                                </div>
-                            </div>
-                            <div *ngIf="!CheckAndUpdatePeoplePerItem() || ShowChangeDataEntry" class="row m-0 p-0">
-                                <div *ngIf="revInfo.screeningCodeSetId >= 1 && (selectedCodeSetDropDown.codingIsFinal && revInfo.screeningNPeople != 1)"
-                                     class="alert-danger rounded row col-12 m-1">
-                                    <div class="col-12 m-0 p-0">
-                                        <div>
-                                            The selected screening tool is set for single coding (Normal Data Entry).<br />
-                                            Do you wish to change the data entry mode to Comparison Coding?
-                                        </div>
-                                        <div class="alert-light border border-danger rounded col-12 small">
-                                            <div class="mt-1">Change to Data Entry Mode: {{WorkToDoSelectedCodeSetDataEntryM}}</div>
-                                            <button class="btn btn-outline-danger btn-sm ml-1 mb-1" type="button" *ngIf="!ShowChangeDataEntry"
-                                                    [disabled]="!CanEditSelectedSet"
-                                                    (click)="ShowChangeDataEntryClicked()">
-                                                Change
-                                            </button>
-                                            <div *ngIf="ShowChangeDataEntry" class="alert alert-danger">
-                                                <div>{{ChangeDataEntryModeMessage}}</div>
-                                                <button class="btn btn-outline-secondary btn-sm mb-1" (click)="HideChangeDataEntry()" type="button">Cancel</button>
-                                                <div *ngIf="CanChangeDataEntryMode" class="alert alert-light">
-                                                    Yes, change to
-                                                    <button class="btn btn-outline-danger btn-sm ml-1 mr-1" type="button"
-                                                            [disabled]="!CanWrite()" (click)="DoChangeDataEntry()">
-                                                        {{DestinationDataEntryMode}}
-                                                    </button>
-                                                    mode.
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div *ngIf="revInfo.screeningCodeSetId >= 1 && (!selectedCodeSetDropDown.codingIsFinal && revInfo.screeningNPeople > 1)"
-                                     class="alert-success  rounded row col-12 m-1">
-                                    The selected coding tool is set for multiple coding (Comparison Data Entry): more than one person per item is appropriate.
-                                </div>
-                                <div *ngIf="revInfo.screeningCodeSetId >= 1 && (!selectedCodeSetDropDown.codingIsFinal && revInfo.screeningNPeople == 1)"
-                                     class="alert-danger  rounded row col-12 m-1">
-                                    <div>
-                                        The selected coding tool is set for multiple coding (Comparison Data Entry).<br />
-                                        Do you wish to change the data entry mode to Normal coding?
-                                    </div>
-                                    <div class="alert-light border border-danger rounded col-12 small">
-                                        <div class="mt-1">Change to Data Entry Mode: {{WorkToDoSelectedCodeSetDataEntryM}}</div>
-                                        <button class="btn btn-outline-danger btn-sm ml-1 mb-1" type="button" *ngIf="!ShowChangeDataEntry"
-                                                [disabled]="!CanEditSelectedSet"
-                                                (click)="ShowChangeDataEntryClicked()">
-                                            Change
-                                        </button>
-                                        <div *ngIf="ShowChangeDataEntry" class="alert alert-danger">
-                                            <div>{{ChangeDataEntryModeMessage}}</div>
-                                            <button class="btn btn-outline-secondary btn-sm mb-1" (click)="HideChangeDataEntry()" type="button">Cancel</button>
-                                            <div *ngIf="CanChangeDataEntryMode" class="alert alert-light">
-                                                Yes, change to
-                                                <button class="btn btn-outline-danger btn-sm ml-1 mr-1" type="button"
-                                                        [disabled]="!CanWrite()" (click)="DoChangeDataEntry()">
-                                                    {{DestinationDataEntryMode}}
-                                                </button>
-                                                mode.
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row border-top border-info m-0 p-0">
-                                <div class="col-4 p-0 mt-2">
-                                    Reconciliation Mode:
-                                </div>
-                                <div *ngIf="selectedCodeSetDropDown && selectedCodeSetDropDown.codingIsFinal" class="d-block my-1 col-8 p-0">
-                                    <div class="rounded small alert-info m-1 p-1">Set is in Normal Data entry mode: coding will be completed immediately.</div>
-                                </div>
-                                <div *ngIf="selectedCodeSetDropDown && !selectedCodeSetDropDown.codingIsFinal" class="d-block mb-1 mt-0 col-12 p-0">
-                                    <select class="rounded small btn border border-info dropdonw-toggle" name="ScreeningModeOptionsSelect"
-                                            style="min-width: 200px; max-width:720px;" (change)="SetReconciliationMode($event.target.value)">
-                                        <option *ngFor="let item of ReconcileOptions" [value]="item.key" class="small"
-                                                [selected]="item.key == revInfo.screeningReconcilliation">
-                                            {{item.value}}
-                                        </option>
-                                    </select>
-                                </div>
-                                <div *ngIf="selectedCodeSetDropDown == null" class="d-block my-1 col-8 p-0">
-                                    <div class="rounded small alert-danger m-1 p-1">Please select a coding tool.</div>
-                                </div>
-                            </div>
-                            <div *ngIf="ReconciliationModeError != ''" class="row m-0 p-0">
-                                <div class="rounded small alert-danger m-1 p-1 ">{{ReconciliationModeError}}</div>
-                            </div>
-                            <div *ngIf="ReconciliationModeError == '' && ReconciliationModeSummary != ''" class="row m-0 p-0">
-                                <div class="rounded small alert-info m-1 p-1" [innerHTML]="ReconciliationModeSummary"></div>
-                            </div>
-                            <div class="row border-top border-bottom border-info m-0 p-0">
-                                <div class="col-4 p-0 mt-1">Auto Exclude?</div>
-                                <div class="col-8 p-0 mx-0 row">
-                                    <div class=" d-block rounded border border-info my-1 mr-1 p-0">
-                                        <input class="mt-1 mx-1 d-inline" type="radio" [disabled]="false" name="AutoExclude"
-                                               [value]="true" [(ngModel)]="revInfo.screeningAutoExclude">
-                                        <div class="mr-2 d-inline">Yes</div>
-                                    </div>
-                                    <div class=" d-block rounded border border-info p-0 m-1">
-                                        <input class="mt-1 mx-1 d-inline" type="radio" [disabled]="false" name="AutoExclude"
-                                               [value]="false" [(ngModel)]="revInfo.screeningAutoExclude">
-                                        <div class="mr-2 d-inline">No</div>
-                                    </div>
-                                </div>
-                                <div *ngIf="revInfo.screeningAutoExclude" class="col-12 p-0 mx-0 mb-1 row">
-                                    <div class="rounded alert-info m-0 p-1 small">
-                                        <div class="alert-warning m-1 p-1"><strong>Warning:</strong> this will mark items with the Exclude (E) flag <strong>only when</strong> their coding is automatically completed.</div>
-                                        When completing some coding via comparions, the items that received Exclude codes, <strong>will not</strong> receive the E flag. 
-                                        You <strong>must remember</strong> to do so yourself (list all items with an exclude code, select them all, click on the "In/Exclude" button in the "References" tab).
-                                    </div>
-                                </div>
-                            </div>
+                            <ng-container *ngTemplateOutlet="TemplateScreeningTool"></ng-container>
+
+                            <ng-container *ngTemplateOutlet="TemplateScreenWhat"></ng-container>
+
+                            <ng-container *ngTemplateOutlet="TemplateScreeeningMode"></ng-container>
+
+                            <ng-container *ngTemplateOutlet="TemplatePeoplePerItem"></ng-container>
+
+                            <ng-container *ngTemplateOutlet="TemplateReconciliationMode"></ng-container>
+
+                            <ng-container *ngTemplateOutlet="TemplateAutoExclude"></ng-container>
+
+                            <ng-container *ngTemplateOutlet="TemplateIndexing"></ng-container>
+
                             <div class="row m-0 p-0">
                                 <div class="m-2 p-1 rounded border border-info">
                                     <button class="m-1 py-1 px-1 btn btn-danger" [disabled]="!CanSaveConfiguration" (click)="SaveOptions()">
@@ -849,102 +314,11 @@
 
                 </div>
                 <div class="col-12 border border-primary rounded m-0 p-0">
-                    <div class="row p-0 m-0">
-                        <div class="col-12 row justify-content-center m-0 p-0">
-                            <div class="font-weight-bold text-primary">
-                                Training codes:
-                            </div>
-                        </div>
-                        <div class="alert-info rounded border border-info p-2 m-1 small">
-                            This is the list used by the machine to <strong>learn</strong> from your choiches.<br />
-                            As the machine only evaluates titles and abstracts, you <strong>should not</strong> include codes that rely on <strong>data that does not appear in titles and abstract</strong>.
-                            A typical type of codes that shouldn't appear below is <strong>"Exclude on Date"</strong>.<br />
-                            Changes made here are <strong>saved immediately</strong>!
-                        </div>
-                    </div>
-                    <div *ngIf="AllowEditOnStep4" class="row p-2 m-1 rounded border border-info">
-                        <button *ngIf="!ShowAddTrainingCriteria" class="m-1 py-1 px-1 btn btn-outline-primary" [disabled]="!CanWrite()" (click)="ShowAddTrainingCriteriaClick()">
-                            Add a code...
-                        </button>
-                        <button *ngIf="ShowAddTrainingCriteria" class="m-1 py-1 px-1 btn btn-outline-dark" (click)="ShowAddTrainingCriteriaClick()">
-                            Cancel
-                        </button>
-                        <div *ngIf="ShowAddTrainingCriteria">
-                            <div class="row p-0 m-0 ">
-                                <div class="col-3 p-0 mt-2">Pick the code:</div>
-                                <div class="d-block my-1 col-9 p-0">
-                                    <div ngbDropdown class="">
-                                        <button ngbDropdownAnchor class="btn btn-outline-secondary dropdown-toggle"
-                                                id="dropdownTreeAddTrainingCriteria"
-                                                style="min-width: 200px; max-width:720px;"
-                                                (click)="isCollapsedDropdownAddTrainingCriteria = !isCollapsedDropdownAddTrainingCriteria;"
-                                                [attr.aria-expanded]="!isCollapsedAllocateOptions" aria-controls="collapseCodeTreeWithWithout">
-                                            {{DropdownAddTrainingCriteriaSelectedCode?.name}}
-                                        </button>
-                                        <div ngbDropdownMenu class="dropdown-menu" id="collapseCodeTreeWithWithout" [ngbCollapse]="!isCollapsedDropdownAddTrainingCriteria">
-                                            <codesetSelector [IsMultiSelect]="false"
-                                                             [WhatIsSelectable]="'ScreeningCodes'" [MaxHeight]="500" #AddTrainingCriteriaDDown
-                                                             (selectedNodeInTree)="CloseCodeDropDownAddTrainingCriteria()"></codesetSelector>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row p-0 m-0 ">
-                                <div class="col-3 p-0 mt-2">Details:</div>
-                                <div class="d-block my-1 col-9 p-0">
-                                    <div class="m-2 small alert-info">
-                                    You'll add the code "<strong>{{DropdownAddTrainingCriteriaSelectedCode?.name}}</strong>" and will be treated as an "<strong>{{TrainingCriteriaAddingCodeType}}</strong>" decision.
-                                    </div>
-                                    <button class="m-1 py-1 px-1 btn btn-outline-primary btn-sm" [disabled]="!CanWrite()" (click)="AddTrainingCriteriaDoItClick()">
-                                        Add!
-                                    </button>
-                                    <button *ngIf="ShowAddTrainingCriteria" class="m-1 py-1 px-2 btn btn-sm btn-outline-dark" (click)="ShowAddTrainingCriteriaClick()">
-                                        Cancel
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div style="max-height:300px;overflow:auto;">
-                        <table class="table table-striped table-sm">
-                            <tr>
-                                <th class="px-0 pt-1 ml-1">
-                                    Code name
-                                </th>
-                                <th class="px-0 pt-1 ml-1">
-                                    Include/Exclude
-                                </th>
-                                <th *ngIf="AllowEditOnStep4" class="px-0 pt-1 ml-1">
-                                    Delete
-                                </th>
-                            </tr>
-                            <tr *ngFor="let item of TrainingScreeningCriteriaList">
-                                <td class="px-0 pt-1 ml-1">
-                                    {{item.attributeName}}
-                                </td>
-                                <td class="row p-0 m-0">
-                                    <div class="rounded border px-1 py-0 m-1"
-                                         [ngClass]="{'alert-success border-success': item.included, 'alert-danger border-danger' : !item.included}">
-                                        {{item.included ? 'Include' : 'Exclude'}}
-                                    </div>
-                                    <button *ngIf="AllowEditOnStep4" class="m-1 py-0 px-1 btn btn-sm btn-outline-primary" [disabled]="!CanWrite()"
-                                            (click)="FlipTrainingScreeningCriteria(item)">
-                                        Change
-                                    </button>
-                                </td>
-                                <td  *ngIf="AllowEditOnStep4" class="px-0 pt-1">
-                                    <button class="m-1 py-0 px-1 btn btn-sm btn-outline-danger " [disabled]="!CanWrite()"
-                                            (click)="DeleteTrainingScreeningCriteria(item)">
-                                        Delete
-                                    </button>
-                                </td>
-                            </tr>
-                        </table>
-                    </div>
+                    <ng-container *ngTemplateOutlet="TemplateTrainingCriteriaList"></ng-container>
                 </div>
             </div>
         </div>
-        <div class="col-12 col-lg-6 p-1">
+        <div class="col-md-12 col-lg-5 col-xl-6 p-1">
             <div class="border border-primary rounded m-0 p-1">
                 <div class="col-12 border border-primary rounded my-1 p-1">
                     <kendo-chart [title]="{ text: 'Screening progress' }">
@@ -978,7 +352,7 @@
                         </div>
                     </div>
                     <div *ngIf="ShowTrainingTable" class="row mx-0 my-1 p-0 ">
-                        <kendo-grid  [data]="TrainingListData"
+                        <kendo-grid [data]="TrainingListData"
                                     [pageSize]="TrainingListData.length"
                                     scrollable="virtual"
                                     [height]="300">
@@ -1010,6 +384,374 @@
             </div>
         </div>
     </div>
+
+    <ng-template #TemplateScreeningTool>
+        <div class="row m-0 p-0">
+            <div class="col-4 p-0 mt-2">
+                <span *ngIf="CurrentStep==1">1.1 </span>Screeening Tool:
+            </div>
+            <div class="d-block my-1 col-8 p-0">
+                <div ngbDropdown class="" style="min-width:200px;">
+                    <button class="btn btn-outline-secondary dropdown-toggle"
+                            style="min-width: 200px; max-width:720px;"
+                            (click)="isCollapsedAllocateOptions = false;"
+                            id="dropdownBasicCodingTool" ngbDropdownToggle>
+                        {{GetCodingToolName()}}
+                    </button>
+                    <div ngbDropdownMenu aria-labelledby="dropdownBasicCodingTool">
+                        <button (click)="setCodeSetDropDown(item)"
+                                *ngFor="let item of ScreeningTools;" class="dropdown-item">
+                            {{item.name}}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </ng-template>
+    
+    <ng-template #TemplateScreenWhat>
+        <div class="row border-top border-info m-0 p-0">
+            <div class="col-3 p-0 mt-1">
+                <span *ngIf="CurrentStep==1">1.2 </span>What to screen:
+            </div>
+            <div class="col-9 p-0 mx-0 row">
+                <div class=" d-block rounded border border-info my-1 mr-1 p-0">
+                    <input class="mt-1 mx-1 d-inline" type="radio" [disabled]="!CanChangeWhatToScreen" name="whatToScreen"
+                           [value]="true" (click)="ChangeWhatToScreen()" [(ngModel)]="ScreenAllItems">
+                    <div class="mr-2 d-inline">All Items</div>
+                </div>
+                <div class=" d-block rounded border border-info p-0 m-1">
+                    <input class="mt-1 mx-1 d-inline" type="radio" [disabled]="!CanChangeWhatToScreen" name="whatToScreen"
+                           [value]="false" (click)="ChangeWhatToScreen()" [(ngModel)]="ScreenAllItems">
+                    <div class="mr-2 d-inline">Items with this code:</div>
+                </div>
+            </div>
+        </div>
+        <div *ngIf="!ScreenAllItems" class="row m-0 p-0">
+            <div class="col-3 p-0 mt-2">Pick the code:</div>
+            <div class="d-block my-1 col-9 p-0">
+                <div ngbDropdown class="">
+                    <button ngbDropdownAnchor class="btn btn-outline-secondary dropdown-toggle"
+                            id="dropdownTreeRandomAllocate"
+                            style="min-width: 200px; max-width:720px;"
+                            (click)="isCollapsedAllocateOptions = !isCollapsedAllocateOptions;"
+                            [attr.aria-expanded]="!isCollapsedAllocateOptions" aria-controls="collapseCodeTreeWithWithout">
+                        {{DropdownWithWithoutSelectedCode?.name}}
+                    </button>
+                    <div ngbDropdownMenu class="dropdown-menu" id="collapseCodeTreeWithWithout" [ngbCollapse]="!isCollapsedAllocateOptions">
+                        <codesetSelector [IsMultiSelect]="false"
+                                         [WhatIsSelectable]="'SetAttribute'" [MaxHeight]="500" #WithOrWithoutCode
+                                         (selectedNodeInTree)="CloseCodeDropDownCodeWithWithout()"></codesetSelector>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </ng-template>
+
+    <ng-template #TemplateScreeeningMode>
+        <div class="row m-0 p-0 border-info border-top">
+            <div class="col-4 p-0 mt-2">
+                <span *ngIf="CurrentStep==2">2.1 </span>Screeening Mode:
+            </div>
+            <div class="d-block my-1 col-8 p-0">
+                <select class="rounded btn border border-info dropdonw-toggle" name="ScreeningModeOptionsSelect"
+                        style="min-width: 200px; max-width:720px;" (change)="SetScreeningMode($event.target.value)">
+                    <option *ngFor="let item of ScreeningModeOptions" [value]="item.value"
+                            [selected]="item.value == revInfo.screeningMode">
+                        {{item.value}}
+                    </option>
+                </select>
+            </div>
+        </div>
+    </ng-template>
+
+    <ng-template #TemplateTrainingCriteriaList>
+        <div class="row p-0 m-0">
+            <div *ngIf="CurrentStep !== 2" class="col-12 row justify-content-center m-0 p-0">
+                <div class="font-weight-bold text-primary">
+                    Training codes:
+                </div>
+            </div>
+            <div *ngIf="CurrentStep == 2" class="col-12 row m-0 p-0">
+                Training codes:
+            </div>
+            <div *ngIf="CurrentStep !== 2" class="alert-info rounded border border-info p-2 m-1 small">
+                This is the list used by the machine to <strong>learn</strong> from your choiches.<br />
+                As the machine only evaluates titles and abstracts, you <strong>should not</strong> include codes that rely on <strong>data that does not appear in titles and abstract</strong>.
+                A typical type of codes that shouldn't appear below is <strong>"Exclude on Date"</strong>.<br />
+                Changes made here are <strong>saved immediately</strong>! <br />
+            </div>
+        </div>
+        <div *ngIf="AllowEditOnStep4 || CurrentStep==2" class="row p-0 m-0 rounded border border-info">
+            <div class="col-12 px-1">
+                <button *ngIf="!ShowAddTrainingCriteria" class="m-1 py-1 px-1 btn btn-outline-success" [disabled]="!CanWrite()" (click)="DoResetTrainingCodes()">
+                    Repopulate...
+                </button>
+                <button *ngIf="!ShowAddTrainingCriteria" class="m-1 py-1 px-1 btn btn-outline-primary" [disabled]="!CanWrite()" (click)="ShowAddTrainingCriteriaClick()">
+                    Add a code...
+                </button>
+                <button *ngIf="ShowAddTrainingCriteria" class="m-1 py-1 px-1 btn btn-outline-dark" (click)="ShowAddTrainingCriteriaClick()">
+                    Cancel
+                </button>
+            </div>
+            <div *ngIf="ShowAddTrainingCriteria" class="col-12 px-1">
+                <div class="row p-0 m-0 ">
+                    <div class="col-3 p-0 mt-2">Pick the code:</div>
+                    <div class="d-block my-1 col-9 p-0">
+                        <div ngbDropdown class="">
+                            <button ngbDropdownAnchor class="btn btn-outline-secondary dropdown-toggle"
+                                    id="dropdownTreeAddTrainingCriteria"
+                                    style="min-width: 200px; max-width:720px;"
+                                    (click)="isCollapsedDropdownAddTrainingCriteria = !isCollapsedDropdownAddTrainingCriteria;"
+                                    [attr.aria-expanded]="!isCollapsedAllocateOptions" aria-controls="collapseCodeTreeWithWithout">
+                                {{DropdownAddTrainingCriteriaSelectedCode?.name}}
+                            </button>
+                            <div ngbDropdownMenu class="dropdown-menu" id="collapseCodeTreeWithWithout" [ngbCollapse]="!isCollapsedDropdownAddTrainingCriteria">
+                                <codesetSelector [IsMultiSelect]="false"
+                                                 [WhatIsSelectable]="'ScreeningCodes'" [MaxHeight]="500" #AddTrainingCriteriaDDown
+                                                 (selectedNodeInTree)="CloseCodeDropDownAddTrainingCriteria()"></codesetSelector>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div *ngIf="DropdownAddTrainingCriteriaSelectedCode != null" class="row p-0 m-0 ">
+                    <div class="col-3 p-0 mt-2">Details:</div>
+                    <div class="d-block my-1 col-9 p-0">
+                        <div class="m-2 small alert-info">
+                            You'll add the code "<strong>{{DropdownAddTrainingCriteriaSelectedCode?.name}}</strong>" and will be treated as an "<strong>{{TrainingCriteriaAddingCodeType}}</strong>" decision.
+                        </div>
+                        <button class="m-1 py-1 px-1 btn btn-outline-primary btn-sm" [disabled]="!CanWrite()" (click)="AddTrainingCriteriaDoItClick()">
+                            Add!
+                        </button>
+                        <button *ngIf="ShowAddTrainingCriteria" class="m-1 py-1 px-2 btn btn-sm btn-outline-dark" (click)="ShowAddTrainingCriteriaClick()">
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div style="max-height:300px;overflow:auto;">
+            <table class="table table-striped table-sm">
+                <tr>
+                    <th class="px-0 pt-1 ml-1">
+                        Code name
+                    </th>
+                    <th class="px-0 pt-1 ml-1">
+                        Include/Exclude
+                    </th>
+                    <th *ngIf="AllowEditOnStep4 || CurrentStep==2" class="px-0 pt-1 ml-1">
+                        Delete
+                    </th>
+                </tr>
+                <tr *ngFor="let item of TrainingScreeningCriteriaList">
+                    <td class="px-0 pt-1 ml-1">
+                        {{item.attributeName}}
+                    </td>
+                    <td class="row p-0 m-0">
+                        <div class="rounded border px-1 py-0 m-1"
+                             [ngClass]="{'alert-success border-success': item.included, 'alert-danger border-danger' : !item.included}">
+                            {{item.included ? 'Include' : 'Exclude'}}
+                        </div>
+                        <button *ngIf="AllowEditOnStep4 || CurrentStep==2" class="m-1 py-0 px-1 btn btn-sm btn-outline-primary" [disabled]="!CanWrite()"
+                                (click)="FlipTrainingScreeningCriteria(item)">
+                            Change
+                        </button>
+                    </td>
+                    <td *ngIf="AllowEditOnStep4 || CurrentStep==2" class="px-0 pt-1">
+                        <button class="m-1 py-0 px-1 btn btn-sm btn-outline-danger " [disabled]="!CanWrite()"
+                                (click)="DeleteTrainingScreeningCriteria(item)">
+                            Delete
+                        </button>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </ng-template>
+
+    <ng-template #TemplatePeoplePerItem>
+        <div class="row m-0 p-0 border-info border-top">
+            <div class="col-4 p-0 mt-2">
+                <span *ngIf="CurrentStep==2">2.2 </span>N. of people per item:
+            </div>
+            <div *ngIf="selectedCodeSetDropDown && !selectedCodeSetDropDown.codingIsFinal" class="col-8 p-0 mx-0 row">
+                <kendo-numerictextbox [(ngModel)]="revInfo.screeningNPeople"
+                                      [disabled]="!CanChangePeoplePerItem || !CanWrite()"
+                                      [min]="1" [format]="'n0'"
+                                      [max]="Contacts.length > 10 ? 10 : Contacts.length"
+                                      [step]="1"
+                                      [autoCorrect]="true"
+                                      (valueChange)="{}"
+                                      class="border border-dark rounded mb-1"
+                                      style="width: 100px;">
+                </kendo-numerictextbox>
+            </div>
+            <div *ngIf="selectedCodeSetDropDown !=null && selectedCodeSetDropDown.codingIsFinal" class="col-8 p-0 mt-1 mx-0 row ">
+                <div class="rounded alert-info small m-1 p-1"><strong>One</strong> (Screening set is in "Normal" data entry mode).</div>
+                <div *ngIf="CanEditSelectedSet && !ShowChangeDataEntry" class="rounded alert-light small mx-1 my-0 p-0">
+                    Click
+                    <button class="btn btn-outline-danger btn-sm ml-1 px-1 py-0 mb-1" type="button" *ngIf="!ShowChangeDataEntry"
+                            [disabled]="!CanChangePeoplePerItem || !CanEditSelectedSet"
+                            (click)="ShowChangeDataEntryClicked()">
+                        here
+                    </button>
+                    to enable changing its data entry mode.
+                </div>
+            </div>
+            <div *ngIf="!selectedCodeSetDropDown == null" class="col-8 p-0 mt-1 mx-0 row">
+                <div class="rounded alert-danger small m-1 p-1">Please select the screening tool first..</div>
+            </div>
+        </div>
+        <div *ngIf="!CheckAndUpdatePeoplePerItem() || ShowChangeDataEntry" class="row m-0 p-0">
+            <div *ngIf="revInfo.screeningCodeSetId >= 1 && (selectedCodeSetDropDown.codingIsFinal && revInfo.screeningNPeople != 1)"
+                 class="alert-danger rounded row col-12 m-1">
+                <div class="col-12 m-0 p-0">
+                    <div>
+                        The selected screening tool is set for single coding (Normal Data Entry).<br />
+                        Do you wish to change the data entry mode to Comparison Coding?
+                    </div>
+                    <div class="alert-light border border-danger rounded col-12 small">
+                        <div class="mt-1">Change to Data Entry Mode: {{WorkToDoSelectedCodeSetDataEntryM}}</div>
+                        <button class="btn btn-outline-danger btn-sm ml-1 mb-1" type="button" *ngIf="!ShowChangeDataEntry"
+                                [disabled]="!CanChangePeoplePerItem || !CanEditSelectedSet"
+                                (click)="ShowChangeDataEntryClicked()">
+                            Change
+                        </button>
+                        <div *ngIf="ShowChangeDataEntry" class="alert alert-danger">
+                            <div>{{ChangeDataEntryModeMessage}}</div>
+                            <button class="btn btn-outline-secondary btn-sm mb-1" (click)="HideChangeDataEntry()" type="button">Cancel</button>
+                            <div *ngIf="CanChangeDataEntryMode" class="alert alert-light">
+                                Yes, change to
+                                <button class="btn btn-outline-danger btn-sm ml-1 mr-1" type="button"
+                                        [disabled]="!CanChangePeoplePerItem || !CanEditSelectedSet" (click)="DoChangeDataEntry()">
+                                    {{DestinationDataEntryMode}}
+                                </button>
+                                mode.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div *ngIf="revInfo.screeningCodeSetId >= 1 && (!selectedCodeSetDropDown.codingIsFinal && revInfo.screeningNPeople > 1)"
+                 class="alert-success  rounded row col-12 m-1">
+                The selected coding tool is set for multiple coding (Comparison Data Entry): more than one person per item is appropriate.
+            </div>
+            <div *ngIf="revInfo.screeningCodeSetId >= 1 && (!selectedCodeSetDropDown.codingIsFinal && revInfo.screeningNPeople == 1)"
+                 class="alert-danger  rounded row col-12 m-1">
+                <div>
+                    The selected coding tool is set for multiple coding (Comparison Data Entry).<br />
+                    Do you wish to change the data entry mode to Normal coding?
+                </div>
+                <div class="alert-light border border-danger rounded col-12 small">
+                    <div class="mt-1">Change to Data Entry Mode: {{WorkToDoSelectedCodeSetDataEntryM}}</div>
+                    <button class="btn btn-outline-danger btn-sm ml-1 mb-1" type="button" *ngIf="!ShowChangeDataEntry"
+                            [disabled]="!CanChangePeoplePerItem || !CanEditSelectedSet"
+                            (click)="ShowChangeDataEntryClicked()">
+                        Change
+                    </button>
+                    <div *ngIf="ShowChangeDataEntry" class="alert alert-danger">
+                        <div>{{ChangeDataEntryModeMessage}}</div>
+                        <button class="btn btn-outline-secondary btn-sm mb-1" (click)="HideChangeDataEntry()" type="button">Cancel</button>
+                        <div *ngIf="CanChangeDataEntryMode" class="alert alert-light">
+                            Yes, change to
+                            <button class="btn btn-outline-danger btn-sm ml-1 mr-1" type="button"
+                                    [disabled]="!CanChangePeoplePerItem || !CanWrite()" (click)="DoChangeDataEntry()">
+                                {{DestinationDataEntryMode}}
+                            </button>
+                            mode.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </ng-template>
+    
+    <ng-template #TemplateReconciliationMode>
+        <div class="row border-top border-info m-0 p-0">
+            <div class="col-4 p-0 mt-2">
+                <span *ngIf="CurrentStep==3">3.1 </span>Reconciliation Mode:
+            </div>
+            <div *ngIf="selectedCodeSetDropDown && selectedCodeSetDropDown.codingIsFinal" class="d-block my-1 col-8 p-0">
+                <div class="rounded small alert-info m-1 p-1">Set is in Normal Data entry mode: coding will be completed immediately.</div>
+            </div>
+            <div *ngIf="selectedCodeSetDropDown && !selectedCodeSetDropDown.codingIsFinal" class="d-block mb-1 mt-0 col-12 p-0">
+                <select class="rounded small btn border border-info dropdonw-toggle" name="ScreeningModeOptionsSelect"
+                        style="min-width: 200px; max-width:720px;" (change)="SetReconciliationMode($event.target.value)">
+                    <option *ngFor="let item of ReconcileOptions" [value]="item.key" class="small"
+                            [selected]="item.key == revInfo.screeningReconcilliation">
+                        {{item.value}}
+                    </option>
+                </select>
+            </div>
+            <div *ngIf="selectedCodeSetDropDown == null" class="d-block my-1 col-8 p-0">
+                <div class="rounded small alert-danger m-1 p-1">Please select a coding tool.</div>
+            </div>
+        </div>
+        <div *ngIf="ReconciliationModeError != ''" class="row m-0 p-0">
+            <div class="rounded small alert-danger m-1 p-1 ">{{ReconciliationModeError}}</div>
+        </div>
+        <div *ngIf="ReconciliationModeError == '' && ReconciliationModeSummary != ''" class="row m-0 p-0">
+            <div class="rounded small alert-info m-1 p-1" [innerHTML]="ReconciliationModeSummary"></div>
+        </div>
+    </ng-template>
+    
+    <ng-template #TemplateAutoExclude>
+        <div class="row border-top border-info m-0 p-0">
+            <div class="col-4 p-0 mt-1">
+                <span *ngIf="CurrentStep==3">3.2 </span>Auto Exclude?
+            </div>
+            <div class="col-8 p-0 mx-0 row">
+                <div class=" d-block rounded border border-info my-1 mr-1 p-0">
+                    <input class="mt-1 mx-1 d-inline" type="radio" [disabled]="!CanChangeAutoExcludeAndIndexing || !CanWrite()" name="AutoExclude"
+                           [value]="true" [(ngModel)]="revInfo.screeningAutoExclude">
+                    <div class="mr-2 d-inline">Yes</div>
+                </div>
+                <div class=" d-block rounded border border-info p-0 m-1">
+                    <input class="mt-1 mx-1 d-inline" type="radio" [disabled]="!CanChangeAutoExcludeAndIndexing || !CanWrite()" name="AutoExclude"
+                           [value]="false" [(ngModel)]="revInfo.screeningAutoExclude">
+                    <div class="mr-2 d-inline">No</div>
+                </div>
+            </div>
+            <div *ngIf="revInfo.screeningAutoExclude" class="col-12 p-0 mx-0 mb-1 row">
+                <div class="rounded alert-info m-0 p-1 small">
+                    <div class="alert-warning m-1 p-1"><strong>Warning:</strong> this will mark items with the Exclude (E) flag <strong>only when</strong> their coding is automatically completed.</div>
+                    When completing some coding via comparions, the items that received Exclude codes, <strong>will not</strong> receive the E flag.
+                    You <strong>must remember</strong> to do so yourself (list all items with an exclude code, select them all, click on the "In/Exclude" button in the "References" tab).
+                </div>
+            </div>
+        </div>
+    </ng-template>
+    
+    <ng-template #TemplateIndexing>
+        <div class="row border-top border-info m-0 p-0">
+            <div class="col-4 p-0 mt-1">
+                <span *ngIf="CurrentStep==3">3.3 </span>Indexing:
+            </div>
+            <div *ngIf="revInfo.screeningIndexed" class="col-12 p-0 mx-0 mb-1 row">
+                <div class="rounded alert-info m-0 p-1 small">
+                    The index is <strong>up to date</strong>. This means that the machine has received the full titles and abstracts of all the references to screen.<br />
+                    As a result, the next training round will not rebuild the index (takes a little longer).<br />
+                    To make the index rebuild at the next training, click
+                    <button class="btn btn-outline-danger btn-sm ml-1 px-1 py-0 mb-1" type="button" *ngIf="!ShowChangeDataEntry"
+                            [disabled]="!CanChangeAutoExcludeAndIndexing || !CanWrite()"
+                            (click)="revInfo.screeningIndexed = !revInfo.screeningIndexed">
+                        here
+                    </button>.
+                </div>
+            </div>
+            <div *ngIf="!revInfo.screeningIndexed" class="col-12 p-0 mx-0 mb-1 row">
+                <div class="rounded alert-info m-0 p-1 small">
+                    The index is <strong>not up to date</strong>. This means that at the next training round the machine will re-index the titles and abstracts to ensure
+                    it will train against the most up to date data (training will take a little longer).<br />
+                    If you believe that this is not necessary, click
+                    <button class="btn btn-outline-danger btn-sm ml-1 px-1 py-0 mb-1" type="button" *ngIf="!ShowChangeDataEntry"
+                            [disabled]="!CanChangeAutoExcludeAndIndexing || !CanWrite()"
+                            (click)="revInfo.screeningIndexed = !revInfo.screeningIndexed">
+                        here
+                    </button>.
+                </div>
+            </div>
+        </div>
+    </ng-template>
 </div>
 
 
