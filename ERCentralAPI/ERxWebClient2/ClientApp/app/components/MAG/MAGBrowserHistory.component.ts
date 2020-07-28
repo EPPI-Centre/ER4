@@ -121,9 +121,6 @@ export class MAGBrowserHistory implements OnInit {
                         case "SelectedPapers":
                             this.ShowSelectedPapersPage();
                             break;
-                        case "RelatedPapers":
-                            this.ShowRelatedPapersPage();
-                            break;
                     }
             }
         }
@@ -166,7 +163,7 @@ export class MAGBrowserHistory implements OnInit {
         } else if (incOrExc == 'all') {
             this._eventEmitterService.getMatchedAllItemsEvent.emit();
         } else {
-//          there is an error
+            //          there is an error
         }
         
     }
@@ -175,7 +172,12 @@ export class MAGBrowserHistory implements OnInit {
         this._eventEmitterService.getAttributeIdsEvent.emit(attributeIds);
     }
     public ShowAutoIdentifiedMatches(magRelatedRunId: number) {
-        //this._magBasicService.FetchMagRelatedPapersRunList();
+        this._magBrowserService.FetchMAGRelatedPaperRunsListById(magRelatedRunId)
+            .then(
+                () => {
+                    this.router.navigate(['MAGBrowser']);
+                }
+            );
     }
     public ShowRelatedPapers() {
         this._magBasicService.FetchMagRelatedPapersRunList();
