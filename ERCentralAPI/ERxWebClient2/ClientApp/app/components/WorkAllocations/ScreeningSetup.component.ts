@@ -40,6 +40,7 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
     ngOnInit() {
         this.PriorityScreeningService.Fetch();
         this.RevInfoSub = this.ReviewInfoService.ReviewInfoChanged.subscribe(() => this.RefreshRevinfo());
+        if (!this.ReviewerIdentityService.HasAdminRights) this.CurrentStep = 4;
     }
     ngAfterViewInit() {
         if (this.ReviewInfoService.ReviewInfo.showScreening == false) this.Cancel();
@@ -150,7 +151,7 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
     }
     public get CanChangePeoplePerItem(): boolean {
         if (this.revInfo.screeningMode == '') return false;
-        if (this.revInfo.screeningMode == "Priority" && this.ConfirmTrainingListIsGood !== "I've checked") return false;
+        if (this.revInfo.screeningMode == "Priority" && this.ConfirmTrainingListIsGood !== "I've checked" && this.CurrentStep != 4) return false;
         else return true;
     }
     public get CanChangeAutoExcludeAndIndexing(): boolean {
@@ -180,6 +181,9 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
             //console.log('CanWrite', false);
             return false;
         }
+    }
+    public get HasAdminRights(): boolean {
+        return this.ReviewerIdentityService.HasAdminRights;
     }
     public get CanEditSelectedSet(): boolean {
         return (this.CanWrite && this.selectedCodeSetDropDown !=null && this.selectedCodeSetDropDown.allowEditingCodeset);
@@ -243,7 +247,7 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
         if (this.revInfo.screeningWhatAttributeId < 0) return false; //0 if screen all items more than 0 if screen items with this code
         if (!this.ScreenAllItems && this.revInfo.screeningWhatAttributeId < 1) return false;//screen items with this code: need a valid AttributeId
         if (this.ScreenAllItems && this.revInfo.screeningWhatAttributeId != 0) return false;//screen all items: need this to be 0
-        if (this.PriorityScreeningService.TrainingScreeningCriteria.length == 0) return false;//no codes to learn from
+        if (this.revInfo.screeningMode == "Priority" && this.PriorityScreeningService.TrainingScreeningCriteria.length < 2) return false;//not enough codes to learn from
         if (this.ScreeningModeOptions.findIndex(found => found.value == this.revInfo.screeningMode) < 1) {
             //console.log("type of list isn't set?", this.revInfo.screeningMode);
             return false;//type of list isn't set.
@@ -464,7 +468,7 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
             return true;//nothing is set, so nothing to check
         }
         else if (this.selectedCodeSetDropDown.codingIsFinal) {
-            if (this.revInfo.screeningReconcilliation != "Single") this.revInfo.screeningReconcilliation != "Single";
+            if (this.revInfo.screeningReconcilliation != "Single") this.revInfo.screeningReconcilliation = "Single";
             if (this.revInfo.screeningNPeople >= 1) {
                 //set is in normal data entry, so we'll automatically set screeningNPeople to 0
                 if (this.revInfo.screeningNPeople == 1) {
