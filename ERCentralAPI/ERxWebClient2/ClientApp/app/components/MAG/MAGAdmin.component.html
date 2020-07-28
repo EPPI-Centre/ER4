@@ -11,8 +11,8 @@
 
     <div class="row" style="vertical-align:top">
 
-        <div class="col-lg-7 ">
-            <div class="card-footer h-100 ">
+        <div class="col-lg-4 ">
+            <div class="card-footer h-100 w-100">
                 <h2 class="card-title"></h2>
                 <h4 class="font-weight-light text-sm-left">Current Microsoft Academic Graph Dataset: <i>{{_magAdminService.latestMAGName}}  </i></h4>
                 <h4 class="font-weight-light">Previous Microsoft Academic Graph Dataset: <i>{{_magAdminService.previousMAGName}} </i></h4>
@@ -32,8 +32,39 @@
             </div>
         </div>
 
+        <div class="col-lg-4">
+            <h2 class="card-title"></h2>
+            
 
-        <div class="col-lg-5">
+
+            <div class="card small row col-12">
+                <h4 class="card-title">Microsoft Academic Graph Info</h4>
+
+                <div class="col-12 p-2 m-2 ">
+                    MAG Version:{{_magAdminService.MagCurrentInfo.magVersion}}
+                </div>
+                <div class="col-12  p-2 m-2 ">
+                    MAKES EndPoint:{{_magAdminService.MagCurrentInfo.makesEndPoint}}
+                </div>
+                <div class="col-12  p-2 m-2 ">
+                    MAKES Deployment Status: {{_magAdminService.MagCurrentInfo.makesDeploymentStatus}}
+                </div>
+
+                <div class="card-text small row col-12">
+                    <div>
+                        <span class=" p-2 m-2 small col-3" style="width: 110px;">
+                            <a class="btn btn-primary btn-sm text-white" (click)="UpdateMagInfo()">Update MAG Info</a>
+                        </span>
+                    </div>
+                </div>
+                <h2 class="card-title"></h2>
+            </div>
+                
+           
+         
+        </div>
+
+        <div class="col-lg-4">
             <h2 class="card-title"></h2>
             <h2 class="font-weight-light">Microsoft Academic Graph Admin</h2>
             <p>Click <b>ID changes</b> to check for Paper ID changes before updating your MAG current info</p>
@@ -89,8 +120,9 @@
                         </span>
                     </div>
                 </div>
-                <h3 class="card-title"></h3>
+                <h2 class="card-title"></h2>
             </div>
+           
         </div>
     </div>
 

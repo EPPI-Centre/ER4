@@ -159,6 +159,19 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
+        public static readonly PropertyInfo<List<string>> ListMAGConatainersStatusProperty = RegisterProperty<List<string>>(new PropertyInfo<List<string>>("ListMAGConatainersStatus", "ListMAGConatainersStatus", new List<string> { "" }));
+        public List<string> ListMAGConatainersStatus
+        {
+            get
+            {
+                return GetProperty(ListMAGConatainersStatusProperty);
+            }
+            set
+            {
+                SetProperty(ListMAGConatainersStatusProperty, value);
+            }
+        }
+
         /*
         public static readonly PropertyInfo<MagCurrentInfoList> CitationsProperty = RegisterProperty<MagCurrentInfoList>(new PropertyInfo<MagCurrentInfoList>("Citations", "Citations"));
         public MagCurrentInfoList Citations
@@ -452,8 +465,11 @@ namespace BusinessLibrary.BusinessClasses
             //CloudBlobContainer container = blobClient.GetContainerReference("experiments");
             //here need  list
             var magContainers = ListContainersWithPrefixAsync(blobClient, "mag-");
+            
             //use LINQ to list them in date order
             var orderedMagContainers = magContainers.OrderByDescending(x => x.Name);
+            //MagCurrentInfo returnValue = new MagCurrentInfo();
+            //returnValue.ListMAGConatainersStatus = orderedMagContainers.Select( x=> x.Name).ToList();
 
             var mostRecentMag = orderedMagContainers.FirstOrDefault();
             if (mostRecentMag != null)
@@ -515,7 +531,11 @@ namespace BusinessLibrary.BusinessClasses
                 {
                     command.CommandType = System.Data.CommandType.StoredProcedure;
                     command.Parameters.Add(new SqlParameter("@MAG_VERSION", mag_version));
+                    command.Parameters.Add(new SqlParameter("@WHEN_LIVE", DateTime.Now));
+                    command.Parameters.Add(new SqlParameter("@MATCHING_AVAILABLE", 1));
+                    command.Parameters.Add(new SqlParameter("@MAG_ONLINE", 1));
                     command.Parameters.Add(new SqlParameter("@MAKES_ENDPOINT", makes_endpoint));
+                    command.Parameters.Add(new SqlParameter("@MAKES_DEPLOYMENT_STATUS", "LIVE"));
                     command.ExecuteNonQuery();
                 }
                 connection.Close();

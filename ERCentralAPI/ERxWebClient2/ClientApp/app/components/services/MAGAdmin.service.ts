@@ -154,7 +154,7 @@ export class MAGAdminService extends BusyAwareService {
                 this.RemoveBusy("UpdateMagCurrentInfo");
                 if (result != null) {
                     console.log(result)
-                    //this.MagCurrentInfo = result;
+                    this.MagCurrentInfo = result;
                 }
             },
                 error => {

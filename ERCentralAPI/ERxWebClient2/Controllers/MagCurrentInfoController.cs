@@ -49,18 +49,21 @@ namespace ERxWebClient2.Controllers
             try
             {
                 SetCSLAUser();
+                
+                                
+                //magSQLCurrentInfo.MagVersion = magCurrentInfo.magVersion;
+                //magSQLCurrentInfo.MakesDeploymentStatus = magCurrentInfo.makesDeploymentStatus;
+                //magSQLCurrentInfo.MakesEndPoint = magCurrentInfo.makesEndPoint;
+                //magSQLCurrentInfo.MagFolder = magCurrentInfo.magFolder;
+                //magSQLCurrentInfo.MagOnline = Convert.ToBoolean(magCurrentInfo.magOnline);
+                //magSQLCurrentInfo.MatchingAvailable = Convert.ToBoolean(magCurrentInfo.matchingAvailable);
+
+                MagCurrentInfo.UpdateMagCurrentInfoStatic();
                 DataPortal<MagCurrentInfo> dp = new DataPortal<MagCurrentInfo>();
                 var magSQLCurrentInfo = MagCurrentInfo.GetMagCurrentInfoServerSide("Live");
 
-                
-                magSQLCurrentInfo.MagVersion = magCurrentInfo.magVersion;
-                magSQLCurrentInfo.MakesDeploymentStatus = magCurrentInfo.makesDeploymentStatus;
-                magSQLCurrentInfo.MakesEndPoint = magCurrentInfo.makesEndPoint;
-                magSQLCurrentInfo.MagFolder = magCurrentInfo.magFolder;
-                magSQLCurrentInfo.MagOnline = Convert.ToBoolean(magCurrentInfo.magOnline);
-                magSQLCurrentInfo.MatchingAvailable = Convert.ToBoolean(magCurrentInfo.matchingAvailable);
+                //magSQLCurrentInfo = magSQLCurrentInfo.Save(true);
 
-                magSQLCurrentInfo = magSQLCurrentInfo.Save(true);
                 return Ok(magSQLCurrentInfo);
             }
             catch (Exception e)
