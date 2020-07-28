@@ -26,7 +26,7 @@ import { ConfirmationDialogService } from '../services/confirmation-dialog.servi
 
 export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
     constructor(
-        private router: Router,
+        private router: Router, private ngZone: NgZone,
         private ReviewSetsService: ReviewSetsService,
         private modalService: ModalService,
         private ReviewSetsEditingService: ReviewSetsEditingService,
@@ -40,11 +40,12 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
     ngOnInit() {
         this.PriorityScreeningService.Fetch();
         this.RevInfoSub = this.ReviewInfoService.ReviewInfoChanged.subscribe(() => this.RefreshRevinfo());
+        if (!this.ReviewerIdentityService.HasAdminRights) this.CurrentStep = 4;
     }
     ngAfterViewInit() {
         if (this.ReviewInfoService.ReviewInfo.showScreening == false) this.Cancel();
         else {
-            console.log("will clone revinfo:", this.ReviewInfoService.ReviewInfo);
+            //console.log("will clone revinfo:", this.ReviewInfoService.ReviewInfo);
             this.DoRefreshRevinfo();
             this.PriorityScreeningService.GetTrainingScreeningCriteriaList();
         }
@@ -52,7 +53,7 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
     public revInfo: ReviewInfo = new ReviewInfo();
     @Output() emitterCancel = new EventEmitter();
     public CurrentStep: number = 0;
-    private _stepNames: string[] = ["Start", "select the references to code.", "choose the coding to be done.", "assign coding work to people.", "Show all settings"];
+    private _stepNames: string[] = ["Start", "define what to do", "define how to do it", "automation options", "Show all settings"];
     @ViewChild('faketablerow') faketablerow!: ElementRef;
     @ViewChild('WithOrWithoutCode') WithOrWithoutCode!: codesetSelectorComponent;
     @ViewChild('AddTrainingCriteriaDDown') AddTrainingCriteriaDDown!: codesetSelectorComponent;
@@ -74,6 +75,7 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
     public DestinationDataEntryMode: string = "";
     private _ItemsWithIncompleteCoding: number = -1;
     public ChangeDataEntryModeMessage: string = ""; 
+    public ConfirmTrainingListIsGood: string = "";
     private _ScreeningModeOptions: kvSelectFrom[] = [
         { key: 0, value: '[Please select]' },
         { key: 1, value: 'Priority' },
@@ -119,7 +121,7 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
         return this.ReviewInfoService.Contacts;
     }
     public PreviousStep() {
-        if (this.CurrentStep > 1) this.CurrentStep--;
+        if (this.CurrentStep > 0) this.CurrentStep--;
     }
     
     public get CodeSets(): ReviewSet[] {
@@ -134,11 +136,27 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
     }
     public CanGoToStep2(): boolean {
         //console.log("CanGoToStep2()", this.CurrentStep, this.workAllocationFromWizardCommand.numberOfItemsToAssign);
-        return (this.CanGoToNextStep());
+        if (this.selectedCodeSetDropDown == null || (!this.ScreenAllItems && this.DropdownWithWithoutSelectedCode == null)) return false;
+        else return (this.CanGoToNextStep());
     }
     public CanGoToStep3(): boolean {
-        //console.log("CanGoToStep2()", this.CurrentStep, this.workAllocationFromWizardCommand.numberOfItemsToAssign);
-        return (this.CanGoToNextStep());
+        //console.log("CanGoToStep3()", this.revInfo.screeningMode, this.revInfo.screeningCodeSetId, this.selectedCodeSetDropDown == null, !this.CheckAndUpdatePeoplePerItem());
+        if (this.revInfo.screeningMode == "" || this.revInfo.screeningCodeSetId < 1 || this.selectedCodeSetDropDown == null || !this.CheckAndUpdatePeoplePerItem()) return false;
+        //console.log("CanGoToStep3()2", this.ConfirmTrainingListIsGood);
+        return (this.CanChangePeoplePerItem && this.CanGoToNextStep());
+    }
+    public get CanChangeWhatToScreen(): boolean {
+        if (this.selectedCodeSetDropDown == null) return false;
+        else return true;
+    }
+    public get CanChangePeoplePerItem(): boolean {
+        if (this.revInfo.screeningMode == '') return false;
+        if (this.revInfo.screeningMode == "Priority" && this.ConfirmTrainingListIsGood !== "I've checked" && this.CurrentStep != 4) return false;
+        else return true;
+    }
+    public get CanChangeAutoExcludeAndIndexing(): boolean {
+        if (this.revInfo.screeningReconcilliation == "") return false;
+        else return true;
     }
     public GoToAllinOneStep() {
         this.CurrentStep = 4;
@@ -163,6 +181,9 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
             //console.log('CanWrite', false);
             return false;
         }
+    }
+    public get HasAdminRights(): boolean {
+        return this.ReviewerIdentityService.HasAdminRights;
     }
     public get CanEditSelectedSet(): boolean {
         return (this.CanWrite && this.selectedCodeSetDropDown !=null && this.selectedCodeSetDropDown.allowEditingCodeset);
@@ -195,6 +216,7 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
         }
         return "Not Set";
     }
+
     FormatDate(DateSt: string): string {
         return Helpers.FormatDate2(DateSt);
     }
@@ -217,7 +239,7 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
     public get CanSaveConfiguration(): boolean {
         if (!this.CanWrite()) return false;
         if (!this.ConfigurationIsValid) return false;
-        if (JSON.stringify(this.revInfo) === JSON.stringify(this.ReviewInfoService.ReviewInfo)) return false;
+        if (this.CurrentStep == 4 && JSON.stringify(this.revInfo) === JSON.stringify(this.ReviewInfoService.ReviewInfo)) return false;
         return true;
     }
     public get ConfigurationIsValid(): boolean {
@@ -225,7 +247,7 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
         if (this.revInfo.screeningWhatAttributeId < 0) return false; //0 if screen all items more than 0 if screen items with this code
         if (!this.ScreenAllItems && this.revInfo.screeningWhatAttributeId < 1) return false;//screen items with this code: need a valid AttributeId
         if (this.ScreenAllItems && this.revInfo.screeningWhatAttributeId != 0) return false;//screen all items: need this to be 0
-        if (this.PriorityScreeningService.TrainingScreeningCriteria.length == 0) return false;//no codes to learn from
+        if (this.revInfo.screeningMode == "Priority" && this.PriorityScreeningService.TrainingScreeningCriteria.length < 2) return false;//not enough codes to learn from
         if (this.ScreeningModeOptions.findIndex(found => found.value == this.revInfo.screeningMode) < 1) {
             //console.log("type of list isn't set?", this.revInfo.screeningMode);
             return false;//type of list isn't set.
@@ -310,15 +332,21 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
         this.selectedCodeSetDropDown = codeset;
         if (this.revInfo.screeningCodeSetId !== codeset.set_id) {
             this.revInfo.screeningCodeSetId = codeset.set_id;
-            this.ConfirmationDialogService.confirm("Update training codes?",
-                "You have <em>changed</em> the screening tool.<br /> Would you like to automatically update the list of training codes?<br />Training codes are <strong>important</strong>! They define what the machine will learn from, so <strong>please check</strong> that they are correct, in any case."
-                , false, "", "Yes please (I'll check)", "No, I'll do it myself"
-                , "lg")
-                .then((confirmed: any) => {
-                if (confirmed) {
-                    this.DoResetTrainingCodes();
-                }
-            }).catch(() => { });
+            if (this.CurrentStep == 4) {
+                //user is doing the "I'll edit all my settings in one go" thing, so we'll ask what to do.
+                this.ConfirmationDialogService.confirm("Update training codes?",
+                    "You have <em>changed</em> the screening tool.<br /> Would you like to automatically update the list of training codes?<br />Training codes are <strong>important</strong>! They define what the machine will learn from, so <strong>please check</strong> that they are correct, in any case."
+                    , false, "", "Yes please (I'll check)", "No, I'll do it myself"
+                    , "lg")
+                    .then((confirmed: any) => {
+                        if (confirmed) {
+                            this.DoResetTrainingCodes();
+                        }
+                    }).catch(() => { });
+            } else {
+                //we're doing this in the wizard, so we'll silently change the codes in all cases...
+                this.DoResetTrainingCodes();
+            }
         }
     }
     DoResetTrainingCodes() {
@@ -392,7 +420,23 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
         this.AllowEditOnStep4 = false;
         this.CancelEditingAllOptions();
     }
-    
+    async SaveOptionsAndCreateList() {
+        let res: boolean = await this.ReviewInfoService.Update(this.revInfo);
+        if (res) {
+            this.GenerateList();
+            this.AllowEditOnStep4 = false;
+            this.CancelEditingAllOptions();
+            this.Cancel();
+        }
+    }
+    async SaveOptionsAndGoToStep4() {
+        let res: boolean = await this.ReviewInfoService.Update(this.revInfo);
+        if (res) {
+            this.AllowEditOnStep4 = false;
+            this.CancelEditingAllOptions();
+            this.GoToAllinOneStep();
+        }
+    }
     RefreshAll() {
         this.PriorityScreeningService.GetTrainingScreeningCriteriaList();
         this.ReviewInfoService.Fetch();
@@ -424,10 +468,15 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
             return true;//nothing is set, so nothing to check
         }
         else if (this.selectedCodeSetDropDown.codingIsFinal) {
-            if (this.revInfo.screeningReconcilliation != "Single") this.revInfo.screeningReconcilliation != "Single";
+            if (this.revInfo.screeningReconcilliation != "Single") this.revInfo.screeningReconcilliation = "Single";
             if (this.revInfo.screeningNPeople >= 1) {
                 //set is in normal data entry, so we'll automatically set screeningNPeople to 0
-                this.revInfo.screeningNPeople = 0;
+                if (this.revInfo.screeningNPeople == 1) {
+                    this.ngZone.run(() => setTimeout(() => {
+                        console.log("screeningNPeople goes to => 0");
+                        this.revInfo.screeningNPeople = 0;
+                    }, 8));
+                }
                 return true;//true because we fixed it...
             }
             else {//finishing all other options, if set is in normal mode.
@@ -440,7 +489,12 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
             }
             if (this.revInfo.screeningNPeople > 1) return true;
             else {//multiple screening, but n of people 1 or less
-                this.revInfo.screeningNPeople = 1;//just avoiding to have a 0 here...
+                if (this.revInfo.screeningNPeople == 0) {
+                    this.ngZone.run(() => setTimeout(() => {
+                        console.log("screeningNPeople goes to => 1");
+                        this.revInfo.screeningNPeople = 1;
+                    }, 8));//just avoiding to have a 0 here...
+                }//we delay this so to let Angular UI to catch up...
                 return false;//multiple screening, but n of people is 1...
             }
         }
@@ -564,12 +618,7 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
     }
     
 
-    //public get CanSelectAllocationDestination(): boolean {
-    //    if (this.WorkToDoSelectedCodeSet.set_id < 1) return false;
-    //    //if (!this.WorkToDoSelectedCodeSet.codingIsFinal && this.workAllocationFromWizardCommand.peoplePerItem == 1) return false;
-    //    //if (this.WorkToDoSelectedCodeSet.codingIsFinal && this.workAllocationFromWizardCommand.peoplePerItem > 1) return false;
-    //    return true;
-    //}
+
     
 
 

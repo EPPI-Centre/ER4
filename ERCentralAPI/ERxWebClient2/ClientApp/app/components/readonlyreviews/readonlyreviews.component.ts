@@ -114,7 +114,7 @@ export class FetchReadOnlyReviewsComponent implements OnInit, OnDestroy{
     }
 
     getReviews() {
-        console.log('fetching reviews');
+        //console.log('fetching reviews');
         this._readonlyreviewsService.Fetch();
         if (this.IsCochraneUser) this._readonlyreviewsService.FetchArchieReviews();
         ////console.log('inside get reviews');

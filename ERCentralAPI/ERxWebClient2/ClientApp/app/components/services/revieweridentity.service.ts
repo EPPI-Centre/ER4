@@ -458,6 +458,7 @@ export class ReviewerIdentityService implements OnDestroy {
         }
     }
     public LogOut() {
+        this.KillLogonTicketTimer();
         this.reviewerIdentity = new ReviewerIdentity();
     }
     getDaysLeftAccount() {
