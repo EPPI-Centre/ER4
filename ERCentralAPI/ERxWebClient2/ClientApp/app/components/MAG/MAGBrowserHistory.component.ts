@@ -4,11 +4,12 @@ import { MAGBrowserHistoryService } from '../services/MAGBrowserHistory.service'
 import {  Router } from '@angular/router';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { MAGAdvancedService } from '../services/magAdvanced.service';
-import { MagBrowseHistoryItem, topicInfo, MagPaper } from '../services/MAGClasses.service';
+import { MagBrowseHistoryItem, topicInfo, MagPaper, MVCMagPaperListSelectionCriteria } from '../services/MAGClasses.service';
 import { EventEmitterService } from '../services/EventEmitter.service';
 import { of } from 'rxjs';
 import { MAGBrowserService } from '../services/MAGBrowser.service';
 import { BasicMAGService } from '../services/BasicMAG.service';
+import { SetAttribute } from '../services/ReviewSets.service';
 
 @Component({
     selector: 'MAGBrowserHistory',
@@ -167,9 +168,17 @@ export class MAGBrowserHistory implements OnInit {
         }
         
     }
-    public ShowAllWithThisCode(attributeIds: string) {
-
-        this._eventEmitterService.getAttributeIdsEvent.emit(attributeIds);
+    public ShowAllWithThisCode(attributeId: string) {
+        
+            let criteria: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
+            criteria.listType = "ReviewMatchedPapersWithThisCode";
+            criteria.attributeIds = attributeId;
+            criteria.pageSize = 20;
+            this._magAdvancedService.FetchMagPaperList(criteria).then(
+                () => {
+                    this.router.navigate(['MAGBrowser']);
+                }
+            );
     }
     public ShowAutoIdentifiedMatches(magRelatedRunId: number) {
         this._magBrowserService.FetchMAGRelatedPaperRunsListById(magRelatedRunId)
@@ -196,10 +205,6 @@ export class MAGBrowserHistory implements OnInit {
     public ShowSelectedPapersPage() {
         this.router.navigate(['MAGBrowser']);
         this._magBrowserService.onTabSelect(2);
-    }
-    public ShowRelatedPapersPage() {
-
-        alert('not implemented yet');
     }
     public GetParentAndChildRelatedPapers(FieldOfStudy: string, FieldOfStudyId: number) {
 

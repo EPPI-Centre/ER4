@@ -78,13 +78,7 @@ export class MAGBrowser implements OnInit, OnDestroy {
                 );
             }
         );
-        //getAttributeIdsEvent
-        this.getAttriubteIdsSub = this._eventEmitterService.getAttributeIdsEvent.subscribe(
-            (attriubteIds: any) => {
-                console.log('got there..9: ', JSON.stringify(attriubteIds));
-                () => { this.router.navigate(['MAGBrowser']); }
-            }
-        );
+     
         this.browsingHistory = this._routingStateService.getHistory();
         this._magBrowserService.MAGOriginalList.papers = this._magBrowserService.MAGList.papers;
         this._magBrowserService.OrigListCriteria = this._magBrowserService.ListCriteria;
