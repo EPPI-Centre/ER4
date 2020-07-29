@@ -40,20 +40,21 @@ namespace ERxWebClient2.Controllers
             }
             catch (Exception e)
             {
-                _logger.LogException(e, "Getting a MagPaper has an error");
+                _logger.LogException(e, "Getting a Mag Paper has an error");
                 throw;
             }
         }
 
-  
+        // TODO: this needs fixing
         [HttpPost("[action]")]
         public IActionResult UpdateMagPaper([FromBody] MVCMagPaperCorrectnessState magPaperState)
         {
             try
             {
-                SetCSLAUser();
+                if (SetCSLAUser4Writing())
+                {
 
-                DataPortal<MagPaper> dp = new DataPortal<MagPaper>();
+                    DataPortal<MagPaper> dp = new DataPortal<MagPaper>();
                 SingleCriteria<MagPaper, Int64> criteria =
                     new SingleCriteria<MagPaper, Int64>(magPaperState.magPaperId);
 
@@ -77,7 +78,10 @@ namespace ERxWebClient2.Controllers
                     throw new Exception("magPaper has a LinkedITEM_ID of 0!");
                 }
 
-                
+                }
+                else return Forbid();
+
+
             }
             catch (Exception e)
             {
@@ -120,7 +124,7 @@ namespace ERxWebClient2.Controllers
             }
             catch (Exception e)
             {
-                _logger.LogException(e, "Getting a MagPaperList has an error");
+                _logger.LogException(e, "Getting a Mag Paper List has an error");
                 throw;
             }
         }

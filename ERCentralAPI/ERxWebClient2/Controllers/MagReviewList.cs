@@ -37,7 +37,7 @@ namespace ERxWebClient2.Controllers
             }
             catch (Exception e)
             {
-                _logger.LogException(e, "Getting a MagReviewList has an error");
+                _logger.LogException(e, "Getting a MagReview List has an error");
                 throw;
             }
         }
@@ -48,22 +48,26 @@ namespace ERxWebClient2.Controllers
 
             try
             {
-                SetCSLAUser4Writing();
+                if (SetCSLAUser4Writing())
+                {
 
-                MagReview mr = new MagReview();
-                mr.ReviewId = reviewId.Value;
-                mr.Name = "adding review...";
+                    MagReview mr = new MagReview();
+                    mr.ReviewId = reviewId.Value;
+                    mr.Name = "adding review...";
 
-                DataPortal<MagReviewList> dp2 = new DataPortal<MagReviewList>();
-                var magReviewList = dp2.Fetch();
-                magReviewList.Add(mr);
-                magReviewList.SaveItem(mr);
+                    DataPortal<MagReviewList> dp2 = new DataPortal<MagReviewList>();
+                    var magReviewList = dp2.Fetch();
+                    magReviewList.Add(mr);
+                    magReviewList.SaveItem(mr);
 
-                return Ok(mr);
+                    return Ok(mr);
+                }
+
+                else return Forbid();
             }
             catch (Exception e)
             {
-                _logger.LogException(e, "Adding a review to a MagReviewList has an error");
+                _logger.LogException(e, "Adding a review to a MagReview List has an error");
                 throw;
             }
         }
@@ -73,19 +77,26 @@ namespace ERxWebClient2.Controllers
         {
             try
             {
-                SetCSLAUser4Writing();
+                if (SetCSLAUser4Writing())
+                {
 
-                DataPortal<MagReviewList> dp2 = new DataPortal<MagReviewList>();
-                var magReviewList = dp2.Fetch();
+                    DataPortal<MagReviewList> dp2 = new DataPortal<MagReviewList>();
+                    var magReviewList = dp2.Fetch();
 
-                var mr = magReviewList.Where(x => x.ReviewId == reviewId.Value).FirstOrDefault();
-                magReviewList.Remove(mr);
+                    var mr = magReviewList.Where(x => x.ReviewId == reviewId.Value).FirstOrDefault();
+                    if (mr != null)
+                    {
+                        magReviewList.Remove(mr);
 
-                return Ok();
+                    }
+                    return Ok();
+                }
+
+                else return Forbid();
             }
             catch (Exception e)
             {
-                _logger.LogException(e, "Deleting a review from a MagReviewList has an error");
+                _logger.LogException(e, "Deleting a review from a MagReview List has an error");
                 throw;
             }
         }

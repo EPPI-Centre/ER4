@@ -48,27 +48,24 @@ namespace ERxWebClient2.Controllers
         {
             try
             {
-                SetCSLAUser();
-                
-                                
-                //magSQLCurrentInfo.MagVersion = magCurrentInfo.magVersion;
-                //magSQLCurrentInfo.MakesDeploymentStatus = magCurrentInfo.makesDeploymentStatus;
-                //magSQLCurrentInfo.MakesEndPoint = magCurrentInfo.makesEndPoint;
-                //magSQLCurrentInfo.MagFolder = magCurrentInfo.magFolder;
-                //magSQLCurrentInfo.MagOnline = Convert.ToBoolean(magCurrentInfo.magOnline);
-                //magSQLCurrentInfo.MatchingAvailable = Convert.ToBoolean(magCurrentInfo.matchingAvailable);
+                if (SetCSLAUser4Writing())
+                {
 
-                MagCurrentInfo.UpdateMagCurrentInfoStatic();
-                DataPortal<MagCurrentInfo> dp = new DataPortal<MagCurrentInfo>();
-                var magSQLCurrentInfo = MagCurrentInfo.GetMagCurrentInfoServerSide("Live");
+                    // FOR NOW on the MagCurrentInfo business object we contact Azure and get the info to update the DB
+                    // TODO change logic to receive this info from the user in the above MVC object
+                    // after we have listed the info on the UI
+                    MagCurrentInfo.UpdateMagCurrentInfoStatic();
+                    DataPortal<MagCurrentInfo> dp = new DataPortal<MagCurrentInfo>();
+                    var magSQLCurrentInfo = MagCurrentInfo.GetMagCurrentInfoServerSide("Live");
 
-                //magSQLCurrentInfo = magSQLCurrentInfo.Save(true);
+                    return Ok(magSQLCurrentInfo);
 
-                return Ok(magSQLCurrentInfo);
+                }
+                else return Forbid();
             }
             catch (Exception e)
             {
-                _logger.LogException(e, "Getting a MagCurrentInfo has an error");
+                _logger.LogException(e, "updating a MagCurrentInfo has an error");
                 throw;
             }
         }
@@ -156,17 +153,11 @@ namespace ERxWebClient2.Controllers
             }
             catch (Exception e)
             {
-                _logger.LogException(e, "GetMAGBlobCommand has an error");
+                _logger.LogException(e, "Getting a MAGBlobCommand has an error");
                 throw;
             }
         }
-
-
-
-
     }
-
-  
 }
 
 public class MVCMagCurrentInfo

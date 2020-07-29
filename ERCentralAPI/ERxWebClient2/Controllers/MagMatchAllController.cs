@@ -1,6 +1,5 @@
 using System;
 using BusinessLibrary.BusinessClasses;
-using BusinessLibrary.Security;
 using Csla;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -28,15 +27,20 @@ namespace ERxWebClient2.Controllers
         {
 			try
             {
-                SetCSLAUser();
+                if (SetCSLAUser4Writing())
+                {
 
-                DataPortal<MagMatchItemsToPapersCommand> dp = new DataPortal<MagMatchItemsToPapersCommand>();
+                    DataPortal<MagMatchItemsToPapersCommand> dp = new DataPortal<MagMatchItemsToPapersCommand>();
                 MagMatchItemsToPapersCommand GetMatches = new MagMatchItemsToPapersCommand("FindMatches",
                    true, 0, attributeId.Value);
 
                 GetMatches = dp.Execute(GetMatches);
 
                 return Ok(GetMatches.currentStatus);
+
+                }
+
+                else return Forbid();
             }
             catch (Exception e)
             {
@@ -51,19 +55,24 @@ namespace ERxWebClient2.Controllers
         {
             try
             {
-                SetCSLAUser();
+                if (SetCSLAUser4Writing())
+                {
 
-                DataPortal<MagMatchItemsToPapersCommand> dp = new DataPortal<MagMatchItemsToPapersCommand>();
-                MagMatchItemsToPapersCommand GetMatches = new MagMatchItemsToPapersCommand("FindMatches",
-                   false, itemId.Value, 0);
+                    DataPortal<MagMatchItemsToPapersCommand> dp = new DataPortal<MagMatchItemsToPapersCommand>();
+                    MagMatchItemsToPapersCommand GetMatches = new MagMatchItemsToPapersCommand("FindMatches",
+                       false, itemId.Value, 0);
 
-                GetMatches = dp.Execute(GetMatches);
+                    GetMatches = dp.Execute(GetMatches);
 
-                return Ok(GetMatches);
+                    return Ok(GetMatches);
+
+                }
+
+                else return Forbid();
             }
             catch (Exception e)
             {
-                _logger.LogException(e, "MagMatchItemsToPapers has an error");
+                _logger.LogException(e, "Matching MAG Items To Papers has an error");
                 throw;
             }
         }
@@ -74,19 +83,24 @@ namespace ERxWebClient2.Controllers
         {
             try
             {
-                SetCSLAUser();
+                if (SetCSLAUser4Writing())
+                {
 
-                DataPortal<MagMatchItemsToPapersCommand> dp = new DataPortal<MagMatchItemsToPapersCommand>();
-                MagMatchItemsToPapersCommand GetMatches = new MagMatchItemsToPapersCommand("Clear",
-                   false, itemId.Value, 0);
+                    DataPortal<MagMatchItemsToPapersCommand> dp = new DataPortal<MagMatchItemsToPapersCommand>();
+                    MagMatchItemsToPapersCommand GetMatches = new MagMatchItemsToPapersCommand("Clear",
+                       false, itemId.Value, 0);
 
-                GetMatches = dp.Execute(GetMatches);
+                    GetMatches = dp.Execute(GetMatches);
 
-                return Ok(GetMatches.currentStatus);
+                    return Ok(GetMatches.currentStatus);
+
+                }
+
+                else return Forbid();
             }
             catch (Exception e)
             {
-                _logger.LogException(e, "MagMatchItemsToPapers has an error");
+                _logger.LogException(e, "Clearing MAG MatchItemsToPapers has an error");
                 throw;
             }
         }
@@ -96,19 +110,24 @@ namespace ERxWebClient2.Controllers
         {
             try
             {
-                SetCSLAUser();
+                if (SetCSLAUser4Writing())
+                {
 
-                DataPortal<MagMatchItemsToPapersCommand> dp = new DataPortal<MagMatchItemsToPapersCommand>();
-                MagMatchItemsToPapersCommand GetMatches = new MagMatchItemsToPapersCommand("Clear",
+                    DataPortal<MagMatchItemsToPapersCommand> dp = new DataPortal<MagMatchItemsToPapersCommand>();
+                     MagMatchItemsToPapersCommand GetMatches = new MagMatchItemsToPapersCommand("Clear",
                    true, 0, attributeId.Value);
 
-                GetMatches = dp.Execute(GetMatches);
+                    GetMatches = dp.Execute(GetMatches);
 
-                return Ok(GetMatches.currentStatus);
+                    return Ok(GetMatches.currentStatus);
+
+                }
+
+                else return Forbid();
             }
             catch (Exception e)
             {
-                _logger.LogException(e, "MagMatchItemsToPapers has an error");
+                _logger.LogException(e, "Clearing ALL MAG MatchItemsToPapers has an error");
                 throw;
             }
         }
