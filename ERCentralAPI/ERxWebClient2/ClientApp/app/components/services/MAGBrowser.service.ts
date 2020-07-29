@@ -4,9 +4,9 @@ import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
 import {
     MagList, MagPaper, MVCMagFieldOfStudyListSelectionCriteria,
-    MVCMagPaperListSelectionCriteria, MagFieldOfStudy, MvcMagFieldOfStudyListSelectionCriteria, TopicLink, MagItemPaperInsertCommand
-} from '../services/MAGClasses.service';
-import { SelectEvent, TabStripComponent } from '@progress/kendo-angular-layout';
+    MVCMagPaperListSelectionCriteria, MagFieldOfStudy, MvcMagFieldOfStudyListSelectionCriteria,
+    TopicLink, MagItemPaperInsertCommand} from '../services/MAGClasses.service';
+import { TabStripComponent } from '@progress/kendo-angular-layout';
 
 @Injectable({
 	    providedIn: 'root',
@@ -14,7 +14,6 @@ import { SelectEvent, TabStripComponent } from '@progress/kendo-angular-layout';
 )
 
 export class MAGBrowserService extends BusyAwareService {
-
 
     constructor(
         private _httpC: HttpClient,
@@ -437,7 +436,7 @@ export class MAGBrowserService extends BusyAwareService {
         this._Criteria.pageNumber = pageNum;
         return this.FetchWithCrit(this._Criteria, this.ListDescription);
     }
-    //MAG Original List Paging Methods
+    //MAG Original List Paging Methods; could be refactored to remove duplication, check all works first
     public FetchOrigNextPage() {
         if (this.MAGOriginalList.pageindex < this.MAGOriginalList.pagecount - 1) {
             this.MAGOriginalList.pageindex += 1;
