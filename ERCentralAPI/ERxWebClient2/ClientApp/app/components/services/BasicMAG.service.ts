@@ -118,7 +118,6 @@ export class BasicMAGService extends BusyAwareService {
             closable: true
         });
     }
-
     ImportMagRelatedRunPapers(magRelatedRun: MagRelatedPapersRun) {
 
         let notificationMsg: string = '';
@@ -155,7 +154,6 @@ export class BasicMAGService extends BusyAwareService {
                     this.RemoveBusy("ImportMagRelatedRunPapers");
                 });
     }
-
     UpdateMagRelatedRun(magRelatedRun: MagRelatedPapersRun) {
 
         this._BusyMethods.push("UpdateMagRelatedRun");
@@ -168,7 +166,7 @@ export class BasicMAGService extends BusyAwareService {
                     if (result.magRelatedRunId > 0) {
                         let tmpIndex: any = this.MagRelatedPapersRunList.findIndex(x => x.magRelatedRunId == Number(result.magRelatedRunId));
                         if (tmpIndex > -1) {
-                            console.log(tmpIndex);
+                           
                             this.MagRelatedPapersRunList[tmpIndex] = result;
                         }
                         this.showMAGRunMessage('MAG search was updated');

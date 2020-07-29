@@ -303,9 +303,19 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
         criteria.included = "Excluded";
         criteria.pageSize = 20;
 
-        this._magAdvancedService.FetchMagPaperList(criteria).then(
+        this._magBrowserService.FetchWithCrit(criteria, "ReviewMatchedPapers").then(
+
             () => {
-                this.router.navigate(['MAGBrowser']);
+
+                let criteria2: MVCMagFieldOfStudyListSelectionCriteria = new MVCMagFieldOfStudyListSelectionCriteria();
+                criteria2.fieldOfStudyId = 0;
+                criteria2.listType = 'PaperFieldOfStudyList';
+                criteria2.paperIdList = this._magBrowserService.ListCriteria.paperIds;
+                criteria2.SearchTextTopics = ''; //TODO this will be populated by the user..
+                this._magBrowserService.FetchMagFieldOfStudyList(criteria2, 'ReviewMatchedPapers').then(
+
+                    () => { this.router.navigate(['MAGBrowser']); }
+                );
             }
         );
     }
@@ -314,15 +324,24 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
             0, "", "", 0, "", "", 0, "", "", 0);
         this._mAGBrowserHistoryService.IncrementHistoryCount();
         this._mAGBrowserHistoryService.AddToBrowseHistory(item);
-
         let criteria: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
         criteria.listType = "ReviewMatchedPapers";
-        criteria.included = "All";
+        criteria.included = "all";
         criteria.pageSize = 20;
-        this._magAdvancedService.CurrentCriteria = criteria;
-        this._magAdvancedService.FetchMagPaperList(criteria).then(
+
+        this._magBrowserService.FetchWithCrit(criteria, "ReviewMatchedPapers").then(
+
             () => {
-                this.router.navigate(['MAGBrowser']);
+
+                let criteria2: MVCMagFieldOfStudyListSelectionCriteria = new MVCMagFieldOfStudyListSelectionCriteria();
+                criteria2.fieldOfStudyId = 0;
+                criteria2.listType = 'PaperFieldOfStudyList';
+                criteria2.paperIdList = this._magBrowserService.ListCriteria.paperIds;
+                criteria2.SearchTextTopics = ''; //TODO this will be populated by the user..
+                this._magBrowserService.FetchMagFieldOfStudyList(criteria2, 'ReviewMatchedPapers').then(
+
+                    () => { this.router.navigate(['MAGBrowser']); }
+                );
             }
         );
     }

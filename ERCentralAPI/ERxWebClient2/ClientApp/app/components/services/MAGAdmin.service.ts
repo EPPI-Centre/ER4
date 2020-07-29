@@ -2,7 +2,7 @@ import { Injectable, Inject } from "@angular/core";
 import { ModalService } from "./modal.service";
 import { HttpClient } from "@angular/common/http";
 import { BusyAwareService } from "../helpers/BusyAwareService";
-import { MAGBlobCommand, MAGLog, MAGLogList, MAGReview, MagCurrentInfo } from "./MAGClasses.service";
+import { MAGBlobCommand, MAGLog, MAGReview, MagCurrentInfo } from "./MAGClasses.service";
 
 @Injectable({
 
@@ -11,8 +11,6 @@ import { MAGBlobCommand, MAGLog, MAGLogList, MAGReview, MagCurrentInfo } from ".
 })
 export class MAGAdminService extends BusyAwareService {
 
-
-    
     constructor(
         private _httpC: HttpClient,
         private modalService: ModalService,
@@ -53,8 +51,13 @@ export class MAGAdminService extends BusyAwareService {
         this._httpC.post<MAGReview>(this._baseUrl + 'api/MagReviewList/AddReviewToMagList', body)
             .toPromise().then( (result) => {
                 this.RemoveBusy("AddReview");
-                this.MAGReviewList.push(result);
-                return true;
+                if (result != null) {
+                    this.MAGReviewList.push(result);
+                    return true;
+
+                } else {
+                    return false;
+                }
             },
             (error) => {
                 this.RemoveBusy("AddReview");
@@ -68,15 +71,14 @@ export class MAGAdminService extends BusyAwareService {
         this._httpC.post<boolean>(this._baseUrl + 'api/MagReviewList/DeleteReview', body)
             .toPromise().then(() => {
                 this.RemoveBusy("DeleteReview");
-
                 let index: number = this.MAGReviewList.findIndex(x => x.reviewId == reviewId);
-                console.log('got in here index 1', index);
-
                 if (index > -1) {
-                    console.log('got in here index 2', index);
                     this.MAGReviewList.splice(index, 1);
+                    return true;
+                } else {
+                    return false;
                 }
-                return true;
+                
             },
                 (error) => {
                     this.RemoveBusy("DeleteReview");
@@ -114,7 +116,6 @@ export class MAGAdminService extends BusyAwareService {
             .subscribe(result => {
                 this.RemoveBusy("GetMAGLogList");
                 if (result != null) {
-                    console.log(result)
                     this.MAGLogList = result;
                 }
             },
@@ -133,7 +134,6 @@ export class MAGAdminService extends BusyAwareService {
             .subscribe(result => {
                 this.RemoveBusy("MAGReviewList");
                 if (result != null) {
-                    console.log(result)
                     this.MAGReviewList = result;
                 }
             },
@@ -153,7 +153,6 @@ export class MAGAdminService extends BusyAwareService {
             .subscribe(result => {
                 this.RemoveBusy("UpdateMagCurrentInfo");
                 if (result != null) {
-                    console.log(result)
                     this.MagCurrentInfo = result;
                 }
             },
@@ -165,14 +164,12 @@ export class MAGAdminService extends BusyAwareService {
                     this.RemoveBusy("UpdateMagCurrentInfo");
                 });
     }
-
     public FetchMagCurrentInfo() {
         this._BusyMethods.push("FetchMagCurrentInfo");
         this._httpC.get<MagCurrentInfo>(this._baseUrl + 'api/MagCurrentInfo/GetMagCurrentInfo')
             .subscribe(result => {
                 this.RemoveBusy("FetchMagCurrentInfo");
                 if (result != null) {
-                    console.log(result)
                     this.MagCurrentInfo = result;
                 }
             },
