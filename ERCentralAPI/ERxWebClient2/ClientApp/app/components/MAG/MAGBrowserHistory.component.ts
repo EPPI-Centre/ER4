@@ -4,12 +4,10 @@ import { MAGBrowserHistoryService } from '../services/MAGBrowserHistory.service'
 import {  Router } from '@angular/router';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { MAGAdvancedService } from '../services/magAdvanced.service';
-import { MagBrowseHistoryItem, topicInfo, MagPaper, MVCMagPaperListSelectionCriteria } from '../services/MAGClasses.service';
+import { MagBrowseHistoryItem, MagPaper, MVCMagPaperListSelectionCriteria } from '../services/MAGClasses.service';
 import { EventEmitterService } from '../services/EventEmitter.service';
-import { of } from 'rxjs';
 import { MAGBrowserService } from '../services/MAGBrowser.service';
 import { BasicMAGService } from '../services/BasicMAG.service';
-import { SetAttribute } from '../services/ReviewSets.service';
 
 @Component({
     selector: 'MAGBrowserHistory',
@@ -48,16 +46,14 @@ export class MAGBrowserHistory implements OnInit {
         //this.router.navigate([url]);
         this.NavigateToThisPoint(index);
     }
-    //RemoveUrl(item: NavigationEnd) {
+    RemoveUrl(index: number) {
 
-    //    let id: number = item.id;
-    //    let index: number = this.MAGBrowsingHistory.findIndex(x => x.id == id);
-    //    if (index != -1) {
-    //    this.MAGBrowsingHistory.splice(index,1);
-    //    }
-    //}
+        if (index != -1) {
+            this._MAGBrowserHistoryService._MAGBrowserHistoryList.splice(index,1);
+        }
+    }
     public ClearHistory() {
-        this._MAGBrowserHistoryService.ClearHistory();
+        this._MAGBrowserHistoryService._MAGBrowserHistoryList = [];
     }
     public get IsServiceBusy(): boolean {
 

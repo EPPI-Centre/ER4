@@ -23,7 +23,7 @@ import { MAGSimulationService } from '../services/MAGSimulation.service';
 
 export class AdvancedMAGFeaturesComponent implements OnInit, OnDestroy {
 
-    history: NavigationEnd[] = [];
+    //history: NavigationEnd[] = [];
     constructor(private ConfirmationDialogService: ConfirmationDialogService,
         private _magSimulationService: MAGSimulationService,
         public _magAdvancedService: MAGAdvancedService,

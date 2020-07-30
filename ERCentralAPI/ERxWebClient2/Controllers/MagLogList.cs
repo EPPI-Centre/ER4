@@ -37,7 +37,7 @@ namespace ERxWebClient2.Controllers
             }
             catch (Exception e)
             {
-                _logger.LogException(e, "Getting a MagLogList has an error");
+                _logger.LogException(e, "Getting a MagLog List has an error");
                 throw;
             }
         }

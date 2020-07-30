@@ -37,7 +37,7 @@ namespace ERxWebClient2.Controllers
             }
             catch (Exception e)
             {
-                _logger.LogException(e, "Getting a MagReview List has an error");
+                _logger.LogException(e, "Getting a Mag Review List has an error");
                 throw;
             }
         }
@@ -67,7 +67,7 @@ namespace ERxWebClient2.Controllers
             }
             catch (Exception e)
             {
-                _logger.LogException(e, "Adding a review to a MagReview List has an error");
+                _logger.LogException(e, "Adding a review to a Mag Review List has an error");
                 throw;
             }
         }
@@ -96,7 +96,7 @@ namespace ERxWebClient2.Controllers
             }
             catch (Exception e)
             {
-                _logger.LogException(e, "Deleting a review from a MagReview List has an error");
+                _logger.LogException(e, "Deleting a review from a Mag Review List has an error");
                 throw;
             }
         }

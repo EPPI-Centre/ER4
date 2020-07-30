@@ -49,7 +49,7 @@ namespace ERxWebClient2.Controllers
             }
             catch (Exception e)
             {
-                _logger.LogException(e, "Getting a MagFieldOfStudyList has an error");
+                _logger.LogException(e, "Getting a MagFieldOfStudy List has an error");
                 throw;
             }
         }

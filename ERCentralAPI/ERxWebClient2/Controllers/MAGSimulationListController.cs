@@ -84,7 +84,6 @@ namespace ERxWebClient2.Controllers
 			catch (Exception e)
 			{
 				_logger.LogException(e, "Creating a MAG Simulation has an error");
-                //TODO investigating bug
 				throw;
 			}
 		}
@@ -120,10 +119,6 @@ namespace ERxWebClient2.Controllers
 
     public class MVCMagSimulation
 	{
-
-        //    newSimulation.YearEnd = SimulationYearEnd.Year;
-        //    newSimulation.CreatedDateEnd = CreatedDateEnd;
-
 
         public int magSimulationId = 0;
         public int reviewId= 0;

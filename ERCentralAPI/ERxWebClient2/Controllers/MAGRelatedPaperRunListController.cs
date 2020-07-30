@@ -37,7 +37,7 @@ namespace ERxWebClient2.Controllers
             }
             catch (Exception e)
             {
-                _logger.LogException(e, "Getting a MagRelatedPapers Run list has an error");
+                _logger.LogException(e, "Getting a Mag Related Papers Run list has an error");
                 throw;
             }
         }
@@ -67,7 +67,7 @@ namespace ERxWebClient2.Controllers
             }
             catch (Exception e)
             {
-                _logger.LogException(e, "Getting a MagRelatedPapersRun list by Id has an error");
+                _logger.LogException(e, "Getting a Mag Related Papers Run by Id has an error");
                 throw;
             }
 		}
@@ -109,7 +109,7 @@ namespace ERxWebClient2.Controllers
 			}
 			catch (Exception e)
 			{
-				_logger.LogException(e, "Creating a MagRelatedPapersRun has an error");
+				_logger.LogException(e, "Creating a Mag Related Papers Run has an error");
 				throw;
 			}
 		}
@@ -135,7 +135,7 @@ namespace ERxWebClient2.Controllers
 			}
 			catch (Exception e)
 			{
-				_logger.LogException(e, "Deleting a MagRelatedPapersRun has an error");
+				_logger.LogException(e, "Deleting a Mag Related Papers Run has an error");
 				throw;
 			}
 		}
@@ -178,7 +178,7 @@ namespace ERxWebClient2.Controllers
             }
             catch (Exception e)
             {
-                _logger.LogException(e, "Updating a MagRelatedRunAutoReRun has an error");
+                _logger.LogException(e, "Updating a Mag Related Run Auto-ReRun has an error");
                 throw;
             }
         }
@@ -206,7 +206,7 @@ namespace ERxWebClient2.Controllers
             }
             catch (Exception e)
             {
-                _logger.LogException(e, "Importing a MagRelatedPaper list has an error");
+                _logger.LogException(e, "Importing a Mag Related Paper list has an error");
                 throw;
             }
         }
@@ -233,7 +233,7 @@ namespace ERxWebClient2.Controllers
             }
             catch (Exception e)
             {
-                _logger.LogException(e, "Importing a MagRelatedPaper list has an error");
+                _logger.LogException(e, "Importing a Mag Related Selected Paper list has an error");
                 throw;
             }
         }

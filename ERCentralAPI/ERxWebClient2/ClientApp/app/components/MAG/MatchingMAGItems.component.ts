@@ -24,7 +24,7 @@ import { NotificationService } from '@progress/kendo-angular-notification';
 
 export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
 
-    history: NavigationEnd[] = [];
+    //history: NavigationEnd[] = [];
     constructor(private ConfirmationDialogService: ConfirmationDialogService,
         public _magBasicService: BasicMAGService,
         public _magAdvancedService: MAGAdvancedService,
@@ -40,7 +40,7 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
 
     ) {
 
-        this.history = this._routingStateService.getHistory();
+        //this.history = this._routingStateService.getHistory();
     }
     //public sub: Subscription = new Subscription();
     public SearchTextTopic: string = '';

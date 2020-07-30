@@ -65,7 +65,7 @@ namespace ERxWebClient2.Controllers
             }
             catch (Exception e)
             {
-                _logger.LogException(e, "updating a MagCurrentInfo has an error");
+                _logger.LogException(e, "updating the  MagCurrent Info has an error");
                 throw;
             }
         }
@@ -84,7 +84,7 @@ namespace ERxWebClient2.Controllers
             }
             catch (Exception e)
             {
-                _logger.LogException(e, "Getting a MagReviewMagInfo Command has an error");
+                _logger.LogException(e, "Getting a MagReviewMag Info Command has an error");
                 throw;
             }
         }
@@ -108,7 +108,7 @@ namespace ERxWebClient2.Controllers
             }
             catch (Exception e)
             {
-                _logger.LogException(e, "MagCheckContReviewRunningCommand has an error");
+                _logger.LogException(e, "MagCheckContReviewRunning Command has an error");
                 throw;
             }
         }

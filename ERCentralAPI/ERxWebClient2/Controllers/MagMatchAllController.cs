@@ -44,7 +44,7 @@ namespace ERxWebClient2.Controllers
             }
             catch (Exception e)
             {
-                _logger.LogException(e, "RunMatchingAlgorithm has an error");
+                _logger.LogException(e, "Running Matching Algorithm has an error");
                 throw;
             }
 		}
@@ -100,7 +100,7 @@ namespace ERxWebClient2.Controllers
             }
             catch (Exception e)
             {
-                _logger.LogException(e, "Clearing MAG MatchItemsToPapers has an error");
+                _logger.LogException(e, "Clearing MAG Match Items To Papers has an error");
                 throw;
             }
         }
@@ -127,7 +127,7 @@ namespace ERxWebClient2.Controllers
             }
             catch (Exception e)
             {
-                _logger.LogException(e, "Clearing ALL MAG MatchItemsToPapers has an error");
+                _logger.LogException(e, "Clearing ALL MAG Match Items To Papers has an error");
                 throw;
             }
         }

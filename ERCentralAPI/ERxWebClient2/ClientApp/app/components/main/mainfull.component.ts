@@ -487,7 +487,6 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
             || (this.reviewSetsService.ReviewSets.length > 0 && this.codesetStatsServ.tmpCodesets.length == 0)
         ) this.Reload();
         
-        this._routingStateService.loadRouting();
 	}
 	public LoadComparisonList(comparison: Comparison, ListSubType: string) {
 

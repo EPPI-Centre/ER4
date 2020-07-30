@@ -1,6 +1,4 @@
-import { Injectable, Inject } from "@angular/core";
-import { Router,  NavigationEnd } from '@angular/router';
-import { filter } from "rxjs/operators";
+import { Injectable } from "@angular/core";
 import { Subscription } from "rxjs";
 import { BusyAwareService } from "../helpers/BusyAwareService";
 import { MagBrowseHistoryItem } from "./MAGClasses.service";
@@ -12,40 +10,38 @@ import { MagBrowseHistoryItem } from "./MAGClasses.service";
 })
 
 export class MAGBrowserHistoryService extends BusyAwareService  {
-    private history: NavigationEnd[] = [];
+    //private history: NavigationEnd[] = [];
     public MAGSubscription: Subscription = new Subscription();
     public _MAGBrowserHistoryList: MagBrowseHistoryItem[] = [];
     constructor(
-        private router: Router,
-        @Inject('BASE_URL') private _baseUrl: string
     ) {
         super();
     }
     public currentBrowsePosition: number = 0;
-    public loadRouting(): void {
+    //public loadRouting(): void {
 
-        this.MAGSubscription = this.router.events
-            .pipe(filter(event => event instanceof NavigationEnd))
+    //    this.MAGSubscription = this.router.events
+    //        .pipe(filter(event => event instanceof NavigationEnd))
 
-            .subscribe(
-                    ( url: any) =>
-                    {
-                        var navigationURL = url as NavigationEnd;
-                        this.history = [...this.history, navigationURL];
-                    });
-    }
-    public getHistory(): NavigationEnd[] {
-        return this.history;
+    //        .subscribe(
+    //                ( url: any) =>
+    //                {
+    //                    var navigationURL = url as NavigationEnd;
+    //                    this.history = [...this.history, navigationURL];
+    //                });
+    //}
+    //public getHistory(): NavigationEnd[] {
+    //    return this.history;
 
-    }
-    public ClearHistory() {
+    //}
+    //public ClearHistory() {
 
-        this.history = [];
-    }
-    public getPreviousUrl(): NavigationEnd {
+    //    this.history = [];
+    //}
+    //public getPreviousUrl(): NavigationEnd {
 
-        return this.history[this.history.length - 2] || '/index';
-    }
+    //    return this.history[this.history.length - 2] || '/index';
+    //}
     public UnsubscribeMAGHistory() {
 
         this.MAGSubscription.unsubscribe();
