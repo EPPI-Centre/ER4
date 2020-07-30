@@ -71,8 +71,6 @@ export class MAGBrowser implements OnInit, OnDestroy {
         this.getTopicsSub = this._eventEmitterService.getTopicsEvent.subscribe(
             (topicInfo: any) => {
 
-                console.log('got there..8: ', JSON.stringify(topicInfo));
-
                 this._magBrowserService.GetParentAndChildFieldsOfStudy(topicInfo.fieldOfStudy, topicInfo.fieldOfStudyId).then(
                     () => { this.router.navigate(['MAGBrowser']); }
                 );

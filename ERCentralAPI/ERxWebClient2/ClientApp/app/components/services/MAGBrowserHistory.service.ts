@@ -2,9 +2,6 @@ import { Injectable, Inject } from "@angular/core";
 import { Router,  NavigationEnd } from '@angular/router';
 import { filter } from "rxjs/operators";
 import { Subscription } from "rxjs";
-import { MAGBrowserService } from "./MAGBrowser.service";
-import { HttpClient } from "@angular/common/http";
-import { ModalService } from "./modal.service";
 import { BusyAwareService } from "../helpers/BusyAwareService";
 import { MagBrowseHistoryItem } from "./MAGClasses.service";
 
@@ -19,9 +16,6 @@ export class MAGBrowserHistoryService extends BusyAwareService  {
     public MAGSubscription: Subscription = new Subscription();
     public _MAGBrowserHistoryList: MagBrowseHistoryItem[] = [];
     constructor(
-        private _httpC: HttpClient,
-        private _magBrowserService: MAGBrowserService,
-        private modalService: ModalService,
         private router: Router,
         @Inject('BASE_URL') private _baseUrl: string
     ) {
@@ -65,9 +59,7 @@ export class MAGBrowserHistoryService extends BusyAwareService  {
     }
     public AddToBrowseHistory(item: MagBrowseHistoryItem ) {
 
-        console.log('1', item);
         this._MAGBrowserHistoryList.push(item);
-        console.log('2', this._MAGBrowserHistoryList);
 
         //TODO in the future when it is going to the DB
         //this._BusyMethods.push("AddToBrowseHistory");
@@ -85,7 +77,6 @@ export class MAGBrowserHistoryService extends BusyAwareService  {
 
     public FetchMAGBrowserHistory() {
 
-        console.log('3', this._MAGBrowserHistoryList);
         return this._MAGBrowserHistoryList;
          //TODO in the future when it is going to the DB
         //this._BusyMethods.push("FetchMAGBrowserHistory");
