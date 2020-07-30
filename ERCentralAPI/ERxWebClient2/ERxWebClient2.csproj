@@ -112,6 +112,7 @@
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemDocumentSaveCommand.cs" Link="Models\ItemDocumentSaveCommand.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemDuplicateGroup.cs" Link="Models\ItemDuplicateGroup.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemDuplicateGroupMember.cs" Link="Models\ItemDuplicateGroupMember.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemDuplicateGroupsDeleteCommand.cs" Link="Models\ItemDuplicateGroupsDeleteCommand.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemDuplicateManualGroupMember.cs" Link="Models\ItemDuplicateManualGroupMember.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemDuplicateReadOnlyGroup.cs" Link="Models\ItemDuplicateReadOnlyGroup.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemDuplicateReadOnlyGroupList.cs" Link="Models\ItemDuplicateReadOnlyGroupList.cs" />

@@ -59,9 +59,33 @@
                                [data]="MarkAutomaticallyDDData"
                                style="border-color: #04070b;background-color: #e1e4eb;">
             </kendo-splitbutton>
+            <button kendoButton class="mx-1" [disabled]="!HasWriteRights" [title]="'Show More Functionalities...'"
+                    (click)="ShowingMore = !ShowingMore">
+                {{ShowOrHideMoreToolbarText}}
+            </button>
             <div class="align-self-center small ml-1 mr-0 my-0">&nbsp;<b>{{DuplicateGroups?.length}}</b>&nbsp;groups of possible duplicates loaded (<b>{{CompletedGroups}}</b> marked as completed).</div>
-
         </div>
+        <div *ngIf="ShowingMore" class="containsAtoolbar row bg-white  border  ml-2 mr-1 my-1 p-1" >
+            <kendo-splitbutton class="ml-1"
+                               [text]="'Find Related Groups'"
+                               (buttonClick)="FindRelatedGroups()"
+                               [data]="FindGroupsDDData"
+                               style="border-color: #04070b;background-color: #e1e4eb;">
+            </kendo-splitbutton>
+            <kendo-splitbutton class="ml-1"
+                               [text]="'Soft Reset...'"
+                               (buttonClick)="SoftReset()"
+                               [disabled]="!HasWriteRights"
+                               [data]="ResetDDData"
+                               style="border-color: #04070b;background-color: #e1e4eb;">
+            </kendo-splitbutton>
+            <button kendoButton class="ml-1" [title]="'Deletes the currently shown group'" [disabled]="!HasWriteRights || CurrentGroup == null"
+                    (click)="DeleteCurrentGroup(CurrentGroup.groupID)">
+                Delete This Group
+            </button>
+        </div>
+
+
         <div *ngIf="!CurrentGroup" class="m-3 p-2 alert-info">
             Please click on a group to see the group details.
         </div>
@@ -119,6 +143,16 @@
             </div>
 
         </div>
+
+        <div *ngIf="ActivePanel == 'FindByItemIDs'" class="row m-1 p-1 alert-light border border-info rounded">
+            <div class="col-12">Find Groups with these item IDs (comma separated):</div>
+            <input class="col-11 mx-2" type="text" maxlength="4000" [(ngModel)]="ItemIDsearchString" />
+            <button class="btn btn-sm py-0 px-1 m-1 btn-success" (click)="FindByItemIDs(member, true)">Find</button>
+            <button class="btn btn-sm py-0 px-1 m-1 btn-outline-dark" (click)="ResetActivePanel()">Cancel</button>
+        </div>
+
+
+
         <div *ngIf="CurrentGroup" class="mt-1 p-0" style="max-height:80vh; overflow:auto;">
             <table class="table-bordered table table-sm m-0 p-0">
                 <tr class="alert-info ">

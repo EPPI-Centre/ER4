@@ -9,10 +9,10 @@
 	</div>
 	<div *ngIf="ShowInputTextWarning" class="modal-body bg-white p-1 mb-1">
 		<input class="form-control rounded border border-dark " type="text" name="ShowInputTextWarning"  
-		[(ngModel)] ="UserInputTextArms"  />
+		[(ngModel)] ="UserInputConfirmationText"  />
 	</div>
 	<div class="modal-footer bg-white">
 		<button type="button" class="btn btn-outline-secondary ml-1" (click)="decline()" style="width:200px;">{{ btnCancelText }}</button>
-		<button type="button" class="btn btn-danger ml-3" (click)="accept()" [disabled]="CheckInputBoxEntry()">{{ btnOkText }}</button>
+		<button type="button" class="btn btn-danger ml-3" (click)="accept()" [disabled]="!CheckInputBoxEntry()">{{ btnOkText }}</button>
 	</div>
 </div>

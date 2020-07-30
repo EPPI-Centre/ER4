@@ -10,11 +10,12 @@ export class ConfirmationDialogComponent implements OnInit {
 
 	@Input() title: string='';
 	@Input() message: string='';
-	@Input() btnOkText: string='';
-	@Input() btnCancelText: string = '';
+    @Input() btnOkText: string = '';
+    @Input() btnCancelText: string = '';
+    @Input() RequiredConfirmationTxt: string = ''; 
 	//@Output() action = new EventEmitter<string>();
 
-	public UserInputTextArms: string = '';
+	public UserInputConfirmationText: string = '';
 
 	public ShowInputTextWarning: boolean = false;
 	
@@ -30,26 +31,14 @@ export class ConfirmationDialogComponent implements OnInit {
 		this.activeModal.close(false);
 	}
 
-	CheckInputBoxEntry(): boolean {
-
-		if (this.message.indexOf('I confirm') == -1) {
-			return false;
-		}
-		else if (this.message.indexOf('I confirm') > 0 && this.UserInputTextArms  == 'I confirm') {
-
-			return false;
-		} else {
-			//console.log(this.message);
-			return true;
-		}
+    CheckInputBoxEntry(): boolean {
+        //console.log("CheckInputBoxEntry", this.UserInputConfirmationText, "<->", this.RequiredConfirmationTxt);
+        return this.UserInputConfirmationText.toLowerCase().trim() == this.RequiredConfirmationTxt.toLowerCase().trim();
 	}
 	   
 	public accept() {
-
-		this.eventsService.UserInput = this.UserInputTextArms;
-		
+        this.eventsService.UserInput = this.UserInputConfirmationText;
 		this.activeModal.close(true);
-
 	}
 
 	public dismiss() {

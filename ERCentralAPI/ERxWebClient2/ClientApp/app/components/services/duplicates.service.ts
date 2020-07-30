@@ -32,11 +32,12 @@ export class DuplicatesService extends BusyAwareService implements OnInit, OnDes
     public DuplicateGroups: iReadOnlyDuplicatesGroup[] = [];
     public CurrentGroup: ItemDuplicateGroup | null = null;
     public LocalSort: LocalSort = new LocalSort();
+    private waitPeriod = 3;//in minutes... time that people have to wait before we can FetchGroups if last attempt told us "execution still running"
+
     public FetchGroups(FetchNew: boolean) {
         this._BusyMethods.push("FetchGroups");
         //check if we're allowed to do this, otherwise send user back to main
         let lastcheckJSON = localStorage.getItem('DedupRev' + this.ReviewerIdentityServ.reviewerIdentity.reviewId);
-        let waitPeriod = 3;//in minutes...
         //console.log("Fetch groups ongoing check (J): ", lastcheckJSON);
         if (lastcheckJSON) {
             let lastcheck = new Date(+lastcheckJSON);
@@ -45,9 +46,9 @@ export class DuplicatesService extends BusyAwareService implements OnInit, OnDes
             let diff = now.getTime() - lastcheck.getTime();//in milliseconds...
             diff = diff / (1000 * 60);
             console.log("Fetch groups ongoing check: ", lastcheck, diff);
-            if (diff < waitPeriod) {
+            if (diff < this.waitPeriod) {
                 //we don't allow this user needs to wait and try again.
-                let diff2 = Math.round(waitPeriod - diff);//how long does the user need to wait?
+                let diff2 = Math.round(this.waitPeriod - diff);//how long does the user need to wait?
                 let endMsg = "";
                 if (diff2 == 0) {
                     endMsg = "less than one minute.";
@@ -82,31 +83,14 @@ export class DuplicatesService extends BusyAwareService implements OnInit, OnDes
                 this.DuplicateGroups = result;
                 //console.log(result);
                 this.DoSort();
+                this.ActivateFirstNotCompletedGroup();
                 this.RemoveBusy("FetchGroups");
-                if (this.DuplicateGroups.length > 0) {
-                    if (this.CurrentGroup == null || result.findIndex(ff => this.CurrentGroup != null && ff.groupId == this.CurrentGroup.groupID) ==-1) {
-                        const todo = this.DuplicateGroups.findIndex(found => found.isComplete == false);
-                        if (todo > 0) this.FetchGroupDetails(this.DuplicateGroups[todo].groupId);
-                        else this.FetchGroupDetails(this.DuplicateGroups[0].groupId);
-                    }
-                } else {
-                    this.CurrentGroup == new ItemDuplicateGroup();
-                }
             }, error => {
                 console.log("FetchGroups error", error, FetchNew);
                 this.RemoveBusy("FetchGroups");
                 if (error.status == 500 && error.error == "DataPortal.Fetch failed (Execution still Running)") {
-                    //execution running, prevent client from checking again for 5m;
-                    let now = new Date();
-                    localStorage.setItem('DedupRev' + this.ReviewerIdentityServ.reviewerIdentity.reviewId, JSON.stringify(now.getTime()));
-                    this.NotificationService.show({
-                        content: "Sorry, the \"Get New Duplicates\" execution might still be running, you need to wait for " + waitPeriod + " minutes and try again. If execution lasts more than a few hours, please contact EPPISupport.",
-                        hideAfter: 3000,
-                        position: { horizontal: 'center', vertical: 'top' },
-                        animation: { type: 'slide', duration: 400 },
-                        type: { style: 'error', icon: true },
-                        closable: true
-                    });
+                    //execution running, prevent client from checking again for 3m;
+                    this.SetWaitPeriod();
                     this.BackToMain();
                 } else {
                     this.modalService.GenericError(error);
@@ -116,6 +100,65 @@ export class DuplicatesService extends BusyAwareService implements OnInit, OnDes
             );
         //return currentItem.arms;
     }
+
+    public FetchRelatedGroups(groupId: number) {
+        let crit: GroupListSelectionCriteriaMVC = new GroupListSelectionCriteriaMVC();
+        crit.groupId = groupId;
+        this.FetchGroupsWithCriteria(crit);
+    }
+    public FetchGroupsByItemIds(ItemIds: string) {
+        let crit: GroupListSelectionCriteriaMVC = new GroupListSelectionCriteriaMVC();
+        crit.itemIds = ItemIds;
+        this.FetchGroupsWithCriteria(crit);
+    }
+    private FetchGroupsWithCriteria(crit: GroupListSelectionCriteriaMVC) {
+        this._BusyMethods.push("FetchGroupsWithCriteria");
+        this._http.post<iReadOnlyDuplicatesGroup[]>(this._baseUrl + 'api/Duplicates/FetchGroupsWithCriteria',
+            crit).subscribe(result => {
+                this.DuplicateGroups = result;
+                //console.log(result);
+                this.DoSort();
+                this.ActivateFirstNotCompletedGroup();
+                this.RemoveBusy("FetchGroupsWithCriteria");
+                
+            }, error => {
+                console.log("FetchGroups error", error, crit);
+                this.RemoveBusy("FetchGroupsWithCriteria");
+                if (error.status == 500 && error.error == "DataPortal.Fetch failed (Execution still Running)") {
+                    //execution running, prevent client from checking again for 3m;
+                    this.SetWaitPeriod();
+                    this.BackToMain();
+                } else {
+                    this.modalService.GenericError(error);
+                    //this.BackToMain();//just in case, this will force a refresh which is safer...
+                }
+            });
+    }
+    private SetWaitPeriod() {
+        let now = new Date();
+        localStorage.setItem('DedupRev' + this.ReviewerIdentityServ.reviewerIdentity.reviewId, JSON.stringify(now.getTime()));
+        this.NotificationService.show({
+            content: "Sorry, the \"Get New Duplicates\" execution might be running, you need to wait for " + this.waitPeriod + " minutes and try again. If execution lasts more than a few hours, please contact EPPISupport.",
+            hideAfter: 3000,
+            position: { horizontal: 'center', vertical: 'top' },
+            animation: { type: 'slide', duration: 400 },
+            type: { style: 'error', icon: true },
+            closable: true
+        });
+    }
+    private ActivateFirstNotCompletedGroup() {
+        if (this.DuplicateGroups.length > 0) {
+            if (this.CurrentGroup == null || this.DuplicateGroups.findIndex(ff => this.CurrentGroup != null && ff.groupId == this.CurrentGroup.groupID) == -1) {
+                const todo = this.DuplicateGroups.findIndex(found => found.isComplete == false);
+                if (todo > 0) this.FetchGroupDetails(this.DuplicateGroups[todo].groupId);
+                else this.FetchGroupDetails(this.DuplicateGroups[0].groupId);
+            }
+        } else {
+            this.CurrentGroup == new ItemDuplicateGroup();
+        }
+    }
+
+
     public async FetchGroupDetails(groupId: number) {
         if (this.CurrentGroup && this.CurrentGroup.groupID == groupId && this.CurrentGroup.members.length > 0) return;//no need, we already have the details...
         //await Helpers.Sleep(50);
@@ -203,7 +246,45 @@ export class DuplicatesService extends BusyAwareService implements OnInit, OnDes
                 this.modalService.GenericError(error);
             });
     }
-    
+
+    public DeleteCurrentGroup(GroupId: number) {
+        if (this.CurrentGroup == null) return;
+        else {
+            this._BusyMethods.push("DeleteCurrentGroup");
+            let toDo = JSON.stringify({ Value: GroupId });
+            this._http.post<number>(this._baseUrl + 'api/Duplicates/DeleteGroup',
+                toDo).subscribe(result => {
+                    this.RemoveBusy("DeleteCurrentGroup");
+                    this.CurrentGroup = null;
+                    this.FetchGroups(false);
+                }, error => {
+                    console.log("DeleteCurrentGroup error", error);
+                    this.RemoveBusy("DeleteCurrentGroup");
+                    this.modalService.GenericError(error);
+                });
+
+        }
+    }
+
+    public DeleteAllGroups(DeleteAllDedupData: boolean) {
+        if (this.CurrentGroup == null) return;
+        else {
+            this._BusyMethods.push("DeleteAllGroups");
+            let toDo = JSON.stringify({ Value: DeleteAllDedupData });
+            this._http.post(this._baseUrl + 'api/Duplicates/DeleteAllGroups',
+                toDo).subscribe((result: any) => {
+                    this.RemoveBusy("DeleteAllGroups");
+                    this.CurrentGroup = null;
+                    this.FetchGroups(false);
+                }, error => {
+                    console.log("DeleteAllGroups error", error);
+                    this.RemoveBusy("DeleteAllGroups");
+                    this.modalService.GenericError(error);
+                });
+
+        }
+    }
+
     public async MarkAutomatically(similarity: number, coded: number, docs: number) {
         //await Helpers.Sleep(50);
         this._BusyMethods.push("MarkAutomatically");
@@ -484,5 +565,9 @@ export class MarkUnmarkItemAsDuplicate {
     itemDuplicateIds: number[] = [];
     isDuplicate: boolean;
 }
+export class GroupListSelectionCriteriaMVC {
+    public groupId: number = 0;
+    public itemIds: string = "0";
+    }
 
 
