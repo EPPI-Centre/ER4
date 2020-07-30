@@ -41,7 +41,7 @@ export class MAGAdminComp implements OnInit {
     public DoCheckChangedPaperIds() {
 
         let msg: string = "Are you sure?\nPlease check it is not already running first!\nOld: "
-            + this.previousMAG + " new: " + this.latestMag;
+            + this._magAdminService.previousMAGName + " new: " + this._magAdminService.latestMAGName;
         this._confirmationDialogService.confirm('MAG Admin', msg, false, '')
             .then((confirm: any) => {
                 if (confirm) {

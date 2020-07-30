@@ -87,9 +87,24 @@ export class MAGBrowserService extends BusyAwareService {
             this.ListCriteria.pageSize = this.pageSize;
             this.FetchWithCrit(this.ListCriteria, "PaperFieldsOfStudyList").then(
 
-                    (res: boolean) => { return res; }
-                );
+                (res: boolean) => {
 
+
+                    this.FetchWithCrit(this.ListCriteria, "PaperFieldsOfStudyList").then(
+
+                        (res1: boolean) => {
+
+                            if (res1) {
+                                this.FetchOrigWithCrit(this.ListCriteria, "PaperFieldsOfStudyList").then(
+                                    (res2: boolean) => {
+                                        return res2;
+                                    }
+                              )
+                            };
+                            return res;
+                        }
+                    )});
+                
         } else {
             return false;
         }
@@ -158,7 +173,7 @@ export class MAGBrowserService extends BusyAwareService {
                 return false;})
         );
     }
-    FetchMAGRelatedPaperRunsListId(Id: number) {
+    public FetchMAGRelatedPaperRunsListId(Id: number) {
 
         this._BusyMethods.push("FetchMAGRelatedPaperRunsListId");
         let body = JSON.stringify({ Value: Id });
@@ -181,7 +196,7 @@ export class MAGBrowserService extends BusyAwareService {
     }
     public FetchMAGRelatedPaperRunsListById(Id: number): Promise<boolean> {
         var goBackListType: string = 'MagRelatedPapersRunList';
-        this._BusyMethods.push("FetchMAGRelatedPaperRunsListId");
+        this._BusyMethods.push("FetchMAGRelatedPaperRunsListById");
         this.ListCriteria.listType = "MagRelatedPapersRunList";
         this.ListCriteria.pageSize = this.pageSize;
         this.ListCriteria.magRelatedRunId = Id;
@@ -191,7 +206,7 @@ export class MAGBrowserService extends BusyAwareService {
             .toPromise().then(
                 (result) => {
 
-                    this.RemoveBusy("FetchMAGRelatedPaperRunsListId");
+                    this.RemoveBusy("FetchMAGRelatedPaperRunsListById");
                     this.MAGList = result;
                     this.ListCriteria.paperIds = '';
                     for (var i = 0; i < result.papers.length; i++) {
@@ -220,15 +235,15 @@ export class MAGBrowserService extends BusyAwareService {
                     );
                 },
                 error => {
-                    this.RemoveBusy("FetchMAGRelatedPaperRunsListId");
+                    this.RemoveBusy("FetchMAGRelatedPaperRunsListById");
                     this.modalService.GenericError(error);
                     return false;
                 }
             ).catch(
                 (error) => {
 
-                    this.modalService.GenericErrorMessage("error with FetchMAGRelatedPaperRunsListId");
-                    this.RemoveBusy("FetchMAGRelatedPaperRunsListId");
+                    this.modalService.GenericErrorMessage("error with FetchMAGRelatedPaperRunsListById");
+                    this.RemoveBusy("FetchMAGRelatedPaperRunsListById");
                     return false;
                 });
     }
@@ -389,23 +404,6 @@ export class MAGBrowserService extends BusyAwareService {
             this._Criteria = crit;
         }
        
-    }
-    private ChangingPaper(newPaper: MagPaper) {
-
-        this._currentPaper = newPaper;
-		this.PaperChanged.emit(newPaper);
-    }
-	public getPaper(paperId: number): MagPaper {
-
-        let ff = this.MAGList.papers.find(found => found.paperId == paperId);
-        if (ff != undefined && ff != null) {
-            this.ChangingPaper(ff);
-            return ff;
-        }
-        else {
-            this.ChangingPaper(new MagPaper());
-            return new MagPaper();
-        }
     }
     //Paging methods
     public FetchNextPage() {
