@@ -370,15 +370,14 @@ namespace BusinessLibrary.BusinessClasses
         {
             
             ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
-            int justToCheck = ri.ReviewId;
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
                 connection.Open();
                 using (SqlCommand command = new SqlCommand("st_ItemDuplicateGroupMembers", connection))
                 {
                     command.CommandType = System.Data.CommandType.StoredProcedure;
-                    command.Parameters.Add("@groupID", System.Data.SqlDbType.Int);
-                    command.Parameters["@groupID"].Value = criteria.Value;
+                    command.Parameters.Add(new SqlParameter("@groupID", criteria.Value));
+                    command.Parameters.Add(new SqlParameter("@ReviewID", ri.ReviewId)); 
                     using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
                     {
                         while (reader.Read())

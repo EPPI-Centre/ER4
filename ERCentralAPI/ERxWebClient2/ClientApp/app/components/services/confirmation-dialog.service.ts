@@ -15,14 +15,14 @@ export class ConfirmationDialogService implements OnDestroy {
 	constructor(private modalService: NgbModal,
 		private eventsService: EventEmitterService) { }
 
-	@Input() UserInputTextArms: string = '';
+	//@Input() UserInputTextArms: string = '';
 
 	public confirm(
 
 		title: string,
 		message: string,
 		ShowInputTextWarning: boolean,
-		UserInputTextArms: string,
+        RequiredConfirmationTxt: string = "I confirm",
 		btnOkText: string = 'OK',
 		btnCancelText: string = 'Cancel',
 
@@ -36,9 +36,10 @@ export class ConfirmationDialogService implements OnDestroy {
 		modalRef.componentInstance.title = title;
 		modalRef.componentInstance.message = message;
 		modalRef.componentInstance.btnOkText = btnOkText;
-		modalRef.componentInstance.btnCancelText = btnCancelText;
-		modalRef.componentInstance.ShowInputTextWarning = ShowInputTextWarning;
-		this.UserInputTextArms = UserInputTextArms;
+        modalRef.componentInstance.btnCancelText = btnCancelText;
+        modalRef.componentInstance.ShowInputTextWarning = ShowInputTextWarning;
+        modalRef.componentInstance.RequiredConfirmationTxt = RequiredConfirmationTxt;
+		//this.UserInputTextArms = UserInputTextArms;
 		
 		return modalRef.result;
 	}

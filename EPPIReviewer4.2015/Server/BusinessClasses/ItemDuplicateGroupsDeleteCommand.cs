@@ -23,14 +23,9 @@ namespace BusinessLibrary.BusinessClasses
 [Serializable]
     public class ItemDuplicateGroupsDeleteCommand : CommandBase<ItemDuplicateGroupsDeleteCommand>
     {
-#if SILVERLIGHT
-    public ItemDuplicateGroupsDeleteCommand(){}
-#else
-        protected ItemDuplicateGroupsDeleteCommand() { }
-#endif
+        public ItemDuplicateGroupsDeleteCommand(){}
 
         private bool _deleteAll;
-        
 
         public bool delete
         {

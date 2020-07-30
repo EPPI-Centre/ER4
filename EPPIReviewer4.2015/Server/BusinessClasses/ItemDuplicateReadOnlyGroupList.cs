@@ -544,6 +544,7 @@ namespace BusinessLibrary.BusinessClasses
                         if (ic.HAS_CODES == 1)
                         {
                             candidateMaster = ic;
+                            break;//we found the oldest member with codes, stopping here is perfect
                         }
                     }
                     foreach (ItemComparison ic in group)
@@ -926,18 +927,33 @@ namespace BusinessLibrary.BusinessClasses
         }
 
         public GroupListSelectionCriteria(Type type, int GroupId)
-        //: base(type)
         {
             LoadProperty(GroupIdProperty, GroupId);
             LoadProperty(ItemIdsProperty, "0");
         }
 
         public GroupListSelectionCriteria(Type type, string ItemIds)
-        //: base(type)
         {
             LoadProperty(ItemIdsProperty, ItemIds);
             LoadProperty(GroupIdProperty, 0);
         }
+        public GroupListSelectionCriteria(int GroupId, string ItemIds)
+        {
+            if (ItemIds == "" || ItemIds == null)
+            {
+                LoadProperty(GroupIdProperty, GroupId);
+                LoadProperty(ItemIdsProperty, "0");
+            } else if (GroupId < 1) {
+                LoadProperty(ItemIdsProperty, ItemIds);
+                LoadProperty(GroupIdProperty, 0);
+            }
+            else
+            {
+                LoadProperty(GroupIdProperty, GroupId);
+                LoadProperty(ItemIdsProperty, ItemIds);
+            }
+        }
+
 #if !SILVERLIGHT 
         public GroupListSelectionCriteria() { }
 #endif

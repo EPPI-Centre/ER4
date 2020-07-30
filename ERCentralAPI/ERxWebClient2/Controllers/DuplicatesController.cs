@@ -49,19 +49,19 @@ namespace ERxWebClient2.Controllers
 
 
 		[HttpPost("[action]")]
-		public IActionResult FetchGroupsWithCriteria([FromBody] TrainingReviewerTermJSON data)
+		public IActionResult FetchGroupsWithCriteria([FromBody] GroupListSelectionCriteriaMVC data)
 		{
 			try
 			{
                 SetCSLAUser();
-				
-
-				return Ok();
+                GroupListSelectionCriteria crit = new GroupListSelectionCriteria(data.groupId, data.itemIds);
+                ItemDuplicateReadOnlyGroupList result = DataPortal.Fetch<ItemDuplicateReadOnlyGroupList>(crit);
+				return Ok(result);
 			}
 			catch (Exception e)
 			{
-				_logger.LogException(e, "Error with creating TrainingReviewerTerm");
-				return StatusCode(500, e.Message);
+				_logger.LogException(e, "Error in FetchGroupsWithCriteria: groupId = " + data.groupId + ", itemIds = " + data.itemIds);
+                return StatusCode(500, e.Message);
 			}
 		}
 
@@ -199,6 +199,67 @@ namespace ERxWebClient2.Controllers
                 return StatusCode(500, e.Message);
             }
         }
+
+        [HttpPost("[action]")]
+        public IActionResult DeleteGroup([FromBody] SingleIntCriteria crit)
+        {
+            try
+            {
+                if (SetCSLAUser4Writing())
+                {
+                    if (crit  == null || crit.Value < 1)
+                    {
+                        return StatusCode(500, "Error: malformed request.");
+                    }
+                    DataPortal<ItemDuplicateGroup> dp = new DataPortal<ItemDuplicateGroup>();
+                    ItemDuplicateGroup IDG = dp.Fetch(new SingleCriteria<ItemDuplicateGroup, int>(crit.Value));
+                    if (IDG == null || IDG.Members == null || IDG.Members.Count == 0)
+                    {
+                        return StatusCode(404, "Group Not Found.");
+                    }
+                    IDG.Delete();
+                    IDG.ApplyEdit();
+                    IDG = IDG.Save();
+                    return Ok(crit.Value);
+                }
+                else
+                {
+                    return Forbid();
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "Error in DeleteGroup. GroupId = " + crit.Value);
+                return StatusCode(500, e.Message);
+            }
+        }
+
+        [HttpPost("[action]")]
+        public IActionResult DeleteAllGroups([FromBody] SingleBoolCriteria crit)
+        {
+            try
+            {
+                if (SetCSLAUser4Writing())
+                {
+                    if (crit == null)
+                    {
+                        return StatusCode(500, "Error: malformed request.");
+                    }
+                    ItemDuplicateGroupsDeleteCommand command = new ItemDuplicateGroupsDeleteCommand(crit.Value);
+                    command = DataPortal.Execute<ItemDuplicateGroupsDeleteCommand>(command);
+                    return Ok();
+                }
+                else
+                {
+                    return Forbid();
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "Error in Delete All Groups. Hard Reset = " + crit.Value);
+                return StatusCode(500, e.Message);
+            }
+        }
     }
 
 	public class MarkUnmarkItemAsDuplicate
@@ -211,5 +272,10 @@ namespace ERxWebClient2.Controllers
     {
         public int groupId { get; set; }
         public long itemId { get; set; }
+    }
+    public class GroupListSelectionCriteriaMVC
+    {
+        public int groupId { get; set; }
+        public string itemIds { get; set; }
     }
 }

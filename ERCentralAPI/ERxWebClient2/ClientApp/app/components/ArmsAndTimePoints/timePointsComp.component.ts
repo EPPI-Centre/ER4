@@ -177,7 +177,7 @@ export class timePointsComp extends BusyAwareService implements OnInit {
 			.then(
 				(confirm: any) => {
 
-					if (confirm && this.eventsService.UserInput == 'I confirm') {
+                    if (confirm && this.eventsService.UserInput.toLowerCase().trim() == 'i confirm') {
 
 						this.ActuallyRemove(key);
 					}

@@ -109,16 +109,14 @@ export class armDetailsComp implements OnInit {
 		
 		this.confirmationDialogService.confirm('Please confirm', 'Deleting an Arm is a permanent operation and will delete all coding associated with the Arm.' +
 			'<br /><b>This Arm is associated with ' + numCodings + ' codes.</b>' +
-			'<br />Please type \'I confirm\' in the box below if you are sure you want to proceed.', true,this.confirmationDialogService.UserInputTextArms)
+            '<br />Please type \'I confirm\' in the box below if you are sure you want to proceed.', true,'I confirm')
 			.then(
 			(confirm: any) => {
 								
 				//console.log('Text entered is the following: ' + confirm + ' ' + this.eventsService.UserInput );
 			
-				if (confirm && this.eventsService.UserInput  == 'I confirm') {
-						
+                if (confirm && this.eventsService.UserInput.toLowerCase().trim()  == 'i confirm') {
 						this.ActuallyRemove(key);
-
 					} else {
 					
 					}
