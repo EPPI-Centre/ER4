@@ -129,12 +129,26 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
     public get HasWriteRights(): boolean {
         return this.ReviewerIdentityServ.HasWriteRights;
     }
-	tabsInitialized: boolean = false;
     public OpenBasicMAG() {
         this.router.navigate(['BasicMAGFeatures']);
-
     }
-	//TODO
+
+    StartScreening() {
+        if (this.workAllocationsContactComp) this.workAllocationsContactComp.StartScreening();
+    }
+
+    public get HasSreeningList(): boolean {
+        if (this.reviewInfoService.ReviewInfo.reviewId != this.ReviewerIdentityServ.reviewerIdentity.reviewId) return false;
+        else {
+            if (this.reviewInfoService.ReviewInfo.showScreening
+                && this.reviewInfoService.ReviewInfo.screeningCodeSetId > 0
+                && this.reviewInfoService.ReviewInfo.screeningListIsGood) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 	public RunExportReferences() {
 		alert('not implemented yet');
 	}
@@ -278,6 +292,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
             this.NewReference();
         }
     }];
+
     private _ShowQuickReport: boolean = false;
     public get ShowQuickReport(): boolean {
         
