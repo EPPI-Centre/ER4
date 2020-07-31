@@ -284,7 +284,7 @@ public partial class Summary : System.Web.UI.Page
             newrow2["OUTSTANDING_FEE_ID"] = idr1["OUTSTANDING_FEE_ID"].ToString();
 
             dayCreated = Convert.ToDateTime(idr1["DATE_CREATED"].ToString());
-            newrow2["DATE_PURCHASED"] = dayCreated.ToString("dd MMM yyyy");
+            newrow2["DATE_CREATED"] = dayCreated.ToString("dd MMM yyyy");
 
             //newrow2["DATE_CREATED"] = idr1["DATE_CREATED"].ToString();
             newrow2["OUTSTANDING_FEE"] = idr1["AMOUNT"].ToString();

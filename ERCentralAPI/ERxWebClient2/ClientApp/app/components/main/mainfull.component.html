@@ -31,6 +31,7 @@
                                         </div>
                                         <readonlyreviews id="readOnlyReviews" [ngbCollapse]="!isReviewPanelCollapsed" class="mt-1"
                                                          style="max-height: 520px;"></readonlyreviews>
+                                        <!--WorkAllocationContactListComp needs to be instantiated and hidden/shown: do NOT use ngIf clause-->
                                         <WorkAllocationContactListComp #WorkAllocationContactList
                                                                        (criteriaChange)='LoadContactWorkAllocList($event)'
                                                                        (AllocationClicked)="GoToItemList()"
@@ -42,7 +43,18 @@
                                         <ROSourcesList *ngIf="isSourcesPanelVisible" class="mt-1"
                                                        style="max-height: 420px;"></ROSourcesList>
                                     </div>
-                                    <div class="card card-body mt-2 bg-light ">
+
+                                    <div *ngIf="HasSreeningList">
+                                        <div class="border border-primary rounded small align-content-end row p-1 mx-0 mt-1">
+                                            <div class="mx-1" >Priority screening List is <b>Enabled and Ready</b>:</div>
+                                            <button (click)="StartScreening()" class="btn btn-sm btn-primary mx-0 py-0 px-1">
+                                                Click Here
+                                            </button>
+                                            <div class="mx-1">to start screening.</div>
+                                        </div>
+                                    </div>
+
+                                    <div class="card card-body mt-1 bg-light ">
                                         {{MyAccountMessage}}
                                         <br />
                                         {{MyReviewMessage}}
