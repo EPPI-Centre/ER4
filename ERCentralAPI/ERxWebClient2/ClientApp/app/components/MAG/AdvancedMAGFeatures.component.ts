@@ -33,7 +33,8 @@ export class AdvancedMAGFeaturesComponent implements OnInit, OnDestroy {
         private _mAGBrowserHistoryService: MAGBrowserHistoryService,
         private _location: Location,
         private _notificationService: NotificationService,
-        private router: Router
+        private router: Router,
+        public _magAdminService: MAGAdvancedService
 
     ) {
 

@@ -338,3 +338,15 @@ export class topicInfo {
     fieldOfStudy: string = '';
 
 }
+
+export class ContReviewPipeLineCommand {
+
+    previousVersion : string = '';
+    magVersion : string = '';
+    editScoreThreshold: number = 0;
+    editFoSThreshold: number = 0;
+    specificFolder : string = '';
+    magLogId: number = 0;
+    editReviewSampleSize: number = 0;
+
+}

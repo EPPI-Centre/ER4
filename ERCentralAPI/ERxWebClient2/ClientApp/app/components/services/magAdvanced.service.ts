@@ -6,7 +6,7 @@ import { Item } from './ItemList.service';
 import { MAGBrowserService } from './MAGBrowser.service';
 import { MagPaper, MagReviewMagInfo, MVCMagPaperListSelectionCriteria, MagCurrentInfoShort, 
     ClassifierContactModel, MVCMagFieldOfStudyListSelectionCriteria, MagList,
-    MagCheckContReviewRunningCommand, MagFieldOfStudy} from './MAGClasses.service';
+    MagCheckContReviewRunningCommand, MagFieldOfStudy, MagCurrentInfo} from './MAGClasses.service';
 import { Router } from '@angular/router';
 
 
@@ -40,12 +40,12 @@ export class MAGAdvancedService extends BusyAwareService {
     public CurrentMagSimId: number = 0;
     public PaperIds: string = '';
     public MagList: MagList = new MagList();
-    private _MagCurrentInfo: MagCurrentInfoShort = new MagCurrentInfoShort();
+    private _MagCurrentInfo: MagCurrentInfo = new MagCurrentInfo();
     private _ClassifierContactModelList: ClassifierContactModel[] = [];
-    public get MagCurrentInfo(): MagCurrentInfoShort{
+    public get MagCurrentInfo(): MagCurrentInfo{
         return this._MagCurrentInfo;
     }
-    public set MagCurrentInfo(magInfo: MagCurrentInfoShort) {
+    public set MagCurrentInfo(magInfo: MagCurrentInfo) {
         this._MagCurrentInfo = magInfo;
     }
     public get ClassifierContactModelList(): ClassifierContactModel[] {

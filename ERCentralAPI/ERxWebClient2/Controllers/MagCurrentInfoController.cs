@@ -88,6 +88,8 @@ namespace ERxWebClient2.Controllers
                 throw;
             }
         }
+
+        //move the following two to their own controller
                 
         [HttpGet("[action]")]
         public IActionResult MagCheckContReviewRunningCommand()
@@ -112,6 +114,45 @@ namespace ERxWebClient2.Controllers
                 throw;
             }
         }
+
+
+        [HttpPost("[action]")]
+        public IActionResult DoRunContReviewPipeline([FromBody] MVCContReviewPipeLineCommand pipelineParams)
+        {
+            try
+            {
+                if (SetCSLAUser4Writing())
+                {
+                    
+                    DataPortal<MagContReviewPipelineRunCommand> dp2 = new DataPortal<MagContReviewPipelineRunCommand>();
+                    MagContReviewPipelineRunCommand runPipelineCommand =
+                        new MagContReviewPipelineRunCommand(
+                            pipelineParams.previousVersion,
+                            pipelineParams.magVersion,
+                            pipelineParams.editScoreThreshold,
+                            pipelineParams.editFoSThreshold,
+                            pipelineParams.specificFolder,
+                            pipelineParams.magLogId,
+                            Convert.ToInt32(pipelineParams.editReviewSampleSize));
+
+                    runPipelineCommand = dp2.Execute(runPipelineCommand);
+
+                    return Ok(runPipelineCommand);
+
+                }
+                else return Forbid();
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "Do Run ContReview Pipeline has an error");
+                throw;
+            }
+        }
+
+
+        //=====================================above two methods to their own controller TODO
+
+
 
         [HttpPost("[action]")]
         public IActionResult DoCheckChangedPaperIds([FromBody] SingleStringCriteria latestMag)
@@ -171,5 +212,16 @@ public class MVCMagCurrentInfo
     public string makesEndPoint { get; set; }
     public string makesDeploymentStatus { get; set; }
 
+}
+
+public class MVCContReviewPipeLineCommand
+{
+    public string previousVersion { get; set; }
+    public string magVersion { get; set; }
+    public double editScoreThreshold { get; set; }
+    internal double editFoSThreshold { get; set; }
+    public string specificFolder { get; set; }
+    public int magLogId { get; set; }
+    public int editReviewSampleSize { get; set; }
 }
 

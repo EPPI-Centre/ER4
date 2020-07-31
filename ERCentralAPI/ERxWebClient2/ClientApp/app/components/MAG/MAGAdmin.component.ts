@@ -34,7 +34,7 @@ export class MAGAdminComp implements OnInit {
     public SampleSize: number = 20;
     public stepScore: number = 0.01;
     public stepFoS: number = 0.05;
-    public stepSampleSize: number = 0.01;
+    public stepSampleSize: number = 1;
     public isRunning: boolean = false;
     public reviewId: number = 0;
 
@@ -101,8 +101,16 @@ export class MAGAdminComp implements OnInit {
             msg = 'There is a MAG pipeline already running!';
         } else {
             msg = 'Running pipline...';
+            this.DoRunContReviewPipeline("", 0, "Pipeline running...", this.FoSThreshold, this.SampleSize,
+            this.ScoreThreshold);
         }
         this.showMAGRunMessage(msg);
+    }
+    public DoRunContReviewPipeline(specificFolder: string, magLogId: number, alertText: string, editFoSThreshold: number,
+        editReviewSampleSize: number, editScoreThreshold: number ) : void {
+
+        this._magAdminService.DoRunContReviewPipeline(specificFolder, magLogId, alertText, editFoSThreshold,
+            editReviewSampleSize, editScoreThreshold );
     }
     public get IsServiceBusy(): boolean {
 

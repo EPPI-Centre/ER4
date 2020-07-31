@@ -2,7 +2,7 @@ import { Injectable, Inject } from "@angular/core";
 import { ModalService } from "./modal.service";
 import { HttpClient } from "@angular/common/http";
 import { BusyAwareService } from "../helpers/BusyAwareService";
-import { MAGBlobCommand, MAGLog, MAGReview, MagCurrentInfo } from "./MAGClasses.service";
+import { MAGBlobCommand, MAGLog, MAGReview, MagCurrentInfo, ContReviewPipeLineCommand } from "./MAGClasses.service";
 
 @Injectable({
 
@@ -10,6 +10,7 @@ import { MAGBlobCommand, MAGLog, MAGReview, MagCurrentInfo } from "./MAGClasses.
 
 })
 export class MAGAdminService extends BusyAwareService {
+
 
     constructor(
         private _httpC: HttpClient,
@@ -25,6 +26,34 @@ export class MAGAdminService extends BusyAwareService {
     public MAGLogList: MAGLog[] = [];
     public MAGReviewList: MAGReview[] = [];
     public MagCurrentInfo: MagCurrentInfo = new MagCurrentInfo();
+    public DoRunContReviewPipeline(specificFolder: string, magLogId: number, alertText: string, editFoSThreshold: number,
+        editReviewSampleSize: number, editScoreThreshold: number 
+    ) {
+        this._BusyMethods.push("DoRunContReviewPipeline");
+
+        let pipelineParams: ContReviewPipeLineCommand = new ContReviewPipeLineCommand();
+        pipelineParams.editFoSThreshold = editFoSThreshold;
+        pipelineParams.editReviewSampleSize = editReviewSampleSize;
+        pipelineParams.editScoreThreshold = editScoreThreshold;
+        pipelineParams.magLogId = magLogId;
+        pipelineParams.magVersion = this.MagCurrentInfo.magVersion;
+        pipelineParams.previousVersion = "";
+        pipelineParams.specificFolder = specificFolder;
+        this._httpC.post<boolean>(this._baseUrl + 'api/MagCurrentInfo/DoRunContReviewPipeline', pipelineParams)
+            .subscribe(result => {
+                this.RemoveBusy("DoRunContReviewPipeline");
+                if (result != null) {
+                    this.SwitchOnAutoRefreshLogList();
+                }
+            },
+                error => {
+                    this.RemoveBusy("DoRunContReviewPipeline");
+                    this.modalService.GenericError(error);
+                },
+                () => {
+                    this.RemoveBusy("DoRunContReviewPipeline");
+                });
+    }
     public DoCheckChangedPaperIds(magLatest: string ) {
 
         this._BusyMethods.push("DoCheckChangedPaperIds");
