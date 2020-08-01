@@ -101,7 +101,7 @@ namespace BusinessLibrary.BusinessClasses
         private async void doRunPipeline(int ReviewId, int ContactId)
         {
 
-            string uploadFileName = "";
+            //string uploadFileName = "";
             /* Commenting out to see if the alternative below works on Jeff's laptop
             if (Directory.Exists("UserTempUploads"))
             {
@@ -119,15 +119,17 @@ namespace BusinessLibrary.BusinessClasses
 
             uploadFileName = System.Web.HttpRuntime.AppDomainAppPath + @"UserTempUploads/" + "crSeeds.tsv";
 #else
-            if (Directory.Exists("UserTempUploads"))
+            const string TempPath = @"UserTempUploads/";
+            string uploadFileName = TempPath + "crSeeds.tsv";
+
+            if (Directory.Exists(TempPath))
             {
-                uploadFileName = @"UserTempUploads\" + "crSeeds.tsv";
+                uploadFileName = @"./" + TempPath + "/" + "crSeeds.tsv";
             }
             else
             {
-                DirectoryInfo tmpDir = System.IO.Directory.CreateDirectory("UserTempUploads");
-                uploadFileName = tmpDir.FullName + @"\UserTempUploads\crSeeds.tsv";
-
+                DirectoryInfo tmpDir = System.IO.Directory.CreateDirectory(TempPath);
+                uploadFileName = tmpDir.FullName + "/" + @"./" + TempPath + "/" + "crSeeds.tsv";
             }
 #endif
             int logId = MagLog.SaveLogEntry("ContReview process", "running", "Main update. starting", ContactId);

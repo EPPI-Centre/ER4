@@ -45,7 +45,7 @@ export class MAGAdminComp implements OnInit {
         this._confirmationDialogService.confirm('MAG Admin', msg, false, '')
             .then((confirm: any) => {
                 if (confirm) {
-                    this._magAdminService.DoCheckChangedPaperIds(this.latestMag);
+                    this._magAdminService.DoCheckChangedPaperIds(this._magAdminService.latestMAGName);
                 }
             });
         
@@ -108,7 +108,7 @@ export class MAGAdminComp implements OnInit {
     }
     public DoRunContReviewPipeline(specificFolder: string, magLogId: number, alertText: string, editFoSThreshold: number,
         editReviewSampleSize: number, editScoreThreshold: number ) : void {
-
+        console.log('editFoSThreshold:', editFoSThreshold);
         this._magAdminService.DoRunContReviewPipeline(specificFolder, magLogId, alertText, editFoSThreshold,
             editReviewSampleSize, editScoreThreshold );
     }

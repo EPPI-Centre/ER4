@@ -50,7 +50,7 @@ namespace ERxWebClient2.Controllers
             {
                 if (SetCSLAUser4Writing())
                 {
-
+                    ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
                     // FOR NOW on the MagCurrentInfo business object we contact Azure and get the info to update the DB
                     // TODO change logic to receive this info from the user in the above MVC object
                     // after we have listed the info on the UI
@@ -98,6 +98,7 @@ namespace ERxWebClient2.Controllers
             {
                 if (SetCSLAUser4Writing())
                 {
+                    ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
                     DataPortal<MagCheckContReviewRunningCommand> dp = new DataPortal<MagCheckContReviewRunningCommand>();
                     MagCheckContReviewRunningCommand check = new MagCheckContReviewRunningCommand();
 
@@ -123,7 +124,7 @@ namespace ERxWebClient2.Controllers
             {
                 if (SetCSLAUser4Writing())
                 {
-                    
+                    ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
                     DataPortal<MagContReviewPipelineRunCommand> dp2 = new DataPortal<MagContReviewPipelineRunCommand>();
                     MagContReviewPipelineRunCommand runPipelineCommand =
                         new MagContReviewPipelineRunCommand(
@@ -160,7 +161,7 @@ namespace ERxWebClient2.Controllers
             try
             {
                 SetCSLAUser();
-
+                ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
                 DataPortal<MagCheckPaperIdChangesCommand> dp = new DataPortal<MagCheckPaperIdChangesCommand>();
                 MagCheckPaperIdChangesCommand magCheck = new MagCheckPaperIdChangesCommand(latestMag.Value);
 
