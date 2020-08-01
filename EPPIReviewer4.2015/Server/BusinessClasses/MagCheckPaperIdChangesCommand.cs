@@ -100,7 +100,7 @@ namespace BusinessLibrary.BusinessClasses
 
 
             WriteCurrentlyUsedPaperIdsToFile(uploadFileName);
-            UploadIdsFile(uploadFileName);
+            await UploadIdsFile(uploadFileName);
             MagLog.UpdateLogEntry("Running", "ID checking: file uploaded", TaskMagLogId);
             SubmitJob(ContactId);
             

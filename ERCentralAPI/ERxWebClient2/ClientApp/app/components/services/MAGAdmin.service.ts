@@ -66,6 +66,7 @@ export class MAGAdminService extends BusyAwareService {
                 }
             },
                 error => {
+                    console.log(JSON.stringify(error));
                     this.RemoveBusy("DoCheckChangedPaperIds");
                     this.modalService.GenericError(error);
                 },
