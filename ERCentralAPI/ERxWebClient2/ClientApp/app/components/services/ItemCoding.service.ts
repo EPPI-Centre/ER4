@@ -695,16 +695,16 @@ export class ItemCodingService extends BusyAwareService {
         //console.log("addFullTextToComparisonReport", list, result);
         return result;
     }
-    public OutcomesTable(Outcomes: Outcome[]): string {
+    public OutcomesTable(Outcomes: Outcome[], addHeader: boolean = true): string {
         let retVal: string = "";
         let i: number = -1;
-
+        const Start: string = addHeader ? "<p><b>Outcomes</b></p>" : "";
         let sortedOutcomes = Outcomes.sort(function (a, b) { return a.outcomeTypeId - b.outcomeTypeId });
         for(let o of sortedOutcomes)
         {
             if (i != o.outcomeTypeId) {
                 if (retVal == "") {
-                    retVal = "<p><b>Outcomes</b></p><table class='m-1' border='1'>";
+                    retVal = Start + "<table class='m-1' border='1'>";
                 }
                 else {
                     retVal += "</table><table class='m-1' border='1'>";
