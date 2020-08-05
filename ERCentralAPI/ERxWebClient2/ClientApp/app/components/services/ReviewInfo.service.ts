@@ -28,8 +28,8 @@ export class ReviewInfoService extends BusyAwareService{
         return this._ReviewInfo;
     }
     public set ReviewInfo(ri: ReviewInfo) {
-        this.ReviewInfoChanged.emit();
         this._ReviewInfo = ri;
+        this.ReviewInfoChanged.emit();
     }
 	public get Contacts(): Contact[] {
 
