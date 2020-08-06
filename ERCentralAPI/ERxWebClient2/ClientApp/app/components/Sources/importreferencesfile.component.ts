@@ -7,6 +7,7 @@ import { CodesetStatisticsService } from '../services/codesetstatistics.service'
 import { EventEmitterService } from '../services/EventEmitter.service';
 import { NotificationService } from '@progress/kendo-angular-notification';
 import { Subscription } from 'rxjs';
+import { ModalService } from '../services/modal.service';
 
 
 
@@ -26,7 +27,8 @@ export class ImportReferencesFileComponent implements OnInit, OnDestroy {
         private ItemListService: ItemListService,
         private _eventEmitter: EventEmitterService,
         private SourcesService: SourcesService,
-        private notificationService: NotificationService
+        private notificationService: NotificationService,
+        private ModalService: ModalService
     ) {    }
     ngOnInit() {
         this.reader.onload = (e) => this.fileRead(e);
@@ -58,17 +60,26 @@ export class ImportReferencesFileComponent implements OnInit, OnDestroy {
     onFilesAdded() {
         const files: { [key: string]: File } = this.file.nativeElement.files;
         const file: File = files[0];
+        console.log("onFilesAdded", file.size, file.name);
         if (file) {
-            this.WizPhase = 1.5;
-            this.currentFileName = file.name;
-            //reader.onload = function (e) {
-            //    if (reader.result) {
-            //        fileContent = reader.result as string;
-            //        console.log(fileContent.length);
-            //    }
-            //}
-            this.reader.readAsText(file);
-            
+            //if (file.size > 31457280 && 1 !== 1) {
+            if (file.size >   52428800 ) {
+                //console.log("onFilesAdded", file.size, file.name);
+                this.ModalService.GenericErrorMessage("Sorry, the <strong>maximum</strong> file size is <strong>50MB</strong>. Please select a smaller file.<br /><br />"
+                    + "Alternatively, you can edit this file with a text editor in order to produce two or more smaller files and upload them separately. "
+                    + "You should ensure that you'll divide the files in the right spot, so to avoid splitting a single reference across two files.");
+            }
+            else {
+                this.WizPhase = 1.5;
+                this.currentFileName = file.name;
+                //reader.onload = function (e) {
+                //    if (reader.result) {
+                //        fileContent = reader.result as string;
+                //        console.log(fileContent.length);
+                //    }
+                //}
+                this.reader.readAsText(file);
+            }
         }
     }
     
@@ -79,7 +90,13 @@ export class ImportReferencesFileComponent implements OnInit, OnDestroy {
             let filename = "Please update";
             if (this.currentFileName) filename = this.currentFileName.trim();
             this.Source4upload = this.SourcesService.newSourceForUpload(fileContent, filename, this.currentFilterName);
-            this.SourcesService.CheckUpload(this.Source4upload);
+            this.SourcesService.CheckUpload(this.Source4upload).then(
+                (result) => {
+                    if (!result) {
+                        this.back();
+                    }
+                }
+            );
         }
     }
     private gotItems4Checking() {
