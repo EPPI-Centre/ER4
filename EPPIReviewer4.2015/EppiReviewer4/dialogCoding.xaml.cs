@@ -3492,7 +3492,11 @@ namespace EppiReviewer4
 
         private void ManualMagMatchesClearConfirm(object sender, WindowClosedEventArgs e)
         {
-            ManualMagLookupOrClear("clear");
+            var result = e.DialogResult;
+            if (result == true)
+            {
+                ManualMagLookupOrClear("clear");
+            }
         }
 
         private void ManualMagLookupOrClear(string FindOrClear)

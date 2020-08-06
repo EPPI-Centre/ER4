@@ -360,43 +360,56 @@ namespace BusinessLibrary.BusinessClasses
                 switch (this.TypeId)
                 {
                     case 1: //Report
-                        retVal = CleanAuthors(Authors) + " (" + Year + ") " + Title + ". " + City + ": " + Publisher + ", " + Pages;
+                        retVal = CleanAuthors(Authors) + " (" + Year + ") " + Title + ". " + City + ": " + Publisher + ", " + Pages +
+                            ( DOI == "" ? "" : " DOI: " + DOI);
                         break;
                     case 2: //Book, Whole
-                        retVal = CleanAuthors(Authors) + " (" + Year + ") " + Title + ". " + City + ": " + Publisher;
+                        retVal = CleanAuthors(Authors) + " (" + Year + ") " + Title + ". " + City + ": " + Publisher +
+                            (DOI == "" ? "" : " DOI: " + DOI);
                         break;
                     case 3: //Book, Chapter
-                        retVal = CleanAuthors(Authors) + " (" + Year + ") " + Title + ". In: " + CleanAuthors(ParentAuthors) + ", editors. " + ParentTitle + ". " + City + ": " + Publisher + ", p" + Pages;
+                        retVal = CleanAuthors(Authors) + " (" + Year + ") " + Title + ". In: " + CleanAuthors(ParentAuthors) + ", editors. " + ParentTitle + ". " + City + ": " + Publisher + ", p" + Pages +
+                            (DOI == "" ? "" : " DOI: " + DOI);
                         break;
                     case 4: //Dissertation
-                        retVal = CleanAuthors(Authors) + " (" + Year + ") " + Title + ". " + Edition + ", " + Institution + ".";
+                        retVal = CleanAuthors(Authors) + " (" + Year + ") " + Title + ". " + Edition + ", " + Institution + "." +
+                            (DOI == "" ? "" : " DOI: " + DOI);
                         break;
                     case 5: //Conference Proceedings
-                        retVal = CleanAuthors(Authors) + " (" + Year + ") " + Title + ". In: " + ParentTitle + ", " + City + ". " + Publisher + ", p" + Pages;
+                        retVal = CleanAuthors(Authors) + " (" + Year + ") " + Title + ". In: " + ParentTitle + ", " + City + ". " + Publisher + ", p" + Pages +
+                            (DOI == "" ? "" : " DOI: " + DOI);
                         break;
                     case 6: //Document From Internet Site
-                        retVal = CleanAuthors(Authors) + " (" + Year + ") " + URL + Title + ". " + Publisher;
+                        retVal = CleanAuthors(Authors) + " (" + Year + ") " + URL + Title + ". " + Publisher +
+                            (DOI == "" ? "" : " DOI: " + DOI);
                         break;
                     case 7: //Web Site
-                        retVal = CleanAuthors(Authors) + " (" + Year + ") " + URL + Title + " " + (Availability == "" ? "" : " [online; accessed: " + Availability + "]");
+                        retVal = CleanAuthors(Authors) + " (" + Year + ") " + URL + Title + " " + (Availability == "" ? "" : " [online; accessed: " + Availability + "]") +
+                            (DOI == "" ? "" : " DOI: " + DOI);
                         break;
                     case 8: //DVD, Video, Media
-                        retVal = CleanAuthors(Authors) + " (" + Year + ") " + Title + (Availability == "" ? "" : " [online; accessed: " + Availability + "]");
+                        retVal = CleanAuthors(Authors) + " (" + Year + ") " + Title + (Availability == "" ? "" : " [online; accessed: " + Availability + "]" +
+                            (DOI == "" ? "" : " DOI: " + DOI));
                         break;
                     case 9: //Research project
-                        retVal = CleanAuthors(Authors) + " (" + Year + ") " + Title + ". " + City + ": " + Publisher + ", ";
+                        retVal = CleanAuthors(Authors) + " (" + Year + ") " + Title + ". " + City + ": " + Publisher + ". " +
+                            (DOI == "" ? "" : " DOI: " + DOI);
                         break;
                     case 10: //Article In A Periodical
-                        retVal = CleanAuthors(Authors) + " (" + Year + ") " + Title + ". " + CleanAuthors(ParentTitle) + " " + Volume + (Issue != "" ? "(" + Issue + ")" : "") + ", " + Pages;
+                        retVal = CleanAuthors(Authors) + " (" + Year + ") " + Title + ". " + CleanAuthors(ParentTitle) + " " + Volume + (Issue != "" ? "(" + Issue + ")" : "") + ", " + Pages +
+                            (DOI == "" ? "" : " DOI: " + DOI);
                         break;
                     case 11: //Interview
-                        retVal = CleanAuthors(Authors) + " (" + Year + ") " + Title + ". ";
+                        retVal = CleanAuthors(Authors) + " (" + Year + ") " + Title + ". " +
+                            (DOI == "" ? "" : " DOI: " + DOI);
                         break;
                     case 12: //Generic
-                        retVal = CleanAuthors(Authors) + " (" + Year + ") " + Title + ". " + City + ": " + Publisher;
+                        retVal = CleanAuthors(Authors) + " (" + Year + ") " + Title + ". " + City + ": " + Publisher +
+                            (DOI == "" ? "" : " DOI: " + DOI);
                         break;
                     case 14: //Journal, Article
-                        retVal = CleanAuthors(Authors) + " (" + Year + ") " + Title + ". " + CleanAuthors(ParentTitle) + " " + Volume + (Issue != "" ? "(" + Issue + ")" : "") + ", " + Pages;
+                        retVal = CleanAuthors(Authors) + " (" + Year + ") " + Title + ". " + CleanAuthors(ParentTitle) + " " + Volume + (Issue != "" ? "(" + Issue + ")" : "") + ", " + Pages +
+                            ( DOI == "" ? "" : " DOI: " + DOI);
                         break;
                 }
                 return retVal;

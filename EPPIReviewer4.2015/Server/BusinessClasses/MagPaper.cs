@@ -63,7 +63,8 @@ namespace BusinessLibrary.BusinessClasses
             get
             {
                 return Authors + " (" + Year.ToString() + ") " + OriginalTitle + ". " + Journal + ". " +
-                    Volume.ToString() + (Issue == "" || Issue == null ? "" :  " (" + Issue + ") ") + FirstPage + "-" + LastPage;
+                    Volume.ToString() + (Issue == "" || Issue == null ? "" :  " (" + Issue + ") ") + FirstPage + "-" + LastPage +
+                    (DOI == "" ? "" : ". DOI: " + DOI);
             }
         }
         public string ShortRecord
