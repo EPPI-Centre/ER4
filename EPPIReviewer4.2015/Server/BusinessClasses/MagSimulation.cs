@@ -1043,7 +1043,7 @@ namespace BusinessLibrary.BusinessClasses
                     }
                     MagMakesHelpers.PaperMakesResponse resp = MagMakesHelpers.EvaluateExpressionNoPagingWithCount("OR(" + query + ")", "100");
                     
-                    foreach (MagMakesHelpers.PaperMakes pm in resp.entities)
+                    foreach (MagMakesHelpers.PaperMakes pm in resp.matchingEntities)
                     {
                         file.WriteLine("\"" + pm.Id.ToString() + "\"," +
                                         "\"" + "99" + "\"," +
