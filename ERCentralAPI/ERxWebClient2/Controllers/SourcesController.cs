@@ -46,7 +46,7 @@ namespace ERxWebClient2.Controllers
             catch (Exception e)
             {
                 _logger.LogException(e, "GetSources data portal error");
-                throw;
+                return StatusCode(500, e.Message);
             }
 		}
         [HttpPost("[action]")]
@@ -82,8 +82,8 @@ namespace ERxWebClient2.Controllers
             }
 
         }
-        [HttpPost("[action]")]
-		public IActionResult VerifyFile([FromBody] UploadOrCheckSource incoming)
+        [HttpPost("[action]"), RequestSizeLimit(52_428_800)]        
+        public IActionResult VerifyFile([FromBody] UploadOrCheckSource incoming)
 		{
 			try
 			{
@@ -109,12 +109,12 @@ namespace ERxWebClient2.Controllers
 			catch (Exception e)
 			{
 				_logger.LogException(e, "Verify import file before uploading error");
-				throw;
-			}
+                return StatusCode(500, e.Message);
+            }
 
-		}
-		[HttpPost("[action]")]
-		public IActionResult UploadSource([FromBody] UploadOrCheckSource incoming)
+        }
+        [HttpPost("[action]"), RequestSizeLimit(52_428_800)]
+        public IActionResult UploadSource([FromBody] UploadOrCheckSource incoming)
 		{
 
 			try
@@ -146,8 +146,8 @@ namespace ERxWebClient2.Controllers
 			catch (Exception e)
 			{
 				_logger.LogException(e, "Upload import file error");
-				throw;
-			}
+                return StatusCode(500, e.Message);
+            }
 
 		}
         [HttpPost("[action]")]
@@ -176,7 +176,7 @@ namespace ERxWebClient2.Controllers
             {
 				var errMsg = incoming == null ? "incoming data is null" : incoming.ToString();
 				_logger.LogError(e, "Upload import file error" + errMsg);
-                throw;
+                return StatusCode(500, e.Message);
             }
 
         }
@@ -201,7 +201,7 @@ namespace ERxWebClient2.Controllers
             catch (Exception e)
             {
                 _logger.LogException(e, "DeleteUndeleteSource error");
-                throw;
+                return StatusCode(500, e.Message);
             }
 
         }
@@ -239,7 +239,7 @@ namespace ERxWebClient2.Controllers
             catch (Exception e)
             {
                 _logger.LogException(e, "DeleteUndeleteSource error");
-                throw;
+                return StatusCode(500, e.Message);
             }
 
         }
@@ -269,7 +269,7 @@ namespace ERxWebClient2.Controllers
             catch (Exception e)
             {
                 _logger.LogException(e, "New PubMed Search Preview error");
-                throw;
+                return StatusCode(500, e.Message);
             }
 
         }
@@ -308,7 +308,7 @@ namespace ERxWebClient2.Controllers
             catch (Exception e)
             {
                 _logger.LogException(e, "Act on PubMed Search (import or fetch specific subset) error");
-                throw;
+                return StatusCode(500, e.Message);
             }
 
         }
