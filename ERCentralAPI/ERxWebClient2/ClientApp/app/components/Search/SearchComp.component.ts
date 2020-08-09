@@ -4,7 +4,7 @@ import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ItemListService, Criteria } from '../services/ItemList.service';
 import { searchService, Search } from '../services/search.service';
 import { EventEmitterService } from '../services/EventEmitter.service';
-import { RowClassArgs, GridDataResult, SelectableSettings, SelectableMode  } from '@progress/kendo-angular-grid';
+import { RowClassArgs, GridDataResult, SelectableSettings, SelectableMode, PageChangeEvent  } from '@progress/kendo-angular-grid';
 import { SortDescriptor, orderBy, State, process } from '@progress/kendo-data-query';
 import { ReviewSetsService,  ReviewSet, singleNode, SetAttribute } from '../services/ReviewSets.service';
 import { NotificationService } from '@progress/kendo-angular-notification';
@@ -101,8 +101,29 @@ export class SearchComp implements OnInit, OnDestroy {
 	public searchTextModel: string = '';
 	public CurrentDropdownSelectedCode: singleNode | null = null;
 	public SearchVisualiseData!: Observable<any>[];
-	public SearchForPeoplesModel: string = 'true';
+    public SearchForPeoplesModel: string = 'true';
 
+    public get DataSourceSearches(): GridDataResult {
+        return {
+            data: orderBy(this._searchService.SearchList, this.sortSearches).slice(this.skip, this.skip + this.pageSize),
+            total: this._searchService.SearchList.length,
+        };
+    }
+    public sortSearches: SortDescriptor[] = [{
+        field: 'searchNo',
+        dir: 'desc'
+    }];
+    public pageSize = 100;
+    public skip = 0;
+    protected pageChange({ skip, take }: PageChangeEvent): void {
+        this.skip = skip;
+        this.pageSize = take;
+    }
+
+    public sortChangeSearches(sort: SortDescriptor[]): void {
+        this.sortSearches = sort;
+        //console.log('sorting?' + this.sortSearches[0].field + " ");
+    }
 	public ContactChoice: Contact = new Contact();
     @Output() PleaseOpenTheCodes = new EventEmitter();
 	@ViewChild('WithOrWithoutCodeSelector') WithOrWithoutCodeSelector!: codesetSelectorComponent;
@@ -690,12 +711,7 @@ export class SearchComp implements OnInit, OnDestroy {
 		}
 	}
 
-	public get DataSourceSearches(): GridDataResult {
-		return {
-			data: orderBy(this._searchService.SearchList, this.sortSearches),
-			total: this._searchService.SearchList.length,
-        };
-	}
+
 	   
 	refreshSearches() {
 		this._searchService.Fetch();
@@ -978,19 +994,7 @@ export class SearchComp implements OnInit, OnDestroy {
         dir: 'desc'
 	}];
 
-	public sortSearches: SortDescriptor[] = [{
-		field: 'searchNo',
-		dir: 'desc'
-	}];
-
-	public sortChangeModel(sort: SortDescriptor[]): void {
-		this.sortCustomModel = sort;
-		//console.log('sorting?' + this.sortCustomModel[0].field + " ");
-	}
-	public sortChangeSearches(sort: SortDescriptor[]): void {
-		this.sortSearches = sort;
-		console.log('sorting?' + this.sortSearches[0].field + " ");
-	}
+	
 	public visualiseTitle: string = '';
 	public visualiseSearchId = 0;
 

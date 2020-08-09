@@ -187,7 +187,7 @@
             <div class="row justify-content-center mx-0">
                 <div class="col-8 row align-content-end justify-content-center mx-0">
                     <div>
-                        <button (click)="PreviousStep(); ResetStep34();" class=" pt-1 m-1 rounded btn btn-outline-dark " style="min-width:100px">
+                        <button (click)="PreviousStep()" class=" pt-1 m-1 rounded btn btn-outline-dark " style="min-width:100px">
                             Previous
                         </button>
                         <button class=" pt-1 m-1 rounded  btn btn-outline-success" style="min-width:90px"
@@ -235,7 +235,7 @@
                 <div class="col-12 border border-primary rounded my-1 p-0">
                     <div class="row m-2 p-1 alert-info rounded">
                         <div class="col-12 p-0 m-0 rounded alert-light">
-                            <button class="m-1 py-0 px-1 btn btn-outline-primary" [disabled]="!revInfo.screeningListIsGood" (click)="StartScreening()">
+                            <button class="m-1 py-0 px-1 btn btn-outline-primary" [disabled]="!CanWrite() || !revInfo.screeningListIsGood" (click)="StartScreening()">
                                 Begin Screening
                             </button>
                             <button class="m-1 py-0 px-1 btn btn-outline-secondary" [disabled]="!CanWrite()" (click)="GenerateList()">
@@ -313,7 +313,7 @@
 
 
                 </div>
-                <div class="col-12 border border-primary rounded m-0 p-0">
+                <div *ngIf="revInfo.screeningMode == 'Priority'" class="col-12 border border-primary rounded m-0 p-0">
                     <ng-container *ngTemplateOutlet="TemplateTrainingCriteriaList"></ng-container>
                 </div>
             </div>
@@ -565,6 +565,9 @@
                     </td>
                 </tr>
             </table>
+        </div>
+        <div *ngIf="TrainingScreeningCriteriaListIsNotGoodMsg !=''" class="row p-0 m-0">
+            <div class="m-1 p-1 alert-danger border border-danger rounded small" [innerHTML]="TrainingScreeningCriteriaListIsNotGoodMsg"></div>
         </div>
     </ng-template>
 

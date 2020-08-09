@@ -59,7 +59,7 @@
 This will give you a fresh start to re-evaluate duplicates without losing the work you've done already.&#x0a;
 Note that documents already marked as duplicates will not be re-evaluated, and this will have a few consequences:&#x0a;
 1) When you 'Get new Duplicates' you should get a smaller number of groups as all 'completed' groups should not reappear.&#x0a;
-2) Overlapping groups will not show up again; they may re-appear only if you import new items and 'get new duplicates' once more.&#x0a;
+2) Overlapping groups will not show up again.&#x0a;
 3) Information about the old groups will be LOST! You will not be able to find out the similarity scores of items you have already marked as duplicates.&#x0a;
 If you are really sure that you want to proceed, type 'I agree' in the box below and click 'Yes, I confirm'."
                             HorizontalAlignment="Left"/>

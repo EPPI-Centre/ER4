@@ -453,7 +453,7 @@ namespace BusinessLibrary.BusinessClasses
                             {
                                 if (hs.attribute == "Id")
                                 {
-                                    _totalItemCount = hs.total_count;
+                                    _totalItemCount = hs.totalValueCount;
                                     break;
                                 }
                             }
@@ -539,9 +539,9 @@ namespace BusinessLibrary.BusinessClasses
                         MagMakesHelpers.PaperMakesResponse pmr = MagMakesHelpers.EvaluateExpressionWithPaging(searchString, selectionCriteria.PageSize.ToString(),
                             queryOffset);
 
-                        if (pmr.entities != null && pmr.entities.Count > 0)
+                        if (pmr.matchingEntities != null && pmr.matchingEntities.Count > 0)
                         {
-                            foreach (MagMakesHelpers.PaperMakes pm in pmr.entities)
+                            foreach (MagMakesHelpers.PaperMakes pm in pmr.matchingEntities)
                             {
                                 MagPaper mp = MagPaper.GetMagPaperFromPaperMakes(pm, null);
                                 if (mp != null)

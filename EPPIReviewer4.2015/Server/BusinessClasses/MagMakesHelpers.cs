@@ -24,8 +24,8 @@ namespace BusinessLibrary.BusinessClasses
         // from a paper query
         public class PaperMakesResponse
         {
-            public string expr { get; set; }
-            public List<PaperMakes> entities { get; set; }
+            public string expressionEvaluated { get; set; }
+            public List<PaperMakes> matchingEntities { get; set; }
         }
 
         public class PaperMakes
@@ -117,8 +117,8 @@ namespace BusinessLibrary.BusinessClasses
 
         public class MakesResponseFoS
         {
-            public string expr { get; set; }
-            public List<FieldOfStudyMakes> entities { get; set; }
+            public string expressionEvaluated { get; set; }
+            public List<FieldOfStudyMakes> matchingEntities { get; set; }
         }
 
         public class PaperMakesInvertedAbstract
@@ -137,16 +137,20 @@ namespace BusinessLibrary.BusinessClasses
 
         public class MakesInterpretation
         {
-            public string logprob { get; set; }
-            public string parse { get; set; }
-            public List<MakesInterpretationRule> rules { get; set; }
+            public string score { get; set; }
+            public string semanticParse { get; set; }
+            public string queryExpression { get; set; }
+            public List<PaperMakes> topEntities { get; set; }
+            //public List<MakesInterpretationRule> rules { get; set; }
         }
 
+        /* Looks like this has been removed. Early August 2020
         public class MakesInterpretationRule
         {
             public string name { get; set; }
             public MakesInterpretationOutput output { get; set; }
         }
+        
 
         public class MakesInterpretationOutput
         {
@@ -154,26 +158,27 @@ namespace BusinessLibrary.BusinessClasses
             public string value { get; set; }
             public List<PaperMakes> entities { get; set; }
         }
-
+        */
+        // Calc histogram query
         public class MakesCalcHistogramResponse
         {
-            public string expr { get; set; }
-            public int num_entities { get; set; }
+            public string expressionEvaluated { get; set; }
+            public int numberOfEntities { get; set; }
             public List<histograms> histograms { get; set; }
         }
 
         public class histograms
         {
             public string attribute { get; set; }
-            public string distinct_values { get; set; }
-            public int total_count { get; set; }
-            public List<histogram> histogram { get; set; }
+            //public string distinct_values { get; set; }
+            public int totalValueCount { get; set; }
+            public List<valueDistribution> valueDistribution { get; set; }
         }
-        public class histogram
+        public class valueDistribution
         {
             public string value { get; set; }
-            public double logprob { get; set; }
-            public int count { get; set; }
+            public double totalLogProbability { get; set; }
+            public int numberOfEntities { get; set; }
         }
 
 
@@ -263,9 +268,9 @@ namespace BusinessLibrary.BusinessClasses
             }
             response.Close();
             var respJson = JsonConvert.DeserializeObject<MagMakesHelpers.MakesResponseFoS>(responseText, jsonsettings);
-            if (respJson != null && respJson.entities != null && respJson.entities.Count > 0)
+            if (respJson != null && respJson.matchingEntities != null && respJson.matchingEntities.Count > 0)
             {
-                return respJson.entities[0];
+                return respJson.matchingEntities[0];
             }
             else
                 return null;
@@ -337,9 +342,9 @@ namespace BusinessLibrary.BusinessClasses
                     {
                         foreach (MakesInterpretation i in respJson.interpretations)
                         {
-                            foreach (MakesInterpretationRule r in i.rules)
-                            {
-                                foreach (PaperMakes pm in r.output.entities)
+                            //foreach (MakesInterpretationRule r in i.rules)
+                            //{
+                                foreach (PaperMakes pm in i.topEntities)
                                 {
                                     var found = PaperList.Find(e => e.Id == pm.Id);
                                     if (found == null)
@@ -347,7 +352,7 @@ namespace BusinessLibrary.BusinessClasses
                                         PaperList.Add(pm);
                                     }
                                 }
-                            }
+                            //}
                         }
                     }
                 }
@@ -404,9 +409,9 @@ namespace BusinessLibrary.BusinessClasses
                 {
                     foreach (MakesInterpretation i in respJson.interpretations)
                     {
-                        foreach (MakesInterpretationRule r in i.rules)
-                        {
-                            foreach (PaperMakes pm in r.output.entities)
+                        //foreach (MakesInterpretationRule r in i.rules)
+                        //{
+                            foreach (PaperMakes pm in i.topEntities)
                             {
                                 var found = PaperList.Find(e => e.Id == pm.Id);
                                 if (found == null)
@@ -414,7 +419,7 @@ namespace BusinessLibrary.BusinessClasses
                                     PaperList.Add(pm);
                                 }
                             }
-                        }
+                        //}
                     }
                 }
             }
@@ -452,9 +457,9 @@ namespace BusinessLibrary.BusinessClasses
                 response.Close();
 
                 var respJson = JsonConvert.DeserializeObject<MagMakesHelpers.PaperMakesResponse>(responseText, jsonsettings);
-                if (respJson != null && respJson.entities != null && respJson.entities.Count > 0)
+                if (respJson != null && respJson.matchingEntities != null && respJson.matchingEntities.Count > 0)
                 {
-                    foreach (PaperMakes i in respJson.entities)
+                    foreach (PaperMakes i in respJson.matchingEntities)
                     {
                         var found = PaperList.Find(e => e.Id == i.Id);
                         if (found == null)
@@ -570,9 +575,9 @@ namespace BusinessLibrary.BusinessClasses
         {
             PaperMakesResponse pmr = EvaluateSinglePaperId(PaperId.ToString(), MakesDeploymentStatus);
 
-            if (pmr.entities != null && pmr.entities.Count > 0)
+            if (pmr.matchingEntities != null && pmr.matchingEntities.Count > 0)
             {
-                return pmr.entities[0];
+                return pmr.matchingEntities[0];
             }
             else
             {

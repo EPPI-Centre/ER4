@@ -328,26 +328,29 @@
 <div class="card col-12 bg-light">
 	
     <kendo-grid *ngIf="SearchList && SearchList.length > 0 && !isSearchServiceBusy"
-                [data]="DataSourceSearches" [height]="410"
+                [data]="DataSourceSearches" [height]="600"
                 [rowClass]="rowCallback"
                 [sortable]="{
 	                        allowUnsort: allowUnsort,
 	                        mode: 'single'
 	                        }"
                 [sort]="sortSearches"
+                [pageSize]="pageSize"
+                [skip]="skip"
+                [pageable]="{
+                              buttonCount: 10,
+                              info: false,
+                              type: 'numeric',
+                              pageSizes: false,
+                              previousNext: true
+                            }"
+                (pageChange)="pageChange($event)"
                 (sortChange)="sortChangeSearches($event)"
                 class="mt-1">
 
-        <kendo-grid-column [sortable]="false" width="33"
+        <kendo-grid-column [sortable]="false" width="33" class="px-1 py-0 m-1"
                            [headerStyle]="{'text-align': 'center', 'max-width':'33px', 'min-width':'33px'}"
                            [style]="{'text-align': 'center', 'max-width':'33px', 'min-width':'33px'}">
-            <!--<ng-template kendoGridHeaderTemplate let-dataItem>
-                <input style="zoom: 1.2;"
-                       type="checkbox"
-                       name="selectAll"
-                       (change)="selectAllSearchesChange($event)"
-                       [checked]="allSearchesSelected" />
-            </ng-template>-->
             <ng-template kendoGridCellTemplate let-dataItem>
                 <input style="zoom: 1.2;" (click)="checkboxClicked(dataItem)"
                        type="checkbox"
@@ -355,31 +358,38 @@
                        [checked]="dataItem.add" />
             </ng-template>
         </kendo-grid-column>
-        <kendo-grid-column field="searchNo" title="No" width="60">
+        <kendo-grid-column field="searchNo" title="No" width="60" class="px-1 py-0 m-1">
         </kendo-grid-column>
-        <kendo-grid-column field="title" title="Name" width="360">
+        <kendo-grid-column field="title" title="Name" width="360" class="px-1 py-0 m-1">
         </kendo-grid-column>
-        <kendo-grid-column field="contactName" title="Created By" width="140">
+        <kendo-grid-column field="contactName" title="Created By" width="140" class="px-1 py-0 m-1">
         </kendo-grid-column>
-        <kendo-grid-column field="searchDate" title="Date" width="140">
+        <kendo-grid-column field="searchDate" title="Date" width="140" class="px-1 py-0 m-1">
         </kendo-grid-column>
-        <kendo-grid-column width="80" class="btn btn-link font-weight-bold p-4"
+        <kendo-grid-column width="80" class="px-1 py-0 m-1"
                            field="hitsNo" title="Hits">
             <ng-template kendoGridCellTemplate let-dataItem>
-                <div (click)="SearchGetItemList(dataItem)">
+                <div (click)="SearchGetItemList(dataItem)" class="btn btn-link font-weight-bold">
                     {{dataItem.hitsNo}}
                 </div>
             </ng-template>
         </kendo-grid-column>
-        <kendo-grid-column field="isClassifierResult"
+        <kendo-grid-column field="isClassifierResult" class="px-1 py-0 m-1"
                            title="Classifier" width="80">
             <ng-template kendoGridCellTemplate let-dataItem>
                 <div (click)="OpenClassifierVisualisation(dataItem)"
-                     class="{{dataItem.isClassifierResult == true ? 'btn btn-link font-weight-bold':'btn font-weight-bold'}}">
+                     class="{{dataItem.isClassifierResult == true ? 'btn font-weight-bold btn-link':'btn font-weight-bold'}}">
                     {{dataItem.isClassifierResult}}
                 </div>
             </ng-template>
         </kendo-grid-column>
+        <ng-template kendoPagerTemplate let-totalPages="totalPages" let-totalN="total" let-skipo="skip" let-pageSizep="pageSize">
+            <kendo-pager-prev-buttons *ngIf="totalPages > 1"></kendo-pager-prev-buttons>
+            <kendo-pager-numeric-buttons *ngIf="totalPages > 1" [buttonCount]="10"></kendo-pager-numeric-buttons>
+            <kendo-pager-next-buttons *ngIf="totalPages > 1"></kendo-pager-next-buttons>
+            <div *ngIf="totalPages == 1" class="m-0 p-0 small k-pager-info">[{{totalN}} Searches]</div>
+            <div *ngIf="totalPages > 1" class="m-0 p-0 small k-pager-info">{{skipo+1}}-{{skipo+pageSizep > totalN ? totalN : skipo+pageSizep }} (of {{totalN}})</div>
+        </ng-template>
     </kendo-grid>
 </div>
 <div *ngIf="SearchList && isSearchServiceBusy">Loading items...</div>

@@ -159,26 +159,40 @@
 					</div>
 				</div>
 			</div>
-			<div class="row w-100 p-0 m-0 border-bottom   ">
-				<div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Url</div>
-				<div class="col p-1 m-1 bg-white text-nowrap" style="overflow:auto">
-					{{item.url}}
-				</div>
-			</div>
-			<div class="row w-100 p-0 m-0 border-bottom  ">
-				<div class="w-50 row p-0 m-0">
-					<div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">DOI</div>
-					<div class="col p-1 m-1 bg-white ">
-						{{item.doi}}
-					</div>
-				</div>
-				<div class="w-50 row p-0 m-0">
-					<div class="p-1 ml-1 mt-1" style="min-width:90px;">Availability</div>
-					<div class="col p-1 m-1 bg-white">
-						{{item.availability}}
-					</div>
-				</div>
-			</div>
+            <div class="row w-100 p-0 m-0 border-bottom   ">
+                <div *ngIf="URLLink == ''; else elseURLBlock" class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">
+                    Url
+                </div>
+                <ng-template #elseURLBlock>
+                    <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">
+                        <a href="{{URLLink}}" target="_blank">Url</a>
+                    </div>
+                </ng-template>
+                <div class="col p-1 m-1 bg-white text-nowrap" style="overflow:auto">
+                    {{item.url}}
+                </div>
+            </div>
+            <div class="row w-100 p-0 m-0 border-bottom  ">
+                <div class="w-50 row p-0 m-0">
+                    <div *ngIf="DOILink == ''; else elseDOIBlock" class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">
+                        DOI
+                    </div>
+                    <ng-template #elseDOIBlock>
+                        <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">
+                            <a href="{{DOILink}}" target="_blank">DOI</a>
+                        </div>
+                    </ng-template>
+                    <div class="col p-1 m-1 bg-white ">
+                        {{item.doi}}
+                    </div>
+                </div>
+                <div class="w-50 row p-0 m-0">
+                    <div class="p-1 ml-1 mt-1" style="min-width:90px;">Availability</div>
+                    <div class="col p-1 m-1 bg-white">
+                        {{item.availability}}
+                    </div>
+                </div>
+            </div>
 			<div class="row w-100 p-0 m-0 border-bottom  ">
 				<div class="w-50 row p-0 m-0">
 					<div class="p-1 ml-1 " style="min-width:90px;">Edition</div>
