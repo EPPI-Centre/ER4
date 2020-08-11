@@ -196,8 +196,8 @@ export class PriorityScreeningService extends BusyAwareService {
 		this._BusyMethods.push("RunNewTrainingCommand");
         return this._httpC.get<iReviewTrainingRunCommand>(this._baseUrl + 'api/PriorirtyScreening/TrainingRunCommand').subscribe(tL => {
             //this.DelayedFetch(1 * 6);//seconds to wait...
-            this.ReviewInfoService.ReviewInfo = new ReviewInfo(tL.RevInfo);
-            console.log("Received RevInfo:", tL.RevInfo);
+            this.ReviewInfoService.ReviewInfo = new ReviewInfo(tL.revInfo);
+            console.log("Received RevInfo:", tL.revInfo);
             if (delayedFetch) this.DelayedFetch(30 * 60);//seconds to wait... 30m, a decent guess of how long the retraining will take.
             //key is that user will get the next item from the current list (server side) even before receiving the "training" record via this current mechanism.
 			this.RemoveBusy("RunNewTrainingCommand");
@@ -350,8 +350,8 @@ export interface iUpdatingTrainingScreeningCriteria {
 }
 
 export interface iReviewTrainingRunCommand {
-    RevInfo: iReviewInfo;
-    ReportBack: string;
-    Parameters: string;
-    SimulationResults: string;
+    revInfo: iReviewInfo;
+    reportBack: string;
+    parameters: string;
+    simulationResults: string;
 }
