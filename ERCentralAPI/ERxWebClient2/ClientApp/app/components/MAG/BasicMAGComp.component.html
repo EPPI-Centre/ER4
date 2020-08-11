@@ -15,10 +15,18 @@
                         <h1 class="font-weight-light">Find related papers and set up review auto-updates</h1>
                     </td>
                     <td style="padding-left:10px">
-                        <a class="btn btn-dark btn-sm text-white" data-toggle="collapse"
-                           href="#collapseExample1" role="button" aria-expanded="false" aria-controls="collapseExample1">
-                            more details <i class="fa fa-plus-square"></i>
-                        </a>
+                        <div *ngIf="!basicPanel">
+                            <a (click)="ShowBasicPanel()" class="btn btn-dark btn-sm text-white" data-toggle="collapse"
+                               href="#collapseExample1" role="button" aria-expanded="false" aria-controls="collapseExample1">
+                                more details <i class="fa fa-arrow-circle-down"></i>
+                            </a>
+                        </div>
+                        <div *ngIf="basicPanel">
+                            <a (click)="ShowBasicPanel()" class="btn btn-dark btn-sm text-white" data-toggle="collapse"
+                               href="#collapseExample1" role="button" aria-expanded="false" aria-controls="collapseExample1">
+                                more details <i class="fa fa-arrow-circle-up"></i>
+                            </a>
+                        </div>
                     </td>
                 </tr>
             </table>
@@ -46,13 +54,20 @@
 <div class="container col-12">
 
     <div *ngIf="IsServiceBusy" class="k-loading-image" style="position: fixed; top: 2%;"></div>
-    <p>
-        <a class="btn btn-info btn-sm text-white" data-toggle="collapse"
-           href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
-            Create new MAG search/auto-update <i class="fa fa-plus-square"></i>
-        </a>
-    </p>
 
+        <div *ngIf="!basicSearchPanel">
+            <a (click)="ShowSearchPanel()" class="btn btn-info btn-sm text-white" data-toggle="collapse"
+               href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
+                Create new MAG search/auto-update <i class="fa fa-arrow-circle-down"></i>
+            </a>
+        </div>
+        <div *ngIf="basicSearchPanel">
+            <a (click)="ShowSearchPanel()" class="btn btn-info btn-sm text-white" data-toggle="collapse"
+               href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
+                Create new MAG search/auto-update <i class="fa fa-arrow-circle-up"></i>
+            </a>
+        </div>
+ 
     <div class="collapse multi-collapse" id="collapseExample">
         <div class="card card-footer">
 

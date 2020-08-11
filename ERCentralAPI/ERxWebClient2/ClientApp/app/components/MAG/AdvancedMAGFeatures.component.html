@@ -17,10 +17,18 @@
                         <h1 class="font-weight-light"> Research And Development for MAG</h1>
                     </td>
                     <td style="padding-left:10px">
-                        <a class="btn btn-dark btn-sm text-white" data-toggle="collapse"
-                           href="#collapseExample3" role="button" aria-expanded="false" aria-controls="collapseExample3">
-                            more details <i class="fa fa fa-plus-square"></i>
-                        </a>
+                        <div *ngIf="!basicMAGPanel">
+                            <a (click)="ShowMAGPanel()" class="btn btn-dark btn-sm text-white" data-toggle="collapse"
+                               href="#collapseExample3" role="button" aria-expanded="false" aria-controls="collapseExample3">
+                                more details <i class="fa fa fa-arrow-circle-down"></i>
+                            </a>
+                            </div>
+                            <div *ngIf="basicMAGPanel">
+                                <a (click)="ShowMAGPanel()" class="btn btn-dark btn-sm text-white" data-toggle="collapse"
+                                   href="#collapseExample3" role="button" aria-expanded="false" aria-controls="collapseExample3">
+                                    more details <i class="fa fa fa-arrow-circle-up"></i>
+                                </a>
+                            </div>
                     </td>
                 </tr>
             </table>
@@ -70,12 +78,20 @@
 </div>
 
 <div class="container col-12">
-    <p>
-        <button class="btn btn-info btn-sm text-white" data-toggle="collapse" href="#collapseExample1"
+
+        <div *ngIf="!basicSeedPanel">
+            <a (click)="ShowSeedPanel()" class="btn btn-info btn-sm text-white" data-toggle="collapse" href="#collapseExample1"
                 role="button" aria-expanded="false" aria-controls="collapseExample1">
-            Seed and Test MAG <i class="fa fa-plus-square"></i>
-        </button>
-    </p>
+            Seed and Test MAG <i class="fa fa-arrow-circle-down"></i>
+            </a>
+        </div>
+        <div *ngIf="basicSeedPanel">
+            <a (click)="ShowSeedPanel()" class="btn btn-info btn-sm text-white" data-toggle="collapse" href="#collapseExample1"
+                role="button" aria-expanded="false" aria-controls="collapseExample1">
+            Seed and Test MAG <i class="fa fa-arrow-circle-up"></i>
+            </a>
+        </div>
+
 
 
     <div class="collapse multi-collapse" id="collapseExample1">

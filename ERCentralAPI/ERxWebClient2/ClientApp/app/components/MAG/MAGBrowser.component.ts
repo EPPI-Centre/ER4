@@ -46,12 +46,16 @@ export class MAGBrowser implements OnInit, OnDestroy {
     public kendoBeforeDateValue: Date = new Date();
     public isCurrentSelected: boolean = false;
     public ShowOriginalPapers: boolean = false;
-    public ShowOriginal() {
-        this.ShowOriginalPapers = !this.ShowOriginalPapers;
-    }
+
     public getTopicsSub: Subscription | null = null;
     public getAttriubteIdsSub: Subscription | null = null;
+    public basicOrigPanel: boolean = false;
 
+    public ShowOrigPanel() {
+
+        this.basicOrigPanel = !this.basicOrigPanel;
+        this.ShowOriginalPapers = !this.ShowOriginalPapers;
+    }
     ngOnInit() {
 
         this._eventEmitterService.selectedButtonPressed.subscribe(

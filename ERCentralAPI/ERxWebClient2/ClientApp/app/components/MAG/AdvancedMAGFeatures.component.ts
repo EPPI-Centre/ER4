@@ -41,7 +41,17 @@ export class AdvancedMAGFeaturesComponent implements OnInit, OnDestroy {
         //this.history = this._routingStateService.getHistory();
     }
     private subsc: Subscription = new Subscription();
-    
+    public basicMAGPanel: boolean = false;
+    public basicSeedPanel: boolean = false;
+
+    public ShowMAGPanel() {
+
+        this.basicMAGPanel = !this.basicMAGPanel;
+    }
+    public ShowSeedPanel() {
+
+        this.basicSeedPanel = !this.basicSeedPanel;
+    }
     ngOnInit() {
 
         if (this._ReviewerIdentityServ.reviewerIdentity.userId == 0 ||

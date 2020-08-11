@@ -42,7 +42,19 @@
     <div *ngIf="_magBrowserService.MAGList.papers.length != 0 " class="col-3 pull-right">Total number of selected papers: {{ShowSelectedPapers}}</div>
     <div class="col-3 pull-right">Total number of papers in this list: {{_magBrowserService.MAGOriginalList.totalItemCount}}</div>
     <div>
-        <button class="btn alert-primary fa fa-plus-square" (click)="ShowOriginal()">Show Original Search For Papers</button>
+        <div *ngIf="!basicOrigPanel">
+            <a (click)="ShowOrigPanel()" class="btn alert-primary " data-toggle="collapse" href="#collapseExample1"
+               role="button" aria-expanded="false" aria-controls="collapseExample1">
+                 Show Original Search For Papers <i class="fa fa-arrow-circle-up"></i>
+            </a>
+        </div>
+        <div *ngIf="basicOrigPanel">
+            <a (click)="ShowOrigPanel()" class="btn alert-primary " data-toggle="collapse" href="#collapseExample1"
+               role="button" aria-expanded="false" aria-controls="collapseExample1">
+                 Show Original Search For Papers <i class="fa fa-arrow-circle-down"></i>
+            </a>
+        </div>
+     
     </div>
     <div *ngIf="ShowOriginalPapers">
         <div>

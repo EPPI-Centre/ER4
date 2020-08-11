@@ -45,7 +45,8 @@ export class BasicMAGComp implements OnInit {
     public magDateRadio: string = 'true';
     public magRCTRadio: string = 'NoFilter';
     public magMode: string = '';
-        
+    public basicPanel: boolean = false;
+    public basicSearchPanel: boolean = false;
 
 	ngOnInit() {
 
@@ -107,6 +108,12 @@ export class BasicMAGComp implements OnInit {
                     }
             );
         }
+    }
+    public ShowBasicPanel() {
+        this.basicPanel = !this.basicPanel;
+    }
+    public ShowSearchPanel() {
+        this.basicSearchPanel = !this.basicSearchPanel;
     }
     public ImportMagSearchPapers(item: MagRelatedPapersRun) {
 
