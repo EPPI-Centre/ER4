@@ -10,7 +10,7 @@ GO
 -- Create date: <28/06/2020>
 -- Description:	<UPDTES MAG TABLE WITH THE LATEST AZURE DATA>
 -- =============================================
-ALTER PROCEDURE [dbo].[st_MagUpdateCurrentInfoLatestMag]
+CREATE or ALTER PROCEDURE [dbo].[st_MagUpdateCurrentInfoLatestMag]
 		@MAG_VERSION nvarchar(20),
 		@WHEN_LIVE	datetime , 
 		@MATCHING_AVAILABLE	bit, 
