@@ -94,7 +94,7 @@ export class ItemListService extends BusyAwareService {
 					console.log();
                     this.SaveItems(list, this._Criteria);
                     this.ListChanged.emit();
-					console.log('aksdjh: CHEKC: ', JSON.stringify(this.ItemList.items.length));
+					//console.log('aksdjh: CHEKC: ', JSON.stringify(this.ItemList.items.length));
                 }, error => {
                     this.ModalService.GenericError(error);
                     this.RemoveBusy("FetchWithCrit");

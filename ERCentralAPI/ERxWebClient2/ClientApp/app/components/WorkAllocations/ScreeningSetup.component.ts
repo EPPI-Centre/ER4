@@ -60,7 +60,7 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
     private subGotPriorityScreeningData: Subscription | null = null;
     private RevInfoSub: Subscription | null = null;
     public AllowEditOnStep4: boolean = false;
-    public ScreenAllItems: boolean = true;
+    private _ScreenAllItems: boolean = true;
     private _ItemsWithThisAttribute: SetAttribute | null = null;
     public selectedCodeSetDropDown: ReviewSet | null = null;
     public isCollapsedAllocateOptions: boolean = false;
@@ -161,6 +161,18 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
     }
     public GoToAllinOneStep() {
         this.CurrentStep = 4;
+    }
+    public get ScreenAllItems(): boolean {
+        return this._ScreenAllItems;
+    }
+    public set ScreenAllItems(val: boolean) {
+        if (val == true) {
+            if (this._ScreenAllItems == false) {
+                this.revInfo.screeningWhatAttributeId = 0;
+                this.DropdownWithWithoutSelectedCode = null;
+            }
+        }
+        this._ScreenAllItems = val;
     }
     IsServiceBusy(): boolean {
         //console.log("IsWizardService busy?", this.ReviewSetsService.IsBusy, this.ReviewSetsEditingService.IsBusy, this.ReviewInfoService.IsBusy, this.WorkAllocationListService.IsBusy)
