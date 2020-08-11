@@ -117,7 +117,7 @@ namespace BusinessLibrary.BusinessClasses
 
 #if (!CSLA_NETCORE)
 
-            uploadFileName = System.Web.HttpRuntime.AppDomainAppPath + @"UserTempUploads/" + "crSeeds.tsv";
+            string uploadFileName = System.Web.HttpRuntime.AppDomainAppPath + @"UserTempUploads/" + "crSeeds.tsv";
 #else
             const string TempPath = @"UserTempUploads/";
             string uploadFileName = TempPath + "crSeeds.tsv";

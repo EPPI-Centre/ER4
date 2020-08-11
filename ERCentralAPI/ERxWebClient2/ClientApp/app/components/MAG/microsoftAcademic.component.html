@@ -11,7 +11,8 @@
     <b>Record(s) matched from Microsoft Academic:</b>
 
     <h5 class="alert-warning" *ngIf="IsServiceBusy">Loading...</h5>
-    <div class="card col-12 alert-primary" style="overflow:auto;" *ngIf="_magAdvancedService.MagReferencesPaperList != null">
+    <div class="card col-12 alert-primary" style="overflow:auto;" 
+         *ngIf="_magAdvancedService.MagReferencesPaperList != null && _magAdvancedService.MagReferencesPaperList.papers.length > 0 ">
         <table class="table table-bordered table-responsive-md table-striped text-center small alert-primary">
             <thead>
                 <tr>

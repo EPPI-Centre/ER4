@@ -45,7 +45,7 @@ namespace ERxWebClient2.Controllers
             }
         }
 
-        // TODO: this needs fixing
+        // TODO: this needs fixing why is LinkedITEM_ID not > 0
         [HttpPost("[action]")]
         public IActionResult UpdateMagPaper([FromBody] MVCMagPaperCorrectnessState magPaperState)
         {

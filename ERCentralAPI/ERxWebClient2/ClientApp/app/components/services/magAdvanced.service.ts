@@ -71,7 +71,7 @@ export class MAGAdvancedService extends BusyAwareService {
                 })
         
     }
-    public FetchMagPaperList(crit: MVCMagPaperListSelectionCriteria): Promise<MagPaper[]>  {
+    public FetchMagPaperList(crit: MVCMagPaperListSelectionCriteria): Promise<MagList>  {
         this._BusyMethods.push("FetchMagPaperList");
         return  this._httpC.post<MagPaper[]>(this._baseUrl + 'api/MagPaperList/GetMagPaperList', crit)
                 .toPromise().then(
@@ -260,7 +260,7 @@ export class MAGAdvancedService extends BusyAwareService {
 
         this._BusyMethods.push("MagMatchItemsToPapers");
         let body = JSON.stringify({ Value: itemId });
-        return this._httpC.post<MagPaper[]>(this._baseUrl + 'api/MagMatchAll/MagMatchItemsToPapers', body)
+        return this._httpC.post<MagList>(this._baseUrl + 'api/MagMatchAll/MagMatchItemsToPapers', body)
             .toPromise().then(() => {
                 this.RemoveBusy("MagMatchItemsToPapers");
                 let crit: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
@@ -268,8 +268,10 @@ export class MAGAdvancedService extends BusyAwareService {
                 crit.iTEM_ID = itemId;
 
                 this.FetchMagPaperList(crit).then(
-                    (result: MagPaper[]) => {
-                        return result;
+                    (result: MagList) => {
+                        console.log('the result from fetching the list from MagMatchItemsToPapers: ', JSON.stringify(result.papers));
+                        this.MagReferencesPaperList = result;
+                        return result.papers;
                     }
                 );
             },
