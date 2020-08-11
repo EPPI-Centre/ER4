@@ -98,6 +98,7 @@ import { microsoftAcademicComp } from './components/MAG/microsoftAcademic.compon
 import { MAGHeaderBarComp } from './components/commonComponents/MAGHeaderBar.component';
 import { ScreeningSetupComp } from './components/WorkAllocations/ScreeningSetup.component';
 import { MAGOrigpaginatorComp } from './components/commonComponents/MAGOrigpaginator.component';
+import { DatePipe } from '@angular/common';
 
 @NgModule({
     declarations: [
@@ -180,8 +181,11 @@ import { MAGOrigpaginatorComp } from './components/commonComponents/MAGOrigpagin
         ScreeningSetupComp
 	],
     providers: [
+        DatePipe, 
         EventEmitterService,
-		{ provide: RouteReuseStrategy, useClass: CustomRouteReuseStrategy }
+        {
+            provide: RouteReuseStrategy, useClass: CustomRouteReuseStrategy
+        }
     ],
 	entryComponents: [InfoBoxModalContent, ModalDialogComponent, ConfirmationDialogComponent],
 	imports: [

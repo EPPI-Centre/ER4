@@ -118,21 +118,23 @@
             </div>
         </div>
         <div class="row col-12" *ngIf="_magAdvancedService.currentMagPaper.paperId == 0">
-            <div class="col-sm-12 col-lg-4 " >
-                <div class="col-1 m-0 p-0"></div>
-                <div class="col-sm-12 col-lg-6  m-0 p-0 "><b>After this date:</b></div>
-                <div class="example-wrapper col-sm-12 col-lg-6" >
+            <div class="col-sm-12 col-lg-5 " >
+            
+                <div class="col-sm-12 col-lg-8 m-0 p-0 "><b>After this date:</b></div>
+                <div class="example-wrapper col-sm-12 col-lg-4" >
                     <kendo-datepicker [(value)]="kendoAfterDateValue"></kendo-datepicker>
                 </div>
             </div>
-            <div class="col-sm-12 col-lg-4 " >
-                <div class="col-1 m-0 p-0"></div>
-                <div class="col-sm-12 col-lg-6 m-0 p-0 "><b>Before this date:</b></div>
-                <div class="example-wrapper col-sm-12 col-lg-6" >
+            <div class="col-sm-12 col-lg-5 " >
+           
+                <div class="col-sm-12 col-lg-8 m-0 p-0 "><b>Before this date:</b></div>
+                <div class="example-wrapper col-sm-12 col-lg-4" >
                     <kendo-datepicker [(value)]="kendoBeforeDateValue"></kendo-datepicker>
                 </div>
             </div>
-            <button (click)="RefreshPapersBetweenDates()" class="btn btn-lg btn-outline-dark h-25 fa fa-refresh"></button>
+            <div class="col-lg-2">
+                <button (click)="RefreshPapersBetweenDates()" class="btn btn-lg btn-outline-dark h-100 fa fa-refresh"></button>
+            </div>
         </div>
     </div>
 
@@ -140,7 +142,7 @@
         <kendo-tabstrip-tab [selected]="true" [title]="'References'">
             <ng-template kendoTabContent>
 
-                <div [title]="'References'" style="min-height:500px;min-width:450px; overflow:auto;">
+                <div [title]="'Search Results'" style="min-height:500px;min-width:450px; overflow:auto;">
 
                     <div>
                         <h5>Papers identified from auto-identification MAG run</h5>

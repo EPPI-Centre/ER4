@@ -7,9 +7,11 @@ import {
     MVCMagPaperListSelectionCriteria, MagFieldOfStudy, MvcMagFieldOfStudyListSelectionCriteria,
     TopicLink, MagItemPaperInsertCommand} from '../services/MAGClasses.service';
 import { TabStripComponent } from '@progress/kendo-angular-layout';
+import { DatePipe } from '@angular/common';
+
 
 @Injectable({
-	    providedIn: 'root',
+    providedIn: 'root',
     }
 )
 
@@ -19,6 +21,7 @@ export class MAGBrowserService extends BusyAwareService {
         private _httpC: HttpClient,
         @Inject('BASE_URL') private _baseUrl: string,
         private modalService: ModalService,
+        private datePipe: DatePipe
     ) {
 		super();
 	}
@@ -109,7 +112,12 @@ export class MAGBrowserService extends BusyAwareService {
             return false;
         }
     }
-    public GetPaperListForTopicsAfterRefresh(fieldOfStudy: MagFieldOfStudy, dateFrom: string, dateTo: string): boolean | undefined {
+    public GetPaperListForTopicsAfterRefresh(fieldOfStudy: MagFieldOfStudy, dateFrom: Date, dateTo: Date): boolean | undefined {
+
+
+        //need to format dateFrom and to
+        let dateFormattedFrom: string | null = this.datePipe.transform(dateFrom, 'yyyy-MM-dd'); 
+        let dateFormattedTo: string | null = this.datePipe.transform(dateTo, 'yyyy-MM-dd'); 
 
         if (fieldOfStudy.fieldOfStudyId != null) {
 
@@ -120,8 +128,12 @@ export class MAGBrowserService extends BusyAwareService {
             this.ListCriteria.listType = "PaperFieldsOfStudyList";
             this.ListCriteria.pageNumber = 0;
             this.ListCriteria.pageSize = this.pageSize;
-            this.ListCriteria.dateFrom = dateFrom;
-            this.ListCriteria.dateTo = dateTo;
+            if (dateFormattedFrom != null) {
+                this.ListCriteria.dateFrom = dateFormattedFrom;
+            }
+            if (dateFormattedTo != null) {
+                this.ListCriteria.dateTo = dateFormattedTo;
+            }
             this.FetchWithCrit(this.ListCriteria, "PaperFieldsOfStudyList").then(
 
                 (res: boolean) => { return res; }

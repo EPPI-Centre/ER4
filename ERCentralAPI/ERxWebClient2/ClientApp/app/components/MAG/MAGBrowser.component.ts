@@ -94,7 +94,7 @@ export class MAGBrowser implements OnInit, OnDestroy {
     public RefreshPapersBetweenDates() {
 
         this._magBrowserService.GetPaperListForTopicsAfterRefresh(this._magBrowserService.currentFieldOfStudy,
-            this.kendoAfterDateValue.toUTCString(), this.kendoBeforeDateValue.toUTCString());
+            this.kendoAfterDateValue, this.kendoBeforeDateValue);
 
     }
     onTabSelect(e: any) {

@@ -29,7 +29,7 @@ export class microsoftAcademicComp implements OnInit, OnDestroy {
     public currentMagPaperLinkItem: MagPaper = new MagPaper();
     ngOnInit() {
 
-
+        console.log('Input item is there a linkedItem: ', JSON.stringify(this.item));
         console.log('check this structure: ', JSON.stringify(this._magAdvancedService.MagReferencesPaperList.papers));
 
         this.sub = this._ItemCodingService.DataChanged.subscribe(
