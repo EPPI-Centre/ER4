@@ -368,7 +368,7 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
                 //user is doing the "I'll edit all my settings in one go" thing, so we'll ask what to do.
                 this.ConfirmationDialogService.confirm("Update training codes?",
                     "You have <em>changed</em> the screening tool.<br /> Would you like to automatically update the list of training codes?<br />Training codes are <strong>important</strong>! They define what the machine will learn from, so <strong>please check</strong> that they are correct, in any case."
-                    , false, "", "Yes please (I'll check)", "No, I'll do it myself"
+                    , false, "", "Yes, auto-update", "No, I'll do it myself"
                     , "lg")
                     .then((confirmed: any) => {
                         if (confirmed) {
