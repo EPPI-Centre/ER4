@@ -62,6 +62,10 @@ export class MAGAdvancedService extends BusyAwareService {
         return this._httpC.post<MagPaper>(this._baseUrl + 'api/MagPaperList/UpdateMagPaper', body)
             .toPromise().then((result: MagPaper) => {
                 this.RemoveBusy("UpdateMagPaper");
+                let ind = this.ReviewMatchedPapersList.findIndex(f => f.paperId == result.paperId);
+                if (ind >= -1) {
+                    //we can replace the edited fellow with our result from the server, should we?
+                }
                     return result;    
                 },
                 (error: any) => {
@@ -76,11 +80,11 @@ export class MAGAdvancedService extends BusyAwareService {
         return  this._httpC.post<MagPaper[]>(this._baseUrl + 'api/MagPaperList/GetMagPaperList', crit)
                 .toPromise().then(
 
-                    (result: MagPaper[]) => {
+                    (result: MagPaper[] | MagList) => {
                         this.RemoveBusy("FetchMagPaperList");
 
                         if (crit.listType == 'ReviewMatchedPapers' || crit.listType == 'ReviewMatchedPapersWithThisCode') {
-                            this.ReviewMatchedPapersList = result;
+                            this.ReviewMatchedPapersList = result as MagPaper[];
                             for (var i = 0; i < this.ReviewMatchedPapersList.length; i++) {
                                 this.PaperIds += this.ReviewMatchedPapersList[i].paperId.toString() + ',';
                             }
@@ -88,8 +92,8 @@ export class MAGAdvancedService extends BusyAwareService {
                             this.CurrentCriteria = crit;
 
                         } else if (crit.listType == 'ItemMatchedPapersList') {
-
-                            this.MagReferencesPaperList.papers = result;
+                            console.log("FetchMagPaperList ItemMatchedPapersList", result);
+                            this.MagReferencesPaperList = result as MagList;
                         }
                         return result;
                     },

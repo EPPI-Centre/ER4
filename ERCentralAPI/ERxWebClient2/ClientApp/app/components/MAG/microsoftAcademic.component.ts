@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, Inject, Input} from '@angular/core';
 import { Router } from '@angular/router';
 import { MAGAdvancedService } from '../services/magAdvanced.service';
-import { MagPaper } from '../services/MAGClasses.service';
+import { MagPaper, MVCMagPaperListSelectionCriteria } from '../services/MAGClasses.service';
 import { ItemCodingService } from '../services/ItemCoding.service';
 import { Subscription } from 'rxjs';
 import { Item } from '../services/ItemList.service';
@@ -72,14 +72,30 @@ export class microsoftAcademicComp implements OnInit, OnDestroy {
 
     }
     public FetchMAGMatches() {
+        let crit: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
+        crit.listType = 'ItemMatchedPapersList';
+        crit.iTEM_ID = this.item.itemId;
+        this._magAdvancedService.FetchMagPaperList(crit).then(
+            (res) => {
+                if (res != null) {
+                    console.log('fetchMAGMatches 1: ' + JSON.stringify(res));
+                    this.MagPaperList = res.papers;
+                } else {
+                    console.log('fetchMAGMatches is empty: ' + JSON.stringify(res));
+                    this.MagPaperList = [];
+                }
+            }
+        )
+    }
+    public FindNewMAGMatches() {
 
         this._magAdvancedService.MagMatchItemsToPapers(this.item.itemId).then(
             (res) => {
                 if (res != null) {
-                    console.log('fetchMAGMatches 1: ' + JSON.stringify(res));
+                    console.log('FindNewMAGMatches 1: ' + JSON.stringify(res));
                     this.MagPaperList = res;
                 } else {
-                    console.log('fetchMAGMatches is empty: ' + JSON.stringify(res));
+                    console.log('FindNewMAGMatches is empty: ' + JSON.stringify(res));
                     this.MagPaperList = [];
                 }
             }
