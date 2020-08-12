@@ -1,6 +1,6 @@
 <div class="card p-1 m-1 alert-light" style="min-width: 750px">
     <div class="col-12 row">
-        <h5 class="font-weight-bold btn btn-link col-6 pull-left" (click)="FetchMAGMatches()">
+        <h5 class="font-weight-bold btn btn-link col-6 pull-left" (click)="FindNewMAGMatches()">
             Look up this record in Microsoft Academic
         </h5>
         <h5 class="font-weight-bold btn btn-link col-6 pull-right" (click)="ClearMAGMatches()">
@@ -9,9 +9,8 @@
     </div>
     <h5><b>{{item.title}}</b></h5>
     <b>Record(s) matched from Microsoft Academic:</b>
-
     <h5 class="alert-warning" *ngIf="IsServiceBusy">Loading...</h5>
-    <div class="card col-12 alert-primary" style="overflow:auto;" 
+    <div class="card col-12 alert-primary" style="overflow:auto;"
          *ngIf="_magAdvancedService.MagReferencesPaperList != null && _magAdvancedService.MagReferencesPaperList.papers.length > 0 ">
         <table class="table table-bordered table-responsive-md table-striped text-center small alert-primary">
             <thead>
@@ -43,10 +42,14 @@
                         </div>
                         <div class="col-12">
 
-                            Correct Match:    <input (click)="UpdateMagPaper(true, magPaper.paperId)" type="radio" [value]="true" name="magMatchRadio" [(ngModel)]="magPaper.manualTrueMatch" class="ml-3">
+                            Correct Match:    <input (click)="UpdateMagPaper(true, magPaper.paperId)" 
+                                                     type="radio" [value]="true" name="magMatchRadio_{{magPaper.paperId}}" 
+                                                     [(ngModel)]="magPaper.manualTrueMatch" class="ml-3">
                         </div>
                         <div class="col-12 ">
-                            Incorrect Match: <input (click)="UpdateMagPaper(true, magPaper.paperId)" type="radio" [value]="false" name="magMatchRadio" [(ngModel)]="magPaper.manualTrueMatch" class="ml-3">
+                            Incorrect Match: <input (click)="UpdateMagPaper(false, magPaper.paperId)" 
+                                                    type="radio" [value]="true" name="magMatchRadio_{{magPaper.paperId}}" 
+                                                    [(ngModel)]="magPaper.manualFalseMatch" class="ml-3">
                         </div>
                     </td>
 
