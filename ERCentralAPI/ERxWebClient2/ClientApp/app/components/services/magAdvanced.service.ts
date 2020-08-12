@@ -77,14 +77,14 @@ export class MAGAdvancedService extends BusyAwareService {
     }
     public FetchMagPaperList(crit: MVCMagPaperListSelectionCriteria): Promise<MagList>  {
         this._BusyMethods.push("FetchMagPaperList");
-        return  this._httpC.post<MagPaper[]>(this._baseUrl + 'api/MagPaperList/GetMagPaperList', crit)
+        return  this._httpC.post<any>(this._baseUrl + 'api/MagPaperList/GetMagPaperList', crit)
                 .toPromise().then(
 
-                    (result: MagPaper[] | MagList) => {
+                    (result: MagList) => {
                         this.RemoveBusy("FetchMagPaperList");
 
                         if (crit.listType == 'ReviewMatchedPapers' || crit.listType == 'ReviewMatchedPapersWithThisCode') {
-                            this.ReviewMatchedPapersList = result as MagPaper[];
+                            this.ReviewMatchedPapersList = result.papers;
                             for (var i = 0; i < this.ReviewMatchedPapersList.length; i++) {
                                 this.PaperIds += this.ReviewMatchedPapersList[i].paperId.toString() + ',';
                             }
@@ -93,7 +93,7 @@ export class MAGAdvancedService extends BusyAwareService {
 
                         } else if (crit.listType == 'ItemMatchedPapersList') {
                             console.log("FetchMagPaperList ItemMatchedPapersList", result);
-                            this.MagReferencesPaperList = result as MagList;
+                            this.MagReferencesPaperList = result;
                         }
                         return result;
                     },

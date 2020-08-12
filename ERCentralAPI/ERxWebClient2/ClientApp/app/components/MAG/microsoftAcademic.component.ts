@@ -132,7 +132,7 @@ export class microsoftAcademicComp implements OnInit, OnDestroy {
 
 
         var MagPapers = this._magAdvancedService.MagReferencesPaperList;
-        console.log(JSON.stringify(MagPapers));
+        //console.log(JSON.stringify(MagPapers));
         if (MagPapers.papers.length > 0) {
 
             var paper = MagPapers.papers.find((x) => x.paperId == paperId);
@@ -146,14 +146,16 @@ export class microsoftAcademicComp implements OnInit, OnDestroy {
 
             if (match) {
                 this.currentMagPaperLinkItem.manualTrueMatch = true;
+                this.currentMagPaperLinkItem.manualFalseMatch = false;
             } else {
                 this.currentMagPaperLinkItem.manualFalseMatch = true;
+                this.currentMagPaperLinkItem.manualTrueMatch = false;
             }
 
             this._magAdvancedService.UpdateMagPaper(match, paperId, this.item.itemId).then(
-                //(result: MagPaper) => {
-                //        this.currentMagPaperLinkItem = result;
-                //    }
+                () => {
+                    this.FetchMAGMatches();
+                    }
             );
 
         }
