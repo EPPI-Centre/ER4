@@ -66,6 +66,7 @@ namespace ERxWebClient2.Controllers
                 MagMatchItemToPaperManualCommand cmd = new MagMatchItemToPaperManualCommand(magPaperState.itemId,
                     magPaperState.magPaperId, magPaperState.manualTrueMatchProperty, manualFalseMatchProperty);
 
+                 magPaper.LinkedITEM_ID = magPaperState.itemId;
                 if (magPaper.LinkedITEM_ID > 0)
                 {
                     magPaper.ManualFalseMatch = !magPaperState.manualTrueMatchProperty;

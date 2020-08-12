@@ -67,7 +67,6 @@ namespace ERxWebClient2.Controllers
                     return Ok(GetMatches);
 
                 }
-
                 else return Forbid();
             }
             catch (Exception e)
