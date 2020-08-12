@@ -254,28 +254,26 @@
                         <div *ngIf="!AllowEditOnStep4" class="col-12 row p-0 mx-0 my-1 ">
                             <div class="d-block rounded alert-light border-light  m-1 px-1">Screening tool: <strong>{{GetCodingToolName()}}</strong></div>
                             <div class="d-block rounded alert-light border-light  m-1 px-1">Screening mode: <strong>{{revInfo.screeningMode}}</strong></div>
-                            <div *ngIf="revInfo.screeningWhatAttributeId > 0" class="d-block rounded alert-light border-light m-1 px-1">
+                            <div *ngIf="revInfo.screeningWhatAttributeId > 0" class="d-block rounded alert-light border-light  m-1 px-1">
                                 Screen items with this code:
                                 <strong *ngIf="ItemsWithThisAttribute == null" class="alert-danger">Not Set</strong>
                                 <strong *ngIf="ItemsWithThisAttribute !== null">{{ItemsWithThisAttribute.attribute_name}}</strong>
                             </div>
-                            <div *ngIf="revInfo.screeningWhatAttributeId <= 0" class="d-block rounded alert-light border-light m-1 px-1">
+                            <div *ngIf="revInfo.screeningWhatAttributeId <= 0" class="d-block rounded alert-light  border-light m-1 px-1">
                                 Screening <strong>all</strong> items.
                             </div>
-                            <div *ngIf="revInfo.screeningNPeople > 1">
-                                <div class="d-block rounded alert-light border-light m-1 px-1">
-                                    Reconciliation mode: <strong>{{revInfo.screeningReconcilliation}}</strong>
-                                </div>
-                                <div class="d-block rounded alert-light border-light m-1 px-1">
-                                    N of people screening each item: <strong>{{revInfo.screeningNPeople}}</strong>
-                                </div>
+
+                            <div *ngIf="revInfo.screeningNPeople > 1" class="d-block rounded alert-light border-light  m-1 px-1">
+                                Reconciliation mode: <strong>{{SelectedReconcileOptionName}}</strong>
                             </div>
-                            <div *ngIf="revInfo.screeningNPeople <= 1">
-                                <div class="d-block rounded alert-light border-light m-1 px-1">
-                                    N of people screening each item: <strong>1</strong>
-                                </div>
+                            <div *ngIf="revInfo.screeningNPeople > 1" class="d-block rounded alert-light border-light m-1  px-1">
+                                N of people screening each item: <strong>{{revInfo.screeningNPeople}}</strong>
                             </div>
 
+                            <div *ngIf="revInfo.screeningNPeople <= 1" class="d-block rounded alert-light border-light  m-1 px-1">
+                                N of people screening each item: <strong>1</strong>
+                            </div>
+                            
                         </div>
                         <div *ngIf="AllowEditOnStep4" class="col-12 p-1 mx-0 my-1 text-body rounded background bg-white">
                             <div class="row justify-content-center">
@@ -302,6 +300,9 @@
                                 <div class="m-2 p-1 rounded border border-info">
                                     <button class="m-1 py-1 px-1 btn btn-danger" [disabled]="!CanSaveConfiguration" (click)="SaveOptions()">
                                         Save
+                                    </button>
+                                    <button class="m-1 py-1 px-1 btn btn-outline-danger" [disabled]="!CanSaveConfiguration" (click)="SaveOptionsAndCreateList()">
+                                        Save and (Re)Generate List
                                     </button>
                                     <button class="m-1 py-1 px-5 btn btn-outline-dark  " (click)="CancelEditingAllOptions()">
                                         Cancel

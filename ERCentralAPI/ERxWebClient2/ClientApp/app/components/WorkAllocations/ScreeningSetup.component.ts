@@ -91,7 +91,14 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
     public get ReconcileOptions(): kvStringSelectFrom[] {
         return this._ReconcileOptions;
     }
-    
+    public get SelectedReconcileOptionName(): string {
+        if (this.revInfo.screeningReconcilliation == "Single") return "Single (auto completes)";
+        else {
+            let found = this._ReconcileOptions.find(f => f.key == this.revInfo.screeningReconcilliation);
+            if (found != undefined) return found.value;
+        }
+        return "Not Set";
+    } 
     public get StepNames(): string[] {
         return this._stepNames;
     }
@@ -279,6 +286,7 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
         //check data entry mode...
         const set = this.selectedCodeSetDropDown;
         if (set == null) return false;//uh? Chosen set isn't in review!
+        //console.log("Got here", this.revInfo);
         if (this.revInfo.screeningReconcilliation == "") return false;//reconciliation is NOT set
         if (this.revInfo.screeningNPeople > 1) {//multiple people per item:
             if (set.codingIsFinal) return false;//but codeset is in "normal" data entry.
@@ -371,6 +379,14 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
                 //we're doing this in the wizard, so we'll silently change the codes in all cases...
                 this.DoResetTrainingCodes();
             }
+            if (codeset.codingIsFinal) {
+                //we picked a "normal" data entry set, people per item needs to be 0 (for some reason!)
+                this.revInfo.screeningNPeople = 0;
+            }
+            else if (!codeset.codingIsFinal && this.revInfo.screeningNPeople < 2) {
+                //put it to 2 at least...
+                this.revInfo.screeningNPeople = 2;
+            }
         }
     }
     DoResetTrainingCodes() {
@@ -453,12 +469,14 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
         this.CancelEditingAllOptions();
     }
     async SaveOptionsAndCreateList() {
+        this.AllowEditOnStep4 = false;
         let res: boolean = await this.ReviewInfoService.Update(this.revInfo);
         if (res) {
             this.GenerateList();
             this.AllowEditOnStep4 = false;
             this.CancelEditingAllOptions();
-            this.Cancel();
+            this.CurrentStep = 4;
+            //this.Cancel();
         }
     }
     async SaveOptionsAndGoToStep4() {
@@ -495,6 +513,7 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
 
 
     CheckAndUpdatePeoplePerItem(): boolean {
+        //console.log("CheckAndUpdatePeoplePerItem");
         //returns true if OK, but will automatically set to 0 Npeople, if screening set is in normal mode...
         if (this.revInfo.screeningCodeSetId < 1 || this.selectedCodeSetDropDown == null) {
             return true;//nothing is set, so nothing to check
