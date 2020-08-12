@@ -69,15 +69,17 @@ namespace BusinessLibrary.BusinessClasses
 
         protected override void DataPortal_Execute()
         {
-            // spin the task off into another thread and return
-            Task.Run(() => { RunCheckUpdates(); });
-        }
-
-        private async Task RunCheckUpdates()
-        {
             ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
             int ReviewId = ri.ReviewId; // we don't use this, but it checks we have a valid ticket
             int ContactId = ri.UserId; // putting to variable in case the user invalidates ticket
+            // spin the task off into another thread and return
+            Task.Run(() => { RunCheckUpdates(ReviewId, ContactId); });
+            }
+
+        private async Task RunCheckUpdates(int ReviewId, int ContactId)
+        {
+            
+            
             int TaskMagLogId = MagLog.SaveLogEntry("Started ID checking", "Started", "", ContactId);
 
 #if (!CSLA_NETCORE)
