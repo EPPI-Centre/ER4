@@ -141,7 +141,7 @@ export class CodesetStatisticsService extends BusyAwareService {
             result => {
 
                 this.CompletedCodesets = result;
-                console.log('complete sets: ', result);
+                //console.log('complete sets: ', result);
                 //console.log('complete sets: ' + JSON.stringify(result.map((x) => x.setName + ' ' + x.numItems)));
                 //this.SaveCompletedSets();
                 this.GetCompletedSetsEmit.emit(result);

@@ -2,7 +2,7 @@
     <div *ngIf="IsServiceBusy()" class="k-loading-image" style="position: fixed; top: 0%; height:100%; max-height:100%"></div>
     <div *ngIf="CurrentStep == 0">
         <div class="col-10 center rounded border border-info alert-info ">
-            You can setup and review your screening settings in two ways: {{HasAdminRights}}
+            You can setup and review your screening settings in two ways: 
             <ol>
                 <li>Via the guided steps wizard (preferred)</li>
                 <li>By viewing progress and then editing all settings from there</li>
@@ -26,7 +26,7 @@
             Setup Screening - Step {{CurrentStep}}: {{CurrentStepName}}
         </div>
         <div class="col-12 rounded border border-info alert-info m-0 p-1 ">
-            This wizard will help you setting up (priority) screening:<br />
+            This wizard will help you setting up "random" and "priority" screening:<br />
             <ol class="pl-4 mb-0">
                 <li [ngClass]="{'font-weight-bold' : CurrentStep==1}">
                     <div class="row m-0">
@@ -254,28 +254,26 @@
                         <div *ngIf="!AllowEditOnStep4" class="col-12 row p-0 mx-0 my-1 ">
                             <div class="d-block rounded alert-light border-light  m-1 px-1">Screening tool: <strong>{{GetCodingToolName()}}</strong></div>
                             <div class="d-block rounded alert-light border-light  m-1 px-1">Screening mode: <strong>{{revInfo.screeningMode}}</strong></div>
-                            <div *ngIf="revInfo.screeningWhatAttributeId > 0" class="d-block rounded alert-light border-light m-1 px-1">
+                            <div *ngIf="revInfo.screeningWhatAttributeId > 0" class="d-block rounded alert-light border-light  m-1 px-1">
                                 Screen items with this code:
                                 <strong *ngIf="ItemsWithThisAttribute == null" class="alert-danger">Not Set</strong>
                                 <strong *ngIf="ItemsWithThisAttribute !== null">{{ItemsWithThisAttribute.attribute_name}}</strong>
                             </div>
-                            <div *ngIf="revInfo.screeningWhatAttributeId <= 0" class="d-block rounded alert-light border-light m-1 px-1">
+                            <div *ngIf="revInfo.screeningWhatAttributeId <= 0" class="d-block rounded alert-light  border-light m-1 px-1">
                                 Screening <strong>all</strong> items.
                             </div>
-                            <div *ngIf="revInfo.screeningNPeople > 1">
-                                <div class="d-block rounded alert-light border-light m-1 px-1">
-                                    Reconciliation mode: <strong>{{revInfo.screeningReconcilliation}}</strong>
-                                </div>
-                                <div class="d-block rounded alert-light border-light m-1 px-1">
-                                    N of people screening each item: <strong>{{revInfo.screeningNPeople}}</strong>
-                                </div>
+
+                            <div *ngIf="revInfo.screeningNPeople > 1" class="d-block rounded alert-light border-light  m-1 px-1">
+                                Reconciliation mode: <strong>{{SelectedReconcileOptionName}}</strong>
                             </div>
-                            <div *ngIf="revInfo.screeningNPeople <= 1">
-                                <div class="d-block rounded alert-light border-light m-1 px-1">
-                                    N of people screening each item: <strong>1</strong>
-                                </div>
+                            <div *ngIf="revInfo.screeningNPeople > 1" class="d-block rounded alert-light border-light m-1  px-1">
+                                N of people screening each item: <strong>{{revInfo.screeningNPeople}}</strong>
                             </div>
 
+                            <div *ngIf="revInfo.screeningNPeople <= 1" class="d-block rounded alert-light border-light  m-1 px-1">
+                                N of people screening each item: <strong>1</strong>
+                            </div>
+                            
                         </div>
                         <div *ngIf="AllowEditOnStep4" class="col-12 p-1 mx-0 my-1 text-body rounded background bg-white">
                             <div class="row justify-content-center">
@@ -303,9 +301,13 @@
                                     <button class="m-1 py-1 px-1 btn btn-danger" [disabled]="!CanSaveConfiguration" (click)="SaveOptions()">
                                         Save
                                     </button>
+                                    <button class="m-1 py-1 px-1 btn btn-outline-danger" [disabled]="!CanSaveConfiguration" (click)="SaveOptionsAndCreateList()">
+                                        Save and (Re)Generate List
+                                    </button>
                                     <button class="m-1 py-1 px-5 btn btn-outline-dark  " (click)="CancelEditingAllOptions()">
                                         Cancel
                                     </button>
+                                    <div *ngIf="!ConfigHasChanged" class="row m-0 small"><div class=" rounded p-1 alert-info small">No change to save</div></div>
                                 </div>
                             </div>
                         </div>
