@@ -170,7 +170,7 @@ export class MAGBrowserHistory implements OnInit {
             criteria.listType = "ReviewMatchedPapersWithThisCode";
             criteria.attributeIds = attributeId;
             criteria.pageSize = 20;
-            this._magAdvancedService.FetchMagPaperList(criteria).then(
+            this._magAdvancedService.FetchMagPaperListMagPaper(criteria).then(
                 () => {
                     this.router.navigate(['MAGBrowser']);
                 }

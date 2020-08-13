@@ -364,7 +364,7 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
             this._mAGBrowserHistoryService.IncrementHistoryCount();
             this._mAGBrowserHistoryService.AddToBrowseHistory(item);
 
-            this._magAdvancedService.FetchMagPaperList(criteria).then(
+            this._magAdvancedService.FetchMagPaperListMagPaper(criteria).then(
                 () => {
                     this.router.navigate(['MAGBrowser']);
                 }

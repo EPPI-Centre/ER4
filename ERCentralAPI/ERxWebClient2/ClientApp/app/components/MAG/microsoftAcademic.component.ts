@@ -75,7 +75,7 @@ export class microsoftAcademicComp implements OnInit, OnDestroy {
         let crit: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
         crit.listType = 'ItemMatchedPapersList';
         crit.iTEM_ID = this.item.itemId;
-        this._magAdvancedService.FetchMagPaperList(crit).then(
+        this._magAdvancedService.FetchMagPaperMagList(crit).then(
             (res) => {
                 if (res != null) {
                     console.log('fetchMAGMatches 1: ' + JSON.stringify(res));
