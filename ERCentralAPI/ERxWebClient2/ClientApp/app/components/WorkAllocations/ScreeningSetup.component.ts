@@ -115,9 +115,10 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
         if (this.revInfo.screeningWhatAttributeId > 0
             && (this._ItemsWithThisAttribute == null || this._ItemsWithThisAttribute.attribute_id != this.revInfo.screeningWhatAttributeId)) {
             this._ItemsWithThisAttribute = this.ReviewSetsService.FindAttributeById(this.revInfo.screeningWhatAttributeId)
-        } else {
+        } else if (this.revInfo.screeningWhatAttributeId < 1) {
             this._ItemsWithThisAttribute = null;
         }
+        //console.log("ItemsWithThisAttribute", this.revInfo.screeningWhatAttributeId, this._ItemsWithThisAttribute);
         return this._ItemsWithThisAttribute;
     }
 
@@ -258,8 +259,12 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
     public get CanSaveConfiguration(): boolean {
         if (!this.CanWrite()) return false;
         if (!this.ConfigurationIsValid) return false;
-        if (this.CurrentStep == 4 && JSON.stringify(this.revInfo) === JSON.stringify(this.ReviewInfoService.ReviewInfo)) return false;
+        if (this.CurrentStep == 4 && this.ConfigHasChanged == false) return false;
         return true;
+    }
+    public get ConfigHasChanged(): boolean {
+        if (JSON.stringify(this.revInfo) === JSON.stringify(this.ReviewInfoService.ReviewInfo)) return false;
+        else return true;
     }
     public get TrainingScreeningCriteriaListIsNotGoodMsg(): string {
         if (this.PriorityScreeningService.TrainingScreeningCriteria.length < 2) {
@@ -286,7 +291,7 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
         //check data entry mode...
         const set = this.selectedCodeSetDropDown;
         if (set == null) return false;//uh? Chosen set isn't in review!
-        //console.log("Got here", this.revInfo);
+        console.log("Got here", this.revInfo);
         if (this.revInfo.screeningReconcilliation == "") return false;//reconciliation is NOT set
         if (this.revInfo.screeningNPeople > 1) {//multiple people per item:
             if (set.codingIsFinal) return false;//but codeset is in "normal" data entry.
@@ -410,10 +415,9 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
     RefreshRevinfo() {
         //if we're editing, we should ask for "permission"...
         if (this.AllowEditOnStep4) {
-            this.ConfirmationDialogService.confirm("Reset all form values?",
-                "Sorry to interrupt! This app has just received an updated version of the screening settings.<br />"
-                + "<strong>Do you want to reset the current form and load the current latest configuration instead?</strong><br />"
-                + "This will ensure you'll be making changes to the most current version.<br />"
+            this.ConfirmationDialogService.confirm("Reload settings?",
+                "The displayed settings <strong>might not match</strong> the settings stored on the server.<br /> "
+                + "Do you wish to <strong>reload</strong> the stored settings?<br />"
                 + "(Training codes are <strong>not affected</strong>.)"
                 , false, "", "Yes (default)", "No"
                 , "sm")
@@ -430,8 +434,21 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
         else this.DoRefreshRevinfo();
     }
     DoRefreshRevinfo() {
-        console.log("DoRefreshRevinfo", this.ReviewInfoService.ReviewInfo.screeningReconcilliation);
+        //console.log("DoRefreshRevinfo", this.ReviewInfoService.ReviewInfo.screeningReconcilliation);
         this.revInfo = this.ReviewInfoService.ReviewInfo.Clone();
+        if (this.revInfo.screeningWhatAttributeId > 0) {
+            this.ScreenAllItems = false;
+            if (
+                this.DropdownWithWithoutSelectedCode == null ||
+                (this.DropdownWithWithoutSelectedCode as SetAttribute).attribute_id != this.revInfo.screeningWhatAttributeId
+            ) {
+                this._ItemsWithThisAttribute = 
+                this.DropdownWithWithoutSelectedCode = this.ReviewSetsService.FindAttributeById(this.revInfo.screeningWhatAttributeId);
+            }
+        } else {
+            this.ScreenAllItems = true;
+            this.DropdownWithWithoutSelectedCode = null;
+        }
         this.GetScreeningTool(this.ReviewInfoService.ReviewInfo.screeningCodeSetId);
     }
     GetScreeningTool(setId: number) {
