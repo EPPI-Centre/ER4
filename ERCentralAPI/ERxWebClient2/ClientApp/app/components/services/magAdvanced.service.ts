@@ -4,7 +4,7 @@ import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
 import { Item } from './ItemList.service';
 import { MAGBrowserService } from './MAGBrowser.service';
-import { MagPaper, MagReviewMagInfo, MVCMagPaperListSelectionCriteria, MagCurrentInfoShort, 
+import { MagPaper, MagReviewMagInfo, MVCMagPaperListSelectionCriteria,  
     ClassifierContactModel, MVCMagFieldOfStudyListSelectionCriteria, MagList,
     MagCheckContReviewRunningCommand, MagFieldOfStudy, MagCurrentInfo} from './MAGClasses.service';
 import { Router } from '@angular/router';
@@ -64,7 +64,7 @@ export class MAGAdvancedService extends BusyAwareService {
                 this.RemoveBusy("UpdateMagPaper");
                 let ind = this.ReviewMatchedPapersList.findIndex(f => f.paperId == result.paperId);
                 if (ind >= -1) {
-                    //we can replace the edited fellow with our result from the server, should we?
+                    this.ReviewMatchedPapersList[ind] = result;
                 }
                     return result;    
                 },
@@ -84,7 +84,7 @@ export class MAGAdvancedService extends BusyAwareService {
                     this.RemoveBusy("FetchMagPaperMagList");
 
                     if (crit.listType == 'ItemMatchedPapersList') {
-                        console.log("FetchMagPaperMagList ItemMatchedPapersList", result);
+                        
                         this.MagReferencesPaperList = result;
                     }
                     return result;
@@ -163,9 +163,7 @@ export class MAGAdvancedService extends BusyAwareService {
                 });
     }
     public PostFetchMagPaperCalls(result: MagPaper) {
-
-      
-            if (result.paperId != null && result.paperId > 0) {
+           if (result.paperId != null && result.paperId > 0) {
 
                 let criteriaCitationsList: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
                 criteriaCitationsList.listType = "CitationsList";
