@@ -10,7 +10,6 @@ import { MAGBrowserHistoryService } from '../services/MAGBrowserHistory.service'
 import { NotificationService } from '@progress/kendo-angular-notification';
 import { TabStripComponent } from '@progress/kendo-angular-layout';
 import { EventEmitterService } from '../services/EventEmitter.service';
-import { SelectEvent } from '@progress/kendo-angular-upload';
 import { Subscription } from 'rxjs';
 
 

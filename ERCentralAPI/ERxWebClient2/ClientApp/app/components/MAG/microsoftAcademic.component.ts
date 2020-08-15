@@ -29,9 +29,6 @@ export class microsoftAcademicComp implements OnInit, OnDestroy {
     public currentMagPaperLinkItem: MagPaper = new MagPaper();
     ngOnInit() {
 
-        console.log('Input item is there a linkedItem: ', JSON.stringify(this.item));
-        console.log('check this structure: ', JSON.stringify(this._magAdvancedService.MagReferencesPaperList.papers));
-
         this.sub = this._ItemCodingService.DataChanged.subscribe(
             () => {
                 this._magAdvancedService.MagReferencesPaperList.papers = [];
@@ -78,10 +75,10 @@ export class microsoftAcademicComp implements OnInit, OnDestroy {
         this._magAdvancedService.FetchMagPaperMagList(crit).then(
             (res) => {
                 if (res != null) {
-                    console.log('fetchMAGMatches 1: ' + JSON.stringify(res));
+                   
                     this.MagPaperList = res.papers;
                 } else {
-                    console.log('fetchMAGMatches is empty: ' + JSON.stringify(res));
+                    
                     this.MagPaperList = [];
                 }
             }
@@ -92,10 +89,10 @@ export class microsoftAcademicComp implements OnInit, OnDestroy {
         this._magAdvancedService.MagMatchItemsToPapers(this.item.itemId).then(
             (res) => {
                 if (res != null) {
-                    console.log('FindNewMAGMatches 1: ' + JSON.stringify(res));
+                  
                     this.MagPaperList = res;
                 } else {
-                    console.log('FindNewMAGMatches is empty: ' + JSON.stringify(res));
+                  
                     this.MagPaperList = [];
                 }
             }
