@@ -91,12 +91,9 @@ export class MAGBrowserService extends BusyAwareService {
             this.FetchWithCrit(this.ListCriteria, "PaperFieldsOfStudyList").then(
 
                 (res: boolean) => {
-
-
                     this.FetchWithCrit(this.ListCriteria, "PaperFieldsOfStudyList").then(
 
                         (res1: boolean) => {
-
                             if (res1) {
                                 this.FetchOrigWithCrit(this.ListCriteria, "PaperFieldsOfStudyList").then(
                                     (res2: boolean) => {
@@ -107,7 +104,6 @@ export class MAGBrowserService extends BusyAwareService {
                             return res;
                         }
                     )});
-                
         } else {
             return false;
         }
@@ -196,6 +192,7 @@ export class MAGBrowserService extends BusyAwareService {
 
                     this.RemoveBusy("FetchMAGRelatedPaperRunsListId");
                     this.MAGList = result;
+                    this.MAGOriginalList = result;
                     this.ListCriteria.listType = "MagRelatedPapersRunList";
                     this.ListCriteria.pageSize = 20;
                     this.ListCriteria.magRelatedRunId = Id;
@@ -220,6 +217,7 @@ export class MAGBrowserService extends BusyAwareService {
 
                     this.RemoveBusy("FetchMAGRelatedPaperRunsListById");
                     this.MAGList = result;
+                    this.MAGOriginalList = result;
                     this.ListCriteria.paperIds = '';
                     for (var i = 0; i < result.papers.length; i++) {
                        
@@ -229,6 +227,7 @@ export class MAGBrowserService extends BusyAwareService {
 
                     this.ListCriteria.pageNumber += 1;
                     this.SavePapers(result, this.ListCriteria, "NormalList");
+                    this.SavePapers(result, this.OrigListCriteria, "");
                     let FieldsListcriteria: MVCMagFieldOfStudyListSelectionCriteria = new MVCMagFieldOfStudyListSelectionCriteria();
                     FieldsListcriteria.fieldOfStudyId = 0;
                     FieldsListcriteria.listType = "PaperFieldOfStudyList";
@@ -369,8 +368,8 @@ export class MAGBrowserService extends BusyAwareService {
                 (list: MagList) => {
 
                     this.RemoveBusy("FetchOrigWithCrit");
-                    //check line below
                     this.SavePapers(list, this._OrigCriteria, "OrigList");
+                    console.log('Check total no of papers: ', this._OrigCriteria);
                     return true;
 
                 }, error => {

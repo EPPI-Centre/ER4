@@ -16,7 +16,7 @@
                 <h2 class="card-title"></h2>
                 <h4 class="font-weight-light text-sm-left">Current Microsoft Academic Graph Dataset: <i>{{_magAdminService.latestMAGName}}  </i></h4>
                 <h4 class="font-weight-light">Previous Microsoft Academic Graph Dataset: <i>{{_magAdminService.previousMAGName}} </i></h4>
-                <div class="card-footer ">
+                <div class="card-footer " style=" word-break: break-all;">
                     <h4 class="font-weight-light">Shared Access Key (SAS):</h4>
                     <p class="form-control col-12 h-25  border border-dark">
                         {{_magAdminService.latestMagSasUri}}
@@ -80,9 +80,9 @@
 
                 </div>
 
-                <div class="card-text small row col-12">
+                <div class="card-text small row col-12" style="overflow: hidden">
 
-                    <div class="col-3 p-2 m-2 small">
+                    <div class="col-sm-12 col-lg-3 p-2 m-2 small">
                         <h6>Score threshold</h6>
                         <kendo-numerictextbox [(ngModel)]="ScoreThreshold"
                                               [min]="0"
@@ -92,7 +92,7 @@
                                               class="border border-dark rounded"
                                               style="width: 110px;"></kendo-numerictextbox>
                     </div>
-                    <div class="col-3  p-2 m-2 small">
+                    <div class="col-sm-12 col-lg-3  p-2 m-2 small">
                         <h6>FoS threshold</h6>
                         <kendo-numerictextbox [(ngModel)]="FoSThreshold"
                                               [min]="0"
@@ -102,7 +102,7 @@
                                               class="border border-dark rounded"
                                               style="width: 110px;"></kendo-numerictextbox>
                     </div>
-                    <div class="col-3  p-2 m-2 small">
+                    <div class="col-sm-12 col-lg-3  p-2 m-2 small">
                         <h6>Sample size</h6>
                         <kendo-numerictextbox [(ngModel)]="SampleSize"
                                               [min]="0"
