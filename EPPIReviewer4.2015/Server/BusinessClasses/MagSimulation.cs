@@ -21,9 +21,12 @@ using BusinessLibrary.Security;
 using System.Configuration;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
-using System.Data;
 using System.Threading;
 using System.Collections.Generic;
+#if !CSLA_NETCORE
+using System.Web.Hosting;
+#endif
+using System.Data;
 #endif
 
 namespace BusinessLibrary.BusinessClasses
@@ -456,13 +459,18 @@ namespace BusinessLibrary.BusinessClasses
                 }
                 connection.Close();
                 // Run in separate thread and return this object to client
-                Task.Run(() => { RunSimulation(ri.ReviewId, ri.UserId); });
+#if CSLA_NETCORE
+            System.Threading.Tasks.Task.Run(() => RunSimulation(ri.ReviewId, ri.UserId));
+#else
+                //see: https://codingcanvas.com/using-hostingenvironment-queuebackgroundworkitem-to-run-background-tasks-in-asp-net/
+                HostingEnvironment.QueueBackgroundWorkItem(cancellationToken => RunSimulation(ri.ReviewId, ri.UserId, cancellationToken));
+#endif
             }
         }
 
         protected override void DataPortal_Update()
         {
-            // using the 'update' to download results where the ContReviewPipeline thread got killed by IIS
+            // using the 'update' to download results where the ContReviewPipeline thread got interrupted somehow (should be much less necessary now)
             ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
             Task.Run(() => { DownloadResultsPostFail(ri.ReviewId, ri.UserId); });
         }
@@ -559,8 +567,12 @@ namespace BusinessLibrary.BusinessClasses
         }
 
 
-        private async void RunSimulation(int ReviewId, int ContactId)
-        {            
+        private async void RunSimulation(int ReviewId, int ContactId, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            // for testing:
+            //await DownloadResultsAsync("experiment-vtest", ReviewId);
+            //return;
+
             MagCurrentInfo mci = MagCurrentInfo.GetMagCurrentInfoServerSide("LIVE");
             int MagLogId = MagLog.SaveLogEntry("ContReview process", "running", "Review: " + ReviewId.ToString() + ", simulation: " + MagSimulationId.ToString(), ContactId);
             UpdateSimulationRecord("Running");
@@ -863,26 +875,23 @@ namespace BusinessLibrary.BusinessClasses
             CloudStorageAccount storageAccount = CloudStorageAccount.Parse(storageConnectionString);
             CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
             CloudBlobContainer containerDown = blobClient.GetContainerReference("experiments");
-
-            CloudBlockBlob blockBlobDownloadData = containerDown.GetBlockBlobReference(folderPrefix + "/Results.tsv");
-            CloudBlockBlob blockBlobIds = containerDown.GetBlockBlobReference(folderPrefix + "/Train.tsv"); // we get the list of IDs so we know how many were selected by the datalake on publication / created date
-
-            string resultantString = await blockBlobDownloadData.DownloadTextAsync();
-            byte[] myFile = Encoding.UTF8.GetBytes(resultantString);
-
-            string resultantStringFileIds = await blockBlobIds.DownloadTextAsync();
-            byte[] myFileIds = Encoding.UTF8.GetBytes(resultantStringFileIds);
-
+            CloudBlobDirectory dir;
+            CloudBlob blob;
+            BlobContinuationToken continuationToken = null;
+            int lineCount = 0;
             string SeedIds = "";
             string InferenceIds = "";
             int SeedIdsCount = 0;
+            CloudBlockBlob blockBlobIds = containerDown.GetBlockBlobReference(folderPrefix + "/Train.tsv"); // we get the list of IDs so we know how many were selected by the datalake on publication / created date
+            string resultantStringFileIds = await blockBlobIds.DownloadTextAsync();
+            byte[] myFileIds = Encoding.UTF8.GetBytes(resultantStringFileIds);
             MemoryStream msIds = new MemoryStream(myFileIds);
             using (var readerIds = new StreamReader(msIds))
             {
                 string line;
                 while ((line = readerIds.ReadLine()) != null)
                 {
-                    string [] fields = line.Split('\t');
+                    string[] fields = line.Split('\t');
                     if (fields[2] == "1")
                     {
                         SeedIdsCount++;
@@ -909,74 +918,102 @@ namespace BusinessLibrary.BusinessClasses
                 }
             }
 
-            DataTable dt = new DataTable("Ids");
-            dt.Columns.Add("MAG_SIMULATION_RESULT_ID"); // can be anything - this is an identity column
-            dt.Columns.Add("MAG_SIMULATION_ID");
-            dt.Columns.Add("PaperId");
-            dt.Columns.Add("INCLUDED");
-            dt.Columns.Add("STUDY_TYPE_CLASSIFIER_SCORE");
-            dt.Columns.Add("USER_CLASSIFIER_MODEL_SCORE");
-            dt.Columns.Add("NETWORK_STATISTIC_SCORE");
-            dt.Columns.Add("FOS_DISTANCE_SCORE");
-            dt.Columns.Add("ENSEMBLE_SCORE");
-
-            string JobId = Guid.NewGuid().ToString();
-            int lineCount = 0;
-
-            MemoryStream ms = new MemoryStream(myFile);
-            using (var reader = new StreamReader(ms))
+            do
             {
-                string line;
-                bool firstTime = true; // column headers
-                while ((line = reader.ReadLine()) != null)
+                BlobResultSegment resultSegment = await containerDown.ListBlobsSegmentedAsync(folderPrefix + "/tmp",
+                true, BlobListingDetails.Metadata, 100, continuationToken, null, null);
+
+                foreach (var blobItem in resultSegment.Results)
                 {
-                    if (firstTime == false)
+                    // A hierarchical listing may return both virtual directories and blobs.
+                    if (blobItem is CloudBlobDirectory)
                     {
-                        string[] fields = line.Split('\t');
-                        DataRow newRow = dt.NewRow();
-                        newRow["MAG_SIMULATION_RESULT_ID"] = 0; // identity column
-                        newRow["MAG_SIMULATION_ID"] = this.MagSimulationId;
-                        newRow["PaperId"] = fields[0];
-                        newRow["INCLUDED"] = "False";
-                        newRow["STUDY_TYPE_CLASSIFIER_SCORE"] = fields[2];
-                        newRow["USER_CLASSIFIER_MODEL_SCORE"] = fields[2];
-                        newRow["NETWORK_STATISTIC_SCORE"] = fields[2];
-                        newRow["FOS_DISTANCE_SCORE"] = fields[2];
-                        newRow["ENSEMBLE_SCORE"] = fields[2];
-                        dt.Rows.Add(newRow);
-                        lineCount++;
+                        dir = (CloudBlobDirectory)blobItem;
                     }
                     else
                     {
-                        firstTime = false;
-                    }
-                }
-            }
+                        blob = (CloudBlob)blobItem;
+                        if (blob.Name.StartsWith(folderPrefix + "/tmp/part"))
+                        {
+                            CloudBlockBlob blockBlobDownloadData = containerDown.GetBlockBlobReference(blob.Name);
+                            
+                            string resultantString = await blockBlobDownloadData.DownloadTextAsync();
+                            byte[] myFile = Encoding.UTF8.GetBytes(resultantString);
 
-            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
-            {
-                connection.Open();
-                using (SqlBulkCopy sbc = new SqlBulkCopy(connection))
-                {
-                    sbc.DestinationTableName = "TB_MAG_SIMULATION_RESULT";
-                    sbc.BatchSize = 1000;
-                    sbc.WriteToServer(dt);
-                }
+                            DataTable dt = new DataTable("Ids");
+                            dt.Columns.Add("MAG_SIMULATION_RESULT_ID"); // can be anything - this is an identity column
+                            dt.Columns.Add("MAG_SIMULATION_ID");
+                            dt.Columns.Add("PaperId");
+                            dt.Columns.Add("INCLUDED");
+                            dt.Columns.Add("STUDY_TYPE_CLASSIFIER_SCORE");
+                            dt.Columns.Add("USER_CLASSIFIER_MODEL_SCORE");
+                            dt.Columns.Add("NETWORK_STATISTIC_SCORE");
+                            dt.Columns.Add("FOS_DISTANCE_SCORE");
+                            dt.Columns.Add("ENSEMBLE_SCORE");
 
-                using (SqlCommand command = new SqlCommand("st_MagSimulationUpdatePostRun", connection))
-                {
-                    command.CommandType = System.Data.CommandType.StoredProcedure;
-                    command.Parameters.Add(new SqlParameter("@MAG_SIMULATION_ID", this.MagSimulationId));
-                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", ReviewId));
-                    command.Parameters.Add(new SqlParameter("@SeedIds", SeedIds));
-                    command.Parameters.Add(new SqlParameter("@NSeeds", SeedIdsCount));
-                    command.Parameters.Add(new SqlParameter("@InferenceIds", InferenceIds));
-                    command.Parameters.Add(new SqlParameter("@ATTRIBUTE_ID_FILTER", this.FilteredByAttributeId));
-                    command.Parameters.Add(new SqlParameter("@ATTRIBUTE_ID_SEED", this.WithThisAttributeId));
-                    command.ExecuteNonQuery();
+                            string JobId = Guid.NewGuid().ToString();
+
+
+                            MemoryStream ms = new MemoryStream(myFile);
+                            using (var reader = new StreamReader(ms))
+                            {
+                                string line;
+                                bool firstTime = true; // column headers
+                                while ((line = reader.ReadLine()) != null)
+                                {
+                                    if (firstTime == false)
+                                    {
+                                        string[] fields = line.Split('\t');
+                                        DataRow newRow = dt.NewRow();
+                                        newRow["MAG_SIMULATION_RESULT_ID"] = 0; // identity column
+                                        newRow["MAG_SIMULATION_ID"] = this.MagSimulationId;
+                                        newRow["PaperId"] = fields[0];
+                                        newRow["INCLUDED"] = "False";
+                                        newRow["STUDY_TYPE_CLASSIFIER_SCORE"] = fields[2];
+                                        newRow["USER_CLASSIFIER_MODEL_SCORE"] = fields[2];
+                                        newRow["NETWORK_STATISTIC_SCORE"] = fields[2];
+                                        newRow["FOS_DISTANCE_SCORE"] = fields[2];
+                                        newRow["ENSEMBLE_SCORE"] = fields[2];
+                                        dt.Rows.Add(newRow);
+                                        lineCount++;
+                                    }
+                                    else
+                                    {
+                                        firstTime = false;
+                                    }
+                                }
+                                using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+                                {
+                                    connection.Open();
+                                    using (SqlBulkCopy sbc = new SqlBulkCopy(connection))
+                                    {
+                                        sbc.DestinationTableName = "TB_MAG_SIMULATION_RESULT";
+                                        sbc.BatchSize = 1000;
+                                        sbc.WriteToServer(dt);
+                                    }
+
+                                    using (SqlCommand command = new SqlCommand("st_MagSimulationUpdatePostRun", connection))
+                                    {
+                                        command.CommandType = System.Data.CommandType.StoredProcedure;
+                                        command.Parameters.Add(new SqlParameter("@MAG_SIMULATION_ID", this.MagSimulationId));
+                                        command.Parameters.Add(new SqlParameter("@REVIEW_ID", ReviewId));
+                                        command.Parameters.Add(new SqlParameter("@SeedIds", SeedIds));
+                                        command.Parameters.Add(new SqlParameter("@NSeeds", SeedIdsCount));
+                                        command.Parameters.Add(new SqlParameter("@InferenceIds", InferenceIds));
+                                        command.Parameters.Add(new SqlParameter("@ATTRIBUTE_ID_FILTER", this.FilteredByAttributeId));
+                                        command.Parameters.Add(new SqlParameter("@ATTRIBUTE_ID_SEED", this.WithThisAttributeId));
+                                        command.ExecuteNonQuery();
+                                    }
+                                    connection.Close();
+                                }
+                                // Get the continuation token and loop until it is null.
+                                continuationToken = resultSegment.ContinuationToken;
+                            }
+                        }
+                    } 
                 }
-                connection.Close();
-            }
+            } while (continuationToken != null);
+
             return lineCount;
         }
 
