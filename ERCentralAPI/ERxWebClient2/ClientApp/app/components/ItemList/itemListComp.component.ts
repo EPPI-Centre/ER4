@@ -67,12 +67,16 @@ export class ItemListComp implements OnInit {
 
     private _LocalPageSize: number | null = null;
     public get LocalPageSize(): number {
-        //console.log("get LocalPageSize", this._LocalPageSize);
-        if (this._LocalPageSize == null && this.ItemListService.ItemList) {
-            this._LocalPageSize = this.ItemListService.ItemList.pagesize;
+        //console.log("get LocalPageSize", this._LocalPageSize, this.ItemListService.ItemList.pagesize, this.ItemListService.ListCriteria );
+        if (this._LocalPageSize == null || this._LocalPageSize == 0) {
+            if (this.ItemListService.ItemList.pagesize > 0) {
+                this._LocalPageSize = this.ItemListService.ItemList.pagesize;
+            }
+            else if (this.ItemListService.ListCriteria.pageSize > 0) {
+                this._LocalPageSize = this.ItemListService.ListCriteria.pageSize;
+            }
+            else return -1;
         }
-        else if (this._LocalPageSize == null) return -1;
-        else return this._LocalPageSize;
         return this._LocalPageSize
     }
     public set LocalPageSize(val: number) {
