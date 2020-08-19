@@ -267,22 +267,21 @@ export class DuplicatesService extends BusyAwareService implements OnInit, OnDes
     }
 
     public DeleteAllGroups(DeleteAllDedupData: boolean) {
-        if (this.CurrentGroup == null) return;
-        else {
-            this._BusyMethods.push("DeleteAllGroups");
-            let toDo = JSON.stringify({ Value: DeleteAllDedupData });
-            this._http.post(this._baseUrl + 'api/Duplicates/DeleteAllGroups',
-                toDo).subscribe((result: any) => {
-                    this.RemoveBusy("DeleteAllGroups");
-                    this.CurrentGroup = null;
-                    this.FetchGroups(false);
-                }, error => {
-                    console.log("DeleteAllGroups error", error);
-                    this.RemoveBusy("DeleteAllGroups");
-                    this.modalService.GenericError(error);
-                });
+        
+        this._BusyMethods.push("DeleteAllGroups");
+        let toDo = JSON.stringify({ Value: DeleteAllDedupData });
+        this._http.post(this._baseUrl + 'api/Duplicates/DeleteAllGroups',
+            toDo).subscribe((result: any) => {
+                this.RemoveBusy("DeleteAllGroups");
+                this.CurrentGroup = null;
+                this.FetchGroups(false);
+            }, error => {
+                console.log("DeleteAllGroups error", error);
+                this.RemoveBusy("DeleteAllGroups");
+                this.modalService.GenericError(error);
+            });
 
-        }
+        
     }
 
     public async MarkAutomatically(similarity: number, coded: number, docs: number) {
