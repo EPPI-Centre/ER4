@@ -114,7 +114,7 @@ namespace BusinessLibrary.BusinessClasses
                     {
                         doComparison(i, pm);
                     }
-                    double minMatchingScore = 0.25;
+                    double minMatchingScore = 0.40;
                     for (int inn = 0; inn < candidatePapersOnTitle.Count; inn++)
                     {
                         if (candidatePapersOnTitle[inn].matchingScore < minMatchingScore)
@@ -154,7 +154,7 @@ namespace BusinessLibrary.BusinessClasses
                 {
                     connection.Open();
                     foreach (MagMakesHelpers.PaperMakes pm in candidatePapersOnDOI) {
-                        if (pm.matchingScore > 0.35)
+                        if (pm.matchingScore > 0.40)
                         {
                             using (SqlCommand command = new SqlCommand("st_MagMatchedPapersInsert", connection))
                             {
