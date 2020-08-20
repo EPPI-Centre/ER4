@@ -13,14 +13,9 @@ namespace ERxWebClient2.Controllers
     [Route("api/[controller]")]
     public class MagPaperListController : CSLAController
     {
-
-        private readonly ILogger _logger;
-
-		public MagPaperListController(ILogger<MagPaperListController> logger)
-        {
-
-            _logger = logger;
-        }
+        
+		public MagPaperListController(ILogger<MagPaperListController> logger) : base(logger)
+        { }
 
 
         [HttpPost("[action]")]
@@ -28,7 +23,7 @@ namespace ERxWebClient2.Controllers
         {
             try
             {
-                SetCSLAUser();
+                if (!SetCSLAUser()) return Unauthorized();
 
                 DataPortal<MagPaper> dp = new DataPortal<MagPaper>();
                 SingleCriteria<MagPaper, Int64> criteria =
@@ -41,7 +36,7 @@ namespace ERxWebClient2.Controllers
             catch (Exception e)
             {
                 _logger.LogException(e, "Getting a MagPaper has an error");
-                throw;
+                return StatusCode(500, e.Message);
             }
         }
 
@@ -51,7 +46,7 @@ namespace ERxWebClient2.Controllers
         {
             try
             {
-                SetCSLAUser();
+                if (!SetCSLAUser()) return Unauthorized();
 
                 DataPortal<MagPaper> dp = new DataPortal<MagPaper>();
                 SingleCriteria<MagPaper, Int64> criteria =
@@ -82,7 +77,7 @@ namespace ERxWebClient2.Controllers
             catch (Exception e)
             {
                 _logger.LogException(e, "Updating a Mag Paper has produced error!");
-                throw;
+                return StatusCode(500, e.Message);
             }
         }
 
@@ -92,7 +87,7 @@ namespace ERxWebClient2.Controllers
         {
             try
             {
-                SetCSLAUser();
+                if (!SetCSLAUser()) return Unauthorized();
 
                 DataPortal<MagPaperList> dp = new DataPortal<MagPaperList>();
 
@@ -120,7 +115,7 @@ namespace ERxWebClient2.Controllers
             catch (Exception e)
             {
                 _logger.LogException(e, "Getting a MagPaperList has an error");
-                throw;
+                return StatusCode(500, e.Message);
             }
         }
 

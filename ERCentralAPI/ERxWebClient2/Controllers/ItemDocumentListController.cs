@@ -26,12 +26,9 @@ namespace ERxWebClient2.Controllers
     {
 
         private IConfiguration _configuration;
-        private readonly ILogger<ItemDocumentListController> _Logger;
-
-        public ItemDocumentListController(IConfiguration configuration, ILogger<ItemDocumentListController> logger)
+        public ItemDocumentListController(IConfiguration configuration, ILogger<ItemDocumentListController> logger) : base(logger)
         {
             _configuration = configuration;
-            _Logger = logger;
         }
 
         [HttpPost("[action]")]
@@ -39,7 +36,7 @@ namespace ERxWebClient2.Controllers
         {
             try
             {
-                SetCSLAUser();
+                if (!SetCSLAUser()) return Unauthorized();
 
                 ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
                 int rid = ri.ReviewId;
@@ -53,8 +50,8 @@ namespace ERxWebClient2.Controllers
             }
             catch (Exception e)
             {
-                _Logger.LogError(e,"DocumentList data portal controller error",  ItemIDCrit.Value);
-                throw;
+                _logger.LogError(e,"DocumentList data portal controller error",  ItemIDCrit.Value);
+                return StatusCode(500, e.Message);
             }
 
         }
@@ -64,7 +61,7 @@ namespace ERxWebClient2.Controllers
         public ActionResult GetItemDocument(int ItemDocumentID)
         {
             
-            SetCSLAUser();
+            if (!SetCSLAUser()) return Unauthorized();
 
             ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
 
@@ -220,8 +217,8 @@ namespace ERxWebClient2.Controllers
             }
             catch (Exception e)
             {
-                _Logger.LogError(e, "File download failure DOCID: {0}, REVID: {1}", parameters[0], parameters[1]);
-                _Logger.SQLActionFailed("Download Error...", parameters, e);
+                _logger.LogError(e, "File download failure DOCID: {0}, REVID: {1}", parameters[0], parameters[1]);
+                _logger.SQLActionFailed("Download Error...", parameters, e);
                 return NotFound();
             }
         }
@@ -264,8 +261,8 @@ namespace ERxWebClient2.Controllers
             }
             catch (Exception e)
             {
-                _Logger.LogException(e, "Upload doc file error");
-                throw;
+                _logger.LogException(e, "Upload doc file error");
+                return StatusCode(500, e.Message);
             }
 
         }
@@ -291,7 +288,7 @@ namespace ERxWebClient2.Controllers
             }
             catch (Exception e)
             {
-                _Logger.LogError(e, "Error when delete doc warning is called: {0}", id.Value);
+                _logger.LogError(e, "Error when delete doc warning is called: {0}", id.Value);
                 return StatusCode(500, e.Message);
             }
 
@@ -318,7 +315,7 @@ namespace ERxWebClient2.Controllers
             }
             catch (Exception e)
             {
-                _Logger.LogError(e, "Error when Deleting uploaded Document: {0}", id.Value);
+                _logger.LogError(e, "Error when Deleting uploaded Document: {0}", id.Value);
                 return StatusCode(500, e.Message);
             }
         }

@@ -25,11 +25,11 @@ namespace ERxWebClient2.Controllers
     public class ItemListController : CSLAController
     {
 
-        private readonly ILogger _logger;
+        
 
-        public ItemListController(ILogger<ItemListController> logger)
+        public ItemListController(ILogger<ItemListController> logger) : base(logger)
         {
-            _logger = logger;
+           // _logger = logger;
 
         }
 
@@ -39,7 +39,7 @@ namespace ERxWebClient2.Controllers
         //{
         //    try
         //    {
-        //        SetCSLAUser();
+        //        if (!SetCSLAUser()) return Unauthorized();
         //        ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
 
         //        DataPortal<ItemList> dp = new DataPortal<ItemList>();
@@ -57,7 +57,7 @@ namespace ERxWebClient2.Controllers
         //    catch (Exception e)
         //    {
         //        _logger.LogError(e, "Included Items dataportal error");
-        //        throw;
+        //        return StatusCode(500, e.Message);
         //    }
             
         //}
@@ -68,7 +68,8 @@ namespace ERxWebClient2.Controllers
             try
             {
 
-                SetCSLAUser();
+                if (!SetCSLAUser()) return Unauthorized();
+
                 ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
 
                 DataPortal<ItemList> dp = new DataPortal<ItemList>();
@@ -90,7 +91,7 @@ namespace ERxWebClient2.Controllers
         {
             try
             {
-                SetCSLAUser();
+                if (!SetCSLAUser()) return Unauthorized();
                 ItemTypeNVLFactory factory = new ItemTypeNVLFactory();
                 ItemTypeNVL res = factory.FetchItemTypeNVL();
                 //DataPortal<ItemTypeNVL> dp = new DataPortal<ItemTypeNVL>();
@@ -108,7 +109,7 @@ namespace ERxWebClient2.Controllers
         {
             try
             {
-                SetCSLAUser();
+                if (!SetCSLAUser()) return Unauthorized();
                 DataPortal<ReadOnlySource> dps = new DataPortal<ReadOnlySource>();
                 DataPortal<ItemDuplicatesReadOnlyList> pdp = new DataPortal<ItemDuplicatesReadOnlyList>();
                 ReadOnlySource ros = dps.Fetch(new SingleCriteria<ReadOnlySource, long>(itemID.Value));
@@ -272,7 +273,7 @@ namespace ERxWebClient2.Controllers
 		//{
 		//    try
 		//    {
-		//        SetCSLAUser();
+		//        if (!SetCSLAUser()) return Unauthorized();
 		//        ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
 
 		//        DataPortal<ItemList> dp = new DataPortal<ItemList>();
@@ -289,7 +290,7 @@ namespace ERxWebClient2.Controllers
 		//    catch (Exception)
 		//    {
 
-		//        throw;
+		//        return StatusCode(500, e.Message);
 		//    }
 		//}
 	}

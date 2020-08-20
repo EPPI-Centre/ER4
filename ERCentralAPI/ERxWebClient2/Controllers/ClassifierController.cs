@@ -20,7 +20,7 @@ namespace ERxWebClient2.Controllers
 		private int _classifierId = -1;
 		private string _returnMessage = "";
 		
-		public ClassifierController(ILogger<ClassifierController> logger)
+		public ClassifierController(ILogger<ClassifierController> logger) :base(logger)
 		{
 			_logger = logger;
 		
@@ -31,7 +31,7 @@ namespace ERxWebClient2.Controllers
 		{
 			try
 			{
-				SetCSLAUser();
+				if (!SetCSLAUser()) return Unauthorized();
 				ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
 
 				DataPortal<ClassifierModelList> dp = new DataPortal<ClassifierModelList>();
@@ -40,10 +40,10 @@ namespace ERxWebClient2.Controllers
 				return Ok(result);
 							   
 			}
-			catch (Exception)
+			catch (Exception e)
 			{
 				_logger.LogError("models list error");
-				throw;
+				return StatusCode(500, e.Message);
 			}
 
 		}
@@ -84,7 +84,7 @@ namespace ERxWebClient2.Controllers
 			catch (Exception e)
 			{
 				_logger.LogException(e, "A ClassifierCommand issue");
-				throw;
+				return StatusCode(500, e.Message);
 			}
 
 		}
@@ -127,7 +127,7 @@ namespace ERxWebClient2.Controllers
 			catch (Exception e)
 			{
 				_logger.LogException(e, "A ClassifierCommand issue");
-				throw;
+				return StatusCode(500, e.Message);
 			}
 
 		}
@@ -158,7 +158,7 @@ namespace ERxWebClient2.Controllers
 			catch (Exception e)
 			{
 				_logger.LogException(e, "DeleteModel has failed. Modelid: " + _model._modelId + " command res: " + command.ReturnMessage);
-				throw;
+				return StatusCode(500, e.Message);
 			}
 		}
 

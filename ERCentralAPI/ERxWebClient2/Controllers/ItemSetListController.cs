@@ -23,15 +23,9 @@ namespace ERxWebClient2.Controllers
     [Route("api/[controller]")]
     public class ItemSetListController : CSLAController
     {
-
-        private readonly ILogger _logger;
-
-        public ItemSetListController(ILogger<ItemSetListController> logger)
-        {
-            _logger = logger;
-        }
-
-       
+        
+        public ItemSetListController(ILogger<ItemSetListController> logger) : base(logger)
+        { }
 
         [HttpPost("[action]")]
         public IActionResult Fetch([FromBody] SingleInt64Criteria ItemIDCrit)
@@ -39,7 +33,7 @@ namespace ERxWebClient2.Controllers
             try
             {
 
-                SetCSLAUser();
+                if (!SetCSLAUser()) return Unauthorized();
                 ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
 
                 DataPortal<ItemSetList> dp = new DataPortal<ItemSetList>();
@@ -81,7 +75,7 @@ namespace ERxWebClient2.Controllers
             {
                 string json = JsonConvert.SerializeObject(MVCcmd);
                 _logger.LogError(e, "Dataportal Error with Item Attributes: {0}", json);
-                throw;
+                return StatusCode(500, e.Message);
             }
         }
         private MVCItemAttributeSaveCommand InternalExcecuteItemAttributeSaveCommand(MVCItemAttributeSaveCommand MVCcmd)
@@ -134,7 +128,7 @@ namespace ERxWebClient2.Controllers
             {
                 string json = JsonConvert.SerializeObject(MVCcmd);
                 _logger.LogError(e, "Dataportal Error with Item Attributes: {0}", json);
-                throw;
+                return StatusCode(500, e.Message);
             }
         }
         [HttpPost("[action]")]
@@ -161,7 +155,7 @@ namespace ERxWebClient2.Controllers
             {
                 string json = JsonConvert.SerializeObject(MVCcmd);
                 _logger.LogError(e, "Dataportal Error with Item Attributes: {0}", json);
-                throw;
+                return StatusCode(500, e.Message);
             }
         }
 
@@ -170,7 +164,7 @@ namespace ERxWebClient2.Controllers
         {
             try
             {
-                SetCSLAUser();
+                if (!SetCSLAUser()) return Unauthorized();
                 DataPortal<ItemAttributePDFList> dp = new DataPortal<ItemAttributePDFList>();
                 ItemAttributePDFList result = dp.Fetch(new iaPDFListSelCrit(MVCsel.itemDocumentId, MVCsel.itemAttributeId));
                 return Ok(result);
@@ -225,7 +219,7 @@ namespace ERxWebClient2.Controllers
             {
                 string json = JsonConvert.SerializeObject(MVCcodingInPage);
                 _logger.LogError(e, "Dataportal Error with CreatePDFCodingPage: {0}", json);
-                throw;
+                return StatusCode(500, e.Message);
             }
         }
 
@@ -304,7 +298,7 @@ namespace ERxWebClient2.Controllers
             {
                 string json = JsonConvert.SerializeObject(MVCcodingInPage);
                 _logger.LogError(e, "Dataportal Error with UpdatePDFCodingPage: {0}", json);
-                throw;
+                return StatusCode(500, e.Message);
             }
         }
 
@@ -333,7 +327,7 @@ namespace ERxWebClient2.Controllers
             {
                 string json = JsonConvert.SerializeObject(ItemAttributePDFId.Value);
                 _logger.LogError(e, "Dataportal Error with DeletePDFCodingPage: {0}", ItemAttributePDFId.Value);
-                throw;
+                return StatusCode(500, e.Message);
             }
         }
 
@@ -361,7 +355,7 @@ namespace ERxWebClient2.Controllers
             {
                 string json = JsonConvert.SerializeObject(MVCcmd);
                 _logger.LogError(e, "Dataportal Error in ExcecuteItemSetCompleteCommand: {0}", json);
-                throw;
+                return StatusCode(500, e.Message);
             }
         }
 
@@ -371,7 +365,7 @@ namespace ERxWebClient2.Controllers
         {
             try
             {
-                SetCSLAUser();
+                if (!SetCSLAUser()) return Unauthorized();
                 DataPortal<QuickCodingReportData> dp = new DataPortal<QuickCodingReportData>();
                 QuickCodingReportDataSelectionCriteria criteria = crit.CSLAReportDataSelectionCriteria();
                 QuickCodingReportData result = dp.Fetch(criteria);

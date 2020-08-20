@@ -25,19 +25,16 @@ namespace ERxWebClient2.Controllers
     [Route("api/[controller]")]
     public class SourcesController : CSLAController
     {
-
-        private readonly ILogger _logger;
-		public SourcesController(ILogger<SearchListController> logger)
-        {
-            _logger = logger;
-        }
+        
+		public SourcesController(ILogger<SearchListController> logger) : base(logger)
+        { }
 
         [HttpGet("[action]")]
         public IActionResult GetSources()
         {
 			try
             {
-                SetCSLAUser();
+                if (!SetCSLAUser()) return Unauthorized();
                 DataPortal<ReadOnlySourceList> dp = new DataPortal<ReadOnlySourceList>();
                 ReadOnlySourceList result = dp.Fetch();
 
@@ -54,7 +51,7 @@ namespace ERxWebClient2.Controllers
         {
             try
             {
-                SetCSLAUser();
+                if (!SetCSLAUser()) return Unauthorized();
                 DataPortal<Source> dp = new DataPortal<Source>();
                 Source result = dp.Fetch(new SingleCriteria<Source, int>(SourceId.Value));
                 return Ok(result);
@@ -62,7 +59,7 @@ namespace ERxWebClient2.Controllers
             catch (Exception e)
             {
                 _logger.LogException(e, "GetSource data portal error");
-                throw;
+                return StatusCode(500, e.Message);
             }
         }
         [HttpGet("[action]")]
@@ -70,7 +67,7 @@ namespace ERxWebClient2.Controllers
         {
             try
             {
-                SetCSLAUser();
+                if (!SetCSLAUser()) return Unauthorized();
                 DataPortal<ReadOnlyImportFilterRuleList> dp = new DataPortal<ReadOnlyImportFilterRuleList>();
                 ReadOnlyImportFilterRuleList result = dp.Fetch();
                 return Ok(result);
@@ -78,7 +75,7 @@ namespace ERxWebClient2.Controllers
             catch (Exception e)
             {
                 _logger.LogException(e, "GetImportFilters data portal error");
-                throw;
+                return StatusCode(500, e.Message);
             }
 
         }

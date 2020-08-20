@@ -13,20 +13,16 @@ namespace ERxWebClient2.Controllers
     [Route("api/[controller]")]
     public class ReportListController : CSLAController
     {
-
-        private readonly ILogger _logger;
-
-        public ReportListController(ILogger<ReportListController> logger)
-        {
-            _logger = logger;
-        }
+        
+        public ReportListController(ILogger<ReportListController> logger) : base(logger)
+        { }
 
         [HttpGet("[action]")]
         public IActionResult FetchReports()
         {
             try
             {
-                SetCSLAUser();
+                if (!SetCSLAUser()) return Unauthorized();
                 ReviewerIdentity ri = ApplicationContext.User.Identity as ReviewerIdentity;
                 DataPortal<ReportList> dp = new DataPortal<ReportList>();
 				ReportList result = dp.Fetch();
@@ -44,7 +40,7 @@ namespace ERxWebClient2.Controllers
 		{
 			try
 			{
-				SetCSLAUser();
+				if (!SetCSLAUser()) return Unauthorized();
 				ReviewerIdentity ri = ApplicationContext.User.Identity as ReviewerIdentity;
 
 				DataPortal<ReviewSetsList> dpFirst = new DataPortal<ReviewSetsList>();
@@ -100,7 +96,7 @@ namespace ERxWebClient2.Controllers
 		{
 			try
 			{
-				SetCSLAUser();
+				if (!SetCSLAUser()) return Unauthorized();
 				ReviewerIdentity ri = ApplicationContext.User.Identity as ReviewerIdentity;
 
 				DataPortal<ReviewSetsList> dpFirst = new DataPortal<ReviewSetsList>();
@@ -156,7 +152,7 @@ namespace ERxWebClient2.Controllers
 		{
 			try
 			{
-				SetCSLAUser();
+				if (!SetCSLAUser()) return Unauthorized();
 				ReviewerIdentity ri = ApplicationContext.User.Identity as ReviewerIdentity;
 				DataPortal<ReportExecuteCommand> dp = new DataPortal<ReportExecuteCommand>();
 
