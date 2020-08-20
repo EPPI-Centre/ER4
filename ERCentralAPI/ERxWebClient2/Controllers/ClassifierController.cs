@@ -16,15 +16,11 @@ namespace ERxWebClient2.Controllers
 	[Route("api/[controller]")]
 	public class ClassifierController : CSLAController
 	{
-		private readonly ILogger _logger;
 		private int _classifierId = -1;
 		private string _returnMessage = "";
 		
 		public ClassifierController(ILogger<ClassifierController> logger) :base(logger)
-		{
-			_logger = logger;
-		
-		}
+		{ }
 
 		[HttpGet("[action]")]
 		public IActionResult GetClassifierModelList()

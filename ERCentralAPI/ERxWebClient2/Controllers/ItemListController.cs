@@ -24,14 +24,10 @@ namespace ERxWebClient2.Controllers
     [Route("api/[controller]")]
     public class ItemListController : CSLAController
     {
-
         
 
         public ItemListController(ILogger<ItemListController> logger) : base(logger)
-        {
-           // _logger = logger;
-
-        }
+        { }
 
 
         //[HttpGet("[action]")]
