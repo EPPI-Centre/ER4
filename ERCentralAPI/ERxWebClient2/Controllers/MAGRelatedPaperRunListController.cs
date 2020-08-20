@@ -14,20 +14,16 @@ namespace ERxWebClient2.Controllers
     [Route("api/[controller]")]
     public class MagRelatedPapersRunListController : CSLAController
     {
+        
+		public MagRelatedPapersRunListController(ILogger<MagRelatedPapersRunListController> logger) : base(logger)
+        { }
 
-        private readonly ILogger _logger;
-
-		public MagRelatedPapersRunListController(ILogger<MagRelatedPapersRunListController> logger)
-        {
-
-            _logger = logger;
-        }
         [HttpGet("[action]")]
         public IActionResult GetMagRelatedPapersRuns()
         {
             try
             {
-                SetCSLAUser();
+                if (!SetCSLAUser()) return Unauthorized();
 
                 DataPortal<MagRelatedPapersRunList> dp = new DataPortal<MagRelatedPapersRunList>();
                 MagRelatedPapersRunList result = dp.Fetch();
@@ -37,7 +33,7 @@ namespace ERxWebClient2.Controllers
             catch (Exception e)
             {
                 _logger.LogException(e, "Getting a MagRelatedPapersRuns list has an error");
-                throw;
+                return StatusCode(500, e.Message);
             }
         }
 
@@ -47,7 +43,7 @@ namespace ERxWebClient2.Controllers
         {
 			try
             {
-                SetCSLAUser();
+                if (!SetCSLAUser()) return Unauthorized();
 
                 DataPortal<MagPaperList> dp = new DataPortal<MagPaperList>();
                 MagPaperListSelectionCriteria criteria = new MagPaperListSelectionCriteria
@@ -68,7 +64,7 @@ namespace ERxWebClient2.Controllers
             catch (Exception e)
             {
                 _logger.LogException(e, "Getting a MagRelatedPapersRunId list has an error");
-                throw;
+                return StatusCode(500, e.Message);
             }
 		}
 
@@ -110,7 +106,7 @@ namespace ERxWebClient2.Controllers
 			catch (Exception e)
 			{
 				_logger.LogException(e, "Creating a MagRelatedPapersRun has an error");
-				throw;
+				return StatusCode(500, e.Message);
 			}
 		}
 
@@ -136,7 +132,7 @@ namespace ERxWebClient2.Controllers
 			catch (Exception e)
 			{
 				_logger.LogException(e, "Deleting a MagRelatedPapersRun has an error");
-				throw;
+				return StatusCode(500, e.Message);
 			}
 		}
 
@@ -164,7 +160,7 @@ namespace ERxWebClient2.Controllers
             catch (Exception e)
             {
                 _logger.LogException(e, "Importing a MagRelatedPaper list has an error");
-                throw;
+                return StatusCode(500, e.Message);
             }
         }
 
@@ -192,7 +188,7 @@ namespace ERxWebClient2.Controllers
             catch (Exception e)
             {
                 _logger.LogException(e, "Importing a MagRelatedPaper list has an error");
-                throw;
+                return StatusCode(500, e.Message);
             }
         }
 
@@ -235,7 +231,7 @@ namespace ERxWebClient2.Controllers
             catch (Exception e)
             {
                 _logger.LogException(e, "Updating a MagRelatedRunAutoReRun has an error");
-                throw;
+                return StatusCode(500, e.Message);
             }
         }
 

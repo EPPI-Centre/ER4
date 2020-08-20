@@ -23,14 +23,9 @@ namespace ERxWebClient2.Controllers
     [Route("api/[controller]")]
     public class CrossTabController : CSLAController
     {
-
-        private readonly ILogger _logger;
-
-        public CrossTabController(ILogger<CrossTabController> logger)
-        {
-
-            _logger = logger;
-        }
+        
+        public CrossTabController(ILogger<CrossTabController> logger) : base(logger)
+        { }
 
         [HttpPost("[action]")]
         public IActionResult GetCrossTabs([FromBody] CrossTabCriteria data)
@@ -40,7 +35,7 @@ namespace ERxWebClient2.Controllers
 
 			try
             {
-                SetCSLAUser();
+                if (!SetCSLAUser()) return Unauthorized();
                 ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
 
                 DataPortal<ReadOnlyItemAttributeCrosstabList> dp = new DataPortal<ReadOnlyItemAttributeCrosstabList>();
@@ -65,7 +60,7 @@ namespace ERxWebClient2.Controllers
             catch (Exception e)
             {
                 _logger.LogException(e, "GetFrequencies data portal error");
-                throw;
+                return StatusCode(500, e.Message);
             }
 
 		}

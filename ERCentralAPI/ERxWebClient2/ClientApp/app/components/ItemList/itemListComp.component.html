@@ -12,11 +12,16 @@
             <span *ngIf="!EnhancedTableSelections" class="">Off</span>
         </div>
 	</div>
+    <div *ngIf="EnhancedTableSelections && LocalPageSize > 500" class="row mx-1" >
+        <div class="m-1 p-1 alert alert-danger small">
+            Enhanced selection is turned <strong>ON</strong> and the list set to show more than 500 references per page. <strong>Beware:</strong> this can slow down this application, you may need to reduce the page size to make it "snappy" again.
+        </div> 
+    </div>
     <div *ngIf="ShowOptions"
          class="alert alert-secondary row col-12">
         <div class="col-12 col-sm-6 font-weight-bold">List Options:</div>
         <div class="col-12 col-sm-6">
-            Page size: <kendo-numerictextbox *ngIf="LocalPageSize >=1"
+            Page size: <kendo-numerictextbox 
                                              [(ngModel)]="LocalPageSize"
                                              [min]="1" [format]="'n0'"
                                              [max]="4000"

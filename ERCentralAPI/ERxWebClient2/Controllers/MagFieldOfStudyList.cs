@@ -14,14 +14,8 @@ namespace ERxWebClient2.Controllers
     [Route("api/[controller]")]
     public class MagFieldOfStudyListController : CSLAController
     {
-
-        private readonly ILogger _logger;
-
-		public MagFieldOfStudyListController(ILogger<MagFieldOfStudyListController> logger)
-        {
-
-            _logger = logger;
-        }
+		public MagFieldOfStudyListController(ILogger<MagFieldOfStudyListController> logger) : base(logger)
+        { }
 
 
         [HttpPost("[action]")]
@@ -29,7 +23,7 @@ namespace ERxWebClient2.Controllers
         {
             try
             {
-                SetCSLAUser();
+                if (!SetCSLAUser()) return Unauthorized();
 
                 DataPortal<MagFieldOfStudyList> dp = new DataPortal<MagFieldOfStudyList>();
 
@@ -50,7 +44,7 @@ namespace ERxWebClient2.Controllers
             catch (Exception e)
             {
                 _logger.LogException(e, "Getting a MagFieldOfStudyList has an error");
-                throw;
+                return StatusCode(500, e.Message);
             }
         }
 

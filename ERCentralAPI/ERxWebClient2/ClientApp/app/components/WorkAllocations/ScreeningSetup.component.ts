@@ -86,7 +86,7 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
         { key: "no compl", value: 'Multiple (no auto-completion)' },
         { key: "auto code", value: 'Multiple: auto complete (code level)' },
         { key: "auto excl", value: 'Multiple: auto complete (include / exclude level)' },
-        { key: "auto safet", value: 'Multiple: safety first' }
+        { key: "auto safet", value: 'Multiple: auto complete (safety first)' }
     ]; //{ key: "Single", value: 'Single (auto-completes)' }, //not used, as we set it automatically.
     public get ReconcileOptions(): kvStringSelectFrom[] {
         return this._ReconcileOptions;

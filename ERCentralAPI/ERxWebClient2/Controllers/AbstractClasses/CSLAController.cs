@@ -3,6 +3,7 @@ using Csla;
 using Microsoft.AspNetCore.Authorization;
 
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Linq;
 using System.Security.Claims;
@@ -11,6 +12,11 @@ namespace ERxWebClient2.Controllers
 {
     public abstract class CSLAController : Controller
     {
+        protected readonly ILogger _logger;
+        protected CSLAController(ILogger logger)
+        {
+            _logger = logger;
+        }
         /// <summary>
         /// This method is used to populate Csla.ApplicationContext.User, which is necessary because it is different from 
         /// the MVC user that we get when a JWT is added to the request headers.
@@ -31,6 +37,8 @@ namespace ERxWebClient2.Controllers
             }
             catch (Exception e)
             {//to be logged!
+                _logger.LogError(e, "SetCSLAUser failure");
+                Csla.ApplicationContext.User = null;
                 return false;
             }
         }
@@ -50,7 +58,8 @@ namespace ERxWebClient2.Controllers
 			}
 			catch (Exception e)
 			{//to be logged!
-				return false;
+                _logger.LogError(e, "SetCSLAUser4Writing failure");
+                return false;
 			}
 		}
 	}

@@ -19,13 +19,9 @@ namespace ERxWebClient2.Controllers
     [Route("api/[controller]")]
     public class CodesetController : CSLAController
     {
-
-        private readonly ILogger _logger;
         
-        public CodesetController(ILogger<CodesetController> logger)
-        {
-            _logger = logger;
-        }
+        public CodesetController(ILogger<CodesetController> logger) : base(logger)
+        {}
 
         [HttpGet("[action]")]
         public IActionResult CodesetsByReview()
@@ -33,7 +29,7 @@ namespace ERxWebClient2.Controllers
 
             try
             {
-                SetCSLAUser();
+                if (!SetCSLAUser()) return Unauthorized();
                 DataPortal<ReviewSetsList> dp = new DataPortal<ReviewSetsList>();
                 ReviewSetsList res = dp.Fetch();
                 return Ok(res);
@@ -41,7 +37,7 @@ namespace ERxWebClient2.Controllers
             catch (Exception e)
             {
                 _logger.LogException(e, "Dataportal error getting ReviewSets");
-                throw;
+                return StatusCode(500, e.Message);
             }
         }
         [HttpGet("[action]")]
@@ -49,7 +45,7 @@ namespace ERxWebClient2.Controllers
         {
             try
             {
-                SetCSLAUser();
+                if (!SetCSLAUser()) return Unauthorized();
                 DataPortal<ReadOnlySetTypeList> dp = new DataPortal<ReadOnlySetTypeList>();
                 ReadOnlySetTypeList res = dp.Fetch();
                 return Ok(res);
@@ -57,7 +53,7 @@ namespace ERxWebClient2.Controllers
             catch (Exception e)
             {
                 _logger.LogException(e, "Dataportal error getting SetTypes");
-                throw;
+                return StatusCode(500, e.Message);
             }
         }
         [HttpPost("[action]")]
@@ -84,7 +80,7 @@ namespace ERxWebClient2.Controllers
             catch (Exception e)
             {
                 _logger.LogException(e, "Dataportal error running ReviewSetUpdateCommand");
-                throw;
+                return StatusCode(500, e.Message);
             }
         }
 
@@ -105,7 +101,7 @@ namespace ERxWebClient2.Controllers
             catch (Exception e)
             {
                 _logger.LogException(e, "Dataportal error running ReviewSetUpdateCommand");
-                throw;
+                return StatusCode(500, e.Message);
             }
         }
         [HttpPost("[action]")]
@@ -145,7 +141,7 @@ namespace ERxWebClient2.Controllers
             catch (Exception e)
             {
                 _logger.LogException(e, "Dataportal error running ReviewSetCreate");
-                throw;
+                return StatusCode(500, e.Message);
             }
         }
         [HttpPost("[action]")]
@@ -165,7 +161,7 @@ namespace ERxWebClient2.Controllers
             catch (Exception e)
             {
                 _logger.LogException(e, "Dataportal error running ReviewSetCheckCodingStatus");
-                throw;
+                return StatusCode(500, e.Message);
             }
         }
         [HttpPost("[action]")]
@@ -188,7 +184,7 @@ namespace ERxWebClient2.Controllers
             catch (Exception e)
             {
                 _logger.LogException(e, "Dataportal error running AttributeOrSetDeleteCheck");
-                throw;
+                return StatusCode(500, e.Message);
             }
         }
         [HttpPost("[action]")]
@@ -208,7 +204,7 @@ namespace ERxWebClient2.Controllers
             catch (Exception e)
             {
                 _logger.LogException(e, "Dataportal error running ReviewSetDelete");
-                throw;
+                return StatusCode(500, e.Message);
             }
         }
         [HttpPost("[action]")]
@@ -240,7 +236,7 @@ namespace ERxWebClient2.Controllers
             catch (Exception e)
             {
                 _logger.LogException(e, "Dataportal error running AttributeCreate");
-                throw;
+                return StatusCode(500, e.Message);
             }
         }
         [HttpPost("[action]")]
@@ -268,7 +264,7 @@ namespace ERxWebClient2.Controllers
             catch (Exception e)
             {
                 _logger.LogException(e, "Dataportal error running AttributeUpdate");
-                throw;
+                return StatusCode(500, e.Message);
             }
         }
         [HttpPost("[action]")]
@@ -288,7 +284,7 @@ namespace ERxWebClient2.Controllers
             catch (Exception e)
             {
                 _logger.LogException(e, "Dataportal error running AttributeDelete");
-                throw;
+                return StatusCode(500, e.Message);
             }
         }
         [HttpPost("[action]")]
@@ -308,7 +304,7 @@ namespace ERxWebClient2.Controllers
             catch (Exception e)
             {
                 _logger.LogException(e, "Dataportal error running ReviewSetCreate");
-                throw;
+                return StatusCode(500, e.Message);
             }
         }
 		[HttpPost("[action]")]
@@ -333,7 +329,7 @@ namespace ERxWebClient2.Controllers
 			catch (Exception e)
 			{
 				_logger.LogException(e, "CreateVisualiseCodeSet of Search Data has failed");
-				throw;
+				return StatusCode(500, e.Message);
 			}
 		}
 		[HttpPost("[action]")]
@@ -352,7 +348,7 @@ namespace ERxWebClient2.Controllers
             catch (Exception e)
             {
                 _logger.LogException(e, "Dataportal error running GetReviewSetsForCopying");
-                throw;
+                return StatusCode(500, e.Message);
             }
         }
         [HttpPost("[action]")]
@@ -380,7 +376,7 @@ namespace ERxWebClient2.Controllers
             catch (Exception e)
             {
                 _logger.LogException(e, "Dataportal error running PerformClusterCommand");
-                throw;
+                return StatusCode(500, e.Message);
             }
         }
 		[HttpPost("[action]")]
@@ -408,7 +404,7 @@ namespace ERxWebClient2.Controllers
 			catch (Exception e)
 			{
 				_logger.LogException(e, "PerformRandomAllocate error");
-				throw;
+				return StatusCode(500, e.Message);
 			}
 		}
 

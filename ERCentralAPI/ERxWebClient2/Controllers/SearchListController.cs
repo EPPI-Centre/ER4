@@ -13,21 +13,16 @@ namespace ERxWebClient2.Controllers
     [Route("api/[controller]")]
     public class SearchListController : CSLAController
     {
-
-        private readonly ILogger _logger;
-
-		public SearchListController(ILogger<SearchListController> logger)
-        {
-
-            _logger = logger;
-        }
+        
+		public SearchListController(ILogger<SearchListController> logger) : base(logger)
+        { }
 
         [HttpGet("[action]")]
         public IActionResult GetSearches()
         {
 			try
             {
-                SetCSLAUser();
+                if (!SetCSLAUser()) return Unauthorized();
 
                 DataPortal<SearchList> dp = new DataPortal<SearchList>();
 				SearchList result = dp.Fetch();
@@ -37,7 +32,7 @@ namespace ERxWebClient2.Controllers
             catch (Exception e)
             {
                 _logger.LogException(e, "Getting a searches list has an error");
-                throw;
+                return StatusCode(500, e.Message);
             }
 		}
 
@@ -65,7 +60,7 @@ namespace ERxWebClient2.Controllers
 			catch (Exception e)
 			{
 				_logger.LogException(e, "Creating searches using IDs has an error");
-				throw;
+				return StatusCode(500, e.Message);
 			}
 
 		}
@@ -96,7 +91,7 @@ namespace ERxWebClient2.Controllers
 			catch (Exception e)
 			{
 				_logger.LogException(e, "Searches based on imported IDs has failed");
-				throw;
+				return StatusCode(500, e.Message);
 			}
 
 		}
@@ -125,7 +120,7 @@ namespace ERxWebClient2.Controllers
 			catch (Exception e)
 			{
 				_logger.LogException(e, "Creating searches with no abstract has failed");
-				throw;
+				return StatusCode(500, e.Message);
 			}
 
 		}
@@ -157,7 +152,7 @@ namespace ERxWebClient2.Controllers
 			catch (Exception e)
 			{
 				_logger.LogException(e, "Search codes has failed");
-				throw;
+				return StatusCode(500, e.Message);
 			}
 
 		}
@@ -190,7 +185,7 @@ namespace ERxWebClient2.Controllers
 			catch (Exception e)
 			{
 				_logger.LogException(e, "Searches containing no files has failed");
-				throw;
+				return StatusCode(500, e.Message);
 			}
 
 		}
@@ -223,7 +218,7 @@ namespace ERxWebClient2.Controllers
 			catch (Exception e)
 			{
 				_logger.LogException(e, "Searches containing just one file has failed");
-				throw;
+				return StatusCode(500, e.Message);
 			}
 		}
 
@@ -254,7 +249,7 @@ namespace ERxWebClient2.Controllers
 			catch (Exception e)
 			{
 				_logger.LogException(e, "Creating searches based on text has failed");
-				throw;
+				return StatusCode(500, e.Message);
 			}
 
 		}
@@ -290,7 +285,7 @@ namespace ERxWebClient2.Controllers
 			catch (Exception e)
 			{
 				_logger.LogException(e, "Searches with a code set check has failed");
-				throw;
+				return StatusCode(500, e.Message);
 			}
 
 		}
@@ -320,7 +315,7 @@ namespace ERxWebClient2.Controllers
 			catch (Exception e)
 			{
 				_logger.LogException(e, "Searches based on logic parameters has failed");
-				throw;
+				return StatusCode(500, e.Message);
 			}
 		}
 
@@ -343,7 +338,7 @@ namespace ERxWebClient2.Controllers
 			catch (Exception e)
 			{
 				_logger.LogException(e, "Deletion of searches has failed");
-				throw;
+				return StatusCode(500, e.Message);
 			}
 		}
 
@@ -353,7 +348,7 @@ namespace ERxWebClient2.Controllers
 
 			try
 			{
-                SetCSLAUser();
+                if (!SetCSLAUser()) return Unauthorized();
 				
 				//SearchDeleteCommand cmd = new SearchVisualise(_searchId);
 				DataPortal<SearchVisualiseList> dp = new DataPortal<SearchVisualiseList>();
@@ -366,7 +361,7 @@ namespace ERxWebClient2.Controllers
 			catch (Exception e)
 			{
 				_logger.LogException(e, "CreateVisualiseData of Search Data has failed");
-				throw;
+				return StatusCode(500, e.Message);
 			}
 		}
 				
