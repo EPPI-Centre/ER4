@@ -212,6 +212,8 @@ namespace ERxWebClient2.Controllers
             riCI.AddClaim(new Claim("name", ri.Name));
             riCI.AddClaim(new Claim("reviewTicket", ri.Ticket));
             riCI.AddClaim(new Claim("isSiteAdmin", ri.IsSiteAdmin.ToString()));
+            riCI.AddClaim(new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()));
+            
             foreach (var userRole in ri.Roles)
             {
                 riCI.AddClaim(new Claim(ClaimTypes.Role, userRole));
@@ -219,6 +221,7 @@ namespace ERxWebClient2.Controllers
             var token = new JwtSecurityToken(_config["AppSettings:EPPIApiUrl"],
               _config["AppSettings:EPPIApiClientName"],
               riCI.Claims,
+              notBefore: DateTime.Now.AddSeconds(-60),
               expires: DateTime.Now.AddHours(6),
               //expires: DateTime.Now.AddSeconds(15),
               signingCredentials: creds);

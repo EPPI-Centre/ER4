@@ -14,9 +14,9 @@ export class JwtInterceptor implements HttpInterceptor {
         //let currentUser: ReviewerIdentity = userJson !== null ? JSON.parse(userJson) : new ReviewerIdentity();
 		
         const currentUser: ReviewerIdentity = this.ReviewerIdentityServ.reviewerIdentity;
-
+        const chk: boolean = currentUser && currentUser.token && !currentUser.token.startsWith("Error: ") ?  true : false;
         if (request.method == 'POST') {
-            if (currentUser && currentUser.token) {
+            if (chk) {
                 if (request.url.indexOf('ItemDocumentList/Upload') > 0) {
                     request = request.clone({
                         setHeaders: {
@@ -42,7 +42,7 @@ export class JwtInterceptor implements HttpInterceptor {
             }
         }
         else {
-            if (currentUser && currentUser.token) {
+            if (chk) {
                 request = request.clone({
                     setHeaders: {
                         Authorization: `Bearer ${currentUser.token}`,
