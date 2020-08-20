@@ -472,18 +472,22 @@ public partial class AssignCredit : System.Web.UI.Page
                         newrow["CONTACT_ID"] = tbAddAccountID.Text;
                         newrow["CONTACT_NAME"] = name;
                         dayExpires = Convert.ToDateTime(expiryDate);
+
                         if (dayExpires < today)
                         {
-                            newrow["EXPIRY_DATE"] = dayExpires.ToShortDateString() + "  Expired";
+                            newrow["EXPIRY_DATE"] = dayExpires.ToString("dd MMM yyyy") + "  Expired";
+                            //newrow["EXPIRY_DATE"] = dayExpires.ToShortDateString() + "  Expired";
                         }
                         else
                         {
-                            newrow["EXPIRY_DATE"] = expiryDate;
+                            newrow["EXPIRY_DATE"] = dayExpires.ToString("dd MMM yyyy");
+                            //newrow["EXPIRY_DATE"] = expiryDate;
                         }
 
                         if (siteLicID != "")
                         {
-                            newrow["EXPIRY_DATE"] = expiryDate + " in Site License #" + siteLicID;
+                            newrow["EXPIRY_DATE"] = dayExpires.ToString("dd MMM yyyy") + " in Site License #" + siteLicID;
+                            //newrow["EXPIRY_DATE"] = expiryDate + " in Site License #" + siteLicID;
                         }
                         newrow["EMAIL"] = email;
 
