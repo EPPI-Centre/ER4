@@ -82,9 +82,9 @@ namespace BusinessLibrary.BusinessClasses
                     {
                         foreach (MagMakesHelpers.MakesInterpretation i in respJson.interpretations)
                         {
-                            //foreach (MagMakesHelpers.MakesInterpretationRule r in i.rules)
-                            //{
-                                foreach (MagMakesHelpers.PaperMakes pm in i.topEntities)
+                            foreach (MagMakesHelpers.MakesInterpretationRule r in i.rules)
+                            {
+                                foreach (MagMakesHelpers.PaperMakes pm in r.output.entities)
                                 {
                                     if (pm.F != null)
                                     {
@@ -105,7 +105,7 @@ namespace BusinessLibrary.BusinessClasses
                                         }
                                     }
                                 }
-                            //}
+                            }
                         }
                     }
                     foreach (KeyValuePair<string, int> eachFos in fosDict.OrderByDescending(val => val.Value))
@@ -123,9 +123,9 @@ namespace BusinessLibrary.BusinessClasses
                     var fosDict = new Dictionary<string, int>();
                     //var respJson = JsonConvert.DeserializeObject<MagMakesHelpers.PaperMakesResponse>(responseText, jsonsettings);
                     MagMakesHelpers.PaperMakesResponse pmr = MagMakesHelpers.EvaluateExpressionNoPaging(searchString);
-                    if (pmr.matchingEntities != null && pmr.matchingEntities.Count > 0)
+                    if (pmr.entities != null && pmr.entities.Count > 0)
                     {
-                        foreach (MagMakesHelpers.PaperMakes fosm in pmr.matchingEntities)
+                        foreach (MagMakesHelpers.PaperMakes fosm in pmr.entities)
                         {
                             if (fosm.F != null)
                             {
@@ -156,9 +156,9 @@ namespace BusinessLibrary.BusinessClasses
                 {
                     //var respJson = JsonConvert.DeserializeObject<MakesResponse>(responseText, jsonsettings);
                     MagMakesHelpers.MakesResponseFoS mrFoS = MagMakesHelpers.EvaluateFieldOfStudyExpression(searchString);
-                    if (mrFoS.matchingEntities != null && mrFoS.matchingEntities.Count > 0)
+                    if (mrFoS.entities != null && mrFoS.entities.Count > 0)
                     {
-                        foreach (MagMakesHelpers.FieldOfStudyMakes fosm in mrFoS.matchingEntities)
+                        foreach (MagMakesHelpers.FieldOfStudyMakes fosm in mrFoS.entities)
                         {
                             if (selectionCriteria.ListType == "FieldOfStudyParentsList")
                             {
