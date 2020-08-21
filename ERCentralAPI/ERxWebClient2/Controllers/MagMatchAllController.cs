@@ -31,9 +31,6 @@ namespace ERxWebClient2.Controllers
 
                 return Ok(GetMatches.currentStatus);
 
-                }
-
-                else return Forbid();
             }
             catch (Exception e)
             {
@@ -58,8 +55,6 @@ namespace ERxWebClient2.Controllers
 
                     return Ok(GetMatches);
 
-                }
-                else return Forbid();
             }
             catch (Exception e)
             {
@@ -84,9 +79,6 @@ namespace ERxWebClient2.Controllers
 
                     return Ok(GetMatches.currentStatus);
 
-                }
-
-                else return Forbid();
             }
             catch (Exception e)
             {
@@ -110,9 +102,6 @@ namespace ERxWebClient2.Controllers
 
                     return Ok(GetMatches.currentStatus);
 
-                }
-
-                else return Forbid();
             }
             catch (Exception e)
             {

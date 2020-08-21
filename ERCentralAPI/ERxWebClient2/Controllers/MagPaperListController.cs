@@ -73,10 +73,6 @@ namespace ERxWebClient2.Controllers
                     throw new Exception("magPaper has a LinkedITEM_ID of 0!");
                 }
 
-                }
-                else return Forbid();
-
-
             }
             catch (Exception e)
             {
