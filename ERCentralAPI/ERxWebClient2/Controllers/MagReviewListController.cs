@@ -13,13 +13,9 @@ namespace ERxWebClient2.Controllers
     [Route("api/[controller]")]
     public class MagReviewListController : CSLAController
     {
-        private readonly ILogger _logger;
 
-		public MagReviewListController(ILogger<MagReviewListController> logger)
-        {
-
-            _logger = logger;
-        }
+        public MagReviewListController(ILogger<MagReviewListController> logger) : base(logger)
+        { }
 
 
         [HttpGet("[action]")]

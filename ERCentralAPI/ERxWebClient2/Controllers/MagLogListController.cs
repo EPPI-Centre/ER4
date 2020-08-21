@@ -13,14 +13,8 @@ namespace ERxWebClient2.Controllers
     public class MagLogListController : CSLAController
     {
 
-        private readonly ILogger _logger;
-
-		public MagLogListController(ILogger<MagLogListController> logger)
-        {
-
-            _logger = logger;
-        }
-
+        public MagLogListController(ILogger<MagLogListController> logger) : base(logger)
+        { }
 
         [HttpGet("[action]")]
         public IActionResult GetMagLogList()
