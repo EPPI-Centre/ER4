@@ -14,21 +14,16 @@ namespace ERxWebClient2.Controllers
     [Route("api/[controller]")]
     public class MagSimulationListController : CSLAController
     {
-
-        private readonly ILogger _logger;
-
-		public MagSimulationListController(ILogger<MagSimulationListController> logger)
-        {
-
-            _logger = logger;
-        }
+        
+		public MagSimulationListController(ILogger<MagSimulationListController> logger) : base(logger)
+        { }
 
         [HttpGet("[action]")]
         public IActionResult GetMagSimulationList()
         {
 			try
             {
-                SetCSLAUser();
+                if (!SetCSLAUser()) return Unauthorized();
 
                 DataPortal<MagSimulationList> dp = new DataPortal<MagSimulationList>();
 				MagSimulationList result = dp.Fetch();
@@ -38,7 +33,7 @@ namespace ERxWebClient2.Controllers
             catch (Exception e)
             {
                 _logger.LogException(e, "Getting a MAG Simulation list has an error");
-                throw;
+                return StatusCode(500, e.Message);
             }
 		}
 
@@ -84,7 +79,8 @@ namespace ERxWebClient2.Controllers
 			catch (Exception e)
 			{
 				_logger.LogException(e, "Creating a MAG Simulation has an error");
-				throw;
+                //TODO investigating bug
+				return StatusCode(500, e.Message);
 			}
 		}
 
@@ -111,7 +107,7 @@ namespace ERxWebClient2.Controllers
             catch (Exception e)
             {
                 _logger.LogException(e, "Deleting a MAG Simulation list has an error");
-                throw;
+                return StatusCode(500, e.Message);
             }
         }
     }

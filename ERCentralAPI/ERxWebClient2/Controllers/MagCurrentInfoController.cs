@@ -15,21 +15,16 @@ namespace ERxWebClient2.Controllers
     [Route("api/[controller]")]
     public class MagCurrentInfoController : CSLAController
     {
-
-        private readonly ILogger _logger;
-
-		public MagCurrentInfoController(ILogger<MagCurrentInfoController> logger)
-        {
-
-            _logger = logger;
-        }
+        
+		public MagCurrentInfoController(ILogger<MagCurrentInfoController> logger) : base(logger)
+        { }
 
         [HttpGet("[action]")]
         public ActionResult<MagCurrentInfo> GetMagCurrentInfo()
         {
 			try
             {
-                SetCSLAUser();
+                if (!SetCSLAUser()) return Unauthorized();
 
                 DataPortal<MagCurrentInfo> dp = new DataPortal<MagCurrentInfo>();
 				MagCurrentInfo result = dp.Fetch();
@@ -39,7 +34,7 @@ namespace ERxWebClient2.Controllers
             catch (Exception e)
             {
                 _logger.LogException(e, "Getting a MagCurrentInfo has an error");
-                throw;
+                return StatusCode(500, e.Message);
             }
 		}
 
@@ -48,9 +43,10 @@ namespace ERxWebClient2.Controllers
         {
             try
             {
-                if (SetCSLAUser4Writing())
-                {
-                    ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+
+
+                if (!SetCSLAUser()) return Unauthorized();
+                ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
                     // FOR NOW on the MagCurrentInfo business object we contact Azure and get the info to update the DB
                     // TODO change logic to receive this info from the user in the above MVC object
                     // after we have listed the info on the UI
@@ -60,13 +56,11 @@ namespace ERxWebClient2.Controllers
 
                     return Ok(magSQLCurrentInfo);
 
-                }
-                else return Forbid();
             }
             catch (Exception e)
             {
                 _logger.LogException(e, "updating the  MagCurrent Info has an error");
-                throw;
+                return StatusCode(500, e.Message);
             }
         }
 
@@ -75,7 +69,7 @@ namespace ERxWebClient2.Controllers
         {
             try
             {
-                SetCSLAUser();
+                if (!SetCSLAUser()) return Unauthorized();
                 MAgReviewMagInfoCommand cmd = new MAgReviewMagInfoCommand();
                 DataPortal<MAgReviewMagInfoCommand> dp = new DataPortal<MAgReviewMagInfoCommand>();
                 cmd = dp.Execute(cmd);
@@ -84,8 +78,8 @@ namespace ERxWebClient2.Controllers
             }
             catch (Exception e)
             {
-                _logger.LogException(e, "Getting a MagReviewMag Info Command has an error");
-                throw;
+                _logger.LogException(e, "Getting a MagReviewMagInfo Command has an error");
+                return StatusCode(500, e.Message);
             }
         }
 
@@ -98,7 +92,6 @@ namespace ERxWebClient2.Controllers
             {
                 if (SetCSLAUser4Writing())
                 {
-                    ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
                     DataPortal<MagCheckContReviewRunningCommand> dp = new DataPortal<MagCheckContReviewRunningCommand>();
                     MagCheckContReviewRunningCommand check = new MagCheckContReviewRunningCommand();
 
@@ -111,6 +104,8 @@ namespace ERxWebClient2.Controllers
             }
             catch (Exception e)
             {
+                _logger.LogException(e, "MagCheckContReviewRunningCommand has an error");
+                return StatusCode(500, e.Message);
                 _logger.LogException(e, "MagCheckContReviewRunning Command has an error");
                 throw;
             }

@@ -23,14 +23,9 @@ namespace ERxWebClient2.Controllers
     [Route("api/[controller]")]
     public class PriorirtyScreeningController : CSLAController
     {
-
-        private readonly ILogger _logger;
-
-        public PriorirtyScreeningController(ILogger<PriorirtyScreeningController> logger)
-        {
-
-            _logger = logger;
-        }
+        
+        public PriorirtyScreeningController(ILogger<PriorirtyScreeningController> logger) : base(logger)
+        { }
 
 
         [HttpGet("[action]")]
@@ -38,7 +33,7 @@ namespace ERxWebClient2.Controllers
         {
             try
             {
-                SetCSLAUser();
+                if (!SetCSLAUser()) return Unauthorized();
                 DataPortal<TrainingList> dp = new DataPortal<TrainingList>();
                 TrainingList result = dp.Fetch();
                 return Ok(result);
@@ -122,7 +117,7 @@ namespace ERxWebClient2.Controllers
         {
             try
             {
-                SetCSLAUser();
+                if (!SetCSLAUser()) return Unauthorized();
                 TrainingScreeningCriteriaList result = DataPortal.Fetch<TrainingScreeningCriteriaList>();
                 return Ok(result);
             }

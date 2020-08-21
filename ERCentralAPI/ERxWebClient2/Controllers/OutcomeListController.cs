@@ -21,20 +21,16 @@ namespace ERxWebClient2.Controllers
 	[Route("api/[controller]")]
 	public class OutcomeListController : CSLAController
 	{
+        
+		public OutcomeListController(ILogger<OutcomeListController> logger) : base(logger)
+        { }
 
-		private readonly ILogger _logger;
-
-		public OutcomeListController(ILogger<OutcomeListController> logger)
-		{
-			_logger = logger;
-		}
-
-		[HttpPost("[action]")]
+        [HttpPost("[action]")]
 		public IActionResult Fetch([FromBody] SingleInt64Criteria ItemIDCrit)
 		{
 			try
 			{
-				SetCSLAUser();
+				if (!SetCSLAUser()) return Unauthorized();
 				ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
 				DataPortal<OutcomeItemList> dp = new DataPortal<OutcomeItemList>();
 				SingleCriteria<OutcomeItemList, Int64> criteria =
@@ -180,7 +176,7 @@ namespace ERxWebClient2.Controllers
 		{
 			try
 			{
-				SetCSLAUser();
+				if (!SetCSLAUser()) return Unauthorized();
 				ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
 				DataPortal<ReadOnlyReviewSetOutcomeList> dp = new DataPortal<ReadOnlyReviewSetOutcomeList>();
 				ReadOnlyReviewSetOutcomeListSelectionCriteria criteria =
@@ -203,7 +199,7 @@ namespace ERxWebClient2.Controllers
 		{
 			try
 			{
-				SetCSLAUser();
+				if (!SetCSLAUser()) return Unauthorized();
 				ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
 				DataPortal<ReadOnlyReviewSetInterventionList> dp = new DataPortal<ReadOnlyReviewSetInterventionList>();
 				ReadOnlyReviewSetInterventionListSelectionCriteria criteria =
@@ -227,7 +223,7 @@ namespace ERxWebClient2.Controllers
 		{
 			try
 			{
-				SetCSLAUser();
+				if (!SetCSLAUser()) return Unauthorized();
 				ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
 				DataPortal<ReadOnlyReviewSetControlList> dp = new DataPortal<ReadOnlyReviewSetControlList>();
 				ReadOnlyReviewSetControlListSelectionCriteria criteria =
@@ -250,7 +246,7 @@ namespace ERxWebClient2.Controllers
 		{
 			try
 			{
-				SetCSLAUser();
+				if (!SetCSLAUser()) return Unauthorized();
 				ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
 				DataPortal<ItemArmList> dp = new DataPortal<ItemArmList>();
 				SingleCriteria<Item, Int64> criteria =

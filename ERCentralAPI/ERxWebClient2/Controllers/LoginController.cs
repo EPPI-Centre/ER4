@@ -195,7 +195,7 @@ namespace ERxWebClient2.Controllers
             catch (Exception e)
             {
                 _logger.LogException(e, "CreateER4ContactViaArchie exception!");
-                throw;
+                return StatusCode(500, e.Message);
             }
         }
 
@@ -244,7 +244,7 @@ namespace ERxWebClient2.Controllers
             catch (Exception e)
             {
                 _logger.LogException(e, "Error with the dataportal for version info in CSLA");
-                throw;
+                return StatusCode(500, e.Message);
             }
         }
         

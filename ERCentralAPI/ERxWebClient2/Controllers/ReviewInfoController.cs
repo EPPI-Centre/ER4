@@ -23,13 +23,9 @@ namespace ERxWebClient2.Controllers
     [Route("api/[controller]")]
     public class ReviewInfoController : CSLAController
     {
-
-        private readonly ILogger _logger;
-
-        public ReviewInfoController(ILogger<ReviewInfoController> logger)
-        {
-            _logger = logger;
-        }
+        
+        public ReviewInfoController(ILogger<ReviewInfoController> logger) : base(logger)
+        { }
 
         [HttpGet("[action]")]
         public IActionResult ReviewInfo()
@@ -38,7 +34,7 @@ namespace ERxWebClient2.Controllers
             try
             {
 
-                SetCSLAUser();
+                if (!SetCSLAUser()) return Unauthorized();
                 ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
 
                 DataPortal<ReviewInfo> dp = new DataPortal<ReviewInfo>();
@@ -51,7 +47,7 @@ namespace ERxWebClient2.Controllers
             catch (Exception e)
             {
                 _logger.LogException(e, "A user idenity issue");
-                throw;
+                return StatusCode(500, e.Message);
             }
         }
 
@@ -62,7 +58,7 @@ namespace ERxWebClient2.Controllers
 			try
 			{
 
-				SetCSLAUser();
+				if (!SetCSLAUser()) return Unauthorized();
 				ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
 
 				DataPortal<ReviewContactList> dp = new DataPortal<ReviewContactList>();
@@ -75,7 +71,7 @@ namespace ERxWebClient2.Controllers
 			catch (Exception e)
 			{
 				_logger.LogException(e, "A ReviewContactList issue");
-				throw;
+				return StatusCode(500, e.Message);
 			}
 		}
         [HttpPost("[action]")]

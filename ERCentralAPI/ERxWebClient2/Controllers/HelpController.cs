@@ -24,19 +24,16 @@ namespace ERxWebClient2.Controllers
     public class HelpController : CSLAController
     {
         //OnlineHelpCriteria
-        private readonly ILogger _logger;
+        public HelpController(ILogger<ReviewController> logger) : base(logger)
+        { }
 
-        public HelpController(ILogger<ReviewController> logger)
-        {
-            _logger = logger;
-        }
-
-		[HttpPost("[action]")]
+        [HttpPost("[action]")]
 		public IActionResult FetchHelpContent([FromBody] SingleStringCriteria crit)
 		{
-            SetCSLAUser();
+            
 			try
 			{
+                if (!SetCSLAUser()) return Unauthorized();
                 OnlineHelpContent res  = new OnlineHelpContent();
                 DataPortal<OnlineHelpContent> dp = new DataPortal<OnlineHelpContent>();
                 res = dp.Fetch(new OnlineHelpCriteria(crit.Value));
@@ -45,16 +42,17 @@ namespace ERxWebClient2.Controllers
 			catch (Exception e)
 			{
 				_logger.LogException(e, "FetchHelpContent data portal error");
-				throw;
+				return StatusCode(500, e.Message);
 			}
 			
 		}
         [HttpPost("[action]")]
         public IActionResult CreateFeedbackMessage([FromBody] FeedbackAndClientErrorJSON crit)
         {
-            SetCSLAUser();
+            
             try
             {
+                if (!SetCSLAUser()) return Unauthorized();
                 FeedbackAndClientError res = FeedbackAndClientError.CreateFeedbackAndClientError(crit.contactId, crit.context, crit.isError, crit.message);
                 res = res.Save();
                 return Ok(res);
@@ -62,18 +60,19 @@ namespace ERxWebClient2.Controllers
             catch (Exception e)
             {
                 _logger.LogException(e, "CreateFeedbackMessage data portal error");
-                throw;
+                return StatusCode(500, e.Message);
             }
 
         }
         [HttpGet("[action]")]
         public IActionResult FeedbackMessageList()
         {
-            SetCSLAUser();
-            ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
-            if (ri.ReviewId == 0 || !ri.IsSiteAdmin) return Forbid();
+            
             try
             {
+                if (!SetCSLAUser()) return Unauthorized();
+                ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+                if (ri.ReviewId == 0 || !ri.IsSiteAdmin) return Forbid();
                 DataPortal<FeedbackAndClientErrorList> dp = new DataPortal<FeedbackAndClientErrorList>();
                 FeedbackAndClientErrorList res = dp.Fetch();
                 return Ok(res);
@@ -81,7 +80,7 @@ namespace ERxWebClient2.Controllers
             catch (Exception e)
             {
                 _logger.LogException(e, "FeedbackMessageList data portal error");
-                throw;
+                return StatusCode(500, e.Message);
             }
         }
     }

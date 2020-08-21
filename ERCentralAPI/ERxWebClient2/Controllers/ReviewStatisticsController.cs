@@ -23,22 +23,17 @@ namespace ERxWebClient2.Controllers
 	[Route("api/[controller]")]
 	public class ReviewStatisticsController : CSLAController
 	{
-
-		private readonly ILogger _logger;
-
-		public ReviewStatisticsController(ILogger<ReviewController> logger)
-		{
-
-			_logger = logger;
-		}
+        
+		public ReviewStatisticsController(ILogger<ReviewController> logger) : base(logger)
+        { }
 
 
-		[HttpGet("[action]")]
+        [HttpGet("[action]")]
 		public IActionResult ExcecuteReviewStatisticsCountCommand()
 		{
 			try
 			{
-				SetCSLAUser();
+				if (!SetCSLAUser()) return Unauthorized();
 				ReviewStatisticsCountsCommand cmd = new ReviewStatisticsCountsCommand();
 				DataPortal<ReviewStatisticsCountsCommand> dp = new DataPortal<ReviewStatisticsCountsCommand>();
 				cmd = dp.Execute(cmd);
@@ -50,7 +45,7 @@ namespace ERxWebClient2.Controllers
 			{
 				ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
 				_logger.LogError(e, "Dataportal Error for Review Statistics RevID: {0}", ri.ReviewId);
-				throw;
+				return StatusCode(500, e.Message);
 			}
 		}
 
@@ -60,7 +55,7 @@ namespace ERxWebClient2.Controllers
 		{
 			try
 			{
-				SetCSLAUser();
+				if (!SetCSLAUser()) return Unauthorized();
 				ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
 
 				DataPortal<ReviewStatisticsCodeSetList> dp = new DataPortal<ReviewStatisticsCodeSetList>();
@@ -83,7 +78,7 @@ namespace ERxWebClient2.Controllers
 		{
 			try
 			{
-				SetCSLAUser();
+				if (!SetCSLAUser()) return Unauthorized();
 				
 				ItemSetBulkCompleteCommand cmd = new ItemSetBulkCompleteCommand(
 					MVCcmd.setID, MVCcmd.contactID, MVCcmd.completeOrNot);
@@ -97,7 +92,7 @@ namespace ERxWebClient2.Controllers
 			{
 				ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
 				_logger.LogError(e, "Dataportal Error for Review Statistics RevID: {0}", ri.ReviewId);
-				throw;
+				return StatusCode(500, e.Message);
 			}
 		}
 
@@ -125,7 +120,7 @@ namespace ERxWebClient2.Controllers
 			catch (Exception e)
 			{
 				_logger.LogError(e, "Dataportal Error for PreviewCompleteUncompleteCommand.");
-				throw;
+				return StatusCode(500, e.Message);
 			}
 		}
 

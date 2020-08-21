@@ -13,22 +13,15 @@ namespace ERxWebClient2.Controllers
     [Route("api/[controller]")]
     public class MagMatchAllController : CSLAController
     {
-
-        private readonly ILogger _logger;
-
-		public MagMatchAllController(ILogger<MagMatchAllController> logger)
-        {
-
-            _logger = logger;
-        }
+		public MagMatchAllController(ILogger<MagMatchAllController> logger) : base(logger)
+        { }
 
         [HttpPost("[action]")]
         public IActionResult RunMatchingAlgorithm([FromBody] SingleInt64Criteria attributeId)
         {
 			try
             {
-                if (SetCSLAUser4Writing())
-                {
+                if (!SetCSLAUser()) return Unauthorized();
 
                     DataPortal<MagMatchItemsToPapersCommand> dp = new DataPortal<MagMatchItemsToPapersCommand>();
                 MagMatchItemsToPapersCommand GetMatches = new MagMatchItemsToPapersCommand("FindMatches",
@@ -44,8 +37,8 @@ namespace ERxWebClient2.Controllers
             }
             catch (Exception e)
             {
-                _logger.LogException(e, "Running Matching Algorithm has an error");
-                throw;
+                _logger.LogException(e, "RunMatchingAlgorithm has an error");
+                return StatusCode(500, e.Message);
             }
 		}
 
@@ -55,8 +48,7 @@ namespace ERxWebClient2.Controllers
         {
             try
             {
-                if (SetCSLAUser4Writing())
-                {
+                if (!SetCSLAUser()) return Unauthorized();
 
                     DataPortal<MagMatchItemsToPapersCommand> dp = new DataPortal<MagMatchItemsToPapersCommand>();
                     MagMatchItemsToPapersCommand GetMatches = new MagMatchItemsToPapersCommand("FindMatches",
@@ -71,8 +63,8 @@ namespace ERxWebClient2.Controllers
             }
             catch (Exception e)
             {
-                _logger.LogException(e, "Matching MAG Items To Papers has an error");
-                throw;
+                _logger.LogException(e, "MagMatchItemsToPapers has an error");
+                return StatusCode(500, e.Message);
             }
         }
 
@@ -82,8 +74,7 @@ namespace ERxWebClient2.Controllers
         {
             try
             {
-                if (SetCSLAUser4Writing())
-                {
+                if (!SetCSLAUser()) return Unauthorized();
 
                     DataPortal<MagMatchItemsToPapersCommand> dp = new DataPortal<MagMatchItemsToPapersCommand>();
                     MagMatchItemsToPapersCommand GetMatches = new MagMatchItemsToPapersCommand("Clear",
@@ -99,8 +90,8 @@ namespace ERxWebClient2.Controllers
             }
             catch (Exception e)
             {
-                _logger.LogException(e, "Clearing MAG Match Items To Papers has an error");
-                throw;
+                _logger.LogException(e, "MagMatchItemsToPapers has an error");
+                return StatusCode(500, e.Message);
             }
         }
 
@@ -109,8 +100,7 @@ namespace ERxWebClient2.Controllers
         {
             try
             {
-                if (SetCSLAUser4Writing())
-                {
+                if (!SetCSLAUser()) return Unauthorized();
 
                     DataPortal<MagMatchItemsToPapersCommand> dp = new DataPortal<MagMatchItemsToPapersCommand>();
                      MagMatchItemsToPapersCommand GetMatches = new MagMatchItemsToPapersCommand("Clear",
@@ -126,8 +116,8 @@ namespace ERxWebClient2.Controllers
             }
             catch (Exception e)
             {
-                _logger.LogException(e, "Clearing ALL MAG Match Items To Papers has an error");
-                throw;
+                _logger.LogException(e, "MagMatchItemsToPapers has an error");
+                return StatusCode(500, e.Message);
             }
         }
 

@@ -22,20 +22,16 @@ namespace ERxWebClient2.Controllers
     [Route("api/[controller]")]
     public class DuplicatesController : CSLAController
     {
-
-        private readonly ILogger _logger;
-
-        public DuplicatesController(ILogger<ReviewerTermListController> logger)
-        {
-            _logger = logger;
-        }
+        
+        public DuplicatesController(ILogger<ReviewerTermListController> logger) : base(logger)
+        { }
 
         [HttpPost("[action]")]
         public IActionResult FetchGroups([FromBody] SingleBoolCriteria crit)
         {
             try
             {
-                SetCSLAUser();
+                if (!SetCSLAUser()) return Unauthorized();
                 DataPortal<ItemDuplicateReadOnlyGroupList> dp = new DataPortal<ItemDuplicateReadOnlyGroupList>();
                 ItemDuplicateReadOnlyGroupList result = dp.Fetch(new SingleCriteria<ItemDuplicateReadOnlyGroupList, bool>(crit.Value));
                 return Ok(result);
@@ -53,7 +49,7 @@ namespace ERxWebClient2.Controllers
 		{
 			try
 			{
-                SetCSLAUser();
+                if (!SetCSLAUser()) return Unauthorized();
                 GroupListSelectionCriteria crit = new GroupListSelectionCriteria(data.groupId, data.itemIds);
                 ItemDuplicateReadOnlyGroupList result = DataPortal.Fetch<ItemDuplicateReadOnlyGroupList>(crit);
 				return Ok(result);
@@ -70,7 +66,7 @@ namespace ERxWebClient2.Controllers
         {
             try
             {
-                SetCSLAUser();
+                if (!SetCSLAUser()) return Unauthorized();
                 DataPortal<ItemDuplicateGroup> dp = new DataPortal<ItemDuplicateGroup>();
                 ItemDuplicateGroup result = dp.Fetch(new SingleCriteria<ItemDuplicateGroup, int>(crit.Value));
                 return Ok(result);
