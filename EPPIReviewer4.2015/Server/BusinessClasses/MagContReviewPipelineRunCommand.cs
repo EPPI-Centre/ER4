@@ -176,7 +176,7 @@ namespace BusinessLibrary.BusinessClasses
             {
                 MagLog.UpdateLogEntry("running", "Main update. ADFPipelineComplete (" + SeedIds.ToString() + ")" +
                     " Folder:" + folderPrefix, logId);
-                int NewIds = await DownloadResultsAsync(folderPrefix + "/crResults.tsv", ReviewId);
+                int NewIds = await DownloadResultsAsync(folderPrefix, ReviewId);
                 MagLog.UpdateLogEntry("Complete", "Main update. SeedIds: " + SeedIds.ToString() + "; NewIds: " +
                     NewIds.ToString() + " FoS:" + _fosThreshold.ToString() + "Score threshold: " + _scoreThreshold.ToString() +
                     " Folder:" + folderPrefix, logId);
