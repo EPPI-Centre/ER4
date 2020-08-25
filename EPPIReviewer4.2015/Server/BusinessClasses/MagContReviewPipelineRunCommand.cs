@@ -49,9 +49,11 @@ namespace BusinessLibrary.BusinessClasses
         private string _specificFolder;
         private int _reviewSampleSize;
         private int _MagLogId;
+        private bool _prepareNewMagParquet;
 
         public MagContReviewPipelineRunCommand(string CurrentMagVersion, string NextMagVersion,
-            double scoreThreshold, double fosThreshold, string specificFolder, int magLogId, int reviewSampleSize)
+            double scoreThreshold, double fosThreshold, string specificFolder, int magLogId, int reviewSampleSize,
+            bool prepareNewMagParquet = false)
         {
             _CurrentMagVersion = CurrentMagVersion;
             _NextMagVersion = NextMagVersion;
@@ -60,6 +62,7 @@ namespace BusinessLibrary.BusinessClasses
             _specificFolder = specificFolder;
             _MagLogId = magLogId;
             _reviewSampleSize = reviewSampleSize;
+            _prepareNewMagParquet = prepareNewMagParquet;
         }
 
         protected override void OnGetState(Csla.Serialization.Mobile.SerializationInfo info, StateMode mode)
@@ -72,6 +75,7 @@ namespace BusinessLibrary.BusinessClasses
             info.AddValue("_specificFolder", _specificFolder);
             info.AddValue("_reviewSampleSize", _reviewSampleSize);
             info.AddValue("_MagLogId", _MagLogId);
+            info.AddValue("_prepareNewMagParquet", _prepareNewMagParquet);
 
         }
         protected override void OnSetState(Csla.Serialization.Mobile.SerializationInfo info, StateMode mode)
@@ -83,6 +87,7 @@ namespace BusinessLibrary.BusinessClasses
             _specificFolder = info.GetValue<string>("_specificFolder");
             _reviewSampleSize = info.GetValue<int>("_reviewSampleSize");
             _MagLogId = info.GetValue<int>("_MagLogId");
+            _prepareNewMagParquet = info.GetValue<bool>("_prepareNewMagParquet");
         }
 
 
@@ -91,7 +96,19 @@ namespace BusinessLibrary.BusinessClasses
         protected override void DataPortal_Execute()
         {
             ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
-            
+
+            if (_prepareNewMagParquet == true)
+            {
+#if CSLA_NETCORE
+            System.Threading.Tasks.Task.Run(() => doRunPipelinePrepareParquet(ri.ReviewId, ri.UserId));
+#else
+                //see: https://codingcanvas.com/using-hostingenvironment-queuebackgroundworkitem-to-run-background-tasks-in-asp-net/
+                HostingEnvironment.QueueBackgroundWorkItem(cancellationToken => doRunPipelinePrepareParquet(ri.ReviewId, ri.UserId, cancellationToken));
+#endif
+                return;
+            }
+
+
             if (_specificFolder == "")
             {
 #if CSLA_NETCORE
@@ -109,8 +126,12 @@ namespace BusinessLibrary.BusinessClasses
 
         private async void doRunPipeline(int ReviewId, int ContactId, CancellationToken cancellationToken = default(CancellationToken))
         {
-
-            //string uploadFileName = "";
+            string prepare_data = "false";
+            string process_train = "true";
+            string process_inference = "true";
+            string train_model = "true";
+            string score_papers = "true";
+            string uploadFileName = "";
             /* Commenting out to see if the alternative below works on Jeff's laptop
             if (Directory.Exists("UserTempUploads"))
             {
@@ -156,13 +177,14 @@ namespace BusinessLibrary.BusinessClasses
             MagLog.UpdateLogEntry("running", "Main update. NewIds written (" + SeedIds.ToString() + ")" +
                 " Folder:" + folderPrefix, logId);
 
-            if ((MagContReviewPipeline.runADFPieline(ContactId, Path.GetFileName(uploadFileName), "NewPapers.tsv",
+            if ((MagContReviewPipeline.runADFPipeline(ContactId, Path.GetFileName(uploadFileName), "NewPapers.tsv",
                 "crResults.tsv", "cr_per_paper_tfidf.pickle", _NextMagVersion, _fosThreshold.ToString(), folderPrefix,
-                _scoreThreshold.ToString(), "v1", "True", _reviewSampleSize.ToString())) == "Succeeded")
+                _scoreThreshold.ToString(), "v1", "True", _reviewSampleSize.ToString(), prepare_data, process_train,
+                process_inference, train_model, score_papers) == "Succeeded"))
             {
                 MagLog.UpdateLogEntry("running", "Main update. ADFPipelineComplete (" + SeedIds.ToString() + ")" +
                     " Folder:" + folderPrefix, logId);
-                int NewIds = await DownloadResultsAsync(folderPrefix + "/crResults.tsv", ReviewId);
+                int NewIds = await DownloadResultsAsync(folderPrefix, ReviewId);
                 MagLog.UpdateLogEntry("Complete", "Main update. SeedIds: " + SeedIds.ToString() + "; NewIds: " +
                     NewIds.ToString() + " FoS:" + _fosThreshold.ToString() + "Score threshold: " + _scoreThreshold.ToString() +
                     " Folder:" + folderPrefix, logId);
@@ -173,6 +195,33 @@ namespace BusinessLibrary.BusinessClasses
             }
             //Thread.Sleep(30 * 1000); int NewIds = 10; int SeedIds = 10; // this line for testing - can be deleted after publish
             
+        }
+
+        private async void doRunPipelinePrepareParquet(int ReviewId, int ContactId, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            string folderName;
+#if (!CSLA_NETCORE)
+
+            folderName = System.Web.HttpRuntime.AppDomainAppPath + @"UserTempUploads";
+#else
+                // same as comment above for same line
+                //SG Edit:
+                DirectoryInfo tmpDir = System.IO.Directory.CreateDirectory("UserTempUploads");
+                folderName = tmpDir.FullName + "/" + @"UserTempUploads";
+#endif
+            int logId = MagLog.SaveLogEntry("ContReview process", "running", "Updating parquet to: " + _NextMagVersion, ContactId);
+            if ((MagContReviewPipeline.runADFPipeline(ContactId, "NoTrainFile", "NoInferenceFile",
+                "NoResultsFile", "NoModelFile", _NextMagVersion, _fosThreshold.ToString(), folderName,
+                _scoreThreshold.ToString(), "v1", "True", _reviewSampleSize.ToString(), "true", "false",
+                "false", "false", "false") == "Succeeded"))
+            {
+                MagLog.UpdateLogEntry("Complete", "Updated parquet to: " + _NextMagVersion, logId);
+                
+            }
+            else
+            {
+                MagLog.UpdateLogEntry("failed", "Update parquet failed", logId);
+            }
         }
 
         private async void doDownloadResultsOnly(int ReviewId, int ContactId)

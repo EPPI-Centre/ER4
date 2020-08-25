@@ -616,7 +616,7 @@ namespace BusinessLibrary.BusinessClasses
             }
             MagLog.UpdateLogEntry("running", "Sim: " + MagSimulationId.ToString() + ", datalake complete", MagLogId);
 
-            if (MagContReviewPipeline.runADFPieline(ContactId, "Train.tsv",
+            if (MagContReviewPipeline.runADFPipeline(ContactId, "Train.tsv",
                 "Inference.tsv",
                 "Results.tsv",
                 "Sim" + this.MagSimulationId.ToString() + "per_paper_tfidf.pickle",
@@ -626,7 +626,12 @@ namespace BusinessLibrary.BusinessClasses
                 ScoreThreshold.ToString(),
                 "v1",
                 "False",
-                ReviewSampleSize.ToString()) == "Succeeded")
+                ReviewSampleSize.ToString(),
+                "false",
+                "true",
+                "true",
+                "true",
+                "true") == "Succeeded")
             {
                 MagLog.UpdateLogEntry("running", "Sim: " + MagSimulationId.ToString() + ", pipeline complete", MagLogId);
                 await DownloadResultsAsync(folderPrefix, ReviewId);

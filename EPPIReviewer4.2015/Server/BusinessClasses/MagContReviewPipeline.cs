@@ -33,10 +33,11 @@ namespace BusinessLibrary.BusinessClasses
         // This is available as "DNS Name" from the overview page of the Key Vault.
         //static string keyVaultUri = "https://ucl.vault.azure.net/";
 
-        public static string runADFPieline(int ContactId, string TrainFileName, string InferenceFileName,
+        public static string runADFPipeline(int ContactId, string TrainFileName, string InferenceFileName,
             string ResultsFileName, string ModelFileName, string MagContainer, string PreFilterThreshold,
             string FolderName, string AcceptanceThreshold, string ReviewRunVersion, string OverwriteRawProcessedData,
-            string ReviewSampleSize)
+            string ReviewSampleSize, string prepare_data, string process_train, string process_inference, string train_model,
+            string score_papers)
         {
 
 
@@ -56,8 +57,15 @@ namespace BusinessLibrary.BusinessClasses
             string resourceGroup = configuration["resourceGroup"];
             string dataFactoryName = configuration["dataFactoryName"];
             string pipelineName = configuration["pipelineName"];
-
-            int MagLogId = MagLog.SaveLogEntry("RunContReviewProcess", "started", "Folder:" + FolderName, ContactId);
+            int MagLogId = 0;
+            if (prepare_data == "true")
+            {
+                MagLogId = MagLog.SaveLogEntry("AdfPipeline", "started", "updating parquet", ContactId);
+            }
+            else
+            {
+                MagLogId = MagLog.SaveLogEntry("AdfPipeline", "started", "Folder:" + FolderName, ContactId);
+            }
             var context = new AuthenticationContext("https://login.windows.net/" + tenantID);
             ClientCredential cc = new ClientCredential(appClientId, appClientSecret);
             AuthenticationResult result = context.AcquireTokenAsync("https://management.azure.com/", cc).Result;
@@ -69,7 +77,8 @@ namespace BusinessLibrary.BusinessClasses
 
             Dictionary<string, object> parameters = readParameters(TrainFileName, InferenceFileName, ResultsFileName,
                 ModelFileName, MagContainer, PreFilterThreshold, FolderName, AcceptanceThreshold, ReviewRunVersion,
-                OverwriteRawProcessedData, ReviewSampleSize);
+                OverwriteRawProcessedData, ReviewSampleSize, prepare_data, process_train, process_inference, train_model,
+                score_papers);
 
             CreateRunResponse runResponse = client.Pipelines.CreateRunWithHttpMessagesAsync(resourceGroup, dataFactoryName, pipelineName, parameters: parameters).Result.Body;
 
@@ -131,7 +140,14 @@ namespace BusinessLibrary.BusinessClasses
                             MagLogId);
                     }
                 }
-                MagLog.UpdateLogEntry(runStatus, "RunContReviewProcess Folder:" + FolderName, MagLogId);
+                if (prepare_data == "true")
+                {
+                    MagLog.UpdateLogEntry(runStatus, "updating parquet", MagLogId);
+                }
+                else
+                {
+                    MagLog.UpdateLogEntry(runStatus, "RunContReviewProcess Folder:" + FolderName, MagLogId);
+                }
             }
             return runStatus;
         }
@@ -139,21 +155,48 @@ namespace BusinessLibrary.BusinessClasses
         private static Dictionary<string, object> readParameters(string TrainFileName, string InferenceFileName,
             string ResultsFileName, string ModelFileName, string MagContainer, string PreFilterThreshold, string FolderName,
             string AcceptanceThreshold, string ReviewRunVersion, string OverwriteRawProcessedData,
-            string ReviewSampleSize)
+            string ReviewSampleSize, string prepare_data, string process_train, string process_inference, string train_model,
+            string score_papers)
         {
 
             Dictionary<string, object> parameters = new Dictionary<string, object>();
 
-
 #if (CSLA_NETCORE)
 
             var configuration = ERxWebClient2.Startup.Configuration.GetSection("AzureMagSettings");
-
 #else
             var configuration = ConfigurationManager.AppSettings;
 
 #endif
+            // NEW PARAMETERS FOR NOTEBOOKS V.2
+            // set from client / business objects
+            parameters.Add("ml_min_review_size", 5);
+            parameters.Add("ml_sample_size", 100000);
+            parameters.Add("ml_acceptance_threshold", AcceptanceThreshold);
+            parameters.Add("ml_pre_filter_threshold", PreFilterThreshold);
+            parameters.Add("wf_prepare_data", prepare_data);
+            parameters.Add("wf_process_train", process_train);
+            parameters.Add("wf_process_inference", process_inference);
+            parameters.Add("wf_train_model", train_model);
+            parameters.Add("wf_score_papers", score_papers);
+            parameters.Add("db_mag_container", MagContainer);
+            parameters.Add("exp_gold_file_name", TrainFileName);
+            parameters.Add("exp_new_papers_file_name", InferenceFileName);
+            parameters.Add("exp_experiment_label", FolderName);
 
+            // set from web.config
+            parameters.Add("databricks_cluster_id", configuration["databricks_cluster_id"]);
+            parameters.Add("DynamicAnnotation", configuration["DynamicAnnotation"]);
+            parameters.Add("ml_pipeline_id", configuration["ml_pipeline_id"]);
+            parameters.Add("sa_account_name", configuration["sa_account_name"]);
+            parameters.Add("sa_secret_scope_name", configuration["sa_secret_scope_name"]);
+            parameters.Add("sa_secret_scope_key", configuration["sa_secret_scope_key"]);
+            parameters.Add("db_database_schema_version", configuration["db_database_schema_version"]);
+            parameters.Add("exp_experiments_container", configuration["exp_experiments_container"]);
+            parameters.Add("exp_run_suffix", configuration["exp_run_suffix"]);
+
+            // OLD PARAMETERS FOR NOTEBOOKS V1
+            /*
             TrainFileName = TrainFileName == "" ? configuration["gold_standard_file"] : TrainFileName;
             InferenceFileName = InferenceFileName == "" ? configuration["new_papers_file"] : InferenceFileName;
             ResultsFileName = ResultsFileName == "" ? configuration["results_file_name"] : ResultsFileName;
@@ -196,7 +239,7 @@ namespace BusinessLibrary.BusinessClasses
             parameters.Add("new_papers_account_key", configuration["new_papers_account_key"]);
             parameters.Add("new_papers_container", configuration["new_papers_container"]);
             parameters.Add("results_storage_container", configuration["results_storage_container"]);
-
+            */
             return parameters;
         }
 

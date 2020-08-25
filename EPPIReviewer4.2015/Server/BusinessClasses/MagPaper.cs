@@ -623,6 +623,7 @@ namespace BusinessLibrary.BusinessClasses
             return returnValue;
         }
 
+        // Can send a reader as null in some situations, but most fields contained in PaperMakes object
         internal static MagPaper GetMagPaperFromPaperMakes(MagMakesHelpers.PaperMakes pm, SafeDataReader reader)
         {
             MagPaper returnValue = new MagPaper();

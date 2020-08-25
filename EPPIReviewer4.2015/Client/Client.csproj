@@ -505,6 +505,12 @@
     <Compile Include="..\Server\BusinessClasses\MagRunSimulationCommand.cs">
       <Link>BusinessClasses\MagRunSimulationCommand.cs</Link>
     </Compile>
+    <Compile Include="..\Server\BusinessClasses\MagSearch.cs">
+      <Link>BusinessClasses\MagSearch.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\MagSearchList.cs">
+      <Link>BusinessClasses\MagSearchList.cs</Link>
+    </Compile>
     <Compile Include="..\Server\BusinessClasses\MagSimulation.cs">
       <Link>BusinessClasses\MagSimulation.cs</Link>
     </Compile>

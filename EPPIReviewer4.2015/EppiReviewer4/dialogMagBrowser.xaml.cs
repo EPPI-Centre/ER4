@@ -18,6 +18,7 @@ using System.Windows.Threading;
 using Telerik.Windows.Controls.ChartView;
 using System.IO;
 using System.Text.RegularExpressions;
+using Telerik.Windows.Controls.GridView;
 
 namespace EppiReviewer4
 {
@@ -114,6 +115,7 @@ namespace EppiReviewer4
             HistoryGrid.Visibility = Visibility.Collapsed;
             RelatedPapersGrid.Visibility = Visibility.Collapsed;
             AdminGrid.Visibility = Visibility.Collapsed;
+            SearchGrid.Visibility = Visibility.Collapsed;
 
             CslaDataProvider provider = ((CslaDataProvider)App.Current.Resources["MagCurrentInfoData"]);
             MagCurrentInfo mci = provider.Data as MagCurrentInfo;
@@ -176,6 +178,27 @@ namespace EppiReviewer4
             HistoryGrid.Visibility = Visibility.Visible;
             RelatedPapersGrid.Visibility = Visibility.Collapsed;
             AdminGrid.Visibility = Visibility.Collapsed;
+            SearchGrid.Visibility = Visibility.Collapsed;
+        }
+
+        // ********************************* SEARCH PAGE *********************************
+
+        private void ShowSearchPage()
+        {
+            StatusGrid.Visibility = Visibility.Collapsed;
+            PaperGrid.Visibility = Visibility.Collapsed;
+            TopicsGrid.Visibility = Visibility.Collapsed;
+            PaperListGrid.Visibility = Visibility.Collapsed;
+            HistoryGrid.Visibility = Visibility.Collapsed;
+            RelatedPapersGrid.Visibility = Visibility.Collapsed;
+            AdminGrid.Visibility = Visibility.Collapsed;
+            SearchGrid.Visibility = Visibility.Visible;
+
+            CslaDataProvider provider = this.Resources["MagSearchListData"] as CslaDataProvider;
+            provider.FactoryParameters.Clear();
+            MagPaperListSelectionCriteria selectionCriteria = new MagPaperListSelectionCriteria();
+            provider.FactoryMethod = "GetMagSearchList";
+            provider.Refresh();
         }
 
         // ********************************* ADMIN PAGE **********************************
@@ -189,6 +212,7 @@ namespace EppiReviewer4
             HistoryGrid.Visibility = Visibility.Collapsed;
             RelatedPapersGrid.Visibility = Visibility.Collapsed;
             AdminGrid.Visibility = Visibility.Visible;
+            SearchGrid.Visibility = Visibility.Collapsed;
 
             CslaDataProvider provider = this.Resources["MagReviewListData"] as CslaDataProvider;
             provider.FactoryParameters.Clear();
@@ -234,6 +258,7 @@ namespace EppiReviewer4
             HistoryGrid.Visibility = Visibility.Collapsed;
             RelatedPapersGrid.Visibility = Visibility.Collapsed;
             AdminGrid.Visibility = Visibility.Collapsed;
+            SearchGrid.Visibility = Visibility.Collapsed;
             CitationPane.SelectedIndex = 0;
 
             RTBPaperInfo.Text = FullRecord;
@@ -423,6 +448,7 @@ namespace EppiReviewer4
             HistoryGrid.Visibility = Visibility.Collapsed;
             RelatedPapersGrid.Visibility = Visibility.Collapsed;
             AdminGrid.Visibility = Visibility.Collapsed;
+            SearchGrid.Visibility = Visibility.Collapsed;
 
             CslaDataProvider provider = this.Resources["PaperListData"] as CslaDataProvider;
             provider.FactoryParameters.Clear();
@@ -445,6 +471,7 @@ namespace EppiReviewer4
             HistoryGrid.Visibility = Visibility.Collapsed;
             RelatedPapersGrid.Visibility = Visibility.Collapsed;
             AdminGrid.Visibility = Visibility.Collapsed;
+            SearchGrid.Visibility = Visibility.Collapsed;
 
             CslaDataProvider provider = this.Resources["PaperListData"] as CslaDataProvider;
             provider.FactoryParameters.Clear();
@@ -467,6 +494,7 @@ namespace EppiReviewer4
             HistoryGrid.Visibility = Visibility.Collapsed;
             RelatedPapersGrid.Visibility = Visibility.Collapsed;
             AdminGrid.Visibility = Visibility.Collapsed;
+            SearchGrid.Visibility = Visibility.Collapsed;
 
             CslaDataProvider provider = this.Resources["PaperListData"] as CslaDataProvider;
             provider.FactoryParameters.Clear();
@@ -475,6 +503,29 @@ namespace EppiReviewer4
             selectionCriteria.PageNumber = 0;
             selectionCriteria.ListType = "ReviewMatchedPapersWithThisCode";
             selectionCriteria.AttributeIds = AttributeIds;
+            provider.FactoryParameters.Add(selectionCriteria);
+            provider.FactoryMethod = "GetMagPaperList";
+            provider.Refresh();
+        }
+
+        private void ShowSearchResults(string MagSearchText)
+        {
+            StatusGrid.Visibility = Visibility.Collapsed;
+            PaperGrid.Visibility = Visibility.Collapsed;
+            TopicsGrid.Visibility = Visibility.Collapsed;
+            PaperListGrid.Visibility = Visibility.Visible;
+            HistoryGrid.Visibility = Visibility.Collapsed;
+            RelatedPapersGrid.Visibility = Visibility.Collapsed;
+            AdminGrid.Visibility = Visibility.Collapsed;
+            SearchGrid.Visibility = Visibility.Collapsed;
+
+            CslaDataProvider provider = this.Resources["PaperListData"] as CslaDataProvider;
+            provider.FactoryParameters.Clear();
+            MagPaperListSelectionCriteria selectionCriteria = new MagPaperListSelectionCriteria();
+            selectionCriteria.PageSize = 20;
+            selectionCriteria.PageNumber = 0;
+            selectionCriteria.ListType = "MagSearchResultsList";
+            selectionCriteria.MagSearchText = MagSearchText;
             provider.FactoryParameters.Add(selectionCriteria);
             provider.FactoryMethod = "GetMagPaperList";
             provider.Refresh();
@@ -490,6 +541,7 @@ namespace EppiReviewer4
             HistoryGrid.Visibility = Visibility.Collapsed;
             RelatedPapersGrid.Visibility = Visibility.Collapsed;
             AdminGrid.Visibility = Visibility.Collapsed;
+            SearchGrid.Visibility = Visibility.Collapsed;
 
             TBMainTopic.Text = FieldOfStudy;
 
@@ -509,6 +561,7 @@ namespace EppiReviewer4
             HistoryGrid.Visibility = Visibility.Collapsed;
             RelatedPapersGrid.Visibility = Visibility.Collapsed;
             AdminGrid.Visibility = Visibility.Collapsed;
+            SearchGrid.Visibility = Visibility.Collapsed;
 
             CslaDataProvider provider = this.Resources["PaperListData"] as CslaDataProvider;
             provider.FactoryParameters.Clear();
@@ -547,6 +600,7 @@ namespace EppiReviewer4
             HistoryGrid.Visibility = Visibility.Collapsed;
             RelatedPapersGrid.Visibility = Visibility.Visible;
             AdminGrid.Visibility = Visibility.Collapsed;
+            SearchGrid.Visibility = Visibility.Collapsed;
         }
 
         private void LBListMatchesIncluded_Click(object sender, RoutedEventArgs e)
@@ -577,6 +631,11 @@ namespace EppiReviewer4
         private void hlAdmin_Click(object sender, RoutedEventArgs e)
         {
             ShowAdminPage();
+        }
+
+        private void hlSearch_Click(object sender, RoutedEventArgs e)
+        {
+            ShowSearchPage();
         }
 
         private void LBListAllRelatedItemsWithThisCode_Click(object sender, RoutedEventArgs e)
@@ -864,7 +923,7 @@ namespace EppiReviewer4
                 selectionCriteria.ListType = "ReviewMatchedPapers";
                 selectionCriteria.Included = mpl.IncludedOrExcluded;
             }
-            else if (mpl.PaperIds != "")
+            else if (mpl.PaperIds != null && mpl.PaperIds != "")
             {
                 selectionCriteria.ListType = "PaperListById";
                 selectionCriteria.PaperIds = mpl.PaperIds;
@@ -878,6 +937,11 @@ namespace EppiReviewer4
             {
                 selectionCriteria.ListType = "MagRelatedPapersRunList";
                 selectionCriteria.MagRelatedRunId = mpl.MagRelatedRunId;
+            }
+            else if (mpl.MagSearchText != "")
+            {
+                selectionCriteria.ListType = "MagSearchResultsList";
+                selectionCriteria.MagSearchText = mpl.MagSearchText;
             }
             provider.FactoryParameters.Add(selectionCriteria);
             provider.FactoryMethod = "GetMagPaperList";
@@ -1402,9 +1466,19 @@ namespace EppiReviewer4
 
         private void HLImportSelected_Click(object sender, RoutedEventArgs e)
         {
+            if (BusyImportingRecords.IsRunning == true)
+            {
+                RadWindow.Alert("Importing currently in progress");
+                return;
+            }
             if (SelectedPaperIds.Count == 0)
             {
                 RadWindow.Alert("You don't have anything selected");
+                return;
+            }
+            if (SelectedPaperIds.Count > 20000)
+            {
+                RadWindow.Alert("Sorry. You can't import more than 20k items at a time.");
                 return;
             }
             RadWindow.Confirm("Are you sure you want to import these items?", this.ImportSelected);
@@ -1416,7 +1490,7 @@ namespace EppiReviewer4
             if (result == true)
             {
                 DataPortal<MagItemPaperInsertCommand> dp2 = new DataPortal<MagItemPaperInsertCommand>();
-                MagItemPaperInsertCommand command = new MagItemPaperInsertCommand(GetSelectedIds(), "SelectedPapers", 0);
+                MagItemPaperInsertCommand command = new MagItemPaperInsertCommand(GetSelectedIds(), "SelectedPapers", 0, "", "");
                 dp2.ExecuteCompleted += (o, e2) =>
                 {
                     //BusyLoading.IsRunning = false;
@@ -1854,7 +1928,7 @@ namespace EppiReviewer4
                     cbRelatedPapersRunAutoRun.IsEnabled = false;
                     cbRelatedPapersRunAutoRun.IsChecked = false;
                 }
-                if (RadioButtonRelatedPapersRunChildrenOfCode != null && 
+                if (RadioButtonRelatedPapersRunChildrenOfCode != null &&
                     RadioButtonRelatedPapersRunChildrenOfCode.IsChecked == true)
                 {
                     RadioButtonRelatedPapersRunAllIncluded.IsChecked = true;
@@ -1930,6 +2004,12 @@ namespace EppiReviewer4
 
         private void HyperlinkButton_Click_4(object sender, RoutedEventArgs e)
         {
+            if (BusyImportingRecords.IsRunning == true)
+            {
+                RadWindow.Alert("Importing currently in progress");
+                return;
+            }
+
             HyperlinkButton hlb = sender as HyperlinkButton;
             if (hlb != null)
             {
@@ -1940,6 +2020,11 @@ namespace EppiReviewer4
                     if (pr.NPapers == 0)
                     {
                         RadWindow.Alert("There are no items to import.");
+                        return;
+                    }
+                    if (pr.NPapers > 20000)
+                    {
+                        RadWindow.Alert("Sorry. You can't import more than 20k items at a time.");
                         return;
                     }
                     if (pr.UserStatus == "Checked")
@@ -1971,7 +2056,8 @@ namespace EppiReviewer4
                 {
                     int num_in_run = RememberThisMagRelatedPapersRun.NPapers;
                     DataPortal<MagItemPaperInsertCommand> dp2 = new DataPortal<MagItemPaperInsertCommand>();
-                    MagItemPaperInsertCommand command = new MagItemPaperInsertCommand("", "RelatedPapersSearch", RememberThisMagRelatedPapersRun.MagRelatedRunId);
+                    MagItemPaperInsertCommand command = new MagItemPaperInsertCommand("", "RelatedPapersSearch",
+                        RememberThisMagRelatedPapersRun.MagRelatedRunId, "", "");
                     dp2.ExecuteCompleted += (o, e2) =>
                     {
                         //BusyLoading.IsRunning = false;
@@ -2580,7 +2666,8 @@ namespace EppiReviewer4
                         {
                             if (chk.IsRunningMessage == "running")
                             {
-                                RadWindow.Alert("Sorry, another pipeline is currently running");
+                                RadWindow.Alert("Request submitted. n.b. another pipeline is currently running");
+                                DoRunContReviewPipeline("", 0, "Pipeline running...");
                             }
                             else
                             {
@@ -2624,6 +2711,47 @@ namespace EppiReviewer4
             dp2.BeginExecute(RunPipelineCommand);
         }
 
+        private void LBCreateParquetFiles_Click(object sender, RoutedEventArgs e)
+        {
+            RadWindow.Confirm("Are you sure you want to create parquet files for\n" + tbLatestMag.Text, this.doRunCreateParquetFiles);
+        }
+
+        private void doRunCreateParquetFiles(object sender, WindowClosedEventArgs e)
+        {
+            var result = e.DialogResult;
+            if (result == true)
+            {
+                //CslaDataProvider provider = ((CslaDataProvider)App.Current.Resources["MagCurrentInfoData"]);
+                //MagCurrentInfo mci = provider.Data as MagCurrentInfo;
+                DataPortal<MagContReviewPipelineRunCommand> dp2 = new DataPortal<MagContReviewPipelineRunCommand>();
+                MagContReviewPipelineRunCommand RunPipelineCommand =
+                    new MagContReviewPipelineRunCommand(
+                        tbPreviousMAG.Text,
+                        tbLatestMag.Text,
+                        EditScoreThreshold.Value.Value,
+                        EditFoSThreshold.Value.Value,
+                        "",
+                        0,
+                        Convert.ToInt32(EditReviewSampleSize.Value.Value),
+                        true);
+                dp2.ExecuteCompleted += (o, e2) =>
+                {
+                    if (e2.Error != null)
+                    {
+                        RadWindow.Alert(e2.Error.Message);
+                    }
+                    else
+                    {
+                        RadWindow.Alert("Ok. Process to generate the parquet files has been started");
+                        SwitchOnAutoRefreshLogList();
+                    }
+                };
+                LBRunContReviewPipeline.IsEnabled = false;
+                dp2.BeginExecute(RunPipelineCommand);
+            }
+        }
+        
+
         private void HyperlinkButton_Click_13(object sender, RoutedEventArgs e)
         {
             HyperlinkButton hl = sender as HyperlinkButton;
@@ -2664,5 +2792,310 @@ namespace EppiReviewer4
             }
         }
 
+        // *********************************** MagSearch page ***********************************
+        private void ComboMagSearchSelect_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+        {
+            if (ComboMagSearchDateLimit != null)
+            {
+                if (ComboMagSearchDateLimit.SelectedIndex == 0)
+                {
+                    StackPanelMagSearchDates.Visibility = Visibility.Collapsed;
+                }
+                else
+                {
+                    if (ComboMagSearchDateLimit.SelectedIndex > 3)
+                    {
+                        MagSearchDate1.DateSelectionMode = Telerik.Windows.Controls.Calendar.DateSelectionMode.Year;
+                        MagSearchDate2.DateSelectionMode = Telerik.Windows.Controls.Calendar.DateSelectionMode.Year;
+                    }
+                    else
+                    {
+                        MagSearchDate1.DateSelectionMode = Telerik.Windows.Controls.Calendar.DateSelectionMode.Day;
+                        MagSearchDate2.DateSelectionMode = Telerik.Windows.Controls.Calendar.DateSelectionMode.Day;
+                    }
+                    if (MagSearchDate1.SelectedDate == null)
+                    {
+                        MagSearchDate1.SelectedDate = DateTime.Now;
+                    }
+                    StackPanelMagSearchDates.Visibility = Visibility.Visible;
+                    if (ComboMagSearchDateLimit.SelectedIndex == 3 || ComboMagSearchDateLimit.SelectedIndex == 6)
+                    {
+                        MagSearchDateText1.Visibility = Visibility.Visible;
+                        MagSearchDateText2.Visibility = Visibility.Visible;
+                        MagSearchDate2.Visibility = Visibility.Visible;
+                        if (MagSearchDate1.SelectedDate == null)
+                        {
+                            MagSearchDate1.SelectedDate = DateTime.Now;
+                        }
+                        if (MagSearchDate2.SelectedDate == null)
+                        {
+                            MagSearchDate2.SelectedDate = DateTime.Now;
+                        }
+                    }
+                    else
+                    {
+                        MagSearchDateText1.Visibility = Visibility.Collapsed;
+                        MagSearchDateText2.Visibility = Visibility.Collapsed;
+                        MagSearchDate2.Visibility = Visibility.Collapsed;
+                    }
+                }
+            }
+        }
+
+        private void HyperLinkMagSearchDoSearch_Click(object sender, RoutedEventArgs e)
+        {
+            if (HyperLinkMagSearchDoSearch.IsEnabled == false)
+            {
+                return; // for some reason disabled hyperlinks still work??
+            }
+            MagSearch newSearch = new MagSearch();
+            switch (ComboMagSearchSelect.SelectedIndex)
+            {
+                case 0:
+                    newSearch.MagSearchText = newSearch.GetSearchTextTitle(TextBoxMagSearch.Text);
+                    newSearch.SearchText = "Title: " + TextBoxMagSearch.Text;
+                    break;
+                case 1:
+                    newSearch.MagSearchText = newSearch.GetSearchTextAbstract(TextBoxMagSearch.Text);
+                    newSearch.SearchText = "Abstract: " + TextBoxMagSearch.Text;
+                    break;
+                case 2:
+                    newSearch.MagSearchText = newSearch.GetSearchTextAuthors(TextBoxMagSearch.Text);
+                    newSearch.SearchText = "Authors: " + TextBoxMagSearch.Text;
+                    break;
+                
+                default:
+                    newSearch.MagSearchText = TextBoxMagSearch.Text;
+                    newSearch.SearchText = "Custom: " + TextBoxMagSearch.Text;
+                    break;
+            }
+            if (ComboMagSearchDateLimit.SelectedIndex > 0)
+            {
+                switch (ComboMagSearchDateLimit.SelectedIndex)
+                {
+                    case 1:
+                        newSearch.MagSearchText = "AND(" + newSearch.MagSearchText + "," +
+                            newSearch.GetSearchTextPubDateBefore(MagSearchDate1.SelectedDate.Value.ToString("yyyy-MM-dd")) + ")";
+                        newSearch.SearchText += " AND published before: " + MagSearchDate1.SelectedDate.Value.ToString("yyyy-MM-dd");
+                        break;
+                    case 2:
+                        newSearch.MagSearchText = "AND(" + newSearch.MagSearchText + "," +
+                            newSearch.GetSearchTextPubDateFrom(MagSearchDate1.SelectedDate.Value.ToString("yyyy-MM-dd")) + ")";
+                        newSearch.SearchText += " AND published after: " + MagSearchDate1.SelectedDate.Value.ToString("yyyy-MM-dd");
+                        break;
+                    case 3:
+                        newSearch.MagSearchText = "AND(" + newSearch.MagSearchText + "," +
+                            newSearch.GetSearchTextPubDateBetween(MagSearchDate1.SelectedDate.Value.ToString("yyyy-MM-dd"),
+                            MagSearchDate2.SelectedDate.Value.ToString("yyyy-MM-dd")) + ")";
+                        newSearch.SearchText += " AND published between: " + MagSearchDate1.SelectedDate.Value.ToString("yyyy-MM-dd") + " and " +
+                            MagSearchDate2.SelectedDate.Value.ToString("yyyy-MM-dd");
+                        break;
+                    case 4:
+                        newSearch.MagSearchText = "AND(" + newSearch.MagSearchText + "," +
+                            newSearch.GetSearchTextYearBefore(MagSearchDate1.SelectedDate.Value.Year.ToString()) + ")";
+                        newSearch.SearchText += " AND year of publication before: " + MagSearchDate1.SelectedDate.Value.Year.ToString();
+                        break;
+                    case 5:
+                        newSearch.MagSearchText = "AND(" + newSearch.MagSearchText + "," +
+                            newSearch.GetSearchTextYearAfter(MagSearchDate1.SelectedDate.Value.Year.ToString()) + ")";
+                        newSearch.SearchText += " AND year of publication after: " + MagSearchDate1.SelectedDate.Value.Year.ToString();
+                        break;
+                    case 6:
+                        newSearch.MagSearchText = "AND(" + newSearch.MagSearchText + "," +
+                            newSearch.GetSearchTextYearBetween(MagSearchDate1.SelectedDate.Value.Year.ToString(),
+                            MagSearchDate2.SelectedDate.Value.Year.ToString()) + ")";
+                        newSearch.SearchText += " AND year of publication between: " + MagSearchDate1.SelectedDate.Value.Year.ToString() + " and " +
+                            MagSearchDate2.SelectedDate.Value.Year.ToString();
+                        break;
+                }
+            }
+            newSearch.Saved += NewSearch_Saved;
+            BusyRunningMagSearch.IsRunning = true;
+            HyperLinkMagSearchDoSearch.IsEnabled = false;
+            SearchDataGrid.IsEnabled = false;
+            newSearch.BeginSave();
+        }
+
+        private void NewSearch_Saved(object sender, Csla.Core.SavedEventArgs e)
+        {
+            CslaDataProvider provider = this.Resources["MagSearchListData"] as CslaDataProvider;
+            provider.FactoryParameters.Clear();
+            MagPaperListSelectionCriteria selectionCriteria = new MagPaperListSelectionCriteria();
+            provider.FactoryMethod = "GetMagSearchList";
+            provider.Refresh();
+            BusyRunningMagSearch.IsRunning = false;
+            HyperLinkMagSearchDoSearch.IsEnabled = true;
+            SearchDataGrid.IsEnabled = true;
+            MagSearchComboCombine.IsEnabled = true;
+        }
+
+        private void HyperlinkButton_Click_15(object sender, RoutedEventArgs e)
+        {
+            HyperlinkButton btn = sender as HyperlinkButton;
+            if (btn != null)
+            {
+                MagSearch search = btn.DataContext as MagSearch;
+                if (search != null)
+                {
+                    MagSearch newSearch = new MagSearch();
+                    newSearch.SetToRerun(search);
+                    newSearch.Saved += NewSearch_Saved;
+                    SearchDataGrid.IsEnabled = false;
+                    newSearch.BeginSave();
+                }
+            }
+        }
+
+        private void MagSearchComboCombine_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+        {
+            if (MagSearchComboCombine.SelectedIndex == -1)
+            {
+                return;
+            }
+            if (SearchDataGrid.SelectedItems.Count < 2)
+            {
+                RadWindow.Alert("Please select at least two searches to combine");
+                MagSearchComboCombine.SelectedIndex = -1;
+                return;
+            }
+            List<MagSearch> searches = new List<MagSearch>();
+            foreach (MagSearch ms in SearchDataGrid.SelectedItems)
+            {
+                searches.Add(ms);
+            }
+            MagSearch newSearch = new MagSearch();
+            newSearch.SetCombinedSearches(searches, MagSearchComboCombine.SelectedIndex == 0 ? "AND" : "OR");
+            newSearch.Saved += NewSearch_Saved;
+            newSearch.BeginSave();
+            MagSearchComboCombine.SelectedIndex = -1;
+            MagSearchComboCombine.IsEnabled = false;
+            SearchDataGrid.IsEnabled = false;
+        }
+
+        private void hlDeleteSelectedMagSearches_Click(object sender, RoutedEventArgs e)
+        {
+            if (SearchDataGrid.SelectedItems.Count < 1)
+            {
+                RadWindow.Alert("You need to select at least one search");
+                return;
+            }
+            RadWindow.Confirm("Are you sure you want to delete the selected search(es)?", this.doDeleteSearch);
+        }
+
+        private void doDeleteSearch(object sender, WindowClosedEventArgs e)
+        {
+            var result = e.DialogResult;
+            if (result == true)
+            {
+                CslaDataProvider provider = this.Resources["MagSearchListData"] as CslaDataProvider;
+                MagSearchList searchList = provider.Data as MagSearchList;
+                if (searchList != null)
+                {
+                    foreach (MagSearch ms in SearchDataGrid.SelectedItems)
+                    {
+                        searchList.Remove(ms);
+                    }
+                }
+            }
+        }
+
+        private void CheckBox_Click(object sender, RoutedEventArgs e)
+        {
+            var checkBox = (CheckBox)sender;
+            var parentGrid = checkBox.ParentOfType<GridViewDataControl>();
+
+            if (checkBox.IsChecked.Value)
+                parentGrid.SelectAll();
+            else
+                parentGrid.UnselectAll();
+        }
+
+        private void HyperlinkButton_Click_14(object sender, RoutedEventArgs e)
+        {
+            HyperlinkButton btn = sender as HyperlinkButton;
+            if (btn != null)
+            {
+                MagSearch search = btn.DataContext as MagSearch;
+                if (search != null)
+                {
+                    ShowSearchResults(search.MagSearchText);
+                }
+            }
+        }
+
+        private void HyperlinkButton_Click_16(object sender, RoutedEventArgs e)
+        {
+            if (BusyImportingRecords.IsRunning == true)
+            {
+                RadWindow.Alert("Importing currently in progress");
+                return;
+            }
+            HyperlinkButton hlb = sender as HyperlinkButton;
+            if (hlb != null)
+            {
+                MagSearch ms = hlb.DataContext as MagSearch;
+                if (ms != null)
+                {
+                    if (ms.HitsNo > 20000)
+                    {
+                        RadWindow.Alert("Sorry. You can't import more than 20k records at a time.\nYou could try breaking up your search e.g. by date?");
+                    }
+                    else
+                    {
+                        SelectedLinkButton = hlb;
+                        RadWindow.Confirm("Are you sure you want to import this search result?", this.doImportMagSearchResults);
+                    }
+                }
+            }
+        }
+
+        private void doImportMagSearchResults(object sender, WindowClosedEventArgs e)
+        {
+            var result = e.DialogResult;
+            if (result == true)
+            {
+                MagSearch ms = SelectedLinkButton.DataContext as MagSearch;
+                if (ms != null)
+                {
+                    DataPortal<MagItemPaperInsertCommand> dp2 = new DataPortal<MagItemPaperInsertCommand>();
+                    MagItemPaperInsertCommand command = new MagItemPaperInsertCommand("", "MagSearchResults",
+                        0, "MAG search: " + ms.SearchText, ms.MagSearchText);
+                    dp2.ExecuteCompleted += (o, e2) =>
+                    {
+                        BusyImportingRecords.IsRunning = false;
+                        tbImportingRecords.Visibility = Visibility.Collapsed;
+                        if (e2.Error != null)
+                        {
+                            RadWindow.Alert(e2.Error.Message);
+                        }
+                        else
+                        {
+                            int num_in_run = ms.HitsNo;
+                            if (e2.Object.NImported == num_in_run)
+                            {
+                                RadWindow.Alert("Imported " + e2.Object.NImported.ToString() + " out of " +
+                                    num_in_run.ToString() + " items");
+                            }
+                            else if (e2.Object.NImported != 0)
+                            {
+                                RadWindow.Alert("Some of these items were already in your review.\n\nImported " +
+                                    e2.Object.NImported.ToString() + " out of " + num_in_run.ToString() +
+                                    " new items");
+                            }
+                            else
+                            {
+                                RadWindow.Alert("All of these records were already in your review.");
+                            }
+                        }
+                    };
+                    BusyImportingRecords.IsRunning = true;
+                    tbImportingRecords.Visibility = Visibility.Visible;
+                    SelectedLinkButton.IsEnabled = false;
+                    dp2.BeginExecute(command);
+                }
+            }
+        }
+
+       
     }
 }
