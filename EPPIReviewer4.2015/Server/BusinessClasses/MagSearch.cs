@@ -96,6 +96,25 @@ namespace BusinessLibrary.BusinessClasses
             return cleaned;
         }
 
+        public string GetSearchTextMagIds(string searchText)
+        {
+            string cleaned = CleanText(searchText);
+            cleaned = removeStopwords(" " + cleaned + " ").Trim().ToLower();
+            string[] words = cleaned.Split(' ');
+            if (words.Length == 0)
+                return "";
+            if (words.Length == 1)
+            {
+                cleaned = "Id=" + words[0];
+            }
+            else
+            {
+                cleaned = "OR(Id=" + string.Join(",", words).Replace(",", ",Id=") + ")";
+            }
+
+            return cleaned;
+        }
+
         public string GetSearchTextAuthors(string searchText)
         {
             string cleaned = CleanText(searchText);
@@ -114,6 +133,14 @@ namespace BusinessLibrary.BusinessClasses
             return cleaned;
         }
 
+        public string GetSearchTextFieldOfStudy(string FId)
+        {
+            return "Composite(F.FId=" + FId + ")";
+        }
+        public string GetSearchTextPubDateExactly(string date)
+        {
+            return "D='" + date + "'";
+        }
         public string GetSearchTextPubDateFrom(string date)
         {
             return "D>'" + date + "'";
@@ -128,7 +155,10 @@ namespace BusinessLibrary.BusinessClasses
         {
             return "D=['" + date1 + "','" + date2 + "']";
         }
-
+        public string GetSearchTextYearExactly(string year)
+        {
+            return "Y=" + year;
+        }
         public string GetSearchTextYearBefore(string year)
         {
             return "Y<" + year;

@@ -33,6 +33,7 @@ namespace EppiReviewer4
         public event EventHandler<RoutedEventArgs> ListSimulationTP;
         public event EventHandler<RoutedEventArgs> ListSimulationFN;
         private DispatcherTimer timer;
+        private DispatcherTimer timer2;
         private DispatcherTimer AdminLogTimer;
         private int CurrentBrowsePosition = 0;
         private List<Int64> SelectedPaperIds;
@@ -45,6 +46,10 @@ namespace EppiReviewer4
             timer = new DispatcherTimer();
             timer.Interval = TimeSpan.FromSeconds(1);
             timer.Tick += Timer_Tick;
+
+            timer2 = new DispatcherTimer();
+            timer2.Interval = TimeSpan.FromSeconds(1);
+            timer.Tick += Timer2_Tick;
 
             AdminLogTimer = new DispatcherTimer();
             AdminLogTimer.Interval = TimeSpan.FromSeconds(10);
@@ -1617,7 +1622,7 @@ namespace EppiReviewer4
             {
                 WPFindTopics.Children.Clear();
                 TextBlock tb = new TextBlock();
-                tb.Text = "Search for topics in the box above. Wildcards work e.g. physic*";
+                tb.Text = "Search for topics in the box above";
                 tb.Margin = new Thickness(5, 5, 5, 5);
                 WPFindTopics.Children.Add(tb);
             }
@@ -2793,7 +2798,7 @@ namespace EppiReviewer4
         }
 
         // *********************************** MagSearch page ***********************************
-        private void ComboMagSearchSelect_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+        private void ComboMagSearchDateLimit_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
         {
             if (ComboMagSearchDateLimit != null)
             {
@@ -2803,7 +2808,7 @@ namespace EppiReviewer4
                 }
                 else
                 {
-                    if (ComboMagSearchDateLimit.SelectedIndex > 3)
+                    if (ComboMagSearchDateLimit.SelectedIndex > 4)
                     {
                         MagSearchDate1.DateSelectionMode = Telerik.Windows.Controls.Calendar.DateSelectionMode.Year;
                         MagSearchDate2.DateSelectionMode = Telerik.Windows.Controls.Calendar.DateSelectionMode.Year;
@@ -2818,7 +2823,7 @@ namespace EppiReviewer4
                         MagSearchDate1.SelectedDate = DateTime.Now;
                     }
                     StackPanelMagSearchDates.Visibility = Visibility.Visible;
-                    if (ComboMagSearchDateLimit.SelectedIndex == 3 || ComboMagSearchDateLimit.SelectedIndex == 6)
+                    if (ComboMagSearchDateLimit.SelectedIndex == 4 || ComboMagSearchDateLimit.SelectedIndex == 8)
                     {
                         MagSearchDateText1.Visibility = Visibility.Visible;
                         MagSearchDateText2.Visibility = Visibility.Visible;
@@ -2863,7 +2868,14 @@ namespace EppiReviewer4
                     newSearch.MagSearchText = newSearch.GetSearchTextAuthors(TextBoxMagSearch.Text);
                     newSearch.SearchText = "Authors: " + TextBoxMagSearch.Text;
                     break;
-                
+                case 3:
+                    newSearch.MagSearchText = newSearch.GetSearchTextFieldOfStudy(MagSearchCurrentTopic.Tag.ToString());
+                    newSearch.SearchText = "Topic: " + MagSearchCurrentTopic.Text;
+                    break;
+                case 4:
+                    newSearch.MagSearchText = newSearch.GetSearchTextMagIds(TextBoxMagSearch.Text);
+                    newSearch.SearchText = "MAG ID(s): " + TextBoxMagSearch.Text;
+                    break;
                 default:
                     newSearch.MagSearchText = TextBoxMagSearch.Text;
                     newSearch.SearchText = "Custom: " + TextBoxMagSearch.Text;
@@ -2875,32 +2887,42 @@ namespace EppiReviewer4
                 {
                     case 1:
                         newSearch.MagSearchText = "AND(" + newSearch.MagSearchText + "," +
+                            newSearch.GetSearchTextPubDateExactly(MagSearchDate1.SelectedDate.Value.ToString("yyyy-MM-dd")) + ")";
+                        newSearch.SearchText += " AND published on: " + MagSearchDate1.SelectedDate.Value.ToString("yyyy-MM-dd");
+                        break;
+                    case 2:
+                        newSearch.MagSearchText = "AND(" + newSearch.MagSearchText + "," +
                             newSearch.GetSearchTextPubDateBefore(MagSearchDate1.SelectedDate.Value.ToString("yyyy-MM-dd")) + ")";
                         newSearch.SearchText += " AND published before: " + MagSearchDate1.SelectedDate.Value.ToString("yyyy-MM-dd");
                         break;
-                    case 2:
+                    case 3:
                         newSearch.MagSearchText = "AND(" + newSearch.MagSearchText + "," +
                             newSearch.GetSearchTextPubDateFrom(MagSearchDate1.SelectedDate.Value.ToString("yyyy-MM-dd")) + ")";
                         newSearch.SearchText += " AND published after: " + MagSearchDate1.SelectedDate.Value.ToString("yyyy-MM-dd");
                         break;
-                    case 3:
+                    case 4:
                         newSearch.MagSearchText = "AND(" + newSearch.MagSearchText + "," +
                             newSearch.GetSearchTextPubDateBetween(MagSearchDate1.SelectedDate.Value.ToString("yyyy-MM-dd"),
                             MagSearchDate2.SelectedDate.Value.ToString("yyyy-MM-dd")) + ")";
                         newSearch.SearchText += " AND published between: " + MagSearchDate1.SelectedDate.Value.ToString("yyyy-MM-dd") + " and " +
                             MagSearchDate2.SelectedDate.Value.ToString("yyyy-MM-dd");
                         break;
-                    case 4:
+                    case 5:
+                        newSearch.MagSearchText = "AND(" + newSearch.MagSearchText + "," +
+                            newSearch.GetSearchTextYearExactly(MagSearchDate1.SelectedDate.Value.Year.ToString()) + ")";
+                        newSearch.SearchText += " AND year of publication: " + MagSearchDate1.SelectedDate.Value.Year.ToString();
+                        break;
+                    case 6:
                         newSearch.MagSearchText = "AND(" + newSearch.MagSearchText + "," +
                             newSearch.GetSearchTextYearBefore(MagSearchDate1.SelectedDate.Value.Year.ToString()) + ")";
                         newSearch.SearchText += " AND year of publication before: " + MagSearchDate1.SelectedDate.Value.Year.ToString();
                         break;
-                    case 5:
+                    case 7:
                         newSearch.MagSearchText = "AND(" + newSearch.MagSearchText + "," +
                             newSearch.GetSearchTextYearAfter(MagSearchDate1.SelectedDate.Value.Year.ToString()) + ")";
                         newSearch.SearchText += " AND year of publication after: " + MagSearchDate1.SelectedDate.Value.Year.ToString();
                         break;
-                    case 6:
+                    case 8:
                         newSearch.MagSearchText = "AND(" + newSearch.MagSearchText + "," +
                             newSearch.GetSearchTextYearBetween(MagSearchDate1.SelectedDate.Value.Year.ToString(),
                             MagSearchDate2.SelectedDate.Value.Year.ToString()) + ")";
@@ -3096,6 +3118,113 @@ namespace EppiReviewer4
             }
         }
 
-       
+        private void ComboMagSearchSelect_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+        {
+            if (ComboMagSearchSelect != null)
+            {
+                MagSearchClearTopics();
+                if (ComboMagSearchSelect.SelectedIndex == 3)
+                {
+                    RowMagSearchTopics.Height = new GridLength(120, GridUnitType.Pixel);
+                }
+                else
+                {
+                    RowMagSearchTopics.Height = new GridLength(0);
+                }
+            }
+        }
+
+        private void TextBoxMagSearch_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (ComboMagSearchSelect != null && ComboMagSearchSelect.SelectedIndex != 3)
+            {
+                return;
+            }
+            if (CleanText(TextBoxMagSearch.Text).Length > 2)
+            {
+                if (this.timer != null && this.timer.IsEnabled)
+                {
+                    this.timer.Stop();
+                    this.timer.Start();
+                }
+                else
+                {
+                    if (this.timer != null)
+                    {
+                        this.timer.Start();
+                    }
+                }
+            }
+            else
+            {
+                WPMagSearchFindTopics.Children.Clear();
+            }
+        }
+
+        private void Timer2_Tick(object sender, EventArgs e)
+        {
+            this.timer.Stop();
+            if (TextBoxMagSearch.Text.Length > 1)
+            {
+                CslaDataProvider provider = this.Resources["SearchTopicsData"] as CslaDataProvider;
+                if (provider != null)
+                {
+                    MagFieldOfStudyListSelectionCriteria selectionCriteria = new MagFieldOfStudyListSelectionCriteria();
+                    selectionCriteria.ListType = "FieldOfStudySearchList";
+                    selectionCriteria.SearchText = TextBoxMagSearch.Text;
+                    DataPortal<MagFieldOfStudyList> dp = new DataPortal<MagFieldOfStudyList>();
+                    MagFieldOfStudyList mfsl = new MagFieldOfStudyList();
+                    dp.FetchCompleted += (o, e2) =>
+                    {
+                        WPMagSearchFindTopics.Children.Clear();
+                        MagFieldOfStudyList FosList = e2.Object as MagFieldOfStudyList;
+                        double i = 15;
+                        foreach (MagFieldOfStudy fos in FosList)
+                        {
+                            HyperlinkButton newHl = new HyperlinkButton();
+                            newHl.Content = fos.DisplayName;
+                            newHl.Tag = fos.FieldOfStudyId.ToString();
+                            newHl.FontSize = i;
+                            newHl.IsTabStop = false;
+                            newHl.Click += MagSearchSelectTopic_Click;
+                            newHl.Margin = new Thickness(5, 5, 5, 5);
+                            WPMagSearchFindTopics.Children.Add(newHl);
+                            if (i > 10)
+                            {
+                                i -= 0.5;
+                            }
+                        }
+                    };
+                    dp.BeginFetch(selectionCriteria);
+                }
+            }
+            else
+            {
+                MagSearchClearTopics();
+            }
+        }
+
+        private void MagSearchClearTopics()
+        {
+            MagSearchCurrentTopic.Text = "";
+            MagSearchCurrentTopic.Tag = "";
+            WPMagSearchFindTopics.Children.Clear();
+            TextBlock tb = new TextBlock();
+            tb.Text = "Search for topics in the box above.";
+            tb.Margin = new Thickness(5, 5, 5, 5);
+            WPMagSearchFindTopics.Children.Add(tb);
+        }
+
+        private void MagSearchSelectTopic_Click(object sender, RoutedEventArgs e)
+        {
+            HyperlinkButton hl = sender as HyperlinkButton;
+            if (hl != null)
+            {
+                MagSearchCurrentTopic.Text = hl.Content.ToString();
+                MagSearchCurrentTopic.Tag = hl.Tag;
+            }
+        }
+
+
     }
 }
