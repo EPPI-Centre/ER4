@@ -292,7 +292,6 @@ namespace BusinessLibrary.BusinessClasses
                     MissingMemberHandling = MissingMemberHandling.Ignore
                 };
 
-                string responseText = "";
                 MagCurrentInfo MagInfo = MagCurrentInfo.GetMagCurrentInfoServerSide(MakesDeploymentStatus);
 
                 searchText = System.Web.HttpUtility.UrlEncode(searchText);//uses "+" for spaces, letting his happen when creating the request would put 20% for spaces => makes the querystring longer!

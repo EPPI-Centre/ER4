@@ -281,6 +281,19 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
+        private string _MagSearchText;
+        public string MagSearchText
+        {
+            get
+            {
+                return _MagSearchText;
+            }
+            set
+            {
+                _MagSearchText = value;
+            }
+        }
+
         private string _IncludedOrExcluded;
         public string IncludedOrExcluded
         {
@@ -322,6 +335,7 @@ namespace BusinessLibrary.BusinessClasses
             _PaperIds = info.GetValue<string>("_PaperIds");
             _IncludedOrExcluded = info.GetValue<string>("_IncludedOrExcluded");
             _AttributeIds = info.GetValue<string>("_AttributeIds");
+            _MagSearchText = info.GetValue<string>("_MagSearchText");
         }
 
         protected override void OnGetState(Csla.Serialization.Mobile.SerializationInfo info)
@@ -339,6 +353,7 @@ namespace BusinessLibrary.BusinessClasses
             info.AddValue("_PaperIds", _PaperIds);
             info.AddValue("_IncludedOrExcluded", _IncludedOrExcluded);
             info.AddValue("_AttributeIds", _AttributeIds);
+            info.AddValue("_MagSearchText", _MagSearchText);
         }
 
 
@@ -407,9 +422,9 @@ namespace BusinessLibrary.BusinessClasses
                         }
                     }
                 }
-                else // i.e. these list types: CitedByList, RecommendationsList, RecommendedByList, PaperFieldsOfStudyList,
-                    // AuthorPaperList. These query MAKES for the list of PaperIds and then we look up in our database to see whether they are
-                    // in the review.
+                else // i.e. these list types: CitedByList, RecommendationsList, RecommendedByList, PaperFieldsOfStudyList, MagSearchResultsList
+                     // AuthorPaperList. These query MAKES for the list of PaperIds and then we look up in our database to see whether they are
+                     // in the review.
                 {
                     MagMakesHelpers.PaperMakes mpParent = null;
                     MagMakesHelpers.FieldOfStudyMakes fosParent = null;
@@ -501,6 +516,19 @@ namespace BusinessLibrary.BusinessClasses
                             {
                                 _totalItemCount = 0;
                                 searchString = "";
+                            }
+                            break;
+                        case "MagSearchResultsList":
+                            searchString = selectionCriteria.MagSearchText;
+                            MagSearchText = searchString;
+                            resp = MagMakesHelpers.CalcHistoramCount(searchString);
+                            foreach (MagMakesHelpers.histograms hs in resp.histograms)
+                            {
+                                if (hs.attribute == "Id")
+                                {
+                                    _totalItemCount = hs.total_count;
+                                    break;
+                                }
                             }
                             break;
                         case "RecommendationsList":
@@ -895,6 +923,16 @@ namespace BusinessLibrary.BusinessClasses
             set
             {
                 SetProperty(DateToProperty, value);
+            }
+        }
+
+        public static readonly PropertyInfo<string> MagSearchTextProperty = RegisterProperty<string>(typeof(MagPaperListSelectionCriteria), new PropertyInfo<string>("MagSearchText", "MagSearchText", ""));
+        public string MagSearchText
+        {
+            get { return ReadProperty(MagSearchTextProperty); }
+            set
+            {
+                SetProperty(MagSearchTextProperty, value);
             }
         }
 
