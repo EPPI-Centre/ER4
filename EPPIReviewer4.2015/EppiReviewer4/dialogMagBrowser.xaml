@@ -1107,17 +1107,17 @@
                 </Grid.RowDefinitions>
 
                 <StackPanel Grid.Row="0" Orientation="Horizontal">
-                    <HyperlinkButton x:Name="LBCheckChangedPaperIds" Content="Identify ID changes BEFORE switching to new MAG" Click="CheckChangedPaperIds_Click" IsTabStop="False" Margin="5,5,5,5"></HyperlinkButton>
-                    <HyperlinkButton x:Name="LBCreateParquetFiles" Content="Create parquet files for new MAG" Click="LBCreateParquetFiles_Click"  IsTabStop="False" Margin="5,5,5,5"></HyperlinkButton>
+                    <HyperlinkButton x:Name="LBCheckChangedPaperIds" Content="Identify ID changes BEFORE switching to new MAG" Click="CheckChangedPaperIds_Click" IsTabStop="False" Margin="0,5,5,5"></HyperlinkButton>
+                    <HyperlinkButton x:Name="LBCreateParquetFiles" Content="Create parquet files for new MAG" Click="LBCreateParquetFiles_Click"  IsTabStop="False" Margin="0,5,5,5"></HyperlinkButton>
                 </StackPanel>
                 <StackPanel Grid.Row="1" Orientation="Horizontal">
                     <HyperlinkButton x:Name="LBRunContReviewPipeline" Content="Run contreview pipeline" Click="LBRunContReviewPipeline_Click" IsTabStop="False" VerticalAlignment="Center"></HyperlinkButton>
                     <TextBlock Margin="5,5,5,5" Text="Score threshold: " VerticalAlignment="Center"></TextBlock>
                     <telerik:RadNumericUpDown x:Name="EditScoreThreshold" Minimum="0" Maximum="1" SmallChange="0.01" Value="0.2" Margin="5,5,5,5"></telerik:RadNumericUpDown>
                     <TextBlock Margin="30,5,5,5" Text="FoS threshold: " VerticalAlignment="Center"></TextBlock>
-                    <telerik:RadNumericUpDown x:Name="EditFoSThreshold" Minimum="0" Maximum="1" SmallChange="0.05" Value="0.2" Margin="5,5,5,5"></telerik:RadNumericUpDown>
+                    <telerik:RadNumericUpDown x:Name="EditFoSThreshold" Minimum="0" Maximum="1" SmallChange="0.05" Value="0" Margin="5,5,5,5"></telerik:RadNumericUpDown>
                     <TextBlock Margin="30,5,5,5" Text="Sample size: " VerticalAlignment="Center"></TextBlock>
-                    <telerik:RadNumericUpDown x:Name="EditReviewSampleSize" Minimum="20" Maximum="4000" SmallChange="10" LargeChange="50" Value="20" Margin="5,5,5,5"></telerik:RadNumericUpDown>
+                    <telerik:RadNumericUpDown x:Name="EditReviewSampleSize" Minimum="20" Maximum="4000" SmallChange="10" LargeChange="50" Value="200" Margin="5,5,5,5"></telerik:RadNumericUpDown>
                 </StackPanel>
                 
                 <HyperlinkButton x:Name="LBSwitchOffAutoRefreshLogList" Grid.Row="2" Content="Switch off auto refresh of table" Visibility="Collapsed" Click="LBSwitchOffAutoRefreshLogList_Click" IsTabStop="False"></HyperlinkButton>
@@ -1132,7 +1132,6 @@
                     <telerikGridView:RadGridView.Columns>
                         <telerikGridView:GridViewDataColumn Header="Job" DataMemberBinding="{Binding JobType}" Width="220"></telerikGridView:GridViewDataColumn>
                         <telerikGridView:GridViewDataColumn Header="Submitted by" DataMemberBinding="{Binding ContactName}" Width="100"></telerikGridView:GridViewDataColumn>
-                        <telerikGridView:GridViewDataColumn Header="Method" DataMemberBinding="{Binding SearchMethod}" IsFilterable="False"></telerikGridView:GridViewDataColumn>
                         <telerikGridView:GridViewDataColumn Width="80" SortingState="None" IsReadOnly="True" Header="Job Status">
                             <telerikGridView:GridViewDataColumn.CellTemplate>
                                 <DataTemplate>
