@@ -2876,6 +2876,10 @@ namespace EppiReviewer4
                     newSearch.MagSearchText = newSearch.GetSearchTextMagIds(TextBoxMagSearch.Text);
                     newSearch.SearchText = "MAG ID(s): " + TextBoxMagSearch.Text;
                     break;
+                case 5:
+                    newSearch.MagSearchText = newSearch.GetSearchTextJournals(TextBoxMagSearch.Text);
+                    newSearch.SearchText = "Journal: " + TextBoxMagSearch.Text;
+                    break;
                 default:
                     newSearch.MagSearchText = TextBoxMagSearch.Text;
                     newSearch.SearchText = "Custom: " + TextBoxMagSearch.Text;
@@ -2930,6 +2934,12 @@ namespace EppiReviewer4
                             MagSearchDate2.SelectedDate.Value.Year.ToString();
                         break;
                 }
+            }
+            if (ComboMagSearchPubTypeLimit != null && ComboMagSearchPubTypeLimit.SelectedIndex > 0)
+            {
+                newSearch.MagSearchText = "AND(" + newSearch.MagSearchText + "," +
+                            newSearch.GetSearchTextPublicationType((ComboMagSearchPubTypeLimit.SelectedIndex - 1).ToString()) + ")";
+                newSearch.SearchText += " AND publication type: " + newSearch.GetPublicationType(ComboMagSearchPubTypeLimit.SelectedIndex -1) ;
             }
             newSearch.Saved += NewSearch_Saved;
             BusyRunningMagSearch.IsRunning = true;

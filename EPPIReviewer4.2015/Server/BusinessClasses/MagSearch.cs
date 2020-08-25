@@ -133,6 +133,14 @@ namespace BusinessLibrary.BusinessClasses
             return cleaned;
         }
 
+        public string GetSearchTextJournals(string searchText)
+        {
+            string cleaned = CleanText(searchText);
+            cleaned = removeStopwords(" " + cleaned + " ").Trim().ToLower();
+            cleaned = "COMPOSITE(J.JN = '" + cleaned + "'...)";
+            return cleaned;
+        }
+
         public string GetSearchTextFieldOfStudy(string FId)
         {
             return "Composite(F.FId=" + FId + ")";
@@ -172,6 +180,45 @@ namespace BusinessLibrary.BusinessClasses
         public string GetSearchTextYearBetween(string year1, string year2)
         {
             return "Y=[" + year1 + "," + year2 + "]";
+        }
+        public string GetSearchTextPublicationType(string pubType)
+        {
+            return "Pt='" + pubType + "'";
+        }
+        public string GetPublicationType(int pubType)
+        {
+            string pType = "";
+            switch (pubType)
+            {
+                case 1:
+                    pType = "Journal article";
+                    break;
+                case 2:
+                    pType = "Patent";
+                    break;
+                case 3:
+                    pType = "Conference paper";
+                    break;
+                case 4:
+                    pType = "Book chapter";
+                    break;
+                case 5:
+                    pType = "Book";
+                    break;
+                case 6:
+                    pType = "Book reference entry";
+                    break;
+                case 7:
+                    pType = "Dataset";
+                    break;
+                case 8:
+                    pType = "Repository";
+                    break;
+                default:
+                    pType = "Unknown";
+                    break;
+            }
+            return pType;
         }
 
         // *********** These are from MagMakesHelpers - which is a server-side class. We should really move to a generic text helpers class?

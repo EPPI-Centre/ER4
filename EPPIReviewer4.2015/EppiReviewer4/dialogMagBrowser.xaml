@@ -809,6 +809,7 @@
                 <RowDefinition Height="0" x:Name="RowMagSearchTopics"></RowDefinition>
                 <RowDefinition Height="40"></RowDefinition>
                 <RowDefinition Height="40"></RowDefinition>
+                <RowDefinition Height="40"></RowDefinition>
                 <RowDefinition Height="*"></RowDefinition>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
@@ -823,6 +824,7 @@
                 <ComboBoxItem Content="Author name(s)"></ComboBoxItem>
                 <ComboBoxItem Content="Topic"></ComboBoxItem>
                 <ComboBoxItem Content="MAG ID"></ComboBoxItem>
+                <ComboBoxItem Content="Journal"></ComboBoxItem>
                 <ComboBoxItem Content="Custom"></ComboBoxItem>
             </ComboBox>
             <TextBox x:Name="TextBoxMagSearch" Grid.Row="0" Grid.Column="1" Margin="5,5,5,5" TextChanged="TextBoxMagSearch_TextChanged"></TextBox>
@@ -854,8 +856,21 @@
                 <TextBlock x:Name="MagSearchDateText2" Text="to" Margin="5,11,5,5" HorizontalAlignment="Center"></TextBlock>
                 <telerik:RadDatePicker x:Name="MagSearchDate2" Margin="5,5,5,5" HorizontalAlignment="Center"></telerik:RadDatePicker>
             </StackPanel>
-            
-            <StackPanel Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="2" Orientation="Horizontal">
+
+            <ComboBox x:Name="ComboMagSearchPubTypeLimit" Grid.Row="3" Grid.Column="0" Margin="5,5,5,5">
+                <ComboBoxItem Content="All publication types" IsSelected="True"></ComboBoxItem>
+                <ComboBoxItem Content="Unknown types"></ComboBoxItem>
+                <ComboBoxItem Content="Journal article"></ComboBoxItem>
+                <ComboBoxItem Content="Patent"></ComboBoxItem>
+                <ComboBoxItem Content="Conference paper"></ComboBoxItem>
+                <ComboBoxItem Content="Book chapter"></ComboBoxItem>
+                <ComboBoxItem Content="Book"></ComboBoxItem>
+                <ComboBoxItem Content="Book reference entry"></ComboBoxItem>
+                <ComboBoxItem Content="Dataset"></ComboBoxItem>
+                <ComboBoxItem Content="Repository"></ComboBoxItem>
+            </ComboBox>
+
+            <StackPanel Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="2" Orientation="Horizontal">
                 <TextBlock Text="Combine selected searches with " Margin="5,5,5,5" VerticalAlignment="Center"></TextBlock>
                 <ComboBox x:Name="MagSearchComboCombine" Margin="5,5,5,5" SelectionChanged="MagSearchComboCombine_SelectionChanged">
                     <ComboBoxItem Content="AND" IsSelected="False"></ComboBoxItem>
@@ -864,7 +879,7 @@
                 <HyperlinkButton x:Name="hlDeleteSelectedMagSearches" Content="Delete selected searches" Margin="5,5,5,5" VerticalAlignment="Center" IsTabStop="False" Click="hlDeleteSelectedMagSearches_Click"></HyperlinkButton>
             </StackPanel>
             
-            <telerikGridView:RadGridView x:Name="SearchDataGrid" Grid.Row="4" Grid.ColumnSpan="3" AutoGenerateColumns="False" ShowGroupPanel="False"
+            <telerikGridView:RadGridView x:Name="SearchDataGrid" Grid.Row="5" Grid.ColumnSpan="3" AutoGenerateColumns="False" ShowGroupPanel="False"
                                     IsReadOnly="True" MinHeight="50" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                                     ItemsSource="{Binding Source={StaticResource MagSearchListData}, Path=Data, Mode=TwoWay}"
                                     RowIndicatorVisibility="Collapsed" CanUserSortColumns="True" 
