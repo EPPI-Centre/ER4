@@ -161,8 +161,11 @@
                 <ColumnDefinition Width="250*"></ColumnDefinition>
                 <ColumnDefinition Width="100*"></ColumnDefinition>
             </Grid.ColumnDefinitions>
-
-            <TextBlock x:Name="tbAcademicTitle" TextWrapping="Wrap" Grid.Column="0" Text="Microsoft Academic Graph browser" FontSize="12" FontStyle="Italic" Margin="5,10,5,5"></TextBlock>
+            <StackPanel Grid.Column="0" Orientation="Horizontal">
+                <TextBlock x:Name="tbAcademicTitle" TextWrapping="Wrap"  Text="Microsoft Academic Graph browser" FontSize="12" FontStyle="Italic" Margin="5,10,5,5"></TextBlock>
+                <TextBlock x:Name="tbImportingRecords" Grid.Column="0" Text="Importing records..." FontSize="12" FontStyle="Italic" Margin="20,10,5,5" Visibility="Collapsed"></TextBlock>
+                <cslaXAML:BusyAnimation x:Name="BusyImportingRecords"  Width="50" Height="50" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            </StackPanel>
             <HyperlinkButton x:Name="HLShowSelected" Grid.Column="1" Content="Show selected (0)" Margin="0,5,5,5" HorizontalAlignment="Right" Width="105" Click="HLShowSelected_Click" IsTabStop="False"></HyperlinkButton>
             <HyperlinkButton x:Name="HLClearSelected" Grid.Column="1" Content="Clear selected" Margin="0,22,5,22" HorizontalAlignment="Right" VerticalAlignment="Center" Width="105" Height="16" Click="HLClearSelected_Click" IsTabStop="False"></HyperlinkButton>
             <HyperlinkButton x:Name="HLImportSelected" Grid.Column="1" Content="Import selected" Margin="0,0,5,5" HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="105" Height="16" Click="HLImportSelected_Click" IsTabStop="False"></HyperlinkButton>
@@ -804,6 +807,7 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="40"></RowDefinition>
                 <RowDefinition Height="40"></RowDefinition>
+                <RowDefinition Height="40"></RowDefinition>
                 <RowDefinition Height="*"></RowDefinition>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
@@ -812,29 +816,33 @@
                 <ColumnDefinition Width="200"></ColumnDefinition>
             </Grid.ColumnDefinitions>
 
-            <ComboBox x:Name="ComboMagSearchSelect" Grid.Row="0" Grid.Column="0" Margin="5,5,5,5" SelectionChanged="ComboMagSearchSelect_SelectionChanged">
+            <ComboBox x:Name="ComboMagSearchSelect" Grid.Row="0" Grid.Column="0" Margin="5,5,5,5">
                 <ComboBoxItem Content="Word(s) in title" IsSelected="True"></ComboBoxItem>
                 <ComboBoxItem Content="Word(s) in abstract"></ComboBoxItem>
                 <ComboBoxItem Content="Author name(s)"></ComboBoxItem>
+                <ComboBoxItem Content="Custom"></ComboBoxItem>
+            </ComboBox>
+            <TextBox x:Name="TextBoxMagSearch" Grid.Row="0" Grid.Column="1" Margin="5,5,5,5"></TextBox>
+            <HyperlinkButton x:Name="HyperLinkMagSearchDoSearch" Grid.Row="0" Grid.Column="2" Content="Run search!" Margin="5,5,5,5" VerticalAlignment="Center" Click="HyperLinkMagSearchDoSearch_Click" IsTabStop="False"></HyperlinkButton>
+            <cslaXAML:BusyAnimation x:Name="BusyRunningMagSearch"  Grid.Row="0" Grid.Column="2"/>
+            <ComboBox x:Name="ComboMagSearchDateLimit" Grid.Row="1" Grid.Column="0" Margin="5,5,5,5" SelectionChanged="ComboMagSearchSelect_SelectionChanged">
+                <ComboBoxItem Content="No date limit" IsSelected="True"></ComboBoxItem>
                 <ComboBoxItem Content="Publication date before"></ComboBoxItem>
                 <ComboBoxItem Content="Publication date after"></ComboBoxItem>
                 <ComboBoxItem Content="Publication dates between"></ComboBoxItem>
                 <ComboBoxItem Content="Publication year before"></ComboBoxItem>
                 <ComboBoxItem Content="Publication year after"></ComboBoxItem>
                 <ComboBoxItem Content="Publication years between"></ComboBoxItem>
-                <ComboBoxItem Content="Custom"></ComboBoxItem>
             </ComboBox>
-
-            <TextBox x:Name="TextBoxMagSearch" Grid.Row="0" Grid.Column="1" Margin="5,5,5,5"></TextBox>
-            <StackPanel x:Name="StackPanelMagSearchDates" Grid.Row="0" Grid.Column="1" Visibility="Collapsed" Orientation="Horizontal">
-                <TextBlock x:Name="MagSearchDateText1" Text="from" Margin="5,5,5,5"></TextBlock>
-                <telerik:RadDatePicker x:Name="MagSearchDate1" Margin="5,5,5,5"></telerik:RadDatePicker>
-                <TextBlock x:Name="MagSearchDateText2" Text="to" Margin="5,5,5,5"></TextBlock>
-                <telerik:RadDatePicker x:Name="MagSearchDate2" Margin="5,5,5,5"></telerik:RadDatePicker>
+            
+            <StackPanel x:Name="StackPanelMagSearchDates" Grid.Row="1" Grid.Column="1" Visibility="Collapsed" Orientation="Horizontal">
+                <TextBlock x:Name="MagSearchDateText1" Text="from" Margin="5,11,5,5" HorizontalAlignment="Center"></TextBlock>
+                <telerik:RadDatePicker x:Name="MagSearchDate1" Margin="5,5,5,5" HorizontalAlignment="Center"></telerik:RadDatePicker>
+                <TextBlock x:Name="MagSearchDateText2" Text="to" Margin="5,11,5,5" HorizontalAlignment="Center"></TextBlock>
+                <telerik:RadDatePicker x:Name="MagSearchDate2" Margin="5,5,5,5" HorizontalAlignment="Center"></telerik:RadDatePicker>
             </StackPanel>
-            <HyperlinkButton x:Name="HyperLinkMagSearchDoSearch" Grid.Row="0" Grid.Column="2" Content="Run search!" Margin="5,5,5,5" VerticalAlignment="Center" Click="HyperLinkMagSearchDoSearch_Click" IsTabStop="False"></HyperlinkButton>
-
-            <StackPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal">
+            
+            <StackPanel Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" Orientation="Horizontal">
                 <TextBlock Text="Combine selected searches with " Margin="5,5,5,5" VerticalAlignment="Center"></TextBlock>
                 <ComboBox x:Name="MagSearchComboCombine" Margin="5,5,5,5" SelectionChanged="MagSearchComboCombine_SelectionChanged">
                     <ComboBoxItem Content="AND" IsSelected="False"></ComboBoxItem>
@@ -843,7 +851,7 @@
                 <HyperlinkButton x:Name="hlDeleteSelectedMagSearches" Content="Delete selected searches" Margin="5,5,5,5" VerticalAlignment="Center" IsTabStop="False" Click="hlDeleteSelectedMagSearches_Click"></HyperlinkButton>
             </StackPanel>
             
-            <telerikGridView:RadGridView x:Name="SearchDataGrid" Grid.Row="2" Grid.ColumnSpan="3" AutoGenerateColumns="False" ShowGroupPanel="False"
+            <telerikGridView:RadGridView x:Name="SearchDataGrid" Grid.Row="3" Grid.ColumnSpan="3" AutoGenerateColumns="False" ShowGroupPanel="False"
                                     IsReadOnly="True" MinHeight="50" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                                     ItemsSource="{Binding Source={StaticResource MagSearchListData}, Path=Data, Mode=TwoWay}"
                                     RowIndicatorVisibility="Collapsed" CanUserSortColumns="True" 

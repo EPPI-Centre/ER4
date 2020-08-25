@@ -1466,9 +1466,19 @@ namespace EppiReviewer4
 
         private void HLImportSelected_Click(object sender, RoutedEventArgs e)
         {
+            if (BusyImportingRecords.IsRunning == true)
+            {
+                RadWindow.Alert("Importing currently in progress");
+                return;
+            }
             if (SelectedPaperIds.Count == 0)
             {
                 RadWindow.Alert("You don't have anything selected");
+                return;
+            }
+            if (SelectedPaperIds.Count > 20000)
+            {
+                RadWindow.Alert("Sorry. You can't import more than 20k items at a time.");
                 return;
             }
             RadWindow.Confirm("Are you sure you want to import these items?", this.ImportSelected);
@@ -1994,6 +2004,12 @@ namespace EppiReviewer4
 
         private void HyperlinkButton_Click_4(object sender, RoutedEventArgs e)
         {
+            if (BusyImportingRecords.IsRunning == true)
+            {
+                RadWindow.Alert("Importing currently in progress");
+                return;
+            }
+
             HyperlinkButton hlb = sender as HyperlinkButton;
             if (hlb != null)
             {
@@ -2004,6 +2020,11 @@ namespace EppiReviewer4
                     if (pr.NPapers == 0)
                     {
                         RadWindow.Alert("There are no items to import.");
+                        return;
+                    }
+                    if (pr.NPapers > 20000)
+                    {
+                        RadWindow.Alert("Sorry. You can't import more than 20k items at a time.");
                         return;
                     }
                     if (pr.UserStatus == "Checked")
@@ -2774,22 +2795,42 @@ namespace EppiReviewer4
         // *********************************** MagSearch page ***********************************
         private void ComboMagSearchSelect_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
         {
-            if (ComboMagSearchSelect != null)
+            if (ComboMagSearchDateLimit != null)
             {
-                if (ComboMagSearchSelect.SelectedIndex <= 2 || ComboMagSearchSelect.SelectedIndex == 9)
+                if (ComboMagSearchDateLimit.SelectedIndex == 0)
                 {
-                    TextBoxMagSearch.Visibility = Visibility.Visible;
                     StackPanelMagSearchDates.Visibility = Visibility.Collapsed;
                 }
                 else
                 {
-                    TextBoxMagSearch.Visibility = Visibility.Collapsed;
+                    if (ComboMagSearchDateLimit.SelectedIndex > 3)
+                    {
+                        MagSearchDate1.DateSelectionMode = Telerik.Windows.Controls.Calendar.DateSelectionMode.Year;
+                        MagSearchDate2.DateSelectionMode = Telerik.Windows.Controls.Calendar.DateSelectionMode.Year;
+                    }
+                    else
+                    {
+                        MagSearchDate1.DateSelectionMode = Telerik.Windows.Controls.Calendar.DateSelectionMode.Day;
+                        MagSearchDate2.DateSelectionMode = Telerik.Windows.Controls.Calendar.DateSelectionMode.Day;
+                    }
+                    if (MagSearchDate1.SelectedDate == null)
+                    {
+                        MagSearchDate1.SelectedDate = DateTime.Now;
+                    }
                     StackPanelMagSearchDates.Visibility = Visibility.Visible;
-                    if (ComboMagSearchSelect.SelectedIndex == 5 || ComboMagSearchSelect.SelectedIndex == 8)
+                    if (ComboMagSearchDateLimit.SelectedIndex == 3 || ComboMagSearchDateLimit.SelectedIndex == 6)
                     {
                         MagSearchDateText1.Visibility = Visibility.Visible;
                         MagSearchDateText2.Visibility = Visibility.Visible;
                         MagSearchDate2.Visibility = Visibility.Visible;
+                        if (MagSearchDate1.SelectedDate == null)
+                        {
+                            MagSearchDate1.SelectedDate = DateTime.Now;
+                        }
+                        if (MagSearchDate2.SelectedDate == null)
+                        {
+                            MagSearchDate2.SelectedDate = DateTime.Now;
+                        }
                     }
                     else
                     {
@@ -2803,6 +2844,10 @@ namespace EppiReviewer4
 
         private void HyperLinkMagSearchDoSearch_Click(object sender, RoutedEventArgs e)
         {
+            if (HyperLinkMagSearchDoSearch.IsEnabled == false)
+            {
+                return; // for some reason disabled hyperlinks still work??
+            }
             MagSearch newSearch = new MagSearch();
             switch (ComboMagSearchSelect.SelectedIndex)
             {
@@ -2818,40 +2863,56 @@ namespace EppiReviewer4
                     newSearch.MagSearchText = newSearch.GetSearchTextAuthors(TextBoxMagSearch.Text);
                     newSearch.SearchText = "Authors: " + TextBoxMagSearch.Text;
                     break;
-                case 3:
-                    newSearch.MagSearchText = newSearch.GetSearchTextPubDateBefore(MagSearchDate1.SelectedDate.Value.ToString("yyyy-MM-dd"));
-                    newSearch.SearchText = "Published before: " + MagSearchDate1.SelectedDate.Value.ToString("yyyy-MM-dd");
-                    break;
-                case 4:
-                    newSearch.MagSearchText = newSearch.GetSearchTextPubDateFrom(MagSearchDate1.SelectedDate.Value.ToString("yyyy-MM-dd"));
-                    newSearch.SearchText = "Published after: " + MagSearchDate1.SelectedDate.Value.ToString("yyyy-MM-dd");
-                    break;
-                case 5:
-                    newSearch.MagSearchText = newSearch.GetSearchTextPubDateBetween(MagSearchDate1.SelectedDate.Value.ToString("yyyy-MM-dd"),
-                        MagSearchDate2.SelectedDate.Value.ToString("yyyy-MM-dd"));
-                    newSearch.SearchText = "Published between: " + MagSearchDate1.SelectedDate.Value.ToString("yyyy-MM-dd") + " and " +
-                        MagSearchDate2.SelectedDate.Value.ToString("yyyy-MM-dd");
-                    break;
-                case 6:
-                    newSearch.MagSearchText = newSearch.GetSearchTextYearBefore(MagSearchDate1.SelectedDate.Value.Year.ToString());
-                    newSearch.SearchText = "Year of publication before: " + MagSearchDate1.SelectedDate.Value.Year.ToString();
-                    break;
-                case 7:
-                    newSearch.MagSearchText = newSearch.GetSearchTextYearAfter(MagSearchDate1.SelectedDate.Value.Year.ToString());
-                    newSearch.SearchText = "Year of publication after: " + MagSearchDate1.SelectedDate.Value.Year.ToString();
-                    break;
-                case 8:
-                    newSearch.MagSearchText = newSearch.GetSearchTextYearBetween(MagSearchDate1.SelectedDate.Value.Year.ToString(),
-                        MagSearchDate2.SelectedDate.Value.Year.ToString());
-                    newSearch.SearchText = "Year of publication between: " + MagSearchDate1.SelectedDate.Value.Year.ToString() + " and " +
-                        MagSearchDate2.SelectedDate.Value.Year.ToString();
-                    break;
+                
                 default:
                     newSearch.MagSearchText = TextBoxMagSearch.Text;
                     newSearch.SearchText = "Custom: " + TextBoxMagSearch.Text;
                     break;
             }
+            if (ComboMagSearchDateLimit.SelectedIndex > 0)
+            {
+                switch (ComboMagSearchDateLimit.SelectedIndex)
+                {
+                    case 1:
+                        newSearch.MagSearchText = "AND(" + newSearch.MagSearchText + "," +
+                            newSearch.GetSearchTextPubDateBefore(MagSearchDate1.SelectedDate.Value.ToString("yyyy-MM-dd")) + ")";
+                        newSearch.SearchText += " AND published before: " + MagSearchDate1.SelectedDate.Value.ToString("yyyy-MM-dd");
+                        break;
+                    case 2:
+                        newSearch.MagSearchText = "AND(" + newSearch.MagSearchText + "," +
+                            newSearch.GetSearchTextPubDateFrom(MagSearchDate1.SelectedDate.Value.ToString("yyyy-MM-dd")) + ")";
+                        newSearch.SearchText += " AND published after: " + MagSearchDate1.SelectedDate.Value.ToString("yyyy-MM-dd");
+                        break;
+                    case 3:
+                        newSearch.MagSearchText = "AND(" + newSearch.MagSearchText + "," +
+                            newSearch.GetSearchTextPubDateBetween(MagSearchDate1.SelectedDate.Value.ToString("yyyy-MM-dd"),
+                            MagSearchDate2.SelectedDate.Value.ToString("yyyy-MM-dd")) + ")";
+                        newSearch.SearchText += " AND published between: " + MagSearchDate1.SelectedDate.Value.ToString("yyyy-MM-dd") + " and " +
+                            MagSearchDate2.SelectedDate.Value.ToString("yyyy-MM-dd");
+                        break;
+                    case 4:
+                        newSearch.MagSearchText = "AND(" + newSearch.MagSearchText + "," +
+                            newSearch.GetSearchTextYearBefore(MagSearchDate1.SelectedDate.Value.Year.ToString()) + ")";
+                        newSearch.SearchText += " AND year of publication before: " + MagSearchDate1.SelectedDate.Value.Year.ToString();
+                        break;
+                    case 5:
+                        newSearch.MagSearchText = "AND(" + newSearch.MagSearchText + "," +
+                            newSearch.GetSearchTextYearAfter(MagSearchDate1.SelectedDate.Value.Year.ToString()) + ")";
+                        newSearch.SearchText += " AND year of publication after: " + MagSearchDate1.SelectedDate.Value.Year.ToString();
+                        break;
+                    case 6:
+                        newSearch.MagSearchText = "AND(" + newSearch.MagSearchText + "," +
+                            newSearch.GetSearchTextYearBetween(MagSearchDate1.SelectedDate.Value.Year.ToString(),
+                            MagSearchDate2.SelectedDate.Value.Year.ToString()) + ")";
+                        newSearch.SearchText += " AND year of publication between: " + MagSearchDate1.SelectedDate.Value.Year.ToString() + " and " +
+                            MagSearchDate2.SelectedDate.Value.Year.ToString();
+                        break;
+                }
+            }
             newSearch.Saved += NewSearch_Saved;
+            BusyRunningMagSearch.IsRunning = true;
+            HyperLinkMagSearchDoSearch.IsEnabled = false;
+            SearchDataGrid.IsEnabled = false;
             newSearch.BeginSave();
         }
 
@@ -2862,6 +2923,10 @@ namespace EppiReviewer4
             MagPaperListSelectionCriteria selectionCriteria = new MagPaperListSelectionCriteria();
             provider.FactoryMethod = "GetMagSearchList";
             provider.Refresh();
+            BusyRunningMagSearch.IsRunning = false;
+            HyperLinkMagSearchDoSearch.IsEnabled = true;
+            SearchDataGrid.IsEnabled = true;
+            MagSearchComboCombine.IsEnabled = true;
         }
 
         private void HyperlinkButton_Click_15(object sender, RoutedEventArgs e)
@@ -2875,6 +2940,7 @@ namespace EppiReviewer4
                     MagSearch newSearch = new MagSearch();
                     newSearch.SetToRerun(search);
                     newSearch.Saved += NewSearch_Saved;
+                    SearchDataGrid.IsEnabled = false;
                     newSearch.BeginSave();
                 }
             }
@@ -2902,6 +2968,8 @@ namespace EppiReviewer4
             newSearch.Saved += NewSearch_Saved;
             newSearch.BeginSave();
             MagSearchComboCombine.SelectedIndex = -1;
+            MagSearchComboCombine.IsEnabled = false;
+            SearchDataGrid.IsEnabled = false;
         }
 
         private void hlDeleteSelectedMagSearches_Click(object sender, RoutedEventArgs e)
@@ -2957,11 +3025,27 @@ namespace EppiReviewer4
 
         private void HyperlinkButton_Click_16(object sender, RoutedEventArgs e)
         {
+            if (BusyImportingRecords.IsRunning == true)
+            {
+                RadWindow.Alert("Importing currently in progress");
+                return;
+            }
             HyperlinkButton hlb = sender as HyperlinkButton;
             if (hlb != null)
             {
-                SelectedLinkButton = hlb;
-                RadWindow.Confirm("Are you sure you want to import this search result?", this.doImportMagSearchResults);
+                MagSearch ms = hlb.DataContext as MagSearch;
+                if (ms != null)
+                {
+                    if (ms.HitsNo > 20000)
+                    {
+                        RadWindow.Alert("Sorry. You can't import more than 20k records at a time.\nYou could try breaking up your search e.g. by date?");
+                    }
+                    else
+                    {
+                        SelectedLinkButton = hlb;
+                        RadWindow.Confirm("Are you sure you want to import this search result?", this.doImportMagSearchResults);
+                    }
+                }
             }
         }
 
@@ -2975,11 +3059,12 @@ namespace EppiReviewer4
                 {
                     DataPortal<MagItemPaperInsertCommand> dp2 = new DataPortal<MagItemPaperInsertCommand>();
                     MagItemPaperInsertCommand command = new MagItemPaperInsertCommand("", "MagSearchResults",
-                        0, ms.SearchText, ms.MagSearchText);
+                        0, "MAG search: " + ms.SearchText, ms.MagSearchText);
                     dp2.ExecuteCompleted += (o, e2) =>
                     {
-                    //BusyLoading.IsRunning = false;
-                    if (e2.Error != null)
+                        BusyImportingRecords.IsRunning = false;
+                        tbImportingRecords.Visibility = Visibility.Collapsed;
+                        if (e2.Error != null)
                         {
                             RadWindow.Alert(e2.Error.Message);
                         }
@@ -3003,7 +3088,8 @@ namespace EppiReviewer4
                             }
                         }
                     };
-                    //BusyLoading.IsRunning = true;
+                    BusyImportingRecords.IsRunning = true;
+                    tbImportingRecords.Visibility = Visibility.Visible;
                     SelectedLinkButton.IsEnabled = false;
                     dp2.BeginExecute(command);
                 }

@@ -122,13 +122,13 @@ namespace BusinessLibrary.BusinessClasses
                 // All produce the 'incominglist' object, which is then saved in the normal way.
                 // The first two come from lists of IDs (either in database or from client). We'll deal with these two first.
 
-                // Related papers search - here we have a list of IDs in the database - need to retrieve and then ensure we aren't already using any in this review
+                // 1. Related papers search - here we have a list of IDs in the database - need to retrieve and then ensure we aren't already using any in this review
                 if (_SourceOfIds == "RelatedPapersSearch") 
                 {
                     incomingList.SourceName = "Automated search: " + DateTime.Now.ToShortDateString() + " at " + DateTime.Now.ToLongTimeString();
                     using (SqlCommand command = new SqlCommand("st_MagItemMagRelatedPaperInsert", connection))
                     {
-                        command.CommandTimeout = 2000; // 2000 secs = about 2 hours?
+                        command.CommandTimeout = 2000; // 2000 secs = about 2 hours? (JT - not sure why we have the long timeout?)
                         command.CommandType = System.Data.CommandType.StoredProcedure;
                         command.Parameters.Add(new SqlParameter("@MAG_RELATED_RUN_ID", _MagRelatedRunId));
                         command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
@@ -145,7 +145,7 @@ namespace BusinessLibrary.BusinessClasses
                         }
                     }
                 }
-                // Selected papers - we have a list of IDs from the client, so just need to check they aren't in the DB already
+                // 2. Selected papers - we have a list of IDs from the client, so just need to check they aren't in the DB already
                 if (_SourceOfIds == "SelectedPapers")
                 {
                     foreach (string PaperId in _PaperIds.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
@@ -158,7 +158,7 @@ namespace BusinessLibrary.BusinessClasses
                     incomingList.SourceName = "Selected items from MAG on " + DateTime.Now.ToShortDateString() + " at " + DateTime.Now.ToLongTimeString();
                     incomingList.SearchStr = _PaperIds;
                 }
-                // then we look them up in MAKES. Doing in batches of 100 at a time as this is much quicker than one at a time
+                // then we look up the list of IDs from 1 and 2 in MAKES. Doing in batches of 100 as this is much quicker than one at a time
                 int count = 0;
                 while (count < AllIDsToSearch.Count)
                 {
@@ -187,7 +187,7 @@ namespace BusinessLibrary.BusinessClasses
                     count += 100;
                 }
 
-                // The final type of import is from a search. This is different, as we have the MAKES query to run and just
+                // 3. The final type of import is from a search. This is different, as we have the MAKES query to run and just
                 // need to cycle through its pages to get the data.
                 if (_SourceOfIds == "MagSearchResults")
                 {
