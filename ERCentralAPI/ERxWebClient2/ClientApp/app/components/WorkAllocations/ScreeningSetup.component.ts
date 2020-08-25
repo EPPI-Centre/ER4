@@ -419,7 +419,7 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
                 "The displayed settings <strong>might not match</strong> the settings stored on the server.<br /> "
                 + "Do you wish to <strong>reload</strong> the stored settings?<br />"
                 + "(Training codes are <strong>not affected</strong>.)"
-                , false, "", "Yes (default)", "No"
+                , false, "", "Yes (default)", "Cancel"
                 , "sm")
                 .then((confirmed: any) => {
                     if (confirmed) {
