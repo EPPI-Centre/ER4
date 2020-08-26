@@ -517,6 +517,7 @@ namespace BusinessLibrary.BusinessClasses
                         {
                             using (StreamWriter file = new StreamWriter(uploadFileName, false))
                             {
+                                file.WriteLine(reader["PaperId"].ToString());
                                 while (reader.Read())
                                 {
                                     file.WriteLine(reader["PaperId"].ToString());
