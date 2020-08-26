@@ -1140,11 +1140,13 @@
                     <RowDefinition Height="35"></RowDefinition>
                     <RowDefinition Height="35"></RowDefinition>
                     <RowDefinition Height="*"></RowDefinition>
+                    <RowDefinition Height="100"></RowDefinition>
                 </Grid.RowDefinitions>
 
                 <StackPanel Grid.Row="0" Orientation="Horizontal">
                     <HyperlinkButton x:Name="LBCheckChangedPaperIds" Content="Identify ID changes BEFORE switching to new MAG" Click="CheckChangedPaperIds_Click" IsTabStop="False" Margin="0,5,5,5"></HyperlinkButton>
-                    <HyperlinkButton x:Name="LBCreateParquetFiles" Content="Create parquet files for new MAG" Click="LBCreateParquetFiles_Click"  IsTabStop="False" Margin="0,5,5,5"></HyperlinkButton>
+                    <HyperlinkButton x:Name="LBCreateParquetFiles" Content="Create parquet files for new MAG" Click="LBCreateParquetFiles_Click"  IsTabStop="False" Margin="5,5,5,5"></HyperlinkButton>
+                    
                 </StackPanel>
                 <StackPanel Grid.Row="1" Orientation="Horizontal">
                     <HyperlinkButton x:Name="LBRunContReviewPipeline" Content="Run contreview pipeline" Click="LBRunContReviewPipeline_Click" IsTabStop="False" VerticalAlignment="Center"></HyperlinkButton>
@@ -1180,7 +1182,14 @@
                         <telerikGridView:GridViewDataColumn Header="Job message" DataMemberBinding="{Binding JobMessage}" Width="*"></telerikGridView:GridViewDataColumn>
                     </telerikGridView:RadGridView.Columns>
                 </telerikGridView:RadGridView>
+
+                <StackPanel Grid.Row="5" Orientation="Vertical" >
+                    <HyperlinkButton x:Name="LBUploadIDsFile" Content="Add IDs to selected items list" Click="LBUploadIDsFile_Click"  IsTabStop="False" Margin="0,10,5,5"></HyperlinkButton>
+                    <TextBox x:Name="TBUploadIDs" TextWrapping="Wrap" VerticalScrollBarVisibility="Visible" AcceptsReturn="True" MaxHeight="80"></TextBox>
+                </StackPanel>
             </Grid>
+
+            
             
             
         </Grid>

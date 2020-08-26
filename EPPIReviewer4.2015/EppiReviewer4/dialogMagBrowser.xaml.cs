@@ -2065,7 +2065,8 @@ namespace EppiReviewer4
                         RememberThisMagRelatedPapersRun.MagRelatedRunId, "", "");
                     dp2.ExecuteCompleted += (o, e2) =>
                     {
-                        //BusyLoading.IsRunning = false;
+                        BusyImportingRecords.IsRunning = false;
+                        tbImportingRecords.Visibility = Visibility.Collapsed;
                         if (e2.Error != null)
                         {
                             RadWindow.Alert(e2.Error.Message);
@@ -2092,7 +2093,8 @@ namespace EppiReviewer4
                             provider.Refresh();
                         }
                     };
-                    //BusyLoading.IsRunning = true;
+                    BusyImportingRecords.IsRunning = true;
+                    tbImportingRecords.Visibility = Visibility.Visible;
                     SelectedLinkButton.IsEnabled = false;
                     dp2.BeginExecute(command);
                 }
@@ -3234,6 +3236,23 @@ namespace EppiReviewer4
                 MagSearchCurrentTopic.Tag = hl.Tag;
             }
         }
+
+        /***************** Add list of IDs to selected items list ************************/
+
+        private void LBUploadIDsFile_Click(object sender, RoutedEventArgs e)
+        {
+            if (TBUploadIDs.Text != "")
+            {
+                string idStr = TBUploadIDs.Text.Replace("\n\r", "¬").Replace("r\n", "¬").Replace("\n", "¬").Replace("\r", "¬").Replace(",", "¬");
+                string[] IDs = idStr.Split('¬');
+                foreach (string s in IDs)
+                {
+                    AddToSelectedList(Convert.ToInt64(s));
+                }
+            }
+        }
+        
+     
 
 
     }
