@@ -806,6 +806,8 @@
         <Grid x:Name="SearchGrid" Grid.Row="1" Visibility="Collapsed">
             <Grid.RowDefinitions>
                 <RowDefinition Height="40"></RowDefinition>
+                <RowDefinition Height="0" x:Name="RowMagSearchTopics"></RowDefinition>
+                <RowDefinition Height="40"></RowDefinition>
                 <RowDefinition Height="40"></RowDefinition>
                 <RowDefinition Height="40"></RowDefinition>
                 <RowDefinition Height="*"></RowDefinition>
@@ -816,33 +818,59 @@
                 <ColumnDefinition Width="200"></ColumnDefinition>
             </Grid.ColumnDefinitions>
 
-            <ComboBox x:Name="ComboMagSearchSelect" Grid.Row="0" Grid.Column="0" Margin="5,5,5,5">
+            <ComboBox x:Name="ComboMagSearchSelect" Grid.Row="0" Grid.Column="0" Margin="5,5,5,5" SelectionChanged="ComboMagSearchSelect_SelectionChanged">
                 <ComboBoxItem Content="Word(s) in title" IsSelected="True"></ComboBoxItem>
                 <ComboBoxItem Content="Word(s) in abstract"></ComboBoxItem>
                 <ComboBoxItem Content="Author name(s)"></ComboBoxItem>
+                <ComboBoxItem Content="Topic"></ComboBoxItem>
+                <ComboBoxItem Content="MAG ID"></ComboBoxItem>
+                <ComboBoxItem Content="Journal"></ComboBoxItem>
                 <ComboBoxItem Content="Custom"></ComboBoxItem>
             </ComboBox>
-            <TextBox x:Name="TextBoxMagSearch" Grid.Row="0" Grid.Column="1" Margin="5,5,5,5"></TextBox>
+            <TextBox x:Name="TextBoxMagSearch" Grid.Row="0" Grid.Column="1" Margin="5,5,5,5" TextChanged="TextBoxMagSearch_TextChanged"></TextBox>
             <HyperlinkButton x:Name="HyperLinkMagSearchDoSearch" Grid.Row="0" Grid.Column="2" Content="Run search!" Margin="5,5,5,5" VerticalAlignment="Center" Click="HyperLinkMagSearchDoSearch_Click" IsTabStop="False"></HyperlinkButton>
             <cslaXAML:BusyAnimation x:Name="BusyRunningMagSearch"  Grid.Row="0" Grid.Column="2"/>
-            <ComboBox x:Name="ComboMagSearchDateLimit" Grid.Row="1" Grid.Column="0" Margin="5,5,5,5" SelectionChanged="ComboMagSearchSelect_SelectionChanged">
+
+            <TextBlock x:Name="MagSearchCurrentTopic" Grid.Row="1" Grid.Column="0" Margin="5,5,5,5" Text="" FontStyle="Italic"></TextBlock>
+            <ScrollViewer x:Name="ScrollViewerMagSearchTopic" Grid.Row="1" Grid.Column="1" Margin="5,0,5,5" HorizontalScrollBarVisibility="Disabled"  VerticalScrollBarVisibility="Auto">
+                <ToolkitRef:WrapPanel x:Name="WPMagSearchFindTopics"  Orientation="Horizontal">
+                    <TextBlock Margin="5,5,5,5" Text="Search for topics in the box above."></TextBlock>
+                </ToolkitRef:WrapPanel>
+            </ScrollViewer>
+
+            <ComboBox x:Name="ComboMagSearchDateLimit" Grid.Row="2" Grid.Column="0" Margin="5,5,5,5" SelectionChanged="ComboMagSearchDateLimit_SelectionChanged">
                 <ComboBoxItem Content="No date limit" IsSelected="True"></ComboBoxItem>
+                <ComboBoxItem Content="Publication date exactly"></ComboBoxItem>
                 <ComboBoxItem Content="Publication date before"></ComboBoxItem>
                 <ComboBoxItem Content="Publication date after"></ComboBoxItem>
                 <ComboBoxItem Content="Publication dates between"></ComboBoxItem>
+                <ComboBoxItem Content="Publication year exactly"></ComboBoxItem>
                 <ComboBoxItem Content="Publication year before"></ComboBoxItem>
                 <ComboBoxItem Content="Publication year after"></ComboBoxItem>
                 <ComboBoxItem Content="Publication years between"></ComboBoxItem>
             </ComboBox>
             
-            <StackPanel x:Name="StackPanelMagSearchDates" Grid.Row="1" Grid.Column="1" Visibility="Collapsed" Orientation="Horizontal">
+            <StackPanel x:Name="StackPanelMagSearchDates" Grid.Row="2" Grid.Column="1" Visibility="Collapsed" Orientation="Horizontal">
                 <TextBlock x:Name="MagSearchDateText1" Text="from" Margin="5,11,5,5" HorizontalAlignment="Center"></TextBlock>
                 <telerik:RadDatePicker x:Name="MagSearchDate1" Margin="5,5,5,5" HorizontalAlignment="Center"></telerik:RadDatePicker>
                 <TextBlock x:Name="MagSearchDateText2" Text="to" Margin="5,11,5,5" HorizontalAlignment="Center"></TextBlock>
                 <telerik:RadDatePicker x:Name="MagSearchDate2" Margin="5,5,5,5" HorizontalAlignment="Center"></telerik:RadDatePicker>
             </StackPanel>
-            
-            <StackPanel Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" Orientation="Horizontal">
+
+            <ComboBox x:Name="ComboMagSearchPubTypeLimit" Grid.Row="3" Grid.Column="0" Margin="5,5,5,5">
+                <ComboBoxItem Content="All publication types" IsSelected="True"></ComboBoxItem>
+                <ComboBoxItem Content="Unknown types"></ComboBoxItem>
+                <ComboBoxItem Content="Journal article"></ComboBoxItem>
+                <ComboBoxItem Content="Patent"></ComboBoxItem>
+                <ComboBoxItem Content="Conference paper"></ComboBoxItem>
+                <ComboBoxItem Content="Book chapter"></ComboBoxItem>
+                <ComboBoxItem Content="Book"></ComboBoxItem>
+                <ComboBoxItem Content="Book reference entry"></ComboBoxItem>
+                <ComboBoxItem Content="Dataset"></ComboBoxItem>
+                <ComboBoxItem Content="Repository"></ComboBoxItem>
+            </ComboBox>
+
+            <StackPanel Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="2" Orientation="Horizontal">
                 <TextBlock Text="Combine selected searches with " Margin="5,5,5,5" VerticalAlignment="Center"></TextBlock>
                 <ComboBox x:Name="MagSearchComboCombine" Margin="5,5,5,5" SelectionChanged="MagSearchComboCombine_SelectionChanged">
                     <ComboBoxItem Content="AND" IsSelected="False"></ComboBoxItem>
@@ -851,7 +879,7 @@
                 <HyperlinkButton x:Name="hlDeleteSelectedMagSearches" Content="Delete selected searches" Margin="5,5,5,5" VerticalAlignment="Center" IsTabStop="False" Click="hlDeleteSelectedMagSearches_Click"></HyperlinkButton>
             </StackPanel>
             
-            <telerikGridView:RadGridView x:Name="SearchDataGrid" Grid.Row="3" Grid.ColumnSpan="3" AutoGenerateColumns="False" ShowGroupPanel="False"
+            <telerikGridView:RadGridView x:Name="SearchDataGrid" Grid.Row="5" Grid.ColumnSpan="3" AutoGenerateColumns="False" ShowGroupPanel="False"
                                     IsReadOnly="True" MinHeight="50" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                                     ItemsSource="{Binding Source={StaticResource MagSearchListData}, Path=Data, Mode=TwoWay}"
                                     RowIndicatorVisibility="Collapsed" CanUserSortColumns="True" 
@@ -1112,11 +1140,13 @@
                     <RowDefinition Height="35"></RowDefinition>
                     <RowDefinition Height="35"></RowDefinition>
                     <RowDefinition Height="*"></RowDefinition>
+                    <RowDefinition Height="100"></RowDefinition>
                 </Grid.RowDefinitions>
 
                 <StackPanel Grid.Row="0" Orientation="Horizontal">
                     <HyperlinkButton x:Name="LBCheckChangedPaperIds" Content="Identify ID changes BEFORE switching to new MAG" Click="CheckChangedPaperIds_Click" IsTabStop="False" Margin="0,5,5,5"></HyperlinkButton>
-                    <HyperlinkButton x:Name="LBCreateParquetFiles" Content="Create parquet files for new MAG" Click="LBCreateParquetFiles_Click"  IsTabStop="False" Margin="0,5,5,5"></HyperlinkButton>
+                    <HyperlinkButton x:Name="LBCreateParquetFiles" Content="Create parquet files for new MAG" Click="LBCreateParquetFiles_Click"  IsTabStop="False" Margin="5,5,5,5"></HyperlinkButton>
+                    
                 </StackPanel>
                 <StackPanel Grid.Row="1" Orientation="Horizontal">
                     <HyperlinkButton x:Name="LBRunContReviewPipeline" Content="Run contreview pipeline" Click="LBRunContReviewPipeline_Click" IsTabStop="False" VerticalAlignment="Center"></HyperlinkButton>
@@ -1152,7 +1182,14 @@
                         <telerikGridView:GridViewDataColumn Header="Job message" DataMemberBinding="{Binding JobMessage}" Width="*"></telerikGridView:GridViewDataColumn>
                     </telerikGridView:RadGridView.Columns>
                 </telerikGridView:RadGridView>
+
+                <StackPanel Grid.Row="5" Orientation="Vertical" >
+                    <HyperlinkButton x:Name="LBUploadIDsFile" Content="Add IDs to selected items list" Click="LBUploadIDsFile_Click"  IsTabStop="False" Margin="0,10,5,5"></HyperlinkButton>
+                    <TextBox x:Name="TBUploadIDs" TextWrapping="Wrap" VerticalScrollBarVisibility="Visible" AcceptsReturn="True" MaxHeight="80"></TextBox>
+                </StackPanel>
             </Grid>
+
+            
             
             
         </Grid>

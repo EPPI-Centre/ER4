@@ -96,6 +96,25 @@ namespace BusinessLibrary.BusinessClasses
             return cleaned;
         }
 
+        public string GetSearchTextMagIds(string searchText)
+        {
+            string cleaned = CleanText(searchText);
+            cleaned = removeStopwords(" " + cleaned + " ").Trim().ToLower();
+            string[] words = cleaned.Split(' ');
+            if (words.Length == 0)
+                return "";
+            if (words.Length == 1)
+            {
+                cleaned = "Id=" + words[0];
+            }
+            else
+            {
+                cleaned = "OR(Id=" + string.Join(",", words).Replace(",", ",Id=") + ")";
+            }
+
+            return cleaned;
+        }
+
         public string GetSearchTextAuthors(string searchText)
         {
             string cleaned = CleanText(searchText);
@@ -114,6 +133,22 @@ namespace BusinessLibrary.BusinessClasses
             return cleaned;
         }
 
+        public string GetSearchTextJournals(string searchText)
+        {
+            string cleaned = CleanText(searchText);
+            cleaned = removeStopwords(" " + cleaned + " ").Trim().ToLower();
+            cleaned = "COMPOSITE(J.JN = '" + cleaned + "'...)";
+            return cleaned;
+        }
+
+        public string GetSearchTextFieldOfStudy(string FId)
+        {
+            return "Composite(F.FId=" + FId + ")";
+        }
+        public string GetSearchTextPubDateExactly(string date)
+        {
+            return "D='" + date + "'";
+        }
         public string GetSearchTextPubDateFrom(string date)
         {
             return "D>'" + date + "'";
@@ -128,7 +163,10 @@ namespace BusinessLibrary.BusinessClasses
         {
             return "D=['" + date1 + "','" + date2 + "']";
         }
-
+        public string GetSearchTextYearExactly(string year)
+        {
+            return "Y=" + year;
+        }
         public string GetSearchTextYearBefore(string year)
         {
             return "Y<" + year;
@@ -142,6 +180,45 @@ namespace BusinessLibrary.BusinessClasses
         public string GetSearchTextYearBetween(string year1, string year2)
         {
             return "Y=[" + year1 + "," + year2 + "]";
+        }
+        public string GetSearchTextPublicationType(string pubType)
+        {
+            return "Pt='" + pubType + "'";
+        }
+        public string GetPublicationType(int pubType)
+        {
+            string pType = "";
+            switch (pubType)
+            {
+                case 1:
+                    pType = "Journal article";
+                    break;
+                case 2:
+                    pType = "Patent";
+                    break;
+                case 3:
+                    pType = "Conference paper";
+                    break;
+                case 4:
+                    pType = "Book chapter";
+                    break;
+                case 5:
+                    pType = "Book";
+                    break;
+                case 6:
+                    pType = "Book reference entry";
+                    break;
+                case 7:
+                    pType = "Dataset";
+                    break;
+                case 8:
+                    pType = "Repository";
+                    break;
+                default:
+                    pType = "Unknown";
+                    break;
+            }
+            return pType;
         }
 
         // *********** These are from MagMakesHelpers - which is a server-side class. We should really move to a generic text helpers class?
