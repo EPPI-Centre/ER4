@@ -423,8 +423,8 @@ namespace BusinessLibrary.BusinessClasses
                     }
                 }
                 else // i.e. these list types: CitedByList, RecommendationsList, RecommendedByList, PaperFieldsOfStudyList, MagSearchResultsList
-                     // AuthorPaperList. These query MAKES for the list of PaperIds and then we look up in our database to see whether they are
-                     // in the review.
+                     // AuthorPaperList, PaperListById (selected items).
+                    //  These query MAKES for the list of PaperIds and then we look up in our database to see whether they are in the review.
                 {
                     MagMakesHelpers.PaperMakes mpParent = null;
                     MagMakesHelpers.FieldOfStudyMakes fosParent = null;
