@@ -1376,13 +1376,16 @@ namespace EppiReviewer4
                 return false;
         }
 
-        private void AddToSelectedList(Int64 PaperId)
+        private bool AddToSelectedList(Int64 PaperId)
         {
+            bool ret = false;
             if (!IsInSelectedList(PaperId) && PaperId > 0)
             {
                 SelectedPaperIds.Add(PaperId);
                 UpdateSelectedCount();
+                ret = true;
             }
+            return ret;
         }
 
         private void AddAllToSelectedList(MagPaperList paperlist)
@@ -3247,11 +3250,19 @@ namespace EppiReviewer4
             {
                 string idStr = TBUploadIDs.Text.Replace("\n\r", "¬").Replace("r\n", "¬").Replace("\n", "¬").Replace("\r", "¬").Replace(",", "¬");
                 string[] IDs = idStr.Split('¬');
+                Int64 testInt64 = 0;
+                int count = 0;
                 foreach (string s in IDs)
                 {
-                    if (s.Trim() != "")
-                        AddToSelectedList(Convert.ToInt64(s));
+                    if (s.Trim() != "" && Int64.TryParse(s, out testInt64))
+                    {
+                        if (AddToSelectedList(testInt64))
+                        {
+                            count++;
+                        }
+                    }
                 }
+                RadWindow.Alert(count.ToString() + " IDs added to selected list");
             }
         }
         
