@@ -83,7 +83,7 @@ export class SourcesService extends BusyAwareService {
             this.gotSource.emit();
         }, error => {
             this.RemoveBusy("FetchSource");
-            this.modalService.GenericErrorMessage(error);
+            this.modalService.GenericError(error);
         }
             , () => {
                 this.RemoveBusy("FetchSource");
@@ -99,7 +99,7 @@ export class SourcesService extends BusyAwareService {
             //this.gotSource.emit();
         }, error => {
             this.RemoveBusy("FetchNewPubMedSearch");
-            this.modalService.GenericErrorMessage(error);
+            this.modalService.GenericError(error);
         }
             , () => {
                 this.gotPmSearchToCheck.emit();
@@ -159,7 +159,7 @@ export class SourcesService extends BusyAwareService {
         this._httpC.get<ImportFilter[]>(this._baseUrl + 'api/Sources/GetImportFilters').subscribe(result => {
             this._ImportFilters = result;
         }, error => {
-            this.modalService.GenericErrorMessage(error);
+            this.modalService.GenericError(error);
             this.RemoveBusy("FetchImportFilters");
         }, () => {
                 this.RemoveBusy("FetchImportFilters");
@@ -226,7 +226,7 @@ export class SourcesService extends BusyAwareService {
             this.FetchSources()
             }, error => {
                 this.RemoveBusy("DeleteUndeleteSource");
-                this.modalService.GenericErrorMessage(error);
+                this.modalService.GenericError(error);
             },
             () => {
                 this.RemoveBusy("DeleteUndeleteSource");
