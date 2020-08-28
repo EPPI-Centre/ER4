@@ -401,6 +401,7 @@ namespace BusinessLibrary.BusinessClasses
             } while (continuationToken != null);
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
+                connection.Open();
                 using (SqlCommand command = new SqlCommand("st_MagContReviewInsertResults", connection))
                 {
                     command.CommandType = System.Data.CommandType.StoredProcedure;
