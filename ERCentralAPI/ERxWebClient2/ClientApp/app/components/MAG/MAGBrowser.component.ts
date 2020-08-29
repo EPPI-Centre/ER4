@@ -45,7 +45,7 @@ export class MAGBrowser implements OnInit, OnDestroy {
     public kendoBeforeDateValue: Date = new Date();
     public isCurrentSelected: boolean = false;
     public ShowOriginalPapers: boolean = false;
-
+    public ShowingTopics: boolean = false;
     public getTopicsSub: Subscription | null = null;
     public getAttriubteIdsSub: Subscription | null = null;
     public basicOrigPanel: boolean = false;
@@ -138,7 +138,7 @@ export class MAGBrowser implements OnInit, OnDestroy {
         });
     }
     public GetMagPaperRef(magPaperRefId: number) {
-
+        this._magBrowserService.ShowingTopics = false;
         this._magAdvancedService.FetchMagPaperId(magPaperRefId).then(
             (result: MagPaper) => {
 

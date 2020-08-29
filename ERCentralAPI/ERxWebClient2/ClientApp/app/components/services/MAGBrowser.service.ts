@@ -40,6 +40,7 @@ export class MAGBrowserService extends BusyAwareService {
     public OrigListDescription: string = '';
     public selectedPapers: MagPaper[] = [];
     public SelectedPaperIds: number[] = [];
+    public ShowingTopics: boolean = false;
     public pageSize: number = 20;
     @Output() PaperChanged = new EventEmitter();
     public currentFieldOfStudy: MagFieldOfStudy = new MagFieldOfStudy();
@@ -95,8 +96,12 @@ export class MAGBrowserService extends BusyAwareService {
 
                         (res1: boolean) => {
                             if (res1) {
+                                if (res1) {
+                                    this.ShowingTopics = true;
+                                }
                                 this.FetchOrigWithCrit(this.ListCriteria, "PaperFieldsOfStudyList").then(
                                     (res2: boolean) => {
+
                                         return res2;
                                     }
                               )
@@ -182,7 +187,7 @@ export class MAGBrowserService extends BusyAwareService {
         );
     }
     public FetchMAGRelatedPaperRunsListId(Id: number) {
-
+        this.ShowingTopics = false;
         this._BusyMethods.push("FetchMAGRelatedPaperRunsListId");
         let body = JSON.stringify({ Value: Id });
         return this._httpC.post<MagList>(this._baseUrl + 'api/MagRelatedPapersRunList/GetMagRelatedPapersRunsId',
@@ -204,6 +209,7 @@ export class MAGBrowserService extends BusyAwareService {
             );
     }
     public FetchMAGRelatedPaperRunsListById(Id: number): Promise<boolean> {
+        this.ShowingTopics = false;
         var goBackListType: string = 'MagRelatedPapersRunList';
         this._BusyMethods.push("FetchMAGRelatedPaperRunsListById");
         this.ListCriteria.listType = "MagRelatedPapersRunList";
@@ -268,8 +274,8 @@ export class MAGBrowserService extends BusyAwareService {
                         if (result != null) {
 
                             let FosList: MagFieldOfStudy[] = result;
-                            let i: number = 2;
-                            let j: number = 2;
+                            let i: number = 1.5;
+                            let j: number = 1.5;
                             for (var fos of FosList) {
 
                                 let item: TopicLink = new TopicLink();
