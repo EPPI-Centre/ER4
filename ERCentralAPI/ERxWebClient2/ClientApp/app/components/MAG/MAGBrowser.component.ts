@@ -138,7 +138,7 @@ export class MAGBrowser implements OnInit, OnDestroy {
         });
     }
     public GetMagPaperRef(magPaperRefId: number) {
-        this._magBrowserService.ShowingTopics = false;
+        this._magBrowserService.ShowingTopics = true;
         this._magAdvancedService.FetchMagPaperId(magPaperRefId).then(
             (result: MagPaper) => {
 
