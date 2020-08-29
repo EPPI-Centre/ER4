@@ -8,6 +8,7 @@ import { MagBrowseHistoryItem, MagPaper, MVCMagPaperListSelectionCriteria } from
 import { EventEmitterService } from '../services/EventEmitter.service';
 import { MAGBrowserService } from '../services/MAGBrowser.service';
 import { BasicMAGService } from '../services/BasicMAG.service';
+import { MAGAdminService } from '../services/MAGAdmin.service';
 
 @Component({
     selector: 'MAGBrowserHistory',
@@ -25,7 +26,8 @@ export class MAGBrowserHistory implements OnInit {
         private _ReviewerIdentityServ: ReviewerIdentityService,
         private router: Router,
         public _eventEmitterService: EventEmitterService,
-        private _magBrowserService: MAGBrowserService
+        private _magBrowserService: MAGBrowserService,
+        public _magAdminService: MAGAdminService
     ) {
 
     }

@@ -9,17 +9,21 @@
 <div class="container col-12">
     <div class="row">
 
-        <div class="col-md-6 mb-5">
+        <div class="col-md-12 mb-5">
             <h2 class="card-title"></h2>
             <div class="card h-100">
                 <div class="card-body">
 
                     <h2 class="font-weight-light">MAG browsing history</h2>
+                    <h4 class="font-weight-light text-sm-left">
+                        Current Microsoft Academic Graph Dataset:<br />
+                        <i> {{_magAdminService.latestMAGName}} </i>
+                    </h4>
                     <div *ngIf="IsServiceBusy" class="k-loading-image" style="position: fixed; top: 2%;"></div>
                     <a class="btn btn-danger btn-lg text-white align-content-center fa fa-trash p-2 m-2" (click)="ClearHistory()">Clear all history </a>
                     <div class="col-12 alert-secondary p-2 m-2 card">
 
-                        <table class="table table-sm text-small table-responsive table-striped" style="min-width:150px;max-height:600px; overflow:auto;">
+                        <table class="table col-12 text-small table-responsive table-striped" style="min-width:150px;max-height:600px; overflow:auto;">
                             <thead>
                                 <tr>
                                     <th class="w-25">
@@ -32,7 +36,7 @@
                             </thead>
                             <tbody>
                                 <tr *ngFor="let item of _MAGBrowserHistoryService._MAGBrowserHistoryList;  let i = index">
-                                    
+
                                     <td class="btn btn-link mt-1" (click)="GoToUrl(i)">{{item.title}}</td>
                                     <td class="w-25"><button class="btn-outline-danger btn-lg fa fa-trash" (click)="RemoveUrl(i)"></button></td>
                                 </tr>
@@ -43,19 +47,6 @@
                 </div>
             </div>
         </div>
-
-        <div class="col-lg-6 ">
-            <div class="card-footer h-100 ">
-                <h2 class="card-title"></h2>
-                <h4 class="font-weight-light text-sm-left">
-                    Current Microsoft Academic Graph Dataset:<br />
-                    <i> {{_magAdvancedService.MagCurrentInfo.magVersion}} </i>
-                </h4>
-            </div>
-        </div>
-
-
-
     </div>
 </div>
 
