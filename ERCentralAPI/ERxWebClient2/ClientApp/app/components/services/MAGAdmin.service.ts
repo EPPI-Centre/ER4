@@ -175,16 +175,21 @@ export class MAGAdminService extends BusyAwareService {
                 this.RemoveBusy("MAGReviewList");
             });
     }
-    public UpdateMagCurrentInfo() {
+    public UpdateMagCurrentInfo(newMagEndPoint: string , newMagVersion: string ) {
 
         this._BusyMethods.push("UpdateMagCurrentInfo");
         let magCurrentInfo: MagCurrentInfo = this.MagCurrentInfo;
+        magCurrentInfo.magOnline = true;
+        magCurrentInfo.matchingAvailable = true;
+        magCurrentInfo.makesEndPoint = newMagEndPoint;
+        magCurrentInfo.magVersion = newMagVersion;
         this._httpC.post<MagCurrentInfo>(this._baseUrl + 'api/MagCurrentInfo/UpdateMagCurrentInfo', magCurrentInfo)
             .subscribe(result => {
                 this.RemoveBusy("UpdateMagCurrentInfo");
                 if (result != null) {
                     this.MagCurrentInfo = result;
                 }
+                this.FetchMagCurrentInfo();
             },
                 error => {
                     this.RemoveBusy("UpdateMagCurrentInfo");

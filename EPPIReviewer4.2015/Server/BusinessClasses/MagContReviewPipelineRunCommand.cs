@@ -331,7 +331,7 @@ namespace BusinessLibrary.BusinessClasses
             CloudStorageAccount storageAccount = CloudStorageAccount.Parse(storageConnectionString);
             CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
             CloudBlobContainer container = blobClient.GetContainerReference("experiments");
-
+            string JobId = Guid.NewGuid().ToString();
             do
             {
                 BlobResultSegment resultSegment = await container.ListBlobsSegmentedAsync(folder + "/tmp",
@@ -360,9 +360,6 @@ namespace BusinessLibrary.BusinessClasses
                             dt.Columns.Add("PaperId");
                             dt.Columns.Add("SimilarityScore");
                             dt.Columns.Add("JobId");
-
-                            string JobId = Guid.NewGuid().ToString();
-                            
 
                             using (var reader = new StreamReader(ms))
                             {
@@ -398,13 +395,7 @@ namespace BusinessLibrary.BusinessClasses
                                     sbc.WriteToServer(dt);
                                 }
 
-                                using (SqlCommand command = new SqlCommand("st_MagContReviewInsertResults", connection))
-                                {
-                                    command.CommandType = System.Data.CommandType.StoredProcedure;
-                                    command.Parameters.Add(new SqlParameter("@JobId", JobId));
-                                    command.ExecuteNonQuery();
-                                }
-                                connection.Close();
+                                
                             }
                             //blockBlobDownloadData.DeleteIfExists();
                         }
@@ -416,6 +407,18 @@ namespace BusinessLibrary.BusinessClasses
                 continuationToken = resultSegment.ContinuationToken;
 
             } while (continuationToken != null);
+            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+            {
+                connection.Open();
+                using (SqlCommand command = new SqlCommand("st_MagContReviewInsertResults", connection))
+                {
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@JobId", JobId));
+                    command.ExecuteNonQuery();
+                }
+                connection.Close();
+            }
+
             return lineCount;
 
         }

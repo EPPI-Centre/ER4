@@ -45,7 +45,7 @@ export class MAGBrowser implements OnInit, OnDestroy {
     public kendoBeforeDateValue: Date = new Date();
     public isCurrentSelected: boolean = false;
     public ShowOriginalPapers: boolean = false;
-
+    public ShowingTopics: boolean = true;
     public getTopicsSub: Subscription | null = null;
     public getAttriubteIdsSub: Subscription | null = null;
     public basicOrigPanel: boolean = false;
@@ -138,7 +138,8 @@ export class MAGBrowser implements OnInit, OnDestroy {
         });
     }
     public GetMagPaperRef(magPaperRefId: number) {
-
+        this._magBrowserService.ShowingParentAndChildTopics = false;
+        this._magBrowserService.ShowingChildTopicsOnly = true;
         this._magAdvancedService.FetchMagPaperId(magPaperRefId).then(
             (result: MagPaper) => {
 
@@ -186,7 +187,7 @@ export class MAGBrowser implements OnInit, OnDestroy {
         }
     }
     public GetParentAndChildRelatedPapers(item: MagFieldOfStudy) {
-
+        this.ShowingTopics = false;
         let magBrowseItem: MagBrowseHistoryItem = new MagBrowseHistoryItem("Browse topic: " +
             item.displayName, "BrowseTopic", 0, "", "", 0, "", "",
             item.fieldOfStudyId, item.displayName, "", 0);

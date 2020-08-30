@@ -38,7 +38,7 @@
 
 
             <div class="card small row col-12">
-                <h4 class="card-title">Microsoft Academic Graph Info</h4>
+                <h4 class="card-title">Your current Microsoft Academic Graph Info</h4>
 
                 <div class="col-12 p-2 m-2 ">
                     MAG Version:{{_magAdminService.MagCurrentInfo.magVersion}}
@@ -49,6 +49,14 @@
                 <div class="col-12  p-2 m-2 ">
                     MAKES Deployment Status: {{_magAdminService.MagCurrentInfo.makesDeploymentStatus}}
                 </div>
+
+                <div class="col-12 p-2 m-2 ">
+                    Enter new MAG Version:<input class="form-control" type="text" id="newMagVersion" [(ngModel)]="newMagVersion" />
+                </div>
+                <div class="col-12  p-2 m-2 ">
+                    Enter new MAKES EndPoint:<input class="form-control" type="text" id="newMagEndPoint" [(ngModel)]="newMagEndPoint" />
+                </div>
+                
 
                 <div class="card-text small row col-12">
                     <div>

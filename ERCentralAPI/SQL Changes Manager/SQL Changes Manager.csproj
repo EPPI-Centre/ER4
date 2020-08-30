@@ -263,7 +263,10 @@
     <None Update="SQLScripts\246.sql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="SQLScripts\MagCurretnInfoUpdate.sql">
+    <None Update="SQLScripts\MagCurrentInfoInsert.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="SQLScripts\MagCurrentInfoUpdate.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="SQLScripts\248.sql">

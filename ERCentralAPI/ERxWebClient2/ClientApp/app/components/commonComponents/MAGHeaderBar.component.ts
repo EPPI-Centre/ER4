@@ -35,6 +35,7 @@ export class MAGHeaderBarComp implements OnInit {
     public get HasWriteRights(): boolean {
         return this._ReviewerIdentityServ.HasWriteRights;
     }
+    public ShowSelectedPapers: string = "Selected (" + this._magBrowserService.SelectedPaperIds.length.toString() + ")";
     public SelectedItems() : boolean {
 
         if (this._magBrowserService.selectedPapers != null && 

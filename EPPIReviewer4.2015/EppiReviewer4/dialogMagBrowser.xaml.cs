@@ -1376,13 +1376,16 @@ namespace EppiReviewer4
                 return false;
         }
 
-        private void AddToSelectedList(Int64 PaperId)
+        private bool AddToSelectedList(Int64 PaperId)
         {
+            bool ret = false;
             if (!IsInSelectedList(PaperId) && PaperId > 0)
             {
                 SelectedPaperIds.Add(PaperId);
                 UpdateSelectedCount();
+                ret = true;
             }
+            return ret;
         }
 
         private void AddAllToSelectedList(MagPaperList paperlist)
@@ -1498,7 +1501,8 @@ namespace EppiReviewer4
                 MagItemPaperInsertCommand command = new MagItemPaperInsertCommand(GetSelectedIds(), "SelectedPapers", 0, "", "");
                 dp2.ExecuteCompleted += (o, e2) =>
                 {
-                    //BusyLoading.IsRunning = false;
+                    BusyImportingRecords.IsRunning = false;
+                    tbImportingRecords.Visibility = Visibility.Collapsed;
                     if (e2.Error != null)
                     {
                         RadWindow.Alert(e2.Error.Message);
@@ -1527,7 +1531,8 @@ namespace EppiReviewer4
                         HLImportSelected.IsEnabled = true;
                     }
                 };
-                //BusyLoading.IsRunning = true;
+                BusyImportingRecords.IsRunning = true;
+                tbImportingRecords.Visibility = Visibility.Visible;
                 HLImportSelected.IsEnabled = false;
                 dp2.BeginExecute(command);
             }
@@ -3245,10 +3250,19 @@ namespace EppiReviewer4
             {
                 string idStr = TBUploadIDs.Text.Replace("\n\r", "¬").Replace("r\n", "¬").Replace("\n", "¬").Replace("\r", "¬").Replace(",", "¬");
                 string[] IDs = idStr.Split('¬');
+                Int64 testInt64 = 0;
+                int count = 0;
                 foreach (string s in IDs)
                 {
-                    AddToSelectedList(Convert.ToInt64(s));
+                    if (s.Trim() != "" && Int64.TryParse(s, out testInt64))
+                    {
+                        if (AddToSelectedList(testInt64))
+                        {
+                            count++;
+                        }
+                    }
                 }
+                RadWindow.Alert(count.ToString() + " IDs added to selected list");
             }
         }
         
