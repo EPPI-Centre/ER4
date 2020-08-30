@@ -15,19 +15,19 @@ namespace ERxWebClient2.Controllers
     [Route("api/[controller]")]
     public class MagCurrentInfoController : CSLAController
     {
-        
-		public MagCurrentInfoController(ILogger<MagCurrentInfoController> logger) : base(logger)
+
+        public MagCurrentInfoController(ILogger<MagCurrentInfoController> logger) : base(logger)
         { }
 
         [HttpGet("[action]")]
         public ActionResult<MagCurrentInfo> GetMagCurrentInfo()
         {
-			try
+            try
             {
                 if (!SetCSLAUser()) return Unauthorized();
 
                 DataPortal<MagCurrentInfo> dp = new DataPortal<MagCurrentInfo>();
-				MagCurrentInfo result = dp.Fetch();
+                MagCurrentInfo result = dp.Fetch();
 
                 return Ok(result);
             }
@@ -36,7 +36,7 @@ namespace ERxWebClient2.Controllers
                 _logger.LogException(e, "Getting a MagCurrentInfo has an error");
                 return StatusCode(500, e.Message);
             }
-		}
+        }
 
         [HttpPost("[action]")]
         public IActionResult UpdateMagCurrentInfo([FromBody] MVCMagCurrentInfo magCurrentInfo)
@@ -47,14 +47,36 @@ namespace ERxWebClient2.Controllers
 
                 if (!SetCSLAUser()) return Unauthorized();
                 ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
-                    // FOR NOW on the MagCurrentInfo business object we contact Azure and get the info to update the DB
-                    // TODO change logic to receive this info from the user in the above MVC object
-                    // after we have listed the info on the UI
-                    MagCurrentInfo.UpdateMagCurrentInfoStatic();
-                    DataPortal<MagCurrentInfo> dp = new DataPortal<MagCurrentInfo>();
-                    var magSQLCurrentInfo = MagCurrentInfo.GetMagCurrentInfoServerSide("Live");
+                
+                //MagCurrentInfo.UpdateMagCurrentInfoStatic();
+                DataPortal<MagCurrentInfo> dp = new DataPortal<MagCurrentInfo>();
+
+                // get data from the user
+                var magSQLCurrentInfo = MagCurrentInfo.GetMagCurrentInfoServerSide("Live");
+                if (magSQLCurrentInfo.MagVersion == "")
+                {
+                    //insert from client
+                    MagCurrentInfo newMagCurrentInfo = new MagCurrentInfo();
+                    newMagCurrentInfo.WhenLive = DateTime.Now;
+                    newMagCurrentInfo.MatchingAvailable = true;
+                    newMagCurrentInfo.MakesDeploymentStatus = "LIVE";
+                    newMagCurrentInfo.MagVersion = magCurrentInfo.magVersion;
+                    newMagCurrentInfo.MagFolder = "";
+                    newMagCurrentInfo.MakesEndPoint = magCurrentInfo.makesEndPoint;
+
+                    newMagCurrentInfo = dp.Execute(newMagCurrentInfo);
+
+                    return Ok(newMagCurrentInfo);
+
+                }
+                else
+                {
+                    //update from client
+                    MagCurrentInfo.UpdateSQLMagCurrentInfoTable(magCurrentInfo.magVersion, magCurrentInfo.makesEndPoint);
 
                     return Ok(magSQLCurrentInfo);
+
+                }
 
             }
             catch (Exception e)
@@ -84,7 +106,7 @@ namespace ERxWebClient2.Controllers
         }
 
         //move the following two to their own controller
-                
+
         [HttpGet("[action]")]
         public IActionResult MagCheckContReviewRunningCommand()
         {
@@ -106,8 +128,6 @@ namespace ERxWebClient2.Controllers
             {
                 _logger.LogException(e, "MagCheckContReviewRunningCommand has an error");
                 return StatusCode(500, e.Message);
-                _logger.LogException(e, "MagCheckContReviewRunning Command has an error");
-                throw;
             }
         }
 
@@ -141,7 +161,7 @@ namespace ERxWebClient2.Controllers
             catch (Exception e)
             {
                 _logger.LogException(e, "Do Run ContReview Pipeline has an error");
-                throw;
+                return StatusCode(500, e.Message);
             }
         }
 
@@ -168,7 +188,7 @@ namespace ERxWebClient2.Controllers
             catch (Exception e)
             {
                 _logger.LogException(e, "DoCheckChangedPaperIds has an error");
-                throw;
+                return StatusCode(500, e.Message);
             }
         }
 
@@ -191,7 +211,7 @@ namespace ERxWebClient2.Controllers
             catch (Exception e)
             {
                 _logger.LogException(e, "Getting a MAGBlobCommand has an error");
-                throw;
+                return StatusCode(500, e.Message);
             }
         }
     }
@@ -202,9 +222,9 @@ public class MVCMagCurrentInfo
     public int magCurrentInfoId { get; set; }
     public string magFolder { get; set; }
     public string magVersion { get; set; }
-    public string whenLive { get; set; }
-    public string matchingAvailable { get; set; }
-    public string magOnline { get; set; }
+    public DateTime whenLive { get; set; }
+    public bool matchingAvailable { get; set; }
+    public bool magOnline { get; set; }
     public string makesEndPoint { get; set; }
     public string makesDeploymentStatus { get; set; }
 

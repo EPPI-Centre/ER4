@@ -79,15 +79,16 @@ namespace BusinessLibrary.BusinessClasses
         {
             get
             {
-                if (MagVersion != null || MagVersion != "")
-                {
-                    string[] tmp = MagVersion.Split('/');
-                    return "mag-" + tmp[2] + "-" + tmp[1] + "-" + tmp[0];
-                }
-                else
-                {
-                    return "";
-                }
+                //if (MagFolder != null && MagFolder != "" && !String.IsNullOrEmpty(MagFolder))
+                //{
+                //    string[] tmp = MagFolder.Split('/');
+                //    return "mag-" + tmp[2] + "-" + tmp[1] + "-" + tmp[0];
+                //}
+                //else
+                //{
+                //    return "";
+                //}
+                return GetProperty(MagFolderProperty);
             }
             set
             {
@@ -282,7 +283,7 @@ namespace BusinessLibrary.BusinessClasses
 
         protected override void DataPortal_Insert()
         {
-            /*
+
             ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
@@ -290,19 +291,23 @@ namespace BusinessLibrary.BusinessClasses
                 using (SqlCommand command = new SqlCommand("st_MagCurrentInfoInsert", connection))
                 {
                     command.CommandType = System.Data.CommandType.StoredProcedure;
-                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", ReadProperty(ReviewIdProperty)));
-                    command.Parameters.Add(new SqlParameter("@MagCurrentInfo_NAME", ReadProperty(NameProperty)));
-                    command.Parameters.Add(new SqlParameter("@MagCurrentInfo_DETAIL", ReadProperty(DetailProperty)));
+                    command.Parameters.Add(new SqlParameter("@MAG_VERSION", ReadProperty(MagVersionProperty)));
+                    command.Parameters.Add(new SqlParameter("@WHEN_LIVE", ReadProperty(WhenLiveProperty)));
+                    command.Parameters.Add(new SqlParameter("@MATCHING_AVAILABLE", ReadProperty(MatchingAvailableProperty)));
+                    command.Parameters.Add(new SqlParameter("@MAG_ONLINE", ReadProperty(MagOnlineProperty)));
+                    command.Parameters.Add(new SqlParameter("@MAKES_ENDPOINT", ReadProperty(MakesEndPointProperty)));
+                    command.Parameters.Add(new SqlParameter("@MAKES_DEPLOYMENT_STATUS", ReadProperty(MakesDeploymentStatusProperty)));
+
                     SqlParameter par = new SqlParameter("@NEW_MagCurrentInfo_ID", System.Data.SqlDbType.Int);
                     par.Value = 0;
                     command.Parameters.Add(par);
                     command.Parameters["@NEW_MagCurrentInfo_ID"].Direction = System.Data.ParameterDirection.Output;
                     command.ExecuteNonQuery();
-                    LoadProperty(MFieldOfStudyIdProperty, command.Parameters["@NEW_MagCurrentInfo_ID"].Value);
+                    LoadProperty(MagCurrentInfoIdProperty, command.Parameters["@NEW_MagCurrentInfo_ID"].Value);
                 }
                 connection.Close();
             }
-            */
+
         }
 
         protected override void DataPortal_Update()
@@ -523,7 +528,7 @@ namespace BusinessLibrary.BusinessClasses
             return date.ToString("dd/MM/yyy");
         }
 
-        private static Task UpdateSQLMagCurrentInfoTable(string mag_version, string makes_endpoint)
+        public static Task UpdateSQLMagCurrentInfoTable(string mag_version, string makes_endpoint)
         {
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {

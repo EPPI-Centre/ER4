@@ -37,7 +37,8 @@ export class MAGAdminComp implements OnInit {
     public stepSampleSize: number = 1;
     public isRunning: boolean = false;
     public reviewId: number = 0;
-
+    public newMagEndPoint: string = '';
+    public newMagVersion: string = '';
     public DoCheckChangedPaperIds() {
 
         let msg: string = "Are you sure?\nPlease check it is not already running first!\nOld: "
@@ -63,7 +64,10 @@ export class MAGAdminComp implements OnInit {
         return this._magAdminService.MAGReviewList;
     }
     public UpdateMagInfo() {
-        this._magAdminService.UpdateMagCurrentInfo();
+
+        if (this.newMagEndPoint != '' && this.newMagVersion != '') {
+            this._magAdminService.UpdateMagCurrentInfo(this.newMagEndPoint, this.newMagVersion);
+        }
     }
     public AddReviewWithThisId() {
 
