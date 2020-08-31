@@ -5,6 +5,8 @@ import { MagPaper, MVCMagPaperListSelectionCriteria } from '../services/MAGClass
 import { ItemCodingService } from '../services/ItemCoding.service';
 import { Subscription } from 'rxjs';
 import { Item } from '../services/ItemList.service';
+import { NotificationService } from '@progress/kendo-angular-notification';
+import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 
 @Component({
    
@@ -18,7 +20,9 @@ export class microsoftAcademicComp implements OnInit, OnDestroy {
     constructor(private router: Router, 
         @Inject('BASE_URL') private _baseUrl: string,
         public _magAdvancedService: MAGAdvancedService,
-        private _ItemCodingService: ItemCodingService
+        private _ItemCodingService: ItemCodingService,
+        public _notificationService: NotificationService,
+        public ConfirmationDialogService: ConfirmationDialogService
     ) { }
 
     @Input() item: Item = new Item;
@@ -100,11 +104,26 @@ export class microsoftAcademicComp implements OnInit, OnDestroy {
     }
     public ClearMAGMatches() {
 
-        let res: any = this._magAdvancedService.ClearMagMatchItemsToPapers(this.item.itemId);
-        
-        console.log('fetchMAGMatches is empty: ' + JSON.stringify(res));
-        this._magAdvancedService.MagReferencesPaperList.papers = [];
-        
+
+        this.ConfirmationDialogService.confirm("Are you sure you wish to clear all matching for this item?", "", false, "")
+            .then(
+                (confirm: any) => {
+                    if (confirm) {
+                        let res: any = this._magAdvancedService.ClearMagMatchItemsToPapers(this.item.itemId);
+
+                        this._magAdvancedService.MagReferencesPaperList.papers = [];
+
+                        this._notificationService.show({
+                            content: "Clearing all matches for specific item!",
+                            animation: { type: 'slide', duration: 400 },
+                            position: { horizontal: 'center', vertical: 'top' },
+                            type: { style: "warning", icon: true },
+                            hideAfter: 20000
+                        });
+                    }
+                }
+            )
+
     }
     public get MagPaperList() {
 

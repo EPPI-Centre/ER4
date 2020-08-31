@@ -1,4 +1,4 @@
-﻿<HeaderComponent class="row p-1 m-0" style="vertical-align:top;" PageTitle="Microsoft Academic Browser" [Context]="MAGListStudies"></HeaderComponent>
+﻿<HeaderComponent class="row p-1 m-0" style="vertical-align:top;" PageTitle="Microsoft Academic Browser"></HeaderComponent>
 <button class="page-link rounded pt-1 pb-1 mb-1 float-right"
         style="position:absolute; right: 0; z-index:2000;" (click)="Back()">
     Close/back
@@ -82,7 +82,7 @@
             </div>
         </div>
         
-        <div class="row col-sm-12 col-lg-12 card " *ngIf="_magBrowserService.ShowingChildTopicsOnly">
+        <!--<div class="row col-sm-12 col-lg-12 card " *ngIf="_magBrowserService.ShowingChildTopicsOnly">
             <div class="col-sm-12 col-lg-5">
 
                 <div class="col-sm-12 col-lg-8 m-0 p-0 "><b>After this date:</b></div>
@@ -100,7 +100,7 @@
             <div class="col-sm-12  col-lg-1">
                 <button (click)="RefreshPapersBetweenDates()" class="btn btn-lg btn-outline-dark h-100 fa fa-refresh"></button>
             </div>
-        </div>
+        </div>-->
     </div>
 
     <kendo-tabstrip #tabSelectedPapers (tabSelect)="onTabSelect($event)" class="col-sm-12 col-lg-9 card border border-dark" [keepTabContent]="true">
