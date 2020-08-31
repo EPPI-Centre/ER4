@@ -1,26 +1,23 @@
-﻿<HeaderComponent #headerComponent Context="MAGBrowser"></HeaderComponent>
+﻿<HeaderComponent class="row p-1 m-0" style="vertical-align:top;" PageTitle="Microsoft Academic Browser" [Context]="MAGListStudies"></HeaderComponent>
 <button class="page-link rounded pt-1 pb-1 mb-1 float-right"
         style="position:absolute; right: 0; z-index:2000;" (click)="Back()">
     Close/back
 </button>
-<div class="p-2 m-2 card alert-primary  border-dark" >
-    <h1 class="font-weight-light">Microsoft Academic Graph Browser</h1>
-
-</div>
 <MAGHeaderBar></MAGHeaderBar>
 <div *ngIf="IsServiceBusy" class="k-loading-image" style="position: fixed; top: 2%;"></div>
 
 <div *ngIf="_magAdvancedService.currentMagPaper.paperId > 0"
-     class="alert-dark border border-dark p-2 m-2 card small">
-    <h1><b>{{_magAdvancedService.currentMagPaper.shortRecord}}</b></h1>
-    <b>Paper Id:</b> <h2>{{_magAdvancedService.currentMagPaper.paperId}}</h2>
+     class="alert-lighter border border-dark p-2 m-2 card small">
+    <h1><b>{{_magAdvancedService.currentMagPaper.originalTitle}}</b></h1>
+    <b>{{_magAdvancedService.currentMagPaper.fullRecord}}</b>
+    Paper Id:&nbsp;{{_magAdvancedService.currentMagPaper.paperId}}
     <div *ngIf="!this._magAdvancedService.currentMagPaper.isSelected">
         <button class="btn alert-success fa fa-plus" (click)="AddRemoveCurrentPaperToSelectedList()"></button>
     </div>
     <div *ngIf="this._magAdvancedService.currentMagPaper.isSelected">
         <button class="btn alert-danger fa fa-minus" (click)="AddRemoveCurrentPaperToSelectedList()"></button>
     </div>
-    <div class="btn btn-link">
+    <div class="btn btn-link text-left">
         <a href="https://academic.microsoft.com/paper/{{_magAdvancedService.currentMagPaper.paperId}}/reference" target="_blank">
             View on the internet
         </a>
