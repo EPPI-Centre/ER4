@@ -1452,7 +1452,7 @@ class Item4ER4Json {
         this.Keywords = item.keywords;
         this.ItemStatus = item.itemStatus;
         this.ItemStatusTooltip = item.itemStatusTooltip;
-        this.QuickCitation = item.quickcitation;
+        this.QuickCitation = item.quickCitation;
     }
 
     ItemId: number;

@@ -412,7 +412,7 @@ namespace ERxWebClient2.Controllers
         public bool isItemDeleted;
         public string isLocal;
 
-        public string quickcitation;
+        public string quickCitation;
     }
     public class AdditionalItemData
     {

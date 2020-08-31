@@ -869,7 +869,7 @@ export class Item {
     itemStatusTooltip: string = "";
 	arms: iArm[] = [];
     timepoints: iTimePoint[] = [];
-    quickcitation: string = "";
+    quickCitation: string = "";
 }
 export class Criteria {
     public Clone(): Criteria {
