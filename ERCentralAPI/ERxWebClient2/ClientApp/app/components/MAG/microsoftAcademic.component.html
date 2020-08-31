@@ -7,7 +7,7 @@
             Clear Microsoft Academic matches from this record
         </h5>
     </div>
-    <h5><b>{{item.title}}</b></h5>
+    <h5><b>{{item.quickcitation}}</b></h5>
     <b>Record(s) matched from Microsoft Academic:</b>
     <h5 class="alert-warning" *ngIf="IsServiceBusy">Loading...</h5>
     <div class="card col-12 alert-primary" style="overflow:auto;"
@@ -15,8 +15,8 @@
         <table class="table table-bordered table-responsive-md table-striped text-center small alert-primary">
             <thead>
                 <tr>
-                    <th class="text-center">Full MAG record</th>
-                    <th class="text-center">Match status</th>
+                    <th class="text-center">Matches with Microsoft Academic records</th>
+                    <th class="text-center">Status and score</th>
                 </tr>
             </thead>
             <tbody>

@@ -411,6 +411,8 @@ namespace ERxWebClient2.Controllers
         public bool isIncluded;
         public bool isItemDeleted;
         public string isLocal;
+
+        public string quickcitation;
     }
     public class AdditionalItemData
     {
