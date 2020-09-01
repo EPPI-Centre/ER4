@@ -1,0 +1,105 @@
+﻿<HeaderComponent class="row p-1 m-0" style="vertical-align:top;" PageTitle="Microsoft Academic Browser" Context="searchMAG"></HeaderComponent>
+
+<button class="page-link rounded pt-1 pb-1 mb-1 float-right"
+        style="position:absolute; right: 0; z-index:2000;" (click)="Back()">
+    Close/back
+</button>
+
+<MAGHeaderBar></MAGHeaderBar>
+<div *ngIf="IsServiceBusy" class="k-loading-image" style="position: fixed; top: 2%;"></div>
+<div class="container col-12">
+
+    <div class="row" style="vertical-align:top">
+        <div class="col-lg-4 ">
+            <div class="card-footer h-100 w-100">
+                <h2 class="card-title"></h2>
+                <h4 class="font-weight-light text-sm-left"> Microsoft Academic Graph Searches </h4>
+                <a class="btn btn-warning btn-lg text-white fa fa-search-plus" (click)="RunMAGSearch()">Run Search</a>
+                <div class="card-footer">
+                    
+                    
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <h2 class="card-title"></h2>
+
+        </div>
+
+        <div class="col-lg-4">
+            <h2 class="card-title"></h2>
+            <h2 class="font-weight-light">Combine selected searches</h2>
+            <h2 class="card-title"></h2>
+
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="card-title">Select checkbox and choose logical operator to combine searches</h4>
+       
+                </div>
+
+                <div class="card-text small row col-12">
+                    <div>
+                        <div class=" p-2 m-2 small col-3" style="width: 110px;">
+                            <div ngbDropdown class="col-sm-12 col-lg-12  p-0 m-0">
+                                <button style="min-width: 50px; white-space:normal"
+                                        class="btn btn-outline-primary col-12 p-2 m-0"
+                                        id="dropdownBasic1" ngbDropdownToggle
+                                        (click)="isCollapsed=false ">
+                                  
+                                </button>
+                                <div ngbDropdownMenu aria-labelledby="dropdownBasic1" class="dropdown-menu" [ngbCollapse]="ShowPanel">
+                                    <button (click)="CombineSearch('1')" class="dropdown-item">AND</button>
+                                    <button (click)="CombineSearch('2')" class="dropdown-item">OR</button>
+                                   
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <h2 class="card-title"></h2>
+            </div>
+        </div>
+    </div>
+
+    <h2 class="card-title"></h2>
+    <div class="row">
+        <div class="col-12 mb-5">
+            <div class="card">
+                <div class="card-body">
+
+                    <h4 class="card-title">MAG Searches</h4>
+                    <div class="col-12 alert-secondary p-2 m-2 card">
+
+                        <table class="table table-sm text-small table-responsive table-striped" style="min-width:150px;max-height:600px; overflow:auto;">
+                            <thead>
+                                <tr>
+                                    <th width="15">Search</th>
+                                    <th width="15">MAG search string</th>
+                                    <th width="15">MAG Version</th>
+                                    <th width="15">User</th>
+                                    <th width="15">Date</th>
+                                    <th width="15">Hits</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let item of MagSearchList">
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div *ngIf="IsServiceBusy" class="k-loading-image" style="position: fixed; top: 2%;"></div>
+<statusbar></statusbar>
