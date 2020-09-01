@@ -49,6 +49,10 @@ export class MAGBrowser implements OnInit, OnDestroy {
     public getTopicsSub: Subscription | null = null;
     public getAttriubteIdsSub: Subscription | null = null;
     public basicOrigPanel: boolean = false;
+    public get SelectedPapersTitle(): string {
+        let ret: string = "Selected Papers (" + this._magBrowserService.selectedPapers.length + ")";
+        return ret;
+    }
 
     public ShowOrigPanel() {
 
