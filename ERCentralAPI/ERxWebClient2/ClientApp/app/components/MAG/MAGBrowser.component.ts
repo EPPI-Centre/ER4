@@ -102,7 +102,7 @@ export class MAGBrowser implements OnInit, OnDestroy {
     }
     onTabSelect(e: any) {
 
-        this.tabstrip.selectTab(e.index);
+        //this.tabstrip.selectTab(e.index);
     }
     ngOnDestroy() {
 
