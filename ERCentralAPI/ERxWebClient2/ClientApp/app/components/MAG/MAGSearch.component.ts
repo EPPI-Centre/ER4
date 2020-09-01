@@ -9,6 +9,7 @@ import { MAGBrowserService } from '../services/MAGBrowser.service';
 import { MAGAdvancedService } from '../services/magAdvanced.service';
 import { MAGBrowserHistoryService } from '../services/MAGBrowserHistory.service';
 import { BasicMAGService } from '../services/BasicMAG.service';
+import { MagSearch } from '../services/MAGClasses.service';
 
 @Component({
     selector: 'MAGSearch',
@@ -32,12 +33,28 @@ export class MAGSearchComponent implements OnInit {
 
     }
     ngOnInit() {
+
+        this.FetchMagSearches();
          
     }
+    FetchMagSearches() {
 
-    public CurrentDropdownSelectedCode2: singleNode | null = null;
+
+    }
+
     public dropdownBasic2: boolean = false;
     public isCollapsed2: boolean = false;
+    public dropdownBasic1: boolean = false;
+    public isCollapsed1: boolean = false;
+    public dropdownBasic3: boolean = false;
+    public isCollapsed3: boolean = false;
+    public dropdownBasic4: boolean = false;
+    public isCollapsed4: boolean = false;
+    public WordsIn: string = '';
+    public LogicalOperator: string = '';
+    public DateLimit: string = '';
+    public PublicationType: string = '';
+    public MagSearchList: MagSearch[] = [];
 
     public AdvancedFeatures() {
 
@@ -57,6 +74,9 @@ export class MAGSearchComponent implements OnInit {
     }
     public RunMAGSearch() {
 
+
+    }
+    public CombineSearch(){
 
     }
 }

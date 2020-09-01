@@ -225,7 +225,7 @@ import { MAGSearchComponent } from './components/MAG/MAGSearch.component';
             { path: 'ItemList', component: ItemListComp },
             { path: 'MAGAdmin', component: MAGAdminComp},
             { path: 'MAGBrowser', component: MAGBrowser },
-            { path: 'MAGSearch', component: MAGSearchComponent},
+            { path: 'MagSearch', component: MAGSearchComponent},
             { path: 'microsoftAcademic', component: microsoftAcademicComp },
             { path: 'MAGBrowserHistory', component: MAGBrowserHistory },
             { path: 'MatchingMAGItems', component: MatchingMAGItemsComponent},

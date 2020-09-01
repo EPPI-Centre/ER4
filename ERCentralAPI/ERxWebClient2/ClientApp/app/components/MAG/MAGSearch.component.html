@@ -13,11 +13,27 @@
         <div class="col-lg-4 ">
             <div class="card-footer h-100 w-100">
                 <h2 class="card-title"></h2>
-                <h4 class="font-weight-light text-sm-left"> Microsoft Academic Graph Searches </h4>
-                <a class="btn btn-warning btn-lg text-white fa fa-search-plus" (click)="RunMAGSearch()">Run Search</a>
+                <h2 class="font-weight-light text-sm-left"> Microsoft Academic Graph Searches </h2>
+                <a class="btn btn-primary btn-lg text-white fa fa-search-plus col-6 " (click)="RunMAGSearch()"></a>
                 <div class="card-footer">
-                    
-                    
+                    <div ngbDropdown class="col-12">
+                        <select class="col-12 form-control mb-1" name="WordsIn"
+                                [(ngModel)]="WordsIn">
+                            <option [selected]="true"> Word(s) in title</option>
+                        </select>
+                    </div>
+                    <div ngbDropdown class="col-12">
+                        <select class="col-12 form-control mb-1" name="DateLimit"
+                                [(ngModel)]="DateLimit">
+                            <option [selected]="true">No date limit</option>
+                        </select>
+                    </div>
+                    <div ngbDropdown class="col-12">
+                        <select class="col-12 form-control mb-1" name="PublicationType"
+                                [(ngModel)]="PublicationType">
+                            <option [selected]="true">All publication types</option>
+                        </select>
+                    </div>
                 </div>
             </div>
         </div>
@@ -29,31 +45,21 @@
 
         <div class="col-lg-4">
             <h2 class="card-title"></h2>
-            <h2 class="font-weight-light">Combine selected searches</h2>
+            <h3 class="font-weight-light">Combine selected searches</h3>
             <h2 class="card-title"></h2>
 
             <div class="card">
                 <div class="card-body">
                     <h4 class="card-title">Select checkbox and choose logical operator to combine searches</h4>
-       
-                </div>
-
+                 </div>
                 <div class="card-text small row col-12">
                     <div>
-                        <div class=" p-2 m-2 small col-3" style="width: 110px;">
-                            <div ngbDropdown class="col-sm-12 col-lg-12  p-0 m-0">
-                                <button style="min-width: 50px; white-space:normal"
-                                        class="btn btn-outline-primary col-12 p-2 m-0"
-                                        id="dropdownBasic1" ngbDropdownToggle
-                                        (click)="isCollapsed=false ">
-                                  
-                                </button>
-                                <div ngbDropdownMenu aria-labelledby="dropdownBasic1" class="dropdown-menu" [ngbCollapse]="ShowPanel">
-                                    <button (click)="CombineSearch('1')" class="dropdown-item">AND</button>
-                                    <button (click)="CombineSearch('2')" class="dropdown-item">OR</button>
-                                   
-                                </div>
-
+                        <div class=" p-2 m-2 small col-12" >
+                            <div ngbDropdown class="col-12">
+                                <select class="col-12 form-control mb-1" name="LogicalOperator"
+                                        [(ngModel)]="LogicalOperator">
+                                    <option>AND</option>
+                                </select>
                             </div>
                         </div>
                     </div>
