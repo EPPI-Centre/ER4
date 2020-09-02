@@ -10,64 +10,104 @@
 <div class="container col-12">
 
     <div class="row" style="vertical-align:top">
-        <div class="col-lg-4 ">
+        <div class="col-lg-8 ">
             <div class="card-footer h-100 w-100">
                 <h2 class="card-title"></h2>
                 <h2 class="font-weight-light text-sm-left"> Microsoft Academic Graph Searches </h2>
-                <a class="btn btn-primary btn-lg text-white fa fa-search-plus col-6 " (click)="RunMAGSearch()"></a>
+                <a class="btn btn-primary btn-lg text-white fa fa-search-plus pull-right" (click)="RunMAGSearch()"></a>
                 <div class="card-footer">
-                    <div ngbDropdown class="col-12">
-                        <select class="col-12 form-control mb-1" name="WordsIn"
-                                [(ngModel)]="WordsIn">
-                            <option [selected]="true"> Word(s) in title</option>
-                        </select>
+                    <div class="col-12 row">
+                        <div ngbDropdown class="col-6">
+                            <select class="col-12 form-control mb-1" name="WordsInSelection"
+                                    [(ngModel)]="WordsInSelection">
+                                <option [ngValue]="1" [selected]="true">Word(s) in title</option>
+                                <option [ngValue]="2">Word(s) in abstract</option>
+                                <option [ngValue]="3">Author name(s)</option>
+                                <option [ngValue]="4">Topic</option>
+                                <option [ngValue]="5">MAG ID</option>
+                                <option [ngValue]="6">Journal</option>
+                                <option [ngValue]="7">Custom</option>
+                            </select>
+                        </div>
+                        <div class="col-6">
+                            <input id="magSearchInput" name="magSearchInput" type="text" class="form-control" />
+                        </div>
+                        </div>
+                        <div ngbDropdown class="col-6">
+                            <select class="col-12 form-control mb-1" name="DateLimitSelection"
+                                    [(ngModel)]="DateLimitSelection">
+                                <option [ngValue]="1" [selected]="true">No date limit</option>
+                                <option [ngValue]="2">Publication date exactly</option>
+                                <option [ngValue]="3">Publication date before</option>
+                                <option [ngValue]="4">Publication date after</option>
+                                <option [ngValue]="5">Publication dates between</option>
+                                <option [ngValue]="6">Publication year exactly</option>
+                                <option [ngValue]="7">Publication year before</option>
+                                <option [ngValue]="8">Publication year after</option>
+                                <option [ngValue]="9">Publication years between</option>
+                            </select>
+                        </div>
+                        <div ngbDropdown class="col-6">
+                            <select class="col-12 form-control mb-1" name="PublicationTypeSelection"
+                                    [(ngModel)]="PublicationTypeSelection">
+                                <option [ngValue]="1" [selected]="true">All publication types</option>
+                                <option [ngValue]="2">Unknown types</option>
+                                <option [ngValue]="3">Journal article</option>
+                                <option [ngValue]="4">Patent</option>
+                                <option [ngValue]="5">Conference paper</option>
+                                <option [ngValue]="6">Book chapter</option>
+                                <option [ngValue]="7">Book</option>
+                                <option [ngValue]="8">Book reference entry</option>
+                                <option [ngValue]="9">Dataset</option>
+                                <option [ngValue]="10">Repository</option>
+                            </select>
+                        </div>
+
+
                     </div>
-                    <div ngbDropdown class="col-12">
-                        <select class="col-12 form-control mb-1" name="DateLimit"
-                                [(ngModel)]="DateLimit">
-                            <option [selected]="true">No date limit</option>
-                        </select>
-                    </div>
-                    <div ngbDropdown class="col-12">
-                        <select class="col-12 form-control mb-1" name="PublicationType"
-                                [(ngModel)]="PublicationType">
-                            <option [selected]="true">All publication types</option>
-                        </select>
-                    </div>
-                </div>
             </div>
         </div>
 
         <div class="col-lg-4">
-            <h2 class="card-title"></h2>
+            <div class="card-footer h-100 w-100">
+                <h2 class="font-weight-light text-sm-left"> Topics </h2>
 
-        </div>
-
-        <div class="col-lg-4">
-            <h2 class="card-title"></h2>
-            <h3 class="font-weight-light">Combine selected searches</h3>
-            <h2 class="card-title"></h2>
-
-            <div class="card">
-                <div class="card-body">
-                    <h4 class="card-title">Select checkbox and choose logical operator to combine searches</h4>
-                 </div>
-                <div class="card-text small row col-12">
-                    <div>
-                        <div class=" p-2 m-2 small col-12" >
-                            <div ngbDropdown class="col-12">
-                                <select class="col-12 form-control mb-1" name="LogicalOperator"
-                                        [(ngModel)]="LogicalOperator">
-                                    <option>AND</option>
-                                </select>
-                            </div>
+                <div class="row " style="max-width:1450px;overflow:auto;">
+                    <div *ngFor="let item of SearchTextTopicsResults" class="list-group">
+                        <div (click)="FOSMAGBrowserNavigate(item.displayName, item.fieldOfStudyId)" class="col-3 btn border border-0"
+                             [ngStyle]="{ 'font-size.em': item.fontSize,'background-color': 'light-blue', 'color': 'black'}">
+                            {{item.displayName}}
                         </div>
                     </div>
                 </div>
+            </div>
+         </div>
+            <div class="col-lg-4">
                 <h2 class="card-title"></h2>
+                <h3 class="font-weight-light">Combine selected searches</h3>
+                <h2 class="card-title"></h2>
+
+                <div class="card">
+                    <div class="card-body">
+                        <h4 class="card-title">Select checkbox and choose logical operator to combine searches</h4>
+                    </div>
+                    <div class="card-text small row col-12">
+                    
+                            <div class="p-2 m-2 col-12">
+                                <div ngbDropdown class="col-12">
+                                    <select class="col-6 form-control" name="LogicalOperator"
+                                            [(ngModel)]="LogicalOperator">
+                                        <option >AND</option>
+                                        <option>OR</option>
+                                    </select>
+                                </div>
+                            </div>
+                      
+                    </div>
+                    <h2 class="card-title"></h2>
+                </div>
             </div>
         </div>
-    </div>
 
     <h2 class="card-title"></h2>
     <div class="row">
@@ -81,6 +121,7 @@
                         <table class="table table-sm text-small table-responsive table-striped" style="min-width:150px;max-height:600px; overflow:auto;">
                             <thead>
                                 <tr>
+                                    <th></th>
                                     <th width="15">Search</th>
                                     <th width="15">MAG search string</th>
                                     <th width="15">MAG Version</th>
@@ -91,6 +132,7 @@
                             </thead>
                             <tbody>
                                 <tr *ngFor="let item of MagSearchList">
+                                    <td></td>
                                     <td></td>
                                     <td></td>
                                     <td></td>

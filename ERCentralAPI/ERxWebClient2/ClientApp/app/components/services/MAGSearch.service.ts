@@ -25,15 +25,15 @@ export class magSearchService extends BusyAwareService {
     public MAGSearchToBeDeleted: MagSearch = new MagSearch();
 
     FetchMAGSearchList() {
-        this._BusyMethods.push("Fetch");
-		 this._httpC.get<MagSearch[]>(this._baseUrl + 'api/MAGSearchList/GetSearches')
+        this._BusyMethods.push("FetchMagSearchList");
+        this._httpC.get<MagSearch[]>(this._baseUrl + 'api/MAGSearchList/FetchMagSearchList')
              .subscribe(result => {
-                 this.RemoveBusy("Fetch");
+                 this.RemoveBusy("FetchMagSearchList");
 				
 				this.MagSearchList = result;
              },
              error => {
-                 this.RemoveBusy("Fetch");
+                 this.RemoveBusy("FetchMagSearchList");
                  this.modalService.GenericError(error);
              }
 		 );
@@ -57,20 +57,22 @@ export class magSearchService extends BusyAwareService {
 		);
 	}
 
- //   CreateSearch(cmd: SearchCodeCommand, apiStr: string) {
+    CreateMagSearch(wordsIn: number, dateLimit: number, publicationType: number) {
 
- //       this._BusyMethods.push("CreateSearch");
-	//	apiStr = 'api/SearchList/' + apiStr;
-	//	this._httpC.post<Search[]>(this._baseUrl + apiStr,
-	//		cmd)
 
- //           .subscribe(result => {
- //               this.RemoveBusy("CreateSearch");
-	//			this.Fetch();
- //           }, error => {
- //               this.RemoveBusy("CreateSearch");
- //               this.modalService.GenericError(error);
- //           }
-	//		);
-	//}
+        this._BusyMethods.push("CreateMagSearch");
+        let body = JSON.stringify({ });
+        this._httpC.post<MagSearch>(this._baseUrl + 'api/MAGSearchList/DeleteSearch',
+            body)
+
+            .subscribe(result => {
+                this.RemoveBusy("CreateMagSearch");
+                this.FetchMAGSearchList();
+
+            }, error => {
+                    this.RemoveBusy("CreateMagSearch");
+                this.modalService.GenericError(error);
+            }
+		);
+	}
 }

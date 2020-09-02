@@ -1,7 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { Location } from '@angular/common';
-import { searchService } from '../services/search.service';
-import { singleNode } from '../services/ReviewSets.service';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Router } from '@angular/router';
@@ -33,6 +31,21 @@ export class MAGSearchComponent implements OnInit {
     ) {
 
     }
+    public dropdownBasic2: boolean = false;
+    public isCollapsed2: boolean = false;
+    public dropdownBasic1: boolean = false;
+    public isCollapsed1: boolean = false;
+    public dropdownBasic3: boolean = false;
+    public isCollapsed3: boolean = false;
+    public dropdownBasic4: boolean = false;
+    public isCollapsed4: boolean = false;
+    public WordsInSelection: number = 0;
+    public LogicalOperator: string = '';
+    public DateLimitSelection: number = 0;
+    public PublicationTypeSelection: number = 0;
+    public MagSearchList: MagSearch[] = [];
+    public magSearchInput: string = '';
+
     ngOnInit() {
 
         this.FetchMagSearches();
@@ -43,21 +56,12 @@ export class MAGSearchComponent implements OnInit {
         this._magSearchService.FetchMAGSearchList();
 
     }
+    public CreateMagSearch() {
 
-    public dropdownBasic2: boolean = false;
-    public isCollapsed2: boolean = false;
-    public dropdownBasic1: boolean = false;
-    public isCollapsed1: boolean = false;
-    public dropdownBasic3: boolean = false;
-    public isCollapsed3: boolean = false;
-    public dropdownBasic4: boolean = false;
-    public isCollapsed4: boolean = false;
-    public WordsIn: string = '';
-    public LogicalOperator: string = '';
-    public DateLimit: string = '';
-    public PublicationType: string = '';
-    public MagSearchList: MagSearch[] = [];
+        
 
+        this._magSearchService.CreateMagSearch(this.WordsInSelection, this.DateLimitSelection, this.PublicationTypeSelection);
+    }
     public AdvancedFeatures() {
 
         this.router.navigate(['AdvancedMAGFeatures']);
@@ -66,7 +70,6 @@ export class MAGSearchComponent implements OnInit {
     public Back() {
         this._location.back();
     }
-
     public get HasWriteRights(): boolean {
         return this._ReviewerIdentityServ.HasWriteRights;
     }
