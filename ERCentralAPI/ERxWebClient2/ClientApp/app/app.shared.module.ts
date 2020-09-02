@@ -99,6 +99,7 @@ import { MAGHeaderBarComp } from './components/commonComponents/MAGHeaderBar.com
 import { ScreeningSetupComp } from './components/WorkAllocations/ScreeningSetup.component';
 import { MAGOrigpaginatorComp } from './components/commonComponents/MAGOrigpaginator.component';
 import { DatePipe } from '@angular/common';
+import { MAGSearchComponent } from './components/MAG/MAGSearch.component';
 
 @NgModule({
     declarations: [
@@ -178,7 +179,8 @@ import { DatePipe } from '@angular/common';
         WorkAllocationWizardComp,
         microsoftAcademicComp,
         MAGHeaderBarComp,
-        ScreeningSetupComp
+        ScreeningSetupComp,
+        MAGSearchComponent
 	],
     providers: [
         DatePipe, 
@@ -223,6 +225,7 @@ import { DatePipe } from '@angular/common';
             { path: 'ItemList', component: ItemListComp },
             { path: 'MAGAdmin', component: MAGAdminComp},
             { path: 'MAGBrowser', component: MAGBrowser },
+            { path: 'MagSearch', component: MAGSearchComponent},
             { path: 'microsoftAcademic', component: microsoftAcademicComp },
             { path: 'MAGBrowserHistory', component: MAGBrowserHistory },
             { path: 'MatchingMAGItems', component: MatchingMAGItemsComponent},

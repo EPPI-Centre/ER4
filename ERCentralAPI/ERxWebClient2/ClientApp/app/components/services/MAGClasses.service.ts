@@ -350,3 +350,19 @@ export class ContReviewPipeLineCommand {
     editReviewSampleSize: number = 0;
 
 }
+
+export class MagSearch {
+
+    magSearchId: number = 0;
+    reviewId: number = 0;
+    contactId: number = 0;
+    searchText: number = 0;
+    searchNo: number = 0;
+    hitsNo: number = 0;
+    searchDate: Date = new Date();
+    magVersion: string = '';
+    magSearchText: string = '';
+    contactName: string = '';
+
+
+}

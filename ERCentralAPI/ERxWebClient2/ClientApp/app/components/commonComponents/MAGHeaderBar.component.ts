@@ -110,6 +110,14 @@ export class MAGHeaderBarComp implements OnInit {
             });
        
     }
+    public MagSearch() {
+
+        let item: MagBrowseHistoryItem = new MagBrowseHistoryItem("MagSearch", "Search", 0, "", "", 0, "", "", 0, "", "", 0);
+        this._mAGBrowserHistoryService.IncrementHistoryCount();
+        this._mAGBrowserHistoryService.AddToBrowseHistory(item);
+        this.router.navigate(['MagSearch']);
+
+    }
     public MagAdmin() {
         let item: MagBrowseHistoryItem = new MagBrowseHistoryItem("MAGAdmin", "Admin", 0, "", "", 0, "", "", 0, "", "", 0);
         this._mAGBrowserHistoryService.IncrementHistoryCount();

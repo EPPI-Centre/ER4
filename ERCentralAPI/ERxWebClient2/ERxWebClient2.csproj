@@ -155,6 +155,8 @@
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\MagReviewList.cs" Link="Models\MagReviewList.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\MagReviewMagInfo.cs" Link="Models\MagReviewMagInfo.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\MagRunSimulationCommand.cs" Link="Models\MagRunSimulationCommand.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\MagSearch.cs" Link="Models\MagSearch.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\MagSearchList.cs" Link="Models\MagSearchList.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\MagSimulation.cs" Link="Models\MagSimulation.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\MagSimulationList.cs" Link="Models\MagSimulationList.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\Outcome.cs" Link="Models\Outcome.cs" />
