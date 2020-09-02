@@ -94,7 +94,7 @@ export class ItemListService extends BusyAwareService {
 					console.log();
                     this.SaveItems(list, this._Criteria);
                     this.ListChanged.emit();
-					console.log('aksdjh: CHEKC: ', JSON.stringify(this.ItemList.items.length));
+					//console.log('aksdjh: CHEKC: ', JSON.stringify(this.ItemList.items.length));
                 }, error => {
                     this.ModalService.GenericError(error);
                     this.RemoveBusy("FetchWithCrit");
@@ -871,6 +871,39 @@ export class Item {
 	timepoints: iTimePoint[] = [];
 }
 export class Criteria {
+    public Clone(): Criteria {
+        let interimCrit: Criteria = new Criteria();
+        interimCrit.onlyIncluded = this.onlyIncluded;
+        interimCrit.showDeleted = this.showDeleted;
+        interimCrit.sourceId = this.sourceId;
+        interimCrit.searchId = this.searchId;
+        interimCrit.xAxisSetId = this.xAxisSetId;
+        interimCrit.xAxisAttributeId = this.yAxisAttributeId;
+        interimCrit.yAxisSetId = this.yAxisSetId;
+        interimCrit.yAxisAttributeId = this.yAxisAttributeId;
+        interimCrit.filterSetId = this.filterSetId;
+        interimCrit.filterAttributeId = this.filterAttributeId;
+        interimCrit.attributeSetIdList = this.attributeSetIdList;
+        interimCrit.listType = this.listType;
+        interimCrit.attributeid = this.attributeid;
+
+        interimCrit.pageNumber = 0;
+        interimCrit.pageSize = this.pageSize;
+        interimCrit.totalItems = this.totalItems;
+        interimCrit.startPage = this.startPage;
+        interimCrit.endPage = this.endPage;
+        interimCrit.startIndex = this.startIndex;
+        interimCrit.endIndex = this.endIndex;
+        interimCrit.magSimulationId = this.magSimulationId;
+        interimCrit.workAllocationId = this.workAllocationId;
+        interimCrit.comparisonId = this.comparisonId;
+        interimCrit.description = this.description;
+        interimCrit.contactId = this.contactId;
+        interimCrit.setId = this.setId;
+        interimCrit.showInfoColumn = this.showInfoColumn;
+        interimCrit.showScoreColumn = this.showScoreColumn;
+        return interimCrit;
+    }
     onlyIncluded: boolean = true;
     showDeleted: boolean = false;
     sourceId: number = 0;

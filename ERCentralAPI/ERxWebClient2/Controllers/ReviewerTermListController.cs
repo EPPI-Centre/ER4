@@ -22,20 +22,16 @@ namespace ERxWebClient2.Controllers
     [Route("api/[controller]")]
     public class ReviewerTermListController : CSLAController
     {
-
-        private readonly ILogger _logger;
-
-        public ReviewerTermListController(ILogger<ReviewerTermListController> logger)
-        {
-            _logger = logger;
-        }
+        
+        public ReviewerTermListController(ILogger<ReviewerTermListController> logger) : base(logger)
+        { }
 
         [HttpGet("[action]")]
         public IActionResult Fetch()
         {
             try
             {
-                SetCSLAUser();
+                if (!SetCSLAUser()) return Unauthorized();
                 ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
                 DataPortal<TrainingReviewerTermList> dp = new DataPortal<TrainingReviewerTermList>();
                 TrainingReviewerTermList result = dp.Fetch();

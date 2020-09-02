@@ -23,14 +23,9 @@ namespace ERxWebClient2.Controllers
     [Route("api/[controller]")]
     public class FrequenciesController : CSLAController
     {
-
-        private readonly ILogger _logger;
-
-        public FrequenciesController(ILogger<FrequenciesController> logger)
-        {
-
-            _logger = logger;
-        }
+        
+        public FrequenciesController(ILogger<FrequenciesController> logger) : base(logger)
+        { }
 
         [HttpPost("[action]")]
         public IActionResult GetFrequencies([FromBody] Criteria data)
@@ -40,7 +35,7 @@ namespace ERxWebClient2.Controllers
 
 			try
             {
-                SetCSLAUser();
+                if (!SetCSLAUser()) return Unauthorized();
                 ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
 
                 DataPortal<ReadOnlyItemAttributeChildFrequencyList> dp = new DataPortal<ReadOnlyItemAttributeChildFrequencyList>();
@@ -54,7 +49,7 @@ namespace ERxWebClient2.Controllers
             catch (Exception e)
             {
                 _logger.LogException(e, "GetFrequencies data portal error");
-                throw;
+                return StatusCode(500, e.Message);
             }
 
 		}

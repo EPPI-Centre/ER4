@@ -1,4 +1,4 @@
-import { Component, Inject, Injectable } from '@angular/core';
+import { Component, Inject, Injectable, EventEmitter, Output } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Observable, of } from 'rxjs';
@@ -21,27 +21,16 @@ export class ReviewInfoService extends BusyAwareService{
     ) {
         super();
     }
-
+    @Output() ReviewInfoChanged = new EventEmitter<void>();
 	private _ReviewContacts: Contact[] = [];
     private _ReviewInfo: ReviewInfo = new ReviewInfo();
     public get ReviewInfo(): ReviewInfo {
-        //if (this._ReviewInfo.reviewId && this._ReviewInfo.reviewId != 0) {
-        //    return this._ReviewInfo;
-        //}
-        //else {
-        //    const RevInfoJson = localStorage.getItem('ReviewInfo');
-        //    let rev_Info: ReviewInfo = RevInfoJson !== null ? JSON.parse(RevInfoJson) : new ReviewInfo();
-  
-        //    if (rev_Info == undefined || rev_Info == null || rev_Info.reviewId == 0) {
-
-        //        return this._ReviewInfo;
-        //    }
-        //    else {
-        //        this._ReviewInfo = rev_Info;
-        //    }
-        //}
         return this._ReviewInfo;
-	}
+    }
+    public set ReviewInfo(ri: ReviewInfo) {
+        this._ReviewInfo = ri;
+        this.ReviewInfoChanged.emit();
+    }
 	public get Contacts(): Contact[] {
 
 		if (this._ReviewContacts) return this._ReviewContacts;
@@ -58,17 +47,40 @@ export class ReviewInfoService extends BusyAwareService{
     }
 	public Fetch() {
         this._BusyMethods.push("Fetch");
-		this._httpC.get<ReviewInfo>(this._baseUrl + 'api/ReviewInfo/ReviewInfo').subscribe(
+		this._httpC.get<iReviewInfo>(this._baseUrl + 'api/ReviewInfo/ReviewInfo').subscribe(
 			rI => {
-            this._ReviewInfo = rI;
-            this.RemoveBusy("Fetch");
+            this.ReviewInfo = new ReviewInfo(rI);
+                this.RemoveBusy("Fetch");
+                //console.log("fetched revinfo:", this._ReviewInfo);
             //this.Save();
         }, error => {
             this.RemoveBusy("Fetch");
             this.modalService.SendBackHomeWithError(error);
         }
 		);
-	}
+    }
+    public Update(rInfo: ReviewInfo): Promise<boolean> {
+        this._BusyMethods.push("Update");
+        return this._httpC.post<iReviewInfo>(this._baseUrl +
+            'api/ReviewInfo/UpdateReviewInfo', rInfo)
+            .toPromise().then(
+            (result: iReviewInfo) => {
+                this.RemoveBusy("Update");
+                this.ReviewInfo = new ReviewInfo(result);
+                return true;
+            },
+            error => {
+                this.RemoveBusy("Update");
+                this.modalService.SendBackHomeWithError(error);
+                return false;
+            }
+        ).catch(
+            error => {
+                this.RemoveBusy("Update");
+                this.modalService.SendBackHomeWithError(error);
+                return false;
+            });
+    }
 
 	public FetchReviewMembers() {
 		
@@ -103,7 +115,52 @@ export class ReviewInfoService extends BusyAwareService{
 }
 
 export class ReviewInfo {
-
+    constructor(iRnfo?: iReviewInfo) {
+        if (iRnfo) {
+            this.reviewId = iRnfo.reviewId;
+            this.reviewName = iRnfo.reviewName;
+            this.showScreening = iRnfo.showScreening;
+            this.screeningCodeSetId = iRnfo.screeningCodeSetId;
+            this.screeningMode = iRnfo.screeningMode;
+            this.screeningReconcilliation = iRnfo.screeningReconcilliation;
+            this.screeningWhatAttributeId = iRnfo.screeningWhatAttributeId;
+            this.screeningNPeople = iRnfo.screeningNPeople;
+            this.screeningAutoExclude = iRnfo.screeningAutoExclude;
+            this.screeningModelRunning = iRnfo.screeningModelRunning;
+            this.screeningIndexed = iRnfo.screeningIndexed;
+            this.screeningListIsGood = iRnfo.screeningListIsGood;
+            this.bL_ACCOUNT_CODE = iRnfo.bL_ACCOUNT_CODE;
+            this.bL_AUTH_CODE = iRnfo.bL_AUTH_CODE;
+            this.bL_TX = iRnfo.bL_TX;
+            this.bL_CC_ACCOUNT_CODE = iRnfo.bL_CC_ACCOUNT_CODE;
+            this.bL_CC_AUTH_CODE = iRnfo.bL_CC_AUTH_CODE;
+            this.bL_CC_TX = iRnfo.bL_CC_TX;
+            this.magEnabled = iRnfo.magEnabled;
+        }
+    }
+    public Clone(): ReviewInfo {
+        let res: ReviewInfo = new ReviewInfo();
+        res.reviewId = this.reviewId;
+        res.reviewName = this.reviewName;
+        res.showScreening = this.showScreening;
+        res.screeningCodeSetId = this.screeningCodeSetId;
+        res.screeningMode = this.screeningMode;
+        res.screeningReconcilliation = this.screeningReconcilliation;
+        res.screeningWhatAttributeId = this.screeningWhatAttributeId;
+        res.screeningNPeople = this.screeningNPeople;
+        res.screeningAutoExclude = this.screeningAutoExclude;
+        res.screeningModelRunning = this.screeningModelRunning;
+        res.screeningIndexed = this.screeningIndexed;
+        res.screeningListIsGood = this.screeningListIsGood;
+        res.bL_ACCOUNT_CODE = this.bL_ACCOUNT_CODE;
+        res.bL_AUTH_CODE = this.bL_AUTH_CODE;
+        res.bL_TX = this.bL_TX;
+        res.bL_CC_ACCOUNT_CODE = this.bL_CC_ACCOUNT_CODE;
+        res.bL_CC_AUTH_CODE = this.bL_CC_AUTH_CODE;
+        res.bL_CC_TX = this.bL_CC_TX;
+        res.magEnabled = this.magEnabled;
+        return res;
+    }
     reviewId: number = 0;
     reviewName: string = "";
     showScreening: boolean = false;
@@ -125,7 +182,28 @@ export class ReviewInfo {
     magEnabled: number = 0;
 
 }
+export interface iReviewInfo {
+    reviewId: number;
+    reviewName: string;
+    showScreening: boolean;
+    screeningCodeSetId: number;
+    screeningMode: string;
+    screeningReconcilliation: string;
+    screeningWhatAttributeId: number;
+    screeningNPeople: number;
+    screeningAutoExclude: boolean;
+    screeningModelRunning: boolean;
+    screeningIndexed: boolean;
+    screeningListIsGood: boolean;
+    bL_ACCOUNT_CODE: string;
+    bL_AUTH_CODE: string;
+    bL_TX: string;
+    bL_CC_ACCOUNT_CODE: string;
+    bL_CC_AUTH_CODE: string;
+    bL_CC_TX: string;
+    magEnabled: number;
 
+}
 export class Contact {
 
 	 contactName: string = '';

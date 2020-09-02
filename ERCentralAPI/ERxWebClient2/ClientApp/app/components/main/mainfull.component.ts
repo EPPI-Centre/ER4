@@ -129,12 +129,26 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
     public get HasWriteRights(): boolean {
         return this.ReviewerIdentityServ.HasWriteRights;
     }
-	tabsInitialized: boolean = false;
     public OpenBasicMAG() {
         this.router.navigate(['BasicMAGFeatures']);
-
     }
-	//TODO
+
+    StartScreening() {
+        if (this.workAllocationsContactComp) this.workAllocationsContactComp.StartScreening();
+    }
+
+    public get HasSreeningList(): boolean {
+        if (this.reviewInfoService.ReviewInfo.reviewId != this.ReviewerIdentityServ.reviewerIdentity.reviewId) return false;
+        else {
+            if (this.reviewInfoService.ReviewInfo.showScreening
+                && this.reviewInfoService.ReviewInfo.screeningCodeSetId > 0
+                && this.reviewInfoService.ReviewInfo.screeningListIsGood) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 	public RunExportReferences() {
 		alert('not implemented yet');
 	}
@@ -211,7 +225,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
     public QuickReportsDDData: Array<any> = [{
         text: 'Quick Question Report',
         click: () => {
-			Helpers.OpenInNewWindow(this.ShowHideQuickQuestionReport(), this._baseUrl);
+			this.ShowHideQuickQuestionReport();
         }
 	}];
 	public ExportReferencesDDData: Array<any> = [
@@ -278,13 +292,10 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
             this.NewReference();
         }
     }];
+
     private _ShowQuickReport: boolean = false;
     public get ShowQuickReport(): boolean {
-        if (this._ShowQuickReport && !this.ItemListService.HasSelectedItems) {
-            this._ShowQuickReport = false;
-            this.ItemCodingService.Clear();
-            this.reviewSetsService.clearItemData();
-        }
+        
         return this._ShowQuickReport;
     }
     private _ShowQuickQuestionReport: boolean = false;
@@ -520,8 +531,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
     }
     ShowHideQuickReport() {
         this._ShowQuickQuestionReport = false;
-        if (!this.ItemListService.HasSelectedItems) this._ShowQuickReport = false;
-        else this._ShowQuickReport = !this._ShowQuickReport;
+        this._ShowQuickReport = !this._ShowQuickReport;
         //console.log("ShowHideQuick Rep:", this._ShowQuickReport, this.ItemListService.HasSelectedItems);
     }
     ShowHideQuickQuestionReport() {

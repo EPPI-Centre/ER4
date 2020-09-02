@@ -23,37 +23,30 @@ namespace ERxWebClient2.Controllers
     [Route("api/[controller]")]
     public class ReviewController : CSLAController
     {
+        
+        public ReviewController(ILogger<ReviewController> logger) : base(logger)
+        { }
 
-        private readonly ILogger _logger;
-
-        public ReviewController(ILogger<ReviewController> logger)
-        {
-
-            _logger = logger;
-        }
-
-		[HttpPost("[action]")]
+        [HttpPost("[action]")]
 		public IActionResult CreateReview([FromBody] reviewJson data)
 		{
-			if (SetCSLAUser4Writing())
-			{
-				try
-				{
+			try
+            {
+                if (SetCSLAUser4Writing())
+                {
+				
 					Review review = new Review(data.reviewName, data.userId);
-
 					review = review.Save();
-
 					return Ok(review.ReviewId);
 				}
-				catch (Exception e)
-				{
-					_logger.LogException(e, "Reviews data portal error");
-					throw;
-				}
-			}
-			else
-				return Forbid();
-		}
+                else return Forbid();
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "Reviews data portal error");
+                return StatusCode(500, e.Message);
+            }
+        }
 
 
 		[HttpGet("[action]")]
@@ -62,7 +55,7 @@ namespace ERxWebClient2.Controllers
 
             try
             {
-                SetCSLAUser();
+                if (!SetCSLAUser()) return Unauthorized();
                 ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
 
                 DataPortal<ReadOnlyReviewList> dp = new DataPortal<ReadOnlyReviewList>();
@@ -80,7 +73,7 @@ namespace ERxWebClient2.Controllers
             catch (Exception e)
             {
                 _logger.LogException(e, "ReadOnlyReviews data portal error");
-                throw;
+                return StatusCode(500, e.Message);
             }
         }
         [HttpGet("[action]")]
@@ -88,7 +81,7 @@ namespace ERxWebClient2.Controllers
         {
             try
             {
-                SetCSLAUser();
+                if (!SetCSLAUser()) return Unauthorized();
                 ReadOnlyTemplateReviewList res = new ReadOnlyTemplateReviewList();
                 DataPortal<ReadOnlyTemplateReviewList> dp = new DataPortal<ReadOnlyTemplateReviewList>();
                 res = dp.Fetch();
@@ -97,7 +90,7 @@ namespace ERxWebClient2.Controllers
             catch (Exception e)
             {
                 _logger.LogException(e, "GetReadOnlyTemplateReviews data portal error");
-                throw;
+                return StatusCode(500, e.Message);
             }
         }
         [HttpGet("[action]")]
@@ -106,7 +99,7 @@ namespace ERxWebClient2.Controllers
 
             try
             {
-                SetCSLAUser();
+                if (!SetCSLAUser()) return Unauthorized();
                 ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
                 if (ri.IsCochraneUser)
                 {
@@ -131,7 +124,7 @@ namespace ERxWebClient2.Controllers
             catch (Exception e)
             {
                 _logger.LogException(e, "ReadOnlyArchieReviews error");
-                throw;
+                return StatusCode(500, e.Message);
             }
         }
         [Authorize(Roles = "CochraneUser")]
@@ -149,7 +142,7 @@ namespace ERxWebClient2.Controllers
             catch (Exception e)
             {
                 _logger.LogException(e, "Error occured when Preparing (/checkout) ArchieReview ");
-                throw;
+                return StatusCode(500, e.Message);
             }
         }
         [Authorize(Roles = "CochraneUser")]
@@ -167,7 +160,7 @@ namespace ERxWebClient2.Controllers
             catch (Exception e)
             {
                 _logger.LogException(e, "Error occured when undoing Archie review Checkout");
-                throw;
+                return StatusCode(500, e.Message);
             }
         }
     }

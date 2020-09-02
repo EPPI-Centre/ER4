@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, ViewChild, AfterViewInit, } from '@angular/core';
+import { Component, Inject, OnInit, ViewChild, AfterViewInit, NgZone, } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Router } from '@angular/router';
 import { Observable, } from 'rxjs';
@@ -15,6 +15,7 @@ export class intropageComponent implements OnInit, AfterViewInit  {
 
     constructor(private router: Router,
         @Inject('BASE_URL') private _baseUrl: string,
+        private ngZone: NgZone,
         private CodesetStatisticsService: CodesetStatisticsService        
     ) { }
     ngOnInit() {
@@ -22,6 +23,8 @@ export class intropageComponent implements OnInit, AfterViewInit  {
     }
     @ViewChild(FetchReadOnlyReviewsComponent) private ReadOnlyReviewsComponent!: FetchReadOnlyReviewsComponent;
     ngAfterViewInit() {
-        if (this.ReadOnlyReviewsComponent) this.ReadOnlyReviewsComponent.getReviews();
+        if (this.ReadOnlyReviewsComponent) {
+            this.ngZone.run(() => setTimeout(() => this.ReadOnlyReviewsComponent.getReviews(), 4));
+        }
     }
 }

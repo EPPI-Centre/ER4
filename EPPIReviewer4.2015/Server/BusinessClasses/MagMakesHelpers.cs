@@ -142,11 +142,13 @@ namespace BusinessLibrary.BusinessClasses
             public List<MakesInterpretationRule> rules { get; set; }
         }
 
+        /// Looks like this has been removed. Early August 2020
         public class MakesInterpretationRule
         {
             public string name { get; set; }
             public MakesInterpretationOutput output { get; set; }
         }
+        
 
         public class MakesInterpretationOutput
         {
@@ -154,7 +156,8 @@ namespace BusinessLibrary.BusinessClasses
             public string value { get; set; }
             public List<PaperMakes> entities { get; set; }
         }
-
+        
+        // Calc histogram query
         public class MakesCalcHistogramResponse
         {
             public string expr { get; set; }
@@ -276,11 +279,11 @@ namespace BusinessLibrary.BusinessClasses
             List<PaperMakes> PaperList = new List<PaperMakes>();
             
             string searchText = CleanText(text);
-            /* Hard to tell whether it's better or worse removing stopwords
-            searchText = removeStopwords(searchText);
+            // Hard to tell whether it's better or worse removing stopwords
+            searchText = (removeStopwords(" " + searchText + " ")).Trim();
             string[] words = searchText.Split(' ');
-            searchText = string.Join(" ", words.Take(6));
-            */
+            searchText = "AND(W='" + string.Join(",", words).Replace(",", "',W='") + "')"; // words.Take(6)).Replace(",", "',W='") + "')";
+            
             if (searchText != "")
             {
                 var jsonsettings = new JsonSerializerSettings
@@ -289,12 +292,11 @@ namespace BusinessLibrary.BusinessClasses
                     MissingMemberHandling = MissingMemberHandling.Ignore
                 };
 
-                string responseText = "";
                 MagCurrentInfo MagInfo = MagCurrentInfo.GetMagCurrentInfoServerSide(MakesDeploymentStatus);
 
                 searchText = System.Web.HttpUtility.UrlEncode(searchText);//uses "+" for spaces, letting his happen when creating the request would put 20% for spaces => makes the querystring longer!
 
-                string queryString =  @"/interpret?query=" +
+                string queryString =  @"/evaluate?expr=" +
                     searchText + "&entityCount=5&attributes=" + System.Web.HttpUtility.UrlEncode("Id,DN,AA.AuN,J.JN,V,I,FP,Y") +
                     "&complete=0&count=100&offset=0&timeout=2000&model=latest";
                 string FullRequestStr = MagInfo.MakesEndPoint + queryString;
@@ -332,14 +334,30 @@ namespace BusinessLibrary.BusinessClasses
                     var response = client.GetAsync(FullRequestStr).Result;
 
                     var resp = response.Content.ReadAsStringAsync().Result;
+                    var respJson = JsonConvert.DeserializeObject<MagMakesHelpers.PaperMakesResponse>(resp, jsonsettings);
+                    if (respJson != null && respJson.entities != null && respJson.entities.Count > 0)
+                    {
+                        foreach (PaperMakes pm in respJson.entities)
+                        {
+
+                            var found = PaperList.Find(e => e.Id == pm.Id);
+                            if (found == null)
+                            {
+                                PaperList.Add(pm);
+                            }
+                        }
+                    }
+
+
+                    /* when using an interpret request...
                     var respJson = JsonConvert.DeserializeObject<MagMakesHelpers.MakesInterpretResponse>(resp, jsonsettings);
                     if (respJson != null && respJson.interpretations != null && respJson.interpretations.Count > 0)
                     {
                         foreach (MakesInterpretation i in respJson.interpretations)
                         {
-                            foreach (MakesInterpretationRule r in i.rules)
-                            {
-                                foreach (PaperMakes pm in r.output.entities)
+                            //foreach (MakesInterpretationRule r in i.rules)
+                            //{
+                                foreach (PaperMakes pm in i.topEntities)
                                 {
                                     var found = PaperList.Find(e => e.Id == pm.Id);
                                     if (found == null)
@@ -347,9 +365,10 @@ namespace BusinessLibrary.BusinessClasses
                                         PaperList.Add(pm);
                                     }
                                 }
-                            }
+                            //}
                         }
                     }
+                    */
                 }
                 catch (Exception e)
                 {
@@ -438,7 +457,7 @@ namespace BusinessLibrary.BusinessClasses
                 string responseText = "";
                 MagCurrentInfo MagInfo = MagCurrentInfo.GetMagCurrentInfoServerSide(MakesDeploymentStatus);
                 string queryString = @"/evaluate?expr=DOI='" +
-                    System.Web.HttpUtility.UrlEncode(DOI.ToUpper().Trim().Replace("HTTPS://DX.DOI.ORG/", "").Replace("HTTP://DX.DOI.ORG/", ""))
+                    System.Web.HttpUtility.UrlEncode(DOI.ToUpper().Trim().Replace("HTTPS://DX.DOI.ORG/", "").Replace("HTTPS://DOI.ORG/", "").Replace("HTTP://DX.DOI.ORG/", "").Replace("HTTP://DOI.ORG/", ""))
                     + "'&entityCount=5&attributes=" +
                     System.Web.HttpUtility.UrlEncode("Id,DN,AA.AuN,J.JN,V,I,FP,Y") +
                     "&complete=0&count=10&offset=0&timeout=2000&model=latest";
@@ -787,7 +806,8 @@ namespace BusinessLibrary.BusinessClasses
 
         public static string removeStopwords(string input)
         {
-            string[] stopWords = { " and ", " for ", " are ", " from ", " have ", " results ", " based ", " between ", " can ", " has ", " analysis ", " been ", " not ", " method ", " also ", " new ", " its ", " all ", " but ", " during ", " after ", " into ", " other ", " our ", " non ", " present ", " most ", " only ", " however ", " associated ", " compared ", " des ", " related ", " proposed ", " about ", " each ", " obtained ", " increased ", " had ", " among ", " due ", " how ", " out ", " les ", " los ", " abstract ", " del ", " many ", " der ", " including ", " could ", " report ", " cases ", " possible ", " further ", " given ", " result ", " las ", " being ", " like ", " any ", " made ", " because ", " discussed ", " known ", " recent ", " findings ", " reported ", " considered ", " described ", " although ", " available ", " particular ", " provides ", " improved ", " here ", " need ", " improve ", " analyzed ", " either ", " produced ", " demonstrated ", " evaluated ", " provided ", " did ", " does ", " required ", " before ", " along ", " presents ", " having ", " much ", " near ", " demonstrate ", " iii ", " often ", " making ", " the ", " that ", " with ", " this ", " were ", " was ", " which ", " study ", " using ", " these ", " their ", " used ", " than ", " use ", " such ", " when ", " well ", " some ", " through ", " there ", " under ", " they ", " within ", " will ", " while ", " those ", " various ", " where ", " then ", " very ", " who ", " und ", " should ", " thus ", " suggest ", " them ", " therefore ", " since ", " une ", " what ", " whether ", " una ", " von ", " would ", " of ", " in ", " a ", " to ", " is ", " on ", " by ", " as ", " de ", " an ", " be ", " we ", " or ", " s ", " it ", " la ", " e ", " en ", " i ", " no ", " et ", " el ", " do ", " up ", " se ", " un ", " ii " };
+            //string[] stopWords = { " and ", " for ", " are ", " from ", " have ", " results ", " based ", " between ", " can ", " has ", " analysis ", " been ", " not ", " method ", " also ", " new ", " its ", " all ", " but ", " during ", " after ", " into ", " other ", " our ", " non ", " present ", " most ", " only ", " however ", " associated ", " compared ", " des ", " related ", " proposed ", " about ", " each ", " obtained ", " increased ", " had ", " among ", " due ", " how ", " out ", " les ", " los ", " abstract ", " del ", " many ", " der ", " including ", " could ", " report ", " cases ", " possible ", " further ", " given ", " result ", " las ", " being ", " like ", " any ", " made ", " because ", " discussed ", " known ", " recent ", " findings ", " reported ", " considered ", " described ", " although ", " available ", " particular ", " provides ", " improved ", " here ", " need ", " improve ", " analyzed ", " either ", " produced ", " demonstrated ", " evaluated ", " provided ", " did ", " does ", " required ", " before ", " along ", " presents ", " having ", " much ", " near ", " demonstrate ", " iii ", " often ", " making ", " the ", " that ", " with ", " this ", " were ", " was ", " which ", " study ", " using ", " these ", " their ", " used ", " than ", " use ", " such ", " when ", " well ", " some ", " through ", " there ", " under ", " they ", " within ", " will ", " while ", " those ", " various ", " where ", " then ", " very ", " who ", " und ", " should ", " thus ", " suggest ", " them ", " therefore ", " since ", " une ", " what ", " whether ", " una ", " von ", " would ", " of ", " in ", " a ", " to ", " is ", " on ", " by ", " as ", " de ", " an ", " be ", " we ", " or ", " s ", " it ", " la ", " e ", " en ", " i ", " no ", " et ", " el ", " do ", " up ", " se ", " un ", " ii " };
+            string[] stopWords = { " a ", " about ", " abstract ", " after ", " all ", " along ", " also ", " although ", " among ", " an ", " analysis ", " analyzed ", " and ", " any ", " are ", " as ", " associated ", " available ", " based ", " be ", " because ", " been ", " before ", " being ", " between ", " but ", " by ", " can ", " cases ", " compared ", " considered ", " could ", " de ", " del ", " demonstrate ", " demonstrated ", " der ", " des ", " described ", " did ", " discussed ", " do ", " does ", " due ", " during ", " e ", " each ", " either ", " el ", " en ", " et ", " evaluated ", " findings ", " for ", " from ", " further ", " given ", " had ", " has ", " have ", " having ", " here ", " how ", " however ", " i ", " ii ", " iii ", " improve ", " improved ", " in ", " including ", " increased ", " into ", " is ", " it ", " its ", " known ", " la ", " las ", " les ", " like ", " los ", " made ", " making ", " many ", " method ", " most ", " much ", " near ", " need ", " new ", " no ", " non ", " not ", " obtained ", " of ", " often ", " on ", " only ", " or ", " other ", " our ", " out ", " particular ", " possible ", " present ", " presents ", " produced ", " proposed ", " provided ", " provides ", " recent ", " related ", " report ", " reported ", " required ", " result ", " results ", " s ", " se ", " should ", " since ", " some ", " study ", " such ", " suggest ", " than ", " that ", " the ", " their ", " them ", " then ", " there ", " therefore ", " these ", " they ", " this ", " those ", " through ", " thus ", " to ", " un ", " una ", " und ", " under ", " une ", " up ", " use ", " used ", " using ", " various ", " very ", " von ", " was ", " we ", " well ", " were ", " what ", " when ", " where ", " whether ", " which ", " while ", " who ", " will ", " with ", " within ", " would " };
             foreach (string word in stopWords)
             {
                 input = input.Replace(word, " ");

@@ -14,21 +14,16 @@ namespace ERxWebClient2.Controllers
     [Route("api/[controller]")]
     public class MagCurrentInfoController : CSLAController
     {
-
-        private readonly ILogger _logger;
-
-		public MagCurrentInfoController(ILogger<MagCurrentInfoController> logger)
-        {
-
-            _logger = logger;
-        }
+        
+		public MagCurrentInfoController(ILogger<MagCurrentInfoController> logger) : base(logger)
+        { }
 
         [HttpGet("[action]")]
         public IActionResult GetMagCurrentInfo()
         {
 			try
             {
-                SetCSLAUser();
+                if (!SetCSLAUser()) return Unauthorized();
 
                 DataPortal<MagCurrentInfo> dp = new DataPortal<MagCurrentInfo>();
 				MagCurrentInfo result = dp.Fetch();
@@ -38,7 +33,7 @@ namespace ERxWebClient2.Controllers
             catch (Exception e)
             {
                 _logger.LogException(e, "Getting a MagCurrentInfo has an error");
-                throw;
+                return StatusCode(500, e.Message);
             }
 		}
 
@@ -47,7 +42,7 @@ namespace ERxWebClient2.Controllers
         {
             try
             {
-                SetCSLAUser();
+                if (!SetCSLAUser()) return Unauthorized();
                 MAgReviewMagInfoCommand cmd = new MAgReviewMagInfoCommand();
                 DataPortal<MAgReviewMagInfoCommand> dp = new DataPortal<MAgReviewMagInfoCommand>();
                 cmd = dp.Execute(cmd);
@@ -57,7 +52,7 @@ namespace ERxWebClient2.Controllers
             catch (Exception e)
             {
                 _logger.LogException(e, "Getting a MagReviewMagInfo Command has an error");
-                throw;
+                return StatusCode(500, e.Message);
             }
         }
 
@@ -81,7 +76,7 @@ namespace ERxWebClient2.Controllers
             catch (Exception e)
             {
                 _logger.LogException(e, "MagCheckContReviewRunningCommand has an error");
-                throw;
+                return StatusCode(500, e.Message);
             }
         }
 

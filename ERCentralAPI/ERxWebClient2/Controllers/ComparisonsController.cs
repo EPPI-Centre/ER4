@@ -23,19 +23,16 @@ namespace ERxWebClient2.Controllers
 	[Route("api/[controller]")]
 	public class ComparisonsController : CSLAController
 	{
-		private readonly ILogger _logger;
 
-		public ComparisonsController(ILogger<ComparisonsController> logger)
-		{
-			_logger = logger;
-		}
+		public ComparisonsController(ILogger<ComparisonsController> logger) : base(logger)
+        { }
 
-		[HttpGet("[action]")]
+        [HttpGet("[action]")]
 		public IActionResult ComparisonList()//should receive a reviewID!
 		{
 			try
 			{
-				SetCSLAUser();
+				if (!SetCSLAUser()) return Unauthorized();
 				ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
 				DataPortal<ComparisonList> dp = new DataPortal<ComparisonList>();
 				ComparisonList result = dp.Fetch();
@@ -45,7 +42,7 @@ namespace ERxWebClient2.Controllers
 			catch (Exception e)
 			{
 				_logger.LogException(e, "Comparison List data portal error");
-				throw;
+				return StatusCode(500, e.Message);
 			}
 
 		}
@@ -82,7 +79,7 @@ namespace ERxWebClient2.Controllers
 			{
 				_logger.LogError(e, "Comparison Report data portal error {0}",
 					JsonConvert.SerializeObject(comparisonAttributesCriteria));
-				throw;
+				return StatusCode(500, e.Message);
 			}
 		}
 
@@ -109,7 +106,7 @@ namespace ERxWebClient2.Controllers
 			catch (Exception e)
 			{
 				_logger.LogError(e, "Comparison delete data portal error {0}", comparisonId);
-				throw;
+				return StatusCode(500, e.Message);
 			}
 		}
 
@@ -132,7 +129,7 @@ namespace ERxWebClient2.Controllers
 			catch (Exception e)
 			{
 				_logger.LogError(e, "Comparison Statistics data portal error {0}", comparisonId);
-				throw;
+				return StatusCode(500, e.Message);
 			}
 		}
 
@@ -177,7 +174,7 @@ namespace ERxWebClient2.Controllers
 			catch (Exception e)
 			{
 				_logger.LogError(e, "Comparison Complete data portal error {0}", JsonConvert.SerializeObject(comparisonComplete));
-				throw;
+				return StatusCode(500, e.Message);
 			}
 		}
 
@@ -219,7 +216,7 @@ namespace ERxWebClient2.Controllers
 			{
 				_logger.LogError(e, "Comparison create data portal error {0}", 
 					JsonConvert.SerializeObject(comparison), Formatting.Indented);
-				throw;
+				return StatusCode(500, e.Message);
 			}
 		}
 
@@ -249,7 +246,7 @@ namespace ERxWebClient2.Controllers
 			catch (Exception e)
 			{
 				_logger.LogException(e, "Comparison create data portal error");
-				throw;
+				return StatusCode(500, e.Message);
 			}
 		}
 

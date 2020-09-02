@@ -24,14 +24,10 @@ namespace ERxWebClient2.Controllers
     [Route("api/[controller]")]
     public class ItemListController : CSLAController
     {
+        
 
-        private readonly ILogger _logger;
-
-        public ItemListController(ILogger<ItemListController> logger)
-        {
-            _logger = logger;
-
-        }
+        public ItemListController(ILogger<ItemListController> logger) : base(logger)
+        { }
 
 
         //[HttpGet("[action]")]
@@ -39,7 +35,7 @@ namespace ERxWebClient2.Controllers
         //{
         //    try
         //    {
-        //        SetCSLAUser();
+        //        if (!SetCSLAUser()) return Unauthorized();
         //        ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
 
         //        DataPortal<ItemList> dp = new DataPortal<ItemList>();
@@ -57,7 +53,7 @@ namespace ERxWebClient2.Controllers
         //    catch (Exception e)
         //    {
         //        _logger.LogError(e, "Included Items dataportal error");
-        //        throw;
+        //        return StatusCode(500, e.Message);
         //    }
             
         //}
@@ -68,35 +64,13 @@ namespace ERxWebClient2.Controllers
             try
             {
 
-                SetCSLAUser();
+                if (!SetCSLAUser()) return Unauthorized();
+
                 ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
 
                 DataPortal<ItemList> dp = new DataPortal<ItemList>();
-                SelectionCriteria CSLAcrit = new SelectionCriteria();
-                CSLAcrit.OnlyIncluded = crit.onlyIncluded;
-                CSLAcrit.ShowDeleted = crit.showDeleted;
-                CSLAcrit.SourceId = crit.sourceId;
-                CSLAcrit.SearchId = crit.searchId;
-                CSLAcrit.XAxisSetId = crit.xAxisSetId;
-                CSLAcrit.XAxisAttributeId = crit.xAxisAttributeId;
-                CSLAcrit.YAxisSetId = crit.yAxisSetId;
-                CSLAcrit.YAxisAttributeId = crit.yAxisAttributeId;
-                CSLAcrit.FilterSetId = crit.filterSetId;
-                CSLAcrit.FilterAttributeId = crit.filterAttributeId;
-                CSLAcrit.AttributeSetIdList = crit.attributeSetIdList;
-                CSLAcrit.ListType = crit.listType;
-                CSLAcrit.PageNumber = crit.pageNumber;
-                CSLAcrit.PageSize = crit.pageSize;
-                CSLAcrit.WorkAllocationId = crit.workAllocationId;
-                CSLAcrit.MagSimulationId = crit.magSimulationId;
-                CSLAcrit.ComparisonId = crit.comparisonId;
-                CSLAcrit.Description = crit.description;
-                CSLAcrit.ContactId = crit.contactId;
-                CSLAcrit.SetId = crit.setId;
-                CSLAcrit.ShowInfoColumn = crit.showInfoColumn;
-                CSLAcrit.ShowScoreColumn = crit.showScoreColumn;
+                SelectionCriteria CSLAcrit = crit.CSLACriteria;
                 ItemList result = dp.Fetch(CSLAcrit);
-
                 //return Json(result);
                 return Ok(new ItemList4Json(result));
             }
@@ -113,7 +87,7 @@ namespace ERxWebClient2.Controllers
         {
             try
             {
-                SetCSLAUser();
+                if (!SetCSLAUser()) return Unauthorized();
                 ItemTypeNVLFactory factory = new ItemTypeNVLFactory();
                 ItemTypeNVL res = factory.FetchItemTypeNVL();
                 //DataPortal<ItemTypeNVL> dp = new DataPortal<ItemTypeNVL>();
@@ -131,7 +105,7 @@ namespace ERxWebClient2.Controllers
         {
             try
             {
-                SetCSLAUser();
+                if (!SetCSLAUser()) return Unauthorized();
                 DataPortal<ReadOnlySource> dps = new DataPortal<ReadOnlySource>();
                 DataPortal<ItemDuplicatesReadOnlyList> pdp = new DataPortal<ItemDuplicatesReadOnlyList>();
                 ReadOnlySource ros = dps.Fetch(new SingleCriteria<ReadOnlySource, long>(itemID.Value));
@@ -295,7 +269,7 @@ namespace ERxWebClient2.Controllers
 		//{
 		//    try
 		//    {
-		//        SetCSLAUser();
+		//        if (!SetCSLAUser()) return Unauthorized();
 		//        ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
 
 		//        DataPortal<ItemList> dp = new DataPortal<ItemList>();
@@ -312,7 +286,7 @@ namespace ERxWebClient2.Controllers
 		//    catch (Exception)
 		//    {
 
-		//        throw;
+		//        return StatusCode(500, e.Message);
 		//    }
 		//}
 	}
@@ -347,6 +321,36 @@ namespace ERxWebClient2.Controllers
         public int setId { get; set; }
         public bool showInfoColumn { get; set; }
         public bool showScoreColumn { get; set; }
+        public SelectionCriteria CSLACriteria 
+        {
+            get
+            {
+                SelectionCriteria CSLAcrit = new SelectionCriteria();
+                CSLAcrit.OnlyIncluded = onlyIncluded;
+                CSLAcrit.ShowDeleted = showDeleted;
+                CSLAcrit.SourceId = sourceId;
+                CSLAcrit.SearchId = searchId;
+                CSLAcrit.XAxisSetId = xAxisSetId;
+                CSLAcrit.XAxisAttributeId = xAxisAttributeId;
+                CSLAcrit.YAxisSetId = yAxisSetId;
+                CSLAcrit.YAxisAttributeId = yAxisAttributeId;
+                CSLAcrit.FilterSetId = filterSetId;
+                CSLAcrit.FilterAttributeId = filterAttributeId;
+                CSLAcrit.AttributeSetIdList = attributeSetIdList;
+                CSLAcrit.ListType = listType;
+                CSLAcrit.PageNumber = pageNumber;
+                CSLAcrit.PageSize = pageSize;
+                CSLAcrit.WorkAllocationId = workAllocationId;
+                CSLAcrit.MagSimulationId = magSimulationId;
+                CSLAcrit.ComparisonId = comparisonId;
+                CSLAcrit.Description = description;
+                CSLAcrit.ContactId = contactId;
+                CSLAcrit.SetId = setId;
+                CSLAcrit.ShowInfoColumn = showInfoColumn;
+                CSLAcrit.ShowScoreColumn = showScoreColumn;
+                return CSLAcrit;
+            }
+        }
     }
     //{"onlyIncluded":true,"showDeleted":false,"sourceId":0,"searchId":0,"xAxisSetId":0,"xAxisAttributeId":0,"yAxisSetId":0,"yAxisAttributeId":0,"filterSetId":0,"filterAttributeId":0,"attributeSetIdList":"","listType":"GetItemWorkAllocationListRemaining","pageNumber":0,"pageSize":100,"workAllocationId":500,"comparisonId":0,"description":"","contactId":0,"setId":0,"showInfoColumn":true,"showScoreColumn":true}
     public class ItemList4Json

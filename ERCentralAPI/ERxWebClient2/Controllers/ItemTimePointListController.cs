@@ -17,23 +17,18 @@ namespace ERxWebClient2.Controllers
     [Route("api/[controller]")]
     public class ItemTimepointListController : CSLAController
     {
+        
+        public ItemTimepointListController(ILogger<ItemTimepointListController> logger) : base(logger)
+        { }
 
-        private readonly ILogger _logger;
-
-        public ItemTimepointListController(ILogger<ItemTimepointListController> logger)
-        {
-            _logger = logger;
-
-        }
-		 
-		// READ
-		[HttpPost("[action]")]
+        // READ
+        [HttpPost("[action]")]
 		public IActionResult GetTimePoints([FromBody] SingleInt64Criteria ItemIDCrit)
 		{
 
 			try
 			{
-				SetCSLAUser();
+				if (!SetCSLAUser()) return Unauthorized();
 				ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
 				DataPortal<ItemTimepointList> dp = new DataPortal<ItemTimepointList>();
 				SingleCriteria<Item, Int64> criteria = new SingleCriteria<Item, Int64>(ItemIDCrit.Value);

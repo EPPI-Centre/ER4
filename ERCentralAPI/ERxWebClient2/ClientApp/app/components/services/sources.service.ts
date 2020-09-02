@@ -3,6 +3,7 @@ import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { ReviewerIdentityService } from './revieweridentity.service';
 import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
+import { ConvertActionBindingResult } from '@angular/compiler/src/compiler_util/expression_converter';
 
 @Injectable({
     providedIn: 'root',
@@ -82,7 +83,7 @@ export class SourcesService extends BusyAwareService {
             this.gotSource.emit();
         }, error => {
             this.RemoveBusy("FetchSource");
-            this.modalService.GenericErrorMessage(error);
+            this.modalService.GenericError(error);
         }
             , () => {
                 this.RemoveBusy("FetchSource");
@@ -98,7 +99,7 @@ export class SourcesService extends BusyAwareService {
             //this.gotSource.emit();
         }, error => {
             this.RemoveBusy("FetchNewPubMedSearch");
-            this.modalService.GenericErrorMessage(error);
+            this.modalService.GenericError(error);
         }
             , () => {
                 this.gotPmSearchToCheck.emit();
@@ -158,7 +159,7 @@ export class SourcesService extends BusyAwareService {
         this._httpC.get<ImportFilter[]>(this._baseUrl + 'api/Sources/GetImportFilters').subscribe(result => {
             this._ImportFilters = result;
         }, error => {
-            this.modalService.GenericErrorMessage(error);
+            this.modalService.GenericError(error);
             this.RemoveBusy("FetchImportFilters");
         }, () => {
                 this.RemoveBusy("FetchImportFilters");
@@ -166,23 +167,31 @@ export class SourcesService extends BusyAwareService {
          );
     }
     
-    public CheckUpload(data: SourceForUpload) {
+    public CheckUpload(data: SourceForUpload) : Promise<boolean> {
         this._LastUploadOrUpdateStatus = ""; //reset this as we're starting over
         this._BusyMethods.push("CheckUpload");
         //console.log('CheckUpload');
         this._IncomingItems4Checking = null;
         let body = JSON.stringify(data);
-        this._httpC.post<IncomingItemsList>(this._baseUrl + 'api/Sources/VerifyFile',
-            body).subscribe(
-                result => {
-                    this._IncomingItems4Checking = result;
+        return this._httpC.post<IncomingItemsList>(this._baseUrl + 'api/Sources/VerifyFile',
+            body).toPromise().then(
+            result => {
+                this.RemoveBusy("CheckUpload");
+                this._IncomingItems4Checking = result;
+                this.gotItems4Checking.emit();
+                return true;
             }, error => {
                 this.RemoveBusy("CheckUpload");
-                this.modalService.GenericErrorMessage(error);
-            },
-            () => {
-                this.gotItems4Checking.emit();
+                console.log("Error in CheckUpload source:", error);
+                this.modalService.GenericError(error);
+                return false;
+            }
+        ).catch(
+            caught => {
                 this.RemoveBusy("CheckUpload");
+                console.log("Catch in CheckUpload source:", caught);
+                this.modalService.GenericError(caught);
+                return false;
             });
     }
     public Upload(data: SourceForUpload) {
@@ -196,6 +205,8 @@ export class SourcesService extends BusyAwareService {
                 this._LastUploadOrUpdateStatus = "Success";
             }, error => {
                 //this.modalService.GenericErrorMessage();
+                console.log("Error in Upload source:", error);
+                this.modalService.GenericError(error);
                 this.RemoveBusy("Upload");
                 this._LastUploadOrUpdateStatus = "Error";
             },
@@ -215,7 +226,7 @@ export class SourcesService extends BusyAwareService {
             this.FetchSources()
             }, error => {
                 this.RemoveBusy("DeleteUndeleteSource");
-                this.modalService.GenericErrorMessage(error);
+                this.modalService.GenericError(error);
             },
             () => {
                 this.RemoveBusy("DeleteUndeleteSource");

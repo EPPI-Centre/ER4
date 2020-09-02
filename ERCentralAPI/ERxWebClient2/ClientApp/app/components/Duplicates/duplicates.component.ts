@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { NotificationService } from '@progress/kendo-angular-notification';
-import { DuplicatesService, iReadOnlyDuplicatesGroup, DuplicateGroupMember, MarkUnmarkItemAsDuplicate } from '../services/duplicates.service';
+import { DuplicatesService, iReadOnlyDuplicatesGroup, DuplicateGroupMember, MarkUnmarkItemAsDuplicate, ItemDuplicateGroup } from '../services/duplicates.service';
 import { Helpers, LocalSort } from '../helpers/HelperMethods';
 import { CodesetStatisticsService } from '../services/codesetstatistics.service';
 import { ItemListService } from '../services/ItemList.service';
@@ -53,6 +53,8 @@ export class DuplicatesComponent implements OnInit, OnDestroy {
     public codedCr: number = 0;
     public docsCr: number = 0;
     public ActivePanel: string = "";
+    public ItemIDsearchString: string = "";
+    public ShowingMore: boolean = false;
     //public lowThresholdWarningActive: boolean = "";
     public get lowThresholdWarningActive(): boolean {
         if (this.similarityCr < 0.8) return true;
@@ -75,14 +77,29 @@ export class DuplicatesComponent implements OnInit, OnDestroy {
             this.AdvancedMarkAutomaticallyShow();
         }
     }];
-    
+    public ResetDDData: Array<any> = [{
+        text: 'Hard Reset...',
+        click: () => {
+            this.HardReset();
+        }
+    }];
+    public FindGroupsDDData: Array<any> = [{
+        text: 'Find Groups by Item IDs',
+        click: () => {
+            this.ShowFindByItemIDsPanel();
+        }
+    }];
+    public get ShowOrHideMoreToolbarText(): string {
+        if (this.ShowingMore) return "Less...";
+        else return "More..."
+    }
     public get DuplicateGroups(): iReadOnlyDuplicatesGroup[] {
         return this.DuplicatesService.DuplicateGroups;
     }
     public get CompletedGroups(): number {
         return this.DuplicatesService.DuplicateGroups.filter(found => found.isComplete == true).length;
     }
-    public get CurrentGroup() {
+    public get CurrentGroup(): ItemDuplicateGroup | null {
         return this.DuplicatesService.CurrentGroup;
     }
     public get CurrentAutoGroup(): number {
@@ -98,7 +115,7 @@ export class DuplicatesComponent implements OnInit, OnDestroy {
         }
         return this.DuplicatesService.currentCount + 1;
     }
-    private async ResetActivePanel() {
+    public async ResetActivePanel() {
         //small trick to avoid the ExpressionChangedAfterItHasBeenCheckedError dreaded error, sleep before resetting, to give time to NG to catch up on the visual side...
         await Helpers.Sleep(20);
         this.ActivePanel = "";
@@ -239,28 +256,25 @@ export class DuplicatesComponent implements OnInit, OnDestroy {
         //this.ActivePanel = "MarkAutomatically";
         //this.DuplicatesService.MarkAutomatically(1, 0, 0);
     }
-    //private async ShowLowThresholdWarning(value: number) {
-    //    await Helpers.Sleep(20);
-    //    if (this.similarityCr < 0.8) {
-    //        this.lowThresholdWarningActive = "true";
-    //    }
-    //    else {
-    //        this.lowThresholdWarningActive = "false";
-    //    }
-    //}
+
     public openConfirmationDialogAutoMatchWithLowThreshold() {
 
         this.ConfirmationDialogService.confirm('Please confirm', 'You are setting a low threshold that could erroneously mark some items as duplicates.' +
-            '<br />Please type \'I confirm\' in the box below if you are sure you want to proceed.', true, this.ConfirmationDialogService.UserInputTextArms)
+            '<br />Please type \'I confirm\' in the box below if you are sure you want to proceed.', true, "I confirm")
             .then(
                 (confirm: any) => {
                     //console.log('Text entered is the following: ' + confirm + ' ' + this.eventsService.UserInput );
-                    if (confirm && this.eventsService.UserInput == 'I confirm') {
+                    if (confirm && this.eventsService.UserInput.toLowerCase().trim() == 'i confirm') {
                         this.DoAdvancedMarkAutomatically();
                     }
                 }
             )
-            .catch(() => console.log('User dismissed the dialog (e.g., by using ESC, clicking the cross icon, or clicking outside the dialog)'));
+            .catch();
+    }
+    private ShowFindByItemIDsPanel() {
+        if (this.ActivePanel !== "FindByItemIDs") {
+            this.ActivePanel = "FindByItemIDs";
+        }
     }
     private async StartMarkAutomatically() {
         await Helpers.Sleep(20);
@@ -296,6 +310,100 @@ export class DuplicatesComponent implements OnInit, OnDestroy {
         console.log("GoToManualMembers", el);
         if (el) el.scrollIntoView();
     }
+
+    public SoftReset() {
+        const confirmM = "I agree";
+        let msg = "You can delete all duplicate groups and keep information about references already marked as duplicates.<br />";
+        msg += "This will give you a fresh start to re-evaluate duplicates without losing the work you've done already.<br />"
+        msg += "Note that documents already marked as duplicates will not be re-evaluated, and this will have a few consequences:<br />";
+        msg += "<ol><li>When you 'Get new Duplicates' you should get a smaller number of groups as all 'completed' groups should not reappear.</li>";
+        msg += "<li>Overlapping groups will not show up again.</li>";
+        msg += "<li>Information about the old groups will be LOST! You will not be able to find out the similarity scores of items you have already marked as duplicates.</li></ol>";
+        msg += "If you are really sure that you want to proceed, type 'I agree' in the box below and click 'OK'.";
+        
+        this.ConfirmationDialogService.confirm('Delete All Groups?', msg, true, confirmM, "OK", "Cancel", "lg")
+            .then(
+                (confirm: any) => {
+                    if (confirm == true && this.eventsService.UserInput.toLowerCase().trim() == confirmM.toLowerCase()) {
+                        this.DuplicatesService.DeleteAllGroups(false);
+                    }
+                }
+            )
+            .catch();
+    }
+
+    public HardReset() {
+        const confirmM = "I Confirm";
+        let msg = "You can delete all duplicate groups and <strong>also</strong> all information about what has / has not been marked as duplicates.<br />";
+        msg += "Note that references already marked as duplicates will reappar (marked as Included).<br />"
+        msg += "You might want to proceed with this rather radical choice in case:<br />";
+        msg += "<ol><li>You have used the 'Advanced Mark Automatically' feature with too permissive thresholds and you have marked as duplicates too many false positives.";
+        msg += "In this case, deleting all dedup data and starting over again is likely to be faster than manually looking for errors.</li>";
+        msg += "<li>You have a large number of overlapping groups and you have not invested a lot of time in manually evaluating groups.";
+        msg += "Getting a 100% fresh start will eliminate overlapping groups and allow you to re-run the automatic marking procedure with little waste of time.</li></ol> ";
+        msg += "If you are really sure that you want to proceed, type 'I Confirm' in the box below and click 'OK'.";
+
+        this.ConfirmationDialogService.confirm('Delete All Data about Duplicates?', msg, true, confirmM, "OK", "Cancel", "lg")
+            .then(
+                (confirm: any) => {
+                    if (confirm == true && this.eventsService.UserInput.toLowerCase().trim() == confirmM.toLowerCase()) {
+                        this.DuplicatesService.DeleteAllGroups(true);
+                    }
+                }
+            )
+            .catch();
+    }
+
+    public FindRelatedGroups() {
+        if (this.CurrentGroup == null) return;
+        else {
+            this.DuplicatesService.FetchRelatedGroups(this.CurrentGroup.groupID);
+        }
+    }
+    public FindByItemIDs() {
+        if (this.ItemIDsearchString == "") return;
+        let CheckedString: string = "";
+        const check = this.ItemIDsearchString.split(",");
+        for (let idSt of check) {
+            idSt = idSt.trim();
+            const id = Number(idSt);
+            if (isNaN(id)) return;
+            else if (id <= 0 || id == null || id == undefined) return;
+            else if (!Number.isInteger(id)) return;
+            if (CheckedString !== "") CheckedString += "," + idSt;
+            else CheckedString = idSt;
+        }
+        //we did not return, so all elements in the comma-separated split and CheckedString can be used
+        this.ItemIDsearchString = CheckedString;
+        this.DuplicatesService.FetchGroupsByItemIds(CheckedString);
+    }
+    public DeleteCurrentGroup(GroupId: number) {
+        if (this.CurrentGroup == null || this.CurrentGroup.groupID != GroupId) return;
+        else {
+            let dups = this.CurrentGroup.members.filter(f => f.isDuplicate == true).length;
+            if (this.CurrentGroup.manualMembers) dups += this.CurrentGroup.manualMembers.length;
+            let msg = 'You are deleting this group (Id = ' + GroupId + '). This action <strong>can\'t be undone</strong>!';
+            if (dups == 0) {
+                msg += '<BR />This groups does not contain items already marked as duplicates';
+            } else if (dups == 1) {
+                msg += '<BR />This groups contains one item marked as a duplicate. If you delete this group, this item will be marked as not a duplicate and will receive the "I" (for "Included") flag.';
+            } else if (dups > 1) {
+                msg += '<BR />This groups contains ' + dups.toString()
+                    + ' items marked as a duplicates. If you delete this group, these items will be marked as not a duplicate and will receive the "I" (for "Included") flag.';
+            }
+
+            this.ConfirmationDialogService.confirm('Delete Group?', msg, false, "")
+            .then(
+                (confirm: any) => {
+                    if (confirm == true) {
+                        this.DuplicatesService.DeleteCurrentGroup(GroupId);
+                    }
+                }
+            )
+                .catch();
+        }
+    }
+
     ngOnDestroy() {
         this.Clear();
 	}

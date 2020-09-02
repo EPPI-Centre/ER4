@@ -140,7 +140,7 @@
                                     DataTextField="DATE_CREATED" DataValueField="SITE_LIC_DETAILS_ID" 
                                     onselectedindexchanged="ddlPackages_SelectedIndexChanged" Width="50%">
                                 </asp:DropDownList>
-                                &nbsp; (dd/mm/yyyy)</td>
+                                </td>
                         </tr>
                         <tr>
                             <td colspan="4" style="background-color: #B6C6D6; ">

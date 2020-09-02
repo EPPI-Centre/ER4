@@ -128,7 +128,7 @@ namespace BusinessLibrary.BusinessClasses
             ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
             if (Parameters == "DoSimulation")
             {
-                DoSimulation(ri.ReviewId);
+                DoSimulation(ri.ReviewId, ri.UserId);
                 return;
             }
             if (Parameters == "FetchSimulationResults")
@@ -139,7 +139,7 @@ namespace BusinessLibrary.BusinessClasses
             bool justIndexed = false;
             if (RevInfo.ScreeningMode == "Random") // || RevInfo.ScreeningWhatAttributeId > 0)
             {
-                CreateNonMLLIst();
+                CreateNonMLLIst(ri.ReviewId, ri.UserId);
                 return;
             }
 
@@ -171,7 +171,7 @@ namespace BusinessLibrary.BusinessClasses
                 if (n_includes < 6 || n_excludes < 6)
                 {
                     RevInfo.ScreeningMode = "Random";
-                    CreateNonMLLIst();
+                    CreateNonMLLIst(ri.ReviewId, ri.UserId);
                     return;
                 }
 
@@ -214,7 +214,7 @@ namespace BusinessLibrary.BusinessClasses
                 //justIndexed = task.Result;
 
                 //LINE below in MVC/CORE env makes the controller send the response without waiting... We're OK with this, for now.
-                justIndexed = await UploadDataToAzureBlob(ReviewID, RevInfo.ScreeningIndexed); 
+                justIndexed = await UploadDataToAzureBlob(ReviewID, ri.UserId, RevInfo.ScreeningIndexed); 
                 CloudStorageAccount storageAccount = CloudStorageAccount.Parse(blobConnection);
                 CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
                 CloudBlobContainer container = blobClient.GetContainerReference("uploads");
@@ -410,18 +410,18 @@ namespace BusinessLibrary.BusinessClasses
                 }
             }
         }
-        private void CreateNonMLLIst()
+        private void CreateNonMLLIst(int ReviewId, int UserId)
         {
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
                 connection.Open();
 
-                ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+                //ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
                 using (SqlCommand command = new SqlCommand("st_ScreeningCreateNonMLList", connection))
                 {
                     command.CommandType = System.Data.CommandType.StoredProcedure;
-                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
-                    command.Parameters.Add(new SqlParameter("@CONTACT_ID", ri.UserId));
+                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", ReviewId));
+                    command.Parameters.Add(new SqlParameter("@CONTACT_ID", UserId));
                     command.Parameters.Add(new SqlParameter("@WHAT_ATTRIBUTE_ID", RevInfo.ScreeningWhatAttributeId));
                     command.Parameters.Add(new SqlParameter("SCREENING_MODE", RevInfo.ScreeningMode));
                     command.Parameters.Add(new SqlParameter("CODE_SET_ID", RevInfo.ScreeningCodeSetId));
@@ -494,10 +494,10 @@ namespace BusinessLibrary.BusinessClasses
 
         //private bool UploadDataToAzureBlob(int ReviewID, bool ScreeningIndexed)
 
-        private async Task<bool> UploadDataToAzureBlob(int ReviewID, bool ScreeningIndexed)
+        private async Task<bool> UploadDataToAzureBlob(int ReviewID, int UserId, bool ScreeningIndexed)
 
         {
-            ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+            //ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
             CloudStorageAccount storageAccount = CloudStorageAccount.Parse(blobConnection);
             //StringBuilder data = new StringBuilder();
             StringBuilder labels = new StringBuilder();
@@ -531,17 +531,17 @@ namespace BusinessLibrary.BusinessClasses
                 {
                     connection.Open();
 #if (!CSLA_NETCORE)
-                    string fileName = System.Web.HttpRuntime.AppDomainAppPath + TempPath + ri.UserId.ToString() + ".csv";
+                    string fileName = System.Web.HttpRuntime.AppDomainAppPath + TempPath + UserId.ToString() + ".csv";
 #else
                     string fileName = "";
                     if (Directory.Exists(@"\UserTempUploads"))
                     {
-                         fileName = @".\UserTempUploads" + @"\" + ri.UserId.ToString() + ".csv";
+                         fileName = @".\UserTempUploads" + @"\" + UserId.ToString() + ".csv";
                     }
                     else
                     {
                         DirectoryInfo tmpDir = System.IO.Directory.CreateDirectory(@"\UserTempUploads");
-                        fileName = tmpDir.FullName + @"\" + ri.UserId.ToString() + ".csv";
+                        fileName = tmpDir.FullName + @"\" + UserId.ToString() + ".csv";
                     }
                     
 
@@ -622,7 +622,7 @@ namespace BusinessLibrary.BusinessClasses
                 connection.Open();
                 using (SqlCommand command = new SqlCommand("st_TrainingWriteIncludeExcludeToAzure", connection))
                 {
-                    ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+                    //ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
                     command.CommandType = System.Data.CommandType.StoredProcedure;
                     command.Parameters.Add(new SqlParameter("@REVIEW_ID", ReviewID));
                     using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
@@ -654,7 +654,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private async void DoSimulation(int ReviewID)
+        private async void DoSimulation(int ReviewID, int UserId)
         {
             // Delete existing results file (if any)
             CloudStorageAccount storageAccount = CloudStorageAccount.Parse(blobConnection);
@@ -670,7 +670,7 @@ namespace BusinessLibrary.BusinessClasses
             bool justIndexed = false;
             if (RevInfo.ScreeningIndexed == false)
             {
-                await UploadDataToAzureBlob(ReviewID, false); // ScreeningIndexed == false because we're not vectorising (line below)
+                await UploadDataToAzureBlob(ReviewID, UserId, false); // ScreeningIndexed == false because we're not vectorising (line below)
                 //await InvokeBatchExecutionService(RevInfo, "Vectorise"); commented out - don't need to Vectorise
                 justIndexed = true;
             }

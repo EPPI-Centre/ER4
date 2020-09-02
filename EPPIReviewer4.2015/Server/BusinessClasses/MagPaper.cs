@@ -63,7 +63,8 @@ namespace BusinessLibrary.BusinessClasses
             get
             {
                 return Authors + " (" + Year.ToString() + ") " + OriginalTitle + ". " + Journal + ". " +
-                    Volume.ToString() + (Issue == "" || Issue == null ? "" :  " (" + Issue + ") ") + FirstPage + "-" + LastPage;
+                    Volume.ToString() + (Issue == "" || Issue == null ? "" :  " (" + Issue + ") ") + FirstPage + "-" + LastPage +
+                    (DOI == "" ? "" : ". DOI: " + DOI);
             }
         }
         public string ShortRecord
@@ -618,6 +619,7 @@ namespace BusinessLibrary.BusinessClasses
             return returnValue;
         }
 
+        // Can send a reader as null in some situations, but most fields contained in PaperMakes object
         internal static MagPaper GetMagPaperFromPaperMakes(MagMakesHelpers.PaperMakes pm, SafeDataReader reader)
         {
             MagPaper returnValue = new MagPaper();

@@ -14,6 +14,8 @@ import { ComparisonComp } from '../Comparison/createnewcomparison.component';
 import { ComparisonStatsComp } from '../Comparison/comparisonstatistics.component';
 import { TabStripComponent } from '@progress/kendo-angular-layout';
 import { ItemListComp } from '../ItemList/itemListComp.component';
+import { GridDataResult, RowClassArgs, PageChangeEvent } from '@progress/kendo-angular-grid';
+import { SortDescriptor, orderBy, State } from '@progress/kendo-data-query';
 
 @Component({
 	selector: 'WorkAllocationComp',
@@ -31,7 +33,7 @@ export class WorkAllocationComp implements OnInit {
 		private _reviewSetsService: ReviewSetsService,
 		private _reviewSetsEditingService: ReviewSetsEditingService,
 		public _comparisonsService: ComparisonsService,
-		private _notificationService: NotificationService,
+        private _notificationService: NotificationService,
 		 @Inject('BASE_URL') private _baseUrl: string
     ) { }
 
@@ -104,9 +106,40 @@ export class WorkAllocationComp implements OnInit {
     public get AllWorkAllocationsForReview(): WorkAllocation[] {
         return this._workAllocationListService.AllWorkAllocationsForReview;
     }
+
+    //START of telerik grid (Allocations)
+    public sortWorkAllocations: SortDescriptor[] = [{
+         dir: "desc", field: "workAllocationId" 
+    }];
+    public get DataSourceWorkAllocations(): GridDataResult {
+        return {
+            data: orderBy(this._workAllocationListService.AllWorkAllocationsForReview, this.sortWorkAllocations).slice(this.skipWA, this.skipWA + this.pageSizeWA),
+            total: this._workAllocationListService.AllWorkAllocationsForReview.length,
+        };
+    }
+    public sortChangeWorkAllocations(sort: SortDescriptor[]): void {
+        this.sortWorkAllocations = sort;
+        console.log('sorting ' , sort);
+    }
+    public rowCallback(context: RowClassArgs) {
+        const isEven = context.index % 2 == 0;
+        return {
+            even: isEven,
+            odd: !isEven
+        };
+    }
     public get Comparisons(): Comparison[] {
         return this._comparisonsService.Comparisons;
     }
+    public pageSizeWA = 100;
+    public skipWA = 0;
+    protected pageChangeWA({ skip, take }: PageChangeEvent): void {
+        this.skipWA = skip;
+        this.pageSizeWA = take;
+        //this.loadProducts();
+    }
+
+    //END of telerik grid (Allocations)
     public get Contacts(): Contact[] {
         return this.reviewInfoService.Contacts;
     }
@@ -117,6 +150,9 @@ export class WorkAllocationComp implements OnInit {
     public get ShowComparisonsText(): string {
         if (this.ShowComparisons) return "Collapse";
         else return "Expand";
+    }
+    public get ScreeningEnabled(): boolean {
+        return this.reviewInfoService.ReviewInfo.showScreening;
     }
 	public get AllocateOptions(): kvSelectFrom[] {
 		
@@ -415,6 +451,13 @@ export class WorkAllocationComp implements OnInit {
             this.PanelName = '';
         } else {
             this.PanelName = 'DistributeWork';
+        }
+    }
+    ScreeningSetupClick() {
+        if (this.PanelName == 'ScreeningSetup') {
+            this.PanelName = '';
+        } else {
+            this.PanelName = 'ScreeningSetup';
         }
     }
 	public CanCreateNewCode(): boolean {

@@ -4,11 +4,12 @@ import { HttpClient } from '@angular/common/http';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
-import { Item, ItemListService } from './ItemList.service';
+import { Item, ItemListService, Criteria, ItemList } from './ItemList.service';
 import { ReviewSet, SetAttribute, ReviewSetsService, singleNode, ItemAttributeSaveCommand, iSetType } from './ReviewSets.service';
 import { ArmsService } from './arms.service';
 import { ItemDocsService } from './itemdocs.service';
 import { Outcome, OutcomeItemList } from './outcomes.service';
+import { isJsObject } from '@angular/core/src/change_detection/change_detection_util';
 
 @Injectable({
     providedIn: 'root',
@@ -23,7 +24,8 @@ export class ItemCodingService extends BusyAwareService {
         private ReviewSetsService: ReviewSetsService,
         private ReviewerIdentityService: ReviewerIdentityService,
         private ngZone: NgZone,
-        private ItemDocsService: ItemDocsService
+        private ItemDocsService: ItemDocsService,
+        private ItemListService: ItemListService
     ) { super(); }
 
 
@@ -33,7 +35,28 @@ export class ItemCodingService extends BusyAwareService {
     private _ItemCodingList: ItemSet[] = [];
     //public itemID = new Subject<number>();
     private _CurrentItemAttPDFCoding: ItemAttPDFCoding = new ItemAttPDFCoding();
-	public stopQuickReport: boolean = false;
+    private _PerItemReport: boolean = true;
+    //if PerItemReport, _stopQuickReport gets flipped from outside (set method below) as "Cancel",
+    //otherise it's the variable that control execution of per-page reports and acts as "cancel" from the outside.
+    //thus, it needs to be true whenever a report is actually NOT running...
+    private _stopQuickReport: boolean = true;
+    private _CodingReport: string = "";
+    public get CodingReport(): string {
+        return this._CodingReport;
+    }
+    public jsonReport: JsonReport = new JsonReport();
+    public get stopQuickReport(): boolean {
+        return this._stopQuickReport;
+    }
+    public set stopQuickReport(val: boolean){
+        this._stopQuickReport = val;
+        if (this._stopQuickReport == true) {
+            //this request is coming from the outside (or a failure), so we'll clear the reports contents to avoid presenting incomplete data
+            console.log("cancelling report...");
+            this.jsonReport = new JsonReport();
+            this._CodingReport = "";
+        }
+    }
     public get ItemCodingList(): ItemSet[] {
         //if (this._ItemCodingList.length == 0) {
         //    const ItemSetsJson = localStorage.getItem('ItemCodingList');
@@ -70,6 +93,7 @@ export class ItemCodingService extends BusyAwareService {
                     this.ItemCodingList.push(NewRealItemSet);
                 }
                 this.RemoveBusy("Fetch");
+                //console.log("emitting!");
                 this.DataChanged.emit();
                 //this.ReviewSetsService.AddItemData(result);
                 //this.Save();
@@ -91,7 +115,7 @@ export class ItemCodingService extends BusyAwareService {
         this._CurrentItemAttPDFCoding = new ItemAttPDFCoding();
         this._httpC.post<ItemAttributePDF[]>(this._baseUrl + 'api/ItemSetList/FetchPDFCoding',
             criteria).subscribe(result => {
-                console.log("FetchItemAttPDFCoding", result);
+                //console.log("FetchItemAttPDFCoding", result);
                 this._CurrentItemAttPDFCoding.Criteria = criteria;
                 this._CurrentItemAttPDFCoding.ItemAttPDFCoding = result;
                 this.ItemAttPDFCodingChanged.emit();
@@ -128,20 +152,20 @@ export class ItemCodingService extends BusyAwareService {
                 else {
                     let endIndex = perPageXML.indexOf("</contents>", contIndex);
                     let toclean = perPageXML.substr(contIndex + 10, endIndex - contIndex - 10);
-                    console.log("toclean: ", toclean, contIndex, endIndex);
+                    //console.log("toclean: ", toclean, contIndex, endIndex);
                     let cleaned = encodeURI(toclean);//replaces chars that are not UTF8 and would prevent parser.parseFromString(perPageXML, "text/xml");
                     perPageXML = perPageXML.substr(0, contIndex + 10) + cleaned + perPageXML.substr(endIndex);
                     contIndex = endIndex;
                 }
             }
-            console.log("sanitised: ", perPageXML);
+            //console.log("sanitised: ", perPageXML);
             xmlDoc = parser.parseFromString(perPageXML, "text/xml");
             
         }
         let xAnnots = xmlDoc.getElementsByTagName("highlight");
         let defmtx = xmlDoc.getElementsByTagName("defmtx");
         if (!xAnnots || xAnnots.length == 0 || !defmtx || defmtx.length == 0) {
-            console.log("Can't do, missing data:", xAnnots, defmtx, xmlDoc);
+            //console.log("Can't do, missing data:", xAnnots, defmtx, xmlDoc);
             this.RemoveBusy("SaveItemAttPDFCoding");
             this.ngZone.run(() => this.IsBusy);
             return;
@@ -203,7 +227,7 @@ export class ItemCodingService extends BusyAwareService {
                     }
                     iaPDF.InPageSelections.push(newinPSel);
                 }
-                console.log("special case add XML only: ", iaPDF);
+                //console.log("special case add XML only: ", iaPDF);
                 iaPDF.ShapeTxt = existing.shapeTxt;
             }
         }
@@ -273,7 +297,7 @@ export class ItemCodingService extends BusyAwareService {
         let endpoint = iaPDF.ItemAttributePDFId === 0 ? "api/ItemSetList/CreatePDFCodingPage" : "api/ItemSetList/UpdatePDFCodingPage";
         this._httpC.post<iCreatePDFCodingPageResult>(this._baseUrl + endpoint,
             iaPDF).subscribe(result => {
-                console.log("SaveItemAttPDFCoding // " + endpoint, result);
+                //console.log("SaveItemAttPDFCoding // " + endpoint, result);
                 if (this._CurrentItemAttPDFCoding.ItemAttPDFCoding == null ) {
                     this._CurrentItemAttPDFCoding.ItemAttPDFCoding = [];
                 }
@@ -281,7 +305,7 @@ export class ItemCodingService extends BusyAwareService {
                 if (indexOfRes == -1) this._CurrentItemAttPDFCoding.ItemAttPDFCoding.push(result.iaPDFpage);//add new page
                 else this._CurrentItemAttPDFCoding.ItemAttPDFCoding.splice(indexOfRes, 1, result.iaPDFpage);//replace existing - maybe we don't need to...
                 if (iaPDF.CreateInfo && result.createInfo) {
-                    console.log("Create new ItemAtt, maybe Item set:", result.createInfo);
+                    //console.log("Create new ItemAtt, maybe Item set:", result.createInfo);
                     //we also needed to create ItemAttribute and maybe ItemSet... Lots to do...
                     let ItemSet = this.FindItemSetBySetId(result.createInfo.setId);
                     this.ApplyInsertOrUpdateItemAttribute(result.createInfo, ItemSet);//most happens here.
@@ -310,7 +334,7 @@ export class ItemCodingService extends BusyAwareService {
     }
     //part of a small "normalise code" (avoid replication) quick win: called by coding page, coding full and PDFtroncontainer.
     public ApplyInsertOrUpdateItemAttribute(cmdResult: ItemAttributeSaveCommand, itemSet: ItemSet | null = null) {
-        console.log("ApplyInsertOrUpdateItemAttribute CmdResult", cmdResult);
+        //console.log("ApplyInsertOrUpdateItemAttribute CmdResult", cmdResult);
 
         //console.log("itemSet", itemSet);
         let newItemA: ReadOnlyItemAttribute = new ReadOnlyItemAttribute();
@@ -348,7 +372,7 @@ export class ItemCodingService extends BusyAwareService {
     }
     //part of a small "normalise code" (avoid replication) quick win: called by coding page, coding full and PDFtroncontainer.
     public ApplyDeleteItemAttribute(itemSet: ItemSet | null, itemAtt: ReadOnlyItemAttribute | null) {
-        console.log("ApplyDeleteItemAttribute", itemSet, itemAtt);
+        //console.log("ApplyDeleteItemAttribute", itemSet, itemAtt);
         if (itemSet && itemAtt) {
             //remove the itemAttribute from itemSet
             //console.log("Before filter", itemSet.itemAttributesList.length);
@@ -365,7 +389,7 @@ export class ItemCodingService extends BusyAwareService {
     public DeleteItemAttPDFCodingPage(page: number, itemAttributeId: number) {
         this._BusyMethods.push("DeleteItemAttPDFCodingPage");
         this.ngZone.run(() => this.IsBusy);
-        console.log("DeleteItemAttPDFCodingPage", page, itemAttributeId, this._BusyMethods);
+        //console.log("DeleteItemAttPDFCodingPage", page, itemAttributeId, this._BusyMethods);
         let existing: ItemAttributePDF | undefined = undefined;
         
         if (this.CurrentItemAttPDFCoding.Criteria.itemAttributeId == itemAttributeId && this.CurrentItemAttPDFCoding.ItemAttPDFCoding) {
@@ -382,17 +406,17 @@ export class ItemCodingService extends BusyAwareService {
         let body = JSON.stringify({ Value: existing.itemAttributePDFId });
         this._httpC.post<number>(this._baseUrl + "api/ItemSetList/DeletePDFCodingPage",
             body).subscribe(result => {
-                console.log("DeleteItemAttPDFCodingPage", result, this._BusyMethods);
+                //console.log("DeleteItemAttPDFCodingPage", result, this._BusyMethods);
                 if (this._CurrentItemAttPDFCoding.ItemAttPDFCoding == null) {
                     this._CurrentItemAttPDFCoding.ItemAttPDFCoding = [];
                 }
                 let indexOfRes = this._CurrentItemAttPDFCoding.ItemAttPDFCoding.findIndex((found: ItemAttributePDF) => result == found.itemAttributePDFId)
-                console.log("ItemAttPDFCoding before:", this._CurrentItemAttPDFCoding.ItemAttPDFCoding.length, this._CurrentItemAttPDFCoding.ItemAttPDFCoding);
+                //console.log("ItemAttPDFCoding before:", this._CurrentItemAttPDFCoding.ItemAttPDFCoding.length, this._CurrentItemAttPDFCoding.ItemAttPDFCoding);
                 if (indexOfRes >= -1) this._CurrentItemAttPDFCoding.ItemAttPDFCoding.splice(indexOfRes, 1);
-                console.log("ItemAttPDFCoding after:",
-                    this._CurrentItemAttPDFCoding.ItemAttPDFCoding.length, this._CurrentItemAttPDFCoding.ItemAttPDFCoding
-                    , this._BusyMethods
-                );
+                //console.log("ItemAttPDFCoding after:",
+                //    this._CurrentItemAttPDFCoding.ItemAttPDFCoding.length, this._CurrentItemAttPDFCoding.ItemAttPDFCoding
+                //    , this._BusyMethods
+                //);
                 //if (indexOfRes == -1) this._CurrentItemAttPDFCoding.ItemAttPDFCoding.push(result);//add new page
                 //else this._CurrentItemAttPDFCoding.ItemAttPDFCoding.splice(indexOfRes, 1, result);//replace existing - maybe we don't need to...
                 //this._CurrentItemAttPDFCoding.Criteria = criteria;
@@ -410,7 +434,7 @@ export class ItemCodingService extends BusyAwareService {
 
     }
     public ClearItemAttPDFCoding() {
-        console.log("ClearItemAttPDFCoding");
+        //console.log("ClearItemAttPDFCoding");
         
         this._CurrentItemAttPDFCoding = new ItemAttPDFCoding();
         this.ItemAttPDFCodingChanged.emit();
@@ -425,14 +449,12 @@ export class ItemCodingService extends BusyAwareService {
         }
     }
     private SelfSubscription4QuickCodingReport: Subscription | null = null;
-    private _CodingReport: string = "";
-    public get CodingReport(): string {
-        return this._CodingReport;
-    }
-    public jsonReport: JsonReport = new JsonReport();
+    
     public Clear() {
         this._ItemsToReport = [];
         this._CodingReport = "";
+        this._stopQuickReport = true;//gets set to false when we start fetching a report...
+        this._PerItemReport = true;
         this.jsonReport = new JsonReport();
         this._CurrentItemIndex4QuickCodingReport = 0;
         if (this.SelfSubscription4QuickCodingReport) {
@@ -447,14 +469,17 @@ export class ItemCodingService extends BusyAwareService {
     private _ReviewSetsToReportOn: ReviewSet[] = [];
     private _CurrentItemIndex4QuickCodingReport: number = 0;
     public get QuickCodingReportIsRunning(): boolean {
-        return this._ItemsToReport.length > this._CurrentItemIndex4QuickCodingReport;
+        if (this._PerItemReport) return this._ItemsToReport.length > this._CurrentItemIndex4QuickCodingReport;
+        else return !this.stopQuickReport;
     }
     public get ProgressOfQuickCodingReport(): string {
-        return "Retreiving Item " + (this._CurrentItemIndex4QuickCodingReport + 1).toString() + " of " + this._ItemsToReport.length;
+        if (this._PerItemReport) return "Retreiving Item " + (this._CurrentItemIndex4QuickCodingReport + 1).toString() + " of " + this._ItemsToReport.length;
+        else return "Fetching 'Paged' Report (page: " + (this._CurrentItemIndex4QuickCodingReport +1) + ")...";
     }
     public FetchCodingReport(Items: Item[], ReviewSetsToReportOn: ReviewSet[], isJson: boolean) {
         this._ItemsToReport = [];
         this._ReviewSetsToReportOn = [];
+        this._PerItemReport = true;
         if (this.SelfSubscription4QuickCodingReport) {
             this.SelfSubscription4QuickCodingReport.unsubscribe();
             this.SelfSubscription4QuickCodingReport = null;
@@ -462,7 +487,7 @@ export class ItemCodingService extends BusyAwareService {
         this._CurrentItemIndex4QuickCodingReport = 0;
         this._CodingReport = "";
         this.jsonReport = new JsonReport();
-        this.stopQuickReport = false;
+        this._stopQuickReport = false;
         if (!Items || Items.length < 1) {
             return;
         }
@@ -473,7 +498,7 @@ export class ItemCodingService extends BusyAwareService {
             let cSets: ReviewSet4ER4Json[] = [];
             for (let rs of this._ReviewSetsToReportOn) {
                 let setForReport = new ReviewSet4ER4Json(rs);
-                console.log("adding this set to report", setForReport);
+                //console.log("adding this set to report", setForReport);
                 cSets.push(setForReport);
             }
             this.jsonReport.CodeSets = cSets;
@@ -481,7 +506,8 @@ export class ItemCodingService extends BusyAwareService {
         this.InterimGetItemCodingForReport(isJson);
         this.RemoveBusy("FetchCodingReport");
     }
-    public FetchSingleCodingReport(itemSet: ItemSet, item:Item): string {
+    public FetchSingleCodingReport(itemSet: ItemSet, item: Item): string {
+        // not setting this._stopQuickReport as this is coming from ItemDetails/Coding record - might need to change if we'll call this method from the quickcodingreport component.
         let result: string = "";
         let reviewSet = this.ReviewSetsService.FindSetById(itemSet.setId);
         if (!reviewSet) return result;
@@ -499,12 +525,12 @@ export class ItemCodingService extends BusyAwareService {
     }
 
     private InterimGetItemCodingForReport(isJson: boolean) {
+        let GotCancelled: boolean = false;
         if (this.stopQuickReport == true) {
             //makes the index jump forward so that below this.QuickCodingReportIsRunning will return "false" triggering the gracious end of recursion.
             this._CurrentItemIndex4QuickCodingReport = this._ItemsToReport.length + 1;
-            this._CodingReport = "";
-            this.jsonReport = new JsonReport();
-            this.stopQuickReport = false;
+            this._stopQuickReport = false;
+            GotCancelled = true;
         }
         if (!this.SelfSubscription4QuickCodingReport) {
             //initiate recursion, ugh!
@@ -526,10 +552,14 @@ export class ItemCodingService extends BusyAwareService {
                 );
             }
         }
-        if (!this.QuickCodingReportIsRunning)  {
+        if (!this.QuickCodingReportIsRunning )  {
             if (this.SelfSubscription4QuickCodingReport) {
                 this.SelfSubscription4QuickCodingReport.unsubscribe();
                 this.SelfSubscription4QuickCodingReport = null;
+            }
+            if (GotCancelled) {//we don't want to show partial results!
+                this.jsonReport = new JsonReport();
+                this._CodingReport = "";
             }
             return;
         }
@@ -600,6 +630,7 @@ export class ItemCodingService extends BusyAwareService {
                 }
             }
         }
+        //console.log("Json report add item:", jItem.ItemId, jItem.Codes.length, this.jsonReport.References.length);
         this.jsonReport.References.push(jItem);
     }
     private writeCodingReportAttributesWithArms(itemSet: ItemSet, attributeSet: SetAttribute) :string {
@@ -647,7 +678,7 @@ export class ItemCodingService extends BusyAwareService {
         return report;
     }
     public addFullTextToComparisonReport(list: ItemAttributeFullTextDetails[]): string {
-        console.log("addFullTextToComparisonReport", list);
+        //console.log("addFullTextToComparisonReport", list);
         let result: string = "";
         for (let ftd of list) {
             result += "<br style='mso-data-placement:same-cell;'  />" + ftd.docTitle + ": ";
@@ -664,16 +695,16 @@ export class ItemCodingService extends BusyAwareService {
         //console.log("addFullTextToComparisonReport", list, result);
         return result;
     }
-    public OutcomesTable(Outcomes: Outcome[]): string {
+    public OutcomesTable(Outcomes: Outcome[], addHeader: boolean = true): string {
         let retVal: string = "";
         let i: number = -1;
-
+        const Start: string = addHeader ? "<p><b>Outcomes</b></p>" : "";
         let sortedOutcomes = Outcomes.sort(function (a, b) { return a.outcomeTypeId - b.outcomeTypeId });
         for(let o of sortedOutcomes)
         {
             if (i != o.outcomeTypeId) {
                 if (retVal == "") {
-                    retVal = "<p><b>Outcomes</b></p><table class='m-1' border='1'>";
+                    retVal = Start + "<table class='m-1' border='1'>";
                 }
                 else {
                     retVal += "</table><table class='m-1' border='1'>";
@@ -861,7 +892,8 @@ export class ItemCodingService extends BusyAwareService {
         this._CurrentItemIndex4QuickCodingReport = 0;
         this._CodingReport = "";
         this.jsonReport = new JsonReport();
-        this.stopQuickReport = false;
+        this._stopQuickReport = false;
+        this._PerItemReport = true;
         if (!Items || Items.length < 1) {
             return;
         }
@@ -871,17 +903,19 @@ export class ItemCodingService extends BusyAwareService {
         //this.RemoveBusy("FetchQuickQuestionReport");
     }
     private InterimGetItemCodingForQuestionReport(nodesToReportOn: singleNode[], options: QuickQuestionReportOptions) {
-        if (this.stopQuickReport == true) {
+        let GotCancelled: boolean = false;
+        //console.log("in InterimGetItemCodingForQuestionReport", this._CurrentItemIndex4QuickCodingReport);
+        if (this._stopQuickReport == true) {
             //makes the index jump forward so that below this.QuickCodingReportIsRunning will return "false" triggering the gracious end of recursion.
             this._CurrentItemIndex4QuickCodingReport = this._ItemsToReport.length + 1;
-            this._CodingReport = "";
-            this.jsonReport = new JsonReport();
-            this.stopQuickReport = false;
+            this._stopQuickReport = false;
+            GotCancelled = true;
         }
         if (!this.SelfSubscription4QuickCodingReport) {
             //initiate recursion, ugh!
             this.SelfSubscription4QuickCodingReport = this.DataChanged.subscribe(
-				() => {
+                () => {
+                    //console.log("in QQ rep subscription, this._CurrentItemIndex4QuickCodingReport:", this._CurrentItemIndex4QuickCodingReport);
                     this.AddToQuickQuestionReport(nodesToReportOn, options);
                     this._CurrentItemIndex4QuickCodingReport++;
                     this.InterimGetItemCodingForQuestionReport(nodesToReportOn, options);
@@ -889,10 +923,15 @@ export class ItemCodingService extends BusyAwareService {
             );
         }
         if (!this.QuickCodingReportIsRunning) {
+            //console.log("QuickQ rep isn't running (in interim fetch)", GotCancelled);
             if (this.SelfSubscription4QuickCodingReport) {
                 this.SelfSubscription4QuickCodingReport.unsubscribe();
                 this.SelfSubscription4QuickCodingReport = null;
                 if (this._CodingReport.length != 0) this._CodingReport += "</table>";
+            }
+            if (GotCancelled) {//we don't want to show partial results!
+                //this.jsonReport = new JsonReport();
+                this._CodingReport = "";
             }
             return;
         }
@@ -925,6 +964,7 @@ export class ItemCodingService extends BusyAwareService {
         }
         this.AddQuestionCodingToReport(nodesToReportOn, options);
         this._CodingReport += "</tr>";
+        //console.log("end of AddToQuickQuestionReport");
     }
     AddQuestionCodingToReport(nodesToReportOn: singleNode[], options: QuickQuestionReportOptions) {
         for (let node of nodesToReportOn) {
@@ -1039,14 +1079,14 @@ export class ItemCodingService extends BusyAwareService {
             (res: ItemAttributeFullTextDetails[]) => {
                 //let fullText: object[] = [];
                 if (res != null) {
-                    console.log("got ItemAttributeFullTextDetails", res);
+                    //console.log("got ItemAttributeFullTextDetails", res);
                     for (let iaFT of res) {
                         let ItSet = this.ItemCodingList.find(found => found.itemSetId == iaFT.itemSetId);
                         if (ItSet != undefined) {
-                            console.log("got ItSet", ItSet);
+                            //console.log("got ItSet", ItSet);
                             let ItmAtt = ItSet.itemAttributesList.find(found => found.itemAttributeId == iaFT.itemAttributeId);
                             if (ItmAtt != undefined) {
-                                console.log("got ItmAtt", ItmAtt);
+                                //console.log("got ItmAtt", ItmAtt);
                                 let iaFTdetails = ItmAtt.itemAttributeFullTextDetails.find(found => found.itemAttributeTextId == iaFT.itemAttributeTextId);
                                 if (iaFTdetails == undefined) ItmAtt.itemAttributeFullTextDetails.push(iaFT);
                             }
@@ -1067,6 +1107,130 @@ export class ItemCodingService extends BusyAwareService {
             console.log("Catch in FetchAllFullTextData", caught);
             return false;
         });
+    }
+
+    public async FetchCurrentQuickCodingReportAllPages(crit: Criteria, ReviewSetsToReportOn: ReviewSet[], isJson: boolean) {
+        let interimCrit: Criteria = crit.Clone(); //we are going to use this criteria by changing page...
+        this._stopQuickReport = false;
+        this._BusyMethods.push("FetchCodingReportAllPages");
+        let counter: number = 0;
+        while (this.stopQuickReport == false && counter < 10000 && counter < this.ItemListService.ItemList.pagecount*2 ) {//10000 cycles max, but not forever!
+            counter++;
+            this.ngZone.run(() => this.IsBusy);
+            await this.FetchCurrentQuickCodingReportPage(interimCrit, ReviewSetsToReportOn, isJson, true);
+        }
+        if (counter >= 10000 || counter >= this.ItemListService.ItemList.pagecount * 2) {
+            //we aborted, should tell the user
+            this.modalService.GenericErrorMessage("Sorry, fetching of the coding report has been interrupted as it surpassed maximum allowed number of requests for data.");
+        }
+        this.RemoveBusy("FetchCodingReportAllPages");
+        this.ngZone.run(() => this.IsBusy);
+    }
+
+    public async FetchCurrentQuickCodingReportPage(crit: Criteria, ReviewSetsToReportOn: ReviewSet[], isJson: boolean, multiplePages:boolean = false) {
+        if (multiplePages == false || crit.pageNumber == 0) {
+            this._CodingReport = "";
+            this.jsonReport = new JsonReport();
+        }
+        console.log("FetchCurrentQuickCodingReportPage: ", crit.pageNumber, crit.pageSize, ReviewSetsToReportOn.length);
+        this._ItemsToReport = [];
+        this._ReviewSetsToReportOn = [];
+        this._PerItemReport = false;
+        //if (this.SelfSubscription4QuickCodingReport) {
+        //    this.SelfSubscription4QuickCodingReport.unsubscribe();
+        //    this.SelfSubscription4QuickCodingReport = null;
+        //}
+        this._CurrentItemIndex4QuickCodingReport = crit.pageNumber;
+        
+        //this.stopQuickReport = false;
+        let sets = ReviewSetsToReportOn.map(el => { return el.set_id; })
+            .join(',');
+        //console.log("sets:", sets);
+        if (sets.length < 0) return;
+        this._BusyMethods.push("FetchCodingReportPage");
+        //this._ItemsToReport = Items;
+        this._ReviewSetsToReportOn = ReviewSetsToReportOn;
+        if (isJson && this._ReviewSetsToReportOn) {
+            let cSets: ReviewSet4ER4Json[] = [];
+            for (let rs of this._ReviewSetsToReportOn) {
+                let setForReport = new ReviewSet4ER4Json(rs);
+                //console.log("adding this set to report", setForReport);
+                cSets.push(setForReport);
+            }
+            this.jsonReport.CodeSets = cSets;
+        }
+        const Data = await this.FetchCodingReportDataPage(crit, sets);
+        let LastTimeRound: boolean = false;
+        if (Data == null || Data.totalItemCount == -1) {
+            //this was an error, didn't work, abort.
+            console.log("Error in fetching data, we'll abort");
+            this.stopQuickReport = true;//setting it like this wipes out the current results...
+            LastTimeRound = true;
+            this.RemoveBusy("FetchCodingReportPage");
+            //return;
+        }
+        else if (multiplePages && crit.pageNumber < Data.pageCount - 1) {
+            crit.pageNumber += 1;
+        } else {
+            //last (or only) time round
+            this.RemoveBusy("FetchCodingReportPage");
+            LastTimeRound = true;
+        }
+        //console.log("Report data:", Data, crit);
+        
+        //we put data in the report in here, user might have cancelled while we were fetching data, as it could take several seconds...
+        if (this._stopQuickReport == false) {
+            this._CurrentItemIndex4QuickCodingReport = 0;
+            for (const itm of Data.items) {
+                //console.log("Reporting on item", itm);
+                this._ItemsToReport = [itm];
+                this._ItemCodingList = Data.itemSets.filter(found => found.itemId == itm.itemId).map(im => { return new ItemSet(im); });
+
+                //console.log("Reporting on item (Item id, len):", this._ItemsToReport[0].itemId, this._ItemCodingList.length);
+                if (isJson) this.AddToJSONQuickCodingReport();
+                else this.AddToQuickCodingReport();
+            }
+            this._ItemsToReport = [];
+        }
+        if (LastTimeRound) {
+            //signal that we are stopping, without wiping what we've collected so far!
+            this._stopQuickReport = true;
+        }
+        this.RemoveBusy("FetchCodingReportPage");
+    }
+
+    private async FetchCodingReportDataPage(crit: Criteria, sets: string): Promise<iQuickCodingReportData> {
+        this._BusyMethods.push("FetchCodingReportDataPage");
+        let criteria: QuickCodingReportDataSelectionCriteria = new QuickCodingReportDataSelectionCriteria(crit, sets);
+        this._CurrentItemAttPDFCoding = new ItemAttPDFCoding();
+        const ErrResult: iQuickCodingReportData = {
+            pageSize: -1,
+            pageCount: -1,
+            pageIndex: -1,
+            totalItemCount: -1,
+            items: [],
+            itemSets: []
+        };
+        return this._httpC.post<iQuickCodingReportData>(this._baseUrl + 'api/ItemSetList/FetchQuickCodingReportPage',
+            criteria).toPromise().then(
+            result => {
+                this.RemoveBusy("FetchCodingReportDataPage");
+                this.ngZone.run(() => this.IsBusy);
+                return result;
+                },
+            error => {
+                this.RemoveBusy("FetchCodingReportDataPage");
+                this.ngZone.run(() => this.IsBusy);
+                this.modalService.GenericError(error);
+                return ErrResult;
+            }
+            ).catch(
+            caught => {
+                this.RemoveBusy("FetchCodingReportDataPage");
+                this.ngZone.run(() => this.IsBusy);
+                this.modalService.GenericError(caught);
+                return ErrResult;
+            });
     }
 }
 
@@ -1538,4 +1702,21 @@ class ItemAttributeFullTextDetails4ER4Json {
 class JsonReport {
     CodeSets: ReviewSet4ER4Json[] = [];
     References: Item4ER4Json[] = [];
+}
+class QuickCodingReportDataSelectionCriteria {
+    constructor(c: Criteria, sets: string) {
+        this.itemsSelectionCriteria = c;
+        this.setIds = sets;
+    }
+    public itemsSelectionCriteria: Criteria = new Criteria();
+    public setIds: string = "";
+}
+
+interface iQuickCodingReportData {
+    pageSize: number;
+    pageCount: number;
+    pageIndex: number;
+    totalItemCount: number;
+    items: Item[];
+    itemSets: iItemSet[];
 }

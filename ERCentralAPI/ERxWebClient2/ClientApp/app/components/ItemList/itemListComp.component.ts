@@ -2,7 +2,7 @@ import { Component, OnInit, Input, ElementRef, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { WorkAllocation, WorkAllocationListService } from '../services/WorkAllocationList.service';
-import { ItemListService, Criteria } from '../services/ItemList.service';
+import { ItemListService, Criteria, Item } from '../services/ItemList.service';
 import { GridDataResult } from '@progress/kendo-angular-grid';
 import { SortDescriptor, orderBy } from '@progress/kendo-data-query';
 import { _localeFactory } from '@angular/core/src/application_module';
@@ -64,17 +64,19 @@ export class ItemListComp implements OnInit {
             this.ItemListService.ItemList.items[i].isSelected = val;
             }
 	}
-	public test() {
-		alert('hello');
-	}
+
     private _LocalPageSize: number | null = null;
     public get LocalPageSize(): number {
-        //console.log("get LocalPageSize", this._LocalPageSize);
-        if (this._LocalPageSize == null && this.ItemListService.ItemList) {
-            this._LocalPageSize = this.ItemListService.ItemList.pagesize;
+        //console.log("get LocalPageSize", this._LocalPageSize, this.ItemListService.ItemList.pagesize, this.ItemListService.ListCriteria );
+        if (this._LocalPageSize == null || this._LocalPageSize == 0) {
+            if (this.ItemListService.ItemList.pagesize > 0) {
+                this._LocalPageSize = this.ItemListService.ItemList.pagesize;
+            }
+            else if (this.ItemListService.ListCriteria.pageSize > 0) {
+                this._LocalPageSize = this.ItemListService.ListCriteria.pageSize;
+            }
+            else return -1;
         }
-        else if (this._LocalPageSize == null) return -1;
-        else return this._LocalPageSize;
         return this._LocalPageSize
     }
     public set LocalPageSize(val: number) {
@@ -264,20 +266,63 @@ export class ItemListComp implements OnInit {
     DeletedItemList() {
         this.ItemListService.GetDeletedItems();
     }
-    //selectAllItems(e: any): void {
-    //    if (e.target.checked) {
-    //        this.allItemsSelected = true;
-    //        for (let i = 0; i < this.ItemListService.ItemList.items.length; i++) {
-    //            this.ItemListService.ItemList.items[i].isSelected = true;
-    //        }
-    //    }
-    //    else {
-    //        this.allItemsSelected = false;
-    //        for (let i = 0; i < this.ItemListService.ItemList.items.length; i++) {
-    //            this.ItemListService.ItemList.items[i].isSelected= false;
-    //        }
-    //    }
-    //}
+
+    public EnhancedTableSelections: boolean = true;
+    public ShowSelectionHelp: boolean = false;
+    private _LastSelectedItem: Item | null = null;
+    public thisIsTheLastSelectedItem(item: Item) {
+        if (this._LastSelectedItem == null || !this.EnhancedTableSelections) return false;
+        else return (item.itemId == this._LastSelectedItem.itemId);
+    }
+    public ItemRowClicked(event: any, itm: Item) {
+        //console.log("ItemRowClicked", event.ctrlKey, event.altKey, itm.itemId);
+        if (this.EnhancedTableSelections == false) {
+            this._LastSelectedItem = null
+            return;
+        }
+        if (event.ctrlKey) {
+            itm.isSelected = !itm.isSelected;
+        }
+        else if (this._LastSelectedItem != null && event.altKey) {
+            const indx1 = this.ItemListService.ItemList.items.indexOf(this._LastSelectedItem);
+            if (indx1 == -1) {
+                //last selected item exists does not appear in the current list
+                this._LastSelectedItem = null;
+                itm.isSelected = !itm.isSelected;
+            }
+            else {//last selected item exists and is in the current list
+                const indx2 = this.ItemListService.ItemList.items.indexOf(itm);
+                if (indx2 != -1) {
+                    let range: Item[] = [];
+                    if (indx1 < indx2) {
+                        range = this.ItemListService.ItemList.items.slice(indx1, indx2 + 1);
+                    } else if (indx2 < indx1) {
+                        range = this.ItemListService.ItemList.items.slice(indx2, indx1 + 1);
+                    } else {
+                        //just one item!
+                        range.push(itm);
+                    }
+                    for (let titem of range) {
+                        titem.isSelected = true;
+                    }
+                }
+
+            }
+        } else if (this._LastSelectedItem == null && event.altKey) {
+            //no range, but we won't remove selection from all other items...
+            itm.isSelected = !itm.isSelected;
+        }
+        else { //no modifier, so we'll remove all selections and select only the current item.
+            let itms = this.ItemListService.SelectedItems.slice(0);
+            let aim = itm.isSelected ? true : false;
+            for (let i of itms) {
+                i.isSelected = false;
+            }
+            itm.isSelected = !aim;
+        }
+        this._LastSelectedItem = itm;
+    }
+
 }
 
 

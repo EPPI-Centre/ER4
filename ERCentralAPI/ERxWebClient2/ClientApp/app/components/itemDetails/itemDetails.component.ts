@@ -41,7 +41,14 @@ export class itemDetailsComp implements OnInit, OnDestroy {
     @Input() IsScreening: boolean = false;
 	@Input() ShowDocViewButton: boolean = true;
 	@Input() Context: string = "CodingFull";
+    ngOnInit() {
+		this.subscr  = this.ReviewerTermsService.setHighlights.subscribe(
+			() => { this.SetHighlights();}
 
+		);
+		this.hostRectangle = null;
+        this.selectedText = "";
+	    }
     public HAbstract: string = "";
     public HTitle: string = "";
 	public showOptionalFields = false;
@@ -106,24 +113,40 @@ export class itemDetailsComp implements OnInit, OnDestroy {
 
 	private selectedText!: string;
 	private subscr: Subscription = new Subscription();
-	ngOnInit() {
 
-		this.subscr  = this.ReviewerTermsService.setHighlights.subscribe(
-			() => { this.SetHighlights();}
-
-		);
-		this.hostRectangle = null;
-		this.selectedText = "";
-				
-	}
-	ngOnDestroy() {
-				
-		this.hostRectangle = null;
-		this.selectedText = "";
-		if (this.subscr) {
-			this.subscr.unsubscribe();
-		}
-	}
+    public get DOILink(): string {
+        if (this.item == undefined || this.item.doi.trim() == "") return "";
+        else {
+            const chk = this.item.doi.toLowerCase();
+            const ind = chk.indexOf('doi.org/');
+            if (chk.startsWith("http://")
+                || chk.startsWith("https://")
+            ) {
+                if (ind > 6 && ind < 12) return this.item.doi;
+                else return "";
+            }
+            else if (ind == -1 && chk.indexOf('/') > 0) {
+                return "https://doi.org/" + this.item.doi;
+            }
+            else return "";
+        }
+    }
+    //adapted from:https://stackoverflow.com/a/43467144 
+    public get URLLink(): string {
+        if (this.item == undefined || this.item.url.trim() == "") return "";
+        else {
+            const st: string = this.item.url;
+            let url;
+            try {
+                url = new URL(st);
+            } catch (_) {
+                return "";
+            }
+            if (url.protocol === "http:" || url.protocol === "https:") {
+                return url.href;
+            } else return "";
+        }
+    }
     
 	public renderRectangles(event: TextSelectEvent): void {
 
@@ -344,6 +367,14 @@ export class itemDetailsComp implements OnInit, OnDestroy {
     }
     public FieldsByType(typeId: number) {
         return Helpers.FieldsByPubType(typeId);
+    }
+
+    ngOnDestroy() {
+        this.hostRectangle = null;
+        this.selectedText = "";
+        if (this.subscr) {
+            this.subscr.unsubscribe();
+        }
     }
 }
 

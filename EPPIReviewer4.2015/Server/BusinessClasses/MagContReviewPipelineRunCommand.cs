@@ -24,9 +24,12 @@ using BusinessLibrary.Security;
 using System.Configuration;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
-using System.Data;
-
+#if !CSLA_NETCORE
+using System.Web.Hosting;
 #endif
+using System.Data;
+#endif
+
 
 namespace BusinessLibrary.BusinessClasses
 {
@@ -46,9 +49,11 @@ namespace BusinessLibrary.BusinessClasses
         private string _specificFolder;
         private int _reviewSampleSize;
         private int _MagLogId;
+        private bool _prepareNewMagParquet;
 
         public MagContReviewPipelineRunCommand(string CurrentMagVersion, string NextMagVersion,
-            double scoreThreshold, double fosThreshold, string specificFolder, int magLogId, int reviewSampleSize)
+            double scoreThreshold, double fosThreshold, string specificFolder, int magLogId, int reviewSampleSize,
+            bool prepareNewMagParquet = false)
         {
             _CurrentMagVersion = CurrentMagVersion;
             _NextMagVersion = NextMagVersion;
@@ -57,6 +62,7 @@ namespace BusinessLibrary.BusinessClasses
             _specificFolder = specificFolder;
             _MagLogId = magLogId;
             _reviewSampleSize = reviewSampleSize;
+            _prepareNewMagParquet = prepareNewMagParquet;
         }
 
         protected override void OnGetState(Csla.Serialization.Mobile.SerializationInfo info, StateMode mode)
@@ -69,6 +75,7 @@ namespace BusinessLibrary.BusinessClasses
             info.AddValue("_specificFolder", _specificFolder);
             info.AddValue("_reviewSampleSize", _reviewSampleSize);
             info.AddValue("_MagLogId", _MagLogId);
+            info.AddValue("_prepareNewMagParquet", _prepareNewMagParquet);
 
         }
         protected override void OnSetState(Csla.Serialization.Mobile.SerializationInfo info, StateMode mode)
@@ -80,6 +87,7 @@ namespace BusinessLibrary.BusinessClasses
             _specificFolder = info.GetValue<string>("_specificFolder");
             _reviewSampleSize = info.GetValue<int>("_reviewSampleSize");
             _MagLogId = info.GetValue<int>("_MagLogId");
+            _prepareNewMagParquet = info.GetValue<bool>("_prepareNewMagParquet");
         }
 
 
@@ -88,9 +96,27 @@ namespace BusinessLibrary.BusinessClasses
         protected override void DataPortal_Execute()
         {
             ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+
+            if (_prepareNewMagParquet == true)
+            {
+#if CSLA_NETCORE
+            System.Threading.Tasks.Task.Run(() => doRunPipelinePrepareParquet(ri.ReviewId, ri.UserId));
+#else
+                //see: https://codingcanvas.com/using-hostingenvironment-queuebackgroundworkitem-to-run-background-tasks-in-asp-net/
+                HostingEnvironment.QueueBackgroundWorkItem(cancellationToken => doRunPipelinePrepareParquet(ri.ReviewId, ri.UserId, cancellationToken));
+#endif
+                return;
+            }
+
+
             if (_specificFolder == "")
             {
-                Task.Run(() => { doRunPipeline(ri.ReviewId, ri.UserId); });
+#if CSLA_NETCORE
+            System.Threading.Tasks.Task.Run(() => doRunPipeline(ri.ReviewId, ri.UserId));
+#else
+                //see: https://codingcanvas.com/using-hostingenvironment-queuebackgroundworkitem-to-run-background-tasks-in-asp-net/
+                HostingEnvironment.QueueBackgroundWorkItem(cancellationToken => doRunPipeline(ri.ReviewId, ri.UserId, cancellationToken));
+#endif
             }
             else
             {
@@ -98,9 +124,13 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private async void doRunPipeline(int ReviewId, int ContactId)
+        private async void doRunPipeline(int ReviewId, int ContactId, CancellationToken cancellationToken = default(CancellationToken))
         {
-
+            string prepare_data = "false";
+            string process_train = "true";
+            string process_inference = "true";
+            string train_model = "true";
+            string score_papers = "true";
             string uploadFileName = "";
             /* Commenting out to see if the alternative below works on Jeff's laptop
             if (Directory.Exists("UserTempUploads"))
@@ -139,13 +169,14 @@ namespace BusinessLibrary.BusinessClasses
             MagLog.UpdateLogEntry("running", "Main update. NewIds written (" + SeedIds.ToString() + ")" +
                 " Folder:" + folderPrefix, logId);
 
-            if ((MagContReviewPipeline.runADFPieline(ContactId, Path.GetFileName(uploadFileName), "NewPapers.tsv",
+            if ((MagContReviewPipeline.runADFPipeline(ContactId, Path.GetFileName(uploadFileName), "NewPapers.tsv",
                 "crResults.tsv", "cr_per_paper_tfidf.pickle", _NextMagVersion, _fosThreshold.ToString(), folderPrefix,
-                _scoreThreshold.ToString(), "v1", "True", _reviewSampleSize.ToString())) == "Succeeded")
+                _scoreThreshold.ToString(), "v1", "True", _reviewSampleSize.ToString(), prepare_data, process_train,
+                process_inference, train_model, score_papers) == "Succeeded"))
             {
                 MagLog.UpdateLogEntry("running", "Main update. ADFPipelineComplete (" + SeedIds.ToString() + ")" +
                     " Folder:" + folderPrefix, logId);
-                int NewIds = await DownloadResultsAsync(folderPrefix + "/crResults.tsv", ReviewId);
+                int NewIds = await DownloadResultsAsync(folderPrefix, ReviewId);
                 MagLog.UpdateLogEntry("Complete", "Main update. SeedIds: " + SeedIds.ToString() + "; NewIds: " +
                     NewIds.ToString() + " FoS:" + _fosThreshold.ToString() + "Score threshold: " + _scoreThreshold.ToString() +
                     " Folder:" + folderPrefix, logId);
@@ -158,9 +189,36 @@ namespace BusinessLibrary.BusinessClasses
             
         }
 
+        private async void doRunPipelinePrepareParquet(int ReviewId, int ContactId, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            string folderName;
+#if (!CSLA_NETCORE)
+
+            folderName = System.Web.HttpRuntime.AppDomainAppPath + @"UserTempUploads";
+#else
+                // same as comment above for same line
+                //SG Edit:
+                DirectoryInfo tmpDir = System.IO.Directory.CreateDirectory("UserTempUploads");
+                folderName = tmpDir.FullName + "/" + @"UserTempUploads";
+#endif
+            int logId = MagLog.SaveLogEntry("ContReview process", "running", "Updating parquet to: " + _NextMagVersion, ContactId);
+            if ((MagContReviewPipeline.runADFPipeline(ContactId, "NoTrainFile", "NoInferenceFile",
+                "NoResultsFile", "NoModelFile", _NextMagVersion, _fosThreshold.ToString(), folderName,
+                _scoreThreshold.ToString(), "v1", "True", _reviewSampleSize.ToString(), "true", "false",
+                "false", "false", "false") == "Succeeded"))
+            {
+                MagLog.UpdateLogEntry("Complete", "Updated parquet to: " + _NextMagVersion, logId);
+                
+            }
+            else
+            {
+                MagLog.UpdateLogEntry("failed", "Update parquet failed", logId);
+            }
+        }
+
         private async void doDownloadResultsOnly(int ReviewId, int ContactId)
         {
-            int NewIds = await DownloadResultsAsync(_specificFolder + "/crResults.tsv", ReviewId);
+            int NewIds = await DownloadResultsAsync(_specificFolder, ReviewId); // + "/crResults.tsv", ReviewId);
             MagLog.UpdateLogEntry("Complete", "Main update downloaded on request. Folder:" +
                 _specificFolder, _MagLogId);
         }
@@ -240,7 +298,7 @@ namespace BusinessLibrary.BusinessClasses
                 this._NextMagVersion + "\",\"" + folderPrefix + "/NewPapers.tsv" + "\",\"" + "experiments" + "\");", true, "GetNewPaperIds", ContactId, 10);
         }
 
-        private async Task<int> DownloadResultsAsync(string fileName, int ReviewId)
+        private async Task<int> DownloadResultsAsync(string folder, int ReviewId)
         {
 #if (CSLA_NETCORE)
 
@@ -253,6 +311,11 @@ namespace BusinessLibrary.BusinessClasses
             string storageAccountKey = ConfigurationManager.AppSettings["MAGStorageAccountKey"];
 #endif
 
+            CloudBlobDirectory dir;
+            CloudBlob blob;
+            BlobContinuationToken continuationToken = null;
+            int lineCount = 0;
+
             string storageConnectionString =
                 "DefaultEndpointsProtocol=https;AccountName=" + storageAccountName + ";AccountKey=";
             storageConnectionString += storageAccountKey;
@@ -260,56 +323,85 @@ namespace BusinessLibrary.BusinessClasses
             CloudStorageAccount storageAccount = CloudStorageAccount.Parse(storageConnectionString);
             CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
             CloudBlobContainer container = blobClient.GetContainerReference("experiments");
-
-            CloudBlockBlob blockBlobDownloadData = container.GetBlockBlobReference(fileName);
-            string resultantString = await blockBlobDownloadData.DownloadTextAsync();
-            byte[] myFile = Encoding.UTF8.GetBytes(resultantString);
-            
-            MemoryStream ms = new MemoryStream(myFile);
-
-            DataTable dt = new DataTable("Ids");
-            dt.Columns.Add("MAG_RELATED_RUN_ID");
-            dt.Columns.Add("PaperId");
-            dt.Columns.Add("SimilarityScore");
-            dt.Columns.Add("JobId");
-
             string JobId = Guid.NewGuid().ToString();
-            int lineCount = 0;
-
-            using (var reader = new StreamReader(ms))
+            do
             {
-                string line;
-                bool firstTime = true; // column headers
-                while ((line = reader.ReadLine()) != null)
+                BlobResultSegment resultSegment = await container.ListBlobsSegmentedAsync(folder + "/tmp",
+                true, BlobListingDetails.Metadata, 100, continuationToken, null, null);
+
+                foreach (var blobItem in resultSegment.Results)
                 {
-                    if (firstTime == false)
+                    // A hierarchical listing may return both virtual directories and blobs.
+                    if (blobItem is CloudBlobDirectory)
                     {
-                        string [] fields = line.Split('\t');
-                        DataRow newRow = dt.NewRow();
-                        newRow["MAG_RELATED_RUN_ID"] = fields[1];
-                        newRow["PaperId"] = fields[0];
-                        newRow["SimilarityScore"] = fields[2];
-                        newRow["JobId"] = JobId;
-                        dt.Rows.Add(newRow);
-                        lineCount++;
+                        dir = (CloudBlobDirectory)blobItem;
                     }
                     else
                     {
-                        firstTime = false;
+                        blob = (CloudBlob)blobItem;
+                        if (blob.Name.StartsWith(folder + "/tmp/part"))
+                        {
+                            CloudBlockBlob blockBlobDownloadData = container.GetBlockBlobReference(blob.Name);
+                            string resultantString = await blockBlobDownloadData.DownloadTextAsync();
+                            byte[] myFile = Encoding.UTF8.GetBytes(resultantString);
+
+                            MemoryStream ms = new MemoryStream(myFile);
+
+                            DataTable dt = new DataTable("Ids");
+                            dt.Columns.Add("MAG_RELATED_RUN_ID");
+                            dt.Columns.Add("PaperId");
+                            dt.Columns.Add("SimilarityScore");
+                            dt.Columns.Add("JobId");
+
+                            using (var reader = new StreamReader(ms))
+                            {
+                                string line;
+                                bool firstTime = true; // column headers
+                                while ((line = reader.ReadLine()) != null)
+                                {
+                                    if (firstTime == false)
+                                    {
+                                        string[] fields = line.Split('\t');
+                                        DataRow newRow = dt.NewRow();
+                                        newRow["MAG_RELATED_RUN_ID"] = fields[1];
+                                        newRow["PaperId"] = fields[0];
+                                        newRow["SimilarityScore"] = fields[2];
+                                        newRow["JobId"] = JobId;
+                                        dt.Rows.Add(newRow);
+                                        lineCount++;
+                                    }
+                                    else
+                                    {
+                                        firstTime = false;
+                                    }
+                                }
+                            }
+
+                            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+                            {
+                                connection.Open();
+                                using (SqlBulkCopy sbc = new SqlBulkCopy(connection))
+                                {
+                                    sbc.DestinationTableName = "TB_MAG_RELATED_PAPERS_TEMP";
+                                    sbc.BatchSize = 1000;
+                                    sbc.WriteToServer(dt);
+                                }
+
+                                
+                            }
+                            //blockBlobDownloadData.DeleteIfExists();
+                        }
+                        
                     }
                 }
-            }
 
+                // Get the continuation token and loop until it is null.
+                continuationToken = resultSegment.ContinuationToken;
+
+            } while (continuationToken != null);
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
                 connection.Open();
-                using (SqlBulkCopy sbc = new SqlBulkCopy(connection))
-                {
-                    sbc.DestinationTableName = "TB_MAG_RELATED_PAPERS_TEMP";
-                    sbc.BatchSize = 1000;
-                    sbc.WriteToServer(dt);
-                }
-
                 using (SqlCommand command = new SqlCommand("st_MagContReviewInsertResults", connection))
                 {
                     command.CommandType = System.Data.CommandType.StoredProcedure;
@@ -318,8 +410,9 @@ namespace BusinessLibrary.BusinessClasses
                 }
                 connection.Close();
             }
-            //blockBlobDownloadData.DeleteIfExists();
+
             return lineCount;
+
         }
 
 

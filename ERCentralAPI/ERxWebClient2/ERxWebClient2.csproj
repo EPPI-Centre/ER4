@@ -112,6 +112,7 @@
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemDocumentSaveCommand.cs" Link="Models\ItemDocumentSaveCommand.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemDuplicateGroup.cs" Link="Models\ItemDuplicateGroup.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemDuplicateGroupMember.cs" Link="Models\ItemDuplicateGroupMember.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemDuplicateGroupsDeleteCommand.cs" Link="Models\ItemDuplicateGroupsDeleteCommand.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemDuplicateManualGroupMember.cs" Link="Models\ItemDuplicateManualGroupMember.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemDuplicateReadOnlyGroup.cs" Link="Models\ItemDuplicateReadOnlyGroup.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemDuplicateReadOnlyGroupList.cs" Link="Models\ItemDuplicateReadOnlyGroupList.cs" />
@@ -158,6 +159,7 @@
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\PerformClusterCommand.cs" Link="Models\PerformClusterCommand.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\PerformRandomAllocateCommand.cs" Link="Models\PerformRandomAllocateCommand.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\PubMedSearch.cs" Link="Models\PubMedSearch.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\QuickCodingReportData.cs" Link="Models\QuickCodingReportData.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ReadOnlyArchieReview.cs" Link="Models\ReadOnlyArchieReview.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ReadOnlyArchieReviewList.cs" Link="Models\ReadOnlyArchieReviewList.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ReadOnlyImportFilterRule.cs" Link="Models\ReadOnlyImportFilterRule.cs" />
@@ -228,6 +230,10 @@
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\TrainingReviewerTerm.cs" Link="Models\TrainingReviewerTerm.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\TrainingReviewerTermList.cs" Link="Models\TrainingReviewerTermList.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\TrainingRunCommand.cs" Link="Models\TrainingRunCommand.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\TrainingScreeningCriteria.cs" Link="Models\TrainingScreeningCriteria.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\TrainingScreeningCriteriaList.cs" Link="Models\TrainingScreeningCriteriaList.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\TrainingScreeningCriteriaListDeleteAllCommand.cs" Link="Models\TrainingScreeningCriteriaListDeleteAllCommand.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\TrainingSetScreeningCodeSetCommand.cs" Link="Models\TrainingSetScreeningCodeSetCommand.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\WorkAllocation.cs" Link="Models\WorkAllocation.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\WorkAllocationContactList.cs" Link="Models\WorkAllocationContactList.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\WorkAllocationFromWizardCommand.cs" Link="Models\WorkAllocationFromWizardCommand.cs" />

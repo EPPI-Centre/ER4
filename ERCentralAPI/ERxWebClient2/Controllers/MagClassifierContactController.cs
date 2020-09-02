@@ -14,21 +14,16 @@ namespace ERxWebClient2.Controllers
     [Route("api/[controller]")]
     public class MagClassifierContactController : CSLAController
     {
-
-        private readonly ILogger _logger;
-
-		public MagClassifierContactController(ILogger<MagClassifierContactController> logger)
-        {
-
-            _logger = logger;
-        }
+        
+		public MagClassifierContactController(ILogger<MagClassifierContactController> logger) : base(logger)
+        { }
 
         [HttpGet("[action]")]
         public IActionResult FetchClassifierContactList()
         {
 			try
             {
-                SetCSLAUser();
+                if (!SetCSLAUser()) return Unauthorized();
 
                 DataPortal<ClassifierContactModelList> dp = new DataPortal<ClassifierContactModelList>();
                 ClassifierContactModelList result = dp.Fetch();
@@ -38,7 +33,7 @@ namespace ERxWebClient2.Controllers
             catch (Exception e)
             {
                 _logger.LogException(e, "Fetching a ClassifierContactModel list has an error");
-                throw;
+                return StatusCode(500, e.Message);
             }
 		}
 

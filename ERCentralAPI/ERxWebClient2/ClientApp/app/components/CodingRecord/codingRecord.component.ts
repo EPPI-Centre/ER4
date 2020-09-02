@@ -262,6 +262,7 @@ export class codingRecordComp implements OnInit, OnDestroy {
                     return;
                 }
                 else {
+                    //console.log("ViewSingleCodingReport", itemset.OutcomeList.length);
                     let result = this._ItemCodingService.FetchSingleCodingReport(itemset, this.item);
                     if (show) Helpers.OpenInNewWindow(result, this._baseUrl);
                     else this.SaveReportAsHtml(result);
@@ -281,6 +282,7 @@ export class codingRecordComp implements OnInit, OnDestroy {
 
 	RunComparison() {
         this.ComparisonReportHTML = "";
+        //console.log('RunComparison');
 		let count: number = this.itemsSelected.length;
         if (!this.SetComparisons()) {
             return;
@@ -306,46 +308,42 @@ export class codingRecordComp implements OnInit, OnDestroy {
                                 this.ComparisonReportHTML += this.writeComparisonReportAttributes(this.comparison1, this.comparison2, this.comparison3, attributeSet);
                             }
                             this.ComparisonReportHTML += "</ul></p>";
+                            this.ComparisonReportHTML += this.AddOutcomesToComparisonReport(this.comparison1, this.comparison2, this.comparison3, reviewSet);
                             Helpers.OpenInNewWindow(this.ComparisonReportHTML, this._baseUrl);
                         }
                     }
                     
                 }
-				//console.log('blah blah: ' + JSON.stringify(fullText));
-
-
-				//let isla: ItemSet[] = this.itemsSelected;
-				//for (var i = 0; i < isla.length; i++) {
-
-				//	this.AddFullTextData(fullText);
-				//}
-		
-				//this.SetComparisons();
-
-				//if (this.comparison1 == null || this.comparison2 == null) {
-				//	alert('exiting');
-				//	return;
-				//}
-
 				
-				//let report: string = '';
-				//if (reviewSet != null) {
-
-				//	report = "<p><h1>" + reviewSet.set_name + "</h1></p><p><ul>";
-
-				//	for (var i = 0; i < reviewSet.attributes.length; i++) {
-
-				//		let attributeSet: SetAttribute = reviewSet.attributes[i];
-
-				//		report += this.writeComparisonReportAttributes(this.comparison1, this.comparison2, this.comparison3, attributeSet);
-				//	}
-				//	report += "</ul></p>";
-				//}
-				//// need to open a new window with this html like previously
-				//this._comparisonService.OpenInNewWindow(report);
-
 			});
-	}
+    }
+    AddOutcomesToComparisonReport(comparison1: ItemSet, comparison2: ItemSet, comparison3: ItemSet | null, rSet: ReviewSet): string {
+        let res: string = "";
+        //console.log("AddOutcomesToComparisonReport", comparison1.OutcomeList.length, comparison2.OutcomeList.length);
+        if (comparison1.OutcomeList.length > 0) {
+            //console.log("AddOutcomesToComparisonReport in rev1");
+            res += "<FONT COLOR='BLUE'>" + comparison1.contactName + " Outcomes:</font><br />";
+            res += "<div style='background-color:#cce5ffaa'>"
+                + this._ItemCodingService.OutcomesTable(comparison1.OutcomeList, false)
+                + "</div>";
+        }
+        if (comparison2.OutcomeList.length > 0) {
+            //console.log("AddOutcomesToComparisonReport in rev2");
+            res += "<FONT COLOR='RED'>" + comparison2.contactName + " Outcomes:</font><br />";
+            res += "<div style='background-color:#f8d7daaa'>"
+                + this._ItemCodingService.OutcomesTable(comparison2.OutcomeList, false)
+                + "</div>";
+        }
+        if (comparison3 != null && comparison3.OutcomeList.length > 0) {
+            //console.log("AddOutcomesToComparisonReport in rev3");
+            res += "<FONT COLOR='GREEN'>" + comparison3.contactName + " Outcomes:</font><br />";
+            res += "<div style='background-color:#d4eddaaa'>"
+                + this._ItemCodingService.OutcomesTable(comparison3.OutcomeList, false)
+                + "</div>";
+        }
+        //if (res == "") res += "<p>No outcomes</p>";
+        return res;
+    }
 	LiveComparison() {
         this._ItemCodingService.ToggleLiveComparison.emit();
 	}

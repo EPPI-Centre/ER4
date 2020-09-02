@@ -23,23 +23,18 @@ namespace ERxWebClient2.Controllers
     [Route("api/[controller]")]
     public class ItemArmListController : CSLAController
     {
+        
+        public ItemArmListController(ILogger<ItemArmListController> logger) : base(logger)
+        { }
 
-        private readonly ILogger _logger;
-
-        public ItemArmListController(ILogger<ItemArmListController> logger)
-        {
-            _logger = logger;
-
-        }
-		 
-		// READ
-		[HttpPost("[action]")]
+        // READ
+        [HttpPost("[action]")]
 		public IActionResult GetArms([FromBody] SingleInt64Criteria ItemIDCrit)
 		{
 
 			try
 			{
-				SetCSLAUser();
+				if (!SetCSLAUser()) return Unauthorized();
 				ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
 
 				DataPortal<ItemArmList> dp = new DataPortal<ItemArmList>();

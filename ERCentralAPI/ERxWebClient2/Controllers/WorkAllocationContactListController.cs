@@ -22,19 +22,16 @@ namespace ERxWebClient2.Controllers
     [Route("api/[controller]")]
     public class WorkAllocationContactListController : CSLAController
     {
-        private readonly ILogger _logger;
 
-        public WorkAllocationContactListController(ILogger<WorkAllocationContactListController> logger)
-        {
-            _logger = logger;
-        }
+        public WorkAllocationContactListController(ILogger<WorkAllocationContactListController> logger) : base(logger)
+        { }
 
         [HttpGet("[action]")]
         public IActionResult WorkAllocationContactList()//should receive a reviewID!
         {
             try
             {
-                SetCSLAUser();
+                if (!SetCSLAUser()) return Unauthorized();
                 ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
                 DataPortal<WorkAllocationContactList> dp = new DataPortal<WorkAllocationContactList>();
                 WorkAllocationContactList result = dp.Fetch();
@@ -50,17 +47,17 @@ namespace ERxWebClient2.Controllers
             catch (Exception e)
             {
                 _logger.LogException(e, "Work Allocation data portal error");
-                throw;
+                return StatusCode(500, e.Message);
             }
 
         }
 
 		[HttpGet("[action]")]
-		public IActionResult WorkAllocations()//should receive a reviewID!
+		public IActionResult WorkAllocations()
 		{
 			try
 			{
-				SetCSLAUser();
+				if (!SetCSLAUser()) return Unauthorized();
 				ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
 				DataPortal<WorkAllocationList> dp = new DataPortal<WorkAllocationList>();
 				WorkAllocationList result = dp.Fetch();
@@ -76,9 +73,8 @@ namespace ERxWebClient2.Controllers
 			catch (Exception e)
 			{
 				_logger.LogException(e, "Work Allocation data portal error");
-                //throw;
-                return Ok();
-			}
+                return StatusCode(500, e.Message);
+            }
 
 		}
 
@@ -105,7 +101,7 @@ namespace ERxWebClient2.Controllers
 			catch (Exception e)
 			{
 				_logger.LogException(e, "Work Allocation data portal error");
-				throw;
+				return StatusCode(500, e.Message);
 			}
 		}
 
@@ -141,7 +137,7 @@ namespace ERxWebClient2.Controllers
 			catch (Exception e)
 			{
 				_logger.LogException(e, "Assign Work Allocation data portal error");
-				throw;
+				return StatusCode(500, e.Message);
 			}
 		}
         [HttpPost("[action]")]
@@ -210,7 +206,7 @@ namespace ERxWebClient2.Controllers
             catch (Exception e)
             {
                 _logger.LogException(e, "ExecuteWorkAllocationFromWizardCommand error");
-                throw;
+                return StatusCode(500, e.Message);
             }
         }
     }

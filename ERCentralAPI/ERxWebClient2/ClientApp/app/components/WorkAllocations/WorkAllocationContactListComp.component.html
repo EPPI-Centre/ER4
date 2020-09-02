@@ -1,7 +1,7 @@
 <p *ngIf="!ContactWorkAllocations"><em>Loading your Allocations...</em></p>
 
-<div class="card card-link mb-2" *ngIf="HasScreeningList()">
-    <div class="align-content-end p-1 m-1">Priority screening List is <b>Enabled and Ready</b>: <button (click)="StartScreening()" class="btn btn-primary">Click Here</button> to start screening.</div>
+<div class="card card-link mb-2" *ngIf="Context == 'CodingOnly' && HasScreeningList()">
+    <div class="align-content-end p-1 m-1">The Screening List is <b>Enabled and Ready</b>: <button (click)="StartScreening()" class="btn btn-primary">Click Here</button> to start screening.</div>
 </div>
 <table class='table table-responsive'  style="height: 240px;" *ngIf="ContactWorkAllocations">
     <thead>

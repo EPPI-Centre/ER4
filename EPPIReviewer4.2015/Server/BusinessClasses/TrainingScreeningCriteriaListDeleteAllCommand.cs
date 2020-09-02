@@ -23,12 +23,7 @@ namespace BusinessLibrary.BusinessClasses
     [Serializable]
     public class TrainingScreeningCriteriaListDeleteAllCommand : CommandBase<TrainingScreeningCriteriaListDeleteAllCommand>
     {
-#if SILVERLIGHT
     public TrainingScreeningCriteriaListDeleteAllCommand(){}
-#else
-        protected TrainingScreeningCriteriaListDeleteAllCommand() { }
-#endif
-
        
         protected override void OnGetState(Csla.Serialization.Mobile.SerializationInfo info, Csla.Core.StateMode mode)
         {

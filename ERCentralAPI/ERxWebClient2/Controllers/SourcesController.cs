@@ -25,19 +25,16 @@ namespace ERxWebClient2.Controllers
     [Route("api/[controller]")]
     public class SourcesController : CSLAController
     {
-
-        private readonly ILogger _logger;
-		public SourcesController(ILogger<SearchListController> logger)
-        {
-            _logger = logger;
-        }
+        
+		public SourcesController(ILogger<SearchListController> logger) : base(logger)
+        { }
 
         [HttpGet("[action]")]
         public IActionResult GetSources()
         {
 			try
             {
-                SetCSLAUser();
+                if (!SetCSLAUser()) return Unauthorized();
                 DataPortal<ReadOnlySourceList> dp = new DataPortal<ReadOnlySourceList>();
                 ReadOnlySourceList result = dp.Fetch();
 
@@ -46,7 +43,7 @@ namespace ERxWebClient2.Controllers
             catch (Exception e)
             {
                 _logger.LogException(e, "GetSources data portal error");
-                throw;
+                return StatusCode(500, e.Message);
             }
 		}
         [HttpPost("[action]")]
@@ -54,7 +51,7 @@ namespace ERxWebClient2.Controllers
         {
             try
             {
-                SetCSLAUser();
+                if (!SetCSLAUser()) return Unauthorized();
                 DataPortal<Source> dp = new DataPortal<Source>();
                 Source result = dp.Fetch(new SingleCriteria<Source, int>(SourceId.Value));
                 return Ok(result);
@@ -62,7 +59,7 @@ namespace ERxWebClient2.Controllers
             catch (Exception e)
             {
                 _logger.LogException(e, "GetSource data portal error");
-                throw;
+                return StatusCode(500, e.Message);
             }
         }
         [HttpGet("[action]")]
@@ -70,7 +67,7 @@ namespace ERxWebClient2.Controllers
         {
             try
             {
-                SetCSLAUser();
+                if (!SetCSLAUser()) return Unauthorized();
                 DataPortal<ReadOnlyImportFilterRuleList> dp = new DataPortal<ReadOnlyImportFilterRuleList>();
                 ReadOnlyImportFilterRuleList result = dp.Fetch();
                 return Ok(result);
@@ -78,12 +75,12 @@ namespace ERxWebClient2.Controllers
             catch (Exception e)
             {
                 _logger.LogException(e, "GetImportFilters data portal error");
-                throw;
+                return StatusCode(500, e.Message);
             }
 
         }
-        [HttpPost("[action]")]
-		public IActionResult VerifyFile([FromBody] UploadOrCheckSource incoming)
+        [HttpPost("[action]"), RequestSizeLimit(52_428_800)]        
+        public IActionResult VerifyFile([FromBody] UploadOrCheckSource incoming)
 		{
 			try
 			{
@@ -109,12 +106,12 @@ namespace ERxWebClient2.Controllers
 			catch (Exception e)
 			{
 				_logger.LogException(e, "Verify import file before uploading error");
-				throw;
-			}
+                return StatusCode(500, e.Message);
+            }
 
-		}
-		[HttpPost("[action]")]
-		public IActionResult UploadSource([FromBody] UploadOrCheckSource incoming)
+        }
+        [HttpPost("[action]"), RequestSizeLimit(52_428_800)]
+        public IActionResult UploadSource([FromBody] UploadOrCheckSource incoming)
 		{
 
 			try
@@ -146,8 +143,8 @@ namespace ERxWebClient2.Controllers
 			catch (Exception e)
 			{
 				_logger.LogException(e, "Upload import file error");
-				throw;
-			}
+                return StatusCode(500, e.Message);
+            }
 
 		}
         [HttpPost("[action]")]
@@ -176,7 +173,7 @@ namespace ERxWebClient2.Controllers
             {
 				var errMsg = incoming == null ? "incoming data is null" : incoming.ToString();
 				_logger.LogError(e, "Upload import file error" + errMsg);
-                throw;
+                return StatusCode(500, e.Message);
             }
 
         }
@@ -201,7 +198,7 @@ namespace ERxWebClient2.Controllers
             catch (Exception e)
             {
                 _logger.LogException(e, "DeleteUndeleteSource error");
-                throw;
+                return StatusCode(500, e.Message);
             }
 
         }
@@ -239,7 +236,7 @@ namespace ERxWebClient2.Controllers
             catch (Exception e)
             {
                 _logger.LogException(e, "DeleteUndeleteSource error");
-                throw;
+                return StatusCode(500, e.Message);
             }
 
         }
@@ -269,7 +266,7 @@ namespace ERxWebClient2.Controllers
             catch (Exception e)
             {
                 _logger.LogException(e, "New PubMed Search Preview error");
-                throw;
+                return StatusCode(500, e.Message);
             }
 
         }
@@ -308,7 +305,7 @@ namespace ERxWebClient2.Controllers
             catch (Exception e)
             {
                 _logger.LogException(e, "Act on PubMed Search (import or fetch specific subset) error");
-                throw;
+                return StatusCode(500, e.Message);
             }
 
         }
