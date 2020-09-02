@@ -755,8 +755,6 @@ export class SearchComp implements OnInit, OnDestroy {
 	
 	callSearches(selectedSearchDropDown: string, selectedSearchTextDropDown: string, searchBool: boolean) {
 
-		if (this.CanWrite) {
-
 
 			this.selectedSearchTextDropDown = selectedSearchTextDropDown;
 			let searchTitle: string = '';
@@ -878,7 +876,6 @@ export class SearchComp implements OnInit, OnDestroy {
 
 			}
 
-		}
 	}
 	public ShowSearchForAnyone: boolean = false;
 	public nextDropDownList(num: number, val: string) {

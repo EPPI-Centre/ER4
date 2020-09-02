@@ -24,7 +24,7 @@ export class magSearchService extends BusyAwareService {
     public MagSearchList: MagSearch[] = [];
     public MAGSearchToBeDeleted: MagSearch = new MagSearch();
 
-    Fetch() {
+    FetchMAGSearchList() {
         this._BusyMethods.push("Fetch");
 		 this._httpC.get<MagSearch[]>(this._baseUrl + 'api/MAGSearchList/GetSearches')
              .subscribe(result => {
@@ -49,7 +49,7 @@ export class magSearchService extends BusyAwareService {
                 this.RemoveBusy("Delete");
                 let tmpIndex: any = this.MagSearchList.findIndex(x => x.magSearchId == Number(this.MAGSearchToBeDeleted));
                 this.MagSearchList.splice(tmpIndex, 1);
-				this.Fetch();
+				this.FetchMAGSearchList();
             }, error => {
                 this.RemoveBusy("Delete");
                 this.modalService.GenericError(error);

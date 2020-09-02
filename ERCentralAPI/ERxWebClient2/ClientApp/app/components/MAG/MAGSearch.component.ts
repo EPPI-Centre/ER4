@@ -10,6 +10,7 @@ import { MAGAdvancedService } from '../services/magAdvanced.service';
 import { MAGBrowserHistoryService } from '../services/MAGBrowserHistory.service';
 import { BasicMAGService } from '../services/BasicMAG.service';
 import { MagSearch } from '../services/MAGClasses.service';
+import { magSearchService } from '../services/MAGSearch.service';
 
 @Component({
     selector: 'MAGSearch',
@@ -23,7 +24,7 @@ export class MAGSearchComponent implements OnInit {
         public _magBasicService: BasicMAGService,
         public _magAdvancedService: MAGAdvancedService,
         private _magBrowserService: MAGBrowserService,
-        public _searchService: searchService,
+        public _magSearchService: magSearchService,
         private _ReviewerIdentityServ: ReviewerIdentityService,
         private _location: Location,
         private router: Router,
@@ -39,6 +40,7 @@ export class MAGSearchComponent implements OnInit {
     }
     FetchMagSearches() {
 
+        this._magSearchService.FetchMAGSearchList();
 
     }
 
