@@ -217,6 +217,7 @@ export class MAGBrowserService extends BusyAwareService {
         this.ListCriteria.listType = "MagRelatedPapersRunList";
         this.ListCriteria.pageSize = this.pageSize;
         this.ListCriteria.magRelatedRunId = Id;
+        this.ListCriteria.pageNumber = 0;
 
         return this._httpC.post<MagList>(this._baseUrl + 'api/MagRelatedPapersRunList/GetMagRelatedPapersRunsId',
             this.ListCriteria)

@@ -60,7 +60,7 @@ export class MAGBrowser implements OnInit, OnDestroy {
         this.ShowOriginalPapers = !this.ShowOriginalPapers;
     }
     ngOnInit() {
-
+        
         this._eventEmitterService.selectedButtonPressed.subscribe(
             () => {
                 if (this.tabstrip != null) {
