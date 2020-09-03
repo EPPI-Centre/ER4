@@ -61,20 +61,20 @@ namespace ERxWebClient2.Controllers
                         newSearch.SearchText = "Authors: " + mVCMagSearch.magSearchInput;
                         break;
                     case 3:
-                        newSearch.MagSearchText = newSearch.GetSearchTextFieldOfStudy(MagSearchCurrentTopic.Tag.ToString());
-                        newSearch.SearchText = "Topic: " + mVCMagSearch.magSearchInput
+                        newSearch.MagSearchText = newSearch.GetSearchTextFieldOfStudy(mVCMagSearch.magSearchCurrentTopic);
+                        newSearch.SearchText = "Topic: " + mVCMagSearch.magSearchInput;
                         break;
                     case 4:
                         newSearch.MagSearchText = newSearch.GetSearchTextMagIds(mVCMagSearch.magSearchInput);
-                        newSearch.SearchText = "MAG ID(s): " + mVCMagSearch.magSearchInput
+                        newSearch.SearchText = "MAG ID(s): " + mVCMagSearch.magSearchInput;
                         break;
                     case 5:
                         newSearch.MagSearchText = newSearch.GetSearchTextJournals(mVCMagSearch.magSearchInput);
-                        newSearch.SearchText = "Journal: " + mVCMagSearch.magSearchInput
+                        newSearch.SearchText = "Journal: " + mVCMagSearch.magSearchInput;
                         break;
                     default:
                         newSearch.MagSearchText = mVCMagSearch.magSearchInput;
-                        newSearch.SearchText = "Custom: " + mVCMagSearch.magSearchInput
+                        newSearch.SearchText = "Custom: " + mVCMagSearch.magSearchInput;
                         break;
                 }
 
@@ -128,11 +128,12 @@ namespace ERxWebClient2.Controllers
                             break;
                     }
                 }
-                if (ComboMagSearchPubTypeLimit != null && ComboMagSearchPubTypeLimit.SelectedIndex > 0)
+
+                if (mVCMagSearch.publicationTypeSelection > 0)
                 {
                     newSearch.MagSearchText = "AND(" + newSearch.MagSearchText + "," +
-                        newSearch.GetSearchTextPublicationType((ComboMagSearchPubTypeLimit.SelectedIndex - 1).ToString()) + ")";
-                    newSearch.SearchText += " AND publication type: " + newSearch.GetPublicationType(ComboMagSearchPubTypeLimit.SelectedIndex - 1);
+                        newSearch.GetSearchTextPublicationType((mVCMagSearch.publicationTypeSelection - 1).ToString()) + ")";
+                    newSearch.SearchText += " AND publication type: " + newSearch.GetPublicationType(mVCMagSearch.publicationTypeSelection - 1);
                 }
                 
                 newSearch.BeginSave();
@@ -156,12 +157,13 @@ namespace ERxWebClient2.Controllers
     {
         public int wordsInSelection { get; set; }
         public string magSearchInput { get; set; }
+        public int publicationTypeSelection { get; set; }
 
         public int dateLimitSelection { get; set; }
         public DateTime magSearchDate1 { get; set; }
         public DateTime magSearchDate2 { get; set; }
 
-
+        public string magSearchCurrentTopic { get; set; }
     }
 }
 
