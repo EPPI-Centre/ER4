@@ -236,13 +236,14 @@ export class MAGBrowserService extends BusyAwareService {
                     this.ListCriteria.paperIds = this.ListCriteria.paperIds.substr(0, this.ListCriteria.paperIds.length - 1);
 
                     this.ListCriteria.pageNumber += 1;
-                    this.SavePapers(result, this.ListCriteria, "NormalList");
-                    this.SavePapers(result, this.OrigListCriteria, "");
+                   
                     let FieldsListcriteria: MVCMagFieldOfStudyListSelectionCriteria = new MVCMagFieldOfStudyListSelectionCriteria();
                     FieldsListcriteria.fieldOfStudyId = 0;
                     FieldsListcriteria.listType = "PaperFieldOfStudyList";
                     FieldsListcriteria.paperIdList = this.ListCriteria.paperIds;
                     console.log('check FOS papers 2: ', FieldsListcriteria.paperIdList);
+                    this.SavePapers(result, this.ListCriteria, "NormalList");
+                    this.SavePapers(result, this.OrigListCriteria, "");
                     //TODO THIS SEARCH TEXT NEEDS TO COME IN FROM THE FRONT
                     FieldsListcriteria.SearchTextTopics = ''; //searchText;
                     return this.FetchMagFieldOfStudyList(FieldsListcriteria, goBackListType).then(

@@ -189,7 +189,7 @@ export class MAGAdvancedService extends BusyAwareService {
                                         let criteriaFOS: MVCMagFieldOfStudyListSelectionCriteria = new MVCMagFieldOfStudyListSelectionCriteria();
                                         criteriaFOS.fieldOfStudyId = 0;
                                         criteriaFOS.listType = 'PaperFieldOfStudyList';
-                                        criteriaFOS.paperIdList = this.PaperIds;
+                                        criteriaFOS.paperIdList = result.paperId.toString();
                                         criteriaFOS.SearchTextTopics = ''; //TODO this will be populated by the user..
                                         this._magBrowserService.FetchMagFieldOfStudyList(criteriaFOS, 'CitationsList').then(
 
