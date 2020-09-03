@@ -7,7 +7,7 @@ import { MAGBrowserService } from '../services/MAGBrowser.service';
 import { MAGAdvancedService } from '../services/magAdvanced.service';
 import { MAGBrowserHistoryService } from '../services/MAGBrowserHistory.service';
 import { BasicMAGService } from '../services/BasicMAG.service';
-import { MagSearch } from '../services/MAGClasses.service';
+import { MagSearch, TopicLink, MVCMagFieldOfStudyListSelectionCriteria, MagFieldOfStudy } from '../services/MAGClasses.service';
 import { magSearchService } from '../services/MAGSearch.service';
 
 @Component({
@@ -39,12 +39,20 @@ export class MAGSearchComponent implements OnInit {
     public isCollapsed3: boolean = false;
     public dropdownBasic4: boolean = false;
     public isCollapsed4: boolean = false;
-    public WordsInSelection: number = 0;
+    public WordsInSelection: number = 1;
     public LogicalOperator: string = '';
-    public DateLimitSelection: number = 0;
-    public PublicationTypeSelection: number = 0;
+    public DateLimitSelection: number = 1;
+    public PublicationTypeSelection: number = 1;
     public MagSearchList: MagSearch[] = [];
     public magSearchInput: string = '';
+    public valueKendoDatepicker1 : Date = new Date();
+    public valueKendoDatepicker2: Date = new Date();
+    public valueKendoDatepicker3: Date = new Date();
+    public magSearchDate1: Date = new Date();
+    public magSearchDate2: Date = new Date();
+    public SearchTextTopics: TopicLink[] = [];
+    public SearchTextTopicsResults: TopicLink[] = [];
+    public SearchTextTopic: string = '';
 
     ngOnInit() {
 
@@ -56,11 +64,58 @@ export class MAGSearchComponent implements OnInit {
         this._magSearchService.FetchMAGSearchList();
 
     }
-    public CreateMagSearch() {
+    public UpdateTopicResults() {
 
-        
 
-        this._magSearchService.CreateMagSearch(this.WordsInSelection, this.DateLimitSelection, this.PublicationTypeSelection);
+        if (this.SearchTextTopic.length > 2) {
+
+            let criteriaFOSL: MVCMagFieldOfStudyListSelectionCriteria = new MVCMagFieldOfStudyListSelectionCriteria();
+            criteriaFOSL.fieldOfStudyId = 0;
+            criteriaFOSL.listType = 'FieldOfStudySearchList';
+            criteriaFOSL.paperIdList = '';
+            criteriaFOSL.SearchTextTopics = this.SearchTextTopic;
+            this._magBrowserService.FetchMagFieldOfStudyList(criteriaFOSL, '').then(
+
+                (results: MagFieldOfStudy[]) => {
+
+                    //this.WPFindTopics = [];
+                    let FosList: MagFieldOfStudy[] = results;
+                    let i: number = 1;
+                    let cnt: number = 0;
+                    for (var fos of FosList) {
+                        console.log('got in here');
+                        let item: TopicLink = new TopicLink();
+                        item.displayName = fos.displayName;
+                        item.fontSize = i;
+                        item.fieldOfStudyId = fos.fieldOfStudyId;
+
+                        this.SearchTextTopicsResults[cnt] = item;
+                        cnt += 1;
+                        if (i > 0.1) {
+                            i -= 0.01;
+                        }
+                    }
+                    return;
+                }
+            );
+
+        } else {
+
+            this.SearchTextTopics = [];
+            this.SearchTextTopicsResults = [];
+        }
+    }
+    public RunMAGSearch() {
+
+        if (this.DateLimitSelection == 5 || this.DateLimitSelection == 9 ) {
+            this.magSearchDate1 = this.valueKendoDatepicker1;
+            this.magSearchDate2 = this.valueKendoDatepicker2;
+        } else {
+            this.magSearchDate1 = this.valueKendoDatepicker3;
+        }
+        console.log('magsearch inptu', this.magSearchInput);
+        this._magSearchService.CreateMagSearch(this.WordsInSelection, this.DateLimitSelection, this.PublicationTypeSelection,
+            this.magSearchInput, this.magSearchDate1, this.magSearchDate2, this.SearchTextTopic );
     }
     public AdvancedFeatures() {
 
@@ -76,10 +131,6 @@ export class MAGSearchComponent implements OnInit {
     public get IsServiceBusy(): boolean {
 
         return this._magBrowserService.IsBusy || this._magAdvancedService.IsBusy;
-    }
-    public RunMAGSearch() {
-
-
     }
     public CombineSearch(){
 

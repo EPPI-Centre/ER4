@@ -138,7 +138,11 @@ namespace ERxWebClient2.Controllers
                 
                 newSearch.BeginSave();
 
-                return Ok();
+                DataPortal<MagSearchList> dp = new DataPortal<MagSearchList>();
+
+                var result = dp.Fetch();
+
+                return Ok(result);
             }
             catch (Exception e)
             {

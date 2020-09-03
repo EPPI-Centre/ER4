@@ -20,7 +20,7 @@
                         <div ngbDropdown class="col-6">
                             <select class="col-12 form-control mb-1" name="WordsInSelection"
                                     [(ngModel)]="WordsInSelection">
-                                <option [ngValue]="1" [selected]="true">Word(s) in title</option>
+                                <option [ngValue]="1" [selected]="WordsInSelection == 1">Word(s) in title</option>
                                 <option [ngValue]="2">Word(s) in abstract</option>
                                 <option [ngValue]="3">Author name(s)</option>
                                 <option [ngValue]="4">Topic</option>
@@ -30,13 +30,16 @@
                             </select>
                         </div>
                         <div class="col-6">
-                            <input id="magSearchInput" name="magSearchInput" type="text" class="form-control" />
+                            <input id="magSearchInput" name="magSearchInput" type="text" class="form-control" [(ngModel)]="magSearchInput"/>
                         </div>
-                        </div>
+                     
+                    </div>
+                    <div class="col-12 row">
+
                         <div ngbDropdown class="col-6">
                             <select class="col-12 form-control mb-1" name="DateLimitSelection"
                                     [(ngModel)]="DateLimitSelection">
-                                <option [ngValue]="1" [selected]="true">No date limit</option>
+                                <option [ngValue]="1" [selected]="DateLimitSelection == 1">No date limit</option>
                                 <option [ngValue]="2">Publication date exactly</option>
                                 <option [ngValue]="3">Publication date before</option>
                                 <option [ngValue]="4">Publication date after</option>
@@ -47,10 +50,54 @@
                                 <option [ngValue]="9">Publication years between</option>
                             </select>
                         </div>
+                        <div class="col-lg-6">
+                            <div class="card-footer h-100 w-100">
+                                <div *ngIf="DateLimitSelection == 5 || DateLimitSelection == 9">
+                                    <div class="m-1 p-1"><b>Items Dated From</b></div>
+                                    <div>
+                                        <div class="example-wrapper">
+                                            <kendo-datepicker [(value)]="valueKendoDatepicker1"></kendo-datepicker>
+                                        </div>
+                                    </div>
+                                    <div class="m-1 p-1"><b>Items Dated To</b></div>
+                                    <div>
+                                        <div class="example-wrapper">
+                                            <kendo-datepicker [(value)]="valueKendoDatepicker2"></kendo-datepicker>
+                                        </div>
+                                    </div>
+
+                                </div>
+                                <div *ngIf="DateLimitSelection == 2 || DateLimitSelection == 3  || DateLimitSelection == 4
+                     || DateLimitSelection == 6  || DateLimitSelection == 7  || DateLimitSelection == 8">
+                                    <div class="m-1 p-1"><b>Date</b></div>
+                                    <div>
+                                        <div class="example-wrapper">
+                                            <kendo-datepicker [(value)]="valueKendoDatepicker3"></kendo-datepicker>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div *ngIf="WordsInSelection == 4">
+                                    <input class="form-control col-12 border border-dark" type="text" id="SearchTextTopic" [(ngModel)]="SearchTextTopic"
+                                           placeholder="Search for topics here.  Entry of Wildcards work, e.g. physic* " />
+                                    <button (click)="UpdateTopicResults()" class="btn btn-primary btn-sm text-white"><i class="fa fa-search"></i></button>
+                                    <div class="row " style="max-width:1450px;overflow:auto;">
+                                        <div *ngFor="let item of SearchTextTopicsResults" class="list-group">
+                                            <div class="col-3 btn border border-0"
+                                                 [ngStyle]="{ 'font-size.em': item.fontSize,'background-color': 'light-blue', 'color': 'black'}">
+                                                {{item.displayName}}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                   
+
                         <div ngbDropdown class="col-6">
                             <select class="col-12 form-control mb-1" name="PublicationTypeSelection"
                                     [(ngModel)]="PublicationTypeSelection">
-                                <option [ngValue]="1" [selected]="true">All publication types</option>
+                                <option [ngValue]="1" [selected]="PublicationTypeSelection == 1">All publication types</option>
                                 <option [ngValue]="2">Unknown types</option>
                                 <option [ngValue]="3">Journal article</option>
                                 <option [ngValue]="4">Patent</option>
@@ -68,20 +115,7 @@
             </div>
         </div>
 
-        <div class="col-lg-4">
-            <div class="card-footer h-100 w-100">
-                <h2 class="font-weight-light text-sm-left"> Topics </h2>
 
-                <div class="row " style="max-width:1450px;overflow:auto;">
-                    <div *ngFor="let item of SearchTextTopicsResults" class="list-group">
-                        <div (click)="FOSMAGBrowserNavigate(item.displayName, item.fieldOfStudyId)" class="col-3 btn border border-0"
-                             [ngStyle]="{ 'font-size.em': item.fontSize,'background-color': 'light-blue', 'color': 'black'}">
-                            {{item.displayName}}
-                        </div>
-                    </div>
-                </div>
-            </div>
-         </div>
             <div class="col-lg-4">
                 <h2 class="card-title"></h2>
                 <h3 class="font-weight-light">Combine selected searches</h3>
@@ -97,7 +131,7 @@
                                 <div ngbDropdown class="col-12">
                                     <select class="col-6 form-control" name="LogicalOperator"
                                             [(ngModel)]="LogicalOperator">
-                                        <option >AND</option>
+                                        <option [selected]="LogicalOperator == AND">AND</option>
                                         <option>OR</option>
                                     </select>
                                 </div>
@@ -122,23 +156,23 @@
                             <thead>
                                 <tr>
                                     <th></th>
-                                    <th width="15">Search</th>
-                                    <th width="15">MAG search string</th>
-                                    <th width="15">MAG Version</th>
-                                    <th width="15">User</th>
-                                    <th width="15">Date</th>
-                                    <th width="15">Hits</th>
+                                    <th >Search</th>
+                                    <th >MAG search string</th>
+                                    <th >MAG Version</th>
+                                    <th >User</th>
+                                    <th >Date</th>
+                                    <th >Hits</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr *ngFor="let item of MagSearchList">
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
-                                    <td></td>
+                                <tr *ngFor="let item of _magSearchService.MagSearchList">
+                                    <td>{{item.magSearchId}}</td>
+                                    <td>{{item.searchText}}</td>
+                                    <td>{{item.magVersion}}</td>
+                                    <td>{{item.contactName}}</td>
+                                    <td>{{item.searchDate}}</td>
+                                    <td>{{item.hitsNo}}</td>
+                                 
                                 </tr>
                             </tbody>
                         </table>
