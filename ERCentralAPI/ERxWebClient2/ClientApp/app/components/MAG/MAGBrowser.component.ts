@@ -75,6 +75,8 @@ export class MAGBrowser implements OnInit, OnDestroy {
                 }
             }
         );
+        this._magBrowserService.ShowingParentAndChildTopics = false;
+        this._magBrowserService.ShowingChildTopicsOnly = true;
         this.getTopicsSub = this._eventEmitterService.getTopicsEvent.subscribe(
             (topicInfo: any) => {
 
@@ -191,7 +193,8 @@ export class MAGBrowser implements OnInit, OnDestroy {
         }
     }
     public GetParentAndChildRelatedPapers(item: MagFieldOfStudy) {
-        this.ShowingTopics = false;
+        this._magBrowserService.ShowingParentAndChildTopics = true;
+        this._magBrowserService.ShowingChildTopicsOnly = false;
         let magBrowseItem: MagBrowseHistoryItem = new MagBrowseHistoryItem("Browse topic: " +
             item.displayName, "BrowseTopic", 0, "", "", 0, "", "",
             item.fieldOfStudyId, item.displayName, "", 0);

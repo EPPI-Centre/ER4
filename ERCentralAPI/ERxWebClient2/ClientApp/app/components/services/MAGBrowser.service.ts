@@ -168,7 +168,8 @@ export class MAGBrowserService extends BusyAwareService {
         this.tabstrip.selectTab(tabNum);
     }
     public GetParentAndChildFieldsOfStudy(FieldOfStudy: string, FieldOfStudyId: number): Promise<boolean> {
-
+        this.ShowingParentAndChildTopics = true;
+        this.ShowingChildTopicsOnly = false;
         let selectionCriteria: MvcMagFieldOfStudyListSelectionCriteria = new MvcMagFieldOfStudyListSelectionCriteria();
         selectionCriteria.listType = FieldOfStudy;
         selectionCriteria.fieldOfStudyId = FieldOfStudyId;

@@ -151,7 +151,7 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
 
         
         if (this.SearchTextTopic.length > 2 ) {
-
+ 
             let criteriaFOSL: MVCMagFieldOfStudyListSelectionCriteria = new MVCMagFieldOfStudyListSelectionCriteria();
             criteriaFOSL.fieldOfStudyId = 0;
             criteriaFOSL.listType = 'FieldOfStudySearchList';
@@ -191,8 +191,6 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
     }
     public FOSMAGBrowserNavigate(displayName: string, fieldOfStudyId: number) {
 
-        this._magBrowserService.ShowingParentAndChildTopics = true;
-        this._magBrowserService.ShowingChildTopicsOnly = false;
         let magBrowseItem: MagBrowseHistoryItem = new MagBrowseHistoryItem(displayName, "BrowseTopic", 0,
             "", "", 0, "", "", fieldOfStudyId, displayName, "", 0);
         this._mAGBrowserHistoryService.IncrementHistoryCount();
@@ -207,7 +205,6 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
     public GetParentAndChildRelatedPapers(FieldOfStudy: string, FieldOfStudyId: number) {
 
         this._magBrowserService.ParentTopic = FieldOfStudy;
-
 
         this._magBrowserService.GetParentAndChildFieldsOfStudy("FieldOfStudyParentsList", FieldOfStudyId).then(
             () => {
