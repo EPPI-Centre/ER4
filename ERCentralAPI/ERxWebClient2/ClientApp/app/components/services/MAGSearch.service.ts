@@ -45,11 +45,11 @@ export class magSearchService extends BusyAwareService {
 		 );
 	}
 	
-	Delete(value: string) {
+	Delete(value: number) {
 
         this._BusyMethods.push("Delete");
 		let body = JSON.stringify({ Value: value });
-		this._httpC.post<string>(this._baseUrl + 'api/MAGSearchList/DeleteSearch',
+        this._httpC.post<string>(this._baseUrl + 'api/MAGSearchList/DeleteMagSearch',
 			body)
 			.subscribe(result => {
                 this.RemoveBusy("Delete");

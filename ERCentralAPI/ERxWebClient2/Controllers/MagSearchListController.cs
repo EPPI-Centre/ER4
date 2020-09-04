@@ -38,6 +38,33 @@ namespace ERxWebClient2.Controllers
 		}
 
         [HttpPost("[action]")]
+        public IActionResult DeleteMagSearch([FromBody] SingleInt64Criteria magSearchId)
+        {
+            try
+            {
+                if (SetCSLAUser4Writing())
+                {
+                    DataPortal<MagSearchList> dp = new DataPortal<MagSearchList>();
+                    MagSearchList result = dp.Fetch();
+
+                    MagSearch currentMagSearch = result.FirstOrDefault(x => x.MagSearchId == magSearchId.Value);
+
+                    currentMagSearch.Delete();
+                    currentMagSearch = currentMagSearch.Save();
+
+                    return Ok(currentMagSearch);
+
+                }
+                else return Forbid();
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "Deleting a MAG Simulation list has an error");
+                return StatusCode(500, e.Message);
+            }
+        }
+
+        [HttpPost("[action]")]
         public IActionResult CreateMagSearch([FromBody] MVCMagSearch mVCMagSearch)
         {
 

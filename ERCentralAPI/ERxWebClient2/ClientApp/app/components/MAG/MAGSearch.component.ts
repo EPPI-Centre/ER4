@@ -106,6 +106,11 @@ export class MAGSearchComponent implements OnInit {
             this.SearchTextTopicsResults = [];
         }
     }
+    public DeleteMagSearch(magSearchId: number) {
+
+        this._magSearchService.Delete(magSearchId);
+
+    }
     public RunMAGSearch() {
 
         if (this.DateLimitSelection == 4 || this.DateLimitSelection == 8 ) {

@@ -163,6 +163,7 @@
                                     <th >User</th>
                                     <th >Date</th>
                                     <th >Hits</th>
+                                    <th></th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -176,6 +177,7 @@
                                     <td>{{item.contactName}}</td>
                                     <td>{{item.searchDate}}</td>
                                     <td>{{item.hitsNo}}</td>
+                                    <td><button class="btn btn-danger btn-sm text-white align-content-center  fa fa-trash" (click)="DeleteMagSearch(item.magSearchId)"></button></td>
                                  </tr>
                             </tbody>
                         </table>
