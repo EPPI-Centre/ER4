@@ -155,6 +155,32 @@ namespace ERxWebClient2.Controllers
         }
 
 	
+        [HttpPost("[action]")]
+        public IActionResult CombineMagSearches([FromBody] MVCMagCombinedSearch mVCMagCombinedSearch)
+        {
+
+            try
+            {
+                if (!SetCSLAUser()) return Unauthorized();
+
+                if (mVCMagCombinedSearch.magSearchListCombine.Length > 0)
+                {
+                    MagSearch newSearch = new MagSearch();
+                    newSearch.SetCombinedSearches(mVCMagCombinedSearch.magSearchListCombine.ToList(), mVCMagCombinedSearch.logicalOperator);
+                    newSearch.BeginSave();
+                }
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "Fetching a MagSearch list has an error");
+                return StatusCode(500, e.Message);
+            }
+
+
+        }
+
+
     }
 
     public class MVCMagSearch
@@ -168,6 +194,12 @@ namespace ERxWebClient2.Controllers
         public DateTime magSearchDate2 { get; set; }
 
         public string magSearchCurrentTopic { get; set; }
+    }
+
+    public class MVCMagCombinedSearch
+    {
+        public MagSearch[] magSearchListCombine  { get; set; }
+        public string logicalOperator  { get; set; }
     }
 }
 

@@ -12,6 +12,7 @@ import { MagSearch } from './MAGClasses.service';
 })
 
 export class magSearchService extends BusyAwareService {
+   
 
     constructor(
         private _httpC: HttpClient,
@@ -78,5 +79,25 @@ export class magSearchService extends BusyAwareService {
                 this.modalService.GenericError(error);
             }
 		);
-	}
+    }
+
+    CombineSearches(magSearchListCombine: MagSearch[], logicalOperator: string) {
+
+        this._BusyMethods.push("CombineSearches");
+        let body = JSON.stringify({
+            magSearchListCombine: magSearchListCombine, logicalOperator: logicalOperator });
+        this._httpC.post<MagSearch[]>(this._baseUrl + 'api/MAGSearchList/CombineMagSearches',
+            body)
+
+            .subscribe(result => {
+                this.RemoveBusy("CombineSearches");
+                //this.MagSearchList = result;
+                //this.FetchMAGSearchList();
+            }, error => {
+                    this.RemoveBusy("CombineSearches");
+                this.modalService.GenericError(error);
+            }
+            );
+
+    }
 }

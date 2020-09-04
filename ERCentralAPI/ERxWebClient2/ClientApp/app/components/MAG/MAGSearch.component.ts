@@ -44,6 +44,7 @@ export class MAGSearchComponent implements OnInit {
     public DateLimitSelection: number = 1;
     public PublicationTypeSelection: number = 1;
     public MagSearchList: MagSearch[] = [];
+    public MagSearchListCombine: MagSearch[] = [];
     public magSearchInput: string = '';
     public valueKendoDatepicker1 : Date = new Date();
     public valueKendoDatepicker2: Date = new Date();
@@ -132,8 +133,19 @@ export class MAGSearchComponent implements OnInit {
 
         return this._magBrowserService.IsBusy || this._magAdvancedService.IsBusy;
     }
-    public CombineSearch(){
+    public CombineSearches(){
 
+        this._magSearchService.CombineSearches(this.MagSearchListCombine, this.LogicalOperator);
+    }
+    public AddSearchIdToList(magSearch: MagSearch) {
+        if (magSearch.magSearchId > -1) {
+            let index: number = this.MagSearchListCombine.findIndex(x => x.magSearchId == magSearch.magSearchId);
+            if ( index != -1) {
+                this.MagSearchListCombine.splice(index, 1);
+            } else {
+                this.MagSearchListCombine.push(magSearch)
+            }
+        }
     }
 }
 
