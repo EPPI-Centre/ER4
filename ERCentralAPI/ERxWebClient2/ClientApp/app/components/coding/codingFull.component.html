@@ -107,7 +107,7 @@
 						</ng-template>
 					</kendo-tabstrip-tab>
 
-					<kendo-tabstrip-tab [title]="'Arms and Timepoints'">
+					<kendo-tabstrip-tab [title]="'Arms and Timepoints'" >
 						<ng-template kendoTabContent>
 							<div *ngIf="item">
 								<armDetailsComp #ArmDetailsComp [item]="item"></armDetailsComp>
@@ -115,7 +115,7 @@
 							</div>
 						</ng-template>
 					</kendo-tabstrip-tab>
-					<kendo-tabstrip-tab [title]="'PDF'" [disabled]="!HasDocForView">
+					<kendo-tabstrip-tab [title]="'PDF'" [disabled]="!HasDocForView" >
 						<ng-template kendoTabContent>
 							<div *ngIf="item" style="min-height:600px;">
 								<div *ngIf="IsServiceBusy4PDF()" class="k-loading-image"></div>
@@ -123,12 +123,12 @@
 							</div>
 						</ng-template>
 					</kendo-tabstrip-tab>
-					<kendo-tabstrip-tab [title]="'Coding Record'">
+					<kendo-tabstrip-tab [title]="'Coding Record'" >
 						<ng-template kendoTabContent>
 							<codingRecordComp [item]="item"></codingRecordComp>
 						</ng-template>
 					</kendo-tabstrip-tab>
-					<kendo-tabstrip-tab *ngIf="ShowMagTab" [title]="'Microsoft Academic'">
+					<kendo-tabstrip-tab *ngIf="ShowMagTab" [title]="'Microsoft Academic'" >
 						<ng-template kendoTabContent>
 							<microsoftAcademicComp [item]="item"></microsoftAcademicComp>
 						</ng-template>
