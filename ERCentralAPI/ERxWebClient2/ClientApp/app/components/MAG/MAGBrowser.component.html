@@ -112,7 +112,7 @@
 
         <div class="col-sm-12 col-lg-9 p-0">
             <kendo-tabstrip #tabSelectedPapers (tabSelect)="onTabSelect($event)" class="ml-2 mt-2" [keepTabContent]="true">
-                <kendo-tabstrip-tab [selected]="true" [title]="'Records'">
+                <kendo-tabstrip-tab [selected]="true" [title]="'References'">
                     <ng-template kendoTabContent>
 
                         <div [title]="'Search Results'" style="min-height:500px; max-height:65vh; overflow:auto;">
@@ -200,7 +200,7 @@
                         </div>
                     </ng-template>
                 </kendo-tabstrip-tab>
-                <kendo-tabstrip-tab [title]="'Current List'">
+                <kendo-tabstrip-tab [title]="'current list'">
                     <ng-template kendoTabContent>
                         <div [title]="'Current Papers'" style="min-height:500px; overflow:auto;">
 
