@@ -495,6 +495,7 @@ export class MAGBrowserService extends BusyAwareService {
         this.MAGList = new MagList();
         this.MAGOriginalList = new MagList();
         this.MagCitationsByPaperList = new MagList();
+        this.selectedPapers = [];
         this.ClearTopics();
     }
     public ClearTopics() {

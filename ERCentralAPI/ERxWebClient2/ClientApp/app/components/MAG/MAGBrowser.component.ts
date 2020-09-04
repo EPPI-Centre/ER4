@@ -65,7 +65,7 @@ export class MAGBrowser implements OnInit, OnDestroy {
             () => {
                 if (this.tabstrip != null) {
                     
-                    this.tabstrip.selectTab(2);
+                    this.tabstrip.selectTab(1);
                     let magBrowseItem: MagBrowseHistoryItem = new MagBrowseHistoryItem("Browse topic: SelectedPapers "
                         , "SelectedPapers", 0, "", "", 0, "", "",
                         0, "", "", 0);
