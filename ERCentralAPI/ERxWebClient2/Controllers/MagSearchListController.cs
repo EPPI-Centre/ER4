@@ -179,7 +179,7 @@ namespace ERxWebClient2.Controllers
             }
             catch (Exception e)
             {
-                _logger.LogException(e, "Fetching a MagSearch list has an error");
+                _logger.LogException(e, "Combining MagSearches has an error");
                 return StatusCode(500, e.Message);
             }
 
