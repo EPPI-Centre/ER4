@@ -43,7 +43,7 @@ namespace ERxWebClient2.Controllers
 
             try
             {
-                if (!SetCSLAUser()) return Unauthorized();
+                if (!SetCSLAUser4Writing()) return Forbid();
 
                 MagSearch newSearch = new MagSearch();
                 switch (mVCMagSearch.wordsInSelection)
@@ -161,19 +161,25 @@ namespace ERxWebClient2.Controllers
 
             try
             {
-                if (!SetCSLAUser()) return Unauthorized();
-
-                if (mVCMagCombinedSearch.magSearchListCombine.Length > 0)
+                if (SetCSLAUser4Writing())
                 {
-                    MagSearch newSearch = new MagSearch();
-                    newSearch.SetCombinedSearches(mVCMagCombinedSearch.magSearchListCombine.ToList(), mVCMagCombinedSearch.logicalOperator);
-                    newSearch.BeginSave();
+
+                    if (mVCMagCombinedSearch.magSearchListCombine.Length > 0)
+                    {
+                        MagSearch newSearch = new MagSearch();
+                        newSearch.SetCombinedSearches(mVCMagCombinedSearch.magSearchListCombine.ToList(), mVCMagCombinedSearch.logicalOperator);
+                        newSearch.BeginSave();
+                    }
+                    return Ok();
+                } 
+                else
+                {
+                    return Forbid();
                 }
-                return Ok();
             }
             catch (Exception e)
             {
-                _logger.LogException(e, "Fetching a MagSearch list has an error");
+                _logger.LogException(e, "Combining MagSearches has an error");
                 return StatusCode(500, e.Message);
             }
 
