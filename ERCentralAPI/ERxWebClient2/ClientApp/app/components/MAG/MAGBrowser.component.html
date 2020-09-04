@@ -112,7 +112,7 @@
 
         <div class="col-sm-12 col-lg-9 p-0">
             <kendo-tabstrip #tabSelectedPapers (tabSelect)="onTabSelect($event)" class="ml-2 mt-2" [keepTabContent]="true">
-                <kendo-tabstrip-tab [selected]="true" [title]="'References'">
+                <kendo-tabstrip-tab [selected]="true" [title]="'Records'">
                     <ng-template kendoTabContent>
 
                         <div [title]="'Search Results'" style="min-height:500px; max-height:65vh; overflow:auto;">
@@ -155,7 +155,7 @@
 
                     </ng-template>
                 </kendo-tabstrip-tab>
-                <kendo-tabstrip-tab [title]="'Cited By'" [disabled]="HideCitatedBy()">
+                <!--<kendo-tabstrip-tab [title]="'Cited By'" [disabled]="HideCitatedBy()">
                     <ng-template kendoTabContent>
                         <div [title]="'Citated By'" style="min-height:500px; overflow:auto;">
                             <div style="max-height:50vh; overflow:auto;">
@@ -176,7 +176,7 @@
                             </div>
                         </div>
                     </ng-template>
-                </kendo-tabstrip-tab>
+                </kendo-tabstrip-tab>-->
                 <kendo-tabstrip-tab #tabSelectedPapers (tabSelect)="onTabSelect($event)" [title]="SelectedPapersTitle" [disabled]="HideSelectedPapers()">
                     <ng-template kendoTabContent>
                         <div [title]="'Selected Papers'" style="min-height:500px; overflow:auto;">
@@ -200,7 +200,7 @@
                         </div>
                     </ng-template>
                 </kendo-tabstrip-tab>
-                <kendo-tabstrip-tab [title]="'Current Papers'">
+                <kendo-tabstrip-tab [title]="'Original Papers'">
                     <ng-template kendoTabContent>
                         <div [title]="'Current Papers'" style="min-height:500px; overflow:auto;">
 
