@@ -28,8 +28,8 @@
                             Id:
                             {{magPaper.paperId}}
                         </div>
-                        <div class="col-3 btn btn-link pull-left" (click)="GetMagPaperRef(magPaper.paperId)">
-                            View in MAG Browser
+                        <div class="col-3 btn btn-link text-left" (click)="GetMagPaperRef(magPaper.paperId)">
+                            <p>View in MAG Browser</p>
                         </div>
                         <div class="col-3 btn btn-link pull-right">
                             <a href="https://academic.microsoft.com/paper/{{magPaper.paperId}}/reference" target="_blank">
@@ -44,7 +44,7 @@
                         </div>
                         <div class="col-12">
 
-                            Correct Match:    <input (click)="UpdateMagPaper(true, magPaper.paperId)"
+                            Correct Match:   <input (click)="UpdateMagPaper(true, magPaper.paperId)"
                                                      type="radio" [value]="true" name="magMatchRadio_{{magPaper.paperId}}"
                                                      [(ngModel)]="magPaper.manualTrueMatch" class="ml-3">
                         </div>
