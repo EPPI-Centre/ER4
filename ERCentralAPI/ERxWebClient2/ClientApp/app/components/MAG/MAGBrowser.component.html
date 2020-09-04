@@ -40,9 +40,9 @@
 </div>-->
 <div class="col-12 px-2">
     <div class="col-12 row p-2 m-0 border border-dark rounded">
-
+        
         <div [title]="'TOPICS'" class="col-sm-12 col-lg-3 p-0" style="min-height:500px; max-height:75vh; overflow:auto;">
-            <b>Topics:</b>
+            <div *ngIf="_magBrowserService.ShowingParentAndChildTopics"><h3>{{ClickedOnTopic}}</h3></div>
             <div *ngIf="_magBrowserService.ShowingChildTopicsOnly">
                 <div class=" card col-12 small table table-border table-striped">
                     <div *ngIf="_magBrowserService.WPChildTopics.length == 0" class="alert alert-light">
@@ -75,8 +75,8 @@
                 </div>
                 <h5 class="font-weight-light">Children Topics</h5>
                 <div class=" card col-12 small table table-border table-striped">
-                    <div *ngIf="_magBrowserService.WPChildTopics.length == 0"  class="alert-light m-1">
-                        No Topic 
+                    <div *ngIf="_magBrowserService.WPChildTopics.length == 0" class="alert-light m-1">
+                        No Topic
                     </div>
                     <div class="row">
                         <div *ngFor="let item of _magBrowserService.WPChildTopics">
@@ -90,24 +90,24 @@
             </div>
 
             <!--<div class="row col-sm-12 col-lg-12 card " *ngIf="_magBrowserService.ShowingChildTopicsOnly">
-                <div class="col-sm-12 col-lg-5">
+        <div class="col-sm-12 col-lg-5">
 
-                    <div class="col-sm-12 col-lg-8 m-0 p-0 "><b>After this date:</b></div>
-                    <div class="example-wrapper col-sm-12 col-lg-4">
-                        <kendo-datepicker [(value)]="kendoAfterDateValue"></kendo-datepicker>
-                    </div>
-                </div>
-                <div class="col-sm-12 col-lg-5">
+            <div class="col-sm-12 col-lg-8 m-0 p-0 "><b>After this date:</b></div>
+            <div class="example-wrapper col-sm-12 col-lg-4">
+                <kendo-datepicker [(value)]="kendoAfterDateValue"></kendo-datepicker>
+            </div>
+        </div>
+        <div class="col-sm-12 col-lg-5">
 
-                    <div class="col-sm-12 col-lg-8 m-0 p-0 "><b>Before this date:</b></div>
-                    <div class="example-wrapper col-sm-12 col-lg-4">
-                        <kendo-datepicker [(value)]="kendoBeforeDateValue"></kendo-datepicker>
-                    </div>
-                </div>
-                <div class="col-sm-12  col-lg-1">
-                    <button (click)="RefreshPapersBetweenDates()" class="btn btn-lg btn-outline-dark h-100 fa fa-refresh"></button>
-                </div>
-            </div>-->
+            <div class="col-sm-12 col-lg-8 m-0 p-0 "><b>Before this date:</b></div>
+            <div class="example-wrapper col-sm-12 col-lg-4">
+                <kendo-datepicker [(value)]="kendoBeforeDateValue"></kendo-datepicker>
+            </div>
+        </div>
+        <div class="col-sm-12  col-lg-1">
+            <button (click)="RefreshPapersBetweenDates()" class="btn btn-lg btn-outline-dark h-100 fa fa-refresh"></button>
+        </div>
+    </div>-->
         </div>
 
         <div class="col-sm-12 col-lg-9 p-0">
@@ -125,7 +125,7 @@
                                         </thead>
                                         <tbody>
                                             <tr style="cursor: pointer;" *ngFor="let item of _magBrowserService.MAGList.papers">
-                                                <td (click)="GetMagPaperRef(item.paperId)">
+                                                <td (click)="GetMagPaperRef(item.paperId, _magBrowserService.MAGList.papers)">
                                                     {{item.shortRecord}}
                                                 </td>
                                                 <td>
@@ -166,7 +166,7 @@
                                     </thead>
                                     <tbody>
                                         <tr style="cursor: pointer;" *ngFor="let item of _magBrowserService.MagCitationsByPaperList.papers">
-                                            <td (click)="GetMagPaperRef(item.paperId)">{{item.fullRecord}}</td>
+                                            <td (click)="GetMagPaperRef(item.paperId, _magBrowserService.MagCitationsByPaperList.papers)">{{item.fullRecord}}</td>
                                             <td>
                                                 <button [disabled]="!CanSelectMagItem(item)" (click)="InOutReview(item, _magBrowserService.MagCitationsByPaperList.papers)"
                                                         [class]="item.isSelected == true  ? 'btn fa fa-minus' : 'btn fa fa-plus'">
@@ -189,7 +189,7 @@
                                     </thead>
                                     <tbody>
                                         <tr style="cursor: pointer;" *ngFor="let item of _magBrowserService.selectedPapers">
-                                            <td (click)="GetMagPaperRef(item.paperId)">{{item.fullRecord}}</td>
+                                            <td (click)="GetMagPaperRef(item.paperId,_magBrowserService.selectedPapers)">{{item.fullRecord}}</td>
                                             <td>
                                                 <button [disabled]="!CanSelectMagItem(item)" (click)="InOutReview(item, _magBrowserService.selectedPapers)"
                                                         [class]="item.isSelected == true  ? 'btn fa fa-minus' : 'btn fa fa-plus'">
@@ -214,7 +214,7 @@
                                     </thead>
                                     <tbody>
                                         <tr style="cursor: pointer;" *ngFor="let item of _magBrowserService.MAGOriginalList.papers">
-                                            <td (click)="GetMagPaperRef(item.paperId)">
+                                            <td (click)="GetMagPaperRef(item.paperId,_magBrowserService.MAGOriginalList.papers)">
                                                 {{item.shortRecord}}
                                             </td>
                                             <td>
