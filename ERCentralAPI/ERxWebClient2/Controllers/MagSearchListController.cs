@@ -44,6 +44,9 @@ namespace ERxWebClient2.Controllers
             try
             {
                 if (!SetCSLAUser4Writing()) return Forbid();
+                DateTime magSearchDate1 = DateTime.Parse(mVCMagSearch.magSearchDate1); 
+                DateTime magSearchDate2 = DateTime.Parse(mVCMagSearch.magSearchDate2); 
+
 
                 MagSearch newSearch = new MagSearch();
                 switch (mVCMagSearch.wordsInSelection)
@@ -84,47 +87,47 @@ namespace ERxWebClient2.Controllers
                     {
                         case 1:
                             newSearch.MagSearchText = "AND(" + newSearch.MagSearchText + "," +
-                                newSearch.GetSearchTextPubDateExactly(mVCMagSearch.magSearchDate1.ToString("yyyy-MM-dd")) + ")";
-                            newSearch.SearchText += " AND published on: " + mVCMagSearch.magSearchDate1.ToString("yyyy-MM-dd");
+                                newSearch.GetSearchTextPubDateExactly(magSearchDate1.ToString("yyyy-MM-dd")) + ")";
+                            newSearch.SearchText += " AND published on: " + magSearchDate1.ToString("yyyy-MM-dd");
                             break;
                         case 2:
                             newSearch.MagSearchText = "AND(" + newSearch.MagSearchText + "," +
-                                newSearch.GetSearchTextPubDateBefore(mVCMagSearch.magSearchDate1.ToString("yyyy-MM-dd")) + ")";
-                            newSearch.SearchText += " AND published before: " + mVCMagSearch.magSearchDate1.ToString("yyyy-MM-dd");
+                                newSearch.GetSearchTextPubDateBefore(magSearchDate1.ToString("yyyy-MM-dd")) + ")";
+                            newSearch.SearchText += " AND published before: " + magSearchDate1.ToString("yyyy-MM-dd");
                             break;
                         case 3:
                             newSearch.MagSearchText = "AND(" + newSearch.MagSearchText + "," +
-                                newSearch.GetSearchTextPubDateFrom(mVCMagSearch.magSearchDate1.ToString("yyyy-MM-dd")) + ")";
-                            newSearch.SearchText += " AND published after: " + mVCMagSearch.magSearchDate1.ToString("yyyy-MM-dd");
+                                newSearch.GetSearchTextPubDateFrom(magSearchDate1.ToString("yyyy-MM-dd")) + ")";
+                            newSearch.SearchText += " AND published after: " + magSearchDate1.ToString("yyyy-MM-dd");
                             break;
                         case 4:
                             newSearch.MagSearchText = "AND(" + newSearch.MagSearchText + "," +
-                                newSearch.GetSearchTextPubDateBetween(mVCMagSearch.magSearchDate1.ToString("yyyy-MM-dd"),
-                                    mVCMagSearch.magSearchDate2.ToString("yyyy-MM-dd")) + ")";
-                            newSearch.SearchText += " AND published between: " + mVCMagSearch.magSearchDate1.ToString("yyyy-MM-dd") + " and " +
-                                mVCMagSearch.magSearchDate2.ToString("yyyy-MM-dd");
+                                newSearch.GetSearchTextPubDateBetween(magSearchDate1.ToString("yyyy-MM-dd"),
+                                    magSearchDate2.ToString("yyyy-MM-dd")) + ")";
+                            newSearch.SearchText += " AND published between: " + magSearchDate1.ToString("yyyy-MM-dd") + " and " +
+                                magSearchDate2.ToString("yyyy-MM-dd");
                             break;
                         case 5:
                             newSearch.MagSearchText = "AND(" + newSearch.MagSearchText + "," +
-                                newSearch.GetSearchTextYearExactly(mVCMagSearch.magSearchDate1.Year.ToString()) + ")";
-                            newSearch.SearchText += " AND year of publication: " + mVCMagSearch.magSearchDate1.Year.ToString();
+                                newSearch.GetSearchTextYearExactly(magSearchDate1.Year.ToString()) + ")";
+                            newSearch.SearchText += " AND year of publication: " + magSearchDate1.Year.ToString();
                             break;
                         case 6:
                             newSearch.MagSearchText = "AND(" + newSearch.MagSearchText + "," +
-                                newSearch.GetSearchTextYearBefore(mVCMagSearch.magSearchDate1.Year.ToString()) + ")";
-                            newSearch.SearchText += " AND year of publication before: " + mVCMagSearch.magSearchDate1.Year.ToString();
+                                newSearch.GetSearchTextYearBefore(magSearchDate1.Year.ToString()) + ")";
+                            newSearch.SearchText += " AND year of publication before: " + magSearchDate1.Year.ToString();
                             break;
                         case 7:
                             newSearch.MagSearchText = "AND(" + newSearch.MagSearchText + "," +
-                                newSearch.GetSearchTextYearAfter(mVCMagSearch.magSearchDate1.Year.ToString()) + ")";
-                            newSearch.SearchText += " AND year of publication after: " + mVCMagSearch.magSearchDate1.Year.ToString();
+                                newSearch.GetSearchTextYearAfter(magSearchDate1.Year.ToString()) + ")";
+                            newSearch.SearchText += " AND year of publication after: " + magSearchDate1.Year.ToString();
                             break;
                         case 8:
                             newSearch.MagSearchText = "AND(" + newSearch.MagSearchText + "," +
-                                newSearch.GetSearchTextYearBetween(mVCMagSearch.magSearchDate1.Year.ToString(),
-                                    mVCMagSearch.magSearchDate2.Year.ToString()) + ")";
-                            newSearch.SearchText += " AND year of publication between: " + mVCMagSearch.magSearchDate1.Year.ToString() + " and " +
-                                mVCMagSearch.magSearchDate2.Year.ToString();
+                                newSearch.GetSearchTextYearBetween(magSearchDate1.Year.ToString(),
+                                    magSearchDate2.Year.ToString()) + ")";
+                            newSearch.SearchText += " AND year of publication between: " + magSearchDate1.Year.ToString() + " and " +
+                                magSearchDate2.Year.ToString();
                             break;
                     }
                 }
@@ -135,14 +138,19 @@ namespace ERxWebClient2.Controllers
                         newSearch.GetSearchTextPublicationType((mVCMagSearch.publicationTypeSelection - 1).ToString()) + ")";
                     newSearch.SearchText += " AND publication type: " + newSearch.GetPublicationType(mVCMagSearch.publicationTypeSelection - 1);
                 }
-                
-                newSearch.BeginSave();
 
-                DataPortal<MagSearchList> dp = new DataPortal<MagSearchList>();
+                //newSearch.Save();
 
-                var result = dp.Fetch();
+                //DataPortal<MagSearchList> dp = new DataPortal<MagSearchList>();
 
-                return Ok(result);
+                //var result = dp.Fetch();
+                //result.Add(newSearch);
+
+                DataPortal<MagSearch> dp = new DataPortal<MagSearch>();
+
+                newSearch = dp.Execute(newSearch);
+
+                return Ok(newSearch);
             }
             catch (Exception e)
             {
@@ -196,8 +204,8 @@ namespace ERxWebClient2.Controllers
         public int publicationTypeSelection { get; set; }
 
         public int dateLimitSelection { get; set; }
-        public DateTime magSearchDate1 { get; set; }
-        public DateTime magSearchDate2 { get; set; }
+        public string magSearchDate1 { get; set; }
+        public string magSearchDate2 { get; set; }
 
         public string magSearchCurrentTopic { get; set; }
     }

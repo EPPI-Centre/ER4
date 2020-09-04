@@ -39,10 +39,10 @@ export class MAGSearchComponent implements OnInit {
     public isCollapsed3: boolean = false;
     public dropdownBasic4: boolean = false;
     public isCollapsed4: boolean = false;
-    public WordsInSelection: number = 1;
+    public WordsInSelection: number = 0;
     public LogicalOperator: string = '';
-    public DateLimitSelection: number = 1;
-    public PublicationTypeSelection: number = 1;
+    public DateLimitSelection: number = 0;
+    public PublicationTypeSelection: number = 0;
     public MagSearchList: MagSearch[] = [];
     public MagSearchListCombine: MagSearch[] = [];
     public magSearchInput: string = '';
@@ -108,15 +108,17 @@ export class MAGSearchComponent implements OnInit {
     }
     public RunMAGSearch() {
 
-        if (this.DateLimitSelection == 5 || this.DateLimitSelection == 9 ) {
+        if (this.DateLimitSelection == 4 || this.DateLimitSelection == 8 ) {
             this.magSearchDate1 = this.valueKendoDatepicker1;
             this.magSearchDate2 = this.valueKendoDatepicker2;
         } else {
             this.magSearchDate1 = this.valueKendoDatepicker3;
         }
-        console.log('magsearch inptu', this.magSearchInput);
         this._magSearchService.CreateMagSearch(this.WordsInSelection, this.DateLimitSelection, this.PublicationTypeSelection,
-            this.magSearchInput, this.magSearchDate1, this.magSearchDate2, this.SearchTextTopic );
+            this.magSearchInput, this.magSearchDate1, this.magSearchDate2, this.SearchTextTopic).then(
+
+                () => { this.FetchMagSearches(); }
+            );
     }
     public AdvancedFeatures() {
 

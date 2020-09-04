@@ -21,8 +21,13 @@ export class magSearchService extends BusyAwareService {
         ) {
         super();
     }
-	
-    public MagSearchList: MagSearch[] = [];
+    public get MagSearchList() {
+        return this._MagSearchList;
+    }
+    public set MagSearchList(value: MagSearch[]) {
+        this._MagSearchList = value;
+    }
+    public _MagSearchList: MagSearch[] = [];
     public MAGSearchToBeDeleted: MagSearch = new MagSearch();
 
     FetchMAGSearchList() {
@@ -67,13 +72,16 @@ export class magSearchService extends BusyAwareService {
             wordsInSelection: wordsInSelection, dateLimitSelection: dateLimitSelection, publicationTypeSelection: publicationTypeSelection,
             magSearchInput: magSearchInput, magSearchDate1: magSearchDate1, magSearchDate2: magSearchDate2,
             magSearchCurrentTopic: magSearchCurrentTopic});
-        this._httpC.post<MagSearch[]>(this._baseUrl + 'api/MAGSearchList/CreateMagSearch',
-            body)
+         return this._httpC.post<MagSearch>(this._baseUrl + 'api/MAGSearchList/CreateMagSearch',
+            body).toPromise()
 
-            .subscribe(result => {
-                this.RemoveBusy("CreateMagSearch");
-                this.MagSearchList = result;
-                this.FetchMAGSearchList();
+            .then(
+
+                (result: MagSearch) => {
+                     this.RemoveBusy("CreateMagSearch");
+                    this.MagSearchList.push(result);
+                    return this.MagSearchList;
+               
             }, error => {
                     this.RemoveBusy("CreateMagSearch");
                 this.modalService.GenericError(error);

@@ -20,13 +20,13 @@
                         <div ngbDropdown class="col-6">
                             <select class="col-12 form-control mb-1" name="WordsInSelection"
                                     [(ngModel)]="WordsInSelection">
-                                <option [ngValue]="1" [selected]="WordsInSelection == 1">Word(s) in title</option>
-                                <option [ngValue]="2">Word(s) in abstract</option>
-                                <option [ngValue]="3">Author name(s)</option>
-                                <option [ngValue]="4">Topic</option>
-                                <option [ngValue]="5">MAG ID</option>
-                                <option [ngValue]="6">Journal</option>
-                                <option [ngValue]="7">Custom</option>
+                                <option [ngValue]="0" [selected]="WordsInSelection == 0">Word(s) in title</option>
+                                <option [ngValue]="1">Word(s) in abstract</option>
+                                <option [ngValue]="2">Author name(s)</option>
+                                <option [ngValue]="3">Topic</option>
+                                <option [ngValue]="4">MAG ID</option>
+                                <option [ngValue]="5">Journal</option>
+                                <option [ngValue]="6">Custom</option>
                             </select>
                         </div>
                         <div class="col-6">
@@ -39,20 +39,20 @@
                         <div ngbDropdown class="col-6">
                             <select class="col-12 form-control mb-1" name="DateLimitSelection"
                                     [(ngModel)]="DateLimitSelection">
-                                <option [ngValue]="1" [selected]="DateLimitSelection == 1">No date limit</option>
-                                <option [ngValue]="2">Publication date exactly</option>
-                                <option [ngValue]="3">Publication date before</option>
-                                <option [ngValue]="4">Publication date after</option>
-                                <option [ngValue]="5">Publication dates between</option>
-                                <option [ngValue]="6">Publication year exactly</option>
-                                <option [ngValue]="7">Publication year before</option>
-                                <option [ngValue]="8">Publication year after</option>
-                                <option [ngValue]="9">Publication years between</option>
+                                <option [ngValue]="0" [selected]="DateLimitSelection == 0">No date limit</option>
+                                <option [ngValue]="1">Publication date exactly</option>
+                                <option [ngValue]="2">Publication date before</option>
+                                <option [ngValue]="3">Publication date after</option>
+                                <option [ngValue]="4">Publication dates between</option>
+                                <option [ngValue]="5">Publication year exactly</option>
+                                <option [ngValue]="6">Publication year before</option>
+                                <option [ngValue]="7">Publication year after</option>
+                                <option [ngValue]="8">Publication years between</option>
                             </select>
                         </div>
                         <div class="col-lg-6">
                             <div class="card-footer h-100 w-100">
-                                <div *ngIf="DateLimitSelection == 5 || DateLimitSelection == 9">
+                                <div *ngIf="DateLimitSelection == 4 || DateLimitSelection == 8">
                                     <div class="m-1 p-1"><b>Items Dated From</b></div>
                                     <div>
                                         <div class="example-wrapper">
@@ -67,8 +67,9 @@
                                     </div>
 
                                 </div>
-                                <div *ngIf="DateLimitSelection == 2 || DateLimitSelection == 3  || DateLimitSelection == 4
-                     || DateLimitSelection == 6  || DateLimitSelection == 7  || DateLimitSelection == 8">
+
+                                <div *ngIf="DateLimitSelection == 1 || DateLimitSelection == 2  || DateLimitSelection == 3
+                     || DateLimitSelection == 5  || DateLimitSelection == 6  || DateLimitSelection == 7">
                                     <div class="m-1 p-1"><b>Date</b></div>
                                     <div>
                                         <div class="example-wrapper">
@@ -97,16 +98,16 @@
                         <div ngbDropdown class="col-6">
                             <select class="col-12 form-control mb-1" name="PublicationTypeSelection"
                                     [(ngModel)]="PublicationTypeSelection">
-                                <option [ngValue]="1" [selected]="PublicationTypeSelection == 1">All publication types</option>
-                                <option [ngValue]="2">Unknown types</option>
-                                <option [ngValue]="3">Journal article</option>
-                                <option [ngValue]="4">Patent</option>
-                                <option [ngValue]="5">Conference paper</option>
-                                <option [ngValue]="6">Book chapter</option>
-                                <option [ngValue]="7">Book</option>
-                                <option [ngValue]="8">Book reference entry</option>
-                                <option [ngValue]="9">Dataset</option>
-                                <option [ngValue]="10">Repository</option>
+                                <option [ngValue]="0" [selected]="PublicationTypeSelection == 0">All publication types</option>
+                                <option [ngValue]="1">Unknown types</option>
+                                <option [ngValue]="2">Journal article</option>
+                                <option [ngValue]="3">Patent</option>
+                                <option [ngValue]="4">Conference paper</option>
+                                <option [ngValue]="5">Book chapter</option>
+                                <option [ngValue]="6">Book</option>
+                                <option [ngValue]="7">Book reference entry</option>
+                                <option [ngValue]="8">Dataset</option>
+                                <option [ngValue]="9">Repository</option>
                             </select>
                         </div>
 
