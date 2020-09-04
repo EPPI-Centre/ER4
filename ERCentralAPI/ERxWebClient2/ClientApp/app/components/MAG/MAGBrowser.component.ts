@@ -253,7 +253,6 @@ export class MAGBrowser implements OnInit, OnDestroy {
 
             if (paper.isSelected) {
 
-
                 this.RemovePaperFromSelectedList(paper.paperId);
                 paper.isSelected = false;
             }
@@ -291,6 +290,13 @@ export class MAGBrowser implements OnInit, OnDestroy {
             return true;
         } else {
             return false;
+        }
+    }
+    public CanSelectMagItem(item: MagPaper): boolean {
+        if (item.linkedITEM_ID > 0) {
+            return false;
+        } else {
+            return true;
         }
     }
 }

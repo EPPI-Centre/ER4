@@ -129,8 +129,9 @@
                                                     {{item.shortRecord}}
                                                 </td>
                                                 <td>
-                                                    <button [disabled]="!item.canBeSelected" (click)="InOutReview(item)"
-                                                            [class]="item.isSelected == true ? 'btn fa fa-minus' : 'btn fa fa-plus'"></button>
+                                                    <button [disabled]="!CanSelectMagItem(item)" (click)="InOutReview(item)"
+                                                            [class]="item.isSelected == true  ? 'btn fa fa-minus' : 'btn fa fa-plus'">
+                                                    </button>
                                                 </td>
                                             </tr>
                                         </tbody>
@@ -155,7 +156,7 @@
 
                     </ng-template>
                 </kendo-tabstrip-tab>
-                <!--<kendo-tabstrip-tab [title]="'Cited By'" [disabled]="HideCitatedBy()">
+                <kendo-tabstrip-tab [title]="'Cited By'" [disabled]="HideCitatedBy()">
                     <ng-template kendoTabContent>
                         <div [title]="'Citated By'" style="min-height:500px; overflow:auto;">
                             <div style="max-height:50vh; overflow:auto;">
@@ -167,8 +168,9 @@
                                         <tr style="cursor: pointer;" *ngFor="let item of _magBrowserService.MagCitationsByPaperList.papers">
                                             <td (click)="GetMagPaperRef(item.paperId)">{{item.fullRecord}}</td>
                                             <td>
-                                                <button (click)="InOutReview(item)"
-                                                        [class]="item.isSelected == true ? 'btn fa fa-minus' : 'btn fa fa-plus'"></button>
+                                                <button [disabled]="!CanSelectMagItem(item)" (click)="InOutReview(item)"
+                                                        [class]="item.isSelected == true  ? 'btn fa fa-minus' : 'btn fa fa-plus'">
+                                                    </button>
                                             </td>
                                         </tr>
                                     </tbody>
@@ -176,7 +178,7 @@
                             </div>
                         </div>
                     </ng-template>
-                </kendo-tabstrip-tab>-->
+                </kendo-tabstrip-tab>
                 <kendo-tabstrip-tab #tabSelectedPapers (tabSelect)="onTabSelect($event)" [title]="SelectedPapersTitle" [disabled]="HideSelectedPapers()">
                     <ng-template kendoTabContent>
                         <div [title]="'Selected Papers'" style="min-height:500px; overflow:auto;">
@@ -189,8 +191,9 @@
                                         <tr style="cursor: pointer;" *ngFor="let item of _magBrowserService.selectedPapers">
                                             <td (click)="GetMagPaperRef(item.paperId)">{{item.fullRecord}}</td>
                                             <td>
-                                                <button (click)="InOutReview(item)"
-                                                        [class]="item.isSelected == true ? 'btn fa fa-minus' : 'btn fa fa-plus'"></button>
+                                                <button [disabled]="!CanSelectMagItem(item)" (click)="InOutReview(item)"
+                                                        [class]="item.isSelected == true  ? 'btn fa fa-minus' : 'btn fa fa-plus'">
+                                                </button>
                                             </td>
                                         </tr>
                                     </tbody>
@@ -215,8 +218,9 @@
                                                 {{item.shortRecord}}
                                             </td>
                                             <td>
-                                                <button [disabled]="!item.canBeSelected" (click)="InOutReview(item)"
-                                                        [class]="item.isSelected == true ? 'btn fa fa-minus' : 'btn fa fa-plus'"></button>
+                                                <button [disabled]="!CanSelectMagItem(item)" (click)="InOutReview(item)"
+                                                        [class]="item.isSelected == true  ? 'btn fa fa-minus' : 'btn fa fa-plus'">
+                                                </button>
                                             </td>
                                         </tr>
                                     </tbody>
