@@ -129,7 +129,7 @@
                                                     {{item.shortRecord}}
                                                 </td>
                                                 <td>
-                                                    <button [disabled]="!CanSelectMagItem(item)" (click)="InOutReview(item)"
+                                                    <button [disabled]="!CanSelectMagItem(item)" (click)="InOutReview(item, _magBrowserService.MAGList.papers)"
                                                             [class]="item.isSelected == true  ? 'btn fa fa-minus' : 'btn fa fa-plus'">
                                                     </button>
                                                 </td>
@@ -168,7 +168,7 @@
                                         <tr style="cursor: pointer;" *ngFor="let item of _magBrowserService.MagCitationsByPaperList.papers">
                                             <td (click)="GetMagPaperRef(item.paperId)">{{item.fullRecord}}</td>
                                             <td>
-                                                <button [disabled]="!CanSelectMagItem(item)" (click)="InOutReview(item)"
+                                                <button [disabled]="!CanSelectMagItem(item)" (click)="InOutReview(item, _magBrowserService.MagCitationsByPaperList.papers)"
                                                         [class]="item.isSelected == true  ? 'btn fa fa-minus' : 'btn fa fa-plus'">
                                                     </button>
                                             </td>
@@ -191,7 +191,7 @@
                                         <tr style="cursor: pointer;" *ngFor="let item of _magBrowserService.selectedPapers">
                                             <td (click)="GetMagPaperRef(item.paperId)">{{item.fullRecord}}</td>
                                             <td>
-                                                <button [disabled]="!CanSelectMagItem(item)" (click)="InOutReview(item)"
+                                                <button [disabled]="!CanSelectMagItem(item)" (click)="InOutReview(item, _magBrowserService.selectedPapers)"
                                                         [class]="item.isSelected == true  ? 'btn fa fa-minus' : 'btn fa fa-plus'">
                                                 </button>
                                             </td>
@@ -218,7 +218,7 @@
                                                 {{item.shortRecord}}
                                             </td>
                                             <td>
-                                                <button [disabled]="!CanSelectMagItem(item)" (click)="InOutReview(item)"
+                                                <button [disabled]="!CanSelectMagItem(item)" (click)="InOutReview(item, _magBrowserService.MAGOriginalList.papers)"
                                                         [class]="item.isSelected == true  ? 'btn fa fa-minus' : 'btn fa fa-plus'">
                                                 </button>
                                             </td>

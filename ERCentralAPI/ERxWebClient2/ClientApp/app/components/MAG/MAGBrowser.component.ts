@@ -3,7 +3,7 @@ import { Location } from '@angular/common';
 import { searchService } from '../services/search.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Router, NavigationEnd } from '@angular/router';
-import { MagPaper,  MagFieldOfStudy, MagBrowseHistoryItem, topicInfo } from '../services/MAGClasses.service';
+import { MagPaper,  MagFieldOfStudy, MagBrowseHistoryItem, topicInfo, MagList } from '../services/MAGClasses.service';
 import { MAGBrowserService } from '../services/MAGBrowser.service';
 import { MAGAdvancedService } from '../services/magAdvanced.service';
 import { MAGBrowserHistoryService } from '../services/MAGBrowserHistory.service';
@@ -94,7 +94,7 @@ export class MAGBrowser implements OnInit, OnDestroy {
     public AddRemoveCurrentPaperToSelectedList() {
 
         if (this._magAdvancedService.currentMagPaper != null) {
-            this.InOutReview(this._magAdvancedService.currentMagPaper);
+            this.InOutReview(this._magAdvancedService.currentMagPaper, this._magBrowserService.MAGList.papers);
         }
     }
     public RefreshPapersBetweenDates() {
@@ -161,21 +161,26 @@ export class MAGBrowser implements OnInit, OnDestroy {
     public Back() {
         this._location.back();
     }
-    private AddPaperToSelectedList(paperId: number) {
-
+    private AddPaperToSelectedList(paperId: number, list: MagPaper[]) {
+        console.log('paper we need: ', paperId);
         if (!this.IsInSelectedList(paperId)) {
         
             this._magBrowserService.SelectedPaperIds.push(paperId);
+            console.log(this._magBrowserService.SelectedPaperIds);
+            console.log(this._magBrowserService.selectedPapers);
             this.UpdateSelectedCount();
-            this.AddToSelectedList();
+            this.AddToSelectedList(paperId, list);
         }
     }
-    public AddToSelectedList() {
+    public AddToSelectedList(paperId: number, list: MagPaper[]) {
+        //console.log('list we have is long: ', list.length);
+        for (var i = 0; i < this._magBrowserService.SelectedPaperIds.length; i++) {
 
-        for (var i = 0; i < this._magBrowserService.MAGList.papers.length; i++) {
-            var item = this._magBrowserService.MAGList.papers.filter(x => x.paperId == this._magBrowserService.SelectedPaperIds[i])[0];
-            if (item != null && this._magBrowserService.selectedPapers.findIndex(x => x.paperId == this._magBrowserService.SelectedPaperIds[i]) == -1) {
+            var item = list.filter(x => x.paperId == paperId)[0];
+            if (item != null && this._magBrowserService.selectedPapers.findIndex(x => x.paperId == paperId) == -1 && item.paperId > 0) {
+                console.log('inside the push part, pushing: ', item.paperId);
                 this._magBrowserService.selectedPapers.push(item);
+                item = new MagPaper();
             }
             //else if (this._magAdvancedService.currentMagPaper != null) {
             //    if (this._magBrowserService.selectedPapers.findIndex(x => x.paperId == this._magAdvancedService.currentMagPaper.paperId) > -1) {
@@ -187,7 +192,7 @@ export class MAGBrowser implements OnInit, OnDestroy {
             //}
         }
     }
-    private RemovePaperFromSelectedList(paperId: number): any {
+    private RemovePaperFromSelectedList(paperId: number, list: MagPaper[]): any {
 
         if (this.IsInSelectedList(paperId)) {
             let pos: number = this._magBrowserService.SelectedPaperIds.indexOf(paperId);
@@ -254,18 +259,18 @@ export class MAGBrowser implements OnInit, OnDestroy {
     private UpdateSelectedCount(): any {
         this.ShowSelectedPapers = "Selected (" + this._magBrowserService.SelectedPaperIds.length.toString() + ")";
     }
-    public InOutReview(paper: MagPaper) {
+    public InOutReview(paper: MagPaper, list: MagPaper[]) {
 
         if (paper.linkedITEM_ID == 0) {
 
 
             if (paper.isSelected) {
 
-                this.RemovePaperFromSelectedList(paper.paperId);
+                this.RemovePaperFromSelectedList(paper.paperId, list);
                 paper.isSelected = false;
             }
             else {
-                this.AddPaperToSelectedList(paper.paperId);
+                this.AddPaperToSelectedList(paper.paperId, list);
                 paper.isSelected = true;
             }            
         }
@@ -283,7 +288,7 @@ export class MAGBrowser implements OnInit, OnDestroy {
     }
     public Clear() {
         this._magBrowserService.SelectedPaperIds = [];
-        this._magBrowserService.selectedPapers = [];
+        //this._magBrowserService.selectedPapers = [];
         this._magAdvancedService.currentMagPaper = new MagPaper();
         this.MAGPapers = [];
 
