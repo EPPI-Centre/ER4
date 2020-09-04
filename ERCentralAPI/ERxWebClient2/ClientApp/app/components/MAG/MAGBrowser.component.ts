@@ -60,7 +60,8 @@ export class MAGBrowser implements OnInit, OnDestroy {
         this.ShowOriginalPapers = !this.ShowOriginalPapers;
     }
     ngOnInit() {
-        
+        this._magBrowserService.SelectedPaperIds = [];
+        this._magBrowserService.selectedPapers = [];
         this._eventEmitterService.selectedButtonPressed.subscribe(
             () => {
                 if (this.tabstrip != null) {
@@ -170,26 +171,32 @@ export class MAGBrowser implements OnInit, OnDestroy {
         }
     }
     public AddToSelectedList() {
-        for (var i = 0; i < this._magBrowserService.SelectedPaperIds.length; i++) {
+
+        for (var i = 0; i < this._magBrowserService.MAGList.papers.length; i++) {
             var item = this._magBrowserService.MAGList.papers.filter(x => x.paperId == this._magBrowserService.SelectedPaperIds[i])[0];
             if (item != null && this._magBrowserService.selectedPapers.findIndex(x => x.paperId == this._magBrowserService.SelectedPaperIds[i]) == -1) {
                 this._magBrowserService.selectedPapers.push(item);
-            } else if (this._magAdvancedService.currentMagPaper != null) {
-                if (this._magBrowserService.selectedPapers.findIndex(x => x.paperId == this._magAdvancedService.currentMagPaper.paperId) > -1) {
-              
-                } else {
-                    this._magBrowserService.selectedPapers.push(this._magAdvancedService.currentMagPaper);
-                }
             }
+            //else if (this._magAdvancedService.currentMagPaper != null) {
+            //    if (this._magBrowserService.selectedPapers.findIndex(x => x.paperId == this._magAdvancedService.currentMagPaper.paperId) > -1) {
+
+
+            //    } else {
+            //       this._magBrowserService.selectedPapers.push(this._magAdvancedService.currentMagPaper);
+            //    }
+            //}
         }
     }
     private RemovePaperFromSelectedList(paperId: number): any {
 
         if (this.IsInSelectedList(paperId)) {
             let pos: number = this._magBrowserService.SelectedPaperIds.indexOf(paperId);
-            this._magBrowserService.SelectedPaperIds.splice(pos, 1);
-            this._magBrowserService.selectedPapers.splice(pos, 1);
-            this.UpdateSelectedCount();
+            if (pos > -1) {
+
+                this._magBrowserService.SelectedPaperIds.splice(pos, 1);
+                this._magBrowserService.selectedPapers.splice(pos, 1);
+                this.UpdateSelectedCount();
+            }
         }
     }
     public GetParentAndChildRelatedPapers(item: MagFieldOfStudy) {
@@ -251,6 +258,7 @@ export class MAGBrowser implements OnInit, OnDestroy {
 
         if (paper.linkedITEM_ID == 0) {
 
+
             if (paper.isSelected) {
 
                 this.RemovePaperFromSelectedList(paper.paperId);
@@ -274,7 +282,8 @@ export class MAGBrowser implements OnInit, OnDestroy {
         return this._magBrowserService.IsBusy || this._magAdvancedService.IsBusy;
     }
     public Clear() {
-
+        this._magBrowserService.SelectedPaperIds = [];
+        this._magBrowserService.selectedPapers = [];
         this._magAdvancedService.currentMagPaper = new MagPaper();
         this.MAGPapers = [];
 
