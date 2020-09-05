@@ -10,35 +10,37 @@
 <div class="container col-12">
 
     <div class="row" style="vertical-align:top">
-        <div class="col-lg-8 ">
+        <div class="col-sm-12 col-lg-8">
             <div class="card-footer h-100 w-100">
                 <h2 class="card-title"></h2>
                 <h2 class="font-weight-light text-sm-left"> Microsoft Academic Graph Searches </h2>
                 <a class="btn btn-primary btn-lg text-white fa fa-search-plus pull-right" (click)="RunMAGSearch()"></a>
                 <div class="card-footer">
                     <div class="col-12 row">
-                        <div ngbDropdown class="col-6">
-                            <select class="col-12 form-control mb-1" name="WordsInSelection"
-                                    [(ngModel)]="WordsInSelection">
-                                <option [ngValue]="0" [selected]="WordsInSelection == 0">Word(s) in title</option>
-                                <option [ngValue]="1">Word(s) in abstract</option>
-                                <option [ngValue]="2">Author name(s)</option>
-                                <option [ngValue]="3">Topic</option>
-                                <option [ngValue]="4">MAG ID</option>
-                                <option [ngValue]="5">Journal</option>
-                                <option [ngValue]="6">Custom</option>
+                        <div ngbDropdown class="col-sm-12 col-lg-6">
+                            <select class="col-sm-12 col-lg-12 form-control mb-1" name="WordsInSelection"
+                                    [(ngModel)]="WordsInSelection" (change)="OpenTopicsPanel($event)">
+                                <option [value]="0" [selected]="WordsInSelection == 0">Word(s) in title</option>
+                                <option [value]="1">Word(s) in abstract</option>
+                                <option [value]="2">Author name(s)</option>
+                                <option [value]="3">Topic</option>
+                                <option [value]="4">MAG ID</option>
+                                <option [value]="5">Journal</option>
+                                <option [value]="6">Custom</option>
                             </select>
                         </div>
-                        <div class="col-6">
+                        <div class="col-sm-12 col-lg-4">
                             <input id="magSearchInput" name="magSearchInput" type="text" class="form-control" [(ngModel)]="magSearchInput"/>
                         </div>
-                     
+                        <div *ngIf="SearchTextTopic != ''" class="col-sm-12 col-lg-2 text-right">
+                            <b>{{SearchTextTopic}}</b>
+                        </div>
                     </div>
                     <div class="col-12 row">
 
-                        <div ngbDropdown class="col-6">
+                        <div ngbDropdown class="col-sm-12 col-lg-6">
                             <select class="col-12 form-control mb-1" name="DateLimitSelection"
-                                    [(ngModel)]="DateLimitSelection">
+                                    [(ngModel)]="DateLimitSelection" >
                                 <option [ngValue]="0" [selected]="DateLimitSelection == 0">No date limit</option>
                                 <option [ngValue]="1">Publication date exactly</option>
                                 <option [ngValue]="2">Publication date before</option>
@@ -69,7 +71,7 @@
                                 </div>
 
                                 <div *ngIf="DateLimitSelection == 1 || DateLimitSelection == 2  || DateLimitSelection == 3
-                     || DateLimitSelection == 5  || DateLimitSelection == 6  || DateLimitSelection == 7">
+                                || DateLimitSelection == 5  || DateLimitSelection == 6  || DateLimitSelection == 7">
                                     <div class="m-1 p-1"><b>Date</b></div>
                                     <div>
                                         <div class="example-wrapper">
@@ -77,13 +79,13 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div *ngIf="WordsInSelection == 4">
+                                <div *ngIf="OpenTopics">
                                     <input class="form-control col-12 border border-dark" type="text" id="SearchTextTopic" [(ngModel)]="SearchTextTopic"
                                            placeholder="Search for topics here.  Entry of Wildcards work, e.g. physic* " />
                                     <button (click)="UpdateTopicResults()" class="btn btn-primary btn-sm text-white"><i class="fa fa-search"></i></button>
                                     <div class="row " style="max-width:1450px;overflow:auto;">
                                         <div *ngFor="let item of SearchTextTopicsResults" class="list-group">
-                                            <div class="col-3 btn border border-0"
+                                            <div class="col-3 btn border border-0" (click)="SelectTopic(item.displayName)"
                                                  [ngStyle]="{ 'font-size.em': item.fontSize,'background-color': 'light-blue', 'color': 'black'}">
                                                 {{item.displayName}}
                                             </div>
@@ -93,9 +95,7 @@
                             </div>
                         </div>
                     </div>
-                   
-
-                        <div ngbDropdown class="col-6">
+                    <div ngbDropdown class="col-sm-12 col-lg-6">
                             <select class="col-12 form-control mb-1" name="PublicationTypeSelection"
                                     [(ngModel)]="PublicationTypeSelection">
                                 <option [ngValue]="0" [selected]="PublicationTypeSelection == 0">All publication types</option>
@@ -110,14 +110,10 @@
                                 <option [ngValue]="9">Repository</option>
                             </select>
                         </div>
-
-
                     </div>
             </div>
         </div>
-
-
-            <div class="col-lg-4">
+        <div class="col-lg-4">
                 <h2 class="card-title"></h2>
                 <h3 class="font-weight-light">Combine selected searches</h3>
                 <h2 class="card-title"></h2>

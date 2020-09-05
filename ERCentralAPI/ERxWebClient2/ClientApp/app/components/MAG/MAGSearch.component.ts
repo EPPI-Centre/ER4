@@ -54,6 +54,7 @@ export class MAGSearchComponent implements OnInit {
     public SearchTextTopics: TopicLink[] = [];
     public SearchTextTopicsResults: TopicLink[] = [];
     public SearchTextTopic: string = '';
+    public OpenTopics: boolean = false;
 
     ngOnInit() {
 
@@ -105,6 +106,21 @@ export class MAGSearchComponent implements OnInit {
             this.SearchTextTopics = [];
             this.SearchTextTopicsResults = [];
         }
+    }
+    public OpenTopicsPanel(event: any) {
+        var dropDownValue = event.target.value;
+        console.log(dropDownValue);
+        if (dropDownValue == 3) {
+            this.OpenTopics = true;
+        } else {
+            this.OpenTopics = false;
+        }
+    }
+    public SelectTopic(topic: string)
+    {
+        this.OpenTopics = false;
+        this.SearchTextTopic = topic;
+
     }
     public DeleteMagSearch(magSearchId: number) {
 
