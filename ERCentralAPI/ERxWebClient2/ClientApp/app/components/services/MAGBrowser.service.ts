@@ -332,7 +332,7 @@ export class MAGBrowserService extends BusyAwareService {
                     FieldsListcriteria.listType = "PaperFieldOfStudyList";
                     FieldsListcriteria.paperIdList = this.ListCriteria.paperIds;
                     console.log('checking criteria paperIds: ', this.ListCriteria.paperIds);
-                    this.FetchMagFieldOfStudyList(FieldsListcriteria, '');
+                    this.FetchMagFieldOfStudyList(FieldsListcriteria, 'MagSearchResultsList');
                 }
             );
     }
@@ -439,6 +439,7 @@ export class MAGBrowserService extends BusyAwareService {
 
             this._MAGList = list;
             this._Criteria = crit;
+            console.log('checking list type here: ',this.ListCriteria);
         }
        
     }
