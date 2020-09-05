@@ -137,7 +137,8 @@
                                         </tbody>
                                     </table>
                                 </div>
-                                <div *ngIf="IsServiceBusy && _magBrowserService.MAGList && _magBrowserService.MAGList.papers && _magBrowserService.MAGList.papers.length == 0">Loading items...</div>
+                                <div *ngIf="IsServiceBusy && _magBrowserService.MAGList && _magBrowserService.MAGList.papers && 
+                                     _magBrowserService.MAGList.papers.length == 0">Loading items...</div>
                                 <div *ngIf="_magBrowserService && _magBrowserService.MAGList.papers.length == 0"
                                      class="p-2 font-weight-bold text-center text-info mt-1">No items to display</div>
                                 <div class="col-12 row mt-1 border-top">
@@ -217,7 +218,8 @@
                                                 {{item.shortRecord}}
                                             </td>
                                             <td>
-                                                <button [disabled]="!CanSelectMagItem(item)" (click)="InOutReview(item, _magBrowserService.MAGOriginalList.papers)"
+                                                <button [disabled]="!CanSelectMagItem(item)" 
+                                                        (click)="InOutReview(item, _magBrowserService.MAGOriginalList.papers)"
                                                         [class]="item.isSelected == true  ? 'btn fa fa-minus' : 'btn fa fa-plus'">
                                                 </button>
                                             </td>
