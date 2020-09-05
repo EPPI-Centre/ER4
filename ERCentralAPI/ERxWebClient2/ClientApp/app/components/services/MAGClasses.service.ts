@@ -114,6 +114,7 @@ export class MVCMagPaperListSelectionCriteria {
     numResults: number = 0;
     dateFrom: string = '';
     dateTo: string = '';
+    magSearchText = '';
 
 }
 

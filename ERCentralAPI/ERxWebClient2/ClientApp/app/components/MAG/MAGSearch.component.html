@@ -153,28 +153,36 @@
                             <thead>
                                 <tr>
                                     <th></th>
-                                    <th >Search</th>
-                                    <th >MAG search string</th>
-                                    <th >MAG Version</th>
-                                    <th >User</th>
-                                    <th >Date</th>
-                                    <th >Hits</th>
-                                    <th></th>
+                                    <th>Search</th>
+                                    <th>MAG search string</th>
+                                    <th>MAG Version</th>
+                                    <th>User</th>
+                                    <th>Date</th>
+                                    <th>Hits</th>
+                                    <th>ReRun</th>
+                                    <th>Import</th>
+                                    <th>Delete</th>
+                                   
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr *ngFor="let item of _magSearchService.MagSearchList">
-                                    <td><input type="checkbox" class="m-1" style="zoom: 1.2;"
-                                    (click)="AddSearchIdToList(item)" />
+                                    <td>
+                                        <input type="checkbox" class="m-1" style="zoom: 1.2;"
+                                               (click)="AddSearchIdToList(item)" />
                                     </td>
                                     <td>{{item.magSearchId}}</td>
                                     <td>{{item.searchText}}</td>
                                     <td>{{item.magVersion}}</td>
                                     <td>{{item.contactName}}</td>
                                     <td>{{item.searchDate}}</td>
-                                    <td>{{item.hitsNo}}</td>
+                                    <td class="p-0" style="vertical-align:middle"><div (click)="GetItems(item)" class="btn btn-link btn-sm">{{ item.hitsNo}}</div></td>
+                                    <td>ReRun</td>
+                                    <td class="p-0" style="vertical-align:middle">
+                                    <button (click)="ImportMagSearchPapers(item)" [disabled]="!CanImportMagPapers(item)" 
+                                       class="btn btn-primary btn-sm text-white align-content-center"><i class="fa fa-download" aria-hidden="true"></i></button></td>
                                     <td><button class="btn btn-danger btn-sm text-white align-content-center  fa fa-trash" (click)="DeleteMagSearch(item.magSearchId)"></button></td>
-                                 </tr>
+                                </tr>
                             </tbody>
                         </table>
                     </div>

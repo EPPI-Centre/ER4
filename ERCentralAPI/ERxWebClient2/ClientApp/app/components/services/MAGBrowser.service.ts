@@ -322,6 +322,20 @@ export class MAGBrowserService extends BusyAwareService {
                 return error;
             });
     }
+    public FetchMagPapersFromSearch(criteria: MVCMagPaperListSelectionCriteria, goBackListType: string) : Promise<any> {
+
+        return this.FetchWithCrit(criteria, "MagSearchResultsList")
+            .then(
+                () => {
+                    let FieldsListcriteria: MVCMagFieldOfStudyListSelectionCriteria = new MVCMagFieldOfStudyListSelectionCriteria();
+                    FieldsListcriteria.fieldOfStudyId = 0;
+                    FieldsListcriteria.listType = "PaperFieldOfStudyList";
+                    FieldsListcriteria.paperIdList = this.ListCriteria.paperIds;
+                    console.log('checking criteria paperIds: ', this.ListCriteria.paperIds);
+                    this.FetchMagFieldOfStudyList(FieldsListcriteria, '');
+                }
+            );
+    }
     public FetchWithCrit(crit: MVCMagPaperListSelectionCriteria, listDescription: string): Promise<boolean> {
 
         this._BusyMethods.push("FetchWithCrit");
@@ -399,7 +413,7 @@ export class MAGBrowserService extends BusyAwareService {
     }
     public SavePapers(list: MagList, crit: MVCMagPaperListSelectionCriteria, referenceList: string ) {
 
-        if (crit.listType == 'CitationsList' || crit.listType == 'ReviewMatchedPapers') {
+        if (crit.listType == 'CitationsList' || crit.listType == 'ReviewMatchedPapers' || 'MagSearchResultsList') {
 
             this._Criteria.paperIds = '';
             for (var i = 0; i < list.papers.length; i++) {

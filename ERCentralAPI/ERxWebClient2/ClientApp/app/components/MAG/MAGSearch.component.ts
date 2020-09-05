@@ -7,8 +7,9 @@ import { MAGBrowserService } from '../services/MAGBrowser.service';
 import { MAGAdvancedService } from '../services/magAdvanced.service';
 import { MAGBrowserHistoryService } from '../services/MAGBrowserHistory.service';
 import { BasicMAGService } from '../services/BasicMAG.service';
-import { MagSearch, TopicLink, MVCMagFieldOfStudyListSelectionCriteria, MagFieldOfStudy } from '../services/MAGClasses.service';
+import { MagSearch, TopicLink, MVCMagFieldOfStudyListSelectionCriteria, MagFieldOfStudy, MagBrowseHistoryItem, MVCMagPaperListSelectionCriteria } from '../services/MAGClasses.service';
 import { magSearchService } from '../services/MAGSearch.service';
+import { NotificationService } from '@progress/kendo-angular-notification';
 
 @Component({
     selector: 'MAGSearch',
@@ -26,7 +27,8 @@ export class MAGSearchComponent implements OnInit {
         private _ReviewerIdentityServ: ReviewerIdentityService,
         private _location: Location,
         private router: Router,
-        public _mAGBrowserHistoryService: MAGBrowserHistoryService
+        public _mAGBrowserHistoryService: MAGBrowserHistoryService,
+        public _notificationService: NotificationService
 
     ) {
 
@@ -121,6 +123,103 @@ export class MAGSearchComponent implements OnInit {
         this.OpenTopics = false;
         this.SearchTextTopic = topic;
 
+    }
+    public CanImportMagPapers(item: MagSearch): boolean {
+
+        if (item != null && item.magSearchId > 0 && item.hitsNo > 0 && this.HasWriteRights) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    private ShowMAGRunMessage(notifyMsg: string) {
+
+        this._notificationService.show({
+            content: notifyMsg,
+            animation: { type: 'slide', duration: 400 },
+            position: { horizontal: 'center', vertical: 'top' },
+            type: { style: "info", icon: true },
+            closable: true
+        });
+    }
+    public ImportMagSearchPapers(item: MagSearch) {
+
+        let msg: string = '';
+        if (item.magSearchId == 0) {
+            this.ShowMAGRunMessage('There are no papers to import');
+
+        } else {
+
+            if (item.hitsNo > 20000) {
+                 msg ="Sorry. You can't import more than 20k records at a time.\nYou could try breaking up your search e.g. by date?";
+            }
+            else {
+
+                msg = "Are you sure you want to import this search result?";
+            }
+
+            this.ImportMagRelatedPapersRun(item, msg);
+        }
+    }
+    public ImportMagRelatedPapersRun(magSearch: MagSearch, msg: string) {
+
+        this.ConfirmationDialogService.confirm("Importing papers for the selected MAG search",
+            msg, false, '')
+            .then((confirm: any) => {
+                if (confirm) {
+                    this._magSearchService.ImportMagSearches(magSearch.magSearchText, magSearch.searchText).then(
+
+                        (result: number) => {
+
+                            console.log('test nimported: ', result);
+                            let num_in_run: number = magSearch.hitsNo;
+                            let msg: string = '';
+                            if (result != undefined || result != null) {
+
+                            if (result == num_in_run) {
+                                msg = "Imported " + result.toString() + " out of " +
+                                    num_in_run.toString() + " items";
+                            }
+                            else if (result != 0) {
+                                msg = "Some of these items were already in your review.\n\nImported " +
+                                    result.toString() + " out of " + num_in_run.toString() +
+                                    " new items";
+                            }
+                            else {
+                                msg = "All of these records were already in your review.";
+                                }
+
+                            } else {
+                                msg = 'results are undefined';
+                            }
+                            this.ShowMAGRunMessage(msg);
+                        }
+                        
+                   );
+                }
+            });
+    }
+    public GetItems(item: MagSearch) {
+
+        if (item.magSearchId > 0) {
+            this._magBrowserService.ShowingParentAndChildTopics = false;
+            this._magBrowserService.ShowingChildTopicsOnly = true;
+            let magBrowseItem: MagBrowseHistoryItem = new MagBrowseHistoryItem("Papers identified from Mag Search run", "MagSearchPapersList", 0,
+                "", "", 0, "", "", 0, "", "", item.magSearchId);
+            this._mAGBrowserHistoryService.IncrementHistoryCount();
+            this._mAGBrowserHistoryService.AddToBrowseHistory(magBrowseItem);
+            let selectionCriteria: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
+            selectionCriteria.pageSize = 20;
+            selectionCriteria.pageNumber = 0;
+            selectionCriteria.listType = "MagSearchResultsList";
+            selectionCriteria.magSearchText = item.magSearchText;
+            this._magBrowserService.FetchMagPapersFromSearch(selectionCriteria, "MagSearchResultsList")
+                .then(
+                    () => {
+                        this.router.navigate(['MAGBrowser']);
+                    }
+                );
+        }
     }
     public DeleteMagSearch(magSearchId: number) {
 

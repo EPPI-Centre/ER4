@@ -107,7 +107,8 @@ namespace ERxWebClient2.Controllers
                         PageSize = crit.pageSize,
                         PaperIds = crit.paperIds,
                         DateFrom = crit.dateFrom,
-                        DateTo = crit.dateTo
+                        DateTo = crit.dateTo,
+                        MagSearchText = crit.magSearchText
                     };
 
                 var result = dp.Fetch(selectionCriteria);
@@ -146,6 +147,8 @@ namespace ERxWebClient2.Controllers
         public string dateFrom { get; set; }
 
         public string dateTo { get; set; }
+
+        public string magSearchText { get; set; }
 
     }
 

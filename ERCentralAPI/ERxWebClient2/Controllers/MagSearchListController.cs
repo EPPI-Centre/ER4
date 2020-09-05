@@ -166,15 +166,7 @@ namespace ERxWebClient2.Controllers
                     newSearch.SearchText += " AND publication type: " + newSearch.GetPublicationType(mVCMagSearch.publicationTypeSelection - 1);
                 }
 
-                //newSearch.Save();
-
-                //DataPortal<MagSearchList> dp = new DataPortal<MagSearchList>();
-
-                //var result = dp.Fetch();
-                //result.Add(newSearch);
-
                 DataPortal<MagSearch> dp = new DataPortal<MagSearch>();
-
                 newSearch = dp.Execute(newSearch);
 
                 return Ok(newSearch);
@@ -189,7 +181,33 @@ namespace ERxWebClient2.Controllers
 
         }
 
-	
+        [HttpPost("[action]")]
+        public IActionResult ImportMagSearchPapers([FromBody] MVCMagSearchText magSearch)
+        {
+            try
+            {
+                if (SetCSLAUser4Writing())
+                {
+
+                    DataPortal<MagItemPaperInsertCommand> dp2 = new DataPortal<MagItemPaperInsertCommand>();
+                    MagItemPaperInsertCommand command = new MagItemPaperInsertCommand("", "MagSearchResults",
+                        0, "MAG search: " + magSearch.searchText, magSearch.magSearchText);
+
+                    command = dp2.Execute(command);
+
+                    return Ok(command.NImported);
+
+                }
+                else return Forbid();
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "Importing a Mag Related Paper list has an error");
+                return StatusCode(500, e.Message);
+            }
+        }
+
+
         [HttpPost("[action]")]
         public IActionResult CombineMagSearches([FromBody] MVCMagCombinedSearch mVCMagCombinedSearch)
         {
@@ -241,6 +259,13 @@ namespace ERxWebClient2.Controllers
     {
         public MagSearch[] magSearchListCombine  { get; set; }
         public string logicalOperator  { get; set; }
+    }
+
+    public class MVCMagSearchText
+    {
+        public string magSearchText { get; set; }
+
+        public string searchText { get; set; }
     }
 }
 

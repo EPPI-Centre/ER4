@@ -12,7 +12,7 @@ import { MagSearch } from './MAGClasses.service';
 })
 
 export class magSearchService extends BusyAwareService {
-   
+
 
     constructor(
         private _httpC: HttpClient,
@@ -108,4 +108,25 @@ export class magSearchService extends BusyAwareService {
             );
 
     }
+    ImportMagSearches(magSearchText: string, searchText: string): Promise<any> {
+
+        this._BusyMethods.push("ImportMagSearches");
+        let body = JSON.stringify({
+            magSearchText: magSearchText, searchText: searchText
+        });
+        return this._httpC.post<MagSearch[]>(this._baseUrl + 'api/MAGSearchList/ImportMagSearchPapers',
+            body).toPromise()
+
+            .then(result => {
+                this.RemoveBusy("ImportMagSearches");
+                console.log(result);
+                return result;                
+
+            }, error => {
+                    this.RemoveBusy("ImportMagSearches");
+                this.modalService.GenericError(error);
+            }
+            );
+    }
+
 }
