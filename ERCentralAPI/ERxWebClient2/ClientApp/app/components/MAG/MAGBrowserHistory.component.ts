@@ -147,7 +147,7 @@ export class MAGBrowserHistory implements OnInit {
                         result.abstract, result.linkedITEM_ID, result.urls, result.findOnWeb, 0, "", "", 0);
                     this._MAGBrowserHistoryService.IncrementHistoryCount();
                     this._MAGBrowserHistoryService.AddToBrowseHistory(magBrowseItem);
-                    this._magAdvancedService.PostFetchMagPaperCalls(result);
+                    this._magAdvancedService.PostFetchMagPaperCalls(result,'');
                 } else {
                     this._magBasicService.showMAGRunMessage('Microsoft academic could not find the paperId!');
                 }

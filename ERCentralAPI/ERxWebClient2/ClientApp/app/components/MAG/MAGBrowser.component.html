@@ -143,13 +143,13 @@
                                      class="p-2 font-weight-bold text-center text-info mt-1">No items to display</div>
                                 <div class="col-12 row mt-1 border-top">
                                     <MAGpaginatorComp class="row ml-1 pt-1 mr-1 pr-1 "></MAGpaginatorComp>
-                                    <div *ngIf="_magBrowserService.currentFieldOfStudy.fieldOfStudyId > 0" class="my-auto">
+                                    <!--<div *ngIf="_magBrowserService.ShowingParentAndChildTopics" class="my-auto">
                                         <select (change)="UpdatePageSize($event.target.value)" >
                                             <option [value]="20">20</option>
                                             <option [value]="50">50</option>
                                             <option [value]="100">100</option>
                                         </select>
-                                    </div>
+                                    </div>-->
                                 </div>
 
                             </div>
@@ -167,7 +167,7 @@
                                     </thead>
                                     <tbody>
                                         <tr style="cursor: pointer;" *ngFor="let item of _magBrowserService.MagCitationsByPaperList.papers">
-                                            <td (click)="GetMagPaperRef(item.paperId, _magBrowserService.MagCitationsByPaperList.papers)">{{item.fullRecord}}</td>
+                                            <td (click)="GetMagPaperRef(item.paperId, _magBrowserService.MagCitationsByPaperList.papers )">{{item.fullRecord}}</td>
                                             <td>
                                                 <button [disabled]="!CanSelectMagItem(item)" (click)="InOutReview(item, _magBrowserService.MagCitationsByPaperList.papers)"
                                                         [class]="item.isSelected == true  ? 'btn fa fa-minus' : 'btn fa fa-plus'">

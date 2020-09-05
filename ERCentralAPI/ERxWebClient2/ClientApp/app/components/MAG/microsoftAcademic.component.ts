@@ -54,7 +54,7 @@ export class microsoftAcademicComp implements OnInit, OnDestroy {
 
             (result: MagPaper) => {
 
-                this._magAdvancedService.PostFetchMagPaperCalls(result);
+                this._magAdvancedService.PostFetchMagPaperCalls(result,'');
             });
 
     }
@@ -64,7 +64,7 @@ export class microsoftAcademicComp implements OnInit, OnDestroy {
 
             (result: MagPaper) => {
 
-                this._magAdvancedService.PostFetchMagPaperCalls(result);
+                this._magAdvancedService.PostFetchMagPaperCalls(result,'');
             });
     }
     public CanGetMagPaper(): boolean {

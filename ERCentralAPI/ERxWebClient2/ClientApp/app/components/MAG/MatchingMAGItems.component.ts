@@ -399,7 +399,7 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
                         result.abstract, result.linkedITEM_ID, result.urls, result.findOnWeb, 0, "", "", 0);
                     this._mAGBrowserHistoryService.IncrementHistoryCount();
                     this._mAGBrowserHistoryService.AddToBrowseHistory(magBrowseItem);
-                    this._magAdvancedService.PostFetchMagPaperCalls(result);
+                    this._magAdvancedService.PostFetchMagPaperCalls(result, '');
                 } else {
                     this._magBasicService.showMAGRunMessage('Microsoft academic could not find the paperId!');
                 }

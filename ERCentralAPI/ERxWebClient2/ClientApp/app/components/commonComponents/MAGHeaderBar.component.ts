@@ -46,11 +46,11 @@ export class MAGHeaderBarComp implements OnInit {
         }
     }
     public Forward() {
-
+        
         this._location.forward();
     }
     public Back() {
-
+        
         this._location.back();
     }
     public AdvancedFeatures() {

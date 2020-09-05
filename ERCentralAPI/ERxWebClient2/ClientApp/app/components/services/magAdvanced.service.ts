@@ -162,7 +162,7 @@ export class MAGAdvancedService extends BusyAwareService {
                     this.RemoveBusy("FetchMagPaperId");
                 });
     }
-    public PostFetchMagPaperCalls(result: MagPaper) {
+    public PostFetchMagPaperCalls(result: MagPaper, listType: string) {
            if (result.paperId != null && result.paperId > 0) {
 
                 let criteriaCitationsList: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
@@ -184,22 +184,27 @@ export class MAGAdvancedService extends BusyAwareService {
 
                                 (res: boolean) => {
 
-                                    if (res) {
-                                        this.PaperIds = this._magBrowserService.ListCriteria.paperIds;
-                                        let criteriaFOS: MVCMagFieldOfStudyListSelectionCriteria = new MVCMagFieldOfStudyListSelectionCriteria();
-                                        criteriaFOS.fieldOfStudyId = 0;
-                                        criteriaFOS.listType = 'PaperFieldOfStudyList';
-                                        criteriaFOS.paperIdList = result.paperId.toString();
-                                        criteriaFOS.SearchTextTopics = ''; //TODO this will be populated by the user..
-                                        this._magBrowserService.FetchMagFieldOfStudyList(criteriaFOS, 'CitationsList').then(
+                                    this._magBrowserService.FetchOrigWithCrit(criteriaCitedBy, "CitedByList").then(
 
-                                            (res: MagFieldOfStudy[]) =>
-                                            {
-                                                    this.router.navigate(['MAGBrowser']);
-                                             
+                                        () => {
+
+                                            if (res) {
+                                                this.PaperIds = this._magBrowserService.ListCriteria.paperIds;
+                                                let criteriaFOS: MVCMagFieldOfStudyListSelectionCriteria = new MVCMagFieldOfStudyListSelectionCriteria();
+                                                criteriaFOS.fieldOfStudyId = 0;
+                                                criteriaFOS.listType = 'PaperFieldOfStudyList';
+                                                criteriaFOS.paperIdList = result.paperId.toString();
+                                                criteriaFOS.SearchTextTopics = ''; //TODO this will be populated by the user..
+                                                this._magBrowserService.FetchMagFieldOfStudyList(criteriaFOS, listType).then(
+
+                                                    (res: MagFieldOfStudy[]) => {
+                                                        this.router.navigate(['MAGBrowser']);
+
+                                                    }
+                                                );
                                             }
-                                        );
-                                    }
+                                        }
+                                    )
                                 });
                         }                       
                     }

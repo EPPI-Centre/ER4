@@ -155,7 +155,7 @@ export class MAGBrowser implements OnInit, OnDestroy {
             closable: true
         });
     }
-    public GetMagPaperRef(magPaperRefId: number, list: MagPaper[]) {
+    public GetMagPaperRef(magPaperRefId: number, list: MagPaper[] ) {
         this.currentMagPaperList = list;
         this._magBrowserService.ShowingParentAndChildTopics = false;
         this._magBrowserService.ShowingChildTopicsOnly = true;
@@ -168,7 +168,7 @@ export class MAGBrowser implements OnInit, OnDestroy {
                 this._mAGBrowserHistoryService.IncrementHistoryCount();
                 this._mAGBrowserHistoryService.AddToBrowseHistory(magBrowseItem);
 
-                this._magAdvancedService.PostFetchMagPaperCalls(result);
+                this._magAdvancedService.PostFetchMagPaperCalls(result, "CitationsList");
             });
     }
     public Back() {
