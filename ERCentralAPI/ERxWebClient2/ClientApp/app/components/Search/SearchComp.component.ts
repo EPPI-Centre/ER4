@@ -755,7 +755,7 @@ export class SearchComp implements OnInit, OnDestroy {
 	
 	callSearches(selectedSearchDropDown: string, selectedSearchTextDropDown: string, searchBool: boolean) {
 
-		if (this.CanWrite) {
+		if (this.CanWrite()) {
 
 
 			this.selectedSearchTextDropDown = selectedSearchTextDropDown;
