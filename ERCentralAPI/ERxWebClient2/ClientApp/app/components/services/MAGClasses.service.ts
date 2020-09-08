@@ -364,5 +364,5 @@ export class MagSearch {
     magVersion: string = '';
     magSearchText: string = '';
     contactName: string = '';
-
+    add: boolean = false;
 }

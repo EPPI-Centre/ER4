@@ -36,7 +36,10 @@ export class magSearchService extends BusyAwareService {
              .subscribe(result => {
                  this.RemoveBusy("FetchMagSearchList");
                  console.log('inside fetch', result);
-				this.MagSearchList = result;
+                 for (var i = 0; i < result.length; i++) {
+                     result[i].add = false;
+                 }
+				 this.MagSearchList = result;
              },
              error => {
                  this.RemoveBusy("FetchMagSearchList");
@@ -45,17 +48,20 @@ export class magSearchService extends BusyAwareService {
 		 );
 	}
 	
-	Delete(value: number) {
+	Delete(magSearches: MagSearch[]) {
 
         this._BusyMethods.push("Delete");
-		let body = JSON.stringify({ Value: value });
-        this._httpC.post<string>(this._baseUrl + 'api/MAGSearchList/DeleteMagSearch',
-			body)
-			.subscribe(result => {
+        return this._httpC.post<MagSearch>(this._baseUrl + 'api/MAGSearchList/DeleteMagSearch',
+            magSearches).toPromise()
+			.then(result => {
                 this.RemoveBusy("Delete");
-                let tmpIndex: any = this.MagSearchList.findIndex(x => x.magSearchId == Number(this.MAGSearchToBeDeleted));
-                this.MagSearchList.splice(tmpIndex, 1);
-				this.FetchMAGSearchList();
+                for (var i = 0; i < length; i++) {
+                    let magSearchToDelete: number = magSearches[i].magSearchId;
+                    let tmpIndex: any = this.MagSearchList.findIndex(x => x.magSearchId == magSearchToDelete);
+                    this.MagSearchList.splice(tmpIndex, i);
+                    tmpIndex = -1;
+                }                
+                return this.MagSearchList;
             }, error => {
                 this.RemoveBusy("Delete");
                 this.modalService.GenericError(error);
@@ -94,13 +100,13 @@ export class magSearchService extends BusyAwareService {
         this._BusyMethods.push("CombineSearches");
         let body = JSON.stringify({
             magSearchListCombine: magSearchListCombine, logicalOperator: logicalOperator });
-        this._httpC.post<MagSearch[]>(this._baseUrl + 'api/MAGSearchList/CombineMagSearches',
-            body)
+        return this._httpC.post<MagSearch>(this._baseUrl + 'api/MAGSearchList/CombineMagSearches',
+            body).toPromise()
 
-            .subscribe(result => {
+            .then(result => {
                 this.RemoveBusy("CombineSearches");
-                //this.MagSearchList = result;
-                //this.FetchMAGSearchList();
+                this.MagSearchList.push(result);
+                return this.MagSearchList;
             }, error => {
                     this.RemoveBusy("CombineSearches");
                 this.modalService.GenericError(error);

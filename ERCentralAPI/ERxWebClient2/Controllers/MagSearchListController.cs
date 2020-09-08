@@ -38,21 +38,24 @@ namespace ERxWebClient2.Controllers
 		}
 
         [HttpPost("[action]")]
-        public IActionResult DeleteMagSearch([FromBody] SingleInt64Criteria magSearchId)
+        public IActionResult DeleteMagSearch([FromBody] MagSearch[] magSearches)
         {
             try
             {
                 if (SetCSLAUser4Writing())
                 {
                     DataPortal<MagSearchList> dp = new DataPortal<MagSearchList>();
-                    MagSearchList result = dp.Fetch();
+                    MagSearchList msList = dp.Fetch();
 
-                    MagSearch currentMagSearch = result.FirstOrDefault(x => x.MagSearchId == magSearchId.Value);
-
-                    currentMagSearch.Delete();
-                    currentMagSearch = currentMagSearch.Save();
-
-                    return Ok(currentMagSearch);
+                    foreach (var item in magSearches)
+                    {
+                        //bool result = msList.Remove();
+                        //item.Delete();
+                        //msList.Remove(item);
+                        //var result = item.Save();
+                    }
+                    
+                    return Ok(msList);
 
                 }
                 else return Forbid();
@@ -217,13 +220,14 @@ namespace ERxWebClient2.Controllers
                 if (SetCSLAUser4Writing())
                 {
 
-                    if (mVCMagCombinedSearch.magSearchListCombine.Length > 0)
-                    {
                         MagSearch newSearch = new MagSearch();
                         newSearch.SetCombinedSearches(mVCMagCombinedSearch.magSearchListCombine.ToList(), mVCMagCombinedSearch.logicalOperator);
-                        newSearch.BeginSave();
-                    }
-                    return Ok();
+                        
+                        DataPortal<MagSearch> dp = new DataPortal<MagSearch>();
+                        newSearch = dp.Execute(newSearch);
+
+                    return Ok(newSearch);
+               
                 } 
                 else
                 {

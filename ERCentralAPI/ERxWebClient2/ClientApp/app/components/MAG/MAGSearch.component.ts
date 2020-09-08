@@ -221,10 +221,33 @@ export class MAGSearchComponent implements OnInit {
                 );
         }
     }
-    public DeleteMagSearch(magSearchId: number) {
+    public magSearchesToBeDeleted: MagSearch[] = [];
+    public AddDeleteMagSearch(magSearch: MagSearch) {
+        console.log('in here: ', magSearch.add);
+        if (magSearch.add == false) {
+            this.magSearchesToBeDeleted.push(magSearch);
+            console.log('list to be deleted: ', this.magSearchesToBeDeleted);
+        } else {
+            let tmpIndex: number = this.MagSearchList.findIndex(x => x.magSearchId == magSearch.magSearchId);
+            this.magSearchesToBeDeleted.splice(tmpIndex, 1);
+            console.log('in removal part');
+        }    
+    }
+    public DeleteSearches() {
+        console.log('got inside confirm');
+        this.ConfirmationDialogService.confirm("Are you sure you want to delete the selected MAG searches",
+            this.magSearchesToBeDeleted.length.toString(), false, '')
+            .then((confirm: any) => {
+                if (confirm) {
+                    this._magSearchService.Delete(this.magSearchesToBeDeleted).then(
 
-        this._magSearchService.Delete(magSearchId);
-
+                        () => {
+                            let msg: string = 'Deleted Mag Searches: ' + this.magSearchesToBeDeleted.length.toString() + 'items';
+                            this.ShowMAGRunMessage(msg);
+                        }
+                    );
+                }
+            });
     }
     public RunMAGSearch() {
 
@@ -257,15 +280,26 @@ export class MAGSearchComponent implements OnInit {
     }
     public CombineSearches(){
 
-        this._magSearchService.CombineSearches(this.MagSearchListCombine, this.LogicalOperator);
+        this._magSearchService.CombineSearches(this.MagSearchListCombine, this.LogicalOperator).then(
+
+            () => {
+                this.LogicalOperator = '';
+                this.FetchMagSearches();
+            }
+        );
     }
     public AddSearchIdToList(magSearch: MagSearch) {
+
         if (magSearch.magSearchId > -1) {
+            console.log('about to add: ', magSearch.magSearchId);
+            this.AddDeleteMagSearch(magSearch);
             let index: number = this.MagSearchListCombine.findIndex(x => x.magSearchId == magSearch.magSearchId);
             if ( index != -1) {
                 this.MagSearchListCombine.splice(index, 1);
+                magSearch.add = false;
             } else {
-                this.MagSearchListCombine.push(magSearch)
+                this.MagSearchListCombine.push(magSearch);
+                magSearch.add = true;
             }
         }
     }
