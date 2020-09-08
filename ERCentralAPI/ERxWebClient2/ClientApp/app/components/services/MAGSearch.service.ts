@@ -51,16 +51,18 @@ export class magSearchService extends BusyAwareService {
 	Delete(magSearches: MagSearch[]) {
 
         this._BusyMethods.push("Delete");
-        return this._httpC.post<MagSearch>(this._baseUrl + 'api/MAGSearchList/DeleteMagSearch',
+        return this._httpC.post<MagSearch[]>(this._baseUrl + 'api/MAGSearchList/DeleteMagSearch',
             magSearches).toPromise()
 			.then(result => {
                 this.RemoveBusy("Delete");
-                for (var i = 0; i < length; i++) {
-                    let magSearchToDelete: number = magSearches[i].magSearchId;
-                    let tmpIndex: any = this.MagSearchList.findIndex(x => x.magSearchId == magSearchToDelete);
-                    this.MagSearchList.splice(tmpIndex, i);
-                    tmpIndex = -1;
-                }                
+                for (var i = 0; i < magSearches.length; i++) {
+                    let magSearchToDeleteId: number = magSearches[i].magSearchId;
+                    if (magSearchToDeleteId > -1) {
+                        let tmpIndex: any = this.MagSearchList.findIndex(x => x.magSearchId == magSearchToDeleteId);
+                        this.MagSearchList.splice(tmpIndex, 1);
+                        tmpIndex = -1;
+                    }
+                }   
                 return this.MagSearchList;
             }, error => {
                 this.RemoveBusy("Delete");

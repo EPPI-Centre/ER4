@@ -118,10 +118,10 @@ export class MAGSearchComponent implements OnInit {
             this.OpenTopics = false;
         }
     }
-    public SelectTopic(topic: string)
+    public SelectTopic(topic: TopicLink)
     {
         this.OpenTopics = false;
-        this.SearchTextTopic = topic;
+        this.SearchTextTopic = topic.fieldOfStudyId.toString();
 
     }
     public CanImportMagPapers(item: MagSearch): boolean {
@@ -233,6 +233,30 @@ export class MAGSearchComponent implements OnInit {
             console.log('in removal part');
         }    
     }
+    public get allItemsSelected(): boolean {
+        for (let i = 0; i < this._magSearchService.MagSearchList.length; i++) {
+            //this.magSearchesToBeDeleted[i].add = true;
+            if (this._magSearchService.MagSearchList[i].add == false) return false;
+        }
+
+        return true;
+    }
+    public set allItemsSelected(val: boolean) {
+        for (let i = 0; i < this._magSearchService.MagSearchList.length; i++) {
+            this._magSearchService.MagSearchList[i].add = val;
+            if (val) {
+                if (this.magSearchesToBeDeleted.indexOf(this._magSearchService.MagSearchList[i]) == -1) {
+                    this.magSearchesToBeDeleted.push(this._magSearchService.MagSearchList[i]);
+                }
+            } else {
+                let tempInx: number = this.magSearchesToBeDeleted.indexOf(this._magSearchService.MagSearchList[i]);
+                if (this.magSearchesToBeDeleted.indexOf(this._magSearchService.MagSearchList[i]) != -1) {
+                    this.magSearchesToBeDeleted.splice(tempInx, 1);
+                }
+            }
+        }
+    }
+
     public DeleteSearches() {
         console.log('got inside confirm');
         this.ConfirmationDialogService.confirm("Are you sure you want to delete the selected MAG searches",
@@ -241,9 +265,10 @@ export class MAGSearchComponent implements OnInit {
                 if (confirm) {
                     this._magSearchService.Delete(this.magSearchesToBeDeleted).then(
 
-                        () => {
+                        (res: any) => {
                             let msg: string = 'Deleted Mag Searches: ' + this.magSearchesToBeDeleted.length.toString() + 'items';
                             this.ShowMAGRunMessage(msg);
+                            this.magSearchesToBeDeleted = [];
                         }
                     );
                 }

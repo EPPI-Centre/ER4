@@ -50,10 +50,6 @@ namespace ERxWebClient2.Controllers
 
                     foreach (var item in magSearches)
                     {
-                        //bool result = msList.Remove();
-                        //item.Delete();
-                        //msList.Remove(item);
-                        //var result = item.Save();
                         msList.RaiseListChangedEvents = false;
                         MagSearch ToDelete = msList.FirstOr(found => found.MagSearchId == item.magSearchId, null);
                         if (ToDelete != null)

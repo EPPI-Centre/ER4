@@ -155,7 +155,12 @@
                         <table class="table table-sm text-small table-responsive table-striped" style="min-width:150px;max-height:600px; overflow:auto;">
                             <thead>
                                 <tr>
-                                    <th></th>
+                                    <th>
+                                        <input class="m-1" style="zoom: 1.2;"
+                                               type="checkbox"
+                                               name="selectAll"
+                                               [(ngModel)]="allItemsSelected" />
+                                    </th>
                                     <th>Search</th>
                                     <th>MAG search string</th>
                                     <th>MAG Version</th>
