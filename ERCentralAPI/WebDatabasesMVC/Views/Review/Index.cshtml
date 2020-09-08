@@ -1,0 +1,23 @@
+﻿@model BusinessLibrary.BusinessClasses.ReviewInfo
+
+<div class="row">
+    <div class="col-12 ">
+        Review Name is:
+        <h3>@Model.ReviewName</h3>
+    </div>
+    <div class="col-12 ">
+        Review Id is:
+        <h5>@Model.ReviewId</h5>
+    </div>
+    <div class=" col">
+        Screening is:
+        @if (Model.ShowScreening)
+        {<text>Active</text>}
+    else
+    {<text>Disabled</text>}
+    </div>
+    <div class="col-12 ">
+        This web DB will only show items with this code:
+        <div>@ViewBag.AttName (ID: @ViewBag.AttId)</div>
+    </div>
+</div>

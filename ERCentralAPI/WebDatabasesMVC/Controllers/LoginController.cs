@@ -58,8 +58,10 @@ namespace Klasifiki.Controllers
                                 if (reader["USERNAME"].Equals(DBNull.Value) && reader["PASSWD"].Equals(DBNull.Value)) {
                                     if (int.TryParse(reader["REVIEW_ID"].ToString(), out int Revid))
                                     {
-                                        SetUser(reader["WEBDB_NAME"].ToString(), WebDbId, Revid);
-                                        return Redirect("~/Home/Landed");
+                                        int AttId = -1;
+                                        if (!reader.IsDBNull("ATTR_TO_INCLUDE")) AttId = reader.GetInt32("ATTR_TO_INCLUDE");
+                                        SetUser(reader["WEBDB_NAME"].ToString(), WebDbId, Revid, AttId);
+                                        return Redirect("~/Review/Index");
                                     } 
                                     else
                                     {
@@ -77,8 +79,10 @@ namespace Klasifiki.Controllers
                                 {
                                     if (int.TryParse(reader["REVIEW_ID"].ToString(), out int Revid))
                                     {
-                                        SetUser(reader["WEBDB_NAME"].ToString(), WebDbId, Revid);
-                                        return Redirect("~/Home/Landed");
+                                        int AttId = -1;
+                                        if (!reader.IsDBNull("ATTR_TO_INCLUDE")) AttId = reader.GetInt32("ATTR_TO_INCLUDE");
+                                        SetUser(reader["WEBDB_NAME"].ToString(), WebDbId, Revid, AttId);
+                                        return Redirect("~/Review/Index");
                                     }
                                     else
                                     {
@@ -107,15 +111,18 @@ namespace Klasifiki.Controllers
         {
             return Forbid();
         }
-        private void SetUser(string Name, long WebDbID, int revId)
+        private void SetUser(string Name, long WebDbID, int revId, int itemsCode)
         {
             var userClaims = new List<Claim>()
             {
+                new Claim(ClaimTypes.Role, "WebDbReader"),
                 new Claim(ClaimTypes.Name, Name),
-                new Claim("ReviewID", WebDbID.ToString())
+                new Claim("reviewId", revId.ToString()),
+                new Claim("WebDbID", WebDbID.ToString()),
+                new Claim("ItemsCode", itemsCode.ToString())
             };
-            var grandmaIdentity = new ClaimsIdentity(userClaims, "User Identity");
-            var userPrincipal = new ClaimsPrincipal(new[] { grandmaIdentity });
+            var innerIdentity = new ClaimsIdentity(userClaims, "User Identity");
+            var userPrincipal = new ClaimsPrincipal(new[] { innerIdentity });
             HttpContext.SignInAsync(userPrincipal);
         }
     }

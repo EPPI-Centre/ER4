@@ -20,7 +20,7 @@ namespace WebDatabasesMVC
             Configuration = configuration;
         }
 
-        public IConfiguration Configuration { get; }
+        public static IConfiguration Configuration { get; private set; }
         public static ILogger<Program> Logger { get; private set; }
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
@@ -48,7 +48,7 @@ namespace WebDatabasesMVC
                 app.UseHsts();
             }
             Logger = logger;
-            Program.SqlHelper = new SQLHelper((IConfigurationRoot)this.Configuration, logger);
+            Program.SqlHelper = new SQLHelper((IConfigurationRoot)Startup.Configuration, logger);
             app.UseHttpsRedirection();
             app.UseStaticFiles();
 

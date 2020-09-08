@@ -24,7 +24,6 @@ using Microsoft.WindowsAzure.Storage.Blob;
 using System.Data;
 using System.Threading;
 using System.Collections;
-using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 #endif
@@ -451,7 +450,13 @@ namespace BusinessLibrary.BusinessClasses
         private static string UpdateMagCurrentInfoTableWithMostRecentMagDBOnAzureAsync()
         {
 
-#if (CSLA_NETCORE)
+#if (CSLA_NETCORE && WEBDB)
+
+            var configuration = WebDatabasesMVC.Startup.Configuration.GetSection("AzureMagSettings");
+            string storageAccountName = configuration["MAGStorageAccount"];
+            string storageAccountKey = configuration["MAGStorageAccountKey"];
+
+#elif (CSLA_NETCORE && !WEBDB)
 
             var configuration = ERxWebClient2.Startup.Configuration.GetSection("AzureMagSettings");
             string storageAccountName = configuration["MAGStorageAccount"];
@@ -551,5 +556,5 @@ namespace BusinessLibrary.BusinessClasses
 
 
 #endif
+        }
     }
-}

@@ -14,6 +14,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 #if (CSLA_NETCORE && !SILVERLIGHT)
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.Extensions.Logging;
 #endif
 
@@ -375,6 +376,8 @@ namespace BusinessLibrary.BusinessClasses
 #if !CSLA_NETCORE
                     //not clear what to do on ER4, how do we log this?
                     Console.WriteLine(e.Message, searchText);
+#elif WEBDB
+                    WebDatabasesMVC.Startup.Logger.LogError(e, "Searching on MAKES failed for text: ", searchText);
 #else
                     ERxWebClient2.Startup.Logger.LogError(e, "Searching on MAKES failed for text: ", searchText);
 #endif
