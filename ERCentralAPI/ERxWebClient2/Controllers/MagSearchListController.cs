@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using EPPIDataServices.Helpers;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.Internal;
 
 namespace ERxWebClient2.Controllers
 {
@@ -38,7 +39,7 @@ namespace ERxWebClient2.Controllers
 		}
 
         [HttpPost("[action]")]
-        public IActionResult DeleteMagSearch([FromBody] MagSearch[] magSearches)
+        public IActionResult DeleteMagSearch([FromBody] MVCMagSearch4Delete[] magSearches)
         {
             try
             {
@@ -53,8 +54,18 @@ namespace ERxWebClient2.Controllers
                         //item.Delete();
                         //msList.Remove(item);
                         //var result = item.Save();
+                        msList.RaiseListChangedEvents = false;
+                        MagSearch ToDelete = msList.FirstOr(found => found.MagSearchId == item.magSearchId, null);
+                        if (ToDelete != null)
+                        {
+                            int index = msList.IndexOf(ToDelete);
+                            ToDelete.BeginEdit();
+                            ToDelete.Delete();
+                            ToDelete.ApplyEdit();
+                            msList.RemoveAt(index);
+                        }
+                        msList.RaiseListChangedEvents = true;
                     }
-                    
                     return Ok(msList);
 
                 }
@@ -269,6 +280,13 @@ namespace ERxWebClient2.Controllers
     {
         public string magSearchText { get; set; }
 
+        public string searchText { get; set; }
+    }
+    public class MVCMagSearch4Delete
+    {
+        public int magSearchId { get; set; }
+        public int reviewId { get; set; }
+        public int contactId { get; set; }
         public string searchText { get; set; }
     }
 }
