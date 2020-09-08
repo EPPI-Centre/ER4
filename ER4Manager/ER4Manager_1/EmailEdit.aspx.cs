@@ -95,26 +95,26 @@ public partial class EmailEdit : System.Web.UI.Page
     {
         string sendResult = "";
         //string emailTo = "EPPISupport@ucl.ac.uk";
-        string emailTo = "jeff.brunton@outlook.com";
+        string emailTo = "eppisupport@ucl.ac.uk";
         switch (lblEmailID.Text)
         {
             case ("1"): // WelcomeEmail(string mailTo, string newUser, string userName, string exDate, string stAdditional)
                 sendResult = Utils.WelcomeEmail(emailTo,
-                    "FakeName", "FakeUsername", "01/01/2020", "THIS is a test from the edit Email page");
+                    "FakeName", "FakeUsername", "01/01/2020", "");
                 return;
             case ("2"): // ForgottenPmail(string mailTo, string stCont, string LinkUI, string CID, string BaseUrl, string stAdditional)
                 sendResult = Utils.ForgottenPmail(emailTo, 
-                    "FakeName", "FAKE_LINK_UI", "0", "FakeInvalidURL", "THIS is a test from the edit Email page");
+                    "FakeName", "FAKE_LINK_UI", "0", "FakeInvalidURL", "");
                 return;
             case ("3"): // InviteEmail(string mailTo, string inviteeName, string reviewName, string inviterName,
                             //string inviterEmail, string emailAccountMsg)
                 sendResult = Utils.InviteEmail(emailTo,
-                    "FakeInviteeName", "FakeReviewName", "FakeInviterName", "FakeInviterEmail", "FakeDetails about some issue with your account");
+                    "FakeInviteeName", "FakeReviewName", "FakeInviterName", "FakeInviterEmail", "");
                 return;
             case ("4"): // GhostUserActivationEmail(string mailTo, string Fullname, string PurcharserName, string LinkUI, 
                             //string CID, string BaseUrl, string stAdditional)
                 sendResult = Utils.GhostUserActivationEmail(emailTo,
-                    "FakeName", "FakePurchaserName", "FAKE_LINK_UI", "0", "FakeInvalidURL", "THIS is a test from the edit Email page");
+                    "FakeName", "FakePurchaserName", "FAKE_LINK_UI", "0", "FakeInvalidURL", "");
                 return;
             case ("5"): // ReviewCreationErrorEmail(string mailTo, string contactID, string errorMessage)
                 sendResult = Utils.ReviewCreationErrorEmail(emailTo,
