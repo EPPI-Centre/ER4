@@ -57,6 +57,7 @@ export class MAGSearchComponent implements OnInit {
     public SearchTextTopicsResults: TopicLink[] = [];
     public SearchTextTopic: string = '';
     public OpenTopics: boolean = false;
+    public SearchTextTopicDisplayName: string = '';
 
     ngOnInit() {
 
@@ -71,13 +72,13 @@ export class MAGSearchComponent implements OnInit {
     public UpdateTopicResults() {
 
 
-        if (this.SearchTextTopic.length > 2) {
+        if (this.SearchTextTopicDisplayName.length > 2) {
 
             let criteriaFOSL: MVCMagFieldOfStudyListSelectionCriteria = new MVCMagFieldOfStudyListSelectionCriteria();
             criteriaFOSL.fieldOfStudyId = 0;
             criteriaFOSL.listType = 'FieldOfStudySearchList';
             criteriaFOSL.paperIdList = '';
-            criteriaFOSL.SearchTextTopics = this.SearchTextTopic;
+            criteriaFOSL.SearchTextTopics = this.SearchTextTopicDisplayName;
             this._magBrowserService.FetchMagFieldOfStudyList(criteriaFOSL, '').then(
 
                 (results: MagFieldOfStudy[]) => {
@@ -121,8 +122,8 @@ export class MAGSearchComponent implements OnInit {
     public SelectTopic(topic: TopicLink)
     {
         this.OpenTopics = false;
+        this.SearchTextTopicDisplayName = topic.displayName;
         this.SearchTextTopic = topic.fieldOfStudyId.toString();
-
     }
     public CanImportMagPapers(item: MagSearch): boolean {
 
@@ -281,6 +282,9 @@ export class MAGSearchComponent implements OnInit {
             this.magSearchDate2 = this.valueKendoDatepicker2;
         } else {
             this.magSearchDate1 = this.valueKendoDatepicker3;
+        }
+        if (this.SearchTextTopicDisplayName != '') {
+            this.magSearchInput = this.SearchTextTopicDisplayName;
         }
         this._magSearchService.CreateMagSearch(this.WordsInSelection, this.DateLimitSelection, this.PublicationTypeSelection,
             this.magSearchInput, this.magSearchDate1, this.magSearchDate2, this.SearchTextTopic).then(

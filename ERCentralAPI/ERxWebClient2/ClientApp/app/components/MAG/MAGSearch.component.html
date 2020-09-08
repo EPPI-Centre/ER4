@@ -32,8 +32,8 @@
                         <div class="col-sm-12 col-lg-4">
                             <input id="magSearchInput" name="magSearchInput" type="text" class="form-control" [(ngModel)]="magSearchInput" />
                         </div>
-                        <div *ngIf="SearchTextTopic != ''" class="col-sm-12 col-lg-2 text-right">
-                            <b>{{SearchTextTopic}}</b>
+                        <div *ngIf="SearchTextTopicDisplayName != ''" class="col-sm-12 col-lg-2 text-right">
+                            <b>{{SearchTextTopicDisplayName}}</b>
                         </div>
                     </div>
                     <div class="col-12 row">
@@ -80,12 +80,12 @@
                                     </div>
                                 </div>
                                 <div *ngIf="OpenTopics">
-                                    <input class="form-control col-12 border border-dark" type="text" id="SearchTextTopic" [(ngModel)]="SearchTextTopic"
+                                    <input class="form-control col-12 border border-dark" type="text" id="SearchTextTopic" [(ngModel)]="SearchTextTopicDisplayName"
                                            placeholder="Search for topics here.  Entry of Wildcards work, e.g. physic* " />
                                     <button (click)="UpdateTopicResults()" class="btn btn-primary btn-sm text-white"><i class="fa fa-search"></i></button>
                                     <div class="row " style="max-width:1450px;overflow:auto;">
                                         <div *ngFor="let item of SearchTextTopicsResults" class="list-group">
-                                            <div class="col-3 btn border border-0" (click)="SelectTopic(item.displayName)"
+                                            <div class="col-3 btn border border-0" (click)="SelectTopic(item)"
                                                  [ngStyle]="{ 'font-size.em': item.fontSize,'background-color': 'light-blue', 'color': 'black'}">
                                                 {{item.displayName}}
                                             </div>
@@ -163,6 +163,7 @@
                                     </th>
                                     <th>Search</th>
                                     <th>MAG search string</th>
+                                    <th>Something</th>
                                     <th>MAG Version</th>
                                     <th>User</th>
                                     <th>Date</th>
@@ -183,6 +184,7 @@
                                     </td>
                                     <td>{{item.searchNo}}</td>
                                     <td>{{item.searchText}}</td>
+                                    <td>{{item.magSearchText}}</td>
                                     <td>{{item.magVersion}}</td>
                                     <td>{{item.contactName}}</td>
                                     <td>{{item.searchDate}}</td>
