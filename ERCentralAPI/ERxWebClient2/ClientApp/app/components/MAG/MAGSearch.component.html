@@ -162,14 +162,14 @@
                                                [(ngModel)]="allItemsSelected" />
                                     </th>
                                     <th>Search</th>
-                                    <th>MAG search string</th>
-                                    <th>Something</th>
+                                    <th width="50">search string</th>
+                                    <th width="50">MAG search string</th>
                                     <th>MAG Version</th>
                                     <th>User</th>
                                     <th>Date</th>
                                     <th>Hits</th>
-                                    <th>ReRun</th>
-                                    <th>Import</th>
+                                    <th width="50">ReRun</th>
+                                    <th width="50">Import</th>
                                     <!--<th>Delete</th>-->
 
                                 </tr>
@@ -182,15 +182,21 @@
                                                  (click)="AddSearchIdToList(item)"
                                                [(ngModel)]="item.add" />
                                     </td>
-                                    <td>{{item.searchNo}}</td>
-                                    <td>{{item.searchText}}</td>
-                                    <td>{{item.magSearchText}}</td>
+                                    <td >{{item.searchNo}}</td>
+                                    <td width="50">{{item.searchText}}</td>
+                                    <td width="50">{{item.magSearchText}}</td>
                                     <td>{{item.magVersion}}</td>
                                     <td>{{item.contactName}}</td>
                                     <td>{{item.searchDate}}</td>
-                                    <td class="p-0" style="vertical-align:middle"><div (click)="GetItems(item)" class="btn btn-link btn-sm">{{ item.hitsNo}}</div></td>
-                                    <td>ReRun</td>
                                     <td class="p-0" style="vertical-align:middle">
+                                        <div (click)="GetItems(item)" class="btn btn-link btn-sm">{{ item.hitsNo}}</div>
+                                    </td>
+                                    <td width="50">
+                                        <button (click)="ReRunMAGSearch(item)" class="btn btn-warning btn-sm text-white align-content-center">
+                                        <i class="fa fa-play-circle" aria-hidden="true"></i>
+                                        </button>
+                                    </td>
+                                    <td width="50" class="p-0" style="vertical-align:middle">
                                         <button (click)="ImportMagSearchPapers(item)" [disabled]="!CanImportMagPapers(item)"
                                                 class="btn btn-primary btn-sm text-white align-content-center">
                                             <i class="fa fa-download" aria-hidden="true"></i>

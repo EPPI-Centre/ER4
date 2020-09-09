@@ -39,6 +39,33 @@ namespace ERxWebClient2.Controllers
 		}
 
         [HttpPost("[action]")]
+        public IActionResult ReRunMagSearch([FromBody] MVCMagReRun  magReRun)
+        {
+            try
+            {
+                if (!SetCSLAUser()) return Unauthorized();
+
+                DataPortal<MagSearchList> dp = new DataPortal<MagSearchList>();
+                MagSearchList result = dp.Fetch();
+
+                var resultToReRun = result.Where(x => x.SearchText == magReRun.searchText && x.MagSearchText == magReRun.magSearchText).FirstOrDefault();
+                
+                resultToReRun.SetToRerun(resultToReRun);
+
+                DataPortal<MagSearch> dp2 = new DataPortal<MagSearch>();
+                resultToReRun = dp2.Execute(resultToReRun);
+
+                return Ok(resultToReRun);
+
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "Fetching a ReRun MagSearch list has an error");
+                return StatusCode(500, e.Message);
+            }
+        }
+
+        [HttpPost("[action]")]
         public IActionResult DeleteMagSearch([FromBody] MVCMagSearch4Delete[] magSearches)
         {
             try
@@ -284,6 +311,13 @@ namespace ERxWebClient2.Controllers
         public int reviewId { get; set; }
         public int contactId { get; set; }
         public string searchText { get; set; }
+    }
+
+    public class MVCMagReRun
+    {
+        public string searchText { get; set; }
+        public string magSearchText { get; set; }
+
     }
 }
 

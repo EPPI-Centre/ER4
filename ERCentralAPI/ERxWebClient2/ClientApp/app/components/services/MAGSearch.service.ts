@@ -70,7 +70,27 @@ export class magSearchService extends BusyAwareService {
             }
 		);
 	}
+    ReRunMagSearch(searchText: string, magSearchText: string) {
 
+        this._BusyMethods.push("ReRunMagSearch");
+        let body = JSON.stringify({
+            searchText: searchText, magSearchText: magSearchText
+        });
+        return this._httpC.post<MagSearch>(this._baseUrl + 'api/MAGSearchList/ReRunMagSearch',
+            body).toPromise()
+            .then(
+
+                (result: MagSearch) => {
+                    this.RemoveBusy("ReRunMagSearch");
+                    this.MagSearchList.push(result);
+                    return this.MagSearchList;
+
+                }, error => {
+                    this.RemoveBusy("ReRunMagSearch");
+                    this.modalService.GenericError(error);
+                }
+            );
+    }
     CreateMagSearch(wordsInSelection: number, dateLimitSelection: number, publicationTypeSelection: number,
         magSearchInput: string, magSearchDate1: Date, magSearchDate2: Date, magSearchCurrentTopic: string) {
 

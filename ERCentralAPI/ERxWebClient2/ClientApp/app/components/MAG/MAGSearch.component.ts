@@ -172,7 +172,6 @@ export class MAGSearchComponent implements OnInit {
 
                         (result: number) => {
 
-                            console.log('test nimported: ', result);
                             let num_in_run: number = magSearch.hitsNo;
                             let msg: string = '';
                             if (result != undefined || result != null) {
@@ -224,15 +223,14 @@ export class MAGSearchComponent implements OnInit {
     }
     public magSearchesToBeDeleted: MagSearch[] = [];
     public AddDeleteMagSearch(magSearch: MagSearch) {
-        console.log('in here: ', magSearch.add);
+
 
         if (magSearch.add == false) {
             this.magSearchesToBeDeleted.push(magSearch);
-            console.log('list to be deleted: ', this.magSearchesToBeDeleted);
         } else {
             let tmpIndex: number = this.magSearchesToBeDeleted.findIndex(x => x.magSearchId == magSearch.magSearchId);
             this.magSearchesToBeDeleted.splice(tmpIndex, 1);
-            console.log('in removal part');
+
         }    
     }
     public get allItemsSelected(): boolean {
@@ -262,7 +260,7 @@ export class MAGSearchComponent implements OnInit {
     public DeleteSearches() {
         console.log('got inside confirm');
         this.ConfirmationDialogService.confirm("Are you sure you want to delete " + this.magSearchesToBeDeleted.length.toString()
-            + " selected MAG searche(s)",
+            + " selected MAG searches",
             '', false, '')
             .then((confirm: any) => {
                 if (confirm) {
@@ -276,6 +274,18 @@ export class MAGSearchComponent implements OnInit {
                     );
                 }
             });
+    }
+    public ReRunMAGSearch(magSearch: MagSearch) {
+
+        this._magSearchService.ReRunMagSearch(magSearch.searchText, magSearch.magSearchText).then(
+
+            () => {
+                this.FetchMagSearches();
+                let msg: string = 'You have ReRun a MAG search';
+                this.ShowMAGRunMessage(msg);
+            }
+       );
+
     }
     public RunMAGSearch() {
 
@@ -291,7 +301,11 @@ export class MAGSearchComponent implements OnInit {
         this._magSearchService.CreateMagSearch(this.WordsInSelection, this.DateLimitSelection, this.PublicationTypeSelection,
             this.magSearchInput, this.magSearchDate1, this.magSearchDate2, this.SearchTextTopic).then(
 
-                () => { this.FetchMagSearches(); }
+                () => {
+                    this.FetchMagSearches();
+                    let msg: string = 'You have created a new MAG search';
+                    this.ShowMAGRunMessage(msg);
+                }
             );
     }
     public AdvancedFeatures() {
@@ -307,13 +321,15 @@ export class MAGSearchComponent implements OnInit {
     }
     public get IsServiceBusy(): boolean {
 
-        return this._magBrowserService.IsBusy || this._magAdvancedService.IsBusy;
+        return this._magSearchService.IsBusy || this._magBrowserService.IsBusy;
     }
     public CombineSearches(){
 
         this._magSearchService.CombineSearches(this.MagSearchListCombine, this.LogicalOperator).then(
 
             () => {
+                let msg: string = 'You have Combined MAG searches using : ' + this.LogicalOperator;
+                this.ShowMAGRunMessage(msg);
                 this.LogicalOperator = '';
                 this.magSearchesToBeDeleted = [];
                 this.MagSearchListCombine = [];
