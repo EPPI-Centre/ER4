@@ -177,10 +177,10 @@
                             <tbody>
                                 <tr *ngFor="let item of _magSearchService.MagSearchList">
                                     <td>
-                                        <input style="zoom: 1.2;" (click)="AddSearchIdToList(item)"
+                                        <input style="zoom: 1.2;" 
                                                type="checkbox"
-                                               field="selected"
-                                               [checked]="item.add" />
+                                                 (click)="AddSearchIdToList(item)"
+                                               [(ngModel)]="item.add" />
                                     </td>
                                     <td>{{item.searchNo}}</td>
                                     <td>{{item.searchText}}</td>
