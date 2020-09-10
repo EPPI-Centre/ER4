@@ -184,27 +184,46 @@ export class MAGAdvancedService extends BusyAwareService {
 
                                 (res: boolean) => {
 
-                                    this._magBrowserService.FetchOrigWithCrit(criteriaCitedBy, "CitedByList").then(
+                                    if (this.currentMagPaper.paperId > -1) {
 
-                                        () => {
+                                            this.PaperIds = this._magBrowserService.ListCriteria.paperIds;
+                                            let criteriaFOS: MVCMagFieldOfStudyListSelectionCriteria = new MVCMagFieldOfStudyListSelectionCriteria();
+                                            criteriaFOS.fieldOfStudyId = 0;
+                                            criteriaFOS.listType = 'PaperFieldOfStudyList';
+                                            criteriaFOS.paperIdList = result.paperId.toString();
+                                            criteriaFOS.SearchTextTopics = ''; //TODO this will be populated by the user..
+                                            this._magBrowserService.FetchMagFieldOfStudyList(criteriaFOS, listType).then(
 
-                                            if (res) {
-                                                this.PaperIds = this._magBrowserService.ListCriteria.paperIds;
-                                                let criteriaFOS: MVCMagFieldOfStudyListSelectionCriteria = new MVCMagFieldOfStudyListSelectionCriteria();
-                                                criteriaFOS.fieldOfStudyId = 0;
-                                                criteriaFOS.listType = 'PaperFieldOfStudyList';
-                                                criteriaFOS.paperIdList = result.paperId.toString();
-                                                criteriaFOS.SearchTextTopics = ''; //TODO this will be populated by the user..
-                                                this._magBrowserService.FetchMagFieldOfStudyList(criteriaFOS, listType).then(
+                                                (res: MagFieldOfStudy[]) => {
+                                                    this.router.navigate(['MAGBrowser']);
 
-                                                    (res: MagFieldOfStudy[]) => {
-                                                        this.router.navigate(['MAGBrowser']);
+                                                }
+                                        );
 
-                                                    }
-                                                );
+                                    } else {
+
+                                         this._magBrowserService.FetchOrigWithCrit(criteriaCitedBy, "CitedByList").then(
+
+                                         () => {
+
+                                                if (res) {
+                                                    this.PaperIds = this._magBrowserService.ListCriteria.paperIds;
+                                                    let criteriaFOS: MVCMagFieldOfStudyListSelectionCriteria = new MVCMagFieldOfStudyListSelectionCriteria();
+                                                    criteriaFOS.fieldOfStudyId = 0;
+                                                    criteriaFOS.listType = 'PaperFieldOfStudyList';
+                                                    criteriaFOS.paperIdList = result.paperId.toString();
+                                                    criteriaFOS.SearchTextTopics = ''; //TODO this will be populated by the user..
+                                                    this._magBrowserService.FetchMagFieldOfStudyList(criteriaFOS, listType).then(
+
+                                                        (res: MagFieldOfStudy[]) => {
+                                                            this.router.navigate(['MAGBrowser']);
+
+                                                        }
+                                                    );
+                                                }
                                             }
-                                        }
-                                    )
+                                        )
+                                    }
                                 });
                         }                       
                     }

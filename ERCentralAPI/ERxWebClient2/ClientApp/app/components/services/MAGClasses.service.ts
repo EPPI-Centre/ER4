@@ -165,7 +165,7 @@ export class MagPaper {
     externalMagLink: string = '';
     fullRecord: string = '';
     shortRecord: string = '';
-    paperId: number = 0;
+    paperId: number = -1;
     doi: string = '';
     docType: string = '';
     paperTitle: string = '';

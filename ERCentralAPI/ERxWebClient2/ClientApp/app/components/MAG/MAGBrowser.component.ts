@@ -297,7 +297,6 @@ export class MAGBrowser implements OnInit, OnDestroy {
     }
     public Clear() {
         this._magBrowserService.SelectedPaperIds = [];
-        //this._magBrowserService.selectedPapers = [];
         this._magAdvancedService.currentMagPaper = new MagPaper();
         this.MAGPapers = [];
 
