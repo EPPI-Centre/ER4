@@ -435,9 +435,10 @@ export class MAGBrowserService extends BusyAwareService {
         if (referenceList =='OrigList') {
             this._MAGOriginalList = list;
             this._OrigCriteria = crit;
-        } else {
             this._MAGOriginalList.totalItemCount = list.totalItemCount;
             this._MAGOriginalList.pagecount = list.pagecount;
+        } else {
+            
             this._MAGList = list;
             this._Criteria = crit;
             console.log('checking list type here: ',this.ListCriteria);

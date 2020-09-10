@@ -88,7 +88,6 @@ export class MAGBrowser implements OnInit, OnDestroy {
             }
         );
      
-        //this.browsingHistory = this._routingStateService.getHistory();
         this._magBrowserService.MAGOriginalList.papers = this._magBrowserService.MAGList.papers;
         this._magBrowserService.OrigListCriteria = this._magBrowserService.ListCriteria;
     }
