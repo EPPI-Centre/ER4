@@ -17,13 +17,13 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using WebDatabasesMVC;
 
-namespace Klasifiki.Controllers
+namespace WebDatabasesMVC.Controllers
 {
     [Authorize]
     public class ReviewController : CSLAController
     {
         
-        public ReviewController(ILogger<LoginController> logger) : base(logger)
+        public ReviewController(ILogger<ReviewController> logger) : base(logger)
         {}
 
 

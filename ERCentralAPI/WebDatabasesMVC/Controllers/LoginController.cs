@@ -13,7 +13,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using WebDatabasesMVC;
 
-namespace Klasifiki.Controllers
+namespace WebDatabasesMVC.Controllers
 {
     //[Route("Login")]
     //[Route("Login/Login")]

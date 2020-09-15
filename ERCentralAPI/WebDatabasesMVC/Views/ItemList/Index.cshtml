@@ -1,0 +1,89 @@
+﻿@model BusinessLibrary.BusinessClasses.ItemList
+@using BusinessLibrary.BusinessClasses
+
+@if (Model.PageCount > 1)
+{
+<div class="alert-info row col-12 mx-0 mb-1">
+    <form asp-controller="ItemList" asp-action="Page" method="post" class="form-inline">
+        <button class="btn btn-outline-success px-1 py-0 m-1" type="submit" disabled="@(Model.PageIndex == 0)"
+                name="PageN" value="@(Model.PageIndex - 1)">
+            Previous
+        </button>
+        <button class="btn btn-outline-success px-1 py-0 m-1" type="submit" disabled="@(Model.PageIndex == Model.PageCount - 1)"
+                name="PageN" value="@(Model.PageIndex + 1)">
+            Next
+        </button>
+    </form>
+    <div class="my-auto">Page: @(Model.PageIndex + 1) of @(Model.PageCount).</div>
+</div>
+}
+<div class="bg-light col-12 m-0 ">
+    <div>
+        <div class="row border-top border-dark m-0">
+            <div class="col">
+                <div class="">Id: </div>
+            </div>
+            <div class="col-2">
+                <div class="">Short title: </div>
+            </div>
+            <div class="col-8">
+                <div class="">Title: </div>
+            </div>
+            <div class="col">
+                <div class="">Year: </div>
+            </div>
+        </div>
+    </div>
+    <div style="max-height:80vh; overflow:auto">
+        @foreach (Item itm in Model)
+        {
+            <div class="row border-top border-dark m-0">
+                <div class="col border-dark border-right">
+                    <div class="bg-white">@itm.ItemId</div>
+                </div>
+                <div class="col-2 border-dark border-right">
+                    <div class="bg-white">@itm.ShortTitle</div>
+                </div>
+                <div class="col-8 border-dark border-right">
+                    <div class="bg-white">@itm.Title</div>
+                </div>
+                <div class="col border-dark">
+                    <div class="bg-white">@itm.Year</div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+@*<div class="col-12">
+        <div class="font-weight-bold">Title: </div>
+        <div class="font-weight-bold boder bg-white">@itm.Title</div>
+    </div>
+    <div class="col-12">
+        <div class="font-weight-bold">Abstract:</div>
+        <div class="font-weight-bold boder bg-white">@itm.Abstract</div>
+    </div>
+    <div class="col-12">
+        <div class="font-weight-bold">Authors:</div>
+        <div class="font-weight-bold boder bg-white">@itm.Authors</div>
+    </div>
+    <div class="col-12 col-md-8">
+        <div class="font-weight-bold">Journal:</div>
+        <div class="font-weight-bold boder bg-white">@itm.ParentAuthors</div>
+    </div>
+    <div class="col-12 col-md-4">
+        <div class="font-weight-bold">Type:</div>
+        <div class="font-weight-bold boder bg-white">@itm.TypeName</div>
+    </div>
+
+    <div class="col-12 col-md-4">
+        <div class="font-weight-bold">Journal:</div>
+        <div class="font-weight-bold boder bg-white">@itm.ParentAuthors</div>
+    </div>
+    <div class="col-12 col-md-4">
+        <div class="font-weight-bold">Type:</div>
+        <div class="font-weight-bold boder bg-white">@itm.TypeName</div>
+    </div>
+    <div class="col-12 col-md-4">
+        <div class="font-weight-bold">Type:</div>
+        <div class="font-weight-bold boder bg-white">@itm.TypeName</div>
+    </div>*@

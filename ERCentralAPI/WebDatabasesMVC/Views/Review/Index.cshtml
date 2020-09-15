@@ -13,11 +13,15 @@
         Screening is:
         @if (Model.ShowScreening)
         {<text>Active</text>}
-    else
-    {<text>Disabled</text>}
+        else
+        {<text>Disabled</text>}
     </div>
     <div class="col-12 ">
         This web DB will only show items with this code:
         <div>@ViewBag.AttName (ID: @ViewBag.AttId)</div>
+        <a class="btn btn-outline-success" asp-controller="ItemList" asp-action="Index">
+            Got to list
+        </a>
     </div>
+
 </div>

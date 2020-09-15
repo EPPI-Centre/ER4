@@ -28,6 +28,7 @@
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemAttributePDFList.cs" Link="Models\ItemAttributePDFList.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemAttributeText.cs" Link="Models\ItemAttributeText.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemAttributeTextList.cs" Link="Models\ItemAttributeTextList.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemList.cs" Link="Models\ItemList.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemSet.cs" Link="Models\ItemSet.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\MagCurrentInfo.cs" Link="Models\MagCurrentInfo.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\MagMakesHelpers.cs" Link="Models\MagMakesHelpers.cs" />
@@ -51,6 +52,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="3.1.7" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="3.1.4" />
     <PackageReference Include="Serilog.AspNetCore" Version="3.4.0" />
     <PackageReference Include="System.Data.SqlClient" Version="4.8.2" />
     <PackageReference Include="CSLA-ASPNETCORE-MVC" Version="4.7.200" />
