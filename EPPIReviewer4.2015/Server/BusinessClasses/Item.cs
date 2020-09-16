@@ -1394,9 +1394,9 @@ namespace BusinessLibrary.BusinessClasses
                             LoadProperty<string>(ParentTitleProperty, reader.GetString("PARENT_TITLE"));
                             LoadProperty<string>(ShortTitleProperty, reader.GetString("SHORT_TITLE"));
                             LoadProperty<SmartDate>(DateCreatedProperty, reader.GetSmartDate("DATE_CREATED"));
-                            //LoadProperty<string>(CreatedByProperty, reader.GetString("CREATED_BY"));
+                            LoadProperty<string>(CreatedByProperty, reader.GetString("CREATED_BY"));
                             LoadProperty<SmartDate>(DateEditedProperty, reader.GetSmartDate("DATE_EDITED"));
-                            //LoadProperty<string>(EditedByProperty, reader.GetString("EDITED_BY"));
+                            LoadProperty<string>(EditedByProperty, reader.GetString("EDITED_BY"));
                             LoadProperty<string>(YearProperty, reader.GetString("YEAR"));
                             LoadProperty<string>(MonthProperty, reader.GetString("MONTH"));
                             LoadProperty<string>(StandardNumberProperty, reader.GetString("STANDARD_NUMBER"));
@@ -1419,6 +1419,7 @@ namespace BusinessLibrary.BusinessClasses
                             LoadProperty<bool>(IsIncludedProperty, reader.GetBoolean("IS_INCLUDED"));
                             LoadProperty<string>(DOIProperty, reader.GetString("DOI"));
                             LoadProperty<string>(KeywordsProperty, reader.GetString("KEYWORDS"));
+                            SetItemStatusProperty();
                         }
                     }
                 }

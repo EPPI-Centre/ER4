@@ -39,7 +39,14 @@
         {
             <div class="row border-top border-dark m-0">
                 <div class="col border-dark border-right">
-                    <div class="bg-white">@itm.ItemId</div>
+                    <div class="bg-white">
+                        <form asp-controller="ItemList" asp-action="ItemDetails" method="post" class="form-inline">
+                            <button class="btn btn-link px-1 py-0 m-1" type="submit"
+                                    name="itemId" value="@itm.ItemId">
+                                @itm.ItemId
+                            </button>
+                        </form>
+                    </div>
                 </div>
                 <div class="col-2 border-dark border-right">
                     <div class="bg-white">@itm.ShortTitle</div>
@@ -54,36 +61,3 @@
         }
     </div>
 </div>
-@*<div class="col-12">
-        <div class="font-weight-bold">Title: </div>
-        <div class="font-weight-bold boder bg-white">@itm.Title</div>
-    </div>
-    <div class="col-12">
-        <div class="font-weight-bold">Abstract:</div>
-        <div class="font-weight-bold boder bg-white">@itm.Abstract</div>
-    </div>
-    <div class="col-12">
-        <div class="font-weight-bold">Authors:</div>
-        <div class="font-weight-bold boder bg-white">@itm.Authors</div>
-    </div>
-    <div class="col-12 col-md-8">
-        <div class="font-weight-bold">Journal:</div>
-        <div class="font-weight-bold boder bg-white">@itm.ParentAuthors</div>
-    </div>
-    <div class="col-12 col-md-4">
-        <div class="font-weight-bold">Type:</div>
-        <div class="font-weight-bold boder bg-white">@itm.TypeName</div>
-    </div>
-
-    <div class="col-12 col-md-4">
-        <div class="font-weight-bold">Journal:</div>
-        <div class="font-weight-bold boder bg-white">@itm.ParentAuthors</div>
-    </div>
-    <div class="col-12 col-md-4">
-        <div class="font-weight-bold">Type:</div>
-        <div class="font-weight-bold boder bg-white">@itm.TypeName</div>
-    </div>
-    <div class="col-12 col-md-4">
-        <div class="font-weight-bold">Type:</div>
-        <div class="font-weight-bold boder bg-white">@itm.TypeName</div>
-    </div>*@

@@ -16,6 +16,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using WebDatabasesMVC;
+using WebDatabasesMVC.ViewModels;
 /// <summary>
 /// This is the first controller to use the agreed approach, see the Index() method.
 /// This serves a view (and HTML page) using the ItemList data obtained by the internal method ItemList() which is where data is fetched.
@@ -120,5 +121,61 @@ namespace WebDatabasesMVC.Controllers
             ItemList res = DataPortal.Fetch<ItemList>(crit);
             return res;
         }
+
+
+        public IActionResult ItemDetails([FromForm] long itemId)
+        {
+            try
+            {
+                if (SetCSLAUser())
+                {
+                    FullItemDetails Itm = GetItemDetails(itemId);
+                    return View(Itm);
+                }
+                else return Unauthorized();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Error in ItemDetails");
+                return StatusCode(500, e.Message);
+            }
+        }
+        public IActionResult ItemDetailsJSON([FromForm] long itemId)
+        {//we provide all items details in a single JSON method, as it makes no sense to get partial item details, so without Arms, Docs, etc.
+            try
+            {
+                if (SetCSLAUser())
+                {
+                    FullItemDetails Itm = GetItemDetails(itemId);
+                    return Json(Itm);
+                }
+                else return Unauthorized();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Error in ItemDetailsJSON");
+                return StatusCode(500, e.Message);
+            }
+        }
+        internal FullItemDetails GetItemDetails(long ItemId)
+        {
+            Item itm = DataPortal.Fetch<Item>(new SingleCriteria<Item, Int64>(ItemId));
+            ItemArmList arms = DataPortal.Fetch<ItemArmList>(new SingleCriteria<Item, Int64>(ItemId));
+            itm.Arms = arms;
+            ItemTimepointList timepoints = DataPortal.Fetch<ItemTimepointList>(new SingleCriteria<Item, Int64>(ItemId));
+            ItemDocumentList docs = DataPortal.Fetch<ItemDocumentList>(new SingleCriteria<ItemDocumentList, Int64>(ItemId));
+            ReadOnlySource ros = DataPortal.Fetch<ReadOnlySource>(new SingleCriteria<ReadOnlySource, long>(ItemId));
+            ItemDuplicatesReadOnlyList dups = DataPortal.Fetch<ItemDuplicatesReadOnlyList>(new SingleCriteria<ItemDuplicatesReadOnlyList, long>(ItemId));
+            FullItemDetails res = new FullItemDetails
+            {
+                Item = itm,
+                Documents = docs,
+                Timepoints = timepoints,
+                Duplicates = dups,
+                Source = ros
+            };
+            return res;
+        }
+
     }
 }
