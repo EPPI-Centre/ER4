@@ -95,7 +95,15 @@ The corresponding view (`~\Views\ItemList\ItemDetails.cshtml`) shows how to acce
 The `GetItemDetails(long ItemId)` is also simple, all it does is to call the required DataPortal.Fetch<...>(...) methods to collect the needed BOs and then package them together in a new instance of `FullItemDetails`. These FullItemDetails are then used by `ItemDetails(...)` and `ItemDetailsJSON(...)` to produce a view or a JSON response, as before.
 
 #### Interactivity
-We think we'll use Telerik comonents to provide useful features like expandable codetrees (with frequencies loaded on demand?), graphs for frequencies and crosstabs, and graphic elements for Evidence Maps.  
-At this time, it's not clear wether we'll use Telerik MVC components or Kendo for jQuery components (for which we already have a license).  
-What **is clear** is that we most likely fetch the data on demand, via Ajax calls to the JSON endpoints, in most cases when "interactivity" is required. This is because we certainly don't want to to have to re-fetch all data used by something complex like a crosstab of a map at each user-click, which would be necessary if we were re-creating the view at each click from the user.
+One possibility, which does not require to license additional products is to use Kendo for jQuery components. **Pro**: they are immediately "optimised" for feeding them data through Ajax calls. **Con**: they require more Javascript fiddling, to ensure the data fits into the expected mold.
+
+In fact, the ReviewHome page now exemplifies both pro and con sides. The project now includes a _provisional_ controller: `ReviewSetListController`. This contains just one Method and will need to be completely changed later on (when we'll have the structure to support "filtered" coding tools as configured specifically for WebDatabases).  
+        
+This controller has one method `public IActionResult FetchJSON()` which currently "just" fetches the ReviewSetsList and returns it as a JSON object.  
+Concurrently, the "~/Review/Index.cshtm" view has acquired some JavaScript that:
+1. Requests data from ReviewSetsList.FetchJSON()
+2. When data is received, parses it to construt new JavaScript Objects which extend the "kendo.data.Node" JavaScript Type, so that it can now contain our codetree data.
+3. The data is then fed into the kendoTreeView "widget".
+
+This demonstrates the possibility of using Kendo components for which we already have a license. The alternative would be to add a license for also the "UI for ASP.NET MVC" product which [appears to be](https://www.telerik.com/blogs/kendo-ui-vs-ui-for-asp-net-mvc) just KendoUI with added server-side (C#) automation so to create the required JS automatically via Razor. The **pro** of this option is: in straightforard situations, there is less code to write. The **con**: I am pretty sure we have direct lower-level access via Kendo for jQuery, meaning that it _should_ allow to do more, as demonstrated in `~/Review/Index.cshtm`.
 

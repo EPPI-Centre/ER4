@@ -31,7 +31,13 @@ namespace WebDatabasesMVC
                     config.Cookie.Name = "WebDbErLoginCookie";
                     config.LoginPath = "/Login/UserLogin";
                 });
-            services.AddControllersWithViews();
+            services.AddControllersWithViews().AddNewtonsoftJson(options =>
+            {//this is needed to allow serialising CSLA child objects:
+                //they all have a "Parent" field which creates a reference loop.
+                options.SerializerSettings.CheckAdditionalContent = true;
+
+                options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
