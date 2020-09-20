@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27130.2036
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30413.136
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ERIdentityProvider", "ERIdentityProvider\ERIdentityProvider.csproj", "{9525693F-0AB0-4813-AF66-AC8BF31A1FEA}"
 EndProject
@@ -34,6 +34,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AcademicImportCore", "AcademicImportCore\AcademicImportCore.csproj", "{2A2164A1-4F4E-4042-AFD4-BEE668C14C84}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MapDatabase", "MapDatabase\MapDatabase.csproj", "{6F06887C-2B79-45DD-AAFB-EF18D63EA03D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebDatabasesMVC", "WebDatabasesMVC\WebDatabasesMVC.csproj", "{6AA80044-C4EC-4853-ADB0-BA71AE690627}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -129,6 +131,18 @@ Global
 		{6F06887C-2B79-45DD-AAFB-EF18D63EA03D}.Release|x64.Build.0 = Release|Any CPU
 		{6F06887C-2B79-45DD-AAFB-EF18D63EA03D}.Release|x86.ActiveCfg = Release|Any CPU
 		{6F06887C-2B79-45DD-AAFB-EF18D63EA03D}.Release|x86.Build.0 = Release|Any CPU
+		{6AA80044-C4EC-4853-ADB0-BA71AE690627}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6AA80044-C4EC-4853-ADB0-BA71AE690627}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6AA80044-C4EC-4853-ADB0-BA71AE690627}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{6AA80044-C4EC-4853-ADB0-BA71AE690627}.Debug|x64.Build.0 = Debug|Any CPU
+		{6AA80044-C4EC-4853-ADB0-BA71AE690627}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{6AA80044-C4EC-4853-ADB0-BA71AE690627}.Debug|x86.Build.0 = Debug|Any CPU
+		{6AA80044-C4EC-4853-ADB0-BA71AE690627}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6AA80044-C4EC-4853-ADB0-BA71AE690627}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6AA80044-C4EC-4853-ADB0-BA71AE690627}.Release|x64.ActiveCfg = Release|Any CPU
+		{6AA80044-C4EC-4853-ADB0-BA71AE690627}.Release|x64.Build.0 = Release|Any CPU
+		{6AA80044-C4EC-4853-ADB0-BA71AE690627}.Release|x86.ActiveCfg = Release|Any CPU
+		{6AA80044-C4EC-4853-ADB0-BA71AE690627}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

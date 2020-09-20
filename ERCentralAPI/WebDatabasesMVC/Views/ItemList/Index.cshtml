@@ -1,0 +1,63 @@
+﻿@model BusinessLibrary.BusinessClasses.ItemList
+@using BusinessLibrary.BusinessClasses
+
+@if (Model.PageCount > 1)
+{
+<div class="alert-info row col-12 mx-0 mb-1">
+    <form asp-controller="ItemList" asp-action="Page" method="post" class="form-inline">
+        <button class="btn btn-outline-success px-1 py-0 m-1" type="submit" disabled="@(Model.PageIndex == 0)"
+                name="PageN" value="@(Model.PageIndex - 1)">
+            Previous
+        </button>
+        <button class="btn btn-outline-success px-1 py-0 m-1" type="submit" disabled="@(Model.PageIndex == Model.PageCount - 1)"
+                name="PageN" value="@(Model.PageIndex + 1)">
+            Next
+        </button>
+    </form>
+    <div class="my-auto">Page: @(Model.PageIndex + 1) of @(Model.PageCount).</div>
+</div>
+}
+<div class="bg-light col-12 m-0 ">
+    <div>
+        <div class="row border-top border-dark m-0">
+            <div class="col">
+                <div class="">Id: </div>
+            </div>
+            <div class="col-2">
+                <div class="">Short title: </div>
+            </div>
+            <div class="col-8">
+                <div class="">Title: </div>
+            </div>
+            <div class="col">
+                <div class="">Year: </div>
+            </div>
+        </div>
+    </div>
+    <div style="max-height:80vh; overflow:auto">
+        @foreach (Item itm in Model)
+        {
+            <div class="row border-top border-dark m-0">
+                <div class="col border-dark border-right">
+                    <div class="bg-white">
+                        <form asp-controller="ItemList" asp-action="ItemDetails" method="post" class="form-inline">
+                            <button class="btn btn-link px-1 py-0 m-1" type="submit"
+                                    name="itemId" value="@itm.ItemId">
+                                @itm.ItemId
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                <div class="col-2 border-dark border-right">
+                    <div class="bg-white">@itm.ShortTitle</div>
+                </div>
+                <div class="col-8 border-dark border-right">
+                    <div class="bg-white">@itm.Title</div>
+                </div>
+                <div class="col border-dark">
+                    <div class="bg-white">@itm.Year</div>
+                </div>
+            </div>
+        }
+    </div>
+</div>

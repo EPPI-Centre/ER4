@@ -28,7 +28,7 @@ public partial class AssignCredit : System.Web.UI.Page
                     radTs.SelectedIndex = 0;
                     radTs.Tabs[0].Tabs[1].Selected = true;
                     radTs.Tabs[0].Tabs[1].Visible = true;
-                    radTs.Tabs[0].Tabs[2].Width = 600;
+                    radTs.Tabs[0].Tabs[4].Width = 400;
                 }
                 System.Web.UI.WebControls.Label lbl1 = (Label)Master.FindControl("lblHeadingText");
                 if (lbl1 != null)

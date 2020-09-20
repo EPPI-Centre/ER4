@@ -1,0 +1,96 @@
+﻿@model BusinessLibrary.BusinessClasses.ReviewInfo
+
+<div class="row">
+    <div class="col-12 ">
+        Review Name is:
+        <h3>@Model.ReviewName</h3>
+    </div>
+
+    <div class="col-6 col-sm-4 col-md-3">
+        <div id="treeView"></div>
+        <script>
+
+            //var TreeNode = kendo.data.Model.define({
+            //    id: "id",
+            //    fields: {
+            //        id: { type: "number"},
+            //        items: {},
+            //        NodeName: {},
+            //        hasChildren: () => {
+            //            this.attributes.length > 0;
+            //        }
+            //    }
+            //});
+            function Buildnode(attr) {
+                var nodes = [];
+                
+                var res = new kendo.data.Node({
+                    text: attr.setName ? attr.setName : attr.attributeName
+                });
+                for (var ii = 0; ii < attr.attributes.attributesList.length; ii++) {
+                    res.append(Buildnode(attr.attributes.attributesList[ii]));
+                }
+                res.id = attr.attributeId ? attr.attributeId : attr.setId;
+                //res.items = nodes;
+                //res.hasChildren = () => {
+                //    return this.items.length > 0;
+                //};
+                return res;
+            }
+            $(document).ready(function() {
+                $("#treeView").kendoTreeView({
+                    dataSource: {
+                        transport: {
+                            read: {
+                                url: "../ReviewSetList/FetchJSON",
+                                dataType: "json"
+                            }
+                        },
+                        schema: {
+                            
+                            parse: function (response) {
+                                var nodes = [];
+                                for (var i = 0; i < response.length; i++) {
+                                    var nodes2 = [];
+                                    var nd = new kendo.data.Node({ text: response[i].setName });
+                                    nd.id = response[i].setId;
+                                    for (var ii = 0; ii < response[i].attributes.attributesList.length; ii++) {
+                                        nd.append(Buildnode(response[i].attributes.attributesList[ii]));
+                                    }
+                                    nd.items = nodes2;
+                                    //nd.hasChildren = () => {
+                                    //        return this.items.length > 0;
+                                    //    };
+                                    nodes.push(nd);
+                                }
+                                return nodes;
+                            }
+                        }
+                    }
+                })
+            });
+        </script>
+    </div>
+    <div class="col-6 col-sm-8 col-md-9">
+        <div class="col-12 ">
+            Review Id is:
+            <h5>@Model.ReviewId</h5>
+        </div>
+        <div class=" col">
+            Screening is:
+            @if (Model.ShowScreening)
+            {<text>Active</text>}
+        else
+        {<text>Disabled</text>}
+        </div>
+        <div class="col-12 ">
+            This web DB will only show items with this code:
+            <div>@ViewBag.AttName (ID: @ViewBag.AttId)</div>
+            <a class="btn btn-outline-success" asp-controller="ItemList" asp-action="Index">
+                Got to list
+            </a>
+        </div>
+    </div>
+    
+
+</div>
