@@ -80,12 +80,12 @@ export class AdvancedMAGFeaturesComponent implements OnInit, OnDestroy {
     @ViewChild('WithOrWithoutCodeSelector3') WithOrWithoutCodeSelector3!: codesetSelectorComponent;
 
     public CurrentDropdownSelectedCode3: singleNode | null = null;
-    public CurrentDropdownSelectedCode2: singleNode | null = null;
+    public CurrentDropdownSelectedCode4: singleNode | null = null;
     public ItemsWithCode: boolean = false;
     public ShowPanel: boolean = false;
-    public dropdownBasic2: boolean = false;
+    public dropdownBasic4: boolean = false;
     public dropdownBasic3: boolean = false;
-    public isCollapsed2: boolean = false;
+    public isCollapsed4: boolean = false;
     public isCollapsed3: boolean = false;
     public ListSubType: string = '';
     public splitDataOn: string = 'Year';
@@ -176,17 +176,17 @@ export class AdvancedMAGFeaturesComponent implements OnInit, OnDestroy {
 
         } else if (this.splitDataOn == 'WithThisCode') {
 
-            if (this.CurrentDropdownSelectedCode2 != null) {
-                let att = this.CurrentDropdownSelectedCode2 as SetAttribute;
+            if (this.CurrentDropdownSelectedCode3 != null) {
+                let att = this.CurrentDropdownSelectedCode3 as SetAttribute;
                 newMagSimulation.withThisAttributeId = att.attribute_id;
                 newMagSimulation.withThisAttribute = att.attribute_name;
             }
         }
         //console.log('here', this.filterOn);
         if (this.filterOn == 'true') {
-            if (this.CurrentDropdownSelectedCode2 != null) {
+            if (this.CurrentDropdownSelectedCode4 != null) {
                 //console.log('here2');
-                let att = this.CurrentDropdownSelectedCode2 as SetAttribute;
+                let att = this.CurrentDropdownSelectedCode4 as SetAttribute;
                 //console.log('here3', att);
                 newMagSimulation.filteredByAttributeId = att.attribute_id;
                 newMagSimulation.filteredByAttribute = att.attribute_name;
@@ -262,7 +262,7 @@ export class AdvancedMAGFeaturesComponent implements OnInit, OnDestroy {
     }
     Clear() {
 
-        this.CurrentDropdownSelectedCode2 = {} as SetAttribute;
+        this.CurrentDropdownSelectedCode4 = {} as SetAttribute;
         this.CurrentDropdownSelectedCode3 = {} as SetAttribute;
         this.description = '';
         this.ItemsWithCode = false;

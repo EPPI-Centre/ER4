@@ -116,7 +116,7 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
     }
     public ClearMatches() {
 
-        this.ConfirmationDialogService.confirm("Are you sure you wish to clear all matching for this attribute?", "", false, "")
+        this.ConfirmationDialogService.confirm("Are you sure you wish to clear all matching for this code?", "", false, "")
             .then(
                 (confirm: any) => {
                     if (confirm) {
@@ -216,7 +216,7 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
     }
     public RunMatchingAlgo() {
 
-        let msg: string = 'Are you sure you want to match all the items in your review\n to Microsoft Academic records?';
+        let msg: string = ''; 
         this.ConfirmationDialogService.confirm('MAG RUN ALERT', msg, false, '')
             .then((confirm: any) => {
                 if (confirm) {
@@ -224,11 +224,17 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
                     var att = this.CurrentDropdownSelectedCode2 as SetAttribute;
                     if (att != null && att.attribute_id > 0) {
                         this._magAdvancedService.RunMatchingAlgorithm(att.attribute_id).then(
-                            (result) => { res = result;}
+                            (result) => {
+                                msg = 'Are you sure you want to match all items with this code to Microsoft Academic records?';
+                                res = result;
+                            }
                             );
                     } else {
                         this._magAdvancedService.RunMatchingAlgorithm(0).then(
-                            (result) => { res = result; }
+                            (result) => {
+                                msg = 'Are you sure you want to match all items to Microsoft Academic records?';
+                                res = result;
+                            }
                         );
                     }
                     this._magAdvancedService._RunAlgorithmFirst = true;
