@@ -115,7 +115,7 @@
                 <kendo-tabstrip-tab [selected]="true" [title]="'References'">
                     <ng-template kendoTabContent>
 
-                        <div [title]="'Search Results'" style="min-height:500px; max-height:65vh; overflow:auto;">
+                        <div [title]="'Add/remove reference'" style="min-height:500px; max-height:65vh; overflow:auto;">
 
                             <div>
                                 <div style="max-height:50vh; overflow:auto;">
@@ -159,7 +159,7 @@
                 </kendo-tabstrip-tab>
                 <kendo-tabstrip-tab [title]="'Cited By'" [disabled]="HideCitatedBy()">
                     <ng-template kendoTabContent>
-                        <div [title]="'Citated By'" style="min-height:500px; overflow:auto;">
+                        <div [title]="'Add/remove citation'" style="min-height:500px; overflow:auto;">
                             <div style="max-height:50vh; overflow:auto;">
                                 <table class="card-footer col-12 small table table-border table-striped">
                                     <thead>
@@ -182,7 +182,7 @@
                 </kendo-tabstrip-tab>
                 <kendo-tabstrip-tab #tabSelectedPapers (tabSelect)="onTabSelect($event)" [title]="SelectedPapersTitle" [disabled]="HideSelectedPapers()">
                     <ng-template kendoTabContent>
-                        <div [title]="'Selected Papers'" style="min-height:500px; overflow:auto;">
+                        <div [title]="'Add/remove selected paper'" style="min-height:500px; overflow:auto;">
                             <div style="max-height:55vh; overflow:auto;">
                                 <table class="card-footer col-12 table table-border table-striped ">
                                     <thead>
@@ -206,7 +206,7 @@
                 </kendo-tabstrip-tab>
                 <kendo-tabstrip-tab [title]="'current list'">
                     <ng-template kendoTabContent>
-                        <div [title]="'Current Papers'" style="min-height:500px; overflow:auto;">
+                        <div [title]="'Add/remove current reference'" style="min-height:500px; overflow:auto;">
                             <div style="max-height:50vh; overflow:auto;">
                                 <table class="card-footer col-12 small table table-border table-striped">
                                     <thead>

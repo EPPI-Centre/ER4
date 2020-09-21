@@ -12,7 +12,7 @@
             <table>
                 <tr>
                     <td>
-                        <h1 class="font-weight-light">Find related papers and set up review auto-updates</h1>
+                        <h2 class="font-weight-light">Find related papers and set up review auto-updates</h2>
                     </td>
                     <td style="padding-left:10px">
                         <div *ngIf="!basicPanel">
@@ -56,13 +56,13 @@
     <div *ngIf="IsServiceBusy" class="k-loading-image" style="position: fixed; top: 2%;"></div>
 
         <div *ngIf="!basicSearchPanel">
-            <a (click)="ShowSearchPanel()" class="btn btn-info btn-sm text-white" data-toggle="collapse"
+            <a (click)="ShowSearchPanel()" class="btn btn-info btn-sm text-white  p-2 m-2" data-toggle="collapse"
                href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
                 Create new MAG search/auto-update <i class="fa fa-arrow-circle-down"></i>
             </a>
         </div>
         <div *ngIf="basicSearchPanel">
-            <a (click)="ShowSearchPanel()" class="btn btn-info btn-sm text-white" data-toggle="collapse"
+            <a (click)="ShowSearchPanel()" class="btn btn-info btn-sm text-white  p-2 m-2" data-toggle="collapse"
                href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
                 Create new MAG search/auto-update <i class="fa fa-arrow-circle-up"></i>
             </a>
@@ -112,7 +112,7 @@
                         </label>
                     </div>
 
-                    <div *ngIf="searchAll == 'specified'">
+                    <div *ngIf="searchAll == 'specified' || searchAll == 'child'">
                         <div class=""><b>Select code</b></div>
                         <table style="width:100%;">
                             <tr>
@@ -263,9 +263,9 @@
                                         </button>
                                     </td>
                                     <td style="vertical-align:middle">{{item.status  == 'Complete' ? 'Complete' : 'Pending'}}</td>
-                                    <td class="p-0" style="vertical-align:middle"><button [disabled]="!CanDeleteMAGRun()" (click)="DoDeleteMagRelatedPapersRun(item.magRelatedRunId)" class="btn btn-danger btn-sm text-white align-content-center  fa fa-trash"></button></td>
+                                    <td class="p-0" style="vertical-align:middle"><button [disabled]="!CanDeleteMAGRun()" (click)="DoDeleteMagRelatedPapersRun(item)" class="btn btn-danger btn-sm text-white align-content-center  fa fa-trash"></button></td>
                                     <td class="p-0" style="vertical-align:middle">
-                                        <button (click)="CheckedStatus(item.userStatus)" [disabled]="!CanImportMagPapers(item)" class="btn btn-info btn-sm text-white align-content-center">
+                                        <button (click)="CheckedStatus(item)" [disabled]="!CanImportMagPapers(item)" class="btn btn-info btn-sm text-white align-content-center">
                                             {{item.userStatus == '' ? 'Not Checked' : item.userStatus }}
                                         </button>
                                     </td>

@@ -137,6 +137,16 @@ export class BasicMAGComp implements OnInit {
             this.ImportMagRelatedPapersRun(item, msg);
         }
     }
+    public UpdateUserStatus(magRelatedRun: MagRelatedPapersRun) {
+
+
+        if (magRelatedRun != null && magRelatedRun.magRelatedRunId > 0
+            && magRelatedRun.userStatus == 'Unchecked') {
+            magRelatedRun.userStatus = 'Checked';
+            this._basicMAGService.UpdateMagRelatedRun(magRelatedRun);
+        }
+
+    }
     public UpdateAutoReRun(magRelatedRun: MagRelatedPapersRun) {
 
         magRelatedRun.autoReRun = !magRelatedRun.autoReRun;
@@ -208,14 +218,17 @@ export class BasicMAGComp implements OnInit {
                 break;
 		}
     }
-    public CheckedStatus(status: string) {
+    public CheckedStatus(magRelatedRun: MagRelatedPapersRun) {
 
         let msg: string = "";
+        let status: string = magRelatedRun.userStatus;
+        console.log('testing: ', status);
         if (status == 'Checked') {
 
             msg = 'you have marked this search as checked';
         } else if (status == 'Unchecked') {
-            msg = 'you have marked this search as unchecked';
+            this.UpdateUserStatus(magRelatedRun);
+            msg = "updated run to be marked as checked";
         } else if (status == 'Waiting') {
             msg = 'this search is in a waiting state';
         } else if (status == 'Imported') {
@@ -263,13 +276,13 @@ export class BasicMAGComp implements OnInit {
                 }
             });
     }
-	public DoDeleteMagRelatedPapersRun(magRunId: number) {
+    public DoDeleteMagRelatedPapersRun(magRun: MagRelatedPapersRun) {
 
         this.ConfirmationDialogService.confirm("Deleting the selected MAG search",
-            "Are you sure you want to delete MAG search Id:" + magRunId + "?", false, '')
+            "Are you sure you want to delete MAG search:" + magRun.userDescription + "?", false, '')
             .then((confirm: any) => {
                 if (confirm) {
-                    this._basicMAGService.DeleteMAGRelatedRun(magRunId);
+                    this._basicMAGService.DeleteMAGRelatedRun(magRun.magRelatedRunId);
                 }
             });
         }
