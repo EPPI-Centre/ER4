@@ -98,20 +98,21 @@
                     <div class=""><b>Search based on</b></div>
                     <div class="">
                         <label style="display:block">
-                            <input type="radio" value="true" name="searchAll"
+                            <input type="radio" value="all" name="searchAll"
                                    [(ngModel)]="searchAll">	All included items in the review
                         </label>
                         <label style="display:block">
-                            <input type="radio" value="false" name="searchAll"
+                            <input type="radio" value="specified" name="searchAll"
                                    [(ngModel)]="searchAll">	Items with specified code
                         </label>
                         <label style="display:block">
-                            <input [disabled]="magMode != 'New items published on next deployment of MAG'" type="radio" value="false" name="searchAll"
+                            <input [disabled]="magMode != 'New items published on next deployment of MAG'" type="radio" 
+                                   value="child" name="searchAll"
                                    [(ngModel)]="searchAll">	Multiple searches with each child of this code
                         </label>
                     </div>
 
-                    <div *ngIf="searchAll == 'false'">
+                    <div *ngIf="searchAll == 'specified'">
                         <div class=""><b>Select code</b></div>
                         <table style="width:100%;">
                             <tr>

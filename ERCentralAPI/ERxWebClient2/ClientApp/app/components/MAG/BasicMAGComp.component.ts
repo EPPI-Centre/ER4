@@ -40,7 +40,7 @@ export class BasicMAGComp implements OnInit {
     public dropdownBasic1: boolean = false;
     public description: string = '';
     public valueKendoDatepicker: Date = new Date();
-    public searchAll: string = 'true';
+    public searchAll: string = 'all';
     public magSearchCheck: boolean = false;
     public magDateRadio: string = 'true';
     public magRCTRadio: string = 'NoFilter';
@@ -231,10 +231,12 @@ export class BasicMAGComp implements OnInit {
 
 		let magRun: MagRelatedPapersRun = new MagRelatedPapersRun();
 
-        if (this.searchAll =='true') {
+        if (this.searchAll =='all') {
             magRun.allIncluded = true;
-        } else {
+        } else if (this.searchAll == 'specified') {
             magRun.allIncluded = false;
+        }else{
+           //children of this code...
         }
 		let att: SetAttribute = new SetAttribute();
 		if (this.CurrentDropdownSelectedCode != null) {
