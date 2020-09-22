@@ -44,39 +44,41 @@ namespace ERxWebClient2.Controllers
             try
             {
 
-
-                if (!SetCSLAUser()) return Unauthorized();
-                ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
-                
-                //MagCurrentInfo.UpdateMagCurrentInfoStatic();
-                DataPortal<MagCurrentInfo> dp = new DataPortal<MagCurrentInfo>();
-
-                // get data from the user
-                var magSQLCurrentInfo = MagCurrentInfo.GetMagCurrentInfoServerSide("Live");
-                if (magSQLCurrentInfo.MagVersion == "")
+                if (SetCSLAUser4Writing())
                 {
-                    //insert from client
-                    MagCurrentInfo newMagCurrentInfo = new MagCurrentInfo();
-                    newMagCurrentInfo.WhenLive = DateTime.Now;
-                    newMagCurrentInfo.MatchingAvailable = true;
-                    newMagCurrentInfo.MakesDeploymentStatus = "LIVE";
-                    newMagCurrentInfo.MagVersion = magCurrentInfo.magVersion;
-                    newMagCurrentInfo.MagFolder = "";
-                    newMagCurrentInfo.MakesEndPoint = magCurrentInfo.makesEndPoint;
+                    ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
 
-                    newMagCurrentInfo = dp.Execute(newMagCurrentInfo);
+                    //MagCurrentInfo.UpdateMagCurrentInfoStatic();
+                    DataPortal<MagCurrentInfo> dp = new DataPortal<MagCurrentInfo>();
 
-                    return Ok(newMagCurrentInfo);
+                    // get data from the user
+                    var magSQLCurrentInfo = MagCurrentInfo.GetMagCurrentInfoServerSide("Live");
+                    if (magSQLCurrentInfo.MagVersion == "")
+                    {
+                        //insert from client
+                        MagCurrentInfo newMagCurrentInfo = new MagCurrentInfo();
+                        newMagCurrentInfo.WhenLive = DateTime.Now;
+                        newMagCurrentInfo.MatchingAvailable = true;
+                        newMagCurrentInfo.MakesDeploymentStatus = "LIVE";
+                        newMagCurrentInfo.MagVersion = magCurrentInfo.magVersion;
+                        newMagCurrentInfo.MagFolder = "";
+                        newMagCurrentInfo.MakesEndPoint = magCurrentInfo.makesEndPoint;
 
+                        newMagCurrentInfo = dp.Execute(newMagCurrentInfo);
+
+                        return Ok(newMagCurrentInfo);
+
+                    }
+                    else
+                    {
+                        //update from client
+                        MagCurrentInfo.UpdateSQLMagCurrentInfoTable(magCurrentInfo.magVersion, magCurrentInfo.makesEndPoint);
+
+                        return Ok(magSQLCurrentInfo);
+
+                    }
                 }
-                else
-                {
-                    //update from client
-                    MagCurrentInfo.UpdateSQLMagCurrentInfoTable(magCurrentInfo.magVersion, magCurrentInfo.makesEndPoint);
-
-                    return Ok(magSQLCurrentInfo);
-
-                }
+                else return Forbid();
 
             }
             catch (Exception e)
@@ -166,24 +168,23 @@ namespace ERxWebClient2.Controllers
         }
 
 
-        //=====================================above two methods to their own controller TODO
-
-
-
         [HttpPost("[action]")]
         public IActionResult DoCheckChangedPaperIds([FromBody] SingleStringCriteria latestMag)
         {
             try
             {
-                SetCSLAUser();
-                ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
-                DataPortal<MagCheckPaperIdChangesCommand> dp = new DataPortal<MagCheckPaperIdChangesCommand>();
-                MagCheckPaperIdChangesCommand magCheck = new MagCheckPaperIdChangesCommand(latestMag.Value);
+                if (SetCSLAUser4Writing())
+                {
+                    ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+                    DataPortal<MagCheckPaperIdChangesCommand> dp = new DataPortal<MagCheckPaperIdChangesCommand>();
+                    MagCheckPaperIdChangesCommand magCheck = new MagCheckPaperIdChangesCommand(latestMag.Value);
 
 
-                magCheck = dp.Execute(magCheck);
+                    magCheck = dp.Execute(magCheck);
 
-                return Ok(magCheck.LatestMAGName);
+                    return Ok(magCheck.LatestMAGName);
+                }
+                else return Forbid();
             }
             catch (Exception e)
             {
@@ -198,15 +199,18 @@ namespace ERxWebClient2.Controllers
         {
             try
             {
-                SetCSLAUser();
+                if (SetCSLAUser4Writing())
+                {
 
-                DataPortal<MagBlobDataCommand> dp = new DataPortal<MagBlobDataCommand>();
-                MagBlobDataCommand command = new MagBlobDataCommand();
+                    DataPortal<MagBlobDataCommand> dp = new DataPortal<MagBlobDataCommand>();
+                    MagBlobDataCommand command = new MagBlobDataCommand();
 
 
-                command = dp.Execute(command);
+                    command = dp.Execute(command);
 
-                return Ok(command);
+                    return Ok(command);
+                }
+                else return Forbid();
             }
             catch (Exception e)
             {
