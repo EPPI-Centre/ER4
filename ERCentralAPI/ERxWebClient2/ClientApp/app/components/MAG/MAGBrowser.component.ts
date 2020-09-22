@@ -60,14 +60,14 @@ export class MAGBrowser implements OnInit, OnDestroy {
         this.basicOrigPanel = !this.basicOrigPanel;
         this.ShowOriginalPapers = !this.ShowOriginalPapers;
     }
-    ngOnInit() {
-        //this._magBrowserService.SelectedPaperIds = [];
-        //this._magBrowserService.selectedPapers = [];
+    ngAfterViewChecked () {
+
         this._eventEmitterService.selectedButtonPressed.subscribe(
             () => {
                 if (this.tabstrip != null) {
-                    
+
                     this.tabstrip.selectTab(2);
+
                     let magBrowseItem: MagBrowseHistoryItem = new MagBrowseHistoryItem("Browse topic: SelectedPapers "
                         , "SelectedPapers", 0, "", "", 0, "", "",
                         0, "", "", 0);
@@ -77,6 +77,29 @@ export class MAGBrowser implements OnInit, OnDestroy {
                 }
             }
         );
+        if (this._eventEmitterService.tool) {
+            this.tabstrip.selectTab(2);
+        }
+    }
+    ngOnInit() {
+
+        //this._magBrowserService.SelectedPaperIds = [];
+        //this._magBrowserService.selectedPapers = [];
+        //this._eventEmitterService.selectedButtonPressed.subscribe(
+        //    () => {
+        //        if (this.tabstrip != null) {
+
+        //            this.tabstrip.selectTab(2);
+                    
+        //            let magBrowseItem: MagBrowseHistoryItem = new MagBrowseHistoryItem("Browse topic: SelectedPapers "
+        //                , "SelectedPapers", 0, "", "", 0, "", "",
+        //                0, "", "", 0);
+        //            this._mAGBrowserHistoryService.IncrementHistoryCount();
+        //            this._mAGBrowserHistoryService.AddToBrowseHistory(magBrowseItem);
+
+        //        }
+        //    }
+        //);
         this._magBrowserService.ShowingParentAndChildTopics = false;
         this._magBrowserService.ShowingChildTopicsOnly = true;
         this.getTopicsSub = this._eventEmitterService.getTopicsEvent.subscribe(
@@ -90,6 +113,7 @@ export class MAGBrowser implements OnInit, OnDestroy {
      
         this._magBrowserService.MAGOriginalList.papers = this._magBrowserService.MAGList.papers;
         this._magBrowserService.OrigListCriteria = this._magBrowserService.ListCriteria;
+
     }
     public AddRemoveCurrentPaperToSelectedList() {
 
