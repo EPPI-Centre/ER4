@@ -356,6 +356,7 @@ export class MAGBrowserService extends BusyAwareService {
 
             (list: MagList) => {
 
+                    console.log('calling list: ', crit.listType);
                     this.RemoveBusy("FetchWithCrit");
                     this.SavePapers(list, this._Criteria, "NormalList");
                     return true;
@@ -413,7 +414,10 @@ export class MAGBrowserService extends BusyAwareService {
     }
     public SavePapers(list: MagList, crit: MVCMagPaperListSelectionCriteria, referenceList: string ) {
 
-        if (crit.listType == 'CitationsList' || crit.listType == 'ReviewMatchedPapers' || 'MagSearchResultsList') {
+        console.log('got in here 1', JSON.stringify(crit));
+        console.log('list type is: ', crit.listType);
+
+        if (crit.listType == 'CitationsList' || crit.listType == 'ReviewMatchedPapers' || crit.listType == 'MagSearchResultsList') {
 
             this._Criteria.paperIds = '';
             for (var i = 0; i < list.papers.length; i++) {
@@ -423,15 +427,18 @@ export class MAGBrowserService extends BusyAwareService {
                        
         } else if (crit.listType == 'CitedByList') {
 
+            console.log('got in here 2a', list);
             this._Criteria.paperIds = '';
             for (var i = 0; i < list.papers.length; i++) {
                 this._Criteria.paperIds += list.papers[i].paperId + ',';
             }
             this._Criteria.paperIds = this._Criteria.paperIds.substr(0, this._Criteria.paperIds.length - 2);
             this.MagCitationsByPaperList = list;
+            console.log('got in here 2b', this.MagCitationsByPaperList);
             this._Criteria = crit;
             return;
         } 
+        console.log('got here 3');
         if (referenceList =='OrigList') {
             this._MAGOriginalList = list;
             this._OrigCriteria = crit;
@@ -512,7 +519,7 @@ export class MAGBrowserService extends BusyAwareService {
         this.MAGList = new MagList();
         this.MAGOriginalList = new MagList();
         this.MagCitationsByPaperList = new MagList();
-        //this.selectedPapers = [];
+        this.selectedPapers = [];
         this.ClearTopics();
     }
     public ClearTopics() {

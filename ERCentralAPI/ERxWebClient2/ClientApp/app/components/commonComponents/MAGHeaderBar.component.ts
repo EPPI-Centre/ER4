@@ -73,6 +73,7 @@ export class MAGHeaderBarComp implements OnInit {
         this._mAGBrowserHistoryService.IncrementHistoryCount();
         this._mAGBrowserHistoryService.AddToBrowseHistory(item);
         this._eventEmitterService.selectedButtonPressed.emit();
+        this.router.navigate(['MAGBrowser']);
     }
     public ClearSelected() {
         let msg: string = 'Are you sure you want to clear the ' + this._magBrowserService.selectedPapers.length + '  selected MAG papers into your review?';

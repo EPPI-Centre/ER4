@@ -61,8 +61,8 @@ export class MAGBrowser implements OnInit, OnDestroy {
         this.ShowOriginalPapers = !this.ShowOriginalPapers;
     }
     ngOnInit() {
-        this._magBrowserService.SelectedPaperIds = [];
-        this._magBrowserService.selectedPapers = [];
+        //this._magBrowserService.SelectedPaperIds = [];
+        //this._magBrowserService.selectedPapers = [];
         this._eventEmitterService.selectedButtonPressed.subscribe(
             () => {
                 if (this.tabstrip != null) {
@@ -119,11 +119,8 @@ export class MAGBrowser implements OnInit, OnDestroy {
     }
     ngOnDestroy() {
 
-        //if (this.getTopicsSub) {
-        //    this.getTopicsSub.unsubscribe();
-        //}
-        this._magBrowserService.Clear();
-        this.Clear();
+        //this._magBrowserService.Clear();
+        //this.Clear();
     }
     public UpdatePageSize(pageSize: number) {
 
@@ -232,7 +229,7 @@ export class MAGBrowser implements OnInit, OnDestroy {
         this._magBrowserService.ParentTopic = item.displayName;
         this._magBrowserService.WPChildTopics = [];
         this._magBrowserService.WPParentTopics = [];
-        this._magBrowserService.Clear();
+        //this._magBrowserService.Clear();
         this._magAdvancedService.currentMagPaper = new MagPaper();
         this._magBrowserService.GetParentAndChildFieldsOfStudy("FieldOfStudyParentsList", FieldOfStudyId).then(
             () => {
@@ -245,7 +242,7 @@ export class MAGBrowser implements OnInit, OnDestroy {
     public HideCitatedBy(): boolean {
 
         let len: number = this._magBrowserService.MagCitationsByPaperList.papers.length;
-        console.log("disable cited by?", len);
+        //console.log("disable cited by?", len);
         if (len > 0) {
             return false;
         } else {
@@ -296,7 +293,7 @@ export class MAGBrowser implements OnInit, OnDestroy {
         return this._magBrowserService.IsBusy || this._magAdvancedService.IsBusy;
     }
     public Clear() {
-        this._magBrowserService.SelectedPaperIds = [];
+        //this._magBrowserService.SelectedPaperIds = [];
         this._magAdvancedService.currentMagPaper = new MagPaper();
         this.MAGPapers = [];
 
