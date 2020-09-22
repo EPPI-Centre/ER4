@@ -1,4 +1,4 @@
-import { Component,  OnInit, ViewChild, EventEmitter } from '@angular/core';
+import { Component,  OnInit, ViewChild, EventEmitter, Input } from '@angular/core';
 import { Router } from '@angular/router';
 import { Location } from '@angular/common';
 import { MAGBrowserService } from '../services/MAGBrowser.service';
@@ -32,18 +32,27 @@ export class MAGHeaderBarComp implements OnInit {
     ngOnInit() {
 	
     }
+    @Input() Context: string | undefined;
     public get HasWriteRights(): boolean {
         return this._ReviewerIdentityServ.HasWriteRights;
     }
+    public get isSiteAdmin(): boolean {
+        return this._ReviewerIdentityServ.reviewerIdentity.isSiteAdmin;
+    }
     public ShowSelectedPapers: string = "Selected (" + this._magBrowserService.SelectedPaperIds.length.toString() + ")";
-    public SelectedItems() : boolean {
+    public  get SelectedItems() : boolean {
 
         if (this._magBrowserService.selectedPapers != null && 
             this._magBrowserService.selectedPapers.length >0 ) {
-            return false;
-        } else {
             return true;
+        } else {
+            return false;
         }
+    }
+    public DisableButton(destination: string) {
+        if (this.Context == undefined || !this.HasWriteRights) return false;
+        else if (this.Context == destination) return true;
+        else return false;
     }
     public Forward() {
         
@@ -58,7 +67,14 @@ export class MAGHeaderBarComp implements OnInit {
         this.router.navigate(['AdvancedMAGFeatures']);
     }
     public Selected() {
-        this._eventEmitterService.selectedButtonPressed.emit();
+        let item: MagBrowseHistoryItem = new MagBrowseHistoryItem("Browse topic: SelectedPapers "
+            , "SelectedPapers", 0, "", "", 0, "", "",
+            0, "", "", 0);
+        this._mAGBrowserHistoryService.IncrementHistoryCount();
+        this._mAGBrowserHistoryService.AddToBrowseHistory(item);
+        this.router.navigate(['MAGBrowser']).then(res => {
+            if (res == true) this._eventEmitterService.selectedButtonPressed.emit();
+        });
     }
     public ClearSelected() {
 

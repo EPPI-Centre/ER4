@@ -245,6 +245,7 @@ export class MAGBrowser implements OnInit, OnDestroy {
     public HideCitatedBy(): boolean {
 
         let len: number = this._magBrowserService.MagCitationsByPaperList.papers.length;
+        console.log("disable cited by?", len);
         if (len > 0) {
             return false;
         } else {

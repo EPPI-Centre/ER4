@@ -22,8 +22,8 @@ export class MAGAdminComp implements OnInit {
         public _confirmationDialogService: ConfirmationDialogService,
         private _magAdvancedService: MAGAdvancedService,
         public _location: Location,
-        public _notificationService: NotificationService
-
+        public _notificationService: NotificationService,
+        private _ReviewerIdentityServ: ReviewerIdentityService
     ) {
 
     }
@@ -121,7 +121,7 @@ export class MAGAdminComp implements OnInit {
         return this._magAdminService.IsBusy;
     }
     ngOnInit() {
-
+        if (!this._ReviewerIdentityServ.reviewerIdentity.isSiteAdmin) this.Back();
         if (this._magAdminService != null) {
 
             this._magAdminService.GetMAGBlobCommand();
