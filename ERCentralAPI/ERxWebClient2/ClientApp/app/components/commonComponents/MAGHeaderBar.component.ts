@@ -72,13 +72,17 @@ export class MAGHeaderBarComp implements OnInit {
             0, "", "", 0);
         this._mAGBrowserHistoryService.IncrementHistoryCount();
         this._mAGBrowserHistoryService.AddToBrowseHistory(item);
-        this.router.navigate(['MAGBrowser']).then(res => {
-            if (res == true) this._eventEmitterService.selectedButtonPressed.emit();
-        });
+        this._eventEmitterService.selectedButtonPressed.emit();
     }
     public ClearSelected() {
-
-        this._magBrowserService.ClearSelected();
+        let msg: string = 'Are you sure you want to clear the ' + this._magBrowserService.selectedPapers.length + '  selected MAG papers into your review?';
+        this._confirmationDialogService.confirm('MAG Selected Papers', msg, false, '')
+            .then((confirm: any) => {
+                if (confirm) {
+                    this._magBrowserService.ClearSelected();
+                }
+            });
+        
     }
     showMAGRunMessage(notifyMsg: string) {
 
@@ -92,7 +96,7 @@ export class MAGHeaderBarComp implements OnInit {
     }
     public ImportSelected() {
 
-        let msg: string = 'Are you sure you want to import the selected MAG papers into your review?';
+        let msg: string = 'Are you sure you want to import the ' + this._magBrowserService.selectedPapers.length + '  selected MAG papers into your review?';
         this._confirmationDialogService.confirm('MAG Import', msg, false, '')
             .then((confirm: any) => {
                 if (confirm) {
