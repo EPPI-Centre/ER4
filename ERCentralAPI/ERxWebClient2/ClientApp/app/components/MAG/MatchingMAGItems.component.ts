@@ -116,7 +116,7 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
     }
     public ClearMatches() {
 
-        this.ConfirmationDialogService.confirm("Are you sure you wish to clear all matching for this code?", "", false, "")
+        this.ConfirmationDialogService.confirm("Are you sure you wish to clear all matches in this review?", "", false, "")
             .then(
                 (confirm: any) => {
                     if (confirm) {

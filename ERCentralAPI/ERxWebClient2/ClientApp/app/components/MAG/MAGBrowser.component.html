@@ -109,9 +109,8 @@
         </div>
     </div>-->
         </div>
-
         <div class="col-sm-12 col-lg-9 p-0">
-            <kendo-tabstrip #tabSelectedPapers (tabSelect)="onTabSelect($event)" class="ml-2 mt-2" [keepTabContent]="true">
+            <kendo-tabstrip #tabSelectedPapers class="ml-2 mt-2" [keepTabContent]="true">
                 <kendo-tabstrip-tab [selected]="true" [title]="'References'">
                     <ng-template kendoTabContent>
 
@@ -180,7 +179,7 @@
                         </div>
                     </ng-template>
                 </kendo-tabstrip-tab>
-                <kendo-tabstrip-tab #tabSelectedPapers (tabSelect)="onTabSelect($event)" [title]="SelectedPapersTitle" [disabled]="HideSelectedPapers()">
+                <kendo-tabstrip-tab  [title]="SelectedPapersTitle" [disabled]="HideSelectedPapers()">
                     <ng-template kendoTabContent>
                         <div [title]="'Add/remove selected paper'" style="min-height:500px; overflow:auto;">
                             <div style="max-height:55vh; overflow:auto;">
@@ -240,7 +239,6 @@
                 </kendo-tabstrip-tab>
             </kendo-tabstrip>
         </div>
-
     </div>
 </div>
 <statusbar></statusbar>

@@ -266,7 +266,7 @@
                                     <td class="p-0" style="vertical-align:middle"><button [disabled]="!CanDeleteMAGRun()" (click)="DoDeleteMagRelatedPapersRun(item)" class="btn btn-danger btn-sm text-white align-content-center  fa fa-trash"></button></td>
                                     <td class="p-0" style="vertical-align:middle">
                                         <button (click)="CheckedStatus(item)" [disabled]="!CanImportMagPapers(item)" class="btn btn-info btn-sm text-white align-content-center">
-                                            {{item.userStatus == '' ? 'Not Checked' : item.userStatus }}
+                                            {{item.userStatus == '' ? 'Waiting' : item.userStatus }}
                                         </button>
                                     </td>
                                     <td class="p-0" style="vertical-align:middle"><button (click)="ImportMagSearchPapers(item)" [disabled]="!CanImportMagPapers(item)" class="btn btn-primary btn-sm text-white align-content-center">Import</button></td>

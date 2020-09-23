@@ -77,9 +77,7 @@ export class MAGBrowser implements OnInit, OnDestroy {
                 }
             }
         );
-        if (this._eventEmitterService.tool) {
-            this.tabstrip.selectTab(2);
-        }
+
     }
     ngOnInit() {
 
@@ -100,6 +98,9 @@ export class MAGBrowser implements OnInit, OnDestroy {
         //        }
         //    }
         //);
+        //if (this._eventEmitterService.tool) {
+        //    this.tabstrip.selectTab(2);
+        //}
         this._magBrowserService.ShowingParentAndChildTopics = false;
         this._magBrowserService.ShowingChildTopicsOnly = true;
         this.getTopicsSub = this._eventEmitterService.getTopicsEvent.subscribe(
