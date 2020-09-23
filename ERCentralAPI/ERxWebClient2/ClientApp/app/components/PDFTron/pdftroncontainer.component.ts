@@ -1,4 +1,4 @@
-﻿import { Component, ViewChild, ElementRef, AfterViewInit, OnInit, Input, OnDestroy } from '@angular/core';
+﻿import { Component, ViewChild, ElementRef, AfterViewInit, OnInit, Input, OnDestroy, NgZone } from '@angular/core';
 import { WebViewerComponent } from './webviewer.component';
 import { Helpers } from '../helpers/HelperMethods';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
@@ -11,6 +11,7 @@ import { ReviewSetsService, ItemAttributeSaveCommand } from '../services/ReviewS
 import { Item } from '../services/ItemList.service';
 import { ReviewInfoService } from '../services/ReviewInfo.service';
 import { Subscription } from 'rxjs';
+import { ModalService } from '../services/modal.service';
 
 declare const PDFTron: any;
 //declare const PDFNet: any; 
@@ -26,7 +27,9 @@ export class PdfTronContainer implements OnInit, AfterViewInit, OnDestroy {
         private ItemCodingService: ItemCodingService,
         private armsService: ArmsService,
         private ReviewSetsService: ReviewSetsService,
-        private ReviewInfoService: ReviewInfoService
+        private ReviewInfoService: ReviewInfoService,
+        private ngZone: NgZone,
+        private modalService: ModalService
     ) { }
     
     @ViewChild(WebViewerComponent) private webviewer!: WebViewerComponent;
@@ -549,22 +552,48 @@ export class PdfTronContainer implements OnInit, AfterViewInit, OnDestroy {
 
             
             ///are we sure this is a user generated insert? (can add 1 highlight per event only)
-            if (annotations && annotations.length == 1 && annotations[0] instanceof Annotations.TextHighlightAnnotation && action === 'add') {
+            if (annotations && annotations.length >= 1 && annotations[0] instanceof Annotations.TextHighlightAnnotation && action === 'add') {
                 //we fill-in the ItemAttributeSaveCommand object, so that the API controller will create the ItemAttribute record, as well as the ItemSet one, if needed.
                 //by sending the cmd object in the request, we avoid having to orchestrate 2 API calls in strict succession (can't save PDF coding without an ItemAttributeId)
-                cmd.additionalText = "";
-                cmd.attributeId = this.ItemCodingService.SelectedSetAttribute.attribute_id;
-                cmd.itemArmId = this.armsService.SelectedArm == null ? 0 : this.armsService.SelectedArm.itemArmId;
-                cmd.itemId = this.ItemID;
-                cmd.revInfo = this.ReviewInfoService.ReviewInfo;
-                cmd.saveType = "Insert";
-                cmd.setId = this.ItemCodingService.SelectedSetAttribute.set_id;
-                let itemSet: ItemSet | null = this.ItemCodingService.FindItemSetBySetId(this.ItemCodingService.SelectedSetAttribute.set_id);
-                if (itemSet) {
-                    //we have an item set to use, so put the relevant data in cmd. Otherwise, default value is fine.
-                    cmd.itemSetId = itemSet.itemSetId;
+                if (annotations.length == 1) {
+                    cmd.additionalText = "";
+                    cmd.attributeId = this.ItemCodingService.SelectedSetAttribute.attribute_id;
+                    cmd.itemArmId = this.armsService.SelectedArm == null ? 0 : this.armsService.SelectedArm.itemArmId;
+                    cmd.itemId = this.ItemID;
+                    cmd.revInfo = this.ReviewInfoService.ReviewInfo;
+                    cmd.saveType = "Insert";
+                    cmd.setId = this.ItemCodingService.SelectedSetAttribute.set_id;
+                    let itemSet: ItemSet | null = this.ItemCodingService.FindItemSetBySetId(this.ItemCodingService.SelectedSetAttribute.set_id);
+                    if (itemSet) {
+                        //we have an item set to use, so put the relevant data in cmd. Otherwise, default value is fine.
+                        cmd.itemSetId = itemSet.itemSetId;
+                    }
+                    console.log("create coding from PDF tab:", cmd);
                 }
-                console.log("create coding from PDF tab:", cmd);
+                else {
+                    //We have more than one annotation! 
+                    //So far, we think this is only possible when the user selected text across 2 or more pages.
+                    //we can't support this scenario, because the annotations returned by PDFTron report the whole text as "selected text" for all annotations.
+                    //this is a problem for reports, where the same text will appear 2 or more times and claim to be on a given page (where only part of the text is)
+                    //it is also a problem for backward compatibility with ER4, as in there ER-Web selections are "reconstructed" based on their "selected text"
+                    //but the selected text won't be found as it does not belong to any single page!
+                    //thus, inform the user that ER-Web can't do this AND delete the selection instead.
+                    this.ngZone.run(() =>
+                        this.modalService.GenericErrorMessage("Sorry, <strong>this action is not supported</strong>.<br />"
+                        + "Adding one selection that spans 2 or more pages poses too many technical problems.<br />"
+                        + "To add your intended selection, please add it as <strong>two separate selections, one per page</strong>.")
+                    );
+                    //delete the annotations...
+                    let currentAvoidState = this.AvoidHandlingAnnotationChanges;
+                    for (let annot of annotations) {
+                        this.AvoidHandlingAnnotationChanges = true;
+                        this.annotManager.deleteAnnotation(annot, true, true);
+                        //this.annotManager.redrawAnnotation(annot);
+                    }
+                    this.AvoidHandlingAnnotationChanges = currentAvoidState;
+
+                    return;//
+                }
             }
             //return;
         }
