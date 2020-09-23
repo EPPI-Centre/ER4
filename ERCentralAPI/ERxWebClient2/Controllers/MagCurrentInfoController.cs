@@ -93,7 +93,7 @@ namespace ERxWebClient2.Controllers
         {
             try
             {
-                if (!SetCSLAUser() || !User.HasClaim(cl => cl.Type == "isSiteAdmin" && cl.Value == "True")) return Unauthorized();
+                if (!SetCSLAUser()) return Unauthorized();
                 MAgReviewMagInfoCommand cmd = new MAgReviewMagInfoCommand();
                 DataPortal<MAgReviewMagInfoCommand> dp = new DataPortal<MAgReviewMagInfoCommand>();
                 cmd = dp.Execute(cmd);

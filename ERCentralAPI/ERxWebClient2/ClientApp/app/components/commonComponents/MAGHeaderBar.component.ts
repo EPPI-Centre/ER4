@@ -8,6 +8,7 @@ import { NotificationService } from '@progress/kendo-angular-notification';
 import { EventEmitterService } from '../services/EventEmitter.service';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 import { MAGBrowserHistoryService } from '../services/MAGBrowserHistory.service';
+import { Helpers } from '../helpers/HelperMethods';
 
 @Component({
     selector: 'MAGHeaderBar',
@@ -67,20 +68,26 @@ export class MAGHeaderBarComp implements OnInit {
         this.router.navigate(['AdvancedMAGFeatures']);
     }
     public Selected() {
-        let item: MagBrowseHistoryItem = new MagBrowseHistoryItem("Browse topic: SelectedPapers "
-            , "SelectedPapers", 0, "", "", 0, "", "",
-            0, "", "", 0);
-        this._mAGBrowserHistoryService.IncrementHistoryCount();
-        this._mAGBrowserHistoryService.AddToBrowseHistory(item);
-        this._eventEmitterService.selectedButtonPressed.emit();
-        this.router.navigate(['MAGBrowser']).then(
-            () => {
-                //this._eventEmitterService.selectedButtonPressed.emit();
-                this._eventEmitterService.tool = true;
-             }
-
-        );
+        if (this.Context == "MAGBrowser") {
+            this._eventEmitterService.selectedButtonPressed.emit();
+        } else {
+            let item: MagBrowseHistoryItem = new MagBrowseHistoryItem("Browse topic: SelectedPapers "
+                , "SelectedPapers", 0, "", "", 0, "", "",
+                0, "", "", 0);
+            this._mAGBrowserHistoryService.IncrementHistoryCount();
+            this._mAGBrowserHistoryService.AddToBrowseHistory(item);
+            
+            this.router.navigate(['MAGBrowser']).then(
+                async (res) =>  {
+                    if (res) {
+                        await Helpers.Sleep(50);
+                        this._eventEmitterService.selectedButtonPressed.emit();
+                    }
+                    //this._eventEmitterService.tool = true;
+                }
+            );
         }
+    }
     public ClearSelected() {
         let msg: string = 'Are you sure you want to clear the ' + this._magBrowserService.selectedPapers.length + '  selected MAG papers into your review?';
         this._confirmationDialogService.confirm('MAG Selected Papers', msg, false, '')
