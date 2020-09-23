@@ -44,7 +44,7 @@ namespace ERxWebClient2.Controllers
             try
             {
 
-                if (SetCSLAUser4Writing())
+                if (SetCSLAUser4Writing() && User.HasClaim(cl => cl.Type == "isSiteAdmin" && cl.Value == "True"))
                 {
                     ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
 
@@ -93,7 +93,7 @@ namespace ERxWebClient2.Controllers
         {
             try
             {
-                if (!SetCSLAUser()) return Unauthorized();
+                if (!SetCSLAUser() || !User.HasClaim(cl => cl.Type == "isSiteAdmin" && cl.Value == "True")) return Unauthorized();
                 MAgReviewMagInfoCommand cmd = new MAgReviewMagInfoCommand();
                 DataPortal<MAgReviewMagInfoCommand> dp = new DataPortal<MAgReviewMagInfoCommand>();
                 cmd = dp.Execute(cmd);
@@ -114,7 +114,7 @@ namespace ERxWebClient2.Controllers
         {
             try
             {
-                if (SetCSLAUser4Writing())
+                if (SetCSLAUser4Writing() && User.HasClaim(cl => cl.Type == "isSiteAdmin" && cl.Value == "True"))
                 {
                     DataPortal<MagCheckContReviewRunningCommand> dp = new DataPortal<MagCheckContReviewRunningCommand>();
                     MagCheckContReviewRunningCommand check = new MagCheckContReviewRunningCommand();
@@ -139,7 +139,7 @@ namespace ERxWebClient2.Controllers
         {
             try
             {
-                if (SetCSLAUser4Writing())
+                if (SetCSLAUser4Writing() && User.HasClaim(cl => cl.Type == "isSiteAdmin" && cl.Value == "True"))
                 {
                     ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
                     DataPortal<MagContReviewPipelineRunCommand> dp2 = new DataPortal<MagContReviewPipelineRunCommand>();
@@ -173,7 +173,7 @@ namespace ERxWebClient2.Controllers
         {
             try
             {
-                if (SetCSLAUser4Writing())
+                if (SetCSLAUser4Writing() && User.HasClaim(cl => cl.Type == "isSiteAdmin" && cl.Value == "True"))
                 {
                     ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
                     DataPortal<MagCheckPaperIdChangesCommand> dp = new DataPortal<MagCheckPaperIdChangesCommand>();
@@ -199,7 +199,7 @@ namespace ERxWebClient2.Controllers
         {
             try
             {
-                if (SetCSLAUser4Writing())
+                if (SetCSLAUser4Writing() && User.HasClaim(cl => cl.Type == "isSiteAdmin" && cl.Value == "True"))
                 {
 
                     DataPortal<MagBlobDataCommand> dp = new DataPortal<MagBlobDataCommand>();

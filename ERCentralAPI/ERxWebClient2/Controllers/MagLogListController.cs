@@ -21,13 +21,13 @@ namespace ERxWebClient2.Controllers
         {
             try
             {
-                SetCSLAUser();
-
-                DataPortal<MagLogList> dp = new DataPortal<MagLogList>();
-
-                var result = dp.Fetch();
-
-                return Ok(result);
+                if (SetCSLAUser() && User.HasClaim(cl => cl.Type == "isSiteAdmin" && cl.Value == "True"))
+                {
+                    DataPortal<MagLogList> dp = new DataPortal<MagLogList>();
+                    var result = dp.Fetch();
+                    return Ok(result);
+                }
+                else return Unauthorized();
             }
             catch (Exception e)
             {

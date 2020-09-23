@@ -341,7 +341,9 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 		else return false;
     }
     public get ReviewIsMagEnabled(): boolean {
-        if (this.reviewInfoService.ReviewInfo.magEnabled && this.ReviewerIdentityServ.reviewerIdentity.isSiteAdmin) return true;
+        if (this.reviewInfoService.ReviewInfo.magEnabled
+            //&& this.ReviewerIdentityServ.reviewerIdentity.isSiteAdmin
+        ) return true;
         return false;
     }
     public ShowClusterCommand: boolean = false;
