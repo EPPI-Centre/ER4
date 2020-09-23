@@ -12,6 +12,7 @@ export class EventEmitterService {
 	public nodeSelected: singleNode | null | undefined;
 	public nodeName: string = '';
 	public UserInput: string = '';
+	public tool: boolean = false;
 	public CloseReportsSectionEmitter = new EventEmitter();
 	public selectedButtonPressed: EventEmitter<boolean> = new EventEmitter();
 	public getMatchedIncludedItemsEvent: EventEmitter<boolean> = new EventEmitter();

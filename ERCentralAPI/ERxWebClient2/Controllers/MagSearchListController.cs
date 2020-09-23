@@ -43,19 +43,22 @@ namespace ERxWebClient2.Controllers
         {
             try
             {
-                if (!SetCSLAUser()) return Unauthorized();
+                if (SetCSLAUser4Writing())
+                {
 
-                DataPortal<MagSearchList> dp = new DataPortal<MagSearchList>();
-                MagSearchList result = dp.Fetch();
+                    DataPortal<MagSearchList> dp = new DataPortal<MagSearchList>();
+                    MagSearchList result = dp.Fetch();
 
-                var resultToReRun = result.Where(x => x.SearchText == magReRun.searchText && x.MagSearchText == magReRun.magSearchText).FirstOrDefault();
-                
-                resultToReRun.SetToRerun(resultToReRun);
+                    var resultToReRun = result.Where(x => x.SearchText == magReRun.searchText && x.MagSearchText == magReRun.magSearchText).FirstOrDefault();
 
-                DataPortal<MagSearch> dp2 = new DataPortal<MagSearch>();
-                resultToReRun = dp2.Execute(resultToReRun);
+                    resultToReRun.SetToRerun(resultToReRun);
 
-                return Ok(resultToReRun);
+                    DataPortal<MagSearch> dp2 = new DataPortal<MagSearch>();
+                    resultToReRun = dp2.Execute(resultToReRun);
+
+                    return Ok(resultToReRun);
+                }
+                else return Forbid();
 
             }
             catch (Exception e)

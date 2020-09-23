@@ -25,7 +25,7 @@ export class MAGBrowserService extends BusyAwareService {
     ) {
 		super();
 	}
-    @ViewChild('tabSelectedPapers') public tabstrip!: TabStripComponent;
+    //@ViewChild('tabSelectedPapers') public tabstrip!: TabStripComponent;
     public MagCitationsByPaperList: MagList = new MagList();
     public MagPaperFieldsList: MagFieldOfStudy[] = [];
     private _MAGList: MagList = new MagList();
@@ -163,10 +163,10 @@ export class MAGBrowserService extends BusyAwareService {
                 }
             );
     }
-    public onTabSelect(tabNum: number) {
+    //public onTabSelect(tabNum: number) {
 
-        this.tabstrip.selectTab(tabNum);
-    }
+    //    this.tabstrip.selectTab(tabNum);
+    //}
     public GetParentAndChildFieldsOfStudy(FieldOfStudy: string, FieldOfStudyId: number): Promise<boolean> {
         this.ShowingParentAndChildTopics = true;
         this.ShowingChildTopicsOnly = false;

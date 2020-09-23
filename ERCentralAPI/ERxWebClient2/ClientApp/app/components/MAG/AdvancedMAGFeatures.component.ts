@@ -78,6 +78,7 @@ export class AdvancedMAGFeaturesComponent implements OnInit, OnDestroy {
 
     }
     @ViewChild('WithOrWithoutCodeSelector3') WithOrWithoutCodeSelector3!: codesetSelectorComponent;
+    @ViewChild('WithOrWithoutCodeSelector4') WithOrWithoutCodeSelector4!: codesetSelectorComponent;
 
     public CurrentDropdownSelectedCode3: singleNode | null = null;
     public CurrentDropdownSelectedCode4: singleNode | null = null;
@@ -259,6 +260,12 @@ export class AdvancedMAGFeaturesComponent implements OnInit, OnDestroy {
             this.CurrentDropdownSelectedCode3 = this.WithOrWithoutCodeSelector3.SelectedNodeData;
         }
         this.isCollapsed3 = false;
+    }
+    CloseCodeDropDown4() {
+        if (this.WithOrWithoutCodeSelector4) {
+            this.CurrentDropdownSelectedCode4 = this.WithOrWithoutCodeSelector4.SelectedNodeData;
+        }
+        this.isCollapsed4 = false;
     }
     Clear() {
 
