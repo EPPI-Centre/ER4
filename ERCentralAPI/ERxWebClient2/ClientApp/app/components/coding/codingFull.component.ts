@@ -310,7 +310,7 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
     public get ShowMagTab(): boolean {
         if (
             this.reviewInfoService.ReviewInfo.magEnabled
-            && this.ReviewerIdentityServ.reviewerIdentity.isSiteAdmin //remove this 2nd condition when MAG features are ready for publish
+            //&& this.ReviewerIdentityServ.reviewerIdentity.isSiteAdmin //remove this 2nd condition when MAG features are ready for publish
         ) {
             return true;
         }

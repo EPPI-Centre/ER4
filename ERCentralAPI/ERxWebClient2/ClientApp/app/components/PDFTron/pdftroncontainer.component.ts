@@ -539,6 +539,10 @@ export class PdfTronContainer implements OnInit, AfterViewInit, OnDestroy {
             }
             return; //we do nothing else when we're handling annotations from code-behind...
         }
+        //we have nothing to do if we could not get the annotations that are being edited
+        //we do it in two distinct checks so that from now on, we know annotations is not null/undefined AND that it contains at least one annotation.
+        if (!annotations) return;
+        else if (annotations.length == 0) return;
         let cmd: ItemAttributeSaveCommand = new ItemAttributeSaveCommand();//we'll fill this one in if needed
         if (this.ItemCodingService.CurrentItemAttPDFCoding.Criteria.itemAttributeId == 0
             && this.ItemCodingService.SelectedSetAttribute
@@ -549,10 +553,9 @@ export class PdfTronContainer implements OnInit, AfterViewInit, OnDestroy {
             //in testing as of 26/04/2019, it appears to be the case, but might need more work. (i.e. the AvoidHandlingAnnotationChanges flag is sufficient)
             //in case, we can consider using event.imported, see: https://www.pdftron.com/documentation/web/guides/annotation-events/
             //see also the next IF
-
             
             ///are we sure this is a user generated insert? (can add 1 highlight per event only)
-            if (annotations && annotations.length >= 1 && annotations[0] instanceof Annotations.TextHighlightAnnotation && action === 'add') {
+            if (annotations[0] instanceof Annotations.TextHighlightAnnotation && action === 'add') {
                 //we fill-in the ItemAttributeSaveCommand object, so that the API controller will create the ItemAttribute record, as well as the ItemSet one, if needed.
                 //by sending the cmd object in the request, we avoid having to orchestrate 2 API calls in strict succession (can't save PDF coding without an ItemAttributeId)
                 if (annotations.length == 1) {
@@ -569,30 +572,6 @@ export class PdfTronContainer implements OnInit, AfterViewInit, OnDestroy {
                         cmd.itemSetId = itemSet.itemSetId;
                     }
                     console.log("create coding from PDF tab:", cmd);
-                }
-                else {
-                    //We have more than one annotation! 
-                    //So far, we think this is only possible when the user selected text across 2 or more pages.
-                    //we can't support this scenario, because the annotations returned by PDFTron report the whole text as "selected text" for all annotations.
-                    //this is a problem for reports, where the same text will appear 2 or more times and claim to be on a given page (where only part of the text is)
-                    //it is also a problem for backward compatibility with ER4, as in there ER-Web selections are "reconstructed" based on their "selected text"
-                    //but the selected text won't be found as it does not belong to any single page!
-                    //thus, inform the user that ER-Web can't do this AND delete the selection instead.
-                    this.ngZone.run(() =>
-                        this.modalService.GenericErrorMessage("Sorry, <strong>this action is not supported</strong>.<br />"
-                        + "Adding one selection that spans 2 or more pages poses too many technical problems.<br />"
-                        + "To add your intended selection, please add it as <strong>two separate selections, one per page</strong>.")
-                    );
-                    //delete the annotations...
-                    let currentAvoidState = this.AvoidHandlingAnnotationChanges;
-                    for (let annot of annotations) {
-                        this.AvoidHandlingAnnotationChanges = true;
-                        this.annotManager.deleteAnnotation(annot, true, true);
-                        //this.annotManager.redrawAnnotation(annot);
-                    }
-                    this.AvoidHandlingAnnotationChanges = currentAvoidState;
-
-                    return;//
                 }
             }
             //return;
@@ -622,7 +601,29 @@ export class PdfTronContainer implements OnInit, AfterViewInit, OnDestroy {
             }
             return;
         }
-        
+        if (annotations.length > 1) {
+            //We have more than one annotation! 
+            //So far, we think this is only possible when the user selected text across 2 or more pages.
+            //we can't support this scenario, because the annotations returned by PDFTron report the whole text as "selected text" for all annotations.
+            //this is a problem for reports, where the same text will appear 2 or more times and claim to be on a given page (where only part of the text is)
+            //it is also a problem for backward compatibility with ER4, as in there ER-Web selections are "reconstructed" based on their "selected text"
+            //but the selected text won't be found as it does not belong to any single page!
+            //thus, inform the user that ER-Web can't do this AND delete the selection instead.
+            this.ngZone.run(() =>
+                this.modalService.GenericErrorMessage("Sorry, adding one selection that spans 2 or more pages <strong>is not supported</strong>.<br />"
+                    + "To add your intended selection, please add it as <strong>two separate selections, one per page</strong>.")
+            );
+            //delete the annotations...
+            let currentAvoidState = this.AvoidHandlingAnnotationChanges;
+            for (let annot of annotations) {
+                this.AvoidHandlingAnnotationChanges = true;
+                this.annotManager.deleteAnnotation(annot, true, true);
+                //this.annotManager.redrawAnnotation(annot);
+            }
+            this.AvoidHandlingAnnotationChanges = currentAvoidState;
+            return;//
+        }
+        //at this point we know we have only one annotation to handle
         if (annotations[0] instanceof Annotations.TextHighlightAnnotation
             && this.ReviewSetsService.CanWriteCoding(this.ItemCodingService.SelectedSetAttribute)
         ) {
