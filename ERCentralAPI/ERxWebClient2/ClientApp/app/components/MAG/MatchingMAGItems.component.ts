@@ -216,23 +216,28 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
     }
     public RunMatchingAlgo() {
 
+        var att = this.CurrentDropdownSelectedCode2 as SetAttribute;
         let msg: string = ''; 
-        this.ConfirmationDialogService.confirm('MAG RUN ALERT', msg, false, '')
+        if (att != null && att.attribute_id > 0) {
+            msg = 'Are you sure you want to match all items with this code to Microsoft Academic records?';
+        } else {
+            msg = 'Are you sure you want to match all items to Microsoft Academic records?';
+        }
+        this.ConfirmationDialogService.confirm('Run matching algorithm', msg, false, '')
             .then((confirm: any) => {
                 if (confirm) {
                     let res: string = '';
-                    var att = this.CurrentDropdownSelectedCode2 as SetAttribute;
                     if (att != null && att.attribute_id > 0) {
                         this._magAdvancedService.RunMatchingAlgorithm(att.attribute_id).then(
                             (result) => {
-                                msg = 'Are you sure you want to match all items with this code to Microsoft Academic records?';
+                               //msg = 'Are you sure you want to match all items with this code to Microsoft Academic records?';
                                 res = result;
                             }
                             );
                     } else {
                         this._magAdvancedService.RunMatchingAlgorithm(0).then(
                             (result) => {
-                                msg = 'Are you sure you want to match all items to Microsoft Academic records?';
+                                //msg = 'Are you sure you want to match all items to Microsoft Academic records?';
                                 res = result;
                             }
                         );

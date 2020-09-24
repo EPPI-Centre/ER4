@@ -211,7 +211,7 @@ export class BasicMAGComp implements OnInit {
                 this.magMode = 'Bi-Citation AND Recommendations';
                 break;
             case '8':
-                this.magMode = 'New items published on next deployment of MAG';
+                this.magMode = '(Next MAG) - new published items';
                 break;
 
             default:
