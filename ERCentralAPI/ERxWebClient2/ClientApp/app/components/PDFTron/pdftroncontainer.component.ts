@@ -610,8 +610,7 @@ export class PdfTronContainer implements OnInit, AfterViewInit, OnDestroy {
             //but the selected text won't be found as it does not belong to any single page!
             //thus, inform the user that ER-Web can't do this AND delete the selection instead.
             this.ngZone.run(() =>
-                this.modalService.GenericErrorMessage("Sorry, <strong>this action is not supported</strong>.<br />"
-                    + "Adding one selection that spans 2 or more pages poses too many technical problems.<br />"
+                this.modalService.GenericErrorMessage("Sorry, adding one selection that spans 2 or more pages <strong>is not supported</strong>.<br />"
                     + "To add your intended selection, please add it as <strong>two separate selections, one per page</strong>.")
             );
             //delete the annotations...
