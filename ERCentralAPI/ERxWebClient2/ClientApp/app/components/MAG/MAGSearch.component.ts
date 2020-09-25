@@ -353,5 +353,28 @@ export class MAGSearchComponent implements OnInit {
             }    
         }
     }
+    public CanRunSearch(): boolean {
+        if (this.magSearchInput == "") {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    public CanDeleteSearch(): boolean {
+        if (this.magSearchesToBeDeleted.length == 0) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    public CanCombineSearches(): boolean {
+        if (this.magSearchesToBeDeleted.length < 2) {
+            return false;
+        } else {
+            return true;
+        }
+    }
 }
 
