@@ -1,0 +1,118 @@
+import { Inject, Injectable, EventEmitter, Output} from '@angular/core';
+import { HttpClient   } from '@angular/common/http';
+import { ModalService } from './modal.service';
+import { ReviewSet, SetAttribute, iAttributesList } from './ReviewSets.service';
+import { BusyAwareService } from '../helpers/BusyAwareService';
+
+
+@Injectable({
+
+    providedIn: 'root',
+
+})
+
+export class WebDBService extends BusyAwareService  {
+
+    constructor(
+        private _httpC: HttpClient,
+		private modalService: ModalService,
+        @Inject('BASE_URL') private _baseUrl: string
+    ) { super(); }
+
+    private _WebDBs: iWebDB[] = [];
+    public get WebDBs(): iWebDB[] {
+        return this._WebDBs;
+    }
+    private _CurrentDB: iWebDB | null = null;
+    public get CurrentDB(): iWebDB | null {
+        return this._CurrentDB;
+    }
+
+    public Fetch(): void {
+        this._BusyMethods.push("Fetch");
+        this._httpC.get<iWebDB[]>(this._baseUrl + 'api/WebDB/GetWebDBs').subscribe(
+            res => {
+                this._WebDBs = res;
+                if (res.length > 0) {
+                    if (this._CurrentDB == null) this._CurrentDB = res[0];
+                    else {
+                        const ind = this._WebDBs.findIndex((f) => this._CurrentDB != null  && f.webDBId == this._CurrentDB.webDBId);
+                        if (ind == -1) this._CurrentDB = res[0];
+                        else this._CurrentDB = res[ind];
+                    }
+                }
+                this.RemoveBusy("Fetch");
+            }, error => {
+                this.RemoveBusy("Fetch");
+                this.modalService.GenericError(error);
+            }
+        );
+    }
+
+    public Delete(toDel: iWebDB): void {
+        if (this._WebDBs.indexOf(toDel) == -1) {
+            this.Fetch();//let's refresh this list: why did user ask to delete something we don't have??
+            return;//do nothing else
+        }
+        this._BusyMethods.push("Delete");
+        let body = JSON.stringify({ Value: toDel.webDBId });
+        this._httpC.post<iWebDB[]>(this._baseUrl + 'api/WebDB/DeleteWebDB', body).subscribe(
+            res => {
+                this._WebDBs = res;
+                this.RemoveBusy("Delete");
+            }, error => {
+                this.RemoveBusy("Delete");
+                this.modalService.GenericError(error);
+            }
+        );
+    }
+    public CreateOrEdit(updating: iWebDB): void {
+        if (updating.webDBId != 0 && this._WebDBs.findIndex(f => f.webDBId == updating.webDBId) == -1) {
+            //check: if it's not new (Id != 0) but doesn't exist in current list (based on the id), refetch list and do nothing more
+            this.Fetch();
+            return;
+        }
+        this._BusyMethods.push("CreateOrEdit");
+        this._httpC.post<iWebDB[]>(this._baseUrl + 'api/WebDB/CreateOrEditWebDB', updating).subscribe(
+            res => {
+                this._WebDBs = res;
+                this.RemoveBusy("CreateOrEdit");
+            }, error => {
+                this.RemoveBusy("CreateOrEdit");
+                this.modalService.GenericError(error);
+            }
+        );
+    }
+
+    public CloneWebDBforEdit(toClone: iWebDB): iWebDB {
+        let res = {
+            webDBId: toClone.webDBId,
+            webDBName: toClone.webDBName,
+            webDBDescription: toClone.webDBDescription,
+            attributeIdFilter: toClone.attributeIdFilter,
+            isOpen: toClone.isOpen,
+            userName: toClone.userName,
+            password: toClone.password,
+            createdBy: toClone.createdBy,
+            editedBy: toClone.editedBy
+        }
+        return res;
+    }
+
+    public Clear() {
+        
+    }
+}
+
+
+export interface iWebDB {
+    webDBId: number;
+    webDBName: string;
+    webDBDescription: string;
+    attributeIdFilter: number;
+    isOpen: boolean;
+    userName: string;
+    password: string;
+    createdBy: string;
+    editedBy: string;
+}

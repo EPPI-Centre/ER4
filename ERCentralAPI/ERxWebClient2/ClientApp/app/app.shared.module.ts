@@ -100,6 +100,7 @@ import { ScreeningSetupComp } from './components/WorkAllocations/ScreeningSetup.
 import { MAGOrigpaginatorComp } from './components/commonComponents/MAGOrigpaginator.component';
 import { DatePipe } from '@angular/common';
 import { MAGSearchComponent } from './components/MAG/MAGSearch.component';
+import { WebDBsComponent } from './components/Review/WebDBs.component';
 
 @NgModule({
     declarations: [
@@ -180,7 +181,8 @@ import { MAGSearchComponent } from './components/MAG/MAGSearch.component';
         microsoftAcademicComp,
         MAGHeaderBarComp,
         ScreeningSetupComp,
-        MAGSearchComponent
+        MAGSearchComponent,
+        WebDBsComponent
 	],
     providers: [
         DatePipe, 
@@ -238,8 +240,9 @@ import { MAGSearchComponent } from './components/MAG/MAGSearch.component';
 			{ path: 'Reconciliation', component: ComparisonReconciliationComp},
             { path: 'ImportCodesets', component: ImportCodesetsWizardComponent },
             { path: 'intropage', component: intropageComponent },
-            { path: 'Duplicates', component: DuplicatesComponent }, 
-            { path: 'SiteAdmin', component: SiteAdminComponent },
+            { path: 'Duplicates', component: DuplicatesComponent },
+            { path: 'SiteAdmin', component: SiteAdminComponent }, 
+            { path: 'WebDBs', component: WebDBsComponent },
             { path: '**', redirectTo: 'home' }
         ])
     ]

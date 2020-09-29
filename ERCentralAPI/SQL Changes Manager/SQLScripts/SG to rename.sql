@@ -63,7 +63,7 @@ CREATE TABLE dbo.TB_WEBDB
 	IS_OPEN bit NOT NULL,
 	USERNAME varchar(50) NULL,
 	FLAVOUR char(20) NULL,
-	PWASHED binary(20) NOT NULL,
+	PWASHED binary(20) NULL,
 	WEBDB_NAME nvarchar(1000) NULL,
 	DESCRIPTION nvarchar(MAX) NULL,
 	CREATED_BY int,
@@ -171,8 +171,8 @@ CREATE TABLE dbo.TB_WEBDB_PUBLIC_ATTRIBUTE
 	WEBDB_PUBLIC_ATTRIBUTE_ID int NOT NULL IDENTITY (1, 1),
 	WEBDB_ID int NOT NULL,
 	ATTRIBUTE_ID bigint NOT NULL,
-	WEBDB_SET_NAME nvarchar(255) NULL,
-	WEBDB_SET_DESCRIPTION nvarchar(2000) NULL
+	WEBDB_ATTRIBUTE_NAME nvarchar(255) NULL,
+	WEBDB_ATTRIBUTE_DESCRIPTION nvarchar(2000) NULL
 	)  ON [PRIMARY]
 GO
 ALTER TABLE dbo.TB_WEBDB_PUBLIC_ATTRIBUTE ADD CONSTRAINT
@@ -343,6 +343,326 @@ AS
 	UPDATE TB_WEBDB set USERNAME = @Username, FLAVOUR = @rnd, PWASHED = HASHBYTES('SHA1', @PASSWORD + @rnd)
 	where WEBDB_ID = @WebDbId
 	END
+GO
+
+CREATE OR ALTER PROCEDURE [dbo].[st_WebDbListGet]
+(
+	@RevId INT,
+	@ContactId int
+)
+As
+	declare @check int = -1
+	--check is this user in the review? (or a site_admin?)
+	set @check = (select count(*) from TB_REVIEW_CONTACT rc
+					inner join TB_CONTACT c on (rc.CONTACT_ID = @ContactId and rc.CONTACT_ID = c.CONTACT_ID and REVIEW_ID = @RevId)
+												OR (c.CONTACT_ID = @ContactId and c.IS_SITE_ADMIN = 1)
+				 )
+
+	if @check < 1 return
+	
+	SELECT [WEBDB_ID]
+		  ,[REVIEW_ID]
+		  ,[WITH_ATTRIBUTE_ID]
+		  ,[IS_OPEN]
+		  ,w.[USERNAME]
+		  
+		  ,[WEBDB_NAME]
+		  ,w.[DESCRIPTION]
+		  ,c1.CONTACT_NAME as [CREATED_BY]
+		  ,c2.CONTACT_NAME as [EDITED_BY]
+	  FROM [TB_WEBDB] w
+	  inner join TB_CONTACT c1 on w.CREATED_BY = c1.CONTACT_ID
+	  inner join TB_CONTACT c2 on w.EDITED_BY = c2.CONTACT_ID
+GO
+
+
+GO
+
+CREATE OR ALTER PROCEDURE [dbo].[st_WebDbDelete]
+(
+	@REVIEW_ID INT,
+	@WEBDB_ID int
+)
+As
+--basic check: does this thing exist?
+if (SELECT count(*) from TB_WEBDB where WEBDB_ID = @WEBDB_ID and @REVIEW_ID = REVIEW_ID) != 1 return
+
+--delete attributes
+delete from TB_WEBDB_PUBLIC_ATTRIBUTE where WEBDB_ID = @WEBDB_ID 
+--delete Sets
+delete from TB_WEBDB_PUBLIC_SET where WEBDB_ID = @WEBDB_ID
+--delete webdb
+delete from TB_WEBDB where WEBDB_ID = @WEBDB_ID
+
+GO
+
+
+CREATE OR ALTER PROCEDURE [dbo].[st_WebDbGetCodesets]
+(
+	@REVIEW_ID INT,
+	@WEBDB_ID int
+)
+
+As
+
+SET NOCOUNT ON
+
+	SELECT RS.REVIEW_SET_ID, REVIEW_ID, RS.SET_ID, ALLOW_CODING_EDITS, S.SET_TYPE_ID, 
+		CASE 
+			WHEN WEBDB_SET_NAME IS Null then SET_NAME
+			else WEBDB_SET_NAME
+		END as SET_NAME, 
+		SET_TYPE, CODING_IS_FINAL, SET_ORDER, MAX_DEPTH, 
+		CASE 
+			WHEN WEBDB_SET_DESCRIPTION IS Null then S.SET_DESCRIPTION
+			else WEBDB_SET_DESCRIPTION
+		END as SET_DESCRIPTION, 
+		S.ORIGINAL_SET_ID, S.USER_CAN_EDIT_URLS
+	FROM TB_WEBDB_PUBLIC_SET WS
+	INNER JOIN TB_REVIEW_SET RS on WS.WEBDB_ID = @WEBDB_ID and WS.REVIEW_SET_ID = RS.REVIEW_SET_ID and RS.REVIEW_ID = @REVIEW_ID
+	INNER JOIN TB_SET S ON S.SET_ID = RS.SET_ID
+	INNER JOIN TB_SET_TYPE ON TB_SET_TYPE.SET_TYPE_ID = S.SET_TYPE_ID
+
+	ORDER BY RS.SET_ORDER, RS.SET_ID
+
+SET NOCOUNT OFF
+GO
+
+CREATE OR ALTER procedure [dbo].[st_WebDbGetAllAttributesInSet]
+(
+	@SET_ID INT,
+	@WEBDB_ID int
+)
+
+As
+
+SELECT tas.ATTRIBUTE_SET_ID, tas.SET_ID, tas.ATTRIBUTE_ID, tas.PARENT_ATTRIBUTE_ID,
+	tas.ATTRIBUTE_TYPE_ID, tas.ATTRIBUTE_SET_DESC, tas.ATTRIBUTE_ORDER, ATTRIBUTE_TYPE, 
+	case 
+		WHEN WEBDB_ATTRIBUTE_NAME is null then a.ATTRIBUTE_NAME
+		else WEBDB_ATTRIBUTE_NAME
+	END as ATTRIBUTE_NAME, 
+	ATTRIBUTE_SET_DESC, CONTACT_ID, 
+	case 
+		WHEN WEBDB_ATTRIBUTE_DESCRIPTION is null then a.ATTRIBUTE_DESC
+		else WEBDB_ATTRIBUTE_DESCRIPTION
+	END as ATTRIBUTE_DESC, 
+	Ext_URL, Ext_Type,
+	ORIGINAL_ATTRIBUTE_ID
+
+FROM TB_WEBDB_PUBLIC_ATTRIBUTE wa
+INNER JOIN TB_ATTRIBUTE a on wa.WEBDB_ID = @WEBDB_ID and a.ATTRIBUTE_ID = wa.ATTRIBUTE_ID
+INNER JOIN TB_ATTRIBUTE_SET tas on tas.ATTRIBUTE_ID = a.ATTRIBUTE_ID and tas.SET_ID = @SET_ID and tas.PARENT_ATTRIBUTE_ID is not null
+INNER JOIN TB_SET ON TB_SET.SET_ID = tas.SET_ID 
+INNER JOIN TB_ATTRIBUTE_TYPE t ON t.ATTRIBUTE_TYPE_ID = tas.ATTRIBUTE_TYPE_ID
+
+WHERE  dbo.fn_IsAttributeInTree(a.attribute_id) = 1
+
+ORDER BY PARENT_ATTRIBUTE_ID, ATTRIBUTE_ORDER
+GO
+
+CREATE OR ALTER PROCEDURE [dbo].[st_WebDbCodesetAdd]
+(
+	@REVIEW_ID INT,
+	@WEBDB_ID int,
+	@Set_ID int
+)
+As
+declare @r_set_id int = (select review_set_id from TB_WEBDB w
+						inner join TB_REVIEW_SET rs on rs.SET_ID = @Set_ID and rs.REVIEW_ID = @REVIEW_ID and w.REVIEW_ID = rs.REVIEW_ID)
+--Just a basic sanity check: can we get a REVIEW_SET_ID?
+IF @r_set_id is null OR @r_set_id < 1 return
+
+INSERT INTO [TB_WEBDB_PUBLIC_SET]
+           ([WEBDB_ID]
+           ,[REVIEW_SET_ID]
+           ,[WEBDB_SET_NAME]
+           ,[WEBDB_SET_DESCRIPTION])
+     VALUES
+           (@WEBDB_ID
+           ,@r_set_id
+           ,NULL, NULL)
+
+INSERT INTO [TB_WEBDB_PUBLIC_ATTRIBUTE]
+           ([WEBDB_ID]
+           ,[ATTRIBUTE_ID]
+           ,[WEBDB_ATTRIBUTE_NAME]
+           ,[WEBDB_ATTRIBUTE_DESCRIPTION])
+     SELECT @WEBDB_ID, a.ATTRIBUTE_ID, NULL, NULL
+	 FROM tb_attribute a
+	 inner join TB_ATTRIBUTE_SET tas on a.ATTRIBUTE_ID = tas.ATTRIBUTE_ID and tas.SET_ID = @Set_ID
+				and dbo.fn_IsAttributeInTree(a.ATTRIBUTE_ID) = 1
+	 inner join TB_REVIEW_SET rs on tas.SET_ID = rs.SET_ID and rs.REVIEW_ID = @REVIEW_ID and rs.REVIEW_SET_ID = @r_set_id
+
+GO
+
+CREATE OR ALTER PROCEDURE [dbo].[st_WebDbCodeSetDelete]
+(
+	@REVIEW_ID INT,
+	@WEBDB_ID int,
+	@Set_ID int
+)
+As
+declare @r_set_id int = (select review_set_id from TB_WEBDB w
+						inner join TB_REVIEW_SET rs on rs.SET_ID = @Set_ID and rs.REVIEW_ID = @REVIEW_ID and w.REVIEW_ID = rs.REVIEW_ID)
+--Just a basic sanity check: can we get a REVIEW_SET_ID?
+IF @r_set_id is null OR @r_set_id < 1 return
+
+Declare @atts table (A_ID bigint primary key)
+INSERT into @atts select tas.Attribute_id from TB_WEBDB w
+	inner join TB_WEBDB_PUBLIC_ATTRIBUTE wa on w.REVIEW_ID = @REVIEW_ID and w.WEBDB_ID = @WEBDB_ID and wa.WEBDB_ID = @WEBDB_ID
+	inner join TB_ATTRIBUTE_SET tas on tas.ATTRIBUTE_ID = wa.ATTRIBUTE_ID and tas.SET_ID = @Set_ID
+	inner join TB_REVIEW_SET rs on tas.SET_ID = rs.SET_ID and rs.REVIEW_ID = @REVIEW_ID and rs.REVIEW_SET_ID = @r_set_id
+
+DELETE from TB_WEBDB_PUBLIC_ATTRIBUTE 
+	where ATTRIBUTE_ID in (select * from @atts)
+	and WEBDB_ID = @WEBDB_ID
+DELETE from TB_WEBDB_PUBLIC_SET where WEBDB_ID = @WEBDB_ID and REVIEW_SET_ID = @r_set_id
+
+GO
+
+CREATE OR ALTER PROCEDURE [dbo].[st_WebDbCodeSetEdit]
+(
+	@REVIEW_ID INT,
+	@WEBDB_ID int,
+	@Set_ID int,
+	@Public_Name nvarchar(255),
+	@Public_Descr nvarchar(2000)
+)
+As
+declare @r_set_id int = (select review_set_id from TB_WEBDB w
+						inner join TB_REVIEW_SET rs on rs.SET_ID = @Set_ID and rs.REVIEW_ID = @REVIEW_ID and w.REVIEW_ID = rs.REVIEW_ID)
+--Just a basic sanity check: can we get a REVIEW_SET_ID?
+IF @r_set_id is null OR @r_set_id < 1 return
+update TB_WEBDB_PUBLIC_SET set WEBDB_SET_NAME = @Public_Name, WEBDB_SET_DESCRIPTION = @Public_Descr 
+ where REVIEW_SET_ID = @r_set_id
+GO
+
+
+CREATE OR ALTER PROCEDURE [dbo].[st_WebDbAttributeDelete]
+(
+	@ATTRIBUTE_ID bigint,
+	@REVIEW_ID INT,
+	@WEBDB_ID int,
+	@Set_ID int
+)
+As
+declare @r_set_id int = (select review_set_id from TB_WEBDB w
+						inner join TB_REVIEW_SET rs on rs.SET_ID = @Set_ID and rs.REVIEW_ID = @REVIEW_ID and w.REVIEW_ID = rs.REVIEW_ID and w.WEBDB_ID = @WEBDB_ID)
+--Just a basic sanity check: can we get a REVIEW_SET_ID?
+IF @r_set_id is null OR @r_set_id < 1 return
+
+--select @r_set_id
+
+declare @dels table (d_id bigint primary key)
+Declare @atts table (A_ID bigint primary key) 
+declare @rows int = 1
+declare @count int = 0
+
+INSERT into @atts select tas.Attribute_id from TB_WEBDB w
+	inner join TB_WEBDB_PUBLIC_ATTRIBUTE wa on w.REVIEW_ID = @REVIEW_ID and w.WEBDB_ID = @WEBDB_ID and wa.WEBDB_ID = @WEBDB_ID
+	inner join TB_ATTRIBUTE_SET tas on tas.ATTRIBUTE_ID = wa.ATTRIBUTE_ID and tas.SET_ID = @Set_ID
+	inner join TB_REVIEW_SET rs on tas.SET_ID = rs.SET_ID and rs.REVIEW_ID = @REVIEW_ID and rs.REVIEW_SET_ID = @r_set_id
+--another check: is this Attribute inside the @atts table?
+--select * from @atts order by A_ID
+--select count(*) as c from @atts where A_ID = @ATTRIBUTE_ID
+
+IF (select count(*) from @atts where A_ID = @ATTRIBUTE_ID) < 1 return
+insert into @dels (d_id) values (@ATTRIBUTE_ID)
+
+--limited recursion here: we want to remove all children of the code we're taking out
+--500 rounds max: just making sure this can't run forever... Each round should handle one nesting level so in theory this works for trees that are 500 levels deep
+while @rows > 0 and @count < 500 
+BEGIN
+	set @count = @count +1
+	insert into @dels 
+		SELECT attribute_id from @atts a
+		inner join TB_ATTRIBUTE_SET tas on tas.ATTRIBUTE_ID = a.A_ID and tas.SET_ID = @Set_ID
+		inner join TB_REVIEW_SET rs on tas.SET_ID = rs.SET_ID and rs.REVIEW_SET_ID = @r_set_id
+		where tas.PARENT_ATTRIBUTE_ID in (select d_id from @dels) 
+			AND A.A_ID not in (select d_id from @dels)--do not insert the same att twice
+	set @rows = @@ROWCOUNT
+END
+DELETE from TB_WEBDB_PUBLIC_ATTRIBUTE 
+	where ATTRIBUTE_ID in (select d_id from @dels)
+	AND WEBDB_ID = @WEBDB_ID
+GO
+
+CREATE OR ALTER PROCEDURE [dbo].[st_WebDbAttributeAdd]
+(
+	@ATTRIBUTE_ID bigint,
+	@REVIEW_ID INT,
+	@WEBDB_ID int,
+	@Set_ID int
+)
+As
+declare @r_set_id int = (select review_set_id from TB_WEBDB w
+						inner join TB_REVIEW_SET rs on rs.SET_ID = @Set_ID and rs.REVIEW_ID = @REVIEW_ID and w.REVIEW_ID = rs.REVIEW_ID and w.WEBDB_ID = @WEBDB_ID)
+--Just a basic sanity check: can we get a REVIEW_SET_ID?
+IF @r_set_id is null OR @r_set_id < 1 return
+
+--select @r_set_id
+
+declare @adders table (d_id bigint primary key)
+Declare @atts table (A_ID bigint primary key) --Attributes currently in the WebDB for this set
+Declare @All_atts table (AA_ID bigint primary key) --All valid attributes currently in the set (excluding detached ones)
+declare @rows int = 1
+declare @count int = 0
+
+INSERT into @atts select tas.Attribute_id from TB_WEBDB w
+	inner join TB_WEBDB_PUBLIC_ATTRIBUTE wa on w.REVIEW_ID = @REVIEW_ID and w.WEBDB_ID = @WEBDB_ID and wa.WEBDB_ID = @WEBDB_ID
+	inner join TB_ATTRIBUTE_SET tas on tas.ATTRIBUTE_ID = wa.ATTRIBUTE_ID and tas.SET_ID = @Set_ID
+	inner join TB_REVIEW_SET rs on tas.SET_ID = rs.SET_ID and rs.REVIEW_ID = @REVIEW_ID and rs.REVIEW_SET_ID = @r_set_id
+--select * from @atts order by A_ID
+--select count(*) as c from @atts where A_ID = @ATTRIBUTE_ID
+
+insert into @All_atts select a.ATTRIBUTE_ID from tb_attribute a
+	 inner join TB_ATTRIBUTE_SET tas on a.ATTRIBUTE_ID = tas.ATTRIBUTE_ID and tas.SET_ID = @Set_ID
+				and dbo.fn_IsAttributeInTree(a.ATTRIBUTE_ID) = 1
+	 inner join TB_REVIEW_SET rs on tas.SET_ID = rs.SET_ID and rs.REVIEW_ID = @REVIEW_ID and rs.REVIEW_SET_ID = @r_set_id
+
+--another check: is this Attribute inside the @All_atts table?
+IF (select count(*) from @All_atts where AA_ID = @ATTRIBUTE_ID) < 1 return
+insert into @adders (d_id) values (@ATTRIBUTE_ID)
+
+--limited recursion here: we want to add all children of the code we're taking out
+--500 rounds max: just making sure this can't run forever... Each round should handle one nesting level so in theory this works for trees that are 500 levels deep
+while @rows > 0 and @count < 500 
+BEGIN
+	set @count = @count +1
+	insert into @adders 
+		SELECT attribute_id from @All_atts a
+		inner join TB_ATTRIBUTE_SET tas on tas.ATTRIBUTE_ID = a.AA_ID and tas.SET_ID = @Set_ID
+		inner join TB_REVIEW_SET rs on tas.SET_ID = rs.SET_ID and rs.REVIEW_SET_ID = @r_set_id
+		where tas.PARENT_ATTRIBUTE_ID in (select d_id from @adders) 
+			AND A.AA_ID not in (select d_id from @adders)--those we haven't found already
+			AND A.AA_ID not in (select A_ID from @atts)--those that aren't already in the WEBDB
+	set @rows = @@ROWCOUNT
+END
+Insert into [TB_WEBDB_PUBLIC_ATTRIBUTE]
+           ([WEBDB_ID]
+           ,[ATTRIBUTE_ID]
+           ,[WEBDB_ATTRIBUTE_NAME]
+           ,[WEBDB_ATTRIBUTE_DESCRIPTION])
+     SELECT @WEBDB_ID, a.d_id, NULL, NULL
+	 FROM @adders a
+GO
+
+CREATE OR ALTER PROCEDURE [dbo].[st_WebDbAttributeEdit]
+(
+	@REVIEW_ID INT,
+	@WEBDB_ID int,
+	@ATTRIBUTE_ID bigint,
+	@Public_Name nvarchar(255),
+	@Public_Descr nvarchar(2000)
+)
+As
+declare @WEBDB_PUBLIC_ATTRIBUTE_ID int = (select WEBDB_PUBLIC_ATTRIBUTE_ID from TB_WEBDB w
+						inner join TB_WEBDB_PUBLIC_ATTRIBUTE a on a.WEBDB_ID = w.WEBDB_ID and w.WEBDB_ID = @WEBDB_ID and ATTRIBUTE_ID = @ATTRIBUTE_ID)
+--Just a basic sanity check: can we get the record to edit?
+IF @WEBDB_PUBLIC_ATTRIBUTE_ID is null OR @WEBDB_PUBLIC_ATTRIBUTE_ID < 1 return
+update TB_WEBDB_PUBLIC_ATTRIBUTE set WEBDB_ATTRIBUTE_NAME = @Public_Name, WEBDB_ATTRIBUTE_DESCRIPTION = @Public_Descr 
+ where WEBDB_PUBLIC_ATTRIBUTE_ID = @WEBDB_PUBLIC_ATTRIBUTE_ID
 GO
 
 

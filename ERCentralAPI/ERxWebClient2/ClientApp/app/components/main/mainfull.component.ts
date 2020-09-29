@@ -445,6 +445,10 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 		this.RunReportsShow = false;
 	}
 
+    public SetupWebDBs() {
+        this.router.navigate(['WebDBs']);
+    }
+
 	public GetReports() {
 
 		this.configurablereportServ.FetchReports();

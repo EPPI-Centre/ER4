@@ -1,0 +1,121 @@
+<HeaderComponent PageTitle="Setup WebDatabase(s)" Context="webdbs"></HeaderComponent>
+<button class="page-link rounded pt-1 pb-1 mb-1 float-right" style="position:absolute; right: 0; z-index:2;"
+        (click)="BackToMain()">
+    Close/back
+</button>
+<div class="container col-md-12 row mx-0 mt-0 mb-1 p-0 ">
+
+    <div class="col-4 col-xl-3 px-1 py-0">
+        <div class="col-12 font-weight-bold">WebDBs for this review:</div>
+        <div class="col-12" style="max-height:85vh; overflow:auto;">
+            <table class="table table-light ">
+                <tr>
+                    <th class="m-0 small font-weight-bold">
+                        Id
+                    </th>
+                    <th class="m-0 small font-weight-bold">
+                        Name
+                    </th>
+                    <th class="m-0 small font-weight-bold">
+                        Public
+                    </th>
+                    <th class="m-0 small font-weight-bold">
+                        Filtered
+                    </th>
+                </tr>
+                <tr *ngFor="let db of WebDbs" (click)="ShowDBSetting(db); ">
+                    <td style="cursor:pointer" class="py-1">{{db.webDBId}}</td>
+                    <td style="cursor:pointer" class="py-1">{{db.webDBName}}</td>
+                    <td style="cursor:pointer" class="py-1">{{db.isOpen}}</td>
+                    <td style="cursor:pointer" class="py-1">{{db.attributeIdFilter > 0 ? 'Yes' : 'No'}}</td>
+                </tr>
+            </table>
+            
+        </div>
+    </div>
+    <div class="col-8 col-xl-9 p-0">
+        <div *ngIf="EditingDB == null && CurrentDB !== null" class="bg-light rounded">
+            <div class="row m-1">
+                <button class="btn btn-outline-success" (click)="Edit(CurrentDB)" [disabled]="CurrentDB==null">Edit</button>
+            </div>
+            <div class="row m-1">
+                <div class="col-12 col-sm-4 row">
+                    <div class="col-auto">
+                        ID:
+                    </div>
+                    <div class="rounded bg-white col w-100">
+                        {{CurrentDB.webDBId}}
+                    </div>
+                </div>
+                <div class="col-12 col-sm-4 row">
+                    <div class="col-auto">
+                        Name:
+                    </div>
+                    <div class="rounded bg-white col w-100">
+                        {{CurrentDB.webDBName}}
+                    </div>
+                </div>
+                <div class="col-12 col-sm-4 row">
+                    <div class="col-auto">
+                        Filter
+                    </div>
+                    <div class="rounded bg-white col w-100">
+                        {{FilterName(CurrentDB.attributeIdFilter)}}
+                    </div>
+                </div>
+            </div>
+            <div class="row m-1">
+                <div class="col-12 col-sm-9 row">
+                    <div class="col-auto">
+                        Description:
+                    </div>
+                    <div class="rounded bg-white col w-100">
+                        {{CurrentDB.webDBDescription}}
+                    </div>
+                </div>
+                <div class="col-12 col-sm-3 row">
+                    <div class="col-auto">
+                        Is open
+                    </div>
+                    <div class="rounded bg-white col w-100">
+                        {{db.isOpen ? 'Open Access' : 'Password protected'}}
+                    </div>
+                </div>
+            </div>
+            <div *ngIf="CurrentDB.userName !== ''" class="row m-1">
+                <div class="col-12 col-sm-9 row">
+                    
+                </div>
+                <div class="col-12 col-sm-3 row">
+                    <div class="col-auto">
+                        Username:
+                    </div>
+                    <div class="rounded bg-white col w-100">
+                        {{CurrentDB.userName}}
+                    </div>
+                </div>
+            </div>
+            <!--
+        webDBId: number;
+        webDBName: string;
+        webDBDescription: string;
+        attributeIdFilter: number;
+        isOpen: boolean;
+        userName: string;
+        password: string;
+        createdBy: string;
+        editedBy: string;
+    -->
+        </div>
+        <div *ngIf="EditingDB == null && CurrentDB == null">
+            Create new Web Database:
+            <button class="btn btn-outline-success" (click)="Edit(CurrentDB)" [disabled]="CurrentDB==null">Edit</button>
+            <button class="btn btn-outline-dark" (click)="CancelEdit()">Cancel</button>
+        </div>
+        <div *ngIf="EditingDB !== null">
+            Edit existing
+            <button class="btn btn-outline-dark" (click)="CancelEdit()">Cancel</button>
+        </div>
+    </div>
+</div>
+<statusbar class="row card p-0 ml-1 mr-1 mt-1 mb-2 card-body" resizable></statusbar>
