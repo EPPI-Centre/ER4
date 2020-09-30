@@ -228,7 +228,7 @@ CREATE OR ALTER PROCEDURE [dbo].[st_WebDbCreateOrEdit]
 	@WebDbName nvarchar(1000),
 	@Description nvarchar(max),
 	@WebDbId int = 0 output,
-	@Result int = 0
+	@Result int = 0 output
 )
 AS
 

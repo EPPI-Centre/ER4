@@ -27,6 +27,12 @@ export class WebDBService extends BusyAwareService  {
     public get CurrentDB(): iWebDB | null {
         return this._CurrentDB;
     }
+    public set CurrentDB(db: iWebDB | null) {
+        const ind = this._WebDBs.findIndex((f) => db != null && f.webDBId == db.webDBId);
+        if (ind == -1) this._CurrentDB = null;
+        else this._CurrentDB = this._WebDBs[ind];
+        console.log("Setting current DB:", db, this._CurrentDB);
+    }
 
     public Fetch(): void {
         this._BusyMethods.push("Fetch");

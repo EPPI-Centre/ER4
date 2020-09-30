@@ -19,27 +19,36 @@
                     <th class="m-0 small font-weight-bold">
                         Public
                     </th>
-                    <th class="m-0 small font-weight-bold">
+                    <!--<th class="m-0 small font-weight-bold">
                         Filtered
+                    </th>-->
+                    <th class="m-0 small font-weight-bold">
                     </th>
                 </tr>
-                <tr *ngFor="let db of WebDbs" (click)="ShowDBSetting(db); ">
-                    <td style="cursor:pointer" class="py-1">{{db.webDBId}}</td>
-                    <td style="cursor:pointer" class="py-1">{{db.webDBName}}</td>
-                    <td style="cursor:pointer" class="py-1">{{db.isOpen}}</td>
-                    <td style="cursor:pointer" class="py-1">{{db.attributeIdFilter > 0 ? 'Yes' : 'No'}}</td>
+                <tr *ngFor="let db of WebDbs" [ngClass]="{'alert-primary': CurrentDB && db.webDBId == CurrentDB.webDBId }">
+                    <td style="cursor:pointer" (click)="ShowDBSetting(db)" class="py-1">{{db.webDBId}}</td>
+                    <td style="cursor:pointer; max-width:50%;" (click)="ShowDBSetting(db)" class="py-1" >{{db.webDBName}}</td>
+                    <td style="cursor:pointer" (click)="ShowDBSetting(db)" class="py-1">{{db.isOpen}}</td>
+                    <!--<td style="cursor:pointer" (click)="ShowDBSetting(db)" class="py-1">{{db.attributeIdFilter > 0 ? 'Yes' : 'No'}}</td>-->
+                    <td class="py-1" >
+                        <button [disabled]="!CanWrite" class="btn btn-outline-danger btn-sm" (click)="DeleteDB(db)">
+                            <span class="k-icon k-i-delete"></span>
+                        </button>
+                    </td>
                 </tr>
             </table>
             
         </div>
     </div>
-    <div class="col-8 col-xl-9 p-0">
+    <div class="col-8 col-xl-9 p-0 bg-light">
+        <div class="col-12 font-weight-bold">View/Edit Details</div>
         <div *ngIf="EditingDB == null && CurrentDB !== null" class="bg-light rounded">
-            <div class="row m-1">
-                <button class="btn btn-outline-success" (click)="Edit(CurrentDB)" [disabled]="CurrentDB==null">Edit</button>
+            <div *ngIf="CanWrite" class="w-100 m-0 p-0 text-center">
+                <button class="btn btn-outline-success btn-sm ml-1 mb-1" (click)="Edit(CurrentDB)" [disabled]="CurrentDB==null">Edit</button>
+                <button class="btn btn-outline-success btn-sm ml-1 mb-1" (click)="Edit()" >Add New...</button>
             </div>
-            <div class="row m-1">
-                <div class="col-12 col-sm-4 row">
+            <div class="row col-12 p-1 ml-1 mr-0 mt-2 border-bottom border-info">
+                <div class="col-12 col-sm-2 row">
                     <div class="col-auto">
                         ID:
                     </div>
@@ -64,7 +73,7 @@
                     </div>
                 </div>
             </div>
-            <div class="row m-1">
+            <div class="row col-12 p-1 ml-1 mr-0 mt-2 border-bottom border-info">
                 <div class="col-12 col-sm-9 row">
                     <div class="col-auto">
                         Description:
@@ -78,15 +87,12 @@
                         Is open
                     </div>
                     <div class="rounded bg-white col w-100">
-                        {{db.isOpen ? 'Open Access' : 'Password protected'}}
+                        {{CurrentDB.isOpen ? 'Open Access' : 'Password protected'}}
                     </div>
                 </div>
             </div>
-            <div *ngIf="CurrentDB.userName !== ''" class="row m-1">
-                <div class="col-12 col-sm-9 row">
-                    
-                </div>
-                <div class="col-12 col-sm-3 row">
+            <div *ngIf="CurrentDB.userName !== ''" class="row col-12 p-1 ml-1 mr-0 mt-2 border-bottom border-info">
+                <div class="col-12 col-sm-6 row">
                     <div class="col-auto">
                         Username:
                     </div>
@@ -94,27 +100,153 @@
                         {{CurrentDB.userName}}
                     </div>
                 </div>
+                <div class="col-12 col-sm-6 row">
+                    <div class="col-auto">
+                        Password:
+                    </div>
+                    <div class="rounded bg-white col w-100">
+                        ****
+                    </div>
+                </div>
             </div>
             <!--
-        webDBId: number;
-        webDBName: string;
-        webDBDescription: string;
-        attributeIdFilter: number;
-        isOpen: boolean;
-        userName: string;
-        password: string;
-        createdBy: string;
-        editedBy: string;
-    -->
+            webDBId: number;
+            webDBName: string;
+            webDBDescription: string;
+            attributeIdFilter: number;
+            isOpen: boolean;
+            userName: string;
+            password: string;
+            createdBy: string;
+            editedBy: string;
+        -->
         </div>
         <div *ngIf="EditingDB == null && CurrentDB == null">
             Create new Web Database:
-            <button class="btn btn-outline-success" (click)="Edit(CurrentDB)" [disabled]="CurrentDB==null">Edit</button>
-            <button class="btn btn-outline-dark" (click)="CancelEdit()">Cancel</button>
+            <div class="w-100 m-0 p-0 text-center">
+                <button class="btn btn-outline-success btn-sm ml-1 mb-1" (click)="Edit()">Edit</button>
+            </div>
+            
         </div>
         <div *ngIf="EditingDB !== null">
             Edit existing
-            <button class="btn btn-outline-dark" (click)="CancelEdit()">Cancel</button>
+            <div class="w-100 m-0 p-0 text-center">
+                <button class="btn btn-outline-dark btn-sm ml-1 mb-1" (click)="CancelEdit()">Cancel</button>
+                <button class="btn btn-outline-danger btn-sm ml-1 mb-1" [disabled]="!CanWrite" (click)="Save()">Save</button>
+            </div>
+            <div class="row col-12 p-1 ml-1 mr-0 mt-2 border-bottom border-info">
+                <div class="col-12 col-sm-2 row">
+                    <div class="col-auto">
+                        ID:
+                    </div>
+                    <div class="rounded bg-white col w-100">
+                        {{EditingDB.webDBId}}
+                    </div>
+                </div>
+                <div class="col-12 col-sm-4 row">
+                    <div class="col-auto">
+                        Name:
+                    </div>
+                    <div class="rounded bg-white col w-100">
+                        <input class="p-1 w-100" type="text" [(ngModel)]="EditingDB.webDBName" />
+                    </div>
+                </div>
+                <div class="col-12 col-sm-6 row">
+                    <div class="col-auto">
+                        Only items with this code?
+                    </div>
+                    <div class="rounded bg-white col w-100">
+                        <div *ngIf="EditingDB.attributeIdFilter == 0 && !EditingFilter">
+                            <button *ngIf="EditingDB.attributeIdFilter == 0" (click)="EditFilter()"
+                                    class="btn btn-outline-success btn-sm ml-1 my-1">
+                                Add...
+                            </button>
+                            (no filter)
+                        </div>
+                        <div *ngIf="EditingDB.attributeIdFilter > 0 && !EditingFilter">
+                            <button (click)="EditFilter()"
+                                    class="btn btn-outline-success btn-sm ml-1 my-1">
+                                Change...
+                            </button>
+                            {{FilterName(EditingDB.attributeIdFilter)}}
+                        </div>
+                        <div *ngIf="EditingFilter">
+                            <button (click)="CancelEditFilter()"
+                                    class="btn btn-outline-dark btn-sm ml-1 my-1">
+                                Cancel...
+                            </button>
+                            {{FilterName(EditingDB.attributeIdFilter)}}
+                        </div>
+                    </div>
+                    <div *ngIf="EditingFilter" class="row col-12">
+                        <div class="col-5">Pick the code:</div>
+                        <div class="d-block my-1 col-7 p-0">
+                            <div ngbDropdown class="">
+                                <button ngbDropdownAnchor class="btn btn-outline-secondary dropdown-toggle"
+                                        id="dropdownTreeRandomAllocate"
+                                        style="min-width: 200px; max-width:720px;"
+                                        (click)="isCollapsedFilterCode = !isCollapsedFilterCode;"
+                                        [attr.aria-expanded]="!isCollapsedFilterCode" aria-controls="collapseCodeTreeWithWithout">
+                                    {{DropdownWithWithoutSelectedCode?.name}}
+                                </button>
+                                <div ngbDropdownMenu class="dropdown-menu" id="collapseCodeTreeWithWithout" [ngbCollapse]="!isCollapsedFilterCode">
+                                    <codesetSelector [IsMultiSelect]="false"
+                                                     [WhatIsSelectable]="'SetAttribute'" [MaxHeight]="500" #FilterCodeSelector
+                                                     (selectedNodeInTree)="CloseCodeDropDownFilterCode()"></codesetSelector>
+                                </div>
+                            </div>
+                            <button (click)="RemoveFilter()"
+                                    class="btn btn-outline-dark btn-sm ml-1 my-1">
+                                No filter...
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row col-12 p-1 ml-1 mr-0 mt-2 border-bottom border-info">
+                <div class="col-12 col-sm-9 row">
+                    <div class="col-auto">
+                        Description:
+                    </div>
+                    <div class="rounded bg-white col w-100">
+                        <input class="p-1 w-100" type="text" [(ngModel)]="EditingDB.webDBDescription" />
+                    </div>
+                </div>
+                <div class="col-12 col-sm-3 row">
+                    <div class="col-auto">
+                        Is open access:
+                    </div>
+                    <div class="rounded bg-white col w-100">
+                        <span class="brightSwitch" style="zoom:75%;">
+                            <kendo-switch name="showOptionalFieldsSW" class="small small mt-0"
+                                          [(ngModel)]="EditingDB.isOpen"
+                                          [onLabel]="'Yes'"
+                                          [offLabel]="'No'"></kendo-switch>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div *ngIf="!EditingDB.isOpen" class="row col-12 p-1 ml-1 mr-0 mt-2 border-bottom border-info">
+                <div class="col-12 col-sm-6 row">
+                    <div class="col-auto">
+                        Username:
+                    </div>
+                    <div class="rounded bg-white col w-100">
+                        <input class="p-1 w-100" type="text" [(ngModel)]="EditingDB.userName" />
+                    </div>
+                </div>
+                <div class="col-12 col-sm-6 row">
+                    <div class="col-auto">
+                        Password:
+                    </div>
+                    <div class="rounded bg-white col w-100">
+                        <input class="p-1 w-100" type="password" [(ngModel)]="EditingDB.password" />
+                    </div>
+                    <div class="rounded bg-white col w-100" [ngClass]="{'alert-danger' : ConfirmPassword.length == 0 || ConfirmPassword != EditingDB.password}">
+                        <input class="p-1 w-100" type="password" [(ngModel)]="ConfirmPassword" />
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>

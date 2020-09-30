@@ -272,13 +272,13 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@Description", WebDBDescription));
 
                     SqlParameter par = new SqlParameter("@WebDbId", System.Data.SqlDbType.Int);
+                    par.Direction = System.Data.ParameterDirection.InputOutput;//!!Crucial
                     par.Value = WebDBId;
-                    par.Direction = System.Data.ParameterDirection.Output;
                     command.Parameters.Add(par);
 
                     SqlParameter par2 = new SqlParameter("@Result", System.Data.SqlDbType.Int);
                     par2.Value = 0;
-                    par.Direction = System.Data.ParameterDirection.Output;
+                    par2.Direction = System.Data.ParameterDirection.Output;
                     command.Parameters.Add(par2);
                     command.ExecuteNonQuery();
                     int? res = par2.Value as int?;
