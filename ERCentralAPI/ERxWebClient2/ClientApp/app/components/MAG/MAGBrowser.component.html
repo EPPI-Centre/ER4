@@ -12,10 +12,10 @@
     <b>{{_magAdvancedService.currentMagPaper.fullRecord}}</b>
     Paper Id:&nbsp;{{_magAdvancedService.currentMagPaper.paperId}}
      <div *ngIf="!IsCurrentPaperSelected()">
-        <button class="btn btn-danger btn-sm text-white"(click)="AddCurrentPaperToSelectedList()">Selected papers&nbsp;&nbsp; <i class="fa fa-plus"></i></button>
+        <button class="btn btn-primary btn-sm text-white"(click)="AddCurrentPaperToSelectedList()">Selected papers&nbsp;&nbsp; <i class="fa fa-plus"></i></button>
     </div>
-     <div *ngIf="!IsCurrentPaperSelected()">
-        <button class="btn btn-danger btn-sm text-white" (click)="RemoveCurrentPaperToSelectedList()">Selected papers&nbsp;&nbsp; <i class="fa fa-minus"></i></button>
+     <div *ngIf="IsCurrentPaperSelected()">
+        <button class="btn btn-warning btn-sm text-white" (click)="RemoveCurrentPaperToSelectedList()">Selected papers&nbsp;&nbsp; <i class="fa fa-minus"></i></button>
     </div>
     <div class="btn btn-link text-left">
         <a href="https://academic.microsoft.com/paper/{{_magAdvancedService.currentMagPaper.paperId}}/reference" target="_blank">
