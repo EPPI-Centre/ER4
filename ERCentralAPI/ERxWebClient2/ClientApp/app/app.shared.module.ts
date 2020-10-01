@@ -100,6 +100,7 @@ import { ScreeningSetupComp } from './components/WorkAllocations/ScreeningSetup.
 import { MAGOrigpaginatorComp } from './components/commonComponents/MAGOrigpaginator.component';
 import { DatePipe } from '@angular/common';
 import { MAGSearchComponent } from './components/MAG/MAGSearch.component';
+import { TruncatePipe } from './components/MAG/TruncatePipe.component';
 
 @NgModule({
     declarations: [
@@ -180,7 +181,9 @@ import { MAGSearchComponent } from './components/MAG/MAGSearch.component';
         microsoftAcademicComp,
         MAGHeaderBarComp,
         ScreeningSetupComp,
-        MAGSearchComponent
+        MAGSearchComponent,
+        TruncatePipe
+        
 	],
     providers: [
         DatePipe, 

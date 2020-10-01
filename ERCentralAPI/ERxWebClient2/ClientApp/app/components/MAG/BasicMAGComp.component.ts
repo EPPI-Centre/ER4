@@ -171,7 +171,7 @@ export class BasicMAGComp implements OnInit {
     public CanAddNewMAGSearch(): boolean {
 
         if (this.description != '' && this.description != null && this.HasWriteRights
-            ) {
+            && this.magMode != '') {
             return true;
         } else {
             return false;

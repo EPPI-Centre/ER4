@@ -7,6 +7,7 @@ import { FeedbackAndClientError, OnlineHelpService } from '../services/onlinehel
 import { GridDataResult, PageChangeEvent, DataStateChangeEvent } from '@progress/kendo-angular-grid';
 import { SortDescriptor, process, CompositeFilterDescriptor, State } from '@progress/kendo-data-query';
 import { Subscription } from 'rxjs';
+import { EventEmitterService } from '../services/EventEmitter.service';
 
 
 @Component({
@@ -23,11 +24,12 @@ export class SiteAdminComponent implements OnInit {
         private _httpC: HttpClient,
         private OnlineHelpService: OnlineHelpService,
         @Inject('BASE_URL') private _baseUrl: string,
-        public ReviewerIdentityServ: ReviewerIdentityService
+        public ReviewerIdentityServ: ReviewerIdentityService,
+        public eventEmitters: EventEmitterService
     ) {    }
 
     ngOnInit() {
-        this.subOpeningReview = this.ReviewerIdentityServ.OpeningNewReview.subscribe(() => this.BackToMain());
+        this.subOpeningReview = this.eventEmitters.OpeningNewReview.subscribe(() => this.BackToMain());
         if (!this.ReviewerIdentityServ.reviewerIdentity.isSiteAdmin) this.router.navigate(['home']);
         else this.OnlineHelpService.GetFeedbackMessageList();
     }

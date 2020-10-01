@@ -495,7 +495,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
             }
 
         )
-        this.subOpeningReview = this.ReviewerIdentityServ.OpeningNewReview.subscribe(() => this.Reload());
+        this.subOpeningReview = this._eventEmitter.OpeningNewReview.subscribe(() => this.Reload());
         this.statsSub = this.reviewSetsService.GetReviewStatsEmit.subscribe(
             () => this.GetStats()
         );

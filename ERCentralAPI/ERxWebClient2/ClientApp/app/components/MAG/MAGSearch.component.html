@@ -7,7 +7,7 @@
 
 <MAGHeaderBar Context="searchMAG"></MAGHeaderBar>
 <div *ngIf="IsServiceBusy" class="k-loading-image" style="position: fixed; top: 2%;"></div>
-<div class="container col-12">
+<div class="container col-12" >
 
     <div class="row" style="vertical-align:top">
         <div class="col-sm-12 col-lg-8">
@@ -126,10 +126,10 @@
                             </div>
                         </div>
                         <div class="col-sm-6 pt-1">
-                            <button class="btn btn-primary btn-sm text-white"
+                            <button class="btn btn-primary btn-lg btn-sm text-white"
                                     [disabled]="!CanRunSearch()"
                                     (click)="RunMAGSearch()">
-                                Search&nbsp;&nbsp; <i class="fa fa-search"></i>
+                              <i class="fa fa-search"></i>
                             </button>
 
                         </div>
@@ -156,8 +156,8 @@
                                 <select class="col-6 form-control" name="LogicalOperator"
                                         [disabled]="!CanCombineSearches()"
                                         [(ngModel)]="LogicalOperator" (change)="CombineSearches()">
-                                    <option [selected]="LogicalOperator == AND">AND</option>
-                                    <option>OR</option>
+                                    <option  [selected]="LogicalOperator == AND">AND</option>
+                                    <option >OR</option>
                                 </select>
                             </div>
                         </div>
@@ -170,30 +170,23 @@
     </div>
 
     <h2 class="card-title"></h2>
-    <div class="row">
-        <div class="col-12 mb-5">
+
+        <div class="col-sm-12 col-lg-1 mb-5">
             <div class="card">
-                <div class="card-body">
-                    <table>
-                        <tr>
-                            <td>
-                                <h4 class="card-title">MAG Searches</h4>
-                            </td>
-                            <td style="padding-left:30px; vertical-align:top ">
-                                <button class="btn btn-sm btn-danger" 
-                                    [disabled]="!CanDeleteSearch()"
-                                    (click)="DeleteSearches()">
-                                    Delete&nbsp;&nbsp; <i class="fa fa-trash"></i>
-                                </button>
-                            </td>
-                        </tr>
-                    </table>
-                    
+                <div class="card-body" >
+                    <button class="btn btn-lg btn-danger" 
+                        [disabled]="!CanDeleteSearch()"
+                        (click)="DeleteSearches()">
+                       <i class="fa fa-trash"></i>
+                    </button>
+                    </div>
+                </div>
+            </div>
 
 
-                    <div class="col-12 alert-secondary p-2 m-2 card">
+                    <div class="col-12 alert-secondary p-2 m-2 card container">
 
-                        <table class="table table-sm text-small table-striped" style="overflow:auto;">
+                        <table class="card-body table table-sm text-small table-striped" style="min-width:150px;overflow:auto;">
                             <thead >
                                 <tr >
                                     <th>
@@ -215,7 +208,7 @@
                                 </tr>
                             </thead>
 
-                            <tbody >
+                            <tbody style="width:100%">
                                 <tr *ngFor="let item of _magSearchService.MagSearchList" >
                                     <td>
                                         <input class="ml-1" style="zoom: 1.2;" 
@@ -225,7 +218,7 @@
                                     </td>
                                     <td >{{item.searchNo}}</td>
                                     <td style="min-width:50px">{{item.searchText}}</td>
-                                    <td style="min-width:50px">{{item.magSearchText}}</td>
+                                    <td>{{item.magSearchText | truncate }}</td>
                                     <td>{{item.magVersion}}</td>
                                     <td>{{item.contactName}}</td>
                                     <td>{{item.searchDate}}</td>
@@ -250,10 +243,7 @@
                         </table>
                     </div>
                 </div>
-            </div>
-        </div>
-    </div>
-</div>
+
 
 <div *ngIf="IsServiceBusy" class="k-loading-image" style="position: fixed; top: 2%;"></div>
 <statusbar></statusbar>

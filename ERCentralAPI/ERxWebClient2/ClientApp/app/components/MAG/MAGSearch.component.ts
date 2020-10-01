@@ -42,7 +42,7 @@ export class MAGSearchComponent implements OnInit {
     public dropdownBasic4: boolean = false;
     public isCollapsed4: boolean = false;
     public WordsInSelection: number = 0;
-    public LogicalOperator: string = '';
+    public LogicalOperator: string = 'Please Select a logical operator';
     public DateLimitSelection: number = 0;
     public PublicationTypeSelection: number = 0;
     public MagSearchList: MagSearch[] = [];
@@ -370,7 +370,7 @@ export class MAGSearchComponent implements OnInit {
     }
 
     public CanCombineSearches(): boolean {
-        if (this.magSearchesToBeDeleted.length < 2) {
+        if (this.magSearchesToBeDeleted.length == 0) {
             return false;
         } else {
             return true;
