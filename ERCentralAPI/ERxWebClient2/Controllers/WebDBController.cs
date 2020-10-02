@@ -66,11 +66,6 @@ namespace ERxWebClient2.Controllers
                 return StatusCode(500, e.Message);
             }
         }
-
-       
-
-        
-
         [HttpPost("[action]")]
         public IActionResult DeleteWebDB([FromBody] SingleIntCriteria crit)
         {
@@ -99,6 +94,66 @@ namespace ERxWebClient2.Controllers
             }
         }
 
+
+        [HttpPost("[action]")]
+        public IActionResult GetWebDbReviewSetsList([FromBody] SingleIntCriteria crit)
+        {
+
+            try
+            {
+                if (!SetCSLAUser()) return Unauthorized();
+                WebDbReviewSetsList res = DataPortal.Fetch<WebDbReviewSetsList>(new SingleCriteria<WebDbReviewSetsList, int>(crit.Value));
+                return Ok(res);
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "GetWebDbReviewSetsList data portal error");
+                return StatusCode(500, e.Message);
+            }
+        }
+        [HttpPost("[action]")]
+        public IActionResult AddWebDbReviewSet([FromBody] WebDbReviewSetJson data)
+        {
+            try
+            {
+                if (SetCSLAUser4Writing())
+                {
+                    WebDbReviewSet res = new WebDbReviewSet();
+                    res.WebDBId = data.webDBId;
+                    res.SetId = data.setId;
+                    res = res.Save();
+                    return Ok(res);
+                }
+                else return Forbid();
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "AddWebDbReviewSet data portal error");
+                return StatusCode(500, e.Message);
+            }
+        }
+        [HttpPost("[action]")]
+        public IActionResult RemoveWebDbReviewSet([FromBody] WebDbReviewSetJson data)
+        {
+            try
+            {
+                if (SetCSLAUser4Writing())
+                {
+                    WebDBReviewSetCrit cr = data.GetFetchCriteria();
+
+                    WebDbReviewSet toDel = DataPortal.Fetch<WebDbReviewSet>(cr);
+                    toDel.Delete();
+                    toDel = toDel.Save(true);
+                    return Ok();
+                }
+                else return Forbid();
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "AddWebDbReviewSet data portal error");
+                return StatusCode(500, e.Message);
+            }
+        }
     }
 
 	public class WebDbJson
@@ -128,5 +183,19 @@ namespace ERxWebClient2.Controllers
             return res;
         }
 
+    }
+
+    public class WebDbReviewSetJson
+    {
+        public int webDBId;
+        public int setId;
+        public int webDBSetId;
+        public string setName;
+        public string setDescription;
+        public WebDBReviewSetCrit GetFetchCriteria()
+        {
+            WebDBReviewSetCrit res = new WebDBReviewSetCrit(webDBId, webDBSetId);
+            return res;
+        }
     }
 }

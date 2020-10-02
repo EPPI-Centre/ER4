@@ -227,7 +227,7 @@ CREATE OR ALTER PROCEDURE [dbo].[st_WebDbCreateOrEdit]
 	@Password nvarchar(2000) = '',
 	@WebDbName nvarchar(1000),
 	@Description nvarchar(max),
-	@WebDbId int = 0 output,
+	@WebDbId int output,
 	@Result int = 0 output
 )
 AS
@@ -240,7 +240,7 @@ AS
 --Ignore PW field otherwise and empty the Username.
 --FAIL if @isOpen = 0 and we're creating a WebDb but don't have both username and password,
 --FAIL (negative @Result) if @isOpen = 0 and we're editing a WebDB that doesn't already have username and password.
-	
+	set @Result = 0
 	--Initial checks (possible failures)
 	IF @WebDbId <= 0 --Creating new WebDb
 		AND @isOpen = 0 --we need username and PW
@@ -298,7 +298,7 @@ AS
 	--IF @isOpen = 1 we will wipe Username and PW, this is because if one opens the WebDb and then wants to close it, they might have forgotten old PW,
 	--so we are forcing them to re-set it...
 
-	IF @WebDbId > 1
+	IF @WebDbId > 0
 	BEGIN
 		set @check = -1
 		--we're updating something: can we find it? (should we also check if the user is an admin?)
@@ -400,7 +400,8 @@ GO
 CREATE OR ALTER PROCEDURE [dbo].[st_WebDbGetCodesets]
 (
 	@REVIEW_ID INT,
-	@WEBDB_ID int
+	@WEBDB_ID int,
+	@WEBDB_PUBLIC_SET_ID int = 0
 )
 
 As
@@ -417,9 +418,11 @@ SET NOCOUNT ON
 			WHEN WEBDB_SET_DESCRIPTION IS Null then S.SET_DESCRIPTION
 			else WEBDB_SET_DESCRIPTION
 		END as SET_DESCRIPTION, 
-		S.ORIGINAL_SET_ID, S.USER_CAN_EDIT_URLS
+		S.ORIGINAL_SET_ID, S.USER_CAN_EDIT_URLS,
+		WS.WEBDB_ID, WS.WEBDB_PUBLIC_SET_ID
 	FROM TB_WEBDB_PUBLIC_SET WS
 	INNER JOIN TB_REVIEW_SET RS on WS.WEBDB_ID = @WEBDB_ID and WS.REVIEW_SET_ID = RS.REVIEW_SET_ID and RS.REVIEW_ID = @REVIEW_ID
+				AND (@WEBDB_PUBLIC_SET_ID = 0 OR WS.WEBDB_PUBLIC_SET_ID = @WEBDB_PUBLIC_SET_ID)--this allows to have one SP to get all or just one set
 	INNER JOIN TB_SET S ON S.SET_ID = RS.SET_ID
 	INNER JOIN TB_SET_TYPE ON TB_SET_TYPE.SET_TYPE_ID = S.SET_TYPE_ID
 
@@ -465,11 +468,13 @@ CREATE OR ALTER PROCEDURE [dbo].[st_WebDbCodesetAdd]
 (
 	@REVIEW_ID INT,
 	@WEBDB_ID int,
-	@Set_ID int
+	@Set_ID int,
+	@WEBDB_PUBLIC_SET_ID int output
 )
 As
 declare @r_set_id int = (select review_set_id from TB_WEBDB w
-						inner join TB_REVIEW_SET rs on rs.SET_ID = @Set_ID and rs.REVIEW_ID = @REVIEW_ID and w.REVIEW_ID = rs.REVIEW_ID)
+						inner join TB_REVIEW_SET rs on rs.SET_ID = @Set_ID and rs.REVIEW_ID = @REVIEW_ID and w.REVIEW_ID = rs.REVIEW_ID
+						where w.WEBDB_ID = @WEBDB_ID and w.REVIEW_ID = @REVIEW_ID)
 --Just a basic sanity check: can we get a REVIEW_SET_ID?
 IF @r_set_id is null OR @r_set_id < 1 return
 
@@ -482,7 +487,7 @@ INSERT INTO [TB_WEBDB_PUBLIC_SET]
            (@WEBDB_ID
            ,@r_set_id
            ,NULL, NULL)
-
+set @WEBDB_PUBLIC_SET_ID = SCOPE_IDENTITY()
 INSERT INTO [TB_WEBDB_PUBLIC_ATTRIBUTE]
            ([WEBDB_ID]
            ,[ATTRIBUTE_ID]
@@ -504,7 +509,8 @@ CREATE OR ALTER PROCEDURE [dbo].[st_WebDbCodeSetDelete]
 )
 As
 declare @r_set_id int = (select review_set_id from TB_WEBDB w
-						inner join TB_REVIEW_SET rs on rs.SET_ID = @Set_ID and rs.REVIEW_ID = @REVIEW_ID and w.REVIEW_ID = rs.REVIEW_ID)
+						inner join TB_REVIEW_SET rs on rs.SET_ID = @Set_ID and rs.REVIEW_ID = @REVIEW_ID and w.REVIEW_ID = rs.REVIEW_ID
+						where w.WEBDB_ID = @WEBDB_ID and w.REVIEW_ID = @REVIEW_ID)
 --Just a basic sanity check: can we get a REVIEW_SET_ID?
 IF @r_set_id is null OR @r_set_id < 1 return
 
@@ -531,7 +537,8 @@ CREATE OR ALTER PROCEDURE [dbo].[st_WebDbCodeSetEdit]
 )
 As
 declare @r_set_id int = (select review_set_id from TB_WEBDB w
-						inner join TB_REVIEW_SET rs on rs.SET_ID = @Set_ID and rs.REVIEW_ID = @REVIEW_ID and w.REVIEW_ID = rs.REVIEW_ID)
+						inner join TB_REVIEW_SET rs on rs.SET_ID = @Set_ID and rs.REVIEW_ID = @REVIEW_ID and w.REVIEW_ID = rs.REVIEW_ID
+						where w.WEBDB_ID = @WEBDB_ID and w.REVIEW_ID = @REVIEW_ID)
 --Just a basic sanity check: can we get a REVIEW_SET_ID?
 IF @r_set_id is null OR @r_set_id < 1 return
 update TB_WEBDB_PUBLIC_SET set WEBDB_SET_NAME = @Public_Name, WEBDB_SET_DESCRIPTION = @Public_Descr 
@@ -548,7 +555,8 @@ CREATE OR ALTER PROCEDURE [dbo].[st_WebDbAttributeDelete]
 )
 As
 declare @r_set_id int = (select review_set_id from TB_WEBDB w
-						inner join TB_REVIEW_SET rs on rs.SET_ID = @Set_ID and rs.REVIEW_ID = @REVIEW_ID and w.REVIEW_ID = rs.REVIEW_ID and w.WEBDB_ID = @WEBDB_ID)
+						inner join TB_REVIEW_SET rs on rs.SET_ID = @Set_ID and rs.REVIEW_ID = @REVIEW_ID and w.REVIEW_ID = rs.REVIEW_ID
+						where w.WEBDB_ID = @WEBDB_ID and w.REVIEW_ID = @REVIEW_ID)
 --Just a basic sanity check: can we get a REVIEW_SET_ID?
 IF @r_set_id is null OR @r_set_id < 1 return
 
@@ -597,7 +605,8 @@ CREATE OR ALTER PROCEDURE [dbo].[st_WebDbAttributeAdd]
 )
 As
 declare @r_set_id int = (select review_set_id from TB_WEBDB w
-						inner join TB_REVIEW_SET rs on rs.SET_ID = @Set_ID and rs.REVIEW_ID = @REVIEW_ID and w.REVIEW_ID = rs.REVIEW_ID and w.WEBDB_ID = @WEBDB_ID)
+						inner join TB_REVIEW_SET rs on rs.SET_ID = @Set_ID and rs.REVIEW_ID = @REVIEW_ID and w.REVIEW_ID = rs.REVIEW_ID
+						where w.WEBDB_ID = @WEBDB_ID and w.REVIEW_ID = @REVIEW_ID)
 --Just a basic sanity check: can we get a REVIEW_SET_ID?
 IF @r_set_id is null OR @r_set_id < 1 return
 

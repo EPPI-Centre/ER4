@@ -1,7 +1,7 @@
 import { Inject, Injectable, EventEmitter, Output} from '@angular/core';
 import { HttpClient   } from '@angular/common/http';
 import { ModalService } from './modal.service';
-import { ReviewSet, SetAttribute, iAttributesList } from './ReviewSets.service';
+import { ReviewSet, SetAttribute, iAttributesList, iReviewSet } from './ReviewSets.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
 
 
@@ -29,9 +29,25 @@ export class WebDBService extends BusyAwareService  {
     }
     public set CurrentDB(db: iWebDB | null) {
         const ind = this._WebDBs.findIndex((f) => db != null && f.webDBId == db.webDBId);
-        if (ind == -1) this._CurrentDB = null;
-        else this._CurrentDB = this._WebDBs[ind];
-        console.log("Setting current DB:", db, this._CurrentDB);
+        if (ind == -1) {
+            this._CurrentDB = null;
+            this._CurrentSets = [];
+        }
+        else {
+            this._CurrentDB = this._WebDBs[ind];
+            this.GetWebDbReviewSetsList();
+        }
+        //console.log("Setting current DB:", db, this._CurrentDB);
+    }
+    private _CurrentSets: iWebDbReviewSet[] = [];
+    public get CurrentSets(): iWebDbReviewSet[] {
+        if (this._CurrentSets.length > 0 && this._CurrentDB != null && this._CurrentSets[0].webDBId == this._CurrentDB.webDBId) {
+            return this._CurrentSets;
+        }
+        else {
+            this._CurrentSets = [];
+            return this._CurrentSets;
+        }
     }
 
     public Fetch(): void {
@@ -40,10 +56,10 @@ export class WebDBService extends BusyAwareService  {
             res => {
                 this._WebDBs = res;
                 if (res.length > 0) {
-                    if (this._CurrentDB == null) this._CurrentDB = res[0];
+                    if (this._CurrentDB == null) this.CurrentDB = res[0];
                     else {
                         const ind = this._WebDBs.findIndex((f) => this._CurrentDB != null  && f.webDBId == this._CurrentDB.webDBId);
-                        if (ind == -1) this._CurrentDB = res[0];
+                        if (ind == -1) this.CurrentDB = res[0];
                         else this._CurrentDB = res[ind];
                     }
                 }
@@ -105,8 +121,64 @@ export class WebDBService extends BusyAwareService  {
         return res;
     }
 
+    public GetWebDbReviewSetsList() {
+        if (this._CurrentDB == null) return;
+        else {
+            this._BusyMethods.push("GetWebDbReviewSetsList");
+            let body = JSON.stringify({ Value: this._CurrentDB.webDBId });
+            this._httpC.post<iWebDbReviewSet[]>(this._baseUrl + 'api/WebDB/GetWebDbReviewSetsList', body).subscribe(
+                res => {
+                    this._CurrentSets = res;
+                    this.RemoveBusy("GetWebDbReviewSetsList");
+                }, error => {
+                    this.RemoveBusy("GetWebDbReviewSetsList");
+                    this.modalService.GenericError(error);
+                }
+            );
+        }
+    }
+    public AddWebDbReviewSet(webDBId: number, setId: number) {
+        if (this._CurrentDB == null
+            || this._CurrentDB.webDBId !== webDBId) return;
+        let body: WebDbReviewSetJson = new WebDbReviewSetJson();
+        body.webDBId = webDBId;
+        body.setId = setId;
+        this._BusyMethods.push("AddWebDbReviewSet");
+        this._httpC.post<iWebDbReviewSet>(this._baseUrl + 'api/WebDB/AddWebDbReviewSet', body).subscribe(
+            res => {
+                this._CurrentSets.push(res);
+                this._CurrentSets.sort((a, b) => { return a.setOrder - b.setOrder });
+                this.RemoveBusy("AddWebDbReviewSet");
+            }, error => {
+                this.RemoveBusy("AddWebDbReviewSet");
+                this.modalService.GenericError(error);
+            }
+        );
+    }
+    public RemoveWebDbReviewSet(webDBId: number, webDBsetId: number) {
+        if (this._CurrentDB == null || this._CurrentDB.webDBId !== webDBId) return;
+        let body: WebDbReviewSetJson = new WebDbReviewSetJson();
+        body.webDBId = webDBId;
+        body.webDBSetId = webDBsetId;
+        this._BusyMethods.push("RemoveWebDbReviewSet");
+        this._httpC.post<iWebDbReviewSet>(this._baseUrl + 'api/WebDB/RemoveWebDbReviewSet', body).subscribe(
+            res => {
+                let ind = this._CurrentSets.findIndex(f => f.webDBSetId == webDBsetId);
+                if (ind != -1) {
+                    this._CurrentSets.splice(ind, 1);
+                }
+                this.RemoveBusy("RemoveWebDbReviewSet");
+            }, error => {
+                this.RemoveBusy("RemoveWebDbReviewSet");
+                this.modalService.GenericError(error);
+            }
+        );
+    }
+
     public Clear() {
-        
+        this._WebDBs = [];
+        this._CurrentDB = null;
+        this._CurrentSets = [];
     }
 }
 
@@ -121,4 +193,20 @@ export interface iWebDB {
     password: string;
     createdBy: string;
     editedBy: string;
+}
+export interface iWebDbReviewSet extends iReviewSet {
+    webDBId: number;
+    webDBSetId: number;
+}
+export class WebDbReviewSet extends ReviewSet {
+    constructor(data: iWebDbReviewSet) {
+        super();
+    }
+}
+export class WebDbReviewSetJson {
+    webDBId: number = 0;
+    setId: number = 0;
+    webDBSetId: number = 0;
+    setName: string = "";
+    setDescription: string = "";
 }
