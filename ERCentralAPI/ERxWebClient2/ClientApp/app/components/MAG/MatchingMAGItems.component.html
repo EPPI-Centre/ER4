@@ -191,7 +191,8 @@
 
                             </td>
                             <td >
-                                <button (click)="UpdateTopicResults()" class="btn btn-primary btn-sm text-white"><i class="fa fa-search"></i></button>
+                                <button [disabled]="!CanGetTopics()"
+                                        (click)="UpdateTopicResults()" class="btn btn-primary btn-sm text-white"><i class="fa fa-search"></i></button>
                             </td>
                         </tr>
                     </table>

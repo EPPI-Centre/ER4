@@ -398,6 +398,14 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
         }
 
     }
+    public CanGetTopics(): boolean {
+
+        if (this.SearchTextTopic != null && this.SearchTextTopic.length > 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
     public GetMagPaper() {
 
         this._magAdvancedService.FetchMagPaperId(this.magPaperId).then(
