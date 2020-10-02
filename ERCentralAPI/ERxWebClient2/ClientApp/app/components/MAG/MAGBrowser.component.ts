@@ -235,7 +235,7 @@ export class MAGBrowser implements OnInit, OnDestroy {
             });
     }
     public Back() {
-        this._location.back();
+        this.router.navigate(['Main']);
     }
     private AddPaperToSelectedList(paperId: number, list: MagPaper[]) {
         console.log('paper we need: ', paperId);

@@ -7,6 +7,7 @@ import { ConfirmationDialogService } from '../services/confirmation-dialog.servi
 import { MAGLog, MAGReview } from '../services/MAGClasses.service';
 import { MAGAdvancedService } from '../services/magAdvanced.service';
 import { NotificationService } from '@progress/kendo-angular-notification';
+import { Router } from '@angular/router';
 
 @Component({
     selector: 'MAGAdmin',
@@ -23,7 +24,8 @@ export class MAGAdminComp implements OnInit {
         private _magAdvancedService: MAGAdvancedService,
         public _location: Location,
         public _notificationService: NotificationService,
-        private _ReviewerIdentityServ: ReviewerIdentityService
+        private _ReviewerIdentityServ: ReviewerIdentityService,
+        public router: Router
     ) {
 
     }
@@ -55,7 +57,7 @@ export class MAGAdminComp implements OnInit {
         this._magAdminService.GetMAGLogList();
     }
     public Back() {
-        this._location.back();
+        this.router.navigate(['Main']);
     }
     public get MagLogList(): MAGLog[] {
         return this._magAdminService.MAGLogList;

@@ -135,7 +135,7 @@ export class AdvancedMAGFeaturesComponent implements OnInit, OnDestroy {
         });
     }
     public Back() {
-        this._location.back();
+        this.router.navigate(['Main']);
     }
     public get HasWriteRights(): boolean {
         return this._ReviewerIdentityServ.HasWriteRights;
