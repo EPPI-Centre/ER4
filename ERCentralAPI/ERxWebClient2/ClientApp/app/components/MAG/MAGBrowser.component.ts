@@ -289,6 +289,7 @@ export class MAGBrowser implements OnInit, OnDestroy {
         this._magBrowserService.WPParentTopics = [];
         //this._magBrowserService.Clear();
         this._magAdvancedService.currentMagPaper = new MagPaper();
+        this._magBrowserService.MagCitationsByPaperList = new MagList();
         this._magBrowserService.GetParentAndChildFieldsOfStudy("FieldOfStudyParentsList", FieldOfStudyId).then(
             () => {
                 this._magBrowserService.GetParentAndChildFieldsOfStudy("FieldOfStudyChildrenList", FieldOfStudyId).then(
@@ -297,25 +298,23 @@ export class MAGBrowser implements OnInit, OnDestroy {
                     });
         });
     }
-    public HideCitatedBy(): boolean {
-
-        let len: number = this._magBrowserService.MagCitationsByPaperList.papers.length;
-        //console.log("disable cited by?", len);
+    
+    public get HideSelectedPapers(): boolean {
+        const len: number = this._magBrowserService.SelectedPaperIds.length;
         if (len > 0) {
             return false;
         } else {
             return true;
         }
+
     }
-    public HideSelectedPapers(): boolean {
-
-        let len: number = this._magBrowserService.SelectedPaperIds.length;
+    public get DoesNotHaveCitations(): boolean {
+        const len: number = this._magBrowserService.MagCitationsByPaperList.papers.length;
         if (len > 0) {
             return false;
         } else {
             return true;
         }
-
     }
     private IsInSelectedList(paperId: number): boolean {
 
