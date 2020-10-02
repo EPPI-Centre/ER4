@@ -40,43 +40,41 @@
                     </thead>
                     <tbody>
                         <tr>
-                            <td>
-                                <div class="btn btn-link p-2 m-2 " (click)="MAGBrowser('MatchedIncluded')">
+                            <td >
+                                <div [hidden]="CanGetMatchedIncluded()" class="btn btn-link p-2 m-2 " (click)="MAGBrowser('MatchedIncluded')">
                                     {{_magAdvancedService.AdvancedReviewInfo.nMatchedAccuratelyIncluded}}
                                 </div>
-                                <div class="btn btn-link  p-2 m-2 " (click)="OpenMatchesInReview('MatchedIncluded')">
+                                <div [hidden]="CanGetMatchedIncluded()"  class="btn btn-link  p-2 m-2 " (click)="OpenMatchesInReview('MatchedIncluded')">
                                     (List Papers)
                                 </div>
                             </td>
-                            <td>
-
-                                <div class="btn btn-link  p-2 m-2 " (click)="MAGBrowser('MatchedExcluded')">
+                            <td >
+                                <div [hidden]="CanGetMatchedExcluded()" class="btn btn-link  p-2 m-2 " (click)="MAGBrowser('MatchedExcluded')">
                                     {{_magAdvancedService.AdvancedReviewInfo.nMatchedAccuratelyExcluded}}
                                 </div>
-                                <div class="btn btn-link p-2 m-2 " (click)="OpenMatchesInReview('MatchedExcluded')">
+                                <div [hidden]="CanGetMatchedExcluded()" class="btn btn-link p-2 m-2 " (click)="OpenMatchesInReview('MatchedExcluded')">
                                     (List Papers)
                                 </div>
                             </td>
-                            <td>
-
-                                <div class="btn btn-link  p-2 m-2  " (click)="MAGBrowser('MatchedAll')">
+                            <td >
+                                <div [hidden]="CanGetMatchedAll()" class="btn btn-link  p-2 m-2  " (click)="MAGBrowser('MatchedAll')">
                                     {{_magAdvancedService.AdvancedReviewInfo.nMatchedAccuratelyIncluded + _magAdvancedService.AdvancedReviewInfo.nMatchedAccuratelyExcluded}}
                                 </div>
                             </td>
-                            <td>
-                                <div class=" btn btn-link  p-2 m-2 " (click)="OpenMatchesInReview('MagMatchesNeedingCheckingInc')">
+                            <td >
+                                <div [hidden]="CanGetMatchesNeedingCheckingIncluding()" class=" btn btn-link  p-2 m-2 " (click)="OpenMatchesInReview('MagMatchesNeedingCheckingInc')">
                                     Included: {{_magAdvancedService.AdvancedReviewInfo.nRequiringManualCheckIncluded}}
                                 </div>
 
-                                <div class=" btn btn-link p-2 m-2 " (click)="OpenMatchesInReview('MagMatchesNeedingCheckingExc')">
+                                <div [hidden]="CanGetMatchesNeedingCheckingExcluding()" class=" btn btn-link p-2 m-2 " (click)="OpenMatchesInReview('MagMatchesNeedingCheckingExc')">
                                     Excluded:  {{_magAdvancedService.AdvancedReviewInfo.nRequiringManualCheckExcluded}}
                                 </div>
                             </td>
-                            <td>
-                                <div class=" btn btn-link  p-2 m-2 " (click)="OpenMatchesInReview('MagMatchesNotMatchedInc')">
+                            <td >
+                                <div [hidden]="CanGetNotMatchedIncluded()" class=" btn btn-link  p-2 m-2 " (click)="OpenMatchesInReview('MagMatchesNotMatchedInc')">
                                     Included:  {{_magAdvancedService.AdvancedReviewInfo.nNotMatchedIncluded}}
                                 </div>
-                                <div class=" btn btn-link p-2 m-2" (click)="OpenMatchesInReview('MagMatchesNotMatchedExc')">
+                                <div [hidden]="CanGetNotMatchedExcluded()" class=" btn btn-link p-2 m-2" (click)="OpenMatchesInReview('MagMatchesNotMatchedExc')">
                                     Excluded:  {{_magAdvancedService.AdvancedReviewInfo.nNotMatchedExcluded}}
                                 </div>
                             </td>

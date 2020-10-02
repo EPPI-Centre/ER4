@@ -400,7 +400,64 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
     }
     public CanGetTopics(): boolean {
 
-        if (this.SearchTextTopic != null && this.SearchTextTopic.length > 0) {
+        if (this._magAdvancedService.AdvancedReviewInfo.nMatchedAccuratelyIncluded.toString().length > 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    public CanGetNotMatchedExcluded(): boolean {
+
+        if (this._magAdvancedService.AdvancedReviewInfo.nNotMatchedExcluded.toString().length > 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    public CanGetNotMatchedIncluded(): boolean {
+
+        if (this._magAdvancedService.AdvancedReviewInfo.nNotMatchedIncluded.toString().length > 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    public CanGetMatchesNeedingCheckingIncluding(): boolean {
+
+        if (this._magAdvancedService.AdvancedReviewInfo.nRequiringManualCheckIncluded.toString().length > 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    public CanGetMatchesNeedingCheckingExcluding(): boolean {
+
+        if (this._magAdvancedService.AdvancedReviewInfo.nRequiringManualCheckExcluded.toString().length > 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    public CanGetMatchedAll(): boolean {
+
+        if (this._magAdvancedService.AdvancedReviewInfo.nMatchedAccuratelyIncluded.toString().length > 0 &&
+            this._magAdvancedService.AdvancedReviewInfo.nMatchedAccuratelyExcluded.toString().length > 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    public CanGetMatchedIncluded(): boolean {
+
+        if (this._magAdvancedService.AdvancedReviewInfo.nMatchedAccuratelyIncluded.toString().length > 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    public CanGetMatchedExcluded(): boolean {
+
+        if (this._magAdvancedService.AdvancedReviewInfo.nMatchedAccuratelyExcluded.toString().length > 0) {
             return true;
         } else {
             return false;
