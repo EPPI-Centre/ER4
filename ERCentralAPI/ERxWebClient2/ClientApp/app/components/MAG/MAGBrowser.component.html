@@ -136,7 +136,7 @@
 
                     </ng-template>
                 </kendo-tabstrip-tab>
-                <kendo-tabstrip-tab [title]="'Cited By'">
+                <kendo-tabstrip-tab [title]="'Cited By'" [disabled]="DoesNotHaveCitations">
                     <ng-template kendoTabContent>
                         <div [title]="'Add/remove citation'" style="min-height:500px; overflow:auto;">
                             <div style="max-height:50vh; overflow:auto;">
@@ -159,7 +159,7 @@
                         </div>
                     </ng-template>
                 </kendo-tabstrip-tab>
-                <kendo-tabstrip-tab  [title]="SelectedPapersTitle" [disabled]="HideSelectedPapers()">
+                <kendo-tabstrip-tab  [title]="SelectedPapersTitle" [disabled]="HideSelectedPapers">
                     <ng-template kendoTabContent>
                         <div [title]="'Add/remove selected paper'" style="min-height:500px; overflow:auto;">
                             <div style="max-height:55vh; overflow:auto;">
