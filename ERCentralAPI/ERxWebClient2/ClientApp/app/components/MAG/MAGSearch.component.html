@@ -156,7 +156,7 @@
                                 <select class="col-6 form-control" name="LogicalOperator"
                                         [disabled]="!CanCombineSearches()"
                                         [(ngModel)]="LogicalOperator" (change)="CombineSearches()">
-                                    <option  [selected]="LogicalOperator == AND">AND</option>
+                                    <option [selected]="LogicalOperator == 'AND'">AND</option>
                                     <option >OR</option>
                                 </select>
                             </div>
