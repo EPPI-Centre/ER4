@@ -91,7 +91,7 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
 
     }
     public Back() {
-        this._location.back();
+        this.router.navigate(['Main']);
     }
     public ClearAllMatching() {
 

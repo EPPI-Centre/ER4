@@ -62,7 +62,7 @@ export class MAGBrowserHistory implements OnInit {
         return false;
     }
     Back() {
-        this._location.back();
+        this.router.navigate(['Main']);
     }
     fetchMAGHistory() {
 
