@@ -396,7 +396,7 @@ export class MAGSearchComponent implements OnInit {
     }
 
     public CanCombineSearches(): boolean {
-        if (this.AllSelectedItems.length <= 0
+        if (this.AllSelectedItems.length <= 1
             || this.AllSelectedItems.length > 50 //Seriously? Combine more than 50 searches in one go? NOPE, not doing it.
         ) {
             return false;
