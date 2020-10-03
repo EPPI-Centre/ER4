@@ -417,7 +417,8 @@ export class MAGBrowserService extends BusyAwareService {
         console.log('got in here 1', JSON.stringify(crit));
         console.log('list type is: ', crit.listType);
 
-        if (crit.listType == 'CitationsList' || crit.listType == 'ReviewMatchedPapers' || crit.listType == 'MagSearchResultsList') {
+        if (crit.listType == 'CitationsList' || crit.listType == 'ReviewMatchedPapers' || crit.listType == 'MagSearchResultsList'
+            || crit.listType == '"MagRelatedPapersRunList"') {
 
             this._Criteria.paperIds = '';
             for (var i = 0; i < list.papers.length; i++) {
@@ -445,7 +446,7 @@ export class MAGBrowserService extends BusyAwareService {
             this._MAGOriginalList.totalItemCount = list.totalItemCount;
             this._MAGOriginalList.pagecount = list.pagecount;
         } else {
-            
+            console.log('list contents inside save: ', list);
             this._MAGList = list;
             this._Criteria = crit;
             console.log('checking list type here: ',this.ListCriteria);
@@ -454,6 +455,7 @@ export class MAGBrowserService extends BusyAwareService {
     }
     //Paging methods
     public FetchNextPage() {
+        console.log('this.MAGList.pageindex: ', this.MAGList.pageindex);
         if (this.MAGList.pageindex < this.MAGList.pagecount-1) {
             this.MAGList.pageindex += 1;
         } 
