@@ -45,6 +45,11 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
     //public sub: Subscription = new Subscription();
     public SearchTextTopic: string = '';
     ngOnInit() {
+
+
+        console.log('asdfs: ', this._magAdvancedService.AdvancedReviewInfo.nMatchedAccuratelyIncluded);
+
+
          this._eventEmitterService.getMatchedIncludedItemsEvent.subscribe(
             () => {
                 this.GetMatchedMagIncludedList();

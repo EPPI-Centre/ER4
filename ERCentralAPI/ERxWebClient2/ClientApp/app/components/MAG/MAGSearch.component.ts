@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { Location } from '@angular/common';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Router } from '@angular/router';
@@ -25,7 +24,6 @@ export class MAGSearchComponent implements OnInit {
         private _magBrowserService: MAGBrowserService,
         public _magSearchService: magSearchService,
         private _ReviewerIdentityServ: ReviewerIdentityService,
-        private _location: Location,
         private router: Router,
         public _mAGBrowserHistoryService: MAGBrowserHistoryService,
         public _notificationService: NotificationService
@@ -46,7 +44,6 @@ export class MAGSearchComponent implements OnInit {
     public DateLimitSelection: number = 0;
     public PublicationTypeSelection: number = 0;
     public MagSearchList: MagSearch[] = [];
-    //public MagSearchListCombine: MagSearch[] = [];
     public magSearchInput: string = '';
     public valueKendoDatepicker1 : Date = new Date();
     public valueKendoDatepicker2: Date = new Date();
@@ -88,12 +85,11 @@ export class MAGSearchComponent implements OnInit {
                     let i: number = 1;
                     let cnt: number = 0;
                     for (var fos of FosList) {
-                        console.log('got in here');
+
                         let item: TopicLink = new TopicLink();
                         item.displayName = fos.displayName;
                         item.fontSize = i;
                         item.fieldOfStudyId = fos.fieldOfStudyId;
-
                         this.SearchTextTopicsResults[cnt] = item;
                         cnt += 1;
                         if (i > 0.1) {
@@ -221,22 +217,10 @@ export class MAGSearchComponent implements OnInit {
                 );
         }
     }
-    //public magSearchesToBeDeleted: MagSearch[] = [];
 
-    //public AddDeleteMagSearch(magSearch: MagSearch) {
-
-
-    //    if (magSearch.add == false) {
-    //        this.magSearchesToBeDeleted.push(magSearch);
-    //    } else {
-    //        let tmpIndex: number = this.magSearchesToBeDeleted.findIndex(x => x.magSearchId == magSearch.magSearchId);
-    //        this.magSearchesToBeDeleted.splice(tmpIndex, 1);
-
-    //    }    
-    //}
     public get AllItemsAreSelected(): boolean {
         const ind = this._magSearchService.MagSearchList.findIndex(f => f.add == false);
-        //console.log("AllItemsAreSelected", ind, this.AllSelectedItems.length);
+
         if (ind == -1) return true;
         return false;
     }
@@ -244,44 +228,18 @@ export class MAGSearchComponent implements OnInit {
         return this._magSearchService.MagSearchList.filter(f => f.add == true);
     }
     public ToggleAllItemsSelected() {
-        //console.log("ToggleAllItemsSelected", this.AllItemsAreSelected, this._magSearchService.MagSearchList.length);
         if (this.AllItemsAreSelected) {
             for (let i = 0; i < this._magSearchService.MagSearchList.length; i++) {
                 this._magSearchService.MagSearchList[i].add = false;
             }
-            //this.magSearchesToBeDeleted = [];
         }
         else {
             for (let i = 0; i < this._magSearchService.MagSearchList.length; i++) {
                 this._magSearchService.MagSearchList[i].add = true;
             }
-            //this.magSearchesToBeDeleted = this._magSearchService.MagSearchList;
         }
     }
     
-    //public get allItemsSelected(): boolean {
-    //    for (let i = 0; i < this._magSearchService.MagSearchList.length; i++) {
-    //        //this.magSearchesToBeDeleted[i].add = true;
-    //        if (this._magSearchService.MagSearchList[i].add == false) return false;
-    //    }
-
-    //    return true;
-    //}
-    //public set allItemsSelected(val: boolean) {
-    //    for (let i = 0; i < this._magSearchService.MagSearchList.length; i++) {
-    //        this._magSearchService.MagSearchList[i].add = val;
-    //        if (val) {
-    //            if (this.magSearchesToBeDeleted.indexOf(this._magSearchService.MagSearchList[i]) == -1) {
-    //                this.magSearchesToBeDeleted.push(this._magSearchService.MagSearchList[i]);
-    //            }
-    //        } else {
-    //            let tempInx: number = this.magSearchesToBeDeleted.indexOf(this._magSearchService.MagSearchList[i]);
-    //            if (this.magSearchesToBeDeleted.indexOf(this._magSearchService.MagSearchList[i]) != -1) {
-    //                this.magSearchesToBeDeleted.splice(tempInx, 1);
-    //            }
-    //        }
-    //    }
-    //}
     public DeleteSearches() {
         //console.log('got inside confirm');
         const count = this.AllSelectedItems.length.toString();
@@ -357,27 +315,12 @@ export class MAGSearchComponent implements OnInit {
                 let msg: string = 'You have Combined MAG searches using : ' + this.LogicalOperator;
                 this.ShowMAGRunMessage(msg);
                 this.LogicalOperator = 'Select operator';
-                //this.magSearchesToBeDeleted = [];
-                //this.MagSearchListCombine = [];
                 this.FetchMagSearches();
             }
         );
     }
     public AddSearchIdToList(magSearch: MagSearch) {
 
-        //if (magSearch.magSearchId > -1) {
-           
-        //    this.AddDeleteMagSearch(magSearch);
-
-        //    if (magSearch.add == false) {
-        //        this.MagSearchListCombine.push(magSearch);
-                
-        //    } else {
-        //        let tmpIndex: number = this.MagSearchListCombine.findIndex(x => x.magSearchId == magSearch.magSearchId);
-        //        this.MagSearchListCombine.splice(tmpIndex, 1);
-               
-        //    }    
-        //}
     }
     public CanRunSearch(): boolean {
         if (this.magSearchInput == "") {
@@ -396,8 +339,11 @@ export class MAGSearchComponent implements OnInit {
     }
 
     public CanCombineSearches(): boolean {
-        if (this.AllSelectedItems.length <= 0
+        if (this.AllSelectedItems.length <= 1
             || this.AllSelectedItems.length > 50 //Seriously? Combine more than 50 searches in one go? NOPE, not doing it.
+            //should not be doing this client side, if so must be done on both but server side more important...
+            //but yes did not think of this I bet there are more as we do not have a think about stage along with
+            //understanding the spec from set out cards ?
         ) {
             return false;
         } else {

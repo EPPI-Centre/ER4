@@ -108,10 +108,11 @@ export class MAGBrowser implements OnInit, OnDestroy {
     }
     public AddCurrentPaperToSelectedList() {
 
-        if (this._magBrowserService.selectedPapers != null ) {
-
+        this._magAdvancedService.currentMagPaper.isSelected = false; 
+        if (this._magBrowserService.selectedPapers.length > 0 ) {
+            console.log('inside here again....: ');
             let paper: MagPaper = this._magAdvancedService.currentMagPaper;
-            this._magAdvancedService.currentMagPaper.isSelected = false; 
+           
             let paperIndex: number = -1;
             paperIndex = this._magBrowserService.MAGList.papers.findIndex(x => x.paperId == paper.paperId) 
             if (paperIndex != -1) {
@@ -126,7 +127,7 @@ export class MAGBrowser implements OnInit, OnDestroy {
                 this.currentMagPaperList = this._magBrowserService.MAGOriginalList.papers;
                 this.currentMagPaperList[paperIndex].isSelected = true;
             }
-
+            console.log('gotta here', this._magAdvancedService.currentMagPaper);
             this.InOutReview(this._magAdvancedService.currentMagPaper, this.currentMagPaperList);
         }
     }

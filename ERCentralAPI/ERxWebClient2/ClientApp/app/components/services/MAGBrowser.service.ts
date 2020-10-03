@@ -218,12 +218,18 @@ export class MAGBrowserService extends BusyAwareService {
         this.ListCriteria.pageSize = this.pageSize;
         this.ListCriteria.magRelatedRunId = Id;
         this.ListCriteria.pageNumber = 0;
+        //forgot this part oops:
+        this.OrigListCriteria.listType = "MagRelatedPapersRunList";
+        this.OrigListCriteria.pageSize = this.pageSize;
+        this.OrigListCriteria.magRelatedRunId = Id;
+        this.OrigListCriteria.pageNumber = 0;
 
         return this._httpC.post<MagList>(this._baseUrl + 'api/MagRelatedPapersRunList/GetMagRelatedPapersRunsId',
             this.ListCriteria)
             .toPromise().then(
                 (result) => {
 
+                    console.log('came back from first run');
                     this.RemoveBusy("FetchMAGRelatedPaperRunsListById");
                     this.MAGList = result;
                     this.MAGOriginalList = result;
@@ -417,8 +423,10 @@ export class MAGBrowserService extends BusyAwareService {
         console.log('got in here 1', JSON.stringify(crit));
         console.log('list type is: ', crit.listType);
 
-        if (crit.listType == 'CitationsList' || crit.listType == 'ReviewMatchedPapers' || crit.listType == 'MagSearchResultsList') {
+        if (crit.listType == 'CitationsList' || crit.listType == 'ReviewMatchedPapers' || crit.listType == 'MagSearchResultsList'
+            || crit.listType == '"MagRelatedPapersRunList"') {
 
+            console.log('inside paper ids dude');
             this._Criteria.paperIds = '';
             for (var i = 0; i < list.papers.length; i++) {
                 this._Criteria.paperIds += list.papers[i].paperId + ',';
@@ -445,7 +453,7 @@ export class MAGBrowserService extends BusyAwareService {
             this._MAGOriginalList.totalItemCount = list.totalItemCount;
             this._MAGOriginalList.pagecount = list.pagecount;
         } else {
-            
+            console.log('list contents inside save: ', list);
             this._MAGList = list;
             this._Criteria = crit;
             console.log('checking list type here: ',this.ListCriteria);
@@ -454,6 +462,7 @@ export class MAGBrowserService extends BusyAwareService {
     }
     //Paging methods
     public FetchNextPage() {
+        console.log('this.MAGList.pageindex: ', this.MAGList.pageindex);
         if (this.MAGList.pageindex < this.MAGList.pagecount-1) {
             this.MAGList.pageindex += 1;
         } 

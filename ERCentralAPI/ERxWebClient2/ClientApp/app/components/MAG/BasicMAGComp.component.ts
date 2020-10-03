@@ -8,9 +8,10 @@ import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Router } from '@angular/router';
 import { NotificationService } from '@progress/kendo-angular-notification';
 import { MAGBrowserService } from '../services/MAGBrowser.service';
-import { MagRelatedPapersRun, MagBrowseHistoryItem } from '../services/MAGClasses.service';
+import { MagRelatedPapersRun, MagBrowseHistoryItem, MagPaper } from '../services/MAGClasses.service';
 import { Location } from '@angular/common';
 import { MAGBrowserHistoryService } from '../services/MAGBrowserHistory.service';
+import { MAGAdvancedService } from '../services/magAdvanced.service';
 
 @Component({
 	selector: 'BasicMAGComp',
@@ -26,7 +27,7 @@ export class BasicMAGComp implements OnInit {
         public _searchService: searchService,
         private _ReviewerIdentityServ: ReviewerIdentityService,
         private _notificationService: NotificationService,
-        private _location: Location,
+        private _magAdvancedService: MAGAdvancedService,
         private router: Router,
         public _mAGBrowserHistoryService: MAGBrowserHistoryService
 
@@ -95,6 +96,8 @@ export class BasicMAGComp implements OnInit {
     public GetItems(item: MagRelatedPapersRun) {
 
         if (item.magRelatedRunId > 0) {
+
+            this._magAdvancedService.currentMagPaper = new MagPaper();
             this._magBrowserService.ShowingParentAndChildTopics = false;
             this._magBrowserService.ShowingChildTopicsOnly = true;
             let magBrowseItem: MagBrowseHistoryItem = new MagBrowseHistoryItem("Papers identified from auto-identification run", "MagRelatedPapersRunList", 0,
