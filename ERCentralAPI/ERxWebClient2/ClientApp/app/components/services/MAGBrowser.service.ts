@@ -218,12 +218,18 @@ export class MAGBrowserService extends BusyAwareService {
         this.ListCriteria.pageSize = this.pageSize;
         this.ListCriteria.magRelatedRunId = Id;
         this.ListCriteria.pageNumber = 0;
+        //forgot this part oops:
+        this.OrigListCriteria.listType = "MagRelatedPapersRunList";
+        this.OrigListCriteria.pageSize = this.pageSize;
+        this.OrigListCriteria.magRelatedRunId = Id;
+        this.OrigListCriteria.pageNumber = 0;
 
         return this._httpC.post<MagList>(this._baseUrl + 'api/MagRelatedPapersRunList/GetMagRelatedPapersRunsId',
             this.ListCriteria)
             .toPromise().then(
                 (result) => {
 
+                    console.log('came back from first run');
                     this.RemoveBusy("FetchMAGRelatedPaperRunsListById");
                     this.MAGList = result;
                     this.MAGOriginalList = result;
@@ -420,6 +426,7 @@ export class MAGBrowserService extends BusyAwareService {
         if (crit.listType == 'CitationsList' || crit.listType == 'ReviewMatchedPapers' || crit.listType == 'MagSearchResultsList'
             || crit.listType == '"MagRelatedPapersRunList"') {
 
+            console.log('inside paper ids dude');
             this._Criteria.paperIds = '';
             for (var i = 0; i < list.papers.length; i++) {
                 this._Criteria.paperIds += list.papers[i].paperId + ',';
