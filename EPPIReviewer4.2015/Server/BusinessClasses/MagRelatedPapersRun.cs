@@ -344,6 +344,11 @@ namespace BusinessLibrary.BusinessClasses
 
         protected override void DataPortal_Insert()
         {
+            if (Mode == "")
+            {
+                // Once UI behaves this shouldn't be possible
+                return;
+            }
             ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
@@ -574,7 +579,6 @@ namespace BusinessLibrary.BusinessClasses
         private void TriggerDataLakeJob(string uploadFileName, int ContactId)
         {
             MagCurrentInfo MagInfo = MagCurrentInfo.GetMagCurrentInfoServerSide("LIVE");
-
             MagDataLakeHelpers.ExecProc(@"[master].[dbo].[RelatedRun](""" + Path.GetFileName(uploadFileName) + "\",\"" +
                 Path.GetFileName(uploadFileName) + "\", \"" + MagInfo.MagFolder + "\",\"" + this.Mode + "\"," +
                 (this.DateFrom.ToString() != "" ? DateFrom.Date.Year.ToString() : "1753") + ");", true, "RelatedRun", ContactId, 10);
