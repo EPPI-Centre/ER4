@@ -220,8 +220,8 @@ export class MAGSearchComponent implements OnInit {
 
     public get AllItemsAreSelected(): boolean {
         const ind = this._magSearchService.MagSearchList.findIndex(f => f.add == false);
-
-        if (ind == -1) return true;
+        console.log("AllItemsAreSelected", ind, this._magSearchService.MagSearchList.length);
+        if (ind == -1 && this._magSearchService.MagSearchList.length > 0) return true;
         return false;
     }
     public get AllSelectedItems(): MagSearch[] {
