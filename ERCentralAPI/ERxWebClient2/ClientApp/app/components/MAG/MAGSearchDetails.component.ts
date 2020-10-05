@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Router } from '@angular/router';
@@ -11,12 +11,12 @@ import { magSearchService } from '../services/MAGSearch.service';
 import { NotificationService } from '@progress/kendo-angular-notification';
 
 @Component({
-    selector: 'MAGSearch',
-    templateUrl: './MAGSearch.component.html',
+    selector: 'MAGSearchDetailsComponent',
+    templateUrl: './MAGSearchDetails.component.html',
     providers: []
 })
 
-export class MAGSearchComponent implements OnInit {
+export class MAGSearchDetailsComponent implements OnInit {
 
     constructor(private ConfirmationDialogService: ConfirmationDialogService,
         public _magBasicService: BasicMAGService,
@@ -31,9 +31,6 @@ export class MAGSearchComponent implements OnInit {
     ) {
 
     }
-    @ViewChild('MAGSearchDetailsComponent')
-    private MAGSearchDetailsComponent!: any;
-
     public dropdownBasic2: boolean = false;
     public isCollapsed2: boolean = false;
     public dropdownBasic1: boolean = false;
