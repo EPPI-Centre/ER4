@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using EPPIDataServices.Helpers;
 using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.Extensions.Hosting.Internal;
 
 namespace ERxWebClient2.Controllers
 {
@@ -68,7 +70,7 @@ namespace ERxWebClient2.Controllers
 		}
 
 		[HttpPost("[action]")]
-		public IActionResult CreateMagRelatedPapersRun([FromBody] MVCMagRelatedPapersRun magRun)
+		public async Task<IActionResult> CreateMagRelatedPapersRunAsync([FromBody] MVCMagRelatedPapersRun magRun)
 		{
 			try
 			{
@@ -97,7 +99,16 @@ namespace ERxWebClient2.Controllers
 
 					newMagRun = dp.Execute(newMagRun);
 
-					return Ok(newMagRun);
+                    ReviewerIdentity ri = ReviewerIdentity.GetIdentity(User);
+                    int ReviewID = ri.ReviewId;
+
+                    Task longRunning = Task.Run(async() =>
+                    {
+                        await newMagRun.RunMagRelatedPapersRun(ri.UserId, ReviewID);
+                    }); 
+   
+
+                    return Ok();
 
 				}
 				else return Forbid();

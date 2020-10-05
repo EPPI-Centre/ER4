@@ -84,7 +84,7 @@ export class BasicMAGService extends BusyAwareService {
     }
     CreateMAGRelatedRun(magRun: MagRelatedPapersRun) {
         this._BusyMethods.push("MagRelatedPapersRunCreate");
-        this._httpC.post<MagRelatedPapersRun>(this._baseUrl + 'api/MagRelatedPapersRunList/CreateMagRelatedPapersRun',
+        this._httpC.post<MagRelatedPapersRun>(this._baseUrl + 'api/MagRelatedPapersRunList/CreateMagRelatedPapersRunAsync',
             magRun)
             .subscribe(result => {
 

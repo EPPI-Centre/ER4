@@ -118,7 +118,7 @@
                                      <PubMedComp></PubMedComp>
                                  </ng-template>
                              </kendo-tabstrip-tab>
-                             <kendo-tabstrip-tab [title]="'MAG Search'" >
+                             <kendo-tabstrip-tab *ngIf="ReviewIsMagEnabled" [title]="'MAG Search'" >
                                  <ng-template kendoTabContent>
                                      <div class="flex-row">
                                          <MAGSearchDetailsComponent></MAGSearchDetailsComponent>

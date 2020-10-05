@@ -8,6 +8,7 @@ import { CodesetStatisticsService } from '../services/codesetstatistics.service'
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { TabStripComponent, SelectEvent } from '@progress/kendo-angular-layout';
 import { Helpers } from '../helpers/HelperMethods';
+import { ReviewInfoService } from '../services/ReviewInfo.service';
 
 
 @Component({
@@ -23,7 +24,8 @@ export class SourcesComponent implements OnInit, OnDestroy {
         private notificationService: NotificationService,
         private ItemListService: ItemListService,
         private CodesetStatisticsService: CodesetStatisticsService,
-        private ReviewerIdentityServ: ReviewerIdentityService
+        private ReviewerIdentityServ: ReviewerIdentityService,
+        private reviewInfoService: ReviewInfoService
     ) {    }
 
     ngOnInit() {
@@ -45,6 +47,12 @@ export class SourcesComponent implements OnInit, OnDestroy {
         this.SrcUpdatedSbus = this.SourcesService.SourceUpdated.subscribe(() => {
             this.SourceUpdated();
         })
+    }
+    public get ReviewIsMagEnabled(): boolean {
+        if (this.reviewInfoService.ReviewInfo.magEnabled
+            //&& this.ReviewerIdentityServ.reviewerIdentity.isSiteAdmin
+        ) return true;
+        return false;
     }
     ngAfterViewInit() {
        
