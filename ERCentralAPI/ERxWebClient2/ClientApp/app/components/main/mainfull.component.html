@@ -58,9 +58,12 @@
                                         {{MyAccountMessage}}
                                         <br />
                                         {{MyReviewMessage}}
-                                        <NewReviewComp>
-
-                                        </NewReviewComp>
+                                    <div class="row m-0 p-0">
+                                        <NewReviewComp></NewReviewComp>
+                                        <div class="btn btn-link btn-sm" (click)="SetupWebDBs()">
+                                            Setup WebDBs...
+                                        </div>
+                                    </div>
                                         <div>
                                             <siteadminEntry *ngIf="IsSiteAdmin" class="row p-1 mx-0"></siteadminEntry>
                                         </div>
