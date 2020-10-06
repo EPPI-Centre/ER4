@@ -219,7 +219,7 @@ export class MAGBrowser implements OnInit, OnDestroy {
     }
     public GetMagPaperRef(magPaperRefId: number, list: MagPaper[]) {
 
-       
+        //this._magBrowserService.currentListType = "CitationsList";
         this.currentMagPaperList = list;
         this._magBrowserService.ShowingParentAndChildTopics = false;
         this._magBrowserService.ShowingChildTopicsOnly = true;

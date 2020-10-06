@@ -402,6 +402,7 @@ export class MAGBrowserService extends BusyAwareService {
         }
 
         this.OrigListCriteria.paperIds = crit.paperIds;
+        crit.listType = this.currentListType;
         console.log('inside Orign Fetch is: ', this.OrigListCriteria);
         return this._httpC.post<MagList>(this._baseUrl + 'api/MagPaperList/GetMagPaperList', crit)
             .toPromise().then(
@@ -519,7 +520,7 @@ export class MAGBrowserService extends BusyAwareService {
     //MAG Original List Paging Methods; could be refactored to remove duplication, check all works first
     public FetchOrigNextPage() {
         this.OrigListCriteria.pageNumber = this.MAGOriginalList.pageindex;
-        this.OrigListCriteria.listType = "MagRelatedPapersRunList";
+        this.OrigListCriteria.listType = this.currentListType;
         if (this.MAGOriginalList.pageindex < this.MAGOriginalList.pagecount - 1) {
             this.MAGOriginalList.pageindex += 1;
         }
@@ -528,7 +529,7 @@ export class MAGBrowserService extends BusyAwareService {
         this.FetchOrigWithCrit(this._OrigCriteria, this.OrigListCriteria.listType)
     }
     public FetchOrigPrevPage() {
-        this.OrigListCriteria.listType = "MagRelatedPapersRunList";
+        this.OrigListCriteria.listType = this.currentListType;
         this.OrigListCriteria.pageNumber = this.MAGOriginalList.pageindex;
         if (this.MAGOriginalList.pageindex == 0) {
             return this.FetchOrigWithCrit(this.OrigListCriteria, this.OrigListCriteria.listType);

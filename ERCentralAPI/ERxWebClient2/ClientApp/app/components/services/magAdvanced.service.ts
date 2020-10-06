@@ -189,7 +189,7 @@ export class MAGAdvancedService extends BusyAwareService {
 
                                     //if (this.currentMagPaper.paperId > -1) {
                                     if (!this._eventEmitterService.firstVisitMAGBrowserPage) {
-
+                                        console.log('calling oand should be');
                                             this.PaperIds = this._magBrowserService.ListCriteria.paperIds;
                                             let criteriaFOS: MVCMagFieldOfStudyListSelectionCriteria = new MVCMagFieldOfStudyListSelectionCriteria();
                                             criteriaFOS.fieldOfStudyId = 0;
@@ -205,8 +205,8 @@ export class MAGAdvancedService extends BusyAwareService {
                                         );
 
                                     } else {
-                                         console.log('calling orginal list');
-                                         this._magBrowserService.OrigListDescription = listType;
+                                    
+                                        console.log('calling orignal and should not be');
                                         let crit: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
                                         crit.listType = listType;
                                         crit.magPaperId = result.paperId;
