@@ -97,7 +97,7 @@ export class BasicMAGComp implements OnInit {
 
         if (item.magRelatedRunId > 0) {
 
-            this._magBrowserService.currentListType = "MagRelatedPaperRunList";
+            this._magBrowserService.currentListType = "MagRelatedPapersRunList";
             this._magAdvancedService.currentMagPaper = new MagPaper();
             this._magBrowserService.ShowingParentAndChildTopics = false;
             this._magBrowserService.ShowingChildTopicsOnly = true;
