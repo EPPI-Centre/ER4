@@ -256,9 +256,10 @@ export class MAGBrowser implements OnInit, OnDestroy {
             if (item != null && this._magBrowserService.selectedPapers.findIndex(x => x.paperId == paperId) == -1 && item.paperId > 0) {
                 console.log('inside the push part, pushing: ', item.paperId);
                 this._magBrowserService.selectedPapers.push(item);
-                item = new MagPaper();
+                return;
             }
         }
+        this._magBrowserService.selectedPapers.push(this._magAdvancedService.currentMagPaper);
     }
     private RemovePaperFromSelectedList(paperId: number, list: MagPaper[]): any {
 
