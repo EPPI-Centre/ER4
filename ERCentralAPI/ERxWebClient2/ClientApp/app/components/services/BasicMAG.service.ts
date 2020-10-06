@@ -5,6 +5,7 @@ import { BusyAwareService } from '../helpers/BusyAwareService';
 import { NotificationService } from '@progress/kendo-angular-notification';
 import { MAGBrowserService } from './MAGBrowser.service';
 import { MagRelatedPapersRun, MagPaperList, MagPaper, MagList, MagItemPaperInsertCommand } from './MAGClasses.service';
+import { EventEmitterService } from './EventEmitter.service';
 
 @Injectable({
     providedIn: 'root',
@@ -17,6 +18,7 @@ export class BasicMAGService extends BusyAwareService {
         private modalService: ModalService,
         private _magBrowserService: MAGBrowserService,
         private notificationService: NotificationService,
+        //private _eventEmitterService: EventEmitterService,
         @Inject('BASE_URL') private _baseUrl: string
     ) {
         super();
@@ -37,7 +39,7 @@ export class BasicMAGService extends BusyAwareService {
     }
 
     FetchMagRelatedPapersRunList() {
-
+        
         this._BusyMethods.push("FetchMagRelatedPapersRunList");
         this._httpC.get<MagRelatedPapersRun[]>(this._baseUrl + 'api/MagRelatedPapersRunList/GetMagRelatedPapersRuns')
             .subscribe(result => {

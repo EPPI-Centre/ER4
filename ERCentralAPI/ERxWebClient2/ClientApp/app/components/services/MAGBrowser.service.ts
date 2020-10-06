@@ -6,8 +6,8 @@ import {
     MagList, MagPaper, MVCMagFieldOfStudyListSelectionCriteria,
     MVCMagPaperListSelectionCriteria, MagFieldOfStudy, MvcMagFieldOfStudyListSelectionCriteria,
     TopicLink, MagItemPaperInsertCommand} from '../services/MAGClasses.service';
-import { TabStripComponent } from '@progress/kendo-angular-layout';
 import { DatePipe } from '@angular/common';
+import { EventEmitterService } from './EventEmitter.service';
 
 
 @Injectable({
@@ -26,6 +26,7 @@ export class MAGBrowserService extends BusyAwareService {
 		super();
 	}
     //@ViewChild('tabSelectedPapers') public tabstrip!: TabStripComponent;
+    public firstVisitToMAGBrowser: boolean = true;
     public MagCitationsByPaperList: MagList = new MagList();
     public MagPaperFieldsList: MagFieldOfStudy[] = [];
     private _MAGList: MagList = new MagList();
@@ -96,16 +97,14 @@ export class MAGBrowserService extends BusyAwareService {
                     this.FetchWithCrit(this.ListCriteria, "PaperFieldsOfStudyList").then(
 
                         (res1: boolean) => {
-                            if (res1) {
-                                if (res1) {
-                                  
-                                }
-                                this.FetchOrigWithCrit(this.ListCriteria, "PaperFieldsOfStudyList").then(
-                                    (res2: boolean) => {
+                        
+                                if (this.firstVisitToMAGBrowser) {
 
-                                        return res2;
-                                    }
-                              )
+                                    this.FetchOrigWithCrit(this.ListCriteria, "PaperFieldsOfStudyList").then(
+                                        (res2: boolean) => {
+                                            this.firstVisitToMAGBrowser = false;
+                                            return res2;
+                                        })
                             };
                             return res;
                         }
@@ -196,7 +195,7 @@ export class MAGBrowserService extends BusyAwareService {
             body)
             .subscribe(
                 (result) => {
-
+                    this.firstVisitToMAGBrowser = false;
                     this.RemoveBusy("FetchMAGRelatedPaperRunsListId");
                     this.MAGList = result;
                     this.MAGOriginalList = result;
@@ -229,7 +228,7 @@ export class MAGBrowserService extends BusyAwareService {
             .toPromise().then(
                 (result) => {
 
-                    console.log('came back from first run');
+                    this.firstVisitToMAGBrowser = false;
                     this.RemoveBusy("FetchMAGRelatedPaperRunsListById");
                     this.MAGList = result;
                     this.MAGOriginalList = result;

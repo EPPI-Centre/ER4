@@ -1,5 +1,4 @@
 import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
-import { Location } from '@angular/common';
 import { searchService } from '../services/search.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Router, NavigationEnd } from '@angular/router';
@@ -26,8 +25,6 @@ export class MAGBrowser implements OnInit, OnDestroy {
         public _magBrowserService: MAGBrowserService,
         public _searchService: searchService,
         private _ReviewerIdentityServ: ReviewerIdentityService,
-        private _routingStateService: MAGBrowserHistoryService,
-        private _location: Location,
         public _notificationService: NotificationService,
         public _eventEmitterService: EventEmitterService,
         private router: Router,
@@ -81,6 +78,13 @@ export class MAGBrowser implements OnInit, OnDestroy {
 
     }
     ngOnInit() {
+
+        //this._eventEmitterService.firstVisitMAGBrowserPage.subscribe(
+        //    () => {
+        //        this._magBrowserService.firstVisitToMAGBrowser = true;
+        //        this._magAdvancedService.firstVisitToMAGBrowser = true;
+        //    }
+        //);
 
         this._eventEmitterService.OpeningNewReview.subscribe(
             () => {
@@ -166,6 +170,7 @@ export class MAGBrowser implements OnInit, OnDestroy {
     }
     ngOnDestroy() {
 
+        this._magAdvancedService.firstVisitToMAGBrowser = false;
         //this._magBrowserService.Clear();
         //this.Clear();
     }
@@ -275,6 +280,7 @@ export class MAGBrowser implements OnInit, OnDestroy {
     public ClickedOnTopic: string = '';
     public GetParentAndChildRelatedPapers(item: MagFieldOfStudy) {
 
+        this._magAdvancedService.firstVisitToMAGBrowser = false;
         this.ClickedOnTopic = item.displayName;
         this._magBrowserService.ShowingParentAndChildTopics = true;
         this._magBrowserService.ShowingChildTopicsOnly = false;

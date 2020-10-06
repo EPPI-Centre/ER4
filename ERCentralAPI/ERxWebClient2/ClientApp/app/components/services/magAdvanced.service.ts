@@ -8,6 +8,7 @@ import { MagPaper, MagReviewMagInfo, MVCMagPaperListSelectionCriteria,
     ClassifierContactModel, MVCMagFieldOfStudyListSelectionCriteria, MagList,
     MagCheckContReviewRunningCommand, MagFieldOfStudy, MagCurrentInfo} from './MAGClasses.service';
 import { Router } from '@angular/router';
+import { EventEmitterService } from './EventEmitter.service';
 
 
 @Injectable({
@@ -25,6 +26,7 @@ export class MAGAdvancedService extends BusyAwareService {
     ) {
         super();
     }
+    public firstVisitToMAGBrowser: boolean = true;
     public _RunAlgorithmFirst: boolean = false;
     public ReviewMatchedPapersList: MagPaper[] = [];
     public AdvancedReviewInfo: MagReviewMagInfo = new MagReviewMagInfo();
@@ -184,7 +186,8 @@ export class MAGAdvancedService extends BusyAwareService {
 
                                 (res: boolean) => {
 
-                                    if (this.currentMagPaper.paperId > -1) {
+                                    //if (this.currentMagPaper.paperId > -1) {
+                                    if (!this.firstVisitToMAGBrowser) {
 
                                             this.PaperIds = this._magBrowserService.ListCriteria.paperIds;
                                             let criteriaFOS: MVCMagFieldOfStudyListSelectionCriteria = new MVCMagFieldOfStudyListSelectionCriteria();
@@ -196,7 +199,7 @@ export class MAGAdvancedService extends BusyAwareService {
 
                                                 (res: MagFieldOfStudy[]) => {
                                                     this.router.navigate(['MAGBrowser']);
-
+                                                    
                                                 }
                                         );
 
@@ -216,6 +219,7 @@ export class MAGAdvancedService extends BusyAwareService {
                                                     this._magBrowserService.FetchMagFieldOfStudyList(criteriaFOS, listType).then(
 
                                                         (res: MagFieldOfStudy[]) => {
+                                                            this.firstVisitToMAGBrowser = false;
                                                             this.router.navigate(['MAGBrowser']);
 
                                                         }
