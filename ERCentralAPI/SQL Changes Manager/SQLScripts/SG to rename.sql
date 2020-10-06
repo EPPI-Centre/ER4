@@ -667,7 +667,9 @@ CREATE OR ALTER PROCEDURE [dbo].[st_WebDbAttributeEdit]
 )
 As
 declare @WEBDB_PUBLIC_ATTRIBUTE_ID int = (select WEBDB_PUBLIC_ATTRIBUTE_ID from TB_WEBDB w
-						inner join TB_WEBDB_PUBLIC_ATTRIBUTE a on a.WEBDB_ID = w.WEBDB_ID and w.WEBDB_ID = @WEBDB_ID and ATTRIBUTE_ID = @ATTRIBUTE_ID)
+						inner join TB_WEBDB_PUBLIC_ATTRIBUTE a 
+							on a.WEBDB_ID = w.WEBDB_ID and w.WEBDB_ID = @WEBDB_ID 
+							and ATTRIBUTE_ID = @ATTRIBUTE_ID and w.REVIEW_ID = @REVIEW_ID)
 --Just a basic sanity check: can we get the record to edit?
 IF @WEBDB_PUBLIC_ATTRIBUTE_ID is null OR @WEBDB_PUBLIC_ATTRIBUTE_ID < 1 return
 update TB_WEBDB_PUBLIC_ATTRIBUTE set WEBDB_ATTRIBUTE_NAME = @Public_Name, WEBDB_ATTRIBUTE_DESCRIPTION = @Public_Descr 

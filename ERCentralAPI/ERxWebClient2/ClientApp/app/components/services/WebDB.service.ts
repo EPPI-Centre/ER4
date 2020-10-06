@@ -1,8 +1,9 @@
 import { Inject, Injectable, EventEmitter, Output} from '@angular/core';
 import { HttpClient   } from '@angular/common/http';
 import { ModalService } from './modal.service';
-import { ReviewSet, SetAttribute, iAttributesList, iReviewSet } from './ReviewSets.service';
+import { ReviewSet, SetAttribute, iAttributesList, iReviewSet, ReviewSetsService, singleNode } from './ReviewSets.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
+import { ThemeService } from '@progress/kendo-angular-charts/dist/es2015/common/theme.service';
 
 
 @Injectable({
@@ -19,6 +20,7 @@ export class WebDBService extends BusyAwareService  {
         @Inject('BASE_URL') private _baseUrl: string
     ) { super(); }
 
+    @Output() PleaseRedrawTheTree = new EventEmitter();
     private _WebDBs: iWebDB[] = [];
     public get WebDBs(): iWebDB[] {
         return this._WebDBs;
@@ -39,8 +41,8 @@ export class WebDBService extends BusyAwareService  {
         }
         //console.log("Setting current DB:", db, this._CurrentDB);
     }
-    private _CurrentSets: iWebDbReviewSet[] = [];
-    public get CurrentSets(): iWebDbReviewSet[] {
+    private _CurrentSets: WebDbReviewSet[] = [];
+    public get CurrentSets(): WebDbReviewSet[] {
         if (this._CurrentSets.length > 0 && this._CurrentDB != null && this._CurrentSets[0].webDBId == this._CurrentDB.webDBId) {
             return this._CurrentSets;
         }
@@ -49,6 +51,7 @@ export class WebDBService extends BusyAwareService  {
             return this._CurrentSets;
         }
     }
+    public SelectedNodeData: singleNode | null = null;
 
     public Fetch(): void {
         this._BusyMethods.push("Fetch");
@@ -128,7 +131,11 @@ export class WebDBService extends BusyAwareService  {
             let body = JSON.stringify({ Value: this._CurrentDB.webDBId });
             this._httpC.post<iWebDbReviewSet[]>(this._baseUrl + 'api/WebDB/GetWebDbReviewSetsList', body).subscribe(
                 res => {
-                    this._CurrentSets = res;
+                    this._CurrentSets = [];
+                    for (let iwSet of res) {
+                        this._CurrentSets.push(new WebDbReviewSet(iwSet));
+                    }
+                    this.PleaseRedrawTheTree.emit();
                     this.RemoveBusy("GetWebDbReviewSetsList");
                 }, error => {
                     this.RemoveBusy("GetWebDbReviewSetsList");
@@ -146,8 +153,9 @@ export class WebDBService extends BusyAwareService  {
         this._BusyMethods.push("AddWebDbReviewSet");
         this._httpC.post<iWebDbReviewSet>(this._baseUrl + 'api/WebDB/AddWebDbReviewSet', body).subscribe(
             res => {
-                this._CurrentSets.push(res);
-                this._CurrentSets.sort((a, b) => { return a.setOrder - b.setOrder });
+                this._CurrentSets.push(new WebDbReviewSet(res));
+                this._CurrentSets.sort((a, b) => { return a.set_order - b.set_order });
+                this.PleaseRedrawTheTree.emit();
                 this.RemoveBusy("AddWebDbReviewSet");
             }, error => {
                 this.RemoveBusy("AddWebDbReviewSet");
@@ -167,6 +175,11 @@ export class WebDBService extends BusyAwareService  {
                 if (ind != -1) {
                     this._CurrentSets.splice(ind, 1);
                 }
+                if (this.SelectedNodeData != null
+                    && this.SelectedNodeData.nodeType == "ReviewSet"
+                    && (this.SelectedNodeData as WebDbReviewSet).webDBSetId == webDBsetId
+                ) this.SelectedNodeData = null;
+                this.PleaseRedrawTheTree.emit();
                 this.RemoveBusy("RemoveWebDbReviewSet");
             }, error => {
                 this.RemoveBusy("RemoveWebDbReviewSet");
@@ -201,7 +214,21 @@ export interface iWebDbReviewSet extends iReviewSet {
 export class WebDbReviewSet extends ReviewSet {
     constructor(data: iWebDbReviewSet) {
         super();
+        this.set_id = data.setId;
+        this.reviewSetId = data.reviewSetId;
+        this.set_name = data.setName;
+        this.order = data.setOrder;
+        this.codingIsFinal = data.codingIsFinal;
+        this.allowEditingCodeset = data.allowCodingEdits;
+        this.description = data.setDescription;
+        this.setType = data.setType;
+        this.userCanEditURLs = data.userCanEditURLs;
+        this.webDBId = data.webDBId;
+        this.webDBSetId = data.webDBSetId;
+        this.attributes = ReviewSetsService.childrenFromJSONarray(data.attributes.attributesList);
     }
+    public webDBId: number;
+    public webDBSetId: number;
 }
 export class WebDbReviewSetJson {
     webDBId: number = 0;

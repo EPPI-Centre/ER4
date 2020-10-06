@@ -103,6 +103,7 @@ import { MAGSearchComponent } from './components/MAG/MAGSearch.component';
 import { WebDBsComponent } from './components/Review/WebDBs.component';
 import { TruncatePipe } from './components/MAG/TruncatePipe.component';
 import { MAGSearchDetailsComponent } from './components/MAG/MAGSearchDetails.component';
+import { WebDbCcodesetTreeComponent } from './components/CodesetTrees/WebDbCcodesetTree.component';
 
 @NgModule({
     declarations: [
@@ -186,7 +187,8 @@ import { MAGSearchDetailsComponent } from './components/MAG/MAGSearchDetails.com
         MAGSearchComponent,
         TruncatePipe,
         MAGSearchDetailsComponent,
-        WebDBsComponent
+        WebDBsComponent,
+        WebDbCcodesetTreeComponent
 	],
     providers: [
         DatePipe, 

@@ -1,6 +1,6 @@
 import { Component, Inject, OnInit, OnDestroy, ViewChild, Input, Output, EventEmitter } from '@angular/core';
 import { Router } from '@angular/router';
-import { WebDBService, iWebDB, iWebDbReviewSet } from '../services/WebDB.service';
+import { WebDBService, iWebDB, iWebDbReviewSet, WebDbReviewSet } from '../services/WebDB.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ModalService } from '../services/modal.service';
 import { ReviewSetsService, SetAttribute, ReviewSet } from '../services/ReviewSets.service';
@@ -55,7 +55,20 @@ export class WebDBsComponent implements OnInit, OnDestroy {
 			if (att) return att.attribute_name;
 			else return "Unknown Code (ID: " + AttId.toString() + ")";
         }
-    }
+	}
+	public get SelectedNodeIsRoot(): boolean | null {
+		if (this.WebDBService.SelectedNodeData == null) return null;
+		else if (this.WebDBService.SelectedNodeData.nodeType == "ReviewSet") return true;
+		else return false;
+	}
+	public get SelectedCodingTool(): WebDbReviewSet | null {
+		if (this.WebDBService.SelectedNodeData == null || this.WebDBService.SelectedNodeData.nodeType !== "ReviewSet") return null;
+		else return this.WebDBService.SelectedNodeData as WebDbReviewSet;
+	}
+	public get SelectedAttribute(): SetAttribute | null {
+		if (this.WebDBService.SelectedNodeData == null || this.WebDBService.SelectedNodeData.nodeType !== "SetAttribute") return null;
+		else return this.WebDBService.SelectedNodeData as SetAttribute;
+	}
     public get CanWrite(): boolean {
         //console.log("create rev check:", this._reviewerIdentityServ.reviewerIdentity);
 		return this.ReviewerIdentityService.HasWriteRights && this.ReviewerIdentityService.HasAdminRights;
@@ -67,12 +80,12 @@ export class WebDBsComponent implements OnInit, OnDestroy {
 			f => {
 				//console.log("f:", f.set_id);
 				return this.WebDBService.CurrentSets.findIndex(ff => {
-					console.log("ff:", ff.setId);
-					return ff.setId == f.set_id;
+					console.log("ff:", ff.set_id);
+					return ff.set_id == f.set_id;
 				}) == -1 || this.WebDBService.CurrentSets.length == 0;
 			});
 	}
-	public get CurrentWebDbTools(): iWebDbReviewSet[] {
+	public get CurrentWebDbTools(): WebDbReviewSet[] {
 		return this.WebDBService.CurrentSets;
     }
 	Edit(item: iWebDB | null) {
@@ -170,12 +183,20 @@ export class WebDBsComponent implements OnInit, OnDestroy {
 		this.selectedCodeSetDropDown = null;
 		//this.WebDBService.GetWebDbReviewSetsList();
 	}
-	RemoveTool(rs: iWebDbReviewSet) {
+	RemoveTool(rs: WebDbReviewSet) {
 		if (this.WebDBService.CurrentDB != null)
 			this.WebDBService.RemoveWebDbReviewSet(this.WebDBService.CurrentDB.webDBId, rs.webDBSetId);
     }
+	EditTool(rs: WebDbReviewSet) {
 
+    }
+	RemoveAttribute(att: SetAttribute) {
+		//if (this.WebDBService.CurrentDB != null)
+		//	this.WebDBService.re(this.WebDBService.CurrentDB.webDBId, rs.webDBSetId);
+	}
+	EditAttribute(att: SetAttribute) {
 
+	}
 
 	BackToMain() {
 		this.router.navigate(['Main']);

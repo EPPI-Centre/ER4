@@ -154,6 +154,27 @@ namespace ERxWebClient2.Controllers
                 return StatusCode(500, e.Message);
             }
         }
+        public IActionResult UpdateDbReviewSet([FromBody] WebDbReviewSetJson data)
+        {
+            try
+            {
+                if (SetCSLAUser4Writing())
+                {
+                    WebDBReviewSetCrit cr = data.GetFetchCriteria();
+                    WebDbReviewSet editing = DataPortal.Fetch<WebDbReviewSet>(cr);
+                    editing.SetName = data.setName;
+                    editing.SetDescription = data.setDescription;
+                    editing = editing.Save(true);
+                    return Ok(editing);
+                }
+                else return Forbid();
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "AddWebDbReviewSet data portal error");
+                return StatusCode(500, e.Message);
+            }
+        }
     }
 
 	public class WebDbJson
