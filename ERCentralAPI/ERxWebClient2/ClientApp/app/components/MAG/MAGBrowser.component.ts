@@ -79,12 +79,7 @@ export class MAGBrowser implements OnInit, OnDestroy {
     }
     ngOnInit() {
 
-        //this._eventEmitterService.firstVisitMAGBrowserPage.subscribe(
-        //    () => {
-        //        this._magBrowserService.firstVisitToMAGBrowser = true;
-        //        this._magAdvancedService.firstVisitToMAGBrowser = true;
-        //    }
-        //);
+        this._eventEmitterService.firstVisitMAGBrowserPage = true;
 
         this._eventEmitterService.OpeningNewReview.subscribe(
             () => {
@@ -280,7 +275,8 @@ export class MAGBrowser implements OnInit, OnDestroy {
     public ClickedOnTopic: string = '';
     public GetParentAndChildRelatedPapers(item: MagFieldOfStudy) {
 
-        this._magAdvancedService.firstVisitToMAGBrowser = false;
+        this._eventEmitterService.firstVisitMAGBrowserPage = false;
+        this._magBrowserService.OrigListCriteria.listType = "PaperFieldsOfStudyList";
         this.ClickedOnTopic = item.displayName;
         this._magBrowserService.ShowingParentAndChildTopics = true;
         this._magBrowserService.ShowingChildTopicsOnly = false;
@@ -301,6 +297,7 @@ export class MAGBrowser implements OnInit, OnDestroy {
             () => {
                 this._magBrowserService.GetParentAndChildFieldsOfStudy("FieldOfStudyChildrenList", FieldOfStudyId).then(
                     () => {
+                        this._eventEmitterService.firstVisitMAGBrowserPage = false;
                         this._magBrowserService.GetPaperListForTopic(FieldOfStudyId);
                     });
         });

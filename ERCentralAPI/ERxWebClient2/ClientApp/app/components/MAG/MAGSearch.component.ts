@@ -198,6 +198,7 @@ export class MAGSearchComponent implements OnInit {
     public GetItems(item: MagSearch) {
 
         if (item.magSearchId > 0) {
+            this._magBrowserService.currentListType = "MagSearchResultsList";
             this._magBrowserService.ShowingParentAndChildTopics = false;
             this._magBrowserService.ShowingChildTopicsOnly = true;
             let magBrowseItem: MagBrowseHistoryItem = new MagBrowseHistoryItem("Papers identified from Mag Search run", "MagSearchPapersList", 0,

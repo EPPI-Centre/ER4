@@ -22,6 +22,7 @@ export class MAGAdvancedService extends BusyAwareService {
         private _magBrowserService: MAGBrowserService,
         private modalService: ModalService,
         private router: Router,
+        private _eventEmitterService: EventEmitterService,
         @Inject('BASE_URL') private _baseUrl: string
     ) {
         super();
@@ -187,7 +188,7 @@ export class MAGAdvancedService extends BusyAwareService {
                                 (res: boolean) => {
 
                                     //if (this.currentMagPaper.paperId > -1) {
-                                    if (!this.firstVisitToMAGBrowser) {
+                                    if (!this._eventEmitterService.firstVisitMAGBrowserPage) {
 
                                             this.PaperIds = this._magBrowserService.ListCriteria.paperIds;
                                             let criteriaFOS: MVCMagFieldOfStudyListSelectionCriteria = new MVCMagFieldOfStudyListSelectionCriteria();
@@ -204,11 +205,16 @@ export class MAGAdvancedService extends BusyAwareService {
                                         );
 
                                     } else {
+                                         console.log('calling orginal list');
+                                         this._magBrowserService.OrigListDescription = listType;
+                                        let crit: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
+                                        crit.listType = listType;
+                                        crit.magPaperId = result.paperId;
+                                        crit.pageSize = 20;
+                                        this._magBrowserService.FetchOrigWithCrit(crit, listType).then(
 
-                                         this._magBrowserService.FetchOrigWithCrit(criteriaCitedBy, "CitedByList").then(
-
-                                         () => {
-
+                                            () => {
+                                                this._eventEmitterService.firstVisitMAGBrowserPage = false;
                                                 if (res) {
                                                     this.PaperIds = this._magBrowserService.ListCriteria.paperIds;
                                                     let criteriaFOS: MVCMagFieldOfStudyListSelectionCriteria = new MVCMagFieldOfStudyListSelectionCriteria();
@@ -220,6 +226,7 @@ export class MAGAdvancedService extends BusyAwareService {
 
                                                         (res: MagFieldOfStudy[]) => {
                                                             this.firstVisitToMAGBrowser = false;
+                                                            this._eventEmitterService.firstVisitMAGBrowserPage = false;
                                                             this.router.navigate(['MAGBrowser']);
 
                                                         }
