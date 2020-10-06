@@ -3743,6 +3743,7 @@ namespace EppiReviewer4
 
         private void Image_MouseLeftButtonUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
+            if (ControlContext == "CodingOnly") return; //Can't set the coding to "complete" in Coding-Only UI... (added 06/10/2020!!)
             DialogParameters dp = new DialogParameters();
             tempRS = (sender as Image).DataContext as ReviewSet;
             bool canProceed = false;
