@@ -45,6 +45,11 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
     //public sub: Subscription = new Subscription();
     public SearchTextTopic: string = '';
     ngOnInit() {
+
+
+        console.log('asdfs: ', this._magAdvancedService.AdvancedReviewInfo.nMatchedAccuratelyIncluded);
+
+
          this._eventEmitterService.getMatchedIncludedItemsEvent.subscribe(
             () => {
                 this.GetMatchedMagIncludedList();
@@ -91,7 +96,7 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
 
     }
     public Back() {
-        this._location.back();
+        this.router.navigate(['Main']);
     }
     public ClearAllMatching() {
 
@@ -116,7 +121,7 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
     }
     public ClearMatches() {
 
-        this.ConfirmationDialogService.confirm("Are you sure you wish to clear all matching for this attribute?", "", false, "")
+        this.ConfirmationDialogService.confirm("Are you sure you want to match all items with this code to Microsoft Academic records?", "", false, "")
             .then(
                 (confirm: any) => {
                     if (confirm) {
@@ -151,7 +156,7 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
 
         
         if (this.SearchTextTopic.length > 2 ) {
-
+ 
             let criteriaFOSL: MVCMagFieldOfStudyListSelectionCriteria = new MVCMagFieldOfStudyListSelectionCriteria();
             criteriaFOSL.fieldOfStudyId = 0;
             criteriaFOSL.listType = 'FieldOfStudySearchList';
@@ -191,8 +196,6 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
     }
     public FOSMAGBrowserNavigate(displayName: string, fieldOfStudyId: number) {
 
-        this._magBrowserService.ShowingParentAndChildTopics = true;
-        this._magBrowserService.ShowingChildTopicsOnly = false;
         let magBrowseItem: MagBrowseHistoryItem = new MagBrowseHistoryItem(displayName, "BrowseTopic", 0,
             "", "", 0, "", "", fieldOfStudyId, displayName, "", 0);
         this._mAGBrowserHistoryService.IncrementHistoryCount();
@@ -208,7 +211,6 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
 
         this._magBrowserService.ParentTopic = FieldOfStudy;
 
-
         this._magBrowserService.GetParentAndChildFieldsOfStudy("FieldOfStudyParentsList", FieldOfStudyId).then(
             () => {
                 this._magBrowserService.GetParentAndChildFieldsOfStudy("FieldOfStudyChildrenList", FieldOfStudyId).then(
@@ -219,19 +221,30 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
     }
     public RunMatchingAlgo() {
 
-        let msg: string = 'Are you sure you want to match all the items in your review\n to Microsoft Academic records?';
-        this.ConfirmationDialogService.confirm('MAG RUN ALERT', msg, false, '')
+        var att = this.CurrentDropdownSelectedCode2 as SetAttribute;
+        let msg: string = ''; 
+        if (att != null && att.attribute_id > 0) {
+            msg = 'Are you sure you want to match all items with this code to Microsoft Academic records?';
+        } else {
+            msg = 'Are you sure you want to match all items to Microsoft Academic records?';
+        }
+        this.ConfirmationDialogService.confirm('Run matching algorithm', msg, false, '')
             .then((confirm: any) => {
                 if (confirm) {
                     let res: string = '';
-                    var att = this.CurrentDropdownSelectedCode2 as SetAttribute;
                     if (att != null && att.attribute_id > 0) {
                         this._magAdvancedService.RunMatchingAlgorithm(att.attribute_id).then(
-                            (result) => { res = result;}
+                            (result) => {
+                               //msg = 'Are you sure you want to match all items with this code to Microsoft Academic records?';
+                                res = result;
+                            }
                             );
                     } else {
                         this._magAdvancedService.RunMatchingAlgorithm(0).then(
-                            (result) => { res = result; }
+                            (result) => {
+                                //msg = 'Are you sure you want to match all items to Microsoft Academic records?';
+                                res = result;
+                            }
                         );
                     }
                     this._magAdvancedService._RunAlgorithmFirst = true;
@@ -390,6 +403,71 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
         }
 
     }
+    public CanGetTopics(): boolean {
+
+        if (this._magAdvancedService.AdvancedReviewInfo.nMatchedAccuratelyIncluded.toString().length > 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    public CanGetNotMatchedExcluded(): boolean {
+
+        if (this._magAdvancedService.AdvancedReviewInfo.nNotMatchedExcluded.toString().length > 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    public CanGetNotMatchedIncluded(): boolean {
+
+        if (this._magAdvancedService.AdvancedReviewInfo.nNotMatchedIncluded.toString().length > 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    public CanGetMatchesNeedingCheckingIncluding(): boolean {
+
+        if (this._magAdvancedService.AdvancedReviewInfo.nRequiringManualCheckIncluded.toString().length > 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    public CanGetMatchesNeedingCheckingExcluding(): boolean {
+
+        if (this._magAdvancedService.AdvancedReviewInfo.nRequiringManualCheckExcluded.toString().length > 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    public CanGetMatchedAll(): boolean {
+
+        if (this._magAdvancedService.AdvancedReviewInfo.nMatchedAccuratelyIncluded.toString().length > 0 &&
+            this._magAdvancedService.AdvancedReviewInfo.nMatchedAccuratelyExcluded.toString().length > 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    public CanGetMatchedIncluded(): boolean {
+
+        if (this._magAdvancedService.AdvancedReviewInfo.nMatchedAccuratelyIncluded.toString().length > 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    public CanGetMatchedExcluded(): boolean {
+
+        if (this._magAdvancedService.AdvancedReviewInfo.nMatchedAccuratelyExcluded.toString().length > 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
     public GetMagPaper() {
 
         this._magAdvancedService.FetchMagPaperId(this.magPaperId).then(
@@ -402,7 +480,7 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
                         result.abstract, result.linkedITEM_ID, result.urls, result.findOnWeb, 0, "", "", 0);
                     this._mAGBrowserHistoryService.IncrementHistoryCount();
                     this._mAGBrowserHistoryService.AddToBrowseHistory(magBrowseItem);
-                    this._magAdvancedService.PostFetchMagPaperCalls(result);
+                    this._magAdvancedService.PostFetchMagPaperCalls(result, '');
                 } else {
                     this._magBasicService.showMAGRunMessage('Microsoft academic could not find the paperId!');
                 }

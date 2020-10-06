@@ -78,16 +78,16 @@ namespace BusinessLibrary.BusinessClasses
         {
             get
             {
-                //if (MagFolder != null && MagFolder != "" && !String.IsNullOrEmpty(MagFolder))
-                //{
-                //    string[] tmp = MagFolder.Split('/');
-                //    return "mag-" + tmp[2] + "-" + tmp[1] + "-" + tmp[0];
-                //}
-                //else
-                //{
-                //    return "";
-                //}
-                return GetProperty(MagFolderProperty);
+                if (MagVersion != null && MagVersion != "" && !String.IsNullOrEmpty(MagVersion))
+                {
+                    string[] tmp = MagVersion.Split('/');
+                    return "mag-" + tmp[2] + "-" + tmp[1] + "-" + tmp[0];
+                }
+                else
+                {
+                    return "";
+                }
+                //return GetProperty(MagFolderProperty);
             }
             set
             {

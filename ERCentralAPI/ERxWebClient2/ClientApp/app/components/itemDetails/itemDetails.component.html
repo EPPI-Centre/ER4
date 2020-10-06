@@ -3,6 +3,9 @@
     
     <div class="row col-12 p-0 m-0 justify-content-around ">
         <div class="row p-0 m-0 col">
+			<div *ngIf="HasPDF" class="mb-1 ml-1 mr-0 mt-0 text-success" title="Open the first PDF uploaded to this ref..." style="cursor:pointer;" (click)="OpenFirstPDF()">
+				<span class="k-icon k-i-pdf" style="font-size:1.2em"></span>
+			</div>
             <div class="small m-1">Ref. Type:</div>
             <div class="small font-weight-bold mr-1 mt-1">
                 {{item.typeName}}
@@ -282,6 +285,6 @@
 		</div>
 	</div>
 <div *ngIf="item" class="row col-12 mt-1 card card-body bg-light ml-1" style="overflow-x:auto;">
-    <ItemDocListComp class="" [itemID]="item.itemId" [ShowViewButton]="ShowDocViewButton"></ItemDocListComp>
+    <ItemDocListComp #ItemDocListComp class="" [itemID]="item.itemId" [ShowViewButton]="ShowDocViewButton"></ItemDocListComp>
 </div>
 

@@ -1,4 +1,4 @@
-import { Component,  OnInit, ViewChild, EventEmitter } from '@angular/core';
+import { Component,  OnInit, ViewChild, EventEmitter, Input } from '@angular/core';
 import { Router } from '@angular/router';
 import { Location } from '@angular/common';
 import { MAGBrowserService } from '../services/MAGBrowser.service';
@@ -8,6 +8,7 @@ import { NotificationService } from '@progress/kendo-angular-notification';
 import { EventEmitterService } from '../services/EventEmitter.service';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 import { MAGBrowserHistoryService } from '../services/MAGBrowserHistory.service';
+import { Helpers } from '../helpers/HelperMethods';
 
 @Component({
     selector: 'MAGHeaderBar',
@@ -32,25 +33,34 @@ export class MAGHeaderBarComp implements OnInit {
     ngOnInit() {
 	
     }
+    @Input() Context: string | undefined;
     public get HasWriteRights(): boolean {
         return this._ReviewerIdentityServ.HasWriteRights;
     }
+    public get isSiteAdmin(): boolean {
+        return this._ReviewerIdentityServ.reviewerIdentity.isSiteAdmin;
+    }
     public ShowSelectedPapers: string = "Selected (" + this._magBrowserService.SelectedPaperIds.length.toString() + ")";
-    public SelectedItems() : boolean {
+    public  get SelectedItems() : boolean {
 
         if (this._magBrowserService.selectedPapers != null && 
             this._magBrowserService.selectedPapers.length >0 ) {
-            return false;
-        } else {
             return true;
+        } else {
+            return false;
         }
     }
+    public DisableButton(destination: string) {
+        if (this.Context == undefined || !this.HasWriteRights) return false;
+        else if (this.Context == destination) return true;
+        else return false;
+    }
     public Forward() {
-
+        
         this._location.forward();
     }
     public Back() {
-
+        
         this._location.back();
     }
     public AdvancedFeatures() {
@@ -58,11 +68,35 @@ export class MAGHeaderBarComp implements OnInit {
         this.router.navigate(['AdvancedMAGFeatures']);
     }
     public Selected() {
-        this._eventEmitterService.selectedButtonPressed.emit();
+        if (this.Context == "MAGBrowser") {
+            this._eventEmitterService.selectedButtonPressed.emit();
+        } else {
+            let item: MagBrowseHistoryItem = new MagBrowseHistoryItem("Browse topic: SelectedPapers "
+                , "SelectedPapers", 0, "", "", 0, "", "",
+                0, "", "", 0);
+            this._mAGBrowserHistoryService.IncrementHistoryCount();
+            this._mAGBrowserHistoryService.AddToBrowseHistory(item);
+            
+            this.router.navigate(['MAGBrowser']).then(
+                async (res) =>  {
+                    if (res) {
+                        await Helpers.Sleep(50);
+                        this._eventEmitterService.selectedButtonPressed.emit();
+                    }
+                    //this._eventEmitterService.tool = true;
+                }
+            );
+        }
     }
     public ClearSelected() {
-
-        this._magBrowserService.ClearSelected();
+        let msg: string = 'Are you sure you want to clear the ' + this._magBrowserService.selectedPapers.length + '  selected MAG papers into your review?';
+        this._confirmationDialogService.confirm('MAG Selected Papers', msg, false, '')
+            .then((confirm: any) => {
+                if (confirm) {
+                    this._magBrowserService.ClearSelected();
+                }
+            });
+        
     }
     showMAGRunMessage(notifyMsg: string) {
 
@@ -76,7 +110,7 @@ export class MAGHeaderBarComp implements OnInit {
     }
     public ImportSelected() {
 
-        let msg: string = 'Are you sure you want to import the selected MAG papers into your review?';
+        let msg: string = 'Are you sure you want to import the ' + this._magBrowserService.selectedPapers.length + '  selected MAG papers into your review?';
         this._confirmationDialogService.confirm('MAG Import', msg, false, '')
             .then((confirm: any) => {
                 if (confirm) {

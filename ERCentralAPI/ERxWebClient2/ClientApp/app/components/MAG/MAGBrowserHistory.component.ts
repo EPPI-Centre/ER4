@@ -62,7 +62,7 @@ export class MAGBrowserHistory implements OnInit {
         return false;
     }
     Back() {
-        this._location.back();
+        this.router.navigate(['Main']);
     }
     fetchMAGHistory() {
 
@@ -147,7 +147,7 @@ export class MAGBrowserHistory implements OnInit {
                         result.abstract, result.linkedITEM_ID, result.urls, result.findOnWeb, 0, "", "", 0);
                     this._MAGBrowserHistoryService.IncrementHistoryCount();
                     this._MAGBrowserHistoryService.AddToBrowseHistory(magBrowseItem);
-                    this._magAdvancedService.PostFetchMagPaperCalls(result);
+                    this._magAdvancedService.PostFetchMagPaperCalls(result,'');
                 } else {
                     this._magBasicService.showMAGRunMessage('Microsoft academic could not find the paperId!');
                 }
@@ -202,7 +202,7 @@ export class MAGBrowserHistory implements OnInit {
     }
     public ShowSelectedPapersPage() {
         this.router.navigate(['MAGBrowser']);
-        this._magBrowserService.onTabSelect(2);
+        //this._magBrowserService.onTabSelect(2);
     }
     public GetParentAndChildRelatedPapers(FieldOfStudy: string, FieldOfStudyId: number) {
 

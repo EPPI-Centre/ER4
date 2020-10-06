@@ -101,6 +101,8 @@ import { MAGOrigpaginatorComp } from './components/commonComponents/MAGOrigpagin
 import { DatePipe } from '@angular/common';
 import { MAGSearchComponent } from './components/MAG/MAGSearch.component';
 import { WebDBsComponent } from './components/Review/WebDBs.component';
+import { TruncatePipe } from './components/MAG/TruncatePipe.component';
+import { MAGSearchDetailsComponent } from './components/MAG/MAGSearchDetails.component';
 
 @NgModule({
     declarations: [
@@ -182,6 +184,8 @@ import { WebDBsComponent } from './components/Review/WebDBs.component';
         MAGHeaderBarComp,
         ScreeningSetupComp,
         MAGSearchComponent,
+        TruncatePipe,
+        MAGSearchDetailsComponent,
         WebDBsComponent
 	],
     providers: [
@@ -227,7 +231,7 @@ import { WebDBsComponent } from './components/Review/WebDBs.component';
             { path: 'ItemList', component: ItemListComp },
             { path: 'MAGAdmin', component: MAGAdminComp},
             { path: 'MAGBrowser', component: MAGBrowser },
-            { path: 'MagSearch', component: MAGSearchComponent},
+            { path: 'MagSearch', component: MAGSearchComponent },
             { path: 'microsoftAcademic', component: microsoftAcademicComp },
             { path: 'MAGBrowserHistory', component: MAGBrowserHistory },
             { path: 'MatchingMAGItems', component: MatchingMAGItemsComponent},

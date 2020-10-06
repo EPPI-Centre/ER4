@@ -28,8 +28,8 @@
                             Id:
                             {{magPaper.paperId}}
                         </div>
-                        <div class="col-3 btn btn-link pull-left" (click)="GetMagPaperRef(magPaper.paperId)">
-                            View in MAG Browser
+                        <div class="col-3 btn btn-link text-left" (click)="GetMagPaperRef(magPaper.paperId)">
+                            <p>View in MAG Browser</p>
                         </div>
                         <div class="col-3 btn btn-link pull-right">
                             <a href="https://academic.microsoft.com/paper/{{magPaper.paperId}}/reference" target="_blank">
@@ -44,9 +44,9 @@
                         </div>
                         <div class="col-12">
 
-                            Correct Match:    <input (click)="UpdateMagPaper(true, magPaper.paperId)"
-                                                     type="radio" [value]="true" name="magMatchRadio_{{magPaper.paperId}}"
-                                                     [(ngModel)]="magPaper.manualTrueMatch" class="ml-3">
+                            Correct Match:&nbsp;   &nbsp;<input (click)="UpdateMagPaper(true, magPaper.paperId)"
+                                                                type="radio" [value]="true" name="magMatchRadio_{{magPaper.paperId}}"
+                                                                [(ngModel)]="magPaper.manualTrueMatch" class="ml-3">
                         </div>
                         <div class="col-12 ">
                             Incorrect Match: <input (click)="UpdateMagPaper(false, magPaper.paperId)"
@@ -60,13 +60,59 @@
         </table>
 
     </div>
+    <div *ngIf="foundMagPaper">
+        <table class="table table-bordered table-responsive-md table-striped text-left small alert-warning">
+            <thead>
+                <tr>
+                    <th class="text-center">Matches with Microsoft Academic records</th>
+                    <th class="text-center">Status and score</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr >
+                    <td>
+                        <div class="col-12">{{FoundPaper.fullRecord}}</div>
+                        <div class="col-12">
+                            Id:
+                            {{FoundPaper.paperId}}
+                        </div>
+                        <div class="col-3 btn btn-link text-left" (click)="GetMagPaperRef(FoundPaper.paperId)">
+                            <p>View in MAG Browser</p>
+                        </div>
+                        <div class="col-3 btn btn-link pull-right">
+                            <a href="https://academic.microsoft.com/paper/{{magPaper.paperId}}/reference" target="_blank">
+                                View on the internet
+                            </a>
+                        </div>
+                    </td>
+                    <td class="w-25">
+                        <div class="col-12 ">
+                            Score: 0
+                        </div>
+                        <div class="col-12">
+
+                            Correct Match:&nbsp;   &nbsp;<input (click)="UpdateMagPaperFound(true, FoundPaper.paperId)"
+                                                                type="radio" [value]="true" name="magMatchRadioFound_{{FoundPaper.paperId}}"
+                                                                [(ngModel)]="FoundPaper.manualTrueMatch" class="ml-3">
+                        </div>
+                        <div class="col-12 ">
+                            Incorrect Match: <input (click)="UpdateMagPaperFound(false, FoundPaper.paperId)"
+                                                    type="radio" [value]="true" name="magMatchRadioFound_{{FoundPaper.paperId}}"
+                                                    [(ngModel)]="FoundPaper.manualFalseMatch" class="ml-3">
+                        </div>
+                    </td>
+
+                </tr>
+            </tbody>
+        </table>
+    </div>
     <div class="col-12 p-2 m-2 row">
         <div class="col-12 text-left">
             <p><b>Look up specific Microsoft Academic ID:</b></p>
             <input required minlength="4" type="number" id="magPaperId" name="magPaperId" #magPaper="ngModel"
                    class="alert text-center"
                    [(ngModel)]="magPaperId" />
-            <button (click)="GetMagPaper()" [disabled]="!CanGetMagPaper()" class="btn btn-outline-primary  p-2 m-2">GO</button>
+            <button (click)="GetMagPaperForPage()" [disabled]="!CanGetMagPaper()" class="btn btn-outline-primary  p-2 m-2">GO</button>
         </div>
         <div class="col-4"></div>
         <div *ngIf="magPaper.invalid && (magPaper.dirty || magPaper.touched)"

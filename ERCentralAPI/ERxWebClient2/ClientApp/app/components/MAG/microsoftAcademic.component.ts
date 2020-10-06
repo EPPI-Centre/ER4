@@ -7,6 +7,8 @@ import { Subscription } from 'rxjs';
 import { Item } from '../services/ItemList.service';
 import { NotificationService } from '@progress/kendo-angular-notification';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
+import { MAGBrowserHistory } from './MAGBrowserHistory.component';
+import { MAGBrowserHistoryService } from '../services/MAGBrowserHistory.service';
 
 @Component({
    
@@ -31,6 +33,8 @@ export class microsoftAcademicComp implements OnInit, OnDestroy {
     public magPaperId: number = 0;
     public magPaperRefId: number = 0;
     public currentMagPaperLinkItem: MagPaper = new MagPaper();
+    public foundMagPaper: boolean = false;
+    public FoundPaper: MagPaper = new MagPaper();
     ngOnInit() {
 
         this.sub = this._ItemCodingService.DataChanged.subscribe(
@@ -50,7 +54,7 @@ export class microsoftAcademicComp implements OnInit, OnDestroy {
 
             (result: MagPaper) => {
 
-                this._magAdvancedService.PostFetchMagPaperCalls(result);
+                this._magAdvancedService.PostFetchMagPaperCalls(result,'');
             });
 
     }
@@ -59,13 +63,16 @@ export class microsoftAcademicComp implements OnInit, OnDestroy {
         this._magAdvancedService.FetchMagPaperId(magPaperRefId).then(
 
             (result: MagPaper) => {
+                if (result.paperId.toString().length > 4) {
 
-                this._magAdvancedService.PostFetchMagPaperCalls(result);
+                    this._magAdvancedService.PostFetchMagPaperCalls(result,'');
+
+                }
             });
     }
     public CanGetMagPaper(): boolean {
 
-        if (this.magPaperId != null && this.magPaperId > 0) {
+        if (this.magPaperId != null && this.magPaperId.toString().length > 4) {
             return true;
         } else {
             return false;
@@ -146,7 +153,6 @@ export class microsoftAcademicComp implements OnInit, OnDestroy {
     
     public UpdateMagPaper(match: boolean, paperId: number) {
 
-
         var MagPapers = this._magAdvancedService.MagReferencesPaperList;
         //console.log(JSON.stringify(MagPapers));
         if (MagPapers.papers.length > 0) {
@@ -173,10 +179,52 @@ export class microsoftAcademicComp implements OnInit, OnDestroy {
                     this.FetchMAGMatches();
                     }
             );
-
         }
+    }
+
+    public GetMagPaperForPage() {
+
+        this._magAdvancedService.FetchMagPaperId(this.magPaperId).then(
+
+            (result: MagPaper) => {
+
+                if (result != null) {
+                    if (result.paperId.toString().length > 4) {
+                        this.foundMagPaper = true;
+                        this.FoundPaper = result;
+                    }
+                }
+            });
+    }
+
+    public UpdateMagPaperFound(match: boolean) {
+
+            this.foundMagPaper = false;
+
+        if (this.FoundPaper  != null) {
+            this.currentMagPaperLinkItem = this.FoundPaper ;
+            } else {
+                return;
+            }
+
+
+            if (match) {
+                this.currentMagPaperLinkItem.manualTrueMatch = true;
+                this.currentMagPaperLinkItem.manualFalseMatch = false;
+            } else {
+                this.currentMagPaperLinkItem.manualFalseMatch = true;
+                this.currentMagPaperLinkItem.manualTrueMatch = false;
+            }
+
+        this._magAdvancedService.UpdateMagPaper(match, this.FoundPaper.paperId, this.item.itemId).then(
+                () => {
+                    this.FetchMAGMatches();
+                }
+            );
       
     }
+
+
 }
 
 

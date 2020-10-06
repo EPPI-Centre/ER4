@@ -114,6 +114,7 @@ export class MVCMagPaperListSelectionCriteria {
     numResults: number = 0;
     dateFrom: string = '';
     dateTo: string = '';
+    magSearchText = '';
 
 }
 
@@ -164,7 +165,7 @@ export class MagPaper {
     externalMagLink: string = '';
     fullRecord: string = '';
     shortRecord: string = '';
-    paperId: number = 0;
+    paperId: number = -1;
     doi: string = '';
     docType: string = '';
     paperTitle: string = '';
@@ -356,13 +357,12 @@ export class MagSearch {
     magSearchId: number = 0;
     reviewId: number = 0;
     contactId: number = 0;
-    searchText: number = 0;
+    searchText: string = '';
     searchNo: number = 0;
     hitsNo: number = 0;
     searchDate: Date = new Date();
     magVersion: string = '';
     magSearchText: string = '';
     contactName: string = '';
-
-
+    add: boolean = false;
 }

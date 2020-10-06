@@ -310,7 +310,7 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
     public get ShowMagTab(): boolean {
         if (
             this.reviewInfoService.ReviewInfo.magEnabled
-            && this.ReviewerIdentityServ.reviewerIdentity.isSiteAdmin //remove this 2nd condition when MAG features are ready for publish
+            //&& this.ReviewerIdentityServ.reviewerIdentity.isSiteAdmin //remove this 2nd condition when MAG features are ready for publish
         ) {
             return true;
         }
@@ -685,24 +685,35 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
 		}
 		else { console.log('Ouch'); }
     }
+    //public tabSelected: string = 'itemdetails';
     onTabSelect(e: SelectEvent) {
 
         if (e.title == 'Item Details') {
+            
             this.HelpAndFeebackContext = "itemdetails";
         }
         else if (e.title == 'Arms and Timepoints') {
+            
             this.HelpAndFeebackContext = "itemdetails\\arms";
         }
         else if (e.title == 'Coding Record') {
+           
             this.HelpAndFeebackContext = "itemdetails\\codingrecord";
         }
         else if (e.title == 'PDF') {
             //if (this.HasDocForView && this.pdftroncontainer.currentDocId !== this.ItemDocsService.CurrentDocId) {
                 //this.pdftroncontainer.loadDoc();//only load it if it's not there already
             //}
+          
             this.HelpAndFeebackContext = "itemdetails\\pdf";//no record in DB for the help!!
         }
+        else if (e.title == 'Microsoft Academic') {
+           
+            console.log('test tabs');
+            this.HelpAndFeebackContext = "itemdetails\\Microsoft Academic";
+        }
         else {
+          
             this.HelpAndFeebackContext = "itemdetails";
         }
     }
