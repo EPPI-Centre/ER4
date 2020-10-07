@@ -354,12 +354,12 @@ export class MAGBrowserService extends BusyAwareService {
     public FetchWithCrit(crit: MVCMagPaperListSelectionCriteria, listDescription: string): Promise<boolean> {
 
         this._BusyMethods.push("FetchWithCrit");
-        this._Criteria = crit;
-        if (this._MAGList && this._MAGList.pagesize > 0
-            && this._MAGList.pagesize <= 4000
-            && this._MAGList.pagesize != crit.pageSize
+        this.ListCriteria = crit;
+        if (this.MAGList && this._MAGList.pagesize > 0
+            && this.MAGList.pagesize <= 4000
+            && this.MAGList.pagesize != crit.pageSize
         ) {
-            crit.pageSize = this._MAGList.pagesize;
+            crit.pageSize = this.MAGList.pagesize;
         }
         this.ListCriteria.paperIds = crit.paperIds;
         this.ListDescription = listDescription;
@@ -392,9 +392,9 @@ export class MAGBrowserService extends BusyAwareService {
         this._BusyMethods.push("FetchOrigWithCrit");
         this.OrigListCriteria = crit;
         this.OrigListCriteria.listType = this.currentListType;
-        if (this._MAGOriginalList && this._MAGOriginalList.pagesize > 0
-            && this._MAGOriginalList.pagesize <= 4000
-            && this._MAGOriginalList.pagesize != crit.pageSize
+        if (this.MAGOriginalList && this._MAGOriginalList.pagesize > 0
+            && this.MAGOriginalList.pagesize <= 4000
+            && this.MAGOriginalList.pagesize != crit.pageSize
         ) {
             crit.pageSize = this._MAGOriginalList.pagesize;
         }
@@ -558,7 +558,7 @@ export class MAGBrowserService extends BusyAwareService {
         if (this.MAGOriginalList.pageindex == 0) {
             return this.FetchOrigWithCrit(this.OrigListCriteria, this.OrigListCriteria.listType);
         } else {
-            this._OrigCriteria.pageNumber -= 1;
+            this.OrigListCriteria.pageNumber -= 1;
             return this.FetchOrigWithCrit(this.OrigListCriteria, this.OrigListCriteria.listType);
         }
     }
@@ -567,7 +567,7 @@ export class MAGBrowserService extends BusyAwareService {
         return this.FetchOrigWithCrit(this.OrigListCriteria, this.OrigListCriteria.listType);
     }
     public FetchOrigFirstPage() {
-        this._OrigCriteria.pageNumber = 0;
+        this.OrigListCriteria.pageNumber = 0;
         return this.FetchOrigWithCrit(this.OrigListCriteria, this.OrigListCriteria.listType);
     }
     public FetchOrigParticularPage(pageNum: number) {
