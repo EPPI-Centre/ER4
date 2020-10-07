@@ -134,7 +134,6 @@ export class MAGBrowser implements OnInit, OnDestroy {
         if (this._magBrowserService.selectedPapers != null) {
 
             let paper: MagPaper = this._magAdvancedService.currentMagPaper;
-            this._magAdvancedService.currentMagPaper.isSelected = true;
             let paperIndex: number = -1;
             paperIndex = this._magBrowserService.MAGList.papers.findIndex(x => x.paperId == paper.paperId)
             if (paperIndex != -1) {
@@ -148,7 +147,15 @@ export class MAGBrowser implements OnInit, OnDestroy {
                 paperIndex = this._magBrowserService.MAGOriginalList.papers.findIndex(z => z.paperId == paper.paperId)
                 this.currentMagPaperList = this._magBrowserService.MAGOriginalList.papers;
                 this.currentMagPaperList[paperIndex].isSelected = false;
+            } else {
+                // means it is the current Mag Paper
+                let tmp: number = this._magBrowserService.selectedPapers.findIndex(x => x.paperId == this._magAdvancedService.currentMagPaper.paperId);
+                if (tmp != -1) {
+                    this._magBrowserService.selectedPapers[tmp].isSelected = true;
+                }
             }
+            this._magAdvancedService.currentMagPaper.isSelected = true;
+
             this.InOutReview(this._magAdvancedService.currentMagPaper, this.currentMagPaperList);
         }
     }
