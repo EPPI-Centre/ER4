@@ -97,7 +97,26 @@ export class MVCMagFieldOfStudyListSelectionCriteria {
     SearchTextTopics: string = '';
 
 }
+export class MVCMagOrigPaperListSelectionCriteria {
 
+    magPaperId: number = 0;
+    iTEM_ID: number = 0;
+    listType: string = '';
+    fieldOfStudyId: number = 0;
+    authorId: number = 0;
+    magRelatedRunId: number = 0;
+    paperIds: string = '';
+    attributeIds: string = '';
+    included: string = '';
+    pageNumber: number = 0;
+    pageSize: number = 0;
+    numResults: number = 0;
+    dateFrom: string = '';
+    dateTo: string = '';
+    magSearchText = '';
+
+
+}
 export class MVCMagPaperListSelectionCriteria {
 
     magPaperId: number = 0;
