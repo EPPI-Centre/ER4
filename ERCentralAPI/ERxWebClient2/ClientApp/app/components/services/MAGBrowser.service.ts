@@ -358,15 +358,13 @@ export class MAGBrowserService extends BusyAwareService {
                     FieldsListcriteria.listType = "PaperFieldOfStudyList";
                     FieldsListcriteria.paperIdList = this.ListCriteria.paperIds;
                     console.log('checking criteria paperIds: ', this.ListCriteria.paperIds);
-                    this.FetchMagFieldOfStudyList(FieldsListcriteria, 'MagSearchResultsList');
-                        //.then(
+                    this.FetchMagFieldOfStudyList(FieldsListcriteria, 'MagSearchResultsList')
+                        .then(
                         
-                        //    () => {
-                        //        //criteria.listType = "OrigList";
-                        //        this.FetchOrigWithCrit(criteria, "OrigList")
-                        //    }
-                        
-                        //);
+                            () => {
+                                this.FetchOrigWithCrit(criteria, "OrigList")
+                            }
+                        );
                 }
             );
     }
@@ -528,16 +526,13 @@ export class MAGBrowserService extends BusyAwareService {
     }
     //Paging methods
     public FetchNextPage() {
-        //console.log('1-orig list page number', this.MAGOriginalList.pageindex);
-        //let tempIndex: number = this.MAGOriginalList.pageindex;
         if (this.MAGList.pageindex < this.MAGList.pagecount - 1) {
             this.MAGList.pageindex += 1;
         } 
         this.ListCriteria.pageNumber = this.MAGList.pageindex;
         this.ListCriteria.pageSize = this.pageSize;
-        //this.MAGOriginalList.pageindex = tempIndex;
-        console.log('2-orig list page number', this.MAGOriginalList.pageindex);
-        this.FetchWithCrit(this.ListCriteria, this.ListCriteria.listType)
+        console.log('*** criteria info: page number', this.MAGOriginalList.pageindex);
+        this.FetchWithCrit(this.ListCriteria, this.ListCriteria.listType);
     }
     public FetchPrevPage() {
         
