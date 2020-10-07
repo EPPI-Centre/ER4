@@ -101,26 +101,13 @@ export class MAGBrowser implements OnInit, OnDestroy {
             }
         );
      
-        //this._magBrowserService.MAGOriginalList.papers = this._magBrowserService.MAGList.papers;
-        if (this._magBrowserService.MAGList.papers != null && this._magBrowserService.MAGList.papers.length > 0) {
-
-            this._magBrowserService.MAGOriginalList.papers.forEach((item: any) => {
-                this._magBrowserService.MAGList.papers.push(item);
-            });
-
-            //this._magBrowserService.MAGOriginalList.papers = this._magBrowserService.MAGList.papers.map(x => Object.assign({}, x));
-        }
-
-        console.log('orig list page index: ', this._magBrowserService.MAGOriginalList.pageindex);
-
-        //this._magBrowserService.OrigListCriteria = this._magBrowserService.ListCriteria;
-
-        //this._magBrowserService.OrigListCriteria = Object.assign({}, this._magBrowserService.ListCriteria);
+       
     }
+
     public AddCurrentPaperToSelectedList() {
 
         this._magAdvancedService.currentMagPaper.isSelected = false; 
-        if (this._magBrowserService.selectedPapers.length > 0 ) {
+        if (this._magBrowserService.selectedPapers != null ) {
             console.log('inside here again....: ');
             let paper: MagPaper = this._magAdvancedService.currentMagPaper;
            
@@ -229,6 +216,7 @@ export class MAGBrowser implements OnInit, OnDestroy {
             return this.currenPaperIsSelected ;
         }
     }
+
     public GetMagPaperRef(magPaperRefId: number, list: MagPaper[]) {
 
         //this._magBrowserService.currentListType = "CitationsList";

@@ -233,7 +233,26 @@ export class MAGBrowserService extends BusyAwareService {
                     this.firstVisitToMAGBrowser = false;
                     this.RemoveBusy("FetchMAGRelatedPaperRunsListById");
                     this.MAGList = result;
-                    this.MAGOriginalList = result;
+                    this.MAGOriginalList = new MagList();
+                    this.MAGOriginalList.pagecount = result.pagecount;
+                    this.MAGOriginalList.pageindex = result.pageindex;
+                    this.MAGOriginalList.pagesize = result.pagesize;
+                    this.MAGOriginalList.totalItemCount = result.totalItemCount;
+
+
+                    //this._magBrowserService.MAGOriginalList.papers = this._magBrowserService.MAGList.papers;
+                    if (this.MAGList.papers != null && this.MAGList.papers.length > 0) {
+
+                        this.MAGList.papers.forEach((item: any) => {
+                            this.MAGOriginalList.papers.push(item);
+                        });
+
+                        //this._magBrowserService.MAGOriginalList.papers = this._magBrowserService.MAGList.papers.map(x => Object.assign({}, x));
+                    }
+                    console.log('orig list papers length: ', this.MAGOriginalList.papers.length);
+                    //this._magBrowserService.OrigListCriteria = this._magBrowserService.ListCriteria;
+                    //this._magBrowserService.OrigListCriteria = Object.assign({}, this._magBrowserService.ListCriteria);
+
                     this.ListCriteria.paperIds = '';
                     for (var i = 0; i < result.papers.length; i++) {
                        
@@ -509,14 +528,14 @@ export class MAGBrowserService extends BusyAwareService {
     }
     //Paging methods
     public FetchNextPage() {
-        console.log('1-orig list page number', this.MAGOriginalList.pageindex);
-        let tempIndex: number = this.MAGOriginalList.pageindex;
+        //console.log('1-orig list page number', this.MAGOriginalList.pageindex);
+        //let tempIndex: number = this.MAGOriginalList.pageindex;
         if (this.MAGList.pageindex < this.MAGList.pagecount - 1) {
             this.MAGList.pageindex += 1;
         } 
         this.ListCriteria.pageNumber = this.MAGList.pageindex;
         this.ListCriteria.pageSize = this.pageSize;
-        this.MAGOriginalList.pageindex = tempIndex;
+        //this.MAGOriginalList.pageindex = tempIndex;
         console.log('2-orig list page number', this.MAGOriginalList.pageindex);
         this.FetchWithCrit(this.ListCriteria, this.ListCriteria.listType)
     }

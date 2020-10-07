@@ -152,6 +152,7 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
 
         this._magAdvancedService.FetchMagReviewMagInfo();
     }
+
     public UpdateTopicResults() {
 
         
