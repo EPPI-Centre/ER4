@@ -165,6 +165,7 @@ export class MAGAdvancedService extends BusyAwareService {
                     this.RemoveBusy("FetchMagPaperId");
                 });
     }
+
     public PostFetchMagPaperCalls(result: MagPaper, listType: string) {
            if (result.paperId != null && result.paperId > 0) {
 

@@ -96,16 +96,13 @@ export class MAGBrowserService extends BusyAwareService {
             this.FetchWithCrit(this.ListCriteria, "PaperFieldsOfStudyList").then(
 
                         (res1: boolean) => {
-                        
-                                if (this._eventEmitterService.firstVisitMAGBrowserPage) {
-                                    console.log('is this your first visit to the page????');
                                     this.FetchOrigWithCrit(this.ListCriteria, "PaperFieldsOfStudyList").then(
                                         (res2: boolean) => {
                                             this.firstVisitToMAGBrowser = false;
                                             this._eventEmitterService.firstVisitMAGBrowserPage = false;
                                             return res2;
                                         })
-                            };
+                            
                             return res1;
                         }
                 );
@@ -404,6 +401,7 @@ export class MAGBrowserService extends BusyAwareService {
                     return false;
             });
     }
+
     public FetchOrigWithCrit(crit: MVCMagOrigPaperListSelectionCriteria, listDescription: string): Promise<boolean> {
 
         this._BusyMethods.push("FetchOrigWithCrit");
