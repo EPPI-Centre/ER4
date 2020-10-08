@@ -210,7 +210,7 @@ export class MagPaper {
     pdfLinks: string = '';
     linkedITEM_ID: number = 0;
     isSelected: boolean = false;
-    canBeSelected: boolean = false;
+    canBeSelected: string = 'false';
     abstract: string = '';
     autoMatchScore: number = 0;
     manualTrueMatch: boolean = false;

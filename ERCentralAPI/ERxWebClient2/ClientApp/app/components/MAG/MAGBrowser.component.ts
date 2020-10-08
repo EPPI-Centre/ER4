@@ -130,6 +130,7 @@ export class MAGBrowser implements OnInit, OnDestroy {
             this.InOutReview(this._magAdvancedService.currentMagPaper, this.currentMagPaperList);
         }
     }
+
     public RemoveCurrentPaperToSelectedList() {
 
         if (this._magBrowserService.selectedPapers != null) {
@@ -205,6 +206,7 @@ export class MAGBrowser implements OnInit, OnDestroy {
             closable: true
         });
     }
+
     public IsCurrentPaperSelected(): boolean {
 
         if (this._magBrowserService.selectedPapers != null && 
@@ -383,10 +385,20 @@ export class MAGBrowser implements OnInit, OnDestroy {
         }
     }
     public CanSelectMagItem(item: MagPaper): boolean {
-        if (item.linkedITEM_ID > 0) {
+
+
+        let tmp: boolean = false;
+        if (item.canBeSelected =='true') {
+            tmp = true;
+        } else {
+            tmp = false;
+        }
+        if (item.linkedITEM_ID > 0 && !tmp) {
             return false;
         } else {
             return true;
         }
     }
+
+
 }

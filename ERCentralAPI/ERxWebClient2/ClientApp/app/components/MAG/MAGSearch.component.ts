@@ -6,7 +6,7 @@ import { MAGBrowserService } from '../services/MAGBrowser.service';
 import { MAGAdvancedService } from '../services/magAdvanced.service';
 import { MAGBrowserHistoryService } from '../services/MAGBrowserHistory.service';
 import { BasicMAGService } from '../services/BasicMAG.service';
-import { MagSearch, TopicLink, MVCMagFieldOfStudyListSelectionCriteria, MagFieldOfStudy, MagBrowseHistoryItem, MVCMagPaperListSelectionCriteria } from '../services/MAGClasses.service';
+import { MagSearch, TopicLink, MVCMagFieldOfStudyListSelectionCriteria, MagFieldOfStudy, MagBrowseHistoryItem, MVCMagPaperListSelectionCriteria, MagPaper } from '../services/MAGClasses.service';
 import { magSearchService } from '../services/MAGSearch.service';
 import { NotificationService } from '@progress/kendo-angular-notification';
 
@@ -31,6 +31,7 @@ export class MAGSearchComponent implements OnInit {
     ) {
 
     }
+
     public dropdownBasic2: boolean = false;
     public isCollapsed2: boolean = false;
     public dropdownBasic1: boolean = false;
@@ -195,9 +196,13 @@ export class MAGSearchComponent implements OnInit {
                 }
             });
     }
+
     public GetItems(item: MagSearch) {
 
         if (item.magSearchId > 0) {
+            this._magAdvancedService.currentMagPaper = new MagPaper();
+            this._magBrowserService.MagCitationsByPaperList.papers = [];
+            this._magBrowserService.MAGOriginalList.papers = [];
             this._magBrowserService.currentListType = "MagSearchResultsList";
             this._magBrowserService.ShowingParentAndChildTopics = false;
             this._magBrowserService.ShowingChildTopicsOnly = true;
