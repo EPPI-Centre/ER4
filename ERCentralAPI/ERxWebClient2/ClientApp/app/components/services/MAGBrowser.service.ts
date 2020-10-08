@@ -96,13 +96,15 @@ export class MAGBrowserService extends BusyAwareService {
             this.FetchWithCrit(this.ListCriteria, "PaperFieldsOfStudyList").then(
 
                         (res1: boolean) => {
+                        
+                                if (this._eventEmitterService.firstVisitMAGBrowserPage) {
                                     this.FetchOrigWithCrit(this.ListCriteria, "PaperFieldsOfStudyList").then(
                                         (res2: boolean) => {
                                             this.firstVisitToMAGBrowser = false;
                                             this._eventEmitterService.firstVisitMAGBrowserPage = false;
                                             return res2;
                                         })
-                            
+                            };
                             return res1;
                         }
                 );
