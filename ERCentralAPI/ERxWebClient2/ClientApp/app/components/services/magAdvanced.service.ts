@@ -187,9 +187,9 @@ export class MAGAdvancedService extends BusyAwareService {
 
                                 (res: boolean) => {
 
-                                    //if (this.currentMagPaper.paperId > -1) {
-                                    if (!this._eventEmitterService.firstVisitMAGBrowserPage) {
-                                        console.log('calling oand should be');
+                                    if (this.currentMagPaper.paperId > -1) {
+                                    //if (!this._eventEmitterService.firstVisitMAGBrowserPage) {
+                                        console.log('not calling orginal');
                                             this.PaperIds = this._magBrowserService.ListCriteria.paperIds;
                                             let criteriaFOS: MVCMagFieldOfStudyListSelectionCriteria = new MVCMagFieldOfStudyListSelectionCriteria();
                                             criteriaFOS.fieldOfStudyId = 0;
@@ -206,11 +206,12 @@ export class MAGAdvancedService extends BusyAwareService {
 
                                     } else {
                                     
-                                        console.log('calling orignal and should not be');
+                                        console.log('calling orignal');
                                         let crit: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
-                                        crit.listType = listType;
+                                        crit.listType = criteriaCitationsList.listType;
                                         crit.magPaperId = result.paperId;
                                         crit.pageSize = 20;
+                                        console.log('list type should be citations list: ', crit.listType);
                                         this._magBrowserService.FetchOrigWithCrit(crit, listType).then(
 
                                             () => {

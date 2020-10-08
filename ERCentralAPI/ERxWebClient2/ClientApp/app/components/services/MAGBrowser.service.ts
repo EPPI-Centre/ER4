@@ -238,7 +238,7 @@ export class MAGBrowserService extends BusyAwareService {
                     this.MAGOriginalList.pageindex = result.pageindex;
                     this.MAGOriginalList.pagesize = result.pagesize;
                     this.MAGOriginalList.totalItemCount = result.totalItemCount;
-
+                    this.currentListType = "MagRelatedPapersRunList";
 
                     //this._magBrowserService.MAGOriginalList.papers = this._magBrowserService.MAGList.papers;
                     if (this.MAGList.papers != null && this.MAGList.papers.length > 0) {
@@ -388,7 +388,7 @@ export class MAGBrowserService extends BusyAwareService {
 
                     console.log('calling list: ', crit.listType);
                     this.RemoveBusy("FetchWithCrit");
-                    this.SavePapers(list, this._Criteria, "NormalList");
+                    this.SavePapers(list, this.ListCriteria, "NormalList");
                     return true;
                                     
                 }, error => {
@@ -408,7 +408,7 @@ export class MAGBrowserService extends BusyAwareService {
 
         this._BusyMethods.push("FetchOrigWithCrit");
         this.OrigListCriteria = crit;
-        this.OrigListCriteria.listType = this.currentListType;
+        //this.OrigListCriteria.listType = this.currentListType;
         if (this.MAGOriginalList && this._MAGOriginalList.pagesize > 0
             && this.MAGOriginalList.pagesize <= 4000
             && this.MAGOriginalList.pagesize != crit.pageSize
@@ -417,7 +417,7 @@ export class MAGBrowserService extends BusyAwareService {
         }
 
         this.OrigListCriteria.paperIds = crit.paperIds;
-        crit.listType = this.currentListType;
+        //crit.listType = this.currentListType;
         console.log('inside Orign Fetch is: ', this.OrigListCriteria);
         return this._httpC.post<MagList>(this._baseUrl + 'api/MagPaperList/GetMagPaperList', crit)
             .toPromise().then(
@@ -425,7 +425,7 @@ export class MAGBrowserService extends BusyAwareService {
                 (list: MagList) => {
 
                     this.RemoveBusy("FetchOrigWithCrit");
-                    this.OrigListCriteria.listType = this.currentListType;
+                    //this.OrigListCriteria.listType = this.currentListType;
                     console.log('inside Orign Fetch is 2: ', this.OrigListCriteria);
 
                     this.SaveOrigPapers(list, this.OrigListCriteria, 'OrigList');
@@ -493,8 +493,7 @@ export class MAGBrowserService extends BusyAwareService {
         if (crit.listType == 'CitationsList' || crit.listType == 'ReviewMatchedPapers' || crit.listType == 'MagSearchResultsList'
             || crit.listType == '"MagRelatedPapersRunList"' || crit.listType == '"PaperFieldsOfStudyList"'
         || crit.listType =='MagSearchResultsList') {
-
-           
+                       
     
                 console.log('inside paper ids dude');
                 this._Criteria.paperIds = '';
@@ -518,10 +517,10 @@ export class MAGBrowserService extends BusyAwareService {
             return;
         } 
        
-            console.log('list contents inside save: ', list);
-            this._MAGList = list;
-            this._Criteria = crit;
-            console.log('checking list type here: ',this.ListCriteria);
+        console.log('list contents inside save: ', list);
+        this._MAGList = list;
+        this._Criteria = crit;
+        console.log('checking list type here: ',this.currentListType);
 
     }
     //Paging methods

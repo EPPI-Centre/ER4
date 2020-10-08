@@ -58,6 +58,7 @@ export class MAGBrowser implements OnInit, OnDestroy {
         this.basicOrigPanel = !this.basicOrigPanel;
         this.ShowOriginalPapers = !this.ShowOriginalPapers;
     }
+
     ngAfterViewChecked () {
 
         this._eventEmitterService.selectedButtonPressed.subscribe(
