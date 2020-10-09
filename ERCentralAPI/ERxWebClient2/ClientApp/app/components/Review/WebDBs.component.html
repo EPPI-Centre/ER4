@@ -6,7 +6,7 @@
     <div class="col-4 col-xl-3 px-1 py-0">
         <div class="col-12 font-weight-bold my-1">WebDBs for this review:</div>
         <div class="col-12 p-0" style="max-height:85vh; overflow:auto;">
-            <table class="table table-light mb-0">
+            <table class="table table-light mb-0" [ngClass]="{disableThisAndChildren:EditingSomething}">
                 <tr>
                     <th class="m-0 small font-weight-bold">
                         Id
@@ -255,7 +255,7 @@
 
         <div class="row p-0 m-0">
             <div class="row col-6 p-1 mx-0 mt-2 border-top border-info">
-                <WebDbCcodesetTree class="w-100" MaxHeight="400"></WebDbCcodesetTree>
+                <WebDbCcodesetTree class="w-100" MaxHeight="400" [CanChangeSelectedCode]="!EditingSomething"></WebDbCcodesetTree>
             </div>
             <div class="row col-6 p-1 mx-0 mt-2 border-top border-info">
                 <div class="bg-light w-100 rounded mt-2">
@@ -297,23 +297,68 @@
                             <div *ngSwitchCase="SelectedNodeIsRoot === null">
                                 No Code is Selected
                             </div>
-                            <div *ngSwitchCase="SelectedNodeIsRoot === true" class="row m-0 p-0">
-                                Selected Coding Tool: {{SelectedCodingTool.name}}
-                                <button *ngIf="CanWrite" class="btn btn-sm btn-outline-primary  px-1 m-1" (click)="EditTool(SelectedCodingTool)">
-                                    Edit
-                                </button>
-                                <button *ngIf="CanWrite" class="btn btn-sm btn-outline-danger  px-1 pt-0 m-1" (click)="RemoveTool(SelectedCodingTool)">
-                                    <span class="k-icon k-i-delete "></span>
-                                </button>
+                            <div *ngSwitchCase="SelectedNodeIsRoot === true" class="row col-12 m-0 p-0">
+                                <div *ngIf="EditingWebDbReviewSet == null; else editingSetBlock">
+                                    Selected Coding Tool: {{SelectedCodingTool.name}}
+                                    <button *ngIf="CanWrite" class="btn btn-sm btn-outline-primary  px-1 m-1" (click)="EditTool(SelectedCodingTool)">
+                                        Edit
+                                    </button>
+                                    <button *ngIf="CanWrite" class="btn btn-sm btn-outline-danger  px-1 pt-0 m-1" (click)="RemoveTool(SelectedCodingTool)">
+                                        <span class="k-icon k-i-delete "></span>
+                                    </button>
+                                </div>
+                                <ng-template #editingSetBlock>
+                                    <div class="w-100">
+                                        <div class="row p-0 m-0">
+                                            <div class="col-4">Public name for this set:</div>
+                                            <input class="col-8" type="text" [(ngModel)]="EditingWebDbReviewSet.set_name" maxlength="255" />
+                                        </div>
+                                        <div class="row p-0 m-0">
+                                            <div class="col-4">Public description for this set:</div>
+                                            <textarea class="col-8" rows="3" type="text" maxlength="2000" [(ngModel)]="EditingWebDbReviewSet.description"></textarea>
+                                        </div>
+                                        <button class="btn btn-sm btn-outline-secondary  px-1 m-1" (click)="CancelEditTool()">
+                                            Cancel
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-primary  px-1 m-1" (click)="SaveEditedTool()">
+                                            Save
+                                        </button>
+                                    </div>
+                                    <div style="max-height:400px;overflow:auto;">
+                                        <div *ngFor="let missing of MissingAttributes" class="col-12">
+                                            {{missing.path}}\{{missing.name}} <button class="btn btn-sm btn-outline-primary" (click)="RestoreCode(missing)">+</button>
+                                        </div>
+                                    </div>
+                                </ng-template>
                             </div>
-                            <div *ngSwitchDefault class="row m-0 p-0">
-                                Selected Attribute: {{SelectedAttribute.name}}
-                                <button *ngIf="CanWrite" class="btn btn-sm btn-outline-primary  px-1 m-1" (click)="EditAttribute(SelectedAttribute)">
-                                    Edit
-                                </button>
-                                <button *ngIf="CanWrite" class="btn btn-sm btn-outline-danger  px-1 pt-0 m-1" (click)="RemoveAttribute(SelectedAttribute)">
-                                    <span class="k-icon k-i-delete "></span>
-                                </button>
+                            <div *ngSwitchDefault class="row col-12 m-0 p-0">
+                                <div *ngIf="EditingSetAttribute == null; else editingAttributeBlock">
+                                    Selected Attribute: {{SelectedAttribute.name}}
+                                    <button *ngIf="CanWrite" class="btn btn-sm btn-outline-primary  px-1 py-0 m-1" (click)="EditAttribute(SelectedAttribute)">
+                                        Edit
+                                    </button>
+                                    <button *ngIf="CanWrite" class="btn btn-sm btn-outline-danger  px-1 pt-0 m-1" (click)="RemoveAttribute(SelectedAttribute)">
+                                        <span class="k-icon k-i-delete "></span>
+                                    </button>
+                                </div>
+                                <ng-template #editingAttributeBlock>
+                                    <div class="w-100">
+                                        <div class="row p-0 m-0">
+                                            <div class="col-4">Public name for this Code:</div>
+                                            <input class="col-8" type="text" [(ngModel)]="EditingSetAttribute.attribute_name" maxlength="255" />
+                                        </div>
+                                        <div class="row p-0 m-0">
+                                            <div class="col-4">Public description for this Code:</div>
+                                            <textarea class="col-8" rows="3" type="text" maxlength="2000" [(ngModel)]="EditingSetAttribute.attribute_set_desc"></textarea>
+                                        </div>
+                                        <button  class="btn btn-sm btn-outline-secondary  px-2 m-1" (click)="CancelEditAttribute()">
+                                            Cancel
+                                        </button>
+                                        <button  class="btn btn-sm btn-outline-primary  px-1 m-1" (click)="SaveEditedAttribute()">
+                                            Save
+                                        </button>
+                                    </div>
+                                </ng-template>
                             </div>
                         </ng-container>
                     </div>

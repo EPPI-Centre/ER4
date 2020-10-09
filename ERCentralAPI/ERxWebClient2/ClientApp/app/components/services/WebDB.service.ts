@@ -187,6 +187,108 @@ export class WebDBService extends BusyAwareService  {
             }
         );
     }
+    public UpdateWebDbReviewSet(data: WebDbReviewSet) {
+        if (this._CurrentDB == null || this._CurrentDB.webDBId !== data.webDBId) return;
+        let body: WebDbReviewSetJson = new WebDbReviewSetJson();
+        body.webDBId = data.webDBId;
+        body.webDBSetId = data.webDBSetId;
+        body.setDescription = data.description;
+        body.setName = data.set_name;
+        this._BusyMethods.push("UpdateWebDbReviewSet");
+        this._httpC.post<iWebDbReviewSet>(this._baseUrl + 'api/WebDB/UpdateWebDbReviewSet', body).subscribe(
+            res => {
+                let ind = this._CurrentSets.findIndex(f => f.webDBSetId == data.webDBSetId);
+                if (ind != -1) {
+                    let rSet: WebDbReviewSet = new WebDbReviewSet(res);
+                    this._CurrentSets.splice(ind, 1, rSet);
+                }
+                if (this.SelectedNodeData != null
+                    && this.SelectedNodeData.nodeType == "ReviewSet"
+                    && (this.SelectedNodeData as WebDbReviewSet).webDBSetId == data.webDBSetId
+                ) this.SelectedNodeData = null;
+                this.PleaseRedrawTheTree.emit();
+                this.RemoveBusy("UpdateWebDbReviewSet");
+            }, error => {
+                this.RemoveBusy("UpdateWebDbReviewSet");
+                this.modalService.GenericError(error);
+            }
+        );
+    }
+    private AttributeIsPresentInThisWebDbSet(SetA: SetAttribute): WebDbReviewSet | null {
+        let chk: SetAttribute | null = null;
+        let candidate: WebDbReviewSet | null = null;
+        for (candidate of this.CurrentSets) {
+            if (candidate.set_id == SetA.set_id) {
+                chk = candidate.FindAttributeById(SetA.attribute_id);
+                break;
+            }
+        }
+        //console.log("AttributeIsPresentInThisWebDbSet", candidate, chk);
+        if (chk !== null) return candidate;
+        else return null;
+    }
+    public EditWebDbAttribute(SetA: SetAttribute, webDbId: number) {
+        //console.log("EditWebDbAttribute", SetA, webDbId);
+        let webDBSet = this.AttributeIsPresentInThisWebDbSet(SetA);
+        //console.log("EditWebDbAttribute2", webDBSet);
+        if (webDBSet == null) return;//we don't edit what isn't here.
+
+        //console.log("EditWebDbAttribute3", webDBSet);
+        let cmd = new WebDbAttributeSetEditAddRemoveCommandJson();
+        cmd.attributeId = SetA.attribute_id;
+        cmd.setId = SetA.set_id;
+        cmd.webDbId = webDbId;
+        cmd.webDBSetId = webDBSet.webDBSetId;
+        cmd.publicDescription = SetA.attribute_set_desc;
+        cmd.publicName = SetA.attribute_name;
+        this.EditAddRemoveWebDbAttribute(cmd);
+    }
+    public AddWebDbAttribute(SetA: SetAttribute, webDbId: number) {
+        if (this.AttributeIsPresentInThisWebDbSet(SetA) != null) return;//we don't add what's here already
+        let webDBSetId: number = -1;
+        for (let set of this.CurrentSets) {
+            if (SetA.set_id == set.set_id) {
+                webDBSetId = set.webDBSetId;
+                break;
+            }
+        }
+        if (webDBSetId == -1) return;//can't do this if we couldn't find the destination WebDbSet
+        let cmd = new WebDbAttributeSetEditAddRemoveCommandJson();
+        cmd.attributeId = SetA.attribute_id;
+        cmd.setId = SetA.set_id;
+        cmd.webDbId = webDbId;
+        cmd.webDBSetId = webDBSetId;
+        this.EditAddRemoveWebDbAttribute(cmd);
+    }
+    public RemoveWebDbAttribute(SetA: SetAttribute, webDbId: number) {
+        let webDBSet = this.AttributeIsPresentInThisWebDbSet(SetA);
+        if (webDBSet == null) return;//we don't remove what isn't here.
+        let cmd = new WebDbAttributeSetEditAddRemoveCommandJson();
+        cmd.attributeId = SetA.attribute_id;
+        cmd.setId = SetA.set_id;
+        cmd.webDbId = webDbId;
+        cmd.webDBSetId = webDBSet.webDBSetId;
+        cmd.deleting = true;
+        this.EditAddRemoveWebDbAttribute(cmd);
+    }
+    private EditAddRemoveWebDbAttribute(body: WebDbAttributeSetEditAddRemoveCommandJson) {
+        this._BusyMethods.push("EditAddRemoveWebDbAttribute");
+        this._httpC.post<iWebDbReviewSet>(this._baseUrl + 'api/WebDB/EditAddRemoveWebDbAttribute', body).subscribe(
+            res => {
+                let ind = this._CurrentSets.findIndex(f => f.webDBSetId == body.webDBSetId);
+                if (ind != -1) {
+                    let rSet: WebDbReviewSet = new WebDbReviewSet(res);
+                    this._CurrentSets.splice(ind, 1, rSet);
+                }
+                this.SelectedNodeData == null;//cheap: we just unselect the current node, we're not sure it still exists...
+                this.PleaseRedrawTheTree.emit();
+                this.RemoveBusy("EditAddRemoveWebDbAttribute");
+            }, error => {
+                this.RemoveBusy("EditAddRemoveWebDbAttribute");
+                this.modalService.GenericError(error);
+            }
+        );
+    }
 
     public Clear() {
         this._WebDBs = [];
@@ -229,6 +331,25 @@ export class WebDbReviewSet extends ReviewSet {
     }
     public webDBId: number;
     public webDBSetId: number;
+    public FindAttributeById(Id: number): SetAttribute | null {
+        let result: SetAttribute | null = null;
+        result = this.InternalFindAttributeById(this.attributes, Id);
+        return result;
+    }
+    private InternalFindAttributeById(list: SetAttribute[], Id: number): SetAttribute | null {
+        let result: SetAttribute | null = null;
+        for (let candidate of list) {
+            if (result) break;
+            if (Id == candidate.attribute_id) {
+                result = candidate;
+                break;
+            }
+            else if (candidate.attributes && candidate.attributes.length > 0) {
+                result = this.InternalFindAttributeById(candidate.attributes, Id);
+            }
+        }
+        return result;
+    }
 }
 export class WebDbReviewSetJson {
     webDBId: number = 0;
@@ -236,4 +357,13 @@ export class WebDbReviewSetJson {
     webDBSetId: number = 0;
     setName: string = "";
     setDescription: string = "";
+}
+export class WebDbAttributeSetEditAddRemoveCommandJson {
+    public attributeId: number = 0;
+    public setId: number = 0;
+    public webDbId: number = 0;
+    public webDBSetId: number = 0;
+    public deleting: boolean = false;
+    public publicName: string = "";
+    public publicDescription: string = "";
 }

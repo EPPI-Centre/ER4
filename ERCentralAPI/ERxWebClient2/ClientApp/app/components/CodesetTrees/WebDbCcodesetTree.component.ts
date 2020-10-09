@@ -33,7 +33,7 @@ export class WebDbCcodesetTreeComponent implements OnInit, OnDestroy, AfterViewI
 
     @Input() tabSelected: string = '';
     @Input() MaxHeight: number = 800;
-
+    @Input() CanChangeSelectedCode: boolean = true;
 	//@ViewChild('tabset') tabset!: NgbTabset;
 
 	//@ViewChild(NgbTabset) set content(content: ViewContainerRef) {
@@ -105,7 +105,8 @@ export class WebDbCcodesetTreeComponent implements OnInit, OnDestroy, AfterViewI
     }
 
     public get SelectedCodeDescription(): string {
-        return this.ReviewSetsService.SelectedCodeDescription;
+        if (this.WebDBService.SelectedNodeData == null) return "";
+        else return this.WebDBService.SelectedNodeData.description;
     }
 
 	NodeSelected(node: singleNode) {

@@ -6,6 +6,7 @@ import { ModalService } from '../services/modal.service';
 import { ReviewSetsService, SetAttribute, ReviewSet } from '../services/ReviewSets.service';
 import { codesetSelectorComponent } from '../CodesetTrees/codesetSelector.component';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
+import { forEach } from '@angular/router/src/utils/collection';
 
 @Component({
 	selector: 'WebDBsComp',
@@ -32,9 +33,12 @@ export class WebDBsComponent implements OnInit, OnDestroy {
 	//@Output() onCloseClick = new EventEmitter();
 	//public isExpanded: boolean = false;
 	public EditingDB: iWebDB | null = null;
+	public EditingWebDbReviewSet: WebDbReviewSet | null = null;
+	public EditingSetAttribute: SetAttribute | null = null;
 	public EditingFilter: boolean = false;
 	public ConfirmPassword: string = "";
 	public isCollapsedFilterCode: boolean = false;
+	public MissingAttributes: MissingAttribute[] = [];
 	@ViewChild('FilterCodeSelector') FilterCodeSelector!: codesetSelectorComponent;
 	public selectedCodeSetDropDown: ReviewSet | null = null;
 	public isCollapsedAddTool: boolean = false;
@@ -61,10 +65,108 @@ export class WebDBsComponent implements OnInit, OnDestroy {
 		else if (this.WebDBService.SelectedNodeData.nodeType == "ReviewSet") return true;
 		else return false;
 	}
+	private _lastSetID: number = 0;
 	public get SelectedCodingTool(): WebDbReviewSet | null {
-		if (this.WebDBService.SelectedNodeData == null || this.WebDBService.SelectedNodeData.nodeType !== "ReviewSet") return null;
-		else return this.WebDBService.SelectedNodeData as WebDbReviewSet;
+		if (this.WebDBService.SelectedNodeData == null || this.WebDBService.SelectedNodeData.nodeType !== "ReviewSet") {
+			
+			return null;
+		}
+		else {
+			let tmp = this.WebDBService.SelectedNodeData as WebDbReviewSet;
+			if (this._lastSetID != tmp.set_id) {
+				this._lastSetID = tmp.set_id;
+				this.FindMissingAttributes();
+			}
+			return tmp;
+		}
 	}
+	private FindMissingAttributes() {
+		if (this.WebDBService.SelectedNodeData && this.WebDBService.SelectedNodeData.nodeType == "ReviewSet") {
+			console.log("looking for missing atts");
+			this.MissingAttributes = [];
+			let WebSet = this.WebDBService.SelectedNodeData as WebDbReviewSet;
+			let FullSet = this.ReviewSetsService.FindSetById(WebSet.set_id);
+			if (FullSet == null) return;
+			let allAtts: SetAttribute[] = [];
+			this.flatListofAttributes(FullSet.attributes, allAtts);
+			for (const att of allAtts) {
+				//console.log("looking for missing atts, ", att.parent_attribute_id, att.parent, att.attribute_name);
+				if (WebSet.FindAttributeById(att.attribute_id) == null) {
+					let tmp = new MissingAttribute();
+					tmp.attributeId = att.attribute_id;
+					tmp.name = att.attribute_name;
+					tmp.parentId  = att.parent_attribute_id;
+					while (tmp.parentId > 0) {
+						let parentAtt = allAtts.find(f => f.attribute_id == tmp.parentId);
+						if (parentAtt == undefined) { tmp.parentId = 0; }
+						else {
+							tmp.parentId = parentAtt.parent_attribute_id;
+							tmp.path = tmp.path == "" ? parentAtt.attribute_name : parentAtt.attribute_name + "\\" + tmp.path;
+                        }
+					}
+					tmp.parentId = att.parent_attribute_id;
+					this.MissingAttributes.push(tmp);
+				}
+			}
+			 this.MissingAttributes.sort((a, b) => {
+				if (a.path < b.path) {
+					return -1;
+				} else if (a.path > b.path) {
+					return 1;
+				}
+				else {
+					if (a.name < b.name) return -1;
+					else if (a.name > b.name) return 1;
+					else return 0;
+                }
+			})
+		}
+	}
+	public RestoreCode(item: MissingAttribute) {
+		let needed = this.RestorePreview(item);
+		if (needed == item) {
+			this.ConfirmationDialogService.confirm("Make this code public?"
+				, "This would make the code '<strong>" + item.name + "</strong>' visible in this web database, including all its child codes (if any).", false, ''
+			).then((res: any) => { if (res == true) this.DoRestoreCode(needed);})
+		} else {
+			this.ConfirmationDialogService.confirm("Make this code public?"
+				, "To make the code '<strong>" + item.name + "</strong>' visible in this web database"
+				+ ", we need to restore his missing parent:<br />"
+				+ "Parent name: <strong>" + needed.name + "</strong><br />"
+				+ (needed.path.length == 0 ? "" : "Parent path: <strong>" + needed.path + "</strong>.<br />")
+				+ "All the children of this code will be reinstated as well.<br />"
+				, false, ''
+			).then((res: any) => { if (res == true) this.DoRestoreCode(needed); })
+        }
+    }
+	public RestorePreview(item: MissingAttribute): MissingAttribute {
+		let MissingPartent: MissingAttribute | undefined = item;
+		//console.log("RestorePreview: ", item);
+		let res: MissingAttribute = item;
+		let i = 0;
+		while (MissingPartent != undefined && i < 300) {
+			i++;
+			res = MissingPartent;
+			//console.log("RestorePreview t: " + res.path + "::" + res.name);
+			MissingPartent = this.MissingAttributes.find(f => res.parentId == f.attributeId);
+		}
+		//console.log("RestorePreview FFF: " + res.path + "::" + res.name);
+		return res;
+	}
+	DoRestoreCode(item: MissingAttribute) {
+		if (this.WebDBService.CurrentDB != null) {
+			let todo = this.ReviewSetsService.FindAttributeById(item.attributeId);
+			if (todo != null) this.WebDBService.AddWebDbAttribute(todo, this.WebDBService.CurrentDB.webDBId);
+		}
+		this.EditingWebDbReviewSet = null;
+		
+    }
+	private flatListofAttributes(Source: SetAttribute[], Result: SetAttribute[]): void {
+		for (let a of Source) {
+			Result.push(a);
+			this.flatListofAttributes(a.attributes, Result);
+        }
+    }
 	public get SelectedAttribute(): SetAttribute | null {
 		if (this.WebDBService.SelectedNodeData == null || this.WebDBService.SelectedNodeData.nodeType !== "SetAttribute") return null;
 		else return this.WebDBService.SelectedNodeData as SetAttribute;
@@ -75,18 +177,21 @@ export class WebDBsComponent implements OnInit, OnDestroy {
 	}
 	public get AddableCodingTools(): ReviewSet[] {
 		//we allow to "add" only coding tools that aren't in the WebDB already...
-		console.log("AddableCodingTools", this.ReviewSetsService.ReviewSets.length, this.WebDBService.CurrentSets.length);
+		//console.log("AddableCodingTools", this.ReviewSetsService.ReviewSets.length, this.WebDBService.CurrentSets.length);
 		return this.ReviewSetsService.ReviewSets.filter(
 			f => {
 				//console.log("f:", f.set_id);
 				return this.WebDBService.CurrentSets.findIndex(ff => {
-					console.log("ff:", ff.set_id);
+					//console.log("ff:", ff.set_id);
 					return ff.set_id == f.set_id;
 				}) == -1 || this.WebDBService.CurrentSets.length == 0;
 			});
 	}
 	public get CurrentWebDbTools(): WebDbReviewSet[] {
 		return this.WebDBService.CurrentSets;
+	}
+	public get EditingSomething(): boolean {
+		return this.EditingDB != null || this.EditingSetAttribute != null || this.EditingWebDbReviewSet != null;
     }
 	Edit(item: iWebDB | null) {
 		if (!item) {
@@ -188,15 +293,64 @@ export class WebDBsComponent implements OnInit, OnDestroy {
 			this.WebDBService.RemoveWebDbReviewSet(this.WebDBService.CurrentDB.webDBId, rs.webDBSetId);
     }
 	EditTool(rs: WebDbReviewSet) {
+		let iToE: iWebDbReviewSet = {
+			webDBId: rs.webDBId,
+			webDBSetId: rs.webDBSetId,
+			reviewSetId: rs.reviewSetId,
+			setId: rs.set_id,
+			setType: rs.setType,
+			setName: rs.set_name,
+			setDescription: rs.set_name,
+			setOrder: rs.set_order,
+			codingIsFinal: rs.codingIsFinal,
+			allowCodingEdits: rs.allowEditingCodeset,
+			userCanEditURLs: rs.userCanEditURLs,
+			attributes: {
+				attributesList: []
+			}
+        }
+		let toedit = new WebDbReviewSet(iToE);
+		toedit.webDBId = rs.webDBId;
+		toedit.webDBSetId= rs.webDBSetId;
+		toedit.description = rs.description;
+		toedit.set_name = rs.set_name;
+		this.EditingWebDbReviewSet = toedit;
+	}
+	
+	CancelEditTool() {
+		this.EditingWebDbReviewSet = null;
+	}
 
-    }
+	SaveEditedTool() {
+		if (this.EditingWebDbReviewSet != null) {
+			this.WebDBService.UpdateWebDbReviewSet(this.EditingWebDbReviewSet);
+			this.EditingWebDbReviewSet = null;
+		}
+	}
 	RemoveAttribute(att: SetAttribute) {
-		//if (this.WebDBService.CurrentDB != null)
-		//	this.WebDBService.re(this.WebDBService.CurrentDB.webDBId, rs.webDBSetId);
+		if (this.WebDBService.CurrentDB != null)
+			this.WebDBService.RemoveWebDbAttribute(att, this.WebDBService.CurrentDB.webDBId);
 	}
 	EditAttribute(att: SetAttribute) {
-
+		//console.log("EditAttribute", att)
+		let ToEdit: SetAttribute = new SetAttribute();
+		ToEdit.attribute_id = att.attribute_id;
+		ToEdit.set_id = att.set_id;
+		ToEdit.attribute_name = att.attribute_name;
+		ToEdit.attribute_set_desc = att.attribute_set_desc;
+		this.EditingSetAttribute = ToEdit;
 	}
+	CancelEditAttribute() {
+		this.EditingSetAttribute = null;
+    }
+
+	SaveEditedAttribute() {
+		//console.log("SaveEditedAttribute", this.EditingSetAttribute);
+		if (this.WebDBService.CurrentDB != null && this.EditingSetAttribute != null) {
+			this.WebDBService.EditWebDbAttribute(this.EditingSetAttribute, this.WebDBService.CurrentDB.webDBId);
+			this.EditingSetAttribute = null;
+		}
+    }
 
 	BackToMain() {
 		this.router.navigate(['Main']);
@@ -207,4 +361,10 @@ export class WebDBsComponent implements OnInit, OnDestroy {
 	ngAfterViewInit() {
 
 	}
+}
+class MissingAttribute {
+	public name: string = "";
+	public path: string = "";
+	public attributeId: number = 0;
+	public parentId:number = 0; 
 }

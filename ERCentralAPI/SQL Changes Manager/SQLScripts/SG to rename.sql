@@ -440,16 +440,16 @@ CREATE OR ALTER procedure [dbo].[st_WebDbGetAllAttributesInSet]
 As
 
 SELECT tas.ATTRIBUTE_SET_ID, tas.SET_ID, tas.ATTRIBUTE_ID, tas.PARENT_ATTRIBUTE_ID,
-	tas.ATTRIBUTE_TYPE_ID, tas.ATTRIBUTE_SET_DESC, tas.ATTRIBUTE_ORDER, ATTRIBUTE_TYPE, 
+	tas.ATTRIBUTE_TYPE_ID, tas.ATTRIBUTE_ORDER, ATTRIBUTE_TYPE, 
 	case 
 		WHEN WEBDB_ATTRIBUTE_NAME is null then a.ATTRIBUTE_NAME
 		else WEBDB_ATTRIBUTE_NAME
 	END as ATTRIBUTE_NAME, 
-	ATTRIBUTE_SET_DESC, CONTACT_ID, 
 	case 
-		WHEN WEBDB_ATTRIBUTE_DESCRIPTION is null then a.ATTRIBUTE_DESC
+		WHEN WEBDB_ATTRIBUTE_DESCRIPTION is null then tas.ATTRIBUTE_SET_DESC
 		else WEBDB_ATTRIBUTE_DESCRIPTION
-	END as ATTRIBUTE_DESC, 
+	END as ATTRIBUTE_SET_DESC, 
+	CONTACT_ID, ATTRIBUTE_DESC, 
 	Ext_URL, Ext_Type,
 	ORIGINAL_ATTRIBUTE_ID
 
@@ -662,6 +662,7 @@ CREATE OR ALTER PROCEDURE [dbo].[st_WebDbAttributeEdit]
 	@REVIEW_ID INT,
 	@WEBDB_ID int,
 	@ATTRIBUTE_ID bigint,
+	@Set_ID int,
 	@Public_Name nvarchar(255),
 	@Public_Descr nvarchar(2000)
 )
@@ -669,9 +670,16 @@ As
 declare @WEBDB_PUBLIC_ATTRIBUTE_ID int = (select WEBDB_PUBLIC_ATTRIBUTE_ID from TB_WEBDB w
 						inner join TB_WEBDB_PUBLIC_ATTRIBUTE a 
 							on a.WEBDB_ID = w.WEBDB_ID and w.WEBDB_ID = @WEBDB_ID 
-							and ATTRIBUTE_ID = @ATTRIBUTE_ID and w.REVIEW_ID = @REVIEW_ID)
+							and ATTRIBUTE_ID = @ATTRIBUTE_ID and w.REVIEW_ID = @REVIEW_ID
+						Inner join TB_REVIEW_SET rs on rs.REVIEW_ID = w.REVIEW_ID and rs.SET_ID = @Set_ID
+						inner join TB_ATTRIBUTE_SET tas on tas.ATTRIBUTE_ID = @ATTRIBUTE_ID and tas.SET_ID = rs.SET_ID)
 --Just a basic sanity check: can we get the record to edit?
 IF @WEBDB_PUBLIC_ATTRIBUTE_ID is null OR @WEBDB_PUBLIC_ATTRIBUTE_ID < 1 return
+
+--NULL here signals to use the original Attribute name and description, when showing the WebDbs...
+IF @Public_Descr = '' SET @Public_Descr = null
+IF @Public_Name = '' SET @Public_Name = null
+
 update TB_WEBDB_PUBLIC_ATTRIBUTE set WEBDB_ATTRIBUTE_NAME = @Public_Name, WEBDB_ATTRIBUTE_DESCRIPTION = @Public_Descr 
  where WEBDB_PUBLIC_ATTRIBUTE_ID = @WEBDB_PUBLIC_ATTRIBUTE_ID
 GO
