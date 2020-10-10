@@ -67,11 +67,14 @@ export class ItemDocListComp implements OnInit, OnDestroy {
             
         }
     }
-    
+    OpenFirstPDF() {
+        let ind = this.ItemDocsService._itemDocs.findIndex((found) => found.extension.toLowerCase() == ".pdf");
+        if (ind > -1) {
+            this.DownloadDoc(this.ItemDocsService._itemDocs[ind].itemDocumentId, true);
+        }
+    }
     DownloadDoc(itemDocumentId: number, ForView: boolean) {
-
         this.ItemDocsService.GetItemDocument(itemDocumentId, ForView);
-
     }
     public uploadSaveUrl = this._baseUrl + 'api/ItemDocumentList/Upload'; // 
     

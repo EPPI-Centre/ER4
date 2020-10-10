@@ -6,7 +6,7 @@
     <div class="col-4 col-xl-3 px-1 py-0">
         <div class="col-12 font-weight-bold my-1">WebDBs for this review:</div>
         <div class="col-12 p-0" style="max-height:85vh; overflow:auto;">
-            <table class="table table-light mb-0">
+            <table class="table table-light mb-0" [ngClass]="{disableThisAndChildren:EditingSomething}">
                 <tr>
                     <th class="m-0 small font-weight-bold">
                         Id
@@ -25,23 +25,23 @@
                 </tr>
                 <tr *ngFor="let db of WebDbs" [ngClass]="{'alert-primary font-weight-bold': CurrentDB && db.webDBId == CurrentDB.webDBId }">
                     <td style="cursor:pointer" (click)="ShowDBSetting(db)" class="py-1">{{db.webDBId}}</td>
-                    <td style="cursor:pointer; max-width:50%;" (click)="ShowDBSetting(db)" class="py-1" >{{db.webDBName}}</td>
+                    <td style="cursor:pointer; max-width:50%;" (click)="ShowDBSetting(db)" class="py-1">{{db.webDBName}}</td>
                     <td style="cursor:pointer" (click)="ShowDBSetting(db)" class="py-1">{{db.isOpen}}</td>
                     <!--<td style="cursor:pointer" (click)="ShowDBSetting(db)" class="py-1">{{db.attributeIdFilter > 0 ? 'Yes' : 'No'}}</td>-->
-                    <td class="py-1" >
+                    <td class="py-1">
                         <button [disabled]="!CanWrite" class="btn btn-outline-danger btn-sm px-1 pt-0" (click)="DeleteDB(db)">
                             <span class="k-icon k-i-delete "></span>
                         </button>
                     </td>
                 </tr>
             </table>
-            
+
         </div>
     </div>
     <div class="col-8 col-xl-9 p-0">
         <div class="col-12  p-0 m-0 row ">
             <div class="my-1 font-weight-bold">View/Edit Details</div>
-            <button class="page-link rounded pt-1 pb-1 mb-1 mr-0 ml-auto float-right" 
+            <button class="page-link rounded pt-1 pb-1 mb-1 mr-0 ml-auto float-right"
                     (click)="BackToMain()">
                 Close/back
             </button>
@@ -49,7 +49,7 @@
         <div *ngIf="EditingDB == null && CurrentDB !== null" class="bg-light rounded">
             <div *ngIf="CanWrite" class="w-100 m-0 p-0 text-center">
                 <button class="btn btn-outline-success btn-sm ml-1 mb-1" (click)="Edit(CurrentDB)" [disabled]="CurrentDB==null">Edit</button>
-                <button class="btn btn-outline-success btn-sm ml-1 mb-1" (click)="Edit()" >Add New...</button>
+                <button class="btn btn-outline-success btn-sm ml-1 mb-1" (click)="Edit()">Add New...</button>
             </div>
             <div class="row col-12 p-1 mx-0 mt-2 border-bottom border-info">
                 <div class="col-12 col-sm-2 row m-0 p-0">
@@ -127,7 +127,7 @@
             <div class="w-100 m-0 p-0 text-center">
                 <button class="btn btn-outline-success btn-sm ml-1 mb-1" (click)="Edit()">Edit</button>
             </div>
-            
+
         </div>
         <div *ngIf="EditingDB !== null" class="bg-light rounded">
             <div class="w-100 m-0 p-0 text-center">
@@ -135,7 +135,7 @@
                 <button class="btn btn-outline-danger btn-sm ml-1 mb-1" [disabled]="!CanSave" (click)="Save()">Save</button>
             </div>
             <div *ngIf="!CanSave" class="w-100 m-0 p-0 text-center">
-                <span class="alert-danger rounded small border border-danger px-1" >{{CantSaveMessage}}</span>
+                <span class="alert-danger rounded small border border-danger px-1">{{CantSaveMessage}}</span>
             </div>
             <div class="row col-12 p-1 mx-0 mt-2 border-bottom border-info">
                 <div class="col-12 col-sm-2 row m-0 p-0">
@@ -253,49 +253,126 @@
             </div>
         </div>
 
-        <div class="bg-light rounded mt-2">
-            <div class="row col-12 p-1 mx-0 mt-2 border-bottom border-info">
-                <div class="col-4 p-0 mt-2">
-                    Add Coding Tool:
-                </div>
-                <div class="d-block my-1 col-8 p-0">
-                    <div ngbDropdown class="" style="min-width:200px;">
-                        <button class="btn btn-outline-secondary dropdown-toggle"
-                                style="min-width: 200px; max-width:720px;"
-                                (click)="isCollapsedAddTool = false;"
-                                id="dropdownBasicCodingTool" ngbDropdownToggle>
-                            {{GetCodingToolName()}}
-                        </button>
-                        <div ngbDropdownMenu aria-labelledby="dropdownBasicCodingTool">
-                            <button (click)="SetCodeSetDropDown(item)"
-                                    *ngFor="let item of AddableCodingTools;" class="dropdown-item">
-                                {{item.name}}
-                            </button>
+        <div class="row p-0 m-0">
+            <div class="row col-6 p-1 mx-0 mt-2 border-top border-info">
+                <WebDbCcodesetTree class="w-100" MaxHeight="400" [CanChangeSelectedCode]="!EditingSomething"></WebDbCcodesetTree>
+            </div>
+            <div class="row col-6 p-1 mx-0 mt-2 border-top border-info">
+                <div class="bg-light w-100 rounded mt-2">
+                    <div class="row col-12 p-1 mx-0 mt-2 ">
+                        <div class="col-4 p-0 mt-2">
+                            Add Coding Tool:
+                        </div>
+                        <div class="d-block my-1 col-8 p-0">
+                            <div ngbDropdown class="" style="min-width:200px;">
+                                <button class="btn btn-outline-secondary dropdown-toggle"
+                                        style="min-width: 200px; max-width:720px;"
+                                        (click)="isCollapsedAddTool = false;"
+                                        id="dropdownBasicCodingTool" ngbDropdownToggle>
+                                    {{GetCodingToolName()}}
+                                </button>
+                                <div ngbDropdownMenu aria-labelledby="dropdownBasicCodingTool">
+                                    <button (click)="SetCodeSetDropDown(item)"
+                                            *ngFor="let item of AddableCodingTools;" class="dropdown-item">
+                                        {{item.name}}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div *ngIf="selectedCodeSetDropDown != null" class="col-12 row m-0 p-0">
+                            <div class="col-4 p-0 mt-2">
+                                Add This Tool:
+                            </div>
+                            <div class="d-block my-1 col-8 p-0">
+                                {{GetCodingToolName()}}
+                                <button class="btn btn-outline-secondary my-1" [disabled]="!CanWrite"
+                                        (click)="AddCodingTool(selectedCodeSetDropDown)">
+                                    Add!
+                                </button>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div *ngIf="selectedCodeSetDropDown != null" class="col-12 row m-0 p-0">
-                    <div class="col-4 p-0 mt-2">
-                        Add This Tool:
+                    <div class="row col-12 p-1 mx-0 mt-2 ">
+                        <ng-container [ngSwitch]="true">
+                            <div *ngSwitchCase="SelectedNodeIsRoot === null">
+                                No Code is Selected
+                            </div>
+                            <div *ngSwitchCase="SelectedNodeIsRoot === true" class="row col-12 m-0 p-0">
+                                <div *ngIf="EditingWebDbReviewSet == null; else editingSetBlock">
+                                    Selected Coding Tool: {{SelectedCodingTool.name}}
+                                    <button *ngIf="CanWrite" class="btn btn-sm btn-outline-primary  px-1 m-1" (click)="EditTool(SelectedCodingTool)">
+                                        Edit
+                                    </button>
+                                    <button *ngIf="CanWrite" class="btn btn-sm btn-outline-danger  px-1 pt-0 m-1" (click)="RemoveTool(SelectedCodingTool)">
+                                        <span class="k-icon k-i-delete "></span>
+                                    </button>
+                                </div>
+                                <ng-template #editingSetBlock>
+                                    <div class="w-100">
+                                        <div class="row p-0 m-0">
+                                            <div class="col-4">Public name for this set:</div>
+                                            <input class="col-8" type="text" [(ngModel)]="EditingWebDbReviewSet.set_name" maxlength="255" />
+                                        </div>
+                                        <div class="row p-0 m-0">
+                                            <div class="col-4">Public description for this set:</div>
+                                            <textarea class="col-8" rows="3" type="text" maxlength="2000" [(ngModel)]="EditingWebDbReviewSet.description"></textarea>
+                                        </div>
+                                        <button class="btn btn-sm btn-outline-secondary  px-1 m-1" (click)="CancelEditTool()">
+                                            Cancel
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-primary  px-1 m-1" (click)="SaveEditedTool()">
+                                            Save
+                                        </button>
+                                    </div>
+                                    <div style="max-height:400px;overflow:auto;">
+                                        <div *ngFor="let missing of MissingAttributes" class="col-12">
+                                            {{missing.path}}\{{missing.name}} <button class="btn btn-sm btn-outline-primary" (click)="RestoreCode(missing)">+</button>
+                                        </div>
+                                    </div>
+                                </ng-template>
+                            </div>
+                            <div *ngSwitchDefault class="row col-12 m-0 p-0">
+                                <div *ngIf="EditingSetAttribute == null; else editingAttributeBlock">
+                                    Selected Attribute: {{SelectedAttribute.name}}
+                                    <button *ngIf="CanWrite" class="btn btn-sm btn-outline-primary  px-1 py-0 m-1" (click)="EditAttribute(SelectedAttribute)">
+                                        Edit
+                                    </button>
+                                    <button *ngIf="CanWrite" class="btn btn-sm btn-outline-danger  px-1 pt-0 m-1" (click)="RemoveAttribute(SelectedAttribute)">
+                                        <span class="k-icon k-i-delete "></span>
+                                    </button>
+                                </div>
+                                <ng-template #editingAttributeBlock>
+                                    <div class="w-100">
+                                        <div class="row p-0 m-0">
+                                            <div class="col-4">Public name for this Code:</div>
+                                            <input class="col-8" type="text" [(ngModel)]="EditingSetAttribute.attribute_name" maxlength="255" />
+                                        </div>
+                                        <div class="row p-0 m-0">
+                                            <div class="col-4">Public description for this Code:</div>
+                                            <textarea class="col-8" rows="3" type="text" maxlength="2000" [(ngModel)]="EditingSetAttribute.attribute_set_desc"></textarea>
+                                        </div>
+                                        <button  class="btn btn-sm btn-outline-secondary  px-2 m-1" (click)="CancelEditAttribute()">
+                                            Cancel
+                                        </button>
+                                        <button  class="btn btn-sm btn-outline-primary  px-1 m-1" (click)="SaveEditedAttribute()">
+                                            Save
+                                        </button>
+                                    </div>
+                                </ng-template>
+                            </div>
+                        </ng-container>
                     </div>
-                    <div class="d-block my-1 col-8 p-0">
-                        {{GetCodingToolName()}}
-                        <button class="btn btn-outline-secondary my-1" [disabled]="!CanWrite"
-                                (click)="AddCodingTool(selectedCodeSetDropDown)">
-                            Add!
-                        </button>
-                    </div>
-                </div>
-            </div>
-            <div class="row col-12 p-1 mx-0 mt-2 border-bottom border-info">
-                <div *ngFor="let itm of CurrentWebDbTools" class="col border rounded border-info p-1 m-1">
-                    {{itm.setName}} 
-                    <button *ngIf="CanWrite" class="btn btn-sm btn-outline-danger  px-1 pt-0" (click)="RemoveTool(itm)">
-                        <span class="k-icon k-i-delete "></span>
-                    </button>
                 </div>
             </div>
         </div>
     </div>
 </div>
 <statusbar class="row card p-0 ml-1 mr-1 mt-1 mb-2 card-body" resizable></statusbar>
+<!--<div class="row col-12 p-1 mx-0 mt-2 border-bottom border-info">
+    <div *ngFor="let itm of CurrentWebDbTools" class="col border rounded border-info p-1 m-1">
+        {{itm.setName}}
+        <button *ngIf="CanWrite" class="btn btn-sm btn-outline-danger  px-1 pt-0" (click)="RemoveTool(itm)">
+            <span class="k-icon k-i-delete "></span>
+        </button>
+    </div>
+</div>-->

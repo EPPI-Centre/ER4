@@ -63,13 +63,16 @@ export class microsoftAcademicComp implements OnInit, OnDestroy {
         this._magAdvancedService.FetchMagPaperId(magPaperRefId).then(
 
             (result: MagPaper) => {
+                if (result.paperId.toString().length > 4) {
 
-                this._magAdvancedService.PostFetchMagPaperCalls(result,'');
+                    this._magAdvancedService.PostFetchMagPaperCalls(result,'');
+
+                }
             });
     }
     public CanGetMagPaper(): boolean {
 
-        if (this.magPaperId != null && this.magPaperId > 0) {
+        if (this.magPaperId != null && this.magPaperId.toString().length > 4) {
             return true;
         } else {
             return false;
@@ -186,10 +189,10 @@ export class microsoftAcademicComp implements OnInit, OnDestroy {
             (result: MagPaper) => {
 
                 if (result != null) {
-
-                    this.foundMagPaper = true;
-                    this.FoundPaper = result;
-                    
+                    if (result.paperId.toString().length > 4) {
+                        this.foundMagPaper = true;
+                        this.FoundPaper = result;
+                    }
                 }
             });
     }

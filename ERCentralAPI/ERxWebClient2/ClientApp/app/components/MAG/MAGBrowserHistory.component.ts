@@ -62,7 +62,7 @@ export class MAGBrowserHistory implements OnInit {
         return false;
     }
     Back() {
-        this._location.back();
+        this.router.navigate(['Main']);
     }
     fetchMAGHistory() {
 
@@ -202,7 +202,7 @@ export class MAGBrowserHistory implements OnInit {
     }
     public ShowSelectedPapersPage() {
         this.router.navigate(['MAGBrowser']);
-        this._magBrowserService.onTabSelect(2);
+        //this._magBrowserService.onTabSelect(2);
     }
     public GetParentAndChildRelatedPapers(FieldOfStudy: string, FieldOfStudyId: number) {
 

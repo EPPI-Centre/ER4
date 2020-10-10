@@ -23,13 +23,13 @@ namespace ERxWebClient2.Controllers
         {
             try
             {
-                SetCSLAUser();
-
-                DataPortal<MagReviewList> dp = new DataPortal<MagReviewList>();
-
-                var result = dp.Fetch();
-
-                return Ok(result);
+                if (SetCSLAUser() && User.HasClaim(cl => cl.Type == "isSiteAdmin" && cl.Value == "True"))
+                {
+                    DataPortal<MagReviewList> dp = new DataPortal<MagReviewList>();
+                    var result = dp.Fetch();
+                    return Ok(result);
+                }
+                else return Unauthorized();
             }
             catch (Exception e)
             {
@@ -44,9 +44,8 @@ namespace ERxWebClient2.Controllers
 
             try
             {
-                if (SetCSLAUser4Writing())
+                if (SetCSLAUser4Writing() && User.HasClaim(cl => cl.Type == "isSiteAdmin" && cl.Value == "True"))
                 {
-
                     MagReview mr = new MagReview();
                     mr.ReviewId = reviewId.Value;
                     mr.Name = "adding review...";
@@ -73,7 +72,7 @@ namespace ERxWebClient2.Controllers
         {
             try
             {
-                if (SetCSLAUser4Writing())
+                if (SetCSLAUser4Writing() && User.HasClaim(cl => cl.Type == "isSiteAdmin" && cl.Value == "True"))
                 {
 
                     DataPortal<MagReviewList> dp2 = new DataPortal<MagReviewList>();

@@ -647,7 +647,7 @@ export class SetAttribute implements singleNode {
 export interface iReviewSet {
     reviewSetId: number;
     setId: number;
-    setType: iSetType,
+    setType: iSetType;
     setName: string;
     setDescription: string;
     setOrder: number;

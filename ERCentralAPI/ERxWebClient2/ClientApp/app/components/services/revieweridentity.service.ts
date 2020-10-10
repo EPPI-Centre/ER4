@@ -16,6 +16,7 @@ import { ModalService } from './modal.service';
 import { take } from 'lodash';
 import { CustomRouteReuseStrategy } from '../helpers/CustomRouteReuseStrategy';
 import { stack } from '@progress/kendo-drawing';
+import { EventEmitterService } from './EventEmitter.service';
 
 
 @Injectable({
@@ -30,7 +31,8 @@ export class ReviewerIdentityService implements OnDestroy {
         @Inject('BASE_URL') private _baseUrl: string,
         private customRouteReuseStrategy: RouteReuseStrategy,
         private ReviewerTermsService: ReviewerTermsService,
-        private modalService: ModalService
+        private modalService: ModalService,
+        private eventEmitters: EventEmitterService
     ) {
         console.log("Creating RI.");
     }
@@ -391,7 +393,7 @@ export class ReviewerIdentityService implements OnDestroy {
                 if (this.reviewerIdentity.userId > 0 && this.reviewerIdentity.reviewId === RevId) {
                     this.router.onSameUrlNavigation = "reload";
                     this.CommonPostLoginToReview(true);
-                    this.OpeningNewReview.emit();
+                    this.eventEmitters.OpeningNewReview.emit();
                     this.router.navigate(['MainCodingOnly']);
                 }
             }
@@ -417,7 +419,7 @@ export class ReviewerIdentityService implements OnDestroy {
                     this.CommonPostLoginToReview(false);
                     this.router.onSameUrlNavigation = "reload";
                     this.router.navigate(['Main']);
-                    this.OpeningNewReview.emit();
+                    this.eventEmitters.OpeningNewReview.emit();
                 }
             }
                 , error => {
@@ -435,7 +437,7 @@ export class ReviewerIdentityService implements OnDestroy {
                 this.reviewerIdentity = ri;
                 if (this.reviewerIdentity.userId > 0 && this.reviewerIdentity.reviewId === rid) {
                     this.CommonPostLoginToReview(false);
-                    this.OpeningNewReview.emit();
+                    this.eventEmitters.OpeningNewReview.emit();
                 }
             }, error => {
                 ////check error is 401, if it is show modal and on modal close, go home

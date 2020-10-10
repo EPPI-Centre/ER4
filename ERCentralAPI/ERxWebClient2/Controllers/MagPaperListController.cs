@@ -46,32 +46,36 @@ namespace ERxWebClient2.Controllers
         {
             try
             {
-                if (!SetCSLAUser()) return Unauthorized();
+                if (SetCSLAUser4Writing())
+                {
 
                     DataPortal<MagPaper> dp = new DataPortal<MagPaper>();
-                SingleCriteria<MagPaper, Int64> criteria =
-                    new SingleCriteria<MagPaper, Int64>(magPaperState.magPaperId);
+                    SingleCriteria<MagPaper, Int64> criteria =
+                        new SingleCriteria<MagPaper, Int64>(magPaperState.magPaperId);
 
-                var magPaper = dp.Fetch(criteria);
+                    var magPaper = dp.Fetch(criteria);
 
 
-                var manualFalseMatchProperty = !magPaperState.manualTrueMatchProperty;
-                DataPortal<MagPaper> dp2 = new DataPortal<MagPaper>();
-                MagMatchItemToPaperManualCommand cmd = new MagMatchItemToPaperManualCommand(magPaperState.itemId,
-                    magPaperState.magPaperId, magPaperState.manualTrueMatchProperty, manualFalseMatchProperty);
+                    var manualFalseMatchProperty = !magPaperState.manualTrueMatchProperty;
+                    DataPortal<MagPaper> dp2 = new DataPortal<MagPaper>();
+                    MagMatchItemToPaperManualCommand cmd = new MagMatchItemToPaperManualCommand(magPaperState.itemId,
+                        magPaperState.magPaperId, magPaperState.manualTrueMatchProperty, manualFalseMatchProperty);
 
-                 magPaper.LinkedITEM_ID = magPaperState.itemId;
-                if (magPaper.LinkedITEM_ID > 0)
-                {
-                    magPaper.ManualFalseMatch = !magPaperState.manualTrueMatchProperty;
-                    magPaper.ManualTrueMatch = magPaperState.manualTrueMatchProperty;
-                    magPaper = dp.Update(magPaper);
-                    return Ok(magPaper);
+                    magPaper.LinkedITEM_ID = magPaperState.itemId;
+                    if (magPaper.LinkedITEM_ID > 0)
+                    {
+                        magPaper.ManualFalseMatch = !magPaperState.manualTrueMatchProperty;
+                        magPaper.ManualTrueMatch = magPaperState.manualTrueMatchProperty;
+                        magPaper = dp.Update(magPaper);
+                        return Ok(magPaper);
+                    }
+                    else
+                    {
+                        throw new Exception("magPaper has a LinkedITEM_ID of 0!");
+                    }
+
                 }
-                else
-                {
-                    throw new Exception("magPaper has a LinkedITEM_ID of 0!");
-                }
+                else return Forbid();
 
             }
             catch (Exception e)

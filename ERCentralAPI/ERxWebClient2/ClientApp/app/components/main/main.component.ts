@@ -14,6 +14,7 @@ import { timer, Subject, Subscription } from 'rxjs';
 import { take, map, takeUntil } from 'rxjs/operators';
 import { forEach } from '@angular/router/src/utils/collection';
 import { ReviewSetsService } from '../services/ReviewSets.service';
+import { EventEmitterService } from '../services/EventEmitter.service';
 
 @Component({
     selector: 'mainCodingOnly',
@@ -34,7 +35,8 @@ export class MainComponent implements OnInit, OnDestroy, AfterViewInit {
         private ReviewSetsService: ReviewSetsService,
         @Inject('BASE_URL') private _baseUrl: string,
         private _httpC: HttpClient,
-        private ItemListService: ItemListService
+        private ItemListService: ItemListService,
+        private eventEmitters: EventEmitterService
     ) {
         
     }
@@ -84,7 +86,7 @@ export class MainComponent implements OnInit, OnDestroy, AfterViewInit {
     ngOnInit() {
 
         console.log("MainCodingOnly init:", this.InstanceId);
-        this.subOpeningReview = this.ReviewerIdentityServ.OpeningNewReview.subscribe(() => this.Reload());
+        this.subOpeningReview = this.eventEmitters.OpeningNewReview.subscribe(() => this.Reload());
         //this.ReviewInfoService.Fetch();
         this.ReviewSetsService.GetReviewSets();
     }

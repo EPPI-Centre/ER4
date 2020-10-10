@@ -5,7 +5,7 @@
     Close/back
 </button>
 
-<MAGHeaderBar></MAGHeaderBar>
+<MAGHeaderBar Context="adminMAG"></MAGHeaderBar>
 <div *ngIf="IsServiceBusy" class="k-loading-image" style="position: fixed; top: 2%;"></div>
 <div class="container col-12">
 
@@ -33,43 +33,41 @@
         </div>
 
         <div class="col-lg-4">
-            <h2 class="card-title"></h2>
-            
-
-
-            <div class="card small row col-12">
+            <div class="small row col-12">
                 <h4 class="card-title">Your current Microsoft Academic Graph Info</h4>
+                <div class="card">
+                    <div class="card-body">
+                        <div class="col-12 p-2 m-2 ">
+                            MAG Version:{{_magAdminService.MagCurrentInfo.magVersion}}
+                        </div>
+                        <div class="col-12  p-2 m-2 ">
+                            MAKES EndPoint:{{_magAdminService.MagCurrentInfo.makesEndPoint}}
+                        </div>
+                        <div class="col-12  p-2 m-2 ">
+                            MAKES Deployment Status: {{_magAdminService.MagCurrentInfo.makesDeploymentStatus}}
+                        </div>
 
-                <div class="col-12 p-2 m-2 ">
-                    MAG Version:{{_magAdminService.MagCurrentInfo.magVersion}}
-                </div>
-                <div class="col-12  p-2 m-2 ">
-                    MAKES EndPoint:{{_magAdminService.MagCurrentInfo.makesEndPoint}}
-                </div>
-                <div class="col-12  p-2 m-2 ">
-                    MAKES Deployment Status: {{_magAdminService.MagCurrentInfo.makesDeploymentStatus}}
-                </div>
+                        <div class="col-12 p-2 m-2 ">
+                            Enter new MAG Version:<input class="form-control" type="text" id="newMagVersion" [(ngModel)]="newMagVersion" />
+                        </div>
+                        <div class="col-12  p-2 m-2 ">
+                            Enter new MAKES EndPoint:<input class="form-control" type="text" id="newMagEndPoint" [(ngModel)]="newMagEndPoint" />
+                        </div>
 
-                <div class="col-12 p-2 m-2 ">
-                    Enter new MAG Version:<input class="form-control" type="text" id="newMagVersion" [(ngModel)]="newMagVersion" />
-                </div>
-                <div class="col-12  p-2 m-2 ">
-                    Enter new MAKES EndPoint:<input class="form-control" type="text" id="newMagEndPoint" [(ngModel)]="newMagEndPoint" />
-                </div>
-                
 
-                <div class="card-text small row col-12">
-                    <div>
-                        <span class=" p-2 m-2 small col-3" style="width: 110px;">
-                            <a class="btn btn-primary btn-sm text-white" (click)="UpdateMagInfo()">Update MAG Info</a>
-                        </span>
+                        <div class="card-text small row col-12">
+                            <div>
+                                <span class=" p-2 m-2 small col-3" style="width: 110px;">
+                                    <a class="btn btn-primary btn-sm text-white" (click)="UpdateMagInfo()">Update MAG Info</a>
+                                </span>
+                            </div>
+                        </div>
+                        <h2 class="card-title"></h2>
                     </div>
+
                 </div>
-                <h2 class="card-title"></h2>
+
             </div>
-                
-           
-         
         </div>
 
         <div class="col-lg-4">

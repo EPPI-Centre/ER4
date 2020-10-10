@@ -344,6 +344,11 @@ namespace BusinessLibrary.BusinessClasses
 
         protected override void DataPortal_Insert()
         {
+            if (Mode == "")
+            {
+                // Once UI behaves this shouldn't be possible
+                return;
+            }
             ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
@@ -367,10 +372,10 @@ namespace BusinessLibrary.BusinessClasses
                     LoadProperty(MagRelatedRunIdProperty, command.Parameters["@MAG_RELATED_RUN_ID"].Value);
 
                     // Run in separate thread and return this object to client
-                    if (this.Mode != "New items in MAG") // New items in MAG runs periodically outside this process
-                    {
-                        Task.Run(() => { RunMagRelatedPapersRun(ri.UserId, ri.ReviewId); });
-                    }
+                    //if (this.Mode != "New items in MAG") // New items in MAG runs periodically outside this process
+                    //{
+                    //    Task.Run(() => { RunMagRelatedPapersRun(ri.UserId, ri.ReviewId); });
+                    //}
                 }
                 connection.Close();
             }
@@ -470,7 +475,7 @@ namespace BusinessLibrary.BusinessClasses
             return returnValue;
         }
 
-        private async void RunMagRelatedPapersRun(int ContactId, int ReviewId)
+        public async Task RunMagRelatedPapersRun(int ContactId, int ReviewId)
         {
 
 #if (!CSLA_NETCORE)
@@ -495,13 +500,13 @@ namespace BusinessLibrary.BusinessClasses
 
 #endif
 
-            WriteSeedIdsFile(uploadFileName, ReviewId);
+            await WriteSeedIdsFileAsync(uploadFileName, ReviewId);
             await UploadSeedIdsFileAsync(uploadFileName);
-            TriggerDataLakeJob(uploadFileName, ContactId);
+            await TriggerDataLakeJobAsync(uploadFileName, ContactId);
             await DownloadResultsAsync(downloadFilename, ReviewId);
         }
 
-        private void WriteSeedIdsFile(string uploadFileName, int ReviewId)
+        private async Task WriteSeedIdsFileAsync(string uploadFileName, int ReviewId)
         {
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
@@ -571,10 +576,9 @@ namespace BusinessLibrary.BusinessClasses
             File.Delete(fileName);
         }
 
-        private void TriggerDataLakeJob(string uploadFileName, int ContactId)
+        private async Task TriggerDataLakeJobAsync(string uploadFileName, int ContactId)
         {
             MagCurrentInfo MagInfo = MagCurrentInfo.GetMagCurrentInfoServerSide("LIVE");
-
             MagDataLakeHelpers.ExecProc(@"[master].[dbo].[RelatedRun](""" + Path.GetFileName(uploadFileName) + "\",\"" +
                 Path.GetFileName(uploadFileName) + "\", \"" + MagInfo.MagFolder + "\",\"" + this.Mode + "\"," +
                 (this.DateFrom.ToString() != "" ? DateFrom.Date.Year.ToString() : "1753") + ");", true, "RelatedRun", ContactId, 10);

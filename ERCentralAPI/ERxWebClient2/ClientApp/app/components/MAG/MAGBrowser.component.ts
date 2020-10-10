@@ -50,6 +50,7 @@ export class MAGBrowser implements OnInit, OnDestroy {
     public getAttriubteIdsSub: Subscription | null = null;
     public basicOrigPanel: boolean = false;
     public currentMagPaperList: MagPaper[] = [];
+    public currenPaperIsSelected: boolean = false;
     public get SelectedPapersTitle(): string {
         let ret: string = "Selected Papers (" + this._magBrowserService.selectedPapers.length + ")";
         return ret;
@@ -60,14 +61,14 @@ export class MAGBrowser implements OnInit, OnDestroy {
         this.basicOrigPanel = !this.basicOrigPanel;
         this.ShowOriginalPapers = !this.ShowOriginalPapers;
     }
-    ngOnInit() {
-        this._magBrowserService.SelectedPaperIds = [];
-        this._magBrowserService.selectedPapers = [];
+    ngAfterViewChecked () {
+
         this._eventEmitterService.selectedButtonPressed.subscribe(
             () => {
                 if (this.tabstrip != null) {
-                    
-                    this.tabstrip.selectTab(1);
+
+                    this.tabstrip.selectTab(2);
+
                     let magBrowseItem: MagBrowseHistoryItem = new MagBrowseHistoryItem("Browse topic: SelectedPapers "
                         , "SelectedPapers", 0, "", "", 0, "", "",
                         0, "", "", 0);
@@ -77,6 +78,19 @@ export class MAGBrowser implements OnInit, OnDestroy {
                 }
             }
         );
+
+    }
+    ngOnInit() {
+
+        this._eventEmitterService.OpeningNewReview.subscribe(
+            () => {
+                //each time a new review is opened reset all data
+                this.Clear();
+                this._magBrowserService.Clear();
+            }
+        );
+
+        
         this._magBrowserService.ShowingParentAndChildTopics = false;
         this._magBrowserService.ShowingChildTopicsOnly = true;
         this.getTopicsSub = this._eventEmitterService.getTopicsEvent.subscribe(
@@ -90,20 +104,53 @@ export class MAGBrowser implements OnInit, OnDestroy {
      
         this._magBrowserService.MAGOriginalList.papers = this._magBrowserService.MAGList.papers;
         this._magBrowserService.OrigListCriteria = this._magBrowserService.ListCriteria;
-    }
-    public AddRemoveCurrentPaperToSelectedList() {
 
-        if (this._magAdvancedService.currentMagPaper != null) {
+    }
+    public AddCurrentPaperToSelectedList() {
+
+        this._magAdvancedService.currentMagPaper.isSelected = false; 
+        if (this._magBrowserService.selectedPapers.length > 0 ) {
+            console.log('inside here again....: ');
+            let paper: MagPaper = this._magAdvancedService.currentMagPaper;
+           
+            let paperIndex: number = -1;
+            paperIndex = this._magBrowserService.MAGList.papers.findIndex(x => x.paperId == paper.paperId) 
+            if (paperIndex != -1) {
+                this.currentMagPaperList = this._magBrowserService.MAGList.papers;
+                this.currentMagPaperList[paperIndex].isSelected = true;
+            } else if (this._magBrowserService.MagCitationsByPaperList.papers.findIndex(y => y.paperId == paper.paperId) != -1) {
+                paperIndex = this._magBrowserService.MagCitationsByPaperList.papers.findIndex(y => y.paperId == paper.paperId);
+                this.currentMagPaperList = this._magBrowserService.MagCitationsByPaperList.papers;
+                this.currentMagPaperList[paperIndex].isSelected = true;
+            } else if (this._magBrowserService.MAGOriginalList.papers.findIndex(z => z.paperId == paper.paperId) != -1) {
+                paperIndex = this._magBrowserService.MAGOriginalList.papers.findIndex(z => z.paperId == paper.paperId)
+                this.currentMagPaperList = this._magBrowserService.MAGOriginalList.papers;
+                this.currentMagPaperList[paperIndex].isSelected = true;
+            }
+            console.log('gotta here', this._magAdvancedService.currentMagPaper);
+            this.InOutReview(this._magAdvancedService.currentMagPaper, this.currentMagPaperList);
+        }
+    }
+    public RemoveCurrentPaperToSelectedList() {
+
+        if (this._magBrowserService.selectedPapers != null) {
 
             let paper: MagPaper = this._magAdvancedService.currentMagPaper;
-            if (this._magBrowserService.MAGList.papers.findIndex(x => x.paperId == paper.paperId) != -1) {
+            this._magAdvancedService.currentMagPaper.isSelected = true;
+            let paperIndex: number = -1;
+            paperIndex = this._magBrowserService.MAGList.papers.findIndex(x => x.paperId == paper.paperId)
+            if (paperIndex != -1) {
                 this.currentMagPaperList = this._magBrowserService.MAGList.papers;
+                this.currentMagPaperList[paperIndex].isSelected = false;
             } else if (this._magBrowserService.MagCitationsByPaperList.papers.findIndex(y => y.paperId == paper.paperId) != -1) {
+                paperIndex = this._magBrowserService.MagCitationsByPaperList.papers.findIndex(y => y.paperId == paper.paperId);
                 this.currentMagPaperList = this._magBrowserService.MagCitationsByPaperList.papers;
+                this.currentMagPaperList[paperIndex].isSelected = false;
             } else if (this._magBrowserService.MAGOriginalList.papers.findIndex(z => z.paperId == paper.paperId) != -1) {
+                paperIndex = this._magBrowserService.MAGOriginalList.papers.findIndex(z => z.paperId == paper.paperId)
                 this.currentMagPaperList = this._magBrowserService.MAGOriginalList.papers;
+                this.currentMagPaperList[paperIndex].isSelected = false;
             }
-            console.log('list length: ', this.currentMagPaperList.length);
             this.InOutReview(this._magAdvancedService.currentMagPaper, this.currentMagPaperList);
         }
     }
@@ -119,11 +166,8 @@ export class MAGBrowser implements OnInit, OnDestroy {
     }
     ngOnDestroy() {
 
-        //if (this.getTopicsSub) {
-        //    this.getTopicsSub.unsubscribe();
-        //}
-        this._magBrowserService.Clear();
-        this.Clear();
+        //this._magBrowserService.Clear();
+        //this.Clear();
     }
     public UpdatePageSize(pageSize: number) {
 
@@ -154,7 +198,28 @@ export class MAGBrowser implements OnInit, OnDestroy {
             closable: true
         });
     }
-    public GetMagPaperRef(magPaperRefId: number, list: MagPaper[] ) {
+    public IsCurrentPaperSelected(): boolean {
+
+        if (this._magBrowserService.selectedPapers != null && 
+            this._magBrowserService.selectedPapers.length > 0) {
+
+            let found: MagPaper =
+                this._magBrowserService.selectedPapers.filter(x => x.paperId == this._magAdvancedService.currentMagPaper.paperId)[0];
+            if (found != null && found != undefined && found.paperId != null && found.paperId > -1) {
+                this.currenPaperIsSelected = true;
+                return this.currenPaperIsSelected ;
+            } else {
+                this.currenPaperIsSelected = false;
+                return this.currenPaperIsSelected ;
+                }
+        } else {
+            this.currenPaperIsSelected = false;
+            return this.currenPaperIsSelected ;
+        }
+    }
+    public GetMagPaperRef(magPaperRefId: number, list: MagPaper[]) {
+
+       
         this.currentMagPaperList = list;
         this._magBrowserService.ShowingParentAndChildTopics = false;
         this._magBrowserService.ShowingChildTopicsOnly = true;
@@ -171,7 +236,7 @@ export class MAGBrowser implements OnInit, OnDestroy {
             });
     }
     public Back() {
-        this._location.back();
+        this.router.navigate(['Main']);
     }
     private AddPaperToSelectedList(paperId: number, list: MagPaper[]) {
         console.log('paper we need: ', paperId);
@@ -185,23 +250,14 @@ export class MAGBrowser implements OnInit, OnDestroy {
         }
     }
     public AddToSelectedList(paperId: number, list: MagPaper[]) {
-        //console.log('list we have is long: ', list.length);
-        for (var i = 0; i < this._magBrowserService.SelectedPaperIds.length; i++) {
 
+        for (var i = 0; i < this._magBrowserService.SelectedPaperIds.length; i++) {
             var item = list.filter(x => x.paperId == paperId)[0];
             if (item != null && this._magBrowserService.selectedPapers.findIndex(x => x.paperId == paperId) == -1 && item.paperId > 0) {
                 console.log('inside the push part, pushing: ', item.paperId);
                 this._magBrowserService.selectedPapers.push(item);
                 item = new MagPaper();
             }
-            //else if (this._magAdvancedService.currentMagPaper != null) {
-            //    if (this._magBrowserService.selectedPapers.findIndex(x => x.paperId == this._magAdvancedService.currentMagPaper.paperId) > -1) {
-
-
-            //    } else {
-            //       this._magBrowserService.selectedPapers.push(this._magAdvancedService.currentMagPaper);
-            //    }
-            //}
         }
     }
     private RemovePaperFromSelectedList(paperId: number, list: MagPaper[]): any {
@@ -232,8 +288,9 @@ export class MAGBrowser implements OnInit, OnDestroy {
         this._magBrowserService.ParentTopic = item.displayName;
         this._magBrowserService.WPChildTopics = [];
         this._magBrowserService.WPParentTopics = [];
-        this._magBrowserService.Clear();
+        //this._magBrowserService.Clear();
         this._magAdvancedService.currentMagPaper = new MagPaper();
+        this._magBrowserService.MagCitationsByPaperList = new MagList();
         this._magBrowserService.GetParentAndChildFieldsOfStudy("FieldOfStudyParentsList", FieldOfStudyId).then(
             () => {
                 this._magBrowserService.GetParentAndChildFieldsOfStudy("FieldOfStudyChildrenList", FieldOfStudyId).then(
@@ -242,24 +299,23 @@ export class MAGBrowser implements OnInit, OnDestroy {
                     });
         });
     }
-    public HideCitatedBy(): boolean {
-
-        let len: number = this._magBrowserService.MagCitationsByPaperList.papers.length;
+    
+    public get HideSelectedPapers(): boolean {
+        const len: number = this._magBrowserService.SelectedPaperIds.length;
         if (len > 0) {
             return false;
         } else {
             return true;
         }
+
     }
-    public HideSelectedPapers(): boolean {
-
-        let len: number = this._magBrowserService.SelectedPaperIds.length;
+    public get DoesNotHaveCitations(): boolean {
+        const len: number = this._magBrowserService.MagCitationsByPaperList.papers.length;
         if (len > 0) {
             return false;
         } else {
             return true;
         }
-
     }
     private IsInSelectedList(paperId: number): boolean {
 
@@ -279,8 +335,9 @@ export class MAGBrowser implements OnInit, OnDestroy {
                 paper.isSelected = false;
             }
             else {
-                this.AddPaperToSelectedList(paper.paperId, list);
                 paper.isSelected = true;
+                this.AddPaperToSelectedList(paper.paperId, list);
+                
             }            
         }
         else {
@@ -295,7 +352,7 @@ export class MAGBrowser implements OnInit, OnDestroy {
         return this._magBrowserService.IsBusy || this._magAdvancedService.IsBusy;
     }
     public Clear() {
-        this._magBrowserService.SelectedPaperIds = [];
+        //this._magBrowserService.SelectedPaperIds = [];
         this._magAdvancedService.currentMagPaper = new MagPaper();
         this.MAGPapers = [];
 

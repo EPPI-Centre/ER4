@@ -154,8 +154,53 @@ namespace ERxWebClient2.Controllers
                 return StatusCode(500, e.Message);
             }
         }
-    }
+        [HttpPost("[action]")]
+        public IActionResult UpdateWebDbReviewSet([FromBody] WebDbReviewSetJson data)
+        {
+            try
+            {
+                if (SetCSLAUser4Writing())
+                {
+                    WebDBReviewSetCrit cr = data.GetFetchCriteria();
+                    WebDbReviewSet editing = DataPortal.Fetch<WebDbReviewSet>(cr);
+                    editing.SetName = data.setName;
+                    editing.SetDescription = data.setDescription;
+                    editing = editing.Save(true);
+                    return Ok(editing);
+                }
+                else return Forbid();
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "AddWebDbReviewSet data portal error");
+                return StatusCode(500, e.Message);
+            }
+        }
 
+        [HttpPost("[action]")]
+        public IActionResult EditAddRemoveWebDbAttribute([FromBody] WebDbAttributeSetEditAddRemoveCommandJson data)
+        {
+            try
+            {
+                if (SetCSLAUser4Writing())
+                {
+                    WebDbAttributeSetEditAddRemoveCommand cmd = data.GetCSLACommand();
+                    cmd = DataPortal.Execute<WebDbAttributeSetEditAddRemoveCommand>(cmd);
+                    WebDBReviewSetCrit cr = data.GetFetchCriteria();
+                    WebDbReviewSet edited = DataPortal.Fetch<WebDbReviewSet>(cr);
+                    return Ok(edited);
+                }
+                else return Forbid();
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "EditAddRemoveWebDbAttribute data portal error");
+                return StatusCode(500, e.Message);
+            }
+        }
+        
+
+    }
 	public class WebDbJson
 	{
         public int webDBId;
@@ -195,6 +240,26 @@ namespace ERxWebClient2.Controllers
         public WebDBReviewSetCrit GetFetchCriteria()
         {
             WebDBReviewSetCrit res = new WebDBReviewSetCrit(webDBId, webDBSetId);
+            return res;
+        }
+    }
+    public class WebDbAttributeSetEditAddRemoveCommandJson
+    {
+        public long attributeId;
+        public int setId;
+        public int webDbId;
+        public int webDBSetId;
+        public bool deleting;
+        public string publicName;
+        public string publicDescription;
+        public WebDbAttributeSetEditAddRemoveCommand GetCSLACommand()
+        {
+            WebDbAttributeSetEditAddRemoveCommand res = new WebDbAttributeSetEditAddRemoveCommand(attributeId, setId, webDbId, deleting, publicName, publicDescription);
+            return res;
+        }
+        public WebDBReviewSetCrit GetFetchCriteria()
+        {
+            WebDBReviewSetCrit res = new WebDBReviewSetCrit(webDbId, webDBSetId);
             return res;
         }
     }

@@ -3,12 +3,12 @@
         style="position:absolute; right: 0; z-index:2000;" (click)="Back()">
     Close/back
 </button>
-<MAGHeaderBar></MAGHeaderBar>
+<MAGHeaderBar Context="MAGMatching"></MAGHeaderBar>
 <div class="container col-12">
     <div class="row" style="vertical-align:top">
         <div class="col-lg-4">
             <h2 class="card-title"></h2>
-            <h1 class="font-weight-light"> Summary: MAG data in this review</h1>
+            <h2 class="font-weight-light">MAG data in this review</h2>
 </div>
 
         <div class="col-lg-8">
@@ -40,43 +40,41 @@
                     </thead>
                     <tbody>
                         <tr>
-                            <td>
-                                <div class="btn btn-link p-2 m-2 " (click)="MAGBrowser('MatchedIncluded')">
+                            <td >
+                                <div [hidden]="CanGetMatchedIncluded()" class="btn btn-link p-2 m-2 " (click)="MAGBrowser('MatchedIncluded')">
                                     {{_magAdvancedService.AdvancedReviewInfo.nMatchedAccuratelyIncluded}}
                                 </div>
-                                <div class="btn btn-link  p-2 m-2 " (click)="OpenMatchesInReview('MatchedIncluded')">
+                                <div [hidden]="CanGetMatchedIncluded()"  class="btn btn-link  p-2 m-2 " (click)="OpenMatchesInReview('MatchedIncluded')">
                                     (List Papers)
                                 </div>
                             </td>
-                            <td>
-
-                                <div class="btn btn-link  p-2 m-2 " (click)="MAGBrowser('MatchedExcluded')">
+                            <td >
+                                <div [hidden]="CanGetMatchedExcluded()" class="btn btn-link  p-2 m-2 " (click)="MAGBrowser('MatchedExcluded')">
                                     {{_magAdvancedService.AdvancedReviewInfo.nMatchedAccuratelyExcluded}}
                                 </div>
-                                <div class="btn btn-link p-2 m-2 " (click)="OpenMatchesInReview('MatchedExcluded')">
+                                <div [hidden]="CanGetMatchedExcluded()" class="btn btn-link p-2 m-2 " (click)="OpenMatchesInReview('MatchedExcluded')">
                                     (List Papers)
                                 </div>
                             </td>
-                            <td>
-
-                                <div class="btn btn-link  p-2 m-2  " (click)="MAGBrowser('MatchedAll')">
+                            <td >
+                                <div [hidden]="CanGetMatchedAll()" class="btn btn-link  p-2 m-2  " (click)="MAGBrowser('MatchedAll')">
                                     {{_magAdvancedService.AdvancedReviewInfo.nMatchedAccuratelyIncluded + _magAdvancedService.AdvancedReviewInfo.nMatchedAccuratelyExcluded}}
                                 </div>
                             </td>
-                            <td>
-                                <div class=" btn btn-link  p-2 m-2 " (click)="OpenMatchesInReview('MagMatchesNeedingCheckingInc')">
+                            <td >
+                                <div [hidden]="CanGetMatchesNeedingCheckingIncluding()" class=" btn btn-link  p-2 m-2 " (click)="OpenMatchesInReview('MagMatchesNeedingCheckingInc')">
                                     Included: {{_magAdvancedService.AdvancedReviewInfo.nRequiringManualCheckIncluded}}
                                 </div>
 
-                                <div class=" btn btn-link p-2 m-2 " (click)="OpenMatchesInReview('MagMatchesNeedingCheckingExc')">
+                                <div [hidden]="CanGetMatchesNeedingCheckingExcluding()" class=" btn btn-link p-2 m-2 " (click)="OpenMatchesInReview('MagMatchesNeedingCheckingExc')">
                                     Excluded:  {{_magAdvancedService.AdvancedReviewInfo.nRequiringManualCheckExcluded}}
                                 </div>
                             </td>
-                            <td>
-                                <div class=" btn btn-link  p-2 m-2 " (click)="OpenMatchesInReview('MagMatchesNotMatchedInc')">
+                            <td >
+                                <div [hidden]="CanGetNotMatchedIncluded()" class=" btn btn-link  p-2 m-2 " (click)="OpenMatchesInReview('MagMatchesNotMatchedInc')">
                                     Included:  {{_magAdvancedService.AdvancedReviewInfo.nNotMatchedIncluded}}
                                 </div>
-                                <div class=" btn btn-link p-2 m-2" (click)="OpenMatchesInReview('MagMatchesNotMatchedExc')">
+                                <div [hidden]="CanGetNotMatchedExcluded()" class=" btn btn-link p-2 m-2" (click)="OpenMatchesInReview('MagMatchesNotMatchedExc')">
                                     Excluded:  {{_magAdvancedService.AdvancedReviewInfo.nNotMatchedExcluded}}
                                 </div>
                             </td>
@@ -191,7 +189,8 @@
 
                             </td>
                             <td >
-                                <button (click)="UpdateTopicResults()" class="btn btn-primary btn-sm text-white"><i class="fa fa-search"></i></button>
+                                <button [disabled]="!CanGetTopics()"
+                                        (click)="UpdateTopicResults()" class="btn btn-primary btn-sm text-white"><i class="fa fa-search"></i></button>
                             </td>
                         </tr>
                     </table>

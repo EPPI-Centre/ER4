@@ -21,15 +21,18 @@ namespace ERxWebClient2.Controllers
         {
 			try
             {
-                if (!SetCSLAUser()) return Unauthorized();
+                if (SetCSLAUser4Writing())
+                {
 
                     DataPortal<MagMatchItemsToPapersCommand> dp = new DataPortal<MagMatchItemsToPapersCommand>();
-                MagMatchItemsToPapersCommand GetMatches = new MagMatchItemsToPapersCommand("FindMatches",
-                   true, 0, attributeId.Value);
+                    MagMatchItemsToPapersCommand GetMatches = new MagMatchItemsToPapersCommand("FindMatches",
+                       true, 0, attributeId.Value);
 
-                GetMatches = dp.Execute(GetMatches);
+                    GetMatches = dp.Execute(GetMatches);
 
-                return Ok(GetMatches.currentStatus);
+                    return Ok(GetMatches.currentStatus);
+                }
+                else return Forbid();
 
             }
             catch (Exception e)
@@ -45,7 +48,8 @@ namespace ERxWebClient2.Controllers
         {
             try
             {
-                if (!SetCSLAUser()) return Unauthorized();
+                if (SetCSLAUser4Writing())
+                {
 
                     DataPortal<MagMatchItemsToPapersCommand> dp = new DataPortal<MagMatchItemsToPapersCommand>();
                     MagMatchItemsToPapersCommand GetMatches = new MagMatchItemsToPapersCommand("FindMatches",
@@ -54,6 +58,8 @@ namespace ERxWebClient2.Controllers
                     GetMatches = dp.Execute(GetMatches);
 
                     return Ok(GetMatches);
+                }
+                else return Forbid();
 
             }
             catch (Exception e)
@@ -69,7 +75,8 @@ namespace ERxWebClient2.Controllers
         {
             try
             {
-                if (!SetCSLAUser()) return Unauthorized();
+                if (SetCSLAUser4Writing())
+                {
 
                     DataPortal<MagMatchItemsToPapersCommand> dp = new DataPortal<MagMatchItemsToPapersCommand>();
                     MagMatchItemsToPapersCommand GetMatches = new MagMatchItemsToPapersCommand("Clear",
@@ -78,6 +85,9 @@ namespace ERxWebClient2.Controllers
                     GetMatches = dp.Execute(GetMatches);
 
                     return Ok(GetMatches.currentStatus);
+
+                }
+                else return Forbid();
 
             }
             catch (Exception e)
@@ -92,15 +102,19 @@ namespace ERxWebClient2.Controllers
         {
             try
             {
-                if (!SetCSLAUser()) return Unauthorized();
+                if (SetCSLAUser4Writing())
+                {
 
                     DataPortal<MagMatchItemsToPapersCommand> dp = new DataPortal<MagMatchItemsToPapersCommand>();
-                     MagMatchItemsToPapersCommand GetMatches = new MagMatchItemsToPapersCommand("Clear",
-                   true, 0, attributeId.Value);
+                    MagMatchItemsToPapersCommand GetMatches = new MagMatchItemsToPapersCommand("Clear",
+                  true, 0, attributeId.Value);
 
                     GetMatches = dp.Execute(GetMatches);
 
                     return Ok(GetMatches.currentStatus);
+
+                }
+                else return Forbid();
 
             }
             catch (Exception e)

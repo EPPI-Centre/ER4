@@ -39,7 +39,7 @@ export class MAGSimulationService extends BusyAwareService {
                     if (result != null && result.magSimulationId > 0) {
 
                         let ind: number = this.MagSimulationList.findIndex((x) => x.magSimulationId == item.magSimulationId);
-                        if (ind > 0) {
+                        if (ind > -1) {
                             this.MagSimulationList.splice(ind, 1);
                         }
                     }
@@ -62,8 +62,7 @@ export class MAGSimulationService extends BusyAwareService {
                 (result: MagSimulation) => {
 
                     this.RemoveBusy("AddMagSimulation");
-                    if (this.MagSimulationList != null && this.MagSimulationList.length > 0) {
-
+                    if (this.MagSimulationList != null) {
                         this.MagSimulationList.push(result);
                     }
                 },
