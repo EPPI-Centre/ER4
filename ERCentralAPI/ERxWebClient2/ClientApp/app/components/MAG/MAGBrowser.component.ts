@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { searchService } from '../services/search.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Router, NavigationEnd } from '@angular/router';
-import { MagPaper,  MagFieldOfStudy, MagBrowseHistoryItem, topicInfo, MagList } from '../services/MAGClasses.service';
+import { MagPaper,  MagFieldOfStudy, MagBrowseHistoryItem, MagList } from '../services/MAGClasses.service';
 import { MAGBrowserService } from '../services/MAGBrowser.service';
 import { MAGAdvancedService } from '../services/magAdvanced.service';
 import { MAGBrowserHistoryService } from '../services/MAGBrowserHistory.service';
@@ -84,13 +84,11 @@ export class MAGBrowser implements OnInit, OnDestroy {
 
         this._eventEmitterService.OpeningNewReview.subscribe(
             () => {
-                //each time a new review is opened reset all data
                 this.Clear();
                 this._magBrowserService.Clear();
             }
         );
 
-        
         this._magBrowserService.ShowingParentAndChildTopics = false;
         this._magBrowserService.ShowingChildTopicsOnly = true;
         this.getTopicsSub = this._eventEmitterService.getTopicsEvent.subscribe(
@@ -101,17 +99,13 @@ export class MAGBrowser implements OnInit, OnDestroy {
                 );
             }
         );
-     
-       
     }
 
     public AddCurrentPaperToSelectedList() {
 
         this._magAdvancedService.currentMagPaper.isSelected = false; 
         if (this._magBrowserService.selectedPapers != null ) {
-            console.log('inside here again....: ');
             let paper: MagPaper = this._magAdvancedService.currentMagPaper;
-           
             let paperIndex: number = -1;
             paperIndex = this._magBrowserService.MAGList.papers.findIndex(x => x.paperId == paper.paperId) 
             if (paperIndex != -1) {
@@ -126,7 +120,6 @@ export class MAGBrowser implements OnInit, OnDestroy {
                 this.currentMagPaperList = this._magBrowserService.MAGOriginalList.papers;
                 this.currentMagPaperList[paperIndex].isSelected = true;
             }
-            console.log('gotta here', this._magAdvancedService.currentMagPaper);
             this.InOutReview(this._magAdvancedService.currentMagPaper, this.currentMagPaperList);
         }
     }
@@ -174,8 +167,7 @@ export class MAGBrowser implements OnInit, OnDestroy {
     ngOnDestroy() {
 
         this._magAdvancedService.firstVisitToMAGBrowser = false;
-        //this._magBrowserService.Clear();
-        //this.Clear();
+
     }
     public UpdatePageSize(pageSize: number) {
 
@@ -229,7 +221,6 @@ export class MAGBrowser implements OnInit, OnDestroy {
 
     public GetMagPaperRef(magPaperRefId: number, list: MagPaper[]) {
 
-        //this._magBrowserService.currentListType = "CitationsList";
         this.currentMagPaperList = list;
         this._magBrowserService.ShowingParentAndChildTopics = false;
         this._magBrowserService.ShowingChildTopicsOnly = true;
@@ -249,7 +240,6 @@ export class MAGBrowser implements OnInit, OnDestroy {
         this.router.navigate(['Main']);
     }
     private AddPaperToSelectedList(paperId: number, list: MagPaper[]) {
-        console.log('paper we need: ', paperId);
         if (!this.IsInSelectedList(paperId)) {
         
             this._magBrowserService.SelectedPaperIds.push(paperId);
@@ -264,7 +254,6 @@ export class MAGBrowser implements OnInit, OnDestroy {
         for (var i = 0; i < this._magBrowserService.SelectedPaperIds.length; i++) {
             var item = list.filter(x => x.paperId == paperId)[0];
             if (item != null && this._magBrowserService.selectedPapers.findIndex(x => x.paperId == paperId) == -1 && item.paperId > 0) {
-                console.log('inside the push part, pushing: ', item.paperId);
                 this._magBrowserService.selectedPapers.push(item);
                 return;
             }
@@ -301,7 +290,7 @@ export class MAGBrowser implements OnInit, OnDestroy {
         this._magBrowserService.ParentTopic = item.displayName;
         this._magBrowserService.WPChildTopics = [];
         this._magBrowserService.WPParentTopics = [];
-        //this._magBrowserService.Clear();
+
         this._magAdvancedService.currentMagPaper = new MagPaper();
         this._magBrowserService.MagCitationsByPaperList = new MagList();
         this._magBrowserService.GetParentAndChildFieldsOfStudy("FieldOfStudyParentsList", FieldOfStudyId).then(
@@ -366,10 +355,8 @@ export class MAGBrowser implements OnInit, OnDestroy {
         return this._magBrowserService.IsBusy || this._magAdvancedService.IsBusy;
     }
     public Clear() {
-        //this._magBrowserService.SelectedPaperIds = [];
         this._magAdvancedService.currentMagPaper = new MagPaper();
         this.MAGPapers = [];
-
     }
     public CanDeleteMAGRun(): boolean {
 
@@ -385,7 +372,6 @@ export class MAGBrowser implements OnInit, OnDestroy {
         }
     }
     public CanSelectMagItem(item: MagPaper): boolean {
-
 
         let tmp: boolean = false;
         if (item.canBeSelected =='true') {

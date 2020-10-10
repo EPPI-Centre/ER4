@@ -152,10 +152,8 @@ export class MAGSearchComponent implements OnInit {
                  msg ="Sorry. You can't import more than 20k records at a time.\nYou could try breaking up your search e.g. by date?";
             }
             else {
-
                 msg = "Are you sure you want to import this search result?";
             }
-
             this.ImportMagRelatedPapersRun(item, msg);
         }
     }
@@ -226,7 +224,6 @@ export class MAGSearchComponent implements OnInit {
 
     public get AllItemsAreSelected(): boolean {
         const ind = this._magSearchService.MagSearchList.findIndex(f => f.add == false);
-        //console.log("AllItemsAreSelected", ind, this._magSearchService.MagSearchList.length);
         if (ind == -1 && this._magSearchService.MagSearchList.length > 0) return true;
         return false;
     }
@@ -247,7 +244,6 @@ export class MAGSearchComponent implements OnInit {
     }
     
     public DeleteSearches() {
-        //console.log('got inside confirm');
         const count = this.AllSelectedItems.length.toString();
         this.ConfirmationDialogService.confirm("Are you sure you want to delete " + this.AllSelectedItems.length.toString()
             + " selected MAG searches",
@@ -259,7 +255,6 @@ export class MAGSearchComponent implements OnInit {
                         (res: any) => {
                             let msg: string = 'Deleted: ' + count + ' items';
                             this.ShowMAGRunMessage(msg);
-                            //this.magSearchesToBeDeleted = [];
                         }
                     );
                 }
@@ -299,10 +294,9 @@ export class MAGSearchComponent implements OnInit {
             );
     }
     public AdvancedFeatures() {
-
         this.router.navigate(['AdvancedMAGFeatures']);
-
     }
+
     public Back() {
         this.router.navigate(['Main']);
     }
