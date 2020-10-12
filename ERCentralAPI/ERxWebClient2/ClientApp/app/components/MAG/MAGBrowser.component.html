@@ -22,7 +22,7 @@
             View on the internet
         </a>
     </div>
-    <button class="btn btn-link" (click)=toggleDisplayDivIf()>{{isShowDivIf == true ? 'Show Less' : 'Show More'}}</button>
+    <button class="btn btn-link" (click)=toggleDisplayDivIf()>{{isShowDivIf == true ? 'Show More' : 'Show Less'}}</button>
     <div *ngIf="!isShowDivIf">
         <b>Abstract:</b> <p>{{_magAdvancedService.currentMagPaper.abstract}}</p>
         <b>Pdf Links:</b>
@@ -33,10 +33,10 @@
         </div>
     </div>
 </div>
-<div class="row border border-dark card small p-2 m-2">
+<div *ngIf="_magBrowserService.ListCriteria.listType == 'ReviewMatchedPapers'"  class="row border border-dark card small p-2 m-2">
     <div class="col-4"></div>
-    <div class="col-sm-12 col-lg-4 pull-right">{{_magBrowserService.ListCriteria.listType}}</div>
-    <div *ngIf="_magBrowserService.ListCriteria.listType == 'ReviewMatchedPapers'" class="col-sm-12 col-lg-4 pull-right"><b>Included: </b> {{_magBrowserService.ListCriteria.included}}</div>
+    <!--<div class="col-sm-12 col-lg-4 pull-right">{{_magBrowserService.ListCriteria.listType}}</div>-->
+    <div class="col-sm-12 col-lg-4 pull-right"><b>Included: </b> {{_magBrowserService.ListCriteria.included}}</div>
 </div>
 <div class="col-12 px-2">
     <div class="col-12 row p-2 m-0 border border-dark rounded">
@@ -183,7 +183,7 @@
                         </div>
                     </ng-template>
                 </kendo-tabstrip-tab>
-                <!--<kendo-tabstrip-tab [title]="'Current list'">
+                <kendo-tabstrip-tab [title]="'Current list'">
                     <ng-template kendoTabContent>
                         <div [title]="'Add/remove current reference'" style="min-height:500px; overflow:auto;">
                             <div style="max-height:50vh; overflow:auto;">
@@ -216,7 +216,7 @@
                             </div>
                         </div>
                     </ng-template>
-                </kendo-tabstrip-tab>-->
+                </kendo-tabstrip-tab>
             </kendo-tabstrip>
         </div>
     </div>
