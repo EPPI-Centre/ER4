@@ -5,127 +5,120 @@
 
 <kendo-splitter orientation="horizontal" style="min-height:300px;">
     <kendo-splitter-pane><div *ngIf="IsServiceBusy()" class="k-loading-image"></div>
-                         <kendo-tabstrip #tabstrip (tabSelect)="onTabSelect($event)" [keepTabContent]="true">
-                             <kendo-tabstrip-tab [title]="'Manage Sources'">
-                                 <ng-template kendoTabContent>
-                                     <div *ngIf="ReviewSources.length > 1" class="container" [ngClass]="{disableThisAndChildren:!CanWrite()}">
-                                         <form *ngIf="CurrentSource" class="row" #CurrentSourceForm="ngForm" (ngSubmit)="onSubmit()">
-                                             <div class=" col-6">
-                                                 <div class="form-group">
-                                                     <label for="source_Name">Source Name</label>
-                                                     <input type="text" class="form-control" id="Sourcename"
-                                                            [(ngModel)]="CurrentSource.source_Name" name="source_Name"
-                                                            #name="ngModel">
-                                                     <div [hidden]="IsSourceNameValid() != 1"
-                                                          class="alert alert-danger small">
-                                                         Name is required
-                                                     </div>
-                                                     <div [hidden]="IsSourceNameValid() != 2"
-                                                          class="alert alert-danger small">
-                                                         There is another source with this name, please change it.
-                                                     </div>
-                                                 </div>
-                                                 <div class="form-group">
-                                                     <label for="source_Name">Date of search</label>
-                                                     <kendo-datepicker *ngIf="CurrentSourceDateofSearch" [(value)]="value"
-                                                                       [format]="'dd-MMM-yyyy'"
-                                                                       class="form-control" id="DateOfSearch"
-                                                                       [(ngModel)]="CurrentSourceDateofSearch" name="DateOfSearch">
-                                                     </kendo-datepicker>
-                                                 </div>
-                                                 <div class="form-group">
-                                                     <label for="sourceDataBase">Database (optional)</label>
-                                                     <input type="text" class="form-control" id="sourceDataBase"
-                                                            [(ngModel)]="CurrentSource.sourceDataBase" name="sourceDataBase">
-                                                 </div>
-                                             </div>
-                                             <div class="card bg-light col-12 col-md-6">
-                                                 <div class="row col-12">
-                                                     <div class="col-12 font-weight-bold">Source Stats:</div>
-                                                     <div class="col-12 small mb-1" style="top:0px;">
-                                                         <div class="row">
-                                                             <div class="col-md-6 col-sm-12 ">
-                                                                 <p>
-                                                                     Items: <strong>{{CurrentSource.total_Items}}</strong>
-                                                                 </p>
-                                                                 <p>Items coded: <strong>{{CurrentSource.codes}}</strong></p>
-                                                                 <p>Uploaded documents: <strong>{{CurrentSource.attachedFiles}}</strong></p>
-                                                                 <p>Masters of duplicates: <strong>{{CurrentSource.isMasterOf}}</strong></p>
-                                                                 <p>Deleted Items: <strong>{{CurrentSource.deleted_Items}}</strong></p>
-                                                             </div>
-                                                             <div class="col-md-6 col-sm-12 ">
-                                                                 <p>
-                                                                     Import Date: <strong>{{FormatDate(CurrentSource.dateOfImport)}}</strong>
-                                                                 </p>
-                                                                 <p>
-                                                                     Is Deleted: <strong>{{CurrentSource.isFlagDeleted}}</strong>
-                                                                 </p>
-                                                                 <p>Duplicates: <strong>{{CurrentSource.duplicates}}</strong></p>
-                                                                 <p>Outcomes: <strong>{{CurrentSource.outcomes}}</strong></p>
-                                                                 <p>Import Filter: <strong>{{CurrentSource.importFilter}}</strong></p>
-                                                             </div>
-                                                         </div>
-                                                     </div>
-                                                 </div>
-
-                                             </div>
-                                             <div class="form-group col-12">
-                                                 <label for="searchString">Search String (optional)</label>
-                                                 <textarea class="form-control" id="searchString"
-                                                           [(ngModel)]="CurrentSource.searchString" name="searchString" rows="3"></textarea>
-                                             </div>
-                                             <div class="form-group col-12">
-                                                 <label for="searchDescription">Description (optional)</label>
-                                                 <input type="text" class="form-control" id="searchDescription"
-                                                        [(ngModel)]="CurrentSource.searchDescription" name="searchDescription">
-                                             </div>
-                                             <div class="form-group col-12">
-                                                 <label for="searchnotes">Notes (optional)</label>
-                                                 <input type="text" class="form-control" id="searchnotes"
-                                                        [(ngModel)]="CurrentSource.notes" name="searchnotes">
-                                             </div>
-                                             <div class="col-12">
-                                                 <div class="row">
-                                                     <button type="submit" (click)="SaveSource()" class="btn btn-success ml-2 mr-2" [disabled]="!CurrentSourceForm.dirty || IsSourceNameValid() != 0 || !HasCurrentSourceDateofSearch() ">
-                                                         Save Changes
-                                                     </button>
-                                                     <button class="btn btn-danger ml-1" type="button"
-                                                             (click)="ConfirmDeleteSourceForever()"
-                                                             [disabled]="!CanDeleteSourceForever()">
-                                                         Delete
-                                                     </button>
-                                                     <div *ngIf="!CanDeleteSourceForever()" class="small col-3 ml-1 col-md-5 bg-light">
-                                                         Only deleted sources that do not contain master items of duplicates may be deleted permanentely.
-                                                     </div>
-                                                 </div>
-                                             </div>
-                                         </form>
-                                     </div>
-                                     <div *ngIf="ReviewSources.length <= 1" class="p-3 alert-danger">
-                                         You have not imported any source yet. There is nothing to manage, at the moment.
-                                     </div>
-                                 </ng-template>
-                             </kendo-tabstrip-tab>
-                             <kendo-tabstrip-tab [title]="'Import Items'" [selected]="true">
-                                 <ng-template kendoTabContent>
-                                     <div class="flex-row">
-                                         <ImportReferencesFile></ImportReferencesFile>
-                                     </div>
-                                 </ng-template>
-                             </kendo-tabstrip-tab>
-                             <kendo-tabstrip-tab [title]="'PubMed'">
-                                 <ng-template kendoTabContent>
-                                     <PubMedComp></PubMedComp>
-                                 </ng-template>
-                             </kendo-tabstrip-tab>
-                             <kendo-tabstrip-tab *ngIf="ReviewIsMagEnabled" [title]="'MAG Search'" >
-                                 <ng-template kendoTabContent>
-                                     <div class="flex-row">
-                                         <MAGSearchDetailsComponent></MAGSearchDetailsComponent>
-                                     </div>
-                                 </ng-template>
-                             </kendo-tabstrip-tab>
-                         </kendo-tabstrip>
+        <kendo-tabstrip #tabstrip (tabSelect)="onTabSelect($event)" [keepTabContent]="true">
+            <kendo-tabstrip-tab [title]="'Manage Sources'" >
+                <ng-template kendoTabContent>
+                    <div *ngIf="ReviewSources.length > 1" class="container" [ngClass]="{disableThisAndChildren:!CanWrite()}">
+                        <form *ngIf="CurrentSource" class="row" #CurrentSourceForm="ngForm" (ngSubmit)="onSubmit()">
+                            <div class=" col-6">
+                                <div class="form-group">
+                                    <label for="source_Name">Source Name</label>
+                                    <input type="text" class="form-control" id="Sourcename"
+                                           [(ngModel)]="CurrentSource.source_Name" name="source_Name"
+                                           #name="ngModel">
+                                    <div [hidden]="IsSourceNameValid() != 1"
+                                         class="alert alert-danger small">
+                                        Name is required
+                                    </div>
+                                    <div [hidden]="IsSourceNameValid() != 2"
+                                         class="alert alert-danger small">
+                                        There is another source with this name, please change it.
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="source_Name">Date of search</label>
+                                    <kendo-datepicker *ngIf="CurrentSourceDateofSearch" [(value)]="value"
+                                                      [format]="'dd-MMM-yyyy'"
+                                                      class="form-control" id="DateOfSearch"
+                                                      [(ngModel)]="CurrentSourceDateofSearch" name="DateOfSearch">
+                                    </kendo-datepicker>
+                                </div>
+                                <div class="form-group">
+									<label for="sourceDataBase">Database (optional)</label>
+                                    <input type="text" class="form-control" id="sourceDataBase"
+                                           [(ngModel)]="CurrentSource.sourceDataBase" name="sourceDataBase">
+                                </div>
+                            </div>
+                            <div class="card bg-light col-12 col-md-6">
+                                <div class="row col-12">
+                                    <div class="col-12 font-weight-bold">Source Stats:</div>
+                                    <div class="col-12 small mb-1" style="top:0px;">
+                                        <div class="row">
+                                            <div class="col-md-6 col-sm-12 ">
+                                                <p>
+                                                    Items: <strong>{{CurrentSource.total_Items}}</strong>
+                                                </p>
+                                                <p>Items coded: <strong>{{CurrentSource.codes}}</strong></p>
+                                                <p>Uploaded documents: <strong>{{CurrentSource.attachedFiles}}</strong></p>
+                                                <p>Masters of duplicates: <strong>{{CurrentSource.isMasterOf}}</strong></p>
+                                                <p>Deleted Items: <strong>{{CurrentSource.deleted_Items}}</strong></p>
+                                            </div>
+                                            <div class="col-md-6 col-sm-12 ">
+                                                <p>
+                                                    Import Date: <strong>{{FormatDate(CurrentSource.dateOfImport)}}</strong>
+                                                </p>
+                                                <p>
+                                                    Is Deleted: <strong>{{CurrentSource.isFlagDeleted}}</strong>
+                                                </p>
+                                                <p>Duplicates: <strong>{{CurrentSource.duplicates}}</strong></p>
+                                                <p>Outcomes: <strong>{{CurrentSource.outcomes}}</strong></p>
+                                                <p>Import Filter: <strong>{{CurrentSource.importFilter}}</strong></p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                            </div>
+                            <div class="form-group col-12">
+								<label for="searchString">Search String (optional)</label>
+                                <textarea class="form-control" id="searchString"
+                                       [(ngModel)]="CurrentSource.searchString" name="searchString" rows="3"></textarea>
+                            </div>
+                            <div class="form-group col-12">
+								<label for="searchDescription">Description (optional)</label>
+                                <input type="text" class="form-control" id="searchDescription"
+                                       [(ngModel)]="CurrentSource.searchDescription" name="searchDescription">
+                            </div>
+                            <div class="form-group col-12">
+								<label for="searchnotes">Notes (optional)</label>
+                                <input type="text" class="form-control" id="searchnotes"
+                                       [(ngModel)]="CurrentSource.notes" name="searchnotes">
+                            </div>
+                            <div class="col-12">
+                                <div class="row">
+                                    <button type="submit" (click)="SaveSource()" class="btn btn-success ml-2 mr-2" [disabled]="!CurrentSourceForm.dirty || IsSourceNameValid() != 0 || !HasCurrentSourceDateofSearch() ">
+                                        Save Changes
+                                    </button>
+                                    <button class="btn btn-danger ml-1" type="button"
+                                            (click)="ConfirmDeleteSourceForever()"
+                                            [disabled]="!CanDeleteSourceForever()">
+                                        Delete
+                                    </button>
+                                    <div *ngIf="!CanDeleteSourceForever()" class="small col-3 ml-1 col-md-5 bg-light">
+                                        Only deleted sources that do not contain master items of duplicates may be deleted permanentely.
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div *ngIf="ReviewSources.length <= 1" class="p-3 alert-danger">
+                        You have not imported any source yet. There is nothing to manage, at the moment.
+                    </div>
+                </ng-template>
+            </kendo-tabstrip-tab>
+            <kendo-tabstrip-tab [title]="'Import Items'" [selected]="true">
+                <ng-template kendoTabContent>
+                    <div class="flex-row">
+                        <ImportReferencesFile></ImportReferencesFile>
+                    </div>
+                </ng-template>
+            </kendo-tabstrip-tab>
+            <kendo-tabstrip-tab [title]="'PubMed'">
+                <ng-template kendoTabContent>
+                    <PubMedComp></PubMedComp>
+                </ng-template>
+            </kendo-tabstrip-tab>
+        </kendo-tabstrip>
     </kendo-splitter-pane>
     <kendo-splitter-pane size="30%">
         <div class="pane-content">

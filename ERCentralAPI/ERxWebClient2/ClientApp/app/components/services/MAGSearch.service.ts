@@ -4,15 +4,11 @@ import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
 import { MagSearch } from './MAGClasses.service';
 
-
 @Injectable({
-
     providedIn: 'root',
-
 })
 
 export class magSearchService extends BusyAwareService {
-
 
     constructor(
         private _httpC: HttpClient,
@@ -91,9 +87,9 @@ export class magSearchService extends BusyAwareService {
                 }
             );
     }
+
     CreateMagSearch(wordsInSelection: number, dateLimitSelection: number, publicationTypeSelection: number,
         magSearchInput: string, magSearchDate1: Date, magSearchDate2: Date, magSearchCurrentTopic: string) {
-
 
         this._BusyMethods.push("CreateMagSearch");
         let body = JSON.stringify({
@@ -136,6 +132,7 @@ export class magSearchService extends BusyAwareService {
             );
 
     }
+
     ImportMagSearches(magSearchText: string, searchText: string): Promise<any> {
 
         this._BusyMethods.push("ImportMagSearches");

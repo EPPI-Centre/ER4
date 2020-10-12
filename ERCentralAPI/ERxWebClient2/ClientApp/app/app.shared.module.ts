@@ -233,7 +233,7 @@ import { WebDbCcodesetTreeComponent } from './components/CodesetTrees/WebDbCcode
             { path: 'ItemList', component: ItemListComp },
             { path: 'MAGAdmin', component: MAGAdminComp},
             { path: 'MAGBrowser', component: MAGBrowser },
-            { path: 'MagSearch', component: MAGSearchComponent },
+            { path: 'MagSearch', component: MAGSearchComponent},
             { path: 'microsoftAcademic', component: microsoftAcademicComp },
             { path: 'MAGBrowserHistory', component: MAGBrowserHistory },
             { path: 'MatchingMAGItems', component: MatchingMAGItemsComponent},

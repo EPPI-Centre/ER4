@@ -8,6 +8,7 @@ import { MagPaper, MagReviewMagInfo, MVCMagPaperListSelectionCriteria,
     ClassifierContactModel, MVCMagFieldOfStudyListSelectionCriteria, MagList,
     MagCheckContReviewRunningCommand, MagFieldOfStudy, MagCurrentInfo} from './MAGClasses.service';
 import { Router } from '@angular/router';
+import { EventEmitterService } from './EventEmitter.service';
 
 
 @Injectable({
@@ -21,10 +22,12 @@ export class MAGAdvancedService extends BusyAwareService {
         private _magBrowserService: MAGBrowserService,
         private modalService: ModalService,
         private router: Router,
+        private _eventEmitterService: EventEmitterService,
         @Inject('BASE_URL') private _baseUrl: string
     ) {
         super();
     }
+    public firstVisitToMAGBrowser: boolean = true;
     public _RunAlgorithmFirst: boolean = false;
     public ReviewMatchedPapersList: MagPaper[] = [];
     public AdvancedReviewInfo: MagReviewMagInfo = new MagReviewMagInfo();
@@ -162,74 +165,72 @@ export class MAGAdvancedService extends BusyAwareService {
                     this.RemoveBusy("FetchMagPaperId");
                 });
     }
-    public PostFetchMagPaperCalls(result: MagPaper, listType: string) {
-           if (result.paperId != null && result.paperId > 0) {
+    //try making below async await
+    public async PostFetchCitationsList(result: MagPaper): Promise<boolean> {
 
-                let criteriaCitationsList: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
-                criteriaCitationsList.listType = "CitationsList";
-                criteriaCitationsList.magPaperId = result.paperId;
-                criteriaCitationsList.pageSize = 20;
+        let criteriaCitationsList: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
+        criteriaCitationsList.listType = "CitationsList";
+        criteriaCitationsList.magPaperId = result.paperId;
+        criteriaCitationsList.pageSize = 20;
+        console.log('calling FetchWithCrit: CitationsList');
+        return await this._magBrowserService.FetchWithCrit(criteriaCitationsList, "CitationsList");
 
-                this._magBrowserService.FetchWithCrit(criteriaCitationsList, "CitationsList").then(
-
-                    (res: boolean) => {
-
-                        if (res) {
-                            this.PaperIds = this._magBrowserService.ListCriteria.paperIds;
-                            let criteriaCitedBy: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
-                            criteriaCitedBy.listType = "CitedByList";
-                            criteriaCitedBy.magPaperId = result.paperId;
-                            criteriaCitedBy.pageSize = 20;
-                            this._magBrowserService.FetchWithCrit(criteriaCitedBy, "CitedByList").then(
-
-                                (res: boolean) => {
-
-                                    if (this.currentMagPaper.paperId > -1) {
-
-                                            this.PaperIds = this._magBrowserService.ListCriteria.paperIds;
-                                            let criteriaFOS: MVCMagFieldOfStudyListSelectionCriteria = new MVCMagFieldOfStudyListSelectionCriteria();
-                                            criteriaFOS.fieldOfStudyId = 0;
-                                            criteriaFOS.listType = 'PaperFieldOfStudyList';
-                                            criteriaFOS.paperIdList = result.paperId.toString();
-                                            criteriaFOS.SearchTextTopics = ''; //TODO this will be populated by the user..
-                                            this._magBrowserService.FetchMagFieldOfStudyList(criteriaFOS, listType).then(
-
-                                                (res: MagFieldOfStudy[]) => {
-                                                    this.router.navigate(['MAGBrowser']);
-
-                                                }
-                                        );
-
-                                    } else {
-
-                                         this._magBrowserService.FetchOrigWithCrit(criteriaCitedBy, "CitedByList").then(
-
-                                         () => {
-
-                                                if (res) {
-                                                    this.PaperIds = this._magBrowserService.ListCriteria.paperIds;
-                                                    let criteriaFOS: MVCMagFieldOfStudyListSelectionCriteria = new MVCMagFieldOfStudyListSelectionCriteria();
-                                                    criteriaFOS.fieldOfStudyId = 0;
-                                                    criteriaFOS.listType = 'PaperFieldOfStudyList';
-                                                    criteriaFOS.paperIdList = result.paperId.toString();
-                                                    criteriaFOS.SearchTextTopics = ''; //TODO this will be populated by the user..
-                                                    this._magBrowserService.FetchMagFieldOfStudyList(criteriaFOS, listType).then(
-
-                                                        (res: MagFieldOfStudy[]) => {
-                                                            this.router.navigate(['MAGBrowser']);
-
-                                                        }
-                                                    );
-                                                }
-                                            }
-                                        )
-                                    }
-                                });
-                        }                       
-                    }
-                );
-            }
     }
+
+    public async PostFetchCitedByListList(result: MagPaper): Promise<boolean> {
+
+        this.PaperIds = this._magBrowserService.ListCriteria.paperIds;
+        let criteriaCitedBy: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
+        criteriaCitedBy.listType = "CitedByList";
+        criteriaCitedBy.magPaperId = result.paperId;
+        criteriaCitedBy.pageSize = 20;
+        console.log('calling PostFetchCitedByListList: CitedByList');
+        return await this._magBrowserService.FetchWithCrit(criteriaCitedBy, "CitedByList")
+
+    }
+
+    public async PostFetchMagFieldOfStudyList(result: MagPaper, listType: string): Promise<MagFieldOfStudy[]> {
+
+        this.PaperIds = this._magBrowserService.ListCriteria.paperIds;
+        let criteriaFOS: MVCMagFieldOfStudyListSelectionCriteria = new MVCMagFieldOfStudyListSelectionCriteria();
+        criteriaFOS.fieldOfStudyId = 0;
+        criteriaFOS.listType = 'PaperFieldOfStudyList';
+        criteriaFOS.paperIdList = result.paperId.toString();
+        criteriaFOS.SearchTextTopics = ''; 
+        console.log('calling FetchMagFieldOfStudyList: ', listType);
+        return await this._magBrowserService.FetchMagFieldOfStudyList(criteriaFOS, listType);
+
+    }
+
+    public async PostFetchOriginalMagPaperList(result: MagPaper, listType: string): Promise<boolean> {
+
+        let crit: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
+        crit.listType = listType;
+        crit.magPaperId = result.paperId;
+        crit.pageSize = 20;
+        console.log('calling FetchOrigWithCrit: ', crit.listType);
+        return await this._magBrowserService.FetchOrigWithCrit(crit, listType);
+
+    }
+
+    //Should the promises below be made into observables??
+    public async PostFetchMagPaperCalls(result: MagPaper, listType: string) {
+
+        if (result.paperId != null && result.paperId > 0) {
+
+            await this.PostFetchCitationsList(result);
+            await this.PostFetchCitedByListList(result);
+            if (this.currentMagPaper.paperId > -1) {
+
+                await this.PostFetchMagFieldOfStudyList(result, listType);
+            } else {
+                await this.PostFetchOriginalMagPaperList(result, listType);
+                await this.PostFetchMagFieldOfStudyList(result, listType);
+            }
+            this.router.navigate(['MAGBrowser']);
+        }
+    }
+
     public CheckContReviewPipelineState(): Promise<boolean> {
 
         this._BusyMethods.push("CheckContReviewPipelineState");

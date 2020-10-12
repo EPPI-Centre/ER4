@@ -9,7 +9,6 @@ import { Router } from '@angular/router';
 import { NotificationService } from '@progress/kendo-angular-notification';
 import { MAGBrowserService } from '../services/MAGBrowser.service';
 import { MagRelatedPapersRun, MagBrowseHistoryItem, MagPaper } from '../services/MAGClasses.service';
-import { Location } from '@angular/common';
 import { MAGBrowserHistoryService } from '../services/MAGBrowserHistory.service';
 import { MAGAdvancedService } from '../services/magAdvanced.service';
 
@@ -60,9 +59,7 @@ export class BasicMAGComp implements OnInit {
             this.router.navigate(['Main']);
         }
         else {
-          
              this._basicMAGService.FetchMagRelatedPapersRunList();
-
         }
 
     }
@@ -98,6 +95,10 @@ export class BasicMAGComp implements OnInit {
         if (item.magRelatedRunId > 0) {
 
             this._magAdvancedService.currentMagPaper = new MagPaper();
+            this._magBrowserService.MagCitationsByPaperList.papers = [];
+            this._magBrowserService.MAGOriginalList.papers = [];
+            this._magBrowserService.currentListType = "MagRelatedPapersRunList";
+            this._magAdvancedService.currentMagPaper = new MagPaper();
             this._magBrowserService.ShowingParentAndChildTopics = false;
             this._magBrowserService.ShowingChildTopicsOnly = true;
             let magBrowseItem: MagBrowseHistoryItem = new MagBrowseHistoryItem("Papers identified from auto-identification run", "MagRelatedPapersRunList", 0,
@@ -121,8 +122,6 @@ export class BasicMAGComp implements OnInit {
     }
     public ImportMagSearchPapers(item: MagRelatedPapersRun) {
 
-        console.log('testing mag import: ', item);
-   
         if (item.nPapers == 0) {
             this.ShowMAGRunMessage('There are no papers to import');
 
@@ -141,7 +140,6 @@ export class BasicMAGComp implements OnInit {
         }
     }
     public UpdateUserStatus(magRelatedRun: MagRelatedPapersRun) {
-
 
         if (magRelatedRun != null && magRelatedRun.magRelatedRunId > 0
             && magRelatedRun.userStatus == 'Unchecked') {
@@ -225,7 +223,6 @@ export class BasicMAGComp implements OnInit {
 
         let msg: string = "";
         let status: string = magRelatedRun.userStatus;
-        console.log('testing: ', status);
         if (status == 'Checked') {
 
             msg = 'you have marked this search as checked';
