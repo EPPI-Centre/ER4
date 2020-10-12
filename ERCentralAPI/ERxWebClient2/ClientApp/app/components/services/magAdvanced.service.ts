@@ -227,6 +227,7 @@ export class MAGAdvancedService extends BusyAwareService {
                 await this.PostFetchOriginalMagPaperList(result, listType);
                 await this.PostFetchMagFieldOfStudyList(result, listType);
             }
+            this.router.navigate(['MAGBrowser']);
         }
     }
 

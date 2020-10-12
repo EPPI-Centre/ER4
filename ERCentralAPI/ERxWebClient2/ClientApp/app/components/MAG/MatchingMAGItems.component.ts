@@ -407,7 +407,7 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
     }
     public CanGetTopics(): boolean {
 
-        if (this._magAdvancedService.AdvancedReviewInfo.nMatchedAccuratelyIncluded.toString().length > 0) {
+        if (this._magAdvancedService.AdvancedReviewInfo.nMatchedAccuratelyIncluded > 0) {
             return true;
         } else {
             return false;
@@ -415,7 +415,7 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
     }
     public CanGetNotMatchedExcluded(): boolean {
 
-        if (this._magAdvancedService.AdvancedReviewInfo.nNotMatchedExcluded.toString().length > 0) {
+        if (this._magAdvancedService.AdvancedReviewInfo.nNotMatchedExcluded > 0) {
             return true;
         } else {
             return false;
@@ -423,7 +423,7 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
     }
     public CanGetNotMatchedIncluded(): boolean {
 
-        if (this._magAdvancedService.AdvancedReviewInfo.nNotMatchedIncluded.toString().length > 0) {
+        if (this._magAdvancedService.AdvancedReviewInfo.nNotMatchedIncluded > 0) {
             return true;
         } else {
             return false;
@@ -431,7 +431,7 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
     }
     public CanGetMatchesNeedingCheckingIncluding(): boolean {
 
-        if (this._magAdvancedService.AdvancedReviewInfo.nRequiringManualCheckIncluded.toString().length > 0) {
+        if (this._magAdvancedService.AdvancedReviewInfo.nRequiringManualCheckIncluded > 0) {
             return true;
         } else {
             return false;
@@ -439,7 +439,7 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
     }
     public CanGetMatchesNeedingCheckingExcluding(): boolean {
 
-        if (this._magAdvancedService.AdvancedReviewInfo.nRequiringManualCheckExcluded.toString().length > 0) {
+        if (this._magAdvancedService.AdvancedReviewInfo.nRequiringManualCheckExcluded > 0) {
             return true;
         } else {
             return false;
@@ -447,8 +447,8 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
     }
     public CanGetMatchedAll(): boolean {
 
-        if (this._magAdvancedService.AdvancedReviewInfo.nMatchedAccuratelyIncluded.toString().length > 0 &&
-            this._magAdvancedService.AdvancedReviewInfo.nMatchedAccuratelyExcluded.toString().length > 0) {
+        if ((this._magAdvancedService.AdvancedReviewInfo.nMatchedAccuratelyIncluded +
+            this._magAdvancedService.AdvancedReviewInfo.nMatchedAccuratelyExcluded) > 0 ) {
             return true;
         } else {
             return false;
@@ -456,7 +456,7 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
     }
     public CanGetMatchedIncluded(): boolean {
 
-        if (this._magAdvancedService.AdvancedReviewInfo.nMatchedAccuratelyIncluded.toString().length > 0) {
+        if (this._magAdvancedService.AdvancedReviewInfo.nMatchedAccuratelyIncluded > 0) {
             return true;
         } else {
             return false;
@@ -464,7 +464,7 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
     }
     public CanGetMatchedExcluded(): boolean {
 
-        if (this._magAdvancedService.AdvancedReviewInfo.nMatchedAccuratelyExcluded.toString().length > 0) {
+        if (this._magAdvancedService.AdvancedReviewInfo.nMatchedAccuratelyExcluded > 0) {
             return true;
         } else {
             return false;
