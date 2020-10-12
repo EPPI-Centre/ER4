@@ -578,10 +578,11 @@ namespace BusinessLibrary.BusinessClasses
                                 }
                             }
                         }
+                        CheckIfPapersAlreadyInReview();
                     }
                     
 
-                }
+                } // end IF for the set of list types that start with a MAKES search
 
                 if (selectionCriteria.ListType == "PaperFieldsOfStudyList")
                 {
@@ -801,6 +802,59 @@ namespace BusinessLibrary.BusinessClasses
             }*/
             return command;
             
+        }
+
+        private void CheckIfPapersAlreadyInReview()
+        {
+            if (this.Count == 0)
+            {
+                return;
+            }
+            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+            {
+                string ids = "";
+                foreach (MagPaper mp in this)
+                {
+                    if (ids == "")
+                    {
+                        ids = mp.PaperId.ToString();
+                    }
+                    else
+                    {
+                        ids += "," + mp.PaperId.ToString();
+                    }
+                }
+                ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+                connection.Open();
+                using (SqlCommand command = new SqlCommand("st_MagPaperListByIdIds", connection))
+                {
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@PaperIds", ids));
+                    command.Parameters.Add(new SqlParameter("@PageNo", 1));
+                    command.Parameters.Add(new SqlParameter("@RowsPerPage", PageSize));
+                    command.Parameters.Add(new SqlParameter("@Total", 0));
+                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
+                    command.Parameters["@Total"].Direction = System.Data.ParameterDirection.Output;
+                    using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
+                    {
+                        while (reader.Read())
+                        {
+                            foreach (MagPaper mp in this)
+                            {
+                                if (mp.PaperId == reader.GetInt64("PaperId"))
+                                {
+                                    mp.LinkedITEM_ID = reader.GetInt64("ITEM_ID");
+                                    mp.ManualTrueMatch = reader.GetBoolean("ManualTrueMatch");
+                                    mp.ManualFalseMatch = reader.GetBoolean("ManualFalseMatch");
+                                    mp.AutoMatchScore = reader.GetDouble("AutoMatchScore");
+                                }
+
+                            }
+                        }
+                    }
+                }
+                connection.Close();
+            }
         }
 
 
