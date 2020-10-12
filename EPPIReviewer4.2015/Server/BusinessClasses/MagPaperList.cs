@@ -360,13 +360,8 @@ namespace BusinessLibrary.BusinessClasses
 #if SILVERLIGHT
        
 #else
-
-        
-        
-
         protected void DataPortal_Fetch(MagPaperListSelectionCriteria selectionCriteria)
         {
-            
              // There are two types of list: one where we look up the items in SQL first, and one where the list comes from MAKES, and
              // we do an SQL lookup to match up IDs.
             ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
@@ -521,7 +516,7 @@ namespace BusinessLibrary.BusinessClasses
                                 }
                             }
                             break;
-                        case "RecommendationsList":
+                        case "RecommendationsList": // recommendations not currently in MAKES :(
                             //searchString = "Composite(RId=" + selectionCriteria.MagPaperId.ToString() + ")";
                             break;
                         case "RecommendedByList":
@@ -547,8 +542,6 @@ namespace BusinessLibrary.BusinessClasses
                         }
                         CheckIfPapersAlreadyInReview();
                     }
-                    
-
                 } // end IF for the set of list types that start with a MAKES search
 
                 if (selectionCriteria.ListType == "PaperFieldsOfStudyList")
@@ -648,7 +641,6 @@ namespace BusinessLibrary.BusinessClasses
                                     mp.ManualFalseMatch = reader.GetBoolean("ManualFalseMatch");
                                     mp.AutoMatchScore = reader.GetDouble("AutoMatchScore");
                                 }
-
                             }
                         }
                     }
