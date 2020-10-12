@@ -236,6 +236,7 @@ export class MAGBrowser implements OnInit, OnDestroy {
                 this._magAdvancedService.PostFetchMagPaperCalls(result, "CitationsList");
             });
     }
+
     public Back() {
         this.router.navigate(['Main']);
     }
@@ -249,17 +250,26 @@ export class MAGBrowser implements OnInit, OnDestroy {
             this.AddToSelectedList(paperId, list);
         }
     }
+
     public AddToSelectedList(paperId: number, list: MagPaper[]) {
 
-        for (var i = 0; i < this._magBrowserService.SelectedPaperIds.length; i++) {
-            var item = list.filter(x => x.paperId == paperId)[0];
-            if (item != null && this._magBrowserService.selectedPapers.findIndex(x => x.paperId == paperId) == -1 && item.paperId > 0) {
+        let IdsListPos: number = this._magBrowserService.SelectedPaperIds.indexOf(paperId);
+        let PapersListPos: number = this._magBrowserService.selectedPapers.findIndex(x => x.paperId == paperId);
+        if (IdsListPos != -1 && PapersListPos != -1) {
+            if (this._magAdvancedService.currentMagPaper.paperId > 0) {
+                this._magBrowserService.selectedPapers.push(this._magAdvancedService.currentMagPaper);
+
+            }
+        } else {
+
+            var itemPos = list.findIndex(x => x.paperId == paperId);
+            if (itemPos > -1) {
+                var item = list[itemPos];
                 this._magBrowserService.selectedPapers.push(item);
-                return;
             }
         }
-        this._magBrowserService.selectedPapers.push(this._magAdvancedService.currentMagPaper);
     }
+
     private RemovePaperFromSelectedList(paperId: number, list: MagPaper[]): any {
 
         if (this.IsInSelectedList(paperId)) {
@@ -371,15 +381,10 @@ export class MAGBrowser implements OnInit, OnDestroy {
             return false;
         }
     }
+
     public CanSelectMagItem(item: MagPaper): boolean {
 
-        let tmp: boolean = false;
-        if (item.canBeSelected =='true') {
-            tmp = true;
-        } else {
-            tmp = false;
-        }
-        if (item.linkedITEM_ID > 0 && !tmp) {
+        if (item.linkedITEM_ID > 0 ) {
             return false;
         } else {
             return true;
