@@ -11,10 +11,10 @@
     <h1><b>{{_magAdvancedService.currentMagPaper.originalTitle}}</b></h1>
     <b>{{_magAdvancedService.currentMagPaper.fullRecord}}</b>
     Paper Id:&nbsp;{{_magAdvancedService.currentMagPaper.paperId}}
-     <div *ngIf="!IsCurrentPaperSelected()">
+     <div *ngIf="!IsCurrentPaperSelected(_magAdvancedService.currentMagPaper.paperId)">
         <button class="btn btn-primary btn-sm text-white"(click)="AddCurrentPaperToSelectedList()">Selected papers&nbsp;&nbsp; <i class="fa fa-plus"></i></button>
     </div>
-     <div *ngIf="IsCurrentPaperSelected()">
+     <div *ngIf="IsCurrentPaperSelected(_magAdvancedService.currentMagPaper.paperId)">
         <button class="btn btn-warning btn-sm text-white" (click)="RemoveCurrentPaperToSelectedList()">Selected papers&nbsp;&nbsp; <i class="fa fa-minus"></i></button>
     </div>
     <div class="btn btn-link text-left">
@@ -109,7 +109,7 @@
                                                 </td>
                                                 <td>
                                                     <button [disabled]="!CanSelectMagItem(item)" (click)="InOutReview(item, _magBrowserService.MAGList.papers)"
-                                                            [class]="item.isSelected == true  ? 'btn fa fa-minus' : 'btn fa fa-plus'">
+                                                            [class]="IsCurrentPaperSelected(item.paperId) == true  ? 'btn fa fa-minus' : 'btn fa fa-plus'">
                                                     </button>
                                                 </td>
                                             </tr>
@@ -149,7 +149,7 @@
                                             <td (click)="GetMagPaperRef(item.paperId, _magBrowserService.MagCitationsByPaperList.papers )">{{item.fullRecord}}</td>
                                             <td>
                                                 <button [disabled]="!CanSelectMagItem(item)" (click)="InOutReview(item, _magBrowserService.MagCitationsByPaperList.papers)"
-                                                        [class]="item.isSelected == true  ? 'btn fa fa-minus' : 'btn fa fa-plus'">
+                                                        [class]="IsCurrentPaperSelected(item.paperId) == true ? 'btn fa fa-minus' : 'btn fa fa-plus'">
                                                     </button>
                                             </td>
                                         </tr>
@@ -172,7 +172,7 @@
                                             <td (click)="GetMagPaperRef(item.paperId,_magBrowserService.selectedPapers)">{{item.fullRecord}}</td>
                                             <td>
                                                 <button [disabled]="!CanSelectMagItem(item)" (click)="InOutReview(item, _magBrowserService.selectedPapers)"
-                                                        [class]="item.isSelected == true  ? 'btn fa fa-minus' : 'btn fa fa-plus'">
+                                                        [class]="IsCurrentPaperSelected(item.paperId) == true  ? 'btn fa fa-minus' : 'btn fa fa-plus'">
                                                 </button>
                                             </td>
                                         </tr>
@@ -199,7 +199,7 @@
                                             <td>
                                                 <button [disabled]="!CanSelectMagItem(item)" 
                                                         (click)="InOutReview(item, _magBrowserService.MAGOriginalList.papers)"
-                                                        [class]="item.isSelected == true  ? 'btn fa fa-minus' : 'btn fa fa-plus'">
+                                                        [class]="IsCurrentPaperSelected(item.paperId) == true ? 'btn fa fa-minus' : 'btn fa fa-plus'">
                                                 </button>
                                             </td>
                                         </tr>
