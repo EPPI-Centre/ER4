@@ -5,7 +5,7 @@ import { BusyAwareService } from '../helpers/BusyAwareService';
 import {
     MagList, MagPaper, MVCMagFieldOfStudyListSelectionCriteria,
     MVCMagPaperListSelectionCriteria, MagFieldOfStudy, MvcMagFieldOfStudyListSelectionCriteria,
-    TopicLink, MagItemPaperInsertCommand, MVCMagOrigPaperListSelectionCriteria} from '../services/MAGClasses.service';
+    TopicLink, MagItemPaperInsertCommand, MVCMagOrigPaperListSelectionCriteria, MagRelatedPapersRun, MagSearch} from '../services/MAGClasses.service';
 import { DatePipe } from '@angular/common';
 import { EventEmitterService } from './EventEmitter.service';
 
@@ -25,7 +25,12 @@ export class MAGBrowserService extends BusyAwareService {
         private datePipe: DatePipe
     ) {
 		super();
-	}
+    }
+    public currentMagRelatedRun: MagRelatedPapersRun = new MagRelatedPapersRun();
+    public currentMagSearch: MagSearch = new MagSearch();
+    public currentTopicSearch: MagFieldOfStudy = new MagFieldOfStudy();
+
+    public currentRefreshListType: string = '';
     public currentListType: string = '';
     public firstVisitToMAGBrowser: boolean = true;
     public MagCitationsByPaperList: MagList = new MagList();

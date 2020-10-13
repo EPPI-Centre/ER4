@@ -198,9 +198,11 @@ export class MAGSearchComponent implements OnInit {
     public GetItems(item: MagSearch) {
 
         if (item.magSearchId > 0) {
+            this._magBrowserService.currentMagSearch = item;
             this._magAdvancedService.currentMagPaper = new MagPaper();
             this._magBrowserService.MagCitationsByPaperList.papers = [];
             this._magBrowserService.MAGOriginalList.papers = [];
+            this._magBrowserService.currentRefreshListType = 'MagSearchResultsList';
             this._magBrowserService.currentListType = "MagSearchResultsList";
             this._magBrowserService.ShowingParentAndChildTopics = false;
             this._magBrowserService.ShowingChildTopicsOnly = true;

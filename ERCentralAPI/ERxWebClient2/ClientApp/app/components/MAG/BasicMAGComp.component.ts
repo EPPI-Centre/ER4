@@ -93,7 +93,8 @@ export class BasicMAGComp implements OnInit {
     public GetItems(item: MagRelatedPapersRun) {
 
         if (item.magRelatedRunId > 0) {
-
+            this._magBrowserService.currentMagRelatedRun = item;
+            this._magBrowserService.currentRefreshListType = 'MagRelatedPapersRunList';
             this._magAdvancedService.currentMagPaper = new MagPaper();
             this._magBrowserService.MagCitationsByPaperList.papers = [];
             this._magBrowserService.MAGOriginalList.papers = [];

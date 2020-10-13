@@ -197,6 +197,7 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
     }
     public FOSMAGBrowserNavigate(displayName: string, fieldOfStudyId: number) {
 
+        this._magBrowserService.currentRefreshListType = 'PaperFieldsOfStudyList';
         this._magBrowserService.currentListType = "PaperFieldsOfStudyList";
         let magBrowseItem: MagBrowseHistoryItem = new MagBrowseHistoryItem(displayName, "BrowseTopic", 0,
             "", "", 0, "", "", fieldOfStudyId, displayName, "", 0);
