@@ -33,6 +33,7 @@ export class MAGBrowser implements OnInit, OnDestroy {
 
     }
     @ViewChild('tabSelectedPapers') public tabstrip!: TabStripComponent;
+    public ClickedOnTopic: string = '';
     public browsingHistory: NavigationEnd[] = [];
     public MAGPapers: MagPaper[] = [];
     public description: string = '';
@@ -160,6 +161,7 @@ export class MAGBrowser implements OnInit, OnDestroy {
             this.kendoAfterDateValue, this.kendoBeforeDateValue);
 
     }
+
     onTabSelect(e: any) {
 
         //this.tabstrip.selectTab(e.index);
@@ -221,6 +223,7 @@ export class MAGBrowser implements OnInit, OnDestroy {
 
     public GetMagPaperRef(magPaperRefId: number, list: MagPaper[]) {
 
+        this._magBrowserService.currentRefreshListType = 'GetMagPaperRef';
         this.currentMagPaperList = list;
         this._magBrowserService.ShowingParentAndChildTopics = false;
         this._magBrowserService.ShowingChildTopicsOnly = true;
@@ -282,9 +285,11 @@ export class MAGBrowser implements OnInit, OnDestroy {
             }
         }
     }
-    public ClickedOnTopic: string = '';
+
     public GetParentAndChildRelatedPapers(item: MagFieldOfStudy) {
 
+        this._magBrowserService.currentTopicSearch = item;
+        this._magBrowserService.currentRefreshListType = 'PaperFieldsOfStudyList';
         this._eventEmitterService.firstVisitMAGBrowserPage = false;
         this._magBrowserService.OrigListCriteria.listType = "PaperFieldsOfStudyList";
         this.ClickedOnTopic = item.displayName;
