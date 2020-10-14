@@ -373,6 +373,7 @@ As
 	  FROM [TB_WEBDB] w
 	  inner join TB_CONTACT c1 on w.CREATED_BY = c1.CONTACT_ID
 	  inner join TB_CONTACT c2 on w.EDITED_BY = c2.CONTACT_ID
+	  where REVIEW_ID = @RevId
 GO
 
 
