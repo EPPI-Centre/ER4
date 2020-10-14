@@ -112,6 +112,10 @@ export class WebDBService extends BusyAwareService  {
             res => {
                 this._WebDBs = res;
                 if (this._CurrentDB == null && this._WebDBs.length > 0) this._CurrentDB = this._WebDBs[0];
+                else if (this._CurrentDB !== null && this._CurrentDB.webDBId == updating.webDBId && updating.webDBId > 0) {
+                    let ind = this._WebDBs.findIndex(f => f.webDBId == updating.webDBId);
+                    if (ind != -1) this._CurrentDB = this._WebDBs[ind];
+                }
                 this.RemoveBusy("CreateOrEdit");
             }, error => {
                 this.RemoveBusy("CreateOrEdit");
