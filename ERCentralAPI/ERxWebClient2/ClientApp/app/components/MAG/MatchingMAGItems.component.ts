@@ -1,11 +1,10 @@
-import { Component, OnInit, ViewChild, OnDestroy, EventEmitter } from '@angular/core';
-import { Location } from '@angular/common';
+import { Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
 import { searchService } from '../services/search.service';
 import { singleNode, SetAttribute } from '../services/ReviewSets.service';
 import { codesetSelectorComponent } from '../CodesetTrees/codesetSelector.component';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
-import { Router, NavigationEnd } from '@angular/router';
+import { Router } from '@angular/router';
 import { MVCMagPaperListSelectionCriteria, MagFieldOfStudy, MagPaper, TopicLink, MagBrowseHistoryItem }
     from '../services/MAGClasses.service';
 import { EventEmitterService } from '../services/EventEmitter.service';
@@ -32,9 +31,7 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
         public _searchService: searchService,
         private _ReviewerIdentityServ: ReviewerIdentityService,
         private _eventEmitterService: EventEmitterService,
-        private _routingStateService: MAGBrowserHistoryService,
-        private _location: Location,
-        private _notificationService: NotificationService,
+        private _notificationService: ConfirmationDialogService,
         private router: Router,
         public _mAGBrowserHistoryService: MAGBrowserHistoryService
 
@@ -105,13 +102,7 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
                 (confirm: any) => {
                     if (confirm) {
                         this._magAdvancedService.ClearAllMAGMatches(0);
-                        this._notificationService.show({
-                            content: "Clearing all matches!",
-                            animation: { type: 'slide', duration: 400 },
-                            position: { horizontal: 'center', vertical: 'top' },
-                            type: { style: "warning", icon: true },
-                            hideAfter: 20000
-                        });
+                        this._notificationService.showMAGDelayMessage("Clearing all matches!");
                     }
                 }
             )
@@ -129,17 +120,10 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
                         if (attribute != null) {
                             this._magAdvancedService.ClearAllMAGMatches(attribute.attribute_id);
                         }
-                        this._notificationService.show({
-                            content: "Clearing all matches for specific attribute!",
-                            animation: { type: 'slide', duration: 400 },
-                            position: { horizontal: 'center', vertical: 'top' },
-                            type: { style: "warning", icon: true },
-                            hideAfter: 20000
-                        });
+                        this._notificationService.showMAGDelayMessage("Clearing all matches for specific attribute!");
                     }
                 }
             )
-     
     }
     public get HasWriteRights(): boolean {
         return this._ReviewerIdentityServ.HasWriteRights;
@@ -251,9 +235,9 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
                     this._magAdvancedService._RunAlgorithmFirst = true;
 
                     if (res != "error") {
-                        this._magBasicService.showMAGRunMessage('MAG Matching can take a while...');
+                        this._notificationService.showMAGRunMessage('MAG Matching can take a while...');
                     } else {
-                        this._magBasicService.showMAGRunMessage('MAG Matching has returned an error please contact your administrator');
+                        this._notificationService.showMAGRunMessage('MAG Matching has returned an error please contact your administrator');
                     }
                 }
             });
@@ -473,7 +457,7 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
                         result.abstract, result.linkedITEM_ID, result.urls, result.findOnWeb, 0, "", "", 0));
                     this._magAdvancedService.PostFetchMagPaperCalls(result, '');
                 } else {
-                    this._magBasicService.showMAGRunMessage('Microsoft academic could not find the paperId!');
+                    this._notificationService.showMAGRunMessage('Microsoft academic could not find the paperId!');
                 }
             });
     }

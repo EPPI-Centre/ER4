@@ -18,7 +18,7 @@ import { NotificationService } from '@progress/kendo-angular-notification';
 
 export class MAGSearchComponent implements OnInit {
 
-    constructor(private ConfirmationDialogService: ConfirmationDialogService,
+    constructor(private _confirmationDialogService: ConfirmationDialogService,
         public _magBasicService: BasicMAGService,
         public _magAdvancedService: MAGAdvancedService,
         private _magBrowserService: MAGBrowserService,
@@ -130,21 +130,11 @@ export class MAGSearchComponent implements OnInit {
             return false;
         }
     }
-    private ShowMAGRunMessage(notifyMsg: string) {
-
-        this._notificationService.show({
-            content: notifyMsg,
-            animation: { type: 'slide', duration: 400 },
-            position: { horizontal: 'center', vertical: 'top' },
-            type: { style: "info", icon: true },
-            closable: true
-        });
-    }
     public ImportMagSearchPapers(item: MagSearch) {
 
         let msg: string = '';
         if (item.magSearchId == 0) {
-            this.ShowMAGRunMessage('There are no papers to import');
+            this._confirmationDialogService.showMAGRunMessage('There are no papers to import');
 
         } else {
 
@@ -159,7 +149,7 @@ export class MAGSearchComponent implements OnInit {
     }
     public ImportMagRelatedPapersRun(magSearch: MagSearch, msg: string) {
 
-        this.ConfirmationDialogService.confirm("Importing papers for the selected MAG search",
+        this._confirmationDialogService.confirm("Importing papers for the selected MAG search",
             msg, false, '')
             .then((confirm: any) => {
                 if (confirm) {
@@ -187,7 +177,7 @@ export class MAGSearchComponent implements OnInit {
                             } else {
                                 msg = 'results are undefined';
                             }
-                            this.ShowMAGRunMessage(msg);
+                            this._confirmationDialogService.showMAGRunMessage(msg);
                         }
                         
                    );
@@ -245,7 +235,7 @@ export class MAGSearchComponent implements OnInit {
     
     public DeleteSearches() {
         const count = this.AllSelectedItems.length.toString();
-        this.ConfirmationDialogService.confirm("Are you sure you want to delete " + this.AllSelectedItems.length.toString()
+        this._confirmationDialogService.confirm("Are you sure you want to delete " + this.AllSelectedItems.length.toString()
             + " selected MAG searches",
             '', false, '')
             .then((confirm: any) => {
@@ -254,7 +244,7 @@ export class MAGSearchComponent implements OnInit {
 
                         (res: any) => {
                             let msg: string = 'Deleted: ' + count + ' items';
-                            this.ShowMAGRunMessage(msg);
+                            this._confirmationDialogService.showMAGRunMessage(msg);
                         }
                     );
                 }
@@ -267,7 +257,7 @@ export class MAGSearchComponent implements OnInit {
             () => {
                 this.FetchMagSearches();
                 let msg: string = 'You have ReRun a MAG search';
-                this.ShowMAGRunMessage(msg);
+                this._confirmationDialogService.showMAGRunMessage(msg);
             }
        );
 
@@ -289,7 +279,7 @@ export class MAGSearchComponent implements OnInit {
                 () => {
                     this.FetchMagSearches();
                     let msg: string = 'You have created a new MAG search';
-                    this.ShowMAGRunMessage(msg);
+                    this._confirmationDialogService.showMAGRunMessage(msg);
                 }
             );
     }
@@ -313,7 +303,7 @@ export class MAGSearchComponent implements OnInit {
 
             () => {
                 let msg: string = 'You have Combined MAG searches using : ' + this.LogicalOperator;
-                this.ShowMAGRunMessage(msg);
+                this._confirmationDialogService.showMAGRunMessage(msg);
                 this.LogicalOperator = 'Select operator';
                 this.FetchMagSearches();
             }

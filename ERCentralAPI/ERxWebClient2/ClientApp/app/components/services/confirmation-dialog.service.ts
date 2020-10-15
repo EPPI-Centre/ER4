@@ -1,7 +1,7 @@
-import { Injectable, OnDestroy, EventEmitter, Input } from '@angular/core';
-import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import { Injectable, OnDestroy } from '@angular/core';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ConfirmationDialogComponent } from '../ConfirmationDialog/confirmation-dialog.component';
-import { EventEmitterService } from './EventEmitter.service';
+import { NotificationService } from '@progress/kendo-angular-notification';
 
 
 @Injectable({
@@ -13,9 +13,7 @@ import { EventEmitterService } from './EventEmitter.service';
 export class ConfirmationDialogService implements OnDestroy {
 
 	constructor(private modalService: NgbModal,
-		private eventsService: EventEmitterService) { }
-
-	//@Input() UserInputTextArms: string = '';
+		private notificationService: NotificationService) { }
 
 	public confirm(
 
@@ -39,11 +37,30 @@ export class ConfirmationDialogService implements OnDestroy {
         modalRef.componentInstance.btnCancelText = btnCancelText;
         modalRef.componentInstance.ShowInputTextWarning = ShowInputTextWarning;
         modalRef.componentInstance.RequiredConfirmationTxt = RequiredConfirmationTxt;
-		//this.UserInputTextArms = UserInputTextArms;
 		
 		return modalRef.result;
 	}
 
+	public showMAGRunMessage(notifyMsg: string) {
+
+		this.notificationService.show({
+			content: notifyMsg,
+			animation: { type: 'slide', duration: 400 },
+			position: { horizontal: 'center', vertical: 'top' },
+			type: { style: "info", icon: true },
+			closable: true
+		});
+	}
+	public showMAGDelayMessage(notifyMsg: string) {
+
+		this.notificationService.show({
+			content: notifyMsg,
+			animation: { type: 'slide', duration: 400 },
+			position: { horizontal: 'center', vertical: 'top' },
+			type: { style: "warning", icon: true },
+			hideAfter: 20000
+		});
+	}
 	ngOnDestroy() {
 
 	}

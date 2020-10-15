@@ -2,10 +2,9 @@ import { Inject, Injectable} from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
-import { NotificationService } from '@progress/kendo-angular-notification';
 import { MAGBrowserService } from './MAGBrowser.service';
-import { MagRelatedPapersRun, MagPaperList, MagPaper, MagList, MagItemPaperInsertCommand } from './MAGClasses.service';
-import { EventEmitterService } from './EventEmitter.service';
+import { MagRelatedPapersRun, MagPaperList, MagPaper,  MagItemPaperInsertCommand } from './MAGClasses.service';
+import { ConfirmationDialogService } from './confirmation-dialog.service';
 
 @Injectable({
     providedIn: 'root',
@@ -17,7 +16,7 @@ export class BasicMAGService extends BusyAwareService {
         private _httpC: HttpClient,
         private modalService: ModalService,
         private _magBrowserService: MAGBrowserService,
-        private notificationService: NotificationService,
+        private notificationService: ConfirmationDialogService,
         //private _eventEmitterService: EventEmitterService,
         @Inject('BASE_URL') private _baseUrl: string
     ) {
@@ -65,11 +64,11 @@ export class BasicMAGService extends BusyAwareService {
                 this.RemoveBusy("DeleteMAGRelatedRun");
                 if (result.magRelatedRunId > 0) {
 
-                    this.showMAGRunMessage('MAG search was deleted');
+                    this.notificationService.showMAGRunMessage('MAG search was deleted');
 
                 } else {
 
-                    this.showMAGRunMessage(result.status);
+                    this.notificationService.showMAGRunMessage(result.status);
                 }
                 let tmpIndex: number = this.MagRelatedPapersRunList.findIndex(x => x.magRelatedRunId == Number(result.magRelatedRunId));
                 if (tmpIndex > -1) {
@@ -93,11 +92,11 @@ export class BasicMAGService extends BusyAwareService {
                 this.RemoveBusy("MagRelatedPapersRunCreate");
                 if (result.magRelatedRunId > 0) {
 
-                    this.showMAGRunMessage('MAG search was created');
+                    this.notificationService.showMAGRunMessage('MAG search was created');
 
                 } else {
 
-                    this.showMAGRunMessage(result.status);
+                    this.notificationService.showMAGRunMessage(result.status);
                 }
                 this.MagRelatedPapersRunList.push(result);
                 this._magBrowserService.FetchMAGRelatedPaperRunsListId(result.magRelatedRunId);
@@ -109,16 +108,6 @@ export class BasicMAGService extends BusyAwareService {
                 () => {
                     this.RemoveBusy("MagRelatedPapersRunCreate");
                 });
-    }
-    showMAGRunMessage(notifyMsg: string) {
-
-        this.notificationService.show({
-            content: notifyMsg,
-            animation: { type: 'slide', duration: 400 },
-            position: { horizontal: 'center', vertical: 'top' },
-            type: { style: "info", icon: true },
-            closable: true
-        });
     }
     ImportMagRelatedRunPapers(magRelatedRun: MagRelatedPapersRun) {
 
@@ -144,7 +133,7 @@ export class BasicMAGService extends BusyAwareService {
                     else {
                         notificationMsg += "All of these records were already in your review.";
                     }
-                    this.showMAGRunMessage(notificationMsg);
+                    this.notificationService.showMAGRunMessage(notificationMsg);
                 }
 
             },
@@ -171,10 +160,10 @@ export class BasicMAGService extends BusyAwareService {
                            
                             this.MagRelatedPapersRunList[tmpIndex] = result;
                         }
-                        this.showMAGRunMessage('MAG search was updated');
+                        this.notificationService.showMAGRunMessage('MAG search was updated');
 
                     } else {
-                        this.showMAGRunMessage('User status is: ' + result.userStatus);
+                        this.notificationService.showMAGRunMessage('User status is: ' + result.userStatus);
                     }
 
                 }, error => {

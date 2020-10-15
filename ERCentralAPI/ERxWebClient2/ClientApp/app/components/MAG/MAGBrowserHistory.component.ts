@@ -9,6 +9,7 @@ import { EventEmitterService } from '../services/EventEmitter.service';
 import { MAGBrowserService } from '../services/MAGBrowser.service';
 import { BasicMAGService } from '../services/BasicMAG.service';
 import { MAGAdminService } from '../services/MAGAdmin.service';
+import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 
 @Component({
     selector: 'MAGBrowserHistory',
@@ -19,7 +20,7 @@ import { MAGAdminService } from '../services/MAGAdmin.service';
 export class MAGBrowserHistory implements OnInit {
 
     constructor(
-        private _location: Location,
+        private notificationService: ConfirmationDialogService,
         public _MAGBrowserHistoryService: MAGBrowserHistoryService,
         public _magAdvancedService: MAGAdvancedService,
         public _magBasicService: BasicMAGService,
@@ -139,7 +140,7 @@ export class MAGBrowserHistory implements OnInit {
                         result.abstract, result.linkedITEM_ID, result.urls, result.findOnWeb, 0, "", "", 0));
                     this._magAdvancedService.PostFetchMagPaperCalls(result,'');
                 } else {
-                    this._magBasicService.showMAGRunMessage('Microsoft academic could not find the paperId!');
+                    this.notificationService.showMAGRunMessage('Microsoft academic could not find the paperId!');
                 }
             });
     }

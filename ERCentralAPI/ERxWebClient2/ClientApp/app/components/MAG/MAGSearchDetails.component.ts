@@ -26,7 +26,7 @@ export class MAGSearchDetailsComponent implements OnInit {
         private _ReviewerIdentityServ: ReviewerIdentityService,
         private router: Router,
         public _mAGBrowserHistoryService: MAGBrowserHistoryService,
-        public _notificationService: NotificationService
+        public _notificationService: ConfirmationDialogService
 
     ) {
 
@@ -128,21 +128,11 @@ export class MAGSearchDetailsComponent implements OnInit {
             return false;
         }
     }
-    private ShowMAGRunMessage(notifyMsg: string) {
-
-        this._notificationService.show({
-            content: notifyMsg,
-            animation: { type: 'slide', duration: 400 },
-            position: { horizontal: 'center', vertical: 'top' },
-            type: { style: "info", icon: true },
-            closable: true
-        });
-    }
     public ImportMagSearchPapers(item: MagSearch) {
 
         let msg: string = '';
         if (item.magSearchId == 0) {
-            this.ShowMAGRunMessage('There are no papers to import');
+            this._notificationService.showMAGRunMessage('There are no papers to import');
 
         } else {
 
@@ -187,7 +177,7 @@ export class MAGSearchDetailsComponent implements OnInit {
                             } else {
                                 msg = 'results are undefined';
                             }
-                            this.ShowMAGRunMessage(msg);
+                            this._notificationService.showMAGRunMessage(msg);
                         }
 
                     );
@@ -249,8 +239,7 @@ export class MAGSearchDetailsComponent implements OnInit {
 
                         (res: any) => {
                             let msg: string = 'Deleted: ' + count + ' items';
-                            this.ShowMAGRunMessage(msg);
-                            //this.magSearchesToBeDeleted = [];
+                            this._notificationService.showMAGRunMessage(msg);
                         }
                     );
                 }
@@ -263,7 +252,7 @@ export class MAGSearchDetailsComponent implements OnInit {
             () => {
                 this.FetchMagSearches();
                 let msg: string = 'You have ReRun a MAG search';
-                this.ShowMAGRunMessage(msg);
+                this._notificationService.showMAGRunMessage(msg);
             }
         );
 
@@ -285,7 +274,7 @@ export class MAGSearchDetailsComponent implements OnInit {
                 () => {
                     this.FetchMagSearches();
                     let msg: string = 'You have created a new MAG search';
-                    this.ShowMAGRunMessage(msg);
+                    this._notificationService.showMAGRunMessage(msg);
                 }
             );
     }
@@ -310,7 +299,7 @@ export class MAGSearchDetailsComponent implements OnInit {
 
             () => {
                 let msg: string = 'You have Combined MAG searches using : ' + this.LogicalOperator;
-                this.ShowMAGRunMessage(msg);
+                this._notificationService.showMAGRunMessage(msg);
                 this.LogicalOperator = 'Select operator';
                 this.FetchMagSearches();
             }

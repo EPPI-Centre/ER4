@@ -10,6 +10,7 @@ import { NotificationService } from '@progress/kendo-angular-notification';
 import { TabStripComponent } from '@progress/kendo-angular-layout';
 import { EventEmitterService } from '../services/EventEmitter.service';
 import { Subscription } from 'rxjs';
+import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 
 
 @Component({
@@ -25,7 +26,7 @@ export class MAGBrowser implements OnInit, OnDestroy {
         public _magBrowserService: MAGBrowserService,
         public _searchService: searchService,
         private _ReviewerIdentityServ: ReviewerIdentityService,
-        public _notificationService: NotificationService,
+        public _notificationService: ConfirmationDialogService,
         public _eventEmitterService: EventEmitterService,
         private router: Router,
         public _mAGBrowserHistoryService: MAGBrowserHistoryService
@@ -186,16 +187,6 @@ export class MAGBrowser implements OnInit, OnDestroy {
         } else {
             return [];      
         }
-    }
-    showMAGRunMessage(notifyMsg: string) {
-
-        this._notificationService.show({
-            content: notifyMsg,
-            animation: { type: 'slide', duration: 400 },
-            position: { horizontal: 'center', vertical: 'top' },
-            type: { style: "info", icon: true },
-            closable: true
-        });
     }
 
     public IsCurrentPaperSelected(paperId: number): boolean {
@@ -382,7 +373,7 @@ export class MAGBrowser implements OnInit, OnDestroy {
             }            
         }
         else {
-            this.showMAGRunMessage("This paper is already in your review");
+            this._notificationService.showMAGRunMessage("This paper is already in your review");
         }
     }
     public get HasWriteRights(): boolean {

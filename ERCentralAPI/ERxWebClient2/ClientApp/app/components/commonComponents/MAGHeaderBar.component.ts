@@ -98,16 +98,6 @@ export class MAGHeaderBarComp implements OnInit {
             });
         
     }
-    showMAGRunMessage(notifyMsg: string) {
-
-        this._notificationService.show({
-            content: notifyMsg,
-            animation: { type: 'slide', duration: 400 },
-            position: { horizontal: 'center', vertical: 'top' },
-            type: { style: "info", icon: true },
-            closable: true
-        });
-    }
     public ImportSelected() {
 
         let msg: string = 'Are you sure you want to import the ' + this._magBrowserService.selectedPapers.length + '  selected MAG papers into your review?';
@@ -139,7 +129,7 @@ export class MAGHeaderBarComp implements OnInit {
                     else {
                         notificationMsg += "All of these records were already in your review.";
                     }
-                    this.showMAGRunMessage(notificationMsg);
+                    this._confirmationDialogService.showMAGRunMessage(notificationMsg);
                     this.RefreshLists(this._magBrowserService.SelectedPaperIds);
                 }
             });
