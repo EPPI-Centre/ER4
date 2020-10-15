@@ -319,6 +319,9 @@
     <Content Update="wwwroot\Images\CollaborateUsingComparisons.gif">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Update="wwwroot\Images\DistributeWork.gif">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Update="wwwroot\Images\EPPI-Reviewer logo v1.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

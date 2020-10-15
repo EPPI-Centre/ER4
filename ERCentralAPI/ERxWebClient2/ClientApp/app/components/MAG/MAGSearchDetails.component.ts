@@ -45,7 +45,7 @@ export class MAGSearchDetailsComponent implements OnInit {
     public PublicationTypeSelection: number = 0;
     public MagSearchList: MagSearch[] = [];
     public magSearchInput: string = '';
-    public valueKendoDatepicker1 : Date = new Date();
+    public valueKendoDatepicker1: Date = new Date();
     public valueKendoDatepicker2: Date = new Date();
     public valueKendoDatepicker3: Date = new Date();
     public magSearchDate1: Date = new Date();
@@ -59,7 +59,7 @@ export class MAGSearchDetailsComponent implements OnInit {
     ngOnInit() {
 
         this.FetchMagSearches();
-         
+
     }
     FetchMagSearches() {
 
@@ -115,8 +115,7 @@ export class MAGSearchDetailsComponent implements OnInit {
             this.OpenTopics = false;
         }
     }
-    public SelectTopic(topic: TopicLink)
-    {
+    public SelectTopic(topic: TopicLink) {
         this.OpenTopics = false;
         this.SearchTextTopicDisplayName = topic.displayName;
         this.SearchTextTopic = topic.fieldOfStudyId.toString();
@@ -148,7 +147,7 @@ export class MAGSearchDetailsComponent implements OnInit {
         } else {
 
             if (item.hitsNo > 20000) {
-                 msg ="Sorry. You can't import more than 20k records at a time.\nYou could try breaking up your search e.g. by date?";
+                msg = "Sorry. You can't import more than 20k records at a time.\nYou could try breaking up your search e.g. by date?";
             }
             else {
 
@@ -172,17 +171,17 @@ export class MAGSearchDetailsComponent implements OnInit {
                             let msg: string = '';
                             if (result != undefined || result != null) {
 
-                            if (result == num_in_run) {
-                                msg = "Imported " + result.toString() + " out of " +
-                                    num_in_run.toString() + " items";
-                            }
-                            else if (result != 0) {
-                                msg = "Some of these items were already in your review.\n\nImported " +
-                                    result.toString() + " out of " + num_in_run.toString() +
-                                    " new items";
-                            }
-                            else {
-                                msg = "All of these records were already in your review.";
+                                if (result == num_in_run) {
+                                    msg = "Imported " + result.toString() + " out of " +
+                                        num_in_run.toString() + " items";
+                                }
+                                else if (result != 0) {
+                                    msg = "Some of these items were already in your review.\n\nImported " +
+                                        result.toString() + " out of " + num_in_run.toString() +
+                                        " new items";
+                                }
+                                else {
+                                    msg = "All of these records were already in your review.";
                                 }
 
                             } else {
@@ -190,8 +189,8 @@ export class MAGSearchDetailsComponent implements OnInit {
                             }
                             this.ShowMAGRunMessage(msg);
                         }
-                        
-                   );
+
+                    );
                 }
             });
     }
@@ -239,7 +238,7 @@ export class MAGSearchDetailsComponent implements OnInit {
             }
         }
     }
-    
+
     public DeleteSearches() {
         //console.log('got inside confirm');
         const count = this.AllSelectedItems.length.toString();
@@ -268,12 +267,12 @@ export class MAGSearchDetailsComponent implements OnInit {
                 let msg: string = 'You have ReRun a MAG search';
                 this.ShowMAGRunMessage(msg);
             }
-       );
+        );
 
     }
     public RunMAGSearch() {
 
-        if (this.DateLimitSelection == 4 || this.DateLimitSelection == 8 ) {
+        if (this.DateLimitSelection == 4 || this.DateLimitSelection == 8) {
             this.magSearchDate1 = this.valueKendoDatepicker1;
             this.magSearchDate2 = this.valueKendoDatepicker2;
         } else {
@@ -307,7 +306,7 @@ export class MAGSearchDetailsComponent implements OnInit {
 
         return this._magSearchService.IsBusy || this._magBrowserService.IsBusy;
     }
-    public CombineSearches(){
+    public CombineSearches() {
         if (this.LogicalOperator == 'Select operator') return;
         this._magSearchService.CombineSearches(this.AllSelectedItems, this.LogicalOperator).then(
 

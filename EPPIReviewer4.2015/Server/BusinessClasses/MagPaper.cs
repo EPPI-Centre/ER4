@@ -364,6 +364,10 @@ namespace BusinessLibrary.BusinessClasses
             {
                 return GetProperty(AutoMatchScoreProperty);
             }
+            set
+            {
+                SetProperty(AutoMatchScoreProperty, value);
+            }
         }
 
         public static readonly PropertyInfo<bool> ManualTrueMatchProperty = RegisterProperty<bool>(new PropertyInfo<bool>("ManualTrueMatch", "ManualTrueMatch", false));

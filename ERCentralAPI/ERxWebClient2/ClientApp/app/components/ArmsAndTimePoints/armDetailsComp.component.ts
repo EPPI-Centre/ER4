@@ -2,10 +2,10 @@ import { Component, OnInit, Input, ViewChild, ElementRef, Renderer2 } from '@ang
 import { ArmsService, iArm, Arm } from '../services/arms.service';
 import {  Item } from '../services/ItemList.service';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
-
+import { Observable } from 'rxjs';
 import { EventEmitterService } from '../services/EventEmitter.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
-
+import { NgModel } from '@angular/forms';
 
 @Component({
 	selector: 'armDetailsComp',

@@ -84,6 +84,16 @@ export class WebDBService extends BusyAwareService  {
         this._httpC.post<iWebDB[]>(this._baseUrl + 'api/WebDB/DeleteWebDB', body).subscribe(
             res => {
                 this._WebDBs = res;
+                if (this._CurrentDB !== null) {
+                    let ind = this._WebDBs.findIndex(f => toDel.webDBId == f.webDBId)
+                    if (ind == -1) {
+                        if (this._WebDBs.length > 0) this._CurrentDB = this._WebDBs[0];
+                        else this._CurrentDB = null;
+                    }
+                }
+                else if (this._WebDBs.length > 0)  {
+                    this._CurrentDB = this._WebDBs[0];
+                }
                 this.RemoveBusy("Delete");
             }, error => {
                 this.RemoveBusy("Delete");
@@ -101,6 +111,11 @@ export class WebDBService extends BusyAwareService  {
         this._httpC.post<iWebDB[]>(this._baseUrl + 'api/WebDB/CreateOrEditWebDB', updating).subscribe(
             res => {
                 this._WebDBs = res;
+                if (this._CurrentDB == null && this._WebDBs.length > 0) this._CurrentDB = this._WebDBs[0];
+                else if (this._CurrentDB !== null && this._CurrentDB.webDBId == updating.webDBId && updating.webDBId > 0) {
+                    let ind = this._WebDBs.findIndex(f => f.webDBId == updating.webDBId);
+                    if (ind != -1) this._CurrentDB = this._WebDBs[ind];
+                }
                 this.RemoveBusy("CreateOrEdit");
             }, error => {
                 this.RemoveBusy("CreateOrEdit");

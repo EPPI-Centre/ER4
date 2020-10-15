@@ -216,10 +216,18 @@ export class WebDBsComponent implements OnInit, OnDestroy {
 		this.isCollapsedFilterCode = false;
         //this.isExpanded = false;
 	}
-	ShowDBSetting(db: iWebDB) {
-		//console.log("Changing DB: ", db);
+	ShowDBSetting(db: any) {
+		console.log("Changing DB: ", db);
 		this.WebDBService.CurrentDB = db;
 		this.ReloadDBDependentData();
+	}
+	ShowDBSettingById(dbId: number) {
+		console.log("Changing DB (id): ", dbId);
+		let db = this.WebDbs.find(f => f.webDBId == dbId);
+		if (db) {
+			this.WebDBService.CurrentDB = db;
+			this.ReloadDBDependentData();
+		}
 	}
 	DeleteDB(db: iWebDB) {
 		//console.log("Changing DB: ", db);

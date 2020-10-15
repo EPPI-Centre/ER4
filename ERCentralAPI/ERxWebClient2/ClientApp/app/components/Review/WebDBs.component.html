@@ -1,9 +1,9 @@
 <HeaderComponent PageTitle="Setup WebDatabase(s)" Context="webdbs"></HeaderComponent>
 <div *ngIf="IsServiceBusy" class="k-loading-image" style="position: fixed; top: 0%;"></div>
 
-<div class="container col-md-12 row mx-0 mt-0 mb-1 p-0 ">
+<div class=" row mx-0 mt-0 mb-1 p-0 ">
 
-    <div class="col-4 col-xl-3 px-1 py-0">
+    <!--<div class="col-4 col-xl-3 px-1 py-0">
         <div class="col-12 font-weight-bold my-1">WebDBs for this review:</div>
         <div class="col-12 p-0" style="max-height:85vh; overflow:auto;">
             <table class="table table-light mb-0" [ngClass]="{disableThisAndChildren:EditingSomething}">
@@ -16,19 +16,19 @@
                     </th>
                     <th class="m-0 small font-weight-bold">
                         Public
-                    </th>
+                    </th>-->
                     <!--<th class="m-0 small font-weight-bold">
                         Filtered
                     </th>-->
-                    <th class="m-0 small font-weight-bold">
+                    <!--<th class="m-0 small font-weight-bold">
                     </th>
                 </tr>
                 <tr *ngFor="let db of WebDbs" [ngClass]="{'alert-primary font-weight-bold': CurrentDB && db.webDBId == CurrentDB.webDBId }">
                     <td style="cursor:pointer" (click)="ShowDBSetting(db)" class="py-1">{{db.webDBId}}</td>
                     <td style="cursor:pointer; max-width:50%;" (click)="ShowDBSetting(db)" class="py-1">{{db.webDBName}}</td>
-                    <td style="cursor:pointer" (click)="ShowDBSetting(db)" class="py-1">{{db.isOpen}}</td>
+                    <td style="cursor:pointer" (click)="ShowDBSetting(db)" class="py-1">{{db.isOpen}}</td>-->
                     <!--<td style="cursor:pointer" (click)="ShowDBSetting(db)" class="py-1">{{db.attributeIdFilter > 0 ? 'Yes' : 'No'}}</td>-->
-                    <td class="py-1">
+                    <!--<td class="py-1">
                         <button [disabled]="!CanWrite" class="btn btn-outline-danger btn-sm px-1 pt-0" (click)="DeleteDB(db)">
                             <span class="k-icon k-i-delete "></span>
                         </button>
@@ -37,19 +37,46 @@
             </table>
 
         </div>
-    </div>
-    <div class="col-8 col-xl-9 p-0">
-        <div class="col-12  p-0 m-0 row ">
-            <div class="my-1 font-weight-bold">View/Edit Details</div>
+    </div>-->
+    <div class="col-12 p-0">
+
+        <div *ngIf="WebDbs.length > 0; else CreateNewBlock"  class="col-12  p-0 m-0 row ">
+            <div class="m-1 font-weight-bold">Pick WebDatabase:</div>
+            <select (change)="ShowDBSettingById($event.target.value)" class="d-inline mb-1">
+                <option *ngFor="let db of WebDbs" [value]="db.webDBId" [selected]="CurrentDB && db.webDBId == CurrentDB.webDBId">
+                    {{db.webDBName}}
+                </option>
+            </select>
+            <button class="btn btn-outline-primary btn-sm ml-1 mb-1" (click)="Edit()">Add New...</button>
             <button class="page-link rounded pt-1 pb-1 mb-1 mr-0 ml-auto float-right"
                     (click)="BackToMain()">
                 Close/back
             </button>
         </div>
+        <ng-template #CreateNewBlock>
+            <div class="col-12  p-0 m-0 row ">
+                <div>Create new Web Database:</div>
+                <button class="page-link rounded pt-1 pb-1 mb-1 mr-0 ml-auto float-right"
+                        (click)="BackToMain()">
+                    Close/back
+                </button>
+                <div class="col-12 m-3 rounded alert-info border">
+                    To get started, you will:
+                    <ul>
+                        <li>Create a new WebDatabase, give it a name and description (save it);</li>
+                        <li>Pick other properties, such as password protections;</li>
+                        <li>Define what data will be visible (what coding tools and what items).</li>
+                    </ul>
+                </div>
+                <button class="btn btn-outline-primary btn-sm ml-1 mb-1" (click)="Edit()">Add New...</button>
+            </div>
+        </ng-template>
+
         <div *ngIf="EditingDB == null && CurrentDB !== null" class="bg-light rounded">
             <div *ngIf="CanWrite" class="w-100 m-0 p-0 text-center">
                 <button class="btn btn-outline-success btn-sm ml-1 mb-1" (click)="Edit(CurrentDB)" [disabled]="CurrentDB==null">Edit</button>
-                <button class="btn btn-outline-success btn-sm ml-1 mb-1" (click)="Edit()">Add New...</button>
+                
+                <button class="btn btn-outline-danger btn-sm ml-1 mb-1" (click)="DeleteDB(CurrentDB)"><span class="k-icon k-i-delete "></span></button>
             </div>
             <div class="row col-12 p-1 mx-0 mt-2 border-bottom border-info">
                 <div class="col-12 col-sm-2 row m-0 p-0">
@@ -111,23 +138,16 @@
                 </div>
             </div>
             <!--
-            webDBId: number;
-            webDBName: string;
-            webDBDescription: string;
-            attributeIdFilter: number;
-            isOpen: boolean;
-            userName: string;
-            password: string;
-            createdBy: string;
-            editedBy: string;
-        -->
-        </div>
-        <div *ngIf="EditingDB == null && CurrentDB == null" class="bg-light rounded">
-            Create new Web Database:
-            <div class="w-100 m-0 p-0 text-center">
-                <button class="btn btn-outline-success btn-sm ml-1 mb-1" (click)="Edit()">Edit</button>
-            </div>
-
+        webDBId: number;
+        webDBName: string;
+        webDBDescription: string;
+        attributeIdFilter: number;
+        isOpen: boolean;
+        userName: string;
+        password: string;
+        createdBy: string;
+        editedBy: string;
+    -->
         </div>
         <div *ngIf="EditingDB !== null" class="bg-light rounded">
             <div class="w-100 m-0 p-0 text-center">
@@ -253,12 +273,12 @@
             </div>
         </div>
 
-        <div class="row p-0 m-0">
-            <div class="row col-6 p-1 mx-0 mt-2 border-top border-info">
+        <div *ngIf="CurrentDB !== null" class="row p-0 m-0" >
+            <div class="row col-4 p-1 mx-0 mt-2 border-top border-info">
                 <WebDbCcodesetTree class="w-100" MaxHeight="400" [CanChangeSelectedCode]="!EditingSomething"></WebDbCcodesetTree>
             </div>
-            <div class="row col-6 p-1 mx-0 mt-2 border-top border-info">
-                <div class="bg-light w-100 rounded mt-2">
+            <div class="row col-8 p-1 mx-0 mt-2 border-top border-info">
+                <div class="bg-light w-100 rounded">
                     <div class="row col-12 p-1 mx-0 mt-2 ">
                         <div class="col-4 p-0 mt-2">
                             Add Coding Tool:
@@ -317,16 +337,30 @@
                                             <div class="col-4">Public description for this set:</div>
                                             <textarea class="col-8" rows="3" type="text" maxlength="2000" [(ngModel)]="EditingWebDbReviewSet.description"></textarea>
                                         </div>
-                                        <button class="btn btn-sm btn-outline-secondary  px-1 m-1" (click)="CancelEditTool()">
-                                            Cancel
-                                        </button>
-                                        <button class="btn btn-sm btn-outline-primary  px-1 m-1" (click)="SaveEditedTool()">
-                                            Save
-                                        </button>
+                                        <div class="row m-0">
+                                            <div class="mx-auto">
+                                                <button class="btn btn-sm btn-outline-secondary  px-1 m-1" (click)="CancelEditTool()">
+                                                    Cancel
+                                                </button>
+                                                <button class="btn btn-sm btn-outline-primary  px-1 m-1" (click)="SaveEditedTool()">
+                                                    Save
+                                                </button>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div style="max-height:400px;overflow:auto;">
-                                        <div *ngFor="let missing of MissingAttributes" class="col-12">
-                                            {{missing.path}}\{{missing.name}} <button class="btn btn-sm btn-outline-primary" (click)="RestoreCode(missing)">+</button>
+                                    <div class="col-12 m-0 p-0 border-top border-info ">
+                                        <div *ngIf="MissingAttributes.length > 0" class="font-weight-bold ml-3">
+                                            Hidden Codes:
+                                        </div>
+                                        <div *ngIf="MissingAttributes.length == 0" class="">
+                                            No codes are hidden for this Coding Tool.
+                                        </div>
+                                        <div style="max-height:400px;overflow:auto;background-color:#d8d8e2;" class="col-12 m-1 p-1 rounded ">
+                                            <div *ngFor="let missing of MissingAttributes" class="row mx-1">
+                                                <div class="bg-white rounded border border-info my-1 ml-1 mr-auto px-2 ">
+                                                    <span *ngIf="missing.path.length > 0">{{missing.path}}\</span><strong>{{missing.name}}</strong> <button class="btn btn-sm btn-outline-primary ml-2 py-0 my-1 small" (click)="RestoreCode(missing)">Restore...</button>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </ng-template>
@@ -368,11 +402,3 @@
     </div>
 </div>
 <statusbar class="row card p-0 ml-1 mr-1 mt-1 mb-2 card-body" resizable></statusbar>
-<!--<div class="row col-12 p-1 mx-0 mt-2 border-bottom border-info">
-    <div *ngFor="let itm of CurrentWebDbTools" class="col border rounded border-info p-1 m-1">
-        {{itm.setName}}
-        <button *ngIf="CanWrite" class="btn btn-sm btn-outline-danger  px-1 pt-0" (click)="RemoveTool(itm)">
-            <span class="k-icon k-i-delete "></span>
-        </button>
-    </div>
-</div>-->
