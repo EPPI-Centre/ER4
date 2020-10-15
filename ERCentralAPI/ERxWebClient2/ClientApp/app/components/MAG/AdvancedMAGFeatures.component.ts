@@ -5,7 +5,7 @@ import { singleNode, SetAttribute } from '../services/ReviewSets.service';
 import { codesetSelectorComponent } from '../CodesetTrees/codesetSelector.component';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
-import { Router, NavigationEnd } from '@angular/router';
+import { Router } from '@angular/router';
 import { ClassifierContactModel,  MagSimulation, TopicLink, MagBrowseHistoryItem } from '../services/MAGClasses.service';
 import { EventEmitterService } from '../services/EventEmitter.service';
 import { MAGAdvancedService } from '../services/magAdvanced.service';
@@ -66,10 +66,8 @@ export class AdvancedMAGFeaturesComponent implements OnInit, OnDestroy {
             this.GetMagReviewMagInfoCommand();
             this.GetMagSimulationList();
             this.GetClassifierContactModelList();
-            let magBrowseItem: MagBrowseHistoryItem = new MagBrowseHistoryItem("Advanced", "Advanced", 0,
-                "", "", 0, "", "", 0, "", "", 0);
-            this._mAGBrowserHistoryService.IncrementHistoryCount();
-            this._mAGBrowserHistoryService.AddToBrowseHistory(magBrowseItem);
+            this._mAGBrowserHistoryService.AddHistory(new MagBrowseHistoryItem("Advanced", "Advanced", 0,
+                "", "", 0, "", "", 0, "", "", 0));
         }
     }
     ngOnDestroy() {

@@ -102,10 +102,8 @@ export class BasicMAGComp implements OnInit {
             this._magAdvancedService.currentMagPaper = new MagPaper();
             this._magBrowserService.ShowingParentAndChildTopics = false;
             this._magBrowserService.ShowingChildTopicsOnly = true;
-            let magBrowseItem: MagBrowseHistoryItem = new MagBrowseHistoryItem("Papers identified from auto-identification run", "MagRelatedPapersRunList", 0,
-                "", "", 0, "", "", 0, "", "", item.magRelatedRunId);
-            this._mAGBrowserHistoryService.IncrementHistoryCount();
-            this._mAGBrowserHistoryService.AddToBrowseHistory(magBrowseItem);
+            this._mAGBrowserHistoryService.AddHistory( new MagBrowseHistoryItem("Papers identified from auto-identification run", "MagRelatedPapersRunList", 0,
+                "", "", 0, "", "", 0, "", "", item.magRelatedRunId));
 
             this._magBrowserService.FetchMAGRelatedPaperRunsListById(item.magRelatedRunId)
                 .then(

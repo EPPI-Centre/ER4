@@ -68,12 +68,9 @@ export class MAGBrowser implements OnInit, OnDestroy {
 
                     this.tabstrip.selectTab(2);
 
-                    let magBrowseItem: MagBrowseHistoryItem = new MagBrowseHistoryItem("Browse topic: SelectedPapers "
+                    this._mAGBrowserHistoryService.AddHistory(new MagBrowseHistoryItem("Browse topic: SelectedPapers "
                         , "SelectedPapers", 0, "", "", 0, "", "",
-                        0, "", "", 0);
-                    this._mAGBrowserHistoryService.IncrementHistoryCount();
-                    this._mAGBrowserHistoryService.AddToBrowseHistory(magBrowseItem);
-
+                        0, "", "", 0));
                 }
             }
         );
@@ -229,12 +226,9 @@ export class MAGBrowser implements OnInit, OnDestroy {
         this._magAdvancedService.FetchMagPaperId(magPaperRefId).then(
             (result: MagPaper) => {
 
-                let magBrowseItem: MagBrowseHistoryItem = new MagBrowseHistoryItem("Browse paper: " + result.fullRecord, "PaperDetail",
+                this._mAGBrowserHistoryService.AddHistory(new MagBrowseHistoryItem("Browse paper: " + result.fullRecord, "PaperDetail",
                     result.paperId, result.fullRecord,
-                    result.abstract, result.linkedITEM_ID, result.urls, result.findOnWeb, 0, "", "", 0);
-                this._mAGBrowserHistoryService.IncrementHistoryCount();
-                this._mAGBrowserHistoryService.AddToBrowseHistory(magBrowseItem);
-
+                    result.abstract, result.linkedITEM_ID, result.urls, result.findOnWeb, 0, "", "", 0));
                 this._magAdvancedService.PostFetchMagPaperCalls(result, "CitationsList");
             });
     }

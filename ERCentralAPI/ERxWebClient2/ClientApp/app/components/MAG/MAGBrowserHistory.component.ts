@@ -32,11 +32,8 @@ export class MAGBrowserHistory implements OnInit {
 
     }
 
-    //public MAGBrowsingHistory: NavigationEnd[] = [];
     public magBrowseHistoryList: MagBrowseHistoryItem[] = [];
     ngOnInit() {
-
-        //this.MAGBrowsingHistory = this._MAGBrowserHistoryService.getHistory();
         this.fetchMAGHistory();
     }
     public get HasWriteRights(): boolean {
@@ -45,7 +42,6 @@ export class MAGBrowserHistory implements OnInit {
     GoToUrl(index: number) {
 
         console.log('go to url', index);
-        //this.router.navigate([url]);
         this.NavigateToThisPoint(index);
     }
     RemoveUrl(index: number) {
@@ -73,12 +69,8 @@ export class MAGBrowserHistory implements OnInit {
         if (browsePosition > -1) {
 
             this._MAGBrowserHistoryService.currentBrowsePosition = browsePosition;
-            console.log('browsePosition', browsePosition);
-            console.log('this.magBrowseHistoryList.length', this.magBrowseHistoryList.length);
             if (this._MAGBrowserHistoryService._MAGBrowserHistoryList != null && browsePosition <= this._MAGBrowserHistoryService._MAGBrowserHistoryList.length) {
-                console.log('inside navigate to this point second if');
                 let mbh: MagBrowseHistoryItem = this._MAGBrowserHistoryService._MAGBrowserHistoryList[browsePosition];
-                console.log('inside navigate to this point object:', JSON.stringify(mbh));
                     switch (mbh.browseType) {
                         case "History":
                             this.ShowHistoryPage();
@@ -143,10 +135,8 @@ export class MAGBrowserHistory implements OnInit {
 
             (result: MagPaper) => {
                 if (result.paperId != null && result.paperId > 0) {
-                    let magBrowseItem: MagBrowseHistoryItem = new MagBrowseHistoryItem("Go to specific Paper Id: " + result.fullRecord, "PaperDetail", result.paperId, result.fullRecord,
-                        result.abstract, result.linkedITEM_ID, result.urls, result.findOnWeb, 0, "", "", 0);
-                    this._MAGBrowserHistoryService.IncrementHistoryCount();
-                    this._MAGBrowserHistoryService.AddToBrowseHistory(magBrowseItem);
+                    this._MAGBrowserHistoryService.AddHistory(new MagBrowseHistoryItem("Go to specific Paper Id: " + result.fullRecord, "PaperDetail", result.paperId, result.fullRecord,
+                        result.abstract, result.linkedITEM_ID, result.urls, result.findOnWeb, 0, "", "", 0));
                     this._magAdvancedService.PostFetchMagPaperCalls(result,'');
                 } else {
                     this._magBasicService.showMAGRunMessage('Microsoft academic could not find the paperId!');
