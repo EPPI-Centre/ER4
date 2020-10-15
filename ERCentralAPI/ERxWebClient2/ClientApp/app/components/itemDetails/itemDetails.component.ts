@@ -1,6 +1,6 @@
 import { Component, Inject, OnInit, EventEmitter, Output, Input, ViewChild, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
-import { Item, ItemListService, iAdditionalItemDetails } from '../services/ItemList.service';
+import { Item, ItemListService, iAdditionalItemDetails, ItemDocument } from '../services/ItemList.service';
 import { ReviewerTermsService, ReviewerTerm } from '../services/ReviewerTerms.service';
 import { ItemDocsService } from '../services/itemdocs.service';
 import { ModalService } from '../services/modal.service';
@@ -12,6 +12,7 @@ import { ReviewerIdentityService, PersistingOptions } from '../services/reviewer
 import { ButtonsModule } from '@progress/kendo-angular-buttons';
 import { ReviewTermsListComp } from '../ReviewTermsList/ReviewTermsListComp.component';
 import { Subscription } from 'rxjs';
+import { ItemDocListComp } from '../ItemDocumentList/itemDocListComp.component';
 
 // COPYRIGHTS BELONG TO THE FOLLOWING FOR ABILITY TO SELECT TEXT AND CAPTURE EVENT
 // https://www.bennadel.com/blog/3439-creating-a-medium-inspired-text-selection-directive-in-angular-5-2-10.htm
@@ -41,6 +42,8 @@ export class itemDetailsComp implements OnInit, OnDestroy {
     @Input() IsScreening: boolean = false;
 	@Input() ShowDocViewButton: boolean = true;
 	@Input() Context: string = "CodingFull";
+	@ViewChild('ItemDocListComp')
+	private ItemDocListComp!: ItemDocListComp;
     ngOnInit() {
 		this.subscr  = this.ReviewerTermsService.setHighlights.subscribe(
 			() => { this.SetHighlights();}
@@ -147,7 +150,12 @@ export class itemDetailsComp implements OnInit, OnDestroy {
             } else return "";
         }
     }
-    
+
+	public get HasPDF(): boolean {
+		if (this.ItemDocsService._itemDocs.findIndex((found) => found.extension.toLowerCase() == ".pdf") == -1) return false;
+		else return true;
+    }
+
 	public renderRectangles(event: TextSelectEvent): void {
 
 		console.groupEnd();
@@ -189,7 +197,10 @@ export class itemDetailsComp implements OnInit, OnDestroy {
             this.router.navigate(['EditItem', this.item.itemId], { queryParams: { return: 'itemcoding/' + this.item.itemId.toString() } });
         }
     }
-    
+	OpenFirstPDF() {
+		console.log("Try to open first Doc");
+		if (this.ItemDocListComp) this.ItemDocListComp.OpenFirstPDF();
+    }
     public FindReferenceOnMicrosoftAcademic(item: Item) {
         if (item != null) {
             let searchString: string = "\"" + item.title + "\" " + item.authors;

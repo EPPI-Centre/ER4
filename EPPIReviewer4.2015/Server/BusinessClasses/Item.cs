@@ -351,7 +351,8 @@ namespace BusinessLibrary.BusinessClasses
             }
             return retVal;
         }
-
+        public static readonly PropertyInfo<string> QuickCitationProperty = RegisterProperty<string>(new PropertyInfo<string>("QuickCitation", "QuickCitation", string.Empty));
+        [JsonProperty]
         public string QuickCitation
         {
             get

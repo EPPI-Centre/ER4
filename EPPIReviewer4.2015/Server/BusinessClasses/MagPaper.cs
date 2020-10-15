@@ -312,6 +312,10 @@ namespace BusinessLibrary.BusinessClasses
             {
                 return GetProperty(LinkedITEM_IDProperty);
             }
+            set
+            {
+                SetProperty(LinkedITEM_IDProperty, value);
+            }
         }
 
         public static readonly PropertyInfo<bool> IsSelectedProperty = RegisterProperty<bool>(new PropertyInfo<bool>("IsSelected", "IsSelected", false));
@@ -359,6 +363,10 @@ namespace BusinessLibrary.BusinessClasses
             get
             {
                 return GetProperty(AutoMatchScoreProperty);
+            }
+            set
+            {
+                SetProperty(AutoMatchScoreProperty, value);
             }
         }
 

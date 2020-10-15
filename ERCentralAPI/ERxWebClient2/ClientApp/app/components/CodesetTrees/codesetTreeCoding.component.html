@@ -62,9 +62,9 @@
 
             <div *ngIf="node.data.nodeType == 'ReviewSet' && node.data.set_id == ShowCompleteUncompletePanelForSetId" class="bg-light border p-1 border-success">
                 Coding is Complete: <input class="m-1" type="checkbox" [(ngModel)]="this.ItemSetProxy.IsCompleted"
-                                           [disabled]="!ReviewSetsService.CanWriteCoding(node.data) || !ItemSetProxy.CanChangeCompletion" /><br />
+                                           [disabled]="IsCodingOnly || !ReviewSetsService.CanWriteCoding(node.data) || !ItemSetProxy.CanChangeCompletion" /><br />
                 Coding is Locked: <input class="m-1" type="checkbox" [(ngModel)]="this.ItemSetProxy.IsLocked"
-                                         [disabled]="!ReviewSetsService.CanWriteCoding(node.data)" /><br />
+                                         [disabled]="IsCodingOnly || !ReviewSetsService.CanWriteCoding(node.data)" /><br />
                 <span class="small">Coded by: <b>{{this.ItemSetProxy.CodedBy}}</b></span><br />
                 <button class="btn btn-outline-info bt-infoBox ml-1" (click)="CancelCompleteUncomplete()">Cancel</button>
                 <button class="btn btn-outline-danger bt-infoBox ml-2" [disabled]="!CanSaveItemSet" (click)="ApplyCompleteUncomplete(node.data)">Apply</button>

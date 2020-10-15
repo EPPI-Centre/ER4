@@ -97,7 +97,26 @@ export class MVCMagFieldOfStudyListSelectionCriteria {
     SearchTextTopics: string = '';
 
 }
+export class MVCMagOrigPaperListSelectionCriteria {
 
+    magPaperId: number = 0;
+    iTEM_ID: number = 0;
+    listType: string = '';
+    fieldOfStudyId: number = 0;
+    authorId: number = 0;
+    magRelatedRunId: number = 0;
+    paperIds: string = '';
+    attributeIds: string = '';
+    included: string = '';
+    pageNumber: number = 0;
+    pageSize: number = 0;
+    numResults: number = 0;
+    dateFrom: string = '';
+    dateTo: string = '';
+    magSearchText = '';
+
+
+}
 export class MVCMagPaperListSelectionCriteria {
 
     magPaperId: number = 0;
@@ -112,6 +131,9 @@ export class MVCMagPaperListSelectionCriteria {
     pageNumber: number = 0;
     pageSize: number = 0;
     numResults: number = 0;
+    dateFrom: string = '';
+    dateTo: string = '';
+    magSearchText = '';
 
 }
 
@@ -162,7 +184,7 @@ export class MagPaper {
     externalMagLink: string = '';
     fullRecord: string = '';
     shortRecord: string = '';
-    paperId: number = 0;
+    paperId: number = -1;
     doi: string = '';
     docType: string = '';
     paperTitle: string = '';
@@ -188,7 +210,7 @@ export class MagPaper {
     pdfLinks: string = '';
     linkedITEM_ID: number = 0;
     isSelected: boolean = false;
-    canBeSelected: boolean = false;
+    canBeSelected: string = 'false';
     abstract: string = '';
     autoMatchScore: number = 0;
     manualTrueMatch: boolean = false;
@@ -196,7 +218,7 @@ export class MagPaper {
     findOnWeb: string = '';
 }
 
-export class MagCurrentInfo {
+export class MagCurrentInfoShort {
 
     currentAvailability: string = '';
     lastUpdated: Date = new Date(2000, 2, 10);
@@ -230,7 +252,6 @@ export class MagSimulation {
     fn: number = 0;
     tn: number = 0;
 }
-
 export class KeyValue {
     constructor(k: string, v: string) {
         this.key = k;
@@ -239,7 +260,6 @@ export class KeyValue {
     key: string;
     value: string;
 }
-
 export class TopicLink {
 
     displayName: string = '';
@@ -247,12 +267,121 @@ export class TopicLink {
     callToFOS: string = '';
     fieldOfStudyId: number = 0;
 }
-
 export class MagCheckContReviewRunningCommand {
 
     isRunningMessage: string = '';
 
 }
+export class MAGBlobCommand {
 
+    releaseNotes: string = '';
+    latestMagSasUri: string = '';
+    latestMAGName: string = '';
+    previousMAGName: string ='';
 
+}
 
+export class MAGLog {
+
+    magLogId: number = 0;
+    jobType: string = '';
+    jobStatus: string = '';
+    jobMessage: string = '';
+    contactName: string = '';
+    contactId: number = 0;
+    timeSubmitted: Date = new Date();
+    timeUpdated: Date = new Date();
+
+}
+export class MAGLogList {
+
+    magLogList: MAGLog[] = [];
+}
+export class MAGReview {
+
+    reviewId: number = 0;
+    name: string = '';
+
+}
+export class MAGReviewList {
+
+    magReviewList: MAGReview[] = [];
+}
+export class MagCurrentInfo {
+
+    magCurrentInfoId: number = 0;
+    magVersion: string = '';
+    magFolder: string = '';
+    matchingAvailable: boolean = false;
+    magOnline: boolean = false;
+    whenLive: string = '';
+    makesEndPoint: string = '';
+    makesDeploymentStatus: string = '';
+}
+
+export class MagBrowseHistoryItem {
+    constructor(title: string, browseType: string, paperId: number, paperFullRecord: string,
+        paperAbstract: string, linkedITEM_ID: number, uRLs: string, findOnWeb: string, fieldOfStudyId: number,
+        fieldOfStudy: string, attributeIds: string, magRelatedRunId: number) {
+        this.title = title;
+        this.browseType = browseType;
+        this.paperId = paperId;
+        this.paperFullRecord = paperFullRecord;
+        this.paperAbstract = paperAbstract;
+        this.linkedITEM_ID = linkedITEM_ID;
+        this.uRLs = uRLs;
+        this.findOnWeb = findOnWeb;
+        this.fieldOfStudyId = fieldOfStudyId;
+        this.fieldOfStudy = fieldOfStudy;
+        this.attributeIds = attributeIds;
+        this.magRelatedRunId = magRelatedRunId;
+    }
+    title: string = '';
+    browseType: string = '';
+    paperId: number = 0;
+    paperFullRecord: string = '';
+    paperAbstract: string = '';
+    fieldOfStudyId: number = 0;
+    fieldOfStudy: string = '';
+    attributeIds: string = '';
+    magRelatedRunId: number = 0;
+    linkedITEM_ID: number = 0;
+    uRLs: string = '';
+    findOnWeb: string = '';
+    contactId: number = 0;
+    dateBrowsed: Date = new Date();
+}
+
+export class topicInfo {
+
+    fieldOfStudyId: number = 0;
+    fieldOfStudy: string = '';
+
+}
+
+export class ContReviewPipeLineCommand {
+
+    previousVersion : string = '';
+    magVersion : string = '';
+    editScoreThreshold: number = 0;
+    editFoSThreshold: number = 0;
+    specificFolder : string = '';
+    magLogId: number = 0;
+    editReviewSampleSize: number = 0;
+
+}
+
+export class MagSearch {
+
+    magSearchId: number = 0;
+    reviewId: number = 0;
+    contactId: number = 0;
+    searchText: string = '';
+    searchNo: number = 0;
+    hitsNo: number = 0;
+    searchDate: Date = new Date();
+    magVersion: string = '';
+    magSearchText: string = '';
+    contactName: string = '';
+    add: boolean = false;
+}

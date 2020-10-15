@@ -56,6 +56,7 @@ export class CodesetTreeCodingComponent implements OnInit, OnDestroy, AfterViewI
     @ViewChild('ManualModal') private ManualModal: any;
     public showManualModal: boolean = false;
     @Input() InitiateFetchPDFCoding = false;
+    @Input() Context: string = "CodingFull";
     subRedrawTree: Subscription | null = null;
 
     ngOnInit() {
@@ -84,8 +85,12 @@ export class CodesetTreeCodingComponent implements OnInit, OnDestroy, AfterViewI
     public ShowCompleteUncompletePanelForSetId: number = 0;
     public ItemSetProxy: MinimalItemSet = new MinimalItemSet();
     public ItemSetReference: MinimalItemSet = new MinimalItemSet();
+    public get IsCodingOnly(): boolean {
+        return this.Context == "CodingOnly";
+    }
     public get CanSaveItemSet(): boolean {
-        if (!this.ReviewerIdentityServ.HasWriteRights) return false;
+        if (this.IsCodingOnly) return false;
+        else if (!this.ReviewerIdentityServ.HasWriteRights) return false;
         else if (
             (//something did change
                 this.ItemSetProxy.IsCompleted != this.ItemSetReference.IsCompleted
@@ -220,6 +225,7 @@ export class CodesetTreeCodingComponent implements OnInit, OnDestroy, AfterViewI
         evdata.additionalText = data.additionalText;
         this.ReviewSetsService.PassItemCodingCeckboxChangedEvent(evdata);
     }
+
     CompleteUncompleteShowPanel(event: any, node: singleNode) {
         //alert('Complete/uncomplete clicked - Sorry, this feature is not implemented yet.');
         this.ItemSetProxy = new MinimalItemSet();

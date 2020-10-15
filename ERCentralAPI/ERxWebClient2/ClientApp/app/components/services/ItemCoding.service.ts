@@ -1452,6 +1452,7 @@ class Item4ER4Json {
         this.Keywords = item.keywords;
         this.ItemStatus = item.itemStatus;
         this.ItemStatusTooltip = item.itemStatusTooltip;
+        this.QuickCitation = item.quickCitation;
     }
 
     ItemId: number;
@@ -1487,6 +1488,7 @@ class Item4ER4Json {
     ItemStatusTooltip: string;
     Codes: Attribute4ER4Json[] = [];
     Outcomes: Outcome4ER4Json[] = [];
+    QuickCitation: string;
 }
 class Outcome4ER4Json {
     constructor(o: Outcome) {

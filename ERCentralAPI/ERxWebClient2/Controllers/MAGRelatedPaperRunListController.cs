@@ -58,7 +58,6 @@ namespace ERxWebClient2.Controllers
 
                 MagPaperList result = dp.Fetch(criteria);
 
-                //return Json(result);
                 return Ok(new MAGList4Json(result));
             }
             catch (Exception e)
@@ -136,62 +135,6 @@ namespace ERxWebClient2.Controllers
 			}
 		}
 
-
-        [HttpPost("[action]")]
-        public IActionResult ImportMagRelatedPapers([FromBody] MVCMagRelatedPapersRun magRun)
-        {
-            try
-            {
-                if (SetCSLAUser4Writing())
-                {
-                    int num_in_run = magRun.nPapers;
-
-                    DataPortal<MagItemPaperInsertCommand> dp2 = new DataPortal<MagItemPaperInsertCommand>();
-
-                    MagItemPaperInsertCommand command = new MagItemPaperInsertCommand("", "RelatedPapersSearch", magRun.magRelatedRunId);
-
-                    command = dp2.Execute(command);
-
-                    return Ok(command);
-
-                }
-                else return Forbid();
-            }
-            catch (Exception e)
-            {
-                _logger.LogException(e, "Importing a MagRelatedPaper list has an error");
-                return StatusCode(500, e.Message);
-            }
-        }
-
-
-        [HttpPost("[action]")]
-        public IActionResult ImportMagRelatedSelectedPapers([FromBody] SingleStringCriteria magSelectedPapers)
-        {
-            try
-            {
-                if (SetCSLAUser4Writing())
-                {
-                    
-
-                    DataPortal<MagItemPaperInsertCommand> dp2 = new DataPortal<MagItemPaperInsertCommand>();
-
-                    MagItemPaperInsertCommand command = new MagItemPaperInsertCommand(magSelectedPapers.Value, "SelectedPapers", 0);
-
-                    command = dp2.Execute(command);
-
-                    return Ok(command);
-
-                }
-                else return Forbid();
-            }
-            catch (Exception e)
-            {
-                _logger.LogException(e, "Importing a MagRelatedPaper list has an error");
-                return StatusCode(500, e.Message);
-            }
-        }
-
         [HttpPost("[action]")]
         public IActionResult UpdateMagRelatedRun([FromBody] MVCMagRelatedPapersRun magRun)
         {
@@ -230,17 +173,66 @@ namespace ERxWebClient2.Controllers
             }
             catch (Exception e)
             {
-                _logger.LogException(e, "Updating a MagRelatedRunAutoReRun has an error");
+                _logger.LogException(e, "Updating a Mag Related Run Auto-ReRun has an error");
                 return StatusCode(500, e.Message);
             }
         }
 
 
-    }
+        [HttpPost("[action]")]
+        public IActionResult ImportMagRelatedPapers([FromBody] MVCMagRelatedPapersRun magRun)
+        {
+            try
+            {
+                if (SetCSLAUser4Writing())
+                {
+                    int num_in_run = magRun.nPapers;
 
-    public class MVCSelectedPapers
-    {
-        public string selectedPapers { get; set; }
+                    DataPortal<MagItemPaperInsertCommand> dp2 = new DataPortal<MagItemPaperInsertCommand>();
+
+                    MagItemPaperInsertCommand command = new MagItemPaperInsertCommand("", "RelatedPapersSearch", magRun.magRelatedRunId);
+
+                    command = dp2.Execute(command);
+
+                    return Ok(command);
+
+                }
+                else return Forbid();
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "Importing a Mag Related Paper list has an error");
+                return StatusCode(500, e.Message);
+            }
+        }
+
+
+        [HttpPost("[action]")]
+        public IActionResult ImportMagRelatedSelectedPapers([FromBody] SingleStringCriteria magSelectedPapers)
+        {
+            try
+            {
+                if (SetCSLAUser4Writing())
+                {
+
+                    DataPortal<MagItemPaperInsertCommand> dp2 = new DataPortal<MagItemPaperInsertCommand>();
+
+                    MagItemPaperInsertCommand command = new MagItemPaperInsertCommand(magSelectedPapers.Value, "SelectedPapers", 0);
+
+                    command = dp2.Execute(command);
+
+                    return Ok(command);
+
+                }
+                else return Forbid();
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "Importing a Mag Related Selected Paper list has an error");
+                return StatusCode(500, e.Message);
+            }
+        }
+
     }
 
     public class MAGList4Json
@@ -273,7 +265,6 @@ namespace ERxWebClient2.Controllers
         public MAGList4Json(MagPaperList list)
         { _list = list; }
     }
-
 
     public class MVCMagRelatedPapersRun
 	{

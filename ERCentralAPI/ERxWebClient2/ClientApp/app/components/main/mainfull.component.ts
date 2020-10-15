@@ -341,7 +341,9 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 		else return false;
     }
     public get ReviewIsMagEnabled(): boolean {
-        if (this.reviewInfoService.ReviewInfo.magEnabled && this.ReviewerIdentityServ.reviewerIdentity.isSiteAdmin) return true;
+        if (this.reviewInfoService.ReviewInfo.magEnabled
+            //&& this.ReviewerIdentityServ.reviewerIdentity.isSiteAdmin
+        ) return true;
         return false;
     }
     public ShowClusterCommand: boolean = false;
@@ -493,7 +495,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
             }
 
         )
-        this.subOpeningReview = this.ReviewerIdentityServ.OpeningNewReview.subscribe(() => this.Reload());
+        this.subOpeningReview = this._eventEmitter.OpeningNewReview.subscribe(() => this.Reload());
         this.statsSub = this.reviewSetsService.GetReviewStatsEmit.subscribe(
             () => this.GetStats()
         );
@@ -502,7 +504,6 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
             || (this.reviewSetsService.ReviewSets.length > 0 && this.codesetStatsServ.tmpCodesets.length == 0)
         ) this.Reload();
         
-        this._routingStateService.loadRouting();
 	}
 	public LoadComparisonList(comparison: Comparison, ListSubType: string) {
 

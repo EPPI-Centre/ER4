@@ -31,7 +31,7 @@ namespace BusinessLibrary.BusinessClasses
 #if SILVERLIGHT
         public MagBrowseHistoryList() { }
 #else
-        private MagBrowseHistoryList() { }
+        public MagBrowseHistoryList() { }
 #endif
 
 

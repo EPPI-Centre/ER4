@@ -129,7 +129,11 @@
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemTimepointList.cs" Link="Models\ItemTimepointList.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemTypeNVL.cs" Link="Models\ItemTypeNVL.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemTypeNVLFactory.cs" Link="Models\ItemTypeNVLFactory.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\MagBlobDataCommand.cs" Link="Models\MagBlobDataCommand.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\MagBrowseHistory.cs" Link="Models\MagBrowseHistory.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\MagBrowseHistoryList.cs" Link="Models\MagBrowseHistoryList.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\MagCheckContReviewRunningCommand.cs" Link="Models\MagCheckContReviewRunningCommand.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\MagCheckPaperIdChangesCommand.cs" Link="Models\MagCheckPaperIdChangesCommand.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\MagContReviewPipeline.cs" Link="Models\MagContReviewPipeline.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\MagContReviewPipelineRunCommand.cs" Link="Models\MagContReviewPipelineRunCommand.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\MagCurrentInfo.cs" Link="Models\MagCurrentInfo.cs" />
@@ -147,8 +151,12 @@
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\MagPaperList.cs" Link="Models\MagPaperList.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\MagRelatedPapersRun.cs" Link="Models\MagRelatedPapersRun.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\MagRelatedPapersRunList.cs" Link="Models\MagRelatedPapersRunList.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\MagReview.cs" Link="Models\MagReview.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\MagReviewList.cs" Link="Models\MagReviewList.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\MagReviewMagInfo.cs" Link="Models\MagReviewMagInfo.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\MagRunSimulationCommand.cs" Link="Models\MagRunSimulationCommand.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\MagSearch.cs" Link="Models\MagSearch.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\MagSearchList.cs" Link="Models\MagSearchList.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\MagSimulation.cs" Link="Models\MagSimulation.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\MagSimulationList.cs" Link="Models\MagSimulationList.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\Outcome.cs" Link="Models\Outcome.cs" />
@@ -310,6 +318,9 @@
     </Content>
     <Content Update="wwwroot\Images\CollaborateUsingComparisons.gif">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\Images\DistributeWork.gif">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Update="wwwroot\Images\EPPI-Reviewer logo v1.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

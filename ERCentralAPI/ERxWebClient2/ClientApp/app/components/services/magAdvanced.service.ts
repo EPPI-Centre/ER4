@@ -4,12 +4,11 @@ import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
 import { Item } from './ItemList.service';
 import { MAGBrowserService } from './MAGBrowser.service';
-import { MagPaper, MagReviewMagInfo, MVCMagPaperListSelectionCriteria, MagCurrentInfo, 
+import { MagPaper, MagReviewMagInfo, MVCMagPaperListSelectionCriteria,  
     ClassifierContactModel, MVCMagFieldOfStudyListSelectionCriteria, MagList,
-    MagCheckContReviewRunningCommand,
-    MagFieldOfStudy
-} from './MAGClasses.service';
+    MagCheckContReviewRunningCommand, MagFieldOfStudy, MagCurrentInfo} from './MAGClasses.service';
 import { Router } from '@angular/router';
+import { EventEmitterService } from './EventEmitter.service';
 
 
 @Injectable({
@@ -23,10 +22,12 @@ export class MAGAdvancedService extends BusyAwareService {
         private _magBrowserService: MAGBrowserService,
         private modalService: ModalService,
         private router: Router,
+        private _eventEmitterService: EventEmitterService,
         @Inject('BASE_URL') private _baseUrl: string
     ) {
         super();
     }
+    public firstVisitToMAGBrowser: boolean = true;
     public _RunAlgorithmFirst: boolean = false;
     public ReviewMatchedPapersList: MagPaper[] = [];
     public AdvancedReviewInfo: MagReviewMagInfo = new MagReviewMagInfo();
@@ -57,13 +58,17 @@ export class MAGAdvancedService extends BusyAwareService {
         this._ClassifierContactModelList = classifierContactModelList;
     }
 
-    public UpdateMagPaper(matchCorrect: boolean, paperId: number, itemId: number): Promise<MagPaper> {
+    public UpdateMagPaper(matchCorrect: boolean, paperId: number, itemId: number): Promise<MagPaper[]> {
 
         this._BusyMethods.push("UpdateMagPaper");
         let body = JSON.stringify({ manualTrueMatchProperty: matchCorrect, magPaperId:  paperId, itemId: itemId});
         return this._httpC.post<MagPaper>(this._baseUrl + 'api/MagPaperList/UpdateMagPaper', body)
-            .toPromise().then((result: any) => {
+            .toPromise().then((result: MagPaper) => {
                 this.RemoveBusy("UpdateMagPaper");
+                let ind = this.ReviewMatchedPapersList.findIndex(f => f.paperId == result.paperId);
+                if (ind >= -1) {
+                    this.ReviewMatchedPapersList[ind] = result;
+                }
                     return result;    
                 },
                 (error: any) => {
@@ -73,42 +78,65 @@ export class MAGAdvancedService extends BusyAwareService {
                 })
         
     }
+    public FetchMagPaperMagList(crit: MVCMagPaperListSelectionCriteria): Promise<MagList> {
+        this._BusyMethods.push("FetchMagPaperMagList");
+        return this._httpC.post<MagList>(this._baseUrl + 'api/MagPaperList/GetMagPaperList', crit)
+            .toPromise().then(
 
-    public FetchMagPaperList(crit: MVCMagPaperListSelectionCriteria): any {
-        this._BusyMethods.push("FetchMagPaperList");
-         return   this._httpC.post<any>(this._baseUrl + 'api/MagPaperList/GetMagPaperList', crit)
-                .toPromise().then(
+                (result: MagList) => {
+                    this.RemoveBusy("FetchMagPaperMagList");
 
-                    (result: any) => {
-                        this.RemoveBusy("FetchMagPaperList");
-
-                        if (crit.listType == 'ReviewMatchedPapers' || crit.listType == 'ReviewMatchedPapersWithThisCode') {
-                            this.ReviewMatchedPapersList = result;
-                            for (var i = 0; i < this.ReviewMatchedPapersList.length; i++) {
-                                this.PaperIds += this.ReviewMatchedPapersList[i].paperId.toString() + ',';
-                            }
-                            this.PaperIds = this.PaperIds.substr(0, this.PaperIds.length - 1)
-                            this.CurrentCriteria = crit;
-
-                        } else if (crit.listType == 'ItemMatchedPapersList') {
-
-                            console.log('FetchMagPaperList got in here: ' + JSON.stringify(result));
-                            this.MagReferencesPaperList = result;
-                        }
-                        return result;
-                    },
-                    error => {
-                        this.RemoveBusy("FetchMagPaperList");
-                        this.modalService.GenericError(error);
-                        return error;
+                    if (crit.listType == 'ItemMatchedPapersList') {
+                        
+                        this.MagReferencesPaperList = result;
                     }
-                ).catch(
-                    (error) => {
+                    return result;
+                },
+                error => {
+                    this.RemoveBusy("FetchMagPaperMagList");
+                    this.modalService.GenericError(error);
+                    return error;
+                }
+            ).catch(
+                (error) => {
 
-                        this.modalService.GenericErrorMessage("error with FetchMagPaperList");
-                        this.RemoveBusy("FetchMagPaperList");
-                        return error;
-                    });
+                    this.modalService.GenericErrorMessage("error with FetchMagPaperMagList");
+                    this.RemoveBusy("FetchMagPaperMagList");
+                    return error;
+                });
+    }
+    public FetchMagPaperListMagPaper(crit: MVCMagPaperListSelectionCriteria): Promise<MagList> {
+        this._BusyMethods.push("FetchMagPaperListMagPaper");
+        return this._httpC.post<MagList>(this._baseUrl + 'api/MagPaperList/GetMagPaperList', crit)
+            .toPromise().then(
+
+                (result: MagList) => {
+
+                    this.RemoveBusy("FetchMagPaperListMagPaper");
+
+                    if (crit.listType == 'ReviewMatchedPapers' || crit.listType == 'ReviewMatchedPapersWithThisCode') {
+                        this.ReviewMatchedPapersList = result.papers;
+                        for (var i = 0; i < this.ReviewMatchedPapersList.length; i++) {
+                            this.PaperIds += this.ReviewMatchedPapersList[i].paperId.toString() + ',';
+                        }
+                        this.PaperIds = this.PaperIds.substr(0, this.PaperIds.length - 1)
+                        this.CurrentCriteria = crit;
+
+                    } 
+                    return result.papers;
+                },
+                error => {
+                    this.RemoveBusy("FetchMagPaperListMagPaper");
+                    this.modalService.GenericError(error);
+                    return error;
+                }
+            ).catch(
+                (error) => {
+
+                    this.modalService.GenericErrorMessage("error with FetchMagPaperListMagPaper");
+                    this.RemoveBusy("FetchMagPaperListMagPaper");
+                    return error;
+                });
     }
     public FetchMagPaperId(Id: number): Promise<MagPaper> {
 
@@ -137,52 +165,72 @@ export class MAGAdvancedService extends BusyAwareService {
                     this.RemoveBusy("FetchMagPaperId");
                 });
     }
-    public PostFetchMagPaperCalls(result: MagPaper) {
+    //try making below async await
+    public async PostFetchCitationsList(result: MagPaper): Promise<boolean> {
 
-      
-            if (result.paperId != null && result.paperId > 0) {
+        let criteriaCitationsList: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
+        criteriaCitationsList.listType = "CitationsList";
+        criteriaCitationsList.magPaperId = result.paperId;
+        criteriaCitationsList.pageSize = 20;
+        console.log('calling FetchWithCrit: CitationsList');
+        return await this._magBrowserService.FetchWithCrit(criteriaCitationsList, "CitationsList");
 
-                let criteriaCitationsList: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
-                criteriaCitationsList.listType = "CitationsList";
-                criteriaCitationsList.magPaperId = result.paperId;
-                criteriaCitationsList.pageSize = 20;
-
-                this._magBrowserService.FetchWithCrit(criteriaCitationsList, "CitationsList").then(
-
-                    (res: boolean) => {
-
-                        if (res) {
-                            this.PaperIds = this._magBrowserService.ListCriteria.paperIds;
-                            let criteriaCitedBy: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
-                            criteriaCitedBy.listType = "CitedByList";
-                            criteriaCitedBy.magPaperId = result.paperId;
-                            criteriaCitedBy.pageSize = 20;
-                            this._magBrowserService.FetchWithCrit(criteriaCitedBy, "CitedByList").then(
-
-                                (res: boolean) => {
-
-                                    if (res) {
-                                        this.PaperIds = this._magBrowserService.ListCriteria.paperIds;
-                                        let criteriaFOS: MVCMagFieldOfStudyListSelectionCriteria = new MVCMagFieldOfStudyListSelectionCriteria();
-                                        criteriaFOS.fieldOfStudyId = 0;
-                                        criteriaFOS.listType = 'PaperFieldOfStudyList';
-                                        criteriaFOS.paperIdList = this.PaperIds;
-                                        criteriaFOS.SearchTextTopics = ''; //TODO this will be populated by the user..
-                                        this._magBrowserService.FetchMagFieldOfStudyList(criteriaFOS, 'CitationsList').then(
-
-                                            (res: MagFieldOfStudy[]) =>
-                                            {
-                                                    this.router.navigate(['MAGBrowser']);
-                                             
-                                            }
-                                        );
-                                    }
-                                });
-                        }                       
-                    }
-                );
-            }
     }
+
+    public async PostFetchCitedByListList(result: MagPaper): Promise<boolean> {
+
+        this.PaperIds = this._magBrowserService.ListCriteria.paperIds;
+        let criteriaCitedBy: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
+        criteriaCitedBy.listType = "CitedByList";
+        criteriaCitedBy.magPaperId = result.paperId;
+        criteriaCitedBy.pageSize = 20;
+        console.log('calling PostFetchCitedByListList: CitedByList');
+        return await this._magBrowserService.FetchWithCrit(criteriaCitedBy, "CitedByList")
+
+    }
+
+    public async PostFetchMagFieldOfStudyList(result: MagPaper, listType: string): Promise<MagFieldOfStudy[]> {
+
+        this.PaperIds = this._magBrowserService.ListCriteria.paperIds;
+        let criteriaFOS: MVCMagFieldOfStudyListSelectionCriteria = new MVCMagFieldOfStudyListSelectionCriteria();
+        criteriaFOS.fieldOfStudyId = 0;
+        criteriaFOS.listType = 'PaperFieldOfStudyList';
+        criteriaFOS.paperIdList = result.paperId.toString();
+        criteriaFOS.SearchTextTopics = ''; 
+        console.log('calling FetchMagFieldOfStudyList: ', listType);
+        return await this._magBrowserService.FetchMagFieldOfStudyList(criteriaFOS, listType);
+
+    }
+
+    public async PostFetchOriginalMagPaperList(result: MagPaper, listType: string): Promise<boolean> {
+
+        let crit: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
+        crit.listType = listType;
+        crit.magPaperId = result.paperId;
+        crit.pageSize = 20;
+        console.log('calling FetchOrigWithCrit: ', crit.listType);
+        return await this._magBrowserService.FetchOrigWithCrit(crit, listType);
+
+    }
+
+    //Should the promises below be made into observables??
+    public async PostFetchMagPaperCalls(result: MagPaper, listType: string) {
+
+        if (result.paperId != null && result.paperId > 0) {
+
+            await this.PostFetchCitationsList(result);
+            await this.PostFetchCitedByListList(result);
+            if (this.currentMagPaper.paperId > -1) {
+
+                await this.PostFetchMagFieldOfStudyList(result, listType);
+            } else {
+                await this.PostFetchOriginalMagPaperList(result, listType);
+                await this.PostFetchMagFieldOfStudyList(result, listType);
+            }
+            this.router.navigate(['MAGBrowser']);
+        }
+    }
+
     public CheckContReviewPipelineState(): Promise<boolean> {
 
         this._BusyMethods.push("CheckContReviewPipelineState");
@@ -243,7 +291,6 @@ export class MAGAdvancedService extends BusyAwareService {
                 this.RemoveBusy("FetchMagReviewMagInfo");
             });
     }
-
     public RunMatchingAlgorithm(attributeId: number) : Promise<string> {
 
         this._BusyMethods.push("RunMatchingAlgorithm");
@@ -265,15 +312,18 @@ export class MAGAdvancedService extends BusyAwareService {
 
         this._BusyMethods.push("MagMatchItemsToPapers");
         let body = JSON.stringify({ Value: itemId });
-        return this._httpC.post<MagPaper[]>(this._baseUrl + 'api/MagMatchAll/MagMatchItemsToPapers', body)
+        return this._httpC.post<MagList>(this._baseUrl + 'api/MagMatchAll/MagMatchItemsToPapers', body)
             .toPromise().then(() => {
                 this.RemoveBusy("MagMatchItemsToPapers");
                 let crit: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
                 crit.listType = 'ItemMatchedPapersList';
                 crit.iTEM_ID = itemId;
-                this.FetchMagPaperList(crit).then(
-                    (result: any) => {
-                        return result;
+
+                this.FetchMagPaperMagList(crit).then(
+                    (result: MagList) => {
+                        console.log('the result from fetching the list from MagMatchItemsToPapers: ', JSON.stringify(result.papers));
+                        this.MagReferencesPaperList = result;
+                        return result.papers;
                     }
                 );
             },

@@ -8,8 +8,9 @@ import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Router } from '@angular/router';
 import { NotificationService } from '@progress/kendo-angular-notification';
 import { MAGBrowserService } from '../services/MAGBrowser.service';
-import { MagRelatedPapersRun } from '../services/MAGClasses.service';
-import { Location } from '@angular/common';
+import { MagRelatedPapersRun, MagBrowseHistoryItem, MagPaper } from '../services/MAGClasses.service';
+import { MAGBrowserHistoryService } from '../services/MAGBrowserHistory.service';
+import { MAGAdvancedService } from '../services/magAdvanced.service';
 
 @Component({
 	selector: 'BasicMAGComp',
@@ -25,8 +26,9 @@ export class BasicMAGComp implements OnInit {
         public _searchService: searchService,
         private _ReviewerIdentityServ: ReviewerIdentityService,
         private _notificationService: NotificationService,
-        private _location: Location,
-        private router: Router
+        private _magAdvancedService: MAGAdvancedService,
+        private router: Router,
+        public _mAGBrowserHistoryService: MAGBrowserHistoryService
 
     ) {
 
@@ -38,12 +40,13 @@ export class BasicMAGComp implements OnInit {
     public dropdownBasic1: boolean = false;
     public description: string = '';
     public valueKendoDatepicker: Date = new Date();
-    public searchAll: string = 'true';
+    public searchAll: string = 'all';
     public magSearchCheck: boolean = false;
     public magDateRadio: string = 'true';
     public magRCTRadio: string = 'NoFilter';
     public magMode: string = '';
-        
+    public basicPanel: boolean = false;
+    public basicSearchPanel: boolean = false;
 
 	ngOnInit() {
 
@@ -56,9 +59,7 @@ export class BasicMAGComp implements OnInit {
             this.router.navigate(['Main']);
         }
         else {
-          
              this._basicMAGService.FetchMagRelatedPapersRunList();
-
         }
 
     }
@@ -92,6 +93,19 @@ export class BasicMAGComp implements OnInit {
     public GetItems(item: MagRelatedPapersRun) {
 
         if (item.magRelatedRunId > 0) {
+            this._magBrowserService.currentMagRelatedRun = item;
+            this._magBrowserService.currentRefreshListType = 'MagRelatedPapersRunList';
+            this._magAdvancedService.currentMagPaper = new MagPaper();
+            this._magBrowserService.MagCitationsByPaperList.papers = [];
+            this._magBrowserService.MAGOriginalList.papers = [];
+            this._magBrowserService.currentListType = "MagRelatedPapersRunList";
+            this._magAdvancedService.currentMagPaper = new MagPaper();
+            this._magBrowserService.ShowingParentAndChildTopics = false;
+            this._magBrowserService.ShowingChildTopicsOnly = true;
+            let magBrowseItem: MagBrowseHistoryItem = new MagBrowseHistoryItem("Papers identified from auto-identification run", "MagRelatedPapersRunList", 0,
+                "", "", 0, "", "", 0, "", "", item.magRelatedRunId);
+            this._mAGBrowserHistoryService.IncrementHistoryCount();
+            this._mAGBrowserHistoryService.AddToBrowseHistory(magBrowseItem);
 
             this._magBrowserService.FetchMAGRelatedPaperRunsListById(item.magRelatedRunId)
                 .then(
@@ -101,10 +115,14 @@ export class BasicMAGComp implements OnInit {
             );
         }
     }
+    public ShowBasicPanel() {
+        this.basicPanel = !this.basicPanel;
+    }
+    public ShowSearchPanel() {
+        this.basicSearchPanel = !this.basicSearchPanel;
+    }
     public ImportMagSearchPapers(item: MagRelatedPapersRun) {
 
-        console.log('testing mag import: ', item);
-   
         if (item.nPapers == 0) {
             this.ShowMAGRunMessage('There are no papers to import');
 
@@ -121,6 +139,15 @@ export class BasicMAGComp implements OnInit {
             let msg: string = 'Are you sure you want to import these items?';
             this.ImportMagRelatedPapersRun(item, msg);
         }
+    }
+    public UpdateUserStatus(magRelatedRun: MagRelatedPapersRun) {
+
+        if (magRelatedRun != null && magRelatedRun.magRelatedRunId > 0
+            && magRelatedRun.userStatus == 'Unchecked') {
+            magRelatedRun.userStatus = 'Checked';
+            this._basicMAGService.UpdateMagRelatedRun(magRelatedRun);
+        }
+
     }
     public UpdateAutoReRun(magRelatedRun: MagRelatedPapersRun) {
 
@@ -146,7 +173,7 @@ export class BasicMAGComp implements OnInit {
     public CanAddNewMAGSearch(): boolean {
 
         if (this.description != '' && this.description != null && this.HasWriteRights
-            ) {
+            && this.magMode != '') {
             return true;
         } else {
             return false;
@@ -186,21 +213,44 @@ export class BasicMAGComp implements OnInit {
                 this.magMode = 'Bi-Citation AND Recommendations';
                 break;
             case '8':
-                this.magMode = 'New items published on next deployment of MAG';
+                this.magMode = '(Next MAG) - new published items';
                 break;
 
             default:
                 break;
 		}
-	}
+    }
+    public CheckedStatus(magRelatedRun: MagRelatedPapersRun) {
+
+        let msg: string = "";
+        let status: string = magRelatedRun.userStatus;
+        if (status == 'Checked') {
+
+            msg = 'you have marked this search as checked';
+        } else if (status == 'Unchecked') {
+            this.UpdateUserStatus(magRelatedRun);
+            msg = "updated run to be marked as checked";
+        } else if (status == 'Waiting') {
+            msg = 'this search is in a waiting state';
+        } else if (status == 'Imported') {
+            msg = 'you have imported these papers already in this search';
+        } else {
+            msg = 'there is an error in the status';
+        }
+
+        this.ShowMAGRunMessage(msg);
+
+    }
 	public AddNewMAGSearch() {
 
 		let magRun: MagRelatedPapersRun = new MagRelatedPapersRun();
 
-        if (this.searchAll =='true') {
+        if (this.searchAll =='all') {
             magRun.allIncluded = true;
-        } else {
+        } else if (this.searchAll == 'specified') {
             magRun.allIncluded = false;
+        }else{
+           //children of this code...
         }
 		let att: SetAttribute = new SetAttribute();
 		if (this.CurrentDropdownSelectedCode != null) {
@@ -227,13 +277,13 @@ export class BasicMAGComp implements OnInit {
                 }
             });
     }
-	public DoDeleteMagRelatedPapersRun(magRunId: number) {
+    public DoDeleteMagRelatedPapersRun(magRun: MagRelatedPapersRun) {
 
         this.ConfirmationDialogService.confirm("Deleting the selected MAG search",
-            "Are you sure you want to delete MAG search Id:" + magRunId + "?", false, '')
+            "Are you sure you want to delete MAG search:" + magRun.userDescription + "?", false, '')
             .then((confirm: any) => {
                 if (confirm) {
-                    this._basicMAGService.DeleteMAGRelatedRun(magRunId);
+                    this._basicMAGService.DeleteMAGRelatedRun(magRun.magRelatedRunId);
                 }
             });
         }

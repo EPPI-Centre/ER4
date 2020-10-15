@@ -1,42 +1,60 @@
-﻿<HeaderComponent Context="MAGBrowsingHistory"></HeaderComponent>
+﻿<HeaderComponent class="row p-1 m-0" style="vertical-align:top;" PageTitle="Microsoft Academic Browser" Context="MAGBrowsingHistory"></HeaderComponent>
 
 <button class="page-link rounded pt-1 pb-1 mb-1 float-right"
         style="position:absolute; right: 0; z-index:2000;" (click)="Back()">
     Close/back
 </button>
 
-<MAGHeaderBar></MAGHeaderBar>
-<div class="col-6 p-2 m-2 card bg-secondary" style="min-width:450px; overflow:auto;">
-    <h5>Current Microsoft Academic Graph Dataset:<i> {{_magAdvancedService.MagCurrentInfo.lastUpdated}} </i></h5>
+<MAGHeaderBar Context="MAGBrowsingHistory"></MAGHeaderBar>
+<div class="container col-12">
+    <div class="row">
 
+        <div class="col-md-12 mb-5">
+            <h2 class="card-title"></h2>
+            <div class="card h-100">
+                <div class="card-body">
+
+                    <h2 class="font-weight-light">MAG browsing history</h2>
+                    <h4 class="font-weight-light text-sm-left">
+                        Current Microsoft Academic Graph Dataset:<br />
+                        <i> {{_magAdminService.latestMAGName}} </i>
+                    </h4>
+                    <div *ngIf="IsServiceBusy" class="k-loading-image" style="position: fixed; top: 2%;"></div>
+                    <a class="btn btn-danger text-white align-content-centerp-2 m-2" (click)="ClearHistory()"> Clear all history <i class=" fa fa-trash "></i></a>
+                    <div class="col-12 alert-secondary p-2 m-2 card">
+
+                        <table class="table text-small table-responsive table-striped" style="min-width:150px;max-height:600px; overflow:auto;">
+                            <thead>
+                                <tr>
+                                    <th class="w-25">
+                                        Url
+                                    </th>
+                                    <th class="w-25">
+                                        Remove from history
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let item of _MAGBrowserHistoryService._MAGBrowserHistoryList;  let i = index">
+
+                                    <td class="btn btn-link mt-1" (click)="GoToUrl(i)">{{item.title | truncate}}</td>
+                                    <td class="w-25"><button class="btn-outline-danger" (click)="RemoveUrl(i)"><i class="fa fa-trash"></i></button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
-<div class="col-6 p-2 m-2 card bg-info" style="min-width:450px; overflow:auto;">
-    <h4>MAG Browsing History</h4>
-</div>
+
 <div *ngIf="IsServiceBusy" class="k-loading-image" style="position: fixed; top: 2%;"></div>
 
-<button class="btn btn-info  p-2 m-2 " (click)="ClearHistory()">Clear History </button>
-<div class="col-6 bg-light card" style="min-width:450px;" >
-    <table class="table table-responsive table-striped"  >
-        <thead>
-            <tr>
-                <th class="w-25">Url
-                </th>
-                <th class="w-25">Go to URL
-                </th>
-                <th class="w-25">
-                    Remove URL from history stack
-                </th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr *ngFor="let item of _MAGBrowserHistoryService.getHistory()">
-                <td class="w-25">{{item.url}}</td>
-                <td class="w-25"><button class="btn btn-success" (click)="GoToUrl(item.url)">GO</button></td>
-                <td class="w-25"><button class="btn btn-danger" (click)="RemoveUrl(item)">Remove</button></td>
-            </tr>
-        </tbody>
-    </table>
-</div>
-
 <statusbar></statusbar>
+
+
+
+
+

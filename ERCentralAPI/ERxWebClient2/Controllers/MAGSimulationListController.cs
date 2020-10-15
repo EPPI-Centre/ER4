@@ -66,7 +66,7 @@ namespace ERxWebClient2.Controllers
                     newMagSimulation.WithThisAttributeId = magSimulation.withThisAttributeId;
                     newMagSimulation.Year = magSimulation.year;
                     newMagSimulation.YearEnd = magSimulation.yearEnd;
-                    newMagSimulation.CreatedDateEnd = magSimulation.CreatedDateEnd;
+                    newMagSimulation.CreatedDateEnd = magSimulation.createdDateEnd;
                     newMagSimulation.UserClassifierReviewId = magSimulation.userClassifierReviewId;
 
                     newMagSimulation = dp.Execute(newMagSimulation);
@@ -116,15 +116,11 @@ namespace ERxWebClient2.Controllers
     public class MVCMagSimulation
 	{
 
-        //    newSimulation.YearEnd = SimulationYearEnd.Year;
-        //    newSimulation.CreatedDateEnd = CreatedDateEnd;
-
-
         public int magSimulationId = 0;
         public int reviewId= 0;
         public int year = 0;
         public int yearEnd = 0;
-        public DateTime CreatedDateEnd = DateTime.Now;
+        public DateTime createdDateEnd = DateTime.Now;
         public DateTime createdDate = DateTime.Now;
         public int withThisAttributeId = 0;
         public int filteredByAttributeId = 0;

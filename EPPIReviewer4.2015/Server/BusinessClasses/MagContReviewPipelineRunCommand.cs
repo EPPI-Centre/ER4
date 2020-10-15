@@ -149,10 +149,18 @@ namespace BusinessLibrary.BusinessClasses
 
             uploadFileName = System.Web.HttpRuntime.AppDomainAppPath + @"UserTempUploads/" + "crSeeds.tsv";
 #else
-                // same as comment above for same line
-                //SG Edit:
-                DirectoryInfo tmpDir = System.IO.Directory.CreateDirectory("UserTempUploads");
-                uploadFileName = tmpDir.FullName + "/" + @"UserTempUploads/" + "crSeeds.tsv";
+            const string TempPath = @"UserTempUploads/";
+            uploadFileName = TempPath + "crSeeds.tsv";
+
+            if (Directory.Exists(TempPath))
+            {
+                uploadFileName = @"./" + TempPath + "/" + "crSeeds.tsv";
+            }
+            else
+            {
+                DirectoryInfo tmpDir = System.IO.Directory.CreateDirectory(TempPath);
+                uploadFileName = tmpDir.FullName + "/" + @"./" + TempPath + "/" + "crSeeds.tsv";
+            }
 #endif
             int logId = MagLog.SaveLogEntry("ContReview process", "running", "Main update. starting", ContactId);
             

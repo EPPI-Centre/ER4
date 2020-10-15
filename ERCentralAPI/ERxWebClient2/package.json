@@ -6,7 +6,7 @@
 		"wbp": "webpack"
 	},
 	"devDependencies": {
-		"@angular/animations": "6.1.10",
+		"@angular/animations": "^6.1.10",
 		"@angular/common": "^6.1.10",
 		"@angular/compiler": "6.1.10",
 		"@angular/compiler-cli": "6.1.10",

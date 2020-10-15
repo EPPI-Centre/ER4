@@ -97,6 +97,10 @@ import { WorkAllocationWizardComp } from './components/WorkAllocations/WorkAlloc
 import { microsoftAcademicComp } from './components/MAG/microsoftAcademic.component';
 import { MAGHeaderBarComp } from './components/commonComponents/MAGHeaderBar.component';
 import { ScreeningSetupComp } from './components/WorkAllocations/ScreeningSetup.component';
+import { MAGOrigpaginatorComp } from './components/commonComponents/MAGOrigpaginator.component';
+import { DatePipe } from '@angular/common';
+import { MAGSearchComponent } from './components/MAG/MAGSearch.component';
+import { TruncatePipe } from './components/MAG/TruncatePipe.component';
 
 @NgModule({
     declarations: [
@@ -167,6 +171,7 @@ import { ScreeningSetupComp } from './components/WorkAllocations/ScreeningSetup.
         codesetTree4Move,
         AdvancedMAGFeaturesComponent,
         MAGpaginatorComp,
+        MAGOrigpaginatorComp,
         MAGBrowser,
         MAGBrowserHistory,
         MAGAdminComp,
@@ -175,11 +180,17 @@ import { ScreeningSetupComp } from './components/WorkAllocations/ScreeningSetup.
         WorkAllocationWizardComp,
         microsoftAcademicComp,
         MAGHeaderBarComp,
-        ScreeningSetupComp
+        ScreeningSetupComp,
+        MAGSearchComponent,
+        TruncatePipe
+        
 	],
     providers: [
+        DatePipe, 
         EventEmitterService,
-		{ provide: RouteReuseStrategy, useClass: CustomRouteReuseStrategy }
+        {
+            provide: RouteReuseStrategy, useClass: CustomRouteReuseStrategy
+        }
     ],
 	entryComponents: [InfoBoxModalContent, ModalDialogComponent, ConfirmationDialogComponent],
 	imports: [
@@ -217,6 +228,7 @@ import { ScreeningSetupComp } from './components/WorkAllocations/ScreeningSetup.
             { path: 'ItemList', component: ItemListComp },
             { path: 'MAGAdmin', component: MAGAdminComp},
             { path: 'MAGBrowser', component: MAGBrowser },
+            { path: 'MagSearch', component: MAGSearchComponent},
             { path: 'microsoftAcademic', component: microsoftAcademicComp },
             { path: 'MAGBrowserHistory', component: MAGBrowserHistory },
             { path: 'MatchingMAGItems', component: MatchingMAGItemsComponent},
