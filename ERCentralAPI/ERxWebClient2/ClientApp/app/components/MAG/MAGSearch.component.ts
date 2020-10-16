@@ -6,7 +6,7 @@ import { MAGBrowserService } from '../services/MAGBrowser.service';
 import { MAGAdvancedService } from '../services/magAdvanced.service';
 import { MAGBrowserHistoryService } from '../services/MAGBrowserHistory.service';
 import { BasicMAGService } from '../services/BasicMAG.service';
-import { MagSearch, TopicLink, MVCMagFieldOfStudyListSelectionCriteria, MagFieldOfStudy, MagBrowseHistoryItem, MVCMagPaperListSelectionCriteria, MagPaper } from '../services/MAGClasses.service';
+import { MagSearch, TopicLink, MVCMagFieldOfStudyListSelectionCriteria, MagFieldOfStudy } from '../services/MAGClasses.service';
 import { magSearchService } from '../services/MAGSearch.service';
 import { NotificationService } from '@progress/kendo-angular-notification';
 
@@ -188,22 +188,8 @@ export class MAGSearchComponent implements OnInit {
     public GetItems(item: MagSearch) {
 
         if (item.magSearchId > 0) {
-            this._magBrowserService.currentMagSearch = item;
-            this._magBrowserService.currentMagPaper = new MagPaper();
-            this._magBrowserService.MagCitationsByPaperList.papers = [];
-            this._magBrowserService.MAGOriginalList.papers = [];
-            this._magBrowserService.currentRefreshListType = 'MagSearchResultsList';
-            this._magBrowserService.currentListType = "MagSearchResultsList";
-            this._magBrowserService.ShowingParentAndChildTopics = false;
-            this._magBrowserService.ShowingChildTopicsOnly = true;
-            this._mAGBrowserHistoryService.AddHistory(new MagBrowseHistoryItem("Papers identified from Mag Search run", "MagSearchPapersList", 0,
-                "", "", 0, "", "", 0, "", "", item.magSearchId));
-            let selectionCriteria: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
-            selectionCriteria.pageSize = 20;
-            selectionCriteria.pageNumber = 0;
-            selectionCriteria.listType = "MagSearchResultsList";
-            selectionCriteria.magSearchText = item.magSearchText;
-            this._magBrowserService.FetchMagPapersFromSearch(selectionCriteria, "MagSearchResultsList")
+
+            this._magBrowserService.GetMagItemsForSearch(item)            
                 .then(
                     () => {
                         this.router.navigate(['MAGBrowser']);

@@ -1,11 +1,13 @@
-import { Inject, Injectable, EventEmitter, Output, ViewChild } from '@angular/core';
+import { Inject, Injectable, EventEmitter, Output } from '@angular/core';
 import { HttpClient  } from '@angular/common/http';
 import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
 import {
     MagList, MagPaper, MVCMagFieldOfStudyListSelectionCriteria,
     MVCMagPaperListSelectionCriteria, MagFieldOfStudy, MvcMagFieldOfStudyListSelectionCriteria,
-    TopicLink, MagItemPaperInsertCommand, MVCMagOrigPaperListSelectionCriteria, MagRelatedPapersRun, MagSearch, MagBrowseHistoryItem} from '../services/MAGClasses.service';
+    TopicLink, MagItemPaperInsertCommand, MVCMagOrigPaperListSelectionCriteria, MagRelatedPapersRun,
+    MagSearch, MagBrowseHistoryItem
+} from '../services/MAGClasses.service';
 import { DatePipe } from '@angular/common';
 import { EventEmitterService } from './EventEmitter.service';
 import { MAGBrowserHistoryService } from './MAGBrowserHistory.service';
@@ -17,6 +19,7 @@ import { MAGBrowserHistoryService } from './MAGBrowserHistory.service';
 )
 
 export class MAGBrowserService extends BusyAwareService {
+
 
     constructor(
         private _httpC: HttpClient,
@@ -88,9 +91,7 @@ export class MAGBrowserService extends BusyAwareService {
     public get currentPaper(): MagPaper {
         return this._currentPaper;
     }
-    public GetPaperListForTopic(FieldOfStudyId: number): boolean | undefined {
-
-        if (FieldOfStudyId != null) {
+    public GetPaperListForTopic(FieldOfStudyId: number): Promise<boolean>  {
 
             let id = this.ListCriteria.magRelatedRunId;
             this.ListCriteria = new MVCMagPaperListSelectionCriteria();
@@ -99,7 +100,7 @@ export class MAGBrowserService extends BusyAwareService {
             this.ListCriteria.listType = "PaperFieldsOfStudyList";
             this.ListCriteria.pageNumber = 0;
             this.ListCriteria.pageSize = this.pageSize;
-            this.FetchWithCrit(this.ListCriteria, "PaperFieldsOfStudyList").then(
+            return this.FetchWithCrit(this.ListCriteria, "PaperFieldsOfStudyList").then(
 
                         (res1: boolean) => {
                         
@@ -114,10 +115,44 @@ export class MAGBrowserService extends BusyAwareService {
                             return res1;
                         }
                 );
-        } else {
-            return false;
-        }
     }
+
+    public GetTopicsAndRelatedPapers(item: MagFieldOfStudy) {
+
+        this.currentTopicSearch = item;
+        this.currentRefreshListType = 'PaperFieldsOfStudyList';
+        this._eventEmitterService.firstVisitMAGBrowserPage = false;
+        this.OrigListCriteria.listType = "PaperFieldsOfStudyList";
+        this.ShowingParentAndChildTopics = true;
+        this.ShowingChildTopicsOnly = false;
+        this.currentFieldOfStudy = item;
+        let fieldOfStudyId: number = item.fieldOfStudyId;
+
+        this.GetParentAndChildRelatedPapers(item.displayName, fieldOfStudyId);
+    }
+
+    public async GetParentAndChildRelatedPapers(displayName: string, fieldOfStudyId: number): Promise<boolean>  {
+
+        this.currentRefreshListType = 'PaperFieldsOfStudyList';
+        this.currentListType = "PaperFieldsOfStudyList";
+        this._mAGBrowserHistoryService.AddHistory(new MagBrowseHistoryItem(displayName, "BrowseTopic", 0,
+            "", "", 0, "", "", fieldOfStudyId, displayName, "", 0));
+
+        this.currentMagPaper = new MagPaper();
+        this.WPChildTopics = [];
+        this.WPParentTopics = [];
+        this.ParentTopic = '';
+
+        this.ParentTopic = displayName;
+
+        await this.GetParentAndChildFieldsOfStudy("FieldOfStudyParentsList", fieldOfStudyId)
+
+        await this.GetParentAndChildFieldsOfStudy("FieldOfStudyChildrenList", fieldOfStudyId);
+        this._eventEmitterService.firstVisitMAGBrowserPage = false;
+        return await this.GetPaperListForTopic(fieldOfStudyId);
+
+    }
+
     public GetPaperListForTopicsAfterRefresh(fieldOfStudy: MagFieldOfStudy, dateFrom: Date, dateTo: Date): boolean | undefined {
 
         let dateFormattedFrom: string | null = this.datePipe.transform(dateFrom, 'yyyy-MM-dd'); 
@@ -210,6 +245,7 @@ export class MAGBrowserService extends BusyAwareService {
                 }
             );
     }
+
     public GetMagRelatedRunsListById(item: MagRelatedPapersRun) : Promise<boolean> {
 
         this.currentMagRelatedRun = item;
@@ -356,24 +392,39 @@ export class MAGBrowserService extends BusyAwareService {
                 return error;
             });
     }
-    public FetchMagPapersFromSearch(criteria: MVCMagPaperListSelectionCriteria, goBackListType: string) : Promise<any> {
 
-        return this.FetchWithCrit(criteria, "MagSearchResultsList")
-            .then(
-                () => {
+    public async GetMagItemsForSearch(item: MagSearch): Promise<boolean> {
+
+        this.currentMagSearch = item;
+        this.currentMagPaper = new MagPaper();
+        this.MagCitationsByPaperList.papers = [];
+        this.MAGOriginalList.papers = [];
+        this.currentRefreshListType = 'MagSearchResultsList';
+        this.currentListType = "MagSearchResultsList";
+        this.ShowingParentAndChildTopics = false;
+        this.ShowingChildTopicsOnly = true;
+        this._mAGBrowserHistoryService.AddHistory(new MagBrowseHistoryItem("Papers identified from Mag Search run", "MagSearchPapersList", 0,
+            "", "", 0, "", "", 0, "", "", item.magSearchId));
+        let selectionCriteria: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
+        selectionCriteria.pageSize = 20;
+        selectionCriteria.pageNumber = 0;
+        selectionCriteria.listType = "MagSearchResultsList";
+        selectionCriteria.magSearchText = item.magSearchText;
+        return await this.FetchMagPapersFromSearch(selectionCriteria, "MagSearchResultsList");
+    }
+
+
+    public async FetchMagPapersFromSearch(criteria: MVCMagPaperListSelectionCriteria, goBackListType: string) : Promise<any> {
+
+        await this.FetchWithCrit(criteria, "MagSearchResultsList");
+
                     let FieldsListcriteria: MVCMagFieldOfStudyListSelectionCriteria = new MVCMagFieldOfStudyListSelectionCriteria();
                     FieldsListcriteria.fieldOfStudyId = 0;
                     FieldsListcriteria.listType = "PaperFieldOfStudyList";
                     FieldsListcriteria.paperIdList = this.ListCriteria.paperIds;
-                    this.FetchMagFieldOfStudyList(FieldsListcriteria, 'MagSearchResultsList')
-                        .then(
-                        
-                            () => {
-                                this.FetchOrigWithCrit(criteria, "OrigList")
-                            }
-                        );
-                }
-            );
+                    await this.FetchMagFieldOfStudyList(FieldsListcriteria, 'MagSearchResultsList')
+                         return await this.FetchOrigWithCrit(criteria, "OrigList");
+
     }
     public FetchWithCrit(crit: MVCMagPaperListSelectionCriteria, listDescription: string): Promise<boolean> {
 
@@ -415,7 +466,6 @@ export class MAGBrowserService extends BusyAwareService {
 
         this._BusyMethods.push("FetchOrigWithCrit");
         this.OrigListCriteria = crit;
-        //this.OrigListCriteria.listType = this.currentListType;
         if (this.MAGOriginalList && this._MAGOriginalList.pagesize > 0
             && this.MAGOriginalList.pagesize <= 4000
             && this.MAGOriginalList.pagesize != crit.pageSize
@@ -424,19 +474,14 @@ export class MAGBrowserService extends BusyAwareService {
         }
 
         this.OrigListCriteria.paperIds = crit.paperIds;
-        //crit.listType = this.currentListType;
-        console.log('inside Orign Fetch is: ', this.OrigListCriteria);
         return this._httpC.post<MagList>(this._baseUrl + 'api/MagPaperList/GetMagPaperList', crit)
             .toPromise().then(
 
                 (list: MagList) => {
 
                     this.RemoveBusy("FetchOrigWithCrit");
-                    //this.OrigListCriteria.listType = this.currentListType;
-                    console.log('inside Orign Fetch is 2: ', this.OrigListCriteria);
 
                     this.SaveOrigPapers(list, this.OrigListCriteria, 'OrigList');
-                    console.log('Check total no of papers: ', this._OrigCriteria);
                     return true;
 
                 }, error => {

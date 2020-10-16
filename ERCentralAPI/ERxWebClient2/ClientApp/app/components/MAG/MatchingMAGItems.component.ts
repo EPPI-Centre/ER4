@@ -13,7 +13,6 @@ import { MAGAdvancedService } from '../services/magAdvanced.service';
 import { MVCMagFieldOfStudyListSelectionCriteria } from '../services/MAGClasses.service';
 import { MAGBrowserHistoryService } from '../services/MAGBrowserHistory.service';
 import { BasicMAGService } from '../services/BasicMAG.service';
-import { NotificationService } from '@progress/kendo-angular-notification';
 
 @Component({
     selector: 'MatchingMAGItems',
@@ -23,7 +22,6 @@ import { NotificationService } from '@progress/kendo-angular-notification';
 
 export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
 
-    //history: NavigationEnd[] = [];
     constructor(private ConfirmationDialogService: ConfirmationDialogService,
         public _magBasicService: BasicMAGService,
         public _magAdvancedService: MAGAdvancedService,
@@ -37,15 +35,9 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
 
     ) {
 
-        //this.history = this._routingStateService.getHistory();
     }
-    //public sub: Subscription = new Subscription();
     public SearchTextTopic: string = '';
     ngOnInit() {
-
-
-        console.log('asdfs: ', this._magAdvancedService.AdvancedReviewInfo.nMatchedAccuratelyIncluded);
-
 
          this._eventEmitterService.getMatchedIncludedItemsEvent.subscribe(
             () => {
@@ -74,9 +66,6 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
         }
     }
     ngOnDestroy() {
-        //if (this.sub != null) {
-        //    this.sub.unsubscribe();
-        //}
     }
     @ViewChild('WithOrWithoutCodeSelector2') WithOrWithoutCodeSelector2!: codesetSelectorComponent;
 
@@ -151,13 +140,11 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
 
                 (results: MagFieldOfStudy[]) => {
 
-                    //this.WPFindTopics = [];
                     let FosList: MagFieldOfStudy[] = results;
                     let i: number = 1.7;
                     let cnt: number = 0;
                     for (var fos of FosList)
                     {
-                        console.log('got in here');
                         let item: TopicLink = new TopicLink();
                         item.displayName = fos.displayName;
                         item.fontSize = i;
@@ -179,31 +166,12 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
             this.SearchTextTopicsResults = [];
         }
     }
-    public FOSMAGBrowserNavigate(displayName: string, fieldOfStudyId: number) {
+    public async FOSMAGBrowserNavigate(displayName: string, fieldOfStudyId: number) {
 
-        this._magBrowserService.currentRefreshListType = 'PaperFieldsOfStudyList';
-        this._magBrowserService.currentListType = "PaperFieldsOfStudyList";
-        this._mAGBrowserHistoryService.AddHistory(new MagBrowseHistoryItem(displayName, "BrowseTopic", 0,
-            "", "", 0, "", "", fieldOfStudyId, displayName, "", 0));
-        this._magBrowserService.currentMagPaper = new MagPaper();
-        this._magBrowserService.WPChildTopics = [];
-        this._magBrowserService.WPParentTopics = [];
-        this._magBrowserService.ParentTopic = '';
+        await this._magBrowserService.GetParentAndChildRelatedPapers(displayName, fieldOfStudyId);
         this.router.navigate(['MAGBrowser']);
-        this.GetParentAndChildRelatedPapers(displayName, fieldOfStudyId);
     }
-    public GetParentAndChildRelatedPapers(FieldOfStudy: string, FieldOfStudyId: number) {
 
-        this._magBrowserService.ParentTopic = FieldOfStudy;
-
-        this._magBrowserService.GetParentAndChildFieldsOfStudy("FieldOfStudyParentsList", FieldOfStudyId).then(
-            () => {
-                this._magBrowserService.GetParentAndChildFieldsOfStudy("FieldOfStudyChildrenList", FieldOfStudyId).then(
-                    () => {
-                        this._magBrowserService.GetPaperListForTopic(FieldOfStudyId);
-                    });
-            });
-    }
     public RunMatchingAlgo() {
 
         var att = this.CurrentDropdownSelectedCode2 as SetAttribute;

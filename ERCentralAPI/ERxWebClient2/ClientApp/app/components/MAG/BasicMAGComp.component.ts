@@ -7,7 +7,7 @@ import { ConfirmationDialogService } from '../services/confirmation-dialog.servi
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Router } from '@angular/router';
 import { MAGBrowserService } from '../services/MAGBrowser.service';
-import { MagRelatedPapersRun, MagBrowseHistoryItem, MagPaper } from '../services/MAGClasses.service';
+import { MagRelatedPapersRun} from '../services/MAGClasses.service';
 import { MAGBrowserHistoryService } from '../services/MAGBrowserHistory.service';
 import { MAGAdvancedService } from '../services/magAdvanced.service';
 
