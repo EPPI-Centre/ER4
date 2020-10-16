@@ -225,7 +225,7 @@ export class MAGHeaderBarComp implements OnInit {
                 this._magBrowserService.WPChildTopics = [];
                 this._magBrowserService.WPParentTopics = [];
 
-                this._magAdvancedService.currentMagPaper = new MagPaper();
+                this._magBrowserService.currentMagPaper = new MagPaper();
                 this._magBrowserService.MagCitationsByPaperList = new MagList();
                 this._magBrowserService.GetParentAndChildFieldsOfStudy("FieldOfStudyParentsList", FieldOfStudyId).then(
                     () => {

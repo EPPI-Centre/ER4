@@ -5,9 +5,10 @@ import { BusyAwareService } from '../helpers/BusyAwareService';
 import {
     MagList, MagPaper, MVCMagFieldOfStudyListSelectionCriteria,
     MVCMagPaperListSelectionCriteria, MagFieldOfStudy, MvcMagFieldOfStudyListSelectionCriteria,
-    TopicLink, MagItemPaperInsertCommand, MVCMagOrigPaperListSelectionCriteria, MagRelatedPapersRun, MagSearch} from '../services/MAGClasses.service';
+    TopicLink, MagItemPaperInsertCommand, MVCMagOrigPaperListSelectionCriteria, MagRelatedPapersRun, MagSearch, MagBrowseHistoryItem} from '../services/MAGClasses.service';
 import { DatePipe } from '@angular/common';
 import { EventEmitterService } from './EventEmitter.service';
+import { MAGBrowserHistoryService } from './MAGBrowserHistory.service';
 
 
 @Injectable({
@@ -22,14 +23,15 @@ export class MAGBrowserService extends BusyAwareService {
         @Inject('BASE_URL') private _baseUrl: string,
         private _eventEmitterService: EventEmitterService,
         private modalService: ModalService,
-        private datePipe: DatePipe
+        private datePipe: DatePipe,
+        private _mAGBrowserHistoryService : MAGBrowserHistoryService
     ) {
 		super();
     }
     public currentMagRelatedRun: MagRelatedPapersRun = new MagRelatedPapersRun();
     public currentMagSearch: MagSearch = new MagSearch();
     public currentTopicSearch: MagFieldOfStudy = new MagFieldOfStudy();
-
+    public currentMagPaper: MagPaper = new MagPaper();
     public currentRefreshListType: string = '';
     public currentListType: string = '';
     public firstVisitToMAGBrowser: boolean = true;
@@ -208,6 +210,25 @@ export class MAGBrowserService extends BusyAwareService {
                 }
             );
     }
+    public GetMagRelatedRunsListById(item: MagRelatedPapersRun) : Promise<boolean> {
+
+        this.currentMagRelatedRun = item;
+        this.currentRefreshListType = 'MagRelatedPapersRunList';
+        this.currentMagPaper = new MagPaper();
+        this.MagCitationsByPaperList.papers = [];
+        this.MAGOriginalList.papers = [];
+        this.currentListType = "MagRelatedPapersRunList";
+        this.currentMagPaper = new MagPaper();
+        this.ShowingParentAndChildTopics = false;
+        this.ShowingChildTopicsOnly = true;
+        this._mAGBrowserHistoryService.AddHistory(new MagBrowseHistoryItem("Papers identified from auto-identification run", "MagRelatedPapersRunList", 0,
+            "", "", 0, "", "", 0, "", "", item.magRelatedRunId));
+
+        return this.FetchMAGRelatedPaperRunsListById(item.magRelatedRunId);
+ 
+    }
+
+
     public FetchMAGRelatedPaperRunsListById(Id: number): Promise<boolean> {
 
         var goBackListType: string = 'MagRelatedPapersRunList';

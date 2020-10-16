@@ -183,7 +183,7 @@ export class MAGBrowserHistory implements OnInit {
     }
     public ShowTopicPage(fieldOfStudyId: number, fieldOfStudy: string) {
 
-        this._magAdvancedService.currentMagPaper = new MagPaper();
+        this._magBrowserService.currentMagPaper = new MagPaper();
         this._magBrowserService.WPChildTopics = [];
         this._magBrowserService.WPParentTopics = [];
         this._magBrowserService.ParentTopic = '';

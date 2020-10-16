@@ -189,7 +189,7 @@ export class MAGSearchComponent implements OnInit {
 
         if (item.magSearchId > 0) {
             this._magBrowserService.currentMagSearch = item;
-            this._magAdvancedService.currentMagPaper = new MagPaper();
+            this._magBrowserService.currentMagPaper = new MagPaper();
             this._magBrowserService.MagCitationsByPaperList.papers = [];
             this._magBrowserService.MAGOriginalList.papers = [];
             this._magBrowserService.currentRefreshListType = 'MagSearchResultsList';

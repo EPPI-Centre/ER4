@@ -185,7 +185,7 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
         this._magBrowserService.currentListType = "PaperFieldsOfStudyList";
         this._mAGBrowserHistoryService.AddHistory(new MagBrowseHistoryItem(displayName, "BrowseTopic", 0,
             "", "", 0, "", "", fieldOfStudyId, displayName, "", 0));
-        this._magAdvancedService.currentMagPaper = new MagPaper();
+        this._magBrowserService.currentMagPaper = new MagPaper();
         this._magBrowserService.WPChildTopics = [];
         this._magBrowserService.WPParentTopics = [];
         this._magBrowserService.ParentTopic = '';
@@ -250,7 +250,7 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
         }
     }
     public MAGBrowser(listType: string) {
-        this._magAdvancedService.currentMagPaper = new MagPaper();
+        this._magBrowserService.currentMagPaper = new MagPaper();
         this._magBrowserService.WPChildTopics = [];
         this._magBrowserService.WPParentTopics = [];
         this._magBrowserService.ParentTopic = '';
