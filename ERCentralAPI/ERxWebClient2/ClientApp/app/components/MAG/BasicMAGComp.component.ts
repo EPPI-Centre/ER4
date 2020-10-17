@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild} from '@angular/core';
 import { searchService } from '../services/search.service';
-import { BasicMAGService } from '../services/BasicMAG.service';
+import { MAGRelatedRunsService } from '../services/MAGRelatedRuns.service';
 import { singleNode, SetAttribute } from '../services/ReviewSets.service';
 import { codesetSelectorComponent } from '../CodesetTrees/codesetSelector.component';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
@@ -20,7 +20,7 @@ import { MAGAdvancedService } from '../services/magAdvanced.service';
 export class BasicMAGComp implements OnInit {
 
 	constructor(private _confirmationDialogService: ConfirmationDialogService,
-        public _basicMAGService: BasicMAGService,
+        public _basicMAGService: MAGRelatedRunsService,
         private _magBrowserService: MAGBrowserService,
         public _searchService: searchService,
         private _ReviewerIdentityServ: ReviewerIdentityService,

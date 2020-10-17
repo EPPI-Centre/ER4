@@ -10,7 +10,7 @@ import { ConfirmationDialogService } from './confirmation-dialog.service';
     providedIn: 'root',
 })
 
-export class BasicMAGService extends BusyAwareService {
+export class MAGRelatedRunsService extends BusyAwareService {
 
     constructor(
         private _httpC: HttpClient,

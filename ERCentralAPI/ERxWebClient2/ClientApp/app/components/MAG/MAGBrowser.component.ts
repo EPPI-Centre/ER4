@@ -11,6 +11,7 @@ import { TabStripComponent } from '@progress/kendo-angular-layout';
 import { EventEmitterService } from '../services/EventEmitter.service';
 import { Subscription } from 'rxjs';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
+import { MAGTopicsService } from '../services/MAGTopics.service';
 
 
 @Component({
@@ -29,7 +30,8 @@ export class MAGBrowser implements OnInit, OnDestroy {
         public _notificationService: ConfirmationDialogService,
         public _eventEmitterService: EventEmitterService,
         private router: Router,
-        public _mAGBrowserHistoryService: MAGBrowserHistoryService
+        public _mAGBrowserHistoryService: MAGBrowserHistoryService,
+        public _magTopicsService: MAGTopicsService
     ) {
 
     }
@@ -102,9 +104,10 @@ export class MAGBrowser implements OnInit, OnDestroy {
 
     public AddCurrentPaperToSelectedList() {
 
-        this._magBrowserService.currentMagPaper.isSelected = false; 
+        this._magAdvancedService.currentMagPaper.isSelected = false; 
+
         if (this._magBrowserService.selectedPapers != null ) {
-            let paper: MagPaper = this._magBrowserService.currentMagPaper;
+            let paper: MagPaper = this._magAdvancedService.currentMagPaper;
             let paperIndex: number = -1;
             paperIndex = this._magBrowserService.MAGList.papers.findIndex(x => x.paperId == paper.paperId) 
             if (paperIndex != -1) {
@@ -119,15 +122,15 @@ export class MAGBrowser implements OnInit, OnDestroy {
                 this.currentMagPaperList = this._magBrowserService.MAGOriginalList.papers;
                 this.currentMagPaperList[paperIndex].isSelected = true;
             }
-            this.InOutReview(this._magBrowserService.currentMagPaper, this.currentMagPaperList);
+            this.InOutReview(this._magAdvancedService.currentMagPaper, this.currentMagPaperList);
         }
     }
 
     public RemoveCurrentPaperToSelectedList() {
 
         if (this._magBrowserService.selectedPapers != null) {
-
-            let paper: MagPaper = this._magBrowserService.currentMagPaper;
+            this._magAdvancedService.currentMagPaper.isSelected = true;
+            let paper: MagPaper = this._magAdvancedService.currentMagPaper;
             let paperIndex: number = -1;
             paperIndex = this._magBrowserService.MAGList.papers.findIndex(x => x.paperId == paper.paperId)
             if (paperIndex != -1) {
@@ -148,9 +151,9 @@ export class MAGBrowser implements OnInit, OnDestroy {
                     this._magBrowserService.selectedPapers[tmp].isSelected = true;
                 }
             }
-            this._magBrowserService.currentMagPaper.isSelected = true;
+            
 
-            this.InOutReview(this._magBrowserService.currentMagPaper, this.currentMagPaperList);
+            this.InOutReview(this._magAdvancedService.currentMagPaper, this.currentMagPaperList);
         }
     }
     public RefreshPapersBetweenDates() {
@@ -229,6 +232,7 @@ export class MAGBrowser implements OnInit, OnDestroy {
         this.router.navigate(['Main']);
     }
     private AddPaperToSelectedList(paperId: number, list: MagPaper[]) {
+
         if (!this.IsInSelectedList(paperId)) {
         
             this._magBrowserService.SelectedPaperIds.push(paperId);
@@ -244,22 +248,22 @@ export class MAGBrowser implements OnInit, OnDestroy {
         let IdsListPos: number = this._magBrowserService.SelectedPaperIds.indexOf(paperId);
         let PapersListPos: number = this._magBrowserService.selectedPapers.findIndex(x => x.paperId == paperId);
         if (IdsListPos != -1 && PapersListPos != -1) {
-            if (this._magBrowserService.currentMagPaper.paperId > 0) {
-                this._magBrowserService.selectedPapers.push(this._magBrowserService.currentMagPaper);
-                let foundPaper: number = this._magBrowserService.MAGList.papers.findIndex(x => x == this._magBrowserService.currentMagPaper);
+            if (this._magAdvancedService.currentMagPaper.paperId > 0) {
+                this._magBrowserService.selectedPapers.push(this._magAdvancedService.currentMagPaper);
+                let foundPaper: number = this._magBrowserService.MAGList.papers.findIndex(x => x == this._magAdvancedService.currentMagPaper);
                 if (foundPaper > -1) {
                     
                     //._magBrowserService.MAGList.papers[foundPaper].isSelected = true;
                 }
-                let foundPaperOrig: number = this._magBrowserService.MAGOriginalList.papers.findIndex(x => x == this._magBrowserService.currentMagPaper);
+                let foundPaperOrig: number = this._magBrowserService.MAGOriginalList.papers.findIndex(x => x == this._magAdvancedService.currentMagPaper);
                 if (foundPaperOrig > -1) {
                     //this._magBrowserService.MAGOriginalList.papers[foundPaperOrig].isSelected = true;
                 }
-                let foundPaperCit: number = this._magBrowserService.MagCitationsByPaperList.papers.findIndex(x => x == this._magBrowserService.currentMagPaper);
+                let foundPaperCit: number = this._magBrowserService.MagCitationsByPaperList.papers.findIndex(x => x == this._magAdvancedService.currentMagPaper);
                 if (foundPaperCit > -1) {
                     //this._magBrowserService.MagCitationsByPaperList.papers[foundPaperCit].isSelected = true;
                 }
-                console.log(this._magBrowserService.currentMagPaper);
+                console.log(this._magAdvancedService.currentMagPaper);
             }
         } else {
 
@@ -334,6 +338,7 @@ export class MAGBrowser implements OnInit, OnDestroy {
     private UpdateSelectedCount(): any {
         this.ShowSelectedPapers = "Selected (" + this._magBrowserService.SelectedPaperIds.length.toString() + ")";
     }
+
     public InOutReview(paper: MagPaper, list: MagPaper[]) {
         if (paper.linkedITEM_ID == 0) {
 
@@ -345,6 +350,7 @@ export class MAGBrowser implements OnInit, OnDestroy {
             else {
                 console.log('is not selected making selected');
                 paper.isSelected = true;
+                console.log('this is the paper I clicked on at the top: ', paper);
                 this.AddPaperToSelectedList(paper.paperId, list);
                 
             }            

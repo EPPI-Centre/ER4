@@ -5,10 +5,11 @@ import { Router } from '@angular/router';
 import { MAGBrowserService } from '../services/MAGBrowser.service';
 import { MAGAdvancedService } from '../services/magAdvanced.service';
 import { MAGBrowserHistoryService } from '../services/MAGBrowserHistory.service';
-import { BasicMAGService } from '../services/BasicMAG.service';
+import { MAGRelatedRunsService } from '../services/MAGRelatedRuns.service';
 import { MagSearch, TopicLink, MVCMagFieldOfStudyListSelectionCriteria, MagFieldOfStudy, MagBrowseHistoryItem, MVCMagPaperListSelectionCriteria } from '../services/MAGClasses.service';
 import { magSearchService } from '../services/MAGSearch.service';
 import { NotificationService } from '@progress/kendo-angular-notification';
+import { MAGTopicsService } from '../services/MAGTopics.service';
 
 @Component({
     selector: 'MAGSearchDetailsComponent',
@@ -19,15 +20,15 @@ import { NotificationService } from '@progress/kendo-angular-notification';
 export class MAGSearchDetailsComponent implements OnInit {
 
     constructor(private ConfirmationDialogService: ConfirmationDialogService,
-        public _magBasicService: BasicMAGService,
+        public _magBasicService: MAGRelatedRunsService,
         public _magAdvancedService: MAGAdvancedService,
         private _magBrowserService: MAGBrowserService,
         public _magSearchService: magSearchService,
         private _ReviewerIdentityServ: ReviewerIdentityService,
         private router: Router,
         public _mAGBrowserHistoryService: MAGBrowserHistoryService,
-        public _notificationService: ConfirmationDialogService
-
+        public _notificationService: ConfirmationDialogService,
+        private _magTopicsService: MAGTopicsService
     ) {
 
     }
@@ -76,7 +77,7 @@ export class MAGSearchDetailsComponent implements OnInit {
             criteriaFOSL.listType = 'FieldOfStudySearchList';
             criteriaFOSL.paperIdList = '';
             criteriaFOSL.SearchTextTopics = this.SearchTextTopicDisplayName;
-            this._magBrowserService.FetchMagFieldOfStudyList(criteriaFOSL, '').then(
+            this._magTopicsService.FetchMagFieldOfStudyList(criteriaFOSL, '').then(
 
                 (results: MagFieldOfStudy[]) => {
 

@@ -11,10 +11,10 @@
     <h1><b>{{_magAdvancedService.currentMagPaper.originalTitle}}</b></h1>
     <b>{{_magAdvancedService.currentMagPaper.fullRecord}}</b>
     Paper Id:&nbsp;{{_magAdvancedService.currentMagPaper.paperId}}
-     <div *ngIf="!IsCurrentPaperSelected(_magAdvancedService.currentMagPaper.paperId)">
-        <button class="btn btn-primary btn-sm text-white"(click)="AddCurrentPaperToSelectedList()">Selected papers&nbsp;&nbsp; <i class="fa fa-plus"></i></button>
+    <div *ngIf="IsCurrentPaperSelected(_magAdvancedService.currentMagPaper.paperId) == false">
+        <button class="btn btn-primary btn-sm text-white" (click)="AddCurrentPaperToSelectedList()">Selected papers&nbsp;&nbsp; <i class="fa fa-plus"></i></button>
     </div>
-     <div *ngIf="IsCurrentPaperSelected(_magAdvancedService.currentMagPaper.paperId)">
+    <div *ngIf="IsCurrentPaperSelected(_magAdvancedService.currentMagPaper.paperId) == true ">
         <button class="btn btn-warning btn-sm text-white" (click)="RemoveCurrentPaperToSelectedList()">Selected papers&nbsp;&nbsp; <i class="fa fa-minus"></i></button>
     </div>
     <div class="btn btn-link text-left">
@@ -45,11 +45,11 @@
             <div *ngIf="_magBrowserService.ShowingParentAndChildTopics"><h3>{{ClickedOnTopic}}</h3></div>
             <div *ngIf="_magBrowserService.ShowingChildTopicsOnly">
                 <div class=" card col-12 small table table-border table-striped">
-                    <div *ngIf="_magBrowserService.WPChildTopics.length == 0" class="alert alert-light">
+                    <div *ngIf="_magTopicsService.WPChildTopics.length == 0" class="alert alert-light">
                         No Topic
                     </div>
                     <div class="row">
-                        <div *ngFor="let item of _magBrowserService.WPChildTopics">
+                        <div *ngFor="let item of _magTopicsService.WPChildTopics">
                             <div (click)="GetParentAndChildRelatedPapers(item)" class="alert-info m-1 px-1 rounded page-link"
                                  [ngStyle]="{ 'font-size.em': item.fontSize,'background-color': 'light-blue', 'color': 'black'}">
                                 {{item.displayName}}
@@ -62,10 +62,10 @@
                 <h5 class="font-weight-light">Parent Topics</h5>
 
                 <div class="card col-12 small table table-border  table-striped alert-primary">
-                    <div *ngIf="_magBrowserService.WPParentTopics.length == 0" class="alert alert-light">
+                    <div *ngIf="_magTopicsService.WPParentTopics.length == 0" class="alert alert-light">
                         No Topic
                     </div>
-                    <div *ngFor="let item of _magBrowserService.WPParentTopics">
+                    <div *ngFor="let item of _magTopicsService.WPParentTopics">
                         <div (click)="GetParentAndChildRelatedPapers(item)" class="alert-info m-1 px-1 rounded page-link"
                              [ngStyle]="{ 'font-size.em': item.fontSize,'background-color': 'light-blue', 'color': 'black'}">
                             {{item.displayName }}

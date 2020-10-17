@@ -12,7 +12,8 @@ import { MAGBrowserService } from '../services/MAGBrowser.service';
 import { MAGAdvancedService } from '../services/magAdvanced.service';
 import { MVCMagFieldOfStudyListSelectionCriteria } from '../services/MAGClasses.service';
 import { MAGBrowserHistoryService } from '../services/MAGBrowserHistory.service';
-import { BasicMAGService } from '../services/BasicMAG.service';
+import { MAGRelatedRunsService } from '../services/MAGRelatedRuns.service';
+import { MAGTopicsService } from '../services/MAGTopics.service';
 
 @Component({
     selector: 'MatchingMAGItems',
@@ -23,7 +24,7 @@ import { BasicMAGService } from '../services/BasicMAG.service';
 export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
 
     constructor(private ConfirmationDialogService: ConfirmationDialogService,
-        public _magBasicService: BasicMAGService,
+        public _magBasicService: MAGRelatedRunsService,
         public _magAdvancedService: MAGAdvancedService,
         private _magBrowserService: MAGBrowserService,
         public _searchService: searchService,
@@ -31,8 +32,8 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
         private _eventEmitterService: EventEmitterService,
         private _notificationService: ConfirmationDialogService,
         private router: Router,
-        public _mAGBrowserHistoryService: MAGBrowserHistoryService
-
+        public _mAGBrowserHistoryService: MAGBrowserHistoryService,
+        private _magTopicsService: MAGTopicsService
     ) {
 
     }
@@ -136,7 +137,7 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
             criteriaFOSL.listType = 'FieldOfStudySearchList';
             criteriaFOSL.paperIdList = '';
             criteriaFOSL.SearchTextTopics = this.SearchTextTopic;
-            this._magBrowserService.FetchMagFieldOfStudyList(criteriaFOSL, '').then(
+            this._magTopicsService.FetchMagFieldOfStudyList(criteriaFOSL, '').then(
 
                 (results: MagFieldOfStudy[]) => {
 
@@ -254,7 +255,7 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
                 criteria2.listType = 'PaperFieldOfStudyList';
                 criteria2.paperIdList = this._magBrowserService.ListCriteria.paperIds;
                 criteria2.SearchTextTopics = ''; //TODO this will be populated by the user..
-                this._magBrowserService.FetchMagFieldOfStudyList(criteria2, 'ReviewMatchedPapers').then(
+                this._magTopicsService.FetchMagFieldOfStudyList(criteria2, 'ReviewMatchedPapers').then(
 
                     () => { this.router.navigate(['MAGBrowser']); }
                 );
@@ -280,7 +281,7 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
                 criteria2.listType = 'PaperFieldOfStudyList';
                 criteria2.paperIdList = this._magBrowserService.ListCriteria.paperIds;
                 criteria2.SearchTextTopics = ''; //TODO this will be populated by the user..
-                this._magBrowserService.FetchMagFieldOfStudyList(criteria2, 'ReviewMatchedPapers').then(
+                this._magTopicsService.FetchMagFieldOfStudyList(criteria2, 'ReviewMatchedPapers').then(
 
                     () => { this.router.navigate(['MAGBrowser']); }
                 );
@@ -306,7 +307,7 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
                 criteria2.listType = 'PaperFieldOfStudyList';
                 criteria2.paperIdList = this._magBrowserService.ListCriteria.paperIds;
                 criteria2.SearchTextTopics = ''; //TODO this will be populated by the user..
-                this._magBrowserService.FetchMagFieldOfStudyList(criteria2, 'ReviewMatchedPapers').then(
+                this._magTopicsService.FetchMagFieldOfStudyList(criteria2, 'ReviewMatchedPapers').then(
 
                     () => { this.router.navigate(['MAGBrowser']); }
                 );

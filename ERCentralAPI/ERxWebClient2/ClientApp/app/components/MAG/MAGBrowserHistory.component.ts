@@ -7,7 +7,7 @@ import { MAGAdvancedService } from '../services/magAdvanced.service';
 import { MagBrowseHistoryItem, MagPaper, MVCMagPaperListSelectionCriteria } from '../services/MAGClasses.service';
 import { EventEmitterService } from '../services/EventEmitter.service';
 import { MAGBrowserService } from '../services/MAGBrowser.service';
-import { BasicMAGService } from '../services/BasicMAG.service';
+import { MAGRelatedRunsService } from '../services/MAGRelatedRuns.service';
 import { MAGAdminService } from '../services/MAGAdmin.service';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 
@@ -23,7 +23,7 @@ export class MAGBrowserHistory implements OnInit {
         private notificationService: ConfirmationDialogService,
         public _MAGBrowserHistoryService: MAGBrowserHistoryService,
         public _magAdvancedService: MAGAdvancedService,
-        public _magBasicService: BasicMAGService,
+        public _magBasicService: MAGRelatedRunsService,
         private _ReviewerIdentityServ: ReviewerIdentityService,
         private router: Router,
         public _eventEmitterService: EventEmitterService,
