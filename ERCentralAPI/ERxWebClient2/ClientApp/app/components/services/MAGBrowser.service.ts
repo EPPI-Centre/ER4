@@ -133,8 +133,9 @@ export class MAGBrowserService extends BusyAwareService {
 
     public async GetParentAndChildRelatedPapers(displayName: string, fieldOfStudyId: number): Promise<boolean>  {
 
+        this._eventEmitterService.firstVisitMAGBrowserPage = false;
         this.currentRefreshListType = 'PaperFieldsOfStudyList';
-        this.currentListType = "PaperFieldsOfStudyList";
+        //this.currentListType = "PaperFieldsOfStudyList";
         this._mAGBrowserHistoryService.AddHistory(new MagBrowseHistoryItem(displayName, "BrowseTopic", 0,
             "", "", 0, "", "", fieldOfStudyId, displayName, "", 0));
 
@@ -148,7 +149,7 @@ export class MAGBrowserService extends BusyAwareService {
         await this.GetParentAndChildFieldsOfStudy("FieldOfStudyParentsList", fieldOfStudyId)
 
         await this.GetParentAndChildFieldsOfStudy("FieldOfStudyChildrenList", fieldOfStudyId);
-        this._eventEmitterService.firstVisitMAGBrowserPage = false;
+        
         return await this.GetPaperListForTopic(fieldOfStudyId);
 
     }
@@ -420,7 +421,7 @@ export class MAGBrowserService extends BusyAwareService {
 
                     let FieldsListcriteria: MVCMagFieldOfStudyListSelectionCriteria = new MVCMagFieldOfStudyListSelectionCriteria();
                     FieldsListcriteria.fieldOfStudyId = 0;
-                    FieldsListcriteria.listType = "PaperFieldOfStudyList";
+                    FieldsListcriteria.listType = "MagSearchResultsList";
                     FieldsListcriteria.paperIdList = this.ListCriteria.paperIds;
                     await this.FetchMagFieldOfStudyList(FieldsListcriteria, 'MagSearchResultsList')
                          return await this.FetchOrigWithCrit(criteria, "OrigList");
@@ -602,6 +603,7 @@ export class MAGBrowserService extends BusyAwareService {
         this.FetchOrigWithCrit(this.OrigListCriteria, this.OrigListCriteria.listType)
     }
     public FetchOrigPrevPage() {
+        console.log('curentList: ', this.currentListType);
         this.OrigListCriteria.listType = this.currentListType;
         this.OrigListCriteria.pageNumber = this.MAGOriginalList.pageindex;
         if (this.MAGOriginalList.pageindex == 0) {
