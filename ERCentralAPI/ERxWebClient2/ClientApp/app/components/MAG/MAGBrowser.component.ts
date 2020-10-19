@@ -88,15 +88,15 @@ export class MAGBrowser implements OnInit, OnDestroy {
                 this.Clear();
                 this._magBrowserService.Clear();
             }
-        );
-
-        this._magBrowserService.ShowingParentAndChildTopics = false;
-        this._magBrowserService.ShowingChildTopicsOnly = true;
+        );        
         this.getTopicsSub = this._eventEmitterService.getTopicsEvent.subscribe(
             (topicInfo: any) => {
 
                 this._magBrowserService.GetParentAndChildFieldsOfStudy(topicInfo.fieldOfStudy, topicInfo.fieldOfStudyId).then(
-                    () => { this.router.navigate(['MAGBrowser']); }
+                    () => {
+
+                        this.router.navigate(['MAGBrowser']);
+                    }
                 );
             }
         );
@@ -173,13 +173,6 @@ export class MAGBrowser implements OnInit, OnDestroy {
         this._magAdvancedService.firstVisitToMAGBrowser = false;
 
     }
-    //public UpdatePageSize(pageSize: number) {
-
-    //    if (pageSize != null && pageSize > 0) {
-    //        this._magBrowserService.pageSize = pageSize;
-    //        this.GetParentAndChildRelatedPapers(this._magBrowserService.currentFieldOfStudy);
-    //    }
-    //}
     public toggleDisplayDivIf() {
         this.isShowDivIf = !this.isShowDivIf;
     }
@@ -216,8 +209,8 @@ export class MAGBrowser implements OnInit, OnDestroy {
 
         this._magBrowserService.currentRefreshListType = 'GetMagPaperRef';
         this.currentMagPaperList = list;
-        this._magBrowserService.ShowingParentAndChildTopics = false;
-        this._magBrowserService.ShowingChildTopicsOnly = true;
+        this._magTopicsService.ShowingParentAndChildTopics = false;
+        this._magTopicsService.ShowingChildTopicsOnly = true;
         this._magAdvancedService.FetchMagPaperId(magPaperRefId).then(
             (result: MagPaper) => {
 
@@ -303,11 +296,11 @@ export class MAGBrowser implements OnInit, OnDestroy {
         }
     }
 
-    public GetParentAndChildRelatedPapers(item: MagFieldOfStudy) {
+    public async GetParentAndChildRelatedPapers(item: MagFieldOfStudy) {
 
         this.ClickedOnTopic = item.displayName;
 
-        this._magBrowserService.GetTopicsAndRelatedPapers(item);
+        await this._magBrowserService.GetTopicsAndRelatedPapers(item);
 
     }
     

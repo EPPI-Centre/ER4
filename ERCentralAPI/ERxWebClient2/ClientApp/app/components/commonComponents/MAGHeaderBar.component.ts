@@ -10,6 +10,7 @@ import { ConfirmationDialogService } from '../services/confirmation-dialog.servi
 import { MAGBrowserHistoryService } from '../services/MAGBrowserHistory.service';
 import { Helpers } from '../helpers/HelperMethods';
 import { MAGAdvancedService } from '../services/magAdvanced.service';
+import { MAGTopicsService } from '../services/MAGTopics.service';
 
 @Component({
     selector: 'MAGHeaderBar',
@@ -26,7 +27,8 @@ export class MAGHeaderBarComp implements OnInit {
         public _notificationService: NotificationService,
         public _eventEmitterService: EventEmitterService,
         public _confirmationDialogService: ConfirmationDialogService,
-        public _mAGBrowserHistoryService: MAGBrowserHistoryService
+        public _mAGBrowserHistoryService: MAGBrowserHistoryService,
+        private _magTopicsService: MAGTopicsService
     ) {
 
     }
@@ -148,8 +150,8 @@ export class MAGHeaderBarComp implements OnInit {
                   this._magBrowserService.MagCitationsByPaperList.papers = [];
                 this._magBrowserService.MAGOriginalList.papers = [];
                 this._magBrowserService.currentListType = "MagRelatedPapersRunList";
-                this._magBrowserService.ShowingParentAndChildTopics = false;
-                this._magBrowserService.ShowingChildTopicsOnly = true;
+                this._magTopicsService.ShowingChildTopicsOnly = false;
+                this._magTopicsService.ShowingChildTopicsOnly = true;
                 this._mAGBrowserHistoryService.AddHistory(new MagBrowseHistoryItem("Papers identified from auto-identification run", "MagRelatedPapersRunList", 0,
                     "", "", 0, "", "", 0, "", "", item.magRelatedRunId));
                 this._magBrowserService.FetchMAGRelatedPaperRunsListById(item.magRelatedRunId)
@@ -171,8 +173,8 @@ export class MAGHeaderBarComp implements OnInit {
                 this._magBrowserService.MAGOriginalList.papers = [];
                 this._magBrowserService.currentRefreshListType = 'MagSearchResultsList';
                 this._magBrowserService.currentListType = "MagSearchResultsList";
-                this._magBrowserService.ShowingParentAndChildTopics = false;
-                this._magBrowserService.ShowingChildTopicsOnly = true;
+                this._magTopicsService.ShowingChildTopicsOnly = false;
+                this._magTopicsService.ShowingChildTopicsOnly = true;
                 this._mAGBrowserHistoryService.AddHistory(new MagBrowseHistoryItem("Papers identified from Mag Search run", "MagSearchPapersList", 0,
                     "", "", 0, "", "", 0, "", "", itemSearch.magSearchId));
                 let selectionCriteria: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
@@ -194,8 +196,8 @@ export class MAGHeaderBarComp implements OnInit {
             let magPaperRefId: number = this._magBrowserService.currentPaper.paperId;
             if (magPaperRefId > 0) {
                 console.log('GetMagPaperRef');
-                this._magBrowserService.ShowingParentAndChildTopics = false;
-                this._magBrowserService.ShowingChildTopicsOnly = true;
+                this._magTopicsService.ShowingChildTopicsOnly = false;
+                this._magTopicsService.ShowingChildTopicsOnly = true;
                 this._magAdvancedService.FetchMagPaperId(magPaperRefId).then(
                     (result: MagPaper) => {
 
@@ -214,8 +216,8 @@ export class MAGHeaderBarComp implements OnInit {
                 this._magBrowserService.currentRefreshListType = 'PaperFieldsOfStudyList';
                 this._eventEmitterService.firstVisitMAGBrowserPage = false;
                 this._magBrowserService.OrigListCriteria.listType = "PaperFieldsOfStudyList";
-                this._magBrowserService.ShowingParentAndChildTopics = true;
-                this._magBrowserService.ShowingChildTopicsOnly = false;
+                this._magTopicsService.ShowingChildTopicsOnly = true;
+                this._magTopicsService.ShowingChildTopicsOnly = false;
                 this._mAGBrowserHistoryService.AddHistory(new MagBrowseHistoryItem("Browse topic: " +
                     item.displayName, "BrowseTopic", 0, "", "", 0, "", "",
                     item.fieldOfStudyId, item.displayName, "", 0));

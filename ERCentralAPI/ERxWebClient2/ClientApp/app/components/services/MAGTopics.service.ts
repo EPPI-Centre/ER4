@@ -18,10 +18,13 @@ export class MAGTopicsService extends BusyAwareService {
     ) {
         super();
     }        
+    public ShowingParentAndChildTopics: boolean = true;
+    public ShowingChildTopicsOnly: boolean = false;
     public WPParentTopics: TopicLink[] = [];
     public WPChildTopics: TopicLink[] = [];
     public FetchMagFieldOfStudyList(criteria: MVCMagFieldOfStudyListSelectionCriteria, goBackListType: string): Promise<MagFieldOfStudy[]> {
         this._BusyMethods.push("FetchMagFieldOfStudyList");
+
         return this._httpC.post<MagFieldOfStudy[]>(this._baseUrl + 'api/MagFieldOfStudyList/GetMagFieldOfStudyList', criteria)
             .toPromise().then(
                 (result: MagFieldOfStudy[]) => {

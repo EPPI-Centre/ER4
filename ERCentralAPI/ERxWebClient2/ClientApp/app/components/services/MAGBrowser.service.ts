@@ -55,8 +55,6 @@ export class MAGBrowserService extends BusyAwareService {
     public OrigListDescription: string = '';
     public selectedPapers: MagPaper[] = [];
     public SelectedPaperIds: number[] = [];
-    public ShowingParentAndChildTopics: boolean = false;
-    public ShowingChildTopicsOnly: boolean = false;
     public pageSize: number = 20;
     @Output() PaperChanged = new EventEmitter();
     public currentFieldOfStudy: MagFieldOfStudy = new MagFieldOfStudy();
@@ -120,18 +118,18 @@ export class MAGBrowserService extends BusyAwareService {
                 );
     }
 
-    public GetTopicsAndRelatedPapers(item: MagFieldOfStudy) {
+    public async GetTopicsAndRelatedPapers(item: MagFieldOfStudy) {
 
         this.currentTopicSearch = item;
         this.currentRefreshListType = 'PaperFieldsOfStudyList';
         this._eventEmitterService.firstVisitMAGBrowserPage = false;
         this.OrigListCriteria.listType = "PaperFieldsOfStudyList";
-        this.ShowingParentAndChildTopics = true;
-        this.ShowingChildTopicsOnly = false;
+        this._magTopicsService.ShowingParentAndChildTopics = true;
+        this._magTopicsService.ShowingChildTopicsOnly = false;
         this.currentFieldOfStudy = item;
         let fieldOfStudyId: number = item.fieldOfStudyId;
 
-        this.GetParentAndChildRelatedPapers(item.displayName, fieldOfStudyId);
+        await this.GetParentAndChildRelatedPapers(item.displayName, fieldOfStudyId);
     }
 
     public async GetParentAndChildRelatedPapers(displayName: string, fieldOfStudyId: number): Promise<boolean>  {
@@ -148,7 +146,6 @@ export class MAGBrowserService extends BusyAwareService {
         this.ParentTopic = '';
 
         this.ParentTopic = displayName;
-
         await this.GetParentAndChildFieldsOfStudy("FieldOfStudyParentsList", fieldOfStudyId)
 
         await this.GetParentAndChildFieldsOfStudy("FieldOfStudyChildrenList", fieldOfStudyId);
@@ -206,13 +203,13 @@ export class MAGBrowserService extends BusyAwareService {
     }
 
     public GetParentAndChildFieldsOfStudy(FieldOfStudy: string, FieldOfStudyId: number): Promise<boolean> {
-        this.ShowingParentAndChildTopics = true;
-        this.ShowingChildTopicsOnly = false;
+        this._magTopicsService.ShowingParentAndChildTopics = true;
+        this._magTopicsService.ShowingChildTopicsOnly = false;
         let selectionCriteria: MvcMagFieldOfStudyListSelectionCriteria = new MvcMagFieldOfStudyListSelectionCriteria();
         selectionCriteria.listType = FieldOfStudy;
         selectionCriteria.fieldOfStudyId = FieldOfStudyId;
         selectionCriteria.SearchTextTopics = '';
-
+        
         return this._magTopicsService.FetchMagFieldOfStudyList(selectionCriteria, 'CitationsList').then(
 
                     (result: MagFieldOfStudy[]) => {
@@ -262,8 +259,10 @@ export class MAGBrowserService extends BusyAwareService {
         this.MAGOriginalList.papers = [];
         this.currentListType = "MagRelatedPapersRunList";
         this.currentMagPaper = new MagPaper();
-        this.ShowingParentAndChildTopics = false;
-        this.ShowingChildTopicsOnly = true;
+        this._magTopicsService.ShowingParentAndChildTopics = false;
+        this._magTopicsService.ShowingChildTopicsOnly = true;
+        this._magTopicsService.WPParentTopics = [];
+        this._magTopicsService.WPChildTopics = [];
         this._mAGBrowserHistoryService.AddHistory(new MagBrowseHistoryItem("Papers identified from auto-identification run", "MagRelatedPapersRunList", 0,
             "", "", 0, "", "", 0, "", "", item.magRelatedRunId));
 
@@ -326,6 +325,10 @@ export class MAGBrowserService extends BusyAwareService {
                     return this._magTopicsService.FetchMagFieldOfStudyList(FieldsListcriteria, goBackListType).then(
 
                         (res: MagFieldOfStudy[]) => {
+
+                            console.log('child counts: ' + this._magTopicsService.WPChildTopics.length +
+                                'parent counts: ' + this._magTopicsService.WPParentTopics.length);
+
                             if (res != null) {
                                 return true;
                             } else {
@@ -356,8 +359,8 @@ export class MAGBrowserService extends BusyAwareService {
         this.MAGOriginalList.papers = [];
         this.currentRefreshListType = 'MagSearchResultsList';
         this.currentListType = "MagSearchResultsList";
-        this.ShowingParentAndChildTopics = false;
-        this.ShowingChildTopicsOnly = true;
+        this._magTopicsService.ShowingParentAndChildTopics = false;
+        this._magTopicsService.ShowingChildTopicsOnly = true;
         this._mAGBrowserHistoryService.AddHistory(new MagBrowseHistoryItem("Papers identified from Mag Search run", "MagSearchPapersList", 0,
             "", "", 0, "", "", 0, "", "", item.magSearchId));
         let selectionCriteria: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
