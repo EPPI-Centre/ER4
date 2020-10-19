@@ -106,7 +106,7 @@
                                    [(ngModel)]="searchAll">	Items with specified code
                         </label>
                         <label style="display:block">
-                            <input [disabled]="magMode != '(Next MAG) - new published items'" type="radio"
+                            <input [disabled]="magMode != 'New items in MAG'" type="radio"
                                    value="child" name="searchAll"
                                    [(ngModel)]="searchAll">	(Next MAG) - All child codes
                         </label>
@@ -153,7 +153,7 @@
                     <br />
                     <div class=""><b>Auto-update</b></div>
                     <div class="">
-                        <input [disabled]="magMode != '(Next MAG) - new published items'"
+                        <input [disabled]="magMode != 'New items in MAG'"
                                type="checkbox" class="" value="Auto-Update" name="magSearchCheck" [(ngModel)]="magSearchCheck" />
                         (Next MAG) - Auto update search
                     </div>
@@ -162,7 +162,7 @@
                     <input type="radio" class="" name="magDateRadio" value="true"
                            [(ngModel)]="magDateRadio" />
                     No date restriction
-                    <input [disabled]="magMode == 'New items published on next deployment of MAG'"
+                    <input [disabled]="magMode == 'New items in MAG'"
                            type="radio" class="" name="magDateRadio" value="false"
                            [(ngModel)]="magDateRadio" />
                     Items dated from

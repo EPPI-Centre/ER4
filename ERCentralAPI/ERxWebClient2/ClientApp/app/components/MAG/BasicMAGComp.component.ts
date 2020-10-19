@@ -142,6 +142,7 @@ export class BasicMAGComp implements OnInit {
         }
 
     }
+
     public CanDeleteMAGRun() : boolean {
         return this.HasWriteRights;
     }
@@ -188,7 +189,7 @@ export class BasicMAGComp implements OnInit {
                 this.magMode = 'Bi-Citation AND Recommendations';
                 break;
             case '8':
-                this.magMode = '(Next MAG) - new published items';
+                this.magMode = 'New items in MAG';
                 break;
 
             default:
