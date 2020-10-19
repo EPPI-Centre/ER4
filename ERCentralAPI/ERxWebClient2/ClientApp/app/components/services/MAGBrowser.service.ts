@@ -361,6 +361,8 @@ export class MAGBrowserService extends BusyAwareService {
         this.currentListType = "MagSearchResultsList";
         this._magTopicsService.ShowingParentAndChildTopics = false;
         this._magTopicsService.ShowingChildTopicsOnly = true;
+        this._magTopicsService.WPChildTopics = [];
+        this._magTopicsService.WPParentTopics = [];
         this._mAGBrowserHistoryService.AddHistory(new MagBrowseHistoryItem("Papers identified from Mag Search run", "MagSearchPapersList", 0,
             "", "", 0, "", "", 0, "", "", item.magSearchId));
         let selectionCriteria: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
