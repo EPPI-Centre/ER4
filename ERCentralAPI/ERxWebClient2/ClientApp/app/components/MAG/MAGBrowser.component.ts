@@ -2,11 +2,10 @@ import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { searchService } from '../services/search.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Router, NavigationEnd } from '@angular/router';
-import { MagPaper,  MagFieldOfStudy, MagBrowseHistoryItem, MagList } from '../services/MAGClasses.service';
+import { MagPaper,  MagFieldOfStudy, MagBrowseHistoryItem } from '../services/MAGClasses.service';
 import { MAGBrowserService } from '../services/MAGBrowser.service';
 import { MAGAdvancedService } from '../services/magAdvanced.service';
 import { MAGBrowserHistoryService } from '../services/MAGBrowserHistory.service';
-import { NotificationService } from '@progress/kendo-angular-notification';
 import { TabStripComponent } from '@progress/kendo-angular-layout';
 import { EventEmitterService } from '../services/EventEmitter.service';
 import { Subscription } from 'rxjs';
@@ -301,6 +300,7 @@ export class MAGBrowser implements OnInit, OnDestroy {
 
     public async GetParentAndChildRelatedPapers(item: MagFieldOfStudy) {
 
+        this._eventEmitterService.firstVisitMAGBrowserPage = false;
         this.ClickedOnTopic = item.displayName;
 
         await this._magBrowserService.GetTopicsAndRelatedPapers(item);

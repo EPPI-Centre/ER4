@@ -137,7 +137,7 @@ export class MAGBrowserService extends BusyAwareService {
 
         //this._eventEmitterService.firstVisitMAGBrowserPage = false;
         this.currentRefreshListType = 'PaperFieldsOfStudyList';
-        //this.currentListType = "PaperFieldsOfStudyList";
+        this.currentListType = "PaperFieldsOfStudyList";
         this._mAGBrowserHistoryService.AddHistory(new MagBrowseHistoryItem(displayName, "BrowseTopic", 0,
             "", "", 0, "", "", fieldOfStudyId, displayName, "", 0));
 

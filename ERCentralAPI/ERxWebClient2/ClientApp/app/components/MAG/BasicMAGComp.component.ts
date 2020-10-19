@@ -198,6 +198,7 @@ export class BasicMAGComp implements OnInit {
                 break;
 		}
     }
+
     public CheckedStatus(magRelatedRun: MagRelatedPapersRun) {
 
         let msg: string = "";
