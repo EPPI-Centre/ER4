@@ -235,7 +235,9 @@ export class BasicMAGComp implements OnInit {
             magRun.attributeId = att.attribute_id;
             magRun.attributeName = att.name;
         }
-        magRun.dateFrom = this.valueKendoDatepicker.toDateString();
+        if (this.magDateRadio == 'false') {
+            magRun.dateFrom = this.valueKendoDatepicker.toDateString();
+        }   
 		magRun.autoReRun = this.magSearchCheck;
 		magRun.filtered = this.magRCTRadio;
 		magRun.mode = this.magMode;
