@@ -12,6 +12,7 @@ import { DatePipe } from '@angular/common';
 import { EventEmitterService } from './EventEmitter.service';
 import { MAGBrowserHistoryService } from './MAGBrowserHistory.service';
 import { MAGTopicsService } from './MAGTopics.service';
+import { MAGAdvancedService } from './magAdvanced.service';
 
 
 @Injectable({
@@ -29,7 +30,7 @@ export class MAGBrowserService extends BusyAwareService {
         private _magTopicsService: MAGTopicsService,
         private modalService: ModalService,
         private datePipe: DatePipe,
-        private _mAGBrowserHistoryService : MAGBrowserHistoryService
+        private _mAGBrowserHistoryService: MAGBrowserHistoryService
     ) {
 		super();
     }
@@ -373,7 +374,7 @@ export class MAGBrowserService extends BusyAwareService {
         await this.FetchWithCrit(criteria, "MagSearchResultsList");
         let FieldsListcriteria: MVCMagFieldOfStudyListSelectionCriteria = new MVCMagFieldOfStudyListSelectionCriteria();
         FieldsListcriteria.fieldOfStudyId = 0;
-        FieldsListcriteria.listType = "MagSearchResultsList";
+        FieldsListcriteria.listType = "PaperFieldOfStudyList";
         FieldsListcriteria.paperIdList = this.ListCriteria.paperIds;
         await this._magTopicsService.FetchMagFieldOfStudyList(FieldsListcriteria, 'MagSearchResultsList')
         return await this.FetchOrigWithCrit(criteria, "OrigList");

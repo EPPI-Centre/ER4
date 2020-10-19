@@ -6,25 +6,25 @@
 <MAGHeaderBar Context="MAGBrowser"></MAGHeaderBar>
 <div *ngIf="IsServiceBusy" class="k-loading-image" style="position: fixed; top: 2%;"></div>
 
-<div *ngIf="_magAdvancedService.currentMagPaper.paperId > 0"
+<div *ngIf="_magBrowserService.currentMagPaper.paperId > 0"
      class="alert-lighter border border-dark p-2 m-2 card small">
-    <h1><b>{{_magAdvancedService.currentMagPaper.originalTitle}}</b></h1>
-    <b>{{_magAdvancedService.currentMagPaper.fullRecord}}</b>
-    Paper Id:&nbsp;{{_magAdvancedService.currentMagPaper.paperId}}
-    <div *ngIf="IsCurrentPaperSelected(_magAdvancedService.currentMagPaper.paperId) == false">
+    <h1><b>{{_magBrowserService.currentMagPaper.originalTitle}}</b></h1>
+    <b>{{_magBrowserService.currentMagPaper.fullRecord}}</b>
+    Paper Id:&nbsp;{{_magBrowserService.currentMagPaper.paperId}}
+    <div *ngIf="IsCurrentPaperSelected(_magBrowserService.currentMagPaper.paperId) == false">
         <button class="btn btn-primary btn-sm text-white" (click)="AddCurrentPaperToSelectedList()">Selected papers&nbsp;&nbsp; <i class="fa fa-plus"></i></button>
     </div>
-    <div *ngIf="IsCurrentPaperSelected(_magAdvancedService.currentMagPaper.paperId) == true ">
+    <div *ngIf="IsCurrentPaperSelected(_magBrowserService.currentMagPaper.paperId) == true ">
         <button class="btn btn-warning btn-sm text-white" (click)="RemoveCurrentPaperToSelectedList()">Selected papers&nbsp;&nbsp; <i class="fa fa-minus"></i></button>
     </div>
     <div class="btn btn-link text-left">
-        <a href="https://academic.microsoft.com/paper/{{_magAdvancedService.currentMagPaper.paperId}}/reference" target="_blank">
+        <a href="https://academic.microsoft.com/paper/{{_magBrowserService.currentMagPaper.paperId}}/reference" target="_blank">
             View on the internet
         </a>
     </div>
     <button class="btn btn-link" (click)=toggleDisplayDivIf()>{{isShowDivIf == true ? 'Show More' : 'Show Less'}}</button>
     <div *ngIf="!isShowDivIf">
-        <b>Abstract:</b> <p>{{_magAdvancedService.currentMagPaper.abstract}}</p>
+        <b>Abstract:</b> <p>{{_magBrowserService.currentMagPaper.abstract}}</p>
         <b>Pdf Links:</b>
         <div *ngFor="let item of GetPDFLinks()">
             <a href="{{item}}" target="_blank">

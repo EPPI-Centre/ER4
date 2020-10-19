@@ -104,10 +104,10 @@ export class MAGBrowser implements OnInit, OnDestroy {
 
     public AddCurrentPaperToSelectedList() {
 
-        this._magAdvancedService.currentMagPaper.isSelected = false; 
+        this._magBrowserService.currentMagPaper.isSelected = false; 
 
         if (this._magBrowserService.selectedPapers != null ) {
-            let paper: MagPaper = this._magAdvancedService.currentMagPaper;
+            let paper: MagPaper = this._magBrowserService.currentMagPaper;
             let paperIndex: number = -1;
             paperIndex = this._magBrowserService.MAGList.papers.findIndex(x => x.paperId == paper.paperId) 
             if (paperIndex != -1) {
@@ -122,15 +122,15 @@ export class MAGBrowser implements OnInit, OnDestroy {
                 this.currentMagPaperList = this._magBrowserService.MAGOriginalList.papers;
                 this.currentMagPaperList[paperIndex].isSelected = true;
             }
-            this.InOutReview(this._magAdvancedService.currentMagPaper, this.currentMagPaperList);
+            this.InOutReview(this._magBrowserService.currentMagPaper, this.currentMagPaperList);
         }
     }
 
     public RemoveCurrentPaperToSelectedList() {
 
         if (this._magBrowserService.selectedPapers != null) {
-            this._magAdvancedService.currentMagPaper.isSelected = true;
-            let paper: MagPaper = this._magAdvancedService.currentMagPaper;
+            this._magBrowserService.currentMagPaper.isSelected = true;
+            let paper: MagPaper = this._magBrowserService.currentMagPaper;
             let paperIndex: number = -1;
             paperIndex = this._magBrowserService.MAGList.papers.findIndex(x => x.paperId == paper.paperId)
             if (paperIndex != -1) {
@@ -153,7 +153,7 @@ export class MAGBrowser implements OnInit, OnDestroy {
             }
             
 
-            this.InOutReview(this._magAdvancedService.currentMagPaper, this.currentMagPaperList);
+            this.InOutReview(this._magBrowserService.currentMagPaper, this.currentMagPaperList);
         }
     }
     public RefreshPapersBetweenDates() {
@@ -248,22 +248,22 @@ export class MAGBrowser implements OnInit, OnDestroy {
         let IdsListPos: number = this._magBrowserService.SelectedPaperIds.indexOf(paperId);
         let PapersListPos: number = this._magBrowserService.selectedPapers.findIndex(x => x.paperId == paperId);
         if (IdsListPos != -1 && PapersListPos != -1) {
-            if (this._magAdvancedService.currentMagPaper.paperId > 0) {
-                this._magBrowserService.selectedPapers.push(this._magAdvancedService.currentMagPaper);
-                let foundPaper: number = this._magBrowserService.MAGList.papers.findIndex(x => x == this._magAdvancedService.currentMagPaper);
+            if (this._magBrowserService.currentMagPaper.paperId > 0) {
+                this._magBrowserService.selectedPapers.push(this._magBrowserService.currentMagPaper);
+                let foundPaper: number = this._magBrowserService.MAGList.papers.findIndex(x => x == this._magBrowserService.currentMagPaper);
                 if (foundPaper > -1) {
                     
                     //._magBrowserService.MAGList.papers[foundPaper].isSelected = true;
                 }
-                let foundPaperOrig: number = this._magBrowserService.MAGOriginalList.papers.findIndex(x => x == this._magAdvancedService.currentMagPaper);
+                let foundPaperOrig: number = this._magBrowserService.MAGOriginalList.papers.findIndex(x => x == this._magBrowserService.currentMagPaper);
                 if (foundPaperOrig > -1) {
                     //this._magBrowserService.MAGOriginalList.papers[foundPaperOrig].isSelected = true;
                 }
-                let foundPaperCit: number = this._magBrowserService.MagCitationsByPaperList.papers.findIndex(x => x == this._magAdvancedService.currentMagPaper);
+                let foundPaperCit: number = this._magBrowserService.MagCitationsByPaperList.papers.findIndex(x => x == this._magBrowserService.currentMagPaper);
                 if (foundPaperCit > -1) {
                     //this._magBrowserService.MagCitationsByPaperList.papers[foundPaperCit].isSelected = true;
                 }
-                console.log(this._magAdvancedService.currentMagPaper);
+                console.log(this._magBrowserService.currentMagPaper);
             }
         } else {
 

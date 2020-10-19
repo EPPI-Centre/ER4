@@ -33,7 +33,7 @@ export class MAGAdvancedService extends BusyAwareService {
     public _RunAlgorithmFirst: boolean = false;
     public ReviewMatchedPapersList: MagPaper[] = [];
     public AdvancedReviewInfo: MagReviewMagInfo = new MagReviewMagInfo();
-    public currentMagPaper: MagPaper = new MagPaper();
+    //public currentMagPaper: MagPaper = new MagPaper();
     public ListDescription: string = '';
     public TotalNumberOfMatchedPapers: number = 0;
     public MagPapersMatchedList: Item[] = [];
@@ -149,7 +149,8 @@ export class MAGAdvancedService extends BusyAwareService {
             .toPromise().then(result => {
 
                 this.RemoveBusy("FetchMagPaperId");
-                this.currentMagPaper = result;
+                this._magBrowserService.currentMagPaper = result;
+                //this.currentMagPaper = result;
 
                 return result;
                 
@@ -222,7 +223,7 @@ export class MAGAdvancedService extends BusyAwareService {
 
             await this.PostFetchCitationsList(result);
             await this.PostFetchCitedByListList(result);
-            if (this.currentMagPaper.paperId > -1) {
+            if (this._magBrowserService.currentMagPaper.paperId > -1) {
 
                 await this.PostFetchMagFieldOfStudyList(result, listType);
             } else {
