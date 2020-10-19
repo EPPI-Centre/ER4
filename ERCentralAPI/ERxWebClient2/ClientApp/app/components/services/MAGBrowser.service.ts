@@ -108,6 +108,7 @@ export class MAGBrowserService extends BusyAwareService {
                                 if (this._eventEmitterService.firstVisitMAGBrowserPage) {
                                     this.FetchOrigWithCrit(this.ListCriteria, "PaperFieldsOfStudyList").then(
                                         (res2: boolean) => {
+                                            console.log('got in here!!!!!!!!!!!!');
                                             this.firstVisitToMAGBrowser = false;
                                             this._eventEmitterService.firstVisitMAGBrowserPage = false;
                                             return res2;
@@ -122,7 +123,7 @@ export class MAGBrowserService extends BusyAwareService {
 
         this.currentTopicSearch = item;
         this.currentRefreshListType = 'PaperFieldsOfStudyList';
-        this._eventEmitterService.firstVisitMAGBrowserPage = false;
+        //this._eventEmitterService.firstVisitMAGBrowserPage = false;
         this.OrigListCriteria.listType = "PaperFieldsOfStudyList";
         this._magTopicsService.ShowingParentAndChildTopics = true;
         this._magTopicsService.ShowingChildTopicsOnly = false;
@@ -134,7 +135,7 @@ export class MAGBrowserService extends BusyAwareService {
 
     public async GetParentAndChildRelatedPapers(displayName: string, fieldOfStudyId: number): Promise<boolean>  {
 
-        this._eventEmitterService.firstVisitMAGBrowserPage = false;
+        //this._eventEmitterService.firstVisitMAGBrowserPage = false;
         this.currentRefreshListType = 'PaperFieldsOfStudyList';
         //this.currentListType = "PaperFieldsOfStudyList";
         this._mAGBrowserHistoryService.AddHistory(new MagBrowseHistoryItem(displayName, "BrowseTopic", 0,
@@ -291,7 +292,7 @@ export class MAGBrowserService extends BusyAwareService {
             .toPromise().then(
                 (result) => {
 
-                    this.firstVisitToMAGBrowser = false;
+                   
                     this.RemoveBusy("FetchMAGRelatedPaperRunsListById");
                     this.MAGList = result;
                     this.MAGOriginalList = new MagList();
@@ -326,8 +327,7 @@ export class MAGBrowserService extends BusyAwareService {
 
                         (res: MagFieldOfStudy[]) => {
 
-                            console.log('child counts: ' + this._magTopicsService.WPChildTopics.length +
-                                'parent counts: ' + this._magTopicsService.WPParentTopics.length);
+                            this._eventEmitterService.firstVisitMAGBrowserPage = false;
 
                             if (res != null) {
                                 return true;
@@ -439,7 +439,7 @@ export class MAGBrowserService extends BusyAwareService {
                 (list: MagList) => {
 
                     this.RemoveBusy("FetchOrigWithCrit");
-
+                    this._eventEmitterService.firstVisitMAGBrowserPage = false;
                     this.SaveOrigPapers(list, this.OrigListCriteria, 'OrigList');
                     return true;
 

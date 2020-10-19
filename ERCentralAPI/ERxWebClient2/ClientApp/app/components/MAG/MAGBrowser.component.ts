@@ -79,6 +79,7 @@ export class MAGBrowser implements OnInit, OnDestroy {
         );
 
     }
+
     ngOnInit() {
 
         this._eventEmitterService.firstVisitMAGBrowserPage = true;
@@ -211,6 +212,8 @@ export class MAGBrowser implements OnInit, OnDestroy {
         this.currentMagPaperList = list;
         this._magTopicsService.ShowingParentAndChildTopics = false;
         this._magTopicsService.ShowingChildTopicsOnly = true;
+        this._magTopicsService.WPParentTopics = [];
+        this._magTopicsService.WPChildTopics = [];
         this._magAdvancedService.FetchMagPaperId(magPaperRefId).then(
             (result: MagPaper) => {
 

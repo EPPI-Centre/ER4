@@ -64,6 +64,7 @@ export class BasicMAGComp implements OnInit {
     public Back() {
         this.router.navigate(['Main']);
     }
+
     Clear() {
 
         this.CurrentDropdownSelectedCode = {} as SetAttribute;
@@ -97,6 +98,7 @@ export class BasicMAGComp implements OnInit {
                         this.router.navigate(['MAGBrowser']);
                     }
             );
+       
         }
     }
 
