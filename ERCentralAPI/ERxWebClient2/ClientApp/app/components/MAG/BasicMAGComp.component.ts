@@ -10,6 +10,7 @@ import { MAGBrowserService } from '../services/MAGBrowser.service';
 import { MagRelatedPapersRun} from '../services/MAGClasses.service';
 import { MAGBrowserHistoryService } from '../services/MAGBrowserHistory.service';
 import { MAGAdvancedService } from '../services/magAdvanced.service';
+import { EventEmitterService } from '../services/EventEmitter.service';
 
 @Component({
 	selector: 'BasicMAGComp',
@@ -24,7 +25,7 @@ export class BasicMAGComp implements OnInit {
         private _magBrowserService: MAGBrowserService,
         public _searchService: searchService,
         private _ReviewerIdentityServ: ReviewerIdentityService,
-        private _magAdvancedService: MAGAdvancedService,
+        private _eventEmitterService: EventEmitterService,
         private router: Router,
         public _mAGBrowserHistoryService: MAGBrowserHistoryService
 
@@ -57,6 +58,7 @@ export class BasicMAGComp implements OnInit {
             this.router.navigate(['Main']);
         }
         else {
+             this._eventEmitterService.firstVisitMAGBrowserPage = true;
              this._basicMAGService.FetchMagRelatedPapersRunList();
         }
 
