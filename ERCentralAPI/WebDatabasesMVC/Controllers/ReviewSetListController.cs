@@ -33,7 +33,18 @@ namespace WebDatabasesMVC.Controllers
             {
                 if (SetCSLAUser())
                 {
-                    ReviewSetsList reviewSets = DataPortal.Fetch<ReviewSetsList>();
+                    int DBid = -1;
+                    List<Claim> claims = User.Claims.ToList();
+                    Claim DBidC = claims.Find(f => f.Type == "WebDbID");
+                    if (DBidC != null)
+                    {
+                        int.TryParse(DBidC.Value, out DBid);
+                    }
+                    WebDbReviewSetsList reviewSets = null;
+                    if (DBid > 0)
+                    {
+                        reviewSets = DataPortal.Fetch<WebDbReviewSetsList>(new SingleCriteria<WebDbReviewSetsList, int>(DBid));
+                    }
                     return Json(reviewSets);
                 }
                 else return Unauthorized();

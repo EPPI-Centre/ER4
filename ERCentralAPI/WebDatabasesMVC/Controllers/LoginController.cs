@@ -48,48 +48,34 @@ namespace WebDatabasesMVC.Controllers
             {
                 if (long.TryParse(id, out long WebDbId))
                 {
-                    SqlParameter par = new SqlParameter("@WEBDB_ID", WebDbId);
-                    using (SqlDataReader reader = Program.SqlHelper.ExecuteQuerySP(Program.SqlHelper.DataServiceDB, "st_WebDatabaseGet", par))
+                    string SP = "st_WebDBgetOpenAccess";
+                    List<SqlParameter> pars = new List<SqlParameter>();
+                    pars.Add(new SqlParameter("@WebDBid", WebDbId));
+                    if (username != null && username != "" && password != null &&  password != "")
                     {
-                        if (username == null || password == null || username == "" || password == "")
-                        {
-                            while (reader.Read())
+                        SP = "st_WebDBgetClosedAccess";
+                        pars.Add(new SqlParameter("@userName", username));
+                        pars.Add(new SqlParameter("@Password", password));
+                    }
+
+                    using (SqlDataReader reader = Program.SqlHelper.ExecuteQuerySP(Program.SqlHelper.ER4DB, SP, pars.ToArray())) 
+                    {
+                        
+                        if (reader.Read()) {
+                            if (int.TryParse(reader["REVIEW_ID"].ToString(), out int Revid))
                             {
-                                if (reader["USERNAME"].Equals(DBNull.Value) && reader["PASSWD"].Equals(DBNull.Value)) {
-                                    if (int.TryParse(reader["REVIEW_ID"].ToString(), out int Revid))
-                                    {
-                                        int AttId = -1;
-                                        if (!reader.IsDBNull("ATTR_TO_INCLUDE")) AttId = reader.GetInt32("ATTR_TO_INCLUDE");
-                                        SetUser(reader["WEBDB_NAME"].ToString(), WebDbId, Revid, AttId);
-                                        return Redirect("~/Review/Index");
-                                    } 
-                                    else
-                                    {
-                                        return BadRequest();
-                                    }
-                                }
+                                long AttId = -1;
+                                if (!reader.IsDBNull("WITH_ATTRIBUTE_ID")) AttId = reader.GetInt64("WITH_ATTRIBUTE_ID");
+                                SetUser(reader["WEBDB_NAME"].ToString(), WebDbId, Revid, AttId);
+                                return Redirect("~/Review/Index");
+                            } 
+                            else
+                            {
+                                return BadRequest();
                             }
-                            return BadRequest();
                         }
                         else
                         {
-                            while (reader.Read())
-                            {
-                                if (reader["USERNAME"].Equals(username) && reader["PASSWD"].Equals(password))
-                                {
-                                    if (int.TryParse(reader["REVIEW_ID"].ToString(), out int Revid))
-                                    {
-                                        int AttId = -1;
-                                        if (!reader.IsDBNull("ATTR_TO_INCLUDE")) AttId = reader.GetInt32("ATTR_TO_INCLUDE");
-                                        SetUser(reader["WEBDB_NAME"].ToString(), WebDbId, Revid, AttId);
-                                        return Redirect("~/Review/Index");
-                                    }
-                                    else
-                                    {
-                                        return BadRequest();
-                                    }
-                                }
-                            }
                             return BadRequest();
                         }
                         
@@ -106,12 +92,57 @@ namespace WebDatabasesMVC.Controllers
                 return Redirect("~/Login/Index");
             }
         }
+        [HttpGet]
+        //[ValidateAntiForgeryToken]
+        public IActionResult Open([FromQuery] string WebDBid)
+        {
+            try
+            {
+                if (long.TryParse(WebDBid, out long WebDbId))
+                {
+                    string SP = "st_WebDBgetOpenAccess";
+                    List<SqlParameter> pars = new List<SqlParameter>();
+                    pars.Add(new SqlParameter("@WebDBid", WebDbId));
+                    using (SqlDataReader reader = Program.SqlHelper.ExecuteQuerySP(Program.SqlHelper.ER4DB, SP, pars.ToArray()))
+                    {
+                        if (reader.Read())
+                        {
+                            if (int.TryParse(reader["REVIEW_ID"].ToString(), out int Revid))
+                            {
+                                long AttId = -1;
+                                if (!reader.IsDBNull("WITH_ATTRIBUTE_ID")) AttId = reader.GetInt64("WITH_ATTRIBUTE_ID");
+                                SetUser(reader["WEBDB_NAME"].ToString(), WebDbId, Revid, AttId);
+                                return Redirect("~/Review/Index");
+                            }
+                            else
+                            {
+                                return BadRequest();
+                            }
+                        }
+                        else
+                        {
+                            return BadRequest();
+                        }
+
+                    }
+                }
+                else return BadRequest();
+
+            }
+            catch (Exception e)
+            {
+
+                _logger.LogError(e, "logging on");
+                //Program.Logger.LogException(e, "logging on");
+                return Redirect("~/Login/Index");
+            }
+        }
 
         ActionResult DoFail()
         {
             return Forbid();
         }
-        private void SetUser(string Name, long WebDbID, int revId, int itemsCode)
+        private void SetUser(string Name, long WebDbID, int revId, long itemsCode)
         {
             var userClaims = new List<Claim>()
             {
