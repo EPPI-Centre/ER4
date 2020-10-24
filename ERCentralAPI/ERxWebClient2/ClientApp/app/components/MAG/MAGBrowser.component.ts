@@ -300,6 +300,7 @@ export class MAGBrowser implements OnInit, OnDestroy {
 
     public async GetParentAndChildRelatedPapers(item: MagFieldOfStudy) {
 
+        this._magBrowserService.MagCitationsByPaperList.papers = [];
         this._eventEmitterService.firstVisitMAGBrowserPage = false;
         this.ClickedOnTopic = item.displayName;
 
