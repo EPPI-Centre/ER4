@@ -362,7 +362,7 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@ATTRIBUTE_ID", ReadProperty(AttributeIdProperty)));
                     command.Parameters.Add(new SqlParameter("@ALL_INCLUDED", ReadProperty(AllIncludedProperty)));
                     command.Parameters.Add(new SqlParameter("@DATE_FROM", DateFrom.DBValue));
-                    command.Parameters.Add(new SqlParameter("@AUTO_RERUN", ReadProperty(AutoReRunProperty)));
+                    //command.Parameters.Add(new SqlParameter("@AUTO_RERUN", ReadProperty(AutoReRunProperty)));
                     command.Parameters.Add(new SqlParameter("@MODE", ReadProperty(ModeProperty)));
                     command.Parameters.Add(new SqlParameter("@FILTERED", ReadProperty(FilteredProperty)));
                     command.Parameters.Add(new SqlParameter("@STATUS", ReadProperty(StatusProperty)));
@@ -392,7 +392,7 @@ namespace BusinessLibrary.BusinessClasses
                     {
                         command.CommandType = System.Data.CommandType.StoredProcedure;
                         command.Parameters.Add(new SqlParameter("@MAG_RELATED_RUN_ID", ReadProperty(MagRelatedRunIdProperty)));
-                        command.Parameters.Add(new SqlParameter("@AUTO_RERUN", ReadProperty(AutoReRunProperty)));
+                        //command.Parameters.Add(new SqlParameter("@AUTO_RERUN", ReadProperty(AutoReRunProperty)));
                         command.Parameters.Add(new SqlParameter("@USER_DESCRIPTION", ReadProperty(UserDescriptionProperty)));
                         command.ExecuteNonQuery();
                     }
@@ -441,7 +441,7 @@ namespace BusinessLibrary.BusinessClasses
                             LoadProperty<bool>(AllIncludedProperty, reader.GetBoolean("ALL_INCLUDED"));
                             LoadProperty<SmartDate>(DateFromProperty, reader.GetSmartDate("DATE_FROM"));
                             LoadProperty<SmartDate>(DateRunProperty, reader.GetSmartDate("DATE_RUN"));
-                            LoadProperty<bool>(AutoReRunProperty, reader.GetBoolean("AUTO_RERUN"));
+                            //LoadProperty<bool>(AutoReRunProperty, reader.GetBoolean("AUTO_RERUN"));
                             LoadProperty<string>(StatusProperty, reader.GetString("STATUS"));
                             LoadProperty<string>(UserStatusProperty, reader.GetString("USER_STATUS"));
                             LoadProperty<int>(NPapersProperty, reader.GetInt32("N_PAPERS"));
@@ -465,7 +465,7 @@ namespace BusinessLibrary.BusinessClasses
             returnValue.LoadProperty<bool>(AllIncludedProperty, reader.GetBoolean("ALL_INCLUDED"));
             returnValue.LoadProperty<SmartDate>(DateFromProperty, reader.GetSmartDate("DATE_FROM"));
             returnValue.LoadProperty<SmartDate>(DateRunProperty, reader.GetSmartDate("DATE_RUN"));
-            returnValue.LoadProperty<bool>(AutoReRunProperty, reader.GetBoolean("AUTO_RERUN"));
+            //returnValue.LoadProperty<bool>(AutoReRunProperty, reader.GetBoolean("AUTO_RERUN"));
             returnValue.LoadProperty<string>(StatusProperty, reader.GetString("STATUS"));
             returnValue.LoadProperty<string>(UserStatusProperty, reader.GetString("USER_STATUS"));
             returnValue.LoadProperty<int>(NPapersProperty, reader.GetInt32("N_PAPERS"));
