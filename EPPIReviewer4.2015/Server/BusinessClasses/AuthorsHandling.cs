@@ -9,7 +9,7 @@ using Csla.Serialization;
 using Csla.Silverlight;
 //using Csla.Validation;
 using Csla.DataPortalClient;
-
+using System.Linq;
 
 /// <summary>
 /// an effort to normalise the Author field of tb_ITEM
@@ -168,68 +168,119 @@ namespace AuthorsHandling
                 }
                 else
                 {
+                    if (inStr.Count(c => c == ',') == 1)
+                    {//if there is only one comma, which is after the first space (see previous clause), but the string includes one of the known strings that mark surnames with spaces, 
+                        //chances are the comma is NOT the separator...
+                        string lower = inStr.ToLower();
+                        foreach (string ComPs in CompP)
+                        {
+                            if (lower.Contains(ComPs)) return new char[] { '¬' };
+                        }
+                    }
                     inStr = inStr.Replace(",", ";");
                     return new char[] { ';' };
                 }
             }
             return new char[] { '!' };
         }
-
+        static readonly char[] delim = " ,.*|@/\\+=-_!£$%^&*()`\"".ToCharArray();
+        static readonly string[] CompP = new string[] {"da ","de la ", "de ", "del ","des ","di ","dr ","el ","la ","le ",
+                "mc ","st ","van de ","van der ","van den ","van ","von ", "den ", "al "};
         static string trimMe(string inSt)
         {
-            String delim = " ,.*|@/\\+=-_!£$%^&*()`\"";
-            return inSt.Trim(delim.ToCharArray());
+            //String delim = " ,.*|@/\\+=-_!£$%^&*()`\"";
+            return inSt.Trim(delim);
         }
         
-        public static AutH singleAuth(string AuthSt, int Rank, int OrigiN)
+        public static AutH singleAuth(string AuthSt, int Rank, int OrigiN, bool LastAuthorIsLast = false)
         {
             AutH Au;
             string Second, First, Last, temP;
             Last = null;
             First = null;
             Second = null;
-            string[] CompP = new string[] {"da ","de la ", "de ", "del ","des ","di ","dr ","el ","la ","le ",
-                "mc ","st ","van de ","van der ","van den ","van ","von "};
+            
 
 
             char[] delimiters = new char[] { ',', '.', ' ' };
             AuthSt = trimMe(AuthSt);
             if (AuthSt.IndexOfAny(delimiters) != -1)
             {   //
-                temP = AuthSt.Substring(0, 1).ToLower() + AuthSt.Substring(1);
-                if (temP.IndexOf(' ') != -1)
-                    temP = temP.Substring(0, temP.IndexOf(' ') + 1) + temP.Substring(temP.IndexOf(' ') + 1, 1).ToLower() + temP.Substring(temP.IndexOf(' ') + 2);
-                foreach (string ComPs in CompP)
-                {
-                    if (temP.IndexOf(ComPs) == 0)
+
+                if (!LastAuthorIsLast)
+                {//common case, we expect the "family name" to be at the beginning of the string
+                    temP = AuthSt.ToLower();
+                    foreach (string ComPs in CompP)
                     {
-                        temP = AuthSt.Substring(0, ComPs.Length);
-                        temP = temP.Replace(' ', '¬');
-                        AuthSt = temP + AuthSt.Substring(temP.Length);
-                        if (AuthSt.IndexOfAny(delimiters) == -1)
+                        if (temP.IndexOf(ComPs) == 0)
                         {
-                            Au = AutH.NewAutH(AuthSt.Replace('¬', ' '), Rank, OrigiN);
-                            return Au;
+                            temP = AuthSt.Substring(0, ComPs.Length);
+                            temP = temP.Replace(' ', '¬');
+                            AuthSt = temP + AuthSt.Substring(temP.Length);
+                            if (AuthSt.IndexOfAny(delimiters) == -1)
+                            {
+                                Au = AutH.NewAutH(AuthSt.Replace('¬', ' '), Rank, OrigiN);
+                                return Au;
+                            }
+                            break;
                         }
                     }
-                }
-
-                Last = AuthSt.Substring(0, AuthSt.IndexOfAny(delimiters));
-                Last = trimMe(Last.Replace('¬', ' '));
-                AuthSt = AuthSt.Substring(AuthSt.IndexOfAny(delimiters) + 1);
-                AuthSt = trimMe(AuthSt);
-
-                if (AuthSt.IndexOfAny(delimiters) != -1)
-                {
-                    First = AuthSt.Substring(0, AuthSt.IndexOfAny(delimiters));
-                    First = trimMe(First);
-                    Second = trimMe(AuthSt.Substring(AuthSt.IndexOfAny(delimiters) + 1));
-                    Au = AutH.NewAutH(Last, First, Second, Rank, OrigiN);
+                    int ind = AuthSt.IndexOfAny(delimiters);
+                    Last = AuthSt.Substring(0, ind);
+                    Last = trimMe(Last.Replace('¬', ' '));
+                    AuthSt = AuthSt.Substring(ind + 1);
+                    AuthSt = trimMe(AuthSt);
+                    ind = AuthSt.IndexOfAny(delimiters);
+                    if (ind != -1)
+                    {
+                        First = AuthSt.Substring(0, ind);
+                        First = trimMe(First);
+                        Second = trimMe(AuthSt.Substring(ind + 1));
+                        Au = AutH.NewAutH(Last, First, Second, Rank, OrigiN);
+                    }
+                    else
+                    {
+                        First = AuthSt;
+                        Au = AutH.NewAutH(Last, First, Rank, OrigiN);
+                    }
                 }
                 else
-                {
-                    First = trimMe(AuthSt);
-                    Au = AutH.NewAutH(Last, First, Rank, OrigiN);
+                {//rare case (MAKES) the "family name" is always at the end
+                    temP = AuthSt.ToLower();
+                    foreach (string ComPs in CompP)
+                    {
+                        int ind1 = temP.LastIndexOf(ComPs);
+                        if (ind1 >= 0) 
+                        {
+                            temP = AuthSt.Substring(ind1);
+                            temP = temP.Replace(' ', '¬');
+                            AuthSt = AuthSt.Substring(0, ind1 ) + temP;
+                            if (AuthSt.IndexOfAny(delimiters) == -1)
+                            {
+                                Au = AutH.NewAutH(AuthSt.Replace('¬', ' '), Rank, OrigiN);
+                                return Au;
+                            }
+                            break;
+                        }
+                    }
+                    int ind = AuthSt.LastIndexOfAny(delimiters);
+                    Last = AuthSt.Substring(AuthSt.LastIndexOfAny(delimiters));
+                    Last = trimMe(Last.Replace('¬', ' '));
+                    AuthSt = AuthSt.Substring(0, ind + 1);
+                    AuthSt = trimMe(AuthSt);
+                    ind = AuthSt.IndexOfAny(delimiters);
+                    if (ind != -1)
+                    {
+                        First = AuthSt.Substring(0, ind);
+                        First = trimMe(First);
+                        Second = trimMe(AuthSt.Substring(ind + 1));
+                        Au = AutH.NewAutH(Last, First, Second, Rank, OrigiN);
+                    }
+                    else
+                    {
+                        First = AuthSt;
+                        Au = AutH.NewAutH(Last, First, Rank, OrigiN);
+                    }
                 }
             }
             else
