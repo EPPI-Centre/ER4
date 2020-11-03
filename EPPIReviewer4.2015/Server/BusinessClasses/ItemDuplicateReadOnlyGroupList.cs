@@ -789,7 +789,7 @@ namespace BusinessLibrary.BusinessClasses
                 }
 
                 // Title and journal similarity > 80 plus exact matches on 4 other fields where present
-                if (titleSimilarity > 80 &&
+                if (titleSimilarity > 80 && ic1.PARENT_TITLE.Length > 0 && ic2.PARENT_TITLE.Length > 0 &&
 
                     // similarity on journals > 80 where both fields present
                     ((ic1.PARENT_TITLE.Length > 5 && ic2.PARENT_TITLE.Length > 5 &&

@@ -1094,6 +1094,7 @@
     <Resource Include="Icons\run-build-configure.png" />
     <Resource Include="Icons\run-build-install.png" />
     <Resource Include="Icons\MicrosoftAcademicICOAlert.png" />
+    <Resource Include="Icons\MAG.jpg" />
     <Content Include="pMed.png" />
     <Content Include="ServiceReferences.ClientConfig">
       <SubType>Designer</SubType>
