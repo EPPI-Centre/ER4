@@ -249,12 +249,12 @@ namespace AuthorsHandling
                     temP = AuthSt.ToLower();
                     foreach (string ComPs in CompP)
                     {
-                        int ind1 = temP.LastIndexOf(ComPs);
+                        int ind1 = temP.LastIndexOf(" " + ComPs);
                         if (ind1 >= 0) 
                         {
-                            temP = AuthSt.Substring(ind1);
+                            temP = AuthSt.Substring(ind1 + 1);
                             temP = temP.Replace(' ', '¬');
-                            AuthSt = AuthSt.Substring(0, ind1 ) + temP;
+                            AuthSt = AuthSt.Substring(0, ind1 +  1) + temP;
                             if (AuthSt.IndexOfAny(delimiters) == -1)
                             {
                                 Au = AutH.NewAutH(AuthSt.Replace('¬', ' '), Rank, OrigiN);
