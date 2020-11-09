@@ -3245,6 +3245,44 @@ namespace EppiReviewer4
             }
         }
 
-       
+        private void RadioButtonAutoUpdateAllIncluded_Checked(object sender, RoutedEventArgs e)
+        {
+            if (RowCreateNewAutoUpdate != null)
+            {
+                //RowSelectCodeRelatedPapersRun.Height = new GridLength(0);
+                codesSelectControlAutoUpdate.Visibility = Visibility.Collapsed;
+            }
+        }
+
+        private void RadioButtonAutoUpdateWithCode_Checked(object sender, RoutedEventArgs e)
+        {
+            if (RowCreateNewAutoUpdate != null)
+            {
+                //RowSelectCodeRelatedPapersRun.Height = new GridLength(0);
+                codesSelectControlAutoUpdate.Visibility = Visibility.Visible;
+            }
+        }
+
+        private void LBAddNewAutoUpdate_Click(object sender, RoutedEventArgs e)
+        {
+            if ((sender as HyperlinkButton).Tag.ToString() == "ClickToOpen")
+            {
+                RowCreateNewAutoUpdate.Height = new GridLength(50, GridUnitType.Auto);
+                LBAddNewAutoUpdate.Content = "Adding new auto update (Click to close)";
+                LBAddNewAutoUpdate.Tag = "ClickToClose";
+                tbReviewAutoUpdateDescription.Text = "";
+            }
+            else
+            {
+                RowCreateNewAutoUpdate.Height = new GridLength(0);
+                LBAddNewAutoUpdate.Content = "Add new review auto update";
+                LBAddNewAutoUpdate.Tag = "ClickToOpen";
+            }
+        }
+
+        private void LBAddNewAutoUpdateDoAdd_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 }
