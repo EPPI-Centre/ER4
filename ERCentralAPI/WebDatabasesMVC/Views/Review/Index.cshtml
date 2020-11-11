@@ -95,6 +95,7 @@
                     return;
                 }
                 console.log("Planning to go to get frequency with (codeID, setId):", dataItem.id, dataItem.setId)
+                postwith("../Frequencies/GetFrequencies", { attId: dataItem.id, setId: dataItem.setId, included:true});
             }
             function postwith(to, p) {
                 //https://mentaljetsam.wordpress.com/2008/06/02/using-javascript-to-post-data-between-pages/

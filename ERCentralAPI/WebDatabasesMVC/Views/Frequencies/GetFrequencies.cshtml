@@ -1,0 +1,16 @@
+﻿@model BusinessLibrary.BusinessClasses.WebDbItemAttributeChildFrequencyList
+@using BusinessLibrary.BusinessClasses
+Frequency!
+<div class="row">
+    <div class="col">ID</div>
+    <div class="col">CodeName</div>
+    <div class="col">Hits</div>
+</div>
+@foreach (WebDbItemAttributeChildFrequency itm in Model)
+{
+<div class="row">
+    <div class="col">@(itm.AttributeId > 0 ? @itm.AttributeId.ToString() : "-")</div>
+    <div class="col">@itm.Attribute</div>
+    <div class="col">@itm.ItemCount</div>
+</div>
+}
