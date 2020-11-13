@@ -95,24 +95,12 @@
                     return;
                 }
                 console.log("Planning to go to get frequency with (codeID, setId):", dataItem.id, dataItem.setId)
-                postwith("../Frequencies/GetFrequencies", { attId: dataItem.id, setId: dataItem.setId, included:true});
-            }
-            function postwith(to, p) {
-                //https://mentaljetsam.wordpress.com/2008/06/02/using-javascript-to-post-data-between-pages/
-                var myForm = document.createElement("form");
-                myForm.style.display = "none";
-                myForm.method = "post";
-                myForm.action = to;
-                for (var k in p) {
-                    var myInput = document.createElement("input");
-                    myInput.setAttribute("name", k);
-                    myInput.setAttribute("value", p[k]);
-                    myForm.appendChild(myInput);
+                if (dataItem.isCodeset == true) {
+                    postwith("../Frequencies/GetFrequencies", { attId: 0, setId: dataItem.setId, included: true });
                 }
-                document.body.appendChild(myForm);
-                myForm.submit();
-                document.body.removeChild(myForm);
+                else postwith("../Frequencies/GetFrequencies", { attId: dataItem.id, setId: dataItem.setId, included:true});
             }
+            
             //var treeviewData = $("#treeView").data("kendoTreeView");
             //treeview.bind("change", TreeViewSelection);
         </script>

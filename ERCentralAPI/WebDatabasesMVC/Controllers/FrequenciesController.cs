@@ -34,7 +34,7 @@ namespace WebDatabasesMVC.Controllers
             {
                 if (SetCSLAUser())
                 {
-                    WebDbItemAttributeChildFrequencyList Itm = GetFrequenciesInternal(attId, setId, included);
+                    FrequencyResultWithCriteria Itm = GetFrequenciesInternal(attId, setId, included);
                     return View(Itm);
                 }
                 else return Unauthorized();
@@ -52,7 +52,7 @@ namespace WebDatabasesMVC.Controllers
             {
                 if (SetCSLAUser())
                 {
-                    WebDbItemAttributeChildFrequencyList Itm = GetFrequenciesInternal(attId, setId, included);
+                    FrequencyResultWithCriteria Itm = GetFrequenciesInternal(attId, setId, included);
                     return Json(Itm);
                 }
                 else return Unauthorized();
@@ -63,7 +63,7 @@ namespace WebDatabasesMVC.Controllers
                 return StatusCode(500, e.Message);
             }
         }
-        internal WebDbItemAttributeChildFrequencyList GetFrequenciesInternal(long attId, int setId, bool included)
+        internal FrequencyResultWithCriteria GetFrequenciesInternal(long attId, int setId, bool included)
         {
             int DBid = -1;
             List<Claim> claims = User.Claims.ToList();
@@ -72,17 +72,51 @@ namespace WebDatabasesMVC.Controllers
             {
                 int.TryParse(DBidC.Value, out DBid);
             }
-            WebDbItemAttributeChildFrequencyList res = new WebDbItemAttributeChildFrequencyList();
             if (DBid < 1)
             {
                 _logger.LogError("Error in GetFrequenciesInternal, no WebDbId!");
-                return res;
+                return null;
             }
-            WebDbFrequencyCrosstabAndMapSelectionCriteria crit = 
+            FrequencyResultWithCriteria res = new FrequencyResultWithCriteria();
+            res.criteria = 
                 new WebDbFrequencyCrosstabAndMapSelectionCriteria(DBid, attId, setId, included);
-            res = DataPortal.Fetch<WebDbItemAttributeChildFrequencyList>(crit);
+            res.results = DataPortal.Fetch<WebDbItemAttributeChildFrequencyList>(res.criteria);
             return res;
         }
 
+    }
+    public class WebDbFrequencyCrosstabAndMapSelectionCriteriaMVC
+    {
+        public WebDbFrequencyCrosstabAndMapSelectionCriteriaMVC() { }
+        public WebDbFrequencyCrosstabAndMapSelectionCriteriaMVC(WebDbFrequencyCrosstabAndMapSelectionCriteria crit)
+        {
+            webDbId = crit.webDbId;
+            attributeIdXAxis = crit.attributeIdXAxis;
+            setIdXAxis = crit.setIdXAxis;
+            attributeIdYAxis = crit.attributeIdYAxis;
+            setIdYAxis = crit.setIdYAxis;
+            included = crit.included;
+            segmentsParent = crit.segmentsParent;
+            setIdSegments = crit.setIdSegments;
+            onlyThisAttribute = crit.onlyThisAttribute;
+        }
+        public WebDbFrequencyCrosstabAndMapSelectionCriteria GetWebDbFrequencyCrosstabAndMapSelectionCriteria()
+        {
+            WebDbFrequencyCrosstabAndMapSelectionCriteria res = new WebDbFrequencyCrosstabAndMapSelectionCriteria(
+                                                                        webDbId, attributeIdXAxis, setIdXAxis,
+                                                                        included, onlyThisAttribute,
+                                                                        attributeIdYAxis, setIdYAxis,
+                                                                        segmentsParent, setIdSegments);
+            return res;
+        }
+        public int webDbId { get; set; }
+        public Int64 attributeIdXAxis { get; set; }
+        public int setIdXAxis { get; set; }
+        public Int64 attributeIdYAxis { get; set; }
+        public int setIdYAxis { get; set; }
+        public bool included { get; set; }
+        public Int64 segmentsParent { get; set; }
+        public int setIdSegments { get; set; }
+        public Int64 onlyThisAttribute { get; set; }
     }
 }

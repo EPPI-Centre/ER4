@@ -1,20 +1,58 @@
-﻿@model BusinessLibrary.BusinessClasses.ItemList
+﻿@model ItemListWithCriteria
 @using BusinessLibrary.BusinessClasses
 
-@if (Model.PageCount > 1)
+@if (Model.items.PageCount > 1)
 {
 <div class="alert-info row col-12 mx-0 mb-1">
-    <form asp-controller="ItemList" asp-action="Page" method="post" class="form-inline">
-        <button class="btn btn-outline-success px-1 py-0 m-1" type="submit" disabled="@(Model.PageIndex == 0)"
-                name="PageN" value="@(Model.PageIndex - 1)">
+    @*<form asp-controller="ItemList" asp-action="Page" method="post" class="form-inline">
+        <button class="btn btn-outline-success px-1 py-0 m-1" type="submit" disabled="@(Model.items.PageIndex == 0)"
+                name="PageN" value="@(Model.items.PageIndex - 1)">
             Previous
         </button>
-        <button class="btn btn-outline-success px-1 py-0 m-1" type="submit" disabled="@(Model.PageIndex == Model.PageCount - 1)"
-                name="PageN" value="@(Model.PageIndex + 1)">
+        <button class="btn btn-outline-success px-1 py-0 m-1" type="submit" disabled="@(Model.items.PageIndex == Model.items.PageCount - 1)"
+                name="PageN" value="@(Model.items.PageIndex + 1)">
             Next
         </button>
+        
+
+
+    </form>*@
+
+
+    <form asp-controller="ItemList" asp-action="ListFromCrit" method="post" class="form-inline">
+        <button class="btn btn-outline-danger px-1 py-0 m-1" type="submit" disabled="@(Model.items.PageIndex == 0)"
+                name="PageNumber" value="@(Model.items.PageIndex - 1)">
+            Previous
+        </button>
+        <button class="btn btn-outline-danger px-1 py-0 m-1" type="submit" disabled="@(Model.items.PageIndex == Model.items.PageCount - 1)"
+                name="PageNumber" value="@(Model.items.PageIndex + 1)">
+            Next
+        </button>
+        <input type="hidden" value="@Model.criteria.onlyIncluded.ToString()" name="onlyIncluded" />
+        <input type="hidden" value="@Model.criteria.showDeleted" name="showDeleted" />
+        <input type="hidden" value="@Model.criteria.sourceId" name="sourceId" />
+        <input type="hidden" value="@Model.criteria.searchId" name="searchId" />
+        <input type="hidden" value="@Model.criteria.xAxisSetId" name="xAxisSetId" />
+        <input type="hidden" value="@Model.criteria.xAxisAttributeId" name="xAxisAttributeId" />
+        <input type="hidden" value="@Model.criteria.yAxisSetId" name="yAxisSetId" />
+        <input type="hidden" value="@Model.criteria.yAxisAttributeId" name="yAxisAttributeId" />
+        <input type="hidden" value="@Model.criteria.filterSetId" name="filterSetId" />
+        <input type="hidden" value="@Model.criteria.filterAttributeId" name="filterAttributeId" />
+        <input type="hidden" value="@Model.criteria.attributeSetIdList" name="attributeSetIdList" />
+        <input type="hidden" value="@Model.criteria.listType" name="listType" />
+        <input type="hidden" value="@Model.criteria.pageNumber" name="pageNumber" />
+        <input type="hidden" value="@Model.criteria.pageSize" name="pageSize" />
+        <input type="hidden" value="@Model.criteria.workAllocationId" name="workAllocationId" />
+        <input type="hidden" value="@Model.criteria.magSimulationId" name="magSimulationId" />
+        <input type="hidden" value="@Model.criteria.comparisonId" name="comparisonId" />
+        <input type="hidden" value="@Model.criteria.description" name="description" />
+        <input type="hidden" value="@Model.criteria.contactId" name="contactId" />
+        <input type="hidden" value="@Model.criteria.setId" name="setId" />
+        <input type="hidden" value="@Model.criteria.showInfoColumn" name="showInfoColumn" />
+        <input type="hidden" value="@Model.criteria.showScoreColumn" name="showScoreColumn" />
+        <input type="hidden" value="@Model.criteria.webDbId" name="webDbId" />
     </form>
-    <div class="my-auto">Page: @(Model.PageIndex + 1) of @(Model.PageCount).</div>
+        <div class="my-auto">Page: @(Model.items.PageIndex + 1) of @(Model.items.PageCount).</div>
 </div>
 }
 <div class="bg-light col-12 m-0 ">
@@ -35,7 +73,7 @@
         </div>
     </div>
     <div style="max-height:80vh; overflow:auto">
-        @foreach (Item itm in Model)
+        @foreach (Item itm in Model.items)
         {
             <div class="row border-top border-dark m-0">
                 <div class="col border-dark border-right">
@@ -60,4 +98,7 @@
             </div>
         }
     </div>
+    <form id="SelectionCriteria" hidden data="@Model.criteria">
+        
+    </form>
 </div>
