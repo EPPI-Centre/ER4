@@ -257,7 +257,7 @@ namespace BusinessLibrary.BusinessClasses
             string[] authors = mp.Authors.Split(',');
             for (int x = 0; x < authors.Count(); x++)
             {
-                AutH author = NormaliseAuth.singleAuth(authors[x], x + 1, 0);
+                AutH author = NormaliseAuth.singleAuth(authors[x], x + 1, 0, true);
                 if (author != null)
                 {
                     tItem.AuthorsLi.Add(author);
@@ -276,11 +276,12 @@ namespace BusinessLibrary.BusinessClasses
             if (mp.DOI != null) tItem.DOI = mp.DOI;
             if (mp.Abstract != null) tItem.Abstract = mp.Abstract;
             tItem.SearchText = Item.ToShortSearchText(mp.PaperTitle);
-            if (mp.URLs != null && mp.URLs.Length > 0)
-            {
-                string[] urls = mp.URLs.Split(';');
-                if (urls.Length > 0) tItem.Url = urls[0];
-            }
+            //if (mp.URLs != null && mp.URLs.Length > 0)
+            //{
+            //    string[] urls = mp.URLs.Split(';');
+            //    if (urls.Length > 0) tItem.Url = urls[0];
+            //}
+            tItem.Url = "https://academic.microsoft.com/paper/" + mp.PaperId;
             if (mp.Publisher != null) tItem.Publisher = mp.Publisher;
             tItem.MAGManualFalseMatch = false;
             tItem.MAGManualTrueMatch = false;
