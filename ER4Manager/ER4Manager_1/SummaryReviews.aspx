@@ -13,8 +13,8 @@
 
         <b>Shareable reviews you have purchased&nbsp;or have administrative rights to</b><asp:GridView
             ID="gvReview" runat="server" CssClass="grviewFixedWidth"
-            AutoGenerateColumns="False" Width="800px" OnRowCommand="gvReview_RowCommand"
-            DataKeyNames="REVIEW_ID" OnPageIndexChanging="gvReview_PageIndexChanging" PageSize="15" AllowPaging="True">
+            AutoGenerateColumns="False" Width="800px" OnRowCommand="gvReview_RowCommand" 
+            DataKeyNames="REVIEW_ID" OnPageIndexChanging="gvReview_PageIndexChanging" PageSize="15" AllowPaging="True" OnRowDataBound="gvReview_RowDataBound">
             <Columns>
                 <asp:BoundField DataField="REVIEW_ID" HeaderText="ReviewID">
                     <HeaderStyle BackColor="#B6C6D6" />
@@ -35,6 +35,8 @@
                     <HeaderStyle BackColor="#B6C6D6" />
                 </asp:ButtonField>
             </Columns>
+            <PagerSettings Mode="Numeric" Position="TopAndBottom" />
+            <PagerStyle Font-Bold="False" Font-Size="Larger" HorizontalAlign="Center" />
         </asp:GridView>
 
         <asp:Label ID="lblShareableReviews" runat="server"
@@ -240,6 +242,8 @@
                     <HeaderStyle BackColor="#B6C6D6" CssClass="gvReviewNonShareableCol5" />
                 </asp:ButtonField>
             </Columns>
+            <PagerSettings Position="TopAndBottom" />
+            <PagerStyle Font-Size="Larger" HorizontalAlign="Center" />
         </asp:GridView>
         <asp:Label ID="lblNonShareableReviews" runat="server"
             Text="You do not own any non-shareable reviews." Visible="False"></asp:Label>
@@ -390,6 +394,8 @@
                     <HeaderStyle BackColor="#B6C6D6" />
                 </asp:ButtonField>
             </Columns>
+            <PagerSettings Position="TopAndBottom" />
+            <PagerStyle Font-Size="Larger" HorizontalAlign="Center" />
         </asp:GridView>
 
         <asp:Label ID="lblNonShareableReviewsMember" runat="server"

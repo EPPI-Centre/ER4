@@ -1215,4 +1215,12 @@ public partial class SummaryReviews : System.Web.UI.Page
         buildOtherShareableReviewGrid(e.NewPageIndex);
     }
 
+
+    protected void gvReview_RowDataBound(object sender, GridViewRowEventArgs e)
+    {
+        /*if (e.Row.RowType == DataControlRowType.Pager)
+        {
+            e.Row.Cells[0].Text = "Page " + (gvReview.PageIndex + 1) + " of " + gvReview.PageCount;
+        }*/
+    }
 }
