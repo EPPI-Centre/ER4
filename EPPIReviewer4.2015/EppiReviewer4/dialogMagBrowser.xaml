@@ -129,6 +129,20 @@
                            FactoryMethod="GetMagSearchList" 
                            DataChanged="CslaDataProvider_HandleDataChangeError">
         </cslaXAML:CslaDataProvider>
+        <cslaXAML:CslaDataProvider x:Key="MagAutoUpdateListData"
+                           ManageObjectLifetime="True"
+                           IsInitialLoadEnabled="False"
+                           ObjectType="BusinessLibrary.BusinessClasses.MagAutoUpdateList, BusinessLibrary, Version=..., Culture=neutral, PublicKeyToken=null"
+                           FactoryMethod="GetMagAutoUpdateList" 
+                           DataChanged="CslaDataProvider_HandleDataChangeError">
+        </cslaXAML:CslaDataProvider>
+        <cslaXAML:CslaDataProvider x:Key="MagAutoUpdateRunListData"
+                           ManageObjectLifetime="True"
+                           IsInitialLoadEnabled="False"
+                           ObjectType="BusinessLibrary.BusinessClasses.MagAutoUpdateRunList, BusinessLibrary, Version=..., Culture=neutral, PublicKeyToken=null"
+                           FactoryMethod="GetMagAutoUpdateRunList" 
+                           DataChanged="CslaDataProvider_HandleDataChangeError">
+        </cslaXAML:CslaDataProvider>
         <helper:ReverseBooleanConverter x:Key="ReverseBoolean" />
 
         <!--<helper:SelectedNotSelectedConverter x:Key="SelectedNotSelectedText" />
@@ -348,13 +362,12 @@
                                         <ColumnDefinition Width="*"></ColumnDefinition>
                                     </Grid.ColumnDefinitions>
                                     <TextBlock Grid.Row="0" Grid.Column="0" Text="Description" Margin="5,5,5,5" HorizontalAlignment="Right" VerticalAlignment="Center"></TextBlock>
-                                    <TextBox Grid.Row="0" Grid.Column="1" x:Name="tbReviewAutoUpdateDescription" Margin="5,5,5,5" Width="200" HorizontalAlignment="Left" VerticalAlignment="Center"></TextBox>
+                                    <TextBox Grid.Row="0" Grid.Column="1" x:Name="tbAutoUpdateDescription" Margin="5,5,5,5" Width="200" HorizontalAlignment="Left" VerticalAlignment="Center"></TextBox>
 
                                     <TextBlock Text="Auto update based on" Grid.Row="1" Grid.Column="0" Margin="5,5,5,5" VerticalAlignment="Center" HorizontalAlignment="Right"></TextBlock>
                                     <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Left">
                                         <RadioButton x:Name="RadioButtonAutoUpdateAllIncluded" Content="All included items in review" IsChecked="True" Margin="5,5,5,5" GroupName="RadioButtonsAutoUpdate" VerticalAlignment="Center" Tag="AllIncluded" Checked="RadioButtonAutoUpdateAllIncluded_Checked"></RadioButton>
                                         <RadioButton x:Name="RadioButtonAutoUpdateWithCode" Content="Items with specified code" Margin="5,5,5,5" GroupName="RadioButtonsAutoUpdate" Tag="WithThisCode" VerticalAlignment="Center" Checked="RadioButtonAutoUpdateWithCode_Checked"></RadioButton>
-                                        <!--"<RadioButton x:Name="RadioButtonRelatedPapersRunChildrenOfCode" Content="Multiple searches with each child of this code" Margin="5,5,5,5" GroupName="RadioButtonsRelatedPapersRun" Tag="WithChildrenOfThisCode" IsEnabled="False" VerticalAlignment="Center" Checked="RadioButton_Checked_1"></RadioButton>-->
                                         <local:codesSelectControl x:Name="codesSelectControlAutoUpdate" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5,5,5,5" Width="150" Height="30" Visibility="Collapsed"></local:codesSelectControl>
                                     </StackPanel>
 
@@ -377,10 +390,34 @@
                                 </Grid>
 
                                 <TextBlock Grid.Row="3" Grid.Column="0" Text="Current auto updates running" Margin="5,10,5,2"></TextBlock>
-                                <telerikGridView:RadGridView Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2"></telerikGridView:RadGridView>
+                                <telerikGridView:RadGridView Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2"
+                                                             ItemsSource="{Binding Source={StaticResource MagAutoUpdateListData}, Path=Data, Mode=TwoWay}"
+                                    IsEnabled="{Binding Source={StaticResource MagAutoUpdateListData}, Converter={StaticResource ReverseBoolean}, Path=IsBusy }"
+                                    RowIndicatorVisibility="Collapsed" CanUserSelect="False" ShowGroupPanel="False" AutoGenerateColumns="False">
+                                    <telerikGridView:RadGridView.Columns>
+                                        <telerikGridView:GridViewDataColumn Header="Description" DataMemberBinding="{Binding UserDescription}" Width="70*"></telerikGridView:GridViewDataColumn>
+                                        <telerikGridView:GridViewDataColumn Header="All included" Width="100" DataMemberBinding="{Binding AllIncluded}" IsReadOnly="True"></telerikGridView:GridViewDataColumn>
+                                        <telerikGridView:GridViewDataColumn Header="With this code" Width="80*" DataMemberBinding="{Binding AttributeName}" IsReadOnly="True"></telerikGridView:GridViewDataColumn>
+                                        <telerikGridView:GridViewDataColumn Header="Study type classifier" Width="80*" DataMemberBinding="{Binding StudyTypeClassifier}" IsReadOnly="True"></telerikGridView:GridViewDataColumn>
+                                        <telerikGridView:GridViewDataColumn Header="User classifier" Width="80*" DataMemberBinding="{Binding UserClassifierDescription}" IsReadOnly="True"></telerikGridView:GridViewDataColumn>
+
+                                        <telerikGridView:GridViewDataColumn Width="50" SortingState="None" IsReadOnly="True">
+                                            <telerikGridView:GridViewDataColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <HyperlinkButton Content="Delete" Click="HyperlinkButton_Click_17"/>
+                                                </DataTemplate>
+                                            </telerikGridView:GridViewDataColumn.CellTemplate>
+                                        </telerikGridView:GridViewDataColumn>
+                                    </telerikGridView:RadGridView.Columns>
+                                </telerikGridView:RadGridView>
 
                                 <TextBlock Grid.Row="5" Grid.Column="0" Text="Items identified by auto update runs" Margin="5,10,5,2"></TextBlock>
-                                <telerikGridView:RadGridView Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="2"></telerikGridView:RadGridView>
+                                <telerikGridView:RadGridView Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="2"
+                                    ItemsSource="{Binding Source={StaticResource MagAutoUpdateRunListData}, Path=Data, Mode=TwoWay}"
+                                    IsEnabled="{Binding Source={StaticResource MagAutoUpdateRunListData}, Converter={StaticResource ReverseBoolean}, Path=IsBusy }"
+                                    RowIndicatorVisibility="Collapsed" CanUserSelect="False" ShowGroupPanel="False">
+                                   
+                                </telerikGridView:RadGridView>
                             </Grid>
                             
                         </radDock:RadDocumentPane>

@@ -122,6 +122,19 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
+        public static readonly PropertyInfo<string> UserClassifierDescriptionProperty = RegisterProperty<string>(new PropertyInfo<string>("UserClassifierDescription", "UserClassifierDescription"));
+        public string UserClassifierDescription
+        {
+            get
+            {
+                return GetProperty(UserClassifierDescriptionProperty);
+            }
+            set
+            {
+                SetProperty(UserClassifierDescriptionProperty, value);
+            }
+        }
+
         public static readonly PropertyInfo<int> UserClassifierModelIdProperty = RegisterProperty<int>(new PropertyInfo<int>("UserClassifierModelId", "UserClassifierModelId"));
         public int UserClassifierModelId
         {

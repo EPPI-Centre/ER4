@@ -108,7 +108,7 @@ namespace EppiReviewer4
                         break;
 
                     case "AutoUpdate":
-                        
+                        ShowAutoUpdatePage();
                         break;
 
                     case "MatchItems":
@@ -572,6 +572,14 @@ namespace EppiReviewer4
 
             CslaDataProvider provider = this.Resources["RelatedPapersRunListData"] as CslaDataProvider;
             provider.Refresh();
+        }
+
+        private void ShowAutoUpdatePage()
+        {
+            CslaDataProvider provider1 = this.Resources["MagAutoUpdateListData"] as CslaDataProvider;
+            provider1.Refresh();
+            CslaDataProvider provider2 = this.Resources["MagAutoUpdateRunListData"] as CslaDataProvider;
+            provider2.Refresh();
         }
 
         private void LBListMatchesIncluded_Click(object sender, RoutedEventArgs e)
@@ -3245,6 +3253,8 @@ namespace EppiReviewer4
             }
         }
 
+        /* ************************* Auto update page / tab ************************************ */
+
         private void RadioButtonAutoUpdateAllIncluded_Checked(object sender, RoutedEventArgs e)
         {
             if (RowCreateNewAutoUpdate != null)
@@ -3270,7 +3280,7 @@ namespace EppiReviewer4
                 RowCreateNewAutoUpdate.Height = new GridLength(50, GridUnitType.Auto);
                 LBAddNewAutoUpdate.Content = "Adding new auto update (Click to close)";
                 LBAddNewAutoUpdate.Tag = "ClickToClose";
-                tbReviewAutoUpdateDescription.Text = "";
+                tbAutoUpdateDescription.Text = "";
             }
             else
             {
@@ -3282,7 +3292,103 @@ namespace EppiReviewer4
 
         private void LBAddNewAutoUpdateDoAdd_Click(object sender, RoutedEventArgs e)
         {
+            if (tbAutoUpdateDescription.Text == "")
+            {
+                RadWindow.Alert("Please enter a description");
+                return;
+            }
 
+            
+            if (RadioButtonAutoUpdateWithCode.IsChecked == true &&
+                   codesSelectControlAutoUpdate.SelectedAttributeSet() == null)
+            {
+                RadWindow.Alert("Please select a code to filter by");
+                return;
+            }
+            RadWindow.Confirm("Are you sure you want to create this auto-update?", this.DoAddAutoUpdate);
         }
+
+        private void DoAddAutoUpdate(object sender, WindowClosedEventArgs e)
+        {
+            var result = e.DialogResult;
+            if (result == true)
+            {
+                CslaDataProvider provider = this.Resources["MagAutoUpdateListData"] as CslaDataProvider;
+                if (provider != null)
+                {
+                    MagAutoUpdateList maol = provider.Data as MagAutoUpdateList;
+                    if (maol != null)
+                    {
+                        MagAutoUpdate mao = new MagAutoUpdate();
+                        mao.UserDescription = tbAutoUpdateDescription.Text;
+                        if (RadioButtonAutoUpdateAllIncluded.IsChecked == true)
+                        {
+                            mao.AllIncluded = true;
+                        }
+                        else
+                        {
+                            mao.AllIncluded = false;
+                            mao.AttributeId = codesSelectControlAutoUpdate.SelectedAttributeSet().AttributeId;
+                            mao.AttributeName = codesSelectControlAutoUpdate.SelectedAttributeSet().AttributeName;
+                        }
+                        if (comboAutoUpdateStudyTypeClassifier.SelectedIndex != -1)
+                        {
+                            mao.StudyTypeClassifier = (comboAutoUpdateStudyTypeClassifier.SelectedItem as ComboBoxItem).Content.ToString();
+                        }
+                        if (comboAutoUpdateUserModels.SelectedItem != null)
+                        {
+                            ClassifierContactModel ccm = comboAutoUpdateUserModels.SelectedItem as ClassifierContactModel;
+                            if (ccm != null)
+                            {
+                                mao.UserClassifierModelId = ccm.ModelId;
+                                mao.UserClassifierModelReviewId = ccm.ReviewId;
+                            }
+                        }
+                       
+                        maol.Add(mao);
+                        maol.SaveItem(mao);
+
+                        RowCreateNewAutoUpdate.Height = new GridLength(0);
+                        LBAddNewAutoUpdate.Content = "Add new review auto update";
+                        LBAddNewAutoUpdate.Tag = "ClickToOpen";
+                    }
+                }
+            }
+        }
+
+        private void HyperlinkButton_Click_17(object sender, RoutedEventArgs e)
+        {
+            HyperlinkButton hlb = sender as HyperlinkButton;
+            if (hlb != null)
+            {
+                MagAutoUpdate mao = hlb.DataContext as MagAutoUpdate;
+                if (mao != null)
+                {
+
+                    RememberThisMagAutoUpdate = mao;
+                    RadWindow.Confirm("Are you sure you want to delete this row?", this.doDeleteMagAutoUpdate);
+                }
+            }
+        }
+
+        MagAutoUpdate RememberThisMagAutoUpdate; // temporary variable to store a specific row while a dialog is showing
+
+        private void doDeleteMagAutoUpdate(object sender, WindowClosedEventArgs e)
+        {
+            var result = e.DialogResult;
+            if (result == true)
+            {
+                CslaDataProvider provider = this.Resources["MagAutoUpdateListData"] as CslaDataProvider;
+                if (provider != null)
+                {
+                    MagAutoUpdateList autoUpdateList = provider.Data as MagAutoUpdateList;
+                    if (autoUpdateList != null)
+                    {
+                        autoUpdateList.Remove(RememberThisMagAutoUpdate);
+                    }
+                }
+            }
+        }
+
     }
 }
