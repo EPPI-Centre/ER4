@@ -638,6 +638,8 @@ namespace BusinessLibrary.BusinessClasses
             public string ABSTRACT { get; set; }
             public Int32 HAS_CODES { get; set; }
             public Int32 IS_MASTER { get; set; }
+            public Int32 TYPE_ID { get; set; }
+            
             public double MatchingScore { get; set; }
             public ItemComparison() { }
             public ItemComparison (SafeDataReader reader, int index)
@@ -656,6 +658,7 @@ namespace BusinessLibrary.BusinessClasses
                     ABSTRACT = reader.GetString("ABSTRACT");
                     HAS_CODES = reader.GetInt32("HAS_CODES");
                     IS_MASTER = reader.GetInt32("IS_MASTER");
+                    TYPE_ID = reader.GetInt32("TYPE_ID");
                 }
                 else
                 {
@@ -671,6 +674,7 @@ namespace BusinessLibrary.BusinessClasses
                     ABSTRACT = reader.GetString("ABSTRACT2");
                     HAS_CODES = reader.GetInt32("HAS_CODES2");
                     IS_MASTER = reader.GetInt32("IS_MASTER2");
+                    TYPE_ID = reader.GetInt32("TYPE_ID2");
                 }
                 if (TITLE.IndexOf("Erratum") == -1)
                     TITLE = MagMakesHelpers.RemoveTextInParentheses(TITLE);
@@ -789,29 +793,29 @@ namespace BusinessLibrary.BusinessClasses
                 }
 
                 // Title and journal similarity > 80 plus exact matches on 4 other fields where present
-                if (titleSimilarity > 80 &&
+                if (
+                    titleSimilarity > 80 &&
+                    // need to be both journal articles
+                    ic1.TYPE_ID == 14 && ic2.TYPE_ID == 14 &&
 
-                    // similarity on journals > 80 where both fields present
-                    ((ic1.PARENT_TITLE.Length > 5 && ic2.PARENT_TITLE.Length > 5 &&
-                    ptitleLev(ic1, ic2) > 80) ||
-                    (ic1.PARENT_TITLE.Length <= 5 || ic2.PARENT_TITLE.Length <= 5)) &&
+                    //Journal (parent title) fields must be present in both refs and be a decent match
+                    ic1.PARENT_TITLE.Length > 1 && ic2.PARENT_TITLE.Length > 1 //if we have 0 or 1 chars in the journal field, we don't trust it
+                    && ptitleLev(ic1, ic2) > 80
 
-                    // matches on DOI where both fields present
-                    ((ic1.DOI.Length > 5 && ic2.DOI.Length > 5 &&
-                    CompareDOIs(ic1.DOI, ic2.DOI) == true) ||
-                    (ic1.DOI.Length <= 5 || ic2.DOI.Length <= 5)) &&
+                    //DOI, test is passed if they match OR if DOI data is missing in one/both refs 
+                    //(we reject this match only if there is a DOI mismatch, not on the basis of missing DOIs)
+                    && 
+                    (
+                        ic1.DOI == ic2.DOI || (ic1.DOI == "" || ic2.DOI == "")
+                    )
 
-                    // exact match on year where both fields present
-                    ((ic1.YEAR != "" && ic2.YEAR != "" && ic1.YEAR == ic2.YEAR) ||
-                    (ic1.YEAR == "" || ic2.YEAR == "")) &&
+                    //ISSUE and YEAR clauses are passed if they match or data is missing in both references
+                    && ic1.YEAR == ic2.YEAR //if data is missing in BOTH refs, the match still happens
+                    && ic1.ISSUE == ic2.ISSUE //if data is missing in BOTH refs, the match still happens
 
-                    // exact match on issue where both fields present
-                    ((ic1.ISSUE != "" && ic2.ISSUE != "" && ic1.ISSUE == ic2.ISSUE) ||
-                    (ic1.ISSUE == "" || ic2.ISSUE == "")) &&
-
-                    // exact match on start page where both fields present
-                    ((ic1.GetFirstPage() != "" && ic2.GetFirstPage() != "" && ic1.GetFirstPage() == ic2.GetFirstPage()) ||
-                    (ic1.GetFirstPage() == "" || ic2.GetFirstPage() == "")))
+                    //"FIRST PAGE", must be present in both refs and an exact match
+                    && (ic1.GetFirstPage() != "" && ic1.GetFirstPage() == ic2.GetFirstPage())
+                   )
                 {
                     return 0.97;
                 }
@@ -851,7 +855,14 @@ namespace BusinessLibrary.BusinessClasses
                 {
                     ret = Math.Min(ret, 0.75);
                 }
-
+                // if an item is a report and titles don't match exactly then we flag as low confidence
+                if ((ic1.PARENT_TITLE == "" || ic2.PARENT_TITLE == "") &&
+                    (ic1.PAGES == "" || ic2.PAGES == "") &&
+                    (ic1.VOLUME == "" || ic2.VOLUME == "") &&
+                    (titleSimilarity != 100))
+                {
+                    ret = Math.Min(ret, 0.77);
+                }
 
                 return ret;
             }
