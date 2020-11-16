@@ -1772,7 +1772,7 @@ namespace BusinessLibrary.BusinessClasses.ImportItems
             AuthorR["FIRST"] = Auth.FirstName;
             AuthorR["SECOND"] = Auth.MiddleName;
             AuthorR["LAST"] = Auth.LastName;
-            AuthorR["RANK"] = (byte)Auth.Rank;
+            AuthorR["RANK"] = (short)Auth.Rank;
             AuthorR["ROLE"] = (byte)Auth.Role;
             //TDS.tb_ITEM_AUTHOR.Rows.Add(AuthorR);
             TDS.TB_ITEM_AUTHOR.Rows.Add(AuthorR);

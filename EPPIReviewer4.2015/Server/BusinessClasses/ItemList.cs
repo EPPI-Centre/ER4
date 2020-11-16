@@ -639,7 +639,29 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@MAG_SIMULATION_ID", criteria.MagSimulationId));
                     command.Parameters.Add(new SqlParameter("@FOUND", false));
                     break;
-
+#if WEBDB //little trick to avoid making this field add to routine costs in ER4 and ER-Web 
+                //this section contains special lists used only by WebDbs
+                case "WebDbWithThisCode":
+                    command = new SqlCommand("st_WebDbWithThisCode", connection);
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@RevId", ri.ReviewId)); // use the stored value so that noone can list items out of a review they aren't properly authenticated on
+                    command.Parameters.Add(new SqlParameter("@included", criteria.OnlyIncluded));
+                    command.Parameters.Add(new SqlParameter("@attributeId", criteria.FilterAttributeId));
+                    command.Parameters.Add(new SqlParameter("@WebDbId", criteria.WebDbId));
+                    break;
+                case "WebDbFrequencyNoneOfTheAbove":
+                    command = new SqlCommand("st_WebDbItemListFrequencyNoneOfTheAbove", connection);
+//                    @ParentAttributeId bigint
+//                    , @FilterAttributeId int
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@RevId", ri.ReviewId));
+                    command.Parameters.Add(new SqlParameter("@WebDbId", criteria.WebDbId));
+                    command.Parameters.Add(new SqlParameter("@SetId", criteria.SetId)); // x axis set id
+                    command.Parameters.Add(new SqlParameter("@included", criteria.OnlyIncluded)); // filter attribute id
+                    command.Parameters.Add(new SqlParameter("@ParentAttributeId", criteria.XAxisAttributeId)); // x axis attribute id
+                    command.Parameters.Add(new SqlParameter("@FilterAttributeId", criteria.FilterAttributeId)); // filter attribute id
+                    break;
+#endif
                 default:
                     break;
             }
@@ -873,5 +895,16 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(ShowScoreColumnProperty, value);
             }
         }
+#if WEBDB //little trick to avoid making this field add to routine costs in ER4 and ER-Web
+        public static readonly PropertyInfo<int> WebDbIdProperty = RegisterProperty<int>(typeof(SelectionCriteria), new PropertyInfo<int>("WebDbId", "WebDbId", 0));
+        public int WebDbId
+        {
+            get { return ReadProperty(WebDbIdProperty); }
+            set
+            {
+                SetProperty(WebDbIdProperty, value);
+            }
+        }
+#endif
     }
 }
