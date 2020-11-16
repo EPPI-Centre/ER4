@@ -10,17 +10,7 @@
         <div id="treeView"></div>
         <script>
 
-            //var TreeNode = kendo.data.Model.define({
-            //    id: "id",
-            //    fields: {
-            //        id: { type: "number"},
-            //        items: {},
-            //        NodeName: {},
-            //        hasChildren: () => {
-            //            this.attributes.length > 0;
-            //        }
-            //    }
-            //});
+
             function Buildnode(attr) {
                 var nodes = [];
                 
@@ -31,12 +21,33 @@
                     res.append(Buildnode(attr.attributes.attributesList[ii]));
                 }
                 res.id = attr.attributeId ? attr.attributeId : attr.setId;
+                res.isCodeset = false;
+                res.setId = attr.setId;
                 //res.items = nodes;
                 //res.hasChildren = () => {
                 //    return this.items.length > 0;
                 //};
                 return res;
             }
+            function TreeViewSelection(e) {
+                if (treeviewData == null) retrun;
+                dataItem = treeviewData.dataItem(e.node);
+                if (!dataItem) {
+                    $("#CurrentNodeGoToFreq").prop("disabled", true);
+                    return;
+                }
+                console.log("Change", dataItem.setId, dataItem.id, dataItem.text);
+                $("#CurrentNodeName").text(dataItem.text);
+                $("#CurrentNodeId").text(dataItem.id);
+                $("#CurrentNodeSetId").text(dataItem.setId);
+                $("#CurrentNodeIsCodeSet").text(dataItem.isCodeset.toString());
+                if (dataItem.items && dataItem.items.length > 0)
+                    $("#CurrentNodeGoToFreq").prop("disabled", false);
+                else
+                    $("#CurrentNodeGoToFreq").prop("disabled", true);
+            }
+            var treeviewData = null;
+            var dataItem = null;
             $(document).ready(function() {
                 $("#treeView").kendoTreeView({
                     dataSource: {
@@ -47,13 +58,15 @@
                             }
                         },
                         schema: {
-                            
                             parse: function (response) {
+                                dataItem = null;
                                 var nodes = [];
                                 for (var i = 0; i < response.length; i++) {
                                     var nodes2 = [];
                                     var nd = new kendo.data.Node({ text: response[i].setName });
                                     nd.id = response[i].setId;
+                                    nd.isCodeset = true;
+                                    nd.setId = nd.id;
                                     for (var ii = 0; ii < response[i].attributes.attributesList.length; ii++) {
                                         nd.append(Buildnode(response[i].attributes.attributesList[ii]));
                                     }
@@ -66,9 +79,30 @@
                                 return nodes;
                             }
                         }
-                    }
-                })
+                    },
+                    select: TreeViewSelection
+                });
+                treeviewData = $("#treeView").data("kendoTreeView");
+                //$("#treeView").data("kendoTreeView").bind("change", TreeViewSelection);
             });
+            function tree_dataBound(e) {
+                console.log("DataBound", e.node);
+            }
+            function GoToFreq() {
+                console.log("CurrentNodeGoToFreq");
+                if (!dataItem) {
+                    console.log("CurrentNodeGoToFreq no data");
+                    return;
+                }
+                console.log("Planning to go to get frequency with (codeID, setId):", dataItem.id, dataItem.setId)
+                if (dataItem.isCodeset == true) {
+                    postwith("../Frequencies/GetFrequencies", { attId: 0, setId: dataItem.setId, included: true });
+                }
+                else postwith("../Frequencies/GetFrequencies", { attId: dataItem.id, setId: dataItem.setId, included:true});
+            }
+            
+            //var treeviewData = $("#treeView").data("kendoTreeView");
+            //treeview.bind("change", TreeViewSelection);
         </script>
     </div>
     <div class="col-6 col-sm-8 col-md-9">
@@ -90,6 +124,14 @@
                 Got to list
             </a>
         </div>
+        <div class="col-12 " id="CurrentNode">
+            <div class="row">Selected code: <span id="CurrentNodeName"></span></div>
+            <div class="row">Selected Id: <span id="CurrentNodeId"></span></div>
+            <div class="row">Selected SetId: <span id="CurrentNodeSetId"></span></div>
+            <div class="row">Is a coding tool: <span id="CurrentNodeIsCodeSet"></span></div>
+            <button class="btn-outline-primary btn btn-sm" onclick="GoToFreq()" disabled id="CurrentNodeGoToFreq">Freq</button>
+        </div>
+
     </div>
     
 

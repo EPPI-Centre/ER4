@@ -46,11 +46,19 @@ New BOs should be created in `..\ERxWebClient2\Models\*.cs` and then imported in
 This is done at two levels, the first one operates via the MVC framework, the second via the ad-hoc files in `~\Models\Security`. For the first, we expect that users will need to specify a "username and password" pair to access a password protected WebDB, or simply visit a WebDB unique URL to access an open-access WebDB. In both cases, this will result in creating an authenticated session, which is kept on the client in the form of a cookie. The (encrypted) cookie contains the IDs for: the WebDB, the corresponding ReviewID and the AttributeID for the "only items with this code" feature (if used).  
 All these IDs are stored in the form of "Claims" and are thus available via the ClaimsPrincipal `User` object, available in all controllers. All controller classes (with the few exeptions of the controllers that can authenticate people on their arrival) should start with the **`[Authorise]`** decorator, so to deny all requests that do not come authenticated with a valid cookie.
 
-
+### Opening a DB and Logging in.
+There are two routes to open a webDB. There is a "login" form that sends data as POST request, but for databases that are not password protected, one can also go to the url:
+`https://[base]/Login/Open?/WebDBid=N` where "N" is the webDBid.
 
 (Note also the shape of the controller constructor and how it inherits from `CSLAController`.)
 
-#### Accessing Data, Organising views
+### Getting to "see" something.
+Project ignores the old WebDatabases system, it is now **all implemented in EPPI-Reviewer Web**. In the review home page, there is a "setup WebDatabase" which allows to set up a WebDb for the current review. You can pick a name, a description, password protect the DB or not, pick a code to filter items and pick what codesets will be seen in the WebDb. 
+You can also remove some codes from a visible codeset and you can rename some codes (and give them a new description).
+
+
+
+### Accessing Data, Organising views
 If you are unfamiliar with MVC, you may want to refer to [this tutorial](https://asp.mvc-tutorial.com/), which contains a well organised overview of the various elements of ASP.MVC.  
 We already know that we are using (existing, linked) BOs as our models. Basic examples on how to fetch the BOs are shown in the ReviewController and ItemListController files.
 
@@ -89,6 +97,7 @@ Three other methods in ItemListController.cs show another common pattern, they a
 - `ItemDetails([FromForm] long itemId)`
 - `ItemDetailsJSON([FromForm] long itemId)`
 - `GetItemDetails(long ItemId)`
+
 As before, the latter is used by the previous two, to create the Model they will need. Unlike the previous case, however, in this case, we want to present the ItemDetails data, which, alas, is not all contained inside a single BO. Thus, we use an ad-hoc "viewModel" (i.e. a model that exists specifically to support one or more views). This is a very simple object, located here: `~\ViewModels\FullItemDetails.cs`.  
 As you can see, it has some simple members that are standard BOs, plus a few methods that use the BO data to procude some convenient values, which can then be used directly in the view.  
 The corresponding view (`~\Views\ItemList\ItemDetails.cshtml`) shows how to access the separate BOs and also how to include some simple JS (uses jQuery), so to exemplify how to add a little bit of client-side interactivity.  
@@ -99,7 +108,7 @@ One possibility, which does not require to license additional products is to use
 
 In fact, the ReviewHome page now exemplifies both pro and con sides. The project now includes a _provisional_ controller: `ReviewSetListController`. This contains just one Method and will need to be completely changed later on (when we'll have the structure to support "filtered" coding tools as configured specifically for WebDatabases).  
         
-This controller has one method `public IActionResult FetchJSON()` which currently "just" fetches the ReviewSetsList and returns it as a JSON object.  
+This controller has one method `public IActionResult FetchJSON()` which currently "just" fetches the `WebDbReviewSetsList` and returns it as a JSON object.  
 Concurrently, the "~/Review/Index.cshtm" view has acquired some JavaScript that:
 1. Requests data from ReviewSetsList.FetchJSON()
 2. When data is received, parses it to construt new JavaScript Objects which extend the "kendo.data.Node" JavaScript Type, so that it can now contain our codetree data.

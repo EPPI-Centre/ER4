@@ -430,6 +430,18 @@
     <Compile Include="..\Server\BusinessClasses\ItemTypeNVLFactory.cs">
       <Link>BusinessClasses\ItemTypeNVLFactory.cs</Link>
     </Compile>
+    <Compile Include="..\Server\BusinessClasses\MagAutoUpdate.cs">
+      <Link>BusinessClasses\MagAutoUpdate.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\MagAutoUpdateList.cs">
+      <Link>BusinessClasses\MagAutoUpdateList.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\MagAutoUpdateRun.cs">
+      <Link>BusinessClasses\MagAutoUpdateRun.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\MagAutoUpdateRunList.cs">
+      <Link>BusinessClasses\MagAutoUpdateRunList.cs</Link>
+    </Compile>
     <Compile Include="..\Server\BusinessClasses\MagBlobDataCommand.cs">
       <Link>BusinessClasses\MagBlobDataCommand.cs</Link>
     </Compile>
