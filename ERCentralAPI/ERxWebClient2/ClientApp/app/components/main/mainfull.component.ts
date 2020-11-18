@@ -360,7 +360,10 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
             && this.ReviewerIdentityServ.reviewerIdentity.isAuthenticated
             && this.ReviewerIdentityServ.reviewerIdentity.isSiteAdmin) return true;
         else return false;
-	}
+    }
+    public get HasAdminRights(): boolean {
+        return this.ReviewerIdentityServ.HasAdminRights;
+    }
 	public CanAssignDocs(): boolean {
 		if (this.AssignDocs != null && this.DropdownSelectedCodeAllocate != null
 				&& this.AllocateChoice == 'Documents with this code') {

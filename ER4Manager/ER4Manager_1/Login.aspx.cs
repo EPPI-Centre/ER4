@@ -48,6 +48,7 @@ public partial class Login : System.Web.UI.Page
             Utils.SetSessionString("Remaining_Credit", "");
             Utils.SetSessionString("Purchased_Credit", "");
             Utils.SetSessionString("AccessWDSetup", "0");
+            Utils.SetSessionString("HasCochraneReviews", "Unknown");
 
             try
             {
