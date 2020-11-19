@@ -249,7 +249,7 @@ namespace BusinessLibrary.BusinessClasses
                                 while (reader.Read())
                                 {
                                     file.WriteLine(reader["PaperId"].ToString() + "\t" +
-                                        reader["RelatedRunId"].ToString() + "\t" +
+                                        reader["AutoUpdateId"].ToString() + "\t" +
                                         reader["Included"].ToString());
                                     lineCount++;
                                 }

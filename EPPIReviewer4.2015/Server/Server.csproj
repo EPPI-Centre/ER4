@@ -381,10 +381,13 @@
     <Compile Include="BusinessClasses\ItemTimepoint.cs" />
     <Compile Include="BusinessClasses\ItemTimepointDeleteWarningCommand.cs" />
     <Compile Include="BusinessClasses\ItemTimepointList.cs" />
+    <Compile Include="BusinessClasses\MagAddClassifierScoresCommand.cs" />
     <Compile Include="BusinessClasses\MagAutoUpdate.cs" />
     <Compile Include="BusinessClasses\MagAutoUpdateList.cs" />
     <Compile Include="BusinessClasses\MagAutoUpdateRun.cs" />
     <Compile Include="BusinessClasses\MagAutoUpdateRunList.cs" />
+    <Compile Include="BusinessClasses\MagAutoUpdateVisualise.cs" />
+    <Compile Include="BusinessClasses\MagAutoUpdateVisualiseList.cs" />
     <Compile Include="BusinessClasses\MagBlobDataCommand.cs" />
     <Compile Include="BusinessClasses\MagBrowseHistory.cs" />
     <Compile Include="BusinessClasses\MagBrowseHistoryList.cs" />
