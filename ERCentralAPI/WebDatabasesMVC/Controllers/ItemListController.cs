@@ -193,7 +193,7 @@ namespace WebDatabasesMVC.Controllers
 
         [HttpPost]
         public IActionResult GetFreqListNoneOfTheAbove([FromForm] long attributeIdXAxis, int setId,
-                                                         bool included, long onlyThisAttribute, int webDbId)
+                                                         string included, long onlyThisAttribute, int webDbId)
         {
             try
             {
@@ -203,7 +203,10 @@ namespace WebDatabasesMVC.Controllers
                     criteria.ListType = "WebDbFrequencyNoneOfTheAbove";
                     criteria.XAxisAttributeId = attributeIdXAxis;
                     criteria.SetId = setId;
-                    criteria.OnlyIncluded = included;
+                    if (included != "")
+                    {
+                        criteria.OnlyIncluded = included.ToLower() == "true" ? true : false;
+                    }
                     criteria.FilterAttributeId = onlyThisAttribute;
                     ItemListWithCriteria iList = GetItemList(criteria);
                     return View("Index", iList);//supplying the view name, otherwise MVC would try to auto-discover a view called Page.
@@ -218,7 +221,7 @@ namespace WebDatabasesMVC.Controllers
         }
         [HttpPost]
         public IActionResult GetFreqListNoneOfTheAboveJSon([FromForm] long attributeIdXAxis, int setId,
-                                                         bool included, long onlyThisAttribute, int webDbId)
+                                                         string included, long onlyThisAttribute, int webDbId)
         {
             try
             {
@@ -228,7 +231,10 @@ namespace WebDatabasesMVC.Controllers
                     criteria.ListType = "WebDbFrequencyNoneOfTheAbove";
                     criteria.XAxisAttributeId = attributeIdXAxis;
                     criteria.SetId = setId;
-                    criteria.OnlyIncluded = included;
+                    if (included != "")
+                    {
+                        criteria.OnlyIncluded = included.ToLower() == "true" ? true : false;
+                    }
                     criteria.FilterAttributeId = onlyThisAttribute;
                     ItemListWithCriteria iList = GetItemList(criteria);
                     return Json(iList);//supplying the view name, otherwise MVC would try to auto-discover a view called Page.

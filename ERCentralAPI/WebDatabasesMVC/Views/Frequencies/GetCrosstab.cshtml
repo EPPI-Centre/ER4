@@ -1,0 +1,56 @@
+﻿@model BusinessLibrary.BusinessClasses.WebDbItemAttributeCrosstabList
+@using BusinessLibrary.BusinessClasses
+Crosstab!
+<script type="text/javascript">
+    function GoToItems(AttId) {
+        if (AttId == -999999) {
+            var included = $('#includedCrit').val();
+            var attributeIdXAxis = $('#attributeIdXAxisCrit').val();
+            var setIdXAxis = $('#setIdXAxisCrit').val();
+            var onlyThisAttribute = $('#onlyThisAttributeCrit').val();
+            var webDbId = $('#webDbIdCrit').val();
+            postwith("../ItemList/GetFreqListNoneOfTheAbove",
+                {
+                    attributeIdXAxis: attributeIdXAxis
+                    , setId: setIdXAxis
+                    , included: included
+                    , onlyThisAttribute: onlyThisAttribute
+                    , webDbId: webDbId
+                });
+        } else {
+            postwith("../ItemList/GetFreqList", { attId: AttId });
+        }
+    }
+</script>
+
+<input type="hidden" value="@Model.Included" name="included" id="includedCrit" />
+<input type="hidden" value="@Model.SetIdY" name="setIdYAxis" id="setIdYAxisCrit" />
+<input type="hidden" value="@Model.SetIdX" name="setIdXAxis" id="setIdXAxisCrit" />
+<input type="hidden" value="@Model.FilterAttributeId" name="onlyThisAttribute" id="onlyThisAttributeCrit" />
+<input type="hidden" value="@Model.WebDbId" name="webDbId" id="webDbIdCrit"/>
+
+
+<table class="table table-striped">
+    <tr>
+        <th></th>
+        @for (int i = 0; i < Model.ColumnAttIDs.Count; i++)
+        {
+            <th>
+                @Model.ColumnAttNames[i]
+            </th>
+        }
+
+    </tr>
+    @foreach (WebDbItemAttributeCrosstabRow row in Model.Rows)
+    {
+        <tr><td>@row.AttributeName</td>
+        @for (int i = 0; i < Model.ColumnAttIDs.Count; i++)
+        {
+            <th>
+                @row.Counts[i]
+            </th>
+        }
+        </tr>
+    }
+</table>
+

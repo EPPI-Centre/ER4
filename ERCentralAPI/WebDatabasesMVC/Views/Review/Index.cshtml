@@ -34,6 +34,7 @@
                 dataItem = treeviewData.dataItem(e.node);
                 if (!dataItem) {
                     $("#CurrentNodeGoToFreq").prop("disabled", true);
+                    $("#CurrentNodeGoToCrosstab").prop("disabled", true);
                     return;
                 }
                 console.log("Change", dataItem.setId, dataItem.id, dataItem.text);
@@ -41,10 +42,14 @@
                 $("#CurrentNodeId").text(dataItem.id);
                 $("#CurrentNodeSetId").text(dataItem.setId);
                 $("#CurrentNodeIsCodeSet").text(dataItem.isCodeset.toString());
-                if (dataItem.items && dataItem.items.length > 0)
+                if (dataItem.items && dataItem.items.length > 0) {
                     $("#CurrentNodeGoToFreq").prop("disabled", false);
-                else
-                    $("#CurrentNodeGoToFreq").prop("disabled", true);
+                    $("#CurrentNodeGoToCrosstab").prop("disabled", false);
+                }
+                else {
+                    $("#CurrentNodeGoToFreq").prop("disabled", false);
+                    $("#CurrentNodeGoToCrosstab").prop("disabled", false);
+                }
             }
             var treeviewData = null;
             var dataItem = null;
@@ -100,6 +105,30 @@
                 }
                 else postwith("../Frequencies/GetFrequencies", { attId: dataItem.id, setId: dataItem.setId, included:true});
             }
+            function GoToCrosstab() {
+                console.log("CurrentNodeGoToCrosstab");
+                if (!dataItem) {
+                    console.log("CurrentNodeGoToCrosstab no data");
+                    return;
+                }
+                console.log("Planning to go to get frequency with (codeID, setId):", dataItem.id, dataItem.setId)
+                if (dataItem.isCodeset == true) {
+                    postwith("../Frequencies/GetCrosstab", {
+                        attIdx: 0
+                        , setIdx: dataItem.setId
+                        , attIdy: 0
+                        , setIdy: dataItem.setId
+                        , included: true
+                    });
+                }
+                else postwith("../Frequencies/GetCrosstab", {
+                    attIdx: dataItem.id
+                    , setIdx: dataItem.setId
+                    , attIdy: dataItem.id
+                    , setIdy: dataItem.setId
+                    , included: true
+                });
+            }
             
             //var treeviewData = $("#treeView").data("kendoTreeView");
             //treeview.bind("change", TreeViewSelection);
@@ -130,6 +159,7 @@
             <div class="row">Selected SetId: <span id="CurrentNodeSetId"></span></div>
             <div class="row">Is a coding tool: <span id="CurrentNodeIsCodeSet"></span></div>
             <button class="btn-outline-primary btn btn-sm" onclick="GoToFreq()" disabled id="CurrentNodeGoToFreq">Freq</button>
+            <button class="btn-outline-primary btn btn-sm" onclick="GoToCrosstab()" disabled id="CurrentNodeGoToCrosstab">Self XTab</button>
         </div>
 
     </div>

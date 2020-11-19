@@ -88,6 +88,7 @@ END
 
 insert into @attsX select a.Attribute_id, a.ATTRIBUTE_NAME, ATTRIBUTE_ORDER, 0 from TB_ATTRIBUTE_SET tas
 	 inner join TB_ATTRIBUTE a on a.ATTRIBUTE_ID = tas.ATTRIBUTE_ID
+	 inner join TB_WEBDB_PUBLIC_ATTRIBUTE pa on a.ATTRIBUTE_ID = pa.ATTRIBUTE_ID
 	 where tas.SET_ID = @setIdXAxis and PARENT_ATTRIBUTE_ID = @attributeIdXAxis
 select ATTRIBUTE_ID, ATTRIBUTE_NAME from @attsX order by ord
 
@@ -95,6 +96,7 @@ IF @setIdYAxis > 0
 BEGIN
 	insert into @attsY select a.Attribute_id, a.ATTRIBUTE_NAME, ATTRIBUTE_ORDER, 0 from TB_ATTRIBUTE_SET tas
 		 inner join TB_ATTRIBUTE a on a.ATTRIBUTE_ID = tas.ATTRIBUTE_ID 
+		 inner join TB_WEBDB_PUBLIC_ATTRIBUTE pa on a.ATTRIBUTE_ID = pa.ATTRIBUTE_ID
 		where SET_ID = @setIdYAxis and PARENT_ATTRIBUTE_ID = @attributeIdYAxis
 	select ATTRIBUTE_ID, ATTRIBUTE_NAME from @attsY order by ord
 END
@@ -103,6 +105,7 @@ If @SegmentsParent > 0
 BEGIN
 	insert into @segments select a.Attribute_id, a.ATTRIBUTE_NAME, ATTRIBUTE_ORDER, 0 from TB_ATTRIBUTE_SET tas
 		 inner join TB_ATTRIBUTE a on a.ATTRIBUTE_ID = tas.ATTRIBUTE_ID 
+		 inner join TB_WEBDB_PUBLIC_ATTRIBUTE pa on a.ATTRIBUTE_ID = pa.ATTRIBUTE_ID
 		where SET_ID = @setIdSegments and PARENT_ATTRIBUTE_ID = @SegmentsParent
 	select ATTRIBUTE_ID, ATTRIBUTE_NAME from @segments order by ord
 END
