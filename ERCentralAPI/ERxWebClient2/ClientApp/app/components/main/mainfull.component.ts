@@ -31,7 +31,7 @@ import { Helpers } from '../helpers/HelperMethods';
 import { ExcelService } from '../services/excel.service';
 import { DuplicatesService } from '../services/duplicates.service';
 import { FetchReadOnlyReviewsComponent } from '../readonlyreviews/readonlyreviews.component';
-import { BasicMAGService } from '../services/BasicMAG.service';
+import { MAGRelatedRunsService } from '../services/MAGRelatedRuns.service';
 import { ReviewInfoService } from '../services/ReviewInfo.service';
 import { MAGBrowserHistoryService } from '../services/MAGBrowserHistory.service';
 //import { AdvancedMAGFeaturesComponent } from '../MAG/AdvancedMAGFeatures.component';
@@ -70,7 +70,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 		private frequenciesService: frequenciesService
 		, private crosstabService: crosstabService
 		, private _searchService: searchService
-		, private _basicMAGService: BasicMAGService
+		, private _basicMAGService: MAGRelatedRunsService
         , private SourcesService: SourcesService
         , private ConfirmationDialogService: ConfirmationDialogService
         , private ItemCodingService: ItemCodingService

@@ -9,6 +9,7 @@ import { MagPaper, MagReviewMagInfo, MVCMagPaperListSelectionCriteria,
     MagCheckContReviewRunningCommand, MagFieldOfStudy, MagCurrentInfo} from './MAGClasses.service';
 import { Router } from '@angular/router';
 import { EventEmitterService } from './EventEmitter.service';
+import { MAGTopicsService } from './MAGTopics.service';
 
 
 @Injectable({
@@ -23,6 +24,7 @@ export class MAGAdvancedService extends BusyAwareService {
         private modalService: ModalService,
         private router: Router,
         private _eventEmitterService: EventEmitterService,
+        private _magTopicsService: MAGTopicsService,
         @Inject('BASE_URL') private _baseUrl: string
     ) {
         super();
@@ -31,7 +33,7 @@ export class MAGAdvancedService extends BusyAwareService {
     public _RunAlgorithmFirst: boolean = false;
     public ReviewMatchedPapersList: MagPaper[] = [];
     public AdvancedReviewInfo: MagReviewMagInfo = new MagReviewMagInfo();
-    public currentMagPaper: MagPaper = new MagPaper();
+    //public currentMagPaper: MagPaper = new MagPaper();
     public ListDescription: string = '';
     public TotalNumberOfMatchedPapers: number = 0;
     public MagPapersMatchedList: Item[] = [];
@@ -147,7 +149,8 @@ export class MAGAdvancedService extends BusyAwareService {
             .toPromise().then(result => {
 
                 this.RemoveBusy("FetchMagPaperId");
-                this.currentMagPaper = result;
+                this._magBrowserService.currentMagPaper = result;
+                //this.currentMagPaper = result;
 
                 return result;
                 
@@ -198,7 +201,7 @@ export class MAGAdvancedService extends BusyAwareService {
         criteriaFOS.paperIdList = result.paperId.toString();
         criteriaFOS.SearchTextTopics = ''; 
         console.log('calling FetchMagFieldOfStudyList: ', listType);
-        return await this._magBrowserService.FetchMagFieldOfStudyList(criteriaFOS, listType);
+        return await this._magTopicsService.FetchMagFieldOfStudyList(criteriaFOS, listType);
 
     }
 
@@ -220,7 +223,7 @@ export class MAGAdvancedService extends BusyAwareService {
 
             await this.PostFetchCitationsList(result);
             await this.PostFetchCitedByListList(result);
-            if (this.currentMagPaper.paperId > -1) {
+            if (this._magBrowserService.currentMagPaper.paperId > -1) {
 
                 await this.PostFetchMagFieldOfStudyList(result, listType);
             } else {

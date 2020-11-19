@@ -1223,4 +1223,9 @@ public partial class SummaryReviews : System.Web.UI.Page
             e.Row.Cells[0].Text = "Page " + (gvReview.PageIndex + 1) + " of " + gvReview.PageCount;
         }*/
     }
+
+    protected void gvReviewShareableMember_PageIndexChanging1(object sender, GridViewPageEventArgs e)
+    {
+        buildOtherShareableReviewGrid(e.NewPageIndex);
+    }
 }

@@ -82,10 +82,18 @@ namespace ERxWebClient2.Controllers
 					newMagRun.AttributeId = magRun.attributeId;
 					newMagRun.AutoReRun = Convert.ToBoolean(magRun.autoReRun);
                     DateTime dtFrom = new DateTime();
-                    bool resultDateFrom = DateTime.TryParse(magRun.dateFrom, out dtFrom);
-                    if (resultDateFrom)
+                    if (magRun.dateFrom == "")
                     {
-                        newMagRun.DateFrom = dtFrom;
+                        //this is not good
+                        newMagRun.DateFrom = null;
+                    }
+                    else
+                    {
+                        bool resultDateFrom = DateTime.TryParse(magRun.dateFrom, out dtFrom);
+                        if (resultDateFrom)
+                        {
+                            newMagRun.DateFrom = dtFrom;
+                        }
                     }
                     newMagRun.AttributeName = magRun.attributeName;
 					newMagRun.Filtered = magRun.filtered;

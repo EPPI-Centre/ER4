@@ -5,10 +5,11 @@ import { Router } from '@angular/router';
 import { MAGBrowserService } from '../services/MAGBrowser.service';
 import { MAGAdvancedService } from '../services/magAdvanced.service';
 import { MAGBrowserHistoryService } from '../services/MAGBrowserHistory.service';
-import { BasicMAGService } from '../services/BasicMAG.service';
-import { MagSearch, TopicLink, MVCMagFieldOfStudyListSelectionCriteria, MagFieldOfStudy, MagBrowseHistoryItem, MVCMagPaperListSelectionCriteria, MagPaper } from '../services/MAGClasses.service';
+import { MAGRelatedRunsService } from '../services/MAGRelatedRuns.service';
+import { MagSearch, TopicLink, MVCMagFieldOfStudyListSelectionCriteria, MagFieldOfStudy } from '../services/MAGClasses.service';
 import { magSearchService } from '../services/MAGSearch.service';
 import { NotificationService } from '@progress/kendo-angular-notification';
+import { MAGTopicsService } from '../services/MAGTopics.service';
 
 @Component({
     selector: 'MAGSearch',
@@ -18,15 +19,16 @@ import { NotificationService } from '@progress/kendo-angular-notification';
 
 export class MAGSearchComponent implements OnInit {
 
-    constructor(private ConfirmationDialogService: ConfirmationDialogService,
-        public _magBasicService: BasicMAGService,
+    constructor(private _confirmationDialogService: ConfirmationDialogService,
+        public _magBasicService: MAGRelatedRunsService,
         public _magAdvancedService: MAGAdvancedService,
         private _magBrowserService: MAGBrowserService,
         public _magSearchService: magSearchService,
         private _ReviewerIdentityServ: ReviewerIdentityService,
         private router: Router,
         public _mAGBrowserHistoryService: MAGBrowserHistoryService,
-        public _notificationService: NotificationService
+        public _notificationService: NotificationService,
+        private _magTopicsService: MAGTopicsService
 
     ) {
 
@@ -77,7 +79,7 @@ export class MAGSearchComponent implements OnInit {
             criteriaFOSL.listType = 'FieldOfStudySearchList';
             criteriaFOSL.paperIdList = '';
             criteriaFOSL.SearchTextTopics = this.SearchTextTopicDisplayName;
-            this._magBrowserService.FetchMagFieldOfStudyList(criteriaFOSL, '').then(
+            this._magTopicsService.FetchMagFieldOfStudyList(criteriaFOSL, '').then(
 
                 (results: MagFieldOfStudy[]) => {
 
@@ -130,21 +132,11 @@ export class MAGSearchComponent implements OnInit {
             return false;
         }
     }
-    private ShowMAGRunMessage(notifyMsg: string) {
-
-        this._notificationService.show({
-            content: notifyMsg,
-            animation: { type: 'slide', duration: 400 },
-            position: { horizontal: 'center', vertical: 'top' },
-            type: { style: "info", icon: true },
-            closable: true
-        });
-    }
     public ImportMagSearchPapers(item: MagSearch) {
 
         let msg: string = '';
         if (item.magSearchId == 0) {
-            this.ShowMAGRunMessage('There are no papers to import');
+            this._confirmationDialogService.showMAGRunMessage('There are no papers to import');
 
         } else {
 
@@ -159,7 +151,7 @@ export class MAGSearchComponent implements OnInit {
     }
     public ImportMagRelatedPapersRun(magSearch: MagSearch, msg: string) {
 
-        this.ConfirmationDialogService.confirm("Importing papers for the selected MAG search",
+        this._confirmationDialogService.confirm("Importing papers for the selected MAG search",
             msg, false, '')
             .then((confirm: any) => {
                 if (confirm) {
@@ -187,7 +179,7 @@ export class MAGSearchComponent implements OnInit {
                             } else {
                                 msg = 'results are undefined';
                             }
-                            this.ShowMAGRunMessage(msg);
+                            this._confirmationDialogService.showMAGRunMessage(msg);
                         }
                         
                    );
@@ -198,24 +190,8 @@ export class MAGSearchComponent implements OnInit {
     public GetItems(item: MagSearch) {
 
         if (item.magSearchId > 0) {
-            this._magBrowserService.currentMagSearch = item;
-            this._magAdvancedService.currentMagPaper = new MagPaper();
-            this._magBrowserService.MagCitationsByPaperList.papers = [];
-            this._magBrowserService.MAGOriginalList.papers = [];
-            this._magBrowserService.currentRefreshListType = 'MagSearchResultsList';
-            this._magBrowserService.currentListType = "MagSearchResultsList";
-            this._magBrowserService.ShowingParentAndChildTopics = false;
-            this._magBrowserService.ShowingChildTopicsOnly = true;
-            let magBrowseItem: MagBrowseHistoryItem = new MagBrowseHistoryItem("Papers identified from Mag Search run", "MagSearchPapersList", 0,
-                "", "", 0, "", "", 0, "", "", item.magSearchId);
-            this._mAGBrowserHistoryService.IncrementHistoryCount();
-            this._mAGBrowserHistoryService.AddToBrowseHistory(magBrowseItem);
-            let selectionCriteria: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
-            selectionCriteria.pageSize = 20;
-            selectionCriteria.pageNumber = 0;
-            selectionCriteria.listType = "MagSearchResultsList";
-            selectionCriteria.magSearchText = item.magSearchText;
-            this._magBrowserService.FetchMagPapersFromSearch(selectionCriteria, "MagSearchResultsList")
+
+            this._magBrowserService.GetMagItemsForSearch(item)            
                 .then(
                     () => {
                         this.router.navigate(['MAGBrowser']);
@@ -247,7 +223,7 @@ export class MAGSearchComponent implements OnInit {
     
     public DeleteSearches() {
         const count = this.AllSelectedItems.length.toString();
-        this.ConfirmationDialogService.confirm("Are you sure you want to delete " + this.AllSelectedItems.length.toString()
+        this._confirmationDialogService.confirm("Are you sure you want to delete " + this.AllSelectedItems.length.toString()
             + " selected MAG searches",
             '', false, '')
             .then((confirm: any) => {
@@ -256,7 +232,7 @@ export class MAGSearchComponent implements OnInit {
 
                         (res: any) => {
                             let msg: string = 'Deleted: ' + count + ' items';
-                            this.ShowMAGRunMessage(msg);
+                            this._confirmationDialogService.showMAGRunMessage(msg);
                         }
                     );
                 }
@@ -269,7 +245,7 @@ export class MAGSearchComponent implements OnInit {
             () => {
                 this.FetchMagSearches();
                 let msg: string = 'You have ReRun a MAG search';
-                this.ShowMAGRunMessage(msg);
+                this._confirmationDialogService.showMAGRunMessage(msg);
             }
        );
 
@@ -291,7 +267,7 @@ export class MAGSearchComponent implements OnInit {
                 () => {
                     this.FetchMagSearches();
                     let msg: string = 'You have created a new MAG search';
-                    this.ShowMAGRunMessage(msg);
+                    this._confirmationDialogService.showMAGRunMessage(msg);
                 }
             );
     }
@@ -315,7 +291,7 @@ export class MAGSearchComponent implements OnInit {
 
             () => {
                 let msg: string = 'You have Combined MAG searches using : ' + this.LogicalOperator;
-                this.ShowMAGRunMessage(msg);
+                this._confirmationDialogService.showMAGRunMessage(msg);
                 this.LogicalOperator = 'Select operator';
                 this.FetchMagSearches();
             }
