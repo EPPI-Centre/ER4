@@ -9,11 +9,12 @@
     <div class="col-6 col-sm-4 col-md-3">
         <div id="treeView"></div>
         <script>
-
-
+            var treeviewData = null;
+            var dataItem = null;
+            var dataItemXaxis = null;
             function Buildnode(attr) {
                 var nodes = [];
-                
+
                 var res = new kendo.data.Node({
                     text: attr.setName ? attr.setName : attr.attributeName
                 });
@@ -29,31 +30,7 @@
                 //};
                 return res;
             }
-            function TreeViewSelection(e) {
-                if (treeviewData == null) retrun;
-                dataItem = treeviewData.dataItem(e.node);
-                if (!dataItem) {
-                    $("#CurrentNodeGoToFreq").prop("disabled", true);
-                    $("#CurrentNodeGoToCrosstab").prop("disabled", true);
-                    return;
-                }
-                console.log("Change", dataItem.setId, dataItem.id, dataItem.text);
-                $("#CurrentNodeName").text(dataItem.text);
-                $("#CurrentNodeId").text(dataItem.id);
-                $("#CurrentNodeSetId").text(dataItem.setId);
-                $("#CurrentNodeIsCodeSet").text(dataItem.isCodeset.toString());
-                if (dataItem.items && dataItem.items.length > 0) {
-                    $("#CurrentNodeGoToFreq").prop("disabled", false);
-                    $("#CurrentNodeGoToCrosstab").prop("disabled", false);
-                }
-                else {
-                    $("#CurrentNodeGoToFreq").prop("disabled", false);
-                    $("#CurrentNodeGoToCrosstab").prop("disabled", false);
-                }
-            }
-            var treeviewData = null;
-            var dataItem = null;
-            $(document).ready(function() {
+            $(document).ready(function () {
                 $("#treeView").kendoTreeView({
                     dataSource: {
                         transport: {
@@ -105,31 +82,98 @@
                 }
                 else postwith("../Frequencies/GetFrequencies", { attId: dataItem.id, setId: dataItem.setId, included:true});
             }
-            function GoToCrosstab() {
+            function GoToCrosstab(isSelfXtab) {
                 console.log("CurrentNodeGoToCrosstab");
-                if (!dataItem) {
+                if (!dataItem || (isSelfXtab !== true && !dataItemXaxis)) {
                     console.log("CurrentNodeGoToCrosstab no data");
                     return;
                 }
-                console.log("Planning to go to get frequency with (codeID, setId):", dataItem.id, dataItem.setId)
-                if (dataItem.isCodeset == true) {
-                    postwith("../Frequencies/GetCrosstab", {
-                        attIdx: 0
+                if (isSelfXtab == true) {
+                    if (dataItem.isCodeset == true) {
+                        postwith("../Frequencies/GetCrosstab", {
+                            attIdx: 0
+                            , setIdx: dataItem.setId
+                            , attIdy: 0
+                            , setIdy: dataItem.setId
+                            , included: true
+                        });
+                    }
+                    else postwith("../Frequencies/GetCrosstab", {
+                        attIdx: dataItem.id
                         , setIdx: dataItem.setId
-                        , attIdy: 0
+                        , attIdy: dataItem.id
                         , setIdy: dataItem.setId
                         , included: true
                     });
+                } else {
+                    var pars = {
+                            attIdx: 0
+                            , setIdx: 0
+                            , attIdy: 0
+                            , setIdy: 0
+                            , included: true
+                        }
+                    if (dataItem.isCodeset == true) {
+                        pars.attIdy = 0;
+                        pars.setIdy = dataItem.setId;
+                    }
+                    else {
+                        pars.attIdy = dataItem.id;
+                        pars.setIdy = dataItem.setId;
+                    }
+                    if (dataItemXaxis.isCodeset == true) {
+                        pars.attIdx = 0;
+                        pars.setIdx = dataItemXaxis.setId;
+                    }
+                    else {
+                        pars.attIdx = dataItemXaxis.id;
+                        pars.setIdx = dataItemXaxis.setId;
+                    }
+                    postwith("../Frequencies/GetCrosstab", pars);
                 }
-                else postwith("../Frequencies/GetCrosstab", {
-                    attIdx: dataItem.id
-                    , setIdx: dataItem.setId
-                    , attIdy: dataItem.id
-                    , setIdy: dataItem.setId
-                    , included: true
-                });
             }
             
+            function TreeViewSelection(e) {
+                if (treeviewData == null) retrun;
+                dataItem = treeviewData.dataItem(e.node);
+                if (!dataItem) {
+                    $("#CurrentNodeGoToFreq").prop("disabled", true); CurrentNodeGoToSelfCrosstab
+                    $("#CurrentNodeGoToSelfCrosstab").prop("disabled", true);
+                    $("#CurrentNodeGoToCrosstab").prop("disabled", true);
+                    $("#CurrentNodeSetXAxis").prop("disabled", true);
+                    return;
+                }
+                console.log("Change", dataItem.setId, dataItem.id, dataItem.text);
+                $("#CurrentNodeName").text(dataItem.text);
+                $("#CurrentNodeId").text(dataItem.id);
+                $("#CurrentNodeSetId").text(dataItem.setId);
+                $("#CurrentNodeIsCodeSet").text(dataItem.isCodeset.toString());
+                if (dataItem.items && dataItem.items.length > 0) {
+                    $("#CurrentNodeGoToFreq").prop("disabled", false);
+                    $("#CurrentNodeGoToSelfCrosstab").prop("disabled", false);
+                    $("#CurrentNodeGoToCrosstab").prop("disabled", dataItemXaxis == null);
+                    $("#CurrentNodeSetXAxis").prop("disabled", false);
+                }
+                else {
+                    $("#CurrentNodeGoToFreq").prop("disabled", true);
+                    $("#CurrentNodeGoToSelfCrosstab").prop("disabled", true);
+                    $("#CurrentNodeGoToCrosstab").prop("disabled", true);
+                    $("#CurrentNodeSetXAxis").prop("disabled", true);
+                }
+            }
+            function SetXAxis() {
+                if (!dataItem) {
+                    dataItemXaxis = null;
+                    $("#x_axis_setting").hide();
+                    $("CurrentNodeGoToCrosstab").prop("disabled", true);
+                }
+                else {
+                    dataItemXaxis = dataItem;
+                    $("#x_axis_name").text(dataItemXaxis.text);
+                    $("CurrentNodeGoToCrosstab").prop("disabled", false);
+                    $("#x_axis_setting").show();
+                }
+            }
             //var treeviewData = $("#treeView").data("kendoTreeView");
             //treeview.bind("change", TreeViewSelection);
         </script>
@@ -154,12 +198,22 @@
             </a>
         </div>
         <div class="col-12 " id="CurrentNode">
-            <div class="row">Selected code: <span id="CurrentNodeName"></span></div>
-            <div class="row">Selected Id: <span id="CurrentNodeId"></span></div>
-            <div class="row">Selected SetId: <span id="CurrentNodeSetId"></span></div>
-            <div class="row">Is a coding tool: <span id="CurrentNodeIsCodeSet"></span></div>
+            <div class="row">Selected code: <span class="ml-1 font-weight-bold" id="CurrentNodeName"></span></div>
+            <div class="row">Selected Id: <span class="ml-1 font-weight-bold" id="CurrentNodeId"></span></div>
+            <div class="row">Selected SetId: <span class="ml-1 font-weight-bold" id="CurrentNodeSetId"></span></div>
+            <div class="row">Is a coding tool: <span class="ml-1 font-weight-bold" id="CurrentNodeIsCodeSet"></span></div>
             <button class="btn-outline-primary btn btn-sm" onclick="GoToFreq()" disabled id="CurrentNodeGoToFreq">Freq</button>
-            <button class="btn-outline-primary btn btn-sm" onclick="GoToCrosstab()" disabled id="CurrentNodeGoToCrosstab">Self XTab</button>
+
+
+            <div class="row" >
+                Crosstabs:
+                <button class="btn-outline-primary btn btn-sm" onclick="GoToCrosstab(true)" disabled id="CurrentNodeGoToSelfCrosstab">Self Cross Tab</button>
+                <button class="btn-outline-success btn btn-sm" onclick="SetXAxis()" disabled id="CurrentNodeSetXAxis">Set X axis</button>
+                <div class="col-12" id="x_axis_setting" style="display:none;">
+                    X-axis is set to: <span id="x_axis_name" class="m-1"></span>
+                    <button class="btn-outline-primary btn btn-sm" onclick="GoToCrosstab(false)" disabled id="CurrentNodeGoToCrosstab">Full Cross Tab</button>
+                </div>
+            </div>
         </div>
 
     </div>
