@@ -193,7 +193,7 @@ namespace WebDatabasesMVC.Controllers
 
         [HttpPost]
         public IActionResult GetFreqListNoneOfTheAbove([FromForm] long attributeIdXAxis, int setId,
-                                                         bool included, long onlyThisAttribute, int webDbId)
+                                                         string included, long onlyThisAttribute, int webDbId)
         {
             try
             {
@@ -203,7 +203,10 @@ namespace WebDatabasesMVC.Controllers
                     criteria.ListType = "WebDbFrequencyNoneOfTheAbove";
                     criteria.XAxisAttributeId = attributeIdXAxis;
                     criteria.SetId = setId;
-                    criteria.OnlyIncluded = included;
+                    if (included != "")
+                    {
+                        criteria.OnlyIncluded = included.ToLower() == "true" ? true : false;
+                    }
                     criteria.FilterAttributeId = onlyThisAttribute;
                     ItemListWithCriteria iList = GetItemList(criteria);
                     return View("Index", iList);//supplying the view name, otherwise MVC would try to auto-discover a view called Page.
@@ -218,7 +221,7 @@ namespace WebDatabasesMVC.Controllers
         }
         [HttpPost]
         public IActionResult GetFreqListNoneOfTheAboveJSon([FromForm] long attributeIdXAxis, int setId,
-                                                         bool included, long onlyThisAttribute, int webDbId)
+                                                         string included, long onlyThisAttribute, int webDbId)
         {
             try
             {
@@ -228,7 +231,10 @@ namespace WebDatabasesMVC.Controllers
                     criteria.ListType = "WebDbFrequencyNoneOfTheAbove";
                     criteria.XAxisAttributeId = attributeIdXAxis;
                     criteria.SetId = setId;
-                    criteria.OnlyIncluded = included;
+                    if (included != "")
+                    {
+                        criteria.OnlyIncluded = included.ToLower() == "true" ? true : false;
+                    }
                     criteria.FilterAttributeId = onlyThisAttribute;
                     ItemListWithCriteria iList = GetItemList(criteria);
                     return Json(iList);//supplying the view name, otherwise MVC would try to auto-discover a view called Page.
@@ -241,7 +247,81 @@ namespace WebDatabasesMVC.Controllers
                 return StatusCode(500, e.Message);
             }
         }
-
+        
+        [HttpPost]
+        public IActionResult GetListWithWithoutAtts([FromForm] string WithAttIds, string WithSetId, string WithoutAttIds, string WithoutSetId, string included)
+        {
+            try
+            {
+                if (SetCSLAUser())
+                {
+                    //basic check: number of atts and sets match...
+                    if (WithAttIds.Count(c => c== ',') != WithSetId.Count(c => c == ',')
+                        || (
+                            WithoutAttIds != null && WithoutSetId != null &&
+                            WithoutAttIds.Count(c => c == ',') != WithoutSetId.Count(c => c == ',')
+                            )
+                        )
+                    {
+                        _logger.LogError("Error in ItemList GetListWithWithoutAtts: number of AttIDs didn't match number os SetIDs");
+                        return BadRequest("Request parameters appear to be malformed.");
+                    }
+                    SelectionCriteria criteria = new SelectionCriteria();
+                    criteria.ListType = "WebDbWithWithoutCodes";
+                    criteria.WithAttributesIds = WithAttIds;
+                    criteria.WithSetIdsList = WithSetId;
+                    criteria.WithOutAttributesIdsList = WithoutAttIds;
+                    criteria.WithOutSetIdsList = WithoutSetId;
+                    if (included != "")
+                    {
+                        criteria.OnlyIncluded = included.ToLower() == "true" ? true : false;
+                    }
+                    ItemListWithCriteria iList = GetItemList(criteria);
+                    return View("Index", iList);//supplying the view name, otherwise MVC would try to auto-discover a view called Page.
+                }
+                else return Unauthorized();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Error in ItemList GetListWithWithoutAtts");
+                return StatusCode(500, e.Message);
+            }
+        }
+        [HttpPost]
+        public IActionResult GetListWithWithoutAttsJSON([FromForm] string WithAttIds, string WithSetId, string WithoutAttIds, string WithoutSetId, string included)
+        {
+            try
+            {
+                if (SetCSLAUser())
+                {
+                    //basic check: number of atts and sets match...
+                    if (WithAttIds.Count(c => c == ',') != WithSetId.Count(c => c == ',')
+                        || WithoutAttIds.Count(c => c == ',') != WithoutSetId.Count(c => c == ','))
+                    {
+                        _logger.LogError("Error in ItemList GetListWithWithoutAtts: number of AttIDs didn't match number os SetIDs");
+                        return BadRequest("Request parameters appear to be malformed.");
+                    }
+                    SelectionCriteria criteria = new SelectionCriteria();
+                    criteria.ListType = "WebDbWithWithoutCodes";
+                    criteria.WithAttributesIds = WithAttIds;
+                    criteria.WithSetIdsList = WithSetId;
+                    criteria.WithOutAttributesIdsList = WithoutAttIds;
+                    criteria.WithOutSetIdsList = WithoutSetId;
+                    if (included != "")
+                    {
+                        criteria.OnlyIncluded = included.ToLower() == "true" ? true : false;
+                    }
+                    ItemListWithCriteria iList = GetItemList(criteria);
+                    return Json(iList);//supplying the view name, otherwise MVC would try to auto-discover a view called Page.
+                }
+                else return Unauthorized();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Error in ItemList GetListWithWithoutAtts");
+                return StatusCode(500, e.Message);
+            }
+        }
         internal ItemListWithCriteria GetItemList(SelectionCriteria crit)
         {
             List<Claim> claims = User.Claims.ToList();
@@ -351,6 +431,10 @@ namespace WebDatabasesMVC.Controllers
             showInfoColumn = CSLAcrit.ShowInfoColumn;
             showScoreColumn = CSLAcrit.ShowScoreColumn;
             webDbId = CSLAcrit.WebDbId;
+            withAttributesIds = CSLAcrit.WithAttributesIds;
+            withSetIdsList = CSLAcrit.WithSetIdsList;
+            withOutAttributesIdsList = CSLAcrit.WithOutAttributesIdsList;
+            withOutSetIdsList = CSLAcrit.WithOutSetIdsList;
         }
         public bool onlyIncluded { get; set; }
         public bool showDeleted { get; set; }
@@ -373,7 +457,6 @@ namespace WebDatabasesMVC.Controllers
         public int endIndex { get; set; }
         public int workAllocationId { get; set; }
         public int comparisonId { get; set; }
-
         public int magSimulationId { get; set; }
         public string description { get; set; }
         public int contactId { get; set; }
@@ -381,6 +464,10 @@ namespace WebDatabasesMVC.Controllers
         public bool showInfoColumn { get; set; }
         public bool showScoreColumn { get; set; }
         public int webDbId { get; set; }
+        public string withAttributesIds { get; set; }
+        public string withSetIdsList { get; set; }
+        public string withOutAttributesIdsList { get; set; }
+        public string withOutSetIdsList { get; set; }
         public SelectionCriteria CSLACriteria() 
         {
             
@@ -408,6 +495,10 @@ namespace WebDatabasesMVC.Controllers
             CSLAcrit.ShowInfoColumn = showInfoColumn;
             CSLAcrit.ShowScoreColumn = showScoreColumn;
             CSLAcrit.WebDbId = webDbId;
+            CSLAcrit.WithAttributesIds = withAttributesIds;
+            CSLAcrit.WithSetIdsList = withSetIdsList;
+            CSLAcrit.WithOutAttributesIdsList = withOutAttributesIdsList;
+            CSLAcrit.WithOutSetIdsList = withOutSetIdsList;
             return CSLAcrit;
         }
     }

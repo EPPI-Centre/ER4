@@ -651,8 +651,6 @@ namespace BusinessLibrary.BusinessClasses
                     break;
                 case "WebDbFrequencyNoneOfTheAbove":
                     command = new SqlCommand("st_WebDbItemListFrequencyNoneOfTheAbove", connection);
-//                    @ParentAttributeId bigint
-//                    , @FilterAttributeId int
                     command.CommandType = System.Data.CommandType.StoredProcedure;
                     command.Parameters.Add(new SqlParameter("@RevId", ri.ReviewId));
                     command.Parameters.Add(new SqlParameter("@WebDbId", criteria.WebDbId));
@@ -660,6 +658,18 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@included", criteria.OnlyIncluded)); // filter attribute id
                     command.Parameters.Add(new SqlParameter("@ParentAttributeId", criteria.XAxisAttributeId)); // x axis attribute id
                     command.Parameters.Add(new SqlParameter("@FilterAttributeId", criteria.FilterAttributeId)); // filter attribute id
+                    break;
+                case "WebDbWithWithoutCodes":
+
+                    command = new SqlCommand("st_WebDbItemListWithWithoutCodes", connection);
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@RevId", ri.ReviewId));
+                    command.Parameters.Add(new SqlParameter("@WebDbId", criteria.WebDbId));
+                    command.Parameters.Add(new SqlParameter("@WithAttributesIds", criteria.WithAttributesIds));
+                    command.Parameters.Add(new SqlParameter("@WithSetIdsList", criteria.WithSetIdsList));
+                    command.Parameters.Add(new SqlParameter("@included", criteria.OnlyIncluded)); 
+                    command.Parameters.Add(new SqlParameter("@WithOutAttributesIdsList", criteria.WithOutAttributesIdsList)); 
+                    command.Parameters.Add(new SqlParameter("@WithOutSetIdsList", criteria.WithOutSetIdsList)); 
                     break;
 #endif
                 default:
@@ -903,6 +913,42 @@ namespace BusinessLibrary.BusinessClasses
             set
             {
                 SetProperty(WebDbIdProperty, value);
+            }
+        }
+        public static readonly PropertyInfo<string> WithAttributesIdsListProperty = RegisterProperty<string>(typeof(SelectionCriteria), new PropertyInfo<string>("WithAttributesIds", "WithAttributesIds", string.Empty));
+        public string WithAttributesIds
+        {
+            get { return ReadProperty(WithAttributesIdsListProperty); }
+            set
+            {
+                SetProperty(WithAttributesIdsListProperty, value);
+            }
+        }
+        public static readonly PropertyInfo<string> WithSetIdsListProperty = RegisterProperty<string>(typeof(SelectionCriteria), new PropertyInfo<string>("WithSetIdsList", "WithSetIdsList", string.Empty));
+        public string WithSetIdsList
+        {
+            get { return ReadProperty(WithSetIdsListProperty); }
+            set
+            {
+                SetProperty(WithSetIdsListProperty, value);
+            }
+        }
+        public static readonly PropertyInfo<string> WithOutAttributesIdsListProperty = RegisterProperty<string>(typeof(SelectionCriteria), new PropertyInfo<string>("WithOutAttributesIdsList", "WithOutAttributesIdsList", string.Empty));
+        public string WithOutAttributesIdsList
+        {
+            get { return ReadProperty(WithOutAttributesIdsListProperty); }
+            set
+            {
+                SetProperty(WithOutAttributesIdsListProperty, value);
+            }
+        }
+        public static readonly PropertyInfo<string> WithOutSetIdsListProperty = RegisterProperty<string>(typeof(SelectionCriteria), new PropertyInfo<string>("WithOutSetIdsList", "WithOutSetIdsList", string.Empty));
+        public string WithOutSetIdsList
+        {
+            get { return ReadProperty(WithOutSetIdsListProperty); }
+            set
+            {
+                SetProperty(WithOutSetIdsListProperty, value);
             }
         }
 #endif

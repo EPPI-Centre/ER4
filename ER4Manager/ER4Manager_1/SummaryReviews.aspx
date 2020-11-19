@@ -372,7 +372,7 @@
             ID="gvReviewShareableMember" runat="server" AutoGenerateColumns="False"
             OnRowCommand="gvReviewShareableMember_RowCommand"
             DataKeyNames="REVIEW_ID" CssClass="grviewFixedWidth"
-            OnRowDataBound="gvReviewShareableMember_RowDataBound" PageSize="15" AllowPaging="True">
+            OnRowDataBound="gvReviewShareableMember_RowDataBound" PageSize="5" AllowPaging="True" OnPageIndexChanging="gvReviewShareableMember_PageIndexChanging1">
             <Columns>
                 <asp:BoundField DataField="REVIEW_ID" HeaderText="ReviewID">
                     <HeaderStyle BackColor="#B6C6D6" />

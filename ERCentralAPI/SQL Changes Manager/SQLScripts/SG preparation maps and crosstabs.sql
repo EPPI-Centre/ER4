@@ -13,8 +13,8 @@ CREATE OR ALTER PROCEDURE st_WebDbFrequencyCrosstabAndMap
 	-- Add the parameters for the stored procedure here
 	@attributeIdXAxis bigint 
 	, @setIdXAxis int
+	, @included bit null = null
 	, @attributeIdYAxis bigint = 0
-	, @included bit null
 	, @setIdYAxis int = 0 
 	, @segmentsParent bigint = 0
 	, @setIdSegments int = 0
@@ -86,23 +86,26 @@ BEGIN
 	END
 END
 
-insert into @attsX select a.Attribute_id, a.ATTRIBUTE_NAME, ATTRIBUTE_ORDER, 0 from TB_ATTRIBUTE_SET tas
+insert into @attsX select distinct a.Attribute_id, a.ATTRIBUTE_NAME, ATTRIBUTE_ORDER, 0 from TB_ATTRIBUTE_SET tas
 	 inner join TB_ATTRIBUTE a on a.ATTRIBUTE_ID = tas.ATTRIBUTE_ID
+	 inner join TB_WEBDB_PUBLIC_ATTRIBUTE pa on a.ATTRIBUTE_ID = pa.ATTRIBUTE_ID and pa.WEBDB_ID = @WebDbId
 	 where tas.SET_ID = @setIdXAxis and PARENT_ATTRIBUTE_ID = @attributeIdXAxis
 select ATTRIBUTE_ID, ATTRIBUTE_NAME from @attsX order by ord
 
 IF @setIdYAxis > 0
 BEGIN
-	insert into @attsY select a.Attribute_id, a.ATTRIBUTE_NAME, ATTRIBUTE_ORDER, 0 from TB_ATTRIBUTE_SET tas
+	insert into @attsY select distinct a.Attribute_id, a.ATTRIBUTE_NAME, ATTRIBUTE_ORDER, 0 from TB_ATTRIBUTE_SET tas
 		 inner join TB_ATTRIBUTE a on a.ATTRIBUTE_ID = tas.ATTRIBUTE_ID 
+		 inner join TB_WEBDB_PUBLIC_ATTRIBUTE pa on a.ATTRIBUTE_ID = pa.ATTRIBUTE_ID and pa.WEBDB_ID = @WebDbId
 		where SET_ID = @setIdYAxis and PARENT_ATTRIBUTE_ID = @attributeIdYAxis
 	select ATTRIBUTE_ID, ATTRIBUTE_NAME from @attsY order by ord
 END
 
 If @SegmentsParent > 0
 BEGIN
-	insert into @segments select a.Attribute_id, a.ATTRIBUTE_NAME, ATTRIBUTE_ORDER, 0 from TB_ATTRIBUTE_SET tas
+	insert into @segments select distinct a.Attribute_id, a.ATTRIBUTE_NAME, ATTRIBUTE_ORDER, 0 from TB_ATTRIBUTE_SET tas
 		 inner join TB_ATTRIBUTE a on a.ATTRIBUTE_ID = tas.ATTRIBUTE_ID 
+		 inner join TB_WEBDB_PUBLIC_ATTRIBUTE pa on a.ATTRIBUTE_ID = pa.ATTRIBUTE_ID and pa.WEBDB_ID = @WebDbId
 		where SET_ID = @setIdSegments and PARENT_ATTRIBUTE_ID = @SegmentsParent
 	select ATTRIBUTE_ID, ATTRIBUTE_NAME from @segments order by ord
 END
@@ -385,4 +388,149 @@ SET NOCOUNT ON
 			@TotalPages as N'@TotalPages',
 			@TotalRows as N'@TotalRows'
 SET NOCOUNT OFF
+GO
+
+--st_WebDbItemListWebDbWithWithoutCodes
+CREATE OR ALTER PROCEDURE st_WebDbItemListWithWithoutCodes
+	@WithAttributesIds varchar(max)
+    , @WithSetIdsList varchar(max)
+	, @included bit null
+    , @WithOutAttributesIdsList varchar(max) = ''
+    , @WithOutSetIdsList varchar(max) = ''
+	, @RevId int 
+	, @WebDbId int
+      
+    , @PageNum INT = 1
+    , @PerPage INT = 100
+    , @CurrentPage INT OUTPUT
+    , @TotalPages INT OUTPUT
+    , @TotalRows INT OUTPUT  
+AS
+SET NOCOUNT ON
+	--sanity check, ensure @RevId and @WebDbId match...
+	Declare @CheckWebDbId int = null
+	set @CheckWebDbId = (select WEBDB_ID from TB_WEBDB where REVIEW_ID = @RevId and WEBDB_ID = @WebDbId)
+	IF @CheckWebDbId is null return;
+
+
+	declare @WebDbFilter bigint = (select w.WITH_ATTRIBUTE_ID from TB_WEBDB w where REVIEW_ID = @RevId and WEBDB_ID = @WebDbId)
+	declare @RowsToRetrieve int
+	Declare @ID table (ItemID bigint primary key) --store IDs to build paged results as a simple join
+	Declare @WithAtt table (AttID bigint primary key, SetId int) 
+	Declare @WithOutAtt table (AttID bigint primary key, SetId int) 
+
+	--check input: need to be able to match Att and Set IDs...
+	--see: https://arulmouzhi.wordpress.com/2020/01/13/counting-number-of-occurrences-of-a-particular-word-inside-the-string-using-t-sql/
+	declare @commas int = (LEN(@WithAttributesIds) - LEN(REPLACE(@WithAttributesIds,',','')))
+	declare @commas2 int = (LEN(@WithOutAttributesIdsList) - LEN(REPLACE(@WithOutAttributesIdsList,',','')))
+	
+	if @commas = (LEN(@WithSetIdsList) - LEN(REPLACE(@WithSetIdsList,',','')))
+		AND
+		@commas2 = (LEN(@WithOutSetIdsList) - LEN(REPLACE(@WithOutSetIdsList,',','')))
+	BEGIN
+		--we put things in @ID as we believe this will work.
+		Insert into	@WithAtt select s.value, ss.value from dbo.fn_Split_int(@WithAttributesIds,',') s
+			inner join dbo.fn_Split_int(@WithSetIdsList,',') ss on s.idx = ss.idx
+		declare @imax int = @@rowcount, @i int = 0 --we'll use this below in the WHILE loop
+
+		Insert into	@WithOutAtt select s.value, ss.value from dbo.fn_Split_int(@WithOutAttributesIdsList,',') s
+			inner join dbo.fn_Split_int(@WithOutSetIdsList,',') ss on s.idx = ss.idx
+		--in the first pass, we put in the table items found with a not-very selective query, they just need to match for one "with this code" so we're getting too many items...
+		IF (@WebDbFilter = 0)
+		BEGIN
+		insert into @ID
+			Select DISTINCT ir.ITEM_ID from TB_ITEM_REVIEW ir
+				inner join TB_ITEM_SET tis on ir.REVIEW_ID = @RevId and tis.IS_COMPLETED = 1 and ir.ITEM_ID = tis.ITEM_ID 
+					and ir.IS_DELETED = 0  and ir.IS_INCLUDED = @included
+				inner join @WithAtt w on tis.SET_ID = w.SetId
+				inner join TB_ITEM_ATTRIBUTE ia on ia.ITEM_SET_ID = tis.ITEM_SET_ID and ia.ITEM_ID = ir.ITEM_ID and ia.ATTRIBUTE_ID = w.AttID
+				inner join TB_WEBDB_PUBLIC_ATTRIBUTE pa on ia.ATTRIBUTE_ID = pa.ATTRIBUTE_ID and pa.WEBDB_ID = @WebDbId
+			WHERE ir.ITEM_ID not in (
+				Select DISTINCT ir2.ITEM_ID from TB_ITEM_REVIEW ir2
+				inner join TB_ITEM_SET tis2 on ir2.REVIEW_ID = @RevId and tis2.IS_COMPLETED = 1 and ir2.ITEM_ID = tis2.ITEM_ID
+				inner join @WithOutAtt w2 on tis2.SET_ID = w2.SetId
+				inner join TB_ITEM_ATTRIBUTE ia2 on ia2.ITEM_SET_ID = tis2.ITEM_SET_ID and ia2.ITEM_ID = ir2.ITEM_ID and ia2.ATTRIBUTE_ID = w2.AttID
+				inner join TB_WEBDB_PUBLIC_ATTRIBUTE pa2 on ia2.ATTRIBUTE_ID = pa2.ATTRIBUTE_ID and pa2.WEBDB_ID = @WebDbId
+				)
+		END
+		ELSE
+		BEGIN
+			insert into @ID
+			Select DISTINCT ir.ITEM_ID from TB_ITEM_REVIEW ir
+				inner join TB_ITEM_SET tis on ir.REVIEW_ID = @RevId and tis.IS_COMPLETED = 1 and ir.ITEM_ID = tis.ITEM_ID
+					and ir.IS_DELETED = 0  and ir.IS_INCLUDED = @included
+				inner join @WithAtt w on tis.SET_ID = w.SetId
+				inner join TB_ITEM_ATTRIBUTE ia on ia.ITEM_SET_ID = tis.ITEM_SET_ID and ia.ITEM_ID = ir.ITEM_ID and ia.ATTRIBUTE_ID = w.AttID
+				inner join TB_WEBDB_PUBLIC_ATTRIBUTE pa on ia.ATTRIBUTE_ID = pa.ATTRIBUTE_ID and pa.WEBDB_ID = @WebDbId
+				inner join TB_ITEM_ATTRIBUTE ia3 on ir.ITEM_ID = ia3.ITEM_ID and ia3.ATTRIBUTE_ID = @WebDbFilter
+				inner join tb_item_set tis3 on ia3.ITEM_SET_ID = tis3.ITEM_SET_ID and tis3.IS_COMPLETED = 1
+			WHERE ir.ITEM_ID not in (
+				Select DISTINCT ir2.ITEM_ID from TB_ITEM_REVIEW ir2
+				inner join TB_ITEM_SET tis2 on ir.REVIEW_ID = @RevId and tis2.IS_COMPLETED = 1 and ir2.ITEM_ID = tis2.ITEM_ID
+				inner join @WithOutAtt w2 on tis2.SET_ID = w2.SetId
+				inner join TB_ITEM_ATTRIBUTE ia2 on ia2.ITEM_SET_ID = tis2.ITEM_SET_ID and ia2.ITEM_ID = ir2.ITEM_ID and ia2.ATTRIBUTE_ID = w2.AttID
+				inner join TB_WEBDB_PUBLIC_ATTRIBUTE pa2 on ia2.ATTRIBUTE_ID = pa2.ATTRIBUTE_ID and pa2.WEBDB_ID = @WebDbId
+				)
+		END
+		--now we need to remove items that DON't have all of the codes we want.
+		declare @currA bigint, @currS int
+		WHILE @i < @imax
+		BEGIN
+			--we delete from @ID items that don't have each code present in @WithAtt
+			set @i = @i + 1
+			set @currA  = (select top 1 AttID from @WithAtt)
+			set @currS = (select top 1 SetId from @WithAtt where AttID = @currA)
+			delete from @ID where ItemID not in 
+			(
+				select ia.Item_id from 
+				@ID i 
+				inner join TB_ITEM_ATTRIBUTE ia on i.ItemID = ia.ITEM_ID
+				inner join tb_item_set tis on ia.ITEM_SET_ID = tis.ITEM_SET_ID and tis.IS_COMPLETED = 1 and ia.ATTRIBUTE_ID = @currA and tis.SET_ID = @currS
+			)
+			delete from @WithAtt where @currA = AttID
+		END
+	END
+
+	
+		--count results
+		SELECT @TotalRows = count(ItemID) from @ID
+		set @TotalPages = @TotalRows/@PerPage
+
+		if @PageNum < 1
+		set @PageNum = 1
+
+		if @TotalRows % @PerPage != 0
+		set @TotalPages = @TotalPages + 1
+
+		set @RowsToRetrieve = @PerPage * @PageNum
+		set @CurrentPage = @PageNum;
+
+		WITH SearchResults AS
+		(
+			SELECT DISTINCT (I.ITEM_ID), IS_DELETED, IS_INCLUDED, TB_ITEM_REVIEW.MASTER_ITEM_ID
+				, ROW_NUMBER() OVER(order by SHORT_TITLE, I.ITEM_ID) RowNum
+			FROM TB_ITEM I
+			INNER JOIN TB_ITEM_TYPE ON TB_ITEM_TYPE.[TYPE_ID] = I.[TYPE_ID] 
+			INNER JOIN TB_ITEM_REVIEW ON TB_ITEM_REVIEW.ITEM_ID = I.ITEM_ID AND 
+				TB_ITEM_REVIEW.REVIEW_ID = @RevId
+			INNER JOIN @ID on I.ITEM_ID = ItemID
+		)
+		Select SearchResults.ITEM_ID, II.[TYPE_ID], OLD_ITEM_ID, [dbo].fn_REBUILD_AUTHORS(II.ITEM_ID, 0) as AUTHORS,
+				TITLE, PARENT_TITLE, SHORT_TITLE, DATE_CREATED, CREATED_BY, DATE_EDITED, EDITED_BY,
+				[YEAR], [MONTH], STANDARD_NUMBER, CITY, COUNTRY, PUBLISHER, INSTITUTION, VOLUME, PAGES, EDITION, ISSUE, IS_LOCAL,
+				AVAILABILITY, URL, ABSTRACT, COMMENTS, [TYPE_NAME], IS_DELETED, IS_INCLUDED, [dbo].fn_REBUILD_AUTHORS(II.ITEM_ID, 1) as PARENTAUTHORS
+				, SearchResults.MASTER_ITEM_ID, DOI, KEYWORDS
+			FROM SearchResults 
+					  INNER JOIN TB_ITEM II ON SearchResults.ITEM_ID = II.ITEM_ID
+					  INNER JOIN TB_ITEM_TYPE ON TB_ITEM_TYPE.[TYPE_ID] = II.[TYPE_ID]
+			WHERE RowNum > @RowsToRetrieve - @PerPage
+			AND RowNum <= @RowsToRetrieve 
+			ORDER BY RowNum
+
+
+	SELECT	@CurrentPage as N'@CurrentPage',
+			@TotalPages as N'@TotalPages',
+			@TotalRows as N'@TotalRows'
+SET NOCOUNT OFF
+GO
 GO
