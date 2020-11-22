@@ -412,6 +412,7 @@ public partial class SiteLicenseDetails : System.Web.UI.Page
         dt2.Columns.Add(new DataColumn("LAST_ACCESS", typeof(string)));
         dt2.Columns.Add(new DataColumn("REVIEW_ID", typeof(string)));
 
+        dt3.Columns.Add(new DataColumn("SITE_LIC_ADMIN_ID", typeof(string)));
         dt3.Columns.Add(new DataColumn("CONTACT_ID", typeof(string)));
         dt3.Columns.Add(new DataColumn("CONTACT_NAME", typeof(string)));
         dt3.Columns.Add(new DataColumn("EMAIL", typeof(string)));
@@ -449,6 +450,7 @@ public partial class SiteLicenseDetails : System.Web.UI.Page
         while (idr.Read())
         {
             newrow3 = dt3.NewRow();
+            newrow3["SITE_LIC_ADMIN_ID"] = idr["SITE_LIC_ADMIN_ID"].ToString();
             newrow3["CONTACT_ID"] = idr["CONTACT_ID"].ToString();
             newrow3["CONTACT_NAME"] = idr["CONTACT_NAME"].ToString();
             newrow3["EMAIL"] = idr["EMAIL"].ToString();
@@ -1274,7 +1276,7 @@ public partial class SiteLicenseDetails : System.Web.UI.Page
         // check if the email is already in this license
         for (int i = 0; i < gvLicenseAdms.Rows.Count; i++)
         {
-            if (gvLicenseAdms.Rows[i].Cells[2].Text.Contains(tbEmailAdm.Text))
+            if (gvLicenseAdms.Rows[i].Cells[3].Text.Contains(tbEmailAdm.Text))
             {
                 lblAccountAdmMessage.Text = "this email is already an admin in this site license";
                 lblAccountAdmMessage.Visible = true;
@@ -1470,13 +1472,21 @@ public partial class SiteLicenseDetails : System.Web.UI.Page
     protected void gvLicenseAdms_RowCommand(object sender, GridViewCommandEventArgs e)
     {
         int index = Convert.ToInt32(e.CommandArgument);
-        string email = (string)gvLicenseAdms.DataKeys[index].Value;
-        string contactID = gvLicenseAdms.Rows[index].Cells[0].Text;
+        //string email = (string)gvLicenseAdms.DataKeys[index].Value;
+        //string contactID = gvLicenseAdms.Rows[index].Cells[0].Text;
+        string site_lic_admin_id = (string)gvLicenseAdms.DataKeys[index].Value;
         switch (e.CommandName)
         {
             case "REMOVE":
                 if (gvLicenseAdms.Rows.Count > 1)
                 {
+                    bool isAdmDB = true;
+                    Utils.ExecuteSP(isAdmDB, Server, "st_Site_Lic_Remove_Admin", site_lic_admin_id);
+                    buildGrids();
+                    lblAccountAdmMessage.Visible = false;
+                    tbEmailAdm.Text = "Enter email address";
+
+                    /*
                     bool isAdmDB = true;
                     SqlParameter[] paramList = new SqlParameter[4];
                     paramList[1] = new SqlParameter("@lic_id", SqlDbType.Int, 8, ParameterDirection.Input,
@@ -1527,6 +1537,7 @@ public partial class SiteLicenseDetails : System.Web.UI.Page
                             buildGrids();
                         }
                     }
+                    */
                 }
                 else
                 {
@@ -1546,7 +1557,7 @@ public partial class SiteLicenseDetails : System.Web.UI.Page
     {
         if (e.Row.RowType == DataControlRowType.DataRow)
         {
-            LinkButton lb = (LinkButton)(e.Row.Cells[3].Controls[0]);
+            LinkButton lb = (LinkButton)(e.Row.Cells[4].Controls[0]);
             lb.Attributes.Add("onclick", "if (confirm('Are you sure you want to remove this admin from the license?') == false) return false;");
         }
     }
