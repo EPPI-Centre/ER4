@@ -385,6 +385,7 @@
     <Compile Include="BusinessClasses\MagAutoUpdate.cs" />
     <Compile Include="BusinessClasses\MagAutoUpdateList.cs" />
     <Compile Include="BusinessClasses\MagAutoUpdateRun.cs" />
+    <Compile Include="BusinessClasses\MagAutoUpdateRunCountResultsCommand.cs" />
     <Compile Include="BusinessClasses\MagAutoUpdateRunList.cs" />
     <Compile Include="BusinessClasses\MagAutoUpdateVisualise.cs" />
     <Compile Include="BusinessClasses\MagAutoUpdateVisualiseList.cs" />
@@ -400,7 +401,6 @@
     <Compile Include="BusinessClasses\MagDownloadSimulationDataCommand.cs" />
     <Compile Include="BusinessClasses\MagFieldOfStudy.cs" />
     <Compile Include="BusinessClasses\MagFieldOfStudyList.cs" />
-    <Compile Include="BusinessClasses\MagItemMagRelatedPaperInsertCommand.cs" />
     <Compile Include="BusinessClasses\MagItemPaperInsertCommand.cs" />
     <Compile Include="BusinessClasses\MagLog.cs" />
     <Compile Include="BusinessClasses\MagLogList.cs" />
