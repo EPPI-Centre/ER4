@@ -19,7 +19,7 @@ using BusinessLibrary.Security;
 namespace BusinessLibrary.BusinessClasses
 {
     [Serializable]
-    public class MagAutoUpdateRunList : DynamicBindingListBase<MagAutoUpdate>
+    public class MagAutoUpdateRunList : DynamicBindingListBase<MagAutoUpdateRun>
     {
         public static void GetMagAutoUpdateRunList(EventHandler<DataPortalResult<MagAutoUpdateRunList>> handler)
         {
@@ -53,7 +53,7 @@ namespace BusinessLibrary.BusinessClasses
                     {
                         while (reader.Read())
                         {
-                            Add(MagAutoUpdate.GetMagAutoUpdate(reader));
+                            Add(MagAutoUpdateRun.GetMagAutoUpdateRun(reader));
                         }
                     }
                 }

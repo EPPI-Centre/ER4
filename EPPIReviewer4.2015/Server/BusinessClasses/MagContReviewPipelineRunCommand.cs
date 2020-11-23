@@ -249,7 +249,7 @@ namespace BusinessLibrary.BusinessClasses
                                 while (reader.Read())
                                 {
                                     file.WriteLine(reader["PaperId"].ToString() + "\t" +
-                                        reader["RelatedRunId"].ToString() + "\t" +
+                                        reader["AutoUpdateId"].ToString() + "\t" +
                                         reader["Included"].ToString());
                                     lineCount++;
                                 }
@@ -302,7 +302,7 @@ namespace BusinessLibrary.BusinessClasses
 
         private void WriteNewIdsFileOnBlob(string uploadFileName, int ContactId, string folderPrefix)
         {
-            MagDataLakeHelpers.ExecProc(@"[master].[dbo].[GetNewPaperIds](""" + this._CurrentMagVersion + "\",\"" +
+            MagDataLakeHelpers.ExecProc(@"[master].[dbo].[GetNewPaperIdsPreviousYear](""" + this._CurrentMagVersion + "\",\"" +
                 this._NextMagVersion + "\",\"" + folderPrefix + "/NewPapers.tsv" + "\",\"" + "experiments" + "\");", true, "GetNewPaperIds", ContactId, 10);
         }
 
@@ -331,7 +331,7 @@ namespace BusinessLibrary.BusinessClasses
             CloudStorageAccount storageAccount = CloudStorageAccount.Parse(storageConnectionString);
             CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
             CloudBlobContainer container = blobClient.GetContainerReference("experiments");
-            string JobId = Guid.NewGuid().ToString();
+            //string JobId = Guid.NewGuid().ToString();
             do
             {
                 BlobResultSegment resultSegment = await container.ListBlobsSegmentedAsync(folder + "/tmp",
@@ -356,10 +356,13 @@ namespace BusinessLibrary.BusinessClasses
                             MemoryStream ms = new MemoryStream(myFile);
 
                             DataTable dt = new DataTable("Ids");
-                            dt.Columns.Add("MAG_RELATED_RUN_ID");
+                            dt.Columns.Add("MAG_AUTO_UPDATE_RUN_PAPER_ID");
+                            dt.Columns.Add("MAG_AUTO_UPDATE_RUN_ID");
+                            dt.Columns.Add("REVIEW_ID");
                             dt.Columns.Add("PaperId");
-                            dt.Columns.Add("SimilarityScore");
-                            dt.Columns.Add("JobId");
+                            dt.Columns.Add("ContReviewScore");
+                            dt.Columns.Add("UserClassifierScore");
+                            dt.Columns.Add("StudyTypeClassiferScore");
 
                             using (var reader = new StreamReader(ms))
                             {
@@ -371,10 +374,13 @@ namespace BusinessLibrary.BusinessClasses
                                     {
                                         string[] fields = line.Split('\t');
                                         DataRow newRow = dt.NewRow();
-                                        newRow["MAG_RELATED_RUN_ID"] = fields[1];
+                                        newRow["MAG_AUTO_UPDATE_RUN_PAPER_ID"] = 0;
+                                        newRow["MAG_AUTO_UPDATE_RUN_ID"] = fields[1];
+                                        newRow["REVIEW_ID"] = null;
                                         newRow["PaperId"] = fields[0];
-                                        newRow["SimilarityScore"] = fields[2];
-                                        newRow["JobId"] = JobId;
+                                        newRow["ContReviewScore"] = fields[2];
+                                        newRow["UserClassifierScore"] = 0;
+                                        newRow["StudyTypeClassiferScore"] = 0;
                                         dt.Rows.Add(newRow);
                                         lineCount++;
                                     }
@@ -390,12 +396,10 @@ namespace BusinessLibrary.BusinessClasses
                                 connection.Open();
                                 using (SqlBulkCopy sbc = new SqlBulkCopy(connection))
                                 {
-                                    sbc.DestinationTableName = "TB_MAG_RELATED_PAPERS_TEMP";
+                                    sbc.DestinationTableName = "TB_MAG_AUTO_UPDATE_RUN_PAPER";
                                     sbc.BatchSize = 1000;
                                     sbc.WriteToServer(dt);
                                 }
-
-                                
                             }
                             //blockBlobDownloadData.DeleteIfExists();
                         }
@@ -413,14 +417,11 @@ namespace BusinessLibrary.BusinessClasses
                 using (SqlCommand command = new SqlCommand("st_MagContReviewInsertResults", connection))
                 {
                     command.CommandType = System.Data.CommandType.StoredProcedure;
-                    command.Parameters.Add(new SqlParameter("@JobId", JobId));
                     command.ExecuteNonQuery();
                 }
                 connection.Close();
             }
-
             return lineCount;
-
         }
 
 

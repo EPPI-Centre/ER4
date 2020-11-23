@@ -212,6 +212,19 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
+        public static readonly PropertyInfo<int> MagAutoUpdateRunIdProperty = RegisterProperty<int>(new PropertyInfo<int>("MagAutoUpdateRunId", "MagAutoUpdateRunId", 0));
+        public int MagAutoUpdateRunId
+        {
+            get
+            {
+                return GetProperty(MagAutoUpdateRunIdProperty);
+            }
+            set
+            {
+                SetProperty(MagAutoUpdateRunIdProperty, value);
+            }
+        }
+
 
 
         //protected override void AddAuthorizationRules()

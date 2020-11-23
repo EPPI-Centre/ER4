@@ -108,7 +108,7 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(AllIncludedProperty, value);
             }
         }
-
+        /*
         public static readonly PropertyInfo<string> StudyTypeClassifierProperty = RegisterProperty<string>(new PropertyInfo<string>("StudyTypeClassifier", "StudyTypeClassifier"));
         public string StudyTypeClassifier
         {
@@ -160,7 +160,7 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(UserClassifierModelReviewIdProperty, value);
             }
         }
-
+        */
         public static readonly PropertyInfo<bool> AutoReRunProperty = RegisterProperty<bool>(new PropertyInfo<bool>("AutoReRun", "AutoReRun", false));
         public bool AutoReRun
         {
@@ -197,9 +197,6 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@USER_DESCRIPTION", ReadProperty(UserDescriptionProperty)));
                     command.Parameters.Add(new SqlParameter("@ATTRIBUTE_ID", ReadProperty(AttributeIdProperty)));
                     command.Parameters.Add(new SqlParameter("@ALL_INCLUDED", ReadProperty(AllIncludedProperty)));
-                    command.Parameters.Add(new SqlParameter("@STUDY_TYPE_CLASSIFIER", ReadProperty(StudyTypeClassifierProperty)));
-                    command.Parameters.Add(new SqlParameter("@USER_CLASSIFIER_MODEL_ID", ReadProperty(UserClassifierModelIdProperty)));
-                    command.Parameters.Add(new SqlParameter("@USER_CLASSIFIER_MODEL_REVIEW_ID", ReadProperty(UserClassifierModelReviewIdProperty)));
                     command.Parameters.Add(new SqlParameter("@MAG_AUTO_UPDATE_ID", ReadProperty(MagAutoUpdateIdProperty)));
                     command.Parameters["@MAG_AUTO_UPDATE_ID"].Direction = ParameterDirection.Output;
                     command.ExecuteNonQuery();
@@ -267,10 +264,10 @@ namespace BusinessLibrary.BusinessClasses
                             LoadProperty<Int64>(AttributeIdProperty, reader.GetInt64("ATTRIBUTE_ID"));
                             LoadProperty<string>(AttributeNameProperty, reader.GetString("ATTRIBUTE_NAME"));
                             LoadProperty<bool>(AllIncludedProperty, reader.GetBoolean("ALL_INCLUDED"));
-                            LoadProperty<string>(StudyTypeClassifierProperty, reader.GetString("STUDY_TYPE_CLASSIFIER"));
-                            LoadProperty<Int32>(UserClassifierModelIdProperty, reader.GetInt32("USER_CLASSIFIER_MODEL_ID"));
-                            LoadProperty<string>(UserClassifierDescriptionProperty, reader.GetString("MODEL_TITLE"));
-                            LoadProperty<Int32>(UserClassifierModelReviewIdProperty, reader.GetInt32("USER_CLASSIFIER_REVIEW_ID"));
+                            //LoadProperty<string>(StudyTypeClassifierProperty, reader.GetString("STUDY_TYPE_CLASSIFIER"));
+                            //LoadProperty<Int32>(UserClassifierModelIdProperty, reader.GetInt32("USER_CLASSIFIER_MODEL_ID"));
+                            //LoadProperty<string>(UserClassifierDescriptionProperty, reader.GetString("MODEL_TITLE"));
+                            //LoadProperty<Int32>(UserClassifierModelReviewIdProperty, reader.GetInt32("USER_CLASSIFIER_REVIEW_ID"));
                         }
                     }
                 }
@@ -287,10 +284,10 @@ namespace BusinessLibrary.BusinessClasses
             returnValue.LoadProperty<Int64>(AttributeIdProperty, reader.GetInt64("ATTRIBUTE_ID"));
             returnValue.LoadProperty<string>(AttributeNameProperty, reader.GetString("ATTRIBUTE_NAME"));
             returnValue.LoadProperty<bool>(AllIncludedProperty, reader.GetBoolean("ALL_INCLUDED"));
-            returnValue.LoadProperty<string>(StudyTypeClassifierProperty, reader.GetString("STUDY_TYPE_CLASSIFIER"));
-            returnValue.LoadProperty<Int32>(UserClassifierModelIdProperty, reader.GetInt32("USER_CLASSIFIER_MODEL_ID"));
-            returnValue.LoadProperty<string>(UserClassifierDescriptionProperty, reader.GetString("MODEL_TITLE"));
-            returnValue.LoadProperty<Int32>(UserClassifierModelReviewIdProperty, reader.GetInt32("USER_CLASSIFIER_REVIEW_ID"));
+            //returnValue.LoadProperty<string>(StudyTypeClassifierProperty, reader.GetString("STUDY_TYPE_CLASSIFIER"));
+            //returnValue.LoadProperty<Int32>(UserClassifierModelIdProperty, reader.GetInt32("USER_CLASSIFIER_MODEL_ID"));
+            //returnValue.LoadProperty<string>(UserClassifierDescriptionProperty, reader.GetString("MODEL_TITLE"));
+            //returnValue.LoadProperty<Int32>(UserClassifierModelReviewIdProperty, reader.GetInt32("USER_CLASSIFIER_REVIEW_ID"));
             returnValue.MarkOld();
             return returnValue;
         }
