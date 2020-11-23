@@ -1,4 +1,8 @@
-﻿/*
+﻿
+USE [ReviewerAdmin]
+GO
+
+/*
    20 November 202011:34:31
    User: 
    Server: SSRU30
@@ -48,7 +52,7 @@ COMMIT
 select Has_Perms_By_Name(N'dbo.TB_SITE_LIC_ADMIN', 'Object', 'ALTER') as ALT_Per, Has_Perms_By_Name(N'dbo.TB_SITE_LIC_ADMIN', 'Object', 'VIEW DEFINITION') as View_def_Per, Has_Perms_By_Name(N'dbo.TB_SITE_LIC_ADMIN', 'Object', 'CONTROL') as Contr_Per 
 
 
-
+GO
 -------------------------------------------
 
 
