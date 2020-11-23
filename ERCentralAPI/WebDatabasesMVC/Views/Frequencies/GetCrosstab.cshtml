@@ -36,7 +36,7 @@ Crosstab!
     @foreach (WebDbItemAttributeCrosstabRow row in Model.Rows)
     {
         <tr>
-            <td>@row.AttributeName</td>
+            <th>@row.AttributeName</th>
             @for (int i = 0; i < Model.ColumnAttIDs.Count; i++)
             {
                 @if (row.Counts[i] == 0)
@@ -57,9 +57,9 @@ Crosstab!
                     }
                     without = without.TrimEnd(',');
                     withoutSets = withoutSets.TrimEnd(',');
-                    <td>
+                    <th style="background-color: rgba(211, 211, 255, 0.20)">
                         <a href="javascript:GoToItems('@with', '@Model.SetIdX.ToString()', '@without', '@withoutSets')">@row.Counts[i]</a>
-                    </td>
+                    </th>
                 }
                 else if (i == Model.ColumnAttIDs.Count - 1)
                 {//last cell with row header, without all the column codes
@@ -73,17 +73,17 @@ Crosstab!
                     }
                     without = without.TrimEnd(',');
                     withoutSets = withoutSets.TrimEnd(',');
-                    <td>
+                    <th style="background-color:rgba(211, 211, 255, 0.20)">
                         <a href="javascript:GoToItems('@with', '@Model.SetIdY.ToString()', '@without', '@withoutSets')">@row.Counts[i]</a>
-                    </td>
+                    </th>
                 }
                 else
                 {//normal cell, with row and col codes
                     string with = row.AttributeId.ToString() + "," + Model.ColumnAttIDs[i].ToString();
                     string withSets = Model.SetIdY.ToString() + "," + Model.SetIdX.ToString();
-                    <td>
+                    <th style="background-color:rgba(211, 211, 255, 0.20)">
                         <a href="javascript:GoToItems('@with', '@withSets', '', '')">@row.Counts[i]</a>
-                    </td>
+                    </th>
                 }
             }
         </tr>
