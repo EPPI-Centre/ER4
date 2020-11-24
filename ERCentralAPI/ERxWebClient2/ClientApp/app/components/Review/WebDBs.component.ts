@@ -82,7 +82,7 @@ export class WebDBsComponent implements OnInit, OnDestroy {
 			return tmp;
 		}
 	}
-
+	
 	private FindMissingAttributes() {
 		if (this.WebDBService.SelectedNodeData && this.WebDBService.SelectedNodeData.nodeType == "ReviewSet") this.WebDBService.FindMissingAttributes();
 	}
@@ -151,7 +151,8 @@ export class WebDBsComponent implements OnInit, OnDestroy {
 	}
 	public get EditingSomething(): boolean {
 		return this.EditingDB != null || this.EditingSetAttribute != null || this.EditingWebDbReviewSet != null;
-    }
+	}
+
 	Edit(item: iWebDB | null) {
 		if (!item) {
 			item = {
