@@ -1,6 +1,6 @@
 import { Component, Inject, OnInit, OnDestroy, ViewChild, Input, Output, EventEmitter } from '@angular/core';
 import { Router } from '@angular/router';
-import { WebDBService, iWebDB, iWebDbReviewSet, WebDbReviewSet } from '../services/WebDB.service';
+import { WebDBService, iWebDB, iWebDbReviewSet, WebDbReviewSet, MissingAttribute } from '../services/WebDB.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ModalService } from '../services/modal.service';
 import { ReviewSetsService, SetAttribute, ReviewSet } from '../services/ReviewSets.service';
@@ -38,7 +38,9 @@ export class WebDBsComponent implements OnInit, OnDestroy {
 	public EditingFilter: boolean = false;
 	public ConfirmPassword: string = "";
 	public isCollapsedFilterCode: boolean = false;
-	public MissingAttributes: MissingAttribute[] = [];
+	public get MissingAttributes(): MissingAttribute[] {
+		return this.WebDBService.MissingAttributes;
+	}
 	@ViewChild('FilterCodeSelector') FilterCodeSelector!: codesetSelectorComponent;
 	public selectedCodeSetDropDown: ReviewSet | null = null;
 	public isCollapsedAddTool: boolean = false;
@@ -80,47 +82,9 @@ export class WebDBsComponent implements OnInit, OnDestroy {
 			return tmp;
 		}
 	}
+
 	private FindMissingAttributes() {
-		if (this.WebDBService.SelectedNodeData && this.WebDBService.SelectedNodeData.nodeType == "ReviewSet") {
-			console.log("looking for missing atts");
-			this.MissingAttributes = [];
-			let WebSet = this.WebDBService.SelectedNodeData as WebDbReviewSet;
-			let FullSet = this.ReviewSetsService.FindSetById(WebSet.set_id);
-			if (FullSet == null) return;
-			let allAtts: SetAttribute[] = [];
-			this.flatListofAttributes(FullSet.attributes, allAtts);
-			for (const att of allAtts) {
-				//console.log("looking for missing atts, ", att.parent_attribute_id, att.parent, att.attribute_name);
-				if (WebSet.FindAttributeById(att.attribute_id) == null) {
-					let tmp = new MissingAttribute();
-					tmp.attributeId = att.attribute_id;
-					tmp.name = att.attribute_name;
-					tmp.parentId  = att.parent_attribute_id;
-					while (tmp.parentId > 0) {
-						let parentAtt = allAtts.find(f => f.attribute_id == tmp.parentId);
-						if (parentAtt == undefined) { tmp.parentId = 0; }
-						else {
-							tmp.parentId = parentAtt.parent_attribute_id;
-							tmp.path = tmp.path == "" ? parentAtt.attribute_name : parentAtt.attribute_name + "\\" + tmp.path;
-                        }
-					}
-					tmp.parentId = att.parent_attribute_id;
-					this.MissingAttributes.push(tmp);
-				}
-			}
-			 this.MissingAttributes.sort((a, b) => {
-				if (a.path < b.path) {
-					return -1;
-				} else if (a.path > b.path) {
-					return 1;
-				}
-				else {
-					if (a.name < b.name) return -1;
-					else if (a.name > b.name) return 1;
-					else return 0;
-                }
-			})
-		}
+		if (this.WebDBService.SelectedNodeData && this.WebDBService.SelectedNodeData.nodeType == "ReviewSet") this.WebDBService.FindMissingAttributes();
 	}
 	public RestoreCode(item: MissingAttribute) {
 		let needed = this.RestorePreview(item);
@@ -161,12 +125,7 @@ export class WebDBsComponent implements OnInit, OnDestroy {
 		this.EditingWebDbReviewSet = null;
 		
     }
-	private flatListofAttributes(Source: SetAttribute[], Result: SetAttribute[]): void {
-		for (let a of Source) {
-			Result.push(a);
-			this.flatListofAttributes(a.attributes, Result);
-        }
-    }
+	
 	public get SelectedAttribute(): SetAttribute | null {
 		if (this.WebDBService.SelectedNodeData == null || this.WebDBService.SelectedNodeData.nodeType !== "SetAttribute") return null;
 		else return this.WebDBService.SelectedNodeData as SetAttribute;
@@ -363,16 +322,9 @@ export class WebDBsComponent implements OnInit, OnDestroy {
 	BackToMain() {
 		this.router.navigate(['Main']);
 	}
-	ngOnDestroy() {
-		this.WebDBService.Clear();
+	ngOnDestroy() {this.WebDBService.Clear();
 	}
 	ngAfterViewInit() {
 
 	}
-}
-class MissingAttribute {
-	public name: string = "";
-	public path: string = "";
-	public attributeId: number = 0;
-	public parentId:number = 0; 
 }
