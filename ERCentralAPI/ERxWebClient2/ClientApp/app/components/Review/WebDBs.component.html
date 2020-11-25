@@ -3,41 +3,7 @@
 
 <div class=" row mx-0 mt-0 mb-1 p-0 ">
 
-    <!--<div class="col-4 col-xl-3 px-1 py-0">
-        <div class="col-12 font-weight-bold my-1">WebDBs for this review:</div>
-        <div class="col-12 p-0" style="max-height:85vh; overflow:auto;">
-            <table class="table table-light mb-0" [ngClass]="{disableThisAndChildren:EditingSomething}">
-                <tr>
-                    <th class="m-0 small font-weight-bold">
-                        Id
-                    </th>
-                    <th class="m-0 small font-weight-bold">
-                        Name
-                    </th>
-                    <th class="m-0 small font-weight-bold">
-                        Public
-                    </th>-->
-                    <!--<th class="m-0 small font-weight-bold">
-                        Filtered
-                    </th>-->
-                    <!--<th class="m-0 small font-weight-bold">
-                    </th>
-                </tr>
-                <tr *ngFor="let db of WebDbs" [ngClass]="{'alert-primary font-weight-bold': CurrentDB && db.webDBId == CurrentDB.webDBId }">
-                    <td style="cursor:pointer" (click)="ShowDBSetting(db)" class="py-1">{{db.webDBId}}</td>
-                    <td style="cursor:pointer; max-width:50%;" (click)="ShowDBSetting(db)" class="py-1">{{db.webDBName}}</td>
-                    <td style="cursor:pointer" (click)="ShowDBSetting(db)" class="py-1">{{db.isOpen}}</td>-->
-                    <!--<td style="cursor:pointer" (click)="ShowDBSetting(db)" class="py-1">{{db.attributeIdFilter > 0 ? 'Yes' : 'No'}}</td>-->
-                    <!--<td class="py-1">
-                        <button [disabled]="!CanWrite" class="btn btn-outline-danger btn-sm px-1 pt-0" (click)="DeleteDB(db)">
-                            <span class="k-icon k-i-delete "></span>
-                        </button>
-                    </td>
-                </tr>
-            </table>
 
-        </div>
-    </div>-->
     <div class="col-12 p-0">
 
         <div *ngIf="WebDbs.length > 0; else CreateNewBlock" class="col-12  p-0 m-0 row ">
@@ -74,6 +40,13 @@
         </ng-template>
 
         <div *ngIf="EditingDB == null && CurrentDB !== null" class="bg-light rounded">
+            <div class="row m-0 p-0 " style="" >
+                <img *ngIf="CurrentDB.encodedImage1 != ''" src="data:image/jpg;base64,{{CurrentDB.encodedImage1}}" alt="image1" class=" col-3 p-0 ml-0 mr-auto my-auto" style="height:100%; object-fit: cover;" /> 
+                <div class="col-6 row p-0 mx-auto my-0">
+                    <h2 class=" p p-0 mx-auto my-auto ">&nbsp;{{CurrentDB.webDBName}}</h2>
+                </div>
+                <img *ngIf="CurrentDB.encodedImage2 != ''" src="data:image/jpg;base64,{{CurrentDB.encodedImage2}}" alt="image2" class=" col-3 p-0 mr-0 ml-auto my-auto" style="height:100%; object-fit: cover;" />
+            </div>
             <div *ngIf="CanWrite" class="w-100 m-0 p-0 text-center">
                 <button class="btn btn-outline-success btn-sm ml-1 mb-1" (click)="Edit(CurrentDB)" [disabled]="CurrentDB==null || EditingSomething">
                     Edit
@@ -147,6 +120,24 @@
             <div class="w-100 m-0 p-0 text-center">
                 <button class="btn btn-outline-dark btn-sm ml-1 mb-1" (click)="CancelEdit()">Cancel</button>
                 <button class="btn btn-outline-danger btn-sm ml-1 mb-1" [disabled]="!CanSave" (click)="Save()">Save</button>
+            </div>
+            <div *ngIf="!ShowUpload && CanWrite" class="row ml-2 bg-white mr-1 p-0">
+                <button class="btn btn-outline-primary btn-sm" (click)="ShowUpload = true">Upload</button>
+            </div>
+            <div *ngIf="ShowUpload" class="row ml-2 bg-white mr-1 p-0">
+                <kendo-upload class="" [autoUpload]="true"
+                              [saveUrl]="uploadSaveUrl"
+                              [restrictions]="uploadRestrictions"
+                              (upload)="uploadEventHandler($event)"
+                              (complete)="completeEventHandler($event)">
+                </kendo-upload>
+                <div class="col">
+                    Upload for Image 1<input type="radio" name="imageDest" [(ngModel)]="isUploadImage1" value="true" />
+                    Or Image 2<input type="radio" name="imageDest" [(ngModel)]="isUploadImage1" value="false" />
+                </div>
+                <div class="">
+                    <button class="btn btn-outline-info btn-sm  m-2" (click)="ShowUpload = false">Cancel</button>
+                </div>
             </div>
             <div *ngIf="!CanSave" class="w-100 m-0 p-0 text-center">
                 <span class="alert-danger rounded small border border-danger px-1">{{CantSaveMessage}}</span>

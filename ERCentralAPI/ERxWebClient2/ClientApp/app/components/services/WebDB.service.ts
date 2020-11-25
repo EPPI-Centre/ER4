@@ -136,7 +136,9 @@ export class WebDBService extends BusyAwareService  {
             userName: toClone.userName,
             password: toClone.password,
             createdBy: toClone.createdBy,
-            editedBy: toClone.editedBy
+            editedBy: toClone.editedBy,
+            encodedImage1: '',
+            encodedImage2: ''
         }
         return res;
     }
@@ -396,6 +398,8 @@ export interface iWebDB {
     password: string;
     createdBy: string;
     editedBy: string;
+    encodedImage1: string;
+    encodedImage2: string;
 }
 export interface iWebDbReviewSet extends iReviewSet {
     webDBId: number;

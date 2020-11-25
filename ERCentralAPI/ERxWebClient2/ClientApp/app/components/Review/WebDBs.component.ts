@@ -7,6 +7,7 @@ import { ReviewSetsService, SetAttribute, ReviewSet } from '../services/ReviewSe
 import { codesetSelectorComponent } from '../CodesetTrees/codesetSelector.component';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 import { forEach } from '@angular/router/src/utils/collection';
+import { FileRestrictions, UploadEvent } from '@progress/kendo-angular-upload';
 
 @Component({
 	selector: 'WebDBsComp',
@@ -25,7 +26,8 @@ export class WebDBsComponent implements OnInit, OnDestroy {
 	)
 	{ }
 
-	
+	//possible editor, see: https://github.com/chymz/ng2-ckeditor
+
 	ngOnInit() {
 		if (this.WebDBService.WebDBs.length == 0) this.WebDBService.Fetch();
 		if (this.ReviewSetsService.ReviewSets.length == 0) this.ReviewSetsService.GetReviewSets();
@@ -38,6 +40,17 @@ export class WebDBsComponent implements OnInit, OnDestroy {
 	public EditingFilter: boolean = false;
 	public ConfirmPassword: string = "";
 	public isCollapsedFilterCode: boolean = false;
+	public uploadSaveUrl = this._baseUrl + 'api/WebDB/UploadImage'; 
+	public uploadRestrictions: FileRestrictions = {
+		allowedExtensions: [
+			'.jpg'
+			, '.jpeg'
+			, '.png'
+		]
+		, maxFileSize: 1024000
+	};
+	public isUploadImage1: boolean = true;
+	public ShowUpload: boolean = false;
 	public get MissingAttributes(): MissingAttribute[] {
 		return this.WebDBService.MissingAttributes;
 	}
@@ -164,7 +177,9 @@ export class WebDBsComponent implements OnInit, OnDestroy {
 				userName: '',
 				password: '',
 				createdBy: '',
-				editedBy: ''
+				editedBy: '',
+				encodedImage1: '',
+				encodedImage2: ''
 			};
         }
 		this.EditingDB = this.WebDBService.CloneWebDBforEdit(item);
@@ -218,7 +233,8 @@ export class WebDBsComponent implements OnInit, OnDestroy {
 		}
 		this.EditingFilter = false;
 		this.isCollapsedFilterCode = false;
-    }
+	}
+
 	public get CanSave(): boolean {
 		return this.CantSaveMessage == "";
 	}
@@ -238,6 +254,21 @@ export class WebDBsComponent implements OnInit, OnDestroy {
 	Save() {
 		if (this.EditingDB && this.CanSave) this.WebDBService.CreateOrEdit(this.EditingDB);
 		this.CancelEdit();
+	}
+
+	public completeEventHandler() {
+		this.ShowUpload = false;
+		//this.ItemDocsService.Refresh();
+		//this.log(`All files processed`);
+	}
+	uploadEventHandler(e: UploadEvent) {
+		if (this.EditingDB) {
+			e.data = {
+				webDbId: this.EditingDB.webDBId,
+				isImage1: this.isUploadImage1
+			};
+		} else e.preventDefault();
+		console.log("uploading", e.data);
 	}
 
 	GetCodingToolName(): string {
