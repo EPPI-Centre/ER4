@@ -122,18 +122,47 @@
                 <button class="btn btn-outline-danger btn-sm ml-1 mb-1" [disabled]="!CanSave" (click)="Save()">Save</button>
             </div>
             <div *ngIf="!ShowUpload && CanWrite" class="row ml-2 bg-white mr-1 p-0">
-                <button class="btn btn-outline-primary btn-sm" (click)="ShowUpload = true">Upload</button>
+                <button class="btn btn-outline-primary btn-sm" (click)="ShowUpload = true">Upload</button> (header images(s))
             </div>
             <div *ngIf="ShowUpload" class="row ml-2 bg-white mr-1 p-0">
                 <kendo-upload class="" [autoUpload]="true"
+                              [multiple]="false"
                               [saveUrl]="uploadSaveUrl"
                               [restrictions]="uploadRestrictions"
                               (upload)="uploadEventHandler($event)"
-                              (complete)="completeEventHandler($event)">
+                              (complete)="completeEventHandler($event)"
+                              >
                 </kendo-upload>
-                <div class="col">
-                    Upload for Image 1<input type="radio" name="imageDest" [(ngModel)]="isUploadImage1" value="true" />
-                    Or Image 2<input type="radio" name="imageDest" [(ngModel)]="isUploadImage1" value="false" />
+                <div *ngIf="CurrentDB.encodedImage1 != '' || CurrentDB.encodedImage2 != ''" class="row m-0 p-0 col">
+                    <div class="col-auto">
+                        <div class="mr-1 text-right">
+                            Upload for Image 1 <input type="radio" name="imageDest" [(ngModel)]="isUploadImage1" [value]="true" />
+                        </div>
+                        <div class="mr-1 text-right">
+                            Or Image 2 <input type="radio" name="imageDest" [(ngModel)]="isUploadImage1" [value]="false" />
+                        </div>
+                    </div>
+                    <div class="col row">
+                        <div class="mx-1 text-center">
+                            Image 1:
+                            <img *ngIf="CurrentDB.encodedImage1 != ''" src="data:image/jpg;base64,{{CurrentDB.encodedImage1}}"
+                                 alt="image1" class=" col-1 p-1 m-1 border border-dark "
+                                 style=" object-fit: cover;" />
+                            <button *ngIf="CurrentDB.encodedImage1 != ''" class="btn btn-outline-danger btn-sm pt-0 pb-0 px-0" (click)="DeleteImage(1)" [disabled]="!CanWrite">
+                                <span class="k-icon k-i-delete "></span>
+                            </button>
+                            Image 2:
+                            <img *ngIf="CurrentDB.encodedImage2 != ''" src="data:image/jpg;base64,{{CurrentDB.encodedImage2}}"
+                                 alt="image1" class=" col-1 p-1 m-1 border border-dark "
+                                 style=" object-fit: cover;" />
+                            <button *ngIf="CurrentDB.encodedImage2 != ''" class="btn btn-outline-danger btn-sm pt-0 pb-0 px-0" (click)="DeleteImage(2)" [disabled]="!CanWrite">
+                                <span class="k-icon k-i-delete "></span>
+                            </button>
+                        </div>
+                        <div>
+                            
+                        </div>
+                    </div>
                 </div>
                 <div class="">
                     <button class="btn btn-outline-info btn-sm  m-2" (click)="ShowUpload = false">Cancel</button>

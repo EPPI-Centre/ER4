@@ -258,6 +258,7 @@ export class WebDBsComponent implements OnInit, OnDestroy {
 
 	public completeEventHandler() {
 		this.ShowUpload = false;
+		this.WebDBService.Fetch();
 		//this.ItemDocsService.Refresh();
 		//this.log(`All files processed`);
 	}
@@ -270,6 +271,9 @@ export class WebDBsComponent implements OnInit, OnDestroy {
 		} else e.preventDefault();
 		console.log("uploading", e.data);
 	}
+	DeleteImage(imageN: number) {
+		alert("not implemented!");
+    }
 
 	GetCodingToolName(): string {
 		if (this.selectedCodeSetDropDown == null) return "Please select...";
