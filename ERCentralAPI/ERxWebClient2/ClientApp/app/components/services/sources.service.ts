@@ -146,6 +146,8 @@ export class SourcesService extends BusyAwareService {
                 //this.modalService.GenericErrorMessage(error); 
                 this._LastDeleteForeverStatus = "Error";
                 this.RemoveBusy("DeleteSourceForever");
+                this.modalService.GenericError(error);//best way to show the error, as it will include the error details, no matter what!
+                //this.SourceDeleted.emit(SourceId);
             },
             () => {
                 this.FetchSources();

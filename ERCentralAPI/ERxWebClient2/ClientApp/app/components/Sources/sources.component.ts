@@ -135,13 +135,13 @@ export class SourcesComponent implements OnInit, OnDestroy {
         }
     }
     SourceDeletedForever(sourceId: Number) {
+        //console.log("SourceDeletedForever", sourceId);
         if (this._CurrentSource && this._CurrentSource.source_ID == sourceId) {
             this.showDeletedForeverNotification(this._CurrentSource.source_Name, this.SourcesService.LastDeleteForeverStatus);
             this._CurrentSource = null;
         }
-        else {
+        else {//user might have changed source!!!
             this.showDeletedForeverNotification("*missing name*", this.SourcesService.LastDeleteForeverStatus);
-            //user might have changed source!!!
         }
         this.ItemListService.Refresh();
         this.CodesetStatisticsService.GetReviewStatisticsCountsCommand();
@@ -154,7 +154,7 @@ export class SourcesComponent implements OnInit, OnDestroy {
             typeElement = "success";
             contentSt = 'Permanent deletion of source "' + sourcename + '" completed successfully.';
         }//type: { style: 'error', icon: true }
-        else {
+        else {//this is moot. We're now handling errors in the service...
             typeElement = "error";
             contentSt = 'Permanent deletion of source "' + sourcename + '" failed, if the problem persists, please contact EPPISupport.';
         }
