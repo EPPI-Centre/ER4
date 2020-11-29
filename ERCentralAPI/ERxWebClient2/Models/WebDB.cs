@@ -155,32 +155,33 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(EditedByProperty, value);
             }
         }
-        //protected override void AddAuthorizationRules()
-        //{
-        //    //string[] canWrite = new string[] { "AdminUser", "RegularUser" };
-        //    //string[] canRead = new string[] { "AdminUser", "RegularUser", "ReadOnlyUser" };
-        //    //string[] admin = new string[] { "AdminUser", "RegularUser" };
-        //    string[] denyEditSave = new string[] { "ReadOnlyUser" };
-        //    //AuthorizationRules.AllowCreate(typeof(ReviewSet), admin);
-        //    //AuthorizationRules.AllowDelete(typeof(ReviewSet), admin);
-        //    //AuthorizationRules.AllowEdit(typeof(ReviewSet), canWrite);
-        //    //AuthorizationRules.AllowGet(typeof(ReviewSet), canRead);
-        //    AuthorizationRules.DenyEdit(typeof(ReviewSet), denyEditSave);
 
-        //    //AuthorizationRules.AllowRead(ReviewSetIdProperty, canRead);
-        //    //AuthorizationRules.AllowRead(ReviewIdProperty, canRead);
-        //    //AuthorizationRules.AllowRead(SetIdProperty, canRead);
-        //    //AuthorizationRules.AllowRead(AllowCodingEditsProperty, canRead);
-        //    //AuthorizationRules.AllowRead(SetTypeIdProperty, canRead);
-        //    //AuthorizationRules.AllowRead(SetNameProperty, canRead);
-        //    //AuthorizationRules.AllowRead(SetTypeProperty, canRead);
-        //    //AuthorizationRules.AllowRead(AttributeSetProperty, canRead);
-        //    //AuthorizationRules.AllowRead(CodingIsFinalProperty, canRead);
+        public static readonly PropertyInfo<string> EncodedImage1Property = RegisterProperty<string>(new PropertyInfo<string>("EncodedImage1", "EncodedImage1", ""));
+        public string EncodedImage1
+        {
+            get
+            {
+                return GetProperty(EncodedImage1Property);
+            }
+            set
+            {
+                SetProperty(EncodedImage1Property, value);
+            }
+        }
+        public static readonly PropertyInfo<string> EncodedImage2Property = RegisterProperty<string>(new PropertyInfo<string>("EncodedImage2", "EncodedImage2", ""));
+        public string EncodedImage2
+        {
+            get
+            {
+                return GetProperty(EncodedImage2Property);
+            }
+            set
+            {
+                SetProperty(EncodedImage2Property, value);
+            }
+        }
 
-        //    //AuthorizationRules.AllowWrite(AllowCodingEditsProperty, canWrite);
-        //    //AuthorizationRules.AllowWrite(SetNameProperty, canWrite);
-        //    //AuthorizationRules.AllowWrite(CodingIsFinalProperty, canWrite);
-        //}
+
 
         protected override void AddBusinessRules()
         {
@@ -337,6 +338,19 @@ namespace BusinessLibrary.BusinessClasses
             returnValue.LoadProperty(WebDBDescriptionProperty, reader.GetString("DESCRIPTION"));
             returnValue.LoadProperty(CreatedByProperty, reader.GetString("CREATED_BY"));
             returnValue.LoadProperty(EditedByProperty, reader.GetString("EDITED_BY"));
+            byte[] t = (byte[])reader["HEADER_IMAGE_1"];
+            string base64ImageRepresentation;
+            if (t != null)
+            {
+                base64ImageRepresentation = Convert.ToBase64String(t);
+                returnValue.LoadProperty(EncodedImage1Property, base64ImageRepresentation);
+            }
+            t = (byte[])reader["HEADER_IMAGE_2"];
+            if (t != null)
+            {
+                base64ImageRepresentation = Convert.ToBase64String(t);
+                returnValue.LoadProperty(EncodedImage2Property, base64ImageRepresentation);
+            }
             return returnValue;
         }
 

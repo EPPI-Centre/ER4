@@ -17,7 +17,9 @@ export class JwtInterceptor implements HttpInterceptor {
         const chk: boolean = currentUser && currentUser.token && !currentUser.token.startsWith("Error: ") ?  true : false;
         if (request.method == 'POST') {
             if (chk) {
-                if (request.url.indexOf('ItemDocumentList/Upload') > 0) {
+                if (request.url.indexOf('ItemDocumentList/Upload') > 0
+                    || request.url.indexOf('WebDB/UploadImage') > 0
+                ) {
                     request = request.clone({
                         setHeaders: {
                             Authorization: `Bearer ${currentUser.token}`

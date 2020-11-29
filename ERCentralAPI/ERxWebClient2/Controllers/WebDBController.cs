@@ -17,6 +17,8 @@ using Newtonsoft.Json.Linq;
 using EPPIDataServices.Helpers;
 using Newtonsoft.Json;
 using Microsoft.Azure.Management.Compute.Fluent.VirtualMachine.Definition;
+using Microsoft.AspNetCore.Http;
+using System.IO;
 
 namespace ERxWebClient2.Controllers
 {
@@ -198,7 +200,38 @@ namespace ERxWebClient2.Controllers
                 return StatusCode(500, e.Message);
             }
         }
-        
+        [HttpPost("[action]")]
+        public IActionResult UploadImage([FromForm] UploadImage incoming)
+        {
+
+            try
+            {
+                if (SetCSLAUser4Writing())
+                {
+                    string filename = incoming.files[0].FileName;
+                    int ind = filename.LastIndexOf(".");
+                    string ext = filename.Substring(ind);
+                    Stream stream = incoming.files[0].OpenReadStream();
+                    byte[] Binary = new byte[stream.Length];
+                    stream.Read(Binary, 0, (int)stream.Length);
+
+                    WebDbImageSaveCommand cmd = new WebDbImageSaveCommand(incoming.webDbId, incoming.isImage1,
+                        filename,
+                        Binary
+                        );
+                    cmd.doItNow();
+                    
+                    return Ok();
+                }
+                else return Forbid();
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "Upload Image (webDB) file error");
+                return StatusCode(500, e.Message);
+            }
+
+        }
 
     }
 	public class WebDbJson
@@ -262,5 +295,11 @@ namespace ERxWebClient2.Controllers
             WebDBReviewSetCrit res = new WebDBReviewSetCrit(webDbId, webDBSetId);
             return res;
         }
+    }
+    public class UploadImage
+    {
+        public bool isImage1 { get; set; }
+        public int webDbId { get; set; }
+        public IFormFile[] files { get; set; }
     }
 }

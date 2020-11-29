@@ -127,20 +127,22 @@
             <div *ngIf="ReviewSources.length <= 1">
                 No Sources in review.
             </div>
-            <table *ngIf="ReviewSources.length > 1" class="table-striped table table-bordered small">
-                <tbody>
-                    <tr *ngFor="let ROsource of ReviewSources" class="p-0"
-                        [hidden]="HideManuallyCreatedItems(ROsource)">
-                        <td class="p-1 align-middle">
-                            <div class="btn btn-link btn-sm p-0 ml-2"
-                                 [ngClass]="{'font-weight-bold' : (CurrentSource && CurrentSource.source_ID == ROsource.source_ID)}"
-                                 (click)="SelectSource(ROsource)">
-                                {{ROsource.source_Name}}
-                            </div>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+            <div style="max-height:80vh; overflow:auto;">
+                <table *ngIf="ReviewSources.length > 1" class="table-striped table table-bordered small">
+                    <tbody>
+                        <tr *ngFor="let ROsource of ReviewSources" class="p-0"
+                            [hidden]="HideManuallyCreatedItems(ROsource)">
+                            <td class="p-1 align-middle">
+                                <div class="btn btn-link btn-sm p-0 ml-2"
+                                     [ngClass]="{'font-weight-bold' : (CurrentSource && CurrentSource.source_ID == ROsource.source_ID)}"
+                                     (click)="SelectSource(ROsource)">
+                                    {{ROsource.source_Name}}
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </kendo-splitter-pane>
 </kendo-splitter>
