@@ -34,6 +34,7 @@ namespace EppiReviewer4
         public event EventHandler<RoutedEventArgs> ListSimulationFN;
         private DispatcherTimer timer;
         private DispatcherTimer timer2;
+        private DispatcherTimer timerAutoUpdateClassifierRun;
         private DispatcherTimer AdminLogTimer;
         private int CurrentBrowsePosition = 0;
         private List<Int64> SelectedPaperIds;
@@ -54,7 +55,13 @@ namespace EppiReviewer4
             AdminLogTimer = new DispatcherTimer();
             AdminLogTimer.Interval = TimeSpan.FromSeconds(10);
             AdminLogTimer.Tick += AdminLogTimer_Tick;
+
+            timerAutoUpdateClassifierRun = new DispatcherTimer();
+            timerAutoUpdateClassifierRun.Interval = TimeSpan.FromSeconds(300);
+            timerAutoUpdateClassifierRun.Tick += TimerAutoUpdateClassifierRun_Tick;
         }
+
+        
 
         public void InitialiseBrowser()
         {
@@ -89,7 +96,7 @@ namespace EppiReviewer4
                 return;
             }
             IncrementHistoryCount();
-            AddToBrowseHistory("List of all selected papers", "SelectedPapers", 0, "", "", 0, "", "", 0, "", "", 0, 0);
+            AddToBrowseHistory("List of all selected papers", "SelectedPapers", 0, "", "", 0, "", "", 0, "", "", 0, 0, "", 0, 0, 0);
             TBPaperListTitle.Text = "List of all selected papers";
             ShowSelectedPapersPage();
         }
@@ -103,7 +110,7 @@ namespace EppiReviewer4
                 {
                     case "BringUpToDate":
                         IncrementHistoryCount();
-                        AddToBrowseHistory("Bring review up to date", "RelatedPapers", 0, "", "", 0, "", "", 0, "", "", 0, 0);
+                        AddToBrowseHistory("Bring review up to date", "RelatedPapers", 0, "", "", 0, "", "", 0, "", "", 0, 0, "", 0, 0, 0);
                         ShowRelatedPapersPage();
                         break;
 
@@ -117,7 +124,7 @@ namespace EppiReviewer4
 
                     case "Simulation":
                         IncrementHistoryCount();
-                        AddToBrowseHistory("Advanced page", "Advanced", 0, "", "", 0, "", "", 0, "", "", 0, 0);
+                        AddToBrowseHistory("Advanced page", "Advanced", 0, "", "", 0, "", "", 0, "", "", 0, 0, "", 0, 0, 0);
                         ShowAdvancedPage();
                         break;
 
@@ -127,7 +134,7 @@ namespace EppiReviewer4
 
                     case "History":
                         IncrementHistoryCount();
-                        AddToBrowseHistory("View browse history", "History", 0, "", "", 0, "", "", 0, "", "", 0, 0);
+                        AddToBrowseHistory("View browse history", "History", 0, "", "", 0, "", "", 0, "", "", 0, 0, "", 0, 0, 0);
                         break;
 
                     case "Admin":
@@ -418,7 +425,7 @@ namespace EppiReviewer4
                     IncrementHistoryCount();
                     AddToBrowseHistory("Go to specific Paper Id: " + e2.Object.PaperId.ToString(), "PaperDetail",
                         e2.Object.PaperId, e2.Object.FullRecord, e2.Object.Abstract, e2.Object.LinkedITEM_ID,
-                        e2.Object.URLs, e2.Object.FindOnWeb, 0, "", "", 0, 0);
+                        e2.Object.URLs, e2.Object.FindOnWeb, 0, "", "", 0, 0, "", 0, 0, 0);
                     Panes.SelectedIndex = 4;
                     ShowPaperDetailsPage(e2.Object.PaperId, e2.Object.FullRecord, e2.Object.Abstract,
                         e2.Object.URLs, e2.Object.FindOnWeb, e2.Object.LinkedITEM_ID);
@@ -478,7 +485,8 @@ namespace EppiReviewer4
             provider.Refresh();
         }
 
-        private void ShowAutoUpdateIdentifiedItems(int MagAutoUpdateRunId)
+        private void ShowAutoUpdateIdentifiedItems(int MagAutoUpdateRunId, string OrderBy,
+            double AutoUpdateScore, double StudyTypeClassifierScore, double UserClassifierScore)
         {
             PaperGrid.Visibility = Visibility.Collapsed;
             TopicsGrid.Visibility = Visibility.Collapsed;
@@ -496,6 +504,10 @@ namespace EppiReviewer4
             selectionCriteria.PageNumber = 0;
             selectionCriteria.ListType = "MagAutoUpdateRunPapersList";
             selectionCriteria.MagAutoUpdateRunId = MagAutoUpdateRunId;
+            selectionCriteria.AutoUpdateOrderBy = OrderBy;
+            selectionCriteria.AutoUpdateAutoUpdateScore = AutoUpdateScore;
+            selectionCriteria.AutoUpdateStudyTypeClassifierScore = StudyTypeClassifierScore;
+            selectionCriteria.AutoUpdateUserClassifierScore = UserClassifierScore;
             provider.FactoryParameters.Add(selectionCriteria);
             provider.FactoryMethod = "GetMagPaperList";
             provider.Refresh();
@@ -620,7 +632,7 @@ namespace EppiReviewer4
         private void LBListMatchesIncluded_Click(object sender, RoutedEventArgs e)
         {
             IncrementHistoryCount();
-            AddToBrowseHistory("List of all included matches", "MatchesIncluded", 0, "", "", 0, "", "", 0, "", "", 0, 0);
+            AddToBrowseHistory("List of all included matches", "MatchesIncluded", 0, "", "", 0, "", "", 0, "", "", 0, 0, "", 0, 0, 0);
             TBPaperListTitle.Text = "List of all included matches";
             ShowIncludedMatchesPage("included");
         }
@@ -628,7 +640,7 @@ namespace EppiReviewer4
         private void LBListMatchesExcluded_Click(object sender, RoutedEventArgs e)
         {
             IncrementHistoryCount();
-            AddToBrowseHistory("List of all excluded matches", "MatchesExcluded", 0, "", "", 0, "", "", 0, "", "", 0, 0);
+            AddToBrowseHistory("List of all excluded matches", "MatchesExcluded", 0, "", "", 0, "", "", 0, "", "", 0, 0, "", 0, 0, 0);
             TBPaperListTitle.Text = "List of all excluded matches";
             ShowIncludedMatchesPage("excluded");
         }
@@ -637,7 +649,7 @@ namespace EppiReviewer4
         {
             IncrementHistoryCount();
             AddToBrowseHistory("List of all matches in review (included and excluded)", "MatchesIncludedAndExcluded",
-                0, "", "", 0, "", "", 0, "", "", 0, 0);
+                0, "", "", 0, "", "", 0, "", "", 0, 0, "", 0, 0, 0);
             TBPaperListTitle.Text = "List of all matches in review (included and excluded)";
             ShowIncludedMatchesPage("all");
         }
@@ -672,7 +684,7 @@ namespace EppiReviewer4
                 }
                 IncrementHistoryCount();
                 AddToBrowseHistory("List of all item matches with this code", "ReviewMatchedPapersWithThisCode", 0,
-                    "", "", 0, "", "", 0, "", attributeIDs, 0, 0);
+                    "", "", 0, "", "", 0, "", attributeIDs, 0, 0, "", 0, 0, 0);
                 ShowAllWithThisCode(attributeIDs);
             }
         }
@@ -833,7 +845,7 @@ namespace EppiReviewer4
             if (hl != null)
             {
                 AddToBrowseHistory("Browse topic: " + hl.Content.ToString(), "BrowseTopic", 0, "", "", 0, "", "",
-                    Convert.ToInt64(hl.Tag), hl.Content.ToString(), "", 0, 0);
+                    Convert.ToInt64(hl.Tag), hl.Content.ToString(), "", 0, 0, "", 0, 0, 0);
                 Panes.SelectedIndex = 4;
                 ShowTopicPage(Convert.ToInt64(hl.Tag), hl.Content.ToString());
             }
@@ -920,7 +932,7 @@ namespace EppiReviewer4
             MagPaper paper = (sender as TextBlock).DataContext as MagPaper;
             IncrementHistoryCount();
             AddToBrowseHistory("Browse paper: " + paper.FullRecord, "PaperDetail", paper.PaperId, paper.FullRecord,
-                paper.Abstract, paper.LinkedITEM_ID, paper.URLs, paper.FindOnWeb, 0, "", "", 0, 0);
+                paper.Abstract, paper.LinkedITEM_ID, paper.URLs, paper.FindOnWeb, 0, "", "", 0, 0, "", 0, 0, 0);
             ShowPaperDetailsPage(paper.PaperId, paper.FullRecord, paper.Abstract, paper.URLs,
                 paper.FindOnWeb, paper.LinkedITEM_ID);
         }
@@ -1115,7 +1127,8 @@ namespace EppiReviewer4
         // ***************************** Keeping track of, and navigating within, browsing history ***************************************
         public void AddToBrowseHistory(string title, string browseType, Int64 PaperId, string PaperFullRecord,
             string PaperAbstract, Int64 LinkedITEM_ID, string URLs, string FindOnWeb, Int64 FieldOfStudyId,
-            string FieldOfStudy, string AttributeIds, int MagRelatedRunId, int MagAutoUpdateRunId)
+            string FieldOfStudy, string AttributeIds, int MagRelatedRunId, int MagAutoUpdateRunId, string AutoUpdateOrderBy,
+            double AutoUpdateAutoUpdateScore, double AutoUpdateStudyTypeClassifierScore, double AutoUpdateUserClassifierScore)
         {
             MagBrowseHistory mbh = new MagBrowseHistory();
             mbh.Title = title;
@@ -1128,6 +1141,10 @@ namespace EppiReviewer4
             mbh.AttributeIds = AttributeIds;
             mbh.MagRelatedRunId = MagRelatedRunId;
             mbh.MagAutoUpdateRunId = MagAutoUpdateRunId;
+            mbh.AutoUpdateAutoUpdateScore = AutoUpdateAutoUpdateScore;
+            mbh.AutoUpdateOrderBy = AutoUpdateOrderBy;
+            mbh.AutoUpdateStudyTypeClassifierScore = AutoUpdateStudyTypeClassifierScore;
+            mbh.AutoUpdateUserClassifierScore = AutoUpdateUserClassifierScore;
             mbh.LinkedITEM_ID = LinkedITEM_ID;
             mbh.URLs = URLs;
             mbh.FindOnWeb = FindOnWeb;
@@ -1256,7 +1273,8 @@ namespace EppiReviewer4
                             case "MagAutoUpdateRunList":
                                 Panes.SelectedIndex = 4;
                                 TBPaperListTitle.Text = mbh.Title;
-                                ShowAutoUpdateIdentifiedItems(mbh.MagAutoUpdateRunId);
+                                ShowAutoUpdateIdentifiedItems(mbh.MagAutoUpdateRunId, mbh.AutoUpdateOrderBy, mbh.AutoUpdateAutoUpdateScore,
+                                    mbh.AutoUpdateStudyTypeClassifierScore, mbh.AutoUpdateUserClassifierScore);
                                 break;
                         }
                     }
@@ -2057,7 +2075,7 @@ namespace EppiReviewer4
                 {
                     IncrementHistoryCount();
                     AddToBrowseHistory("Papers identified from related papers search", "MagRelatedPapersRunList", 0,
-                        "", "", 0, "", "", 0, "", "", pr.MagRelatedRunId, 0);
+                        "", "", 0, "", "", 0, "", "", pr.MagRelatedRunId, 0, "", 0, 0, 0);
                     TBPaperListTitle.Text = "Papers identified from auto-identification run";
                     ShowRelatedRunPapers(pr.MagRelatedRunId);
                 }
@@ -3151,7 +3169,7 @@ namespace EppiReviewer4
                 {
                     DataPortal<MagItemPaperInsertCommand> dp2 = new DataPortal<MagItemPaperInsertCommand>();
                     MagItemPaperInsertCommand command = new MagItemPaperInsertCommand("", "MagSearchResults",
-                        0, 0, "", 0, 0, 0, 0, "", "", "", "MAG search: " + ms.SearchText, ms.MagSearchText);
+                        0, 0, "", 0, 0, 0, 0, "", "", "", ms.MagSearchText, "MAG search: " + ms.SearchText);
                     dp2.ExecuteCompleted += (o, e2) =>
                     {
                         BusyImportingRecords.IsRunning = false;
@@ -3466,12 +3484,19 @@ namespace EppiReviewer4
                 MagAutoUpdateRun maur = hlb.DataContext as MagAutoUpdateRun;
                 if (maur != null)
                 {
-                    RowAutoUpdateImport.Height = new GridLength(400, GridUnitType.Auto);
-                    GridAutoUpdateImport.DataContext = maur;
-                    AutoUpdateImportTopN.Value = maur.NPapers;
-                    AutoUpdateImportTopN.Maximum = maur.NPapers;
-                    RefreshAutoUpdateGraph();
-                    AutoUpdateImportCount();
+                    if (maur.NPapers < 1)
+                    {
+                        RadWindow.Alert("Nothing to display");
+                    }
+                    else
+                    {
+                        RowAutoUpdateImport.Height = new GridLength(400, GridUnitType.Auto);
+                        GridAutoUpdateImport.DataContext = maur;
+                        AutoUpdateImportTopN.Value = maur.NPapers;
+                        AutoUpdateImportTopN.Maximum = maur.NPapers;
+                        RefreshAutoUpdateGraph();
+                        AutoUpdateImportCount();
+                    }
                 }
             }
         }
@@ -3579,10 +3604,13 @@ namespace EppiReviewer4
                     }
                     else
                     {
-                        RadWindow.Alert("Classifier running. Please check back in a while");
+                        RadWindow.Alert("Classifier running. Please check back in a while\nRunning further classifiers disabled for 5 minutes");
                     }
                 };
-                busyIndicatorMatches.IsBusy = true;
+                //busyIndicatorMatches.IsBusy = true;
+                hlAutoUpdateStudyClassifierRun.IsEnabled = false;
+                hlAutoUpdateUserClassifierRun.IsEnabled = false;
+                timerAutoUpdateClassifierRun.Start();
                 dp2.BeginExecute(mrmic);
             }
         }
@@ -3606,10 +3634,13 @@ namespace EppiReviewer4
                     }
                     else
                     {
-                        RadWindow.Alert("Classifier running. Please check back in a while");
+                        RadWindow.Alert("Classifier running. Please check back in a while\nRunning further classifiers disabled for 5 minutes");
                     }
                 };
-                busyIndicatorMatches.IsBusy = true;
+                //busyIndicatorMatches.IsBusy = true;
+                hlAutoUpdateStudyClassifierRun.IsEnabled = false;
+                hlAutoUpdateUserClassifierRun.IsEnabled = false;
+                timerAutoUpdateClassifierRun.Start();
                 dp2.BeginExecute(mrmic);
             }
         }
@@ -3624,9 +3655,9 @@ namespace EppiReviewer4
                 {
                     IncrementHistoryCount();
                     AddToBrowseHistory("Papers identified from auto-update run", "MagAutoUpdateRunList", 0,
-                        "", "", 0, "", "", 0, "", "", 0, maur.MagAutoUpdateRunId);
+                        "", "", 0, "", "", 0, "", "", 0, maur.MagAutoUpdateRunId, "AutoUpdate", 0, 0, 0);
                     TBPaperListTitle.Text = "Papers identified from auto-update run";
-                    ShowAutoUpdateIdentifiedItems(maur.MagAutoUpdateRunId);
+                    ShowAutoUpdateIdentifiedItems(maur.MagAutoUpdateRunId, "AutoUpdate", 0, 0, 0);
                 }
             }
         }
@@ -3690,6 +3721,11 @@ namespace EppiReviewer4
                 if (AutoUpdateImportTopN.Value.Value > 20000)
                 {
                     RadWindow.Alert("Sorry. You can't import more than 20k records at a time.\nYou could try breaking up your search e.g. by date?");
+                }
+                else
+                if (AutoUpdateImportTopN.Value.Value < 1)
+                {
+                    RadWindow.Alert("No items to import");
                 }
                 else
                 {
@@ -3757,6 +3793,80 @@ namespace EppiReviewer4
                 }
             }
         }
+
+        private void HyperlinkButton_Click_20(object sender, RoutedEventArgs e)
+        {
+            HyperlinkButton hlb = sender as HyperlinkButton;
+            if (hlb != null)
+            {
+                MagAutoUpdateRun au = hlb.DataContext as MagAutoUpdateRun;
+                if (au != null)
+                {
+                    if (au.NPapers == -1)
+                    {
+                        RadWindow.Alert("Sorry - this row can't be deleted until it has finished running");
+                        return;
+                    }
+                    else
+                    {
+                        RememberThisMagAutoUpdateRun = au;
+                        RadWindow.Confirm("Are you sure you want to delete this row?", this.doDeleteMagAutoUpdateRun);
+                    }
+                }
+            }
+        }
+
+        MagAutoUpdateRun RememberThisMagAutoUpdateRun; // temporary variable to store a specific row while a dialog is showing
+
+        private void doDeleteMagAutoUpdateRun(object sender, WindowClosedEventArgs e)
+        {
+            var result = e.DialogResult;
+            if (result == true)
+            {
+                CslaDataProvider provider = this.Resources["MagAutoUpdateRunListData"] as CslaDataProvider;
+                if (provider != null)
+                {
+                    MagAutoUpdateRunList runList = provider.Data as MagAutoUpdateRunList;
+                    if (runList != null)
+                    {
+                        runList.Remove(RememberThisMagAutoUpdateRun);
+                    }
+                }
+            }
+        }
+
+        private void AutoUpdatePreviewPaperList_Click(object sender, RoutedEventArgs e)
+        {
+            HyperlinkButton hlb = sender as HyperlinkButton;
+            if (hlb != null)
+            {
+                MagAutoUpdateRun maur = hlb.DataContext as MagAutoUpdateRun;
+                if (maur != null)
+                {
+                    IncrementHistoryCount();
+                    AddToBrowseHistory("Papers identified from auto-update run", "MagAutoUpdateRunList", 0,
+                        "", "", 0, "", "", 0, "", "", 0, maur.MagAutoUpdateRunId,
+                        (comboAutoUpdateImportOptions.SelectedItem as ComboBoxItem).Tag.ToString(),
+                        AutoUpdateAutoScoreThreshold.Value.Value,
+                        AutoUpdateStudyTypeScoreThreshold.Value.Value,
+                        AutoUpdateUserScoreThreshold.Value.Value);
+                    TBPaperListTitle.Text = "Papers identified from auto-update run";
+                    ShowAutoUpdateIdentifiedItems(maur.MagAutoUpdateRunId,
+                        (comboAutoUpdateImportOptions.SelectedItem as ComboBoxItem).Tag.ToString(),
+                        AutoUpdateAutoScoreThreshold.Value.Value,
+                        AutoUpdateStudyTypeScoreThreshold.Value.Value,
+                        AutoUpdateUserScoreThreshold.Value.Value);
+                }
+            }
+        }
+
+        private void TimerAutoUpdateClassifierRun_Tick(object sender, EventArgs e)
+        {
+            this.timerAutoUpdateClassifierRun.Stop();
+            hlAutoUpdateUserClassifierRun.IsEnabled = true;
+            hlAutoUpdateStudyClassifierRun.IsEnabled = true;
+        }
+
 
 
     }

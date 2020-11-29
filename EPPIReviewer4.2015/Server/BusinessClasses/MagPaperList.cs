@@ -612,6 +612,10 @@ namespace BusinessLibrary.BusinessClasses
                     command = new SqlCommand("st_MagAutoUpdateRunListIds", connection);
                     command.CommandType = System.Data.CommandType.StoredProcedure;
                     command.Parameters.Add(new SqlParameter("@MagAutoUpdateRunId", criteria.MagAutoUpdateRunId));
+                    command.Parameters.Add(new SqlParameter("@OrderBy", criteria.AutoUpdateOrderBy));
+                    command.Parameters.Add(new SqlParameter("@AutoUpdateScore", criteria.AutoUpdateAutoUpdateScore));
+                    command.Parameters.Add(new SqlParameter("@StudyTypeClassifierScore", criteria.AutoUpdateStudyTypeClassifierScore));
+                    command.Parameters.Add(new SqlParameter("@UserClassifierScore", criteria.AutoUpdateUserClassifierScore));
                     this.MagAutoUpdateRunId = criteria.MagAutoUpdateRunId;
                     this.PaperIds = "";
                     this.AttributeIds = "";
@@ -752,6 +756,46 @@ namespace BusinessLibrary.BusinessClasses
             set
             {
                 SetProperty(MagAutoUpdateRunIdProperty, value);
+            }
+        }
+
+        public static readonly PropertyInfo<string> AutoUpdateOrderByProperty = RegisterProperty<string>(typeof(MagPaperListSelectionCriteria), new PropertyInfo<string>("AutoUpdateOrderBy", "AutoUpdateOrderBy", "AutoUpdate"));
+        public string AutoUpdateOrderBy
+        {
+            get { return ReadProperty(AutoUpdateOrderByProperty); }
+            set
+            {
+                SetProperty(AutoUpdateOrderByProperty, value);
+            }
+        }
+
+        public static readonly PropertyInfo<double> AutoUpdateAutoUpdateScoreProperty = RegisterProperty<double>(typeof(MagPaperListSelectionCriteria), new PropertyInfo<double>("AutoUpdateAutoUpdateScore", "AutoUpdateAutoUpdateScore"));
+        public double AutoUpdateAutoUpdateScore
+        {
+            get { return ReadProperty(AutoUpdateAutoUpdateScoreProperty); }
+            set
+            {
+                SetProperty(AutoUpdateAutoUpdateScoreProperty, value);
+            }
+        }
+
+        public static readonly PropertyInfo<double> AutoUpdateStudyTypeClassifierScoreProperty = RegisterProperty<double>(typeof(MagPaperListSelectionCriteria), new PropertyInfo<double>("AutoUpdateStudyTypeClassifierScore", "AutoUpdateStudyTypeClassifierScore"));
+        public double AutoUpdateStudyTypeClassifierScore
+        {
+            get { return ReadProperty(AutoUpdateStudyTypeClassifierScoreProperty); }
+            set
+            {
+                SetProperty(AutoUpdateStudyTypeClassifierScoreProperty, value);
+            }
+        }
+
+        public static readonly PropertyInfo<double> AutoUpdateUserClassifierScoreProperty = RegisterProperty<double>(typeof(MagPaperListSelectionCriteria), new PropertyInfo<double>("AutoUpdateUserClassifierScore", "AutoUpdateUserClassifierScore"));
+        public double AutoUpdateUserClassifierScore
+        {
+            get { return ReadProperty(AutoUpdateUserClassifierScoreProperty); }
+            set
+            {
+                SetProperty(AutoUpdateUserClassifierScoreProperty, value);
             }
         }
 
