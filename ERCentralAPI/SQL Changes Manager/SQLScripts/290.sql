@@ -86,3 +86,4 @@ end
 
 	SELECT  @Total as N'@Total'
 END
+GO
