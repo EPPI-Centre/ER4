@@ -1,4 +1,6 @@
-﻿<!DOCTYPE html>
+﻿@using System.IO;
+@using System.Security.Claims;
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -32,7 +34,26 @@
 </head>
 <body>
     <header>
+        @{
+        Claim WebDbIDclaim = User.FindFirst("WebDbID");
+        string imgPath1 = "";
+        string imgPath2 = "";
+        if (WebDbIDclaim != null)
+        {
+        var service = Context.RequestServices.GetService(typeof(Microsoft.AspNetCore.Hosting.IWebHostEnvironment)) as Microsoft.AspNetCore.Hosting.IWebHostEnvironment;
+            string absolutePath = service.WebRootPath + "\\HeaderImages\\";
+            if(System.IO.File.Exists(absolutePath + "Img-" + WebDbIDclaim.Value + "-1.jpg")) imgPath1 =  Url.Content("~/HeaderImages/Img-" + WebDbIDclaim.Value + "-1.jpg");
+            else if (System.IO.File.Exists(absolutePath + "Img-" + WebDbIDclaim.Value + "-1.png")) imgPath1 =  Url.Content("~/HeaderImages/Img-" + WebDbIDclaim.Value + "-1.png");
+            if(System.IO.File.Exists(absolutePath + "Img-" + WebDbIDclaim.Value + "-2.jpg")) imgPath2 =  Url.Content("~/HeaderImages/Img-" + WebDbIDclaim.Value + "-2.jpg");
+            else if (System.IO.File.Exists(absolutePath + "Img-" + WebDbIDclaim.Value + "-2.png")) imgPath2 = Url.Content("~/HeaderImages/Img-" + WebDbIDclaim.Value + "-2.png");
+        }
+        }
+
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+            @if (imgPath1 != "")
+                {
+            <img src=@imgPath1 style="max-height: 100px; object-fit: cover;" class="float-left" />
+                }
             <div class="container">
                 <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">WebDatabasesMVC</a>
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
@@ -46,22 +67,28 @@
                         </li>
                         @if (User.Identity.IsAuthenticated)
                         {
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Review" asp-action="Index">Review Home</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="ItemList" asp-action="Index">Items</a>
-                            </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Review" asp-action="Index">Review Home</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="ItemList" asp-action="Index">Items</a>
+                        </li>
                         }
                         else
                         {
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Login" asp-action="Index">Login</a>
-                            </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Login" asp-action="Index">Login</a>
+                        </li>
                         }
                     </ul>
                 </div>
             </div>
+
+            @if (imgPath2 != "")
+                {
+            <img src=@imgPath2 style="max-height: 100px; object-fit: cover;" class="float-left" />
+                }
+
         </nav>
     </header>
     <div class="m-3 p-3 ">
@@ -75,7 +102,7 @@
             &copy; 2020 - WebDatabasesMVC - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
         </div>
     </footer>
-    
+
     @RenderSection("Scripts", required: false)
 </body>
 </html>

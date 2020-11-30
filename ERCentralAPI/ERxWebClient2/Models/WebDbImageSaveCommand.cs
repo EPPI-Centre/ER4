@@ -26,26 +26,26 @@ namespace BusinessLibrary.BusinessClasses
     {
         public WebDbImageSaveCommand(){}
 
-        private bool _isImage1;
+        private short _imageNumber;
         //private string _documentExtension;
         private int _webDbId;
         private byte[] _docbin;
-        private string _fileName;
+        private string _extension;
 
 
 
-        public bool isImage1
+        public short imageNumber
         {
-            get { return _isImage1; }
+            get { return _imageNumber; }
         }
 
         public int webDbId
         {
             get { return _webDbId; }
         }
-        public string fileName
+        public string extension
         {
-            get { return _fileName; }
+            get { return _extension; }
         }
 
         public byte[] docbin
@@ -53,27 +53,27 @@ namespace BusinessLibrary.BusinessClasses
             get { return _docbin; }
         }
 
-        public WebDbImageSaveCommand(int WebDbId, bool IsImage1, string filename, byte[] docbin)
+        public WebDbImageSaveCommand(int WebDbId, short ImageNumber, string extension, byte[] docbin)
         {
             _webDbId = WebDbId;
-            _isImage1 = IsImage1;
-            _fileName = filename;
+            _imageNumber = ImageNumber;
+            _extension = extension;
             _docbin = docbin;
         }
 
         protected override void OnGetState(Csla.Serialization.Mobile.SerializationInfo info, Csla.Core.StateMode mode)
         {
             base.OnGetState(info, mode);
-            info.AddValue("_fileName", _fileName);
-            info.AddValue("_isImage1", _isImage1);
+            info.AddValue("_extension", _extension);
+            info.AddValue("_imageNumber", _imageNumber);
             info.AddValue("_docbin", _docbin);
             info.AddValue("_webDbId", _webDbId);
 
         }
         protected override void OnSetState(Csla.Serialization.Mobile.SerializationInfo info, Csla.Core.StateMode mode)
         {
-            _fileName = info.GetValue<string>("_fileName");
-            _isImage1 = info.GetValue<bool>("_isImage1");
+            _extension = info.GetValue<string>("_extension");
+            _imageNumber = info.GetValue<short>("_imageNumber");
             _docbin = info.GetValue<byte[]>("_docbin");
             _webDbId = info.GetValue<int>("_webDbId");
         }
@@ -93,7 +93,8 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@RevId", ri.ReviewId));
                     command.Parameters.Add(new SqlParameter("@WebDbId", _webDbId));
                     command.Parameters.Add(new SqlParameter("@BIN", _docbin));
-                    command.Parameters.Add(new SqlParameter("@IsImage1", _isImage1));
+                    command.Parameters.Add(new SqlParameter("@imageNumber", _imageNumber));
+                    command.Parameters.Add(new SqlParameter("@Extension", _extension));
                     command.ExecuteNonQuery();
                 }
                 connection.Close();

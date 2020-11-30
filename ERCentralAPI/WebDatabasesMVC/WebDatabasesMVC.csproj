@@ -76,6 +76,13 @@
 
   <ItemGroup>
     <Folder Include="Controllers\AbstractClasses\" />
+    <Folder Include="wwwroot\NewFolder\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="wwwroot\HeaderImages\.Placehoder">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
 </Project>
