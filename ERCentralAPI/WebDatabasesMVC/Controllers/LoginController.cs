@@ -2,12 +2,14 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.IO;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using EPPIDataServices.Helpers;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -19,13 +21,27 @@ namespace WebDatabasesMVC.Controllers
     //[Route("Login/Login")]
     public class LoginController : Controller
     {
-        // GET: Login
+        private static string _HeaderImagesFolder;
+        private string HeaderImagesFolder
+        {
+            get
+            {
+                if (_HeaderImagesFolder == null)
+                {
+                    _HeaderImagesFolder = Path.Combine(webHostEnvironment.WebRootPath, "HeaderImages");
+                }
+                return _HeaderImagesFolder;
+            }
+        }
+
+        private readonly IWebHostEnvironment webHostEnvironment;
 
         private readonly ILogger _logger;
 
-        public LoginController(ILogger<LoginController> logger)
+        public LoginController(ILogger<LoginController> logger, IWebHostEnvironment hostEnvironment)
         {
             _logger = logger;
+            webHostEnvironment = hostEnvironment;
         }
 
 
@@ -46,7 +62,7 @@ namespace WebDatabasesMVC.Controllers
         {
             try
             {
-                if (long.TryParse(id, out long WebDbId))
+                if (int.TryParse(id, out int WebDbId))
                 {
                     string SP = "st_WebDBgetOpenAccess";
                     List<SqlParameter> pars = new List<SqlParameter>();
@@ -67,6 +83,7 @@ namespace WebDatabasesMVC.Controllers
                                 long AttId = -1;
                                 if (!reader.IsDBNull("WITH_ATTRIBUTE_ID")) AttId = reader.GetInt64("WITH_ATTRIBUTE_ID");
                                 SetUser(reader["WEBDB_NAME"].ToString(), WebDbId, Revid, AttId);
+                                SetImages(WebDbId, reader);
                                 return Redirect("~/Review/Index");
                             } 
                             else
@@ -98,7 +115,7 @@ namespace WebDatabasesMVC.Controllers
         {
             try
             {
-                if (long.TryParse(WebDBid, out long WebDbId))
+                if (int.TryParse(WebDBid, out int WebDbId))
                 {
                     string SP = "st_WebDBgetOpenAccess";
                     List<SqlParameter> pars = new List<SqlParameter>();
@@ -112,6 +129,7 @@ namespace WebDatabasesMVC.Controllers
                                 long AttId = -1;
                                 if (!reader.IsDBNull("WITH_ATTRIBUTE_ID")) AttId = reader.GetInt64("WITH_ATTRIBUTE_ID");
                                 SetUser(reader["WEBDB_NAME"].ToString(), WebDbId, Revid, AttId);
+                                SetImages(WebDbId, reader);
                                 return Redirect("~/Review/Index");
                             }
                             else
@@ -142,7 +160,7 @@ namespace WebDatabasesMVC.Controllers
         {
             return Forbid();
         }
-        private void SetUser(string Name, long WebDbID, int revId, long itemsCode)
+        private void SetUser(string Name, int WebDbID, int revId, long itemsCode)
         {
             var userClaims = new List<Claim>()
             {
@@ -155,6 +173,49 @@ namespace WebDatabasesMVC.Controllers
             var innerIdentity = new ClaimsIdentity(userClaims, "User Identity");
             var userPrincipal = new ClaimsPrincipal(new[] { innerIdentity });
             HttpContext.SignInAsync(userPrincipal);
+        }
+        private void SetImages(int WebDbID, SqlDataReader reader)
+        {
+            bool todo = false;
+            if (reader["HEADER_IMAGE_1"] != DBNull.Value)
+            {
+                ViewBag.Image1 = true;
+                string filename = HeaderImagesFolder + @"\Img-" + WebDbID.ToString() + "-1." + reader.GetString("HEADER_IMAGE_EXT_1");
+                if (System.IO.File.Exists(filename))
+                {
+                    System.IO.FileInfo fl = new FileInfo(filename);
+                    if (fl.CreationTime < DateTime.Now.AddDays(-1)) todo = true;
+                }
+                else todo = true;
+                if (todo)
+                {
+                    using (var stream = new FileStream(filename, FileMode.OpenOrCreate))
+                    {
+                        byte[] image = (byte[])reader["HEADER_IMAGE_1"];
+                        stream.Write(image, 0, image.Length);
+                        
+                    }
+                }
+            }
+            if (reader["HEADER_IMAGE_2"] != DBNull.Value)
+            {
+                ViewBag.Image2 = true;
+                string filename = HeaderImagesFolder + @"\Img-" + WebDbID.ToString() + "-2." + reader.GetString("HEADER_IMAGE_EXT_2");
+                if (System.IO.File.Exists(filename))
+                {
+                    System.IO.FileInfo fl = new FileInfo(filename);
+                    if (fl.CreationTime < DateTime.Now.AddDays(-1)) todo = true;
+                }
+                else todo = true;
+                if (todo)
+                {
+                    using (var stream = new FileStream(filename, FileMode.OpenOrCreate))
+                    {
+                        byte[] image = (byte[])reader["HEADER_IMAGE_2"];
+                        stream.Write(image, 0, image.Length);
+                    }
+                }
+            }    
         }
     }
 }

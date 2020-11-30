@@ -325,6 +325,28 @@ export class WebDBService extends BusyAwareService  {
             }
         );
     }
+    public DeleteHeaderImage(ImageNumber: number) {
+        this._BusyMethods.push("WebDBDeleteHeaderImageCommand");
+        if (!this._CurrentDB) return;
+        let body = JSON.stringify({
+            WebDbId: this._CurrentDB.webDBId
+            , imageNumber: ImageNumber
+        });
+        this._httpC.post<void>(this._baseUrl + 'api/WebDB/DeleteHeaderImage', body).subscribe(
+            res => {
+                if (this._CurrentDB) {
+                    if (ImageNumber == 1)
+                        this._CurrentDB.encodedImage1 = "";
+                    else if (ImageNumber == 2)
+                        this._CurrentDB.encodedImage2 = "";
+                }
+                this.RemoveBusy("WebDBDeleteHeaderImageCommand");
+            }, error => {
+                this.RemoveBusy("WebDBDeleteHeaderImageCommand");
+                this.modalService.GenericError(error);
+            }
+        );
+    }
 
     public FindMissingAttributes(FromThisSet: number = -1) {
         //console.log("looking for missing atts");

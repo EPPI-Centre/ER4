@@ -41,11 +41,11 @@
 
         <div *ngIf="EditingDB == null && CurrentDB !== null" class="bg-light rounded">
             <div class="row m-0 p-0 " style="" >
-                <img *ngIf="CurrentDB.encodedImage1 != ''" src="data:image/jpg;base64,{{CurrentDB.encodedImage1}}" alt="image1" class=" col-3 p-0 ml-0 mr-auto my-auto" style="height:100%; object-fit: cover;" /> 
+                <img *ngIf="CurrentDB.encodedImage1 != ''" src="data:image/jpg;base64,{{CurrentDB.encodedImage1}}" alt="image1" class="  p-0 ml-0 mr-auto my-auto" style="max-height: 100px; object-fit: cover;" /> 
                 <div class="col-6 row p-0 mx-auto my-0">
                     <h2 class=" p p-0 mx-auto my-auto ">&nbsp;{{CurrentDB.webDBName}}</h2>
                 </div>
-                <img *ngIf="CurrentDB.encodedImage2 != ''" src="data:image/jpg;base64,{{CurrentDB.encodedImage2}}" alt="image2" class=" col-3 p-0 mr-0 ml-auto my-auto" style="height:100%; object-fit: cover;" />
+                <img *ngIf="CurrentDB.encodedImage2 != ''" src="data:image/jpg;base64,{{CurrentDB.encodedImage2}}" alt="image2" class="  p-0 mr-0 ml-auto my-auto" style="max-height: 100px; object-fit: cover;" />
             </div>
             <div *ngIf="CanWrite" class="w-100 m-0 p-0 text-center">
                 <button class="btn btn-outline-success btn-sm ml-1 mb-1" (click)="Edit(CurrentDB)" [disabled]="CurrentDB==null || EditingSomething">

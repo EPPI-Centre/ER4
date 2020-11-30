@@ -266,13 +266,13 @@ export class WebDBsComponent implements OnInit, OnDestroy {
 		if (this.EditingDB) {
 			e.data = {
 				webDbId: this.EditingDB.webDBId,
-				isImage1: this.isUploadImage1
+				imageNumber: this.isUploadImage1 ? 1 : 2
 			};
 		} else e.preventDefault();
 		console.log("uploading", e.data);
 	}
 	DeleteImage(imageN: number) {
-		alert("not implemented!");
+		if (this.CurrentDB) this.WebDBService.DeleteHeaderImage(imageN);
     }
 
 	GetCodingToolName(): string {

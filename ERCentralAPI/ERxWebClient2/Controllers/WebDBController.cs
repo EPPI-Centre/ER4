@@ -203,20 +203,18 @@ namespace ERxWebClient2.Controllers
         [HttpPost("[action]")]
         public IActionResult UploadImage([FromForm] UploadImage incoming)
         {
-
             try
             {
                 if (SetCSLAUser4Writing())
                 {
                     string filename = incoming.files[0].FileName;
                     int ind = filename.LastIndexOf(".");
-                    string ext = filename.Substring(ind);
+                    string ext = filename.Substring(ind).TrimStart('.');
                     Stream stream = incoming.files[0].OpenReadStream();
                     byte[] Binary = new byte[stream.Length];
                     stream.Read(Binary, 0, (int)stream.Length);
 
-                    WebDbImageSaveCommand cmd = new WebDbImageSaveCommand(incoming.webDbId, incoming.isImage1,
-                        filename,
+                    WebDbImageSaveCommand cmd = new WebDbImageSaveCommand(incoming.webDbId, incoming.imageNumber, ext,
                         Binary
                         );
                     cmd.doItNow();
@@ -228,6 +226,26 @@ namespace ERxWebClient2.Controllers
             catch (Exception e)
             {
                 _logger.LogException(e, "Upload Image (webDB) file error");
+                return StatusCode(500, e.Message);
+            }
+        }
+
+        [HttpPost("[action]")]
+        public IActionResult DeleteHeaderImage([FromBody] DeleteImage JsonC)
+        {
+            try
+            {
+                if (SetCSLAUser4Writing())
+                {
+                    WebDBDeleteHeaderImageCommand cmd = new WebDBDeleteHeaderImageCommand(JsonC.WebDbId, JsonC.imageNumber);
+                    cmd = DataPortal.Execute(cmd);
+                    return Ok();
+                }
+                else return Forbid();
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "DeleteImage (webDB) error");
                 return StatusCode(500, e.Message);
             }
 
@@ -298,8 +316,13 @@ namespace ERxWebClient2.Controllers
     }
     public class UploadImage
     {
-        public bool isImage1 { get; set; }
+        public short imageNumber { get; set; }
         public int webDbId { get; set; }
         public IFormFile[] files { get; set; }
+    }
+    public class DeleteImage
+    {
+        public int WebDbId { get; set; }
+        public short imageNumber { get; set; }
     }
 }
