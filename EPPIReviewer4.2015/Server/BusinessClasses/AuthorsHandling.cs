@@ -326,6 +326,12 @@ namespace AuthorsHandling
                 else SetProperty(MiddleNameProperty, value);
             }
         }
+        public static readonly PropertyInfo<string> FullNameProperty = RegisterProperty<string>(new PropertyInfo<string>("FullName", "FullName", 0));
+        public string FullName
+        {
+            get { return LastName + ", " + (MiddleName != "" ? MiddleName + " " : "") + FirstName; }
+            
+        }
         public static readonly PropertyInfo<int> RankProperty = RegisterProperty<int>(new PropertyInfo<int>("Rank", "Rank", 0));
         public int Rank
         {
@@ -338,6 +344,7 @@ namespace AuthorsHandling
             get { return GetProperty(RoleProperty); }
             set { SetProperty(RoleProperty, value); }
         }
+
         #endregion
         #region constructors
         
