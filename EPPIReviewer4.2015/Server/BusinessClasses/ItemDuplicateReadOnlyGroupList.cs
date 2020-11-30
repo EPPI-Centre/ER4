@@ -654,7 +654,7 @@ namespace BusinessLibrary.BusinessClasses
                     VOLUME = reader.GetString("VOLUME");
                     PAGES = reader.GetString("PAGES");
                     ISSUE = reader.GetString("ISSUE");
-                    DOI = reader.GetString("DOI");
+                    DOI = reader.GetString("DOI").ToUpper();
                     ABSTRACT = reader.GetString("ABSTRACT");
                     HAS_CODES = reader.GetInt32("HAS_CODES");
                     IS_MASTER = reader.GetInt32("IS_MASTER");
@@ -670,7 +670,7 @@ namespace BusinessLibrary.BusinessClasses
                     VOLUME = reader.GetString("VOLUME2");
                     PAGES = reader.GetString("PAGES2");
                     ISSUE = reader.GetString("ISSUE2");
-                    DOI = reader.GetString("DOI2");
+                    DOI = reader.GetString("DOI2").ToUpper();
                     ABSTRACT = reader.GetString("ABSTRACT2");
                     HAS_CODES = reader.GetInt32("HAS_CODES2");
                     IS_MASTER = reader.GetInt32("IS_MASTER2");
@@ -679,6 +679,43 @@ namespace BusinessLibrary.BusinessClasses
                 if (TITLE.IndexOf("Erratum") == -1)
                     TITLE = MagMakesHelpers.RemoveTextInParentheses(TITLE);
                 TITLE = MagMakesHelpers.CleanText(TITLE);
+            }
+
+            public ItemComparison(MagMakesHelpers.PaperMakes pm)
+            {
+                ITEM_ID = pm.Id;
+                AUTHORS = MagMakesHelpers.getErStyleAuthors(pm.AA);
+                TITLE = pm.DN;
+                PARENT_TITLE = pm.J != null ? pm.J.JN : "";
+                if (PARENT_TITLE == "")
+                    PARENT_TITLE = pm.VFN != null ? pm.VFN : "";
+                PARENT_TITLE = MagMakesHelpers.CleanText(PARENT_TITLE.Replace("&", "and"));
+                YEAR = pm.Y.ToString();
+                VOLUME = pm.V != null ? pm.V.ToString() : "";
+                PAGES = pm.FP != "" ? pm.FP + "-" + pm.LP : "";
+                ISSUE = pm.I;
+                DOI = pm.DOI;
+                ABSTRACT = "";
+                HAS_CODES = 0;
+                IS_MASTER = 0;
+                TYPE_ID = MagMakesHelpers.GetErEquivalentPubType(pm.Pt);
+            }
+
+            public ItemComparison(Item i)
+            {
+                ITEM_ID = i.ItemId;
+                AUTHORS = i.Authors;
+                TITLE = i.Title;
+                PARENT_TITLE = MagMakesHelpers.CleanText(i.ParentTitle.Replace("&", "and"));
+                YEAR = i.Year;
+                VOLUME = i.Volume;
+                PAGES = i.Pages;
+                ISSUE = i.Issue;
+                DOI = i.DOI.ToUpper();
+                ABSTRACT = i.Abstract;
+                HAS_CODES = 0;
+                IS_MASTER = 0;
+                TYPE_ID = i.TypeId;
             }
 
             private AutorsList _AutorsList = null;

@@ -308,6 +308,9 @@
     <None Update="SQLScripts\288.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="SQLScripts\290.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="SQLScripts\292.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
