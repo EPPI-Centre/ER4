@@ -189,7 +189,9 @@ namespace AuthorsHandling
         static string trimMe(string inSt)
         {
             //String delim = " ,.*|@/\\+=-_!£$%^&*()`\"";
-            return inSt.Trim(delim);
+            if (inSt != null)
+                return inSt.Trim(delim);
+            return "";
         }
         
         public static AutH singleAuth(string AuthSt, int Rank, int OrigiN, bool LastAuthorIsLast = false)
@@ -246,6 +248,7 @@ namespace AuthorsHandling
                 }
                 else
                 {//rare case (MAKES) the "family name" is always at the end
+                    //AuthSt = AuthSt.Replace(".", ""); // JT added. Using . throws situations where you have pairs of initials - e.g. M.P.
                     temP = AuthSt.ToLower();
                     foreach (string ComPs in CompP)
                     {

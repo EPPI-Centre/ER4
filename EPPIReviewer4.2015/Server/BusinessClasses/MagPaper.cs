@@ -662,7 +662,7 @@ namespace BusinessLibrary.BusinessClasses
             }
             if (returnValue.GetProperty(JournalProperty) == "" && pm.VFN != null)
             {
-                // get conferences
+                // get conferences (MAG puts lots of conference papers in and the conference goes in the 'journal' field)
                 returnValue.LoadProperty<string>(JournalProperty, pm.VFN);
             }
             //returnValue.LoadProperty<Int64>(ConferenceSeriesIdProperty, );
