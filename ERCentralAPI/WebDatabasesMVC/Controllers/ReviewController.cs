@@ -104,5 +104,23 @@ namespace WebDatabasesMVC.Controllers
                 return StatusCode(500, e.Message);
             }
         }
+        public IActionResult YearHistogramJSON()
+        {
+            try
+            {
+                if (SetCSLAUser())
+                {
+                    WebDbYearFrequencyCrit crit = new WebDbYearFrequencyCrit(WebDbId, true);
+                    WebDbYearFrequencyList res = DataPortal.Fetch<WebDbYearFrequencyList>(crit);
+                    return Json(res);
+                }
+                else return Unauthorized();
+            } 
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Error in YearHistogramJSON");
+                return StatusCode(500, e.Message);
+            }
+        }
     }
 }

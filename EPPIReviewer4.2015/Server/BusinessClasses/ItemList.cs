@@ -759,7 +759,6 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@FilterAttributeId", criteria.FilterAttributeId)); // filter attribute id
                     break;
                 case "WebDbWithWithoutCodes":
-
                     command = new SqlCommand("st_WebDbItemListWithWithoutCodes", connection);
                     command.CommandType = System.Data.CommandType.StoredProcedure;
                     command.Parameters.Add(new SqlParameter("@RevId", ri.ReviewId));
@@ -769,6 +768,15 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@included", criteria.OnlyIncluded)); 
                     command.Parameters.Add(new SqlParameter("@WithOutAttributesIdsList", criteria.WithOutAttributesIdsList)); 
                     command.Parameters.Add(new SqlParameter("@WithOutSetIdsList", criteria.WithOutSetIdsList)); 
+                    break;
+                case "WebDbSearch":
+                    command = new SqlCommand("st_WebDbSearchFreeText", connection);
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@RevId", ri.ReviewId));
+                    command.Parameters.Add(new SqlParameter("@WebDbId", criteria.WebDbId));
+                    command.Parameters.Add(new SqlParameter("@SEARCH_TEXT", criteria.SearchString));
+                    command.Parameters.Add(new SqlParameter("@SEARCH_WHAT", criteria.SearchWhat));
+                    command.Parameters.Add(new SqlParameter("@included", criteria.OnlyIncluded));
                     break;
 #endif
                 default:
@@ -1048,6 +1056,24 @@ namespace BusinessLibrary.BusinessClasses
             set
             {
                 SetProperty(WithOutSetIdsListProperty, value);
+            }
+        }
+        public static readonly PropertyInfo<string> SearchWhatProperty = RegisterProperty<string>(typeof(SelectionCriteria), new PropertyInfo<string>("SearchWhat", "SearchWhat", string.Empty));
+        public string SearchWhat
+        {
+            get { return ReadProperty(SearchWhatProperty); }
+            set
+            {
+                SetProperty(SearchWhatProperty, value);
+            }
+        }
+        public static readonly PropertyInfo<string> SearchStringProperty = RegisterProperty<string>(typeof(SelectionCriteria), new PropertyInfo<string>("SearchString", "SearchString", string.Empty));
+        public string SearchString
+        {
+            get { return ReadProperty(SearchStringProperty); }
+            set
+            {
+                SetProperty(SearchStringProperty, value);
             }
         }
 #endif

@@ -312,27 +312,114 @@ namespace WebDatabasesMVC.Controllers
                         criteria.OnlyIncluded = included.ToLower() == "true" ? true : false;
                     }
                     ItemListWithCriteria iList = GetItemList(criteria);
-                    return Json(iList);//supplying the view name, otherwise MVC would try to auto-discover a view called Page.
+                    return Json(iList);
                 }
                 else return Unauthorized();
             }
             catch (Exception e)
             {
-                _logger.LogError(e, "Error in ItemList GetListWithWithoutAtts");
+                _logger.LogError(e, "Error in ItemList GetListWithWithoutAttsJSON");
                 return StatusCode(500, e.Message);
             }
         }
+
+        public IActionResult GetListSearchResults([FromForm] string SearchString, string SearchWhat, string included)
+        {
+            try
+            {
+                if (SetCSLAUser())
+                {
+                    string[] sTypes = {
+                    "TitleAbstract"
+                    ,"Title"
+                    ,"Abstract"
+                    ,"PubYear"
+                    ,"AdditionalText"
+                    ,"ItemId"
+                    ,"OldItemId"
+                    ,"Authors"};
+                    //basic check: is the list type supported?
+                    if (!sTypes.Contains(SearchWhat) || SearchString == null || SearchString == "")
+                    {
+                        _logger.LogError("Error in ItemList GetListSearchResults: search parameters appear to be malformed.");
+                        return BadRequest("Request parameters appear to be malformed.");
+                    }
+                    //basic check: number of atts and sets match...
+                    SelectionCriteria criteria = new SelectionCriteria();
+                    criteria.ListType = "WebDbSearch";
+                    criteria.SearchString = SearchString;
+                    criteria.SearchWhat = SearchWhat;
+                    if (included != "")
+                    {
+                        criteria.OnlyIncluded = included.ToLower() == "true" ? true : false;
+                    }
+                    ItemListWithCriteria iList = GetItemList(criteria);
+                    return View("Index", iList);//supplying the view name, otherwise MVC would try to auto-discover a view called Page.
+                }
+                else return Unauthorized();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Error in ItemList GetListSearchResults");
+                return StatusCode(500, e.Message);
+            }
+        }
+        [HttpPost]
+        public IActionResult GetListSearchResultsJSON([FromForm] string SearchString, string SearchWhat, string included)
+        {
+            try
+            {
+                if (SetCSLAUser())
+                {
+                    string[] sTypes = {
+                    "TitleAbstract"
+                    ,"Title"
+                    ,"Abstract"
+                    ,"PubYear"
+                    ,"AdditionalText"
+                    ,"ItemId"
+                    ,"OldItemId"
+                    ,"Authors"};
+                    //basic check: is the list type supported?
+                    if (!sTypes.Contains(SearchWhat) || SearchString == null || SearchString == "")
+                    {
+                        _logger.LogError("Error in ItemList GetListSearchResults: search parameters appear to be malformed.");
+                        return BadRequest("Request parameters appear to be malformed.");
+                    }
+                    //basic check: number of atts and sets match...
+                    SelectionCriteria criteria = new SelectionCriteria();
+                    criteria.ListType = "WebDbSearch";
+                    criteria.SearchString = SearchString;
+                    criteria.SearchWhat = SearchWhat;
+                    if (included != "")
+                    {
+                        criteria.OnlyIncluded = included.ToLower() == "true" ? true : false;
+                    }
+                    ItemListWithCriteria iList = GetItemList(criteria);
+                    return Json(iList);
+                }
+                else return Unauthorized();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Error in ItemList GetListSearchResultsJSON");
+                return StatusCode(500, e.Message);
+            }
+        }
+
+
+
         internal ItemListWithCriteria GetItemList(SelectionCriteria crit)
         {
             List<Claim> claims = User.Claims.ToList();
             Claim AttIdC = claims.Find(f => f.Type == "ItemsCode");
-            Claim DBidC = claims.Find(f => f.Type == "WebDbID");
+            
             if (crit.WebDbId == 0)
             {
-                crit.WebDbId = int.Parse(DBidC.Value);
+                crit.WebDbId = WebDbId;
                 crit.PageSize = 100;
             }
-            else if (int.Parse(DBidC.Value) != crit.WebDbId)
+            else if (WebDbId != crit.WebDbId)
             {
                 throw new Exception("WebDbId in ItemList Criteria is not the expected value - possible tampering attempt!");
             }
@@ -435,6 +522,8 @@ namespace WebDatabasesMVC.Controllers
             withSetIdsList = CSLAcrit.WithSetIdsList;
             withOutAttributesIdsList = CSLAcrit.WithOutAttributesIdsList;
             withOutSetIdsList = CSLAcrit.WithOutSetIdsList;
+            searchString = CSLAcrit.SearchString;
+            searchWhat = CSLAcrit.SearchWhat;
         }
         public bool onlyIncluded { get; set; }
         public bool showDeleted { get; set; }
@@ -468,9 +557,10 @@ namespace WebDatabasesMVC.Controllers
         public string withSetIdsList { get; set; }
         public string withOutAttributesIdsList { get; set; }
         public string withOutSetIdsList { get; set; }
+        public string searchWhat { get; set; }
+        public string searchString { get; set; }
         public SelectionCriteria CSLACriteria() 
         {
-            
             SelectionCriteria CSLAcrit = new SelectionCriteria();
             CSLAcrit.OnlyIncluded = onlyIncluded;
             CSLAcrit.ShowDeleted = showDeleted;
@@ -499,6 +589,8 @@ namespace WebDatabasesMVC.Controllers
             CSLAcrit.WithSetIdsList = withSetIdsList;
             CSLAcrit.WithOutAttributesIdsList = withOutAttributesIdsList;
             CSLAcrit.WithOutSetIdsList = withOutSetIdsList;
+            CSLAcrit.SearchWhat = searchWhat;
+            CSLAcrit.SearchString = searchString;
             return CSLAcrit;
         }
     }

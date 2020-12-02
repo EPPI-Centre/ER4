@@ -55,6 +55,8 @@
         <input type="hidden" value="@Model.criteria.withSetIdsList" name="withSetIdsList" />
         <input type="hidden" value="@Model.criteria.withOutAttributesIdsList" name="withOutAttributesIdsList" />
         <input type="hidden" value="@Model.criteria.withOutSetIdsList" name="withOutSetIdsList" />
+        <input type="hidden" value="@Model.criteria.searchWhat" name="searchWhat" />
+        <input type="hidden" value="@Model.criteria.searchString" name="searchString" />
     </form>
         <div class="my-auto">Page: @(Model.items.PageIndex + 1) of @(Model.items.PageCount).</div>
 </div>

@@ -65,13 +65,7 @@ namespace WebDatabasesMVC.Controllers
         }
         internal FrequencyResultWithCriteria GetFrequenciesInternal(long attId, int setId, string included)
         {
-            int DBid = -1;
-            List<Claim> claims = User.Claims.ToList();
-            Claim DBidC = claims.Find(f => f.Type == "WebDbID");
-            if (DBidC != null)
-            {
-                int.TryParse(DBidC.Value, out DBid);
-            }
+            int DBid = WebDbId;
             if (DBid < 1)
             {
                 _logger.LogError("Error in GetFrequenciesInternal, no WebDbId!");
@@ -122,14 +116,9 @@ namespace WebDatabasesMVC.Controllers
         }
         internal WebDbItemAttributeCrosstabList GetCrosstabInternal(long attIdx, int setIdx, long attIdy, int setIdy, string included, long onlyThisAtt= 0)
         {
-            int DBid = -1;
-            List<Claim> claims = User.Claims.ToList();
-            Claim DBidC = claims.Find(f => f.Type == "WebDbID");
-            if (DBidC != null)
-            {
-                int.TryParse(DBidC.Value, out DBid);
-            }
+            int DBid = WebDbId;
             if (DBid < 1)
+                if (DBid < 1)
             {
                 _logger.LogError("Error in GetFrequenciesInternal, no WebDbId!");
                 return null;

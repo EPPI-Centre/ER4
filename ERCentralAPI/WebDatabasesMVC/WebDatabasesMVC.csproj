@@ -60,6 +60,8 @@
     <Compile Include="..\ERxWebClient2\Models\WebDbItemAttributeCrosstabList.cs" Link="Models\WebDbItemAttributeCrosstabList.cs" />
     <Compile Include="..\ERxWebClient2\Models\WebDbReviewSet.cs" Link="Models\WebDbReviewSet.cs" />
     <Compile Include="..\ERxWebClient2\Models\WebDbReviewSetsList.cs" Link="Models\WebDbReviewSetsList.cs" />
+    <Compile Include="..\ERxWebClient2\Models\WebDbYearFrequency.cs" Link="Models\WebDbYearFrequency.cs" />
+    <Compile Include="..\ERxWebClient2\Models\WebDbYearFrequencyList.cs" Link="Models\WebDbYearFrequencyList.cs" />
     <Compile Include="..\PubmedImport\Helpers\Logger.cs" Link="Helpers\Logger.cs" />
     <Compile Include="..\PubmedImport\Helpers\SQLHelper.cs" Link="Helpers\SQLHelper.cs" />
   </ItemGroup>

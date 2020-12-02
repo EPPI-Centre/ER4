@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 
@@ -62,7 +63,30 @@ namespace ERxWebClient2.Controllers
                 return false;
 			}
 		}
-	}
+#if WEBDB
+        protected int WebDbId
+        {
+            get
+            {
+                if (User == null || (Csla.ApplicationContext.User.Identity as ReviewerIdentity) == null) return -1;
+                else
+                {
+                    List<Claim> claims = User.Claims.ToList();
+                    Claim DBidC = claims.Find(f => f.Type == "WebDbID");
+                    try
+                    {
+                        return int.Parse(DBidC.Value);
+                    }
+                    catch (Exception e)
+                    {
+                        _logger.LogError("Error parsing the WebDBId value from the logon cookie", e);
+                        return -1;
+                    }
+                }
+            }
+        }
+#endif
+    }
     public class SingleStringCriteria
     {
         public string Value { get; set; }

@@ -7,6 +7,8 @@
     </div>
 
     <div class="col-6 col-sm-4 col-md-3">
+        <div id="chart"></div>
+
         <div id="treeView"></div>
         <script>
             var treeviewData = null;
@@ -58,6 +60,7 @@
                                     //    };
                                     nodes.push(nd);
                                 }
+                                GetYearsFreqs();//getting the years chart after the codes...
                                 return nodes;
                             }
                         }
@@ -80,7 +83,7 @@
                 if (dataItem.isCodeset == true) {
                     postwith("../Frequencies/GetFrequencies", { attId: 0, setId: dataItem.setId, included: true });
                 }
-                else postwith("../Frequencies/GetFrequencies", { attId: dataItem.id, setId: dataItem.setId, included:true});
+                else postwith("../Frequencies/GetFrequencies", { attId: dataItem.id, setId: dataItem.setId, included: true });
             }
             function GoToCrosstab(isSelfXtab) {
                 console.log("CurrentNodeGoToCrosstab");
@@ -107,12 +110,12 @@
                     });
                 } else {
                     var pars = {
-                            attIdx: 0
-                            , setIdx: 0
-                            , attIdy: 0
-                            , setIdy: 0
-                            , included: true
-                        }
+                        attIdx: 0
+                        , setIdx: 0
+                        , attIdy: 0
+                        , setIdy: 0
+                        , included: true
+                    }
                     if (dataItem.isCodeset == true) {
                         pars.attIdy = 0;
                         pars.setIdy = dataItem.setId;
@@ -132,7 +135,7 @@
                     postwith("../Frequencies/GetCrosstab", pars);
                 }
             }
-            
+
             function TreeViewSelection(e) {
                 if (treeviewData == null) retrun;
                 dataItem = treeviewData.dataItem(e.node);
@@ -174,6 +177,50 @@
                     $("#x_axis_setting").show();
                 }
             }
+
+            function GetYearsFreqs() {
+                $("#chart").kendoChart({
+                    categoryAxis: {
+                        field: "year"
+                    },
+                    series: [
+                        { field: "count" }
+                    ],
+                    seriesDefaults: {
+                        type: 'bar'
+                    },
+                    seriesClick: function (e) {
+                        //console.log("Clicked " + e.value, e);
+                        GoToYearList(e.category);
+                    },
+                    axisLabelClick: function (e) {
+                        //console.log("Clicked " + e.value, e);
+                        GoToYearList(e.value);
+                    },
+                    dataSource: {
+                        transport: {
+                            read: {
+                                url: "../Review/YearHistogramJSON",
+                                dataType: "json"
+                            }
+                        }
+                    }
+                    , tooltip: {
+                        visible: true,
+                        template: "Items count: #= value #"
+                    }
+
+                });
+            }
+
+            function GoToYearList(year) {
+                //if (year == "Unknown") year = "'    ' OR '0   '";
+                postwith("../ItemList/GetListSearchResults", {
+                    SearchString: year
+                    , SearchWhat: "PubYear"
+                    , included: "true"
+                })
+            }
             //var treeviewData = $("#treeView").data("kendoTreeView");
             //treeview.bind("change", TreeViewSelection);
         </script>
@@ -205,7 +252,7 @@
             <button class="btn-outline-primary btn btn-sm" onclick="GoToFreq()" disabled id="CurrentNodeGoToFreq">Freq</button>
 
 
-            <div class="row" >
+            <div class="row">
                 Crosstabs:
                 <button class="btn-outline-primary btn btn-sm" onclick="GoToCrosstab(true)" disabled id="CurrentNodeGoToSelfCrosstab">Self Cross Tab</button>
                 <button class="btn-outline-success btn btn-sm" onclick="SetXAxis()" disabled id="CurrentNodeSetXAxis">Set X axis</button>
@@ -214,6 +261,43 @@
                     <button class="btn-outline-primary btn btn-sm" onclick="GoToCrosstab(false)" disabled id="CurrentNodeGoToCrosstab">Full Cross Tab</button>
                 </div>
             </div>
+
+            <div class="row border border-info mt-2">
+                
+                <form asp-controller="ItemList" asp-action="GetListSearchResults" method="post" class="col-12 m-0 p-1 ">
+                    <div class="row m-1">
+                        <div class="col-auto row p-0 m-0">
+                            <label for="SearchWhat" class="my-auto">Search In: &nbsp;</label>
+                            <select name="SearchWhat" id="SearchWhat" class="ml-1 mr-2">
+                                <option value="TitleAbstract">Title and Abstract</option>
+                                <option value="Title">Title</option>
+                                <option value="Abstract">Abstract</option>
+                                <option value="Authors">Authors</option>
+                                <option value="PubYear">Publication Year</option>
+                                <option value="AdditionalText">"Coded" Text</option>
+                                <option value="ItemId">ItemIds (comma separated)</option>
+                                <option value="OldItemId">Imported Ids (comma separated)</option>
+                            </select>
+                        </div>
+                        <div class="col-auto row p-0 m-0">
+                            <input type="radio" class="my-auto" id="includedt" name="included" value="true" checked>
+                            <label for="male" class="ml-1 mr-3 my-auto">Included</label>
+                            <input type="radio" class="my-auto" id="includedf" name="included" value="false">
+                            <label for="female" class="ml-1 mr-0 my-auto">or excluded</label>
+                        </div>
+                    </div>
+                    <div  class="row m-1">
+                        <label for="SearchString" class="col-auto p-0">Search string:</label>
+                        <input type="text" maxlength="4000" size="60" name="SearchString" id="SearchString" class="ml-1 mr-2 col-auto p-0" />
+                    </div>
+                    
+                    <button class="btn btn-outline-primary px-1 py-0 m-1" type="submit" >
+                        Search
+                    </button>
+                </form>
+                
+            </div>
+
         </div>
 
     </div>
