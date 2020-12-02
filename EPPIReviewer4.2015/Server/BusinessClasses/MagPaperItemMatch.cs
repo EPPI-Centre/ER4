@@ -40,6 +40,8 @@ namespace BusinessLibrary.BusinessClasses
     */
     public static class MagPaperItemMatch
     {
+        public const double AutoMatchThreshold = 0.8;
+        public const double AutoMatchMinScore = 0.4;
         private static SearchIndexClient CreateSearchIndexClient()
         {
 #if (!CSLA_NETCORE)
@@ -85,17 +87,16 @@ namespace BusinessLibrary.BusinessClasses
                         MagPaperItemMatch.doComparison(i, cpm);
                     }
                 }
-                if (candidatePapersOnDOI.Count == 0 || (candidatePapersOnDOI.Max(t => t.matchingScore) < 0.7))
+                if (candidatePapersOnDOI.Count == 0 || (candidatePapersOnDOI.Max(t => t.matchingScore) < AutoMatchThreshold))
                 {
                     List<MagMakesHelpers.PaperMakes> candidatePapersOnTitle = MagMakesHelpers.GetCandidateMatches(i.Title, "LIVE", true);
                     foreach (MagMakesHelpers.PaperMakes pm in candidatePapersOnTitle)
                     {
                         doComparison(i, pm);
                     }
-                    double minMatchingScore = 0.40;
                     for (int inn = 0; inn < candidatePapersOnTitle.Count; inn++)
                     {
-                        if (candidatePapersOnTitle[inn].matchingScore < minMatchingScore)
+                        if (candidatePapersOnTitle[inn].matchingScore < AutoMatchMinScore)
                         {
                             candidatePapersOnTitle.RemoveAt(inn);
                             inn--;
@@ -104,13 +105,13 @@ namespace BusinessLibrary.BusinessClasses
                     foreach (MagMakesHelpers.PaperMakes pm in candidatePapersOnTitle)
                     {
                         var found = candidatePapersOnDOI.Find(e => e.Id == pm.Id);
-                        if (found == null && pm.matchingScore >= minMatchingScore)
+                        if (found == null && pm.matchingScore >= AutoMatchMinScore)
                         {
                             candidatePapersOnDOI.Add(pm);
                         }
                     }
                     // add in matching on journals / authors if we don't have an exact match on title
-                    if (candidatePapersOnTitle.Count == 0 || (candidatePapersOnTitle.Count > 0 && candidatePapersOnTitle.Max(t => t.matchingScore) < 0.7))
+                    if (candidatePapersOnTitle.Count == 0 || (candidatePapersOnTitle.Count > 0 && candidatePapersOnTitle.Max(t => t.matchingScore) < AutoMatchThreshold))
                     {
                         List<MagMakesHelpers.PaperMakes> candidatePapersOnAuthorJournal = MagMakesHelpers.GetCandidateMatches(i.Authors + " " + i.ParentTitle);
                         foreach (MagMakesHelpers.PaperMakes pm in candidatePapersOnAuthorJournal)
@@ -120,7 +121,7 @@ namespace BusinessLibrary.BusinessClasses
                         foreach (MagMakesHelpers.PaperMakes pm in candidatePapersOnAuthorJournal)
                         {
                             var found = candidatePapersOnDOI.Find(e => e.Id == pm.Id);
-                            if (found == null && pm.matchingScore >= minMatchingScore)
+                            if (found == null && pm.matchingScore >= AutoMatchMinScore)
                             {
                                 candidatePapersOnDOI.Add(pm);
                             }
