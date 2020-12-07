@@ -197,6 +197,26 @@ namespace WebDatabasesMVC.Controllers
                     }
                 }
             }
+            else
+            {
+                string filename = HeaderImagesFolder + @"\Img-" + WebDbID.ToString() + "-1.jpg";
+                try
+                {
+                    if (System.IO.File.Exists(filename))
+                    {
+                        System.IO.File.Delete(filename);
+                    }
+                    filename = HeaderImagesFolder + @"\Img-" + WebDbID.ToString() + "-1.png";
+                    if (System.IO.File.Exists(filename))
+                    {
+                        System.IO.File.Delete(filename);
+                    }
+                }
+                catch (Exception e)
+                {
+                    _logger.LogError(e, "could not delete file: " + filename);
+                }
+            }
             if (reader["HEADER_IMAGE_2"] != DBNull.Value)
             {
                 ViewBag.Image2 = true;
@@ -215,7 +235,27 @@ namespace WebDatabasesMVC.Controllers
                         stream.Write(image, 0, image.Length);
                     }
                 }
-            }    
+            }
+            else
+            {
+                string filename = HeaderImagesFolder + @"\Img-" + WebDbID.ToString() + "-2.jpg";
+                try
+                {
+                    if (System.IO.File.Exists(filename))
+                    {
+                        System.IO.File.Delete(filename);
+                    }
+                    filename = HeaderImagesFolder + @"\Img-" + WebDbID.ToString() + "-2.png";
+                    if (System.IO.File.Exists(filename))
+                    {
+                        System.IO.File.Delete(filename);
+                    }
+                }
+                catch (Exception e)
+                {
+                    _logger.LogError(e, "could not delete file: " + filename);
+                }
+            }
         }
     }
 }
