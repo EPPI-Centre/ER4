@@ -54,12 +54,14 @@
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\StatFunctions.cs" Link="Models\StatFunctions.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\Security\CredentialsCriteria.cs" Link="Models\Security\CredentialsCriteria.cs" />
     <Compile Include="..\ERxWebClient2\Controllers\AbstractClasses\CSLAController.cs" Link="Controllers\AbstractClasses\CSLAController.cs" />
+    <Compile Include="..\ERxWebClient2\Models\WebDB.cs" Link="Models\WebDB.cs" />
     <Compile Include="..\ERxWebClient2\Models\WebDbItemAttributeChildFrequency.cs" Link="Models\WebDbItemAttributeChildFrequency.cs" />
     <Compile Include="..\ERxWebClient2\Models\WebDbItemAttributeChildFrequencyList.cs" Link="Models\WebDbItemAttributeChildFrequencyList.cs" />
     <Compile Include="..\ERxWebClient2\Models\WebDbItemAttributeCrosstab.cs" Link="Models\WebDbItemAttributeCrosstab.cs" />
     <Compile Include="..\ERxWebClient2\Models\WebDbItemAttributeCrosstabList.cs" Link="Models\WebDbItemAttributeCrosstabList.cs" />
     <Compile Include="..\ERxWebClient2\Models\WebDbReviewSet.cs" Link="Models\WebDbReviewSet.cs" />
     <Compile Include="..\ERxWebClient2\Models\WebDbReviewSetsList.cs" Link="Models\WebDbReviewSetsList.cs" />
+    <Compile Include="..\ERxWebClient2\Models\WebDBsList.cs" Link="Models\WebDBsList.cs" />
     <Compile Include="..\ERxWebClient2\Models\WebDbYearFrequency.cs" Link="Models\WebDbYearFrequency.cs" />
     <Compile Include="..\ERxWebClient2\Models\WebDbYearFrequencyList.cs" Link="Models\WebDbYearFrequencyList.cs" />
     <Compile Include="..\PubmedImport\Helpers\Logger.cs" Link="Helpers\Logger.cs" />

@@ -197,8 +197,37 @@ namespace BusinessLibrary.BusinessClasses
             this.MarkOld();
             this.MarkDirty(true);
         }
-        
 
+        protected void DataPortal_Fetch(SingleCriteria<int> crit)
+        {
+            ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+            {
+                connection.Open();
+                using (SqlCommand command = new SqlCommand("st_WebDBget", connection))
+                {
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@RevId", ri.ReviewId));
+                    command.Parameters.Add(new SqlParameter("@WebDBid", crit.Value));
+                    using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
+                    {
+                        if (reader.Read())
+                        {
+                            MarkOld();
+                            LoadProperty(WebDBIdProperty, reader.GetInt32("WEBDB_ID"));
+                            LoadProperty(AttributeIdFilterProperty, reader.GetInt64("WITH_ATTRIBUTE_ID"));
+                            LoadProperty(IsOpenProperty, reader.GetBoolean("IS_OPEN"));
+                            LoadProperty(UserNameProperty, reader.GetString("USERNAME"));
+                            LoadProperty(WebDBNameProperty, reader.GetString("WEBDB_NAME"));
+                            LoadProperty(WebDBDescriptionProperty, reader.GetString("DESCRIPTION"));
+                            LoadProperty(CreatedByProperty, reader.GetString("CREATED_BY"));
+                            LoadProperty(EditedByProperty, reader.GetString("EDITED_BY"));
+                        }
+                    }
+                }
+                connection.Close();
+            }
+        }
         protected override void DataPortal_Insert()
         {
             ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;

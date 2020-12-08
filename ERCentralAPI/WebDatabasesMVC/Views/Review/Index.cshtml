@@ -1,15 +1,8 @@
-﻿@model BusinessLibrary.BusinessClasses.ReviewInfo
-
+﻿@model WebDbWithRevInfo;
+@using WebDatabasesMVC.ViewModels;
+@using Microsoft.AspNetCore.Html;
 <div class="row">
-    <div class="col-12 ">
-        Review Name is:
-        <h3>@Model.ReviewName</h3>
-    </div>
-
-    <div class="col-6 col-sm-4 col-md-3">
-        <div id="chart"></div>
-
-        <div id="treeView"></div>
+    <div class="col-5 col-md-4">
         <script>
             var treeviewData = null;
             var dataItem = null;
@@ -144,6 +137,8 @@
                     $("#CurrentNodeGoToSelfCrosstab").prop("disabled", true);
                     $("#CurrentNodeGoToCrosstab").prop("disabled", true);
                     $("#CurrentNodeSetXAxis").prop("disabled", true);
+                    $("#GoToItemsWithThisCode").prop("disabled", true);
+                    $("#GoToItemsWithThisCode").attr('onclick', '');
                     return;
                 }
                 console.log("Change", dataItem.setId, dataItem.id, dataItem.text);
@@ -162,6 +157,13 @@
                     $("#CurrentNodeGoToSelfCrosstab").prop("disabled", true);
                     $("#CurrentNodeGoToCrosstab").prop("disabled", true);
                     $("#CurrentNodeSetXAxis").prop("disabled", true);
+                }
+                if (dataItem.isCodeset) {
+                    $("#GoToItemsWithThisCode").prop("disabled", true);
+                    $("#GoToItemsWithThisCode").attr('onclick', '');
+                } else {
+                    $("#GoToItemsWithThisCode").prop("disabled", false);
+                    $("#GoToItemsWithThisCode").attr('onclick', 'GoToItems(dataItem.id)');
                 }
             }
             function SetXAxis() {
@@ -224,15 +226,95 @@
             //var treeviewData = $("#treeView").data("kendoTreeView");
             //treeview.bind("change", TreeViewSelection);
         </script>
+
+        <div id="treeView" style="overflow: auto; height: 100%; max-height: 75vh;"></div>
     </div>
-    <div class="col-6 col-sm-8 col-md-9">
+    <div class="col-7 col-md-8 row mx-0 p-0">
+        <div class="col-12 col-sm-8 col-md-7 mb-2 rounded border border-primary alert-primary">
+            <div>WebDatabase Name is: <b>@Model.WebDb.WebDBName</b></div>
+            <div>WebDatabase Id is: <b>@Model.WebDb.WebDBId</b></div>
+            <div class="col-12">WebDatabase Description is: </div>
+            <div class="rounded m-2 alert-light col-12">@(new HtmlString(Model.WebDb.WebDBDescription))</div>
+            
+            <div>This WebDatabase uses EPPI-Reviewer data from the  review called: <b>@Model.RevInfo.ReviewName</b></div>
+        </div>
+        <div id="chart" class="col-12 col-sm-4 col-md-5 mb-2"></div>
+        <div class="col-12 col-sm-8 col-md-7 mb-2 rounded border border-info alert-info " id="CurrentNode">
+            <div class="font-weight-bold">Navigate:</div>
+            <div class="row m-0">
+                <div class="my-auto">
+                    List all references:
+                </div>
+                <a class="btn btn-outline-success btn-sm px-2 py-1 m-1" asp-controller="ItemList" asp-action="Index">Go</a>
+            </div>
+            <div class="row m-0">
+                <div class="my-auto">Selected code: </div>
+                <div class="ml-1 font-weight-bold my-auto" id="CurrentNodeName"></div>
+                <button id="GoToItemsWithThisCode" class="btn btn-outline-success btn-sm px-2 py-1 m-1" disabled>List</button>
+                <button class="btn btn-outline-success btn-sm px-2 py-1 m-1" onclick="GoToFreq()" disabled id="CurrentNodeGoToFreq">Get Frequencies</button>
+            </div>
+            <div class="row m-0">
+                <div class="my-auto">Crosstabs: </div>
+                <button class="btn btn-outline-success btn-sm px-2 py-1 m-1" onclick="GoToCrosstab(true)" disabled id="CurrentNodeGoToSelfCrosstab">Self Cross Tab</button>
+                <button class="btn btn-outline-primary btn-sm px-2 py-1 m-1" onclick="SetXAxis()" disabled id="CurrentNodeSetXAxis">Set X axis</button>
+                <div class="row m-0" id="x_axis_setting" style="display:none;">
+                    <div class="my-auto">X-axis is set to: <span id="x_axis_name" class="m-1"></span></div>
+                    <button class="btn btn-outline-success btn-sm px-2 py-1 m-1" onclick="GoToCrosstab(false)" disabled id="CurrentNodeGoToCrosstab">Full Cross Tab</button>
+                </div>
+            </div>
+            @*<div class="row">Selected Id: <span class="ml-1 font-weight-bold" id="CurrentNodeId"></span></div>
+                <div class="row">Selected SetId: <span class="ml-1 font-weight-bold" id="CurrentNodeSetId"></span></div>
+                <div class="row">Is a coding tool: <span class="ml-1 font-weight-bold" id="CurrentNodeIsCodeSet"></span></div>*@
+        </div>
+        <div class="col-12 col-sm-8 col-md-7 mb-2 rounded border border-success alert-success" >
+            <div class="row mt-2">
+
+                <form asp-controller="ItemList" asp-action="GetListSearchResults" method="post" class="col-12 m-0 p-1 ">
+                    <div class="row m-1">
+                        <div class="col-auto row p-0 m-0">
+                            <label for="SearchWhat" class="my-auto">Search In: &nbsp;</label>
+                            <select name="SearchWhat" id="SearchWhat" class="ml-1 mr-2">
+                                <option value="TitleAbstract">Title and Abstract</option>
+                                <option value="Title">Title</option>
+                                <option value="Abstract">Abstract</option>
+                                <option value="Authors">Authors</option>
+                                <option value="PubYear">Publication Year</option>
+                                <option value="AdditionalText">"Coded" Text</option>
+                                <option value="ItemId">ItemIds (comma separated)</option>
+                                <option value="OldItemId">Imported Ids (comma separated)</option>
+                            </select>
+                        </div>
+                        <div class="col-auto row p-0 m-0">
+                            <input type="radio" class="ml-auto my-auto" id="includedt" name="included" value="true" checked>
+                            <label for="male" class="ml-1 mr-3 my-auto">Included</label>
+                            <input type="radio" class="my-auto" id="includedf" name="included" value="false">
+                            <label for="female" class="ml-1 mr-auto my-auto">or Excluded</label>
+                        </div>
+                    </div>
+                    <div class="row m-1">
+                        <label for="SearchString" class="col-auto p-0">Search string:</label>
+                        <input type="text" maxlength="4000" size="60" name="SearchString" id="SearchString" class="ml-1 mr-2 col-auto p-0" />
+                    </div>
+
+                    <button class="btn btn-outline-primary px-1 py-0 m-1" type="submit">
+                        Search
+                    </button>
+                </form>
+
+            </div>
+        </div>
+    </div>
+
+
+
+    <div class="col-6 col-sm-7 col-md-8 mt-3">
         <div class="col-12 ">
             Review Id is:
-            <h5>@Model.ReviewId</h5>
+            <h5>@Model.RevInfo.ReviewId</h5>
         </div>
         <div class=" col">
             Screening is:
-            @if (Model.ShowScreening)
+            @if (Model.RevInfo.ShowScreening)
             {<text>Active</text>}
         else
         {<text>Disabled</text>}
@@ -252,55 +334,13 @@
             <button class="btn-outline-primary btn btn-sm" onclick="GoToFreq()" disabled id="CurrentNodeGoToFreq">Freq</button>
 
 
-            <div class="row">
-                Crosstabs:
-                <button class="btn-outline-primary btn btn-sm" onclick="GoToCrosstab(true)" disabled id="CurrentNodeGoToSelfCrosstab">Self Cross Tab</button>
-                <button class="btn-outline-success btn btn-sm" onclick="SetXAxis()" disabled id="CurrentNodeSetXAxis">Set X axis</button>
-                <div class="col-12" id="x_axis_setting" style="display:none;">
-                    X-axis is set to: <span id="x_axis_name" class="m-1"></span>
-                    <button class="btn-outline-primary btn btn-sm" onclick="GoToCrosstab(false)" disabled id="CurrentNodeGoToCrosstab">Full Cross Tab</button>
-                </div>
-            </div>
 
-            <div class="row border border-info mt-2">
-                
-                <form asp-controller="ItemList" asp-action="GetListSearchResults" method="post" class="col-12 m-0 p-1 ">
-                    <div class="row m-1">
-                        <div class="col-auto row p-0 m-0">
-                            <label for="SearchWhat" class="my-auto">Search In: &nbsp;</label>
-                            <select name="SearchWhat" id="SearchWhat" class="ml-1 mr-2">
-                                <option value="TitleAbstract">Title and Abstract</option>
-                                <option value="Title">Title</option>
-                                <option value="Abstract">Abstract</option>
-                                <option value="Authors">Authors</option>
-                                <option value="PubYear">Publication Year</option>
-                                <option value="AdditionalText">"Coded" Text</option>
-                                <option value="ItemId">ItemIds (comma separated)</option>
-                                <option value="OldItemId">Imported Ids (comma separated)</option>
-                            </select>
-                        </div>
-                        <div class="col-auto row p-0 m-0">
-                            <input type="radio" class="my-auto" id="includedt" name="included" value="true" checked>
-                            <label for="male" class="ml-1 mr-3 my-auto">Included</label>
-                            <input type="radio" class="my-auto" id="includedf" name="included" value="false">
-                            <label for="female" class="ml-1 mr-0 my-auto">or excluded</label>
-                        </div>
-                    </div>
-                    <div  class="row m-1">
-                        <label for="SearchString" class="col-auto p-0">Search string:</label>
-                        <input type="text" maxlength="4000" size="60" name="SearchString" id="SearchString" class="ml-1 mr-2 col-auto p-0" />
-                    </div>
-                    
-                    <button class="btn btn-outline-primary px-1 py-0 m-1" type="submit" >
-                        Search
-                    </button>
-                </form>
-                
-            </div>
+
+            
 
         </div>
 
     </div>
-    
+
 
 </div>

@@ -2,22 +2,7 @@
 @using BusinessLibrary.BusinessClasses
 Frequency!
 <script type="text/javascript">
-    function GoToItems(AttId) {
-        if (AttId == -999999) {
-            var included = $('#includedCrit').val();
-            var attributeIdXAxis = $('#attributeIdXAxisCrit').val();
-            var setIdXAxis = $('#setIdXAxisCrit').val();
-            var onlyThisAttribute = $('#onlyThisAttributeCrit').val();
-            var webDbId = $('#webDbIdCrit').val();
-            postwith("../ItemList/GetFreqListNoneOfTheAbove",
-                {
-                    attributeIdXAxis: attributeIdXAxis, setId: setIdXAxis, included: included
-                    , onlyThisAttribute: onlyThisAttribute, webDbId: webDbId
-                });
-        } else {
-            postwith("../ItemList/GetFreqList", { attId: AttId });
-        }
-    }
+    
 </script>
 
 <input type="hidden" value="@Model.criteria.included" name="included" id="includedCrit" />

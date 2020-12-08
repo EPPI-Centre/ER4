@@ -34,6 +34,9 @@ namespace ERxWebClient2.Controllers
 				int ReviewID = ri.ReviewId;//this ensures current ticket is valid (goes to DB to check!)
                 ReviewerPrincipal principal = new ReviewerPrincipal(ri);
                 Csla.ApplicationContext.User = principal;
+#if WEBDB
+                SetViewBag();
+#endif
                 return true;//we might want to do more checks!
             }
             catch (Exception e)
@@ -84,6 +87,19 @@ namespace ERxWebClient2.Controllers
                     }
                 }
             }
+        }
+        private void SetViewBag()
+        {
+            ViewBag.WebDbId = WebDbId;
+            string WebDbTitle = "Unknown";
+            if (User != null && (Csla.ApplicationContext.User.Identity as ReviewerIdentity) != null) 
+            {
+                List<Claim> claims = User.Claims.ToList();
+                Claim DBn = claims.Find(f => f.Type == ClaimTypes.Name);
+                if (DBn != null) WebDbTitle = DBn.Value;
+                ViewBag.WebDbName = WebDbTitle;
+            }
+
         }
 #endif
     }

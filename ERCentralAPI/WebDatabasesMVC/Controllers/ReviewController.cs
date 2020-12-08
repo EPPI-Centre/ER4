@@ -18,6 +18,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using WebDatabasesMVC;
+using WebDatabasesMVC.ViewModels;
 
 namespace WebDatabasesMVC.Controllers
 {
@@ -51,50 +52,24 @@ namespace WebDatabasesMVC.Controllers
             {
                 if (SetCSLAUser())
                 {
-                    long attId = -1;
+                    if (WebDbId < 1) return BadRequest();
                     List<Claim> claims = User.Claims.ToList();
-                    Claim AttIdC = claims.Find(f => f.Type == "ItemsCode");
-                    if (AttIdC != null)
-                    {
-                        long.TryParse(AttIdC.Value, out attId);
-                    }
-                    ViewBag.AttId = attId;
+
+                    WebDB me = DataPortal.Fetch<WebDB>(new SingleCriteria<int>(WebDbId));
+                    if (me == null || me.WebDBId != WebDbId) return BadRequest();
+
+
                     ReviewSetsList rssl = DataPortal.Fetch<ReviewSetsList>();
-                    AttributeSet aSet = rssl.GetAttributeSetFromAttributeId(attId);
+                    AttributeSet aSet = rssl.GetAttributeSetFromAttributeId(me.AttributeIdFilter);
                     if (aSet != null)
                     {
                         ViewBag.AttName = aSet.AttributeName;
                     }
                     else ViewBag.AttName = "Unknown";
-                    int WebDbId = -1;
-                    Claim DBidC = claims.Find(f => f.Type == "WebDbID");
-                    if (DBidC != null)
-                    {
-                        int.TryParse(DBidC.Value, out WebDbId);
-                    }
-                    if (WebDbId < 1)
-                    {
-                        return BadRequest();
-                    }
                      
-                    //if (System.IO.File.Exists(HeaderImagesFolder + @"\Img-" + WebDbId.ToString() + "-1.jpg"))
-                    //{
-                    //    ViewBag.Img1 = @"Img-" + WebDbId.ToString() + "-1.jpg";
-                    //}
-                    //else if (System.IO.File.Exists(HeaderImagesFolder + @"\Img-" + WebDbId.ToString() + "-1.png"))
-                    //{
-                    //    ViewBag.Img1 = @"Img-" + WebDbId.ToString() + "-1.png";
-                    //}
-                    //if (System.IO.File.Exists(HeaderImagesFolder + @"\Img-" + WebDbId.ToString() + "-2.jpg"))
-                    //{
-                    //    ViewBag.Img2 = @"Img-" + WebDbId.ToString() + "-2.jpg";
-                    //}
-                    //else if (System.IO.File.Exists(HeaderImagesFolder + @"\Img-" + WebDbId.ToString() + "-2.png"))
-                    //{
-                    //    ViewBag.Img2 = @"Img-" + WebDbId.ToString() + "-2.png";
-                    //}
                     ReviewInfo rinfo = DataPortal.Fetch<ReviewInfo>();
-                    return View(rinfo);
+                    WebDbWithRevInfo res = new WebDbWithRevInfo() { WebDb = me, RevInfo = rinfo };
+                    return View(res);
                 }
                 else return Unauthorized();
             } 
