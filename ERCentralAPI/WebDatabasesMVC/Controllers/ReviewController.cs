@@ -53,22 +53,10 @@ namespace WebDatabasesMVC.Controllers
                 if (SetCSLAUser())
                 {
                     if (WebDbId < 1) return BadRequest();
-                    List<Claim> claims = User.Claims.ToList();
+                    WebDbWithRevInfo res = ReviewIndexDataGet(false);
 
-                    WebDB me = DataPortal.Fetch<WebDB>(new SingleCriteria<int>(WebDbId));
-                    if (me == null || me.WebDBId != WebDbId) return BadRequest();
+                    if (res.WebDb == null || res.RevInfo == null || res.WebDb.WebDBId < 1 || res.RevInfo.ReviewId < 1) return BadRequest();
 
-
-                    ReviewSetsList rssl = DataPortal.Fetch<ReviewSetsList>();
-                    AttributeSet aSet = rssl.GetAttributeSetFromAttributeId(me.AttributeIdFilter);
-                    if (aSet != null)
-                    {
-                        ViewBag.AttName = aSet.AttributeName;
-                    }
-                    else ViewBag.AttName = "Unknown";
-                     
-                    ReviewInfo rinfo = DataPortal.Fetch<ReviewInfo>();
-                    WebDbWithRevInfo res = new WebDbWithRevInfo() { WebDb = me, RevInfo = rinfo };
                     return View(res);
                 }
                 else return Unauthorized();
@@ -78,6 +66,46 @@ namespace WebDatabasesMVC.Controllers
                 _logger.LogError(e, "Error in Review Index");
                 return StatusCode(500, e.Message);
             }
+        }
+        public IActionResult IndexJSON()
+        {
+            try
+            {
+                if (SetCSLAUser())
+                {
+                    if (WebDbId < 1) return BadRequest();
+                    WebDbWithRevInfo res = ReviewIndexDataGet(true);
+
+                    if (res.WebDb == null || res.RevInfo == null || res.WebDb.WebDBId < 1 || res.RevInfo.ReviewId < 1) return BadRequest();
+
+                    return View(res);
+                }
+                else return Unauthorized();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Error in Review IndexJSON");
+                return StatusCode(500, e.Message);
+            }
+        }
+        private WebDbWithRevInfo ReviewIndexDataGet(bool IsJson)
+        {
+            WebDbWithRevInfo res = new WebDbWithRevInfo();
+            WebDB me = DataPortal.Fetch<WebDB>(new SingleCriteria<int>(WebDbId));
+            if (me == null || me.WebDBId != WebDbId) return res;
+            if (!IsJson)
+            {
+                ReviewSetsList rssl = DataPortal.Fetch<ReviewSetsList>();
+                AttributeSet aSet = rssl.GetAttributeSetFromAttributeId(me.AttributeIdFilter);
+                if (aSet != null)
+                {
+                    ViewBag.AttName = aSet.AttributeName;
+                }
+                else ViewBag.AttName = "Unknown";
+            }
+            ReviewInfo rinfo = DataPortal.Fetch<ReviewInfo>();
+            res = new WebDbWithRevInfo() { WebDb = me, RevInfo = rinfo };
+            return res;
         }
         public IActionResult YearHistogramJSON()
         {
