@@ -770,11 +770,24 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@WithOutSetIdsList", criteria.WithOutSetIdsList)); 
                     break;
                 case "WebDbSearch":
+                    string que = criteria.SearchString;
+                    if (criteria.SearchString.Trim().Contains(' ') && 
+                            (
+                            criteria.SearchWhat == "TitleAbstract" ||
+                            criteria.SearchWhat == "Title" ||
+                            criteria.SearchWhat == "Abstract" ||
+                            criteria.SearchWhat == "AdditionalText" 
+                            )
+                        )
+                    {//in these cases, SQL uses the 'CONTAINSTABLE' construct, so we need to parse the search text first.
+                        FullTextSearch fts = new FullTextSearch(criteria.SearchString.Trim());
+                        que = fts.NormalForm;
+                    }
                     command = new SqlCommand("st_WebDbSearchFreeText", connection);
                     command.CommandType = System.Data.CommandType.StoredProcedure;
                     command.Parameters.Add(new SqlParameter("@RevId", ri.ReviewId));
                     command.Parameters.Add(new SqlParameter("@WebDbId", criteria.WebDbId));
-                    command.Parameters.Add(new SqlParameter("@SEARCH_TEXT", criteria.SearchString));
+                    command.Parameters.Add(new SqlParameter("@SEARCH_TEXT", que));
                     command.Parameters.Add(new SqlParameter("@SEARCH_WHAT", criteria.SearchWhat));
                     command.Parameters.Add(new SqlParameter("@included", criteria.OnlyIncluded));
                     break;

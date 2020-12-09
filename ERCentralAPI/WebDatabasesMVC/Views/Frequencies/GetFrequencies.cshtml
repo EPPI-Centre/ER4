@@ -22,6 +22,8 @@ Frequency!
     <div class="row">
         <div class="col">@(itm.AttributeId > 0 ? itm.AttributeId.ToString() : "-")</div>
         <div class="col">@itm.Attribute</div>
-        <div class="col"><a href="javascript:GoToItems(@itm.AttributeId)">@itm.ItemCount</a></div>
+        <div class="col">
+            <a href="javascript:GoToItems(@itm.AttributeId, '@itm.Attribute.Replace("\'", "&#39;")')">@itm.ItemCount</a>
+        </div>
     </div>
 }

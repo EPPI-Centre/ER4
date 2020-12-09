@@ -28,13 +28,13 @@ namespace WebDatabasesMVC.Controllers
         {}
 
         
-        public IActionResult GetFrequencies([FromForm] long attId, int setId, string included)
+        public IActionResult GetFrequencies([FromForm] long attId, int setId, string parentName, string included)
         {
             try
             {
                 if (SetCSLAUser())
                 {
-                    FrequencyResultWithCriteria Itm = GetFrequenciesInternal(attId, setId, included);
+                    FrequencyResultWithCriteria Itm = GetFrequenciesInternal(attId, setId, parentName, included);
                     return View(Itm);
                 }
                 else return Unauthorized();
@@ -46,13 +46,13 @@ namespace WebDatabasesMVC.Controllers
             }
         }
         [HttpPost("[action]")]
-        public IActionResult GetFrequenciesJSON([FromForm] long attId, int setId, string included)
+        public IActionResult GetFrequenciesJSON([FromForm] long attId, int setId, string parentName, string included)
         {//we provide all items details in a single JSON method, as it makes no sense to get partial item details, so without Arms, Docs, etc.
             try
             {
                 if (SetCSLAUser())
                 {
-                    FrequencyResultWithCriteria Itm = GetFrequenciesInternal(attId, setId, included);
+                    FrequencyResultWithCriteria Itm = GetFrequenciesInternal(attId, setId, parentName, included);
                     return Json(Itm);
                 }
                 else return Unauthorized();
@@ -63,7 +63,7 @@ namespace WebDatabasesMVC.Controllers
                 return StatusCode(500, e.Message);
             }
         }
-        internal FrequencyResultWithCriteria GetFrequenciesInternal(long attId, int setId, string included)
+        internal FrequencyResultWithCriteria GetFrequenciesInternal(long attId, int setId, string parentName, string included)
         {
             int DBid = WebDbId;
             if (DBid < 1)
@@ -73,19 +73,19 @@ namespace WebDatabasesMVC.Controllers
             }
             FrequencyResultWithCriteria res = new FrequencyResultWithCriteria();
             res.criteria = 
-                new WebDbFrequencyCrosstabAndMapSelectionCriteria(DBid, attId, setId, included);
+                new WebDbFrequencyCrosstabAndMapSelectionCriteria(DBid, attId, setId, parentName, included);
             res.results = DataPortal.Fetch<WebDbItemAttributeChildFrequencyList>(res.criteria);
             return res;
         }
 
-        public IActionResult GetCrosstab([FromForm] long attIdx, int setIdx, long attIdy, int setIdy, string included)
+        public IActionResult GetCrosstab([FromForm] long attIdx, int setIdx, string nameXaxis, long attIdy, int setIdy, string nameYaxis, string included)
         {
 
             try
             {
                 if (SetCSLAUser())
                 {
-                    WebDbItemAttributeCrosstabList Itm = GetCrosstabInternal(attIdx, setIdx, attIdy, setIdy, included);
+                    WebDbItemAttributeCrosstabList Itm = GetCrosstabInternal(attIdx, setIdx, nameXaxis, attIdy, setIdy, nameYaxis, included);
                     return View(Itm);
                 }
                 else return Unauthorized();
@@ -97,13 +97,13 @@ namespace WebDatabasesMVC.Controllers
             }
         }
         [HttpPost("[action]")]
-        public IActionResult GetCrosstabJSON([FromForm] long attIdx, int setIdx, long attIdy, int setIdy, string included)
+        public IActionResult GetCrosstabJSON([FromForm] long attIdx, int setIdx, string nameXaxis, long attIdy, int setIdy, string nameYaxis, string included)
         {//we provide all items details in a single JSON method, as it makes no sense to get partial item details, so without Arms, Docs, etc.
             try
             {
                 if (SetCSLAUser())
                 {
-                    WebDbItemAttributeCrosstabList Itm = GetCrosstabInternal(attIdx, setIdx, attIdy, setIdy, included);
+                    WebDbItemAttributeCrosstabList Itm = GetCrosstabInternal(attIdx, setIdx, nameXaxis, attIdy, setIdy, nameYaxis, included);
                     return Json(Itm);
                 }
                 else return Unauthorized();
@@ -114,7 +114,7 @@ namespace WebDatabasesMVC.Controllers
                 return StatusCode(500, e.Message);
             }
         }
-        internal WebDbItemAttributeCrosstabList GetCrosstabInternal(long attIdx, int setIdx, long attIdy, int setIdy, string included, long onlyThisAtt= 0)
+        internal WebDbItemAttributeCrosstabList GetCrosstabInternal(long attIdx, int setIdx, string nameXaxis, long attIdy, int setIdy, string nameYaxis, string included, long onlyThisAtt= 0)
         {
             int DBid = WebDbId;
             if (DBid < 1)
@@ -127,7 +127,7 @@ namespace WebDatabasesMVC.Controllers
             //res.criteria =
             //    new WebDbFrequencyCrosstabAndMapSelectionCriteria(DBid, attIdx, setIdy, included, onlyThisAtt, attIdy, setIdx);
             //res.results = DataPortal.Fetch<WebDbItemAttributeChildFrequencyList>(res.criteria);
-            WebDbFrequencyCrosstabAndMapSelectionCriteria crit = new WebDbFrequencyCrosstabAndMapSelectionCriteria(DBid, attIdx, setIdx, included, onlyThisAtt, attIdy, setIdy);
+            WebDbFrequencyCrosstabAndMapSelectionCriteria crit = new WebDbFrequencyCrosstabAndMapSelectionCriteria(DBid, attIdx, setIdx, nameXaxis, included, onlyThisAtt, attIdy, setIdy, nameYaxis);
             WebDbItemAttributeCrosstabList res = DataPortal.Fetch<WebDbItemAttributeCrosstabList>(crit);
             return res;
         }
@@ -151,17 +151,19 @@ namespace WebDatabasesMVC.Controllers
         public WebDbFrequencyCrosstabAndMapSelectionCriteria GetWebDbFrequencyCrosstabAndMapSelectionCriteria()
         {
             WebDbFrequencyCrosstabAndMapSelectionCriteria res = new WebDbFrequencyCrosstabAndMapSelectionCriteria(
-                                                                        webDbId, attributeIdXAxis, setIdXAxis,
+                                                                        webDbId, attributeIdXAxis, setIdXAxis, nameXAxis,
                                                                         included, onlyThisAttribute,
-                                                                        attributeIdYAxis, setIdYAxis,
+                                                                        attributeIdYAxis, setIdYAxis, nameYAxis,
                                                                         segmentsParent, setIdSegments);
             return res;
         }
         public int webDbId { get; set; }
         public Int64 attributeIdXAxis { get; set; }
         public int setIdXAxis { get; set; }
+        public string nameXAxis { get; set; }
         public Int64 attributeIdYAxis { get; set; }
         public int setIdYAxis { get; set; }
+        public string nameYAxis { get; set; }
         public string included { get; set; }
         public Int64 segmentsParent { get; set; }
         public int setIdSegments { get; set; }

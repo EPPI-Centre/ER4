@@ -44,6 +44,7 @@ namespace WebDatabasesMVC.Controllers
                 if (SetCSLAUser())
                 {
                     SelectionCriteria crit = new SelectionCriteria();
+                    crit.Description = "Listing all items";
                     ItemListWithCriteria iList = GetItemList(crit);
                     return View(iList);
                 }
@@ -62,6 +63,7 @@ namespace WebDatabasesMVC.Controllers
                 if (SetCSLAUser())
                 {
                     SelectionCriteria crit = new SelectionCriteria();
+                    crit.Description = "Listing all items";
                     ItemListWithCriteria iList = GetItemList(crit);
                     return Json(iList);
                 }
@@ -80,6 +82,7 @@ namespace WebDatabasesMVC.Controllers
                 if (SetCSLAUser())
                 {
                     SelectionCriteria crit = new SelectionCriteria();
+                    crit.Description = "Listing all items";
                     crit.PageNumber = PageN;
                     ItemListWithCriteria iList = GetItemList(crit);
                     return View("Index", iList);//supplying the view name, otherwise MVC would try to auto-discover a view called Page.
@@ -99,6 +102,7 @@ namespace WebDatabasesMVC.Controllers
                 if (SetCSLAUser())
                 {
                     SelectionCriteria crit = new SelectionCriteria();
+                    crit.Description = "Listing all items";
                     crit.PageNumber = PageN;
                     ItemListWithCriteria iList = GetItemList(crit);
                     return Json(iList);
@@ -150,7 +154,7 @@ namespace WebDatabasesMVC.Controllers
             }
         }
         
-        public IActionResult GetFreqList([FromForm] long attId)
+        public IActionResult GetFreqList([FromForm] long attId, string attName)
         {
             try
             {
@@ -159,6 +163,7 @@ namespace WebDatabasesMVC.Controllers
                     SelectionCriteria crit = new SelectionCriteria();
                     crit.ListType = "WebDbWithThisCode";
                     crit.FilterAttributeId = attId;
+                    crit.Description = "Listing items with code: " + attName;
                     ItemListWithCriteria iList = GetItemList(crit);
                     return View("Index", iList);//supplying the view name, otherwise MVC would try to auto-discover a view called Page.
                 }
@@ -170,7 +175,7 @@ namespace WebDatabasesMVC.Controllers
                 return StatusCode(500, e.Message);
             }
         }
-        public IActionResult GetFreqListJSon([FromForm] long attId)
+        public IActionResult GetFreqListJSon([FromForm] long attId, string attName)
         {
             try
             {
@@ -178,6 +183,7 @@ namespace WebDatabasesMVC.Controllers
                 {
                     SelectionCriteria crit = new SelectionCriteria();
                     crit.ListType = "WebDbWithThisCode";
+                    crit.Description = "Listing items with code: " + attName;
                     crit.FilterAttributeId = attId;
                     ItemListWithCriteria iList = GetItemList(crit);
                     return Json(iList);//supplying the view name, otherwise MVC would try to auto-discover a view called Page.
@@ -193,7 +199,7 @@ namespace WebDatabasesMVC.Controllers
 
         [HttpPost]
         public IActionResult GetFreqListNoneOfTheAbove([FromForm] long attributeIdXAxis, int setId,
-                                                         string included, long onlyThisAttribute, int webDbId)
+                                                         string included, long onlyThisAttribute, int webDbId, string attName)
         {
             try
             {
@@ -201,6 +207,7 @@ namespace WebDatabasesMVC.Controllers
                 {
                     SelectionCriteria criteria = new SelectionCriteria();
                     criteria.ListType = "WebDbFrequencyNoneOfTheAbove";
+                    criteria.Description = "Listing items from none of the children of code:" + attName;
                     criteria.XAxisAttributeId = attributeIdXAxis;
                     criteria.SetId = setId;
                     if (included != "")
@@ -249,7 +256,7 @@ namespace WebDatabasesMVC.Controllers
         }
         
         [HttpPost]
-        public IActionResult GetListWithWithoutAtts([FromForm] string WithAttIds, string WithSetId, string WithoutAttIds, string WithoutSetId, string included)
+        public IActionResult GetListWithWithoutAtts([FromForm] string WithAttIds, string WithSetId, string WithoutAttIds, string WithoutSetId, string included, string Description = "")
         {
             try
             {
@@ -272,6 +279,7 @@ namespace WebDatabasesMVC.Controllers
                     criteria.WithSetIdsList = WithSetId;
                     criteria.WithOutAttributesIdsList = WithoutAttIds;
                     criteria.WithOutSetIdsList = WithoutSetId;
+                    criteria.Description = Description;
                     if (included != "")
                     {
                         criteria.OnlyIncluded = included.ToLower() == "true" ? true : false;
@@ -288,7 +296,7 @@ namespace WebDatabasesMVC.Controllers
             }
         }
         [HttpPost]
-        public IActionResult GetListWithWithoutAttsJSON([FromForm] string WithAttIds, string WithSetId, string WithoutAttIds, string WithoutSetId, string included)
+        public IActionResult GetListWithWithoutAttsJSON([FromForm] string WithAttIds, string WithSetId, string WithoutAttIds, string WithoutSetId, string included, string Description = "")
         {
             try
             {
@@ -307,6 +315,7 @@ namespace WebDatabasesMVC.Controllers
                     criteria.WithSetIdsList = WithSetId;
                     criteria.WithOutAttributesIdsList = WithoutAttIds;
                     criteria.WithOutSetIdsList = WithoutSetId;
+                    criteria.Description = Description;
                     if (included != "")
                     {
                         criteria.OnlyIncluded = included.ToLower() == "true" ? true : false;
@@ -349,6 +358,20 @@ namespace WebDatabasesMVC.Controllers
                     criteria.ListType = "WebDbSearch";
                     criteria.SearchString = SearchString;
                     criteria.SearchWhat = SearchWhat;
+                    string descr = "Listing search results (in ";
+                    if (SearchWhat == "TitleAbstract") descr += "Title and Abstract" + ") for: ";
+                    else if (SearchWhat == "AdditionalText") descr += "\"Coded\" Text" + ") for: ";
+                    else if (SearchWhat == "PubYear") descr += "Publication Year" + ") for: ";
+                    else if (SearchWhat == "OldItemId") descr += "Imported ID(s)" + ") for: ";
+                    else descr += SearchWhat + ") for: ";
+                    if (SearchString.Length > 30)
+                    {
+                        int i = SearchString.IndexOf(' ', 15);
+                        if (i > 0) descr += SearchString.Substring(0, i) + " [...]";
+                        else descr += SearchString.Substring(0, 30) + " [...]";
+                    }
+                    else descr += SearchString;
+                    criteria.Description = descr;
                     if (included != "")
                     {
                         criteria.OnlyIncluded = included.ToLower() == "true" ? true : false;
@@ -429,6 +452,7 @@ namespace WebDatabasesMVC.Controllers
             {
                 crit.FilterAttributeId = tmp;
                 crit.OnlyIncluded = true;
+                crit.Description = "All Items.";
             }
             ItemList res = DataPortal.Fetch<ItemList>(crit);
             return new ItemListWithCriteria { items = res, criteria = new SelCritMVC(crit)   };
