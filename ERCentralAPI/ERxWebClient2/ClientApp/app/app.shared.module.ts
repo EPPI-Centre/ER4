@@ -102,8 +102,9 @@ import { DatePipe } from '@angular/common';
 import { MAGSearchComponent } from './components/MAG/MAGSearch.component';
 import { WebDBsComponent } from './components/Review/WebDBs.component';
 import { TruncatePipe } from './components/MAG/TruncatePipe.component';
-import { MAGSearchDetailsComponent } from './components/MAG/MAGSearchDetails.component';
+import { MAGSearchDetailsComponent } from './components/MAG/MAGSearchDetails.component'; 
 import { WebDbCcodesetTreeComponent } from './components/CodesetTrees/WebDbCcodesetTree.component';
+import { CKEditorModule } from 'ckeditor4-angular';
 
 @NgModule({
     declarations: [
@@ -219,7 +220,8 @@ import { WebDbCcodesetTreeComponent } from './components/CodesetTrees/WebDbCcode
 		ButtonsModule,
         NotificationModule,
         DatePickerModule,
-		LayoutModule,
+        LayoutModule,
+        CKEditorModule, 
         RouterModule.forRoot([
             { path: '', redirectTo: 'home', pathMatch: 'full' },
             { path: 'home', component: HomeComponent },
