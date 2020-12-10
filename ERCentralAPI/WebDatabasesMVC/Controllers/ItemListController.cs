@@ -207,7 +207,7 @@ namespace WebDatabasesMVC.Controllers
                 {
                     SelectionCriteria criteria = new SelectionCriteria();
                     criteria.ListType = "WebDbFrequencyNoneOfTheAbove";
-                    criteria.Description = "Listing items from none of the children of code:" + attName;
+                    criteria.Description = "Listing items from \"none of the children\" of code: " + attName;
                     criteria.XAxisAttributeId = attributeIdXAxis;
                     criteria.SetId = setId;
                     if (included != "")
