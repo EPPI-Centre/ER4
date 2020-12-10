@@ -24,7 +24,11 @@ Frequency!
         <div class="col">@(itm.AttributeId > 0 ? itm.AttributeId.ToString() : "-")</div>
         <div class="col">@itm.Attribute</div>
         <div class="col">
-            @if (itm.AttributeId == -999999)
+            @if (itm.ItemCount == 0)
+            {
+                <text>0</text>
+            }
+            else if (itm.AttributeId == -999999)
             {
                 <a href="javascript:GoToItems(@itm.AttributeId, '@Model.criteria.nameXAxis.Replace("\'", "&#39;")')">@itm.ItemCount</a>
             }
