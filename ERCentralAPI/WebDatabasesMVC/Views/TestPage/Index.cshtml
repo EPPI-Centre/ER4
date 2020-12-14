@@ -86,6 +86,7 @@
         var treeviewData = null;
         var dataItem = null;
         var dataItemXaxis = null;
+        var freqData = null;
         function Buildnode(attr) {
             var nodes = [];
 
@@ -156,6 +157,71 @@
                 postwith("../Frequencies/GetFrequencies", { attId: 0, setId: dataItem.setId, included: true });
             }
             else postwith("../Frequencies/GetFrequencies", { attId: dataItem.id, setId: dataItem.setId, included: true });
+        }
+        function GetFreqs() {
+            console.log("CurrentNodeGoToFreq");
+            if (!dataItem) {
+                console.log("GetFreqs no data");
+                return;
+            }
+            console.log("Planning to go to GetFreqs with (codeID, setId):", dataItem.id, dataItem.setId)
+            if (dataItem.isCodeset == true) {
+                $.post("../Frequencies/GetFrequenciesJSON", { attId: 0, setId: dataItem.setId, included: true }, function (data, result) { BuildFreqs(data, result); })
+                //postwith("../Frequencies/GetFrequencies", { attId: 0, setId: dataItem.setId, included: true });
+            }
+            else {
+                $.post("../Frequencies/GetFrequenciesJSON", { attId: dataItem.id, setId: dataItem.setId, included: true }, function (data, result) { BuildFreqs(data, result); })
+                //postwith("../Frequencies/GetFrequencies", { attId: dataItem.id, setId: dataItem.setId, included: true });
+            }
+        }
+        function BuildFreqs(data, result) {
+            console.log(data, result);//FrequenciesTemplate
+            //columns: [{
+            //    field: "attributeId",
+            //    title: "ID"
+            //},
+            //{
+            //    field: "attribute",
+            //    title: "Code Name"
+            //},
+            //{
+            //    field: "itemCount",
+            //    title: "Count"
+            //}],
+            if (result == "success") {
+                $("#FrequenciesGrid").kendoGrid({
+                    rowTemplate: kendo.template($("#FrequenciesTemplate").html()),
+                    columns: [
+                    //    {
+                    //    field: "attributeId",
+                    //    title: "ID",
+                    //    headerAttributes: {
+                    //        "class": "small py-0 px-1"
+                    //    }
+                    //},
+                    {
+                        field: "attribute",
+                        title: "Code Name",
+                        headerAttributes: {
+                            "class": "small py-0 px-1  w-75"
+                        }
+                    },
+                    {
+                        field: "itemCount",
+                        title: "Count",
+                        headerAttributes: {
+                            "class": "small py-0 px-1  w-25"
+                        }
+                    }],
+                    dataSource: data.results
+                });
+            } else {
+                $("#FrequenciesGrid").html("");
+            }
+        }
+        function GetFreqLinkContent(attId, count) {
+            if (count == 0) return "0";
+            else return '<a href="javascript:GoToItems(' + attId+ ')" style="color: #007bff!important;">' + count.toString() + '</a>';
         }
         function GoToCrosstab(isSelfXtab) {
             console.log("CurrentNodeGoToCrosstab");
@@ -517,9 +583,6 @@
                             </div>
                         </div>
                     </div>
-
-
-
                     <div class="row">
                         <div class="col-md-4">
                             <div class="card full-height">
@@ -531,7 +594,8 @@
                                             </td>
                                             <td style="padding: 0px 0px 0px 25px;">
                                                 <button id="GoToItemsWithThisCode" class="btn btn-secondary btn-sm btn-round" disabled>List records</button>
-                                                <button class="btn btn-secondary btn-sm btn-round" onclick="GoToFreq()" disabled id="CurrentNodeGoToFreq">Frequencies</button>
+                                                @*<button class="btn btn-secondary btn-sm btn-round" onclick="GoToFreq()" disabled id="CurrentNodeGoToFreq">Frequencies</button>*@
+                                                <button class="btn btn-primary btn-sm btn-round" onclick="GetFreqs()" disabled id="CurrentNodeGoToFreq">Frequencies</button>
                                             </td>
                                         </tr>
                                     </table>
@@ -539,8 +603,22 @@
                                 <div class="card-body">
                                     Selected code:
                                     <div class="ml-1 font-weight-bold my-auto" id="CurrentNodeName"></div><br />
-
-
+                                    <div style="height:50vh;" id="FrequenciesGrid"></div>
+                                    <script id="FrequenciesTemplate" type="text/x-kendo-tmpl">
+                                        <tr class="border border-bottom ">
+                                            @*<td>
+                                                #= attributeId #
+                                            </td>*@
+                                            <td class="px-1 py-0 border-bottom small w-75">
+                                                #= attribute #
+                                            </td>
+                                            <td class="px-1 py-0 border-bottom small w-25">
+                                                #= GetFreqLinkContent(attributeId, itemCount) #
+                                                @*<a href="#= if(itemCount == 0 ) {'0'} else { 'javascript:GoToItems(' + attributeId +')'#" style="color: #007bff!important;">#= itemCount #</a>
+                                                  <a href="javascript:GoToItems(#= attributeId #)" style="color: #007bff!important;">#= itemCount #</a>*@
+                                            </td>
+                                        </tr>
+                                    </script>
                                 </div>
 
                             </div>

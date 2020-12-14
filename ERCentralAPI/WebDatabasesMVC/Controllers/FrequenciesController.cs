@@ -45,7 +45,7 @@ namespace WebDatabasesMVC.Controllers
                 return StatusCode(500, e.Message);
             }
         }
-        [HttpPost("[action]")]
+        
         public IActionResult GetFrequenciesJSON([FromForm] long attId, int setId, string included)
         {//we provide all items details in a single JSON method, as it makes no sense to get partial item details, so without Arms, Docs, etc.
             try
