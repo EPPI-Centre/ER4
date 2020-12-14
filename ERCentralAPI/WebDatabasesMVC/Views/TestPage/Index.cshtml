@@ -3,6 +3,8 @@
 @model WebDbWithRevInfo;
 @using WebDatabasesMVC.ViewModels;
 @using Microsoft.AspNetCore.Html;
+@using System.IO;
+@using System.Security.Claims;
 @{
     Layout = "~/Views/Shared/_EmptyLayout.cshtml";
 }
@@ -75,12 +77,29 @@
 
     <!-- CSS Files -->
     <link rel="stylesheet" href="../assets/css/bootstrap.min.css">
-    <link rel="stylesheet" href="../assets/css/atlantis.min.css">
+    <link rel="stylesheet" href="../assets/css/atlantis.css">
 
     <!-- CSS Just for demo purpose, don't include it in your project -->
     <link rel="stylesheet" href="../assets/css/demo.css">
 </head>
 <body>
+
+    @{
+        Claim WebDbIDclaim = User.FindFirst("WebDbID");
+        string imgPath1 = "";
+        string imgPath2 = "";
+        if (WebDbIDclaim != null)
+        {
+            var service = Context.RequestServices.GetService(typeof(Microsoft.AspNetCore.Hosting.IWebHostEnvironment)) as Microsoft.AspNetCore.Hosting.IWebHostEnvironment;
+            string absolutePath = service.WebRootPath + "\\HeaderImages\\";
+            if (System.IO.File.Exists(absolutePath + "Img-" + WebDbIDclaim.Value + "-1.jpg")) imgPath1 = Url.Content("~/HeaderImages/Img-" + WebDbIDclaim.Value + "-1.jpg");
+            else if (System.IO.File.Exists(absolutePath + "Img-" + WebDbIDclaim.Value + "-1.png")) imgPath1 = Url.Content("~/HeaderImages/Img-" + WebDbIDclaim.Value + "-1.png");
+            if (System.IO.File.Exists(absolutePath + "Img-" + WebDbIDclaim.Value + "-2.jpg")) imgPath2 = Url.Content("~/HeaderImages/Img-" + WebDbIDclaim.Value + "-2.jpg");
+            else if (System.IO.File.Exists(absolutePath + "Img-" + WebDbIDclaim.Value + "-2.png")) imgPath2 = Url.Content("~/HeaderImages/Img-" + WebDbIDclaim.Value + "-2.png");
+        }
+    }
+
+
 
     <script>
         var treeviewData = null;
@@ -536,11 +555,26 @@
                 <div class="panel-header bg-primary-gradient">
                     <div class="page-inner py-5">
                         <div class="d-flex align-items-left align-items-md-center flex-column flex-md-row">
-                            <div>
-                                <h2 class="text-white pb-2 fw-bold">@Model.WebDb.WebDBName</h2>
-                                <h5 class="text-white op-7 mb-2">Public health interventions within the community.</h5>
-                            </div>
-
+                            <table width="100%">
+                                <tr>
+                                    <td>
+                                        <div>
+                                            <h2 class="text-white pb-2 fw-bold">@Model.WebDb.WebDBName</h2>
+                                            <h5 class="text-white op-7 mb-2">Public health interventions within the community.</h5>
+                                        </div>
+                                    </td>
+                                    <td style="text-align:right">
+                                        <div>
+                                            @if (imgPath1 != "")
+                                            {
+                                                <img src=@imgPath1 style="max-width:80%" class="float-right" />
+                                            }
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+                            
+                            
                         </div>
                     </div>
                 </div>
