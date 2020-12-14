@@ -40,7 +40,7 @@
             myForm.submit();
             document.body.removeChild(myForm);
         };
-        function GoToItems(AttId) {
+        function GoToItems(AttId, AttName = '') {
             if (AttId == -999999) {
                 var included = $('#includedCrit').val();
                 var attributeIdXAxis = $('#attributeIdXAxisCrit').val();
@@ -50,12 +50,13 @@
                 postwith("../ItemList/GetFreqListNoneOfTheAbove",
                     {
                         attributeIdXAxis: attributeIdXAxis, setId: setIdXAxis, included: included
-                        , onlyThisAttribute: onlyThisAttribute, webDbId: webDbId
+                        , onlyThisAttribute: onlyThisAttribute, webDbId: webDbId, attName: AttName.replaceAll('&#39;', '\'')
                     });
             } else {
-                postwith("../ItemList/GetFreqList", { attId: AttId });
+                postwith("../ItemList/GetFreqList", { attId: AttId, attName: AttName.replaceAll('&#39;', '\'') });
             }
         };
+
     </script>
 
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -328,7 +329,8 @@
                 $("#GoToItemsWithThisCode").attr('onclick', '');
             } else {
                 $("#GoToItemsWithThisCode").prop("disabled", false);
-                $("#GoToItemsWithThisCode").attr('onclick', 'GoToItems(dataItem.id)');
+                $("#GoToItemsWithThisCode").attr('onclick', 'GoToItems(dataItem.id, \'' + dataItem.text.replace('\'', '&#39;') + '\')');
+                //$("#GoToItemsWithThisCode").attr('onclick', 'GoToItems(dataItem.id)');
             }
         }
         function SetXAxis() {
