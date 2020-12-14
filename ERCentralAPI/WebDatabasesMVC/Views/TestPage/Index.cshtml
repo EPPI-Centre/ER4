@@ -569,7 +569,15 @@
                                         <div>
                                             @if (imgPath1 != "")
                                             {
-                                                <img src=@imgPath1 style="max-width:80%" class="float-right" />
+                                                <img src=@imgPath1 style="max-height: 60px; object-fit: cover;" class="float-right" />
+                                            }
+                                        </div>
+                                    </td>
+                                    <td style="text-align:right">
+                                        <div>
+                                            @if (imgPath2 != "")
+                                            {
+                                                <img src=@imgPath2 style="max-height: 60px; object-fit: cover;" class="float-right" />
                                             }
                                         </div>
                                     </td>
