@@ -1,4 +1,5 @@
 <HeaderComponent PageTitle="Setup WebDatabase(s)" Context="webdbs"></HeaderComponent>
+
 <div *ngIf="IsServiceBusy" class="k-loading-image" style="position: fixed; top: 0%;"></div>
 
 <div class=" row mx-0 mt-0 mb-1 p-0 ">
@@ -86,8 +87,8 @@
                     <div class="col-auto">
                         Description:
                     </div>
-                    <div class="rounded bg-white col w-100">
-                        {{CurrentDB.webDBDescription}}
+                    <div class="rounded bg-white col w-100 border border-dark" style="max-height:400px;overflow:auto;" [innerHTML]="CurrentDB.webDBDescription">
+                        
                     </div>
                 </div>
                 <div class="col-12 col-sm-3 row m-0 p-0">
@@ -122,7 +123,7 @@
                 <button class="btn btn-outline-danger btn-sm ml-1 mb-1" [disabled]="!CanSave" (click)="Save()">Save</button>
             </div>
             <div *ngIf="!ShowUpload && CanWrite" class="row ml-2 bg-white mr-1 p-0">
-                <button class="btn btn-outline-primary btn-sm" (click)="ShowUpload = true">Upload</button> (header images(s))
+                <button class="btn btn-outline-primary btn-sm" (click)="ShowUpload = true">Edit Images</button> <div class="ml-1 my-auto">(Upload/change and/or delete)</div>
             </div>
             <div *ngIf="ShowUpload" class="row ml-2 bg-white mr-1 p-0">
                 <kendo-upload class="" [autoUpload]="true"
@@ -246,7 +247,28 @@
                         Description:
                     </div>
                     <div class="rounded bg-white col w-100">
-                        <textarea class="p-1 w-100" type="text" [(ngModel)]="EditingDB.webDBDescription" rows="4"></textarea>
+                        <ckeditor [(ngModel)]="EditingDB.webDBDescription" editorUrl="https://cdn.ckeditor.com/4.15.1/standard/ckeditor.js">
+
+                        </ckeditor>
+                        <!--<textarea class="p-1 w-100" type="text" [(ngModel)]="EditingDB.webDBDescription" rows="4"></textarea>-->
+                        <!--<ckeditor [(ngModel)]="EditingDB.webDBDescription"
+                          [config]="{uiColor: '#bbbbbb'
+                                    }"
+                          [readonly]="false"
+                          debounce="500">
+                        </ckeditor>
+
+                        (change)="onChange($event)"
+                        (editorChange)="onEditorChange($event)"
+                        (ready)="onReady($event)"
+                        (focus)="onFocus($event)"
+                        (blur)="onBlur($event)"
+                        (contentDom)="onContentDom($event)"
+                        (fileUploadRequest)="onFileUploadRequest($event)"
+                        (fileUploadResponse)="onFileUploadResponse($event)"
+                        (paste)="onPaste($event)"
+                        (drop)="onDrop($event)"
+                         -->
                     </div>
                 </div>
                 <div class="col-12 col-sm-3 row m-0 p-0">

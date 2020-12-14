@@ -1,23 +1,9 @@
 ﻿@model ItemListWithCriteria
 @using BusinessLibrary.BusinessClasses
 
-@if (Model.items.PageCount > 1)
-{
 <div class="alert-info row col-12 mx-0 mb-1">
-    @*<form asp-controller="ItemList" asp-action="Page" method="post" class="form-inline">
-        <button class="btn btn-outline-success px-1 py-0 m-1" type="submit" disabled="@(Model.items.PageIndex == 0)"
-                name="PageN" value="@(Model.items.PageIndex - 1)">
-            Previous
-        </button>
-        <button class="btn btn-outline-success px-1 py-0 m-1" type="submit" disabled="@(Model.items.PageIndex == Model.items.PageCount - 1)"
-                name="PageN" value="@(Model.items.PageIndex + 1)">
-            Next
-        </button>
-        
-
-
-    </form>*@
-
+    @if (Model.items.PageCount > 1)
+{
 
     <form asp-controller="ItemList" asp-action="ListFromCrit" method="post" class="form-inline">
         <button class="btn btn-outline-danger px-1 py-0 m-1" type="submit" disabled="@(Model.items.PageIndex == 0)"
@@ -58,9 +44,10 @@
         <input type="hidden" value="@Model.criteria.searchWhat" name="searchWhat" />
         <input type="hidden" value="@Model.criteria.searchString" name="searchString" />
     </form>
-        <div class="my-auto">Page: @(Model.items.PageIndex + 1) of @(Model.items.PageCount).</div>
+    <div class="my-auto">Page: @(Model.items.PageIndex + 1) of @(Model.items.PageCount).</div>
+} else {<div class=" px-1 py-0 m-1">&nbsp;</div>}
+    @if(@Model.criteria.description != "") {<div class="ml-2 my-auto px-1 alert-light rounded">@Model.criteria.description</div>}
 </div>
-}
 <div class="bg-light col-12 m-0 ">
     <div>
         <div class="row border-top border-dark m-0">

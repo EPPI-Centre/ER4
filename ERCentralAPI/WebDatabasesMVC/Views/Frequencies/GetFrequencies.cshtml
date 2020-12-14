@@ -2,14 +2,15 @@
 @using BusinessLibrary.BusinessClasses
 Frequency!
 <script type="text/javascript">
-    
+
 </script>
 
 <input type="hidden" value="@Model.criteria.included" name="included" id="includedCrit" />
 <input type="hidden" value="@Model.criteria.attributeIdXAxis" name="attributeIdXAxis" id="attributeIdXAxisCrit" />
 <input type="hidden" value="@Model.criteria.setIdXAxis" name="setIdXAxis" id="setIdXAxisCrit" />
+<input type="hidden" value="@Model.criteria.nameXAxis" name="nameXAxis" id="nameXAxisCrit" />
 <input type="hidden" value="@Model.criteria.onlyThisAttribute" name="onlyThisAttribute" id="onlyThisAttributeCrit" />
-<input type="hidden" value="@Model.criteria.webDbId" name="webDbId" id="webDbIdCrit"/>
+<input type="hidden" value="@Model.criteria.webDbId" name="webDbId" id="webDbIdCrit" />
 
 
 <div class="row">
@@ -22,6 +23,19 @@ Frequency!
     <div class="row">
         <div class="col">@(itm.AttributeId > 0 ? itm.AttributeId.ToString() : "-")</div>
         <div class="col">@itm.Attribute</div>
-        <div class="col"><a href="javascript:GoToItems(@itm.AttributeId)">@itm.ItemCount</a></div>
+        <div class="col">
+            @if (itm.ItemCount == 0)
+            {
+                <text>0</text>
+            }
+            else if (itm.AttributeId == -999999)
+            {
+                <a href="javascript:GoToItems(@itm.AttributeId, '@Model.criteria.nameXAxis.Replace("\'", "&#39;")')">@itm.ItemCount</a>
+            }
+            else
+            {
+                <a href="javascript:GoToItems(@itm.AttributeId, '@itm.Attribute.Replace("\'", "&#39;")')">@itm.ItemCount</a>
+            }
+        </div>
     </div>
 }

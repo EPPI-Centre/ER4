@@ -74,9 +74,9 @@
                 }
                 console.log("Planning to go to get frequency with (codeID, setId):", dataItem.id, dataItem.setId)
                 if (dataItem.isCodeset == true) {
-                    postwith("../Frequencies/GetFrequencies", { attId: 0, setId: dataItem.setId, included: true });
+                    postwith("../Frequencies/GetFrequencies", { attId: 0, setId: dataItem.setId, parentName: dataItem.text, included: true });
                 }
-                else postwith("../Frequencies/GetFrequencies", { attId: dataItem.id, setId: dataItem.setId, included: true });
+                else postwith("../Frequencies/GetFrequencies", { attId: dataItem.id, setId: dataItem.setId, parentName: dataItem.text, included: true });
             }
             function GoToCrosstab(isSelfXtab) {
                 console.log("CurrentNodeGoToCrosstab");
@@ -89,41 +89,51 @@
                         postwith("../Frequencies/GetCrosstab", {
                             attIdx: 0
                             , setIdx: dataItem.setId
+                            , nameXaxis: dataItem.text
                             , attIdy: 0
                             , setIdy: dataItem.setId
+                            , nameYaxis: dataItem.text
                             , included: true
                         });
                     }
                     else postwith("../Frequencies/GetCrosstab", {
                         attIdx: dataItem.id
                         , setIdx: dataItem.setId
+                        , nameXaxis: dataItem.text
                         , attIdy: dataItem.id
                         , setIdy: dataItem.setId
+                        , nameYaxis: dataItem.text
                         , included: true
                     });
                 } else {
                     var pars = {
                         attIdx: 0
                         , setIdx: 0
+                        , nameXaxis: ''
                         , attIdy: 0
                         , setIdy: 0
+                        , nameYaxis: ''
                         , included: true
                     }
                     if (dataItem.isCodeset == true) {
                         pars.attIdy = 0;
                         pars.setIdy = dataItem.setId;
+                        pars.nameYaxis = dataItem.text;
                     }
                     else {
                         pars.attIdy = dataItem.id;
                         pars.setIdy = dataItem.setId;
+                        pars.nameYaxis = dataItem.text;
                     }
                     if (dataItemXaxis.isCodeset == true) {
                         pars.attIdx = 0;
                         pars.setIdx = dataItemXaxis.setId;
+                        pars.nameXaxis = dataItemXaxis.text;
                     }
                     else {
                         pars.attIdx = dataItemXaxis.id;
                         pars.setIdx = dataItemXaxis.setId;
+                        pars.nameXaxis = dataItemXaxis.text;
                     }
                     postwith("../Frequencies/GetCrosstab", pars);
                 }
@@ -163,7 +173,7 @@
                     $("#GoToItemsWithThisCode").attr('onclick', '');
                 } else {
                     $("#GoToItemsWithThisCode").prop("disabled", false);
-                    $("#GoToItemsWithThisCode").attr('onclick', 'GoToItems(dataItem.id)');
+                    $("#GoToItemsWithThisCode").attr('onclick', 'GoToItems(dataItem.id, \'' + dataItem.text.replace('\'','&#39;') + '\')');
                 }
             }
             function SetXAxis() {

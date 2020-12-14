@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, OnDestroy, ViewChild, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Inject, OnInit, OnDestroy, ViewChild, Input, Output, EventEmitter, AfterViewInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { WebDBService, iWebDB, iWebDbReviewSet, WebDbReviewSet, MissingAttribute } from '../services/WebDB.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
@@ -15,7 +15,7 @@ import { FileRestrictions, UploadEvent } from '@progress/kendo-angular-upload';
 	providers: []
 })
 
-export class WebDBsComponent implements OnInit, OnDestroy {
+export class WebDBsComponent implements OnInit, OnDestroy, AfterViewInit {
 	constructor(private router: Router,
 		@Inject('BASE_URL') private _baseUrl: string,
 		private WebDBService: WebDBService,
@@ -32,6 +32,20 @@ export class WebDBsComponent implements OnInit, OnDestroy {
 		if (this.WebDBService.WebDBs.length == 0) this.WebDBService.Fetch();
 		if (this.ReviewSetsService.ReviewSets.length == 0) this.ReviewSetsService.GetReviewSets();
 	}
+
+	async ngAfterViewInit() {
+		//await this.loadScript("https://cdn.ckeditor.com/4.15.1/standard/ckeditor.js");
+	}
+
+	private loadScript(scriptUrl: string) {
+		return new Promise((resolve, reject) => {
+			const scriptElement = document.createElement('script')
+			scriptElement.src = scriptUrl
+			scriptElement.onload = resolve
+			document.body.appendChild(scriptElement)
+		})
+	}
+
 	//@Output() onCloseClick = new EventEmitter();
 	//public isExpanded: boolean = false;
 	public EditingDB: iWebDB | null = null;
@@ -358,9 +372,8 @@ export class WebDBsComponent implements OnInit, OnDestroy {
 	BackToMain() {
 		this.router.navigate(['Main']);
 	}
-	ngOnDestroy() {this.WebDBService.Clear();
+	ngOnDestroy() {
+		this.WebDBService.Clear();
 	}
-	ngAfterViewInit() {
-
-	}
+	
 }

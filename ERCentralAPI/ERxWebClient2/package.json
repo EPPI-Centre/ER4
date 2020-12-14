@@ -99,6 +99,7 @@
 		"angular4-table": "0.0.0",
 		"bower": "^1.8.4",
 		"circular-json": "^0.5.9",
+		"ckeditor4-angular": "^2.0.1",
 		"datatables.net": "^1.10.19",
 		"datatables.net-dt": "^1.10.19",
 		"font-awesome": "^4.7.0",

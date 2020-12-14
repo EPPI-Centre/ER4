@@ -139,7 +139,11 @@ namespace BusinessLibrary.BusinessClasses
         {
             get { return ReadProperty(setIdXAxisProperty); }
         }
-        
+        private static PropertyInfo<string> NameXAxisProperty = RegisterProperty<string>(typeof(WebDbFrequencyCrosstabAndMapSelectionCriteria), new PropertyInfo<string>("NameXAxis", "NameXAxis"));
+        public string nameXAxis
+        {
+            get { return ReadProperty(NameXAxisProperty); }
+        }
         private static PropertyInfo<Int64> attributeIdYAxisProperty = RegisterProperty<Int64>(typeof(WebDbFrequencyCrosstabAndMapSelectionCriteria), new PropertyInfo<Int64>("attributeIdYAxis", "attributeIdYAxis"));
         public Int64 attributeIdYAxis
         {
@@ -149,6 +153,11 @@ namespace BusinessLibrary.BusinessClasses
         public int setIdYAxis
         {
             get { return ReadProperty(setIdYAxisProperty); }
+        }
+        private static PropertyInfo<string> NameYAxisProperty = RegisterProperty<string>(typeof(WebDbFrequencyCrosstabAndMapSelectionCriteria), new PropertyInfo<string>("NameYAxis", "NameYAxis"));
+        public string nameYAxis
+        {
+            get { return ReadProperty(NameYAxisProperty); }
         }
         private static PropertyInfo<string> includedProperty = RegisterProperty<string>(typeof(WebDbFrequencyCrosstabAndMapSelectionCriteria), new PropertyInfo<string>("Included", "Included", ""));
         public string included
@@ -172,16 +181,19 @@ namespace BusinessLibrary.BusinessClasses
             get { return ReadProperty(onlyThisAttributeProperty); }
         }
         
-        public WebDbFrequencyCrosstabAndMapSelectionCriteria(int WebDbId, Int64 AttributeIdXAxis, int SetIdXAxis, string Included = ""
+        public WebDbFrequencyCrosstabAndMapSelectionCriteria(int WebDbId, Int64 AttributeIdXAxis, int SetIdXAxis, string NameXaxis
+                                                            , string Included = ""
                                                             , Int64 OnlyThisAttribute = 0
-                                                            , Int64 AttributeIdYAxis = 0, int SetIdYAxis = 0
+                                                            , Int64 AttributeIdYAxis = 0, int SetIdYAxis = 0, string NameYaxis = ""
                                                             , Int64 SegmentsParent = 0, int SegmentsSetId = 0)
         {
             LoadProperty(webDbIdProperty, WebDbId);
             LoadProperty(attributeIdXAxisProperty, AttributeIdXAxis);
             LoadProperty(setIdXAxisProperty, SetIdXAxis);
+            LoadProperty(NameXAxisProperty, NameXaxis);
             LoadProperty(attributeIdYAxisProperty, AttributeIdYAxis);
             LoadProperty(setIdYAxisProperty, SetIdYAxis);
+            LoadProperty(NameYAxisProperty, NameYaxis);
             LoadProperty(includedProperty, Included);
             LoadProperty(onlyThisAttributeProperty, OnlyThisAttribute);
             LoadProperty(segmentsParentProperty, SegmentsParent);
