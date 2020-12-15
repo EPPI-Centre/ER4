@@ -8525,11 +8525,11 @@ div.table-responsive > div.dataTables_wrapper > div.row {
     position: fixed;
     left: 0 !important;
     right: 0;
-    -webkit-transform: translate3d(-270px, 0, 0);
-    -moz-transform: translate3d(-270px, 0, 0);
-    -o-transform: translate3d(-270px, 0, 0);
-    -ms-transform: translate3d(-270px, 0, 0);
-    transform: translate3d(-270px, 0, 0) !important;
+    -webkit-transform: translate3d(-300px, 0, 0);  /*JB*/
+    -moz-transform: translate3d(-300px, 0, 0);
+    -o-transform: translate3d(-300px, 0, 0);
+    -ms-transform: translate3d(-300px, 0, 0);
+    transform: translate3d(-300px, 0, 0) !important;
     transition: all .5s;
     margin-top: 0px; }
     .sidebar:before {
@@ -8562,7 +8562,7 @@ div.table-responsive > div.dataTables_wrapper > div.row {
       transform: translate3d(300px, 0, 0) !important; }
 
   .quick_sidebar_open .quick-sidebar {
-    width: 350px; }
+    width: 300px; }
 
   .main-header {
     transition: all .5s; }
@@ -8790,7 +8790,7 @@ div.table-responsive > div.dataTables_wrapper > div.row {
 @media screen and (max-width: 350px) {
   .quick_sidebar_open .quick-sidebar {
     width: 100%;
-    padding: 20px; } }
+    padding: 20px; } } 
 /* 	 Background Body */
 body {
   background: #f9fbfd; }
