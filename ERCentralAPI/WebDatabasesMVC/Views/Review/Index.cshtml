@@ -1,323 +1,519 @@
 ﻿@model WebDbWithRevInfo;
 @using WebDatabasesMVC.ViewModels;
 @using Microsoft.AspNetCore.Html;
-<div class="row">
-    <div class="col-5 col-md-4">
-        <script>
-            var treeviewData = null;
-            var dataItem = null;
-            var dataItemXaxis = null;
-            function Buildnode(attr) {
-                var nodes = [];
+@using System.IO;
+@using System.Security.Claims;
 
-                var res = new kendo.data.Node({
-                    text: attr.setName ? attr.setName : attr.attributeName
-                });
-                for (var ii = 0; ii < attr.attributes.attributesList.length; ii++) {
-                    res.append(Buildnode(attr.attributes.attributesList[ii]));
+@{
+    Claim WebDbIDclaim = User.FindFirst("WebDbID");
+    string imgPath1 = "";
+    string imgPath2 = "";
+    if (WebDbIDclaim != null)
+    {
+        var service = Context.RequestServices.GetService(typeof(Microsoft.AspNetCore.Hosting.IWebHostEnvironment)) as Microsoft.AspNetCore.Hosting.IWebHostEnvironment;
+        string absolutePath = service.WebRootPath + "\\HeaderImages\\";
+        if (System.IO.File.Exists(absolutePath + "Img-" + WebDbIDclaim.Value + "-1.jpg")) imgPath1 = Url.Content("~/HeaderImages/Img-" + WebDbIDclaim.Value + "-1.jpg");
+        else if (System.IO.File.Exists(absolutePath + "Img-" + WebDbIDclaim.Value + "-1.png")) imgPath1 = Url.Content("~/HeaderImages/Img-" + WebDbIDclaim.Value + "-1.png");
+        if (System.IO.File.Exists(absolutePath + "Img-" + WebDbIDclaim.Value + "-2.jpg")) imgPath2 = Url.Content("~/HeaderImages/Img-" + WebDbIDclaim.Value + "-2.jpg");
+        else if (System.IO.File.Exists(absolutePath + "Img-" + WebDbIDclaim.Value + "-2.png")) imgPath2 = Url.Content("~/HeaderImages/Img-" + WebDbIDclaim.Value + "-2.png");
+    }
+}
+
+<script>
+    var treeviewData = null;
+    var dataItem = null;
+    var dataItemXaxis = null;
+    var freqData = null;
+    function Buildnode(attr) {
+        var nodes = [];
+
+        var res = new kendo.data.Node({
+            text: attr.setName ? attr.setName : attr.attributeName
+        });
+        for (var ii = 0; ii < attr.attributes.attributesList.length; ii++) {
+            res.append(Buildnode(attr.attributes.attributesList[ii]));
+        }
+        res.id = attr.attributeId ? attr.attributeId : attr.setId;
+        res.isCodeset = false;
+        res.setId = attr.setId;
+        //res.items = nodes;
+        //res.hasChildren = () => {
+        //    return this.items.length > 0;
+        //};
+        return res;
+    }
+    $(document).ready(function () {
+        $("#treeView").kendoTreeView({
+            dataSource: {
+                transport: {
+                    read: {
+                        url: "../ReviewSetList/FetchJSON",
+                        dataType: "json"
+                    }
+                },
+                schema: {
+                    parse: function (response) {
+                        dataItem = null;
+                        var nodes = [];
+                        for (var i = 0; i < response.length; i++) {
+                            var nodes2 = [];
+                            var nd = new kendo.data.Node({ text: response[i].setName });
+                            nd.id = response[i].setId;
+                            nd.isCodeset = true;
+                            nd.setId = nd.id;
+                            for (var ii = 0; ii < response[i].attributes.attributesList.length; ii++) {
+                                nd.append(Buildnode(response[i].attributes.attributesList[ii]));
+                            }
+                            nd.items = nodes2;
+                            //nd.hasChildren = () => {
+                            //        return this.items.length > 0;
+                            //    };
+                            nodes.push(nd);
+                        }
+                        GetYearsFreqs();//getting the years chart after the codes...
+                        return nodes;
+                    }
                 }
-                res.id = attr.attributeId ? attr.attributeId : attr.setId;
-                res.isCodeset = false;
-                res.setId = attr.setId;
-                //res.items = nodes;
-                //res.hasChildren = () => {
-                //    return this.items.length > 0;
-                //};
-                return res;
-            }
-            $(document).ready(function () {
-                $("#treeView").kendoTreeView({
-                    dataSource: {
-                        transport: {
-                            read: {
-                                url: "../ReviewSetList/FetchJSON",
-                                dataType: "json"
-                            }
-                        },
-                        schema: {
-                            parse: function (response) {
-                                dataItem = null;
-                                var nodes = [];
-                                for (var i = 0; i < response.length; i++) {
-                                    var nodes2 = [];
-                                    var nd = new kendo.data.Node({ text: response[i].setName });
-                                    nd.id = response[i].setId;
-                                    nd.isCodeset = true;
-                                    nd.setId = nd.id;
-                                    for (var ii = 0; ii < response[i].attributes.attributesList.length; ii++) {
-                                        nd.append(Buildnode(response[i].attributes.attributesList[ii]));
-                                    }
-                                    nd.items = nodes2;
-                                    //nd.hasChildren = () => {
-                                    //        return this.items.length > 0;
-                                    //    };
-                                    nodes.push(nd);
-                                }
-                                GetYearsFreqs();//getting the years chart after the codes...
-                                return nodes;
-                            }
+            },
+            select: TreeViewSelection
+        });
+        treeviewData = $("#treeView").data("kendoTreeView");
+        //$("#treeView").data("kendoTreeView").bind("change", TreeViewSelection);
+    });
+    function tree_dataBound(e) {
+        console.log("DataBound", e.node);
+    }
+    function GoToFreq() {
+        //console.log("CurrentNodeGoToFreq");
+        if (!dataItem) {
+            //console.log("CurrentNodeGoToFreq no data");
+            return;
+        }
+        //console.log("Planning to go to get frequency with (codeID, setId):", dataItem.id, dataItem.setId)
+        if (dataItem.isCodeset == true) {
+            postwith("../Frequencies/GetFrequencies", { attId: 0, setId: dataItem.setId, parentName: dataItem.text, included: true });
+        }
+        else postwith("../Frequencies/GetFrequencies", { attId: dataItem.id, setId: dataItem.setId, parentName: dataItem.text, included: true });
+    }
+    function GetFreqs() {
+        //console.log("CurrentNodeGoToFreq");
+        if (!dataItem) {
+            //console.log("GetFreqs no data");
+            return;
+        }
+        //console.log("Planning to go to GetFreqs with (codeID, setId):", dataItem.id, dataItem.setId)
+
+        if (dataItem.isCodeset == true) {
+            $("#FrequenciesResult").html("Frequencies for: " + dataItem.text);
+            $.post("../Frequencies/GetFrequenciesJSON", { attId: 0, setId: dataItem.setId, included: true }, function (data, result) { BuildFreqs(data, result); })
+            //postwith("../Frequencies/GetFrequencies", { attId: 0, setId: dataItem.setId, included: true });
+        }
+        else {
+            $.post("../Frequencies/GetFrequenciesJSON", { attId: dataItem.id, setId: dataItem.setId, included: true }, function (data, result) { BuildFreqs(data, result); })
+            //postwith("../Frequencies/GetFrequencies", { attId: dataItem.id, setId: dataItem.setId, included: true });
+        }
+    }
+    function BuildFreqs(data, result) {
+        console.log(data, result);//FrequenciesTemplate
+        //columns: [{
+        //    field: "attributeId",
+        //    title: "ID"
+        //},
+        //{
+        //    field: "attribute",
+        //    title: "Code Name"
+        //},
+        //{
+        //    field: "itemCount",
+        //    title: "Count"
+        //}],
+        if (result == "success") {
+            $("#FrequenciesResult").show();
+            $("#FrequenciesGrid").css("height", ((data.results.length +1) *20.1 + 4).toString()+'px');
+            $("#FrequenciesGrid").kendoGrid({
+                rowTemplate: kendo.template($("#FrequenciesTemplate").html()),
+                columns: [
+                    //    {
+                    //    field: "attributeId",
+                    //    title: "ID",
+                    //    headerAttributes: {
+                    //        "class": "small py-0 px-1"
+                    //    }
+                    //},
+                    {
+                        field: "attribute",
+                        title: "Code Name",
+                        headerAttributes: {
+                            "class": "small py-0 px-1  w-75"
                         }
                     },
-                    select: TreeViewSelection
-                });
-                treeviewData = $("#treeView").data("kendoTreeView");
-                //$("#treeView").data("kendoTreeView").bind("change", TreeViewSelection);
+                    {
+                        field: "itemCount",
+                        title: "Count",
+                        headerAttributes: {
+                            "class": "small py-0 px-1  w-25"
+                        }
+                    }],
+                dataSource: data.results
             });
-            function tree_dataBound(e) {
-                console.log("DataBound", e.node);
-            }
-            function GoToFreq() {
-                console.log("CurrentNodeGoToFreq");
-                if (!dataItem) {
-                    console.log("CurrentNodeGoToFreq no data");
-                    return;
-                }
-                console.log("Planning to go to get frequency with (codeID, setId):", dataItem.id, dataItem.setId)
-                if (dataItem.isCodeset == true) {
-                    postwith("../Frequencies/GetFrequencies", { attId: 0, setId: dataItem.setId, parentName: dataItem.text, included: true });
-                }
-                else postwith("../Frequencies/GetFrequencies", { attId: dataItem.id, setId: dataItem.setId, parentName: dataItem.text, included: true });
-            }
-            function GoToCrosstab(isSelfXtab) {
-                console.log("CurrentNodeGoToCrosstab");
-                if (!dataItem || (isSelfXtab !== true && !dataItemXaxis)) {
-                    console.log("CurrentNodeGoToCrosstab no data");
-                    return;
-                }
-                if (isSelfXtab == true) {
-                    if (dataItem.isCodeset == true) {
-                        postwith("../Frequencies/GetCrosstab", {
-                            attIdx: 0
-                            , setIdx: dataItem.setId
-                            , nameXaxis: dataItem.text
-                            , attIdy: 0
-                            , setIdy: dataItem.setId
-                            , nameYaxis: dataItem.text
-                            , included: true
-                        });
-                    }
-                    else postwith("../Frequencies/GetCrosstab", {
-                        attIdx: dataItem.id
-                        , setIdx: dataItem.setId
-                        , nameXaxis: dataItem.text
-                        , attIdy: dataItem.id
-                        , setIdy: dataItem.setId
-                        , nameYaxis: dataItem.text
-                        , included: true
-                    });
-                } else {
-                    var pars = {
-                        attIdx: 0
-                        , setIdx: 0
-                        , nameXaxis: ''
-                        , attIdy: 0
-                        , setIdy: 0
-                        , nameYaxis: ''
-                        , included: true
-                    }
-                    if (dataItem.isCodeset == true) {
-                        pars.attIdy = 0;
-                        pars.setIdy = dataItem.setId;
-                        pars.nameYaxis = dataItem.text;
-                    }
-                    else {
-                        pars.attIdy = dataItem.id;
-                        pars.setIdy = dataItem.setId;
-                        pars.nameYaxis = dataItem.text;
-                    }
-                    if (dataItemXaxis.isCodeset == true) {
-                        pars.attIdx = 0;
-                        pars.setIdx = dataItemXaxis.setId;
-                        pars.nameXaxis = dataItemXaxis.text;
-                    }
-                    else {
-                        pars.attIdx = dataItemXaxis.id;
-                        pars.setIdx = dataItemXaxis.setId;
-                        pars.nameXaxis = dataItemXaxis.text;
-                    }
-                    postwith("../Frequencies/GetCrosstab", pars);
-                }
-            }
-
-            function TreeViewSelection(e) {
-                if (treeviewData == null) retrun;
-                dataItem = treeviewData.dataItem(e.node);
-                if (!dataItem) {
-                    $("#CurrentNodeGoToFreq").prop("disabled", true); CurrentNodeGoToSelfCrosstab
-                    $("#CurrentNodeGoToSelfCrosstab").prop("disabled", true);
-                    $("#CurrentNodeGoToCrosstab").prop("disabled", true);
-                    $("#CurrentNodeSetXAxis").prop("disabled", true);
-                    $("#GoToItemsWithThisCode").prop("disabled", true);
-                    $("#GoToItemsWithThisCode").attr('onclick', '');
-                    return;
-                }
-                console.log("Change", dataItem.setId, dataItem.id, dataItem.text);
-                $("#CurrentNodeName").text(dataItem.text);
-                $("#CurrentNodeId").text(dataItem.id);
-                $("#CurrentNodeSetId").text(dataItem.setId);
-                $("#CurrentNodeIsCodeSet").text(dataItem.isCodeset.toString());
-                if (dataItem.items && dataItem.items.length > 0) {
-                    $("#CurrentNodeGoToFreq").prop("disabled", false);
-                    $("#CurrentNodeGoToSelfCrosstab").prop("disabled", false);
-                    $("#CurrentNodeGoToCrosstab").prop("disabled", dataItemXaxis == null);
-                    $("#CurrentNodeSetXAxis").prop("disabled", false);
-                }
-                else {
-                    $("#CurrentNodeGoToFreq").prop("disabled", true);
-                    $("#CurrentNodeGoToSelfCrosstab").prop("disabled", true);
-                    $("#CurrentNodeGoToCrosstab").prop("disabled", true);
-                    $("#CurrentNodeSetXAxis").prop("disabled", true);
-                }
-                if (dataItem.isCodeset) {
-                    $("#GoToItemsWithThisCode").prop("disabled", true);
-                    $("#GoToItemsWithThisCode").attr('onclick', '');
-                } else {
-                    $("#GoToItemsWithThisCode").prop("disabled", false);
-                    $("#GoToItemsWithThisCode").attr('onclick', 'GoToItems(dataItem.id, \'' + dataItem.text.replace('\'','&#39;') + '\')');
-                }
-            }
-            function SetXAxis() {
-                if (!dataItem) {
-                    dataItemXaxis = null;
-                    $("#x_axis_setting").hide();
-                    $("CurrentNodeGoToCrosstab").prop("disabled", true);
-                }
-                else {
-                    dataItemXaxis = dataItem;
-                    $("#x_axis_name").text(dataItemXaxis.text);
-                    $("CurrentNodeGoToCrosstab").prop("disabled", false);
-                    $("#x_axis_setting").show();
-                }
-            }
-
-            function GetYearsFreqs() {
-                $("#chart").kendoChart({
-                    categoryAxis: {
-                        field: "year"
-                    },
-                    series: [
-                        { field: "count" }
-                    ],
-                    seriesDefaults: {
-                        type: 'bar'
-                    },
-                    seriesClick: function (e) {
-                        //console.log("Clicked " + e.value, e);
-                        GoToYearList(e.category);
-                    },
-                    axisLabelClick: function (e) {
-                        //console.log("Clicked " + e.value, e);
-                        GoToYearList(e.value);
-                    },
-                    dataSource: {
-                        transport: {
-                            read: {
-                                url: "../Review/YearHistogramJSON",
-                                dataType: "json"
-                            }
-                        }
-                    }
-                    , tooltip: {
-                        visible: true,
-                        template: "Items count: #= value #"
-                    }
-
+        } else {
+            $("#FrequenciesGrid").html("");
+        }
+    }
+    function GetFreqLinkContent(attId, count, attName) {
+        if (count == 0) return "0";
+        else return '<a href="javascript:GoToItems(' + attId + ', \'' + attName.replaceAll('\'', '\\\'') + '\')" style="color: #007bff!important;">' + count.toString() + '</a>';
+    }
+    function GoToCrosstab(isSelfXtab) {
+        console.log("CurrentNodeGoToCrosstab");
+        if (!dataItem || (isSelfXtab !== true && !dataItemXaxis)) {
+            console.log("CurrentNodeGoToCrosstab no data");
+            return;
+        }
+        if (isSelfXtab == true) {
+            if (dataItem.isCodeset == true) {
+                postwith("../Frequencies/GetCrosstab", {
+                    attIdx: 0
+                    , setIdx: dataItem.setId
+                    , attIdy: 0
+                    , setIdy: dataItem.setId
+                    , included: true
                 });
             }
-
-            function GoToYearList(year) {
-                //if (year == "Unknown") year = "'    ' OR '0   '";
-                postwith("../ItemList/GetListSearchResults", {
-                    SearchString: year
-                    , SearchWhat: "PubYear"
-                    , included: "true"
-                })
+            else postwith("../Frequencies/GetCrosstab", {
+                attIdx: dataItem.id
+                , setIdx: dataItem.setId
+                , attIdy: dataItem.id
+                , setIdy: dataItem.setId
+                , included: true
+            });
+        } else {
+            var pars = {
+                attIdx: 0
+                , setIdx: 0
+                , attIdy: 0
+                , setIdy: 0
+                , included: true
             }
-            //var treeviewData = $("#treeView").data("kendoTreeView");
-            //treeview.bind("change", TreeViewSelection);
-        </script>
+            if (dataItem.isCodeset == true) {
+                pars.attIdy = 0;
+                pars.setIdy = dataItem.setId;
+            }
+            else {
+                pars.attIdy = dataItem.id;
+                pars.setIdy = dataItem.setId;
+            }
+            if (dataItemXaxis.isCodeset == true) {
+                pars.attIdx = 0;
+                pars.setIdx = dataItemXaxis.setId;
+            }
+            else {
+                pars.attIdx = dataItemXaxis.id;
+                pars.setIdx = dataItemXaxis.setId;
+            }
+            postwith("../Frequencies/GetCrosstab", pars);
+        }
+    }
 
-        <div id="treeView" style="overflow: auto; height: 100%; max-height: 75vh;"></div>
+    function TreeViewSelection(e) {
+        if (treeviewData == null) retrun;
+        dataItem = treeviewData.dataItem(e.node);
+        if (!dataItem) {
+            $("#CurrentNodeGoToFreq").prop("disabled", true);
+            $("#CurrentNodeGoToFreq2").prop("disabled", true); 
+            $("#CurrentNodeGoToSelfCrosstab").prop("disabled", true);
+            $("#CurrentNodeGoToCrosstab").prop("disabled", true);
+            $("#CurrentNodeSetXAxis").prop("disabled", true);
+            $("#GoToItemsWithThisCode").prop("disabled", true);
+            $("#GoToItemsWithThisCode").attr('onclick', '');
+            return;
+        }
+        console.log("Change", dataItem.setId, dataItem.id, dataItem.text);
+        $("#CurrentNodeName").text(dataItem.text);
+        $("#CurrentNodeNameCT").text(dataItem.text);
+        $("#CurrentNodeId").text(dataItem.id);
+        $("#CurrentNodeSetId").text(dataItem.setId);
+        $("#CurrentNodeIsCodeSet").text(dataItem.isCodeset.toString());
+        if (dataItem.items && dataItem.items.length > 0) {
+            $("#CurrentNodeGoToFreq").prop("disabled", false);
+            $("#CurrentNodeGoToFreq2").prop("disabled", false);
+            $("#CurrentNodeGoToSelfCrosstab").prop("disabled", false);
+            $("#CurrentNodeGoToCrosstab").prop("disabled", dataItemXaxis == null);
+            $("#CurrentNodeSetXAxis").prop("disabled", false);
+        }
+        else {
+            $("#CurrentNodeGoToFreq").prop("disabled", true);
+            $("#CurrentNodeGoToFreq2").prop("disabled", true);
+            $("#CurrentNodeGoToSelfCrosstab").prop("disabled", true);
+            $("#CurrentNodeGoToCrosstab").prop("disabled", true);
+            $("#CurrentNodeSetXAxis").prop("disabled", true);
+        }
+        if (dataItem.isCodeset) {
+            $("#GoToItemsWithThisCode").prop("disabled", true);
+            $("#GoToItemsWithThisCode").attr('onclick', '');
+        } else {
+            $("#GoToItemsWithThisCode").prop("disabled", false);
+            $("#GoToItemsWithThisCode").attr('onclick', 'GoToItems(dataItem.id, \'' + dataItem.text.replace('\'', '&#39;') + '\')');
+            //$("#GoToItemsWithThisCode").attr('onclick', 'GoToItems(dataItem.id)');
+        }
+    }
+    function SetXAxis() {
+        if (!dataItem) {
+            dataItemXaxis = null;
+            $("#x_axis_setting").hide();
+            $("CurrentNodeGoToCrosstab").prop("disabled", true);
+        }
+        else {
+            dataItemXaxis = dataItem;
+            $("#x_axis_name").text(dataItemXaxis.text);
+            $("CurrentNodeGoToCrosstab").prop("disabled", false);
+            $("#x_axis_setting").show();
+        }
+    }
+
+    function GetYearsFreqs() {
+        $("#chart").kendoChart({
+            categoryAxis: {
+                field: "year"
+            },
+            series: [
+                { field: "count" }
+            ],
+            seriesDefaults: {
+                type: 'bar'
+            },
+            seriesClick: function (e) {
+                //console.log("Clicked " + e.value, e);
+                GoToYearList(e.category);
+            },
+            axisLabelClick: function (e) {
+                //console.log("Clicked " + e.value, e);
+                GoToYearList(e.value);
+            },
+            dataSource: {
+                transport: {
+                    read: {
+                        url: "../Review/YearHistogramJSON",
+                        dataType: "json"
+                    }
+                }
+            }
+            , tooltip: {
+                visible: true,
+                template: "Items count: #= value #"
+            }
+
+        });
+    }
+
+    function GoToYearList(year) {
+        //if (year == "Unknown") year = "'    ' OR '0   '";
+        postwith("../ItemList/GetListSearchResults", {
+            SearchString: year
+            , SearchWhat: "PubYear"
+            , included: "true"
+        })
+    }
+    //var treeviewData = $("#treeView").data("kendoTreeView");
+    //treeview.bind("change", TreeViewSelection);
+</script>
+
+<div class="sidebar sidebar-style-2">
+    <div class="sidebar-wrapper scrollbar scrollbar-inner">
+        <div class="sidebar-content">
+            <br />
+            <ul class="nav nav-primary">
+                <li class="nav-section">
+                    <span class="sidebar-mini-icon">
+                        <i class="fa fa-ellipsis-h"></i>
+                    </span>
+                    <h4 class="text-section">Coding tools</h4>
+                </li>
+                <li class="nav-item">
+                    <div id="treeView" style="overflow: auto;height: 100%;max-height: 75vh;font-size: 14px;color: #000000;font-family: Lato,sans-serif;"></div>
+                </li>
+            </ul>
+
+        </div>
     </div>
-    <div class="col-7 col-md-8 row mx-0 p-0">
-        <div class="col-12 col-sm-8 col-md-7 mb-2 rounded border border-primary alert-primary">
-            <div>WebDatabase Name is: <b>@Model.WebDb.WebDBName</b></div>
-            <div>WebDatabase Id is: <b>@Model.WebDb.WebDBId</b></div>
-            <div class="col-12">WebDatabase Description is: </div>
-            <div class="rounded m-2 alert-light col-12">@(new HtmlString(Model.WebDb.WebDBDescription))</div>
-            
-            <div>This WebDatabase uses EPPI-Reviewer data from the  review called: <b>@Model.RevInfo.ReviewName</b></div>
-        </div>
-        <div id="chart" class="col-12 col-sm-4 col-md-5 mb-2"></div>
-        <div class="col-12 col-sm-8 col-md-7 mb-2 rounded border border-info alert-info " id="CurrentNode">
-            <div class="font-weight-bold">Navigate:</div>
-            <div class="row m-0">
-                <div class="my-auto">
-                    List all references:
-                </div>
-                <a class="btn btn-outline-success btn-sm px-2 py-1 m-1" asp-controller="ItemList" asp-action="Index">Go</a>
-            </div>
-            <div class="row m-0">
-                <div class="my-auto">Selected code: </div>
-                <div class="ml-1 font-weight-bold my-auto" id="CurrentNodeName"></div>
-                <button id="GoToItemsWithThisCode" class="btn btn-outline-success btn-sm px-2 py-1 m-1" disabled>List</button>
-                <button class="btn btn-outline-success btn-sm px-2 py-1 m-1" onclick="GoToFreq()" disabled id="CurrentNodeGoToFreq">Get Frequencies</button>
-            </div>
-            <div class="row m-0">
-                <div class="my-auto">Crosstabs: </div>
-                <button class="btn btn-outline-success btn-sm px-2 py-1 m-1" onclick="GoToCrosstab(true)" disabled id="CurrentNodeGoToSelfCrosstab">Self Cross Tab</button>
-                <button class="btn btn-outline-primary btn-sm px-2 py-1 m-1" onclick="SetXAxis()" disabled id="CurrentNodeSetXAxis">Set X axis</button>
-                <div class="row m-0" id="x_axis_setting" style="display:none;">
-                    <div class="my-auto">X-axis is set to: <span id="x_axis_name" class="m-1"></span></div>
-                    <button class="btn btn-outline-success btn-sm px-2 py-1 m-1" onclick="GoToCrosstab(false)" disabled id="CurrentNodeGoToCrosstab">Full Cross Tab</button>
-                </div>
-            </div>
-            @*<div class="row">Selected Id: <span class="ml-1 font-weight-bold" id="CurrentNodeId"></span></div>
-                <div class="row">Selected SetId: <span class="ml-1 font-weight-bold" id="CurrentNodeSetId"></span></div>
-                <div class="row">Is a coding tool: <span class="ml-1 font-weight-bold" id="CurrentNodeIsCodeSet"></span></div>*@
-        </div>
-        <div class="col-12 col-sm-8 col-md-7 mb-2 rounded border border-success alert-success" >
-            <div class="row mt-2">
+</div>
 
-                <form asp-controller="ItemList" asp-action="GetListSearchResults" method="post" class="col-12 m-0 p-1 ">
-                    <div class="row m-1">
-                        <div class="col-auto row p-0 m-0">
-                            <label for="SearchWhat" class="my-auto">Search In: &nbsp;</label>
-                            <select name="SearchWhat" id="SearchWhat" class="ml-1 mr-2">
-                                <option value="TitleAbstract">Title and Abstract</option>
-                                <option value="Title">Title</option>
-                                <option value="Abstract">Abstract</option>
-                                <option value="Authors">Authors</option>
-                                <option value="PubYear">Publication Year</option>
-                                <option value="AdditionalText">"Coded" Text</option>
-                                <option value="ItemId">ItemIds (comma separated)</option>
-                                <option value="OldItemId">Imported Ids (comma separated)</option>
-                            </select>
+
+<div class="main-panel">
+    <div class="content">
+        <div class="panel-header bg-primary-gradient">
+            <div class="page-inner py-5">
+                <div class="d-flex align-items-left align-items-md-center flex-column flex-md-row">
+                    <table width="100%">
+                        <tr>
+                            <td>
+                                <div>
+                                    <h2 class="text-white pb-2 fw-bold">@Model.WebDb.WebDBName</h2>
+                                    <h5 class="text-white op-7 mb-2">This is a static subtitle (to be implemented).</h5>
+                                </div>
+                            </td>
+                            <td style="text-align:right">
+                                <div>
+                                    @if (imgPath1 != "")
+                                    {
+                                        <img src=@imgPath1 style="max-height: 60px; object-fit: cover;" class="float-right" />
+                                    }
+                                </div>
+                            </td>
+                            <td style="text-align:right">
+                                <div>
+                                    @if (imgPath2 != "")
+                                    {
+                                        <img src=@imgPath2 style="max-height: 60px; object-fit: cover;" class="float-right" />
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+
+                </div>
+            </div>
+        </div>
+        <div class="page-inner mt--5">
+            <div class="row mt--2">
+                <div class="col-md-8">
+                    <div class="card ">
+                        <div class="card-header">
+                            <div class="card-title">Introduction</div>
                         </div>
-                        <div class="col-auto row p-0 m-0">
-                            <input type="radio" class="ml-auto my-auto" id="includedt" name="included" value="true" checked>
-                            <label for="male" class="ml-1 mr-3 my-auto">Included</label>
-                            <input type="radio" class="my-auto" id="includedf" name="included" value="false">
-                            <label for="female" class="ml-1 mr-auto my-auto">or Excluded</label>
+                        <div class="card-body">
+                            <div class="card-category">@(new HtmlString(Model.WebDb.WebDBDescription))</div>
                         </div>
                     </div>
-                    <div class="row m-1">
-                        <label for="SearchString" class="col-auto p-0">Search string:</label>
-                        <input type="text" maxlength="4000" size="60" name="SearchString" id="SearchString" class="ml-1 mr-2 col-auto p-0" />
+                    <div class="card ">
+                        <div class="card-header">
+                            <table>
+                                <tr>
+                                    <td>
+                                        <div class="card-title">Frequencies</div>
+                                    </td>
+                                    <td style="padding: 0px 0px 0px 25px;">
+                                        <button id="GoToItemsWithThisCode" class="btn btn-secondary btn-sm btn-round" disabled>List records</button>
+                                        <button class="btn btn-primary btn-sm btn-round" onclick="GetFreqs()" disabled id="CurrentNodeGoToFreq">Frequencies</button>
+                                        <button class="btn btn-secondary btn-sm btn-round" onclick="GoToFreq()" disabled id="CurrentNodeGoToFreq2">Frequencies (whole page)</button>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="card-body">
+                            <div class="row mx-0">
+                                Selected code:
+                                <div class="ml-1 font-weight-bold my-auto" id="CurrentNodeName"></div>
+                            </div>
+                            <div class="row mx-0 my-1 alert-info small" id="FrequenciesResult" style="display: none;">
+                                <div class="col-12" id="FrequenciesCode"></div>
+                            </div>
+                            <div style="max-height:50vh;" id="FrequenciesGrid"></div>
+                            <script id="FrequenciesTemplate" type="text/x-kendo-tmpl">
+                                <tr class="border border-bottom ">
+                                    @*<td>#= attributeId #</td>*@
+                                    <td class="px-1 py-0 border-bottom small w-75">
+                                        #= attribute #
+                                    </td>
+                                    <td class="px-1 py-0 border-bottom small w-25">
+                                        #= GetFreqLinkContent(attributeId, itemCount, attribute) #
+                                        @*<a href="#= if(itemCount == 0 ) {'0'} else { 'javascript:GoToItems(' + attributeId +')'#" style="color: #007bff!important;">#= itemCount #</a>*@
+                                        @*<a href="javascript:GoToItems(#= attributeId #)" style="color: #007bff!important;">#= itemCount #</a>*@
+                                    </td>
+                                </tr>
+                            </script>
+                        </div>
                     </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <table>
+                                <tr>
+                                    <td>
+                                        <div class="card-title">Publications by year</div>
+                                    </td>
+                                    <td style="padding: 0px 0px 0px 25px;">
+                                        <a class="btn btn-secondary btn-round btn-sm" asp-controller="ItemList" asp-action="Index">All records</a>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="card-body">
+                            <div id="chart"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
 
-                    <button class="btn btn-outline-primary px-1 py-0 m-1" type="submit">
-                        Search
-                    </button>
-                </form>
+                <div class="col-md-6">
+                    <div class="card ">
+                        <div class="card-header">
+                            <table>
+                                <tr>
+                                    <td>
+                                        <div class="card-title">Crosstabs</div>
+                                    </td>
+                                    <td style="padding: 0px 0px 0px 25px;">
+                                        <button class="btn btn-secondary btn-sm btn-round" onclick="GoToCrosstab(true)" disabled id="CurrentNodeGoToSelfCrosstab">Self Cross Tab</button>
+                                        <button class="btn btn-secondary btn-sm btn-round" onclick="GoToCrosstab(false)" disabled id="CurrentNodeGoToCrosstab">Full Cross Tab</button>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+
+                        <div class="card-body">
+                            Selected code:
+                            <div class="ml-1 font-weight-bold my-auto" id="CurrentNodeNameCT"></div><br />
+
+
+                            <button class="btn btn-secondary btn-sm btn-round" onclick="SetXAxis()" disabled id="CurrentNodeSetXAxis">Set X axis</button>
+                            <div class="row m-0" id="x_axis_setting" style="display:none;">
+                                <div class="my-auto">X-axis is set to: <span id="x_axis_name" class="m-1"></span></div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card full-height">
+                        <div class="card-header">
+                            <div class="card-head-row">
+                                <div class="card-title">User Statistics</div>
+                                <div class="card-tools">
+                                    <a href="#" class="btn btn-info btn-border btn-round btn-sm mr-2">
+                                        <span class="btn-label">
+                                            <i class="fa fa-pencil"></i>
+                                        </span>
+                                        Export
+                                    </a>
+                                    <a href="#" class="btn btn-info btn-border btn-round btn-sm">
+                                        <span class="btn-label">
+                                            <i class="fa fa-print"></i>
+                                        </span>
+                                        Print
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="chart-container" style="min-height: 375px">
+                                <canvas id="statisticsChart"></canvas>
+                            </div>
+                            <div id="myChartLegend"></div>
+                        </div>
+                    </div>
+                </div>
 
             </div>
+
         </div>
     </div>
-
-
-
-    <div class="col-6 col-sm-7 col-md-8 mt-3">
+</div>
+<div class="row">
+    <div class="col-md-4">
         <div class="col-12 ">
             Review Id is:
             <h5>@Model.RevInfo.ReviewId</h5>
@@ -332,25 +528,21 @@
         <div class="col-12 ">
             This web DB will only show items with this code:
             <div>@ViewBag.AttName (ID: @ViewBag.AttId)</div>
-            <a class="btn btn-outline-success" asp-controller="ItemList" asp-action="Index">
-                Got to list
-            </a>
+            <div class="col-7 col-md-8 row mx-0 p-0">
+                <div>
+                    <div><b>@Model.WebDb.WebDBId</b></div>
+
+                    <div>This WebDatabase uses EPPI-Reviewer data from the  review called: <b>@Model.RevInfo.ReviewName</b></div>
+                </div>
+            </div>
         </div>
         <div class="col-12 " id="CurrentNode">
             <div class="row">Selected code: <span class="ml-1 font-weight-bold" id="CurrentNodeName"></span></div>
+            <div class="row">Selected code: <span class="ml-1 font-weight-bold" id="CurrentNodeNameCT"></span></div>
             <div class="row">Selected Id: <span class="ml-1 font-weight-bold" id="CurrentNodeId"></span></div>
             <div class="row">Selected SetId: <span class="ml-1 font-weight-bold" id="CurrentNodeSetId"></span></div>
             <div class="row">Is a coding tool: <span class="ml-1 font-weight-bold" id="CurrentNodeIsCodeSet"></span></div>
-            <button class="btn-outline-primary btn btn-sm" onclick="GoToFreq()" disabled id="CurrentNodeGoToFreq">Freq</button>
-
-
-
-
-            
 
         </div>
-
     </div>
-
-
 </div>

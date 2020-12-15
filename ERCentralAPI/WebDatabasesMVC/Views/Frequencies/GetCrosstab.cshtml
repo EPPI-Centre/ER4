@@ -23,75 +23,77 @@ Crosstab!
 <input type="hidden" value="@Model.WebDbId" name="webDbId" id="webDbIdCrit"/>
 
 
-<table class="table table-striped">
-    <tr>
-        <th></th>
-        @for (int i = 0; i < Model.ColumnAttIDs.Count; i++)
-        {
-            <th>
-                @Model.ColumnAttNames[i]
-            </th>
-        }
-
-    </tr>
-    @foreach (WebDbItemAttributeCrosstabRow row in Model.Rows)
-    {
+<div class="main-panel main-panel-no-sidebar">
+    <table class="content-full table table-striped">
         <tr>
-            <th>@row.AttributeName</th>
+            <th></th>
             @for (int i = 0; i < Model.ColumnAttIDs.Count; i++)
             {
-                @if (row.Counts[i] == 0)
-                {
-                    <td>
-                        0
-                    </td>
-                }
-                else if (row == Model.Rows[Model.Rows.Count - 1])
-                {//last row, with column header, without all the row codes
-                    string with = Model.ColumnAttIDs[i].ToString();
-                    string without = "";
-                    string withoutSets = "";
-                    string descript = "Listing &#39;None of the above&#39; crosstab result for the code: " + Model.ColumnAttNames[i].Replace("'", "&#39;");
-                    for (int ri = 0; ri < Model.Rows.Count - 1; ri++)//skip last row!
-                    {
-                        without += Model.Rows[ri].AttributeId.ToString() + ",";
-                        withoutSets += @Model.SetIdY.ToString() + ",";
-                    }
-                    without = without.TrimEnd(',');
-                    withoutSets = withoutSets.TrimEnd(',');
-                    <th style="background-color: rgba(211, 211, 255, 0.20)">
-                        <a href="javascript:GoToItems('@with', '@Model.SetIdX.ToString()', '@without', '@withoutSets', '@descript')">@row.Counts[i]</a>
-                    </th>
-                }
-                else if (i == Model.ColumnAttIDs.Count - 1)
-                {//last cell with row header, without all the column codes
-                    string with = row.AttributeId.ToString();
-                    string without = "";
-                    string withoutSets = "";
-                    string descript = "Listing &#39;None of these&#39; crosstab result for the code: " + row.AttributeName.Replace("'", "&#39;");
-                    for (int ci = 0; ci < row.Counts.Count - 1; ci++)//skip last column!
-                    {
-                        without += Model.ColumnAttIDs[ci].ToString() + ",";
-                        withoutSets += @Model.SetIdX.ToString() + ",";
-                    }
-                    without = without.TrimEnd(',');
-                    withoutSets = withoutSets.TrimEnd(',');
-                    <th style="background-color:rgba(211, 211, 255, 0.20)">
-                        <a href="javascript:GoToItems('@with', '@Model.SetIdY.ToString()', '@without', '@withoutSets', '@descript')">@row.Counts[i]</a>
-                    </th>
-                }
-                else
-                {//normal cell, with row and col codes
-                    string with = row.AttributeId.ToString() + "," + Model.ColumnAttIDs[i].ToString();
-                    string withSets = Model.SetIdY.ToString() + "," + Model.SetIdX.ToString();
-                    string descript = "Listing crosstab result for the codes (x,y): " + Model.ColumnAttNames[i].Replace("'", "&#39;") + ", " + row.AttributeName.Replace("'", "&#39;");
-
-                    <th style="background-color:rgba(211, 211, 255, 0.20)">
-                        <a href="javascript:GoToItems('@with', '@withSets', '', '', '@descript')">@row.Counts[i]</a>
-                    </th>
-                }
+                <th>
+                    @Model.ColumnAttNames[i]
+                </th>
             }
+
         </tr>
-    }
-</table>
+        @foreach (WebDbItemAttributeCrosstabRow row in Model.Rows)
+        {
+            <tr>
+                <th>@row.AttributeName</th>
+                @for (int i = 0; i < Model.ColumnAttIDs.Count; i++)
+                {
+                    @if (row.Counts[i] == 0)
+                    {
+                        <td>
+                            0
+                        </td>
+                    }
+                    else if (row == Model.Rows[Model.Rows.Count - 1])
+                    {//last row, with column header, without all the row codes
+                        string with = Model.ColumnAttIDs[i].ToString();
+                        string without = "";
+                        string withoutSets = "";
+                        string descript = "Listing &#39;None of the above&#39; crosstab result for the code: " + Model.ColumnAttNames[i].Replace("'", "&#39;");
+                        for (int ri = 0; ri < Model.Rows.Count - 1; ri++)//skip last row!
+                        {
+                            without += Model.Rows[ri].AttributeId.ToString() + ",";
+                            withoutSets += @Model.SetIdY.ToString() + ",";
+                        }
+                        without = without.TrimEnd(',');
+                        withoutSets = withoutSets.TrimEnd(',');
+                        <th style="background-color: rgba(211, 211, 255, 0.20)">
+                            <a href="javascript:GoToItems('@with', '@Model.SetIdX.ToString()', '@without', '@withoutSets', '@descript')">@row.Counts[i]</a>
+                        </th>
+                    }
+                    else if (i == Model.ColumnAttIDs.Count - 1)
+                    {//last cell with row header, without all the column codes
+                        string with = row.AttributeId.ToString();
+                        string without = "";
+                        string withoutSets = "";
+                        string descript = "Listing &#39;None of these&#39; crosstab result for the code: " + row.AttributeName.Replace("'", "&#39;");
+                        for (int ci = 0; ci < row.Counts.Count - 1; ci++)//skip last column!
+                        {
+                            without += Model.ColumnAttIDs[ci].ToString() + ",";
+                            withoutSets += @Model.SetIdX.ToString() + ",";
+                        }
+                        without = without.TrimEnd(',');
+                        withoutSets = withoutSets.TrimEnd(',');
+                        <th style="background-color:rgba(211, 211, 255, 0.20)">
+                            <a href="javascript:GoToItems('@with', '@Model.SetIdY.ToString()', '@without', '@withoutSets', '@descript')">@row.Counts[i]</a>
+                        </th>
+                    }
+                    else
+                    {//normal cell, with row and col codes
+                        string with = row.AttributeId.ToString() + "," + Model.ColumnAttIDs[i].ToString();
+                        string withSets = Model.SetIdY.ToString() + "," + Model.SetIdX.ToString();
+                        string descript = "Listing crosstab result for the codes (x,y): " + Model.ColumnAttNames[i].Replace("'", "&#39;") + ", " + row.AttributeName.Replace("'", "&#39;");
+
+                        <th style="background-color:rgba(211, 211, 255, 0.20)">
+                            <a href="javascript:GoToItems('@with', '@withSets', '', '', '@descript')">@row.Counts[i]</a>
+                        </th>
+                    }
+                }
+            </tr>
+        }
+    </table>
+</div>
 

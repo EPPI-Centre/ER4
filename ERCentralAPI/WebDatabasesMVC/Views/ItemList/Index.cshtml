@@ -1,97 +1,103 @@
 ﻿@model ItemListWithCriteria
 @using BusinessLibrary.BusinessClasses
 
-<div class="alert-info row col-12 mx-0 mb-1">
-    @if (Model.items.PageCount > 1)
-{
+<div class="main-panel main-panel-no-sidebar">
+    <div class="content-full">
+        <div class="alert-info row col-12 mx-0 mb-1">
+            @if (Model.items.PageCount > 1)
+            {
 
-    <form asp-controller="ItemList" asp-action="ListFromCrit" method="post" class="form-inline">
-        <button class="btn btn-outline-danger px-1 py-0 m-1" type="submit" disabled="@(Model.items.PageIndex == 0)"
-                name="PageNumber" value="@(Model.items.PageIndex - 1)">
-            Previous
-        </button>
-        <button class="btn btn-outline-danger px-1 py-0 m-1" type="submit" disabled="@(Model.items.PageIndex == Model.items.PageCount - 1)"
-                name="PageNumber" value="@(Model.items.PageIndex + 1)">
-            Next
-        </button>
-        <input type="hidden" value="@Model.criteria.onlyIncluded.ToString()" name="onlyIncluded" />
-        <input type="hidden" value="@Model.criteria.showDeleted" name="showDeleted" />
-        <input type="hidden" value="@Model.criteria.sourceId" name="sourceId" />
-        <input type="hidden" value="@Model.criteria.searchId" name="searchId" />
-        <input type="hidden" value="@Model.criteria.xAxisSetId" name="xAxisSetId" />
-        <input type="hidden" value="@Model.criteria.xAxisAttributeId" name="xAxisAttributeId" />
-        <input type="hidden" value="@Model.criteria.yAxisSetId" name="yAxisSetId" />
-        <input type="hidden" value="@Model.criteria.yAxisAttributeId" name="yAxisAttributeId" />
-        <input type="hidden" value="@Model.criteria.filterSetId" name="filterSetId" />
-        <input type="hidden" value="@Model.criteria.filterAttributeId" name="filterAttributeId" />
-        <input type="hidden" value="@Model.criteria.attributeSetIdList" name="attributeSetIdList" />
-        <input type="hidden" value="@Model.criteria.listType" name="listType" />
-        <input type="hidden" value="@Model.criteria.pageNumber" name="pageNumber" />
-        <input type="hidden" value="@Model.criteria.pageSize" name="pageSize" />
-        <input type="hidden" value="@Model.criteria.workAllocationId" name="workAllocationId" />
-        <input type="hidden" value="@Model.criteria.magSimulationId" name="magSimulationId" />
-        <input type="hidden" value="@Model.criteria.comparisonId" name="comparisonId" />
-        <input type="hidden" value="@Model.criteria.description" name="description" />
-        <input type="hidden" value="@Model.criteria.contactId" name="contactId" />
-        <input type="hidden" value="@Model.criteria.setId" name="setId" />
-        <input type="hidden" value="@Model.criteria.showInfoColumn" name="showInfoColumn" />
-        <input type="hidden" value="@Model.criteria.showScoreColumn" name="showScoreColumn" />
-        <input type="hidden" value="@Model.criteria.webDbId" name="webDbId" />
-        <input type="hidden" value="@Model.criteria.withAttributesIds" name="withAttributesIds" />
-        <input type="hidden" value="@Model.criteria.withSetIdsList" name="withSetIdsList" />
-        <input type="hidden" value="@Model.criteria.withOutAttributesIdsList" name="withOutAttributesIdsList" />
-        <input type="hidden" value="@Model.criteria.withOutSetIdsList" name="withOutSetIdsList" />
-        <input type="hidden" value="@Model.criteria.searchWhat" name="searchWhat" />
-        <input type="hidden" value="@Model.criteria.searchString" name="searchString" />
-    </form>
-    <div class="my-auto">Page: @(Model.items.PageIndex + 1) of @(Model.items.PageCount).</div>
-} else {<div class=" px-1 py-0 m-1">&nbsp;</div>}
-    @if(@Model.criteria.description != "") {<div class="ml-2 my-auto px-1 alert-light rounded">@Model.criteria.description</div>}
-</div>
-<div class="bg-light col-12 m-0 ">
-    <div>
-        <div class="row border-top border-dark m-0">
-            <div class="col">
-                <div class="">Id: </div>
-            </div>
-            <div class="col-2">
-                <div class="">Short title: </div>
-            </div>
-            <div class="col-8">
-                <div class="">Title: </div>
-            </div>
-            <div class="col">
-                <div class="">Year: </div>
-            </div>
+                <form asp-controller="ItemList" asp-action="ListFromCrit" method="post" class="form-inline">
+                    <button class="btn btn-outline-danger px-1 py-0 m-1" type="submit" disabled="@(Model.items.PageIndex == 0)"
+                            name="PageNumber" value="@(Model.items.PageIndex - 1)">
+                        Previous
+                    </button>
+                    <button class="btn btn-outline-danger px-1 py-0 m-1" type="submit" disabled="@(Model.items.PageIndex == Model.items.PageCount - 1)"
+                            name="PageNumber" value="@(Model.items.PageIndex + 1)">
+                        Next
+                    </button>
+                    <input type="hidden" value="@Model.criteria.onlyIncluded.ToString()" name="onlyIncluded" />
+                    <input type="hidden" value="@Model.criteria.showDeleted" name="showDeleted" />
+                    <input type="hidden" value="@Model.criteria.sourceId" name="sourceId" />
+                    <input type="hidden" value="@Model.criteria.searchId" name="searchId" />
+                    <input type="hidden" value="@Model.criteria.xAxisSetId" name="xAxisSetId" />
+                    <input type="hidden" value="@Model.criteria.xAxisAttributeId" name="xAxisAttributeId" />
+                    <input type="hidden" value="@Model.criteria.yAxisSetId" name="yAxisSetId" />
+                    <input type="hidden" value="@Model.criteria.yAxisAttributeId" name="yAxisAttributeId" />
+                    <input type="hidden" value="@Model.criteria.filterSetId" name="filterSetId" />
+                    <input type="hidden" value="@Model.criteria.filterAttributeId" name="filterAttributeId" />
+                    <input type="hidden" value="@Model.criteria.attributeSetIdList" name="attributeSetIdList" />
+                    <input type="hidden" value="@Model.criteria.listType" name="listType" />
+                    <input type="hidden" value="@Model.criteria.pageNumber" name="pageNumber" />
+                    <input type="hidden" value="@Model.criteria.pageSize" name="pageSize" />
+                    <input type="hidden" value="@Model.criteria.workAllocationId" name="workAllocationId" />
+                    <input type="hidden" value="@Model.criteria.magSimulationId" name="magSimulationId" />
+                    <input type="hidden" value="@Model.criteria.comparisonId" name="comparisonId" />
+                    <input type="hidden" value="@Model.criteria.description" name="description" />
+                    <input type="hidden" value="@Model.criteria.contactId" name="contactId" />
+                    <input type="hidden" value="@Model.criteria.setId" name="setId" />
+                    <input type="hidden" value="@Model.criteria.showInfoColumn" name="showInfoColumn" />
+                    <input type="hidden" value="@Model.criteria.showScoreColumn" name="showScoreColumn" />
+                    <input type="hidden" value="@Model.criteria.webDbId" name="webDbId" />
+                    <input type="hidden" value="@Model.criteria.withAttributesIds" name="withAttributesIds" />
+                    <input type="hidden" value="@Model.criteria.withSetIdsList" name="withSetIdsList" />
+                    <input type="hidden" value="@Model.criteria.withOutAttributesIdsList" name="withOutAttributesIdsList" />
+                    <input type="hidden" value="@Model.criteria.withOutSetIdsList" name="withOutSetIdsList" />
+                    <input type="hidden" value="@Model.criteria.searchWhat" name="searchWhat" />
+                    <input type="hidden" value="@Model.criteria.searchString" name="searchString" />
+                </form>
+                <div class="my-auto">Page: @(Model.items.PageIndex + 1) of @(Model.items.PageCount).</div>
+            }
+            else
+            {<div class=" px-1 py-0 m-1">&nbsp;</div>}
+            @if (@Model.criteria.description != "")
+            {<div class="ml-2 my-auto px-1 alert-light rounded">@Model.criteria.description</div>}
         </div>
-    </div>
-    <div style="max-height:80vh; overflow:auto">
-        @foreach (Item itm in Model.items)
-        {
-            <div class="row border-top border-dark m-0">
-                <div class="col border-dark border-right">
-                    <div class="bg-white">
-                        <form asp-controller="ItemList" asp-action="ItemDetails" method="post" class="form-inline">
-                            <button class="btn btn-link px-1 py-0 m-1" type="submit"
-                                    name="itemId" value="@itm.ItemId">
-                                @itm.ItemId
-                            </button>
-                        </form>
+        <div class="bg-light col-12 m-0 ">
+            <div>
+                <div class="row border-top border-dark m-0">
+                    <div class="col">
+                        <div class="">Id: </div>
+                    </div>
+                    <div class="col-2">
+                        <div class="">Short title: </div>
+                    </div>
+                    <div class="col-8">
+                        <div class="">Title: </div>
+                    </div>
+                    <div class="col">
+                        <div class="">Year: </div>
                     </div>
                 </div>
-                <div class="col-2 border-dark border-right">
-                    <div class="bg-white">@itm.ShortTitle</div>
-                </div>
-                <div class="col-8 border-dark border-right">
-                    <div class="bg-white">@itm.Title</div>
-                </div>
-                <div class="col border-dark">
-                    <div class="bg-white">@itm.Year</div>
-                </div>
             </div>
-        }
+            <div style="max-height:80vh; overflow:auto">
+                @foreach (Item itm in Model.items)
+                {
+                    <div class="row border-top border-dark m-0">
+                        <div class="col border-dark border-right">
+                            <div class="bg-white">
+                                <form asp-controller="ItemList" asp-action="ItemDetails" method="post" class="form-inline">
+                                    <button class="btn btn-link px-1 py-0 m-1" type="submit"
+                                            name="itemId" value="@itm.ItemId">
+                                        @itm.ItemId
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="col-2 border-dark border-right">
+                            <div class="bg-white">@itm.ShortTitle</div>
+                        </div>
+                        <div class="col-8 border-dark border-right">
+                            <div class="bg-white">@itm.Title</div>
+                        </div>
+                        <div class="col border-dark">
+                            <div class="bg-white">@itm.Year</div>
+                        </div>
+                    </div>
+                }
+            </div>
+            <form id="SelectionCriteria" hidden data="@Model.criteria">
+            </form>
+        </div>
     </div>
-    <form id="SelectionCriteria" hidden data="@Model.criteria">
-        
-    </form>
 </div>

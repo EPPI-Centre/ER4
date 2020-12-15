@@ -768,6 +768,11 @@ body {
     overflow: hidden;
     border-top: 1px solid #ebecec; }
 
+.main-panel-no-sidebar {
+    width: 100% !important;
+}
+
+
 /*      Page Wrapper      */
 .page-wrapper {
   min-height: calc(100vh - 57px);

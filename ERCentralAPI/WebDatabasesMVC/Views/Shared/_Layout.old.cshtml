@@ -1,0 +1,133 @@
+﻿@using System.IO;
+@using System.Security.Claims;
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewBag.WebDbName</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link href="~/css/Kendo/kendo.bootstrap-v4.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="~/css/site.css" />
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/Kendo/kendo.all.min.js"></script>
+    <script>
+        function postwith(to, p) {
+            //https://mentaljetsam.wordpress.com/2008/06/02/using-javascript-to-post-data-between-pages/
+            var myForm = document.createElement("form");
+            myForm.style.display = "none";
+            myForm.method = "post";
+            myForm.action = to;
+            for (var k in p) {
+                var myInput = document.createElement("input");
+                myInput.setAttribute("name", k);
+                myInput.setAttribute("value", p[k]);
+                myForm.appendChild(myInput);
+            }
+            document.body.appendChild(myForm);
+            myForm.submit();
+            document.body.removeChild(myForm);
+        };
+        function GoToItems(AttId, AttName = '') {
+            if (AttId == -999999) {
+                var included = $('#includedCrit').val();
+                var attributeIdXAxis = $('#attributeIdXAxisCrit').val();
+                var setIdXAxis = $('#setIdXAxisCrit').val();
+                var onlyThisAttribute = $('#onlyThisAttributeCrit').val();
+                var webDbId = $('#webDbIdCrit').val();
+                postwith("../ItemList/GetFreqListNoneOfTheAbove",
+                    {
+                        attributeIdXAxis: attributeIdXAxis, setId: setIdXAxis, included: included
+                        , onlyThisAttribute: onlyThisAttribute, webDbId: webDbId, attName: AttName.replaceAll('&#39;', '\'')
+                    });
+            } else {
+                postwith("../ItemList/GetFreqList", { attId: AttId, attName: AttName.replaceAll('&#39;', '\'')});
+            }
+        };
+    </script>
+</head>
+<body>
+    <header>
+        @{
+        Claim WebDbIDclaim = User.FindFirst("WebDbID");
+        string imgPath1 = "";
+        string imgPath2 = "";
+        if (WebDbIDclaim != null)
+        {
+        var service = Context.RequestServices.GetService(typeof(Microsoft.AspNetCore.Hosting.IWebHostEnvironment)) as Microsoft.AspNetCore.Hosting.IWebHostEnvironment;
+            string absolutePath = service.WebRootPath + "\\HeaderImages\\";
+            if(System.IO.File.Exists(absolutePath + "Img-" + WebDbIDclaim.Value + "-1.jpg")) imgPath1 =  Url.Content("~/HeaderImages/Img-" + WebDbIDclaim.Value + "-1.jpg");
+            else if (System.IO.File.Exists(absolutePath + "Img-" + WebDbIDclaim.Value + "-1.png")) imgPath1 =  Url.Content("~/HeaderImages/Img-" + WebDbIDclaim.Value + "-1.png");
+            if(System.IO.File.Exists(absolutePath + "Img-" + WebDbIDclaim.Value + "-2.jpg")) imgPath2 =  Url.Content("~/HeaderImages/Img-" + WebDbIDclaim.Value + "-2.jpg");
+            else if (System.IO.File.Exists(absolutePath + "Img-" + WebDbIDclaim.Value + "-2.png")) imgPath2 = Url.Content("~/HeaderImages/Img-" + WebDbIDclaim.Value + "-2.png");
+        }
+        }
+
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+            @if (imgPath1 != "")
+                {
+            <img src=@imgPath1 style="max-height: 100px; object-fit: cover;" class="float-left" />
+                }
+            <div class="container">
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">@ViewBag.WebDbName</a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse">
+                    <ul class="navbar-nav flex-grow-1">
+                        @*<li class="nav-item">
+            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+        </li>*@
+                        @if (User.Identity.IsAuthenticated)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Review" asp-action="Index">Review Home</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="TestPage" asp-action="Index">Test page</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="TestPage2" asp-action="Index">Test page 2</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="ItemList" asp-action="Index">Items</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Login" asp-action="Logout">Logout</a>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Login" asp-action="Index">Login</a>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </div>
+
+            @if (imgPath2 != "")
+                {
+            <img src=@imgPath2 style="max-height: 100px; object-fit: cover;" class="float-left" />
+                }
+
+        </nav>
+    </header>
+    <div class="m-3 p-3 ">
+        <main role="main" class="pb-1">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="border-top footer text-muted">
+        <div class="container">
+            &copy; 2020 - @ViewBag.WebDbName - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+        </div>
+    </footer>
+
+    @RenderSection("Scripts", required: false)
+</body>
+</html>
