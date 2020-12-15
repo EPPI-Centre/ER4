@@ -1,0 +1,278 @@
+﻿@using System.IO;
+@using System.Security.Claims;
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewBag.WebDbName</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link href="~/css/Kendo/kendo.bootstrap-v4.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="~/css/site.css" />
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/Kendo/kendo.all.min.js"></script>
+    <script>
+        function postwith(to, p) {
+            //https://mentaljetsam.wordpress.com/2008/06/02/using-javascript-to-post-data-between-pages/
+            var myForm = document.createElement("form");
+            myForm.style.display = "none";
+            myForm.method = "post";
+            myForm.action = to;
+            for (var k in p) {
+                var myInput = document.createElement("input");
+                myInput.setAttribute("name", k);
+                myInput.setAttribute("value", p[k]);
+                myForm.appendChild(myInput);
+            }
+            document.body.appendChild(myForm);
+            myForm.submit();
+            document.body.removeChild(myForm);
+        };
+        function GoToItems(AttId, AttName = '') {
+            if (AttId == -999999) {
+                var included = $('#includedCrit').val();
+                var attributeIdXAxis = $('#attributeIdXAxisCrit').val();
+                var setIdXAxis = $('#setIdXAxisCrit').val();
+                var onlyThisAttribute = $('#onlyThisAttributeCrit').val();
+                var webDbId = $('#webDbIdCrit').val();
+                postwith("../ItemList/GetFreqListNoneOfTheAbove",
+                    {
+                        attributeIdXAxis: attributeIdXAxis, setId: setIdXAxis, included: included
+                        , onlyThisAttribute: onlyThisAttribute, webDbId: webDbId, attName: AttName.replaceAll('&#39;', '\'')
+                    });
+            } else {
+                postwith("../ItemList/GetFreqList", { attId: AttId, attName: AttName.replaceAll('&#39;', '\'') });
+            }
+        };
+
+    </script>
+
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>EPPI-Centre WebDatabase Application</title>
+    <meta content='width=device-width, initial-scale=1.0, shrink-to-fit=no' name='viewport' />
+    <link rel="icon" href="../assets/img/EPPI-Centre.ico" type="image/x-icon" />
+
+    <!-- Fonts and icons -->
+    <script src="../assets/js/plugin/webfont/webfont.min.js"></script>
+    <script>
+        WebFont.load({
+            google: { "families": ["Lato:300,400,700,900"] },
+            custom: { "families": ["Flaticon", "Font Awesome 5 Solid", "Font Awesome 5 Regular", "Font Awesome 5 Brands", "simple-line-icons"], urls: ['../assets/css/fonts.min.css'] },
+            active: function () {
+                sessionStorage.fonts = true;
+            }
+        });
+    </script>
+
+    <!-- CSS Files -->
+    <link rel="stylesheet" href="../assets/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../assets/css/atlantis.css">
+
+    <!-- CSS Just for demo purpose, don't include it in your project -->
+    <link rel="stylesheet" href="../assets/css/demo.css">
+</head>
+<body>
+
+
+
+
+
+
+
+
+
+    <div class="wrapper">
+
+
+
+
+        <div class="main-header">
+            <form method="post" asp-controller="Login" asp-action="DoLogin">
+
+                <div class="row">
+                    <div class="col-md-2 logo-header" data-background-color="blue">
+                        <img src="../assets/img/logo.svg" alt="navbar brand" class="navbar-brand">
+                    </div>
+                    
+                    <div class="col-md-2" style="background-color:#1269DB">
+                        <table>
+                            <tr>
+                                <td style="padding:5px 0px 0px 0px">
+                                    <input class="p-2 align-self-center m-1" id="id" placeholder="Webdatabase ID" name="id" type="text" />
+                                </td>
+                            </tr>
+                        </table>
+                        
+                    </div>
+
+                    <div class="col-md-8" style="background-color:#1269DB">
+                        <table>
+                            <tr>
+                                <td style="padding:5px 0px 0px 0px">
+                                    <input class="p-2 align-self-center m-1" id="username" placeholder="Username" name="username" type="text" />
+                                    <input class="p-2 align-self-center m-1" id="password" placeholder="Password" name="password" type="password" />
+                                    <input class="p-2 btn btn-success btn-round btn-sm" type="submit" value="Access" />
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+
+                </div>
+            </form>
+
+        </div>
+
+
+
+        @RenderBody()
+
+        <!-- End Custom template -->
+    </div>
+
+
+
+    <!-- Logo Header -->
+    <!--<div class="logo-header" data-background-color="blue">
+
+        <a href="index.html" class="logo">
+            <img src="../assets/img/logo.svg" alt="navbar brand" class="navbar-brand">
+        </a>
+        <button class="navbar-toggler sidenav-toggler ml-auto" type="button" data-toggle="collapse" data-target="collapse" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon">
+                <i class="icon-menu"></i>
+            </span>
+        </button>
+        <button class="topbar-toggler more"><i class="icon-options-vertical"></i></button>
+        <div class="nav-toggle">
+            <button class="btn btn-toggle toggle-sidebar">
+                <i class="icon-menu"></i>
+            </button>
+        </div>
+    </div>-->
+    <!-- End Logo Header -->
+    <!-- Navbar Header -->
+    <!--<nav class="navbar navbar-header navbar-expand-lg" data-background-color="blue2">
+
+        <div class="container-fluid">
+            <form asp-controller="ItemList" asp-action="GetListSearchResults" method="post" class="navbar-left navbar-form nav-search mr-md-3">
+                <table>
+                    <tr>
+                        <td>
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <button type="submit" class="btn btn-search pr-1">
+                                        <i class="fa fa-search search-icon"></i>
+                                    </button>
+                                </div>
+                                <input type="text" placeholder="Search records..." class="form-control" maxlength="4000" name="SearchString" id="SearchString" />
+                            </div>
+                        </td>
+                        <td>
+                            <div class="col-auto">
+                                <select name="SearchWhat" id="SearchWhat" class="btn btn-light dropdown-toggle ml-1 mr-2">
+                                    <option value="TitleAbstract">Title and Abstract</option>
+                                    <option value="Title">Title</option>
+                                    <option value="Abstract">Abstract</option>
+                                    <option value="Authors">Authors</option>
+                                    <option value="PubYear">Publication Year</option>
+                                    <option value="AdditionalText">"Coded" Text</option>
+                                    <option value="ItemId">ItemIds (comma separated)</option>
+                                    <option value="OldItemId">Imported Ids (comma separated)</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <input type="radio" style="display:none" class="ml-auto my-auto" id="includedt" name="included" value="true" checked>
+                            </div>
+                        </td>
+                        <td>
+
+                            <button class="btn btn-info" type="submit" style="display:none">
+                                Search
+                            </button>
+                        </td>
+                    </tr>
+                </table>
+            </form>
+            <ul class="navbar-nav topbar-nav ml-md-auto align-items-center">
+                <li class="nav-item toggle-nav-search hidden-caret">
+                    <a class="nav-link" data-toggle="collapse" href="#search-nav" role="button" aria-expanded="false" aria-controls="search-nav">
+                        <i class="fa fa-search"></i>
+                    </a>
+                </li>
+
+
+
+                <a href="https://localhost:44314/Review" class="btn btn-white btn-border btn-round mr-2">Home</a>
+                <a href="https://localhost:44314/Login/Logout" class="btn btn-info btn-round">Logout</a>&nbsp;&nbsp;&nbsp;
+
+
+
+
+
+            </ul>
+        </div>
+    </nav>-->
+    <!-- End Navbar -->
+    <!--   Core JS Files   -->
+    <!--<script src="../assets/js/core/jquery.3.2.1.min.js"></script>-->
+    <script src="../assets/js/core/popper.min.js"></script>
+    <script src="../assets/js/core/bootstrap.min.js"></script>
+
+    <!-- jQuery UI -->
+    <script src="../assets/js/plugin/jquery-ui-1.12.1.custom/jquery-ui.min.js"></script>
+    <script src="../assets/js/plugin/jquery-ui-touch-punch/jquery.ui.touch-punch.min.js"></script>
+
+    <!-- jQuery Scrollbar -->
+    <script src="../assets/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js"></script>
+
+
+    <!-- Chart JS -->
+    <script src="../assets/js/plugin/chart.js/chart.min.js"></script>
+
+    <!-- jQuery Sparkline -->
+    <script src="../assets/js/plugin/jquery.sparkline/jquery.sparkline.min.js"></script>
+
+    <!-- Chart Circle -->
+    <script src="../assets/js/plugin/chart-circle/circles.min.js"></script>
+
+    <!-- Datatables -->
+    <script src="../assets/js/plugin/datatables/datatables.min.js"></script>
+
+    <!-- Bootstrap Notify -->
+    <script src="../assets/js/plugin/bootstrap-notify/bootstrap-notify.min.js"></script>
+    <!-- jQuery Vector Maps -->
+    <script src="../assets/js/plugin/jqvmap/jquery.vmap.min.js"></script>
+    <script src="../assets/js/plugin/jqvmap/maps/jquery.vmap.world.js"></script>
+
+    <!-- Sweet Alert -->
+    <script src="../assets/js/plugin/sweetalert/sweetalert.min.js"></script>
+    <!-- Atlantis JS -->
+    <script src="../assets/js/atlantis.min.js"></script>
+
+</body>
+</html>
+
+
+
+
+
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>@ViewBag.Title</title>
+</head>
+<body>
+    <div>
+        @RenderBody()
+    </div>
+</body>
+</html>
