@@ -40,7 +40,7 @@
             myForm.submit();
             document.body.removeChild(myForm);
         };
-        function GoToItems(AttId) {
+        function GoToItems(AttId, AttName = '') {
             if (AttId == -999999) {
                 var included = $('#includedCrit').val();
                 var attributeIdXAxis = $('#attributeIdXAxisCrit').val();
@@ -50,10 +50,10 @@
                 postwith("../ItemList/GetFreqListNoneOfTheAbove",
                     {
                         attributeIdXAxis: attributeIdXAxis, setId: setIdXAxis, included: included
-                        , onlyThisAttribute: onlyThisAttribute, webDbId: webDbId
+                        , onlyThisAttribute: onlyThisAttribute, webDbId: webDbId, attName: AttName.replaceAll('&#39;', '\'')
                     });
             } else {
-                postwith("../ItemList/GetFreqList", { attId: AttId });
+                postwith("../ItemList/GetFreqList", { attId: AttId, attName: AttName.replaceAll('&#39;', '\'') });
             }
         };
     </script>
@@ -238,9 +238,9 @@
                 $("#FrequenciesGrid").html("");
             }
         }
-        function GetFreqLinkContent(attId, count) {
+        function GetFreqLinkContent(attId, count, attName) {
             if (count == 0) return "0";
-            else return '<a href="javascript:GoToItems(' + attId+ ')" style="color: #007bff!important;">' + count.toString() + '</a>';
+            else return '<a href="javascript:GoToItems(' + attId + ', \'' + attName.replaceAll('\'', '\\\'')+ '\')" style="color: #007bff!important;">' + count.toString() + '</a>';
         }
         function GoToCrosstab(isSelfXtab) {
             console.log("CurrentNodeGoToCrosstab");
@@ -647,9 +647,9 @@
                                                 #= attribute #
                                             </td>
                                             <td class="px-1 py-0 border-bottom small w-25">
-                                                #= GetFreqLinkContent(attributeId, itemCount) #
+                                                #= GetFreqLinkContent(attributeId, itemCount, attribute) #
                                                 @*<a href="#= if(itemCount == 0 ) {'0'} else { 'javascript:GoToItems(' + attributeId +')'#" style="color: #007bff!important;">#= itemCount #</a>
-                                                  <a href="javascript:GoToItems(#= attributeId #)" style="color: #007bff!important;">#= itemCount #</a>*@
+                                                <a href="javascript:GoToItems(#= attributeId #)" style="color: #007bff!important;">#= itemCount #</a>*@
                                             </td>
                                         </tr>
                                     </script>
