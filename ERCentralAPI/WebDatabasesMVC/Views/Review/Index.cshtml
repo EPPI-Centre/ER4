@@ -78,9 +78,32 @@
             select: TreeViewSelection
         });
         treeviewData = $("#treeView").data("kendoTreeView");
-
+        const descrPanel = $("#WebDBDescription");
+        console.log("descrPanel:", descrPanel, descrPanel.height());
+        if (descrPanel && descrPanel.height() > 300) {
+            //ExpandDescription ReduceDescription
+            $("#ExpandDescription").show();
+            $("#ReduceDescription").hide();
+            descrPanel.css("max-height", "250px");
+        } else {
+            $("#ExpandDescription").hide();
+            $("#ReduceDescription").hide();
+        }
         //$("#treeView").data("kendoTreeView").bind("change", TreeViewSelection);
     });
+    function ToggleDescrPanelSize() {
+        const descrPanel = $("#WebDBDescription");
+        if (descrPanel) {
+            if (descrPanel.css("max-height") == "250px") {
+                descrPanel.css("max-height", "");
+            }
+            else {
+                descrPanel.css("max-height", "250px");
+            }
+            $("#ExpandDescription").toggle();
+            $("#ReduceDescription").toggle();
+        }
+    }
     function tree_dataBound(e) {
         console.log("DataBound", e.node);
     }
@@ -374,7 +397,17 @@
                             <div class="card-title">Introduction</div>
                         </div>
                         <div class="card-body">
-                            <div class="card-category">@(new HtmlString(Model.WebDb.WebDBDescription))</div>
+                            <div class="card-category" id="WebDBDescription" style="overflow-y:auto;">
+                                @(new HtmlString(Model.WebDb.WebDBDescription))
+                                <div id="ExpandDescription" class="btn btn-sm btn-primary px-1 py-0 mb-3 mr-3" onclick="ToggleDescrPanelSize()"
+                                     style="position: absolute; right: 20px; bottom: 5px;">
+                                    View All...
+                                </div>
+                                <div id="ReduceDescription" class="btn btn-sm btn-primary px-1 py-0 mb-3 mr-3" onclick="ToggleDescrPanelSize()"
+                                     style="position: absolute; right: 1px; bottom: 5px;">
+                                    View Less...
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div class="card ">
