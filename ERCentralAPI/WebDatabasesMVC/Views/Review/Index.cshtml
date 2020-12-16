@@ -349,10 +349,16 @@
                         <h5 class="text-white op-7 mb-2">Public health interventions within the community.</h5>
                     </div>
                     <div class="col-md-3">
-                        <img src=@imgPath1 style="max-height: 60px; object-fit: cover;" class="pb-2 float-sm-left float-md-left float-lg-right" />
+                        @if (@imgPath1 != "")
+                        {
+                            <img src=@imgPath1 style="max-height: 60px; object-fit: cover;" class="pb-2 float-sm-left float-md-left float-lg-right" />
+                        }
                     </div>
                     <div class="col-md-3">
-                        <img src=@imgPath2 style="max-height: 60px; object-fit: cover;" class="pb-2 float-sm-left float-md-left float-lg-right" />
+                        @if (@imgPath2 != "")
+                        {
+                            <img src=@imgPath2 style="max-height: 60px; object-fit: cover;" class="pb-2 float-sm-left float-md-left float-lg-right" />
+                        }
                     </div>
 
                 </div>
