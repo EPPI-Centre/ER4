@@ -394,19 +394,33 @@
                 <div class="col-md-8">
                     <div class="card ">
                         <div class="card-header">
-                            <div class="card-title">Introduction</div>
+                            <table width="100%">
+                                <tr>
+                                    <td>
+                                        <div class="card-title">Introduction</div>
+                                    </td>
+                                    <td style="text-align:right;padding-top:5px">
+                                        <div id="ExpandDescription" class="btn btn-primary btn-sm btn-round"
+                                             onclick="ToggleDescrPanelSize()">
+                                            <div class="flaticon-down-arrow-1">
+                                                &nbsp;&nbsp;View more&nbsp;
+                                            </div>
+                                        </div>
+                                        <div id="ReduceDescription" class="btn btn-primary btn-sm btn-round"
+                                             onclick="ToggleDescrPanelSize()">
+                                            <div class="flaticon-up-arrow-1">
+                                                &nbsp;&nbsp;View less&nbsp;
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+                            
                         </div>
                         <div class="card-body">
                             <div class="card-category" id="WebDBDescription" style="overflow-y:auto;">
                                 @(new HtmlString(Model.WebDb.WebDBDescription))
-                                <div id="ExpandDescription" class="btn btn-sm btn-primary px-1 py-0 mb-3 mr-3" onclick="ToggleDescrPanelSize()"
-                                     style="position: absolute; right: 20px; bottom: 5px;">
-                                    View All...
-                                </div>
-                                <div id="ReduceDescription" class="btn btn-sm btn-primary px-1 py-0 mb-3 mr-3" onclick="ToggleDescrPanelSize()"
-                                     style="position: absolute; right: 1px; bottom: 5px;">
-                                    View Less...
-                                </div>
+                                
                             </div>
                         </div>
                     </div>
@@ -420,7 +434,7 @@
                                     <td style="padding: 0px 0px 0px 25px;">
                                         <button id="GoToItemsWithThisCode" class="btn btn-secondary btn-sm btn-round" disabled>List records</button>
                                         <button class="btn btn-primary btn-sm btn-round" onclick="GetFreqs()" disabled id="CurrentNodeGoToFreq">Frequencies</button>
-                                        <button class="btn btn-secondary btn-sm btn-round" onclick="GoToFreq()" disabled id="CurrentNodeGoToFreq2">Frequencies (whole page)</button>
+                                        <button class="btn btn-secondary btn-sm btn-round" onclick="GoToFreq()" disabled id="CurrentNodeGoToFreq2">Frequencies (new page)</button>
                                     </td>
                                 </tr>
                             </table>

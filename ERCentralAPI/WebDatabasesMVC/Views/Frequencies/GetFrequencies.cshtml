@@ -12,34 +12,69 @@ Frequency!
 <input type="hidden" value="@Model.criteria.onlyThisAttribute" name="onlyThisAttribute" id="onlyThisAttributeCrit" />
 <input type="hidden" value="@Model.criteria.webDbId" name="webDbId" id="webDbIdCrit" />
 
+<br /><br /><br /><br />
+            <table width="100%">
+                <tr>
+                    <td style="padding:0px 20px 0px 20px">
+                        <div class="main-panel main-panel-no-sidebar">
 
-<div class="main-panel main-panel-no-sidebar">
-    <div class="content-full">
-        <div class="row">
-            @*<div class="col">ID</div>*@
-            <div class="col text-right border-bottom font-weight-bold">CodeName</div>
-            <div class="col border-bottom font-weight-bold">Hits</div>
-        </div>
-        @foreach (WebDbItemAttributeChildFrequency itm in Model.results)
-        {
-            <div class="row">
-                @*<div class="col">@(itm.AttributeId > 0 ? itm.AttributeId.ToString() : "-")</div>*@
-                <div class="col text-right border-bottom">@itm.Attribute</div>
-                <div class="col border-bottom">
-                    @if (itm.ItemCount == 0)
-                    {
-                        <text>0</text>
-                    }
-                    else if (itm.AttributeId == -999999)
-                    {
-                        <a href="javascript:GoToItems(@itm.AttributeId, '@Model.criteria.nameXAxis.Replace("\'", "&#39;")')">@itm.ItemCount</a>
-                    }
-                    else
-                    {
-                        <a href="javascript:GoToItems(@itm.AttributeId, '@itm.Attribute.Replace("\'", "&#39;")')">@itm.ItemCount</a>
-                    }
-                </div>
-            </div>
-        }
-    </div>
-</div>
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title mb-3">Frequency report</h5><h5><b>@Model.criteria.nameXAxis.Replace("\'", "&#39;")</b></h5>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            @*<div class="col">ID</div>*@
+                                            <div class="col text-left border-bottom font-weight-bold" style="background-color:#ebedf2">Code</div>
+                                            <div class="col border-bottom font-weight-bold" style="background-color:#ebedf2">Frequency</div>
+                                        </div>
+                                        
+                                        @{int counter = 0;}
+                                        @foreach (WebDbItemAttributeChildFrequency itm in Model.results)
+                                        {
+                                            <div class="row">
+                                                @{counter++;}
+                                                @if (counter % 2 == 0)
+                                                {
+                                                    <div class="col text-left border-bottom" style="background-color:#ebedf2">@itm.Attribute</div>
+                                                    <div class="col text-left border-bottom" style="background-color:#ebedf2">
+                                                        @if (itm.ItemCount == 0)
+                                                        {
+                                                            <text>0</text>
+                                                        }
+                                                        else if (itm.AttributeId == -999999)
+                                                        {
+                                                            <a href="javascript:GoToItems(@itm.AttributeId, '@Model.criteria.nameXAxis.Replace("\'", "&#39;")')">@itm.ItemCount</a>
+                                                        }
+                                                        else
+                                                        {
+                                                            <a href="javascript:GoToItems(@itm.AttributeId, '@itm.Attribute.Replace("\'", "&#39;")')">@itm.ItemCount</a>
+                                                        }
+                                                    </div>
+                                                }
+                                                else
+                                                {
+                                                    <div class="col text-left border-bottom">@itm.Attribute</div>
+                                                    <div class="col text-left border-bottom">
+                                                        @if (itm.ItemCount == 0)
+                                                        {
+                                                            <text>0</text>
+                                                        }
+                                                        else if (itm.AttributeId == -999999)
+                                                        {
+                                                            <a href="javascript:GoToItems(@itm.AttributeId, '@Model.criteria.nameXAxis.Replace("\'", "&#39;")')">@itm.ItemCount</a>
+                                                        }
+                                                        else
+                                                        {
+                                                            <a href="javascript:GoToItems(@itm.AttributeId, '@itm.Attribute.Replace("\'", "&#39;")')">@itm.ItemCount</a>
+                                                        }
+                                                    </div>
+                                                } 
+                                            </div>                                    
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            </table>
