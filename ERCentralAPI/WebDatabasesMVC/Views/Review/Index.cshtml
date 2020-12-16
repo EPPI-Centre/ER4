@@ -78,6 +78,7 @@
             select: TreeViewSelection
         });
         treeviewData = $("#treeView").data("kendoTreeView");
+
         //$("#treeView").data("kendoTreeView").bind("change", TreeViewSelection);
     });
     function tree_dataBound(e) {
@@ -109,6 +110,7 @@
             //postwith("../Frequencies/GetFrequencies", { attId: 0, setId: dataItem.setId, included: true });
         }
         else {
+            $("#FrequenciesResult").html("Frequencies for: " + dataItem.text);
             $.post("../Frequencies/GetFrequenciesJSON", { attId: dataItem.id, setId: dataItem.setId, included: true }, function (data, result) { BuildFreqs(data, result); })
             //postwith("../Frequencies/GetFrequencies", { attId: dataItem.id, setId: dataItem.setId, included: true });
         }
