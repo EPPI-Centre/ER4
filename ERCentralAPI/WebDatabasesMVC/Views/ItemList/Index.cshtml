@@ -1,4 +1,6 @@
-﻿@model ItemListWithCriteria
+﻿<!-- ItemList -->
+
+@model ItemListWithCriteria
 @using BusinessLibrary.BusinessClasses;
 @using System.Text.Json;
 @using System.Text.Json.Serialization;
@@ -6,7 +8,7 @@
     #ItemsGrid table {
         //background-color: yellow !important;
         //color: #00ff00 !important;
-        table-layout: auto ;
+        table-layout: auto;
     }
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/2.4.0/jszip.min.js"></script>
@@ -178,182 +180,217 @@
     }
 
 </script>
-<div class="main-panel main-panel-no-sidebar">
-    <div class="content-full">
-        <div class="alert-info row col-12 mx-0 mb-1">
-            @if (Model.items.PageCount > 1)
-            {
 
-                <form asp-controller="ItemList" asp-action="ListFromCrit" method="post" class="form-inline">
-                    <button class="btn btn-outline-danger px-1 py-0 m-1" type="submit" disabled="@(Model.items.PageIndex == 0)"
-                            name="PageNumber" value="@(Model.items.PageIndex - 1)">
-                        Previous
-                    </button>
-                    <button class="btn btn-outline-danger px-1 py-0 m-1" type="submit" disabled="@(Model.items.PageIndex == Model.items.PageCount - 1)"
-                            name="PageNumber" value="@(Model.items.PageIndex + 1)">
-                        Next
-                    </button>
-                    <input type="hidden" value="@Model.criteria.onlyIncluded.ToString()" name="onlyIncluded" />
-                    <input type="hidden" value="@Model.criteria.showDeleted" name="showDeleted" />
-                    <input type="hidden" value="@Model.criteria.sourceId" name="sourceId" />
-                    <input type="hidden" value="@Model.criteria.searchId" name="searchId" />
-                    <input type="hidden" value="@Model.criteria.xAxisSetId" name="xAxisSetId" />
-                    <input type="hidden" value="@Model.criteria.xAxisAttributeId" name="xAxisAttributeId" />
-                    <input type="hidden" value="@Model.criteria.yAxisSetId" name="yAxisSetId" />
-                    <input type="hidden" value="@Model.criteria.yAxisAttributeId" name="yAxisAttributeId" />
-                    <input type="hidden" value="@Model.criteria.filterSetId" name="filterSetId" />
-                    <input type="hidden" value="@Model.criteria.filterAttributeId" name="filterAttributeId" />
-                    <input type="hidden" value="@Model.criteria.attributeSetIdList" name="attributeSetIdList" />
-                    <input type="hidden" value="@Model.criteria.listType" name="listType" />
-                    <input type="hidden" value="@Model.criteria.pageNumber" name="pageNumber" />
-                    <input type="hidden" value="@Model.criteria.pageSize" name="pageSize" />
-                    <input type="hidden" value="@Model.criteria.workAllocationId" name="workAllocationId" />
-                    <input type="hidden" value="@Model.criteria.magSimulationId" name="magSimulationId" />
-                    <input type="hidden" value="@Model.criteria.comparisonId" name="comparisonId" />
-                    <input type="hidden" value="@Model.criteria.description" name="description" />
-                    <input type="hidden" value="@Model.criteria.contactId" name="contactId" />
-                    <input type="hidden" value="@Model.criteria.setId" name="setId" />
-                    <input type="hidden" value="@Model.criteria.showInfoColumn" name="showInfoColumn" />
-                    <input type="hidden" value="@Model.criteria.showScoreColumn" name="showScoreColumn" />
-                    <input type="hidden" value="@Model.criteria.webDbId" name="webDbId" />
-                    <input type="hidden" value="@Model.criteria.withAttributesIds" name="withAttributesIds" />
-                    <input type="hidden" value="@Model.criteria.withSetIdsList" name="withSetIdsList" />
-                    <input type="hidden" value="@Model.criteria.withOutAttributesIdsList" name="withOutAttributesIdsList" />
-                    <input type="hidden" value="@Model.criteria.withOutSetIdsList" name="withOutSetIdsList" />
-                    <input type="hidden" value="@Model.criteria.searchWhat" name="searchWhat" />
-                    <input type="hidden" value="@Model.criteria.searchString" name="searchString" />
-                </form>
-                <div class="my-auto">Page: @(Model.items.PageIndex + 1) of @(Model.items.PageCount).</div>
-            }
-            else
-            {<div class=" px-1 py-0 m-1">&nbsp;</div>}
-            @if (@Model.criteria.description != "")
-            {<div class="ml-2 my-auto px-1 alert-light rounded">@Model.criteria.description</div>}
-            <div class="d-inline-block ml-auto mr-0 border rounded">
-                <ul id="menu" class="d-inline-block p-0">
-                    <li class="py-1">
-                        Columns
-                        <ul>
-                            <li>
-                                Id <input type="checkbox" class="ml-1" id="cbItemId" />
-                            </li>
-                            <li>
-                                Short Title
-                                <input type="checkbox" class="ml-1" id="cbShortTitle" />
-                            </li>
-                            <li>
-                                Title
-                                <input type="checkbox" class="ml-1" id="cbTitle" />
-                            </li>
-                            <li>
-                                Year
-                                <input type="checkbox" class="ml-1" id="cbYear" />
-                            </li>
-                            <li>
-                                Authors
-                                <input type="checkbox" class="ml-1" id="cbAuthors" />
-                            </li>
-                            <li>
-                                Journal
-                                <input type="checkbox" class="ml-1" id="cbJournal" />
-                            </li>
-                        </ul>
-                    </li>
-                </ul>
-            </div>
-        </div>
-        <div id="ItemsGrid" class="table-striped" style="height:85vh;"></div>
-        <script id="ItemsGridTemplate" type="text/x-kendo-tmpl">
-            <tr class="border border-bottom ">
-                <td class="px-1 py-0 border-bottom small ">
-                    <form action="ItemDetails" method="post" class="form-inline">
-                        <button class="btn btn-link px-1 py-0 my-1 mx-0" type="submit"
-                                name="itemId" value="#= ItemId #">
-                            #= ItemId #
-                        </button>
-                    </form>
-                </td>
-                <td class="px-1 py-0 border-bottom small ">
-                    #= ShortTitle #
-                </td>
-                <td class="px-1 py-0 border-bottom ">
-                    <form action="ItemDetails" method="post" class="form-inline">
-                        <button class="text-left btn-link px-1 py-0 my-1 mx-0" type="submit" style="overflow: !important;"
-                                name="itemId" value="#= ItemId #">
-                            #= Title #
-                        </button>
-                    </form>
-                </td>
-                <td class="px-1 py-0 border-bottom small ">
-                    #= Year #
-                </td>
-                <td class="px-1 py-0 border-bottom small ">
-                    #= Authors #
-                </td>
-                <td class="px-1 py-0 border-bottom small ">
-                    #= ParentTitle #
-                </td>
-            </tr>
-        </script>
-        <script id="gridToolbarTemplate" type="text/x-kendo-template">
-            <a class="k-button" href="\#" onclick="return QuickCitations()">Generate citations</a>
-            <a class="k-button k-button-icontext k-grid-excel" href="\#"><span class="k-icon k-i-excel"></span>Export to Excel</a>
+<br />
+<br />
+<br />
+<br />
+<table width="100%">
+    <tr>
+        <td style="padding:0px 20px 0px 20px">
+            <div class="main-panel main-panel-no-sidebar">
 
-            <span class="k-textbox k-grid-search k-display-flex m-0 p-0 small">
-                <input autocomplete="off" placeholder="Filter..." title="Filter..." class="k-input px-1">
-                <span class="k-input-icon">
-                    <span class="k-icon k-i-search"></span>
-                </span>
-            </span>
-        </script>
-        <div id="formattedCitations">
 
-        </div>
-        @*<div class="bg-light col-12 m-0 ">
-            <div>
-                <div class="row border-top border-dark m-0">
-                    <div class="col">
-                        <div class="">Id: </div>
-                    </div>
-                    <div class="col-2">
-                        <div class="">Short title: </div>
-                    </div>
-                    <div class="col-8">
-                        <div class="">Title: </div>
-                    </div>
-                    <div class="col">
-                        <div class="">Year: </div>
+
+                <div class="card">
+                    <div class="card-body">
+
+                        <div class="content-full">
+
+                            <table width="100%">
+                                <tr>
+                                    <td width="30%">
+                                        <h5 class="card-title mb-3">List records</h5>
+                                        <h5><b>@Model.criteria.description.Replace("\'", "&#39;")</b></h5>
+                                    
+                                    </td>    
+                                    <td width="40%" style="vertical-align:bottom;text-align:center">
+
+                                        @if (Model.items.PageCount > 1)
+                                        {
+
+                                        <form asp-controller="ItemList" asp-action="ListFromCrit" method="post" class="form-inline">
+
+                                            <button class="btn btn-round btn-outline-primary px-1 py-0 m-1" style="width:90px" type="submit" disabled="@(Model.items.PageIndex == 0)"
+                                                    name="PageNumber" value="@(Model.items.PageIndex - 1)">
+                                                Previous
+                                            </button>
+                                            <div class="my-auto">&nbsp;&nbsp;Page @(Model.items.PageIndex + 1) of @(Model.items.PageCount)&nbsp;&nbsp;</div>
+                                            <button class="btn btn-round btn-outline-primary px-1 py-0 m-1" style="width:90px" type="submit" disabled="@(Model.items.PageIndex == Model.items.PageCount - 1)"
+                                                    name="PageNumber" value="@(Model.items.PageIndex + 1)">
+                                                Next
+                                            </button>
+
+                                            <input type="hidden" value="@Model.criteria.onlyIncluded.ToString()" name="onlyIncluded" />
+                                            <input type="hidden" value="@Model.criteria.showDeleted" name="showDeleted" />
+                                            <input type="hidden" value="@Model.criteria.sourceId" name="sourceId" />
+                                            <input type="hidden" value="@Model.criteria.searchId" name="searchId" />
+                                            <input type="hidden" value="@Model.criteria.xAxisSetId" name="xAxisSetId" />
+                                            <input type="hidden" value="@Model.criteria.xAxisAttributeId" name="xAxisAttributeId" />
+                                            <input type="hidden" value="@Model.criteria.yAxisSetId" name="yAxisSetId" />
+                                            <input type="hidden" value="@Model.criteria.yAxisAttributeId" name="yAxisAttributeId" />
+                                            <input type="hidden" value="@Model.criteria.filterSetId" name="filterSetId" />
+                                            <input type="hidden" value="@Model.criteria.filterAttributeId" name="filterAttributeId" />
+                                            <input type="hidden" value="@Model.criteria.attributeSetIdList" name="attributeSetIdList" />
+                                            <input type="hidden" value="@Model.criteria.listType" name="listType" />
+                                            <input type="hidden" value="@Model.criteria.pageNumber" name="pageNumber" />
+                                            <input type="hidden" value="@Model.criteria.pageSize" name="pageSize" />
+                                            <input type="hidden" value="@Model.criteria.workAllocationId" name="workAllocationId" />
+                                            <input type="hidden" value="@Model.criteria.magSimulationId" name="magSimulationId" />
+                                            <input type="hidden" value="@Model.criteria.comparisonId" name="comparisonId" />
+                                            <input type="hidden" value="@Model.criteria.description" name="description" />
+                                            <input type="hidden" value="@Model.criteria.contactId" name="contactId" />
+                                            <input type="hidden" value="@Model.criteria.setId" name="setId" />
+                                            <input type="hidden" value="@Model.criteria.showInfoColumn" name="showInfoColumn" />
+                                            <input type="hidden" value="@Model.criteria.showScoreColumn" name="showScoreColumn" />
+                                            <input type="hidden" value="@Model.criteria.webDbId" name="webDbId" />
+                                            <input type="hidden" value="@Model.criteria.withAttributesIds" name="withAttributesIds" />
+                                            <input type="hidden" value="@Model.criteria.withSetIdsList" name="withSetIdsList" />
+                                            <input type="hidden" value="@Model.criteria.withOutAttributesIdsList" name="withOutAttributesIdsList" />
+                                            <input type="hidden" value="@Model.criteria.withOutSetIdsList" name="withOutSetIdsList" />
+                                            <input type="hidden" value="@Model.criteria.searchWhat" name="searchWhat" />
+                                            <input type="hidden" value="@Model.criteria.searchString" name="searchString" />
+
+
+                                        </form>
+                                        }
+                                        else
+                                        {
+                                            <div class=" px-1 py-0 m-1">&nbsp;</div>
+                                        }
+
+                                        <!--
+                                        @if (@Model.criteria.description != "")
+                                        {
+                                            <div class="ml-2 my-auto px-1 alert-light rounded">@Model.criteria.description</div>
+                                        }
+                                        -->
+                                    </td>
+                                    <td width="30%" style="text-align:right">
+
+                                        <div class="d-inline-block ml-auto mr-0 border rounded" >
+                                            <ul id="menu" class="d-inline-block p-0">
+                                                <li class="py-1">
+                                                    <span class="btn-label">
+                                                        <i class="fa fa-table"></i>
+                                                    </span>
+                                                    &nbsp;&nbsp;Columns&nbsp;&nbsp;
+                                                    <ul>
+                                                        <li>
+                                                            <input type="checkbox" class="ml-1" id="cbItemId" />&nbsp;&nbsp;Id
+                                                        </li>
+                                                        <li>
+                                                            <input type="checkbox" class="ml-1" id="cbShortTitle" />&nbsp;&nbsp;Short Title
+                                                        </li>
+                                                        <li>
+                                                            <input type="checkbox" class="ml-1" id="cbTitle" />&nbsp;&nbsp;Title
+                                                        </li>
+                                                        <li>
+                                                            <input type="checkbox" class="ml-1" id="cbYear" />&nbsp;&nbsp;Year
+                                                        </li>
+                                                        <li>
+                                                            <input type="checkbox" class="ml-1" id="cbAuthors" />&nbsp;&nbsp;Authors
+                                                        </li>
+                                                        <li>
+                                                            <input type="checkbox" class="ml-1" id="cbJournal" />&nbsp;&nbsp;Journal
+                                                        </li>
+                                                    </ul>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+                            
+                                
+
+                                
+
+                                
+                            
+
+
+                            <div class="card-body">
+
+                                <div id="ItemsGrid" class="table-striped" style="height:85vh;">
+                                </div>
+
+                                <script id="ItemsGridTemplate" type="text/x-kendo-tmpl">
+                                    <table>
+                                        <tr class="border border-bottom ">
+                                            <td class="px-1 py-0 border-bottom small ">
+                                                <form action="ItemDetails" method="post" class="form-inline">
+                                                    <button class="btn btn-link px-1 py-0 my-1 mx-0" type="submit"
+                                                            name="itemId" value="#= ItemId #">
+                                                        #= ItemId #
+                                                    </button>
+                                                </form>
+                                            </td>
+                                            <td class="px-1 py-0 border-bottom small ">
+                                                #= ShortTitle #
+                                            </td>
+                                            <td class="px-1 py-0 border-bottom ">
+                                                <form action="ItemDetails" method="post" class="form-inline">
+                                                    <button class="text-left btn-link px-1 py-0 my-1 mx-0" type="submit" style="overflow: !important;"
+                                                            name="itemId" value="#= ItemId #">
+                                                        #= Title #
+                                                    </button>
+                                                </form>
+                                            </td>
+                                            <td class="px-1 py-0 border-bottom small ">
+                                                #= Year #
+                                            </td>
+                                            <td class="px-1 py-0 border-bottom small ">
+                                                #= Authors #
+                                            </td>
+                                            <td class="px-1 py-0 border-bottom small ">
+                                                #= ParentTitle #
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </script>
+
+                                
+                                <script id="gridToolbarTemplate" type="text/x-kendo-template">
+                                    <a class="k-button btn-round btn-info btn-border" href="\#" onclick="return QuickCitations()">
+                                        <span class="btn-label">
+                                            <i class="fa fa-pencil-alt"></i>
+                                        </span>&nbsp;&nbsp;Citations&nbsp;
+                                    </a>
+
+                                    <a class="k-button k-button-icontext k-grid-excel btn-round btn-info btn-border" href="\#">
+                                        <span class="btn-label">
+                                            <i class="fa fa-file-excel"></i>
+                                        </span>&nbsp;&nbsp;Excel&nbsp;
+                                    </a>
+
+                                    <span class="k-textbox k-grid-search k-display-flex m-0 p-0 small">
+                                        <input autocomplete="off" placeholder="Filter..." title="Filter..." class="k-input px-1">
+                                        <span class="k-input-icon">
+                                            <span class="k-icon k-i-search"></span>
+                                        </span>
+                                    </span>
+                                </script>
+
+                            </div>
+
+
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div style="max-height:80vh; overflow:auto">
-                @foreach (Item itm in Model.items)
-                {
-                    <div class="row border-top border-dark m-0">
-                        <div class="col border-dark border-right">
-                            <div class="bg-white">
-                                <form asp-controller="ItemList" asp-action="ItemDetails" method="post" class="form-inline">
-                                    <button class="btn btn-link px-1 py-0 m-1" type="submit"
-                                            name="itemId" value="@itm.ItemId">
-                                        @itm.ItemId
-                                    </button>
-                                </form>
-                            </div>
-                        </div>
-                        <div class="col-2 border-dark border-right">
-                            <div class="bg-white">@itm.ShortTitle</div>
-                        </div>
-                        <div class="col-8 border-dark border-right">
-                            <div class="bg-white">@itm.Title</div>
-                        </div>
-                        <div class="col border-dark">
-                            <div class="bg-white">@itm.Year</div>
-                        </div>
+
+
+                <div class="card">
+                    <div class="card-body">
+                        <div id="formattedCitations"></div>
                     </div>
-                }
+                </div>
+
+
+
             </div>
-            <form id="SelectionCriteria" hidden data="@Model.criteria">
-            </form>
-        </div>*@
-    </div>
-</div>
+        </td>
+    </tr>
+</table>
+
+

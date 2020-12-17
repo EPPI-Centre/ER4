@@ -163,7 +163,8 @@ namespace WebDatabasesMVC.Controllers
                     SelectionCriteria crit = new SelectionCriteria();
                     crit.ListType = "WebDbWithThisCode";
                     crit.FilterAttributeId = attId;
-                    crit.Description = "Listing items with code: " + attName;
+                    //crit.Description = "Listing items with code: " + attName;
+                    crit.Description = attName;
                     ItemListWithCriteria iList = GetItemList(crit);
                     return View("Index", iList);//supplying the view name, otherwise MVC would try to auto-discover a view called Page.
                 }
@@ -183,7 +184,8 @@ namespace WebDatabasesMVC.Controllers
                 {
                     SelectionCriteria crit = new SelectionCriteria();
                     crit.ListType = "WebDbWithThisCode";
-                    crit.Description = "Listing items with code: " + attName;
+                    //crit.Description = "Listing items with code: " + attName;
+                    crit.Description = attName;
                     crit.FilterAttributeId = attId;
                     ItemListWithCriteria iList = GetItemList(crit);
                     return Json(iList);//supplying the view name, otherwise MVC would try to auto-discover a view called Page.
@@ -207,7 +209,8 @@ namespace WebDatabasesMVC.Controllers
                 {
                     SelectionCriteria criteria = new SelectionCriteria();
                     criteria.ListType = "WebDbFrequencyNoneOfTheAbove";
-                    criteria.Description = "Listing items from \"none of the children\" of code: " + attName;
+                    //criteria.Description = "Listing items from \"none of the children\" of code: " + attName;
+                    criteria.Description = "Records without " + attName;
                     criteria.XAxisAttributeId = attributeIdXAxis;
                     criteria.SetId = setId;
                     if (included != "")
@@ -358,7 +361,7 @@ namespace WebDatabasesMVC.Controllers
                     criteria.ListType = "WebDbSearch";
                     criteria.SearchString = SearchString;
                     criteria.SearchWhat = SearchWhat;
-                    string descr = "Listing search results (in ";
+                    string descr = "Search results (in ";
                     if (SearchWhat == "TitleAbstract") descr += "Title and Abstract" + ") for: ";
                     else if (SearchWhat == "AdditionalText") descr += "\"Coded\" Text" + ") for: ";
                     else if (SearchWhat == "PubYear") descr += "Publication Year" + ") for: ";

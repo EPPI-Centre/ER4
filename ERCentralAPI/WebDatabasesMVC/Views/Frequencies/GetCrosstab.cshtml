@@ -101,7 +101,8 @@ Crosstab!
                                                 string with = Model.ColumnAttIDs[i].ToString();
                                                 string without = "";
                                                 string withoutSets = "";
-                                                string descript = "Listing &#39;None of the above&#39; crosstab result for the code: " + Model.ColumnAttNames[i].Replace("'", "&#39;");
+                                                //string descript = "Listing &#39;None of the above&#39; crosstab result for the code: " + Model.ColumnAttNames[i].Replace("'", "&#39;");
+                                                string descript = "Records without " + Model.ColumnAttNames[i].Replace("'", "&#39;");
                                                 for (int ri = 0; ri < Model.Rows.Count - 1; ri++)//skip last row!
                                                 {
                                                     without += Model.Rows[ri].AttributeId.ToString() + ",";
@@ -118,7 +119,8 @@ Crosstab!
                                                 string with = row.AttributeId.ToString();
                                                 string without = "";
                                                 string withoutSets = "";
-                                                string descript = "Listing &#39;None of these&#39; crosstab result for the code: " + row.AttributeName.Replace("'", "&#39;");
+                                                //string descript = "Listing &#39;None of these&#39; crosstab result for the code: " + row.AttributeName.Replace("'", "&#39;");
+                                                string descript = "Records without " + row.AttributeName.Replace("'", "&#39;");
                                                 for (int ci = 0; ci < row.Counts.Count - 1; ci++)//skip last column!
                                                 {
                                                     without += Model.ColumnAttIDs[ci].ToString() + ",";
@@ -134,7 +136,8 @@ Crosstab!
                                             {//normal cell, with row and col codes
                                                 string with = row.AttributeId.ToString() + "," + Model.ColumnAttIDs[i].ToString();
                                                 string withSets = Model.SetIdY.ToString() + "," + Model.SetIdX.ToString();
-                                                string descript = "Listing crosstab result for the codes (x,y): " + Model.ColumnAttNames[i].Replace("'", "&#39;") + ", " + row.AttributeName.Replace("'", "&#39;");
+                                                //string descript = "Listing crosstab result for the codes (x,y): " + Model.ColumnAttNames[i].Replace("'", "&#39;") + ", " + row.AttributeName.Replace("'", "&#39;");
+                                                string descript = Model.ColumnAttNames[i].Replace("'", "&#39;") + " <AND> " + row.AttributeName.Replace("'", "&#39;");
 
                                                 <th style="background-color:rgba(211, 211, 255, 0.20)">
                                                     <a href="javascript:GoToItems('@with', '@withSets', '', '', '@descript')">@row.Counts[i]</a>
