@@ -1,6 +1,60 @@
 ﻿@model ItemListWithCriteria
-@using BusinessLibrary.BusinessClasses
-
+@using BusinessLibrary.BusinessClasses;
+@using System.Text.Json;
+@using System.Text.Json.Serialization;
+<script>
+    @{var jdata = @Html.Raw(JsonSerializer.Serialize(Model.items));};
+    var ListData = @jdata;
+    $(document).ready(function () {
+        $("#ItemsGrid").kendoGrid({
+            columns: [
+                {
+                    field: "ItemId",
+                    title: "Id:",
+                    width: "10%",
+                    headerAttributes: {
+                        "class": "ml-1 p-1 border-bottom"
+                    }
+                },
+                {
+                    field: "ShortTitle",
+                    title: "Short title:",
+                    width: "20%",
+                    headerAttributes: {
+                        "class": "p-1 border-bottom"
+                    }
+                },
+                {
+                    field: "Title",
+                    title: "Title:",
+                    width: "60%",
+                    minResizableWidth: 100,
+                    headerAttributes: {
+                        "class": "p-1 border-bottom"
+                    }
+                },
+                {
+                    field: "Year",
+                    title: "Year:",
+                    width: "10%",
+                    headerAttributes: {
+                        "class": "p-1 border-bottom"
+                    }
+                }],
+            dataSource: {
+                data: ListData
+            },
+            rowTemplate: kendo.template($("#ItemsGridTemplate").html()),
+            tableLayout: "auto",
+            toolbar: ["search"],
+            resizable: true,
+            //mobile: "phone",
+            search: {
+                fields: ["Title", "Year", "ItemId", "ShortTitle"]
+            }
+        });
+    });
+</script>
 <div class="main-panel main-panel-no-sidebar">
     <div class="content-full">
         <div class="alert-info row col-12 mx-0 mb-1">
@@ -53,7 +107,31 @@
             @if (@Model.criteria.description != "")
             {<div class="ml-2 my-auto px-1 alert-light rounded">@Model.criteria.description</div>}
         </div>
-        <div class="bg-light col-12 m-0 ">
+
+        <div id="ItemsGrid" class="table-striped" style="height:85vh;"></div>
+        <script id="ItemsGridTemplate" type="text/x-kendo-tmpl">
+            <tr class="border border-bottom ">
+                <td class="px-1 py-0 border-bottom small ">
+                    <form action="ItemDetails" method="post" class="form-inline">
+                        <button class="btn btn-link px-1 py-0 m-1" type="submit"
+                                name="itemId" value="#= ItemId #">
+                            #= ItemId #
+                        </button>
+                    </form>
+                </td>
+                <td class="px-1 py-0 border-bottom small ">
+                    #= ShortTitle #
+                </td>
+                <td class="px-1 py-0 border-bottom small ">
+                    #= Title #
+                </td>
+                <td class="px-1 py-0 border-bottom small ">
+                    #= Year #
+                </td>
+            </tr>
+        </script>
+
+        @*<div class="bg-light col-12 m-0 ">
             <div>
                 <div class="row border-top border-dark m-0">
                     <div class="col">
@@ -98,6 +176,6 @@
             </div>
             <form id="SelectionCriteria" hidden data="@Model.criteria">
             </form>
-        </div>
+        </div>*@
     </div>
 </div>
