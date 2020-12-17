@@ -2,58 +2,104 @@
 @using BusinessLibrary.BusinessClasses;
 @using System.Text.Json;
 @using System.Text.Json.Serialization;
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/2.4.0/jszip.min.js"></script>
 <script>
     @{var jdata = @Html.Raw(JsonSerializer.Serialize(Model.items));};
     var ListData = @jdata;
+    var ColumnVisibility = {
+        ItemId: true,
+        Year: true,
+        ShortTitle: true,
+        Title: true,
+        Year: true,
+        Auhtors: false,
+        Journal: false
+    }
     $(document).ready(function () {
+        $(document).ready(function () {
+            $("#menu").kendoMenu();
+        });
         $("#ItemsGrid").kendoGrid({
             columns: [
                 {
                     field: "ItemId",
-                    title: "Id:",
+                    title: "Id",
                     width: "10%",
                     headerAttributes: {
                         "class": "ml-1 p-1 border-bottom"
-                    }
+                    },
+                    hidden: !ColumnVisibility.ItemId
                 },
                 {
                     field: "ShortTitle",
-                    title: "Short title:",
+                    title: "Short title",
                     width: "20%",
                     headerAttributes: {
                         "class": "p-1 border-bottom"
-                    }
+                    },
+                    hidden: !ColumnVisibility.ShortTitle
                 },
                 {
                     field: "Title",
-                    title: "Title:",
+                    title: "Title",
                     width: "60%",
                     minResizableWidth: 100,
                     headerAttributes: {
                         "class": "p-1 border-bottom"
-                    }
+                    },
+                    hidden: !ColumnVisibility.Title
                 },
                 {
                     field: "Year",
-                    title: "Year:",
+                    title: "Year",
                     width: "10%",
                     headerAttributes: {
                         "class": "p-1 border-bottom"
-                    }
+                    },
+                    hidden: !ColumnVisibility.Year
+                },
+                {
+                    field: "Authors",
+                    title: "Authors",
+                    width: "10%",
+                    headerAttributes: {
+                        "class": "p-1 border-bottom"
+                    },
+                    hidden: !ColumnVisibility.Authors
+                },
+                {
+                    field: "ParentTitle",
+                    title: "Journal",
+                    width: "10%",
+                    headerAttributes: {
+                        "class": "p-1 border-bottom"
+                    },
+                    hidden: !ColumnVisibility.Journal
                 }],
             dataSource: {
                 data: ListData
             },
             rowTemplate: kendo.template($("#ItemsGridTemplate").html()),
             tableLayout: "auto",
-            toolbar: ["search"],
+            toolbar: ["search", "excel"],
             resizable: true,
+            toolbar: [
+                { template: kendo.template($("#gridToolbarTemplate").html()) }
+            ],
+            sortable: true,
             //mobile: "phone",
             search: {
                 fields: ["Title", "Year", "ItemId", "ShortTitle"]
             }
         });
     });
+    function QuickCitations() {
+        var output = "";
+        for (var itm of ListData) {
+            output += "<p>" + itm.QuickCitation + "</p>";
+        }
+        $("#formattedCitations").html(output);
+    }
 </script>
 <div class="main-panel main-panel-no-sidebar">
     <div class="content-full">
@@ -130,7 +176,41 @@
                 </td>
             </tr>
         </script>
+        <script id="gridToolbarTemplate" type="text/x-kendo-template">
+            <a class="k-button" href="\#" onclick="return QuickCitations()">Generate citations</a>
+            <a class="k-button k-button-icontext k-grid-excel" href="\#"><span class="k-icon k-i-excel"></span>Export to Excel</a>
+            <div class="d-inline">
+                <ul id="menu">
+                    <li>
+                        Columns
+                        <ul>
+                            <li>
+                                Year <input type="checkbox" checked="{ColumnVisibility.Year}"
+                                            onclick="ColumnVisibility.Year = !ColumnVisibility.Year" />
+                            </li>
+                            <li>
+                                ShortTitle
+                                <input type="checkbox" checked="{ColumnVisibility.ShortTitle}"
+                                       onclick="ColumnVisibility.Year = !ColumnVisibility.ShortTitle" />
+                            </li>
+                            <li>Title</li>
+                            <li>Year</li>
+                            <li>Auhtors</li>
+                            <li>Journal</li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+            <span class="k-textbox k-grid-search k-display-flex m-0 p-0 small">
+                <input autocomplete="off" placeholder="Search..." title="Search..." class="k-input">
+                <span class="k-input-icon">
+                    <span class="k-icon k-i-search"></span>
+                </span>
+            </span>
+        </script>
+        <div id="formattedCitations">
 
+        </div>
         @*<div class="bg-light col-12 m-0 ">
             <div>
                 <div class="row border-top border-dark m-0">
