@@ -4,6 +4,7 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Security.Claims;
+using System.Text.Json;
 using System.Threading.Tasks;
 using BusinessLibrary.BusinessClasses;
 using Csla;
@@ -16,6 +17,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using WebDatabasesMVC;
 using WebDatabasesMVC.ViewModels;
 /// <summary>
@@ -143,7 +145,8 @@ namespace WebDatabasesMVC.Controllers
                 {
                     SelectionCriteria crit = critMVC.CSLACriteria();
                     ItemListWithCriteria iList = GetItemList(crit);
-                    return Json(iList);
+                    var res = Json(iList, new JsonSerializerSettings { ContractResolver = new CamelCasePropertyNamesContractResolver() });
+                    return res;// Json(iList, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
                 }
                 else return Unauthorized();
             }
