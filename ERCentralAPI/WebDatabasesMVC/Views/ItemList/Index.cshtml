@@ -139,52 +139,53 @@
             }
             });
             });
-        function QuickCitations() {
+
+    function QuickCitations() {
                 var output = "";
                 for (var itm of ListData) {
-                    output += "<p>" + itm.QuickCitation + "</p>";
+                    output += "<p>" + itm.quickCitation + "</p>";
                 }
             $("#formattedCitations").html(output);
         }
-            function setColumns() {
-                console.log("setColumns", ColumnVisibility);
-                var grid = $('#ItemsGrid').data('kendoGrid');
-                if (ColumnVisibility.ItemId) {
-                    grid.showColumn(0);
-                } else {
-                    grid.hideColumn(0);
-                }
-                if (ColumnVisibility.ShortTitle) {
-                    grid.showColumn(1);
-                } else {
-                    grid.hideColumn(1);
-                }
-                if (ColumnVisibility.Title) {
-                    grid.showColumn(2);
-                } else {
-                    grid.hideColumn(2);
-                }
-                if (ColumnVisibility.Year) {
-                    grid.showColumn(3);
-                } else {
-                    grid.hideColumn(3);
-                }
-                if (ColumnVisibility.Authors) {
-                    grid.showColumn(4);
-                } else {
-                    grid.hideColumn(4);
-                }
-                if (ColumnVisibility.Journal) {
-                    grid.showColumn(5);
-                } else {
-                    grid.hideColumn(5);
-                }
-            }
+    function setColumns() {
+        console.log("setColumns", ColumnVisibility);
+        var grid = $('#ItemsGrid').data('kendoGrid');
+        if (ColumnVisibility.ItemId) {
+            grid.showColumn(0);
+        } else {
+            grid.hideColumn(0);
+        }
+        if (ColumnVisibility.ShortTitle) {
+            grid.showColumn(1);
+        } else {
+            grid.hideColumn(1);
+        }
+        if (ColumnVisibility.Title) {
+            grid.showColumn(2);
+        } else {
+            grid.hideColumn(2);
+        }
+        if (ColumnVisibility.Year) {
+            grid.showColumn(3);
+        } else {
+            grid.hideColumn(3);
+        }
+        if (ColumnVisibility.Authors) {
+            grid.showColumn(4);
+        } else {
+            grid.hideColumn(4);
+        }
+        if (ColumnVisibility.Journal) {
+            grid.showColumn(5);
+        } else {
+            grid.hideColumn(5);
+        }
+    }
 
 
-            function PageToRisClick() {
-                const data = ExportListToRIS(ListData);
-                downloadRISFile(data);
+    function PageToRisClick() {
+        const data = ExportListToRIS(ListData);
+        downloadRISFile(data);
     }
     function WholeListToRisClick() {
         let formData = { PageIndex: 0 }
