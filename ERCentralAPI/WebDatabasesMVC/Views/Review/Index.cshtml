@@ -245,12 +245,15 @@
         dataItem = treeviewData.dataItem(e.node);
         if (!dataItem) {
             $("#CurrentNodeGoToFreq").prop("disabled", true);
-            $("#CurrentNodeGoToFreq2").prop("disabled", true); 
+            $("#CurrentNodeGoToFreqSB").prop("disabled", true); 
+            $("#CurrentNodeGoToFreq2").prop("disabled", true);           
             $("#CurrentNodeGoToSelfCrosstab").prop("disabled", true);
             $("#CurrentNodeGoToCrosstab").prop("disabled", true);
             $("#CurrentNodeSetXAxis").prop("disabled", true);
             $("#GoToItemsWithThisCode").prop("disabled", true);
+            $("#GoToItemsWithThisCodeSB").prop("disabled", true);
             $("#GoToItemsWithThisCode").attr('onclick', '');
+            $("#GoToItemsWithThisCodeSB").attr('onclick', '');
             return;
         }
         console.log("Change", dataItem.setId, dataItem.id, dataItem.text);
@@ -261,6 +264,7 @@
         $("#CurrentNodeIsCodeSet").text(dataItem.isCodeset.toString());
         if (dataItem.items && dataItem.items.length > 0) {
             $("#CurrentNodeGoToFreq").prop("disabled", false);
+            $("#CurrentNodeGoToFreqSB").prop("disabled", false);
             $("#CurrentNodeGoToFreq2").prop("disabled", false);
             $("#CurrentNodeGoToSelfCrosstab").prop("disabled", false);
             $("#CurrentNodeGoToCrosstab").prop("disabled", dataItemXaxis == null);
@@ -268,6 +272,7 @@
         }
         else {
             $("#CurrentNodeGoToFreq").prop("disabled", true);
+            $("#CurrentNodeGoToFreqSB").prop("disabled", true);
             $("#CurrentNodeGoToFreq2").prop("disabled", true);
             $("#CurrentNodeGoToSelfCrosstab").prop("disabled", true);
             $("#CurrentNodeGoToCrosstab").prop("disabled", true);
@@ -275,10 +280,14 @@
         }
         if (dataItem.isCodeset) {
             $("#GoToItemsWithThisCode").prop("disabled", true);
+            $("#GoToItemsWithThisCodeSB").prop("disabled", true);
             $("#GoToItemsWithThisCode").attr('onclick', '');
+            $("#GoToItemsWithThisCodeSB").attr('onclick', '');
         } else {
             $("#GoToItemsWithThisCode").prop("disabled", false);
+            $("#GoToItemsWithThisCodeSB").prop("disabled", false);
             $("#GoToItemsWithThisCode").attr('onclick', 'GoToItems(dataItem.id, \'' + dataItem.text.replace('\'', '&#39;') + '\')');
+            $("#GoToItemsWithThisCodeSB").attr('onclick', 'GoToItems(dataItem.id, \'' + dataItem.text.replace('\'', '&#39;') + '\')');
             //$("#GoToItemsWithThisCode").attr('onclick', 'GoToItems(dataItem.id)');
         }
     }
@@ -355,8 +364,8 @@
 
                     <h4 class="text-section">
                         CODING TOOLS<br /><br />
-                        <button id="GoToItemsWithThisCode" class="btn btn-secondary btn-sm btn-round" disabled>List records</button>
-                        <button class="btn btn-primary btn-sm btn-round" onclick="GetFreqs()" disabled id="CurrentNodeGoToFreq">Frequencies</button>
+                        <button id="GoToItemsWithThisCodeSB" class="btn btn-secondary btn-sm btn-round" disabled>List records</button>
+                        <button class="btn btn-primary btn-sm btn-round" onclick="GetFreqs()" disabled id="CurrentNodeGoToFreqSB">Frequencies</button>
                     </h4>
                 </li>
                 <li class="nav-item">

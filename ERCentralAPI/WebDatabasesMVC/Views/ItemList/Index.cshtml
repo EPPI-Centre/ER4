@@ -140,13 +140,23 @@
             });
             });
 
-    function QuickCitations() {
+    /*function QuickCitations() {
                 var output = "";
                 for (var itm of ListData) {
                     output += "<p>" + itm.quickCitation + "</p>";
                 }
             $("#formattedCitations").html(output);
+    }*/
+    function QuickCitations()
+    {
+        var output = "";
+        for (var itm of ListData)
+        {
+            output += itm.quickCitation + "\r\n";
         }
+        const data = output;
+        downloadCitationFile(data);
+    }
     function setColumns() {
         console.log("setColumns", ColumnVisibility);
         var grid = $('#ItemsGrid').data('kendoGrid');
@@ -187,6 +197,7 @@
         const data = ExportListToRIS(ListData);
         downloadRISFile(data);
     }
+
     function WholeListToRisClick() {
         let formData = { PageIndex: 0 }
         const form = $("#ListPagingForm");
@@ -218,6 +229,17 @@
     function interimFail(response) {
         alert('Error: ' + response.responseText);
         $("#ExportToRisProgress").hide();
+    }
+
+    function downloadCitationFile(citData, hideProgress = false) {
+        const file = new Blob([citData], { type: 'text/plain' });
+        const blobUrl = URL.createObjectURL(file);
+        // Save the need for file-save.js
+        const link = document.createElement("a");
+        link.href = blobUrl;
+        link.download = 'citations.txt';
+        link.click();
+        //if (hideProgress) setTimeout(() => $("#ExportToRisProgress").hide(), 3000);
     }
     function interimWholeListToRisClick(response, result, formData, RISstring) {
         console.log("interimWholeListToRisClick", formData, response);
@@ -648,11 +670,7 @@
                 </div>
 
 
-                <div class="card">
-                    <div class="card-body">
-                        <div id="formattedCitations"></div>
-                    </div>
-                </div>
+
 
 
 
