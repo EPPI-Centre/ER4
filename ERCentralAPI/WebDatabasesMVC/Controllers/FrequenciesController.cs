@@ -53,6 +53,7 @@ namespace WebDatabasesMVC.Controllers
                 if (SetCSLAUser())
                 {
                     FrequencyResultWithCriteria Itm = GetFrequenciesInternal(attId, setId, parentName, included);
+                    
                     return Json(Itm);
                 }
                 else return Unauthorized();

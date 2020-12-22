@@ -126,18 +126,154 @@
             return;
         }
         //console.log("Planning to go to GetFreqs with (codeID, setId):", dataItem.id, dataItem.setId)
+            
+        $("#FrequenciesGrid").show();
+        $("#FrequenciesChart").hide();
+        $("#FrequenciesResult").html("Frequencies for: " + dataItem.text);
+        $("#FrequenciesResult").show();
 
-        if (dataItem.isCodeset == true) {
-            $("#FrequenciesResult").html("Frequencies for: " + dataItem.text);
+        if (dataItem.isCodeset == true) {         
             $.post("../Frequencies/GetFrequenciesJSON", { attId: 0, setId: dataItem.setId, included: true }, function (data, result) { BuildFreqs(data, result); })
             //postwith("../Frequencies/GetFrequencies", { attId: 0, setId: dataItem.setId, included: true });
         }
         else {
-            $("#FrequenciesResult").html("Frequencies for: " + dataItem.text);
             $.post("../Frequencies/GetFrequenciesJSON", { attId: dataItem.id, setId: dataItem.setId, included: true }, function (data, result) { BuildFreqs(data, result); })
             //postwith("../Frequencies/GetFrequencies", { attId: dataItem.id, setId: dataItem.setId, included: true });
         }
     }
+    function GetFreqsBar() {
+        if (!dataItem) {
+            return;
+        }
+
+        $("#FrequenciesGrid").hide();
+        $("#FrequenciesChart").show();
+        $("#FrequenciesResult").html("Frequencies for: " + dataItem.text);
+        $("#FrequenciesResult").show();
+        var chartAPI = "";
+
+        if (dataItem.isCodeset == true) {
+            
+            chartAPI = "../Frequencies/GetFrequenciesJSON?attID=0" +
+                "&setId=" + dataItem.setId +
+                "&included=true";
+
+            //.$.post("../Frequencies/GetFrequenciesJSON", { attId: 0, setId: dataItem.setId, included: true }, function (data, result) { BuildFreqs(data, result); })
+            //postwith("../Frequencies/GetFrequencies", { attId: 0, setId: dataItem.setId, included: true });
+        }
+        else {
+
+            chartAPI = "../Frequencies/GetFrequenciesJSON?attID=" + dataItem.id +
+                "&setId=" + dataItem.setId +
+                "&included=true";
+
+            //$("#FrequenciesResult").html("Frequencies for: " + dataItem.text);
+            //$.post("../Frequencies/GetFrequenciesJSON", { attId: dataItem.id, setId: dataItem.setId, included: true }, function (data, result) { BuildFreqs(data, result); })
+            //postwith("../Frequencies/GetFrequencies", { attId: dataItem.id, setId: dataItem.setId, included: true });
+        }
+
+        $("#FrequenciesChart").kendoChart({
+            categoryAxis: {
+                field: "attribute"
+            },
+            series: [
+                { field: "itemCount" }
+            ],
+            seriesDefaults: {
+                type: 'bar'
+            },
+            /*
+            seriesClick: function (e) {
+                //console.log("Clicked " + e.value, e);
+                GoToYearList(e.category);
+            },
+            axisLabelClick: function (e) {
+                //console.log("Clicked " + e.value, e);
+                GoToYearList(e.value);
+            },*/
+            dataSource: {
+                transport: {
+                    read: {
+                        url: chartAPI,
+                        dataType: "json"
+                    }
+                }
+            }
+            , tooltip: {
+                visible: true,
+                template: "#= category #: #= value # records"
+            }
+        });
+    }
+
+    function GetFreqsPie() {
+        if (!dataItem) {
+            return;
+        }
+
+        $("#FrequenciesGrid").hide();
+        $("#FrequenciesChart").show();
+        $("#FrequenciesResult").html("Frequencies for: " + dataItem.text);
+        $("#FrequenciesResult").show();
+        var chartAPI = "";
+
+        if (dataItem.isCodeset == true) {
+
+            var chartAPI = "../Frequencies/GetFrequenciesJSON?attID=0" +
+                "&setId=" + dataItem.setId +
+                "&included=true";
+
+            //$.post("../Frequencies/GetFrequenciesJSON", { attId: 0, setId: dataItem.setId, included: true }, function (data, result) { BuildFreqs(data, result); })
+            //postwith("../Frequencies/GetFrequencies", { attId: 0, setId: dataItem.setId, included: true });
+        }
+        else {
+
+            var chartAPI = "../Frequencies/GetFrequenciesJSON?attID=" + dataItem.id + 
+                "&setId=" + dataItem.setId +
+                "&included=true";
+
+            //$("#FrequenciesResult").html("Frequencies for: " + dataItem.text);
+            //$.post("../Frequencies/GetFrequenciesJSON", { attId: dataItem.id, setId: dataItem.setId, included: true }, function (data, result) { BuildFreqs(data, result); })
+            //postwith("../Frequencies/GetFrequencies", { attId: dataItem.id, setId: dataItem.setId, included: true });
+        }
+
+        $("#FrequenciesChart").kendoChart({
+            dataSource: {
+                transport: {
+                    read: {
+                        url: chartAPI,
+                        dataType: "json"
+                    }
+                },
+            },
+            legend: {
+                position: "bottom"
+            },
+            seriesDefaults: {
+                type: "pie"
+            },
+            /*
+            seriesClick: function (e) {
+                GoToYearList(e.category);
+            },
+            axisLabelClick: function (e) {
+                GoToYearList(e.value);
+            },*/
+            series: [{
+                field: "itemCount",
+                categoryField: "attribute",
+                padding: 0
+            }],
+            tooltip: {
+                visible: true,
+                template: "#= category #: #= value # records"
+                //template: "#= category #: #= value # records"
+            }
+        });
+    }
+
+
+
     function BuildFreqs(data, result) {
         console.log(data, result);//FrequenciesTemplate
         //columns: [{
@@ -153,6 +289,7 @@
         //    title: "Count"
         //}],
         if (result == "success") {
+            $("#FrequenciesChart").hide();
             $("#FrequenciesResult").show();
             $("#FrequenciesGrid").css("height", ((data.results.length +1) *20.1 + 4).toString()+'px');
             $("#FrequenciesGrid").kendoGrid({
@@ -254,6 +391,8 @@
             $("#CurrentNodeSetXAxis").prop("disabled", true);
             $("#GoToItemsWithThisCode").prop("disabled", true);
             $("#GoToItemsWithThisCodeSB").prop("disabled", true);
+            $("#CurrentNodeGoToFreqBar").prop("disabled", true);
+            $("#CurrentNodeGoToFreqPie").prop("disabled", true);
             $("#GoToItemsWithThisCode").attr('onclick', '');
             $("#GoToItemsWithThisCodeSB").attr('onclick', '');
             return;
@@ -271,6 +410,8 @@
             $("#CurrentNodeGoToSelfCrosstab").prop("disabled", false);
             $("#CurrentNodeGoToCrosstab").prop("disabled", dataItemXaxis == null);
             $("#CurrentNodeSetXAxis").prop("disabled", false);
+            $("#CurrentNodeGoToFreqBar").prop("disabled", false);
+            $("#CurrentNodeGoToFreqPie").prop("disabled", false);
         }
         else {
             $("#CurrentNodeGoToFreq").prop("disabled", true);
@@ -279,6 +420,8 @@
             $("#CurrentNodeGoToSelfCrosstab").prop("disabled", true);
             $("#CurrentNodeGoToCrosstab").prop("disabled", true);
             $("#CurrentNodeSetXAxis").prop("disabled", true);
+            $("#CurrentNodeGoToFreqBar").prop("disabled", true);
+            $("#CurrentNodeGoToFreqPie").prop("disabled", true);
         }
         if (dataItem.isCodeset) {
             $("#GoToItemsWithThisCode").prop("disabled", true);
@@ -336,13 +479,61 @@
             }
             , tooltip: {
                 visible: true,
-                template: "Items count: #= value #"
-            }
+                template: "#= category #: #= value # records"
+            }          
+        });
+    }
 
+    function GetYearsFreqsPie() {
+        $("#chart").kendoChart({            
+            dataSource: {
+                transport: {
+                    read: {
+                        url: "../Review/YearHistogramJSON",
+                        dataType: "json"
+                    }
+                },
+                sort: {
+                    field: "year",
+                    dir: "asc"
+                }
+            },
+            legend: {
+                position: "bottom"
+            },
+            seriesDefaults: {
+                type: "pie"
+            },
+            seriesClick: function (e) {
+                //console.log("Clicked " + e.value, e);
+                GoToYearList(e.category);
+            },
+            axisLabelClick: function (e) {
+                //console.log("Clicked " + e.value, e);
+                GoToYearList(e.value);
+            },
+            series: [{
+                field: "count",
+                categoryField: "year",
+                padding: 0
+            }],
+            tooltip: {
+                visible: true,
+                template: "#= category #: #= value # records"
+            }         
         });
     }
 
     function GoToYearList(year) {
+        //if (year == "Unknown") year = "'    ' OR '0   '";
+        postwith("../ItemList/GetListSearchResults", {
+            SearchString: year
+            , SearchWhat: "PubYear"
+            , included: "true"
+        })
+    }
+
+    function GoToYearListPie(year) {
         //if (year == "Unknown") year = "'    ' OR '0   '";
         postwith("../ItemList/GetListSearchResults", {
             SearchString: year
@@ -448,9 +639,31 @@
                                         <div class="card-title">Frequencies</div>
                                     </td>
                                     <td style="padding: 0px 0px 0px 25px;">
-                                        <button id="GoToItemsWithThisCode" class="btn btn-secondary btn-sm btn-round" disabled>List records</button>
-                                        <button class="btn btn-primary btn-sm btn-round" onclick="GetFreqs()" disabled id="CurrentNodeGoToFreq">Frequencies</button>
-                                        <button class="btn btn-secondary btn-sm btn-round" onclick="GoToFreq()" disabled id="CurrentNodeGoToFreq2">Frequencies (new page)</button>
+                                        <!--<button id="GoToItemsWithThisCode" class="btn btn-secondary btn-sm btn-round" disabled>List records</button>-->
+                                        <button class="btn btn-primary btn-sm btn-round" onclick="GetFreqs()" disabled id="CurrentNodeGoToFreq">
+                                            <span class="btn-label">
+                                                <i class="fa fa-table"></i>
+                                            </span>
+                                            Table
+                                        </button>
+                                        <button class="btn btn-primary btn-sm btn-round" onclick="GetFreqsBar()" disabled id="CurrentNodeGoToFreqBar">
+                                            <span class="btn-label">
+                                                <i class="fa fa-chart-bar"></i>
+                                            </span>
+                                            Bar
+                                        </button>
+                                        <button class="btn btn-primary btn-sm btn-round" onclick="GetFreqsPie()" disabled id="CurrentNodeGoToFreqPie">
+                                            <span class="btn-label">
+                                                <i class="fa fa-chart-pie"></i>
+                                            </span>
+                                            Pie
+                                        </button>
+                                        <button class="btn btn-secondary btn-sm btn-round" onclick="GoToFreq()" disabled id="CurrentNodeGoToFreq2">
+                                            <span class="btn-label">
+                                                <i class="fa fa-table"></i>
+                                            </span>
+                                            Table (new page)
+                                        </button>
                                     </td>
                                 </tr>
                             </table>
@@ -463,7 +676,11 @@
                             <div class="row mx-0 my-1 alert-info small" id="FrequenciesResult" style="display: none;">
                                 <div class="col-12" id="FrequenciesCode"></div>
                             </div>
+
+                            <div id="FrequenciesChart" class="chart"></div>
                             <div style="max-height:50vh;" id="FrequenciesGrid"></div>
+
+
                             <script id="FrequenciesTemplate" type="text/x-kendo-tmpl">
                                 <tr class="border border-bottom ">
                                     @*<td>#= attributeId #</td>*@
@@ -489,7 +706,22 @@
                                         <div class="card-title">Publications by year</div>
                                     </td>
                                     <td style="padding: 0px 0px 0px 25px;">
-                                        <a class="btn btn-secondary btn-round btn-sm" asp-controller="ItemList" asp-action="Index">All records</a>
+
+                                        <button class="btn btn-primary btn-sm btn-round" onclick="GetYearsFreqs()" id="YearFreq">
+                                            <span class="btn-label">
+                                                <i class="fa fa-chart-bar"></i>
+                                            </span>
+                                            Bar
+                                        </button>
+
+                                        <button class="btn btn-primary btn-sm btn-round" onclick="GetYearsFreqsPie()" id="YearFreq">
+                                            <span class="btn-label">
+                                                <i class="fa fa-chart-pie"></i>
+                                            </span>
+                                            Pie
+                                        </button>
+
+
                                     </td>
                                 </tr>
                             </table>
