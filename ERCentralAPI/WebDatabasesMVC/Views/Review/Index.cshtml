@@ -1,4 +1,6 @@
-﻿@model WebDbWithRevInfo;
+﻿<!-- Home -->
+
+@model WebDbWithRevInfo;
 @using WebDatabasesMVC.ViewModels;
 @using Microsoft.AspNetCore.Html;
 @using System.IO;
@@ -126,13 +128,13 @@
             return;
         }
         //console.log("Planning to go to GetFreqs with (codeID, setId):", dataItem.id, dataItem.setId)
-            
+
         $("#FrequenciesGrid").show();
         $("#FrequenciesChart").hide();
         $("#FrequenciesResult").html("Frequencies for: " + dataItem.text);
         $("#FrequenciesResult").show();
 
-        if (dataItem.isCodeset == true) {         
+        if (dataItem.isCodeset == true) {
             $.post("../Frequencies/GetFrequenciesJSON", { attId: 0, setId: dataItem.setId, included: true }, function (data, result) { BuildFreqs(data, result); })
             //postwith("../Frequencies/GetFrequencies", { attId: 0, setId: dataItem.setId, included: true });
         }
@@ -153,23 +155,16 @@
         var chartAPI = "";
 
         if (dataItem.isCodeset == true) {
-            
-            chartAPI = "../Frequencies/GetFrequenciesJSON?attID=0" +
+
+            chartAPI = "../Frequencies/GetFrequenciesResultsJSON?attID=0" +
                 "&setId=" + dataItem.setId +
                 "&included=true";
-
-            //.$.post("../Frequencies/GetFrequenciesJSON", { attId: 0, setId: dataItem.setId, included: true }, function (data, result) { BuildFreqs(data, result); })
-            //postwith("../Frequencies/GetFrequencies", { attId: 0, setId: dataItem.setId, included: true });
         }
         else {
 
-            chartAPI = "../Frequencies/GetFrequenciesJSON?attID=" + dataItem.id +
+            chartAPI = "../Frequencies/GetFrequenciesResultsJSON?attID=" + dataItem.id +
                 "&setId=" + dataItem.setId +
                 "&included=true";
-
-            //$("#FrequenciesResult").html("Frequencies for: " + dataItem.text);
-            //$.post("../Frequencies/GetFrequenciesJSON", { attId: dataItem.id, setId: dataItem.setId, included: true }, function (data, result) { BuildFreqs(data, result); })
-            //postwith("../Frequencies/GetFrequencies", { attId: dataItem.id, setId: dataItem.setId, included: true });
         }
 
         $("#FrequenciesChart").kendoChart({
@@ -182,15 +177,15 @@
             seriesDefaults: {
                 type: 'bar'
             },
-            /*
             seriesClick: function (e) {
-                //console.log("Clicked " + e.value, e);
-                GoToYearList(e.category);
+                GoToListBar(e);
             },
-            axisLabelClick: function (e) {
-                //console.log("Clicked " + e.value, e);
-                GoToYearList(e.value);
-            },*/
+            //axisLabelClick: function (e) {
+            //    GoToListBar(e);
+            //},
+            chartArea: {
+                height: 300
+            },
             dataSource: {
                 transport: {
                     read: {
@@ -218,23 +213,14 @@
         var chartAPI = "";
 
         if (dataItem.isCodeset == true) {
-
-            var chartAPI = "../Frequencies/GetFrequenciesJSON?attID=0" +
+            chartAPI = "../Frequencies/GetFrequenciesResultsJSON?attID=0" +
                 "&setId=" + dataItem.setId +
-                "&included=true";
-
-            //$.post("../Frequencies/GetFrequenciesJSON", { attId: 0, setId: dataItem.setId, included: true }, function (data, result) { BuildFreqs(data, result); })
-            //postwith("../Frequencies/GetFrequencies", { attId: 0, setId: dataItem.setId, included: true });
+                "&included=true";            
         }
         else {
-
-            var chartAPI = "../Frequencies/GetFrequenciesJSON?attID=" + dataItem.id + 
+            chartAPI = "../Frequencies/GetFrequenciesResultsJSON?attID=" + dataItem.id +
                 "&setId=" + dataItem.setId +
-                "&included=true";
-
-            //$("#FrequenciesResult").html("Frequencies for: " + dataItem.text);
-            //$.post("../Frequencies/GetFrequenciesJSON", { attId: dataItem.id, setId: dataItem.setId, included: true }, function (data, result) { BuildFreqs(data, result); })
-            //postwith("../Frequencies/GetFrequencies", { attId: dataItem.id, setId: dataItem.setId, included: true });
+                "&included=true";          
         }
 
         $("#FrequenciesChart").kendoChart({
@@ -245,20 +231,26 @@
                         dataType: "json"
                     }
                 },
+                sort: {
+                    field: "attribute",
+                    dir: "asc"
+                }
             },
             legend: {
                 position: "bottom"
             },
+            chartArea: {
+                height: 300
+            },
             seriesDefaults: {
                 type: "pie"
             },
-            /*
             seriesClick: function (e) {
-                GoToYearList(e.category);
+                GoToListPie(e);
             },
-            axisLabelClick: function (e) {
-                GoToYearList(e.value);
-            },*/
+            //axisLabelClick: function (e) {
+            //    GoToListPie(e.attributeID, e.attributeName);
+            //},
             series: [{
                 field: "itemCount",
                 categoryField: "attribute",
@@ -267,7 +259,6 @@
             tooltip: {
                 visible: true,
                 template: "#= category #: #= value # records"
-                //template: "#= category #: #= value # records"
             }
         });
     }
@@ -291,7 +282,7 @@
         if (result == "success") {
             $("#FrequenciesChart").hide();
             $("#FrequenciesResult").show();
-            $("#FrequenciesGrid").css("height", ((data.results.length +1) *20.1 + 4).toString()+'px');
+            $("#FrequenciesGrid").css("height", ((data.results.length + 1) * 20.1 + 4).toString() + 'px');
             $("#FrequenciesGrid").kendoGrid({
                 rowTemplate: kendo.template($("#FrequenciesTemplate").html()),
                 columns: [
@@ -384,8 +375,8 @@
         dataItem = treeviewData.dataItem(e.node);
         if (!dataItem) {
             $("#CurrentNodeGoToFreq").prop("disabled", true);
-            $("#CurrentNodeGoToFreqSB").prop("disabled", true); 
-            $("#CurrentNodeGoToFreq2").prop("disabled", true);           
+            $("#CurrentNodeGoToFreqSB").prop("disabled", true);
+            $("#CurrentNodeGoToFreq2").prop("disabled", true);
             $("#CurrentNodeGoToSelfCrosstab").prop("disabled", true);
             $("#CurrentNodeGoToCrosstab").prop("disabled", true);
             $("#CurrentNodeSetXAxis").prop("disabled", true);
@@ -462,11 +453,9 @@
                 type: 'bar'
             },
             seriesClick: function (e) {
-                //console.log("Clicked " + e.value, e);
                 GoToYearList(e.category);
             },
             axisLabelClick: function (e) {
-                //console.log("Clicked " + e.value, e);
                 GoToYearList(e.value);
             },
             dataSource: {
@@ -480,12 +469,12 @@
             , tooltip: {
                 visible: true,
                 template: "#= category #: #= value # records"
-            }          
+            }
         });
     }
 
     function GetYearsFreqsPie() {
-        $("#chart").kendoChart({            
+        $("#chart").kendoChart({
             dataSource: {
                 transport: {
                     read: {
@@ -520,7 +509,7 @@
             tooltip: {
                 visible: true,
                 template: "#= category #: #= value # records"
-            }         
+            }
         });
     }
 
@@ -541,6 +530,47 @@
             , included: "true"
         })
     }
+
+
+    function GoToListPie(dataItem) {
+        if (dataItem.dataItem.attributeId == -999999) {
+            postwith("../ItemList/GetFreqListNoneOfTheAbove", {
+                attributeIdXAxis: 0
+                , setId: dataItem.dataItem.setId
+                , included: "true"
+                , onlyThisAttribute: 0
+                , webDbId: 1
+                , attName: dataItem.dataItem.attribute
+            })
+        }
+        else {
+            postwith("../ItemList/GetFreqList", {
+                attId: dataItem.dataItem.attributeId
+                , attName: dataItem.dataItem.attribute
+            })
+        }
+    }
+
+
+    function GoToListBar(dataItem) {
+        if (dataItem.dataItem.attributeId == -999999) {
+            postwith("../ItemList/GetFreqListNoneOfTheAbove", {
+                attributeIdXAxis: 0
+                , setId: dataItem.dataItem.setId
+                , included: "true"
+                , onlyThisAttribute: 0
+                , webDbId: 1
+                , attName: dataItem.dataItem.attribute
+            })
+        }
+        else {
+            postwith("../ItemList/GetFreqList", {
+                attId: dataItem.dataItem.attributeId
+                , attName: dataItem.dataItem.attribute
+            })
+        }
+    }
+
     //var treeviewData = $("#treeView").data("kendoTreeView");
     //treeview.bind("change", TreeViewSelection);
 </script>
@@ -548,7 +578,7 @@
 <div class="sidebar sidebar-style-2">
     <div class="sidebar-wrapper scrollbar scrollbar-inner">
         <div class="sidebar-content">
-            
+
             <ul class="nav nav-primary">
                 <li class="nav-section">
                     <span class="sidebar-mini-icon">
@@ -622,12 +652,12 @@
                                     </td>
                                 </tr>
                             </table>
-                            
+
                         </div>
                         <div class="card-body">
                             <div class="card-category" id="WebDBDescription" style="overflow-y:auto;">
                                 @(new HtmlString(Model.WebDb.WebDBDescription))
-                                
+
                             </div>
                         </div>
                     </div>
@@ -761,84 +791,84 @@
             </div>
             @*<div class="row">
 
-                <div class="col-md-6">
-                    <div class="card ">
-                        <div class="card-header">
-                            Some other feature (header)
-                        </div>
+                    <div class="col-md-6">
+                        <div class="card ">
+                            <div class="card-header">
+                                Some other feature (header)
+                            </div>
 
-                        <div class="card-body">
-                            Some other feature (body)
+                            <div class="card-body">
+                                Some other feature (body)
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <div class="col-md-6">
-                    <div class="card full-height">
-                        <div class="card-header">
-                            <div class="card-head-row">
-                                <div class="card-title">User Statistics</div>
-                                <div class="card-tools">
-                                    <a href="#" class="btn btn-info btn-border btn-round btn-sm mr-2">
-                                        <span class="btn-label">
-                                            <i class="fa fa-pencil"></i>
-                                        </span>
-                                        Export
-                                    </a>
-                                    <a href="#" class="btn btn-info btn-border btn-round btn-sm">
-                                        <span class="btn-label">
-                                            <i class="fa fa-print"></i>
-                                        </span>
-                                        Print
-                                    </a>
+                    <div class="col-md-6">
+                        <div class="card full-height">
+                            <div class="card-header">
+                                <div class="card-head-row">
+                                    <div class="card-title">User Statistics</div>
+                                    <div class="card-tools">
+                                        <a href="#" class="btn btn-info btn-border btn-round btn-sm mr-2">
+                                            <span class="btn-label">
+                                                <i class="fa fa-pencil"></i>
+                                            </span>
+                                            Export
+                                        </a>
+                                        <a href="#" class="btn btn-info btn-border btn-round btn-sm">
+                                            <span class="btn-label">
+                                                <i class="fa fa-print"></i>
+                                            </span>
+                                            Print
+                                        </a>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="card-body">
-                            <div class="chart-container" style="min-height: 375px">
-                                <canvas id="statisticsChart"></canvas>
+                            <div class="card-body">
+                                <div class="chart-container" style="min-height: 375px">
+                                    <canvas id="statisticsChart"></canvas>
+                                </div>
+                                <div id="myChartLegend"></div>
                             </div>
-                            <div id="myChartLegend"></div>
                         </div>
                     </div>
-                </div>
 
-            </div>*@
+                </div>*@
 
         </div>
     </div>
 </div>
 @*<div class="row">
-    <div class="col-md-4">
-        <div class="col-12 ">
-            Review Id is:
-            <h5>@Model.RevInfo.ReviewId</h5>
-        </div>
-        <div class=" col">
-            Screening is:
-            @if (Model.RevInfo.ShowScreening)
-            {<text>Active</text>}
-        else
-        {<text>Disabled</text>}
-        </div>
-        <div class="col-12 ">
-            This web DB will only show items with this code:
-            <div>@ViewBag.AttName (ID: @ViewBag.AttId)</div>
-            <div class="col-7 col-md-8 row mx-0 p-0">
-                <div>
-                    <div><b>@Model.WebDb.WebDBId</b></div>
+        <div class="col-md-4">
+            <div class="col-12 ">
+                Review Id is:
+                <h5>@Model.RevInfo.ReviewId</h5>
+            </div>
+            <div class=" col">
+                Screening is:
+                @if (Model.RevInfo.ShowScreening)
+                {<text>Active</text>}
+            else
+            {<text>Disabled</text>}
+            </div>
+            <div class="col-12 ">
+                This web DB will only show items with this code:
+                <div>@ViewBag.AttName (ID: @ViewBag.AttId)</div>
+                <div class="col-7 col-md-8 row mx-0 p-0">
+                    <div>
+                        <div><b>@Model.WebDb.WebDBId</b></div>
 
-                    <div>This WebDatabase uses EPPI-Reviewer data from the  review called: <b>@Model.RevInfo.ReviewName</b></div>
+                        <div>This WebDatabase uses EPPI-Reviewer data from the  review called: <b>@Model.RevInfo.ReviewName</b></div>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="col-12 " id="CurrentNode">
-            <div class="row">Selected code: <span class="ml-1 font-weight-bold" id="CurrentNodeName"></span></div>
-            <div class="row">Selected code: <span class="ml-1 font-weight-bold" id="CurrentNodeNameCT"></span></div>
-            <div class="row">Selected Id: <span class="ml-1 font-weight-bold" id="CurrentNodeId"></span></div>
-            <div class="row">Selected SetId: <span class="ml-1 font-weight-bold" id="CurrentNodeSetId"></span></div>
-            <div class="row">Is a coding tool: <span class="ml-1 font-weight-bold" id="CurrentNodeIsCodeSet"></span></div>
+            <div class="col-12 " id="CurrentNode">
+                <div class="row">Selected code: <span class="ml-1 font-weight-bold" id="CurrentNodeName"></span></div>
+                <div class="row">Selected code: <span class="ml-1 font-weight-bold" id="CurrentNodeNameCT"></span></div>
+                <div class="row">Selected Id: <span class="ml-1 font-weight-bold" id="CurrentNodeId"></span></div>
+                <div class="row">Selected SetId: <span class="ml-1 font-weight-bold" id="CurrentNodeSetId"></span></div>
+                <div class="row">Is a coding tool: <span class="ml-1 font-weight-bold" id="CurrentNodeIsCodeSet"></span></div>
 
+            </div>
         </div>
-    </div>
-</div>*@
+    </div>*@

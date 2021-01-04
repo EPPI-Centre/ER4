@@ -64,6 +64,23 @@ namespace WebDatabasesMVC.Controllers
                 return StatusCode(500, e.Message);
             }
         }
+        public IActionResult GetFrequenciesResultsJSON([FromForm] long attId, int setId, string parentName, string included)
+        {//we provide all items details in a single JSON method, as it makes no sense to get partial item details, so without Arms, Docs, etc.
+            try
+            {
+                if (SetCSLAUser())
+                {
+                    FrequencyResultWithCriteria Itm = GetFrequenciesInternal(attId, setId, parentName, included);
+                    return Json(Itm.results);
+                }
+                else return Unauthorized();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Error in GetFrequenciesResultsJSON");
+                return StatusCode(500, e.Message);
+            }
+        }
         internal FrequencyResultWithCriteria GetFrequenciesInternal(long attId, int setId, string parentName, string included)
         {
             int DBid = WebDbId;
