@@ -9,6 +9,7 @@ import { GridDataResult } from '@progress/kendo-angular-grid';
 import { SortDescriptor, orderBy } from '@progress/kendo-data-query';
 import { Helpers } from '../helpers/HelperMethods';
 import { EventEmitterService } from '../services/EventEmitter.service';
+import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 
 @Component({
     selector: 'readonlyreviews',
@@ -23,7 +24,8 @@ export class FetchReadOnlyReviewsComponent implements OnInit, OnDestroy{
     constructor(private router: Router,
                 @Inject('BASE_URL') private _baseUrl: string,
                 private ReviewerIdentityServ: ReviewerIdentityService,
-		public _readonlyreviewsService: readonlyreviewsService,
+        public _readonlyreviewsService: readonlyreviewsService,
+        private confirmationDialogService: ConfirmationDialogService,
 		private _eventEmitter: EventEmitterService
 	) {
 		
@@ -107,6 +109,23 @@ export class FetchReadOnlyReviewsComponent implements OnInit, OnDestroy{
     UndoCheckout(Ror: ReadOnlyArchieReview) {
         console.log('UndoCheckout: ', Ror);
         if (Ror.isCheckedOutHere) this._readonlyreviewsService.ArchieReviewUndoCheckout(Ror.archieReviewId);
+    }
+    ConfirmActivate(Ror: ReadOnlyArchieReview) {
+        this.confirmationDialogService.confirm('Activate Review?',
+            'This creates the review record in the EPPI-Reviewer database. It currently <strong>does not</strong> import any review data from RevMan/Archie. <br /> <br />'
+            + 'Activating this review will also give you (its first user, in EPPI-Reviewer) the <em>Review Administrator</em> role.'
+            , false, '')
+            .then(
+                (confirmed: any) => {
+                    //console.log('User confirmed:', confirmed);
+                    if (confirmed) {
+                        this.Checkout(Ror);
+                    } else {
+                        //alert('did not confirm');
+                    }
+                }
+            )
+            .catch(() => console.log('User dismissed the dialog (e.g., by using ESC, clicking the cross icon, or clicking outside the dialog)'));
     }
     Checkout(Ror: ReadOnlyArchieReview) {
         console.log('Checkout: ', Ror);

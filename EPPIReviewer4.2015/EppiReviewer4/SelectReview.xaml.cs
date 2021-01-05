@@ -297,16 +297,15 @@ namespace EppiReviewer4
             if (roar == null || roar.ArchieReviewId == null || roar.ArchieReviewId.Length < 18) return;
             arpc = new ArchieReviewPrepareCommand(roar.ArchieReviewId);
             DialogParameters parameters = new DialogParameters();
-            parameters.Header = "Checkout Review?";
-            parameters.Content = "Checking out a Review will make it"
-                + Environment.NewLine + "editable in EPPI-Reviewer, but read-only"
-                + Environment.NewLine + "in all other Cochrane Systems (Archie and RevMan)."
-                + Environment.NewLine + "You should not check out this review if you are"
-                + Environment.NewLine + "not planning to use EPPI-Reviewer as your"
-                + Environment.NewLine + "chosen CAST tool."
-                + Environment.NewLine + "Note that EPPI-Reviewer is currently unable"
-                + Environment.NewLine + "to fetch study data from Archie/Revman/CRS"
-                + Environment.NewLine + "(these features are under development).";
+            parameters.Header = "Activate Review?";
+            parameters.Content = "This creates the review record in the"
+                + Environment.NewLine + "EPPI-Reviewer database."
+                + Environment.NewLine + "It currently does not import"
+                + Environment.NewLine + "any review data from RevMan/Archie."
+                + Environment.NewLine 
+                + Environment.NewLine + "Activating this review will also"
+                + Environment.NewLine + "give you (its first user, in EPPI-Reviewer)"
+                + Environment.NewLine + "the 'Review Administrator' role.";
             parameters.Closed = OnConfirmCheckoutClosed;
             RadWindow.Confirm(parameters);
 
