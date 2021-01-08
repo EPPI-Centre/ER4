@@ -14,6 +14,67 @@ Crosstab!
                 , Description: Descript.replaceAll('&#39;', '\'')
             });
     }
+
+
+    function ReloadCrosstab() {
+        console.log("CurrentNodeGoToCrosstab");
+        if (!@Model.SetIdX) {
+            console.log("CurrentNodeGoToCrosstab no data");
+            return;
+        }
+        var isSelfXtab = false;
+        if ((@Model.SetIdX == @Model.SetIdY) && (@Model.AttibuteIdX == @Model.AttibuteIdY)) {
+            isSelfXtab = true;
+        }
+
+        if (isSelfXtab == true) {
+            if (@Model.AttibuteIdX == 0) { // its a codeset
+                postwith("../Frequencies/GetCrosstab", {
+                    attIdx: 0
+                    , setIdx: @Model.SetIdX
+                    //, nameXaxis: "test x axis"
+                    , attIdy: 0
+                    , setIdy: @Model.SetIdY
+                    //, nameYaxis: "test y axis"
+                    , included: true
+                });
+            }
+            else postwith("../Frequencies/GetCrosstab", {
+                attIdx: @Model.AttibuteIdX
+                , setIdx: @Model.SetIdX
+                , attIdy: @Model.AttibuteIdY
+                , setIdy: @Model.SetIdY
+                , included: true
+            });
+        } else {
+            var pars = {
+                attIdx: 0
+                , setIdx: 0
+                , attIdy: 0
+                , setIdy: 0
+                , included: true
+            }
+            if (@Model.AttibuteIdX == 0) {
+                pars.attIdy = 0;
+                pars.setIdy = @Model.SetIdY;
+            }
+            else {
+                pars.attIdy = @Model.AttibuteIdY;
+                pars.setIdy = @Model.SetIdY;
+            }
+            if (@Model.AttibuteIdX == 0) { // its a codeset
+                pars.attIdx = 0;
+                pars.setIdx = @Model.SetIdX;
+            }
+            else {
+                pars.attIdx = @Model.AttibuteIdX;
+                pars.setIdx = @Model.SetIdX;
+            }
+            postwith("../Frequencies/GetCrosstab", pars);
+        }
+    }
+
+
 </script>
 
 <input type="hidden" value="@Model.Included" name="included" id="includedCrit" />
@@ -21,6 +82,13 @@ Crosstab!
 <input type="hidden" value="@Model.SetIdX" name="setIdXAxis" id="setIdXAxisCrit" />
 <input type="hidden" value="@Model.FilterAttributeId" name="onlyThisAttribute" id="onlyThisAttributeCrit" />
 <input type="hidden" value="@Model.WebDbId" name="webDbId" id="webDbIdCrit" />
+
+<input type="hidden" value="@Model.SetIdXName" name="SetIdXName" id="SetIdXNameCrit" />
+<input type="hidden" value="@Model.SetIdYName" name="SetIdYName" id="SetIdYNameCrit" />
+<input type="hidden" value="@Model.AttibuteIdX" name="AttibuteIdXAxis" id="AttibuteIdXCrit" />
+<input type="hidden" value="@Model.AttibuteIdY" name="AttibuteIdYAxis" id="AttibuteIdYCrit" />
+<input type="hidden" value="@Model.AttibuteIdXName" name="AttibuteIdXName" id="AttibuteIdXNameCrit" />
+<input type="hidden" value="@Model.AttibuteIdYName" name="AttibuteIdYName" id="AttibuteIdYNameCrit" />
 
 
 
@@ -37,18 +105,38 @@ Crosstab!
 
             <div class="main-panel main-panel-no-sidebar">
                 <div class="card">
-                                        
+
                     <div class="card-body">
                         <table width="100%">
                             <tr>
                                 <td>
-                                    <h5 class="card-title mb-3">Cross-tab report</h5><h5>
-                                        SetIdx: @Model.SetIdX.ToString() vs
-                                        SetIdy: @Model.SetIdY.ToString(). Not sure how to get the correct text....
-                                    </h5>
+                                    <h5 class="card-title mb-3">Cross-tab report</h5>
+                                    @if ((@Model.AttibuteIdX == 0) && (Model.AttibuteIdY == 0))
+                                    {
+                                        <h5><b>(Column) @Model.SetIdXName.ToString()</b> vs <b>(Row) @Model.SetIdYName.ToString()</b></h5>
+                                    }
+                                    @if ((@Model.AttibuteIdX != 0) && (Model.AttibuteIdY != 0))
+                                    {
+                                        <h5><b>(Column) @Model.AttibuteIdXName.ToString()</b> vs <b>(Row) @Model.AttibuteIdYName.ToString()</b></h5>
+                                    }
+                                    @if ((@Model.AttibuteIdX == 0) && (Model.AttibuteIdY != 0))
+                                    {
+                                        <h5><b>(Column) @Model.SetIdXName.ToString()</b> vs <b>(Row) @Model.AttibuteIdYName.ToString()</b></h5>
+                                    }
+                                    @if ((@Model.AttibuteIdX != 0) && (Model.AttibuteIdY == 0))
+                                    {
+                                        <h5><b>(Column) @Model.AttibuteIdXName.ToString()</b> vs <b>(Row) @Model.SetIdYName.ToString()</b></h5>
+                                    }
+
                                 </td>
                                 <td style="text-align:right">
                                     <div class="card-tools">
+                                        <button class="btn btn-primary btn-sm btn-round" onclick="ReloadCrosstab()">
+                                            <span class="btn-label">
+                                                <i class="fa fa-table"></i>
+                                            </span>
+                                            Table
+                                        </button>
                                         <a href="#" class="btn btn-info btn-round btn-sm mr-2">
                                             <span class="btn-label">
                                                 <i class="fa fa-circle"></i>

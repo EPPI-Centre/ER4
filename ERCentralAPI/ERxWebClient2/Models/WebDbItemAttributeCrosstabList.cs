@@ -69,6 +69,7 @@ namespace BusinessLibrary.BusinessClasses
                 return GetProperty(SetIdXProperty);
             }
         }
+
         public static readonly PropertyInfo<int> SetIdYProperty = RegisterProperty<int>(new PropertyInfo<int>("SetIdY", "SetIdY"));
         public int SetIdY
         {
@@ -77,6 +78,64 @@ namespace BusinessLibrary.BusinessClasses
                 return GetProperty(SetIdYProperty);
             }
         }
+
+
+        public static readonly PropertyInfo<string> SetIdXNameProperty = RegisterProperty<string>(new PropertyInfo<string>("SetIdXName", "SetIdXName"));
+        public string SetIdXName
+        {
+            get
+            {
+                return GetProperty(SetIdXNameProperty);
+            }
+        }
+
+        public static readonly PropertyInfo<string> SetIdYNameProperty = RegisterProperty<string>(new PropertyInfo<string>("SetIdYName", "SetIdYName"));
+        public string SetIdYName
+        {
+            get
+            {
+                return GetProperty(SetIdYNameProperty);
+            }
+        }
+
+
+
+        public static readonly PropertyInfo<int> AttibuteIdXProperty = RegisterProperty<int>(new PropertyInfo<int>("AttibuteIdX", "AttibuteIdX"));
+        public int AttibuteIdX
+        {
+            get
+            {
+                return GetProperty(AttibuteIdXProperty);
+            }
+        }
+
+        public static readonly PropertyInfo<int> AttibuteIdYProperty = RegisterProperty<int>(new PropertyInfo<int>("AttibuteIdY", "AttibuteIdY"));
+        public int AttibuteIdY
+        {
+            get
+            {
+                return GetProperty(AttibuteIdYProperty);
+            }
+        }
+
+        public static readonly PropertyInfo<string> AttibuteIdXNameProperty = RegisterProperty<string>(new PropertyInfo<string>("AttibuteIdXName", "AttibuteIdXName"));
+        public string AttibuteIdXName
+        {
+            get
+            {
+                return GetProperty(AttibuteIdXNameProperty);
+            }
+        }
+
+        public static readonly PropertyInfo<string> AttibuteIdYNameProperty = RegisterProperty<string>(new PropertyInfo<string>("AttibuteIdYName", "AttibuteIdYName"));
+        public string AttibuteIdYName
+        {
+            get
+            {
+                return GetProperty(AttibuteIdYNameProperty);
+            }
+        }
+
         public static readonly PropertyInfo<string> IncludedProperty = RegisterProperty<string>(new PropertyInfo<string>("Included", "Included", ""));
         public string Included
         {
@@ -102,6 +161,14 @@ namespace BusinessLibrary.BusinessClasses
 
             Dictionary<long, string> codesY = new Dictionary<long, string>();
             List<MiniItem> items = new List<MiniItem>();
+
+
+            string SetIdXAxisName = "";
+            string SetIdYAxisName = "";
+            Int64 AttibuteIdXAxis = 0;
+            Int64 AttibuteIdYAxis = 0;
+            string AttibuteIdXAxisName = "";
+            string AttibuteIdYAxisName = "";
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
                 connection.Open();
@@ -147,7 +214,22 @@ namespace BusinessLibrary.BusinessClasses
                             }
                             items.Add(mit);
                         }
-                        
+
+                        reader.NextResult();
+
+                        string test = "";
+                        while (reader.Read())
+                        {
+                            test = reader.GetInt64("SETIDX_ID").ToString();
+                            SetIdXAxisName = reader.GetString("SETIDX_NAME"); 
+                            test = reader.GetInt64("SETIDY_ID").ToString();
+                            SetIdYAxisName = reader.GetString("SETIDY_NAME");
+                            AttibuteIdXAxis = reader.GetInt64("ATTIBUTEIDX_ID");
+                            AttibuteIdXAxisName = reader.GetString("ATTIBUTEIDX_NAME");
+                            AttibuteIdYAxis = reader.GetInt64("ATTIBUTEIDY_ID");
+                            AttibuteIdYAxisName = reader.GetString("ATTIBUTEIDY_NAME");
+                        }
+
                     }
                 }
                 connection.Close();
@@ -156,6 +238,13 @@ namespace BusinessLibrary.BusinessClasses
                 LoadProperty(SetIdYProperty, criteria.setIdYAxis);
                 LoadProperty(FilterAttributeIdProperty, criteria.onlyThisAttribute);
                 LoadProperty(IncludedProperty, criteria.included);
+                LoadProperty(AttibuteIdXProperty, Convert.ToInt32(AttibuteIdXAxis));
+                LoadProperty(AttibuteIdYProperty, Convert.ToInt32(AttibuteIdYAxis));
+                LoadProperty(AttibuteIdXNameProperty, AttibuteIdXAxisName);
+                LoadProperty(AttibuteIdYNameProperty, AttibuteIdYAxisName);
+                LoadProperty(SetIdXNameProperty, SetIdXAxisName);
+                LoadProperty(SetIdYNameProperty, SetIdYAxisName);
+
                 foreach (KeyValuePair<long, string> kvp in codesY)
                 {//cycle on rows
                     WebDbItemAttributeCrosstabRow row = WebDbItemAttributeCrosstabRow.GetReadOnlyItemAttributeCrosstabRow(kvp.Key, kvp.Value);
