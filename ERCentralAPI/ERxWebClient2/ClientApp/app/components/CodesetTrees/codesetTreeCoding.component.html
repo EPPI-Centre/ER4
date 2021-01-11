@@ -23,7 +23,7 @@
         </div>
     </div>
 </div>
-<div *ngIf="IsServiceBusy" class="k-loading-image" style="position: fixed; top: 0%;"></div>
+<div *ngIf="IsServiceBusy" class="k-loading-image" style="height: 100vh; position: absolute; top: 0%;"></div>
 <p *ngIf="!IsReviewSetsServiceBusy && (!nodes || nodes.length == 0)"><em>No codesets currently loaded.</em></p>
 <p *ngIf="IsReviewSetsServiceBusy && (!nodes || nodes.length == 0) "><em>Loading...</em></p>
 <div *ngIf="nodes && nodes.length > 0" style="max-height: 810px; height:680px;">
