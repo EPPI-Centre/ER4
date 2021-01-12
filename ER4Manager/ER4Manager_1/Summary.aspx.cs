@@ -17,7 +17,7 @@ using System.Text.RegularExpressions;
 
 public partial class Summary : System.Web.UI.Page
 {
-    
+
     protected void Page_Load(object sender, EventArgs e)
     {
         if (Utils.GetSessionString("Contact_ID") != null)
@@ -52,8 +52,12 @@ public partial class Summary : System.Web.UI.Page
                     buildOutstandingFeeGrid();
                 }
                 buildContactPurchasesGrid();
+                if (Utils.GetSessionString("HasCochraneReviews") == "Unknown")
+                {
+                    countCochraneReviews();
+                }
             }
-            Utils.SetSessionString("Credit_Purchase_ID", "");           
+            Utils.SetSessionString("Credit_Purchase_ID", "");
         }
         else
         {
@@ -70,14 +74,14 @@ public partial class Summary : System.Web.UI.Page
         lblNewPassword.Visible = false;
         lblMissingFields.Visible = false;
         pnlAccountMessages.Visible = false;
-        
+
         DateTime dayCreated;
         DateTime dayExpires;
 
         lblPasswordMsg.Text = "To keep your existing password leave the password fields blank.";
         Regex passwordRegex = new Regex("^.*(?=.{8,})(?=.*\\d)(?=.*[a-z])(?=.*[A-Z]).*$");
 
-        bool isAdmDB = true; 
+        bool isAdmDB = true;
         using (System.Data.SqlClient.SqlConnection myConnection = new System.Data.SqlClient.SqlConnection())
         {
             IDataReader idr = Utils.GetReader1(isAdmDB, "st_ContactDetails", myConnection, contactID);
@@ -171,7 +175,7 @@ public partial class Summary : System.Web.UI.Page
             }
             if (idr["SITE_LIC_ID"] != null && idr["SITE_LIC_ID"].ToString() != "")
             {
-                newrow["EXPIRY_DATE"] += " In site License (ID:" + idr["SITE_LIC_ID"].ToString()+")";
+                newrow["EXPIRY_DATE"] += " In site License (ID:" + idr["SITE_LIC_ID"].ToString() + ")";
             }
             dt.Rows.Add(newrow);
         }
@@ -212,7 +216,7 @@ public partial class Summary : System.Web.UI.Page
             pnlOrganisations.Visible = true;
     }
 
-    
+
 
     private void buildCreditPurchaseGrid()
     {
@@ -292,7 +296,7 @@ public partial class Summary : System.Web.UI.Page
             pnlOutstandingFees.Visible = true;
     }
 
-    
+
 
 
     private void buildContactPurchasesGrid()
@@ -320,8 +324,8 @@ public partial class Summary : System.Web.UI.Page
         {
             newrow = dt.NewRow();
             newrow["CONTACT_ID"] = idr["CONTACT_ID"].ToString();
-            newrow["IS_FULLY_ACTIVE"] = idr["IS_FULLY_ACTIVE"] ;
-            newrow["IS_STALE_AGHOST"] = idr["IS_STALE_AGHOST"] ;
+            newrow["IS_FULLY_ACTIVE"] = idr["IS_FULLY_ACTIVE"];
+            newrow["IS_STALE_AGHOST"] = idr["IS_STALE_AGHOST"];
             if ((idr["CONTACT_NAME"].ToString() == null) || (idr["CONTACT_NAME"].ToString() == ""))
                 newrow["CONTACT_NAME"] = "Not set up";
             else
@@ -356,11 +360,11 @@ public partial class Summary : System.Web.UI.Page
                 {
                     newrow["EXPIRY_DATE"] = dayExpires.ToString("dd MMM yyyy");
                 }
-                if  (idr["SITE_LIC_ID"].ToString() != null && idr["SITE_LIC_ID"].ToString() != "")
+                if (idr["SITE_LIC_ID"].ToString() != null && idr["SITE_LIC_ID"].ToString() != "")
                 {
                     newrow["EXPIRY_DATE"] += " In Site License '" + idr["SITE_LIC_NAME"].ToString() + "' (ID:" + idr["SITE_LIC_ID"].ToString() + ")";
                 }
-                
+
             }
             else if ((idr["EXPIRY_DATE"].ToString() == "") && (int.Parse(idr["MONTHS_CREDIT"].ToString()) > 0)
                 && idr["EMAIL"].ToString() == "")
@@ -371,10 +375,10 @@ public partial class Summary : System.Web.UI.Page
             {
                 newrow["EXPIRY_DATE"] = "Invitation sent: " + idr["MONTHS_CREDIT"].ToString() + " months credit";
             }
-            else if (newrow["IS_FULLY_ACTIVE"].ToString() == "False" &&  newrow["IS_STALE_AGHOST"].ToString() == "True")
+            else if (newrow["IS_FULLY_ACTIVE"].ToString() == "False" && newrow["IS_STALE_AGHOST"].ToString() == "True")
             {
                 newrow["EXPIRY_DATE"] = "Invitation sent (expired): " + idr["MONTHS_CREDIT"].ToString() + " months credit";
-            } 
+            }
             dt.Rows.Add(newrow);
         }
         idr.Close();
@@ -411,7 +415,7 @@ public partial class Summary : System.Web.UI.Page
                     {
                         lb.CommandName = "CANCEL1";
                         lb.Text = "Cancel";
-                        
+
                     }
                 }
 
@@ -436,7 +440,7 @@ public partial class Summary : System.Web.UI.Page
                         gvAccountPurchases.Rows[i].Cells[6].Enabled = false;
                     }
                 }
-                
+
             }
         }
     }
@@ -519,7 +523,7 @@ public partial class Summary : System.Web.UI.Page
         lblNewPassword.Visible = false;
         lblMissingFields.Visible = false;
         pnlAccountMessages.Visible = false;
-        
+
         bool isAdmDB = false;
         bool emailConditionsMet = true;
         bool usernameConditionsMet = true;
@@ -567,32 +571,32 @@ public partial class Summary : System.Web.UI.Page
             accountConditionsMet = false;
         }
         else if (tbPassword.Text != "")
+        {
+            Match m = passwordRegex.Match(tbPassword.Text.ToString());
+            if (m.Success)
             {
-                Match m = passwordRegex.Match(tbPassword.Text.ToString());
-                if (m.Success)
+                if (tbPassword.Text.Contains(" "))
                 {
-                    if (tbPassword.Text.Contains(" "))
-                    {
-                        lblNewPassword.Visible = true;
-                        accountConditionsMet = false;
-                    }
-                    else
-                    {
-                        passwordConditionsMet = true;
-                    }
-                    
+                    lblNewPassword.Visible = true;
+                    accountConditionsMet = false;
                 }
                 else
                 {
-                    accountConditionsMet = false;
-                    lblNewPassword.Visible = true;
+                    passwordConditionsMet = true;
                 }
-                
+
             }
+            else
+            {
+                accountConditionsMet = false;
+                lblNewPassword.Visible = true;
+            }
+
+        }
         if (accountConditionsMet)
         {
             // data is there. check if email and username is unique and if password conditions are met.
-            string email = tbEmail.Text.Trim(); 
+            string email = tbEmail.Text.Trim();
             //first go, check the username
             SqlParameter[] paramListCheckUserDetails = new SqlParameter[4];
             paramListCheckUserDetails[0] = new SqlParameter("@Uname", tbUserName.Text.Trim());
@@ -636,8 +640,8 @@ public partial class Summary : System.Web.UI.Page
                 paramListCheckUserDetails[3] = new SqlParameter("@CONTACT_NAME", SqlDbType.NVarChar);
                 paramListCheckUserDetails[3].Size = 255;
                 paramListCheckUserDetails[3].Direction = ParameterDirection.Output;
-               
-                
+
+
                 Utils.ExecuteSPWithReturnValues(true, Server, "st_ContactCheckUnameOrEmail", paramListCheckUserDetails);
                 CID = 0;
                 CID = (int)paramListCheckUserDetails[2].Value;
@@ -649,14 +653,14 @@ public partial class Summary : System.Web.UI.Page
                     lblEmailAddress0.Text = "Email address is already in use for a different account. Please select another.";
                 }
             }
-            
+
         }
-        
+
         if (accountConditionsMet)
         {
             isAdmDB = true;
             Utils.ExecuteSP(isAdmDB, Server, "st_ContactEdit",
-                             tbName.Text.Trim(), tbUserName.Text.Trim(), tbEmail.Text.Trim(), tbPassword.Text.Trim(), 
+                             tbName.Text.Trim(), tbUserName.Text.Trim(), tbEmail.Text.Trim(), tbPassword.Text.Trim(),
                              lblContactID.Text);
             pnlContactDetails.Visible = false;
             buildContactGrid();
@@ -671,7 +675,7 @@ public partial class Summary : System.Web.UI.Page
     }
 
 
-   
+
 
 
     protected void cbSendNewsletter_CheckedChanged(object sender, EventArgs e)
@@ -699,7 +703,7 @@ public partial class Summary : System.Web.UI.Page
         {//we don't know whose account we should change!
             return;
         }
-        
+
         if (tbActivateGhostEmail.Text != tbActivateGhostEmail1.Text) // do not trim in the comparison
         {
             lblActivateGhostMessages.Visible = true;
@@ -732,7 +736,7 @@ public partial class Summary : System.Web.UI.Page
         //st_CheckGhostAccountBeforeActivation will set the email field if all checks go well
         Utils.ExecuteSPWithReturnValues(true, Server, "st_CheckGhostAccountBeforeActivation", paramList);
         string res = paramList[2].Value.ToString();
-        
+
         //if email is in use, suggest to transfer the credit
         if (res == "E-Mail is already in use")
         {
@@ -750,10 +754,10 @@ public partial class Summary : System.Web.UI.Page
         }
         else if (res == "Valid")//if email is not in use
         {
-            
+
             //show confirmation msg, refresh the ghost accounts table, this includes a system to show half/ghost accounts (those waiting for activation!)
             //send email to final user
-           
+
             string LinkUI = Utils.CreateLink(CID, "ActivateGhost", "", Server);
             string BaseUrl = Request.Url.AbsoluteUri.Substring(0, Request.Url.AbsoluteUri.ToLower().IndexOf("summary.aspx"));
             BaseUrl = Utils.FixURLForHTTPS(BaseUrl);
@@ -766,7 +770,7 @@ public partial class Summary : System.Web.UI.Page
             pnlActivateGhostForm.Visible = false;
             buildContactPurchasesGrid();
             return;
-            
+
         }
         //Watch out: the follwing code is to show some error, based on the expectation that all other code branches above end with a "return;" 
         //e.g. if what follows is executed, that's because something unanticipated went wrong
@@ -778,7 +782,7 @@ public partial class Summary : System.Web.UI.Page
         //use some new st_transferAccountCredit
         //send confirmation of transfer if the account is not already activated (EXPIRY_DATE is null), then it's added to the credit line.
         lblActivateGhostMessages.Visible = false;
-        
+
         string strCid = lblActivateGhostContactID.Text;
         int CID;//this is the source (GHOST) account
         int.TryParse(strCid, out CID);
@@ -817,17 +821,17 @@ public partial class Summary : System.Web.UI.Page
 
         paramList[4] = new SqlParameter("@CREDIT", SqlDbType.SmallInt);
         paramList[4].Direction = ParameterDirection.Output;
-        
+
         paramList[5] = new SqlParameter("@NEWDATE", SqlDbType.Date);
         paramList[5].Direction = ParameterDirection.Output;
-        
+
         paramList[6] = new SqlParameter("@CONTACT_NAME", SqlDbType.NVarChar);
         paramList[6].Direction = ParameterDirection.Output;
         paramList[6].Size = 255;
-        
+
         Utils.ExecuteSPWithReturnValues(true, Server, "st_transferAccountCredit", paramList);
         string res = paramList[3].Value.ToString();
-        
+
         if (res == "The destination account was not found")
         {
             lblActivateGhostMessages.Visible = true;
@@ -930,7 +934,7 @@ public partial class Summary : System.Web.UI.Page
         switch (e.CommandName)
         {
             case "DETAILS":
-                Utils.SetSessionString("Credit_Purchase_ID", creditPurchaseID);              
+                Utils.SetSessionString("Credit_Purchase_ID", creditPurchaseID);
                 Utils.SetSessionString("Remaining_Credit", gvCreditPurchases.Rows[index].Cells[3].Text);
                 Utils.SetSessionString("Purchased_Credit", gvCreditPurchases.Rows[index].Cells[2].Text);
                 Server.Transfer("AssignCredit.aspx");
@@ -990,8 +994,8 @@ public partial class Summary : System.Web.UI.Page
     {
         if (e.Row.RowType == DataControlRowType.DataRow)
         {
-            
-            
+
+
             //LinkButton lb = (LinkButton)(e.Row.Cells[2].Controls[0]);
             //lb.Attributes.Add("onclick", "if (confirm('Are you sure you want to remove yourself from this organisation?') == false) return false;");
         }
@@ -1016,5 +1020,30 @@ public partial class Summary : System.Web.UI.Page
     protected void lbHideHistory_Click(object sender, EventArgs e)
     {
         pnlHistory.Visible = false;
+    }
+
+    private void countCochraneReviews()
+    {
+        Utils.SetSessionString("HasCochraneReviews", "No");
+        bool isAdmDB = true;
+        IDataReader idr = Utils.GetReader(isAdmDB, "st_ContactReviewsArchieProspective",
+            Utils.GetSessionString("Contact_ID"));
+        if (idr.Read())
+        {
+            Utils.SetSessionString("HasCochraneReviews", "Yes");
+        }
+        idr.Close();
+
+        if (Utils.GetSessionString("HasCochraneReviews") == "No")
+        {
+            idr = Utils.GetReader(isAdmDB, "st_ContactReviewsArchieFull",
+                Utils.GetSessionString("Contact_ID"));
+            if (idr.Read())
+            {
+                Utils.SetSessionString("HasCochraneReviews", "Yes");
+            }
+            idr.Close();
+        }
+
     }
 }

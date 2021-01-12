@@ -38,6 +38,11 @@ public partial class MasterPage : System.Web.UI.MasterPage
                 rtsMenu.Tabs[8].Visible = true;
             }
 
+            if (Utils.GetSessionString("HasCochraneReviews") == "Yes")
+            {
+                rtsMenu.Tabs[0].Tabs[3].Visible = true;
+            }
+
             if (Utils.GetSessionString("IsSiteLicenseAdm") == "1")
             {
                 rtsMenu.Tabs[6].Visible = true;

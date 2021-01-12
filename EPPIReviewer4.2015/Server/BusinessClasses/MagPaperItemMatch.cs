@@ -40,6 +40,8 @@ namespace BusinessLibrary.BusinessClasses
     */
     public static class MagPaperItemMatch
     {
+        public const double AutoMatchThreshold = 0.8;
+        public const double AutoMatchMinScore = 0.4;
         private static SearchIndexClient CreateSearchIndexClient()
         {
 #if (!CSLA_NETCORE)
@@ -76,28 +78,6 @@ namespace BusinessLibrary.BusinessClasses
 
             if (i != null)
             {
-
-                /*
-                Regex rgx = new Regex("[^a-zA-Z0-9 ]");
-                string title = String.IsNullOrWhiteSpace(rgx.Replace(i.Title, " ").Replace("--", " ")) == false ? " title: " + rgx.Replace(i.Title, " ").Replace("--", " ").ToLower() : "";
-                string journal = String.IsNullOrWhiteSpace(rgx.Replace(i.ParentTitle, " ")) == false ? " journal: " + rgx.Replace(i.ParentTitle, " ").ToLower() : "";
-                string authors = String.IsNullOrWhiteSpace(rgx.Replace(i.Authors.Replace(";", " ").Replace(":", ""), " ")) == false ? " authors: " + rgx.Replace(i.Authors.Replace(";", " ").Replace(":", ""), " ").ToLower() : "";
-                //string authors = String.IsNullOrWhiteSpace(rgx.Replace(i.Institution.Replace(";", " ").Replace(":", ""), " ")) == false ? " authors: " + rgx.Replace(i.Institution.Replace(";", " ").Replace(":", ""), " ").ToLower() : "";
-                string volume = String.IsNullOrWhiteSpace(rgx.Replace(i.Volume.Replace(":", ""), " ")) == false ? " volume: " + rgx.Replace(i.Volume.Replace(":", ""), " ").ToLower() : "";
-                string issue = String.IsNullOrWhiteSpace(rgx.Replace(i.Issue.Replace(":", ""), " ")) == false ? " issue: " + rgx.Replace(i.Issue.Replace(":", ""), " ").ToLower() : "";
-                string first_page = String.IsNullOrWhiteSpace(rgx.Replace(i.FirstPage().Replace(":", ""), " ")) == false ? " first_page: " + rgx.Replace(i.FirstPage().Replace(":", ""), " ").ToLower() : "";
-
-                string searchString = title + journal + authors + volume + issue + first_page;
-                SearchIndexClient client = CreateSearchIndexClient();
-                SearchParameters parameters = new SearchParameters()
-                {
-                    Select = new[] { "id", "title", "journal", "year", "authors", "volume", "issue", "first_page" },
-                    QueryType = QueryType.Full,
-                    Top = 3
-                };
-                */
-                //DocumentSearchResult<MagPaperItemsMatch> results = client.Documents.Search<MagPaperItemsMatch>(searchString, parameters);
-
                 // similar code is used in MagCheckPaperIdChangesCommand
                 List<MagMakesHelpers.PaperMakes> candidatePapersOnDOI = MagMakesHelpers.GetCandidateMatchesOnDOI(i.DOI, "LIVE");
                 if (candidatePapersOnDOI != null && candidatePapersOnDOI.Count > 0)
@@ -107,17 +87,16 @@ namespace BusinessLibrary.BusinessClasses
                         MagPaperItemMatch.doComparison(i, cpm);
                     }
                 }
-                if (candidatePapersOnDOI.Count == 0 || (candidatePapersOnDOI.Max(t => t.matchingScore) < 0.7))
+                if (candidatePapersOnDOI.Count == 0 || (candidatePapersOnDOI.Max(t => t.matchingScore) < AutoMatchThreshold))
                 {
                     List<MagMakesHelpers.PaperMakes> candidatePapersOnTitle = MagMakesHelpers.GetCandidateMatches(i.Title, "LIVE", true);
                     foreach (MagMakesHelpers.PaperMakes pm in candidatePapersOnTitle)
                     {
                         doComparison(i, pm);
                     }
-                    double minMatchingScore = 0.40;
                     for (int inn = 0; inn < candidatePapersOnTitle.Count; inn++)
                     {
-                        if (candidatePapersOnTitle[inn].matchingScore < minMatchingScore)
+                        if (candidatePapersOnTitle[inn].matchingScore < AutoMatchMinScore)
                         {
                             candidatePapersOnTitle.RemoveAt(inn);
                             inn--;
@@ -126,13 +105,13 @@ namespace BusinessLibrary.BusinessClasses
                     foreach (MagMakesHelpers.PaperMakes pm in candidatePapersOnTitle)
                     {
                         var found = candidatePapersOnDOI.Find(e => e.Id == pm.Id);
-                        if (found == null && pm.matchingScore >= minMatchingScore)
+                        if (found == null && pm.matchingScore >= AutoMatchMinScore)
                         {
                             candidatePapersOnDOI.Add(pm);
                         }
                     }
                     // add in matching on journals / authors if we don't have an exact match on title
-                    if (candidatePapersOnTitle.Count == 0 || (candidatePapersOnTitle.Count > 0 && candidatePapersOnTitle.Max(t => t.matchingScore) < 0.7))
+                    if (candidatePapersOnTitle.Count == 0 || (candidatePapersOnTitle.Count > 0 && candidatePapersOnTitle.Max(t => t.matchingScore) < AutoMatchThreshold))
                     {
                         List<MagMakesHelpers.PaperMakes> candidatePapersOnAuthorJournal = MagMakesHelpers.GetCandidateMatches(i.Authors + " " + i.ParentTitle);
                         foreach (MagMakesHelpers.PaperMakes pm in candidatePapersOnAuthorJournal)
@@ -142,7 +121,7 @@ namespace BusinessLibrary.BusinessClasses
                         foreach (MagMakesHelpers.PaperMakes pm in candidatePapersOnAuthorJournal)
                         {
                             var found = candidatePapersOnDOI.Find(e => e.Id == pm.Id);
-                            if (found == null && pm.matchingScore >= minMatchingScore)
+                            if (found == null && pm.matchingScore >= AutoMatchMinScore)
                             {
                                 candidatePapersOnDOI.Add(pm);
                             }
@@ -177,34 +156,40 @@ namespace BusinessLibrary.BusinessClasses
         // Also see the algorithm in ItemDuplicateReadOnlyGroupList.cs. They should (probably) be identical
         public static void doComparison(Item i, MagMakesHelpers.PaperMakes pm)
         {
-            pm.titleLeven = HaBoLevenshtein(pm.DN, i.Title);
-            pm.volumeMatch = pm.V == i.Volume ? 1 : 0;
-            pm.pageMatch = pm.FP == i.FirstPage() ? 1 : 0;
-            pm.yearMatch = pm.Y.ToString() == i.Year ? 1 : 0;
-            pm.journalJaro = pm.J != null ? Jaro(pm.J.JN, i.ParentTitle) : 0;
-            pm.allAuthorsLeven = Jaro(MagMakesHelpers.getAuthors(pm.AA).Replace(",", " "), i.Authors.Replace(";", " "));
-            pm.matchingScore = ((pm.titleLeven / 100 * 2.71) +
-                (pm.volumeMatch * 0.02) +
-                (pm.pageMatch * 0.18) +
-                (pm.yearMatch * 0.82) +
-                (pm.journalJaro * 0.55) +
-                (pm.allAuthorsLeven / 100 * 1.25)) / 5.53;
+            ItemDuplicateReadOnlyGroupList.Comparator comparator = new ItemDuplicateReadOnlyGroupList.Comparator();
+            pm.matchingScore = comparator.CompareItems(new ItemDuplicateReadOnlyGroupList.ItemComparison(i),
+                new ItemDuplicateReadOnlyGroupList.ItemComparison(pm));
+            //pm.titleLeven = HaBoLevenshtein(pm.DN, i.Title);
+            //pm.volumeMatch = pm.V == i.Volume ? 1 : 0;
+            //pm.pageMatch = pm.FP == i.FirstPage() ? 1 : 0;
+            //pm.yearMatch = pm.Y.ToString() == i.Year ? 1 : 0;
+            //pm.journalJaro = pm.J != null ? Jaro(pm.J.JN, i.ParentTitle) : 0;
+            //pm.allAuthorsLeven = Jaro(MagMakesHelpers.getAuthors(pm.AA).Replace(",", " "), i.Authors.Replace(";", " "));
+            //pm.matchingScore = ((pm.titleLeven / 100 * 2.71) +
+            //    (pm.volumeMatch * 0.02) +
+            //    (pm.pageMatch * 0.18) +
+            //    (pm.yearMatch * 0.82) +
+            //    (pm.journalJaro * 0.55) +
+            //    (pm.allAuthorsLeven / 100 * 1.25)) / 5.53;
         }
 
         public static void doMakesPapersComparison(MagMakesHelpers.PaperMakes i, MagMakesHelpers.PaperMakes pm)
         {
-            pm.titleLeven = HaBoLevenshtein(pm.DN, i.DN);
-            pm.volumeMatch = pm.V == i.V ? 1 : 0;
-            pm.pageMatch = pm.FP == i.FP ? 1 : 0;
-            pm.yearMatch = pm.Y == i.Y ? 1 : 0;
-            pm.journalJaro = pm.J != null && i.J != null ? Jaro(pm.J.JN, i.J.JN) : 0;
-            pm.allAuthorsLeven = Jaro(MagMakesHelpers.getAuthors(pm.AA).Replace(",", " "), MagMakesHelpers.getAuthors(i.AA).Replace(",", " "));
-            pm.matchingScore = ((pm.titleLeven / 100 * 2.71) +
-                (pm.volumeMatch * 0.02) +
-                (pm.pageMatch * 0.18) +
-                (pm.yearMatch * 0.82) +
-                (pm.journalJaro * 0.55) +
-                (pm.allAuthorsLeven / 100 * 1.25)) / 5.53;
+            ItemDuplicateReadOnlyGroupList.Comparator comparator = new ItemDuplicateReadOnlyGroupList.Comparator();
+            pm.matchingScore = comparator.CompareItems(new ItemDuplicateReadOnlyGroupList.ItemComparison(i),
+                new ItemDuplicateReadOnlyGroupList.ItemComparison(pm));
+            //pm.titleLeven = HaBoLevenshtein(pm.DN, i.DN);
+            //pm.volumeMatch = pm.V == i.V ? 1 : 0;
+            //pm.pageMatch = pm.FP == i.FP ? 1 : 0;
+            //pm.yearMatch = pm.Y == i.Y ? 1 : 0;
+            //pm.journalJaro = pm.J != null && i.J != null ? Jaro(pm.J.JN, i.J.JN) : 0;
+            //pm.allAuthorsLeven = Jaro(MagMakesHelpers.getAuthors(pm.AA).Replace(",", " "), MagMakesHelpers.getAuthors(i.AA).Replace(",", " "));
+            //pm.matchingScore = ((pm.titleLeven / 100 * 2.71) +
+            //    (pm.volumeMatch * 0.02) +
+            //    (pm.pageMatch * 0.18) +
+            //    (pm.yearMatch * 0.82) +
+            //    (pm.journalJaro * 0.55) +
+            //    (pm.allAuthorsLeven / 100 * 1.25)) / 5.53;
         }
 
         

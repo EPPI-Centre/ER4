@@ -129,6 +129,20 @@
                            FactoryMethod="GetMagSearchList" 
                            DataChanged="CslaDataProvider_HandleDataChangeError">
         </cslaXAML:CslaDataProvider>
+        <cslaXAML:CslaDataProvider x:Key="MagAutoUpdateListData"
+                           ManageObjectLifetime="True"
+                           IsInitialLoadEnabled="False"
+                           ObjectType="BusinessLibrary.BusinessClasses.MagAutoUpdateList, BusinessLibrary, Version=..., Culture=neutral, PublicKeyToken=null"
+                           FactoryMethod="GetMagAutoUpdateList" 
+                           DataChanged="CslaDataProvider_HandleDataChangeError">
+        </cslaXAML:CslaDataProvider>
+        <cslaXAML:CslaDataProvider x:Key="MagAutoUpdateRunListData"
+                           ManageObjectLifetime="True"
+                           IsInitialLoadEnabled="False"
+                           ObjectType="BusinessLibrary.BusinessClasses.MagAutoUpdateRunList, BusinessLibrary, Version=..., Culture=neutral, PublicKeyToken=null"
+                           FactoryMethod="GetMagAutoUpdateRunList" 
+                           DataChanged="CslaDataProvider_HandleDataChangeError">
+        </cslaXAML:CslaDataProvider>
         <helper:ReverseBooleanConverter x:Key="ReverseBoolean" />
 
         <!--<helper:SelectedNotSelectedConverter x:Key="SelectedNotSelectedText" />
@@ -162,7 +176,7 @@
             <StackPanel Grid.Column="0" Orientation="Horizontal">
                 <TextBlock x:Name="tbAcademicTitle" TextWrapping="Wrap"  Text="Microsoft Academic Graph browser" FontSize="12" FontStyle="Italic" Margin="5,10,5,5"></TextBlock>
                 <TextBlock x:Name="tbImportingRecords" Grid.Column="0" Text="Importing records..." FontSize="12" FontStyle="Italic" Margin="20,10,5,5" Visibility="Collapsed"></TextBlock>
-                <cslaXAML:BusyAnimation x:Name="BusyImportingRecords"  Width="50" Height="50" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                <cslaXAML:BusyAnimation x:Name="BusyImportingRecords"  Width="50" Height="40" HorizontalAlignment="Center" VerticalAlignment="Center"/>
             </StackPanel>
             <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
                 <HyperlinkButton x:Name="HLShowSelected" Content="Show selected (0)" Margin="5,5,5,5" HorizontalAlignment="Right" Click="HLShowSelected_Click" IsTabStop="False"></HyperlinkButton>
@@ -311,6 +325,7 @@
                         <radDock:RadDocumentPane Header="Keep review up to date" Title="Keep review up to date" CanFloat="False" CanUserClose="False" Tag="AutoUpdate">
                             <Grid Background="Beige">
                                 <Grid.RowDefinitions>
+                                    <RowDefinition Height="0" x:Name="RowAutoUpdateImport"></RowDefinition>
                                     <RowDefinition Height="200"></RowDefinition>
                                     <RowDefinition Height="35"></RowDefinition>
                                     <RowDefinition Height="0" x:Name="RowCreateNewAutoUpdate"></RowDefinition>
@@ -324,21 +339,144 @@
                                     <ColumnDefinition Width="20*"></ColumnDefinition>
                                     <ColumnDefinition Width="80*"></ColumnDefinition>
                                 </Grid.ColumnDefinitions>
+                                
+                                <Image Grid.Row="1" Grid.Column="0" Source="./Icons/MAG.jpg" Margin="5,5,10,5" HorizontalAlignment="Right" VerticalAlignment="Top"></Image>
 
-                                <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Vertical">
+                                <Grid x:Name="GridAutoUpdateImport" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Background="LightGray" Margin="5,5,5,5">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="35"></RowDefinition>
+                                        <RowDefinition Height="35"></RowDefinition>
+                                        <RowDefinition Height="35"></RowDefinition>
+                                        <RowDefinition Height="35"></RowDefinition>
+                                        <RowDefinition Height="35"></RowDefinition>
+                                        <RowDefinition Height="35"></RowDefinition>
+                                        <RowDefinition Height="35"></RowDefinition>
+                                        <RowDefinition Height="35"></RowDefinition>
+                                        <RowDefinition Height="35"></RowDefinition>
+                                        <RowDefinition Height="0" x:Name="RowAutoUpdateRunStudyClassifiers"></RowDefinition>
+                                        <RowDefinition Height="0" x:Name="RowAutoUpdateRunUserClassifiers"></RowDefinition>
+                                        <RowDefinition Height="0" x:Name="RowAutoUpdateTextFilterJournal"></RowDefinition>
+                                        <RowDefinition Height="0" x:Name="RowAutoUpdateTextFilterURL"></RowDefinition>
+                                        <RowDefinition Height="0" x:Name="RowAutoUpdateTextFilterDOI"></RowDefinition>
+                                    </Grid.RowDefinitions>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="200*"></ColumnDefinition>
+                                        <ColumnDefinition Width="200*"></ColumnDefinition>
+                                    </Grid.ColumnDefinitions>
+
+                                    <TextBlock Grid.Row="0" Grid.ColumnSpan="2" Text="Refine and import results" FontSize="14" Margin="5,5,5,5"></TextBlock>
+                                    <telerik:RadCartesianChart x:Name="MagAutoUpdateChart" Grid.Row="1" Grid.RowSpan="6" Grid.Column="0" Margin="15,5,15,15"
+                                   Background="White">
+                                        <telerik:RadCartesianChart.HorizontalAxis>
+                                            <telerik:CategoricalAxis Title="Range" />
+                                        </telerik:RadCartesianChart.HorizontalAxis>
+                                        <telerik:RadCartesianChart.VerticalAxis>
+                                            <telerik:LinearAxis Title="Number of items"/>
+                                        </telerik:RadCartesianChart.VerticalAxis>
+                                        <telerik:BarSeries CategoryBinding="Range" ValueBinding="Count" IsHitTestVisible="True"
+                                                           ItemsSource="{Binding Source={StaticResource MagAutoUpdateVisualiseData}, Path=Data}"></telerik:BarSeries>
+                                        <telerik:RadCartesianChart.Behaviors>
+                                            <telerik:ChartSelectionBehavior DataPointSelectionMode="Multiple" ></telerik:ChartSelectionBehavior>
+                                        </telerik:RadCartesianChart.Behaviors>
+                                    </telerik:RadCartesianChart>
+
+                                    <StackPanel Grid.Row="7" Grid.Column="0" Orientation="Horizontal">
+                                        <TextBlock Text="Graph:" Margin="5,5,3,5"></TextBlock>
+                                        <RadioButton x:Name="AutoUpdateGraphShowAutoUpdateModel" Content="Auto-update model" Margin="5,5,5,5" GroupName="AutoUpdateGraphShowGroup" IsChecked="True" Checked="AutoUpdateGraphShowAutoUpdateModel_Checked"></RadioButton>
+                                        <RadioButton x:Name="AutoUpdateGraphShowStudyTypeModel" Content="Study type classifier" Margin="5,5,5,5" GroupName="AutoUpdateGraphShowGroup" Checked="AutoUpdateGraphShowAutoUpdateModel_Checked"></RadioButton>
+                                        <RadioButton x:Name="AutoUpdateGraphShowUserModel" Content="User classifier" Margin="5,5,5,5" GroupName="AutoUpdateGraphShowGroup" Checked="AutoUpdateGraphShowAutoUpdateModel_Checked"></RadioButton>
+                                    </StackPanel>
+
+                                    <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal">
+                                        <telerik:RadNumericUpDown x:Name="AutoUpdateAutoScoreThreshold" Minimum="0.2" Maximum="1" SmallChange="0.01" VerticalAlignment="Center" Value="0.2" Margin="5,5,5,5"></telerik:RadNumericUpDown>
+                                        <TextBlock Text="Auto-update model score threshold" Margin="5,5,5,5" VerticalAlignment="Center"></TextBlock>
+                                    </StackPanel>
+                                    <StackPanel Grid.Row="2" Grid.Column="1" Orientation="Horizontal">
+                                        <telerik:RadNumericUpDown x:Name="AutoUpdateStudyTypeScoreThreshold" Minimum="0.0" Maximum="1" SmallChange="0.01" VerticalAlignment="Center" Value="0.0" Margin="5,5,5,5"></telerik:RadNumericUpDown>
+                                        <TextBlock Text="Study type classifier score threshold" Margin="5,5,5,5" VerticalAlignment="Center"></TextBlock>
+                                    </StackPanel>
+                                    <StackPanel Grid.Row="3" Grid.Column="1" Orientation="Horizontal">
+                                        <telerik:RadNumericUpDown x:Name="AutoUpdateUserScoreThreshold" Minimum="0.0" Maximum="1" SmallChange="0.01" VerticalAlignment="Center" Value="0.0" Margin="5,5,5,5"></telerik:RadNumericUpDown>
+                                        <TextBlock Text="User classifier score threshold" Margin="5,5,5,5" VerticalAlignment="Center"></TextBlock>
+                                    </StackPanel>
+                                    <StackPanel Grid.Row="4" Grid.Column="1" Orientation="Horizontal">
+                                        <TextBlock Text="Above thresholds filter out " Margin="5,5,0,5"></TextBlock>
+                                        <TextBlock x:Name="AutoUpdateNRecordsFiltered" Text="0" Margin="0,5,0,5"></TextBlock>
+                                        <TextBlock Text=" records" Margin="0,5,5,5"></TextBlock>
+                                        <HyperlinkButton x:Name="AutoUpdateRefreshImportCount" Content="Refresh count" Margin="5,5,5,5" IsTabStop="False" Click="AutoUpdateRefreshImportCount_Click"></HyperlinkButton>
+                                    </StackPanel>
+                                    <StackPanel Grid.Row="5" Grid.Column="1" Orientation="Horizontal">
+                                        <TextBlock Text="Import top:" Margin="5,5,2,5" VerticalAlignment="Center"></TextBlock>
+                                        <telerik:RadNumericUpDown x:Name="AutoUpdateImportTopN" Minimum="0" SmallChange="1" IsInteger="True" VerticalAlignment="Center" Value="1" Margin="2,5,2,5" ValueChanged="AutoUpdateImportTopN_ValueChanged"></telerik:RadNumericUpDown>
+                                        <TextBlock Text="by" Margin="2,5,5,5" VerticalAlignment="Center"></TextBlock>
+                                        <ComboBox x:Name="comboAutoUpdateImportOptions" Margin="5,5,5,5" VerticalAlignment="Center">
+                                            <ComboBoxItem Content="auto-update model" Tag="AutoUpdate" IsSelected="True"></ComboBoxItem>
+                                            <ComboBoxItem Content="study type classifier" Tag="StudyTypeClassifier"></ComboBoxItem>
+                                            <ComboBoxItem Content="user classifier" Tag="UserClassifier"></ComboBoxItem>
+                                        </ComboBox>
+                                    </StackPanel>
+
+                                    <StackPanel Grid.Row="6" Grid.Column="1" Orientation="Horizontal">
+                                        <TextBlock x:Name="AutoUpdateNumberToImport" Text="Number to import: " Margin="5,5,5,5"></TextBlock>
+                                        <HyperlinkButton x:Name="AutoUpdatePreviewPaperList" Content="List these items" Margin="5,5,5,5" Click="AutoUpdatePreviewPaperList_Click"></HyperlinkButton>
+                                    </StackPanel>
+
+                                    <StackPanel Grid.Row="8" Grid.Column="0" Orientation="Horizontal">
+                                        <HyperlinkButton x:Name="AutoUpdateOpenClassifiers" Content="Select and run classifiers" Margin="5,5,5,5" IsTabStop="False" Click="AutoUpdateOpenClassifiers_Click" Tag="Open"></HyperlinkButton>
+                                        <HyperlinkButton x:Name="AutoUpdateOpenTextFilters" Content="Text filters" Margin="5,5,5,5" IsTabStop="False" Click="AutoUpdateOpenTextFilters_Click" Tag="Open"></HyperlinkButton>
+                                    </StackPanel>
+                                    
+                                    <StackPanel Grid.Row="8" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
+                                        <HyperlinkButton x:Name="AutoUpdateCloseImport" Content="Close" Margin="5,5,5,5" IsTabStop="False" Click="AutoUpdateCloseImport_Click"></HyperlinkButton>
+                                        <HyperlinkButton x:Name="AutoUpdateImport" Content="IMPORT" FontSize="12" Margin="5,5,5,5" IsTabStop="False" Click="AutoUpdateImport_Click"></HyperlinkButton>
+                                    </StackPanel>
+
+                                    <StackPanel Grid.Row="9" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal">
+                                        <TextBlock Text="Study type classifier:" Margin="5,5,2,5" VerticalAlignment="Center"></TextBlock>
+                                        <ComboBox x:Name="comboAutoUpdateStudyTypeClassifier" Margin="5,5,5,5" VerticalAlignment="Center">
+                                            <ComboBoxItem Content="None" Tag="None" IsSelected="True"></ComboBoxItem>
+                                            <ComboBoxItem Content="RCT" Tag="RCT"></ComboBoxItem>
+                                            <ComboBoxItem Content="Cochrane RCT" Tag="Cochrane RCT"></ComboBoxItem>
+                                            <ComboBoxItem Content="Economic evaluation" Tag="Economic evaluation"></ComboBoxItem>
+                                            <ComboBoxItem Content="Systematic review" Tag="Systematic review"></ComboBoxItem>
+                                        </ComboBox>
+                                        <HyperlinkButton x:Name="hlAutoUpdateStudyClassifierRun" Margin="5,5,5,5" Content="Run this study type classifier" Click="hlAutoUpdateStudyClassifierRun_Click"></HyperlinkButton>
+                                    </StackPanel>
+                                    <StackPanel Grid.Row="10" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal">
+                                        <TextBlock Margin="5,5,5,5" Text="User classifier:" VerticalAlignment="Center"></TextBlock>
+                                        <ComboBox x:Name="comboAutoUpdateUserModels" 
+                                            ItemsSource="{Binding Source={StaticResource ClassifierContactModelListData}, Path=Data}"
+                                            Margin="5,5,5,5" VerticalAlignment="Center"></ComboBox>
+                                        <HyperlinkButton x:Name="hlAutoUpdateUserClassifierRun" Margin="5,5,5,5" Content="Run this user-built classifier" Click="hlAutoUpdateUserClassifierRun_Click"></HyperlinkButton>
+                                    </StackPanel>
+
+                                    <StackPanel Grid.Row="11" Grid.Column="1" Orientation="Horizontal">
+                                        <TextBlock Text="Filter from journal field" Margin="5,5,5,5" VerticalAlignment="Center"></TextBlock>
+                                        <TextBox x:Name="AutoUpdateTextFilterJournal" Margin="23,5,5,5" Width="200" VerticalAlignment="Center"></TextBox>
+                                    </StackPanel>
+                                    <StackPanel Grid.Row="12" Grid.Column="1" Orientation="Horizontal">
+                                        <TextBlock Text="Filter from URL field" Margin="5,5,5,5" VerticalAlignment="Center"></TextBlock>
+                                        <TextBox x:Name="AutoUpdateTextFilterURL" Margin="40,5,5,5" Width="200" VerticalAlignment="Center"></TextBox>
+                                    </StackPanel>
+                                    <StackPanel Grid.Row="13" Grid.Column="1" Orientation="Horizontal">
+                                        <TextBlock Text="Filter from DOI field" Margin="5,5,5,5" VerticalAlignment="Center"></TextBlock>
+                                        <TextBox x:Name="AutoUpdateTextFilterDOI" Margin="40,5,5,5" Width="200" VerticalAlignment="Center"></TextBox>
+                                    </StackPanel>
+                                </Grid>
+                                <!-- END Sub grid for refine and import -->
+
+                                <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Vertical">
                                     <TextBlock FontSize="14" Margin="5,5,5,5">Keep your review up to date with research as it is published</TextBlock>
                                     <TextBlock TextWrapping="Wrap"  Margin="5,10,5,5" Text="On this page you can keep your review up to date by automatically adding potentially relevant papers as soon as they are published.&#10;
 &#10;This feature uses a copy of the Microsoft Academic dataset, that is updated every 1-2 weeks. It looks for all the new papers that have arrived since the last update, and then adds those to your review that are most similar to papers that you have already included. For this to work it's essential that you have your existing included items matched to their equivalent Microsoft Academic records. If you haven't done this yet, go to the 'Match records' tab and match your records in. As this feature ONLY looks at the new records that appear, you should ensure that your review is up to date first, by using the 'bring review up to date' feature.&#10;
 &#10;You can use the 'filter' below to limit the items you want the auto-update to 'learn' from to a subset of items in your review. You can also obtain multiple updates per review if needed, for example, for specific subsets of records.&#10;"></TextBlock>
                                 </StackPanel>
 
-                                <Image Grid.Row="0" Grid.Column="0" Source="./Icons/MAG.jpg" Margin="5,5,10,5" HorizontalAlignment="Right" VerticalAlignment="Top"></Image>
+                                
+                                <HyperlinkButton x:Name="LBAddNewAutoUpdate" Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" Margin="5,5,5,5" Content="Add new review auto update" Click="LBAddNewAutoUpdate_Click"  Tag="ClickToOpen" IsTabStop="False"></HyperlinkButton>
 
-                                <HyperlinkButton x:Name="LBAddNewAutoUpdate" Grid.Row="1" Grid.Column="1" Margin="5,5,5,5" Content="Add new review auto update" Click="LBAddNewAutoUpdate_Click"  Tag="ClickToOpen" IsTabStop="False"></HyperlinkButton>
-
-                                <Grid Grid.Row="2" Grid.Column="1">
+                                <Grid Grid.Row="3" Grid.Column="1">
                                     <Grid.RowDefinitions>
-                                        <RowDefinition Height="35"></RowDefinition>
                                         <RowDefinition Height="35"></RowDefinition>
                                         <RowDefinition Height="35"></RowDefinition>
                                         <RowDefinition Height="35"></RowDefinition>
@@ -348,39 +486,75 @@
                                         <ColumnDefinition Width="*"></ColumnDefinition>
                                     </Grid.ColumnDefinitions>
                                     <TextBlock Grid.Row="0" Grid.Column="0" Text="Description" Margin="5,5,5,5" HorizontalAlignment="Right" VerticalAlignment="Center"></TextBlock>
-                                    <TextBox Grid.Row="0" Grid.Column="1" x:Name="tbReviewAutoUpdateDescription" Margin="5,5,5,5" Width="200" HorizontalAlignment="Left" VerticalAlignment="Center"></TextBox>
+                                    <TextBox Grid.Row="0" Grid.Column="1" x:Name="tbAutoUpdateDescription" Margin="5,5,5,5" Width="200" HorizontalAlignment="Left" VerticalAlignment="Center"></TextBox>
 
                                     <TextBlock Text="Auto update based on" Grid.Row="1" Grid.Column="0" Margin="5,5,5,5" VerticalAlignment="Center" HorizontalAlignment="Right"></TextBlock>
                                     <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Left">
                                         <RadioButton x:Name="RadioButtonAutoUpdateAllIncluded" Content="All included items in review" IsChecked="True" Margin="5,5,5,5" GroupName="RadioButtonsAutoUpdate" VerticalAlignment="Center" Tag="AllIncluded" Checked="RadioButtonAutoUpdateAllIncluded_Checked"></RadioButton>
                                         <RadioButton x:Name="RadioButtonAutoUpdateWithCode" Content="Items with specified code" Margin="5,5,5,5" GroupName="RadioButtonsAutoUpdate" Tag="WithThisCode" VerticalAlignment="Center" Checked="RadioButtonAutoUpdateWithCode_Checked"></RadioButton>
-                                        <!--"<RadioButton x:Name="RadioButtonRelatedPapersRunChildrenOfCode" Content="Multiple searches with each child of this code" Margin="5,5,5,5" GroupName="RadioButtonsRelatedPapersRun" Tag="WithChildrenOfThisCode" IsEnabled="False" VerticalAlignment="Center" Checked="RadioButton_Checked_1"></RadioButton>-->
                                         <local:codesSelectControl x:Name="codesSelectControlAutoUpdate" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="5,5,5,5" Width="150" Height="30" Visibility="Collapsed"></local:codesSelectControl>
                                     </StackPanel>
 
-                                    <StackPanel Grid.Row="2" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Left">
-                                        <TextBlock Margin="5,5,5,5" Text="Study type classifier" VerticalAlignment="Center"></TextBlock>
-                                        <ComboBox x:Name="comboAutoUpdateStudyTypeClassifier" Margin="5,5,5,5" VerticalAlignment="Center">
-                                            <ComboBoxItem Content="None" Tag="None" IsSelected="True"></ComboBoxItem>
-                                            <ComboBoxItem Content="RCT" Tag="RCT"></ComboBoxItem>
-                                            <ComboBoxItem Content="Cochrane RCT" Tag="Cochrane RCT"></ComboBoxItem>
-                                            <ComboBoxItem Content="Economic evaluation" Tag="Economic evaluation"></ComboBoxItem>
-                                            <ComboBoxItem Content="Systematic review" Tag="Systematic review"></ComboBoxItem>
-                                        </ComboBox>
-                                        <TextBlock Margin="5,5,5,5" Text="User defined classifier" VerticalAlignment="Center"></TextBlock>
-                                        <ComboBox x:Name="comboAutoUpdateUserModels" 
-                              ItemsSource="{Binding Source={StaticResource ClassifierContactModelListData}, Path=Data}"
-                              Margin="5,5,5,5" VerticalAlignment="Center"></ComboBox>
-                                    </StackPanel>
-
-                                    <HyperlinkButton x:Name="LBAddNewAutoUpdateDoAdd" Grid.Row="3" Grid.Column="0" Margin="5,5,5,5" Content="Add new review auto update" Click="LBAddNewAutoUpdateDoAdd_Click"  IsTabStop="False"></HyperlinkButton>
+                                    <HyperlinkButton x:Name="LBAddNewAutoUpdateDoAdd" Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" Margin="5,5,5,5" Content="Add new review auto update" Click="LBAddNewAutoUpdateDoAdd_Click"  IsTabStop="False"></HyperlinkButton>
                                 </Grid>
 
-                                <TextBlock Grid.Row="3" Grid.Column="0" Text="Current auto updates running" Margin="5,10,5,2"></TextBlock>
-                                <telerikGridView:RadGridView Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2"></telerikGridView:RadGridView>
+                                <TextBlock Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2" Text="Current auto updates set to run each MAG update" Margin="5,10,5,2"></TextBlock>
+                                <telerikGridView:RadGridView Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="2"
+                                                             ItemsSource="{Binding Source={StaticResource MagAutoUpdateListData}, Path=Data, Mode=TwoWay}"
+                                    IsEnabled="{Binding Source={StaticResource MagAutoUpdateListData}, Converter={StaticResource ReverseBoolean}, Path=IsBusy }"
+                                    RowIndicatorVisibility="Collapsed" CanUserSelect="False" ShowGroupPanel="False" AutoGenerateColumns="False">
+                                    <telerikGridView:RadGridView.Columns>
+                                        <telerikGridView:GridViewDataColumn Header="Description" DataMemberBinding="{Binding UserDescription}" Width="70*"></telerikGridView:GridViewDataColumn>
+                                        <telerikGridView:GridViewDataColumn Header="All matched included items" Width="100" DataMemberBinding="{Binding AllIncluded}" IsReadOnly="True"></telerikGridView:GridViewDataColumn>
+                                        <telerikGridView:GridViewDataColumn Header="Filtered to items with this code" Width="80*" DataMemberBinding="{Binding AttributeName}" IsReadOnly="True"></telerikGridView:GridViewDataColumn>
 
-                                <TextBlock Grid.Row="5" Grid.Column="0" Text="Items identified by auto update runs" Margin="5,10,5,2"></TextBlock>
-                                <telerikGridView:RadGridView Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="2"></telerikGridView:RadGridView>
+                                        <telerikGridView:GridViewDataColumn Width="50" SortingState="None" IsReadOnly="True">
+                                            <telerikGridView:GridViewDataColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <HyperlinkButton Content="Delete" Click="HyperlinkButton_Click_17"/>
+                                                </DataTemplate>
+                                            </telerikGridView:GridViewDataColumn.CellTemplate>
+                                        </telerikGridView:GridViewDataColumn>
+                                    </telerikGridView:RadGridView.Columns>
+                                </telerikGridView:RadGridView>
+
+                                <TextBlock Grid.Row="6" Grid.Column="0" Text="Items identified by auto update runs" Margin="5,10,5,2"></TextBlock>
+                                <telerikGridView:RadGridView Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="2"
+                                    ItemsSource="{Binding Source={StaticResource MagAutoUpdateRunListData}, Path=Data, Mode=TwoWay}"
+                                    IsEnabled="{Binding Source={StaticResource MagAutoUpdateRunListData}, Converter={StaticResource ReverseBoolean}, Path=IsBusy }"
+                                    RowIndicatorVisibility="Collapsed" CanUserSelect="False" ShowGroupPanel="False" AutoGenerateColumns="False">
+                                    <telerikGridView:RadGridView.Columns>
+                                        <telerikGridView:GridViewDataColumn Header="Description" DataMemberBinding="{Binding UserDescription}" Width="70*"></telerikGridView:GridViewDataColumn>
+                                        <telerikGridView:GridViewDataColumn Header="All included" Width="100" DataMemberBinding="{Binding AllIncluded}" IsReadOnly="True"></telerikGridView:GridViewDataColumn>
+                                        <telerikGridView:GridViewDataColumn Header="With this code" Width="80*" DataMemberBinding="{Binding AttributeName}" IsReadOnly="True"></telerikGridView:GridViewDataColumn>
+                                        <telerikGridView:GridViewDataColumn Header="Study type classifier" Width="80*" DataMemberBinding="{Binding StudyTypeClassifier}" IsReadOnly="True"></telerikGridView:GridViewDataColumn>
+                                        <telerikGridView:GridViewDataColumn Header="User Classifier" Width="80*" DataMemberBinding="{Binding UserClassifierDescription}" IsReadOnly="True"></telerikGridView:GridViewDataColumn>
+                                        <telerikGridView:GridViewDataColumn Header="Date Run" Width="80*" DataMemberBinding="{Binding DateRun}" IsReadOnly="True"></telerikGridView:GridViewDataColumn>
+                                        
+                                        <telerikGridView:GridViewDataColumn Width="130" SortingState="None" IsReadOnly="True">
+                                            <telerikGridView:GridViewDataColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <HyperlinkButton Content="Refine and import" Click="HyperlinkButton_Click_18"/>
+                                                </DataTemplate>
+                                            </telerikGridView:GridViewDataColumn.CellTemplate>
+                                        </telerikGridView:GridViewDataColumn>
+                                    <telerikGridView:GridViewDataColumn Width="50" SortingState="None" IsReadOnly="True">
+                                        <telerikGridView:GridViewDataColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <HyperlinkButton Content="{Binding NPapers}" Click="HyperlinkButton_Click_19"/>
+                                            </DataTemplate>
+                                        </telerikGridView:GridViewDataColumn.CellTemplate>
+                                    </telerikGridView:GridViewDataColumn>
+                                        <telerikGridView:GridViewDataColumn Width="50" SortingState="None" IsReadOnly="True">
+                                            <telerikGridView:GridViewDataColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <HyperlinkButton Content="Delete" Click="HyperlinkButton_Click_20"/>
+                                                </DataTemplate>
+                                            </telerikGridView:GridViewDataColumn.CellTemplate>
+                                        </telerikGridView:GridViewDataColumn>
+                                    </telerikGridView:RadGridView.Columns>
+
+                                </telerikGridView:RadGridView>
                             </Grid>
                             
                         </radDock:RadDocumentPane>
@@ -1044,7 +1218,7 @@
                                                     </DataTemplate>
                                                 </telerikGridView:GridViewDataColumn.CellTemplate>
                                             </telerikGridView:GridViewDataColumn>
-                                            <telerikGridView:GridViewDataColumn Width="50">
+                                            <telerikGridView:GridViewDataColumn Width="50" UniqueName="SimilarityScoreColumn">
                                                 <telerikGridView:GridViewDataColumn.CellTemplate>
                                                     <DataTemplate>
                                                         <TextBlock Text="{Binding SimilarityScore, StringFormat=N4}" MouseLeftButtonUp="PaperListBibliographyGrid_MouseLeftButtonUp" HorizontalAlignment="Center" VerticalAlignment="Top"/>

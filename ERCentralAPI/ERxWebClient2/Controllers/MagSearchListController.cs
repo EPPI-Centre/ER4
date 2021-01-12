@@ -231,7 +231,7 @@ namespace ERxWebClient2.Controllers
 
                     DataPortal<MagItemPaperInsertCommand> dp2 = new DataPortal<MagItemPaperInsertCommand>();
                     MagItemPaperInsertCommand command = new MagItemPaperInsertCommand("", "MagSearchResults",
-                        0, "MAG search: " + magSearch.searchText, magSearch.magSearchText);
+                        0, 0, "", 0, 0, 0, 0, "", "", "", "MAG search: " + magSearch.searchText, magSearch.magSearchText);
 
                     command = dp2.Execute(command);
 

@@ -33,13 +33,7 @@ namespace WebDatabasesMVC.Controllers
             {
                 if (SetCSLAUser())
                 {
-                    int DBid = -1;
-                    List<Claim> claims = User.Claims.ToList();
-                    Claim DBidC = claims.Find(f => f.Type == "WebDbID");
-                    if (DBidC != null)
-                    {
-                        int.TryParse(DBidC.Value, out DBid);
-                    }
+                    int DBid = WebDbId;
                     WebDbReviewSetsList reviewSets = null;
                     if (DBid > 0)
                     {

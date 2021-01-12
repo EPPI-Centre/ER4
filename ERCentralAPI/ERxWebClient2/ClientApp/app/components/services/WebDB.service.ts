@@ -16,12 +16,14 @@ export class WebDBService extends BusyAwareService  {
 
     constructor(
         private _httpC: HttpClient,
-		private modalService: ModalService,
+        private modalService: ModalService,
+        private ReviewSetsService: ReviewSetsService,
         @Inject('BASE_URL') private _baseUrl: string
     ) { super(); }
 
     @Output() PleaseRedrawTheTree = new EventEmitter();
     private _WebDBs: iWebDB[] = [];
+    public MissingAttributes: MissingAttribute[] = [];
     public get WebDBs(): iWebDB[] {
         return this._WebDBs;
     }
@@ -134,7 +136,9 @@ export class WebDBService extends BusyAwareService  {
             userName: toClone.userName,
             password: toClone.password,
             createdBy: toClone.createdBy,
-            editedBy: toClone.editedBy
+            editedBy: toClone.editedBy,
+            encodedImage1: '',
+            encodedImage2: ''
         }
         return res;
     }
@@ -295,7 +299,24 @@ export class WebDBService extends BusyAwareService  {
                     let rSet: WebDbReviewSet = new WebDbReviewSet(res);
                     this._CurrentSets.splice(ind, 1, rSet);
                 }
-                this.SelectedNodeData == null;//cheap: we just unselect the current node, we're not sure it still exists...
+                //now update the SelectedNodeData
+                if (this.SelectedNodeData) {
+                    if (this.SelectedNodeData.nodeType == "ReviewSet") {
+                        let ind = this._CurrentSets.findIndex(f =>  this.SelectedNodeData != null && this.SelectedNodeData.set_id == f.set_id);
+                        if (ind != -1) this.SelectedNodeData = this._CurrentSets[ind] as singleNode;
+                        else this.SelectedNodeData = null;
+                    }
+                    else {//SelectedNodeData is an SetAttribute
+                        let tmpS = this._CurrentSets.find(f => this.SelectedNodeData != null && f.set_id == this.SelectedNodeData.set_id);
+                        if (tmpS) {
+                            let attt = tmpS.FindAttributeById((this.SelectedNodeData as SetAttribute).attribute_id);
+                            if (attt) this.SelectedNodeData = attt as singleNode;
+                            else this.SelectedNodeData = null;
+                        }
+                        else this.SelectedNodeData = null;
+                    }
+                }
+                this.FindMissingAttributes(body.setId);
                 this.PleaseRedrawTheTree.emit();
                 this.RemoveBusy("EditAddRemoveWebDbAttribute");
             }, error => {
@@ -303,6 +324,82 @@ export class WebDBService extends BusyAwareService  {
                 this.modalService.GenericError(error);
             }
         );
+    }
+    public DeleteHeaderImage(ImageNumber: number) {
+        this._BusyMethods.push("WebDBDeleteHeaderImageCommand");
+        if (!this._CurrentDB) return;
+        let body = JSON.stringify({
+            WebDbId: this._CurrentDB.webDBId
+            , imageNumber: ImageNumber
+        });
+        this._httpC.post<void>(this._baseUrl + 'api/WebDB/DeleteHeaderImage', body).subscribe(
+            res => {
+                if (this._CurrentDB) {
+                    if (ImageNumber == 1)
+                        this._CurrentDB.encodedImage1 = "";
+                    else if (ImageNumber == 2)
+                        this._CurrentDB.encodedImage2 = "";
+                }
+                this.RemoveBusy("WebDBDeleteHeaderImageCommand");
+            }, error => {
+                this.RemoveBusy("WebDBDeleteHeaderImageCommand");
+                this.modalService.GenericError(error);
+            }
+        );
+    }
+
+    public FindMissingAttributes(FromThisSet: number = -1) {
+        //console.log("looking for missing atts");
+        let setId: number = -1;
+        if (FromThisSet == -1 && this.SelectedNodeData !== null) setId = this.SelectedNodeData.set_id;
+        else if (FromThisSet !== -1) setId = FromThisSet;
+        else return;//we didn't receive a setId and this.SelectedNodeData == null, so we don't know what to do.
+        
+        this.MissingAttributes = [];
+        let WebSet = this.CurrentSets.find(f => f.set_id == setId);
+        if (WebSet == undefined) return;
+        let FullSet = this.ReviewSetsService.FindSetById(setId);
+        if (FullSet == null) return;
+        let allAtts: SetAttribute[] = [];
+        this.flatListofAttributes(FullSet.attributes, allAtts);
+        for (const att of allAtts) {
+            //console.log("looking for missing atts, ", att.parent_attribute_id, att.parent, att.attribute_name);
+            if (WebSet.FindAttributeById(att.attribute_id) == null) {
+                let tmp = new MissingAttribute();
+                tmp.attributeId = att.attribute_id;
+                tmp.name = att.attribute_name;
+                tmp.parentId = att.parent_attribute_id;
+                while (tmp.parentId > 0) {
+                    let parentAtt = allAtts.find(f => f.attribute_id == tmp.parentId);
+                    if (parentAtt == undefined) { tmp.parentId = 0; }
+                    else {
+                        tmp.parentId = parentAtt.parent_attribute_id;
+                        tmp.path = tmp.path == "" ? parentAtt.attribute_name : parentAtt.attribute_name + "\\" + tmp.path;
+                    }
+                }
+                tmp.parentId = att.parent_attribute_id;
+                this.MissingAttributes.push(tmp);
+            }
+        }
+        this.MissingAttributes.sort((a, b) => {
+            if (a.path < b.path) {
+                return -1;
+            } else if (a.path > b.path) {
+                return 1;
+            }
+            else {
+                if (a.name < b.name) return -1;
+                else if (a.name > b.name) return 1;
+                else return 0;
+            }
+        })
+        
+    }
+    private flatListofAttributes(Source: SetAttribute[], Result: SetAttribute[]): void {
+        for (let a of Source) {
+            Result.push(a);
+            this.flatListofAttributes(a.attributes, Result);
+        }
     }
 
     public Clear() {
@@ -323,6 +420,8 @@ export interface iWebDB {
     password: string;
     createdBy: string;
     editedBy: string;
+    encodedImage1: string;
+    encodedImage2: string;
 }
 export interface iWebDbReviewSet extends iReviewSet {
     webDBId: number;
@@ -381,4 +480,10 @@ export class WebDbAttributeSetEditAddRemoveCommandJson {
     public deleting: boolean = false;
     public publicName: string = "";
     public publicDescription: string = "";
+}
+export class MissingAttribute {
+    public name: string = "";
+    public path: string = "";
+    public attributeId: number = 0;
+    public parentId: number = 0;
 }

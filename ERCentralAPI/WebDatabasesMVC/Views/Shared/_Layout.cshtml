@@ -1,9 +1,14 @@
-﻿<!DOCTYPE html>
+﻿@using System.IO;
+@using System.Security.Claims;
+
+
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - WebDatabasesMVC</title>
+    <title>@ViewBag.WebDbName</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link href="~/css/Kendo/kendo.bootstrap-v4.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="~/css/site.css" />
@@ -27,55 +32,232 @@
             document.body.appendChild(myForm);
             myForm.submit();
             document.body.removeChild(myForm);
-        }
+        };
+        function GoToItems(AttId, AttName = '') {
+            if (AttId == -999999) {
+                var included = $('#includedCrit').val();
+                var attributeIdXAxis = $('#attributeIdXAxisCrit').val();
+                var setIdXAxis = $('#setIdXAxisCrit').val();
+                var onlyThisAttribute = $('#onlyThisAttributeCrit').val();
+                var webDbId = $('#webDbIdCrit').val();
+                postwith("../ItemList/GetFreqListNoneOfTheAbove",
+                    {
+                        attributeIdXAxis: attributeIdXAxis, setId: setIdXAxis, included: included
+                        , onlyThisAttribute: onlyThisAttribute, webDbId: webDbId, attName: AttName.replaceAll('&#39;', '\'')
+                    });
+            } else {
+                postwith("../ItemList/GetFreqList", { attId: AttId, attName: AttName.replaceAll('&#39;', '\'') });
+            }
+        };
+
     </script>
+
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>EPPI-Centre WebDatabase Application</title>
+    <meta content='width=device-width, initial-scale=1.0, shrink-to-fit=no' name='viewport' />
+    <link rel="icon" href="../assets/img/EPPI-Centre.ico" type="image/x-icon" />
+
+    <!-- Fonts and icons -->
+    <script src="../assets/js/plugin/webfont/webfont.min.js"></script>
+    <script>
+        WebFont.load({
+            google: { "families": ["Lato:300,400,700,900"] },
+            custom: { "families": ["Flaticon", "Font Awesome 5 Solid", "Font Awesome 5 Regular", "Font Awesome 5 Brands", "simple-line-icons"], urls: ['../assets/css/fonts.min.css'] },
+            active: function () {
+                sessionStorage.fonts = true;
+            }
+        });
+    </script>
+
+    <!-- CSS Files -->
+    <link rel="stylesheet" href="../assets/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../assets/css/atlantis.css">
+
+    <!-- CSS Just for demo purpose, don't include it in your project -->
+    <link rel="stylesheet" href="../assets/css/demo.css">
 </head>
 <body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">WebDatabasesMVC</a>
-                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
+
+    
+
+
+
+   
+
+
+
+    <div class="wrapper">
+        <div class="main-header">
+            <!-- Logo Header -->
+            <div class="logo-header" data-background-color="blue">
+
+                <a href="index.html" class="logo">
+                    <img src="../assets/img/logo.svg" alt="navbar brand" class="navbar-brand">
+                </a>
+                <button class="navbar-toggler sidenav-toggler ml-auto" type="button" data-toggle="collapse" data-target="collapse" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon">
+                        <i class="icon-menu"></i>
+                    </span>
                 </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        @if (User.Identity.IsAuthenticated)
-                        {
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Review" asp-action="Index">Review Home</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="ItemList" asp-action="Index">Items</a>
-                            </li>
-                        }
-                        else
-                        {
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Login" asp-action="Index">Login</a>
-                            </li>
-                        }
-                    </ul>
+                <button class="topbar-toggler more"><i class="icon-options-vertical"></i></button>
+                <div class="nav-toggle">
+                    <button class="btn btn-toggle toggle-sidebar">
+                        <i class="icon-menu"></i>
+                    </button>
                 </div>
             </div>
-        </nav>
-    </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
+            <!-- End Logo Header -->
+            <!-- Navbar Header -->
+            <nav class="navbar navbar-header navbar-expand-lg" data-background-color="blue2">
+
+                <div class="container-fluid">
+                    <form asp-controller="ItemList" asp-action="GetListSearchResults" method="post" class="navbar-left navbar-form nav-search mr-md-3">
+                        <table>
+                            <tr>
+                                <td>
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <button type="submit" class="btn btn-search pr-1">
+                                                <i class="fa fa-search search-icon"></i>
+                                            </button>
+                                        </div>
+                                        <input type="text" placeholder="Search records..." class="form-control" maxlength="4000" name="SearchString" id="SearchString" />
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="col-auto">
+                                        <select name="SearchWhat" id="SearchWhat" class="btn btn-light dropdown-toggle ml-1 mr-2">
+                                            <option value="TitleAbstract">Title and Abstract</option>
+                                            <option value="Title">Title</option>
+                                            <option value="Abstract">Abstract</option>
+                                            <option value="Authors">Authors</option>
+                                            <option value="PubYear">Publication Year</option>
+                                            <option value="AdditionalText">"Coded" Text</option>
+                                            <option value="ItemId">ItemIds (comma separated)</option>
+                                            <option value="OldItemId">Imported Ids (comma separated)</option>
+                                        </select>
+                                    </div>
+
+                                    <div>
+                                        <input type="radio" style="display:none" class="ml-auto my-auto" id="includedt" name="included" value="true" checked>
+                                    </div>
+                                </td>
+                                <td>
+
+                                    <button class="btn btn-info" type="submit" style="display:none">
+                                        Search
+                                    </button>
+                                </td>
+                            </tr>
+                        </table>
+                    </form>
+                    <ul class="navbar-nav topbar-nav ml-md-auto align-items-center">
+                        <li class="nav-item toggle-nav-search hidden-caret">
+                            <a class="nav-link" data-toggle="collapse" href="#search-nav" role="button" aria-expanded="false" aria-controls="search-nav">
+                                <i class="fa fa-search"></i>
+                            </a>
+                        </li>
+
+
+
+                        <a href="https://localhost:44314/Review" class="btn btn-white btn-border btn-round mr-2">Home</a>
+                        <a class="btn btn-white btn-border btn-round mr-2" asp-controller="ItemList" asp-action="Index">All records</a>
+                        <a href="https://localhost:44314/Login/Logout" class="btn btn-info btn-round">Logout</a>&nbsp;&nbsp;&nbsp;
+
+
+
+
+                        <li class="nav-item dropdown hidden-caret">
+                            <a class="dropdown-toggle profile-pic btn btn-white btn-border btn-round" data-toggle="dropdown" href="#" aria-expanded="false">
+                                Contact
+                            </a>
+                            <ul class="dropdown-menu dropdown-user animated fadeIn">
+                                <div class="dropdown-user-scroll scrollbar-outer">
+                                    <li>
+                                        <div class="user-box">
+                                            <div class="avatar-lg"><img src="../assets/img/profile.jpg" alt="image profile" class="avatar-img rounded"></div>
+                                            <div class="u-text">
+                                                <h4>Steven Startle</h4>
+                                                <p class="text-muted">s.startle@ucl.ac.uk</p>
+                                            </div>
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <div class="dropdown-divider"></div>
+                                        <table>
+                                            <tr>
+                                                <td style="padding: 0px 10px 0px 10px;">
+                                                    <p class="text-muted">
+                                                        EPPI-Centre<br />
+                                                        Social Science Research Unit<br />
+                                                        UCL Institute of Education,<br />
+                                                        University College London<br />
+                                                        18 Woburn Square<br />
+                                                        London<br />
+                                                        WC1H 0NR<br />
+                                                    </p>
+                                                </td>
+                                            </tr>
+                                        </table>
+
+
+                                    </li>
+                                </div>
+                            </ul>
+                        </li>
+
+                    </ul>
+                </div>
+            </nav>
+            <!-- End Navbar -->
+        </div>
+
+
+
+        @RenderBody()
+
+        <!-- End Custom template -->
     </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2020 - WebDatabasesMVC - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-        </div>
-    </footer>
-    
-    @RenderSection("Scripts", required: false)
+
+
+
+
+    <!--   Core JS Files   -->
+    <!--<script src="../assets/js/core/jquery.3.2.1.min.js"></script>-->
+    <script src="../assets/js/core/popper.min.js"></script>
+    <script src="../assets/js/core/bootstrap.min.js"></script>
+
+    <!-- jQuery UI -->
+    <script src="../assets/js/plugin/jquery-ui-1.12.1.custom/jquery-ui.min.js"></script>
+    <script src="../assets/js/plugin/jquery-ui-touch-punch/jquery.ui.touch-punch.min.js"></script>
+
+    <!-- jQuery Scrollbar -->
+    <script src="../assets/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js"></script>
+
+
+    <!-- Chart JS -->
+    <script src="../assets/js/plugin/chart.js/chart.min.js"></script>
+
+    <!-- jQuery Sparkline -->
+    <script src="../assets/js/plugin/jquery.sparkline/jquery.sparkline.min.js"></script>
+
+    <!-- Chart Circle -->
+    <script src="../assets/js/plugin/chart-circle/circles.min.js"></script>
+
+    <!-- Datatables -->
+    <script src="../assets/js/plugin/datatables/datatables.min.js"></script>
+
+    <!-- Bootstrap Notify -->
+    <script src="../assets/js/plugin/bootstrap-notify/bootstrap-notify.min.js"></script>
+    <!-- jQuery Vector Maps -->
+    <script src="../assets/js/plugin/jqvmap/jquery.vmap.min.js"></script>
+    <script src="../assets/js/plugin/jqvmap/maps/jquery.vmap.world.js"></script>
+
+    <!-- Sweet Alert -->
+    <script src="../assets/js/plugin/sweetalert/sweetalert.min.js"></script>
+    <!-- Atlantis JS -->
+    <script src="../assets/js/atlantis.min.js"></script>
+
 </body>
 </html>

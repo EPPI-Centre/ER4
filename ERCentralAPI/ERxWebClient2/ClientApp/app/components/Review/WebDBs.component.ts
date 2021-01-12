@@ -1,12 +1,13 @@
-import { Component, Inject, OnInit, OnDestroy, ViewChild, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Inject, OnInit, OnDestroy, ViewChild, Input, Output, EventEmitter, AfterViewInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { WebDBService, iWebDB, iWebDbReviewSet, WebDbReviewSet } from '../services/WebDB.service';
+import { WebDBService, iWebDB, iWebDbReviewSet, WebDbReviewSet, MissingAttribute } from '../services/WebDB.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ModalService } from '../services/modal.service';
 import { ReviewSetsService, SetAttribute, ReviewSet } from '../services/ReviewSets.service';
 import { codesetSelectorComponent } from '../CodesetTrees/codesetSelector.component';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 import { forEach } from '@angular/router/src/utils/collection';
+import { FileRestrictions, UploadEvent } from '@progress/kendo-angular-upload';
 
 @Component({
 	selector: 'WebDBsComp',
@@ -14,7 +15,7 @@ import { forEach } from '@angular/router/src/utils/collection';
 	providers: []
 })
 
-export class WebDBsComponent implements OnInit, OnDestroy {
+export class WebDBsComponent implements OnInit, OnDestroy, AfterViewInit {
 	constructor(private router: Router,
 		@Inject('BASE_URL') private _baseUrl: string,
 		private WebDBService: WebDBService,
@@ -25,11 +26,26 @@ export class WebDBsComponent implements OnInit, OnDestroy {
 	)
 	{ }
 
-	
+	//possible editor, see: https://github.com/chymz/ng2-ckeditor
+
 	ngOnInit() {
 		if (this.WebDBService.WebDBs.length == 0) this.WebDBService.Fetch();
 		if (this.ReviewSetsService.ReviewSets.length == 0) this.ReviewSetsService.GetReviewSets();
 	}
+
+	async ngAfterViewInit() {
+		//await this.loadScript("https://cdn.ckeditor.com/4.15.1/standard/ckeditor.js");
+	}
+
+	private loadScript(scriptUrl: string) {
+		return new Promise((resolve, reject) => {
+			const scriptElement = document.createElement('script')
+			scriptElement.src = scriptUrl
+			scriptElement.onload = resolve
+			document.body.appendChild(scriptElement)
+		})
+	}
+
 	//@Output() onCloseClick = new EventEmitter();
 	//public isExpanded: boolean = false;
 	public EditingDB: iWebDB | null = null;
@@ -38,7 +54,20 @@ export class WebDBsComponent implements OnInit, OnDestroy {
 	public EditingFilter: boolean = false;
 	public ConfirmPassword: string = "";
 	public isCollapsedFilterCode: boolean = false;
-	public MissingAttributes: MissingAttribute[] = [];
+	public uploadSaveUrl = this._baseUrl + 'api/WebDB/UploadImage'; 
+	public uploadRestrictions: FileRestrictions = {
+		allowedExtensions: [
+			'.jpg'
+			, '.jpeg'
+			, '.png'
+		]
+		, maxFileSize: 1024000
+	};
+	public isUploadImage1: boolean = true;
+	public ShowUpload: boolean = false;
+	public get MissingAttributes(): MissingAttribute[] {
+		return this.WebDBService.MissingAttributes;
+	}
 	@ViewChild('FilterCodeSelector') FilterCodeSelector!: codesetSelectorComponent;
 	public selectedCodeSetDropDown: ReviewSet | null = null;
 	public isCollapsedAddTool: boolean = false;
@@ -80,47 +109,9 @@ export class WebDBsComponent implements OnInit, OnDestroy {
 			return tmp;
 		}
 	}
+	
 	private FindMissingAttributes() {
-		if (this.WebDBService.SelectedNodeData && this.WebDBService.SelectedNodeData.nodeType == "ReviewSet") {
-			console.log("looking for missing atts");
-			this.MissingAttributes = [];
-			let WebSet = this.WebDBService.SelectedNodeData as WebDbReviewSet;
-			let FullSet = this.ReviewSetsService.FindSetById(WebSet.set_id);
-			if (FullSet == null) return;
-			let allAtts: SetAttribute[] = [];
-			this.flatListofAttributes(FullSet.attributes, allAtts);
-			for (const att of allAtts) {
-				//console.log("looking for missing atts, ", att.parent_attribute_id, att.parent, att.attribute_name);
-				if (WebSet.FindAttributeById(att.attribute_id) == null) {
-					let tmp = new MissingAttribute();
-					tmp.attributeId = att.attribute_id;
-					tmp.name = att.attribute_name;
-					tmp.parentId  = att.parent_attribute_id;
-					while (tmp.parentId > 0) {
-						let parentAtt = allAtts.find(f => f.attribute_id == tmp.parentId);
-						if (parentAtt == undefined) { tmp.parentId = 0; }
-						else {
-							tmp.parentId = parentAtt.parent_attribute_id;
-							tmp.path = tmp.path == "" ? parentAtt.attribute_name : parentAtt.attribute_name + "\\" + tmp.path;
-                        }
-					}
-					tmp.parentId = att.parent_attribute_id;
-					this.MissingAttributes.push(tmp);
-				}
-			}
-			 this.MissingAttributes.sort((a, b) => {
-				if (a.path < b.path) {
-					return -1;
-				} else if (a.path > b.path) {
-					return 1;
-				}
-				else {
-					if (a.name < b.name) return -1;
-					else if (a.name > b.name) return 1;
-					else return 0;
-                }
-			})
-		}
+		if (this.WebDBService.SelectedNodeData && this.WebDBService.SelectedNodeData.nodeType == "ReviewSet") this.WebDBService.FindMissingAttributes();
 	}
 	public RestoreCode(item: MissingAttribute) {
 		let needed = this.RestorePreview(item);
@@ -161,12 +152,7 @@ export class WebDBsComponent implements OnInit, OnDestroy {
 		this.EditingWebDbReviewSet = null;
 		
     }
-	private flatListofAttributes(Source: SetAttribute[], Result: SetAttribute[]): void {
-		for (let a of Source) {
-			Result.push(a);
-			this.flatListofAttributes(a.attributes, Result);
-        }
-    }
+	
 	public get SelectedAttribute(): SetAttribute | null {
 		if (this.WebDBService.SelectedNodeData == null || this.WebDBService.SelectedNodeData.nodeType !== "SetAttribute") return null;
 		else return this.WebDBService.SelectedNodeData as SetAttribute;
@@ -192,7 +178,8 @@ export class WebDBsComponent implements OnInit, OnDestroy {
 	}
 	public get EditingSomething(): boolean {
 		return this.EditingDB != null || this.EditingSetAttribute != null || this.EditingWebDbReviewSet != null;
-    }
+	}
+
 	Edit(item: iWebDB | null) {
 		if (!item) {
 			item = {
@@ -204,7 +191,9 @@ export class WebDBsComponent implements OnInit, OnDestroy {
 				userName: '',
 				password: '',
 				createdBy: '',
-				editedBy: ''
+				editedBy: '',
+				encodedImage1: '',
+				encodedImage2: ''
 			};
         }
 		this.EditingDB = this.WebDBService.CloneWebDBforEdit(item);
@@ -258,7 +247,8 @@ export class WebDBsComponent implements OnInit, OnDestroy {
 		}
 		this.EditingFilter = false;
 		this.isCollapsedFilterCode = false;
-    }
+	}
+
 	public get CanSave(): boolean {
 		return this.CantSaveMessage == "";
 	}
@@ -279,6 +269,25 @@ export class WebDBsComponent implements OnInit, OnDestroy {
 		if (this.EditingDB && this.CanSave) this.WebDBService.CreateOrEdit(this.EditingDB);
 		this.CancelEdit();
 	}
+
+	public completeEventHandler() {
+		this.ShowUpload = false;
+		this.WebDBService.Fetch();
+		//this.ItemDocsService.Refresh();
+		//this.log(`All files processed`);
+	}
+	uploadEventHandler(e: UploadEvent) {
+		if (this.EditingDB) {
+			e.data = {
+				webDbId: this.EditingDB.webDBId,
+				imageNumber: this.isUploadImage1 ? 1 : 2
+			};
+		} else e.preventDefault();
+		console.log("uploading", e.data);
+	}
+	DeleteImage(imageN: number) {
+		if (this.CurrentDB) this.WebDBService.DeleteHeaderImage(imageN);
+    }
 
 	GetCodingToolName(): string {
 		if (this.selectedCodeSetDropDown == null) return "Please select...";
@@ -366,13 +375,5 @@ export class WebDBsComponent implements OnInit, OnDestroy {
 	ngOnDestroy() {
 		this.WebDBService.Clear();
 	}
-	ngAfterViewInit() {
-
-	}
-}
-class MissingAttribute {
-	public name: string = "";
-	public path: string = "";
-	public attributeId: number = 0;
-	public parentId:number = 0; 
+	
 }

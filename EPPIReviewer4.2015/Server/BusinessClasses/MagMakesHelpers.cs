@@ -181,7 +181,7 @@ namespace BusinessLibrary.BusinessClasses
         }
 
 
-            public static string getAuthors(List<PaperMakesAuthor> authors)
+        public static string getAuthors(List<PaperMakesAuthor> authors)
         {
             string tmp = "";
             if (authors != null)
@@ -199,6 +199,27 @@ namespace BusinessLibrary.BusinessClasses
                 }
             }
             return tmp;
+        }
+
+        public static string getErStyleAuthors(List<PaperMakesAuthor> authors)
+        {
+            string ret = "";
+            if (authors != null)
+            {
+                for (int x = 0; x < authors.Count; x++)
+                {
+                    AuthorsHandling.AutH author = AuthorsHandling.NormaliseAuth.singleAuth(authors[x].DAuN, x + 1, 0, true);
+                    if (ret == "")
+                    {
+                        ret = author.FullName;
+                    }
+                    else
+                    {
+                        ret += "; " + author.FullName;
+                    }
+                }
+            }
+            return ret;
         }
 
 
@@ -298,7 +319,7 @@ namespace BusinessLibrary.BusinessClasses
                 searchText = System.Web.HttpUtility.UrlEncode(searchText);//uses "+" for spaces, letting his happen when creating the request would put 20% for spaces => makes the querystring longer!
 
                 string queryString =  @"/evaluate?expr=" +
-                    searchText + "&entityCount=5&attributes=" + System.Web.HttpUtility.UrlEncode("Id,DN,AA.AuN,J.JN,V,I,FP,Y") +
+                    searchText + "&entityCount=5&attributes=" + System.Web.HttpUtility.UrlEncode("Id,DN,AA.AuN,J.JN,V,I,FP,Y,DOI,VFN,AA.DAuN") +
                     "&complete=0&count=100&offset=0&timeout=2000&model=latest";
                 string FullRequestStr = MagInfo.MakesEndPoint + queryString;
                 if (FullRequestStr.Length >= 2048 || queryString.Length >= 1024)
@@ -313,7 +334,7 @@ namespace BusinessLibrary.BusinessClasses
                         {
                             searchText = searchText.Substring(0, truncateAt);
                             queryString = @"/interpret?query=" +
-                                searchText + "&entityCount=5&attributes=" + System.Web.HttpUtility.UrlEncode("Id,DN,AA.AuN,J.JN,V,I,FP,Y") +
+                                searchText + "&entityCount=5&attributes=" + System.Web.HttpUtility.UrlEncode("Id,DN,AA.AuN,J.JN,V,I,FP,Y,DOI,VFN,AA.DAuN") +
                                 "&complete=0&count=100&offset=0&timeout=2000&model=latest";
                             FullRequestStr = MagInfo.MakesEndPoint + queryString;
                         }
@@ -409,7 +430,7 @@ namespace BusinessLibrary.BusinessClasses
                 string responseText = "";
                 MagCurrentInfo MagInfo = MagCurrentInfo.GetMagCurrentInfoServerSide(MakesDeploymentStatus);
                 string queryString = @"/interpret?query=" +
-                    searchText + "&entityCount=5&attributes=" + System.Web.HttpUtility.UrlEncode("Id,DN,AA.AuN,J.JN,V,I,FP,Y") +
+                    searchText + "&entityCount=5&attributes=" + System.Web.HttpUtility.UrlEncode("Id,DN,AA.AuN,J.JN,V,I,FP,Y,DOI,VFN,AA.DAuN") +
                     "&complete=0&count=100&offset=0&timeout=2000&model=latest";
 
                 WebRequest request = WebRequest.Create(MagInfo.MakesEndPoint + queryString);
@@ -462,7 +483,7 @@ namespace BusinessLibrary.BusinessClasses
                 string queryString = @"/evaluate?expr=DOI='" +
                     System.Web.HttpUtility.UrlEncode(DOI.ToUpper().Trim().Replace("HTTPS://DX.DOI.ORG/", "").Replace("HTTPS://DOI.ORG/", "").Replace("HTTP://DX.DOI.ORG/", "").Replace("HTTP://DOI.ORG/", ""))
                     + "'&entityCount=5&attributes=" +
-                    System.Web.HttpUtility.UrlEncode("Id,DN,AA.AuN,J.JN,V,I,FP,Y") +
+                    System.Web.HttpUtility.UrlEncode("Id,DN,AA.AuN,J.JN,V,I,FP,Y,DOI,VFN,AA.DAuN") +
                     "&complete=0&count=10&offset=0&timeout=2000&model=latest";
                 WebRequest request = WebRequest.Create(MagInfo.MakesEndPoint + queryString);
                 WebResponse response = request.GetResponse();
@@ -500,7 +521,7 @@ namespace BusinessLibrary.BusinessClasses
             string responseText = "";
             MagCurrentInfo MagInfo = MagCurrentInfo.GetMagCurrentInfoServerSide(MakesDeploymentStatus);
             WebRequest request = WebRequest.Create(MagInfo.MakesEndPoint + query +
-                "&attributes=AA.AfId,AA.AuN,AA.DAfN,AA.DAuN,AA.AuId,CC,Id,DN,DOI,Pt,Ti,Y,D,PB,I,J.JN,J.JId,V,FP,LP,RId,ECC,IA,S" +
+                "&attributes=AA.AfId,AA.AuN,AA.DAfN,AA.DAuN,AA.AuId,CC,Id,DN,DOI,Pt,Ti,Y,D,PB,I,J.JN,J.JId,V,FP,LP,RId,ECC,IA,S,VFN" +
                 appendPageInfo);
             WebResponse response = request.GetResponse();
             using (Stream dataStream = response.GetResponseStream())
@@ -524,7 +545,7 @@ namespace BusinessLibrary.BusinessClasses
             string responseText = "";
             MagCurrentInfo MagInfo = MagCurrentInfo.GetMagCurrentInfoServerSide(MakesDeploymentStatus);
             WebRequest request = WebRequest.Create(MagInfo.MakesEndPoint + query +
-                "&attributes=AA.AfId,AA.AuN,AA.DAfN,AA.DAuN,AA.AuId,CC,Id,DN,DOI,Pt,Ti,Y,D,PB,I,J.JN,J.JId,V,FP,LP,RId,ECC,IA,S" +
+                "&attributes=AA.AfId,AA.AuN,AA.DAfN,AA.DAuN,AA.AuId,CC,Id,DN,DOI,Pt,Ti,Y,D,PB,I,J.JN,J.JId,V,FP,LP,RId,ECC,IA,S,VFN" +
                 appendPageInfo);
             WebResponse response = request.GetResponse();
             using (Stream dataStream = response.GetResponseStream())
@@ -628,6 +649,42 @@ namespace BusinessLibrary.BusinessClasses
             {
                 return "";
             }
+        }
+
+        // Gets the EPPI-Reviewer equivalent publication type from a MAKES paper record
+        public static int GetErEquivalentPubType(string Pt)
+        {
+            switch (Pt)
+            {
+                case "0":
+                    return 12; //unknown
+                    break;
+                case "1":
+                    return 14; // journal article
+                    break;
+                case "2":
+                    return 12; // patent
+                    break;
+                case "3":
+                    return 1; // journal article, as they put the conference in the journal name field
+                    break;
+                case "4":
+                    return 3; // book chapter
+                    break;
+                case "5":
+                    return 2; // book
+                    break;
+                case "6": // Book reference entry (whatever that is - mapping to generic)
+                    return 12;
+                    break;
+                case "7": // dataset
+                    return 12;
+                    break;
+                case "8": // repository
+                    return 12;
+                    break;
+            }
+            return 12; // just in case
         }
 
         public static string CleanText(string text)

@@ -212,6 +212,65 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
+        public static readonly PropertyInfo<int> MagAutoUpdateRunIdProperty = RegisterProperty<int>(new PropertyInfo<int>("MagAutoUpdateRunId", "MagAutoUpdateRunId", 0));
+        public int MagAutoUpdateRunId
+        {
+            get
+            {
+                return GetProperty(MagAutoUpdateRunIdProperty);
+            }
+            set
+            {
+                SetProperty(MagAutoUpdateRunIdProperty, value);
+            }
+        }
+
+        public static readonly PropertyInfo<string> AutoUpdateOrderByProperty = RegisterProperty<string>(new PropertyInfo<string>("AutoUpdateOrderBy", "AutoUpdateOrderBy", "AutoUpdate"));
+        public string AutoUpdateOrderBy
+        {
+            get
+            {
+                return GetProperty(AutoUpdateOrderByProperty);
+            }
+            set
+            {
+                SetProperty(AutoUpdateOrderByProperty, value);
+            }
+        }
+
+        public static readonly PropertyInfo<double> AutoUpdateAutoUpdateScoreProperty = RegisterProperty<double>(new PropertyInfo<double>("AutoUpdateAutoUpdateScore", "AutoUpdateAutoUpdateScore"));
+        public double AutoUpdateAutoUpdateScore
+        {
+            get
+            {
+                return GetProperty(AutoUpdateAutoUpdateScoreProperty);
+            }
+            set
+            {
+                SetProperty(AutoUpdateAutoUpdateScoreProperty, value);
+            }
+        }
+
+        public static readonly PropertyInfo<double> AutoUpdateStudyTypeClassifierScoreProperty = RegisterProperty<double>(new PropertyInfo<double>("AutoUpdateStudyTypeClassifierScore", "AutoUpdateStudyTypeClassifierScore"));
+        public double AutoUpdateStudyTypeClassifierScore
+        {
+            get { return GetProperty(AutoUpdateStudyTypeClassifierScoreProperty); }
+            set
+            {
+                SetProperty(AutoUpdateStudyTypeClassifierScoreProperty, value);
+            }
+        }
+
+        public static readonly PropertyInfo<double> AutoUpdateUserClassifierScoreProperty = RegisterProperty<double>(new PropertyInfo<double>("AutoUpdateUserClassifierScore", "AutoUpdateUserClassifierScore"));
+        public double AutoUpdateUserClassifierScore
+        {
+            get { return GetProperty(AutoUpdateUserClassifierScoreProperty); }
+            set
+            {
+                SetProperty(AutoUpdateUserClassifierScoreProperty, value);
+            }
+        }
+
 
 
         //protected override void AddAuthorizationRules()

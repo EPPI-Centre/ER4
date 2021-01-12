@@ -22,15 +22,13 @@ namespace WebDatabasesMVC.Controllers
 
         public IActionResult Index()
         {
-            return View();
+            if (User != null && User.HasClaim(f=> f.Type == "WebDbID"))
+                return RedirectToAction(actionName: "Index", controllerName: "Review");
+            else return RedirectToAction(actionName: "Index", controllerName: "Login");
+            //return View();
         }
 
-        [Authorize]
-        public IActionResult Landed()
-        {
-            ViewBag.DBName = User.Claims.First(claim => claim.Type == ClaimTypes.Name).Value;
-            return View();
-        }
+        
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()

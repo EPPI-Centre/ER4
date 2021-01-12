@@ -482,7 +482,8 @@ namespace BusinessLibrary.BusinessClasses
             //string folderPrefix = TrainingRunCommand.NameBase;
             string uploadFileName = System.Web.HttpRuntime.AppDomainAppPath + @"UserTempUploads/" + TrainingRunCommand.NameBase +
                 "RelatedRun" + MagRelatedRunId.ToString() + ".csv";
-            string downloadFilename = uploadFileName;
+            string downloadFilename = TrainingRunCommand.NameBase +
+                "RelatedRun" + MagRelatedRunId.ToString() + ".csv"; ;
 
 #else       
             string downloadFilename = "RelatedRun" + MagRelatedRunId.ToString() + ".csv";
@@ -503,7 +504,68 @@ namespace BusinessLibrary.BusinessClasses
             WriteSeedIdsFile(uploadFileName, ReviewId);
             await UploadSeedIdsFileAsync(uploadFileName);
             TriggerDataLakeJob(uploadFileName, ContactId);
+            if ((await CheckResultsFileOk(downloadFilename)) == false)
+            {
+                UpdateMAGRelatedRecord("Download failed", ReviewId);
+                return;
+            }
             await DownloadResultsAsync(downloadFilename, ReviewId);
+        }
+
+        private async Task<bool> CheckResultsFileOk(string resultsFile)
+        {
+
+#if (CSLA_NETCORE)
+
+            var configuration = ERxWebClient2.Startup.Configuration.GetSection("AzureMagSettings");
+            string storageAccountName = configuration["MAGStorageAccount"];
+            string storageAccountKey = configuration["MAGStorageAccountKey"];
+
+#else
+            string storageAccountName = ConfigurationManager.AppSettings["MAGStorageAccount"];
+            string storageAccountKey = ConfigurationManager.AppSettings["MAGStorageAccountKey"];
+#endif
+
+            string storageConnectionString =
+                "DefaultEndpointsProtocol=https;AccountName=" + storageAccountName + ";AccountKey=";
+            storageConnectionString += storageAccountKey;
+
+            CloudStorageAccount storageAccount = CloudStorageAccount.Parse(storageConnectionString);
+            CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
+            CloudBlobContainer containerDown = blobClient.GetContainerReference("results");
+
+            CloudBlockBlob blockBlobResults = containerDown.GetBlockBlobReference(resultsFile);
+            try
+            {
+                await blockBlobResults.FetchAttributesAsync();
+            }
+            catch
+            {
+                return false;
+            }
+
+            if (blockBlobResults.Properties.Length > 0)
+                return true;
+            else
+                return false;
+        }
+
+        private void UpdateMAGRelatedRecord(string status, int ReviewId)
+        {
+            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+            {
+                connection.Open();
+                using (SqlCommand command = new SqlCommand("st_MagRelatedRun_Update", connection))
+                {
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@STATUS", status));
+                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", ReviewId));
+                    command.Parameters.Add(new SqlParameter("@MAG_RELATED_RUN_ID", this.MagRelatedRunId));
+                    
+                    command.ExecuteNonQuery();
+                }
+                connection.Close();
+            }
         }
 
         private void WriteSeedIdsFile(string uploadFileName, int ReviewId)

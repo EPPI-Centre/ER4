@@ -108,7 +108,7 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(AllIncludedProperty, value);
             }
         }
-
+        /*
         public static readonly PropertyInfo<string> StudyTypeClassifierProperty = RegisterProperty<string>(new PropertyInfo<string>("StudyTypeClassifier", "StudyTypeClassifier"));
         public string StudyTypeClassifier
         {
@@ -122,7 +122,20 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        public static readonly PropertyInfo<int> UserClassifierModelIdProperty = RegisterProperty<int>(new PropertyInfo<int>("UserClassifierModelId", "UserClassifierModelId"));
+        public static readonly PropertyInfo<string> UserClassifierDescriptionProperty = RegisterProperty<string>(new PropertyInfo<string>("UserClassifierDescription", "UserClassifierDescription"));
+        public string UserClassifierDescription
+        {
+            get
+            {
+                return GetProperty(UserClassifierDescriptionProperty);
+            }
+            set
+            {
+                SetProperty(UserClassifierDescriptionProperty, value);
+            }
+        }
+
+        public static readonly PropertyInfo<int> UserClassifierModelIdProperty = RegisterProperty<int>(new PropertyInfo<int>("UserClassifierModelId", "UserClassifierModelId", 0));
         public int UserClassifierModelId
         {
             get
@@ -135,7 +148,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        public static readonly PropertyInfo<int> UserClassifierModelReviewIdProperty = RegisterProperty<int>(new PropertyInfo<int>("UserClassifierModelReviewId", "UserClassifierModelReviewId"));
+        public static readonly PropertyInfo<int> UserClassifierModelReviewIdProperty = RegisterProperty<int>(new PropertyInfo<int>("UserClassifierModelReviewId", "UserClassifierModelReviewId", 0));
         public int UserClassifierModelReviewId
         {
             get
@@ -145,33 +158,6 @@ namespace BusinessLibrary.BusinessClasses
             set
             {
                 SetProperty(UserClassifierModelReviewIdProperty, value);
-            }
-        }
-
-
-        /*
-        public static readonly PropertyInfo<bool> CheckedProperty = RegisterProperty<bool>(new PropertyInfo<bool>("Checked", "Checked", false));
-        public bool Checked
-        {
-            get
-            {
-                return GetProperty(CheckedProperty);
-            }
-            set
-            {
-                SetProperty(CheckedProperty, value);
-            }
-        }
-        public static readonly PropertyInfo<bool> IrrelevantProperty = RegisterProperty<bool>(new PropertyInfo<bool>("Irrelevant", "Irrelevant", false));
-        public bool Irrelevant
-        {
-            get
-            {
-                return GetProperty(IrrelevantProperty);
-            }
-            set
-            {
-                SetProperty(IrrelevantProperty, value);
             }
         }
         */
@@ -188,103 +174,6 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        /*
-        public static readonly PropertyInfo<MagAutoUpdateList> CitationsProperty = RegisterProperty<MagAutoUpdateList>(new PropertyInfo<MagAutoUpdateList>("Citations", "Citations"));
-        public MagAutoUpdateList Citations
-        {
-            get
-            {
-                return GetProperty(CitationsProperty);
-            }
-            set
-            {
-                SetProperty(CitationsProperty, value);
-            }
-        }
-        public static readonly PropertyInfo<MagAutoUpdateList> CitedByProperty = RegisterProperty<MagAutoUpdateList>(new PropertyInfo<MagAutoUpdateList>("CitedBy", "CitedBy"));
-        public MagAutoUpdateList CitedBy
-        {
-            get
-            {
-                return GetProperty(CitedByProperty);
-            }
-            set
-            {
-                SetProperty(CitedByProperty, value);
-            }
-        }
-        public static readonly PropertyInfo<MagAutoUpdateList> RecommendedProperty = RegisterProperty<MagAutoUpdateList>(new PropertyInfo<MagAutoUpdateList>("Recommended", "Recommended"));
-        public MagAutoUpdateList Recommended
-        {
-            get
-            {
-                return GetProperty(RecommendedProperty);
-            }
-            set
-            {
-                SetProperty(RecommendedProperty, value);
-            }
-        }
-        public static readonly PropertyInfo<MagAutoUpdateList> RecommendedByProperty = RegisterProperty<MagAutoUpdateList>(new PropertyInfo<MagAutoUpdateList>("RecommendedBy", "RecommendedBy"));
-        public MagAutoUpdateList RecommendedBy
-        {
-            get
-            {
-                return GetProperty(RecommendedByProperty);
-            }
-            set
-            {
-                SetProperty(RecommendedByProperty, value);
-            }
-        }
-        
-        public void GetRelatedFieldOfStudyList(string listType)
-        {
-            DataPortal<MagAutoUpdateList> dp = new DataPortal<MagAutoUpdateList>();
-            dp.FetchCompleted += (o, e2) =>
-            {
-                if (e2.Object != null)
-                {
-                    if (e2.Error == null)
-                    {
-                        this.Citations = e2.Object;
-                        //this.MarkClean(); // don't want the object marked as 'dirty' just because it's loaded a new list
-                    }
-                }
-                if (e2.Error != null)
-                {
-#if SILVERLIGHT
-                    System.Windows.MessageBox.Show(e2.Error.Message);
-#endif
-                }
-            };
-            MagAutoUpdateListSelectionCriteria sc = new BusinessClasses.MagAutoUpdateListSelectionCriteria();
-            sc.MagAutoUpdateId = this.FieldOfStudyId;
-            sc.ListType = listType;
-            dp.BeginFetch(sc);
-        }
-        */
-
-
-
-        //protected override void AddAuthorizationRules()
-        //{
-        //    //string[] canWrite = new string[] { "AdminUser", "RegularUser" };
-        //    //string[] canRead = new string[] { "AdminUser", "RegularUser", "ReadOnlyUser" };
-        //    //string[] admin = new string[] { "AdminUser" };
-        //    //AuthorizationRules.AllowCreate(typeof(MagAutoUpdate), admin);
-        //    //AuthorizationRules.AllowDelete(typeof(MagAutoUpdate), admin);
-        //    //AuthorizationRules.AllowEdit(typeof(MagAutoUpdate), canWrite);
-        //    //AuthorizationRules.AllowGet(typeof(MagAutoUpdate), canRead);
-
-        //    //AuthorizationRules.AllowRead(MagAutoUpdateIdProperty, canRead);
-        //    //AuthorizationRules.AllowRead(ReviewIdProperty, canRead);
-        //    //AuthorizationRules.AllowRead(NameProperty, canRead);
-        //    //AuthorizationRules.AllowRead(DetailProperty, canRead);
-
-        //    //AuthorizationRules.AllowWrite(NameProperty, canWrite);
-        //    //AuthorizationRules.AllowRead(DetailProperty, canRead);
-        //}
 
         protected override void AddBusinessRules()
         {
@@ -301,17 +190,13 @@ namespace BusinessLibrary.BusinessClasses
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
                 connection.Open();
-                using (SqlCommand command = new SqlCommand("st_MagAutoUpdatesInsert", connection))
+                using (SqlCommand command = new SqlCommand("st_MagAutoUpdateInsert", connection))
                 {
                     command.CommandType = CommandType.StoredProcedure;
                     command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
                     command.Parameters.Add(new SqlParameter("@USER_DESCRIPTION", ReadProperty(UserDescriptionProperty)));
-                    command.Parameters.Add(new SqlParameter("@PaperIdList", ""));
                     command.Parameters.Add(new SqlParameter("@ATTRIBUTE_ID", ReadProperty(AttributeIdProperty)));
                     command.Parameters.Add(new SqlParameter("@ALL_INCLUDED", ReadProperty(AllIncludedProperty)));
-                    command.Parameters.Add(new SqlParameter("@STUDY_TYPE_CLASSIFIER", ReadProperty(StudyTypeClassifierProperty)));
-                    command.Parameters.Add(new SqlParameter("@USER_CLASSIFIER_MODEL_ID", ReadProperty(UserClassifierModelIdProperty)));
-                    command.Parameters.Add(new SqlParameter("@USER_CLASSIFIER_MODEL_REVIEW_ID", ReadProperty(UserClassifierModelReviewIdProperty)));
                     command.Parameters.Add(new SqlParameter("@MAG_AUTO_UPDATE_ID", ReadProperty(MagAutoUpdateIdProperty)));
                     command.Parameters["@MAG_AUTO_UPDATE_ID"].Direction = ParameterDirection.Output;
                     command.ExecuteNonQuery();
@@ -348,10 +233,10 @@ namespace BusinessLibrary.BusinessClasses
             {
                 ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
                 connection.Open();
-                using (SqlCommand command = new SqlCommand("st_MagAutoUpdatesDelete", connection))
+                using (SqlCommand command = new SqlCommand("st_MagAutoUpdateDelete", connection))
                 {
                     command.CommandType = System.Data.CommandType.StoredProcedure;
-                    command.Parameters.Add(new SqlParameter("@MAG_RELATED_RUN_ID", ReadProperty(MagAutoUpdateIdProperty)));
+                    command.Parameters.Add(new SqlParameter("@MAG_AUTO_UPDATE_ID", ReadProperty(MagAutoUpdateIdProperty)));
                     command.ExecuteNonQuery();
                 }
                 connection.Close();
@@ -379,9 +264,10 @@ namespace BusinessLibrary.BusinessClasses
                             LoadProperty<Int64>(AttributeIdProperty, reader.GetInt64("ATTRIBUTE_ID"));
                             LoadProperty<string>(AttributeNameProperty, reader.GetString("ATTRIBUTE_NAME"));
                             LoadProperty<bool>(AllIncludedProperty, reader.GetBoolean("ALL_INCLUDED"));
-                            LoadProperty<string>(StudyTypeClassifierProperty, reader.GetString("STUDY_TYPE_CLASSIFIER"));
-                            LoadProperty<Int32>(UserClassifierModelIdProperty, reader.GetInt32("USER_CLASSIFIER_MODEL_ID"));
-                            LoadProperty<Int32>(UserClassifierModelReviewIdProperty, reader.GetInt32("USER_CLASSIFIER_REVIEW_ID"));
+                            //LoadProperty<string>(StudyTypeClassifierProperty, reader.GetString("STUDY_TYPE_CLASSIFIER"));
+                            //LoadProperty<Int32>(UserClassifierModelIdProperty, reader.GetInt32("USER_CLASSIFIER_MODEL_ID"));
+                            //LoadProperty<string>(UserClassifierDescriptionProperty, reader.GetString("MODEL_TITLE"));
+                            //LoadProperty<Int32>(UserClassifierModelReviewIdProperty, reader.GetInt32("USER_CLASSIFIER_REVIEW_ID"));
                         }
                     }
                 }
@@ -398,9 +284,10 @@ namespace BusinessLibrary.BusinessClasses
             returnValue.LoadProperty<Int64>(AttributeIdProperty, reader.GetInt64("ATTRIBUTE_ID"));
             returnValue.LoadProperty<string>(AttributeNameProperty, reader.GetString("ATTRIBUTE_NAME"));
             returnValue.LoadProperty<bool>(AllIncludedProperty, reader.GetBoolean("ALL_INCLUDED"));
-            returnValue.LoadProperty<string>(StudyTypeClassifierProperty, reader.GetString("STUDY_TYPE_CLASSIFIER"));
-            returnValue.LoadProperty<Int32>(UserClassifierModelIdProperty, reader.GetInt32("USER_CLASSIFIER_MODEL_ID"));
-            returnValue.LoadProperty<Int32>(UserClassifierModelReviewIdProperty, reader.GetInt32("USER_CLASSIFIER_REVIEW_ID"));
+            //returnValue.LoadProperty<string>(StudyTypeClassifierProperty, reader.GetString("STUDY_TYPE_CLASSIFIER"));
+            //returnValue.LoadProperty<Int32>(UserClassifierModelIdProperty, reader.GetInt32("USER_CLASSIFIER_MODEL_ID"));
+            //returnValue.LoadProperty<string>(UserClassifierDescriptionProperty, reader.GetString("MODEL_TITLE"));
+            //returnValue.LoadProperty<Int32>(UserClassifierModelReviewIdProperty, reader.GetInt32("USER_CLASSIFIER_REVIEW_ID"));
             returnValue.MarkOld();
             return returnValue;
         }

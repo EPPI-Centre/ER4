@@ -529,10 +529,11 @@ function openAdminList(ID)
                     <tr>
                         <td style="background-color: #ffffff; width: 50%;" valign="top">
                             <asp:GridView ID="gvLicenseAdms" runat="server" AutoGenerateColumns="False" 
-                                DataKeyNames="EMAIL" EnableModelValidation="True" 
+                                DataKeyNames="SITE_LIC_ADMIN_ID" EnableModelValidation="True" 
                                 onrowcommand="gvLicenseAdms_RowCommand" onrowdatabound="gvLicenseAdms_RowDataBound" 
                                 Width="100%">
                                 <Columns>
+                                    <asp:BoundField DataField="SITE_LIC_ADMIN_ID" HeaderText="Admin ID" Visible="false" />
                                     <asp:BoundField DataField="CONTACT_ID" HeaderText="ContactID">
                                     <HeaderStyle BackColor="#B6C6D6" />
                                     </asp:BoundField>

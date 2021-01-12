@@ -7,7 +7,6 @@ using Csla.Security;
 using Csla.Core;
 using Csla.Serialization;
 using Csla.Silverlight;
-using Microsoft.Azure.Management.CosmosDB.Fluent.Models;
 //using Csla.Validation;
 
 #if !SILVERLIGHT
@@ -47,7 +46,10 @@ namespace BusinessLibrary.BusinessClasses
                     command.CommandType = System.Data.CommandType.StoredProcedure;
                     command.Parameters.Add(new SqlParameter("@attributeIdXAxis", criteria.attributeIdXAxis));
                     command.Parameters.Add(new SqlParameter("@setIdXAxis", criteria.setIdXAxis));
-                    command.Parameters.Add(new SqlParameter("@included", criteria.included));
+                    if (criteria.included != "")
+                    {
+                        command.Parameters.Add(new SqlParameter("@included", criteria.included.ToLower() == "true" ? true : false));
+                    }
                     command.Parameters.Add(new SqlParameter("@onlyThisAttribute", criteria.onlyThisAttribute));
                     command.Parameters.Add(new SqlParameter("@RevId", ri.ReviewId));
                     command.Parameters.Add(new SqlParameter("@WebDbId", criteria.webDbId));
@@ -86,18 +88,37 @@ namespace BusinessLibrary.BusinessClasses
             IsReadOnly = true;
             RaiseListChangedEvents = true;
         }
-        private class MiniItem
-        {
-            public long ItemId;
-            public List<long> Attributes;
-            public MiniItem(long itemId)
-            {
-                ItemId = itemId;
-            }
-        }
+        
 #endif
     }
-    
+    internal class MiniItem: IComparable
+    {
+        public long ItemId;
+        public List<long> Attributes;
+        public List<long> Attributes2;
+        public List<long> Attributes3;
+        public string ShortTitle;
+        public MiniItem(long itemId)
+        {
+            ItemId = itemId;
+            Attributes = new List<long>();
+            Attributes2 = new List<long>();
+            Attributes3 = new List<long>();
+        }
+        public int CompareTo(object y)
+        {//implements IComparable, used to sort items!
+            if (y == null) return 1;
+            MiniItem yy = y as MiniItem;
+            if (yy == null) return 1;
+
+            int score = ShortTitle.CompareTo(yy.ShortTitle);
+            if (score == 0)
+            {
+                return ItemId.CompareTo(yy.ItemId);
+            }
+            else return score;
+        }
+    }
     [Serializable]
     public class WebDbFrequencyCrosstabAndMapSelectionCriteria : Csla.CriteriaBase<WebDbFrequencyCrosstabAndMapSelectionCriteria>
     {
@@ -118,7 +139,11 @@ namespace BusinessLibrary.BusinessClasses
         {
             get { return ReadProperty(setIdXAxisProperty); }
         }
-        
+        private static PropertyInfo<string> NameXAxisProperty = RegisterProperty<string>(typeof(WebDbFrequencyCrosstabAndMapSelectionCriteria), new PropertyInfo<string>("NameXAxis", "NameXAxis"));
+        public string nameXAxis
+        {
+            get { return ReadProperty(NameXAxisProperty); }
+        }
         private static PropertyInfo<Int64> attributeIdYAxisProperty = RegisterProperty<Int64>(typeof(WebDbFrequencyCrosstabAndMapSelectionCriteria), new PropertyInfo<Int64>("attributeIdYAxis", "attributeIdYAxis"));
         public Int64 attributeIdYAxis
         {
@@ -129,8 +154,13 @@ namespace BusinessLibrary.BusinessClasses
         {
             get { return ReadProperty(setIdYAxisProperty); }
         }
-        private static PropertyInfo<bool> includedProperty = RegisterProperty<bool>(typeof(WebDbFrequencyCrosstabAndMapSelectionCriteria), new PropertyInfo<bool>("Included", "Included"));
-        public bool included
+        private static PropertyInfo<string> NameYAxisProperty = RegisterProperty<string>(typeof(WebDbFrequencyCrosstabAndMapSelectionCriteria), new PropertyInfo<string>("NameYAxis", "NameYAxis"));
+        public string nameYAxis
+        {
+            get { return ReadProperty(NameYAxisProperty); }
+        }
+        private static PropertyInfo<string> includedProperty = RegisterProperty<string>(typeof(WebDbFrequencyCrosstabAndMapSelectionCriteria), new PropertyInfo<string>("Included", "Included", ""));
+        public string included
         {
             get { return ReadProperty(includedProperty); }
         }
@@ -151,16 +181,19 @@ namespace BusinessLibrary.BusinessClasses
             get { return ReadProperty(onlyThisAttributeProperty); }
         }
         
-        public WebDbFrequencyCrosstabAndMapSelectionCriteria(int WebDbId, Int64 AttributeIdXAxis, int SetIdXAxis, bool Included = true
+        public WebDbFrequencyCrosstabAndMapSelectionCriteria(int WebDbId, Int64 AttributeIdXAxis, int SetIdXAxis, string NameXaxis
+                                                            , string Included = ""
                                                             , Int64 OnlyThisAttribute = 0
-                                                            , Int64 AttributeIdYAxis = 0, int SetIdYAxis = 0
+                                                            , Int64 AttributeIdYAxis = 0, int SetIdYAxis = 0, string NameYaxis = ""
                                                             , Int64 SegmentsParent = 0, int SegmentsSetId = 0)
         {
             LoadProperty(webDbIdProperty, WebDbId);
             LoadProperty(attributeIdXAxisProperty, AttributeIdXAxis);
             LoadProperty(setIdXAxisProperty, SetIdXAxis);
+            LoadProperty(NameXAxisProperty, NameXaxis);
             LoadProperty(attributeIdYAxisProperty, AttributeIdYAxis);
             LoadProperty(setIdYAxisProperty, SetIdYAxis);
+            LoadProperty(NameYAxisProperty, NameYaxis);
             LoadProperty(includedProperty, Included);
             LoadProperty(onlyThisAttributeProperty, OnlyThisAttribute);
             LoadProperty(segmentsParentProperty, SegmentsParent);

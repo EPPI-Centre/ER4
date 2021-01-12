@@ -189,7 +189,9 @@ namespace AuthorsHandling
         static string trimMe(string inSt)
         {
             //String delim = " ,.*|@/\\+=-_!£$%^&*()`\"";
-            return inSt.Trim(delim);
+            if (inSt != null)
+                return inSt.Trim(delim);
+            return "";
         }
         
         public static AutH singleAuth(string AuthSt, int Rank, int OrigiN, bool LastAuthorIsLast = false)
@@ -246,6 +248,7 @@ namespace AuthorsHandling
                 }
                 else
                 {//rare case (MAKES) the "family name" is always at the end
+                    //AuthSt = AuthSt.Replace(".", ""); // JT added. Using . throws situations where you have pairs of initials - e.g. M.P.
                     temP = AuthSt.ToLower();
                     foreach (string ComPs in CompP)
                     {
@@ -326,6 +329,12 @@ namespace AuthorsHandling
                 else SetProperty(MiddleNameProperty, value);
             }
         }
+        public static readonly PropertyInfo<string> FullNameProperty = RegisterProperty<string>(new PropertyInfo<string>("FullName", "FullName", 0));
+        public string FullName
+        {
+            get { return LastName + ", " + (MiddleName != "" ? MiddleName + " " : "") + FirstName; }
+            
+        }
         public static readonly PropertyInfo<int> RankProperty = RegisterProperty<int>(new PropertyInfo<int>("Rank", "Rank", 0));
         public int Rank
         {
@@ -338,6 +347,7 @@ namespace AuthorsHandling
             get { return GetProperty(RoleProperty); }
             set { SetProperty(RoleProperty, value); }
         }
+
         #endregion
         #region constructors
         

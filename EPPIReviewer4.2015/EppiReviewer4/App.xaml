@@ -106,6 +106,13 @@
                            FactoryMethod="GetSearchVisualiseList" 
                            DataChanged="CslaDataProvider_DataChanged_3"
                            />
+            <cslaXAML:CslaDataProvider x:Key="MagAutoUpdateVisualiseData"
+                           ManageObjectLifetime="True"
+                           IsInitialLoadEnabled="False"
+                           ObjectType="BusinessLibrary.BusinessClasses.MagAutoUpdateVisualiseList, BusinessLibrary, Version=..., Culture=neutral, PublicKeyToken=null"
+                           FactoryMethod="GetMagAutoUpdateVisualiseList" 
+                           DataChanged="CslaDataProvider_DataChanged_5"
+                           />
             <cslaXAML:CslaDataProvider x:Key="ItemArmsData"
                            ManageObjectLifetime="True"
                            IsInitialLoadEnabled="False"

@@ -268,6 +268,19 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
+        private int _MagAutoUpdateRunId;
+        public int MagAutoUpdateRunId
+        {
+            get
+            {
+                return _MagAutoUpdateRunId;
+            }
+            set
+            {
+                _MagAutoUpdateRunId = value;
+            }
+        }
+
         private string _PaperIds;
         public string PaperIds
         {
@@ -377,7 +390,8 @@ namespace BusinessLibrary.BusinessClasses
                 if (selectionCriteria.ListType == "ReviewMatchedPapers" ||
                     selectionCriteria.ListType == "ReviewMatchedPapersWithThisCode" ||
                     selectionCriteria.ListType == "ItemMatchedPapersList" ||
-                    selectionCriteria.ListType == "MagRelatedPapersRunList")
+                    selectionCriteria.ListType == "MagRelatedPapersRunList" ||
+                    selectionCriteria.ListType == "MagAutoUpdateRunPapersList")
                 {
                     using (SqlCommand command = SpecifyListPaperIdsCommand(connection, selectionCriteria, ri))
                     {
@@ -392,7 +406,8 @@ namespace BusinessLibrary.BusinessClasses
                             while (reader.Read())
                             {
                                 MagPaper newRow = MagPaper.GetMagPaperFromMakes(reader.GetInt64("PaperId"), reader);
-                                if (selectionCriteria.ListType == "MagRelatedPapersRunList")
+                                if (selectionCriteria.ListType == "MagRelatedPapersRunList" ||
+                                    selectionCriteria.ListType == "MagAutoUpdateRunPapersList")
                                 {
                                     newRow.SimilarityScore = reader.GetDouble("SimilarityScore");
                                 }
@@ -593,6 +608,18 @@ namespace BusinessLibrary.BusinessClasses
                     this.PaperIds = criteria.PaperIds;
                     this._PaperId = 0;
                     break;
+                case "MagAutoUpdateRunPapersList":
+                    command = new SqlCommand("st_MagAutoUpdateRunListIds", connection);
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@MagAutoUpdateRunId", criteria.MagAutoUpdateRunId));
+                    command.Parameters.Add(new SqlParameter("@OrderBy", criteria.AutoUpdateOrderBy));
+                    command.Parameters.Add(new SqlParameter("@AutoUpdateScore", criteria.AutoUpdateAutoUpdateScore));
+                    command.Parameters.Add(new SqlParameter("@StudyTypeClassifierScore", criteria.AutoUpdateStudyTypeClassifierScore));
+                    command.Parameters.Add(new SqlParameter("@UserClassifierScore", criteria.AutoUpdateUserClassifierScore));
+                    this.MagAutoUpdateRunId = criteria.MagAutoUpdateRunId;
+                    this.PaperIds = "";
+                    this.AttributeIds = "";
+                    break;
             }
             return command;
         }
@@ -719,6 +746,56 @@ namespace BusinessLibrary.BusinessClasses
             set
             {
                 SetProperty(MagRelatedRunIdProperty, value);
+            }
+        }
+
+        public static readonly PropertyInfo<int> MagAutoUpdateRunIdProperty = RegisterProperty<int>(typeof(MagPaperListSelectionCriteria), new PropertyInfo<int>("MagAutoUpdateRunId", "MagAutoUpdateRunId", 0));
+        public int MagAutoUpdateRunId
+        {
+            get { return ReadProperty(MagAutoUpdateRunIdProperty); }
+            set
+            {
+                SetProperty(MagAutoUpdateRunIdProperty, value);
+            }
+        }
+
+        public static readonly PropertyInfo<string> AutoUpdateOrderByProperty = RegisterProperty<string>(typeof(MagPaperListSelectionCriteria), new PropertyInfo<string>("AutoUpdateOrderBy", "AutoUpdateOrderBy", "AutoUpdate"));
+        public string AutoUpdateOrderBy
+        {
+            get { return ReadProperty(AutoUpdateOrderByProperty); }
+            set
+            {
+                SetProperty(AutoUpdateOrderByProperty, value);
+            }
+        }
+
+        public static readonly PropertyInfo<double> AutoUpdateAutoUpdateScoreProperty = RegisterProperty<double>(typeof(MagPaperListSelectionCriteria), new PropertyInfo<double>("AutoUpdateAutoUpdateScore", "AutoUpdateAutoUpdateScore"));
+        public double AutoUpdateAutoUpdateScore
+        {
+            get { return ReadProperty(AutoUpdateAutoUpdateScoreProperty); }
+            set
+            {
+                SetProperty(AutoUpdateAutoUpdateScoreProperty, value);
+            }
+        }
+
+        public static readonly PropertyInfo<double> AutoUpdateStudyTypeClassifierScoreProperty = RegisterProperty<double>(typeof(MagPaperListSelectionCriteria), new PropertyInfo<double>("AutoUpdateStudyTypeClassifierScore", "AutoUpdateStudyTypeClassifierScore"));
+        public double AutoUpdateStudyTypeClassifierScore
+        {
+            get { return ReadProperty(AutoUpdateStudyTypeClassifierScoreProperty); }
+            set
+            {
+                SetProperty(AutoUpdateStudyTypeClassifierScoreProperty, value);
+            }
+        }
+
+        public static readonly PropertyInfo<double> AutoUpdateUserClassifierScoreProperty = RegisterProperty<double>(typeof(MagPaperListSelectionCriteria), new PropertyInfo<double>("AutoUpdateUserClassifierScore", "AutoUpdateUserClassifierScore"));
+        public double AutoUpdateUserClassifierScore
+        {
+            get { return ReadProperty(AutoUpdateUserClassifierScoreProperty); }
+            set
+            {
+                SetProperty(AutoUpdateUserClassifierScoreProperty, value);
             }
         }
 

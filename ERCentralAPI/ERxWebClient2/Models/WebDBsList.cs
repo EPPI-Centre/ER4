@@ -25,7 +25,6 @@ namespace BusinessLibrary.BusinessClasses
 
         public WebDB GetWebDB(int webDBId)
         {
-            WebDB returnValue;
             foreach (WebDB db in this)
             {
                 if (db.WebDBId == webDBId)

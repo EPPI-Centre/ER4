@@ -20,11 +20,7 @@ export class EventEmitterService {
 	public getMatchedAllItemsEvent: EventEmitter<boolean> = new EventEmitter();
 	public getTopicsEvent: EventEmitter<topicInfo> = new EventEmitter<topicInfo>();
 	public OpeningNewReview = new EventEmitter();
-	public firstVisitMAGBrowserPage: boolean = true;
-	//public getAttributeIdsEvent: EventEmitter<string> = new EventEmitter<string>();
-	//public allocateRelevantItems = new EventEmitter();
-	//public configurableReports = new EventEmitter();
-	
+	public firstVisitMAGBrowserPage: boolean = true;	
 
 	public tester() {
 

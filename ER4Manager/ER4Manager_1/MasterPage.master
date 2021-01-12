@@ -64,7 +64,7 @@
                                                 </telerik:RadTab>
                                                 <telerik:RadTab runat="server" NavigateUrl="~/SummaryReviews.aspx" Text="Reviews">
                                                 </telerik:RadTab>
-                                                <telerik:RadTab runat="server" NavigateUrl="~/SummaryCochrane.aspx" Text="Cochrane reviews">
+                                                <telerik:RadTab runat="server" NavigateUrl="~/SummaryCochrane.aspx" Text="Cochrane reviews" Visible="False">
                                                 </telerik:RadTab>
                                                 <Telerik:RadTab runat="server" Text="&amp;nbsp;" Enabled="False">
                                                 </Telerik:RadTab>

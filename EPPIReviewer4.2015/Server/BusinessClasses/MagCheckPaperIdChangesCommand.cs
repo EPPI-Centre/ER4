@@ -318,7 +318,7 @@ namespace BusinessLibrary.BusinessClasses
                                         MagPaperItemMatch.doMakesPapersComparison(pm, cpm);
                                     }
                                 }
-                                if (candidatePapersOnDOI.Count == 0 || (candidatePapersOnDOI.Max(t => t.matchingScore) < 0.7))
+                                if (candidatePapersOnDOI.Count == 0 || (candidatePapersOnDOI.Max(t => t.matchingScore) < MagPaperItemMatch.AutoMatchThreshold))
                                 {
                                     // MagPaperItemMatch has similar code to the below
                                     List<MagMakesHelpers.PaperMakes> candidatePapersOnTitle =
@@ -342,7 +342,7 @@ namespace BusinessLibrary.BusinessClasses
                                         }
                                     }
                                     // add in matching on journals / authors if we don't have an exact match on title
-                                    if (candidatePapersOnTitle.Count == 0 || (candidatePapersOnTitle.Max(t => t.matchingScore) < 0.7))
+                                    if (candidatePapersOnTitle.Count == 0 || (candidatePapersOnTitle.Max(t => t.matchingScore) < MagPaperItemMatch.AutoMatchThreshold))
                                     {
                                         List<MagMakesHelpers.PaperMakes> candidatePapersOnAuthorJournal =
                                             MagMakesHelpers.GetCandidateMatches(MagMakesHelpers.getAuthors(pm.AA) + " " + (pm.J != null ? pm.J.JN : ""));
@@ -362,7 +362,7 @@ namespace BusinessLibrary.BusinessClasses
                                 }
                                 MagMakesHelpers.PaperMakes TopMatch = candidatePapersOnDOI.Aggregate((i1, i2) => i1.matchingScore > i2.matchingScore ? i1 : i2);
 
-                                if (TopMatch.matchingScore > 0.35)
+                                if (TopMatch.matchingScore > MagPaperItemMatch.AutoMatchMinScore)
                                 {
                                     PaperTotalFound++;
                                     using (SqlConnection connection2 = new SqlConnection(DataConnection.ConnectionString))
@@ -409,7 +409,7 @@ namespace BusinessLibrary.BusinessClasses
                                         MagPaperItemMatch.doComparison(i, cpm);
                                     }
                                     // add in matching on journals / authors if we don't have an exact match on title
-                                    if (candidatePapersOnTitle.Count == 0 || (candidatePapersOnTitle.Max(t => t.matchingScore) < 0.7))
+                                    if (candidatePapersOnTitle.Count == 0 || (candidatePapersOnTitle.Max(t => t.matchingScore) < MagPaperItemMatch.AutoMatchThreshold))
                                     {
                                         List<MagMakesHelpers.PaperMakes> candidatePapersOnAuthorJournal = MagMakesHelpers.GetCandidateMatches(i.Authors + " " + i.ParentTitle);
                                         foreach (MagMakesHelpers.PaperMakes cpm in candidatePapersOnAuthorJournal)
@@ -428,7 +428,7 @@ namespace BusinessLibrary.BusinessClasses
                                     if (candidatePapersOnTitle.Count > 0)
                                     {
                                         MagMakesHelpers.PaperMakes TopMatch = candidatePapersOnTitle.Aggregate((i1, i2) => i1.matchingScore > i2.matchingScore ? i1 : i2);
-                                        if (TopMatch.matchingScore > 0.35) // not sure what the threshold should be???
+                                        if (TopMatch.matchingScore > MagPaperItemMatch.AutoMatchMinScore) 
                                         {
                                             PaperTotalFound++;
                                             using (SqlConnection connection2 = new SqlConnection(DataConnection.ConnectionString))

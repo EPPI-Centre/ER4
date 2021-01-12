@@ -660,6 +660,11 @@ namespace BusinessLibrary.BusinessClasses
                 returnValue.LoadProperty<Int64>(JournalIdProperty, pm.J.JId);
                 returnValue.LoadProperty<string>(JournalProperty, pm.J.JN != null ?  myTI.ToTitleCase(pm.J.JN) : "");
             }
+            if (returnValue.GetProperty(JournalProperty) == "" && pm.VFN != null)
+            {
+                // get conferences (MAG puts lots of conference papers in and the conference goes in the 'journal' field)
+                returnValue.LoadProperty<string>(JournalProperty, pm.VFN);
+            }
             //returnValue.LoadProperty<Int64>(ConferenceSeriesIdProperty, );
             //returnValue.LoadProperty<Int64>(ConferenceInstanceIdProperty, reader.GetInt64("ConferenceInstanceId"));
             returnValue.LoadProperty<string>(VolumeProperty, pm.V);
