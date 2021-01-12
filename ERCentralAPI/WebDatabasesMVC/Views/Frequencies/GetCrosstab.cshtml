@@ -22,56 +22,14 @@ Crosstab!
             console.log("CurrentNodeGoToCrosstab no data");
             return;
         }
-        var isSelfXtab = false;
-        if ((@Model.SetIdX == @Model.SetIdY) && (@Model.AttibuteIdX == @Model.AttibuteIdY)) {
-            isSelfXtab = true;
+        var pars = {
+            attIdx: @Model.AttibuteIdX
+            , setIdx: @Model.SetIdX
+            , attIdy: @Model.AttibuteIdY
+            , setIdy: @Model.SetIdY
+            , included: true
         }
-
-        if (isSelfXtab == true) {
-            if (@Model.AttibuteIdX == 0) { // its a codeset
-                postwith("../Frequencies/GetCrosstab", {
-                    attIdx: 0
-                    , setIdx: @Model.SetIdX
-                    //, nameXaxis: "test x axis"
-                    , attIdy: 0
-                    , setIdy: @Model.SetIdY
-                    //, nameYaxis: "test y axis"
-                    , included: true
-                });
-            }
-            else postwith("../Frequencies/GetCrosstab", {
-                attIdx: @Model.AttibuteIdX
-                , setIdx: @Model.SetIdX
-                , attIdy: @Model.AttibuteIdY
-                , setIdy: @Model.SetIdY
-                , included: true
-            });
-        } else {
-            var pars = {
-                attIdx: 0
-                , setIdx: 0
-                , attIdy: 0
-                , setIdy: 0
-                , included: true
-            }
-            if (@Model.AttibuteIdX == 0) {
-                pars.attIdy = 0;
-                pars.setIdy = @Model.SetIdY;
-            }
-            else {
-                pars.attIdy = @Model.AttibuteIdY;
-                pars.setIdy = @Model.SetIdY;
-            }
-            if (@Model.AttibuteIdY == 0) { // its a codeset
-                pars.attIdx = 0;
-                pars.setIdx = @Model.SetIdX;
-            }
-            else {
-                pars.attIdx = @Model.AttibuteIdX;
-                pars.setIdx = @Model.SetIdX;
-            }
-            postwith("../Frequencies/GetCrosstab", pars);
-        }
+        postwith("../Frequencies/GetCrosstab", pars);
     }
 
 
