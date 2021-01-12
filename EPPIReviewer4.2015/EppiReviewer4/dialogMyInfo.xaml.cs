@@ -233,14 +233,14 @@ namespace EppiReviewer4
             arpc = new ArchieReviewPrepareCommand(roar.ArchieReviewId);
             DialogParameters parameters = new DialogParameters();
             parameters.Header = "Activate Review?";
-            parameters.Content = "This creates the review record in the "
-                + Environment.NewLine + "EPPI-Reviewer database."
-                + Environment.NewLine + "It currently does not import"
-                + Environment.NewLine + "any review data from RevMan/Archie."
+            parameters.Content = "Activation will create the review in"
+                + Environment.NewLine + "EPPI-Reviewer."
+                + Environment.NewLine + "No data will be transferred"
+                + Environment.NewLine + "from RevMan/Archie."
                 + Environment.NewLine
-                + Environment.NewLine + "Activating this review will also"
-                + Environment.NewLine + "give you (its first user, in EPPI-Reviewer)"
-                + Environment.NewLine + "the 'Review Administrator' role.";
+                + Environment.NewLine + "You will be given the"
+                + Environment.NewLine + "'Review Administrator' role"
+                + Environment.NewLine + "in this review.";
             parameters.Closed = OnConfirmCheckoutClosed;
             RadWindow.Confirm(parameters);
 
