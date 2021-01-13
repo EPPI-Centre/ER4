@@ -144,6 +144,11 @@ namespace BusinessLibrary.BusinessClasses
         {
             get { return ReadProperty(NameXAxisProperty); }
         }
+        private static PropertyInfo<string> GraphicProperty = RegisterProperty<string>(typeof(WebDbFrequencyCrosstabAndMapSelectionCriteria), new PropertyInfo<string>("Graphic", "Graphic"));
+        public string graphic
+        {
+            get { return ReadProperty(GraphicProperty); }
+        }
         private static PropertyInfo<Int64> attributeIdYAxisProperty = RegisterProperty<Int64>(typeof(WebDbFrequencyCrosstabAndMapSelectionCriteria), new PropertyInfo<Int64>("attributeIdYAxis", "attributeIdYAxis"));
         public Int64 attributeIdYAxis
         {
@@ -181,7 +186,7 @@ namespace BusinessLibrary.BusinessClasses
             get { return ReadProperty(onlyThisAttributeProperty); }
         }
         
-        public WebDbFrequencyCrosstabAndMapSelectionCriteria(int WebDbId, Int64 AttributeIdXAxis, int SetIdXAxis, string NameXaxis
+        public WebDbFrequencyCrosstabAndMapSelectionCriteria(int WebDbId, Int64 AttributeIdXAxis, int SetIdXAxis, string NameXaxis, string Graphic
                                                             , string Included = ""
                                                             , Int64 OnlyThisAttribute = 0
                                                             , Int64 AttributeIdYAxis = 0, int SetIdYAxis = 0, string NameYaxis = ""
@@ -191,6 +196,7 @@ namespace BusinessLibrary.BusinessClasses
             LoadProperty(attributeIdXAxisProperty, AttributeIdXAxis);
             LoadProperty(setIdXAxisProperty, SetIdXAxis);
             LoadProperty(NameXAxisProperty, NameXaxis);
+            LoadProperty(GraphicProperty, Graphic);
             LoadProperty(attributeIdYAxisProperty, AttributeIdYAxis);
             LoadProperty(setIdYAxisProperty, SetIdYAxis);
             LoadProperty(NameYAxisProperty, NameYaxis);

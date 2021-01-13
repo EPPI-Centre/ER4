@@ -136,6 +136,15 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
+        public static readonly PropertyInfo<string> GraphicProperty = RegisterProperty<string>(new PropertyInfo<string>("Graphic", "Graphic"));
+        public string Graphic
+        {
+            get
+            {
+                return GetProperty(GraphicProperty);
+            }
+        }
+
         public static readonly PropertyInfo<string> IncludedProperty = RegisterProperty<string>(new PropertyInfo<string>("Included", "Included", ""));
         public string Included
         {
@@ -237,6 +246,7 @@ namespace BusinessLibrary.BusinessClasses
                 LoadProperty(SetIdXProperty, criteria.setIdXAxis);
                 LoadProperty(SetIdYProperty, criteria.setIdYAxis);
                 LoadProperty(FilterAttributeIdProperty, criteria.onlyThisAttribute);
+                LoadProperty(GraphicProperty, criteria.graphic);
                 LoadProperty(IncludedProperty, criteria.included);
                 LoadProperty(AttibuteIdXProperty, Convert.ToInt32(AttibuteIdXAxis));
                 LoadProperty(AttibuteIdYProperty, Convert.ToInt32(AttibuteIdYAxis));

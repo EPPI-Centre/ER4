@@ -293,6 +293,7 @@
                     , setIdy: dataItem.setId
                     //, nameYaxis: "test y axis"
                     , included: true
+                    , graphic: "table"
                 });
             }
             else postwith("../Frequencies/GetCrosstab", {
@@ -301,6 +302,7 @@
                 , attIdy: dataItem.id
                 , setIdy: dataItem.setId
                 , included: true
+                , graphic: "table"
             });
         } else {
             var pars = {
@@ -309,6 +311,7 @@
                 , attIdy: 0
                 , setIdy: 0
                 , included: true
+                , graphic: "table"
             }
             if (dataItem.isCodeset == true) {
                 pars.attIdy = 0;
