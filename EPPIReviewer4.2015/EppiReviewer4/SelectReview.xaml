@@ -57,10 +57,10 @@
                 <Setter.Value>
                     <ControlTemplate>
                         <StackPanel Orientation="Vertical">
-                            <Button x:Name="ActionButtonArchieCheckout" Content="Check Out" Click="ActionButtonArchieCheckout_Click"
-                                    Visibility="{Binding isCheckedOutHere, Mode=TwoWay, Converter={StaticResource ReverseEditTrueFalseVisibility}}"></Button>
-                            <Button x:Name="ActionButtonArchieUndoCheckout" Content="Undo Check Out" Tag="{Binding ReviewId}" Click="ActionButtonArchieUndoCheckout_Click"
-                                    Visibility="{Binding isCheckedOutHere, Mode=TwoWay, Converter={StaticResource EditTrueFalseVisibility}}"></Button>
+                            <Button x:Name="ActionButtonArchieCheckout" Content="Activate" Click="ActionButtonArchieCheckout_Click"
+                                    Visibility="{Binding isLocal, Mode=TwoWay, Converter={StaticResource ReverseEditTrueFalseVisibility}}"></Button>
+                            <!--<Button x:Name="ActionButtonArchieUndoCheckout" Content="Undo Check Out" Tag="{Binding ReviewId}" Click="ActionButtonArchieUndoCheckout_Click"
+                                    Visibility="{Binding isCheckedOutHere, Mode=TwoWay, Converter={StaticResource EditTrueFalseVisibility}}"></Button>-->
                             <Button x:Name="ActionButtonArchieOpen" Content="Open" Tag="{Binding ReviewId}" Click="ActionButtonArchieOpen_Click"
                                     IsEnabled="{Binding ContactReviewRoles, Converter={StaticResource LoginToArchieReviewIsEn}}"
                                     Visibility="{Binding isLocal, Mode=TwoWay, Converter={StaticResource EditTrueFalseVisibility}}"></Button>

@@ -1349,8 +1349,7 @@ namespace BusinessLibrary.BusinessClasses.ImportItems
             }
             set
             {
-                if (value.Length > 1000) SetProperty(SearchStrProperty, value.Substring(0, 1000));
-                else SetProperty(SearchStrProperty, value);
+                SetProperty(SearchStrProperty, value);
             }
         }
         public static readonly PropertyInfo<string> NotesProperty = RegisterProperty<string>(new PropertyInfo<string>("NotesStr", "NotesStr"));

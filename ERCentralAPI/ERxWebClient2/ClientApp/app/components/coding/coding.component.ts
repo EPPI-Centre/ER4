@@ -144,7 +144,7 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
         else return false;
 	}
 	IsServiceBusy(): boolean {
-		if (this.reviewInfoService.IsBusy || this._outcomeService.IsBusy
+		if (this.reviewInfoService.IsBusy || this._outcomeService.IsBusy || this.ItemDocsService.IsBusy
 			|| this.ReviewerTermsService.IsBusy) {
 			return true;
 		}
@@ -189,7 +189,7 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
         if (this.ItemCodingService.IsBusy
             || this.ReviewSetsService.IsBusy
             //|| this.armservice.IsBusy
-            //|| this.ItemDocsService.IsBusy
+            || this.ItemDocsService.IsBusy
         ) return true;
         else return false;
     }
@@ -311,8 +311,8 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
     
     
     public GetItem() {
-
         this.WipeHighlights();
+        this.ItemDocsService.Clear();
         if (this.itemString == 'PriorityScreening') {
             if (this.subGotScreeningItem == null) this.subGotScreeningItem = this.PriorityScreeningService.gotItem.subscribe(() => this.GotScreeningItem());
             this.IsScreening = true;

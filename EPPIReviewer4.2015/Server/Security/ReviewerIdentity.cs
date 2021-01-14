@@ -770,10 +770,11 @@ namespace BusinessLibrary.Security
                                         //return true;//assuming Check1 user is valid cochrane, but can't open this review
                                     }
 
-                                    if (CochRevID != "prospective_______" && reader2.GetBoolean("IS_CHECKEDOUT_HERE") == false)//not prospective review, and not checked out to ER4: read only!
-                                    {
-                                        Roles.Add("ReadOnlyUser");
-                                    }
+                                    //We don't do this anymore because in Dec 2020 the checkout mechanism became obsolete.
+                                    //if (CochRevID != "prospective_______" && reader2.GetBoolean("IS_CHECKEDOUT_HERE") == false)//not prospective review, and not checked out to ER4: read only!
+                                    //{
+                                    //    Roles.Add("ReadOnlyUser");
+                                    //}
                                 }
                                 //this is the same for Cochrane and personal reviews
                                 LoadProperty<int>(ReviewIdProperty, criteria.ReviewId);//all is fine

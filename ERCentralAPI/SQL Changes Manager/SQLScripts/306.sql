@@ -1,19 +1,16 @@
 ﻿USE [Reviewer]
 GO
-
 /****** Object:  StoredProcedure [dbo].[st_WebDbFrequencyCrosstabAndMap]    Script Date: 08/01/2021 17:05:20 ******/
 SET ANSI_NULLS ON
 GO
-
 SET QUOTED_IDENTIFIER ON
 GO
-
 -- =============================================
 -- Author:		<Author,,Name>
 -- Create date: <Create Date,,>
 -- Description:	<Description,,>
 -- =============================================
-CREATE   PROCEDURE [dbo].[st_WebDbFrequencyCrosstabAndMap]
+ALTER   PROCEDURE [dbo].[st_WebDbFrequencyCrosstabAndMap]
 	-- Add the parameters for the stored procedure here
 	@attributeIdXAxis bigint 
 	, @setIdXAxis int

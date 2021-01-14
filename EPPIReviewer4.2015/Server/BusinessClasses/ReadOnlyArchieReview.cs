@@ -185,7 +185,7 @@ namespace BusinessLibrary.BusinessClasses
                             res.LoadProperty<string>(ReviewNameProperty, nm);
                             res.LoadProperty<string>(ContactReviewRolesProperty, reader.GetString("ROLES"));
                             //res.LoadProperty<string>(ReviewOwnerProperty, reader.GetString("OWNER"));
-                            //res.LoadProperty<DateTime>(LastAccessProperty, reader.GetDateTime("LAST_ACCESS"));
+                            res.LoadProperty<DateTime>(LastAccessProperty, reader.GetDateTime("LAST_ACCESS"));
 
                             res.LoadProperty(isCheckedOutHereProperty, reader.GetBoolean("IS_CHECKEDOUT_HERE"));
                             res.LoadProperty(isLocalProperty, true);
