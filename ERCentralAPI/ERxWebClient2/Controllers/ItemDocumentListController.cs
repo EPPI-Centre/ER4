@@ -44,7 +44,7 @@ namespace ERxWebClient2.Controllers
                 SingleCriteria<ItemDocumentList, Int64> criteria = new SingleCriteria<ItemDocumentList, Int64>(ItemIDCrit.Value);
 
                 ItemDocumentList result = dp.Fetch(criteria);
-            
+                //System.Threading.Thread.Sleep(2000);
                 return Ok(result);
 
             }

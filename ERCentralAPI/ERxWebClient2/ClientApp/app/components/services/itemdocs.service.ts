@@ -39,6 +39,7 @@ export class ItemDocsService extends BusyAwareService   {
         return this.currentItemId;
     }
     public FetchDocList(itemID: number) {
+        console.log("FetchDocList");
         if (this.currentItemId != itemID) {
             this.currentDocBin = null;
             this.currentDocBinId = 0;
@@ -49,12 +50,25 @@ export class ItemDocsService extends BusyAwareService   {
     public Refresh() {
         if (this.currentItemId == 0) return;
         let body = JSON.stringify({ Value: this.currentItemId });
+        this._BusyMethods.push("Refresh");
         this._httpC.post<ItemDocument[]>(this._baseUrl + 'api/ItemDocumentList/GetDocuments', body).subscribe(
-            (res) => { this._itemDocs = res }
-            , error => { this.modalService.GenericError(error); }
+            (res) => {
+                this._itemDocs = res;
+                this.RemoveBusy("Refresh");
+            }
+            , error => {
+                this.modalService.GenericError(error);
+                this.RemoveBusy("Refresh");
+            }
         );
     }
-
+    public Clear() {
+        console.log("ItemDocs Clear");
+        this._itemDocs = [];
+        this.currentDocBin = null;
+        this.currentDocBinId = 0;
+        this.currentItemId = 0;
+    }
     public GetItemDocument(itemDocumentId: number, ForView:boolean = false) {
         this.currentDocBin = null;
         this.currentDocBinId = 0;

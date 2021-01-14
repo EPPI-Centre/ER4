@@ -57,27 +57,36 @@
                     [sort]="ArchieSort"
                     (sortChange)="ArchieSortChange($event)">
             <kendo-grid-column field="reviewId" [style]="{'width':'78px', 'padding':'0.30rem'}" [headerStyle]="{'width':'78px', 'padding':'0.30rem'}" title="ER ID">
+                <ng-template kendoGridCellTemplate let-dataItem>
+                    <div *ngIf="dataItem.reviewId >0">{{dataItem.reviewId}}</div>
+                    <div *ngIf="dataItem.reviewId <=0 || !dataItem.reviewId">N/A</div>
+                </ng-template>
             </kendo-grid-column>
             <kendo-grid-column [style]="{'width':'150px', 'min-width':'150px', 'overflow': 'visible', 'padding':'0.30rem'}"
                                [headerStyle]="{'width':'150px', 'min-width':'150px', 'overflow': 'visible', 'padding':'0.30rem'}" field="reviewName" title="Review Name">
-                <ng-template kendoGridCellTemplate let-dataItem let-rowIndex="rowIndex">
+                <ng-template kendoGridCellTemplate let-dataItem >
                     <button *ngIf="dataItem.isLocal" class="btn btn-link p-0 ml-0 border-0" title="Open full Review" (click)="onFullSubmit(dataItem)"
                             [disabled]="HasCodingOnlyRole(dataItem)"
                             style="white-space:normal;text-align: left;">
                         {{dataItem.reviewName}}
                     </button>
-                    <div *ngIf="!dataItem.isLocal" class=""
+                    <!--<div *ngIf="!dataItem.isLocal" class=""
                          style="white-space:normal;text-align: left;">
                         {{dataItem.reviewName}}&nbsp;(Please Check-Out)
-                    </div>
+                    </div>-->
+                <div *ngIf="!dataItem.isLocal" class="" title="Activate this Review from within EPPI-Reviewer"
+                     style="white-space:normal;text-align: left;">
+                    {{dataItem.reviewName}} <em>(Not active in EPPI-Reviewer)</em>
+                </div>
                 </ng-template>
             </kendo-grid-column>
-            <kendo-grid-column field="lastAccess" [style]="{'width':'145px', 'padding':'0.30rem'}" [headerStyle]="{'width':'145px'}" title="Check In/Out:">
-                <ng-template kendoGridCellTemplate let-dataItem let-rowIndex="rowIndex">
-                    <button *ngIf="dataItem.isCheckedOutHere" title="Checks-in review in Archie - Makes it Read-Only in EPPI-Reviewer" 
-                            class="btn btn-sm btn-outline-dark" (click)="UndoCheckout(dataItem)">Undo Checkout</button>
-                    <button *ngIf="!dataItem.isCheckedOutHere" title="Checks-out review from Archie - Makes it Editable in EPPI-Reviewer"
-                            class="btn btn-sm btn-outline-danger" (click)="Checkout(dataItem)">Checkout</button>
+            <kendo-grid-column field="lastAccess" [style]="{'width':'145px', 'padding':'0.30rem'}" [headerStyle]="{'width':'145px'}" title="Last Access:">
+                <ng-template kendoGridCellTemplate let-dataItem >
+                    <div *ngIf="dataItem.isLocal">
+                        {{FormatDate(dataItem.lastAccess)}}
+                    </div>
+                    <button *ngIf="!dataItem.isLocal" title="Checks-out review from Archie - Makes it Editable in EPPI-Reviewer"
+                            class="btn btn-sm btn-outline-danger" (click)="ConfirmActivate(dataItem)">Activate</button>
                 </ng-template>
             </kendo-grid-column>
             <kendo-grid-column [style]="{'max-width':'220px', 'min-width':'95px', 'width':'200px', 'padding':'0.30rem'}" 
@@ -92,7 +101,7 @@
                 <ng-template kendoGridCellTemplate let-dataItem let-rowIndex="rowIndex">
                     <form #f="ngForm" (ngSubmit)="onSubmit(r_id.value)" novalidate>
                         <input type="hidden" #r_id name="review_id" value="{{ dataItem.reviewId }}">
-                        <button class="btn btn-info p-1 btn-sm" data-placement="top">Coding UI</button>
+                        <button class="btn btn-info p-1 btn-sm" data-placement="top" [disabled]="!dataItem.isLocal">Coding UI</button>
                     </form>
                 </ng-template>
             </kendo-grid-column>

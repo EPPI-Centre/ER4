@@ -169,12 +169,13 @@ namespace BusinessLibrary.BusinessClasses
             if (!IsCheckedOutHere)
             {
                 //check out review from Archie
-                XDocument FullXMLReview = Identity.CheckOutReview(ArchieReviewID);
-                if (FullXMLReview == null || FullXMLReview.Element("Error") != null)
-                {//to do
-                    Result = "Not Done: couldn't check out review from Archie";
-                    return;
-                }
+                //we don't anymore, since checking out reviews isn't supported from Dec 2020
+                //XDocument FullXMLReview = Identity.CheckOutReview(ArchieReviewID);
+                //if (FullXMLReview == null || FullXMLReview.Element("Error") != null)
+                //{//to do
+                //    Result = "Not Done: couldn't check out review from Archie";
+                //    return;
+                //}
                 //mark review as not checked out here
                 using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
                 {

@@ -133,6 +133,8 @@ namespace ERxWebClient2.Controllers
         {//this also checks review out if needed.
             try
             {
+                if (!SetCSLAUser()) return Unauthorized();
+                
                 ArchieReviewPrepareCommand cmd = new ArchieReviewPrepareCommand();
                 cmd.ArchieReviewID = ArchieRevIDCrit.Value;
                 DataPortal<ArchieReviewPrepareCommand> dp = new DataPortal<ArchieReviewPrepareCommand>();
@@ -151,6 +153,7 @@ namespace ERxWebClient2.Controllers
         {//this also checks review out if needed.
             try
             {
+                if (!SetCSLAUser()) return Unauthorized();
                 ArchieReviewUndoCheckoutCommand cmd = new ArchieReviewUndoCheckoutCommand();
                 cmd.ArchieReviewID = ArchieRevIDCrit.Value;
                 DataPortal<ArchieReviewUndoCheckoutCommand> dp = new DataPortal<ArchieReviewUndoCheckoutCommand>();

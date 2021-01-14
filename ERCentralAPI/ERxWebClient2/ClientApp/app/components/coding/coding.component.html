@@ -3,15 +3,16 @@
     margin-bottom:2px; margin-left:12px; margin-right:12px; margin-top:-12px; padding:0px;
      width:99.6%;"></HeaderComponent>-->
     <HeaderComponent class="row p-1 m-0" style="vertical-align:top;" PageTitle="Item Details" [Context]="HelpAndFeebackContext"></HeaderComponent>
-    <div class="h-100 mh-100 pr-0" >
-        <div class=""
-             [ngClass]="{'bg-light':IsSmallScreen(),
+	<div class="h-100 mh-100 pr-0">
+		<div *ngIf="IsServiceBusy()" class="k-loading-image" style="height:100vh;position: fixed; top: 0%;"></div>
+		<div class=""
+			 [ngClass]="{'bg-light':IsSmallScreen(),
                     'row d-flex flex-wrap-reverse ml-1 mr-1':!IsSmallScreen() }">
-            <button *ngIf="IsSmallScreen() && !ShowCodesInSmallScreen" class="btn btn-success vertical-text" (click)="ShowHideCodes()">
-                <i class="fa fa-arrow-up" aria-hidden="true"></i>
-                Codes
-                <i class="fa fa-arrow-up" aria-hidden="true"></i>
-            </button>
+			<button *ngIf="IsSmallScreen() && !ShowCodesInSmallScreen" class="btn btn-success vertical-text" (click)="ShowHideCodes()">
+				<i class="fa fa-arrow-up" aria-hidden="true"></i>
+				Codes
+				<i class="fa fa-arrow-up" aria-hidden="true"></i>
+			</button>
 
 			<div [ngClass]="{'codesInSmallScreen bg-light rounded border border-success':IsSmallScreen()
                              ,'col-12 col-sm-12 col-md-5 col-lg-3 pl-2 pr-2 align-self-end':!IsSmallScreen()
@@ -26,7 +27,7 @@
 				<ArmsComp #cmp class="card-text"></ArmsComp>
 				<div [hidden]="ShowOutComes">
 					<codesetTreeCoding #codesetTreeCoding class="bg-light" Context="CodingOnly"
-									   [InitiateFetchPDFCoding]="ShouldFetchPDFCoding" >
+									   [InitiateFetchPDFCoding]="ShouldFetchPDFCoding">
 					</codesetTreeCoding>
 				</div>
 				<div *ngIf="ShowOutComes"
@@ -35,10 +36,10 @@
 				</div>
 				<!--<codesetTreeCoding #codesetTreeCoding class="bg-light" [InitiateFetchPDFCoding]="ShouldFetchPDFCoding"></codesetTreeCoding>-->
 			</div>
-            <div class="col-sm-12 col-md-7 col-lg-9 m-0 pr-0 pl-0 align-self-end">
-                <div class="ml-1 mt-0 mr-1 pl-0 pr-0 w-100 row">
-                    <itemDetailsPaginator [(item)]="item" Context="CodingOnly" [IsScreening]="IsScreening" (ItemChanged)="ItemChanged()" (GoToNextScreeningItemClicked)="GetItem()"
-                                          class="col-12 col-sm  pr-0 pl-0 ml-1 mr-1"></itemDetailsPaginator>
+			<div class="col-sm-12 col-md-7 col-lg-9 m-0 pr-0 pl-0 align-self-end">
+				<div class="ml-1 mt-0 mr-1 pl-0 pr-0 w-100 row">
+					<itemDetailsPaginator [(item)]="item" Context="CodingOnly" [IsScreening]="IsScreening" (ItemChanged)="ItemChanged()" (GoToNextScreeningItemClicked)="GetItem()"
+										  class="col-12 col-sm  pr-0 pl-0 ml-1 mr-1"></itemDetailsPaginator>
 					<div class="pr-0 pl-0 col-12 col-sm pr-0">
 						<button class="page-link rounded pt-1 pb-1 mb-1 float-right" (click)="BackToMain()">
 							Close/back
@@ -65,27 +66,27 @@
 							</div>
 						</div>
 					</div>
-                </div>
-                <kendo-tabstrip #tabstripCoding (tabSelect)="onTabSelect($event)" class="specialHideSystem" [keepTabContent]="true">
-                    <kendo-tabstrip-tab [selected]="true" [title]="'Item Details'">
-                        <ng-template kendoTabContent>
-                            <itemDetailsComp #ItemDetailsCmp [Context]="CodingOnly"
+				</div>
+				<kendo-tabstrip #tabstripCoding (tabSelect)="onTabSelect($event)" class="specialHideSystem" [keepTabContent]="true">
+					<kendo-tabstrip-tab [selected]="true" [title]="'Item Details'">
+						<ng-template kendoTabContent>
+							<itemDetailsComp #ItemDetailsCmp [Context]="CodingOnly"
 											 [item]="item" [IsScreening]="IsScreening" [ShowHighlights]="ShowHighlights" [ShowDocViewButton]="true"></itemDetailsComp>
-                        </ng-template>
-                    </kendo-tabstrip-tab>
-                    <kendo-tabstrip-tab [title]="'PDF'" [disabled]="!HasDocForView">
-                        <ng-template kendoTabContent>
-                            <div *ngIf="item" style="min-height:600px;">
-                                <div *ngIf="IsServiceBusy4PDF()" class="k-loading-image"></div>
-                                <pdftroncontainer #pdftroncontainer [ItemID]="itemID"></pdftroncontainer>
-                            </div>
-                        </ng-template>
-                    </kendo-tabstrip-tab>
-                </kendo-tabstrip>
+						</ng-template>
+					</kendo-tabstrip-tab>
+					<kendo-tabstrip-tab [title]="'PDF'" [disabled]="!HasDocForView">
+						<ng-template kendoTabContent>
+							<div *ngIf="item" style="min-height:600px;">
+								<div *ngIf="IsServiceBusy4PDF()" class="k-loading-image"></div>
+								<pdftroncontainer #pdftroncontainer [ItemID]="itemID"></pdftroncontainer>
+							</div>
+						</ng-template>
+					</kendo-tabstrip-tab>
+				</kendo-tabstrip>
 
-            </div>
+			</div>
 
-        </div>
-        <statusbar class="row card p-0 ml-1 mr-1 mt-1 mb-2 card-body" resizable></statusbar>
-    </div>
+		</div>
+		<statusbar class="row card p-0 ml-1 mr-1 mt-1 mb-2 card-body" resizable></statusbar>
+	</div>
 </div>
