@@ -17,10 +17,22 @@ Crosstab!
 <input type="hidden" value="@Model.AttibuteIdYName" name="AttibuteIdYName" id="AttibuteIdYNameCrit" />
 <input type="hidden" value="@Model.Graphic" name="Graphic" id="GraphicCrit" />
 
-<link rel="stylesheet" href="../assets/css/atlantis.css">
+
 
 
 <script type="text/javascript">
+    $(document).ready(function () {
+        $('[tool-tip-toggle="tooltip-demo"]').tooltip({
+            placement: 'top'
+        });
+    });
+</script>
+
+
+<script type="text/javascript">
+
+
+
 
     function GoToItems(WithAttIds, WithSetId, WithoutAttIds, WithoutSetId, Descript) {
         postwith("../ItemList/GetListWithWithoutAtts",
@@ -223,6 +235,7 @@ Crosstab!
                             <!-------------------------------------------------------------------------------------------------------------------------->
                             @if (@Model.Graphic == "bubble")
                             {
+                                var rowNumber = 0;
                                 var biggestValue = 0;
                                 var value = 0;
                                 for (int i = 0; i < Model.ColumnAttIDs.Count - 1; i++)
@@ -236,13 +249,7 @@ Crosstab!
                                         }
                                     }
                                 }
-
-                                /*
-                                <script>alert(@biggestValue);</script>
-                                normalise = ((testValue * 10) / biggestValue);
-                                <script>alert(@normalise);</script>
-                                */
-
+                                //<script>alert(@biggestValue);</script>
 
                                 <div id="CrosstabsChart">
                                     <table class="content-full table table-bordered">
@@ -257,52 +264,59 @@ Crosstab!
 
                                         </tr>
 
+
                                         @foreach (WebDbItemAttributeCrosstabRow row in Model.Rows)
                                         {
-                                            <tr>
-                                                <th>@row.AttributeName</th>
+                                            @if (@rowNumber < Model.Rows.Count - 1)
+                                            {
+                                                <tr>
+                                                    <th>@row.AttributeName</th>
 
-                                                @for (int i = 0; i < Model.ColumnAttIDs.Count - 1; i++)
-                                                {
-                                                    @if (row.Counts[i] == 0)
+                                                    @for (int i = 0; i < Model.ColumnAttIDs.Count - 1; i++)
                                                     {
-                                                        <td></td>
-                                                    }
-                                                    else
-                                                    {//normal cell, with row and col codes
-                                                        string with = row.AttributeId.ToString() + "," + Model.ColumnAttIDs[i].ToString();
-                                                        string withSets = Model.SetIdY.ToString() + "," + Model.SetIdX.ToString();
-                                                        //string descript = "Listing crosstab result for the codes (x,y): " + Model.ColumnAttNames[i].Replace("'", "&#39;") + ", " + row.AttributeName.Replace("'", "&#39;");
-                                                        string descript = Model.ColumnAttNames[i].Replace("'", "&#39;") + " <AND> " + row.AttributeName.Replace("'", "&#39;");
+                                                        @if (row.Counts[i] == 0)
+                                                        {
+                                                            <td></td>
+                                                        }
+                                                        else
+                                                        {//normal cell, with row and col codes
+                                                            string with = row.AttributeId.ToString() + "," + Model.ColumnAttIDs[i].ToString();
+                                                            string withSets = Model.SetIdY.ToString() + "," + Model.SetIdX.ToString();
+                                                            //string descript = "Listing crosstab result for the codes (x,y): " + Model.ColumnAttNames[i].Replace("'", "&#39;") + ", " + row.AttributeName.Replace("'", "&#39;");
+                                                            string descript = Model.ColumnAttNames[i].Replace("'", "&#39;") + " <AND> " + row.AttributeName.Replace("'", "&#39;");
 
-                                                        <th style="text-align:center;vertical-align:middle">
-                                                            <a href="javascript:GoToItems('@with', '@withSets', '', '', '@descript')">
+                                                            <th style="text-align:center;vertical-align:middle">
+                                                                <a href="javascript:GoToItems('@with', '@withSets', '', '', '@descript')">
 
-                                                                @if ((@row.Counts[i] * 10 / biggestValue) > 8)
-                                                                {
-                                                                    <i class="fa fa-circle fa-5x"></i>
-                                                                }
-                                                                else if ((@row.Counts[i] * 10 / biggestValue) > 6)
-                                                                {
-                                                                    <i class="fa fa-circle fa-4x"></i>
-                                                                }
-                                                                else if ((@row.Counts[i] * 10 / biggestValue) > 4)
-                                                                {
-                                                                    <i class="fa fa-circle fa-3x"></i>
-                                                                }
-                                                                else if ((@row.Counts[i] * 10 / biggestValue) >2)
-                                                                {
-                                                                    <i class="fa fa-circle fa-2x"></i>
-                                                                }
-                                                                else
-                                                                {
-                                                                    <i class="fa fa-circle fa-1x"></i>
-                                                                }
-                                                            </a>
-                                                        </th>
+                                                                    @if ((@row.Counts[i] * 10 / biggestValue) > 8)
+                                                                    {
+                                                                        <i class="fa fa-circle fa-5x" tool-tip-toggle="tooltip-demo" data-original-title="@row.Counts[i] records"></i>
+                                                                    }
+                                                                    else if ((@row.Counts[i] * 10 / biggestValue) > 6)
+                                                                    {
+                                                                        <i class="fa fa-circle fa-4x" tool-tip-toggle="tooltip-demo" data-original-title="@row.Counts[i] records"></i>
+                                                                    }
+                                                                    else if ((@row.Counts[i] * 10 / biggestValue) > 4)
+                                                                    {
+                                                                        <i class="fa fa-circle fa-3x" tool-tip-toggle="tooltip-demo" data-original-title="@row.Counts[i] records"></i>
+                                                                    }
+                                                                    else if ((@row.Counts[i] * 10 / biggestValue) > 2)
+                                                                    {
+                                                                        <i class="fa fa-circle fa-2x" tool-tip-toggle="tooltip-demo" data-original-title="@row.Counts[i] records"></i>
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        <i class="fa fa-circle fa-1x" tool-tip-toggle="tooltip-demo" data-original-title="@row.Counts[i] records"></i>
+                                                                    }
+                                                                </a>
+                                                            </th>
+                                                        }
                                                     }
-                                                }
-                                            </tr>
+                                                </tr>
+                                                rowNumber = rowNumber + 1;
+                                                
+                                            }
+
                                         }
 
                                     </table>
