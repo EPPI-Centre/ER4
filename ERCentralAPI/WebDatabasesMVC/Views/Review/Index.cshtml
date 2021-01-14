@@ -127,7 +127,6 @@
             //console.log("GetFreqs no data");
             return;
         }
-        //console.log("Planning to go to GetFreqs with (codeID, setId):", dataItem.id, dataItem.setId)
 
         $("#FrequenciesGrid").show();
         $("#FrequenciesChart").hide();
@@ -143,7 +142,36 @@
             //postwith("../Frequencies/GetFrequencies", { attId: dataItem.id, setId: dataItem.setId, included: true });
         }
     }
+
+
     function GetFreqsBar() {
+        if (!dataItem) {
+            return;
+        }
+
+        if (dataItem.isCodeset == true) {
+            $.post("../Frequencies/GetFrequenciesJSON", { attId: 0, setId: dataItem.setId, included: true }, function (data, result) { BuildBar(data, result); })
+        }
+        else {
+            $.post("../Frequencies/GetFrequenciesJSON", { attId: dataItem.id, setId: dataItem.setId, included: true }, function (data, result) { BuildBar(data, result); })
+        }
+    }
+
+    
+    function GetFreqsPie() {
+        if (!dataItem) {
+            return;
+        }
+
+        if (dataItem.isCodeset == true) {
+            $.post("../Frequencies/GetFrequenciesJSON", { attId: 0, setId: dataItem.setId, included: true }, function (data, result) { BuildPie(data, result); })
+        }
+        else {
+            $.post("../Frequencies/GetFrequenciesJSON", { attId: dataItem.id, setId: dataItem.setId, included: true }, function (data, result) { BuildPie(data, result); })
+        }
+    }
+
+    function BuildBar(data, result) {
         if (!dataItem) {
             return;
         }
@@ -152,22 +180,9 @@
         $("#FrequenciesChart").show();
         $("#FrequenciesResult").html("Frequencies for: " + dataItem.text);
         $("#FrequenciesResult").show();
-        var chartAPI = "";
-
-        if (dataItem.isCodeset == true) {
-
-            chartAPI = "../Frequencies/GetFrequenciesResultsJSON?attID=0" +
-                "&setId=" + dataItem.setId +
-                "&included=true";
-        }
-        else {
-
-            chartAPI = "../Frequencies/GetFrequenciesResultsJSON?attID=" + dataItem.id +
-                "&setId=" + dataItem.setId +
-                "&included=true";
-        }
 
         $("#FrequenciesChart").kendoChart({
+            dataSource: { data: data.results },
             categoryAxis: {
                 field: "attribute"
             },
@@ -180,28 +195,18 @@
             seriesClick: function (e) {
                 GoToListBar(e);
             },
-            //axisLabelClick: function (e) {
-            //    GoToListBar(e);
-            //},
             chartArea: {
-                height: 300
-            },
-            dataSource: {
-                transport: {
-                    read: {
-                        url: chartAPI,
-                        dataType: "json"
-                    }
-                }
-            }
-            , tooltip: {
+                height: 250
+            },            
+            tooltip: {
                 visible: true,
                 template: "#= category #: #= value # records"
             }
         });
     }
 
-    function GetFreqsPie() {
+    
+    function BuildPie(data, result) {
         if (!dataItem) {
             return;
         }
@@ -210,37 +215,14 @@
         $("#FrequenciesChart").show();
         $("#FrequenciesResult").html("Frequencies for: " + dataItem.text);
         $("#FrequenciesResult").show();
-        var chartAPI = "";
-
-        if (dataItem.isCodeset == true) {
-            chartAPI = "../Frequencies/GetFrequenciesResultsJSON?attID=0" +
-                "&setId=" + dataItem.setId +
-                "&included=true";            
-        }
-        else {
-            chartAPI = "../Frequencies/GetFrequenciesResultsJSON?attID=" + dataItem.id +
-                "&setId=" + dataItem.setId +
-                "&included=true";          
-        }
 
         $("#FrequenciesChart").kendoChart({
-            dataSource: {
-                transport: {
-                    read: {
-                        url: chartAPI,
-                        dataType: "json"
-                    }
-                },
-                sort: {
-                    field: "attribute",
-                    dir: "asc"
-                }
-            },
+            dataSource: { data: data.results },
             legend: {
-                position: "bottom"
+                position: "right"
             },
             chartArea: {
-                height: 300
+                height: 250
             },
             seriesDefaults: {
                 type: "pie"
@@ -248,9 +230,6 @@
             seriesClick: function (e) {
                 GoToListPie(e);
             },
-            //axisLabelClick: function (e) {
-            //    GoToListPie(e.attributeID, e.attributeName);
-            //},
             series: [{
                 field: "itemCount",
                 categoryField: "attribute",
@@ -262,23 +241,10 @@
             }
         });
     }
-
-
+ 
 
     function BuildFreqs(data, result) {
         console.log(data, result);//FrequenciesTemplate
-        //columns: [{
-        //    field: "attributeId",
-        //    title: "ID"
-        //},
-        //{
-        //    field: "attribute",
-        //    title: "Code Name"
-        //},
-        //{
-        //    field: "itemCount",
-        //    title: "Count"
-        //}],
         if (result == "success") {
             $("#FrequenciesChart").hide();
             $("#FrequenciesResult").show();
@@ -286,13 +252,6 @@
             $("#FrequenciesGrid").kendoGrid({
                 rowTemplate: kendo.template($("#FrequenciesTemplate").html()),
                 columns: [
-                    //    {
-                    //    field: "attributeId",
-                    //    title: "ID",
-                    //    headerAttributes: {
-                    //        "class": "small py-0 px-1"
-                    //    }
-                    //},
                     {
                         field: "attribute",
                         title: "Code Name",
@@ -313,6 +272,7 @@
             $("#FrequenciesGrid").html("");
         }
     }
+
     function GetFreqLinkContent(attId, count, attName) {
         if (count == 0) return "0";
         else return '<a href="javascript:GoToItems(' + attId + ', \'' + attName.replaceAll('\'', '\\\'') + '\')" style="color: #007bff!important;">' + count.toString() + '</a>';
@@ -333,6 +293,7 @@
                     , setIdy: dataItem.setId
                     //, nameYaxis: "test y axis"
                     , included: true
+                    , graphic: "table"
                 });
             }
             else postwith("../Frequencies/GetCrosstab", {
@@ -341,6 +302,7 @@
                 , attIdy: dataItem.id
                 , setIdy: dataItem.setId
                 , included: true
+                , graphic: "table"
             });
         } else {
             var pars = {
@@ -349,6 +311,7 @@
                 , attIdy: 0
                 , setIdy: 0
                 , included: true
+                , graphic: "table"
             }
             if (dataItem.isCodeset == true) {
                 pars.attIdy = 0;
