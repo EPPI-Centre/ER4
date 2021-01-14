@@ -107,6 +107,8 @@ export class readonlyreviewsService extends BusyAwareService {
                     if (index == -1) this.FetchArchieReviews();//uh? Don't know what review was actioned, fetch data again...
                     else {
                         if (this._ArchieReviews[index].reviewId == 0) this._ArchieReviews[index].reviewId = result.reviewID;
+                        const d: Date = new Date();
+                        this._ArchieReviews[index].lastAccess = d.toISOString();
                         this._ArchieReviews[index].isLocal = true;
                         this._ArchieReviews[index].isCheckedOutHere = true;
                     }

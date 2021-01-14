@@ -82,6 +82,7 @@ export class itemDetailsPaginatorComp implements OnInit, OnDestroy, AfterViewIni
 		//this.WipeHighlights();
 		if (this.subGotScreeningItem == null) this.subGotScreeningItem = this.PriorityScreeningService.gotItem.subscribe(() => this.GotScreeningItem());
 		this.IsScreening = true;
+		this.ItemDocsService.Clear();
 		this.PriorityScreeningService.PreviousItem();
 	}
 	
