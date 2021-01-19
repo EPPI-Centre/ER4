@@ -460,7 +460,7 @@ namespace WebDatabasesMVC.Controllers
                 crit.OnlyIncluded = true;
                 crit.Description = "All Items.";
             }
-            ItemList res = DataPortal.Fetch<ItemList>(crit);
+            ItemList4Json res = new ItemList4Json( DataPortal.Fetch<ItemList>(crit));
             return new ItemListWithCriteria { items = res, criteria = new SelCritMVC(crit)   };
         }
 

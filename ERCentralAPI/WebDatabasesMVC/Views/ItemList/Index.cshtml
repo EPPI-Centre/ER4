@@ -15,8 +15,8 @@
 <script>
     @{var jdata = @Html.Raw(JsonConvert.SerializeObject(Model.items, new JsonSerializerSettings { ContractResolver = new CamelCasePropertyNamesContractResolver() }));};
         var ListData = @jdata;
-        const PageIndex = @Model.items.PageIndex;
-        const TotPages = @Model.items.PageCount;
+        const PageIndex = @Model.items.pageindex;
+        const TotPages = @Model.items.pagecount;
         var ColumnVisibility = {
             ItemId: false,
             ShortTitle: true,
@@ -123,7 +123,7 @@
                     }
                 }],
             dataSource: {
-                data: ListData
+                data: ListData.items
             },
 
             //tableLayout: "auto",
@@ -477,18 +477,18 @@
                                     </td>    
                                     <td width="40%" style="vertical-align:bottom;text-align:center">
 
-                                        @if (Model.items.PageCount > 1)
+                                        @if (Model.items.pagecount > 1)
                                         {
 
                                         <form asp-controller="ItemList" asp-action="ListFromCrit" method="post" class="form-inline" id="ListPagingForm">
 
-                                            <button class="btn btn-round btn-outline-primary px-1 py-0 m-1" style="width:90px" type="submit" disabled="@(Model.items.PageIndex == 0)"
-                                                    name="PageNumber" value="@(Model.items.PageIndex - 1)">
+                                            <button class="btn btn-round btn-outline-primary px-1 py-0 m-1" style="width:90px" type="submit" disabled="@(Model.items.pageindex == 0)"
+                                                    name="PageNumber" value="@(Model.items.pageindex - 1)">
                                                 Previous
                                             </button>
-                                            <div class="my-auto">&nbsp;&nbsp;Page @(Model.items.PageIndex + 1) of @(Model.items.PageCount)&nbsp;&nbsp;</div>
-                                            <button class="btn btn-round btn-outline-primary px-1 py-0 m-1" style="width:90px" type="submit" disabled="@(Model.items.PageIndex == Model.items.PageCount - 1)"
-                                                    name="PageNumber" value="@(Model.items.PageIndex + 1)">
+                                            <div class="my-auto">&nbsp;&nbsp;Page @(Model.items.pageindex + 1) of @(Model.items.pagecount)&nbsp;&nbsp;</div>
+                                            <button class="btn btn-round btn-outline-primary px-1 py-0 m-1" style="width:90px" type="submit" disabled="@(Model.items.pageindex == Model.items.pagecount - 1)"
+                                                    name="PageNumber" value="@(Model.items.pageindex + 1)">
                                                 Next
                                             </button>
 
@@ -640,7 +640,7 @@
                                             <i class="k-icon k-i-list-bulleted mr-1"></i>
                                         </span>To RIS (page)&nbsp;
                                     </a>
-                                    @if (Model.items.PageCount > 1)
+                                    @if (Model.items.pagecount > 1)
                                     {
                                         <a class="k-button btn-round btn-info btn-border" href="\#" onclick="return WholeListToRisClick()">
                                             <span class="btn-label">
@@ -649,7 +649,7 @@
                                         </a>
                                         
                                         <div class="alert-danger ml-1" id="ExportToRisProgress" style="display: none;">
-                                            Exporting to RIS: page <span id="ExportToRisProgressN"></span> of @Model.items.PageCount
+                                            Exporting to RIS: page <span id="ExportToRisProgressN"></span> of @Model.items.pagecount
                                         </div>
 
                                     }
