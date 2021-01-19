@@ -1,221 +1,4 @@
-﻿@model BusinessLibrary.BusinessClasses.FrequencyResultWithCriteria
-@using BusinessLibrary.BusinessClasses
-
-
-<input type="hidden" value="@Model.criteria.included" name="included" id="includedCrit" />
-<input type="hidden" value="@Model.criteria.attributeIdXAxis" name="attributeIdXAxis" id="attributeIdXAxisCrit" />
-<input type="hidden" value="@Model.criteria.setIdXAxis" name="setIdXAxis" id="setIdXAxisCrit" />
-<input type="hidden" value="@Model.criteria.nameXAxis" name="nameXAxis" id="nameXAxisCrit" />
-<input type="hidden" value="@Model.criteria.onlyThisAttribute" name="onlyThisAttribute" id="onlyThisAttributeCrit" />
-<input type="hidden" value="@Model.criteria.webDbId" name="webDbId" id="webDbIdCrit" />
-
-<script type="text/javascript">
-
-    function GoToFreq() {
-            if (!@Model.criteria.setIdXAxis) {
-                return;
-            }
-            if (@Model.criteria.attributeIdXAxis == 0) {
-                postwith("../Frequencies/GetFrequencies", { attId: 0, setId: @Model.criteria.setIdXAxis, parentName: "@Model.criteria.nameXAxis", included: true });
-            }
-            else postwith("../Frequencies/GetFrequencies", { attId: @Model.criteria.attributeIdXAxis, setId: @Model.criteria.setIdXAxis, parentName: "@Model.criteria.nameXAxis", included: true });
-        }
-
-
-
-    function GetFreqsBar() {
-        if (!@Model.criteria.setIdXAxis) {
-            return;
-        }
-
-        if (@Model.criteria.attributeIdXAxis == 0) {
-            $.post("../Frequencies/GetFrequenciesJSON", { attId: 0, setId: @Model.criteria.setIdXAxis, included: true }, function (data, result) { BuildBar(data, result); })
-        }
-        else {
-            $.post("../Frequencies/GetFrequenciesJSON", { attId: @Model.criteria.attributeIdXAxis, setId: @Model.criteria.setIdXAxis, included: true }, function (data, result) { BuildBar(data, result); })
-        }
-    }
-
-
-    function GetFreqsPie() {
-        if (!@Model.criteria.setIdXAxis) {
-            return;
-        }
-
-        if (@Model.criteria.attributeIdXAxis == 0) {
-            $.post("../Frequencies/GetFrequenciesJSON", { attId: 0, setId: @Model.criteria.setIdXAxis, included: true }, function (data, result) { BuildPie(data, result); })
-        }
-        else {
-            $.post("../Frequencies/GetFrequenciesJSON", { attId: @Model.criteria.attributeIdXAxis, setId: @Model.criteria.setIdXAxis, included: true }, function (data, result) { BuildPie(data, result); })
-        }
-    }
-
-    function BuildBar(data, result) {
-        if (result == "success") {
-            $("#FrequenciesGrid").hide();
-            $("#FrequenciesChart").show();
-            $("#FrequenciesResult").html("Frequencies for: " + data.criteria.nameXAxis);
-            $("#FrequenciesResult").show();
-
-            $("#FrequenciesChart").kendoChart({
-                dataSource: { data: data.results },
-                categoryAxis: {
-                    field: "attribute"
-                },
-                series: [
-                    { field: "itemCount" }
-                ],
-                seriesDefaults: {
-                    type: 'bar'
-                },
-                seriesClick: function (e) {
-                    GoToListBar(e);
-                },
-                chartArea: {
-                    height: 250
-                },
-                tooltip: {
-                    visible: true,
-                    template: "#= category #: #= value # records"
-                }
-            });
-        }
-    }
-
-
-    function BuildPie(data, result) {
-        if (result == "success") {
-            $("#FrequenciesGrid").hide();
-            $("#FrequenciesChart").show();
-            $("#FrequenciesResult").html("Frequencies for: " + data.criteria.nameXAxis);
-            $("#FrequenciesResult").show();
-
-            $("#FrequenciesChart").kendoChart({
-                dataSource: { data: data.results },
-                legend: {
-                    position: "right"
-                },
-                chartArea: {
-                    height: 250
-                },
-                seriesDefaults: {
-                    type: "pie"
-                },
-                seriesClick: function (e) {
-                    GoToListPie(e);
-                },
-                series: [{
-                    field: "itemCount",
-                    categoryField: "attribute",
-                    padding: 0
-                }],
-                tooltip: {
-                    visible: true,
-                    template: "#= category #: #= value # records"
-                }
-            });
-        }
-    }
-
-    function GoToListPie(dataItem) {
-        $("#ItemsGrid").empty();
-        $("#ItemsGrid").kendoGrid();
-        if (dataItem.dataItem.attributeId == -999999) {
-            //postwith("../ItemList/GetFreqListNoneOfTheAbove", {
-            //    attributeIdXAxis: 0
-            //    , setId: dataItem.dataItem.setId
-            //    , included: "true"
-            //    , onlyThisAttribute: 0
-            //    , webDbId: 1
-            //    , attName: dataItem.dataItem.attribute
-            //});
-            var attributeIdXAxis = $('#attributeIdXAxisCrit').val();
-            $.post("../ItemList/GetFreqListNoneOfTheAboveJSon"
-                , {
-                    attributeIdXAxis: attributeIdXAxis
-                    , setId: dataItem.dataItem.setId
-                    , included: "true"
-                    , onlyThisAttribute: 0
-                    , webDbId: 1
-                    , attName: dataItem.dataItem.attribute
-                }
-                , function (data, result) { BuildItems(data, result); }
-            );
-        }
-        else {
-            //postwith("../ItemList/GetFreqList", {
-            //    attId: dataItem.dataItem.attributeId
-            //    , attName: dataItem.dataItem.attribute
-            //});
-            $.post("../ItemList/GetFreqListJSon", {
-                attId: dataItem.dataItem.attributeId
-                , attName: dataItem.dataItem.attribute
-            }
-                , function (data, result) { BuildItems(data, result); }
-            );
-        }
-    }
-
-    function GoToListBar(dataItem) {
-        $("#ItemsGrid").empty();
-        $("#ItemsGrid").kendoGrid();
-        if (dataItem.dataItem.attributeId == -999999) {
-            //postwith("../ItemList/GetFreqListNoneOfTheAbove", {
-            //    attributeIdXAxis: 0
-            //    , setId: dataItem.dataItem.setId
-            //    , included: "true"
-            //    , onlyThisAttribute: 0
-            //    , webDbId: 1
-            //    , attName: dataItem.dataItem.attribute
-            //})
-            var attributeIdXAxis = $('#attributeIdXAxisCrit').val();
-            $.post("../ItemList/GetFreqListNoneOfTheAboveJSon", {
-                attributeIdXAxis: attributeIdXAxis
-                , setId: dataItem.dataItem.setId
-                , included: "true"
-                , onlyThisAttribute: 0
-                , webDbId: 1
-                , attName: dataItem.dataItem.attribute
-            }
-                , function (data, result) { BuildItems(data, result); })
-        }
-        else {
-            //postwith("../ItemList/GetFreqList", {
-            //    attId: dataItem.dataItem.attributeId
-            //    , attName: dataItem.dataItem.attribute
-            //}
-            $.post("../ItemList/GetFreqListJSon", {
-                attId: dataItem.dataItem.attributeId
-                , attName: dataItem.dataItem.attribute
-            }
-                , function (data, result) { BuildItems(data, result); }
-            )
-        }
-    }
-
-    function GoToItemsJson(AttId, AttName = '') {
-        $("#ItemsGrid").empty();
-        $("#ItemsGrid").kendoGrid();
-        if (AttId == -999999) {
-            var included = $('#includedCrit').val();
-            var attributeIdXAxis = $('#attributeIdXAxisCrit').val();
-            var setIdXAxis = $('#setIdXAxisCrit').val();
-            var onlyThisAttribute = $('#onlyThisAttributeCrit').val();
-            var webDbId = $('#webDbIdCrit').val();
-            $.post("../ItemList/GetFreqListNoneOfTheAboveJSon"
-                , {
-                    attributeIdXAxis: attributeIdXAxis, setId: setIdXAxis, included: included
-                    , onlyThisAttribute: onlyThisAttribute, webDbId: webDbId, attName: AttName.replaceAll('&#39;', '\'')
-                }
-                , function (data, result) { BuildItems(data, result); }
-            );
-        } else {
-            $.post("../ItemList/GetFreqListJSon"
-                , { attId: AttId, attName: AttName.replaceAll('&#39;', '\'') }
-                , function (data, result) { BuildItems(data, result); }
-            );
-        }
-    };
+﻿<script type="text/javascript">
     var ColumnVisibility = {
         ItemId: false,
         ShortTitle: true,
@@ -302,7 +85,7 @@
                     //        grid.hideColumn(e);
                     //    }
                     //});
-                    
+
                 },
                 toolbar: ["search", "excel"],
                 resizable: true,
@@ -326,7 +109,7 @@
     }
     function PrepareItemsHeader() {
         if (FirstBuild) {
-            
+
             FirstBuild = false;
             $("#menu").kendoMenu({
                 select: onSelectColumnVisibility,
@@ -378,9 +161,9 @@
             $("#withOutAttributesIdsList").val(CurrentItemsCriteria.withOutAttributesIdsList);
             $("#searchWhat").val(CurrentItemsCriteria.searchWhat);
             $("#searchString").val(CurrentItemsCriteria.searchString);
-            
+
             $("#HeaderPaged").show();
-            $("#WholeListToRisButton").show(); 
+            $("#WholeListToRisButton").show();
             $("#HeaderNotPaged").hide();
             let pp = $("#PreviousPage");
             let np = $("#NextPage");
@@ -406,7 +189,7 @@
             $("#PagingText").html("&nbsp;&nbsp;Page " + (ItemsListData.pageindex + 1).toString() + " of " + (ItemsListData.pagecount).toString() + "&nbsp;&nbsp;")
         } else {
             $("#HeaderNotPaged").show();
-            $("#WholeListToRisButton").hide(); 
+            $("#WholeListToRisButton").hide();
             $("#HeaderPaged").hide();
         }
     }
@@ -452,32 +235,32 @@
         //console.log("st");
         if (ColumnVisibility.ShortTitle) {
             grid.showColumn(1);
-        } else  {
-             grid.hideColumn(1);
+        } else {
+            grid.hideColumn(1);
         }
         //console.log("t");
         if (ColumnVisibility.Title) {
             grid.showColumn(2);
-        } else  {
-           grid.hideColumn(2);
+        } else {
+            grid.hideColumn(2);
         }
         //console.log("y");
         if (ColumnVisibility.Year) {
             grid.showColumn(3);
         } else {
-             grid.hideColumn(3);
+            grid.hideColumn(3);
         }
         //console.log("au", grid.columns[4]);
         if (ColumnVisibility.Authors) {
             grid.showColumn(4);
         } else {
-            grid.hideColumn(4); 
+            grid.hideColumn(4);
         }
         //console.log("j");
         if (ColumnVisibility.Journal) {
             grid.showColumn(5);
         } else {
-             grid.hideColumn(5);
+            grid.hideColumn(5);
         }
         //var columns = grid.columns;
         //columns.forEach(function (e, i) {
@@ -785,117 +568,174 @@
     }
 </script>
 
+<div class="card" id="ItemsGridRoot" style="display:none;">
+    <div class="card-body">
+        <table width="100%">
+            <tr>
+                <td width="30%">
+                    <h5 class="card-title mb-3">List records</h5>
+                    <h5><b id="ItemsDescr"></b></h5>
 
-<br />
-<br />
-<br />
-<br />
+                </td>
+                <td width="40%" style="vertical-align:bottom;text-align:center; display:none;" id="HeaderPaged">
 
-<div class="main-panel main-panel-no-sidebar">
+                    <div class="form-inline" id="ListPagingForm">
+                        <button id="PreviousPage"
+                                class="btn btn-round btn-outline-primary px-1 py-0 m-1"
+                                style="width:90px" onclick="PrevPage()"
+                                name="PageNumber" value="0">
+                            Previous
+                        </button>
+                        <div class="my-auto" id="PagingText"></div>
+                        <button id="NextPage"
+                                class="btn btn-round btn-outline-primary px-1 py-0 m-1"
+                                style="width:90px" onclick="NextPage()"
+                                name="PageNumber" value="0">
+                            Next
+                        </button>
+                        <input type="hidden" id="onlyIncluded" name="onlyIncluded" />
+                        <input type="hidden" id="showDeleted" name="showDeleted" />
+                        <input type="hidden" id="sourceId" name="sourceId" />
+                        <input type="hidden" id="searchId" name="searchId" />
+                        <input type="hidden" id="xAxisSetId" name="xAxisSetId" />
+                        <input type="hidden" id="xAxisAttributeId" name="xAxisAttributeId" />
+                        <input type="hidden" id="yAxisSetId" name="yAxisSetId" />
+                        <input type="hidden" id="yAxisAttributeId" name="yAxisAttributeId" />
+                        <input type="hidden" id="filterSetId" name="filterSetId" />
+                        <input type="hidden" id="filterAttributeId" name="filterAttributeId" />
+                        <input type="hidden" id="attributeSetIdList" name="attributeSetIdList" />
+                        <input type="hidden" id="listType" name="listType" />
+                        <input type="hidden" id="pageNumber" name="pageNumber" />
+                        <input type="hidden" id="pageSize" name="pageSize" />
+                        <input type="hidden" id="workAllocationId" name="workAllocationId" />
+                        <input type="hidden" id="magSimulationId" name="magSimulationId" />
+                        <input type="hidden" id="comparisonId" name="comparisonId" />
+                        <input type="hidden" id="description" name="description" />
+                        <input type="hidden" id="contactId" name="contactId" />
+                        <input type="hidden" id="setId" name="setId" />
+                        <input type="hidden" id="showInfoColumn" name="showInfoColumn" />
+                        <input type="hidden" id="showScoreColumn" name="showScoreColumn" />
+                        <input type="hidden" id="webDbId" name="webDbId" />
+                        <input type="hidden" id="withAttributesIds" name="withAttributesIds" />
+                        <input type="hidden" id="withSetIdsList" name="withSetIdsList" />
+                        <input type="hidden" id="withOutAttributesIdsList" name="withOutAttributesIdsList" />
+                        <input type="hidden" id="withOutSetIdsList" name="withOutSetIdsList" />
+                        <input type="hidden" id="searchWhat" name="searchWhat" />
+                        <input type="hidden" id="searchString" name="searchString" />
+                    </div>
 
-    <div class="card">
-        <div class="card-body">
-            <table width="100%">
-                <tr>
-                    <td>
-                        <h5 class="card-title mb-3">Frequency report</h5><h5><b>@Model.criteria.nameXAxis.Replace("\'", "&#39;")</b></h5>
-                    </td>
-                    <td style="text-align:right">
-                        <div class="card-tools">
-                            <button class="btn btn-primary btn-sm btn-round" onclick="GoToFreq()">
+                </td>
+                <td width="40%" style="vertical-align:bottom;text-align:center; display:none;" id="HeaderNotPaged">
+                    Page 1 of 1
+                </td>
+                <td width="30%" style="text-align:right">
+
+                    <div class="d-inline-block ml-auto mr-0 border rounded">
+                        <ul id="menu" class="d-inline-block p-0">
+                            <li class="py-1">
                                 <span class="btn-label">
                                     <i class="fa fa-table"></i>
                                 </span>
-                                Table
-                            </button>
-                            <button class="btn btn-primary btn-sm btn-round" onclick="GetFreqsBar()">
-                                <span class="btn-label">
-                                    <i class="fa fa-chart-bar"></i>
-                                </span>
-                                Bar
-                            </button>
-                            <button class="btn btn-primary btn-sm btn-round" onclick="GetFreqsPie()">
-                                <span class="btn-label">
-                                    <i class="fa fa-chart-pie"></i>
-                                </span>
-                                Pie
-                            </button>
-                            <a href="#" class="btn btn-info btn-border btn-round btn-sm mr-2" disabled>
-                                <span class="btn-label">
-                                    <i class="fa fa-file-excel"></i>
-                                </span>
-                                Export
-                            </a>
-                            <a href="#" class="btn btn-info btn-border btn-round btn-sm" disabled>
-                                <span class="btn-label">
-                                    <i class="fa fa-copy"></i>
-                                </span>
-                                Copy
-                            </a>
-                        </div>
-                    </td>
-                </tr>
-            </table>
-
-            <div class="card-body">
-                <div id="FrequenciesGrid">
-                    <div class="row">
-                        @*<div class="col">ID</div>*@
-                        <div class="col text-left border-bottom font-weight-bold" style="background-color:#ebedf2">Code</div>
-                        <div class="col border-bottom font-weight-bold" style="background-color:#ebedf2">Frequency</div>
+                                &nbsp;&nbsp;Columns&nbsp;&nbsp;
+                                <ul>
+                                    <li>
+                                        <input type="checkbox" class="ml-1" id="cbItemId" />&nbsp;&nbsp;Id
+                                    </li>
+                                    <li>
+                                        <input type="checkbox" class="ml-1" id="cbShortTitle" />&nbsp;&nbsp;Short Title
+                                    </li>
+                                    <li>
+                                        <input type="checkbox" class="ml-1" id="cbTitle" />&nbsp;&nbsp;Title
+                                    </li>
+                                    <li>
+                                        <input type="checkbox" class="ml-1" id="cbYear" />&nbsp;&nbsp;Year
+                                    </li>
+                                    <li>
+                                        <input type="checkbox" class="ml-1" id="cbAuthors" />&nbsp;&nbsp;Authors
+                                    </li>
+                                    <li>
+                                        <input type="checkbox" class="ml-1" id="cbJournal" />&nbsp;&nbsp;Journal
+                                    </li>
+                                </ul>
+                            </li>
+                        </ul>
                     </div>
+                </td>
+            </tr>
+        </table>
+        <div id="ItemsGrid" style="max-height:60vh;">
 
-                    @{int counter = 0;}
-                    @foreach (WebDbItemAttributeChildFrequency itm in Model.results)
-                    {
-                        <div class="row">
-                            @{counter++;}
-                            @if (counter % 2 == 0)
-                            {
-                                <div class="col text-left border-bottom" style="background-color:#ebedf2">@itm.Attribute</div>
-                                <div class="col text-left border-bottom" style="background-color:#ebedf2">
-                                    @if (itm.ItemCount == 0)
-                                    {
-                                        <text>0</text>
-                                    }
-                                    else if (itm.AttributeId == -999999)
-                                    {
-                                        <a href="javascript:GoToItemsJson(@itm.AttributeId, '@Model.criteria.nameXAxis.Replace("\'", "&#39;")')">@itm.ItemCount</a>
-                                    }
-                                    else
-                                    {
-                                        <a href="javascript:GoToItemsJson(@itm.AttributeId, '@itm.Attribute.Replace("\'", "&#39;")')">@itm.ItemCount</a>
-                                    }
-                                </div>
-                            }
-                            else
-                            {
-                                <div class="col text-left border-bottom">@itm.Attribute</div>
-                                <div class="col text-left border-bottom">
-                                    @if (itm.ItemCount == 0)
-                                    {
-                                        <text>0</text>
-                                    }
-                                    else if (itm.AttributeId == -999999)
-                                    {
-                                        <a href="javascript:GoToItemsJson(@itm.AttributeId, '@Model.criteria.nameXAxis.Replace("\'", "&#39;")')">@itm.ItemCount</a>
-                                    }
-                                    else
-                                    {
-                                        <a href="javascript:GoToItemsJson(@itm.AttributeId, '@itm.Attribute.Replace("\'", "&#39;")')">@itm.ItemCount</a>
-                                    }
-                                </div>
-                            }
-                        </div>
-                    }
-                </div>
-                <div id="FrequenciesChart" class="chart" style="text-align:left">
-
-                </div>
-
-            </div>
         </div>
     </div>
-    @await Html.PartialAsync("_ItemsList")
-</div>
+    <script id="gridToolbarTemplate" type="text/x-kendo-template">
+        <a class="k-button btn-round btn-info btn-border" href="\#" onclick="return QuickCitations()">
+            <span class="btn-label">
+                <i class="fa fa-pencil-alt mr-1"></i>
+            </span>Citations&nbsp;
+        </a>
 
+        <a class="k-button k-button-icontext k-grid-excel btn-round btn-info btn-border" href="\#">
+            <span class="btn-label">
+                <i class="fa fa-file-excel mr-1"></i>
+            </span>Excel&nbsp;
+        </a>
+
+        <a class="k-button btn-round btn-info btn-border" href="\#" onclick="return PageToRisClick()">
+            <span class="btn-label">
+                <i class="k-icon k-i-list-bulleted mr-1"></i>
+            </span>To RIS (page)&nbsp;
+        </a>
+
+        <a id="WholeListToRisButton" style="display: none;"
+           class="k-button btn-round btn-info btn-border" href="\#" onclick="return WholeListToRisClick()">
+            <span class="btn-label">
+                <i class="k-icon k-i-list-bulleted mr-1"></i>
+            </span>To RIS (all)&nbsp;
+        </a>
+
+        <div class="alert-danger ml-1" id="ExportToRisProgress" style="display: none;">
+            Exporting to RIS: page <span id="ExportToRisProgressN"></span> of Model.items.PageCount
+        </div>
+
+        <span class="k-textbox k-grid-search k-display-flex m-0 p-0 small">
+            <input autocomplete="off" placeholder="Filter..." title="Filter..." class="k-input px-1">
+            <span class="k-input-icon">
+                <span class="k-icon k-i-search"></span>
+            </span>
+        </span>
+    </script>
+    <script id="ItemsGridTemplate" type="text/x-kendo-tmpl">
+        <table>
+            <tr class="border border-bottom ">
+                <td class="px-1 py-0 border-bottom small ">
+                    <form action="../ItemList/ItemDetails" method="post" class="form-inline">
+                        <button class="btn btn-link px-1 py-0 my-1 mx-0" type="submit"
+                                name="itemId" value="#= itemId #">
+                            #= itemId #
+                        </button>
+                    </form>
+                </td>
+                <td class="px-1 py-0 border-bottom small ">
+                    #= shortTitle #
+                </td>
+                <td class="px-1 py-0 border-bottom ">
+                    <form action="../ItemList/ItemDetails" method="post" class="form-inline">
+                        <button class="text-left btn-link px-1 py-0 my-1 mx-0" type="submit" style="overflow: !important;"
+                                name="itemId" value="#= itemId #">
+                            #= title #
+                        </button>
+                    </form>
+                </td>
+                <td class="px-1 py-0 border-bottom small ">
+                    #= year #
+                </td>
+                <td class="px-1 py-0 border-bottom small ">
+                    #= authors #
+                </td>
+                <td class="px-1 py-0 border-bottom small ">
+                    #= parentTitle #
+                </td>
+            </tr>
+        </table>
+    </script>
+</div>
