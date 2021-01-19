@@ -34,16 +34,17 @@ Crosstab!
 
 
 
-    function GoToItems(WithAttIds, WithSetId, WithoutAttIds, WithoutSetId, Descript) {
-        postwith("../ItemList/GetListWithWithoutAtts",
-            {
-                WithAttIds: WithAttIds
-                , WithSetId: WithSetId
-                , WithoutAttIds: WithoutAttIds
-                , WithoutSetId: WithoutSetId
-                , included: @Model.Included
-                , Description: Descript.replaceAll('&#39;', '\'')
-            });
+    function GoToItems(WithAttIds, WithSetId, WithoutAttIds, WithoutSetId, Descript) {       
+        var pars = {
+            WithAttIds: WithAttIds
+            , WithSetId: WithSetId
+            , WithoutAttIds: WithoutAttIds
+            , WithoutSetId: WithoutSetId
+            , included: @Model.Included
+            , Description: Descript.replaceAll('&#39;', '\'')
+        }        
+        postwith("../ItemList/GetListWithWithoutAtts", pars);
+        
     }
 
 
@@ -242,13 +243,18 @@ Crosstab!
                                 {
                                     foreach (WebDbItemAttributeCrosstabRow row in Model.Rows)
                                     {
-                                        value = @row.Counts[i];
-                                        if (value > biggestValue)
+                                        @if (@rowNumber < Model.Rows.Count - 1)
                                         {
-                                            biggestValue = value;
+                                            value = @row.Counts[i];
+                                            if (value > biggestValue)
+                                            {
+                                                biggestValue = value;
+                                            }
+                                            rowNumber = rowNumber + 1;
                                         }
                                     }
                                 }
+                                rowNumber = 0;
                                 //<script>alert(@biggestValue);</script>
 
                                 <div id="CrosstabsChart">
@@ -288,25 +294,29 @@ Crosstab!
                                                             <th style="text-align:center;vertical-align:middle">
                                                                 <a href="javascript:GoToItems('@with', '@withSets', '', '', '@descript')">
 
-                                                                    @if ((@row.Counts[i] * 10 / biggestValue) > 8)
+                                                                    @if ((@row.Counts[i] * 10 / biggestValue) > 7)
                                                                     {
-                                                                        <i class="fa fa-circle fa-5x" tool-tip-toggle="tooltip-demo" data-original-title="@row.Counts[i] records"></i>
-                                                                    }
-                                                                    else if ((@row.Counts[i] * 10 / biggestValue) > 6)
-                                                                    {
-                                                                        <i class="fa fa-circle fa-4x" tool-tip-toggle="tooltip-demo" data-original-title="@row.Counts[i] records"></i>
+                                                                        <i class="fa fa-circle fa-6x" style="color:#007bff;" tool-tip-toggle="tooltip-demo" data-original-title="@row.Counts[i] records"></i>
                                                                     }
                                                                     else if ((@row.Counts[i] * 10 / biggestValue) > 4)
                                                                     {
-                                                                        <i class="fa fa-circle fa-3x" tool-tip-toggle="tooltip-demo" data-original-title="@row.Counts[i] records"></i>
+                                                                        <i class="fa fa-circle fa-5x" style="color:#28a745;" tool-tip-toggle="tooltip-demo" data-original-title="@row.Counts[i] records"></i>
                                                                     }
-                                                                    else if ((@row.Counts[i] * 10 / biggestValue) > 2)
+                                                                    else if ((@row.Counts[i] * 10 / biggestValue) > 2.1)
                                                                     {
-                                                                        <i class="fa fa-circle fa-2x" tool-tip-toggle="tooltip-demo" data-original-title="@row.Counts[i] records"></i>
+                                                                        <i class="fa fa-circle fa-4x" style="color:#ffc107;" tool-tip-toggle="tooltip-demo" data-original-title="@row.Counts[i] records"></i>
+                                                                    }
+                                                                    else if ((@row.Counts[i] * 10 / biggestValue) > 1.5)
+                                                                    {
+                                                                        <i class="fa fa-circle fa-3x" style="color:#dc3545;" tool-tip-toggle="tooltip-demo" data-original-title="@row.Counts[i] records"></i>
+                                                                    }
+                                                                    else if ((@row.Counts[i] * 10 / biggestValue) > .5)
+                                                                    {
+                                                                        <i class="fa fa-circle fa-2x" style="color:#17a2b8;" tool-tip-toggle="tooltip-demo" data-original-title="@row.Counts[i] records"></i>
                                                                     }
                                                                     else
                                                                     {
-                                                                        <i class="fa fa-circle fa-1x" tool-tip-toggle="tooltip-demo" data-original-title="@row.Counts[i] records"></i>
+                                                                        <i class="fa fa-circle fa-1x" style="color:#343a40;" tool-tip-toggle="tooltip-demo" data-original-title="@row.Counts[i] records"></i>
                                                                     }
                                                                 </a>
                                                             </th>
@@ -314,7 +324,7 @@ Crosstab!
                                                     }
                                                 </tr>
                                                 rowNumber = rowNumber + 1;
-                                                
+
                                             }
 
                                         }
