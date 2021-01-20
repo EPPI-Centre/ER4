@@ -11,6 +11,7 @@
     var ItemsListData = null;
     var FirstBuild = true;
     var ItemsListKendoDataSource = null;
+    var gridHeightCSS = "60vh";
     function BuildItems(data, result) {
         if (result == "success") {
             CurrentItemsCriteria = data.criteria;
@@ -93,7 +94,7 @@
                     { template: kendo.template($("#gridToolbarTemplate").html()) }
                 ],
                 sortable: false,
-                height: "65vh",
+                height: gridHeightCSS,
 
                 //mobile: "phone",
                 //search: {
@@ -663,7 +664,7 @@
                 </td>
             </tr>
         </table>
-        <div id="ItemsGrid" style="max-height:60vh;">
+        <div id="ItemsGrid" >
 
         </div>
     </div>
