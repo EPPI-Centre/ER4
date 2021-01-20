@@ -40,6 +40,8 @@ namespace EppiReviewer4
         private List<Int64> SelectedPaperIds;
         private int _maxFieldOfStudyPaperCount = 1000000;
         //public MagCurrentInfo CurrentMagInfo;
+        private int nMatchedRecords;
+
         public dialogMagBrowser()
         {
             InitializeComponent();
@@ -73,6 +75,7 @@ namespace EppiReviewer4
             UpdateSelectedCount();
 
             GridPaperInfoBackground.Background = new SolidColorBrush(SystemColors.ControlColor);
+            RefreshCounts();
         }
 
         public void ShowMagBrowser()
@@ -165,6 +168,7 @@ namespace EppiReviewer4
             dp2.ExecuteCompleted += (o, e2) =>
             {
                 busyIndicatorMatches.IsBusy = false;
+                BusyImportingRecords.IsRunning = false;
                 if (e2.Error != null)
                 {
                     RadWindow.Alert(e2.Error.Message);
@@ -173,6 +177,8 @@ namespace EppiReviewer4
                 {
                     MAgReviewMagInfoCommand mrmic2 = e2.Object as MAgReviewMagInfoCommand;
                     //TBNumInReview.Text = mrmic2.NInReviewIncluded.ToString() + " / " + mrmic2.NInReviewExcluded.ToString();
+                    tbMatchedRecordsTitle.Text = "Matched records: " + mrmic2.NMatchedAccuratelyIncluded.ToString();
+                    nMatchedRecords = mrmic2.NMatchedAccuratelyIncluded;
                     LBListMatchesIncluded.Content = mrmic2.NMatchedAccuratelyIncluded.ToString();
                     LBListMatchesExcluded.Content = mrmic2.NMatchedAccuratelyExcluded.ToString();
                     LBListAllInReview.Content = (mrmic2.NMatchedAccuratelyIncluded + mrmic2.NMatchedAccuratelyExcluded).ToString();
@@ -183,6 +189,7 @@ namespace EppiReviewer4
                 }
             };
             busyIndicatorMatches.IsBusy = true;
+            BusyImportingRecords.IsRunning = true;
             dp2.BeginExecute(mrmic);
         }
 
@@ -1878,7 +1885,7 @@ namespace EppiReviewer4
                 mrpr.DateFrom = DatePickerRelatedPapersRun.SelectedDate;
             }
             mrpr.Status = "Running";
-            mrpr.Filtered = RBRelatedRCTFilterNone.IsChecked.Value ? "None" : RBRelatedRCTFilterPrecise.IsChecked.Value ? "Precise" : "Sensitive";
+            mrpr.Filtered = "";
             mrpr.Mode = (ComboRelatedPapersMode.SelectedItem as ComboBoxItem).Tag.ToString();
             if (mrpr.Mode == "New items in MAG")
             {
@@ -1933,6 +1940,12 @@ namespace EppiReviewer4
 
         private void LBAddRelatedPapersRun_Click(object sender, RoutedEventArgs e)
         {
+            if (nMatchedRecords == 0)
+            {
+                RadWindow.Alert("Please match records before running a search");
+                return;
+            }
+
             if (tbRelatedPapersRunDescription.Text == "")
             {
                 RadWindow.Alert("Please enter a description");
@@ -2263,6 +2276,12 @@ namespace EppiReviewer4
 
         private void lbRunSimulation_Click(object sender, RoutedEventArgs e)
         {
+            if (nMatchedRecords == 0)
+            {
+                RadWindow.Alert("Please match records before running simulations");
+                return;
+            }
+
             RadWindow.Confirm("Are you sure you want to create and run this simulation study?", this.CreateAndRunSimulation);
         }
 
@@ -2930,6 +2949,17 @@ namespace EppiReviewer4
             {
                 return; // for some reason disabled hyperlinks still work??
             }
+            if (ComboMagSearchSelect.SelectedIndex != 3 && TextBoxMagSearch.Text == "")
+            {
+                RadWindow.Alert("Search text is blank");
+                return;
+            }
+            if (ComboMagSearchSelect.SelectedIndex == 3 && MagSearchCurrentTopic.Tag.ToString() == "")
+            {
+                RadWindow.Alert("Please select a topic");
+                return;
+            }
+
             MagSearch newSearch = new MagSearch();
             switch (ComboMagSearchSelect.SelectedIndex)
             {
@@ -3018,6 +3048,11 @@ namespace EppiReviewer4
                             newSearch.GetSearchTextPublicationType((ComboMagSearchPubTypeLimit.SelectedIndex - 1).ToString()) + ")";
                 newSearch.SearchText += " AND publication type: " + newSearch.GetPublicationType(ComboMagSearchPubTypeLimit.SelectedIndex - 1);
             }
+            if (newSearch.MagSearchText.Length > 2000)
+            {
+                RadWindow.Alert("Sorry, search string is too long");
+                return;
+            }
             newSearch.Saved += NewSearch_Saved;
             BusyRunningMagSearch.IsRunning = true;
             HyperLinkMagSearchDoSearch.IsEnabled = false;
@@ -3074,6 +3109,11 @@ namespace EppiReviewer4
             }
             MagSearch newSearch = new MagSearch();
             newSearch.SetCombinedSearches(searches, MagSearchComboCombine.SelectedIndex == 0 ? "AND" : "OR");
+            if (newSearch.MagSearchText.Length > 2000)
+            {
+                RadWindow.Alert("Sorry, this search string is too long");
+                return;
+            }
             newSearch.Saved += NewSearch_Saved;
             newSearch.BeginSave();
             MagSearchComboCombine.SelectedIndex = -1;
@@ -3359,6 +3399,12 @@ namespace EppiReviewer4
 
         private void LBAddNewAutoUpdate_Click(object sender, RoutedEventArgs e)
         {
+            if (nMatchedRecords == 0)
+            {
+                RadWindow.Alert("Please match records before subscribing to an auto-update");
+                return;
+            }
+
             if ((sender as HyperlinkButton).Tag.ToString() == "ClickToOpen")
             {
                 RowCreateNewAutoUpdate.Height = new GridLength(50, GridUnitType.Auto);
