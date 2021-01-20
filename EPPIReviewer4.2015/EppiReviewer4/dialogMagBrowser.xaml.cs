@@ -40,6 +40,8 @@ namespace EppiReviewer4
         private List<Int64> SelectedPaperIds;
         private int _maxFieldOfStudyPaperCount = 1000000;
         //public MagCurrentInfo CurrentMagInfo;
+        private int nMatchedRecords;
+
         public dialogMagBrowser()
         {
             InitializeComponent();
@@ -73,6 +75,7 @@ namespace EppiReviewer4
             UpdateSelectedCount();
 
             GridPaperInfoBackground.Background = new SolidColorBrush(SystemColors.ControlColor);
+            RefreshCounts();
         }
 
         public void ShowMagBrowser()
@@ -165,6 +168,7 @@ namespace EppiReviewer4
             dp2.ExecuteCompleted += (o, e2) =>
             {
                 busyIndicatorMatches.IsBusy = false;
+                BusyImportingRecords.IsRunning = false;
                 if (e2.Error != null)
                 {
                     RadWindow.Alert(e2.Error.Message);
@@ -173,6 +177,8 @@ namespace EppiReviewer4
                 {
                     MAgReviewMagInfoCommand mrmic2 = e2.Object as MAgReviewMagInfoCommand;
                     //TBNumInReview.Text = mrmic2.NInReviewIncluded.ToString() + " / " + mrmic2.NInReviewExcluded.ToString();
+                    tbMatchedRecordsTitle.Text = "Matched records: " + mrmic2.NMatchedAccuratelyIncluded.ToString();
+                    nMatchedRecords = mrmic2.NMatchedAccuratelyIncluded;
                     LBListMatchesIncluded.Content = mrmic2.NMatchedAccuratelyIncluded.ToString();
                     LBListMatchesExcluded.Content = mrmic2.NMatchedAccuratelyExcluded.ToString();
                     LBListAllInReview.Content = (mrmic2.NMatchedAccuratelyIncluded + mrmic2.NMatchedAccuratelyExcluded).ToString();
@@ -183,6 +189,7 @@ namespace EppiReviewer4
                 }
             };
             busyIndicatorMatches.IsBusy = true;
+            BusyImportingRecords.IsRunning = true;
             dp2.BeginExecute(mrmic);
         }
 
@@ -1933,6 +1940,12 @@ namespace EppiReviewer4
 
         private void LBAddRelatedPapersRun_Click(object sender, RoutedEventArgs e)
         {
+            if (nMatchedRecords == 0)
+            {
+                RadWindow.Alert("Please match records before running a search");
+                return;
+            }
+
             if (tbRelatedPapersRunDescription.Text == "")
             {
                 RadWindow.Alert("Please enter a description");
@@ -2263,6 +2276,12 @@ namespace EppiReviewer4
 
         private void lbRunSimulation_Click(object sender, RoutedEventArgs e)
         {
+            if (nMatchedRecords == 0)
+            {
+                RadWindow.Alert("Please match records before running simulations");
+                return;
+            }
+
             RadWindow.Confirm("Are you sure you want to create and run this simulation study?", this.CreateAndRunSimulation);
         }
 
@@ -3370,6 +3389,12 @@ namespace EppiReviewer4
 
         private void LBAddNewAutoUpdate_Click(object sender, RoutedEventArgs e)
         {
+            if (nMatchedRecords == 0)
+            {
+                RadWindow.Alert("Please match records before subscribing to an auto-update");
+                return;
+            }
+
             if ((sender as HyperlinkButton).Tag.ToString() == "ClickToOpen")
             {
                 RowCreateNewAutoUpdate.Height = new GridLength(50, GridUnitType.Auto);

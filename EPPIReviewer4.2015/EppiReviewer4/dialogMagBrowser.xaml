@@ -170,11 +170,12 @@
 
         <Grid x:Name="HeaderGrid" Grid.Row="0" Background="Beige">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="400*"></ColumnDefinition>
+                <ColumnDefinition Width="600*"></ColumnDefinition>
                 <ColumnDefinition Width="400*"></ColumnDefinition>
             </Grid.ColumnDefinitions>
             <StackPanel Grid.Column="0" Orientation="Horizontal">
                 <TextBlock x:Name="tbAcademicTitle" TextWrapping="Wrap"  Text="Microsoft Academic Graph browser" FontSize="12" FontStyle="Italic" Margin="5,10,5,5"></TextBlock>
+                <TextBlock x:Name="tbMatchedRecordsTitle" TextWrapping="Wrap"  Text="" FontSize="10" FontStyle="Italic" Margin="5,13,5,5"></TextBlock>
                 <TextBlock x:Name="tbImportingRecords" Grid.Column="0" Text="Importing records..." FontSize="12" FontStyle="Italic" Margin="20,10,5,5" Visibility="Collapsed"></TextBlock>
                 <cslaXAML:BusyAnimation x:Name="BusyImportingRecords"  Width="50" Height="40" HorizontalAlignment="Center" VerticalAlignment="Center"/>
             </StackPanel>
