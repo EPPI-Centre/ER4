@@ -228,7 +228,6 @@
                                         <RowDefinition Height="0" x:Name="RowSelectCodeRelatedPapersRun"></RowDefinition>
                                         <RowDefinition Height="35"></RowDefinition>
                                         <RowDefinition Height="35"></RowDefinition>
-                                        <RowDefinition Height="35"></RowDefinition>
                                     </Grid.RowDefinitions>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="120"></ColumnDefinition>
@@ -263,13 +262,7 @@
                                         <RadioButton x:Name="RadioButtonRelatedPapersRunDateFilter" Content="Items dated from" Margin="5,5,5,5" GroupName="RadioButtonsRelatedPapersDate" VerticalAlignment="Center" Checked="RadioButton_Checked_3"></RadioButton>
                                         <telerik:RadDatePicker x:Name="DatePickerRelatedPapersRun" Visibility="Collapsed" VerticalAlignment="Center"></telerik:RadDatePicker>
                                     </StackPanel>
-                                    <TextBlock Text="RCT filter" Grid.Row="4" Grid.Column="0" Margin="5,5,5,5" VerticalAlignment="Center" HorizontalAlignment="Right"></TextBlock>
-                                    <StackPanel Grid.Row="4" Grid.Column="1" Orientation="Horizontal">
-                                        <RadioButton x:Name="RBRelatedRCTFilterNone" Content="No filter" IsChecked="True" Margin="5,5,5,5" GroupName="RBGroupRCTFilter" VerticalAlignment="Center"></RadioButton>
-                                        <RadioButton x:Name="RBRelatedRCTFilterSensitive" Content="High sensitivity" Margin="5,5,5,5" GroupName="RBGroupRCTFilter" VerticalAlignment="Center"></RadioButton>
-                                        <RadioButton x:Name="RBRelatedRCTFilterPrecise" Content="Higher specificity" Margin="5,5,5,5" GroupName="RBGroupRCTFilter" VerticalAlignment="Center"></RadioButton>
-                                    </StackPanel>
-                                    <HyperlinkButton x:Name="LBAddRelatedPapersRun" Content="Add new search for related papers" Grid.Row="5" Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Center" Click="LBAddRelatedPapersRun_Click" IsTabStop="False"></HyperlinkButton>
+                                    <HyperlinkButton x:Name="LBAddRelatedPapersRun" Content="Add new search for related papers" Grid.Row="4" Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Center" Click="LBAddRelatedPapersRun_Click" IsTabStop="False"></HyperlinkButton>
                                 </Grid>
 
                                 <telerikGridView:RadGridView x:Name="RelatedPapersRunGrid" Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" AutoGenerateColumns="False" ShowGroupPanel="False"
@@ -286,8 +279,6 @@
                                         <telerikGridView:GridViewDataColumn Header="Date run" DataMemberBinding="{Binding DateRun}" Width="85" IsReadOnly="True"></telerikGridView:GridViewDataColumn>
                                         <telerikGridView:GridViewDataColumn Header="All included" Width="100" DataMemberBinding="{Binding AllIncluded}" IsReadOnly="True"></telerikGridView:GridViewDataColumn>
                                         <telerikGridView:GridViewDataColumn Header="With this code" Width="80*" DataMemberBinding="{Binding AttributeName}" IsReadOnly="True"></telerikGridView:GridViewDataColumn>
-                                        <telerikGridView:GridViewDataColumn Header="Filtered" Width="65" DataMemberBinding="{Binding Filtered}" IsReadOnly="True"></telerikGridView:GridViewDataColumn>
-
                                         <telerikGridView:GridViewDataColumn Header="Status" Width="80" DataMemberBinding="{Binding Status}" IsReadOnly="True"></telerikGridView:GridViewDataColumn>
                                         <telerikGridView:GridViewDataColumn Header="User status" Width="80" DataMemberBinding="{Binding UserStatus}" IsReadOnly="True"></telerikGridView:GridViewDataColumn>
                                         <telerikGridView:GridViewDataColumn Width="50" SortingState="None" IsReadOnly="True">

@@ -1878,7 +1878,7 @@ namespace EppiReviewer4
                 mrpr.DateFrom = DatePickerRelatedPapersRun.SelectedDate;
             }
             mrpr.Status = "Running";
-            mrpr.Filtered = RBRelatedRCTFilterNone.IsChecked.Value ? "None" : RBRelatedRCTFilterPrecise.IsChecked.Value ? "Precise" : "Sensitive";
+            mrpr.Filtered = "";
             mrpr.Mode = (ComboRelatedPapersMode.SelectedItem as ComboBoxItem).Tag.ToString();
             if (mrpr.Mode == "New items in MAG")
             {
