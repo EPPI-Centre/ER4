@@ -1,0 +1,742 @@
+﻿<script type="text/javascript">
+    var ColumnVisibility = {
+        ItemId: false,
+        ShortTitle: true,
+        Title: true,
+        Year: true,
+        Authors: false,
+        Journal: false
+    };
+    var CurrentItemsCriteria = null;
+    var ItemsListData = null;
+    var FirstBuild = true;
+    var ItemsListKendoDataSource = null;
+    var gridHeightCSS = "60vh";
+    function BuildItems(data, result) {
+        if (result == "success") {
+            CurrentItemsCriteria = data.criteria;
+            ItemsListData = data.items;
+            ItemsListKendoDataSource = new kendo.data.DataSource({
+                data: ItemsListData.items
+            });
+            console.log("ItemsN: ", ItemsListData.items.length);
+
+            $("#ItemsGridRoot").show();
+            $("#ItemsGrid").kendoGrid({
+                rowTemplate: kendo.template($("#ItemsGridTemplate").html()),
+                columns: [
+                    {
+                        field: "itemId",
+                        title: "Id",
+                        width: "5%",
+                        headerAttributes: {
+                            "class": "ml-1 p-1 border-bottom"
+                        }
+                        //,hidden: function () { return ColumnVisibility.ItemId;}
+                    },
+                    {
+                        field: "shortTitle",
+                        title: "Short title",
+                        width: "10%",
+                        headerAttributes: {
+                            "class": "p-1 border-bottom"
+                        }
+                    },
+                    {
+                        field: "title",
+                        title: "Title",
+                        width: "50%",
+                        minResizableWidth: 100,
+                        headerAttributes: {
+                            "class": "p-1 border-bottom"
+                        }
+                    },
+                    {
+                        field: "year",
+                        title: "Year",
+                        width: "5%",
+                        headerAttributes: {
+                            "class": "p-1 border-bottom"
+                        }
+                    },
+                    {
+                        field: "authors",
+                        title: "Authors",
+                        width: "10%",
+                        headerAttributes: {
+                            "class": "p-1 border-bottom"
+                        }
+                    },
+                    {
+                        field: "parentTitle",
+                        title: "Journal",
+                        width: "10%",
+                        headerAttributes: {
+                            "class": "p-1 border-bottom"
+                        }
+                    }],
+                dataSource: ItemsListKendoDataSource,
+                dataBound: function (e) {
+                    console.log("dataBound");
+                    PrepareItemsHeader();
+                    //var grid = e.sender;
+                    //var columns = grid.columns;
+                    //columns.forEach(function (e, i) {
+                    //    if (e.hidden === false) {
+                    //        grid.hideColumn(e);
+                    //    }
+                    //});
+
+                },
+                toolbar: ["search", "excel"],
+                resizable: true,
+                toolbar: [
+                    { template: kendo.template($("#gridToolbarTemplate").html()) }
+                ],
+                sortable: false,
+                height: gridHeightCSS,
+
+                //mobile: "phone",
+                //search: {
+                //    fields: ["title", "year", "itemId", "shortTitle", "authors", "journal"]
+                //}
+                //,
+                //dataBinding: function (e) {
+                //    console.log("dataBinding", e);
+                //    setColumns();
+                //}
+            });
+        }
+    }
+    function PrepareItemsHeader() {
+        if (FirstBuild) {
+
+            FirstBuild = false;
+            $("#menu").kendoMenu({
+                select: onSelectColumnVisibility,
+            });
+            document.getElementById("cbItemId").checked = ColumnVisibility.ItemId;
+            document.getElementById("cbShortTitle").checked = ColumnVisibility.ShortTitle;
+            document.getElementById("cbTitle").checked = ColumnVisibility.Title;
+            document.getElementById("cbYear").checked = ColumnVisibility.Year;
+            document.getElementById("cbAuthors").checked = ColumnVisibility.Authors;
+            document.getElementById("cbJournal").checked = ColumnVisibility.Journal;
+        }
+        //var grid = $("#ItemsGrid").data("kendoGrid");
+        //grid.unbind("dataBound");
+        setColumns();
+        setPaging();
+        //grid.bind("dataBinding", function (e) {
+        //    console.log("dataBinding", e);
+        //    setColumns();
+        //});
+    }
+    function setPaging() {
+        $("#ItemsDescr").html(CurrentItemsCriteria.description);
+        if (ItemsListData.pagecount > 1) {
+            $("#onlyIncluded").val(CurrentItemsCriteria.onlyIncluded.toString());
+            $("#showDeleted").val(CurrentItemsCriteria.shoshowDeleted);
+            $("#sourceId").val(CurrentItemsCriteria.sourceId);
+            $("#searchId").val(CurrentItemsCriteria.searchId);
+            $("#xAxisSetId").val(CurrentItemsCriteria.xAxisSetId);
+            $("#xAxisAttributeId").val(CurrentItemsCriteria.xAxisAttributeId);
+            $("#yAxisSetId").val(CurrentItemsCriteria.yAxisSetId);
+            $("#yAxisAttributeId").val(CurrentItemsCriteria.yAxisAttributeId);
+            $("#filterSetId").val(CurrentItemsCriteria.filterSetId);
+            $("#filterAttributeId").val(CurrentItemsCriteria.filterAttributeId);
+            $("#attributeSetIdList").val(CurrentItemsCriteria.attributeSetIdList);
+            $("#listType").val(CurrentItemsCriteria.listType);
+            $("#pageNumber").val(CurrentItemsCriteria.pageNumber);
+            $("#pageSize").val(CurrentItemsCriteria.pageSize);
+            $("#workAllocationId").val(CurrentItemsCriteria.workAllocationId);
+            $("#magSimulationId").val(CurrentItemsCriteria.magSimulationId);
+            $("#comparisonId").val(CurrentItemsCriteria.comparisonId);
+            $("#description").val(CurrentItemsCriteria.description);
+            $("#contactId").val(CurrentItemsCriteria.contactId);
+            $("#setId").val(CurrentItemsCriteria.setId);
+            $("#showInfoColumn").val(CurrentItemsCriteria.showInfoColumn);
+            $("#showScoreColumn").val(CurrentItemsCriteria.showScoreColumn);
+            $("#webDbId").val(CurrentItemsCriteria.webDbId);
+            $("#withAttributesIds").val(CurrentItemsCriteria.withAttributesIds);
+            $("#withSetIdsList").val(CurrentItemsCriteria.withSetIdsList);
+            $("#withOutAttributesIdsList").val(CurrentItemsCriteria.withOutAttributesIdsList);
+            $("#searchWhat").val(CurrentItemsCriteria.searchWhat);
+            $("#searchString").val(CurrentItemsCriteria.searchString);
+
+            $("#HeaderPaged").show();
+            $("#WholeListToRisButton").show();
+            $("#HeaderNotPaged").hide();
+            let pp = $("#PreviousPage");
+            let np = $("#NextPage");
+            pp.val(ItemsListData.pageindex - 1);
+            //console.log("pp.val:", pp.val());
+            np.val(ItemsListData.pageindex + 1);
+            if (ItemsListData.pageindex == 0) {
+                //console.log("pp.disabled = true;", pp);
+                pp.attr("disabled", "disabled");
+            }
+            else {
+                //console.log("pp.disabled = false;", pp);
+                pp.removeAttr("disabled");
+            }
+            if (ItemsListData.pageindex == ItemsListData.pagecount - 1) {
+                //console.log("np.disabled = true;");
+                np.attr("disabled", "disabled");
+            }
+            else {
+                //console.log("np.disabled = false;");
+                np.removeAttr("disabled");
+            }
+            $("#PagingText").html("&nbsp;&nbsp;Page " + (ItemsListData.pageindex + 1).toString() + " of " + (ItemsListData.pagecount).toString() + "&nbsp;&nbsp;")
+        } else {
+            $("#HeaderNotPaged").show();
+            $("#WholeListToRisButton").hide();
+            $("#HeaderPaged").hide();
+        }
+    }
+    function onSelectColumnVisibility(e) {
+        const txt = $(e.item).children(".k-link").text().trim();
+        console.log("onSelectColumnVisibility", txt);
+        if (txt == "Id") {
+            ColumnVisibility.ItemId = !ColumnVisibility.ItemId;
+            document.getElementById("cbItemId").checked = ColumnVisibility.ItemId;
+        }
+        else if (txt == "Short Title") {
+            ColumnVisibility.ShortTitle = !ColumnVisibility.ShortTitle;
+            document.getElementById("cbShortTitle").checked = ColumnVisibility.ShortTitle;
+        }
+        else if (txt == "Title") {
+            ColumnVisibility.Title = !ColumnVisibility.Title;
+            document.getElementById("cbTitle").checked = ColumnVisibility.Title;
+        }
+        else if (txt == "Year") {
+            ColumnVisibility.Year = !ColumnVisibility.Year;
+            document.getElementById("cbYear").checked = ColumnVisibility.Year;
+        }
+        else if (txt == "Authors") {
+            ColumnVisibility.Authors = !ColumnVisibility.Authors;
+            document.getElementById("cbAuthors").checked = ColumnVisibility.Authors;
+        }
+        else if (txt == "Journal") {
+            ColumnVisibility.Journal = !ColumnVisibility.Journal;
+            document.getElementById("cbJournal").checked = ColumnVisibility.Journal;
+        }
+        setColumns();
+    };
+    function setColumns() {
+        console.log("setColumns", ColumnVisibility);
+        var grid = $('#ItemsGrid').data('kendoGrid');
+        //console.log("id");
+        if (ColumnVisibility.ItemId) {
+            grid.showColumn(0);
+        } else {
+            grid.hideColumn(0);
+            grid.columns[0].hidden = true;
+        }
+        //console.log("st");
+        if (ColumnVisibility.ShortTitle) {
+            grid.showColumn(1);
+        } else {
+            grid.hideColumn(1);
+        }
+        //console.log("t");
+        if (ColumnVisibility.Title) {
+            grid.showColumn(2);
+        } else {
+            grid.hideColumn(2);
+        }
+        //console.log("y");
+        if (ColumnVisibility.Year) {
+            grid.showColumn(3);
+        } else {
+            grid.hideColumn(3);
+        }
+        //console.log("au", grid.columns[4]);
+        if (ColumnVisibility.Authors) {
+            grid.showColumn(4);
+        } else {
+            grid.hideColumn(4);
+        }
+        //console.log("j");
+        if (ColumnVisibility.Journal) {
+            grid.showColumn(5);
+        } else {
+            grid.hideColumn(5);
+        }
+        //var columns = grid.columns;
+        //columns.forEach(function (e, i) {
+        //    if (e.hidden === false) {
+        //        grid.hideColumn(e);
+        //    }
+        //});
+        //grid.unbind("dataBound");
+        //grid.setOptions({
+        //    columns: grid.getOptions().columns
+        //});
+        //console.log("id is hidden", grid.getOptions().columns[0].hidden);
+        //console.log("id is Authors", grid.getOptions().columns[4].hidden);
+        //grid.bind("dataBound", function (e) {
+        //    console.log("dataBound");
+        //    PrepareItemsHeader();
+        //})
+    }
+    function PrevPage() {
+        CurrentItemsCriteria.pageNumber = ItemsListData.pageindex - 1;
+        console.log("PrevPage", CurrentItemsCriteria.PageNumber, CurrentItemsCriteria.pageNumber);
+        $("#ItemsGrid").empty();
+        $("#ItemsGrid").kendoGrid();
+        $.post("../ItemList/ListFromCritJson"
+            , CurrentItemsCriteria
+            , function (data, result) { BuildItems(data, result); }
+        );
+    }
+    function NextPage() {
+        CurrentItemsCriteria.pageNumber = ItemsListData.pageindex + 1;
+        console.log("NextPage", CurrentItemsCriteria.PageNumber, CurrentItemsCriteria.pageNumber);
+        //ItemsListData.items = [];
+        //$("#ItemsGrid").html("");
+
+        $("#ItemsGrid").empty();
+        $("#ItemsGrid").kendoGrid();
+
+        $.post("../ItemList/ListFromCritJson"
+            , CurrentItemsCriteria
+            , function (data, result) { BuildItems(data, result); }
+        );
+    }
+
+    function PageToRisClick() {
+        const data = ExportListToRIS(ItemsListData.items);
+        downloadRISFile(data);
+    }
+    function downloadRISFile(risData, hideProgress = false) {
+        const file = new Blob([risData], { type: 'text/plain' });
+        const blobUrl = URL.createObjectURL(file);
+        // Save the need for file-save.js
+        const link = document.createElement("a");
+        link.href = blobUrl;
+        link.download = 'references.ris';
+        link.click();
+        if (hideProgress) setTimeout(() => $("#ExportToRisProgress").hide(), 3000);
+    }
+    function ExportListToRIS(list) {
+        console.log("ExportListToRIS", list);
+        const len = list.length;
+        let risData = '';
+        for (let i = 0; i < len; i++) {
+            risData += exportItemToRIS(list[i]);
+        }
+        return risData;
+    }
+    function exportItemToRIS(it) {
+        const calend = [
+            'Jan',
+            'Feb',
+            'Mar',
+            'Apr',
+            'May',
+            'Jun',
+            'Jul',
+            'Aug',
+            'Sep',
+            'Oct',
+            'Nov',
+            'Dec',
+
+        ];
+        const newLine = '\r\n';
+        let res = 'TY  - ';
+        let tmp = '';
+        switch (it.typeId) {
+            case 14:
+                res += 'JOUR' + newLine;
+                break;
+            case 1:
+                res += 'RPRT' + newLine;
+                break;
+            case 2:
+                res += 'BOOK' + newLine;
+                break;
+            case 3:
+                res += 'CHAP' + newLine;
+                break;
+            case 4:
+                res += 'THES' + newLine;
+                break;
+            case 5:
+                res += 'CONF' + newLine;
+                break;
+            case 6:
+                res += 'ELEC' + newLine;
+                break;
+            case 7:
+                res += 'ELEC' + newLine;
+                break;
+            case 8:
+                res += 'ADVS' + newLine;
+                break;
+            case 10:
+                res += 'MGZN' + newLine;
+                break;
+            default:
+                res += 'GEN' + newLine;
+                break;
+        }
+        res += 'T1  - ' + it.title + newLine;
+        if (it.typeId == 10 || it.typeId == 14)
+            res += 'JF  - ' + it.parentTitle + newLine;
+        else res += 'T2  - ' + it.parentTitle + newLine;
+        if (it.authors) {
+            for (let au of it.authors.split(';')) {
+                tmp = au.trim();
+                if (tmp != '') res += 'A1  - ' + tmp + newLine;
+            }
+        }
+        if (it.parentAuthors) {
+            for (let au of it.parentAuthors.split(';')) {
+                tmp = au.trim();
+                if (tmp != '') res += 'A2  - ' + tmp + newLine;
+            }
+        }
+
+        //console.log("Item to ris, got here!", it);
+        res +=
+            'KW  - eppi-reviewer4' +
+            newLine +
+            (it.keywords && it.keywords.length > 2
+                ? it.keywords.trim() + newLine
+                : '');
+        let tmpDate = '';
+        let Month = safeParseInt(it.month);
+
+        //console.log("Item to ris, got here!1", it.month);
+        if (it.month && (!Month || Month < 1 || Month > 12)) {
+            Month =
+                1 + it.month.length > 2
+                    ? calend.indexOf(it.month.substring(0, 3)) + 1
+                    : 0;
+        }
+
+        //console.log("Item to ris, got here!2");
+        let yr = safeParseInt(it.year);
+        if (it.year !== '' && yr) {
+            if (yr > 0) {
+                if (yr < 20) yr += 1900;
+                else if (yr < 100) yr += 2000;
+                if (yr.toString().length == 4) {
+                    res += 'py  - ' + yr.toString() + newLine;
+                    if (Month != 0) {
+                        tmpDate +=
+                            it.year +
+                            '/' +
+                            (Month.toString().length == 1
+                                ? '0' + Month.toString()
+                                : Month.toString()) +
+                            '//';
+                    } else {
+                        tmpDate += it.year + '///' + it.Month; //"y1  - "
+                    }
+                }
+            }
+        }
+
+        //console.log("Item to ris, got here!3");
+        if (tmpDate.length > 0) {
+            res += 'DA  - ' + tmpDate + newLine;
+            res += 'Y1  - ' + tmpDate;
+
+            //little trick: edition information is supposed to be the additional info at the end of the
+            //Y1 filed. For Thesis pubtype (4) we use the edition field to hold the thesys type,
+            //the following finishes up the Y1 field keeping all this into account
+
+            if (it.typeId == 4 && it.edition.length > 0)
+                res += newLine + 'KW  - ' + it.edition + newLine;
+            else if (it.edition.length > 0) res += ' ' + it.edition + newLine;
+            else res += newLine;
+        } else if (it.typeId == 4 && it.edition.length > 0) {
+            res += newLine + 'KW  - ' + it.edition + newLine;
+        } //end of little trick
+
+        //console.log("Item to ris, got here!4");
+        res += 'AB  - ' + it.abstract + newLine;
+        if (it.doi.length > 0) res += 'DO  - ' + it.doi + newLine;
+        res += 'VL  - ' + it.volume + newLine;
+        res += 'IS  - ' + it.issue + newLine;
+        let split = '-';
+        Yr = it.pages.indexOf(split);
+        if (Yr > 0) {
+            let pgs = it.pages.split(split);
+            res += 'SP  - ' + pgs[0] + newLine;
+            res += 'EP  - ' + pgs[1] + newLine;
+        } else if (it.pages.length > 0) res += 'SP  - ' + it.pages + newLine;
+        res +=
+            'CY  - ' +
+            it.city +
+            (it.country.length > 0 ? ' ' + it.country : '') +
+            newLine;
+        if (it.url.length > 0) res += 'UR  - ' + it.url + newLine;
+        if (it.availability.length > 0) res += 'AV  - ' + it.availability + newLine;
+        if (it.publisher.length > 0) res += 'PB  - ' + it.publisher + newLine;
+        if (it.standardNumber.length > 0)
+            res += 'SN  - ' + it.standardNumber + newLine;
+        res += 'U1  - ' + it.itemId.toString() + newLine;
+        if (it.oldItemId.length > 0) res += 'U2  - ' + it.oldItemId + newLine;
+
+        res += 'N1  - ' + it.comments + newLine;
+
+        res += 'ER  - ' + newLine + newLine;
+
+        res = res.replace('     ', ' ');
+        res = res.replace('    ', ' ');
+        res = res.replace('   ', ' ');
+        res = res.replace('   ', ' ');
+        return res;
+    }
+    function safeParseInt(value) {
+        const parsed = parseInt(value, 10);
+        if (isNaN(parsed)) {
+            return 0;
+        }
+        return parsed;
+    }
+    function QuickCitations() {
+        var output = "";
+        for (var itm of ItemsListData.items) {
+            output += itm.quickCitation + "\r\n";
+        }
+        const data = output;
+        downloadCitationFile(data);
+    }
+    function downloadCitationFile(citData, hideProgress = false) {
+        const file = new Blob([citData], { type: 'text/plain' });
+        const blobUrl = URL.createObjectURL(file);
+        // Save the need for file-save.js
+        const link = document.createElement("a");
+        link.href = blobUrl;
+        link.download = 'citations.txt';
+        link.click();
+    }
+    function WholeListToRisClick() {
+        let formData = { pageIndex: 0 }
+        const form = $("#ListPagingForm");
+        if (!form) return;
+        const HiddenFields = form.children('input[type=hidden]');
+        //console.log("WholeListToRisClick", HiddenFields);
+        let ctn = 0;
+        for (let i = 0; i < HiddenFields.length; i++) {
+            let element = HiddenFields[i];
+            //console.log("WholeListToRisClick", element, element.name, element.value, ctn);
+            ctn++;
+            formData[element.name] = element.value;
+
+            //console.log("WholeListToRisClick", FormData);
+        }
+        let RISstring = "";
+        $("#ExportToRisProgress").css("display", "inline"); //Exporting to RIS: page < span id = "ExportToRisProgressN" ></span > of Model.items.PageCount
+        $("#ExportToRisProgress").html("Exporting to RIS: page " + (formData.pageIndex + 1).toString() + " of " + ItemsListData.pagecount.toString());
+        //this starts a recursive call!!
+        $.post("../ItemList/ListFromCritJSON", formData, function (data, result) {
+            interimWholeListToRisClick(data, result, formData, RISstring);
+        }).fail(function (response) {
+            interimFail(response);
+        });
+
+        //let file = ExportListToRIS(ListData);
+        //downloadRISFile(file);
+    }
+    function interimFail(response) {
+        alert('Error: ' + response.responseText);
+        $("#ExportToRisProgress").hide();
+    }
+    function interimWholeListToRisClick(response, result, formData, RISstring) {
+        console.log("interimWholeListToRisClick", formData, response);
+        RISstring += ExportListToRIS(response.items);
+        formData.pageIndex++;
+        if (formData.pageIndex < ItemsListData.pagecount) {
+            //get the next page
+            $("#ExportToRisProgressN").html((formData.PageIndex + 1).toString());
+            $("#ExportToRisProgress").html("Exporting to RIS: page " + (formData.pageIndex + 1).toString() + " of " + ItemsListData.pagecount.toString());
+            $.post("../ItemList/ListFromCritJSON", formData, function (data, result) {
+                interimWholeListToRisClick(data, result, formData, RISstring);
+            }).fail(function (response) {
+                interimFail(response);
+            });
+        }
+        else {
+            //all done!
+            downloadRISFile(RISstring, true);
+        }
+    }
+</script>
+
+<div class="card" id="ItemsGridRoot" style="display:none;">
+    <div class="card-body">
+        <table width="100%">
+            <tr>
+                <td width="30%">
+                    <h5 class="card-title mb-3">List records</h5>
+                    <h5><b id="ItemsDescr"></b></h5>
+
+                </td>
+                <td width="40%" style="vertical-align:bottom;text-align:center; display:none;" id="HeaderPaged">
+
+                    <div class="form-inline" id="ListPagingForm">
+                        <button id="PreviousPage"
+                                class="btn btn-round btn-outline-primary px-1 py-0 m-1"
+                                style="width:90px" onclick="PrevPage()"
+                                name="PageNumber" value="0">
+                            Previous
+                        </button>
+                        <div class="my-auto" id="PagingText"></div>
+                        <button id="NextPage"
+                                class="btn btn-round btn-outline-primary px-1 py-0 m-1"
+                                style="width:90px" onclick="NextPage()"
+                                name="PageNumber" value="0">
+                            Next
+                        </button>
+                        <input type="hidden" id="onlyIncluded" name="onlyIncluded" />
+                        <input type="hidden" id="showDeleted" name="showDeleted" />
+                        <input type="hidden" id="sourceId" name="sourceId" />
+                        <input type="hidden" id="searchId" name="searchId" />
+                        <input type="hidden" id="xAxisSetId" name="xAxisSetId" />
+                        <input type="hidden" id="xAxisAttributeId" name="xAxisAttributeId" />
+                        <input type="hidden" id="yAxisSetId" name="yAxisSetId" />
+                        <input type="hidden" id="yAxisAttributeId" name="yAxisAttributeId" />
+                        <input type="hidden" id="filterSetId" name="filterSetId" />
+                        <input type="hidden" id="filterAttributeId" name="filterAttributeId" />
+                        <input type="hidden" id="attributeSetIdList" name="attributeSetIdList" />
+                        <input type="hidden" id="listType" name="listType" />
+                        <input type="hidden" id="pageNumber" name="pageNumber" />
+                        <input type="hidden" id="pageSize" name="pageSize" />
+                        <input type="hidden" id="workAllocationId" name="workAllocationId" />
+                        <input type="hidden" id="magSimulationId" name="magSimulationId" />
+                        <input type="hidden" id="comparisonId" name="comparisonId" />
+                        <input type="hidden" id="description" name="description" />
+                        <input type="hidden" id="contactId" name="contactId" />
+                        <input type="hidden" id="setId" name="setId" />
+                        <input type="hidden" id="showInfoColumn" name="showInfoColumn" />
+                        <input type="hidden" id="showScoreColumn" name="showScoreColumn" />
+                        <input type="hidden" id="webDbId" name="webDbId" />
+                        <input type="hidden" id="withAttributesIds" name="withAttributesIds" />
+                        <input type="hidden" id="withSetIdsList" name="withSetIdsList" />
+                        <input type="hidden" id="withOutAttributesIdsList" name="withOutAttributesIdsList" />
+                        <input type="hidden" id="withOutSetIdsList" name="withOutSetIdsList" />
+                        <input type="hidden" id="searchWhat" name="searchWhat" />
+                        <input type="hidden" id="searchString" name="searchString" />
+                    </div>
+
+                </td>
+                <td width="40%" style="vertical-align:bottom;text-align:center; display:none;" id="HeaderNotPaged">
+                    Page 1 of 1
+                </td>
+                <td width="30%" style="text-align:right">
+
+                    <div class="d-inline-block ml-auto mr-0 border rounded">
+                        <ul id="menu" class="d-inline-block p-0">
+                            <li class="py-1">
+                                <span class="btn-label">
+                                    <i class="fa fa-table"></i>
+                                </span>
+                                &nbsp;&nbsp;Columns&nbsp;&nbsp;
+                                <ul>
+                                    <li>
+                                        <input type="checkbox" class="ml-1" id="cbItemId" />&nbsp;&nbsp;Id
+                                    </li>
+                                    <li>
+                                        <input type="checkbox" class="ml-1" id="cbShortTitle" />&nbsp;&nbsp;Short Title
+                                    </li>
+                                    <li>
+                                        <input type="checkbox" class="ml-1" id="cbTitle" />&nbsp;&nbsp;Title
+                                    </li>
+                                    <li>
+                                        <input type="checkbox" class="ml-1" id="cbYear" />&nbsp;&nbsp;Year
+                                    </li>
+                                    <li>
+                                        <input type="checkbox" class="ml-1" id="cbAuthors" />&nbsp;&nbsp;Authors
+                                    </li>
+                                    <li>
+                                        <input type="checkbox" class="ml-1" id="cbJournal" />&nbsp;&nbsp;Journal
+                                    </li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+                </td>
+            </tr>
+        </table>
+        <div id="ItemsGrid" >
+
+        </div>
+    </div>
+    <script id="gridToolbarTemplate" type="text/x-kendo-template">
+        <a class="k-button btn-round btn-info btn-border" href="\#" onclick="return QuickCitations()">
+            <span class="btn-label">
+                <i class="fa fa-pencil-alt mr-1"></i>
+            </span>Citations&nbsp;
+        </a>
+
+        <a class="k-button k-button-icontext k-grid-excel btn-round btn-info btn-border" href="\#">
+            <span class="btn-label">
+                <i class="fa fa-file-excel mr-1"></i>
+            </span>Excel&nbsp;
+        </a>
+
+        <a class="k-button btn-round btn-info btn-border" href="\#" onclick="return PageToRisClick()">
+            <span class="btn-label">
+                <i class="k-icon k-i-list-bulleted mr-1"></i>
+            </span>To RIS (page)&nbsp;
+        </a>
+
+        <a id="WholeListToRisButton" style="display: none;"
+           class="k-button btn-round btn-info btn-border" href="\#" onclick="return WholeListToRisClick()">
+            <span class="btn-label">
+                <i class="k-icon k-i-list-bulleted mr-1"></i>
+            </span>To RIS (all)&nbsp;
+        </a>
+
+        <div class="alert-danger ml-1" id="ExportToRisProgress" style="display: none;">
+            Exporting to RIS: page <span id="ExportToRisProgressN"></span> of Model.items.PageCount
+        </div>
+
+        <span class="k-textbox k-grid-search k-display-flex m-0 p-0 small">
+            <input autocomplete="off" placeholder="Filter..." title="Filter..." class="k-input px-1">
+            <span class="k-input-icon">
+                <span class="k-icon k-i-search"></span>
+            </span>
+        </span>
+    </script>
+    <script id="ItemsGridTemplate" type="text/x-kendo-tmpl">
+        <table>
+            <tr class="border border-bottom ">
+                <td class="px-1 py-0 border-bottom small ">
+                    <form action="../ItemList/ItemDetails" method="post" class="form-inline">
+                        <button class="btn btn-link px-1 py-0 my-1 mx-0" type="submit"
+                                name="itemId" value="#= itemId #">
+                            #= itemId #
+                        </button>
+                    </form>
+                </td>
+                <td class="px-1 py-0 border-bottom small ">
+                    #= shortTitle #
+                </td>
+                <td class="px-1 py-0 border-bottom ">
+                    <form action="../ItemList/ItemDetails" method="post" class="form-inline">
+                        <button class="text-left btn-link px-1 py-0 my-1 mx-0" type="submit" style="overflow: !important;"
+                                name="itemId" value="#= itemId #">
+                            #= title #
+                        </button>
+                    </form>
+                </td>
+                <td class="px-1 py-0 border-bottom small ">
+                    #= year #
+                </td>
+                <td class="px-1 py-0 border-bottom small ">
+                    #= authors #
+                </td>
+                <td class="px-1 py-0 border-bottom small ">
+                    #= parentTitle #
+                </td>
+            </tr>
+        </table>
+    </script>
+</div>

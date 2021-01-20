@@ -118,43 +118,105 @@
     }
 
     function GoToListPie(dataItem) {
+        $("#ItemsGrid").empty();
+        $("#ItemsGrid").kendoGrid();
         if (dataItem.dataItem.attributeId == -999999) {
-            postwith("../ItemList/GetFreqListNoneOfTheAbove", {
-                attributeIdXAxis: 0
-                , setId: dataItem.dataItem.setId
-                , included: "true"
-                , onlyThisAttribute: 0
-                , webDbId: 1
-                , attName: dataItem.dataItem.attribute
-            })
+            //postwith("../ItemList/GetFreqListNoneOfTheAbove", {
+            //    attributeIdXAxis: 0
+            //    , setId: dataItem.dataItem.setId
+            //    , included: "true"
+            //    , onlyThisAttribute: 0
+            //    , webDbId: 1
+            //    , attName: dataItem.dataItem.attribute
+            //});
+            var attributeIdXAxis = $('#attributeIdXAxisCrit').val();
+            $.post("../ItemList/GetFreqListNoneOfTheAboveJSon"
+                , {
+                    attributeIdXAxis: attributeIdXAxis
+                    , setId: dataItem.dataItem.setId
+                    , included: "true"
+                    , onlyThisAttribute: 0
+                    , webDbId: 1
+                    , attName: dataItem.dataItem.attribute
+                }
+                , function (data, result) { BuildItems(data, result); }
+            );
         }
         else {
-            postwith("../ItemList/GetFreqList", {
+            //postwith("../ItemList/GetFreqList", {
+            //    attId: dataItem.dataItem.attributeId
+            //    , attName: dataItem.dataItem.attribute
+            //});
+            $.post("../ItemList/GetFreqListJSon", {
                 attId: dataItem.dataItem.attributeId
                 , attName: dataItem.dataItem.attribute
-            })
+            }
+                , function (data, result) { BuildItems(data, result); }
+            );
         }
     }
 
     function GoToListBar(dataItem) {
+        $("#ItemsGrid").empty();
+        $("#ItemsGrid").kendoGrid();
         if (dataItem.dataItem.attributeId == -999999) {
-            postwith("../ItemList/GetFreqListNoneOfTheAbove", {
-                attributeIdXAxis: 0
+            //postwith("../ItemList/GetFreqListNoneOfTheAbove", {
+            //    attributeIdXAxis: 0
+            //    , setId: dataItem.dataItem.setId
+            //    , included: "true"
+            //    , onlyThisAttribute: 0
+            //    , webDbId: 1
+            //    , attName: dataItem.dataItem.attribute
+            //})
+            var attributeIdXAxis = $('#attributeIdXAxisCrit').val();
+            $.post("../ItemList/GetFreqListNoneOfTheAboveJSon", {
+                attributeIdXAxis: attributeIdXAxis
                 , setId: dataItem.dataItem.setId
                 , included: "true"
                 , onlyThisAttribute: 0
                 , webDbId: 1
                 , attName: dataItem.dataItem.attribute
-            })
+            }
+                , function (data, result) { BuildItems(data, result); })
         }
         else {
-            postwith("../ItemList/GetFreqList", {
+            //postwith("../ItemList/GetFreqList", {
+            //    attId: dataItem.dataItem.attributeId
+            //    , attName: dataItem.dataItem.attribute
+            //}
+            $.post("../ItemList/GetFreqListJSon", {
                 attId: dataItem.dataItem.attributeId
                 , attName: dataItem.dataItem.attribute
-            })
+            }
+                , function (data, result) { BuildItems(data, result); }
+            )
         }
     }
 
+    function GoToItemsJson(AttId, AttName = '') {
+        $("#ItemsGrid").empty();
+        $("#ItemsGrid").kendoGrid();
+        if (AttId == -999999) {
+            var included = $('#includedCrit').val();
+            var attributeIdXAxis = $('#attributeIdXAxisCrit').val();
+            var setIdXAxis = $('#setIdXAxisCrit').val();
+            var onlyThisAttribute = $('#onlyThisAttributeCrit').val();
+            var webDbId = $('#webDbIdCrit').val();
+            $.post("../ItemList/GetFreqListNoneOfTheAboveJSon"
+                , {
+                    attributeIdXAxis: attributeIdXAxis, setId: setIdXAxis, included: included
+                    , onlyThisAttribute: onlyThisAttribute, webDbId: webDbId, attName: AttName.replaceAll('&#39;', '\'')
+                }
+                , function (data, result) { BuildItems(data, result); }
+            );
+        } else {
+            $.post("../ItemList/GetFreqListJSon"
+                , { attId: AttId, attName: AttName.replaceAll('&#39;', '\'') }
+                , function (data, result) { BuildItems(data, result); }
+            );
+        }
+    };
+    
 </script>
 
 
@@ -162,115 +224,112 @@
 <br />
 <br />
 <br />
-<table width="100%">
-    <tr>
-        <td style="padding:0px 20px 0px 20px">
-            <div class="main-panel main-panel-no-sidebar">
 
-                <div class="card">
-                    <div class="card-body">
-                        <table width="100%">
-                            <tr>
-                                <td>
-                                    <h5 class="card-title mb-3">Frequency report</h5><h5><b>@Model.criteria.nameXAxis.Replace("\'", "&#39;")</b></h5>
-                                </td>
-                                <td style="text-align:right">
-                                    <div class="card-tools">
-                                        <button class="btn btn-primary btn-sm btn-round" onclick="GoToFreq()">
-                                            <span class="btn-label">
-                                                <i class="fa fa-table"></i>
-                                            </span>
-                                            Table
-                                        </button>
-                                        <button class="btn btn-primary btn-sm btn-round" onclick="GetFreqsBar()">
-                                            <span class="btn-label">
-                                                <i class="fa fa-chart-bar"></i>
-                                            </span>
-                                            Bar
-                                        </button>
-                                        <button class="btn btn-primary btn-sm btn-round" onclick="GetFreqsPie()">
-                                            <span class="btn-label">
-                                                <i class="fa fa-chart-pie"></i>
-                                            </span>
-                                            Pie
-                                        </button>
-                                        <a href="#" class="btn btn-info btn-border btn-round btn-sm mr-2" disabled>
-                                            <span class="btn-label">
-                                                <i class="fa fa-file-excel"></i>
-                                            </span>
-                                            Export
-                                        </a>
-                                        <a href="#" class="btn btn-info btn-border btn-round btn-sm" disabled>
-                                            <span class="btn-label">
-                                                <i class="fa fa-copy"></i>
-                                            </span>
-                                            Copy
-                                        </a>
-                                    </div>
-                                </td>
-                            </tr>
-                        </table>
+<div class="main-panel main-panel-no-sidebar">
 
-                        <div class="card-body">
-                            <div id="FrequenciesGrid">
-                                <div class="row">
-                                    @*<div class="col">ID</div>*@
-                                    <div class="col text-left border-bottom font-weight-bold" style="background-color:#ebedf2">Code</div>
-                                    <div class="col border-bottom font-weight-bold" style="background-color:#ebedf2">Frequency</div>
-                                </div>
-
-                                @{int counter = 0;}
-                                @foreach (WebDbItemAttributeChildFrequency itm in Model.results)
-                                {
-                                    <div class="row">
-                                        @{counter++;}
-                                        @if (counter % 2 == 0)
-                                        {
-                                            <div class="col text-left border-bottom" style="background-color:#ebedf2">@itm.Attribute</div>
-                                            <div class="col text-left border-bottom" style="background-color:#ebedf2">
-                                                @if (itm.ItemCount == 0)
-                                                {
-                                                    <text>0</text>
-                                                }
-                                                else if (itm.AttributeId == -999999)
-                                                {
-                                                    <a href="javascript:GoToItems(@itm.AttributeId, '@Model.criteria.nameXAxis.Replace("\'", "&#39;")')">@itm.ItemCount</a>
-                                                }
-                                                else
-                                                {
-                                                    <a href="javascript:GoToItems(@itm.AttributeId, '@itm.Attribute.Replace("\'", "&#39;")')">@itm.ItemCount</a>
-                                                }
-                                            </div>
-                                        }
-                                        else
-                                        {
-                                            <div class="col text-left border-bottom">@itm.Attribute</div>
-                                            <div class="col text-left border-bottom">
-                                                @if (itm.ItemCount == 0)
-                                                {
-                                                    <text>0</text>
-                                                }
-                                                else if (itm.AttributeId == -999999)
-                                                {
-                                                    <a href="javascript:GoToItems(@itm.AttributeId, '@Model.criteria.nameXAxis.Replace("\'", "&#39;")')">@itm.ItemCount</a>
-                                                }
-                                                else
-                                                {
-                                                    <a href="javascript:GoToItems(@itm.AttributeId, '@itm.Attribute.Replace("\'", "&#39;")')">@itm.ItemCount</a>
-                                                }
-                                            </div>
-                                        }
-                                    </div>
-                                }
-                            </div>
-                            <div id="FrequenciesChart" class="chart" style="text-align:left">
-
-                            </div>
-
+    <div class="card">
+        <div class="card-body">
+            <table width="100%">
+                <tr>
+                    <td>
+                        <h5 class="card-title mb-3">Frequency report</h5><h5><b>@Model.criteria.nameXAxis.Replace("\'", "&#39;")</b></h5>
+                    </td>
+                    <td style="text-align:right">
+                        <div class="card-tools">
+                            <button class="btn btn-primary btn-sm btn-round" onclick="GoToFreq()">
+                                <span class="btn-label">
+                                    <i class="fa fa-table"></i>
+                                </span>
+                                Table
+                            </button>
+                            <button class="btn btn-primary btn-sm btn-round" onclick="GetFreqsBar()">
+                                <span class="btn-label">
+                                    <i class="fa fa-chart-bar"></i>
+                                </span>
+                                Bar
+                            </button>
+                            <button class="btn btn-primary btn-sm btn-round" onclick="GetFreqsPie()">
+                                <span class="btn-label">
+                                    <i class="fa fa-chart-pie"></i>
+                                </span>
+                                Pie
+                            </button>
+                            <a href="#" class="btn btn-info btn-border btn-round btn-sm mr-2" disabled>
+                                <span class="btn-label">
+                                    <i class="fa fa-file-excel"></i>
+                                </span>
+                                Export
+                            </a>
+                            <a href="#" class="btn btn-info btn-border btn-round btn-sm" disabled>
+                                <span class="btn-label">
+                                    <i class="fa fa-copy"></i>
+                                </span>
+                                Copy
+                            </a>
                         </div>
+                    </td>
+                </tr>
+            </table>
+
+            <div class="card-body">
+                <div id="FrequenciesGrid">
+                    <div class="row">
+                        @*<div class="col">ID</div>*@
+                        <div class="col text-left border-bottom font-weight-bold" style="background-color:#ebedf2">Code</div>
+                        <div class="col border-bottom font-weight-bold" style="background-color:#ebedf2">Frequency</div>
                     </div>
+
+                    @{int counter = 0;}
+                    @foreach (WebDbItemAttributeChildFrequency itm in Model.results)
+                    {
+                        <div class="row">
+                            @{counter++;}
+                            @if (counter % 2 == 0)
+                            {
+                                <div class="col text-left border-bottom" style="background-color:#ebedf2">@itm.Attribute</div>
+                                <div class="col text-left border-bottom" style="background-color:#ebedf2">
+                                    @if (itm.ItemCount == 0)
+                                    {
+                                        <text>0</text>
+                                    }
+                                    else if (itm.AttributeId == -999999)
+                                    {
+                                        <a href="javascript:GoToItemsJson(@itm.AttributeId, '@Model.criteria.nameXAxis.Replace("\'", "&#39;")')">@itm.ItemCount</a>
+                                    }
+                                    else
+                                    {
+                                        <a href="javascript:GoToItemsJson(@itm.AttributeId, '@itm.Attribute.Replace("\'", "&#39;")')">@itm.ItemCount</a>
+                                    }
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="col text-left border-bottom">@itm.Attribute</div>
+                                <div class="col text-left border-bottom">
+                                    @if (itm.ItemCount == 0)
+                                    {
+                                        <text>0</text>
+                                    }
+                                    else if (itm.AttributeId == -999999)
+                                    {
+                                        <a href="javascript:GoToItemsJson(@itm.AttributeId, '@Model.criteria.nameXAxis.Replace("\'", "&#39;")')">@itm.ItemCount</a>
+                                    }
+                                    else
+                                    {
+                                        <a href="javascript:GoToItemsJson(@itm.AttributeId, '@itm.Attribute.Replace("\'", "&#39;")')">@itm.ItemCount</a>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    }
                 </div>
+                <div id="FrequenciesChart" class="chart" style="text-align:left">
+
+                </div>
+
             </div>
-        </td>
-    </tr>
-</table>
+        </div>
+    </div>
+    @await Html.PartialAsync("_ItemsList")
+</div>
+
