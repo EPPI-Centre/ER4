@@ -3048,6 +3048,11 @@ namespace EppiReviewer4
                             newSearch.GetSearchTextPublicationType((ComboMagSearchPubTypeLimit.SelectedIndex - 1).ToString()) + ")";
                 newSearch.SearchText += " AND publication type: " + newSearch.GetPublicationType(ComboMagSearchPubTypeLimit.SelectedIndex - 1);
             }
+            if (newSearch.MagSearchText.Length > 2000)
+            {
+                RadWindow.Alert("Sorry, search string is too long");
+                return;
+            }
             newSearch.Saved += NewSearch_Saved;
             BusyRunningMagSearch.IsRunning = true;
             HyperLinkMagSearchDoSearch.IsEnabled = false;
@@ -3104,6 +3109,11 @@ namespace EppiReviewer4
             }
             MagSearch newSearch = new MagSearch();
             newSearch.SetCombinedSearches(searches, MagSearchComboCombine.SelectedIndex == 0 ? "AND" : "OR");
+            if (newSearch.MagSearchText.Length > 2000)
+            {
+                RadWindow.Alert("Sorry, this search string is too long");
+                return;
+            }
             newSearch.Saved += NewSearch_Saved;
             newSearch.BeginSave();
             MagSearchComboCombine.SelectedIndex = -1;
