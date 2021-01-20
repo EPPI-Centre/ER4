@@ -2930,6 +2930,17 @@ namespace EppiReviewer4
             {
                 return; // for some reason disabled hyperlinks still work??
             }
+            if (ComboMagSearchSelect.SelectedIndex != 3 && TextBoxMagSearch.Text == "")
+            {
+                RadWindow.Alert("Search text is blank");
+                return;
+            }
+            if (ComboMagSearchSelect.SelectedIndex == 3 && MagSearchCurrentTopic.Tag.ToString() == "")
+            {
+                RadWindow.Alert("Please select a topic");
+                return;
+            }
+
             MagSearch newSearch = new MagSearch();
             switch (ComboMagSearchSelect.SelectedIndex)
             {
