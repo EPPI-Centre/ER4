@@ -102,6 +102,24 @@ Crosstab!
         postwith("../Frequencies/GetCrosstab", pars);
     }
 
+        function BubbleMapLog() {
+        if (!@Model.SetIdX) {
+            console.log("CurrentNodeGoToCrosstab no data");
+            return;
+        }
+        $("#CrosstabsGrid").hide();
+        $("#CrosstabsChart").show();
+        var pars = {
+            attIdx: @Model.AttibuteIdX
+            , setIdx: @Model.SetIdX
+            , attIdy: @Model.AttibuteIdY
+            , setIdy: @Model.SetIdY
+            , included: true
+            , graphic: "bubbleLog"
+        }
+        postwith("../Frequencies/GetCrosstab", pars);
+    }
+
 </script>
 
 
@@ -148,6 +166,12 @@ Crosstab!
                                         <i class="fa fa-circle"></i>
                                     </span>
                                     Bubble map
+                                </button>
+                                <button class="btn btn-primary btn-sm btn-round" onclick="BubbleMapLog()">
+                                    <span class="btn-label">
+                                        <i class="fa fa-circle"></i>
+                                    </span>
+                                    Bubble (log)
                                 </button>
                                 <a href="#" class="btn btn-info btn-border btn-round btn-sm mr-2">
                                     <span class="btn-label">
@@ -245,28 +269,55 @@ Crosstab!
                         </div>
                     }
                     <!-------------------------------------------------------------------------------------------------------------------------->
-                    @if (@Model.Graphic == "bubble")
+                    @if ((@Model.Graphic == "bubble") || (@Model.Graphic == "bubbleLog"))
                     {
                         var rowNumber = 0;
                         var biggestValue = 0;
                         var value = 0;
-                        for (int i = 0; i < Model.ColumnAttIDs.Count - 1; i++)
+                        <!--<script>console.log("numberColumns: " + @Model.ColumnAttIDs.Count);</script>
+                        <script>console.log("numberRows: " + @Model.Rows.Count);</script>-->
+                        for (int j = 0; j < Model.Rows.Count - 1; j++)
                         {
-                            foreach (WebDbItemAttributeCrosstabRow row in Model.Rows)
+
+                            for (int i = 0; i < Model.ColumnAttIDs.Count - 1; i++)
                             {
-                                @if (rowNumber < Model.Rows.Count - 1)
+
+                                value = @Model.Rows[j].Counts[i];
+                                if (value > biggestValue)
                                 {
-                                    value = @row.Counts[i];
-                                    if (value > biggestValue)
-                                    {
-                                        biggestValue = value;
-                                    }
-                                    rowNumber = rowNumber + 1;
+                                    biggestValue = value;
                                 }
+                                <!--<script>
+                                        console.log("rowNumber: " + @rowNumber);
+                                        console.log("column: " + @i);
+                                        console.log("value: " + @value);
+                                        console.log("biggest value: " + @biggestValue);
+                                </script>-->
+                                rowNumber = rowNumber + 1;
+
+
                             }
                         }
+
                         rowNumber = 0;
-                        //<script>alert(@biggestValue);</script>
+
+
+
+                        var fa6 = 8.3; 
+                        var fa5 = 6.6;
+                        var fa4 = 5.0;
+                        var fa3 = 3.3;
+                        var fa2 = 1.6;
+
+                        if (@Model.Graphic == "bubbleLog")
+                        {
+                            fa6 = 9.0;
+                            fa5 = 1.0;
+                            fa4 = 0.1;
+                            fa3 = 0.01;
+                            fa2 = 0.001;
+                        }
+
 
                         <div id="CrosstabsChart">
                             <table class="content-full table table-bordered">
@@ -305,28 +356,58 @@ Crosstab!
                                                     <th style="text-align:center;vertical-align:middle">
                                                         <a href="javascript:GoToItemsJson('@with', '@withSets', '', '', '@descript')">
 
-                                                            @if ((@row.Counts[i] * 10 / biggestValue) > 7)
+                                                            @if ((@row.Counts[i] * 10.0 / @biggestValue) > @fa6)
                                                             {
+                                                                <!--<script>
+                                                                    console.log("value: " + @row.Counts[i]);
+                                                                    console.log("scale: " + (@row.Counts[i] * 10.0 / @biggestValue));
+                                                                    console.log("fa-6x");
+                                                                </script>-->
                                                                 <i class="fa fa-circle fa-6x" style="color:#007bff;" tool-tip-toggle="tooltip-demo" data-original-title="@row.Counts[i] records"></i>
                                                             }
-                                                            else if ((@row.Counts[i] * 10 / biggestValue) > 4)
+                                                            else if ((@row.Counts[i] * 10.0 / @biggestValue) > @fa5)
                                                             {
+                                                                <!--<script>
+                                                                    console.log("value: " + @row.Counts[i]);
+                                                                    console.log("scale: " + (@row.Counts[i] * 10.0 / @biggestValue));
+                                                                    console.log("fa-5x");
+                                                                </script>-->
                                                                 <i class="fa fa-circle fa-5x" style="color:#28a745;" tool-tip-toggle="tooltip-demo" data-original-title="@row.Counts[i] records"></i>
                                                             }
-                                                            else if ((@row.Counts[i] * 10 / biggestValue) > 2.1)
+                                                            else if ((@row.Counts[i] * 10.0 / @biggestValue) > @fa4)
                                                             {
+                                                                <!--<script>
+                                                                    console.log("value: " + @row.Counts[i]);
+                                                                    console.log("scale: " + (@row.Counts[i] * 10.0 / @biggestValue));
+                                                                    console.log("fa-5x");
+                                                                </script>-->
                                                                 <i class="fa fa-circle fa-4x" style="color:#ffc107;" tool-tip-toggle="tooltip-demo" data-original-title="@row.Counts[i] records"></i>
                                                             }
-                                                            else if ((@row.Counts[i] * 10 / biggestValue) > 1.5)
+                                                            else if ((@row.Counts[i] * 10.0 / @biggestValue) > @fa3)
                                                             {
+                                                                <!--<script>
+                                                                    console.log("value: " + @row.Counts[i]);
+                                                                    console.log("scale: " + (@row.Counts[i] * 10.0 / @biggestValue));
+                                                                    console.log("fa-5x");
+                                                                </script>-->
                                                                 <i class="fa fa-circle fa-3x" style="color:#dc3545;" tool-tip-toggle="tooltip-demo" data-original-title="@row.Counts[i] records"></i>
                                                             }
-                                                            else if ((@row.Counts[i] * 10 / biggestValue) > .5)
+                                                            else if ((@row.Counts[i] * 10.0 / @biggestValue) > @fa2)
                                                             {
+                                                                <!--<script>
+                                                                    console.log("value: " + @row.Counts[i]);
+                                                                    console.log("scale: " + (@row.Counts[i] * 10.0 / @biggestValue));
+                                                                    console.log("fa-5x");
+                                                                </script>-->
                                                                 <i class="fa fa-circle fa-2x" style="color:#17a2b8;" tool-tip-toggle="tooltip-demo" data-original-title="@row.Counts[i] records"></i>
                                                             }
                                                             else
                                                             {
+                                                                <!--<script>
+                                                                    console.log("value: " + @row.Counts[i]);
+                                                                    console.log("scale: " + (@row.Counts[i] * 10.0 / @biggestValue));
+                                                                    console.log("fa-5x");
+                                                                </script>-->
                                                                 <i class="fa fa-circle fa-1x" style="color:#343a40;" tool-tip-toggle="tooltip-demo" data-original-title="@row.Counts[i] records"></i>
                                                             }
                                                         </a>
@@ -352,4 +433,4 @@ Crosstab!
     @await Html.PartialAsync("_ItemsList")
 
 </div>
-           
+
