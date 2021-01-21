@@ -1,5 +1,4 @@
 ﻿<!-- ItemList -->
-
 @model ItemListWithCriteria
 @using BusinessLibrary.BusinessClasses;
 @using Newtonsoft.Json;
@@ -15,16 +14,6 @@
 <script id="InitialScript" type="text/javascript">
     @{var jdata = @Html.Raw(JsonConvert.SerializeObject(Model, new JsonSerializerSettings { ContractResolver = new CamelCasePropertyNamesContractResolver() }));};
         var ListData = @jdata;
-        @*const PageIndex = @Model.items.pageindex;
-        const TotPages = @Model.items.pagecount;
-        var ColumnVisibility = {
-            ItemId: false,
-            ShortTitle: true,
-            Title: true,
-            Year: true,
-            Authors: false,
-            Journal: false
-        };*@
     $(document).ready(function () {
         //CurrentItemsCriteria = ListData.criteria;
         //ItemsListData = ListData.items;
@@ -33,8 +22,6 @@
         $("#InitialScript").remove();
 
     });
-
-
 
 </script>
 

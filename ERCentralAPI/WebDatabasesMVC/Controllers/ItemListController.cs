@@ -310,7 +310,11 @@ namespace WebDatabasesMVC.Controllers
                 {
                     //basic check: number of atts and sets match...
                     if (WithAttIds.Count(c => c == ',') != WithSetId.Count(c => c == ',')
-                        || WithoutAttIds.Count(c => c == ',') != WithoutSetId.Count(c => c == ','))
+                        || (
+                            WithoutAttIds != null && WithoutSetId != null &&
+                            WithoutAttIds.Count(c => c == ',') != WithoutSetId.Count(c => c == ',')
+                            )
+                        )
                     {
                         _logger.LogError("Error in ItemList GetListWithWithoutAtts: number of AttIDs didn't match number os SetIDs");
                         return BadRequest("Request parameters appear to be malformed.");
