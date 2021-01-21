@@ -599,7 +599,7 @@ namespace BusinessLibrary.BusinessClasses
 
             WriteIdFiles(ReviewId, ContactId, uploadFileName);
             await UploadIdsFileAsync(uploadFileName, folderPrefix);
-            MagLog.UpdateLogEntry("running", "Sim: " + MagSimulationId.ToString() + ", file uploaded", MagLogId);
+            MagLog.UpdateLogEntry("running", "Review: " + ReviewId.ToString() + "Sim: " + MagSimulationId.ToString() + ", file uploaded", MagLogId);
 
             SubmitCreatTrainFileJob(ContactId, folderPrefix);
             if (this.SearchMethod == "Extended network")
@@ -611,10 +611,10 @@ namespace BusinessLibrary.BusinessClasses
             
             if ((await CheckTrainAndInferenceFilesOk(folderPrefix)) == false)
             {
-                MagLog.UpdateLogEntry("failed", "Sim: " + MagSimulationId.ToString() + ", Training files not uploaded / empty", MagLogId);
+                MagLog.UpdateLogEntry("failed", "Review: " + ReviewId.ToString() + "Sim: " + MagSimulationId.ToString() + ", Training files not uploaded / empty", MagLogId);
                 return;
             }
-            MagLog.UpdateLogEntry("running", "Sim: " + MagSimulationId.ToString() + ", datalake complete", MagLogId);
+            MagLog.UpdateLogEntry("running", "Review: " + ReviewId.ToString() + "Sim: " + MagSimulationId.ToString() + ", datalake complete", MagLogId);
 
             if (MagContReviewPipeline.runADFPipeline(ContactId, "Train.tsv",
                 "Inference.tsv",
@@ -633,16 +633,16 @@ namespace BusinessLibrary.BusinessClasses
                 "true",
                 "true") == "Succeeded")
             {
-                MagLog.UpdateLogEntry("running", "Sim: " + MagSimulationId.ToString() + ", pipeline complete", MagLogId);
+                MagLog.UpdateLogEntry("running", "Review: " + ReviewId.ToString() + "Sim: " + MagSimulationId.ToString() + ", pipeline complete", MagLogId);
                 await DownloadResultsAsync(folderPrefix, ReviewId);
                 await AddClassifierScores(ReviewId.ToString());
             }
             else
             {
-                MagLog.UpdateLogEntry("Failed", "Sim: " + MagSimulationId.ToString() + ", pipeline failed", MagLogId);
+                MagLog.UpdateLogEntry("Failed", "Review: " + ReviewId.ToString() + "Sim: " + MagSimulationId.ToString() + ", pipeline failed", MagLogId);
                 UpdateSimulationRecord("Pipeline failed");
             }
-            MagLog.UpdateLogEntry("Complete", "Sim: " + MagSimulationId.ToString(), MagLogId);
+            MagLog.UpdateLogEntry("Complete", "Review: " + ReviewId.ToString() + "Sim: " + MagSimulationId.ToString(), MagLogId);
             // need to add cleaning up the files, but only once we've seen it in action for a while to help debugging
         }
 
