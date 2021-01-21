@@ -3542,6 +3542,28 @@ namespace EppiReviewer4
                         AutoUpdateImportTopN.Maximum = maur.NPapers;
                         RefreshAutoUpdateGraph();
                         AutoUpdateImportCount();
+                        if (maur.StudyTypeClassifier == "")
+                        {
+                            AutoUpdateStudyTypeScoreThreshold.Value = 0;
+                            AutoUpdateStudyTypeScoreThreshold.IsEnabled = false;
+                            AutoUpdateGraphShowStudyTypeModel.IsEnabled = false;
+                        }
+                        else
+                        {
+                            AutoUpdateStudyTypeScoreThreshold.IsEnabled = true;
+                            AutoUpdateGraphShowStudyTypeModel.IsEnabled = true;
+                        }
+                        if (maur.UserClassifierModelId == 0)
+                        {
+                            AutoUpdateUserScoreThreshold.Value = 0;
+                            AutoUpdateUserScoreThreshold.IsEnabled = false;
+                            AutoUpdateGraphShowUserModel.IsEnabled = false;
+                        }
+                        else
+                        {
+                            AutoUpdateUserScoreThreshold.IsEnabled = true;
+                            AutoUpdateGraphShowUserModel.IsEnabled = true;
+                        }
                     }
                 }
             }
