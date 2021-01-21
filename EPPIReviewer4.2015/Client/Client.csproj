@@ -475,6 +475,9 @@
     <Compile Include="..\Server\BusinessClasses\MagCurrentInfo.cs">
       <Link>BusinessClasses\MagCurrentInfo.cs</Link>
     </Compile>
+    <Compile Include="..\Server\BusinessClasses\MagCurrentInfoList.cs">
+      <Link>BusinessClasses\MagCurrentInfoList.cs</Link>
+    </Compile>
     <Compile Include="..\Server\BusinessClasses\MagDownloadSimulationDataCommand.cs">
       <Link>BusinessClasses\MagDownloadSimulationDataCommand.cs</Link>
     </Compile>

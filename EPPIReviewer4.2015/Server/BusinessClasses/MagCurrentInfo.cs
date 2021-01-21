@@ -292,17 +292,16 @@ namespace BusinessLibrary.BusinessClasses
                     command.CommandType = System.Data.CommandType.StoredProcedure;
                     command.Parameters.Add(new SqlParameter("@MAG_VERSION", ReadProperty(MagVersionProperty)));
                     command.Parameters.Add(new SqlParameter("@WHEN_LIVE", ReadProperty(WhenLiveProperty)));
-                    command.Parameters.Add(new SqlParameter("@MATCHING_AVAILABLE", ReadProperty(MatchingAvailableProperty)));
                     command.Parameters.Add(new SqlParameter("@MAG_ONLINE", ReadProperty(MagOnlineProperty)));
                     command.Parameters.Add(new SqlParameter("@MAKES_ENDPOINT", ReadProperty(MakesEndPointProperty)));
                     command.Parameters.Add(new SqlParameter("@MAKES_DEPLOYMENT_STATUS", ReadProperty(MakesDeploymentStatusProperty)));
 
-                    SqlParameter par = new SqlParameter("@NEW_MagCurrentInfo_ID", System.Data.SqlDbType.Int);
+                    SqlParameter par = new SqlParameter("@MAG_CURRENT_INFO_ID", System.Data.SqlDbType.Int);
                     par.Value = 0;
                     command.Parameters.Add(par);
-                    command.Parameters["@NEW_MagCurrentInfo_ID"].Direction = System.Data.ParameterDirection.Output;
+                    command.Parameters["@MAG_CURRENT_INFO_ID"].Direction = System.Data.ParameterDirection.Output;
                     command.ExecuteNonQuery();
-                    LoadProperty(MagCurrentInfoIdProperty, command.Parameters["@NEW_MagCurrentInfo_ID"].Value);
+                    LoadProperty(MagCurrentInfoIdProperty, command.Parameters["@MAG_CURRENT_INFO_ID"].Value);
                 }
                 connection.Close();
             }
@@ -316,15 +315,17 @@ namespace BusinessLibrary.BusinessClasses
             {
                 ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
                 connection.Open();
-                using (SqlCommand command = new SqlCommand("st_MagUpdateCurrentInfoLatestMag", connection))
+                using (SqlCommand command = new SqlCommand("st_MagCurrentInfoUpdate", connection))
                 {
                     command.CommandType = System.Data.CommandType.StoredProcedure;
-                    command.Parameters.Add(new SqlParameter("@MAG_VERSION", ReadProperty(MagVersionProperty)));
+                    command.Parameters.Add(new SqlParameter("@MAG_CURRENT_INFO_ID", ReadProperty(MagCurrentInfoIdProperty)));
+                    //command.Parameters.Add(new SqlParameter("@MAG_VERSION", ReadProperty(MagVersionProperty)));
                     command.Parameters.Add(new SqlParameter("@WHEN_LIVE", ReadProperty(WhenLiveProperty)));
-                    command.Parameters.Add(new SqlParameter("@MATCHING_AVAILABLE", ReadProperty(MatchingAvailableProperty)));
-                    command.Parameters.Add(new SqlParameter("@MAG_ONLINE", ReadProperty(MagOnlineProperty)));
-                    command.Parameters.Add(new SqlParameter("@MAKES_ENDPOINT", ReadProperty(MakesEndPointProperty)));
                     command.Parameters.Add(new SqlParameter("@MAKES_DEPLOYMENT_STATUS", ReadProperty(MakesDeploymentStatusProperty)));
+                    //command.Parameters.Add(new SqlParameter("@MATCHING_AVAILABLE", ReadProperty(MatchingAvailableProperty)));
+                    command.Parameters.Add(new SqlParameter("@MAG_ONLINE", ReadProperty(MagOnlineProperty)));
+                    //command.Parameters.Add(new SqlParameter("@MAKES_ENDPOINT", ReadProperty(MakesEndPointProperty)));
+                    //command.Parameters.Add(new SqlParameter("@MAKES_DEPLOYMENT_STATUS", ReadProperty(MakesDeploymentStatusProperty)));
                     command.ExecuteNonQuery();
                     MarkOld();
                 }
@@ -352,21 +353,20 @@ namespace BusinessLibrary.BusinessClasses
 
         protected override void DataPortal_DeleteSelf()
         {
-            /*
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
                 connection.Open();
                 using (SqlCommand command = new SqlCommand("st_MagCurrentInfoDelete", connection))
                 {
                     command.CommandType = System.Data.CommandType.StoredProcedure;
-                    command.Parameters.Add(new SqlParameter("@MagCurrentInfo_ID", ReadProperty(MagCurrentInfoIdProperty)));
+                    command.Parameters.Add(new SqlParameter("@MAG_CURRENT_INFO_ID", ReadProperty(MagCurrentInfoIdProperty)));
                     command.ExecuteNonQuery();
                 }
                 connection.Close();
             }
-            */
         }
 
+        // This is used in app.xaml - the whole ER4 app knows about current version and status of MAG (query returns 1 row)
         protected void DataPortal_Fetch()
         {
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
@@ -395,13 +395,22 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        internal static MagCurrentInfo GetMagCurrentInfo(SafeDataReader reader) // not sure this is needed??
+        internal static MagCurrentInfo GetMagCurrentInfo(SafeDataReader reader)
         {
             MagCurrentInfo returnValue = new MagCurrentInfo();
+
+            returnValue.LoadProperty<int>(MagCurrentInfoIdProperty, reader.GetInt32("MAG_CURRENT_INFO_ID"));
+            returnValue.LoadProperty<string>(MagVersionProperty, reader.GetString("MAG_VERSION"));
+            returnValue.LoadProperty<DateTime>(WhenLiveProperty, reader.GetDateTime("WHEN_LIVE"));
+            returnValue.LoadProperty<bool>(MatchingAvailableProperty, reader.GetBoolean("MATCHING_AVAILABLE"));
+            returnValue.LoadProperty<bool>(MagOnlineProperty, reader.GetBoolean("MAG_ONLINE"));
+            returnValue.LoadProperty<string>(MakesEndPointProperty, reader.GetString("MAKES_ENDPOINT")); // don't need to send this information back to the client (and probably shouldn't)
+            returnValue.LoadProperty<string>(MakesDeploymentStatusProperty, reader.GetString("MAKES_DEPLOYMENT_STATUS"));
             returnValue.MarkOld();
             return returnValue;
         }
 
+        // gets the current live MAG (query returns 1 row)
         public static MagCurrentInfo GetMagCurrentInfoServerSide(string MakesDeploymentStatus)
         {
             MagCurrentInfo returnValue = new MagCurrentInfo();

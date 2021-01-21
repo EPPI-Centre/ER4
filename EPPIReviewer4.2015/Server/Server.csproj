@@ -397,6 +397,7 @@
     <Compile Include="BusinessClasses\MagContReviewPipeline.cs" />
     <Compile Include="BusinessClasses\MagContReviewPipelineRunCommand.cs" />
     <Compile Include="BusinessClasses\MagCurrentInfo.cs" />
+    <Compile Include="BusinessClasses\MagCurrentInfoList.cs" />
     <Compile Include="BusinessClasses\MagDataLakeHelpers.cs" />
     <Compile Include="BusinessClasses\MagDownloadSimulationDataCommand.cs" />
     <Compile Include="BusinessClasses\MagFieldOfStudy.cs" />

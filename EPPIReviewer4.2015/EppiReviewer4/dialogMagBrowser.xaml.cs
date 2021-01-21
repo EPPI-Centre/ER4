@@ -234,6 +234,11 @@ namespace EppiReviewer4
             provider2.FactoryMethod = "GetMagLogList";
             provider2.Refresh();
 
+            CslaDataProvider provider3 = this.Resources["MagCurrentInfoListData"] as CslaDataProvider;
+            provider3.FactoryParameters.Clear();
+            provider3.FactoryMethod = "GetMagCurrentInfoList";
+            provider3.Refresh();
+
             DataPortal<MagBlobDataCommand> dp2 = new DataPortal<MagBlobDataCommand>();
             MagBlobDataCommand command = new MagBlobDataCommand();
             dp2.ExecuteCompleted += (o, e2) =>
@@ -250,6 +255,32 @@ namespace EppiReviewer4
                     tbLatestMag.Text = mb.LatestMAGName;
                     tbReleaseNotes.Text = mb.ReleaseNotes;
                     tbPreviousMAG.Text = mb.PreviousMAGName;
+
+                    CslaDataProvider provider4 = this.Resources["MagCurrentInfoListData"] as CslaDataProvider;
+                    if (provider4 != null)
+                    {
+                        MagCurrentInfoList mcil = provider4.Data as MagCurrentInfoList;
+                        if (mcil != null)
+                        {
+                            bool found = false;
+                            foreach (MagCurrentInfo mci in mcil)
+                            {
+                                if (mci.MagFolder == mb.LatestMAGName)
+                                {
+                                    found = true;
+                                    break;
+                                }
+                            }
+                            if (!found)
+                            {
+                                LBCurrentInfoCreate.Visibility = Visibility.Visible;
+                            }
+                            else
+                            {
+                                LBCurrentInfoCreate.Visibility = Visibility.Collapsed;
+                            }
+                        }
+                    }
                 }
             };
             //BusyLoading.IsRunning = true;
@@ -3353,30 +3384,6 @@ namespace EppiReviewer4
             }
         }
 
-        /***************** Add list of IDs to selected items list ************************/
-
-        private void LBUploadIDsFile_Click(object sender, RoutedEventArgs e)
-        {
-            if (TBUploadIDs.Text != "")
-            {
-                string idStr = TBUploadIDs.Text.Replace("\n\r", "¬").Replace("r\n", "¬").Replace("\n", "¬").Replace("\r", "¬").Replace(",", "¬");
-                string[] IDs = idStr.Split('¬');
-                Int64 testInt64 = 0;
-                int count = 0;
-                foreach (string s in IDs)
-                {
-                    if (s.Trim() != "" && Int64.TryParse(s, out testInt64))
-                    {
-                        if (AddToSelectedList(testInt64))
-                        {
-                            count++;
-                        }
-                    }
-                }
-                RadWindow.Alert(count.ToString() + " IDs added to selected list");
-            }
-        }
-
         /* ************************* Auto update page / tab *********************************************************** */
 
         private void RadioButtonAutoUpdateAllIncluded_Checked(object sender, RoutedEventArgs e)
@@ -3935,7 +3942,177 @@ namespace EppiReviewer4
             hlAutoUpdateStudyClassifierRun.IsEnabled = true;
         }
 
+        /***************** Add list of IDs to selected items list ************************/
 
+        private void LBUploadIDsFile_Click(object sender, RoutedEventArgs e)
+        {
+            if (TBUploadIDs.Text != "")
+            {
+                string idStr = TBUploadIDs.Text.Replace("\n\r", "¬").Replace("r\n", "¬").Replace("\n", "¬").Replace("\r", "¬").Replace(",", "¬");
+                string[] IDs = idStr.Split('¬');
+                Int64 testInt64 = 0;
+                int count = 0;
+                foreach (string s in IDs)
+                {
+                    if (s.Trim() != "" && Int64.TryParse(s, out testInt64))
+                    {
+                        if (AddToSelectedList(testInt64))
+                        {
+                            count++;
+                        }
+                    }
+                }
+                RadWindow.Alert(count.ToString() + " IDs added to selected list");
+            }
+        }
 
+        private void LBCurrentInfoCreate_Click(object sender, RoutedEventArgs e)
+        {
+            RadWindow.Confirm("Are you sure you want to create a new record for: " + tbLatestMag.Text, this.doCurrentInfoCreate);
+        }
+
+        private void doCurrentInfoCreate(object sender, WindowClosedEventArgs e)
+        {
+            var result = e.DialogResult;
+            if (result == true)
+            {
+                CslaDataProvider provider = this.Resources["MagCurrentInfoListData"] as CslaDataProvider;
+                if (provider != null)
+                {
+                    MagCurrentInfoList infList = provider.Data as MagCurrentInfoList;
+                    if (infList != null)
+                    {
+                        string [] versionElements = tbLatestMag.Text.Replace("mag-", "").Split('-');
+                        MagCurrentInfo mci = new MagCurrentInfo();
+                        mci.MagVersion = versionElements[2] + "/" + versionElements[1] + "/" + versionElements[0];
+                        mci.WhenLive = DateTime.Now;
+                        mci.MatchingAvailable = true;
+                        mci.MakesEndPoint = "http://eppimag" + tbLatestMag.Text.Replace("mag", "").Replace("-", "")
+                            + ".westeurope.cloudapp.azure.com";
+                        mci.MakesDeploymentStatus = "NEW";
+                        infList.Add(mci);
+                        infList.Saved -= InfList_Saved;
+                        infList.Saved += InfList_Saved;
+                        infList.SaveItem(mci);
+                        LBCurrentInfoCreate.Visibility = Visibility.Collapsed;
+                    }
+                }
+            }
+        }
+
+        private void InfList_Saved(object sender, Csla.Core.SavedEventArgs e)
+        {
+            CslaDataProvider provider = this.Resources["MagCurrentInfoListData"] as CslaDataProvider;
+            {
+                if (provider != null)
+                {
+                    provider.Refresh();
+                }
+            }
+        }
+
+        MagCurrentInfo CurrentTempMagCurrentInfo;
+
+        private void HyperlinkButton_Click_21(object sender, RoutedEventArgs e)
+        {
+            MagCurrentInfo mci = (sender as HyperlinkButton).DataContext as MagCurrentInfo;
+            if (mci != null)
+            {
+                if (mci.MakesDeploymentStatus == "LIVE")
+                {
+                    RadWindow.Alert("This endpoint is already LIVE");
+                    return;
+                }
+                CurrentTempMagCurrentInfo = mci;
+                RadWindow.Confirm("Are you sure you want to make this endpoint live?", this.doCurrentInfoLive);
+            }
+        }
+
+        private void doCurrentInfoLive(object sender, WindowClosedEventArgs e)
+        {
+            var result = e.DialogResult;
+            if (result == true && CurrentTempMagCurrentInfo != null)
+            {
+                CurrentTempMagCurrentInfo.MakesDeploymentStatus = "LIVE";
+                CurrentTempMagCurrentInfo.Saved -= CurrentTempMagCurrentInfo_Saved;
+                CurrentTempMagCurrentInfo.Saved += CurrentTempMagCurrentInfo_Saved;
+                CurrentTempMagCurrentInfo.BeginSave();
+            }
+        }
+
+        private void CurrentTempMagCurrentInfo_Saved(object sender, Csla.Core.SavedEventArgs e)
+        {
+            CslaDataProvider provider = this.Resources["MagCurrentInfoListData"] as CslaDataProvider;
+            {
+                if (provider != null)
+                {
+                    provider.Refresh();
+                }
+            }
+            CurrentTempMagCurrentInfo = null;
+        }
+
+        private void HyperlinkButton_Click_22(object sender, RoutedEventArgs e)
+        {
+            MagCurrentInfo mci = (sender as HyperlinkButton).DataContext as MagCurrentInfo;
+            if (mci != null)
+            {
+                if (mci.MakesDeploymentStatus == "PENDING")
+                {
+                    RadWindow.Alert("This endpoint is already PENDING");
+                    return;
+                }
+                CurrentTempMagCurrentInfo = mci;
+                RadWindow.Confirm("Are you sure you want to make this endpoint pending?", this.doCurrentInfoPending);
+            }
+        }
+
+        private void doCurrentInfoPending(object sender, WindowClosedEventArgs e)
+        {
+            var result = e.DialogResult;
+            if (result == true)
+            {
+                CurrentTempMagCurrentInfo.MakesDeploymentStatus = "PENDING";
+                CurrentTempMagCurrentInfo.Saved -= CurrentTempMagCurrentInfo_Saved;
+                CurrentTempMagCurrentInfo.Saved += CurrentTempMagCurrentInfo_Saved;
+                CurrentTempMagCurrentInfo.BeginSave();
+            }
+        }
+
+        private void HyperlinkButton_Click_23(object sender, RoutedEventArgs e)
+        {
+            MagCurrentInfo mci = (sender as HyperlinkButton).DataContext as MagCurrentInfo;
+            if (mci != null)
+            {
+                if (mci.MakesDeploymentStatus == "LIVE")
+                {
+                    RadWindow.Alert("Sorry, you can't delete the LIVE endpoint");
+                    return;
+                }
+                CurrentTempMagCurrentInfo = mci;
+                RadWindow.Confirm("Are you sure you want to delete this endpoint?", this.doCurrentInfoDelete);
+            }
+        }
+
+        private void doCurrentInfoDelete(object sender, WindowClosedEventArgs e)
+        {
+            var result = e.DialogResult;
+            if (result == true && CurrentTempMagCurrentInfo != null)
+            {
+                CslaDataProvider provider = this.Resources["MagCurrentInfoListData"] as CslaDataProvider;
+                {
+                    if (provider != null)
+                    {
+                        MagCurrentInfoList mcil = provider.Data as MagCurrentInfoList;
+                        if (mcil != null)
+                        {
+                            mcil.Saved -= InfList_Saved;
+                            mcil.Saved += InfList_Saved;
+                            mcil.Remove(CurrentTempMagCurrentInfo);
+                        }
+                    }
+                }
+            }
+        }
     }
 }
