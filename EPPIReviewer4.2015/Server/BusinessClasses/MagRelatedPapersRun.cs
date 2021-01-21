@@ -486,16 +486,16 @@ namespace BusinessLibrary.BusinessClasses
                 "RelatedRun" + MagRelatedRunId.ToString() + ".csv"; ;
 
 #else       
-            string downloadFilename = "RelatedRun" + MagRelatedRunId.ToString() + ".csv";
+            string downloadFilename = TrainingRunCommand.NameBase + "RelatedRun" + MagRelatedRunId.ToString() + ".csv";
             string uploadFileName = "";
             if (Directory.Exists("UserTempUploads"))
             {
-                uploadFileName =  @"./UserTempUploads/RelatedRun" + MagRelatedRunId.ToString() + ".csv";
+                uploadFileName =  @"./UserTempUploads/" + TrainingRunCommand.NameBase + "RelatedRun" + MagRelatedRunId.ToString() + ".csv";
             }
             else
             {
                 DirectoryInfo tmpDir = System.IO.Directory.CreateDirectory("UserTempUploads");
-                uploadFileName = tmpDir.FullName + "/" + @"UserTempUploads/RelatedRun" + MagRelatedRunId.ToString() + ".csv";
+                uploadFileName = tmpDir.FullName + "/" + @"UserTempUploads/" + TrainingRunCommand.NameBase + "RelatedRun" + MagRelatedRunId.ToString() + ".csv";
 
             }
 
