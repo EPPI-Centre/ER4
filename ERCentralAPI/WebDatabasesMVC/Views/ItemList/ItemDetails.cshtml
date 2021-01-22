@@ -277,5 +277,103 @@
             </div>
 
         </div>
+        <form asp-controller="Coding" asp-action="FetchItemCodingJSON">
+            <input type="hidden" value="@itm.ItemId" name="ItemId" />
+            <button type="submit">Get CodingJSon</button>
+        </form>
+        <button onclick="GetCodingReport(@itm.ItemId)">Get Coding report</button>
+        <div id="CodingReport"></div>
     </div>
+    
+    <script type="text/javascript">
+        function GetCodingReport(itemId) {
+            $.post("../Coding/FetchItemCodingJSON"
+                , { ItemId: itemId }
+                , function (data, result) { AddCodingToReport(data, result); }
+            );
+        }
+        function AddCodingToReport(data, result) {
+            console.log("AddCodingToReport", data, result);
+            if (result != "success") return;
+            let CodingReport = "";
+            for (let i = 0; i < data.reviewSets.length; i++) {
+                let reviewSet = data.reviewSets[i];
+                for (let itemSet of data.itemSetList) {
+                    if (itemSet.setId == data.reviewSets[i].setId && itemSet.isCompleted == true) {
+                        //CodingReport += "<br /><h6>Reviewer: " + itemSet.contactName + "</h6>";
+
+                        if (reviewSet != null) {
+                            CodingReport += "<p><h4>" + reviewSet.setName + "</h4></p><p><ul>";
+                            for (let attributeSet of reviewSet.attributes.attributesList) {
+                                //console.log("about to go into writeCodingReportAttributesWithArms", itemSet, attributeSet);
+                                CodingReport += this.writeCodingReportAttributesWithArms(itemSet, attributeSet);
+                            }
+                            CodingReport += "</ul></p>";
+                            //console.log("about to go into OutcomesTable", itemSet.outcomeItemList.outcomesList);
+                            //CodingReport += "<p>" + this.OutcomesTable(itemSet.OutcomeList) + "</p>";
+                        }
+
+                    }
+                }
+            }
+            $("#CodingReport").html(CodingReport);
+        }
+        function writeCodingReportAttributesWithArms(itemSet, attributeSet) {
+            let report = "";
+            let roias = itemSet.itemAttributesList.filter(found => found.attributeId == attributeSet.attributeId);
+            console.log("roias", roias, itemSet.itemAttributesList, attributeSet.attributeId);
+            if (roias != null && roias.length > 0) {
+                for (let roia of roias) {
+                    let AttributeName = attributeSet.attributeName;
+                    if (roia.armId != 0) {
+                        AttributeName += " [" + roia.armTitle + "]";
+                    }
+
+                    report += '<li class="text-success"><span class="font-weight-bold">' + AttributeName + "</span>";
+                    if (roia.additionalText.length > 0) report += "<br /><i>" + roia.additionalText.replace("\n", "<br />") + "</i>";
+                    if (roia.itemAttributeFullTextDetails != null && roia.itemAttributeFullTextDetails.length > 0) {
+
+                        report += this.addFullTextToComparisonReport(roia.itemAttributeFullTextDetails);
+                    }
+                    report += "</li>";
+                }
+                if (this.CodingReportCheckChildSelected(itemSet, attributeSet) == true) // ie an attribute below this is selected, even though this one isn't
+                {
+                    report += "<ul>";
+                    for (let child of attributeSet.attributes.attributesList) {
+                        report += this.writeCodingReportAttributesWithArms(itemSet, child);
+                    }
+                    report += "</ul>";
+                }
+            }
+            else {
+                if (this.CodingReportCheckChildSelected(itemSet, attributeSet) == true) // ie an attribute below this is selected, even though this one isn't
+                {
+                    report += '<li class="text-muted">' + attributeSet.attributeName + "</li>";
+                    report += "<ul>";
+                    for (let child of attributeSet.attributes.attributesList) {
+                        report += this.writeCodingReportAttributesWithArms(itemSet, child);
+                    }
+                    report += "</ul>";
+                }
+            }
+            console.log("Single rep:", report);
+            return report;
+        }
+        function CodingReportCheckChildSelected(itemSet, attributeSet) {
+            if (itemSet) {
+                for (let roia of itemSet.itemAttributesList) {
+                    if (roia.attributeId == attributeSet.attributeId) return true;
+                }
+                for (let child of attributeSet.attributes.attributesList) {
+                    if (this.CodingReportCheckChildSelected(itemSet, child) == true) {
+                        //console.log("found a child:", itemSet, attributeSet);
+                        return true;
+                    }
+                }
+            }
+            //console.log("found nothing:", itemSet, attributeSet);
+            return false;
+        }
+    </script>
 </div>
