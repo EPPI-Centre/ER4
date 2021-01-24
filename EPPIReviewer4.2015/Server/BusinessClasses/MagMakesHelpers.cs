@@ -304,10 +304,9 @@ namespace BusinessLibrary.BusinessClasses
             // Hard to tell whether it's better or worse removing stopwords
             searchText = (removeStopwords(" " + searchText + " ")).Trim();
             string[] words = searchText.Split(' ');
-            searchText = "AND(W='" + string.Join(",", words).Replace(",", "',W='") + "')"; // words.Take(6)).Replace(",", "',W='") + "')";
-            
             if (searchText != "")
             {
+                searchText = "AND(W='" + string.Join(",", words).Replace(",", "',W='") + "')"; // words.Take(6)).Replace(",", "',W='") + "')";
                 var jsonsettings = new JsonSerializerSettings
                 {
                     NullValueHandling = NullValueHandling.Ignore,
@@ -333,7 +332,7 @@ namespace BusinessLibrary.BusinessClasses
                         if (truncateAt != -1)
                         {
                             searchText = searchText.Substring(0, truncateAt);
-                            queryString = @"/interpret?query=" +
+                            queryString = @"/evaluate?expr=" +
                                 searchText + "&entityCount=5&attributes=" + System.Web.HttpUtility.UrlEncode("Id,DN,AA.AuN,J.JN,V,I,FP,Y,DOI,VFN,AA.DAuN") +
                                 "&complete=0&count=100&offset=0&timeout=2000&model=latest";
                             FullRequestStr = MagInfo.MakesEndPoint + queryString;
@@ -481,7 +480,7 @@ namespace BusinessLibrary.BusinessClasses
                 string responseText = "";
                 MagCurrentInfo MagInfo = MagCurrentInfo.GetMagCurrentInfoServerSide(MakesDeploymentStatus);
                 string queryString = @"/evaluate?expr=DOI='" +
-                    System.Web.HttpUtility.UrlEncode(DOI.ToUpper().Trim().Replace("HTTPS://DX.DOI.ORG/", "").Replace("HTTPS://DOI.ORG/", "").Replace("HTTP://DX.DOI.ORG/", "").Replace("HTTP://DOI.ORG/", ""))
+                    System.Web.HttpUtility.UrlEncode(DOI.ToUpper().Trim().Replace("HTTPS://DX.DOI.ORG/", "").Replace("HTTPS://DOI.ORG/", "").Replace("HTTP://DX.DOI.ORG/", "").Replace("HTTP://DOI.ORG/", "").TrimEnd('.'))
                     + "'&entityCount=5&attributes=" +
                     System.Web.HttpUtility.UrlEncode("Id,DN,AA.AuN,J.JN,V,I,FP,Y,DOI,VFN,AA.DAuN") +
                     "&complete=0&count=10&offset=0&timeout=2000&model=latest";

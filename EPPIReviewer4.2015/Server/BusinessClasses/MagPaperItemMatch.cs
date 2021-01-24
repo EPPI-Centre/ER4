@@ -90,10 +90,14 @@ namespace BusinessLibrary.BusinessClasses
                 if (candidatePapersOnDOI.Count == 0 || (candidatePapersOnDOI.Max(t => t.matchingScore) < AutoMatchThreshold))
                 {
                     List<MagMakesHelpers.PaperMakes> candidatePapersOnTitle = MagMakesHelpers.GetCandidateMatches(i.Title, "LIVE", true);
-                    foreach (MagMakesHelpers.PaperMakes pm in candidatePapersOnTitle)
+                    if (candidatePapersOnTitle != null && candidatePapersOnTitle.Count > 0)
                     {
-                        doComparison(i, pm);
+                        foreach (MagMakesHelpers.PaperMakes cpm in candidatePapersOnTitle)
+                        {
+                            doComparison(i, cpm);
+                        }
                     }
+                    /* JT - don't think we need this, as it just removes stuff below the automatch score - and we filter on this below
                     for (int inn = 0; inn < candidatePapersOnTitle.Count; inn++)
                     {
                         if (candidatePapersOnTitle[inn].matchingScore < AutoMatchMinScore)
@@ -102,28 +106,30 @@ namespace BusinessLibrary.BusinessClasses
                             inn--;
                         }
                     }
-                    foreach (MagMakesHelpers.PaperMakes pm in candidatePapersOnTitle)
+                    */
+                    foreach (MagMakesHelpers.PaperMakes cpm in candidatePapersOnTitle)
                     {
-                        var found = candidatePapersOnDOI.Find(e => e.Id == pm.Id);
-                        if (found == null && pm.matchingScore >= AutoMatchMinScore)
+                        var found = candidatePapersOnDOI.Find(e => e.Id == cpm.Id);
+                        if (found == null && cpm.matchingScore >= AutoMatchMinScore)
                         {
-                            candidatePapersOnDOI.Add(pm);
+                            candidatePapersOnDOI.Add(cpm);
                         }
                     }
                     // add in matching on journals / authors if we don't have an exact match on title
                     if (candidatePapersOnTitle.Count == 0 || (candidatePapersOnTitle.Count > 0 && candidatePapersOnTitle.Max(t => t.matchingScore) < AutoMatchThreshold))
                     {
-                        List<MagMakesHelpers.PaperMakes> candidatePapersOnAuthorJournal = MagMakesHelpers.GetCandidateMatches(i.Authors + " " + i.ParentTitle);
-                        foreach (MagMakesHelpers.PaperMakes pm in candidatePapersOnAuthorJournal)
+                        List<MagMakesHelpers.PaperMakes> candidatePapersOnAuthorJournal = 
+                            MagMakesHelpers.GetCandidateMatches(i.Authors + " " + i.ParentTitle, "LIVE", false);
+                        foreach (MagMakesHelpers.PaperMakes cpm in candidatePapersOnAuthorJournal)
                         {
-                            doComparison(i, pm);
+                            doComparison(i, cpm);
                         }
-                        foreach (MagMakesHelpers.PaperMakes pm in candidatePapersOnAuthorJournal)
+                        foreach (MagMakesHelpers.PaperMakes cpm in candidatePapersOnAuthorJournal)
                         {
-                            var found = candidatePapersOnDOI.Find(e => e.Id == pm.Id);
-                            if (found == null && pm.matchingScore >= AutoMatchMinScore)
+                            var found = candidatePapersOnDOI.Find(e => e.Id == cpm.Id);
+                            if (found == null && cpm.matchingScore >= AutoMatchMinScore)
                             {
-                                candidatePapersOnDOI.Add(pm);
+                                candidatePapersOnDOI.Add(cpm);
                             }
                         }
                     }
@@ -133,7 +139,7 @@ namespace BusinessLibrary.BusinessClasses
                 {
                     connection.Open();
                     foreach (MagMakesHelpers.PaperMakes pm in candidatePapersOnDOI) {
-                        if (pm.matchingScore > 0.40)
+                        if (pm.matchingScore > AutoMatchMinScore)
                         {
                             using (SqlCommand command = new SqlCommand("st_MagMatchedPapersInsert", connection))
                             {

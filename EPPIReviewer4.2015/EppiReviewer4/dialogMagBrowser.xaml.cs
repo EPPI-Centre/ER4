@@ -2974,6 +2974,55 @@ namespace EppiReviewer4
             }
         }
 
+        private void ComboMagSearchDateLimitFilter_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+        {
+            if (ComboMagSearchDateLimitFilter != null)
+            {
+                if (ComboMagSearchDateLimitFilter.SelectedIndex == 0)
+                {
+                    StackPanelMagSearchDatesFilter.Visibility = Visibility.Collapsed;
+                }
+                else
+                {
+                    if (ComboMagSearchDateLimitFilter.SelectedIndex > 4)
+                    {
+                        MagSearchDate1Filter.DateSelectionMode = Telerik.Windows.Controls.Calendar.DateSelectionMode.Year;
+                        MagSearchDate2Filter.DateSelectionMode = Telerik.Windows.Controls.Calendar.DateSelectionMode.Year;
+                    }
+                    else
+                    {
+                        MagSearchDate1Filter.DateSelectionMode = Telerik.Windows.Controls.Calendar.DateSelectionMode.Day;
+                        MagSearchDate2Filter.DateSelectionMode = Telerik.Windows.Controls.Calendar.DateSelectionMode.Day;
+                    }
+                    if (MagSearchDate1Filter.SelectedDate == null)
+                    {
+                        MagSearchDate1Filter.SelectedDate = DateTime.Now;
+                    }
+                    StackPanelMagSearchDatesFilter.Visibility = Visibility.Visible;
+                    if (ComboMagSearchDateLimitFilter.SelectedIndex == 4 || ComboMagSearchDateLimit.SelectedIndex == 8)
+                    {
+                        MagSearchDateText1Filter.Visibility = Visibility.Visible;
+                        MagSearchDateText2Filter.Visibility = Visibility.Visible;
+                        MagSearchDate2Filter.Visibility = Visibility.Visible;
+                        if (MagSearchDate1Filter.SelectedDate == null)
+                        {
+                            MagSearchDate1Filter.SelectedDate = DateTime.Now;
+                        }
+                        if (MagSearchDate2Filter.SelectedDate == null)
+                        {
+                            MagSearchDate2Filter.SelectedDate = DateTime.Now;
+                        }
+                    }
+                    else
+                    {
+                        MagSearchDateText1Filter.Visibility = Visibility.Collapsed;
+                        MagSearchDateText2Filter.Visibility = Visibility.Collapsed;
+                        MagSearchDate2Filter.Visibility = Visibility.Collapsed;
+                    }
+                }
+            }
+        }
+
         private void HyperLinkMagSearchDoSearch_Click(object sender, RoutedEventArgs e)
         {
             if (HyperLinkMagSearchDoSearch.IsEnabled == false)
@@ -3129,7 +3178,7 @@ namespace EppiReviewer4
             }
             if (SearchDataGrid.SelectedItems.Count < 2)
             {
-                RadWindow.Alert("Please select at least two searches to combine");
+                Dispatcher.BeginInvoke(() => RadWindow.Alert("Please select at least two searches to combine"));
                 MagSearchComboCombine.SelectedIndex = -1;
                 return;
             }
@@ -3140,9 +3189,11 @@ namespace EppiReviewer4
             }
             MagSearch newSearch = new MagSearch();
             newSearch.SetCombinedSearches(searches, MagSearchComboCombine.SelectedIndex == 0 ? "AND" : "OR");
+            newSearch = AddDateFilter(newSearch);
             if (newSearch.MagSearchText.Length > 2000)
             {
-                RadWindow.Alert("Sorry, this search string is too long");
+                Dispatcher.BeginInvoke(() => RadWindow.Alert("Sorry, this search string is too long"));
+                MagSearchComboCombine.SelectedIndex = -1;
                 return;
             }
             newSearch.Saved += NewSearch_Saved;
@@ -3150,6 +3201,83 @@ namespace EppiReviewer4
             MagSearchComboCombine.SelectedIndex = -1;
             MagSearchComboCombine.IsEnabled = false;
             SearchDataGrid.IsEnabled = false;
+        }
+
+        private void hlMagSearchDateLimitFilter2_Click(object sender, RoutedEventArgs e)
+        {
+            if (SearchDataGrid.SelectedItems.Count > 1)
+            {
+                RadWindow.Alert("Please combine more than one search with a date filter using AND or OR");
+                return;
+            }
+            MagSearch originalSearch = SearchDataGrid.SelectedItem as MagSearch;
+            if (originalSearch != null)
+            {
+                MagSearch newSearch = new MagSearch();
+                newSearch.MagSearchText = originalSearch.MagSearchText;
+                newSearch.SearchText = "#" + originalSearch.SearchNo.ToString();
+                newSearch = AddDateFilter(newSearch);
+                newSearch.Saved += NewSearch_Saved;
+                newSearch.BeginSave();
+                MagSearchComboCombine.SelectedIndex = -1;
+                MagSearchComboCombine.IsEnabled = false;
+                SearchDataGrid.IsEnabled = false;
+            }
+        }
+
+        private MagSearch AddDateFilter(MagSearch newSearch)
+        {
+            if (ComboMagSearchDateLimitFilter.SelectedIndex > 0)
+            {
+                switch (ComboMagSearchDateLimitFilter.SelectedIndex)
+                {
+                    case 1:
+                        newSearch.MagSearchText = "AND(" + newSearch.MagSearchText + "," +
+                            newSearch.GetSearchTextPubDateExactly(MagSearchDate1Filter.SelectedDate.Value.ToString("yyyy-MM-dd")) + ")";
+                        newSearch.SearchText += " AND published on: " + MagSearchDate1Filter.SelectedDate.Value.ToString("yyyy-MM-dd");
+                        break;
+                    case 2:
+                        newSearch.MagSearchText = "AND(" + newSearch.MagSearchText + "," +
+                            newSearch.GetSearchTextPubDateBefore(MagSearchDate1Filter.SelectedDate.Value.ToString("yyyy-MM-dd")) + ")";
+                        newSearch.SearchText += " AND published before: " + MagSearchDate1Filter.SelectedDate.Value.ToString("yyyy-MM-dd");
+                        break;
+                    case 3:
+                        newSearch.MagSearchText = "AND(" + newSearch.MagSearchText + "," +
+                            newSearch.GetSearchTextPubDateFrom(MagSearchDate1Filter.SelectedDate.Value.ToString("yyyy-MM-dd")) + ")";
+                        newSearch.SearchText += " AND published after: " + MagSearchDate1Filter.SelectedDate.Value.ToString("yyyy-MM-dd");
+                        break;
+                    case 4:
+                        newSearch.MagSearchText = "AND(" + newSearch.MagSearchText + "," +
+                            newSearch.GetSearchTextPubDateBetween(MagSearchDate1Filter.SelectedDate.Value.ToString("yyyy-MM-dd"),
+                            MagSearchDate2Filter.SelectedDate.Value.ToString("yyyy-MM-dd")) + ")";
+                        newSearch.SearchText += " AND published between: " + MagSearchDate1Filter.SelectedDate.Value.ToString("yyyy-MM-dd") + " and " +
+                            MagSearchDate2Filter.SelectedDate.Value.ToString("yyyy-MM-dd");
+                        break;
+                    case 5:
+                        newSearch.MagSearchText = "AND(" + newSearch.MagSearchText + "," +
+                            newSearch.GetSearchTextYearExactly(MagSearchDate1Filter.SelectedDate.Value.Year.ToString()) + ")";
+                        newSearch.SearchText += " AND year of publication: " + MagSearchDate1Filter.SelectedDate.Value.Year.ToString();
+                        break;
+                    case 6:
+                        newSearch.MagSearchText = "AND(" + newSearch.MagSearchText + "," +
+                            newSearch.GetSearchTextYearBefore(MagSearchDate1Filter.SelectedDate.Value.Year.ToString()) + ")";
+                        newSearch.SearchText += " AND year of publication before: " + MagSearchDate1Filter.SelectedDate.Value.Year.ToString();
+                        break;
+                    case 7:
+                        newSearch.MagSearchText = "AND(" + newSearch.MagSearchText + "," +
+                            newSearch.GetSearchTextYearAfter(MagSearchDate1Filter.SelectedDate.Value.Year.ToString()) + ")";
+                        newSearch.SearchText += " AND year of publication after: " + MagSearchDate1Filter.SelectedDate.Value.Year.ToString();
+                        break;
+                    case 8:
+                        newSearch.MagSearchText = "AND(" + newSearch.MagSearchText + "," +
+                            newSearch.GetSearchTextYearBetween(MagSearchDate1Filter.SelectedDate.Value.Year.ToString(),
+                            MagSearchDate2Filter.SelectedDate.Value.Year.ToString()) + ")";
+                        newSearch.SearchText += " AND year of publication between: " + MagSearchDate1Filter.SelectedDate.Value.Year.ToString() + " and " +
+                            MagSearchDate2Filter.SelectedDate.Value.Year.ToString();
+                        break;
+                }
+            }
+            return newSearch;
         }
 
         private void hlDeleteSelectedMagSearches_Click(object sender, RoutedEventArgs e)
@@ -4114,5 +4242,7 @@ namespace EppiReviewer4
                 }
             }
         }
+
+        
     }
 }
