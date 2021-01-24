@@ -27,6 +27,7 @@
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemAttributeFullTextDetailsList .cs" Link="Models\ItemAttributeFullTextDetailsList .cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemAttributePDF.cs" Link="Models\ItemAttributePDF.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemAttributePDFList.cs" Link="Models\ItemAttributePDFList.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemAttributesAllFullTextDetailsList.cs" Link="Models\ItemAttributesAllFullTextDetailsList.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemAttributeText.cs" Link="Models\ItemAttributeText.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemAttributeTextList.cs" Link="Models\ItemAttributeTextList.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemDocument.cs" Link="Models\ItemDocument.cs" />
@@ -60,6 +61,10 @@
     <Compile Include="..\ERxWebClient2\Models\WebDbItemAttributeChildFrequencyList.cs" Link="Models\WebDbItemAttributeChildFrequencyList.cs" />
     <Compile Include="..\ERxWebClient2\Models\WebDbItemAttributeCrosstab.cs" Link="Models\WebDbItemAttributeCrosstab.cs" />
     <Compile Include="..\ERxWebClient2\Models\WebDbItemAttributeCrosstabList.cs" Link="Models\WebDbItemAttributeCrosstabList.cs" />
+
+    <Compile Include="..\ERxWebClient2\Models\WebDbItemSet.cs" Link="Models\WebDbItemSet.cs" />
+    <Compile Include="..\ERxWebClient2\Models\WebDbItemSetList.cs" Link="Models\WebDbItemSetList.cs" />
+    <Compile Include="..\ERxWebClient2\Models\WebDbReadOnlyItemAttributeList.cs" Link="Models\WebDbReadOnlyItemAttributeList.cs" />
     <Compile Include="..\ERxWebClient2\Models\WebDbReviewSet.cs" Link="Models\WebDbReviewSet.cs" />
     <Compile Include="..\ERxWebClient2\Models\WebDbReviewSetsList.cs" Link="Models\WebDbReviewSetsList.cs" />
     <Compile Include="..\ERxWebClient2\Models\WebDBsList.cs" Link="Models\WebDBsList.cs" />
