@@ -89,9 +89,24 @@ namespace BusinessLibrary.BusinessClasses
             retVal += Attributes.Count;
             return retVal;
         }
-        
-        
 
+        public bool CanHaveOutcomes()
+        {
+            if (SetTypeId != 3) return false;
+            return InnerCanHaveOutcomes(Attributes.AttributesList);
+
+        }
+        private bool InnerCanHaveOutcomes(List<AttributeSet> list)
+        {
+            bool found = false;
+            foreach (AttributeSet aSet in list)
+            {
+                if (aSet.AttributeTypeId == 4 || aSet.AttributeTypeId == 5 || aSet.AttributeTypeId == 6 || aSet.AttributeTypeId == 9) return true;
+                else found = InnerCanHaveOutcomes(aSet.Attributes.AttributesList);
+                if (found) return true;
+            }
+            return false;
+        }
         // for controlling the appearance of the tree control
         public static readonly PropertyInfo<bool> DisplayIsParentProperty = RegisterProperty<bool>(new PropertyInfo<bool>("DisplayIsParent", "DisplayIsParent", false));
         public bool DisplayIsParent

@@ -40,6 +40,20 @@ namespace WebDatabasesMVC.Controllers
                         res.reviewSets  = DataPortal.Fetch<WebDbReviewSetsList>(new SingleCriteria<WebDbReviewSetsList, int>(DBid));
                         WebDbItemSetListSelectionCriteria crit = new WebDbItemSetListSelectionCriteria(DBid, ItemId);
                         res.itemSetList = DataPortal.Fetch<WebDbItemSetList>(crit);
+                        
+                        //bit of logic that removes outcomes in case all code-types that relate to outcomes are hidden (4,5,6,9)
+                        foreach (WebDbReviewSet rSet in res.reviewSets)
+                        {
+                            if (!rSet.CanHaveOutcomes())
+                            {
+                                List<WebDbItemSet> list = res.itemSetList.ToList().FindAll(f => f.SetId == rSet.SetId);
+                                foreach (WebDbItemSet iSet in list)
+                                {
+                                    iSet.OutcomeItemList.Clear();
+                                }
+                            }
+                        }
+
                     }
                     return Json(res);
                 }
