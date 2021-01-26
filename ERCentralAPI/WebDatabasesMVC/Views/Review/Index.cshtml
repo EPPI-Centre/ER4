@@ -388,8 +388,9 @@
         } else {
             $("#GoToItemsWithThisCode").prop("disabled", false);
             $("#GoToItemsWithThisCodeSB").prop("disabled", false);
-            $("#GoToItemsWithThisCode").attr('onclick', 'GoToItems(dataItem.id, \'' + dataItem.text.replace('\'', '&#39;') + '\')');
-            $("#GoToItemsWithThisCodeSB").attr('onclick', 'GoToItems(dataItem.id, \'' + dataItem.text.replace('\'', '&#39;') + '\')');
+            $("#GoToItemsWithThisCode").attr('onclick', 'GoToItems(dataItem.id, \'' + dataItem.text.replaceAll('\'', '&#39;') + '\')');
+            $("#GoToItemsWithThisCodeSB").attr('onclick', 'GoToItems(dataItem.id, \'' + dataItem.text.replaceAll('\'', '&#39;') + '\')');
+            //var test = dataItem.text.replaceAll('\'', '&#39;') + '\')';
             //$("#GoToItemsWithThisCode").attr('onclick', 'GoToItems(dataItem.id)');
         }
     }

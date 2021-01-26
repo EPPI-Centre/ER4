@@ -354,7 +354,7 @@
                 }
 
                 report += '<li class="text-success"><span class="font-weight-bold">' + AttributeName + "</span>";
-                if (roia.additionalText.length > 0) report += "<br /><i>" + roia.additionalText.replace("\n", "<br />") + "</i>";
+                if (roia.additionalText.length > 0) report += "<br /><i>" + roia.additionalText.replaceAll("\n", "<br />") + "</i>";
                 if (roia.itemAttributeFullTextDetails != null && roia.itemAttributeFullTextDetails.length > 0) {
 
                     report += addFullTextToComparisonReport(roia.itemAttributeFullTextDetails);
@@ -405,8 +405,8 @@
         for (let ftd of list) {
             result += "<br style='mso-data-placement:same-cell;'  />" + ftd.docTitle + ": ";
             if (ftd.isFromPDF) {
-                let rres = ftd.text.replace(/\[\u00ACs\]/g, '');//"\u00AC" is "¬", wouldn't match it otherwise
-                rres = rres.replace(/\[\u00ACe\]/g, "");
+                let rres = ftd.text.replaceAll(/\[\u00ACs\]/g, '');//"\u00AC" is "¬", wouldn't match it otherwise
+                rres = rres.replaceAll(/\[\u00ACe\]/g, "");
                 result += "<span class='small text-info'>" + rres + "</span><br style='mso-data-placement:same-cell;'  />";//.replace(/\[¬s\]/g, '').replace(/\[¬e\/]/g, "") + "</span>";
             }
             else {
@@ -482,7 +482,7 @@
         return retVal + "<td>Outcome Classifications</td></tr>";
     }
     function GetOutcomeInnerTable(o) {
-        let retVal = "<tr><td>" + o.title + "</td><td>" + o.outcomeDescription.replace("\r", "<br style='mso-Data-placement:same-cell;'  />")
+        let retVal = "<tr><td>" + o.title + "</td><td>" + o.outcomeDescription.replaceAll("\r", "<br style='mso-Data-placement:same-cell;'  />")
             + "</td><td>" + o.timepointDisplayValue + "</td><td>" + o.outcomeText + "</td><td>" + o.interventionText +
             "</td><td>" + o.controlText + "</td>";
         switch (o.outcomeTypeId) {
