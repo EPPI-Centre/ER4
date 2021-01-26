@@ -123,228 +123,136 @@ Crosstab!
 </script>
 
 
-<br />
+
 <br />
 <br />
 <br />
 <div class="main-panel main-panel-no-sidebar">
-    <div class="card">
-        <div class="card-body">
-            <div class="card-body" style="max-height:70vh; max-width:99vw; overflow:auto;">
-                <table width="100%">
-                    <tr>
-                        <td>
-                            <h5 class="card-title mb-3">Cross-tab report</h5>
-                            @if ((@Model.AttibuteIdX == 0) && (Model.AttibuteIdY == 0))
-                            {
-                                <h5><b>(Column) @Model.SetIdXName.ToString()</b> vs <b>(Row) @Model.SetIdYName.ToString()</b></h5>
-                            }
-                            @if ((@Model.AttibuteIdX != 0) && (Model.AttibuteIdY != 0))
-                            {
-                                <h5><b>(Column) @Model.AttibuteIdXName.ToString()</b> vs <b>(Row) @Model.AttibuteIdYName.ToString()</b></h5>
-                            }
-                            @if ((@Model.AttibuteIdX == 0) && (Model.AttibuteIdY != 0))
-                            {
-                                <h5><b>(Column) @Model.SetIdXName.ToString()</b> vs <b>(Row) @Model.AttibuteIdYName.ToString()</b></h5>
-                            }
-                            @if ((@Model.AttibuteIdX != 0) && (Model.AttibuteIdY == 0))
-                            {
-                                <h5><b>(Column) @Model.AttibuteIdXName.ToString()</b> vs <b>(Row) @Model.SetIdYName.ToString()</b></h5>
-                            }
 
-                        </td>
-                        <td style="text-align:right">
-                            <div class="card-tools">
-                                <button class="btn btn-primary btn-sm btn-round" onclick="ReloadCrosstab()">
-                                    <span class="btn-label">
-                                        <i class="fa fa-table"></i>
-                                    </span>
-                                    Table
-                                </button>
-                                <button class="btn btn-primary btn-sm btn-round" onclick="BubbleMap()">
-                                    <span class="btn-label">
-                                        <i class="fa fa-circle"></i>
-                                    </span>
-                                    Bubble map
-                                </button>
-                                <button class="btn btn-primary btn-sm btn-round" onclick="BubbleMapLog()">
-                                    <span class="btn-label">
-                                        <i class="fa fa-circle"></i>
-                                    </span>
-                                    Bubble (log)
-                                </button>
-                                <a href="#" class="btn btn-info btn-border btn-round btn-sm mr-2">
-                                    <span class="btn-label">
-                                        <i class="fa fa-file-excel"></i>
-                                    </span>
-                                    Export
-                                </a>
-                                <a href="#" class="btn btn-info btn-border btn-round btn-sm">
-                                    <span class="btn-label">
-                                        <i class="fa fa-copy"></i>
-                                    </span>
-                                    Copy
-                                </a>
-                            </div>
-                        </td>
-                    </tr>
-                </table>
-                <div class="card-body">
-                    <!-------------------------------------------------------------------------------------------------------------------->
-                    @if (@Model.Graphic == "table")
-                    {
-                        <div id="CrosstabsGrid">
-                            <table class="content-full table table-striped">
-                                <tr>
-                                    <th></th>
-                                    @for (int i = 0; i < Model.ColumnAttIDs.Count; i++)
-                                    {
-                                        <th>
-                                            @Model.ColumnAttNames[i]
-                                        </th>
-                                    }
+    <div class="page-inner">
 
-                                </tr>
-                                @foreach (WebDbItemAttributeCrosstabRow row in Model.Rows)
+        <div class="card">
+            <div class="card-body">
+                <div class="card-body" style="max-height:70vh; max-width:99vw; overflow:auto;">
+                    <table width="100%">
+                        <tr>
+                            <td>
+                                <h5 class="card-title mb-3">Cross-tab report</h5>
+                                @if ((@Model.AttibuteIdX == 0) && (Model.AttibuteIdY == 0))
                                 {
+                                    <h5><b>(Column) @Model.SetIdXName.ToString()</b> vs <b>(Row) @Model.SetIdYName.ToString()</b></h5>
+                                }
+                                @if ((@Model.AttibuteIdX != 0) && (Model.AttibuteIdY != 0))
+                                {
+                                    <h5><b>(Column) @Model.AttibuteIdXName.ToString()</b> vs <b>(Row) @Model.AttibuteIdYName.ToString()</b></h5>
+                                }
+                                @if ((@Model.AttibuteIdX == 0) && (Model.AttibuteIdY != 0))
+                                {
+                                    <h5><b>(Column) @Model.SetIdXName.ToString()</b> vs <b>(Row) @Model.AttibuteIdYName.ToString()</b></h5>
+                                }
+                                @if ((@Model.AttibuteIdX != 0) && (Model.AttibuteIdY == 0))
+                                {
+                                    <h5><b>(Column) @Model.AttibuteIdXName.ToString()</b> vs <b>(Row) @Model.SetIdYName.ToString()</b></h5>
+                                }
+
+                            </td>
+                            <td style="text-align:right">
+                                <div class="card-tools">
+                                    <button class="btn btn-primary btn-sm btn-round" onclick="ReloadCrosstab()">
+                                        <span class="btn-label">
+                                            <i class="fa fa-table"></i>
+                                        </span>
+                                        Table
+                                    </button>
+                                    <button class="btn btn-primary btn-sm btn-round" onclick="BubbleMap()">
+                                        <span class="btn-label">
+                                            <i class="fa fa-circle"></i>
+                                        </span>
+                                        Bubble map
+                                    </button>
+                                    <button class="btn btn-primary btn-sm btn-round" onclick="BubbleMapLog()">
+                                        <span class="btn-label">
+                                            <i class="fa fa-circle"></i>
+                                        </span>
+                                        Bubble (log)
+                                    </button>
+                                    <a href="#" class="btn btn-info btn-border btn-round btn-sm mr-2">
+                                        <span class="btn-label">
+                                            <i class="fa fa-file-excel"></i>
+                                        </span>
+                                        Export
+                                    </a>
+                                    <a href="#" class="btn btn-info btn-border btn-round btn-sm">
+                                        <span class="btn-label">
+                                            <i class="fa fa-copy"></i>
+                                        </span>
+                                        Copy
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                    <div class="card-body">
+                        <!-------------------------------------------------------------------------------------------------------------------->
+                        @if (@Model.Graphic == "table")
+                        {
+                            <div id="CrosstabsGrid">
+                                <table class="content-full table table-striped">
                                     <tr>
-                                        <th>@row.AttributeName</th>
+                                        <th></th>
                                         @for (int i = 0; i < Model.ColumnAttIDs.Count; i++)
                                         {
-                                            @if (row.Counts[i] == 0)
-                                            {
-                                                <td>0</td>
-                                            }
-                                            else if (row == Model.Rows[Model.Rows.Count - 1])
-                                            {//last row, with column header, without all the row codes
-                                                string with = Model.ColumnAttIDs[i].ToString();
-                                                string without = "";
-                                                string withoutSets = "";
-                                                //string descript = "Listing &#39;None of the above&#39; crosstab result for the code: " + Model.ColumnAttNames[i].Replace("'", "&#39;");
-                                                string descript = "Records without " + Model.ColumnAttNames[i].Replace("'", "&#39;");
-                                                for (int ri = 0; ri < Model.Rows.Count - 1; ri++)//skip last row!
-                                                {
-                                                    without += Model.Rows[ri].AttributeId.ToString() + ",";
-                                                    withoutSets += @Model.SetIdY.ToString() + ",";
-                                                }
-                                                without = without.TrimEnd(',');
-                                                withoutSets = withoutSets.TrimEnd(',');
-                                                <th style="background-color: rgba(211, 211, 255, 0.20)">
-                                                    <a href="javascript:GoToItemsJson('@with', '@Model.SetIdX.ToString()', '@without', '@withoutSets', '@descript')">@row.Counts[i]</a>
-                                                </th>
-                                            }
-                                            else if (i == Model.ColumnAttIDs.Count - 1)
-                                            {//last cell with row header, without all the column codes
-                                                string with = row.AttributeId.ToString();
-                                                string without = "";
-                                                string withoutSets = "";
-                                                //string descript = "Listing &#39;None of these&#39; crosstab result for the code: " + row.AttributeName.Replace("'", "&#39;");
-                                                string descript = "Records without " + row.AttributeName.Replace("'", "&#39;");
-                                                for (int ci = 0; ci < row.Counts.Count - 1; ci++)//skip last column!
-                                                {
-                                                    without += Model.ColumnAttIDs[ci].ToString() + ",";
-                                                    withoutSets += @Model.SetIdX.ToString() + ",";
-                                                }
-                                                without = without.TrimEnd(',');
-                                                withoutSets = withoutSets.TrimEnd(',');
-                                                <th style="background-color:rgba(211, 211, 255, 0.20)">
-                                                    <a href="javascript:GoToItemsJson('@with', '@Model.SetIdY.ToString()', '@without', '@withoutSets', '@descript')">@row.Counts[i]</a>
-                                                </th>
-                                            }
-                                            else
-                                            {//normal cell, with row and col codes
-                                                string with = row.AttributeId.ToString() + "," + Model.ColumnAttIDs[i].ToString();
-                                                string withSets = Model.SetIdY.ToString() + "," + Model.SetIdX.ToString();
-                                                //string descript = "Listing crosstab result for the codes (x,y): " + Model.ColumnAttNames[i].Replace("'", "&#39;") + ", " + row.AttributeName.Replace("'", "&#39;");
-                                                string descript = Model.ColumnAttNames[i].Replace("'", "&#39;") + " <AND> " + row.AttributeName.Replace("'", "&#39;");
-
-                                                <th style="background-color:rgba(211, 211, 255, 0.20)">
-                                                    <a href="javascript:GoToItemsJson('@with', '@withSets', '', '', '@descript')">@row.Counts[i]</a>
-                                                </th>
-                                            }
+                                            <th>
+                                                @Model.ColumnAttNames[i]
+                                            </th>
                                         }
+
                                     </tr>
-                                }
-                            </table>
-                        </div>
-                    }
-                    <!-------------------------------------------------------------------------------------------------------------------------->
-                    @if ((@Model.Graphic == "bubble") || (@Model.Graphic == "bubbleLog"))
-                    {
-                        var rowNumber = 0;
-                        var biggestValue = 0;
-                        var value = 0;
-                        <!--<script>console.log("numberColumns: " + @Model.ColumnAttIDs.Count);</script>
-                        <script>console.log("numberRows: " + @Model.Rows.Count);</script>-->
-                        for (int j = 0; j < Model.Rows.Count - 1; j++)
-                        {
-
-                            for (int i = 0; i < Model.ColumnAttIDs.Count - 1; i++)
-                            {
-
-                                value = @Model.Rows[j].Counts[i];
-                                if (value > biggestValue)
-                                {
-                                    biggestValue = value;
-                                }
-                                <!--<script>
-                                        console.log("rowNumber: " + @rowNumber);
-                                        console.log("column: " + @i);
-                                        console.log("value: " + @value);
-                                        console.log("biggest value: " + @biggestValue);
-                                </script>-->
-                                rowNumber = rowNumber + 1;
-
-
-                            }
-                        }
-
-                        rowNumber = 0;
-
-
-
-                        var fa6 = 8.3; 
-                        var fa5 = 6.6;
-                        var fa4 = 5.0;
-                        var fa3 = 3.3;
-                        var fa2 = 1.6;
-
-                        if (@Model.Graphic == "bubbleLog")
-                        {
-                            fa6 = 9.0;
-                            fa5 = 1.0;
-                            fa4 = 0.1;
-                            fa3 = 0.01;
-                            fa2 = 0.001;
-                        }
-
-
-                        <div id="CrosstabsChart">
-                            <table class="content-full table table-bordered">
-                                <tr>
-                                    <th></th>
-                                    @for (int i = 0; i < Model.ColumnAttIDs.Count - 1; i++)
-                                    {
-                                        <th>
-                                            @Model.ColumnAttNames[i]
-                                        </th>
-                                    }
-
-                                </tr>
-
-
-                                @foreach (WebDbItemAttributeCrosstabRow row in Model.Rows)
-                                {
-                                    @if (@rowNumber < Model.Rows.Count - 1)
+                                    @foreach (WebDbItemAttributeCrosstabRow row in Model.Rows)
                                     {
                                         <tr>
                                             <th>@row.AttributeName</th>
-
-                                            @for (int i = 0; i < Model.ColumnAttIDs.Count - 1; i++)
+                                            @for (int i = 0; i < Model.ColumnAttIDs.Count; i++)
                                             {
                                                 @if (row.Counts[i] == 0)
                                                 {
-                                                    <td></td>
+                                                    <td>0</td>
+                                                }
+                                                else if (row == Model.Rows[Model.Rows.Count - 1])
+                                                {//last row, with column header, without all the row codes
+                                                    string with = Model.ColumnAttIDs[i].ToString();
+                                                    string without = "";
+                                                    string withoutSets = "";
+                                                    //string descript = "Listing &#39;None of the above&#39; crosstab result for the code: " + Model.ColumnAttNames[i].Replace("'", "&#39;");
+                                                    string descript = "Records without " + Model.ColumnAttNames[i].Replace("'", "&#39;");
+                                                    for (int ri = 0; ri < Model.Rows.Count - 1; ri++)//skip last row!
+                                                    {
+                                                        without += Model.Rows[ri].AttributeId.ToString() + ",";
+                                                        withoutSets += @Model.SetIdY.ToString() + ",";
+                                                    }
+                                                    without = without.TrimEnd(',');
+                                                    withoutSets = withoutSets.TrimEnd(',');
+                                                    <th style="background-color: rgba(211, 211, 255, 0.20)">
+                                                        <a href="javascript:GoToItemsJson('@with', '@Model.SetIdX.ToString()', '@without', '@withoutSets', '@descript')">@row.Counts[i]</a>
+                                                    </th>
+                                                }
+                                                else if (i == Model.ColumnAttIDs.Count - 1)
+                                                {//last cell with row header, without all the column codes
+                                                    string with = row.AttributeId.ToString();
+                                                    string without = "";
+                                                    string withoutSets = "";
+                                                    //string descript = "Listing &#39;None of these&#39; crosstab result for the code: " + row.AttributeName.Replace("'", "&#39;");
+                                                    string descript = "Records without " + row.AttributeName.Replace("'", "&#39;");
+                                                    for (int ci = 0; ci < row.Counts.Count - 1; ci++)//skip last column!
+                                                    {
+                                                        without += Model.ColumnAttIDs[ci].ToString() + ",";
+                                                        withoutSets += @Model.SetIdX.ToString() + ",";
+                                                    }
+                                                    without = without.TrimEnd(',');
+                                                    withoutSets = withoutSets.TrimEnd(',');
+                                                    <th style="background-color:rgba(211, 211, 255, 0.20)">
+                                                        <a href="javascript:GoToItemsJson('@with', '@Model.SetIdY.ToString()', '@without', '@withoutSets', '@descript')">@row.Counts[i]</a>
+                                                    </th>
                                                 }
                                                 else
                                                 {//normal cell, with row and col codes
@@ -353,84 +261,183 @@ Crosstab!
                                                     //string descript = "Listing crosstab result for the codes (x,y): " + Model.ColumnAttNames[i].Replace("'", "&#39;") + ", " + row.AttributeName.Replace("'", "&#39;");
                                                     string descript = Model.ColumnAttNames[i].Replace("'", "&#39;") + " <AND> " + row.AttributeName.Replace("'", "&#39;");
 
-                                                    <th style="text-align:center;vertical-align:middle">
-                                                        <a href="javascript:GoToItemsJson('@with', '@withSets', '', '', '@descript')">
-
-                                                            @if ((@row.Counts[i] * 10.0 / @biggestValue) > @fa6)
-                                                            {
-                                                                <!--<script>
-                                                                    console.log("value: " + @row.Counts[i]);
-                                                                    console.log("scale: " + (@row.Counts[i] * 10.0 / @biggestValue));
-                                                                    console.log("fa-6x");
-                                                                </script>-->
-                                                                <i class="fa fa-circle fa-6x" style="color:#007bff;" tool-tip-toggle="tooltip-demo" data-original-title="@row.Counts[i] records"></i>
-                                                            }
-                                                            else if ((@row.Counts[i] * 10.0 / @biggestValue) > @fa5)
-                                                            {
-                                                                <!--<script>
-                                                                    console.log("value: " + @row.Counts[i]);
-                                                                    console.log("scale: " + (@row.Counts[i] * 10.0 / @biggestValue));
-                                                                    console.log("fa-5x");
-                                                                </script>-->
-                                                                <i class="fa fa-circle fa-5x" style="color:#28a745;" tool-tip-toggle="tooltip-demo" data-original-title="@row.Counts[i] records"></i>
-                                                            }
-                                                            else if ((@row.Counts[i] * 10.0 / @biggestValue) > @fa4)
-                                                            {
-                                                                <!--<script>
-                                                                    console.log("value: " + @row.Counts[i]);
-                                                                    console.log("scale: " + (@row.Counts[i] * 10.0 / @biggestValue));
-                                                                    console.log("fa-5x");
-                                                                </script>-->
-                                                                <i class="fa fa-circle fa-4x" style="color:#ffc107;" tool-tip-toggle="tooltip-demo" data-original-title="@row.Counts[i] records"></i>
-                                                            }
-                                                            else if ((@row.Counts[i] * 10.0 / @biggestValue) > @fa3)
-                                                            {
-                                                                <!--<script>
-                                                                    console.log("value: " + @row.Counts[i]);
-                                                                    console.log("scale: " + (@row.Counts[i] * 10.0 / @biggestValue));
-                                                                    console.log("fa-5x");
-                                                                </script>-->
-                                                                <i class="fa fa-circle fa-3x" style="color:#dc3545;" tool-tip-toggle="tooltip-demo" data-original-title="@row.Counts[i] records"></i>
-                                                            }
-                                                            else if ((@row.Counts[i] * 10.0 / @biggestValue) > @fa2)
-                                                            {
-                                                                <!--<script>
-                                                                    console.log("value: " + @row.Counts[i]);
-                                                                    console.log("scale: " + (@row.Counts[i] * 10.0 / @biggestValue));
-                                                                    console.log("fa-5x");
-                                                                </script>-->
-                                                                <i class="fa fa-circle fa-2x" style="color:#17a2b8;" tool-tip-toggle="tooltip-demo" data-original-title="@row.Counts[i] records"></i>
-                                                            }
-                                                            else
-                                                            {
-                                                                <!--<script>
-                                                                    console.log("value: " + @row.Counts[i]);
-                                                                    console.log("scale: " + (@row.Counts[i] * 10.0 / @biggestValue));
-                                                                    console.log("fa-5x");
-                                                                </script>-->
-                                                                <i class="fa fa-circle fa-1x" style="color:#343a40;" tool-tip-toggle="tooltip-demo" data-original-title="@row.Counts[i] records"></i>
-                                                            }
-                                                        </a>
+                                                    <th style="background-color:rgba(211, 211, 255, 0.20)">
+                                                        <a href="javascript:GoToItemsJson('@with', '@withSets', '', '', '@descript')">@row.Counts[i]</a>
                                                     </th>
                                                 }
                                             }
                                         </tr>
-                                        rowNumber = rowNumber + 1;
+                                    }
+                                </table>
+                            </div>
+
+                        }
+                        <!-------------------------------------------------------------------------------------------------------------------------->
+                        @if ((@Model.Graphic == "bubble") || (@Model.Graphic == "bubbleLog"))
+                        {
+                            var rowNumber = 0;
+                            var biggestValue = 0;
+                            var value = 0;
+                            <!--<script>console.log("numberColumns: " + @Model.ColumnAttIDs.Count);</script>
+                        <script>console.log("numberRows: " + @Model.Rows.Count);</script>-->
+                            for (int j = 0; j < Model.Rows.Count - 1; j++)
+                            {
+
+                                for (int i = 0; i < Model.ColumnAttIDs.Count - 1; i++)
+                                {
+
+                                    value = @Model.Rows[j].Counts[i];
+                                    if (value > biggestValue)
+                                    {
+                                        biggestValue = value;
+                                    }
+                                    <!--<script>
+                                        console.log("rowNumber: " + @rowNumber);
+                                        console.log("column: " + @i);
+                                        console.log("value: " + @value);
+                                        console.log("biggest value: " + @biggestValue);
+                                </script>-->
+                                    rowNumber = rowNumber + 1;
+
+
+                                }
+                            }
+
+                            rowNumber = 0;
+
+
+
+                            var fa6 = 8.3;
+                            var fa5 = 6.6;
+                            var fa4 = 5.0;
+                            var fa3 = 3.3;
+                            var fa2 = 1.6;
+
+                            if (@Model.Graphic == "bubbleLog")
+                            {
+                                fa6 = 9.0;
+                                fa5 = 1.0;
+                                fa4 = 0.1;
+                                fa3 = 0.01;
+                                fa2 = 0.001;
+                            }
+
+
+                            <div id="CrosstabsChart">
+                                <table class="content-full table table-bordered">
+                                    <tr>
+                                        <th></th>
+                                        @for (int i = 0; i < Model.ColumnAttIDs.Count - 1; i++)
+                                        {
+                                            <th>
+                                                @Model.ColumnAttNames[i]
+                                            </th>
+                                        }
+
+                                    </tr>
+
+
+                                    @foreach (WebDbItemAttributeCrosstabRow row in Model.Rows)
+                                    {
+                                        @if (@rowNumber < Model.Rows.Count - 1)
+                                        {
+                                            <tr>
+                                                <th>@row.AttributeName</th>
+
+                                                @for (int i = 0; i < Model.ColumnAttIDs.Count - 1; i++)
+                                                {
+                                                    @if (row.Counts[i] == 0)
+                                                    {
+                                                        <td></td>
+                                                    }
+                                                    else
+                                                    {//normal cell, with row and col codes
+                                                        string with = row.AttributeId.ToString() + "," + Model.ColumnAttIDs[i].ToString();
+                                                        string withSets = Model.SetIdY.ToString() + "," + Model.SetIdX.ToString();
+                                                        //string descript = "Listing crosstab result for the codes (x,y): " + Model.ColumnAttNames[i].Replace("'", "&#39;") + ", " + row.AttributeName.Replace("'", "&#39;");
+                                                        string descript = Model.ColumnAttNames[i].Replace("'", "&#39;") + " <AND> " + row.AttributeName.Replace("'", "&#39;");
+
+                                                        <th style="text-align:center;vertical-align:middle">
+                                                            <a href="javascript:GoToItemsJson('@with', '@withSets', '', '', '@descript')">
+
+                                                                @if ((@row.Counts[i] * 10.0 / @biggestValue) > @fa6)
+                                                                {
+                                                                    <!--<script>
+                                                                    console.log("value: " + @row.Counts[i]);
+                                                                    console.log("scale: " + (@row.Counts[i] * 10.0 / @biggestValue));
+                                                                    console.log("fa-6x");
+                                                                </script>-->
+                                                                    <i class="fa fa-circle fa-6x" style="color:#007bff;" tool-tip-toggle="tooltip-demo" data-original-title="@row.Counts[i] records"></i>
+                                                                }
+                                                                else if ((@row.Counts[i] * 10.0 / @biggestValue) > @fa5)
+                                                                {
+                                                                    <!--<script>
+                                                                    console.log("value: " + @row.Counts[i]);
+                                                                    console.log("scale: " + (@row.Counts[i] * 10.0 / @biggestValue));
+                                                                    console.log("fa-5x");
+                                                                </script>-->
+                                                                    <i class="fa fa-circle fa-5x" style="color:#28a745;" tool-tip-toggle="tooltip-demo" data-original-title="@row.Counts[i] records"></i>
+                                                                }
+                                                                else if ((@row.Counts[i] * 10.0 / @biggestValue) > @fa4)
+                                                                {
+                                                                    <!--<script>
+                                                                    console.log("value: " + @row.Counts[i]);
+                                                                    console.log("scale: " + (@row.Counts[i] * 10.0 / @biggestValue));
+                                                                    console.log("fa-5x");
+                                                                </script>-->
+                                                                    <i class="fa fa-circle fa-4x" style="color:#ffc107;" tool-tip-toggle="tooltip-demo" data-original-title="@row.Counts[i] records"></i>
+                                                                }
+                                                                else if ((@row.Counts[i] * 10.0 / @biggestValue) > @fa3)
+                                                                {
+                                                                    <!--<script>
+                                                                    console.log("value: " + @row.Counts[i]);
+                                                                    console.log("scale: " + (@row.Counts[i] * 10.0 / @biggestValue));
+                                                                    console.log("fa-5x");
+                                                                </script>-->
+                                                                    <i class="fa fa-circle fa-3x" style="color:#dc3545;" tool-tip-toggle="tooltip-demo" data-original-title="@row.Counts[i] records"></i>
+                                                                }
+                                                                else if ((@row.Counts[i] * 10.0 / @biggestValue) > @fa2)
+                                                                {
+                                                                    <!--<script>
+                                                                    console.log("value: " + @row.Counts[i]);
+                                                                    console.log("scale: " + (@row.Counts[i] * 10.0 / @biggestValue));
+                                                                    console.log("fa-5x");
+                                                                </script>-->
+                                                                    <i class="fa fa-circle fa-2x" style="color:#17a2b8;" tool-tip-toggle="tooltip-demo" data-original-title="@row.Counts[i] records"></i>
+                                                                }
+                                                                else
+                                                                {
+                                                                    <!--<script>
+                                                                    console.log("value: " + @row.Counts[i]);
+                                                                    console.log("scale: " + (@row.Counts[i] * 10.0 / @biggestValue));
+                                                                    console.log("fa-5x");
+                                                                </script>-->
+                                                                    <i class="fa fa-circle fa-1x" style="color:#343a40;" tool-tip-toggle="tooltip-demo" data-original-title="@row.Counts[i] records"></i>
+                                                                }
+                                                            </a>
+                                                        </th>
+                                                    }
+                                                }
+                                            </tr>
+                                            rowNumber = rowNumber + 1;
+
+                                        }
 
                                     }
 
-                                }
+                                </table>
 
-                            </table>
-
-                        </div>
-                    }
-                    <!--------------------------------------------------------------------------------------------------------------------------------->
+                            </div>
+                        }
+                        <!--------------------------------------------------------------------------------------------------------------------------------->
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-    @await Html.PartialAsync("_ItemsList")
 
+        <div class="card">
+            @await Html.PartialAsync("_ItemsList")
+        </div>
+    </div>
 </div>
 
