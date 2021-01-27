@@ -529,8 +529,9 @@
             ctn++;
             formData[element.name] = element.value;
 
-            //console.log("WholeListToRisClick", FormData);
         }
+        formData.pageNumber = 0;
+        //console.log("WholeListToRisClick", FormData);
         let RISstring = "";
         $("#ExportToRisProgress").css("display", "inline"); //Exporting to RIS: page < span id = "ExportToRisProgressN" ></span > of Model.items.PageCount
         $("#ExportToRisProgress").html("Exporting to RIS: page 1 of " + ItemsListData.pagecount.toString());
