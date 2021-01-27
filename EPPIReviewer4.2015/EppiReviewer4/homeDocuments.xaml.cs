@@ -252,6 +252,7 @@ namespace EppiReviewer4
             MagBrowserControl.ListExcludedMatched += MagBrowserControl_ListExcludedMatched;
             MagBrowserControl.ListSimulationTP += MagBrowserControl_ListSimulationTP;
             MagBrowserControl.ListSimulationFN += MagBrowserControl_ListSimulationFN;
+            MagBrowserControl.ListPreviouslyMatched += MagBrowserControl_ListPreviouslyMatched;
             windowMagBrowser.Content = MagGrid;
             //end of windowMagBrowser
 
@@ -427,7 +428,6 @@ namespace EppiReviewer4
         }
 
         
-
         private void SetMicrosoftAcademicAlertIcon()
         {
             DataPortal<MagReviewHasUpdatesToCheckCommand> dp = new DataPortal<MagReviewHasUpdatesToCheckCommand>();
@@ -6243,6 +6243,19 @@ on the right of the main screen");
             }
         }
 
+        private void MagBrowserControl_ListPreviouslyMatched(object sender, RoutedEventArgs e)
+        {
+            windowMagBrowser.Close();
+            TextBlockShowing.Text = "Showing: items that were previously matched to MAG records";
+            SelectionCritieraItemList = new SelectionCriteria();
+            SelectionCritieraItemList.ListType = "MagPreviouslyMatched";
+            SelectionCritieraItemList.OnlyIncluded = false;
+            SelectionCritieraItemList.ShowDeleted = false;
+            SelectionCritieraItemList.AttributeSetIdList = "";
+            SelectionCritieraItemList.PageNumber = 0;
+            LoadItemList();
+        }
+
         private void DialogCodingControl_launchMagBrowser(object sender, EventArgs e)
         {
             MagPaper mp = sender as MagPaper;
@@ -6258,5 +6271,8 @@ on the right of the main screen");
                 windowMagBrowser.ShowDialog();
             }
         }
+
+       
+
     }
 }

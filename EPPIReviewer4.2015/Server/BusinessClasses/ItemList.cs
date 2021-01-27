@@ -738,6 +738,12 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@MAG_SIMULATION_ID", criteria.MagSimulationId));
                     command.Parameters.Add(new SqlParameter("@FOUND", false));
                     break;
+                case "MagPreviouslyMatched":
+                    command = new SqlCommand("st_ItemListMagPreviousMatches", connection);
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId)); // use the stored value so that noone can list items out of a review they aren't properly authenticated on
+                    command.Parameters.Add(new SqlParameter("@SHOW_INCLUDED", criteria.OnlyIncluded));
+                    break;
 #if WEBDB //little trick to avoid making this field add to routine costs in ER4 and ER-Web 
                 //this section contains special lists used only by WebDbs
                 case "WebDbWithThisCode":

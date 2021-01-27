@@ -616,7 +616,8 @@
                                     <StackPanel Grid.Row="2" Grid.Column="1" Orientation="Horizontal">
                                         <HyperlinkButton x:Name="LBListMatchesIncluded" Margin="4,3,4,3" HorizontalAlignment="Left" VerticalAlignment="Center" Click="LBListMatchesIncluded_Click" IsTabStop="False"></HyperlinkButton>
                                         <HyperlinkButton x:Name="lbItemListMatchesIncluded" Margin="1,5,5,5" HorizontalAlignment="Left" VerticalAlignment="Center" Content="(List)" Click="lbItemListMatchesIncluded_Click" IsTabStop="False"></HyperlinkButton>
-
+                                        <TextBlock x:Name="tbPreviouslyMatchedRecords" Text="Previously matched records" Margin="4,3,4,3" HorizontalAlignment="Left" VerticalAlignment="Center"></TextBlock>
+                                        <HyperlinkButton x:Name="LBListPreviouslyMatchedRecords" Margin="4,3,4,3" HorizontalAlignment="Left" VerticalAlignment="Center" IsTabStop="False" Content="List" IsEnabled="False" Click="LBListPreviouslyMatchedRecords_Click"></HyperlinkButton>
                                     </StackPanel>
 
                                     <StackPanel Grid.Row="3" Grid.Column="1" Orientation="Horizontal">

@@ -30,8 +30,10 @@ namespace EppiReviewer4
         public event EventHandler<RoutedEventArgs> ListExcludedNotMatched;
         public event EventHandler<RoutedEventArgs> ListIncludedMatched;
         public event EventHandler<RoutedEventArgs> ListExcludedMatched;
+        public event EventHandler<RoutedEventArgs> ListPreviouslyMatched;
         public event EventHandler<RoutedEventArgs> ListSimulationTP;
         public event EventHandler<RoutedEventArgs> ListSimulationFN;
+        
         private DispatcherTimer timer;
         private DispatcherTimer timer2;
         private DispatcherTimer timerAutoUpdateClassifierRun;
@@ -163,8 +165,8 @@ namespace EppiReviewer4
 
         private void RefreshCounts()
         {
-            DataPortal<MAgReviewMagInfoCommand> dp2 = new DataPortal<MAgReviewMagInfoCommand>();
-            MAgReviewMagInfoCommand mrmic = new MAgReviewMagInfoCommand();
+            DataPortal<MagReviewMagInfoCommand> dp2 = new DataPortal<MagReviewMagInfoCommand>();
+            MagReviewMagInfoCommand mrmic = new MagReviewMagInfoCommand();
             dp2.ExecuteCompleted += (o, e2) =>
             {
                 busyIndicatorMatches.IsBusy = false;
@@ -175,7 +177,7 @@ namespace EppiReviewer4
                 }
                 else
                 {
-                    MAgReviewMagInfoCommand mrmic2 = e2.Object as MAgReviewMagInfoCommand;
+                    MagReviewMagInfoCommand mrmic2 = e2.Object as MagReviewMagInfoCommand;
                     //TBNumInReview.Text = mrmic2.NInReviewIncluded.ToString() + " / " + mrmic2.NInReviewExcluded.ToString();
                     tbMatchedRecordsTitle.Text = "Matched records: " + mrmic2.NMatchedAccuratelyIncluded.ToString();
                     nMatchedRecords = mrmic2.NMatchedAccuratelyIncluded;
@@ -186,6 +188,19 @@ namespace EppiReviewer4
                     LBManualCheckExcluded.Content = mrmic2.NRequiringManualCheckExcluded.ToString();
                     LBMNotMatchedIncluded.Content = mrmic2.NNotMatchedIncluded.ToString();
                     LBMNotMatchedExcluded.Content = mrmic2.NNotMatchedExcluded.ToString();
+                    if (mrmic2.NPreviouslyMatched == 0)
+                    {
+                        tbPreviouslyMatchedRecords.Visibility = Visibility.Collapsed;
+                        LBListPreviouslyMatchedRecords.Visibility = Visibility.Collapsed;
+                        LBListPreviouslyMatchedRecords.IsEnabled = false;
+                    }
+                    else
+                    {
+                        tbPreviouslyMatchedRecords.Visibility = Visibility.Visible;
+                        tbPreviouslyMatchedRecords.Text = "Previously matched records: " + mrmic2.NPreviouslyMatched.ToString();
+                        LBListPreviouslyMatchedRecords.Visibility = Visibility.Visible;
+                        LBListPreviouslyMatchedRecords.IsEnabled = true;
+                    }
                 }
             };
             busyIndicatorMatches.IsBusy = true;
@@ -755,6 +770,11 @@ namespace EppiReviewer4
         private void lbItemListMatchesExcluded_Click(object sender, RoutedEventArgs e)
         {
             this.ListExcludedMatched.Invoke(sender, e);
+        }
+
+        private void LBListPreviouslyMatchedRecords_Click(object sender, RoutedEventArgs e)
+        {
+            this.ListPreviouslyMatched.Invoke(sender, e);
         }
 
         private void CslaDataProvider_DataChanged(object sender, EventArgs e)
