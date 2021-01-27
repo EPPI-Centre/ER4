@@ -4177,7 +4177,10 @@ namespace EppiReviewer4
                     provider.Refresh();
                 }
             }
+            tbAcademicTitle.Text = "Microsoft Academic dataset: " + CurrentTempMagCurrentInfo.MagVersion;
             CurrentTempMagCurrentInfo = null;
+            CslaDataProvider provider2 = ((CslaDataProvider)App.Current.Resources["MagCurrentInfoData"]);
+            provider2.Refresh();
         }
 
         private void HyperlinkButton_Click_22(object sender, RoutedEventArgs e)

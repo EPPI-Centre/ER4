@@ -655,7 +655,7 @@ namespace BusinessLibrary.BusinessClasses
                     VOLUME = reader.GetString("VOLUME");
                     PAGES = reader.GetString("PAGES");
                     ISSUE = reader.GetString("ISSUE");
-                    DOI = reader.GetString("DOI").ToUpper();
+                    DOI = reader.GetString("DOI").ToUpper().Replace("HTTPS://DX.DOI.ORG/", "").Replace("HTTPS://DOI.ORG/", "").Replace("HTTP://DX.DOI.ORG/", "").Replace("HTTP://DOI.ORG/", "").Replace("[DOI]", "").TrimEnd('.').Trim();
                     ABSTRACT = reader.GetString("ABSTRACT");
                     HAS_CODES = reader.GetInt32("HAS_CODES");
                     IS_MASTER = reader.GetInt32("IS_MASTER");
@@ -671,7 +671,7 @@ namespace BusinessLibrary.BusinessClasses
                     VOLUME = reader.GetString("VOLUME2");
                     PAGES = reader.GetString("PAGES2");
                     ISSUE = reader.GetString("ISSUE2");
-                    DOI = reader.GetString("DOI2").ToUpper();
+                    DOI = reader.GetString("DOI2").ToUpper().Replace("HTTPS://DX.DOI.ORG/", "").Replace("HTTPS://DOI.ORG/", "").Replace("HTTP://DX.DOI.ORG/", "").Replace("HTTP://DOI.ORG/", "").Replace("[DOI]", "").TrimEnd('.').Trim();
                     ABSTRACT = reader.GetString("ABSTRACT2");
                     HAS_CODES = reader.GetInt32("HAS_CODES2");
                     IS_MASTER = reader.GetInt32("IS_MASTER2");
