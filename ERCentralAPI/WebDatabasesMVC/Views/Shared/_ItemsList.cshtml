@@ -517,7 +517,7 @@
         link.click();
     }
     function WholeListToRisClick() {
-        let formData = { pageIndex: 0 }
+        let formData = { pageNumber: 0 }
         const form = $("#ListPagingForm");
         if (!form) return;
         const HiddenFields = form.children('input[type=hidden]');
@@ -533,7 +533,7 @@
         }
         let RISstring = "";
         $("#ExportToRisProgress").css("display", "inline"); //Exporting to RIS: page < span id = "ExportToRisProgressN" ></span > of Model.items.PageCount
-        $("#ExportToRisProgress").html("Exporting to RIS: page " + (formData.pageIndex + 1).toString() + " of " + ItemsListData.pagecount.toString());
+        $("#ExportToRisProgress").html("Exporting to RIS: page 1 of " + ItemsListData.pagecount.toString());
         //this starts a recursive call!!
         $.post("../ItemList/ListFromCritJSON", formData, function (data, result) {
             interimWholeListToRisClick(data, result, formData, RISstring);
@@ -549,13 +549,13 @@
         $("#ExportToRisProgress").hide();
     }
     function interimWholeListToRisClick(response, result, formData, RISstring) {
-        console.log("interimWholeListToRisClick", formData, response);
-        RISstring += ExportListToRIS(response.items);
-        formData.pageIndex++;
-        if (formData.pageIndex < ItemsListData.pagecount) {
+        console.log("interimWholeListToRisClick", formData, response, RISstring);
+        RISstring += ExportListToRIS(response.items.items);
+        formData.pageNumber++;
+        if (formData.pageNumber < ItemsListData.pagecount) {
             //get the next page
             $("#ExportToRisProgressN").html((formData.PageIndex + 1).toString());
-            $("#ExportToRisProgress").html("Exporting to RIS: page " + (formData.pageIndex + 1).toString() + " of " + ItemsListData.pagecount.toString());
+            $("#ExportToRisProgress").html("Exporting to RIS: page " + (formData.pageNumber + 1).toString() + " of " + ItemsListData.pagecount.toString());
             $.post("../ItemList/ListFromCritJSON", formData, function (data, result) {
                 interimWholeListToRisClick(data, result, formData, RISstring);
             }).fail(function (response) {
