@@ -388,8 +388,9 @@
         } else {
             $("#GoToItemsWithThisCode").prop("disabled", false);
             $("#GoToItemsWithThisCodeSB").prop("disabled", false);
-            $("#GoToItemsWithThisCode").attr('onclick', 'GoToItems(dataItem.id, \'' + dataItem.text.replace('\'', '&#39;') + '\')');
-            $("#GoToItemsWithThisCodeSB").attr('onclick', 'GoToItems(dataItem.id, \'' + dataItem.text.replace('\'', '&#39;') + '\')');
+            $("#GoToItemsWithThisCode").attr('onclick', 'GoToItems(dataItem.id, \'' + dataItem.text.replaceAll('\'', '&#39;') + '\')');
+            $("#GoToItemsWithThisCodeSB").attr('onclick', 'GoToItems(dataItem.id, \'' + dataItem.text.replaceAll('\'', '&#39;') + '\')');
+            //var test = dataItem.text.replaceAll('\'', '&#39;') + '\')';
             //$("#GoToItemsWithThisCode").attr('onclick', 'GoToItems(dataItem.id)');
         }
     }
@@ -552,7 +553,7 @@
                     </span>
 
                     <h4 class="text-section">
-                        CODING TOOLS<br /><br />
+                        <!--CODING TOOLS<br /><br />-->
                         <button id="GoToItemsWithThisCodeSB" class="btn btn-secondary btn-sm btn-round" disabled>List records</button>
                         <button class="btn btn-primary btn-sm btn-round" onclick="GetFreqs()" disabled id="CurrentNodeGoToFreqSB">Frequencies</button>
                     </h4>

@@ -186,8 +186,8 @@ namespace BusinessLibrary.BusinessClasses
             get { return ReadProperty(onlyThisAttributeProperty); }
         }
         
-        public WebDbFrequencyCrosstabAndMapSelectionCriteria(int WebDbId, Int64 AttributeIdXAxis, int SetIdXAxis, string NameXaxis, string Graphic
-                                                            , string Included = ""
+        public WebDbFrequencyCrosstabAndMapSelectionCriteria(int WebDbId, Int64 AttributeIdXAxis, int SetIdXAxis, string NameXaxis
+                                                            , string Included = "", string Graphic =""
                                                             , Int64 OnlyThisAttribute = 0
                                                             , Int64 AttributeIdYAxis = 0, int SetIdYAxis = 0, string NameYaxis = ""
                                                             , Int64 SegmentsParent = 0, int SegmentsSetId = 0)

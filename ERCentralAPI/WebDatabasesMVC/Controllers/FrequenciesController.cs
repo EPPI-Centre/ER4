@@ -146,7 +146,7 @@ namespace WebDatabasesMVC.Controllers
             //res.criteria =
             //    new WebDbFrequencyCrosstabAndMapSelectionCriteria(DBid, attIdx, setIdy, included, onlyThisAtt, attIdy, setIdx);
             //res.results = DataPortal.Fetch<WebDbItemAttributeChildFrequencyList>(res.criteria);
-            WebDbFrequencyCrosstabAndMapSelectionCriteria crit = new WebDbFrequencyCrosstabAndMapSelectionCriteria(DBid, attIdx, setIdx, nameXaxis, graphic, included, onlyThisAtt, attIdy, setIdy, nameYaxis);
+            WebDbFrequencyCrosstabAndMapSelectionCriteria crit = new WebDbFrequencyCrosstabAndMapSelectionCriteria(DBid, attIdx, setIdx, nameXaxis, included, graphic, onlyThisAtt, attIdy, setIdy, nameYaxis);
             WebDbItemAttributeCrosstabList res = DataPortal.Fetch<WebDbItemAttributeCrosstabList>(crit);
             return res;
         }
@@ -170,8 +170,8 @@ namespace WebDatabasesMVC.Controllers
         public WebDbFrequencyCrosstabAndMapSelectionCriteria GetWebDbFrequencyCrosstabAndMapSelectionCriteria()
         {
             WebDbFrequencyCrosstabAndMapSelectionCriteria res = new WebDbFrequencyCrosstabAndMapSelectionCriteria(
-                                                                        webDbId, attributeIdXAxis, setIdXAxis, nameXAxis, graphic,
-                                                                        included, onlyThisAttribute,
+                                                                        webDbId, attributeIdXAxis, setIdXAxis, nameXAxis,
+                                                                        included, graphic, onlyThisAttribute,
                                                                         attributeIdYAxis, setIdYAxis, nameYAxis,
                                                                         segmentsParent, setIdSegments);
             return res;

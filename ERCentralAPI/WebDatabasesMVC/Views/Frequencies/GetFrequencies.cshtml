@@ -220,116 +220,126 @@
 </script>
 
 
-<br />
+
 <br />
 <br />
 <br />
 
 <div class="main-panel main-panel-no-sidebar">
 
-    <div class="card">
-        <div class="card-body">
-            <table width="100%">
-                <tr>
-                    <td>
-                        <h5 class="card-title mb-3">Frequency report</h5><h5><b>@Model.criteria.nameXAxis.Replace("\'", "&#39;")</b></h5>
-                    </td>
-                    <td style="text-align:right">
-                        <div class="card-tools">
-                            <button class="btn btn-primary btn-sm btn-round" onclick="GoToFreq()">
-                                <span class="btn-label">
-                                    <i class="fa fa-table"></i>
-                                </span>
-                                Table
-                            </button>
-                            <button class="btn btn-primary btn-sm btn-round" onclick="GetFreqsBar()">
-                                <span class="btn-label">
-                                    <i class="fa fa-chart-bar"></i>
-                                </span>
-                                Bar
-                            </button>
-                            <button class="btn btn-primary btn-sm btn-round" onclick="GetFreqsPie()">
-                                <span class="btn-label">
-                                    <i class="fa fa-chart-pie"></i>
-                                </span>
-                                Pie
-                            </button>
-                            <a href="#" class="btn btn-info btn-border btn-round btn-sm mr-2" disabled>
-                                <span class="btn-label">
-                                    <i class="fa fa-file-excel"></i>
-                                </span>
-                                Export
-                            </a>
-                            <a href="#" class="btn btn-info btn-border btn-round btn-sm" disabled>
-                                <span class="btn-label">
-                                    <i class="fa fa-copy"></i>
-                                </span>
-                                Copy
-                            </a>
-                        </div>
-                    </td>
-                </tr>
-            </table>
+    <div class="page-inner">
 
+        <div class="card">
             <div class="card-body">
-                <div id="FrequenciesGrid">
-                    <div class="row">
-                        @*<div class="col">ID</div>*@
-                        <div class="col text-left border-bottom font-weight-bold" style="background-color:#ebedf2">Code</div>
-                        <div class="col border-bottom font-weight-bold" style="background-color:#ebedf2">Frequency</div>
+                <table width="100%">
+                    <tr>
+                        <td>
+                            <h5 class="card-title mb-3">Frequency report</h5><h5><b>@Model.criteria.nameXAxis.Replace("\'", "&#39;")</b></h5>
+                        </td>
+                        <td style="text-align:right">
+                            <div class="card-tools">
+                                <button class="btn btn-primary btn-sm btn-round" onclick="GoToFreq()">
+                                    <span class="btn-label">
+                                        <i class="fa fa-table"></i>
+                                    </span>
+                                    Table
+                                </button>
+                                <button class="btn btn-primary btn-sm btn-round" onclick="GetFreqsBar()">
+                                    <span class="btn-label">
+                                        <i class="fa fa-chart-bar"></i>
+                                    </span>
+                                    Bar
+                                </button>
+                                <button class="btn btn-primary btn-sm btn-round" onclick="GetFreqsPie()">
+                                    <span class="btn-label">
+                                        <i class="fa fa-chart-pie"></i>
+                                    </span>
+                                    Pie
+                                </button>
+                                <a href="#" class="btn btn-info btn-border btn-round btn-sm mr-2" disabled>
+                                    <span class="btn-label">
+                                        <i class="fa fa-file-excel"></i>
+                                    </span>
+                                    Export
+                                </a>
+                                <a href="#" class="btn btn-info btn-border btn-round btn-sm" disabled>
+                                    <span class="btn-label">
+                                        <i class="fa fa-copy"></i>
+                                    </span>
+                                    Copy
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+
+                <div class="card-body">
+                    <div id="FrequenciesGrid">
+                        <div class="row">
+                            @*<div class="col">ID</div>*@
+                            <div class="col text-left border-bottom font-weight-bold" style="background-color:#ebedf2">Code</div>
+                            <div class="col border-bottom font-weight-bold" style="background-color:#ebedf2">Frequency</div>
+                        </div>
+
+                        @{int counter = 0;}
+                        @foreach (WebDbItemAttributeChildFrequency itm in Model.results)
+                        {
+                            <div class="row">
+                                @{counter++;}
+                                @if (counter % 2 == 0)
+                                {
+                                    <div class="col text-left border-bottom" style="background-color:#ebedf2">@itm.Attribute</div>
+                                    <div class="col text-left border-bottom" style="background-color:#ebedf2">
+                                        @if (itm.ItemCount == 0)
+                                        {
+                                            <text>0</text>
+                                        }
+                                        else if (itm.AttributeId == -999999)
+                                        {
+                                            <a href="javascript:GoToItemsJson(@itm.AttributeId, '@Model.criteria.nameXAxis.Replace("\'", "&#39;")')">@itm.ItemCount</a>
+                                        }
+                                        else
+                                        {
+                                            <a href="javascript:GoToItemsJson(@itm.AttributeId, '@itm.Attribute.Replace("\'", "&#39;")')">@itm.ItemCount</a>
+                                        }
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="col text-left border-bottom">@itm.Attribute</div>
+                                    <div class="col text-left border-bottom">
+                                        @if (itm.ItemCount == 0)
+                                        {
+                                            <text>0</text>
+                                        }
+                                        else if (itm.AttributeId == -999999)
+                                        {
+                                            <a href="javascript:GoToItemsJson(@itm.AttributeId, '@Model.criteria.nameXAxis.Replace("\'", "&#39;")')">@itm.ItemCount</a>
+                                        }
+                                        else
+                                        {
+                                            <a href="javascript:GoToItemsJson(@itm.AttributeId, '@itm.Attribute.Replace("\'", "&#39;")')">@itm.ItemCount</a>
+                                        }
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </div>
+                    <div id="FrequenciesChart" class="chart" style="text-align:left">
+
                     </div>
 
-                    @{int counter = 0;}
-                    @foreach (WebDbItemAttributeChildFrequency itm in Model.results)
-                    {
-                        <div class="row">
-                            @{counter++;}
-                            @if (counter % 2 == 0)
-                            {
-                                <div class="col text-left border-bottom" style="background-color:#ebedf2">@itm.Attribute</div>
-                                <div class="col text-left border-bottom" style="background-color:#ebedf2">
-                                    @if (itm.ItemCount == 0)
-                                    {
-                                        <text>0</text>
-                                    }
-                                    else if (itm.AttributeId == -999999)
-                                    {
-                                        <a href="javascript:GoToItemsJson(@itm.AttributeId, '@Model.criteria.nameXAxis.Replace("\'", "&#39;")')">@itm.ItemCount</a>
-                                    }
-                                    else
-                                    {
-                                        <a href="javascript:GoToItemsJson(@itm.AttributeId, '@itm.Attribute.Replace("\'", "&#39;")')">@itm.ItemCount</a>
-                                    }
-                                </div>
-                            }
-                            else
-                            {
-                                <div class="col text-left border-bottom">@itm.Attribute</div>
-                                <div class="col text-left border-bottom">
-                                    @if (itm.ItemCount == 0)
-                                    {
-                                        <text>0</text>
-                                    }
-                                    else if (itm.AttributeId == -999999)
-                                    {
-                                        <a href="javascript:GoToItemsJson(@itm.AttributeId, '@Model.criteria.nameXAxis.Replace("\'", "&#39;")')">@itm.ItemCount</a>
-                                    }
-                                    else
-                                    {
-                                        <a href="javascript:GoToItemsJson(@itm.AttributeId, '@itm.Attribute.Replace("\'", "&#39;")')">@itm.ItemCount</a>
-                                    }
-                                </div>
-                            }
-                        </div>
-                    }
                 </div>
-                <div id="FrequenciesChart" class="chart" style="text-align:left">
-
-                </div>
-
             </div>
         </div>
+
+        <div class="card">
+
+            @await Html.PartialAsync("_ItemsList")
+        </div>
+
     </div>
-    @await Html.PartialAsync("_ItemsList")
+
+
 </div>
 
