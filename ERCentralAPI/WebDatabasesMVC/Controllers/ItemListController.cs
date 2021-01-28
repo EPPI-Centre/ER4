@@ -444,9 +444,6 @@ namespace WebDatabasesMVC.Controllers
 
         internal ItemListWithCriteria GetItemList(SelectionCriteria crit)
         {
-            List<Claim> claims = User.Claims.ToList();
-            Claim AttIdC = claims.Find(f => f.Type == "ItemsCode");
-            
             if (crit.WebDbId == 0)
             {
                 crit.WebDbId = WebDbId;
@@ -456,13 +453,16 @@ namespace WebDatabasesMVC.Controllers
             {
                 throw new Exception("WebDbId in ItemList Criteria is not the expected value - possible tampering attempt!");
             }
-            //no try here, if an exception happens it's caught by the caller method
-            long tmp =  long.Parse(AttIdC.Value);
-            if (crit.ListType == "StandardItemList" && tmp > 0 && crit.FilterAttributeId == 0)
+
+            if (crit.ListType == "StandardItemList")
             {
-                crit.FilterAttributeId = tmp;
+                crit.ListType = "WebDbAllItems";
                 crit.OnlyIncluded = true;
                 crit.Description = "All Items.";
+            }
+            else if (!crit.ListType.StartsWith("WebDb"))
+            {
+                throw new Exception("Not supported ListType (" + crit.ListType + ") possible tampering attempt!");
             }
             ItemList4Json res = new ItemList4Json( DataPortal.Fetch<ItemList>(crit));
             return new ItemListWithCriteria { items = res, criteria = new SelCritMVC(crit)   };

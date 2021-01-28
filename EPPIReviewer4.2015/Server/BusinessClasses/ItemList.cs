@@ -748,6 +748,13 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@attributeId", criteria.FilterAttributeId));
                     command.Parameters.Add(new SqlParameter("@WebDbId", criteria.WebDbId));
                     break;
+                case "WebDbAllItems":
+                    command = new SqlCommand("st_WebDbAllItems", connection);
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@RevId", ri.ReviewId)); // use the stored value so that noone can list items out of a review they aren't properly authenticated on
+                    command.Parameters.Add(new SqlParameter("@included", criteria.OnlyIncluded));
+                    command.Parameters.Add(new SqlParameter("@WebDbId", criteria.WebDbId));
+                    break;
                 case "WebDbFrequencyNoneOfTheAbove":
                     command = new SqlCommand("st_WebDbItemListFrequencyNoneOfTheAbove", connection);
                     command.CommandType = System.Data.CommandType.StoredProcedure;
