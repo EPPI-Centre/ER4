@@ -44,7 +44,7 @@
         //};
         return res;
     }
-    
+
 
     $(document).ready(function () {
         $("#treeView").kendoTreeView({
@@ -130,7 +130,8 @@
             //console.log("GetFreqs no data");
             return;
         }
-
+        $("#attributeIdXAxisCrit").val(dataItem.isCodeset? 0 : dataItem.id);
+        $("#setIdXAxisCrit").val(dataItem.setId); 
         $("#FrequenciesGrid").show();
         $("#FrequenciesChart").hide();
         $("#FrequenciesResult").html("Frequencies:&nbsp;&nbsp;" + dataItem.text);
@@ -151,7 +152,8 @@
         if (!dataItem) {
             return;
         }
-
+        $("#attributeIdXAxisCrit").val(dataItem.isCodeset ? 0 : dataItem.id);
+        $("#setIdXAxisCrit").val(dataItem.setId); 
         if (dataItem.isCodeset == true) {
             $.post("../Frequencies/GetFrequenciesJSON", { attId: 0, setId: dataItem.setId, included: true }, function (data, result) { BuildBar(data, result); })
         }
@@ -160,12 +162,13 @@
         }
     }
 
-    
+
     function GetFreqsPie() {
         if (!dataItem) {
             return;
         }
-
+        $("#attributeIdXAxisCrit").val(dataItem.isCodeset ? 0 : dataItem.id);
+        $("#setIdXAxisCrit").val(dataItem.setId); 
         if (dataItem.isCodeset == true) {
             $.post("../Frequencies/GetFrequenciesJSON", { attId: 0, setId: dataItem.setId, included: true }, function (data, result) { BuildPie(data, result); })
         }
@@ -196,11 +199,11 @@
                 type: 'bar'
             },
             seriesClick: function (e) {
-                GoToListBar(e);
+                GoToFreqListPieAndBar(e);
             },
             chartArea: {
                 height: 250
-            },            
+            },
             tooltip: {
                 visible: true,
                 template: "#= category #: #= value # records"
@@ -208,7 +211,7 @@
         });
     }
 
-    
+
     function BuildPie(data, result) {
         if (!dataItem) {
             return;
@@ -231,7 +234,7 @@
                 type: "pie"
             },
             seriesClick: function (e) {
-                GoToListPie(e);
+                GoToFreqListPieAndBar(e);
             },
             series: [{
                 field: "itemCount",
@@ -244,7 +247,7 @@
             }
         });
     }
- 
+
 
     function BuildFreqs(data, result) {
         console.log(data, result);//FrequenciesTemplate
@@ -277,6 +280,7 @@
     }
 
     function GetFreqLinkContent(attId, count, attName) {
+        //console.log("GetFreqLinkContent", attId, count, attName);
         if (count == 0) return "0";
         else return '<a href="javascript:GoToItems(' + attId + ', \'' + attName.replaceAll('\'', '\\\'') + '\')" style="color: #007bff!important;">' + count.toString() + '</a>';
     }
@@ -499,44 +503,26 @@
     }
 
 
-    function GoToListPie(dataItem) {
-        if (dataItem.dataItem.attributeId == -999999) {
-            postwith("../ItemList/GetFreqListNoneOfTheAbove", {
-                attributeIdXAxis: 0
-                , setId: dataItem.dataItem.setId
-                , included: "true"
-                , onlyThisAttribute: 0
-                , webDbId: 1
-                , attName: dataItem.dataItem.attribute
-            })
-        }
-        else {
-            postwith("../ItemList/GetFreqList", {
-                attId: dataItem.dataItem.attributeId
-                , attName: dataItem.dataItem.attribute
-            })
-        }
+    function GoToFreqListPieAndBar(dataItem) {
+        GoToItems(dataItem.dataItem.attributeId, dataItem.dataItem.attribute);
+        //if (dataItem.dataItem.attributeId == -999999) {
+        //    postwith("../ItemList/GetFreqListNoneOfTheAbove", {
+        //        attributeIdXAxis: 0
+        //        , setId: dataItem.dataItem.setId
+        //        , included: "true"
+        //        , onlyThisAttribute: 0
+        //        , webDbId: 1
+        //        , attName: dataItem.dataItem.attribute
+        //    })
+        //}
+        //else {
+        //    postwith("../ItemList/GetFreqList", {
+        //        attId: dataItem.dataItem.attributeId
+        //        , attName: dataItem.dataItem.attribute
+        //    })
+        //}
     }
 
-
-    function GoToListBar(dataItem) {
-        if (dataItem.dataItem.attributeId == -999999) {
-            postwith("../ItemList/GetFreqListNoneOfTheAbove", {
-                attributeIdXAxis: 0
-                , setId: dataItem.dataItem.setId
-                , included: "true"
-                , onlyThisAttribute: 0
-                , webDbId: 1
-                , attName: dataItem.dataItem.attribute
-            })
-        }
-        else {
-            postwith("../ItemList/GetFreqList", {
-                attId: dataItem.dataItem.attributeId
-                , attName: dataItem.dataItem.attribute
-            })
-        }
-    }
 
     //var treeviewData = $("#treeView").data("kendoTreeView");
     //treeview.bind("change", TreeViewSelection);
@@ -630,6 +616,8 @@
                     </div>
                     <div class="card ">
                         <div class="card-header">
+                            <input type="hidden" value="0" name="attributeIdXAxis" id="attributeIdXAxisCrit" />
+                            <input type="hidden" value="0" name="setIdXAxis" id="setIdXAxisCrit" />
                             <table>
                                 <tr>
                                     <td>
