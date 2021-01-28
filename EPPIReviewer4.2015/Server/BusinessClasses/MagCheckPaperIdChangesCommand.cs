@@ -79,17 +79,17 @@ namespace BusinessLibrary.BusinessClasses
 
         private async Task RunCheckUpdates(int ReviewId, int ContactId)
         {
-            int missingCount = 0;
             int currentlyUsed = 0;
-
+            string uploadFileName = "";
 
             int TaskMagLogId = MagLog.SaveLogEntry("Checking ID changes", "Starting", "", ContactId);
+            int missingCount = ChangedPapersNotAlreadyWrittenCheck();
+            if (missingCount == 0) // i.e. we've already downloaded the file and need to complete the auto-matching
+            {
 
 #if (!CSLA_NETCORE)
-            string uploadFileName = System.Web.HttpRuntime.AppDomainAppPath + TempPath + "CheckPaperIdChanges.csv";
-            //string downloadFilename = uploadFileName;
-
-#else       
+                uploadFileName = System.Web.HttpRuntime.AppDomainAppPath + TempPath + "CheckPaperIdChanges.csv";
+#else
             string uploadFileName = TempPath + "CheckPaperIdChanges.csv";
 
             if (Directory.Exists(TempPath))
@@ -104,18 +104,39 @@ namespace BusinessLibrary.BusinessClasses
 #endif
 
 
-            currentlyUsed = WriteCurrentlyUsedPaperIdsToFile(uploadFileName);
-            await UploadIdsFile(uploadFileName);
-            MagLog.UpdateLogEntry("Running", "ID checking: file uploaded n=" + currentlyUsed.ToString(), TaskMagLogId);
-            SubmitJob(ContactId);
+                currentlyUsed = WriteCurrentlyUsedPaperIdsToFile(uploadFileName);
+                await UploadIdsFile(uploadFileName);
+                MagLog.UpdateLogEntry("Running", "ID checking: file uploaded n=" + currentlyUsed.ToString(), TaskMagLogId);
+                SubmitJob(ContactId);
+                missingCount = await DownloadMissingIdsFile(uploadFileName);
+            }
 
-            missingCount = await DownloadMissingIdsFile(uploadFileName);
-            MagLog.UpdateLogEntry("Running", "ID checking: Currently used: " + currentlyUsed.ToString() + "changed: " + missingCount.ToString(),
+            MagLog.UpdateLogEntry("Running", "ID checking: Currently used: " + currentlyUsed.ToString() + " changed: " + missingCount.ToString(),
                 TaskMagLogId);
-            string lookupResults = LookupMissingIdsInNewMakes(ContactId, TaskMagLogId, currentlyUsed, missingCount);
-            MagLog.UpdateLogEntry("Running", "ID checking: updating live IDs. (Lookup results: )" + lookupResults, TaskMagLogId);
-            //UpdateLiveIds();
+            string lookupResults = LookupMissingIdsInNewMakes(ContactId, TaskMagLogId, missingCount, currentlyUsed);
+            MagLog.UpdateLogEntry("Running", "ID checking: updating live IDs. (Lookup results: " + lookupResults + ")", TaskMagLogId);
+            UpdateLiveIds();
             MagLog.UpdateLogEntry("Complete", "ID checking: " + lookupResults, TaskMagLogId);
+        }
+
+        private int ChangedPapersNotAlreadyWrittenCheck()
+        {
+            int retVal = 0;
+            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+            {
+                connection.Open();
+                using (SqlCommand command = new SqlCommand("st_MagChangedPapersNotAlreadyWrittenCheck", connection))
+                {
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@MagVersion", _LatestMAGName));
+                    command.Parameters.Add(new SqlParameter("@NumPapers", 0));
+                    command.Parameters["@NumPapers"].Direction = System.Data.ParameterDirection.Output;
+                    command.ExecuteNonQuery();
+                    retVal = Convert.ToInt32(command.Parameters["@NumPapers"].Value);
+                }
+                connection.Close();
+            }
+            return retVal;
         }
 
         private int WriteCurrentlyUsedPaperIdsToFile(string fileName)
@@ -127,7 +148,7 @@ namespace BusinessLibrary.BusinessClasses
                 using (SqlCommand command = new SqlCommand("st_MagGetCurrentlyUsedPaperIds", connection))
                 {
                     command.CommandType = System.Data.CommandType.StoredProcedure;
-                    //command.Parameters.Add(new SqlParameter("@REVIEW_ID", 0)); // n.b. reviewId not used in stored proc at present 
+                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", 0)); 
                     using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
                     {
                         using (StreamWriter file = new StreamWriter(fileName, false))
@@ -308,6 +329,7 @@ namespace BusinessLibrary.BusinessClasses
                 using (SqlCommand command = new SqlCommand("st_MagGetMissingPaperIds", connection))
                 {
                     command.CommandType = CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@MagVersion", LatestMAGName));
                     using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
                     {
                         while (reader.Read())
@@ -455,7 +477,7 @@ namespace BusinessLibrary.BusinessClasses
                             foreach (MagMakesHelpers.PaperMakes cpm in candidatePapersOnTitle)
                             {
                                 var found = candidatePapersOnDOI.Find(e => e.Id == cpm.Id);
-                                if (found == null && cpm.matchingScore >= MagPaperItemMatch.AutoMatchMinScore)
+                                if (found == null && cpm.matchingScore >= MagPaperItemMatch.AutoMatchThreshold)
                                 {
                                     candidatePapersOnDOI.Add(cpm);
                                 }
@@ -472,7 +494,7 @@ namespace BusinessLibrary.BusinessClasses
                                 foreach (MagMakesHelpers.PaperMakes cpm in candidatePapersOnAuthorJournal)
                                 {
                                     var found = candidatePapersOnDOI.Find(e => e.Id == cpm.Id);
-                                    if (found == null && cpm.matchingScore >= MagPaperItemMatch.AutoMatchMinScore)
+                                    if (found == null && cpm.matchingScore >= MagPaperItemMatch.AutoMatchThreshold)
                                     {
                                         candidatePapersOnDOI.Add(cpm);
                                     }
@@ -483,7 +505,7 @@ namespace BusinessLibrary.BusinessClasses
                     if (candidatePapersOnDOI.Count > 0)
                     {
                         MagMakesHelpers.PaperMakes TopMatch = candidatePapersOnDOI.Aggregate((i1, i2) => i1.matchingScore > i2.matchingScore ? i1 : i2);
-                        if (TopMatch.matchingScore > MagPaperItemMatch.AutoMatchMinScore)
+                        if (TopMatch.matchingScore > MagPaperItemMatch.AutoMatchThreshold)
                         {
                             matchedOnMAKES = true;
                             return rowId.ToString() + "," + TopMatch.matchingScore + "," + TopMatch.Id;
@@ -513,7 +535,7 @@ namespace BusinessLibrary.BusinessClasses
                         }
                         if (i != null)
                         {
-                            // EXACTLY the same code logic is used in MagPaperItemMatch EXCEPT - we use the PENDING deployment of MAKES
+                            // EXACTLY the same code logic is used in MagPaperItemMatch EXCEPT - we use the PENDING deployment of MAKES and we're only interested in matches above the auto-match threshold
                             List<MagMakesHelpers.PaperMakes> candidatePapersOnDOI = MagMakesHelpers.GetCandidateMatchesOnDOI(i.DOI, "PENDING");
                             if (candidatePapersOnDOI != null && candidatePapersOnDOI.Count > 0)
                             {
@@ -545,7 +567,7 @@ namespace BusinessLibrary.BusinessClasses
                                 foreach (MagMakesHelpers.PaperMakes cpm in candidatePapersOnTitle)
                                 {
                                     var found = candidatePapersOnDOI.Find(e => e.Id == cpm.Id);
-                                    if (found == null && cpm.matchingScore >= MagPaperItemMatch.AutoMatchMinScore)
+                                    if (found == null && cpm.matchingScore >= MagPaperItemMatch.AutoMatchThreshold)
                                     {
                                         candidatePapersOnDOI.Add(cpm);
                                     }
@@ -562,7 +584,7 @@ namespace BusinessLibrary.BusinessClasses
                                     foreach (MagMakesHelpers.PaperMakes cpm in candidatePapersOnAuthorJournal)
                                     {
                                         var found = candidatePapersOnDOI.Find(e => e.Id == cpm.Id);
-                                        if (found == null && cpm.matchingScore >= MagPaperItemMatch.AutoMatchMinScore)
+                                        if (found == null && cpm.matchingScore >= MagPaperItemMatch.AutoMatchThreshold)
                                         {
                                             candidatePapersOnDOI.Add(cpm);
                                         }
@@ -573,7 +595,7 @@ namespace BusinessLibrary.BusinessClasses
                             {
                                 MagMakesHelpers.PaperMakes TopMatch = candidatePapersOnDOI.Aggregate((i1, i2) => i1.matchingScore > i2.matchingScore ? i1 : i2);
 
-                                if (TopMatch.matchingScore > MagPaperItemMatch.AutoMatchMinScore)
+                                if (TopMatch.matchingScore > MagPaperItemMatch.AutoMatchThreshold)
                                 {
                                     return rowId.ToString() + "," + TopMatch.matchingScore + "," + TopMatch.Id;
                                 }

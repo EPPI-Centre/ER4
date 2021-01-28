@@ -350,6 +350,12 @@
     <None Update="SQLScripts\312.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="SQLScripts\314.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="SQLScripts\316.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="SQLScripts\318.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
