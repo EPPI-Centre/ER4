@@ -255,11 +255,14 @@ namespace BusinessLibrary.BusinessClasses
                 }
 
                 // 4. The final type of import is from a search. This is different, as we have the MAKES query to run and just
-                // need to cycle through its pages to get the data.
-                if (_SourceOfIds == "MagSearchResults")
+                // need to cycle through its pages to get the data. There are TWO types of search result: one that imports
+                // everything from a search; and the other, that imports only new IDs from the last deployed MAKES / MAG.
+                List<string> IDsFilteredList = new List<string>();
+                if (_SourceOfIds == "MagSearchResults" || _SourceOfIds == "MagSearchResultsLatestMAG")
                 {
                     incomingList.SourceName = _MagSearchDescription;
                     incomingList.SearchStr = _MagSearchText;
+                    MagCurrentInfo currentMAGInfo = MagCurrentInfo.GetMagCurrentInfoServerSide("LIVE");
                     int totalHits = 0;
                     int numPages = 1;
                     // Get the total from current MAKES - don't rely on the number in the search, as it may change between MAKES versions
@@ -280,17 +283,67 @@ namespace BusinessLibrary.BusinessClasses
                     for (int c = 0; c < numPages; c++)
                     {
                         MagMakesHelpers.PaperMakesResponse res = MagMakesHelpers.EvaluateExpressionWithPaging(_MagSearchText, "100", (c * 100).ToString());
-                        foreach (MagMakesHelpers.PaperMakes pm in res.entities)
+                        if (_SourceOfIds == "MagSearchResults") // all items not in the review just go into the incomingList
                         {
-                            // Only import those that aren't already in the review
-                            if (!AlreadyUsedPaperIds.Exists(element => element == pm.Id.ToString()))
+                            foreach (MagMakesHelpers.PaperMakes pm in res.entities)
                             {
-                                MagPaper mp = MagPaper.GetMagPaperFromPaperMakes(pm, null);
-                                if (mp.PaperId > 0)
+                                // Only import those that aren't already in the review
+                                if (!AlreadyUsedPaperIds.Exists(element => element == pm.Id.ToString()))
                                 {
-                                    incomingList.IncomingItems.Add(GetIncomingItemFromMagPaper(mp));
+                                    MagPaper mp = MagPaper.GetMagPaperFromPaperMakes(pm, null);
+
+                                    if (mp.PaperId > 0)
+                                    {
+                                        incomingList.IncomingItems.Add(GetIncomingItemFromMagPaper(mp));
+                                    }
                                 }
                             }
+                        }
+                        else // need to filter to only those PaperIds in the last version of MAG
+                        {
+                            string IDs = "";
+                            string IDsFiltered = "";
+                            IDsFilteredList.Clear();
+                            foreach (MagMakesHelpers.PaperMakes pm in res.entities)
+                            {
+                                IDs += pm.Id.ToString() + ",";
+                            }
+                            IDs.TrimEnd(',');
+                            using (SqlCommand command = new SqlCommand("st_MagSearchFilterToLatest", connection))
+                            {
+                                command.CommandTimeout = 500; // should make this a nice long time
+                                command.CommandType = System.Data.CommandType.StoredProcedure;
+                                command.Parameters.Add(new SqlParameter("@MagVersion", currentMAGInfo.MagVersion));
+                                command.Parameters.Add(new SqlParameter("@IDs", IDs));
+                                using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
+                                {
+                                    while (reader.Read())
+                                    {
+                                        IDsFilteredList.Add(reader["PaperId"].ToString());
+                                    }
+                                }
+                            }
+                            if (IDsFilteredList.Count > 0)
+                            {
+                                foreach (MagMakesHelpers.PaperMakes pm in res.entities)
+                                {
+                                    // Only import those that are in latest MAG and not in review
+                                    if (IDsFilteredList.Exists(element => element == pm.Id.ToString()) &&
+                                        !AlreadyUsedPaperIds.Exists(element => element == pm.Id.ToString()))
+                                    {
+                                        MagPaper mp = MagPaper.GetMagPaperFromPaperMakes(pm, null);
+                                        if (mp.PaperId > 0)
+                                        {
+                                            incomingList.IncomingItems.Add(GetIncomingItemFromMagPaper(mp));
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        // this is a practical limit for what the importing routine can cope with
+                        if (incomingList.IncomingItems.Count > 20000)
+                        {
+                            break;
                         }
                     }
                 }

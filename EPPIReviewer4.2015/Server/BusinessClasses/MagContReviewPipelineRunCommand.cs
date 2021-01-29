@@ -15,8 +15,6 @@ using System.Threading.Tasks;
 using Csla.Data;
 using System.IO;
 
-
-
 #if !SILVERLIGHT
 using System.Data.SqlClient;
 using BusinessLibrary.Data;
@@ -49,11 +47,11 @@ namespace BusinessLibrary.BusinessClasses
         private string _specificFolder;
         private int _reviewSampleSize;
         private int _MagLogId;
-        private bool _prepareNewMagParquet;
+        private string _doWhat;
 
         public MagContReviewPipelineRunCommand(string CurrentMagVersion, string NextMagVersion,
             double scoreThreshold, double fosThreshold, string specificFolder, int magLogId, int reviewSampleSize,
-            bool prepareNewMagParquet = false)
+            string doWhat = "")
         {
             _CurrentMagVersion = CurrentMagVersion;
             _NextMagVersion = NextMagVersion;
@@ -62,7 +60,7 @@ namespace BusinessLibrary.BusinessClasses
             _specificFolder = specificFolder;
             _MagLogId = magLogId;
             _reviewSampleSize = reviewSampleSize;
-            _prepareNewMagParquet = prepareNewMagParquet;
+            _doWhat = doWhat;
         }
 
         protected override void OnGetState(Csla.Serialization.Mobile.SerializationInfo info, StateMode mode)
@@ -75,7 +73,7 @@ namespace BusinessLibrary.BusinessClasses
             info.AddValue("_specificFolder", _specificFolder);
             info.AddValue("_reviewSampleSize", _reviewSampleSize);
             info.AddValue("_MagLogId", _MagLogId);
-            info.AddValue("_prepareNewMagParquet", _prepareNewMagParquet);
+            info.AddValue("_doWhat", _doWhat);
 
         }
         protected override void OnSetState(Csla.Serialization.Mobile.SerializationInfo info, StateMode mode)
@@ -87,7 +85,7 @@ namespace BusinessLibrary.BusinessClasses
             _specificFolder = info.GetValue<string>("_specificFolder");
             _reviewSampleSize = info.GetValue<int>("_reviewSampleSize");
             _MagLogId = info.GetValue<int>("_MagLogId");
-            _prepareNewMagParquet = info.GetValue<bool>("_prepareNewMagParquet");
+            _doWhat = info.GetValue<string>("_doWhat");
         }
 
 
@@ -97,13 +95,24 @@ namespace BusinessLibrary.BusinessClasses
         {
             ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
 
-            if (_prepareNewMagParquet == true)
+            if (_doWhat == "Prepare parquet")
             {
 #if CSLA_NETCORE
             System.Threading.Tasks.Task.Run(() => doRunPipelinePrepareParquet(ri.ReviewId, ri.UserId));
 #else
                 //see: https://codingcanvas.com/using-hostingenvironment-queuebackgroundworkitem-to-run-background-tasks-in-asp-net/
+                
                 HostingEnvironment.QueueBackgroundWorkItem(cancellationToken => doRunPipelinePrepareParquet(ri.ReviewId, ri.UserId, cancellationToken));
+#endif
+                return;
+            }
+
+            if (_doWhat == "GetNewPaperIds")
+            {
+#if CSLA_NETCORE
+            System.Threading.Tasks.Task.Run(() => doRunPipelineGetNewIds(ri.UserId));
+#else
+                HostingEnvironment.QueueBackgroundWorkItem(cancellationToken => doRunPipelineGetNewIds(ri.UserId, cancellationToken));
 #endif
                 return;
             }
@@ -195,6 +204,109 @@ namespace BusinessLibrary.BusinessClasses
             }
             //Thread.Sleep(30 * 1000); int NewIds = 10; int SeedIds = 10; // this line for testing - can be deleted after publish
             
+        }
+
+        private async void doRunPipelineGetNewIds(int ContactId, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            string folderName;
+#if (!CSLA_NETCORE)
+
+            folderName = System.Web.HttpRuntime.AppDomainAppPath + @"UserTempUploads";
+#else
+                // same as comment above for same line
+                //SG Edit:
+                DirectoryInfo tmpDir = System.IO.Directory.CreateDirectory("UserTempUploads");
+                folderName = tmpDir.FullName + "/" + @"UserTempUploads";
+#endif
+            int logId = MagLog.SaveLogEntry("New MAG setup", "running", "Getting new Ids: " + _NextMagVersion, ContactId);
+            string lastSavedMagVersion = "";
+            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+            {
+                connection.Open();
+                using (SqlCommand command = new SqlCommand("st_MagCheckNewPapersAlreadyDownloaded", connection))
+                {
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
+                    {
+                        if (reader.Read())
+                        {
+                            lastSavedMagVersion = reader["MagVersion"].ToString();
+                        }
+                    }
+                }
+                connection.Close();
+            }
+            if (lastSavedMagVersion == _NextMagVersion)
+            {
+                MagLog.UpdateLogEntry("Complete", "Process aborted: new papers already downloaded", logId);
+            }
+            else
+            {
+                MagDataLakeHelpers.ExecProc(@"[master].[dbo].[GetNewPaperIds](""" + this._CurrentMagVersion + "\",\"" +
+                this._NextMagVersion + "\");", true, "GetNewPaperIds", ContactId, 10);
+
+                await downloadNewIds(logId);
+            }
+        }
+
+        private async Task downloadNewIds(int logId)
+        {
+            int paperCount = 0;
+            CloudStorageAccount storageAccount = CloudStorageAccount.Parse("DefaultEndpointsProtocol=https;AccountName=" +
+                ConfigurationManager.AppSettings["MAGStorageAccount"] + ";AccountKey=" +
+                ConfigurationManager.AppSettings["MAGStorageAccountKey"]);
+                
+            CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
+            CloudBlobContainer container = blobClient.GetContainerReference(_NextMagVersion);
+            CloudBlockBlob blockBlobDataResults = container.GetBlockBlobReference("NewPaperIds.tsv");
+
+            string Results1 = await blockBlobDataResults.DownloadTextAsync();
+            byte[] myFile = Encoding.UTF8.GetBytes(Results1);
+
+            DataTable dt = new DataTable("TB_MAG_NEW_PAPERS");
+            dt.Columns.Add("MAG_NEW_PAPERS_ID");
+            dt.Columns.Add("PaperId");
+            dt.Columns.Add("MagVersion");
+
+            MemoryStream msIds = new MemoryStream(myFile);
+            using (var readerIds = new StreamReader(msIds))
+            {
+                string line;
+                while ((line = readerIds.ReadLine()) != null)
+                {
+                    DataRow newRow = dt.NewRow();
+                    newRow["MAG_NEW_PAPERS_ID"] = 0; // IDENTITY COLUMN - AUTO-GENERATED
+                    newRow["PaperId"] = Convert.ToInt64(line);
+                    newRow["MagVersion"] = _NextMagVersion;
+                    dt.Rows.Add(newRow);
+                    paperCount++;
+                }
+            }
+
+            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+            {
+                connection.Open();
+                using (SqlBulkCopy sbc = new SqlBulkCopy(connection))
+                {
+                    sbc.DestinationTableName = "TB_MAG_NEW_PAPERS";
+                    sbc.BatchSize = 1000;
+                    sbc.WriteToServer(dt);
+                }
+                /*
+                using (SqlCommand command = new SqlCommand("st_MagAutoUpdateClassifierScoresUpdate", connection))
+                {
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@MAG_AUTO_UPDATE_RUN_ID", _MagAutoUpdateRunId));
+                    command.Parameters.Add(new SqlParameter("@Field", Field));
+                    command.Parameters.Add(new SqlParameter("@StudyTypeClassifier", _StudyTypeClassifier));
+                    command.Parameters.Add(new SqlParameter("@UserClassifierModelId", _UserClassifierModelId));
+                    command.Parameters.Add(new SqlParameter("@UserClassifierReviewId", _UserClassifierReviewId));
+                    command.ExecuteNonQuery();
+                }
+                */
+                connection.Close();
+                MagLog.UpdateLogEntry("Complete", "New Ids saved: " + _NextMagVersion + ", count=" + paperCount.ToString(), logId);
+            }
         }
 
         private async void doRunPipelinePrepareParquet(int ReviewId, int ContactId, CancellationToken cancellationToken = default(CancellationToken))

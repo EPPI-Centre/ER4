@@ -2865,7 +2865,14 @@ namespace EppiReviewer4
 
         private void LBCreateParquetFiles_Click(object sender, RoutedEventArgs e)
         {
-            RadWindow.Confirm("Are you sure you want to create parquet files for\n" + tbLatestMag.Text, this.doRunCreateParquetFiles);
+            if ((sender as HyperlinkButton).Tag.ToString() == "Prepare parquet")
+            {
+                RadWindow.Confirm("Are you sure you want to create parquet files for\n" + tbLatestMag.Text, this.doRunCreateParquetFiles);
+            }
+            else
+            {
+                RadWindow.Confirm("Are you sure you want to download new PaperIds for\n" + tbLatestMag.Text, this.doRunDownloadNewPaperIds);
+            }
         }
 
         private void doRunCreateParquetFiles(object sender, WindowClosedEventArgs e)
@@ -2885,7 +2892,7 @@ namespace EppiReviewer4
                         "",
                         0,
                         Convert.ToInt32(EditReviewSampleSize.Value.Value),
-                        true);
+                        "Prepare parquet");
                 dp2.ExecuteCompleted += (o, e2) =>
                 {
                     if (e2.Error != null)
@@ -2895,6 +2902,39 @@ namespace EppiReviewer4
                     else
                     {
                         RadWindow.Alert("Ok. Process to generate the parquet files has been started");
+                        SwitchOnAutoRefreshLogList();
+                    }
+                };
+                LBRunContReviewPipeline.IsEnabled = false;
+                dp2.BeginExecute(RunPipelineCommand);
+            }
+        }
+
+        private void doRunDownloadNewPaperIds(object sender, WindowClosedEventArgs e)
+        {
+            var result = e.DialogResult;
+            if (result == true)
+            {
+                DataPortal<MagContReviewPipelineRunCommand> dp2 = new DataPortal<MagContReviewPipelineRunCommand>();
+                MagContReviewPipelineRunCommand RunPipelineCommand =
+                    new MagContReviewPipelineRunCommand(
+                        tbPreviousMAG.Text,
+                        tbLatestMag.Text,
+                        EditScoreThreshold.Value.Value,
+                        EditFoSThreshold.Value.Value,
+                        "",
+                        0,
+                        Convert.ToInt32(EditReviewSampleSize.Value.Value),
+                        "GetNewPaperIds");
+                dp2.ExecuteCompleted += (o, e2) =>
+                {
+                    if (e2.Error != null)
+                    {
+                        RadWindow.Alert(e2.Error.Message);
+                    }
+                    else
+                    {
+                        RadWindow.Alert("Ok. Process to download new PaperIds is started");
                         SwitchOnAutoRefreshLogList();
                     }
                 };
@@ -3387,7 +3427,7 @@ namespace EppiReviewer4
                 if (ms != null)
                 {
                     DataPortal<MagItemPaperInsertCommand> dp2 = new DataPortal<MagItemPaperInsertCommand>();
-                    MagItemPaperInsertCommand command = new MagItemPaperInsertCommand("", "MagSearchResults",
+                    MagItemPaperInsertCommand command = new MagItemPaperInsertCommand("", SelectedLinkButton.Tag.ToString(),
                         0, 0, "", 0, 0, 0, 0, "", "", "", ms.MagSearchText, "MAG search: " + ms.SearchText);
                     dp2.ExecuteCompleted += (o, e2) =>
                     {
@@ -3405,15 +3445,34 @@ namespace EppiReviewer4
                                 RadWindow.Alert("Imported " + e2.Object.NImported.ToString() + " out of " +
                                     num_in_run.ToString() + " items");
                             }
-                            else if (e2.Object.NImported != 0)
-                            {
-                                RadWindow.Alert("Some of these items were already in your review.\n\nImported " +
-                                    e2.Object.NImported.ToString() + " out of " + num_in_run.ToString() +
-                                    " new items");
-                            }
                             else
                             {
-                                RadWindow.Alert("All of these records were already in your review.");
+                                if (SelectedLinkButton.Tag.ToString() == "MagSearchResults")
+                                {
+                                    if (e2.Object.NImported != 0)
+                                    {
+                                        RadWindow.Alert("Some of these items were already in your review.\n\nImported " +
+                                            e2.Object.NImported.ToString() + " out of " + num_in_run.ToString() +
+                                            " new items");
+                                    }
+                                    else
+                                    {
+                                        RadWindow.Alert("All of these records were already in your review.");
+                                    }
+                                }
+                                else
+                                {
+                                    if (e2.Object.NImported != 0)
+                                    {
+                                        RadWindow.Alert("Some items were already in your review / were not in the latest MAG.\n\nImported " +
+                                            e2.Object.NImported.ToString() + " out of " + num_in_run.ToString() +
+                                            " new items");
+                                    }
+                                    else
+                                    {
+                                        RadWindow.Alert("All records were already in your review or not in latest MAG.");
+                                    }
+                                }
                             }
                         }
                     };

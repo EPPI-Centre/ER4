@@ -919,7 +919,7 @@
                                         <ColumnDefinition Width="200"></ColumnDefinition>
                                         <ColumnDefinition Width="300"></ColumnDefinition>
                                         <ColumnDefinition Width="100"></ColumnDefinition>
-                                        <ColumnDefinition Width="20"></ColumnDefinition>
+                                        <ColumnDefinition Width="40"></ColumnDefinition>
                                         <ColumnDefinition Width="200"></ColumnDefinition>
                                         <ColumnDefinition Width="*"></ColumnDefinition>
                                     </Grid.ColumnDefinitions>
@@ -1059,7 +1059,14 @@
                                             <telerikGridView:GridViewDataColumn Width="50" SortingState="None" IsReadOnly="True">
                                                 <telerikGridView:GridViewDataColumn.CellTemplate>
                                                     <DataTemplate>
-                                                        <HyperlinkButton Content="Import" Click="HyperlinkButton_Click_16"/>
+                                                        <HyperlinkButton Content="Import" Click="HyperlinkButton_Click_16" Tag="MagSearchResults" ToolTipService.ToolTip="Import all records from this search"/>
+                                                    </DataTemplate>
+                                                </telerikGridView:GridViewDataColumn.CellTemplate>
+                                            </telerikGridView:GridViewDataColumn>
+                                            <telerikGridView:GridViewDataColumn Width="120" SortingState="None" IsReadOnly="True">
+                                                <telerikGridView:GridViewDataColumn.CellTemplate>
+                                                    <DataTemplate>
+                                                        <HyperlinkButton Content="Import latest MAG" Click="HyperlinkButton_Click_16" Tag="MagSearchResultsLatestMAG" ToolTipService.ToolTip="Filter import to include only records in the latest deployment of MAG"/>
                                                     </DataTemplate>
                                                 </telerikGridView:GridViewDataColumn.CellTemplate>
                                             </telerikGridView:GridViewDataColumn>
@@ -1478,7 +1485,8 @@
                                     <StackPanel Grid.Row="0" Orientation="Horizontal">
                                         <HyperlinkButton x:Name="LBCurrentInfoCreate" Content="Add new MAG to MAKES list" Click="LBCurrentInfoCreate_Click"  Foreground="Red" IsTabStop="False" Margin="0,9,5,5" Visibility="Collapsed"></HyperlinkButton>
                                         <HyperlinkButton x:Name="LBCheckChangedPaperIds" Content="Identify ID changes BEFORE switching to new MAG" Click="CheckChangedPaperIds_Click" IsTabStop="False" Margin="0,9,5,5"></HyperlinkButton>
-                                        <HyperlinkButton x:Name="LBCreateParquetFiles" Content="Create parquet files for new MAG" Click="LBCreateParquetFiles_Click"  IsTabStop="False" Margin="5,9,5,5"></HyperlinkButton>
+                                        <HyperlinkButton x:Name="LBDownloadNewPaperIds" Content="Download new PaperIds" Click="LBCreateParquetFiles_Click" IsTabStop="False" Margin="0,9,5,5" Tag="GetNewPaperIds"></HyperlinkButton>
+                                        <HyperlinkButton x:Name="LBCreateParquetFiles" Content="Create parquet files for new MAG" Click="LBCreateParquetFiles_Click"  IsTabStop="False" Margin="5,9,5,5" Tag="Prepare parquet"></HyperlinkButton>
                                     </StackPanel>
                                     <StackPanel Grid.Row="1" Orientation="Horizontal">
                                         <HyperlinkButton x:Name="LBRunContReviewPipeline" Content="Run contreview pipeline" Click="LBRunContReviewPipeline_Click" IsTabStop="False" VerticalAlignment="Center"></HyperlinkButton>
