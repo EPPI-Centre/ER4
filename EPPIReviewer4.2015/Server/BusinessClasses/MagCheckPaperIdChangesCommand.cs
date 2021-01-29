@@ -90,7 +90,7 @@ namespace BusinessLibrary.BusinessClasses
 #if (!CSLA_NETCORE)
                 uploadFileName = System.Web.HttpRuntime.AppDomainAppPath + TempPath + "CheckPaperIdChanges.csv";
 #else
-            string uploadFileName = TempPath + "CheckPaperIdChanges.csv";
+            uploadFileName = TempPath + "CheckPaperIdChanges.csv";
 
             if (Directory.Exists(TempPath))
             {

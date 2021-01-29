@@ -8,7 +8,7 @@ import { Item, ItemListService, Criteria, ItemList } from './ItemList.service';
 import { ReviewSet, SetAttribute, ReviewSetsService, singleNode, ItemAttributeSaveCommand, iSetType } from './ReviewSets.service';
 import { ArmsService } from './arms.service';
 import { ItemDocsService } from './itemdocs.service';
-import { Outcome, OutcomeItemList } from './outcomes.service';
+import { Outcome, OutcomeItemList, OutcomeItemAttributesList, OutcomeItemAttribute } from './outcomes.service';
 import { isJsObject } from '@angular/core/src/change_detection/change_detection_util';
 
 @Injectable({
@@ -1578,6 +1578,7 @@ class Outcome4ER4Json {
         this.Data12Desc = o.data12Desc;
         this.Data13Desc = o.data13Desc;
         this.Data14Desc = o.data14Desc;
+        this.OutcomeCodes = new OutcomeItemAttributesList4Json(o.outcomeCodes);
     }
     OutcomeId: number;
     ItemSetId: number;
@@ -1665,6 +1666,29 @@ class Outcome4ER4Json {
     Data12Desc: string;
     Data13Desc: string;
     Data14Desc: string;
+    OutcomeCodes: OutcomeItemAttributesList4Json;
+}
+class OutcomeItemAttributesList4Json {
+    constructor(oial: OutcomeItemAttributesList) {
+        for (let oia of oial.outcomeItemAttributesList) {
+            this.OutcomeItemAttributesList.push(new OutcomeItemAttribute4Json(oia));
+        }
+    }
+    OutcomeItemAttributesList: OutcomeItemAttribute4Json[] = [];
+}
+class OutcomeItemAttribute4Json {
+    constructor(o: OutcomeItemAttribute) {
+        this.AdditionalText = o.additionalText;
+        this.AttributeId = o.attributeId;
+        this.AttributeName = o.attributeName;
+        this.OutcomeId = o.outcomeId;
+        this.OutcomeItemAttributeId = o.outcomeItemAttributeId;
+    }
+    OutcomeItemAttributeId: number;
+    OutcomeId: number;
+    AttributeId: number;
+    AdditionalText: string;
+    AttributeName: string;
 }
 class Attribute4ER4Json {
     constructor(ia: ReadOnlyItemAttribute) {
