@@ -784,17 +784,21 @@ namespace BusinessLibrary.BusinessClasses
                     break;
                 case "WebDbSearch":
                     string que = criteria.SearchString;
-                    if (criteria.SearchString.Trim().Contains(' ') && 
-                            (
-                            criteria.SearchWhat == "TitleAbstract" ||
-                            criteria.SearchWhat == "Title" ||
-                            criteria.SearchWhat == "Abstract" ||
-                            criteria.SearchWhat == "AdditionalText" 
-                            )
+                    if (
+                        criteria.SearchWhat == "TitleAbstract" ||
+                        criteria.SearchWhat == "Title" ||
+                        criteria.SearchWhat == "Abstract" ||
+                        criteria.SearchWhat == "AdditionalText" 
                         )
                     {//in these cases, SQL uses the 'CONTAINSTABLE' construct, so we need to parse the search text first.
                         FullTextSearch fts = new FullTextSearch(criteria.SearchString.Trim());
                         que = fts.NormalForm;
+                    } 
+                    else if ((criteria.SearchWhat == "ItemId" ||
+                                criteria.SearchWhat == "OldItemId")
+                                && que.EndsWith(","))
+                    {
+                        que = que.TrimEnd(',');
                     }
                     command = new SqlCommand("st_WebDbSearchFreeText", connection);
                     command.CommandType = System.Data.CommandType.StoredProcedure;
