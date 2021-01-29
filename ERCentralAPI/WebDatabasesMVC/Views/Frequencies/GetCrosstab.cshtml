@@ -34,7 +34,7 @@ Crosstab!
 
 
 
-    function GoToItems(WithAttIds, WithSetId, WithoutAttIds, WithoutSetId, Descript) {
+    @*function GoToItems(WithAttIds, WithSetId, WithoutAttIds, WithoutSetId, Descript) {
         var pars = {
             WithAttIds: WithAttIds
             , WithSetId: WithSetId
@@ -45,7 +45,7 @@ Crosstab!
         }
         postwith("../ItemList/GetListWithWithoutAtts", pars);
 
-    }
+    }*@
 
     function GoToItemsJson(WithAttIds, WithSetId, WithoutAttIds, WithoutSetId, Descript) {
         $("#ItemsGrid").empty();

@@ -34,15 +34,18 @@
             document.body.removeChild(myForm);
         };
         function GoToItems(AttId, AttName = '') {
+
+            //console.log("GoToItems", AttId, AttName);
             if (AttId == -999999) {
-                var included = $('#includedCrit').val();
+                //var included = $('#includedCrit').val();
                 var attributeIdXAxis = $('#attributeIdXAxisCrit').val();
                 var setIdXAxis = $('#setIdXAxisCrit').val();
                 var onlyThisAttribute = $('#onlyThisAttributeCrit').val();
                 var webDbId = $('#webDbIdCrit').val();
+                //alert("GoToItems" + attributeIdXAxis + " : " + setIdXAxis);
                 postwith("../ItemList/GetFreqListNoneOfTheAbove",
                     {
-                        attributeIdXAxis: attributeIdXAxis, setId: setIdXAxis, included: included
+                        attributeIdXAxis: attributeIdXAxis, setId: setIdXAxis, included: true
                         , onlyThisAttribute: onlyThisAttribute, webDbId: webDbId, attName: AttName.replaceAll('&#39;', '\'')
                     });
             } else {

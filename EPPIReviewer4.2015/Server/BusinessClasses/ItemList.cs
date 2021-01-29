@@ -754,6 +754,13 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@attributeId", criteria.FilterAttributeId));
                     command.Parameters.Add(new SqlParameter("@WebDbId", criteria.WebDbId));
                     break;
+                case "WebDbAllItems":
+                    command = new SqlCommand("st_WebDbAllItems", connection);
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@RevId", ri.ReviewId)); // use the stored value so that noone can list items out of a review they aren't properly authenticated on
+                    command.Parameters.Add(new SqlParameter("@included", criteria.OnlyIncluded));
+                    command.Parameters.Add(new SqlParameter("@WebDbId", criteria.WebDbId));
+                    break;
                 case "WebDbFrequencyNoneOfTheAbove":
                     command = new SqlCommand("st_WebDbItemListFrequencyNoneOfTheAbove", connection);
                     command.CommandType = System.Data.CommandType.StoredProcedure;
@@ -777,17 +784,21 @@ namespace BusinessLibrary.BusinessClasses
                     break;
                 case "WebDbSearch":
                     string que = criteria.SearchString;
-                    if (criteria.SearchString.Trim().Contains(' ') && 
-                            (
-                            criteria.SearchWhat == "TitleAbstract" ||
-                            criteria.SearchWhat == "Title" ||
-                            criteria.SearchWhat == "Abstract" ||
-                            criteria.SearchWhat == "AdditionalText" 
-                            )
+                    if (
+                        criteria.SearchWhat == "TitleAbstract" ||
+                        criteria.SearchWhat == "Title" ||
+                        criteria.SearchWhat == "Abstract" ||
+                        criteria.SearchWhat == "AdditionalText" 
                         )
                     {//in these cases, SQL uses the 'CONTAINSTABLE' construct, so we need to parse the search text first.
                         FullTextSearch fts = new FullTextSearch(criteria.SearchString.Trim());
                         que = fts.NormalForm;
+                    } 
+                    else if ((criteria.SearchWhat == "ItemId" ||
+                                criteria.SearchWhat == "OldItemId")
+                                && que.EndsWith(","))
+                    {
+                        que = que.TrimEnd(',');
                     }
                     command = new SqlCommand("st_WebDbSearchFreeText", connection);
                     command.CommandType = System.Data.CommandType.StoredProcedure;
