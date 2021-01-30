@@ -186,6 +186,16 @@ export class MAGBrowser implements OnInit, OnDestroy {
         }
     }
 
+    public GetAllLinks(): string[] {
+        let links: string = this._magBrowserService.currentMagPaper.allLinks;
+        if (links != null && links != '') {
+            var allLinks = links.split(';');
+            return allLinks;
+        } else {
+            return [];
+        }
+    }
+
     public IsCurrentPaperSelected(paperId: number): boolean {
 
         if (this._magBrowserService.selectedPapers != null && 
@@ -218,7 +228,7 @@ export class MAGBrowser implements OnInit, OnDestroy {
 
                 this._mAGBrowserHistoryService.AddHistory(new MagBrowseHistoryItem("Browse paper: " + result.fullRecord, "PaperDetail",
                     result.paperId, result.fullRecord,
-                    result.abstract, result.linkedITEM_ID, result.urls, result.findOnWeb, 0, "", "", 0));
+                    result.abstract, result.linkedITEM_ID, result.allLinks, result.findOnWeb, 0, "", "", 0));
                 this._magAdvancedService.PostFetchMagPaperCalls(result, "CitationsList");
             });
     }

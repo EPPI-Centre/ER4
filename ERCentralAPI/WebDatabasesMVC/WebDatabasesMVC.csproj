@@ -40,6 +40,8 @@
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemTimepointList.cs" Link="Models\ItemTimepointList.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\MagCurrentInfo.cs" Link="Models\MagCurrentInfo.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\MagMakesHelpers.cs" Link="Models\MagMakesHelpers.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\MagMatchItemToPaperManualCommand.cs" Link="Models\MagMatchItemToPaperManualCommand.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\MagPaper.cs" Link="Models\MagPaper.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\Outcome.cs" Link="Models\Outcome.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\OutcomeItemAttribute.cs" Link="Models\OutcomeItemAttribute.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\OutcomeItemAttributeList.cs" Link="Models\OutcomeItemAttributeList.cs" />

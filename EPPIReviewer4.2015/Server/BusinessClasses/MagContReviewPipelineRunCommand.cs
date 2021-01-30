@@ -252,10 +252,23 @@ namespace BusinessLibrary.BusinessClasses
         private async Task downloadNewIds(int logId)
         {
             int paperCount = 0;
+#if (CSLA_NETCORE)
+
+            var configuration = ERxWebClient2.Startup.Configuration.GetSection("AzureMagSettings");
+            string storageAccountName = configuration["MAGStorageAccount"];
+            string storageAccountKey = configuration["MAGStorageAccountKey"];
+
+            CloudStorageAccount storageAccount = CloudStorageAccount.Parse("DefaultEndpointsProtocol=https;AccountName=" +
+                ERxWebClient2.Startup.Configuration.GetSection("MAGStorageAccount") + ";AccountKey=" +
+                ERxWebClient2.Startup.Configuration.GetSection("MAGStorageAccountKey"));
+
+#else
             CloudStorageAccount storageAccount = CloudStorageAccount.Parse("DefaultEndpointsProtocol=https;AccountName=" +
                 ConfigurationManager.AppSettings["MAGStorageAccount"] + ";AccountKey=" +
                 ConfigurationManager.AppSettings["MAGStorageAccountKey"]);
-                
+#endif
+
+
             CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
             CloudBlobContainer container = blobClient.GetContainerReference(_NextMagVersion);
             CloudBlockBlob blockBlobDataResults = container.GetBlockBlobReference("NewPaperIds.tsv");

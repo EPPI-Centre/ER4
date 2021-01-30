@@ -89,7 +89,7 @@ export class MAGBrowserHistory implements OnInit {
                             this.ShowMatching();
                             break;
                         case "PaperDetail":
-                            this.ShowPaperDetailsPage(mbh.paperId, mbh.paperFullRecord, mbh.paperAbstract, mbh.uRLs,
+                            this.ShowPaperDetailsPage(mbh.paperId, mbh.paperFullRecord, mbh.paperAbstract, mbh.allLinks,
                                 mbh.findOnWeb, mbh.linkedITEM_ID);
                             break;
                         case "MatchesIncluded":
@@ -137,7 +137,7 @@ export class MAGBrowserHistory implements OnInit {
             (result: MagPaper) => {
                 if (result.paperId != null && result.paperId > 0) {
                     this._MAGBrowserHistoryService.AddHistory(new MagBrowseHistoryItem("Go to specific Paper Id: " + result.fullRecord, "PaperDetail", result.paperId, result.fullRecord,
-                        result.abstract, result.linkedITEM_ID, result.urls, result.findOnWeb, 0, "", "", 0));
+                        result.abstract, result.linkedITEM_ID, result.allLinks, result.findOnWeb, 0, "", "", 0));
                     this._magAdvancedService.PostFetchMagPaperCalls(result,'');
                 } else {
                     this.notificationService.showMAGRunMessage('Microsoft academic could not find the paperId!');

@@ -203,7 +203,7 @@ export class MAGHeaderBarComp implements OnInit {
 
                         this._mAGBrowserHistoryService.AddHistory(new MagBrowseHistoryItem("Browse paper: " + result.fullRecord, "PaperDetail",
                             result.paperId, result.fullRecord,
-                            result.abstract, result.linkedITEM_ID, result.urls, result.findOnWeb, 0, "", "", 0));
+                            result.abstract, result.linkedITEM_ID, result.allLinks, result.findOnWeb, 0, "", "", 0));
                         this._magAdvancedService.PostFetchMagPaperCalls(result, "CitationsList");
                     });
             }          

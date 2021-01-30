@@ -208,6 +208,7 @@ export class MagPaper {
     authors: string = '';
     urls: string = '';
     pdfLinks: string = '';
+    allLinks: string = '';
     linkedITEM_ID: number = 0;
     isSelected: boolean = false;
     canBeSelected: string = 'false';
@@ -321,7 +322,7 @@ export class MagCurrentInfo {
 
 export class MagBrowseHistoryItem {
     constructor(title: string, browseType: string, paperId: number, paperFullRecord: string,
-        paperAbstract: string, linkedITEM_ID: number, uRLs: string, findOnWeb: string, fieldOfStudyId: number,
+        paperAbstract: string, linkedITEM_ID: number, allLinks: string, findOnWeb: string, fieldOfStudyId: number,
         fieldOfStudy: string, attributeIds: string, magRelatedRunId: number) {
         this.title = title;
         this.browseType = browseType;
@@ -329,7 +330,7 @@ export class MagBrowseHistoryItem {
         this.paperFullRecord = paperFullRecord;
         this.paperAbstract = paperAbstract;
         this.linkedITEM_ID = linkedITEM_ID;
-        this.uRLs = uRLs;
+        this.allLinks = allLinks;
         this.findOnWeb = findOnWeb;
         this.fieldOfStudyId = fieldOfStudyId;
         this.fieldOfStudy = fieldOfStudy;
@@ -347,6 +348,7 @@ export class MagBrowseHistoryItem {
     magRelatedRunId: number = 0;
     linkedITEM_ID: number = 0;
     uRLs: string = '';
+    allLinks: string = '';
     findOnWeb: string = '';
     contactId: number = 0;
     dateBrowsed: Date = new Date();

@@ -121,6 +121,19 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
+        public static readonly PropertyInfo<string> AllLinksProperty = RegisterProperty<string>(new PropertyInfo<string>("AllLinks", "AllLinks", string.Empty));
+        public string AllLinks
+        {
+            get
+            {
+                return GetProperty(AllLinksProperty);
+            }
+            set
+            {
+                SetProperty(AllLinksProperty, value);
+            }
+        }
+
         public static readonly PropertyInfo<string> FindOnWebProperty = RegisterProperty<string>(new PropertyInfo<string>("FindOnWeb", "FindOnWeb", string.Empty));
         public string FindOnWeb
         {

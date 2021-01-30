@@ -423,7 +423,7 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
                     this._magTopicsService.ShowingParentAndChildTopics = false;
                     this._magTopicsService.ShowingChildTopicsOnly = true;
                     this._mAGBrowserHistoryService.AddHistory(new MagBrowseHistoryItem("Go to specific Paper Id: " + result.fullRecord, "PaperDetail", result.paperId, result.fullRecord,
-                        result.abstract, result.linkedITEM_ID, result.urls, result.findOnWeb, 0, "", "", 0));
+                        result.abstract, result.linkedITEM_ID, result.allLinks, result.findOnWeb, 0, "", "", 0));
                     this._magAdvancedService.PostFetchMagPaperCalls(result, '');
                 } else {
                     this._notificationService.showMAGRunMessage('Microsoft academic could not find the paperId!');

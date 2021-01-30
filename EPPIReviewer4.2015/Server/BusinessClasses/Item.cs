@@ -555,7 +555,7 @@ namespace BusinessLibrary.BusinessClasses
             dp.BeginFetch(new SingleCriteria<ItemDocumentList, Int64>(this.ItemId));
         }
         */
-
+        
         public void EnrichWithMicrosoftAcademicData(MagPaper mp)
         {
             if (mp.OriginalTitle != null && this.Title.Length < mp.OriginalTitle.Length)
@@ -581,7 +581,7 @@ namespace BusinessLibrary.BusinessClasses
             if (mp.Publisher != null & this.Publisher.Length < mp.Publisher.Length)
                 this.Publisher = mp.Publisher;
         }
-
+        
         public static readonly PropertyInfo<Int64> ItemIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("ItemId", "ItemId"));
         [JsonProperty]
         public Int64 ItemId
