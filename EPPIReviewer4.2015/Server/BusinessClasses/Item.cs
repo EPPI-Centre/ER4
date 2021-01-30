@@ -556,6 +556,32 @@ namespace BusinessLibrary.BusinessClasses
         }
         */
 
+        public void EnrichWithMicrosoftAcademicData(MagPaper mp)
+        {
+            if (mp.OriginalTitle != null && this.Title.Length < mp.OriginalTitle.Length)
+                this.Title = mp.OriginalTitle;
+            if (mp.Abstract != null && this.Abstract.Length < mp.Abstract.Length)
+                this.Abstract = mp.Abstract;
+            if (mp.Issue != null && this.Issue.Length < mp.Issue.Length)
+                this.Issue = mp.Issue;
+            if (mp.Volume != null && this.Volume.Length < mp.Volume.Length)
+                this.Volume = mp.Volume;
+            if (this.URL == "")
+                this.URL = "https://academic.microsoft.com/paper/" + mp.PaperId.ToString();
+            if (mp.Journal != null && this.ParentTitle.Length < mp.Journal.Length)
+                this.ParentTitle = mp.Journal;
+            if (mp.Authors != null && this.Authors == "")
+                this.Authors = mp.Authors;
+            if (mp.FirstPage != null && mp.LastPage != null && this.Pages.Length < (mp.FirstPage + "-" + mp.LastPage).Length)
+                this.Pages = mp.FirstPage + "-" + mp.LastPage;
+            if (this.Year.Length == 0)
+                this.Year = mp.Year.ToString();
+            if (mp.DOI != null && this.DOI.Length < 5)
+                this.DOI = mp.DOI;
+            if (mp.Publisher != null & this.Publisher.Length < mp.Publisher.Length)
+                this.Publisher = mp.Publisher;
+        }
+
         public static readonly PropertyInfo<Int64> ItemIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("ItemId", "ItemId"));
         [JsonProperty]
         public Int64 ItemId

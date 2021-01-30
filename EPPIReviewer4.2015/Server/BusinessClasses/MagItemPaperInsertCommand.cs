@@ -401,7 +401,7 @@ namespace BusinessLibrary.BusinessClasses
             //    string[] urls = mp.URLs.Split(';');
             //    if (urls.Length > 0) tItem.Url = urls[0];
             //}
-            tItem.Url = "https://academic.microsoft.com/paper/" + mp.PaperId;
+            tItem.Url = "https://academic.microsoft.com/paper/" + mp.PaperId.ToString();
             if (mp.Publisher != null) tItem.Publisher = mp.Publisher;
             tItem.MAGManualFalseMatch = false;
             tItem.MAGManualTrueMatch = false;

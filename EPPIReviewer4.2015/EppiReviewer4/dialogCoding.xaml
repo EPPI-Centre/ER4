@@ -225,8 +225,9 @@
                 <StackPanel Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal">
                     <TextBlock Text="PaperId:" Margin="5,5,5,5" VerticalAlignment="Center"></TextBlock>
                     <TextBox Text="{Binding PaperId}" Margin="5,5,5,5" IsReadOnly="True" VerticalAlignment="Center" BorderThickness="0"></TextBox>
-                    <HyperlinkButton Content="View in the Microsoft Academic Browser" Margin="5,5,5,5" VerticalAlignment="Center" Click="HyperlinkButton_Click"></HyperlinkButton>
-                    <HyperlinkButton Content="View on the web" NavigateUri="{Binding FindOnWeb}" VerticalAlignment="Center" TargetName="_blank" Margin="5,5,5,5"></HyperlinkButton>
+                    <HyperlinkButton Content="View in the Microsoft Academic Browser" Margin="5,5,8,5" VerticalAlignment="Center" Click="HyperlinkButton_Click"></HyperlinkButton>
+                    <HyperlinkButton Content="View on the web" NavigateUri="{Binding FindOnWeb}" VerticalAlignment="Center" TargetName="_blank" Margin="5,5,8,5"></HyperlinkButton>
+                    <HyperlinkButton Content="Enrich review record with Microsoft Academic data" VerticalAlignment="Center" Margin="5,5,5,5" Click="HyperlinkButton_Click_3"></HyperlinkButton>
                 </StackPanel>
             </Grid>
         </DataTemplate>

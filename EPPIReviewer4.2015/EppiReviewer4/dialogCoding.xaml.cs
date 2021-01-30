@@ -3538,6 +3538,25 @@ namespace EppiReviewer4
             GetMagPaperListData(DataContext as Item);
         }
 
+        private void HyperlinkButton_Click_3(object sender, RoutedEventArgs e)
+        {
+            HyperlinkButton hlb = sender as HyperlinkButton;
+            if (hlb != null)
+            {
+                MagPaper mp = hlb.DataContext as MagPaper;
+                if (mp != null)
+                {
+                    Item i = this.DataContext as Item;
+                    if (i != null)
+                    {
+                        i.EnrichWithMicrosoftAcademicData(mp);
+                        NextItemAction = "Open";
+                        Saveitem();
+                    }
+                }
+            }
+        }
+
         private void cmdRobotAutoCode_Click(object sender, RoutedEventArgs e)
         {
             WindowRobots.SelectedItemDocument = (sender as Button).DataContext as ItemDocument;

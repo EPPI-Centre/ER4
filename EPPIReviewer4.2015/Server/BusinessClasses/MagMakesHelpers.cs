@@ -88,6 +88,7 @@ namespace BusinessLibrary.BusinessClasses
         {
             public Int64 JId { get; set; }
             public string JN { get; set; }
+            public string DJN { get; set; }
         }
 
         public class PaperMakesSource

@@ -658,12 +658,12 @@ namespace BusinessLibrary.BusinessClasses
             if (pm.J != null)
             {
                 returnValue.LoadProperty<Int64>(JournalIdProperty, pm.J.JId);
-                returnValue.LoadProperty<string>(JournalProperty, pm.J.JN != null ?  myTI.ToTitleCase(pm.J.JN) : "");
+                returnValue.LoadProperty<string>(JournalProperty, pm.J.DJN != null ? myTI.ToTitleCase(pm.J.DJN) : "");
             }
             if (returnValue.GetProperty(JournalProperty) == "" && pm.VFN != null)
             {
                 // get conferences (MAG puts lots of conference papers in and the conference goes in the 'journal' field)
-                returnValue.LoadProperty<string>(JournalProperty, pm.VFN);
+                returnValue.LoadProperty<string>(JournalProperty, myTI.ToTitleCase(pm.VFN));
             }
             //returnValue.LoadProperty<Int64>(ConferenceSeriesIdProperty, );
             //returnValue.LoadProperty<Int64>(ConferenceInstanceIdProperty, reader.GetInt64("ConferenceInstanceId"));
@@ -734,7 +734,7 @@ namespace BusinessLibrary.BusinessClasses
                     }
                 }
                 returnValue.LoadProperty<string>(URLsProperty, u);
-                returnValue.LoadProperty<string>(PdfLinksProperty, u);
+                returnValue.LoadProperty<string>(PdfLinksProperty, p);
             }
             if (reader != null)
             {
