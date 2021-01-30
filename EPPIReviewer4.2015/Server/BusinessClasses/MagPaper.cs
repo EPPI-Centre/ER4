@@ -305,6 +305,15 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
+        public static readonly PropertyInfo<string> AllLinksProperty = RegisterProperty<string>(new PropertyInfo<string>("AllLinks", "AllLinks", string.Empty));
+        public string AllLinks
+        {
+            get
+            {
+                return GetProperty(PdfLinksProperty) + ";" + GetProperty(URLsProperty);
+            }
+        }
+
         public static readonly PropertyInfo<Int64> LinkedITEM_IDProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("LinkedITEM_ID", "LinkedITEM_ID"));
         public Int64 LinkedITEM_ID
         {

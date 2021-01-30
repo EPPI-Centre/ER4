@@ -478,10 +478,10 @@ namespace EppiReviewer4
                     IncrementHistoryCount();
                     AddToBrowseHistory("Go to specific Paper Id: " + e2.Object.PaperId.ToString(), "PaperDetail",
                         e2.Object.PaperId, e2.Object.FullRecord, e2.Object.Abstract, e2.Object.LinkedITEM_ID,
-                        e2.Object.URLs, e2.Object.FindOnWeb, 0, "", "", 0, 0, "", 0, 0, 0);
+                        e2.Object.AllLinks, e2.Object.FindOnWeb, 0, "", "", 0, 0, "", 0, 0, 0);
                     Panes.SelectedIndex = 4;
                     ShowPaperDetailsPage(e2.Object.PaperId, e2.Object.FullRecord, e2.Object.Abstract,
-                        e2.Object.URLs, e2.Object.FindOnWeb, e2.Object.LinkedITEM_ID);
+                        e2.Object.AllLinks, e2.Object.FindOnWeb, e2.Object.LinkedITEM_ID);
                 }
                 else
                 {
@@ -990,8 +990,8 @@ namespace EppiReviewer4
             MagPaper paper = (sender as TextBlock).DataContext as MagPaper;
             IncrementHistoryCount();
             AddToBrowseHistory("Browse paper: " + paper.FullRecord, "PaperDetail", paper.PaperId, paper.FullRecord,
-                paper.Abstract, paper.LinkedITEM_ID, paper.URLs, paper.FindOnWeb, 0, "", "", 0, 0, "", 0, 0, 0);
-            ShowPaperDetailsPage(paper.PaperId, paper.FullRecord, paper.Abstract, paper.URLs,
+                paper.Abstract, paper.LinkedITEM_ID, paper.AllLinks, paper.FindOnWeb, 0, "", "", 0, 0, "", 0, 0, 0);
+            ShowPaperDetailsPage(paper.PaperId, paper.FullRecord, paper.Abstract, paper.AllLinks,
                 paper.FindOnWeb, paper.LinkedITEM_ID);
         }
 
