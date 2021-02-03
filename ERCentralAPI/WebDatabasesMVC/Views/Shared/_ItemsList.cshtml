@@ -133,6 +133,7 @@
     }
     function setPaging() {
         $("#ItemsDescr").html(CurrentItemsCriteria.description);
+        $("#ItemCount").html(ItemsListData.totalItemCount.toString() + " records");
         if (ItemsListData.pagecount > 1) {
             $("#ResultsCountPaged").html("[Total: " + ItemsListData.totalItemCount.toString() + " references]");
             $("#onlyIncluded").val(CurrentItemsCriteria.onlyIncluded.toString());
@@ -584,8 +585,10 @@
         <table width="100%">
             <tr>
                 <td width="30%">
-                    <h5 class="card-title mb-1">List references</h5>
+                    <!--<h5 class="card-title mb-1">List references</h5>-->
+                    <h5 class="card-title mb-1" id="ItemCount"></h5>
                     <h5><b id="ItemsDescr"></b></h5>
+
 
                 </td>
                 <td width="40%" style="vertical-align: bottom;text-align: center;display: none;padding-bottom:15px" id="HeaderPaged">
@@ -634,12 +637,12 @@
                             <input type="hidden" id="searchWhat" name="searchWhat" />
                             <input type="hidden" id="searchString" name="searchString" />
                         </div>
-                        <div id="ResultsCountPaged" class="my-auto">Loading...</div>
+                        <!--<div id="ResultsCountPaged" class="my-auto">Loading...</div>-->
                     </div>
                 </td>
-                <td width="40%" style="vertical-align:bottom;text-align:center; display:none; padding-bottom:15px" id="HeaderNotPaged">
+                <!--<td width="40%" style="vertical-align:bottom;text-align:center; display:none; padding-bottom:15px" id="HeaderNotPaged">
                     Loading...
-                </td>
+                </td>-->
                 <td width="30%" style="text-align:right">
 
                     <div class="d-inline-block ml-auto mr-0 border rounded">
