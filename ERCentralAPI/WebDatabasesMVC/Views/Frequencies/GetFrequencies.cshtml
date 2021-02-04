@@ -198,6 +198,7 @@
         $("#ItemsGrid").empty();
         $("#ItemsGrid").kendoGrid();
         if (AttId == -999999) {
+            AttName = 'None of the above';
             var included = $('#includedCrit').val();
             var attributeIdXAxis = $('#attributeIdXAxisCrit').val();
             var setIdXAxis = $('#setIdXAxisCrit').val();
@@ -206,7 +207,7 @@
             $.post("../ItemList/GetFreqListNoneOfTheAboveJSon"
                 , {
                     attributeIdXAxis: attributeIdXAxis, setId: setIdXAxis, included: included
-                    , onlyThisAttribute: onlyThisAttribute, webDbId: webDbId, attName: AttName.replaceAll('&#39;', '\'')
+                    , onlyThisAttribute: onlyThisAttribute, webDbId: webDbId, attName: AttName
                 }
                 , function (data, result) { BuildItems(data, result); }
             );

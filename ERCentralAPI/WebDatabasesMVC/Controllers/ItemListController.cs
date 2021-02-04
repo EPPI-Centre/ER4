@@ -213,7 +213,8 @@ namespace WebDatabasesMVC.Controllers
                     SelectionCriteria criteria = new SelectionCriteria();
                     criteria.ListType = "WebDbFrequencyNoneOfTheAbove";
                     //criteria.Description = "Listing items from \"none of the children\" of code: " + attName;
-                    criteria.Description = "Records without " + attName;
+                    //criteria.Description = "Records without " + attName;
+                    criteria.Description = attName;
                     criteria.XAxisAttributeId = attributeIdXAxis;
                     criteria.SetId = setId;
                     if (included != "")
@@ -234,7 +235,7 @@ namespace WebDatabasesMVC.Controllers
         }
         [HttpPost]
         public IActionResult GetFreqListNoneOfTheAboveJSon([FromForm] long attributeIdXAxis, int setId,
-                                                         string included, long onlyThisAttribute, int webDbId)
+                                                         string included, long onlyThisAttribute, int webDbId, string attName)
         {
             try
             {
@@ -242,6 +243,7 @@ namespace WebDatabasesMVC.Controllers
                 {
                     SelectionCriteria criteria = new SelectionCriteria();
                     criteria.ListType = "WebDbFrequencyNoneOfTheAbove";
+                    criteria.Description = attName;
                     criteria.XAxisAttributeId = attributeIdXAxis;
                     criteria.SetId = setId;
                     if (included != "")
