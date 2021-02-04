@@ -194,6 +194,7 @@
     }
 
     function GoToItemsJson(AttId, AttName = '') {
+        $("#ItemCount").html("Loading...");
         $("#ItemsGrid").empty();
         $("#ItemsGrid").kendoGrid();
         if (AttId == -999999) {

@@ -133,7 +133,7 @@
     }
     function setPaging() {
         $("#ItemsDescr").html(CurrentItemsCriteria.description);
-        $("#ItemCount").html(ItemsListData.totalItemCount.toString() + " records");
+        $("#ItemCount").html(ItemsListData.totalItemCount.toString() + (ItemsListData.totalItemCount == 1 ? " record" : " records"));
         if (ItemsListData.pagecount > 1) {
             $("#ResultsCountPaged").html("[Total: " + ItemsListData.totalItemCount.toString() + " references]");
             $("#onlyIncluded").val(CurrentItemsCriteria.onlyIncluded.toString());
@@ -192,9 +192,9 @@
             $("#PagingText").html("&nbsp;&nbsp;Page " + (ItemsListData.pageindex + 1).toString() + " of " + (ItemsListData.pagecount).toString() + "&nbsp;&nbsp;")
         }
         else {
-            if (ItemsListData.totalItemCount > 1) $("#HeaderNotPaged").html("[" + ItemsListData.totalItemCount.toString() + " references]");
-            else if (ItemsListData.totalItemCount == 1) $("#HeaderNotPaged").html("[1 reference]");
-            else $("#HeaderNotPaged").html("[No references in this list]");
+            //if (ItemsListData.totalItemCount > 1) $("#HeaderNotPaged").html("[" + ItemsListData.totalItemCount.toString() + " references]");
+            //else if (ItemsListData.totalItemCount == 1) $("#HeaderNotPaged").html("[1 reference]");
+            //else $("#HeaderNotPaged").html("[No references in this list]");
             
             $("#HeaderNotPaged").show();
             $("#WholeListToRisButton").hide();
@@ -290,8 +290,9 @@
     function PrevPage() {
         CurrentItemsCriteria.pageNumber = ItemsListData.pageindex - 1;
         console.log("PrevPage", CurrentItemsCriteria.PageNumber, CurrentItemsCriteria.pageNumber);
-        $("#ResultsCountPaged").html("Loading...");
-        $("#HeaderNotPaged").html("Loading...");
+        $("#ItemCount").html("Loading...");
+        //$("#ResultsCountPaged").html("Loading...");
+        //$("#HeaderNotPaged").html("Loading...");
         $("#ItemsGrid").empty();
         $("#ItemsGrid").kendoGrid();
         $.post("../ItemList/ListFromCritJson"
@@ -304,8 +305,9 @@
         console.log("NextPage", CurrentItemsCriteria.PageNumber, CurrentItemsCriteria.pageNumber);
         //ItemsListData.items = [];
         //$("#ItemsGrid").html("");
-        $("#ResultsCountPaged").html("Loading...");
-        $("#HeaderNotPaged").html("Loading...");
+        $("#ItemCount").html("Loading...");
+        //$("#ResultsCountPaged").html("Loading...");
+        //$("#HeaderNotPaged").html("Loading...");
         $("#ItemsGrid").empty();
         $("#ItemsGrid").kendoGrid();
 

@@ -48,6 +48,7 @@ Crosstab!
     }*@
 
     function GoToItemsJson(WithAttIds, WithSetId, WithoutAttIds, WithoutSetId, Descript) {
+        $("#ItemCount").html("Loading...");
         $("#ItemsGrid").empty();
         $("#ItemsGrid").kendoGrid();
         var pars = {
