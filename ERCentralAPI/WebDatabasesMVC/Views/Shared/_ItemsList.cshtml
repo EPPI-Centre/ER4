@@ -23,87 +23,110 @@
 
             $("#ItemsGridRoot").show();
             $("#ItemsGrid").kendoGrid({
-                rowTemplate: kendo.template($("#ItemsGridTemplate").html()),
+                //rowTemplate: kendo.template($("#ItemsGridTemplate").html()),
                 columns: [
                     {
                         field: "itemId",
                         title: "Id",
                         width: "5%",
+                        sortable: true,
                         headerAttributes: {
                             "class": "ml-1 p-1 border-bottom"
-                        }
+                        },
+                        attributes: {
+                            "class": "p-0 border-bottom small"
+                        },
+                        template:  '<form action="../ItemList/ItemDetails" method="post" class= "form-inline">'
+                                 +   '<button class="btn btn-link px-1 py-0 my-1 mx-0" type="submit"'
+                                 +       'name="itemId" value="#= itemId #">'
+                                 +       '#= itemId #'
+                                 +   '</button>'
+                                 + '</form>'
                         //,hidden: function () { return ColumnVisibility.ItemId;}
                     },
                     {
                         field: "shortTitle",
                         title: "Short title",
                         width: "10%",
+                        sortable: true,
                         headerAttributes: {
                             "class": "p-1 border-bottom"
+                        },
+                        attributes: {
+                            "class": "px-1 py-0 border-bottom small"
                         }
                     },
                     {
                         field: "title",
                         title: "Title",
                         width: "50%",
-                        minResizableWidth: 100,
+                        sortable: true,
                         headerAttributes: {
                             "class": "p-1 border-bottom"
-                        }
+                        },
+                        attributes: {
+                            "class": "p-0 border-bottom"
+                        },
+                        template: '<form action="../ItemList/ItemDetails" method="post" class= "form-inline">'
+                            +   '<button class="text-left btn-link px-1 py-0 my-1 mx-0" type="submit" style="overflow: !important;"'
+                            +    'name="itemId" value="#= itemId #">'
+                            +    '#= title #'
+                            +   '</button>'
+                            +  '</form>'
                     },
                     {
                         field: "year",
                         title: "Year",
                         width: "5%",
+                        sortable: true,
                         headerAttributes: {
                             "class": "p-1 border-bottom"
+                        },
+                        attributes: {
+                            "class": "px-1 py-0 border-bottom small"
                         }
                     },
                     {
                         field: "authors",
                         title: "Authors",
-                        width: "10%",
+                        width: "14%",
+                        sortable: true,
                         headerAttributes: {
                             "class": "p-1 border-bottom"
+                        },
+                        attributes: {
+                            "class": "px-1 py-0 border-bottom small"
                         }
                     },
                     {
                         field: "parentTitle",
                         title: "Journal",
-                        width: "10%",
+                        width: "16%",
+                        sortable: true,
                         headerAttributes: {
                             "class": "p-1 border-bottom"
+                        },
+                        attributes: {
+                            "class": "px-1 py-0 border-bottom small"
                         }
                     }],
                 dataSource: ItemsListKendoDataSource,
                 dataBound: function (e) {
                     console.log("dataBound");
                     PrepareItemsHeader();
-                    //var grid = e.sender;
-                    //var columns = grid.columns;
-                    //columns.forEach(function (e, i) {
-                    //    if (e.hidden === false) {
-                    //        grid.hideColumn(e);
-                    //    }
-                    //});
-
+                    
                 },
                 toolbar: ["search", "excel"],
                 resizable: true,
                 toolbar: [
                     { template: kendo.template($("#gridToolbarTemplate").html()) }
                 ],
-                sortable: false,
+                sortable: true,
                 height: gridHeightCSS,
 
                 //mobile: "phone",
                 //search: {
                 //    fields: ["title", "year", "itemId", "shortTitle", "authors", "journal"]
-                //}
-                //,
-                //dataBinding: function (e) {
-                //    console.log("dataBinding", e);
-                //    setColumns();
                 //}
             });
         }
@@ -231,61 +254,50 @@
         setColumns();
     };
     function setColumns() {
-        console.log("setColumns", ColumnVisibility);
+        //console.log("setColumns", ColumnVisibility);
         var grid = $('#ItemsGrid').data('kendoGrid');
         //console.log("id");
         if (ColumnVisibility.ItemId) {
             grid.showColumn(0);
         } else {
+            //console.log("col hidden2:", grid.columns[0].field);
             grid.hideColumn(0);
-            grid.columns[0].hidden = true;
         }
         //console.log("st");
         if (ColumnVisibility.ShortTitle) {
             grid.showColumn(1);
         } else {
+            //console.log("col hidden2:", grid.columns[1].field);
             grid.hideColumn(1);
         }
         //console.log("t");
         if (ColumnVisibility.Title) {
             grid.showColumn(2);
         } else {
+            //console.log("col hidden2:", grid.columns[2].field);
             grid.hideColumn(2);
         }
         //console.log("y");
         if (ColumnVisibility.Year) {
             grid.showColumn(3);
         } else {
+            //console.log("col hidden2:", grid.columns[3].field);
             grid.hideColumn(3);
         }
         //console.log("au", grid.columns[4]);
         if (ColumnVisibility.Authors) {
             grid.showColumn(4);
         } else {
+            //console.log("col hidden2:", grid.columns[4].field);
             grid.hideColumn(4);
         }
         //console.log("j");
         if (ColumnVisibility.Journal) {
             grid.showColumn(5);
         } else {
+            //console.log("col hidden2:", grid.columns[5].field);
             grid.hideColumn(5);
         }
-        //var columns = grid.columns;
-        //columns.forEach(function (e, i) {
-        //    if (e.hidden === false) {
-        //        grid.hideColumn(e);
-        //    }
-        //});
-        //grid.unbind("dataBound");
-        //grid.setOptions({
-        //    columns: grid.getOptions().columns
-        //});
-        //console.log("id is hidden", grid.getOptions().columns[0].hidden);
-        //console.log("id is Authors", grid.getOptions().columns[4].hidden);
-        //grid.bind("dataBound", function (e) {
-        //    console.log("dataBound");
-        //    PrepareItemsHeader();
-        //})
     }
     function PrevPage() {
         CurrentItemsCriteria.pageNumber = ItemsListData.pageindex - 1;
