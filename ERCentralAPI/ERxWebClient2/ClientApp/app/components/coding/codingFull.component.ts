@@ -428,7 +428,7 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
         this.item = this.PriorityScreeningService.CurrentItem;
         //this.itemID = this.item.itemId;
         this.GetItemCoding();
-        if (this.tabstrip) this.tabstrip.selectTab(0);
+        this.CheckChangeActiveTabOnItemChange();
     }
     private GetItemCoding() {
         console.log('Getting item coding for itemID: ' + this.itemID);
@@ -667,12 +667,22 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
         this.ReviewSetsService.ExecuteItemAttributeSaveCommand(cmd, this.ItemCodingService.ItemCodingList);
     }
     ItemChanged() {
-        if (this.tabstrip) this.tabstrip.selectTab(0);
+        this.CheckChangeActiveTabOnItemChange();
         this.WipeHighlights();
 		this.SetHighlights();
 		this.TimePointsComp.Clear();
 		this.ArmDetailsComp.Clear();
 		
+    }
+    CheckChangeActiveTabOnItemChange() {
+        if (this.tabstrip) {
+            if (this.HelpAndFeebackContext != "itemdetails\\Microsoft Academic") {
+                //we don't want to change tab when we're in the MAG tab!
+                this.tabstrip.selectTab(0);
+                //alternative is to change tab only in case we're in the PDF tab, because in this case we really have to!
+                //something like: if (this.HelpAndFeebackContext == "itemdetails\\pdf") this.tabstrip.selectTab(0);
+            }
+        }
     }
     WipeHighlights() {
         if (this.ItemDetailsCompRef) this.ItemDetailsCompRef.WipeHighlights();
