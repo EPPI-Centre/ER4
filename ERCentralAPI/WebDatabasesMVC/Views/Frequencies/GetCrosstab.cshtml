@@ -48,6 +48,7 @@ Crosstab!
     }*@
 
     function GoToItemsJson(WithAttIds, WithSetId, WithoutAttIds, WithoutSetId, Descript) {
+        $("#ItemCount").html("Loading...");
         $("#ItemsGrid").empty();
         $("#ItemsGrid").kendoGrid();
         var pars = {
@@ -259,7 +260,7 @@ Crosstab!
                                                     string with = row.AttributeId.ToString() + "," + Model.ColumnAttIDs[i].ToString();
                                                     string withSets = Model.SetIdY.ToString() + "," + Model.SetIdX.ToString();
                                                     //string descript = "Listing crosstab result for the codes (x,y): " + Model.ColumnAttNames[i].Replace("'", "&#39;") + ", " + row.AttributeName.Replace("'", "&#39;");
-                                                    string descript = Model.ColumnAttNames[i].Replace("'", "&#39;") + " <AND> " + row.AttributeName.Replace("'", "&#39;");
+                                                    string descript = Model.ColumnAttNames[i].Replace("'", "&#39;") + " [AND] " + row.AttributeName.Replace("'", "&#39;");
 
                                                     <th style="background-color:rgba(211, 211, 255, 0.20)">
                                                         <a href="javascript:GoToItemsJson('@with', '@withSets', '', '', '@descript')">@row.Counts[i]</a>
@@ -355,7 +356,7 @@ Crosstab!
                                                         string with = row.AttributeId.ToString() + "," + Model.ColumnAttIDs[i].ToString();
                                                         string withSets = Model.SetIdY.ToString() + "," + Model.SetIdX.ToString();
                                                         //string descript = "Listing crosstab result for the codes (x,y): " + Model.ColumnAttNames[i].Replace("'", "&#39;") + ", " + row.AttributeName.Replace("'", "&#39;");
-                                                        string descript = Model.ColumnAttNames[i].Replace("'", "&#39;") + " <AND> " + row.AttributeName.Replace("'", "&#39;");
+                                                        string descript = Model.ColumnAttNames[i].Replace("'", "&#39;") + " [AND] " + row.AttributeName.Replace("'", "&#39;");
 
                                                         <th style="text-align:center;vertical-align:middle">
                                                             <a href="javascript:GoToItemsJson('@with', '@withSets', '', '', '@descript')">

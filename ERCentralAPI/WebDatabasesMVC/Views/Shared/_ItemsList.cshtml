@@ -23,87 +23,116 @@
 
             $("#ItemsGridRoot").show();
             $("#ItemsGrid").kendoGrid({
-                rowTemplate: kendo.template($("#ItemsGridTemplate").html()),
+                //rowTemplate: kendo.template($("#ItemsGridTemplate").html()),
                 columns: [
                     {
                         field: "itemId",
                         title: "Id",
                         width: "5%",
+                        sortable: true,
                         headerAttributes: {
                             "class": "ml-1 p-1 border-bottom"
-                        }
+                        },
+                        attributes: {
+                            "class": "p-0 border-bottom small"
+                        },
+                        template:  '<form action="../ItemList/ItemDetails" method="post" class= "form-inline">'
+                                 +   '<button class="btn btn-link px-1 py-0 my-1 mx-0" type="submit"'
+                                 +       'name="itemId" value="#= itemId #">'
+                                 +       '#= itemId #'
+                                 +   '</button>'
+                                 + '</form>'
                         //,hidden: function () { return ColumnVisibility.ItemId;}
                     },
                     {
                         field: "shortTitle",
                         title: "Short title",
                         width: "10%",
+                        sortable: true,
                         headerAttributes: {
                             "class": "p-1 border-bottom"
+                        },
+                        attributes: {
+                            "class": "px-1 py-0 border-bottom small"
                         }
                     },
                     {
                         field: "title",
                         title: "Title",
                         width: "50%",
-                        minResizableWidth: 100,
+                        sortable: true,
                         headerAttributes: {
                             "class": "p-1 border-bottom"
-                        }
+                        },
+                        attributes: {
+                            "class": "p-0 border-bottom"
+                        },
+                        template: '<form action="../ItemList/ItemDetails" method="post" class= "form-inline">'
+                            +   '<button class="text-left btn-link px-1 py-0 my-1 mx-0" type="submit" style="overflow: !important;"'
+                            +    'name="itemId" value="#= itemId #">'
+                            +    '#= title #'
+                            +   '</button>'
+                            +  '</form>'
                     },
                     {
                         field: "year",
                         title: "Year",
                         width: "5%",
+                        sortable: true,
                         headerAttributes: {
                             "class": "p-1 border-bottom"
+                        },
+                        attributes: {
+                            "class": "px-1 py-0 border-bottom small"
                         }
                     },
                     {
                         field: "authors",
                         title: "Authors",
-                        width: "10%",
+                        width: "14%",
+                        sortable: true,
                         headerAttributes: {
                             "class": "p-1 border-bottom"
+                        },
+                        attributes: {
+                            "class": "px-1 py-0 border-bottom small"
                         }
                     },
                     {
                         field: "parentTitle",
                         title: "Journal",
-                        width: "10%",
+                        width: "16%",
+                        sortable: true,
                         headerAttributes: {
                             "class": "p-1 border-bottom"
+                        },
+                        attributes: {
+                            "class": "px-1 py-0 border-bottom small"
                         }
                     }],
                 dataSource: ItemsListKendoDataSource,
                 dataBound: function (e) {
                     console.log("dataBound");
                     PrepareItemsHeader();
-                    //var grid = e.sender;
-                    //var columns = grid.columns;
-                    //columns.forEach(function (e, i) {
-                    //    if (e.hidden === false) {
-                    //        grid.hideColumn(e);
-                    //    }
-                    //});
-
+                    
                 },
                 toolbar: ["search", "excel"],
                 resizable: true,
                 toolbar: [
                     { template: kendo.template($("#gridToolbarTemplate").html()) }
                 ],
-                sortable: false,
+                sortable: true,
                 height: gridHeightCSS,
-
-                //mobile: "phone",
+                sort: function(e) {
+                    console.log(e.sort.field);
+                    if (e.sort.dir != undefined) {
+                        $("#SortWarning").css("display", "inline");
+                    }
+                    else $("#SortWarning").css("display", "none");
+                }
+                //mobile: "phone", 
                 //search: {
                 //    fields: ["title", "year", "itemId", "shortTitle", "authors", "journal"]
-                //}
-                //,
-                //dataBinding: function (e) {
-                //    console.log("dataBinding", e);
-                //    setColumns();
                 //}
             });
         }
@@ -133,7 +162,9 @@
     }
     function setPaging() {
         $("#ItemsDescr").html(CurrentItemsCriteria.description);
+        $("#ItemCount").html(ItemsListData.totalItemCount.toString() + (ItemsListData.totalItemCount == 1 ? " record" : " records"));
         if (ItemsListData.pagecount > 1) {
+            $("#ResultsCountPaged").html("[Total: " + ItemsListData.totalItemCount.toString() + " references]");
             $("#onlyIncluded").val(CurrentItemsCriteria.onlyIncluded.toString());
             $("#showDeleted").val(CurrentItemsCriteria.shoshowDeleted);
             $("#sourceId").val(CurrentItemsCriteria.sourceId);
@@ -188,7 +219,12 @@
                 np.removeAttr("disabled");
             }
             $("#PagingText").html("&nbsp;&nbsp;Page " + (ItemsListData.pageindex + 1).toString() + " of " + (ItemsListData.pagecount).toString() + "&nbsp;&nbsp;")
-        } else {
+        }
+        else {
+            //if (ItemsListData.totalItemCount > 1) $("#HeaderNotPaged").html("[" + ItemsListData.totalItemCount.toString() + " references]");
+            //else if (ItemsListData.totalItemCount == 1) $("#HeaderNotPaged").html("[1 reference]");
+            //else $("#HeaderNotPaged").html("[No references in this list]");
+            
             $("#HeaderNotPaged").show();
             $("#WholeListToRisButton").hide();
             $("#HeaderPaged").hide();
@@ -224,65 +260,57 @@
         setColumns();
     };
     function setColumns() {
-        console.log("setColumns", ColumnVisibility);
+        //console.log("setColumns", ColumnVisibility);
         var grid = $('#ItemsGrid').data('kendoGrid');
         //console.log("id");
         if (ColumnVisibility.ItemId) {
             grid.showColumn(0);
         } else {
+            //console.log("col hidden2:", grid.columns[0].field);
             grid.hideColumn(0);
-            grid.columns[0].hidden = true;
         }
         //console.log("st");
         if (ColumnVisibility.ShortTitle) {
             grid.showColumn(1);
         } else {
+            //console.log("col hidden2:", grid.columns[1].field);
             grid.hideColumn(1);
         }
         //console.log("t");
         if (ColumnVisibility.Title) {
             grid.showColumn(2);
         } else {
+            //console.log("col hidden2:", grid.columns[2].field);
             grid.hideColumn(2);
         }
         //console.log("y");
         if (ColumnVisibility.Year) {
             grid.showColumn(3);
         } else {
+            //console.log("col hidden2:", grid.columns[3].field);
             grid.hideColumn(3);
         }
         //console.log("au", grid.columns[4]);
         if (ColumnVisibility.Authors) {
             grid.showColumn(4);
         } else {
+            //console.log("col hidden2:", grid.columns[4].field);
             grid.hideColumn(4);
         }
         //console.log("j");
         if (ColumnVisibility.Journal) {
             grid.showColumn(5);
         } else {
+            //console.log("col hidden2:", grid.columns[5].field);
             grid.hideColumn(5);
         }
-        //var columns = grid.columns;
-        //columns.forEach(function (e, i) {
-        //    if (e.hidden === false) {
-        //        grid.hideColumn(e);
-        //    }
-        //});
-        //grid.unbind("dataBound");
-        //grid.setOptions({
-        //    columns: grid.getOptions().columns
-        //});
-        //console.log("id is hidden", grid.getOptions().columns[0].hidden);
-        //console.log("id is Authors", grid.getOptions().columns[4].hidden);
-        //grid.bind("dataBound", function (e) {
-        //    console.log("dataBound");
-        //    PrepareItemsHeader();
-        //})
     }
     function PrevPage() {
         CurrentItemsCriteria.pageNumber = ItemsListData.pageindex - 1;
         console.log("PrevPage", CurrentItemsCriteria.PageNumber, CurrentItemsCriteria.pageNumber);
+        $("#ItemCount").html("Loading...");
+        //$("#ResultsCountPaged").html("Loading...");
+        //$("#HeaderNotPaged").html("Loading...");
         $("#ItemsGrid").empty();
         $("#ItemsGrid").kendoGrid();
         $.post("../ItemList/ListFromCritJson"
@@ -295,7 +323,9 @@
         console.log("NextPage", CurrentItemsCriteria.PageNumber, CurrentItemsCriteria.pageNumber);
         //ItemsListData.items = [];
         //$("#ItemsGrid").html("");
-
+        $("#ItemCount").html("Loading...");
+        //$("#ResultsCountPaged").html("Loading...");
+        //$("#HeaderNotPaged").html("Loading...");
         $("#ItemsGrid").empty();
         $("#ItemsGrid").kendoGrid();
 
@@ -575,61 +605,64 @@
         <table width="100%">
             <tr>
                 <td width="30%">
-                    <h5 class="card-title mb-3">List records</h5>
+                    <!--<h5 class="card-title mb-1">List references</h5>-->
+                    <h5 class="card-title mb-1" id="ItemCount"></h5>
                     <h5><b id="ItemsDescr"></b></h5>
+
 
                 </td>
                 <td width="40%" style="vertical-align: bottom;text-align: center;display: none;padding-bottom:15px" id="HeaderPaged">
-
-                    <div class="form-inline" id="ListPagingForm">
-                        <button id="PreviousPage"
-                                class="btn btn-round btn-outline-primary px-1 py-0 m-1"
-                                style="width:90px" onclick="PrevPage()"
-                                name="PageNumber" value="0">
-                            Previous
-                        </button>
-                        <div class="my-auto" id="PagingText"></div>
-                        <button id="NextPage"
-                                class="btn btn-round btn-outline-primary px-1 py-0 m-1"
-                                style="width:90px" onclick="NextPage()"
-                                name="PageNumber" value="0">
-                            Next
-                        </button>
-                        <input type="hidden" id="onlyIncluded" name="onlyIncluded" />
-                        <input type="hidden" id="showDeleted" name="showDeleted" />
-                        <input type="hidden" id="sourceId" name="sourceId" />
-                        <input type="hidden" id="searchId" name="searchId" />
-                        <input type="hidden" id="xAxisSetId" name="xAxisSetId" />
-                        <input type="hidden" id="xAxisAttributeId" name="xAxisAttributeId" />
-                        <input type="hidden" id="yAxisSetId" name="yAxisSetId" />
-                        <input type="hidden" id="yAxisAttributeId" name="yAxisAttributeId" />
-                        <input type="hidden" id="filterSetId" name="filterSetId" />
-                        <input type="hidden" id="filterAttributeId" name="filterAttributeId" />
-                        <input type="hidden" id="attributeSetIdList" name="attributeSetIdList" />
-                        <input type="hidden" id="listType" name="listType" />
-                        <input type="hidden" id="pageNumber" name="pageNumber" />
-                        <input type="hidden" id="pageSize" name="pageSize" />
-                        <input type="hidden" id="workAllocationId" name="workAllocationId" />
-                        <input type="hidden" id="magSimulationId" name="magSimulationId" />
-                        <input type="hidden" id="comparisonId" name="comparisonId" />
-                        <input type="hidden" id="description" name="description" />
-                        <input type="hidden" id="contactId" name="contactId" />
-                        <input type="hidden" id="setId" name="setId" />
-                        <input type="hidden" id="showInfoColumn" name="showInfoColumn" />
-                        <input type="hidden" id="showScoreColumn" name="showScoreColumn" />
-                        <input type="hidden" id="webDbId" name="webDbId" />
-                        <input type="hidden" id="withAttributesIds" name="withAttributesIds" />
-                        <input type="hidden" id="withSetIdsList" name="withSetIdsList" />
-                        <input type="hidden" id="withOutAttributesIdsList" name="withOutAttributesIdsList" />
-                        <input type="hidden" id="withOutSetIdsList" name="withOutSetIdsList" />
-                        <input type="hidden" id="searchWhat" name="searchWhat" />
-                        <input type="hidden" id="searchString" name="searchString" />
+                    <div class="mx-auto row justify-content-center">
+                        <div class="form-inline" id="ListPagingForm">
+                            <button id="PreviousPage"
+                                    class="btn btn-round btn-outline-primary px-1 py-0 m-1"
+                                    style="width:90px" onclick="PrevPage()"
+                                    name="PageNumber" value="0">
+                                Previous
+                            </button>
+                            <div class="my-auto" id="PagingText"></div>
+                            <button id="NextPage"
+                                    class="btn btn-round btn-outline-primary px-1 py-0 m-1"
+                                    style="width:90px" onclick="NextPage()"
+                                    name="PageNumber" value="0">
+                                Next
+                            </button>
+                            <input type="hidden" id="onlyIncluded" name="onlyIncluded" />
+                            <input type="hidden" id="showDeleted" name="showDeleted" />
+                            <input type="hidden" id="sourceId" name="sourceId" />
+                            <input type="hidden" id="searchId" name="searchId" />
+                            <input type="hidden" id="xAxisSetId" name="xAxisSetId" />
+                            <input type="hidden" id="xAxisAttributeId" name="xAxisAttributeId" />
+                            <input type="hidden" id="yAxisSetId" name="yAxisSetId" />
+                            <input type="hidden" id="yAxisAttributeId" name="yAxisAttributeId" />
+                            <input type="hidden" id="filterSetId" name="filterSetId" />
+                            <input type="hidden" id="filterAttributeId" name="filterAttributeId" />
+                            <input type="hidden" id="attributeSetIdList" name="attributeSetIdList" />
+                            <input type="hidden" id="listType" name="listType" />
+                            <input type="hidden" id="pageNumber" name="pageNumber" />
+                            <input type="hidden" id="pageSize" name="pageSize" />
+                            <input type="hidden" id="workAllocationId" name="workAllocationId" />
+                            <input type="hidden" id="magSimulationId" name="magSimulationId" />
+                            <input type="hidden" id="comparisonId" name="comparisonId" />
+                            <input type="hidden" id="description" name="description" />
+                            <input type="hidden" id="contactId" name="contactId" />
+                            <input type="hidden" id="setId" name="setId" />
+                            <input type="hidden" id="showInfoColumn" name="showInfoColumn" />
+                            <input type="hidden" id="showScoreColumn" name="showScoreColumn" />
+                            <input type="hidden" id="webDbId" name="webDbId" />
+                            <input type="hidden" id="withAttributesIds" name="withAttributesIds" />
+                            <input type="hidden" id="withSetIdsList" name="withSetIdsList" />
+                            <input type="hidden" id="withOutAttributesIdsList" name="withOutAttributesIdsList" />
+                            <input type="hidden" id="withOutSetIdsList" name="withOutSetIdsList" />
+                            <input type="hidden" id="searchWhat" name="searchWhat" />
+                            <input type="hidden" id="searchString" name="searchString" />
+                        </div>
+                        <!--<div id="ResultsCountPaged" class="my-auto">Loading...</div>-->
                     </div>
-
                 </td>
-                <td width="40%" style="vertical-align:bottom;text-align:center; display:none; padding-bottom:15px" id="HeaderNotPaged">
-                    Page 1 of 1
-                </td>
+                <!--<td width="40%" style="vertical-align:bottom;text-align:center; display:none; padding-bottom:15px" id="HeaderNotPaged">
+                    Loading...
+                </td>-->
                 <td width="30%" style="text-align:right">
 
                     <div class="d-inline-block ml-auto mr-0 border rounded">
@@ -696,9 +729,11 @@
         </a>
 
         <div class="alert-danger ml-1" id="ExportToRisProgress" style="display: none;">
-            Exporting to RIS: page <span id="ExportToRisProgressN"></span> of Model.items.PageCount
+            Exporting to RIS: page <span id="ExportToRisProgressN"></span> of 0
         </div>
-
+        <div class="alert-danger ml-auto mr-1 small px-1" id="SortWarning" style="display: none;">
+            <span class="k-icon k-i-warning mb-1"></span> Sorting only applies to <strong>this page</strong>!
+        </div>
         <span class="k-textbox k-grid-search k-display-flex m-0 p-0 small">
             <input autocomplete="off" placeholder="Filter..." title="Filter..." class="k-input px-1">
             <span class="k-input-icon">
@@ -706,38 +741,5 @@
             </span>
         </span>
     </script>
-    <script id="ItemsGridTemplate" type="text/x-kendo-tmpl">
-        <table>
-            <tr class="border border-bottom ">
-                <td class="px-1 py-0 border-bottom small ">
-                    <form action="../ItemList/ItemDetails" method="post" class="form-inline">
-                        <button class="btn btn-link px-1 py-0 my-1 mx-0" type="submit"
-                                name="itemId" value="#= itemId #">
-                            #= itemId #
-                        </button>
-                    </form>
-                </td>
-                <td class="px-1 py-0 border-bottom small ">
-                    #= shortTitle #
-                </td>
-                <td class="px-1 py-0 border-bottom ">
-                    <form action="../ItemList/ItemDetails" method="post" class="form-inline">
-                        <button class="text-left btn-link px-1 py-0 my-1 mx-0" type="submit" style="overflow: !important;"
-                                name="itemId" value="#= itemId #">
-                            #= title #
-                        </button>
-                    </form>
-                </td>
-                <td class="px-1 py-0 border-bottom small ">
-                    #= year #
-                </td>
-                <td class="px-1 py-0 border-bottom small ">
-                    #= authors #
-                </td>
-                <td class="px-1 py-0 border-bottom small ">
-                    #= parentTitle #
-                </td>
-            </tr>
-        </table>
-    </script>
+    
 </div>

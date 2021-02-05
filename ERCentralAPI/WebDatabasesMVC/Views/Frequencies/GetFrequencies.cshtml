@@ -118,6 +118,7 @@
     }
 
     function GoToListPie(dataItem) {
+        $("#ItemCount").html("Loading...");
         $("#ItemsGrid").empty();
         $("#ItemsGrid").kendoGrid();
         if (dataItem.dataItem.attributeId == -999999) {
@@ -157,6 +158,7 @@
     }
 
     function GoToListBar(dataItem) {
+        $("#ItemCount").html("Loading...");
         $("#ItemsGrid").empty();
         $("#ItemsGrid").kendoGrid();
         if (dataItem.dataItem.attributeId == -999999) {
@@ -194,9 +196,11 @@
     }
 
     function GoToItemsJson(AttId, AttName = '') {
+        $("#ItemCount").html("Loading...");
         $("#ItemsGrid").empty();
         $("#ItemsGrid").kendoGrid();
         if (AttId == -999999) {
+            AttName = 'None of the above';
             var included = $('#includedCrit').val();
             var attributeIdXAxis = $('#attributeIdXAxisCrit').val();
             var setIdXAxis = $('#setIdXAxisCrit').val();
@@ -205,7 +209,7 @@
             $.post("../ItemList/GetFreqListNoneOfTheAboveJSon"
                 , {
                     attributeIdXAxis: attributeIdXAxis, setId: setIdXAxis, included: included
-                    , onlyThisAttribute: onlyThisAttribute, webDbId: webDbId, attName: AttName.replaceAll('&#39;', '\'')
+                    , onlyThisAttribute: onlyThisAttribute, webDbId: webDbId, attName: AttName
                 }
                 , function (data, result) { BuildItems(data, result); }
             );
