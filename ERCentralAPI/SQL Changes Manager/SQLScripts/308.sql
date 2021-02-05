@@ -11,7 +11,7 @@ GO
 -- Create date: 
 -- Description:	Get information - last update and whether MAG is available
 -- =============================================
-create PROCEDURE [dbo].[st_MagCurrentInfoList] 
+CREATE OR ALTER PROCEDURE [dbo].[st_MagCurrentInfoList] 
 	-- Add the parameters for the stored procedure here
 	
 AS
@@ -122,7 +122,7 @@ GO
 -- Create date: 
 -- Description:	Get information - last update and whether MAG is available
 -- =============================================
-CREATE   PROCEDURE [dbo].[st_MagCurrentInfoDelete] 
+CREATE OR ALTER  PROCEDURE [dbo].[st_MagCurrentInfoDelete] 
 	-- Add the parameters for the stored procedure here
 
 	@MAG_CURRENT_INFO_ID INT
