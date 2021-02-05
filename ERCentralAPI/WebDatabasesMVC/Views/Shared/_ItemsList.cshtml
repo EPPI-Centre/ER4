@@ -123,8 +123,14 @@
                 ],
                 sortable: true,
                 height: gridHeightCSS,
-
-                //mobile: "phone",
+                sort: function(e) {
+                    console.log(e.sort.field);
+                    if (e.sort.dir != undefined) {
+                        $("#SortWarning").css("display", "inline");
+                    }
+                    else $("#SortWarning").css("display", "none");
+                }
+                //mobile: "phone", 
                 //search: {
                 //    fields: ["title", "year", "itemId", "shortTitle", "authors", "journal"]
                 //}
@@ -723,9 +729,11 @@
         </a>
 
         <div class="alert-danger ml-1" id="ExportToRisProgress" style="display: none;">
-            Exporting to RIS: page <span id="ExportToRisProgressN"></span> of Model.items.PageCount
+            Exporting to RIS: page <span id="ExportToRisProgressN"></span> of 0
         </div>
-
+        <div class="alert-danger ml-auto mr-1 small px-1" id="SortWarning" style="display: none;">
+            <span class="k-icon k-i-warning mb-1"></span> Sorting only applies to <strong>this page</strong>!
+        </div>
         <span class="k-textbox k-grid-search k-display-flex m-0 p-0 small">
             <input autocomplete="off" placeholder="Filter..." title="Filter..." class="k-input px-1">
             <span class="k-input-icon">
@@ -733,38 +741,5 @@
             </span>
         </span>
     </script>
-    <script id="ItemsGridTemplate" type="text/x-kendo-tmpl">
-        <table>
-            <tr class="border border-bottom ">
-                <td class="px-1 py-0 border-bottom small ">
-                    <form action="../ItemList/ItemDetails" method="post" class="form-inline">
-                        <button class="btn btn-link px-1 py-0 my-1 mx-0" type="submit"
-                                name="itemId" value="#= itemId #">
-                            #= itemId #
-                        </button>
-                    </form>
-                </td>
-                <td class="px-1 py-0 border-bottom small ">
-                    #= shortTitle #
-                </td>
-                <td class="px-1 py-0 border-bottom ">
-                    <form action="../ItemList/ItemDetails" method="post" class="form-inline">
-                        <button class="text-left btn-link px-1 py-0 my-1 mx-0" type="submit" style="overflow: !important;"
-                                name="itemId" value="#= itemId #">
-                            #= title #
-                        </button>
-                    </form>
-                </td>
-                <td class="px-1 py-0 border-bottom small ">
-                    #= year #
-                </td>
-                <td class="px-1 py-0 border-bottom small ">
-                    #= authors #
-                </td>
-                <td class="px-1 py-0 border-bottom small ">
-                    #= parentTitle #
-                </td>
-            </tr>
-        </table>
-    </script>
+    
 </div>
