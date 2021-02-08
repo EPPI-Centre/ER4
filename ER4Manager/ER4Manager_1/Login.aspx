@@ -72,7 +72,7 @@
                 <tr>
                     <td style="background-color: #99ccff; background-image: url('Images/Web2strip3.gif');">
                         
-                            If you already have an EPPI-Reviewer 4 account please click on <b>Login</b>.<br />
+                            <span style="color: #FFFFFF">If you already have an EPPI-Reviewer 4 account please click on <b>Login</b>.</span><br />
                             <br />
                             <asp:Button ID="cmdGoToLoginScreen" runat="server" 
                                 onclick="cmdGoToLoginScreen_Click" Text="Login" />
@@ -115,7 +115,7 @@
                 <tr>
                     <td style="background-image: url('Images/Web2strip3.gif');">
 
-                        If you do not have an EPPI-Reviewer 4 account you can create one by clicking on <b>New account</b>.<br />
+                        <span style="color: #FFFFFF">If you do not have an EPPI-Reviewer 4 account you can create one by clicking on <b>New account</b>.</span><br />
                         <br />
                         <asp:Button ID="cmdNewAccountScreen0" runat="server" 
                             onclick="cmdNewAccountScreen_Click" Text="New account" Enabled="False" />
