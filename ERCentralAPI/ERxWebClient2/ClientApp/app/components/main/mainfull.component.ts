@@ -669,23 +669,31 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         else {
             const SetA = this.reviewSetsService.selectedNode as SetAttribute;
             if (!SetA) return;
-            else {
-                if (IsBulkAssign
-					&& this.reviewSetsService.selectedNode) {
+            else if (this.reviewSetsService.selectedNode) {
+                let encoded = Helpers.htmlEncode(this.reviewSetsService.selectedNode.name);
+                //return doc.documentElement.textContent;
+                if (IsBulkAssign) {
                     this.ConfirmationDialogService.confirm("Assign selected ("
-                        + this.ItemListService.SelectedItems.length + ") items ? ", "Are you sure you want to assign all selected items to this ("
-                        + this.reviewSetsService.selectedNode.name + ") code?", false, '')
+                        + this.ItemListService.SelectedItems.length + ") items ? "
+                        , "Are you sure you want to assign all selected items (<strong>"
+                        + this.ItemListService.SelectedItems.length + "</strong>) to this code?<br>"
+                        + "<div class='w-100 p-0 mx-0 my-2 text-center'><strong class='border mx-auto px-1 rounded border-success d-inline-block'>"
+                        + encoded + "</strong></div>"
+                        , false, '')
                         .then((confirm: any) => {
                             if (confirm) {
                                 this.BulkAssingCodes(SetA.attribute_id, SetA.set_id);
                             }
                         });
                 }
-                else if (!IsBulkAssign
-                    && this.reviewSetsService.selectedNode) {
+                else if (!IsBulkAssign) {
                     this.ConfirmationDialogService.confirm("Remove selected ("
-                        + this.ItemListService.SelectedItems.length + ") items?", "Are you sure you want to remove all selected items to this ("
-						+ this.reviewSetsService.selectedNode.name + ") code?", false, '')
+                        + this.ItemListService.SelectedItems.length + ") items?"
+                        , "Are you sure you want to remove all selected items (<strong>"
+                        + this.ItemListService.SelectedItems.length + "</strong>) from this code?<br>"
+                        + "<div class='w-100 p-0 mx-0 my-2 text-center'><strong class='border mx-auto px-1 rounded border-success d-inline-block'>"
+                        + encoded + "</strong></div>"
+                        , false, '')
                         .then((confirm: any) => {
                             if (confirm) {
                                 this.BulkDeleteCodes(SetA.attribute_id, SetA.set_id);
