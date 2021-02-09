@@ -88,18 +88,21 @@ namespace WebDatabasesMVC.Controllers
                             } 
                             else
                             {
-                                return BadRequest();
+                                //return BadRequest();
+                                return Redirect("~/Login/Logout");
                             }
                         }
                         else
                         {
-                            return BadRequest();
+                            //return BadRequest("test");
+                            return Redirect("~/Login/Logout");
                         }
                         
                     }
                 }
-                else return BadRequest();
-                
+                //else return BadRequest();
+                else return Redirect("~/Login/Logout");
+
             }
             catch (Exception e)
             {
