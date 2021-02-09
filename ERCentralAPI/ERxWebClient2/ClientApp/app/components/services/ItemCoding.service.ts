@@ -717,7 +717,7 @@ export class ItemCodingService extends BusyAwareService {
         return retVal + "</table>";
     }
     private GetOutcomeHeaders(o: Outcome): string {
-        let retVal = "<tr bgcolor='silver'><td>Title</td><td>Description</td><td>Timepoint</td><td>Outcome</td><td>Intervention</td><td>Control</td><td>Type</td>";
+        let retVal = "<tr bgcolor='silver'><td>Title</td><td>Description</td><td>Timepoint</td><td>Outcome</td><td>Intervention</td><td>Control</td><td>Arms</td><td>Type</td>";
         switch (o.outcomeTypeId) {
             case 0: // manual entry
                 retVal += "<td>SMD</td><td>SE</td><td>r</td><td>SE</td><td>Odds ratio</td><td>SE</td><td>Risk ratio</td><td>SE</td><td>Risk difference</td><td>SE</td><td>Mean difference</td><td>SE</td>";
@@ -765,6 +765,8 @@ export class ItemCodingService extends BusyAwareService {
         let retVal = "<tr><td>" + o.title + "</td><td>" + o.outcomeDescription.replace("\r", "<br style='mso-Data-placement:same-cell;'  />")
             + "</td><td>" + o.timepointDisplayValue + "</td><td>" + o.outcomeText + "</td><td>" + o.interventionText +
             "</td><td>" + o.controlText + "</td>";
+        retVal += "<td>" + (o.grp1ArmName != "" ? "Arm1:&nbsp;" + o.grp1ArmName + "; " : "")
+            + (o.grp2ArmName != "" ? "Arm2:&nbsp;" + o.grp2ArmName : "") + "</td>"
         switch (o.outcomeTypeId) {
             case 0: // manual entry
                 retVal += "<td>Manual entry</td>" +
