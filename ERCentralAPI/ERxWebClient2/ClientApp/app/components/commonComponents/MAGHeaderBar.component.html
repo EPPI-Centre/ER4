@@ -5,6 +5,7 @@
         <!--<kendo-toolbar-button [text]="'Back'" (click)="Back()" [disabled]="!HasWriteRights"></kendo-toolbar-button>
     <kendo-toolbar-button [text]="'Forward'" (click)="Forward()" [disabled]="!HasWriteRights"></kendo-toolbar-button>-->
         <kendo-toolbar-button [text]="'Home'" (click)="AutoUpdateHome()" [disabled]="DisableButton('basicMAG')" aria-controls="collapseExample"></kendo-toolbar-button>
+        <kendo-toolbar-button [text]="'Keep up-to-date'" (click)="KeepUpdated()" [disabled]="DisableButton('MAGKeepUpToDate')" aria-controls="collapseExample"></kendo-toolbar-button>
         <kendo-toolbar-button [text]="'MAG Simulations'" (click)="AdvancedFeatures()" [disabled]="DisableButton('advancedMAG')"></kendo-toolbar-button>
         <kendo-toolbar-button [text]="'Show History'" (click)="ShowHistory()" [disabled]="DisableButton('MAGBrowsingHistory')"></kendo-toolbar-button>
         <kendo-toolbar-button [text]="'Matching MAG Items'" (click)="MatchingMAGItems()" [disabled]="DisableButton('MAGMatching')"></kendo-toolbar-button>

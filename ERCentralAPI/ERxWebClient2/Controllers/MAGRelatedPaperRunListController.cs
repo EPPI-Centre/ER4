@@ -14,8 +14,8 @@ namespace ERxWebClient2.Controllers
     [Route("api/[controller]")]
     public class MagRelatedPapersRunListController : CSLAController
     {
-        
-		public MagRelatedPapersRunListController(ILogger<MagRelatedPapersRunListController> logger) : base(logger)
+
+        public MagRelatedPapersRunListController(ILogger<MagRelatedPapersRunListController> logger) : base(logger)
         { }
 
         [HttpGet("[action]")]
@@ -37,7 +37,7 @@ namespace ERxWebClient2.Controllers
             }
         }
 
-
+        
         [HttpPost("[action]")]
         public IActionResult GetMagRelatedPapersRunsId([FromBody] MVCMagPaperListSelectionCriteria crit)
         {
@@ -186,6 +186,92 @@ namespace ERxWebClient2.Controllers
             }
         }
 
+
+        [HttpGet("[action]")]
+        public IActionResult GetMagAutoUpdateRuns()
+        {
+            try
+            {
+                if (!SetCSLAUser()) return Unauthorized();
+
+                DataPortal<MagAutoUpdateRunList> dp = new DataPortal<MagAutoUpdateRunList>();
+                MagAutoUpdateRunList result = dp.Fetch();
+
+                return Ok(result);
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "GetMagAutoUpdateRuns error");
+                return StatusCode(500, e.Message);
+            }
+        }
+        [HttpGet("[action]")]
+        public IActionResult GetMagAutoUpdateList()
+        {
+            try
+            {
+                if (!SetCSLAUser()) return Unauthorized();
+
+                DataPortal<MagAutoUpdateList> dp = new DataPortal<MagAutoUpdateList>();
+                MagAutoUpdateList result = dp.Fetch();
+
+                return Ok(result);
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "GetMagAutoUpdateList error");
+                return StatusCode(500, e.Message);
+            }
+        }
+
+        [HttpPost("[action]")]
+        public IActionResult CreateAutoUpdate([FromBody] MVCMagRelatedPapersRun magRun)
+        {
+            try
+            {
+                if (SetCSLAUser4Writing())
+                {
+                    MagAutoUpdate mao = new MagAutoUpdate();
+                    mao.UserDescription = magRun.userDescription;
+                    mao.AllIncluded = magRun.allIncluded;
+                    mao.AttributeId = magRun.attributeId;
+                    mao.AttributeName = magRun.attributeName;
+                    mao = mao.Save();
+                    return Ok(mao);
+                }
+                else return Forbid();
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "CreateAutoUpdateRun error");
+                return StatusCode(500, e.Message);
+            }
+        }
+        //DeleteAutoUpdate
+        [HttpPost("[action]")]
+        public IActionResult DeleteAutoUpdate([FromBody] SingleInt64Criteria Id)
+        {
+            try
+            {
+                if (SetCSLAUser4Writing())
+                {
+                    DataPortal<MagAutoUpdateList> dp = new DataPortal<MagAutoUpdateList>();
+                    MagAutoUpdateList list = dp.Fetch();
+                    MagAutoUpdate mao = list.FirstOrDefault(f => f.MagAutoUpdateId == Id.Value);
+                    if (mao != null && mao.MagAutoUpdateId == Id.Value)
+                    {
+                        list.Remove(mao);
+                    }
+                    return Ok(list);
+                }
+                else return Forbid();
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "DeleteAutoUpdate error. AutoUpdateId: " + Id.Value.ToString());
+                return StatusCode(500, e.Message);
+            }
+        }
 
         [HttpPost("[action]")]
         public IActionResult ImportMagRelatedPapers([FromBody] MVCMagRelatedPapersRun magRun)

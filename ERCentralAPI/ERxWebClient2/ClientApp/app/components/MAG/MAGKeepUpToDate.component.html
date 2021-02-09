@@ -1,0 +1,154 @@
+﻿<HeaderComponent class="row p-1 m-0" style="vertical-align:top;" PageTitle="Microsoft Academic Browser" Context="MAGBrowsingHistory"></HeaderComponent>
+
+<button class="page-link rounded pt-1 pb-1 mb-1 float-right"
+        style="position:absolute; right: 0; z-index:2000;" (click)="Back()">
+    Close/back
+</button>
+
+<MAGHeaderBar Context="MAGKeepUpToDate"></MAGHeaderBar>
+<div class="container col-12">
+    <div class="row">
+        <div *ngIf="!basicSearchPanel">
+            <a (click)="ToggleSearchPanel()" class="btn btn-info btn-sm text-white  p-2 m-2">
+                Create new auto-update task <i class="fa fa-arrow-circle-down"></i>
+            </a>
+        </div>
+        <div *ngIf="basicSearchPanel">
+            <a (click)="ToggleSearchPanel()" class="btn btn-info btn-sm text-white  p-2 m-2">
+                Adding "New auto-update task" (click to close) <i class="fa fa-arrow-circle-up"></i>
+            </a>
+        </div>
+    </div>
+    <div class="multi-collapse" [hidden]="!basicSearchPanel">
+        <div class="card card-footer p-1">
+            <div class="row m-0 p-1">
+                <b class="my-auto mx-1">Description: </b>
+                <input required minlength="4" type="text" id="descName" name="descName" #descName="ngModel" class="form-control col-12 col-sm-6 my-auto mx-1"
+                       [(ngModel)]="description" />
+                <div *ngIf="descName.invalid && (descName.dirty || descName.touched)"
+                     class="alert-danger rounded border border-danger my-auto mx-1 py-1 px-1">
+
+                    <div *ngIf="descName.errors.required">
+                        Description is required.
+                    </div>
+                    <div *ngIf="descName.errors.minlength">
+                        Description must be at least 4 characters long.
+                    </div>
+                </div>
+            </div>
+            <div class="row m-0 p-1">
+                <b class="my-auto mx-1">Search based on: </b>
+                <div class="d-inline-block my-auto">
+                    <input type="radio" value="all" name="searchAll" class="mx-1 my-auto"
+                           [(ngModel)]="searchAll">	All included items
+                </div>
+                <div class="d-inline-block my-auto ml-2">
+                    <input type="radio" value="specified" name="searchAll" class="mx-1 my-auto"
+                           [(ngModel)]="searchAll">	Items with this code
+                </div>
+            </div>
+            <div *ngIf="searchAll == 'specified' || searchAll == 'child'" class="row m-0 p-1">
+                <b class="my-auto mx-1 col-12 col-sm-auto">Select code: </b>
+                <table class="col-12 col-sm-auto">
+                    <tr>
+                        <td style="padding-right: 25px;">
+
+                            <div ngbDropdown class="" style="min-width:150px;">
+                                <button ngbDropdownAnchor class="btn btn-outline-primary dropdown-toggle w-100"
+                                        style="min-width: 250px; white-space:normal" [attr.aria-expanded]="!isCollapsed"
+                                        id="dropdownBasic1"
+                                        (click)="isCollapsed = !isCollapsed; dropdownBasic1 = false">
+                                    {{CurrentDropdownSelectedCode?.name}}
+                                </button>
+                                <div class="dropdown-menu" aria-labelledby="dropdownBasic1" [ngbCollapse]="!isCollapsed">
+                                    <codesetSelector [IsMultiSelect]="false" [WhatIsSelectable]="'SetAttribute'"
+                                                     [MaxHeight]="500" #WithOrWithoutCodeSelector
+                                                     (selectedNodeInTree)="CloseCodeDropDown()" [rootsOnly]="false">
+                                    </codesetSelector>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <div class="row m-0 p-1">
+                <div class="col-12 p-0 m-0">
+                    <button [disabled]="!CanAddNewMAGSearch()" (click)="CreateAutoUpdate()"
+                            class="btn btn-primary btn-sm text-white">
+                        <b>Add new search</b>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row ">
+        <div class="col-12 font-weight-bold">Auto update tasks (they run when new MAG data arrives) </div>
+        <div class="p-1 border-top border-bottom border-dark col-12 bg-light" style="max-height:30vh">
+            <table class="col-12 table table-striped" style="max-height:30vh">
+                <thead>
+                    <tr>
+                        <th>Description</th>
+                        <th>All included?</th>
+                        <th>Only with this code?</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let task of MagAutoUpdatesList">
+                        <td>{{task.userDescription}}</td>
+                        <td>{{task.allIncluded}}</td>
+                        <td>{{task.attributeName}}</td>
+                        <td>
+                            <button md-tooltip='delete task' (click)="DeleteAutoUpdate(task)" class="btn btn-outline-danger btn-sm " style="min-width:60px;">
+                                <i class="fa fa-trash" aria-hidden="true"></i>
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12">Items found at each task execution </div>
+        <div class="p-1 border-top border-bottom border-dark col-12 bg-light" style="max-height:30vh">
+            <table class="col-12 table table-striped" style="max-height:30vh">
+                <thead>
+                    <tr>
+                        <th>Description</th>
+                        <th>All included?</th>
+                        <th>With this code</th>
+                        <th>"Study Type" classifier</th>
+                        <th>User Classifier</th>
+                        <th>Date</th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let task of MagAutoUpdateRunList">
+                        <td>{{task.userDescription}}</td>
+                        <td>{{task.allIncluded}}</td>
+                        <td>{{task.attributeName}}</td>
+                        <td>{{task.studyTypeClassifier}}</td>
+                        <td>{{task.userClassifierDescription}}</td>
+                        <td>{{task.dateRun}}</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div *ngIf="IsServiceBusy" class="k-loading-image" style="position: fixed; top: 2%;"></div>
+
+<statusbar></statusbar>
+
+
+
+
+

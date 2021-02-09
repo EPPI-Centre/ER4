@@ -387,3 +387,28 @@ export class MagSearch {
     contactName: string = '';
     add: boolean = false;
 }
+
+export interface MagAutoUpdateRun {
+    magAutoUpdateRunId: number;
+    reviewIdId: number;
+    userDescription: string;
+    attributeId: number;
+    attributeName: string;
+    allIncluded: boolean;
+    studyTypeClassifier: string;
+    userClassifierDescription: string;
+    userClassifierModelId: number;
+    userClassifierModelReviewId: number;
+    dateRun: string;
+    nPapers: number;
+    magAutoUpdateId: number;
+}
+export interface MagAutoUpdate {
+    allIncluded: boolean;
+    attributeId: number;
+    attributeName: string;
+    autoReRun: boolean;
+    magAutoUpdateId: number;
+    reviewIdId: number;
+    userDescription: string;
+}

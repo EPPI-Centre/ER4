@@ -262,6 +262,10 @@ export class MAGHeaderBarComp implements OnInit {
         this._mAGBrowserHistoryService.AddHistory(new MagBrowseHistoryItem("Manage review updates / find related papers", "RelatedPapers", 0, "", "", 0, "", "", 0, "", "", 0));
         this.router.navigate(['BasicMAGFeatures']);
     }
+    public KeepUpdated() {
+        this._mAGBrowserHistoryService.AddHistory(new MagBrowseHistoryItem("Keep Review up-to-date", "KeepUpdated", 0, "", "", 0, "", "", 0, "", "", 0));
+        this.router.navigate(['MAGKeepUpToDate']);
+    }
     public ShowHistory() {
         this._mAGBrowserHistoryService.AddHistory(new MagBrowseHistoryItem("View browse history", "History", 0, "", "", 0, "", "", 0, "", "", 0));
         this.router.navigate(['MAGBrowserHistory']);
