@@ -113,6 +113,9 @@ export class MAGBrowserHistory implements OnInit {
                         case "SelectedPapers":
                             this.ShowSelectedPapersPage();
                             break;
+                        case "KeepUpdated":
+                            this.ShowKeepUpToDate();
+                            break; 
                     }
             }
         }
@@ -129,6 +132,9 @@ export class MAGBrowserHistory implements OnInit {
     public ShowMatching() {
         this.router.navigate(['MatchingMAGItems']);
     }
+    public ShowKeepUpToDate() {
+        this.router.navigate(['MAGKeepUpToDate']);
+    } 
     public ShowPaperDetailsPage(paperId: number, paperFullRecord: string, paperAbstract: string, urls: string,
         findOnWeb: string, linkedITEM_ID: number) {
 

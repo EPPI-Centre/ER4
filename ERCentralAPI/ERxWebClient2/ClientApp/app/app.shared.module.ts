@@ -105,6 +105,7 @@ import { TruncatePipe } from './components/MAG/TruncatePipe.component';
 import { MAGSearchDetailsComponent } from './components/MAG/MAGSearchDetails.component'; 
 import { WebDbCcodesetTreeComponent } from './components/CodesetTrees/WebDbCcodesetTree.component';
 import { CKEditorModule } from 'ckeditor4-angular';
+import { MAGKeepUpToDate } from './components/MAG/MAGKeepUpToDate.component';
 
 @NgModule({
     declarations: [
@@ -181,6 +182,7 @@ import { CKEditorModule } from 'ckeditor4-angular';
         MAGAdminComp,
         MatchingMAGItemsComponent,
         MAGAdminComp,
+        MAGKeepUpToDate,
         WorkAllocationWizardComp,
         microsoftAcademicComp,
         MAGHeaderBarComp,
@@ -235,7 +237,8 @@ import { CKEditorModule } from 'ckeditor4-angular';
             { path: 'ItemList', component: ItemListComp },
             { path: 'MAGAdmin', component: MAGAdminComp},
             { path: 'MAGBrowser', component: MAGBrowser },
-            { path: 'MagSearch', component: MAGSearchComponent},
+            { path: 'MagSearch', component: MAGSearchComponent },
+            { path: 'MAGKeepUpToDate', component: MAGKeepUpToDate }, 
             { path: 'microsoftAcademic', component: microsoftAcademicComp },
             { path: 'MAGBrowserHistory', component: MAGBrowserHistory },
             { path: 'MatchingMAGItems', component: MatchingMAGItemsComponent},
