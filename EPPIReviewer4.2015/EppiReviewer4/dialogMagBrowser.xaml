@@ -85,7 +85,7 @@
                            IsInitialLoadEnabled="False"
                            ObjectType="BusinessLibrary.BusinessClasses.MagRelatedPapersRunList, BusinessLibrary, Version=..., Culture=neutral, PublicKeyToken=null"
                            FactoryMethod="GetMagRelatedPapersRunList" 
-                           DataChanged="CslaDataProvider_HandleDataChangeError">
+                           DataChanged="CslaDataProvider_DataChanged_2">
         </cslaXAML:CslaDataProvider>
         <cslaXAML:CslaDataProvider x:Key="MagReviewListData"
                            ManageObjectLifetime="True"

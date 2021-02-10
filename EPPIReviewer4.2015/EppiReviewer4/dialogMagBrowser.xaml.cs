@@ -38,6 +38,7 @@ namespace EppiReviewer4
         private DispatcherTimer timer2;
         private DispatcherTimer timerAutoUpdateClassifierRun;
         private DispatcherTimer AdminLogTimer;
+        private DispatcherTimer DataLakeTimer;
         private int CurrentBrowsePosition = 0;
         private List<Int64> SelectedPaperIds;
         private int _maxFieldOfStudyPaperCount = 1000000;
@@ -63,9 +64,13 @@ namespace EppiReviewer4
             timerAutoUpdateClassifierRun = new DispatcherTimer();
             timerAutoUpdateClassifierRun.Interval = TimeSpan.FromSeconds(300);
             timerAutoUpdateClassifierRun.Tick += TimerAutoUpdateClassifierRun_Tick;
+
+            DataLakeTimer = new DispatcherTimer();
+            DataLakeTimer.Interval = TimeSpan.FromSeconds(30);
+            DataLakeTimer.Tick += DataLakeTimer_Tick; ;
         }
 
-        
+       
 
         public void InitialiseBrowser()
         {
@@ -312,6 +317,7 @@ namespace EppiReviewer4
             SearchGrid.Visibility = Visibility.Collapsed;
             HLButtonBackToSearch.Visibility = Visibility.Visible;
             CitationPane.SelectedIndex = 0;
+            Panes.SelectedIndex = 4;
 
             RTBPaperInfo.Text = FullRecord;
             hlFindOnWeb.NavigateUri = new Uri(FindOnWeb);
@@ -1858,7 +1864,7 @@ namespace EppiReviewer4
         }
 
 
-        // ************************** Managing related papers / review auto-updates **********************
+        // ************************** Bring review up to date **********************
 
         private void LBAddNewRagRelatedPapersRun_Click(object sender, RoutedEventArgs e)
         {
@@ -1937,6 +1943,7 @@ namespace EppiReviewer4
             }
             mrpr.Status = "Running";
             mrpr.Filtered = "";
+            mrpr.DateRun = DateTime.Now;
             mrpr.Mode = (ComboRelatedPapersMode.SelectedItem as ComboBoxItem).Tag.ToString();
             if (mrpr.Mode == "New items in MAG")
             {
@@ -1981,9 +1988,43 @@ namespace EppiReviewer4
                                 }
                             }
                         }
+                        DataLakeTimer.Start();
+                        RadWindow.Alert("Running... (The grid below will refresh every 30 seconds)");
                         RowCreateNewRelatedPapersRun.Height = new GridLength(0);
                         LBAddNewRagRelatedPapersRun.Content = "Add new search for related papers / auto update search for review";
                         LBAddNewRagRelatedPapersRun.Tag = "ClickToOpen";
+                    }
+                }
+            }
+        }
+
+        private void DataLakeTimer_Tick(object sender, EventArgs e)
+        {
+            CslaDataProvider provider = this.Resources["RelatedPapersRunListData"] as CslaDataProvider;
+            if (provider != null)
+            {
+                provider.Refresh();
+            }
+        }
+
+
+        private void CslaDataProvider_DataChanged_2(object sender, EventArgs e)
+        {
+            CslaDataProvider provider = this.Resources["RelatedPapersRunListData"] as CslaDataProvider;
+            if (provider != null)
+            {
+                if (provider.Error != null)
+                {
+                    RadWindow.Alert(provider.Error.Message);
+                }
+                else
+                {
+                    MagRelatedPapersRunList rprl = provider.Data as MagRelatedPapersRunList;
+                    if (rprl != null && rprl.Count > 0)
+                    {
+                        MagRelatedPapersRun rpr = rprl[rprl.Count - 1];
+                        if (rpr.Status != "Running")
+                            DataLakeTimer.Stop();
                     }
                 }
             }
@@ -2009,34 +2050,6 @@ namespace EppiReviewer4
                 RadWindow.Alert("Please select a date to date items from");
                 return;
             }
-            /*
-            if (RadioButtonRelatedPapersRunChildrenOfCode.IsChecked == true)
-            {
-                if (codesSelectControlRelatedPapersRun.SelectedAttributeSet() == null ||
-                    (codesSelectControlRelatedPapersRun.SelectedAttributeSet() != null &&
-                    codesSelectControlRelatedPapersRun.SelectedAttributeSet().Attributes.Count == 0))
-                {
-                    RadWindow.Alert("Please select a parent code (with child codes)");
-                    return;
-                }
-                else
-                {
-                    RadWindow.Confirm("Are you sure you want to create a search for each of these codes?\nThis will create" +
-                       codesSelectControlRelatedPapersRun.SelectedAttributeSet().Attributes.Count.ToString() +
-                       " individual searches.", this.DoAddRelatedRun);
-                    return;
-                }
-            }
-            else
-            {
-                if (RadioButtonRelatedPapersRunWithCode.IsChecked == true &&
-                    codesSelectControlRelatedPapersRun.SelectedAttributeSet() == null)
-                {
-                    RadWindow.Alert("Please select a code to filter by");
-                    return;
-                }
-            }
-            */
             if (RadioButtonRelatedPapersRunWithCode.IsChecked == true &&
                    codesSelectControlRelatedPapersRun.SelectedAttributeSet() == null)
             {
@@ -2061,30 +2074,10 @@ namespace EppiReviewer4
             }
             else
             {
-                /*
-                if (cbRelatedPapersRunAutoRun != null)
-                {
-                    cbRelatedPapersRunAutoRun.IsEnabled = false;
-                    cbRelatedPapersRunAutoRun.IsChecked = false;
-                }
-                */
-                /*
-                if (RadioButtonRelatedPapersRunChildrenOfCode != null &&
-                    RadioButtonRelatedPapersRunChildrenOfCode.IsChecked == true)
-                {
-                    RadioButtonRelatedPapersRunAllIncluded.IsChecked = true;
-                }
-                */
                 if (RadioButtonRelatedPapersRunDateFilter != null)
                 {
                     RadioButtonRelatedPapersRunDateFilter.IsEnabled = true;
                 }
-                /*
-                if (RadioButtonRelatedPapersRunChildrenOfCode != null)
-                {
-                    RadioButtonRelatedPapersRunChildrenOfCode.IsEnabled = false;
-                }
-                */
             }
         }
 
@@ -2096,9 +2089,9 @@ namespace EppiReviewer4
                 MagRelatedPapersRun pr = hlb.DataContext as MagRelatedPapersRun;
                 if (pr != null)
                 {
-                    if (pr.Status == "Running")
+                    if (pr.Status == "Running" && pr.DateRun > DateTime.Now.AddHours(-2))
                     {
-                        RadWindow.Alert("Sorry - can't delete this row until it has finished running");
+                        RadWindow.Alert("Sorry - can't delete while running when less than two hours old");
                         return;
                     }
                     else
@@ -3428,7 +3421,8 @@ namespace EppiReviewer4
                 {
                     DataPortal<MagItemPaperInsertCommand> dp2 = new DataPortal<MagItemPaperInsertCommand>();
                     MagItemPaperInsertCommand command = new MagItemPaperInsertCommand("", SelectedLinkButton.Tag.ToString(),
-                        0, 0, "", 0, 0, 0, 0, "", "", "", ms.MagSearchText, "MAG search: " + ms.SearchText);
+                        0, 0, "", 0, 0, 0, 0, "", "", "", ms.MagSearchText, "MAG search: " + ms.SearchText +
+                        (SelectedLinkButton.Tag.ToString() == "MagSearchResultsLatestMAG" ? " (filtered to latest MAG deployment)" : ""));
                     dp2.ExecuteCompleted += (o, e2) =>
                     {
                         BusyImportingRecords.IsRunning = false;
@@ -4262,6 +4256,8 @@ namespace EppiReviewer4
             provider2.Refresh();
         }
 
+        MagCurrentInfo CurrentTempMagCurrentInfoPending;
+
         private void HyperlinkButton_Click_22(object sender, RoutedEventArgs e)
         {
             MagCurrentInfo mci = (sender as HyperlinkButton).DataContext as MagCurrentInfo;
@@ -4272,7 +4268,7 @@ namespace EppiReviewer4
                     RadWindow.Alert("This endpoint is already PENDING");
                     return;
                 }
-                CurrentTempMagCurrentInfo = mci;
+                CurrentTempMagCurrentInfoPending = mci;
                 RadWindow.Confirm("Are you sure you want to make this endpoint pending?", this.doCurrentInfoPending);
             }
         }
@@ -4282,10 +4278,8 @@ namespace EppiReviewer4
             var result = e.DialogResult;
             if (result == true)
             {
-                CurrentTempMagCurrentInfo.MakesDeploymentStatus = "PENDING";
-                CurrentTempMagCurrentInfo.Saved -= CurrentTempMagCurrentInfo_Saved;
-                CurrentTempMagCurrentInfo.Saved += CurrentTempMagCurrentInfo_Saved;
-                CurrentTempMagCurrentInfo.BeginSave();
+                CurrentTempMagCurrentInfoPending.MakesDeploymentStatus = "PENDING";
+                CurrentTempMagCurrentInfoPending.BeginSave();
             }
         }
 
@@ -4325,6 +4319,5 @@ namespace EppiReviewer4
             }
         }
 
-        
     }
 }
