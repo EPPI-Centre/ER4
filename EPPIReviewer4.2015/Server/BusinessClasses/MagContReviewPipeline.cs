@@ -37,7 +37,7 @@ namespace BusinessLibrary.BusinessClasses
             string ResultsFileName, string ModelFileName, string MagContainer, string PreFilterThreshold,
             string FolderName, string AcceptanceThreshold, string ReviewRunVersion, string OverwriteRawProcessedData,
             string ReviewSampleSize, string prepare_data, string process_train, string process_inference, string train_model,
-            string score_papers)
+            string score_papers, CancellationToken cancellationToken = default(CancellationToken))
         {
 
 
@@ -87,14 +87,12 @@ namespace BusinessLibrary.BusinessClasses
             while (runStatus.Equals("InProgress") || runStatus.Equals("Queued"))
             {
                 int count = 0;
-                //Console.WriteLine("Pipeline " + pipelineName + " " + runStatus);
 
-                //RunFilterParameters filterParams = new RunFilterParameters(DateTime.UtcNow.AddMinutes(-10), DateTime.UtcNow.AddMinutes(10));
-                //IList<ActivityRun> runs = client.ActivityRuns.QueryByPipelineRunAsync(resourceGroup, dataFactoryName, runResponse.RunId, filterParams).Result.Value;
-                //foreach (ActivityRun run in runs)
-                //{
-                //Console.WriteLine(" Activity " + run.ActivityName + " " + run.Status);
-                //}
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    MagLog.UpdateLogEntry("Cancelled", "Cancellation token received at runADFPipeline", MagLogId);
+                    return "Cancelled";
+                }
 
                 if (DateTime.Now.ToUniversalTime().AddMinutes(5) > result.ExpiresOn) // the token expires after an hour
                 {

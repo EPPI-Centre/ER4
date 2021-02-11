@@ -331,24 +331,6 @@ namespace BusinessLibrary.BusinessClasses
                 }
                 connection.Close();
             }
-
-            //Task.Run(() =>  { UpdateMagCurrentInfo(); });
-
-            /*
-            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
-            {
-                connection.Open();
-                using (SqlCommand command = new SqlCommand("st_MagCurrentInfoUpdate", connection))
-                {
-                    command.CommandType = System.Data.CommandType.StoredProcedure;
-                    command.Parameters.Add(new SqlParameter("@MagCurrentInfo_NAME", ReadProperty(NameProperty)));
-                    command.Parameters.Add(new SqlParameter("@MagCurrentInfo_DETAIL", ReadProperty(DetailProperty)));
-                    command.Parameters.Add(new SqlParameter("@MagCurrentInfo_ID", ReadProperty(MagCurrentInfoIdProperty)));
-                    command.ExecuteNonQuery();
-                }
-                connection.Close();
-            }
-            */
         }
 
         protected override void DataPortal_DeleteSelf()

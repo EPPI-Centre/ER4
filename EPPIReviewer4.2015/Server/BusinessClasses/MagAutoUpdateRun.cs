@@ -198,130 +198,21 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        /*
-        public static readonly PropertyInfo<bool> CheckedProperty = RegisterProperty<bool>(new PropertyInfo<bool>("Checked", "Checked", false));
-        public bool Checked
+        public static readonly PropertyInfo<string> MagVersionProperty = RegisterProperty<string>(new PropertyInfo<string>("MagVersion", "MagVersion"));
+        public string MagVersion
         {
             get
             {
-                return GetProperty(CheckedProperty);
+                return GetProperty(MagVersionProperty);
             }
             set
             {
-                SetProperty(CheckedProperty, value);
+                SetProperty(MagVersionProperty, value);
             }
         }
-        public static readonly PropertyInfo<bool> IrrelevantProperty = RegisterProperty<bool>(new PropertyInfo<bool>("Irrelevant", "Irrelevant", false));
-        public bool Irrelevant
-        {
-            get
-            {
-                return GetProperty(IrrelevantProperty);
-            }
-            set
-            {
-                SetProperty(IrrelevantProperty, value);
-            }
-        }
-        */
 
-        /*
-        public static readonly PropertyInfo<MagAutoUpdateRunList> CitationsProperty = RegisterProperty<MagAutoUpdateRunList>(new PropertyInfo<MagAutoUpdateRunList>("Citations", "Citations"));
-        public MagAutoUpdateRunList Citations
-        {
-            get
-            {
-                return GetProperty(CitationsProperty);
-            }
-            set
-            {
-                SetProperty(CitationsProperty, value);
-            }
-        }
-        public static readonly PropertyInfo<MagAutoUpdateRunList> CitedByProperty = RegisterProperty<MagAutoUpdateRunList>(new PropertyInfo<MagAutoUpdateRunList>("CitedBy", "CitedBy"));
-        public MagAutoUpdateRunList CitedBy
-        {
-            get
-            {
-                return GetProperty(CitedByProperty);
-            }
-            set
-            {
-                SetProperty(CitedByProperty, value);
-            }
-        }
-        public static readonly PropertyInfo<MagAutoUpdateRunList> RecommendedProperty = RegisterProperty<MagAutoUpdateRunList>(new PropertyInfo<MagAutoUpdateRunList>("Recommended", "Recommended"));
-        public MagAutoUpdateRunList Recommended
-        {
-            get
-            {
-                return GetProperty(RecommendedProperty);
-            }
-            set
-            {
-                SetProperty(RecommendedProperty, value);
-            }
-        }
-        public static readonly PropertyInfo<MagAutoUpdateRunList> RecommendedByProperty = RegisterProperty<MagAutoUpdateRunList>(new PropertyInfo<MagAutoUpdateRunList>("RecommendedBy", "RecommendedBy"));
-        public MagAutoUpdateRunList RecommendedBy
-        {
-            get
-            {
-                return GetProperty(RecommendedByProperty);
-            }
-            set
-            {
-                SetProperty(RecommendedByProperty, value);
-            }
-        }
         
-        public void GetRelatedFieldOfStudyList(string listType)
-        {
-            DataPortal<MagAutoUpdateRunList> dp = new DataPortal<MagAutoUpdateRunList>();
-            dp.FetchCompleted += (o, e2) =>
-            {
-                if (e2.Object != null)
-                {
-                    if (e2.Error == null)
-                    {
-                        this.Citations = e2.Object;
-                        //this.MarkClean(); // don't want the object marked as 'dirty' just because it's loaded a new list
-                    }
-                }
-                if (e2.Error != null)
-                {
-#if SILVERLIGHT
-                    System.Windows.MessageBox.Show(e2.Error.Message);
-#endif
-                }
-            };
-            MagAutoUpdateRunListSelectionCriteria sc = new BusinessClasses.MagAutoUpdateRunListSelectionCriteria();
-            sc.MagAutoUpdateRunId = this.FieldOfStudyId;
-            sc.ListType = listType;
-            dp.BeginFetch(sc);
-        }
-        */
 
-
-
-        //protected override void AddAuthorizationRules()
-        //{
-        //    //string[] canWrite = new string[] { "AdminUser", "RegularUser" };
-        //    //string[] canRead = new string[] { "AdminUser", "RegularUser", "ReadOnlyUser" };
-        //    //string[] admin = new string[] { "AdminUser" };
-        //    //AuthorizationRules.AllowCreate(typeof(MagAutoUpdateRun), admin);
-        //    //AuthorizationRules.AllowDelete(typeof(MagAutoUpdateRun), admin);
-        //    //AuthorizationRules.AllowEdit(typeof(MagAutoUpdateRun), canWrite);
-        //    //AuthorizationRules.AllowGet(typeof(MagAutoUpdateRun), canRead);
-
-        //    //AuthorizationRules.AllowRead(MagAutoUpdateRunIdProperty, canRead);
-        //    //AuthorizationRules.AllowRead(ReviewIdProperty, canRead);
-        //    //AuthorizationRules.AllowRead(NameProperty, canRead);
-        //    //AuthorizationRules.AllowRead(DetailProperty, canRead);
-
-        //    //AuthorizationRules.AllowWrite(NameProperty, canWrite);
-        //    //AuthorizationRules.AllowRead(DetailProperty, canRead);
-        //}
 
         protected override void AddBusinessRules()
         {
@@ -425,6 +316,7 @@ namespace BusinessLibrary.BusinessClasses
                             LoadProperty<Int32>(UserClassifierModelReviewIdProperty, reader.GetInt32("USER_CLASSIFIER_REVIEW_ID"));
                             LoadProperty<SmartDate>(DateRunProperty, reader.GetSmartDate("DATE_RUN"));
                             LoadProperty<Int32>(NPapersProperty, reader.GetInt32("N_PAPERS"));
+                            LoadProperty<string>(MagVersionProperty, reader.GetString("MAG_VERSION"));
                         }
                     }
                 }
@@ -448,6 +340,7 @@ namespace BusinessLibrary.BusinessClasses
             returnValue.LoadProperty<Int32>(UserClassifierModelReviewIdProperty, reader.GetInt32("USER_CLASSIFIER_REVIEW_ID"));
             returnValue.LoadProperty<SmartDate>(DateRunProperty, reader.GetSmartDate("DATE_RUN"));
             returnValue.LoadProperty<Int32>(NPapersProperty, reader.GetInt32("N_PAPERS"));
+            returnValue.LoadProperty<string>(MagVersionProperty, reader.GetString("MAG_VERSION"));
             returnValue.MarkOld();
             return returnValue;
         }

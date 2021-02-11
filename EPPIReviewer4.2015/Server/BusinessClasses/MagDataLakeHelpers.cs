@@ -21,7 +21,8 @@ namespace BusinessLibrary.BusinessClasses
 {
     class MagDataLakeHelpers
     {
-        public static void ExecProc(string scriptTxt, bool doLogging, string jobType, int ContactId, int parallelism)
+        public static bool ExecProc(string scriptTxt, bool doLogging, string jobType, int ContactId, int parallelism,
+            CancellationToken cancellationToken)
         {
             var adlCreds = GetCreds_SPI_SecretKey();
             var adlaJobClient = new DataLakeAnalyticsJobManagementClient(adlCreds);
@@ -43,35 +44,55 @@ namespace BusinessLibrary.BusinessClasses
                 var returnJobId = SubmitJObToADA(adlsFileSystemClient,
                 dataLakestorageAccount,
                 adlaJobClient, dataLakeAccount, scriptTxt, parallelism, jobType);
-                WaitForJob(adlaJobClient, dataLakeAccount, returnJobId, doLogging, jobType, ContactId);
+                if (!WaitForJob(adlaJobClient, dataLakeAccount, returnJobId, doLogging, jobType, ContactId, cancellationToken))
+                {
+                    return false;
+                }
             }
             catch (Exception e)
             {
                 MagLog.SaveLogEntry("DataLake: " + jobType, "Error", e.Message, ContactId);
+                return false;
             }
+            return true;
         }
 
-        public static JobResult WaitForJob(DataLakeAnalyticsJobManagementClient adlaJobClient,
-            string adlaAccountName, Guid jobId, bool doLogging, string jobType, int ContactId)
+        public static bool WaitForJob(DataLakeAnalyticsJobManagementClient adlaJobClient,
+            string adlaAccountName, Guid jobId, bool doLogging, string jobType,
+            int ContactId, CancellationToken cancellationToken)
         {
             var jobInfo = adlaJobClient.Job.Get(adlaAccountName, jobId);
             int MagLogId = MagLog.SaveLogEntry("DataLake: " + jobType, jobInfo.State.ToString(), "", ContactId);
-            while (jobInfo.State != JobState.Ended)
+            try
             {
-                Thread.Sleep(15000);
-                jobInfo = adlaJobClient.Job.Get(adlaAccountName, jobId);
-                MagLog.UpdateLogEntry(jobInfo.State.ToString(), "", MagLogId);
+                
+                while (jobInfo.State != JobState.Ended)
+                {
+                    Thread.Sleep(15000);
+                    jobInfo = adlaJobClient.Job.Get(adlaAccountName, jobId);
+                    MagLog.UpdateLogEntry(jobInfo.State.ToString(), "", MagLogId);
+                }
+                if (jobInfo.ErrorMessage != null && jobInfo.ErrorMessage.Count > 0)
+                {
+                    MagLog.UpdateLogEntry(jobInfo.ErrorMessage[0].Description, jobInfo.ErrorMessage[0].Message, MagLogId);
+                }
+                else
+                {
+                    MagLog.UpdateLogEntry(jobInfo.State.ToString(), "", MagLogId);
+                }
+
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    MagLog.UpdateLogEntry("Failed", "Thread cancelled", MagLogId);
+                    return false;
+                }
+                return true;
             }
-            if (jobInfo.ErrorMessage != null && jobInfo.ErrorMessage.Count > 0)
+            catch
             {
-                MagLog.UpdateLogEntry(jobInfo.ErrorMessage[0].Description, jobInfo.ErrorMessage[0].Message, MagLogId);
+                MagLog.UpdateLogEntry("Failed", "Error", MagLogId);
+                return false;
             }
-            else
-            {
-                MagLog.UpdateLogEntry(jobInfo.State.ToString(), "", MagLogId);
-            }
-            
-            return jobInfo.Result.Value;
         }
 
         public static void CreateAFileOnDataLakeStorageAccount(DataLakeStoreFileSystemManagementClient adlsFileSystemClient,

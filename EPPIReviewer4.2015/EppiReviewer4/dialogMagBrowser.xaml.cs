@@ -3750,6 +3750,8 @@ namespace EppiReviewer4
                         AutoUpdateImportTopN.Maximum = maur.NPapers;
                         RefreshAutoUpdateGraph();
                         AutoUpdateImportCount();
+                        comboAutoUpdateUserModels.SelectedIndex = -1;
+                        comboAutoUpdateStudyTypeClassifier.SelectedIndex = -1;
                         if (maur.StudyTypeClassifier == "")
                         {
                             AutoUpdateStudyTypeScoreThreshold.Value = 0;
@@ -3760,6 +3762,11 @@ namespace EppiReviewer4
                         {
                             AutoUpdateStudyTypeScoreThreshold.IsEnabled = true;
                             AutoUpdateGraphShowStudyTypeModel.IsEnabled = true;
+                            foreach (ComboBoxItem cbi in comboAutoUpdateStudyTypeClassifier.Items)
+                            {
+                                if (cbi.Tag.ToString() == maur.StudyTypeClassifier)
+                                    comboAutoUpdateStudyTypeClassifier.SelectedItem = cbi;
+                            }
                         }
                         if (maur.UserClassifierModelId == 0)
                         {
@@ -3771,6 +3778,19 @@ namespace EppiReviewer4
                         {
                             AutoUpdateUserScoreThreshold.IsEnabled = true;
                             AutoUpdateGraphShowUserModel.IsEnabled = true;
+                            CslaDataProvider provider = this.Resources["ClassifierContactModelListData"] as CslaDataProvider;
+                            if (provider != null)
+                            {
+                                ClassifierContactModelList ccml = provider.Data as ClassifierContactModelList;
+                                if (ccml != null)
+                                {
+                                    foreach (ClassifierContactModel ccm in ccml)
+                                    {
+                                        if (ccm.ModelId == maur.UserClassifierModelId)
+                                            comboAutoUpdateUserModels.SelectedItem = ccm;
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -3880,13 +3900,15 @@ namespace EppiReviewer4
                     }
                     else
                     {
-                        RadWindow.Alert("Classifier running. Please check back in a while\nRunning further classifiers disabled for 5 minutes");
+                        RadWindow.Alert("Classifier running\nThe list below will refresh in 5 minutes and\nthe selected model name will appear.");
                     }
                 };
                 //busyIndicatorMatches.IsBusy = true;
                 hlAutoUpdateStudyClassifierRun.IsEnabled = false;
                 hlAutoUpdateUserClassifierRun.IsEnabled = false;
                 timerAutoUpdateClassifierRun.Start();
+                BusyImportingRecords.IsEnabled = true;
+                RowAutoUpdateImport.Height = new GridLength(0);
                 dp2.BeginExecute(mrmic);
             }
         }
@@ -4139,6 +4161,12 @@ namespace EppiReviewer4
         private void TimerAutoUpdateClassifierRun_Tick(object sender, EventArgs e)
         {
             this.timerAutoUpdateClassifierRun.Stop();
+            BusyImportingRecords.IsEnabled = false;
+            CslaDataProvider provider = this.Resources["MagAutoUpdateRunListData"] as CslaDataProvider;
+            if (provider != null)
+            {
+                provider.Refresh();
+            }
             hlAutoUpdateUserClassifierRun.IsEnabled = true;
             hlAutoUpdateStudyClassifierRun.IsEnabled = true;
         }

@@ -88,12 +88,12 @@ namespace BusinessLibrary.BusinessClasses
             System.Threading.Tasks.Task.Run(() => AddClassifierScores(ri.ReviewId.ToString()));
 #else
             //see: https://codingcanvas.com/using-hostingenvironment-queuebackgroundworkitem-to-run-background-tasks-in-asp-net/
-            HostingEnvironment.QueueBackgroundWorkItem(cancellationToken => AddClassifierScores(ri.ReviewId.ToString()));
+            HostingEnvironment.QueueBackgroundWorkItem(cancellationToken => AddClassifierScores(ri.ReviewId.ToString(), ri.UserId));
 #endif
             
         }
 
-        private async Task AddClassifierScores(string ReviewId)
+        private async Task AddClassifierScores(string ReviewId, int ContactId, CancellationToken cancellationToken = default(CancellationToken))
         {
             //UpdateSimulationRecord("Running classifiers");
             List<Int64> Ids = new List<long>();
@@ -121,7 +121,10 @@ namespace BusinessLibrary.BusinessClasses
             }
 
             if (Ids.Count == 0)
+            {
+                MagLog.SaveLogEntry("Add classifier scores", "Failed", "No IDs. Review: " + ReviewId, ContactId);
                 return;
+            }
 
 #if (!CSLA_NETCORE)
             //string filePrefix = TrainingRunCommand.NameBase + Guid.NewGuid().ToString();
@@ -133,38 +136,45 @@ namespace BusinessLibrary.BusinessClasses
                 string fName = tmpDir.FullName + "/Cont" + _MagAutoUpdateRunId.ToString() + ".csv";
                 //string fName = AppDomain.CurrentDomain.BaseDirectory + TempPath + "ReviewID" + ri.ReviewId + "ContactId" + ri.UserId.ToString() + ".csv";
 #endif
-
-            using (System.IO.StreamWriter file = new System.IO.StreamWriter(fName))
+            try
             {
-                file.WriteLine("\"ITEM_ID\",\"LABEL\",\"TITLE\",\"ABSTRACT\",\"KEYWORDS\",\"REVIEW_ID\"");
-                int count = 0;
-                while (count < Ids.Count)
+                using (System.IO.StreamWriter file = new System.IO.StreamWriter(fName))
                 {
-                    string query = "";
-                    for (int i = count; i < Ids.Count && i < count + 100; i++)
+                    file.WriteLine("\"ITEM_ID\",\"LABEL\",\"TITLE\",\"ABSTRACT\",\"KEYWORDS\",\"REVIEW_ID\"");
+                    int count = 0;
+                    while (count < Ids.Count)
                     {
-                        if (query == "")
+                        string query = "";
+                        for (int i = count; i < Ids.Count && i < count + 100; i++)
                         {
-                            query = "Id=" + Ids[i].ToString();
+                            if (query == "")
+                            {
+                                query = "Id=" + Ids[i].ToString();
+                            }
+                            else
+                            {
+                                query += ",Id=" + Ids[i].ToString();
+                            }
                         }
-                        else
-                        {
-                            query += ",Id=" + Ids[i].ToString();
-                        }
-                    }
-                    MagMakesHelpers.PaperMakesResponse resp = MagMakesHelpers.EvaluateExpressionNoPagingWithCount("OR(" + query + ")", "100");
+                        MagMakesHelpers.PaperMakesResponse resp = MagMakesHelpers.EvaluateExpressionNoPagingWithCount("OR(" + query + ")", "100");
 
-                    foreach (MagMakesHelpers.PaperMakes pm in resp.entities)
-                    {
-                        file.WriteLine("\"" + pm.Id.ToString() + "\"," +
-                                        "\"" + "99" + "\"," +
-                                        "\"" + MagMakesHelpers.CleanText(pm.Ti) + "\"," +
-                                        "\"" + MagMakesHelpers.CleanText(MagMakesHelpers.ReconstructInvertedAbstract(pm.IA)) + "\"," +
-                                        "\"" + "" + "\"," +
-                                        "\"" + ReviewId + "\"");
+                        foreach (MagMakesHelpers.PaperMakes pm in resp.entities)
+                        {
+                            file.WriteLine("\"" + pm.Id.ToString() + "\"," +
+                                            "\"" + "99" + "\"," +
+                                            "\"" + MagMakesHelpers.CleanText(pm.Ti) + "\"," +
+                                            "\"" + MagMakesHelpers.CleanText(MagMakesHelpers.ReconstructInvertedAbstract(pm.IA)) + "\"," +
+                                            "\"" + "" + "\"," +
+                                            "\"" + ReviewId + "\"");
+                        }
+                        count += 100;
                     }
-                    count += 100;
                 }
+            }
+            catch
+            {
+                MagLog.SaveLogEntry("Add classifier scores", "Failed", "Writing local file. Review: " + ReviewId, ContactId);
+                return;
             }
             // this copied from ClassifierCommand. The keys should move to web.config
             CloudStorageAccount storageAccount = CloudStorageAccount.Parse("***REMOVED***");
@@ -172,66 +182,81 @@ namespace BusinessLibrary.BusinessClasses
             CloudBlobContainer container = blobClient.GetContainerReference("attributemodeldata");
             CloudBlockBlob blockBlobData;
 
-            string uploadedFileName = TrainingRunCommand.NameBase + "Cont" + _MagAutoUpdateRunId.ToString() + "StudyModelToScore.csv";
-            string resultsFile1 = @"attributemodels/" + TrainingRunCommand.NameBase + "Cont" + _MagAutoUpdateRunId.ToString() + "Results1.csv";
-            string resultsFile2 = @"attributemodels/" + TrainingRunCommand.NameBase + "Cont" + _MagAutoUpdateRunId.ToString() + "Results2.csv";
-            blockBlobData = container.GetBlockBlobReference(uploadedFileName);
-            using (var fileStream = System.IO.File.OpenRead(fName))
+            try
             {
+                string uploadedFileName = TrainingRunCommand.NameBase + "Cont" + _MagAutoUpdateRunId.ToString() + "StudyModelToScore.csv";
+                string resultsFile1 = @"attributemodels/" + TrainingRunCommand.NameBase + "Cont" + _MagAutoUpdateRunId.ToString() + "Results1.csv";
+                string resultsFile2 = @"attributemodels/" + TrainingRunCommand.NameBase + "Cont" + _MagAutoUpdateRunId.ToString() + "Results2.csv";
+                blockBlobData = container.GetBlockBlobReference(uploadedFileName);
+                using (var fileStream = System.IO.File.OpenRead(fName))
+                {
 
 
 #if (!CSLA_NETCORE)
-                blockBlobData.UploadFromStream(fileStream);
+                    blockBlobData.UploadFromStream(fileStream);
 #else
 
 					await blockBlobData.UploadFromFileAsync(fName);
 #endif
 
-            }
-            File.Delete(fName);
-
-            if (_StudyTypeClassifier != "None")
-            {
-                int classifierId = 0;
-                string classifierName = "RCTModel";
-                switch (_StudyTypeClassifier)
-                {
-                    case "RCT":
-                        classifierId = 0;
-                        classifierName = "RCTModel";
-                        break;
-                    case "Cochrane RCT":
-                        classifierId = -4;
-                        classifierName = "NewRCTModel";
-                        break;
-                    case "Economic evaluation":
-                        classifierId = -3;
-                        classifierName = "NHSEED";
-                        break;
-                    case "Systematic review":
-                        classifierId = -2;
-                        classifierName = "DARE";
-                        break;
                 }
-                await ClassifierCommand.InvokeBatchExecutionService(ReviewId, "ScoreModel", classifierId, @"attributemodeldata/" + uploadedFileName,
-                    @"attributemodels/" + classifierName + ".csv", resultsFile1, resultsFile2);
+                File.Delete(fName);
 
-                await insertResults(blobClient.GetContainerReference("attributemodels"), TrainingRunCommand.NameBase + "Cont" + _MagAutoUpdateRunId.ToString() + "Results1.csv", "StudyTypeClassifierScore");
-                if (classifierId == -4)
+
+                if (_StudyTypeClassifier != "None")
                 {
-                    await insertResults(blobClient.GetContainerReference("attributemodels"), TrainingRunCommand.NameBase + "Cont" + _MagAutoUpdateRunId.ToString() + "Results2.csv", "StudyTypeClassifierScore");
+                    int classifierId = 0;
+                    string classifierName = "RCTModel";
+                    switch (_StudyTypeClassifier)
+                    {
+                        case "RCT":
+                            classifierId = 0;
+                            classifierName = "RCTModel";
+                            break;
+                        case "Cochrane RCT":
+                            classifierId = -4;
+                            classifierName = "NewRCTModel";
+                            break;
+                        case "Economic evaluation":
+                            classifierId = -3;
+                            classifierName = "NHSEED";
+                            break;
+                        case "Systematic review":
+                            classifierId = -2;
+                            classifierName = "DARE";
+                            break;
+                    }
+                    await ClassifierCommand.InvokeBatchExecutionService(ReviewId, "ScoreModel", classifierId, @"attributemodeldata/" + uploadedFileName,
+                        @"attributemodels/" + classifierName + ".csv", resultsFile1, resultsFile2);
+
+                    await insertResults(blobClient.GetContainerReference("attributemodels"),
+                        TrainingRunCommand.NameBase + "Cont" + _MagAutoUpdateRunId.ToString() +
+                        "Results1.csv", "StudyTypeClassifierScore", ReviewId, ContactId);
+                    if (classifierId == -4)
+                    {
+                        await insertResults(blobClient.GetContainerReference("attributemodels"),
+                            TrainingRunCommand.NameBase + "Cont" + _MagAutoUpdateRunId.ToString() +
+                            "Results2.csv", "StudyTypeClassifierScore", ReviewId, ContactId);
+                    }
+                }
+
+                if (_UserClassifierModelId > 0)
+                {
+                    await ClassifierCommand.InvokeBatchExecutionService(ReviewId, "ScoreModel", _UserClassifierModelId, @"attributemodeldata/" + uploadedFileName,
+                        @"attributemodels/" + TrainingRunCommand.NameBase + "ReviewId" + _UserClassifierReviewId.ToString() + "ModelId" + _UserClassifierModelId.ToString() + ".csv", resultsFile1, resultsFile2);
+                    await insertResults(blobClient.GetContainerReference("attributemodels"),
+                        TrainingRunCommand.NameBase + "Cont" + _MagAutoUpdateRunId.ToString() +
+                        "Results1.csv", "UserClassifierScore", ReviewId, ContactId);
                 }
             }
-
-            if (_UserClassifierModelId > 0)
+            catch
             {
-                await ClassifierCommand.InvokeBatchExecutionService(ReviewId, "ScoreModel", _UserClassifierModelId, @"attributemodeldata/" + uploadedFileName,
-                    @"attributemodels/" + TrainingRunCommand.NameBase + "ReviewId" + _UserClassifierReviewId.ToString() + "ModelId" + _UserClassifierModelId.ToString() + ".csv", resultsFile1, resultsFile2);
-                await insertResults(blobClient.GetContainerReference("attributemodels"), TrainingRunCommand.NameBase + "Cont" + _MagAutoUpdateRunId.ToString() + "Results1.csv", "UserClassifierScore");
+                MagLog.SaveLogEntry("Add classifier scores", "Failed", "At running classifier. Review: " + ReviewId, ContactId);
+                return;
             }
         }
 
-        private async Task insertResults(CloudBlobContainer container, string FileName, string Field)
+        private async Task insertResults(CloudBlobContainer container, string FileName, string Field, string ReviewId, int ContactId)
         {
             CloudBlockBlob blockBlobDataResults = container.GetBlockBlobReference(FileName);
 
@@ -243,60 +268,81 @@ namespace BusinessLibrary.BusinessClasses
             dt.Columns.Add("PaperId");
             dt.Columns.Add("SCORE");
 
-            MemoryStream msIds = new MemoryStream(myFile);
-            using (var readerIds = new StreamReader(msIds))
+            try
             {
-                string line;
-                while ((line = readerIds.ReadLine()) != null)
+                MemoryStream msIds = new MemoryStream(myFile);
+                using (var readerIds = new StreamReader(msIds))
                 {
-                    string[] fields = line.Split(',');
+                    string line;
+                    while ((line = readerIds.ReadLine()) != null)
+                    {
+                        string[] fields = line.Split(',');
 
-                    // this check for extreme values copied from ClassifierCommand
-                    if (fields[0] == "1")
-                    {
-                        fields[0] = "0.999999";
-                    }
-                    else if (fields[0] == "0")
-                    {
-                        fields[0] = "0.000001";
-                    }
-                    else if (fields[0].Length > 2 && fields[0].Contains("E"))
-                    {
-                        double dbl = 0;
-                        double.TryParse(fields[0], out dbl);
-                        //if (dbl == 0.0) throw new Exception("Gotcha!");
-                        fields[0] = dbl.ToString("F10");
-                    }
+                        // this check for extreme values copied from ClassifierCommand
+                        if (fields[0] == "1")
+                        {
+                            fields[0] = "0.999999";
+                        }
+                        else if (fields[0] == "0")
+                        {
+                            fields[0] = "0.000001";
+                        }
+                        else if (fields[0].Length > 2 && fields[0].Contains("E"))
+                        {
+                            double dbl = 0;
+                            double.TryParse(fields[0], out dbl);
+                            //if (dbl == 0.0) throw new Exception("Gotcha!");
+                            fields[0] = dbl.ToString("F10");
+                        }
 
-                    DataRow newRow = dt.NewRow();
-                    newRow["MAG_AUTO_UPDATE_RUN_ID"] = _MagAutoUpdateRunId;
-                    newRow["PaperId"] = fields[1];
-                    newRow["SCORE"] = fields[0];
-                    dt.Rows.Add(newRow);
+                        DataRow newRow = dt.NewRow();
+                        newRow["MAG_AUTO_UPDATE_RUN_ID"] = _MagAutoUpdateRunId;
+                        newRow["PaperId"] = fields[1];
+                        newRow["SCORE"] = fields[0];
+                        dt.Rows.Add(newRow);
+                    }
                 }
             }
-
-            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+            catch
             {
-                connection.Open();
-                using (SqlBulkCopy sbc = new SqlBulkCopy(connection))
-                {
-                    sbc.DestinationTableName = "TB_MAG_AUTO_UPDATE_CLASSIFIER_TEMP";
-                    sbc.BatchSize = 1000;
-                    sbc.WriteToServer(dt);
-                }
+                MagLog.SaveLogEntry("Add classifier scores", "Failed", "Downloading scores. Review: " + ReviewId, ContactId);
+                return;
+            }
 
-                using (SqlCommand command = new SqlCommand("st_MagAutoUpdateClassifierScoresUpdate", connection))
+            if (dt.Rows.Count == 0)
+            {
+                MagLog.SaveLogEntry("Add classifier scores", "Failed", "Rowcount = 0. Review: " + ReviewId, ContactId);
+                return;
+            }
+
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
                 {
-                    command.CommandType = System.Data.CommandType.StoredProcedure;
-                    command.Parameters.Add(new SqlParameter("@MAG_AUTO_UPDATE_RUN_ID", _MagAutoUpdateRunId));
-                    command.Parameters.Add(new SqlParameter("@Field", Field));
-                    command.Parameters.Add(new SqlParameter("@StudyTypeClassifier", _StudyTypeClassifier));
-                    command.Parameters.Add(new SqlParameter("@UserClassifierModelId", _UserClassifierModelId));
-                    command.Parameters.Add(new SqlParameter("@UserClassifierReviewId", _UserClassifierReviewId));
-                    command.ExecuteNonQuery();
+                    connection.Open();
+                    using (SqlBulkCopy sbc = new SqlBulkCopy(connection))
+                    {
+                        sbc.DestinationTableName = "TB_MAG_AUTO_UPDATE_CLASSIFIER_TEMP";
+                        sbc.BatchSize = 1000;
+                        sbc.WriteToServer(dt);
+                    }
+
+                    using (SqlCommand command = new SqlCommand("st_MagAutoUpdateClassifierScoresUpdate", connection))
+                    {
+                        command.CommandType = System.Data.CommandType.StoredProcedure;
+                        command.Parameters.Add(new SqlParameter("@MAG_AUTO_UPDATE_RUN_ID", _MagAutoUpdateRunId));
+                        command.Parameters.Add(new SqlParameter("@Field", Field));
+                        command.Parameters.Add(new SqlParameter("@StudyTypeClassifier", _StudyTypeClassifier));
+                        command.Parameters.Add(new SqlParameter("@UserClassifierModelId", _UserClassifierModelId));
+                        command.Parameters.Add(new SqlParameter("@UserClassifierReviewId", _UserClassifierReviewId));
+                        command.ExecuteNonQuery();
+                    }
+                    connection.Close();
                 }
-                connection.Close();
+            }
+            catch
+            {
+                MagLog.SaveLogEntry("Add classifier scores", "Failed", "Inserting scores. Review: " + ReviewId, ContactId);
             }
         }
 #endif

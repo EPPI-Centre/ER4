@@ -373,9 +373,28 @@
                                             <telerik:LinearAxis Title="Number of items"/>
                                         </telerik:RadCartesianChart.VerticalAxis>
                                         <telerik:BarSeries CategoryBinding="Range" ValueBinding="Count" IsHitTestVisible="True"
-                                                           ItemsSource="{Binding Source={StaticResource MagAutoUpdateVisualiseData}, Path=Data}"></telerik:BarSeries>
+                                                           ItemsSource="{Binding Source={StaticResource MagAutoUpdateVisualiseData}, Path=Data}">
+                                            <telerik:BarSeries.TrackBallTemplate>
+                                                <DataTemplate>
+                                                    <StackPanel>
+                                                        <Rectangle Width="5"
+                                                            Height="5"
+                                                            Fill="Red"
+                                                            RenderTransformOrigin="0.5,0.5">
+                                                            <Rectangle.RenderTransform>
+                                                                <RotateTransform Angle="45"/>
+                                                            </Rectangle.RenderTransform>
+                                                        </Rectangle>
+                                                        <Border Background="Bisque">
+                                                            <TextBlock Text="{Binding DisplayContent}"/>
+                                                        </Border>
+                                                    </StackPanel>
+                                                </DataTemplate>
+                                            </telerik:BarSeries.TrackBallTemplate>
+                                        </telerik:BarSeries>
                                         <telerik:RadCartesianChart.Behaviors>
                                             <telerik:ChartSelectionBehavior DataPointSelectionMode="Multiple" ></telerik:ChartSelectionBehavior>
+                                            <telerik:ChartTrackBallBehavior ShowIntersectionPoints="True" ShowTrackInfo="False"/>
                                         </telerik:RadCartesianChart.Behaviors>
                                     </telerik:RadCartesianChart>
 
@@ -528,6 +547,7 @@
                                         <telerikGridView:GridViewDataColumn Header="With this code" Width="80*" DataMemberBinding="{Binding AttributeName}" IsReadOnly="True"></telerikGridView:GridViewDataColumn>
                                         <telerikGridView:GridViewDataColumn Header="Study type classifier" Width="80*" DataMemberBinding="{Binding StudyTypeClassifier}" IsReadOnly="True"></telerikGridView:GridViewDataColumn>
                                         <telerikGridView:GridViewDataColumn Header="User Classifier" Width="80*" DataMemberBinding="{Binding UserClassifierDescription}" IsReadOnly="True"></telerikGridView:GridViewDataColumn>
+                                        <telerikGridView:GridViewDataColumn Header="MAG Version" Width="100*" DataMemberBinding="{Binding MagVersion}" IsReadOnly="True"></telerikGridView:GridViewDataColumn>
                                         <telerikGridView:GridViewDataColumn Header="Date Run" Width="80*" DataMemberBinding="{Binding DateRun}" IsReadOnly="True"></telerikGridView:GridViewDataColumn>
                                         
                                         <telerikGridView:GridViewDataColumn Width="130" SortingState="None" IsReadOnly="True">

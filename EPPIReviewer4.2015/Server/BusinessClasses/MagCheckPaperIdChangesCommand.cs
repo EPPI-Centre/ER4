@@ -21,6 +21,7 @@ using Microsoft.WindowsAzure.Storage.Blob;
 using System.Data.SqlClient;
 using System.Data;
 using System.Collections.Concurrent;
+using System.Web.Hosting;
 #endif
 
 namespace BusinessLibrary.BusinessClasses
@@ -74,17 +75,28 @@ namespace BusinessLibrary.BusinessClasses
             int ReviewId = ri.ReviewId; // we don't use this, but it checks we have a valid ticket
             int ContactId = ri.UserId; // putting to variable in case the user invalidates ticket
             // spin the task off into another thread and return
-            Task.Run(() => { RunCheckUpdates(ReviewId, ContactId); });
-            }
 
-        private async Task RunCheckUpdates(int ReviewId, int ContactId)
+#if CSLA_NETCORE
+            System.Threading.Tasks.Task.Run(() => RunCheckUpdates(ReviewId, ContactId));
+#else
+            //see: https://codingcanvas.com/using-hostingenvironment-queuebackgroundworkitem-to-run-background-tasks-in-asp-net/
+            HostingEnvironment.QueueBackgroundWorkItem(cancellationToken => RunCheckUpdates(ReviewId, ContactId));
+#endif
+        }
+
+        private async Task RunCheckUpdates(int ReviewId, int ContactId, CancellationToken cancellationToken = default(CancellationToken))
         {
             int currentlyUsed = 0;
             string uploadFileName = "";
 
             int TaskMagLogId = MagLog.SaveLogEntry("Checking ID changes", "Starting", "", ContactId);
             int missingCount = ChangedPapersNotAlreadyWrittenCheck();
-            if (missingCount == 0) // i.e. we've already downloaded the file and need to complete the auto-matching
+            if (missingCount == -1)
+            {
+                MagLog.UpdateLogEntry("Stopped", "Error in missingCount", TaskMagLogId);
+                return;
+            }
+            if (missingCount == 0) // if greater than 0, we've already downloaded the file and need to complete the auto-matching
             {
 
 #if (!CSLA_NETCORE)
@@ -105,67 +117,108 @@ namespace BusinessLibrary.BusinessClasses
 
 
                 currentlyUsed = WriteCurrentlyUsedPaperIdsToFile(uploadFileName);
-                await UploadIdsFile(uploadFileName);
+                if (currentlyUsed == -1)
+                {
+                    MagLog.UpdateLogEntry("Stopped", "Error in currentlyUsed", TaskMagLogId);
+                    return;
+                }
+                if (!await UploadIdsFile(uploadFileName))
+                {
+                    MagLog.UpdateLogEntry("Stopped", "Error in Uploading ids file", TaskMagLogId);
+                    return;
+                }
                 MagLog.UpdateLogEntry("Running", "ID checking: file uploaded n=" + currentlyUsed.ToString(), TaskMagLogId);
-                SubmitJob(ContactId);
+                if (!SubmitJob(ContactId, cancellationToken))
+                {
+                    MagLog.UpdateLogEntry("Stopped", "Error in Uploading ids file", TaskMagLogId);
+                    return;
+                }
                 missingCount = await DownloadMissingIdsFile(uploadFileName);
+                if (missingCount == -1)
+                {
+                    MagLog.UpdateLogEntry("Stopped", "Error in missingCount", TaskMagLogId);
+                    return;
+                }
             }
 
             MagLog.UpdateLogEntry("Running", "ID checking: Currently used: " + currentlyUsed.ToString() + " changed: " + missingCount.ToString(),
                 TaskMagLogId);
             string lookupResults = LookupMissingIdsInNewMakes(ContactId, TaskMagLogId, missingCount, currentlyUsed);
+            if (lookupResults == "ERROR: LookupMissingIdsInNewMakes did not complete")
+            {
+                MagLog.UpdateLogEntry("Stopped", "Error in looking up missing ids", TaskMagLogId);
+                return;
+            }
             MagLog.UpdateLogEntry("Running", "ID checking: updating live IDs. (Lookup results: " + lookupResults + ")", TaskMagLogId);
-            UpdateLiveIds();
+            if (!UpdateLiveIds())
+            {
+                MagLog.UpdateLogEntry("Stopped", "Error in looking up updating live ids", TaskMagLogId);
+                return;
+            }
             MagLog.UpdateLogEntry("Complete", "ID checking: " + lookupResults, TaskMagLogId);
         }
 
         private int ChangedPapersNotAlreadyWrittenCheck()
         {
-            int retVal = 0;
-            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+            try
             {
-                connection.Open();
-                using (SqlCommand command = new SqlCommand("st_MagChangedPapersNotAlreadyWrittenCheck", connection))
+                int retVal = 0;
+                using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
                 {
-                    command.CommandType = System.Data.CommandType.StoredProcedure;
-                    command.Parameters.Add(new SqlParameter("@MagVersion", _LatestMAGName));
-                    command.Parameters.Add(new SqlParameter("@NumPapers", 0));
-                    command.Parameters["@NumPapers"].Direction = System.Data.ParameterDirection.Output;
-                    command.ExecuteNonQuery();
-                    retVal = Convert.ToInt32(command.Parameters["@NumPapers"].Value);
+                    connection.Open();
+                    using (SqlCommand command = new SqlCommand("st_MagChangedPapersNotAlreadyWrittenCheck", connection))
+                    {
+                        command.CommandType = System.Data.CommandType.StoredProcedure;
+                        command.Parameters.Add(new SqlParameter("@MagVersion", _LatestMAGName));
+                        command.Parameters.Add(new SqlParameter("@NumPapers", 0));
+                        command.Parameters["@NumPapers"].Direction = System.Data.ParameterDirection.Output;
+                        command.ExecuteNonQuery();
+                        retVal = Convert.ToInt32(command.Parameters["@NumPapers"].Value);
+                    }
+                    connection.Close();
                 }
-                connection.Close();
+                return retVal;
             }
-            return retVal;
+            catch
+            {
+                return -1;
+            }
         }
 
         private int WriteCurrentlyUsedPaperIdsToFile(string fileName)
         {
             int count = 0;
-            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+            try
             {
-                connection.Open();
-                using (SqlCommand command = new SqlCommand("st_MagGetCurrentlyUsedPaperIds", connection))
+                using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
                 {
-                    command.CommandType = System.Data.CommandType.StoredProcedure;
-                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", 0)); 
-                    using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
+                    connection.Open();
+                    using (SqlCommand command = new SqlCommand("st_MagGetCurrentlyUsedPaperIds", connection))
                     {
-                        using (StreamWriter file = new StreamWriter(fileName, false))
+                        command.CommandType = System.Data.CommandType.StoredProcedure;
+                        command.Parameters.Add(new SqlParameter("@REVIEW_ID", 0));
+                        using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
                         {
-                            while (reader.Read())
+                            using (StreamWriter file = new StreamWriter(fileName, false))
                             {
-                                file.WriteLine(reader["PaperId"].ToString() + "\t" + reader["ITEM_ID"].ToString());
-                                count++;
+                                while (reader.Read())
+                                {
+                                    file.WriteLine(reader["PaperId"].ToString() + "\t" + reader["ITEM_ID"].ToString());
+                                    count++;
+                                }
                             }
                         }
                     }
                 }
+                return count;
             }
-            return count;
+            catch
+            {
+                return -1;
+            }
         }
 
-        private async Task UploadIdsFile(string fileName)
+        private async Task<bool> UploadIdsFile(string fileName)
         {
 
 #if (CSLA_NETCORE)
@@ -188,13 +241,15 @@ namespace BusinessLibrary.BusinessClasses
             CloudBlobContainer container = blobClient.GetContainerReference("uploads");
             CloudBlockBlob blockBlobData;
 
-            blockBlobData = container.GetBlockBlobReference(Path.GetFileName(fileName));
-            using (var fileStream = System.IO.File.OpenRead(fileName))
+            try
             {
+                blockBlobData = container.GetBlockBlobReference(Path.GetFileName(fileName));
+                using (var fileStream = System.IO.File.OpenRead(fileName))
+                {
 
 
 #if (!CSLA_NETCORE)
-                blockBlobData.UploadFromStream(fileStream);
+                    blockBlobData.UploadFromStream(fileStream);
 #else
 
 				await blockBlobData.UploadFromFileAsync(fileName);
@@ -202,13 +257,28 @@ namespace BusinessLibrary.BusinessClasses
 
 #endif
 
+                }
+                File.Delete(fileName);
+                return true;
             }
-            File.Delete(fileName);
+            catch
+            {
+                return false;
+            }
         }
 
-        private void SubmitJob(int ContactId)
+        private bool SubmitJob(int ContactId, CancellationToken cancellationToken)
         {
-            MagDataLakeHelpers.ExecProc(@"[master].[dbo].[GetPaperIdChanges](""" + this.LatestMAGName + "\");", true, "GetPaperIdChanges", ContactId, 9);
+            try
+            {
+                MagDataLakeHelpers.ExecProc(@"[master].[dbo].[GetPaperIdChanges](""" + this.LatestMAGName + "\");", true,
+                    "GetPaperIdChanges", ContactId, 9, cancellationToken);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         private async Task<int> DownloadMissingIdsFile(string uploadFileName)
@@ -314,11 +384,19 @@ namespace BusinessLibrary.BusinessClasses
 
         private string LookupMissingIdsInNewMakes(int ContactId, int MagLogId, int missingCount, int currentlyUsed)
         {
+#if (CSLA_NETCORE)
+
+            var configuration = ERxWebClient2.Startup.Configuration.GetSection("AzureContReviewSettings");
+
+#else
+            var configuration = ConfigurationManager.AppSettings;
+
+#endif
             int PaperTotalCount = 0;
             int PaperTotalFound = 0;
             int activeThreadCount = 0;
             int notMatchedCount = 0;
-            int maxThreadCount = 6;
+            int maxThreadCount = Convert.ToInt32(configuration["MagMatchItemsMaxThreadCount"]);
             int errorCount = 0;
             string result;
             string returnString = "ERROR: LookupMissingIdsInNewMakes did not complete";
@@ -339,7 +417,7 @@ namespace BusinessLibrary.BusinessClasses
                             int rowId = Convert.ToInt32(reader["MagChangedPaperIdsId"].ToString());
                             Int64 SeekingITEM_ID = Convert.ToInt64(reader["ITEM_ID"].ToString());
 
-                            if (activeThreadCount < maxThreadCount) // set in web.config
+                            if (activeThreadCount < maxThreadCount)
                             {
                                 Interlocked.Increment(ref activeThreadCount);
                                 Task.Run(() =>
@@ -606,18 +684,26 @@ namespace BusinessLibrary.BusinessClasses
             return rowId.ToString() + ",NOT_MATCHED";
         }
 
-        private void UpdateLiveIds()
+        private bool UpdateLiveIds()
         {
-            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+            try
             {
-                connection.Open();
-                using (SqlCommand command = new SqlCommand("st_MagUpdateChangedIds", connection))
+                using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
                 {
-                    command.CommandType = CommandType.StoredProcedure;
-                    command.Parameters.Add(new SqlParameter("@MagVersion", _LatestMAGName));
-                    command.ExecuteNonQuery();
+                    connection.Open();
+                    using (SqlCommand command = new SqlCommand("st_MagUpdateChangedIds", connection))
+                    {
+                        command.CommandType = CommandType.StoredProcedure;
+                        command.Parameters.Add(new SqlParameter("@MagVersion", _LatestMAGName));
+                        command.ExecuteNonQuery();
+                    }
+                    connection.Close();
                 }
-                connection.Close();
+                return true;
+            }
+            catch
+            {
+                return false;
             }
         }
 

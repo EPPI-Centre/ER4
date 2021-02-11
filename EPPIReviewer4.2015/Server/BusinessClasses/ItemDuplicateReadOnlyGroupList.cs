@@ -695,7 +695,7 @@ namespace BusinessLibrary.BusinessClasses
                 VOLUME = pm.V != null ? pm.V.ToString() : "";
                 PAGES = pm.FP != "" ? pm.FP + "-" + pm.LP : "";
                 ISSUE = pm.I;
-                DOI = pm.DOI;
+                DOI = pm.DOI != null ? pm.DOI.ToUpper().Replace("HTTPS://DX.DOI.ORG/", "").Replace("HTTPS://DOI.ORG/", "").Replace("HTTP://DX.DOI.ORG/", "").Replace("HTTP://DOI.ORG/", "").Replace("[DOI]", "").TrimEnd('.').Trim() : "";
                 ABSTRACT = "";
                 HAS_CODES = 0;
                 IS_MASTER = 0;
@@ -715,7 +715,7 @@ namespace BusinessLibrary.BusinessClasses
                 VOLUME = i.Volume;
                 PAGES = i.Pages;
                 ISSUE = i.Issue;
-                DOI = i.DOI.ToUpper();
+                DOI = i.DOI != null ? i.DOI.ToUpper().Replace("HTTPS://DX.DOI.ORG/", "").Replace("HTTPS://DOI.ORG/", "").Replace("HTTP://DX.DOI.ORG/", "").Replace("HTTP://DOI.ORG/", "").Replace("[DOI]", "").TrimEnd('.').Trim() : "";
                 ABSTRACT = i.Abstract;
                 HAS_CODES = 0;
                 IS_MASTER = 0;

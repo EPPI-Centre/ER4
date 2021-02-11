@@ -601,12 +601,12 @@ namespace BusinessLibrary.BusinessClasses
             await UploadIdsFileAsync(uploadFileName, folderPrefix);
             MagLog.UpdateLogEntry("running", "Review: " + ReviewId.ToString() + "Sim: " + MagSimulationId.ToString() + ", file uploaded", MagLogId);
 
-            SubmitCreatTrainFileJob(ContactId, folderPrefix);
+            SubmitCreatTrainFileJob(ContactId, folderPrefix, cancellationToken);
             if (this.SearchMethod == "Extended network")
             {
-                SubmitCreatExtendedTrainFileJob(ContactId, folderPrefix);
+                SubmitCreatExtendedTrainFileJob(ContactId, folderPrefix, cancellationToken);
             }
-            SubmitCreatInferenceFileJob(ContactId, folderPrefix);
+            SubmitCreatInferenceFileJob(ContactId, folderPrefix, cancellationToken);
 
             
             if ((await CheckTrainAndInferenceFilesOk(folderPrefix)) == false)
@@ -737,25 +737,25 @@ namespace BusinessLibrary.BusinessClasses
             File.Delete(fileName);
         }
 
-        private void SubmitCreatTrainFileJob(int ContactId, string folderPrefix)
+        private void SubmitCreatTrainFileJob(int ContactId, string folderPrefix, CancellationToken cancellationToken)
         {
             MagCurrentInfo MagInfo = MagCurrentInfo.GetMagCurrentInfoServerSide("LIVE");
             MagDataLakeHelpers.ExecProc(@"[master].[dbo].[GenerateTrainFile](""" + folderPrefix + "/SeedIds.tsv\",\"" +
                 folderPrefix + "/Train.tsv" + "\", \"" + MagInfo.MagFolder + "\",\"" + this.SearchMethod + "\"," +
                 this.Year.ToString() + ",\"" + this.CreatedDate.ToString() + 
-                "\");", true, "GenerateTrainFile", ContactId, 10);
+                "\");", true, "GenerateTrainFile", ContactId, 10, cancellationToken);
         }
 
-        private void SubmitCreatExtendedTrainFileJob(int ContactId, string folderPrefix)
+        private void SubmitCreatExtendedTrainFileJob(int ContactId, string folderPrefix, CancellationToken cancellationToken)
         {
             MagCurrentInfo MagInfo = MagCurrentInfo.GetMagCurrentInfoServerSide("LIVE");
             MagDataLakeHelpers.ExecProc(@"[master].[dbo].[GenerateExtendedTrainFile](""" + folderPrefix + "/Train.tsv\",\"" +
                 folderPrefix + "/ExtendedTrain.tsv" + "\", \"" + MagInfo.MagFolder + "\"," + 
                 this.Year.ToString() + ",\"" + this.CreatedDate.ToString() +
-                "\");", true, "GenerateExtendedTrainFile", ContactId, 10);
+                "\");", true, "GenerateExtendedTrainFile", ContactId, 10, cancellationToken);
         }
 
-        private void SubmitCreatInferenceFileJob(int ContactId, string folderPrefix)
+        private void SubmitCreatInferenceFileJob(int ContactId, string folderPrefix, CancellationToken cancellationToken)
         {
             MagCurrentInfo MagInfo = MagCurrentInfo.GetMagCurrentInfoServerSide("LIVE");
             MagDataLakeHelpers.ExecProc(@"[master].[dbo].[GenerateInferenceFile](""" + folderPrefix +
@@ -764,7 +764,7 @@ namespace BusinessLibrary.BusinessClasses
                 (this.WithThisAttributeId == 0 ? this.Year.ToString() : "1753") + ",\"" +
                 (this.CreatedDate.Date.Year == 1753 ? "" : this.CreatedDate.ToString()) + "\"," +
                 this.YearEnd.ToString() + ",\"" + this.CreatedDateEnd.ToString() + "\");",
-                true, "GenerateInferenceFile", ContactId, 10);
+                true, "GenerateInferenceFile", ContactId, 10, cancellationToken);
         }
 
         private async Task<bool> CheckTrainAndInferenceFilesOk(string folderPrefix)
