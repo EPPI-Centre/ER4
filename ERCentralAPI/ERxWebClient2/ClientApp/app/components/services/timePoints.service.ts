@@ -179,23 +179,19 @@ export class timePointsService extends BusyAwareService implements OnInit  {
 		this._BusyMethods.push("Deletetimepoint");
 			let ErrMsg = "Something went wrong when deleting an timepoint. \r\n If the problem persists, please contact EPPISupport.";
 			
-		this._http.post<iTimePoint>(this._baseUrl + 'api/ItemTimepointList/DeleteTimePoint',
+		this._http.post<iTimePoint[]>(this._baseUrl + 'api/ItemTimepointList/DeleteTimePoint',
 
 			timepoint).subscribe(
 				(result) => {
-
-					let key: number = this.timepoints.indexOf(result);
-					this.timepoints.splice(key, 1);
-					if (!result) this.modalService.GenericErrorMessage(ErrMsg);
+					this.timepoints = result;
+					this._currentItem.timepoints = result;
+					this._selectedtimepoint = null;
 					this.RemoveBusy("Deletetimepoint");
-					return result;
 				}
 				, (error) => {
-
 					this.Fetchtimepoints(this._currentItem);					
 					this.modalService.GenericErrorMessage(ErrMsg);
 					this.RemoveBusy("Deletetimepoint");
-					return error;
 				}
 				);
 
