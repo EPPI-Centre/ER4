@@ -162,8 +162,9 @@ namespace ERxWebClient2.Controllers
                     ItemTimepoint CurrTimePoint = result.FirstOrDefault(x => x.ItemTimepointId == CurrentTimePoint.itemTimepointId);
 
                     CurrTimePoint.Delete();
+					result.AllowRemove = true;
+					result.Remove(CurrTimePoint);
                     CurrTimePoint = CurrTimePoint.Save();
-
                     return Ok(result);
                 }
                 else
