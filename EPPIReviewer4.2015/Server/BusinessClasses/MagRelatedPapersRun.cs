@@ -199,6 +199,19 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(FilteredProperty, value);
             }
         }
+
+        public static readonly PropertyInfo<string> PmidsProperty = RegisterProperty<string>(new PropertyInfo<string>("Pmids", "Pmids"));
+        public string Pmids
+        {
+            get
+            {
+                return GetProperty(PmidsProperty);
+            }
+            set
+            {
+                SetProperty(PmidsProperty, value);
+            }
+        }
         /*
         public static readonly PropertyInfo<bool> CheckedProperty = RegisterProperty<bool>(new PropertyInfo<bool>("Checked", "Checked", false));
         public bool Checked
@@ -611,34 +624,50 @@ namespace BusinessLibrary.BusinessClasses
         private bool WriteSeedIdsFile(string uploadFileName, int ReviewId)
         {
             int c = 0;
+            
             try
             {
-                using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+                if (this.Mode != "PubMed ID search")
                 {
-                    connection.Open();
-                    using (SqlCommand command = new SqlCommand("st_MagRelatedPapersRunGetSeedIds", connection))
+                    using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
                     {
-                        command.CommandType = System.Data.CommandType.StoredProcedure;
-                        command.Parameters.Add(new SqlParameter("@MAG_RELATED_RUN_ID", this.MagRelatedRunId));
-                        command.Parameters.Add(new SqlParameter("@REVIEW_ID", ReviewId));
-                        command.Parameters.Add(new SqlParameter("@ATTRIBUTE_ID", this.AttributeId));
-                        using (SafeDataReader reader = new SafeDataReader(command.ExecuteReader()))
+                        connection.Open();
+                        using (SqlCommand command = new SqlCommand("st_MagRelatedPapersRunGetSeedIds", connection))
                         {
-                            if (reader.Read())
+                            command.CommandType = System.Data.CommandType.StoredProcedure;
+                            command.Parameters.Add(new SqlParameter("@MAG_RELATED_RUN_ID", this.MagRelatedRunId));
+                            command.Parameters.Add(new SqlParameter("@REVIEW_ID", ReviewId));
+                            command.Parameters.Add(new SqlParameter("@ATTRIBUTE_ID", this.AttributeId));
+                            using (SafeDataReader reader = new SafeDataReader(command.ExecuteReader()))
                             {
-                                using (StreamWriter file = new StreamWriter(uploadFileName, false))
+                                if (reader.Read())
                                 {
-                                    file.WriteLine(reader["PaperId"].ToString());
-                                    while (reader.Read())
+                                    using (StreamWriter file = new StreamWriter(uploadFileName, false))
                                     {
                                         file.WriteLine(reader["PaperId"].ToString());
-                                        c++;
+                                        while (reader.Read())
+                                        {
+                                            file.WriteLine(reader["PaperId"].ToString());
+                                            c++;
+                                        }
                                     }
                                 }
                             }
                         }
+                        connection.Close();
                     }
-                    connection.Close();
+                }
+                else
+                {
+                    using (StreamWriter file = new StreamWriter(uploadFileName, false)) 
+                    {
+                        file.WriteLine("Pmid");
+                        foreach (string s in this.Pmids.Split(','))
+                        {
+                            file.WriteLine(s.Trim());
+                            c++;
+                        }
+                    }
                 }
             }
             catch
@@ -702,10 +731,20 @@ namespace BusinessLibrary.BusinessClasses
         private void TriggerDataLakeJob(string uploadFileName, int ContactId, CancellationToken cancellationToken)
         {
             MagCurrentInfo MagInfo = MagCurrentInfo.GetMagCurrentInfoServerSide("LIVE");
-            MagDataLakeHelpers.ExecProc(@"[master].[dbo].[RelatedRun](""" + Path.GetFileName(uploadFileName) + "\",\"" +
-                Path.GetFileName(uploadFileName) + "\", \"" + MagInfo.MagFolder + "\",\"" + this.Mode + "\"," +
-                (this.DateFrom.ToString() != "" ? DateFrom.Date.Year.ToString() : "1753") + ");", true, "RelatedRun",
-                ContactId, 10, cancellationToken);
+            if (this.Mode == "PubMed ID search")
+            {
+                MagDataLakeHelpers.ExecProc(@"[master].[dbo].[GetPaperIdsFromPmids](""" + Path.GetFileName(uploadFileName) + "\",\"" +
+                    Path.GetFileName(uploadFileName) + "\", \"" + MagInfo.MagFolder + "\");", true, "RelatedRunPmid",
+                    ContactId, 3, cancellationToken);
+            }
+            else
+            {
+                
+                MagDataLakeHelpers.ExecProc(@"[master].[dbo].[RelatedRun](""" + Path.GetFileName(uploadFileName) + "\",\"" +
+                    Path.GetFileName(uploadFileName) + "\", \"" + MagInfo.MagFolder + "\",\"" + this.Mode + "\"," +
+                    (this.DateFrom.ToString() != "" ? DateFrom.Date.Year.ToString() : "1753") + ");", true, "RelatedRun",
+                    ContactId, 10, cancellationToken);
+            }
         }
 
         private async Task<bool> DownloadResultsAsync(string fileName, int ReviewId)

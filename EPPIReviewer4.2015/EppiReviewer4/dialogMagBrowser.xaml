@@ -208,6 +208,7 @@
                                     <RowDefinition Height="250"></RowDefinition>
                                     <RowDefinition Height="35"></RowDefinition>
                                     <RowDefinition Height="0" x:Name="RowCreateNewRelatedPapersRun"></RowDefinition>
+                                    <RowDefinition Height="0" x:Name="RowCreateNewPmidSearch"></RowDefinition>
                                     <RowDefinition Height="*"></RowDefinition>
                                 </Grid.RowDefinitions>
 
@@ -227,8 +228,11 @@
 
                                 <Image Grid.Row="0" Grid.Column="1" Source="./Icons/MAG.jpg" Margin="5,5,5,5" HorizontalAlignment="Right" VerticalAlignment="Top"></Image>
 
-                                <HyperlinkButton x:Name="LBAddNewRagRelatedPapersRun" Grid.Row="1" Margin="5,5,5,5" Content="Add new search for related papers / auto update search for review" Click="LBAddNewRagRelatedPapersRun_Click" Tag="ClickToOpen" IsTabStop="False"></HyperlinkButton>
-
+                                <StackPanel Grid.Row="1" Orientation="Horizontal">
+                                    <HyperlinkButton x:Name="LBAddNewRagRelatedPapersRun" Margin="5,5,5,5" Content="Add new search for related papers" Click="LBAddNewRagRelatedPapersRun_Click" Tag="ClickToOpen" IsTabStop="False"></HyperlinkButton>
+                                    <HyperlinkButton x:Name="LBOpenPmidSearch" Margin="5,5,5,5" Content="Add search by PubMed ID" Tag="ClickToOpen" IsTabStop="False" Click="LBOpenPmidSearch_Click"></HyperlinkButton>
+                                </StackPanel>
+                                
                                 <Grid Grid.Row="2">
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="35"></RowDefinition>
@@ -273,7 +277,22 @@
                                     <HyperlinkButton x:Name="LBAddRelatedPapersRun" Content="Add new search for related papers" Grid.Row="4" Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Center" Click="LBAddRelatedPapersRun_Click" IsTabStop="False"></HyperlinkButton>
                                 </Grid>
 
-                                <telerikGridView:RadGridView x:Name="RelatedPapersRunGrid" Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" AutoGenerateColumns="False" ShowGroupPanel="False"
+                                <Grid Grid.Row="3">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="40"></RowDefinition>
+                                        <RowDefinition Height="40"></RowDefinition>
+                                    </Grid.RowDefinitions>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="160"></ColumnDefinition>
+                                        <ColumnDefinition Width="*"></ColumnDefinition>
+                                    </Grid.ColumnDefinitions>
+
+                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Enter PubMed Ids" Margin="5,5,5,5" VerticalAlignment="Center"></TextBlock>
+                                    <TextBox x:Name="tbRelatedRunPmids" Grid.Row="0" Grid.Column="1" Margin="5,5,50,5" VerticalAlignment="Center"></TextBox>
+                                    <HyperlinkButton x:Name="lbRelatedRunSearchPmids" Grid.Row="1" Grid.ColumnSpan="2" Content="Search for these (comma-separated) PubMed Ids" Margin="5,5,5,5" IsTabStop="False" Click="lbRelatedRunSearchPmids_Click"></HyperlinkButton>
+                                </Grid>
+
+                                <telerikGridView:RadGridView x:Name="RelatedPapersRunGrid" Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2" AutoGenerateColumns="False" ShowGroupPanel="False"
                                     IsReadOnly="False" MinHeight="50" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                                     ItemsSource="{Binding Source={StaticResource RelatedPapersRunListData}, Path=Data, Mode=TwoWay}"
                                     IsEnabled="{Binding Source={StaticResource RelatedPapersRunListData}, Converter={StaticResource ReverseBoolean}, Path=IsBusy }"
@@ -1009,7 +1028,7 @@
                                         <ComboBoxItem Content="Repository"></ComboBoxItem>
                                     </ComboBox>
 
-                                    <HyperlinkButton x:Name="HyperLinkMagSearchDoSearch" Grid.Row="5" Grid.Column="0" Content="Run search!" Margin="5,5,5,5" FontSize="14" VerticalAlignment="Center" Click="HyperLinkMagSearchDoSearch_Click" IsTabStop="False"></HyperlinkButton>
+                                    <HyperlinkButton x:Name="HyperLinkMagSearchDoSearch" Grid.Row="5" Grid.Column="0" Content="Run search!" Margin="5,5,5,5" FontWeight="Bold" FontSize="14" VerticalAlignment="Center" Click="HyperLinkMagSearchDoSearch_Click" IsTabStop="False"></HyperlinkButton>
 
                                     <TextBlock Grid.Row="0" Grid.Column="4" Text="Combine / filter / delete selected searches"  Grid.ColumnSpan="2" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="5,5,5,5" FontStyle="Italic"></TextBlock>
                                     <ComboBox x:Name="ComboMagSearchDateLimitFilter" Grid.Row="1" Grid.Column="4" Margin="5,5,5,5" SelectionChanged="ComboMagSearchDateLimitFilter_SelectionChanged">
@@ -1041,7 +1060,7 @@
                                        
                                     </StackPanel>
                                     <HyperlinkButton x:Name="hlDeleteSelectedMagSearches" Grid.Row="4" Grid.Column="4" Content="Delete selected searches" Margin="5,5,5,5" VerticalAlignment="Center" IsTabStop="False" Click="hlDeleteSelectedMagSearches_Click"></HyperlinkButton>
-                                    <CheckBox x:Name="cbMagSearchShowTextFilters" Grid.Row="5" Grid.Column="4" Grid.ColumnSpan="2" Content="Use text filters to remove content from specific sources" Margin="5,5,5,5" IsChecked="false" Unchecked="cbMagSearchShowTextFilters_Unchecked" Checked="cbMagSearchShowTextFilters_Checked"></CheckBox>
+                                    <CheckBox x:Name="cbMagSearchShowTextFilters" Grid.Row="5" Grid.Column="4" Grid.ColumnSpan="2" Content="Use text filters to remove content from specific sources on import" Margin="5,5,5,5" IsChecked="false" Unchecked="cbMagSearchShowTextFilters_Unchecked" Checked="cbMagSearchShowTextFilters_Checked"></CheckBox>
                                     <StackPanel Grid.Row="6" Grid.Column="4" Grid.ColumnSpan="2" Orientation="Horizontal">
                                         <TextBlock Text="Filter from journal field" Margin="5,5,5,5" VerticalAlignment="Center"></TextBlock>
                                         <TextBox x:Name="MagSearchTextFilterJournal" Margin="23,5,5,5" Width="200" VerticalAlignment="Center"></TextBox>

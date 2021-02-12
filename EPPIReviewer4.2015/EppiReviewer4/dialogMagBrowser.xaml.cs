@@ -1871,14 +1871,14 @@ namespace EppiReviewer4
             if ((sender as HyperlinkButton).Tag.ToString() == "ClickToOpen")
             {
                 RowCreateNewRelatedPapersRun.Height = new GridLength(50, GridUnitType.Auto);
-                LBAddNewRagRelatedPapersRun.Content = "Adding new search for related papers / auto update search for review (Click to close)";
+                LBAddNewRagRelatedPapersRun.Content = "Adding new search for related papers (Click to close)";
                 LBAddNewRagRelatedPapersRun.Tag = "ClickToClose";
                 tbRelatedPapersRunDescription.Text = "";
             }
             else
             {
                 RowCreateNewRelatedPapersRun.Height = new GridLength(0);
-                LBAddNewRagRelatedPapersRun.Content = "Add new search for related papers / auto update search for review";
+                LBAddNewRagRelatedPapersRun.Content = "Add new search for related papers";
                 LBAddNewRagRelatedPapersRun.Tag = "ClickToOpen";
             }
         }
@@ -2136,6 +2136,60 @@ namespace EppiReviewer4
                     TBPaperListTitle.Text = "Papers identified from auto-identification run";
                     ShowRelatedRunPapers(pr.MagRelatedRunId);
                 }
+            }
+        }
+
+        private void lbRelatedRunSearchPmids_Click(object sender, RoutedEventArgs e)
+        {
+            if (tbRelatedRunPmids.Text != "")
+            {
+                CslaDataProvider provider = this.Resources["RelatedPapersRunListData"] as CslaDataProvider;
+                if (provider != null)
+                {
+                    MagRelatedPapersRunList mrprl = provider.Data as MagRelatedPapersRunList;
+                    if (mrprl != null)
+                    {
+                        MagRelatedPapersRun mrpr = new MagRelatedPapersRun();
+                        mrpr.UserDescription = "Search for PubMed IDs";
+                        mrpr.AllIncluded = true;
+                        mrpr.AttributeId = 0;
+                        mrpr.DateFrom = null;
+                        mrpr.Status = "Running";
+                        mrpr.Filtered = "";
+                        mrpr.DateRun = DateTime.Now;
+                        mrpr.Mode = "PubMed ID search";
+                        mrpr.Pmids = tbRelatedRunPmids.Text;
+
+                        mrprl.Add(mrpr);
+                        mrprl.SaveItem(mrpr);
+                        DataLakeTimer.Start();
+                        RadWindow.Alert("Running... (The grid below will refresh every 30 seconds)");
+                        RowCreateNewPmidSearch.Height = new GridLength(0);
+                        LBOpenPmidSearch.Content = "Add search by PubMed ID";
+                        LBOpenPmidSearch.Tag = "ClickToOpen";
+                    }
+                }
+            }
+            else
+            {
+                RadWindow.Alert("Please enter some PubMed Ids!");
+            }
+        }
+
+        private void LBOpenPmidSearch_Click(object sender, RoutedEventArgs e)
+        {
+            if ((sender as HyperlinkButton).Tag.ToString() == "ClickToOpen")
+            {
+                RowCreateNewPmidSearch.Height = new GridLength(50, GridUnitType.Auto);
+                LBOpenPmidSearch.Content = "Adding search by PubMed ID (Click to close)";
+                LBOpenPmidSearch.Tag = "ClickToClose";
+                tbRelatedPapersRunDescription.Text = "";
+            }
+            else
+            {
+                RowCreateNewPmidSearch.Height = new GridLength(0);
+                LBOpenPmidSearch.Content = "Add search by PubMed ID";
+                LBOpenPmidSearch.Tag = "ClickToOpen";
             }
         }
 
@@ -4392,6 +4446,9 @@ namespace EppiReviewer4
                 }
             }
         }
+
+        
+
 
     }
 }
