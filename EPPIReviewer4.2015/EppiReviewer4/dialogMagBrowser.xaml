@@ -933,6 +933,10 @@
                                         <RowDefinition Height="0" x:Name="RowMagSearchTopics"></RowDefinition>
                                         <RowDefinition Height="40"></RowDefinition>
                                         <RowDefinition Height="40"></RowDefinition>
+                                        <RowDefinition Height="35"></RowDefinition>
+                                        <RowDefinition Height="0" x:Name="RowMagSearchFilterJournal"></RowDefinition>
+                                        <RowDefinition Height="0" x:Name="RowMagSearchFilterUrl"></RowDefinition>
+                                        <RowDefinition Height="0" x:Name="RowMagSearchFilterDoi"></RowDefinition>
                                         <RowDefinition Height="*"></RowDefinition>
                                     </Grid.RowDefinitions>
                                     <Grid.ColumnDefinitions>
@@ -964,7 +968,6 @@
                                         <ComboBoxItem Content="Custom"></ComboBoxItem>
                                     </ComboBox>
                                     <TextBox x:Name="TextBoxMagSearch" Grid.Row="1" Grid.Column="1" Margin="5,5,5,5" TextChanged="TextBoxMagSearch_TextChanged"></TextBox>
-                                    <HyperlinkButton x:Name="HyperLinkMagSearchDoSearch" Grid.Row="1" Grid.Column="2" Content="Run search!" Margin="5,5,5,5" VerticalAlignment="Center" Click="HyperLinkMagSearchDoSearch_Click" IsTabStop="False"></HyperlinkButton>
                                     <cslaXAML:BusyAnimation x:Name="BusyRunningMagSearch"  Grid.Row="1" Grid.Column="2"/>
 
                                     <TextBlock x:Name="MagSearchCurrentTopic" Grid.Row="2" Grid.Column="0" Margin="5,5,5,5" Text="" FontStyle="Italic"></TextBlock>
@@ -1006,6 +1009,8 @@
                                         <ComboBoxItem Content="Repository"></ComboBoxItem>
                                     </ComboBox>
 
+                                    <HyperlinkButton x:Name="HyperLinkMagSearchDoSearch" Grid.Row="5" Grid.Column="0" Content="Run search!" Margin="5,5,5,5" FontSize="14" VerticalAlignment="Center" Click="HyperLinkMagSearchDoSearch_Click" IsTabStop="False"></HyperlinkButton>
+
                                     <TextBlock Grid.Row="0" Grid.Column="4" Text="Combine / filter / delete selected searches"  Grid.ColumnSpan="2" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="5,5,5,5" FontStyle="Italic"></TextBlock>
                                     <ComboBox x:Name="ComboMagSearchDateLimitFilter" Grid.Row="1" Grid.Column="4" Margin="5,5,5,5" SelectionChanged="ComboMagSearchDateLimitFilter_SelectionChanged">
                                         <ComboBoxItem Content="No date limit" IsSelected="True"></ComboBoxItem>
@@ -1036,8 +1041,21 @@
                                        
                                     </StackPanel>
                                     <HyperlinkButton x:Name="hlDeleteSelectedMagSearches" Grid.Row="4" Grid.Column="4" Content="Delete selected searches" Margin="5,5,5,5" VerticalAlignment="Center" IsTabStop="False" Click="hlDeleteSelectedMagSearches_Click"></HyperlinkButton>
+                                    <CheckBox x:Name="cbMagSearchShowTextFilters" Grid.Row="5" Grid.Column="4" Grid.ColumnSpan="2" Content="Use text filters to remove content from specific sources" Margin="5,5,5,5" IsChecked="false" Unchecked="cbMagSearchShowTextFilters_Unchecked" Checked="cbMagSearchShowTextFilters_Checked"></CheckBox>
+                                    <StackPanel Grid.Row="6" Grid.Column="4" Grid.ColumnSpan="2" Orientation="Horizontal">
+                                        <TextBlock Text="Filter from journal field" Margin="5,5,5,5" VerticalAlignment="Center"></TextBlock>
+                                        <TextBox x:Name="MagSearchTextFilterJournal" Margin="23,5,5,5" Width="200" VerticalAlignment="Center"></TextBox>
+                                    </StackPanel>
+                                    <StackPanel Grid.Row="7" Grid.Column="4" Grid.ColumnSpan="2" Orientation="Horizontal">
+                                        <TextBlock Text="Filter from URL field" Margin="5,5,5,5" VerticalAlignment="Center"></TextBlock>
+                                        <TextBox x:Name="MagSearchTextFilterURL" Margin="40,5,5,5" Width="200" VerticalAlignment="Center"></TextBox>
+                                    </StackPanel>
+                                    <StackPanel Grid.Row="8" Grid.Column="4" Grid.ColumnSpan="2" Orientation="Horizontal">
+                                        <TextBlock Text="Filter from DOI field" Margin="5,5,5,5" VerticalAlignment="Center"></TextBlock>
+                                        <TextBox x:Name="MagSearchTextFilterDOI" Margin="40,5,5,5" Width="200" VerticalAlignment="Center"></TextBox>
+                                    </StackPanel>
                                     
-                                    <telerikGridView:RadGridView x:Name="SearchDataGrid" Grid.Row="5" Grid.ColumnSpan="6" AutoGenerateColumns="False" ShowGroupPanel="False"
+                                    <telerikGridView:RadGridView x:Name="SearchDataGrid" Grid.Row="9" Grid.ColumnSpan="6" AutoGenerateColumns="False" ShowGroupPanel="False"
                                     IsReadOnly="True" MinHeight="50" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                                     ItemsSource="{Binding Source={StaticResource MagSearchListData}, Path=Data, Mode=TwoWay}"
                                     RowIndicatorVisibility="Collapsed" CanUserSortColumns="True" 

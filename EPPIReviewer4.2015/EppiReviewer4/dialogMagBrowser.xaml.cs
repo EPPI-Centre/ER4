@@ -3420,9 +3420,16 @@ namespace EppiReviewer4
                 if (ms != null)
                 {
                     DataPortal<MagItemPaperInsertCommand> dp2 = new DataPortal<MagItemPaperInsertCommand>();
-                    MagItemPaperInsertCommand command = new MagItemPaperInsertCommand("", SelectedLinkButton.Tag.ToString(),
-                        0, 0, "", 0, 0, 0, 0, "", "", "", ms.MagSearchText, "MAG search: " + ms.SearchText +
-                        (SelectedLinkButton.Tag.ToString() == "MagSearchResultsLatestMAG" ? " (filtered to latest MAG deployment)" : ""));
+                    MagItemPaperInsertCommand command = new MagItemPaperInsertCommand("",
+                        SelectedLinkButton.Tag.ToString(),
+                        0, 0, "", 0, 0, 0, 0,
+                        (cbMagSearchShowTextFilters.IsChecked == true ? MagSearchTextFilterJournal.Text : ""),
+                        (cbMagSearchShowTextFilters.IsChecked == true ? MagSearchTextFilterURL.Text : ""),
+                        (cbMagSearchShowTextFilters.IsChecked == true ? MagSearchTextFilterDOI.Text : ""),
+                        ms.MagSearchText,
+                        "MAG search: " + ms.SearchText + 
+                            (SelectedLinkButton.Tag.ToString() == "MagSearchResultsLatestMAG" ? " (filtered to latest MAG deployment)" : "") +
+                            (cbMagSearchShowTextFilters.IsChecked == true ? " (with source filters applied)" : ""));
                     dp2.ExecuteCompleted += (o, e2) =>
                     {
                         BusyImportingRecords.IsRunning = false;
@@ -3441,17 +3448,34 @@ namespace EppiReviewer4
                             }
                             else
                             {
+                                string filteredText = "";
+                                if (cbMagSearchShowTextFilters.IsChecked == true)
+                                    filteredText = " / were removed by filters";
+                                string latestMagFilter = "";
+                                if (SelectedLinkButton.Tag.ToString() != "MagSearchResults")
+                                    latestMagFilter = " / were not in latest MAG";
+
+                                if (e2.Object.NImported == 0)
+                                {
+                                    RadWindow.Alert("All records were already in your review" + filteredText + latestMagFilter);
+                                }
+                                else
+                                {
+                                    RadWindow.Alert("Imported " + e2.Object.NImported.ToString() + " out of " +
+                                        num_in_run.ToString() +" new items.\n\nSome were already in your review" + filteredText + latestMagFilter);
+                                }
+                                /*
                                 if (SelectedLinkButton.Tag.ToString() == "MagSearchResults")
                                 {
                                     if (e2.Object.NImported != 0)
                                     {
-                                        RadWindow.Alert("Some of these items were already in your review.\n\nImported " +
+                                        RadWindow.Alert("Some of these items were already in your review" + filteredText + "\n\nImported " +
                                             e2.Object.NImported.ToString() + " out of " + num_in_run.ToString() +
                                             " new items");
                                     }
                                     else
                                     {
-                                        RadWindow.Alert("All of these records were already in your review.");
+                                        RadWindow.Alert("All of these records were already in your review" + filteredText);
                                     }
                                 }
                                 else
@@ -3467,6 +3491,7 @@ namespace EppiReviewer4
                                         RadWindow.Alert("All records were already in your review or not in latest MAG.");
                                     }
                                 }
+                                */
                             }
                         }
                     };
@@ -3518,6 +3543,27 @@ namespace EppiReviewer4
             else
             {
                 WPMagSearchFindTopics.Children.Clear();
+            }
+        }
+
+
+        private void cbMagSearchShowTextFilters_Checked(object sender, RoutedEventArgs e)
+        {
+            if (cbMagSearchShowTextFilters.IsChecked == true)
+            {
+                RowMagSearchFilterJournal.Height = new GridLength(35, GridUnitType.Auto);
+                RowMagSearchFilterUrl.Height = new GridLength(35, GridUnitType.Auto);
+                RowMagSearchFilterDoi.Height = new GridLength(35, GridUnitType.Auto);
+            }
+        }
+
+        private void cbMagSearchShowTextFilters_Unchecked(object sender, RoutedEventArgs e)
+        {
+            if (cbMagSearchShowTextFilters.IsChecked == false)
+            {
+                RowMagSearchFilterJournal.Height = new GridLength(0);
+                RowMagSearchFilterUrl.Height = new GridLength(0);
+                RowMagSearchFilterDoi.Height = new GridLength(0);
             }
         }
 

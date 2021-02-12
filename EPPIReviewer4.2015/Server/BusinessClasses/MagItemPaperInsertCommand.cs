@@ -292,7 +292,7 @@ namespace BusinessLibrary.BusinessClasses
                                 {
                                     MagPaper mp = MagPaper.GetMagPaperFromPaperMakes(pm, null);
 
-                                    if (mp.PaperId > 0)
+                                    if (mp.PaperId > 0 && PaperPassesFilters(mp))
                                     {
                                         incomingList.IncomingItems.Add(GetIncomingItemFromMagPaper(mp));
                                     }
@@ -332,7 +332,7 @@ namespace BusinessLibrary.BusinessClasses
                                         !AlreadyUsedPaperIds.Exists(element => element == pm.Id.ToString()))
                                     {
                                         MagPaper mp = MagPaper.GetMagPaperFromPaperMakes(pm, null);
-                                        if (mp.PaperId > 0)
+                                        if (mp.PaperId > 0 && PaperPassesFilters(mp))
                                         {
                                             incomingList.IncomingItems.Add(GetIncomingItemFromMagPaper(mp));
                                         }
