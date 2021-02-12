@@ -24,7 +24,9 @@ using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
 using System.Data;
 using System.Threading;
+#if !CSLA_NETCORE
 using System.Web.Hosting;
+#endif
 #endif
 
 namespace BusinessLibrary.BusinessClasses

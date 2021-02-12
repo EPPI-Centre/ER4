@@ -19,8 +19,9 @@ using BusinessLibrary.Data;
 using BusinessLibrary.Security;
 using System.Configuration;
 using System.Collections.Concurrent;
+#if !CSLA_NETCORE
 using System.Web.Hosting;
-
+#endif
 #endif
 
 namespace BusinessLibrary.BusinessClasses
