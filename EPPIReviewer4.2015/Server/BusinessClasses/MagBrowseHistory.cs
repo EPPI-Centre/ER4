@@ -284,6 +284,16 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
+        public static readonly PropertyInfo<int> AutoUpdateUserTopNProperty = RegisterProperty<int>(new PropertyInfo<int>("AutoUpdateUserTopN", "AutoUpdateUserTopN"));
+        public int AutoUpdateUserTopN
+        {
+            get { return ReadProperty(AutoUpdateUserTopNProperty); }
+            set
+            {
+                SetProperty(AutoUpdateUserTopNProperty, value);
+            }
+        }
+
 
 
         //protected override void AddAuthorizationRules()

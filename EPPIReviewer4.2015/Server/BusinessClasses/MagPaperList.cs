@@ -616,6 +616,7 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@AutoUpdateScore", criteria.AutoUpdateAutoUpdateScore));
                     command.Parameters.Add(new SqlParameter("@StudyTypeClassifierScore", criteria.AutoUpdateStudyTypeClassifierScore));
                     command.Parameters.Add(new SqlParameter("@UserClassifierScore", criteria.AutoUpdateUserClassifierScore));
+                    command.Parameters.Add(new SqlParameter("@AutoupdateUserTopN", criteria.AutoUpdateUserTopN));
                     this.MagAutoUpdateRunId = criteria.MagAutoUpdateRunId;
                     this.PaperIds = "";
                     this.AttributeIds = "";
@@ -796,6 +797,16 @@ namespace BusinessLibrary.BusinessClasses
             set
             {
                 SetProperty(AutoUpdateUserClassifierScoreProperty, value);
+            }
+        }
+
+        public static readonly PropertyInfo<int> AutoUpdateUserTopNProperty = RegisterProperty<int>(typeof(MagPaperListSelectionCriteria), new PropertyInfo<int>("AutoUpdateUserTopN", "AutoUpdateUserTopN"));
+        public int AutoUpdateUserTopN
+        {
+            get { return ReadProperty(AutoUpdateUserTopNProperty); }
+            set
+            {
+                SetProperty(AutoUpdateUserTopNProperty, value);
             }
         }
 
