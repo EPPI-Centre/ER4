@@ -85,7 +85,7 @@ namespace BusinessLibrary.BusinessClasses
 
             // Run in separate thread and return this object to client
 #if CSLA_NETCORE
-            System.Threading.Tasks.Task.Run(() => AddClassifierScores(ri.ReviewId.ToString()));
+            System.Threading.Tasks.Task.Run(() => AddClassifierScores(ri.ReviewId.ToString(), ri.UserId));
 #else
             //see: https://codingcanvas.com/using-hostingenvironment-queuebackgroundworkitem-to-run-background-tasks-in-asp-net/
             HostingEnvironment.QueueBackgroundWorkItem(cancellationToken => AddClassifierScores(ri.ReviewId.ToString(), ri.UserId));

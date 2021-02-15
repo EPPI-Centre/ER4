@@ -46,7 +46,7 @@ export class MAGBrowserService extends BusyAwareService {
     private _MAGList: MagList = new MagList();
     private _MAGOriginalList: MagList = new MagList();
     private _Criteria: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
-    private _OrigCriteria: MVCMagOrigPaperListSelectionCriteria = new MVCMagOrigPaperListSelectionCriteria();
+    private _OrigCriteria: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
     private _currentPaper: MagPaper = new MagPaper();
     public ParentTopic: string = '';
     public WPParentTopics: TopicLink[] = [];
@@ -83,10 +83,10 @@ export class MAGBrowserService extends BusyAwareService {
     public set ListCriteria(value: MVCMagPaperListSelectionCriteria) {
         this._Criteria = value;
     }
-    public get OrigListCriteria(): MVCMagOrigPaperListSelectionCriteria {
+    public get OrigListCriteria(): MVCMagPaperListSelectionCriteria {
         return this._OrigCriteria;
     }
-    public set OrigListCriteria(value: MVCMagOrigPaperListSelectionCriteria) {
+    public set OrigListCriteria(value: MVCMagPaperListSelectionCriteria) {
         this._OrigCriteria = value;
     }
     public get currentPaper(): MagPaper {
@@ -421,7 +421,7 @@ export class MAGBrowserService extends BusyAwareService {
             });
     }
 
-    public FetchOrigWithCrit(crit: MVCMagOrigPaperListSelectionCriteria, listDescription: string): Promise<boolean> {
+    public FetchOrigWithCrit(crit: MVCMagPaperListSelectionCriteria, listDescription: string): Promise<boolean> {
 
         this._BusyMethods.push("FetchOrigWithCrit");
         this.OrigListCriteria = crit;
@@ -456,7 +456,7 @@ export class MAGBrowserService extends BusyAwareService {
                     return false;
                 });
     }
-    public SaveOrigPapers(list: MagList, crit: MVCMagOrigPaperListSelectionCriteria, referenceList: string) {
+    public SaveOrigPapers(list: MagList, crit: MVCMagPaperListSelectionCriteria, referenceList: string) {
 
 
         if (crit.listType == 'CitationsList' || crit.listType == 'ReviewMatchedPapers' || crit.listType == 'MagSearchResultsList'

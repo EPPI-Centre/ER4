@@ -129,10 +129,13 @@
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemTimepointList.cs" Link="Models\ItemTimepointList.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemTypeNVL.cs" Link="Models\ItemTypeNVL.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemTypeNVLFactory.cs" Link="Models\ItemTypeNVLFactory.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\MagAddClassifierScoresCommand.cs" Link="Controllers\MagAddClassifierScoresCommand.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\MagAutoUpdate.cs" Link="Models\MagAutoUpdate.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\MagAutoUpdateList.cs" Link="Models\MagAutoUpdateList.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\MagAutoUpdateRun.cs" Link="Models\MagAutoUpdateRun.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\MagAutoUpdateRunList.cs" Link="Models\MagAutoUpdateRunList.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\MagAutoUpdateVisualise.cs" Link="Models\MagAutoUpdateVisualise.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\MagAutoUpdateVisualiseList.cs" Link="Models\MagAutoUpdateVisualiseList.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\MagBlobDataCommand.cs" Link="Models\MagBlobDataCommand.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\MagBrowseHistory.cs" Link="Models\MagBrowseHistory.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\MagBrowseHistoryList.cs" Link="Models\MagBrowseHistoryList.cs" />

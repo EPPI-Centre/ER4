@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
 import { MAGBrowserService } from './MAGBrowser.service';
-import { MagRelatedPapersRun, MagPaperList, MagPaper,  MagItemPaperInsertCommand, MagAutoUpdateRun, MagAutoUpdate } from './MAGClasses.service';
+import { MagRelatedPapersRun, MagPaperList, MagPaper,  MagItemPaperInsertCommand, MagAutoUpdateRun, MagAutoUpdate, MagAutoUpdateVisualise, MagAutoUpdateVisualiseSelectionCriteria, MagAddClassifierScoresCommand } from './MAGClasses.service';
 import { ConfirmationDialogService } from './confirmation-dialog.service';
 
 @Injectable({
@@ -27,6 +27,7 @@ export class MAGRelatedRunsService extends BusyAwareService {
     private _MagRelatedPapersRunList: MagRelatedPapersRun[] = [];
     private _MagUpdatesList: MagAutoUpdate[] = [];
     private _MagAutoUpdateRunList: MagAutoUpdateRun[] = [];
+    private _MagAutoUpdateVisualise: MagAutoUpdateVisualise[] = [];
     private _MagItemPaperInsert: MagItemPaperInsertCommand = new MagItemPaperInsertCommand();
 
     public get MagRelatedPapersRunList(): MagRelatedPapersRun[] {
@@ -46,6 +47,9 @@ export class MAGRelatedRunsService extends BusyAwareService {
     //}
     public get MagAutoUpdateRunList(): MagAutoUpdateRun[] {
         return this._MagAutoUpdateRunList;
+    }
+    public get MagAutoUpdateVisualise(): MagAutoUpdateVisualise[] {
+        return this._MagAutoUpdateVisualise;
     }
     FetchMagRelatedPapersRunList() {
         
@@ -247,5 +251,38 @@ export class MAGRelatedRunsService extends BusyAwareService {
                     this.modalService.GenericErrorMessage('An api error with calling UpdateMagRelatedRun: ' + error);
                 }
             );
+    }
+    public GetMagAutoVisualiseList(crit: MagAutoUpdateVisualiseSelectionCriteria) {
+
+        this._BusyMethods.push("GetMagAutoVisualiseList");
+        //this._MagAutoUpdateVisualise = [];
+        this._httpC.post<MagAutoUpdateVisualise[]>(this._baseUrl + 'api/MagRelatedPapersRunList/GetMagMagAutoUpdateVisualise', crit)
+            .subscribe(result => {
+                this._MagAutoUpdateVisualise = result;
+                this.RemoveBusy("GetMagAutoVisualiseList");
+            },
+                error => {
+                    this.RemoveBusy("GetMagAutoVisualiseList");
+                    this.modalService.GenericError(error);
+                });
+    }
+    public RunMagAddClassifierScoresCommand(cmd: MagAddClassifierScoresCommand): Promise<boolean> {
+        this._BusyMethods.push("RunMagAddClassifierScoresCommand");
+        return this._httpC.post<MagAddClassifierScoresCommand>(this._baseUrl + 'api/MagRelatedPapersRunList/MagAddClassifierScoresCommand', cmd)
+            .toPromise().then(
+                (result: MagAddClassifierScoresCommand) => {
+                    this.RemoveBusy("RunMagAddClassifierScoresCommand");
+                    return true;
+                },
+                error => {
+                    this.RemoveBusy("RunMagAddClassifierScoresCommand");
+                    this.modalService.GenericError(error);
+                    return false;
+                }
+        ).catch(caught => {
+            this.RemoveBusy("RunMagAddClassifierScoresCommand");
+            this.modalService.GenericErrorMessage("Sorry, an error occurred: " + caught.toString());
+            return false;
+        })
     }
 }

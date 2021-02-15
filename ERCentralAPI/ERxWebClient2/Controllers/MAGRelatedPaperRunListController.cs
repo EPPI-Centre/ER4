@@ -328,7 +328,73 @@ namespace ERxWebClient2.Controllers
                 return StatusCode(500, e.Message);
             }
         }
+        [HttpPost("[action]")]
+        public IActionResult GetMagMagAutoUpdateVisualise([FromBody] MVCMagAutoUpdateVisualiseSelectionCriteria crit)
+        {
+            try
+            {
+                if (!SetCSLAUser()) return Unauthorized();
 
+                DataPortal<MagAutoUpdateVisualiseList> dp = new DataPortal<MagAutoUpdateVisualiseList>();
+                MagAutoUpdateVisualiseSelectionCriteria criteria = new MagAutoUpdateVisualiseSelectionCriteria
+                {
+                    Field = crit.field,
+                    MagAutoUpdateRunId = crit.magAutoUpdateRunId
+                };
+
+                MagAutoUpdateVisualiseList result = dp.Fetch(criteria);
+                return Ok(result);
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "GetMagMagAutoUpdateVisualise error");
+                return StatusCode(500, e.Message);
+            }
+        }
+        [HttpPost("[action]")]
+        public IActionResult MagAddClassifierScoresCommand([FromBody] MVCMagAddClassifierScoresCommand cmd)
+        {
+            try
+            {
+                if (SetCSLAUser4Writing())
+                {
+                    DataPortal<MagAddClassifierScoresCommand> dp = new DataPortal<MagAddClassifierScoresCommand>();
+                    MagAddClassifierScoresCommand command = 
+                        new MagAddClassifierScoresCommand(cmd.magAutoUpdateRunId, cmd.topN
+                        ,cmd.studyTypeClassifier,cmd.userClassifierModelId, cmd.userClassifierReviewId);
+                    command = dp.Execute(command);
+                    return Ok(command);
+                }
+                else return Forbid();
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "MagAddClassifierScoresCommand error");
+                return StatusCode(500, e.Message);
+            }
+        }
+        public IActionResult ImportAutoUpdateRun([FromBody] MVCMagItemPaperInsertCommand mr)
+        {
+            try
+            {
+                if (SetCSLAUser4Writing())
+                {
+                    DataPortal<MagItemPaperInsertCommand> dp = new DataPortal<MagItemPaperInsertCommand>();
+                    MagItemPaperInsertCommand command = new MagItemPaperInsertCommand("", "AutoUpdateRun", 0
+                                                            , mr.magAutoUpdateRunId, mr.orderBy, mr.autoUpdateScore
+                                                            , mr.studyTypeClassifierScore, mr.userClassifierScore
+                                                            , mr.TopN, mr.filterJournal, mr.filterDOI, mr.filterURL);
+                    command = dp.Execute(command);
+                    return Ok(command);
+                }
+                else return Forbid();
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "Importing a Mag Related Paper list has an error");
+                return StatusCode(500, e.Message);
+            }
+        }
     }
 
     public class MAGList4Json
@@ -380,6 +446,30 @@ namespace ERxWebClient2.Controllers
 		public int nPapers = 0;
 		public int reviewIdId = 0;
 	}
-
+    public class MVCMagAutoUpdateVisualiseSelectionCriteria
+    {
+        public int magAutoUpdateRunId { get; set;}
+        public string field { get; set; }
+    }
+    public class MVCMagAddClassifierScoresCommand
+    {
+        public int magAutoUpdateRunId { get; set; }
+        public int topN { get; set; }
+        public string studyTypeClassifier { get; set; }
+        public int userClassifierModelId { get; set; }
+        public int userClassifierReviewId { get; set; }
+    }
+    public class MVCMagItemPaperInsertCommand
+    {
+        public int magAutoUpdateRunId { get; set; }
+        public string orderBy { get; set; }
+        public double autoUpdateScore { get; set; }
+        public double studyTypeClassifierScore { get; set; }
+        public double userClassifierScore { get; set; }
+        public int TopN { get; set; }
+        public string filterJournal { get; set; }
+        public string filterDOI { get; set; }
+        public string filterURL { get; set; }
+    }
 }
 

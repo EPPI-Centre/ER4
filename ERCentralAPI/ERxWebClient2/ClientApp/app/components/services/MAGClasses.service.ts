@@ -118,7 +118,6 @@ export class MVCMagOrigPaperListSelectionCriteria {
 
 }
 export class MVCMagPaperListSelectionCriteria {
-
     magPaperId: number = 0;
     iTEM_ID: number = 0;
     listType: string = '';
@@ -134,7 +133,12 @@ export class MVCMagPaperListSelectionCriteria {
     dateFrom: string = '';
     dateTo: string = '';
     magSearchText = '';
-
+    magAutoUpdateRunId: number = 0;
+    autoUpdateOrderBy: string = '';
+    autoUpdateAutoUpdateScore: number = 0.20;//can't be less than 0.20!
+    autoUpdateStudyTypeClassifierScore: number = 0;  
+    autoUpdateUserClassifierScore: number = 0;
+    autoUpdateUserTopN: number = 0;
 }
 
 export class MvcMagFieldOfStudyListSelectionCriteria {
@@ -411,4 +415,20 @@ export interface MagAutoUpdate {
     magAutoUpdateId: number;
     reviewIdId: number;
     userDescription: string;
+}
+
+export class MagAutoUpdateVisualiseSelectionCriteria {
+    magAutoUpdateRunId: number = -1;
+    field: string = "";
+}
+export interface MagAutoUpdateVisualise {
+    count: number;
+    range: string;
+}
+export class MagAddClassifierScoresCommand {
+    public magAutoUpdateRunId: number = 0;
+    public topN: number = 0;
+    public studyTypeClassifier: string = "";
+    public userClassifierModelId: number = 0;
+    public userClassifierReviewId: number = 0;
 }

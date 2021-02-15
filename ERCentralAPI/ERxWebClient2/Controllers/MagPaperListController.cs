@@ -112,7 +112,13 @@ namespace ERxWebClient2.Controllers
                         PaperIds = crit.paperIds,
                         DateFrom = crit.dateFrom,
                         DateTo = crit.dateTo,
-                        MagSearchText = crit.magSearchText
+                        MagSearchText = crit.magSearchText,
+                        MagAutoUpdateRunId = crit.magAutoUpdateRunId,
+                        AutoUpdateOrderBy = crit.autoUpdateOrderBy,
+                        AutoUpdateAutoUpdateScore = crit.autoUpdateAutoUpdateScore,
+                        AutoUpdateStudyTypeClassifierScore = crit.autoUpdateStudyTypeClassifierScore,
+                        AutoUpdateUserClassifierScore = crit.autoUpdateUserClassifierScore,
+                        AutoUpdateUserTopN = crit.autoUpdateUserTopN
                     };
 
                 var result = dp.Fetch(selectionCriteria);
@@ -147,13 +153,15 @@ namespace ERxWebClient2.Controllers
         public int pageNumber { get; set; }
         public int pageSize { get; set; }
         public int numResults { get; set; }
-
         public string dateFrom { get; set; }
-
         public string dateTo { get; set; }
-
         public string magSearchText { get; set; }
-
+        public int magAutoUpdateRunId { get; set; }
+        public string autoUpdateOrderBy { get; set; }        
+        public double autoUpdateAutoUpdateScore { get; set; }  
+        public double autoUpdateStudyTypeClassifierScore { get; set; }  
+        public double autoUpdateUserClassifierScore { get; set; }  
+        public int autoUpdateUserTopN { get; set; }  
     }
 
 }

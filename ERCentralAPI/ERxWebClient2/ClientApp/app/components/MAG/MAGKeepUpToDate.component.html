@@ -134,12 +134,126 @@
                         <td>{{task.studyTypeClassifier}}</td>
                         <td>{{task.userClassifierDescription}}</td>
                         <td>{{task.dateRun}}</td>
-                        <td></td>
-                        <td></td>
+                        <td>
+                            <button md-tooltip='delete task' (click)="RefineAndImport(task)" class="btn btn-outline-primary btn-sm " style="min-width:60px;">
+                                Refine/Import
+                            </button>
+                        </td>
+                        <td>{{task.nPapers}}</td>
                         <td></td>
                     </tr>
                 </tbody>
             </table>
+        </div>
+
+        <div *ngIf="MagAutoUpdateVisualise.length > 0" class="p-1 my-1 mx-0 row border rounded border-success col-12 bg-white">
+
+            <div class="col-sm-12 col-md-6 border-bottom border-right border-primary">
+                <kendo-chart style="max-height:260px;">
+                    <kendo-chart-series>
+                        <kendo-chart-category-axis>
+                            <kendo-chart-category-axis-item>
+                                <kendo-chart-category-axis-item-labels rotation="auto">
+                                </kendo-chart-category-axis-item-labels>
+                            </kendo-chart-category-axis-item>
+                        </kendo-chart-category-axis>
+                        <kendo-chart-series-item type="column" [data]="MagAutoUpdateVisualise"
+                                                 field="count" categoryField="range">
+                        </kendo-chart-series-item>
+                    </kendo-chart-series>
+                </kendo-chart>
+                <div class="mx-0 mb-1 row small">
+                    <div>Show distribution of: </div>
+                    <div class="row mx-1 px-1 border rounded">
+                        <div class="mr-1">Auto-update model</div>
+                        <input type="radio" name="ShowDistN" [(ngModel)]="ShowDist" value="AutoUpdate" class="my-auto" />
+                    </div>
+                    <div class="row mx-1 px-1 border rounded">
+                        <div class="mr-1">Study Type Classifier</div>
+                        <input type="radio" name="ShowDistN" [(ngModel)]="ShowDist" value="StudyType" class="my-auto"
+                               [disabled]="CurrentMagAutoUpdateRun == null || CurrentMagAutoUpdateRun.studyTypeClassifier == ''" />
+                    </div>
+                    <div class="row mx-1 px-1 border rounded">
+                        <div class="mr-1">User Classifier</div>
+                        <input type="radio" name="ShowDistN" [(ngModel)]="ShowDist" value="User" class="my-auto"
+                               [disabled]="CurrentMagAutoUpdateRun == null || CurrentMagAutoUpdateRun.userClassifierModelId < 1" />
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-12 col-md-6 border-bottom border-primary">
+                <div class="row m-1 border-bottom">
+                    <kendo-numerictextbox [(ngModel)]="ListCriteria.autoUpdateAutoUpdateScore"
+                                          [min]="0.2" [format]="'n2'"
+                                          [max]="1"
+                                          [step]="0.01"
+                                          [autoCorrect]="true"
+                                          class="border border-dark rounded"
+                                          style="width: 110px;"></kendo-numerictextbox>
+                    <div class="mx-1 my-auto">Auto-update model score threshold</div>
+                </div>
+                <div class="row m-1 border-bottom">
+                    <kendo-numerictextbox [(ngModel)]="ListCriteria.autoUpdateStudyTypeClassifierScore"
+                                          [min]="0" [format]="'n2'"
+                                          [max]="1"
+                                          [step]="0.01"
+                                          [autoCorrect]="true"
+                                          [disabled]="CurrentMagAutoUpdateRun == null || CurrentMagAutoUpdateRun.studyTypeClassifier == ''"
+                                          class="border border-dark rounded"
+                                          style="width: 110px;"></kendo-numerictextbox>
+                    <div class="mx-1 my-auto">"Study type" classifier score threshold</div>
+                </div>
+                <div class="row m-1 border-bottom">
+                    <kendo-numerictextbox [(ngModel)]="ListCriteria.autoUpdateUserClassifierScore"
+                                          [min]="0" [format]="'n2'"
+                                          [max]="1"
+                                          [step]="0.01"
+                                          [autoCorrect]="true"
+                                          [disabled]="CurrentMagAutoUpdateRun == null || CurrentMagAutoUpdateRun.userClassifierModelId < 1"
+                                          class="border border-dark rounded"
+                                          style="width: 110px;"></kendo-numerictextbox>
+                    <div class="mx-1 my-auto">"User classifier" score threshold</div>
+                </div>
+                <div class="row m-1 border-bottom">
+                    <div class="mx-1 my-auto">The thresholds above filter out XX records.</div>
+                </div>
+                <div class="row m-1 mb-1">
+                    <div class="mx-1 my-auto">Import top: </div>
+                    <kendo-numerictextbox [(ngModel)]="ListCriteria.autoUpdateUserTopN"
+                                          [min]="0" [format]="'n0'"
+                                          [max]="ListCriteriaTotPapers"
+                                          [step]="1"
+                                          [autoCorrect]="true"
+                                          class="border border-primary rounded"
+                                          style="min-width: 110px;"></kendo-numerictextbox>
+                    <div class="mx-1 my-auto">in order of</div>
+                    <select [(ngModel)]="comboAutoUpdateImportOptions" class="my-auto">
+                        <option Value="AutoUpdate" [selected]="comboAutoUpdateImportOptions == 'AutoUpdate'">Auto-Update Model</option>
+                        <option Value="StudyTypeClassifier" [selected]="comboAutoUpdateImportOptions == 'StudyTypeClassifier'">Study Type Classifier</option>
+                        <option Value="UserClassifier" [selected]="comboAutoUpdateImportOptions == 'UserClassifier'">User Classifier</option>
+                    </select>
+                </div>
+            </div>
+            <div class="row m-1 p-0 col-12">
+                <select [(ngModel)]="SelectedStudyClassifier" class="select mx-1">
+                    <option *ngFor="let itm of StudyClassifiers" [ngValue]="itm" [selected]="itm == SelectedStudyClassifier">{{itm}}</option>
+                </select>
+                <div class="mx-1">
+                    <button (click)="RunStudyClassifier()" [disabled]="SelectedStudyClassifier == '[Please select...]'" class="btn btn-outline-primary btn-sm " style="min-width:60px;">
+                        Run Study Classifier
+                    </button>
+                </div>
+            </div>
+            <div class="row m-1 p-0 col-12">
+                <select [(ngModel)]="SelectedClassifierContactModel" class="select mx-1">
+                    <option [ngValue]="null" [selected]="SelectedStudyClassifier == null">[Please select...]</option>
+                    <option *ngFor="let itm of ClassifierContactModelList" [ngValue]="itm" [selected]="itm == SelectedStudyClassifier">{{itm.modelTitle}} (Rev ID: {{itm.reviewId}})</option>
+                </select>
+                <div class="mx-1">
+                    <button (click)="RunContactModelClassifier()" [disabled]="SelectedClassifierContactModel == null" class="btn btn-outline-dark btn-sm " style="min-width:60px;">
+                        Run Your Classifier
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 </div>
