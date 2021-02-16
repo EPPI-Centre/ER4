@@ -4,7 +4,7 @@ import { MAGBrowserHistoryService } from '../services/MAGBrowserHistory.service'
 import {  Router } from '@angular/router';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { MAGAdvancedService } from '../services/magAdvanced.service';
-import { MagBrowseHistoryItem, MagPaper, MVCMagPaperListSelectionCriteria, MagRelatedPapersRun, MagAutoUpdateRun, MagAutoUpdate, MagAutoUpdateVisualise, MagAutoUpdateVisualiseSelectionCriteria, ClassifierContactModel, MagAddClassifierScoresCommand } from '../services/MAGClasses.service';
+import { MagBrowseHistoryItem, MagPaper, MVCMagPaperListSelectionCriteria, MagRelatedPapersRun, MagAutoUpdateRun, MagAutoUpdate, MagAutoUpdateVisualise, MagAutoUpdateVisualiseSelectionCriteria, ClassifierContactModel, MagAddClassifierScoresCommand, MagItemPaperInsertCommand } from '../services/MAGClasses.service';
 import { EventEmitterService } from '../services/EventEmitter.service';
 import { MAGBrowserService } from '../services/MAGBrowser.service';
 import { MAGRelatedRunsService } from '../services/MAGRelatedRuns.service';
@@ -69,6 +69,7 @@ export class MAGKeepUpToDate implements OnInit {
     //refine and import variables, as MVCMagPaperListSelectionCriteria, as it contains all the details we need, aslo for "importing", save for the "filter out" strings
     public ListCriteria: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
     public ListCriteriaTotPapers: number = 0;
+    public ListCriteriaFilteredPapers: number = 0;
     public FilterOutJournal: string = "";
     public FilterOutURL: string = "";
     public FilterOutDOI: string = "";
@@ -150,8 +151,26 @@ export class MAGKeepUpToDate implements OnInit {
                 }
             });
     }
+    BrowseAllItems(taskRun: MagAutoUpdateRun) {
+        //console.log("BrowseAllItems", taskRun);
+        let crit: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
+
+        crit.magAutoUpdateRunId = taskRun.magAutoUpdateRunId;
+        crit.listType = "MagAutoUpdateRunPapersList";
+        crit.pageSize = 20;
+        crit.autoUpdateOrderBy = "AutoUpdate";
+        crit.autoUpdateAutoUpdateScore = 0.20;//can't be less than 0.20!
+        crit.autoUpdateStudyTypeClassifierScore = 0;
+        crit.autoUpdateUserClassifierScore = 0;
+        crit.autoUpdateUserTopN = taskRun.nPapers;
+        this._magBrowserService.FetchWithCrit(crit, "Update task results").then(
+            () => {
+                this.router.navigate(['MAGBrowser']);
+            }
+        );
+    }
     RefineAndImport(taskRun: MagAutoUpdateRun) {
-        console.log("RefineAndImport");
+        //console.log("RefineAndImport");
         this._ShowDist = 'AutoUpdate';
         let crit: MagAutoUpdateVisualiseSelectionCriteria = { field: this.ShowDist, magAutoUpdateRunId: taskRun.magAutoUpdateRunId };
         this.CurrentMagAutoUpdateRun = taskRun;
@@ -160,6 +179,7 @@ export class MAGKeepUpToDate implements OnInit {
         this.ListCriteria.magAutoUpdateRunId = taskRun.magAutoUpdateRunId;
         this.ListCriteria.autoUpdateUserTopN = taskRun.nPapers;
         this.ListCriteriaTotPapers = taskRun.nPapers;
+        this.ListCriteriaFilteredPapers = taskRun.nPapers;
         this.comboAutoUpdateImportOptions = 'AutoUpdate';
         if (this.MAGAdvancedService.ClassifierContactModelList.length == 0) {
             //wait 100ms and then get this list, I don't like sending many server requests all concurrent
@@ -167,7 +187,7 @@ export class MAGKeepUpToDate implements OnInit {
         }
     }
     public LoadGraph() {
-        console.log("LoadGraph", this.ShowDist);
+        //console.log("LoadGraph", this.ShowDist);
         if (this.CurrentMagAutoUpdateRun != null && this.ShowDist != '') {
             let crit: MagAutoUpdateVisualiseSelectionCriteria = { field: this.ShowDist, magAutoUpdateRunId: this.CurrentMagAutoUpdateRun.magAutoUpdateRunId };
             this.MAGRelatedRunsService.GetMagAutoVisualiseList(crit);
@@ -228,6 +248,63 @@ export class MAGKeepUpToDate implements OnInit {
                 }
             })
         }
+    }
+    async AutoUpdateCountResultsCommand() {
+        if (this.CurrentMagAutoUpdateRun != null) {
+            let cmd: MagItemPaperInsertCommand = new MagItemPaperInsertCommand();
+            //here we use this data structure (MagItemPaperInsertCommand) to exchange this data, because it fits, even if it's not its original purpose
+            cmd.magAutoUpdateRunId = this.CurrentMagAutoUpdateRun.magAutoUpdateRunId;
+            cmd.autoUpdateScore = this.ListCriteria.autoUpdateAutoUpdateScore;
+            cmd.studyTypeClassifierScore = this.ListCriteria.autoUpdateStudyTypeClassifierScore;
+            cmd.userClassifierScore = this.ListCriteria.autoUpdateUserClassifierScore;
+
+            let res = await this.MAGRelatedRunsService.AutoUpdateCountResultsCommand(cmd);//returns the number of filtered results or -1 if an error occurred.
+            if (res >= 0) {
+                this.ListCriteriaFilteredPapers = res;
+                if (this.ListCriteria.autoUpdateUserTopN > this.ListCriteriaFilteredPapers) this.ListCriteria.autoUpdateUserTopN = this.ListCriteriaFilteredPapers;
+            }
+        }
+    }
+    public GetItems() {
+        if (this.CurrentMagAutoUpdateRun && this.CurrentMagAutoUpdateRun.magAutoUpdateRunId) {
+            this.ListCriteria.magAutoUpdateRunId = this.CurrentMagAutoUpdateRun.magAutoUpdateRunId;
+            this.ListCriteria.listType = "MagAutoUpdateRunPapersList";
+            this.ListCriteria.pageSize = 20;
+            this.ListCriteria.autoUpdateOrderBy = this.comboAutoUpdateImportOptions;
+            this._magBrowserService.FetchWithCrit(this.ListCriteria, "Update task results").then(
+                () => {
+                    this.router.navigate(['MAGBrowser']);
+                }
+            );
+        }
+    }
+    public ImportMagRelatedPapersRun() {
+        //mr.magAutoUpdateRunId, mr.orderBy, mr.autoUpdateScore
+        //    , mr.studyTypeClassifierScore, mr.userClassifierScore
+        //    , mr.TopN, mr.filterJournal, mr.filterDOI, mr.filterURL
+        if (this.CurrentMagAutoUpdateRun != null) {
+            let cmd: MagItemPaperInsertCommand = new MagItemPaperInsertCommand();
+            cmd.magAutoUpdateRunId = this.CurrentMagAutoUpdateRun.magAutoUpdateRunId;
+            this.ListCriteria.autoUpdateOrderBy = this.comboAutoUpdateImportOptions;
+            cmd.orderBy = this.ListCriteria.autoUpdateOrderBy;
+            cmd.autoUpdateScore = this.ListCriteria.autoUpdateAutoUpdateScore;
+            cmd.studyTypeClassifierScore = this.ListCriteria.autoUpdateStudyTypeClassifierScore;
+            cmd.userClassifierScore = this.ListCriteria.autoUpdateUserClassifierScore;
+            cmd.topN = this.ListCriteria.autoUpdateUserTopN;
+            cmd.filterJournal = this.FilterOutJournal;
+            cmd.filterDOI = this.FilterOutDOI;
+            cmd.filterURL = this.FilterOutURL;
+            this.ConfirmationDialogService.confirm("Importing papers for the selected MAG search",
+                "Are you sure you want to import the items as per current settings?", false, '')
+                .then((confirm: any) => {
+                    if (confirm) {
+                        this.MAGRelatedRunsService.ImportAutoUpdateRun(cmd);
+                    }
+                });
+        }
+    }
+    CancelImportRefine() {
+        this.CurrentMagAutoUpdateRun = null;
     }
     CloseCodeDropDown() {
         //console.log(this.WithOrWithoutCodeSelector);

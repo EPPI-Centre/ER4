@@ -53,7 +53,7 @@ All these IDs are stored in the form of "Claims" and are thus available via the 
 
 ### Opening a DB and Logging in.
 There are two routes to open a webDB. There is a "login" form that sends data as POST request, but for databases that are not password protected, one can also go to the url:
-`https://[base]/Login/Open?/WebDBid=N` where "N" is the webDBid.
+`https://[base]/Login/Open?WebDBid=N` where "N" is the webDBid.
 
 ### Getting to "see" something.
 Project ignores the old WebDatabases system, it is now **all implemented in EPPI-Reviewer Web**. In the review home page, there is a "setup WebDatabase" which allows to set up a WebDb for the current review. You can pick a name, a description, password protect the DB or not, pick a code to filter items and pick what codesets will be seen in the WebDb. 

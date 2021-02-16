@@ -373,6 +373,7 @@ namespace ERxWebClient2.Controllers
                 return StatusCode(500, e.Message);
             }
         }
+        [HttpPost("[action]")]
         public IActionResult ImportAutoUpdateRun([FromBody] MVCMagItemPaperInsertCommand mr)
         {
             try
@@ -386,6 +387,29 @@ namespace ERxWebClient2.Controllers
                                                             , mr.TopN, mr.filterJournal, mr.filterDOI, mr.filterURL);
                     command = dp.Execute(command);
                     return Ok(command);
+                }
+                else return Forbid();
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "Importing a Mag Related Paper list has an error");
+                return StatusCode(500, e.Message);
+            }
+        }
+        [HttpPost("[action]")]
+        public IActionResult CountResultsCommand([FromBody] MVCMagItemPaperInsertCommand mr)
+        {
+            try
+            {
+                if (SetCSLAUser())
+                {
+                    DataPortal<MagAutoUpdateRunCountResultsCommand> dp = new DataPortal<MagAutoUpdateRunCountResultsCommand>();
+                    MagAutoUpdateRunCountResultsCommand command = new MagAutoUpdateRunCountResultsCommand(
+                                                             mr.magAutoUpdateRunId, mr.autoUpdateScore
+                                                            , mr.studyTypeClassifierScore, mr.userClassifierScore);
+                    command = dp.Execute(command);
+                    mr.TopN = command.ResultsCount;
+                    return Ok(mr);
                 }
                 else return Forbid();
             }
