@@ -5,7 +5,7 @@ import { ConfirmationDialogService } from '../services/confirmation-dialog.servi
 import { Observable } from 'rxjs';
 import { EventEmitterService } from '../services/EventEmitter.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
-import { NgModel } from '@angular/forms';
+import { NgModel, NgForm } from '@angular/forms';
 
 @Component({
 	selector: 'armDetailsComp',
@@ -40,7 +40,7 @@ export class armDetailsComp implements OnInit {
 	
 
 	@Input() item!: Item | undefined;
-
+	@ViewChild('ArmsForm') ArmsForm!: NgForm;
 	//@ViewChild("editTitle", { read: ElementRef }) tref!: ElementRef;
 
 	ngOnInit() {
@@ -81,9 +81,10 @@ export class armDetailsComp implements OnInit {
 
 	Clear() {
 
-		this.editTitle = false;
-		this.titleModel = '';
-		this.title = '';
+		//this.editTitle = false;
+		//this.titleModel = '';
+		//this.title = '';
+		if (this.ArmsForm) this.ArmsForm.resetForm({});
 	}
 
 	
@@ -163,7 +164,7 @@ export class armDetailsComp implements OnInit {
 	}
 
 	add(title: string) {
-
+		//console.log("Add arm:", title);
 		if (title != '') {
 			if (this.item != undefined) {
 				let newArm: Arm = new Arm();

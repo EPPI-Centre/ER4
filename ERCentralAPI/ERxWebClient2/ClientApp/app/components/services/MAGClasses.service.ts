@@ -25,12 +25,21 @@ export class MagList {
 
 }
 export class MagItemPaperInsertCommand {
-
+    //this is used in two scenarios: 1 (the native one) to import items in the review (multiple cases)
+    //2 to get updated counts on "AutoUpdateRun" when changing thresholds (ahead of importing, you'd guess)
     paperIds: string = '';
     nImported: number = 0;
     sourceOfIds: string = '';
     magRelatedRunId: number = 0;
-
+    magAutoUpdateRunId: number = 0;
+    orderBy: string = '';
+    autoUpdateScore: number = 0;
+    studyTypeClassifierScore: number = 0;
+    userClassifierScore: number = 0;
+    topN: number = 0;
+    filterJournal: string = '';
+    filterDOI: string = '';
+    filterURL: string = '';
 }
 export class MagRelatedPapersRun {
 

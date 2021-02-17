@@ -262,6 +262,7 @@ export class MAGRelatedRunsService extends BusyAwareService {
                 this.RemoveBusy("GetMagAutoVisualiseList");
             },
                 error => {
+                    this._MagAutoUpdateVisualise = [];
                     this.RemoveBusy("GetMagAutoVisualiseList");
                     this.modalService.GenericError(error);
                 });
@@ -284,5 +285,58 @@ export class MAGRelatedRunsService extends BusyAwareService {
             this.modalService.GenericErrorMessage("Sorry, an error occurred: " + caught.toString());
             return false;
         })
+    }
+    public AutoUpdateCountResultsCommand(cmd: MagItemPaperInsertCommand): Promise<number> {
+        this._BusyMethods.push("CountResultsCommand");
+        return this._httpC.post<MagItemPaperInsertCommand>(this._baseUrl + 'api/MagRelatedPapersRunList/CountResultsCommand', cmd)
+            .toPromise().then(
+                (result: MagItemPaperInsertCommand) => {
+                    this.RemoveBusy("CountResultsCommand");
+                    return result.topN;
+                },
+                error => {
+                    this.RemoveBusy("CountResultsCommand");
+                    this.modalService.GenericError(error);
+                    return -1;
+                }
+            ).catch(caught => {
+                this.RemoveBusy("CountResultsCommand");
+                this.modalService.GenericErrorMessage("Sorry, an error occurred: " + caught.toString());
+                return -1;
+            })
+    }
+    ImportAutoUpdateRun(cmd: MagItemPaperInsertCommand) {
+
+        let notificationMsg: string = '';
+        this._BusyMethods.push("ImportAutoUpdateRun");
+        this._httpC.post<MagItemPaperInsertCommand>(this._baseUrl + 'api/MagRelatedPapersRunList/ImportAutoUpdateRun',
+            cmd)
+            .subscribe(result => {
+                if (result.nImported != null) {
+                    if (result.nImported == cmd.topN) {
+
+                        notificationMsg += "Imported " + result.nImported + " out of " +
+                            cmd.topN + " items";
+
+                    } else if (result.nImported != 0) {
+
+                        notificationMsg += "Some of these items were already in your review.\n\nImported " +
+                            result.nImported + " out of " + cmd.topN +
+                            " new items";
+                    }
+                    else {
+                        notificationMsg += "All of these records were already in your review.";
+                    }
+                    this.notificationService.showMAGRunMessage(notificationMsg);
+                }
+                this.RemoveBusy("ImportAutoUpdateRun");
+            },
+                error => {
+                    this.RemoveBusy("ImportAutoUpdateRun");
+                    this.modalService.GenericError(error);
+                },
+                () => {
+                    this.RemoveBusy("ImportAutoUpdateRun");
+                });
     }
 }
