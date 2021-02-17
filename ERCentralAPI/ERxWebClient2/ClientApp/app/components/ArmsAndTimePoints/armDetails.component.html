@@ -12,9 +12,9 @@
 
 	<div class="card-body" style="max-height:360px;overflow:auto;">
 		<div id="table" class="small table table-striped bg-light" *ngIf="ShowArms">
-			<div class="table-add float-left mb-3 mr-2 col-12 col-md-6 row">
+			<form #ArmsForm="ngForm" class="table-add float-left mb-3 mr-2 col-12 col-md-6 row">
 				Create new study arm:
-				<input #titleModel="ngModel"
+				<input #titleModel="ngModel" name="n1"
 					   required minlength="3"
 					   pattern="^(?!\s*$).+" class="form-control"
 					   type="text" [(ngModel)]="title" />
@@ -52,7 +52,7 @@
 						Cancel
 					</button>
 				</div>
-				</div>
+			</form>
 				<!---->
 				<table class="table table-bordered table-responsive-md table-striped text-center">
 					<tr>

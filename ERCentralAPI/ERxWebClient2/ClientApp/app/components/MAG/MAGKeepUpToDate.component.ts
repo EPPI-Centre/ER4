@@ -16,6 +16,7 @@ import { NotificationService } from '@progress/kendo-angular-notification';
 import { timeInRange } from '@progress/kendo-angular-dateinputs/dist/es2015/util';
 import { timeout } from 'rxjs/operators';
 import { Helpers } from '../helpers/HelperMethods';
+import { NgForm } from '@angular/forms';
 
 @Component({
     selector: 'MAGKeepUpToDate',
@@ -61,6 +62,7 @@ export class MAGKeepUpToDate implements OnInit {
     public description: string = '';
     public magMode: string = 'New items in MAG';
     @ViewChild('WithOrWithoutCodeSelector') WithOrWithoutCodeSelector!: codesetSelectorComponent;
+    @ViewChild('ThreshodsForm') ThreshodsForm!: NgForm;
     public CurrentDropdownSelectedCode: singleNode | null = null;
     public isCollapsed: boolean = false;//the "pick a code" dropdown...
     public searchAll: string = 'all';
@@ -249,7 +251,9 @@ export class MAGKeepUpToDate implements OnInit {
             })
         }
     }
+
     async AutoUpdateCountResultsCommand() {
+        console.log("AAAAh: ", this.ThreshodsForm);
         if (this.CurrentMagAutoUpdateRun != null) {
             let cmd: MagItemPaperInsertCommand = new MagItemPaperInsertCommand();
             //here we use this data structure (MagItemPaperInsertCommand) to exchange this data, because it fits, even if it's not its original purpose
@@ -260,6 +264,11 @@ export class MAGKeepUpToDate implements OnInit {
 
             let res = await this.MAGRelatedRunsService.AutoUpdateCountResultsCommand(cmd);//returns the number of filtered results or -1 if an error occurred.
             if (res >= 0) {
+                if (this.ThreshodsForm) this.ThreshodsForm.resetForm({
+                    n1: this.ListCriteria.autoUpdateAutoUpdateScore,
+                    n2: this.ListCriteria.autoUpdateStudyTypeClassifierScore,
+                    n3: this.ListCriteria.autoUpdateUserClassifierScore
+                });
                 this.ListCriteriaFilteredPapers = res;
                 if (this.ListCriteria.autoUpdateUserTopN > this.ListCriteriaFilteredPapers) this.ListCriteria.autoUpdateUserTopN = this.ListCriteriaFilteredPapers;
             }

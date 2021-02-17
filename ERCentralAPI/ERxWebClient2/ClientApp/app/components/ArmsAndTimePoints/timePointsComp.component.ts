@@ -5,7 +5,7 @@ import { _localeFactory } from '@angular/core/src/application_module';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 import { EventEmitterService } from '../services/EventEmitter.service';
 import { timePointsService, ItemTimepointDeleteWarningCommandJSON, iTimePoint, TimePoint } from '../services/timePoints.service';
-import { NgModel } from '@angular/forms';
+import { NgModel, NgForm } from '@angular/forms';
 import { BusyAwareService } from '../helpers/BusyAwareService';
 
 @Component({
@@ -26,6 +26,7 @@ export class timePointsComp extends BusyAwareService implements OnInit {
 	}
 
 	@ViewChild('timePointModel') timePointModel!: NgModel;
+	@ViewChild('timePointForm') timePointForm!: NgForm;
 
 	public ShowTimePoints: boolean = true;
 
@@ -132,7 +133,6 @@ export class timePointsComp extends BusyAwareService implements OnInit {
 
 
 	Clear() {
-
 		this.title = '';
 		this.unit = '';
 		this.timepointFreq = "";
@@ -141,6 +141,7 @@ export class timePointsComp extends BusyAwareService implements OnInit {
 		this.unitModel = "";
 		this.edit = false;
 		this.timepointModel2 = "";
+		if (this.timePointForm) this.timePointForm.resetForm({});
 	}
 
 	public openConfirmationDialogDeletetimepoints(key: number) {
