@@ -316,25 +316,27 @@ namespace BusinessLibrary.BusinessClasses
 
                 MagCurrentInfo MagInfo = MagCurrentInfo.GetMagCurrentInfoServerSide(MakesDeploymentStatus);
 
-                searchText = System.Web.HttpUtility.UrlEncode(searchText);//uses "+" for spaces, letting his happen when creating the request would put 20% for spaces => makes the querystring longer!
+                
+                string searchTextEncoded = System.Web.HttpUtility.UrlEncode(searchText);//uses "+" for spaces, letting his happen when creating the request would put 20% for spaces => makes the querystring longer!
 
                 string queryString =  @"/evaluate?expr=" +
-                    searchText + "&entityCount=5&attributes=" + System.Web.HttpUtility.UrlEncode("Id,DN,AA.AuN,J.JN,V,I,FP,Y,DOI,VFN,AA.DAuN") +
+                    searchTextEncoded + "&entityCount=5&attributes=" + System.Web.HttpUtility.UrlEncode("Id,DN,AA.AuN,J.JN,V,I,FP,Y,DOI,VFN,AA.DAuN") +
                     "&complete=0&count=100&offset=0&timeout=2000&model=latest";
                 string FullRequestStr = MagInfo.MakesEndPoint + queryString;
                 if (FullRequestStr.Length >= 2048 || queryString.Length >= 1024)
                 {//this would fail entire URL is too long or the query string is.
                     int attempts = 0;
-                    int maxattempts = queryString.Count(found => found == '+');
+                    int maxattempts = searchText.Count(found => found == ',');
                     while ((FullRequestStr.Length >= 2048 || queryString.Length >=1024) && attempts < maxattempts)
                     {
                         attempts++;
-                        int truncateAt = searchText.LastIndexOf("+");
+                        int truncateAt = searchText.LastIndexOf(",");
                         if (truncateAt != -1)
                         {
                             searchText = searchText.Substring(0, truncateAt);
+                            searchTextEncoded = System.Web.HttpUtility.UrlEncode(searchText);
                             queryString = @"/evaluate?expr=" +
-                                searchText + "&entityCount=5&attributes=" + System.Web.HttpUtility.UrlEncode("Id,DN,AA.AuN,J.JN,V,I,FP,Y,DOI,VFN,AA.DAuN") +
+                                searchTextEncoded + "&entityCount=5&attributes=" + System.Web.HttpUtility.UrlEncode("Id,DN,AA.AuN,J.JN,V,I,FP,Y,DOI,VFN,AA.DAuN") +
                                 "&complete=0&count=100&offset=0&timeout=2000&model=latest";
                             FullRequestStr = MagInfo.MakesEndPoint + queryString;
                         }
@@ -343,15 +345,6 @@ namespace BusinessLibrary.BusinessClasses
                 //WebRequest request = WebRequest.Create(FullRequestStr);
                 try
                 {
-                    /*
-                    WebResponse response = request.GetResponse();
-                    using (Stream dataStream = response.GetResponseStream())
-                    {
-                        StreamReader sreader = new StreamReader(dataStream);
-                        responseText = sreader.ReadToEnd();
-                    }
-                    response.Close();
-                    */
                     HttpClient client = new HttpClient();
                     var response = client.GetAsync(FullRequestStr).Result;
 

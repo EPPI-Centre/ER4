@@ -4422,8 +4422,22 @@ namespace EppiReviewer4
             if (result == true)
             {
                 CurrentTempMagCurrentInfoPending.MakesDeploymentStatus = "PENDING";
+                CurrentTempMagCurrentInfoPending.Saved -= CurrentTempMagCurrentInfo_SavedPending;
+                CurrentTempMagCurrentInfoPending.Saved += CurrentTempMagCurrentInfo_SavedPending;
                 CurrentTempMagCurrentInfoPending.BeginSave();
             }
+        }
+
+        private void CurrentTempMagCurrentInfo_SavedPending(object sender, Csla.Core.SavedEventArgs e)
+        {
+            CslaDataProvider provider = this.Resources["MagCurrentInfoListData"] as CslaDataProvider;
+            {
+                if (provider != null)
+                {
+                    provider.Refresh();
+                }
+            }
+            CurrentTempMagCurrentInfoPending = null;
         }
 
         private void HyperlinkButton_Click_23(object sender, RoutedEventArgs e)
