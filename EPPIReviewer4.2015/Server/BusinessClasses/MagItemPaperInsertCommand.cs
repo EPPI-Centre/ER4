@@ -313,7 +313,7 @@ namespace BusinessLibrary.BusinessClasses
                             {
                                 command.CommandTimeout = 500; // should make this a nice long time
                                 command.CommandType = System.Data.CommandType.StoredProcedure;
-                                command.Parameters.Add(new SqlParameter("@MagVersion", currentMAGInfo.MagVersion));
+                                command.Parameters.Add(new SqlParameter("@MagVersion", currentMAGInfo.MagFolder));
                                 command.Parameters.Add(new SqlParameter("@IDs", IDs));
                                 using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
                                 {
