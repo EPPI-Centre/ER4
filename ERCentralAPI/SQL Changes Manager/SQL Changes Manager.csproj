@@ -380,10 +380,7 @@
     <None Update="SQLScripts\332.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="SQLScripts\334.sql">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="SQLScripts\336.sql">
+    <None Update="SQLScripts\338.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="SQLScripts\MagCurrentInfoInsert.sql">
