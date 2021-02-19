@@ -190,42 +190,47 @@
                 </div>
             </div>
             <div class="col-sm-12 col-md-6 border-bottom border-primary">
-                <div class="row m-1 border-bottom">
-                    <kendo-numerictextbox [(ngModel)]="ListCriteria.autoUpdateAutoUpdateScore"
-                                          [min]="0.2" [format]="'n2'"
-                                          [max]="1"
-                                          [step]="0.01"
-                                          [autoCorrect]="true"
-                                          class="border border-dark rounded mb-1"
-                                          style="width: 110px;"></kendo-numerictextbox>
-                    <div class="mx-1 my-auto">Auto-update model score threshold</div>
-                </div>
-                <div class="row m-1 border-bottom">
-                    <kendo-numerictextbox [(ngModel)]="ListCriteria.autoUpdateStudyTypeClassifierScore"
-                                          [min]="0" [format]="'n2'"
-                                          [max]="1"
-                                          [step]="0.01"
-                                          [autoCorrect]="true"
-                                          [disabled]="CurrentMagAutoUpdateRun == null || CurrentMagAutoUpdateRun.studyTypeClassifier == ''"
-                                          class="border border-dark rounded mb-1"
-                                          style="width: 110px;"></kendo-numerictextbox>
-                    <div class="mx-1 my-auto">"Study type" classifier score threshold</div>
-                </div>
-                <div class="row m-1 border-bottom">
-                    <kendo-numerictextbox [(ngModel)]="ListCriteria.autoUpdateUserClassifierScore"
-                                          [min]="0" [format]="'n2'"
-                                          [max]="1"
-                                          [step]="0.01"
-                                          [autoCorrect]="true"
-                                          [disabled]="CurrentMagAutoUpdateRun == null || CurrentMagAutoUpdateRun.userClassifierModelId < 1"
-                                          class="border border-dark rounded mb-1"
-                                          style="width: 110px;"></kendo-numerictextbox>
-                    <div class="mx-1 my-auto">"User classifier" score threshold</div>
-                </div>
+                <form #ThreshodsForm="ngForm">
+                    <div class="row m-1 border-bottom">
+                        <kendo-numerictextbox [(ngModel)]="ListCriteria.autoUpdateAutoUpdateScore"
+                                              name="n1"
+                                              [min]="0.2" [format]="'n2'"
+                                              [max]="1"
+                                              [step]="0.01"
+                                              [autoCorrect]="true"
+                                              class="border border-dark rounded mb-1"
+                                              style="width: 110px;"></kendo-numerictextbox>
+                        <div class="mx-1 my-auto">Auto-update model score threshold</div>
+                    </div>
+                    <div class="row m-1 border-bottom">
+                        <kendo-numerictextbox [(ngModel)]="ListCriteria.autoUpdateStudyTypeClassifierScore"
+                                              name="n2"
+                                              [min]="0" [format]="'n2'"
+                                              [max]="1"
+                                              [step]="0.01"
+                                              [autoCorrect]="true"
+                                              [disabled]="CurrentMagAutoUpdateRun == null || CurrentMagAutoUpdateRun.studyTypeClassifier == ''"
+                                              class="border border-dark rounded mb-1"
+                                              style="width: 110px;"></kendo-numerictextbox>
+                        <div class="mx-1 my-auto">"Study type" classifier score threshold</div>
+                    </div>
+                    <div class="row m-1 border-bottom">
+                        <kendo-numerictextbox [(ngModel)]="ListCriteria.autoUpdateUserClassifierScore"
+                                              name="n3"
+                                              [min]="0" [format]="'n2'"
+                                              [max]="1"
+                                              [step]="0.01"
+                                              [autoCorrect]="true"
+                                              [disabled]="CurrentMagAutoUpdateRun == null || CurrentMagAutoUpdateRun.userClassifierModelId < 1"
+                                              class="border border-dark rounded mb-1"
+                                              style="width: 110px;"></kendo-numerictextbox>
+                        <div class="mx-1 my-auto">"User classifier" score threshold</div>
+                    </div>
+                </form>
                 <div class="row m-1 border-bottom">
                     <div class="mx-1 mt-auto mb-1">The thresholds above filter out {{ListCriteriaTotPapers - ListCriteriaFilteredPapers}} records.</div>
                     <button (click)="AutoUpdateCountResultsCommand()" class="btn btn-outline-success btn-sm px-1 py-0 mb-1 ">
-                        Refresh counts
+                        Refresh
                     </button>
                 </div>
                 <div class="row m-1 border-bottom">
@@ -253,7 +258,8 @@
                 <div class="row m-1">
                     <div class="d-inline mx-auto">
                         <div (click)="CancelImportRefine()" class="btn btn-outline-dark px-3 py-1 mx-1">Cancel</div>
-                        <button (click)="ImportMagRelatedPapersRun()" [disabled]="!HasWriteRights || ListCriteria.autoUpdateUserTopN < 1" class="btn btn-outline-danger px-2 py-1 mx-1">Import!</button>
+                        <button (click)="ImportMagRelatedPapersRun()" [disabled]="!HasWriteRights || ListCriteria.autoUpdateUserTopN < 1 || ThreshodsForm.dirty" class="btn btn-outline-danger px-2 py-1 mx-1">Import!</button>
+                        <div *ngIf="ThreshodsForm.dirty" class="alert-danger small rounded m-1 p-1 d-inline">Please click "Refresh" 1st</div>
                     </div>
                 </div>
             </div>

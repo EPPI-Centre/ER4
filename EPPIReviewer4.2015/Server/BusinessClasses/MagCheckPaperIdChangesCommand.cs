@@ -93,6 +93,7 @@ namespace BusinessLibrary.BusinessClasses
 
             int TaskMagLogId = MagLog.SaveLogEntry("Checking ID changes", "Starting", "", ContactId);
             int missingCount = ChangedPapersNotAlreadyWrittenCheck();
+            MagLog.UpdateLogEntry("Running", "missingCount = " + missingCount.ToString(), TaskMagLogId);
             if (missingCount == -1)
             {
                 MagLog.UpdateLogEntry("Stopped", "Error in missingCount", TaskMagLogId);
