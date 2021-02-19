@@ -44,7 +44,6 @@ export class BasicMAGComp implements OnInit {
     public magDateRadio: string = 'true';
     public magRCTRadio: string = 'NoFilter';
     public magMode: string = '';
-    public basicPanel: boolean = false;
     public basicSearchPanel: boolean = false;
 
 	ngOnInit() {
@@ -104,9 +103,6 @@ export class BasicMAGComp implements OnInit {
         }
     }
 
-    public ShowBasicPanel() {
-        this.basicPanel = !this.basicPanel;
-    }
     public ShowSearchPanel() {
         this.basicSearchPanel = !this.basicSearchPanel;
     }
@@ -192,9 +188,9 @@ export class BasicMAGComp implements OnInit {
             case '7':
                 this.magMode = 'Bi-Citation AND Recommendations';
                 break;
-            case '8':
-                this.magMode = 'New items in MAG';
-                break;
+            //case '8':
+            //    this.magMode = 'New items in MAG';
+            //    break;
 
             default:
                 break;
