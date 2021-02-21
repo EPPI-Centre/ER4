@@ -247,7 +247,7 @@ namespace ERxWebClient2.Controllers
                 return StatusCode(500, e.Message);
             }
         }
-        //DeleteAutoUpdate
+        
         [HttpPost("[action]")]
         public IActionResult DeleteAutoUpdate([FromBody] SingleInt64Criteria Id)
         {
@@ -416,6 +416,30 @@ namespace ERxWebClient2.Controllers
             catch (Exception e)
             {
                 _logger.LogException(e, "Importing a Mag Related Paper list has an error");
+                return StatusCode(500, e.Message);
+            }
+        }
+        [HttpPost("[action]")]
+        public IActionResult DeleteAutoUpdateRun([FromBody] SingleInt64Criteria Id)
+        {
+            try
+            {
+                if (SetCSLAUser4Writing())
+                {
+                    DataPortal<MagAutoUpdateRunList> dp = new DataPortal<MagAutoUpdateRunList>();
+                    MagAutoUpdateRunList list = dp.Fetch();
+                    MagAutoUpdateRun mao = list.FirstOrDefault(f => f.MagAutoUpdateRunId == Id.Value);
+                    if (mao != null && mao.MagAutoUpdateRunId == Id.Value)
+                    {
+                        list.Remove(mao);
+                    }
+                    return Ok(list);
+                }
+                else return Forbid();
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "DeleteAutoUpdateRun error. MagAutoUpdateRunId: " + Id.Value.ToString());
                 return StatusCode(500, e.Message);
             }
         }

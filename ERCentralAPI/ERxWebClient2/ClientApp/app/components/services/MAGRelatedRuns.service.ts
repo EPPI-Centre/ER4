@@ -121,7 +121,7 @@ export class MAGRelatedRunsService extends BusyAwareService {
             body)
             .subscribe(result => {
                 this._MagUpdatesList = result;
-                this.notificationService.showMAGRunMessage('MAG search was deleted');
+                this.notificationService.showMAGRunMessage('MAG Auto update task was deleted');
                 //let tmpIndex: number = this.MagAutoUpdatesList.findIndex(x => x.magAutoUpdateId == Number(result.magAutoUpdateId));
                 //if (tmpIndex > -1) {
                 //    this.MagAutoUpdatesList.splice(tmpIndex, 1);
@@ -130,6 +130,23 @@ export class MAGRelatedRunsService extends BusyAwareService {
 
             }, error => {
                 this.RemoveBusy("DeleteMAGAutoUpdate");
+                this.modalService.GenericError(error);
+            });
+    }
+    DeleteMAGAutoUpdateRun(Id: number) {
+
+        this._BusyMethods.push("DeleteMAGAutoUpdateRun");
+        let body = JSON.stringify({ Value: Id });
+        this._httpC.post<MagAutoUpdateRun[]>(this._baseUrl + 'api/MagRelatedPapersRunList/DeleteAutoUpdateRun',
+            body)
+            .subscribe(result => {
+                this._MagAutoUpdateRunList = result;
+                this.notificationService.showMAGRunMessage('MAG Auto update task results were deleted');
+                
+                this.RemoveBusy("DeleteMAGAutoUpdateRun");
+
+            }, error => {
+                    this.RemoveBusy("DeleteMAGAutoUpdateRun");
                 this.modalService.GenericError(error);
             });
     }

@@ -133,12 +133,12 @@ export class MAGKeepUpToDate implements OnInit {
             //children of this code...
         }
         let att: SetAttribute = new SetAttribute();
-        if (this.CurrentDropdownSelectedCode != null) {
+        if (this.CurrentDropdownSelectedCode != null && this.searchAll == 'specified') {
             att = this.CurrentDropdownSelectedCode as SetAttribute;
             magRun.attributeId = att.attribute_id;
             magRun.attributeName = att.name;
         }
-        else if (this.searchAll !== 'specified') return;
+        else if (this.searchAll !== 'all') return;
         magRun.mode = this.magMode;
         magRun.userDescription = this.description;
         this.MAGRelatedRunsService.CreateAutoUpdate(magRun);
@@ -149,7 +149,7 @@ export class MAGKeepUpToDate implements OnInit {
             "Are you sure you want to delete MAG Auto Update task: \"<em>" + magAutoUpdate.userDescription + "\"</em>?", false, '')
             .then((confirm: any) => {
                 if (confirm) {
-                    this.MAGRelatedRunsService.DeleteMAGAutoUpdate(magAutoUpdate.magAutoUpdateId);;
+                    this.MAGRelatedRunsService.DeleteMAGAutoUpdate(magAutoUpdate.magAutoUpdateId);
                 }
             });
     }
@@ -314,6 +314,19 @@ export class MAGKeepUpToDate implements OnInit {
     }
     CancelImportRefine() {
         this.CurrentMagAutoUpdateRun = null;
+    }
+    DeleteAutoUpdateRun(task: MagAutoUpdateRun) {
+        if (task.magAutoUpdateRunId < 1 || !this.HasWriteRights) return;
+        this.ConfirmationDialogService.confirm("Deleting the selected MAG Auto Update task results",
+            "Are you sure you want to delete MAG Auto Update task results: \"<em>" + task.userDescription + "\"</em>?"
+            + "<br> Mag version: <em>"+ task.magVersion + "</em>."
+            + "<br> This operation <strong>cannot be undone</strong>!", false, '')
+            .then((confirm: any) => {
+                if (confirm) {
+                    this.MAGRelatedRunsService.DeleteMAGAutoUpdateRun(task.magAutoUpdateRunId);
+                }
+            });
+        
     }
     CloseCodeDropDown() {
         //console.log(this.WithOrWithoutCodeSelector);

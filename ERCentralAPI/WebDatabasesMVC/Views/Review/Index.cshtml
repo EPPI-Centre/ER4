@@ -10,6 +10,7 @@
     Claim WebDbIDclaim = User.FindFirst("WebDbID");
     string imgPath1 = "";
     string imgPath2 = "";
+    string imgMapPath1 = "";
     if (WebDbIDclaim != null)
     {
         var service = Context.RequestServices.GetService(typeof(Microsoft.AspNetCore.Hosting.IWebHostEnvironment)) as Microsoft.AspNetCore.Hosting.IWebHostEnvironment;
@@ -18,6 +19,8 @@
         else if (System.IO.File.Exists(absolutePath + "Img-" + WebDbIDclaim.Value + "-1.png")) imgPath1 = Url.Content("~/HeaderImages/Img-" + WebDbIDclaim.Value + "-1.png");
         if (System.IO.File.Exists(absolutePath + "Img-" + WebDbIDclaim.Value + "-2.jpg")) imgPath2 = Url.Content("~/HeaderImages/Img-" + WebDbIDclaim.Value + "-2.jpg");
         else if (System.IO.File.Exists(absolutePath + "Img-" + WebDbIDclaim.Value + "-2.png")) imgPath2 = Url.Content("~/HeaderImages/Img-" + WebDbIDclaim.Value + "-2.png");
+        if (System.IO.File.Exists(absolutePath + "ImgMap-" + WebDbIDclaim.Value + "-1.jpg")) imgMapPath1 = Url.Content("~/HeaderImages/ImgMap-" + WebDbIDclaim.Value + "-1.jpg");
+        else if (System.IO.File.Exists(absolutePath + "ImgMap-" + WebDbIDclaim.Value + "-1.png")) imgMapPath1 = Url.Content("~/HeaderImages/ImgMap-" + WebDbIDclaim.Value + "-1.png");
     }
 }
 
@@ -130,8 +133,8 @@
             //console.log("GetFreqs no data");
             return;
         }
-        $("#attributeIdXAxisCrit").val(dataItem.isCodeset? 0 : dataItem.id);
-        $("#setIdXAxisCrit").val(dataItem.setId); 
+        $("#attributeIdXAxisCrit").val(dataItem.isCodeset ? 0 : dataItem.id);
+        $("#setIdXAxisCrit").val(dataItem.setId);
         $("#FrequenciesGrid").show();
         $("#FrequenciesChart").hide();
         $("#FrequenciesResult").html("Frequencies:&nbsp;&nbsp;" + dataItem.text);
@@ -153,7 +156,7 @@
             return;
         }
         $("#attributeIdXAxisCrit").val(dataItem.isCodeset ? 0 : dataItem.id);
-        $("#setIdXAxisCrit").val(dataItem.setId); 
+        $("#setIdXAxisCrit").val(dataItem.setId);
         if (dataItem.isCodeset == true) {
             $.post("../Frequencies/GetFrequenciesJSON", { attId: 0, setId: dataItem.setId, included: true }, function (data, result) { BuildBar(data, result); })
         }
@@ -168,7 +171,7 @@
             return;
         }
         $("#attributeIdXAxisCrit").val(dataItem.isCodeset ? 0 : dataItem.id);
-        $("#setIdXAxisCrit").val(dataItem.setId); 
+        $("#setIdXAxisCrit").val(dataItem.setId);
         if (dataItem.isCodeset == true) {
             $.post("../Frequencies/GetFrequenciesJSON", { attId: 0, setId: dataItem.setId, included: true }, function (data, result) { BuildPie(data, result); })
         }
@@ -658,7 +661,7 @@
                         <div class="card-body">
 
 
-                            
+
 
                             <div id="FrequenciesChart" class="chart"></div>
                             <div style="max-height:50vh;" id="FrequenciesGrid"></div>
@@ -679,7 +682,44 @@
                             </script>
                         </div>
                     </div>
+
+
+
+                    @if (@imgMapPath1 != "")
+                    {
+                        <div class="card">
+                            <div class="card-header">
+                                <table width="100%">
+                                    <tr>
+                                        <td>
+                                            <div class="card-title">@(new HtmlString(Model.WebDb.MapTitle))</div>
+                                        </td>
+                                        <td style="text-align:right;padding-top:5px">
+
+                                            <a href="@(new HtmlString(Model.WebDb.MapUrl))" class="btn btn-secondary btn-sm btn-round" target="_blank" title="Go to W3Schools HTML section">
+                                                <span class="btn-label">
+                                                    <i class="fa fa-table"></i>
+                                                </span>&nbsp;View map
+
+                                            </a>
+
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+
+                            <div class="card-body">
+                                <a href="@(new HtmlString(Model.WebDb.MapUrl))" target="_blank" title="Go to W3Schools HTML section">
+                                    <img src=@imgMapPath1 style="object-fit: cover;" class="img-fluid pb-2 float-sm-left float-md-left float-lg-left" />
+                                </a>
+
+
+                            </div>
+                        </div>
+                    }
+
                 </div>
+
                 <div class="col-md-4">
                     <div class="card">
                         <div class="card-header">
@@ -720,7 +760,7 @@
                                     <td>
                                         <div class="card-title">Crosstabs</div>
                                     </td>
-                                    <td style="padding: 0px 0px 0px 25px;">                                       
+                                    <td style="padding: 0px 0px 0px 25px;">
                                         <button class="btn btn-secondary btn-sm btn-round" onclick="GoToCrosstab(false)" disabled id="CurrentNodeGoToCrosstab">
                                             <span class="btn-label">
                                                 <i class="fa fa-table"></i>
@@ -759,96 +799,14 @@
                             <div class="row m-0" id="x_axis_setting" style="display:none;">
 
 
-
-
-
-
-
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            @*<div class="row">
 
-                    <div class="col-md-6">
-                        <div class="card ">
-                            <div class="card-header">
-                                Some other feature (header)
-                            </div>
-
-                            <div class="card-body">
-                                Some other feature (body)
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-md-6">
-                        <div class="card full-height">
-                            <div class="card-header">
-                                <div class="card-head-row">
-                                    <div class="card-title">User Statistics</div>
-                                    <div class="card-tools">
-                                        <a href="#" class="btn btn-info btn-border btn-round btn-sm mr-2">
-                                            <span class="btn-label">
-                                                <i class="fa fa-pencil"></i>
-                                            </span>
-                                            Export
-                                        </a>
-                                        <a href="#" class="btn btn-info btn-border btn-round btn-sm">
-                                            <span class="btn-label">
-                                                <i class="fa fa-print"></i>
-                                            </span>
-                                            Print
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="card-body">
-                                <div class="chart-container" style="min-height: 375px">
-                                    <canvas id="statisticsChart"></canvas>
-                                </div>
-                                <div id="myChartLegend"></div>
-                            </div>
-                        </div>
-                    </div>
-
-                </div>*@
 
         </div>
     </div>
 </div>
-@*<div class="row">
-        <div class="col-md-4">
-            <div class="col-12 ">
-                Review Id is:
-                <h5>@Model.RevInfo.ReviewId</h5>
-            </div>
-            <div class=" col">
-                Screening is:
-                @if (Model.RevInfo.ShowScreening)
-                {<text>Active</text>}
-            else
-            {<text>Disabled</text>}
-            </div>
-            <div class="col-12 ">
-                This web DB will only show items with this code:
-                <div>@ViewBag.AttName (ID: @ViewBag.AttId)</div>
-                <div class="col-7 col-md-8 row mx-0 p-0">
-                    <div>
-                        <div><b>@Model.WebDb.WebDBId</b></div>
 
-                        <div>This WebDatabase uses EPPI-Reviewer data from the  review called: <b>@Model.RevInfo.ReviewName</b></div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-12 " id="CurrentNode">
-                <div class="row">Selected code: <span class="ml-1 font-weight-bold" id="CurrentNodeName"></span></div>
-                <div class="row">Selected code: <span class="ml-1 font-weight-bold" id="CurrentNodeNameCT"></span></div>
-                <div class="row">Selected Id: <span class="ml-1 font-weight-bold" id="CurrentNodeId"></span></div>
-                <div class="row">Selected SetId: <span class="ml-1 font-weight-bold" id="CurrentNodeSetId"></span></div>
-                <div class="row">Is a coding tool: <span class="ml-1 font-weight-bold" id="CurrentNodeIsCodeSet"></span></div>
-
-            </div>
-        </div>
-    </div>*@

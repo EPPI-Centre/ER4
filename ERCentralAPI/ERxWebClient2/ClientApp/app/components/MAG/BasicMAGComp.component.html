@@ -12,17 +12,17 @@
             <table>
                 <tr>
                     <td>
-                        <h2 class="font-weight-light">Find related papers and set up review auto-updates</h2>
+                        <h2 class="font-weight-light">Bring review up to date (find related papers)</h2>
                     </td>
                     <td style="padding-left:10px">
                         <div *ngIf="!basicPanel">
-                            <a (click)="ShowBasicPanel()" class="btn btn-dark btn-sm text-white" data-toggle="collapse"
+                            <a  class="btn btn-dark btn-sm text-white" data-toggle="collapse"
                                href="#collapseExample1" role="button" aria-expanded="false" aria-controls="collapseExample1">
                                 more details <i class="fa fa-arrow-circle-down"></i>
                             </a>
                         </div>
                         <div *ngIf="basicPanel">
-                            <a (click)="ShowBasicPanel()" class="btn btn-dark btn-sm text-white" data-toggle="collapse"
+                            <a  class="btn btn-dark btn-sm text-white" data-toggle="collapse"
                                href="#collapseExample1" role="button" aria-expanded="false" aria-controls="collapseExample1">
                                 more details <i class="fa fa-arrow-circle-up"></i>
                             </a>
@@ -35,11 +35,14 @@
                 <div class="card card-footer">
                     <p>On this page you can set up tasks to find papers related to papers in your review automatically.</p>
                     <p>
-                        You can look for related papers as a one-off exercise, or set up an auto update, that will look for new papers every time Microsoft Academic is
-                        updated (once or twice a month).
+                        You can look for related papers as a one-off exercise, which is mostly useful to "find" (potentially) relevant references which were not found via "traditional" searching.
                     </p>
                     <p>
-                        Each time the process runs, a new row will be added to the table below, and items not previously identified will be added. Once new items have appeared in the list below, you can either preview them in this window by clicking the number, or import them into your review, and examine them as you would for any other batch of references. When you import them, they will appear as a new 'source' with the date/time of import. If you want to improve the performance of the algorithm, or undertake methodological work to evaluate its performance, click on the 'Matching MAG Items' link above, run the matching algorithm and finally click on the 'Advanced' on that page.
+                        Each "new search" will be added to the table below, allowing to import items found in the search (if they are not known already). Once new items have appeared in the list below, 
+                        you can either preview them in this window by clicking the number, or import them into your review, and examine them as you would for any other batch of references. 
+                        <br />When you import these search results, they will appear as a new 'source' with the date/time of import. <br />
+                        <strong>Before you start</strong>: please click on the 'Matching MAG Items' link above and run the matching algorithm. This creates a 'link' between your 'items' in EPPI-Reviewer and 'Papers' in the MAG database
+                        and is necessary to drive most/all MAG-powered functionalities.
                     </p>
                 </div>
             </div>
@@ -203,7 +206,7 @@
                                         <button (click)="ClickSearchMode('5')" class="dropdown-item">Papers that cite known items ('Cited by')</button>
                                         <button (click)="ClickSearchMode('6')" class="dropdown-item">Bi-directional citation relationships ('Bi-Citation') </button>
                                         <button (click)="ClickSearchMode('7')" class="dropdown-item">Bi-directional recomendation AND citation relationships ('Bi-Citation AND Recommendations')</button>
-                                        <button (click)="ClickSearchMode('8')" class="dropdown-item">(Next MAG) - new published items</button>
+                                        <!--<button (click)="ClickSearchMode('8')" class="dropdown-item">(Next MAG) - new published items</button>-->
                                     </div>
 
                                 </div>
