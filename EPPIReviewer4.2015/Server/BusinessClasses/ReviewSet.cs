@@ -128,6 +128,24 @@ namespace BusinessLibrary.BusinessClasses
             return returnValue;
         }
 
+        public AttributeSet GetAttributeSetFromOriginalAttributeId(Int64 OriginalAttributeId)
+        {
+            AttributeSet returnValue = null;
+            foreach (AttributeSet rs in Attributes)
+            {
+                if (rs.OriginalAttributeID == OriginalAttributeId)
+                {
+                    return rs;
+                }
+                returnValue = rs.GetAttributeSetFromOriginalAttributeId(OriginalAttributeId);
+                if (returnValue != null)
+                {
+                    return returnValue;
+                }
+            }
+            return returnValue;
+        }
+
         public void ClearItemData()
         {
             ItemSetId = 0;
@@ -217,11 +235,16 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
         public static readonly PropertyInfo<int> OriginalSetIdProperty = RegisterProperty<int>(new PropertyInfo<int>("OriginalSetId", "OriginalSetId", 0));
+        [JsonProperty]
         public int OriginalSetId
         {
             get
             {
                 return GetProperty(OriginalSetIdProperty);
+            }
+            set
+            {
+                SetProperty(OriginalSetIdProperty, value);
             }
         }
         public static readonly PropertyInfo<int> ReviewIdProperty = RegisterProperty<int>(new PropertyInfo<int>("ReviewId", "ReviewId", 0));

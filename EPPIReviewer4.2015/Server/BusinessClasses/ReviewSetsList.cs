@@ -47,6 +47,18 @@ namespace BusinessLibrary.BusinessClasses
             return null;
         }
 
+        public ReviewSet GetReviewSetOnOldId(int SetId)
+        {
+            ReviewSet returnValue;
+            foreach (ReviewSet reviewSet in this)
+            {
+                returnValue = reviewSet;
+                if (returnValue.OriginalSetId == SetId)
+                    return returnValue;
+            }
+            return null;
+        }
+
         public AttributeSet GetAttributeSet(Int64 AttributeSetId)
         {
             AttributeSet returnValue = null;
@@ -75,13 +87,27 @@ namespace BusinessLibrary.BusinessClasses
             return returnValue;
         }
 
+        public AttributeSet GetAttributeSetFromOriginalAttributeId(Int64 AttributeId)
+        {
+            AttributeSet returnValue = null;
+            foreach (ReviewSet rs in this)
+            {
+                returnValue = rs.GetAttributeSetFromOriginalAttributeId(AttributeId);
+                if (returnValue != null)
+                {
+                    return returnValue;
+                }
+            }
+            return returnValue;
+        }
+
         // JT commented out 07/06/2018 - doesn't look like this is ever called??
         //public void SetItemData(ItemSetList data)
         //{
         //    //List<ItemSet> list = 
         //       object o1 =  data.Cast<List<ItemSet>>();
         //    object o2 = data.Cast<ItemSet>();//as List<ItemSet>;
-            
+
         //}
         //
 

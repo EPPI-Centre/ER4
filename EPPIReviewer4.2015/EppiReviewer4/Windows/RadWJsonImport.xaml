@@ -1,0 +1,37 @@
+﻿<telerik:RadWindow x:Class="EppiReviewer4.RadWJsonImport"
+		xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+		xmlns:csla="clr-namespace:Csla.Silverlight;assembly=Csla"
+        xmlns:cslaXAML="clr-namespace:Csla.Xaml;assembly=Csla.Xaml"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+		xmlns:telerik="http://schemas.telerik.com/2008/xaml/presentation"
+		           Header="Import data for use on local dev environments"
+                   Width="510"
+                   CanClose="True"
+                   CanMove="True" 
+                   IsRestricted="True"
+                   ResizeMode="NoResize"
+                   RestoreMinimizedLocation="True"
+                   RestrictedAreaMargin="20"
+                   WindowStartupLocation="CenterScreen"
+                   WindowState="Normal"
+                   >
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="35"></RowDefinition>
+            <RowDefinition Height="35"></RowDefinition>
+            <RowDefinition Height="35"></RowDefinition>
+            <RowDefinition Height="50"></RowDefinition>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="200"></ColumnDefinition>
+            <ColumnDefinition Width="300"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        <telerik:RadBusyIndicator x:Name="BusyDoingStuff" Grid.Row="2" Grid.Column="1" Grid.RowSpan="2" Background="Transparent" BorderBrush="Transparent" />
+        <TextBlock Grid.Row="0" Grid.Column="0" Text="Where to look?"></TextBlock>
+        <TextBox x:Name="tbPath" Grid.Row="0" Grid.Column="1"></TextBox>
+        <Button x:Name="cmdGo" Grid.Row="1" Grid.Column="0" Content="GO!" Click="cmdGo_Click"></Button>
+        <TextBlock Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2"
+                   Text="THIS FUNCTION IS FOR DEV USE ON LOCAL DATABASES, NOT FOR EXECUTING ON THE PRODUCTION SYSTEM." TextWrapping="Wrap"></TextBlock>
+        
+    </Grid>
+</telerik:RadWindow>

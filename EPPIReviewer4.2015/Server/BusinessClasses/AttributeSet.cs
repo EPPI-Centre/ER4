@@ -201,6 +201,24 @@ namespace BusinessLibrary.BusinessClasses
             return returnValue;
         }
 
+        public AttributeSet GetAttributeSetFromOriginalAttributeId(Int64 OriginalAttributeId)
+        {
+            AttributeSet returnValue = null;
+            foreach (AttributeSet rs in Attributes)
+            {
+                if (rs.OriginalAttributeID == OriginalAttributeId)
+                {
+                    return rs;
+                }
+                returnValue = rs.GetAttributeSetFromOriginalAttributeId(OriginalAttributeId);
+                if (returnValue != null)
+                {
+                    return returnValue;
+                }
+            }
+            return returnValue;
+        }
+
         public AttributeSet GetSetByExt_URL(string val)
         {
             AttributeSet retVal = null;
@@ -307,6 +325,10 @@ namespace BusinessLibrary.BusinessClasses
             get
             {
                 return GetProperty(AttributeSetIdProperty);
+            }
+            set
+            {
+                SetProperty(AttributeSetIdProperty, value);
             }
         }
 

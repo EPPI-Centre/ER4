@@ -486,6 +486,9 @@
     <Compile Include="Windows\RadWItemsGridSelectWarning.xaml.cs">
       <DependentUpon>RadWItemsGridSelectWarning.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Windows\RadWJsonImport.xaml.cs">
+      <DependentUpon>RadWJsonImport.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Windows\RadWLoadDiagram.xaml.cs">
       <DependentUpon>RadWLoadDiagram.xaml</DependentUpon>
     </Compile>
@@ -700,6 +703,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Windows\RadWCheckTimepointDelete.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\RadWJsonImport.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -1095,6 +1102,7 @@
     <Resource Include="Icons\run-build-install.png" />
     <Resource Include="Icons\MicrosoftAcademicICOAlert.png" />
     <Resource Include="Icons\MAG.jpg" />
+    <Resource Include="Icons\svn-workbench_wb.png" />
     <Content Include="pMed.png" />
     <Content Include="ServiceReferences.ClientConfig">
       <SubType>Designer</SubType>
