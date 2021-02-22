@@ -62,21 +62,35 @@ namespace BusinessLibrary.BusinessClasses
         {
             get
             {
-                return Authors + " (" + Year.ToString() + ") " + OriginalTitle + ". " + Journal + ". " +
+                return shortenedAuthors() + " (" + Year.ToString() + ") " + OriginalTitle + ". " + Journal + ". " +
                     Volume.ToString() + (Issue == "" || Issue == null ? "" :  " (" + Issue + ") ") + FirstPage + "-" + LastPage +
                     (DOI == "" ? "" : ". DOI: " + DOI);
             }
         }
+
+        private string shortenedAuthors()
+        {
+            if (Authors.Length > 30)
+            {
+                string[] authorList = Authors.Split(',');
+                string retAuthors = authorList[0].Trim();
+                int n = 1;
+                while (retAuthors.Length < 25 && n < authorList.Length)
+                {
+                    retAuthors += "," + authorList[n].Trim();
+                    n++;
+                }
+                if (n < authorList.Length - 1)
+                    return retAuthors + ", et al.";
+            }
+            return Authors;
+        }
+
         public string ShortRecord
         {
             get
             {
-                string shortednedAuthors = Authors;
-                if (Authors.Length > 25)
-                {
-                    shortednedAuthors = Authors.Substring(0, 25);
-                }
-                return shortednedAuthors  + "... (" + Year.ToString() + ") " + OriginalTitle + ". " + Journal + ". " +
+                return shortenedAuthors() + "... (" + Year.ToString() + ") " + OriginalTitle + ". " + Journal + ". " +
                     Volume.ToString() + (Issue == "" || Issue == null ? "" : " (" + Issue + ") ") + FirstPage + "-" + LastPage;
             }
         }
