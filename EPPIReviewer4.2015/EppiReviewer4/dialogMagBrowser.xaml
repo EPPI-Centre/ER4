@@ -166,6 +166,17 @@
                 </Setter.Value>
             </Setter>
         </Style>
+        <Style TargetType="grid:GridViewCell" x:Name="cellStyleDeleteSearch">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate>
+                        <Button x:Name="cmdDeleteSearch" Click="cmdDeleteSearch_Click">
+                            <Image Width="22" Height="22" Source="Icons/trash.png" ToolTipService.ToolTip="Delete search" />
+                        </Button>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
 
     </UserControl.Resources>
 
@@ -1134,7 +1145,9 @@
                                                     </DataTemplate>
                                                 </telerikGridView:GridViewDataColumn.CellTemplate>
                                             </telerikGridView:GridViewDataColumn>
+                                            <telerikGridView:GridViewDataColumn Width="30" SortingState="None" IsReadOnly="True" CellStyle="{StaticResource cellStyleDeleteSearch}"></telerikGridView:GridViewDataColumn>
                                         </telerikGridView:RadGridView.Columns>
+                                        
 
                                     </telerikGridView:RadGridView>
 

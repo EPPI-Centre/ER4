@@ -3390,6 +3390,34 @@ namespace EppiReviewer4
             return newSearch;
         }
 
+        private MagSearch TempDeleteMagSearch;
+        private void cmdDeleteSearch_Click(object sender, RoutedEventArgs e)
+        {
+            Button btn = sender as Button;
+            if (btn != null)
+            {
+                MagSearch s = btn.DataContext as MagSearch;
+                if (s != null)
+                {
+                    TempDeleteMagSearch = s;
+                    RadWindow.Confirm("Are you sure you want to delete the selected search?", this.doDeleteSingleSearch);
+                }
+            }
+        }
+        private void doDeleteSingleSearch(object sender, WindowClosedEventArgs e)
+        {
+            var result = e.DialogResult;
+            if (result == true)
+            {
+                CslaDataProvider provider = this.Resources["MagSearchListData"] as CslaDataProvider;
+                MagSearchList searchList = provider.Data as MagSearchList;
+                if (TempDeleteMagSearch != null)
+                {
+                    searchList.Remove(TempDeleteMagSearch);
+                }
+            }
+        }
+
         private void hlDeleteSelectedMagSearches_Click(object sender, RoutedEventArgs e)
         {
             if (SearchDataGrid.SelectedItems.Count < 1)
@@ -4476,8 +4504,6 @@ namespace EppiReviewer4
             }
         }
 
-        
-
-
+       
     }
 }
