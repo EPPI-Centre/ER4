@@ -362,28 +362,6 @@ namespace BusinessLibrary.BusinessClasses
                             }
                         }
                     }
-
-
-                    /* when using an interpret request...
-                    var respJson = JsonConvert.DeserializeObject<MagMakesHelpers.MakesInterpretResponse>(resp, jsonsettings);
-                    if (respJson != null && respJson.interpretations != null && respJson.interpretations.Count > 0)
-                    {
-                        foreach (MakesInterpretation i in respJson.interpretations)
-                        {
-                            //foreach (MakesInterpretationRule r in i.rules)
-                            //{
-                                foreach (PaperMakes pm in i.topEntities)
-                                {
-                                    var found = PaperList.Find(e => e.Id == pm.Id);
-                                    if (found == null)
-                                    {
-                                        PaperList.Add(pm);
-                                    }
-                                }
-                            //}
-                        }
-                    }
-                    */
                 }
                 catch (Exception e)
                 {
@@ -397,8 +375,6 @@ namespace BusinessLibrary.BusinessClasses
 #endif
                     return PaperList;
                 }
-                
-                
             }
             if (TryAgain && PaperList.Count == 0)
             {
@@ -584,20 +560,34 @@ namespace BusinessLibrary.BusinessClasses
                 NullValueHandling = NullValueHandling.Ignore,
                 MissingMemberHandling = MissingMemberHandling.Ignore
             };
-
+            MakesCalcHistogramResponse respJson = null;
             string responseText = "";
             MagCurrentInfo MagInfo = MagCurrentInfo.GetMagCurrentInfoServerSide(MakesDeploymentStatus);
             WebRequest request = WebRequest.Create(MagInfo.MakesEndPoint + query +
                 "&attributes=" + System.Web.HttpUtility.UrlEncode("F.FN,Id"));
-            WebResponse response = request.GetResponse();
-            using (Stream dataStream = response.GetResponseStream())
+            try
             {
-                StreamReader sreader = new StreamReader(dataStream);
-                responseText = sreader.ReadToEnd();
-            }
-            response.Close();
+                WebResponse response = request.GetResponse();
+                using (Stream dataStream = response.GetResponseStream())
+                {
+                    StreamReader sreader = new StreamReader(dataStream);
+                    responseText = sreader.ReadToEnd();
+                }
+                response.Close();
 
-            MakesCalcHistogramResponse respJson = JsonConvert.DeserializeObject<MakesCalcHistogramResponse>(responseText, jsonsettings);
+                respJson = JsonConvert.DeserializeObject<MakesCalcHistogramResponse>(responseText, jsonsettings);
+            }
+            catch (Exception e)
+            {
+#if !CSLA_NETCORE
+                //not clear what to do on ER4, how do we log this?
+                Console.WriteLine(e.Message, query);
+#elif WEBDB
+                    WebDatabasesMVC.Startup.Logger.LogError(e, "Searching on MAKES failed for text: ", query);
+#else
+                    ERxWebClient2.Startup.Logger.LogError(e, "Searching on MAKES failed for text: ", query);
+#endif
+            }
             return respJson;
         }
 
