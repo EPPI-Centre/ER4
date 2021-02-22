@@ -148,6 +148,7 @@ namespace EppiReviewer4
             ri = Csla.ApplicationContext.User.Identity as BusinessLibrary.Security.ReviewerIdentity;
             isEn.DataContext = this;
             //end of read-only ui hack
+            cmdShowJsonImportWindow.IsEnabled = ri.IsSiteAdmin ? true : false; // Rene reported being able to click on an invisible button!
             cmdShowJsonImportWindow.Visibility = ri.IsSiteAdmin ? Visibility.Visible : System.Windows.Visibility.Collapsed;
             //enter RadWindow properties...
             Thickness thk = new Thickness(20);
