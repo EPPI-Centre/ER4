@@ -1601,6 +1601,13 @@ namespace EppiReviewer4
             Button bt = sender as Button;
             currentAttributeSet = bt.DataContext as AttributeSet;
             if (currentAttributeSet == null) return;
+            //following 4 lines: calling "TreeView.SelectedItem = currentAttributeSet" makes TreeView_SelectionChanged fire twice.
+            //I guessed that is was first doing TreeView.SelectedItem = null; then putting a value,
+            // so now I do it explicitly. Otherwise the double-firing creates an error message when adding a second copy of the same PDF highlights.
+            TreeView.SelectionChanged -= TreeView_SelectionChanged;
+            TreeView.SelectionChanged -= TreeView_SelectionChanged;
+            TreeView.SelectedItem = null;
+            TreeView.SelectionChanged += new Telerik.Windows.Controls.SelectionChangedEventHandler(TreeView_SelectionChanged);
             TreeView.SelectedItem = currentAttributeSet;
             StackPanel sp = bt.Parent as StackPanel;
             currentCheckBox = sp.Children[0] as CheckBox;
