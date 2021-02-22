@@ -359,7 +359,8 @@ namespace BusinessLibrary.BusinessClasses
                         command.CommandType = System.Data.CommandType.StoredProcedure;
                         command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
                         command.Parameters.Add(new SqlParameter("@MAG_RELATED_RUN_ID", _MagRelatedRunId));//Imported
-                        command.Parameters.Add(new SqlParameter("@STATUS", "Imported"));
+                        command.Parameters.Add(new SqlParameter("@STATUS", ""));
+                        command.Parameters.Add(new SqlParameter("@USER_STATUS", "Imported"));
                         command.ExecuteNonQuery();
                     }
                 }
