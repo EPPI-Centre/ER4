@@ -385,6 +385,12 @@ export class MAGBrowserService extends BusyAwareService {
         return await this.FetchOrigWithCrit(criteria, "OrigList");
 
     }
+    public async GoToListOfAutoUpdatePapers(crit: MVCMagPaperListSelectionCriteria, listDescription: string) {
+        this._mAGBrowserHistoryService.AddHistory(MagBrowseHistoryItem.MakeFromAutoUpdateListCrit(crit));
+        let res: boolean = await this.FetchOrigWithCrit(crit, listDescription);
+        if (res == true) this.MAGList = this.MAGOriginalList;
+        return res;
+    }
     public FetchWithCrit(crit: MVCMagPaperListSelectionCriteria, listDescription: string): Promise<boolean> {
 
         this._BusyMethods.push("FetchWithCrit");

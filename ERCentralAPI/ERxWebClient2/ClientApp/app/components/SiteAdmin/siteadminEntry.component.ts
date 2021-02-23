@@ -6,6 +6,7 @@ import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { FeedbackAndClientError, OnlineHelpService } from '../services/onlinehelp.service';
 import { GridDataResult, PageChangeEvent, DataStateChangeEvent } from '@progress/kendo-angular-grid';
 import { SortDescriptor, process, CompositeFilterDescriptor, State } from '@progress/kendo-data-query';
+import { Helpers } from '../helpers/HelperMethods';
 
 
 @Component({
@@ -30,7 +31,7 @@ export class SiteAdminEntryComponent implements OnInit {
     }
     public get LatestFeedbackDate(): string {
         if (this.OnlineHelpService.FeedbackMessageList.length == 0) return "";
-        else return this.OnlineHelpService.FeedbackMessageList[0].dateCreated;
+        else return Helpers.FormatDate( this.OnlineHelpService.FeedbackMessageList[0].dateCreated);
     }
 
     public get IsSiteAdmin(): boolean {

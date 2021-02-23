@@ -15,6 +15,7 @@ import { take, map, takeUntil } from 'rxjs/operators';
 import { forEach } from '@angular/router/src/utils/collection';
 import { ReviewSetsService } from '../services/ReviewSets.service';
 import { EventEmitterService } from '../services/EventEmitter.service';
+import { Helpers } from '../helpers/HelperMethods';
 
 @Component({
     selector: 'mainCodingOnly',
@@ -100,6 +101,10 @@ export class MainComponent implements OnInit, OnDestroy, AfterViewInit {
         this.isReviewPanelCollapsed = false;
     }
 
+    FormatDate(DateSt: string): string {
+        return Helpers.FormatDate2(DateSt);
+    }
+
     Clear() {
         this.ItemListService.SaveItems(new ItemList(), new Criteria());
         this.ReviewSetsService.Clear();
@@ -113,7 +118,7 @@ export class MainComponent implements OnInit, OnDestroy, AfterViewInit {
     }
     public get MyAccountMessage(): string {
         let msg: string = "Your account expires on: ";
-        let AccExp: string = new Date(this.ReviewerIdentityServ.reviewerIdentity.accountExpiration).toLocaleDateString();
+        let AccExp: string = this.FormatDate(this.ReviewerIdentityServ.reviewerIdentity.accountExpiration);
         msg += AccExp;
         return msg;
     }
@@ -123,8 +128,8 @@ export class MainComponent implements OnInit, OnDestroy, AfterViewInit {
             revPart = "Current review is private (does not expire).";
         }
         else {
-            let RevExp: string = new Date(this.ReviewerIdentityServ.reviewerIdentity.reviewExpiration).toLocaleDateString();
-            revPart = "Current(shared) review expires on " + RevExp + ".";
+            let RevExp: string = this.FormatDate(this.ReviewerIdentityServ.reviewerIdentity.reviewExpiration);
+            revPart = "Current(shared) review expires on: " + RevExp + ".";
         }
         return revPart;
     }

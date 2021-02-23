@@ -13,7 +13,7 @@ export class Helpers {
             const month = parseInt(DD_MM_YYYY_.substr(3, 2)) -1;
             const day = parseInt(DD_MM_YYYY_.substr(0, 2));
             const date: Date = new Date(year, month, day);
-            return date.toLocaleDateString();
+            return date.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
         }
     }
     //Used to format dates when the date string is like "YYYY-MM-DD[...]".
@@ -26,7 +26,7 @@ export class Helpers {
             const day = parseInt(YYYY_MM_DD_.substr(8, 2));
             //console.log(year);
             const date: Date = new Date(year, month, day);
-            return date.toLocaleDateString();
+            return date.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
         }
     }
 

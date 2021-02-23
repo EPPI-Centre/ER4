@@ -22,6 +22,7 @@ import { Observable } from 'rxjs';
 import { ChartComponent } from '@progress/kendo-angular-charts';
 import { saveAs } from '@progress/kendo-file-saver';
 import { ReviewSetsEditingService } from '../services/ReviewSetsEditing.service';
+import { Helpers } from '../helpers/HelperMethods';
 
 @Component({
 	selector: 'SearchComp',
@@ -1018,7 +1019,9 @@ export class SearchComp implements OnInit, OnDestroy {
 
 		this._reviewSetsService.selectedNode = null;
 	}
-	
+	FormatDate(DateSt: string): string {
+		return Helpers.FormatDate(DateSt);
+	}
 	SearchGetItemList(dataItem: Search) {
 
 		let search: Search = new Search();
