@@ -182,6 +182,45 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
+        public static readonly PropertyInfo<string> HeaderImage1UrlProperty = RegisterProperty<string>(new PropertyInfo<string>("HeaderImage1Url", "HeaderImage1Url", ""));
+        public string HeaderImage1Url
+        {
+            get
+            {
+                return GetProperty(HeaderImage1UrlProperty);
+            }
+            set
+            {
+                SetProperty(HeaderImage1UrlProperty, value);
+            }
+        }
+
+        public static readonly PropertyInfo<string> HeaderImage2UrlProperty = RegisterProperty<string>(new PropertyInfo<string>("HeaderImage2Url", "HeaderImage2Url", ""));
+        public string HeaderImage2Url
+        {
+            get
+            {
+                return GetProperty(HeaderImage2UrlProperty);
+            }
+            set
+            {
+                SetProperty(HeaderImage2UrlProperty, value);
+            }
+        }
+
+        public static readonly PropertyInfo<string> HeaderImage3UrlProperty = RegisterProperty<string>(new PropertyInfo<string>("HeaderImage3Url", "HeaderImage3Url", ""));
+        public string HeaderImage3Url
+        {
+            get
+            {
+                return GetProperty(HeaderImage3UrlProperty);
+            }
+            set
+            {
+                SetProperty(HeaderImage3UrlProperty, value);
+            }
+        }
+
         public static readonly PropertyInfo<string> EncodedImage1Property = RegisterProperty<string>(new PropertyInfo<string>("EncodedImage1", "EncodedImage1", ""));
         public string EncodedImage1
         {
@@ -207,7 +246,18 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-
+        public static readonly PropertyInfo<string> EncodedImage3Property = RegisterProperty<string>(new PropertyInfo<string>("EncodedImage3", "EncodedImage3", ""));
+        public string EncodedImage3
+        {
+            get
+            {
+                return GetProperty(EncodedImage3Property);
+            }
+            set
+            {
+                SetProperty(EncodedImage3Property, value);
+            }
+        }
 
         protected override void AddBusinessRules()
         {
@@ -250,6 +300,9 @@ namespace BusinessLibrary.BusinessClasses
                             LoadProperty(EditedByProperty, reader.GetString("EDITED_BY"));
                             LoadProperty(MapTitleProperty, reader.GetString("MAP_TITLE"));
                             LoadProperty(MapUrlProperty, reader.GetString("MAP_URL"));
+                            LoadProperty(HeaderImage1UrlProperty, reader.GetString("HEADER_IMAGE_1_URL"));
+                            LoadProperty(HeaderImage2UrlProperty, reader.GetString("HEADER_IMAGE_2_URL"));
+                            LoadProperty(HeaderImage3UrlProperty, reader.GetString("HEADER_IMAGE_3_URL"));
                         }
                     }
                 }
@@ -397,6 +450,9 @@ namespace BusinessLibrary.BusinessClasses
             returnValue.LoadProperty(EditedByProperty, reader.GetString("EDITED_BY"));
             returnValue.LoadProperty(MapTitleProperty, reader.GetString("MAP_TITLE"));
             returnValue.LoadProperty(MapUrlProperty, reader.GetString("MAP_URL"));
+            returnValue.LoadProperty(HeaderImage1UrlProperty, reader.GetString("HEADER_IMAGE_1_URL"));
+            returnValue.LoadProperty(HeaderImage2UrlProperty, reader.GetString("HEADER_IMAGE_2_URL"));
+            returnValue.LoadProperty(HeaderImage3UrlProperty, reader.GetString("HEADER_IMAGE_3_URL"));
             byte[] t = (byte[])reader["HEADER_IMAGE_1"];
             string base64ImageRepresentation;
             if (t != null)
@@ -409,6 +465,12 @@ namespace BusinessLibrary.BusinessClasses
             {
                 base64ImageRepresentation = Convert.ToBase64String(t);
                 returnValue.LoadProperty(EncodedImage2Property, base64ImageRepresentation);
+            }
+            t = (byte[])reader["HEADER_IMAGE_3"];
+            if (t != null)
+            {
+                base64ImageRepresentation = Convert.ToBase64String(t);
+                returnValue.LoadProperty(EncodedImage3Property, base64ImageRepresentation);
             }
             return returnValue;
         }

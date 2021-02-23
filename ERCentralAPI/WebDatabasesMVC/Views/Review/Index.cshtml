@@ -569,13 +569,18 @@
                     <div class="col-md-3">
                         @if (@imgPath1 != "")
                         {
-                            <img src=@imgPath1 style="max-height: 60px; object-fit: cover;" class="pb-2 float-sm-left float-md-left float-lg-right" />
+                            <a href="@(new HtmlString(Model.WebDb.HeaderImage1Url))" target="_blank" title="HeaderImage1">
+                                <img src=@imgPath1 style="max-height: 60px; object-fit: cover;" class="pb-2 float-sm-left float-md-left float-lg-right" />
+                            </a>
                         }
                     </div>
                     <div class="col-md-3">
                         @if (@imgPath2 != "")
                         {
-                            <img src=@imgPath2 style="max-height: 60px; object-fit: cover;" class="pb-2 float-sm-left float-md-left float-lg-right" />
+                            
+                            <a href="@(new HtmlString(Model.WebDb.HeaderImage2Url))" target="_blank" title="HeaderImage2">
+                                <img src=@imgPath2 style="max-height: 60px; object-fit: cover;" class="pb-2 float-sm-left float-md-left float-lg-right" />
+                            </a>
                         }
                     </div>
 
