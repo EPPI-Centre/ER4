@@ -115,6 +115,9 @@ export class MAGBrowserHistory implements OnInit {
                             break;
                         case "KeepUpdated":
                             this.ShowKeepUpToDate();
+                            break;
+                        case "MagAutoUpdateRunPapersList":
+                            this.ShowAutoUpdateRunPapersList();
                             break; 
                     }
             }
@@ -201,6 +204,20 @@ export class MAGBrowserHistory implements OnInit {
         this.router.navigate(['MAGBrowser']);
         //this._magBrowserService.onTabSelect(2);
     }
+    private ShowAutoUpdateRunPapersList() {
+        let target = this._MAGBrowserHistoryService._MAGBrowserHistoryList[this._MAGBrowserHistoryService.currentBrowsePosition];
+        if (target != undefined && target != null) {
+            let crit = target.toAutoUpdateListCrit;
+            if (crit != null) {
+                this._magBrowserService.FetchWithCrit(crit, "Update task results").then(
+                    () => {
+                        this.router.navigate(['MAGBrowser']);
+                    }
+                );
+            }
+        }
+    } 
+
     public GetParentAndChildRelatedPapers(FieldOfStudy: string, FieldOfStudyId: number) {
 
         this._magBrowserService.ParentTopic = FieldOfStudy;

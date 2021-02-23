@@ -46,6 +46,7 @@ export class MAGAdvancedService extends BusyAwareService {
     public PaperIds: string = '';
     public MagList: MagList = new MagList();
     private _MagCurrentInfo: MagCurrentInfo = new MagCurrentInfo();
+    private _CurrentUserId4ClassifierContactModelList: number = 0;
     private _ClassifierContactModelList: ClassifierContactModel[] = [];
     public get MagCurrentInfo(): MagCurrentInfo{
         return this._MagCurrentInfo;
@@ -55,6 +56,9 @@ export class MAGAdvancedService extends BusyAwareService {
     }
     public get ClassifierContactModelList(): ClassifierContactModel[] {
         return this._ClassifierContactModelList;
+    }
+    public get CurrentUserId4ClassifierContactModelList(): number {
+        return this._CurrentUserId4ClassifierContactModelList;
     }
     public set ClassifierContactModelList(classifierContactModelList: ClassifierContactModel[]) {
         this._ClassifierContactModelList = classifierContactModelList;
@@ -260,8 +264,9 @@ export class MAGAdvancedService extends BusyAwareService {
                 }
         );
     }
-    public FetchClassifierContactModelList() {
+    public FetchClassifierContactModelList(UserId: number) {
         this._BusyMethods.push("FetchClassifierContactModelList");
+        this._CurrentUserId4ClassifierContactModelList = UserId;
         this._httpC.get<ClassifierContactModel[]>(this._baseUrl + 'api/MagClassifierContact/FetchClassifierContactList')
             .subscribe(result => {
                 this.RemoveBusy("FetchClassifierContactModelList");

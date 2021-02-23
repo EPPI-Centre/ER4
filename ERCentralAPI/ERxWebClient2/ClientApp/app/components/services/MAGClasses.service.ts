@@ -350,6 +350,28 @@ export class MagBrowseHistoryItem {
         this.attributeIds = attributeIds;
         this.magRelatedRunId = magRelatedRunId;
     }
+    public static MakeFromAutoUpdateListCrit(crit :MVCMagPaperListSelectionCriteria): MagBrowseHistoryItem {
+        let res = new MagBrowseHistoryItem("List: Auto Update Run results", "MagAutoUpdateRunPapersList", 0, "", "", 0, "", "", 0, "", "", 0);
+        res.magAutoUpdateRunId = crit.magAutoUpdateRunId;
+        res.autoUpdateOrderBy = crit.autoUpdateOrderBy;
+        res.autoUpdateAutoUpdateScore = crit.autoUpdateAutoUpdateScore;
+        res.autoUpdateStudyTypeClassifierScore =  crit.autoUpdateStudyTypeClassifierScore
+        res.autoUpdateUserClassifierScore = crit.autoUpdateUserClassifierScore;
+        res.autoUpdateUserTopN = crit.autoUpdateUserTopN;
+        return res;
+    }
+    public get toAutoUpdateListCrit(): MVCMagPaperListSelectionCriteria | null {
+        if (this.browseType != "MagAutoUpdateRunPapersList") return null;
+        let res: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
+        res.listType = this.browseType;
+        res.magAutoUpdateRunId = this.magAutoUpdateRunId;
+        res.autoUpdateOrderBy = this.autoUpdateOrderBy;
+        res.autoUpdateAutoUpdateScore = this.autoUpdateAutoUpdateScore;
+        res.autoUpdateStudyTypeClassifierScore = this.autoUpdateStudyTypeClassifierScore
+        res.autoUpdateUserClassifierScore = this.autoUpdateUserClassifierScore;
+        res.autoUpdateUserTopN = this.autoUpdateUserTopN;
+        return res;
+    }
     title: string = '';
     browseType: string = '';
     paperId: number = 0;
@@ -365,6 +387,12 @@ export class MagBrowseHistoryItem {
     findOnWeb: string = '';
     contactId: number = 0;
     dateBrowsed: Date = new Date();
+    magAutoUpdateRunId: number = 0;
+    autoUpdateOrderBy: string = "";
+    autoUpdateAutoUpdateScore: number = 0;
+    autoUpdateStudyTypeClassifierScore: number = 0;
+    autoUpdateUserClassifierScore: number = 0;
+    autoUpdateUserTopN: number = 0;
 }
 
 export class topicInfo {

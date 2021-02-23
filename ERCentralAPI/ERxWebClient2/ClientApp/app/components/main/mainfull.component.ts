@@ -923,10 +923,14 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         //    () => this.GetStats()
         //);
     }
+
+    FormatDate(DateSt: string): string {
+        return Helpers.FormatDate2(DateSt);
+    }
   
     public get MyAccountMessage(): string {
         let msg: string = "Your account expires on: ";
-        let AccExp: string = new Date(this.ReviewerIdentityServ.reviewerIdentity.accountExpiration).toLocaleDateString();
+        let AccExp: string = this.FormatDate(this.ReviewerIdentityServ.reviewerIdentity.accountExpiration);
         msg += AccExp;
         return msg;
     }
@@ -936,8 +940,8 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
             revPart = "Current review is private (does not expire).";
         }
         else {
-            let RevExp: string = new Date(this.ReviewerIdentityServ.reviewerIdentity.reviewExpiration).toLocaleDateString();
-            revPart = "Current(shared) review expires on " + RevExp + ".";
+            let RevExp: string = this.FormatDate(this.ReviewerIdentityServ.reviewerIdentity.reviewExpiration);
+            revPart = "Current(shared) review expires on: " + RevExp + ".";
         }
         return revPart;
     }

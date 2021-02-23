@@ -185,7 +185,7 @@
                         <td>{{task.studyTypeClassifier}}</td>
                         <td>{{task.userClassifierDescription}}</td>
                         <td>{{task.magVersion}}</td>
-                        <td>{{task.dateRun}}</td>
+                        <td>{{FormatDate(task.dateRun)}}</td>
                         <td>
                             <button md-tooltip='delete task' (click)="RefineAndImport(task)" class="btn btn-outline-primary btn-sm " [disabled]="!HasWriteRights || task.nPapers < 1">
                                 Refine/Import
@@ -209,7 +209,7 @@
                 <div class="row mx-0 small px-1 my-1 mx-1 alert-info border rounded border-info">
                     <div class="ml-auto mr-auto">
                         Showing details for: <strong>"{{CurrentMagAutoUpdateRun.userDescription}}"</strong>
-                        , created on: {{CurrentMagAutoUpdateRun.dateRun}}, containing <strong>{{CurrentMagAutoUpdateRun.nPapers}}</strong> MAG papers
+                        , created on: {{FormatDate(CurrentMagAutoUpdateRun.dateRun)}}, containing <strong>{{CurrentMagAutoUpdateRun.nPapers}}</strong> MAG papers
                     </div>
                 </div>
             </div>
@@ -301,8 +301,10 @@
                     <div class="mx-1 my-auto">in order of </div>
                     <select [(ngModel)]="comboAutoUpdateImportOptions" class="my-auto">
                         <option Value="AutoUpdate" [selected]="comboAutoUpdateImportOptions == 'AutoUpdate'">Auto-Update Model</option>
-                        <option Value="StudyTypeClassifier" [selected]="comboAutoUpdateImportOptions == 'StudyTypeClassifier'">Study Type Classifier</option>
-                        <option Value="UserClassifier" [selected]="comboAutoUpdateImportOptions == 'UserClassifier'">User Classifier</option>
+                        <option Value="StudyTypeClassifier" [selected]="comboAutoUpdateImportOptions == 'StudyTypeClassifier'"
+                                [disabled]="CurrentMagAutoUpdateRun == null || CurrentMagAutoUpdateRun.studyTypeClassifier == ''" >Study Type Classifier</option>
+                        <option Value="UserClassifier" [selected]="comboAutoUpdateImportOptions == 'UserClassifier'"
+                                [disabled]="CurrentMagAutoUpdateRun == null || CurrentMagAutoUpdateRun.userClassifierModelId < 1">User Classifier</option>
                     </select>
                 </div>
                 <div class="row m-1 border-bottom">
