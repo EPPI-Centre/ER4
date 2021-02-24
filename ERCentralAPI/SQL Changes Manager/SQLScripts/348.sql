@@ -118,3 +118,4 @@ select [WEBDB_ID]
 	  inner join TB_CONTACT c2 on w.EDITED_BY = c2.CONTACT_ID 
 	  where w.WEBDB_ID = @WebDBid AND w.REVIEW_ID = @RevId
 END
+GO
