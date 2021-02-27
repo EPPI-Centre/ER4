@@ -92,7 +92,7 @@ namespace BusinessLibrary.BusinessClasses
             string uploadFileName = "";
 
             int TaskMagLogId = MagLog.SaveLogEntry("Checking ID changes", "Starting", "", ContactId);
-            int missingCount = ChangedPapersNotAlreadyWrittenCheck();
+            int missingCount = ChangedPapersNotAlreadyWrittenCheck(TaskMagLogId);
             MagLog.UpdateLogEntry("Running", "missingCount = " + missingCount.ToString(), TaskMagLogId);
             if (missingCount == -1)
             {
@@ -161,10 +161,11 @@ namespace BusinessLibrary.BusinessClasses
             MagLog.UpdateLogEntry("Complete", "ID checking: " + lookupResults, TaskMagLogId);
         }
 
-        private int ChangedPapersNotAlreadyWrittenCheck()
+        private int ChangedPapersNotAlreadyWrittenCheck(int MagLogId)
         {
             try
             {
+                MagLog.UpdateLogEntry("Running", "running changed papers not already written check", MagLogId);
                 int retVal = 0;
                 using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
                 {
