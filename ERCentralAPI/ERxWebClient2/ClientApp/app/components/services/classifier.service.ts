@@ -46,7 +46,7 @@ export class ClassifierService extends BusyAwareService {
 
 	}
 
-	CreateAsync(title: string, attrOn: string, attrNotOn: string): Subscription {
+	CreateAsync(title: string, attrOn: string, attrNotOn: string, classifierId: number): Subscription {
 
 		let MVCcmd: ClassifierCommand = new ClassifierCommand();
 
@@ -56,6 +56,7 @@ export class ClassifierService extends BusyAwareService {
 		MVCcmd._sourceId = -1;
 		MVCcmd._title = title;
 		MVCcmd.revInfo = this.reviewInfoService.ReviewInfo;
+		MVCcmd._classifierId = classifierId;
 
         this._BusyMethods.push("CreateAsync");
 
