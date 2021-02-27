@@ -6327,6 +6327,7 @@ on the right of the main screen");
                 MagBrowserControl.IncrementHistoryCount();
                 MagBrowserControl.ShowPaperDetailsPage(mp.PaperId, mp.FullRecord, mp.Abstract,
                     mp.URLs, mp.FindOnWeb, mp.LinkedITEM_ID);
+                windowMagBrowser.PreviewClosed -= WindowMagBrowser_PreviewClosed;
                 windowMagBrowser.ShowDialog();
             }
         }
