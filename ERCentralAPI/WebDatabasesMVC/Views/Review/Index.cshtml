@@ -91,6 +91,8 @@
             //ExpandDescription ReduceDescription
             $("#ExpandDescription").show();
             $("#ReduceDescription").hide();
+            $("#HideDescriptionDiv").show();
+            $("#ShowDescriptionDiv").hide();           
             descrPanel.css("max-height", "250px");
         } else {
             $("#ExpandDescription").hide();
@@ -112,6 +114,28 @@
             $("#ReduceDescription").toggle();
         }
     }
+
+    function HideShowDescriptionDiv() {
+        const descrPanel = $("#WebDBDescription");
+        const descrShowHideIcon = $("#ShowHideDescriptionDivIcon");
+        if (descrPanel) {
+            descrPanel.css("max-height", "250px");
+            if (descrShowHideIcon[0].className == "fa fa-plus") {                
+                $("#ExpandDescription").show();
+                $("#ReduceDescription").hide();
+                $("#WebDBDescriptionBody").show();
+                $("#ShowHideDescriptionDivIcon")[0].className = "fa fa-minus";
+            }
+            else {
+                $("#ExpandDescription").hide();
+                $("#ReduceDescription").hide();
+                $("#WebDBDescriptionBody").hide();
+                $("#ShowHideDescriptionDivIcon")[0].className = "fa fa-plus";
+            }
+        }
+    }
+
+
     function tree_dataBound(e) {
         console.log("DataBound", e.node);
     }
@@ -610,12 +634,17 @@
                                                 &nbsp;&nbsp;View less&nbsp;
                                             </div>
                                         </div>
+                                        <div id="ShowHideDescriptionDivButton" class="btn btn-primary btn-sm"
+                                             onclick="HideShowDescriptionDiv()">
+                                            <div id="ShowHideDescriptionDivIcon" class="fa fa-minus">
+                                            </div>
+                                        </div>
                                     </td>
                                 </tr>
                             </table>
 
                         </div>
-                        <div class="card-body">
+                        <div class="card-body" id="WebDBDescriptionBody" tooltip="" >
                             <div class="card-category" id="WebDBDescription" style="overflow-y:auto;">
                                 @(new HtmlString(Model.WebDb.WebDBDescription))
 

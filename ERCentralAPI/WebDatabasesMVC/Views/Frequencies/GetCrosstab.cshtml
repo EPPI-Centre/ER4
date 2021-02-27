@@ -280,7 +280,7 @@ Crosstab!
                             var biggestValue = 0;
                             var value = 0;
                             <!--<script>console.log("numberColumns: " + @Model.ColumnAttIDs.Count);</script>
-                        <script>console.log("numberRows: " + @Model.Rows.Count);</script>-->
+                                <script>console.log("numberRows: " + @Model.Rows.Count);</script>-->
                             for (int j = 0; j < Model.Rows.Count - 1; j++)
                             {
 
@@ -293,11 +293,11 @@ Crosstab!
                                         biggestValue = value;
                                     }
                                     <!--<script>
-                                        console.log("rowNumber: " + @rowNumber);
-                                        console.log("column: " + @i);
-                                        console.log("value: " + @value);
-                                        console.log("biggest value: " + @biggestValue);
-                                </script>-->
+                                            console.log("rowNumber: " + @rowNumber);
+                                            console.log("column: " + @i);
+                                            console.log("value: " + @value);
+                                            console.log("biggest value: " + @biggestValue);
+                                    </script>-->
                                     rowNumber = rowNumber + 1;
 
 
@@ -307,22 +307,19 @@ Crosstab!
                             rowNumber = 0;
 
 
-
-                            var fa6 = 8.3;
-                            var fa5 = 6.6;
+                            var fa6 = 9.0;
+                            var fa5 = 7.0;
                             var fa4 = 5.0;
-                            var fa3 = 3.3;
-                            var fa2 = 1.6;
+                            var fa3 = 3.0;
+                            var fa2 = 1.0;
 
-                            if (@Model.Graphic == "bubbleLog")
-                            {
-                                fa6 = 9.0;
-                                fa5 = 1.0;
-                                fa4 = 0.1;
-                                fa3 = 0.01;
-                                fa2 = 0.001;
-                            }
 
+                            var fa6Start = fa6 / 10 * biggestValue;
+                            var fa5Start = fa5 / 10 * biggestValue;
+                            var fa4Start = fa4 / 10 * biggestValue;
+                            var fa3Start = fa3 / 10 * biggestValue;
+                            var fa2Start = fa2 / 10 * biggestValue;
+                            var fa1Start = 1.0;
 
                             <div id="CrosstabsChart">
                                 <table class="content-full table table-bordered">
@@ -359,63 +356,78 @@ Crosstab!
                                                         string descript = Model.ColumnAttNames[i].Replace("'", "&#39;") + " [AND] " + row.AttributeName.Replace("'", "&#39;");
 
                                                         <th style="text-align:center;vertical-align:middle">
-                                                            <a href="javascript:GoToItemsJson('@with', '@withSets', '', '', '@descript')">
 
-                                                                @if ((@row.Counts[i] * 10.0 / @biggestValue) > @fa6)
-                                                                {
-                                                                    <!--<script>
-                                                                    console.log("value: " + @row.Counts[i]);
-                                                                    console.log("scale: " + (@row.Counts[i] * 10.0 / @biggestValue));
-                                                                    console.log("fa-6x");
-                                                                </script>-->
-                                                                    <i class="fa fa-circle fa-6x" style="color:#007bff;" tool-tip-toggle="tooltip-demo" data-original-title="@row.Counts[i] records"></i>
-                                                                }
-                                                                else if ((@row.Counts[i] * 10.0 / @biggestValue) > @fa5)
-                                                                {
-                                                                    <!--<script>
-                                                                    console.log("value: " + @row.Counts[i]);
-                                                                    console.log("scale: " + (@row.Counts[i] * 10.0 / @biggestValue));
-                                                                    console.log("fa-5x");
-                                                                </script>-->
-                                                                    <i class="fa fa-circle fa-5x" style="color:#28a745;" tool-tip-toggle="tooltip-demo" data-original-title="@row.Counts[i] records"></i>
-                                                                }
-                                                                else if ((@row.Counts[i] * 10.0 / @biggestValue) > @fa4)
-                                                                {
-                                                                    <!--<script>
-                                                                    console.log("value: " + @row.Counts[i]);
-                                                                    console.log("scale: " + (@row.Counts[i] * 10.0 / @biggestValue));
-                                                                    console.log("fa-5x");
-                                                                </script>-->
-                                                                    <i class="fa fa-circle fa-4x" style="color:#ffc107;" tool-tip-toggle="tooltip-demo" data-original-title="@row.Counts[i] records"></i>
-                                                                }
-                                                                else if ((@row.Counts[i] * 10.0 / @biggestValue) > @fa3)
-                                                                {
-                                                                    <!--<script>
-                                                                    console.log("value: " + @row.Counts[i]);
-                                                                    console.log("scale: " + (@row.Counts[i] * 10.0 / @biggestValue));
-                                                                    console.log("fa-5x");
-                                                                </script>-->
-                                                                    <i class="fa fa-circle fa-3x" style="color:#dc3545;" tool-tip-toggle="tooltip-demo" data-original-title="@row.Counts[i] records"></i>
-                                                                }
-                                                                else if ((@row.Counts[i] * 10.0 / @biggestValue) > @fa2)
-                                                                {
-                                                                    <!--<script>
-                                                                    console.log("value: " + @row.Counts[i]);
-                                                                    console.log("scale: " + (@row.Counts[i] * 10.0 / @biggestValue));
-                                                                    console.log("fa-5x");
-                                                                </script>-->
-                                                                    <i class="fa fa-circle fa-2x" style="color:#17a2b8;" tool-tip-toggle="tooltip-demo" data-original-title="@row.Counts[i] records"></i>
-                                                                }
-                                                                else
-                                                                {
-                                                                    <!--<script>
-                                                                    console.log("value: " + @row.Counts[i]);
-                                                                    console.log("scale: " + (@row.Counts[i] * 10.0 / @biggestValue));
-                                                                    console.log("fa-5x");
-                                                                </script>-->
-                                                                    <i class="fa fa-circle fa-1x" style="color:#343a40;" tool-tip-toggle="tooltip-demo" data-original-title="@row.Counts[i] records"></i>
-                                                                }
-                                                            </a>
+                                                            @if (@Model.Graphic == "bubbleLog")
+                                                            {
+                                                                // do it logarithmically
+
+                                                                <a href="javascript:GoToItemsJson('@with', '@withSets', '', '', '@descript')">
+                                                                    @if (@row.Counts[i] > 10000.0)
+                                                                    {
+                                                                        <i class="fa fa-circle fa-6x" style="color:#007bff;" tool-tip-toggle="tooltip-demo" data-original-title="@row.Counts[i] records"></i>
+                                                                    }
+                                                                    else if (@row.Counts[i] > 1000.0)
+                                                                    {
+                                                                        <i class="fa fa-circle fa-5x" style="color:#28a745;" tool-tip-toggle="tooltip-demo" data-original-title="@row.Counts[i] records"></i>
+                                                                    }
+                                                                    else if (@row.Counts[i] > 100.0)
+                                                                    {
+                                                                        <i class="fa fa-circle fa-4x" style="color:#ffc107;" tool-tip-toggle="tooltip-demo" data-original-title="@row.Counts[i] records"></i>
+                                                                    }
+                                                                    else if (@row.Counts[i] > 10.0)
+                                                                    {
+                                                                        <i class="fa fa-circle fa-3x" style="color:#dc3545;" tool-tip-toggle="tooltip-demo" data-original-title="@row.Counts[i] records"></i>
+                                                                    }
+                                                                    else if (@row.Counts[i] > 1.0)
+                                                                    {
+                                                                        <i class="fa fa-circle fa-2x" style="color:#17a2b8;" tool-tip-toggle="tooltip-demo" data-original-title="@row.Counts[i] records"></i>
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        <i class="fa fa-circle fa-1x" style="color:#343a40;" tool-tip-toggle="tooltip-demo" data-original-title="@row.Counts[i] records"></i>
+                                                                    }
+
+                                                                </a>
+
+                                                            }
+                                                            else
+                                                            {
+                                                                // do it linearly
+
+                                                                <a href="javascript:GoToItemsJson('@with', '@withSets', '', '', '@descript')">
+
+                                                                    @if ((@row.Counts[i] * 10.0 / @biggestValue) > @fa6)
+                                                                    {
+                                                                        <!--<script>
+                                                                            console.log("value: " + @row.Counts[i]);
+                                                                            console.log("scale: " + (@row.Counts[i] * 10.0 / @biggestValue));
+                                                                            console.log("fa-6x");
+                                                                        </script>-->
+                                                                        <i class="fa fa-circle fa-6x" style="color:#007bff;" tool-tip-toggle="tooltip-demo" data-original-title="@row.Counts[i] records"></i>
+                                                                    }
+                                                                    else if ((@row.Counts[i] * 10.0 / @biggestValue) > @fa5)
+                                                                    {
+                                                                        <i class="fa fa-circle fa-5x" style="color:#28a745;" tool-tip-toggle="tooltip-demo" data-original-title="@row.Counts[i] records"></i>
+                                                                    }
+                                                                    else if ((@row.Counts[i] * 10.0 / @biggestValue) > @fa4)
+                                                                    {
+                                                                        <i class="fa fa-circle fa-4x" style="color:#ffc107;" tool-tip-toggle="tooltip-demo" data-original-title="@row.Counts[i] records"></i>
+                                                                    }
+                                                                    else if ((@row.Counts[i] * 10.0 / @biggestValue) > @fa3)
+                                                                    {
+                                                                        <i class="fa fa-circle fa-3x" style="color:#dc3545;" tool-tip-toggle="tooltip-demo" data-original-title="@row.Counts[i] records"></i>
+                                                                    }
+                                                                    else if ((@row.Counts[i] * 10.0 / @biggestValue) > @fa2)
+                                                                    {
+                                                                        <i class="fa fa-circle fa-2x" style="color:#17a2b8;" tool-tip-toggle="tooltip-demo" data-original-title="@row.Counts[i] records"></i>
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        <i class="fa fa-circle fa-1x" style="color:#343a40;" tool-tip-toggle="tooltip-demo" data-original-title="@row.Counts[i] records"></i>
+                                                                    }
+                                                                </a>
+                                                            }
+
                                                         </th>
                                                     }
                                                 }
@@ -426,6 +438,58 @@ Crosstab!
 
                                     }
 
+                                </table>
+
+                                <table width="100%">
+                                    <tr>
+                                        <td>
+                                            <h3><b>Legend</b></h3>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        @if (@Model.Graphic == "bubbleLog")
+                                        {
+                                            <td>
+                                                <i class="fa fa-circle fa-1x" style="color:#343a40;"></i>&nbsp;1 record
+                                            </td>
+                                            <td>
+                                                <i class="fa fa-circle fa-1x" style="color:#17a2b8;"></i>&nbsp;2 - 10 records
+                                            </td>
+                                            <td>
+                                                <i class="fa fa-circle fa-1x" style="color:#dc3545;"></i>&nbsp;11 - 100 records
+                                            </td>
+                                            <td>
+                                                <i class="fa fa-circle fa-1x" style="color:#ffc107;"></i>&nbsp;101 - 1,000 records
+                                            </td>
+                                            <td>
+                                                <i class="fa fa-circle fa-1x" style="color: #28a745;"></i>&nbsp;1,001 - 10,000 records
+                                            </td>
+                                            <td>
+                                                <i class="fa fa-circle fa-1x" style="color:#007bff;"></i>&nbsp;10,000(+) records
+                                            </td>
+                                        }
+                                        else
+                                        {
+                                            <td>
+                                                <i class="fa fa-circle fa-1x" style="color:#343a40;"></i>&nbsp;@Math.Truncate(fa1Start) - @Math.Truncate((fa2Start - 1)) records
+                                            </td>
+                                            <td>
+                                                <i class="fa fa-circle fa-1x" style="color:#17a2b8;"></i>&nbsp;@Math.Truncate(fa2Start) - @Math.Truncate((fa3Start - 1)) records
+                                            </td>
+                                            <td>
+                                                <i class="fa fa-circle fa-1x" style="color:#dc3545;"></i>&nbsp;@Math.Truncate(fa3Start) - @Math.Truncate((fa4Start - 1)) records
+                                            </td>
+                                            <td>
+                                                <i class="fa fa-circle fa-1x" style="color:#ffc107;"></i>&nbsp;@Math.Truncate(fa4Start) - @Math.Truncate((fa5Start - 1)) records
+                                            </td>
+                                            <td>
+                                                <i class="fa fa-circle fa-1x" style="color: #28a745;"></i>&nbsp;@Math.Truncate(fa5Start) - @Math.Truncate((fa6Start - 1)) records
+                                            </td>
+                                            <td>
+                                                <i class="fa fa-circle fa-1x" style="color:#007bff;"></i>&nbsp;@Math.Truncate(fa6Start) (+) records
+                                            </td>
+                                        }
+                                    </tr>
                                 </table>
 
                             </div>
