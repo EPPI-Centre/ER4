@@ -361,6 +361,7 @@ namespace EppiReviewer4
 
             windowDocumentCluster.ClusterWhat_SelectionChanged += new EventHandler<System.Windows.Controls.SelectionChangedEventArgs>(ComboClusterWhat_SelectionChanged);
             windowDocumentCluster.cmdCluster_Clicked += new EventHandler<RoutedEventArgs>(cmdCluster_Click);
+            windowDocumentCluster.cmdGetMicrosoftAcademicTopics_Clicked += new EventHandler<RoutedEventArgs>(cmdGetMicrosoftAcademicTopics_Click);
             windowLoadDiagram.cmdLoadDiagram_Clicked += new EventHandler<RoutedEventArgs>(cmdLoadDiagram_Click);
             windowCheckAssignItemsToCode.cmdCancelAssignCode_Clicked += new EventHandler<RoutedEventArgs>(cmdCancelAssignCode_Click);
             windowCheckAssignItemsToCode.cmdAssignCode_Clicked += new EventHandler<RoutedEventArgs>(cmdAssignCode_Click);
@@ -741,6 +742,52 @@ namespace EppiReviewer4
                 windowPleaseWait.Close();
                 (App.Current.Resources["CodeSetsData"] as CslaDataProvider).Refresh();
                 DocumentActions.SelectedIndex = 0;
+            };
+            windowPleaseWait.ShowDialog();
+            BusyPleaseWait.IsRunning = true;
+            dp.BeginExecute(command);
+        }
+        private void cmdGetMicrosoftAcademicTopics_Click(object sender, RoutedEventArgs e)
+        {
+            if (windowDocumentCluster.rbClusterExistingCodeSet.IsChecked == true && windowDocumentCluster.dialogClusterComboSelectCodeSet.SelectedIndex == -1)
+            {
+                RadWindow.Alert("Please select a code set or specify a new one be created");
+                return;
+            }
+            string item_ids = "";
+            ReviewSetsList rsl = (App.Current.Resources["CodeSetsData"] as CslaDataProvider).Data as ReviewSetsList;
+
+            if (windowDocumentCluster.ComboClusterWhat.SelectedIndex == 1)
+            {
+                item_ids = ItemsGridSelectedItems();
+            }
+            DataPortal<MagImportFieldsOfStudyCommand> dp = new DataPortal<MagImportFieldsOfStudyCommand>();
+            MagImportFieldsOfStudyCommand command = new MagImportFieldsOfStudyCommand(
+                item_ids,
+                (windowDocumentCluster.ComboClusterWhat.SelectedIndex != 2 ? "" : windowDocumentCluster.codesSelectControlClusterSelect.SelectedAttributeSet().AttributeId.ToString()),
+                rsl.Count,
+                windowDocumentCluster.rbClusterExistingCodeSet.IsChecked == true ? (windowDocumentCluster.dialogClusterComboSelectCodeSet.SelectedItem as ReviewSet).ReviewSetId : 0,
+                Convert.ToInt32(windowDocumentCluster.dialogClusterMaxTopics.Value.Value));
+
+            dp.ExecuteCompleted += (o, e2) =>
+            {
+                if (e2.Error != null)
+                {
+                    BusyPleaseWait.IsRunning = false;
+                    windowDocumentCluster.Close();
+                    windowPleaseWait.Close();
+                    DocumentActions.SelectedIndex = 0;
+                    RadWindow.Alert(e2.Error);
+                }
+                else
+                {
+                    BusyPleaseWait.IsRunning = false;
+                    windowDocumentCluster.Close();
+                    windowPleaseWait.Close();
+                    (App.Current.Resources["CodeSetsData"] as CslaDataProvider).Refresh();
+                    DocumentActions.SelectedIndex = 0;
+                    RadWindow.Alert(e2.Object.ReturnMessage);
+                }
             };
             windowPleaseWait.ShowDialog();
             BusyPleaseWait.IsRunning = true;
@@ -5141,15 +5188,15 @@ on the right of the main screen");
                 switch (windowDocumentCluster.ComboClusterWhat.SelectedIndex)
                 {
                     case 0:
-                        windowDocumentCluster.GridWindowDocumentCluster.RowDefinitions[7].MaxHeight = 0;
+                        windowDocumentCluster.GridWindowDocumentCluster.RowDefinitions[9].MaxHeight = 0;
                         break;
 
                     case 1:
-                        windowDocumentCluster.GridWindowDocumentCluster.RowDefinitions[7].MaxHeight = 0;
+                        windowDocumentCluster.GridWindowDocumentCluster.RowDefinitions[9].MaxHeight = 0;
                         break;
 
                     case 2:
-                        windowDocumentCluster.GridWindowDocumentCluster.RowDefinitions[7].MaxHeight = 35;
+                        windowDocumentCluster.GridWindowDocumentCluster.RowDefinitions[9].MaxHeight = 35;
                         break;
                 }
             }

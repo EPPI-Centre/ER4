@@ -490,6 +490,9 @@
     <Compile Include="..\Server\BusinessClasses\MagFieldOfStudyList.cs">
       <Link>BusinessClasses\MagFieldOfStudyList.cs</Link>
     </Compile>
+    <Compile Include="..\Server\BusinessClasses\MagImportFieldsOfStudyCommand.cs">
+      <Link>BusinessClasses\MagImportFieldsOfStudyCommand.cs</Link>
+    </Compile>
     <Compile Include="..\Server\BusinessClasses\MagItemPaperInsertCommand.cs">
       <Link>BusinessClasses\MagItemPaperInsertCommand.cs</Link>
     </Compile>

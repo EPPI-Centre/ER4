@@ -402,6 +402,7 @@
     <Compile Include="BusinessClasses\MagDownloadSimulationDataCommand.cs" />
     <Compile Include="BusinessClasses\MagFieldOfStudy.cs" />
     <Compile Include="BusinessClasses\MagFieldOfStudyList.cs" />
+    <Compile Include="BusinessClasses\MagImportFieldsOfStudyCommand.cs" />
     <Compile Include="BusinessClasses\MagItemPaperInsertCommand.cs" />
     <Compile Include="BusinessClasses\MagLog.cs" />
     <Compile Include="BusinessClasses\MagLogList.cs" />
