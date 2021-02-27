@@ -3462,7 +3462,18 @@ namespace EppiReviewer4
             if (btn != null)
             {
                 MagSearch search = btn.DataContext as MagSearch;
-                if (search != null)
+                CslaDataProvider prov = ((CslaDataProvider)App.Current.Resources["MagCurrentInfoData"]);
+                MagCurrentInfo mci = prov.Data as MagCurrentInfo;
+                if (mci != null)
+                {
+                    if (search.MagVersion != mci.MagVersion)
+                    {
+                        RadWindow.Alert("This search was run against a prevous version of MAG\nPlease re-run before listing results.");
+                        return;
+                    }
+                }
+
+                        if (search != null)
                 {
                     TBPaperListTitle.Text = search.HitsNo.ToString() + " hits (in original search)";
                     ShowSearchResults(search.MagSearchText);
@@ -3483,7 +3494,17 @@ namespace EppiReviewer4
                 MagSearch ms = hlb.DataContext as MagSearch;
                 if (ms != null)
                 {
-                    if (ms.HitsNo > 20000)
+                    CslaDataProvider prov = ((CslaDataProvider)App.Current.Resources["MagCurrentInfoData"]);
+                    MagCurrentInfo mci = prov.Data as MagCurrentInfo;
+                    if (mci != null)
+                    {
+                        if (ms.MagVersion != mci.MagVersion)
+                        {
+                            RadWindow.Alert("This search was run against an earlier version of MAG\nPlease re-run before importing");
+                            return;
+                        }
+                    }
+                        if (ms.HitsNo > 20000)
                     {
                         RadWindow.Alert("Sorry. You can't import more than 20k records at a time.\nYou could try breaking up your search e.g. by date?");
                     }
@@ -3547,36 +3568,8 @@ namespace EppiReviewer4
                                 else
                                 {
                                     RadWindow.Alert("Imported " + e2.Object.NImported.ToString() + " out of " +
-                                        num_in_run.ToString() +" new items.\n\nSome were already in your review" + filteredText + latestMagFilter);
+                                        num_in_run.ToString() +" new items.\n\nSome were already in your review." + filteredText + latestMagFilter);
                                 }
-                                /*
-                                if (SelectedLinkButton.Tag.ToString() == "MagSearchResults")
-                                {
-                                    if (e2.Object.NImported != 0)
-                                    {
-                                        RadWindow.Alert("Some of these items were already in your review" + filteredText + "\n\nImported " +
-                                            e2.Object.NImported.ToString() + " out of " + num_in_run.ToString() +
-                                            " new items");
-                                    }
-                                    else
-                                    {
-                                        RadWindow.Alert("All of these records were already in your review" + filteredText);
-                                    }
-                                }
-                                else
-                                {
-                                    if (e2.Object.NImported != 0)
-                                    {
-                                        RadWindow.Alert("Some items were already in your review / were not in the latest MAG.\n\nImported " +
-                                            e2.Object.NImported.ToString() + " out of " + num_in_run.ToString() +
-                                            " new items");
-                                    }
-                                    else
-                                    {
-                                        RadWindow.Alert("All records were already in your review or not in latest MAG.");
-                                    }
-                                }
-                                */
                             }
                         }
                     };
