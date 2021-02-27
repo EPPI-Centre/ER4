@@ -428,7 +428,7 @@ namespace EppiReviewer4
             SetMicrosoftAcademicAlertIcon();
         }
 
-        
+
         private void SetMicrosoftAcademicAlertIcon()
         {
             DataPortal<MagReviewHasUpdatesToCheckCommand> dp = new DataPortal<MagReviewHasUpdatesToCheckCommand>();
@@ -6164,8 +6164,19 @@ on the right of the main screen");
 
         private void cmdMagBrowser_Click(object sender, RoutedEventArgs e)
         {
+            windowMagBrowser.PreviewClosed -= WindowMagBrowser_PreviewClosed;
+            windowMagBrowser.PreviewClosed += WindowMagBrowser_PreviewClosed;
             MagBrowserControl.ShowMagBrowser();
             windowMagBrowser.ShowDialog();
+        }
+
+        private void WindowMagBrowser_PreviewClosed(object sender, WindowPreviewClosedEventArgs e)
+        {
+            if (MagBrowserControl.MagBrowserImportedItems == true)
+            {
+                CslaDataProvider provider = this.Resources["ItemListData"] as CslaDataProvider;
+                provider.Refresh();
+            }
         }
 
         private void MagBrowserControl_ListIncludedThatNeedMatching(object sender, RoutedEventArgs e)
@@ -6302,6 +6313,7 @@ on the right of the main screen");
             SelectionCritieraItemList.PageNumber = 0;
             LoadItemList();
         }
+
 
         private void DialogCodingControl_launchMagBrowser(object sender, EventArgs e)
         {

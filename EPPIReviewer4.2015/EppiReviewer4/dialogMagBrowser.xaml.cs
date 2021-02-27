@@ -33,7 +33,8 @@ namespace EppiReviewer4
         public event EventHandler<RoutedEventArgs> ListPreviouslyMatched;
         public event EventHandler<RoutedEventArgs> ListSimulationTP;
         public event EventHandler<RoutedEventArgs> ListSimulationFN;
-        
+        public bool MagBrowserImportedItems = false;
+
         private DispatcherTimer timer;
         private DispatcherTimer timer2;
         private DispatcherTimer timerAutoUpdateClassifierRun;
@@ -67,10 +68,8 @@ namespace EppiReviewer4
 
             DataLakeTimer = new DispatcherTimer();
             DataLakeTimer.Interval = TimeSpan.FromSeconds(30);
-            DataLakeTimer.Tick += DataLakeTimer_Tick; ;
+            DataLakeTimer.Tick += DataLakeTimer_Tick;
         }
-
-       
 
         public void InitialiseBrowser()
         {
@@ -83,6 +82,7 @@ namespace EppiReviewer4
 
             GridPaperInfoBackground.Background = new SolidColorBrush(SystemColors.ControlColor);
             RefreshCounts();
+            MagBrowserImportedItems = false;
         }
 
         public void ShowMagBrowser()
@@ -751,36 +751,43 @@ namespace EppiReviewer4
 
         private void LBManualCheckIncluded_Click(object sender, RoutedEventArgs e)
         {
+            MagBrowserImportedItems = false;
             this.ListIncludedThatNeedMatching.Invoke(sender, e);
         }
 
         private void LBManualCheckExcluded_Click(object sender, RoutedEventArgs e)
         {
+            MagBrowserImportedItems = false;
             this.ListExcludedThatNeedMatching.Invoke(sender, e);
         }
 
         private void LBMNotMatchedIncluded_Click(object sender, RoutedEventArgs e)
         {
+            MagBrowserImportedItems = false;
             this.ListIncludedNotMatched.Invoke(sender, e);
         }
 
         private void LBMNotMatchedExcluded_Click(object sender, RoutedEventArgs e)
         {
+            MagBrowserImportedItems = false;
             this.ListExcludedNotMatched.Invoke(sender, e);
         }
 
         private void lbItemListMatchesIncluded_Click(object sender, RoutedEventArgs e)
         {
+            MagBrowserImportedItems = false;
             this.ListIncludedMatched.Invoke(sender, e);
         }
 
         private void lbItemListMatchesExcluded_Click(object sender, RoutedEventArgs e)
         {
+            MagBrowserImportedItems = false;
             this.ListExcludedMatched.Invoke(sender, e);
         }
 
         private void LBListPreviouslyMatchedRecords_Click(object sender, RoutedEventArgs e)
         {
+            MagBrowserImportedItems = false;
             this.ListPreviouslyMatched.Invoke(sender, e);
         }
 
@@ -1649,6 +1656,7 @@ namespace EppiReviewer4
                             RadWindow.Alert("All of these records were already in your review.");
                         }
 
+                        MagBrowserImportedItems = true;
                         SelectedPaperIds.Clear();
                         ClearSelectionsFromPaperLists();
                         UpdateSelectedCount();
@@ -2280,6 +2288,7 @@ namespace EppiReviewer4
                             //SelectedLinkButton.IsEnabled = true; - no need to renable, as it's destroyed in the refresh below
                             CslaDataProvider provider = this.Resources["RelatedPapersRunListData"] as CslaDataProvider;
                             provider.Refresh();
+                            MagBrowserImportedItems = true;
                         }
                     };
                     BusyImportingRecords.IsRunning = true;
@@ -2699,11 +2708,13 @@ namespace EppiReviewer4
 
         private void HyperlinkButton_Click_10(object sender, RoutedEventArgs e)
         {
+            MagBrowserImportedItems = false;
             this.ListSimulationFN.Invoke(sender, e);
         }
 
         private void HyperlinkButton_Click_11(object sender, RoutedEventArgs e)
         {
+            MagBrowserImportedItems = false;
             this.ListSimulationTP.Invoke(sender, e);
         }
 
@@ -3547,6 +3558,7 @@ namespace EppiReviewer4
                         else
                         {
                             int num_in_run = ms.HitsNo;
+                            MagBrowserImportedItems = true;
                             if (e2.Object.NImported == num_in_run)
                             {
                                 RadWindow.Alert("Imported " + e2.Object.NImported.ToString() + " out of " +
@@ -4185,6 +4197,7 @@ namespace EppiReviewer4
                         }
                         else
                         {
+                            MagBrowserImportedItems = true;
                             int num_in_import = Convert.ToInt32(AutoUpdateImportTopN.Value.Value);
                             if (e2.Object.NImported == num_in_import)
                             {
