@@ -409,6 +409,7 @@
     <Compile Include="BusinessClasses\MagMakesHelpers.cs" />
     <Compile Include="BusinessClasses\MagMatchItemsToPapersCommand.cs" />
     <Compile Include="BusinessClasses\MagMatchItemToPaperManualCommand.cs" />
+    <Compile Include="BusinessClasses\MagNewPapersUpdateAbstractsCommand.cs" />
     <Compile Include="BusinessClasses\MagPaper.cs" />
     <Compile Include="BusinessClasses\MagPaperAzureSearch.cs" />
     <Compile Include="BusinessClasses\MagPaperItemMatch.cs" />

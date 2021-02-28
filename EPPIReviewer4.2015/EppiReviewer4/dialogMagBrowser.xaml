@@ -1557,6 +1557,7 @@
                                         <HyperlinkButton x:Name="LBCheckChangedPaperIds" Content="Identify ID changes BEFORE switching to new MAG" Click="CheckChangedPaperIds_Click" IsTabStop="False" Margin="0,9,5,5"></HyperlinkButton>
                                         <HyperlinkButton x:Name="LBDownloadNewPaperIds" Content="Download new PaperIds" Click="LBCreateParquetFiles_Click" IsTabStop="False" Margin="0,9,5,5" Tag="GetNewPaperIds"></HyperlinkButton>
                                         <HyperlinkButton x:Name="LBCreateParquetFiles" Content="Create parquet files for new MAG" Click="LBCreateParquetFiles_Click"  IsTabStop="False" Margin="5,9,5,5" Tag="Prepare parquet"></HyperlinkButton>
+                                        <HyperlinkButton x:Name="LBGetMissingAbstracts" Content="Get missing abstracts for new MAG" Click="LBGetMissingAbstracts_Click" IsTabStop="False" Margin="5,9,5,5" Tag="Get abstracts that may not have been present when items first created"></HyperlinkButton>
                                     </StackPanel>
                                     <StackPanel Grid.Row="1" Orientation="Horizontal">
                                         <HyperlinkButton x:Name="LBRunContReviewPipeline" Content="Run contreview pipeline" Click="LBRunContReviewPipeline_Click" IsTabStop="False" VerticalAlignment="Center"></HyperlinkButton>

@@ -2971,6 +2971,36 @@ namespace EppiReviewer4
             }
         }
 
+        private void LBGetMissingAbstracts_Click(object sender, RoutedEventArgs e)
+        {
+            RadWindow.Confirm("Are you sure you want to hunt for missing abstracts in \n" + tbLatestMag.Text, this.doDownloadMissingAbstracts);
+        }
+
+        private void doDownloadMissingAbstracts(object sender, WindowClosedEventArgs e)
+        {
+            var result = e.DialogResult;
+            if (result == true)
+            {
+                DataPortal<MagNewPapersUpdateAbstractsCommand> dp2 = new DataPortal<MagNewPapersUpdateAbstractsCommand>();
+                MagNewPapersUpdateAbstractsCommand updateAbstractsCommand =
+                    new MagNewPapersUpdateAbstractsCommand();
+                dp2.ExecuteCompleted += (o, e2) =>
+                {
+                    if (e2.Error != null)
+                    {
+                        RadWindow.Alert(e2.Error.Message);
+                    }
+                    else
+                    {
+                        RadWindow.Alert("Ok. Process to find missing abstracts has started");
+                        SwitchOnAutoRefreshLogList();
+                    }
+                };
+                LBGetMissingAbstracts.IsEnabled = false;
+                dp2.BeginExecute(updateAbstractsCommand);
+            }
+        }
+
         private void doRunDownloadNewPaperIds(object sender, WindowClosedEventArgs e)
         {
             var result = e.DialogResult;
@@ -4510,6 +4540,5 @@ namespace EppiReviewer4
             }
         }
 
-       
     }
 }

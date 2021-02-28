@@ -508,6 +508,9 @@
     <Compile Include="..\Server\BusinessClasses\MagMatchItemToPaperManualCommand.cs">
       <Link>BusinessClasses\MagMatchItemToPaperManualCommand.cs</Link>
     </Compile>
+    <Compile Include="..\Server\BusinessClasses\MagNewPapersUpdateAbstractsCommand.cs">
+      <Link>BusinessClasses\MagNewPapersUpdateAbstractsCommand.cs</Link>
+    </Compile>
     <Compile Include="..\Server\BusinessClasses\MagPaper.cs">
       <Link>BusinessClasses\MagPaper.cs</Link>
     </Compile>
