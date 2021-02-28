@@ -219,15 +219,19 @@
                         <TextBlock Text="Score: " Margin="5,5,2,5"></TextBlock>
                         <TextBlock Text="{Binding AutoMatchScore}" Margin="2,5,5,5"></TextBlock>
                     </StackPanel>
-                    <RadioButton Content="Correct match" Margin="5,5,5,5" IsChecked="{Binding ManualTrueMatch, Mode=TwoWay}" GroupName="{Binding PaperId}" Tag="True" Click="CheckBox_Click"></RadioButton>
-                    <RadioButton Content="Incorrect match" Margin="5,5,5,5" IsChecked="{Binding ManualFalseMatch, Mode=TwoWay}" GroupName="{Binding PaperId}" Tag="False" Click="CheckBox_Click"></RadioButton>
+                    <RadioButton Content="Correct match" Margin="5,5,5,5" IsChecked="{Binding ManualTrueMatch, Mode=TwoWay}" GroupName="{Binding PaperId}" Tag="True" Click="CheckBox_Click"
+                                 IsEnabled="{Binding Source={StaticResource isEn}, Path=IsEnabled, Mode=OneWay}"></RadioButton>
+                    <RadioButton Content="Incorrect match" Margin="5,5,5,5" IsChecked="{Binding ManualFalseMatch, Mode=TwoWay}" GroupName="{Binding PaperId}" Tag="False" Click="CheckBox_Click"
+                                 IsEnabled="{Binding Source={StaticResource isEn}, Path=IsEnabled, Mode=OneWay}"></RadioButton>
                 </StackPanel>
                 <StackPanel Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal">
                     <TextBlock Text="PaperId:" Margin="5,5,5,5" VerticalAlignment="Center"></TextBlock>
                     <TextBox Text="{Binding PaperId}" Margin="5,5,5,5" IsReadOnly="True" VerticalAlignment="Center" BorderThickness="0"></TextBox>
-                    <HyperlinkButton Content="View in the Microsoft Academic Browser" Margin="5,5,8,5" VerticalAlignment="Center" Click="HyperlinkButton_Click"></HyperlinkButton>
+                    <HyperlinkButton Content="View in the Microsoft Academic Browser" Margin="5,5,8,5" VerticalAlignment="Center" Click="HyperlinkButton_Click"
+                                     IsEnabled="{Binding Source={StaticResource isEn}, Path=IsEnabled, Mode=OneWay}"></HyperlinkButton>
                     <HyperlinkButton Content="View on the web" NavigateUri="{Binding FindOnWeb}" VerticalAlignment="Center" TargetName="_blank" Margin="5,5,8,5"></HyperlinkButton>
-                    <HyperlinkButton Content="Enrich review record with Microsoft Academic data" VerticalAlignment="Center" Margin="5,5,5,5" Click="HyperlinkButton_Click_3"></HyperlinkButton>
+                    <HyperlinkButton Content="Enrich review record with Microsoft Academic data" VerticalAlignment="Center" Margin="5,5,5,5" Click="HyperlinkButton_Click_3"
+                                     IsEnabled="{Binding Source={StaticResource isEn}, Path=IsEnabled, Mode=OneWay}"></HyperlinkButton>
                 </StackPanel>
             </Grid>
         </DataTemplate>
@@ -830,12 +834,12 @@
                                     <HyperlinkButton x:Name="hlManualMagLookup" VerticalAlignment="Top"
                                                  Content="Look up this record in Microsoft Academic" Margin="2,7,2,0"
                                                  Click="hlManualMagLookup_Click" IsTabStop="False" Tag="Lookup"
-                                                 IsEnabled="{Binding Source={StaticResource MagCurrentInfoData}, Path=Data.MatchingAvailable, Mode=OneWay}"
+                                                 IsEnabled="{Binding Source={StaticResource isEn}, Path=IsEnabled, Mode=OneWay}"
                                                  ></HyperlinkButton>
                                     <HyperlinkButton x:Name="hlManualMagClear" VerticalAlignment="Top"
                                                  Content="Clear Microsoft Academic matches from this record" Margin="7,7,2,0"
                                                  Click="hlManualMagLookup_Click" IsTabStop="False" Tag="Clear"
-                                                 IsEnabled="{Binding Source={StaticResource MagCurrentInfoData}, Path=Data.MatchingAvailable, Mode=OneWay}"
+                                                 IsEnabled="{Binding Source={StaticResource isEn}, Path=IsEnabled, Mode=OneWay}"
                                                  ></HyperlinkButton>
                                 </StackPanel>
                                 
@@ -894,11 +898,14 @@
                                                     <TextBlock Text="Score: " Margin="5,5,2,5"></TextBlock>
                                                     <TextBlock Text="{Binding AutoMatchScore}" Margin="2,5,5,5"></TextBlock>
                                                 </StackPanel>
-                                                <RadioButton Content="Correct match" Margin="5,5,5,5" IsChecked="{Binding ManualTrueMatch, Mode=TwoWay}" GroupName="rbGroupManualMatch" Tag="True" Click="CheckBox_Click_1"></RadioButton>
-                                                <RadioButton Content="Incorrect match" Margin="5,5,5,5" IsChecked="{Binding ManualFalseMatch, Mode=TwoWay}" GroupName="rbGroupManualMatch" Tag="False"  Click="CheckBox_Click_1"></RadioButton>
+                                                <RadioButton Content="Correct match" Margin="5,5,5,5" IsChecked="{Binding ManualTrueMatch, Mode=TwoWay}" GroupName="rbGroupManualMatch" Tag="True" Click="CheckBox_Click_1"
+                                                            IsEnabled="{Binding Source={StaticResource isEn}, Path=IsEnabled, Mode=OneWay}" ></RadioButton>
+                                                <RadioButton Content="Incorrect match" Margin="5,5,5,5" IsChecked="{Binding ManualFalseMatch, Mode=TwoWay}" GroupName="rbGroupManualMatch" Tag="False"  Click="CheckBox_Click_1"
+                                                             IsEnabled="{Binding Source={StaticResource isEn}, Path=IsEnabled, Mode=OneWay}"></RadioButton>
                                             </StackPanel>
                                         <StackPanel Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal">
-                                            <HyperlinkButton Content="View in the Microsoft Academic Browser" Margin="5,5,5,5" Click="HyperlinkButton_Click"></HyperlinkButton>
+                                            <HyperlinkButton Content="View in the Microsoft Academic Browser" Margin="5,5,5,5" Click="HyperlinkButton_Click"
+                                                             IsEnabled="{Binding Source={StaticResource isEn}, Path=IsEnabled, Mode=OneWay}"></HyperlinkButton>
                                             <HyperlinkButton Content="View on the web" NavigateUri="{Binding FindOnWeb}" TargetName="_blank" Margin="5,5,5,5"></HyperlinkButton>
                                         </StackPanel>
                                     </Grid>
