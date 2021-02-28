@@ -9,7 +9,7 @@ GO
 -- =============================================
 -- Author:		James
 -- Create date: 12/07/2019
--- Description:	Get recent MAG items without abstracts (to see if we can find them now)
+-- Description:	Update MAG items with abstracts (where they have been found)
 -- =============================================
 create or alter PROCEDURE [dbo].[st_MagUpdateMissingAbstract] 
 	@ITEM_ID bigint
