@@ -324,7 +324,6 @@ export class MAGReviewList {
 export class MagCurrentInfo {
 
     magCurrentInfoId: number = 0;
-    magVersion: string = '';
     magFolder: string = '';
     matchingAvailable: boolean = false;
     magOnline: boolean = false;
@@ -405,7 +404,7 @@ export class topicInfo {
 export class ContReviewPipeLineCommand {
 
     previousVersion : string = '';
-    magVersion : string = '';
+    magFolder : string = '';
     editScoreThreshold: number = 0;
     editFoSThreshold: number = 0;
     specificFolder : string = '';
@@ -423,7 +422,7 @@ export class MagSearch {
     searchNo: number = 0;
     hitsNo: number = 0;
     searchDate: Date = new Date();
-    magVersion: string = '';
+    magFolder: string = '';
     magSearchText: string = '';
     contactName: string = '';
     add: boolean = false;

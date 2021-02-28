@@ -667,7 +667,7 @@ namespace EppiReviewer4
             {
                 if (mci.MagOnline == true)
                 {
-                    tbAcademicTitle.Text = "Microsoft Academic dataset: " + mci.MagVersion;
+                    tbAcademicTitle.Text = "Microsoft Academic dataset: " + mci.MagFolder;
                 }
                 else
                 {
@@ -3477,7 +3477,7 @@ namespace EppiReviewer4
                 MagCurrentInfo mci = prov.Data as MagCurrentInfo;
                 if (mci != null)
                 {
-                    if (search.MagVersion != mci.MagVersion)
+                    if (search.MagFolder != mci.MagFolder)
                     {
                         RadWindow.Alert("This search was run against a prevous version of MAG\nPlease re-run before listing results.");
                         return;
@@ -3509,7 +3509,7 @@ namespace EppiReviewer4
                     MagCurrentInfo mci = prov.Data as MagCurrentInfo;
                     if (mci != null)
                     {
-                        if (ms.MagVersion != mci.MagVersion)
+                        if (ms.MagFolder != mci.MagFolder)
                         {
                             RadWindow.Alert("This search was run against an earlier version of MAG\nPlease re-run before importing");
                             return;
@@ -4362,7 +4362,7 @@ namespace EppiReviewer4
                     {
                         string [] versionElements = tbLatestMag.Text.Replace("mag-", "").Split('-');
                         MagCurrentInfo mci = new MagCurrentInfo();
-                        mci.MagVersion = versionElements[2] + "/" + versionElements[1] + "/" + versionElements[0];
+                        mci.MagFolder = tbLatestMag.Text; // versionElements[2] + "/" + versionElements[1] + "/" + versionElements[0];
                         mci.WhenLive = DateTime.Now;
                         mci.MatchingAvailable = true;
                         mci.MakesEndPoint = "http://eppimag" + tbLatestMag.Text.Replace("mag", "").Replace("-", "")
@@ -4427,7 +4427,7 @@ namespace EppiReviewer4
                     provider.Refresh();
                 }
             }
-            tbAcademicTitle.Text = "Microsoft Academic dataset: " + CurrentTempMagCurrentInfo.MagVersion;
+            tbAcademicTitle.Text = "Microsoft Academic dataset: " + CurrentTempMagCurrentInfo.MagFolder;
             CurrentTempMagCurrentInfo = null;
             CslaDataProvider provider2 = ((CslaDataProvider)App.Current.Resources["MagCurrentInfoData"]);
             provider2.Refresh();

@@ -1112,7 +1112,7 @@
                                                     </DataTemplate>
                                                 </telerikGridView:GridViewDataColumn.CellTemplate>
                                             </telerikGridView:GridViewDataColumn>
-                                            <telerikGridView:GridViewDataColumn DataMemberBinding="{Binding MagVersion}" Width="80" Header="MAG version"></telerikGridView:GridViewDataColumn>
+                                            <telerikGridView:GridViewDataColumn DataMemberBinding="{Binding MagFolder}" Width="80" Header="MAG version"></telerikGridView:GridViewDataColumn>
                                             <telerikGridView:GridViewDataColumn DataMemberBinding="{Binding ContactName}" Width="100" Header="User"></telerikGridView:GridViewDataColumn>
                                             <telerikGridView:GridViewDataColumn DataMemberBinding="{Binding SearchDate, StringFormat='{}{0:MM/dd/yyyy}'}" Width="60" Header="Date"></telerikGridView:GridViewDataColumn>
                                             <telerikGridView:GridViewDataColumn DataMemberBinding="{Binding HitsNo}" Header="Hits" Width="70"></telerikGridView:GridViewDataColumn>
@@ -1575,7 +1575,7 @@
                                         SelectionMode="Extended" ColumnWidth="*"
                                         IsSynchronizedWithCurrentItem="False">
                                         <telerikGridView:RadGridView.Columns>
-                                            <telerikGridView:GridViewDataColumn Header="Version" DataMemberBinding="{Binding MagVersion}" Width="100"></telerikGridView:GridViewDataColumn>
+                                            <telerikGridView:GridViewDataColumn Header="Version" DataMemberBinding="{Binding MagFolder}" Width="100"></telerikGridView:GridViewDataColumn>
                                             <telerikGridView:GridViewDataColumn Header="When live" DataMemberBinding="{Binding WhenLive}" Width="120"></telerikGridView:GridViewDataColumn>
                                             <telerikGridView:GridViewDataColumn Header="Endpoint" DataMemberBinding="{Binding MakesEndPoint}" Width="*"></telerikGridView:GridViewDataColumn>
                                             <telerikGridView:GridViewDataColumn Header="Status" DataMemberBinding="{Binding MakesDeploymentStatus}" Width="80"></telerikGridView:GridViewDataColumn>

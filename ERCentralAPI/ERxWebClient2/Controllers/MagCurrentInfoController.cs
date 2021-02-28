@@ -53,15 +53,14 @@ namespace ERxWebClient2.Controllers
 
                     // get data from the user
                     var magSQLCurrentInfo = MagCurrentInfo.GetMagCurrentInfoServerSide("Live");
-                    if (magSQLCurrentInfo.MagVersion == "")
+                    if (magSQLCurrentInfo.MagFolder == "")
                     {
                         //insert from client
                         MagCurrentInfo newMagCurrentInfo = new MagCurrentInfo();
                         newMagCurrentInfo.WhenLive = DateTime.Now;
                         newMagCurrentInfo.MatchingAvailable = true;
                         newMagCurrentInfo.MakesDeploymentStatus = "LIVE";
-                        newMagCurrentInfo.MagVersion = magCurrentInfo.magVersion;
-                        newMagCurrentInfo.MagFolder = "";
+                        newMagCurrentInfo.MagFolder = magCurrentInfo.magVersion;
                         newMagCurrentInfo.MakesEndPoint = magCurrentInfo.makesEndPoint;
 
                         newMagCurrentInfo = dp.Execute(newMagCurrentInfo);
