@@ -22,7 +22,6 @@ export class MAGAdminComp implements OnInit {
         public _magAdminService: MAGAdminService,
         public _confirmationDialogService: ConfirmationDialogService,
         private _magAdvancedService: MAGAdvancedService,
-        public _location: Location,
         public _notificationService: NotificationService,
         private _ReviewerIdentityServ: ReviewerIdentityService,
         public router: Router

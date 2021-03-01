@@ -1,9 +1,11 @@
-﻿<HeaderComponent class="row p-1 m-0" style="vertical-align:top;" PageTitle="Microsoft Academic Browser" Context="basicMAG"></HeaderComponent>
+﻿<!--<HeaderComponent class="row p-1 m-0" style="vertical-align:top;" PageTitle="Microsoft Academic Browser" Context="basicMAG"></HeaderComponent>
 <button class="page-link rounded pt-1 pb-1 mb-1 float-right"
         style="position:absolute; right: 0; z-index:2000;" (click)="Back()">
     Close/back
 </button>
-<MAGHeaderBar Context="basicMAG"></MAGHeaderBar>
+
+<MAGHeaderBar Context="basicMAG"></MAGHeaderBar>-->
+
 <div class="container col-12">
     <div class="row" style="vertical-align:top">
 
@@ -16,13 +18,13 @@
                     </td>
                     <td style="padding-left:10px">
                         <div *ngIf="!basicPanel">
-                            <a  class="btn btn-dark btn-sm text-white" data-toggle="collapse"
+                            <a class="btn btn-dark btn-sm text-white" data-toggle="collapse"
                                href="#collapseExample1" role="button" aria-expanded="false" aria-controls="collapseExample1">
                                 more details <i class="fa fa-arrow-circle-down"></i>
                             </a>
                         </div>
                         <div *ngIf="basicPanel">
-                            <a  class="btn btn-dark btn-sm text-white" data-toggle="collapse"
+                            <a class="btn btn-dark btn-sm text-white" data-toggle="collapse"
                                href="#collapseExample1" role="button" aria-expanded="false" aria-controls="collapseExample1">
                                 more details <i class="fa fa-arrow-circle-up"></i>
                             </a>
@@ -38,8 +40,8 @@
                         You can look for related papers as a one-off exercise, which is mostly useful to "find" (potentially) relevant references which were not found via "traditional" searching.
                     </p>
                     <p>
-                        Each "new search" will be added to the table below, allowing to import items found in the search (if they are not known already). Once new items have appeared in the list below, 
-                        you can either preview them in this window by clicking the number, or import them into your review, and examine them as you would for any other batch of references. 
+                        Each "new search" will be added to the table below, allowing to import items found in the search (if they are not known already). Once new items have appeared in the list below,
+                        you can either preview them in this window by clicking the number, or import them into your review, and examine them as you would for any other batch of references.
                         <br />When you import these search results, they will appear as a new 'source' with the date/time of import. <br />
                         <strong>Before you start</strong>: please click on the 'Matching MAG Items' link above and run the matching algorithm. This creates a 'link' between your 'items' in EPPI-Reviewer and 'Papers' in the MAG database
                         and is necessary to drive most/all MAG-powered functionalities.
@@ -58,19 +60,19 @@
 
     <div *ngIf="IsServiceBusy" class="k-loading-image" style="position: fixed; top: 2%;"></div>
 
-        <div *ngIf="!basicSearchPanel">
-            <a (click)="ShowSearchPanel()" class="btn btn-info btn-sm text-white  p-2 m-2" data-toggle="collapse"
-               href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
-                Create new MAG search/auto-update <i class="fa fa-arrow-circle-down"></i>
-            </a>
-        </div>
-        <div *ngIf="basicSearchPanel">
-            <a (click)="ShowSearchPanel()" class="btn btn-info btn-sm text-white  p-2 m-2" data-toggle="collapse"
-               href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
-                Create new MAG search/auto-update <i class="fa fa-arrow-circle-up"></i>
-            </a>
-        </div>
- 
+    <div *ngIf="!basicSearchPanel">
+        <a (click)="ShowSearchPanel()" class="btn btn-info btn-sm text-white  p-2 m-2" data-toggle="collapse"
+           href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
+            Create new MAG search/auto-update <i class="fa fa-arrow-circle-down"></i>
+        </a>
+    </div>
+    <div *ngIf="basicSearchPanel">
+        <a (click)="ShowSearchPanel()" class="btn btn-info btn-sm text-white  p-2 m-2" data-toggle="collapse"
+           href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
+            Create new MAG search/auto-update <i class="fa fa-arrow-circle-up"></i>
+        </a>
+    </div>
+
     <div class="collapse multi-collapse" id="collapseExample">
         <div class="card card-footer">
 
@@ -301,4 +303,4 @@
 
 
 
-<statusbar></statusbar>
+<!--<statusbar></statusbar>-->

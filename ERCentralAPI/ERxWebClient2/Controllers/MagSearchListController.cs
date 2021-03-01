@@ -49,14 +49,16 @@ namespace ERxWebClient2.Controllers
                     DataPortal<MagSearchList> dp = new DataPortal<MagSearchList>();
                     MagSearchList result = dp.Fetch();
 
-                    var resultToReRun = result.Where(x => x.SearchText == magReRun.searchText && x.MagSearchText == magReRun.magSearchText).FirstOrDefault();
-
-                    resultToReRun.SetToRerun(resultToReRun);
-
-                    DataPortal<MagSearch> dp2 = new DataPortal<MagSearch>();
-                    resultToReRun = dp2.Execute(resultToReRun);
-
-                    return Ok(resultToReRun);
+                    MagSearch resultToReRun = result.Where(x => x.SearchText == magReRun.searchText && x.MagSearchText == magReRun.magSearchText).FirstOrDefault();
+                    if (resultToReRun != null)
+                    {
+                        MagSearch newS = new MagSearch();
+                        newS.SetToRerun(resultToReRun);
+                        newS = newS.Save();
+                        result = dp.Fetch();
+                    }
+                    
+                    return Ok(result);
                 }
                 else return Forbid();
 

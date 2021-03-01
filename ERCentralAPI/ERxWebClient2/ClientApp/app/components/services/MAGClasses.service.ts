@@ -17,7 +17,7 @@ export class MAGClassesService  {
 export class MagList {
 
     pagesize: number = 0;
-    paperIds: string = '';
+    paperIds: string = '';//possibly remove this?
     pagecount: number = 0;
     pageindex: number = 0;
     totalItemCount: number = 0;

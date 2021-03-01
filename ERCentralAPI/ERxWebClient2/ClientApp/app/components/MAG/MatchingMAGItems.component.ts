@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
+import { Component, OnInit, ViewChild, OnDestroy, Output, EventEmitter } from '@angular/core';
 import { searchService } from '../services/search.service';
 import { singleNode, SetAttribute } from '../services/ReviewSets.service';
 import { codesetSelectorComponent } from '../CodesetTrees/codesetSelector.component';
@@ -70,6 +70,7 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
     }
     @ViewChild('WithOrWithoutCodeSelector2') WithOrWithoutCodeSelector2!: codesetSelectorComponent;
 
+    @Output() PleaseGoTo = new EventEmitter<string>();
     public CurrentDropdownSelectedCode2: singleNode | null = null;
     public dropdownBasic2: boolean = false;
     public isCollapsed2: boolean = false;
@@ -77,13 +78,9 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
     public SearchTextTopics: TopicLink[] = [];
     public SearchTextTopicsResults: TopicLink[] = [];
     public magPaperId: number = 0;
-    public AdvancedFeatures() {
 
-        this.router.navigate(['AdvancedMAGFeatures']);
-
-    }
     public Back() {
-        this.router.navigate(['Main']);
+        //this.router.navigate(['Main']);
     }
     public ClearAllMatching() {
 
@@ -139,25 +136,25 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
             criteriaFOSL.SearchTextTopics = this.SearchTextTopic;
             this._magTopicsService.FetchMagFieldOfStudyList(criteriaFOSL, '').then(
 
-                (results: MagFieldOfStudy[]) => {
+                (results: MagFieldOfStudy[] | boolean) => {
+                    if (results != false) {
+                        let FosList: MagFieldOfStudy[] = results as MagFieldOfStudy[];
+                        let i: number = 1.7;
+                        let cnt: number = 0;
+                        for (var fos of FosList) {
+                            let item: TopicLink = new TopicLink();
+                            item.displayName = fos.displayName;
+                            item.fontSize = i;
+                            item.fieldOfStudyId = fos.fieldOfStudyId;
 
-                    let FosList: MagFieldOfStudy[] = results;
-                    let i: number = 1.7;
-                    let cnt: number = 0;
-                    for (var fos of FosList)
-                    {
-                        let item: TopicLink = new TopicLink();
-                        item.displayName = fos.displayName;
-                        item.fontSize = i;
-                        item.fieldOfStudyId = fos.fieldOfStudyId;
-
-                        this.SearchTextTopicsResults[cnt] = item;
-                        cnt += 1;
-                        if (i > 0.1) {
-                            i -= 0.01;
+                            this.SearchTextTopicsResults[cnt] = item;
+                            cnt += 1;
+                            if (i > 0.1) {
+                                i -= 0.01;
+                            }
                         }
+                        return;
                     }
-                    return;
                 }
             );
 
@@ -169,8 +166,14 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
     }
     public async FOSMAGBrowserNavigate(displayName: string, fieldOfStudyId: number) {
 
-        await this._magBrowserService.GetParentAndChildRelatedPapers(displayName, fieldOfStudyId);
-        this.router.navigate(['MAGBrowser']);
+        let res: boolean = await this._magBrowserService.GetParentAndChildRelatedPapers(displayName, fieldOfStudyId);
+        if (res == true) {
+            this._mAGBrowserHistoryService.AddHistory(new MagBrowseHistoryItem(displayName, "BrowseTopic", 0,
+                "", "", 0, "", "", fieldOfStudyId, displayName, "", 0));
+            this.PleaseGoTo.emit("BrowseTopic");
+        }
+        
+        //this.router.navigate(['MAGBrowser']);
     }
 
     public RunMatchingAlgo() {
@@ -220,8 +223,8 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
     }
     public MAGBrowser(listType: string) {
         this._magBrowserService.currentMagPaper = new MagPaper();
-        this._magBrowserService.WPChildTopics = [];
-        this._magBrowserService.WPParentTopics = [];
+        //this._magBrowserService.WPChildTopics = [];
+        //this._magBrowserService.WPParentTopics = [];
         this._magBrowserService.ParentTopic = '';
         if (listType == 'MatchedIncluded') {
             this.GetMatchedMagIncludedList();
@@ -240,53 +243,34 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
 
         this._magTopicsService.ShowingParentAndChildTopics = false;
         this._magTopicsService.ShowingChildTopicsOnly = true;
-        this._mAGBrowserHistoryService.AddHistory(new MagBrowseHistoryItem("List of all included matches", "MatchesIncluded", 0, "", "", 0, "", "", 0, "", "", 0));
-
+        
         let criteria: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
         criteria.listType = "ReviewMatchedPapers";
         criteria.included = "Included";
         criteria.pageSize = 20;
-        this._magBrowserService.FetchWithCrit(criteria, "ReviewMatchedPapers").then(
-           
-            () => {
-
-                let criteria2: MVCMagFieldOfStudyListSelectionCriteria = new MVCMagFieldOfStudyListSelectionCriteria();
-                criteria2.fieldOfStudyId = 0;
-                criteria2.listType = 'PaperFieldOfStudyList';
-                criteria2.paperIdList = this._magBrowserService.ListCriteria.paperIds;
-                criteria2.SearchTextTopics = ''; //TODO this will be populated by the user..
-                this._magTopicsService.FetchMagFieldOfStudyList(criteria2, 'ReviewMatchedPapers').then(
-
-                    () => { this.router.navigate(['MAGBrowser']); }
-                );
-            }
-        );
+        this._magBrowserService.GetMagOrigList(criteria).then(
+            (res: boolean) => {
+                if (res == true) {
+                    this._mAGBrowserHistoryService.AddHistory(new MagBrowseHistoryItem("List of all included matches", "MatchesIncluded", 0, "", "", 0, "", "", 0, "", "", 0));
+                    this.PleaseGoTo.emit("MatchesIncluded");
+                }
+            });
     }
     public GetMatchedMagExcludedList() {
         this._magTopicsService.ShowingParentAndChildTopics = false;
         this._magTopicsService.ShowingChildTopicsOnly = true;
-        this._mAGBrowserHistoryService.AddHistory(new MagBrowseHistoryItem("List of all excluded matches", "MatchesExcluded", 0, "", "", 0, "", "", 0, "", "", 0));
-
+        
         let criteria: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
         criteria.listType = "ReviewMatchedPapers";
         criteria.included = "Excluded";
         criteria.pageSize = 20;
-
-        this._magBrowserService.FetchWithCrit(criteria, "ReviewMatchedPapers").then(
-
-            () => {
-
-                let criteria2: MVCMagFieldOfStudyListSelectionCriteria = new MVCMagFieldOfStudyListSelectionCriteria();
-                criteria2.fieldOfStudyId = 0;
-                criteria2.listType = 'PaperFieldOfStudyList';
-                criteria2.paperIdList = this._magBrowserService.ListCriteria.paperIds;
-                criteria2.SearchTextTopics = ''; //TODO this will be populated by the user..
-                this._magTopicsService.FetchMagFieldOfStudyList(criteria2, 'ReviewMatchedPapers').then(
-
-                    () => { this.router.navigate(['MAGBrowser']); }
-                );
-            }
-        );
+        this._magBrowserService.GetMagOrigList(criteria).then(
+            (res: boolean) => {
+                if (res == true) {
+                    this._mAGBrowserHistoryService.AddHistory(new MagBrowseHistoryItem("List of all excluded matches", "MatchesExcluded", 0, "", "", 0, "", "", 0, "", "", 0));
+                    this.PleaseGoTo.emit("MatchesExcluded");
+                }
+            });
     }
     public GetMatchedMagAllList() {
         this._magTopicsService.ShowingParentAndChildTopics = false;
@@ -298,21 +282,14 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
         criteria.included = "all";
         criteria.pageSize = 20;
 
-        this._magBrowserService.FetchWithCrit(criteria, "ReviewMatchedPapers").then(
-
-            () => {
-
-                let criteria2: MVCMagFieldOfStudyListSelectionCriteria = new MVCMagFieldOfStudyListSelectionCriteria();
-                criteria2.fieldOfStudyId = 0;
-                criteria2.listType = 'PaperFieldOfStudyList';
-                criteria2.paperIdList = this._magBrowserService.ListCriteria.paperIds;
-                criteria2.SearchTextTopics = ''; //TODO this will be populated by the user..
-                this._magTopicsService.FetchMagFieldOfStudyList(criteria2, 'ReviewMatchedPapers').then(
-
-                    () => { this.router.navigate(['MAGBrowser']); }
-                );
-            }
-        );
+        this._magBrowserService.GetMagOrigList(criteria).then(
+            (res: boolean) => {
+                if (res == true) {
+                    this._mAGBrowserHistoryService.AddHistory(new MagBrowseHistoryItem("List of all matches in review (included and excluded)", "MatchesIncludedAndExcluded",
+                        0, "", "", 0, "", "", 0, "", "", 0));
+                    this.PleaseGoTo.emit("MatchesIncludedAndExcluded");
+                }
+            });
     }
     public CanGetCodeMatches(): boolean {
         if (this.CurrentDropdownSelectedCode2 != null) {
@@ -335,7 +312,8 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
 
             this._magAdvancedService.FetchMagPaperListMagPaper(criteria).then(
                 () => {
-                    this.router.navigate(['MAGBrowser']);
+                    this.PleaseGoTo.emit("ReviewMatchedPapersWithThisCode");
+                    //this.router.navigate(['MAGBrowser']);
                 }
             );
         }
@@ -416,15 +394,15 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
     }
     public GetMagPaper() {
 
-        this._magAdvancedService.FetchMagPaperId(this.magPaperId).then(
-            
-            (result: MagPaper) => {
-                if (result.paperId != null && result.paperId > 0) {
+        this._magBrowserService.GetCompleteMagPaperById(this.magPaperId).then(
+            (result: boolean) => {
+                if (result == true && this._magBrowserService.currentMagPaper.paperId > 0) {
+                    const p = this._magBrowserService.currentMagPaper;
                     this._magTopicsService.ShowingParentAndChildTopics = false;
                     this._magTopicsService.ShowingChildTopicsOnly = true;
-                    this._mAGBrowserHistoryService.AddHistory(new MagBrowseHistoryItem("Go to specific Paper Id: " + result.fullRecord, "PaperDetail", result.paperId, result.fullRecord,
-                        result.abstract, result.linkedITEM_ID, result.allLinks, result.findOnWeb, 0, "", "", 0));
-                    this._magAdvancedService.PostFetchMagPaperCalls(result, '');
+                    this._mAGBrowserHistoryService.AddHistory(new MagBrowseHistoryItem("Go to specific Paper Id: " + p.fullRecord, "PaperDetail", p.paperId, p.fullRecord,
+                        p.abstract, p.linkedITEM_ID, p.allLinks, p.findOnWeb, 0, "", "", 0));
+                    this.PleaseGoTo.emit("PaperDetail");
                 } else {
                     this._notificationService.showMAGRunMessage('Microsoft academic could not find the paperId!');
                 }

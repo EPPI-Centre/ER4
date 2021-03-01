@@ -1,22 +1,19 @@
-﻿<HeaderComponent class="row p-1 m-0" style="vertical-align:top;" PageTitle="Microsoft Academic Browser" Context="searchMAG"></HeaderComponent>
+﻿<!--<HeaderComponent class="row p-1 m-0" style="vertical-align:top;" PageTitle="Microsoft Academic Browser" Context="searchMAG"></HeaderComponent>
 
 <button class="page-link rounded pt-1 pb-1 mb-1 float-right"
         style="position:absolute; right: 0; z-index:2000;" (click)="Back()">
     Close/back
 </button>
 
-<MAGHeaderBar Context="searchMAG"></MAGHeaderBar>
+<MAGHeaderBar Context="searchMAG"></MAGHeaderBar>-->
+
 <div *ngIf="IsServiceBusy" class="k-loading-image" style="position: fixed; top: 2%;"></div>
 <div class="container col-12">
 
     <div class="row" style="vertical-align:top">
-        <div class="col-sm-12 col-lg-8">
-            <div class="card-footer h-100 w-100">
-                <h2 class="card-title"></h2>
+        <div class="col-12 col-md-8 px-1 card">
+            <div class=" h-100 w-100">
                 <h2 class="font-weight-light text-sm-left"> Microsoft Academic Graph Searches </h2>
-
-
-
                 <div class="card-footer">
 
                     <div class="col-12 row mb-2">
@@ -136,24 +133,20 @@
 
                     </div>
                 </div>
-
- </div>  
+            </div>  
         </div>
 
-        <div class="col-lg-4">
-            <div class="card-footer h-100 w-100">
-                <h2 class="card-title"></h2>
+        <div class="col-12 col-md-4 px-1 card">
+            <div class="">
                 <h2 class="font-weight-light text-sm-left">Combine searches</h2>
-
-                <div class="card-footer">
-
-                    <h5>Select 2 or more searches</h5>
+                <div class="card-footer h-100">
+                    <h4 class="mb-1">Select 2 or more searches</h4>
 
                     <div class="card-text small row col-12">
 
                         <div class="p-2 m-2 col-12">
-                            <div ngbDropdown class="col-12" style="min-width:400px">
-                                <select class="col-6 form-control" name="LogicalOperator"
+                            <div ngbDropdown class="col-12" style="min-width:90px">
+                                <select class="form-control" name="LogicalOperator"
                                         [disabled]="!CanCombineSearches()"
                                         [(ngModel)]="LogicalOperator" (change)="CombineSearches()">
                                     <option [selected]="LogicalOperator == 'Select operator'">Select operator</option>
@@ -164,18 +157,17 @@
                         </div>
 
                     </div>
-                    <h2 class="card-title"></h2>
+                    
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<h2 class="card-title"></h2>
 
-<div class="container col-12">
+<div class="container col-12 px-0">
 
-    <div class="card">
+    <div class="card px-1">
         <div class="card-body">
 
             <table>
@@ -195,60 +187,61 @@
 
 
             <div class="col-12 alert-secondary p-2 m-2 card">
-                <div class="table-responsive">
+                <div class="row p-0 m-0 w-100" style="max-height:600px; overflow:auto;">
 
 
 
-                    <table class="table align-middle table-striped" style="width:100%;max-height:600px; overflow:auto;">
+                    <table class="table  table-sm table-striped" >
                         <thead>
                             <tr>
-                                <th>
+                                <th class="" width="1">
                                     <input class="m-1" style="zoom: 1.2;"
                                            type="checkbox"
                                            name="selectAll"
                                            [ngModel]="AllItemsAreSelected"
                                            (click)="ToggleAllItemsSelected()" />
                                 </th>
-                                <th>Search</th>
-                                <th style="min-width:50px">search string</th>
-                                <th style="min-width:50px">MAG search string</th>
-                                <th>MAG Version</th>
-                                <th>User</th>
-                                <th>Date</th>
-                                <th style="text-align:center">Hits</th>
-                                <th style="min-width:40px;text-align:center">ReRun</th>
-                                <th style="min-width:40px;text-align:center">Import</th>
+                                <th class="" width="1">#</th>
+                                <th class="" width="6" style="min-width:50px">Name</th>
+                                <th class="" width="5" style="min-width:50px">Search string</th>
+                                <th class="" width="2">MAG Version</th>
+                                <th class="" width="2">User</th>
+                                <th class="" width="2">Date</th>
+                                <th class="" width="2" style="text-align:center">Hits</th>
+                                <th class="" width="1" style="min-width:40px;text-align:center;font-size:0.76em;">ReRun/Import</th>
+                                <!--<th class="" width="1" style="min-width:40px;text-align:center">Import</th>-->
 
                             </tr>
                         </thead>
 
-                        <tbody style="width:100%">
+                        <tbody >
                             <tr *ngFor="let item of _magSearchService.MagSearchList">
-                                <td>
+                                <td class="small">
                                     <input class="ml-1" style="zoom: 1.2;"
                                            type="checkbox"
                                            [(ngModel)]="item.add" />
                                 </td>
-                                <td>{{item.searchNo}}</td>
-                                <td style="min-width:50px">{{item.searchText}}</td>
-                                <td title={{item.magSearchText}}>{{item.magSearchText | truncate}} </td>
-                                <td>{{item.magVersion}}</td>
-                                <td>{{item.contactName}}</td>
-                                <td>{{item.searchDate}}</td>
-                                <td class="p-0" style="vertical-align:middle;text-align:center">
+                                <td class="small">{{item.searchNo}}</td>
+                                <td class="small" style="overflow: hidden; text-overflow: ellipsis; word-break: break-all;" title={{item.searchText}}>{{item.searchText}}</td>
+                                <td class="small"  style="overflow: hidden; text-overflow: ellipsis; word-break: break-all;" title={{item.magSearchText}}>{{item.magSearchText | truncate}} </td>
+                                <td class="small">{{FormatDate(item.magVersion)}}</td>
+                                <td class="small">{{item.contactName}}</td>
+                                <td class="small">{{FormatDate2(item.searchDate)}}</td>
+                                <td class="small p-0" style="vertical-align:middle;text-align:center">
                                     <div (click)="GetItems(item)" class="btn btn-link btn-sm">{{ item.hitsNo}}</div>
                                 </td>
-                                <td style="min-width:40px;text-align:center">
-                                    <button (click)="ReRunMAGSearch(item)" class="btn btn-warning btn-sm text-white align-content-center">
+                                <td class="small" style="min-width:65px;text-align:center">
+                                    <button (click)="ReRunMAGSearch(item)" class="btn btn-warning btn-sm text-white align-content-center mr-1" title="Re-Run (update)">
                                         <i class="fa fa-play-circle" aria-hidden="true"></i>
                                     </button>
-                                </td>
-                                <td style="min-width:40px;text-align:center">
-                                    <button (click)="ImportMagSearchPapers(item)" [disabled]="!CanImportMagPapers(item)"
+                                    <button (click)="ImportMagSearchPapers(item)" [disabled]="!CanImportMagPapers(item)" title="Import"
                                             class="btn btn-primary btn-sm text-white align-content-center">
                                         <i class="fa fa-download" aria-hidden="true"></i>
                                     </button>
                                 </td>
+                                <!--<td class="small" style="min-width:40px;text-align:center">
+                                    
+                                </td>-->
 
                             </tr>
                         </tbody>
@@ -267,4 +260,4 @@
 
 
 <div *ngIf="IsServiceBusy" class="k-loading-image" style="position: fixed; top: 2%;"></div>
-<statusbar></statusbar>
+<!--<statusbar></statusbar>-->

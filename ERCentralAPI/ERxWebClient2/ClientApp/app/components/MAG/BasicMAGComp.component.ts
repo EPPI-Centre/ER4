@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild} from '@angular/core';
+import { Component, OnInit, ViewChild, Input, Output, EventEmitter} from '@angular/core';
 import { searchService } from '../services/search.service';
 import { MAGRelatedRunsService } from '../services/MAGRelatedRuns.service';
 import { singleNode, SetAttribute } from '../services/ReviewSets.service';
@@ -7,7 +7,7 @@ import { ConfirmationDialogService } from '../services/confirmation-dialog.servi
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Router } from '@angular/router';
 import { MAGBrowserService } from '../services/MAGBrowser.service';
-import { MagRelatedPapersRun} from '../services/MAGClasses.service';
+import { MagRelatedPapersRun, MagBrowseHistoryItem} from '../services/MAGClasses.service';
 import { MAGBrowserHistoryService } from '../services/MAGBrowserHistory.service';
 import { MAGAdvancedService } from '../services/magAdvanced.service';
 import { EventEmitterService } from '../services/EventEmitter.service';
@@ -33,6 +33,8 @@ export class BasicMAGComp implements OnInit {
 
     }
     @ViewChild('WithOrWithoutCodeSelector') WithOrWithoutCodeSelector!: codesetSelectorComponent;
+    @Input() OuterContext: string | null = null;
+    @Output() PleaseGoTo = new EventEmitter<string>();
     public CurrentDropdownSelectedCode: singleNode | null = null;
     public ShowPanel: boolean = false;
     public isCollapsed: boolean = false;
@@ -94,10 +96,16 @@ export class BasicMAGComp implements OnInit {
 
         if (item.magRelatedRunId > 0) {
 
-            this._magBrowserService.GetMagRelatedRunsListById(item).then(
-                    () => {
-                        this.router.navigate(['MAGBrowser']);
+            this._magBrowserService.GetMagRelatedRunsListById(item.magRelatedRunId).then(
+                    (res) => {
+                    //this.router.navigate(['MAGBrowser']);
+                    if (res) {
+                        console.log("want to go to MagRelatedPapersRunList");
+                        this._mAGBrowserHistoryService.AddHistory(new MagBrowseHistoryItem("Papers identified from auto-identification run", "MagRelatedPapersRunList", 0,
+                            "", "", 0, "", "", 0, "", "", item.magRelatedRunId));
+                        this.PleaseGoTo.emit("MagRelatedPapersRunList");
                     }
+                }
             );
        
         }

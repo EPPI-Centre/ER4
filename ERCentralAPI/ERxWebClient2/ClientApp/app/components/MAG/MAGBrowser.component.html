@@ -1,9 +1,11 @@
-﻿<HeaderComponent class="row p-1 m-0" style="vertical-align:top;" PageTitle="Microsoft Academic Browser" Context="MAGBrowser"></HeaderComponent>
+﻿<!--<HeaderComponent class="row p-1 m-0" style="vertical-align:top;" PageTitle="Microsoft Academic Browser" Context="MAGBrowser"></HeaderComponent>
 <button class="page-link rounded pt-1 pb-1 mb-1 float-right"
         style="position:absolute; right: 0; z-index:2000;" (click)="Back()">
     Close/back
 </button>
-<MAGHeaderBar Context="MAGBrowser"></MAGHeaderBar>
+<MAGHeaderBar Context="MAGBrowser"></MAGHeaderBar>-->
+
+
 <div *ngIf="IsServiceBusy" class="k-loading-image" style="position: fixed; top: 2%;"></div>
 
 <div *ngIf="_magBrowserService.currentMagPaper.paperId > 0"
@@ -33,10 +35,10 @@
         </div>
     </div>
 </div>
-<div *ngIf="_magBrowserService.ListCriteria.listType == 'ReviewMatchedPapers'"  class="row border border-dark card small p-2 m-2">
+<div *ngIf="_magBrowserService.OrigCriteria.listType == 'ReviewMatchedPapers'" class="row border border-dark card small p-2 m-2">
     <div class="col-4"></div>
-    <!--<div class="col-sm-12 col-lg-4 pull-right">{{_magBrowserService.ListCriteria.listType}}</div>-->
-    <div class="col-sm-12 col-lg-4 pull-right"><b>Included: </b> {{_magBrowserService.ListCriteria.included}}</div>
+    <!--<div class="col-sm-12 col-lg-4 pull-right">{{_magBrowserService.OrigCriteria.listType}}</div>-->
+    <div class="col-sm-12 col-lg-4 pull-right"><b>Included: </b> {{_magBrowserService.OrigCriteria.included}}</div>
 </div>
 <div class="col-12 px-2">
     <div class="col-12 row p-2 m-0 border border-dark rounded">
@@ -121,7 +123,8 @@
                                 <div *ngIf="_magBrowserService && _magBrowserService.MAGList.papers.length == 0"
                                      class="p-2 font-weight-bold text-center text-info mt-1">No items to display</div>
                                 <div class="col-12 row mt-1 border-top">
-                                    <MAGpaginatorComp class="row ml-1 pt-1 mr-1 pr-1 "></MAGpaginatorComp>
+                                    <MAGpaginatorComp *ngIf="_magBrowserService.currentMagPaper.paperId > 0" class="row ml-1 pt-1 mr-1 pr-1 " Purpose="References"></MAGpaginatorComp>
+                                    <MAGpaginatorComp *ngIf="_magBrowserService.currentMagPaper.paperId <= 0" class="row ml-1 pt-1 mr-1 pr-1 "  Purpose="Orig"></MAGpaginatorComp>
                                     <!--<div *ngIf="_magTopicsService.ShowingChildTopicsOnly" class="my-auto">
                                         <select (change)="UpdatePageSize($event.target.value)" >
                                             <option [value]="20">20</option>
@@ -150,11 +153,14 @@
                                             <td>
                                                 <button [disabled]="!CanSelectMagItem(item)" (click)="InOutReview(item, _magBrowserService.MagCitationsByPaperList.papers)"
                                                         [class]="IsCurrentPaperSelected(item.paperId) == true ? 'btn fa fa-minus' : 'btn fa fa-plus'">
-                                                    </button>
+                                                </button>
                                             </td>
                                         </tr>
                                     </tbody>
                                 </table>
+                            </div>
+                            <div class="col-12 row mt-1 border-top">
+                                <MAGpaginatorComp *ngIf="_magBrowserService.MagCitationsByPaperList.pagecount > 1" class="row ml-1 pt-1 mr-1 pr-1 " Purpose="CitedBy"></MAGpaginatorComp>
                             </div>
                         </div>
                     </ng-template>
@@ -212,7 +218,7 @@
                             <div *ngIf="_magBrowserService && _magBrowserService.MAGOriginalList.papers.length == 0"
                                  class="p-2 font-weight-bold text-center text-info mt-1">No items to display</div>
                             <div class="col-12 row">
-                                <MAGOrigpaginatorComp class="row ml-1 pt-1 mr-1 pr-1 border-top porder-info"></MAGOrigpaginatorComp>
+                                <MAGpaginatorComp class="row ml-1 pt-1 mr-1 pr-1 border-top porder-info" Purpose="Orig"></MAGpaginatorComp>
                             </div>
                         </div>
                     </ng-template>
@@ -221,4 +227,4 @@
         </div>
     </div>
 </div>
-<statusbar></statusbar>
+<!--<statusbar></statusbar>-->

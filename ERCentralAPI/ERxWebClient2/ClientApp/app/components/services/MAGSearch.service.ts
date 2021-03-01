@@ -72,13 +72,13 @@ export class magSearchService extends BusyAwareService {
         let body = JSON.stringify({
             searchText: searchText, magSearchText: magSearchText
         });
-        return this._httpC.post<MagSearch>(this._baseUrl + 'api/MAGSearchList/ReRunMagSearch',
+        return this._httpC.post<MagSearch[]>(this._baseUrl + 'api/MAGSearchList/ReRunMagSearch',
             body).toPromise()
             .then(
 
-                (result: MagSearch) => {
+                (result: MagSearch[]) => {
                     this.RemoveBusy("ReRunMagSearch");
-                    this.MagSearchList.push(result);
+                    this.MagSearchList = result;
                     return this.MagSearchList;
 
                 }, error => {

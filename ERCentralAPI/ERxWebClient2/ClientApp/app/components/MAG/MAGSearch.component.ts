@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Router } from '@angular/router';
@@ -6,10 +6,11 @@ import { MAGBrowserService } from '../services/MAGBrowser.service';
 import { MAGAdvancedService } from '../services/magAdvanced.service';
 import { MAGBrowserHistoryService } from '../services/MAGBrowserHistory.service';
 import { MAGRelatedRunsService } from '../services/MAGRelatedRuns.service';
-import { MagSearch, TopicLink, MVCMagFieldOfStudyListSelectionCriteria, MagFieldOfStudy } from '../services/MAGClasses.service';
+import { MagSearch, TopicLink, MVCMagFieldOfStudyListSelectionCriteria, MagFieldOfStudy, MagBrowseHistoryItem } from '../services/MAGClasses.service';
 import { magSearchService } from '../services/MAGSearch.service';
 import { NotificationService } from '@progress/kendo-angular-notification';
 import { MAGTopicsService } from '../services/MAGTopics.service';
+import { Helpers } from '../helpers/HelperMethods';
 
 @Component({
     selector: 'MAGSearch',
@@ -34,6 +35,7 @@ export class MAGSearchComponent implements OnInit {
 
     }
 
+    @Output() PleaseGoTo = new EventEmitter<string>();
     public dropdownBasic2: boolean = false;
     public isCollapsed2: boolean = false;
     public dropdownBasic1: boolean = false;
@@ -65,9 +67,14 @@ export class MAGSearchComponent implements OnInit {
          
     }
     FetchMagSearches() {
-
         this._magSearchService.FetchMAGSearchList();
+    }
 
+    FormatDate(DateSt: string): string {
+        return Helpers.FormatDate(DateSt);
+    }
+    FormatDate2(DateSt: string): string {
+        return Helpers.FormatDate2(DateSt);
     }
     public UpdateTopicResults() {
 
@@ -81,25 +88,27 @@ export class MAGSearchComponent implements OnInit {
             criteriaFOSL.SearchTextTopics = this.SearchTextTopicDisplayName;
             this._magTopicsService.FetchMagFieldOfStudyList(criteriaFOSL, '').then(
 
-                (results: MagFieldOfStudy[]) => {
+                (results: MagFieldOfStudy[] | boolean) => {
 
                     //this.WPFindTopics = [];
-                    let FosList: MagFieldOfStudy[] = results;
-                    let i: number = 1;
-                    let cnt: number = 0;
-                    for (var fos of FosList) {
+                    if (results != false) {
+                        let FosList: MagFieldOfStudy[] = results as MagFieldOfStudy[];
+                        let i: number = 1;
+                        let cnt: number = 0;
+                        for (var fos of FosList) {
 
-                        let item: TopicLink = new TopicLink();
-                        item.displayName = fos.displayName;
-                        item.fontSize = i;
-                        item.fieldOfStudyId = fos.fieldOfStudyId;
-                        this.SearchTextTopicsResults[cnt] = item;
-                        cnt += 1;
-                        if (i > 0.1) {
-                            i -= 0.01;
+                            let item: TopicLink = new TopicLink();
+                            item.displayName = fos.displayName;
+                            item.fontSize = i;
+                            item.fieldOfStudyId = fos.fieldOfStudyId;
+                            this.SearchTextTopicsResults[cnt] = item;
+                            cnt += 1;
+                            if (i > 0.1) {
+                                i -= 0.01;
+                            }
                         }
+                        return;
                     }
-                    return;
                 }
             );
 
@@ -194,7 +203,10 @@ export class MAGSearchComponent implements OnInit {
             this._magBrowserService.GetMagItemsForSearch(item)            
                 .then(
                     () => {
-                        this.router.navigate(['MAGBrowser']);
+                        this._mAGBrowserHistoryService.AddHistory(new MagBrowseHistoryItem("Papers identified from Mag Search run", "MagSearchPapersList", 0,
+                            "", "", 0, "", "", 0, "", "", item.magSearchId));
+                        this.PleaseGoTo.emit("MagSearchPapersList");
+                        //this.router.navigate(['MAGBrowser']);
                     }
                 );
         }
@@ -271,9 +283,7 @@ export class MAGSearchComponent implements OnInit {
                 }
             );
     }
-    public AdvancedFeatures() {
-        this.router.navigate(['AdvancedMAGFeatures']);
-    }
+    
 
     public Back() {
         this.router.navigate(['Main']);

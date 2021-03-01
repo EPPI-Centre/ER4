@@ -18,7 +18,7 @@ export class EventEmitterService {
 	public getMatchedIncludedItemsEvent: EventEmitter<boolean> = new EventEmitter();
 	public getMatchedExcludedItemsEvent: EventEmitter<boolean> = new EventEmitter();
 	public getMatchedAllItemsEvent: EventEmitter<boolean> = new EventEmitter();
-	public getTopicsEvent: EventEmitter<topicInfo> = new EventEmitter<topicInfo>();
+	//public getTopicsEvent: EventEmitter<topicInfo> = new EventEmitter<topicInfo>();
 	public OpeningNewReview = new EventEmitter();
 	public firstVisitMAGBrowserPage: boolean = true;	
 

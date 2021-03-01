@@ -79,26 +79,26 @@ export class MAGSearchDetailsComponent implements OnInit {
             criteriaFOSL.SearchTextTopics = this.SearchTextTopicDisplayName;
             this._magTopicsService.FetchMagFieldOfStudyList(criteriaFOSL, '').then(
 
-                (results: MagFieldOfStudy[]) => {
+                //(results: MagFieldOfStudy[]) => {
 
-                    //this.WPFindTopics = [];
-                    let FosList: MagFieldOfStudy[] = results;
-                    let i: number = 1;
-                    let cnt: number = 0;
-                    for (var fos of FosList) {
+                //    //this.WPFindTopics = [];
+                //    let FosList: MagFieldOfStudy[] = results;
+                //    let i: number = 1;
+                //    let cnt: number = 0;
+                //    for (var fos of FosList) {
 
-                        let item: TopicLink = new TopicLink();
-                        item.displayName = fos.displayName;
-                        item.fontSize = i;
-                        item.fieldOfStudyId = fos.fieldOfStudyId;
-                        this.SearchTextTopicsResults[cnt] = item;
-                        cnt += 1;
-                        if (i > 0.1) {
-                            i -= 0.01;
-                        }
-                    }
-                    return;
-                }
+                //        let item: TopicLink = new TopicLink();
+                //        item.displayName = fos.displayName;
+                //        item.fontSize = i;
+                //        item.fieldOfStudyId = fos.fieldOfStudyId;
+                //        this.SearchTextTopicsResults[cnt] = item;
+                //        cnt += 1;
+                //        if (i > 0.1) {
+                //            i -= 0.01;
+                //        }
+                //    }
+                //    return;
+                //}
             );
 
         } else {
@@ -197,12 +197,12 @@ export class MAGSearchDetailsComponent implements OnInit {
             selectionCriteria.pageNumber = 0;
             selectionCriteria.listType = "MagSearchResultsList";
             selectionCriteria.magSearchText = item.magSearchText;
-            this._magBrowserService.FetchMagPapersFromSearch(selectionCriteria, "MagSearchResultsList")
-                .then(
-                    () => {
-                        this.router.navigate(['MAGBrowser']);
-                    }
-                );
+            //this._magBrowserService.FetchMagPapersFromSearch(selectionCriteria, "MagSearchResultsList")
+            //    .then(
+            //        () => {
+            //            this.router.navigate(['MAGBrowser']);
+            //        }
+            //    );
         }
     }
 

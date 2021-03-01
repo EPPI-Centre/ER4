@@ -132,6 +132,9 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
     public OpenBasicMAG() {
         this.router.navigate(['BasicMAGFeatures']);
     }
+    public OpenMAG() {
+        this.router.navigate(['MAG']);
+    }
 
     StartScreening() {
         if (this.workAllocationsContactComp) this.workAllocationsContactComp.StartScreening();

@@ -1,5 +1,5 @@
 import { Location } from '@angular/common';
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, Output, EventEmitter } from '@angular/core';
 import { MAGBrowserHistoryService } from '../services/MAGBrowserHistory.service';
 import {  Router } from '@angular/router';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
@@ -28,7 +28,7 @@ export class MAGKeepUpToDate implements OnInit {
 
     constructor(
         private ConfirmationDialogService: ConfirmationDialogService,
-        //public _MAGBrowserHistoryService: MAGBrowserHistoryService,
+        private MAGBrowserHistoryService: MAGBrowserHistoryService,
         private MAGAdvancedService: MAGAdvancedService,
         //private _magBasicService: MAGRelatedRunsService,
         private _ReviewerIdentityServ: ReviewerIdentityService,
@@ -42,7 +42,8 @@ export class MAGKeepUpToDate implements OnInit {
 
     }
 
-    public magBrowseHistoryList: MagBrowseHistoryItem[] = [];
+
+    
     ngOnInit() {
         this.MAGRelatedRunsService.GetMagAutoUpdateList(true);
         
@@ -57,7 +58,7 @@ export class MAGKeepUpToDate implements OnInit {
         return false;
     }
     Back() {
-        this.router.navigate(['Main']);
+        //this.router.navigate(['Main']);
     }
     public basicSearchPanel: boolean = false;
     public description: string = '';
@@ -68,7 +69,7 @@ export class MAGKeepUpToDate implements OnInit {
     public isCollapsed: boolean = false;//the "pick a code" dropdown...
     public searchAll: string = 'all';
     public CurrentMagAutoUpdateRun: MagAutoUpdateRun | null = null;
-
+    @Output() PleaseGoTo = new EventEmitter<string>();
     //refine and import variables, as MVCMagPaperListSelectionCriteria, as it contains all the details we need, aslo for "importing", save for the "filter out" strings
     public ListCriteria: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
     public ListCriteriaTotPapers: number = 0;
@@ -170,9 +171,9 @@ export class MAGKeepUpToDate implements OnInit {
         crit.autoUpdateStudyTypeClassifierScore = 0;
         crit.autoUpdateUserClassifierScore = 0;
         crit.autoUpdateUserTopN = taskRun.nPapers;
-        this._magBrowserService.GoToListOfAutoUpdatePapers(crit, "Update task results").then(
+        this._magBrowserService.GetMagOrigList(crit).then(
             (res) => {
-                if (res == true) this.router.navigate(['MAGBrowser']);
+                if (res == true) this.PleaseGoTo.emit("MagAutoUpdateRunPapersList");// this.router.navigate(['MAGBrowser']);
             }
         );
     }
@@ -293,9 +294,12 @@ export class MAGKeepUpToDate implements OnInit {
             this.ListCriteria.listType = "MagAutoUpdateRunPapersList";
             this.ListCriteria.pageSize = 20;
             this.ListCriteria.autoUpdateOrderBy = this.comboAutoUpdateImportOptions;
-            this._magBrowserService.GoToListOfAutoUpdatePapers(this.ListCriteria, "Update task results").then(
+            this._magBrowserService.GetMagOrigList(this.ListCriteria).then(
                 (res) => {
-                    if (res == true) this.router.navigate(['MAGBrowser']);
+                    if (res == true) {
+                        this.MAGBrowserHistoryService.AddHistory(MagBrowseHistoryItem.MakeFromAutoUpdateListCrit(this.ListCriteria));
+                        this.PleaseGoTo.emit("MagAutoUpdateRunPapersList");//this.router.navigate(['MAGBrowser']);
+                    }
                 }
             );
         }

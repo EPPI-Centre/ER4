@@ -144,99 +144,74 @@ export class MAGAdvancedService extends BusyAwareService {
                     return error;
                 });
     }
-    public FetchMagPaperId(Id: number): Promise<MagPaper> {
-
-        this._magBrowserService.ClearTopics();
-        this._BusyMethods.push("FetchMagPaperId");
-        let body = JSON.stringify({ Value: Id });
-        return this._httpC.post<MagPaper>(this._baseUrl + 'api/MagPaperList/GetMagPaper', body)
-            .toPromise().then(result => {
-
-                this.RemoveBusy("FetchMagPaperId");
-                this._magBrowserService.currentMagPaper = result;
-                //this.currentMagPaper = result;
-
-                return result;
-                
-            },
-                error => {
-                    this.RemoveBusy("FetchMagPaperId");
-                    this.modalService.GenericError(error);
-                    return error;
-
-                }
-            ).catch(
-                (error) => {
-
-                    this.modalService.GenericErrorMessage("error with FetchMagPaperId");
-                    this.RemoveBusy("FetchMagPaperId");
-                });
-    }
+    
     //try making below async await
-    public async PostFetchCitationsList(result: MagPaper): Promise<boolean> {
+    //public async PostFetchCitationsList(result: MagPaper): Promise<boolean> {
 
-        let criteriaCitationsList: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
-        criteriaCitationsList.listType = "CitationsList";
-        criteriaCitationsList.magPaperId = result.paperId;
-        criteriaCitationsList.pageSize = 20;
-        console.log('calling FetchWithCrit: CitationsList');
-        return await this._magBrowserService.FetchWithCrit(criteriaCitationsList, "CitationsList");
+    //    let criteriaCitationsList: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
+    //    criteriaCitationsList.listType = "CitationsList";
+    //    criteriaCitationsList.magPaperId = result.paperId;
+    //    criteriaCitationsList.pageSize = 20;
+    //    console.log('calling FetchWithCrit: CitationsList');
+    //    return await this._magBrowserService.FetchWithCrit(criteriaCitationsList, "CitationsList");
 
-    }
+    //}
 
-    public async PostFetchCitedByListList(result: MagPaper): Promise<boolean> {
+    //public async PostFetchCitedByListList(result: MagPaper): Promise<boolean> {
 
-        this.PaperIds = this._magBrowserService.ListCriteria.paperIds;
-        let criteriaCitedBy: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
-        criteriaCitedBy.listType = "CitedByList";
-        criteriaCitedBy.magPaperId = result.paperId;
-        criteriaCitedBy.pageSize = 20;
-        console.log('calling PostFetchCitedByListList: CitedByList');
-        return await this._magBrowserService.FetchWithCrit(criteriaCitedBy, "CitedByList")
+    //    this.PaperIds = this._magBrowserService.ListCriteria.paperIds;
+    //    let criteriaCitedBy: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
+    //    criteriaCitedBy.listType = "CitedByList";
+    //    criteriaCitedBy.magPaperId = result.paperId;
+    //    criteriaCitedBy.pageSize = 20;
+    //    console.log('calling PostFetchCitedByListList: CitedByList');
+    //    return await this._magBrowserService.FetchWithCrit(criteriaCitedBy, "CitedByList")
 
-    }
+    //}
 
-    public async PostFetchMagFieldOfStudyList(result: MagPaper, listType: string): Promise<MagFieldOfStudy[]> {
+    //public async PostFetchMagFieldOfStudyList(result: MagPaper, listType: string): Promise<MagFieldOfStudy[] | boolean> {
 
-        this.PaperIds = this._magBrowserService.ListCriteria.paperIds;
-        let criteriaFOS: MVCMagFieldOfStudyListSelectionCriteria = new MVCMagFieldOfStudyListSelectionCriteria();
-        criteriaFOS.fieldOfStudyId = 0;
-        criteriaFOS.listType = 'PaperFieldOfStudyList';
-        criteriaFOS.paperIdList = result.paperId.toString();
-        criteriaFOS.SearchTextTopics = ''; 
-        console.log('calling FetchMagFieldOfStudyList: ', listType);
-        return await this._magTopicsService.FetchMagFieldOfStudyList(criteriaFOS, listType);
+    //    this.PaperIds = this._magBrowserService.ListCriteria.paperIds;
+    //    let criteriaFOS: MVCMagFieldOfStudyListSelectionCriteria = new MVCMagFieldOfStudyListSelectionCriteria();
+    //    criteriaFOS.fieldOfStudyId = 0;
+    //    criteriaFOS.listType = 'PaperFieldOfStudyList';
+    //    criteriaFOS.paperIdList = result.paperId.toString();
+    //    criteriaFOS.SearchTextTopics = ''; 
+    //    console.log('calling FetchMagFieldOfStudyList: ', listType);
+    //    return await this._magTopicsService.FetchMagFieldOfStudyList(criteriaFOS, listType);
 
-    }
+    //}
 
-    public async PostFetchOriginalMagPaperList(result: MagPaper, listType: string): Promise<boolean> {
+    //public async PostFetchOriginalMagPaperList(result: MagPaper, listType: string): Promise<boolean> {
 
-        let crit: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
-        crit.listType = listType;
-        crit.magPaperId = result.paperId;
-        crit.pageSize = 20;
-        console.log('calling FetchOrigWithCrit: ', crit.listType);
-        return await this._magBrowserService.FetchOrigWithCrit(crit, listType);
+    //    let crit: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
+    //    crit.listType = listType;
+    //    crit.magPaperId = result.paperId;
+    //    crit.pageSize = 20;
+    //    console.log('calling FetchOrigWithCrit: ', crit.listType);
+    //    return await this._magBrowserService.FetchOrigWithCrit(crit, listType);
 
-    }
+    //}
 
-    //Should the promises below be made into observables??
-    public async PostFetchMagPaperCalls(result: MagPaper, listType: string) {
+    ////Should the promises below be made into observables??
+    //private async PostFetchMagPaperCalls(result: MagPaper, listType: string) {
 
-        if (result.paperId != null && result.paperId > 0) {
+    //    if (result.paperId != null && result.paperId > 0) {
 
-            await this.PostFetchCitationsList(result);
-            await this.PostFetchCitedByListList(result);
-            if (this._magBrowserService.currentMagPaper.paperId > -1) {
+    //        await this.PostFetchCitationsList(result);
+    //        await this.PostFetchCitedByListList(result);
+    //        if (this._magBrowserService.currentMagPaper.paperId > -1) {
 
-                await this.PostFetchMagFieldOfStudyList(result, listType);
-            } else {
-                await this.PostFetchOriginalMagPaperList(result, listType);
-                await this.PostFetchMagFieldOfStudyList(result, listType);
-            }
-            this.router.navigate(['MAGBrowser']);
-        }
-    }
+    //            await this.PostFetchMagFieldOfStudyList(result, listType);
+    //        } else {
+    //            await this.PostFetchOriginalMagPaperList(result, listType);
+    //            await this.PostFetchMagFieldOfStudyList(result, listType);
+    //        }
+
+    //        //refactoring navigation: we don't navigate anymore...
+    //        //this.router.navigate(['MAGBrowser']);
+    //    }
+    //}
 
     public CheckContReviewPipelineState(): Promise<boolean> {
 

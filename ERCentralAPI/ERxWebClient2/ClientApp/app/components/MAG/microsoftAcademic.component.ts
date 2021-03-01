@@ -49,26 +49,10 @@ export class microsoftAcademicComp implements OnInit, OnDestroy {
         return this._magAdvancedService.IsBusy;
     }
     public GetMagPaper() {
-
-        this._magAdvancedService.FetchMagPaperId(this.magPaperId).then(
-
-            (result: MagPaper) => {
-
-                this._magAdvancedService.PostFetchMagPaperCalls(result,'');
-            });
-
+        if (this.magPaperId > 0) this.router.navigate(['MAG', this.magPaperId]); 
     }
     public GetMagPaperRef(magPaperRefId: number) {
-
-        this._magAdvancedService.FetchMagPaperId(magPaperRefId).then(
-
-            (result: MagPaper) => {
-                if (result.paperId.toString().length > 4) {
-
-                    this._magAdvancedService.PostFetchMagPaperCalls(result,'');
-
-                }
-            });
+        if (magPaperRefId > 0) this.router.navigate(['MAG', magPaperRefId]); 
     }
     public CanGetMagPaper(): boolean {
 
@@ -183,18 +167,7 @@ export class microsoftAcademicComp implements OnInit, OnDestroy {
     }
 
     public GetMagPaperForPage() {
-
-        this._magAdvancedService.FetchMagPaperId(this.magPaperId).then(
-
-            (result: MagPaper) => {
-
-                if (result != null) {
-                    if (result.paperId.toString().length > 4) {
-                        this.foundMagPaper = true;
-                        this.FoundPaper = result;
-                    }
-                }
-            });
+        if (this.magPaperId > 0) this.router.navigate(['MAG', this.magPaperId]);
     }
 
     public UpdateMagPaperFound(match: boolean) {

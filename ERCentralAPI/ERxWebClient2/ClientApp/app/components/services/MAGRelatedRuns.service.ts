@@ -196,7 +196,7 @@ export class MAGRelatedRunsService extends BusyAwareService {
                     this.notificationService.showMAGRunMessage(result.status);
                 }
                 this.MagRelatedPapersRunList.push(result);
-                this._magBrowserService.FetchMAGRelatedPaperRunsListId(result.magRelatedRunId);
+                //this._magBrowserService.FetchMAGRelatedPaperRunsListId(result.magRelatedRunId);
 
             }, error => {
                 this.RemoveBusy("MagRelatedPapersRunCreate");

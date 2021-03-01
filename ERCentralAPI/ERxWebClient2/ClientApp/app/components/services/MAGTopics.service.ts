@@ -22,14 +22,22 @@ export class MAGTopicsService extends BusyAwareService {
     public ShowingChildTopicsOnly: boolean = false;
     public WPParentTopics: TopicLink[] = [];
     public WPChildTopics: TopicLink[] = [];
-    public FetchMagFieldOfStudyList(criteria: MVCMagFieldOfStudyListSelectionCriteria, goBackListType: string): Promise<MagFieldOfStudy[]> {
+    public FetchMagFieldOfStudyList(criteria: MVCMagFieldOfStudyListSelectionCriteria, goBackListType: string): Promise<MagFieldOfStudy[] | boolean> {
         this._BusyMethods.push("FetchMagFieldOfStudyList");
 
         return this._httpC.post<MagFieldOfStudy[]>(this._baseUrl + 'api/MagFieldOfStudyList/GetMagFieldOfStudyList', criteria)
             .toPromise().then(
                 (result: MagFieldOfStudy[]) => {
-
-                    this.RemoveBusy("FetchMagFieldOfStudyList");
+                    if (criteria.listType == "FieldOfStudyChildrenList") {
+                        this.WPChildTopics = [];
+                    }
+                    else if (criteria.listType == "FieldOfStudyParentsList") {
+                        this.WPParentTopics = [];
+                    }
+                    else {
+                        this.WPParentTopics = [];
+                        this.WPChildTopics = [];
+                    }
                     if (result != null) {
 
                         let FosList: MagFieldOfStudy[] = result;
@@ -59,20 +67,21 @@ export class MAGTopicsService extends BusyAwareService {
                             }
                         }
                     }
+                    this.RemoveBusy("FetchMagFieldOfStudyList");
                     //this.ListCriteria.listType = goBackListType;
                     return result;
                 },
                 error => {
                     this.RemoveBusy("FetchMagFieldOfStudyList");
                     this.modalService.GenericError(error);
-                    return error;
+                    return false;// error;
                 }
             ).catch(
                 (error) => {
 
                     this.modalService.GenericErrorMessage("error with FetchMagFieldOfStudyList: " + error);
                     this.RemoveBusy("FetchMagFieldOfStudyList");
-                    return error;
+                    return false;// error;
                 });
     }
 
