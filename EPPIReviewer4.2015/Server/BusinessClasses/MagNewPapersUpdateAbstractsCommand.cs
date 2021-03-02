@@ -123,7 +123,7 @@ namespace BusinessLibrary.BusinessClasses
                 connection2.Open();
                 foreach (ItemPapers ip in ItemList)
                 {
-                    MagMakesHelpers.PaperMakes pm = MagMakesHelpers.GetPaperMakesFromMakes(ip.PaperId);
+                    MagMakesHelpers.PaperMakes pm = MagMakesHelpers.GetPaperMakesFromMakes(ip.PaperId, "PENDING");
                     if (pm != null && pm.IA != null)
                     {
                         string ab = MagMakesHelpers.ReconstructInvertedAbstract(pm.IA);
