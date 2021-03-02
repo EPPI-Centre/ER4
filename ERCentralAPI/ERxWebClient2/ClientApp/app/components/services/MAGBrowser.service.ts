@@ -10,10 +10,8 @@ import {
 } from '../services/MAGClasses.service';
 import { DatePipe } from '@angular/common';
 import { EventEmitterService } from './EventEmitter.service';
-import { MAGBrowserHistoryService } from './MAGBrowserHistory.service';
 import { MAGTopicsService } from './MAGTopics.service';
-import { MAGAdvancedService } from './magAdvanced.service';
-import { GreaterOrEqualToFilterOperatorComponent } from '@progress/kendo-angular-grid';
+import { SetAttribute } from './ReviewSets.service';
 
 
 @Injectable({
@@ -30,8 +28,7 @@ export class MAGBrowserService extends BusyAwareService {
         private _eventEmitterService: EventEmitterService,
         private _magTopicsService: MAGTopicsService,
         private modalService: ModalService,
-        private datePipe: DatePipe,
-        private _mAGBrowserHistoryService: MAGBrowserHistoryService
+        private datePipe: DatePipe
     ) {
         super();
     }
@@ -439,6 +436,55 @@ export class MAGBrowserService extends BusyAwareService {
     public FetchCitedFirstPage() {
         this._CitedCriteria.pageNumber = 0;
         this.FetchCitedByList();
+    }
+
+    public async GetMatchedMagIncludedList(): Promise<boolean> {
+
+        this._magTopicsService.ShowingParentAndChildTopics = false;
+        this._magTopicsService.ShowingChildTopicsOnly = true;
+
+        let criteria: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
+        criteria.listType = "ReviewMatchedPapers";
+        criteria.included = "Included";
+        criteria.pageSize = 20;
+
+        let res = await this.GetMagOrigList(criteria);
+        return res;
+    }
+    public async GetMatchedMagExcludedList(): Promise<boolean> {
+        this._magTopicsService.ShowingParentAndChildTopics = false;
+        this._magTopicsService.ShowingChildTopicsOnly = true;
+
+        let criteria: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
+        criteria.listType = "ReviewMatchedPapers";
+        criteria.included = "Excluded";
+        criteria.pageSize = 20;
+
+        let res = await this.GetMagOrigList(criteria);
+        return res;
+    }
+    public async GetMatchedMagAllList(): Promise<boolean>{
+        this._magTopicsService.ShowingParentAndChildTopics = false;
+        this._magTopicsService.ShowingChildTopicsOnly = true;
+        
+        let criteria: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
+        criteria.listType = "ReviewMatchedPapers";
+        criteria.included = "all";
+        criteria.pageSize = 20;
+
+        let res = await this.GetMagOrigList(criteria);
+        return res;
+    }
+
+    public async GetMatchedMagWithCodeList(att: SetAttribute): Promise<boolean> {
+        this._magTopicsService.ShowingParentAndChildTopics = false;
+        this._magTopicsService.ShowingChildTopicsOnly = true;
+        let criteria: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
+        criteria.listType = "ReviewMatchedPapersWithThisCode";
+        criteria.attributeIds = att.attribute_id.toString();
+        criteria.pageSize = 20;
+        let res = await this.GetMagOrigList(criteria);
+        return res;
     }
 
     public ImportMagRelatedSelectedPapers(selectedPapers: MagPaper[]): Promise<MagItemPaperInsertCommand | void> {

@@ -83,7 +83,7 @@ namespace BusinessLibrary.BusinessClasses
         {
 #if (CSLA_NETCORE)
 
-            var configuration = ERxWebClient2.Startup.Configuration.GetSection("AzureContReviewSettings");
+            var configuration = ERxWebClient2.Startup.Configuration.GetSection("AppSettings");
 
 #else
             var configuration = ConfigurationManager.AppSettings;

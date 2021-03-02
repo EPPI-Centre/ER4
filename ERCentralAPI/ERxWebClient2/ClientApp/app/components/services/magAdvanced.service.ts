@@ -111,39 +111,39 @@ export class MAGAdvancedService extends BusyAwareService {
                     return error;
                 });
     }
-    public FetchMagPaperListMagPaper(crit: MVCMagPaperListSelectionCriteria): Promise<MagList> {
-        this._BusyMethods.push("FetchMagPaperListMagPaper");
-        return this._httpC.post<MagList>(this._baseUrl + 'api/MagPaperList/GetMagPaperList', crit)
-            .toPromise().then(
+    //public FetchMagPaperListMagPaper(crit: MVCMagPaperListSelectionCriteria): Promise<MagList> {
+    //    this._BusyMethods.push("FetchMagPaperListMagPaper");
+    //    return this._httpC.post<MagList>(this._baseUrl + 'api/MagPaperList/GetMagPaperList', crit)
+    //        .toPromise().then(
 
-                (result: MagList) => {
+    //            (result: MagList) => {
 
-                    this.RemoveBusy("FetchMagPaperListMagPaper");
+    //                this.RemoveBusy("FetchMagPaperListMagPaper");
 
-                    if (crit.listType == 'ReviewMatchedPapers' || crit.listType == 'ReviewMatchedPapersWithThisCode') {
-                        this.ReviewMatchedPapersList = result.papers;
-                        for (var i = 0; i < this.ReviewMatchedPapersList.length; i++) {
-                            this.PaperIds += this.ReviewMatchedPapersList[i].paperId.toString() + ',';
-                        }
-                        this.PaperIds = this.PaperIds.substr(0, this.PaperIds.length - 1)
-                        this.CurrentCriteria = crit;
+    //                if (crit.listType == 'ReviewMatchedPapers' || crit.listType == 'ReviewMatchedPapersWithThisCode') {
+    //                    this.ReviewMatchedPapersList = result.papers;
+    //                    for (var i = 0; i < this.ReviewMatchedPapersList.length; i++) {
+    //                        this.PaperIds += this.ReviewMatchedPapersList[i].paperId.toString() + ',';
+    //                    }
+    //                    this.PaperIds = this.PaperIds.substr(0, this.PaperIds.length - 1)
+    //                    this.CurrentCriteria = crit;
 
-                    } 
-                    return result.papers;
-                },
-                error => {
-                    this.RemoveBusy("FetchMagPaperListMagPaper");
-                    this.modalService.GenericError(error);
-                    return error;
-                }
-            ).catch(
-                (error) => {
+    //                } 
+    //                return result.papers;
+    //            },
+    //            error => {
+    //                this.RemoveBusy("FetchMagPaperListMagPaper");
+    //                this.modalService.GenericError(error);
+    //                return error;
+    //            }
+    //        ).catch(
+    //            (error) => {
 
-                    this.modalService.GenericErrorMessage("error with FetchMagPaperListMagPaper");
-                    this.RemoveBusy("FetchMagPaperListMagPaper");
-                    return error;
-                });
-    }
+    //                this.modalService.GenericErrorMessage("error with FetchMagPaperListMagPaper");
+    //                this.RemoveBusy("FetchMagPaperListMagPaper");
+    //                return error;
+    //            });
+    //}
     
     //try making below async await
     //public async PostFetchCitationsList(result: MagPaper): Promise<boolean> {

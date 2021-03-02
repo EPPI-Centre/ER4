@@ -40,11 +40,15 @@ export class MAGHeaderBar2Comp implements OnInit {
     //@Input() Context: string | undefined;
     public Context: string = "RelatedPapers";
     @Output() PleaseGoTo = new EventEmitter<string>();
+    //@Output() BackHome = new EventEmitter<string>(); 
     public get HasWriteRights(): boolean {
         return this._ReviewerIdentityServ.HasWriteRights;
     }
     public get isSiteAdmin(): boolean {
         return this._ReviewerIdentityServ.reviewerIdentity.isSiteAdmin;
+    }
+    BackHome() {
+        this.router.navigate(['Main']);
     }
     //public ShowSelectedPapers: string = "Selected (" + this._magBrowserService.SelectedPaperIds.length.toString() + ")";
     public  get SelectedItems() : boolean {
@@ -61,12 +65,22 @@ export class MAGHeaderBar2Comp implements OnInit {
         else if (this.Context == destination) return true;
         else return false;
     }
-    public Forward() {
-        
+    public get CanGoForward(): boolean {
+        if (this._mAGBrowserHistoryService.currentBrowsePosition < this._mAGBrowserHistoryService._MAGBrowserHistoryList.length - 1) return true;
+        else return false;
+    }
+    public get CanGoBackwards(): boolean {
+        if (this._mAGBrowserHistoryService.currentBrowsePosition > 0) return true;
+        else return false;
+    }
+    public async Forward() {
+        let res = await this._mAGBrowserHistoryService.NavigateToThisPoint(this._mAGBrowserHistoryService.currentBrowsePosition + 1);
+        if (res != "") this.PleaseGoTo.emit(res);
         //this._location.forward();
     }
-    public Back() {
-        
+    public async Back() {
+        let res = await this._mAGBrowserHistoryService.NavigateToThisPoint(this._mAGBrowserHistoryService.currentBrowsePosition - 1);
+        if (res != "") this.PleaseGoTo.emit(res);
         //this._location.back();
     }
     
@@ -137,122 +151,7 @@ export class MAGHeaderBar2Comp implements OnInit {
        
     }
 
-    //public async RefreshLists(SelectedPaperIds: number[]) {
-
-    //    if (this._magBrowserService.currentRefreshListType == 'MagRelatedPapersRunList') {
-
-    //        console.log('MagRelatedPapersRunList');
-    //        let item: MagRelatedPapersRun = this._magBrowserService.currentMagRelatedRun;
-    //        if (item.magRelatedRunId > 0) {
-
-    //            this._magBrowserService.currentRefreshListType = 'MagRelatedPapersRunList';
-    //              this._magBrowserService.MagCitationsByPaperList.papers = [];
-    //            this._magBrowserService.MAGOriginalList.papers = [];
-    //            this._magBrowserService.currentListType = "MagRelatedPapersRunList";
-    //            this._magTopicsService.ShowingChildTopicsOnly = false;
-    //            this._magTopicsService.ShowingChildTopicsOnly = true;
-    //            this._mAGBrowserHistoryService.AddHistory(new MagBrowseHistoryItem("Papers identified from auto-identification run", "MagRelatedPapersRunList", 0,
-    //                "", "", 0, "", "", 0, "", "", item.magRelatedRunId));
-    //            this._magBrowserService.FetchMAGRelatedPaperRunsListById(item.magRelatedRunId)
-    //                .then(
-    //                    () => {
-    //                        //this.router.navigate(['MAGBrowser']);
-    //                        this.Context = "MagRelatedPapersRunList";
-    //                        this.PleaseGoTo.emit(this.Context);
-    //                    }
-    //                );
-    //        }
-
-    //    } else if (this._magBrowserService.currentRefreshListType == 'MagSearchResultsList') {
-
-
-    //        let itemSearch: MagSearch = this._magBrowserService.currentMagSearch;
-    //        if (itemSearch.magSearchId > 0) {
-    //            console.log('MagSearchResultsList');
-    //            this._magBrowserService.currentMagSearch = itemSearch;
-    //            this._magBrowserService.MagCitationsByPaperList.papers = [];
-    //            this._magBrowserService.MAGOriginalList.papers = [];
-    //            this._magBrowserService.currentRefreshListType = 'MagSearchResultsList';
-    //            this._magBrowserService.currentListType = "MagSearchResultsList";
-    //            this._magTopicsService.ShowingChildTopicsOnly = false;
-    //            this._magTopicsService.ShowingChildTopicsOnly = true;
-    //            this._mAGBrowserHistoryService.AddHistory(new MagBrowseHistoryItem("Papers identified from Mag Search run", "MagSearchPapersList", 0,
-    //                "", "", 0, "", "", 0, "", "", itemSearch.magSearchId));
-    //            let selectionCriteria: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
-    //            selectionCriteria.pageSize = 20;
-    //            selectionCriteria.pageNumber = 0;
-    //            selectionCriteria.listType = "MagSearchResultsList";
-    //            selectionCriteria.magSearchText = itemSearch.magSearchText;
-    //            let res = await this._magBrowserService.FetchMagPapersFromSearch(selectionCriteria, "MagSearchResultsList")
-    //                //.then(
-    //                //    () => {
-    //                //        //this.router.navigate(['MAGBrowser']);
-    //                //        this.Context = "MagSearchPapersList";
-    //                //        this.PleaseGoTo.emit(this.Context);
-    //                //    }
-    //                //);
-    //            if (res == true) {
-    //                //this.router.navigate(['MAGBrowser']);
-    //                this.Context = "MagSearchPapersList";
-    //                this.PleaseGoTo.emit(this.Context);
-    //            }
-    //        }
-
-    //    } else if (this._magBrowserService.currentRefreshListType == 'GetMagPaperRef') {
-
-
-    //        let magPaperRefId: number = this._magBrowserService.currentPaper.paperId;
-    //        if (magPaperRefId > 0) {
-    //            console.log('GetMagPaperRef');
-    //            this._magTopicsService.ShowingChildTopicsOnly = false;
-    //            this._magTopicsService.ShowingChildTopicsOnly = true;
-    //            this._magAdvancedService.FetchMagPaperId(magPaperRefId).then(
-    //                (result: MagPaper) => {
-
-    //                    this._mAGBrowserHistoryService.AddHistory(new MagBrowseHistoryItem("Browse paper: " + result.fullRecord, "PaperDetail",
-    //                        result.paperId, result.fullRecord,
-    //                        result.abstract, result.linkedITEM_ID, result.allLinks, result.findOnWeb, 0, "", "", 0));
-    //                    this._magAdvancedService.PostFetchMagPaperCalls(result, "CitationsList");
-    //                    this.Context = "PaperDetail";
-    //                    this.PleaseGoTo.emit(this.Context);
-    //                });
-    //        }          
-
-    //    } else if (this._magBrowserService.currentRefreshListType == 'PaperFieldsOfStudyList') {
-
-    //        let item: MagFieldOfStudy = this._magBrowserService.currentTopicSearch;
-    //        if (item.fieldOfStudyId > 0) {
-    //            console.log('PaperFieldsOfStudyList');
-    //            this._magBrowserService.currentRefreshListType = 'PaperFieldsOfStudyList';
-    //            this._eventEmitterService.firstVisitMAGBrowserPage = false;
-    //            this._magBrowserService.OrigListCriteria.listType = "PaperFieldsOfStudyList";
-    //            this._magTopicsService.ShowingChildTopicsOnly = true;
-    //            this._magTopicsService.ShowingChildTopicsOnly = false;
-    //            this._mAGBrowserHistoryService.AddHistory(new MagBrowseHistoryItem("Browse topic: " +
-    //                item.displayName, "BrowseTopic", 0, "", "", 0, "", "",
-    //                item.fieldOfStudyId, item.displayName, "", 0));
-    //            this._magBrowserService.currentFieldOfStudy = item;
-    //            let FieldOfStudyId: number = item.fieldOfStudyId;
-    //            this._magBrowserService.ParentTopic = item.displayName;
-    //            this._magBrowserService.WPChildTopics = [];
-    //            this._magBrowserService.WPParentTopics = [];
-
-    //            this._magBrowserService.currentMagPaper = new MagPaper();
-    //            this._magBrowserService.MagCitationsByPaperList = new MagList();
-    //            this._magBrowserService.GetParentAndChildFieldsOfStudy("FieldOfStudyParentsList", FieldOfStudyId).then(
-    //                () => {
-    //                    this._magBrowserService.GetParentAndChildFieldsOfStudy("FieldOfStudyChildrenList", FieldOfStudyId).then(
-    //                        () => {
-    //                            this._eventEmitterService.firstVisitMAGBrowserPage = false;
-    //                            this._magBrowserService.GetPaperListForTopic(FieldOfStudyId);
-    //                        });
-    //                });
-
-    //        }
-    //    }        
-    //    this._magBrowserService.SelectedPaperIds = [];
-    //    this._magBrowserService.selectedPapers = [];
-    //}
+    
 
     
     public MagSearch() {

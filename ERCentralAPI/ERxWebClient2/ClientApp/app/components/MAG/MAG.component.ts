@@ -28,6 +28,7 @@ export class MAGComp implements OnInit, OnDestroy {
         private ReviewerIdentityService: ReviewerIdentityService,
         private _notificationService: NotificationService,
         private _eventEmitterService: EventEmitterService,
+        private MAGBrowserHistoryService: MAGBrowserHistoryService,
         private _confirmationDialogService: ConfirmationDialogService,
         private _mAGBrowserHistoryService: MAGBrowserHistoryService,
         private _magTopicsService: MAGTopicsService
@@ -37,16 +38,34 @@ export class MAGComp implements OnInit, OnDestroy {
 
     ngOnInit() {
         this.subItemIDinPath = this.route.params.subscribe(params => {
+            console.log("subItemIDinPath sub triggrered");
             let idTxt = params['paperId'];
             if (idTxt != undefined) {
+                //we are coming here, trying to fetch a specific PaperId
                 let id = Helpers.SafeParseInt(idTxt);
                 if (id !== null) {
                     this.MAGBrowserService.GetCompleteMagPaperById(id).then((res) => {
-                        if (res == true) this.ChangeContext("PaperDetail");
+                        if (res == true) {
+                            const p = this.MAGBrowserService.currentMagPaper;
+                            this._mAGBrowserHistoryService.AddHistory(new MagBrowseHistoryItem("Browse paper: " + p.paperId.toString(), "PaperDetail",
+                                p.paperId, p.fullRecord,
+                                p.abstract, p.linkedITEM_ID, p.allLinks, p.findOnWeb, 0, "", "", 0));
+                            this.MAGBrowserService.ParentTopic = "GoDirectlyToPaperDetails"; //used when we change path!
+                            this.router.navigate(['MAG']);//we go back to the normal path, so to make things look "normal"
+                            //the "else if" below is triggered when we re-reach this path.
+                        }
                     });
                 }
-                //console.log('coding full sajdhfkjasfdh: ' + this.itemID);
+                
+            } else if (this.MAGBrowserService.ParentTopic == "GoDirectlyToPaperDetails") {
+                this.MAGBrowserService.ParentTopic = "";
+                this.ChangeContext("PaperDetail");
             }
+            else {
+                this.MAGBrowserHistoryService.AddHistory(
+                    new MagBrowseHistoryItem("Manage review updates / find related papers", "RelatedPapers", 0, "", "", 0, "", "", 0, "", "", 0));
+            }
+            if (this.subItemIDinPath) this.subItemIDinPath.unsubscribe();//no need to keep listening!
         });
     
     }

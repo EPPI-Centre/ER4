@@ -40,7 +40,7 @@ export class AdvancedMAGFeaturesComponent implements OnInit, OnDestroy {
 
         //this.history = this._routingStateService.getHistory();
     }
-    private subsc: Subscription = new Subscription();
+
     public basicMAGPanel: boolean = false;
     public basicSeedPanel: boolean = false;
 
@@ -66,13 +66,11 @@ export class AdvancedMAGFeaturesComponent implements OnInit, OnDestroy {
             this.GetMagReviewMagInfoCommand();
             this.GetMagSimulationList();
             this.GetClassifierContactModelList();
-            this._mAGBrowserHistoryService.AddHistory(new MagBrowseHistoryItem("Advanced", "Advanced", 0,
-                "", "", 0, "", "", 0, "", "", 0));
+            //this._mAGBrowserHistoryService.AddHistory(new MagBrowseHistoryItem("Simulations", "Advanced", 0,
+            //    "", "", 0, "", "", 0, "", "", 0));
         }
     }
     ngOnDestroy() {
-
-        this.subsc.unsubscribe();
 
     }
     @ViewChild('WithOrWithoutCodeSelector3') WithOrWithoutCodeSelector3!: codesetSelectorComponent;

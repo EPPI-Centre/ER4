@@ -203,8 +203,8 @@ export class MAGSearchComponent implements OnInit {
             this._magBrowserService.GetMagItemsForSearch(item)            
                 .then(
                     () => {
-                        this._mAGBrowserHistoryService.AddHistory(new MagBrowseHistoryItem("Papers identified from Mag Search run", "MagSearchPapersList", 0,
-                            "", "", 0, "", "", 0, "", "", item.magSearchId));
+                        this._mAGBrowserHistoryService.AddHistory(new MagBrowseHistoryItem("Papers List from search #: " + item.searchNo.toString(), "MagSearchPapersList", item.magSearchId,
+                            item.magSearchText, "", 0, "", "", 0, "", "", 0));
                         this.PleaseGoTo.emit("MagSearchPapersList");
                         //this.router.navigate(['MAGBrowser']);
                     }

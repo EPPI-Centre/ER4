@@ -101,6 +101,33 @@ export class MAGBrowser implements OnInit, OnDestroy {
         //);
     }
 
+    public get ListType(): string {
+        if (this._magBrowserService.OrigCriteria.listType == "") return "Unknown";
+        else if (this._magBrowserService.OrigCriteria.listType == "ReviewMatchedPapers") {
+            if (this._magBrowserService.OrigCriteria.included == "Included") return "Matched records, included";
+            else if (this._magBrowserService.OrigCriteria.included == "Excluded") return "Matched records, excluded";
+            else if (this._magBrowserService.OrigCriteria.included == "all") return "All matched records";
+            return "Unknown";
+        }
+        else if (this._magBrowserService.OrigCriteria.listType == "MagRelatedPapersRunList") {
+            return "Related Items Search (Id:" + this._magBrowserService.OrigCriteria.magRelatedRunId.toString() + ")";
+        }
+        else if (this._magBrowserService.OrigCriteria.listType == "MagAutoUpdateRunPapersList") {
+            return "Auto update results (Id " + this._magBrowserService.OrigCriteria.magAutoUpdateRunId.toString() + ", top "
+                + this._magBrowserService.OrigCriteria.autoUpdateUserTopN.toString() + " papers) ";
+        }
+        else if (this._magBrowserService.OrigCriteria.listType == "ReviewMatchedPapersWithThisCode") {
+            return "Matched records, with specific code (Id: " + this._magBrowserService.OrigCriteria.attributeIds.toString() + ")";
+        }
+        else if (this._magBrowserService.OrigCriteria.listType == "PaperFieldsOfStudyList") {
+            return "Specific topic (Id: " + this._magBrowserService.OrigCriteria.fieldOfStudyId.toString() + ")";
+        }
+        else if (this._magBrowserService.OrigCriteria.listType == "MagSearchResultsList") {
+            return "Search Results";
+        }
+        return "Unknown"; 
+    }
+
     public AddCurrentPaperToSelectedList() {
 
         this._magBrowserService.currentMagPaper.isSelected = false; 
@@ -226,7 +253,7 @@ export class MAGBrowser implements OnInit, OnDestroy {
             (result: boolean) => {
                 if (result == true) {
                     const p = this._magBrowserService.currentMagPaper;
-                    this._mAGBrowserHistoryService.AddHistory(new MagBrowseHistoryItem("Browse paper: " + p.fullRecord, "PaperDetail",
+                    this._mAGBrowserHistoryService.AddHistory(new MagBrowseHistoryItem("Browse paper: " + p.paperId.toString(), "PaperDetail",
                         p.paperId, p.fullRecord,
                         p.abstract, p.linkedITEM_ID, p.allLinks, p.findOnWeb, 0, "", "", 0));
                 }

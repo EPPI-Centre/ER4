@@ -190,8 +190,8 @@ export class MAGSearchDetailsComponent implements OnInit {
         if (item.magSearchId > 0) {
             this._magTopicsService.ShowingParentAndChildTopics = false;
             this._magTopicsService.ShowingChildTopicsOnly = true;
-            this._mAGBrowserHistoryService.AddHistory(new MagBrowseHistoryItem("Papers identified from Mag Search run", "MagSearchPapersList", 0,
-                "", "", 0, "", "", 0, "", "", item.magSearchId));
+            this._mAGBrowserHistoryService.AddHistory(new MagBrowseHistoryItem("Papers List from search #: " + item.searchNo.toString(), "MagSearchPapersList", item.magSearchId,
+                item.magSearchText, "", 0, "", "", 0, "", "", 0));
             let selectionCriteria: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
             selectionCriteria.pageSize = 20;
             selectionCriteria.pageNumber = 0;

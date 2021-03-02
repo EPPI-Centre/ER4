@@ -239,57 +239,27 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
             this.GetMatchedMagWithCodeList();
         }
     }
-    public GetMatchedMagIncludedList(): void {
-
-        this._magTopicsService.ShowingParentAndChildTopics = false;
-        this._magTopicsService.ShowingChildTopicsOnly = true;
-        
-        let criteria: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
-        criteria.listType = "ReviewMatchedPapers";
-        criteria.included = "Included";
-        criteria.pageSize = 20;
-        this._magBrowserService.GetMagOrigList(criteria).then(
-            (res: boolean) => {
-                if (res == true) {
-                    this._mAGBrowserHistoryService.AddHistory(new MagBrowseHistoryItem("List of all included matches", "MatchesIncluded", 0, "", "", 0, "", "", 0, "", "", 0));
-                    this.PleaseGoTo.emit("MatchesIncluded");
-                }
-            });
+    public async GetMatchedMagIncludedList() {
+        let res = await this._magBrowserService.GetMatchedMagIncludedList();
+        if (res == true) {
+            this._mAGBrowserHistoryService.AddHistory(new MagBrowseHistoryItem("List all included matches", "MatchesIncluded", 0, "", "", 0, "", "", 0, "", "", 0));
+            this.PleaseGoTo.emit("MatchesIncluded");
+        }
     }
-    public GetMatchedMagExcludedList() {
-        this._magTopicsService.ShowingParentAndChildTopics = false;
-        this._magTopicsService.ShowingChildTopicsOnly = true;
-        
-        let criteria: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
-        criteria.listType = "ReviewMatchedPapers";
-        criteria.included = "Excluded";
-        criteria.pageSize = 20;
-        this._magBrowserService.GetMagOrigList(criteria).then(
-            (res: boolean) => {
-                if (res == true) {
-                    this._mAGBrowserHistoryService.AddHistory(new MagBrowseHistoryItem("List of all excluded matches", "MatchesExcluded", 0, "", "", 0, "", "", 0, "", "", 0));
-                    this.PleaseGoTo.emit("MatchesExcluded");
-                }
-            });
+    public async GetMatchedMagExcludedList() {
+        let res = await this._magBrowserService.GetMatchedMagExcludedList();
+        if (res == true) {
+            this._mAGBrowserHistoryService.AddHistory(new MagBrowseHistoryItem("List all excluded matches", "MatchesExcluded", 0, "", "", 0, "", "", 0, "", "", 0));
+            this.PleaseGoTo.emit("MatchesExcluded");
+        }
     }
-    public GetMatchedMagAllList() {
-        this._magTopicsService.ShowingParentAndChildTopics = false;
-        this._magTopicsService.ShowingChildTopicsOnly = true;
-        this._mAGBrowserHistoryService.AddHistory(new MagBrowseHistoryItem("List of all matches in review (included and excluded)", "MatchesIncludedAndExcluded",
-            0, "", "", 0, "", "", 0, "", "", 0));
-        let criteria: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
-        criteria.listType = "ReviewMatchedPapers";
-        criteria.included = "all";
-        criteria.pageSize = 20;
-
-        this._magBrowserService.GetMagOrigList(criteria).then(
-            (res: boolean) => {
-                if (res == true) {
-                    this._mAGBrowserHistoryService.AddHistory(new MagBrowseHistoryItem("List of all matches in review (included and excluded)", "MatchesIncludedAndExcluded",
-                        0, "", "", 0, "", "", 0, "", "", 0));
-                    this.PleaseGoTo.emit("MatchesIncludedAndExcluded");
-                }
-            });
+    public async GetMatchedMagAllList() {
+        let res = await this._magBrowserService.GetMatchedMagAllList();
+        if (res == true) {
+            this._mAGBrowserHistoryService.AddHistory(new MagBrowseHistoryItem("List of all matches in review (included and excluded)", "MatchesIncludedAndExcluded",
+                0, "", "", 0, "", "", 0, "", "", 0));
+            this.PleaseGoTo.emit("MatchesIncludedAndExcluded");
+        }
     }
     public CanGetCodeMatches(): boolean {
         if (this.CurrentDropdownSelectedCode2 != null) {
@@ -298,24 +268,19 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
             return false;
         }
     }
-    public GetMatchedMagWithCodeList() {
-        if (this.CurrentDropdownSelectedCode2 != null) {
-            this._magTopicsService.ShowingParentAndChildTopics = false;
-            this._magTopicsService.ShowingChildTopicsOnly = true;
-            let criteria: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
-            criteria.listType = "ReviewMatchedPapersWithThisCode";
-            var att = this.CurrentDropdownSelectedCode2 as SetAttribute;
-            criteria.attributeIds = att.attribute_id.toString();
-            criteria.pageSize = 20;
-            this._mAGBrowserHistoryService.AddHistory(new MagBrowseHistoryItem("List of all item matches with this code", "ReviewMatchedPapersWithThisCode", 0,
-                "", "", 0, "", "", 0, "", criteria.attributeIds, 0));
+    public async GetMatchedMagWithCodeList() {
+        if (this.CurrentDropdownSelectedCode2 != null && this.CurrentDropdownSelectedCode2.nodeType == "SetAttribute") {
+            let att = this.CurrentDropdownSelectedCode2 as SetAttribute;
+            let res: boolean = await this._magBrowserService.GetMatchedMagWithCodeList(att);
 
-            this._magAdvancedService.FetchMagPaperListMagPaper(criteria).then(
-                () => {
-                    this.PleaseGoTo.emit("ReviewMatchedPapersWithThisCode");
-                    //this.router.navigate(['MAGBrowser']);
-                }
-            );
+            if (res == true) {
+                this._mAGBrowserHistoryService.AddHistory(new MagBrowseHistoryItem("List of all item matches with this code", "ReviewMatchedPapersWithThisCode", 0,
+                    "", "", 0, "", "", 0, "", att.attribute_id.toString(), 0));
+                this.PleaseGoTo.emit("ReviewMatchedPapersWithThisCode");
+            }
+
+
+            
         }
     }
     public CanGetMagPaper(): boolean {
