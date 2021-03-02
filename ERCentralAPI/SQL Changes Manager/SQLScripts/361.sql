@@ -3,29 +3,41 @@
 IF COL_LENGTH('dbo.TB_MAG_CURRENT_INFO', 'MAG_FOLDER') IS NULL
 BEGIN
 
-BEGIN TRANSACTION
-SET QUOTED_IDENTIFIER ON
-SET ARITHABORT ON
-SET NUMERIC_ROUNDABORT OFF
-SET CONCAT_NULL_YIELDS_NULL ON
-SET ANSI_NULLS ON
-SET ANSI_PADDING ON
-SET ANSI_WARNINGS ON
-COMMIT
-BEGIN TRANSACTION
+	BEGIN TRANSACTION
+	SET QUOTED_IDENTIFIER ON
+	SET ARITHABORT ON
+	SET NUMERIC_ROUNDABORT OFF
+	SET CONCAT_NULL_YIELDS_NULL ON
+	SET ANSI_NULLS ON
+	SET ANSI_PADDING ON
+	SET ANSI_WARNINGS ON
+	COMMIT
+	BEGIN TRANSACTION
 
-ALTER TABLE dbo.TB_MAG_CURRENT_INFO ADD
-	MAG_FOLDER nvarchar(15) NULL
-ALTER TABLE dbo.TB_MAG_CURRENT_INFO SET (LOCK_ESCALATION = TABLE)
-COMMIT
-
-UPDATE TB_MAG_CURRENT_INFO
-	SET MAG_FOLDER = 
-			concat('mag-'
-,	DATEPART(year,convert(datetime, mag_version, 103)),'-'
-,	right('0'+right(datepart(month,convert(datetime, mag_version, 103)),2),2),'-'
-,	right('0'+right(datepart(day,convert(datetime, mag_version, 103)),2),2))
+	ALTER TABLE dbo.TB_MAG_CURRENT_INFO ADD
+		MAG_FOLDER nvarchar(15) NULL
+	ALTER TABLE dbo.TB_MAG_CURRENT_INFO SET (LOCK_ESCALATION = TABLE)
+	COMMIT
 end
+GO
+
+declare @chk bit = 0, @trows int = 0
+select @trows = (select count(*) from TB_MAG_CURRENT_INFO)
+set @chk = (select case when (count(*) = @trows) then 1
+			else 0
+			end
+			from TB_MAG_CURRENT_INFO i where MAG_FOLDER is null
+			)
+if @chk = 1
+begin 
+
+	UPDATE TB_MAG_CURRENT_INFO
+		SET MAG_FOLDER = 
+				concat('mag-'
+				,	DATEPART(year,convert(datetime, mag_version, 103)),'-'
+				,	right('0'+right(datepart(month,convert(datetime, mag_version, 103)),2),2),'-'
+				,	right('0'+right(datepart(day,convert(datetime, mag_version, 103)),2),2))
+END
 GO
 USE [Reviewer]
 GO
@@ -95,27 +107,40 @@ go
 IF COL_LENGTH('dbo.TB_MAG_SEARCH', 'MAG_FOLDER') IS NULL
 BEGIN
 
-BEGIN TRANSACTION
-SET QUOTED_IDENTIFIER ON
-SET ARITHABORT ON
-SET NUMERIC_ROUNDABORT OFF
-SET CONCAT_NULL_YIELDS_NULL ON
-SET ANSI_NULLS ON
-SET ANSI_PADDING ON
-SET ANSI_WARNINGS ON
-COMMIT
-BEGIN TRANSACTION
+	BEGIN TRANSACTION
+	SET QUOTED_IDENTIFIER ON
+	SET ARITHABORT ON
+	SET NUMERIC_ROUNDABORT OFF
+	SET CONCAT_NULL_YIELDS_NULL ON
+	SET ANSI_NULLS ON
+	SET ANSI_PADDING ON
+	SET ANSI_WARNINGS ON
+	COMMIT
+	BEGIN TRANSACTION
 
-ALTER TABLE dbo.TB_MAG_SEARCH ADD
-	MAG_FOLDER nvarchar(15) NULL
-ALTER TABLE dbo.TB_MAG_SEARCH SET (LOCK_ESCALATION = TABLE)
+	ALTER TABLE dbo.TB_MAG_SEARCH ADD
+		MAG_FOLDER nvarchar(15) NULL
+	ALTER TABLE dbo.TB_MAG_SEARCH SET (LOCK_ESCALATION = TABLE)
 COMMIT
-UPDATE TB_MAG_SEARCH
-	SET MAG_FOLDER = 
-			concat('mag-'
-,	DATEPART(year,convert(datetime, mag_version, 103)),'-'
-,	right('0'+right(datepart(month,convert(datetime, mag_version, 103)),2),2),'-'
-,	right('0'+right(datepart(day,convert(datetime, mag_version, 103)),2),2))
+END
+GO
+
+declare @chk bit = 0, @trows int = 0
+select @trows = (select count(*) from TB_MAG_SEARCH)
+set @chk = (select case when (count(*) = @trows) then 1
+			else 0
+			end
+			from TB_MAG_SEARCH where MAG_FOLDER is null
+			)
+if @chk = 1
+begin 
+
+	UPDATE TB_MAG_SEARCH
+		SET MAG_FOLDER = 
+				concat('mag-'
+						,	DATEPART(year,convert(datetime, mag_version, 103)),'-'
+						,	right('0'+right(datepart(month,convert(datetime, mag_version, 103)),2),2),'-'
+						,	right('0'+right(datepart(day,convert(datetime, mag_version, 103)),2),2))
 
 end
 GO
@@ -229,3 +254,27 @@ BEGIN
 	
 END
 GO
+-- =============================================
+-- Author:		James
+-- Create date: 12/07/2019
+-- Description:	Get recent MAG items without abstracts (to see if we can find them now)
+-- =============================================
+CREATE OR ALTER   PROCEDURE [dbo].[st_MagGetItemsWithMissingAbstracts] 
+	-- Add the parameters for the stored procedure here
+
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+	select imm.ITEM_ID, imm.PaperId, imm.REVIEW_ID from tb_ITEM_MAG_MATCH imm
+		inner join TB_MAG_NEW_PAPERS np on np.PaperId = imm.PaperId
+		inner join TB_ITEM_REVIEW ir on ir.ITEM_ID = imm.ITEM_ID and ir.IS_DELETED = 'false'
+		inner join TB_ITEM i on i.ITEM_ID = imm.ITEM_ID and (i.ABSTRACT is null or i.ABSTRACT = '')
+		where np.MagVersion in
+			(select top(4) mag_folder from TB_MAG_CURRENT_INFO order by MAG_CURRENT_INFO_ID desc) and
+			imm.AutoMatchScore > 0.95
+
+END
+go

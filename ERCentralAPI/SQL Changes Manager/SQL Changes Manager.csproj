@@ -401,7 +401,7 @@
 	  <None Update="SQLScripts\350.sql">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </None>
-	  <None Update="SQLScripts\352.sql">
+	  <None Update="SQLScripts\361.sql">
 	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </None>
 	  <None Update="SQLScripts\354.sql">
