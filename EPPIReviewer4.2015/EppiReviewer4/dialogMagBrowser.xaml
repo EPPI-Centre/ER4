@@ -1545,21 +1545,21 @@
 
                                 <Grid x:Name="RHSGrid" Grid.Column="2">
                                     <Grid.RowDefinitions>
-                                        <RowDefinition Height="35"></RowDefinition>
+                                        <RowDefinition Height="50"></RowDefinition>
                                         <RowDefinition Height="35"></RowDefinition>
                                         <RowDefinition Height="*"></RowDefinition>
                                         <RowDefinition Height="35"></RowDefinition>
                                         <RowDefinition Height="*"></RowDefinition>
                                     </Grid.RowDefinitions>
 
-                                    <StackPanel Grid.Row="0" Orientation="Horizontal">
+                                    <ToolkitRef:WrapPanel Grid.Row="0"  Orientation="Horizontal">
                                         <TextBlock Text="Processes to run on PENDING" Margin="5,5,5,5"></TextBlock>
-                                        <HyperlinkButton x:Name="LBCurrentInfoCreate" Content="Add new MAG to MAKES list" Click="LBCurrentInfoCreate_Click"  Foreground="Red" IsTabStop="False" Margin="0,9,5,5" Visibility="Collapsed"></HyperlinkButton>
-                                        <HyperlinkButton x:Name="LBDownloadNewPaperIds" Content="1. Download new PaperIds" Click="LBCreateParquetFiles_Click" IsTabStop="False" Margin="0,9,5,5" Tag="GetNewPaperIds"></HyperlinkButton>
-                                        <HyperlinkButton x:Name="LBGetMissingAbstracts" Content="2. Get missing abstracts for new MAG" Click="LBGetMissingAbstracts_Click" IsTabStop="False" Margin="5,9,5,5" Tag="Get abstracts that may not have been present when items first created"></HyperlinkButton>
-                                        <HyperlinkButton x:Name="LBCheckChangedPaperIds" Content="3. Identify ID changes BEFORE switching to new MAG" Click="CheckChangedPaperIds_Click" IsTabStop="False" Margin="0,9,5,5"></HyperlinkButton>
-                                        <HyperlinkButton x:Name="LBCreateParquetFiles" Content="4. Create parquet files for new MAG" Click="LBCreateParquetFiles_Click"  IsTabStop="False" Margin="5,9,5,5" Tag="Prepare parquet"></HyperlinkButton>
-                                    </StackPanel>
+                                        <HyperlinkButton x:Name="LBCurrentInfoCreate" Content="Add new MAG to MAKES list" Click="LBCurrentInfoCreate_Click"  Foreground="Red" IsTabStop="False" Margin="0,5,5,5" Visibility="Collapsed"></HyperlinkButton>
+                                        <HyperlinkButton x:Name="LBDownloadNewPaperIds" Content="1. Download new PaperIds" Click="LBCreateParquetFiles_Click" IsTabStop="False" Margin="0,5,5,5" Tag="GetNewPaperIds"></HyperlinkButton>
+                                        <HyperlinkButton x:Name="LBGetMissingAbstracts" Content="2. Get missing abstracts for new MAG" Click="LBGetMissingAbstracts_Click" IsTabStop="False" Margin="5,5,5,5" Tag="Get abstracts that may not have been present when items first created"></HyperlinkButton>
+                                        <HyperlinkButton x:Name="LBCheckChangedPaperIds" Content="3. Identify ID changes BEFORE switching to new MAG" Click="CheckChangedPaperIds_Click" IsTabStop="False" Margin="0,5,5,5"></HyperlinkButton>
+                                        <HyperlinkButton x:Name="LBCreateParquetFiles" Content="4. Create parquet files for new MAG" Click="LBCreateParquetFiles_Click"  IsTabStop="False" Margin="5,5,5,5" Tag="Prepare parquet"></HyperlinkButton>
+                                    </ToolkitRef:WrapPanel>
                                     <StackPanel Grid.Row="1" Orientation="Horizontal">
                                         <HyperlinkButton x:Name="LBRunContReviewPipeline" Content="Run contreview pipeline" Click="LBRunContReviewPipeline_Click" IsTabStop="False" VerticalAlignment="Center"></HyperlinkButton>
                                         <TextBlock Margin="5,5,5,5" Text="Score threshold:" VerticalAlignment="Center"></TextBlock>
