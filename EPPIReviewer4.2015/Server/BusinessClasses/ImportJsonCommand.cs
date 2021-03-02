@@ -418,29 +418,32 @@ namespace BusinessLibrary.BusinessClasses
         {
             int armIndex = 0;
             Dictionary<int, int> arms = new Dictionary<int, int>();
-            foreach (Code c in r.Codes)
+            if (r.Codes != null)
             {
-                if (c.ArmId != 0)
+                foreach (Code c in r.Codes)
                 {
-                    int ArmId = 0;
-                    if (arms.TryGetValue(c.ArmId, out ArmId))
+                    if (c.ArmId != 0)
                     {
-                        c.ArmId = ArmId;
-                    }
-                    else
-                    {
-                        using (SqlCommand command = new SqlCommand("st_ItemArmCreate", connection))
+                        int ArmId = 0;
+                        if (arms.TryGetValue(c.ArmId, out ArmId))
                         {
-                            command.CommandType = System.Data.CommandType.StoredProcedure;
-                            command.Parameters.Add(new SqlParameter("@ITEM_ID", r.ItemId));
-                            command.Parameters.Add(new SqlParameter("@ARM_NAME", c.ArmTitle));
-                            command.Parameters.Add(new SqlParameter("@ORDERING", armIndex));
-                            command.Parameters.Add(new SqlParameter("@NEW_ITEM_ARM_ID", 0));
-                            command.Parameters["@NEW_ITEM_ARM_ID"].Direction = System.Data.ParameterDirection.Output;
-                            command.ExecuteNonQuery();
-                            arms.Add(c.ArmId, Convert.ToInt32(command.Parameters["@NEW_ITEM_ARM_ID"].Value));
-                            c.ArmId = Convert.ToInt32(command.Parameters["@NEW_ITEM_ARM_ID"].Value);
-                            armIndex++;
+                            c.ArmId = ArmId;
+                        }
+                        else
+                        {
+                            using (SqlCommand command = new SqlCommand("st_ItemArmCreate", connection))
+                            {
+                                command.CommandType = System.Data.CommandType.StoredProcedure;
+                                command.Parameters.Add(new SqlParameter("@ITEM_ID", r.ItemId));
+                                command.Parameters.Add(new SqlParameter("@ARM_NAME", c.ArmTitle));
+                                command.Parameters.Add(new SqlParameter("@ORDERING", armIndex));
+                                command.Parameters.Add(new SqlParameter("@NEW_ITEM_ARM_ID", 0));
+                                command.Parameters["@NEW_ITEM_ARM_ID"].Direction = System.Data.ParameterDirection.Output;
+                                command.ExecuteNonQuery();
+                                arms.Add(c.ArmId, Convert.ToInt32(command.Parameters["@NEW_ITEM_ARM_ID"].Value));
+                                c.ArmId = Convert.ToInt32(command.Parameters["@NEW_ITEM_ARM_ID"].Value);
+                                armIndex++;
+                            }
                         }
                     }
                 }
@@ -475,9 +478,12 @@ namespace BusinessLibrary.BusinessClasses
                 } 
                 if (i != null)
                 {
-                    foreach (Code c in r.Codes)
+                    if (r.Codes != null)
                     {
-                        SaveAttribute(c, ReviewId, ContactId, r.ItemId);
+                        foreach (Code c in r.Codes)
+                        {
+                            SaveAttribute(c, ReviewId, ContactId, r.ItemId);
+                        }
                     }
                 }
             }
