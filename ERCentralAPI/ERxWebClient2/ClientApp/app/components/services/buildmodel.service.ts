@@ -126,6 +126,8 @@ export class ClassifierModel {
 	modelTitle: string = '';
 	attributeOn: string = '';
 	attributeNotOn: string = '';
+	attributeIdOn: number = -1;
+	attributeIdNotOn: number = -1;
 
 }
 
@@ -137,7 +139,6 @@ export class BuildModelCommand {
 	public _attributeIdClassifyTo: number = 0;
 	public _sourceId: number = 0;
 	public revInfo: ReviewInfo = new ReviewInfo();
-
 }
 
 export class MVCClassifierCommand {

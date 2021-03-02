@@ -280,7 +280,18 @@
             </kendo-grid-column>
             <kendo-grid-column field="recall" title="Recall">
             </kendo-grid-column>
+            <kendo-grid-column width="80" class="px-1 py-0 m-1"
+                               field="modelId" title="Rebuild">
+                <ng-template kendoGridCellTemplate let-dataItem>
+                    <div (click)="openRebuildConfirmationDialog(dataItem)" class="btn btn-link font-weight-bold">
+                        Rebuild
+                    </div>
+                </ng-template>
+            </kendo-grid-column>
         </kendo-grid>
+            <div class="col-md-6">
+                <button (click)="refreshModels()" class="btn btn-info p-2 m-2"> Refresh Models</button>
+            </div>
     </div>
     <div class="col-12 mt-2 mb-2 justify-content-center">
         <button (click)="openConfirmationDialog()" [disabled]="!CanApplyModel()"

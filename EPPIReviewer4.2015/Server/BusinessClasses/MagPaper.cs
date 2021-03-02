@@ -310,6 +310,15 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
+        public static readonly PropertyInfo<string> FieldsOfStudyProperty = RegisterProperty<string>(new PropertyInfo<string>("FieldsOfStudy", "FieldsOfStudy", string.Empty));
+        public string FieldsOfStudy
+        {
+            get
+            {
+                return GetProperty(FieldsOfStudyProperty);
+            }
+        }
+
         public static readonly PropertyInfo<string> PdfLinksProperty = RegisterProperty<string>(new PropertyInfo<string>("PdfLinks", "PdfLinks", string.Empty));
         public string PdfLinks
         {
@@ -632,7 +641,6 @@ namespace BusinessLibrary.BusinessClasses
         }
 
         
-        
 
         public static MagPaper GetMagPaperFromMakes(Int64 PaperId, SafeDataReader reader)
         {
@@ -697,7 +705,7 @@ namespace BusinessLibrary.BusinessClasses
             if (pm.RId != null)
             {
                 returnValue.LoadProperty<Int64>(ReferenceCountProperty, pm.RId.Count);
-                string r = "";
+                string r = ""; // not changing in case I break something, but this looks like r is never used?? (JT)
                 foreach (Int64 RId in pm.RId)
                 {
                     if (r == "")
@@ -707,7 +715,29 @@ namespace BusinessLibrary.BusinessClasses
                 }
             }
             else
+            {
                 returnValue.LoadProperty<Int64>(ReferenceCountProperty, 0);
+            }
+            if (pm.F != null)
+            {
+                string f = "";
+                foreach (MagMakesHelpers.PaperMakesFieldOfStudy fos in pm.F)
+                {
+                    if (f == "")
+                    {
+                        f = fos.FId.ToString();
+                    }
+                    else
+                    {
+                        f += "," + fos.FId.ToString();
+                    }
+                }
+                returnValue.LoadProperty<string>(FieldsOfStudyProperty, f);
+            }
+            else
+            {
+                returnValue.LoadProperty<string>(FieldsOfStudyProperty, "");
+            }
             returnValue.LoadProperty<Int64>(CitationCountProperty, pm.CC);
             returnValue.LoadProperty<int>(EstimatedCitationCountProperty, pm.ECC);
             if (pm.AA != null)

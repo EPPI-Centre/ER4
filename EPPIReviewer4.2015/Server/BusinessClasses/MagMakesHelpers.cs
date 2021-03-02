@@ -1,6 +1,7 @@
 ﻿using BusinessLibrary.Data;
 using BusinessLibrary.Security;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -490,7 +491,7 @@ namespace BusinessLibrary.BusinessClasses
             string responseText = "";
             MagCurrentInfo MagInfo = MagCurrentInfo.GetMagCurrentInfoServerSide(MakesDeploymentStatus);
             WebRequest request = WebRequest.Create(MagInfo.MakesEndPoint + query +
-                "&attributes=AA.AfId,AA.AuN,AA.DAfN,AA.DAuN,AA.AuId,CC,Id,DN,DOI,Pt,Ti,Y,D,PB,I,J.JN,J.JId,V,FP,LP,RId,ECC,IA,S,VFN" +
+                "&attributes=AA.AfId,AA.AuN,AA.DAfN,AA.DAuN,AA.AuId,CC,Id,DN,DOI,F.FId,Pt,Ti,Y,D,PB,I,J.JN,J.JId,V,FP,LP,RId,ECC,IA,S,VFN" +
                 appendPageInfo);
             WebResponse response = request.GetResponse();
             using (Stream dataStream = response.GetResponseStream())
@@ -608,7 +609,6 @@ namespace BusinessLibrary.BusinessClasses
 
         public static string ReconstructInvertedAbstract(PaperMakesInvertedAbstract ab)
         {
-
             if (ab == null) { return ""; }
             try
             {
@@ -617,6 +617,34 @@ namespace BusinessLibrary.BusinessClasses
                 int indexLength = ab.IndexLength;
                 //Dictionary<string, int[]> invertedIndex = j["InvertedIndex"].ToObject<Dictionary<string, int[]>>();
                 Dictionary<string, int[]> invertedIndex = ab.InvertedIndex;
+                string[] abstractStr = new string[indexLength];
+                foreach (var pair in invertedIndex)
+                {
+                    string word = pair.Key;
+                    foreach (var index in pair.Value)
+                    {
+                        abstractStr[index] = word;
+                    }
+                }
+                return String.Join(" ", abstractStr);
+            }
+            catch
+            {
+                return "";
+            }
+        }
+
+        public static string ReconstructInvertedAbstract(string ab)
+        {
+            if (ab == null) { return ""; }
+            try
+            {
+                var j = (JObject)JsonConvert.DeserializeObject(ab);
+                int indexLength = j["IndexLength"].ToObject<int>();
+
+                //int indexLength = ab.IndexLength;
+                //Dictionary<string, int[]> invertedIndex = j["InvertedIndex"].ToObject<Dictionary<string, int[]>>();
+                Dictionary<string, int[]> invertedIndex = j["InvertedIndex"].ToObject<Dictionary<string, int[]>>();
                 string[] abstractStr = new string[indexLength];
                 foreach (var pair in invertedIndex)
                 {

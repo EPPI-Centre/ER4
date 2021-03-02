@@ -490,6 +490,9 @@
     <Compile Include="..\Server\BusinessClasses\MagFieldOfStudyList.cs">
       <Link>BusinessClasses\MagFieldOfStudyList.cs</Link>
     </Compile>
+    <Compile Include="..\Server\BusinessClasses\MagImportFieldsOfStudyCommand.cs">
+      <Link>BusinessClasses\MagImportFieldsOfStudyCommand.cs</Link>
+    </Compile>
     <Compile Include="..\Server\BusinessClasses\MagItemPaperInsertCommand.cs">
       <Link>BusinessClasses\MagItemPaperInsertCommand.cs</Link>
     </Compile>
@@ -504,6 +507,9 @@
     </Compile>
     <Compile Include="..\Server\BusinessClasses\MagMatchItemToPaperManualCommand.cs">
       <Link>BusinessClasses\MagMatchItemToPaperManualCommand.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\MagNewPapersUpdateAbstractsCommand.cs">
+      <Link>BusinessClasses\MagNewPapersUpdateAbstractsCommand.cs</Link>
     </Compile>
     <Compile Include="..\Server\BusinessClasses\MagPaper.cs">
       <Link>BusinessClasses\MagPaper.cs</Link>

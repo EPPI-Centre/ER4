@@ -10,7 +10,7 @@ import { ReviewSetsService,  ReviewSet, singleNode, SetAttribute } from '../serv
 import { NotificationService } from '@progress/kendo-angular-notification';
 import { ClassifierService } from '../services/classifier.service';
 import {  ReviewInfoService, Contact } from '../services/ReviewInfo.service';
-import { BuildModelService } from '../services/buildmodel.service';
+import { BuildModelService, ClassifierModel } from '../services/buildmodel.service';
 import { SourcesService } from '../services/sources.service';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 import { codesetSelectorComponent } from '../CodesetTrees/codesetSelector.component';
@@ -477,6 +477,22 @@ export class SearchComp implements OnInit, OnDestroy {
 			.catch(() => console.log('User dismissed the dialog (e.g., by using ESC, clicking the cross icon, or clicking outside the dialog)'));
 	}
 
+	public openRebuildConfirmationDialog(model: ClassifierModel) {
+		this.confirmationDialogService.confirm('Please confirm', 'Are you sure you wish to rebuild this model ?', false, '')
+			.then(
+				(confirmed: any) => {
+					console.log('User confirmed:', confirmed);
+					if (confirmed) {
+						this.RebuildModel(model);
+					}
+					else {
+						//alert('pressed cancel close dialog');
+					};
+				}
+			)
+			.catch(() => console.log('User dismissed the dialog (e.g., by using ESC, clicking the cross icon, or clicking outside the dialog)'));
+	}
+
 	hasError(searchText: string) {
 
 		//alert(searchText);
@@ -561,6 +577,15 @@ export class SearchComp implements OnInit, OnDestroy {
 	SelectModel(model: string) {
 		this.ModelSelected = true;
 		//alert('you selected model: ' + model);
+	}
+
+	async RebuildModel(model: ClassifierModel) {
+
+		if (model.modelId > 0) {
+
+			await this.classifierService.CreateAsync(model.modelTitle, model.attributeIdOn.toString(), model.attributeIdNotOn.toString(), model.modelId);
+		}
+
 	}
 
 	public data: Array<any> = [{
@@ -717,6 +742,13 @@ export class SearchComp implements OnInit, OnDestroy {
 	refreshSearches() {
 		this._searchService.Fetch();
 	}
+
+	refreshModels() {
+
+		this._buildModelService.Fetch();
+
+	}
+
 	public SearchForPersonModel: boolean = false;
 	public SearchForPersonDropDown: string = 'true';
 	SelectPerson(event: string) {

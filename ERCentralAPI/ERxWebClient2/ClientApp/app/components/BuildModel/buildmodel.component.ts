@@ -270,7 +270,7 @@ export class BuildModelComponent implements OnInit, OnDestroy {
 
 		if (this.DD1 != null && this.DD2 != null && this.modelNameText != '') {
 
-			await this._classifierService.CreateAsync(title.model, this.DD1, this.DD2);
+			await this._classifierService.CreateAsync(title.model, this.DD1, this.DD2, -1);
 		}
 		
 	}

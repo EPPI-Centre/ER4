@@ -59,35 +59,13 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(MagCurrentInfoIdProperty, value);
             }
         }
-
-        public static readonly PropertyInfo<string> MagVersionProperty = RegisterProperty<string>(new PropertyInfo<string>("MagVersion", "MagVersion", ""));
-        public string MagVersion
-        {
-            get
-            {
-                return GetProperty(MagVersionProperty);
-            }
-            set
-            {
-                SetProperty(MagVersionProperty, value);
-            }
-        }
-
+       
         public static readonly PropertyInfo<string> MagFolderProperty = RegisterProperty<string>(new PropertyInfo<string>("MagFolder", "MagFolder", ""));
         public string MagFolder
         {
             get
             {
-                if (MagVersion != null && MagVersion != "" && !String.IsNullOrEmpty(MagVersion))
-                {
-                    string[] tmp = MagVersion.Split('/');
-                    return "mag-" + tmp[2] + "-" + tmp[1] + "-" + tmp[0];
-                }
-                else
-                {
-                    return "";
-                }
-                //return GetProperty(MagFolderProperty);
+                return GetProperty(MagFolderProperty);
             }
             set
             {
@@ -290,7 +268,7 @@ namespace BusinessLibrary.BusinessClasses
                 using (SqlCommand command = new SqlCommand("st_MagCurrentInfoInsert", connection))
                 {
                     command.CommandType = System.Data.CommandType.StoredProcedure;
-                    command.Parameters.Add(new SqlParameter("@MAG_VERSION", ReadProperty(MagVersionProperty)));
+                    command.Parameters.Add(new SqlParameter("@MAG_FOLDER", ReadProperty(MagFolderProperty)));
                     command.Parameters.Add(new SqlParameter("@WHEN_LIVE", ReadProperty(WhenLiveProperty)));
                     command.Parameters.Add(new SqlParameter("@MAG_ONLINE", ReadProperty(MagOnlineProperty)));
                     command.Parameters.Add(new SqlParameter("@MAKES_ENDPOINT", ReadProperty(MakesEndPointProperty)));
@@ -363,7 +341,7 @@ namespace BusinessLibrary.BusinessClasses
                         if (reader.Read())
                         {
                             LoadProperty<int>(MagCurrentInfoIdProperty, reader.GetInt32("MAG_CURRENT_INFO_ID"));
-                            LoadProperty<string>(MagVersionProperty, reader.GetString("MAG_VERSION"));
+                            LoadProperty<string>(MagFolderProperty, reader.GetString("MAG_FOLDER"));
                             LoadProperty<DateTime>(WhenLiveProperty, reader.GetDateTime("WHEN_LIVE"));
                             LoadProperty<bool>(MatchingAvailableProperty, reader.GetBoolean("MATCHING_AVAILABLE"));
                             LoadProperty<bool>(MagOnlineProperty, reader.GetBoolean("MAG_ONLINE"));
@@ -382,7 +360,7 @@ namespace BusinessLibrary.BusinessClasses
             MagCurrentInfo returnValue = new MagCurrentInfo();
 
             returnValue.LoadProperty<int>(MagCurrentInfoIdProperty, reader.GetInt32("MAG_CURRENT_INFO_ID"));
-            returnValue.LoadProperty<string>(MagVersionProperty, reader.GetString("MAG_VERSION"));
+            returnValue.LoadProperty<string>(MagFolderProperty, reader.GetString("MAG_FOLDER"));
             returnValue.LoadProperty<DateTime>(WhenLiveProperty, reader.GetDateTime("WHEN_LIVE"));
             returnValue.LoadProperty<bool>(MatchingAvailableProperty, reader.GetBoolean("MATCHING_AVAILABLE"));
             returnValue.LoadProperty<bool>(MagOnlineProperty, reader.GetBoolean("MAG_ONLINE"));
@@ -408,7 +386,7 @@ namespace BusinessLibrary.BusinessClasses
                         if (reader.Read())
                         {
                             returnValue.LoadProperty<int>(MagCurrentInfoIdProperty, reader.GetInt32("MAG_CURRENT_INFO_ID"));
-                            returnValue.LoadProperty<string>(MagVersionProperty, reader.GetString("MAG_VERSION"));
+                            returnValue.LoadProperty<string>(MagFolderProperty, reader.GetString("MAG_FOLDER"));
                             returnValue.LoadProperty<DateTime>(WhenLiveProperty, reader.GetDateTime("WHEN_LIVE"));
                             returnValue.LoadProperty<bool>(MatchingAvailableProperty, reader.GetBoolean("MATCHING_AVAILABLE"));
                             returnValue.LoadProperty<bool>(MagOnlineProperty, reader.GetBoolean("MAG_ONLINE"));

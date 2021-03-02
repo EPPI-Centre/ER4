@@ -36,7 +36,7 @@ export class MAGAdminService extends BusyAwareService {
         pipelineParams.editReviewSampleSize = editReviewSampleSize;
         pipelineParams.editScoreThreshold = editScoreThreshold;
         pipelineParams.magLogId = magLogId;
-        pipelineParams.magVersion = this.MagCurrentInfo.magVersion;
+        pipelineParams.magFolder = this.MagCurrentInfo.magFolder;
         pipelineParams.previousVersion = "";
         pipelineParams.specificFolder = specificFolder;
         this._httpC.post<boolean>(this._baseUrl + 'api/MagCurrentInfo/DoRunContReviewPipeline', pipelineParams)
@@ -182,7 +182,7 @@ export class MAGAdminService extends BusyAwareService {
         magCurrentInfo.magOnline = true;
         magCurrentInfo.matchingAvailable = true;
         magCurrentInfo.makesEndPoint = newMagEndPoint;
-        magCurrentInfo.magVersion = newMagVersion;
+        magCurrentInfo.magFolder = newMagVersion;
         this._httpC.post<MagCurrentInfo>(this._baseUrl + 'api/MagCurrentInfo/UpdateMagCurrentInfo', magCurrentInfo)
             .subscribe(result => {
                 this.RemoveBusy("UpdateMagCurrentInfo");

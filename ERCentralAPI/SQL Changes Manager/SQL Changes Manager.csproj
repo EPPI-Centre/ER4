@@ -398,6 +398,24 @@
 	  <None Update="SQLScripts\348.sql">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </None>
+	  <None Update="SQLScripts\350.sql">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	  <None Update="SQLScripts\352.sql">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	  <None Update="SQLScripts\354.sql">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	  <None Update="SQLScripts\356.sql">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	  <None Update="SQLScripts\358.sql">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	  <None Update="SQLScripts\360.sql">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
     <None Update="SQLScripts\MagCurrentInfoInsert.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

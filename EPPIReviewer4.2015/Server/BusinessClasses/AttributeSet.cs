@@ -767,6 +767,37 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
+        public static void CreateNew(AttributeSet NewAttributeSet)
+        {
+            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+            {
+                connection.Open();
+                using (SqlCommand command = new SqlCommand("st_AttributeSetInsert", connection))
+                {
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@SET_ID", NewAttributeSet.ReadProperty(SetIdProperty)));
+                    command.Parameters.Add(new SqlParameter("@PARENT_ATTRIBUTE_ID", NewAttributeSet.ReadProperty(ParentAttributeIdProperty)));
+                    command.Parameters.Add(new SqlParameter("@ATTRIBUTE_TYPE_ID", NewAttributeSet.ReadProperty(AttributeTypeIdProperty)));
+                    command.Parameters.Add(new SqlParameter("@ATTRIBUTE_SET_DESC", NewAttributeSet.ReadProperty(AttributeSetDescriptionProperty)));
+                    command.Parameters.Add(new SqlParameter("@ATTRIBUTE_ORDER", NewAttributeSet.ReadProperty(AttributeOrderProperty)));
+                    command.Parameters.Add(new SqlParameter("@ATTRIBUTE_NAME", NewAttributeSet.ReadProperty(AttributeNameProperty)));
+                    command.Parameters.Add(new SqlParameter("@ATTRIBUTE_DESC", NewAttributeSet.ReadProperty(AttributeDescriptionProperty)));
+                    command.Parameters.Add(new SqlParameter("@Ext_URL", NewAttributeSet.ReadProperty(ExtURLProperty)));
+                    command.Parameters.Add(new SqlParameter("@Ext_Type", NewAttributeSet.ReadProperty(ExtTypeProperty)));
+                    command.Parameters.Add(new SqlParameter("@CONTACT_ID", NewAttributeSet.ReadProperty(ContactIdProperty)));
+                    command.Parameters.Add(new SqlParameter("@ORIGINAL_ATTRIBUTE_ID", NewAttributeSet.OriginalAttributeID));
+                    command.Parameters.Add(new SqlParameter("@NEW_ATTRIBUTE_SET_ID", 0));
+                    command.Parameters["@NEW_ATTRIBUTE_SET_ID"].Direction = System.Data.ParameterDirection.Output;
+                    command.Parameters.Add(new SqlParameter("@NEW_ATTRIBUTE_ID", 0));
+                    command.Parameters["@NEW_ATTRIBUTE_ID"].Direction = System.Data.ParameterDirection.Output;
+                    command.ExecuteNonQuery();
+                    NewAttributeSet.LoadProperty(AttributeSetIdProperty, command.Parameters["@NEW_ATTRIBUTE_SET_ID"].Value);
+                    NewAttributeSet.LoadProperty(AttributeIdProperty, command.Parameters["@NEW_ATTRIBUTE_ID"].Value);
+                }
+                connection.Close();
+            }
+        }
+
         protected override void DataPortal_Update()
         {
             if (this.AttributeId == 0)

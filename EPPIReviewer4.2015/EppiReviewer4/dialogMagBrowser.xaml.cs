@@ -33,7 +33,8 @@ namespace EppiReviewer4
         public event EventHandler<RoutedEventArgs> ListPreviouslyMatched;
         public event EventHandler<RoutedEventArgs> ListSimulationTP;
         public event EventHandler<RoutedEventArgs> ListSimulationFN;
-        
+        public bool MagBrowserImportedItems = false;
+
         private DispatcherTimer timer;
         private DispatcherTimer timer2;
         private DispatcherTimer timerAutoUpdateClassifierRun;
@@ -67,10 +68,8 @@ namespace EppiReviewer4
 
             DataLakeTimer = new DispatcherTimer();
             DataLakeTimer.Interval = TimeSpan.FromSeconds(30);
-            DataLakeTimer.Tick += DataLakeTimer_Tick; ;
+            DataLakeTimer.Tick += DataLakeTimer_Tick;
         }
-
-       
 
         public void InitialiseBrowser()
         {
@@ -83,6 +82,7 @@ namespace EppiReviewer4
 
             GridPaperInfoBackground.Background = new SolidColorBrush(SystemColors.ControlColor);
             RefreshCounts();
+            MagBrowserImportedItems = false;
         }
 
         public void ShowMagBrowser()
@@ -667,7 +667,7 @@ namespace EppiReviewer4
             {
                 if (mci.MagOnline == true)
                 {
-                    tbAcademicTitle.Text = "Microsoft Academic dataset: " + mci.MagVersion;
+                    tbAcademicTitle.Text = "Microsoft Academic dataset: " + mci.MagFolder;
                 }
                 else
                 {
@@ -751,36 +751,43 @@ namespace EppiReviewer4
 
         private void LBManualCheckIncluded_Click(object sender, RoutedEventArgs e)
         {
+            MagBrowserImportedItems = false;
             this.ListIncludedThatNeedMatching.Invoke(sender, e);
         }
 
         private void LBManualCheckExcluded_Click(object sender, RoutedEventArgs e)
         {
+            MagBrowserImportedItems = false;
             this.ListExcludedThatNeedMatching.Invoke(sender, e);
         }
 
         private void LBMNotMatchedIncluded_Click(object sender, RoutedEventArgs e)
         {
+            MagBrowserImportedItems = false;
             this.ListIncludedNotMatched.Invoke(sender, e);
         }
 
         private void LBMNotMatchedExcluded_Click(object sender, RoutedEventArgs e)
         {
+            MagBrowserImportedItems = false;
             this.ListExcludedNotMatched.Invoke(sender, e);
         }
 
         private void lbItemListMatchesIncluded_Click(object sender, RoutedEventArgs e)
         {
+            MagBrowserImportedItems = false;
             this.ListIncludedMatched.Invoke(sender, e);
         }
 
         private void lbItemListMatchesExcluded_Click(object sender, RoutedEventArgs e)
         {
+            MagBrowserImportedItems = false;
             this.ListExcludedMatched.Invoke(sender, e);
         }
 
         private void LBListPreviouslyMatchedRecords_Click(object sender, RoutedEventArgs e)
         {
+            MagBrowserImportedItems = false;
             this.ListPreviouslyMatched.Invoke(sender, e);
         }
 
@@ -1649,6 +1656,7 @@ namespace EppiReviewer4
                             RadWindow.Alert("All of these records were already in your review.");
                         }
 
+                        MagBrowserImportedItems = true;
                         SelectedPaperIds.Clear();
                         ClearSelectionsFromPaperLists();
                         UpdateSelectedCount();
@@ -2280,6 +2288,7 @@ namespace EppiReviewer4
                             //SelectedLinkButton.IsEnabled = true; - no need to renable, as it's destroyed in the refresh below
                             CslaDataProvider provider = this.Resources["RelatedPapersRunListData"] as CslaDataProvider;
                             provider.Refresh();
+                            MagBrowserImportedItems = true;
                         }
                     };
                     BusyImportingRecords.IsRunning = true;
@@ -2699,11 +2708,13 @@ namespace EppiReviewer4
 
         private void HyperlinkButton_Click_10(object sender, RoutedEventArgs e)
         {
+            MagBrowserImportedItems = false;
             this.ListSimulationFN.Invoke(sender, e);
         }
 
         private void HyperlinkButton_Click_11(object sender, RoutedEventArgs e)
         {
+            MagBrowserImportedItems = false;
             this.ListSimulationTP.Invoke(sender, e);
         }
 
@@ -2957,6 +2968,36 @@ namespace EppiReviewer4
                 };
                 LBRunContReviewPipeline.IsEnabled = false;
                 dp2.BeginExecute(RunPipelineCommand);
+            }
+        }
+
+        private void LBGetMissingAbstracts_Click(object sender, RoutedEventArgs e)
+        {
+            RadWindow.Confirm("Are you sure you want to hunt for missing abstracts in \n" + tbLatestMag.Text, this.doDownloadMissingAbstracts);
+        }
+
+        private void doDownloadMissingAbstracts(object sender, WindowClosedEventArgs e)
+        {
+            var result = e.DialogResult;
+            if (result == true)
+            {
+                DataPortal<MagNewPapersUpdateAbstractsCommand> dp2 = new DataPortal<MagNewPapersUpdateAbstractsCommand>();
+                MagNewPapersUpdateAbstractsCommand updateAbstractsCommand =
+                    new MagNewPapersUpdateAbstractsCommand();
+                dp2.ExecuteCompleted += (o, e2) =>
+                {
+                    if (e2.Error != null)
+                    {
+                        RadWindow.Alert(e2.Error.Message);
+                    }
+                    else
+                    {
+                        RadWindow.Alert("Ok. Process to find missing abstracts has started");
+                        SwitchOnAutoRefreshLogList();
+                    }
+                };
+                LBGetMissingAbstracts.IsEnabled = false;
+                dp2.BeginExecute(updateAbstractsCommand);
             }
         }
 
@@ -3462,7 +3503,18 @@ namespace EppiReviewer4
             if (btn != null)
             {
                 MagSearch search = btn.DataContext as MagSearch;
-                if (search != null)
+                CslaDataProvider prov = ((CslaDataProvider)App.Current.Resources["MagCurrentInfoData"]);
+                MagCurrentInfo mci = prov.Data as MagCurrentInfo;
+                if (mci != null)
+                {
+                    if (search.MagFolder != mci.MagFolder)
+                    {
+                        RadWindow.Alert("This search was run against a prevous version of MAG\nPlease re-run before listing results.");
+                        return;
+                    }
+                }
+
+                        if (search != null)
                 {
                     TBPaperListTitle.Text = search.HitsNo.ToString() + " hits (in original search)";
                     ShowSearchResults(search.MagSearchText);
@@ -3483,7 +3535,17 @@ namespace EppiReviewer4
                 MagSearch ms = hlb.DataContext as MagSearch;
                 if (ms != null)
                 {
-                    if (ms.HitsNo > 20000)
+                    CslaDataProvider prov = ((CslaDataProvider)App.Current.Resources["MagCurrentInfoData"]);
+                    MagCurrentInfo mci = prov.Data as MagCurrentInfo;
+                    if (mci != null)
+                    {
+                        if (ms.MagFolder != mci.MagFolder)
+                        {
+                            RadWindow.Alert("This search was run against an earlier version of MAG\nPlease re-run before importing");
+                            return;
+                        }
+                    }
+                        if (ms.HitsNo > 20000)
                     {
                         RadWindow.Alert("Sorry. You can't import more than 20k records at a time.\nYou could try breaking up your search e.g. by date?");
                     }
@@ -3526,6 +3588,7 @@ namespace EppiReviewer4
                         else
                         {
                             int num_in_run = ms.HitsNo;
+                            MagBrowserImportedItems = true;
                             if (e2.Object.NImported == num_in_run)
                             {
                                 RadWindow.Alert("Imported " + e2.Object.NImported.ToString() + " out of " +
@@ -3547,36 +3610,8 @@ namespace EppiReviewer4
                                 else
                                 {
                                     RadWindow.Alert("Imported " + e2.Object.NImported.ToString() + " out of " +
-                                        num_in_run.ToString() +" new items.\n\nSome were already in your review" + filteredText + latestMagFilter);
+                                        num_in_run.ToString() +" new items.\n\nSome were already in your review." + filteredText + latestMagFilter);
                                 }
-                                /*
-                                if (SelectedLinkButton.Tag.ToString() == "MagSearchResults")
-                                {
-                                    if (e2.Object.NImported != 0)
-                                    {
-                                        RadWindow.Alert("Some of these items were already in your review" + filteredText + "\n\nImported " +
-                                            e2.Object.NImported.ToString() + " out of " + num_in_run.ToString() +
-                                            " new items");
-                                    }
-                                    else
-                                    {
-                                        RadWindow.Alert("All of these records were already in your review" + filteredText);
-                                    }
-                                }
-                                else
-                                {
-                                    if (e2.Object.NImported != 0)
-                                    {
-                                        RadWindow.Alert("Some items were already in your review / were not in the latest MAG.\n\nImported " +
-                                            e2.Object.NImported.ToString() + " out of " + num_in_run.ToString() +
-                                            " new items");
-                                    }
-                                    else
-                                    {
-                                        RadWindow.Alert("All records were already in your review or not in latest MAG.");
-                                    }
-                                }
-                                */
                             }
                         }
                     };
@@ -4192,6 +4227,7 @@ namespace EppiReviewer4
                         }
                         else
                         {
+                            MagBrowserImportedItems = true;
                             int num_in_import = Convert.ToInt32(AutoUpdateImportTopN.Value.Value);
                             if (e2.Object.NImported == num_in_import)
                             {
@@ -4356,7 +4392,7 @@ namespace EppiReviewer4
                     {
                         string [] versionElements = tbLatestMag.Text.Replace("mag-", "").Split('-');
                         MagCurrentInfo mci = new MagCurrentInfo();
-                        mci.MagVersion = versionElements[2] + "/" + versionElements[1] + "/" + versionElements[0];
+                        mci.MagFolder = tbLatestMag.Text; // versionElements[2] + "/" + versionElements[1] + "/" + versionElements[0];
                         mci.WhenLive = DateTime.Now;
                         mci.MatchingAvailable = true;
                         mci.MakesEndPoint = "http://eppimag" + tbLatestMag.Text.Replace("mag", "").Replace("-", "")
@@ -4421,7 +4457,7 @@ namespace EppiReviewer4
                     provider.Refresh();
                 }
             }
-            tbAcademicTitle.Text = "Microsoft Academic dataset: " + CurrentTempMagCurrentInfo.MagVersion;
+            tbAcademicTitle.Text = "Microsoft Academic dataset: " + CurrentTempMagCurrentInfo.MagFolder;
             CurrentTempMagCurrentInfo = null;
             CslaDataProvider provider2 = ((CslaDataProvider)App.Current.Resources["MagCurrentInfoData"]);
             provider2.Refresh();
@@ -4504,6 +4540,5 @@ namespace EppiReviewer4
             }
         }
 
-       
     }
 }
