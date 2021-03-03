@@ -263,7 +263,13 @@
                     (sortChange)="sortChangeModel($event)"
                     (selectionChange)="selectedRows($event)">
 
-            <kendo-grid-checkbox-column width="50"></kendo-grid-checkbox-column>
+            <kendo-grid-checkbox-column width="40" headerClass="p-2" class="pr-1 pl-2 py-0">
+                <ng-template kendoGridHeaderTemplate>
+                    <button class="btn btn-sm btn-outline-success my-1 py-0 px-1 " (click)="refreshModels()">
+                        <i class="fa fa-refresh" aria-hidden="true"></i>
+                    </button>
+                </ng-template>
+            </kendo-grid-checkbox-column>
             <kendo-grid-column field="modelId" title="ModelID">
             </kendo-grid-column>
             <kendo-grid-column field="modelTitle" title="Title">
@@ -289,9 +295,7 @@
                 </ng-template>
             </kendo-grid-column>
         </kendo-grid>
-            <div class="col-md-6">
-                <button (click)="refreshModels()" class="btn btn-info p-2 m-2"> Refresh Models</button>
-            </div>
+            
     </div>
     <div class="col-12 mt-2 mb-2 justify-content-center">
         <button (click)="openConfirmationDialog()" [disabled]="!CanApplyModel()"
