@@ -49,7 +49,7 @@ export class BasicMAGComp implements OnInit {
     public basicSearchPanel: boolean = false;
 
 	ngOnInit() {
-
+        
 
         if (this._ReviewerIdentityServ.reviewerIdentity.userId == 0 ||
             this._ReviewerIdentityServ.reviewerIdentity.reviewId == 0) {
@@ -59,15 +59,17 @@ export class BasicMAGComp implements OnInit {
             this.router.navigate(['Main']);
         }
         else {
-             this._eventEmitterService.firstVisitMAGBrowserPage = true;
-             this._basicMAGService.FetchMagRelatedPapersRunList();
+             //this._eventEmitterService.firstVisitMAGBrowserPage = true;
+             //this._basicMAGService.FetchMagRelatedPapersRunList();
         }
 
     }
     public Back() {
         this.router.navigate(['Main']);
     }
-
+    public Refresh() {
+        this._basicMAGService.FetchMagRelatedPapersRunList();
+    }
     Clear() {
 
         this.CurrentDropdownSelectedCode = {} as SetAttribute;

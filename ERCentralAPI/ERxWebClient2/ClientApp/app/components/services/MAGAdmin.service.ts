@@ -216,5 +216,14 @@ export class MAGAdminService extends BusyAwareService {
                     this.RemoveBusy("FetchMagCurrentInfo");
                 });
     }
-   
+
+    public Clear() {
+        this.releaseNotes = '';
+        this.latestMagSasUri = '';
+        this.latestMAGName = '';
+        this.previousMAGName = '';
+        this.MAGLogList = [];
+        this.MAGReviewList = [];
+        this.MagCurrentInfo = new MagCurrentInfo();
+    }
 }

@@ -135,7 +135,12 @@
     </div>
 
     <div class="row ">
-        <div class="col-12 font-weight-bold">Auto update tasks (they run when new MAG data arrives) </div>
+        <div class="col-12 font-weight-bold">
+            Auto update tasks (they run when new MAG data arrives) 
+            <button *ngIf="!IsServiceBusy" class="btn btn-sm btn-outline-success mx-1 mt-auto mb-1 py-0 px-1 " (click)="Refresh()">
+                <i class="fa fa-refresh" aria-hidden="true"></i>
+            </button>
+        </div>
         <div class="p-1 border-top border-bottom border-dark col-12 bg-light" style="max-height:30vh">
             <table class="col-12 table table-striped" style="max-height:30vh">
                 <thead>

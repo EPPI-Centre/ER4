@@ -29,22 +29,15 @@ export class MAGAdvancedService extends BusyAwareService {
     ) {
         super();
     }
-    public firstVisitToMAGBrowser: boolean = true;
+    //public firstVisitToMAGBrowser: boolean = true;
     public _RunAlgorithmFirst: boolean = false;
     public ReviewMatchedPapersList: MagPaper[] = [];
     public AdvancedReviewInfo: MagReviewMagInfo = new MagReviewMagInfo();
     //public currentMagPaper: MagPaper = new MagPaper();
     public ListDescription: string = '';
-    public TotalNumberOfMatchedPapers: number = 0;
-    public MagPapersMatchedList: Item[] = [];
     public MagReferencesPaperList: MagList = new MagList();
-    public MagCitationsPaperList: MagPaper[] = [];
-    public MagRelatedPaperList: MagPaper[] = [];
     public MagPaperFieldsList: MagPaper[] = [];
-    public CurrentCriteria: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
     public CurrentMagSimId: number = 0;
-    public PaperIds: string = '';
-    public MagList: MagList = new MagList();
     private _MagCurrentInfo: MagCurrentInfo = new MagCurrentInfo();
     private _CurrentUserId4ClassifierContactModelList: number = 0;
     private _ClassifierContactModelList: ClassifierContactModel[] = [];
@@ -347,5 +340,14 @@ export class MAGAdvancedService extends BusyAwareService {
                 });
     }
 
+    public Clear() {
+        this.ListDescription = "";
+        this._MagCurrentInfo = new MagCurrentInfo();
+        this._ClassifierContactModelList = [];
+        this.AdvancedReviewInfo = new MagReviewMagInfo();
+        this.CurrentMagSimId = 0;
+        this._CurrentUserId4ClassifierContactModelList = 0;
+        this._RunAlgorithmFirst = false;
+    }
 }
 

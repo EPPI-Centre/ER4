@@ -23,7 +23,7 @@ export class magSearchService extends BusyAwareService {
     public set MagSearchList(value: MagSearch[]) {
         this._MagSearchList = value;
     }
-    public _MagSearchList: MagSearch[] = [];
+    private _MagSearchList: MagSearch[] = [];
     public MAGSearchToBeDeleted: MagSearch = new MagSearch();
 
     FetchMAGSearchList() {
@@ -153,5 +153,8 @@ export class magSearchService extends BusyAwareService {
             }
             );
     }
-
+    public Clear() {
+        this._MagSearchList = [];
+        this.MAGSearchToBeDeleted = new MagSearch();
+    }
 }

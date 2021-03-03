@@ -40,21 +40,6 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
     public SearchTextTopic: string = '';
     ngOnInit() {
 
-         this._eventEmitterService.getMatchedIncludedItemsEvent.subscribe(
-            () => {
-                this.GetMatchedMagIncludedList();
-            }
-        );
-        this._eventEmitterService.getMatchedExcludedItemsEvent.subscribe(
-            () => {
-                this.GetMatchedMagExcludedList();
-            }
-        );
-        this._eventEmitterService.getMatchedAllItemsEvent.subscribe(
-            () => {
-                this.GetMatchedMagAllList();
-            }
-        );
         if (this._ReviewerIdentityServ.reviewerIdentity.userId == 0 ||
             this._ReviewerIdentityServ.reviewerIdentity.reviewId == 0) {
             this.router.navigate(['home']);
@@ -62,9 +47,9 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
         else if (!this._ReviewerIdentityServ.HasWriteRights) {
             this.router.navigate(['Main']);
         }
-        else {
-            this.GetMagReviewMagInfoCommand();
-        }
+        //else {
+        //    this.GetMagReviewMagInfoCommand();
+        //}
     }
     ngOnDestroy() {
     }
@@ -120,7 +105,6 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
         return this._magBrowserService.IsBusy || this._magAdvancedService.IsBusy;
     }
     GetMagReviewMagInfoCommand() {
-
         this._magAdvancedService.FetchMagReviewMagInfo();
     }
 

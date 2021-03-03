@@ -81,7 +81,7 @@ export class MAGBrowser implements OnInit, OnDestroy {
 
     ngOnInit() {
 
-        this._eventEmitterService.firstVisitMAGBrowserPage = true;
+        //this._eventEmitterService.firstVisitMAGBrowserPage = true;
 
         this._eventEmitterService.OpeningNewReview.subscribe(
             () => {
@@ -196,7 +196,7 @@ export class MAGBrowser implements OnInit, OnDestroy {
 
     ngOnDestroy() {
 
-        this._magAdvancedService.firstVisitToMAGBrowser = false;
+        //this._magAdvancedService.firstVisitToMAGBrowser = false;
 
     }
     public toggleDisplayDivIf() {
@@ -339,7 +339,7 @@ export class MAGBrowser implements OnInit, OnDestroy {
     public async GetParentAndChildRelatedPapers(item: MagFieldOfStudy) {
 
         this._magBrowserService.MagCitationsByPaperList.papers = [];
-        this._eventEmitterService.firstVisitMAGBrowserPage = false;
+        //this._eventEmitterService.firstVisitMAGBrowserPage = false;
         this.ClickedOnTopic = item.displayName;
 
         let res: boolean = await this._magBrowserService.GetParentAndChildRelatedPapers(item.displayName, item.fieldOfStudyId);
