@@ -3545,7 +3545,7 @@ namespace EppiReviewer4
                             return;
                         }
                     }
-                        if (ms.HitsNo > 20000)
+                        if (ms.HitsNo > 30000)
                     {
                         RadWindow.Alert("Sorry. You can't import more than 20k records at a time.\nYou could try breaking up your search e.g. by date?");
                     }
@@ -3571,8 +3571,8 @@ namespace EppiReviewer4
                         SelectedLinkButton.Tag.ToString(),
                         0, 0, "", 0, 0, 0, 0,
                         (cbMagSearchShowTextFilters.IsChecked == true ? MagSearchTextFilterJournal.Text : ""),
-                        (cbMagSearchShowTextFilters.IsChecked == true ? MagSearchTextFilterURL.Text : ""),
                         (cbMagSearchShowTextFilters.IsChecked == true ? MagSearchTextFilterDOI.Text : ""),
+                        (cbMagSearchShowTextFilters.IsChecked == true ? MagSearchTextFilterURL.Text : ""),
                         ms.MagSearchText,
                         "MAG search: " + ms.SearchText + 
                             (SelectedLinkButton.Tag.ToString() == "MagSearchResultsLatestMAG" ? " (filtered to latest MAG deployment)" : "") +

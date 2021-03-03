@@ -413,19 +413,15 @@ namespace BusinessLibrary.BusinessClasses
 
         private bool PaperPassesFilters(MagPaper mp)
         {
-            if (mp.Journal == null || mp.DOI == null || mp.URLs == null)
-            {
-                return true;
-            }
-            if (!doFilter(mp.Journal.ToLower(), _FilterJournal))
+            if (mp.Journal != null && !doFilter(mp.Journal.ToLower(), _FilterJournal))
             {
                 return false;
             }
-            if (!doFilter(mp.DOI.ToLower(), _FilterDOI))
+            if (mp.DOI != null && !doFilter(mp.DOI.ToLower(), _FilterDOI))
             {
                 return false;
             }
-            if (!doFilter(mp.URLs.ToLower(), _FilterURL))
+            if ( mp.URLs != null && !doFilter(mp.URLs.ToLower(), _FilterURL))
             {
                 return false;
             }

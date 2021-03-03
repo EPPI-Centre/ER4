@@ -388,6 +388,7 @@ namespace BusinessLibrary.BusinessClasses
                     using (SqlCommand command = new SqlCommand("st_MagContReviewRunGetSeedIds", connection))
                     {
                         command.CommandType = System.Data.CommandType.StoredProcedure;
+                        command.Parameters.Add(new SqlParameter("@MAG_VERSION", _NextMagVersion));
                         using (SafeDataReader reader = new SafeDataReader(command.ExecuteReader()))
                         {
                             if (reader.Read())
