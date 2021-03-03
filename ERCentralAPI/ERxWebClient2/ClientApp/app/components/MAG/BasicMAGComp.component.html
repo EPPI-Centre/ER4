@@ -237,7 +237,12 @@
         <div class="card">
             <div class="card-body">
 
-                <h4 class="card-title">Searches</h4>
+                <div class="row mx-1">
+                    <div class="card-title h4 mb-0">Related Paper Searches</div>
+                    <button class="btn btn-sm btn-outline-success mx-1 my-auto py-0 px-1 " (click)="Refresh()">
+                        <i class="fa fa-refresh" aria-hidden="true"></i>
+                    </button>
+                </div>
                 <div class="col-12 alert-secondary p-2 m-2 card">
                     <div class="table-responsive">
                         <table class="table align-middle table-striped" style="width:100%;max-height:600px; overflow:auto;">

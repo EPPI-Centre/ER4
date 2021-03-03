@@ -11,6 +11,8 @@ import { magSearchService } from '../services/MAGSearch.service';
 import { NotificationService } from '@progress/kendo-angular-notification';
 import { MAGTopicsService } from '../services/MAGTopics.service';
 import { Helpers } from '../helpers/HelperMethods';
+import { MAGAdminService } from '../services/MAGAdmin.service';
+import { ModalService } from '../services/modal.service';
 
 @Component({
     selector: 'MAGSearch',
@@ -21,15 +23,14 @@ import { Helpers } from '../helpers/HelperMethods';
 export class MAGSearchComponent implements OnInit {
 
     constructor(private _confirmationDialogService: ConfirmationDialogService,
-        public _magBasicService: MAGRelatedRunsService,
-        public _magAdvancedService: MAGAdvancedService,
+        private modalService: ModalService,
         private _magBrowserService: MAGBrowserService,
-        public _magSearchService: magSearchService,
+        private _magSearchService: magSearchService,
         private _ReviewerIdentityServ: ReviewerIdentityService,
         private router: Router,
-        public _mAGBrowserHistoryService: MAGBrowserHistoryService,
-        public _notificationService: NotificationService,
-        private _magTopicsService: MAGTopicsService
+        private _mAGBrowserHistoryService: MAGBrowserHistoryService,
+        private _magTopicsService: MAGTopicsService,
+        private MAGAdminService: MAGAdminService
 
     ) {
 
@@ -48,7 +49,6 @@ export class MAGSearchComponent implements OnInit {
     public LogicalOperator: string = 'Select operator';
     public DateLimitSelection: number = 0;
     public PublicationTypeSelection: number = 0;
-    public MagSearchList: MagSearch[] = [];
     public magSearchInput: string = '';
     public valueKendoDatepicker1 : Date = new Date();
     public valueKendoDatepicker2: Date = new Date();
@@ -61,12 +61,19 @@ export class MAGSearchComponent implements OnInit {
     public OpenTopics: boolean = false;
     public SearchTextTopicDisplayName: string = '';
 
+    public get MagFolder(): string {
+        return this.MAGAdminService.MagCurrentInfo.magFolder;
+    }
+
     ngOnInit() {
 
-        this.FetchMagSearches();
+        //this.FetchMagSearches();
          
     }
-    FetchMagSearches() {
+    public get MagSearchList(): MagSearch[] {
+        return this._magSearchService.MagSearchList;
+    }
+    public FetchMagSearches() {
         this._magSearchService.FetchMAGSearchList();
     }
 
@@ -134,8 +141,8 @@ export class MAGSearchComponent implements OnInit {
         this.SearchTextTopic = topic.fieldOfStudyId.toString();
     }
     public CanImportMagPapers(item: MagSearch): boolean {
-
-        if (item != null && item.magSearchId > 0 && item.hitsNo > 0 && this.HasWriteRights) {
+        if (item.magFolder != this.MagFolder) return false;
+        else if (item != null && item.magSearchId > 0 && item.hitsNo > 0 && this.HasWriteRights) {
             return true;
         } else {
             return false;
@@ -197,14 +204,18 @@ export class MAGSearchComponent implements OnInit {
     }
 
     public GetItems(item: MagSearch) {
+        if (item.magFolder != this.MagFolder) {
+            this.modalService.GenericErrorMessage("This search refers to an outdated version of MAG, results might be outdated as well. <br /> Please re-run the search.")
+            return;
+        }
 
         if (item.magSearchId > 0) {
 
             this._magBrowserService.GetMagItemsForSearch(item)            
                 .then(
                     () => {
-                        this._mAGBrowserHistoryService.AddHistory(new MagBrowseHistoryItem("Papers identified from Mag Search run", "MagSearchPapersList", 0,
-                            "", "", 0, "", "", 0, "", "", item.magSearchId));
+                        this._mAGBrowserHistoryService.AddHistory(new MagBrowseHistoryItem("Papers List from search #: " + item.searchNo.toString(), "MagSearchPapersList", item.magSearchId,
+                            item.magSearchText, "", 0, "", "", 0, "", "", 0));
                         this.PleaseGoTo.emit("MagSearchPapersList");
                         //this.router.navigate(['MAGBrowser']);
                     }

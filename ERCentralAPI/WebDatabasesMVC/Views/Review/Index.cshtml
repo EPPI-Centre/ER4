@@ -71,6 +71,7 @@
                             for (var ii = 0; ii < response[i].attributes.attributesList.length; ii++) {
                                 nd.append(Buildnode(response[i].attributes.attributesList[ii]));
                             }
+                            nd.expanded = true;
                             nd.items = nodes2;
                             //nd.hasChildren = () => {
                             //        return this.items.length > 0;

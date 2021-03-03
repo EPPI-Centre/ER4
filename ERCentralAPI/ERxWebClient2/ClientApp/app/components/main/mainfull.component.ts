@@ -971,7 +971,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
             this.subOpeningReview.unsubscribe();			
         }
         if (this.statsSub) this.statsSub.unsubscribe();
-        if (this._routingStateService.MAGSubscription) this._routingStateService.UnsubscribeMAGHistory();
+        //if (this._routingStateService.MAGSubscription) this._routingStateService.UnsubscribeMAGHistory();
     }
 }
 

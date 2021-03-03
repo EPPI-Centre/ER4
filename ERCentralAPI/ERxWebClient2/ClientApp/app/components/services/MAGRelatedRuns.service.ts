@@ -22,13 +22,12 @@ export class MAGRelatedRunsService extends BusyAwareService {
     ) {
         super();
     }
-    public MagPaperList: MagPaperList = new MagPaperList();
-    public MagRelatedRunPapers: MagPaper[] = [];
+
+
     private _MagRelatedPapersRunList: MagRelatedPapersRun[] = [];
     private _MagUpdatesList: MagAutoUpdate[] = [];
     private _MagAutoUpdateRunList: MagAutoUpdateRun[] = [];
     private _MagAutoUpdateVisualise: MagAutoUpdateVisualise[] = [];
-    private _MagItemPaperInsert: MagItemPaperInsertCommand = new MagItemPaperInsertCommand();
 
     public get MagRelatedPapersRunList(): MagRelatedPapersRun[] {
 
@@ -355,5 +354,11 @@ export class MAGRelatedRunsService extends BusyAwareService {
                 () => {
                     this.RemoveBusy("ImportAutoUpdateRun");
                 });
+    }
+    public Clear() {
+        this._MagRelatedPapersRunList = [];
+        this._MagAutoUpdateRunList = [];
+        this._MagAutoUpdateVisualise = [];
+        this._MagUpdatesList = [];
     }
 }

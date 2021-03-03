@@ -1,9 +1,6 @@
 <HeaderComponent class="row p-1 m-0" style="vertical-align:top;" PageTitle="Microsoft Academic Browser" [Context]="Context"></HeaderComponent>
-<button class="page-link rounded pt-1 pb-1 mb-1 float-right"
-        style="position:absolute; right: 0; z-index:2000;" (click)="Back()">
-    Close/back
-</button>
-<MAGHeaderBar2 #NavBar2 (PleaseGoTo)="ChangeContext($event)"></MAGHeaderBar2>
+
+<MAGHeaderBar2 #NavBar2 (PleaseGoTo)="ChangeContext($event)" ></MAGHeaderBar2>
 
 <ng-container [ngSwitch]="Context">
     <div *ngSwitchCase="'RelatedPapers'">
@@ -29,7 +26,6 @@
     </div>
     <div *ngSwitchCase="['SelectedPapers','PaperDetail','MagSearchPapersList','MagRelatedPapersRunList','BrowseTopic','MatchesIncluded','MatchesExcluded','MatchesIncludedAndExcluded','ReviewMatchedPapersWithThisCode','MagAutoUpdateRunPapersList'].includes(Context) ? Context : 'nothappening'">
         <!--to understand the above, see:https://stackoverflow.com/a/40177408-->
-        Browser: {{Context}}!
         <MAGBrowser></MAGBrowser>
     </div>
 

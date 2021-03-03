@@ -119,7 +119,7 @@ export class MAGAdminComp implements OnInit {
             this._magAdminService.GetMAGBlobCommand();
             this._magAdminService.GetMAGReviewList();
             this.RefreshLogTable();
-            this._magAdminService.FetchMagCurrentInfo();
+            //this._magAdminService.FetchMagCurrentInfo();
         }
     }  
 

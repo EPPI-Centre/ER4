@@ -12,17 +12,19 @@
             <h2 class="font-weight-light">MAG data in this review</h2>
 </div>
 
-        <div class="col-lg-8">
+        <div class="col-lg-8 my-auto">
             <h2 class="font-weight-light"></h2>
             <button (click)="RunMatchingAlgo()"
-                    class="btn btn-primary btn-sm text-white">
+                    class="btn btn-primary btn-sm text-white mx-1">
                 Run Matching Algorithm
-            </button>&nbsp;&nbsp;
+            </button>
             <button (click)="ClearAllMatching()"
-                    class="btn btn-danger btn-sm text-white">
+                    class="btn btn-danger btn-sm text-white mx-1">
                 Clear all Matches in Review
             </button>
-
+            <button class="btn btn-sm btn-outline-success mx-1" (click)="GetMagReviewMagInfoCommand()">
+                <i class="fa fa-refresh" aria-hidden="true"></i>
+            </button>
         </div>
     </div>
 
@@ -113,20 +115,18 @@
                         </div>
                     </div>
 
-                    <div class="col-sm-12 col-lg-4">
-                        <button class="btn btn-primary btn-sm text-white"
+                    <div class="col-sm-12 col-lg-8">
+                        <button class="btn btn-primary btn-sm text-white mx-1"
                                 [disabled]="!CanGetCodeMatches()"
                                 (click)="MAGBrowser('MatchedWithThisCode')">
-                            List Items
+                            List (matched) Items
                         </button>
-                        &nbsp;
-                        <button class="btn btn-primary btn-sm text-white"
+                        <button class="btn btn-primary btn-sm text-white mx-1"
                                 [disabled]="!CanGetCodeMatches()"
                                 (click)="RunMatchingAlgo()">
                             Auto-match items
                         </button>
-                        &nbsp;
-                        <button class="btn btn-danger btn-sm text-white"
+                        <button class="btn btn-danger btn-sm text-white mx-1"
                                 [disabled]="!CanGetCodeMatches()"
                                 (click)="ClearMatches()">
                             Clear Matches

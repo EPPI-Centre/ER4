@@ -58,7 +58,13 @@ export class MAGBrowserHistory implements OnInit {
         this._MAGBrowserHistoryService._MAGBrowserHistoryList = [];
     }
     public get IsServiceBusy(): boolean {
-
+        if (
+             this._magBrowserService.IsBusy
+            || this._magBasicService.IsBusy
+            || this._magAdvancedService.IsBusy
+            || this._MAGBrowserHistoryService.IsBusy
+            || this._magAdminService.IsBusy
+        ) return true;
         return false;
     }
     Back() {
@@ -67,184 +73,8 @@ export class MAGBrowserHistory implements OnInit {
     fetchMAGHistory() {
         this._MAGBrowserHistoryService.FetchMAGBrowserHistory();
     }
-    public NavigateToThisPoint(browsePosition: number) {
-      
-        if (browsePosition > -1) {
-
-            this._MAGBrowserHistoryService.currentBrowsePosition = browsePosition;
-            console.log()
-            if (this._MAGBrowserHistoryService._MAGBrowserHistoryList != null && browsePosition <= this._MAGBrowserHistoryService._MAGBrowserHistoryList.length) {
-                let mbh: MagBrowseHistoryItem = this._MAGBrowserHistoryService._MAGBrowserHistoryList[browsePosition];
-                console.log("trying to go to:", mbh.browseType, mbh);
-                    switch (mbh.browseType) {
-                        case "History":
-                            this.ShowHistoryPage();
-                            break;
-                        case "Advanced":
-                            this.ShowAdvancedPage();
-                            break;
-                        case "Admin":
-                            this.ShowAdminPage();
-                            break;
-                        case "RelatedPapers":
-                            this.ShowRelatedPapers();
-                            break;
-                        case "matching":
-                            this.ShowMatching();
-                            break;
-                        case "PaperDetail":
-                            this.ShowPaperDetailsPage(mbh.paperId, mbh.paperFullRecord, mbh.paperAbstract, mbh.allLinks,
-                                mbh.findOnWeb, mbh.linkedITEM_ID);
-                            break;
-                        case "MatchesIncluded":
-                            this.ShowMAGMatchesPage("included");
-                            break;
-                        case "MatchesExcluded":
-                            this.ShowMAGMatchesPage("excluded");
-                            break;
-                        case "MatchesIncludedAndExcluded":
-                            this.ShowMAGMatchesPage("all");
-                            break;
-                        case "ReviewMatchedPapersWithThisCode":
-                            this.ShowAllWithThisCode(mbh.attributeIds);
-                            break;
-                        case "MagRelatedPapersRunList":
-                            this.ShowAutoIdentifiedMatches(mbh.magRelatedRunId);
-                            break;
-                        case "BrowseTopic":
-                            this.ShowTopicPage(mbh.fieldOfStudyId, mbh.fieldOfStudy);
-                            break;
-                        case "SelectedPapers":
-                            this.ShowSelectedPapersPage();
-                            break;
-                        case "KeepUpdated":
-                            this.ShowKeepUpToDate();
-                            break;
-                        case "MagAutoUpdateRunPapersList":
-                            this.ShowAutoUpdateRunPapersList();
-                            break;
-                        case "Search":
-                            this.ShowSearchPage();
-                            break;
-                        case "MagSearchPapersList":
-                            this.ShowMagSearchPapersList();
-                            break; 
-
-                    }
-            }
-        }
-    }
-    public ShowHistoryPage() {
-        this.PleaseGoTo.emit("History");
-        //this.router.navigate(['MAGBrowserHistory']);
-    }
-    public ShowAdvancedPage() {
-        this.PleaseGoTo.emit("Advanced");
-        //this.router.navigate(['AdvancedMAGFeatures']);
-    }
-    public ShowAdminPage() {
-        this.PleaseGoTo.emit("Admin");
-        //this.router.navigate(['MAGAdmin']);
-    }
-    public ShowMatching() {
-        this.PleaseGoTo.emit("matching");
-        //this.router.navigate(['MatchingMAGItems']);
-    }
-    public ShowKeepUpToDate() {
-        this.PleaseGoTo.emit("KeepUpdated");
-        //this.router.navigate(['MAGKeepUpToDate']);
-    } 
-    public ShowPaperDetailsPage(paperId: number, paperFullRecord: string, paperAbstract: string, urls: string,
-        findOnWeb: string, linkedITEM_ID: number) {
-        this._magBrowserService.GetCompleteMagPaperById(paperId).then(
-            (result: boolean) => {
-                if (result == true) {
-                    this.PleaseGoTo.emit("PaperDetail");
-                }
-            });
-    }
-    public ShowMAGMatchesPage(incOrExc: string) {
-
-        if (incOrExc == 'included') {
-            this._eventEmitterService.getMatchedIncludedItemsEvent.emit();
-        } else if (incOrExc == 'excluded') {
-            this._eventEmitterService.getMatchedExcludedItemsEvent.emit();
-        } else if (incOrExc == 'all') {
-            this._eventEmitterService.getMatchedAllItemsEvent.emit();
-        } else {
-            //          there is an error
-        }
-        
-    }
-    public ShowAllWithThisCode(attributeId: string) {
-        
-            let criteria: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
-            criteria.listType = "ReviewMatchedPapersWithThisCode";
-            criteria.attributeIds = attributeId;
-            criteria.pageSize = 20;
-            this._magAdvancedService.FetchMagPaperListMagPaper(criteria).then(
-                () => {
-                    this.PleaseGoTo.emit("ReviewMatchedPapersWithThisCode");
-                    //this.router.navigate(['MAGBrowser']);
-                }
-            );
-    }
-    public ShowAutoIdentifiedMatches(magRelatedRunId: number) {
-        this._magBrowserService.GetMagRelatedRunsListById(magRelatedRunId)
-            .then(
-                () => {
-                    this.PleaseGoTo.emit("MagRelatedPapersRunList");
-                    //this.router.navigate(['MAGBrowser']);
-                }
-            );
-    }
-    public ShowRelatedPapers() {
-        //this._magBasicService.FetchMagRelatedPapersRunList();
-        //this.router.navigate(['BasicMAGFeatures']);
-        this.PleaseGoTo.emit("RelatedPapers");
-    }
-    public ShowTopicPage(fieldOfStudyId: number, fieldOfStudy: string) {
-
-        this._magBrowserService.currentMagPaper = new MagPaper();
-        //this._magBrowserService.WPChildTopics = [];
-        //this._magBrowserService.WPParentTopics = [];
-        this._magBrowserService.ParentTopic = '';
-        //this.router.navigate(['MAGBrowser']);
-        this.GetParentAndChildRelatedPapers(fieldOfStudy, fieldOfStudyId);
-    }
-    public ShowSelectedPapersPage() {
-        this.PleaseGoTo.emit("SelectedPapers");
-        //this.router.navigate(['MAGBrowser']); 
-        //this._magBrowserService.onTabSelect(2);
-    }
-    private ShowAutoUpdateRunPapersList() {
-        let target = this._MAGBrowserHistoryService._MAGBrowserHistoryList[this._MAGBrowserHistoryService.currentBrowsePosition];
-        if (target != undefined && target != null) {
-            let crit = target.toAutoUpdateListCrit;
-            if (crit != null) {
-                this._magBrowserService.GetMagOrigList(crit).then(
-                    (res) => {
-                        if (typeof res !== "boolean") this.PleaseGoTo.emit("MagAutoUpdateRunPapersList");
-                        //this.router.navigate(['MAGBrowser']);
-                    }
-                );
-            }
-        }
-    } 
-    private ShowSearchPage() {
-        console.log("Going to Search Page...");
-        this.PleaseGoTo.emit("MagSearch");
-    }
-
-    private ShowMagSearchPapersList() {
-        console.log("Going to MagSearchPapersList Page...");
-        
-    }
-
-    public GetParentAndChildRelatedPapers(FieldOfStudy: string, FieldOfStudyId: number) {
-        this._magBrowserService.ParentTopic = FieldOfStudy;
-        this._magBrowserService.GetParentAndChildRelatedPapers(FieldOfStudy, FieldOfStudyId).then((r: boolean) => {
-            if (r == true) this.PleaseGoTo.emit("BrowseTopic");
-        });
+    public async NavigateToThisPoint(browsePosition: number) {
+        let res = await this._MAGBrowserHistoryService.NavigateToThisPoint(browsePosition);
+        if (res != "") this.PleaseGoTo.emit(res);
     }
 }

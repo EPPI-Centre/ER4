@@ -45,7 +45,7 @@ export class MAGKeepUpToDate implements OnInit {
 
     
     ngOnInit() {
-        this.MAGRelatedRunsService.GetMagAutoUpdateList(true);
+        //this.MAGRelatedRunsService.GetMagAutoUpdateList(true);
         
     }
     public get HasWriteRights(): boolean {
@@ -59,6 +59,10 @@ export class MAGKeepUpToDate implements OnInit {
     }
     Back() {
         //this.router.navigate(['Main']);
+    }
+
+    public Refresh() {
+        this.MAGRelatedRunsService.GetMagAutoUpdateList(true);
     }
     public basicSearchPanel: boolean = false;
     public description: string = '';
