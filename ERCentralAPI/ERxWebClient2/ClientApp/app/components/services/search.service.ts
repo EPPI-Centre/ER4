@@ -1,7 +1,9 @@
-import {  Inject, Injectable} from '@angular/core';
+import {  Inject, Injectable, OnDestroy, OnInit} from '@angular/core';
 import { HttpClient   } from '@angular/common/http';
 import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
+import { EventEmitterService } from './EventEmitter.service';
+import { Subscription } from 'rxjs';
 
 @Injectable({
 
@@ -9,17 +11,24 @@ import { BusyAwareService } from '../helpers/BusyAwareService';
 
 })
 
-export class searchService extends BusyAwareService {
+export class searchService extends BusyAwareService implements OnDestroy {
 
     constructor(
         private _httpC: HttpClient,
-        private modalService: ModalService,
+		private modalService: ModalService,
+		private EventEmitterService: EventEmitterService,
         @Inject('BASE_URL') private _baseUrl: string
-        ) {
-        super();
+	) {
+		super();
+		console.log("On create search service");
+		this.clearSub = this.EventEmitterService.PleaseClearYourDataAndState.subscribe(() => { this.Clear(); });
     }
 	
-
+	ngOnDestroy() {
+		console.log("Destroy search service");
+		if (this.clearSub != null) this.clearSub.unsubscribe();
+	}
+	private clearSub: Subscription | null = null;
 	public cmdSearches: SearchCodeCommand = new SearchCodeCommand();
 
 	private _SearchList: Search[] = [];
@@ -59,7 +68,11 @@ export class searchService extends BusyAwareService {
              }
 		 );
 	}
-    private Clear() {
+	public Clear() {
+		console.log("clear in Searches Service");
+		this._SearchList = [];
+		this.searchToBeDeleted = "";
+		this.cmdSearches = new SearchCodeCommand();
         //this.crit = new CriteriaSearch();
         //this._isBusy = false;
     }

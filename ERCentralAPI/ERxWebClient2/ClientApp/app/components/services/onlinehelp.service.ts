@@ -1,24 +1,34 @@
-import { Component, Inject, Injectable, EventEmitter, Output } from '@angular/core';
+import { Component, Inject, Injectable, EventEmitter, Output, OnDestroy } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { ReviewerIdentityService } from './revieweridentity.service';
 import { ModalService } from './modal.service';
 import { ItemListService } from './ItemList.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
+import { EventEmitterService } from './EventEmitter.service';
+import { Subscription } from 'rxjs';
 
 @Injectable({
     providedIn: 'root',
 })
 
-export class OnlineHelpService extends BusyAwareService  {
+export class OnlineHelpService extends BusyAwareService implements OnDestroy {
 
     constructor(
         private _http: HttpClient, private ReviewerIdentityService: ReviewerIdentityService,
         private modalService: ModalService,
         private ItemListService: ItemListService,
+        private EventEmitterService: EventEmitterService,
         @Inject('BASE_URL') private _baseUrl: string
     ) {
         super();
+        //console.log("On create OnlineHelpService");
+        this.clearSub = this.EventEmitterService.PleaseClearYourDataAndState.subscribe(() => { this.Clear(); });
     }
+    ngOnDestroy() {
+        console.log("Destroy search service");
+        if (this.clearSub != null) this.clearSub.unsubscribe();
+    }
+    private clearSub: Subscription | null = null;
     private _CurrentHTMLHelp: string = ""
     public get CurrentHTMLHelp(): string {
         if (this.IsBusy) return "";
@@ -86,6 +96,9 @@ export class OnlineHelpService extends BusyAwareService  {
                 this.RemoveBusy("GetFeedbackMessageList");
             }
         );
+    }
+    public Clear() {
+        this._FeedbackMessageList = [];
     }
 }
 export interface OnlineHelpContent{

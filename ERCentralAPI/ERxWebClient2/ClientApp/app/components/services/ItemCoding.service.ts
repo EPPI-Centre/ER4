@@ -1,4 +1,4 @@
-import { Inject, Injectable, Output, EventEmitter, NgZone, Attribute } from '@angular/core';
+import { Inject, Injectable, Output, EventEmitter, NgZone, Attribute, OnDestroy } from '@angular/core';
 import { Observable, of, Subscription } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
@@ -9,13 +9,13 @@ import { ReviewSet, SetAttribute, ReviewSetsService, singleNode, ItemAttributeSa
 import { ArmsService } from './arms.service';
 import { ItemDocsService } from './itemdocs.service';
 import { Outcome, OutcomeItemList, OutcomeItemAttributesList, OutcomeItemAttribute } from './outcomes.service';
-import { isJsObject } from '@angular/core/src/change_detection/change_detection_util';
+import { EventEmitterService } from './EventEmitter.service';
 
 @Injectable({
     providedIn: 'root',
 })
 
-export class ItemCodingService extends BusyAwareService {
+export class ItemCodingService extends BusyAwareService implements OnDestroy {
     constructor(
         private _httpC: HttpClient,
         @Inject('BASE_URL') private _baseUrl: string,
@@ -25,9 +25,19 @@ export class ItemCodingService extends BusyAwareService {
         private ReviewerIdentityService: ReviewerIdentityService,
         private ngZone: NgZone,
         private ItemDocsService: ItemDocsService,
+		private EventEmitterService: EventEmitterService,
         private ItemListService: ItemListService
-    ) { super(); }
+    ) {
+        super();
+        //console.log("On create DuplicatesService");
+        this.clearSub = this.EventEmitterService.PleaseClearYourDataAndState.subscribe(() => { this.Clear(); });
+    }
 
+    ngOnDestroy() {
+        console.log("Destroy DuplicatesService");
+        if (this.clearSub != null) this.clearSub.unsubscribe();
+    }
+    private clearSub: Subscription | null = null;
 
     @Output() DataChanged = new EventEmitter();
     @Output() ItemAttPDFCodingChanged = new EventEmitter();//used to build the PDFtron annotations on the fly
@@ -461,8 +471,9 @@ export class ItemCodingService extends BusyAwareService {
             this.SelfSubscription4QuickCodingReport.unsubscribe();
             this.SelfSubscription4QuickCodingReport = null;
         }
-        this._BusyMethods == [];
+        this._BusyMethods = [];
         this.SelectedSetAttribute = null;
+        this._ItemCodingList = [];
         this.ClearItemAttPDFCoding();
     }
     private _ItemsToReport: Item[] = [];

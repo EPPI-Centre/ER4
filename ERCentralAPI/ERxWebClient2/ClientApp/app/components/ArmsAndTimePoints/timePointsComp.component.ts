@@ -6,7 +6,6 @@ import { ConfirmationDialogService } from '../services/confirmation-dialog.servi
 import { EventEmitterService } from '../services/EventEmitter.service';
 import { timePointsService, ItemTimepointDeleteWarningCommandJSON, iTimePoint, TimePoint } from '../services/timePoints.service';
 import { NgModel, NgForm } from '@angular/forms';
-import { BusyAwareService } from '../helpers/BusyAwareService';
 
 @Component({
 	selector: 'timePointsComp',
@@ -14,7 +13,7 @@ import { BusyAwareService } from '../helpers/BusyAwareService';
     providers: []
 })
 
-export class timePointsComp extends BusyAwareService implements OnInit {
+export class timePointsComp  implements OnInit {
 
 	constructor(
 		private _timePointsService: timePointsService,
@@ -22,7 +21,7 @@ export class timePointsComp extends BusyAwareService implements OnInit {
 		private eventsService: EventEmitterService,
 		private ReviewerIdentityServ: ReviewerIdentityService
 	) {
-		super();
+		
 	}
 
 	@ViewChild('timePointModel') timePointModel!: NgModel;

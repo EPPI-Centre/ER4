@@ -1,17 +1,10 @@
 import { Component, Inject, OnInit, OnDestroy, ViewChild, Input, Output, EventEmitter } from '@angular/core';
 import { Router } from '@angular/router';
-import { NotificationService } from '@progress/kendo-angular-notification';
-import { ClassifierService } from '../services/classifier.service';
 import { ReviewSetsService, kvAllowedAttributeType, SetAttribute, ReviewSet, singleNode } from '../services/ReviewSets.service';
-import { BuildModelService } from '../services/buildmodel.service';
-import { GridDataResult } from '@progress/kendo-angular-grid';
-import { SortDescriptor, orderBy, State, process } from '@progress/kendo-data-query';
-import { anyChanged } from '@progress/kendo-angular-grid/dist/es2015/utils';
 import { EventEmitterService } from '../services/EventEmitter.service';
 import { ReviewSetsEditingService } from '../services/ReviewSetsEditing.service';
 import { ReviewInfoService } from '../services/ReviewInfo.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
-import { Subscription } from 'rxjs';
 import { OutcomesService } from '../services/outcomes.service';
 
 
@@ -26,11 +19,7 @@ export class CreateNewCodeComp implements OnInit, OnDestroy {
         @Inject('BASE_URL') private _baseUrl: string,
 		private _reviewSetsService: ReviewSetsService,
 		public _reviewSetsEditingService: ReviewSetsEditingService,
-		public _buildModelService: BuildModelService,
-		public _eventEmitterService: EventEmitterService,
-		public _reviewInfoService: ReviewInfoService,
 		public _reviewerIdentityServ: ReviewerIdentityService,
-		private _outcomeService: OutcomesService
 	) { }
 
     @ViewChild('CodeTypeSelectCollaborate') CodeTypeSelect: any;
@@ -51,7 +40,7 @@ export class CreateNewCodeComp implements OnInit, OnDestroy {
         //} 
     }
     IsServiceBusy(): boolean {
-        if (this._reviewSetsEditingService.IsBusy || this._reviewSetsEditingService.IsBusy || this._reviewInfoService.IsBusy) return true;
+        if (this._reviewSetsEditingService.IsBusy || this._reviewSetsEditingService.IsBusy ) return true;
         else return false;
     }
     CanWrite(): boolean {

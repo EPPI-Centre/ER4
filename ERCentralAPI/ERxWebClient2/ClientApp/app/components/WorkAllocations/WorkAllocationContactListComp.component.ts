@@ -161,7 +161,7 @@ export class WorkAllocationContactListComp implements OnInit, AfterContentInit, 
 
 	Clear() {
 		//alert('put stuff in here');
-		this._workAllocationListService.Clear();
+		//this._workAllocationListService.Clear();
         //this._workAllocationContactListService.Save();
     }
 

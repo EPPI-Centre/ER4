@@ -29,10 +29,10 @@ export class ItemListService extends BusyAwareService {
     constructor(
         private _httpC: HttpClient,
         @Inject('BASE_URL') private _baseUrl: string,
-		private eventEmitterService: EventEmitterService,
+        protected EventEmitterService: EventEmitterService,
 		private ModalService: ModalService
     ) {
-		super();
+        super();
 		
 	}
 
@@ -121,7 +121,6 @@ export class ItemListService extends BusyAwareService {
 					console.log();
 					this.SaveItems(list, this._Criteria);
 					this.ReconcileListChanged.emit();
-					this.eventEmitterService.tester();
 				}, error => {
 					this.ModalService.GenericError(error);
 					this.RemoveBusy("FetchWithCritReconcile");
@@ -800,7 +799,13 @@ export class ItemListService extends BusyAwareService {
     //    }
     //    this.SaveCurrentItem();
     //}
-
+    public Clear() {
+        this._ItemList = new ItemList();
+        this._Criteria = new Criteria();
+        this._currentItem = new Item();
+        this.ListDescription = "";
+        this._CurrentItemAdditionalData = null;
+    }
 }
 
 export class ItemListOptions {

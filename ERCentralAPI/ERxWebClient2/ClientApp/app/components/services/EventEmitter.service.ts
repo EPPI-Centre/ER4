@@ -20,12 +20,10 @@ export class EventEmitterService {
 	//public getMatchedAllItemsEvent: EventEmitter<boolean> = new EventEmitter();
 	//public getTopicsEvent: EventEmitter<topicInfo> = new EventEmitter<topicInfo>();
 	public OpeningNewReview = new EventEmitter();
+	public PleaseClearYourDataAndState = new EventEmitter();
 	//public firstVisitMAGBrowserPage: boolean = true;	
 
-	public tester() {
 
-		alert('event emitter getting called here!!');
-	}
 	constructor() {
 
 	}

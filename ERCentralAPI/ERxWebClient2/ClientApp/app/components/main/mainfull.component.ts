@@ -899,7 +899,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
     }
     Clear() {
         console.log('Clear in mainfull');
-        this.ItemListService.SaveItems(new ItemList(), new Criteria());
+        this.ItemListService.Clear();
         //this.codesetStatsServ.
         this.reviewSetsService.Clear();
         this.codesetStatsServ.Clear();
@@ -920,6 +920,16 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         }
         if (this.ReadOnlyReviewsComponent) this.ReadOnlyReviewsComponent.Clear();
         this.isReviewPanelCollapsed = false;
+        this.isWorkAllocationsPanelCollapsed = false;
+        this.isSourcesPanelVisible = false;
+        this.AllIncOrExcShow = false;
+        this.RunReportsShow = false;
+        this._ShowQuickReport = false;
+        this._ShowQuickQuestionReport = false;
+        this.ShowClusterCommand = false;
+        this._ShowQuickQuestionReport = false;
+        this._ShowQuickQuestionReport = false;
+        this._ShowQuickQuestionReport = false;
         //this.dtTrigger.unsubscribe();
         //if (this.statsSub) this.statsSub.unsubscribe();
         //this.statsSub = this.reviewSetsService.GetReviewStatsEmit.subscribe(

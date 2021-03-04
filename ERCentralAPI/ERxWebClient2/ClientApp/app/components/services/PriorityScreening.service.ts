@@ -1,17 +1,15 @@
-import { Component, Inject, Injectable, Output, EventEmitter } from '@angular/core';
-import { NgForm } from '@angular/forms';
+import {  Inject, Injectable, Output, EventEmitter, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
-import { Observable, of, Subscription } from 'rxjs';
-import { AppComponent } from '../app/app.component'
-import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
+import {  of, Subscription } from 'rxjs';
+import { HttpClient, } from '@angular/common/http';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
-import { ItemSet } from './ItemCoding.service';
 import { ReviewInfo, ReviewInfoService, iReviewInfo } from './ReviewInfo.service';
 import { Item, iAdditionalItemDetails } from './ItemList.service';
 import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
 import { ReviewSet, SetAttribute } from './ReviewSets.service';
 import { forEach } from '@angular/router/src/utils/collection';
+import { EventEmitterService } from './EventEmitter.service';
 
 
 //see: https://stackoverflow.com/questions/34031448/typescript-typeerror-myclass-myfunction-is-not-a-function
@@ -22,12 +20,24 @@ import { forEach } from '@angular/router/src/utils/collection';
     providedIn: 'root',
 })
 
-export class PriorityScreeningService extends BusyAwareService {
+export class PriorityScreeningService extends BusyAwareService implements OnDestroy {
     constructor(private router: Router, //private _http: Http, 
         private _httpC: HttpClient, private ReviewerIdentityService: ReviewerIdentityService,
         private modalService: ModalService,
         private ReviewInfoService: ReviewInfoService,
-        @Inject('BASE_URL') private _baseUrl: string) { super(); }
+        private EventEmitterService: EventEmitterService,
+        @Inject('BASE_URL') private _baseUrl: string)
+    {
+        super();
+        //console.log("On create PriorityScreeningService");
+        this.clearSub = this.EventEmitterService.PleaseClearYourDataAndState.subscribe(() => { this.Clear(); });
+    }
+    ngOnDestroy() {
+        console.log("Destroy search service");
+        if (this.clearSub != null) this.clearSub.unsubscribe();
+    }
+    private clearSub: Subscription | null = null;
+
     @Output() gotList = new EventEmitter();
     @Output() gotItem = new EventEmitter();
     public ScreenedItemIds: number[] = [];
@@ -306,6 +316,12 @@ export class PriorityScreeningService extends BusyAwareService {
                 return false;
             }
             );
+    }
+    public Clear() {
+        this.ScreenedItemIds = [];
+        this.CurrentItem = new Item();
+        this.CurrentItemIndex = 0;
+        this._CurrentItemAdditionalData = null;
     }
 }
 export interface Training {
