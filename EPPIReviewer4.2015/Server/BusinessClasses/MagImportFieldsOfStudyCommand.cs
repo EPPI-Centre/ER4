@@ -212,7 +212,7 @@ namespace BusinessLibrary.BusinessClasses
                 foreach (MagMakesHelpers.PaperMakes pm in resp.entities)
                 {
                     MagPaper mp = MagPaper.GetMagPaperFromPaperMakes(pm, null);
-                    if (mp.PaperId > 0)
+                    if (mp.PaperId > 0 && mp.FieldsOfStudy != null && mp.FieldsOfStudy != "")
                     {
                         foreach (string f in mp.FieldsOfStudy.Split(','))
                         {

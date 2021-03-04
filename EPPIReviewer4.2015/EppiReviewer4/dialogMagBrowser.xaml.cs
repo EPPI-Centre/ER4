@@ -4117,7 +4117,7 @@ namespace EppiReviewer4
                 MagAutoUpdateRun maur = hlb.DataContext as MagAutoUpdateRun;
                 if (maur != null)
                 {
-                    if (maur.NPapers == 0)
+                    if (maur.NPapers < 1)
                     {
                         RadWindow.Alert("Zero items to list");
                         return;
