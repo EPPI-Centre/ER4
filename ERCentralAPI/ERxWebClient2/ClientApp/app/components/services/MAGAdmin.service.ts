@@ -1,24 +1,36 @@
-import { Injectable, Inject } from "@angular/core";
+import { Injectable, Inject, OnDestroy } from "@angular/core";
 import { ModalService } from "./modal.service";
 import { HttpClient } from "@angular/common/http";
 import { BusyAwareService } from "../helpers/BusyAwareService";
 import { MAGBlobCommand, MAGLog, MAGReview, MagCurrentInfo, ContReviewPipeLineCommand } from "./MAGClasses.service";
+import { EventEmitterService } from './EventEmitter.service';
+import { Subscription } from "rxjs";
 
 @Injectable({
 
     providedIn: 'root',
 
 })
-export class MAGAdminService extends BusyAwareService {
+export class MAGAdminService extends BusyAwareService implements OnDestroy {
 
 
     constructor(
         private _httpC: HttpClient,
         private modalService: ModalService,
+        private EventEmitterService: EventEmitterService,
         @Inject('BASE_URL') private _baseUrl: string
     ) {
         super();
+        //console.log("On create MAGAdminService");
+        this.clearSub = this.EventEmitterService.PleaseClearYourDataAndState.subscribe(() => { this.Clear(); });
     }
+
+    ngOnDestroy() {
+        console.log("Destroy DuplicatesService");
+        if (this.clearSub != null) this.clearSub.unsubscribe();
+    }
+    private clearSub: Subscription | null = null;
+
     public releaseNotes: string = '';
     public latestMagSasUri: string = '';
     public latestMAGName: string = '';

@@ -7,12 +7,14 @@ import { Router } from '@angular/router';
 import { ReviewerIdentityService } from './revieweridentity.service';
 import { NotificationService } from '@progress/kendo-angular-notification';
 import { LocalSort } from '../helpers/HelperMethods';
+import { EventEmitterService } from './EventEmitter.service';
+import { Subscription } from 'rxjs';
 
 @Injectable({
     providedIn: 'root',
 })
 
-export class DuplicatesService extends BusyAwareService implements OnInit, OnDestroy {
+export class DuplicatesService extends BusyAwareService implements OnDestroy {
 
     constructor(
         private _http: HttpClient,
@@ -20,14 +22,20 @@ export class DuplicatesService extends BusyAwareService implements OnInit, OnDes
         private modalService: ModalService,
         private router: Router,
         private NotificationService: NotificationService,
+        private EventEmitterService: EventEmitterService,
         @Inject('BASE_URL') private _baseUrl: string,
 
     ) {
         super();
+        //console.log("On create DuplicatesService");
+        this.clearSub = this.EventEmitterService.PleaseClearYourDataAndState.subscribe(() => { this.Clear(); });
     }
-    ngOnInit() {
-        //this.FetchGroups(false);
+    ngOnDestroy() {
+        console.log("Destroy DuplicatesService");
+        if (this.clearSub != null) this.clearSub.unsubscribe();
     }
+    private clearSub: Subscription | null = null;
+
     public currentCount = 0; public allDone: boolean = false; public ToDoCount = 0;
     public DuplicateGroups: iReadOnlyDuplicatesGroup[] = [];
     public CurrentGroup: ItemDuplicateGroup | null = null;
@@ -403,9 +411,7 @@ export class DuplicatesService extends BusyAwareService implements OnInit, OnDes
         this.CurrentGroup = null;
         this.LocalSort = new LocalSort();
     }
-    ngOnDestroy() {
-        this.Clear();
-    }
+
 }
 export interface iReadOnlyDuplicatesGroup {
     groupId: number;

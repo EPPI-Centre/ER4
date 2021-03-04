@@ -1,14 +1,10 @@
 import { Component, Inject, OnInit, OnDestroy, ViewChild, Input, Output, EventEmitter } from '@angular/core';
 import { Router } from '@angular/router';
 import { NotificationService } from '@progress/kendo-angular-notification';
-import { ClassifierService } from '../services/classifier.service';
 import { ReviewSetsService, kvAllowedAttributeType, SetAttribute, ReviewSet, singleNode } from '../services/ReviewSets.service';
-import { BuildModelService } from '../services/buildmodel.service';
-import { EventEmitterService } from '../services/EventEmitter.service';
 import { ReviewSetsEditingService } from '../services/ReviewSetsEditing.service';
 import { ReviewInfoService } from '../services/ReviewInfo.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
-import { Subscription } from 'rxjs';
 
 
 @Component({
@@ -22,8 +18,6 @@ export class EditCodeComp implements OnInit, OnDestroy {
         @Inject('BASE_URL') private _baseUrl: string,
         private ReviewSetsService: ReviewSetsService,
         private ReviewSetsEditingService: ReviewSetsEditingService,
-        private _buildModelService: BuildModelService,
-        private _eventEmitterService: EventEmitterService,
         private ReviewInfoService: ReviewInfoService,
         private ReviewerIdentityServ: ReviewerIdentityService
 	) { }

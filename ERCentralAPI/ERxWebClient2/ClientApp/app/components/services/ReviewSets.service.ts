@@ -1,17 +1,14 @@
-import { Component, Inject, Injectable, Output, EventEmitter } from '@angular/core';
-import { NgForm } from '@angular/forms';
+import {  Inject, Injectable, Output, EventEmitter, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
-import { Observable, of, Subscription } from 'rxjs';
-import { AppComponent } from '../app/app.component'
-import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
+import { of, Subscription } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ItemSet } from './ItemCoding.service';
 import { ReviewInfo } from './ReviewInfo.service';
 import { CheckBoxClickedEventData } from '../CodesetTrees/codesetTreeCoding.component';
 import { ModalService } from './modal.service';
-import { Node } from '@angular/compiler/src/render3/r3_ast';
 import { BusyAwareService } from '../helpers/BusyAwareService';
-import { ArmsService } from './arms.service';
+import { EventEmitterService } from './EventEmitter.service';
 
 
 //see: https://stackoverflow.com/questions/34031448/typescript-typeerror-myclass-myfunction-is-not-a-function
@@ -22,16 +19,22 @@ import { ArmsService } from './arms.service';
     providedIn: 'root',
 })
 
-export class ReviewSetsService extends BusyAwareService {
+export class ReviewSetsService extends BusyAwareService implements OnDestroy {
     constructor(private router: Router, //private _http: Http, 
         private _httpC: HttpClient,
         private ReviewerIdentityService: ReviewerIdentityService,
-		private modalService: ModalService,
-
+        private modalService: ModalService,
+        private EventEmitterService: EventEmitterService,
         @Inject('BASE_URL') private _baseUrl: string) {
         super();
+        //console.log("On create ReviewSetsService");
+        this.clearSub = this.EventEmitterService.PleaseClearYourDataAndState.subscribe(() => { this.Clear(); });
     }
-
+    ngOnDestroy() {
+        console.log("Destroy search service");
+        if (this.clearSub != null) this.clearSub.unsubscribe();
+    }
+    private clearSub: Subscription | null = null;
     @Output() GetReviewStatsEmit = new EventEmitter();
     private _ReviewSets: ReviewSet[] = [];
     //private _IsBusy: boolean = true;
@@ -136,8 +139,10 @@ export class ReviewSetsService extends BusyAwareService {
     subOpeningReview: Subscription | null = null;
 
     public Clear() {
+        //console.log("Clear in ReviewSetsService");
         this.selectedNode = null;
         this._ReviewSets = [];
+        this.CurrentArmID = 0;
         //localStorage.removeItem('ReviewSets');
     }
     public get ReviewSets(): ReviewSet[] {

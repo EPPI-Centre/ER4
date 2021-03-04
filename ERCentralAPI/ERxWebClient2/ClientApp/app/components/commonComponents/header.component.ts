@@ -136,9 +136,9 @@ export class HeaderComponent implements OnInit {
     ngOnDestroy() {
     }
     Clear() {
-        this.ItemListService.SaveItems(new ItemList(), new Criteria());
-        this.ReviewSetsService.Clear();
-		this.workAllocationListService.Clear();
+  //      this.ItemListService.SaveItems(new ItemList(), new Criteria());
+  //      this.ReviewSetsService.Clear();
+		//this.workAllocationListService.Clear();
         //this.workAllocationContactListService.Save();
     }
     Logout() {

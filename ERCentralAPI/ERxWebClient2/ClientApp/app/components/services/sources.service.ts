@@ -1,9 +1,7 @@
-import { Component, Inject, Injectable, EventEmitter, Output } from '@angular/core';
-import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
-import { ReviewerIdentityService } from './revieweridentity.service';
+import { Inject, Injectable, EventEmitter, Output } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
-import { ConvertActionBindingResult } from '@angular/compiler/src/compiler_util/expression_converter';
 
 @Injectable({
     providedIn: 'root',

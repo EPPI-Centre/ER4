@@ -1,15 +1,14 @@
 import { Component, Inject, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { ClassifierService } from '../services/classifier.service';
-import { ReviewSetsService, singleNode } from '../services/ReviewSets.service';
-import { BuildModelService, MVCClassifierCommand } from '../services/buildmodel.service';
+import { ReviewSetsService, singleNode, SetAttribute } from '../services/ReviewSets.service';
+//import { BuildModelService, MVCClassifierCommand } from '../services/buildmodel.service';
 import { GridDataResult } from '@progress/kendo-angular-grid';
 import { SortDescriptor, orderBy } from '@progress/kendo-data-query';
 import { EventEmitterService } from '../services/EventEmitter.service';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { NotificationService } from '@progress/kendo-angular-notification';
-import { InfoBoxModalContent } from '../CodesetTrees/codesetTreeCoding.component';
 
 
 @Component({
@@ -23,8 +22,8 @@ export class BuildModelComponent implements OnInit, OnDestroy {
         @Inject('BASE_URL') private _baseUrl: string,
 		private _classifierService: ClassifierService,
 		public _reviewSetsService: ReviewSetsService,
-		private _buildModelService: BuildModelService,
-		public _eventEmitterService: EventEmitterService,
+		//private _buildModelService: BuildModelService,
+		private _eventEmitterService: EventEmitterService,
 		private _confirmationDialogService: ConfirmationDialogService,
 		private _ReviewerIdentityServ: ReviewerIdentityService,
 		private _notificationService: NotificationService
@@ -33,12 +32,12 @@ export class BuildModelComponent implements OnInit, OnDestroy {
 	public selectedModelDropDown1: string = '';
 	public selectedModelDropDown2: string = '';
 	public modelNameText: string = '';
-	public DD1: string = '0';
-	public DD2: string = '0';
+	public DD1: number = 0;
+	public DD2: number = 0;
 	public get DataSource(): GridDataResult {
 		return {
-			data: orderBy(this._buildModelService.ClassifierModelList, this.sort),
-			total: this._buildModelService.ClassifierModelList.length,
+			data: orderBy(this._classifierService.ClassifierModelList, this.sort),
+			total: this._classifierService.ClassifierModelList.length,
 		};
     }
     public get selectedNode(): singleNode | null {
@@ -107,19 +106,19 @@ export class BuildModelComponent implements OnInit, OnDestroy {
                                     });
                                 }
                                 this.modelsToBeDeleted = [];
-                                this._buildModelService.Fetch();//we refresh data in all branches, as it's not costly and we like getting a reliable list from the server side.
+								this._classifierService.Fetch();//we refresh data in all branches, as it's not costly and we like getting a reliable list from the server side.
                                 this.Clear();
 							},
                             (error) => {
                                 this.modelsToBeDeleted = [];
-                                this._buildModelService.Fetch();
+								this._classifierService.Fetch();
                                 console.log("Error deleting models (controller side)", error);
                                 this.Clear();
                             }
                         ).catch(
                             (caught) => {
                                 this.modelsToBeDeleted = [];
-                                this._buildModelService.Fetch();
+								this._classifierService.Fetch();
                                 console.log("Error deleting models (controller side, catch)", caught);
                                 this.Clear();
                             }
@@ -150,7 +149,7 @@ export class BuildModelComponent implements OnInit, OnDestroy {
             //lstStrModelIds += this.DataSource.data[j].modelId;
             modelID = this.modelsToBeDeleted[j];
             //console.log('trying to delete this model: ' + modelID);
-            res = await this._buildModelService.Delete(modelID);
+			res = await this._classifierService.Delete(modelID);
             if (res == null || res == undefined || res == false) {
                 //an error happened. Let's stop here.
                 res = false;
@@ -213,7 +212,7 @@ export class BuildModelComponent implements OnInit, OnDestroy {
 		this.selectedModelDropDown1 = '';
 		this.selectedModelDropDown2 = '';
 		this._reviewSetsService.GetReviewSets();
-		this._buildModelService.Fetch();
+		this._classifierService.Fetch();
 	
 
 	}
@@ -223,37 +222,24 @@ export class BuildModelComponent implements OnInit, OnDestroy {
 	}
 	IamVerySorryRefresh() {
 
-		this._buildModelService.Fetch();
+		this._classifierService.Fetch();
 
 	}
-	SetAttrOn(node: any) {
+	SetAttrOn(node: singleNode) {
 		//alert(JSON.stringify(node));
-		if (node != null) {
+		if (node != null && node.nodeType == "SetAttribute") {
+			let a = node as SetAttribute;
 			this.selectedModelDropDown1 = node.name;
-
-			let id: string = node.id;
-			let a: number = id.indexOf('A');
-			if (a != -1) {
-				let tmp: string = id.substr(a+1, id.length - a);
-				this.DD1 = tmp;
-
-				}
+			this.DD1 = a.attribute_id;
 		}
 		
 	}
-	SetAttrNotOn(node: any) {
+	SetAttrNotOn(node: singleNode) {
 		//alert(JSON.stringify(node));
-		if (node != null) {
-			//alert(node.name);
+		if (node != null && node.nodeType == "SetAttribute") {
+			let a = node as SetAttribute;
 			this.selectedModelDropDown2 = node.name;
-		
-			let id: string = node.id;
-			let a: number = id.indexOf('A');
-			if (a != -1) {
-				let tmp: string = id.substr(a+1, id.length - a);
-				this.DD2 = tmp;
-				//alert(tmp);
-			}
+			this.DD2 = a.attribute_id;
 		}
 	}
 	public isCollapsed: boolean = false;
@@ -282,8 +268,8 @@ export class BuildModelComponent implements OnInit, OnDestroy {
 		this.selectedModelDropDown1 = '';
 		this.selectedModelDropDown2 = '';
 		this.modelNameText = '';
-		this.DD1= '0';
-		this.DD2 = '0';
+		this.DD1 = 0;
+		this.DD2 = 0;
 
 	}
 
