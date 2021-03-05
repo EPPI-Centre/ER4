@@ -728,6 +728,11 @@ namespace EppiReviewer4
                     return;
                 }
             }
+            if (windowDocumentCluster.ComboClusterWhat.SelectedIndex == 2 && windowDocumentCluster.codesSelectControlClusterSelect.SelectedAttributeSet() == null)
+            {
+                RadWindow.Alert("Please select a code");
+                return;
+            }
             DataPortal<PerformClusterCommand> dp = new DataPortal<PerformClusterCommand>();
             PerformClusterCommand command = new PerformClusterCommand(
                 item_ids,
@@ -771,6 +776,7 @@ namespace EppiReviewer4
                     return;
                 }
             }
+            
             DataPortal<MagImportFieldsOfStudyCommand> dp = new DataPortal<MagImportFieldsOfStudyCommand>();
             MagImportFieldsOfStudyCommand command = new MagImportFieldsOfStudyCommand(
                 item_ids,
