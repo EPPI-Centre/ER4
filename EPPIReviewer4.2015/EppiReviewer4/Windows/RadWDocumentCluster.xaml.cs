@@ -54,6 +54,19 @@ namespace EppiReviewer4
             if (dialogClusterComboSelectCodeSet != null)
                     dialogClusterComboSelectCodeSet.IsEnabled = false;
         }
+
+        private void dialogClusterMinItems_ValueChanged(object sender, RadRangeBaseValueChangedEventArgs e)
+        {
+            if (dialogClusterMinItems != null && dialogClusterThresholdWarning != null && dialogClusterMinItems.Value.Value < 5)
+            {
+                dialogClusterThresholdWarning.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                if (dialogClusterThresholdWarning != null)
+                    dialogClusterThresholdWarning.Visibility = Visibility.Collapsed;
+            }
+        }
     }
 }
 
