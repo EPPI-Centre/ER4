@@ -125,6 +125,8 @@ namespace EppiReviewer4
                         break;
 
                     case "AutoUpdate":
+                        IncrementHistoryCount();
+                        AddToBrowseHistory("Keep review up to date", "AutoUpdate", 0, "", "", 0, "", "", 0, "", "", 0, 0, "", 0, 0, 0, 0);
                         ShowAutoUpdatePage();
                         break;
 
@@ -1343,6 +1345,10 @@ namespace EppiReviewer4
                             case "RelatedPapers":
                                 Panes.SelectedIndex = 0;
                                 ShowRelatedPapersPage();
+                                break;
+                            case "AutoUpdate":
+                                Panes.SelectedIndex = 1;
+                                ShowAutoUpdatePage();
                                 break;
                             case "MagAutoUpdateRunList":
                                 Panes.SelectedIndex = 4;
@@ -4124,7 +4130,7 @@ namespace EppiReviewer4
                     }
                     IncrementHistoryCount();
                     AddToBrowseHistory("Papers identified from auto-update run", "MagAutoUpdateRunList", 0,
-                        "", "", 0, "", "", 0, "", "", 0, maur.MagAutoUpdateRunId, "AutoUpdate", 0, 0, 0, 0);
+                        "", "", 0, "", "", 0, "", "", 0, maur.MagAutoUpdateRunId, "AutoUpdate", 0, 0, 0, -1);
                     TBPaperListTitle.Text = "Papers identified from auto-update run";
                     ShowAutoUpdateIdentifiedItems(maur.MagAutoUpdateRunId, "AutoUpdate", 0, 0, 0, -1);
                 }

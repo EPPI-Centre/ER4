@@ -377,6 +377,8 @@ namespace BusinessLibrary.BusinessClasses
                 _specificFolder, _MagLogId);
         }
 
+
+        // the stored procedure also creates a line in TB_MAG_AUTOUPDATE_RUN for each update in each review
         private int WriteSeedIdsFile(string uploadFileName)
         {
             int lineCount = 0;
