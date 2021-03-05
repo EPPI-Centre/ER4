@@ -722,6 +722,11 @@ namespace EppiReviewer4
             if (windowDocumentCluster.ComboClusterWhat.SelectedIndex == 1)
             {
                 item_ids = ItemsGridSelectedItems();
+                if (item_ids == "")
+                {
+                    RadWindow.Alert("You don't have any items selected");
+                    return;
+                }
             }
             DataPortal<PerformClusterCommand> dp = new DataPortal<PerformClusterCommand>();
             PerformClusterCommand command = new PerformClusterCommand(
@@ -760,6 +765,11 @@ namespace EppiReviewer4
             if (windowDocumentCluster.ComboClusterWhat.SelectedIndex == 1)
             {
                 item_ids = ItemsGridSelectedItems();
+                if (item_ids == "")
+                {
+                    RadWindow.Alert("You don't have any items selected");
+                    return;
+                }
             }
             DataPortal<MagImportFieldsOfStudyCommand> dp = new DataPortal<MagImportFieldsOfStudyCommand>();
             MagImportFieldsOfStudyCommand command = new MagImportFieldsOfStudyCommand(
@@ -767,7 +777,8 @@ namespace EppiReviewer4
                 (windowDocumentCluster.ComboClusterWhat.SelectedIndex != 2 ? "" : windowDocumentCluster.codesSelectControlClusterSelect.SelectedAttributeSet().AttributeId.ToString()),
                 rsl.Count,
                 windowDocumentCluster.rbClusterExistingCodeSet.IsChecked == true ? (windowDocumentCluster.dialogClusterComboSelectCodeSet.SelectedItem as ReviewSet).ReviewSetId : 0,
-                Convert.ToInt32(windowDocumentCluster.dialogClusterMaxTopics.Value.Value));
+                Convert.ToInt32(windowDocumentCluster.dialogClusterMaxTopics.Value.Value),
+                Convert.ToInt32(windowDocumentCluster.dialogClusterMinItems.Value.Value));
 
             dp.ExecuteCompleted += (o, e2) =>
             {

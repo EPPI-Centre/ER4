@@ -59,8 +59,10 @@
         <ComboBox x:Name="dialogClusterComboSelectCodeSet" Grid.Row="3" Grid.Column="3" Margin="4,4,4,4" ItemsSource="{Binding Source={StaticResource CodeSetsData}, Path=Data, Mode=OneWay}" IsEnabled="False" ToolTipService.ToolTip="You can add more items to an existing codeset"></ComboBox>
         <TextBlock Grid.Row="4" Grid.Column="2" Text="Maximum number of topics" Margin="6,8,6,6" HorizontalAlignment="Right"></TextBlock>
         <telerik:RadNumericUpDown x:Name="dialogClusterMaxTopics" Grid.Row="4" Grid.Column="3" Margin="4,4,4,4" Value="100" HorizontalAlignment="Left" Width="80" Maximum="500" IsInteger="True" Minimum="20" ToolTipService.ToolTip="(Does not include any 'parent' categories)"></telerik:RadNumericUpDown>
-        
-        
+        <TextBlock Grid.Row="5" Grid.Column="2" Text="Min # items per topic" Margin="6,8,6,6" HorizontalAlignment="Right"></TextBlock>
+        <telerik:RadNumericUpDown x:Name="dialogClusterMinItems" Grid.Row="5" Grid.Column="3" Margin="4,4,4,4" Value="5" HorizontalAlignment="Left" Width="80" Maximum="100" IsInteger="True" Minimum="1" ToolTipService.ToolTip="Topic needs to be used this number of times before it is added"></telerik:RadNumericUpDown>
+
+
         <Button x:Name="cmdGetMicrosoftAcademicTopics" HorizontalAlignment="Center" IsEnabled="{Binding Source={StaticResource isEn}, Path=IsEnabled, Mode=OneWay}" Grid.Row="11" Grid.Column="2" Grid.ColumnSpan="2" FontSize="10" Content="Get Microsoft Academic topics" Width="180" Click="cmdGetMicrosoftAcademicTopics_Click" Margin="6,0,6,12"></Button>
     </Grid>
 </telerik:RadWindow>

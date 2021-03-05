@@ -43,6 +43,7 @@ namespace BusinessLibrary.BusinessClasses
         private int _reviewSetId;
         private string _returnMessage;
         private int _numTopics;
+        private int _minItems;
 
         public string ReturnMessage
         {
@@ -56,13 +57,14 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        public MagImportFieldsOfStudyCommand(string itemList, string attributeList, int reviewSetIndex, int ReviewSetId, int NumTopics)
+        public MagImportFieldsOfStudyCommand(string itemList, string attributeList, int reviewSetIndex, int ReviewSetId, int NumTopics, int MinItems)
         {
             _itemList = itemList;
             _attributeList = attributeList;
             _reviewSetIndex = reviewSetIndex;
             _reviewSetId = ReviewSetId;
             _numTopics = NumTopics;
+            _minItems = MinItems;
         }
 
         protected override void OnGetState(Csla.Serialization.Mobile.SerializationInfo info, Csla.Core.StateMode mode)
@@ -74,6 +76,7 @@ namespace BusinessLibrary.BusinessClasses
             info.AddValue("_reviewSetId", _reviewSetId);
             info.AddValue("_returnMessage", _returnMessage);
             info.AddValue("_numTopics", _numTopics);
+            info.AddValue("_minItems", _minItems);
         }
         protected override void OnSetState(Csla.Serialization.Mobile.SerializationInfo info, Csla.Core.StateMode mode)
         {
@@ -83,6 +86,7 @@ namespace BusinessLibrary.BusinessClasses
             _reviewSetId = info.GetValue<int>("_reviewSetId");
             _returnMessage = info.GetValue<string>("_returnMessage");
             _numTopics = info.GetValue<int>("_numTopics");
+            _minItems = info.GetValue<int>("_minItems");
         }
 
 
@@ -229,7 +233,7 @@ namespace BusinessLibrary.BusinessClasses
             var result = PapersData.GroupBy(x => x.FoS).ToDictionary(x => x.Key, x => x.Count()).OrderByDescending(x => x.Value);
             foreach (KeyValuePair<Int64, int> entry in result)
             {
-                if (entry.Value > 5 && isValidFos(entry.Key) && enough < _numTopics)
+                if (entry.Value >= _minItems && isValidFos(entry.Key) && enough <= _numTopics)
                 {
                     GetOrCreateAttribute(rs, entry.Key.ToString(), ri.UserId, ri.ReviewId);
                     enough++;
