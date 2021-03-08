@@ -204,13 +204,13 @@ namespace BusinessLibrary.BusinessClasses
                 MagLog.UpdateLogEntry("running", "Main update. ADFPipelineComplete (" + SeedIds.ToString() + ")" +
                     " Folder:" + folderPrefix, logId);
                 int NewIds = await DownloadResultsAsync(folderPrefix, ReviewId);
-                MagLog.UpdateLogEntry("Complete", "Main update. SeedIds: " + SeedIds.ToString() + "; NewIds: " +
-                    NewIds.ToString() + " FoS:" + _fosThreshold.ToString() + "Score threshold: " + _scoreThreshold.ToString() +
+                MagLog.UpdateLogEntry("Complete", "MAG version: " + _NextMagVersion + "; SeedIds: " + SeedIds.ToString() + "; NewIds: " +
+                    NewIds.ToString() + " FoS:" + _fosThreshold.ToString() + "; Score threshold: " + _scoreThreshold.ToString() +
                     " Folder:" + folderPrefix, logId);
             }
             else
             {
-                MagLog.UpdateLogEntry("failed", "Main update failed at run contreview. Error: " + result, logId);
+                MagLog.UpdateLogEntry("failed", "Main update failed at run contreview. Error: " + result + " Folder:" + folderPrefix, logId);
             }
         }
 

@@ -3054,11 +3054,18 @@ namespace EppiReviewer4
                 RadWindow.Alert("Time since last log update < 2 hours");
                 return;
             }
-            if (ml.JobStatus.ToLower() != "running")
+            if (ml.JobStatus.ToLower() != "Complete")
             {
-                RadWindow.Alert("Job not running");
+                RadWindow.Alert("Data already downloaded");
                 return;
             }
+            /*
+            if (ml.JobStatus.ToLower() != "running")
+            {
+                RadWindow.Alert("Job not 'running'! Are you sure?");
+                //return;
+            }
+            */
             CurrentlySelectedMagLogForFailedDataDownload = ml;
             RadWindow.Confirm("Are you sure you want to download these data?", this.DoDownloadContReviewDataOnFail);
         }
