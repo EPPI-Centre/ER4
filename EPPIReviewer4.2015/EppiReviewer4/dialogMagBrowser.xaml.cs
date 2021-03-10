@@ -3049,12 +3049,13 @@ namespace EppiReviewer4
             MagLog ml = hl.DataContext as MagLog;
             if (ml == null)
                 return;
-            if (ml.TimeUpdated.AddHours(2) > DateTime.Now)
+
+            if (ml.TimeUpdated.AddHours(1) > DateTime.Now)
             {
                 RadWindow.Alert("Time since last log update < 2 hours");
                 return;
             }
-            if (ml.JobStatus.ToLower() != "Complete")
+            if (ml.JobStatus.ToLower() == "Complete")
             {
                 RadWindow.Alert("Data already downloaded");
                 return;
