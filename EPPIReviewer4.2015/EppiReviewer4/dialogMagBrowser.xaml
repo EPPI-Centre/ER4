@@ -717,7 +717,7 @@
                         </radDock:RadDocumentPane>
                         <!-- end match items review-->
 
-                        <radDock:RadDocumentPane Header="Test graph search" Title="Test graph search" CanFloat="False" CanUserClose="False" Tag="Simulation">
+                        <radDock:RadDocumentPane Header="Test graph search" Title="Test graph search" CanFloat="False" CanUserClose="False" Tag="Simulation" Visibility="Collapsed">
                             <Grid x:Name="StatusGrid">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"></ColumnDefinition>
