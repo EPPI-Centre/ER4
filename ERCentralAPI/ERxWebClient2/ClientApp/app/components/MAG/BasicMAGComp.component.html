@@ -57,7 +57,6 @@
 
 
 <div class="container col-12">
-
     <div *ngIf="IsServiceBusy" class="k-loading-image" style="position: fixed; top: 2%;"></div>
 
     <div *ngIf="!basicSearchPanel">
@@ -182,7 +181,7 @@
                                         <button (click)="ClickSearchMode('1')" class="dropdown-item">Papers 'recommended' by known items ('Recommended by')</button>
                                         <button (click)="ClickSearchMode('2')" class="dropdown-item">Papers that 'recommended' known items ('That recommend')</button>
                                         <button (click)="ClickSearchMode('3')" class="dropdown-item">Bi-directional recomendation relationships ('Recommendations')</button>
-                                        <button (click)="ClickSearchMode('4')" class="dropdown-item">Papers in the bibliography of know items ('Bibliography')</button>
+                                        <button (click)="ClickSearchMode('4')" class="dropdown-item">Papers in the bibliography of known items ('Bibliography')</button>
                                         <button (click)="ClickSearchMode('5')" class="dropdown-item">Papers that cite known items ('Cited by')</button>
                                         <button (click)="ClickSearchMode('6')" class="dropdown-item">Bi-directional citation relationships ('Bi-Citation') </button>
                                         <button (click)="ClickSearchMode('7')" class="dropdown-item">Bi-directional recomendation AND citation relationships ('Bi-Citation AND Recommendations')</button>
@@ -211,10 +210,8 @@
 
 <div *ngIf="_basicMAGService.MagRelatedPapersRunList.length > 0">
     <div class="container col-12">
-
         <div class="card">
             <div class="card-body">
-
                 <div class="row mx-1">
                     <div class="card-title h4 mb-0">Related Paper Searches</div>
                     <button class="btn btn-sm btn-outline-success mx-1 my-auto py-0 px-1 " (click)="Refresh()">
@@ -258,13 +255,13 @@
                                     </td>
                                     <td style="vertical-align:middle">{{item.attributeName}}</td>
                                     <td style="vertical-align:middle">{{item.status  == 'Complete' ? 'Complete' : 'Pending'}}</td>
-                                    <td class="p-0" style="vertical-align:middle"><button [disabled]="!CanDeleteMAGRun()" (click)="DoDeleteMagRelatedPapersRun(item)" class="btn btn-danger btn-sm text-white align-content-center  fa fa-trash"></button></td>
+
                                     <td class="p-0" style="vertical-align:middle">
                                         <button [disabled]="item.userStatus == 'Checked'" (click)="CheckedStatus(item)" [disabled]="!CanImportMagPapers(item)" class="btn btn-info btn-sm text-white align-content-center">
                                             {{item.userStatus == '' ? 'Waiting' : item.userStatus }}
                                         </button>
                                     </td>
-
+                                    <td class="p-0" style="vertical-align:middle"><button [disabled]="!CanDeleteMAGRun()" (click)="DoDeleteMagRelatedPapersRun(item)" class="btn btn-danger btn-sm text-white align-content-center  fa fa-trash"></button></td>
                                     <td class="p-0" style="vertical-align:middle"><button (click)="ImportMagSearchPapers(item)" [disabled]="!CanImportMagPapers(item)" class="btn btn-primary btn-sm text-white align-content-center">Import</button></td>
                                     <td class="p-0" style="vertical-align:middle"><div (click)="GetItems(item)" class="btn btn-link btn-sm">{{ item.nPapers}}</div></td>
 
