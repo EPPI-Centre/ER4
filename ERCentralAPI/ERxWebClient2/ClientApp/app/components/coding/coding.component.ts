@@ -579,6 +579,9 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
                 }
                 if (!this.IsScreening && this.hasNext()) this.nextItem();
                 else if (this.IsScreening) this.GetItem();//in screening mode, this uses the screening service to receive the next item
+                if (this.tabstrip) {
+                    this.tabstrip.selectTab(0);//in CodingOnly, we always go to ItemDetails whenever we move item...
+                }
             }
             //this.ReviewSetsService.ItemCodingItemAttributeSaveCommandError.unsubscribe();
             //this.ReviewSetsService.ItemCodingItemAttributeSaveCommandExecuted.unsubscribe();

@@ -659,6 +659,7 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
                 }
                 if (!this.IsScreening && this.hasNext()) this.nextItem();
                 else if (this.IsScreening) this.GetItem();//in screening mode, this uses the screening service to receive the next item
+                this.CheckChangeActiveTabOnItemChange();
             }
             //this.ReviewSetsService.ItemCodingItemAttributeSaveCommandError.unsubscribe();
             //this.ReviewSetsService.ItemCodingItemAttributeSaveCommandExecuted.unsubscribe();
