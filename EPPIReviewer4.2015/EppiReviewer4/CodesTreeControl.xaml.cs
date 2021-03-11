@@ -3569,6 +3569,11 @@ namespace EppiReviewer4
             {
                 AttributeSet iad = cb.DataContext as AttributeSet;
                 if (iad == null) return;
+                TreeView.SelectionChanged -= TreeView_SelectionChanged;
+                TreeView.SelectionChanged -= TreeView_SelectionChanged;
+                TreeView.SelectedItem = null;
+                TreeView.SelectionChanged += new Telerik.Windows.Controls.SelectionChangedEventHandler(TreeView_SelectionChanged);
+
                 TreeView.SelectedItem = iad;
                 if ((!reviewSets.LoadingAttributes) && (cb.IsChecked == true))
                 {
