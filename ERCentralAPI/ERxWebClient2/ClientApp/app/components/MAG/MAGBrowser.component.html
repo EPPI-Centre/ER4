@@ -45,33 +45,41 @@
                         <td style="padding-left:10px">
                             <div *ngIf="!basicPanel">
                                 <a class="btn btn-dark btn-sm text-white" data-toggle="collapse"
-                                   href="#collapseExample1" role="button" aria-expanded="false" aria-controls="collapseExample1">
+                                   href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
                                     more details <i class="fa fa-arrow-circle-down"></i>
                                 </a>
                             </div>
                             <div *ngIf="basicPanel">
                                 <a class="btn btn-dark btn-sm text-white" data-toggle="collapse"
-                                   href="#collapseExample1" role="button" aria-expanded="false" aria-controls="collapseExample1">
+                                   href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
                                     more details <i class="fa fa-arrow-circle-up"></i>
                                 </a>
                             </div>
                         </td>
                     </tr>
                 </table>
-                <div class="collapse multi-collapse" id="collapseExample1">
+                <div class="collapse multi-collapse" id="collapseExample">
                     <div class="card card-footer">
-                        <p>
-                            <b>Abstract:</b>
-                        <p>{{_magBrowserService.currentMagPaper.abstract}}</p>
-                        <b>Links:</b>
-                        <div *ngFor="let item of GetAllLinks()">
-                            <a href="{{item}}" target="_blank">
-                                {{item}}
-                            </a>
+                        <div class="row col-12 p-0">
+
+                            <table style="width:100%;">
+                                <tr>
+                                    <td style="padding-right: 25px;">
+                                        <p>
+                                            <b>Abstract:</b>
+                                        <p>{{_magBrowserService.currentMagPaper.abstract}}</p>
+                                        <b>Links:</b>
+                                        <div *ngFor="let item of GetAllLinks()">
+                                            <a href="{{item}}" target="_blank">
+                                                {{item}}
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
                         </div>
                     </div>
                 </div>
-                
             </div>
         </div>
     </div>
@@ -103,13 +111,13 @@
             <div *ngIf="_magTopicsService.ShowingParentAndChildTopics">
                 <h5 class="font-weight-light">Parent Topics</h5>
 
-                <div class="card col-12 small table table-border  table-striped alert-primary">
+                <div class="card col-12 small table table-border  table-striped">
                     <div *ngIf="_magTopicsService.WPParentTopics.length == 0" class="alert alert-light">
                         No Topic
                     </div>
                     <div *ngFor="let item of _magTopicsService.WPParentTopics">
                         <div (click)="GetParentAndChildRelatedPapers(item)" class="alert-info m-1 px-1 rounded page-link"
-                             [ngStyle]="{ 'font-size.em': item.fontSize,'background-color': 'light-blue', 'color': 'black'}">
+                             [ngStyle]="{ 'font-size.em': item.fontSize,'background-color': 'WhiteSmoke', 'color': 'black'}">
                             {{item.displayName }}
                         </div>
 
@@ -123,7 +131,7 @@
                     <div class="row">
                         <div *ngFor="let item of _magTopicsService.WPChildTopics">
                             <div (click)="GetParentAndChildRelatedPapers(item)" class="alert-info m-1 px-1 rounded page-link"
-                                 [ngStyle]="{ 'font-size.em': item.fontSize,'background-color': 'light-blue', 'color': 'black'}">
+                                 [ngStyle]="{ 'font-size.em': item.fontSize,'background-color': 'WhiteSmoke', 'color': 'black'}">
                                 {{item.displayName}}
                             </div>
                         </div>

@@ -220,7 +220,7 @@ export class BasicMAGComp implements OnInit {
         } else if (status == 'Waiting') {
             msg = 'this search is in a waiting state';
         } else if (status == 'Imported') {
-            msg = 'you have imported these papers already in this search';
+            msg = 'you have imported the papers in this search already';
         } else {
             msg = 'there is an error in the status';
         }
@@ -259,7 +259,7 @@ export class BasicMAGComp implements OnInit {
     }
     public ImportMagRelatedPapersRun(magRun: MagRelatedPapersRun, msg: string) {
 
-        this._confirmationDialogService.confirm("Importing papers for the selected MAG search",
+        this._confirmationDialogService.confirm("Importing papers for the selected search",
                 msg, false, '')
             .then((confirm: any) => {
                 if (confirm) {
@@ -269,8 +269,8 @@ export class BasicMAGComp implements OnInit {
     }
     public DoDeleteMagRelatedPapersRun(magRun: MagRelatedPapersRun) {
 
-        this._confirmationDialogService.confirm("Deleting the selected MAG search",
-            "Are you sure you want to delete MAG search:" + magRun.userDescription + "?", false, '')
+        this._confirmationDialogService.confirm("Deleting the selected search",
+            "Are you sure you want to delete this search:" + magRun.userDescription + "?", false, '')
             .then((confirm: any) => {
                 if (confirm) {
                     this._basicMAGService.DeleteMAGRelatedRun(magRun.magRelatedRunId);
