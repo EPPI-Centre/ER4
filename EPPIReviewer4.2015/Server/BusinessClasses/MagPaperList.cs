@@ -464,13 +464,20 @@ namespace BusinessLibrary.BusinessClasses
                             */
                             // replaced the above with this, so that the count is correct even with date filters
                             MagMakesHelpers.MakesCalcHistogramResponse resp = MagMakesHelpers.CalcHistoramCount(searchString);
-                            foreach (MagMakesHelpers.histograms hs in resp.histograms)
+                            if (resp != null)
                             {
-                                if (hs.attribute == "Id")
+                                foreach (MagMakesHelpers.histograms hs in resp.histograms)
                                 {
-                                    _totalItemCount = hs.total_count;
-                                    break;
+                                    if (hs.attribute == "Id")
+                                    {
+                                        _totalItemCount = hs.total_count;
+                                        break;
+                                    }
                                 }
+                            }
+                            else
+                            {
+                                _totalItemCount = 0;
                             }
                             break;
                         case "CitedByList":

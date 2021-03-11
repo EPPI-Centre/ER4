@@ -10,30 +10,80 @@
 
 <div *ngIf="_magBrowserService.currentMagPaper.paperId > 0"
      class="alert-lighter border border-dark p-2 m-2 card small">
-    <h1><b>{{_magBrowserService.currentMagPaper.originalTitle}}</b></h1>
-    <b>{{_magBrowserService.currentMagPaper.fullRecord}}</b>
-    Paper Id:&nbsp;{{_magBrowserService.currentMagPaper.paperId}}
-    <div *ngIf="IsCurrentPaperSelected(_magBrowserService.currentMagPaper.paperId) == false">
-        <button class="btn btn-primary btn-sm text-white" (click)="AddCurrentPaperToSelectedList()">Selected papers&nbsp;&nbsp; <i class="fa fa-plus"></i></button>
-    </div>
-    <div *ngIf="IsCurrentPaperSelected(_magBrowserService.currentMagPaper.paperId) == true ">
-        <button class="btn btn-warning btn-sm text-white" (click)="RemoveCurrentPaperToSelectedList()">Selected papers&nbsp;&nbsp; <i class="fa fa-minus"></i></button>
-    </div>
-    <div class="btn btn-link text-left">
-        <a href="https://academic.microsoft.com/paper/{{_magBrowserService.currentMagPaper.paperId}}/reference" target="_blank">
-            View on the internet
-        </a>
-    </div>
-    <button class="btn btn-link" (click)=toggleDisplayDivIf()>{{isShowDivIf == true ? 'Show More' : 'Show Less'}}</button>
-    <div *ngIf="!isShowDivIf">
-        <b>Abstract:</b> <p>{{_magBrowserService.currentMagPaper.abstract}}</p>
-        <b>Links:</b>
-        <div *ngFor="let item of GetAllLinks()">
-            <a href="{{item}}" target="_blank">
-                {{item}}
-            </a>
+    
+    <div class="container col-12">
+        <div class="row" style="vertical-align:top">
+            <h5><b>{{_magBrowserService.currentMagPaper.originalTitle}}</b></h5>
+                <b>{{_magBrowserService.currentMagPaper.fullRecord}}</b>
+            
+            
+            <div class="col-sm-10 col-lg-10">
+                <table>
+                    <tr>
+                        <td>
+                            <p>
+                                Paper Id:&nbsp;{{_magBrowserService.currentMagPaper.paperId}}
+                            </p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td >
+                            <div *ngIf="IsCurrentPaperSelected(_magBrowserService.currentMagPaper.paperId) == false">
+                                <button class="btn btn-primary btn-sm text-white" (click)="AddCurrentPaperToSelectedList()">Selected papers&nbsp;&nbsp; <i class="fa fa-plus"></i></button>
+                            </div>
+                            <div *ngIf="IsCurrentPaperSelected(_magBrowserService.currentMagPaper.paperId) == true ">
+                                <button class="btn btn-warning btn-sm text-white" (click)="RemoveCurrentPaperToSelectedList()">Selected papers&nbsp;&nbsp; <i class="fa fa-minus"></i></button>
+                            </div>
+                        </td>
+                        <td style="padding-left:10px">
+                            <div class="text-white">
+                                <a class="btn btn-primary btn-sm text-white" href="https://academic.microsoft.com/paper/{{_magBrowserService.currentMagPaper.paperId}}/reference" target="_blank">
+                                    View on the internet
+                                </a>
+                            </div>
+                        </td>
+                        <td style="padding-left:10px">
+                            <div *ngIf="!basicPanel">
+                                <a class="btn btn-dark btn-sm text-white" data-toggle="collapse"
+                                   href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
+                                    more details <i class="fa fa-arrow-circle-down"></i>
+                                </a>
+                            </div>
+                            <div *ngIf="basicPanel">
+                                <a class="btn btn-dark btn-sm text-white" data-toggle="collapse"
+                                   href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
+                                    more details <i class="fa fa-arrow-circle-up"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+                <div class="collapse multi-collapse" id="collapseExample">
+                    <div class="card card-footer">
+                        <div class="row col-12 p-0">
+
+                            <table style="width:100%;">
+                                <tr>
+                                    <td style="padding-right: 25px;">
+                                        <p>
+                                            <b>Abstract:</b>
+                                        <p>{{_magBrowserService.currentMagPaper.abstract}}</p>
+                                        <b>Links:</b>
+                                        <div *ngFor="let item of GetAllLinks()">
+                                            <a href="{{item}}" target="_blank">
+                                                {{item}}
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
+
 </div>
 <div class="row border border-dark card small p-2 m-2">
     <div class=""><b>Current List : </b> {{ListType}}</div>
@@ -51,7 +101,7 @@
                     <div class="row">
                         <div *ngFor="let item of _magTopicsService.WPChildTopics">
                             <div (click)="GetParentAndChildRelatedPapers(item)" class="alert-info m-1 px-1 rounded page-link"
-                                 [ngStyle]="{ 'font-size.em': item.fontSize,'background-color': 'light-blue', 'color': 'black'}">
+                                 [ngStyle]="{ 'font-size.em': item.fontSize,'background-color': 'WhiteSmoke', 'color': 'black'}">
                                 {{item.displayName}}
                             </div>
                         </div>
@@ -61,19 +111,19 @@
             <div *ngIf="_magTopicsService.ShowingParentAndChildTopics">
                 <h5 class="font-weight-light">Parent Topics</h5>
 
-                <div class="card col-12 small table table-border  table-striped alert-primary">
+                <div class="card col-12 small table table-border  table-striped">
                     <div *ngIf="_magTopicsService.WPParentTopics.length == 0" class="alert alert-light">
                         No Topic
                     </div>
                     <div *ngFor="let item of _magTopicsService.WPParentTopics">
                         <div (click)="GetParentAndChildRelatedPapers(item)" class="alert-info m-1 px-1 rounded page-link"
-                             [ngStyle]="{ 'font-size.em': item.fontSize,'background-color': 'light-blue', 'color': 'black'}">
+                             [ngStyle]="{ 'font-size.em': item.fontSize,'background-color': 'WhiteSmoke', 'color': 'black'}">
                             {{item.displayName }}
                         </div>
 
                     </div>
                 </div>
-                <h5 class="font-weight-light">Children Topics</h5>
+                <h5 class="font-weight-light">Child Topics</h5>
                 <div class=" card col-12 small table table-border table-striped">
                     <div *ngIf="_magTopicsService.WPChildTopics.length == 0" class="alert-light m-1">
                         No Topic
@@ -81,7 +131,7 @@
                     <div class="row">
                         <div *ngFor="let item of _magTopicsService.WPChildTopics">
                             <div (click)="GetParentAndChildRelatedPapers(item)" class="alert-info m-1 px-1 rounded page-link"
-                                 [ngStyle]="{ 'font-size.em': item.fontSize,'background-color': 'light-blue', 'color': 'black'}">
+                                 [ngStyle]="{ 'font-size.em': item.fontSize,'background-color': 'WhiteSmoke', 'color': 'black'}">
                                 {{item.displayName}}
                             </div>
                         </div>

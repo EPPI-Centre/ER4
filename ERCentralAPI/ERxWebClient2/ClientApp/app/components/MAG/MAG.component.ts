@@ -66,7 +66,7 @@ export class MAGComp implements OnInit, OnDestroy {
             }
             else {
                 this.MAGBrowserHistoryService.AddHistory(
-                    new MagBrowseHistoryItem("Manage review updates / find related papers", "RelatedPapers", 0, "", "", 0, "", "", 0, "", "", 0));
+                    new MagBrowseHistoryItem("Bring review up-to-date", "RelatedPapers", 0, "", "", 0, "", "", 0, "", "", 0));
             }
             if (this.subItemIDinPath) this.subItemIDinPath.unsubscribe();//no need to keep listening!
 

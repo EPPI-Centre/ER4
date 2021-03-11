@@ -41,8 +41,8 @@ export class MAGTopicsService extends BusyAwareService {
                     if (result != null) {
 
                         let FosList: MagFieldOfStudy[] = result;
-                        let i: number = 1.5;
-                        let j: number = 1.5;
+                        let i: number = 1.1;
+                        let j: number = 1.1;
                         for (var fos of FosList) {
 
                             let item: TopicLink = new TopicLink();

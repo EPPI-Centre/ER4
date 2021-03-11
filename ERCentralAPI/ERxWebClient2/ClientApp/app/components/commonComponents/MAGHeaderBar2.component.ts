@@ -104,8 +104,8 @@ export class MAGHeaderBar2Comp implements OnInit {
         }
     }
     public ClearSelected() {
-        let msg: string = 'Are you sure you want to clear the ' + this._magBrowserService.selectedPapers.length + '  selected MAG papers into your review?';
-        this._confirmationDialogService.confirm('MAG Selected Papers', msg, false, '')
+        let msg: string = 'Are you sure you want to clear your list of ' + this._magBrowserService.selectedPapers.length + ' selected papers?';
+        this._confirmationDialogService.confirm('Selected Papers', msg, false, '')
             .then((confirm: any) => {
                 if (confirm) {
                     this._magBrowserService.ClearSelected();
@@ -115,7 +115,7 @@ export class MAGHeaderBar2Comp implements OnInit {
     }
     public ImportSelected() {
 
-        let msg: string = 'Are you sure you want to import the ' + this._magBrowserService.selectedPapers.length + '  selected MAG papers into your review?';
+        let msg: string = 'Are you sure you want to import the ' + this._magBrowserService.selectedPapers.length + ' selected papers into your review?';
         this._confirmationDialogService.confirm('MAG Import', msg, false, '')
             .then((confirm: any) => {
                 if (confirm) {
@@ -156,7 +156,7 @@ export class MAGHeaderBar2Comp implements OnInit {
     
     public MagSearch() {
 
-        this._mAGBrowserHistoryService.AddHistory(new MagBrowseHistoryItem("MagSearch", "Search", 0, "", "", 0, "", "", 0, "", "", 0));
+        this._mAGBrowserHistoryService.AddHistory(new MagBrowseHistoryItem("Search and browse", "Search", 0, "", "", 0, "", "", 0, "", "", 0));
         //this.router.navigate(['MagSearch']);
         this.Context = "MagSearch";
     }
@@ -166,17 +166,17 @@ export class MAGHeaderBar2Comp implements OnInit {
         this.Context = "Admin";
     }
     public MatchingMAGItems() {
-        this._mAGBrowserHistoryService.AddHistory(new MagBrowseHistoryItem("Matching page", "matching", 0, "", "", 0, "", "", 0, "", "", 0))
+        this._mAGBrowserHistoryService.AddHistory(new MagBrowseHistoryItem("Match records", "matching", 0, "", "", 0, "", "", 0, "", "", 0))
         //this.router.navigate(['MatchingMAGItems']);
         this.Context = "matching";
     }
     public AutoUpdateHome() {
-        this._mAGBrowserHistoryService.AddHistory(new MagBrowseHistoryItem("Manage review updates / find related papers", "RelatedPapers", 0, "", "", 0, "", "", 0, "", "", 0));
+        this._mAGBrowserHistoryService.AddHistory(new MagBrowseHistoryItem("Bring review up-to-date", "RelatedPapers", 0, "", "", 0, "", "", 0, "", "", 0));
         //this.router.navigate(['BasicMAGFeatures']);
         this.Context = "RelatedPapers";
     }
     public KeepUpdated() {
-        this._mAGBrowserHistoryService.AddHistory(new MagBrowseHistoryItem("Keep Review up-to-date", "KeepUpdated", 0, "", "", 0, "", "", 0, "", "", 0));
+        this._mAGBrowserHistoryService.AddHistory(new MagBrowseHistoryItem("Keep review up-to-date", "KeepUpdated", 0, "", "", 0, "", "", 0, "", "", 0));
         //this.router.navigate(['MAGKeepUpToDate']);
         this.Context = "KeepUpdated";
     }
