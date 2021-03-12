@@ -2860,6 +2860,11 @@ namespace EppiReviewer4
 
         private void LBRunContReviewPipeline_Click(object sender, RoutedEventArgs e)
         {
+            if (tbPreviousMAG.Text == tbLatestMag.Text)
+            {
+                RadWindow.Alert("Both MAG versions are the same!");
+                return;
+            }
             RadWindow.Confirm("Are you sure you want to run the pipeline?!\nOld mag: " + tbPreviousMAG.Text + " new mag: " + tbLatestMag.Text, this.checkRunContReviewPipeline);
         }
 
