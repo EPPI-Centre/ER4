@@ -31,7 +31,7 @@
         <TextBox x:Name="tbPath" Grid.Row="0" Grid.Column="1"></TextBox>
         <Button x:Name="cmdGo" Grid.Row="1" Grid.Column="0" Content="GO!" Click="cmdGo_Click"></Button>
         <TextBlock Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2"
-                   Text="THIS FUNCTION IS FOR DEV USE ON LOCAL DATABASES, NOT FOR EXECUTING ON THE PRODUCTION SYSTEM." TextWrapping="Wrap"></TextBlock>
+                   Text="THIS FUNCTION IS FOR DEV USE ON LOCAL DATABASES, NOT FOR EXECUTING ON THE PRODUCTION SYSTEM. N.B. TIMEPOINTS ARE NOT GENERATED AT THE MOMENT! (THOUGH ARMS AND OUTCOMES ARE)" TextWrapping="Wrap"></TextBlock>
         
     </Grid>
 </telerik:RadWindow>
