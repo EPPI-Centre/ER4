@@ -124,9 +124,9 @@ namespace BusinessLibrary.BusinessClasses
 
         private void AddCodeSets(Rootobject ro, int ReviewId, int ContactId)
         {
-            foreach(Codeset CurrentCodeSet in ro.CodeSets)
+            foreach (Codeset CurrentCodeSet in ro.CodeSets)
             {
-                ReviewSet rs = FindSetBySetId(CurrentCodeSet);
+                ReviewSet rs = FindSetBySetId(CurrentCodeSet.SetId);
                 if (rs == null) // it's not already in the review - we have to create it
                 {
                     rs = CreateNewCodeSet(CurrentCodeSet, ReviewId);
@@ -179,11 +179,11 @@ namespace BusinessLibrary.BusinessClasses
             return NewAttributeSet;
         }
 
-        private ReviewSet FindSetBySetId(Codeset cs)
+        private ReviewSet FindSetBySetId(int SetId)
         {
             foreach (ReviewSet rs in this.ReviewSets)
             {
-                if (rs.SetId == cs.SetId)
+                if (rs.SetId == SetId)
                 {
                     CodeSetUsingOriginalId = false;
                     return rs;
@@ -191,13 +191,13 @@ namespace BusinessLibrary.BusinessClasses
             }
             foreach (ReviewSet rs in this.ReviewSets)
             {
-                if (rs.OriginalSetId == cs.SetId)
+                if (rs.OriginalSetId == SetId)
                 {
                     CodeSetUsingOriginalId = true;
                     return rs;
                 }
             }
-            
+
             return null;
         }
 
@@ -302,7 +302,7 @@ namespace BusinessLibrary.BusinessClasses
         }
 
 
-        
+
 
         // ***********************************************************************************************************
         // Adding items
@@ -475,7 +475,7 @@ namespace BusinessLibrary.BusinessClasses
                         }
                     }
                     connection3.Close();
-                } 
+                }
                 if (i != null)
                 {
                     if (r.Codes != null)
@@ -483,6 +483,14 @@ namespace BusinessLibrary.BusinessClasses
                         foreach (Code c in r.Codes)
                         {
                             SaveAttribute(c, ReviewId, ContactId, r.ItemId);
+                        }
+                    }
+
+                    if (r.Outcomes != null)
+                    {
+                        foreach (Outcome o in r.Outcomes)
+                        {
+                            SaveOutcome(o, ReviewId, ContactId, r.ItemId);
                         }
                     }
                 }
@@ -507,7 +515,7 @@ namespace BusinessLibrary.BusinessClasses
                         command.Parameters.Add(new SqlParameter("@SET_ID", aset.SetId));
                         command.Parameters.Add(new SqlParameter("@ITEM_ID", ItemId));
                         command.Parameters.Add(new SqlParameter("@REVIEW_ID", ReviewId));
-                        command.Parameters.Add(new SqlParameter("@ITEM_ARM_ID",  c.ArmId == 0 ? (object)DBNull.Value :c.ArmId));
+                        command.Parameters.Add(new SqlParameter("@ITEM_ARM_ID", c.ArmId == 0 ? (object)DBNull.Value : c.ArmId));
                         command.Parameters.Add(new SqlParameter("@NEW_ITEM_ATTRIBUTE_ID", 0));
                         command.Parameters["@NEW_ITEM_ATTRIBUTE_ID"].Direction = System.Data.ParameterDirection.Output;
                         command.Parameters.Add(new SqlParameter("@NEW_ITEM_SET_ID", 0));
@@ -524,7 +532,111 @@ namespace BusinessLibrary.BusinessClasses
             }
             return ItemAttributeId;
         }
-        
+
+        // **************************************************************************************************************************
+        // ********************************************** adding outcomes ***********************************************************
+
+        private void SaveOutcome(Outcome o, int ReviewId, int ContactId, Int64 ItemId)
+        {
+            // If there is > 1 codeset in the json, we don't know where to 'tie' the outcomes, so don't try to import them
+            if (ReviewSets.Count != 1)
+            {
+                return;
+            }
+
+            ReviewSet rs = ReviewSets[0];
+            Int64 NewOutcomeId = 0;
+            Int64 ItemSetId = 0;
+            if (rs != null)
+            {
+                using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+                {
+                    connection.Open();
+                    using (SqlCommand command3 = new SqlCommand("st_ItemSetGetCompleted", connection))
+                    {
+                        command3.CommandType = System.Data.CommandType.StoredProcedure;
+                        command3.Parameters.Add(new SqlParameter("@REVIEW_ID", ReviewId));
+                        command3.Parameters.Add(new SqlParameter("@ITEM_ID", ItemId));
+                        command3.Parameters.Add(new SqlParameter("@SET_ID", rs.SetId));
+                        using (Csla.Data.SafeDataReader reader3 = new Csla.Data.SafeDataReader(command3.ExecuteReader()))
+                        {
+                            if (reader3.Read())
+                                ItemSetId = Convert.ToInt64(reader3["ITEM_SET_ID"].ToString());
+                        }
+                    }
+
+                    if (ItemSetId > 0)
+                    {
+                        AttributeSet InterventionId = rs.GetAttributeSetFromOriginalAttributeId(o.ItemAttributeIdIntervention);
+                        AttributeSet ControlId = rs.GetAttributeSetFromOriginalAttributeId(o.ItemAttributeIdControl);
+                        AttributeSet OutcomeId = rs.GetAttributeSetFromOriginalAttributeId(o.ItemAttributeIdOutcome);
+                        using (SqlCommand command = new SqlCommand("st_OutcomeItemInsert", connection))
+                        {
+                            command.CommandType = System.Data.CommandType.StoredProcedure;
+                            command.Parameters.Add(new SqlParameter("@ITEM_SET_ID", ItemSetId));
+                            command.Parameters.Add(new SqlParameter("@OUTCOME_TYPE_ID", o.OutcomeTypeId));
+                            command.Parameters.Add(new SqlParameter("@OUTCOME_TITLE", o.Title));
+                            command.Parameters.Add(new SqlParameter("@ITEM_ATTRIBUTE_ID_INTERVENTION", InterventionId == null ? 0 : InterventionId.AttributeId));
+                            command.Parameters.Add(new SqlParameter("@ITEM_ATTRIBUTE_ID_CONTROL", ControlId == null ? 0 : ControlId.AttributeId));
+                            command.Parameters.Add(new SqlParameter("@ITEM_ATTRIBUTE_ID_OUTCOME", OutcomeId == null ? 0 : OutcomeId.AttributeId));
+                            command.Parameters.Add(new SqlParameter("@OUTCOME_DESCRIPTION", o.OutcomeDescription));
+                            command.Parameters.Add(new SqlParameter("@DATA1", o.Data1));
+                            command.Parameters.Add(new SqlParameter("@DATA2", o.Data2));
+                            command.Parameters.Add(new SqlParameter("@DATA3", o.Data3));
+                            command.Parameters.Add(new SqlParameter("@DATA4", o.Data4));
+                            command.Parameters.Add(new SqlParameter("@DATA5", o.Data5));
+                            command.Parameters.Add(new SqlParameter("@DATA6", o.Data6));
+                            command.Parameters.Add(new SqlParameter("@DATA7", o.Data7));
+                            command.Parameters.Add(new SqlParameter("@DATA8", o.Data8));
+                            command.Parameters.Add(new SqlParameter("@DATA9", o.Data9));
+                            command.Parameters.Add(new SqlParameter("@DATA10", o.Data10));
+                            command.Parameters.Add(new SqlParameter("@DATA11", o.Data11));
+                            command.Parameters.Add(new SqlParameter("@DATA12", o.Data12));
+                            command.Parameters.Add(new SqlParameter("@DATA13", o.Data13));
+                            command.Parameters.Add(new SqlParameter("@DATA14", o.Data14));
+                            command.Parameters.Add(new SqlParameter("@ITEM_TIMEPOINT_ID", o.ItemTimepointId));
+                            command.Parameters.Add(new SqlParameter("@ITEM_ARM_ID_GRP1", o.ItemArmIdGrp1));
+                            command.Parameters.Add(new SqlParameter("@ITEM_ARM_ID_GRP2", o.ItemArmIdGrp2));
+                            command.Parameters.Add(new SqlParameter("@NEW_OUTCOME_ID", 0));
+                            command.Parameters["@NEW_OUTCOME_ID"].Direction = System.Data.ParameterDirection.Output;
+                            command.ExecuteNonQuery();
+                            if (command.Parameters["@NEW_OUTCOME_ID"].Value != DBNull.Value)
+                            {
+                                NewOutcomeId = (Int64)command.Parameters["@NEW_OUTCOME_ID"].Value;
+                            }
+                        }
+
+                        if (NewOutcomeId > 0)
+                        {
+                            string attributes = "";
+                            if (o.OutcomeCodes != null && o.OutcomeCodes.OutcomeItemAttributesList != null)
+                            {
+                                foreach (Outcomeitemattributeslist a in o.OutcomeCodes.OutcomeItemAttributesList)
+                                {
+                                    if (attributes == "")
+                                    {
+                                        attributes = rs.GetAttributeSetFromOriginalAttributeId(a.AttributeId).AttributeId.ToString();
+                                    }
+                                    else
+                                    {
+                                        attributes += "," + rs.GetAttributeSetFromOriginalAttributeId(a.AttributeId).AttributeId.ToString();
+                                    }
+                                }
+                                using (SqlCommand command = new SqlCommand("st_OutcomeItemAttributesSave", connection))
+                                {
+                                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                                    command.Parameters.Add(new SqlParameter("@OUTCOME_ID", NewOutcomeId));
+                                    command.Parameters.Add(new SqlParameter("@ATTRIBUTES", attributes));
+                                    command.ExecuteNonQuery();
+                                }
+                            }
+                        }
+                    }
+                    connection.Close();
+                }
+            }
+        }
+
 
 #endif
 
@@ -605,6 +717,7 @@ namespace BusinessLibrary.BusinessClasses
             public string ItemStatus { get; set; }
             public string ItemStatusTooltip { get; set; }
             public Code[] Codes { get; set; }
+            public Outcome[] Outcomes { get; set; }
         }
 
         public class Code
@@ -626,6 +739,114 @@ namespace BusinessLibrary.BusinessClasses
             public string DocTitle { get; set; }
             public string ItemArm { get; set; }
         }
+
+        public class Outcome
+        {
+            public int OutcomeId { get; set; }
+            public int ItemSetId { get; set; }
+            public int OutcomeTypeId { get; set; }
+            public string OutcomeTypeName { get; set; }
+            public int ItemAttributeIdIntervention { get; set; }
+            public int ItemAttributeIdControl { get; set; }
+            public int ItemAttributeIdOutcome { get; set; }
+            public string Title { get; set; }
+            public string ShortTitle { get; set; }
+            public string OutcomeDescription { get; set; }
+            public float Data1 { get; set; }
+            public float Data2 { get; set; }
+            public float Data3 { get; set; }
+            public float Data4 { get; set; }
+            public float Data5 { get; set; }
+            public float Data6 { get; set; }
+            public float Data7 { get; set; }
+            public float Data8 { get; set; }
+            public float Data9 { get; set; }
+            public float Data10 { get; set; }
+            public float Data11 { get; set; }
+            public float Data12 { get; set; }
+            public float Data13 { get; set; }
+            public float Data14 { get; set; }
+            public string InterventionText { get; set; }
+            public string ControlText { get; set; }
+            public string OutcomeText { get; set; }
+            public int ItemTimepointId { get; set; }
+            public string ItemTimepointMetric { get; set; }
+            public string ItemTimepointValue { get; set; }
+            public int ItemArmIdGrp1 { get; set; }
+            public int ItemArmIdGrp2 { get; set; }
+            public string TimepointDisplayValue { get; set; }
+            public string grp1ArmName { get; set; }
+            public string grp2ArmName { get; set; }
+            public Outcomecodes OutcomeCodes { get; set; }
+            public float feWeight { get; set; }
+            public float reWeight { get; set; }
+            public float SMD { get; set; }
+            public object SESMD { get; set; }
+            public float R { get; set; }
+            public float SER { get; set; }
+            public float OddsRatio { get; set; }
+            public float SEOddsRatio { get; set; }
+            public float RiskRatio { get; set; }
+            public float SERiskRatio { get; set; }
+            public object CIUpperSMD { get; set; }
+            public object CILowerSMD { get; set; }
+            public float CIUpperR { get; set; }
+            public float CILowerR { get; set; }
+            public float CIUpperOddsRatio { get; set; }
+            public float CILowerOddsRatio { get; set; }
+            public float CIUpperRiskRatio { get; set; }
+            public float CILowerRiskRatio { get; set; }
+            public float CIUpperRiskDifference { get; set; }
+            public float CILowerRiskDifference { get; set; }
+            public float CIUpperPetoOddsRatio { get; set; }
+            public float CILowerPetoOddsRatio { get; set; }
+            public object CIUpperMeanDifference { get; set; }
+            public object CILowerMeanDifference { get; set; }
+            public float RiskDifference { get; set; }
+            public float SERiskDifference { get; set; }
+            public float MeanDifference { get; set; }
+            public object SEMeanDifference { get; set; }
+            public float PetoOR { get; set; }
+            public float SEPetoOR { get; set; }
+            public float ES { get; set; }
+            public object SEES { get; set; }
+            public int NRows { get; set; }
+            public object CILower { get; set; }
+            public object CIUpper { get; set; }
+            public string ESDesc { get; set; }
+            public string SEDesc { get; set; }
+            public string Data1Desc { get; set; }
+            public string Data2Desc { get; set; }
+            public string Data3Desc { get; set; }
+            public string Data4Desc { get; set; }
+            public string Data5Desc { get; set; }
+            public string Data6Desc { get; set; }
+            public string Data7Desc { get; set; }
+            public string Data8Desc { get; set; }
+            public string Data9Desc { get; set; }
+            public string Data10Desc { get; set; }
+            public string Data11Desc { get; set; }
+            public string Data12Desc { get; set; }
+            public string Data13Desc { get; set; }
+            public string Data14Desc { get; set; }
+        }
+
+        public class Outcomecodes
+        {
+            public Outcomeitemattributeslist[] OutcomeItemAttributesList { get; set; }
+        }
+
+        public class Outcomeitemattributeslist
+        {
+            public int OutcomeItemAttributeId { get; set; }
+            public int OutcomeId { get; set; }
+            public int AttributeId { get; set; }
+            public string AdditionalText { get; set; }
+            public string AttributeName { get; set; }
+        }
+
+
+
 
     }
 }
