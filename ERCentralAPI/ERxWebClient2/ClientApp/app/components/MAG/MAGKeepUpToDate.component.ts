@@ -155,8 +155,8 @@ export class MAGKeepUpToDate implements OnInit {
 
     }
     DeleteAutoUpdate(magAutoUpdate: MagAutoUpdate) {
-        this.ConfirmationDialogService.confirm("Deleting the selected MAG Auto Update task",
-            "Are you sure you want to delete MAG Auto Update task: \"<em>" + magAutoUpdate.userDescription + "\"</em>?", false, '')
+        this.ConfirmationDialogService.confirm("Deleting the selected auto update task",
+            "Are you sure you want to delete auto update task: \"<em>" + magAutoUpdate.userDescription + "\"</em>?", false, '')
             .then((confirm: any) => {
                 if (confirm) {
                     this.MAGRelatedRunsService.DeleteMAGAutoUpdate(magAutoUpdate.magAutoUpdateId);
@@ -338,8 +338,8 @@ export class MAGKeepUpToDate implements OnInit {
     }
     DeleteAutoUpdateRun(task: MagAutoUpdateRun) {
         if (task.magAutoUpdateRunId < 1 || !this.HasWriteRights) return;
-        this.ConfirmationDialogService.confirm("Deleting the selected MAG Auto Update task results",
-            "Are you sure you want to delete MAG Auto Update task results: \"<em>" + task.userDescription + "\"</em>?"
+        this.ConfirmationDialogService.confirm("Deleting the selected auto update task results",
+            "Are you sure you want to delete auto update task results: \"<em>" + task.userDescription + "\"</em>?"
             + "<br> Mag version: <em>"+ task.magVersion + "</em>."
             + "<br> This operation <strong>cannot be undone</strong>!", false, '')
             .then((confirm: any) => {
