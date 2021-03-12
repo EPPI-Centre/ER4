@@ -67,13 +67,13 @@
                                 <div class="m-1 p-1"><b>Items Dated From</b></div>
                                 <div>
                                     <div class="example-wrapper">
-                                        <kendo-datepicker [(value)]="valueKendoDatepicker1"></kendo-datepicker>
+                                        <kendo-datepicker [(value)]="valueKendoDatepicker1" [format]="'dd MMM yyyy'"></kendo-datepicker>
                                     </div>
                                 </div>
                                 <div class="m-1 p-1"><b>Items Dated To</b></div>
                                 <div>
                                     <div class="example-wrapper">
-                                        <kendo-datepicker [(value)]="valueKendoDatepicker2"></kendo-datepicker>
+                                        <kendo-datepicker [(value)]="valueKendoDatepicker2" [format]="'dd MMM yyyy'"></kendo-datepicker>
                                     </div>
                                 </div>
 
@@ -84,7 +84,7 @@
                                 <div class="m-1 p-1"><b>Date</b></div>
                                 <div>
                                     <div class="example-wrapper">
-                                        <kendo-datepicker [(value)]="valueKendoDatepicker3"></kendo-datepicker>
+                                        <kendo-datepicker [(value)]="valueKendoDatepicker3" [format]="'dd MMM yyyy'"></kendo-datepicker>
                                     </div>
                                 </div>
                             </div>
@@ -144,20 +144,120 @@
                     <h2 class="font-weight-light text-sm-left">Combine / filter searches</h2>
                     <h5 class="font-weight-light text-sm-left">Select 2 or more searches</h5>
 
-                    <div class="card-text small row col-12">
+                    <div class="card-text row col-12">
 
                         <div class="p-2 m-2 col-12">
-                            <div ngbDropdown class="col-12" style="min-width:90px">
+                            <div ngbDropdown style="min-width:90px">
                                 <select class="form-control" name="LogicalOperator"
                                         [disabled]="!CanCombineSearches()"
-                                        [(ngModel)]="LogicalOperator" (change)="CombineSearches()">
+                                        [(ngModel)]="LogicalOperator" >
                                     <option [selected]="LogicalOperator == 'Select operator'">Select operator</option>
                                     <option [selected]="LogicalOperator == 'AND'">AND</option>
                                     <option [selected]="LogicalOperator == 'OR'">OR</option>
                                 </select>
                             </div>
                         </div>
-
+                        <div class="row col-12">
+                            <div class="col-auto">(optional) Filter by date:</div>
+                            <div ngbDropdown class="col-auto" >
+                                <select class="form-control mb-1" name="DateLimitSelectionCombine" [disabled]="!CanCombineSearches()"
+                                        [(ngModel)]="DateLimitSelectionCombine">
+                                    <option [ngValue]="0" [selected]="DateLimitSelectionCombine == 0">No date limit</option>
+                                    <option [ngValue]="1">Publication date exactly</option>
+                                    <option [ngValue]="2">Publication date before</option>
+                                    <option [ngValue]="3">Publication date after</option>
+                                    <option [ngValue]="4">Publication dates between</option>
+                                    <option [ngValue]="5">Publication year exactly</option>
+                                    <option [ngValue]="6">Publication year before</option>
+                                    <option [ngValue]="7">Publication year after</option>
+                                    <option [ngValue]="8">Publication years between</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div *ngIf="DateLimitSelectionCombine > 0 && CanCombineSearches()">
+                            <ng-container [ngSwitch]="DateLimitSelectionCombine">
+                                <div *ngSwitchCase="1">
+                                    Exact date: <kendo-datepicker [(value)]="valueKendoDatepickerCombine1" [format]="'dd MMM yyyy'"></kendo-datepicker>
+                                </div>
+                                <div *ngSwitchCase="2">
+                                    Before date: <kendo-datepicker [(value)]="valueKendoDatepickerCombine1" [format]="'dd MMM yyyy'" ></kendo-datepicker>
+                                </div>
+                                <div *ngSwitchCase="3">
+                                    After date: <kendo-datepicker [(value)]="valueKendoDatepickerCombine1" [format]="'dd MMM yyyy'" ></kendo-datepicker>
+                                </div>
+                                <div *ngSwitchCase="4" class="row mx-1">
+                                    <div class="d-block">Between: <kendo-datepicker [(value)]="valueKendoDatepickerCombine1" [format]="'dd MMM yyyy'"></kendo-datepicker></div>
+                                    <div class="d-block">and <kendo-datepicker [(value)]="valueKendoDatepickerCombine2" [format]="'dd MMM yyyy'" [min]="valueKendoDatepickerCombine1"></kendo-datepicker></div>
+                                </div>
+                                <div *ngSwitchCase="5">
+                                    This year: 
+                                    <kendo-numerictextbox [(ngModel)]="valueYearPickerCombine1"
+                                                          name="n1" [format]="'#####'"
+                                                          [min]="1850" 
+                                                          [max]="maxyear"
+                                                          [step]="1"
+                                                          [autoCorrect]="true"
+                                                          class="border border-dark rounded mb-1"
+                                                          style="width: 105px;"></kendo-numerictextbox>
+                                </div>
+                                <div *ngSwitchCase="6">
+                                    Before this year:
+                                    <kendo-numerictextbox [(ngModel)]="valueYearPickerCombine1"
+                                                          name="n1" [format]="'#####'"
+                                                          [min]="1850" 
+                                                          [max]="maxyear"
+                                                          [step]="1"
+                                                          [autoCorrect]="true"
+                                                          class="border border-dark rounded mb-1"
+                                                          style="width: 105px;"></kendo-numerictextbox>
+                                </div>
+                                <div *ngSwitchCase="7">
+                                    After this year:
+                                    <kendo-numerictextbox [(ngModel)]="valueYearPickerCombine1"
+                                                          name="n1" [format]="'#####'"
+                                                          [min]="1850" 
+                                                          [max]="maxyear"
+                                                          [step]="1"
+                                                          [autoCorrect]="true"
+                                                          class="border border-dark rounded mb-1"
+                                                          style="width: 105px;"></kendo-numerictextbox>
+                                </div>
+                                <div *ngSwitchCase="8" class="row mx-1">
+                                    <div class="d-block">
+                                        Between year:
+                                        <kendo-numerictextbox [(ngModel)]="valueYearPickerCombine1"
+                                                              name="n1" [format]="'#####'"
+                                                              [min]="1850" 
+                                                              [max]="maxyear"
+                                                              [step]="1"
+                                                              [autoCorrect]="true"
+                                                              class="border border-dark rounded mb-1"
+                                                              style="width: 105px;"></kendo-numerictextbox>
+                                    </div>
+                                    <div class="d-block">
+                                        and year:
+                                        <kendo-numerictextbox [(ngModel)]="valueYearPickerCombine2"
+                                                              name="n2" [format]="'#####'"
+                                                              [min]="valueYearPickerCombine1" 
+                                                              [max]="maxyear"
+                                                              [step]="1"
+                                                              [autoCorrect]="true"
+                                                              class="border border-dark rounded mb-1"
+                                                              style="width: 105px;"></kendo-numerictextbox>
+                                    </div>
+                                </div>
+                                <div *ngSwitchDefault></div>
+                            </ng-container>
+                        </div>
+                        <div class="col-12 row mt-2 mx-0 p-0">
+                            <div class="col-auto">
+                                <button class="btn btn-primary btn-lg btn-sm text-white"
+                                        [disabled]="!CanCombineSearches() || LogicalOperator == 'Select operator'" (click)="CombineSearches()">
+                                    Run Combined Search
+                                    <i class="ml-1 fa fa-search"></i>
+                                </button>
+                            </div>
+                        </div>
                     </div>
 
                 </div>
@@ -170,29 +270,52 @@
 <div class="container col-12 px-0">
 
     <div class="card px-1">
-        <div class="card-body">
+        <div class="card-body row mx-1 px-0">
 
-            <table>
-                <tr>
-                    <td>
-                        <h4 class="card-title">Search results</h4>
-                    </td>
-                    <td style="padding-left:5px;vertical-align:top">
-                        <button *ngIf="!IsServiceBusy" class="btn btn-sm btn-outline-success mx-1 mt-auto " (click)="FetchMagSearches()">
-                            <i class="fa fa-refresh" aria-hidden="true"></i>
-                        </button>
-                        <button class="btn btn-sm btn-danger"
-                                [disabled]="!CanDeleteSearch()"
-                                (click)="DeleteSearches()">
-                            Delete&nbsp;&nbsp;<i class="fa fa-trash"></i>
-                        </button>
-                    </td>
-                    <td>
-                        <div class="font-weight-bold small alert-info border border-info rounded mb-2 mx-1 px-1">Current MAG version: {{MagFolder}}</div>
-                    </td>
-                </tr>
-            </table>
-
+            <div class="col-12 col-md-8 px-1">
+                <table>
+                    <tr>
+                        <td>
+                            <h4 class="card-title">Search results</h4>
+                        </td>
+                        <td style="padding-left:5px;vertical-align:top">
+                            <button *ngIf="!IsServiceBusy" class="btn btn-sm btn-outline-success mx-1 mt-auto " (click)="FetchMagSearches()">
+                                <i class="fa fa-refresh" aria-hidden="true"></i>
+                            </button>
+                            <button class="btn btn-sm btn-danger"
+                                    [disabled]="!CanDeleteSearch()"
+                                    (click)="DeleteSearches()">
+                                Delete&nbsp;&nbsp;<i class="fa fa-trash"></i>
+                            </button>
+                        </td>
+                        <td>
+                            <div class="font-weight-bold small alert-info border border-info rounded mb-2 mx-1 px-1">Current MAG version: {{MagFolder}}</div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <div class="row col-12 col-md-4 px-0 mx-0">
+                <div class="mx-1">When importing, filter out results based on additional strings? <input type="checkbox" [(ngModel)]="ShowTextImportFilters" /></div>
+                <div *ngIf="ShowTextImportFilters" class="col-12 mx-1">
+                    <div class="row mx-0 px-0 my-1 ">
+                        <div class="d-inline mx-3 rounded alert-info border border-info my-1 p-1">
+                            When importing, you can also <strong>filter out</strong> any reference that contains the following strings (comma-separated):
+                        </div>
+                    </div>
+                    <div class="row mx-0 px-0 mb-1 border-bottom ">
+                        <div class="col small">Filter (out) from journal field: </div>
+                        <input type="text" [(ngModel)]="FilterOutJournal" class="my-auto ml-1 col-auto px-1" size="60" />
+                    </div>
+                    <div class="row mx-0 px-0 mb-1 border-bottom ">
+                        <div class="col small">Filter (out) from URL field: </div>
+                        <input type="text" [(ngModel)]="FilterOutURL" class="my-auto ml-1 col-auto px-1" size="60" />
+                    </div>
+                    <div class="row mx-0 px-0 mb-1 border-bottom ">
+                        <div class="col small">Filter (out) from DOI field: </div>
+                        <input type="text" [(ngModel)]="FilterOutDOI" class="my-auto ml-1 col-auto px-1" size="60" />
+                    </div>
+                </div>
+            </div>
 
             <div class="col-12 alert-secondary p-2 m-2 card">
                 <div class="row p-0 m-0 w-100" style="max-height:600px; overflow:auto;">

@@ -48,11 +48,24 @@ export class MAGSearchComponent implements OnInit {
     public WordsInSelection: number = 0;
     public LogicalOperator: string = 'Select operator';
     public DateLimitSelection: number = 0;
+    public DateLimitSelectionCombine: number = 0;
     public PublicationTypeSelection: number = 0;
     public magSearchInput: string = '';
     public valueKendoDatepicker1 : Date = new Date();
     public valueKendoDatepicker2: Date = new Date();
     public valueKendoDatepicker3: Date = new Date();
+    public valueKendoDatepickerCombine1: Date = new Date();
+    public valueKendoDatepickerCombine2: Date = new Date();
+    private _maxyear: number = (new Date()).getFullYear() + 1;
+    public get maxyear(): number {
+        return this._maxyear;
+    }
+    public valueYearPickerCombine1: number = this.maxyear - 11;
+    public valueYearPickerCombine2: number = this.valueYearPickerCombine1;
+    public ShowTextImportFilters: boolean = false;
+    public FilterOutJournal: string = "";
+    public FilterOutURL: string = "";
+    public FilterOutDOI: string = "";
     public magSearchDate1: Date = new Date();
     public magSearchDate2: Date = new Date();
     public SearchTextTopics: TopicLink[] = [];
@@ -151,17 +164,14 @@ export class MAGSearchComponent implements OnInit {
     public ImportMagSearchPapers(item: MagSearch) {
 
         let msg: string = '';
-        if (item.magSearchId == 0) {
-            this._confirmationDialogService.showMAGRunMessage('There are no papers to import');
+        if (item.magSearchId == 0 || item.hitsNo == 0) {
+            this.modalService.GenericErrorMessage('Sorry, there are no papers to import');
 
+        } else if (item.hitsNo > 20000) {
+            msg = "Sorry. You can't import more than 20k records at a time.\nYou could try breaking up your search e.g. by date?";
+            this.modalService.GenericErrorMessage(msg);
         } else {
-
-            if (item.hitsNo > 20000) {
-                 msg ="Sorry. You can't import more than 20k records at a time.\nYou could try breaking up your search e.g. by date?";
-            }
-            else {
-                msg = "Are you sure you want to import this search result?";
-            }
+            msg = "Are you sure you want to import this search result?";
             this.ImportMagRelatedPapersRun(item, msg);
         }
     }
@@ -171,7 +181,12 @@ export class MAGSearchComponent implements OnInit {
             msg, false, '')
             .then((confirm: any) => {
                 if (confirm) {
-                    this._magSearchService.ImportMagSearches(magSearch.magSearchText, magSearch.searchText).then(
+                    this._magSearchService.ImportMagSearches(magSearch.magSearchText
+                        , magSearch.searchText
+                        , this.ShowTextImportFilters ? this.FilterOutJournal : ""
+                        , this.ShowTextImportFilters ? this.FilterOutURL : ""
+                        , this.ShowTextImportFilters ? this.FilterOutDOI : ""
+                    ).then(
 
                         (result: number) => {
 
@@ -225,6 +240,7 @@ export class MAGSearchComponent implements OnInit {
 
     public get AllItemsAreSelected(): boolean {
         const ind = this._magSearchService.MagSearchList.findIndex(f => f.add == false);
+        //console.log("AllItemsAreSelected", ind, this._magSearchService.MagSearchList.length);
         if (ind == -1 && this._magSearchService.MagSearchList.length > 0) return true;
         return false;
     }
@@ -307,17 +323,134 @@ export class MAGSearchComponent implements OnInit {
         return this._magSearchService.IsBusy || this._magBrowserService.IsBusy;
     }
     public CombineSearches(){
-        if (this.LogicalOperator == 'Select operator') return;
-        this._magSearchService.CombineSearches(this.AllSelectedItems, this.LogicalOperator).then(
-
-            () => {
-                let msg: string = 'You have Combined MAG searches using : ' + this.LogicalOperator;
-                this._confirmationDialogService.showMAGRunMessage(msg);
-                this.LogicalOperator = 'Select operator';
-                this.FetchMagSearches();
+        if ((this.LogicalOperator !== 'AND' && this.LogicalOperator !== 'OR') || this.AllSelectedItems.length < 2) return;
+        let search = this.CombineSearchesString();
+        this.AddDateAndStringLimits(search);
+        if (search.magSearchText.length > 2000) {
+            let msg = "Sorry, we can't combine these searches, the resulting search string is too long.";
+            this._confirmationDialogService.showErrorMessageInStrip(msg);
+            this.LogicalOperator = 'Select operator';
+        }
+        this.LogicalOperator = 'Select operator';
+        this._magSearchService.RunMagSearch(search).then(
+            (res) => {
+                if (res == true) {
+                    let msg: string = 'You have Combined MAG searches using : ' + this.LogicalOperator;
+                    this._confirmationDialogService.showMAGRunMessage(msg);
+                }
+                //this.FetchMagSearches();
             }
         );
+        //this._magSearchService.CombineSearches(this.AllSelectedItems, this.LogicalOperator).then(
+
+        //    () => {
+        //        let msg: string = 'You have Combined MAG searches using : ' + this.LogicalOperator;
+        //        this._confirmationDialogService.showMAGRunMessage(msg);
+        //        this.LogicalOperator = 'Select operator';
+        //        this.FetchMagSearches();
+        //    }
+        //);
     }
+    private CombineSearchesString(): MagSearch {
+        let combinedMagSearch: string = "";
+        let combinedSearchText: string = this.LogicalOperator + "(";
+        for (let ms of this.AllSelectedItems)
+        {
+            if (combinedMagSearch == "") {
+                combinedMagSearch = ms.magSearchText;
+                combinedSearchText += "#" + ms.searchNo.toString();
+            }
+            else {
+                combinedMagSearch += "," + ms.magSearchText;
+                combinedSearchText += ", #" + ms.searchNo.toString();
+            }
+        }
+        let res: MagSearch = new MagSearch();
+        res.searchText = combinedSearchText + ")";
+        res.magSearchText = this.LogicalOperator + "(" + combinedMagSearch + ")";
+        return res;
+    } 
+    private AddDateAndStringLimits(newSearch: MagSearch) {
+        if (this.DateLimitSelectionCombine > 0) {
+            switch (this.DateLimitSelectionCombine) {
+                case 1:
+                    newSearch.magSearchText = "AND(" + newSearch.magSearchText + "," +
+                        this.GetSearchTextPubDateExactly(this.valueKendoDatepickerCombine1) + ")";
+                    newSearch.searchText += " AND published on: " + this.valueKendoDatepickerCombine1.toISOString().substring(0, 10);
+                    break;
+                case 2:
+                    newSearch.magSearchText = "AND(" + newSearch.magSearchText + "," +
+                        this.GetSearchTextPubDateBefore(this.valueKendoDatepickerCombine1) + ")";
+                    newSearch.searchText += " AND published before: " + this.valueKendoDatepickerCombine1.toISOString().substring(0, 10);
+                    break;
+                case 3:
+                    newSearch.magSearchText = "AND(" + newSearch.magSearchText + "," +
+                        this.GetSearchTextPubDateFrom(this.valueKendoDatepickerCombine1) + ")";
+                    newSearch.searchText += " AND published after: " + this.valueKendoDatepickerCombine1.toISOString().substring(0, 10);
+                    break;
+                case 4:
+                    newSearch.magSearchText = "AND(" + newSearch.magSearchText + "," +
+                        this.GetSearchTextPubDateBetween(this.valueKendoDatepickerCombine1,
+                            this.valueKendoDatepickerCombine2) + ")";
+                    newSearch.searchText += " AND published between: " + this.valueKendoDatepickerCombine1.toISOString().substring(0, 10) + " and " +
+                        this.valueKendoDatepickerCombine2.toISOString().substring(0, 10);
+                    break;
+                case 5:
+                    newSearch.magSearchText = "AND(" + newSearch.magSearchText + "," +
+                        this.GetSearchTextYearExactly(this.valueYearPickerCombine1.toString()) + ")";
+                    newSearch.searchText += " AND year of publication: " + this.valueYearPickerCombine1.toString();
+                    break;
+                case 6:
+                    newSearch.magSearchText = "AND(" + newSearch.magSearchText + "," +
+                        this.GetSearchTextYearBefore(this.valueYearPickerCombine1.toString()) + ")";
+                    newSearch.searchText += " AND year of publication before: " + this.valueYearPickerCombine1.toString();
+                    break;
+                case 7:
+                    newSearch.magSearchText = "AND(" + newSearch.magSearchText + "," +
+                        this.GetSearchTextYearAfter(this.valueYearPickerCombine1.toString()) + ")";
+                    newSearch.searchText += " AND year of publication after: " + this.valueYearPickerCombine1.toString();
+                    break;
+                case 8:
+                    newSearch.magSearchText = "AND(" + newSearch.magSearchText + "," +
+                        this.GetSearchTextYearBetween(this.valueYearPickerCombine1.toString(),
+                            this.valueYearPickerCombine2.toString()) + ")";
+                    newSearch.searchText += " AND year of publication between: " + this.valueYearPickerCombine1.toString() + " and " +
+                        this.valueYearPickerCombine1.toString();
+                    break;
+            }
+        }
+        return newSearch;
+    }
+    //format for dates: 2021-03-01
+    public GetSearchTextPubDateExactly(date: Date):string {
+        return "D='" + date.toISOString().substring(0, 10) + "'";
+    }
+    private GetSearchTextPubDateFrom(date: Date): string {
+        return "D>'" + date.toISOString().substring(0,10) + "'";
+    }
+
+    private GetSearchTextPubDateBefore(date: Date): string  {
+        return "D<'" + date + "'";
+    }
+
+    private GetSearchTextPubDateBetween(date1: Date, date2: Date): string  {
+        return "D=['" + date1 + "','" + date2 + "']";
+    }
+    private GetSearchTextYearExactly(year: string): string  {
+        return "Y=" + year;
+    }
+    private GetSearchTextYearBefore(year: string): string  {
+        return "Y<" + year;
+    }
+
+    private GetSearchTextYearAfter(year: string): string  {
+        return "Y>" + year;
+    }
+
+    private GetSearchTextYearBetween(year1: string, year2: string): string  {
+        return "Y=[" + year1 + "," + year2 + "]";
+    }
+
     public AddSearchIdToList(magSearch: MagSearch) {
 
     }
