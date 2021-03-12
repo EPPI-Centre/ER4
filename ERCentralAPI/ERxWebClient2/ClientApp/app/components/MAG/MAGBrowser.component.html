@@ -13,11 +13,11 @@
     
     <div class="container col-12">
         <div class="row" style="vertical-align:top">
-            <h5><b>{{_magBrowserService.currentMagPaper.originalTitle}}</b></h5>
-                <b>{{_magBrowserService.currentMagPaper.fullRecord}}</b>
+            <h5 class="col-12 px-2"><b>{{_magBrowserService.currentMagPaper.originalTitle}}</b></h5>
+                <b class="px-2">{{_magBrowserService.currentMagPaper.fullRecord}}</b>
             
             
-            <div class="col-sm-10 col-lg-10">
+            <div class="col-10 px-2">
                 <table>
                     <tr>
                         <td>
@@ -91,10 +91,10 @@
 <div class="col-12 px-2">
     <div class="col-12 row p-2 m-0 border border-dark rounded">
         
-        <div [title]="'TOPICS'" class="col-sm-12 col-lg-3 p-0" style="min-height:500px; max-height:75vh; overflow:auto;">
-            <div *ngIf="_magTopicsService.ShowingParentAndChildTopics"><h3>{{ClickedOnTopic}}</h3></div>
-            <div *ngIf="_magTopicsService.ShowingChildTopicsOnly">
-                <div class=" card col-12 small table table-border table-striped">
+        <div [title]="'TOPICS'" class="col-sm-12 col-lg-3 p-0" style=" max-height:75vh; overflow:auto;">
+            <div *ngIf="_magTopicsService.ShowingParentAndChildTopics" class=""><h3>{{ClickedOnTopic}}</h3></div>
+            <div *ngIf="_magTopicsService.ShowingChildTopicsOnly" class="h-100">
+                <div class="h-100 mb-2 card col-12 small table table-border table-striped">
                     <div *ngIf="_magTopicsService.WPChildTopics.length == 0" class="alert alert-light">
                         No Topic
                     </div>
@@ -108,10 +108,10 @@
                     </div>
                 </div>
             </div>
-            <div *ngIf="_magTopicsService.ShowingParentAndChildTopics">
+            <div *ngIf="_magTopicsService.ShowingParentAndChildTopics"  class="">
                 <h5 class="font-weight-light">Parent Topics</h5>
 
-                <div class="card col-12 small table table-border  table-striped">
+                <div class=" mb-2 card col-12 small table table-border  table-striped">
                     <div *ngIf="_magTopicsService.WPParentTopics.length == 0" class="alert alert-light">
                         No Topic
                     </div>

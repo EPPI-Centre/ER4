@@ -84,6 +84,7 @@ export class magSearchService extends BusyAwareService {
                 }, error => {
                     this.RemoveBusy("ReRunMagSearch");
                     this.modalService.GenericError(error);
+                    return null;
                 }
             );
     }
@@ -112,6 +113,29 @@ export class magSearchService extends BusyAwareService {
             }
 		);
     }
+    RunMagSearch(mSearch: MagSearch) : Promise<boolean> {
+
+        this._BusyMethods.push("RunMagSearch");
+        
+        return this._httpC.post<MagSearch[]>(this._baseUrl + 'api/MAGSearchList/RunMagSearch',
+            mSearch).toPromise()
+
+            .then(
+                (result: MagSearch[]) => {
+                    this.MagSearchList = result;
+                    for (var i = 0; i < result.length; i++) {
+                        result[i].add = false;
+                    }
+                    this.RemoveBusy("RunMagSearch");
+                    return true;
+
+                }, error => {
+                    this.modalService.GenericError(error);
+                    this.RemoveBusy("RunMagSearch");
+                    return false;
+                }
+            );
+    }
 
     CombineSearches(magSearchListCombine: MagSearch[], logicalOperator: string) {
 
@@ -133,11 +157,15 @@ export class magSearchService extends BusyAwareService {
 
     }
 
-    ImportMagSearches(magSearchText: string, searchText: string): Promise<any> {
-
-        this._BusyMethods.push("ImportMagSearches");
+    ImportMagSearches(magSearchText: string, searchText: string,
+        FilterOutJournal: string = "", FilterOutURL: string = "", FilterOutDOI: string = ""): Promise<any> {
+                                                                 
+        this._BusyMethods.push("ImportMagSearches");            
         let body = JSON.stringify({
             magSearchText: magSearchText, searchText: searchText
+            , FilterOutJournal: FilterOutJournal
+            , FilterOutURL: FilterOutURL
+            , FilterOutDOI: FilterOutDOI
         });
         return this._httpC.post<MagSearch[]>(this._baseUrl + 'api/MAGSearchList/ImportMagSearchPapers',
             body).toPromise()
