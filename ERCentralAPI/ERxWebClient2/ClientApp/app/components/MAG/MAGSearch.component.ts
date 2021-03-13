@@ -177,7 +177,7 @@ export class MAGSearchComponent implements OnInit {
     }
     public ImportMagRelatedPapersRun(magSearch: MagSearch, msg: string) {
 
-        this._confirmationDialogService.confirm("Importing papers for the selected MAG search",
+        this._confirmationDialogService.confirm("Importing papers for the selected search",
             msg, false, '')
             .then((confirm: any) => {
                 if (confirm) {
@@ -263,7 +263,7 @@ export class MAGSearchComponent implements OnInit {
     public DeleteSearches() {
         const count = this.AllSelectedItems.length.toString();
         this._confirmationDialogService.confirm("Are you sure you want to delete " + this.AllSelectedItems.length.toString()
-            + " selected MAG searches",
+            + " selected searches",
             '', false, '')
             .then((confirm: any) => {
                 if (confirm) {

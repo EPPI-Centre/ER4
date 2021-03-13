@@ -324,7 +324,7 @@ export class MAGKeepUpToDate implements OnInit {
             cmd.filterJournal = this.FilterOutJournal;
             cmd.filterDOI = this.FilterOutDOI;
             cmd.filterURL = this.FilterOutURL;
-            this.ConfirmationDialogService.confirm("Importing papers for the selected MAG search",
+            this.ConfirmationDialogService.confirm("Importing papers for this auto-update task run",
                 "Are you sure you want to import the items as per current settings?", false, '')
                 .then((confirm: any) => {
                     if (confirm) {

@@ -150,7 +150,7 @@ export class MAGSearchDetailsComponent implements OnInit {
     }
     public ImportMagRelatedPapersRun(magSearch: MagSearch, msg: string) {
 
-        this.ConfirmationDialogService.confirm("Importing papers for the selected MAG search",
+        this.ConfirmationDialogService.confirm("Importing papers for the selected search",
             msg, false, '')
             .then((confirm: any) => {
                 if (confirm) {
@@ -232,7 +232,7 @@ export class MAGSearchDetailsComponent implements OnInit {
         //console.log('got inside confirm');
         const count = this.AllSelectedItems.length.toString();
         this.ConfirmationDialogService.confirm("Are you sure you want to delete " + this.AllSelectedItems.length.toString()
-            + " selected MAG searches",
+            + " selected searches",
             '', false, '')
             .then((confirm: any) => {
                 if (confirm) {
@@ -252,7 +252,7 @@ export class MAGSearchDetailsComponent implements OnInit {
 
             () => {
                 this.FetchMagSearches();
-                let msg: string = 'You have ReRun a MAG search';
+                let msg: string = 'You have ReRun a search';
                 this._notificationService.showMAGRunMessage(msg);
             }
         );

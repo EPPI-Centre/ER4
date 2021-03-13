@@ -228,7 +228,7 @@
                     <div class="row mx-0 small px-1 my-1 mx-1 alert-info border rounded border-info">
                         <div class="ml-auto mr-auto">
                             Showing details for: <strong>"{{CurrentMagAutoUpdateRun.userDescription}}"</strong>
-                            , created on: {{FormatDate(CurrentMagAutoUpdateRun.dateRun)}}, containing <strong>{{CurrentMagAutoUpdateRun.nPapers}}</strong> MAG papers
+                            , created on: {{FormatDate(CurrentMagAutoUpdateRun.dateRun)}}, containing <strong>{{CurrentMagAutoUpdateRun.nPapers}}</strong> new papers
                         </div>
                     </div>
                 </div>
@@ -338,7 +338,7 @@
                     </div>
                     <div class="row m-1">
                         <div class="d-inline mx-auto">
-                            <div (click)="CancelImportRefine()" class="btn btn-outline-dark px-3 py-1 mx-1">Cancel</div>
+                            <div (click)="CancelImportRefine()" class="btn btn-outline-dark px-3 py-1 mx-1">Close (without importing)</div>
                             <button (click)="ImportMagRelatedPapersRun()" [disabled]="!HasWriteRights || ListCriteria.autoUpdateUserTopN < 1 || ThreshodsForm.dirty" class="btn btn-outline-danger px-2 py-1 mx-1">Import!</button>
                             <div *ngIf="ThreshodsForm.dirty" class="alert-danger small rounded m-1 p-1 d-inline">Please click "Refresh" 1st</div>
                         </div>
