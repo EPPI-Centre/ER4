@@ -283,7 +283,7 @@ export class MAGSearchComponent implements OnInit {
 
             () => {
                 this.FetchMagSearches();
-                let msg: string = 'You have ReRun a MAG search';
+                let msg: string = 'You have rerun the search';
                 this._confirmationDialogService.showMAGRunMessage(msg);
             }
        );
@@ -305,7 +305,7 @@ export class MAGSearchComponent implements OnInit {
 
                 () => {
                     this.FetchMagSearches();
-                    let msg: string = 'You have created a new MAG search';
+                    let msg: string = 'You have created a new search';
                     this._confirmationDialogService.showMAGRunMessage(msg);
                 }
             );
@@ -335,7 +335,7 @@ export class MAGSearchComponent implements OnInit {
         this._magSearchService.RunMagSearch(search).then(
             (res) => {
                 if (res == true) {
-                    let msg: string = 'You have Combined MAG searches using : ' + this.LogicalOperator;
+                    let msg: string = 'You have combined searches using : ' + this.LogicalOperator;
                     this._confirmationDialogService.showMAGRunMessage(msg);
                 }
                 //this.FetchMagSearches();
