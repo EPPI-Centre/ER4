@@ -220,6 +220,9 @@ export class ItemListComp implements OnInit {
             SelectionCritieraItemList.listType = "MagSimulationFN";
             SelectionCritieraItemList.magSimulationId = this._magAdvancedService.CurrentMagSimId;
 
+        } else if (ListSubType == 'MagMatchesPreviouslyMatched') {
+            SelectionCritieraItemList.listType = "MagPreviouslyMatched";
+
         }else {
 
             SelectionCritieraItemList.listType = "MagMatchesMatched";

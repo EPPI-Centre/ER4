@@ -78,7 +78,7 @@ export class MagReviewMagInfo {
     nRequiringManualCheckExcluded: number = 0;
     nNotMatchedIncluded: number = 0;
     nNotMatchedExcluded: number = 0;
-
+    nPreviouslyMatched: number = 0;
 }
 
 export class MagPaperList {

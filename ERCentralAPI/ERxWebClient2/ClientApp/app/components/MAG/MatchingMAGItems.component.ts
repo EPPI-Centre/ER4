@@ -341,6 +341,14 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
             return false;
         }
     }
+    public CanGetNPreviouslyMatched(): boolean {
+
+        if (this._magAdvancedService.AdvancedReviewInfo.nPreviouslyMatched > 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
     public GetMagPaper() {
 
         this._magBrowserService.GetCompleteMagPaperById(this.magPaperId).then(

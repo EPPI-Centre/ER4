@@ -86,19 +86,20 @@
                             <th>All matched records in review</th>
                             <th>Low confidence matched items</th>
                             <th>Records that could not be matched</th>
+                            <th>Records that are no longer matched</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
-                            <td >
+                            <td>
                                 <button [disabled]="!CanGetMatchedIncluded()" class="btn btn-link p-2 m-2 " (click)="MAGBrowser('MatchedIncluded')">
                                     {{_magAdvancedService.AdvancedReviewInfo.nMatchedAccuratelyIncluded}}
                                 </button>
-                                <button [disabled]="!CanGetMatchedIncluded()"  class="btn btn-link  p-2 m-2 " (click)="OpenMatchesInReview('MatchedIncluded')">
+                                <button [disabled]="!CanGetMatchedIncluded()" class="btn btn-link  p-2 m-2 " (click)="OpenMatchesInReview('MatchedIncluded')">
                                     (List Papers)
                                 </button>
                             </td>
-                            <td >
+                            <td>
                                 <button [disabled]="!CanGetMatchedExcluded()" class="btn btn-link  p-2 m-2 " (click)="MAGBrowser('MatchedExcluded')">
                                     {{_magAdvancedService.AdvancedReviewInfo.nMatchedAccuratelyExcluded}}
                                 </button>
@@ -106,12 +107,12 @@
                                     (List Papers)
                                 </button>
                             </td>
-                            <td >
+                            <td>
                                 <button [disabled]="!CanGetMatchedAll()" class="btn btn-link  p-2 m-2  " (click)="MAGBrowser('MatchedAll')">
                                     {{_magAdvancedService.AdvancedReviewInfo.nMatchedAccuratelyIncluded + _magAdvancedService.AdvancedReviewInfo.nMatchedAccuratelyExcluded}}
                                 </button>
                             </td>
-                            <td >
+                            <td>
                                 <button [disabled]="!CanGetMatchesNeedingCheckingIncluding()" class=" btn btn-link  p-2 m-2 " (click)="OpenMatchesInReview('MagMatchesNeedingCheckingInc')">
                                     Included: {{_magAdvancedService.AdvancedReviewInfo.nRequiringManualCheckIncluded}}
                                 </button>
@@ -120,12 +121,17 @@
                                     Excluded:  {{_magAdvancedService.AdvancedReviewInfo.nRequiringManualCheckExcluded}}
                                 </button>
                             </td>
-                            <td >
+                            <td>
                                 <button [disabled]="!CanGetNotMatchedIncluded()" class=" btn btn-link  p-2 m-2 " (click)="OpenMatchesInReview('MagMatchesNotMatchedInc')">
                                     Included:  {{_magAdvancedService.AdvancedReviewInfo.nNotMatchedIncluded}}
                                 </button>
                                 <button [disabled]="!CanGetNotMatchedExcluded()" class=" btn btn-link p-2 m-2" (click)="OpenMatchesInReview('MagMatchesNotMatchedExc')">
                                     Excluded:  {{_magAdvancedService.AdvancedReviewInfo.nNotMatchedExcluded}}
+                                </button>
+                            </td>
+                            <td>
+                                <button [disabled]="!CanGetNPreviouslyMatched()" class=" btn btn-link  p-2 m-2 " (click)="OpenMatchesInReview('MagMatchesPreviouslyMatched')">
+                                    All:  {{_magAdvancedService.AdvancedReviewInfo.nPreviouslyMatched}}
                                 </button>
                             </td>
                         </tr>
