@@ -430,11 +430,11 @@ export class MAGSearchComponent implements OnInit {
     }
 
     private GetSearchTextPubDateBefore(date: Date): string  {
-        return "D<'" + date + "'";
+        return "D<'" + date.toISOString().substring(0, 10) + "'";
     }
 
     private GetSearchTextPubDateBetween(date1: Date, date2: Date): string  {
-        return "D=['" + date1 + "','" + date2 + "']";
+        return "D=['" + date1.toISOString().substring(0, 10) + "','" + date2.toISOString().substring(0, 10) + "']";
     }
     private GetSearchTextYearExactly(year: string): string  {
         return "Y=" + year;
