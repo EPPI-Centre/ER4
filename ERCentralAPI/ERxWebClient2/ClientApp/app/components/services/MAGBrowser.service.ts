@@ -497,7 +497,7 @@ export class MAGBrowserService extends BusyAwareService {
             .toPromise().then(
                 (result: MagItemPaperInsertCommand) => {
                     this.RemoveBusy("ImportMagRelatedSelectedPapers");
-                    this.selectedPapers = [];
+                    //this.selectedPapers = []; if you do this here, then we don't know how many papers *should* be selected
                     return result;
                 },
                 error => {

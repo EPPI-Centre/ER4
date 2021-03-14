@@ -116,7 +116,7 @@ export class MAGHeaderBar2Comp implements OnInit {
     public ImportSelected() {
 
         let msg: string = 'Are you sure you want to import the ' + this._magBrowserService.selectedPapers.length + ' selected papers into your review?';
-        this._confirmationDialogService.confirm('MAG Import', msg, false, '')
+        this._confirmationDialogService.confirm('Import papers', msg, false, '')
             .then((confirm: any) => {
                 if (confirm) {
                     this.ConfirmedImport();
@@ -145,6 +145,7 @@ export class MAGHeaderBar2Comp implements OnInit {
                         notificationMsg += "All of these records were already in your review.";
                     }
                     this._confirmationDialogService.showMAGRunMessage(notificationMsg);
+                    this._magBrowserService.selectedPapers = [];
                     //this.RefreshLists(this._magBrowserService.SelectedPaperIds);
                 }
             });
