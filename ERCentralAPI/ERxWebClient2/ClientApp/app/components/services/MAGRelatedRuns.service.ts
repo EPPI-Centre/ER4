@@ -102,7 +102,7 @@ export class MAGRelatedRunsService extends BusyAwareService {
             magRun)
             .subscribe(result => {
                 if (result.magAutoUpdateId > 0) {
-                    this.notificationService.showMAGRunMessage('MAG search was created');
+                    this.notificationService.showMAGRunMessage('Search was created');
                 } 
                 this._MagUpdatesList.push(result);
                 this.RemoveBusy("CreateAutoUpdate");
@@ -160,7 +160,7 @@ export class MAGRelatedRunsService extends BusyAwareService {
                 this.RemoveBusy("DeleteMAGRelatedRun");
                 if (result.magRelatedRunId > 0) {
 
-                    this.notificationService.showMAGRunMessage('MAG search was deleted');
+                    this.notificationService.showMAGRunMessage('Search was deleted');
 
                 } else {
 
@@ -188,7 +188,7 @@ export class MAGRelatedRunsService extends BusyAwareService {
                 this.RemoveBusy("MagRelatedPapersRunCreate");
                 if (result.magRelatedRunId > 0) {
 
-                    this.notificationService.showMAGRunMessage('MAG search was created');
+                    this.notificationService.showMAGRunMessage('Search was created');
 
                 } else {
 
@@ -256,7 +256,7 @@ export class MAGRelatedRunsService extends BusyAwareService {
                            
                             this.MagRelatedPapersRunList[tmpIndex] = result;
                         }
-                        this.notificationService.showMAGRunMessage('MAG search was updated');
+                        this.notificationService.showMAGRunMessage('Search was updated');
 
                     } else {
                         this.notificationService.showMAGRunMessage('User status is: ' + result.userStatus);

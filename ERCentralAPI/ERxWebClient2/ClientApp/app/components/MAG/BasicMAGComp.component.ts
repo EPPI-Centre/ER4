@@ -193,15 +193,11 @@ export class BasicMAGComp implements OnInit {
                 this.magMode = 'Cited by';
                 break;
             case '6':
-                this.magMode = 'Bi-Citation';
+                this.magMode = 'BiCitation';
                 break;
             case '7':
                 this.magMode = 'Bi-Citation AND Recommendations';
                 break;
-            //case '8':
-            //    this.magMode = 'New items in MAG';
-            //    break;
-
             default:
                 break;
 		}
@@ -210,6 +206,7 @@ export class BasicMAGComp implements OnInit {
     public CheckedStatus(magRelatedRun: MagRelatedPapersRun) {
 
         let msg: string = "";
+
         let status: string = magRelatedRun.userStatus;
         if (status == 'Checked') {
 
@@ -224,8 +221,8 @@ export class BasicMAGComp implements OnInit {
         } else {
             msg = 'there is an error in the status';
         }
-
-        this._confirmationDialogService.showMAGRunMessage(msg);
+        // JT commented out. We don't need to do anything with this now
+        //this._confirmationDialogService.showMAGRunMessage(msg);
 
     }
 

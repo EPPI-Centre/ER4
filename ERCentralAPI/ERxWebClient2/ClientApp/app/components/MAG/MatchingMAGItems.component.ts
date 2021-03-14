@@ -160,11 +160,12 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
         //this.router.navigate(['MAGBrowser']);
     }
 
-    public RunMatchingAlgo() {
+    public RunMatchingAlgo(matchType: number) {
 
         var att = this.CurrentDropdownSelectedCode2 as SetAttribute;
         let msg: string = ''; 
-        if (att != null && att.attribute_id > 0) {
+        //if (att != null && att.attribute_id > 0) {
+        if (matchType == 1) {
             msg = 'Are you sure you want to match all items with this code to Microsoft Academic records?';
         } else {
             msg = 'Are you sure you want to match all items to Microsoft Academic records?';
@@ -173,7 +174,8 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
             .then((confirm: any) => {
                 if (confirm) {
                     let res: string = '';
-                    if (att != null && att.attribute_id > 0) {
+                    //if (att != null && att.attribute_id > 0) {
+                    if (matchType == 1) {
                         this._magAdvancedService.RunMatchingAlgorithm(att.attribute_id).then(
                             (result) => {
                                //msg = 'Are you sure you want to match all items with this code to Microsoft Academic records?';
@@ -191,9 +193,9 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
                     this._magAdvancedService._RunAlgorithmFirst = true;
 
                     if (res != "error") {
-                        this._notificationService.showMAGRunMessage('MAG Matching can take a while...');
+                        this._notificationService.showMAGRunMessage('Matching records to Microsoft Academic. This can take a while...');
                     } else {
-                        this._notificationService.showMAGRunMessage('MAG Matching has returned an error please contact your administrator');
+                        this._notificationService.showMAGRunMessage('Matching has returned an error please contact your administrator');
                     }
                 }
             });
