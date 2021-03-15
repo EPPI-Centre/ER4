@@ -10,6 +10,10 @@
                 (click)="GoToDuplicates()">
             Manage Duplicates
         </button>
+        <button kendoButton class="mx-1" *ngIf="ReviewIsMagEnabled" 
+                              (click)="OpenMAG()">
+            Update review
+        </button>
 	</div>
 	<!--<div class="containsAtoolbar">
 		
