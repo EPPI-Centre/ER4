@@ -218,8 +218,8 @@
                     </button>
                 </div>
                 <div class="col-12 alert-secondary p-2 m-2 card">
-                    <div class="table-responsive">
-                        <table class="table align-middle table-striped" style="width:100%;max-height:600px; overflow:auto;">
+                    <div class="table-responsive" style="width:100%;max-height:65vh; overflow:auto;">
+                        <table class="table align-middle table-striped" >
                             <thead>
                                 <tr>
                                     <th>Description</th>
@@ -255,10 +255,8 @@
                                     <td style="vertical-align:middle">{{item.attributeName}}</td>
                                     <td style="vertical-align:middle">{{item.status  == 'Complete' ? 'Complete' : 'Pending'}}</td>
 
-                                    <td class="p-0" style="vertical-align:middle">
-                                        <button [disabled]="item.userStatus == 'Checked'" (click)="CheckedStatus(item)" [disabled]="!CanImportMagPapers(item)" class="btn btn-info btn-sm text-white align-content-center">
-                                            {{item.userStatus == '' ? 'Waiting' : item.userStatus }}
-                                        </button>
+                                    <td class="p-0 small" style="vertical-align:middle">
+                                        {{item.userStatus == '' ? 'Waiting' : item.userStatus }}
                                     </td>
                                     <td class="p-0" style="vertical-align:middle"><button [disabled]="!CanDeleteMAGRun()" (click)="DoDeleteMagRelatedPapersRun(item)" class="btn btn-danger btn-sm text-white align-content-center  fa fa-trash"></button></td>
                                     <td class="p-0" style="vertical-align:middle"><button (click)="ImportMagSearchPapers(item)" [disabled]="!CanImportMagPapers(item)" class="btn btn-primary btn-sm text-white align-content-center">Import</button></td>
