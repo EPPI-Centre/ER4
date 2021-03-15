@@ -289,7 +289,10 @@ export class MAGKeepUpToDate implements OnInit {
                     n3: this.ListCriteria.autoUpdateUserClassifierScore
                 });
                 this.ListCriteriaFilteredPapers = res;
-                if (this.ListCriteria.autoUpdateUserTopN > this.ListCriteriaFilteredPapers) this.ListCriteria.autoUpdateUserTopN = this.ListCriteriaFilteredPapers;
+                if (this.ListCriteria.autoUpdateUserTopN > this.ListCriteriaFilteredPapers
+                    || this.ListCriteria.autoUpdateUserTopN < this.ListCriteriaFilteredPapers) {
+                    this.ListCriteria.autoUpdateUserTopN = this.ListCriteriaFilteredPapers;
+                }
             }
         }
     }
