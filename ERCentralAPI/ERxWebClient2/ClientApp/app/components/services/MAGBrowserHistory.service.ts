@@ -234,7 +234,7 @@ export class MAGBrowserHistoryService extends BusyAwareService  {
             let crit = target.toAutoUpdateListCrit;
             if (crit != null) {
                 let res = await this._magBrowserService.GetMagOrigList(crit);
-                if (typeof res !== "boolean") {
+                if (res == true) {
                     this.currentBrowsePosition = pos;
                     return "MagAutoUpdateRunPapersList";
                     //this.PleaseGoTo.emit("MagAutoUpdateRunPapersList");
