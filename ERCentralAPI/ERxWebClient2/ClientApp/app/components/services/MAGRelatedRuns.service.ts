@@ -335,13 +335,24 @@ export class MAGRelatedRunsService extends BusyAwareService {
                             cmd.topN + " items";
 
                     } else if (result.nImported != 0) {
-
-                        notificationMsg += "Some of these items were already in your review.\n\nImported " +
-                            result.nImported + " out of " + cmd.topN +
-                            " new items";
+                        
+                        if (cmd.filterDOI.trim() != "" || cmd.filterJournal.trim() != "" || cmd.filterURL.trim() != "") {
+                            notificationMsg += "Some of these items were either already in your review, or were filtered out. Imported " +
+                                result.nImported + " out of " + cmd.topN +
+                                " new items";
+                        } else {
+                            notificationMsg += "Some of these items were already in your review. Imported " +
+                                result.nImported + " out of " + cmd.topN +
+                                " new items";
+                        }
+                        
                     }
                     else {
-                        notificationMsg += "All of these records were already in your review.";
+                        if (cmd.filterDOI.trim() != "" || cmd.filterJournal.trim() != "" || cmd.filterURL.trim() != "") {
+                            notificationMsg += "All of these records were either already in your review, or were filtered out";
+                        } else {
+                            notificationMsg += "Nothing was imported: all records were already in your review";
+                        }
                     }
                     this.notificationService.showMAGRunMessage(notificationMsg);
                 }

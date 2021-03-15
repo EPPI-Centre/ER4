@@ -177,6 +177,7 @@ export class MAGKeepUpToDate implements OnInit {
         crit.autoUpdateUserTopN = taskRun.nPapers;
         this._magBrowserService.GetMagOrigList(crit).then(
             (res) => {
+                this.MAGBrowserHistoryService.AddHistory(MagBrowseHistoryItem.MakeFromAutoUpdateListCrit(crit));
                 if (res == true) this.PleaseGoTo.emit("MagAutoUpdateRunPapersList");// this.router.navigate(['MAGBrowser']);
             }
         );
@@ -288,7 +289,10 @@ export class MAGKeepUpToDate implements OnInit {
                     n3: this.ListCriteria.autoUpdateUserClassifierScore
                 });
                 this.ListCriteriaFilteredPapers = res;
-                if (this.ListCriteria.autoUpdateUserTopN > this.ListCriteriaFilteredPapers) this.ListCriteria.autoUpdateUserTopN = this.ListCriteriaFilteredPapers;
+                if (this.ListCriteria.autoUpdateUserTopN > this.ListCriteriaFilteredPapers
+                    || this.ListCriteria.autoUpdateUserTopN < this.ListCriteriaFilteredPapers) {
+                    this.ListCriteria.autoUpdateUserTopN = this.ListCriteriaFilteredPapers;
+                }
             }
         }
     }

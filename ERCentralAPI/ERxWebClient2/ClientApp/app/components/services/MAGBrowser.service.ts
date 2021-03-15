@@ -184,6 +184,7 @@ export class MAGBrowserService extends BusyAwareService {
     }
 
     public async GetMagOrigList(crit: MVCMagPaperListSelectionCriteria): Promise<boolean> {
+        if (crit.pageSize == 0) crit.pageSize = this._OrigCriteria.pageSize > 0 ? this._OrigCriteria.pageSize : this.pageSize;
         let res = await this.FetchWithCrit(crit);
         if (typeof res != "boolean") {
             //it worked, so let's replace things accordingly...
