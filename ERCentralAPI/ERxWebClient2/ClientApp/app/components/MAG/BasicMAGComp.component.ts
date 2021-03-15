@@ -129,7 +129,7 @@ export class BasicMAGComp implements OnInit {
             let msg: string = 'Are you sure you want to import these items?\n(This set is already marked as \'checked\'.)';
             this.ImportMagRelatedPapersRun(item, msg);
 
-        } else if (item.userStatus == 'Unchecked') {
+        } else if (item.userStatus == 'Unchecked' || item.userStatus == 'Not imported') {
           
             let msg: string = 'Are you sure you want to import these items?';
             this.ImportMagRelatedPapersRun(item, msg);

@@ -111,8 +111,8 @@ export class SourcesComponent implements OnInit, OnDestroy {
         else return false;
     }
     SelectSource(ROS: ReadOnlySource) {
-        this.tabstrip.selectTab(0);
         this.SourcesService.FetchSource(ROS.source_ID);
+        setTimeout(() => { this.tabstrip.selectTab(0); }, 50);//wait a tiny bit to ensure SourcesService is busy (which prevents loading the first source automatically).
     }
     IsSourceNameValid(): number {
         // zero if it's fine, 1 if empty, 2 if name-clash (we don't want 2 sources with the same name)
@@ -214,7 +214,7 @@ export class SourcesComponent implements OnInit, OnDestroy {
     onTabSelect($event: SelectEvent) {
         if ($event.title == 'Manage Sources'
             && this._CurrentSource == null && this.SourcesService.ReviewSources
-            && this.SourcesService.ReviewSources.length > 0) {
+            && this.SourcesService.ReviewSources.length > 0 && !this.SourcesService.IsBusy) {
             //let's go and get the first source:
             this.SourcesService.FetchSource(this.SourcesService.ReviewSources[0].source_ID);
         }

@@ -57,6 +57,19 @@ export class MAGRelatedRunsService extends BusyAwareService {
             .subscribe(result => {
                 this.RemoveBusy("FetchMagRelatedPapersRunList");
                 this.MagRelatedPapersRunList = result;
+                //this.MagRelatedPapersRunList = this.MagRelatedPapersRunList.concat(result);
+                //this.MagRelatedPapersRunList = this.MagRelatedPapersRunList.concat(result);
+                //this.MagRelatedPapersRunList = this.MagRelatedPapersRunList.concat(result);
+                //this.MagRelatedPapersRunList = this.MagRelatedPapersRunList.concat(result);
+                //this.MagRelatedPapersRunList = this.MagRelatedPapersRunList.concat(result);
+                //this.MagRelatedPapersRunList = this.MagRelatedPapersRunList.concat(result);
+                //this.MagRelatedPapersRunList = this.MagRelatedPapersRunList.concat(result);
+                //this.MagRelatedPapersRunList = this.MagRelatedPapersRunList.concat(result);
+                //this.MagRelatedPapersRunList = this.MagRelatedPapersRunList.concat(result);
+                //this.MagRelatedPapersRunList = this.MagRelatedPapersRunList.concat(result);
+                //this.MagRelatedPapersRunList = this.MagRelatedPapersRunList.concat(result);
+                //this.MagRelatedPapersRunList = this.MagRelatedPapersRunList.concat(result);
+                //this.MagRelatedPapersRunList = this.MagRelatedPapersRunList.concat(result);
             },
                 error => {
                     this.RemoveBusy("FetchMagRelatedPapersRunList");
@@ -73,6 +86,19 @@ export class MAGRelatedRunsService extends BusyAwareService {
         this._httpC.get<MagAutoUpdate[]>(this._baseUrl + 'api/MagRelatedPapersRunList/GetMagAutoUpdateList')
             .subscribe(result => {
                 this._MagUpdatesList = result;
+                //this._MagUpdatesList = this._MagUpdatesList.concat(result);
+                //this._MagUpdatesList = this._MagUpdatesList.concat(result);
+                //this._MagUpdatesList = this._MagUpdatesList.concat(result);
+                //this._MagUpdatesList = this._MagUpdatesList.concat(result);
+                //this._MagUpdatesList = this._MagUpdatesList.concat(result);
+                //this._MagUpdatesList = this._MagUpdatesList.concat(result);
+                //this._MagUpdatesList = this._MagUpdatesList.concat(result);
+                //this._MagUpdatesList = this._MagUpdatesList.concat(result);
+                //this._MagUpdatesList = this._MagUpdatesList.concat(result);
+                //this._MagUpdatesList = this._MagUpdatesList.concat(result);
+                //this._MagUpdatesList = this._MagUpdatesList.concat(result);
+                //this._MagUpdatesList = this._MagUpdatesList.concat(result);
+                //this._MagUpdatesList = this._MagUpdatesList.concat(result);
                 if (alsoRuns) {
                     this.GetMagAutoUpdateRunList();
                 }
@@ -84,11 +110,17 @@ export class MAGRelatedRunsService extends BusyAwareService {
                 });
     }
     public GetMagAutoUpdateRunList() {
-
         this._BusyMethods.push("GetMagAutoUpdateRunList");
         this._httpC.get<MagAutoUpdateRun[]>(this._baseUrl + 'api/MagRelatedPapersRunList/GetMagAutoUpdateRuns')
             .subscribe(result => {
-                this._MagAutoUpdateRunList = result;
+                this._MagAutoUpdateRunList = result; 
+                //this._MagAutoUpdateRunList = this._MagAutoUpdateRunList.concat(result);
+                //this._MagAutoUpdateRunList = this._MagAutoUpdateRunList.concat(result);
+                //this._MagAutoUpdateRunList = this._MagAutoUpdateRunList.concat(result);
+                //this._MagAutoUpdateRunList = this._MagAutoUpdateRunList.concat(result);
+                //this._MagAutoUpdateRunList = this._MagAutoUpdateRunList.concat(result);
+                //this._MagAutoUpdateRunList = this._MagAutoUpdateRunList.concat(result);
+                //this._MagAutoUpdateRunList = this._MagAutoUpdateRunList.concat(result);
                 this.RemoveBusy("GetMagAutoUpdateRunList");
             },
                 error => {
