@@ -104,7 +104,7 @@ namespace ERxWebClient2.Controllers
 					newMagRun.UserStatus = magRun.userStatus;
 
 					newMagRun = dp.Execute(newMagRun);
-
+                    newMagRun.UserStatus = "Waiting";//maybe it isn't, but this data will be corrected at the first refresh...
 					return Ok(newMagRun);
 
 				}
@@ -281,7 +281,7 @@ namespace ERxWebClient2.Controllers
                 if (SetCSLAUser4Writing())
                 {
                     int num_in_run = magRun.nPapers;
-
+                    if (num_in_run > 20000) return StatusCode(500, "Import is too big: 20,000 hits or more");
                     DataPortal<MagItemPaperInsertCommand> dp2 = new DataPortal<MagItemPaperInsertCommand>();
 
                     MagItemPaperInsertCommand command = new MagItemPaperInsertCommand("", "RelatedPapersSearch", magRun.magRelatedRunId,
@@ -380,6 +380,7 @@ namespace ERxWebClient2.Controllers
             {
                 if (SetCSLAUser4Writing())
                 {
+                    if (mr.TopN > 20000) return StatusCode(500, "Sorry, can't import more than 20000 papers in one go.");
                     DataPortal<MagItemPaperInsertCommand> dp = new DataPortal<MagItemPaperInsertCommand>();
                     MagItemPaperInsertCommand command = new MagItemPaperInsertCommand("", "AutoUpdateRun", 0
                                                             , mr.magAutoUpdateRunId, mr.orderBy, mr.autoUpdateScore

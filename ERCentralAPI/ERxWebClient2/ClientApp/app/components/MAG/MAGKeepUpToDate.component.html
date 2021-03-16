@@ -339,7 +339,7 @@
                     <div class="row m-1">
                         <div class="d-inline mx-auto">
                             <div (click)="CancelImportRefine()" class="btn btn-outline-dark px-3 py-1 mx-1">Close (without importing)</div>
-                            <button (click)="ImportMagRelatedPapersRun()" [disabled]="!HasWriteRights || ListCriteria.autoUpdateUserTopN < 1 || ThreshodsForm.dirty" class="btn btn-outline-danger px-2 py-1 mx-1">Import!</button>
+                            <button (click)="ImportMagAutoUpdateRun()" [disabled]="!HasWriteRights || ListCriteria.autoUpdateUserTopN < 1 || ThreshodsForm.dirty" class="btn btn-outline-danger px-2 py-1 mx-1">Import!</button>
                             <div *ngIf="ThreshodsForm.dirty" class="alert-danger small rounded m-1 p-1 d-inline">Please click "Refresh" 1st</div>
                         </div>
                     </div>

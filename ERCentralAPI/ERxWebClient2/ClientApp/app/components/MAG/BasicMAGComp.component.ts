@@ -11,6 +11,8 @@ import { MagRelatedPapersRun, MagBrowseHistoryItem} from '../services/MAGClasses
 import { MAGBrowserHistoryService } from '../services/MAGBrowserHistory.service';
 import { MAGAdvancedService } from '../services/magAdvanced.service';
 import { EventEmitterService } from '../services/EventEmitter.service';
+import { Helpers } from '../helpers/HelperMethods';
+import { ModalService } from '../services/modal.service';
 
 @Component({
 	selector: 'BasicMAGComp',
@@ -25,7 +27,7 @@ export class BasicMAGComp implements OnInit {
         private _magBrowserService: MAGBrowserService,
         public _searchService: searchService,
         private _ReviewerIdentityServ: ReviewerIdentityService,
-        private _eventEmitterService: EventEmitterService,
+        private ModalService: ModalService,
         private router: Router,
         public _mAGBrowserHistoryService: MAGBrowserHistoryService
 
@@ -78,6 +80,9 @@ export class BasicMAGComp implements OnInit {
         this.magMode = '';
 
     }
+    public FormatDate(date: string): string {
+        return Helpers.FormatDate(date);
+    }
 	CloseCodeDropDown() {
         
         console.log(this.WithOrWithoutCodeSelector);
@@ -119,9 +124,12 @@ export class BasicMAGComp implements OnInit {
     public ImportMagSearchPapers(item: MagRelatedPapersRun) {
 
         if (item.nPapers == 0) {
-            this._confirmationDialogService.showMAGRunMessage('There are no papers to import');
+            this.ModalService.GenericErrorMessage('There are no papers to import');
 
-        } else if (item.userStatus == 'Imported') {
+        } else if (item.nPapers > 20000) {
+            this.ModalService.GenericErrorMessage('Sorry, there are too many results. Imports are limited to searches with up to 20,000 papers.');
+        }
+        else if (item.userStatus == 'Imported') {
             this._confirmationDialogService.showMAGRunMessage('Papers have already been imported');
 
         } else if (item.userStatus == 'Checked') {
@@ -153,8 +161,18 @@ export class BasicMAGComp implements OnInit {
 
     }
 
-    public CanDeleteMAGRun() : boolean {
-        return this.HasWriteRights;
+    public CanDeleteMAGRun(magRun: MagRelatedPapersRun) : boolean {
+        if (!this.HasWriteRights) return false;
+        if (magRun.dateRun == "" || magRun.dateRun.length < 11) return false;
+        if (magRun.userStatus == "Waiting" && magRun.status == "") {
+            const year = parseInt(magRun.dateRun.substr(6, 4));
+            const month = parseInt(magRun.dateRun.substr(3, 2)) - 1;
+            const day = parseInt(magRun.dateRun.substr(0, 2));
+            const date: Date = new Date(year, month, day);
+            //console.log("check magrun date:", date.toDateString(), new Date().toDateString());
+            if (date.toDateString() == new Date().toDateString()) return false;
+        }
+        return true;
     }
     public CanAddNewMAGSearch(): boolean {
 
