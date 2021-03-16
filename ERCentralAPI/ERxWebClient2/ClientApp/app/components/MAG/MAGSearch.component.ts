@@ -305,8 +305,8 @@ export class MAGSearchComponent implements OnInit {
 
                 () => {
                     this.FetchMagSearches();
-                    let msg: string = 'You have created a new search';
-                    this._confirmationDialogService.showMAGRunMessage(msg);
+                    //let msg: string = 'You have created a new search';
+                    //this._confirmationDialogService.showMAGRunMessage(msg);
                 }
             );
     }

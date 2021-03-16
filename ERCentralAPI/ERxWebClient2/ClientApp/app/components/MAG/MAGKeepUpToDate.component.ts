@@ -17,6 +17,7 @@ import { timeInRange } from '@progress/kendo-angular-dateinputs/dist/es2015/util
 import { timeout } from 'rxjs/operators';
 import { Helpers } from '../helpers/HelperMethods';
 import { NgForm } from '@angular/forms';
+import { ModalService } from '../services/modal.service';
 
 @Component({
     selector: 'MAGKeepUpToDate',
@@ -30,14 +31,11 @@ export class MAGKeepUpToDate implements OnInit {
         private ConfirmationDialogService: ConfirmationDialogService,
         private MAGBrowserHistoryService: MAGBrowserHistoryService,
         private MAGAdvancedService: MAGAdvancedService,
-        //private _magBasicService: MAGRelatedRunsService,
         private _ReviewerIdentityServ: ReviewerIdentityService,
-        private router: Router,
-        //public _eventEmitterService: EventEmitterService,
         private _magBrowserService: MAGBrowserService,
-        //public _magAdminService: MAGAdminService
         private MAGRelatedRunsService: MAGRelatedRunsService,
-        private NotificationService: NotificationService
+        private NotificationService: NotificationService,
+        private ModalService: ModalService,
     ) {
 
     }
@@ -312,11 +310,14 @@ export class MAGKeepUpToDate implements OnInit {
             );
         }
     }
-    public ImportMagRelatedPapersRun() {
+    public ImportMagAutoUpdateRun() {
         //mr.magAutoUpdateRunId, mr.orderBy, mr.autoUpdateScore
         //    , mr.studyTypeClassifierScore, mr.userClassifierScore
         //    , mr.TopN, mr.filterJournal, mr.filterDOI, mr.filterURL
-        if (this.CurrentMagAutoUpdateRun != null) {
+        if (this.ListCriteria.autoUpdateUserTopN > 20000) {
+            this.ModalService.GenericErrorMessage('Sorry, there are too many results. Imports are limited to batches with up to 20,000 papers. <br /> You can reduce the "<strong>Import top</strong>" value instead.');
+        }
+        else if (this.CurrentMagAutoUpdateRun != null) {
             let cmd: MagItemPaperInsertCommand = new MagItemPaperInsertCommand();
             cmd.magAutoUpdateRunId = this.CurrentMagAutoUpdateRun.magAutoUpdateRunId;
             this.ListCriteria.autoUpdateOrderBy = this.comboAutoUpdateImportOptions;
