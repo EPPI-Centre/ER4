@@ -330,6 +330,7 @@ export class MAGSearchComponent implements OnInit {
             let msg = "Sorry, we can't combine these searches, the resulting search string is too long.";
             this._confirmationDialogService.showErrorMessageInStrip(msg);
             this.LogicalOperator = 'Select operator';
+            return;
         }
         this.LogicalOperator = 'Select operator';
         this._magSearchService.RunMagSearch(search).then(

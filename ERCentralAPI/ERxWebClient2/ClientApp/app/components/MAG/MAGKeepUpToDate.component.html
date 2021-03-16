@@ -146,11 +146,16 @@
     <div class="container col-12">
         <div class="card">
             <div class="card-body">
-                <div class="card-title h4 mb-0">
-                    Auto update tasks (they run when new data arrive)
-                    <button class="btn btn-sm btn-outline-success mx-1 mt-auto mb-1 py-0 px-1 " (click)="Refresh()">
-                        <i class="fa fa-refresh" aria-hidden="true"></i>
-                    </button>
+                <div class="row col-12 m-0 p-0">
+                    <div class="card-title h4 mb-0">
+                        Auto update tasks (they run when new data arrive)
+                        <button class="btn btn-sm btn-outline-success mx-1 mt-auto mb-1 py-0 px-1 " (click)="Refresh()">
+                            <i class="fa fa-refresh" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                    <div *ngIf="AutoRefreshIsOn" class="small alert-danger rounded border border-danger my-auto pb-1 px-1 ">
+                        Waiting while applying a model to your task results... (Auto-refreshing every 30s)
+                    </div>
                 </div>
                 <div class="p-1 border-top border-bottom border-dark col-12 bg-light" style="max-height:30vh; overflow:auto;">
                     <table class="col-12 table table-striped" style="max-height:30vh">
@@ -168,7 +173,7 @@
                                 <td>{{task.allIncluded}}</td>
                                 <td>{{task.attributeName}}</td>
                                 <td>
-                                    <button (click)="DeleteAutoUpdate(task)" [disabled]="!HasWriteRights" title="Delete this task" class="btn btn-outline-danger btn-sm px-1 py-1">
+                                    <button (click)="DeleteAutoUpdate(task)" [disabled]="!HasWriteRights || AutoRefreshIsOn" title="Delete this task" class="btn btn-outline-danger btn-sm px-1 py-1">
                                         <i class="fa fa-trash" aria-hidden="true"></i>
                                     </button>
                                 </td>
@@ -205,7 +210,7 @@
                                 <td>{{task.magVersion}}</td>
                                 <td>{{FormatDate(task.dateRun)}}</td>
                                 <td>
-                                    <button md-tooltip='delete task' (click)="RefineAndImport(task)" class="btn btn-outline-primary btn-sm " [disabled]="!HasWriteRights || task.nPapers < 1">
+                                    <button md-tooltip='delete task' (click)="RefineAndImport(task)" class="btn btn-outline-primary btn-sm " [disabled]="!HasWriteRights || task.nPapers < 1 || AutoRefreshIsOn">
                                         Refine/Import
                                     </button>
                                 </td>
@@ -213,7 +218,7 @@
                                     <button (click)="BrowseAllItems(task)" [disabled]="!HasWriteRights || task.nPapers < 1" class="btn btn-link btn-sm">{{task.nPapers}}</button>
                                 </td>
                                 <td>
-                                    <button (click)="DeleteAutoUpdateRun(task)" title="Delete these task results" class="btn btn-outline-danger btn-sm px-1 py-1" [disabled]="!HasWriteRights">
+                                    <button (click)="DeleteAutoUpdateRun(task)" title="Delete these task results" class="btn btn-outline-danger btn-sm px-1 py-1" [disabled]="!HasWriteRights  || AutoRefreshIsOn">
                                         <i class="fa fa-trash" aria-hidden="true"></i>
                                     </button>
                                 </td>
@@ -360,7 +365,7 @@
                             <option *ngFor="let itm of StudyClassifiers" [ngValue]="itm" [selected]="itm == SelectedStudyClassifier">{{itm}}</option>
                         </select>
                         <div class="mx-1">
-                            <button (click)="RunStudyClassifier()" [disabled]="!HasWriteRights || SelectedStudyClassifier == '[Please select...]'"
+                            <button (click)="RunStudyClassifier()" [disabled]="!HasWriteRights || SelectedStudyClassifier == '[Please select...]' || currentlyApplyingModelToThisRunId > 0"
                                     class="btn btn-outline-primary btn-sm " style="min-width:60px;">
                                 Run Study Classifier
                             </button>
@@ -372,7 +377,7 @@
                             <option *ngFor="let itm of ClassifierContactModelList" [ngValue]="itm" [selected]="itm == SelectedStudyClassifier">{{itm.modelTitle}} (Rev ID: {{itm.reviewId}})</option>
                         </select>
                         <div class="mx-1">
-                            <button (click)="RunContactModelClassifier()" [disabled]="!HasWriteRights || SelectedClassifierContactModel == null"
+                            <button (click)="RunContactModelClassifier()" [disabled]="!HasWriteRights || SelectedClassifierContactModel == null || currentlyApplyingModelToThisRunId > 0"
                                     class="btn btn-outline-dark btn-sm " style="min-width:60px;">
                                 Run Your Classifier
                             </button>

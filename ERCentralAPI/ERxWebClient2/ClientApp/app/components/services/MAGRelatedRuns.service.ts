@@ -1,33 +1,57 @@
-import { Inject, Injectable} from '@angular/core';
+import { Inject, Injectable, OnDestroy} from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
 import { MAGBrowserService } from './MAGBrowser.service';
 import { MagRelatedPapersRun, MagPaperList, MagPaper,  MagItemPaperInsertCommand, MagAutoUpdateRun, MagAutoUpdate, MagAutoUpdateVisualise, MagAutoUpdateVisualiseSelectionCriteria, MagAddClassifierScoresCommand } from './MAGClasses.service';
 import { ConfirmationDialogService } from './confirmation-dialog.service';
+import { Helpers } from '../helpers/HelperMethods';
+import { EventEmitterService } from './EventEmitter.service';
+import { Subscription } from 'rxjs';
+import { ReviewerIdentityService } from './revieweridentity.service';
 
 @Injectable({
     providedIn: 'root',
 })
 
-export class MAGRelatedRunsService extends BusyAwareService {
+export class MAGRelatedRunsService extends BusyAwareService implements OnDestroy {
 
     constructor(
         private _httpC: HttpClient,
         private modalService: ModalService,
-        private _magBrowserService: MAGBrowserService,
         private notificationService: ConfirmationDialogService,
-        //private _eventEmitterService: EventEmitterService,
+        private EventEmitterService: EventEmitterService,
+        private ReviewerIdentityService: ReviewerIdentityService,
         @Inject('BASE_URL') private _baseUrl: string
     ) {
         super();
+        console.log("On create MAGRelatedRunsService");
+        this.clearSub = this.EventEmitterService.PleaseClearYourDataAndState.subscribe(() => { this.Clear(true); });
     }
-
+    ngOnDestroy() {
+        console.log("Destroy MAGRelatedRunsService");
+        if (this.clearSub != null) this.clearSub.unsubscribe();
+    }
+    private clearSub: Subscription | null = null;
 
     private _MagRelatedPapersRunList: MagRelatedPapersRun[] = [];
     private _MagUpdatesList: MagAutoUpdate[] = [];
     private _MagAutoUpdateRunList: MagAutoUpdateRun[] = [];
     private _MagAutoUpdateVisualise: MagAutoUpdateVisualise[] = [];
+
+    //these two "currently..." members are used to prevent re-applying a classifier to "autoUpdate runs" while already applying one!
+    public currentlyApplyingModelToThisRunId: number = 0;
+    public currentlyApplyedModelToRunId: string = "";
+    //refresh until is used to avoid resetting the number of refreshes we'll do...
+    public RefreshUntil: Date = new Date();
+    //refreshForStudyClassifier tells us if the model to be applied is "study" or "user", hence it controls what we check for.
+    public refreshForStudyClassifier: boolean = true;
+    //we also need to stop the timer/looping/refreshing if the user has changed review...
+    public refreshForStudyClassifierReviewId: number = 0;
+
+    public get AutoRefreshIsOn(): boolean {
+        return new Date() < this.RefreshUntil;
+    }
 
     public get MagRelatedPapersRunList(): MagRelatedPapersRun[] {
 
@@ -128,6 +152,45 @@ export class MAGRelatedRunsService extends BusyAwareService {
                     this.modalService.GenericError(error);
                 });
     }
+
+    public async RefreshAutoUpdateRunsOnTimer() {
+        this.refreshForStudyClassifierReviewId = this.ReviewerIdentityService.reviewerIdentity.reviewId;
+        while (new Date() < this.RefreshUntil && this.ReviewerIdentityService.reviewerIdentity.reviewId == this.refreshForStudyClassifierReviewId) {
+            await Helpers.Sleep(1000 * 25);
+            if (this.ReviewerIdentityService.reviewerIdentity.reviewId !== this.refreshForStudyClassifierReviewId) {
+                //user changed review in the meantime...
+                this.RefreshUntil = new Date();
+                break;
+            }
+            this.GetMagAutoUpdateRunList();
+            await Helpers.Sleep(1000 * 5);//we give GetMagAutoUpdateRunList 5s to complete, not a big deal if it's not enough
+            if (this.ReviewerIdentityService.reviewerIdentity.reviewId !== this.refreshForStudyClassifierReviewId) {
+                //user changed review in the meantime...
+                this.RefreshUntil = new Date();
+                break;
+            }
+
+            let newRun = this.MagAutoUpdateRunList.find(f => f.magAutoUpdateRunId == this.currentlyApplyingModelToThisRunId);
+            if (newRun != undefined) {
+                //we'll check if the model has been applied
+                if ((this.refreshForStudyClassifier && newRun.studyTypeClassifier !== this.currentlyApplyedModelToRunId)
+                    || (!this.refreshForStudyClassifier && newRun.userClassifierModelId.toString() !== this.currentlyApplyedModelToRunId)) {
+                    //yay! it's in, so we can stop looping
+                    this.currentlyApplyingModelToThisRunId = 0;
+                    this.currentlyApplyedModelToRunId = "";
+                    this.RefreshUntil = new Date();
+                    //this.CurrentMagAutoUpdateRun = newRun;//update what we have in here!!
+                    //this.LoadGraph();//get update histogram, while we're there...
+                    return;
+                }
+            }
+        }
+        //bad luck, either we were re-applying the same model or it's taking more than 5m, we give up
+        this.currentlyApplyingModelToThisRunId = 0;
+        this.currentlyApplyedModelToRunId = "";
+        this.RefreshUntil = new Date();
+    }
+
     public CreateAutoUpdate(magRun: MagRelatedPapersRun) {
         this._BusyMethods.push("CreateAutoUpdate");
         this._httpC.post<MagAutoUpdate>(this._baseUrl + 'api/MagRelatedPapersRunList/CreateAutoUpdate',
@@ -398,10 +461,12 @@ export class MAGRelatedRunsService extends BusyAwareService {
                     this.RemoveBusy("ImportAutoUpdateRun");
                 });
     }
-    public Clear() {
+    public Clear(AlsoStopTheTimer: boolean = false) {
+        console.log("Clear in MAGRelatedRunsService", AlsoStopTheTimer);
         this._MagRelatedPapersRunList = [];
         this._MagAutoUpdateRunList = [];
         this._MagAutoUpdateVisualise = [];
         this._MagUpdatesList = [];
+        if (AlsoStopTheTimer) this.RefreshUntil = new Date();
     }
 }
