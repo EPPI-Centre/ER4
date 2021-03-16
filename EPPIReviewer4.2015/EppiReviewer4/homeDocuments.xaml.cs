@@ -45,7 +45,7 @@ namespace EppiReviewer4
 
         private BusinessLibrary.BusinessClasses.Diagram currentDiagram = null;
         private SaveFileDialog sfd;
-        private dialogMetaAnalysisSetup dialogMetaAnalysisSetupControl;
+        //private dialogMetaAnalysisSetup dialogMetaAnalysisSetupControl;
 
         #region RadWindows
         private RadWindow AddSourceW = new RadWindow();
@@ -560,10 +560,10 @@ namespace EppiReviewer4
 
         private void CreateDialogs()
         {
-            dialogMetaAnalysisSetupControl = new dialogMetaAnalysisSetup();
-            dialogMetaAnalysisSetupControl.Style = Application.Current.Resources["CustomRadWindowStyle"] as Style;
-            //dialogMetaAnalysisControl.WindowStateChanged += new EventHandler(Helpers.WindowHelper.MaxOnly_WindowStateChanged);
-            dialogMetaAnalysisSetupControl.ReloadMetaAnalyses += new EventHandler(dialogMetaAnalysisSetupControl_ReloadMetaAnalyses);
+            //dialogMetaAnalysisSetupControl = new dialogMetaAnalysisSetup();
+            //dialogMetaAnalysisSetupControl.Style = Application.Current.Resources["CustomRadWindowStyle"] as Style;
+            ////dialogMetaAnalysisControl.WindowStateChanged += new EventHandler(Helpers.WindowHelper.MaxOnly_WindowStateChanged); i.e. previously commented out
+            //dialogMetaAnalysisSetupControl.ReloadMetaAnalyses += new EventHandler(dialogMetaAnalysisSetupControl_ReloadMetaAnalyses);
         }
 
         void dialogMetaAnalysisSetupControl_ReloadMetaAnalyses(object sender, EventArgs e)
@@ -2527,6 +2527,9 @@ namespace EppiReviewer4
 
         private void cmdMetaNewMetaAnalysis_Click(object sender, RoutedEventArgs e)
         {
+            dialogMetaAnalysisSetup dialogMetaAnalysisSetupControl = new dialogMetaAnalysisSetup();
+            dialogMetaAnalysisSetupControl.Style = Application.Current.Resources["CustomRadWindowStyle"] as Style;
+            dialogMetaAnalysisSetupControl.ReloadMetaAnalyses += new EventHandler(dialogMetaAnalysisSetupControl_ReloadMetaAnalyses);
             dialogMetaAnalysisSetupControl.ShowWindow(new MetaAnalysis());
         }
 
@@ -2555,6 +2558,9 @@ namespace EppiReviewer4
 
         private void cmdEditMetaAnalysis_Click(object sender, RoutedEventArgs e)
         {
+            dialogMetaAnalysisSetup dialogMetaAnalysisSetupControl = new dialogMetaAnalysisSetup();
+            dialogMetaAnalysisSetupControl.Style = Application.Current.Resources["CustomRadWindowStyle"] as Style;
+            dialogMetaAnalysisSetupControl.ReloadMetaAnalyses += new EventHandler(dialogMetaAnalysisSetupControl_ReloadMetaAnalyses);
             MetaAnalysis _currentSelectedMetaAnalysis = ((Button)(sender)).DataContext as MetaAnalysis;
             dialogMetaAnalysisSetupControl.ShowWindow(((Button)(sender)).DataContext as MetaAnalysis);
         }

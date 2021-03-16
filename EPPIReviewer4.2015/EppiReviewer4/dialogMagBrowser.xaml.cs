@@ -3564,7 +3564,7 @@ namespace EppiReviewer4
                             return;
                         }
                     }
-                        if (ms.HitsNo > 30000)
+                        if (ms.HitsNo > 20000)
                     {
                         RadWindow.Alert("Sorry. You can't import more than 20k records at a time.\nYou could try breaking up your search e.g. by date?");
                     }
