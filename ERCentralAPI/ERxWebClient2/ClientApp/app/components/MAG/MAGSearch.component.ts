@@ -168,10 +168,10 @@ export class MAGSearchComponent implements OnInit {
             this.modalService.GenericErrorMessage('Sorry, there are no papers to import');
 
         } else if (item.hitsNo > 20000) {
-            msg = "Sorry. You can't import more than 20k records at a time.\nYou could try breaking up your search e.g. by date?";
+            msg = "Sorry, imports are restricted to 20,000 records.<br />You could try breaking up your search (ex. by date).";
             this.modalService.GenericErrorMessage(msg);
         } else {
-            msg = "Are you sure you want to import this search result?";
+            msg = "Are you sure you want to import these search result? <br />This will import up to " + item.hitsNo.toString() + " items in your review.";
             this.ImportMagRelatedPapersRun(item, msg);
         }
     }

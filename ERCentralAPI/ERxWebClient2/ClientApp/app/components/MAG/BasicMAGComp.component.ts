@@ -134,12 +134,12 @@ export class BasicMAGComp implements OnInit {
 
         } else if (item.userStatus == 'Checked') {
            
-            let msg: string = 'Are you sure you want to import these items?\n(This set is already marked as \'checked\'.)';
+            let msg: string = 'Are you sure you want to import these (up to ' + item.nPapers.toString() +') items?\n(This set is already marked as \'checked\'.)';
             this.ImportMagRelatedPapersRun(item, msg);
 
         } else if (item.userStatus == 'Unchecked' || item.userStatus == 'Not imported') {
           
-            let msg: string = 'Are you sure you want to import these items?';
+            let msg: string = 'Are you sure you want to import these (up to ' + item.nPapers.toString() +') items?';
             this.ImportMagRelatedPapersRun(item, msg);
         }
     }
