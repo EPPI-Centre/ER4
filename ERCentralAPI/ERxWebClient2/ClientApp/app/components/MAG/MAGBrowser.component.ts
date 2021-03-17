@@ -240,7 +240,7 @@ export class MAGBrowser implements OnInit, OnDestroy {
         }
     }
 
-    public GetMagPaperRef(magPaperRefId: number, list: MagPaper[]) {
+    public GetMagPaperRef(Item: MagPaper, list: MagPaper[]) {
 
         //this._magBrowserService.currentRefreshListType = 'GetMagPaperRef';
         this.currentMagPaperList = list;
@@ -248,9 +248,15 @@ export class MAGBrowser implements OnInit, OnDestroy {
         this._magTopicsService.ShowingChildTopicsOnly = true;
         this._magTopicsService.WPParentTopics = [];
         this._magTopicsService.WPChildTopics = [];
-        this._magBrowserService.GetCompleteMagPaperById(magPaperRefId).then(
+
+        //let p = list.find(f => f.paperId == magPaperRefId);
+        //if (p) this._magBrowserService.currentMagPaper = p;
+
+        this._magBrowserService.currentMagPaper = Item;
+        this._magBrowserService.GetAdditionalPaperDataForCurrentPaper().then(
             (result: boolean) => {
                 if (result == true) {
+                    if (Item.linkedITEM_ID > 0) this._magBrowserService.currentMagPaper.linkedITEM_ID = Item.linkedITEM_ID;
                     const p = this._magBrowserService.currentMagPaper;
                     this._mAGBrowserHistoryService.AddHistory(new MagBrowseHistoryItem("Browse paper: " + p.paperId.toString(), "PaperDetail",
                         p.paperId, p.fullRecord,
@@ -258,6 +264,18 @@ export class MAGBrowser implements OnInit, OnDestroy {
                 }
                 //this._magBrowserService.PostFetchMagPaperCalls(result, "CitationsList");
             });
+
+        //this._magBrowserService.GetCompleteMagPaperById(Item.paperId).then(
+        //    (result: boolean) => {
+        //        if (result == true) {
+        //            if (Item.linkedITEM_ID > 0) this._magBrowserService.currentMagPaper.linkedITEM_ID = Item.linkedITEM_ID;
+        //            const p = this._magBrowserService.currentMagPaper;
+        //            this._mAGBrowserHistoryService.AddHistory(new MagBrowseHistoryItem("Browse paper: " + p.paperId.toString(), "PaperDetail",
+        //                p.paperId, p.fullRecord,
+        //                p.abstract, p.linkedITEM_ID, p.allLinks, p.findOnWeb, 0, "", "", 0));
+        //        }
+        //        //this._magBrowserService.PostFetchMagPaperCalls(result, "CitationsList");
+        //    });
     }
 
     public Back() {

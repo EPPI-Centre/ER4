@@ -263,17 +263,37 @@ export class MAGBrowserService extends BusyAwareService {
         this._MAGList = new MagList();
         let res = await this.FetchMagPaperById(Id);
         if (res == true) {
-            res = await this.GetPaperCitationsList(Id);
-            if (res == true) {
-                res = await this.GetPaperCitedByList(Id);
-                if (res == true) {
-                    //as in other places, we'll return before fetching the topics...
-                    this.GetTopicsForCurrentPaper();
-                    return true;
-                }
-            }
+            return await this.pGetAdditionalPaperDataById(Id);
+            //res = await this.GetPaperCitationsList(Id);
+            //if (res == true) {
+            //    res = await this.GetPaperCitedByList(Id);
+            //    if (res == true) {
+            //        //as in other places, we'll return before fetching the topics...
+            //        this.GetTopicsForCurrentPaper();
+            //        return true;
+            //    }
+            //}
         }
         return false;
+    }
+    public async GetAdditionalPaperDataForCurrentPaper(): Promise<boolean> {
+        this.MagCitationsByPaperList = new MagList();
+        this._MAGList = new MagList();
+        this.ClearTopics();
+        if (this.currentMagPaper.paperId > 0) return await this.pGetAdditionalPaperDataById(this.currentMagPaper.paperId);
+        else return false;
+    }
+    private async pGetAdditionalPaperDataById(Id: number): Promise<boolean> {
+        let res = await this.GetPaperCitationsList(Id);
+        if (res == true) {
+            res = await this.GetPaperCitedByList(Id);
+            if (res == true) {
+                //as in other places, we'll return before fetching the topics...
+                this.GetTopicsForCurrentPaper();
+                return true;
+            }
+        }
+        return res;
     }
     private async GetPaperCitationsList(refId: number): Promise<boolean> {
 

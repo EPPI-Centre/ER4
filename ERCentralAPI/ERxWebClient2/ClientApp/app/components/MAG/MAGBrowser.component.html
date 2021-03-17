@@ -29,10 +29,16 @@
                     <tr>
                         <td >
                             <div *ngIf="IsCurrentPaperSelected(_magBrowserService.currentMagPaper.paperId) == false">
-                                <button class="btn btn-primary btn-sm text-white" (click)="AddCurrentPaperToSelectedList()">Selected papers&nbsp;&nbsp; <i class="fa fa-plus"></i></button>
+                                <button class="btn btn-primary btn-sm text-white" (click)="AddCurrentPaperToSelectedList(_magBrowserService.currentMagPaper)" 
+                                        [disabled]="_magBrowserService.currentMagPaper.linkedITEM_ID > 0">
+                                    Selected papers&nbsp;&nbsp; <i class="fa fa-plus"></i>
+                                </button>
                             </div>
                             <div *ngIf="IsCurrentPaperSelected(_magBrowserService.currentMagPaper.paperId) == true ">
-                                <button class="btn btn-warning btn-sm text-white" (click)="RemoveCurrentPaperToSelectedList()">Selected papers&nbsp;&nbsp; <i class="fa fa-minus"></i></button>
+                                <button class="btn btn-warning btn-sm text-white" (click)="RemoveCurrentPaperToSelectedList()"
+                                        [disabled]="_magBrowserService.currentMagPaper.linkedITEM_ID > 0">
+                                    Selected papers&nbsp;&nbsp; <i class="fa fa-minus"></i>
+                                </button>
                             </div>
                         </td>
                         <td style="padding-left:10px">
@@ -154,7 +160,7 @@
                                         </thead>
                                         <tbody>
                                             <tr style="cursor: pointer;" *ngFor="let item of _magBrowserService.MAGList.papers">
-                                                <td (click)="GetMagPaperRef(item.paperId, _magBrowserService.MAGList.papers)" title="Open this paper details">
+                                                <td (click)="GetMagPaperRef(item, _magBrowserService.MAGList.papers)" title="Open this paper details">
                                                     {{item.shortRecord}}
                                                 </td>
                                                 <td title="'Select/Unselect reference'">
@@ -201,7 +207,7 @@
                                     </thead>
                                     <tbody>
                                         <tr style="cursor: pointer;" *ngFor="let item of _magBrowserService.MagCitationsByPaperList.papers">
-                                            <td (click)="GetMagPaperRef(item.paperId, _magBrowserService.MagCitationsByPaperList.papers )">{{item.fullRecord}}</td>
+                                            <td (click)="GetMagPaperRef(item, _magBrowserService.MagCitationsByPaperList.papers )">{{item.fullRecord}}</td>
                                             <td>
                                                 <button [disabled]="!CanSelectMagItem(item)" (click)="InOutReview(item, _magBrowserService.MagCitationsByPaperList.papers)"
                                                         [class]="IsCurrentPaperSelected(item.paperId) == true ? 'btn fa fa-minus' : 'btn fa fa-plus'">
@@ -227,7 +233,7 @@
                                     </thead>
                                     <tbody>
                                         <tr style="cursor: pointer;" *ngFor="let item of _magBrowserService.selectedPapers">
-                                            <td (click)="GetMagPaperRef(item.paperId,_magBrowserService.selectedPapers)">{{item.fullRecord}}</td>
+                                            <td (click)="GetMagPaperRef(item,_magBrowserService.selectedPapers)">{{item.fullRecord}}</td>
                                             <td>
                                                 <button [disabled]="!CanSelectMagItem(item)" (click)="InOutReview(item, _magBrowserService.selectedPapers)"
                                                         [class]="IsCurrentPaperSelected(item.paperId) == true  ? 'btn fa fa-minus' : 'btn fa fa-plus'">
@@ -251,7 +257,7 @@
                                     </thead>
                                     <tbody>
                                         <tr style="cursor: pointer;" *ngFor="let item of _magBrowserService.MAGOriginalList.papers">
-                                            <td (click)="GetMagPaperRef(item.paperId,_magBrowserService.MAGOriginalList.papers)">
+                                            <td (click)="GetMagPaperRef(item,_magBrowserService.MAGOriginalList.papers)">
                                                 {{item.shortRecord}}
                                             </td>
                                             <td>
