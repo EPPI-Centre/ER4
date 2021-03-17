@@ -103,6 +103,16 @@ namespace BusinessLibrary.BusinessClasses
             string[] words = cleaned.Split(' ');
             if (words.Length == 0)
                 return "";
+
+            foreach (string s in words)
+            {
+                Int64 test = 0;
+                if (!Int64.TryParse(s, out test))
+                {
+                    return "Error: not a valid list of IDs";
+                }
+            }
+
             if (words.Length == 1)
             {
                 cleaned = "Id=" + words[0];
@@ -510,13 +520,21 @@ namespace BusinessLibrary.BusinessClasses
             if (MagSearchText != "")
             {
                 MagMakesHelpers.MakesCalcHistogramResponse resp = MagMakesHelpers.CalcHistoramCount(MagSearchText);
-                foreach (MagMakesHelpers.histograms hs in resp.histograms)
+                if (resp != null && resp.histograms != null && resp.histograms.Count > 0)
                 {
-                    if (hs.attribute == "Id")
+                    foreach (MagMakesHelpers.histograms hs in resp.histograms)
                     {
-                        HitsNo = hs.total_count;
-                        break;
+                        if (hs.attribute == "Id")
+                        {
+                            HitsNo = hs.total_count;
+                            break;
+                        }
                     }
+                }
+                else
+                {
+                    HitsNo = 0;
+                    SearchText = "INVALID SEARCH";
                 }
             }
             ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;

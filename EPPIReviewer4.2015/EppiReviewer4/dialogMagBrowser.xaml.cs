@@ -3231,6 +3231,11 @@ namespace EppiReviewer4
                     break;
                 case 4:
                     newSearch.MagSearchText = newSearch.GetSearchTextMagIds(TextBoxMagSearch.Text);
+                    if (newSearch.MagSearchText.Contains("Error"))
+                    {
+                        RadWindow.Alert(newSearch.MagSearchText);
+                        return;
+                    }
                     newSearch.SearchText = "MAG ID(s): " + TextBoxMagSearch.Text;
                     break;
                 case 5:

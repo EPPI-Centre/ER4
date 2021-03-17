@@ -138,6 +138,10 @@ namespace ERxWebClient2.Controllers
                         break;
                     case 4:
                         newSearch.MagSearchText = newSearch.GetSearchTextMagIds(mVCMagSearch.magSearchInput);
+                        if (newSearch.MagSearchText.Contains("Error"))
+                        {
+                            throw new InvalidOperationException(newSearch.MagSearchText);
+                        }
                         newSearch.SearchText = "MAG ID(s): " + mVCMagSearch.magSearchInput;
                         break;
                     case 5:
