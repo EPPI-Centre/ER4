@@ -105,6 +105,7 @@ namespace ERxWebClient2.Controllers
 
 					newMagRun = dp.Execute(newMagRun);
                     newMagRun.UserStatus = "Waiting";//maybe it isn't, but this data will be corrected at the first refresh...
+                    newMagRun.DateRun = new SmartDate(DateTime.Now);
 					return Ok(newMagRun);
 
 				}
