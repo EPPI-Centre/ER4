@@ -87,7 +87,7 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
     }
     public ClearMatches() {
 
-        this.ConfirmationDialogService.confirm("Are you sure you want to match all items with this code to Microsoft Academic records?", "", false, "")
+        this.ConfirmationDialogService.confirm("Are you sure you want to clear matches from items with this code?", "", false, "")
             .then(
                 (confirm: any) => {
                     if (confirm) {
@@ -97,7 +97,7 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
                                 this._magAdvancedService.FetchMagReviewMagInfo();
                             });
                         }
-                        this._notificationService.showMAGDelayMessage("Clearing all matches for specific attribute!");
+                        this._notificationService.showMAGDelayMessage("Clearing all matches for specific code!");
                     }
                 }
             )
