@@ -286,32 +286,24 @@
                                     [disabled]="!CanDeleteSearch()"
                                     (click)="DeleteSearches()">
                                 Delete&nbsp;&nbsp;<i class="fa fa-trash"></i>
-                            </button>
+                            </button>&nbsp;
                         </td>
-
-
-
-
+                        <td style="padding-left:5px;vertical-align:top">
+                            <div *ngIf="!basicFilterPanel">
+                                <a (click)="ShowFilterPanel()" class="btn btn-info btn-sm text-white" data-toggle="collapse"
+                                   href="#collapseExample1" role="button" aria-expanded="false" aria-controls="collapseExample1">
+                                    Import filters&nbsp;&nbsp;<i class="fa fa-arrow-circle-down"></i>
+                                </a>
+                            </div>
+                            <div *ngIf="basicFilterPanel">
+                                <a (click)="ShowFilterPanel()" class="btn btn-info btn-sm text-white" data-toggle="collapse"
+                                   href="#collapseExample1" role="button" aria-expanded="false" aria-controls="collapseExample1">
+                                    Import filters&nbsp;&nbsp;<i class="fa fa-arrow-circle-up"></i>
+                                </a>
+                            </div>
+                        </td>
                     </tr>
-
-
-
-
                 </table>
-            </div>
-            <div class="row col-12 col-md-4 px-0 mx-0">
-                <div *ngIf="!basicFilterPanel">
-                    <a (click)="ShowFilterPanel()" class="btn btn-info btn-sm text-white" data-toggle="collapse"
-                       href="#collapseExample1" role="button" aria-expanded="false" aria-controls="collapseExample1">
-                        Import filters&nbsp;&nbsp;<i class="fa fa-arrow-circle-down"></i>
-                    </a>
-                </div>
-                <div *ngIf="basicFilterPanel">
-                    <a (click)="ShowFilterPanel()" class="btn btn-info btn-sm text-white" data-toggle="collapse"
-                       href="#collapseExample1" role="button" aria-expanded="false" aria-controls="collapseExample1">
-                        Import filters&nbsp;&nbsp;<i class="fa fa-arrow-circle-up"></i>
-                    </a>
-                </div>
             </div>
 
             <div class="collapse multi-collapse" id="collapseExample1">
