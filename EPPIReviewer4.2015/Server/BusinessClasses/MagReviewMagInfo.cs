@@ -125,8 +125,9 @@ namespace BusinessLibrary.BusinessClasses
                 ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
                 using (SqlCommand command = new SqlCommand("st_MagReviewMagInfo", connection))
                 {
+                    int rid = ri.ReviewId;
                     command.CommandType = System.Data.CommandType.StoredProcedure;
-                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
+                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", rid));
                     command.Parameters.Add(new SqlParameter("@NInReviewIncluded", 0));
                     command.Parameters["@NInReviewIncluded"].Direction = System.Data.ParameterDirection.Output;
                     command.Parameters.Add(new SqlParameter("@NInReviewExcluded", 0));
@@ -146,6 +147,7 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@NPreviouslyMatched", 0));
                     command.Parameters["@NPreviouslyMatched"].Direction = System.Data.ParameterDirection.Output;
                     command.ExecuteNonQuery();
+                    _ReviewId = rid;
                     _NInReviewIncluded = Convert.ToInt32(command.Parameters["@NInReviewIncluded"].Value);
                     _NInReviewExcluded = Convert.ToInt32(command.Parameters["@NInReviewExcluded"].Value);
                     _NMatchedAccuratelyIncluded = Convert.ToInt32(command.Parameters["@NMatchedAccuratelyIncluded"].Value);

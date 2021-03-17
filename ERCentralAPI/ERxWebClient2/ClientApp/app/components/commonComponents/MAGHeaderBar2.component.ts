@@ -37,7 +37,7 @@ export class MAGHeaderBar2Comp implements OnInit {
     ngOnInit() {
 	
     }
-    //@Input() Context: string | undefined;
+    @Input() MustMatchItems: boolean = true;
     public Context: string = "RelatedPapers";
     @Output() PleaseGoTo = new EventEmitter<string>();
     //@Output() BackHome = new EventEmitter<string>(); 
@@ -63,6 +63,7 @@ export class MAGHeaderBar2Comp implements OnInit {
     public DisableButton(destination: string) {
         if (this.Context == undefined || !this.HasWriteRights) return false;
         else if (this.Context == destination) return true;
+        else if (this.MustMatchItems && destination != "matching" && destination != "MagSearch") return true;
         else return false;
     }
     public get CanGoForward(): boolean {

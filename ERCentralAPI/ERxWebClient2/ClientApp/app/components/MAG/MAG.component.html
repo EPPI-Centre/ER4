@@ -1,8 +1,20 @@
 <HeaderComponent class="row p-1 m-0" style="vertical-align:top;" PageTitle="Update review" [Context]="Context"></HeaderComponent>
 
-<MAGHeaderBar2 #NavBar2 (PleaseGoTo)="ChangeContext($event)" ></MAGHeaderBar2>
-
-<ng-container [ngSwitch]="Context">
+<MAGHeaderBar2 #NavBar2 (PleaseGoTo)="ChangeContext($event)" [MustMatchItems]="MustMatchItems"></MAGHeaderBar2>
+<div class="row col-12 mx-0 p-0">
+    <div class=" small mx-auto my-1 px-2 py-0 rounded bg-white">
+        Microsoft Academic Dataset: <strong>{{MagFolder}}</strong> Matched items: <strong>{{MatchedCount}}</strong>
+    </div>
+</div>
+<div *ngIf="MustMatchItems" class="row col-12 mx-0 p-2"> 
+    <div class="col-12 mx-auto my-2 p-2 rounded bg-white">
+        <div class="col-11 p-1 mx-auto my-2 rounded alert-info border border-info">
+            In order to use any feature driven by Microsoft Academic Graph data, <strong>you fist need to "match" your review items</strong> to the equivalent Microsoft Academic "paper" records.
+            <br /> While this review doesn't have any matched item, most features are disabled.
+        </div>
+    </div>
+</div>
+<ng-container  [ngSwitch]="Context">
     <div *ngSwitchCase="'RelatedPapers'">
         <BasicMAGComp (PleaseGoTo)="ChangeContext($event)"></BasicMAGComp>
     </div>
@@ -16,7 +28,7 @@
         <MAGBrowserHistory (PleaseGoTo)="ChangeContext($event)"></MAGBrowserHistory>
     </div>
     <div *ngSwitchCase="'matching'">
-        <MatchingMAGItems (PleaseGoTo)="ChangeContext($event)"></MatchingMAGItems>
+        <MatchingMAGItems (PleaseGoTo)="ChangeContext($event)" [MustMatchItems]="MustMatchItems"></MatchingMAGItems>
     </div>
     <div *ngSwitchCase="'Admin'">
         <MAGAdmin></MAGAdmin>

@@ -129,7 +129,6 @@ export class MAGBrowser implements OnInit, OnDestroy {
     }
 
     public AddCurrentPaperToSelectedList() {
-
         this._magBrowserService.currentMagPaper.isSelected = false; 
 
         if (this._magBrowserService.selectedPapers != null ) {

@@ -144,7 +144,7 @@
                 <kendo-tabstrip-tab [selected]="true" [title]="'References'">
                     <ng-template kendoTabContent>
 
-                        <div [title]="'Add/remove reference'" style="min-height:500px; max-height:65vh; overflow:auto;">
+                        <div  style="min-height:500px; max-height:65vh; overflow:auto;">
 
                             <div>
                                 <div style="max-height:50vh; overflow:auto;">
@@ -154,13 +154,17 @@
                                         </thead>
                                         <tbody>
                                             <tr style="cursor: pointer;" *ngFor="let item of _magBrowserService.MAGList.papers">
-                                                <td (click)="GetMagPaperRef(item.paperId, _magBrowserService.MAGList.papers)">
+                                                <td (click)="GetMagPaperRef(item.paperId, _magBrowserService.MAGList.papers)" title="Open this paper details">
                                                     {{item.shortRecord}}
                                                 </td>
-                                                <td>
+                                                <td title="'Select/Unselect reference'">
                                                     <button [disabled]="!CanSelectMagItem(item)" (click)="InOutReview(item, _magBrowserService.MAGList.papers)"
                                                             [class]="IsCurrentPaperSelected(item.paperId) == true  ? 'btn fa fa-minus' : 'btn fa fa-plus'">
                                                     </button>
+                                                </td>
+                                                <td title="Model score"
+                                                    *ngIf="_magBrowserService.MAGList.papers == _magBrowserService.MAGOriginalList.papers && ListType.startsWith('Auto update results')">
+                                                    {{item.similarityScore.toFixed(3)}}
                                                 </td>
                                             </tr>
                                         </tbody>
@@ -251,10 +255,14 @@
                                                 {{item.shortRecord}}
                                             </td>
                                             <td>
-                                                <button [disabled]="!CanSelectMagItem(item)" 
+                                                <button [disabled]="!CanSelectMagItem(item)"
                                                         (click)="InOutReview(item, _magBrowserService.MAGOriginalList.papers)"
                                                         [class]="IsCurrentPaperSelected(item.paperId) == true ? 'btn fa fa-minus' : 'btn fa fa-plus'">
                                                 </button>
+                                            </td>
+                                            <td title="Model score"
+                                                    *ngIf="ListType.startsWith('Auto update results')">
+                                                {{item.similarityScore.toFixed(3)}}
                                             </td>
                                         </tr>
                                     </tbody>

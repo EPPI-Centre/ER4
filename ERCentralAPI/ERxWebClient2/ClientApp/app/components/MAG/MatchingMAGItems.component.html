@@ -155,7 +155,7 @@
                         <div ngbDropdown class="" style="min-width:150px;">
                             <button ngbDropdownAnchor class="btn btn-outline-primary dropdown-toggle w-100"
                                     style="min-width: 250px; white-space:normal" [attr.aria-expanded]="!isCollapsed2"
-                                    id="dropdownBasic2"
+                                    id="dropdownBasic2" [disabled]="MustMatchItems || !HasWriteRights"
                                     (click)="isCollapsed2 = !isCollapsed2; dropdownBasic2 = false">
                                 {{CurrentDropdownSelectedCode2?.name}}
                             </button>
@@ -170,17 +170,17 @@
 
                     <div class="col-sm-12 col-lg-8">
                         <button class="btn btn-primary btn-sm text-white mx-1"
-                                [disabled]="!CanGetCodeMatches()"
+                                [disabled]="!CanGetCodeMatches() || MustMatchItems "
                                 (click)="MAGBrowser('MatchedWithThisCode')">
                             List (matched) Items
                         </button>
                         <button class="btn btn-primary btn-sm text-white mx-1"
-                                [disabled]="!CanGetCodeMatches()"
+                                [disabled]="!CanGetCodeMatches() || MustMatchItems"
                                 (click)="RunMatchingAlgo(1)">
                             Auto-match items
                         </button>
                         <button class="btn btn-danger btn-sm text-white mx-1"
-                                [disabled]="!CanGetCodeMatches()"
+                                [disabled]="!CanGetCodeMatches() || MustMatchItems"
                                 (click)="ClearMatches()">
                             Clear Matches
                         </button>

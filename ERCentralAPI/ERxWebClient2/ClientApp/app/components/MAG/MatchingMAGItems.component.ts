@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, OnDestroy, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, ViewChild, OnDestroy, Output, EventEmitter, Input } from '@angular/core';
 import { searchService } from '../services/search.service';
 import { singleNode, SetAttribute } from '../services/ReviewSets.service';
 import { codesetSelectorComponent } from '../CodesetTrees/codesetSelector.component';
@@ -56,6 +56,7 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
     @ViewChild('WithOrWithoutCodeSelector2') WithOrWithoutCodeSelector2!: codesetSelectorComponent;
 
     @Output() PleaseGoTo = new EventEmitter<string>();
+    @Input() MustMatchItems: boolean = true;
     public CurrentDropdownSelectedCode2: singleNode | null = null;
     public dropdownBasic2: boolean = false;
     public isCollapsed2: boolean = false;
@@ -73,8 +74,10 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
             .then(
                 (confirm: any) => {
                     if (confirm) {
-                        this._magAdvancedService.ClearAllMAGMatches(0);
                         this._notificationService.showMAGDelayMessage("Clearing all matches!");
+                        this._magAdvancedService.ClearAllMAGMatches(0).then((res) => {
+                            this._magAdvancedService.FetchMagReviewMagInfo();
+                        });
                     }
                 }
             )
@@ -280,7 +283,7 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
     }
     public CanGetTopics(): boolean {
 
-        if (this._magAdvancedService.AdvancedReviewInfo.nMatchedAccuratelyIncluded > 0) {
+        if (this.SearchTextTopic.trim() != "") {
             return true;
         } else {
             return false;

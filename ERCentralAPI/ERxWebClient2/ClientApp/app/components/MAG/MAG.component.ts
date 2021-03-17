@@ -76,12 +76,12 @@ export class MAGComp implements OnInit, OnDestroy {
     
     }
     private LoadMAGwideData() {
-        //multiple API calls. We don't wait for one to end before doing the next, but we do wait 100-150ms between starting the calls.
-        this.MAGRelatedRunsService.FetchMagRelatedPapersRunList();
+        //multiple API calls. We don't wait for one to end before doing the next, but we do wait 40-150ms before starting the next call.
+        this.MAGAdvancedService.FetchMagReviewMagInfo();
         setTimeout(() => {
-            this.MAGRelatedRunsService.GetMagAutoUpdateList(true);
+            this.MAGRelatedRunsService.FetchMagRelatedPapersRunList();
             setTimeout(() => {
-                this.MAGAdvancedService.FetchMagReviewMagInfo();
+                this.MAGRelatedRunsService.GetMagAutoUpdateList(true);
                 setTimeout(() => {
                     this.MAGAdminService.FetchMagCurrentInfo();
                     setTimeout(() => {
@@ -95,7 +95,7 @@ export class MAGComp implements OnInit, OnDestroy {
                     }, 150);
                 }, 120);
             }, 100);
-        }, 100);
+        }, 40);
     }
     ngOnDestroy() {
         if (this.subItemIDinPath) this.subItemIDinPath.unsubscribe();
@@ -114,8 +114,27 @@ export class MAGComp implements OnInit, OnDestroy {
         else return "MAG: unspecified page";
     }
     public ChangeContext(val: string) {
-        console.log("Main MAG: context is changing (from, to)", this.Context, val);
+        //console.log("Main MAG: context is changing (from, to)", this.Context, val);
         if (this.NavBar2) this.NavBar2.Context = val;
+    }
+    public get MustMatchItems(): boolean {
+        if (this.MAGAdvancedService.AdvancedReviewInfo.nMatchedAccuratelyIncluded + this.MAGAdvancedService.AdvancedReviewInfo.nMatchedAccuratelyExcluded > 0) return false;
+        else if (this.MAGAdvancedService.AdvancedReviewInfo.reviewId > 0) {
+            if (this.Context != 'matching' && this.Context != 'MagSearch' && this.Context != 'MagSearchPapersList' && this.Context != 'SelectedPapers'
+                && this.Context != 'BrowseTopic' && this.Context != 'PaperDetail' && this.Context != 'BrowseTopic') {
+                //we go to the matching page, unless we're in MagSearch or any one of the "browse" contexts.
+                setTimeout(() => this.ChangeContext('matching'), 20);
+                //the delay is to avoid the dreaded expressionChangedAfterItHasBeenCheckedError...
+            }
+            return true;
+        }
+        return false;
+    }
+    public get MagFolder(): string {
+        return this.MAGAdminService.MagCurrentInfo.magFolder;
+    }
+    public get MatchedCount(): number {
+        return this.MAGAdvancedService.AdvancedReviewInfo.nMatchedAccuratelyExcluded + this.MAGAdvancedService.AdvancedReviewInfo.nMatchedAccuratelyIncluded; 
     }
     Back() {
         this.router.navigate(['Main']);
