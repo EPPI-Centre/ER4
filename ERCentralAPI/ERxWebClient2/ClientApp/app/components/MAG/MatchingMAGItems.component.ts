@@ -93,7 +93,9 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
                     if (confirm) {
                         let attribute = this.CurrentDropdownSelectedCode2 as SetAttribute;
                         if (attribute != null) {
-                            this._magAdvancedService.ClearAllMAGMatches(attribute.attribute_id);
+                            this._magAdvancedService.ClearAllMAGMatches(attribute.attribute_id).then((res) => {
+                                this._magAdvancedService.FetchMagReviewMagInfo();
+                            });
                         }
                         this._notificationService.showMAGDelayMessage("Clearing all matches for specific attribute!");
                     }
