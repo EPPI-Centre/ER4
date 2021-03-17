@@ -73,6 +73,7 @@ export class MAGSearchComponent implements OnInit {
     public SearchTextTopic: string = '';
     public OpenTopics: boolean = false;
     public SearchTextTopicDisplayName: string = '';
+    public basicFilterPanel: boolean = false;
 
     public get MagFolder(): string {
         return this.MAGAdminService.MagCurrentInfo.magFolder;
@@ -160,6 +161,9 @@ export class MAGSearchComponent implements OnInit {
         } else {
             return false;
         }
+    }
+    public ShowFilterPanel() {
+        this.basicFilterPanel = !this.basicFilterPanel;
     }
     public ImportMagSearchPapers(item: MagSearch) {
 
