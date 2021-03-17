@@ -172,7 +172,7 @@ export class MAGSearchComponent implements OnInit {
             this.modalService.GenericErrorMessage('Sorry, there are no papers to import');
 
         } else if (item.hitsNo > 20000) {
-            msg = "Sorry, imports are restricted to 20,000 records.<br />You could try breaking up your search (ex. by date).";
+            msg = "Sorry, imports are restricted to 20,000 records.<br />You could try breaking up your search (eg. by date).";
             this.modalService.GenericErrorMessage(msg);
         } else {
             msg = "Are you sure you want to import these search result? <br />This will import up to " + item.hitsNo.toString() + " items in your review.";
@@ -187,9 +187,9 @@ export class MAGSearchComponent implements OnInit {
                 if (confirm) {
                     this._magSearchService.ImportMagSearches(magSearch.magSearchText
                         , magSearch.searchText
-                        , this.ShowTextImportFilters ? this.FilterOutJournal : ""
-                        , this.ShowTextImportFilters ? this.FilterOutURL : ""
-                        , this.ShowTextImportFilters ? this.FilterOutDOI : ""
+                        , this.basicFilterPanel ? this.FilterOutJournal : ""
+                        , this.basicFilterPanel ? this.FilterOutURL : ""
+                        , this.basicFilterPanel ? this.FilterOutDOI : ""
                     ).then(
 
                         (result: number) => {
