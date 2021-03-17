@@ -133,7 +133,7 @@ namespace BusinessLibrary.BusinessClasses
                 MagLog.UpdateLogEntry("Running", "ID checking: file uploaded n=" + currentlyUsed.ToString(), TaskMagLogId);
                 if (!SubmitJob(ContactId, cancellationToken))
                 {
-                    MagLog.UpdateLogEntry("Stopped", "Error in Uploading ids file", TaskMagLogId);
+                    MagLog.UpdateLogEntry("Stopped", "Error in datalake job", TaskMagLogId);
                     return;
                 }
                 missingCount = await DownloadMissingIdsFile(uploadFileName);
