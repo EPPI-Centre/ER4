@@ -29,7 +29,7 @@ export class ClassifierService extends BusyAwareService implements OnDestroy {
 		this.clearSub = this.EventEmitterService.PleaseClearYourDataAndState.subscribe(() => { this.Clear(); });
 	}
 	ngOnDestroy() {
-		console.log("Destroy DuplicatesService");
+		console.log("Destroy MAGRelatedRunsService");
 		if (this.clearSub != null) this.clearSub.unsubscribe();
 	}
 	private clearSub: Subscription | null = null;

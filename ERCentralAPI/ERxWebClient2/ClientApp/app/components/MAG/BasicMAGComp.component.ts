@@ -163,7 +163,7 @@ export class BasicMAGComp implements OnInit {
 
     public CanDeleteMAGRun(magRun: MagRelatedPapersRun) : boolean {
         if (!this.HasWriteRights) return false;
-        if (magRun.dateRun == "" || magRun.dateRun.length < 11) return false;
+        if ((magRun.userStatus == "Waiting" && magRun.status == "") && (magRun.dateRun == "" || magRun.dateRun.length < 10)) return true;
         if (magRun.userStatus == "Waiting" && magRun.status == "") {
             const year = parseInt(magRun.dateRun.substr(6, 4));
             const month = parseInt(magRun.dateRun.substr(3, 2)) - 1;
