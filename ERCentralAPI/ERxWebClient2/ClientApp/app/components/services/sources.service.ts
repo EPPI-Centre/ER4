@@ -1,21 +1,32 @@
-import { Inject, Injectable, EventEmitter, Output } from '@angular/core';
+import { Inject, Injectable, EventEmitter, Output, OnDestroy } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
+import { EventEmitterService } from './EventEmitter.service';
+import { Subscription } from 'rxjs';
 
 @Injectable({
     providedIn: 'root',
 })
 
-export class SourcesService extends BusyAwareService {
+export class SourcesService extends BusyAwareService implements OnDestroy {
 
 	constructor(
 		private _httpC: HttpClient,
         private modalService: ModalService,
+        private EventEmitterService: EventEmitterService,
         @Inject('BASE_URL') private _baseUrl: string
     ) {
         super();
+        //console.log("On create SourcesService");
+        this.clearSub = this.EventEmitterService.PleaseClearYourDataAndState.subscribe(() => { this.Clear(); });
     }
+    ngOnDestroy() {
+        console.log("Destroy DuplicatesService");
+        if (this.clearSub != null) this.clearSub.unsubscribe();
+    }
+    private clearSub: Subscription | null = null;
+
     private _IncomingItems4Checking: IncomingItemsList | null = null;
     public get IncomingItems4Checking(): IncomingItemsList | null {
         return this._IncomingItems4Checking;

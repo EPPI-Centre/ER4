@@ -1,8 +1,10 @@
-import { Inject, Injectable, EventEmitter, Output} from '@angular/core';
+import { Inject, Injectable, EventEmitter, Output, OnDestroy} from '@angular/core';
 import { HttpClient   } from '@angular/common/http';
 import { ModalService } from './modal.service';
 import { ReviewSet, SetAttribute, iReviewSet, ReviewSetsService, singleNode } from './ReviewSets.service';
+import { EventEmitterService } from './EventEmitter.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
+import { Subscription } from 'rxjs';
 
 @Injectable({
 
@@ -10,14 +12,24 @@ import { BusyAwareService } from '../helpers/BusyAwareService';
 
 })
 
-export class WebDBService extends BusyAwareService  {
+export class WebDBService extends BusyAwareService implements OnDestroy {
 
     constructor(
         private _httpC: HttpClient,
         private modalService: ModalService,
         private ReviewSetsService: ReviewSetsService,
+        private EventEmitterService: EventEmitterService,
         @Inject('BASE_URL') private _baseUrl: string
-    ) { super(); }
+    ) {
+        super();
+        //console.log("On create WebDBService");
+        this.clearSub = this.EventEmitterService.PleaseClearYourDataAndState.subscribe(() => { this.Clear(); });
+    }
+    ngOnDestroy() {
+        //console.log("Destroy WebDBService");
+        if (this.clearSub != null) this.clearSub.unsubscribe();
+    }
+    private clearSub: Subscription | null = null;
 
     @Output() PleaseRedrawTheTree = new EventEmitter();
     private _WebDBs: iWebDB[] = [];
@@ -404,6 +416,8 @@ export class WebDBService extends BusyAwareService  {
         this._WebDBs = [];
         this._CurrentDB = null;
         this._CurrentSets = [];
+        this.SelectedNodeData = null;
+        this.MissingAttributes = [];
     }
 }
 
