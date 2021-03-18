@@ -1,4 +1,4 @@
-import { Inject, Injectable} from '@angular/core';
+import { Inject, Injectable, OnDestroy} from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
@@ -10,25 +10,34 @@ import { MagPaper, MagReviewMagInfo, MVCMagPaperListSelectionCriteria,
 import { Router } from '@angular/router';
 import { EventEmitterService } from './EventEmitter.service';
 import { MAGTopicsService } from './MAGTopics.service';
+import { Subscription } from 'rxjs';
 
 
 @Injectable({
     providedIn: 'root',
 })
 
-export class MAGAdvancedService extends BusyAwareService {
+export class MAGAdvancedService extends BusyAwareService implements OnDestroy {
     
     constructor(
         private _httpC: HttpClient,
         private _magBrowserService: MAGBrowserService,
         private modalService: ModalService,
         private router: Router,
-        private _eventEmitterService: EventEmitterService,
+        private EventEmitterService: EventEmitterService,
         private _magTopicsService: MAGTopicsService,
         @Inject('BASE_URL') private _baseUrl: string
     ) {
         super();
+        //console.log("On create MAGAdvancedService");
+        this.clearSub = this.EventEmitterService.PleaseClearYourDataAndState.subscribe(() => { this.Clear(); });
     }
+
+    ngOnDestroy() {
+        //console.log("Destroy MAGAdvancedService");
+        if (this.clearSub != null) this.clearSub.unsubscribe();
+    }
+    private clearSub: Subscription | null = null;
     //public firstVisitToMAGBrowser: boolean = true;
     public _RunAlgorithmFirst: boolean = false;
     public ReviewMatchedPapersList: MagPaper[] = [];
