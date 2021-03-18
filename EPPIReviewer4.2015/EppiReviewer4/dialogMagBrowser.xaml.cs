@@ -346,7 +346,8 @@ namespace EppiReviewer4
                             try
                             {
                                 HyperlinkButton newHl = new HyperlinkButton();
-                                newHl.Content = splitted[i];
+                                Uri uri = new Uri(splitted[i]);
+                                newHl.Content = uri.Host;
                                 newHl.NavigateUri = new Uri(splitted[i]);
                                 newHl.TargetName = "_blank";
                                 newHl.IsTabStop = false;
