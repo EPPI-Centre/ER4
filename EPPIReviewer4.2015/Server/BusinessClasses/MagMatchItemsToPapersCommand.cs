@@ -115,13 +115,26 @@ namespace BusinessLibrary.BusinessClasses
                 using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
                 {
                     connection.Open();
-                    using (SqlCommand command = new SqlCommand("st_MagMatchedPapersClear", connection))
+                    if (_FindOrRemove.Contains("NON-MANUAL"))
                     {
-                        command.CommandType = System.Data.CommandType.StoredProcedure;
-                        command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
-                        command.Parameters.Add(new SqlParameter("@ITEM_ID", _ITEM_ID));
-                        command.Parameters.Add(new SqlParameter("@ATTRIBUTE_ID", _ATTRIBUTE_ID));
-                        command.ExecuteNonQuery();
+                        using (SqlCommand command = new SqlCommand("st_MagMatchedPapersClearNonManual", connection))
+                        {
+                            command.CommandType = System.Data.CommandType.StoredProcedure;
+                            command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
+                            command.Parameters.Add(new SqlParameter("@ATTRIBUTE_ID", _ATTRIBUTE_ID));
+                            command.ExecuteNonQuery();
+                        }
+                    }
+                    else
+                    {
+                        using (SqlCommand command = new SqlCommand("st_MagMatchedPapersClear", connection))
+                        {
+                            command.CommandType = System.Data.CommandType.StoredProcedure;
+                            command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
+                            command.Parameters.Add(new SqlParameter("@ITEM_ID", _ITEM_ID));
+                            command.Parameters.Add(new SqlParameter("@ATTRIBUTE_ID", _ATTRIBUTE_ID));
+                            command.ExecuteNonQuery();
+                        }
                     }
                     connection.Close();
                 }

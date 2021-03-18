@@ -79,7 +79,7 @@ namespace ERxWebClient2.Controllers
                 {
 
                     DataPortal<MagMatchItemsToPapersCommand> dp = new DataPortal<MagMatchItemsToPapersCommand>();
-                    MagMatchItemsToPapersCommand GetMatches = new MagMatchItemsToPapersCommand("Clear",
+                    MagMatchItemsToPapersCommand GetMatches = new MagMatchItemsToPapersCommand("ALL",
                        false, itemId.Value, 0);
 
                     GetMatches = dp.Execute(GetMatches);
@@ -104,9 +104,17 @@ namespace ERxWebClient2.Controllers
             {
                 if (SetCSLAUser4Writing())
                 {
-
+                    string filter = "";
+                    if (attributeId.Value == 0)
+                    {
+                        filter = "ALL";
+                    }
+                    else
+                    {
+                        filter = "ALL WITH THIS CODE";
+                    }
                     DataPortal<MagMatchItemsToPapersCommand> dp = new DataPortal<MagMatchItemsToPapersCommand>();
-                    MagMatchItemsToPapersCommand GetMatches = new MagMatchItemsToPapersCommand("Clear",
+                    MagMatchItemsToPapersCommand GetMatches = new MagMatchItemsToPapersCommand(filter,
                   true, 0, attributeId.Value);
 
                     GetMatches = dp.Execute(GetMatches);
@@ -124,6 +132,39 @@ namespace ERxWebClient2.Controllers
             }
         }
 
+        [HttpPost("[action]")]
+        public IActionResult ClearAllNonManualMAGMatches([FromBody] SingleInt64Criteria attributeId)
+        {
+            try
+            {
+                if (SetCSLAUser4Writing())
+                {
+                    string filter = "";
+                    if (attributeId.Value == 0)
+                    {
+                        filter = "ALL NON-MANUAL";
+                    }
+                    else
+                    {
+                        filter = "ALL NON-MANUAL WITH THIS CODE";
+                    }
+                    DataPortal<MagMatchItemsToPapersCommand> dp = new DataPortal<MagMatchItemsToPapersCommand>();
+                    MagMatchItemsToPapersCommand GetMatches = new MagMatchItemsToPapersCommand(filter,
+                  true, 0, attributeId.Value);
+
+                    GetMatches = dp.Execute(GetMatches);
+
+                    return Ok(GetMatches.currentStatus);
+                }
+                else return Forbid();
+
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "MagMatchItemsToPapers has an error");
+                return StatusCode(500, e.Message);
+            }
+        }
 
     }
 

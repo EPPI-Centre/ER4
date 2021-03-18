@@ -63,11 +63,15 @@
             <h2 class="font-weight-light"></h2>
             <button (click)="RunMatchingAlgo(0)"
                     class="btn btn-primary btn-sm text-white mx-1">
-                Run Matching Algorithm
+                Run matching algorithm
             </button>
             <button (click)="ClearAllMatching()"
                     class="btn btn-danger btn-sm text-white mx-1">
-                Clear all Matches in Review
+                Clear all matches in review
+            </button>
+            <button (click)="ClearAllNonManualMatching()"
+                    class="btn btn-danger btn-sm text-white mx-1">
+                Clear all non-manual matches in review
             </button>
             <button class="btn btn-sm btn-outline-success mx-1" (click)="GetMagReviewMagInfoCommand()">
                 <i class="fa fa-refresh" aria-hidden="true"></i>
@@ -172,7 +176,7 @@
                         <button class="btn btn-primary btn-sm text-white mx-1"
                                 [disabled]="!CanGetCodeMatches() || MustMatchItems "
                                 (click)="MAGBrowser('MatchedWithThisCode')">
-                            List (matched) Items
+                            List (matched) items
                         </button>
                         <button class="btn btn-primary btn-sm text-white mx-1"
                                 [disabled]="!CanGetCodeMatches()"
@@ -182,7 +186,12 @@
                         <button class="btn btn-danger btn-sm text-white mx-1"
                                 [disabled]="!CanGetCodeMatches() || MustMatchItems"
                                 (click)="ClearMatches()">
-                            Clear Matches
+                            Clear matches
+                        </button>
+                        <button class="btn btn-danger btn-sm text-white mx-1"
+                                [disabled]="!CanGetCodeMatches() || MustMatchItems"
+                                (click)="ClearNonManualMatches()">
+                            Clear non-manual matches
                         </button>
                     </div>
 
@@ -198,7 +207,7 @@
             <div class="row col-12">
 
                 <div class="col-sm-12 col-lg-6 mb-5">
-                    <h4 class="font-weight-light">Locate by MAG Paper ID</h4>
+                    <h4 class="font-weight-light">Locate by Microsoft Academic ID</h4>
                     <div class="col-sm-12 col-lg-6">
                         <div class="row">
                             <div class="col-10" >
@@ -210,7 +219,7 @@
                                 style="padding-left: 10px;">
                                 <button [disabled]="!CanGetMagPaper()" (click)="GetMagPaper()"
                                         class="btn btn-primary btn-sm text-white">
-                                    Get MAG paper
+                                    Go to paper
                                 </button>
                             </div>
                         </div>
@@ -234,7 +243,7 @@
                 </div>
 
                 <div class="col-sm-12 col-lg-5 mb-5">
-                    <h4 class="font-weight-light">Search MAG by topic</h4>
+                    <h4 class="font-weight-light">Search Microsoft Academic by topic</h4>
                     <table class="col-sm-12">
                         <tr class="col-12">
                             <td class="col-12">
