@@ -1830,18 +1830,32 @@ namespace EppiReviewer4
             MatchOnAllOrFiltered = ((HyperlinkButton)sender).Tag.ToString();
             if (hl == null)
                 return;
-            if (hl.Tag.ToString() == "ALL")
+            string message = "";
+
+            switch (MatchOnAllOrFiltered)
             {
-                RadWindow.Confirm("Are you sure you want to clear all matches in your review?", this.OnShowCheckClearMatchesDialogClosed);
-            }
-            else
-            {
-                if (codesSelectControlMAGSelect.SelectedAttributeSet() == null)
-                {
-                    RadWindow.Alert("Please select a code");
-                    return;
-                }
-                RadWindow.Confirm("Are you sure you want to clear all matches with this code?", this.OnShowCheckClearMatchesDialogClosed);
+                case "ALL":
+                    RadWindow.Confirm("Are you sure you want to clear all matches in your review?", this.OnShowCheckClearMatchesDialogClosed);
+                    break;
+                case "ALL NON-MANUAL":
+                    RadWindow.Confirm("Are you sure you want to clear all non-manual matches in your review?", this.OnShowCheckClearMatchesDialogClosed);
+                    break;
+                case "ALL WITH THIS CODE":
+                    if (codesSelectControlMAGSelect.SelectedAttributeSet() == null)
+                    {
+                        RadWindow.Alert("Please select a code");
+                        return;
+                    }
+                    RadWindow.Confirm("Are you sure you want to clear all matches with this code?", this.OnShowCheckClearMatchesDialogClosed);
+                    break;
+                case "ALL NON-MANUAL WITH THIS CODE":
+                    if (codesSelectControlMAGSelect.SelectedAttributeSet() == null)
+                    {
+                        RadWindow.Alert("Please select a code");
+                        return;
+                    }
+                    RadWindow.Confirm("Are you sure you want to clear all non-manual matches with this code?", this.OnShowCheckClearMatchesDialogClosed);
+                    break;
             }
         }
 
@@ -1850,12 +1864,12 @@ namespace EppiReviewer4
             if (e.DialogResult == true)
             {
                 Int64 AttributeId = 0;
-                if (MatchOnAllOrFiltered != "ALL")
+                if (MatchOnAllOrFiltered.Contains("WITH THIS CODE"))
                 {
                     AttributeId = codesSelectControlMAGSelect.SelectedAttributeSet().AttributeId;
                 }
                 DataPortal<MagMatchItemsToPapersCommand> dp = new DataPortal<MagMatchItemsToPapersCommand>();
-                MagMatchItemsToPapersCommand ClearMatches = new MagMatchItemsToPapersCommand("Clear",
+                MagMatchItemsToPapersCommand ClearMatches = new MagMatchItemsToPapersCommand(MatchOnAllOrFiltered,
                     true, 0, AttributeId);
                 dp.ExecuteCompleted += (o, e2) =>
                 {

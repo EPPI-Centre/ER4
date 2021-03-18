@@ -324,6 +324,21 @@ export class MAGAdvancedService extends BusyAwareService {
                     return error;
                 });
     }
+    public ClearAllNonManualMAGMatches(attributeId: number): Promise<string> {
+
+        this._BusyMethods.push("ClearAllNonManualMAGMatches");
+        let body = JSON.stringify({ Value: attributeId });
+        return this._httpC.post<string>(this._baseUrl + 'api/MagMatchAll/ClearAllNonManualMAGMatches', body)
+            .toPromise().then((res) => {
+                this.RemoveBusy("ClearAllNonManualMAGMatches");
+                return res;
+            },
+                error => {
+                    this.RemoveBusy("ClearAllNonManualMAGMatches");
+                    this.modalService.GenericError(error);
+                    return error;
+                });
+    }
     public ClearMagMatchItemsToPapers(itemId: number): Promise<string>{
 
         this._BusyMethods.push("ClearMagMatchItemsToPapers");

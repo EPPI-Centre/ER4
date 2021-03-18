@@ -85,6 +85,23 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
      
            
     }
+    public ClearAllNonManualMatching() {
+
+        this.ConfirmationDialogService.confirm("Are you sure you wish to clear all non-manual matching in your review?", "", false, "")
+            .then(
+                (confirm: any) => {
+                    if (confirm) {
+                        this._notificationService.showMAGDelayMessage("Clearing all non-manual matches!");
+                        this._magAdvancedService.ClearAllNonManualMAGMatches(0).then((res) => {
+                            this._magAdvancedService.FetchMagReviewMagInfo();
+                        });
+                    }
+                }
+            )
+            .catch(() => { });
+
+
+    }
     public ClearMatches() {
 
         this.ConfirmationDialogService.confirm("Are you sure you want to clear matches from items with this code?", "", false, "")
@@ -98,6 +115,23 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
                             });
                         }
                         this._notificationService.showMAGDelayMessage("Clearing all matches for specific code!");
+                    }
+                }
+            )
+    }
+    public ClearNonManualMatches() {
+
+        this.ConfirmationDialogService.confirm("Are you sure you want to clear non-manual matches from items with this code?", "", false, "")
+            .then(
+                (confirm: any) => {
+                    if (confirm) {
+                        let attribute = this.CurrentDropdownSelectedCode2 as SetAttribute;
+                        if (attribute != null) {
+                            this._magAdvancedService.ClearAllNonManualMAGMatches(attribute.attribute_id).then((res) => {
+                                this._magAdvancedService.FetchMagReviewMagInfo();
+                            });
+                        }
+                        this._notificationService.showMAGDelayMessage("Clearing all non-manual matches for specific code!");
                     }
                 }
             )

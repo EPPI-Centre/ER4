@@ -640,6 +640,7 @@
                                         <RowDefinition Height="30"></RowDefinition>
                                         <RowDefinition Height="30"></RowDefinition>
                                         <RowDefinition Height="30"></RowDefinition>
+                                        <RowDefinition Height="30"></RowDefinition>
                                         <RowDefinition Height="40"></RowDefinition>
                                     </Grid.RowDefinitions>
                                     <Grid.ColumnDefinitions>
@@ -653,49 +654,52 @@
                                      Margin="5,5,5,5" Click="lbRefreshCounts_Click"  IsTabStop="False" Visibility="Collapsed"></HyperlinkButton>
                                     <HyperlinkButton x:Name="LbClearAllMatchesInReview" Grid.Row="1" Grid.Column="0" Content="Clear all matches in review" Margin="5,5,5,5" Click="LbClearAllMatchesInReview_Click"  Tag="ALL" IsTabStop="False" HorizontalAlignment="Right" VerticalAlignment="Center"
                                      IsEnabled="{Binding Source={StaticResource MagCurrentInfoData}, Path=Data.MatchingAvailable, Mode=OneWay}"></HyperlinkButton>
+                                    <HyperlinkButton x:Name="LbClearAllNonManualMatchesInReview" Grid.Row="2" Grid.Column="0" Content="Clear all non-manual matches in review" Margin="5,5,5,5" Click="LbClearAllMatchesInReview_Click"  Tag="ALL NON-MANUAL" IsTabStop="False" HorizontalAlignment="Right" VerticalAlignment="Center"
+                                     IsEnabled="{Binding Source={StaticResource MagCurrentInfoData}, Path=Data.MatchingAvailable, Mode=OneWay}"></HyperlinkButton>
 
                                     <telerik:RadBusyIndicator x:Name="busyIndicatorMatches" Grid.Row="0" Grid.RowSpan="7" Grid.Column="1" Background="Transparent" BorderBrush="Transparent" />
 
-                                    <TextBlock Grid.Row="2" Grid.Column="0" Text="All matched included records" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="4,3,4,3"></TextBlock>
-                                    <TextBlock Grid.Row="3" Grid.Column="0" Text="All matched excluded records" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="4,3,4,3"></TextBlock>
-                                    <TextBlock Grid.Row="4" Grid.Column="0" Text="All matched records in review" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="4,3,4,3"></TextBlock>
-                                    <TextBlock Grid.Row="5" Grid.Column="0" Text="Low confidence matches" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="4,3,4,3"></TextBlock>
-                                    <TextBlock Grid.Row="6" Grid.Column="0" Text="Unmatched records" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="4,3,4,3"></TextBlock>
-                                    <TextBlock Grid.Row="7" Grid.Column="0" Text="Actions on items with this code" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="4,3,4,3"></TextBlock>
+                                    <TextBlock Grid.Row="3" Grid.Column="0" Text="All matched included records" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="4,3,4,3"></TextBlock>
+                                    <TextBlock Grid.Row="4" Grid.Column="0" Text="All matched excluded records" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="4,3,4,3"></TextBlock>
+                                    <TextBlock Grid.Row="5" Grid.Column="0" Text="All matched records in review" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="4,3,4,3"></TextBlock>
+                                    <TextBlock Grid.Row="6" Grid.Column="0" Text="Low confidence matches" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="4,3,4,3"></TextBlock>
+                                    <TextBlock Grid.Row="7" Grid.Column="0" Text="Unmatched records" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="4,3,4,3"></TextBlock>
+                                    <TextBlock Grid.Row="8" Grid.Column="0" Text="Actions on items with this code" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="4,3,4,3"></TextBlock>
 
-                                    <StackPanel Grid.Row="2" Grid.Column="1" Orientation="Horizontal">
+                                    <StackPanel Grid.Row="3" Grid.Column="1" Orientation="Horizontal">
                                         <HyperlinkButton x:Name="LBListMatchesIncluded" Margin="4,3,4,3" HorizontalAlignment="Left" VerticalAlignment="Center" Click="LBListMatchesIncluded_Click" IsTabStop="False"></HyperlinkButton>
                                         <HyperlinkButton x:Name="lbItemListMatchesIncluded" Margin="1,5,5,5" HorizontalAlignment="Left" VerticalAlignment="Center" Content="(List)" Click="lbItemListMatchesIncluded_Click" IsTabStop="False"></HyperlinkButton>
                                         <TextBlock x:Name="tbPreviouslyMatchedRecords" Text="Previously matched records" Margin="4,3,4,3" HorizontalAlignment="Left" VerticalAlignment="Center"></TextBlock>
                                         <HyperlinkButton x:Name="LBListPreviouslyMatchedRecords" Margin="4,3,4,3" HorizontalAlignment="Left" VerticalAlignment="Center" IsTabStop="False" Content="List" IsEnabled="False" Click="LBListPreviouslyMatchedRecords_Click"></HyperlinkButton>
                                     </StackPanel>
 
-                                    <StackPanel Grid.Row="3" Grid.Column="1" Orientation="Horizontal">
+                                    <StackPanel Grid.Row="4" Grid.Column="1" Orientation="Horizontal">
                                         <HyperlinkButton x:Name="LBListMatchesExcluded" Margin="4,3,4,3" HorizontalAlignment="Left" VerticalAlignment="Center" Click="LBListMatchesExcluded_Click" IsTabStop="False"></HyperlinkButton>
                                         <HyperlinkButton x:Name="lbItemListMatchesExcluded" Margin="1,5,5,5" HorizontalAlignment="Left" VerticalAlignment="Center" Content="(List)" Click="lbItemListMatchesExcluded_Click"  IsTabStop="False"></HyperlinkButton>
                                     </StackPanel>
 
-                                    <HyperlinkButton x:Name="LBListAllInReview" Grid.Row="4" Grid.Column="1" Margin="0,5,5,5" HorizontalAlignment="Left" VerticalAlignment="Center" Click="LBListAllInReview_Click" IsTabStop="False"></HyperlinkButton>
+                                    <HyperlinkButton x:Name="LBListAllInReview" Grid.Row="5" Grid.Column="1" Margin="0,5,5,5" HorizontalAlignment="Left" VerticalAlignment="Center" Click="LBListAllInReview_Click" IsTabStop="False"></HyperlinkButton>
 
-                                    <StackPanel Orientation="Horizontal" Grid.Row="5" Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Center">
+                                    <StackPanel Orientation="Horizontal" Grid.Row="6" Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Center">
                                         <TextBlock Margin="4,3,4,3" Text="Included: "></TextBlock>
                                         <HyperlinkButton x:Name="LBManualCheckIncluded" Margin="0,5,0,0" Click="LBManualCheckIncluded_Click" IsTabStop="False"></HyperlinkButton>
                                         <TextBlock Margin="4,3,4,3" Text=" Excluded: "></TextBlock>
                                         <HyperlinkButton x:Name="LBManualCheckExcluded" Margin="0,5,0,0" Click="LBManualCheckExcluded_Click" IsTabStop="False"></HyperlinkButton>
                                     </StackPanel>
 
-                                    <StackPanel Orientation="Horizontal" Grid.Row="6" Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Center">
+                                    <StackPanel Orientation="Horizontal" Grid.Row="7" Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Center">
                                         <TextBlock Margin="4,3,4,3" Text="Included: "></TextBlock>
                                         <HyperlinkButton x:Name="LBMNotMatchedIncluded" Content="N" Margin="0,5,0,0" Click="LBMNotMatchedIncluded_Click" IsTabStop="False"></HyperlinkButton>
                                         <TextBlock Margin="0,5,0,0" Text=" Excluded: "></TextBlock>
                                         <HyperlinkButton x:Name="LBMNotMatchedExcluded" Content="N" Margin="0,5,0,0" Click="LBMNotMatchedExcluded_Click" IsTabStop="False"></HyperlinkButton>
                                     </StackPanel>
 
-                                    <StackPanel Orientation="Horizontal" Grid.Row="7" Grid.Column="1">
+                                    <StackPanel Orientation="Horizontal" Grid.Row="8" Grid.Column="1">
                                         <local:codesSelectControl x:Name="codesSelectControlMAGSelect" Margin="4,3,4,3" Width="100" Height="25" HorizontalAlignment="Left" VerticalAlignment="Center"></local:codesSelectControl>
                                         <HyperlinkButton x:Name="LBListAllRelatedItemsWithThisCode" Margin="4,3,4,3" Content="List" VerticalAlignment="Center" Click="LBListAllRelatedItemsWithThisCode_Click" IsTabStop="False"></HyperlinkButton>
                                         <HyperlinkButton x:Name="LBAutomatchItemsWithThisCode" Margin="4,3,4,3" Content="Auto-match" VerticalAlignment="Center" Tag="WithThisCode" Click="LBMatchAllIncluded_Click" IsTabStop="False"></HyperlinkButton>
-                                        <HyperlinkButton x:Name="LbClearAllMatchesWithThisCode" Content="Clear matches" Margin="4,3,4,3" Click="LbClearAllMatchesInReview_Click"  Tag="WithThisCode" IsTabStop="False" HorizontalAlignment="Right" VerticalAlignment="Center"></HyperlinkButton>
+                                        <HyperlinkButton x:Name="LbClearAllMatchesWithThisCode" Content="Clear matches" Margin="4,3,4,3" Click="LbClearAllMatchesInReview_Click"  Tag="ALL WITH THIS CODE" IsTabStop="False" HorizontalAlignment="Right" VerticalAlignment="Center"></HyperlinkButton>
+                                        <HyperlinkButton x:Name="LbClearAllNonManualMatchesWithThisCode" Content="Clear non-manual matches" Margin="4,3,4,3" Click="LbClearAllMatchesInReview_Click"  Tag="ALL NON-MANUAL WITH THIS CODE" IsTabStop="False" HorizontalAlignment="Right" VerticalAlignment="Center"></HyperlinkButton>
                                     </StackPanel>
 
                                     </Grid>

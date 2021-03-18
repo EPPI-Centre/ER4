@@ -1,60 +1,37 @@
 ﻿USE [Reviewer]
 GO
-/****** Object:  StoredProcedure [dbo].[st_MagAutoUpdateVisualise]    Script Date: 14/03/2021 12:16:19 ******/
+/****** Object:  StoredProcedure [dbo].[st_MagMatchedPapersClearNonManual]    Script Date: 18/03/2021 10:13:39 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-ALTER   procedure [dbo].[st_MagAutoUpdateVisualise]
-(
-	@MAG_AUTO_UPDATE_RUN_ID INT,
-	@FIELD NVARCHAR(10)
-)
 
-As
+-- =============================================
+-- Author:		James
+-- Create date: 
+-- Description:	Add record to tb_item_mag_match based on manual lookup
+-- =============================================
+create or alter PROCEDURE [dbo].[st_MagMatchedPapersClearNonManual] 
+	-- Add the parameters for the stored procedure here
+	@REVIEW_ID INT
+,	@ATTRIBUTE_ID BIGINT
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
 
-SET NOCOUNT ON
+		if @ATTRIBUTE_ID > 0
+			delete from tb_ITEM_MAG_MATCH
+			where REVIEW_ID = @REVIEW_ID and ManualFalseMatch is null and ManualTrueMatch is null
+			and item_id in
+				(select ia.ITEM_ID from TB_ITEM_ATTRIBUTE ia inner join TB_ITEM_SET iset on
+					iset.ITEM_SET_ID = ia.ITEM_SET_ID and iset.IS_COMPLETED = 'True'
+					where ia.ATTRIBUTE_ID = @ATTRIBUTE_ID)
 
-	DECLARE @VALS TABLE
-(
-	VAL float
-,	TITLE NVARCHAR(10)
-)
-
-IF @FIELD = 'AutoUpdate'
-begin
-INSERT INTO @VALS (VAL, TITLE)
-VALUES (0.4, '0.4-'), (0.5, '0.5-'), (0.6, '0.6-'), (0.7, '0.7-'), (0.8, '0.8-'), (0.9, '-0.99')
-
-SELECT VAL, TITLE,
-	(SELECT COUNT(*) FROM TB_MAG_AUTO_UPDATE_RUN_PAPER WHERE 
-	ContReviewScore >= VAL AND ContReviewScore < VAL + 0.1 AND MAG_AUTO_UPDATE_RUN_ID = @MAG_AUTO_UPDATE_RUN_ID) AS NUM
-FROM @VALS
-end
-
-IF @FIELD = 'StudyType'
-begin
-INSERT INTO @VALS (VAL, TITLE)
-VALUES (0, '0.0-'), (0.1, '0.1-'), (0.2, '0.2-'), (0.3, '0.3-'), (0.4, '0.4-'), (0.5, '0.5-'), (0.6, '0.6-'), (0.7, '0.7-'), (0.8, '0.8-'), (0.9, '-0.99')
-
-SELECT VAL, TITLE,
-	(SELECT COUNT(*) FROM TB_MAG_AUTO_UPDATE_RUN_PAPER WHERE 
-	StudyTypeClassifierScore >= VAL AND StudyTypeClassifierScore < VAL + 0.1 AND MAG_AUTO_UPDATE_RUN_ID = @MAG_AUTO_UPDATE_RUN_ID) AS NUM
-FROM @VALS
-end
-
-IF @FIELD = 'User'
-begin
-INSERT INTO @VALS (VAL, TITLE)
-VALUES (0, '0.0-'), (0.1, '0.1-'), (0.2, '0.2-'), (0.3, '0.3-'), (0.4, '0.4-'), (0.5, '0.5-'), (0.6, '0.6-'), (0.7, '0.7-'), (0.8, '0.8-'), (0.9, '-0.99')
-
-SELECT VAL, TITLE,
-	(SELECT COUNT(*) FROM TB_MAG_AUTO_UPDATE_RUN_PAPER WHERE 
-	UserClassifierScore >= VAL AND UserClassifierScore < VAL + 0.1 AND MAG_AUTO_UPDATE_RUN_ID = @MAG_AUTO_UPDATE_RUN_ID) AS NUM
-FROM @VALS
-end
-
-
-
-SET NOCOUNT OFF
+		else
+			delete from tb_ITEM_MAG_MATCH
+			where REVIEW_ID = @REVIEW_ID and ManualFalseMatch is null and ManualTrueMatch is null
+    
+END
 GO
