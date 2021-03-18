@@ -1,4 +1,4 @@
-import { Inject, Injectable, EventEmitter, Output } from '@angular/core';
+import { Inject, Injectable, EventEmitter, Output, OnDestroy } from '@angular/core';
 import { HttpClient,  } from '@angular/common/http';
 import { WorkAllocationListService } from './WorkAllocationList.service';
 import { PriorityScreeningService } from './PriorityScreening.service';
@@ -7,7 +7,7 @@ import { error } from '@angular/compiler/src/util';
 import { BusyAwareService } from '../helpers/BusyAwareService';
 import { SortDescriptor, orderBy } from '@progress/kendo-data-query';
 import { ArmsService, iArm } from './arms.service';
-import { Subject } from 'rxjs';
+import { Subject, Subscription } from 'rxjs';
 import { Helpers } from '../helpers/HelperMethods';
 import { ReadOnlySource } from './sources.service';
 import { EventEmitterService } from './EventEmitter.service';
@@ -23,18 +23,25 @@ import { iTimePoint } from './timePoints.service';
     }
 )
 
-export class ItemListService extends BusyAwareService {
+export class ItemListService extends BusyAwareService implements OnDestroy {
 
 	private _itemListOptions: ItemListOptions = new ItemListOptions();
     constructor(
         private _httpC: HttpClient,
         @Inject('BASE_URL') private _baseUrl: string,
-        protected EventEmitterService: EventEmitterService,
+        private EventEmitterService: EventEmitterService,
 		private ModalService: ModalService
     ) {
         super();
+        //console.log("On create ItemListService");
+        this.clearSub = this.EventEmitterService.PleaseClearYourDataAndState.subscribe(() => { this.Clear(); });
 		
 	}
+    ngOnDestroy() {
+        console.log("Destroy MAGRelatedRunsService");
+        if (this.clearSub != null) this.clearSub.unsubscribe();
+    }
+    private clearSub: Subscription | null = null;
 
 	public get GetListItemOptions(): ItemListOptions {
 		return this._itemListOptions;
@@ -457,10 +464,10 @@ export class ItemListService extends BusyAwareService {
     }
 	public getItem(itemId: number): Item {
 
-        console.log('getting item');
+        //console.log('getting item');
         let ff = this.ItemList.items.find(found => found.itemId == itemId);
         if (ff != undefined && ff != null) {
-            console.log('first emit');
+            //console.log('first emit');
             this.ChangingItem(ff);
             return ff;
         }
@@ -581,7 +588,7 @@ export class ItemListService extends BusyAwareService {
     }];
     public sortChange(sort: SortDescriptor[]): void {
         this.sort = sort;
-        console.log('sorting items by ' + this.sort[0].field + " ");
+        //console.log('sorting items by ' + this.sort[0].field + " ");
         this._ItemList.items = orderBy(this._ItemList.items, this.sort);
     }
     public get HasSelectedItems(): boolean {
@@ -803,6 +810,7 @@ export class ItemListService extends BusyAwareService {
         this._ItemList = new ItemList();
         this._Criteria = new Criteria();
         this._currentItem = new Item();
+        this._IsInScreeningMode = null;
         this.ListDescription = "";
         this._CurrentItemAdditionalData = null;
     }

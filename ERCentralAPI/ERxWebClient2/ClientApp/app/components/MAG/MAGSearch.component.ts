@@ -287,7 +287,7 @@ export class MAGSearchComponent implements OnInit {
 
                         (res: any) => {
                             let msg: string = 'Deleted: ' + count + ' items';
-                            this._confirmationDialogService.showMAGRunMessage(msg);
+                            this._confirmationDialogService.showMAGDelayMessage(msg);
                         }
                     );
                 }
@@ -300,7 +300,7 @@ export class MAGSearchComponent implements OnInit {
             () => {
                 this.FetchMagSearches();
                 let msg: string = 'You have rerun the search';
-                this._confirmationDialogService.showMAGRunMessage(msg);
+                this._confirmationDialogService.showMAGDelayMessage(msg);
             }
        );
 
@@ -363,7 +363,7 @@ export class MAGSearchComponent implements OnInit {
             (res) => {
                 if (res == true) {
                     let msg: string = 'You have combined searches using : ' + this.LogicalOperator;
-                    this._confirmationDialogService.showMAGRunMessage(msg);
+                    this._confirmationDialogService.showMAGDelayMessage(msg);
                 }
                 //this.FetchMagSearches();
             }

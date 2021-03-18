@@ -36,8 +36,6 @@ export class MAGBrowser implements OnInit, OnDestroy {
     }
     @ViewChild('tabSelectedPapers') public tabstrip!: TabStripComponent;
     public ClickedOnTopic: string = '';
-    public browsingHistory: NavigationEnd[] = [];
-    public MAGPapers: MagPaper[] = [];
     public description: string = '';
     public ShowSelectedPapers: string = '';
     public isShowDivIf = false;
@@ -83,11 +81,7 @@ export class MAGBrowser implements OnInit, OnDestroy {
 
         //this._eventEmitterService.firstVisitMAGBrowserPage = true;
 
-        this._eventEmitterService.OpeningNewReview.subscribe(
-            () => {
-                this.Clear();
-            }
-        );        
+           
         //this.getTopicsSub = this._eventEmitterService.getTopicsEvent.subscribe(
         //    (topicInfo: any) => {
 
@@ -194,7 +188,7 @@ export class MAGBrowser implements OnInit, OnDestroy {
     }
 
     ngOnDestroy() {
-
+       // console.log("destroy MAGBrowser");
         //this._magAdvancedService.firstVisitToMAGBrowser = false;
 
     }
@@ -453,9 +447,7 @@ export class MAGBrowser implements OnInit, OnDestroy {
         return this._magBrowserService.IsBusy || this._magAdvancedService.IsBusy;
     }
     public Clear() {
-        this._magBrowserService.currentMagPaper = new MagPaper();
-        this.MAGPapers = [];
-        this._magBrowserService.Clear();
+        //this._magBrowserService.Clear();
     }
     public CanDeleteMAGRun(): boolean {
 

@@ -1,4 +1,4 @@
-import { Inject, Injectable, EventEmitter, Output } from '@angular/core';
+import { Inject, Injectable, EventEmitter, Output, OnDestroy } from '@angular/core';
 import { HttpClient  } from '@angular/common/http';
 import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
@@ -12,6 +12,7 @@ import { DatePipe } from '@angular/common';
 import { EventEmitterService } from './EventEmitter.service';
 import { MAGTopicsService } from './MAGTopics.service';
 import { SetAttribute } from './ReviewSets.service';
+import { Subscription } from 'rxjs';
 
 
 @Injectable({
@@ -19,19 +20,30 @@ import { SetAttribute } from './ReviewSets.service';
 }
 )
 
-export class MAGBrowserService extends BusyAwareService {
+export class MAGBrowserService extends BusyAwareService implements OnDestroy {
 
 
     constructor(
         private _httpC: HttpClient,
         @Inject('BASE_URL') private _baseUrl: string,
-        private _eventEmitterService: EventEmitterService,
+        private EventEmitterService: EventEmitterService,
         private _magTopicsService: MAGTopicsService,
         private modalService: ModalService,
         private datePipe: DatePipe
     ) {
         super();
+        //console.log("On create MAGBrowserService");
+        this.clearSub = this.EventEmitterService.PleaseClearYourDataAndState.subscribe(() => { this.Clear(); });
+        this.clearSub2 = this.EventEmitterService.OpeningNewReview.subscribe(() => { this.Clear(); });
     }
+    ngOnDestroy() {
+        console.log("Destroy MAGRelatedRunsService");
+        if (this.clearSub != null) this.clearSub.unsubscribe();
+        if (this.clearSub2 != null) this.clearSub2.unsubscribe();
+    }
+    private clearSub: Subscription | null = null;
+    private clearSub2: Subscription | null = null;
+
     public currentMagPaper: MagPaper = new MagPaper();
     private _MAGList: MagList = new MagList();//the "references" list
     private _Criteria: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();//criteria used for _MAGList
@@ -545,6 +557,12 @@ export class MAGBrowserService extends BusyAwareService {
         this._MAGOriginalList = new MagList();
         this._MAGList = new MagList();
         this.currentMagPaper = new MagPaper();
+        this.selectedPapers = [];
+        //testing lines below...
+        //this.selectedPapers = [new MagPaper()];
+        //this.selectedPapers[0].paperTitle = "Oooooh!";
+        //this.selectedPapers[0].originalTitle = "it works!";
+        //this.selectedPapers[0].fullRecord = "Oooooh! it works! :-)";
     }
 }
 class junk extends BusyAwareService {
