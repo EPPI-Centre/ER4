@@ -37,6 +37,7 @@ export class MAGSearchComponent implements OnInit {
     }
 
     @Output() PleaseGoTo = new EventEmitter<string>();
+    @Output() IHaveImportedSomething = new EventEmitter<void>();
     public dropdownBasic2: boolean = false;
     public isCollapsed2: boolean = false;
     public dropdownBasic1: boolean = false;
@@ -206,11 +207,13 @@ export class MAGSearchComponent implements OnInit {
                             if (result == num_in_run) {
                                 msg = "Imported " + result.toString() + " out of " +
                                     num_in_run.toString() + " items";
+                                this.IHaveImportedSomething.emit();
                             }
                             else if (result != 0) {
                                 msg = "Some of these items were already in your review.\n\nImported " +
                                     result.toString() + " out of " + num_in_run.toString() +
-                                    " new items";
+                                    " search hits";
+                                this.IHaveImportedSomething.emit();
                             }
                             else {
                                 msg = "All of these records were already in your review.";

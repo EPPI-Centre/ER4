@@ -1,6 +1,6 @@
 <HeaderComponent class="row p-1 m-0" style="vertical-align:top;" PageTitle="Update review" [Context]="Context"></HeaderComponent>
 
-<MAGHeaderBar2 #NavBar2 (PleaseGoTo)="ChangeContext($event)" [MustMatchItems]="MustMatchItems"></MAGHeaderBar2>
+<MAGHeaderBar2 #NavBar2 (PleaseGoTo)="ChangeContext($event)" [MustMatchItems]="MustMatchItems" (PleaseGoBackHome)="BackHome()"  (IHaveImportedSomething)="IHaveImportedSomething = true"></MAGHeaderBar2>
 <div class="row col-12 mx-0 p-0">
     <div class=" small mx-auto my-1 px-2 py-0 rounded bg-white">
         <a href="http://eppi.ioe.ac.uk/cms/Default.aspx?tabid=3754" target="_blank">Microsoft Academic Dataset</a>: <strong>{{MagFolder}}</strong> Matched items: <strong>{{MatchedCount}}</strong>
@@ -16,10 +16,10 @@
 </div>
 <ng-container  [ngSwitch]="Context">
     <div *ngSwitchCase="'RelatedPapers'">
-        <BasicMAGComp (PleaseGoTo)="ChangeContext($event)"></BasicMAGComp>
+        <BasicMAGComp (PleaseGoTo)="ChangeContext($event)" (IHaveImportedSomething)="IHaveImportedSomething = true"></BasicMAGComp>
     </div>
     <div *ngSwitchCase="'KeepUpdated'">
-        <MAGKeepUpToDate (PleaseGoTo)="ChangeContext($event)"></MAGKeepUpToDate>
+        <MAGKeepUpToDate (PleaseGoTo)="ChangeContext($event)" (IHaveImportedSomething)="IHaveImportedSomething = true"></MAGKeepUpToDate>
     </div>
     <div *ngSwitchCase="'Advanced'">
         <AdvancedMAGFeatures></AdvancedMAGFeatures>
@@ -34,7 +34,7 @@
         <MAGAdmin></MAGAdmin>
     </div>
     <div *ngSwitchCase="'MagSearch'">
-        <MAGSearch (PleaseGoTo)="ChangeContext($event)"></MAGSearch>
+        <MAGSearch (PleaseGoTo)="ChangeContext($event)" (IHaveImportedSomething)="IHaveImportedSomething = true"></MAGSearch>
     </div>
     <div *ngSwitchCase="['SelectedPapers','PaperDetail','MagSearchPapersList','MagRelatedPapersRunList','BrowseTopic','MatchesIncluded','MatchesExcluded','MatchesIncludedAndExcluded','ReviewMatchedPapersWithThisCode','MagAutoUpdateRunPapersList'].includes(Context) ? Context : 'nothappening'">
         <!--to understand the above, see:https://stackoverflow.com/a/40177408-->

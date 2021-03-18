@@ -37,6 +37,7 @@ export class BasicMAGComp implements OnInit {
     @ViewChild('WithOrWithoutCodeSelector') WithOrWithoutCodeSelector!: codesetSelectorComponent;
     @Input() OuterContext: string | null = null;
     @Output() PleaseGoTo = new EventEmitter<string>();
+    @Output() IHaveImportedSomething = new EventEmitter<void>();
     public CurrentDropdownSelectedCode: singleNode | null = null;
     public ShowPanel: boolean = false;
     public isCollapsed: boolean = false;
@@ -280,6 +281,7 @@ export class BasicMAGComp implements OnInit {
             .then((confirm: any) => {
                 if (confirm) {
                     this._basicMAGService.ImportMagRelatedRunPapers(magRun);
+                    this.IHaveImportedSomething.emit();
                 }
             });
     }

@@ -40,6 +40,8 @@ export class MAGHeaderBar2Comp implements OnInit {
     @Input() MustMatchItems: boolean = true;
     public Context: string = "RelatedPapers";
     @Output() PleaseGoTo = new EventEmitter<string>();
+    @Output() PleaseGoBackHome = new EventEmitter<string>();
+    @Output() IHaveImportedSomething = new EventEmitter<void>();
     //@Output() BackHome = new EventEmitter<string>(); 
     public get HasWriteRights(): boolean {
         return this._ReviewerIdentityServ.HasWriteRights;
@@ -48,7 +50,8 @@ export class MAGHeaderBar2Comp implements OnInit {
         return this._ReviewerIdentityServ.reviewerIdentity.isSiteAdmin;
     }
     BackHome() {
-        this.router.navigate(['Main']);
+        //this.router.navigate(['Main']);
+        this.PleaseGoBackHome.emit();
     }
     //public ShowSelectedPapers: string = "Selected (" + this._magBrowserService.SelectedPaperIds.length.toString() + ")";
     public  get SelectedItems() : boolean {
@@ -135,12 +138,14 @@ export class MAGHeaderBar2Comp implements OnInit {
 
                         notificationMsg += "Imported " + result.nImported + " out of " +
                             this._magBrowserService.selectedPapers.length + " items";
+                        this.IHaveImportedSomething.emit();
                         
                     } else if (result.nImported != 0) {
 
                         notificationMsg += "Some of these items were already in your review.\n\nImported " +
                             result.nImported + " out of " + this._magBrowserService.selectedPapers.length +
                             " new items";
+                        this.IHaveImportedSomething.emit();
                     }
                     else {
                         notificationMsg += "All of these records were already in your review.";

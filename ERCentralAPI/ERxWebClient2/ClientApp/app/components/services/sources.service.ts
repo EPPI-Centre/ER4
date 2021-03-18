@@ -22,7 +22,7 @@ export class SourcesService extends BusyAwareService implements OnDestroy {
         this.clearSub = this.EventEmitterService.PleaseClearYourDataAndState.subscribe(() => { this.Clear(); });
     }
     ngOnDestroy() {
-        console.log("Destroy DuplicatesService");
+        console.log("Destroy SourcesService");
         if (this.clearSub != null) this.clearSub.unsubscribe();
     }
     private clearSub: Subscription | null = null;

@@ -6,7 +6,6 @@ import { topicInfo } from './MAGClasses.service';
 export class EventEmitterService {
     public PleaseSelectItemsListTab = new EventEmitter();
     public criteriaMAGChange = new EventEmitter<string>();
-    public MAGAllocationClicked = new EventEmitter();
 	public criteriaComparisonChange = new EventEmitter();
 	public reconDataChanged  = new EventEmitter();
 	public nodeSelected: singleNode | null | undefined;

@@ -73,6 +73,7 @@ export class MAGKeepUpToDate implements OnInit {
     public searchAll: string = 'all';
     public CurrentMagAutoUpdateRun: MagAutoUpdateRun | null = null;
     @Output() PleaseGoTo = new EventEmitter<string>();
+    @Output() IHaveImportedSomething = new EventEmitter<void>();
     //refine and import variables, as MVCMagPaperListSelectionCriteria, as it contains all the details we need, aslo for "importing", save for the "filter out" strings
     public ListCriteria: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
     public ListCriteriaTotPapers: number = 0;
@@ -324,7 +325,7 @@ export class MAGKeepUpToDate implements OnInit {
     }
     
     async AutoUpdateCountResultsCommand() {
-        console.log("AAAAh: ", this.ThreshodsForm);
+        //console.log("AAAAh: ", this.ThreshodsForm);
         if (this.CurrentMagAutoUpdateRun != null) {
             let cmd: MagItemPaperInsertCommand = new MagItemPaperInsertCommand();
             //here we use this data structure (MagItemPaperInsertCommand) to exchange this data, because it fits, even if it's not its original purpose
@@ -388,6 +389,7 @@ export class MAGKeepUpToDate implements OnInit {
                 .then((confirm: any) => {
                     if (confirm) {
                         this.MAGRelatedRunsService.ImportAutoUpdateRun(cmd);
+                        this.IHaveImportedSomething.emit();
                     }
                 });
         }

@@ -17,6 +17,8 @@ import { MAGRelatedRunsService } from '../services/MAGRelatedRuns.service';
 import { MAGSimulationService } from '../services/MAGSimulation.service';
 import { magSearchService } from '../services/MAGSearch.service';
 import { MAGAdminService } from '../services/MAGAdmin.service';
+import { CodesetStatisticsService } from '../services/codesetstatistics.service';
+import { ItemListService } from '../services/ItemList.service';
 
 @Component({
     selector: 'MAG',
@@ -34,7 +36,9 @@ export class MAGComp implements OnInit, OnDestroy {
         private ReviewerIdentityService: ReviewerIdentityService,
         private MAGBrowserHistoryService: MAGBrowserHistoryService,
         private magSearchService: magSearchService,
-        private MAGAdminService: MAGAdminService
+        private MAGAdminService: MAGAdminService,
+        private CodesetStatisticsService: CodesetStatisticsService,
+        private ItemListService: ItemListService
     ) {
 
     }
@@ -107,7 +111,7 @@ export class MAGComp implements OnInit, OnDestroy {
         this.MAGSimulationService.Clear();
     }
     @ViewChild('NavBar2') NavBar2!: MAGHeaderBar2Comp;
-
+    private IHaveImportedSomething: boolean = false;
     private subItemIDinPath: Subscription | null = null;
     public get Context(): string {
         if (this.NavBar2) return this.NavBar2.Context;
@@ -136,7 +140,11 @@ export class MAGComp implements OnInit, OnDestroy {
     public get MatchedCount(): number {
         return this.MAGAdvancedService.AdvancedReviewInfo.nMatchedAccuratelyExcluded + this.MAGAdvancedService.AdvancedReviewInfo.nMatchedAccuratelyIncluded; 
     }
-    Back() {
+    BackHome() {
+        if (this.IHaveImportedSomething) {
+            this.ItemListService.Refresh();
+            this.CodesetStatisticsService.GetReviewStatisticsCountsCommand(false);
+        }
         this.router.navigate(['Main']);
     }
   

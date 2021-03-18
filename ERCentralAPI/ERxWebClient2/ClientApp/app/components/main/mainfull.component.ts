@@ -70,7 +70,6 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 		private frequenciesService: frequenciesService
 		, private crosstabService: crosstabService
 		, private _searchService: searchService
-		, private _basicMAGService: MAGRelatedRunsService
         , private SourcesService: SourcesService
         , private ConfirmationDialogService: ConfirmationDialogService
         , private ItemCodingService: ItemCodingService
@@ -83,7 +82,6 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 		@Inject('BASE_URL') private _baseUrl: string,
         private excelService: ExcelService,
         private reviewInfoService: ReviewInfoService,
-        private _routingStateService: MAGBrowserHistoryService
     ) {}
 	@ViewChild('WorkAllocationContactList') workAllocationsContactComp!: WorkAllocationContactListComp;
 	@ViewChild('WorkAllocationCollaborateList') workAllocationCollaborateComp!: WorkAllocationComp;

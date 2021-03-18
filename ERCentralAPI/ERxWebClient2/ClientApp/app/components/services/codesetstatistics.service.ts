@@ -121,13 +121,13 @@ export class CodesetStatisticsService extends BusyAwareService implements OnDest
 		//}
 		return this._IncompleteCodesets;
 	}
-    public GetReviewStatisticsCountsCommand() {
+    public GetReviewStatisticsCountsCommand(DoAlsoDetailedStats: boolean = true) {
         this._BusyMethods.push("GetReviewStatisticsCountsCommand");
         this._http.get<ReviewStatisticsCountsCommand>(this._baseUrl + 'api/ReviewStatistics/ExcecuteReviewStatisticsCountCommand').subscribe(
            data => {
                this._ReviewStats = data;
                //this.Save();
-               this.GetCompletedSetsEmit.emit(data);
+               if (DoAlsoDetailedStats) this.GetCompletedSetsEmit.emit(data);
                return data;
             },
             (error) => {
