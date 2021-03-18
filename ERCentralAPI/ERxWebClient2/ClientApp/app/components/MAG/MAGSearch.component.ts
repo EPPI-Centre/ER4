@@ -175,7 +175,12 @@ export class MAGSearchComponent implements OnInit {
             msg = "Sorry, imports are restricted to 20,000 records.<br />You could try breaking up your search (eg. by date).";
             this.modalService.GenericErrorMessage(msg);
         } else {
-            msg = "Are you sure you want to import these search result? <br />This will import up to " + item.hitsNo.toString() + " items in your review.";
+            if (item.hitsNo == 1) {
+                msg = "Are you sure you want to import this search result? <br />This will import up to " + item.hitsNo.toString() + " items in your review.";
+            }
+            else {
+                msg = "Are you sure you want to import these search results? <br />This will import up to " + item.hitsNo.toString() + " items in your review.";
+            }
             this.ImportMagRelatedPapersRun(item, msg);
         }
     }
