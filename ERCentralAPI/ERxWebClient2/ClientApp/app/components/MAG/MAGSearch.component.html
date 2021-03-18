@@ -142,14 +142,14 @@
 
                 <div class="card-footer h-100">
                     <h2 class="font-weight-light text-sm-left">Combine / filter searches</h2>
-                    <h5 class="font-weight-light text-sm-left">Select 2 or more searches</h5>
+                    <h5 class="font-weight-light text-sm-left">Select one or more searches</h5>
 
                     <div class="card-text row col-12">
 
                         <div class="p-2 m-2 col-12">
                             <div ngbDropdown style="min-width:90px">
                                 <select class="form-control" name="LogicalOperator"
-                                        [disabled]="!CanCombineSearches()"
+                                        [disabled]="AllSelectedItems.length < 2 || AllSelectedItems.length > 20"
                                         [(ngModel)]="LogicalOperator">
                                     <option [selected]="LogicalOperator == 'Select operator'">Select operator</option>
                                     <option [selected]="LogicalOperator == 'AND'">AND</option>
@@ -160,7 +160,7 @@
                         <div class="row col-12">
                             <div class="col-auto">(optional) Filter by date:</div>
                             <div ngbDropdown class="col-auto">
-                                <select class="form-control mb-1" name="DateLimitSelectionCombine" [disabled]="!CanCombineSearches()"
+                                <select class="form-control mb-1" name="DateLimitSelectionCombine" [disabled]="!CanDeleteSearch()"
                                         [(ngModel)]="DateLimitSelectionCombine">
                                     <option [ngValue]="0" [selected]="DateLimitSelectionCombine == 0">No date limit</option>
                                     <option [ngValue]="1">Publication date exactly</option>
@@ -174,7 +174,7 @@
                                 </select>
                             </div>
                         </div>
-                        <div *ngIf="DateLimitSelectionCombine > 0 && CanCombineSearches()">
+                        <div *ngIf="DateLimitSelectionCombine > 0 && CanDeleteSearch()">
                             <ng-container [ngSwitch]="DateLimitSelectionCombine">
                                 <div *ngSwitchCase="1">
                                     Exact date: <kendo-datepicker [(value)]="valueKendoDatepickerCombine1" [format]="'dd MMM yyyy'"></kendo-datepicker>
@@ -252,8 +252,8 @@
                         <div class="col-12 row mt-2 mx-0 p-0">
                             <div class="col-auto">
                                 <button class="btn btn-primary btn-lg btn-sm text-white"
-                                        [disabled]="!CanCombineSearches() || LogicalOperator == 'Select operator'" (click)="CombineSearches()">
-                                    Run Combined Search
+                                        [disabled]="!CanCombineSearches()" (click)="CombineSearches()">
+                                    {{CombineButtonText}}
                                     <i class="ml-1 fa fa-search"></i>
                                 </button>
                             </div>

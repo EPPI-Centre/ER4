@@ -88,6 +88,10 @@ export class MAGSearchComponent implements OnInit {
     public get MagSearchList(): MagSearch[] {
         return this._magSearchService.MagSearchList;
     }
+    public get CombineButtonText(): string {
+        if (this.AllSelectedItems.length == 1) return "Re-Run Search with Date Filter";
+        else return "Run Combined Searches";
+    }
     public FetchMagSearches() {
         this._magSearchService.FetchMAGSearchList();
     }
@@ -334,9 +338,19 @@ export class MAGSearchComponent implements OnInit {
 
         return this._magSearchService.IsBusy || this._magBrowserService.IsBusy;
     }
-    public CombineSearches(){
-        if ((this.LogicalOperator !== 'AND' && this.LogicalOperator !== 'OR') || this.AllSelectedItems.length < 2) return;
-        let search = this.CombineSearchesString();
+    public CombineSearches() {
+        const Ns = this.AllSelectedItems.length;
+        if (Ns > 20) return;
+        else if (this.LogicalOperator !== 'AND' && this.LogicalOperator !== 'OR' && Ns > 2) return;
+        else if (Ns == 1 && this.DateLimitSelectionCombine < 1) return;
+        let search: MagSearch = new MagSearch();
+        if (Ns == 1) {
+            search.magSearchText = this.AllSelectedItems[0].magSearchText;
+            search.searchText = "#" + this.AllSelectedItems[0].searchNo;
+        }
+        else {
+            search = this.CombineSearchesString();
+        }
         this.AddDateAndStringLimits(search);
         if (search.magSearchText.length > 2000) {
             let msg = "Sorry, we can't combine these searches, the resulting search string is too long.";
@@ -468,7 +482,7 @@ export class MAGSearchComponent implements OnInit {
 
     }
     public CanRunSearch(): boolean {
-        if (this.magSearchInput == "") {
+        if (this.magSearchInput == "" || !this.HasWriteRights) {
             return false;
         } else {
             return true;
@@ -476,7 +490,7 @@ export class MAGSearchComponent implements OnInit {
     }
 
     public CanDeleteSearch(): boolean {
-        if (this.AllSelectedItems.length == 0) {
+        if (this.AllSelectedItems.length == 0 || !this.HasWriteRights) {
             return false;
         } else {
             return true;
@@ -484,15 +498,13 @@ export class MAGSearchComponent implements OnInit {
     }
 
     public CanCombineSearches(): boolean {
-        if (this.AllSelectedItems.length <= 1
-            || this.AllSelectedItems.length > 50 //Seriously? Combine more than 50 searches in one go? NOPE, not doing it.
-            //should not be doing this client side, if so must be done on both but server side more important...
-            //but yes did not think of this I bet there are more as we do not have a think about stage along with
-            //understanding the spec from set out cards ?
-        ) {
+        if (!this.HasWriteRights) return false;
+        else if (this.AllSelectedItems.length == 1 && this.DateLimitSelectionCombine > 0) return true; //re running a search with date filter
+        else if (this.AllSelectedItems.length > 1 && this.AllSelectedItems.length <= 20
+            //Seriously? Combine more than 20 searches in one go? NOPE, not doing it.
+            && (this.LogicalOperator == "AND" || this.LogicalOperator == "OR")) return true;//combining searches
+        else {
             return false;
-        } else {
-            return true;
         }
     }
 }
