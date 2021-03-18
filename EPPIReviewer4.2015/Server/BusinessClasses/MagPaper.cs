@@ -75,7 +75,7 @@ namespace BusinessLibrary.BusinessClasses
                 string[] authorList = Authors.Split(',');
                 string retAuthors = authorList[0].Trim();
                 int n = 1;
-                while (retAuthors.Length < 25 && n < authorList.Length)
+                while (retAuthors.Length < 100 && n < authorList.Length)
                 {
                     retAuthors += "," + authorList[n].Trim();
                     n++;
