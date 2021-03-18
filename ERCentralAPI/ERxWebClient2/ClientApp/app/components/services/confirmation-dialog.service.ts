@@ -57,8 +57,8 @@ export class ConfirmationDialogService implements OnDestroy {
 			content: notifyMsg,
 			animation: { type: 'slide', duration: 400 },
 			position: { horizontal: 'center', vertical: 'top' },
-			type: { style: "warning", icon: true },
-			hideAfter: 20000
+			type: { style: "info", icon: true },
+			hideAfter: 4000
 		});
 	}
 	public showErrorMessageInStrip(notifyMsg: string) {

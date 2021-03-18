@@ -1,4 +1,4 @@
-import { Injectable } from "@angular/core";
+import { Injectable, OnDestroy } from "@angular/core";
 import { Subscription } from "rxjs";
 import { BusyAwareService } from "../helpers/BusyAwareService";
 import { MagBrowseHistoryItem, MVCMagPaperListSelectionCriteria, MagPaper, MagSearch } from "./MAGClasses.service";
@@ -6,6 +6,7 @@ import { MAGBrowserService } from "./MAGBrowser.service";
 import { MAGAdvancedService } from "./magAdvanced.service";
 import { SetAttribute } from "./ReviewSets.service";
 import { Helpers } from "../helpers/HelperMethods";
+import { EventEmitterService } from './EventEmitter.service';
 
 @Injectable({
 
@@ -13,15 +14,27 @@ import { Helpers } from "../helpers/HelperMethods";
 
 })
 
-export class MAGBrowserHistoryService extends BusyAwareService  {
+export class MAGBrowserHistoryService extends BusyAwareService implements OnDestroy {
 
     //public MAGSubscription: Subscription = new Subscription();
     public _MAGBrowserHistoryList: MagBrowseHistoryItem[] = [];
     constructor(private _magBrowserService: MAGBrowserService,
-       private _magAdvancedService: MAGAdvancedService
+        private EventEmitterService: EventEmitterService,
+        private _magAdvancedService: MAGAdvancedService
     ) {
         super();
+        this.clearSub = this.EventEmitterService.PleaseClearYourDataAndState.subscribe(() => { this.Clear(); });
+        this.clearSub2 = this.EventEmitterService.OpeningNewReview.subscribe(() => { this.Clear(); });
     }
+
+    ngOnDestroy() {
+        console.log("Destroy MAGRelatedRunsService");
+        if (this.clearSub != null) this.clearSub.unsubscribe();
+        if (this.clearSub2 != null) this.clearSub2.unsubscribe();
+    }
+    private clearSub: Subscription | null = null;
+    private clearSub2: Subscription | null = null;
+
     public currentBrowsePosition: number = 0;
     
     //public UnsubscribeMAGHistory() {
@@ -271,5 +284,9 @@ export class MAGBrowserHistoryService extends BusyAwareService  {
         this._magBrowserService.GetParentAndChildRelatedPapers(FieldOfStudy, FieldOfStudyId).then((r: boolean) => {
             //if (r == true) this.PleaseGoTo.emit("BrowseTopic");
         });
+    }
+    public Clear() {
+        this.currentBrowsePosition = 0;
+        this._MAGBrowserHistoryList = [];
     }
 }
