@@ -290,14 +290,12 @@
                         </td>
                         <td style="padding-left:5px;vertical-align:top">
                             <div *ngIf="!basicFilterPanel">
-                                <a (click)="ShowFilterPanel()" class="btn btn-info btn-sm text-white" data-toggle="collapse"
-                                   href="#collapseExample1" role="button" aria-expanded="false" aria-controls="collapseExample1">
+                                <a (click)="basicFilterPanel = !basicFilterPanel" class="btn btn-info btn-sm text-white">
                                     Import filters&nbsp;&nbsp;<i class="fa fa-arrow-circle-down"></i>
                                 </a>
                             </div>
                             <div *ngIf="basicFilterPanel">
-                                <a (click)="ShowFilterPanel()" class="btn btn-info btn-sm text-white" data-toggle="collapse"
-                                   href="#collapseExample1" role="button" aria-expanded="false" aria-controls="collapseExample1">
+                                <a (click)="basicFilterPanel = !basicFilterPanel" class="btn btn-info btn-sm text-white">
                                     Import filters&nbsp;&nbsp;<i class="fa fa-arrow-circle-up"></i>
                                 </a>
                             </div>
@@ -306,7 +304,7 @@
                 </table>
             </div>
 
-            <div class="collapse multi-collapse" id="collapseExample1">
+            <div class="" [hidden]="!basicFilterPanel">
                 <div class="row mx-0 px-0 my-1 ">
                     <div class="d-inline mx-3 rounded alert-info border border-info my-1 p-1">
                         When importing, you can also <strong>filter out</strong> any reference that contains the following strings (comma-separated):
