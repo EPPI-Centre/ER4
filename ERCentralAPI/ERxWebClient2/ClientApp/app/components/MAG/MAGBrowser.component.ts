@@ -211,6 +211,16 @@ export class MAGBrowser implements OnInit, OnDestroy {
         }
     }
 
+    public GetWebLinks(): string[] {
+        let links: string = this._magBrowserService.currentMagPaper.urls;
+        if (links != null && links != '') {
+            var webLinks = links.split(';');
+            return webLinks;
+        } else {
+            return [];
+        }
+    }
+
     public GetAllLinks(): string[] {
         let links: string = this._magBrowserService.currentMagPaper.allLinks;
         if (links != null && links != '') {
@@ -220,6 +230,25 @@ export class MAGBrowser implements OnInit, OnDestroy {
             return [];
         }
     }
+
+    public extractHostname(url: string) {
+    var hostname;
+    //find & remove protocol (http, ftp, etc.) and get hostname
+
+    if (url.indexOf("//") > -1) {
+        hostname = url.split('/')[2];
+    }
+    else {
+        hostname = url.split('/')[0];
+    }
+
+    //find & remove port number
+    hostname = hostname.split(':')[0];
+    //find & remove "?"
+    hostname = hostname.split('?')[0];
+
+    return hostname;
+}
 
     public IsCurrentPaperSelected(paperId: number): boolean {
 

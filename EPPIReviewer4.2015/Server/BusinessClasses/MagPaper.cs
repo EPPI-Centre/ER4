@@ -70,7 +70,7 @@ namespace BusinessLibrary.BusinessClasses
 
         private string shortenedAuthors()
         {
-            if (Authors.Length > 30)
+            if (Authors.Length > 100)
             {
                 string[] authorList = Authors.Split(',');
                 string retAuthors = authorList[0].Trim();

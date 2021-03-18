@@ -44,7 +44,7 @@
                         <td style="padding-left:10px">
                             <div class="text-white">
                                 <a class="btn btn-primary btn-sm text-white" href="https://academic.microsoft.com/paper/{{_magBrowserService.currentMagPaper.paperId}}/reference" target="_blank">
-                                    View on the internet
+                                    View in Microsoft Academic
                                 </a>
                             </div>
                         </td>
@@ -70,16 +70,25 @@
 
                             <table style="width:100%;">
                                 <tr>
-                                    <td style="padding-right: 25px;">
+                                    <td>
                                         <p>
                                             <b>Abstract:</b>
                                         <p>{{_magBrowserService.currentMagPaper.abstract}}</p>
-                                        <b>Links:</b>
-                                        <div *ngFor="let item of GetAllLinks()">
+                                        <b>Doi: </b><a href="http://{{_magBrowserService.currentMagPaper.doi}}" target="_blank">{{_magBrowserService.currentMagPaper.doi}}</a><br />
+                                        <b>Pdf links:</b>
+                                        <div *ngFor="let item of GetPDFLinks()">
                                             <a href="{{item}}" target="_blank">
-                                                {{item}}
+                                                {{extractHostname(item)}}
                                             </a>
                                         </div>
+                                        <br />
+                                        <b>Website links:</b>
+                                        <div *ngFor="let item of GetWebLinks()">
+                                            <a href="{{item}}" target="_blank">
+                                                {{extractHostname(item)}}
+                                            </a>
+                                        </div>
+
                                     </td>
                                 </tr>
                             </table>
