@@ -321,6 +321,7 @@ export class MAGSearchComponent implements OnInit {
 
                 () => {
                     this.FetchMagSearches();
+                    this.DateLimitSelection = 0;
                     //let msg: string = 'You have created a new search';
                     //this._confirmationDialogService.showMAGRunMessage(msg);
                 }
@@ -364,6 +365,7 @@ export class MAGSearchComponent implements OnInit {
                 if (res == true) {
                     let msg: string = 'You have combined searches using : ' + this.LogicalOperator;
                     this._confirmationDialogService.showMAGDelayMessage(msg);
+                    this.DateLimitSelectionCombine = 0;
                 }
                 //this.FetchMagSearches();
             }
