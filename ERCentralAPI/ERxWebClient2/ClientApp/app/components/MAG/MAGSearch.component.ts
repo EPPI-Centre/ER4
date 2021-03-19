@@ -52,6 +52,7 @@ export class MAGSearchComponent implements OnInit {
     public DateLimitSelectionCombine: number = 0;
     public PublicationTypeSelection: number = 0;
     public magSearchInput: string = '';
+    public SearchedTopic: string = "";
     public valueKendoDatepicker1 : Date = new Date();
     public valueKendoDatepicker2: Date = new Date();
     public valueKendoDatepicker3: Date = new Date();
@@ -72,7 +73,6 @@ export class MAGSearchComponent implements OnInit {
     public SearchTextTopics: TopicLink[] = [];
     public SearchTextTopicsResults: TopicLink[] = [];
     public SearchTextTopic: string = '';
-    public OpenTopics: boolean = false;
     public SearchTextTopicDisplayName: string = '';
     public basicFilterPanel: boolean = false;
 
@@ -103,15 +103,17 @@ export class MAGSearchComponent implements OnInit {
         return Helpers.FormatDate2(DateSt);
     }
     public UpdateTopicResults() {
-
-
-        if (this.SearchTextTopicDisplayName.length > 2) {
+        this.SearchedTopic = this.magSearchInput;
+        this.SearchTextTopicDisplayName = "";
+        this.SearchTextTopic = "";
+        this.SearchTextTopicsResults = [];
+        if (this.magSearchInput.length > 2) {
 
             let criteriaFOSL: MVCMagFieldOfStudyListSelectionCriteria = new MVCMagFieldOfStudyListSelectionCriteria();
             criteriaFOSL.fieldOfStudyId = 0;
             criteriaFOSL.listType = 'FieldOfStudySearchList';
             criteriaFOSL.paperIdList = '';
-            criteriaFOSL.SearchTextTopics = this.SearchTextTopicDisplayName;
+            criteriaFOSL.SearchTextTopics = this.magSearchInput;
             this._magTopicsService.FetchMagFieldOfStudyList(criteriaFOSL, '').then(
 
                 (results: MagFieldOfStudy[] | boolean) => {
@@ -144,18 +146,9 @@ export class MAGSearchComponent implements OnInit {
             this.SearchTextTopicsResults = [];
         }
     }
-    public OpenTopicsPanel(event: any) {
-        var dropDownValue = event.target.value;
-        console.log(dropDownValue);
-        if (dropDownValue == 3) {
-            this.OpenTopics = true;
-        } else {
-            this.OpenTopics = false;
-        }
-    }
+   
     public SelectTopic(topic: TopicLink)
     {
-        this.OpenTopics = false;
         this.SearchTextTopicDisplayName = topic.displayName;
         this.SearchTextTopic = topic.fieldOfStudyId.toString();
     }
@@ -313,15 +306,23 @@ export class MAGSearchComponent implements OnInit {
         } else {
             this.magSearchDate1 = this.valueKendoDatepicker3;
         }
-        if (this.SearchTextTopicDisplayName != '') {
-            this.magSearchInput = this.SearchTextTopicDisplayName;
-        }
+        let title: string = "";
+        if (this.WordsInSelection != 3) title = this.magSearchInput;
+        else title = this.SearchTextTopicDisplayName;
         this._magSearchService.CreateMagSearch(this.WordsInSelection, this.DateLimitSelection, this.PublicationTypeSelection,
-            this.magSearchInput, this.magSearchDate1, this.magSearchDate2, this.SearchTextTopic).then(
+            title, this.magSearchDate1, this.magSearchDate2, this.SearchTextTopic).then(
 
                 () => {
                     this.FetchMagSearches();
                     this.DateLimitSelection = 0;
+
+                    if (this.WordsInSelection == 3) {
+                        //cleanup the topics...
+                        this.SearchTextTopicsResults = [];
+                        this.SearchTextTopic = "";
+                        this.SearchedTopic = "";
+                        this.SearchTextTopicDisplayName = "";
+                    }
                     //let msg: string = 'You have created a new search';
                     //this._confirmationDialogService.showMAGRunMessage(msg);
                 }
@@ -337,7 +338,7 @@ export class MAGSearchComponent implements OnInit {
     }
     public get IsServiceBusy(): boolean {
 
-        return this._magSearchService.IsBusy || this._magBrowserService.IsBusy;
+        return this._magSearchService.IsBusy || this._magBrowserService.IsBusy || this._magTopicsService.IsBusy;
     }
     public CombineSearches() {
         const Ns = this.AllSelectedItems.length;
@@ -484,9 +485,14 @@ export class MAGSearchComponent implements OnInit {
 
     }
     public CanRunSearch(): boolean {
-        if (this.magSearchInput == "" || !this.HasWriteRights) {
+        if (!this.HasWriteRights) return false;
+        else if (this.WordsInSelection != 3 && this.magSearchInput == "" ) {
             return false;
-        } else {
+        }
+        else if (this.WordsInSelection == 3 && this.SearchTextTopic == "") {
+            return false;
+        }
+        else {
             return true;
         }
     }
