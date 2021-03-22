@@ -394,7 +394,7 @@ namespace BusinessLibrary.BusinessClasses
             System.Threading.Tasks.Task.Run(() => RunMagRelatedPapersRun(ri.UserId, ri.ReviewId));
 #else
                         //see: https://codingcanvas.com/using-hostingenvironment-queuebackgroundworkitem-to-run-background-tasks-in-asp-net/
-                        HostingEnvironment.QueueBackgroundWorkItem(cancellationToken => RunMagRelatedPapersRun(ri.UserId, ri.ReviewId));
+                        HostingEnvironment.QueueBackgroundWorkItem(cancellationToken => RunMagRelatedPapersRun(ri.UserId, ri.ReviewId, cancellationToken));
 #endif
                     }
                 }
@@ -498,15 +498,17 @@ namespace BusinessLibrary.BusinessClasses
 
         private async void RunMagRelatedPapersRun(int ContactId, int ReviewId, CancellationToken cancellationToken = default(CancellationToken))
         {
+            try
+            {
 
 #if (!CSLA_NETCORE)
-            //string folderPrefix = TrainingRunCommand.NameBase;
-            string uploadFileName = System.Web.HttpRuntime.AppDomainAppPath + @"UserTempUploads/" + TrainingRunCommand.NameBase +
-                "RelatedRun" + MagRelatedRunId.ToString() + ".csv";
-            string downloadFilename = TrainingRunCommand.NameBase +
-                "RelatedRun" + MagRelatedRunId.ToString() + ".csv"; ;
+                //string folderPrefix = TrainingRunCommand.NameBase;
+                string uploadFileName = System.Web.HttpRuntime.AppDomainAppPath + @"UserTempUploads/" + TrainingRunCommand.NameBase +
+                    "RelatedRun" + MagRelatedRunId.ToString() + ".csv";
+                string downloadFilename = TrainingRunCommand.NameBase +
+                    "RelatedRun" + MagRelatedRunId.ToString() + ".csv"; ;
 
-#else       
+#else
             string downloadFilename = TrainingRunCommand.NameBase + "RelatedRun" + MagRelatedRunId.ToString() + ".csv";
             string uploadFileName = "";
             if (Directory.Exists("UserTempUploads"))
@@ -522,41 +524,55 @@ namespace BusinessLibrary.BusinessClasses
 
 #endif
 
-            if (!WriteSeedIdsFile(uploadFileName, ReviewId))
-            {
-                UpdateMAGRelatedRecord("No seed Ids written", "Stopped", ReviewId);
-                return;
+                if (!WriteSeedIdsFile(uploadFileName, ReviewId))
+                {
+                    UpdateMAGRelatedRecord("No seed Ids written", "Stopped", ReviewId);
+                    return;
+                }
+                if (IsThreadCancelled(cancellationToken, ReviewId))
+                    return;
+                if (!await UploadSeedIdsFileAsync(uploadFileName, ReviewId))
+                {
+                    UpdateMAGRelatedRecord("No seed Ids uploaded", "Stopped", ReviewId);
+                    return;
+                }
+                if (IsThreadCancelled(cancellationToken, ReviewId))
+                    return;
+                TriggerDataLakeJob(uploadFileName, ContactId, cancellationToken);
+                if (IsThreadCancelled(cancellationToken, ReviewId))
+                    return;
+                if ((await CheckResultsFileOk(downloadFilename)) == false)
+                {
+                    UpdateMAGRelatedRecord("No results", "Finished", ReviewId);
+                    return;
+                }
+                if (IsThreadCancelled(cancellationToken, ReviewId))
+                    return;
+                if (!await DownloadResultsAsync(downloadFilename, ReviewId))
+                {
+                    UpdateMAGRelatedRecord("Download failed", "Finished", ReviewId);
+                    return;
+                }
+                if (IsThreadCancelled(cancellationToken, ReviewId))
+                    return;
             }
-            if (IsThreadCancelled(cancellationToken, ReviewId))
-                return;
-            if (!await UploadSeedIdsFileAsync(uploadFileName, ReviewId))
+            catch (Exception e)
             {
-                UpdateMAGRelatedRecord("No seed Ids uploaded", "Stopped", ReviewId);
-                return;
+                try
+                {
+                    string msg = "Error: " + e.Message;
+                    if (msg.Length > 50) msg = msg.Substring(0, 50);
+                    UpdateMAGRelatedRecord(msg, "Failed", ReviewId);
+                }
+                catch { }
             }
-            if (IsThreadCancelled(cancellationToken, ReviewId))
-                return;
-            TriggerDataLakeJob(uploadFileName, ContactId, cancellationToken);
-            if (IsThreadCancelled(cancellationToken, ReviewId))
-                return;
-            if ((await CheckResultsFileOk(downloadFilename)) == false)
-            {
-                UpdateMAGRelatedRecord("No results", "Finished", ReviewId);
-                return;
-            }
-            if (IsThreadCancelled(cancellationToken, ReviewId))
-                return;
-            if (!await DownloadResultsAsync(downloadFilename, ReviewId))
-            {
-                UpdateMAGRelatedRecord("Download failed", "Finished", ReviewId);
-                return;
-            }
-            if (IsThreadCancelled(cancellationToken, ReviewId))
-                return;
         }
 
         private bool IsThreadCancelled(CancellationToken cancellationToken, int ReviewId)
         {
+
+            //Random r = new Random();
+            //if (r.Next(1, 3) > 1) throw new Exception("what happens now??");
             if (cancellationToken.IsCancellationRequested)
             {
                 UpdateMAGRelatedRecord("Thread cancelled", "Stopped", ReviewId);
@@ -610,7 +626,7 @@ namespace BusinessLibrary.BusinessClasses
                 using (SqlCommand command = new SqlCommand("st_MagRelatedRun_Update", connection))
                 {
                     command.CommandType = System.Data.CommandType.StoredProcedure;
-                    command.Parameters.Add(new SqlParameter("@USER_STATUS", UserStatus));
+                    command.Parameters.Add(new SqlParameter("@USER_STATUS", userStatus));
                     command.Parameters.Add(new SqlParameter("@STATUS", Status));
                     command.Parameters.Add(new SqlParameter("@REVIEW_ID", ReviewId));
                     command.Parameters.Add(new SqlParameter("@MAG_RELATED_RUN_ID", this.MagRelatedRunId));

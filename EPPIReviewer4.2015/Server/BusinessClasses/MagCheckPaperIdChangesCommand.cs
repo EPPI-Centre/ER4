@@ -82,28 +82,33 @@ namespace BusinessLibrary.BusinessClasses
             System.Threading.Tasks.Task.Run(() => RunCheckUpdates(ReviewId, ContactId));
 #else
             //see: https://codingcanvas.com/using-hostingenvironment-queuebackgroundworkitem-to-run-background-tasks-in-asp-net/
-            HostingEnvironment.QueueBackgroundWorkItem(cancellationToken => RunCheckUpdates(ReviewId, ContactId));
+            HostingEnvironment.QueueBackgroundWorkItem(cancellationToken => RunCheckUpdates(ReviewId, ContactId, cancellationToken));
 #endif
         }
 
         private async Task RunCheckUpdates(int ReviewId, int ContactId, CancellationToken cancellationToken = default(CancellationToken))
         {
+
             int currentlyUsed = 0;
             string uploadFileName = "";
-
             int TaskMagLogId = MagLog.SaveLogEntry("Checking ID changes", "Starting", "", ContactId);
-            int missingCount = ChangedPapersNotAlreadyWrittenCheck(TaskMagLogId);
-            MagLog.UpdateLogEntry("Running", "missingCount = " + missingCount.ToString(), TaskMagLogId);
-            if (missingCount == -1)
+            try
             {
-                MagLog.UpdateLogEntry("Stopped", "Error in missingCount", TaskMagLogId);
-                return;
-            }
-            if (missingCount == 0) // if greater than 0, we've already downloaded the file and need to complete the auto-matching
-            {
+                //Random r = new Random();
+                //if (r.Next(1, 3) > 1) throw new Exception("what happens now??");
+
+                int missingCount = ChangedPapersNotAlreadyWrittenCheck(TaskMagLogId);
+                MagLog.UpdateLogEntry("Running", "missingCount = " + missingCount.ToString(), TaskMagLogId);
+                if (missingCount == -1)
+                {
+                    MagLog.UpdateLogEntry("Stopped", "Error in missingCount", TaskMagLogId);
+                    return;
+                }
+                if (missingCount == 0) // if greater than 0, we've already downloaded the file and need to complete the auto-matching
+                {
 
 #if (!CSLA_NETCORE)
-                uploadFileName = System.Web.HttpRuntime.AppDomainAppPath + TempPath + "CheckPaperIdChanges.csv";
+                    uploadFileName = System.Web.HttpRuntime.AppDomainAppPath + TempPath + "CheckPaperIdChanges.csv";
 #else
             uploadFileName = TempPath + "CheckPaperIdChanges.csv";
 
@@ -119,46 +124,54 @@ namespace BusinessLibrary.BusinessClasses
 #endif
 
 
-                currentlyUsed = WriteCurrentlyUsedPaperIdsToFile(uploadFileName);
-                if (currentlyUsed == -1)
-                {
-                    MagLog.UpdateLogEntry("Stopped", "Error in currentlyUsed", TaskMagLogId);
-                    return;
+                    currentlyUsed = WriteCurrentlyUsedPaperIdsToFile(uploadFileName);
+                    if (currentlyUsed == -1)
+                    {
+                        MagLog.UpdateLogEntry("Stopped", "Error in currentlyUsed", TaskMagLogId);
+                        return;
+                    }
+                    if (!await UploadIdsFile(uploadFileName))
+                    {
+                        MagLog.UpdateLogEntry("Stopped", "Error in Uploading ids file", TaskMagLogId);
+                        return;
+                    }
+                    MagLog.UpdateLogEntry("Running", "ID checking: file uploaded n=" + currentlyUsed.ToString(), TaskMagLogId);
+                    if (!SubmitJob(ContactId, cancellationToken))
+                    {
+                        MagLog.UpdateLogEntry("Stopped", "Error in datalake job", TaskMagLogId);
+                        return;
+                    }
+                    missingCount = await DownloadMissingIdsFile(uploadFileName);
+                    if (missingCount == -1)
+                    {
+                        MagLog.UpdateLogEntry("Stopped", "Error in missingCount", TaskMagLogId);
+                        return;
+                    }
                 }
-                if (!await UploadIdsFile(uploadFileName))
-                {
-                    MagLog.UpdateLogEntry("Stopped", "Error in Uploading ids file", TaskMagLogId);
-                    return;
-                }
-                MagLog.UpdateLogEntry("Running", "ID checking: file uploaded n=" + currentlyUsed.ToString(), TaskMagLogId);
-                if (!SubmitJob(ContactId, cancellationToken))
-                {
-                    MagLog.UpdateLogEntry("Stopped", "Error in datalake job", TaskMagLogId);
-                    return;
-                }
-                missingCount = await DownloadMissingIdsFile(uploadFileName);
-                if (missingCount == -1)
-                {
-                    MagLog.UpdateLogEntry("Stopped", "Error in missingCount", TaskMagLogId);
-                    return;
-                }
-            }
 
-            MagLog.UpdateLogEntry("Running", "ID checking: Currently used: " + currentlyUsed.ToString() + " changed: " + missingCount.ToString(),
-                TaskMagLogId);
-            string lookupResults = LookupMissingIdsInNewMakes(ContactId, TaskMagLogId, missingCount, currentlyUsed);
-            if (lookupResults == "ERROR: LookupMissingIdsInNewMakes did not complete")
-            {
-                MagLog.UpdateLogEntry("Stopped", "Error in looking up missing ids", TaskMagLogId);
-                return;
+                MagLog.UpdateLogEntry("Running", "ID checking: Currently used: " + currentlyUsed.ToString() + " changed: " + missingCount.ToString(),
+                    TaskMagLogId);
+                string lookupResults = LookupMissingIdsInNewMakes(ContactId, TaskMagLogId, missingCount, currentlyUsed);
+                if (lookupResults == "ERROR: LookupMissingIdsInNewMakes did not complete")
+                {
+                    MagLog.UpdateLogEntry("Stopped", "Error in looking up missing ids", TaskMagLogId);
+                    return;
+                }
+                MagLog.UpdateLogEntry("Running", "ID checking: updating live IDs. (Lookup results: " + lookupResults + ")", TaskMagLogId);
+                if (!UpdateLiveIds())
+                {
+                    MagLog.UpdateLogEntry("Stopped", "Error in looking up updating live ids", TaskMagLogId);
+                    return;
+                }
+                MagLog.UpdateLogEntry("Complete", "ID checking: " + lookupResults, TaskMagLogId);
             }
-            MagLog.UpdateLogEntry("Running", "ID checking: updating live IDs. (Lookup results: " + lookupResults + ")", TaskMagLogId);
-            if (!UpdateLiveIds())
+            catch (Exception e)
             {
-                MagLog.UpdateLogEntry("Stopped", "Error in looking up updating live ids", TaskMagLogId);
-                return;
+                try
+                {
+                    MagLog.UpdateLogEntry("Failed", "Unexpected Exception: " + e.Message, TaskMagLogId);
+                } catch { }
             }
-            MagLog.UpdateLogEntry("Complete", "ID checking: " + lookupResults, TaskMagLogId);
         }
 
         private int ChangedPapersNotAlreadyWrittenCheck(int MagLogId)
@@ -534,8 +547,11 @@ namespace BusinessLibrary.BusinessClasses
         {
             // MagPaperItemMatch has similar code to the below. They should keep in sync!
             // MATCHING STEP 1: try to match on the current MAKES deployment
-            
-                bool matchedOnMAKES = false;
+
+            //Random r = new Random();
+            //if (r.Next(1, 3) > 1) throw new Exception("what happens now??");
+
+            bool matchedOnMAKES = false;
                 MagMakesHelpers.PaperMakes pm = MagMakesHelpers.GetPaperMakesFromMakes(SeekingPaperId);
                 if (pm != null)
                 {

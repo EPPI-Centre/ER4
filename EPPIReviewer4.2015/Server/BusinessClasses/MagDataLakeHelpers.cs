@@ -66,11 +66,16 @@ namespace BusinessLibrary.BusinessClasses
             try
             {
                 
-                while (jobInfo.State != JobState.Ended)
+                while (jobInfo.State != JobState.Ended && !cancellationToken.IsCancellationRequested)
                 {
                     Thread.Sleep(15000);
                     jobInfo = adlaJobClient.Job.Get(adlaAccountName, jobId);
                     MagLog.UpdateLogEntry(jobInfo.State.ToString(), "", MagLogId);
+                }
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    MagLog.UpdateLogEntry("Failed", "Thread cancelled", MagLogId);
+                    return false;
                 }
                 if (jobInfo.ErrorMessage != null && jobInfo.ErrorMessage.Count > 0)
                 {
@@ -81,11 +86,6 @@ namespace BusinessLibrary.BusinessClasses
                     MagLog.UpdateLogEntry(jobInfo.State.ToString(), "", MagLogId);
                 }
 
-                if (cancellationToken.IsCancellationRequested)
-                {
-                    MagLog.UpdateLogEntry("Failed", "Thread cancelled", MagLogId);
-                    return false;
-                }
                 return true;
             }
             catch

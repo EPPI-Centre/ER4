@@ -88,7 +88,7 @@ namespace BusinessLibrary.BusinessClasses
             System.Threading.Tasks.Task.Run(() => AddClassifierScores(ri.ReviewId.ToString(), ri.UserId));
 #else
             //see: https://codingcanvas.com/using-hostingenvironment-queuebackgroundworkitem-to-run-background-tasks-in-asp-net/
-            HostingEnvironment.QueueBackgroundWorkItem(cancellationToken => AddClassifierScores(ri.ReviewId.ToString(), ri.UserId));
+            HostingEnvironment.QueueBackgroundWorkItem(cancellationToken => AddClassifierScores(ri.ReviewId.ToString(), ri.UserId, cancellationToken));
 #endif
             
         }
@@ -170,12 +170,19 @@ namespace BusinessLibrary.BusinessClasses
                         count += 100;
                     }
                 }
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    MagLog.SaveLogEntry("Add classifier scores", "Cancelled", "Cancellation token, before uploading. Review: " + ReviewId, ContactId);
+                    File.Delete(fName);
+                    return;
+                }
             }
             catch
             {
                 MagLog.SaveLogEntry("Add classifier scores", "Failed", "Writing local file. Review: " + ReviewId, ContactId);
                 return;
             }
+            
             // this copied from ClassifierCommand. The keys should move to web.config
             CloudStorageAccount storageAccount = CloudStorageAccount.Parse("***REMOVED***");
             CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
@@ -202,6 +209,13 @@ namespace BusinessLibrary.BusinessClasses
                 }
                 File.Delete(fName);
 
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    MagLog.SaveLogEntry("Add classifier scores", "Cancelled", "Cancellation token, before InvokeBatchExecution. Review: " + ReviewId, ContactId);
+                    return;
+                } else {
+                    MagLog.SaveLogEntry("Add classifier scores", "Started", "Data is ok, will InvokeBatchExecution. Review:" + ReviewId, ContactId);
+                }
 
                 if (_StudyTypeClassifier != "None")
                 {
@@ -227,7 +241,13 @@ namespace BusinessLibrary.BusinessClasses
                             break;
                     }
                     await ClassifierCommand.InvokeBatchExecutionService(ReviewId, "ScoreModel", classifierId, @"attributemodeldata/" + uploadedFileName,
-                        @"attributemodels/" + classifierName + ".csv", resultsFile1, resultsFile2);
+                        @"attributemodels/" + classifierName + ".csv", resultsFile1, resultsFile2, cancellationToken);
+
+                    if (cancellationToken.IsCancellationRequested) //InvokeBatchExecutionService "just" returns if cancelled, so we find out if cancellation happened in here.
+                    {
+                        MagLog.SaveLogEntry("Add classifier scores", "Cancelled", "Cancellation token, after InvokeBatchExecution. Review: " + ReviewId, ContactId);
+                        return;
+                    }
 
                     await insertResults(blobClient.GetContainerReference("attributemodels"),
                         TrainingRunCommand.NameBase + "Cont" + _MagAutoUpdateRunId.ToString() +
@@ -243,11 +263,20 @@ namespace BusinessLibrary.BusinessClasses
                 if (_UserClassifierModelId > 0)
                 {
                     await ClassifierCommand.InvokeBatchExecutionService(ReviewId, "ScoreModel", _UserClassifierModelId, @"attributemodeldata/" + uploadedFileName,
-                        @"attributemodels/" + TrainingRunCommand.NameBase + "ReviewId" + _UserClassifierReviewId.ToString() + "ModelId" + _UserClassifierModelId.ToString() + ".csv", resultsFile1, resultsFile2);
+                        @"attributemodels/" + TrainingRunCommand.NameBase + "ReviewId" + _UserClassifierReviewId.ToString() + "ModelId" + _UserClassifierModelId.ToString() + ".csv", resultsFile1, resultsFile2, cancellationToken);
+
+                    if (cancellationToken.IsCancellationRequested) //InvokeBatchExecutionService "just" returns if cancelled, so we find out if cancellation happened in here.
+                    {
+                        MagLog.SaveLogEntry("Add classifier scores", "Cancelled", "Cancellation token, after InvokeBatchExecution. Review: " + ReviewId, ContactId);
+                        return;
+                    }
+
                     await insertResults(blobClient.GetContainerReference("attributemodels"),
                         TrainingRunCommand.NameBase + "Cont" + _MagAutoUpdateRunId.ToString() +
                         "Results1.csv", "UserClassifierScore", ReviewId, ContactId);
                 }
+                MagLog.SaveLogEntry("Add classifier scores", "Finished", "Successful. Review: " + ReviewId, ContactId);
+
             }
             catch
             {
