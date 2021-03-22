@@ -60,7 +60,7 @@
                                         {{MyReviewMessage}}
                                     <div class="row m-0 p-0">
                                         <NewReviewComp></NewReviewComp>
-                                        <div *ngIf="HasAdminRights" class="btn btn-link btn-sm my-auto" (click)="SetupWebDBs()">
+                                        <div *ngIf="IsSiteAdmin && HasAdminRights" class="btn btn-link btn-sm my-auto" (click)="SetupWebDBs()">
                                             Setup WebDBs...
                                         </div>
                                     </div>
