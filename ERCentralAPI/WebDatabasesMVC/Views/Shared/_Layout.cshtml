@@ -177,14 +177,14 @@
 
 
 
-                        <a href="https://localhost:44314/Review" class="btn btn-white btn-border btn-round mr-2">Home</a>
+                        <a class="btn btn-white btn-border btn-round mr-2" asp-controller="Review" asp-action="Index">Home</a>
                         <a class="btn btn-white btn-border btn-round mr-2" asp-controller="ItemList" asp-action="Index">All records</a>
-                        <a href="https://localhost:44314/Login/Logout" class="btn btn-info btn-round">Logout</a>&nbsp;&nbsp;&nbsp;
+                        <a class="btn btn-info btn-round" asp-controller="Login" asp-action="Logout">Logout</a>&nbsp;&nbsp;&nbsp;
 
 
 
 
-                        <li class="nav-item dropdown hidden-caret">
+                        @*<li class="nav-item dropdown hidden-caret">
                             <a class="dropdown-toggle profile-pic btn btn-white btn-border btn-round" data-toggle="dropdown" href="#" aria-expanded="false">
                                 Contact
                             </a>
@@ -221,7 +221,7 @@
                                     </li>
                                 </div>
                             </ul>
-                        </li>
+                        </li>*@
 
                     </ul>
                 </div>

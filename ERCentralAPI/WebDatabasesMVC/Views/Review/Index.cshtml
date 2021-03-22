@@ -10,7 +10,7 @@
     Claim WebDbIDclaim = User.FindFirst("WebDbID");
     string imgPath1 = "";
     string imgPath2 = "";
-    string imgMapPath1 = "";
+    //string imgMapPath1 = "";
     if (WebDbIDclaim != null)
     {
         var service = Context.RequestServices.GetService(typeof(Microsoft.AspNetCore.Hosting.IWebHostEnvironment)) as Microsoft.AspNetCore.Hosting.IWebHostEnvironment;
@@ -19,8 +19,8 @@
         else if (System.IO.File.Exists(absolutePath + "Img-" + WebDbIDclaim.Value + "-1.png")) imgPath1 = Url.Content("~/HeaderImages/Img-" + WebDbIDclaim.Value + "-1.png");
         if (System.IO.File.Exists(absolutePath + "Img-" + WebDbIDclaim.Value + "-2.jpg")) imgPath2 = Url.Content("~/HeaderImages/Img-" + WebDbIDclaim.Value + "-2.jpg");
         else if (System.IO.File.Exists(absolutePath + "Img-" + WebDbIDclaim.Value + "-2.png")) imgPath2 = Url.Content("~/HeaderImages/Img-" + WebDbIDclaim.Value + "-2.png");
-        if (System.IO.File.Exists(absolutePath + "ImgMap-" + WebDbIDclaim.Value + "-1.jpg")) imgMapPath1 = Url.Content("~/HeaderImages/ImgMap-" + WebDbIDclaim.Value + "-1.jpg");
-        else if (System.IO.File.Exists(absolutePath + "ImgMap-" + WebDbIDclaim.Value + "-1.png")) imgMapPath1 = Url.Content("~/HeaderImages/ImgMap-" + WebDbIDclaim.Value + "-1.png");
+        //if (System.IO.File.Exists(absolutePath + "ImgMap-" + WebDbIDclaim.Value + "-1.jpg")) imgMapPath1 = Url.Content("~/HeaderImages/ImgMap-" + WebDbIDclaim.Value + "-1.jpg");
+        //else if (System.IO.File.Exists(absolutePath + "ImgMap-" + WebDbIDclaim.Value + "-1.png")) imgMapPath1 = Url.Content("~/HeaderImages/ImgMap-" + WebDbIDclaim.Value + "-1.png");
     }
 }
 
@@ -594,18 +594,43 @@
                     <div class="col-md-3">
                         @if (@imgPath1 != "")
                         {
-                            <a href="@(new HtmlString(Model.WebDb.HeaderImage1Url))" target="_blank" title="HeaderImage1">
+                            if (Model.WebDb.HeaderImage1Url == "")
+                            {
                                 <img src=@imgPath1 style="max-height: 60px; object-fit: cover;" class="pb-2 float-sm-left float-md-left float-lg-right" />
-                            </a>
+                            }
+                            else if (Model.WebDb.HeaderImage1Url.ToLower().StartsWith("http://") || Model.WebDb.HeaderImage1Url.ToLower().StartsWith("https://"))
+                            {
+                                <a href="@(new HtmlString(Model.WebDb.HeaderImage1Url))" target="_blank" title="Header Image1">
+                                    <img src=@imgPath1 style="max-height: 60px; object-fit: cover;" class="pb-2 float-sm-left float-md-left float-lg-right" />
+                                </a>
+                            }
+                            else
+                            {
+                                <a href="@(new HtmlString("https://" + Model.WebDb.HeaderImage1Url))" target="_blank" title="Header Image1">
+                                    <img src=@imgPath1 style="max-height: 60px; object-fit: cover;" class="pb-2 float-sm-left float-md-left float-lg-right" />
+                                </a>
+                            }
                         }
                     </div>
                     <div class="col-md-3">
                         @if (@imgPath2 != "")
                         {
-                            
-                            <a href="@(new HtmlString(Model.WebDb.HeaderImage2Url))" target="_blank" title="HeaderImage2">
+                            if (Model.WebDb.HeaderImage2Url == "")
+                            {
                                 <img src=@imgPath2 style="max-height: 60px; object-fit: cover;" class="pb-2 float-sm-left float-md-left float-lg-right" />
-                            </a>
+                            }
+                            else if (Model.WebDb.HeaderImage2Url.ToLower().StartsWith("http://") || Model.WebDb.HeaderImage2Url.ToLower().StartsWith("https://"))
+                            {
+                                <a href="@(new HtmlString(Model.WebDb.HeaderImage2Url))" target="_blank" title="Header Image2">
+                                    <img src=@imgPath2 style="max-height: 60px; object-fit: cover;" class="pb-2 float-sm-left float-md-left float-lg-right" />
+                                </a>
+                            }
+                            else
+                            {
+                                <a href="@(new HtmlString("https://" + Model.WebDb.HeaderImage2Url))" target="_blank" title="Header Image2">
+                                    <img src=@imgPath2 style="max-height: 60px; object-fit: cover;" class="pb-2 float-sm-left float-md-left float-lg-right" />
+                                </a>
+                            }
                         }
                     </div>
 
@@ -720,7 +745,7 @@
 
 
 
-                    @if (@imgMapPath1 != "")
+                    @*@if (@imgMapPath1 != "")
                     {
                         <div class="card">
                             <div class="card-header">
@@ -751,7 +776,7 @@
 
                             </div>
                         </div>
-                    }
+                    }*@
 
                 </div>
 
