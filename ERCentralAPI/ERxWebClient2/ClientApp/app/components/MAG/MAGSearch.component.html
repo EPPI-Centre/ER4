@@ -21,7 +21,7 @@
                         <div class="col-sm-6">
                             <div ngbDropdown>
                                 <select class="col-sm-12 col-lg-12 form-control mb-1" name="WordsInSelection"
-                                        [(ngModel)]="WordsInSelection" >
+                                        [(ngModel)]="WordsInSelection">
                                     <option [value]="0" [selected]="WordsInSelection == 0">Word(s) in title</option>
                                     <option [value]="1">Word(s) in abstract</option>
                                     <option [value]="2">Author name(s)</option>
@@ -39,39 +39,55 @@
 
 
                         </div>
+                    </div>
 
-                        <div *ngIf="WordsInSelection == 3" class="col-sm-6">
-                            <div class="row m-0">1. Search MAG for topics:</div>
-                            <div class="row m-0">
-                                <input class="form-control col border border-dark" type="text" id="SearchTextTopic" [(ngModel)]="magSearchInput"
-                                       placeholder="Wildcards will work, e.g. physic* " />
-                                <button (click)="UpdateTopicResults()" class="col-auto btn btn-primary btn-sm text-white" [disabled]="magSearchInput.length < 3" title="Search for topics">
-                                    <i class="fa fa-search"></i>
-                                </button>
-                            </div>
+                    <div *ngIf="WordsInSelection == 3">
+                        <table width="100%">
+                            <tr>
+                                <td style="padding-left:15px;padding-bottom:10px; padding-right:10px">
+                                    <div class="card">
+                                        <div class="card-body">
 
-                            <div class="row m-0 " [ngClass]="{'font-weight-light small': SearchTextTopicsResults.length == 0}">
-                                2. Pick a MAG topic:
-                            </div>
-                            <div *ngIf="SearchTextTopicsResults.length > 0" class="col-auto small my-1 mx-auto alert-info border border-info rounded">
-                                Showing topics found by searching for: <strong>{{SearchedTopic}}</strong>
-                            </div>
-                            <div *ngIf="SearchTextTopicsResults.length > 0" class="row bg-white border" style="max-height:300px;overflow:auto;">
-                 
-                                    <div *ngFor="let item of SearchTextTopicsResults"  class="col-auto btn border rounded p-1 m-1" (click)="SelectTopic(item)"
-                                         [ngStyle]="{ 'font-size.em': item.fontSize,'background-color': 'light-blue', 'color': 'black'}">
-                                        {{item.displayName}}
+
+                                            <div class="row m-0">1. Search MAG for topics:</div>
+                                            <div class="row m-0">
+                                                <input class="form-control col border border-dark" type="text" id="SearchTextTopic" [(ngModel)]="magSearchInput"
+                                                       placeholder="Wildcards will work, e.g. physic* " />
+                                                <button (click)="UpdateTopicResults()" class="col-auto btn btn-primary btn-sm text-white" [disabled]="magSearchInput.length < 3" title="Search for topics">
+                                                    <i class="fa fa-search"></i>
+                                                </button>
+                                            </div>
+
+                                            <div class="row m-0 " [ngClass]="{'font-weight-light small': SearchTextTopicsResults.length == 0}">
+                                                2. Pick a MAG topic:
+                                            </div>
+                                            <div *ngIf="SearchTextTopicsResults.length > 0" class="col-auto small my-1 mx-auto alert-info border border-info rounded">
+                                                Showing topics found by searching for: <strong>{{SearchedTopic}}</strong>
+                                            </div>
+                                            <div *ngIf="SearchTextTopicsResults.length > 0" class="row bg-white border" style="max-height:300px;overflow:auto;">
+
+                                                <div *ngFor="let item of SearchTextTopicsResults" class="col-auto btn border rounded p-1 m-1" (click)="SelectTopic(item)"
+                                                     [ngStyle]="{ 'font-size.em': item.fontSize,'background-color': 'light-blue', 'color': 'black'}">
+                                                    {{item.displayName}}
+                                                </div>
+
+                                            </div>
+                                            <div class="row m-0" [ngClass]="{'font-weight-light small': SearchTextTopicDisplayName == ''}">
+                                                3. Pick other options and Search:
+                                            </div>
+                                            <div *ngIf="SearchTextTopicDisplayName != ''" class="col-auto small my-1 mx-auto alert-info border border-info rounded">
+                                                Selected MAG topic is: <strong>{{SearchTextTopicDisplayName}}</strong>
+                                            </div>
+                                        </div>
+
                                     </div>
+                                </td>
+                            </tr>
+                        </table>
 
-                            </div>
-                            <div class="row m-0" [ngClass]="{'font-weight-light small': SearchTextTopicDisplayName == ''}">
-                                3. Pick other options and Search:
-                            </div>
-                            <div *ngIf="SearchTextTopicDisplayName != ''" class="col-auto small my-1 mx-auto alert-info border border-info rounded">
-                                Selected MAG topic is: <strong>{{SearchTextTopicDisplayName}}</strong>
-                            </div>
-                        </div>
+                    </div>
 
+                    <div class="col-12 row mb-2">
                         <div class="col-sm-6">
                             <div ngbDropdown>
                                 <select class="col-12 form-control mb-1" name="DateLimitSelection"
@@ -91,19 +107,26 @@
 
                         <div class="col-sm-6">
                             <div *ngIf="DateLimitSelection == 4 || DateLimitSelection == 8">
-                                <div class="m-1 p-1"><b>Items Dated From</b></div>
-                                <div>
-                                    <div class="example-wrapper">
-                                        <kendo-datepicker [(value)]="valueKendoDatepicker1" [format]="'dd MMM yyyy'"></kendo-datepicker>
-                                    </div>
-                                </div>
-                                <div class="m-1 p-1"><b>Items Dated To</b></div>
-                                <div>
-                                    <div class="example-wrapper">
-                                        <kendo-datepicker [(value)]="valueKendoDatepicker2" [format]="'dd MMM yyyy'"></kendo-datepicker>
-                                    </div>
-                                </div>
-
+                                <table width="100%">
+                                    <tr>
+                                        <td>
+                                            <div class="m-1 p-1"><b>Items Dated From</b></div>
+                                            <div>
+                                                <div class="example-wrapper">
+                                                    <kendo-datepicker [(value)]="valueKendoDatepicker1" [format]="'dd MMM yyyy'"></kendo-datepicker>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="m-1 p-1"><b>Items Dated To</b></div>
+                                            <div>
+                                                <div class="example-wrapper">
+                                                    <kendo-datepicker [(value)]="valueKendoDatepicker2" [format]="'dd MMM yyyy'"></kendo-datepicker>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </table>
                             </div>
 
                             <div *ngIf="DateLimitSelection == 1 || DateLimitSelection == 2  || DateLimitSelection == 3
@@ -117,7 +140,9 @@
                             </div>
 
                         </div>
+                    </div>
 
+                    <div class="col-12 row mb-2">
                         <div class="col-sm-6 ">
                             <div ngbDropdown>
                                 <select class="col-12 form-control mb-1" name="PublicationTypeSelection"
