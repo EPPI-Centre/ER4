@@ -18,13 +18,13 @@
                     </td>
                     <td style="padding-left:10px">
                         <div *ngIf="!basicPanel">
-                            <a class="btn btn-dark btn-sm text-white" data-toggle="collapse"
+                            <a class="btn btn-dark btn-sm text-white" data-toggle="collapse" (click)="basicPanel = !basicPanel"
                                href="#collapseExample1" role="button" aria-expanded="false" aria-controls="collapseExample1">
                                 more details <i class="fa fa-arrow-circle-down"></i>
                             </a>
                         </div>
                         <div *ngIf="basicPanel">
-                            <a class="btn btn-dark btn-sm text-white" data-toggle="collapse"
+                            <a class="btn btn-dark btn-sm text-white" data-toggle="collapse" (click)="basicPanel = !basicPanel"
                                href="#collapseExample1" role="button" aria-expanded="false" aria-controls="collapseExample1">
                                 more details <i class="fa fa-arrow-circle-up"></i>
                             </a>

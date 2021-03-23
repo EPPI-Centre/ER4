@@ -111,7 +111,7 @@ export class MAGComp implements OnInit, OnDestroy {
         this.MAGSimulationService.Clear();
     }
     @ViewChild('NavBar2') NavBar2!: MAGHeaderBar2Comp;
-    private IHaveImportedSomething: boolean = false;
+    public IHaveImportedSomething: boolean = false;
     private subItemIDinPath: Subscription | null = null;
     public get Context(): string {
         if (this.NavBar2) return this.NavBar2.Context;

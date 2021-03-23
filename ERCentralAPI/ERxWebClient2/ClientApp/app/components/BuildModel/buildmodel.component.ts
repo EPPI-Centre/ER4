@@ -225,7 +225,7 @@ export class BuildModelComponent implements OnInit, OnDestroy {
 		this._classifierService.Fetch();
 
 	}
-	SetAttrOn(node: singleNode) {
+	SetAttrOn(node: singleNode | null | undefined) {
 		//alert(JSON.stringify(node));
 		if (node != null && node.nodeType == "SetAttribute") {
 			let a = node as SetAttribute;
@@ -234,9 +234,9 @@ export class BuildModelComponent implements OnInit, OnDestroy {
 		}
 		
 	}
-	SetAttrNotOn(node: singleNode) {
+	SetAttrNotOn(node: singleNode | null | undefined) {
 		//alert(JSON.stringify(node));
-		if (node != null && node.nodeType == "SetAttribute") {
+		if (node != null && node != undefined && node.nodeType == "SetAttribute") {
 			let a = node as SetAttribute;
 			this.selectedModelDropDown2 = node.name;
 			this.DD2 = a.attribute_id;

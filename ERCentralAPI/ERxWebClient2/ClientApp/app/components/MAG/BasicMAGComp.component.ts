@@ -50,6 +50,7 @@ export class BasicMAGComp implements OnInit {
     public magRCTRadio: string = 'NoFilter';
     public magMode: string = '';
     public basicSearchPanel: boolean = false;
+    public basicPanel: boolean = false;
 
 	ngOnInit() {
         

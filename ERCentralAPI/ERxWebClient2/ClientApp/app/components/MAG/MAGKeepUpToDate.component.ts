@@ -82,6 +82,7 @@ export class MAGKeepUpToDate implements OnInit {
     public FilterOutURL: string = "";
     public FilterOutDOI: string = "";
     public comboAutoUpdateImportOptions: string = "AutoUpdate";
+    public basicPanel: boolean = false;
 
     public get currentlyApplyingModelToThisRunId(): number {
         return this.MAGRelatedRunsService.currentlyApplyingModelToThisRunId;

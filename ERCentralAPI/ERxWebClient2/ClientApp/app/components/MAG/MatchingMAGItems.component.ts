@@ -64,6 +64,7 @@ export class MatchingMAGItemsComponent implements OnInit, OnDestroy {
     public SearchTextTopics: TopicLink[] = [];
     public SearchTextTopicsResults: TopicLink[] = [];
     public magPaperId: number = 0;
+    public basicPanel: boolean = false;
 
     public Back() {
         //this.router.navigate(['Main']);
