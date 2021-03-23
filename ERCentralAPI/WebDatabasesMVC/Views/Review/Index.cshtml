@@ -588,8 +588,9 @@
             <div class="page-inner py-5">
                 <div class="d-flex align-items-left align-items-md-center flex-column flex-md-row">
                     <div class="col-md-6">
-                        <h2 class="text-white pb-2 fw-bold">@Model.WebDb.WebDBName</h2>
-                        <h5 class="text-white op-7 mb-2">Public health interventions within the community.</h5>
+                        @(new HtmlString(Model.WebDb.WebDBName))
+                        <!--<h2 class="text-white pb-2 fw-bold">@Model.WebDb.WebDBName</h2>-->
+                        <!--<h5 class="text-white op-7 mb-2">Public health interventions within the community.</h5>-->
                     </div>
                     <div class="col-md-3">
                         @if (@imgPath1 != "")
