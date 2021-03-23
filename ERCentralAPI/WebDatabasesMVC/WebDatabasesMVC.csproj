@@ -5,9 +5,14 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <CopyRefAssembliesToPublishDirectory>false</CopyRefAssembliesToPublishDirectory>
     <RunAnalyzersDuringBuild>false</RunAnalyzersDuringBuild>
+    <UserSecretsId>7bdb3e02-b18e-4b18-9864-0eac30216ee2</UserSecretsId>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DefineConstants>TRACE;CSLA_NETCORE; WEBDB</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <DefineConstants>TRACE;CSLA_NETCORE; WEBDB</DefineConstants>
   </PropertyGroup>
 
