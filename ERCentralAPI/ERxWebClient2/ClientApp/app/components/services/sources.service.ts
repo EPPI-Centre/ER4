@@ -1,23 +1,32 @@
-import { Component, Inject, Injectable, EventEmitter, Output } from '@angular/core';
-import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
-import { ReviewerIdentityService } from './revieweridentity.service';
+import { Inject, Injectable, EventEmitter, Output, OnDestroy } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
-import { ConvertActionBindingResult } from '@angular/compiler/src/compiler_util/expression_converter';
+import { EventEmitterService } from './EventEmitter.service';
+import { Subscription } from 'rxjs';
 
 @Injectable({
     providedIn: 'root',
 })
 
-export class SourcesService extends BusyAwareService {
+export class SourcesService extends BusyAwareService implements OnDestroy {
 
 	constructor(
 		private _httpC: HttpClient,
         private modalService: ModalService,
+        private EventEmitterService: EventEmitterService,
         @Inject('BASE_URL') private _baseUrl: string
     ) {
         super();
+        //console.log("On create SourcesService");
+        this.clearSub = this.EventEmitterService.PleaseClearYourDataAndState.subscribe(() => { this.Clear(); });
     }
+    ngOnDestroy() {
+        console.log("Destroy SourcesService");
+        if (this.clearSub != null) this.clearSub.unsubscribe();
+    }
+    private clearSub: Subscription | null = null;
+
     private _IncomingItems4Checking: IncomingItemsList | null = null;
     public get IncomingItems4Checking(): IncomingItemsList | null {
         return this._IncomingItems4Checking;
@@ -146,6 +155,8 @@ export class SourcesService extends BusyAwareService {
                 //this.modalService.GenericErrorMessage(error); 
                 this._LastDeleteForeverStatus = "Error";
                 this.RemoveBusy("DeleteSourceForever");
+                this.modalService.GenericError(error);//best way to show the error, as it will include the error details, no matter what!
+                //this.SourceDeleted.emit(SourceId);
             },
             () => {
                 this.FetchSources();

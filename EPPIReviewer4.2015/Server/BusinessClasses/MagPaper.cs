@@ -62,21 +62,35 @@ namespace BusinessLibrary.BusinessClasses
         {
             get
             {
-                return Authors + " (" + Year.ToString() + ") " + OriginalTitle + ". " + Journal + ". " +
+                return shortenedAuthors() + " (" + Year.ToString() + ") " + OriginalTitle + ". " + Journal + ". " +
                     Volume.ToString() + (Issue == "" || Issue == null ? "" :  " (" + Issue + ") ") + FirstPage + "-" + LastPage +
                     (DOI == "" ? "" : ". DOI: " + DOI);
             }
         }
+
+        private string shortenedAuthors()
+        {
+            if (Authors.Length > 100)
+            {
+                string[] authorList = Authors.Split(',');
+                string retAuthors = authorList[0].Trim();
+                int n = 1;
+                while (retAuthors.Length < 100 && n < authorList.Length)
+                {
+                    retAuthors += "," + authorList[n].Trim();
+                    n++;
+                }
+                if (n < authorList.Length - 1)
+                    return retAuthors + ", et al.";
+            }
+            return Authors;
+        }
+
         public string ShortRecord
         {
             get
             {
-                string shortednedAuthors = Authors;
-                if (Authors.Length > 25)
-                {
-                    shortednedAuthors = Authors.Substring(0, 25);
-                }
-                return shortednedAuthors  + "... (" + Year.ToString() + ") " + OriginalTitle + ". " + Journal + ". " +
+                return shortenedAuthors() + "... (" + Year.ToString() + ") " + OriginalTitle + ". " + Journal + ". " +
                     Volume.ToString() + (Issue == "" || Issue == null ? "" : " (" + Issue + ") ") + FirstPage + "-" + LastPage;
             }
         }
@@ -296,12 +310,30 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
+        public static readonly PropertyInfo<string> FieldsOfStudyProperty = RegisterProperty<string>(new PropertyInfo<string>("FieldsOfStudy", "FieldsOfStudy", string.Empty));
+        public string FieldsOfStudy
+        {
+            get
+            {
+                return GetProperty(FieldsOfStudyProperty);
+            }
+        }
+
         public static readonly PropertyInfo<string> PdfLinksProperty = RegisterProperty<string>(new PropertyInfo<string>("PdfLinks", "PdfLinks", string.Empty));
         public string PdfLinks
         {
             get
             {
                 return GetProperty(PdfLinksProperty);
+            }
+        }
+
+        public static readonly PropertyInfo<string> AllLinksProperty = RegisterProperty<string>(new PropertyInfo<string>("AllLinks", "AllLinks", string.Empty));
+        public string AllLinks
+        {
+            get
+            {
+                return GetProperty(PdfLinksProperty) + ";" + GetProperty(URLsProperty);
             }
         }
 
@@ -609,7 +641,6 @@ namespace BusinessLibrary.BusinessClasses
         }
 
         
-        
 
         public static MagPaper GetMagPaperFromMakes(Int64 PaperId, SafeDataReader reader)
         {
@@ -658,7 +689,12 @@ namespace BusinessLibrary.BusinessClasses
             if (pm.J != null)
             {
                 returnValue.LoadProperty<Int64>(JournalIdProperty, pm.J.JId);
-                returnValue.LoadProperty<string>(JournalProperty, pm.J.JN != null ?  myTI.ToTitleCase(pm.J.JN) : "");
+                returnValue.LoadProperty<string>(JournalProperty, pm.J.DJN != null ? myTI.ToTitleCase(pm.J.DJN) : "");
+            }
+            if (returnValue.GetProperty(JournalProperty) == "" && pm.VFN != null)
+            {
+                // get conferences (MAG puts lots of conference papers in and the conference goes in the 'journal' field)
+                returnValue.LoadProperty<string>(JournalProperty, myTI.ToTitleCase(pm.VFN));
             }
             //returnValue.LoadProperty<Int64>(ConferenceSeriesIdProperty, );
             //returnValue.LoadProperty<Int64>(ConferenceInstanceIdProperty, reader.GetInt64("ConferenceInstanceId"));
@@ -669,7 +705,7 @@ namespace BusinessLibrary.BusinessClasses
             if (pm.RId != null)
             {
                 returnValue.LoadProperty<Int64>(ReferenceCountProperty, pm.RId.Count);
-                string r = "";
+                string r = ""; // not changing in case I break something, but this looks like r is never used?? (JT)
                 foreach (Int64 RId in pm.RId)
                 {
                     if (r == "")
@@ -679,7 +715,29 @@ namespace BusinessLibrary.BusinessClasses
                 }
             }
             else
+            {
                 returnValue.LoadProperty<Int64>(ReferenceCountProperty, 0);
+            }
+            if (pm.F != null)
+            {
+                string f = "";
+                foreach (MagMakesHelpers.PaperMakesFieldOfStudy fos in pm.F)
+                {
+                    if (f == "")
+                    {
+                        f = fos.FId.ToString();
+                    }
+                    else
+                    {
+                        f += "," + fos.FId.ToString();
+                    }
+                }
+                returnValue.LoadProperty<string>(FieldsOfStudyProperty, f);
+            }
+            else
+            {
+                returnValue.LoadProperty<string>(FieldsOfStudyProperty, "");
+            }
             returnValue.LoadProperty<Int64>(CitationCountProperty, pm.CC);
             returnValue.LoadProperty<int>(EstimatedCitationCountProperty, pm.ECC);
             if (pm.AA != null)
@@ -729,7 +787,7 @@ namespace BusinessLibrary.BusinessClasses
                     }
                 }
                 returnValue.LoadProperty<string>(URLsProperty, u);
-                returnValue.LoadProperty<string>(PdfLinksProperty, u);
+                returnValue.LoadProperty<string>(PdfLinksProperty, p);
             }
             if (reader != null)
             {

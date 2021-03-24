@@ -2,6 +2,8 @@ import { Inject, Injectable } from '@angular/core';
 import { HttpClient} from '@angular/common/http';
 import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
+import { EventEmitterService } from './EventEmitter.service';
+import { Subscription } from 'rxjs';
 
 @Injectable({
     providedIn: 'root',
@@ -10,11 +12,20 @@ export class ConfigurableReportService extends BusyAwareService {
 
 	constructor(
 		private _httpC: HttpClient,
-        private modalService: ModalService,
+		private modalService: ModalService,
+		private EventEmitterService: EventEmitterService,
         @Inject('BASE_URL') private _baseUrl: string
     ) {
-        super();
+		super();
+		//console.log("On create DuplicatesService");
+		this.clearSub = this.EventEmitterService.PleaseClearYourDataAndState.subscribe(() => { this.Clear(); });
 	}
+
+	ngOnDestroy() {
+		console.log("Destroy DuplicatesService");
+		if (this.clearSub != null) this.clearSub.unsubscribe();
+	}
+	private clearSub: Subscription | null = null;
 	public reportHTML: string = '';
     private _ReportList: Report[] = [];
 	public get Reports(): Report[] | null {
@@ -119,6 +130,10 @@ export class ConfigurableReportService extends BusyAwareService {
 		);
 	}
 
+	public Clear() {
+		this.reportHTML = '';
+		this._ReportList = [];
+    }
 }
 
 export interface ReportResult

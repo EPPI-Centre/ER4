@@ -31,7 +31,7 @@ import { Helpers } from '../helpers/HelperMethods';
 import { ExcelService } from '../services/excel.service';
 import { DuplicatesService } from '../services/duplicates.service';
 import { FetchReadOnlyReviewsComponent } from '../readonlyreviews/readonlyreviews.component';
-import { BasicMAGService } from '../services/BasicMAG.service';
+import { MAGRelatedRunsService } from '../services/MAGRelatedRuns.service';
 import { ReviewInfoService } from '../services/ReviewInfo.service';
 import { MAGBrowserHistoryService } from '../services/MAGBrowserHistory.service';
 //import { AdvancedMAGFeaturesComponent } from '../MAG/AdvancedMAGFeatures.component';
@@ -70,7 +70,6 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 		private frequenciesService: frequenciesService
 		, private crosstabService: crosstabService
 		, private _searchService: searchService
-		, private _basicMAGService: BasicMAGService
         , private SourcesService: SourcesService
         , private ConfirmationDialogService: ConfirmationDialogService
         , private ItemCodingService: ItemCodingService
@@ -83,7 +82,6 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 		@Inject('BASE_URL') private _baseUrl: string,
         private excelService: ExcelService,
         private reviewInfoService: ReviewInfoService,
-        private _routingStateService: MAGBrowserHistoryService
     ) {}
 	@ViewChild('WorkAllocationContactList') workAllocationsContactComp!: WorkAllocationContactListComp;
 	@ViewChild('WorkAllocationCollaborateList') workAllocationCollaborateComp!: WorkAllocationComp;
@@ -131,6 +129,9 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
     }
     public OpenBasicMAG() {
         this.router.navigate(['BasicMAGFeatures']);
+    }
+    public OpenMAG() {
+        this.router.navigate(['MAG']);
     }
 
     StartScreening() {
@@ -360,7 +361,10 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
             && this.ReviewerIdentityServ.reviewerIdentity.isAuthenticated
             && this.ReviewerIdentityServ.reviewerIdentity.isSiteAdmin) return true;
         else return false;
-	}
+    }
+    public get HasAdminRights(): boolean {
+        return this.ReviewerIdentityServ.HasAdminRights;
+    }
 	public CanAssignDocs(): boolean {
 		if (this.AssignDocs != null && this.DropdownSelectedCodeAllocate != null
 				&& this.AllocateChoice == 'Documents with this code') {
@@ -446,6 +450,10 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 
 		this.RunReportsShow = false;
 	}
+
+    public SetupWebDBs() {
+        this.router.navigate(['WebDBs']);
+    }
 
 	public GetReports() {
 
@@ -662,23 +670,31 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         else {
             const SetA = this.reviewSetsService.selectedNode as SetAttribute;
             if (!SetA) return;
-            else {
-                if (IsBulkAssign
-					&& this.reviewSetsService.selectedNode) {
+            else if (this.reviewSetsService.selectedNode) {
+                let encoded = Helpers.htmlEncode(this.reviewSetsService.selectedNode.name);
+                //return doc.documentElement.textContent;
+                if (IsBulkAssign) {
                     this.ConfirmationDialogService.confirm("Assign selected ("
-                        + this.ItemListService.SelectedItems.length + ") items ? ", "Are you sure you want to assign all selected items to this ("
-                        + this.reviewSetsService.selectedNode.name + ") code?", false, '')
+                        + this.ItemListService.SelectedItems.length + ") items ? "
+                        , "Are you sure you want to assign all selected items (<strong>"
+                        + this.ItemListService.SelectedItems.length + "</strong>) to this code?<br>"
+                        + "<div class='w-100 p-0 mx-0 my-2 text-center'><strong class='border mx-auto px-1 rounded border-success d-inline-block'>"
+                        + encoded + "</strong></div>"
+                        , false, '')
                         .then((confirm: any) => {
                             if (confirm) {
                                 this.BulkAssingCodes(SetA.attribute_id, SetA.set_id);
                             }
                         });
                 }
-                else if (!IsBulkAssign
-                    && this.reviewSetsService.selectedNode) {
+                else if (!IsBulkAssign) {
                     this.ConfirmationDialogService.confirm("Remove selected ("
-                        + this.ItemListService.SelectedItems.length + ") items?", "Are you sure you want to remove all selected items to this ("
-						+ this.reviewSetsService.selectedNode.name + ") code?", false, '')
+                        + this.ItemListService.SelectedItems.length + ") items?"
+                        , "Are you sure you want to remove all selected items (<strong>"
+                        + this.ItemListService.SelectedItems.length + "</strong>) from this code?<br>"
+                        + "<div class='w-100 p-0 mx-0 my-2 text-center'><strong class='border mx-auto px-1 rounded border-success d-inline-block'>"
+                        + encoded + "</strong></div>"
+                        , false, '')
                         .then((confirm: any) => {
                             if (confirm) {
                                 this.BulkDeleteCodes(SetA.attribute_id, SetA.set_id);
@@ -881,7 +897,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
     }
     Clear() {
         console.log('Clear in mainfull');
-        this.ItemListService.SaveItems(new ItemList(), new Criteria());
+        this.ItemListService.Clear();
         //this.codesetStatsServ.
         this.reviewSetsService.Clear();
         this.codesetStatsServ.Clear();
@@ -902,16 +918,30 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         }
         if (this.ReadOnlyReviewsComponent) this.ReadOnlyReviewsComponent.Clear();
         this.isReviewPanelCollapsed = false;
+        this.isWorkAllocationsPanelCollapsed = false;
+        this.isSourcesPanelVisible = false;
+        this.AllIncOrExcShow = false;
+        this.RunReportsShow = false;
+        this._ShowQuickReport = false;
+        this._ShowQuickQuestionReport = false;
+        this.ShowClusterCommand = false;
+        this._ShowQuickQuestionReport = false;
+        this._ShowQuickQuestionReport = false;
+        this._ShowQuickQuestionReport = false;
         //this.dtTrigger.unsubscribe();
         //if (this.statsSub) this.statsSub.unsubscribe();
         //this.statsSub = this.reviewSetsService.GetReviewStatsEmit.subscribe(
         //    () => this.GetStats()
         //);
     }
+
+    FormatDate(DateSt: string): string {
+        return Helpers.FormatDate2(DateSt);
+    }
   
     public get MyAccountMessage(): string {
         let msg: string = "Your account expires on: ";
-        let AccExp: string = new Date(this.ReviewerIdentityServ.reviewerIdentity.accountExpiration).toLocaleDateString();
+        let AccExp: string = this.FormatDate(this.ReviewerIdentityServ.reviewerIdentity.accountExpiration);
         msg += AccExp;
         return msg;
     }
@@ -921,8 +951,8 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
             revPart = "Current review is private (does not expire).";
         }
         else {
-            let RevExp: string = new Date(this.ReviewerIdentityServ.reviewerIdentity.reviewExpiration).toLocaleDateString();
-            revPart = "Current(shared) review expires on " + RevExp + ".";
+            let RevExp: string = this.FormatDate(this.ReviewerIdentityServ.reviewerIdentity.reviewExpiration);
+            revPart = "Current(shared) review expires on: " + RevExp + ".";
         }
         return revPart;
     }
@@ -949,7 +979,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
             this.subOpeningReview.unsubscribe();			
         }
         if (this.statsSub) this.statsSub.unsubscribe();
-        if (this._routingStateService.MAGSubscription) this._routingStateService.UnsubscribeMAGHistory();
+        //if (this._routingStateService.MAGSubscription) this._routingStateService.UnsubscribeMAGHistory();
     }
 }
 

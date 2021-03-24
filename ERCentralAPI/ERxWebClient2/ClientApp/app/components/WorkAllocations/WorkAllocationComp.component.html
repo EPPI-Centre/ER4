@@ -420,7 +420,7 @@
                             <td class="p-1">{{ item.contactName2 }}</td>
                             <td class="p-1">{{ item.contactName3 }}</td>
                             <td class="p-1">{{ item.attributeName}}</td>
-                            <td class="p-1">{{ item.comparisonDate }}</td>
+							<td class="py-1 px-0 small">{{ FormatDate(item.comparisonDate) }}</td>
                             <td class="p-1"><button class="btn btn-outline-success w-100 py-0" (click)="getPanelRunQuickReport(item.comparisonId);">&nbsp; Run &nbsp;</button></td>
                             <td class="p-1"><button class="btn btn-outline-info w-100 py-0" (click)="getStatistics(item.comparisonId);">&nbsp; View &nbsp;</button></td>
                             <td class="p-1"><button class="btn btn-outline-danger w-100 py-0" (click)="removeComparisonWarning(item.comparisonId)">&nbsp; Delete &nbsp;</button></td>

@@ -17,7 +17,7 @@ export class MAGClassesService  {
 export class MagList {
 
     pagesize: number = 0;
-    paperIds: string = '';
+    paperIds: string = '';//possibly remove this?
     pagecount: number = 0;
     pageindex: number = 0;
     totalItemCount: number = 0;
@@ -25,12 +25,21 @@ export class MagList {
 
 }
 export class MagItemPaperInsertCommand {
-
+    //this is used in two scenarios: 1 (the native one) to import items in the review (multiple cases)
+    //2 to get updated counts on "AutoUpdateRun" when changing thresholds (ahead of importing, you'd guess)
     paperIds: string = '';
     nImported: number = 0;
     sourceOfIds: string = '';
     magRelatedRunId: number = 0;
-
+    magAutoUpdateRunId: number = 0;
+    orderBy: string = '';
+    autoUpdateScore: number = 0;
+    studyTypeClassifierScore: number = 0;
+    userClassifierScore: number = 0;
+    topN: number = 0;
+    filterJournal: string = '';
+    filterDOI: string = '';
+    filterURL: string = '';
 }
 export class MagRelatedPapersRun {
 
@@ -69,7 +78,7 @@ export class MagReviewMagInfo {
     nRequiringManualCheckExcluded: number = 0;
     nNotMatchedIncluded: number = 0;
     nNotMatchedExcluded: number = 0;
-
+    nPreviouslyMatched: number = 0;
 }
 
 export class MagPaperList {
@@ -118,7 +127,6 @@ export class MVCMagOrigPaperListSelectionCriteria {
 
 }
 export class MVCMagPaperListSelectionCriteria {
-
     magPaperId: number = 0;
     iTEM_ID: number = 0;
     listType: string = '';
@@ -134,7 +142,12 @@ export class MVCMagPaperListSelectionCriteria {
     dateFrom: string = '';
     dateTo: string = '';
     magSearchText = '';
-
+    magAutoUpdateRunId: number = 0;
+    autoUpdateOrderBy: string = '';
+    autoUpdateAutoUpdateScore: number = 0.20;//can't be less than 0.20!
+    autoUpdateStudyTypeClassifierScore: number = 0;  
+    autoUpdateUserClassifierScore: number = 0;
+    autoUpdateUserTopN: number = 0;
 }
 
 export class MvcMagFieldOfStudyListSelectionCriteria {
@@ -208,6 +221,7 @@ export class MagPaper {
     authors: string = '';
     urls: string = '';
     pdfLinks: string = '';
+    allLinks: string = '';
     linkedITEM_ID: number = 0;
     isSelected: boolean = false;
     canBeSelected: string = 'false';
@@ -310,7 +324,6 @@ export class MAGReviewList {
 export class MagCurrentInfo {
 
     magCurrentInfoId: number = 0;
-    magVersion: string = '';
     magFolder: string = '';
     matchingAvailable: boolean = false;
     magOnline: boolean = false;
@@ -321,7 +334,7 @@ export class MagCurrentInfo {
 
 export class MagBrowseHistoryItem {
     constructor(title: string, browseType: string, paperId: number, paperFullRecord: string,
-        paperAbstract: string, linkedITEM_ID: number, uRLs: string, findOnWeb: string, fieldOfStudyId: number,
+        paperAbstract: string, linkedITEM_ID: number, allLinks: string, findOnWeb: string, fieldOfStudyId: number,
         fieldOfStudy: string, attributeIds: string, magRelatedRunId: number) {
         this.title = title;
         this.browseType = browseType;
@@ -329,12 +342,34 @@ export class MagBrowseHistoryItem {
         this.paperFullRecord = paperFullRecord;
         this.paperAbstract = paperAbstract;
         this.linkedITEM_ID = linkedITEM_ID;
-        this.uRLs = uRLs;
+        this.allLinks = allLinks;
         this.findOnWeb = findOnWeb;
         this.fieldOfStudyId = fieldOfStudyId;
         this.fieldOfStudy = fieldOfStudy;
         this.attributeIds = attributeIds;
         this.magRelatedRunId = magRelatedRunId;
+    }
+    public static MakeFromAutoUpdateListCrit(crit :MVCMagPaperListSelectionCriteria): MagBrowseHistoryItem {
+        let res = new MagBrowseHistoryItem("List: Auto Update Run results", "MagAutoUpdateRunPapersList", 0, "", "", 0, "", "", 0, "", "", 0);
+        res.magAutoUpdateRunId = crit.magAutoUpdateRunId;
+        res.autoUpdateOrderBy = crit.autoUpdateOrderBy;
+        res.autoUpdateAutoUpdateScore = crit.autoUpdateAutoUpdateScore;
+        res.autoUpdateStudyTypeClassifierScore =  crit.autoUpdateStudyTypeClassifierScore
+        res.autoUpdateUserClassifierScore = crit.autoUpdateUserClassifierScore;
+        res.autoUpdateUserTopN = crit.autoUpdateUserTopN;
+        return res;
+    }
+    public get toAutoUpdateListCrit(): MVCMagPaperListSelectionCriteria | null {
+        if (this.browseType != "MagAutoUpdateRunPapersList") return null;
+        let res: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
+        res.listType = this.browseType;
+        res.magAutoUpdateRunId = this.magAutoUpdateRunId;
+        res.autoUpdateOrderBy = this.autoUpdateOrderBy;
+        res.autoUpdateAutoUpdateScore = this.autoUpdateAutoUpdateScore;
+        res.autoUpdateStudyTypeClassifierScore = this.autoUpdateStudyTypeClassifierScore
+        res.autoUpdateUserClassifierScore = this.autoUpdateUserClassifierScore;
+        res.autoUpdateUserTopN = this.autoUpdateUserTopN;
+        return res;
     }
     title: string = '';
     browseType: string = '';
@@ -347,9 +382,16 @@ export class MagBrowseHistoryItem {
     magRelatedRunId: number = 0;
     linkedITEM_ID: number = 0;
     uRLs: string = '';
+    allLinks: string = '';
     findOnWeb: string = '';
     contactId: number = 0;
     dateBrowsed: Date = new Date();
+    magAutoUpdateRunId: number = 0;
+    autoUpdateOrderBy: string = "";
+    autoUpdateAutoUpdateScore: number = 0;
+    autoUpdateStudyTypeClassifierScore: number = 0;
+    autoUpdateUserClassifierScore: number = 0;
+    autoUpdateUserTopN: number = 0;
 }
 
 export class topicInfo {
@@ -362,7 +404,7 @@ export class topicInfo {
 export class ContReviewPipeLineCommand {
 
     previousVersion : string = '';
-    magVersion : string = '';
+    magFolder : string = '';
     editScoreThreshold: number = 0;
     editFoSThreshold: number = 0;
     specificFolder : string = '';
@@ -380,8 +422,51 @@ export class MagSearch {
     searchNo: number = 0;
     hitsNo: number = 0;
     searchDate: Date = new Date();
-    magVersion: string = '';
+    magFolder: string = '';
     magSearchText: string = '';
     contactName: string = '';
     add: boolean = false;
+}
+
+export interface MagAutoUpdateRun {
+    magAutoUpdateRunId: number;
+    reviewIdId: number;
+    userDescription: string;
+    attributeId: number;
+    attributeName: string;
+    allIncluded: boolean;
+    studyTypeClassifier: string;
+    userClassifierDescription: string;
+    userClassifierModelId: number;
+    userClassifierModelReviewId: number;
+    dateRun: string;
+    nPapers: number;
+    magAutoUpdateId: number;
+    magVersion: string;
+
+}
+export interface MagAutoUpdate {
+    allIncluded: boolean;
+    attributeId: number;
+    attributeName: string;
+    autoReRun: boolean;
+    magAutoUpdateId: number;
+    reviewIdId: number;
+    userDescription: string;
+}
+
+export class MagAutoUpdateVisualiseSelectionCriteria {
+    magAutoUpdateRunId: number = -1;
+    field: string = "";
+}
+export interface MagAutoUpdateVisualise {
+    count: number;
+    range: string;
+}
+export class MagAddClassifierScoresCommand {
+    public magAutoUpdateRunId: number = 0;
+    public topN: number = 0;
+    public studyTypeClassifier: string = "";
+    public userClassifierModelId: number = 0;
+    public userClassifierReviewId: number = 0;
 }

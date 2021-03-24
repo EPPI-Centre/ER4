@@ -867,7 +867,8 @@ namespace BusinessLibrary.BusinessClasses
 
 		const int TimeOutInMilliseconds = 360 * 50000; // 5 hours?
 
-		public static async Task InvokeBatchExecutionService(string ReviewId, string ApiCall, int modelId, string DataFile, string ModelFile, string ResultsFile1, string ResultsFile2)
+		public static async Task InvokeBatchExecutionService(string ReviewId, string ApiCall, int modelId, string DataFile, 
+            string ModelFile, string ResultsFile1, string ResultsFile2, CancellationToken cancellationToken = default(CancellationToken))
 		{
 			using (HttpClient client = new HttpClient())
 			{
@@ -935,7 +936,10 @@ namespace BusinessLibrary.BusinessClasses
 					await WriteFailedResponse(response);
 					return;
 				}
-
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    return;//not much to do here, we don't log in here...
+                }
 
 				string jobId = await response.Content.ReadAsAsync<string>();
 
@@ -964,11 +968,11 @@ namespace BusinessLibrary.BusinessClasses
 					BatchScoreStatus status = await response.Content.ReadAsAsync<BatchScoreStatus>();
 
 
-					if (watch.ElapsedMilliseconds > TimeOutInMilliseconds)
+					if (watch.ElapsedMilliseconds > TimeOutInMilliseconds || cancellationToken.IsCancellationRequested)
 					{
 						done = true;
 						await client.DeleteAsync(jobLocation);
-					}
+                    }
 					switch (status.StatusCode)
 					{
 						case BatchScoreStatusCode.NotStarted:

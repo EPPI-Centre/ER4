@@ -17,8 +17,7 @@ export class MAGSimulationService extends BusyAwareService {
     ) {
         super();
     }
-    public MagPaperList: MagPaperList = new MagPaperList();
-    public MagRelatedRunPapers: MagPaper[] = [];
+
     private _MagSimulationList: MagSimulation[] = [];
     public get MagSimulationList(): MagSimulation[] {
         return this._MagSimulationList;
@@ -91,5 +90,9 @@ export class MAGSimulationService extends BusyAwareService {
                 () => {
                     this.RemoveBusy("FetchMagSimulationList");
                 });
+    }
+
+    public Clear() {
+        this._MagSimulationList = [];
     }
 }

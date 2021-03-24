@@ -59,7 +59,7 @@ namespace ERxWebClient2.Controllers
 							, MVCcmd._attributeIdOn
 							, MVCcmd._attributeIdNotOn
 							, MVCcmd._attributeIdClassifyTo
-							, _classifierId
+							, MVCcmd._classifierId
 							, MVCcmd._sourceId
 						);
 					cmd.RevInfo = MVCcmd.revInfo.ToCSLAReviewInfo();

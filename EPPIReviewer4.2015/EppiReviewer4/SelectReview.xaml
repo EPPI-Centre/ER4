@@ -143,7 +143,7 @@
                         <Controls:GridViewDataColumn Header="Review" DataMemberBinding="{Binding ReviewName}" Width="500" ></Controls:GridViewDataColumn>
                         <Controls:GridViewDataColumn Header="ID" DataMemberBinding="{Binding ReviewId}" Width="40"></Controls:GridViewDataColumn>
                         <Controls:GridViewDataColumn Header="Last Logon" DataMemberBinding="{Binding LastAccess}" Width="120"></Controls:GridViewDataColumn>
-                            <Controls:GridViewDataColumn Header="New items" IsVisible="{Binding Source={StaticResource ReviewsData}, Path=Data.HasMagEnabledReviewsWithNewItems, Mode=OneWay}" DataMemberBinding="{Binding NAutoUpdates}" Width="120"></Controls:GridViewDataColumn>
+                            <!--<Controls:GridViewDataColumn Header="New items" IsVisible="{Binding Source={StaticResource ReviewsData}, Path=Data.HasMagEnabledReviewsWithNewItems, Mode=OneWay}" DataMemberBinding="{Binding NAutoUpdates}" Width="120"></Controls:GridViewDataColumn>-->
                             <Controls:GridViewDataColumn IsVisible="True" IsFilterable="False" Width="35" IsSortable="False" CellStyle="{StaticResource csCodeOnlyBt}" Header="" DataMemberBinding="{Binding ReviewName}"></Controls:GridViewDataColumn>
                         </Controls:RadGridView.Columns>
                 </Controls:RadGridView>

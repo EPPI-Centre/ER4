@@ -15,8 +15,6 @@ using System.Threading.Tasks;
 using Csla.Data;
 using System.IO;
 
-
-
 #if !SILVERLIGHT
 using System.Data.SqlClient;
 using BusinessLibrary.Data;
@@ -49,11 +47,11 @@ namespace BusinessLibrary.BusinessClasses
         private string _specificFolder;
         private int _reviewSampleSize;
         private int _MagLogId;
-        private bool _prepareNewMagParquet;
+        private string _doWhat;
 
         public MagContReviewPipelineRunCommand(string CurrentMagVersion, string NextMagVersion,
             double scoreThreshold, double fosThreshold, string specificFolder, int magLogId, int reviewSampleSize,
-            bool prepareNewMagParquet = false)
+            string doWhat = "")
         {
             _CurrentMagVersion = CurrentMagVersion;
             _NextMagVersion = NextMagVersion;
@@ -62,7 +60,7 @@ namespace BusinessLibrary.BusinessClasses
             _specificFolder = specificFolder;
             _MagLogId = magLogId;
             _reviewSampleSize = reviewSampleSize;
-            _prepareNewMagParquet = prepareNewMagParquet;
+            _doWhat = doWhat;
         }
 
         protected override void OnGetState(Csla.Serialization.Mobile.SerializationInfo info, StateMode mode)
@@ -75,7 +73,7 @@ namespace BusinessLibrary.BusinessClasses
             info.AddValue("_specificFolder", _specificFolder);
             info.AddValue("_reviewSampleSize", _reviewSampleSize);
             info.AddValue("_MagLogId", _MagLogId);
-            info.AddValue("_prepareNewMagParquet", _prepareNewMagParquet);
+            info.AddValue("_doWhat", _doWhat);
 
         }
         protected override void OnSetState(Csla.Serialization.Mobile.SerializationInfo info, StateMode mode)
@@ -87,7 +85,7 @@ namespace BusinessLibrary.BusinessClasses
             _specificFolder = info.GetValue<string>("_specificFolder");
             _reviewSampleSize = info.GetValue<int>("_reviewSampleSize");
             _MagLogId = info.GetValue<int>("_MagLogId");
-            _prepareNewMagParquet = info.GetValue<bool>("_prepareNewMagParquet");
+            _doWhat = info.GetValue<string>("_doWhat");
         }
 
 
@@ -97,13 +95,24 @@ namespace BusinessLibrary.BusinessClasses
         {
             ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
 
-            if (_prepareNewMagParquet == true)
+            if (_doWhat == "Prepare parquet")
             {
 #if CSLA_NETCORE
             System.Threading.Tasks.Task.Run(() => doRunPipelinePrepareParquet(ri.ReviewId, ri.UserId));
 #else
                 //see: https://codingcanvas.com/using-hostingenvironment-queuebackgroundworkitem-to-run-background-tasks-in-asp-net/
+                
                 HostingEnvironment.QueueBackgroundWorkItem(cancellationToken => doRunPipelinePrepareParquet(ri.ReviewId, ri.UserId, cancellationToken));
+#endif
+                return;
+            }
+
+            if (_doWhat == "GetNewPaperIds")
+            {
+#if CSLA_NETCORE
+            System.Threading.Tasks.Task.Run(() => doRunPipelineGetNewIds(ri.UserId));
+#else
+                HostingEnvironment.QueueBackgroundWorkItem(cancellationToken => doRunPipelineGetNewIds(ri.UserId, cancellationToken));
 #endif
                 return;
             }
@@ -120,7 +129,12 @@ namespace BusinessLibrary.BusinessClasses
             }
             else
             {
-                Task.Run(() => { doDownloadResultsOnly(ri.ReviewId, ri.UserId); });
+#if CSLA_NETCORE
+            System.Threading.Tasks.Task.Run(() => doDownloadResultsOnly(ri.ReviewId, ri.UserId));
+#else
+                //see: https://codingcanvas.com/using-hostingenvironment-queuebackgroundworkitem-to-run-background-tasks-in-asp-net/
+                HostingEnvironment.QueueBackgroundWorkItem(cancellationToken => doDownloadResultsOnly(ri.ReviewId, ri.UserId, cancellationToken));
+#endif
             }
         }
 
@@ -132,18 +146,6 @@ namespace BusinessLibrary.BusinessClasses
             string train_model = "true";
             string score_papers = "true";
             string uploadFileName = "";
-            /* Commenting out to see if the alternative below works on Jeff's laptop
-            if (Directory.Exists("UserTempUploads"))
-            {
-                uploadFileName = @"UserTempUploads/" + "crSeeds.tsv";
-            }
-            else
-            {
-                DirectoryInfo tmpDir = System.IO.Directory.CreateDirectory("UserTempUploads");
-                uploadFileName = tmpDir.FullName + "/" + @"UserTempUploads/" + "crSeeds.tsv";
-
-            }
-            */
 
 #if (!CSLA_NETCORE)
 
@@ -166,35 +168,167 @@ namespace BusinessLibrary.BusinessClasses
             
             string folderPrefix = TrainingRunCommand.NameBase + Guid.NewGuid().ToString();
             int SeedIds = WriteSeedIdsFile(uploadFileName);
+            if (SeedIds == -1)
+            {
+                MagLog.UpdateLogEntry("Stopped", "Main update. SeedIds: " + SeedIds.ToString() + " Folder:" + folderPrefix,
+                ContactId);
+                return;
+            }
             MagLog.UpdateLogEntry("running", "Main update. SeedIds: " + SeedIds.ToString() + " Folder:" + folderPrefix,
                 ContactId);
             
-            await UploadSeedIdsFileToBlobAsync(uploadFileName, folderPrefix);
+            if (!await UploadSeedIdsFileToBlobAsync(uploadFileName, folderPrefix))
+            {
+                MagLog.UpdateLogEntry("Stopped", "Failed upload seed ids" + " Folder:" + folderPrefix,
+                ContactId);
+                return;
+            }
             MagLog.UpdateLogEntry("running", "Main update. SeedIds uploaded: " + SeedIds.ToString() +
                 " Folder:" + folderPrefix, logId);
 
-            WriteNewIdsFileOnBlob(uploadFileName, ContactId, folderPrefix);
+            if (!WriteNewIdsFileOnBlob(uploadFileName, ContactId, folderPrefix, cancellationToken))
+            {
+                MagLog.UpdateLogEntry("Stopped", "Failed getting new IDs" + " Folder:" + folderPrefix,
+                ContactId);
+                return;
+            }
             MagLog.UpdateLogEntry("running", "Main update. NewIds written (" + SeedIds.ToString() + ")" +
                 " Folder:" + folderPrefix, logId);
 
-            if ((MagContReviewPipeline.runADFPipeline(ContactId, Path.GetFileName(uploadFileName), "NewPapers.tsv",
+            string result = MagContReviewPipeline.runADFPipeline(ContactId, Path.GetFileName(uploadFileName), "NewPapers.tsv",
                 "crResults.tsv", "cr_per_paper_tfidf.pickle", _NextMagVersion, _fosThreshold.ToString(), folderPrefix,
                 _scoreThreshold.ToString(), "v1", "True", _reviewSampleSize.ToString(), prepare_data, process_train,
-                process_inference, train_model, score_papers) == "Succeeded"))
+                process_inference, train_model, score_papers, cancellationToken);
+            if (result == "Succeeded")
             {
                 MagLog.UpdateLogEntry("running", "Main update. ADFPipelineComplete (" + SeedIds.ToString() + ")" +
                     " Folder:" + folderPrefix, logId);
                 int NewIds = await DownloadResultsAsync(folderPrefix, ReviewId);
-                MagLog.UpdateLogEntry("Complete", "Main update. SeedIds: " + SeedIds.ToString() + "; NewIds: " +
-                    NewIds.ToString() + " FoS:" + _fosThreshold.ToString() + "Score threshold: " + _scoreThreshold.ToString() +
+                MagLog.UpdateLogEntry("Complete", "MAG version: " + _NextMagVersion + "; SeedIds: " + SeedIds.ToString() + "; NewIds: " +
+                    NewIds.ToString() + " FoS:" + _fosThreshold.ToString() + "; Score threshold: " + _scoreThreshold.ToString() +
                     " Folder:" + folderPrefix, logId);
             }
             else
             {
-                MagLog.UpdateLogEntry("failed", "Main update failed at run contreview", logId);
+                MagLog.UpdateLogEntry("failed", "Main update failed at run contreview. Error: " + result + " Folder:" + folderPrefix, logId);
             }
-            //Thread.Sleep(30 * 1000); int NewIds = 10; int SeedIds = 10; // this line for testing - can be deleted after publish
-            
+        }
+
+        private async void doRunPipelineGetNewIds(int ContactId, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            string folderName;
+#if (!CSLA_NETCORE)
+
+            folderName = System.Web.HttpRuntime.AppDomainAppPath + @"UserTempUploads";
+#else
+                // same as comment above for same line
+                //SG Edit:
+                DirectoryInfo tmpDir = System.IO.Directory.CreateDirectory("UserTempUploads");
+                folderName = tmpDir.FullName + "/" + @"UserTempUploads";
+#endif
+            int logId = MagLog.SaveLogEntry("New MAG setup", "running", "Getting new Ids: " + _NextMagVersion, ContactId);
+            string lastSavedMagVersion = "";
+            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+            {
+                connection.Open();
+                using (SqlCommand command = new SqlCommand("st_MagCheckNewPapersAlreadyDownloaded", connection))
+                {
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
+                    {
+                        if (reader.Read())
+                        {
+                            lastSavedMagVersion = reader["MagVersion"].ToString();
+                        }
+                    }
+                }
+                connection.Close();
+            }
+            if (lastSavedMagVersion == _NextMagVersion)
+            {
+                MagLog.UpdateLogEntry("Complete", "Process aborted: new papers already downloaded", logId);
+            }
+            else
+            {
+                if (!MagDataLakeHelpers.ExecProc(@"[master].[dbo].[GetNewPaperIds](""" + this._CurrentMagVersion + "\",\"" +
+                this._NextMagVersion + "\");", true, "GetNewPaperIds", ContactId, 10, cancellationToken))
+                {
+                    MagLog.UpdateLogEntry("Stopped", "Data lake job failed", logId);
+                    return;
+                }
+
+                await downloadNewIds(logId);
+            }
+        }
+
+        private async Task<bool> downloadNewIds(int logId)
+        {
+            int paperCount = 0;
+#if (CSLA_NETCORE)
+
+            var configuration = ERxWebClient2.Startup.Configuration.GetSection("AzureMagSettings");
+            string storageAccountName = configuration["MAGStorageAccount"];
+            string storageAccountKey = configuration["MAGStorageAccountKey"];
+
+            CloudStorageAccount storageAccount = CloudStorageAccount.Parse("DefaultEndpointsProtocol=https;AccountName=" +
+                ERxWebClient2.Startup.Configuration.GetSection("MAGStorageAccount") + ";AccountKey=" +
+                ERxWebClient2.Startup.Configuration.GetSection("MAGStorageAccountKey"));
+
+#else
+            CloudStorageAccount storageAccount = CloudStorageAccount.Parse("DefaultEndpointsProtocol=https;AccountName=" +
+                ConfigurationManager.AppSettings["MAGStorageAccount"] + ";AccountKey=" +
+                ConfigurationManager.AppSettings["MAGStorageAccountKey"]);
+#endif
+
+
+            CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
+            CloudBlobContainer container = blobClient.GetContainerReference(_NextMagVersion);
+            CloudBlockBlob blockBlobDataResults = container.GetBlockBlobReference("NewPaperIds.tsv");
+
+            try
+            {
+                string Results1 = await blockBlobDataResults.DownloadTextAsync();
+                byte[] myFile = Encoding.UTF8.GetBytes(Results1);
+
+                DataTable dt = new DataTable("TB_MAG_NEW_PAPERS");
+                dt.Columns.Add("MAG_NEW_PAPERS_ID");
+                dt.Columns.Add("PaperId");
+                dt.Columns.Add("MagVersion");
+
+                MemoryStream msIds = new MemoryStream(myFile);
+                using (var readerIds = new StreamReader(msIds))
+                {
+                    string line;
+                    while ((line = readerIds.ReadLine()) != null)
+                    {
+                        DataRow newRow = dt.NewRow();
+                        newRow["MAG_NEW_PAPERS_ID"] = 0; // IDENTITY COLUMN - AUTO-GENERATED
+                        newRow["PaperId"] = Convert.ToInt64(line);
+                        newRow["MagVersion"] = _NextMagVersion;
+                        dt.Rows.Add(newRow);
+                        paperCount++;
+                    }
+                }
+
+                using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+                {
+                    connection.Open();
+                    using (SqlBulkCopy sbc = new SqlBulkCopy(connection))
+                    {
+                        sbc.DestinationTableName = "TB_MAG_NEW_PAPERS";
+                        sbc.BatchSize = 1000;
+                        sbc.WriteToServer(dt);
+                    }
+                    connection.Close();
+                    MagLog.UpdateLogEntry("Complete", "New Ids saved: " + _NextMagVersion + ", count=" + paperCount.ToString(), logId);
+                }
+            }
+            catch
+            {
+                MagLog.UpdateLogEntry("Stopped", "Error downloading new IDs", logId);
+                return false;
+            }
+            return true;
         }
 
         private async void doRunPipelinePrepareParquet(int ReviewId, int ContactId, CancellationToken cancellationToken = default(CancellationToken))
@@ -210,59 +344,81 @@ namespace BusinessLibrary.BusinessClasses
                 folderName = tmpDir.FullName + "/" + @"UserTempUploads";
 #endif
             int logId = MagLog.SaveLogEntry("ContReview process", "running", "Updating parquet to: " + _NextMagVersion, ContactId);
-            if ((MagContReviewPipeline.runADFPipeline(ContactId, "NoTrainFile", "NoInferenceFile",
+            string result = MagContReviewPipeline.runADFPipeline(ContactId, "NoTrainFile", "NoInferenceFile",
                 "NoResultsFile", "NoModelFile", _NextMagVersion, _fosThreshold.ToString(), folderName,
                 _scoreThreshold.ToString(), "v1", "True", _reviewSampleSize.ToString(), "true", "false",
-                "false", "false", "false") == "Succeeded"))
+                "false", "false", "false");
+            if (result == "Succeeded")
             {
                 MagLog.UpdateLogEntry("Complete", "Updated parquet to: " + _NextMagVersion, logId);
-                
             }
             else
             {
-                MagLog.UpdateLogEntry("failed", "Update parquet failed", logId);
+                MagLog.UpdateLogEntry("failed", "Update parquet failed. Error: " + result, logId);
             }
         }
 
-        private async void doDownloadResultsOnly(int ReviewId, int ContactId)
+        private async void doDownloadResultsOnly(int ReviewId, int ContactId, CancellationToken cancellationToken = default(CancellationToken))
         {
-            int NewIds = await DownloadResultsAsync(_specificFolder, ReviewId); // + "/crResults.tsv", ReviewId);
+            int NewIds = await DownloadResultsAsync(_specificFolder, ReviewId);
+            if (NewIds == -1)
+            {
+                MagLog.UpdateLogEntry("Stopped", "IDs downloaded = -1. Folder:" +
+                _specificFolder, _MagLogId);
+                return;
+            }
+            if (cancellationToken.IsCancellationRequested)
+            {
+                MagLog.UpdateLogEntry("Stopped", "Cancellation token received. Folder:" +
+                _specificFolder, _MagLogId);
+                return;
+            }
             MagLog.UpdateLogEntry("Complete", "Main update downloaded on request. Folder:" +
                 _specificFolder, _MagLogId);
         }
 
+
+        // the stored procedure also creates a line in TB_MAG_AUTOUPDATE_RUN for each update in each review
         private int WriteSeedIdsFile(string uploadFileName)
         {
             int lineCount = 0;
-            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+            try
             {
-                connection.Open();
-                using (SqlCommand command = new SqlCommand("st_MagContReviewRunGetSeedIds", connection))
+                using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
                 {
-                    command.CommandType = System.Data.CommandType.StoredProcedure;
-                    using (SafeDataReader reader = new SafeDataReader(command.ExecuteReader()))
+                    connection.Open();
+                    using (SqlCommand command = new SqlCommand("st_MagContReviewRunGetSeedIds", connection))
                     {
-                        if (reader.Read())
+                        command.CommandType = System.Data.CommandType.StoredProcedure;
+                        command.Parameters.Add(new SqlParameter("@MAG_VERSION", _NextMagVersion));
+                        using (SafeDataReader reader = new SafeDataReader(command.ExecuteReader()))
                         {
-                            using (StreamWriter file = new StreamWriter(uploadFileName, false))
+                            if (reader.Read())
                             {
-                                while (reader.Read())
+                                using (StreamWriter file = new StreamWriter(uploadFileName, false))
                                 {
-                                    file.WriteLine(reader["PaperId"].ToString() + "\t" +
-                                        reader["RelatedRunId"].ToString() + "\t" +
-                                        reader["Included"].ToString());
-                                    lineCount++;
+                                    while (reader.Read())
+                                    {
+                                        file.WriteLine(reader["PaperId"].ToString() + "\t" +
+                                            reader["AutoUpdateId"].ToString() + "\t" +
+                                            reader["Included"].ToString());
+                                        lineCount++;
+                                    }
                                 }
                             }
                         }
                     }
+                    connection.Close();
                 }
-                connection.Close();
+            }
+            catch
+            {
+                lineCount = -1;
             }
             return lineCount;
         }
 
-        private async Task UploadSeedIdsFileToBlobAsync(string fileName, string folderPrefix)
+        private async Task<bool> UploadSeedIdsFileToBlobAsync(string fileName, string folderPrefix)
         {
 #if (CSLA_NETCORE)
 
@@ -284,26 +440,38 @@ namespace BusinessLibrary.BusinessClasses
             CloudBlobContainer container = blobClient.GetContainerReference("experiments");
             CloudBlockBlob blockBlobData;
 
-            blockBlobData = container.GetBlockBlobReference(folderPrefix + "/" + Path.GetFileName(fileName));
-            using (var fileStream = System.IO.File.OpenRead(fileName))
+            try
             {
+                blockBlobData = container.GetBlockBlobReference(folderPrefix + "/" + Path.GetFileName(fileName));
+                using (var fileStream = System.IO.File.OpenRead(fileName))
+                {
 
 
 #if (!CSLA_NETCORE)
-                blockBlobData.UploadFromStream(fileStream);
+                    blockBlobData.UploadFromStream(fileStream);
 #else
 
 					await blockBlobData.UploadFromFileAsync(fileName);
 #endif
 
+                }
+                File.Delete(fileName);
+                return true;
             }
-            File.Delete(fileName);
+            catch
+            {
+                return false;
+            }
         }
 
-        private void WriteNewIdsFileOnBlob(string uploadFileName, int ContactId, string folderPrefix)
+        private bool WriteNewIdsFileOnBlob(string uploadFileName, int ContactId, string folderPrefix, CancellationToken cancellationToken)
         {
-            MagDataLakeHelpers.ExecProc(@"[master].[dbo].[GetNewPaperIds](""" + this._CurrentMagVersion + "\",\"" +
-                this._NextMagVersion + "\",\"" + folderPrefix + "/NewPapers.tsv" + "\",\"" + "experiments" + "\");", true, "GetNewPaperIds", ContactId, 10);
+            if (MagDataLakeHelpers.ExecProc(@"[master].[dbo].[GetNewPaperIdsPreviousYear](""" + this._CurrentMagVersion + "\",\"" +
+                this._NextMagVersion + "\",\"" + folderPrefix + "/NewPapers.tsv" + "\",\"" + "experiments" + "\");", true,
+                "GetNewPaperIds", ContactId, 10, cancellationToken))
+                return true;
+            else
+                return false;
         }
 
         private async Task<int> DownloadResultsAsync(string folder, int ReviewId)
@@ -328,99 +496,108 @@ namespace BusinessLibrary.BusinessClasses
                 "DefaultEndpointsProtocol=https;AccountName=" + storageAccountName + ";AccountKey=";
             storageConnectionString += storageAccountKey;
 
-            CloudStorageAccount storageAccount = CloudStorageAccount.Parse(storageConnectionString);
-            CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
-            CloudBlobContainer container = blobClient.GetContainerReference("experiments");
-            string JobId = Guid.NewGuid().ToString();
-            do
+            try
             {
-                BlobResultSegment resultSegment = await container.ListBlobsSegmentedAsync(folder + "/tmp",
-                true, BlobListingDetails.Metadata, 100, continuationToken, null, null);
-
-                foreach (var blobItem in resultSegment.Results)
+                CloudStorageAccount storageAccount = CloudStorageAccount.Parse(storageConnectionString);
+                CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
+                CloudBlobContainer container = blobClient.GetContainerReference("experiments");
+                //string JobId = Guid.NewGuid().ToString();
+                do
                 {
-                    // A hierarchical listing may return both virtual directories and blobs.
-                    if (blobItem is CloudBlobDirectory)
+                    BlobResultSegment resultSegment = await container.ListBlobsSegmentedAsync(folder + "/tmp",
+                    true, BlobListingDetails.Metadata, 100, continuationToken, null, null);
+
+                    foreach (var blobItem in resultSegment.Results)
                     {
-                        dir = (CloudBlobDirectory)blobItem;
-                    }
-                    else
-                    {
-                        blob = (CloudBlob)blobItem;
-                        if (blob.Name.StartsWith(folder + "/tmp/part"))
+                        // A hierarchical listing may return both virtual directories and blobs.
+                        if (blobItem is CloudBlobDirectory)
                         {
-                            CloudBlockBlob blockBlobDownloadData = container.GetBlockBlobReference(blob.Name);
-                            string resultantString = await blockBlobDownloadData.DownloadTextAsync();
-                            byte[] myFile = Encoding.UTF8.GetBytes(resultantString);
-
-                            MemoryStream ms = new MemoryStream(myFile);
-
-                            DataTable dt = new DataTable("Ids");
-                            dt.Columns.Add("MAG_RELATED_RUN_ID");
-                            dt.Columns.Add("PaperId");
-                            dt.Columns.Add("SimilarityScore");
-                            dt.Columns.Add("JobId");
-
-                            using (var reader = new StreamReader(ms))
-                            {
-                                string line;
-                                bool firstTime = true; // column headers
-                                while ((line = reader.ReadLine()) != null)
-                                {
-                                    if (firstTime == false)
-                                    {
-                                        string[] fields = line.Split('\t');
-                                        DataRow newRow = dt.NewRow();
-                                        newRow["MAG_RELATED_RUN_ID"] = fields[1];
-                                        newRow["PaperId"] = fields[0];
-                                        newRow["SimilarityScore"] = fields[2];
-                                        newRow["JobId"] = JobId;
-                                        dt.Rows.Add(newRow);
-                                        lineCount++;
-                                    }
-                                    else
-                                    {
-                                        firstTime = false;
-                                    }
-                                }
-                            }
-
-                            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
-                            {
-                                connection.Open();
-                                using (SqlBulkCopy sbc = new SqlBulkCopy(connection))
-                                {
-                                    sbc.DestinationTableName = "TB_MAG_RELATED_PAPERS_TEMP";
-                                    sbc.BatchSize = 1000;
-                                    sbc.WriteToServer(dt);
-                                }
-
-                                
-                            }
-                            //blockBlobDownloadData.DeleteIfExists();
+                            dir = (CloudBlobDirectory)blobItem;
                         }
-                        
+                        else
+                        {
+                            blob = (CloudBlob)blobItem;
+                            if (blob.Name.StartsWith(folder + "/tmp/part"))
+                            {
+                                CloudBlockBlob blockBlobDownloadData = container.GetBlockBlobReference(blob.Name);
+                                string resultantString = await blockBlobDownloadData.DownloadTextAsync();
+                                byte[] myFile = Encoding.UTF8.GetBytes(resultantString);
+
+                                MemoryStream ms = new MemoryStream(myFile);
+
+                                DataTable dt = new DataTable("Ids");
+                                dt.Columns.Add("MAG_AUTO_UPDATE_RUN_PAPER_ID");
+                                dt.Columns.Add("MAG_AUTO_UPDATE_RUN_ID");
+                                dt.Columns.Add("REVIEW_ID");
+                                dt.Columns.Add("PaperId");
+                                dt.Columns.Add("ContReviewScore");
+                                dt.Columns.Add("UserClassifierScore");
+                                dt.Columns.Add("StudyTypeClassiferScore");
+
+                                using (var reader = new StreamReader(ms))
+                                {
+                                    string line;
+                                    bool firstTime = true; // column headers
+                                    while ((line = reader.ReadLine()) != null)
+                                    {
+                                        if (firstTime == false)
+                                        {
+                                            string[] fields = line.Split('\t');
+                                            DataRow newRow = dt.NewRow();
+                                            newRow["MAG_AUTO_UPDATE_RUN_PAPER_ID"] = 0;
+                                            newRow["MAG_AUTO_UPDATE_RUN_ID"] = fields[1];
+                                            newRow["REVIEW_ID"] = null;
+                                            newRow["PaperId"] = fields[0];
+                                            newRow["ContReviewScore"] = fields[2];
+                                            newRow["UserClassifierScore"] = 0;
+                                            newRow["StudyTypeClassiferScore"] = 0;
+                                            dt.Rows.Add(newRow);
+                                            lineCount++;
+                                        }
+                                        else
+                                        {
+                                            firstTime = false;
+                                        }
+                                    }
+                                }
+
+                                using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+                                {
+                                    connection.Open();
+                                    using (SqlBulkCopy sbc = new SqlBulkCopy(connection))
+                                    {
+                                        sbc.DestinationTableName = "TB_MAG_AUTO_UPDATE_RUN_PAPER";
+                                        sbc.BatchSize = 1000;
+                                        sbc.WriteToServer(dt);
+                                    }
+                                }
+                                //blockBlobDownloadData.DeleteIfExists();
+                            }
+
+                        }
                     }
-                }
 
-                // Get the continuation token and loop until it is null.
-                continuationToken = resultSegment.ContinuationToken;
+                    // Get the continuation token and loop until it is null.
+                    continuationToken = resultSegment.ContinuationToken;
 
-            } while (continuationToken != null);
-            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
-            {
-                connection.Open();
-                using (SqlCommand command = new SqlCommand("st_MagContReviewInsertResults", connection))
+                } while (continuationToken != null);
+                using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
                 {
-                    command.CommandType = System.Data.CommandType.StoredProcedure;
-                    command.Parameters.Add(new SqlParameter("@JobId", JobId));
-                    command.ExecuteNonQuery();
+                    connection.Open();
+                    using (SqlCommand command = new SqlCommand("st_MagContReviewInsertResults", connection))
+                    {
+                        command.Parameters.Add(new SqlParameter("@MAG_VERSION", _NextMagVersion));
+                        command.CommandType = System.Data.CommandType.StoredProcedure;
+                        command.ExecuteNonQuery();
+                    }
+                    connection.Close();
                 }
-                connection.Close();
             }
-
+            catch
+            {
+                lineCount = -1;
+            }
             return lineCount;
-
         }
 
 

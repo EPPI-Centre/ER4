@@ -121,6 +121,19 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
+        public static readonly PropertyInfo<string> AllLinksProperty = RegisterProperty<string>(new PropertyInfo<string>("AllLinks", "AllLinks", string.Empty));
+        public string AllLinks
+        {
+            get
+            {
+                return GetProperty(AllLinksProperty);
+            }
+            set
+            {
+                SetProperty(AllLinksProperty, value);
+            }
+        }
+
         public static readonly PropertyInfo<string> FindOnWebProperty = RegisterProperty<string>(new PropertyInfo<string>("FindOnWeb", "FindOnWeb", string.Empty));
         public string FindOnWeb
         {
@@ -209,6 +222,75 @@ namespace BusinessLibrary.BusinessClasses
             set
             {
                 SetProperty(MagRelatedRunIdProperty, value);
+            }
+        }
+
+        public static readonly PropertyInfo<int> MagAutoUpdateRunIdProperty = RegisterProperty<int>(new PropertyInfo<int>("MagAutoUpdateRunId", "MagAutoUpdateRunId", 0));
+        public int MagAutoUpdateRunId
+        {
+            get
+            {
+                return GetProperty(MagAutoUpdateRunIdProperty);
+            }
+            set
+            {
+                SetProperty(MagAutoUpdateRunIdProperty, value);
+            }
+        }
+
+        public static readonly PropertyInfo<string> AutoUpdateOrderByProperty = RegisterProperty<string>(new PropertyInfo<string>("AutoUpdateOrderBy", "AutoUpdateOrderBy", "AutoUpdate"));
+        public string AutoUpdateOrderBy
+        {
+            get
+            {
+                return GetProperty(AutoUpdateOrderByProperty);
+            }
+            set
+            {
+                SetProperty(AutoUpdateOrderByProperty, value);
+            }
+        }
+
+        public static readonly PropertyInfo<double> AutoUpdateAutoUpdateScoreProperty = RegisterProperty<double>(new PropertyInfo<double>("AutoUpdateAutoUpdateScore", "AutoUpdateAutoUpdateScore"));
+        public double AutoUpdateAutoUpdateScore
+        {
+            get
+            {
+                return GetProperty(AutoUpdateAutoUpdateScoreProperty);
+            }
+            set
+            {
+                SetProperty(AutoUpdateAutoUpdateScoreProperty, value);
+            }
+        }
+
+        public static readonly PropertyInfo<double> AutoUpdateStudyTypeClassifierScoreProperty = RegisterProperty<double>(new PropertyInfo<double>("AutoUpdateStudyTypeClassifierScore", "AutoUpdateStudyTypeClassifierScore"));
+        public double AutoUpdateStudyTypeClassifierScore
+        {
+            get { return GetProperty(AutoUpdateStudyTypeClassifierScoreProperty); }
+            set
+            {
+                SetProperty(AutoUpdateStudyTypeClassifierScoreProperty, value);
+            }
+        }
+
+        public static readonly PropertyInfo<double> AutoUpdateUserClassifierScoreProperty = RegisterProperty<double>(new PropertyInfo<double>("AutoUpdateUserClassifierScore", "AutoUpdateUserClassifierScore"));
+        public double AutoUpdateUserClassifierScore
+        {
+            get { return GetProperty(AutoUpdateUserClassifierScoreProperty); }
+            set
+            {
+                SetProperty(AutoUpdateUserClassifierScoreProperty, value);
+            }
+        }
+
+        public static readonly PropertyInfo<int> AutoUpdateUserTopNProperty = RegisterProperty<int>(new PropertyInfo<int>("AutoUpdateUserTopN", "AutoUpdateUserTopN"));
+        public int AutoUpdateUserTopN
+        {
+            get { return ReadProperty(AutoUpdateUserTopNProperty); }
+            set
+            {
+                SetProperty(AutoUpdateUserTopNProperty, value);
             }
         }
 

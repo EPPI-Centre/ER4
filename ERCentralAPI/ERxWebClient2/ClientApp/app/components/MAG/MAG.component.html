@@ -1,0 +1,48 @@
+<HeaderComponent class="row p-1 m-0" style="vertical-align:top;" PageTitle="Update review" [Context]="Context"></HeaderComponent>
+
+<MAGHeaderBar2 #NavBar2 (PleaseGoTo)="ChangeContext($event)" [MustMatchItems]="MustMatchItems" (PleaseGoBackHome)="BackHome()"  (IHaveImportedSomething)="IHaveImportedSomething = true"></MAGHeaderBar2>
+<div class="row col-12 mx-0 p-0">
+    <div class=" small mx-auto my-1 px-2 py-0 rounded bg-white">
+        <a href="http://eppi.ioe.ac.uk/cms/Default.aspx?tabid=3754" target="_blank">Microsoft Academic Dataset</a>: <strong>{{MagFolder}}</strong> Matched items: <strong>{{MatchedCount}}</strong>
+    </div>
+</div>
+<div *ngIf="MustMatchItems" class="row col-12 mx-0 p-2"> 
+    <div class="col-12 mx-auto my-2 p-2 rounded bg-white">
+        <div class="col-11 p-1 mx-auto my-2 rounded alert-info border border-info">
+            To use the 'Update review' functions (<strong>Bring up-to-date</strong> and <strong>Keep up-to-date</strong>) you must first match the references in your review with their equivalent record in Microsoft Academic.<br/><br/>
+            Please click on <strong>Run matching algorithm</strong> in the <strong>match records</strong> area to start the matching process.
+        </div>
+    </div>
+</div>
+<ng-container  [ngSwitch]="Context">
+    <div *ngSwitchCase="'RelatedPapers'">
+        <BasicMAGComp (PleaseGoTo)="ChangeContext($event)" (IHaveImportedSomething)="IHaveImportedSomething = true"></BasicMAGComp>
+    </div>
+    <div *ngSwitchCase="'KeepUpdated'">
+        <MAGKeepUpToDate (PleaseGoTo)="ChangeContext($event)" (IHaveImportedSomething)="IHaveImportedSomething = true"></MAGKeepUpToDate>
+    </div>
+    <div *ngSwitchCase="'Advanced'">
+        <AdvancedMAGFeatures></AdvancedMAGFeatures>
+    </div>
+    <div *ngSwitchCase="'History'">
+        <MAGBrowserHistory (PleaseGoTo)="ChangeContext($event)"></MAGBrowserHistory>
+    </div>
+    <div *ngSwitchCase="'matching'">
+        <MatchingMAGItems (PleaseGoTo)="ChangeContext($event)" [MustMatchItems]="MustMatchItems"></MatchingMAGItems>
+    </div>
+    <div *ngSwitchCase="'Admin'">
+        <MAGAdmin></MAGAdmin>
+    </div>
+    <div *ngSwitchCase="'MagSearch'">
+        <MAGSearch (PleaseGoTo)="ChangeContext($event)" (IHaveImportedSomething)="IHaveImportedSomething = true"></MAGSearch>
+    </div>
+    <div *ngSwitchCase="['SelectedPapers','PaperDetail','MagSearchPapersList','MagRelatedPapersRunList','BrowseTopic','MatchesIncluded','MatchesExcluded','MatchesIncludedAndExcluded','ReviewMatchedPapersWithThisCode','MagAutoUpdateRunPapersList'].includes(Context) ? Context : 'nothappening'">
+        <!--to understand the above, see:https://stackoverflow.com/a/40177408-->
+        <MAGBrowser></MAGBrowser>
+    </div>
+
+    <div *ngSwitchDefault>
+        <h4>Error...</h4>
+    </div>
+</ng-container>
+<statusbar></statusbar>

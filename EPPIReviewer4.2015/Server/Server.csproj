@@ -381,6 +381,14 @@
     <Compile Include="BusinessClasses\ItemTimepoint.cs" />
     <Compile Include="BusinessClasses\ItemTimepointDeleteWarningCommand.cs" />
     <Compile Include="BusinessClasses\ItemTimepointList.cs" />
+    <Compile Include="BusinessClasses\MagAddClassifierScoresCommand.cs" />
+    <Compile Include="BusinessClasses\MagAutoUpdate.cs" />
+    <Compile Include="BusinessClasses\MagAutoUpdateList.cs" />
+    <Compile Include="BusinessClasses\MagAutoUpdateRun.cs" />
+    <Compile Include="BusinessClasses\MagAutoUpdateRunCountResultsCommand.cs" />
+    <Compile Include="BusinessClasses\MagAutoUpdateRunList.cs" />
+    <Compile Include="BusinessClasses\MagAutoUpdateVisualise.cs" />
+    <Compile Include="BusinessClasses\MagAutoUpdateVisualiseList.cs" />
     <Compile Include="BusinessClasses\MagBlobDataCommand.cs" />
     <Compile Include="BusinessClasses\MagBrowseHistory.cs" />
     <Compile Include="BusinessClasses\MagBrowseHistoryList.cs" />
@@ -389,17 +397,19 @@
     <Compile Include="BusinessClasses\MagContReviewPipeline.cs" />
     <Compile Include="BusinessClasses\MagContReviewPipelineRunCommand.cs" />
     <Compile Include="BusinessClasses\MagCurrentInfo.cs" />
+    <Compile Include="BusinessClasses\MagCurrentInfoList.cs" />
     <Compile Include="BusinessClasses\MagDataLakeHelpers.cs" />
     <Compile Include="BusinessClasses\MagDownloadSimulationDataCommand.cs" />
     <Compile Include="BusinessClasses\MagFieldOfStudy.cs" />
     <Compile Include="BusinessClasses\MagFieldOfStudyList.cs" />
-    <Compile Include="BusinessClasses\MagItemMagRelatedPaperInsertCommand.cs" />
+    <Compile Include="BusinessClasses\MagImportFieldsOfStudyCommand.cs" />
     <Compile Include="BusinessClasses\MagItemPaperInsertCommand.cs" />
     <Compile Include="BusinessClasses\MagLog.cs" />
     <Compile Include="BusinessClasses\MagLogList.cs" />
     <Compile Include="BusinessClasses\MagMakesHelpers.cs" />
     <Compile Include="BusinessClasses\MagMatchItemsToPapersCommand.cs" />
     <Compile Include="BusinessClasses\MagMatchItemToPaperManualCommand.cs" />
+    <Compile Include="BusinessClasses\MagNewPapersUpdateAbstractsCommand.cs" />
     <Compile Include="BusinessClasses\MagPaper.cs" />
     <Compile Include="BusinessClasses\MagPaperAzureSearch.cs" />
     <Compile Include="BusinessClasses\MagPaperItemMatch.cs" />
@@ -580,6 +590,7 @@
     <Compile Include="BusinessClasses\OutcomeItemAttributesSaveCommand.cs" />
     <Compile Include="Data\ImportItemsDataset.cs" />
     <Compile Include="BusinessClasses\MagSearch.cs" />
+    <Compile Include="BusinessClasses\ImportJsonCommand.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>

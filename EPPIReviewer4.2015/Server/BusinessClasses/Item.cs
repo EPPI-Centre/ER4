@@ -555,7 +555,33 @@ namespace BusinessLibrary.BusinessClasses
             dp.BeginFetch(new SingleCriteria<ItemDocumentList, Int64>(this.ItemId));
         }
         */
-
+        
+        public void EnrichWithMicrosoftAcademicData(MagPaper mp)
+        {
+            if (mp.OriginalTitle != null && this.Title.Length < mp.OriginalTitle.Length)
+                this.Title = mp.OriginalTitle;
+            if (mp.Abstract != null && this.Abstract.Length < mp.Abstract.Length)
+                this.Abstract = mp.Abstract;
+            if (mp.Issue != null && this.Issue.Length < mp.Issue.Length)
+                this.Issue = mp.Issue;
+            if (mp.Volume != null && this.Volume.Length < mp.Volume.Length)
+                this.Volume = mp.Volume;
+            if (this.URL == "")
+                this.URL = "https://academic.microsoft.com/paper/" + mp.PaperId.ToString();
+            if (mp.Journal != null && this.ParentTitle.Length < mp.Journal.Length)
+                this.ParentTitle = mp.Journal;
+            if (mp.Authors != null && this.Authors == "")
+                this.Authors = mp.Authors;
+            if (mp.FirstPage != null && mp.LastPage != null && this.Pages.Length < (mp.FirstPage + "-" + mp.LastPage).Length)
+                this.Pages = mp.FirstPage + "-" + mp.LastPage;
+            if (this.Year.Length == 0)
+                this.Year = mp.Year.ToString();
+            if (mp.DOI != null && this.DOI.Length < 5)
+                this.DOI = mp.DOI;
+            if (mp.Publisher != null & this.Publisher.Length < mp.Publisher.Length)
+                this.Publisher = mp.Publisher;
+        }
+        
         public static readonly PropertyInfo<Int64> ItemIdProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("ItemId", "ItemId"));
         [JsonProperty]
         public Int64 ItemId
@@ -1248,6 +1274,7 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@DOI", ReadProperty(DOIProperty)));
                     command.Parameters.Add(new SqlParameter("@KEYWORDS", ReadProperty(KeywordsProperty)));
                     command.Parameters.Add(new SqlParameter("@IS_INCLUDED", ReadProperty(IsIncludedProperty)));
+                    command.Parameters.Add(new SqlParameter("@OLD_ITEM_ID", ReadProperty(OldItemIdProperty)));
                     command.Parameters["@ITEM_ID"].Direction = System.Data.ParameterDirection.Output;
                     ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
                     command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
@@ -1394,9 +1421,9 @@ namespace BusinessLibrary.BusinessClasses
                             LoadProperty<string>(ParentTitleProperty, reader.GetString("PARENT_TITLE"));
                             LoadProperty<string>(ShortTitleProperty, reader.GetString("SHORT_TITLE"));
                             LoadProperty<SmartDate>(DateCreatedProperty, reader.GetSmartDate("DATE_CREATED"));
-                            //LoadProperty<string>(CreatedByProperty, reader.GetString("CREATED_BY"));
+                            LoadProperty<string>(CreatedByProperty, reader.GetString("CREATED_BY"));
                             LoadProperty<SmartDate>(DateEditedProperty, reader.GetSmartDate("DATE_EDITED"));
-                            //LoadProperty<string>(EditedByProperty, reader.GetString("EDITED_BY"));
+                            LoadProperty<string>(EditedByProperty, reader.GetString("EDITED_BY"));
                             LoadProperty<string>(YearProperty, reader.GetString("YEAR"));
                             LoadProperty<string>(MonthProperty, reader.GetString("MONTH"));
                             LoadProperty<string>(StandardNumberProperty, reader.GetString("STANDARD_NUMBER"));
@@ -1419,6 +1446,7 @@ namespace BusinessLibrary.BusinessClasses
                             LoadProperty<bool>(IsIncludedProperty, reader.GetBoolean("IS_INCLUDED"));
                             LoadProperty<string>(DOIProperty, reader.GetString("DOI"));
                             LoadProperty<string>(KeywordsProperty, reader.GetString("KEYWORDS"));
+                            SetItemStatusProperty();
                         }
                     }
                 }

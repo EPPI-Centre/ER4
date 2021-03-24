@@ -1,0 +1,591 @@
+﻿@model WebDatabasesMVC.ViewModels.FullItemDetails;
+@using WebDatabasesMVC.ViewModels;
+@using BusinessLibrary.BusinessClasses;
+@{
+    Item itm = Model.Item;
+}
+<script type="text/javascript">
+    function toggleDetails() {
+        //alert('oooo');
+        //if (!$) console.log("no jquery???");
+        //else console.log("we do have jquery");
+        $(document).find('.showhide1').toggle(100);
+        $(document).find('.showhide2').toggle(100);
+    }
+</script>
+
+
+<br />
+<br />
+<br />
+<div class="main-panel main-panel-no-sidebar">
+    <div class="page-inner">
+
+        <div class="card">
+            <div class="card-body">
+
+                <div class="content-full">
+                    <div class="row col-12 p-1 m-1 mt-2 bg-light">
+
+                        <div class="row col-12"><h4>@itm.Title</h4></div>
+                        <div class="row col-12 border-top  ml-0 pl-0">
+                            <b>Abstract:&nbsp;</b>
+                            <text class="bg-white">@itm.Abstract</text>
+                        </div>
+
+                        <div class="row w-100 p-0 m-0 border-bottom   ">
+                            <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Author(s) </div>
+                            <div class="col p-1 m-1 bg-white">
+                                @itm.Authors
+                            </div>
+                        </div>
+                        <div class="row w-100 p-0 m-0 border-bottom   ">
+                            <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">@Model.FieldNameForThisByPubType("ParentTitle")</div>
+                            <div class="col p-1 m-1 bg-white">
+                                @itm.ParentTitle
+                            </div>
+                        </div>
+                        <div class="row w-100 p-0 my-0 mx-auto btn btn-link showhide2" onclick="toggleDetails()">
+                            Full record
+                        </div>
+                        <div class="showhide1 w-100" style="display:none;">
+                            <div class="row w-100 p-0 m-0 btn btn-link " onclick="toggleDetails()">
+                                Hide
+                            </div>
+                            <div class="row w-100 p-0 m-0 border-bottom">
+                                <div class="col-4 row p-0 m-0">
+                                    @if (itm.IsDupilcate)
+                                    {
+                                        <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Item is duplicate of</div>
+                                        <div class="col p-1 m-1 bg-white">@itm.MasterItemId</div>
+                                    }
+                                    else if (itm.ItemStatus == "I")
+                                    {
+                                        <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Item is</div>
+                                        <div class="col p-1 m-1 bg-white">Included</div>
+                                    }
+                                    else if (itm.ItemStatus == "E")
+                                    {
+                                        <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Item is</div>
+                                        <div class="col p-1 m-1 bg-white">Excluded</div>
+                                    }
+                                    else if (itm.ItemStatus == "D")
+                                    {
+                                        <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Item is</div>
+                                        <div class="col p-1 m-1 bg-white">Deleted</div>
+                                    }
+                                    else if (itm.ItemStatus == "S")
+                                    {
+                                        <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Item is</div>
+                                        <div class="col p-1 m-1 bg-white">Part of a Deleted Source</div>
+                                    }
+
+                                </div>
+                                <div class="col-4 row p-0 m-0">
+                                    <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:20px;">ID</div>
+                                    <div class="col p-1 m-1 bg-white font-weight-bold">@itm.ItemId</div>
+                                </div>
+                                <div class="col-4 row p-0 m-0">
+                                    <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Imported ID</div>
+                                    <div class="col p-1 m-1 bg-white">@itm.OldItemId</div>
+                                </div>
+                            </div>
+                            <div class="row w-100 p-0 m-0 border-bottom  ">
+                                <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">@Model.FieldNameForThisByPubType("parentAuthors")</div>
+                                <div class="col p-1 m-1 bg-white">
+                                    @itm.ParentAuthors
+                                </div>
+                            </div>
+                            <div class="row w-100 p-0 m-0 border-bottom  ">
+                                <div class="w-50 row p-0 m-0">
+                                    <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Year</div>
+                                    <div class="col p-1 m-1 bg-white">
+                                        @itm.Year
+                                    </div>
+                                </div>
+                                <div class="w-50 row p-0 m-0">
+                                    <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">@Model.FieldNameForThisByPubType("StandardNumber")</div>
+                                    <div class="col p-1 m-1 bg-white">
+                                        @itm.StandardNumber
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row w-100 p-0 m-0 border-bottom  ">
+                                <div class="w-50 row p-0 m-0">
+                                    <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Short Title</div>
+                                    <div class="col p-1 m-1 bg-white font-weight-bold">
+                                        @itm.ShortTitle
+                                    </div>
+                                </div>
+                                <div class="w-50 row p-0 m-0">
+                                    <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Pages</div>
+                                    <div class="col p-1 m-1 bg-white">
+                                        @itm.Pages
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row w-100 p-0 m-0 border-bottom  ">
+                                <div class="w-50 row p-0 m-0">
+                                    <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Volume</div>
+                                    <div class="col p-1 m-1 bg-white">
+                                        @itm.Volume
+                                    </div>
+                                </div>
+                                <div class="w-50 row p-0 m-0">
+                                    <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Issue</div>
+                                    <div class="col p-1 m-1 bg-white">
+                                        @itm.Issue
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row w-100 p-0 m-0 border-bottom">
+                                @if (Model.URLLink() == "")
+                                {
+                                    <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">
+                                        Url
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">
+                                        <a href="@Model.URLLink()" target="_blank">Url</a>
+                                    </div>
+                                }
+                                <div class="col p-1 m-1 bg-white text-nowrap" style="overflow:auto">
+                                    @itm.URL
+                                </div>
+                            </div>
+                            <div class="row w-100 p-0 m-0 border-bottom  ">
+                                <div class="w-50 row p-0 m-0">
+
+                                    @if (Model.DOILink() == "")
+                                    {
+                                        <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">
+                                            DOI
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">
+                                            <a href="@Model.DOILink()" target="_blank">DOI</a>
+                                        </div>
+                                    }
+
+                                    <div class="col p-1 m-1 bg-white ">
+                                        @itm.DOI
+                                    </div>
+                                </div>
+                                <div class="w-50 row p-0 m-0">
+                                    <div class="p-1 ml-1 mt-1" style="min-width:90px;">Availability</div>
+                                    <div class="col p-1 m-1 bg-white">
+                                        @itm.Availability
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row w-100 p-0 m-0 border-bottom  ">
+                                <div class="w-50 row p-0 m-0">
+                                    <div class="p-1 ml-1 " style="min-width:90px;">Edition</div>
+                                    <div class="col p-1 m-1 bg-white">
+                                        @itm.Edition
+                                    </div>
+                                </div>
+                                <div class="w-50 row p-0 m-0">
+                                    <div class="p-1 ml-1 " style="min-width:90px;">Publisher</div>
+                                    <div class="col p-1 m-1 bg-white">
+                                        @itm.Publisher
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row w-100 p-0 m-0 border-bottom  ">
+                                <div class="w-50 row p-0 m-0">
+                                    <div class="p-1 ml-1 " style="min-width:90px;">Month</div>
+                                    <div class="col p-1 m-1 bg-white">
+                                        @itm.Month
+                                    </div>
+                                </div>
+                                <div class="w-50 row p-0 m-0">
+                                    <div class="p-1 ml-1 " style="min-width:90px;">City</div>
+                                    <div class="col p-1 m-1 bg-white">
+                                        @itm.City
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row w-100 p-0 m-0 border-bottom  ">
+                                <div class="w-50 row p-0 m-0">
+                                    <div class="p-1 ml-1 " style="min-width:90px;">Country</div>
+                                    <div class="col p-1 m-1 bg-white">
+                                        @itm.Country
+                                    </div>
+                                </div>
+                                <div class="w-50 row p-0 m-0">
+                                    <div class="p-1 ml-1 " style="min-width:90px;">Institution</div>
+                                    <div class="col p-1 m-1 bg-white">
+                                        @itm.Institution
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row w-100 p-0 m-0 border-bottom  ">
+                                <div class="w-50 row p-0 m-0">
+                                    <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Comments</div>
+                                    <div class="col p-1 m-1 bg-white" style="max-height:120px; overflow-y:auto;">
+                                        @itm.Comments
+                                    </div>
+                                </div>
+                                <div class="w-50 row p-0 m-0">
+                                    <div class="p-1 ml-1 mt-1 font-weight-bold" style="min-width:90px;">Keywords</div>
+                                    <div class="col p-1 m-1 bg-white" style="max-height:120px; overflow-y:auto;">
+                                        @itm.Keywords
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row w-100 p-0 m-0 small">
+                                @*<div class="col-3 row p-0 m-0 font-weight-bold">
+                                        Created by: @itm.CreatedBy
+                                    </div>*@
+                                <div class="col-6 row p-0 m-0 ">
+                                    Created on: @itm.DateCreated
+                                </div>
+                                @*<div class="col-3 row p-0 m-0 font-weight-bold">
+                                        Edited by: @itm.EditedBy
+                                    </div>*@
+                                <div class="col-6 row py-0 pl-1 pr-0 m-0">
+                                    Edited on: @itm.DateEdited
+                                </div>
+                            </div>
+                            <div class="row w-100 p-0 m-0 small">
+                                @if (@Model.Source != null && @Model.Source.Source_ID > 0)
+                                {
+                                    <div class="col-6 row p-0 m-0 font-weight-bold">
+                                        Source Name: @Model.Source.Source_Name
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="col-6 row p-0 m-0 font-weight-bold">
+                                        Source: N/A
+                                    </div>
+                                }
+                                @if (Model.Duplicates != null && Model.Duplicates.Count > 0)
+                                {
+                                    <div class="col-6 row py-0 pl-1 pr-0 m-0 ">
+                                        This reference has&nbsp;<strong>@Model.Duplicates.Count</strong>&nbsp;duplicates
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="col-6 row py-0 pl-1 pr-0 m-0">
+                                        No Duplicates
+                                    </div>
+                                }
+                            </div>
+                        </div>
+
+                    </div>
+                    @*<form asp-controller="Coding" asp-action="FetchItemCodingJSON">
+                            <input type="hidden" value="@itm.ItemId" name="ItemId" />
+                            <button type="submit">Get CodingJSon</button>
+                        </form>*@
+                    <div class="card m-2 rounded border border-primary p-2" id="GetCodingReport">
+                        <div class="mx-auto">
+                            <button class="btn btn-secondary btn-sm btn-round" onclick="GetCodingReport(@itm.ItemId)">Show coding</button>
+                        </div>
+                    </div>
+                    <div class="card m-2 rounded border border-primary" id="CodingReportCard" style="display: none;">
+                        <div class="card-header h2">Coding Report:</div>
+                        <div class="card-body" style="max-height:50vh;overflow-y:auto;">
+                            <div id="CodingReport"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+<script type="text/javascript">
+    let codingRepJson = null;
+    function GetCodingReport(itemId) {
+        $.post("../Coding/FetchItemCodingJSON"
+            , { ItemId: itemId }
+            , function (data, result) { AddCodingToReport(data, result); }
+        );
+    }
+    function AddCodingToReport(data, result) {
+        console.log("AddCodingToReport", data, result);
+        codingRepJson = data;
+        if (result != "success") return;
+        let CodingReport = "";
+        for (let i = 0; i < data.reviewSets.length; i++) {
+            let reviewSet = data.reviewSets[i];
+            for (let itemSet of data.itemSetList) {
+                if (itemSet.setId == data.reviewSets[i].setId && itemSet.isCompleted == true) {
+                    //CodingReport += "<br /><h6>Reviewer: " + itemSet.contactName + "</h6>";
+
+                    if (reviewSet != null) {
+                        CodingReport += "<p><h4>" + reviewSet.setName + "</h4></p><p><ul>";
+                        for (let attributeSet of reviewSet.attributes.attributesList) {
+                            //console.log("about to go into writeCodingReportAttributesWithArms", itemSet, attributeSet);
+                            CodingReport += this.writeCodingReportAttributesWithArms(itemSet, attributeSet);
+                        }
+                        CodingReport += "</ul></p>";
+                        //console.log("about to go into OutcomesTable", itemSet.outcomeItemList.outcomesList);
+                        CodingReport += "<p>" + OutcomesTable(itemSet.outcomeItemList.outcomesList) + "</p>";
+                    }
+
+                }
+            }
+        }
+        if (CodingReport == "") {
+            CodingReport = "<span class='alert-danger'>There is no coding data for this Reference.</span>"
+        }
+        $("#CodingReportCard").show(100);
+        $("#GetCodingReport").hide(100);
+        $("#CodingReport").html(CodingReport);
+    }
+    function writeCodingReportAttributesWithArms(itemSet, attributeSet) {
+        let report = "";
+        let roias = itemSet.itemAttributesList.filter(found => found.attributeId == attributeSet.attributeId);
+        console.log("roias", roias, itemSet.itemAttributesList, attributeSet.attributeId);
+        if (roias != null && roias.length > 0) {
+            for (let roia of roias) {
+                let AttributeName = attributeSet.attributeName;
+                if (roia.armId != 0) {
+                    AttributeName += " [" + roia.armTitle + "]";
+                }
+
+                report += '<li class="text-success"><span class="font-weight-bold">' + AttributeName + "</span>";
+                if (roia.additionalText.length > 0) report += "<br /><i>" + roia.additionalText.replaceAll("\n", "<br />") + "</i>";
+                if (roia.itemAttributeFullTextDetails != null && roia.itemAttributeFullTextDetails.length > 0) {
+
+                    report += addFullTextToComparisonReport(roia.itemAttributeFullTextDetails);
+                }
+                report += "</li>";
+            }
+            if (this.CodingReportCheckChildSelected(itemSet, attributeSet) == true) // ie an attribute below this is selected, even though this one isn't
+            {
+                report += "<ul>";
+                for (let child of attributeSet.attributes.attributesList) {
+                    report += this.writeCodingReportAttributesWithArms(itemSet, child);
+                }
+                report += "</ul>";
+            }
+        }
+        else {
+            if (this.CodingReportCheckChildSelected(itemSet, attributeSet) == true) // ie an attribute below this is selected, even though this one isn't
+            {
+                report += '<li class="text-muted">' + attributeSet.attributeName + "</li>";
+                report += "<ul>";
+                for (let child of attributeSet.attributes.attributesList) {
+                    report += this.writeCodingReportAttributesWithArms(itemSet, child);
+                }
+                report += "</ul>";
+            }
+        }
+        console.log("Single rep:", report);
+        return report;
+    }
+    function CodingReportCheckChildSelected(itemSet, attributeSet) {
+        if (itemSet) {
+            for (let roia of itemSet.itemAttributesList) {
+                if (roia.attributeId == attributeSet.attributeId) return true;
+            }
+            for (let child of attributeSet.attributes.attributesList) {
+                if (this.CodingReportCheckChildSelected(itemSet, child) == true) {
+                    //console.log("found a child:", itemSet, attributeSet);
+                    return true;
+                }
+            }
+        }
+        //console.log("found nothing:", itemSet, attributeSet);
+        return false;
+    }
+    function addFullTextToComparisonReport(list) {
+        //console.log("addFullTextToComparisonReport", list);
+        let result = "";
+        for (let ftd of list) {
+            result += "<br style='mso-data-placement:same-cell;'  />" + ftd.docTitle + ": ";
+            if (ftd.isFromPDF) {
+                let rres = ftd.text.replaceAll(/\[\u00ACs\]/g, '');//"\u00AC" is "¬", wouldn't match it otherwise
+                rres = rres.replaceAll(/\[\u00ACe\]/g, "");
+                result += "<span class='small text-info'>" + rres + "</span><br style='mso-data-placement:same-cell;'  />";//.replace(/\[¬s\]/g, '').replace(/\[¬e\/]/g, "") + "</span>";
+            }
+            else {
+                result += "<code class='small'>" + ftd.text + "(from char " + ftd.textFrom.toString() + " to char " + ftd.textTo.toString()
+                    + ")</code><br style='mso-data-placement:same-cell;'  />";
+            }
+        }
+        //console.log("addFullTextToComparisonReport", list, result);
+        return result;
+    }
+    function OutcomesTable(Outcomes, addHeader = true) {
+        let retVal = "";
+        let i = -1;
+        const Start = addHeader ? "<p><b>Outcomes</b></p>" : "";
+        let sortedOutcomes = Outcomes.sort(function (a, b) { return a.outcomeTypeId - b.outcomeTypeId });
+        for (let o of sortedOutcomes) {
+            if (i != o.outcomeTypeId) {
+                if (retVal == "") {
+                    retVal = Start + "<table class='m-1' border='1'>";
+                }
+                else {
+                    retVal += "</table><table class='m-1' border='1'>";
+                }
+                i = o.outcomeTypeId;
+                retVal += GetOutcomeHeaders(o);
+            }
+            retVal += GetOutcomeInnerTable(o);
+        }
+        return retVal + "</table>";
+    }
+    function GetOutcomeHeaders(o) {
+        let retVal = "<tr bgcolor='silver'><td>Title</td><td>Description</td><td>Timepoint</td><td>Outcome</td><td>Intervention</td><td>Control</td><td>Type</td>";
+        switch (o.outcomeTypeId) {
+            case 0: // manual entry
+                retVal += "<td>SMD</td><td>SE</td><td>r</td><td>SE</td><td>Odds ratio</td><td>SE</td><td>Risk ratio</td><td>SE</td><td>Risk difference</td><td>SE</td><td>Mean difference</td><td>SE</td>";
+                break;
+
+            case 1: // n, mean, SD
+                retVal += "<td>Group 1 N</td><td>Group 2 N</td><td>Group 1 mean</td><td>Group 2 mean</td><td>Group 1 SD</td>" +
+                    "<td>Group 2 SD</td><td>SMD</td><td>SE</td>";
+                break;
+
+            case 2: // binary 2 x 2 table
+                retVal += "<td>Group 1 events</td><td>Group 2 events</td><td>Group 1 no events</td><td>Group 2 no events</td><td>Odds ratio</td><td>SE (log OR)</td>";
+                break;
+
+            case 3: //n, mean SE
+                retVal += "<td>Group 1 N</td><td>Group 2 N</td><td>Group 1 mean</td><td>Group 2 mean</td><td>Group 1 SE</td>" +
+                    "<td>Group 2 SE</td><td>SMD</td><td>SE</td>";
+                break;
+
+            case 4: //n, mean CI
+                retVal += "<td>Group 1 N</td><td>Group 2 N</td><td>Group 1 mean</td><td>Group 2 mean</td><td>Group 1 CI lower</td>" +
+                    "<td>Group 1 CI upper</td><td>Group 2 CI lower</td><td>Group 2 CI upper</td><td>SMD</td><td>SE</td>";
+                break;
+
+            case 5: //n, t or p value
+                retVal += "<td>Group 1 N</td><td>Group 2 N</td><td>Group 1 mean</td><td>Group 2 mean</td><td>t-value</td>" +
+                    "<td>p-value</td><td>SMD</td><td>SE</td>";
+                break;
+
+            case 6: // diagnostic test 2 x 2 table
+                retVal += "<td>True positive</td><td>False positive</td><td>False negative</td><td>True negative</td><td>Diagnostic odds ratio</td><td>SE (log dOR)</td>";
+                break;
+
+            case 7: // correlation coeffiecient r
+                retVal += "<td>Group size</td><td>r</td><td>SE (Z transformed)</td>";
+                break;
+
+            default:
+                break;
+        }
+        return retVal + "<td>Outcome Classifications</td></tr>";
+    }
+    function GetOutcomeInnerTable(o) {
+        let retVal = "<tr><td>" + o.title + "</td><td>" + o.outcomeDescription.replaceAll("\r", "<br style='mso-Data-placement:same-cell;'  />")
+            + "</td><td>" + o.timepointDisplayValue + "</td><td>" + o.outcomeText + "</td><td>" + o.interventionText +
+            "</td><td>" + o.controlText + "</td>";
+        switch (o.outcomeTypeId) {
+            case 0: // manual entry
+                retVal += "<td>Manual entry</td>" +
+                    "<td>" + (typeof o.data1 === 'number' ? o.data1.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.data2 === 'number' ? o.data2.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.data3 === 'number' ? o.data3.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.data4 === 'number' ? o.data4.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.data5 === 'number' ? o.data5.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.data6 === 'number' ? o.data6.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.data7 === 'number' ? o.data7.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.data8 === 'number' ? o.data8.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.data11 === 'number' ? o.data11.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.data12 === 'number' ? o.data12.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.data13 === 'number' ? o.data13.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.data14 === 'number' ? o.data14.toFixed(3) : "NaN") + "</td>";
+                break;
+
+            case 1: // n, mean, SD
+                retVal += "<td>Continuous: Ns, means and SD</td>" +
+                    "<td>" + (typeof o.data1 === 'number' ? o.data1.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.data2 === 'number' ? o.data2.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.data3 === 'number' ? o.data3.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.data4 === 'number' ? o.data4.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.data5 === 'number' ? o.data5.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.data6 === 'number' ? o.data6.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.es === 'number' ? o.es.toFixed(3) : "NaN") + "</td><td>"
+                    + (typeof o.sees === 'number' ? o.sees.toFixed(3) : "NaN") + "</td>";
+                break;
+
+            case 2: // binary 2 x 2 table
+                retVal += "<td>Binary: 2 x 2 table</td>" +
+                    "<td>" + (typeof o.data1 === 'number' ? o.data1.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.data2 === 'number' ? o.data2.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.data3 === 'number' ? o.data3.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.data4 === 'number' ? o.data4.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.es === 'number' ? o.es.toFixed(3) : "NaN") + "</td><td>"
+                    + (typeof o.sees === 'number' ? o.sees.toFixed(3) : "NaN") + "</td>";
+                break;
+
+            case 3: //n, mean SE
+                retVal += "<td>Continuous: N, Mean, SE</td>" +
+                    "<td>" + (typeof o.data1 === 'number' ? o.data1.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.data2 === 'number' ? o.data2.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.data3 === 'number' ? o.data3.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.data4 === 'number' ? o.data4.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.data5 === 'number' ? o.data5.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.data6 === 'number' ? o.data6.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.es === 'number' ? o.es.toFixed(3) : "NaN") + "</td><td>"
+                    + (typeof o.sees === 'number' ? o.sees.toFixed(3) : "NaN") + "</td>";
+                break;
+
+            case 4: //n, mean CI
+                retVal += "<td>Continuous: N, Mean, CI</td>" +
+                    "<td>" + (typeof o.data1 === 'number' ? o.data1.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.data2 === 'number' ? o.data2.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.data3 === 'number' ? o.data3.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.data4 === 'number' ? o.data4.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.data5 === 'number' ? o.data5.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.data6 === 'number' ? o.data6.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.data7 === 'number' ? o.data7.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.data8 === 'number' ? o.data8.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.es === 'number' ? o.es.toFixed(3) : "NaN") + "</td><td>"
+                    + (typeof o.sees === 'number' ? o.sees.toFixed(3) : "NaN") + "</td>";
+                break;
+
+            case 5: //n, t or p value
+                retVal += "<td>Continuous: N, t- or p-value</td>" +
+                    "<td>" + (typeof o.data1 === 'number' ? o.data1.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.data2 === 'number' ? o.data2.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.data3 === 'number' ? o.data3.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.data4 === 'number' ? o.data4.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.es === 'number' ? o.es.toFixed(3) : "NaN") + "</td><td>"
+                    + (typeof o.sees === 'number' ? o.sees.toFixed(3) : "NaN") + "</td>";
+                break;
+
+            case 6: // binary 2 x 2 table
+                retVal += "<td>Diagnostic test: 2 x 2 table</td>" +
+                    "<td>" + (typeof o.data1 === 'number' ? o.data1.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.data2 === 'number' ? o.data2.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.data3 === 'number' ? o.data3.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.data4 === 'number' ? o.data4.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.es === 'number' ? o.es.toFixed(3) : "NaN") + "</td><td>"
+                    + (typeof o.sees === 'number' ? o.sees.toFixed(3) : "NaN") + "</td>";
+                break;
+
+            case 7: // correlation coefficient r
+                retVal += "<td>Correlation coefficient r</td>" +
+                    "<td>" + (typeof o.data1 === 'number' ? o.data1.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.data2 === 'number' ? o.data2.toFixed(3) : "NaN") + "</td>" +
+                    "<td>" + (typeof o.sees === 'number' ? o.sees.toFixed(3) : "NaN") + "</td>";
+                break;
+
+            default:
+                break;
+        }
+
+        retVal += "<td>";
+        for (let OIA of o.outcomeCodes.outcomeItemAttributesList) {
+            retVal += OIA.attributeName + "<br style='mso-data-placement:same-cell;' >";
+        }
+        return retVal + "</td></tr>";
+    }
+</script>
+

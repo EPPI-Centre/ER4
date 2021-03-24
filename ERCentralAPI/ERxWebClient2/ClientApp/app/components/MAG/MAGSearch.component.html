@@ -1,29 +1,27 @@
-﻿<HeaderComponent class="row p-1 m-0" style="vertical-align:top;" PageTitle="Microsoft Academic Browser" Context="searchMAG"></HeaderComponent>
+﻿<!--<HeaderComponent class="row p-1 m-0" style="vertical-align:top;" PageTitle="Microsoft Academic Browser" Context="searchMAG"></HeaderComponent>
 
 <button class="page-link rounded pt-1 pb-1 mb-1 float-right"
         style="position:absolute; right: 0; z-index:2000;" (click)="Back()">
     Close/back
 </button>
 
-<MAGHeaderBar Context="searchMAG"></MAGHeaderBar>
+<MAGHeaderBar Context="searchMAG"></MAGHeaderBar>-->
+
 <div *ngIf="IsServiceBusy" class="k-loading-image" style="position: fixed; top: 2%;"></div>
 <div class="container col-12">
 
     <div class="row" style="vertical-align:top">
-        <div class="col-sm-12 col-lg-8">
-            <div class="card-footer h-100 w-100">
-                <h2 class="card-title"></h2>
-                <h2 class="font-weight-light text-sm-left"> Microsoft Academic Graph Searches </h2>
-
-
+        <div class="col-12 col-md-8 px-1 card">
+            <div class=" h-100 w-100">
 
                 <div class="card-footer">
-
+                    <h2 class="font-weight-light text-sm-left"> New search </h2>
                     <div class="col-12 row mb-2">
+
                         <div class="col-sm-6">
                             <div ngbDropdown>
                                 <select class="col-sm-12 col-lg-12 form-control mb-1" name="WordsInSelection"
-                                        [(ngModel)]="WordsInSelection" (change)="OpenTopicsPanel($event)">
+                                        [(ngModel)]="WordsInSelection">
                                     <option [value]="0" [selected]="WordsInSelection == 0">Word(s) in title</option>
                                     <option [value]="1">Word(s) in abstract</option>
                                     <option [value]="2">Author name(s)</option>
@@ -35,16 +33,59 @@
                             </div>
                         </div>
 
-                        <div class="col-sm-6">
+                        <div class="col-sm-6" *ngIf="WordsInSelection != 3">
                             <input id="magSearchInput" name="magSearchInput" type="text" class="form-control" [(ngModel)]="magSearchInput"
                                    placeholder="Enter search text (e.g. physic*) " />
 
-                            <div *ngIf="SearchTextTopicDisplayName != ''" class="col-sm-12 col-lg-2 text-right">
-                                <b>{{SearchTextTopicDisplayName}}</b>
-                            </div>
+
                         </div>
                     </div>
 
+                    <div *ngIf="WordsInSelection == 3">
+                        <table width="100%">
+                            <tr>
+                                <td style="padding-left:15px;padding-bottom:10px; padding-right:10px">
+                                    <div class="card">
+                                        <div class="card-body">
+
+
+                                            <div class="row m-0">1. Search MAG for topics:</div>
+                                            <div class="row m-0">
+                                                <input class="form-control col border border-dark" type="text" id="SearchTextTopic" [(ngModel)]="magSearchInput"
+                                                       placeholder="Wildcards will work, e.g. physic* " />
+                                                <button (click)="UpdateTopicResults()" class="col-auto btn btn-primary btn-sm text-white" [disabled]="magSearchInput.length < 3" title="Search for topics">
+                                                    <i class="fa fa-search"></i>
+                                                </button>
+                                            </div>
+
+                                            <div class="row m-0 " [ngClass]="{'font-weight-light small': SearchTextTopicsResults.length == 0}">
+                                                2. Pick a MAG topic:
+                                            </div>
+                                            <div *ngIf="SearchTextTopicsResults.length > 0" class="col-auto small my-1 mx-auto alert-info border border-info rounded">
+                                                Showing topics found by searching for: <strong>{{SearchedTopic}}</strong>
+                                            </div>
+                                            <div *ngIf="SearchTextTopicsResults.length > 0" class="row bg-white border" style="max-height:300px;overflow:auto;">
+
+                                                <div *ngFor="let item of SearchTextTopicsResults" class="col-auto btn border rounded p-1 m-1" (click)="SelectTopic(item)"
+                                                     [ngStyle]="{ 'font-size.em': item.fontSize,'background-color': 'light-blue', 'color': 'black'}">
+                                                    {{item.displayName}}
+                                                </div>
+
+                                            </div>
+                                            <div class="row m-0" [ngClass]="{'font-weight-light small': SearchTextTopicDisplayName == ''}">
+                                                3. Pick other options and Search:
+                                            </div>
+                                            <div *ngIf="SearchTextTopicDisplayName != ''" class="col-auto small my-1 mx-auto alert-info border border-info rounded">
+                                                Selected MAG topic is: <strong>{{SearchTextTopicDisplayName}}</strong>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+
+                    </div>
 
                     <div class="col-12 row mb-2">
                         <div class="col-sm-6">
@@ -66,19 +107,26 @@
 
                         <div class="col-sm-6">
                             <div *ngIf="DateLimitSelection == 4 || DateLimitSelection == 8">
-                                <div class="m-1 p-1"><b>Items Dated From</b></div>
-                                <div>
-                                    <div class="example-wrapper">
-                                        <kendo-datepicker [(value)]="valueKendoDatepicker1"></kendo-datepicker>
-                                    </div>
-                                </div>
-                                <div class="m-1 p-1"><b>Items Dated To</b></div>
-                                <div>
-                                    <div class="example-wrapper">
-                                        <kendo-datepicker [(value)]="valueKendoDatepicker2"></kendo-datepicker>
-                                    </div>
-                                </div>
-
+                                <table width="100%">
+                                    <tr>
+                                        <td>
+                                            <div class="m-1 p-1"><b>Items Dated From</b></div>
+                                            <div>
+                                                <div class="example-wrapper">
+                                                    <kendo-datepicker [(value)]="valueKendoDatepicker1" [format]="'dd MMM yyyy'"></kendo-datepicker>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="m-1 p-1"><b>Items Dated To</b></div>
+                                            <div>
+                                                <div class="example-wrapper">
+                                                    <kendo-datepicker [(value)]="valueKendoDatepicker2" [format]="'dd MMM yyyy'"></kendo-datepicker>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </table>
                             </div>
 
                             <div *ngIf="DateLimitSelection == 1 || DateLimitSelection == 2  || DateLimitSelection == 3
@@ -86,26 +134,13 @@
                                 <div class="m-1 p-1"><b>Date</b></div>
                                 <div>
                                     <div class="example-wrapper">
-                                        <kendo-datepicker [(value)]="valueKendoDatepicker3"></kendo-datepicker>
+                                        <kendo-datepicker [(value)]="valueKendoDatepicker3" [format]="'dd MMM yyyy'"></kendo-datepicker>
                                     </div>
                                 </div>
                             </div>
-                            <div *ngIf="OpenTopics">
-                                <input class="form-control col-12 border border-dark" type="text" id="SearchTextTopic" [(ngModel)]="SearchTextTopicDisplayName"
-                                       placeholder="Search for topics here.  Entry of Wildcards work, e.g. physic* " />
-                                <button (click)="UpdateTopicResults()" class="btn btn-primary btn-sm text-white"><i class="fa fa-search"></i></button>
-                                <div class="row " style="max-width:1450px;overflow:auto;">
-                                    <div *ngFor="let item of SearchTextTopicsResults" class="list-group">
-                                        <div class="col-3 btn border border-0" (click)="SelectTopic(item)"
-                                             [ngStyle]="{ 'font-size.em': item.fontSize,'background-color': 'light-blue', 'color': 'black'}">
-                                            {{item.displayName}}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+
                         </div>
                     </div>
-
 
                     <div class="col-12 row mb-2">
                         <div class="col-sm-6 ">
@@ -136,119 +171,252 @@
 
                     </div>
                 </div>
-
- </div>  
+            </div>
         </div>
 
-        <div class="col-lg-4">
-            <div class="card-footer h-100 w-100">
-                <h2 class="card-title"></h2>
-                <h2 class="font-weight-light text-sm-left">Combine searches</h2>
+        <div class="col-12 col-md-4 px-1 card">
+            <div class="">
 
-                <div class="card-footer">
+                <div class="card-footer h-100">
+                    <h2 class="font-weight-light text-sm-left">Combine / filter searches</h2>
+                    <h5 class="font-weight-light text-sm-left">Select one or more searches</h5>
 
-                    <h5>Select 2 or more searches</h5>
-
-                    <div class="card-text small row col-12">
+                    <div class="card-text row col-12">
 
                         <div class="p-2 m-2 col-12">
-                            <div ngbDropdown class="col-12" style="min-width:400px">
-                                <select class="col-6 form-control" name="LogicalOperator"
-                                        [disabled]="!CanCombineSearches()"
-                                        [(ngModel)]="LogicalOperator" (change)="CombineSearches()">
+                            <div ngbDropdown style="min-width:90px">
+                                <select class="form-control" name="LogicalOperator"
+                                        [disabled]="AllSelectedItems.length < 2 || AllSelectedItems.length > 20"
+                                        [(ngModel)]="LogicalOperator">
                                     <option [selected]="LogicalOperator == 'Select operator'">Select operator</option>
                                     <option [selected]="LogicalOperator == 'AND'">AND</option>
                                     <option [selected]="LogicalOperator == 'OR'">OR</option>
                                 </select>
                             </div>
                         </div>
-
+                        <div class="row col-12">
+                            <div class="col-auto">(optional) Filter by date:</div>
+                            <div ngbDropdown class="col-auto">
+                                <select class="form-control mb-1" name="DateLimitSelectionCombine" [disabled]="!CanDeleteSearch()"
+                                        [(ngModel)]="DateLimitSelectionCombine">
+                                    <option [ngValue]="0" [selected]="DateLimitSelectionCombine == 0">No date limit</option>
+                                    <option [ngValue]="1">Publication date exactly</option>
+                                    <option [ngValue]="2">Publication date before</option>
+                                    <option [ngValue]="3">Publication date after</option>
+                                    <option [ngValue]="4">Publication dates between</option>
+                                    <option [ngValue]="5">Publication year exactly</option>
+                                    <option [ngValue]="6">Publication year before</option>
+                                    <option [ngValue]="7">Publication year after</option>
+                                    <option [ngValue]="8">Publication years between</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div *ngIf="DateLimitSelectionCombine > 0 && CanDeleteSearch()">
+                            <ng-container [ngSwitch]="DateLimitSelectionCombine">
+                                <div *ngSwitchCase="1">
+                                    Exact date: <kendo-datepicker [(value)]="valueKendoDatepickerCombine1" [format]="'dd MMM yyyy'"></kendo-datepicker>
+                                </div>
+                                <div *ngSwitchCase="2">
+                                    Before date: <kendo-datepicker [(value)]="valueKendoDatepickerCombine1" [format]="'dd MMM yyyy'"></kendo-datepicker>
+                                </div>
+                                <div *ngSwitchCase="3">
+                                    After date: <kendo-datepicker [(value)]="valueKendoDatepickerCombine1" [format]="'dd MMM yyyy'"></kendo-datepicker>
+                                </div>
+                                <div *ngSwitchCase="4" class="row mx-1">
+                                    <div class="d-block">Between: <kendo-datepicker [(value)]="valueKendoDatepickerCombine1" [format]="'dd MMM yyyy'"></kendo-datepicker></div>
+                                    <div class="d-block">and <kendo-datepicker [(value)]="valueKendoDatepickerCombine2" [format]="'dd MMM yyyy'" [min]="valueKendoDatepickerCombine1"></kendo-datepicker></div>
+                                </div>
+                                <div *ngSwitchCase="5">
+                                    This year:
+                                    <kendo-numerictextbox [(ngModel)]="valueYearPickerCombine1"
+                                                          name="n1" [format]="'#####'"
+                                                          [min]="1850"
+                                                          [max]="maxyear"
+                                                          [step]="1"
+                                                          [autoCorrect]="true"
+                                                          class="border border-dark rounded mb-1"
+                                                          style="width: 105px;"></kendo-numerictextbox>
+                                </div>
+                                <div *ngSwitchCase="6">
+                                    Before this year:
+                                    <kendo-numerictextbox [(ngModel)]="valueYearPickerCombine1"
+                                                          name="n1" [format]="'#####'"
+                                                          [min]="1850"
+                                                          [max]="maxyear"
+                                                          [step]="1"
+                                                          [autoCorrect]="true"
+                                                          class="border border-dark rounded mb-1"
+                                                          style="width: 105px;"></kendo-numerictextbox>
+                                </div>
+                                <div *ngSwitchCase="7">
+                                    After this year:
+                                    <kendo-numerictextbox [(ngModel)]="valueYearPickerCombine1"
+                                                          name="n1" [format]="'#####'"
+                                                          [min]="1850"
+                                                          [max]="maxyear"
+                                                          [step]="1"
+                                                          [autoCorrect]="true"
+                                                          class="border border-dark rounded mb-1"
+                                                          style="width: 105px;"></kendo-numerictextbox>
+                                </div>
+                                <div *ngSwitchCase="8" class="row mx-1">
+                                    <div class="d-block">
+                                        Between year:
+                                        <kendo-numerictextbox [(ngModel)]="valueYearPickerCombine1"
+                                                              name="n1" [format]="'#####'"
+                                                              [min]="1850"
+                                                              [max]="maxyear"
+                                                              [step]="1"
+                                                              [autoCorrect]="true"
+                                                              class="border border-dark rounded mb-1"
+                                                              style="width: 105px;"></kendo-numerictextbox>
+                                    </div>
+                                    <div class="d-block">
+                                        and year:
+                                        <kendo-numerictextbox [(ngModel)]="valueYearPickerCombine2"
+                                                              name="n2" [format]="'#####'"
+                                                              [min]="valueYearPickerCombine1"
+                                                              [max]="maxyear"
+                                                              [step]="1"
+                                                              [autoCorrect]="true"
+                                                              class="border border-dark rounded mb-1"
+                                                              style="width: 105px;"></kendo-numerictextbox>
+                                    </div>
+                                </div>
+                                <div *ngSwitchDefault></div>
+                            </ng-container>
+                        </div>
+                        <div class="col-12 row mt-2 mx-0 p-0">
+                            <div class="col-auto">
+                                <button class="btn btn-primary btn-lg btn-sm text-white"
+                                        [disabled]="!CanCombineSearches()" (click)="CombineSearches()">
+                                    {{CombineButtonText}}
+                                    <i class="ml-1 fa fa-search"></i>
+                                </button>
+                            </div>
+                        </div>
                     </div>
-                    <h2 class="card-title"></h2>
+
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<h2 class="card-title"></h2>
 
-<div class="container col-12">
+<div class="container col-12 px-0">
 
-    <div class="card">
-        <div class="card-body">
+    <div class="card px-1">
+        <div class="card-body row mx-1 px-0">
 
-            <table>
-                <tr>
-                    <td>
-                        <h4 class="card-title">Search results</h4>
-                    </td>
-                    <td style="padding-left:20px;vertical-align:top">
-                        <button class="btn btn-sm btn-danger"
-                                [disabled]="!CanDeleteSearch()"
-                                (click)="DeleteSearches()">
-                            Delete&nbsp;&nbsp;<i class="fa fa-trash"></i>
-                        </button>
-                    </td>
-                </tr>
-            </table>
+            <div class="col-12 col-md-8 px-1">
+                <table>
+                    <tr>
+                        <td>
+                            <h4 class="card-title">Search results</h4>
+                        </td>
+                        <td style="padding-left:5px;vertical-align:top">
+                            <button *ngIf="!IsServiceBusy" class="btn btn-sm btn-outline-success mx-1 mt-auto " (click)="FetchMagSearches()">
+                                <i class="fa fa-refresh" aria-hidden="true"></i>
+                            </button>&nbsp;
+                            <button class="btn btn-sm btn-danger"
+                                    [disabled]="!CanDeleteSearch()"
+                                    (click)="DeleteSearches()">
+                                Delete&nbsp;&nbsp;<i class="fa fa-trash"></i>
+                            </button>&nbsp;
+                        </td>
+                        <td style="padding-left:5px;vertical-align:top">
+                            <div *ngIf="!basicFilterPanel">
+                                <a (click)="basicFilterPanel = !basicFilterPanel" class="btn btn-info btn-sm text-white">
+                                    Import filters&nbsp;&nbsp;<i class="fa fa-arrow-circle-down"></i>
+                                </a>
+                            </div>
+                            <div *ngIf="basicFilterPanel">
+                                <a (click)="basicFilterPanel = !basicFilterPanel" class="btn btn-info btn-sm text-white">
+                                    Import filters&nbsp;&nbsp;<i class="fa fa-arrow-circle-up"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
 
+            <div class="" [hidden]="!basicFilterPanel">
+                <div class="row mx-0 px-0 my-1 ">
+                    <div class="d-inline mx-3 rounded alert-info border border-info my-1 p-1">
+                        When importing, you can also <strong>filter out</strong> any reference that contains the following strings (comma-separated):
+                    </div>
+                </div>
+                <div class="row mx-0 px-0 mb-1 border-bottom ">
+                    <div class="col small">Filter (out) from journal field: </div>
+                    <input type="text" [(ngModel)]="FilterOutJournal" class="my-auto ml-1 col-auto px-1" size="60" />
+                </div>
+                <div class="row mx-0 px-0 mb-1 border-bottom ">
+                    <div class="col small">Filter (out) from URL field: </div>
+                    <input type="text" [(ngModel)]="FilterOutURL" class="my-auto ml-1 col-auto px-1" size="60" />
+                </div>
+                <div class="row mx-0 px-0 mb-1 border-bottom ">
+                    <div class="col small">Filter (out) from DOI field: </div>
+                    <input type="text" [(ngModel)]="FilterOutDOI" class="my-auto ml-1 col-auto px-1" size="60" />
+                </div>
+            </div>
 
             <div class="col-12 alert-secondary p-2 m-2 card">
-                <div class="table-responsive">
+                <div class="row p-0 m-0 w-100" style="max-height:600px; overflow:auto;">
 
 
 
-                    <table class="table align-middle table-striped" style="width:100%;max-height:600px; overflow:auto;">
+                    <table class="table  table-sm table-striped">
                         <thead>
                             <tr>
-                                <th>
+                                <th class="" width="1">
                                     <input class="m-1" style="zoom: 1.2;"
                                            type="checkbox"
                                            name="selectAll"
                                            [ngModel]="AllItemsAreSelected"
                                            (click)="ToggleAllItemsSelected()" />
                                 </th>
-                                <th>Search</th>
-                                <th style="min-width:50px">search string</th>
-                                <th style="min-width:50px">MAG search string</th>
-                                <th>MAG Version</th>
-                                <th>User</th>
-                                <th>Date</th>
-                                <th style="text-align:center">Hits</th>
-                                <th style="min-width:40px;text-align:center">ReRun</th>
-                                <th style="min-width:40px;text-align:center">Import</th>
+                                <th class="" width="1">#</th>
+                                <th class="" width="6" style="min-width:50px">Name</th>
+                                <th class="" width="5" style="min-width:50px">Search string</th>
+                                <th class="" width="2">MAG Version</th>
+                                <th class="" width="2">User</th>
+                                <th class="" width="2">Date</th>
+                                <th class="" width="2" style="text-align:center">Hits</th>
+                                <th class="" width="1" style="min-width:40px;text-align:center;font-size:0.76em;">Re-run/import</th>
+                                <!--<th class="" width="1" style="min-width:40px;text-align:center">Import</th>-->
 
                             </tr>
                         </thead>
 
-                        <tbody style="width:100%">
-                            <tr *ngFor="let item of _magSearchService.MagSearchList">
-                                <td>
+                        <tbody>
+                            <tr *ngFor="let item of MagSearchList" class="small" [ngClass]="{'font-italic': item.magFolder != MagFolder, 'font-weight-bold': item.magFolder == MagFolder }">
+                                <td class="">
                                     <input class="ml-1" style="zoom: 1.2;"
                                            type="checkbox"
                                            [(ngModel)]="item.add" />
                                 </td>
-                                <td>{{item.searchNo}}</td>
-                                <td style="min-width:50px">{{item.searchText}}</td>
-                                <td title={{item.magSearchText}}>{{item.magSearchText | truncate}} </td>
-                                <td>{{item.magVersion}}</td>
-                                <td>{{item.contactName}}</td>
-                                <td>{{item.searchDate}}</td>
-                                <td class="p-0" style="vertical-align:middle;text-align:center">
-                                    <div (click)="GetItems(item)" class="btn btn-link btn-sm">{{ item.hitsNo}}</div>
+                                <td class="">{{item.searchNo}}</td>
+                                <td class="" style="overflow: hidden; text-overflow: ellipsis; word-break: break-all;" title={{item.searchText}}>{{item.searchText}}</td>
+                                <td class="" style="overflow: hidden; text-overflow: ellipsis; word-break: break-all;" title={{item.magSearchText}}>{{item.magSearchText | truncate}} </td>
+                                <td class="">{{item.magFolder}}</td>
+                                <td class="">{{item.contactName}}</td>
+                                <td class="">{{FormatDate2(item.searchDate)}}</td>
+                                <td class=" p-0" style="vertical-align:middle;text-align:center">
+                                    <div (click)="GetItems(item)" class="btn btn-link btn-sm font-weight-bold">{{ item.hitsNo}}</div>
                                 </td>
-                                <td style="min-width:40px;text-align:center">
-                                    <button (click)="ReRunMAGSearch(item)" class="btn btn-warning btn-sm text-white align-content-center">
+                                <td class="" style="min-width:65px;text-align:center">
+                                    <button *ngIf="item.magFolder !== MagFolder" (click)="ReRunMAGSearch(item)" class="btn btn-warning btn-sm text-white align-content-center mr-1" title="Re-Run (update)">
                                         <i class="fa fa-play-circle" aria-hidden="true"></i>
                                     </button>
-                                </td>
-                                <td style="min-width:40px;text-align:center">
-                                    <button (click)="ImportMagSearchPapers(item)" [disabled]="!CanImportMagPapers(item)"
+                                    <button *ngIf="item.magFolder == MagFolder" (click)="ImportMagSearchPapers(item)" [disabled]="!CanImportMagPapers(item)" title="Import"
                                             class="btn btn-primary btn-sm text-white align-content-center">
                                         <i class="fa fa-download" aria-hidden="true"></i>
                                     </button>
                                 </td>
+                                <!--<td class="small" style="min-width:40px;text-align:center">
+
+                                </td>-->
 
                             </tr>
                         </tbody>
@@ -267,4 +435,4 @@
 
 
 <div *ngIf="IsServiceBusy" class="k-loading-image" style="position: fixed; top: 2%;"></div>
-<statusbar></statusbar>
+<!--<statusbar></statusbar>-->

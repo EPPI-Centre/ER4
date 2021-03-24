@@ -63,6 +63,7 @@ namespace EppiReviewer4
         private RadWindow windowEditOutcomes = new RadWindow();
         private Grid GridEditOutcomes = new Grid();
         private dialogEditOutcomes dialogEditOutcomesControl = new dialogEditOutcomes();
+        private RadWJsonImport WindowJsonImport = new RadWJsonImport();
 
         private RadWindow windowReports = new RadWindow();
         private dialogReportViewer reportViewerControl = new dialogReportViewer();
@@ -147,7 +148,8 @@ namespace EppiReviewer4
             ri = Csla.ApplicationContext.User.Identity as BusinessLibrary.Security.ReviewerIdentity;
             isEn.DataContext = this;
             //end of read-only ui hack
-            //cmdShowClassificationWindow.Visibility = ri.IsSiteAdmin ? Visibility.Visible : System.Windows.Visibility.Collapsed;
+            cmdShowJsonImportWindow.IsEnabled = ri.IsSiteAdmin ? true : false; // Rene reported being able to click on an invisible button!
+            cmdShowJsonImportWindow.Visibility = ri.IsSiteAdmin ? Visibility.Visible : System.Windows.Visibility.Collapsed;
             //enter RadWindow properties...
             Thickness thk = new Thickness(20);
             windowEditOutcomes.Header = "Edit outcomes";
@@ -162,6 +164,7 @@ namespace EppiReviewer4
             windowEditOutcomes.Content = GridEditOutcomes;
             dialogEditOutcomesControl.CloseWindowRequest += DialogEditOutcomesControl_CloseWindowRequest;
             dialogEditOutcomesControl.ShowEditOutcomeGrid += DialogEditOutcomesControl_ShowEditOutcomeGrid;
+            WindowJsonImport.closeWindowJsonImport += WindowJsonImport_closeWindowJsonImport;
 
             windowReports.Header = "Report viewer";
             windowReports.WindowStateChanged += new EventHandler(Helpers.WindowHelper.MaxOnly_WindowStateChanged);
@@ -215,6 +218,11 @@ namespace EppiReviewer4
 
             CodeSetsDataprovider.PropertyChanged += CodeSetsDataprovider_PropertyChanged;
             //CodeSetsDataprovider.DataChanged += CodeSetsDataProvider_DataChanged;
+        }
+
+        private void WindowJsonImport_closeWindowJsonImport(object sender, RoutedEventArgs e)
+        {
+            RadWindow.Alert("closed json import");
         }
 
         private void CodeSetsDataprovider_PropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -1594,6 +1602,13 @@ namespace EppiReviewer4
             Button bt = sender as Button;
             currentAttributeSet = bt.DataContext as AttributeSet;
             if (currentAttributeSet == null) return;
+            //following 4 lines: calling "TreeView.SelectedItem = currentAttributeSet" makes TreeView_SelectionChanged fire twice.
+            //I guessed that is was first doing TreeView.SelectedItem = null; then putting a value,
+            // so now I do it explicitly. Otherwise the double-firing creates an error message when adding a second copy of the same PDF highlights.
+            TreeView.SelectionChanged -= TreeView_SelectionChanged;
+            TreeView.SelectionChanged -= TreeView_SelectionChanged;
+            TreeView.SelectedItem = null;
+            TreeView.SelectionChanged += new Telerik.Windows.Controls.SelectionChangedEventHandler(TreeView_SelectionChanged);
             TreeView.SelectedItem = currentAttributeSet;
             StackPanel sp = bt.Parent as StackPanel;
             currentCheckBox = sp.Children[0] as CheckBox;
@@ -3554,6 +3569,11 @@ namespace EppiReviewer4
             {
                 AttributeSet iad = cb.DataContext as AttributeSet;
                 if (iad == null) return;
+                TreeView.SelectionChanged -= TreeView_SelectionChanged;
+                TreeView.SelectionChanged -= TreeView_SelectionChanged;
+                TreeView.SelectedItem = null;
+                TreeView.SelectionChanged += new Telerik.Windows.Controls.SelectionChangedEventHandler(TreeView_SelectionChanged);
+
                 TreeView.SelectedItem = iad;
                 if ((!reviewSets.LoadingAttributes) && (cb.IsChecked == true))
                 {
@@ -4421,6 +4441,11 @@ namespace EppiReviewer4
                 
                 this.SelectedItemChanged.Invoke(sender, e);
             }
+        }
+
+        private void cmdShowJsonImportWindow_Click(object sender, RoutedEventArgs e)
+        {
+            WindowJsonImport.ShowDialog();
         }
     } // END MAIN CodesTreeControl CLASS
 

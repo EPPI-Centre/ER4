@@ -1,11 +1,12 @@
-﻿<HeaderComponent class="row p-1 m-0" style="vertical-align:top;" PageTitle="Microsoft Academic Browser" Context="adminMAG"></HeaderComponent>
+﻿<!--<HeaderComponent class="row p-1 m-0" style="vertical-align:top;" PageTitle="Microsoft Academic Browser" Context="adminMAG"></HeaderComponent>
 
 <button class="page-link rounded pt-1 pb-1 mb-1 float-right"
         style="position:absolute; right: 0; z-index:2000;" (click)="Back()">
     Close/back
 </button>
 
-<MAGHeaderBar Context="adminMAG"></MAGHeaderBar>
+<MAGHeaderBar Context="adminMAG"></MAGHeaderBar>-->
+
 <div *ngIf="IsServiceBusy" class="k-loading-image" style="position: fixed; top: 2%;"></div>
 <div class="container col-12">
 
@@ -38,7 +39,7 @@
                 <div class="card">
                     <div class="card-body">
                         <div class="col-12 p-2 m-2 ">
-                            MAG Version:{{_magAdminService.MagCurrentInfo.magVersion}}
+                            MAG Folder:{{_magAdminService.MagCurrentInfo.magFolder}}
                         </div>
                         <div class="col-12  p-2 m-2 ">
                             MAKES EndPoint:{{_magAdminService.MagCurrentInfo.makesEndPoint}}
@@ -232,4 +233,4 @@
 
 <div *ngIf="IsServiceBusy" class="k-loading-image" style="position: fixed; top: 2%;"></div>
 
-<statusbar></statusbar>
+<!--<statusbar></statusbar>-->

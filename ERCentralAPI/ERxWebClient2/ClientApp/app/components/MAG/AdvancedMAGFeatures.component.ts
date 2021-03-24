@@ -5,7 +5,7 @@ import { singleNode, SetAttribute } from '../services/ReviewSets.service';
 import { codesetSelectorComponent } from '../CodesetTrees/codesetSelector.component';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
-import { Router, NavigationEnd } from '@angular/router';
+import { Router } from '@angular/router';
 import { ClassifierContactModel,  MagSimulation, TopicLink, MagBrowseHistoryItem } from '../services/MAGClasses.service';
 import { EventEmitterService } from '../services/EventEmitter.service';
 import { MAGAdvancedService } from '../services/magAdvanced.service';
@@ -40,7 +40,7 @@ export class AdvancedMAGFeaturesComponent implements OnInit, OnDestroy {
 
         //this.history = this._routingStateService.getHistory();
     }
-    private subsc: Subscription = new Subscription();
+
     public basicMAGPanel: boolean = false;
     public basicSeedPanel: boolean = false;
 
@@ -63,18 +63,14 @@ export class AdvancedMAGFeaturesComponent implements OnInit, OnDestroy {
         }
         else {
             
-            this.GetMagReviewMagInfoCommand();
-            this.GetMagSimulationList();
-            this.GetClassifierContactModelList();
-            let magBrowseItem: MagBrowseHistoryItem = new MagBrowseHistoryItem("Advanced", "Advanced", 0,
-                "", "", 0, "", "", 0, "", "", 0);
-            this._mAGBrowserHistoryService.IncrementHistoryCount();
-            this._mAGBrowserHistoryService.AddToBrowseHistory(magBrowseItem);
+            //this.GetMagReviewMagInfoCommand();
+            //this.GetMagSimulationList();
+            //this.GetClassifierContactModelList();
+            //this._mAGBrowserHistoryService.AddHistory(new MagBrowseHistoryItem("Simulations", "Advanced", 0,
+            //    "", "", 0, "", "", 0, "", "", 0));
         }
     }
     ngOnDestroy() {
-
-        this.subsc.unsubscribe();
 
     }
     @ViewChild('WithOrWithoutCodeSelector3') WithOrWithoutCodeSelector3!: codesetSelectorComponent;
@@ -123,7 +119,10 @@ export class AdvancedMAGFeaturesComponent implements OnInit, OnDestroy {
     public get MagSimulationList(): MagSimulation[] {
         return this._magSimulationService.MagSimulationList;
     }
-
+    public Refresh() {
+        this.GetMagSimulationList();
+        setTimeout(() => { this.GetClassifierContactModelList();}, 100);
+    }
     private ShowMAGSimulationMessage(notifyMsg: string) {
 
         this._notificationService.show({
@@ -233,7 +232,17 @@ export class AdvancedMAGFeaturesComponent implements OnInit, OnDestroy {
         }
     }
     public GetClassifierContactModelList(): void {
-        this._magAdvancedService.FetchClassifierContactModelList();
+        //if ((this._magAdvancedService.ClassifierContactModelList.length == 0
+        //    && (
+        //    this._magAdvancedService.CurrentUserId4ClassifierContactModelList < 1
+        //    || this._magAdvancedService.CurrentUserId4ClassifierContactModelList != this._ReviewerIdentityServ.reviewerIdentity.userId
+        //    )) || (this._magAdvancedService.CurrentUserId4ClassifierContactModelList < 1
+        //        || this._magAdvancedService.CurrentUserId4ClassifierContactModelList != this._ReviewerIdentityServ.reviewerIdentity.userId)) {
+        //    //only fetch this if it's empty or if it contains a list of models that belongs to someone else. 
+        //    //the second checks on userId prevent leaking when one user logs off, another logs in and finds the list belonging to another user, very ugly, but should work.
+        //    //wait 100ms and then get this list, I don't like sending many server requests all concurrent
+            this._magAdvancedService.FetchClassifierContactModelList(this._ReviewerIdentityServ.reviewerIdentity.userId);
+        //}
     }
     public OpenResultsInReview(listType: string, magSimId: number) {
 

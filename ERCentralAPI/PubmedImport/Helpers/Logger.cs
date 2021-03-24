@@ -56,7 +56,7 @@ namespace EPPIDataServices.Helpers
             _FTPActionFailed = LoggerMessage.Define<string, string>(
                LogLevel.Error,
               new EventId(4, nameof(FTPActionFailed)),
-              "FTP Error detected (message = '{strFTP}' doing={doingWhat})");
+              "FTP Error detected (message = '{strFTP}' doing={doingWhat})"); 
         }
 
         public static void SQLActionFailed(this ILogger logger, string message, SqlParameter[] parameters, Exception ex)

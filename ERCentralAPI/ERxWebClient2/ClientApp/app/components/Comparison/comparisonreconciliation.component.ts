@@ -95,10 +95,13 @@ export class ComparisonReconciliationComp extends BusyAwareService implements On
 		}
 	}
 	public IsServiceBusy(): boolean {
-	
-		if (this._BusyMethods.length > 0 || this._ItemListService.IsBusy) {
-			return true;
-		} else {
+		if (this._BusyMethods.length > 0
+			|| this._reviewSetsService.IsBusy
+			|| this._ItemListService.IsBusy
+			|| this._comparisonsService.IsBusy
+			|| this._reconciliationService.IsBusy
+			|| this._ItemDocsService.IsBusy) return true;
+		else {
 			return false;
 		}
 	}

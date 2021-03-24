@@ -22,7 +22,6 @@ export class MAGAdminComp implements OnInit {
         public _magAdminService: MAGAdminService,
         public _confirmationDialogService: ConfirmationDialogService,
         private _magAdvancedService: MAGAdvancedService,
-        public _location: Location,
         public _notificationService: NotificationService,
         private _ReviewerIdentityServ: ReviewerIdentityService,
         public router: Router
@@ -87,15 +86,6 @@ export class MAGAdminComp implements OnInit {
 
         this._magAdminService.GetMAGReviewList();
     }
-    showMAGRunMessage(notifyMsg: string) {
-        this._notificationService.show({
-            content: notifyMsg,
-            animation: { type: 'slide', duration: 400 },
-            position: { horizontal: 'center', vertical: 'top' },
-            type: { style: "info", icon: true },
-            closable: true
-        });
-    }
     public CheckContReviewPipeLine() {
 
         let running: boolean = false;
@@ -110,7 +100,7 @@ export class MAGAdminComp implements OnInit {
             this.DoRunContReviewPipeline("", 0, "Pipeline running...", this.FoSThreshold, this.SampleSize,
             this.ScoreThreshold);
         }
-        this.showMAGRunMessage(msg);
+        this._confirmationDialogService.showMAGRunMessage(msg);
     }
     public DoRunContReviewPipeline(specificFolder: string, magLogId: number, alertText: string, editFoSThreshold: number,
         editReviewSampleSize: number, editScoreThreshold: number ) : void {
@@ -129,7 +119,7 @@ export class MAGAdminComp implements OnInit {
             this._magAdminService.GetMAGBlobCommand();
             this._magAdminService.GetMAGReviewList();
             this.RefreshLogTable();
-            this._magAdminService.FetchMagCurrentInfo();
+            //this._magAdminService.FetchMagCurrentInfo();
         }
     }  
 

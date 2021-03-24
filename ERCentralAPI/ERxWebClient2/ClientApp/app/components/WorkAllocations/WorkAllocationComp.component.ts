@@ -16,6 +16,7 @@ import { TabStripComponent } from '@progress/kendo-angular-layout';
 import { ItemListComp } from '../ItemList/itemListComp.component';
 import { GridDataResult, RowClassArgs, PageChangeEvent } from '@progress/kendo-angular-grid';
 import { SortDescriptor, orderBy, State } from '@progress/kendo-data-query';
+import { Helpers } from '../helpers/HelperMethods';
 
 @Component({
 	selector: 'WorkAllocationComp',
@@ -192,7 +193,11 @@ export class WorkAllocationComp implements OnInit {
         let ind = this._reviewSetsService.ReviewSets.findIndex(found => found.setType.allowRandomAllocation == true);
         if (ind > -1) return false;
         else return true;
-    }
+	}
+
+	FormatDate(DateSt: string): string {
+		return Helpers.FormatDate(DateSt);
+	}
     
 	public NewComparisonSectionOpen() {
 

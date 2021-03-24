@@ -1,14 +1,18 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Router } from '@angular/router';
 import { MAGBrowserService } from '../services/MAGBrowser.service';
 import { MAGAdvancedService } from '../services/magAdvanced.service';
 import { MAGBrowserHistoryService } from '../services/MAGBrowserHistory.service';
-import { BasicMAGService } from '../services/BasicMAG.service';
-import { MagSearch, TopicLink, MVCMagFieldOfStudyListSelectionCriteria, MagFieldOfStudy, MagBrowseHistoryItem, MVCMagPaperListSelectionCriteria, MagPaper } from '../services/MAGClasses.service';
+import { MAGRelatedRunsService } from '../services/MAGRelatedRuns.service';
+import { MagSearch, TopicLink, MVCMagFieldOfStudyListSelectionCriteria, MagFieldOfStudy, MagBrowseHistoryItem } from '../services/MAGClasses.service';
 import { magSearchService } from '../services/MAGSearch.service';
 import { NotificationService } from '@progress/kendo-angular-notification';
+import { MAGTopicsService } from '../services/MAGTopics.service';
+import { Helpers } from '../helpers/HelperMethods';
+import { MAGAdminService } from '../services/MAGAdmin.service';
+import { ModalService } from '../services/modal.service';
 
 @Component({
     selector: 'MAGSearch',
@@ -18,20 +22,22 @@ import { NotificationService } from '@progress/kendo-angular-notification';
 
 export class MAGSearchComponent implements OnInit {
 
-    constructor(private ConfirmationDialogService: ConfirmationDialogService,
-        public _magBasicService: BasicMAGService,
-        public _magAdvancedService: MAGAdvancedService,
+    constructor(private _confirmationDialogService: ConfirmationDialogService,
+        private modalService: ModalService,
         private _magBrowserService: MAGBrowserService,
-        public _magSearchService: magSearchService,
+        private _magSearchService: magSearchService,
         private _ReviewerIdentityServ: ReviewerIdentityService,
         private router: Router,
-        public _mAGBrowserHistoryService: MAGBrowserHistoryService,
-        public _notificationService: NotificationService
+        private _mAGBrowserHistoryService: MAGBrowserHistoryService,
+        private _magTopicsService: MAGTopicsService,
+        private MAGAdminService: MAGAdminService
 
     ) {
 
     }
 
+    @Output() PleaseGoTo = new EventEmitter<string>();
+    @Output() IHaveImportedSomething = new EventEmitter<void>();
     public dropdownBasic2: boolean = false;
     public isCollapsed2: boolean = false;
     public dropdownBasic1: boolean = false;
@@ -43,61 +49,94 @@ export class MAGSearchComponent implements OnInit {
     public WordsInSelection: number = 0;
     public LogicalOperator: string = 'Select operator';
     public DateLimitSelection: number = 0;
+    public DateLimitSelectionCombine: number = 0;
     public PublicationTypeSelection: number = 0;
-    public MagSearchList: MagSearch[] = [];
     public magSearchInput: string = '';
+    public SearchedTopic: string = "";
     public valueKendoDatepicker1 : Date = new Date();
     public valueKendoDatepicker2: Date = new Date();
     public valueKendoDatepicker3: Date = new Date();
+    public valueKendoDatepickerCombine1: Date = new Date();
+    public valueKendoDatepickerCombine2: Date = new Date();
+    private _maxyear: number = (new Date()).getFullYear() + 1;
+    public get maxyear(): number {
+        return this._maxyear;
+    }
+    public valueYearPickerCombine1: number = this.maxyear - 11;
+    public valueYearPickerCombine2: number = this.valueYearPickerCombine1;
+    public ShowTextImportFilters: boolean = false;
+    public FilterOutJournal: string = "";
+    public FilterOutURL: string = "";
+    public FilterOutDOI: string = "";
     public magSearchDate1: Date = new Date();
     public magSearchDate2: Date = new Date();
     public SearchTextTopics: TopicLink[] = [];
     public SearchTextTopicsResults: TopicLink[] = [];
     public SearchTextTopic: string = '';
-    public OpenTopics: boolean = false;
     public SearchTextTopicDisplayName: string = '';
+    public basicFilterPanel: boolean = false;
+
+    public get MagFolder(): string {
+        return this.MAGAdminService.MagCurrentInfo.magFolder;
+    }
 
     ngOnInit() {
 
-        this.FetchMagSearches();
+        //this.FetchMagSearches();
          
     }
-    FetchMagSearches() {
-
+    public get MagSearchList(): MagSearch[] {
+        return this._magSearchService.MagSearchList;
+    }
+    public get CombineButtonText(): string {
+        if (this.AllSelectedItems.length == 1) return "Re-Run Search with Date Filter";
+        else return "Run Combined Searches";
+    }
+    public FetchMagSearches() {
         this._magSearchService.FetchMAGSearchList();
+    }
 
+    FormatDate(DateSt: string): string {
+        return Helpers.FormatDate(DateSt);
+    }
+    FormatDate2(DateSt: string): string {
+        return Helpers.FormatDate2(DateSt);
     }
     public UpdateTopicResults() {
-
-
-        if (this.SearchTextTopicDisplayName.length > 2) {
+        this.SearchedTopic = this.magSearchInput;
+        this.SearchTextTopicDisplayName = "";
+        this.SearchTextTopic = "";
+        this.SearchTextTopicsResults = [];
+        if (this.magSearchInput.length > 2) {
 
             let criteriaFOSL: MVCMagFieldOfStudyListSelectionCriteria = new MVCMagFieldOfStudyListSelectionCriteria();
             criteriaFOSL.fieldOfStudyId = 0;
             criteriaFOSL.listType = 'FieldOfStudySearchList';
             criteriaFOSL.paperIdList = '';
-            criteriaFOSL.SearchTextTopics = this.SearchTextTopicDisplayName;
-            this._magBrowserService.FetchMagFieldOfStudyList(criteriaFOSL, '').then(
+            criteriaFOSL.SearchTextTopics = this.magSearchInput;
+            this._magTopicsService.FetchMagFieldOfStudyList(criteriaFOSL, '').then(
 
-                (results: MagFieldOfStudy[]) => {
+                (results: MagFieldOfStudy[] | boolean) => {
 
                     //this.WPFindTopics = [];
-                    let FosList: MagFieldOfStudy[] = results;
-                    let i: number = 1;
-                    let cnt: number = 0;
-                    for (var fos of FosList) {
+                    if (results != false) {
+                        let FosList: MagFieldOfStudy[] = results as MagFieldOfStudy[];
+                        let i: number = 1;
+                        let cnt: number = 0;
+                        for (var fos of FosList) {
 
-                        let item: TopicLink = new TopicLink();
-                        item.displayName = fos.displayName;
-                        item.fontSize = i;
-                        item.fieldOfStudyId = fos.fieldOfStudyId;
-                        this.SearchTextTopicsResults[cnt] = item;
-                        cnt += 1;
-                        if (i > 0.1) {
-                            i -= 0.01;
+                            let item: TopicLink = new TopicLink();
+                            item.displayName = fos.displayName;
+                            item.fontSize = i;
+                            item.fieldOfStudyId = fos.fieldOfStudyId;
+                            this.SearchTextTopicsResults[cnt] = item;
+                            cnt += 1;
+                            if (i > 0.1) {
+                                i -= 0.01;
+                            }
                         }
+                        return;
                     }
-                    return;
                 }
             );
 
@@ -107,63 +146,54 @@ export class MAGSearchComponent implements OnInit {
             this.SearchTextTopicsResults = [];
         }
     }
-    public OpenTopicsPanel(event: any) {
-        var dropDownValue = event.target.value;
-        console.log(dropDownValue);
-        if (dropDownValue == 3) {
-            this.OpenTopics = true;
-        } else {
-            this.OpenTopics = false;
-        }
-    }
+   
     public SelectTopic(topic: TopicLink)
     {
-        this.OpenTopics = false;
         this.SearchTextTopicDisplayName = topic.displayName;
         this.SearchTextTopic = topic.fieldOfStudyId.toString();
     }
     public CanImportMagPapers(item: MagSearch): boolean {
-
-        if (item != null && item.magSearchId > 0 && item.hitsNo > 0 && this.HasWriteRights) {
+        if (item.magFolder != this.MagFolder) return false;
+        else if (item != null && item.magSearchId > 0 && item.hitsNo > 0 && this.HasWriteRights) {
             return true;
         } else {
             return false;
         }
     }
-    private ShowMAGRunMessage(notifyMsg: string) {
-
-        this._notificationService.show({
-            content: notifyMsg,
-            animation: { type: 'slide', duration: 400 },
-            position: { horizontal: 'center', vertical: 'top' },
-            type: { style: "info", icon: true },
-            closable: true
-        });
+    public ShowFilterPanel() {
+        this.basicFilterPanel = !this.basicFilterPanel;
     }
     public ImportMagSearchPapers(item: MagSearch) {
 
         let msg: string = '';
-        if (item.magSearchId == 0) {
-            this.ShowMAGRunMessage('There are no papers to import');
+        if (item.magSearchId == 0 || item.hitsNo == 0) {
+            this.modalService.GenericErrorMessage('Sorry, there are no papers to import');
 
+        } else if (item.hitsNo > 20000) {
+            msg = "Sorry, imports are restricted to 20,000 records.<br />You could try breaking up your search (eg. by date).";
+            this.modalService.GenericErrorMessage(msg);
         } else {
-
-            if (item.hitsNo > 20000) {
-                 msg ="Sorry. You can't import more than 20k records at a time.\nYou could try breaking up your search e.g. by date?";
+            if (item.hitsNo == 1) {
+                msg = "Are you sure you want to import this search result? <br />This will import up to " + item.hitsNo.toString() + " items in your review.";
             }
             else {
-                msg = "Are you sure you want to import this search result?";
+                msg = "Are you sure you want to import these search results? <br />This will import up to " + item.hitsNo.toString() + " items in your review.";
             }
             this.ImportMagRelatedPapersRun(item, msg);
         }
     }
     public ImportMagRelatedPapersRun(magSearch: MagSearch, msg: string) {
 
-        this.ConfirmationDialogService.confirm("Importing papers for the selected MAG search",
+        this._confirmationDialogService.confirm("Importing papers for the selected search",
             msg, false, '')
             .then((confirm: any) => {
                 if (confirm) {
-                    this._magSearchService.ImportMagSearches(magSearch.magSearchText, magSearch.searchText).then(
+                    this._magSearchService.ImportMagSearches(magSearch.magSearchText
+                        , magSearch.searchText
+                        , this.basicFilterPanel ? this.FilterOutJournal : ""
+                        , this.basicFilterPanel ? this.FilterOutURL : ""
+                        , this.basicFilterPanel ? this.FilterOutDOI : ""
+                    ).then(
 
                         (result: number) => {
 
@@ -174,11 +204,13 @@ export class MAGSearchComponent implements OnInit {
                             if (result == num_in_run) {
                                 msg = "Imported " + result.toString() + " out of " +
                                     num_in_run.toString() + " items";
+                                this.IHaveImportedSomething.emit();
                             }
                             else if (result != 0) {
                                 msg = "Some of these items were already in your review.\n\nImported " +
                                     result.toString() + " out of " + num_in_run.toString() +
-                                    " new items";
+                                    " search hits";
+                                this.IHaveImportedSomething.emit();
                             }
                             else {
                                 msg = "All of these records were already in your review.";
@@ -187,7 +219,7 @@ export class MAGSearchComponent implements OnInit {
                             } else {
                                 msg = 'results are undefined';
                             }
-                            this.ShowMAGRunMessage(msg);
+                            this._confirmationDialogService.showMAGRunMessage(msg);
                         }
                         
                    );
@@ -196,29 +228,20 @@ export class MAGSearchComponent implements OnInit {
     }
 
     public GetItems(item: MagSearch) {
+        if (item.magFolder != this.MagFolder) {
+            this.modalService.GenericErrorMessage("This search refers to an outdated version of Microsoft Academic, so results might be outdated. <br /> Please re-run the search.")
+            return;
+        }
 
         if (item.magSearchId > 0) {
-            this._magBrowserService.currentMagSearch = item;
-            this._magAdvancedService.currentMagPaper = new MagPaper();
-            this._magBrowserService.MagCitationsByPaperList.papers = [];
-            this._magBrowserService.MAGOriginalList.papers = [];
-            this._magBrowserService.currentRefreshListType = 'MagSearchResultsList';
-            this._magBrowserService.currentListType = "MagSearchResultsList";
-            this._magBrowserService.ShowingParentAndChildTopics = false;
-            this._magBrowserService.ShowingChildTopicsOnly = true;
-            let magBrowseItem: MagBrowseHistoryItem = new MagBrowseHistoryItem("Papers identified from Mag Search run", "MagSearchPapersList", 0,
-                "", "", 0, "", "", 0, "", "", item.magSearchId);
-            this._mAGBrowserHistoryService.IncrementHistoryCount();
-            this._mAGBrowserHistoryService.AddToBrowseHistory(magBrowseItem);
-            let selectionCriteria: MVCMagPaperListSelectionCriteria = new MVCMagPaperListSelectionCriteria();
-            selectionCriteria.pageSize = 20;
-            selectionCriteria.pageNumber = 0;
-            selectionCriteria.listType = "MagSearchResultsList";
-            selectionCriteria.magSearchText = item.magSearchText;
-            this._magBrowserService.FetchMagPapersFromSearch(selectionCriteria, "MagSearchResultsList")
+
+            this._magBrowserService.GetMagItemsForSearch(item)            
                 .then(
                     () => {
-                        this.router.navigate(['MAGBrowser']);
+                        this._mAGBrowserHistoryService.AddHistory(new MagBrowseHistoryItem("Papers List from search #: " + item.searchNo.toString(), "MagSearchPapersList", item.magSearchId,
+                            item.magSearchText, "", 0, "", "", 0, "", "", 0));
+                        this.PleaseGoTo.emit("MagSearchPapersList");
+                        //this.router.navigate(['MAGBrowser']);
                     }
                 );
         }
@@ -226,6 +249,7 @@ export class MAGSearchComponent implements OnInit {
 
     public get AllItemsAreSelected(): boolean {
         const ind = this._magSearchService.MagSearchList.findIndex(f => f.add == false);
+        //console.log("AllItemsAreSelected", ind, this._magSearchService.MagSearchList.length);
         if (ind == -1 && this._magSearchService.MagSearchList.length > 0) return true;
         return false;
     }
@@ -247,8 +271,8 @@ export class MAGSearchComponent implements OnInit {
     
     public DeleteSearches() {
         const count = this.AllSelectedItems.length.toString();
-        this.ConfirmationDialogService.confirm("Are you sure you want to delete " + this.AllSelectedItems.length.toString()
-            + " selected MAG searches",
+        this._confirmationDialogService.confirm("Are you sure you want to delete " + this.AllSelectedItems.length.toString()
+            + " selected searches",
             '', false, '')
             .then((confirm: any) => {
                 if (confirm) {
@@ -256,7 +280,7 @@ export class MAGSearchComponent implements OnInit {
 
                         (res: any) => {
                             let msg: string = 'Deleted: ' + count + ' items';
-                            this.ShowMAGRunMessage(msg);
+                            this._confirmationDialogService.showMAGDelayMessage(msg);
                         }
                     );
                 }
@@ -268,8 +292,8 @@ export class MAGSearchComponent implements OnInit {
 
             () => {
                 this.FetchMagSearches();
-                let msg: string = 'You have ReRun a MAG search';
-                this.ShowMAGRunMessage(msg);
+                let msg: string = 'You have rerun the search';
+                this._confirmationDialogService.showMAGDelayMessage(msg);
             }
        );
 
@@ -282,22 +306,29 @@ export class MAGSearchComponent implements OnInit {
         } else {
             this.magSearchDate1 = this.valueKendoDatepicker3;
         }
-        if (this.SearchTextTopicDisplayName != '') {
-            this.magSearchInput = this.SearchTextTopicDisplayName;
-        }
+        let title: string = "";
+        if (this.WordsInSelection != 3) title = this.magSearchInput;
+        else title = this.SearchTextTopicDisplayName;
         this._magSearchService.CreateMagSearch(this.WordsInSelection, this.DateLimitSelection, this.PublicationTypeSelection,
-            this.magSearchInput, this.magSearchDate1, this.magSearchDate2, this.SearchTextTopic).then(
+            title, this.magSearchDate1, this.magSearchDate2, this.SearchTextTopic).then(
 
                 () => {
                     this.FetchMagSearches();
-                    let msg: string = 'You have created a new MAG search';
-                    this.ShowMAGRunMessage(msg);
+                    this.DateLimitSelection = 0;
+
+                    if (this.WordsInSelection == 3) {
+                        //cleanup the topics...
+                        this.SearchTextTopicsResults = [];
+                        this.SearchTextTopic = "";
+                        this.SearchedTopic = "";
+                        this.SearchTextTopicDisplayName = "";
+                    }
+                    //let msg: string = 'You have created a new search';
+                    //this._confirmationDialogService.showMAGRunMessage(msg);
                 }
             );
     }
-    public AdvancedFeatures() {
-        this.router.navigate(['AdvancedMAGFeatures']);
-    }
+    
 
     public Back() {
         this.router.navigate(['Main']);
@@ -307,33 +338,167 @@ export class MAGSearchComponent implements OnInit {
     }
     public get IsServiceBusy(): boolean {
 
-        return this._magSearchService.IsBusy || this._magBrowserService.IsBusy;
+        return this._magSearchService.IsBusy || this._magBrowserService.IsBusy || this._magTopicsService.IsBusy;
     }
-    public CombineSearches(){
-        if (this.LogicalOperator == 'Select operator') return;
-        this._magSearchService.CombineSearches(this.AllSelectedItems, this.LogicalOperator).then(
-
-            () => {
-                let msg: string = 'You have Combined MAG searches using : ' + this.LogicalOperator;
-                this.ShowMAGRunMessage(msg);
-                this.LogicalOperator = 'Select operator';
-                this.FetchMagSearches();
+    public CombineSearches() {
+        const Ns = this.AllSelectedItems.length;
+        if (Ns > 20) return;
+        else if (this.LogicalOperator !== 'AND' && this.LogicalOperator !== 'OR' && Ns > 2) return;
+        else if (Ns == 1 && this.DateLimitSelectionCombine < 1) return;
+        let search: MagSearch = new MagSearch();
+        if (Ns == 1) {
+            search.magSearchText = this.AllSelectedItems[0].magSearchText;
+            search.searchText = "#" + this.AllSelectedItems[0].searchNo;
+        }
+        else {
+            search = this.CombineSearchesString();
+        }
+        this.AddDateAndStringLimits(search);
+        if (search.magSearchText.length > 2000) {
+            let msg = "Sorry, we can't combine these searches, the resulting search string is too long.";
+            this._confirmationDialogService.showErrorMessageInStrip(msg);
+            this.LogicalOperator = 'Select operator';
+            return;
+        }
+        this.LogicalOperator = 'Select operator';
+        this._magSearchService.RunMagSearch(search).then(
+            (res) => {
+                if (res == true) {
+                    let msg: string = 'You have combined searches using : ' + this.LogicalOperator;
+                    this._confirmationDialogService.showMAGDelayMessage(msg);
+                    this.DateLimitSelectionCombine = 0;
+                }
+                //this.FetchMagSearches();
             }
         );
+        //this._magSearchService.CombineSearches(this.AllSelectedItems, this.LogicalOperator).then(
+
+        //    () => {
+        //        let msg: string = 'You have Combined MAG searches using : ' + this.LogicalOperator;
+        //        this._confirmationDialogService.showMAGRunMessage(msg);
+        //        this.LogicalOperator = 'Select operator';
+        //        this.FetchMagSearches();
+        //    }
+        //);
     }
+    private CombineSearchesString(): MagSearch {
+        let combinedMagSearch: string = "";
+        let combinedSearchText: string = this.LogicalOperator + "(";
+        for (let ms of this.AllSelectedItems)
+        {
+            if (combinedMagSearch == "") {
+                combinedMagSearch = ms.magSearchText;
+                combinedSearchText += "#" + ms.searchNo.toString();
+            }
+            else {
+                combinedMagSearch += "," + ms.magSearchText;
+                combinedSearchText += ", #" + ms.searchNo.toString();
+            }
+        }
+        let res: MagSearch = new MagSearch();
+        res.searchText = combinedSearchText + ")";
+        res.magSearchText = this.LogicalOperator + "(" + combinedMagSearch + ")";
+        return res;
+    } 
+    private AddDateAndStringLimits(newSearch: MagSearch) {
+        if (this.DateLimitSelectionCombine > 0) {
+            switch (this.DateLimitSelectionCombine) {
+                case 1:
+                    newSearch.magSearchText = "AND(" + newSearch.magSearchText + "," +
+                        this.GetSearchTextPubDateExactly(this.valueKendoDatepickerCombine1) + ")";
+                    newSearch.searchText += " AND published on: " + this.valueKendoDatepickerCombine1.toISOString().substring(0, 10);
+                    break;
+                case 2:
+                    newSearch.magSearchText = "AND(" + newSearch.magSearchText + "," +
+                        this.GetSearchTextPubDateBefore(this.valueKendoDatepickerCombine1) + ")";
+                    newSearch.searchText += " AND published before: " + this.valueKendoDatepickerCombine1.toISOString().substring(0, 10);
+                    break;
+                case 3:
+                    newSearch.magSearchText = "AND(" + newSearch.magSearchText + "," +
+                        this.GetSearchTextPubDateFrom(this.valueKendoDatepickerCombine1) + ")";
+                    newSearch.searchText += " AND published after: " + this.valueKendoDatepickerCombine1.toISOString().substring(0, 10);
+                    break;
+                case 4:
+                    newSearch.magSearchText = "AND(" + newSearch.magSearchText + "," +
+                        this.GetSearchTextPubDateBetween(this.valueKendoDatepickerCombine1,
+                            this.valueKendoDatepickerCombine2) + ")";
+                    newSearch.searchText += " AND published between: " + this.valueKendoDatepickerCombine1.toISOString().substring(0, 10) + " and " +
+                        this.valueKendoDatepickerCombine2.toISOString().substring(0, 10);
+                    break;
+                case 5:
+                    newSearch.magSearchText = "AND(" + newSearch.magSearchText + "," +
+                        this.GetSearchTextYearExactly(this.valueYearPickerCombine1.toString()) + ")";
+                    newSearch.searchText += " AND year of publication: " + this.valueYearPickerCombine1.toString();
+                    break;
+                case 6:
+                    newSearch.magSearchText = "AND(" + newSearch.magSearchText + "," +
+                        this.GetSearchTextYearBefore(this.valueYearPickerCombine1.toString()) + ")";
+                    newSearch.searchText += " AND year of publication before: " + this.valueYearPickerCombine1.toString();
+                    break;
+                case 7:
+                    newSearch.magSearchText = "AND(" + newSearch.magSearchText + "," +
+                        this.GetSearchTextYearAfter(this.valueYearPickerCombine1.toString()) + ")";
+                    newSearch.searchText += " AND year of publication after: " + this.valueYearPickerCombine1.toString();
+                    break;
+                case 8:
+                    newSearch.magSearchText = "AND(" + newSearch.magSearchText + "," +
+                        this.GetSearchTextYearBetween(this.valueYearPickerCombine1.toString(),
+                            this.valueYearPickerCombine2.toString()) + ")";
+                    newSearch.searchText += " AND year of publication between: " + this.valueYearPickerCombine1.toString() + " and " +
+                        this.valueYearPickerCombine1.toString();
+                    break;
+            }
+        }
+        return newSearch;
+    }
+    //format for dates: 2021-03-01
+    public GetSearchTextPubDateExactly(date: Date):string {
+        return "D='" + date.toISOString().substring(0, 10) + "'";
+    }
+    private GetSearchTextPubDateFrom(date: Date): string {
+        return "D>'" + date.toISOString().substring(0,10) + "'";
+    }
+
+    private GetSearchTextPubDateBefore(date: Date): string  {
+        return "D<'" + date.toISOString().substring(0, 10) + "'";
+    }
+
+    private GetSearchTextPubDateBetween(date1: Date, date2: Date): string  {
+        return "D=['" + date1.toISOString().substring(0, 10) + "','" + date2.toISOString().substring(0, 10) + "']";
+    }
+    private GetSearchTextYearExactly(year: string): string  {
+        return "Y=" + year;
+    }
+    private GetSearchTextYearBefore(year: string): string  {
+        return "Y<" + year;
+    }
+
+    private GetSearchTextYearAfter(year: string): string  {
+        return "Y>" + year;
+    }
+
+    private GetSearchTextYearBetween(year1: string, year2: string): string  {
+        return "Y=[" + year1 + "," + year2 + "]";
+    }
+
     public AddSearchIdToList(magSearch: MagSearch) {
 
     }
     public CanRunSearch(): boolean {
-        if (this.magSearchInput == "") {
+        if (!this.HasWriteRights) return false;
+        else if (this.WordsInSelection != 3 && this.magSearchInput == "" ) {
             return false;
-        } else {
+        }
+        else if (this.WordsInSelection == 3 && this.SearchTextTopic == "") {
+            return false;
+        }
+        else {
             return true;
         }
     }
 
     public CanDeleteSearch(): boolean {
-        if (this.AllSelectedItems.length == 0) {
+        if (this.AllSelectedItems.length == 0 || !this.HasWriteRights) {
             return false;
         } else {
             return true;
@@ -341,15 +506,13 @@ export class MAGSearchComponent implements OnInit {
     }
 
     public CanCombineSearches(): boolean {
-        if (this.AllSelectedItems.length <= 1
-            || this.AllSelectedItems.length > 50 //Seriously? Combine more than 50 searches in one go? NOPE, not doing it.
-            //should not be doing this client side, if so must be done on both but server side more important...
-            //but yes did not think of this I bet there are more as we do not have a think about stage along with
-            //understanding the spec from set out cards ?
-        ) {
+        if (!this.HasWriteRights) return false;
+        else if (this.AllSelectedItems.length == 1 && this.DateLimitSelectionCombine > 0) return true; //re running a search with date filter
+        else if (this.AllSelectedItems.length > 1 && this.AllSelectedItems.length <= 20
+            //Seriously? Combine more than 20 searches in one go? NOPE, not doing it.
+            && (this.LogicalOperator == "AND" || this.LogicalOperator == "OR")) return true;//combining searches
+        else {
             return false;
-        } else {
-            return true;
         }
     }
 }

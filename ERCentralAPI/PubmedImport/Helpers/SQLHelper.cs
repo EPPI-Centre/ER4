@@ -1,6 +1,10 @@
 #if CSLA_NETCORE
 using Csla.Data;
+#if !WEBDB
 using ERxWebClient2;
+#else
+using WebDatabasesMVC;
+#endif
 #endif
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;

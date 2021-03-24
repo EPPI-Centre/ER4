@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 
@@ -33,6 +34,9 @@ namespace ERxWebClient2.Controllers
 				int ReviewID = ri.ReviewId;//this ensures current ticket is valid (goes to DB to check!)
                 ReviewerPrincipal principal = new ReviewerPrincipal(ri);
                 Csla.ApplicationContext.User = principal;
+#if WEBDB
+                SetViewBag();
+#endif
                 return true;//we might want to do more checks!
             }
             catch (Exception e)
@@ -62,7 +66,43 @@ namespace ERxWebClient2.Controllers
                 return false;
 			}
 		}
-	}
+#if WEBDB
+        protected int WebDbId
+        {
+            get
+            {
+                if (User == null || (Csla.ApplicationContext.User.Identity as ReviewerIdentity) == null) return -1;
+                else
+                {
+                    List<Claim> claims = User.Claims.ToList();
+                    Claim DBidC = claims.Find(f => f.Type == "WebDbID");
+                    try
+                    {
+                        return int.Parse(DBidC.Value);
+                    }
+                    catch (Exception e)
+                    {
+                        _logger.LogError("Error parsing the WebDBId value from the logon cookie", e);
+                        return -1;
+                    }
+                }
+            }
+        }
+        private void SetViewBag()
+        {
+            ViewBag.WebDbId = WebDbId;
+            string WebDbTitle = "Unknown";
+            if (User != null && (Csla.ApplicationContext.User.Identity as ReviewerIdentity) != null) 
+            {
+                List<Claim> claims = User.Claims.ToList();
+                Claim DBn = claims.Find(f => f.Type == ClaimTypes.Name);
+                if (DBn != null) WebDbTitle = DBn.Value;
+                ViewBag.WebDbName = WebDbTitle;
+            }
+
+        }
+#endif
+    }
     public class SingleStringCriteria
     {
         public string Value { get; set; }

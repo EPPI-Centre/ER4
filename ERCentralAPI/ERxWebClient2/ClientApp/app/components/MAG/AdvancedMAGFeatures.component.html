@@ -1,20 +1,20 @@
-﻿<HeaderComponent class="row p-1 m-0" style="vertical-align:top;" PageTitle="Microsoft Academic Browser" Context="advancedMAG"></HeaderComponent>
+﻿<!--<HeaderComponent class="row p-1 m-0" style="vertical-align:top;" PageTitle="Microsoft Academic Browser" Context="advancedMAG"></HeaderComponent>
 <button class="page-link rounded pt-1 pb-1 mb-1 float-right"
         style="position:absolute; right: 0; z-index:2000;" (click)="Back()">
     Close/back
 </button>
-<MAGHeaderBar Context="advancedMAG"></MAGHeaderBar>
+<MAGHeaderBar Context="advancedMAG"></MAGHeaderBar>-->
 
 <div class="container col-12">
 
     <div class="row" style="vertical-align:top">
 
-        <div class="col-lg-6">
+        <div class="col-12">
             <h2 class="card-title"></h2>
             <table>
                 <tr>
                     <td>
-                        <h2 class="font-weight-light"> Research And Development for MAG</h2>
+                        <h2 class="font-weight-light">Simulations (for MAG R&D)</h2>
                     </td>
                     <td style="padding-left:10px">
                         <div *ngIf="!basicMAGPanel">
@@ -34,20 +34,13 @@
             </table>
         </div>
 
-        <!--<div class="col-lg-6">
-            <div class="card-footer">
-                <h5 class="font-weight-light text-sm-left">
-                    Current Microsoft Academic Graph Dataset:<br />
-                     <i>{{_magAdvancedService.MagCurrentInfo.magVersion}}  </i>
-                </h5>
-            </div>
-        </div>-->
+        
 
     </div>
 
 
     <div class="row" style="vertical-align:top">
-        <div class="col-sm-12 col-lg-10">
+        <div class="col-12">
             <div class="collapse multi-collapse" id="collapseExample3">
                 <div class="card card-footer">
                     <p>
@@ -298,8 +291,12 @@
 
     <div class="card">
         <div class="card-body">
-
-            <h4 class="card-title">Simulations</h4>
+            <div class="row mx-1">
+                <div class="card-title h4 mb-0">Simulations list</div>
+                <button class="btn btn-sm btn-outline-success mx-1 my-auto py-0 px-1 " (click)="Refresh()">
+                    <i class="fa fa-refresh" aria-hidden="true"></i>
+                </button>
+            </div>
             <div class="col-12 alert-secondary p-2 m-2 card">
                 <table class="table align-middle table-responsive table-striped" style="min-width:150px;max-height:600px;overflow:auto;">
                     <thead>
@@ -346,6 +343,4 @@
     </div>
 </div>
 
-
-
-<statusbar></statusbar>
+<!--<statusbar></statusbar>-->

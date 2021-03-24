@@ -1,0 +1,349 @@
+﻿@model BusinessLibrary.BusinessClasses.FrequencyResultWithCriteria
+@using BusinessLibrary.BusinessClasses
+
+
+<input type="hidden" value="@Model.criteria.included" name="included" id="includedCrit" />
+<input type="hidden" value="@Model.criteria.attributeIdXAxis" name="attributeIdXAxis" id="attributeIdXAxisCrit" />
+<input type="hidden" value="@Model.criteria.setIdXAxis" name="setIdXAxis" id="setIdXAxisCrit" />
+<input type="hidden" value="@Model.criteria.nameXAxis" name="nameXAxis" id="nameXAxisCrit" />
+<input type="hidden" value="@Model.criteria.onlyThisAttribute" name="onlyThisAttribute" id="onlyThisAttributeCrit" />
+<input type="hidden" value="@Model.criteria.webDbId" name="webDbId" id="webDbIdCrit" />
+
+<script type="text/javascript">
+
+    function GoToFreq() {
+            if (!@Model.criteria.setIdXAxis) {
+                return;
+            }
+            if (@Model.criteria.attributeIdXAxis == 0) {
+                postwith("../Frequencies/GetFrequencies", { attId: 0, setId: @Model.criteria.setIdXAxis, parentName: "@Model.criteria.nameXAxis", included: true });
+            }
+            else postwith("../Frequencies/GetFrequencies", { attId: @Model.criteria.attributeIdXAxis, setId: @Model.criteria.setIdXAxis, parentName: "@Model.criteria.nameXAxis", included: true });
+        }
+
+
+
+    function GetFreqsBar() {
+        if (!@Model.criteria.setIdXAxis) {
+            return;
+        }
+
+        if (@Model.criteria.attributeIdXAxis == 0) {
+            $.post("../Frequencies/GetFrequenciesJSON", { attId: 0, setId: @Model.criteria.setIdXAxis, included: true }, function (data, result) { BuildBar(data, result); })
+        }
+        else {
+            $.post("../Frequencies/GetFrequenciesJSON", { attId: @Model.criteria.attributeIdXAxis, setId: @Model.criteria.setIdXAxis, included: true }, function (data, result) { BuildBar(data, result); })
+        }
+    }
+
+
+    function GetFreqsPie() {
+        if (!@Model.criteria.setIdXAxis) {
+            return;
+        }
+
+        if (@Model.criteria.attributeIdXAxis == 0) {
+            $.post("../Frequencies/GetFrequenciesJSON", { attId: 0, setId: @Model.criteria.setIdXAxis, included: true }, function (data, result) { BuildPie(data, result); })
+        }
+        else {
+            $.post("../Frequencies/GetFrequenciesJSON", { attId: @Model.criteria.attributeIdXAxis, setId: @Model.criteria.setIdXAxis, included: true }, function (data, result) { BuildPie(data, result); })
+        }
+    }
+
+    function BuildBar(data, result) {
+        if (result == "success") {
+            $("#FrequenciesGrid").hide();
+            $("#FrequenciesChart").show();
+            $("#FrequenciesResult").html("Frequencies for: " + data.criteria.nameXAxis);
+            $("#FrequenciesResult").show();
+
+            $("#FrequenciesChart").kendoChart({
+                dataSource: { data: data.results },
+                categoryAxis: {
+                    field: "attribute"
+                },
+                series: [
+                    { field: "itemCount" }
+                ],
+                seriesDefaults: {
+                    type: 'bar'
+                },
+                seriesClick: function (e) {
+                    GoToListBar(e);
+                },
+                chartArea: {
+                    height: 250
+                },
+                tooltip: {
+                    visible: true,
+                    template: "#= category #: #= value # records"
+                }
+            });
+        }
+    }
+
+
+    function BuildPie(data, result) {
+        if (result == "success") {
+            $("#FrequenciesGrid").hide();
+            $("#FrequenciesChart").show();
+            $("#FrequenciesResult").html("Frequencies for: " + data.criteria.nameXAxis);
+            $("#FrequenciesResult").show();
+
+            $("#FrequenciesChart").kendoChart({
+                dataSource: { data: data.results },
+                legend: {
+                    position: "right"
+                },
+                chartArea: {
+                    height: 250
+                },
+                seriesDefaults: {
+                    type: "pie"
+                },
+                seriesClick: function (e) {
+                    GoToListPie(e);
+                },
+                series: [{
+                    field: "itemCount",
+                    categoryField: "attribute",
+                    padding: 0
+                }],
+                tooltip: {
+                    visible: true,
+                    template: "#= category #: #= value # records"
+                }
+            });
+        }
+    }
+
+    function GoToListPie(dataItem) {
+        $("#ItemCount").html("Loading...");
+        $("#ItemsGrid").empty();
+        $("#ItemsGrid").kendoGrid();
+        if (dataItem.dataItem.attributeId == -999999) {
+            //postwith("../ItemList/GetFreqListNoneOfTheAbove", {
+            //    attributeIdXAxis: 0
+            //    , setId: dataItem.dataItem.setId
+            //    , included: "true"
+            //    , onlyThisAttribute: 0
+            //    , webDbId: 1
+            //    , attName: dataItem.dataItem.attribute
+            //});
+            var attributeIdXAxis = $('#attributeIdXAxisCrit').val();
+            $.post("../ItemList/GetFreqListNoneOfTheAboveJSon"
+                , {
+                    attributeIdXAxis: attributeIdXAxis
+                    , setId: dataItem.dataItem.setId
+                    , included: "true"
+                    , onlyThisAttribute: 0
+                    , webDbId: 1
+                    , attName: dataItem.dataItem.attribute
+                }
+                , function (data, result) { BuildItems(data, result); }
+            );
+        }
+        else {
+            //postwith("../ItemList/GetFreqList", {
+            //    attId: dataItem.dataItem.attributeId
+            //    , attName: dataItem.dataItem.attribute
+            //});
+            $.post("../ItemList/GetFreqListJSon", {
+                attId: dataItem.dataItem.attributeId
+                , attName: dataItem.dataItem.attribute
+            }
+                , function (data, result) { BuildItems(data, result); }
+            );
+        }
+    }
+
+    function GoToListBar(dataItem) {
+        $("#ItemCount").html("Loading...");
+        $("#ItemsGrid").empty();
+        $("#ItemsGrid").kendoGrid();
+        if (dataItem.dataItem.attributeId == -999999) {
+            //postwith("../ItemList/GetFreqListNoneOfTheAbove", {
+            //    attributeIdXAxis: 0
+            //    , setId: dataItem.dataItem.setId
+            //    , included: "true"
+            //    , onlyThisAttribute: 0
+            //    , webDbId: 1
+            //    , attName: dataItem.dataItem.attribute
+            //})
+            var attributeIdXAxis = $('#attributeIdXAxisCrit').val();
+            $.post("../ItemList/GetFreqListNoneOfTheAboveJSon", {
+                attributeIdXAxis: attributeIdXAxis
+                , setId: dataItem.dataItem.setId
+                , included: "true"
+                , onlyThisAttribute: 0
+                , webDbId: 1
+                , attName: dataItem.dataItem.attribute
+            }
+                , function (data, result) { BuildItems(data, result); })
+        }
+        else {
+            //postwith("../ItemList/GetFreqList", {
+            //    attId: dataItem.dataItem.attributeId
+            //    , attName: dataItem.dataItem.attribute
+            //}
+            $.post("../ItemList/GetFreqListJSon", {
+                attId: dataItem.dataItem.attributeId
+                , attName: dataItem.dataItem.attribute
+            }
+                , function (data, result) { BuildItems(data, result); }
+            )
+        }
+    }
+
+    function GoToItemsJson(AttId, AttName = '') {
+        $("#ItemCount").html("Loading...");
+        $("#ItemsGrid").empty();
+        $("#ItemsGrid").kendoGrid();
+        if (AttId == -999999) {
+            AttName = 'None of the above';
+            var included = $('#includedCrit').val();
+            var attributeIdXAxis = $('#attributeIdXAxisCrit').val();
+            var setIdXAxis = $('#setIdXAxisCrit').val();
+            var onlyThisAttribute = $('#onlyThisAttributeCrit').val();
+            var webDbId = $('#webDbIdCrit').val();
+            $.post("../ItemList/GetFreqListNoneOfTheAboveJSon"
+                , {
+                    attributeIdXAxis: attributeIdXAxis, setId: setIdXAxis, included: included
+                    , onlyThisAttribute: onlyThisAttribute, webDbId: webDbId, attName: AttName
+                }
+                , function (data, result) { BuildItems(data, result); }
+            );
+        } else {
+            $.post("../ItemList/GetFreqListJSon"
+                , { attId: AttId, attName: AttName.replaceAll('&#39;', '\'') }
+                , function (data, result) { BuildItems(data, result); }
+            );
+        }
+    };
+    
+</script>
+
+
+
+<br />
+<br />
+<br />
+
+<div class="main-panel main-panel-no-sidebar">
+
+    <div class="page-inner">
+
+        <div class="card">
+            <div class="card-body">
+                <table width="100%">
+                    <tr>
+                        <td>
+                            <h5 class="card-title mb-3">Frequency report</h5><h5><b>@Model.criteria.nameXAxis.Replace("\'", "&#39;")</b></h5>
+                        </td>
+                        <td style="text-align:right">
+                            <div class="card-tools">
+                                <button class="btn btn-primary btn-sm btn-round" onclick="GoToFreq()">
+                                    <span class="btn-label">
+                                        <i class="fa fa-table"></i>
+                                    </span>
+                                    Table
+                                </button>
+                                <button class="btn btn-primary btn-sm btn-round" onclick="GetFreqsBar()">
+                                    <span class="btn-label">
+                                        <i class="fa fa-chart-bar"></i>
+                                    </span>
+                                    Bar
+                                </button>
+                                <button class="btn btn-primary btn-sm btn-round" onclick="GetFreqsPie()">
+                                    <span class="btn-label">
+                                        <i class="fa fa-chart-pie"></i>
+                                    </span>
+                                    Pie
+                                </button>
+                                <!--<a href="#" class="btn btn-info btn-border btn-round btn-sm mr-2" disabled>
+                                    <span class="btn-label">
+                                        <i class="fa fa-file-excel"></i>
+                                    </span>
+                                    Export
+                                </a>-->
+                                <!--<a href="#" class="btn btn-info btn-border btn-round btn-sm" disabled>
+                                    <span class="btn-label">
+                                        <i class="fa fa-copy"></i>
+                                    </span>
+                                    Copy
+                                </a>-->
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+
+                <div class="card-body">
+                    <div id="FrequenciesGrid">
+                        <div class="row">
+                            @*<div class="col">ID</div>*@
+                            <div class="col text-left border-bottom font-weight-bold" style="background-color:#ebedf2">Code</div>
+                            <div class="col border-bottom font-weight-bold" style="background-color:#ebedf2">Frequency</div>
+                        </div>
+
+                        @{int counter = 0;}
+                        @foreach (WebDbItemAttributeChildFrequency itm in Model.results)
+                        {
+                            <div class="row">
+                                @{counter++;}
+                                @if (counter % 2 == 0)
+                                {
+                                    <div class="col text-left border-bottom" style="background-color:#ebedf2">@itm.Attribute</div>
+                                    <div class="col text-left border-bottom" style="background-color:#ebedf2">
+                                        @if (itm.ItemCount == 0)
+                                        {
+                                            <text>0</text>
+                                        }
+                                        else if (itm.AttributeId == -999999)
+                                        {
+                                            <a href="javascript:GoToItemsJson(@itm.AttributeId, '@Model.criteria.nameXAxis.Replace("\'", "&#39;")')">@itm.ItemCount</a>
+                                        }
+                                        else
+                                        {
+                                            <a href="javascript:GoToItemsJson(@itm.AttributeId, '@itm.Attribute.Replace("\'", "&#39;")')">@itm.ItemCount</a>
+                                        }
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="col text-left border-bottom">@itm.Attribute</div>
+                                    <div class="col text-left border-bottom">
+                                        @if (itm.ItemCount == 0)
+                                        {
+                                            <text>0</text>
+                                        }
+                                        else if (itm.AttributeId == -999999)
+                                        {
+                                            <a href="javascript:GoToItemsJson(@itm.AttributeId, '@Model.criteria.nameXAxis.Replace("\'", "&#39;")')">@itm.ItemCount</a>
+                                        }
+                                        else
+                                        {
+                                            <a href="javascript:GoToItemsJson(@itm.AttributeId, '@itm.Attribute.Replace("\'", "&#39;")')">@itm.ItemCount</a>
+                                        }
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </div>
+                    <div id="FrequenciesChart" class="chart" style="text-align:left">
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+
+            @await Html.PartialAsync("_ItemsList")
+        </div>
+
+    </div>
+
+
+</div>
+

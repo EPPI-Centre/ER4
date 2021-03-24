@@ -395,42 +395,141 @@ namespace BusinessLibrary.BusinessClasses
         {
             ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
             RaiseListChangedEvents = false;
+
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
                 connection.Open();
                 PageSize = criteria.PageSize;
                 try
                 {
-                    using (SqlCommand command = SpecifyListCommand(connection, criteria, ri))
+                    if (criteria.ListType != "WebDbWithWithoutCodes")
                     {
-                        command.Parameters.Add(new SqlParameter("@PageNum", criteria.PageNumber + 1));
-                        command.Parameters.Add(new SqlParameter("@PerPage", _pageSize));
-                        command.Parameters.Add(new SqlParameter("@CurrentPage", 0));
-                        command.Parameters.Add(new SqlParameter("@TotalPages", 0));
-                        command.Parameters.Add(new SqlParameter("@TotalRows", 0));
-                        command.Parameters["@CurrentPage"].Direction = System.Data.ParameterDirection.Output;
-                        command.Parameters["@TotalPages"].Direction = System.Data.ParameterDirection.Output;
-                        command.Parameters["@TotalRows"].Direction = System.Data.ParameterDirection.Output;
-                        //command.CommandTimeout = 1;//used to test timeouts
-                        using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
+                        using (SqlCommand command = SpecifyListCommand(connection, criteria, ri))
                         {
-                            List<long> tIds = new List<long>();
-                            while (reader.Read())
+                            command.Parameters.Add(new SqlParameter("@PageNum", criteria.PageNumber + 1));
+                            command.Parameters.Add(new SqlParameter("@PerPage", _pageSize));
+                            command.Parameters.Add(new SqlParameter("@CurrentPage", 0));
+                            command.Parameters.Add(new SqlParameter("@TotalPages", 0));
+                            command.Parameters.Add(new SqlParameter("@TotalRows", 0));
+                            command.Parameters["@CurrentPage"].Direction = System.Data.ParameterDirection.Output;
+                            command.Parameters["@TotalPages"].Direction = System.Data.ParameterDirection.Output;
+                            command.Parameters["@TotalRows"].Direction = System.Data.ParameterDirection.Output;
+                            //command.CommandTimeout = 1;//used to test timeouts
+                            using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
                             {
-                                Item tmp = Item.GetItem(reader);
-                                if (!tIds.Contains(tmp.ItemId))
+                                List<long> tIds = new List<long>();
+                                while (reader.Read())
                                 {
-                                    tIds.Add(tmp.ItemId);
-                                    Add(tmp);
+                                    Item tmp = Item.GetItem(reader);
+                                    if (!tIds.Contains(tmp.ItemId))
+                                    {
+                                        tIds.Add(tmp.ItemId);
+                                        Add(tmp);
+                                    }
+                                }
+                                reader.NextResult();
+                                if (reader.Read())
+                                {
+                                    _pageIndex = reader.GetInt32("@CurrentPage") - 1;
+                                    _totalItemCount = reader.GetInt32("@TotalRows");
                                 }
                             }
-                            reader.NextResult();
-                            if (reader.Read())
+                        }
+                    }
+                    else
+                    {
+#if WEBDB
+                        List<MiniItem> items = new List<MiniItem>();
+                        Dictionary<long, string> Wcodes = new Dictionary<long, string>();
+                        Dictionary<long, string> WOcodes = new Dictionary<long, string>();
+                        using (SqlCommand command = SpecifyListCommand(connection, criteria, ri))
+                        {
+                            using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
                             {
-                                _pageIndex = reader.GetInt32("@CurrentPage") - 1;
-                                _totalItemCount = reader.GetInt32("@TotalRows");
+                                while (reader.Read())
+                                {
+                                    Wcodes.Add(reader.GetInt64("ATTRIBUTE_ID"), reader.GetString("ATTRIBUTE_NAME"));
+                                }
+                                reader.NextResult();
+                                while (reader.Read())
+                                {
+                                    WOcodes.Add(reader.GetInt64("ATTRIBUTE_ID"), reader.GetString("ATTRIBUTE_NAME"));
+                                }
+                                reader.NextResult();
+                                while (reader.Read())
+                                {
+                                    MiniItem mit = new MiniItem(reader.GetInt64("ItemId"));
+                                    string[] tmp = reader.GetString("With_atts").Split(',', StringSplitOptions.RemoveEmptyEntries);
+                                    string[] tmp2 = reader.GetString("reject").Split(',', StringSplitOptions.RemoveEmptyEntries);
+                                    foreach (string s in tmp)
+                                    {
+                                        mit.Attributes.Add(long.Parse(s));
+                                    }
+                                    foreach (string s in tmp2)
+                                    {
+                                        mit.Attributes2.Add(long.Parse(s));
+                                    }
+                                    mit.ShortTitle = reader.GetString("SHORT_TITLE");
+                                    items.Add(mit);
+                                }
                             }
                         }
+
+                        //easy win: if we have "without" codes, remove all items with anything in the "reject" field (Attributes2)
+                        if (criteria.WithOutAttributesIdsList != null && criteria.WithOutAttributesIdsList != "")
+                            items = items.FindAll(f => f.Attributes2.Count == 0);
+                        foreach (KeyValuePair<long, string> kvp in Wcodes)
+                        {//remove if item doesn't contain this code
+                            items = items.FindAll(f => f.Attributes.Contains(kvp.Key));
+                        }
+                        //we now have the list of items IDs
+
+                        //sort them by short-tile/ID.
+                        items.Sort();
+                        //take just the wanted page
+                        
+                        _totalItemCount = items.Count;
+                        _pageSize = criteria.PageSize;
+                        //int len = Math.Min(100, items.Count);
+                        _pageIndex = Math.Min(PageCount, criteria.PageNumber);
+                        
+                        if (_pageIndex == PageCount -1)
+                        {//last page
+                            items = items.GetRange(_pageIndex * PageSize, _totalItemCount - (_pageIndex * PageSize));
+                        }
+                        else
+                        {//a full page
+                            items = items.GetRange(_pageIndex * _pageSize, _pageSize);
+                        }
+
+                        string Ids = "";
+                        foreach (MiniItem itm in items)
+                        {
+                            Ids += itm.ItemId.ToString() + ",";
+                        }
+                        Ids = Ids.TrimEnd(',');
+                        //st_WebDbItemListFromIDs
+                        using (SqlCommand command = new SqlCommand("st_WebDbItemListFromIDs", connection))
+                        {
+                            command.CommandType = System.Data.CommandType.StoredProcedure;
+                            command.Parameters.Add(new SqlParameter("@RevId", ri.ReviewId)); // use the stored value so that noone can list items out of a review they aren't properly authenticated on
+                            command.Parameters.Add(new SqlParameter("@Items", Ids));
+                            command.Parameters.Add(new SqlParameter("@webDbId", criteria.WebDbId));
+                            List<long> tIds = new List<long>();
+                            using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
+                            {
+                                while (reader.Read())
+                                {
+                                    Item tmp = Item.GetItem(reader);
+                                    if (!tIds.Contains(tmp.ItemId))
+                                    {
+                                        tIds.Add(tmp.ItemId);
+                                        Add(tmp);
+                                    }
+                                }
+                            }
+                        }
+#endif
                     }
                 }
                 catch (Exception e)
@@ -639,7 +738,77 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@MAG_SIMULATION_ID", criteria.MagSimulationId));
                     command.Parameters.Add(new SqlParameter("@FOUND", false));
                     break;
-
+                case "MagPreviouslyMatched":
+                    command = new SqlCommand("st_ItemListMagPreviousMatches", connection);
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId)); // use the stored value so that noone can list items out of a review they aren't properly authenticated on
+                    command.Parameters.Add(new SqlParameter("@SHOW_INCLUDED", criteria.OnlyIncluded));
+                    break;
+#if WEBDB //little trick to avoid making this field add to routine costs in ER4 and ER-Web 
+                //this section contains special lists used only by WebDbs
+                case "WebDbWithThisCode":
+                    command = new SqlCommand("st_WebDbWithThisCode", connection);
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@RevId", ri.ReviewId)); // use the stored value so that noone can list items out of a review they aren't properly authenticated on
+                    command.Parameters.Add(new SqlParameter("@included", criteria.OnlyIncluded));
+                    command.Parameters.Add(new SqlParameter("@attributeId", criteria.FilterAttributeId));
+                    command.Parameters.Add(new SqlParameter("@WebDbId", criteria.WebDbId));
+                    break;
+                case "WebDbAllItems":
+                    command = new SqlCommand("st_WebDbAllItems", connection);
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@RevId", ri.ReviewId)); // use the stored value so that noone can list items out of a review they aren't properly authenticated on
+                    command.Parameters.Add(new SqlParameter("@included", criteria.OnlyIncluded));
+                    command.Parameters.Add(new SqlParameter("@WebDbId", criteria.WebDbId));
+                    break;
+                case "WebDbFrequencyNoneOfTheAbove":
+                    command = new SqlCommand("st_WebDbItemListFrequencyNoneOfTheAbove", connection);
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@RevId", ri.ReviewId));
+                    command.Parameters.Add(new SqlParameter("@WebDbId", criteria.WebDbId));
+                    command.Parameters.Add(new SqlParameter("@SetId", criteria.SetId)); // x axis set id
+                    command.Parameters.Add(new SqlParameter("@included", criteria.OnlyIncluded)); // filter attribute id
+                    command.Parameters.Add(new SqlParameter("@ParentAttributeId", criteria.XAxisAttributeId)); // x axis attribute id
+                    command.Parameters.Add(new SqlParameter("@FilterAttributeId", criteria.FilterAttributeId)); // filter attribute id
+                    break;
+                case "WebDbWithWithoutCodes":
+                    command = new SqlCommand("st_WebDbItemListWithWithoutCodes", connection);
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@RevId", ri.ReviewId));
+                    command.Parameters.Add(new SqlParameter("@WebDbId", criteria.WebDbId));
+                    command.Parameters.Add(new SqlParameter("@WithAttributesIds", criteria.WithAttributesIds));
+                    command.Parameters.Add(new SqlParameter("@WithSetIdsList", criteria.WithSetIdsList));
+                    command.Parameters.Add(new SqlParameter("@included", criteria.OnlyIncluded)); 
+                    command.Parameters.Add(new SqlParameter("@WithOutAttributesIdsList", criteria.WithOutAttributesIdsList)); 
+                    command.Parameters.Add(new SqlParameter("@WithOutSetIdsList", criteria.WithOutSetIdsList)); 
+                    break;
+                case "WebDbSearch":
+                    string que = criteria.SearchString;
+                    if (
+                        criteria.SearchWhat == "TitleAbstract" ||
+                        criteria.SearchWhat == "Title" ||
+                        criteria.SearchWhat == "Abstract" ||
+                        criteria.SearchWhat == "AdditionalText" 
+                        )
+                    {//in these cases, SQL uses the 'CONTAINSTABLE' construct, so we need to parse the search text first.
+                        FullTextSearch fts = new FullTextSearch(criteria.SearchString.Trim());
+                        que = fts.NormalForm;
+                    } 
+                    else if ((criteria.SearchWhat == "ItemId" ||
+                                criteria.SearchWhat == "OldItemId")
+                                && que.EndsWith(","))
+                    {
+                        que = que.TrimEnd(',');
+                    }
+                    command = new SqlCommand("st_WebDbSearchFreeText", connection);
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@RevId", ri.ReviewId));
+                    command.Parameters.Add(new SqlParameter("@WebDbId", criteria.WebDbId));
+                    command.Parameters.Add(new SqlParameter("@SEARCH_TEXT", que));
+                    command.Parameters.Add(new SqlParameter("@SEARCH_WHAT", criteria.SearchWhat));
+                    command.Parameters.Add(new SqlParameter("@included", criteria.OnlyIncluded));
+                    break;
+#endif
                 default:
                     break;
             }
@@ -873,5 +1042,70 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(ShowScoreColumnProperty, value);
             }
         }
+#if WEBDB //little trick to avoid making this field add to routine costs in ER4 and ER-Web
+        public static readonly PropertyInfo<int> WebDbIdProperty = RegisterProperty<int>(typeof(SelectionCriteria), new PropertyInfo<int>("WebDbId", "WebDbId", 0));
+        public int WebDbId
+        {
+            get { return ReadProperty(WebDbIdProperty); }
+            set
+            {
+                SetProperty(WebDbIdProperty, value);
+            }
+        }
+        public static readonly PropertyInfo<string> WithAttributesIdsListProperty = RegisterProperty<string>(typeof(SelectionCriteria), new PropertyInfo<string>("WithAttributesIds", "WithAttributesIds", string.Empty));
+        public string WithAttributesIds
+        {
+            get { return ReadProperty(WithAttributesIdsListProperty); }
+            set
+            {
+                SetProperty(WithAttributesIdsListProperty, value);
+            }
+        }
+        public static readonly PropertyInfo<string> WithSetIdsListProperty = RegisterProperty<string>(typeof(SelectionCriteria), new PropertyInfo<string>("WithSetIdsList", "WithSetIdsList", string.Empty));
+        public string WithSetIdsList
+        {
+            get { return ReadProperty(WithSetIdsListProperty); }
+            set
+            {
+                SetProperty(WithSetIdsListProperty, value);
+            }
+        }
+        public static readonly PropertyInfo<string> WithOutAttributesIdsListProperty = RegisterProperty<string>(typeof(SelectionCriteria), new PropertyInfo<string>("WithOutAttributesIdsList", "WithOutAttributesIdsList", string.Empty));
+        public string WithOutAttributesIdsList
+        {
+            get { return ReadProperty(WithOutAttributesIdsListProperty); }
+            set
+            {
+                SetProperty(WithOutAttributesIdsListProperty, value);
+            }
+        }
+        public static readonly PropertyInfo<string> WithOutSetIdsListProperty = RegisterProperty<string>(typeof(SelectionCriteria), new PropertyInfo<string>("WithOutSetIdsList", "WithOutSetIdsList", string.Empty));
+        public string WithOutSetIdsList
+        {
+            get { return ReadProperty(WithOutSetIdsListProperty); }
+            set
+            {
+                SetProperty(WithOutSetIdsListProperty, value);
+            }
+        }
+        public static readonly PropertyInfo<string> SearchWhatProperty = RegisterProperty<string>(typeof(SelectionCriteria), new PropertyInfo<string>("SearchWhat", "SearchWhat", string.Empty));
+        public string SearchWhat
+        {
+            get { return ReadProperty(SearchWhatProperty); }
+            set
+            {
+                SetProperty(SearchWhatProperty, value);
+            }
+        }
+        public static readonly PropertyInfo<string> SearchStringProperty = RegisterProperty<string>(typeof(SelectionCriteria), new PropertyInfo<string>("SearchString", "SearchString", string.Empty));
+        public string SearchString
+        {
+            get { return ReadProperty(SearchStringProperty); }
+            set
+            {
+                SetProperty(SearchStringProperty, value);
+            }
+        }
+#endif
     }
 }

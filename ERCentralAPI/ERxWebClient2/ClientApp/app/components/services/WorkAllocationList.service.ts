@@ -1,23 +1,32 @@
-import {  Inject, Injectable, EventEmitter, Output } from '@angular/core';
+import {  Inject, Injectable, EventEmitter, Output, OnDestroy } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
+import { EventEmitterService } from './EventEmitter.service';
+import { Subscription } from 'rxjs';
 
 
 @Injectable({
     providedIn: 'root',
 })
 
-export class WorkAllocationListService extends BusyAwareService {
+export class WorkAllocationListService extends BusyAwareService implements OnDestroy {
     @Output() ListLoaded = new EventEmitter();
     constructor(
         private _httpC: HttpClient,
-		private modalService: ModalService,
+        private modalService: ModalService,
+        private EventEmitterService: EventEmitterService,
         @Inject('BASE_URL') private _baseUrl: string
     ) {
         super();
+        console.log("On create WorkAllocationListService");
+        this.clearSub = this.EventEmitterService.PleaseClearYourDataAndState.subscribe(() => { this.Clear(); });
     }
-
+    ngOnDestroy() {
+        console.log("Destroy search service");
+        if (this.clearSub != null) this.clearSub.unsubscribe();
+    }
+    private clearSub: Subscription | null = null;
 	private _ContactWorkAllocations: WorkAllocation[] = [];
 	private _allWorkAllocationsForReview: WorkAllocation[] = [];
     public CurrentlyLoadedWorkAllocationSublist: WorkAllocationSublist = new WorkAllocationSublist();

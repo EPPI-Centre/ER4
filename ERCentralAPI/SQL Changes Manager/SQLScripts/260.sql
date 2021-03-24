@@ -1,6 +1,6 @@
 ﻿
 USE [Reviewer]
-GO 
+GO
 
 IF (NOT EXISTS (SELECT * 
                  FROM INFORMATION_SCHEMA.TABLES 

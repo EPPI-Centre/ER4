@@ -1,27 +1,33 @@
-import { Component, Inject, Injectable, EventEmitter, Output } from '@angular/core';
-import { NgForm } from '@angular/forms';
-import { Router } from '@angular/router';
-import { Observable, of } from 'rxjs';
-import { AppComponent } from '../app/app.component'
-import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
+import { Inject, Injectable, EventEmitter, Output, OnDestroy } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
 import { Helpers } from '../helpers/HelperMethods';
+import { EventEmitterService } from './EventEmitter.service';
+import { Subscription } from 'rxjs';
 
 @Injectable({
     providedIn: 'root',
 })
 
-export class ReviewInfoService extends BusyAwareService{
+export class ReviewInfoService extends BusyAwareService implements OnDestroy{
 
     constructor(
         private _httpC: HttpClient,
         private modalService: ModalService,
+        private EventEmitterService: EventEmitterService,
         @Inject('BASE_URL') private _baseUrl: string
     ) {
         super();
+        console.log("On create ReviewInfoService");
+        this.clearSub = this.EventEmitterService.PleaseClearYourDataAndState.subscribe(() => { this.Clear(); });
+    }
+    ngOnDestroy() {
+        console.log("Destroy search service");
+        if (this.clearSub != null) this.clearSub.unsubscribe();
     }
     @Output() ReviewInfoChanged = new EventEmitter<void>();
+    private clearSub: Subscription | null = null;
 	private _ReviewContacts: Contact[] = [];
     private _ReviewInfo: ReviewInfo = new ReviewInfo();
     public get ReviewInfo(): ReviewInfo {
@@ -109,6 +115,7 @@ export class ReviewInfoService extends BusyAwareService{
         else return "N/A [Id:" + ContactID.toString() +"]";
     }
     public Clear() {
+        console.log("Clear in ReviewInfo service");
         this._ReviewInfo = new ReviewInfo();
         this._ReviewContacts = [];
     }

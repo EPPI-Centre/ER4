@@ -1,27 +1,34 @@
-import { Inject, Injectable, EventEmitter, Output } from '@angular/core';
+import { Inject, Injectable, EventEmitter, Output, OnDestroy } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { ReviewerIdentityService } from './revieweridentity.service';
 import { ModalService } from './modal.service';
 import { ReviewSetsService, ReviewSet } from './ReviewSets.service';
 import { Subject, Subscription } from 'rxjs';
 import { BusyAwareService } from '../helpers/BusyAwareService';
-import { ItemArmDeleteWarningCommandJSON } from './arms.service';
+import { EventEmitterService } from './EventEmitter.service';
 
 @Injectable({
     providedIn: 'root',
 })
 
-export class CodesetStatisticsService extends BusyAwareService {
+export class CodesetStatisticsService extends BusyAwareService implements OnDestroy {
 
     constructor(
         private _http: HttpClient,
         private modalService: ModalService,
         private reviewSetsService: ReviewSetsService,
+        private EventEmitterService: EventEmitterService,
         @Inject('BASE_URL') private _baseUrl: string
     ) {
         super();
+        console.log("On create CodesetStatisticsService");
+        this.clearSub = this.EventEmitterService.PleaseClearYourDataAndState.subscribe(() => { this.Clear(); });
     }
-
+    ngOnDestroy() {
+        console.log("Destroy CodesetStatisticsService");
+        if (this.clearSub != null) this.clearSub.unsubscribe();
+    }
+    private clearSub: Subscription | null = null;
     private _CompletedCodesets: ReviewStatisticsCodeSet[] = [];
 	private _IncompleteCodesets: ReviewStatisticsCodeSet[] = [];
 	private _tmpCodesets: StatsCompletion[] = [];
@@ -114,13 +121,13 @@ export class CodesetStatisticsService extends BusyAwareService {
 		//}
 		return this._IncompleteCodesets;
 	}
-    public GetReviewStatisticsCountsCommand() {
+    public GetReviewStatisticsCountsCommand(DoAlsoDetailedStats: boolean = true) {
         this._BusyMethods.push("GetReviewStatisticsCountsCommand");
         this._http.get<ReviewStatisticsCountsCommand>(this._baseUrl + 'api/ReviewStatistics/ExcecuteReviewStatisticsCountCommand').subscribe(
            data => {
                this._ReviewStats = data;
                //this.Save();
-               this.GetCompletedSetsEmit.emit(data);
+               if (DoAlsoDetailedStats) this.GetCompletedSetsEmit.emit(data);
                return data;
             },
             (error) => {
@@ -324,6 +331,7 @@ export class CodesetStatisticsService extends BusyAwareService {
     //    else if (localStorage.getItem('tmpCodesets')) localStorage.removeItem('tmpCodesets');
     //}
     public Clear() {
+        console.log("Clear on CodesetStatisticsService");
         this._ReviewStats = {
             itemsIncluded: -1,
             itemsExcluded: -1,
@@ -331,6 +339,8 @@ export class CodesetStatisticsService extends BusyAwareService {
             duplicateItems: -1
         };
         this._tmpCodesets = [];
+        this._CompletedCodesets = [];
+        this._IncompleteCodesets = [];
         //localStorage.removeItem('tmpCodesets');
         //localStorage.removeItem('CompletedSets');
         //localStorage.removeItem('IncompleteCodesets');

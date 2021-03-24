@@ -119,7 +119,7 @@
 							<button (click)="setSearchTextDropDown('Additional text')" class="dropdown-item">Additional text</button>
 							<button (click)="setSearchTextDropDown('Uploaded documents')" class="dropdown-item">Uploaded documents</button>
 							<button (click)="setSearchTextDropDown('Authors')" class="dropdown-item">Authors</button>
-							<button (click)="setSearchTextDropDown('PubYear')" class="dropdown-item">Publication year</button>
+							<button (click)="setSearchTextDropDown('Publication year')" class="dropdown-item">Publication year</button>
 						</div>
 					</div>
 
@@ -263,7 +263,13 @@
                     (sortChange)="sortChangeModel($event)"
                     (selectionChange)="selectedRows($event)">
 
-            <kendo-grid-checkbox-column width="50"></kendo-grid-checkbox-column>
+            <kendo-grid-checkbox-column width="40" headerClass="p-2" class="pr-1 pl-2 py-0">
+                <ng-template kendoGridHeaderTemplate>
+                    <button class="btn btn-sm btn-outline-success my-1 py-0 px-1 " (click)="refreshModels()">
+                        <i class="fa fa-refresh" aria-hidden="true"></i>
+                    </button>
+                </ng-template>
+            </kendo-grid-checkbox-column>
             <kendo-grid-column field="modelId" title="ModelID">
             </kendo-grid-column>
             <kendo-grid-column field="modelTitle" title="Title">
@@ -280,7 +286,16 @@
             </kendo-grid-column>
             <kendo-grid-column field="recall" title="Recall">
             </kendo-grid-column>
+            <kendo-grid-column width="80" class="px-1 py-0 m-1"
+                               field="modelId" title="Rebuild">
+                <ng-template kendoGridCellTemplate let-dataItem>
+                    <div (click)="openRebuildConfirmationDialog(dataItem)" class="btn btn-link font-weight-bold">
+                        Rebuild
+                    </div>
+                </ng-template>
+            </kendo-grid-column>
         </kendo-grid>
+            
     </div>
     <div class="col-12 mt-2 mb-2 justify-content-center">
         <button (click)="openConfirmationDialog()" [disabled]="!CanApplyModel()"
@@ -365,6 +380,9 @@
         <kendo-grid-column field="contactName" title="Created By" width="140" class="px-1 py-0 m-1">
         </kendo-grid-column>
         <kendo-grid-column field="searchDate" title="Date" width="140" class="px-1 py-0 m-1">
+            <ng-template kendoGridCellTemplate let-dataItem>
+                {{FormatDate(dataItem.searchDate)}}
+            </ng-template>
         </kendo-grid-column>
         <kendo-grid-column width="80" class="px-1 py-0 m-1"
                            field="hitsNo" title="Hits">

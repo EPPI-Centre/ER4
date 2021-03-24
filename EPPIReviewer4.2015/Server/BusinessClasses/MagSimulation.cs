@@ -599,22 +599,22 @@ namespace BusinessLibrary.BusinessClasses
 
             WriteIdFiles(ReviewId, ContactId, uploadFileName);
             await UploadIdsFileAsync(uploadFileName, folderPrefix);
-            MagLog.UpdateLogEntry("running", "Sim: " + MagSimulationId.ToString() + ", file uploaded", MagLogId);
+            MagLog.UpdateLogEntry("running", "Review: " + ReviewId.ToString() + "Sim: " + MagSimulationId.ToString() + ", file uploaded", MagLogId);
 
-            SubmitCreatTrainFileJob(ContactId, folderPrefix);
+            SubmitCreatTrainFileJob(ContactId, folderPrefix, cancellationToken);
             if (this.SearchMethod == "Extended network")
             {
-                SubmitCreatExtendedTrainFileJob(ContactId, folderPrefix);
+                SubmitCreatExtendedTrainFileJob(ContactId, folderPrefix, cancellationToken);
             }
-            SubmitCreatInferenceFileJob(ContactId, folderPrefix);
+            SubmitCreatInferenceFileJob(ContactId, folderPrefix, cancellationToken);
 
             
             if ((await CheckTrainAndInferenceFilesOk(folderPrefix)) == false)
             {
-                MagLog.UpdateLogEntry("failed", "Sim: " + MagSimulationId.ToString() + ", Training files not uploaded / empty", MagLogId);
+                MagLog.UpdateLogEntry("failed", "Review: " + ReviewId.ToString() + "Sim: " + MagSimulationId.ToString() + ", Training files not uploaded / empty", MagLogId);
                 return;
             }
-            MagLog.UpdateLogEntry("running", "Sim: " + MagSimulationId.ToString() + ", datalake complete", MagLogId);
+            MagLog.UpdateLogEntry("running", "Review: " + ReviewId.ToString() + "Sim: " + MagSimulationId.ToString() + ", datalake complete", MagLogId);
 
             if (MagContReviewPipeline.runADFPipeline(ContactId, "Train.tsv",
                 "Inference.tsv",
@@ -633,16 +633,16 @@ namespace BusinessLibrary.BusinessClasses
                 "true",
                 "true") == "Succeeded")
             {
-                MagLog.UpdateLogEntry("running", "Sim: " + MagSimulationId.ToString() + ", pipeline complete", MagLogId);
+                MagLog.UpdateLogEntry("running", "Review: " + ReviewId.ToString() + "Sim: " + MagSimulationId.ToString() + ", pipeline complete", MagLogId);
                 await DownloadResultsAsync(folderPrefix, ReviewId);
                 await AddClassifierScores(ReviewId.ToString());
             }
             else
             {
-                MagLog.UpdateLogEntry("Failed", "Sim: " + MagSimulationId.ToString() + ", pipeline failed", MagLogId);
+                MagLog.UpdateLogEntry("Failed", "Review: " + ReviewId.ToString() + "Sim: " + MagSimulationId.ToString() + ", pipeline failed", MagLogId);
                 UpdateSimulationRecord("Pipeline failed");
             }
-            MagLog.UpdateLogEntry("Complete", "Sim: " + MagSimulationId.ToString(), MagLogId);
+            MagLog.UpdateLogEntry("Complete", "Review: " + ReviewId.ToString() + "Sim: " + MagSimulationId.ToString(), MagLogId);
             // need to add cleaning up the files, but only once we've seen it in action for a while to help debugging
         }
 
@@ -737,25 +737,25 @@ namespace BusinessLibrary.BusinessClasses
             File.Delete(fileName);
         }
 
-        private void SubmitCreatTrainFileJob(int ContactId, string folderPrefix)
+        private void SubmitCreatTrainFileJob(int ContactId, string folderPrefix, CancellationToken cancellationToken)
         {
             MagCurrentInfo MagInfo = MagCurrentInfo.GetMagCurrentInfoServerSide("LIVE");
             MagDataLakeHelpers.ExecProc(@"[master].[dbo].[GenerateTrainFile](""" + folderPrefix + "/SeedIds.tsv\",\"" +
                 folderPrefix + "/Train.tsv" + "\", \"" + MagInfo.MagFolder + "\",\"" + this.SearchMethod + "\"," +
                 this.Year.ToString() + ",\"" + this.CreatedDate.ToString() + 
-                "\");", true, "GenerateTrainFile", ContactId, 10);
+                "\");", true, "GenerateTrainFile", ContactId, 10, cancellationToken);
         }
 
-        private void SubmitCreatExtendedTrainFileJob(int ContactId, string folderPrefix)
+        private void SubmitCreatExtendedTrainFileJob(int ContactId, string folderPrefix, CancellationToken cancellationToken)
         {
             MagCurrentInfo MagInfo = MagCurrentInfo.GetMagCurrentInfoServerSide("LIVE");
             MagDataLakeHelpers.ExecProc(@"[master].[dbo].[GenerateExtendedTrainFile](""" + folderPrefix + "/Train.tsv\",\"" +
                 folderPrefix + "/ExtendedTrain.tsv" + "\", \"" + MagInfo.MagFolder + "\"," + 
                 this.Year.ToString() + ",\"" + this.CreatedDate.ToString() +
-                "\");", true, "GenerateExtendedTrainFile", ContactId, 10);
+                "\");", true, "GenerateExtendedTrainFile", ContactId, 10, cancellationToken);
         }
 
-        private void SubmitCreatInferenceFileJob(int ContactId, string folderPrefix)
+        private void SubmitCreatInferenceFileJob(int ContactId, string folderPrefix, CancellationToken cancellationToken)
         {
             MagCurrentInfo MagInfo = MagCurrentInfo.GetMagCurrentInfoServerSide("LIVE");
             MagDataLakeHelpers.ExecProc(@"[master].[dbo].[GenerateInferenceFile](""" + folderPrefix +
@@ -764,7 +764,7 @@ namespace BusinessLibrary.BusinessClasses
                 (this.WithThisAttributeId == 0 ? this.Year.ToString() : "1753") + ",\"" +
                 (this.CreatedDate.Date.Year == 1753 ? "" : this.CreatedDate.ToString()) + "\"," +
                 this.YearEnd.ToString() + ",\"" + this.CreatedDateEnd.ToString() + "\");",
-                true, "GenerateInferenceFile", ContactId, 10);
+                true, "GenerateInferenceFile", ContactId, 10, cancellationToken);
         }
 
         private async Task<bool> CheckTrainAndInferenceFilesOk(string folderPrefix)

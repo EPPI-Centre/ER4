@@ -19,7 +19,7 @@ export class ModalService {
 
     private confirm(
         prompt = 'Really?!', title = 'Error', fullHTMLdoc = ''
-    ): Observable<boolean> {
+    ): Observable<boolean | undefined> {
         const modal = this.ngbModal.open(
             ModalDialogComponent, { backdrop: 'static' });
 

@@ -58,9 +58,12 @@
                                         {{MyAccountMessage}}
                                         <br />
                                         {{MyReviewMessage}}
-                                        <NewReviewComp>
-
-                                        </NewReviewComp>
+                                    <div class="row m-0 p-0">
+                                        <NewReviewComp></NewReviewComp>
+                                        <div *ngIf="IsSiteAdmin && HasAdminRights" class="btn btn-link btn-sm my-auto" (click)="SetupWebDBs()">
+                                            Setup WebDBs...
+                                        </div>
+                                    </div>
                                         <div>
                                             <siteadminEntry *ngIf="IsSiteAdmin" class="row p-1 mx-0"></siteadminEntry>
                                         </div>
@@ -101,9 +104,12 @@
                                     <kendo-toolbar-button [text]="'Run Reports'"
                                                           (click)="RunConfigurableReports()">
                                     </kendo-toolbar-button>
-                                    <kendo-toolbar-button *ngIf="ReviewIsMagEnabled" [text]="'MAG'"
-                                                          (click)="OpenBasicMAG()">
-                                    </kendo-toolbar-button>
+                                    <!--<kendo-toolbar-button *ngIf="ReviewIsMagEnabled" [text]="'MAG'"
+                          (click)="OpenBasicMAG()">
+    </kendo-toolbar-button>-->
+                                    <!--<kendo-toolbar-button *ngIf="ReviewIsMagEnabled" [text]="'MAG'"
+                          (click)="OpenMAG()">
+    </kendo-toolbar-button>-->
                                 </kendo-toolbar>
 
                             </div>

@@ -1,11 +1,11 @@
-import {  Inject, Injectable} from '@angular/core';
+import {  Inject, Injectable, OnDestroy} from '@angular/core';
 import { HttpClient, HttpHeaders   } from '@angular/common/http';
 import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
 import { ReviewInfo, ReviewInfoService } from './ReviewInfo.service';
 import {  Subscription } from 'rxjs';
-import { BuildModelService } from './buildmodel.service';
 import { NotificationService } from '@progress/kendo-angular-notification';
+import { EventEmitterService } from './EventEmitter.service';
 
 @Injectable({
 
@@ -13,24 +13,111 @@ import { NotificationService } from '@progress/kendo-angular-notification';
 
 })
 
-export class ClassifierService extends BusyAwareService {
+export class ClassifierService extends BusyAwareService implements OnDestroy {
 
-    asyncResult: ClassifierCommand = new ClassifierCommand();
 
     constructor(
         private _httpC: HttpClient,
 		private modalService: ModalService,
 		private reviewInfoService: ReviewInfoService,
-		private _buildModelService: BuildModelService,
 		private notificationService: NotificationService,
+		private EventEmitterService: EventEmitterService,
         @Inject('BASE_URL') private _baseUrl: string
         ) {
-        super();
+		super();
+		//console.log("On create ClassifierService");
+		this.clearSub = this.EventEmitterService.PleaseClearYourDataAndState.subscribe(() => { this.Clear(); });
+	}
+	ngOnDestroy() {
+		console.log("Destroy MAGRelatedRunsService");
+		if (this.clearSub != null) this.clearSub.unsubscribe();
+	}
+	private clearSub: Subscription | null = null;
+
+	private _ClassifierModelList: ClassifierModel[] = [];
+	//@Output() searchesChanged = new EventEmitter();
+	//public crit: CriteriaSearch = new CriteriaSearch();
+	public modelToBeDeleted: number = 0;
+
+	public get ClassifierModelList(): ClassifierModel[] {
+		return this._ClassifierModelList;
+	}
+
+	public set ClassifierModelList(models: ClassifierModel[]) {
+		this._ClassifierModelList = models;
+	}
+
+	Fetch() {
+
+		this._BusyMethods.push("Fetch");
+
+		this._httpC.get<any>(this._baseUrl + 'api/Classifier/GetClassifierModelList',
+		)
+			.subscribe(result => {
+
+				this.ClassifierModelList = result;
+				console.log(result)
+			},
+				error => {
+					this.modalService.GenericError(error);
+					this.RemoveBusy("Fetch");
+				}
+				, () => {
+					this.RemoveBusy("Fetch");
+				}
+			);
+
+	}
+
+	public Delete(modelId: number): Promise<boolean> {
+
+		let MVCcmd: MVCClassifierCommand = new MVCClassifierCommand();
+
+		MVCcmd._title = '';
+		MVCcmd._attributeIdOn = -1;
+		MVCcmd._attributeIdNotOn = -1;
+		MVCcmd._attributeIdClassifyTo = -1;
+		MVCcmd._modelId = modelId;
+		MVCcmd.revInfo = this.reviewInfoService.ReviewInfo;
+
+		this._BusyMethods.push("DeleteModel");
+
+		return this._httpC.post<MVCClassifierCommand>(this._baseUrl + 'api/Classifier/DeleteModel',
+			MVCcmd)
+			.toPromise().then(
+				(result: MVCClassifierCommand) => {
+					this.RemoveBusy("DeleteModel");
+					if (result != null && result.returnMessage == 'Success') {
+						//all is well!
+						//we'll let the component decide when to refresh data...
+						//this.Fetch(); 
+						return true;
+					}
+					else {
+						this.modalService.GenericErrorMessage("Deletion of model failed. Model id:" + MVCcmd._modelId + ". Failure message: " + result.returnMessage
+							+ ". If the problem persists, please contact EPPISupport");
+						return false;
+					}
+				}, error => {
+					this.RemoveBusy("DeleteModel");
+					console.log("Delete model Error: " + error);
+					this.modalService.GenericError(error);
+					return false;
+				}
+			).catch(
+				(caught) => {
+					this.RemoveBusy("DeleteModel");
+					this.modalService.GenericErrorMessage("Deletion of model failed. Model id:" + MVCcmd._modelId
+						+ ". If the problem persists, please contact EPPISupport");
+					console.log("Catch in DeleteModel", caught);
+					return false;
+				}
+			);
 	}
 
 	IamVerySorryRefresh() {
 
-		this._buildModelService.Fetch();
+		this.Fetch();
 
 	}
 
@@ -46,9 +133,9 @@ export class ClassifierService extends BusyAwareService {
 
 	}
 
-	CreateAsync(title: string, attrOn: string, attrNotOn: string): Subscription {
+	CreateAsync(title: string, attrOn: number, attrNotOn: number, classifierId: number): Subscription {
 
-		let MVCcmd: ClassifierCommand = new ClassifierCommand();
+		let MVCcmd: MVCClassifierCommand = new MVCClassifierCommand();
 
 		MVCcmd._attributeIdClassifyTo = 0;
 		MVCcmd._attributeIdNotOn = attrNotOn;
@@ -56,6 +143,7 @@ export class ClassifierService extends BusyAwareService {
 		MVCcmd._sourceId = -1;
 		MVCcmd._title = title;
 		MVCcmd.revInfo = this.reviewInfoService.ReviewInfo;
+		MVCcmd._classifierId = classifierId;
 
         this._BusyMethods.push("CreateAsync");
 
@@ -63,7 +151,7 @@ export class ClassifierService extends BusyAwareService {
 
 		//alert('about to send to controller');
 
-		return this._httpC.post<ClassifierCommand>(this._baseUrl + 'api/Classifier/Classifier',
+		return this._httpC.post<MVCClassifierCommand>(this._baseUrl + 'api/Classifier/Classifier',
 			MVCcmd, { headers: headers }
 		).subscribe(
 
@@ -92,11 +180,11 @@ export class ClassifierService extends BusyAwareService {
 	
 	Apply(modeltitle: string, AttributeId: number, ModelId: number, SourceId: number) {
 
-		let MVCcmd: ClassifierCommand = new ClassifierCommand();
+		let MVCcmd: MVCClassifierCommand = new MVCClassifierCommand();
 		
 		MVCcmd._title = modeltitle;
-		MVCcmd._attributeIdOn = '-1';
-		MVCcmd._attributeIdNotOn = '-1';
+		MVCcmd._attributeIdOn = -1;
+		MVCcmd._attributeIdNotOn = -1;
 		MVCcmd._attributeIdClassifyTo = AttributeId;
 		MVCcmd._classifierId = ModelId;
 		MVCcmd._sourceId = SourceId;
@@ -106,7 +194,7 @@ export class ClassifierService extends BusyAwareService {
 
 		const headers = new HttpHeaders().set('Content-Type', 'application/json; charset=utf-8');
 
-		this._httpC.post<ClassifierCommand>(this._baseUrl + 'api/Classifier/ApplyClassifierAsync',
+		this._httpC.post<MVCClassifierCommand>(this._baseUrl + 'api/Classifier/ApplyClassifierAsync',
 			MVCcmd, { headers: headers }
 		)
 			.subscribe(result => {
@@ -124,9 +212,55 @@ export class ClassifierService extends BusyAwareService {
 			);
 	}
 
+	public Clear() {
+		this.modelToBeDeleted = 0;
+		this._ClassifierModelList = [];
+    }
 }
 
-export class ClassifierCommand {
+export class ClassifierModel {
+
+	modelId: number = 0;
+	contactId: number = 0;
+	contactName: string = '';
+	accuracy: number = 0;
+	auc: number = 0;
+	precision: number = 0;
+	recall: number = 0;
+	modelTitle: string = '';
+	attributeOn: string = '';
+	attributeNotOn: string = '';
+	attributeIdOn: number = -1;
+	attributeIdNotOn: number = -1;
+
+}
+
+export class BuildModelCommand {
+
+	public _title: string = '';
+	public _attributeIdOn: number = 0;
+	public _attributeIdNotOn: number = 0;
+	public _attributeIdClassifyTo: number = 0;
+	public _sourceId: number = 0;
+	public revInfo: ReviewInfo = new ReviewInfo();
+}
+
+export class MVCClassifierCommand {
+
+	public _title: string = '';
+	public _attributeIdOn: number = 0;
+	public _attributeIdNotOn: number = 0;
+	public _attributeIdClassifyTo: number = 0;
+	public _sourceId: number = 0;
+	public _modelId: number = 0;
+	public _attributeId: number = 0;
+	public _classifierId: number = 0;
+	public returnMessage: string = '';
+	public revInfo: ReviewInfo = new ReviewInfo();
+}
+
+
+export class ClassifierCommandDeprecated {
 
 	public _title: string = '';
 	public _attributeIdOn: string = '0';

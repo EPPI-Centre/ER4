@@ -8,9 +8,8 @@ import { RowClassArgs, GridDataResult, SelectableSettings, SelectableMode, PageC
 import { SortDescriptor, orderBy, State, process } from '@progress/kendo-data-query';
 import { ReviewSetsService,  ReviewSet, singleNode, SetAttribute } from '../services/ReviewSets.service';
 import { NotificationService } from '@progress/kendo-angular-notification';
-import { ClassifierService } from '../services/classifier.service';
+import { ClassifierService, ClassifierModel } from '../services/classifier.service';
 import {  ReviewInfoService, Contact } from '../services/ReviewInfo.service';
-import { BuildModelService } from '../services/buildmodel.service';
 import { SourcesService } from '../services/sources.service';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 import { codesetSelectorComponent } from '../CodesetTrees/codesetSelector.component';
@@ -18,10 +17,11 @@ import 'rxjs/add/observable/interval';
 import 'rxjs/add/observable/from';
 import 'rxjs/add/operator/bufferCount';
 import 'rxjs/add/operator/map';
-import { Observable } from 'rxjs';
+import {  Subscription } from 'rxjs';
 import { ChartComponent } from '@progress/kendo-angular-charts';
 import { saveAs } from '@progress/kendo-file-saver';
 import { ReviewSetsEditingService } from '../services/ReviewSetsEditing.service';
+import { Helpers } from '../helpers/HelperMethods';
 
 @Component({
 	selector: 'SearchComp',
@@ -42,7 +42,6 @@ export class SearchComp implements OnInit, OnDestroy {
 		private _eventEmitter: EventEmitterService,
         private _reviewSetsService: ReviewSetsService,
 		private classifierService: ClassifierService,
-		private _buildModelService: BuildModelService,
 		private notificationService: NotificationService,
 		private _sourcesService: SourcesService,
 		private confirmationDialogService: ConfirmationDialogService,
@@ -61,6 +60,7 @@ export class SearchComp implements OnInit, OnDestroy {
 			this._reviewSetsService.selectedNode = null;
 			//this.getMembers();
 			//console.log(this.Contacts);
+			this.clearSub = this._eventEmitter.PleaseClearYourDataAndState.subscribe(() => { this.Clear(); })
         }
 	}
 	//getMembers() {
@@ -75,7 +75,8 @@ export class SearchComp implements OnInit, OnDestroy {
 	public get Contacts(): Contact[] {
 		return this._reviewInfoService.Contacts;
 	}
-    //private InstanceId: number = Math.random();
+	//private InstanceId: number = Math.random();
+	public clearSub: Subscription | null = null;
 	public modelNum: number = 0;
 	public modelTitle: string = '';
 	public ModelId = -1;
@@ -100,7 +101,6 @@ export class SearchComp implements OnInit, OnDestroy {
 	public searchText: string = '';
 	public searchTextModel: string = '';
 	public CurrentDropdownSelectedCode: singleNode | null = null;
-	public SearchVisualiseData!: Observable<any>[];
     public SearchForPeoplesModel: string = 'true';
 
     public get DataSourceSearches(): GridDataResult {
@@ -198,8 +198,8 @@ export class SearchComp implements OnInit, OnDestroy {
 	}
 	public get DataSourceModel(): GridDataResult {
 		return {
-			data: orderBy(this._buildModelService.ClassifierModelList, this.sortCustomModel),
-			total: this._buildModelService.ClassifierModelList.length,
+			data: orderBy(this.classifierService.ClassifierModelList, this.sortCustomModel),
+			total: this.classifierService.ClassifierModelList.length,
 		};
 	}
 	CanOnlySelectRoots() {
@@ -239,7 +239,7 @@ export class SearchComp implements OnInit, OnDestroy {
 
 	Classify() {
 
-		this._buildModelService.Fetch();
+		this.classifierService.Fetch();
 		this._reviewSetsService.selectedNode = null;
 		this.NewSearchSection = false;
 		this.ModelSection = !this.ModelSection;
@@ -476,6 +476,22 @@ export class SearchComp implements OnInit, OnDestroy {
 			.catch(() => console.log('User dismissed the dialog (e.g., by using ESC, clicking the cross icon, or clicking outside the dialog)'));
 	}
 
+	public openRebuildConfirmationDialog(model: ClassifierModel) {
+		this.confirmationDialogService.confirm('Please confirm', 'Are you sure you wish to rebuild this model ?', false, '')
+			.then(
+				(confirmed: any) => {
+					console.log('User confirmed:', confirmed);
+					if (confirmed) {
+						this.RebuildModel(model);
+					}
+					else {
+						//alert('pressed cancel close dialog');
+					};
+				}
+			)
+			.catch(() => console.log('User dismissed the dialog (e.g., by using ESC, clicking the cross icon, or clicking outside the dialog)'));
+	}
+
 	hasError(searchText: string) {
 
 		//alert(searchText);
@@ -560,6 +576,15 @@ export class SearchComp implements OnInit, OnDestroy {
 	SelectModel(model: string) {
 		this.ModelSelected = true;
 		//alert('you selected model: ' + model);
+	}
+
+	async RebuildModel(model: ClassifierModel) {
+
+		if (model.modelId > 0) {
+
+			await this.classifierService.CreateAsync(model.modelTitle, model.attributeIdOn, model.attributeIdNotOn, model.modelId);
+		}
+
 	}
 
 	public data: Array<any> = [{
@@ -716,6 +741,13 @@ export class SearchComp implements OnInit, OnDestroy {
 	refreshSearches() {
 		this._searchService.Fetch();
 	}
+
+	refreshModels() {
+
+		this.classifierService.Fetch();
+
+	}
+
 	public SearchForPersonModel: boolean = false;
 	public SearchForPersonDropDown: string = 'true';
 	SelectPerson(event: string) {
@@ -754,6 +786,8 @@ export class SearchComp implements OnInit, OnDestroy {
 	}
 	
 	callSearches(selectedSearchDropDown: string, selectedSearchTextDropDown: string, searchBool: boolean) {
+
+		if (this.CanWrite()) {
 
 
 			this.selectedSearchTextDropDown = selectedSearchTextDropDown;
@@ -876,6 +910,7 @@ export class SearchComp implements OnInit, OnDestroy {
 
 			}
 
+		}
 	}
 	public ShowSearchForAnyone: boolean = false;
 	public nextDropDownList(num: number, val: string) {
@@ -1012,10 +1047,13 @@ export class SearchComp implements OnInit, OnDestroy {
 	}
 
 	ngOnDestroy() {
-
+		console.log("destroy search component.");
+		if (this.clearSub != null) this.clearSub.unsubscribe();
 		this._reviewSetsService.selectedNode = null;
 	}
-	
+	FormatDate(DateSt: string): string {
+		return Helpers.FormatDate(DateSt);
+	}
 	SearchGetItemList(dataItem: Search) {
 
 		let search: Search = new Search();
@@ -1033,7 +1071,7 @@ export class SearchComp implements OnInit, OnDestroy {
 	}
 
 	Clear() {
-		
+		console.log("clear in search component.");
 		this.CurrentDropdownSelectedCode = null;
 		this.selectedSearchCodeSetDropDown = '';
 		this.selectedSearchDropDown = 'With this code';
@@ -1045,6 +1083,22 @@ export class SearchComp implements OnInit, OnDestroy {
 		this.modelResultsSection = false;
 		this.LogicSection = false;
 		this.SearchForPersonModel = false;
+		this.selected = undefined;
+		this.ModelSection = false;
+		this.ShowVisualiseSection = false;
+		this.radioButtonApplyModelSection = false;
+		this.isCollapsed = false;
+		this.isCollapsedVisualise = false;
+		this.firstName = "";
+		this.modeModels = 'single';
+		this.withCode = false;
+		this.attributeNames = '';
+		this.commaIDs = '';
+		this.email = '';
+		this.searchText = '';
+		this.searchTextModel = '';
+		this.CurrentDropdownSelectedCode = null;
+		this.SearchForPeoplesModel= 'true';
 	}
 }
 

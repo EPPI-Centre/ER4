@@ -29,7 +29,7 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
 		private confirmationDialogService: ConfirmationDialogService,
 		private _reviewSetsService: ReviewSetsService,
 		private _reviewInfoService: ReviewInfoService,
-		private _notificationService: NotificationService
+		private _notificationService: NotificationService,
 	) {
 
 	}
@@ -93,7 +93,13 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
     }
     public get HasReviewStats(): boolean {
         return this.codesetStatsServ.ReviewStats.itemsIncluded != -1;
-    }
+	}
+	public get ReviewIsMagEnabled(): boolean {
+		if (this._reviewInfoService.ReviewInfo.magEnabled
+			//&& this.ReviewerIdentityServ.reviewerIdentity.isSiteAdmin
+		) return true;
+		return false;
+	}
 	ngOnInit() {
 
 		console.log('inititating stats');
@@ -153,7 +159,10 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
     }
     GoToDuplicates() {
         this.router.navigate(['Duplicates']);
-    }
+	}
+	public OpenMAG() {
+		this.router.navigate(['MAG']);
+	}
 	IncludedItemsList() {
         this.ItemListService.GetIncludedItems();
 		this.tabSelectEvent.emit();

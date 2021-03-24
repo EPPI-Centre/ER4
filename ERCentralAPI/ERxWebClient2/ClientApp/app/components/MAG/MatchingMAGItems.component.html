@@ -1,27 +1,81 @@
-﻿<HeaderComponent class="row p-1 m-0" style="vertical-align:top;" PageTitle="Microsoft Academic Browser" Context="MAGMatching"></HeaderComponent>
+﻿<!--<HeaderComponent class="row p-1 m-0" style="vertical-align:top;" PageTitle="Microsoft Academic Browser" Context="MAGMatching"></HeaderComponent>
 <button class="page-link rounded pt-1 pb-1 mb-1 float-right"
         style="position:absolute; right: 0; z-index:2000;" (click)="Back()">
     Close/back
 </button>
-<MAGHeaderBar Context="MAGMatching"></MAGHeaderBar>
+<MAGHeaderBar Context="MAGMatching"></MAGHeaderBar>-->
+
 <div class="container col-12">
     <div class="row" style="vertical-align:top">
-        <div class="col-lg-4">
+
+        <div class="col-sm-10 col-lg-10">
             <h2 class="card-title"></h2>
-            <h2 class="font-weight-light">MAG data in this review</h2>
+            <table>
+                <tr>
+                    <td>
+                        <h2 class="font-weight-light">Match records in your review to Microsoft Academic</h2>
+                    </td>
+                    <td style="padding-left:10px">
+                        <div *ngIf="!basicPanel">
+                            <a class="btn btn-dark btn-sm text-white" data-toggle="collapse" (click)="basicPanel = !basicPanel"
+                               href="#collapseExample1" role="button" aria-expanded="false" aria-controls="collapseExample1">
+                                more details <i class="fa fa-arrow-circle-down"></i>
+                            </a>
+                        </div>
+                        <div *ngIf="basicPanel">
+                            <a class="btn btn-dark btn-sm text-white" data-toggle="collapse" (click)="basicPanel = !basicPanel"
+                               href="#collapseExample1" role="button" aria-expanded="false" aria-controls="collapseExample1">
+                                more details <i class="fa fa-arrow-circle-up"></i>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+
+            <div class="collapse multi-collapse" id="collapseExample1">
+                <div class="card card-footer">
+                    <p>The automated processes for bringing and keeping your review up to date depend on operations in the Microsoft Academic 'graph' (or dataset). We use the graph of relationships between publications to locate papers that are 'closest' to the papers in your review out of the 250 million other records it contains.</p>
+                    <p>
+                        Because we make use of this 'graph' of relationships, we need to know where the papers in your review are located in this graph. If your papers were imported from Microsoft Academic originally, the system will already know their Microsoft Academic IDs and you are ready to use the updating features available.
+                    </p>
+                    <p>
+                        If you originally imported your records from other sources (e.g. from RIS files), then we need to find the Microsoft Academic IDs for your records. The more of your records that we can locate succesfully in Microsoft Academic, the better the automated processes will work.
+                        While Microsoft Academic is an extremely comprehensive source, it does not contain all of the world's research knowledge, and there will be some papers that are not (yet) present.
+                    </p>
+                    <p>
+                        In order to match the records in your review to their Microsoft Academic equivalents, simply click the 'run matching algorithm' button. This will start a process 'behind the scenes' that will go through each of the records in your review and look them up in the latest version of Microsoft Academic.
+                        If you only have a few tens or hundreds of records to match, this will only take a few seconds. If you have tens of thousands, the process will take many minutes; you can keep track of progress by using the green 'refresh' button.
+                   </p>
+                    <p>
+                        The matching process uses the same algorithm for matching bibliographic records as we use for duplicate checking, and where it finds possible matches, it allocates them a confidence score between zero and 1. A score above 0.8 is considered a safe match, and the automated processes operate on the assumption that these are correct.
+                        Matches below 0.8 are retained, but it is recommended that you check through these manually, as they may be wrong. You can do this by clicking on the links below the 'low confidence matched items' headings. Some records can't be matched at all; these can also be identified for manual lookups - which may not be necessary for many reviews, but might be useful for methodological work.
+                    </p>
+                </div>
+            </div>
+
+        </div>
+    </div>
 </div>
-
-        <div class="col-lg-8">
+<br />
+<div class="container col-12">
+    <div class="row" style="vertical-align:top">
+        <div class="col-lg-8 my-auto">
             <h2 class="font-weight-light"></h2>
-            <button (click)="RunMatchingAlgo()"
-                    class="btn btn-primary btn-sm text-white">
-                Run Matching Algorithm
-            </button>&nbsp;&nbsp;
-            <button (click)="ClearAllMatching()"
-                    class="btn btn-danger btn-sm text-white">
-                Clear all Matches in Review
+            <button (click)="RunMatchingAlgo(0)"
+                    class="btn btn-primary btn-sm text-white mx-1">
+                Run matching algorithm
             </button>
-
+            <button (click)="ClearAllMatching()"
+                    class="btn btn-danger btn-sm text-white mx-1">
+                Clear all matches in review
+            </button>
+            <button (click)="ClearAllNonManualMatching()"
+                    class="btn btn-danger btn-sm text-white mx-1">
+                Clear all non-manual matches in review
+            </button>
+            <button class="btn btn-sm btn-outline-success mx-1" (click)="GetMagReviewMagInfoCommand()">
+                <i class="fa fa-refresh" aria-hidden="true"></i>
+            </button>
         </div>
     </div>
 
@@ -36,19 +90,20 @@
                             <th>All matched records in review</th>
                             <th>Low confidence matched items</th>
                             <th>Records that could not be matched</th>
+                            <th>Records that are no longer matched</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
-                            <td >
+                            <td>
                                 <button [disabled]="!CanGetMatchedIncluded()" class="btn btn-link p-2 m-2 " (click)="MAGBrowser('MatchedIncluded')">
                                     {{_magAdvancedService.AdvancedReviewInfo.nMatchedAccuratelyIncluded}}
                                 </button>
-                                <button [disabled]="!CanGetMatchedIncluded()"  class="btn btn-link  p-2 m-2 " (click)="OpenMatchesInReview('MatchedIncluded')">
+                                <button [disabled]="!CanGetMatchedIncluded()" class="btn btn-link  p-2 m-2 " (click)="OpenMatchesInReview('MatchedIncluded')">
                                     (List Papers)
                                 </button>
                             </td>
-                            <td >
+                            <td>
                                 <button [disabled]="!CanGetMatchedExcluded()" class="btn btn-link  p-2 m-2 " (click)="MAGBrowser('MatchedExcluded')">
                                     {{_magAdvancedService.AdvancedReviewInfo.nMatchedAccuratelyExcluded}}
                                 </button>
@@ -56,12 +111,12 @@
                                     (List Papers)
                                 </button>
                             </td>
-                            <td >
+                            <td>
                                 <button [disabled]="!CanGetMatchedAll()" class="btn btn-link  p-2 m-2  " (click)="MAGBrowser('MatchedAll')">
                                     {{_magAdvancedService.AdvancedReviewInfo.nMatchedAccuratelyIncluded + _magAdvancedService.AdvancedReviewInfo.nMatchedAccuratelyExcluded}}
                                 </button>
                             </td>
-                            <td >
+                            <td>
                                 <button [disabled]="!CanGetMatchesNeedingCheckingIncluding()" class=" btn btn-link  p-2 m-2 " (click)="OpenMatchesInReview('MagMatchesNeedingCheckingInc')">
                                     Included: {{_magAdvancedService.AdvancedReviewInfo.nRequiringManualCheckIncluded}}
                                 </button>
@@ -70,12 +125,17 @@
                                     Excluded:  {{_magAdvancedService.AdvancedReviewInfo.nRequiringManualCheckExcluded}}
                                 </button>
                             </td>
-                            <td >
+                            <td>
                                 <button [disabled]="!CanGetNotMatchedIncluded()" class=" btn btn-link  p-2 m-2 " (click)="OpenMatchesInReview('MagMatchesNotMatchedInc')">
                                     Included:  {{_magAdvancedService.AdvancedReviewInfo.nNotMatchedIncluded}}
                                 </button>
                                 <button [disabled]="!CanGetNotMatchedExcluded()" class=" btn btn-link p-2 m-2" (click)="OpenMatchesInReview('MagMatchesNotMatchedExc')">
                                     Excluded:  {{_magAdvancedService.AdvancedReviewInfo.nNotMatchedExcluded}}
+                                </button>
+                            </td>
+                            <td>
+                                <button [disabled]="!CanGetNPreviouslyMatched()" class=" btn btn-link  p-2 m-2 " (click)="OpenMatchesInReview('MagMatchesPreviouslyMatched')">
+                                    All:  {{_magAdvancedService.AdvancedReviewInfo.nPreviouslyMatched}}
                                 </button>
                             </td>
                         </tr>
@@ -99,7 +159,7 @@
                         <div ngbDropdown class="" style="min-width:150px;">
                             <button ngbDropdownAnchor class="btn btn-outline-primary dropdown-toggle w-100"
                                     style="min-width: 250px; white-space:normal" [attr.aria-expanded]="!isCollapsed2"
-                                    id="dropdownBasic2"
+                                    id="dropdownBasic2" [disabled]="!HasWriteRights"
                                     (click)="isCollapsed2 = !isCollapsed2; dropdownBasic2 = false">
                                 {{CurrentDropdownSelectedCode2?.name}}
                             </button>
@@ -112,23 +172,26 @@
                         </div>
                     </div>
 
-                    <div class="col-sm-12 col-lg-4">
-                        <button class="btn btn-primary btn-sm text-white"
-                                [disabled]="!CanGetCodeMatches()"
+                    <div class="col-sm-12 col-lg-8">
+                        <button class="btn btn-primary btn-sm text-white mx-1"
+                                [disabled]="!CanGetCodeMatches() || MustMatchItems "
                                 (click)="MAGBrowser('MatchedWithThisCode')">
-                            List Items
+                            List (matched) items
                         </button>
-                        &nbsp;
-                        <button class="btn btn-primary btn-sm text-white"
+                        <button class="btn btn-primary btn-sm text-white mx-1"
                                 [disabled]="!CanGetCodeMatches()"
-                                (click)="RunMatchingAlgo()">
+                                (click)="RunMatchingAlgo(1)">
                             Auto-match items
                         </button>
-                        &nbsp;
-                        <button class="btn btn-danger btn-sm text-white"
-                                [disabled]="!CanGetCodeMatches()"
+                        <button class="btn btn-danger btn-sm text-white mx-1"
+                                [disabled]="!CanGetCodeMatches() || MustMatchItems"
                                 (click)="ClearMatches()">
-                            Clear Matches
+                            Clear matches
+                        </button>
+                        <button class="btn btn-danger btn-sm text-white mx-1"
+                                [disabled]="!CanGetCodeMatches() || MustMatchItems"
+                                (click)="ClearNonManualMatches()">
+                            Clear non-manual matches
                         </button>
                     </div>
 
@@ -144,7 +207,7 @@
             <div class="row col-12">
 
                 <div class="col-sm-12 col-lg-6 mb-5">
-                    <h4 class="font-weight-light">Locate by MAG Paper ID</h4>
+                    <h4 class="font-weight-light">Locate by Microsoft Academic ID</h4>
                     <div class="col-sm-12 col-lg-6">
                         <div class="row">
                             <div class="col-10" >
@@ -156,7 +219,7 @@
                                 style="padding-left: 10px;">
                                 <button [disabled]="!CanGetMagPaper()" (click)="GetMagPaper()"
                                         class="btn btn-primary btn-sm text-white">
-                                    Get MAG paper
+                                    Go to paper
                                 </button>
                             </div>
                         </div>
@@ -180,7 +243,7 @@
                 </div>
 
                 <div class="col-sm-12 col-lg-5 mb-5">
-                    <h4 class="font-weight-light">Search MAG by topic</h4>
+                    <h4 class="font-weight-light">Search Microsoft Academic by topic</h4>
                     <table class="col-sm-12">
                         <tr class="col-12">
                             <td class="col-12">
@@ -208,4 +271,5 @@
         </div>
     </div>
 </div>
-<statusbar></statusbar>
+<br />
+<!--<statusbar></statusbar>-->

@@ -274,6 +274,9 @@
     <Compile Include="..\Server\BusinessClasses\ImportItems.cs">
       <Link>BusinessClasses\ImportItems.cs</Link>
     </Compile>
+    <Compile Include="..\Server\BusinessClasses\ImportJsonCommand.cs">
+      <Link>BusinessClasses\ImportJsonCommand.cs</Link>
+    </Compile>
     <Compile Include="..\Server\BusinessClasses\ImportURLsCommand.cs">
       <Link>BusinessClasses\ImportURLsCommand.cs</Link>
     </Compile>
@@ -430,6 +433,30 @@
     <Compile Include="..\Server\BusinessClasses\ItemTypeNVLFactory.cs">
       <Link>BusinessClasses\ItemTypeNVLFactory.cs</Link>
     </Compile>
+    <Compile Include="..\Server\BusinessClasses\MagAddClassifierScoresCommand.cs">
+      <Link>BusinessClasses\MagAddClassifierScoresCommand.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\MagAutoUpdate.cs">
+      <Link>BusinessClasses\MagAutoUpdate.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\MagAutoUpdateList.cs">
+      <Link>BusinessClasses\MagAutoUpdateList.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\MagAutoUpdateRun.cs">
+      <Link>BusinessClasses\MagAutoUpdateRun.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\MagAutoUpdateRunCountResultsCommand.cs">
+      <Link>BusinessClasses\MagAutoUpdateRunCountResultsCommand.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\MagAutoUpdateRunList.cs">
+      <Link>BusinessClasses\MagAutoUpdateRunList.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\MagAutoUpdateVisualise.cs">
+      <Link>BusinessClasses\MagAutoUpdateVisualise.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\MagAutoUpdateVisualiseList.cs">
+      <Link>BusinessClasses\MagAutoUpdateVisualiseList.cs</Link>
+    </Compile>
     <Compile Include="..\Server\BusinessClasses\MagBlobDataCommand.cs">
       <Link>BusinessClasses\MagBlobDataCommand.cs</Link>
     </Compile>
@@ -451,6 +478,9 @@
     <Compile Include="..\Server\BusinessClasses\MagCurrentInfo.cs">
       <Link>BusinessClasses\MagCurrentInfo.cs</Link>
     </Compile>
+    <Compile Include="..\Server\BusinessClasses\MagCurrentInfoList.cs">
+      <Link>BusinessClasses\MagCurrentInfoList.cs</Link>
+    </Compile>
     <Compile Include="..\Server\BusinessClasses\MagDownloadSimulationDataCommand.cs">
       <Link>BusinessClasses\MagDownloadSimulationDataCommand.cs</Link>
     </Compile>
@@ -460,8 +490,8 @@
     <Compile Include="..\Server\BusinessClasses\MagFieldOfStudyList.cs">
       <Link>BusinessClasses\MagFieldOfStudyList.cs</Link>
     </Compile>
-    <Compile Include="..\Server\BusinessClasses\MagItemMagRelatedPaperInsertCommand.cs">
-      <Link>BusinessClasses\MagItemMagRelatedPaperInsertCommand.cs</Link>
+    <Compile Include="..\Server\BusinessClasses\MagImportFieldsOfStudyCommand.cs">
+      <Link>BusinessClasses\MagImportFieldsOfStudyCommand.cs</Link>
     </Compile>
     <Compile Include="..\Server\BusinessClasses\MagItemPaperInsertCommand.cs">
       <Link>BusinessClasses\MagItemPaperInsertCommand.cs</Link>
@@ -477,6 +507,9 @@
     </Compile>
     <Compile Include="..\Server\BusinessClasses\MagMatchItemToPaperManualCommand.cs">
       <Link>BusinessClasses\MagMatchItemToPaperManualCommand.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\BusinessClasses\MagNewPapersUpdateAbstractsCommand.cs">
+      <Link>BusinessClasses\MagNewPapersUpdateAbstractsCommand.cs</Link>
     </Compile>
     <Compile Include="..\Server\BusinessClasses\MagPaper.cs">
       <Link>BusinessClasses\MagPaper.cs</Link>

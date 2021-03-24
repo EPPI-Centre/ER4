@@ -1,29 +1,37 @@
-import { Component, Inject, Injectable } from '@angular/core';
-import { NgForm } from '@angular/forms';
-import { Router } from '@angular/router';
-import { Observable, of } from 'rxjs';
-import { AppComponent } from '../app/app.component'
-import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
+import { Inject, Injectable, OnDestroy } from '@angular/core';
+import { HttpClient,} from '@angular/common/http';
 import { ModalService } from './modal.service';
 import { ArchieIdentity, ReviewerIdentityService } from './revieweridentity.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
 import { ConfirmationDialogService } from './confirmation-dialog.service';
+import { EventEmitterService } from './EventEmitter.service';
+import { Subscription } from 'rxjs';
+
 
 
 @Injectable({
     providedIn: 'root',
 })
 
-export class readonlyreviewsService extends BusyAwareService {
+export class readonlyreviewsService extends BusyAwareService implements OnDestroy{
 
     constructor(
         private _httpC: HttpClient,
         private modalService: ModalService,
         private ConfirmationDialogService: ConfirmationDialogService,
         private ReviewerIdentityService: ReviewerIdentityService,
+        private EventEmitterService: EventEmitterService,
         @Inject('BASE_URL') private _baseUrl: string
-    ) { super(); }
-
+    ) {
+        super();
+        //console.log("On create readonlyreviewsService");
+        this.clearSub = this.EventEmitterService.PleaseClearYourDataAndState.subscribe(() => { this.Clear(); });
+    }
+    ngOnDestroy() {
+        console.log("Destroy search service");
+        if (this.clearSub != null) this.clearSub.unsubscribe();
+    }
+    private clearSub: Subscription | null = null;
     private _ReviewList: ReadOnlyReview[] = [];
 
     public get ReadOnlyReviews(): ReadOnlyReview[] {

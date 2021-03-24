@@ -11,10 +11,10 @@
 	<div class="card-body" style="max-height:360px;overflow:auto;">
 		<div id="table" class="small table table-striped bg-light" *ngIf="ShowTimePoints">
 			<div class="table-add float-left mb-3 mr-2 col-md-12 row">
-				<div class="col-md-6">
+				<form #timePointForm="ngForm" class="col-md-6">
 					Enter Time Point value:
 					<div>
-						<input #timePointModel="ngModel"
+						<input #timePointModel="ngModel" name="n1"
 							   required
 							   pattern="^[0-9]+$" class="form-control"
 							   type="text" [(ngModel)]="timepointFreq" />
@@ -32,13 +32,13 @@
 					<div *ngIf="TimePointTheSame" class="alert small alert-danger p-1 col-md-4">
 						Time Point exists already
 					</div>
-				</div>
+				</form>
 				<div class="col-md-2">
 				</div>
 				<div class="form-group col-md-4">
 					<label class="m-0 p-0">Time Unit</label>
 					<select #unitM="ngModel" [(ngModel)]="unitModel"
-							class="form-control col-md-12"
+							class="form-control col-md-12" name="n2"
 							(change)="TimePointChanged(unitModel)">
 						<option value="" selected="selected">Choose time point metric</option>
 						<option [ngValue]="unit" *ngFor="let unit of Units">

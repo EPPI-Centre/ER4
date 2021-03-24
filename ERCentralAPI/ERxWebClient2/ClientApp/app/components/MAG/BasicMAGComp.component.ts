@@ -1,16 +1,18 @@
-import { Component, OnInit, ViewChild} from '@angular/core';
+import { Component, OnInit, ViewChild, Input, Output, EventEmitter} from '@angular/core';
 import { searchService } from '../services/search.service';
-import { BasicMAGService } from '../services/BasicMAG.service';
+import { MAGRelatedRunsService } from '../services/MAGRelatedRuns.service';
 import { singleNode, SetAttribute } from '../services/ReviewSets.service';
 import { codesetSelectorComponent } from '../CodesetTrees/codesetSelector.component';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Router } from '@angular/router';
-import { NotificationService } from '@progress/kendo-angular-notification';
 import { MAGBrowserService } from '../services/MAGBrowser.service';
-import { MagRelatedPapersRun, MagBrowseHistoryItem, MagPaper } from '../services/MAGClasses.service';
+import { MagRelatedPapersRun, MagBrowseHistoryItem} from '../services/MAGClasses.service';
 import { MAGBrowserHistoryService } from '../services/MAGBrowserHistory.service';
 import { MAGAdvancedService } from '../services/magAdvanced.service';
+import { EventEmitterService } from '../services/EventEmitter.service';
+import { Helpers } from '../helpers/HelperMethods';
+import { ModalService } from '../services/modal.service';
 
 @Component({
 	selector: 'BasicMAGComp',
@@ -20,13 +22,12 @@ import { MAGAdvancedService } from '../services/magAdvanced.service';
 
 export class BasicMAGComp implements OnInit {
 
-	constructor(private ConfirmationDialogService: ConfirmationDialogService,
-        public _basicMAGService: BasicMAGService,
+	constructor(private _confirmationDialogService: ConfirmationDialogService,
+        public _basicMAGService: MAGRelatedRunsService,
         private _magBrowserService: MAGBrowserService,
         public _searchService: searchService,
         private _ReviewerIdentityServ: ReviewerIdentityService,
-        private _notificationService: NotificationService,
-        private _magAdvancedService: MAGAdvancedService,
+        private ModalService: ModalService,
         private router: Router,
         public _mAGBrowserHistoryService: MAGBrowserHistoryService
 
@@ -34,6 +35,9 @@ export class BasicMAGComp implements OnInit {
 
     }
     @ViewChild('WithOrWithoutCodeSelector') WithOrWithoutCodeSelector!: codesetSelectorComponent;
+    @Input() OuterContext: string | null = null;
+    @Output() PleaseGoTo = new EventEmitter<string>();
+    @Output() IHaveImportedSomething = new EventEmitter<void>();
     public CurrentDropdownSelectedCode: singleNode | null = null;
     public ShowPanel: boolean = false;
     public isCollapsed: boolean = false;
@@ -45,11 +49,11 @@ export class BasicMAGComp implements OnInit {
     public magDateRadio: string = 'true';
     public magRCTRadio: string = 'NoFilter';
     public magMode: string = '';
-    public basicPanel: boolean = false;
     public basicSearchPanel: boolean = false;
+    public basicPanel: boolean = false;
 
 	ngOnInit() {
-
+        
 
         if (this._ReviewerIdentityServ.reviewerIdentity.userId == 0 ||
             this._ReviewerIdentityServ.reviewerIdentity.reviewId == 0) {
@@ -59,12 +63,16 @@ export class BasicMAGComp implements OnInit {
             this.router.navigate(['Main']);
         }
         else {
-             this._basicMAGService.FetchMagRelatedPapersRunList();
+             //this._eventEmitterService.firstVisitMAGBrowserPage = true;
+             //this._basicMAGService.FetchMagRelatedPapersRunList();
         }
 
     }
     public Back() {
         this.router.navigate(['Main']);
+    }
+    public Refresh() {
+        this._basicMAGService.FetchMagRelatedPapersRunList();
     }
     Clear() {
 
@@ -73,6 +81,9 @@ export class BasicMAGComp implements OnInit {
         this.magDateRadio = 'true';
         this.magMode = '';
 
+    }
+    public FormatDate(date: string): string {
+        return Helpers.FormatDate(date);
     }
 	CloseCodeDropDown() {
         
@@ -93,50 +104,44 @@ export class BasicMAGComp implements OnInit {
     public GetItems(item: MagRelatedPapersRun) {
 
         if (item.magRelatedRunId > 0) {
-            this._magBrowserService.currentMagRelatedRun = item;
-            this._magBrowserService.currentRefreshListType = 'MagRelatedPapersRunList';
-            this._magAdvancedService.currentMagPaper = new MagPaper();
-            this._magBrowserService.MagCitationsByPaperList.papers = [];
-            this._magBrowserService.MAGOriginalList.papers = [];
-            this._magBrowserService.currentListType = "MagRelatedPapersRunList";
-            this._magAdvancedService.currentMagPaper = new MagPaper();
-            this._magBrowserService.ShowingParentAndChildTopics = false;
-            this._magBrowserService.ShowingChildTopicsOnly = true;
-            let magBrowseItem: MagBrowseHistoryItem = new MagBrowseHistoryItem("Papers identified from auto-identification run", "MagRelatedPapersRunList", 0,
-                "", "", 0, "", "", 0, "", "", item.magRelatedRunId);
-            this._mAGBrowserHistoryService.IncrementHistoryCount();
-            this._mAGBrowserHistoryService.AddToBrowseHistory(magBrowseItem);
 
-            this._magBrowserService.FetchMAGRelatedPaperRunsListById(item.magRelatedRunId)
-                .then(
-                    () => {
-                        this.router.navigate(['MAGBrowser']);
+            this._magBrowserService.GetMagRelatedRunsListById(item.magRelatedRunId).then(
+                    (res) => {
+                    //this.router.navigate(['MAGBrowser']);
+                    if (res) {
+                        console.log("want to go to MagRelatedPapersRunList");
+                        this._mAGBrowserHistoryService.AddHistory(new MagBrowseHistoryItem("Papers identified from auto-identification run", "MagRelatedPapersRunList", 0,
+                            "", "", 0, "", "", 0, "", "", item.magRelatedRunId));
+                        this.PleaseGoTo.emit("MagRelatedPapersRunList");
                     }
+                }
             );
+       
         }
     }
-    public ShowBasicPanel() {
-        this.basicPanel = !this.basicPanel;
-    }
+
     public ShowSearchPanel() {
         this.basicSearchPanel = !this.basicSearchPanel;
     }
     public ImportMagSearchPapers(item: MagRelatedPapersRun) {
 
         if (item.nPapers == 0) {
-            this.ShowMAGRunMessage('There are no papers to import');
+            this.ModalService.GenericErrorMessage('There are no papers to import');
 
-        } else if (item.userStatus == 'Imported') {
-            this.ShowMAGRunMessage('Papers have already been imported');
+        } else if (item.nPapers > 20000) {
+            this.ModalService.GenericErrorMessage('Sorry, there are too many results. Imports are limited to searches with up to 20,000 papers.');
+        }
+        else if (item.userStatus == 'Imported') {
+            this._confirmationDialogService.showMAGRunMessage('Papers have already been imported');
 
         } else if (item.userStatus == 'Checked') {
            
-            let msg: string = 'Are you sure you want to import these items?\n(This set is already marked as \'checked\'.)';
+            let msg: string = 'Are you sure you want to import these (up to ' + item.nPapers.toString() +') items?\n(This set is already marked as \'checked\'.)';
             this.ImportMagRelatedPapersRun(item, msg);
 
-        } else if (item.userStatus == 'Unchecked') {
+        } else if (item.userStatus == 'Unchecked' || item.userStatus == 'Not imported') {
           
-            let msg: string = 'Are you sure you want to import these items?';
+            let msg: string = 'Are you sure you want to import these (up to ' + item.nPapers.toString() +') items?';
             this.ImportMagRelatedPapersRun(item, msg);
         }
     }
@@ -157,18 +162,20 @@ export class BasicMAGComp implements OnInit {
         }
 
     }
-    private ShowMAGRunMessage(notifyMsg: string) {
 
-        this._notificationService.show({
-            content: notifyMsg,
-            animation: { type: 'slide', duration: 400 },
-            position: { horizontal: 'center', vertical: 'top' },
-            type: { style: "info", icon: true },
-            closable: true
-        });
-    }
-    public CanDeleteMAGRun() : boolean {
-        return this.HasWriteRights;
+    public CanDeleteMAGRun(magRun: MagRelatedPapersRun) : boolean {
+        //console.log("check magrun date:", magRun.userStatus, magRun.status);
+            if (!this.HasWriteRights) return false;
+        if ((magRun.userStatus == "Waiting" && magRun.status == "") && (magRun.dateRun == "" || magRun.dateRun.length < 10)) return true;
+        if (magRun.userStatus == "Waiting" && magRun.status == "") {
+            const year = parseInt(magRun.dateRun.substr(6, 4));
+            const month = parseInt(magRun.dateRun.substr(3, 2)) - 1;
+            const day = parseInt(magRun.dateRun.substr(0, 2));
+            const date: Date = new Date(year, month, day);
+            //console.log("check magrun date:", date.toDateString(), new Date().toDateString());
+            if (date.toDateString() == new Date().toDateString()) return false;
+        }
+        return true;
     }
     public CanAddNewMAGSearch(): boolean {
 
@@ -207,22 +214,20 @@ export class BasicMAGComp implements OnInit {
                 this.magMode = 'Cited by';
                 break;
             case '6':
-                this.magMode = 'Bi-Citation';
+                this.magMode = 'BiCitation';
                 break;
             case '7':
                 this.magMode = 'Bi-Citation AND Recommendations';
                 break;
-            case '8':
-                this.magMode = '(Next MAG) - new published items';
-                break;
-
             default:
                 break;
 		}
     }
+
     public CheckedStatus(magRelatedRun: MagRelatedPapersRun) {
 
         let msg: string = "";
+
         let status: string = magRelatedRun.userStatus;
         if (status == 'Checked') {
 
@@ -233,14 +238,15 @@ export class BasicMAGComp implements OnInit {
         } else if (status == 'Waiting') {
             msg = 'this search is in a waiting state';
         } else if (status == 'Imported') {
-            msg = 'you have imported these papers already in this search';
+            msg = 'you have imported the papers in this search already';
         } else {
             msg = 'there is an error in the status';
         }
-
-        this.ShowMAGRunMessage(msg);
+        // JT commented out. We don't need to do anything with this now
+        //this._confirmationDialogService.showMAGRunMessage(msg);
 
     }
+
 	public AddNewMAGSearch() {
 
 		let magRun: MagRelatedPapersRun = new MagRelatedPapersRun();
@@ -258,7 +264,9 @@ export class BasicMAGComp implements OnInit {
             magRun.attributeId = att.attribute_id;
             magRun.attributeName = att.name;
         }
-        magRun.dateFrom = this.valueKendoDatepicker.toDateString();
+        if (this.magDateRadio == 'false') {
+            magRun.dateFrom = this.valueKendoDatepicker.toDateString();
+        }   
 		magRun.autoReRun = this.magSearchCheck;
 		magRun.filtered = this.magRCTRadio;
 		magRun.mode = this.magMode;
@@ -269,18 +277,19 @@ export class BasicMAGComp implements OnInit {
     }
     public ImportMagRelatedPapersRun(magRun: MagRelatedPapersRun, msg: string) {
 
-       this.ConfirmationDialogService.confirm("Importing papers for the selected MAG search",
+        this._confirmationDialogService.confirm("Importing papers for the selected search",
                 msg, false, '')
             .then((confirm: any) => {
                 if (confirm) {
                     this._basicMAGService.ImportMagRelatedRunPapers(magRun);
+                    this.IHaveImportedSomething.emit();
                 }
             });
     }
     public DoDeleteMagRelatedPapersRun(magRun: MagRelatedPapersRun) {
 
-        this.ConfirmationDialogService.confirm("Deleting the selected MAG search",
-            "Are you sure you want to delete MAG search:" + magRun.userDescription + "?", false, '')
+        this._confirmationDialogService.confirm("Deleting the selected search",
+            "Are you sure you want to delete this search:" + magRun.userDescription + "?", false, '')
             .then((confirm: any) => {
                 if (confirm) {
                     this._basicMAGService.DeleteMAGRelatedRun(magRun.magRelatedRunId);

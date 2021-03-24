@@ -13,7 +13,7 @@ export class Helpers {
             const month = parseInt(DD_MM_YYYY_.substr(3, 2)) -1;
             const day = parseInt(DD_MM_YYYY_.substr(0, 2));
             const date: Date = new Date(year, month, day);
-            return date.toLocaleDateString();
+            return date.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
         }
     }
     //Used to format dates when the date string is like "YYYY-MM-DD[...]".
@@ -26,7 +26,7 @@ export class Helpers {
             const day = parseInt(YYYY_MM_DD_.substr(8, 2));
             //console.log(year);
             const date: Date = new Date(year, month, day);
-            return date.toLocaleDateString();
+            return date.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
         }
     }
 
@@ -128,6 +128,7 @@ export class Helpers {
             };
         }
     }
+
     //used to add link to stylesheet and HTML frame to HTML content, usually for reports
     //gets used to show and save reports.
     public static AddHTMLFrame(report: string, baseUrl: string, title?: string): string {
@@ -202,6 +203,30 @@ export class Helpers {
         //console.log("Lev dist: ", res);
         //console.log("Lev dist: ", row[a.length], len, tmp2);
         return res;
+    }
+
+    //returns an HTML encoded string, useful for when we show an alert that is fed HTML formatted string, 
+    //but therein we also put the name of a code (which could include things like "<", ">", etc...).
+    //for example MainfFull.BulkAssignRemoveCodes(...)
+    //from https://stackoverflow.com/a/7124052
+    public static htmlEncode(str: string) {
+        return str
+            .replace(/&/g, '&amp;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/\//g, '&#x2F;');
+    }
+    //the opposite of htmlEncode (hopefully!), not sure what for!
+    public static htmlUnescape(str: string) {
+        return str
+            .replace(/&quot;/g, '"')
+            .replace(/&#39;/g, "'")
+            .replace(/&lt;/g, '<')
+            .replace(/&gt;/g, '>')
+            .replace(/&amp;/g, '&')
+            .replace(/'&#x2F;'/g, '/');
     }
 }
 export interface SubstituteString {

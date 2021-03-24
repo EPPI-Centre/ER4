@@ -1,9 +1,11 @@
-﻿<HeaderComponent class="row p-1 m-0" style="vertical-align:top;" PageTitle="Microsoft Academic Browser" Context="basicMAG"></HeaderComponent>
+﻿<!--<HeaderComponent class="row p-1 m-0" style="vertical-align:top;" PageTitle="Microsoft Academic Browser" Context="basicMAG"></HeaderComponent>
 <button class="page-link rounded pt-1 pb-1 mb-1 float-right"
         style="position:absolute; right: 0; z-index:2000;" (click)="Back()">
     Close/back
 </button>
-<MAGHeaderBar Context="basicMAG"></MAGHeaderBar>
+
+<MAGHeaderBar Context="basicMAG"></MAGHeaderBar>-->
+
 <div class="container col-12">
     <div class="row" style="vertical-align:top">
 
@@ -12,17 +14,17 @@
             <table>
                 <tr>
                     <td>
-                        <h2 class="font-weight-light">Find related papers and set up review auto-updates</h2>
+                        <h2 class="font-weight-light">Bring review up to date (find related papers)</h2>
                     </td>
                     <td style="padding-left:10px">
                         <div *ngIf="!basicPanel">
-                            <a (click)="ShowBasicPanel()" class="btn btn-dark btn-sm text-white" data-toggle="collapse"
+                            <a class="btn btn-dark btn-sm text-white" data-toggle="collapse" (click)="basicPanel = !basicPanel"
                                href="#collapseExample1" role="button" aria-expanded="false" aria-controls="collapseExample1">
                                 more details <i class="fa fa-arrow-circle-down"></i>
                             </a>
                         </div>
                         <div *ngIf="basicPanel">
-                            <a (click)="ShowBasicPanel()" class="btn btn-dark btn-sm text-white" data-toggle="collapse"
+                            <a class="btn btn-dark btn-sm text-white" data-toggle="collapse" (click)="basicPanel = !basicPanel"
                                href="#collapseExample1" role="button" aria-expanded="false" aria-controls="collapseExample1">
                                 more details <i class="fa fa-arrow-circle-up"></i>
                             </a>
@@ -35,11 +37,14 @@
                 <div class="card card-footer">
                     <p>On this page you can set up tasks to find papers related to papers in your review automatically.</p>
                     <p>
-                        You can look for related papers as a one-off exercise, or set up an auto update, that will look for new papers every time Microsoft Academic is
-                        updated (once or twice a month).
+                        You can look for related papers as a one-off exercise, which is mostly useful to "find" (potentially) relevant references which were not found via "traditional" searching.
                     </p>
                     <p>
-                        Each time the process runs, a new row will be added to the table below, and items not previously identified will be added. Once new items have appeared in the list below, you can either preview them in this window by clicking the number, or import them into your review, and examine them as you would for any other batch of references. When you import them, they will appear as a new 'source' with the date/time of import. If you want to improve the performance of the algorithm, or undertake methodological work to evaluate its performance, click on the 'Matching MAG Items' link above, run the matching algorithm and finally click on the 'Advanced' on that page.
+                        Each "new search" will be added to the table below, allowing to import items found in the search (if they are not known already). Once new items have appeared in the list below,
+                        you can either preview them in this window by clicking the number, or import them into your review, and examine them as you would for any other batch of references.
+                        <br />When you import these search results, they will appear as a new 'source' with the date/time of import. <br />
+                        <strong>Before you start</strong>: please click on the 'Match records' link above and run the matching algorithm. This creates a 'link' between your 'items' in EPPI-Reviewer and 'Papers' in the MAG database
+                        and is necessary to drive most/all MAG-powered functionalities.
                     </p>
                 </div>
             </div>
@@ -52,22 +57,21 @@
 
 
 <div class="container col-12">
-
     <div *ngIf="IsServiceBusy" class="k-loading-image" style="position: fixed; top: 2%;"></div>
 
-        <div *ngIf="!basicSearchPanel">
-            <a (click)="ShowSearchPanel()" class="btn btn-info btn-sm text-white  p-2 m-2" data-toggle="collapse"
-               href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
-                Create new MAG search/auto-update <i class="fa fa-arrow-circle-down"></i>
-            </a>
-        </div>
-        <div *ngIf="basicSearchPanel">
-            <a (click)="ShowSearchPanel()" class="btn btn-info btn-sm text-white  p-2 m-2" data-toggle="collapse"
-               href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
-                Create new MAG search/auto-update <i class="fa fa-arrow-circle-up"></i>
-            </a>
-        </div>
- 
+    <div *ngIf="!basicSearchPanel">
+        <a (click)="ShowSearchPanel()" class="btn btn-info btn-sm text-white  p-2 m-2" data-toggle="collapse"
+           href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
+            Add new search for related papers <i class="fa fa-arrow-circle-down"></i>
+        </a>
+    </div>
+    <div *ngIf="basicSearchPanel">
+        <a (click)="ShowSearchPanel()" class="btn btn-info btn-sm text-white  p-2 m-2" data-toggle="collapse"
+           href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
+            Add new search for related papers <i class="fa fa-arrow-circle-up"></i>
+        </a>
+    </div>
+
     <div class="collapse multi-collapse" id="collapseExample">
         <div class="card card-footer">
 
@@ -105,11 +109,6 @@
                             <input type="radio" value="specified" name="searchAll"
                                    [(ngModel)]="searchAll">	Items with specified code
                         </label>
-                        <label style="display:block">
-                            <input [disabled]="magMode != 'New items published on next deployment of MAG'" type="radio"
-                                   value="child" name="searchAll"
-                                   [(ngModel)]="searchAll">	(Next MAG) - All child codes
-                        </label>
                     </div>
 
                     <div *ngIf="searchAll == 'specified' || searchAll == 'child'">
@@ -141,28 +140,11 @@
 
 
                 <div class="col-sm-12 col-lg-5  m-0 p-1">
-                    <div class=""><b>RCT Filter</b></div>
-                    <div class="">
-                        <input type="radio" class="m-1 p-1" value="NoFilter" name="magRCTRadio" [(ngModel)]="magRCTRadio" />
-                        No Filter
-                        <input type="radio" class="m-1 p-1" value="HighSensitivity" name="magRCTRadio" [(ngModel)]="magRCTRadio" />
-                        High Sensitivity
-                        <input type="radio" class="m-1 p-1" value="HigherSpecificity" name="magRCTRadio" [(ngModel)]="magRCTRadio" />
-                        Higher specificity
-                    </div>
-                    <br />
-                    <div class=""><b>Auto-update</b></div>
-                    <div class="">
-                        <input [disabled]="magMode != 'New items published on next deployment of MAG'"
-                               type="checkbox" class="" value="Auto-Update" name="magSearchCheck" [(ngModel)]="magSearchCheck" />
-                        (Next MAG) - Auto update search
-                    </div>
-                    <br />
                     <div class=""><b>Search date</b></div>
                     <input type="radio" class="" name="magDateRadio" value="true"
                            [(ngModel)]="magDateRadio" />
                     No date restriction
-                    <input [disabled]="magMode == 'New items published on next deployment of MAG'"
+                    <input [disabled]="magMode == 'New items in MAG'"
                            type="radio" class="" name="magDateRadio" value="false"
                            [(ngModel)]="magDateRadio" />
                     Items dated from
@@ -199,11 +181,10 @@
                                         <button (click)="ClickSearchMode('1')" class="dropdown-item">Papers 'recommended' by known items ('Recommended by')</button>
                                         <button (click)="ClickSearchMode('2')" class="dropdown-item">Papers that 'recommended' known items ('That recommend')</button>
                                         <button (click)="ClickSearchMode('3')" class="dropdown-item">Bi-directional recomendation relationships ('Recommendations')</button>
-                                        <button (click)="ClickSearchMode('4')" class="dropdown-item">Papers in the bibliography of know items ('Bibliography')</button>
+                                        <button (click)="ClickSearchMode('4')" class="dropdown-item">Papers in the bibliography of known items ('Bibliography')</button>
                                         <button (click)="ClickSearchMode('5')" class="dropdown-item">Papers that cite known items ('Cited by')</button>
                                         <button (click)="ClickSearchMode('6')" class="dropdown-item">Bi-directional citation relationships ('Bi-Citation') </button>
                                         <button (click)="ClickSearchMode('7')" class="dropdown-item">Bi-directional recomendation AND citation relationships ('Bi-Citation AND Recommendations')</button>
-                                        <button (click)="ClickSearchMode('8')" class="dropdown-item">(Next MAG) - new published items</button>
                                     </div>
 
                                 </div>
@@ -228,59 +209,62 @@
 
 <div *ngIf="_basicMAGService.MagRelatedPapersRunList.length > 0">
     <div class="container col-12">
-
         <div class="card">
             <div class="card-body">
-
-                <h4 class="card-title">Searches</h4>
+                <div class="row mx-1">
+                    <div class="card-title h4 mb-0">Related Paper Searches</div>
+                    <button class="btn btn-sm btn-outline-success mx-1 my-auto py-0 px-1 " (click)="Refresh()">
+                        <i class="fa fa-refresh" aria-hidden="true"></i>
+                    </button>
+                </div>
                 <div class="col-12 alert-secondary p-2 m-2 card">
-                    <div class="table-responsive">
-                        <table class="table align-middle table-striped" style="width:100%;max-height:600px; overflow:auto;">
+                    <div class="table-responsive" style="width:100%;max-height:65vh; overflow:auto;">
+                        <table class="table align-middle table-striped" >
                             <thead>
                                 <tr>
-                                    <th>Re-run</th>
-                                    <th>Status</th>
-                                    <th></th>
-                                    <th></th>
-                                    <th></th>
-                                    <th></th>
                                     <th>Description</th>
                                     <th>Mode</th>
                                     <th>Date from</th>
                                     <th>Date run</th>
                                     <th>All included</th>
                                     <th>With this code</th>
-                                    <th>Filtered</th>
-
-
+                                    <!--<th>Re-run</th>-->
+                                    <th>Status</th>
+                                    <!--<th></th>-->
+                                    <th></th>
+                                    <th></th>
+                                    <th></th>
                                 </tr>
                             </thead>
                             <tbody style="width:100%">
                                 <tr class="" *ngFor="let item of _basicMAGService.MagRelatedPapersRunList">
+                                    <!--
                                     <td class="p-0" style="vertical-align:middle">
                                         <button md-tooltip='ReRun the same Search' (click)="UpdateAutoReRun(item)" class="btn btn-secondary btn-sm text-white align-content-center" style="min-width:60px;">
                                             {{item.autoReRun}}
                                         </button>
                                     </td>
-                                    <td style="vertical-align:middle">{{item.status  == 'Complete' ? 'Complete' : 'Pending'}}</td>
-                                    <td class="p-0" style="vertical-align:middle"><button [disabled]="!CanDeleteMAGRun()" (click)="DoDeleteMagRelatedPapersRun(item)" class="btn btn-danger btn-sm text-white align-content-center  fa fa-trash"></button></td>
-                                    <td class="p-0" style="vertical-align:middle">
-                                        <button [disabled]="item.userStatus == 'Checked'" (click)="CheckedStatus(item)" [disabled]="!CanImportMagPapers(item)" class="btn btn-info btn-sm text-white align-content-center">
-                                            {{item.userStatus == '' ? 'Waiting' : item.userStatus }}
-                                        </button>
-                                    </td>
-                                    <td class="p-0" style="vertical-align:middle"><button (click)="ImportMagSearchPapers(item)" [disabled]="!CanImportMagPapers(item)" class="btn btn-primary btn-sm text-white align-content-center">Import</button></td>
-                                    <td class="p-0" style="vertical-align:middle"><div (click)="GetItems(item)" class="btn btn-link btn-sm">{{ item.nPapers}}</div></td>
-
+                                        -->
                                     <td style="vertical-align:middle">{{item.userDescription}}</td>
                                     <td style="vertical-align:middle">{{item.mode}}</td>
-                                    <td style="vertical-align:middle">{{item.dateFrom}}</td>
-                                    <td style="vertical-align:middle">{{item.dateRun}}</td>
+                                    <td style="vertical-align:middle">{{FormatDate(item.dateFrom)}}</td>
+                                    <td style="vertical-align:middle">{{FormatDate(item.dateRun)}}</td>
                                     <td style="vertical-align:middle">
                                         <input [disabled]="true" class="m-1" type="checkbox" [(ngModel)]="item.allIncluded" />
                                     </td>
                                     <td style="vertical-align:middle">{{item.attributeName}}</td>
-                                    <td style="vertical-align:middle">{{item.filtered}}</td>
+                                    <td style="vertical-align:middle">{{item.status}}</td>
+
+                                    <td class="px-1 py-0 small" style="vertical-align:middle">
+                                        {{item.userStatus == '' ? 'N/A' : item.userStatus }}
+                                    </td>
+                                    <td class="p-0" style="vertical-align:middle"><button [disabled]="!CanDeleteMAGRun(item)" (click)="DoDeleteMagRelatedPapersRun(item)" class="btn btn-danger btn-sm text-white align-content-center  fa fa-trash"></button></td>
+                                    <td class="p-0" style="vertical-align:middle"><button (click)="ImportMagSearchPapers(item)" [disabled]="!CanImportMagPapers(item)" class="btn btn-primary btn-sm text-white align-content-center">Import</button></td>
+                                    <td class="p-0" style="vertical-align:middle"><div (click)="GetItems(item)" class="btn btn-link btn-sm">{{ item.nPapers}}</div></td>
+
+
+
+                                    <!--<td style="vertical-align:middle">{{item.filtered}}</td>-->
                                 </tr>
                             </tbody>
                         </table>
@@ -298,4 +282,4 @@
 
 
 
-<statusbar></statusbar>
+<!--<statusbar></statusbar>-->

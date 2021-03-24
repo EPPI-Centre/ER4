@@ -3190,6 +3190,22 @@
       "resolved": "https://registry.npmjs.org/circular-json/-/circular-json-0.5.9.tgz",
       "integrity": "sha512-4ivwqHpIFJZBuhN3g/pEcdbnGUywkBblloGbkglyloVjjR3uT6tieI89MVOfbP2tHX5sgb01FuLgAOzebNlJNQ=="
     },
+    "ckeditor4-angular": {
+      "version": "2.0.1",
+      "resolved": "https://registry.npmjs.org/ckeditor4-angular/-/ckeditor4-angular-2.0.1.tgz",
+      "integrity": "sha512-ZPK778bHAU1iqSwb2wFRn9LqB1gFeQhc6xZ1f9mnjHeAEVHIb8bS17uRzHT2qNwGDx674zWDQJPVaorw4dlU2g==",
+      "requires": {
+        "load-script": "^1.0.0",
+        "tslib": "^2.0.0"
+      },
+      "dependencies": {
+        "tslib": {
+          "version": "2.0.3",
+          "resolved": "https://registry.npmjs.org/tslib/-/tslib-2.0.3.tgz",
+          "integrity": "sha512-uZtkfKblCEQtZKBF6EBXVZeQNl82yqtDQdv+eck8u7tdPxjLu2/lp5/uPW+um2tpuxINHWy3GhiccY7QgEaVHQ=="
+        }
+      }
+    },
     "class-utils": {
       "version": "0.3.6",
       "resolved": "https://registry.npmjs.org/class-utils/-/class-utils-0.3.6.tgz",
@@ -7683,6 +7699,11 @@
           "integrity": "sha1-7RQaasBDqEnqWISY59yosVMw6Qw="
         }
       }
+    },
+    "load-script": {
+      "version": "1.0.0",
+      "resolved": "https://registry.npmjs.org/load-script/-/load-script-1.0.0.tgz",
+      "integrity": "sha1-BJGTngvuVkPuSUp+PaPSuscMbKQ="
     },
     "loader-runner": {
       "version": "2.4.0",
@@ -16225,7 +16246,6 @@
               "version": "1.1.11",
               "bundled": true,
               "dev": true,
-              "optional": true,
               "requires": {
                 "balanced-match": "^1.0.0",
                 "concat-map": "0.0.1"

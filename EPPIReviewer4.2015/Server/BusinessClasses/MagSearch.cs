@@ -103,6 +103,16 @@ namespace BusinessLibrary.BusinessClasses
             string[] words = cleaned.Split(' ');
             if (words.Length == 0)
                 return "";
+
+            foreach (string s in words)
+            {
+                Int64 test = 0;
+                if (!Int64.TryParse(s, out test))
+                {
+                    return "Error: not a valid list of IDs";
+                }
+            }
+
             if (words.Length == 1)
             {
                 cleaned = "Id=" + words[0];
@@ -436,16 +446,16 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        public static readonly PropertyInfo<string> MagVersionProperty = RegisterProperty<string>(new PropertyInfo<string>("MagVersion", "MagVersion", ""));
-        public string MagVersion
+        public static readonly PropertyInfo<string> MagFolderProperty = RegisterProperty<string>(new PropertyInfo<string>("MagFolder", "MagFolder", ""));
+        public string MagFolder
         {
             get
             {
-                return GetProperty(MagVersionProperty);
+                return GetProperty(MagFolderProperty);
             }
             set
             {
-                SetProperty(MagVersionProperty, value);
+                SetProperty(MagFolderProperty, value);
             }
         }
 
@@ -510,13 +520,21 @@ namespace BusinessLibrary.BusinessClasses
             if (MagSearchText != "")
             {
                 MagMakesHelpers.MakesCalcHistogramResponse resp = MagMakesHelpers.CalcHistoramCount(MagSearchText);
-                foreach (MagMakesHelpers.histograms hs in resp.histograms)
+                if (resp != null && resp.histograms != null && resp.histograms.Count > 0)
                 {
-                    if (hs.attribute == "Id")
+                    foreach (MagMakesHelpers.histograms hs in resp.histograms)
                     {
-                        HitsNo = hs.total_count;
-                        break;
+                        if (hs.attribute == "Id")
+                        {
+                            HitsNo = hs.total_count;
+                            break;
+                        }
                     }
+                }
+                else
+                {
+                    HitsNo = 0;
+                    SearchText = "INVALID SEARCH";
                 }
             }
             ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
@@ -534,7 +552,7 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@SEARCH_NO", 0)); // set in the SP
                     command.Parameters.Add(new SqlParameter("@HITS_NO", HitsNo)); 
                     command.Parameters.Add(new SqlParameter("@SEARCH_DATE", SearchDate));
-                    command.Parameters.Add(new SqlParameter("@MAG_VERSION", MagInfo.MagVersion));
+                    command.Parameters.Add(new SqlParameter("@MAG_FOLDER", MagInfo.MagFolder));
                     command.Parameters.Add(new SqlParameter("@MAG_SEARCH_TEXT", MagSearchText));
                     command.Parameters.Add(new SqlParameter("@MAG_SEARCH_ID", 0));
                     command.Parameters["@MAG_SEARCH_ID"].Direction = ParameterDirection.Output;
@@ -577,7 +595,7 @@ namespace BusinessLibrary.BusinessClasses
             returnValue.LoadProperty<int>(SearchNoProperty, reader.GetInt32("SEARCH_NO"));
             returnValue.LoadProperty<int>(HitsNoProperty, reader.GetInt32("HITS_NO"));
             returnValue.LoadProperty<DateTime>(SearchDateProperty, reader.GetDateTime("SEARCH_DATE"));
-            returnValue.LoadProperty<string>(MagVersionProperty, reader.GetString("MAG_VERSION"));
+            returnValue.LoadProperty<string>(MagFolderProperty, reader.GetString("MAG_FOLDER"));
             returnValue.LoadProperty<string>(MagSearchTextProperty, reader.GetString("MAG_SEARCH_TEXT"));
             returnValue.MarkOld();
             return returnValue;

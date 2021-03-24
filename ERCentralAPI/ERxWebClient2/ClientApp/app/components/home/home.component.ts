@@ -4,6 +4,7 @@ import { NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ReviewerIdentityService, ReviewerIdentity } from '../services/revieweridentity.service';
 import { Helpers } from '../helpers/HelperMethods';
+import { EventEmitterService } from '../services/EventEmitter.service';
 
 @Component({
     selector: 'home',
@@ -16,6 +17,7 @@ export class HomeComponent implements OnInit {
     constructor(private router: Router,
         private ReviewerIdentityServ: ReviewerIdentityService,
         @Inject('BASE_URL') private _baseUrl: string,
+        protected EventEmitterService: EventEmitterService,
         private _httpC: HttpClient,
     ) {
         this.ReviewerIdentityServ.LoginFailed.subscribe(() => this.LoginFailed());
@@ -56,6 +58,7 @@ export class HomeComponent implements OnInit {
     }
     ngOnInit() {
         //localStorage.clear();
+        this.EventEmitterService.PleaseClearYourDataAndState.emit();
         this.ReviewerIdentityServ.LogOut();
         //this.ReviewerIdentityServ.reviewerIdentity = new ReviewerIdentity();
         this.getVinfo();

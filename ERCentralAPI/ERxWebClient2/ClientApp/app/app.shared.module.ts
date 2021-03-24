@@ -95,12 +95,17 @@ import { MAGAdminComp } from './components/MAG/MAGAdmin.component';
 import { MatchingMAGItemsComponent } from './components/MAG/MatchingMAGItems.component';
 import { WorkAllocationWizardComp } from './components/WorkAllocations/WorkAllocationWizardComp.component';
 import { microsoftAcademicComp } from './components/MAG/microsoftAcademic.component';
-import { MAGHeaderBarComp } from './components/commonComponents/MAGHeaderBar.component';
+import { MAGHeaderBar2Comp } from './components/commonComponents/MAGHeaderBar2.component';
 import { ScreeningSetupComp } from './components/WorkAllocations/ScreeningSetup.component';
-import { MAGOrigpaginatorComp } from './components/commonComponents/MAGOrigpaginator.component';
 import { DatePipe } from '@angular/common';
 import { MAGSearchComponent } from './components/MAG/MAGSearch.component';
+import { WebDBsComponent } from './components/Review/WebDBs.component';
 import { TruncatePipe } from './components/MAG/TruncatePipe.component';
+import { MAGSearchDetailsComponent } from './components/MAG/MAGSearchDetails.component'; 
+import { WebDbCcodesetTreeComponent } from './components/CodesetTrees/WebDbCcodesetTree.component';
+import { CKEditorModule } from 'ckeditor4-angular';
+import { MAGKeepUpToDate } from './components/MAG/MAGKeepUpToDate.component';
+import { MAGComp } from './components/MAG/MAG.component';
 
 @NgModule({
     declarations: [
@@ -171,19 +176,22 @@ import { TruncatePipe } from './components/MAG/TruncatePipe.component';
         codesetTree4Move,
         AdvancedMAGFeaturesComponent,
         MAGpaginatorComp,
-        MAGOrigpaginatorComp,
         MAGBrowser,
         MAGBrowserHistory,
         MAGAdminComp,
         MatchingMAGItemsComponent,
         MAGAdminComp,
+        MAGKeepUpToDate,
         WorkAllocationWizardComp,
         microsoftAcademicComp,
-        MAGHeaderBarComp,
+        MAGHeaderBar2Comp,
+        MAGComp,
         ScreeningSetupComp,
         MAGSearchComponent,
-        TruncatePipe
-        
+        TruncatePipe,
+        MAGSearchDetailsComponent,
+        WebDBsComponent,
+        WebDbCcodesetTreeComponent
 	],
     providers: [
         DatePipe, 
@@ -214,7 +222,8 @@ import { TruncatePipe } from './components/MAG/TruncatePipe.component';
 		ButtonsModule,
         NotificationModule,
         DatePickerModule,
-		LayoutModule,
+        LayoutModule,
+        CKEditorModule, 
         RouterModule.forRoot([
             { path: '', redirectTo: 'home', pathMatch: 'full' },
             { path: 'home', component: HomeComponent },
@@ -226,9 +235,12 @@ import { TruncatePipe } from './components/MAG/TruncatePipe.component';
             { path: 'BuildModel', component: BuildModelComponent },
             { path: 'BasicMAGFeatures', component: BasicMAGComp },
             { path: 'ItemList', component: ItemListComp },
-            { path: 'MAGAdmin', component: MAGAdminComp},
+            { path: 'MAGAdmin', component: MAGAdminComp },
+            { path: 'MAG', component: MAGComp },
+            { path: 'MAG/:paperId', component: MAGComp },
             { path: 'MAGBrowser', component: MAGBrowser },
-            { path: 'MagSearch', component: MAGSearchComponent},
+            { path: 'MagSearch', component: MAGSearchComponent },
+            { path: 'MAGKeepUpToDate', component: MAGKeepUpToDate }, 
             { path: 'microsoftAcademic', component: microsoftAcademicComp },
             { path: 'MAGBrowserHistory', component: MAGBrowserHistory },
             { path: 'MatchingMAGItems', component: MatchingMAGItemsComponent},
@@ -241,8 +253,9 @@ import { TruncatePipe } from './components/MAG/TruncatePipe.component';
 			{ path: 'Reconciliation', component: ComparisonReconciliationComp},
             { path: 'ImportCodesets', component: ImportCodesetsWizardComponent },
             { path: 'intropage', component: intropageComponent },
-            { path: 'Duplicates', component: DuplicatesComponent }, 
-            { path: 'SiteAdmin', component: SiteAdminComponent },
+            { path: 'Duplicates', component: DuplicatesComponent },
+            { path: 'SiteAdmin', component: SiteAdminComponent }, 
+            { path: 'WebDBs', component: WebDBsComponent },
             { path: '**', redirectTo: 'home' }
         ])
     ]

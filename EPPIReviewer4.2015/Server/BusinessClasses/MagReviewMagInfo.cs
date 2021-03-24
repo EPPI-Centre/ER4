@@ -22,13 +22,13 @@ using BusinessLibrary.Security;
 namespace BusinessLibrary.BusinessClasses
 {
     [Serializable]
-    public class MAgReviewMagInfoCommand : CommandBase<MAgReviewMagInfoCommand>
+    public class MagReviewMagInfoCommand : CommandBase<MagReviewMagInfoCommand>
     {
 
 #if SILVERLIGHT
-    public MAgReviewMagInfoCommand(){}
+    public MagReviewMagInfoCommand(){}
 #else
-        public MAgReviewMagInfoCommand() { }
+        public MagReviewMagInfoCommand() { }
 #endif
 
         private int _ReviewId;
@@ -40,6 +40,7 @@ namespace BusinessLibrary.BusinessClasses
         private int _NRequiringManualCheckExcluded;
         private int _NNotMatchedIncluded;
         private int _NNotMatchedExcluded;
+        private int _NPreviouslyMatched;
 
         public int ReviewId
         {
@@ -79,6 +80,11 @@ namespace BusinessLibrary.BusinessClasses
             get { return _NNotMatchedExcluded; }
         }
 
+        public int NPreviouslyMatched
+        {
+            get { return _NPreviouslyMatched; }
+        }
+
         protected override void OnGetState(Csla.Serialization.Mobile.SerializationInfo info, Csla.Core.StateMode mode)
         {
             base.OnGetState(info, mode);
@@ -91,6 +97,7 @@ namespace BusinessLibrary.BusinessClasses
             info.AddValue("_NRequiringManualCheckExcluded", _NRequiringManualCheckExcluded);
             info.AddValue("_NNotMatchedIncluded", _NNotMatchedIncluded);
             info.AddValue("_NNotMatchedExcluded", _NNotMatchedExcluded);
+            info.AddValue("_NPreviouslyMatched", _NPreviouslyMatched);
         }
         protected override void OnSetState(Csla.Serialization.Mobile.SerializationInfo info, Csla.Core.StateMode mode)
         {
@@ -103,6 +110,7 @@ namespace BusinessLibrary.BusinessClasses
             _NRequiringManualCheckExcluded = info.GetValue<int>("_NRequiringManualCheckExcluded");
             _NNotMatchedIncluded = info.GetValue<int>("_NNotMatchedIncluded");
             _NNotMatchedExcluded = info.GetValue<int>("_NNotMatchedExcluded");
+            _NPreviouslyMatched = info.GetValue<int>("_NPreviouslyMatched");
         }
 
        
@@ -117,8 +125,9 @@ namespace BusinessLibrary.BusinessClasses
                 ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
                 using (SqlCommand command = new SqlCommand("st_MagReviewMagInfo", connection))
                 {
+                    int rid = ri.ReviewId;
                     command.CommandType = System.Data.CommandType.StoredProcedure;
-                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
+                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", rid));
                     command.Parameters.Add(new SqlParameter("@NInReviewIncluded", 0));
                     command.Parameters["@NInReviewIncluded"].Direction = System.Data.ParameterDirection.Output;
                     command.Parameters.Add(new SqlParameter("@NInReviewExcluded", 0));
@@ -135,7 +144,10 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters["@NNotMatchedIncluded"].Direction = System.Data.ParameterDirection.Output;
                     command.Parameters.Add(new SqlParameter("@NNotMatchedExcluded", 0));
                     command.Parameters["@NNotMatchedExcluded"].Direction = System.Data.ParameterDirection.Output;
+                    command.Parameters.Add(new SqlParameter("@NPreviouslyMatched", 0));
+                    command.Parameters["@NPreviouslyMatched"].Direction = System.Data.ParameterDirection.Output;
                     command.ExecuteNonQuery();
+                    _ReviewId = rid;
                     _NInReviewIncluded = Convert.ToInt32(command.Parameters["@NInReviewIncluded"].Value);
                     _NInReviewExcluded = Convert.ToInt32(command.Parameters["@NInReviewExcluded"].Value);
                     _NMatchedAccuratelyIncluded = Convert.ToInt32(command.Parameters["@NMatchedAccuratelyIncluded"].Value);
@@ -144,6 +156,7 @@ namespace BusinessLibrary.BusinessClasses
                     _NRequiringManualCheckExcluded = Convert.ToInt32(command.Parameters["@NRequiringManualCheckExcluded"].Value);
                     _NNotMatchedIncluded = Convert.ToInt32(command.Parameters["@NNotMatchedIncluded"].Value);
                     _NNotMatchedExcluded = Convert.ToInt32(command.Parameters["@NNotMatchedExcluded"].Value);
+                    _NPreviouslyMatched = Convert.ToInt32(command.Parameters["@NPreviouslyMatched"].Value);
                 }
                 connection.Close();
             }

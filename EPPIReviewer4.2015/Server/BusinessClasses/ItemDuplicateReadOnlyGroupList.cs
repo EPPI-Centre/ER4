@@ -655,7 +655,7 @@ namespace BusinessLibrary.BusinessClasses
                     VOLUME = reader.GetString("VOLUME");
                     PAGES = reader.GetString("PAGES");
                     ISSUE = reader.GetString("ISSUE");
-                    DOI = reader.GetString("DOI");
+                    DOI = reader.GetString("DOI").ToUpper().Replace("HTTPS://DX.DOI.ORG/", "").Replace("HTTPS://DOI.ORG/", "").Replace("HTTP://DX.DOI.ORG/", "").Replace("HTTP://DOI.ORG/", "").Replace("[DOI]", "").TrimEnd('.').Trim();
                     ABSTRACT = reader.GetString("ABSTRACT");
                     HAS_CODES = reader.GetInt32("HAS_CODES");
                     IS_MASTER = reader.GetInt32("IS_MASTER");
@@ -671,12 +671,55 @@ namespace BusinessLibrary.BusinessClasses
                     VOLUME = reader.GetString("VOLUME2");
                     PAGES = reader.GetString("PAGES2");
                     ISSUE = reader.GetString("ISSUE2");
-                    DOI = reader.GetString("DOI2");
+                    DOI = reader.GetString("DOI2").ToUpper().Replace("HTTPS://DX.DOI.ORG/", "").Replace("HTTPS://DOI.ORG/", "").Replace("HTTP://DX.DOI.ORG/", "").Replace("HTTP://DOI.ORG/", "").Replace("[DOI]", "").TrimEnd('.').Trim();
                     ABSTRACT = reader.GetString("ABSTRACT2");
                     HAS_CODES = reader.GetInt32("HAS_CODES2");
                     IS_MASTER = reader.GetInt32("IS_MASTER2");
                     TYPE_ID = reader.GetInt32("TYPE_ID2");
                 }
+                if (TITLE.IndexOf("Erratum") == -1)
+                    TITLE = MagMakesHelpers.RemoveTextInParentheses(TITLE);
+                TITLE = MagMakesHelpers.CleanText(TITLE);
+            }
+
+            public ItemComparison(MagMakesHelpers.PaperMakes pm)
+            {
+                ITEM_ID = pm.Id;
+                AUTHORS = MagMakesHelpers.getErStyleAuthors(pm.AA);
+                TITLE = pm.DN;
+                PARENT_TITLE = pm.J != null ? pm.J.JN : "";
+                if (PARENT_TITLE == "")
+                    PARENT_TITLE = pm.VFN != null ? pm.VFN : "";
+                PARENT_TITLE = MagMakesHelpers.CleanText(PARENT_TITLE.Replace("&", "and"));
+                YEAR = pm.Y.ToString();
+                VOLUME = pm.V != null ? pm.V.ToString() : "";
+                PAGES = pm.FP != "" ? pm.FP + "-" + pm.LP : "";
+                ISSUE = pm.I;
+                DOI = pm.DOI != null ? pm.DOI.ToUpper().Replace("HTTPS://DX.DOI.ORG/", "").Replace("HTTPS://DOI.ORG/", "").Replace("HTTP://DX.DOI.ORG/", "").Replace("HTTP://DOI.ORG/", "").Replace("[DOI]", "").TrimEnd('.').Trim() : "";
+                ABSTRACT = "";
+                HAS_CODES = 0;
+                IS_MASTER = 0;
+                TYPE_ID = MagMakesHelpers.GetErEquivalentPubType(pm.Pt);
+                if (TITLE.IndexOf("Erratum") == -1)
+                    TITLE = MagMakesHelpers.RemoveTextInParentheses(TITLE);
+                TITLE = MagMakesHelpers.CleanText(TITLE);
+            }
+
+            public ItemComparison(Item i)
+            {
+                ITEM_ID = i.ItemId;
+                AUTHORS = i.Authors;
+                TITLE = i.Title;
+                PARENT_TITLE = MagMakesHelpers.CleanText(i.ParentTitle.Replace("&", "and"));
+                YEAR = i.Year;
+                VOLUME = i.Volume;
+                PAGES = i.Pages;
+                ISSUE = i.Issue;
+                DOI = i.DOI != null ? i.DOI.ToUpper().Replace("HTTPS://DX.DOI.ORG/", "").Replace("HTTPS://DOI.ORG/", "").Replace("HTTP://DX.DOI.ORG/", "").Replace("HTTP://DOI.ORG/", "").Replace("[DOI]", "").TrimEnd('.').Trim() : "";
+                ABSTRACT = i.Abstract;
+                HAS_CODES = 0;
+                IS_MASTER = 0;
+                TYPE_ID = i.TypeId;
                 if (TITLE.IndexOf("Erratum") == -1)
                     TITLE = MagMakesHelpers.RemoveTextInParentheses(TITLE);
                 TITLE = MagMakesHelpers.CleanText(TITLE);
@@ -821,20 +864,46 @@ namespace BusinessLibrary.BusinessClasses
                     return 0.97;
                 }
 
-                // If none of the above, just calculate the basic similarity score
+                double AuthorComparison = CompareAuthors(ic1, ic2);
+                // Exact match on DOI, high match on titles and authors
+                if (titleSimilarity > 95 &&
+                    ic1.DOI != "" && ic2.DOI != "" &&
+                    ic1.DOI == ic2.DOI &&
+                    AuthorComparison > 0.7)
+                {
+                    return 0.96;
+                }
+                
                 int volumeMatch = ic1.VOLUME == ic2.VOLUME ? 1 : 0;
                 int pageMatch = ic1.GetFirstPage() == ic2.GetFirstPage() ? 1 : 0;
                 int yearMatch = ic1.YEAR == ic2.YEAR ? 1 : 0;
+                int doiMatch = ic1.DOI == ic2.DOI ? 1 : 0;
                 double journalJaro = ic1.PARENT_TITLE != null ? ptitleLev(ic1, ic2) : 0;
                 //double allAuthorsJaro = MagPaperItemMatch.Jaro(reader["AUTHORS"].ToString().Replace(",", " "),
                 //readerCandidates["AUTHORS"].ToString().Replace(",", " "));
                 //double allAuthorsCompare = CompareAuthors(ic1, ic2);
-                ret = ((titleSimilarity / 100 * 1.75) +
-                    (volumeMatch * 0.5) +
-                    (pageMatch * 0.5) +
-                    (yearMatch * 0.5) +
-                    (journalJaro / 100 * 1) +
-                    (CompareAuthors(ic1, ic2) * 1.25)) / 5.5;
+
+                // If none of the above, just calculate the basic similarity score. One includes boost for exact match on DOI
+                if (doiMatch == 1)
+                {
+                    ret = ((titleSimilarity / 100 * 1.75) +
+                        (volumeMatch * 0.5) +
+                        (pageMatch * 0.5) +
+                        (yearMatch * 0.5) +
+                        (journalJaro / 100 * 1) +
+                        (doiMatch) +
+                        (AuthorComparison * 1.25)) / 6.5;
+                }
+                else
+                {
+                    // if no doi match, then the standard similarity algorithm applies
+                    ret = ((titleSimilarity / 100 * 1.75) +
+                        (volumeMatch * 0.5) +
+                        (pageMatch * 0.5) +
+                        (yearMatch * 0.5) +
+                        (journalJaro / 100 * 1) +
+                        (AuthorComparison * 1.25)) / 5.5;
+                }
 
                 // Final sanity checks to prevent auto-matches on questionable records
 
@@ -895,10 +964,10 @@ namespace BusinessLibrary.BusinessClasses
                 {
                     foreach (AutH auth2 in ic2.GetAuthors())
                     {
-                        if (author.LastName.Length > 2 && MagMakesHelpers.CleanText(author.LastName) ==
-                            MagMakesHelpers.CleanText(auth2.LastName))
+                        double compareResult = doCompareAuthors(MagMakesHelpers.CleanText(author.LastName), MagMakesHelpers.CleanText(auth2.LastName));
+                        if (compareResult > 0)
                         {
-                            lastWithLast++;
+                            lastWithLast += compareResult;
                             break;
                         }
                     }
@@ -907,10 +976,10 @@ namespace BusinessLibrary.BusinessClasses
                 {
                     foreach (AutH auth2 in ic2.GetAuthors())
                     {
-                        if (author.LastName.Length > 2 && MagMakesHelpers.CleanText(author.LastName) ==
-                            MagMakesHelpers.CleanText(auth2.FirstName))
+                        double compareResult = doCompareAuthors(MagMakesHelpers.CleanText(author.LastName), MagMakesHelpers.CleanText(auth2.FirstName));
+                        if (compareResult > 0)
                         {
-                            firstWithLast++;
+                            firstWithLast += compareResult;
                             break;
                         }
                     }
@@ -918,6 +987,24 @@ namespace BusinessLibrary.BusinessClasses
                 ret = Math.Max(lastWithLast / totalAuthors, firstWithLast / totalAuthors);
                 return ret > 0.3 ? ret : 0;
             }
+            private double doCompareAuthors(string a1, string a2)
+            {
+                if (a1.Length < 2 || a2.Length < 2)
+                    return 0;
+                if (a1.Length > a2.Length)
+                {
+                    if (a1.IndexOf(a2) > -1)
+                        return 1;
+                    else
+                        return 0;
+                }
+                if (a2.IndexOf(a1) > -1)
+                    return 1;
+                else
+                    return 0;
+            }
+
+
         }
 #endif
     }

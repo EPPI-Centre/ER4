@@ -49,14 +49,16 @@ namespace ERxWebClient2.Controllers
                     DataPortal<MagSearchList> dp = new DataPortal<MagSearchList>();
                     MagSearchList result = dp.Fetch();
 
-                    var resultToReRun = result.Where(x => x.SearchText == magReRun.searchText && x.MagSearchText == magReRun.magSearchText).FirstOrDefault();
-
-                    resultToReRun.SetToRerun(resultToReRun);
-
-                    DataPortal<MagSearch> dp2 = new DataPortal<MagSearch>();
-                    resultToReRun = dp2.Execute(resultToReRun);
-
-                    return Ok(resultToReRun);
+                    MagSearch resultToReRun = result.Where(x => x.SearchText == magReRun.searchText && x.MagSearchText == magReRun.magSearchText).FirstOrDefault();
+                    if (resultToReRun != null)
+                    {
+                        MagSearch newS = new MagSearch();
+                        newS.SetToRerun(resultToReRun);
+                        newS = newS.Save();
+                        result = dp.Fetch();
+                    }
+                    
+                    return Ok(result);
                 }
                 else return Forbid();
 
@@ -105,7 +107,7 @@ namespace ERxWebClient2.Controllers
         }
 
         [HttpPost("[action]")]
-        public IActionResult CreateMagSearch([FromBody] MVCMagSearch mVCMagSearch)
+        public IActionResult CreateMagSearch([FromBody] MVCMagSearchBuilder mVCMagSearch)
         {
 
             try
@@ -136,6 +138,10 @@ namespace ERxWebClient2.Controllers
                         break;
                     case 4:
                         newSearch.MagSearchText = newSearch.GetSearchTextMagIds(mVCMagSearch.magSearchInput);
+                        if (newSearch.MagSearchText.Contains("Error"))
+                        {
+                            throw new InvalidOperationException(newSearch.MagSearchText);
+                        }
                         newSearch.SearchText = "MAG ID(s): " + mVCMagSearch.magSearchInput;
                         break;
                     case 5:
@@ -222,6 +228,38 @@ namespace ERxWebClient2.Controllers
         }
 
         [HttpPost("[action]")]
+        public IActionResult RunMagSearch([FromBody] MVCMagSearch mVCMagSearch)
+        {
+
+            try
+            {
+                if (!SetCSLAUser4Writing()) return Forbid();
+               
+
+
+                MagSearch newSearch = mVCMagSearch.toMagSearch();
+                
+
+                DataPortal<MagSearch> dp = new DataPortal<MagSearch>();
+                newSearch = dp.Execute(newSearch);
+
+                DataPortal<MagSearchList> dp2 = new DataPortal<MagSearchList>();
+                MagSearchList result = dp2.Fetch();
+
+                return Ok(result);
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "Error in RunMagSearch");
+                return StatusCode(500, e.Message);
+            }
+
+
+
+        }
+
+
+        [HttpPost("[action]")]
         public IActionResult ImportMagSearchPapers([FromBody] MVCMagSearchText magSearch)
         {
             try
@@ -231,7 +269,7 @@ namespace ERxWebClient2.Controllers
 
                     DataPortal<MagItemPaperInsertCommand> dp2 = new DataPortal<MagItemPaperInsertCommand>();
                     MagItemPaperInsertCommand command = new MagItemPaperInsertCommand("", "MagSearchResults",
-                        0, "MAG search: " + magSearch.searchText, magSearch.magSearchText);
+                        0, 0, "", 0, 0, 0, 0, magSearch.FilterOutJournal.Trim(), magSearch.FilterOutDOI.Trim(), magSearch.FilterOutURL.Trim(), magSearch.magSearchText, "Microsoft Academic search: " + magSearch.searchText);
 
                     command = dp2.Execute(command);
 
@@ -285,6 +323,65 @@ namespace ERxWebClient2.Controllers
 
     public class MVCMagSearch
     {
+        public MagSearch toMagSearch()
+        {
+            MagSearch res = new MagSearch();
+            res.SearchText = searchText;
+            res.MagSearchText = magSearchText;
+            return res;
+        }
+        public int magSearchId
+        {
+            get; set;
+        }
+        public int reviewId
+        {
+            get; set;
+        }
+
+        public int contactId
+        {
+            get; set;
+        }
+
+        public string searchText
+        {
+            get; set;
+        }
+
+        public int searchNo
+        {
+            get; set;
+        }
+
+        public int hitsNo
+        {
+            get; set;
+        }
+
+        public DateTime searchDate
+        {
+            get; set;
+        }
+
+        public string magFolder
+        {
+            get; set;
+        }
+
+        public string magSearchText
+        {
+            get; set;
+        }
+
+        public string contactName
+        {
+            get; set;
+        }
+    }
+
+    public class MVCMagSearchBuilder
+    {
         public int wordsInSelection { get; set; }
         public string magSearchInput { get; set; }
         public int publicationTypeSelection { get; set; }
@@ -305,8 +402,10 @@ namespace ERxWebClient2.Controllers
     public class MVCMagSearchText
     {
         public string magSearchText { get; set; }
-
         public string searchText { get; set; }
+        public string FilterOutJournal { get; set; }
+        public string FilterOutURL { get; set; }
+        public string FilterOutDOI { get; set; }
     }
     public class MVCMagSearch4Delete
     {

@@ -14,8 +14,8 @@ namespace ERxWebClient2.Controllers
     [Route("api/[controller]")]
     public class MagRelatedPapersRunListController : CSLAController
     {
-        
-		public MagRelatedPapersRunListController(ILogger<MagRelatedPapersRunListController> logger) : base(logger)
+
+        public MagRelatedPapersRunListController(ILogger<MagRelatedPapersRunListController> logger) : base(logger)
         { }
 
         [HttpGet("[action]")]
@@ -37,7 +37,7 @@ namespace ERxWebClient2.Controllers
             }
         }
 
-
+        
         [HttpPost("[action]")]
         public IActionResult GetMagRelatedPapersRunsId([FromBody] MVCMagPaperListSelectionCriteria crit)
         {
@@ -82,10 +82,18 @@ namespace ERxWebClient2.Controllers
 					newMagRun.AttributeId = magRun.attributeId;
 					newMagRun.AutoReRun = Convert.ToBoolean(magRun.autoReRun);
                     DateTime dtFrom = new DateTime();
-                    bool resultDateFrom = DateTime.TryParse(magRun.dateFrom, out dtFrom);
-                    if (resultDateFrom)
+                    if (magRun.dateFrom == "")
                     {
-                        newMagRun.DateFrom = dtFrom;
+                        //this is not good
+                        newMagRun.DateFrom = null;
+                    }
+                    else
+                    {
+                        bool resultDateFrom = DateTime.TryParse(magRun.dateFrom, out dtFrom);
+                        if (resultDateFrom)
+                        {
+                            newMagRun.DateFrom = dtFrom;
+                        }
                     }
                     newMagRun.AttributeName = magRun.attributeName;
 					newMagRun.Filtered = magRun.filtered;
@@ -96,7 +104,8 @@ namespace ERxWebClient2.Controllers
 					newMagRun.UserStatus = magRun.userStatus;
 
 					newMagRun = dp.Execute(newMagRun);
-
+                    newMagRun.UserStatus = "Waiting";//maybe it isn't, but this data will be corrected at the first refresh...
+                    newMagRun.DateRun = new SmartDate(DateTime.Now);
 					return Ok(newMagRun);
 
 				}
@@ -179,6 +188,92 @@ namespace ERxWebClient2.Controllers
         }
 
 
+        [HttpGet("[action]")]
+        public IActionResult GetMagAutoUpdateRuns()
+        {
+            try
+            {
+                if (!SetCSLAUser()) return Unauthorized();
+
+                DataPortal<MagAutoUpdateRunList> dp = new DataPortal<MagAutoUpdateRunList>();
+                MagAutoUpdateRunList result = dp.Fetch();
+
+                return Ok(result);
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "GetMagAutoUpdateRuns error");
+                return StatusCode(500, e.Message);
+            }
+        }
+        [HttpGet("[action]")]
+        public IActionResult GetMagAutoUpdateList()
+        {
+            try
+            {
+                if (!SetCSLAUser()) return Unauthorized();
+
+                DataPortal<MagAutoUpdateList> dp = new DataPortal<MagAutoUpdateList>();
+                MagAutoUpdateList result = dp.Fetch();
+
+                return Ok(result);
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "GetMagAutoUpdateList error");
+                return StatusCode(500, e.Message);
+            }
+        }
+
+        [HttpPost("[action]")]
+        public IActionResult CreateAutoUpdate([FromBody] MVCMagRelatedPapersRun magRun)
+        {
+            try
+            {
+                if (SetCSLAUser4Writing())
+                {
+                    MagAutoUpdate mao = new MagAutoUpdate();
+                    mao.UserDescription = magRun.userDescription;
+                    mao.AllIncluded = magRun.allIncluded;
+                    mao.AttributeId = magRun.attributeId;
+                    mao.AttributeName = magRun.attributeName;
+                    mao = mao.Save();
+                    return Ok(mao);
+                }
+                else return Forbid();
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "CreateAutoUpdateRun error");
+                return StatusCode(500, e.Message);
+            }
+        }
+        
+        [HttpPost("[action]")]
+        public IActionResult DeleteAutoUpdate([FromBody] SingleInt64Criteria Id)
+        {
+            try
+            {
+                if (SetCSLAUser4Writing())
+                {
+                    DataPortal<MagAutoUpdateList> dp = new DataPortal<MagAutoUpdateList>();
+                    MagAutoUpdateList list = dp.Fetch();
+                    MagAutoUpdate mao = list.FirstOrDefault(f => f.MagAutoUpdateId == Id.Value);
+                    if (mao != null && mao.MagAutoUpdateId == Id.Value)
+                    {
+                        list.Remove(mao);
+                    }
+                    return Ok(list);
+                }
+                else return Forbid();
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "DeleteAutoUpdate error. AutoUpdateId: " + Id.Value.ToString());
+                return StatusCode(500, e.Message);
+            }
+        }
+
         [HttpPost("[action]")]
         public IActionResult ImportMagRelatedPapers([FromBody] MVCMagRelatedPapersRun magRun)
         {
@@ -187,10 +282,11 @@ namespace ERxWebClient2.Controllers
                 if (SetCSLAUser4Writing())
                 {
                     int num_in_run = magRun.nPapers;
-
+                    if (num_in_run > 20000) return StatusCode(500, "Import is too big: 20,000 hits or more");
                     DataPortal<MagItemPaperInsertCommand> dp2 = new DataPortal<MagItemPaperInsertCommand>();
 
-                    MagItemPaperInsertCommand command = new MagItemPaperInsertCommand("", "RelatedPapersSearch", magRun.magRelatedRunId);
+                    MagItemPaperInsertCommand command = new MagItemPaperInsertCommand("", "RelatedPapersSearch", magRun.magRelatedRunId,
+                        0, "", 0, 0, 0, 0, "", "", "");
 
                     command = dp2.Execute(command);
 
@@ -217,7 +313,8 @@ namespace ERxWebClient2.Controllers
 
                     DataPortal<MagItemPaperInsertCommand> dp2 = new DataPortal<MagItemPaperInsertCommand>();
 
-                    MagItemPaperInsertCommand command = new MagItemPaperInsertCommand(magSelectedPapers.Value, "SelectedPapers", 0);
+                    MagItemPaperInsertCommand command = new MagItemPaperInsertCommand(magSelectedPapers.Value, "SelectedPapers", 0,
+                        0, "", 0, 0, 0, 0, "", "", "");
 
                     command = dp2.Execute(command);
 
@@ -232,7 +329,122 @@ namespace ERxWebClient2.Controllers
                 return StatusCode(500, e.Message);
             }
         }
+        [HttpPost("[action]")]
+        public IActionResult GetMagMagAutoUpdateVisualise([FromBody] MVCMagAutoUpdateVisualiseSelectionCriteria crit)
+        {
+            try
+            {
+                if (!SetCSLAUser()) return Unauthorized();
 
+                DataPortal<MagAutoUpdateVisualiseList> dp = new DataPortal<MagAutoUpdateVisualiseList>();
+                MagAutoUpdateVisualiseSelectionCriteria criteria = new MagAutoUpdateVisualiseSelectionCriteria
+                {
+                    Field = crit.field,
+                    MagAutoUpdateRunId = crit.magAutoUpdateRunId
+                };
+
+                MagAutoUpdateVisualiseList result = dp.Fetch(criteria);
+                return Ok(result);
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "GetMagMagAutoUpdateVisualise error");
+                return StatusCode(500, e.Message);
+            }
+        }
+        [HttpPost("[action]")]
+        public IActionResult MagAddClassifierScoresCommand([FromBody] MVCMagAddClassifierScoresCommand cmd)
+        {
+            try
+            {
+                if (SetCSLAUser4Writing())
+                {
+                    DataPortal<MagAddClassifierScoresCommand> dp = new DataPortal<MagAddClassifierScoresCommand>();
+                    MagAddClassifierScoresCommand command = 
+                        new MagAddClassifierScoresCommand(cmd.magAutoUpdateRunId, cmd.topN
+                        ,cmd.studyTypeClassifier,cmd.userClassifierModelId, cmd.userClassifierReviewId);
+                    command = dp.Execute(command);
+                    return Ok(command);
+                }
+                else return Forbid();
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "MagAddClassifierScoresCommand error");
+                return StatusCode(500, e.Message);
+            }
+        }
+        [HttpPost("[action]")]
+        public IActionResult ImportAutoUpdateRun([FromBody] MVCMagItemPaperInsertCommand mr)
+        {
+            try
+            {
+                if (SetCSLAUser4Writing())
+                {
+                    if (mr.TopN > 20000) return StatusCode(500, "Sorry, can't import more than 20000 papers in one go.");
+                    DataPortal<MagItemPaperInsertCommand> dp = new DataPortal<MagItemPaperInsertCommand>();
+                    MagItemPaperInsertCommand command = new MagItemPaperInsertCommand("", "AutoUpdateRun", 0
+                                                            , mr.magAutoUpdateRunId, mr.orderBy, mr.autoUpdateScore
+                                                            , mr.studyTypeClassifierScore, mr.userClassifierScore
+                                                            , mr.TopN, mr.filterJournal, mr.filterDOI, mr.filterURL);
+                    command = dp.Execute(command);
+                    return Ok(command);
+                }
+                else return Forbid();
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "Importing a Mag Related Paper list has an error");
+                return StatusCode(500, e.Message);
+            }
+        }
+        [HttpPost("[action]")]
+        public IActionResult CountResultsCommand([FromBody] MVCMagItemPaperInsertCommand mr)
+        {
+            try
+            {
+                if (SetCSLAUser())
+                {
+                    DataPortal<MagAutoUpdateRunCountResultsCommand> dp = new DataPortal<MagAutoUpdateRunCountResultsCommand>();
+                    MagAutoUpdateRunCountResultsCommand command = new MagAutoUpdateRunCountResultsCommand(
+                                                             mr.magAutoUpdateRunId, mr.autoUpdateScore
+                                                            , mr.studyTypeClassifierScore, mr.userClassifierScore);
+                    command = dp.Execute(command);
+                    mr.TopN = command.ResultsCount;
+                    return Ok(mr);
+                }
+                else return Forbid();
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "Importing a Mag Related Paper list has an error");
+                return StatusCode(500, e.Message);
+            }
+        }
+        [HttpPost("[action]")]
+        public IActionResult DeleteAutoUpdateRun([FromBody] SingleInt64Criteria Id)
+        {
+            try
+            {
+                if (SetCSLAUser4Writing())
+                {
+                    DataPortal<MagAutoUpdateRunList> dp = new DataPortal<MagAutoUpdateRunList>();
+                    MagAutoUpdateRunList list = dp.Fetch();
+                    MagAutoUpdateRun mao = list.FirstOrDefault(f => f.MagAutoUpdateRunId == Id.Value);
+                    if (mao != null && mao.MagAutoUpdateRunId == Id.Value)
+                    {
+                        list.Remove(mao);
+                    }
+                    return Ok(list);
+                }
+                else return Forbid();
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "DeleteAutoUpdateRun error. MagAutoUpdateRunId: " + Id.Value.ToString());
+                return StatusCode(500, e.Message);
+            }
+        }
     }
 
     public class MAGList4Json
@@ -284,6 +496,30 @@ namespace ERxWebClient2.Controllers
 		public int nPapers = 0;
 		public int reviewIdId = 0;
 	}
-
+    public class MVCMagAutoUpdateVisualiseSelectionCriteria
+    {
+        public int magAutoUpdateRunId { get; set;}
+        public string field { get; set; }
+    }
+    public class MVCMagAddClassifierScoresCommand
+    {
+        public int magAutoUpdateRunId { get; set; }
+        public int topN { get; set; }
+        public string studyTypeClassifier { get; set; }
+        public int userClassifierModelId { get; set; }
+        public int userClassifierReviewId { get; set; }
+    }
+    public class MVCMagItemPaperInsertCommand
+    {
+        public int magAutoUpdateRunId { get; set; }
+        public string orderBy { get; set; }
+        public double autoUpdateScore { get; set; }
+        public double studyTypeClassifierScore { get; set; }
+        public double userClassifierScore { get; set; }
+        public int TopN { get; set; }
+        public string filterJournal { get; set; }
+        public string filterDOI { get; set; }
+        public string filterURL { get; set; }
+    }
 }
 

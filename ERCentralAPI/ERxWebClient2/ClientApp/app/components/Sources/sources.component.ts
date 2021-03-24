@@ -111,8 +111,8 @@ export class SourcesComponent implements OnInit, OnDestroy {
         else return false;
     }
     SelectSource(ROS: ReadOnlySource) {
-        this.tabstrip.selectTab(0);
         this.SourcesService.FetchSource(ROS.source_ID);
+        setTimeout(() => { this.tabstrip.selectTab(0); }, 50);//wait a tiny bit to ensure SourcesService is busy (which prevents loading the first source automatically).
     }
     IsSourceNameValid(): number {
         // zero if it's fine, 1 if empty, 2 if name-clash (we don't want 2 sources with the same name)
@@ -135,13 +135,13 @@ export class SourcesComponent implements OnInit, OnDestroy {
         }
     }
     SourceDeletedForever(sourceId: Number) {
+        //console.log("SourceDeletedForever", sourceId);
         if (this._CurrentSource && this._CurrentSource.source_ID == sourceId) {
             this.showDeletedForeverNotification(this._CurrentSource.source_Name, this.SourcesService.LastDeleteForeverStatus);
             this._CurrentSource = null;
         }
-        else {
+        else {//user might have changed source!!!
             this.showDeletedForeverNotification("*missing name*", this.SourcesService.LastDeleteForeverStatus);
-            //user might have changed source!!!
         }
         this.ItemListService.Refresh();
         this.CodesetStatisticsService.GetReviewStatisticsCountsCommand();
@@ -154,7 +154,7 @@ export class SourcesComponent implements OnInit, OnDestroy {
             typeElement = "success";
             contentSt = 'Permanent deletion of source "' + sourcename + '" completed successfully.';
         }//type: { style: 'error', icon: true }
-        else {
+        else {//this is moot. We're now handling errors in the service...
             typeElement = "error";
             contentSt = 'Permanent deletion of source "' + sourcename + '" failed, if the problem persists, please contact EPPISupport.';
         }
@@ -214,7 +214,7 @@ export class SourcesComponent implements OnInit, OnDestroy {
     onTabSelect($event: SelectEvent) {
         if ($event.title == 'Manage Sources'
             && this._CurrentSource == null && this.SourcesService.ReviewSources
-            && this.SourcesService.ReviewSources.length > 0) {
+            && this.SourcesService.ReviewSources.length > 0 && !this.SourcesService.IsBusy) {
             //let's go and get the first source:
             this.SourcesService.FetchSource(this.SourcesService.ReviewSources[0].source_ID);
         }
