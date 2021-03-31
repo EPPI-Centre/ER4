@@ -391,6 +391,21 @@ export class DuplicatesService extends BusyAwareService implements OnDestroy {
                 }
             });
     }
+    public FetchDirtyGroup(IdsList: string): Promise<ItemDuplicateDirtyGroup> {
+        this._BusyMethods.push("FetchDirtyGroup");
+        //await Helpers.Sleep(50);
+        let body = JSON.stringify({ Value: IdsList });
+        return this._http.post<iItemDuplicateDirtyGroup>(this._baseUrl + 'api/Duplicates/FetchDirtyGroup',
+            body).toPromise().then(result => {
+                let res = new ItemDuplicateDirtyGroup(result);
+                this.RemoveBusy("FetchDirtyGroup");
+                return res;
+            }, error => {
+                this.modalService.GenericError(error);
+                this.RemoveBusy("FetchDirtyGroup");
+                    return new ItemDuplicateDirtyGroup({ members: [] });
+            });
+}
 
     public DoSort() {
         //console.log("doSort", this.LocalSort);
@@ -596,6 +611,83 @@ export class MarkUnmarkItemAsDuplicate {
 export class GroupListSelectionCriteriaMVC {
     public groupId: number = 0;
     public itemIds: string = "0";
+}
+
+export interface iItemDuplicateDirtyGroup {
+    members: ItemDuplicateDirtyGroupMember[];
+}
+export class ItemDuplicateDirtyGroup {
+    constructor(iGroup: iItemDuplicateDirtyGroup) {
+        this.members = iGroup.members;
     }
+    public getMaster(): ItemDuplicateDirtyGroupMember | null{
+        for(let gm of this.members)
+        {
+            if (gm.isMaster) return gm;
+        }
+        return null;
+    }
+    public setMaster(ID: number): boolean {
+        let canDo: boolean = false;
+        for(let m of this.members)
+        {
+            if (m.itemId == ID && m.isAvailable) {
+                canDo = true;
+                break;
+            }
+        }
+        if (!canDo) return false;
+        let chk:number = 0;
+        for (let m of this.members)
+        {
+            if (m.itemId == ID && m.isAvailable) {
+                m.isMaster = true;
+                chk++;
+            }
+            else if (m.isMaster) {
+                m.isMaster = false;
+                chk++;
+            }
+            if (chk == 2) return true;
+        }
+        return false;
+    }
+    public get MembersOnly(): ItemDuplicateDirtyGroupMember[] {
+        return this.members.filter(f => f.isMaster == false);
+    } 
+    public get IsUsable(): boolean
+    {
+        let countM: number = 0;
+        let countValidMembers: number  = 0;
+        for(let m of this.members)
+        {
+            if (m.isMaster) countM++;
+            if (m.isAvailable) countValidMembers++;
+        }
+        if (countM == 1 && countValidMembers > 1) return true;
+        return false;
+    }
+    members: ItemDuplicateDirtyGroupMember[];
+}
+export interface ItemDuplicateDirtyGroupMember {
+    itemId: number;
+    title: string;
+    parentTitle: string;
+    shortTitle: string;
+    year: string;
+    month: string;
+    authors: string;
+    parentAuthors: string;
+    isMaster: boolean;
+    isExported: boolean;
+    isEditable: boolean;
+    codedCount: number;
+    docCount: number;
+    source: string;
+    typeName: string;
+    relatedGroupsCount: number;
+    isAvailable: boolean;
+    propertiesConverter: number;
+}
 
 

@@ -292,6 +292,33 @@ namespace ERxWebClient2.Controllers
                 return StatusCode(500, e.Message);
             }
         }
+        [HttpPost("[action]")]
+        public IActionResult FetchDirtyGroup([FromBody] SingleStringCriteria crit)
+        {
+            try
+            {
+                if (!SetCSLAUser()) return Unauthorized();
+
+                //let's check what we have is sensible...
+                string[] Ids = crit.Value.Split(',');
+                foreach (string id in Ids)
+                {
+                    Int64 chk;
+                    if (!Int64.TryParse(id, out chk) || chk < 1)
+                    {
+                        return StatusCode(400, "Bad request, input is malformed.");
+                    }
+                }
+                DataPortal<ItemDuplicateDirtyGroup> dp = new DataPortal<ItemDuplicateDirtyGroup>();
+                ItemDuplicateDirtyGroup result = dp.Fetch(new SingleCriteria<ItemDuplicateDirtyGroup, string>(crit.Value));
+                return Ok(result);
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "Error Fetching DirtyGroup. Crit = " + crit.Value);
+                return StatusCode(500, e.Message);
+            }
+        }
     }
 
 	public class MarkUnmarkItemAsDuplicate

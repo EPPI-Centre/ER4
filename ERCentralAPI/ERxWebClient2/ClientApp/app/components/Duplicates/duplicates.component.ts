@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { NotificationService } from '@progress/kendo-angular-notification';
-import { DuplicatesService, iReadOnlyDuplicatesGroup, DuplicateGroupMember, MarkUnmarkItemAsDuplicate, ItemDuplicateGroup, GroupListSelectionCriteriaMVC } from '../services/duplicates.service';
+import { DuplicatesService, iReadOnlyDuplicatesGroup, DuplicateGroupMember, MarkUnmarkItemAsDuplicate, ItemDuplicateGroup, GroupListSelectionCriteriaMVC, ItemDuplicateDirtyGroup, ItemDuplicateDirtyGroupMember } from '../services/duplicates.service';
 import { Helpers, LocalSort } from '../helpers/HelperMethods';
 import { CodesetStatisticsService } from '../services/codesetstatistics.service';
 import { ItemListService } from '../services/ItemList.service';
@@ -62,6 +62,7 @@ export class DuplicatesComponent implements OnInit, OnDestroy {
     public ItemIDsearchString: string = "";
     public ShowingMore: boolean = false;
     public ShowItemsList: boolean = false;
+    public DirtyGroup: ItemDuplicateDirtyGroup | null = null;
     //public lowThresholdWarningActive: boolean = "";
     public get lowThresholdWarningActive(): boolean {
         if (this.similarityCr < 0.8) return true;
@@ -125,11 +126,28 @@ export class DuplicatesComponent implements OnInit, OnDestroy {
     public async ResetActivePanel() {
         //small trick to avoid the ExpressionChangedAfterItHasBeenCheckedError dreaded error, sleep before resetting, to give time to NG to catch up on the visual side...
         await Helpers.Sleep(20);
+        this.DirtyGroup = null;
         this.ActivePanel = "";
     }
     public get TotalAutoAutoGroups(): number {
         return this.DuplicatesService.ToDoCount;
     }
+
+    public get DirtyMaster(): ItemDuplicateDirtyGroupMember | null {
+        if (this.DirtyGroup == null) return null;
+        else {
+            return this.DirtyGroup.getMaster();
+        }
+    }
+    public DirtyMemberStatus(member: ItemDuplicateDirtyGroupMember): string {
+        const value = member.propertiesConverter;
+        if (value == null ) return "ERROR: no data, please contact the support team!";
+        if (value == 0) return "This Item does not belong to any group, you can use it as a master.";
+        if (value == 1) return "This Item belongs to some other group(s): consider using the related group(s) instead of manually creating a new group.";
+        if (value == 2) return "This Item is the Master of some other group: it can't be inserted into the new group. Consider using its own group instead of manually creating a new group.";
+        else return "ERROR: data is inconsistent, please contact the support team!";         
+    }
+
     public FetchGroup(groupId: number): void {
         this.DuplicatesService.FetchGroupDetails(groupId);
     }
@@ -421,6 +439,22 @@ export class DuplicatesComponent implements OnInit, OnDestroy {
     }
     public AddSelectedItemsToGroup() {
         if (this.CurrentGroup == null || this.ItemListService.SelectedItems.length == 0) return;
+        else {
+            let innerMsg: string = "Are you sure you want to add the <strong>" + this.ItemListService.SelectedItems.length.toString()
+                + "</strong> selected items (below) to the current group (<strong> " + this.CurrentGroup.Master.shortTitle 
+                + "</strong> - Id: " + this.CurrentGroup.groupID.toString() + ")?"
+            this.ConfirmationDialogService.confirm("Manually add these items?", innerMsg, false, "")
+            .then(
+                (confirm: any) => {
+                    if (confirm) {
+                        this.DoAddSelectedItemsToGroup();
+                    }
+                }
+            ).catch(() => { });
+        }
+    }
+    private DoAddSelectedItemsToGroup() {
+        if (this.CurrentGroup == null || this.ItemListService.SelectedItems.length == 0) return;
         let IDG: ItemDuplicateGroup = this.CurrentGroup; 
         let ItemsIds: string = "";
         const currmas: number = IDG.Master.itemId;
@@ -434,6 +468,26 @@ export class DuplicatesComponent implements OnInit, OnDestroy {
             crit.groupId = IDG.groupID;
             crit.itemIds = ItemsIds;
             this.DuplicatesService.AddManualMembers(crit);
+        }
+    }
+    public get CanGetDirtyGroup(): boolean {
+        if (!this.HasWriteRights) return false;
+        else if (this.ItemListService.SelectedItems.length > 0) return true;
+        else return false;
+    }
+    public GetDirtyGroup() {
+        let ItemsIds: string = "";
+        for (let it of this.ItemListService.SelectedItems) {
+            ItemsIds += it.itemId.toString() + ',';
+        }
+        ItemsIds = ItemsIds.substr(0, ItemsIds.length - 1);
+        if (ItemsIds.length > 0) {
+            this.DuplicatesService.FetchDirtyGroup(ItemsIds).then(res => {
+                if (res.members.length > 0) {
+                    this.DirtyGroup = res;
+                    this.ActivePanel = "CreateGroup";
+                } else { this.DirtyGroup = null;}
+            });
         }
     }
 

@@ -91,12 +91,91 @@
                     (click)="AddSelectedItemsToGroup()">
                 Add to group
             </button>
+            <button kendoButton class="ml-1" [title]="'Add selected items to group'" [disabled]="!CanGetDirtyGroup"
+                    (click)="GetDirtyGroup()">
+                Create Group...
+            </button>
         </div>
 
 
         <div *ngIf="!CurrentGroup" class="m-3 p-2 alert-info">
             Please click on a group to see the group details.
         </div>
+
+        <div *ngIf="ActivePanel == 'CreateGroup' && DirtyGroup != null" class="p-2 m-2 rounded border border-primary">
+            <table class="table table-bordered table-sm m-1 p-0" >
+                <thead>
+                    <tr class="alert-info ">
+                        <td class="font-weight-bold">Master Item ID:</td>
+                        <td class="bg-white">{{DirtyMaster?.itemId}}</td>
+                        <td class="font-weight-bold">Coded count:</td>
+                        <td class="bg-white">{{DirtyMaster?.codedCount}}</td>
+                        <td class="font-weight-bold">Uploaded Docs:</td>
+                        <td class="bg-white">{{DirtyMaster?.docCount}}</td>
+                        <td class="font-weight-bold">Date:</td>
+                        <td class="bg-white">{{DirtyMaster?.year}}</td>
+                    </tr>
+                    <tr class="alert-info ">
+                        <td class="font-weight-bold">Authors(s): </td>
+                        <td colspan="7" class="bg-white">{{DirtyMaster?.authors}}</td>
+                    </tr>
+                    <tr class="alert-info ">
+                        <td class="font-weight-bold">Title: </td>
+                        <td colspan="7" class="bg-white">{{DirtyMaster?.title}}</td>
+                    </tr>
+                    <tr class="alert-info ">
+                        <td class="font-weight-bold">Pub Name: </td>
+                        <td colspan="7" class="bg-white">{{DirtyMaster?.parentTitle}}</td>
+                    </tr>
+                    <tr class="alert-info ">
+                        <td class="font-weight-bold">Status: </td>
+                        <td *ngIf="DirtyMaster == null" colspan="7" class="bg-white">Failure: this 'tentative' group has no master;</td>
+                        <td *ngIf="DirtyMaster !== null" colspan="7" class="bg-white">{{DirtyMemberStatus(DirtyMaster)}}</td>
+                    </tr>
+                    <tr>
+                        <td colspan="8" class="small p-0  bg-info" style="line-height:0.25em;">&nbsp;</td>
+                    </tr>
+                </thead>
+                <tbody *ngIf="DirtyGroup != null">
+                    <ng-container *ngFor="let member of DirtyGroup.MembersOnly">
+                        <tr class="bg-light">
+                            <td>Item ID:</td>
+                            <td class="bg-white">{{member.itemId}}</td>
+                            <td>Coded count:</td>
+                            <td>{{member.codedCount}}</td>
+                            <td>Uploaded Docs:</td>
+                            <td [ngClass]="{'alert-danger font-weight-bold' : member.docCount !== 0}">{{member.docCount}}</td>
+                            <td>Date:</td>
+                            <td [ngClass]="">{{member.year}}</td>
+                        </tr>
+                        <tr class="bg-light">
+                            <td>Authors(s): </td>
+                            <td colspan="7">{{member.authors}}</td>
+                        </tr>
+                        <tr class="bg-light">
+                            <td>Title: </td>
+                            <td colspan="7">{{member.title}}</td>
+                        </tr>
+                        <tr class="bg-light">
+                            <td>Pub Name: </td>
+                            <td colspan="7">{{member.parentTitle}}</td>
+                        </tr>
+                        <tr class="alert-info ">
+                            <td class="font-weight-bold">Status: </td>
+                            <td *ngIf="DirtyMaster !== null" colspan="7" class="bg-white">{{DirtyMemberStatus(member)}}</td>
+                        </tr>
+                        <tr>
+                            <td colspan="8" class="small p-0" style="line-height:0.4em;">&nbsp;</td>
+                        </tr>
+                    </ng-container>
+                </tbody>
+            </table>
+            <div class="row m-0 p-0">
+
+                <button class="btn btn-sm py-0 px-1 m-1 btn-outline-dark" (click)="ResetActivePanel()">Cancel</button>
+            </div>
+        </div>
+
         <div *ngIf="ActivePanel == 'AdvancedMarkAutomatically'" class="row m-1 alert-danger border border-danger rounded">
             <div class="row m-0 p-1">
                 <b>Advanced Mark Automatically:</b>
@@ -234,7 +313,7 @@
                                 <td>Authors(s): </td>
                                 <td colspan="7">{{member.authors}}</td>
                             </tr>
-                            <tr class="bg-light" style="z-index: -5;">
+                            <tr class="bg-light">
                                 <td>Title: </td>
                                 <td colspan="7">{{member.title}}</td>
                             </tr>
