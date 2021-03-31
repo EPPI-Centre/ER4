@@ -65,7 +65,7 @@
             </button>
             <div class="align-self-center small ml-1 mr-0 my-0">&nbsp;<b>{{DuplicateGroups?.length}}</b>&nbsp;groups of possible duplicates loaded (<b>{{CompletedGroups}}</b> marked as completed).</div>
         </div>
-        <div *ngIf="ShowingMore" class="containsAtoolbar row bg-white  border  ml-2 mr-1 my-1 p-1" >
+        <div *ngIf="ShowingMore" class="containsAtoolbar row bg-white  border  ml-2 mr-1 my-1 p-1">
             <kendo-splitbutton class="ml-1"
                                [text]="'Find Related Groups'"
                                (buttonClick)="FindRelatedGroups()"
@@ -82,6 +82,10 @@
             <button kendoButton class="ml-1" [title]="'Deletes the currently shown group'" [disabled]="!HasWriteRights || CurrentGroup == null"
                     (click)="DeleteCurrentGroup(CurrentGroup.groupID)">
                 Delete This Group
+            </button>
+            <button kendoButton class="ml-1" [title]="'Show/hide items list'"
+                    (click)="ShowItemsList = !ShowItemsList">
+                {{ShowItemsList ? 'Hide items' : 'Show items'}}
             </button>
         </div>
 
@@ -151,132 +155,267 @@
             <button class="btn btn-sm py-0 px-1 m-1 btn-outline-dark" (click)="ResetActivePanel()">Cancel</button>
         </div>
 
-
-
-        <div *ngIf="CurrentGroup" class="mt-1 p-0" style="max-height:80vh; overflow:auto;">
-            <table class="table-bordered table table-sm m-0 p-0">
-                <tr class="alert-info ">
-                    <td class="font-weight-bold">Master Item ID:</td>
-                    <td class="bg-white">{{CurrentGroup.Master?.itemId}}</td>
-                    <td class="font-weight-bold">Coded count:</td>
-                    <td class="bg-white">{{CurrentGroup.Master?.codedCount}}</td>
-                    <td class="font-weight-bold">Uploaded Docs:</td>
-                    <td class="bg-white">{{CurrentGroup.Master?.docCount}}</td>
-                    <td class="font-weight-bold">Pages:</td>
-                    <td class="bg-white">{{CurrentGroup.Master?.pages}}</td>
-                </tr>
-                <tr class="alert-info ">
-                    <td class="font-weight-bold">Pub Type:</td>
-                    <td class="bg-white">{{CurrentGroup.Master?.typeName}}</td>
-                    <td></td>
-                    <td class="font-weight-bold">Date:</td>
-                    <td class="bg-white">{{CurrentGroup.Master?.year}}</td>
-                    <td class="font-weight-bold">Source:</td>
-                    <td class="bg-white" colspan="2">{{CurrentGroup.Master?.source}}</td>
-                </tr>
-                <tr class="alert-info ">
-                    <td class="font-weight-bold">Authors(s): </td>
-                    <td colspan="7" class="bg-white">{{CurrentGroup.Master?.authors}}</td>
-                </tr>
-                <tr class="alert-info ">
-                    <td class="font-weight-bold">Title: </td>
-                    <td colspan="7" class="bg-white">{{CurrentGroup.Master?.title}}</td>
-                </tr>
-                <tr class="alert-info ">
-                    <td class="font-weight-bold">Pub Name: </td>
-                    <td colspan="7" class="bg-white">{{CurrentGroup.Master?.parentTitle}}</td>
-                </tr>
-                <tr>
-                    <td colspan="8" class="small p-0" style="line-height:0.4em;">&nbsp;</td>
-                </tr>
-                <tr *ngIf="CurrentGroup.manualMembers && CurrentGroup.manualMembers.length > 0">
-                    <td colspan="8">
-                        <button class="btn btn-sm py-1 px-1 my-0 ml-0 mr-3 btn-outline-primary" (click)="GoToManualMembers()">To Manual Members...</button>
-                        This group contains&nbsp;{{CurrentGroup.manualMembers.length}}&nbsp;Manual members.
-                    </td>
-                </tr>
-                <ng-container *ngFor="let member of CurrentGroup.JustMembers">
-                    <tr class="bg-light">
-                        <td>Item ID:</td>
-                        <td class="bg-white">{{member.itemId}}</td>
-                        <td>Coded count:</td>
-                        <td [ngClass]="{'bg-white' : member.codedCount <= 0, 'alert-danger font-weight-bold' : member.codedCount !== 0}">{{member.codedCount}}</td>
-                        <td>Uploaded Docs:</td>
-                        <td [ngClass]="{'bg-white' : member.docCount <= 0, 'alert-danger font-weight-bold' : member.docCount !== 0}">{{member.docCount}}</td>
-                        <td>Pages:</td>
-                        <td [ngClass]="DistanceClass(member.pages, CurrentGroup.Master?.pages)">{{member.pages}}</td>
-                    </tr>
-                    <tr class="bg-light">
-                        <td>Pub Type:</td>
-                        <td class="bg-white">{{member.typeName}}</td>
-                        <td class="font-weight-bold" *ngIf="CurrentGroup.HasOriginalMaster"
-                            [ngClass]="{'alert-success': member.similarityScore >= 0.999, 'alert-warning' : member.similarityScore >= 0.9 && member.similarityScore < 0.999, 'alert-danger': member.similarityScore < 0.9}">
-                            Similarity: {{member.similarityScore.toPrecision(4)}}
-                        </td>
-                        <td class="font-weight-bold alert-danger" *ngIf="!CurrentGroup.HasOriginalMaster">
-                            Similarity: Unknown
-                        </td>
-                        <td>Date:</td>
-                        <td><span [ngClass]="DistanceClass(member.year, CurrentGroup.Master?.year)">{{member.year}}</span>&nbsp;<span [ngClass]="DistanceClass(member.month, CurrentGroup.Master?.month)">{{member.month}}</span></td>
-                        <td>Source:</td>
-                        <td class="bg-white" colspan="2">{{member.source}}</td>
-                    </tr>
-                    <tr class="bg-light">
-                        <td>Authors(s): </td>
-                        <td colspan="7" [ngClass]="DistanceClass(member.authors, CurrentGroup.Master?.authors)">{{member.authors}}</td>
-                    </tr>
-                    <tr class="bg-light">
-                        <td>Title: </td>
-                        <td colspan="7" [ngClass]="DistanceClass(member.title, CurrentGroup.Master?.title)">{{member.title}}</td>
-                    </tr>
-                    <tr class="bg-light">
-                        <td>Pub Name: </td>
-                        <td colspan="7" [ngClass]="DistanceClass(member.parentTitle, CurrentGroup.Master?.parentTitle)">{{member.parentTitle}}</td>
-                    </tr>
-                    <tr class="bg-light">
-                        <td>Marked As:</td>
-                        <td *ngIf="member.isDuplicate && member.isChecked" class="font-weight-bold alert-success">Duplicate</td>
-                        <td *ngIf="!member.isDuplicate && member.isChecked" class="font-weight-bold alert-success">NOT Duplicate</td>
-                        <td *ngIf="!member.isChecked" class="bg-white">Not checked</td>
-                        <td *ngIf="CurrentGroup.isEditable" colspan="6" class="bg-white">
-                            <button *ngIf="!member.isChecked || !member.isDuplicate" [disabled]="!HasWriteRights || !member.isEditable " class="btn btn-sm py-1 px-1 my-0 ml-0 mr-1 btn-outline-success" (click)="MarkUnmarkItemAsDuplicate(member, true)">A Duplicate</button>
-                            <button *ngIf="!member.isChecked || member.isDuplicate" [disabled]="!HasWriteRights || !member.isEditable" class="btn btn-sm py-1 px-1 my-0 ml-0 mr-1 btn-outline-info" (click)="MarkUnmarkItemAsDuplicate(member, false)">Not a Duplicate</button>
-                            <button [disabled]="!HasWriteRights || !member.isEditable" class="btn btn-sm py-1 px-1 my-0 ml-0 mr-1 btn-outline-danger" (click)="MarkAsMaster(member)">Mark as Master</button>
-                        </td>
-                        <td *ngIf="HasWriteRights && !CurrentGroup.isEditable" colspan="6" class="alert-danger small">
-                            Entire group is read-only (current master might be marked as duplicate in another group).
-                        </td>
-                        <td *ngIf="!HasWriteRights && !CurrentGroup.isEditable" colspan="6" class="alert-danger small">
-                            Entire group is read-only (you don't have write-rights).
-                        </td>
-                    </tr>
-                    <tr>
-                        <td colspan="8" class="small p-0" style="line-height:0.4em;">&nbsp;</td>
-                    </tr>
-                </ng-container>
-            </table>
-            <div *ngIf="CurrentGroup.manualMembers && CurrentGroup.manualMembers.length > 0" id="ManualMembersDiv" class="bg-white">
-                <table class="table-primary table-striped table table-sm m-0 p-0">
-                    <tr>
-                        <td class="small">Manually added:</td>
-                        <th>ItemID</th>
-                        <th>Authors</th>
-                        <th>Title</th>
-                    </tr>
-                    <tr *ngFor="let mMember of CurrentGroup.manualMembers">
-                        <td>
-                            <button [disabled]="!HasWriteRights "
-                                    class="btn btn-sm py-1 px-1 my-0 ml-0 mr-1 btn-outline-danger"
-                                    (click)="RemoveManualMember(mMember.itemId)">
-                                Remove
-                            </button>
-                        </td>
-                        <td>{{mMember.itemId}}</td>
-                        <td>{{mMember.authors}}</td>
-                        <td>{{mMember.title}}</td>
-                    </tr>
+        <div *ngIf="CurrentGroup" style="position:relative;">
+            <div class="mt-1 px-0 pt-0 pb-2" style="max-height:80vh; overflow-y: hidden; overflow-x:auto; margin-right:16px; ">
+                <table class="z-index-table table table-sm m-0 p-0" style="position:relative; ">
+                    <thead style="position: relative; z-index: 22;">
+                        <tr class="alert-info ">
+                            <td class="font-weight-bold">Master Item ID:</td>
+                            <td class="bg-white">{{CurrentGroup.Master?.itemId}}</td>
+                            <td class="font-weight-bold">Coded count:</td>
+                            <td class="bg-white">{{CurrentGroup.Master?.codedCount}}</td>
+                            <td class="font-weight-bold">Uploaded Docs:</td>
+                            <td class="bg-white">{{CurrentGroup.Master?.docCount}}</td>
+                            <td class="font-weight-bold">Pages:</td>
+                            <td class="bg-white">{{CurrentGroup.Master?.pages}}</td>
+                        </tr>
+                        <tr class="alert-info ">
+                            <td class="font-weight-bold">Pub Type:</td>
+                            <td class="bg-white">{{CurrentGroup.Master?.typeName}}</td>
+                            <td></td>
+                            <td class="font-weight-bold">Date:</td>
+                            <td class="bg-white">{{CurrentGroup.Master?.year}}</td>
+                            <td class="font-weight-bold">Source:</td>
+                            <td class="bg-white" colspan="2">{{CurrentGroup.Master?.source}}</td>
+                        </tr>
+                        <tr class="alert-info ">
+                            <td class="font-weight-bold">Authors(s): </td>
+                            <td colspan="7" class="bg-white">{{CurrentGroup.Master?.authors}}</td>
+                        </tr>
+                        <tr class="alert-info ">
+                            <td class="font-weight-bold">Title: </td>
+                            <td colspan="7" class="bg-white">{{CurrentGroup.Master?.title}}</td>
+                        </tr>
+                        <tr class="alert-info ">
+                            <td class="font-weight-bold">Pub Name: </td>
+                            <td colspan="7" class="bg-white">{{CurrentGroup.Master?.parentTitle}}</td>
+                        </tr>
+                        <tr *ngIf="CurrentGroup.manualMembers && CurrentGroup.manualMembers.length > 0">
+                            <td colspan="8">
+                                <button class="btn btn-sm py-1 px-1 my-0 ml-0 mr-3 btn-outline-primary" (click)="GoToManualMembers()">To Manual Members...</button>
+                                This group contains&nbsp;{{CurrentGroup.manualMembers.length}}&nbsp;Manual members.
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="8" class="small p-0  bg-info" style="line-height:0.25em;">&nbsp;</td>
+                        </tr>
+                    </thead>
+                    <tbody  style="position: relative; z-index: -20;">
+                        <ng-container *ngFor="let member of CurrentGroup.JustMembers">
+                            <tr class="bg-light">
+                                <td>Item ID:</td>
+                                <td class="bg-white">{{member.itemId}}</td>
+                                <td>Coded count:</td>
+                                <td>{{member.codedCount}}</td>
+                                <td>Uploaded Docs:</td>
+                                <td [ngClass]="{'alert-danger font-weight-bold' : member.docCount !== 0}">{{member.docCount}}</td>
+                                <td>Pages:</td>
+                                <td [ngClass]="">{{member.pages}}</td>
+                            </tr>
+                            <tr class="bg-light">
+                                <td>Pub Type:</td>
+                                <td class="bg-white">{{member.typeName}}</td>
+                                <td class="font-weight-bold" *ngIf="CurrentGroup.HasOriginalMaster">
+                                    Similarity: {{member.similarityScore.toPrecision(4)}}
+                                </td>
+                                <td class="font-weight-bold alert-danger" *ngIf="!CurrentGroup.HasOriginalMaster">
+                                    Similarity: Unknown
+                                </td>
+                                <td>Date:</td>
+                                <td><span>{{member.year}}</span>&nbsp;<span>{{member.month}}</span></td>
+                                <td>Source:</td>
+                                <td class="bg-white" colspan="2">{{member.source}}</td>
+                            </tr>
+                            <tr class="bg-light">
+                                <td>Authors(s): </td>
+                                <td colspan="7">{{member.authors}}</td>
+                            </tr>
+                            <tr class="bg-light" style="z-index: -5;">
+                                <td>Title: </td>
+                                <td colspan="7">{{member.title}}</td>
+                            </tr>
+                            <tr class="bg-light">
+                                <td>Pub Name: </td>
+                                <td colspan="7">{{member.parentTitle}}</td>
+                            </tr>
+                            <tr class="bg-light">
+                                <td>Marked As:</td>
+                                <td *ngIf="member.isDuplicate && member.isChecked" class="font-weight-bold alert-success">Duplicate</td>
+                                <td *ngIf="!member.isDuplicate && member.isChecked" class="font-weight-bold alert-success">NOT Duplicate</td>
+                                <td *ngIf="!member.isChecked" class="bg-white">Not checked</td>
+                                <td *ngIf="CurrentGroup.isEditable" colspan="6" class="bg-white">
+                                    <button *ngIf="!member.isChecked || !member.isDuplicate" class="btn btn-sm py-1 px-1 my-0 ml-0 mr-1 btn-outline-success">A Duplicate</button>
+                                    <button *ngIf="!member.isChecked || member.isDuplicate" class="btn btn-sm py-1 px-1 my-0 ml-0 mr-1 btn-outline-info">Not a Duplicate</button>
+                                    <button class="btn btn-sm py-1 px-1 my-0 ml-0 mr-1 btn-outline-danger">Mark as Master</button>
+                                </td>
+                                <td *ngIf="HasWriteRights && !CurrentGroup.isEditable" colspan="6" class="alert-danger small">
+                                    Entire group is read-only (current master might be marked as duplicate in another group).
+                                </td>
+                                <td *ngIf="!HasWriteRights && !CurrentGroup.isEditable" colspan="6" class="alert-danger small">
+                                    Entire group is read-only (you don't have write-rights).
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="8" class="small p-0" style="line-height:0.4em;">&nbsp;</td>
+                            </tr>
+                        </ng-container>
+                    </tbody>
                 </table>
+                <div *ngIf="CurrentGroup.manualMembers && CurrentGroup.manualMembers.length > 0" id="ManualMembersDiv" class="bg-white"  style="z-index: -5;">
+                    <table class="table-primary table-striped table table-sm m-0 p-0">
+                        <tr>
+                            <td class="small">Manually added:</td>
+                            <th>ItemID</th>
+                            <th>Authors</th>
+                            <th>Title</th>
+                        </tr>
+                        <tr *ngFor="let mMember of CurrentGroup.manualMembers">
+                            <td>
+                                <button [disabled]="!HasWriteRights "
+                                        class="btn btn-sm py-1 px-1 my-0 ml-0 mr-1 btn-outline-danger"
+                                        (click)="RemoveManualMember(mMember.itemId)">
+                                    Remove
+                                </button>
+                            </td>
+                            <td>{{mMember.itemId}}</td>
+                            <td>{{mMember.authors}}</td>
+                            <td>{{mMember.title}}</td>
+                        </tr>
+                    </table>
+                </div>
             </div>
+            <div class="mt-0 px-0 pt-0 pb-2 w-100" style="max-height:80vh; overflow-y:scroll; overflow-x:auto; position:absolute; top:0px;">
+                <table class="z-index-table table table-sm m-0 p-0"  style="">
+                    <thead style="position: relative; z-index: -20;">
+                        <tr class="alert-info ">
+                            <td class="font-weight-bold">Master Item ID:</td>
+                            <td class="bg-white">{{CurrentGroup.Master?.itemId}}</td>
+                            <td class="font-weight-bold">Coded count:</td>
+                            <td class="bg-white">{{CurrentGroup.Master?.codedCount}}</td>
+                            <td class="font-weight-bold">Uploaded Docs:</td>
+                            <td class="bg-white">{{CurrentGroup.Master?.docCount}}</td>
+                            <td class="font-weight-bold">Pages:</td>
+                            <td class="bg-white">{{CurrentGroup.Master?.pages}}</td>
+                        </tr>
+                        <tr class="alert-info ">
+                            <td class="font-weight-bold">Pub Type:</td>
+                            <td class="bg-white">{{CurrentGroup.Master?.typeName}}</td>
+                            <td></td>
+                            <td class="font-weight-bold">Date:</td>
+                            <td class="bg-white">{{CurrentGroup.Master?.year}}</td>
+                            <td class="font-weight-bold">Source:</td>
+                            <td class="bg-white" colspan="2">{{CurrentGroup.Master?.source}}</td>
+                        </tr>
+                        <tr class="alert-info ">
+                            <td class="font-weight-bold">Authors(s): </td>
+                            <td colspan="7" class="bg-white">{{CurrentGroup.Master?.authors}}</td>
+                        </tr>
+                        <tr class="alert-info ">
+                            <td class="font-weight-bold">Title: </td>
+                            <td colspan="7" class="bg-white">{{CurrentGroup.Master?.title}}</td>
+                        </tr>
+                        <tr class="alert-info ">
+                            <td class="font-weight-bold">Pub Name: </td>
+                            <td colspan="7" class="bg-white">{{CurrentGroup.Master?.parentTitle}}</td>
+                        </tr>
+                        <tr *ngIf="CurrentGroup.manualMembers && CurrentGroup.manualMembers.length > 0">
+                            <td colspan="8">
+                                <button class="btn btn-sm py-1 px-1 my-0 ml-0 mr-3 btn-outline-primary" (click)="GoToManualMembers()">To Manual Members...</button>
+                                This group contains&nbsp;{{CurrentGroup.manualMembers.length}}&nbsp;Manual members.
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="8" class="small p-0 bg-info" style="line-height:0.25em; ">&nbsp;</td>
+                        </tr>
+                    </thead>
+                    <tbody  style="position: relative; z-index: 20;">
+                        <ng-container *ngFor="let member of CurrentGroup.JustMembers">
+                            <tr class="bg-light">
+                                <td>Item ID:</td>
+                                <td class="bg-white">{{member.itemId}}</td>
+                                <td>Coded count:</td>
+                                <td [ngClass]="{'bg-white' : member.codedCount <= 0, 'alert-danger font-weight-bold' : member.codedCount !== 0}">{{member.codedCount}}</td>
+                                <td>Uploaded Docs:</td>
+                                <td [ngClass]="{'bg-white' : member.docCount <= 0, 'alert-danger font-weight-bold' : member.docCount !== 0}">{{member.docCount}}</td>
+                                <td>Pages:</td>
+                                <td [ngClass]="DistanceClass(member.pages, CurrentGroup.Master?.pages)">{{member.pages}}</td>
+                            </tr>
+                            <tr class="bg-light">
+                                <td>Pub Type:</td>
+                                <td class="bg-white">{{member.typeName}}</td>
+                                <td class="font-weight-bold" *ngIf="CurrentGroup.HasOriginalMaster"
+                                    [ngClass]="{'alert-success': member.similarityScore >= 0.999, 'alert-warning' : member.similarityScore >= 0.9 && member.similarityScore < 0.999, 'alert-danger': member.similarityScore < 0.9}">
+                                    Similarity: {{member.similarityScore.toPrecision(4)}}
+                                </td>
+                                <td class="font-weight-bold alert-danger" *ngIf="!CurrentGroup.HasOriginalMaster">
+                                    Similarity: Unknown
+                                </td>
+                                <td>Date:</td>
+                                <td><span [ngClass]="DistanceClass(member.year, CurrentGroup.Master?.year)">{{member.year}}</span>&nbsp;<span [ngClass]="DistanceClass(member.month, CurrentGroup.Master?.month)">{{member.month}}</span></td>
+                                <td>Source:</td>
+                                <td class="bg-white" colspan="2">{{member.source}}</td>
+                            </tr>
+                            <tr class="bg-light">
+                                <td>Authors(s): </td>
+                                <td colspan="7" [ngClass]="DistanceClass(member.authors, CurrentGroup.Master?.authors)">{{member.authors}}</td>
+                            </tr>
+                            <tr class="bg-light">
+                                <td>Title: </td>
+                                <td colspan="7" [ngClass]="DistanceClass(member.title, CurrentGroup.Master?.title)">{{member.title}}</td>
+                            </tr>
+                            <tr class="bg-light">
+                                <td>Pub Name: </td>
+                                <td colspan="7" [ngClass]="DistanceClass(member.parentTitle, CurrentGroup.Master?.parentTitle)">{{member.parentTitle}}</td>
+                            </tr>
+                            <tr class="bg-light">
+                                <td>Marked As:</td>
+                                <td *ngIf="member.isDuplicate && member.isChecked" class="font-weight-bold alert-success">Duplicate</td>
+                                <td *ngIf="!member.isDuplicate && member.isChecked" class="font-weight-bold alert-success">NOT Duplicate</td>
+                                <td *ngIf="!member.isChecked" class="bg-white">Not checked</td>
+                                <td *ngIf="CurrentGroup.isEditable" colspan="6" class="bg-white">
+                                    <button *ngIf="!member.isChecked || !member.isDuplicate" [disabled]="!HasWriteRights || !member.isEditable " class="btn btn-sm py-1 px-1 my-0 ml-0 mr-1 btn-outline-success" (click)="MarkUnmarkItemAsDuplicate(member, true)">A Duplicate</button>
+                                    <button *ngIf="!member.isChecked || member.isDuplicate" [disabled]="!HasWriteRights || !member.isEditable" class="btn btn-sm py-1 px-1 my-0 ml-0 mr-1 btn-outline-info" (click)="MarkUnmarkItemAsDuplicate(member, false)">Not a Duplicate</button>
+                                    <button [disabled]="!HasWriteRights || !member.isEditable" class="btn btn-sm py-1 px-1 my-0 ml-0 mr-1 btn-outline-danger" (click)="MarkAsMaster(member)">Mark as Master</button>
+                                </td>
+                                <td *ngIf="HasWriteRights && !CurrentGroup.isEditable" colspan="6" class="alert-danger small">
+                                    Entire group is read-only (current master might be marked as duplicate in another group).
+                                </td>
+                                <td *ngIf="!HasWriteRights && !CurrentGroup.isEditable" colspan="6" class="alert-danger small">
+                                    Entire group is read-only (you don't have write-rights).
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="8" class="small p-0" style="line-height:0.4em;">&nbsp;</td>
+                            </tr>
+                        </ng-container>
+                    </tbody>
+                </table>
+                <div *ngIf="CurrentGroup.manualMembers && CurrentGroup.manualMembers.length > 0" id="ManualMembersDiv" class="bg-white">
+                    <table class="table-primary table-striped table table-sm m-0 p-0">
+                        <tr>
+                            <td class="small">Manually added:</td>
+                            <th>ItemID</th>
+                            <th>Authors</th>
+                            <th>Title</th>
+                        </tr>
+                        <tr *ngFor="let mMember of CurrentGroup.manualMembers">
+                            <td>
+                                <button [disabled]="!HasWriteRights "
+                                        class="btn btn-sm py-1 px-1 my-0 ml-0 mr-1 btn-outline-danger"
+                                        (click)="RemoveManualMember(mMember.itemId)">
+                                    Remove
+                                </button>
+                            </td>
+                            <td>{{mMember.itemId}}</td>
+                            <td>{{mMember.authors}}</td>
+                            <td>{{mMember.title}}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div *ngIf="ShowItemsList">
+            Items list here...
         </div>
     </div>
 </div>

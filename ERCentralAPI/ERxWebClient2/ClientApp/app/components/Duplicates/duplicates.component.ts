@@ -28,7 +28,12 @@ import { EventEmitterService } from '../services/EventEmitter.service';
                .bg-lev3 {    
                     background-color: #FF69B4;
                 }
+                .z-index-table {
+                    border-collapse:separate; border-spacing:0px;
+                }
+                    
             `]
+
 })
 
 export class DuplicatesComponent implements OnInit, OnDestroy {
@@ -55,6 +60,7 @@ export class DuplicatesComponent implements OnInit, OnDestroy {
     public ActivePanel: string = "";
     public ItemIDsearchString: string = "";
     public ShowingMore: boolean = false;
+    public ShowItemsList: boolean = false;
     //public lowThresholdWarningActive: boolean = "";
     public get lowThresholdWarningActive(): boolean {
         if (this.similarityCr < 0.8) return true;
