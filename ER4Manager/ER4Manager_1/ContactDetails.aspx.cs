@@ -89,7 +89,8 @@ public partial class ContactDetails : System.Web.UI.Page
                         if (idr.Read())
                         {
                             lblContactID.Text = idr["CONTACT_ID"].ToString();
-                            tbContactName.Text = idr["CONTACT_NAME"].ToString().Replace("''", "'");
+                            //tbContactName.Text = idr["CONTACT_NAME"].ToString().Replace("''", "'");
+                            tbContactName.Text = idr["CONTACT_NAME"].ToString();
                             tbUserName.Text = idr["USERNAME"].ToString();
                             //tbPassword.Text = idr["PASSWORD"].ToString();
                             tbEmail.Text = idr["EMAIL"].ToString();
@@ -198,8 +199,10 @@ public partial class ContactDetails : System.Web.UI.Page
         Regex passwordRegex = new Regex("^.*(?=.{8,})(?=.*\\d)(?=.*[a-z])(?=.*[A-Z]).*$");
 
         //make sure all of the fields are filled in
+        //if (tbContactName.Text == "" || tbUserName.Text.Contains("'") || tbUserName.Text == "" /*|| tbPassword.Text == "" ||
+        //    tbPassword.Text.Contains("'")*/ || tbDateCreated.Text == "" || tbEmail.Text == "" || tbEmail.Text.Contains("'"))
         if (tbContactName.Text == "" || tbUserName.Text.Contains("'") || tbUserName.Text == "" /*|| tbPassword.Text == "" ||
-            tbPassword.Text.Contains("'")*/ || tbDateCreated.Text == "" || tbEmail.Text == "" || tbEmail.Text.Contains("'"))
+            tbPassword.Text.Contains("'")*/ || tbDateCreated.Text == "" || tbEmail.Text == "")
         {
             lblMissingFields.Visible = true;
             lblMissingFields.Text = "Please fill in all of the fields *";
@@ -377,8 +380,10 @@ public partial class ContactDetails : System.Web.UI.Page
 
             paramList[0] = new SqlParameter("@NEW_ACCOUNT", SqlDbType.NVarChar, 50, ParameterDirection.Input,
                 true, 0, 0, null, DataRowVersion.Default, newAccount);
+            //paramList[1] = new SqlParameter("@CONTACT_NAME", SqlDbType.NVarChar, 255, ParameterDirection.Input,
+            //    true, 0, 0, null, DataRowVersion.Default, tbContactName.Text.Replace("'", "''"));
             paramList[1] = new SqlParameter("@CONTACT_NAME", SqlDbType.NVarChar, 255, ParameterDirection.Input,
-                true, 0, 0, null, DataRowVersion.Default, tbContactName.Text.Replace("'", "''"));
+                true, 0, 0, null, DataRowVersion.Default, tbContactName.Text);
             paramList[2] = new SqlParameter("@USERNAME", SqlDbType.NVarChar, 50, ParameterDirection.Input,
                 true, 0, 0, null, DataRowVersion.Default, tbUserName.Text);
             paramList[3] = new SqlParameter("@PASSWORD", SqlDbType.NVarChar, 50, ParameterDirection.Input,

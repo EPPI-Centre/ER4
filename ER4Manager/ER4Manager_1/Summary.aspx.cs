@@ -518,7 +518,8 @@ public partial class Summary : System.Web.UI.Page
         lblEmailAddress0.Text = "Email address is already in use. Please select another.";
         lblUsername.Visible = false;
         lblUsername.Text = "User name is already in use. Please select another.";
-        lblMissingFields.Text = "Please fill in all of the fields. Apostrophes (') are not allowed in User names, Passwords and Emails.";
+        //lblMissingFields.Text = "Please fill in all of the fields. Apostrophes (') are not allowed in User names, Passwords and Emails.";
+        lblMissingFields.Text = "Please fill in all of the fields. Apostrophes (') are not allowed in Usernames and Passwords.";
         lblEmailAddress0.Visible = false;
         lblNewPassword.Visible = false;
         lblMissingFields.Visible = false;
@@ -533,8 +534,10 @@ public partial class Summary : System.Web.UI.Page
         Regex passwordRegex = new Regex("^.*(?=.{8,})(?=.*\\d)(?=.*[a-z])(?=.*[A-Z]).*$");
 
         //make sure all of the fields are filled in
-        if ((tbName.Text == "" || tbUserName.Text == "" || tbUserName.Text.Contains("'") || tbEmail.Text == "" || tbEmail.Text.Contains("'") ||
-            tbEmailConfirm.Text == "" || tbEmailConfirm.Text.Contains("'") || tbPassword.Text.Contains("'") || tbPasswordConfirm.Text.Contains("'")))
+        //if ((tbName.Text == "" || tbUserName.Text == "" || tbUserName.Text.Contains("'") || tbEmail.Text == "" || tbEmail.Text.Contains("'") ||
+        //    tbEmailConfirm.Text == "" || tbEmailConfirm.Text.Contains("'") || tbPassword.Text.Contains("'") || tbPasswordConfirm.Text.Contains("'")))
+        if ((tbName.Text == "" || tbUserName.Text == "" || tbUserName.Text.Contains("'") || tbEmail.Text == "" ||
+            tbEmailConfirm.Text == "" || tbPassword.Text.Contains("'") || tbPasswordConfirm.Text.Contains("'")))
         {
             pnlAccountMessages.Visible = true;
             lblMissingFields.Visible = true;
