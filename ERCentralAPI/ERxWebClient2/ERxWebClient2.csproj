@@ -110,6 +110,8 @@
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemDocumentList.cs" Link="Models\ItemDocumentList.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemDocumentSaveBinCommand.cs" Link="Models\ItemDocumentSaveBinCommand.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemDocumentSaveCommand.cs" Link="Models\ItemDocumentSaveCommand.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemDuplicateDirtyGroup.cs" Link="Models\ItemDuplicateDirtyGroup.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemDuplicateDirtyGroupMember.cs" Link="Models\ItemDuplicateDirtyGroupMember.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemDuplicateGroup.cs" Link="Models\ItemDuplicateGroup.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemDuplicateGroupMember.cs" Link="Models\ItemDuplicateGroupMember.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemDuplicateGroupsDeleteCommand.cs" Link="Models\ItemDuplicateGroupsDeleteCommand.cs" />

@@ -197,6 +197,42 @@ namespace ERxWebClient2.Controllers
         }
 
         [HttpPost("[action]")]
+        public IActionResult AddManualMembers([FromBody] GroupListSelectionCriteriaMVC crit)
+        {
+            try
+            {
+                if (SetCSLAUser4Writing())
+                {
+                    DataPortal<ItemDuplicateGroup> dp = new DataPortal<ItemDuplicateGroup>();
+                    ItemDuplicateGroup IDG = dp.Fetch(new SingleCriteria<ItemDuplicateGroup, int>(crit.groupId));
+                    long currmas = IDG.getMaster().ItemId;
+                    IDG.AddItems = new Csla.Core.MobileList<long>();
+                    string[] list = crit.itemIds.Split(',');
+                    foreach (string it in list)
+                    {
+                        Int64 ItemId;
+                        if (Int64.TryParse(it, out ItemId))
+                        {
+                            if (ItemId != currmas && ItemId > 0) IDG.AddItems.Add(ItemId);
+                        }
+                    }
+                    IDG = IDG.Save();
+                    return Ok(IDG);
+                }
+                else
+                {
+                    return Forbid();
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "Error in AddManualMembers. GroupId = " + crit.groupId + " itemIds: " + crit.itemIds);
+                return StatusCode(500, e.Message);
+            }
+        }
+
+
+        [HttpPost("[action]")]
         public IActionResult DeleteGroup([FromBody] SingleIntCriteria crit)
         {
             try

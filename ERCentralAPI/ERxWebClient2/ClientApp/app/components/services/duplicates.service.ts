@@ -369,6 +369,29 @@ export class DuplicatesService extends BusyAwareService implements OnDestroy {
                 this.modalService.GenericError(error);
             });
     }
+
+    public AddManualMembers(crit: GroupListSelectionCriteriaMVC) {
+        this._BusyMethods.push("AddManualMembers");
+        this._http.post<iItemDuplicateGroup>(this._baseUrl + 'api/Duplicates/AddManualMembers',
+            crit).subscribe(result => {
+                let res = new ItemDuplicateGroup(result);
+                this.CurrentGroup = res;
+                this.RemoveBusy("AddManualMembers");
+
+            }, error => {
+                console.log("FetchGroups error", error, crit);
+                    this.RemoveBusy("AddManualMembers");
+                if (error.status == 500 && error.error == "DataPortal.Fetch failed (Execution still Running)") {
+                    //execution running, prevent client from checking again for 3m;
+                    this.SetWaitPeriod();
+                    this.BackToMain();
+                } else {
+                    this.modalService.GenericError(error);
+                    //this.BackToMain();//just in case, this will force a refresh which is safer...
+                }
+            });
+    }
+
     public DoSort() {
         //console.log("doSort", this.LocalSort);
         if (this.DuplicateGroups.length == 0 || this.LocalSort.SortBy == "") return;

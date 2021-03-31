@@ -43,7 +43,7 @@
             </tr>
         </table>
     </div>
-    <div class="col-8 col-xl-9 p-0">
+    <div class="col-8 col-xl-9 p-0 mb-2">
         <div class="containsAtoolbar row alert-info ml-1 mr-0 my-0 p-0" style="background-color: #f5f6fa;">
             <button kendoButton class="ml-1" [title]="'Get the current list of groups'"
                     (click)="Refresh()">
@@ -86,6 +86,10 @@
             <button kendoButton class="ml-1" [title]="'Show/hide items list'"
                     (click)="ShowItemsList = !ShowItemsList">
                 {{ShowItemsList ? 'Hide items' : 'Show items'}}
+            </button>
+            <button kendoButton class="ml-1" [title]="'Add selected items to group'" [disabled]="!CanAddSelectedItemsToGroup"
+                    (click)="AddSelectedItemsToGroup()">
+                Add to group
             </button>
         </div>
 

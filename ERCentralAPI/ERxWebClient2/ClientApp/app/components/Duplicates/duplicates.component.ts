@@ -4,11 +4,12 @@ import { Router } from '@angular/router';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { NotificationService } from '@progress/kendo-angular-notification';
-import { DuplicatesService, iReadOnlyDuplicatesGroup, DuplicateGroupMember, MarkUnmarkItemAsDuplicate, ItemDuplicateGroup } from '../services/duplicates.service';
+import { DuplicatesService, iReadOnlyDuplicatesGroup, DuplicateGroupMember, MarkUnmarkItemAsDuplicate, ItemDuplicateGroup, GroupListSelectionCriteriaMVC } from '../services/duplicates.service';
 import { Helpers, LocalSort } from '../helpers/HelperMethods';
 import { CodesetStatisticsService } from '../services/codesetstatistics.service';
 import { ItemListService } from '../services/ItemList.service';
 import { EventEmitterService } from '../services/EventEmitter.service';
+import { Group } from '@progress/kendo-drawing';
 
 
 @Component({
@@ -407,6 +408,32 @@ export class DuplicatesComponent implements OnInit, OnDestroy {
                 }
             )
                 .catch();
+        }
+    }
+
+    public FindBySelectedItems() {
+
+    }
+    public get CanAddSelectedItemsToGroup(): boolean {
+        if (!this.HasWriteRights) return false;
+        else if (this.ItemListService.SelectedItems.length > 0 && this.CurrentGroup != null) return true;
+        else return false;
+    }
+    public AddSelectedItemsToGroup() {
+        if (this.CurrentGroup == null || this.ItemListService.SelectedItems.length == 0) return;
+        let IDG: ItemDuplicateGroup = this.CurrentGroup; 
+        let ItemsIds: string = "";
+        const currmas: number = IDG.Master.itemId;
+        for (let it of this.ItemListService.SelectedItems)
+        {
+            if (it.itemId != currmas) ItemsIds += it.itemId.toString() + ',';
+        }
+        ItemsIds = ItemsIds.substr(0, ItemsIds.length - 1);
+        if (ItemsIds.length > 0) {
+            let crit: GroupListSelectionCriteriaMVC = new GroupListSelectionCriteriaMVC();
+            crit.groupId = IDG.groupID;
+            crit.itemIds = ItemsIds;
+            this.DuplicatesService.AddManualMembers(crit);
         }
     }
 
