@@ -190,7 +190,7 @@
                             <td class="font-weight-bold">Pub Name: </td>
                             <td colspan="7" class="bg-white">{{CurrentGroup.Master?.parentTitle}}</td>
                         </tr>
-                        <tr *ngIf="CurrentGroup.manualMembers && CurrentGroup.manualMembers.length > 0">
+                        <tr *ngIf="CurrentGroup.manualMembers && CurrentGroup.manualMembers.length > 0" class="alert-dark">
                             <td colspan="8">
                                 <button class="btn btn-sm py-1 px-1 my-0 ml-0 mr-3 btn-outline-primary" (click)="GoToManualMembers()">To Manual Members...</button>
                                 This group contains&nbsp;{{CurrentGroup.manualMembers.length}}&nbsp;Manual members.
@@ -200,7 +200,7 @@
                             <td colspan="8" class="small p-0  bg-info" style="line-height:0.25em;">&nbsp;</td>
                         </tr>
                     </thead>
-                    <tbody  style="position: relative; z-index: -20;">
+                    <tbody style="position: relative; z-index: -20;">
                         <ng-container *ngFor="let member of CurrentGroup.JustMembers">
                             <tr class="bg-light">
                                 <td>Item ID:</td>
@@ -261,31 +261,10 @@
                         </ng-container>
                     </tbody>
                 </table>
-                <div *ngIf="CurrentGroup.manualMembers && CurrentGroup.manualMembers.length > 0" id="ManualMembersDiv" class="bg-white"  style="z-index: -5;">
-                    <table class="table-primary table-striped table table-sm m-0 p-0">
-                        <tr>
-                            <td class="small">Manually added:</td>
-                            <th>ItemID</th>
-                            <th>Authors</th>
-                            <th>Title</th>
-                        </tr>
-                        <tr *ngFor="let mMember of CurrentGroup.manualMembers">
-                            <td>
-                                <button [disabled]="!HasWriteRights "
-                                        class="btn btn-sm py-1 px-1 my-0 ml-0 mr-1 btn-outline-danger"
-                                        (click)="RemoveManualMember(mMember.itemId)">
-                                    Remove
-                                </button>
-                            </td>
-                            <td>{{mMember.itemId}}</td>
-                            <td>{{mMember.authors}}</td>
-                            <td>{{mMember.title}}</td>
-                        </tr>
-                    </table>
-                </div>
+                
             </div>
             <div class="mt-0 px-0 pt-0 pb-2 w-100" style="max-height:80vh; overflow-y:scroll; overflow-x:auto; position:absolute; top:0px;">
-                <table class="z-index-table table table-sm m-0 p-0"  style="">
+                <table class="z-index-table table table-sm m-0 p-0" style="">
                     <thead style="position: relative; z-index: -20;">
                         <tr class="alert-info ">
                             <td class="font-weight-bold">Master Item ID:</td>
@@ -318,7 +297,7 @@
                             <td class="font-weight-bold">Pub Name: </td>
                             <td colspan="7" class="bg-white">{{CurrentGroup.Master?.parentTitle}}</td>
                         </tr>
-                        <tr *ngIf="CurrentGroup.manualMembers && CurrentGroup.manualMembers.length > 0">
+                        <tr *ngIf="CurrentGroup.manualMembers && CurrentGroup.manualMembers.length > 0"  class="alert-dark">
                             <td colspan="8">
                                 <button class="btn btn-sm py-1 px-1 my-0 ml-0 mr-3 btn-outline-primary" (click)="GoToManualMembers()">To Manual Members...</button>
                                 This group contains&nbsp;{{CurrentGroup.manualMembers.length}}&nbsp;Manual members.
@@ -328,7 +307,7 @@
                             <td colspan="8" class="small p-0 bg-info" style="line-height:0.25em; ">&nbsp;</td>
                         </tr>
                     </thead>
-                    <tbody  style="position: relative; z-index: 20;">
+                    <tbody style="position: relative; z-index: 20;">
                         <ng-container *ngFor="let member of CurrentGroup.JustMembers">
                             <tr class="bg-light">
                                 <td>Item ID:</td>
@@ -414,9 +393,10 @@
                 </div>
             </div>
         </div>
-        <div *ngIf="ShowItemsList">
-            Items list here...
-        </div>
+
+    </div>
+    <div *ngIf="ShowItemsList" class="bg-light m-2 rounded border border-info p-1 ">
+        <ItemListComp Context="dedup" ShowItemsTable="true"></ItemListComp>
     </div>
 </div>
 <statusbar class="row card p-0 ml-1 mr-1 mt-1 mb-2 card-body" resizable></statusbar>

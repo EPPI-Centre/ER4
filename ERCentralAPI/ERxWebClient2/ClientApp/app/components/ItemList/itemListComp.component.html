@@ -160,7 +160,7 @@
             <kendo-grid-column field="rank" title="Score" width="68" [hidden]="!ShowScore">
             </kendo-grid-column>
         </kendo-grid>-->
-        <div style="max-height:500px;overflow:auto;">
+        <div style="overflow:auto;" [ngStyle]="{'max-height': Context === 'dedup' ? '45vh' : '80vh' }">
             <table class=" p-1 table table-striped" #exportItemsTable id="ItemsTable"
                    *ngIf="ShowItemsTable && ItemListService && ItemListService.ItemList && this.ItemListService.ItemList.items && this.ItemListService.ItemList.items.length > 0 && !this.ItemListService.IsBusy">
                 <thead>
