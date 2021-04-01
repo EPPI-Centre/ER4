@@ -35,7 +35,7 @@ export class DuplicatesService extends BusyAwareService implements OnDestroy {
         if (this.clearSub != null) this.clearSub.unsubscribe();
     }
     private clearSub: Subscription | null = null;
-
+    private ShowingFilteredGroups: boolean = false;
     public currentCount = 0; public allDone: boolean = false; public ToDoCount = 0;
     public DuplicateGroups: iReadOnlyDuplicatesGroup[] = [];
     public CurrentGroup: ItemDuplicateGroup | null = null;
@@ -90,6 +90,7 @@ export class DuplicatesService extends BusyAwareService implements OnDestroy {
             body).toPromise().then(result => {
                 this.DuplicateGroups = result;
                 //console.log(result);
+                this.ShowingFilteredGroups = false;
                 this.DoSort();
                 this.ActivateFirstNotCompletedGroup();
                 this.RemoveBusy("FetchGroups");
@@ -125,6 +126,7 @@ export class DuplicatesService extends BusyAwareService implements OnDestroy {
             crit).subscribe(result => {
                 this.DuplicateGroups = result;
                 //console.log(result);
+                this.ShowingFilteredGroups = true;
                 this.DoSort();
                 this.ActivateFirstNotCompletedGroup();
                 this.RemoveBusy("FetchGroupsWithCriteria");
@@ -187,7 +189,7 @@ export class DuplicatesService extends BusyAwareService implements OnDestroy {
                 return this.CurrentGroup;
             });
     }
-    public  MarkUnmarkMemberAsDuplicate(toDo: MarkUnmarkItemAsDuplicate) {
+    public  MarkUnmarkMemberAsDuplicate(toDo: MarkUnmarkItemAsDuplicate): Promise<void> {
         this._BusyMethods.push("MarkUnmarkMemberAsDuplicate");
         return this._http.post<iItemDuplicateGroup>(this._baseUrl + 'api/Duplicates/MarkUnmarkMemberAsDuplicate',
             toDo).toPromise().then(result => {
@@ -218,10 +220,10 @@ export class DuplicatesService extends BusyAwareService implements OnDestroy {
                 this.RemoveBusy("MarkUnmarkMemberAsDuplicate");
             });
     }
-    public MarkMemberAsMaster(toDo: MarkUnmarkItemAsDuplicate) {
+    public MarkMemberAsMaster(toDo: MarkUnmarkItemAsDuplicate): Promise<void>{
         this._BusyMethods.push("MarkMemberAsMaster");
-        this._http.post<ItemDuplicateGroup>(this._baseUrl + 'api/Duplicates/MarkMemberAsMaster',
-            toDo).subscribe(result => {
+        return this._http.post<ItemDuplicateGroup>(this._baseUrl + 'api/Duplicates/MarkMemberAsMaster',
+            toDo).toPromise().then(result => {
                 //if (this.CurrentGroup) {
                 //    //whole group is not checked anymore!
                 //    let smallGr = this.DuplicateGroups.find(ff => ff.groupId == toDo.groupId);
@@ -255,13 +257,13 @@ export class DuplicatesService extends BusyAwareService implements OnDestroy {
             });
     }
 
-    public DeleteCurrentGroup(GroupId: number) {
-        if (this.CurrentGroup == null) return;
+    public DeleteCurrentGroup(GroupId: number): Promise<void> {
+        if (this.CurrentGroup == null) return new Promise<void>(() => { });
         else {
             this._BusyMethods.push("DeleteCurrentGroup");
             let toDo = JSON.stringify({ Value: GroupId });
-            this._http.post<number>(this._baseUrl + 'api/Duplicates/DeleteGroup',
-                toDo).subscribe(result => {
+            return this._http.post<number>(this._baseUrl + 'api/Duplicates/DeleteGroup',
+                toDo).toPromise().then(result => {
                     this.RemoveBusy("DeleteCurrentGroup");
                     this.CurrentGroup = null;
                     this.FetchGroups(false);
@@ -274,12 +276,12 @@ export class DuplicatesService extends BusyAwareService implements OnDestroy {
         }
     }
 
-    public DeleteAllGroups(DeleteAllDedupData: boolean) {
+    public DeleteAllGroups(DeleteAllDedupData: boolean): Promise<void> {
         
         this._BusyMethods.push("DeleteAllGroups");
         let toDo = JSON.stringify({ Value: DeleteAllDedupData });
-        this._http.post(this._baseUrl + 'api/Duplicates/DeleteAllGroups',
-            toDo).subscribe((result: any) => {
+        return this._http.post(this._baseUrl + 'api/Duplicates/DeleteAllGroups',
+            toDo).toPromise().then((result: any) => {
                 this.RemoveBusy("DeleteAllGroups");
                 this.CurrentGroup = null;
                 this.FetchGroups(false);
@@ -346,15 +348,15 @@ export class DuplicatesService extends BusyAwareService implements OnDestroy {
         this.RemoveBusy("MarkAutomatically");
         //await Helpers.Sleep(50);
     }
-    public RemoveManualMember(itemId: number) {
-        if (!this.CurrentGroup || this.CurrentGroup.manualMembers.findIndex(ff => ff.itemId == itemId) == -1) return;
+    public RemoveManualMember(itemId: number): Promise<void> {
+        if (!this.CurrentGroup || this.CurrentGroup.manualMembers.findIndex(ff => ff.itemId == itemId) == -1) return new Promise<void>(() => { });
         this._BusyMethods.push("RemoveManualMember");
         let toDo = {
             groupId: this.CurrentGroup.groupID,
             itemId: itemId
         }
-        this._http.post(this._baseUrl + 'api/Duplicates/RemoveManualMember',
-            toDo).subscribe(result => {
+        return this._http.post(this._baseUrl + 'api/Duplicates/RemoveManualMember',
+            toDo).toPromise().then(result => {
                 if (this.CurrentGroup && this.CurrentGroup.groupID == toDo.groupId) {
                     //remove manual member from client!
                     let ind = this.CurrentGroup.manualMembers.findIndex(ff => ff.itemId == itemId);
@@ -370,10 +372,10 @@ export class DuplicatesService extends BusyAwareService implements OnDestroy {
             });
     }
 
-    public AddManualMembers(crit: GroupListSelectionCriteriaMVC) {
+    public AddManualMembers(crit: GroupListSelectionCriteriaMVC): Promise<void> {
         this._BusyMethods.push("AddManualMembers");
-        this._http.post<iItemDuplicateGroup>(this._baseUrl + 'api/Duplicates/AddManualMembers',
-            crit).subscribe(result => {
+        return this._http.post<iItemDuplicateGroup>(this._baseUrl + 'api/Duplicates/AddManualMembers',
+            crit).toPromise().then(result => {
                 let res = new ItemDuplicateGroup(result);
                 this.CurrentGroup = res;
                 this.RemoveBusy("AddManualMembers");
@@ -405,8 +407,62 @@ export class DuplicatesService extends BusyAwareService implements OnDestroy {
                 this.RemoveBusy("FetchDirtyGroup");
                     return new ItemDuplicateDirtyGroup({ members: [] });
             });
-}
+    }
+    public CreateNewGroup(crit: IncomingDirtyGroupMemberMVC[]): Promise<boolean> {
+        this._BusyMethods.push("CreateNewGroup");
+        return this._http.post<iReadOnlyDuplicatesGroup[]>(this._baseUrl + 'api/Duplicates/CreateNewGroup',
+            crit).toPromise().then(result => {
+                if (!this.ShowingFilteredGroups) {
+                    //if we're showing all groups we add the new group to the list
+                    if (result.length == 1) {
+                        //easy: only one group in the current list contains the master of the created group
+                        this.DuplicateGroups.unshift(result[0]);
+                        this.NotificationService.show({
+                            content: "Group was created and added on top of the list of groups.",
+                            position: { horizontal: 'center', vertical: 'top' },
+                            animation: { type: 'slide', duration: 400 },
+                            type: { style: 'info', icon: true },
+                            closable: true
+                        });
+                    }
+                    else if (result.length > 1) {
+                        let maxid: number = 0;
+                        for (let gr of result) {
+                            if (gr.groupId > maxid) maxid = gr.groupId;
+                        }
+                        let i: number = result.findIndex(f => f.groupId == maxid);
+                        if (i != -1) {
+                            this.DuplicateGroups.unshift(result[i]);
+                            this.NotificationService.show({
+                                content: "Group was created and added on top of the list of groups.",
+                                position: { horizontal: 'center', vertical: 'top' },
+                                animation: { type: 'slide', duration: 400 },
+                                type: { style: 'info', icon: true },
+                                closable: true
+                            });
+                        }
+                    }
+                }
+                else {
+                    //we inform the user that she needs to refresh the results to get to see the new group.
+                    this.NotificationService.show({
+                        content: "Group was created, please click 'refresh' to retrieve it.",
+                        position: { horizontal: 'center', vertical: 'top' },
+                        animation: { type: 'slide', duration: 400 },
+                        type: { style: 'warning', icon: true },
+                        closable: true
+                    });
+                }
+                this.RemoveBusy("CreateNewGroup");
+                return true;
 
+            }, error => {
+                    console.log("FetchGroups error", error, crit);
+                    this.RemoveBusy("CreateNewGroup");
+                    this.modalService.GenericError(error);
+                    return false;
+            });
+    }
     public DoSort() {
         //console.log("doSort", this.LocalSort);
         if (this.DuplicateGroups.length == 0 || this.LocalSort.SortBy == "") return;
@@ -667,6 +723,12 @@ export class ItemDuplicateDirtyGroup {
         if (countM == 1 && countValidMembers > 1) return true;
         return false;
     }
+    public get HasExportedMembers(): boolean {
+        for (let m of this.members) {
+            if (m.isExported) return true;
+        }
+        return false;
+    }
     members: ItemDuplicateDirtyGroupMember[];
 }
 export interface ItemDuplicateDirtyGroupMember {
@@ -688,6 +750,10 @@ export interface ItemDuplicateDirtyGroupMember {
     relatedGroupsCount: number;
     isAvailable: boolean;
     propertiesConverter: number;
+}
+export class IncomingDirtyGroupMemberMVC {
+    itemId: number = -1;
+    isMaster: boolean = false;
 }
 
 

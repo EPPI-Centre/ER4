@@ -84,7 +84,7 @@
                 Delete This Group
             </button>
             <button kendoButton class="ml-1" [title]="'Show/hide items list'"
-                    (click)="ShowItemsList = !ShowItemsList">
+                    (click)="ShowHideItemsList()">
                 {{ShowItemsList ? 'Hide items' : 'Show items'}}
             </button>
             <button kendoButton class="ml-1" [title]="'Add selected items to group'" [disabled]="!CanAddSelectedItemsToGroup"
@@ -102,16 +102,20 @@
             Please click on a group to see the group details.
         </div>
 
-        <div *ngIf="ActivePanel == 'CreateGroup' && DirtyGroup != null" class="p-2 m-2 rounded border border-primary">
+        <div *ngIf="ActivePanel == 'CreateGroup' && DirtyGroup != null" class="p-2 m-2 rounded border border-primary bg-white">
+            <div class="h4 text-center mb-1 pb-1">Creating a new group...</div>
             <table class="table table-bordered table-sm m-1 p-0" >
                 <thead>
                     <tr class="alert-info ">
                         <td class="font-weight-bold">Master Item ID:</td>
-                        <td class="bg-white">{{DirtyMaster?.itemId}}</td>
+                        <td class="bg-white">
+                            <button *ngIf="CanGoToThisItem(DirtyMaster?.itemId); else JustTheMasterId" class="btn btn-link p-0" (click)="OpenItem(DirtyMaster?.itemId)">{{DirtyMaster?.itemId}}</button>
+                            <ng-template #JustTheMasterId>{{DirtyMaster?.itemId}}</ng-template>
+                        </td>
                         <td class="font-weight-bold">Coded count:</td>
-                        <td class="bg-white">{{DirtyMaster?.codedCount}}</td>
+                        <td [ngClass]="{'font-weight-bold alert-danger' : DirtyMaster?.codedCount > 0}">{{DirtyMaster?.codedCount}}</td>
                         <td class="font-weight-bold">Uploaded Docs:</td>
-                        <td class="bg-white">{{DirtyMaster?.docCount}}</td>
+                        <td class="bg-white" [ngClass]="{'alert-danger font-weight-bold' : DirtyMaster?.docCount > 0}">{{DirtyMaster?.docCount}}</td>
                         <td class="font-weight-bold">Date:</td>
                         <td class="bg-white">{{DirtyMaster?.year}}</td>
                     </tr>
@@ -129,8 +133,18 @@
                     </tr>
                     <tr class="alert-info ">
                         <td class="font-weight-bold">Status: </td>
-                        <td *ngIf="DirtyMaster == null" colspan="7" class="bg-white">Failure: this 'tentative' group has no master;</td>
-                        <td *ngIf="DirtyMaster !== null" colspan="7" class="bg-white">{{DirtyMemberStatus(DirtyMaster)}}</td>
+                        <td *ngIf="DirtyMaster == null" colspan="5" class="bg-white">Failure: this 'tentative' group has no master;</td>
+                        <td *ngIf="DirtyMaster !== null" colspan="5"
+                            [ngClass]="{'alert-success': DirtyMaster.propertiesConverter == 0, 'alert-danger': DirtyMaster.propertiesConverter !== 0}">
+                            {{DirtyMemberStatus(DirtyMaster)}}
+                        </td>
+                        <td colspan="2">
+                            <button class="btn py-1 px-1 mx-1 my-0 btn-outline-success" (click)="FindRelatedGroupsForDirtyGr()"
+                                    [disabled]="!DirtyGroup.HasExportedMembers">
+                                Get Related Groups
+                            </button>
+                            
+                        </td>
                     </tr>
                     <tr>
                         <td colspan="8" class="small p-0  bg-info" style="line-height:0.25em;">&nbsp;</td>
@@ -140,13 +154,16 @@
                     <ng-container *ngFor="let member of DirtyGroup.MembersOnly">
                         <tr class="bg-light">
                             <td>Item ID:</td>
-                            <td class="bg-white">{{member.itemId}}</td>
+                            <td class="bg-white">
+                                <button *ngIf="CanGoToThisItem(member.itemId); else JustTheMemberId" class="btn btn-link p-0" (click)="OpenItem(member.itemId)">{{member.itemId}}</button>
+                                <ng-template #JustTheMemberId>{{member.itemId}}</ng-template>
+                            </td>
                             <td>Coded count:</td>
-                            <td>{{member.codedCount}}</td>
+                            <td  [ngClass]="{'font-weight-bold alert-danger' : member.codedCount > 0}">{{member.codedCount}}</td>
                             <td>Uploaded Docs:</td>
-                            <td [ngClass]="{'alert-danger font-weight-bold' : member.docCount !== 0}">{{member.docCount}}</td>
+                            <td [ngClass]="{'alert-danger font-weight-bold' : member.docCount > 0}">{{member.docCount}}</td>
                             <td>Date:</td>
-                            <td [ngClass]="">{{member.year}}</td>
+                            <td class="bg-white">{{member.year}}</td>
                         </tr>
                         <tr class="bg-light">
                             <td>Authors(s): </td>
@@ -162,7 +179,16 @@
                         </tr>
                         <tr class="alert-info ">
                             <td class="font-weight-bold">Status: </td>
-                            <td *ngIf="DirtyMaster !== null" colspan="7" class="bg-white">{{DirtyMemberStatus(member)}}</td>
+                            <td colspan="5"
+                                [ngClass]="{'alert-success': member.propertiesConverter == 0, 'alert-danger': member.propertiesConverter !== 0}">
+                                {{DirtyMemberStatus(member)}}
+                            </td>
+                            <td colspan="2">
+                                <button class="btn py-1 px-1 mx-1 my-0 btn-outline-success" (click)="MakeMasterOfDirtyGroup(member)"
+                                        [disabled]="member.propertiesConverter == 2">
+                                    Make Master
+                                </button>
+                            </td>
                         </tr>
                         <tr>
                             <td colspan="8" class="small p-0" style="line-height:0.4em;">&nbsp;</td>
@@ -171,8 +197,11 @@
                 </tbody>
             </table>
             <div class="row m-0 p-0">
-
-                <button class="btn btn-sm py-0 px-1 m-1 btn-outline-dark" (click)="ResetActivePanel()">Cancel</button>
+                <button class="btn py-1 px-3 m-1 btn-outline-dark" (click)="ResetActivePanel()">Cancel</button>
+                <button class="btn py-1 px-1 m-1 btn-outline-danger" (click)="CreateGroup()" 
+                        [disabled]="!CanCreateThisGroup">
+                    Create Group!
+                </button>
             </div>
         </div>
 
