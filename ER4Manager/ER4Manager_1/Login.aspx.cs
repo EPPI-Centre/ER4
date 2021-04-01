@@ -214,7 +214,7 @@ public partial class Login : System.Web.UI.Page
         // create a new account
         lblUsername.Visible = false;
         lblUsername.Text = "Username is already in use. Please select another.";
-        lblMissingFields.Text = "Please fill in all of the fields. Note: apostrophes (') are not allowed in the Username and Emails.";
+        lblMissingFields.Text = "Please fill in all of the fields. Note: apostrophes (') are not allowed in the Usernames and Passwords.";
         lblNewPassword.Text = "Passwords must be at least 8 characters and contain and at least one one lower case letter, one upper case letter and one digit and no spaces.";
         lblEmailAddress.Visible = false;
         lblNewPassword.Visible = false;
@@ -242,12 +242,16 @@ public partial class Login : System.Web.UI.Page
         //tbDescription.Text = "T3stPassword";
         
         //make sure all of the fields are filled in
+        //if (tbFirstName.Text == "" || tbLastName.Text == "" || tbNewUserName.Text == "" || tbNewUserName.Text.Contains("'") ||
+        //    tbDescription.Text == "" || tbNewEmail.Text == "" || tbNewEmail.Text.Contains("'") ||
+        //    tbNewEmailConfirm.Text == "" || tbNewEmailConfirm.Text.Contains("'") || 
+        //    ddlAreaOfResearch.SelectedIndex == 0 || ddlHearAboutUs.SelectedIndex == 0 || ddlProfession.SelectedIndex == 0)
         if (tbFirstName.Text == "" || tbLastName.Text == "" || tbNewUserName.Text == "" || tbNewUserName.Text.Contains("'") ||
-            tbDescription.Text == "" || tbNewEmail.Text == "" || tbNewEmail.Text.Contains("'") ||
-            tbNewEmailConfirm.Text == "" || tbNewEmailConfirm.Text.Contains("'") || 
+            tbDescription.Text == "" || tbNewEmail.Text == "" || 
+            tbNewEmailConfirm.Text == "" || 
             ddlAreaOfResearch.SelectedIndex == 0 || ddlHearAboutUs.SelectedIndex == 0 || ddlProfession.SelectedIndex == 0)
-        {
-            lblMissingFields.Text = "Please fill in all of the fields and drop down lists. Apostrophes (') are not allowed in Username and Emails.";
+            {
+            lblMissingFields.Text = "Please fill in all of the fields and drop down lists. Apostrophes (') are not allowed in Usernames and Passwords.";
             lblMissingFields.Visible = true;
             return;
         }
