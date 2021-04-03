@@ -37,7 +37,7 @@ export class DuplicatesService extends BusyAwareService implements OnDestroy {
     private clearSub: Subscription | null = null;
     private ShowingFilteredGroups: boolean = false;
     public currentCount = 0; public allDone: boolean = false; public ToDoCount = 0;
-    public DuplicateGroups: iReadOnlyDuplicatesGroup[] = [];
+    public DuplicateGroups: PagedDuplicateGroupsList = new PagedDuplicateGroupsList();
     public CurrentGroup: ItemDuplicateGroup | null = null;
     public LocalSort: LocalSort = new LocalSort();
     private waitPeriod = 3;//in minutes... time that people have to wait before we can FetchGroups if last attempt told us "execution still running"
@@ -88,7 +88,7 @@ export class DuplicatesService extends BusyAwareService implements OnDestroy {
 
         return this._http.post<iReadOnlyDuplicatesGroup[]>(this._baseUrl + 'api/Duplicates/FetchGroups',
             body).toPromise().then(result => {
-                this.DuplicateGroups = result;
+                this.DuplicateGroups.WholeList = result;
                 //console.log(result);
                 this.ShowingFilteredGroups = false;
                 this.DoSort();
@@ -124,7 +124,7 @@ export class DuplicatesService extends BusyAwareService implements OnDestroy {
         this._BusyMethods.push("FetchGroupsWithCriteria");
         this._http.post<iReadOnlyDuplicatesGroup[]>(this._baseUrl + 'api/Duplicates/FetchGroupsWithCriteria',
             crit).subscribe(result => {
-                this.DuplicateGroups = result;
+                this.DuplicateGroups.WholeList = result;
                 //console.log(result);
                 this.ShowingFilteredGroups = true;
                 this.DoSort();
@@ -156,12 +156,18 @@ export class DuplicatesService extends BusyAwareService implements OnDestroy {
             closable: true
         });
     }
-    private ActivateFirstNotCompletedGroup() {
-        if (this.DuplicateGroups.length > 0) {
-            if (this.CurrentGroup == null || this.DuplicateGroups.findIndex(ff => this.CurrentGroup != null && ff.groupId == this.CurrentGroup.groupID) == -1) {
-                const todo = this.DuplicateGroups.findIndex(found => found.isComplete == false);
-                if (todo > 0) this.FetchGroupDetails(this.DuplicateGroups[todo].groupId);
-                else this.FetchGroupDetails(this.DuplicateGroups[0].groupId);
+    public async ActivateFirstNotCompletedGroup(force_it: boolean = false) {
+        if (this.DuplicateGroups.WholeList.length > 0) {
+            if (force_it == true
+                ||
+                this.CurrentGroup == null
+                || this.DuplicateGroups.WholeList.findIndex(ff => this.CurrentGroup != null && ff.groupId == this.CurrentGroup.groupID) == -1) {
+                const todo = this.DuplicateGroups.WholeList.findIndex(found => found.isComplete == false);
+                if (todo > 0) {
+                    await this.FetchGroupDetails(this.DuplicateGroups.WholeList[todo].groupId);
+                    if (this.DuplicateGroups.HasPages) this.DuplicateGroups.CurrentPage = Math.ceil(todo / this.DuplicateGroups.PageSize);//ensure the activated group appears in the current page
+                }
+                else await this.FetchGroupDetails(this.DuplicateGroups.WholeList[0].groupId);
             }
         } else {
             this.CurrentGroup == new ItemDuplicateGroup();
@@ -210,7 +216,7 @@ export class DuplicatesService extends BusyAwareService implements OnDestroy {
                 //    }
                 //}
                 this.RemoveBusy("MarkUnmarkMemberAsDuplicate");
-                let smallGr = this.DuplicateGroups.find(f => f.groupId == result.groupID);
+                let smallGr = this.DuplicateGroups.WholeList.find(f => f.groupId == result.groupID);
                 this.CurrentGroup = new ItemDuplicateGroup(result);
                 if (smallGr && (this.CurrentGroup.members.length == this.CurrentGroup.members.filter(ff => ff.isChecked == true).length))
                     smallGr.isComplete = true;
@@ -247,7 +253,7 @@ export class DuplicatesService extends BusyAwareService implements OnDestroy {
                 //    }
                 //}
                 this.RemoveBusy("MarkMemberAsMaster");
-                let smallGr = this.DuplicateGroups.find(f => f.groupId == result.groupID);
+                let smallGr = this.DuplicateGroups.WholeList.find(f => f.groupId == result.groupID);
                 this.CurrentGroup = new ItemDuplicateGroup(result);
                 if (smallGr) smallGr.isComplete = false;
             }, error => {
@@ -302,11 +308,11 @@ export class DuplicatesService extends BusyAwareService implements OnDestroy {
         console.log("MarkAutomatically");
         await this.FetchGroups(false);
         //console.log("MarkAutomatically1");
-        if (this.DuplicateGroups.length == 0) {
+        if (this.DuplicateGroups.WholeList.length == 0) {
             this.RemoveBusy("MarkAutomatically");
             return;
         }
-        let ToDo = this.DuplicateGroups.filter(ff => ff.isComplete == false);
+        let ToDo = this.DuplicateGroups.WholeList.filter(ff => ff.isComplete == false);
         this.ToDoCount = ToDo.length;
         while (this.currentCount < this.ToDoCount && this.allDone == false) {
             //console.log("getting group", ToDo[this.currentCount].groupId);
@@ -416,7 +422,7 @@ export class DuplicatesService extends BusyAwareService implements OnDestroy {
                     //if we're showing all groups we add the new group to the list
                     if (result.length == 1) {
                         //easy: only one group in the current list contains the master of the created group
-                        this.DuplicateGroups.unshift(result[0]);
+                        this.DuplicateGroups.WholeList.unshift(result[0]);
                         this.NotificationService.show({
                             content: "Group was created and added on top of the list of groups.",
                             position: { horizontal: 'center', vertical: 'top' },
@@ -432,7 +438,7 @@ export class DuplicatesService extends BusyAwareService implements OnDestroy {
                         }
                         let i: number = result.findIndex(f => f.groupId == maxid);
                         if (i != -1) {
-                            this.DuplicateGroups.unshift(result[i]);
+                            this.DuplicateGroups.WholeList.unshift(result[i]);
                             this.NotificationService.show({
                                 content: "Group was created and added on top of the list of groups.",
                                 position: { horizontal: 'center', vertical: 'top' },
@@ -465,11 +471,11 @@ export class DuplicatesService extends BusyAwareService implements OnDestroy {
     }
     public DoSort() {
         //console.log("doSort", this.LocalSort);
-        if (this.DuplicateGroups.length == 0 || this.LocalSort.SortBy == "") return;
-        for (let property of Object.getOwnPropertyNames(this.DuplicateGroups[0])) {
+        if (this.DuplicateGroups.WholeList.length == 0 || this.LocalSort.SortBy == "") return;
+        for (let property of Object.getOwnPropertyNames(this.DuplicateGroups.WholeList[0])) {
             //console.log("doSort2", property);
             if (property == this.LocalSort.SortBy) {
-                this.DuplicateGroups.sort((a: any, b: any) => {
+                this.DuplicateGroups.WholeList.sort((a: any, b: any) => {
                     if (this.LocalSort.Direction) {
                         if (a[property] > b[property]) {
                             return 1;
@@ -501,7 +507,7 @@ export class DuplicatesService extends BusyAwareService implements OnDestroy {
         this.allDone = true;
         this.currentCount = 0;
         this.ToDoCount = 0;
-        this.DuplicateGroups = [];
+        this.DuplicateGroups.WholeList = [];
         this.CurrentGroup = null;
         this.LocalSort = new LocalSort();
     }
@@ -755,5 +761,60 @@ export class IncomingDirtyGroupMemberMVC {
     itemId: number = -1;
     isMaster: boolean = false;
 }
+
+export class PagedDuplicateGroupsList {
+
+    private _WholeList: iReadOnlyDuplicatesGroup[] = [];
+    private _TotPages: number = -1;
+    private _PageSize: number = 1000;
+    public get WholeList(): iReadOnlyDuplicatesGroup[] {
+        return this._WholeList;
+    }
+    public set WholeList(list: iReadOnlyDuplicatesGroup[]) {
+        this.CurrentPage = 1;
+        this._TotPages = -1;
+        this._WholeList = list;
+    }
+    public get PageSize(): number {
+        return this._PageSize;
+    }
+    public set PageSize(n: number) {
+        this._PageSize = n;
+        this._TotPages = -1;
+    }
+    public get TotPages(): number {
+        if (this._TotPages == -1) {
+            if (this.WholeList.length == 0) this._TotPages = 0;
+            else this._TotPages = Math.ceil(this.WholeList.length / this.PageSize);
+        }
+        return this._TotPages;
+    }
+    public CurrentPage: number = 1;
+    public get PagedList(): iReadOnlyDuplicatesGroup[] {
+        if (this.WholeList.length <= this.PageSize) return this.WholeList;
+        const StartIndex: number = (this.CurrentPage - 1) * this.PageSize;
+        if (this.CurrentPage !== this.TotPages) {
+            return this.WholeList.slice(StartIndex, StartIndex + this.PageSize);
+        } else {
+            return this.WholeList.slice(StartIndex);
+        }
+    }
+    public PageUp() {
+        if (this.CurrentPage < this.TotPages) this.CurrentPage++;
+    }
+    public PageDown() {
+        if (this.CurrentPage > 1) this.CurrentPage--;
+    }
+    public get CanPageUp(): boolean {
+        return this.CurrentPage < this.TotPages;
+    }
+    public get CanPageDown(): boolean {
+        return this.CurrentPage > 1;
+    }
+    public get HasPages(): boolean {
+        return this.TotPages > 1;
+    }
+}
+    
 
 

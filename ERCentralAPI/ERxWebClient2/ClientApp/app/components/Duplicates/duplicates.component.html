@@ -4,7 +4,7 @@
     Close/back
 </button><!-- z-index of close button set to 2: we don't want it to be clickable while dedup data service is busy...-->
 <div *ngIf="IsServiceBusy && ActivePanel !== 'Running Mark Automatically'"
-     class="k-loading-image" style="position: fixed; top: 0%;">
+     class="k-loading-image" style="position: fixed; top: 0%; z-index:300">
 </div>
 <div *ngIf="IsServiceBusy && (ActivePanel == 'Running Mark Automatically')"
      class="border border-dark rounded bg-white"
@@ -20,28 +20,66 @@
         Stop
     </button>
 </div>
-<div class="container col-md-12 row mx-0 mt-0 mb-1 p-0 ">
+<div class="container col-12 row mx-0 mt-0 mb-1 p-0 ">
 
-    <div class="col-4 col-xl-3 px-1 py-0" style="max-height:85vh; overflow:auto;">
-        <table class="table table-light ">
-            <tr>
-                <th class="m-0 small font-weight-bold" (click)="SortBy('isComplete')" style="cursor:pointer">
-                    Done?<span [innerHTML]="SortingSymbol('isComplete')"></span>
-                </th>
-                <th (click)="SortBy('groupId')" style="cursor:pointer">
-                    ID<span [innerHTML]="SortingSymbol('groupId')"></span>
-                </th>
-                <th (click)="SortBy('shortTitle')" style="cursor:pointer">
-                    Short Title<span [innerHTML]="SortingSymbol('shortTitle')"></span>
-                </th>
-            </tr>
-            <tr *ngFor="let group of DuplicateGroups" (click)="FetchGroup(group.groupId); "
-                [ngClass]="MainListRowClass(group)">
-                <td style="cursor:pointer" class="py-1">{{group.isComplete}}</td>
-                <td style="cursor:pointer" class="py-1">{{group.groupId}}</td>
-                <td style="cursor:pointer" class="py-1">{{group.shortTitle}}</td>
-            </tr>
-        </table>
+    <div class="col-4 col-xl-3 px-1 py-0" >
+        <div class="containsAtoolbar row m-0 p-0">
+            <div  class="mx-auto ">
+                <div *ngIf="CurrentListHasPages">
+                    <button class="btn py-0 px-1 border-primary border" (click)="FirstPage()" [disabled]="!CanPageDown">
+                        <span class="mb-1  k-icon k-i-seek-w" aria-label="Go to the previous page"></span>
+                    </button>
+                    <button class="btn py-0 px-1 border-primary border" (click)="PageDown()" [disabled]="!CanPageDown">
+                        <span class="mb-1 k-icon k-i-arrow-w" aria-label="Go to the previous page"></span>
+                    </button>
+                    Page: {{CurrentPage}} of {{TotPages}}
+                    <button class="btn py-0 px-1 border-primary border" (click)="PageUp()" [disabled]="!CanPageUp">
+                        <span class="mb-1 k-icon k-i-arrow-e" aria-label="Go to the next page"></span>
+                    </button>
+                    <button class="btn py-0 px-1 border-primary border" (click)="LastPage()" [disabled]="!CanPageUp">
+                        <span class="mb-1  k-icon k-i-seek-e" aria-label="Go to the next page"></span>
+                    </button>
+                    <button class="btn py-0 px-1 border-primary border" (click)="ShowGroupslistTools = !ShowGroupslistTools" [disabled]="!CanPageUp">
+                        Tools...
+                    </button>
+                </div>
+            </div>
+            <div *ngIf="ShowGroupslistTools" class="border border-dark px-1 col-12">
+                <button class="btn btn-sm py-0 mb-1 px-1 border-primary border" (click)="FindNextUnchecked()" [disabled]="!CanPageUp">
+                    Next ToDo
+                </button>
+                <div class="border rounded border-info small px-1 mx-1 mt-1 d-inline-block">
+                    Auto Advance: <input type="checkbox" [(ngModel)]="AutoAdvance" />
+                </div>
+                <div class="small px-1 mx-1 mt-1 d-inline-block">
+                    Paging:
+                    <select class="select" [(ngModel)]="PageSize">
+                        <option *ngFor="let n of PagingDD" [ngValue]="n" [selected]="n == PageSize">{{n}}</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div style="max-height:85vh; overflow:auto;">
+            <table class="table table-light ">
+                <tr>
+                    <th class="m-0 small font-weight-bold" (click)="SortBy('isComplete')" style="cursor:pointer">
+                        Done?<span [innerHTML]="SortingSymbol('isComplete')"></span>
+                    </th>
+                    <th (click)="SortBy('groupId')" style="cursor:pointer">
+                        ID<span [innerHTML]="SortingSymbol('groupId')"></span>
+                    </th>
+                    <th (click)="SortBy('shortTitle')" style="cursor:pointer">
+                        Short Title<span [innerHTML]="SortingSymbol('shortTitle')"></span>
+                    </th>
+                </tr>
+                <tr *ngFor="let group of DuplicateGroups" (click)="FetchGroup(group.groupId); "  [id]="'grp-' + group.groupId.toString()" 
+                    [ngClass]="MainListRowClass(group)">
+                    <td style="cursor:pointer" class="py-1">{{group.isComplete}}</td>
+                    <td style="cursor:pointer" class="py-1">{{group.groupId}}</td>
+                    <td style="cursor:pointer" class="py-1">{{group.shortTitle}}</td>
+                </tr>
+            </table>
+        </div>
     </div>
     <div class="col-8 col-xl-9 p-0 mb-2">
         <div class="containsAtoolbar row alert-info ml-1 mr-0 my-0 p-0" style="background-color: #f5f6fa;">
@@ -63,7 +101,7 @@
                     (click)="ShowingMore = !ShowingMore">
                 {{ShowOrHideMoreToolbarText}}
             </button>
-            <div class="align-self-center small ml-1 mr-0 my-0">&nbsp;<b>{{DuplicateGroups?.length}}</b>&nbsp;groups of possible duplicates loaded (<b>{{CompletedGroups}}</b> marked as completed).</div>
+            <div class="align-self-center small ml-1 mr-0 my-0">&nbsp;<b>{{TotGroups}}</b>&nbsp;groups of possible duplicates loaded (<b>{{CompletedGroups}}</b> marked as completed).</div>
         </div>
         <div *ngIf="ShowingMore" class="containsAtoolbar row bg-white  border  ml-2 mr-1 my-1 p-1">
             <kendo-splitbutton class="ml-1"
@@ -267,7 +305,7 @@
             <button class="btn btn-sm py-0 px-1 m-1 btn-outline-dark" (click)="ResetActivePanel()">Cancel</button>
         </div>
 
-        <div *ngIf="CurrentGroup" style="position:relative;">
+        <div *ngIf="CurrentGroup && ActivePanel != 'Running Mark Automatically'" style="position:relative;">
             <div class="mt-1 px-0 pt-0 pb-2" style="max-height:80vh; overflow-y: hidden; overflow-x:auto; margin-right:16px; ">
                 <table class="z-index-table table table-sm m-0 p-0" style="position:relative; ">
                     <thead style="position: relative; z-index: 22;">
@@ -292,7 +330,7 @@
                         </tr>
                         <tr class="alert-info ">
                             <td class="font-weight-bold">Authors(s): </td>
-                            <td colspan="7" class="bg-white">{{CurrentGroup.Master?.authors}}</td>
+                            <td colspan="7" class="bg-white"><div style="max-height:200px;overflow-y:auto;">{{CurrentGroup.Master?.authors}}</div></td>
                         </tr>
                         <tr class="alert-info ">
                             <td class="font-weight-bold">Title: </td>
@@ -340,7 +378,7 @@
                             </tr>
                             <tr class="bg-light">
                                 <td>Authors(s): </td>
-                                <td colspan="7">{{member.authors}}</td>
+                                <td colspan="7"><div style="max-height:200px;overflow-y:auto;">{{member.authors}}</div></td>
                             </tr>
                             <tr class="bg-light">
                                 <td>Title: </td>
@@ -397,9 +435,9 @@
                             <td class="font-weight-bold">Source:</td>
                             <td class="bg-white" colspan="2">{{CurrentGroup.Master?.source}}</td>
                         </tr>
-                        <tr class="alert-info ">
+                        <tr class="alert-info " >
                             <td class="font-weight-bold">Authors(s): </td>
-                            <td colspan="7" class="bg-white">{{CurrentGroup.Master?.authors}}</td>
+                            <td colspan="7" class="bg-white"><div style="max-height:200px;overflow-y:auto;">{{CurrentGroup.Master?.authors}}</div></td>
                         </tr>
                         <tr class="alert-info ">
                             <td class="font-weight-bold">Title: </td>
@@ -448,7 +486,9 @@
                             </tr>
                             <tr class="bg-light">
                                 <td>Authors(s): </td>
-                                <td colspan="7" [ngClass]="DistanceClass(member.authors, CurrentGroup.Master?.authors)">{{member.authors}}</td>
+                                <td colspan="7" [ngClass]="DistanceClass(member.authors, CurrentGroup.Master?.authors)">
+                                    <div style="max-height:200px;overflow-y:auto;">{{member.authors}}</div>
+                                </td>
                             </tr>
                             <tr class="bg-light">
                                 <td>Title: </td>

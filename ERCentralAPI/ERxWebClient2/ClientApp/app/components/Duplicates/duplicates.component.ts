@@ -10,6 +10,7 @@ import { CodesetStatisticsService } from '../services/codesetstatistics.service'
 import { ItemListService } from '../services/ItemList.service';
 import { EventEmitterService } from '../services/EventEmitter.service';
 import { Group } from '@progress/kendo-drawing';
+import { timeout } from 'rxjs/operators';
 
 
 @Component({
@@ -62,7 +63,9 @@ export class DuplicatesComponent implements OnInit, OnDestroy {
     public ItemIDsearchString: string = "";
     public ShowingMore: boolean = false;
     public ShowItemsList: boolean = false;
+    public ShowGroupslistTools: boolean = false;
     public DirtyGroup: ItemDuplicateDirtyGroup | null = null;
+    public AutoAdvance: boolean = true;
     //public lowThresholdWarningActive: boolean = "";
     public get lowThresholdWarningActive(): boolean {
         if (this.similarityCr < 0.8) return true;
@@ -107,15 +110,65 @@ export class DuplicatesComponent implements OnInit, OnDestroy {
             this.ShowFindByItemIDsPanel();
         }
     }];
+    public PagingDD: number[] = [
+        20, 50, 100, 500, 1000, 2000, 5000
+    ]
     public get ShowOrHideMoreToolbarText(): string {
         if (this.ShowingMore) return "Less...";
         else return "More..."
     }
     public get DuplicateGroups(): iReadOnlyDuplicatesGroup[] {
-        return this.DuplicatesService.DuplicateGroups;
+        return this.DuplicatesService.DuplicateGroups.PagedList;
+    }
+    public get CurrentPage(): number {
+        return this.DuplicatesService.DuplicateGroups.CurrentPage;
+    }
+    public get TotPages(): number {
+        return this.DuplicatesService.DuplicateGroups.TotPages;
+    }
+    public get TotGroups(): number {
+        return this.DuplicatesService.DuplicateGroups.WholeList.length;
+    }
+    public get CurrentListHasPages(): boolean {
+        return this.DuplicatesService.DuplicateGroups.HasPages;
+    }
+    public get CanPageUp(): boolean {
+        return this.DuplicatesService.DuplicateGroups.CanPageUp;
+    }
+    public get CanPageDown(): boolean {
+        return this.DuplicatesService.DuplicateGroups.CanPageDown;
+    }
+    public get PageSize(): number {
+        return this.DuplicatesService.DuplicateGroups.PageSize;
+    }
+    public set PageSize(n: number) {
+        this.DuplicatesService.DuplicateGroups.PageSize = n;
+    }
+    public PageUp() {
+        this.DuplicatesService.DuplicateGroups.PageUp();
+    }
+    public PageDown() {
+        this.DuplicatesService.DuplicateGroups.PageDown();
+    }
+    public FirstPage() {
+        this.DuplicatesService.DuplicateGroups.CurrentPage = 1;
+    }
+    public LastPage() {
+        this.DuplicatesService.DuplicateGroups.CurrentPage = this.DuplicatesService.DuplicateGroups.TotPages;
+    }
+    public async FindNextUnchecked() {
+        
+        await this.DuplicatesService.ActivateFirstNotCompletedGroup(true);
+        await Helpers.Sleep(10);
+        console.log("about to scroll:", this.CurrentGroup);
+        if (this.CurrentGroup != null) {
+            let el = document.getElementById("grp-" + this.CurrentGroup.groupID.toString());
+            console.log("about to scroll2:", el);
+            if (el) el.scrollIntoView();
+        }
     }
     public get CompletedGroups(): number {
-        return this.DuplicatesService.DuplicateGroups.filter(found => found.isComplete == true).length;
+        return this.DuplicatesService.DuplicateGroups.WholeList.filter(found => found.isComplete == true).length;
     }
     public get CurrentGroup(): ItemDuplicateGroup | null {
         return this.DuplicatesService.CurrentGroup;
@@ -185,6 +238,8 @@ export class DuplicatesComponent implements OnInit, OnDestroy {
     }
     public DistanceClass(a: string, b: string): string {
         if (a.length == 0 || b.length == 0) return "bg-lev0";
+        if (a.length > 1000) a = a.substring(0, 1000);
+        if (b.length > 1000) b = b.substring(0, 1000);
         let dist = Helpers.LevDist(a, b);
         //console.log("Distance Class: ", dist);
         if (dist >= 1) return "bg-lev0";
@@ -194,8 +249,8 @@ export class DuplicatesComponent implements OnInit, OnDestroy {
     }
     public SortBy(fieldName: string) {
         //console.log("SortBy", fieldName);
-        if (this.DuplicatesService.DuplicateGroups.length == 0) return;
-        for (let property of Object.getOwnPropertyNames(this.DuplicatesService.DuplicateGroups[0])) {
+        if (this.DuplicatesService.DuplicateGroups.WholeList.length == 0) return;
+        for (let property of Object.getOwnPropertyNames(this.DuplicatesService.DuplicateGroups.WholeList[0])) {
             //console.log("SortByP", property);
             if (property == fieldName){
                 if (this.DuplicatesService.LocalSort.SortBy == fieldName) {
@@ -223,7 +278,11 @@ export class DuplicatesComponent implements OnInit, OnDestroy {
     public MarkUnmarkItemAsDuplicate(member: DuplicateGroupMember, isDup: boolean) {
         let todo: MarkUnmarkItemAsDuplicate = new MarkUnmarkItemAsDuplicate(member.groupID, member.itemDuplicateId, isDup);
         this.DuplicatesService.MarkUnmarkMemberAsDuplicate(todo).then(() => {
+            console.log("is auto mark on???", this.ActivePanel);
             this.HasAppliedChanges = true;
+            if (this.AutoAdvance == true && this.CurrentGroup && this.CurrentGroup.members.length == this.CurrentGroup.members.filter(f => f.isChecked == true).length) {
+                this.FindNextUnchecked();
+            }
         });
     }
     
@@ -239,10 +298,10 @@ export class DuplicatesComponent implements OnInit, OnDestroy {
         });
     }
     public Refresh() {
-        if (this.DuplicatesService.DuplicateGroups.length == 0) this.DuplicatesService.CurrentGroup = null;
+        if (this.DuplicatesService.DuplicateGroups.WholeList.length == 0) this.DuplicatesService.CurrentGroup = null;
         else if (
             this.DuplicatesService.CurrentGroup != null
-            && this.DuplicatesService.DuplicateGroups.findIndex(
+            && this.DuplicatesService.DuplicateGroups.WholeList.findIndex(
                 ff => this.DuplicatesService.CurrentGroup != null && ff.groupId == this.DuplicatesService.CurrentGroup.groupID
             ) == -1
         ) {//we have a list but current group isn't in it!
