@@ -163,11 +163,15 @@ export class DuplicatesService extends BusyAwareService implements OnDestroy {
                 this.CurrentGroup == null
                 || this.DuplicateGroups.WholeList.findIndex(ff => this.CurrentGroup != null && ff.groupId == this.CurrentGroup.groupID) == -1) {
                 const todo = this.DuplicateGroups.WholeList.findIndex(found => found.isComplete == false);
-                if (todo > 0) {
+                if (todo >= 0) {
                     await this.FetchGroupDetails(this.DuplicateGroups.WholeList[todo].groupId);
                     if (this.DuplicateGroups.HasPages) this.DuplicateGroups.CurrentPage = Math.ceil(todo / this.DuplicateGroups.PageSize);//ensure the activated group appears in the current page
                 }
-                else await this.FetchGroupDetails(this.DuplicateGroups.WholeList[0].groupId);
+                else {
+                    //console.log("ActivateFirstNotCompletedGroup safety", todo);
+                    await this.FetchGroupDetails(this.DuplicateGroups.WholeList[0].groupId);
+                    this.DuplicateGroups.CurrentPage = 1;
+                }
             }
         } else {
             this.CurrentGroup == new ItemDuplicateGroup();

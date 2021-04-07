@@ -24,7 +24,7 @@
 
     <div class="col-4 col-xl-3 px-1 py-0" >
         <div class="containsAtoolbar row m-0 p-0">
-            <div  class="mx-auto ">
+            <div class="mx-auto row">
                 <div *ngIf="CurrentListHasPages">
                     <button class="btn py-0 px-1 border-primary border" (click)="FirstPage()" [disabled]="!CanPageDown">
                         <span class="mb-1  k-icon k-i-seek-w" aria-label="Go to the previous page"></span>
@@ -39,14 +39,14 @@
                     <button class="btn py-0 px-1 border-primary border" (click)="LastPage()" [disabled]="!CanPageUp">
                         <span class="mb-1  k-icon k-i-seek-e" aria-label="Go to the next page"></span>
                     </button>
-                    <button class="btn py-0 px-1 border-primary border" (click)="ShowGroupslistTools = !ShowGroupslistTools" [disabled]="!CanPageUp">
-                        Tools...
-                    </button>
                 </div>
+                <button class="btn py-0 px-1 border-primary border" (click)="ShowGroupslistTools = !ShowGroupslistTools">
+                    Tools...
+                </button>
             </div>
             <div *ngIf="ShowGroupslistTools" class="border border-dark px-1 col-12">
-                <button class="btn btn-sm py-0 mb-1 px-1 border-primary border" (click)="FindNextUnchecked()" [disabled]="!CanPageUp">
-                    Next ToDo
+                <button class="btn btn-sm py-0 mb-1 px-1 border-primary border" (click)="FindNextUnchecked()">
+                    1st To-Do
                 </button>
                 <div class="border rounded border-info small px-1 mx-1 mt-1 d-inline-block">
                     Auto Advance: <input type="checkbox" [(ngModel)]="AutoAdvance" />

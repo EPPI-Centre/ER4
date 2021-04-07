@@ -238,8 +238,19 @@ export class DuplicatesComponent implements OnInit, OnDestroy {
     }
     public DistanceClass(a: string, b: string): string {
         if (a.length == 0 || b.length == 0) return "bg-lev0";
-        if (a.length > 1000) a = a.substring(0, 1000);
-        if (b.length > 1000) b = b.substring(0, 1000);
+        if (a == b) return "bg-lev0";//we don't calculate the distance if the two strings are equal!!
+        //next, 2 "tricks" to speed things when calculating the distance would take too long.
+        if (a.length > 5000 || b.length > 5000) {
+            //this is rare, but UI would grind to a halt, so we take a draconian stance: strongest visual cue. The two strings are different!
+            return "bg-lev3";
+        }
+        if (a.length > 2000 || b.length > 2000) {
+            //we still need to speed up things. LevDist cicles through all chars of a, times all chars for b so it becomes slow when strings are long!
+            if (a.length > 2000) a = a.substring(0, 2000) + "t";
+            if (b.length > 2000) b = b.substring(0, 2000) + "T";
+            //the added "t" and "T" ensure the two truncated strings are never identical, as we do know they are different...
+            //we'll compare only the first 2000 chars...
+        }
         let dist = Helpers.LevDist(a, b);
         //console.log("Distance Class: ", dist);
         if (dist >= 1) return "bg-lev0";
