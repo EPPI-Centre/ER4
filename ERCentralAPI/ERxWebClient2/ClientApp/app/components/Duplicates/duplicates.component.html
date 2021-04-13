@@ -142,8 +142,8 @@
 
         <div *ngIf="ActivePanel == 'CreateGroup' && DirtyGroup != null" class="p-2 m-2 rounded border border-primary bg-white">
             <div class="h4 text-center mb-1 pb-1">Creating a new group...</div>
-            <table class="table table-bordered table-sm m-1 p-0" >
-                <thead>
+            <table class="table table-bordered table-sm m-1 p-0">
+                <thead *ngIf="DirtyMaster !== null; else NoMasterTemplate">
                     <tr class="alert-info ">
                         <td class="font-weight-bold">Master Item ID:</td>
                         <td class="bg-white">
@@ -171,23 +171,45 @@
                     </tr>
                     <tr class="alert-info ">
                         <td class="font-weight-bold">Status: </td>
-                        <td *ngIf="DirtyMaster == null" colspan="5" class="bg-white">Failure: this 'tentative' group has no master;</td>
-                        <td *ngIf="DirtyMaster !== null" colspan="5"
+                        <td colspan="5"
                             [ngClass]="{'alert-success': DirtyMaster.propertiesConverter == 0, 'alert-danger': DirtyMaster.propertiesConverter !== 0}">
                             {{DirtyMemberStatus(DirtyMaster)}}
                         </td>
                         <td colspan="2">
-                            <button class="btn py-1 px-1 mx-1 my-0 btn-outline-success" (click)="FindRelatedGroupsForDirtyGr()"
+                            <button class="btn py-1 px-1 mx-1 my-0 btn-success" (click)="FindRelatedGroupsForDirtyGr()"
                                     [disabled]="!DirtyGroup.HasExportedMembers">
                                 Get Related Groups
                             </button>
-                            
+
                         </td>
                     </tr>
                     <tr>
                         <td colspan="8" class="small p-0  bg-info" style="line-height:0.25em;">&nbsp;</td>
                     </tr>
                 </thead>
+                <ng-template #NoMasterTemplate>
+                    <thead>
+                        <tr class="alert-warning py-2 my-2">
+                            <td class="font-weight-bold">Status: </td>
+                            <td *ngIf="DirtyMaster == null" colspan="5" class="alert-light">
+                                None of the selected items can be used as a master. <br />
+                                Thus, <strong>this group cannot be created</strong>. Consider adding the selected items to an existing group. <br />
+                                <div class="row m-0 p-0">
+                                    <div class="ml-auto mr-1">
+                                        [<strong>Tip:</strong> click on the "related" button here, to find suitable group(s) <span class="k-icon k-i-arrow-right"></span>]
+                                    </div>
+                                </div>
+                            </td>
+                            <td colspan="2" class="align-bottom">
+                                <button class="btn py-1 px-1 mx-1 my-0 btn-success" (click)="FindRelatedGroupsForDirtyGr()"
+                                        [disabled]="!DirtyGroup.HasExportedMembers">
+                                    Get Related Groups
+                                </button>
+
+                            </td>
+                        </tr>
+                    </thead>
+                </ng-template>
                 <tbody *ngIf="DirtyGroup != null">
                     <ng-container *ngFor="let member of DirtyGroup.MembersOnly">
                         <tr class="bg-light">
@@ -197,7 +219,7 @@
                                 <ng-template #JustTheMemberId>{{member.itemId}}</ng-template>
                             </td>
                             <td>Coded count:</td>
-                            <td  [ngClass]="{'font-weight-bold alert-danger' : member.codedCount > 0}">{{member.codedCount}}</td>
+                            <td [ngClass]="{'font-weight-bold alert-danger' : member.codedCount > 0}">{{member.codedCount}}</td>
                             <td>Uploaded Docs:</td>
                             <td [ngClass]="{'alert-danger font-weight-bold' : member.docCount > 0}">{{member.docCount}}</td>
                             <td>Date:</td>

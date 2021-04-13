@@ -573,7 +573,7 @@ export class DuplicatesComponent implements OnInit, OnDestroy {
     }
     public get CanGetDirtyGroup(): boolean {
         if (!this.HasWriteRights) return false;
-        else if (this.ItemListService.SelectedItems.length > 0) return true;
+        else if (this.ItemListService.SelectedItems.length > 1) return true;
         else return false;
     }
     public CanGoToThisItem(ID: number) {
