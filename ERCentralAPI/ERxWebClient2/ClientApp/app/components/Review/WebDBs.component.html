@@ -50,7 +50,7 @@
             </div>
             <div *ngIf="CanWrite" class="w-100 m-0 p-0 text-center">
                 <button class="btn btn-outline-success btn-sm ml-1 mb-1" (click)="Edit(CurrentDB)" [disabled]="CurrentDB==null || EditingSomething">
-                    Edit
+                    Edit!
                 </button>
                 <button class="btn btn-outline-danger btn-sm ml-1 mb-1" (click)="DeleteDB(CurrentDB)" [disabled]="CurrentDB==null || EditingSomething">
                     <span class="k-icon k-i-delete "></span>
@@ -115,7 +115,13 @@
                     </div>
                 </div>
             </div>
-            
+            <div class="row col-12 p-1 mx-0 mt-0 border-bottom border-info">
+                <div class="mx-auto p-1">
+                    Public URL:
+                    <a href="{{VisitURL}}" target="_blank">{{VisitURL}}</a>
+                    <span *ngIf="!CurrentDB.isOpen" class="alert-warning mx-1 px-1 small border border-warning rounded">Login required!</span>
+                </div>
+            </div>
         </div>
         <div *ngIf="EditingDB !== null" class="bg-light rounded">
             <div class="w-100 m-0 p-0 text-center">

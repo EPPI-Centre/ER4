@@ -19,6 +19,7 @@ using Newtonsoft.Json;
 using Microsoft.Azure.Management.Compute.Fluent.VirtualMachine.Definition;
 using Microsoft.AspNetCore.Http;
 using System.IO;
+using Microsoft.Extensions.Configuration;
 
 namespace ERxWebClient2.Controllers
 {
@@ -26,9 +27,9 @@ namespace ERxWebClient2.Controllers
     [Route("api/[controller]")]
     public class WebDbController : CSLAController
     {
-        
-        public WebDbController(ILogger<WebDbController> logger) : base(logger)
-        { }
+        private IConfiguration _Configuration;
+        public WebDbController(ILogger<WebDbController> logger, IConfiguration configuration) : base(logger)
+        { _Configuration = configuration; }
 
         [HttpGet("[action]")]
         public IActionResult GetWebDBs()
@@ -38,7 +39,9 @@ namespace ERxWebClient2.Controllers
             {
                 if (!SetCSLAUser()) return Unauthorized();
                 WebDBsList res = DataPortal.Fetch<WebDBsList>();
-                return Ok(res);
+                string eppiVisBaseUrltxt = _Configuration.GetValue<string>("AppSettings:EPPIVisUrl");
+                WebDbListWithUrl res2 = new WebDbListWithUrl() { webDbList = res, eppiVisBaseUrl = eppiVisBaseUrltxt };
+                return Ok(res2);
             }
             catch (Exception e)
             {
@@ -251,6 +254,11 @@ namespace ERxWebClient2.Controllers
 
         }
 
+    }
+    public class WebDbListWithUrl
+    {
+        public WebDBsList webDbList { get; set; }
+        public string eppiVisBaseUrl { get; set; }
     }
 	public class WebDbJson
 	{

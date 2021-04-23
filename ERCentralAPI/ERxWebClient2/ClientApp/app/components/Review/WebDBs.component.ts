@@ -179,6 +179,10 @@ export class WebDBsComponent implements OnInit, OnDestroy, AfterViewInit {
 	public get EditingSomething(): boolean {
 		return this.EditingDB != null || this.EditingSetAttribute != null || this.EditingWebDbReviewSet != null;
 	}
+	public get VisitURL(): string {
+		if (this.CurrentDB) return this.WebDBService.URLfromWebDB(this.CurrentDB);
+		else return "";
+    }
 
 	Edit(item: iWebDB | null) {
 		if (!item) {
