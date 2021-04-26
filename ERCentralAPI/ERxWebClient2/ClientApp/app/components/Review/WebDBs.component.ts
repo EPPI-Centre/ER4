@@ -338,8 +338,11 @@ export class WebDBsComponent implements OnInit, OnDestroy, AfterViewInit {
 				webDbId: this.EditingDB.webDBId,
 				imageNumber: this.isUploadImage1 ? 1 : 2
 			};
-		} else e.preventDefault();
-		console.log("uploading", e.data);
+			//console.log("uploading", e.data);
+		} else {
+			this.imagePreview = null;
+			e.preventDefault();
+		}
 	}
 
 	public completeEventHandler() {

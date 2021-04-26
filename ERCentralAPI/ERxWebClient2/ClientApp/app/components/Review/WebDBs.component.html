@@ -41,11 +41,11 @@
         </ng-template>
 
         <div *ngIf="EditingDB == null && CurrentDB !== null" class="bg-light rounded">
-            <div class="row m-0 p-0 " style="" >
-                <img *ngIf="CurrentDB.encodedImage1 != ''" src="data:image/jpg;base64,{{CurrentDB.encodedImage1}}" alt="image1" class="  p-0 ml-0 mr-auto my-auto" style="max-height: 100px; object-fit: cover;" /> 
+            <div class="row m-0 p-0 " style="">
                 <div class="col-6 row p-0 mx-auto my-0">
                     <h2 class=" p p-0 mx-auto my-auto ">&nbsp;{{CurrentDB.webDBName}}</h2>
                 </div>
+                <img *ngIf="CurrentDB.encodedImage1 != ''" src="data:image/jpg;base64,{{CurrentDB.encodedImage1}}" alt="image1" class="  p-0 ml-0 mr-auto my-auto" style="max-height: 100px; object-fit: cover;" />
                 <img *ngIf="CurrentDB.encodedImage2 != ''" src="data:image/jpg;base64,{{CurrentDB.encodedImage2}}" alt="image2" class="  p-0 mr-0 ml-auto my-auto" style="max-height: 100px; object-fit: cover;" />
             </div>
             <div *ngIf="CanWrite" class="w-100 m-0 p-0 text-center">
@@ -130,10 +130,10 @@
             </div>
             <div class=" row m-2 p-1 rounded border-icon border">
                 <div class="row col-12 mx-0 mb-1 font-weight-bold">
+                    <div class="mx-auto">Logos and Images</div>
                     <div *ngIf="!ShowUpload && CurrentDB && EditingDB && EditingDB.webDBId == CurrentDB.webDBId  && CurrentDB.encodedImage1 != '' ">
                         <img src="data:image/jpg;base64,{{CurrentDB.encodedImage1}}" alt="image1" class="  p-0 ml-0 mr-auto my-auto" style="max-height: 100px; object-fit: cover;" />
                     </div>
-                    <div class="mx-auto">Logos and Images</div>
                     <div *ngIf="!ShowUpload && CurrentDB && EditingDB && EditingDB.webDBId == CurrentDB.webDBId && CurrentDB.encodedImage2 != '' ">
                         <img src="data:image/jpg;base64,{{CurrentDB.encodedImage2}}" alt="image2" class="  p-0 ml-0 mr-auto my-auto" style="max-height: 100px; object-fit: cover;" />
                     </div>
@@ -142,7 +142,7 @@
                     <button class="btn btn-outline-primary btn-sm" (click)="ShowUpload = true">Edit Images</button> <div class="ml-1 my-auto">(Upload/change and/or delete)</div>
                 </div>
                 <div *ngIf="!ShowUpload && CanWrite && (!EditingDB || EditingDB.webDBId < 1)" class="row m-2 rouded small alert-info p-1">
-                    To add logos to a new EPPI-Visualiser DB, you need to <strong>give it a name (at least) and click "save"</strong>. After saving (a DB now exists), you can click "Edit" again and upload logos to the new visualisation.
+                    To add logos to a new EPPI-Visualiser DB, you need to&nbsp;<strong>give it a name (at least) and click "save"</strong>. After saving (a DB now exists), you can click "Edit" again and upload logos to the new visualisation.
                 </div>
                 <div *ngIf="ShowUpload" class="row col-12 mx-0 bg-white p-0 mb-1">
                     <div class="row mx-0 col-6">
