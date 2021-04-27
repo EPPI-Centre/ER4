@@ -259,7 +259,7 @@ export class ItemListService extends BusyAwareService implements OnDestroy {
         cr.listType = 'StandardItemList';
         cr.onlyIncluded = false;
         cr.showDeleted = true;
-        this.FetchWithCrit(cr, "Excluded Items");
+        this.FetchWithCrit(cr, "Deleted Items");
 	}
 	public GetCitationForExport(Item: Item) {
 
