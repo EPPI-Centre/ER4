@@ -191,6 +191,7 @@ export class WebDBsComponent implements OnInit, OnDestroy, AfterViewInit {
 			item = {
 				webDBId: 0,
 				webDBName: '',
+				subtitle: '',
 				webDBDescription: '',
 				attributeIdFilter: 0,
 				isOpen: true,
@@ -199,7 +200,11 @@ export class WebDBsComponent implements OnInit, OnDestroy, AfterViewInit {
 				createdBy: '',
 				editedBy: '',
 				encodedImage1: '',
-				encodedImage2: ''
+				encodedImage2: '',
+				encodedImage3: '',
+				headerImage1Url: '',
+				headerImage2Url: '',
+				headerImage3Url: ''
 			};
         }
 		this.EditingDB = this.WebDBService.CloneWebDBforEdit(item);

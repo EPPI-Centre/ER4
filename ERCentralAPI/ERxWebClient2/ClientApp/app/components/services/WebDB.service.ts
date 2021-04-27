@@ -147,6 +147,7 @@ export class WebDBService extends BusyAwareService implements OnDestroy {
         let res = {
             webDBId: toClone.webDBId,
             webDBName: toClone.webDBName,
+            subtitle: toClone.subtitle,
             webDBDescription: toClone.webDBDescription,
             attributeIdFilter: toClone.attributeIdFilter,
             isOpen: toClone.isOpen,
@@ -155,7 +156,11 @@ export class WebDBService extends BusyAwareService implements OnDestroy {
             createdBy: toClone.createdBy,
             editedBy: toClone.editedBy,
             encodedImage1: '',
-            encodedImage2: ''
+            encodedImage2: '',
+            encodedImage3: '',
+            headerImage1Url: toClone.headerImage1Url,
+            headerImage2Url: toClone.headerImage2Url,
+            headerImage3Url: toClone.headerImage3Url
         }
         return res;
     }
@@ -435,6 +440,7 @@ export interface iWebDbListWithUrl {
 export interface iWebDB {
     webDBId: number;
     webDBName: string;
+    subtitle: string;
     webDBDescription: string;
     attributeIdFilter: number;
     isOpen: boolean;
@@ -444,6 +450,10 @@ export interface iWebDB {
     editedBy: string;
     encodedImage1: string;
     encodedImage2: string;
+    encodedImage3: string;
+    headerImage1Url: string;
+    headerImage2Url: string;
+    headerImage3Url: string;
 }
 export interface iWebDbReviewSet extends iReviewSet {
     webDBId: number;
