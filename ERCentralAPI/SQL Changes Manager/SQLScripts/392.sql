@@ -54,7 +54,7 @@ AS
 		AND @isOpen = 0 --we need username and PW
 		AND 
 		(
-			LEN(@Username) <= 4 --username too short
+			LEN(@Username) < 4 --username too short
 			OR LEN(@Password) < 6 --password too short
 		)
 	BEGIN
@@ -69,7 +69,7 @@ AS
 		)	
 		AND 
 		( --we need username and password, are the one supplied long enough?
-			LEN(@Username) <= 4 --username too short
+			LEN(@Username) < 4 --username too short
 			OR LEN(@Password) < 6 --password too short
 		)
 	BEGIN
