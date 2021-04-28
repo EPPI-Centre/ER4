@@ -64,7 +64,14 @@
                         <table>
                             <tr>
                                 <td style="padding:5px 0px 0px 0px">
+                                    @if (ViewBag.Id != null && ViewBag.Id > 0)
+                                    {
+                                    @Html.TextBox("id",(string)ViewBag.Id.ToString(), new { @class="p-2 align-self-center m-1" } )
+                                    }
+                                    else
+                                    {
                                     <input class="p-2 align-self-center m-1" id="id" placeholder="Webdatabase ID" name="id" type="text" />
+                                    }
                                 </td>
                             </tr>
                         </table>
@@ -75,7 +82,14 @@
                         <table>
                             <tr>
                                 <td style="padding:5px 0px 0px 0px">
+                                    @if (ViewBag.Username != null)
+                                    {
+                                    @Html.TextBox("username",(string)ViewBag.Username, new { @class="p-2 align-self-center m-1" } )
+                                    }
+                                    else
+                                    {
                                     <input class="p-2 align-self-center m-1" id="username" placeholder="Username" name="username" type="text" />
+                                    }
                                     <input class="p-2 align-self-center m-1" id="password" placeholder="Password" name="password" type="password" />
                                     <input class="p-2 btn btn-success btn-round btn-sm" type="submit" value="Access" />
                                 </td>

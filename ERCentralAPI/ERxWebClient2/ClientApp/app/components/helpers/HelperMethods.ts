@@ -29,6 +29,19 @@ export class Helpers {
             return date.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
         }
     }
+    public static FormatDateWithInputSlashes(DfsMfsYYYY: string): string {
+        //this is marginally slower that FormatDate(DD_MM_YYYY_: string)
+        if (!DfsMfsYYYY || DfsMfsYYYY.length < 8 || DfsMfsYYYY.indexOf('/') == -1) return "";
+        else {
+            const splitted = DfsMfsYYYY.split("/");
+            if (splitted.length != 3) return "";
+            const year = parseInt(splitted[2]);
+            const month = parseInt(splitted[1]) - 1;
+            const day = parseInt(splitted[0]);
+            const date: Date = new Date(year, month, day);
+            return date.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+        }
+    }
 
     //used when we want a component to wait some time in a sync manner (for example to check when a service stops being busy).
     //Correct way to call this function requires the calling method to be async. 

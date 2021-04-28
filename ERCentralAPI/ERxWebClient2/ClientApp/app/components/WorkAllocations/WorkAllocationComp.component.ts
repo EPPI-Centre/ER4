@@ -198,7 +198,9 @@ export class WorkAllocationComp implements OnInit {
 	FormatDate(DateSt: string): string {
 		return Helpers.FormatDate(DateSt);
 	}
-    
+	//FormatDateWithInputSlashes(DateSt: string): string {
+	//	return Helpers.FormatDateWithInputSlashes(DateSt);
+	//}
 	public NewComparisonSectionOpen() {
 
 		if (this.PanelName == 'NewComparisonSection') {
@@ -743,6 +745,25 @@ export class WorkAllocationComp implements OnInit {
 		this._workAllocationListService.FetchAll();
 		this.getCodeSets();
 		this._comparisonsService.FetchAll();
+
+		////test code for date formatting, needs to be "commented out!"
+		//const date = "01/01/2021";
+		//let tmp = "";
+		//let start = new Date();
+		//for (let i: number = 0; i < 100000; i++) {
+		//	tmp = Helpers.FormatDateWithInputSlashes(date);
+		//}
+		//let secondTimeMs = new Date().getTime() - start.getTime();
+		//console.log("time used New = " + secondTimeMs);
+		//start = new Date();
+		//for (let i: number = 0; i < 100000; i++) {
+		//	tmp = Helpers.FormatDate(date);
+		//}
+		//let firstTimeMs = new Date().getTime() - start.getTime();
+		//console.log("time used OLD = " + firstTimeMs);
+		//if (secondTimeMs > firstTimeMs) console.log("OLD method it best: ", secondTimeMs - firstTimeMs);
+		//else console.log("NEW method it best: ", secondTimeMs - firstTimeMs);
+
 	}
 	public getCodeSets() {
 		this.CodeSets = this._reviewSetsService.ReviewSets.filter(x => x.nodeType == 'ReviewSet')

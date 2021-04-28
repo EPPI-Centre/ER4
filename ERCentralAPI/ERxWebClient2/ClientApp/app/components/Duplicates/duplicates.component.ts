@@ -11,6 +11,7 @@ import { ItemListService } from '../services/ItemList.service';
 import { EventEmitterService } from '../services/EventEmitter.service';
 import { Group } from '@progress/kendo-drawing';
 import { timeout } from 'rxjs/operators';
+import { s } from '@angular/core/src/render3';
 
 
 @Component({
@@ -104,18 +105,42 @@ export class DuplicatesComponent implements OnInit, OnDestroy {
             this.HardReset();
         }
     }];
-    public FindGroupsDDData: Array<any> = [{
-        text: 'Find Groups by Item IDs',
-        click: () => {
-            this.ShowFindByItemIDsPanel();
-        }
-    }];
+    public FindGroupsDDData: Array<any>  = [
+            {
+                text: 'Find Groups by Item IDs',
+                click: () => {
+                    this.ShowFindByItemIDsPanel();
+                }
+            }, {
+                text: 'Find Groups by Selected Items',
+                click: () => {
+                    this.FindBySelectedItems();
+                }
+                //,
+                //disabled: (res: boolean)=> {
+                //    console.log("should disable? ", !this.HasSelectedItems);
+                //    res = !this.HasSelectedItems;
+                //    return res;
+                //}
+            }
+    ];
+
     public PagingDD: number[] = [
         20, 50, 100, 500, 1000, 2000, 5000
     ]
     public get ShowOrHideMoreToolbarText(): string {
         if (this.ShowingMore) return "Less...";
         else return "More..."
+    }
+    public get CanAddSelectedItemsToGroup(): boolean {
+        if (!this.HasWriteRights) return false;
+        else if (this.ItemListService.SelectedItems.length > 0 && this.CurrentGroup != null) return true;
+        else return false;
+    }
+    public get HasSelectedItems(): boolean {
+        console.log("HasSelectedItems", this.ItemListService.SelectedItems.length > 0);
+        if (this.ItemListService.SelectedItems.length > 0) return true;
+        else return false;
     }
     public get DuplicateGroups(): iReadOnlyDuplicatesGroup[] {
         return this.DuplicatesService.DuplicateGroups.PagedList;
@@ -482,6 +507,24 @@ export class DuplicatesComponent implements OnInit, OnDestroy {
             this.DuplicatesService.FetchRelatedGroups(this.CurrentGroup.groupID);
         }
     }
+    public FindBySelectedItems() {
+        if (this.ItemListService.SelectedItems.length < 1) {
+            this._notificationService.show({
+                content: "No items are selected, nothing to search for...",
+                animation: { type: 'slide', duration: 400 },
+                position: { horizontal: 'center', vertical: 'top' },
+                type: { style: "warning", icon: true },
+                hideAfter: 5000
+            });
+            return;
+        }
+        let searchSt = "";
+        for (let itm of this.ItemListService.SelectedItems) {
+            if (searchSt == "") searchSt = itm.itemId.toString();
+            else searchSt += "," + itm.itemId.toString();
+        }
+        this.DuplicatesService.FetchGroupsByItemIds(searchSt);
+    }
     public FindByItemIDs() {
         if (this.ItemIDsearchString == "") return;
         let CheckedString: string = "";
@@ -528,14 +571,7 @@ export class DuplicatesComponent implements OnInit, OnDestroy {
         }
     }
 
-    public FindBySelectedItems() {
 
-    }
-    public get CanAddSelectedItemsToGroup(): boolean {
-        if (!this.HasWriteRights) return false;
-        else if (this.ItemListService.SelectedItems.length > 0 && this.CurrentGroup != null) return true;
-        else return false;
-    }
     public AddSelectedItemsToGroup() {
         if (this.CurrentGroup == null || this.ItemListService.SelectedItems.length == 0) return;
         else {
