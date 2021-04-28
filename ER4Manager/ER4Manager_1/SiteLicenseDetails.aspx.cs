@@ -68,10 +68,11 @@ public partial class SiteLicenseDetails : System.Web.UI.Page
                     "!4!" + tbDatePackageCreated.Text + "')");
 
                 lbSelectAdmin.Attributes.Add("onclick", "JavaScript:openAdminList('Please select')");
-
+                /*
                 ddlLicenseModel.Attributes.Add("onchange", "if (confirm('If you changing to Removable reviews, all reviews from previous packages will be removed from this license. " +
                     "The license admin will then be able to add and remove reviews just as if they were user accounts accounts. " + 
                     "There is NOT an undo option to put the reviews back in the license so are you SURE you want to do this?') == false) return false;");
+                */
                 cbAllowReviewOwnershipChange.Attributes.Add("onclick", "if (confirm('Checking this box will allow the license admin to change the ownership of the reviews in this license. " +
                     "A new REVIEW OWNER column will appear in the list of reviews on their license page. " + 
                     "Are you SURE you want to enable this?') == false) return false;");
@@ -102,7 +103,7 @@ public partial class SiteLicenseDetails : System.Web.UI.Page
 
         if (licenseID == "New")
         {
-            ddlLicenseModel.Enabled = false;
+            //ddlLicenseModel.Enabled = false;
             cbAllowReviewOwnershipChange.Enabled = false;
 
             DataTable dt = new DataTable();
@@ -220,6 +221,7 @@ public partial class SiteLicenseDetails : System.Web.UI.Page
                         cbAllowReviewOwnershipChange.Checked = false;
 
                     ddlLicenseModel.SelectedValue = idr["SITE_LIC_MODEL"].ToString();
+                    lblModelType.Text = idr["SITE_LIC_MODEL"].ToString();
 
                     lblSiteLicenseDetailsID.Text = idr["SITE_LIC_DETAILS_ID"].ToString();
                     tbNumberMonths.Text = idr["MONTHS"].ToString();
@@ -255,12 +257,13 @@ public partial class SiteLicenseDetails : System.Web.UI.Page
                         tbExpiryDate.Text = idr["EXPIRY_DATE"].ToString();
                     }
 
+                    /*
                     if (ddlLicenseModel.SelectedValue == "2")
                     {
                         lblPreviousReviews.Visible = false;
                         gvReviewsPastLicense.Visible = false;
                     }
-
+                    */
 
                     //tbExpiryDate.Text = idr["EXPIRY_DATE"].ToString();
                     lblForSaleID.Text = idr["FOR_SALE_ID"].ToString();
@@ -298,6 +301,7 @@ public partial class SiteLicenseDetails : System.Web.UI.Page
                         lblForSaleID.Text = idr["FOR_SALE_ID"].ToString();
 
                         ddlLicenseModel.SelectedValue = idr["SITE_LIC_MODEL"].ToString();
+                        lblModelType.Text = idr["SITE_LIC_MODEL"].ToString();
                         if (idr["ALLOW_REVIEW_OWNERSHIP_CHANGE"].ToString() == "True")
                             cbAllowReviewOwnershipChange.Checked = true;
                         else
@@ -361,6 +365,7 @@ public partial class SiteLicenseDetails : System.Web.UI.Page
                     lblAdminID.Text = licAdmID;
 
                     ddlLicenseModel.SelectedValue = idr["SITE_LIC_MODEL"].ToString();
+                    lblModelType.Text = idr["SITE_LIC_MODEL"].ToString();
                     if (idr["ALLOW_REVIEW_OWNERSHIP_CHANGE"].ToString() == "True")
                         cbAllowReviewOwnershipChange.Checked = true;
                     else
@@ -546,6 +551,8 @@ public partial class SiteLicenseDetails : System.Web.UI.Page
 
     protected void ddlPackages_SelectedIndexChanged(object sender, EventArgs e)
     {
+        lblSelectOfferMsg.Visible = false;
+        lbRemoveOffer.Visible = false;
         tbExpiryDate.BackColor = Color.White;
         tbExpiryDate.Font.Bold = false;
         bool isAdmDB = true;
@@ -563,6 +570,12 @@ public partial class SiteLicenseDetails : System.Web.UI.Page
             if (idr["IS_ACTIVE"].ToString() == "False")
             {
                 tbValidFrom.Text = idr["VALID_FROM"].ToString();
+                if (ddlPackages.SelectedItem.Text.StartsWith("Offer"))
+                {
+                    lbRemoveOffer.Visible = true;
+                }
+
+
                 if (ddlPackages.SelectedItem.Text.StartsWith("Expired"))
                 {
                     tbExpiryDate.Text = "Expired";
@@ -600,6 +613,11 @@ public partial class SiteLicenseDetails : System.Web.UI.Page
             }
         }
         idr.Close();
+
+        if (ddlPackages.SelectedItem.Text.StartsWith("Offer"))
+        {
+            lbRemoveOffer.Visible = true;
+        }
     }
 
     protected void lbShowBLCodes_Click(object sender, EventArgs e)
@@ -648,7 +666,73 @@ public partial class SiteLicenseDetails : System.Web.UI.Page
             tbBritLibCRClearedAccountCode.Text, tbBritLibCRClearedAuthCode.Text, tbBritLibCRClearedTxLine.Text);
     }
 
+
     protected void cmdSaveLicense_Click(object sender, EventArgs e)
+    {
+        if (lblModelType.Text == "0")
+        {
+            // new license so just carry on...
+            saveLicense();
+
+        }
+        else
+        {
+            // it's an existing license. Check if the model type has changed
+            if (ddlLicenseModel.SelectedValue != lblModelType.Text)
+            {
+                // do any packages exist yet
+                if (ddlPackages.Items.Count == 0)
+                {
+                    // there are no packages yet so just save the license
+                    saveLicense();
+                }
+                else if ((ddlPackages.Items.Count == 1) && (ddlPackages.SelectedItem.Text.Contains("Offer")))
+                {
+                    // there is only an offer so just save the license details
+                    saveLicense();
+                }
+                else
+                {
+                    lblSelectOfferMsg.Visible = false;
+                    // the model type has changed so tell the eppiadmin what will happen...
+                    if (ddlLicenseModel.SelectedValue == "2")
+                    {
+                        // changing to Removeable
+                        pnlChangeLicenseModel.Visible = true;
+                        lblContinueMessage.Text = "You are changing the license mode from <b>Fixed</b> to <b>Removable</b>. There are two options available:";
+
+                        lblContinueMessage01.Text = "<b>1)</b> To change to 'Removable' using the 'Latest' package, click <b>Convert</b>.<br>" +
+                            "The existing reviews will stay in the 'Latest' package.<br><br>";
+                        lblContinueMessage02.Text = "<b>2)</b> If this is a renewal select the 'Offer' package, set the start and end dates, and then click <b>Renew</b>.<br>" +
+                            "The existing reviews will be moved to the 'Reviews in previous package' table.<br>" +
+                            "If the 'Offer' package doesn't yet exist, click <b>cancel</b> and create one.";
+                    }
+                    else
+                    {
+                        // changing to Fixed
+                        pnlChangeLicenseModel.Visible = true;
+                        lblContinueMessage.Text = "You are changing the license mode from <b>Removable</b> to <b>Fixed</b>. There are two options available:";
+
+                        lblContinueMessage01.Text = "<b>1)</b> To change to 'Fixed' using the 'Latest' package, click <b>Convert</b>.<br>" +
+                            "The existing reviews will stay in the 'Latest' package.<br><br>";
+                        lblContinueMessage02.Text = "<b>2)</b> If this is a renewal select the 'Offer' package, set the start and end dates, and then click <b>Renew</b>.<br>" +
+                            "The existing reviews will be moved to the 'Reviews in previous package' table.<br>" +
+                            "If the 'Offer' package doesn't yet exist, click <b>cancel</b> and create one.";
+                    }
+                }
+            }
+            else
+            {
+                // no change in license type so just save it
+                saveLicense();
+            }
+        }
+    }
+
+
+
+    //protected void cmdSaveLicense_Click(object sender, EventArgs e)
+    private void saveLicense()
     {
         lblLicenseMessage.Visible = false;
         lblLicenseMessage.Text = "Required fields *";
@@ -695,7 +779,7 @@ public partial class SiteLicenseDetails : System.Web.UI.Page
         if (licenseConditionsMet == true)
         {
             bool isAdmDB = true;
-            SqlParameter[] paramList = new SqlParameter[11];
+            SqlParameter[] paramList = new SqlParameter[12];
 
             paramList[0] = new SqlParameter("@LIC_ID", SqlDbType.NVarChar, 50, ParameterDirection.Input,
                     true, 0, 0, null, DataRowVersion.Default, lblSiteLicID.Text);
@@ -717,7 +801,9 @@ public partial class SiteLicenseDetails : System.Web.UI.Page
                     true, 0, 0, null, DataRowVersion.Default, tbEPPINotes.Text);
             paramList[9] = new SqlParameter("@DATE_CREATED", SqlDbType.NVarChar, 50, ParameterDirection.Input,
                     true, 0, 0, null, DataRowVersion.Default, licenseCreationDate);
-            paramList[10] = new SqlParameter("@RESULT", SqlDbType.NVarChar, 50, ParameterDirection.Output,
+            paramList[10] = new SqlParameter("@SITE_LIC_MODEL", SqlDbType.Int, 8, ParameterDirection.Input,
+                    true, 0, 0, null, DataRowVersion.Default, ddlLicenseModel.SelectedValue);
+            paramList[11] = new SqlParameter("@RESULT", SqlDbType.NVarChar, 50, ParameterDirection.Output,
                 true, 0, 0, null, DataRowVersion.Default, "");
 
             // original JB Jun26
@@ -725,20 +811,26 @@ public partial class SiteLicenseDetails : System.Web.UI.Page
             // added JB Jun26
             Utils.ExecuteSPWithReturnValues(isAdmDB, Server, "st_Site_Lic_Create_or_Edit", paramList);
 
-            if (paramList[10].Value.ToString() == "invalid adm")
+            if (paramList[11].Value.ToString() == "invalid adm")
             {
                 lblLicenseMessage.Visible = true;
                 lblLicenseMessage.Text = "The 'First adminstrator' is already a site license adminstrator. Please select another.";
                 lblLicenseMessage.ForeColor = System.Drawing.Color.Red;
                 lblLicenseMessage.Font.Bold = true;
             }
-            else if (paramList[10].Value.ToString() == "valid")
+            else if (paramList[11].Value.ToString() == "valid")
             {
                 //buildLicenseGrid(gvSiteLicenses.PageIndex);
                 //buildRadGrid();
                 lbCreatePackage.Enabled = true;
+
+                if (ddlPackages.Items.Count != 0)
+                {
+                    buildGrids();
+                    lblModelType.Text = ddlLicenseModel.SelectedValue;
+                }
             }
-            else if (paramList[10].Value.ToString() == "rollback")
+            else if (paramList[11].Value.ToString() == "rollback")
             {
                 lblLicenseMessage.Visible = true;
                 lblLicenseMessage.Text = "There was an error and the stored procedure was rolled back";
@@ -747,7 +839,7 @@ public partial class SiteLicenseDetails : System.Web.UI.Page
             }
             else  // we have created a new license
             {
-                lblSiteLicID.Text = paramList[10].Value.ToString();
+                lblSiteLicID.Text = paramList[11].Value.ToString();
                 //buildLicenseGrid(gvSiteLicenses.PageIndex);
                 //buildRadGrid();
                 lbCreatePackage.Enabled = true;
@@ -999,7 +1091,7 @@ public partial class SiteLicenseDetails : System.Web.UI.Page
             {
                 int pricePerMonth = (int.Parse(tbTotalFee.Text)) / (int.Parse(tbNumberMonths.Text));
                 bool isAdmDB = true;
-                SqlParameter[] paramList = new SqlParameter[16];
+                SqlParameter[] paramList = new SqlParameter[17];
 
                 paramList[0] = new SqlParameter("@LIC_ID", SqlDbType.NVarChar, 50, ParameterDirection.Input,
                         true, 0, 0, null, DataRowVersion.Default, lblSiteLicID.Text);
@@ -1031,19 +1123,21 @@ public partial class SiteLicenseDetails : System.Web.UI.Page
                     true, 0, 0, null, DataRowVersion.Default, ddlExtensionType.SelectedValue);
                 paramList[14] = new SqlParameter("@EXTENSION_NOTES", SqlDbType.NVarChar, 4000, ParameterDirection.Input,
                     true, 0, 0, null, DataRowVersion.Default, tbDescription.Text);
-                paramList[15] = new SqlParameter("@RESULT", SqlDbType.NVarChar, 50, ParameterDirection.Output,
+                paramList[15] = new SqlParameter("@SITE_LIC_MODEL", SqlDbType.Int, 8, ParameterDirection.Input,
+                    true, 0, 0, null, DataRowVersion.Default, ddlLicenseModel.SelectedValue);
+                paramList[16] = new SqlParameter("@RESULT", SqlDbType.NVarChar, 50, ParameterDirection.Output,
                     true, 0, 0, null, DataRowVersion.Default, "");
 
                 Utils.ExecuteSPWithReturnValues(isAdmDB, Server, "st_Site_Lic_Details_Create_or_Edit_AndOr_Activate", paramList);
 
 
-                if (paramList[15].Value.ToString() == "Invalid")
+                if (paramList[16].Value.ToString() == "Invalid")
                 {
                     lblLicenseDetailsMessage.Visible = true;
                     lblLicenseDetailsMessage.Text = "the SQL statement has failed and has been rolled back";
                     lblLicenseDetailsMessage.ForeColor = System.Drawing.Color.Red;
                 }
-                else if (paramList[15].Value.ToString() == "rollback")
+                else if (paramList[16].Value.ToString() == "rollback")
                 {
                     lblLicenseDetailsMessage.Visible = true;
                     lblLicenseDetailsMessage.Text = "the SQL statement has failed and has been rolled back";
@@ -1059,7 +1153,9 @@ public partial class SiteLicenseDetails : System.Web.UI.Page
                     // if this was a package creation we want to load the offer so it can be activated. how do we know?
                     // is lblIsActivated = No or reload the list 
                     int selectedIndex = 0;
-                    if (lblIsActivated.Text == "No")
+                    string test = lblIsActivated.Text;
+                    if ((paramList[16].Value.ToString() == "new offer") || (lblIsActivated.Text == "No"))
+                    //if (lblIsActivated.Text == "No")
                     //if (ddlPackages.Items.Count == 0)
                     {
                         if (ddlPackages.Items.Count != 0)
@@ -1117,6 +1213,7 @@ public partial class SiteLicenseDetails : System.Web.UI.Page
                             cmdAddAccount.Enabled = true;
                         }
 
+                        pnlChangeLicenseModel.Visible = false;
 
                         tbValidFrom.Enabled = true;
                         tbExpiryDate.Enabled = true;
@@ -1455,6 +1552,34 @@ public partial class SiteLicenseDetails : System.Web.UI.Page
                 }
 
                 break;
+
+            case "MOVE":
+                isAdmDB = true;
+                SqlParameter[] paramList1 = new SqlParameter[5];
+                paramList1[0] = new SqlParameter("@LIC_ID", SqlDbType.NVarChar, 50, ParameterDirection.Input,
+                        true, 0, 0, null, DataRowVersion.Default, lblSiteLicID.Text);
+                paramList1[1] = new SqlParameter("@SITE_LIC_DETAILS_ID", SqlDbType.NVarChar, 50, ParameterDirection.Input,
+                        true, 0, 0, null, DataRowVersion.Default, lblSiteLicenseDetailsID.Text);
+                paramList1[2] = new SqlParameter("@admin_ID", SqlDbType.Int, 8, ParameterDirection.Input,
+                    true, 0, 0, null, DataRowVersion.Default, Utils.GetSessionString("Contact_ID"));
+                paramList1[3] = new SqlParameter("@review_id", SqlDbType.NVarChar, 50, ParameterDirection.Input,
+                    true, 0, 0, null, DataRowVersion.Default, reviewID);
+                paramList1[4] = new SqlParameter("@RESULT", SqlDbType.NVarChar, 255, ParameterDirection.Output,
+                    true, 0, 0, null, DataRowVersion.Default, "");
+                Utils.ExecuteSPWithReturnValues(isAdmDB, Server, "st_Site_Lic_Archive_Review", paramList1);
+
+                if (paramList1[4].Value.ToString() != "Success")
+                {
+                    lblReviewMsg.Text = paramList1[4].Value.ToString();
+                    lblReviewMsg.Visible = true;
+                    lblReviewMsg.ForeColor = System.Drawing.Color.Red;
+                }
+                else
+                {
+                    buildGrids();
+                }
+                break;
+
             default:
                 break;
         }
@@ -1464,8 +1589,10 @@ public partial class SiteLicenseDetails : System.Web.UI.Page
     {
         if (e.Row.RowType == DataControlRowType.DataRow)
         {
-            LinkButton lb = (LinkButton)(e.Row.Cells[2].Controls[0]);
-            lb.Attributes.Add("onclick", "if (confirm('Are you sure you want to remove this review from the package?') == false) return false;");
+            LinkButton lbRemove = (LinkButton)(e.Row.Cells[2].Controls[0]);
+            lbRemove.Attributes.Add("onclick", "if (confirm('Are you sure you want to remove this review from the package?') == false) return false;");
+            LinkButton lbMove = (LinkButton)(e.Row.Cells[3].Controls[0]);
+            lbMove.Attributes.Add("onclick", "if (confirm('Are you sure you want to move this review to the 'previous package' table?') == false) return false;");
         }
     }
 
@@ -1485,6 +1612,10 @@ public partial class SiteLicenseDetails : System.Web.UI.Page
                     buildGrids();
                     lblAccountAdmMessage.Visible = false;
                     tbEmailAdm.Text = "Enter email address";
+
+                    lblAdminID.Text = gvLicenseAdms.Rows[0].Cells[1].Text;
+                    licenseDetails(lblSiteLicID.Text, lblAdminID.Text);
+
 
                     /*
                     bool isAdmDB = true;
@@ -1562,7 +1693,7 @@ public partial class SiteLicenseDetails : System.Web.UI.Page
         }
     }
 
-
+    /*
     protected void ddlLicenseModel_SelectedIndexChanged(object sender, EventArgs e)
     {
         if (lblSiteLicID.Text == "N/A")
@@ -1593,19 +1724,20 @@ public partial class SiteLicenseDetails : System.Web.UI.Page
 
                 /*
                 // if it is the fixed model just leave the reviews where they are
-                if (ddlLicenseModel.SelectedValue == "1")
-                {
+                //if (ddlLicenseModel.SelectedValue == "1")
+                //{
                     // and then remove any reviews that are in previous packages
-                    Utils.ExecuteSP(isAdmDB, Server, "st_RemoveReviewsFromPreviousPackages", lblSiteLicID.Text);
-                }
-                */
+                //    Utils.ExecuteSP(isAdmDB, Server, "st_RemoveReviewsFromPreviousPackages", lblSiteLicID.Text);
+                //}
+                
 
                 // reload the grids
                 buildGrids();
             }
 
         }
-    }
+    }*/
+    
 
     protected void cbAllowReviewOwnershipChange_CheckedChanged(object sender, EventArgs e)
     {
@@ -1627,4 +1759,105 @@ public partial class SiteLicenseDetails : System.Web.UI.Page
     }
 
 
+
+    protected void gvReviewsPastLicense_RowCommand(object sender, GridViewCommandEventArgs e)
+    {
+        lblOldReviewMsg.Visible = false;
+        lblOldReviewMsg.ForeColor = System.Drawing.Color.Black;
+        int index = Convert.ToInt32(e.CommandArgument);
+        string reviewID = (string)gvReviewsPastLicense.DataKeys[index].Value;
+        switch (e.CommandName)
+        {
+            case "REMOVE":
+                bool isAdmDB = true;
+                SqlParameter[] paramList = new SqlParameter[4];
+                paramList[1] = new SqlParameter("@lic_id", SqlDbType.Int, 8, ParameterDirection.Input,
+                    true, 0, 0, null, DataRowVersion.Default, lblSiteLicID.Text);
+                paramList[0] = new SqlParameter("@admin_ID", SqlDbType.Int, 8, ParameterDirection.Input,
+                    true, 0, 0, null, DataRowVersion.Default, Utils.GetSessionString("Contact_ID"));
+                paramList[2] = new SqlParameter("@review_id", SqlDbType.NVarChar, 255, ParameterDirection.Input,
+                    true, 0, 0, null, DataRowVersion.Default, reviewID);
+                paramList[3] = new SqlParameter("@res", SqlDbType.Int, 8, ParameterDirection.Output,
+                    true, 0, 0, null, DataRowVersion.Default, "");
+                Utils.ExecuteSPWithReturnValues(isAdmDB, Server, "st_Site_Lic_Remove_Review", paramList);
+
+                if (paramList[3].Value.ToString() != "0")
+                {
+                    switch (paramList[3].Value.ToString())
+                    {
+                        case "-1":
+                            lblOldReviewMsg.Text = "supplied admin_id is not an admin of this site license";
+                            break;
+                        case "-2":
+                            lblOldReviewMsg.Text = "review_id does not exist";
+                            break;
+                        case "-3":
+                            lblOldReviewMsg.Text = "review is not in this this site_lic";
+                            break;
+                        case "-4":
+                            lblOldReviewMsg.Text = "all seemed well but couldn't write changes! BUG ALERT";
+                            break;
+                        default:
+                            break;
+                    }
+                    lblOldReviewMsg.Visible = true;
+                    lblOldReviewMsg.ForeColor = System.Drawing.Color.Red;
+                }
+                else
+                {
+                    buildGrids();
+                }
+
+                break;
+
+            default:
+                break;
+        }
+    }
+
+    protected void gvReviewsPastLicense_RowDataBound(object sender, GridViewRowEventArgs e)
+    {
+        if (e.Row.RowType == DataControlRowType.DataRow)
+        {
+            LinkButton lb = (LinkButton)(e.Row.Cells[2].Controls[0]);
+            lb.Attributes.Add("onclick", "if (confirm('Are you sure you want to remove this review from the license?') == false) return false;");
+        }
+    }
+
+    protected void cmdChangeLatestPackage_Click(object sender, EventArgs e)
+    {
+        saveLicense();
+        licenseDetails(lblSiteLicID.Text, lblAdminID.Text);
+        pnlChangeLicenseModel.Visible = false;
+    }
+
+    protected void lblRenew_Click(object sender, EventArgs e)
+    {
+        lblSelectOfferMsg.Visible = true;
+        if (ddlPackages.SelectedItem.Text.StartsWith("Offer"))
+        {
+            lblSelectOfferMsg.Visible = false;
+            cmdSaveLicenseDetails_Click(sender, e);
+        }
+        
+    }
+
+    protected void lbCancel_Click(object sender, EventArgs e)
+    {
+        licenseDetails(lblSiteLicID.Text, lblAdminID.Text);
+        pnlChangeLicenseModel.Visible = false;
+    }
+
+    protected void lbRemoveOffer_Click(object sender, EventArgs e)
+    {
+        // remove offer
+        bool isAdmDB = true;
+        Utils.ExecuteSP(isAdmDB, Server, "st_Site_Lic_RemoveOffer", ddlPackages.SelectedValue, lblSiteLicID.Text);
+
+        // reload packages
+        licenseDetails(lblSiteLicID.Text, lblAdminID.Text);
+
+        ddlPackages.SelectedIndex = 0;
+        ddlPackages_SelectedIndexChanged(sender, e);
+    }
 }
