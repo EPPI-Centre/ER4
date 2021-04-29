@@ -45,8 +45,14 @@ namespace WebDatabasesMVC.Controllers
         }
 
 
-        public IActionResult Index()
+        [HttpGet]
+        public IActionResult Index([FromQuery] int? Id, string? Username)
         {
+            if (Id != null && Username != null)
+            {
+                ViewBag.Id = Id;
+                ViewBag.Username = Username;
+            }
             return View();
         }
         

@@ -9,6 +9,7 @@ import { CheckBoxClickedEventData } from '../CodesetTrees/codesetTreeCoding.comp
 import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
 import { EventEmitterService } from './EventEmitter.service';
+import { reject } from 'underscore';
 
 
 //see: https://stackoverflow.com/questions/34031448/typescript-typeerror-myclass-myfunction-is-not-a-function
@@ -31,7 +32,7 @@ export class ReviewSetsService extends BusyAwareService implements OnDestroy {
         this.clearSub = this.EventEmitterService.PleaseClearYourDataAndState.subscribe(() => { this.Clear(); });
     }
     ngOnDestroy() {
-        console.log("Destroy search service");
+        console.log("Destroy ReviewSetsService");
         if (this.clearSub != null) this.clearSub.unsubscribe();
     }
     private clearSub: Subscription | null = null;
@@ -500,28 +501,47 @@ export class ReviewSetsService extends BusyAwareService implements OnDestroy {
     public ExecuteItemSetCompleteCommand(cmd: ItemSetCompleteCommand): Promise<boolean> {
         //returns FALSE if something didn't work, error messages get triggered from within
         //updates data whithin this service, but NOT in ItemCodingService, components calling this method should do it, if method returns TRUE;
+        let rSet = this._ReviewSets.find(found => found.ItemSetId == cmd.itemSetId);
+        //get rSet upfront so that when the API call returns it's easy to know if we need to update it or not.
+        //this is because the user could move to a different item while this call is happening...
+        if (rSet == undefined) {
+            this.modalService.GenericErrorMessage("Sorry, the 'apply' operation failed. We could not find the data needed to save the change.<br />"
+                + "Please navigate to the next item and then back, to reload the coding data and then try again. " +
+                "If the problem persists please contact EPPISupport.");
+            return new Promise<boolean>((resolve, reject) => { resolve(false); });
+        }
         this._BusyMethods.push("ExecuteItemSetCompleteCommand");
         return this._httpC.post<ItemSetCompleteCommand>(this._baseUrl + 'api/ItemSetList/ExcecuteItemSetCompleteCommand', cmd).toPromise()
         .then(
             data => {
                 this.RemoveBusy("ExecuteItemSetCompleteCommand");
                 if (data.successful != null && data.successful) {
-                    let rSet = this._ReviewSets.find(found => found.ItemSetId == cmd.itemSetId);
-                    if (rSet) {
+                    if (rSet !== undefined && rSet.ItemSetId == cmd.itemSetId) {
+                        //the rSet identified before calling the API has coding from the same Item that was shown when user clicked "apply", so we can update it
                         rSet.codingComplete = cmd.complete;
                         rSet.itemSetIsLocked = cmd.isLocked;
                     }
                     else {
-                        this.modalService.GenericErrorMessage("Sorry your changes have been saved, but we could not update it here. "
-                            + "Please navigate to the next item and then back, to check if the expected changes did happen. " +
-                            "If the problem persists please contact EPPISupport.");
+                        //the rSet identified before calling the API has coding for a different item, or no coding => user changed item while API call was executed;
+                        //do nothing...
+
+                        //this.modalService.GenericErrorMessage("Sorry your changes have been saved, but we could not update it here. "
+                        //    + "Please navigate to the next item and then back, to check if the expected changes did happen. " +
+                        //    "If the problem persists please contact EPPISupport.");
                         return false;
                     }
                     return true;
                 }
-                else return false;
+                else {
+                    this.modalService.GenericErrorMessage("Sorry, saving your data reported a failure. <br />"
+                        + "Please navigate to the next item and then back, to reload the coding data and then try again. " +
+                        "If the problem persists please contact EPPISupport.");
+                    return false;
+                }
             }, error => {
-                this.modalService.GenericErrorMessage("Sorry, an ERROR occurred when saving your data. Please try again. If the problem persists please contact EPPISupport.");
+                this.modalService.GenericErrorMessage("Sorry, an ERROR occurred when saving your data. <br />"
+                    + "Please navigate to the next item and then back, to reload the coding data and then try again. " +
+                    "If the problem persists please contact EPPISupport.");
                 //this.ItemCodingItemAttributeSaveCommandError.emit(error);
                 //this._IsBusy = false;
                 console.log("Error in ExecuteItemSetCompleteCommand:", error);
@@ -535,7 +555,8 @@ export class ReviewSetsService extends BusyAwareService implements OnDestroy {
             console.log("Error(catch) in ExecuteItemSetCompleteCommand:", catched);
             this.RemoveBusy("ExecuteItemSetCompleteCommand");
             return false;
-            });
+        });
+
     }
 }
 

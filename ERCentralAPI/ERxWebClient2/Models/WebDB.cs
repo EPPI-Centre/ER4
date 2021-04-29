@@ -49,7 +49,7 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(WebDBIdProperty, value);
             }
         }
-        
+
 
         public static readonly PropertyInfo<string> WebDBNameProperty = RegisterProperty<string>(new PropertyInfo<string>("WebDBName", "WebDBName", ""));
         public string WebDBName
@@ -61,7 +61,20 @@ namespace BusinessLibrary.BusinessClasses
             set
             {
                 SetProperty(WebDBNameProperty,
-                    value.Length > 1000 ? value.Substring(0,1000) : value);
+                    value.Length > 1000 ? value.Substring(0, 1000) : value);
+            }
+        }
+        public static readonly PropertyInfo<string> SubtitleProperty = RegisterProperty<string>(new PropertyInfo<string>("Subtitle", "Subtitle", ""));
+        public string Subtitle
+        {
+            get
+            {
+                return GetProperty(SubtitleProperty);
+            }
+            set
+            {
+                SetProperty(SubtitleProperty,
+                    value.Length > 1000 ? value.Substring(0, 1000) : value);
             }
         }
         public static readonly PropertyInfo<string> WebDBDescriptionProperty = RegisterProperty<string>(new PropertyInfo<string>("WebDBDescription", "WebDBDescription", ""));
@@ -295,6 +308,7 @@ namespace BusinessLibrary.BusinessClasses
                             LoadProperty(IsOpenProperty, reader.GetBoolean("IS_OPEN"));
                             LoadProperty(UserNameProperty, reader.GetString("USERNAME"));
                             LoadProperty(WebDBNameProperty, reader.GetString("WEBDB_NAME"));
+                            LoadProperty(SubtitleProperty, reader.GetString("SUBTITLE"));
                             LoadProperty(WebDBDescriptionProperty, reader.GetString("DESCRIPTION"));
                             LoadProperty(CreatedByProperty, reader.GetString("CREATED_BY"));
                             LoadProperty(EditedByProperty, reader.GetString("EDITED_BY"));
@@ -328,7 +342,10 @@ namespace BusinessLibrary.BusinessClasses
 
                     command.Parameters.Add(new SqlParameter("@WebDbName", WebDBName));
                     command.Parameters.Add(new SqlParameter("@Description", WebDBDescription));
-
+                    command.Parameters.Add(new SqlParameter("@Subtitle", Subtitle));
+                    command.Parameters.Add(new SqlParameter("@HeaderImage1Url", HeaderImage1Url));
+                    command.Parameters.Add(new SqlParameter("@HeaderImage2Url", HeaderImage2Url));
+                    command.Parameters.Add(new SqlParameter("@HeaderImage3Url", HeaderImage3Url));
                     SqlParameter par = new SqlParameter("@WebDbId", System.Data.SqlDbType.Int);
                     par.Value = 0;
                     par.Direction = System.Data.ParameterDirection.Output;
@@ -381,6 +398,10 @@ namespace BusinessLibrary.BusinessClasses
 
                     command.Parameters.Add(new SqlParameter("@WebDbName", WebDBName));
                     command.Parameters.Add(new SqlParameter("@Description", WebDBDescription));
+                    command.Parameters.Add(new SqlParameter("@Subtitle", Subtitle));
+                    command.Parameters.Add(new SqlParameter("@HeaderImage1Url", HeaderImage1Url));
+                    command.Parameters.Add(new SqlParameter("@HeaderImage2Url", HeaderImage2Url));
+                    command.Parameters.Add(new SqlParameter("@HeaderImage3Url", HeaderImage3Url));
 
                     SqlParameter par = new SqlParameter("@WebDbId", System.Data.SqlDbType.Int);
                     par.Direction = System.Data.ParameterDirection.InputOutput;//!!Crucial
@@ -445,6 +466,7 @@ namespace BusinessLibrary.BusinessClasses
             returnValue.LoadProperty(IsOpenProperty, reader.GetBoolean("IS_OPEN"));
             returnValue.LoadProperty(UserNameProperty, reader.GetString("USERNAME"));
             returnValue.LoadProperty(WebDBNameProperty, reader.GetString("WEBDB_NAME"));
+            returnValue.LoadProperty(SubtitleProperty, reader.GetString("SUBTITLE"));
             returnValue.LoadProperty(WebDBDescriptionProperty, reader.GetString("DESCRIPTION"));
             returnValue.LoadProperty(CreatedByProperty, reader.GetString("CREATED_BY"));
             returnValue.LoadProperty(EditedByProperty, reader.GetString("EDITED_BY"));

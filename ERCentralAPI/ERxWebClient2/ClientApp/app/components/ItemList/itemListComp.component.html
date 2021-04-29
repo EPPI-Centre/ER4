@@ -161,7 +161,7 @@
             </kendo-grid-column>
         </kendo-grid>-->
         <div style="overflow:auto;" [ngStyle]="{'max-height': Context === 'dedup' ? '45vh' : '80vh' }">
-            <table class=" p-1 table table-striped" #exportItemsTable id="ItemsTable" [ngClass]="{'table-sm' : Context === 'dedup' }"
+            <table class=" p-1 table table-striped" #exportItemsTable id="ItemsTable" [ngClass]="{'table-sm' : Context == 'dedup' }"
                    *ngIf="ShowItemsTable && ItemListService && ItemListService.ItemList && this.ItemListService.ItemList.items && this.ItemListService.ItemList.items.length > 0 && !this.ItemListService.IsBusy">
                 <thead>
                     <tr style="">

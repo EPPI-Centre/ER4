@@ -24,6 +24,7 @@ namespace ERxWebClient2
         {
             Configuration = configuration;
             Logger = logger;
+            Csla.SmartDate.SetDefaultFormatString("dd/MM/yyyy");
             Program.SqlHelper = new SQLHelper((IConfigurationRoot)configuration, logger);
         }
 

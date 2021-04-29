@@ -32,6 +32,7 @@ export class WebDBService extends BusyAwareService implements OnDestroy {
     private clearSub: Subscription | null = null;
 
     @Output() PleaseRedrawTheTree = new EventEmitter();
+    public EppiVisBaseUrl: string = "";
     private _WebDBs: iWebDB[] = [];
     public MissingAttributes: MissingAttribute[] = [];
     public get WebDBs(): iWebDB[] {
@@ -65,17 +66,23 @@ export class WebDBService extends BusyAwareService implements OnDestroy {
     }
     public SelectedNodeData: singleNode | null = null;
 
+    public URLfromWebDB(webDB: iWebDB): string {
+        if (!webDB.isOpen) return this.EppiVisBaseUrl + "login?Id=" + webDB.webDBId + "&Username=" + webDB.userName;
+        else return this.EppiVisBaseUrl + "login/open?webdbid=" + webDB.webDBId.toString();
+    }
+
     public Fetch(): void {
         this._BusyMethods.push("Fetch");
-        this._httpC.get<iWebDB[]>(this._baseUrl + 'api/WebDB/GetWebDBs').subscribe(
+        this._httpC.get<iWebDbListWithUrl>(this._baseUrl + 'api/WebDB/GetWebDBs').subscribe(
             res => {
-                this._WebDBs = res;
-                if (res.length > 0) {
-                    if (this._CurrentDB == null) this.CurrentDB = res[0];
+                this.EppiVisBaseUrl = res.eppiVisBaseUrl;
+                this._WebDBs = res.webDbList;
+                if (res.webDbList.length > 0) {
+                    if (this._CurrentDB == null) this.CurrentDB = res.webDbList[0];
                     else {
                         const ind = this._WebDBs.findIndex((f) => this._CurrentDB != null  && f.webDBId == this._CurrentDB.webDBId);
-                        if (ind == -1) this.CurrentDB = res[0];
-                        else this._CurrentDB = res[ind];
+                        if (ind == -1) this.CurrentDB = res.webDbList[0];
+                        else this._CurrentDB = res.webDbList[ind];
                     }
                 }
                 this.RemoveBusy("Fetch");
@@ -140,6 +147,7 @@ export class WebDBService extends BusyAwareService implements OnDestroy {
         let res = {
             webDBId: toClone.webDBId,
             webDBName: toClone.webDBName,
+            subtitle: toClone.subtitle,
             webDBDescription: toClone.webDBDescription,
             attributeIdFilter: toClone.attributeIdFilter,
             isOpen: toClone.isOpen,
@@ -148,7 +156,11 @@ export class WebDBService extends BusyAwareService implements OnDestroy {
             createdBy: toClone.createdBy,
             editedBy: toClone.editedBy,
             encodedImage1: '',
-            encodedImage2: ''
+            encodedImage2: '',
+            encodedImage3: '',
+            headerImage1Url: toClone.headerImage1Url,
+            headerImage2Url: toClone.headerImage2Url,
+            headerImage3Url: toClone.headerImage3Url
         }
         return res;
     }
@@ -420,11 +432,15 @@ export class WebDBService extends BusyAwareService implements OnDestroy {
         this.MissingAttributes = [];
     }
 }
-
+export interface iWebDbListWithUrl {
+    webDbList: iWebDB[];
+    eppiVisBaseUrl: string;
+}
 
 export interface iWebDB {
     webDBId: number;
     webDBName: string;
+    subtitle: string;
     webDBDescription: string;
     attributeIdFilter: number;
     isOpen: boolean;
@@ -434,6 +450,10 @@ export interface iWebDB {
     editedBy: string;
     encodedImage1: string;
     encodedImage2: string;
+    encodedImage3: string;
+    headerImage1Url: string;
+    headerImage2Url: string;
+    headerImage3Url: string;
 }
 export interface iWebDbReviewSet extends iReviewSet {
     webDBId: number;

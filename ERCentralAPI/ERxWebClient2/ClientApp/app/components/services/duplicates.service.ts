@@ -35,9 +35,9 @@ export class DuplicatesService extends BusyAwareService implements OnDestroy {
         if (this.clearSub != null) this.clearSub.unsubscribe();
     }
     private clearSub: Subscription | null = null;
-
+    private ShowingFilteredGroups: boolean = false;
     public currentCount = 0; public allDone: boolean = false; public ToDoCount = 0;
-    public DuplicateGroups: iReadOnlyDuplicatesGroup[] = [];
+    public DuplicateGroups: PagedDuplicateGroupsList = new PagedDuplicateGroupsList();
     public CurrentGroup: ItemDuplicateGroup | null = null;
     public LocalSort: LocalSort = new LocalSort();
     private waitPeriod = 3;//in minutes... time that people have to wait before we can FetchGroups if last attempt told us "execution still running"
@@ -88,8 +88,9 @@ export class DuplicatesService extends BusyAwareService implements OnDestroy {
 
         return this._http.post<iReadOnlyDuplicatesGroup[]>(this._baseUrl + 'api/Duplicates/FetchGroups',
             body).toPromise().then(result => {
-                this.DuplicateGroups = result;
+                this.DuplicateGroups.WholeList = result;
                 //console.log(result);
+                this.ShowingFilteredGroups = false;
                 this.DoSort();
                 this.ActivateFirstNotCompletedGroup();
                 this.RemoveBusy("FetchGroups");
@@ -123,8 +124,9 @@ export class DuplicatesService extends BusyAwareService implements OnDestroy {
         this._BusyMethods.push("FetchGroupsWithCriteria");
         this._http.post<iReadOnlyDuplicatesGroup[]>(this._baseUrl + 'api/Duplicates/FetchGroupsWithCriteria',
             crit).subscribe(result => {
-                this.DuplicateGroups = result;
+                this.DuplicateGroups.WholeList = result;
                 //console.log(result);
+                this.ShowingFilteredGroups = true;
                 this.DoSort();
                 this.ActivateFirstNotCompletedGroup();
                 this.RemoveBusy("FetchGroupsWithCriteria");
@@ -154,12 +156,23 @@ export class DuplicatesService extends BusyAwareService implements OnDestroy {
             closable: true
         });
     }
-    private ActivateFirstNotCompletedGroup() {
-        if (this.DuplicateGroups.length > 0) {
-            if (this.CurrentGroup == null || this.DuplicateGroups.findIndex(ff => this.CurrentGroup != null && ff.groupId == this.CurrentGroup.groupID) == -1) {
-                const todo = this.DuplicateGroups.findIndex(found => found.isComplete == false);
-                if (todo > 0) this.FetchGroupDetails(this.DuplicateGroups[todo].groupId);
-                else this.FetchGroupDetails(this.DuplicateGroups[0].groupId);
+    public async ActivateFirstNotCompletedGroup(force_it: boolean = false) {
+        if (this.DuplicateGroups.WholeList.length > 0) {
+            if (force_it == true
+                ||
+                this.CurrentGroup == null
+                || this.DuplicateGroups.WholeList.findIndex(ff => this.CurrentGroup != null && ff.groupId == this.CurrentGroup.groupID) == -1
+            ) {
+                const todo = this.DuplicateGroups.WholeList.findIndex(found => found.isComplete == false);
+                if (todo > 0) {
+                    await this.FetchGroupDetails(this.DuplicateGroups.WholeList[todo].groupId);
+                    if (this.DuplicateGroups.HasPages) this.DuplicateGroups.CurrentPage = Math.ceil(todo / this.DuplicateGroups.PageSize);//ensure the activated group appears in the current page
+                }
+                else {
+                    //console.log("ActivateFirstNotCompletedGroup safety", todo);
+                    await this.FetchGroupDetails(this.DuplicateGroups.WholeList[0].groupId);
+                    this.DuplicateGroups.CurrentPage = 1;
+                }
             }
         } else {
             this.CurrentGroup == new ItemDuplicateGroup();
@@ -187,7 +200,7 @@ export class DuplicatesService extends BusyAwareService implements OnDestroy {
                 return this.CurrentGroup;
             });
     }
-    public  MarkUnmarkMemberAsDuplicate(toDo: MarkUnmarkItemAsDuplicate) {
+    public  MarkUnmarkMemberAsDuplicate(toDo: MarkUnmarkItemAsDuplicate): Promise<void> {
         this._BusyMethods.push("MarkUnmarkMemberAsDuplicate");
         return this._http.post<iItemDuplicateGroup>(this._baseUrl + 'api/Duplicates/MarkUnmarkMemberAsDuplicate',
             toDo).toPromise().then(result => {
@@ -208,7 +221,7 @@ export class DuplicatesService extends BusyAwareService implements OnDestroy {
                 //    }
                 //}
                 this.RemoveBusy("MarkUnmarkMemberAsDuplicate");
-                let smallGr = this.DuplicateGroups.find(f => f.groupId == result.groupID);
+                let smallGr = this.DuplicateGroups.WholeList.find(f => f.groupId == result.groupID);
                 this.CurrentGroup = new ItemDuplicateGroup(result);
                 if (smallGr && (this.CurrentGroup.members.length == this.CurrentGroup.members.filter(ff => ff.isChecked == true).length))
                     smallGr.isComplete = true;
@@ -218,10 +231,10 @@ export class DuplicatesService extends BusyAwareService implements OnDestroy {
                 this.RemoveBusy("MarkUnmarkMemberAsDuplicate");
             });
     }
-    public MarkMemberAsMaster(toDo: MarkUnmarkItemAsDuplicate) {
+    public MarkMemberAsMaster(toDo: MarkUnmarkItemAsDuplicate): Promise<void>{
         this._BusyMethods.push("MarkMemberAsMaster");
-        this._http.post<ItemDuplicateGroup>(this._baseUrl + 'api/Duplicates/MarkMemberAsMaster',
-            toDo).subscribe(result => {
+        return this._http.post<ItemDuplicateGroup>(this._baseUrl + 'api/Duplicates/MarkMemberAsMaster',
+            toDo).toPromise().then(result => {
                 //if (this.CurrentGroup) {
                 //    //whole group is not checked anymore!
                 //    let smallGr = this.DuplicateGroups.find(ff => ff.groupId == toDo.groupId);
@@ -245,7 +258,7 @@ export class DuplicatesService extends BusyAwareService implements OnDestroy {
                 //    }
                 //}
                 this.RemoveBusy("MarkMemberAsMaster");
-                let smallGr = this.DuplicateGroups.find(f => f.groupId == result.groupID);
+                let smallGr = this.DuplicateGroups.WholeList.find(f => f.groupId == result.groupID);
                 this.CurrentGroup = new ItemDuplicateGroup(result);
                 if (smallGr) smallGr.isComplete = false;
             }, error => {
@@ -255,13 +268,13 @@ export class DuplicatesService extends BusyAwareService implements OnDestroy {
             });
     }
 
-    public DeleteCurrentGroup(GroupId: number) {
-        if (this.CurrentGroup == null) return;
+    public DeleteCurrentGroup(GroupId: number): Promise<void> {
+        if (this.CurrentGroup == null) return new Promise<void>(() => { });
         else {
             this._BusyMethods.push("DeleteCurrentGroup");
             let toDo = JSON.stringify({ Value: GroupId });
-            this._http.post<number>(this._baseUrl + 'api/Duplicates/DeleteGroup',
-                toDo).subscribe(result => {
+            return this._http.post<number>(this._baseUrl + 'api/Duplicates/DeleteGroup',
+                toDo).toPromise().then(result => {
                     this.RemoveBusy("DeleteCurrentGroup");
                     this.CurrentGroup = null;
                     this.FetchGroups(false);
@@ -274,12 +287,12 @@ export class DuplicatesService extends BusyAwareService implements OnDestroy {
         }
     }
 
-    public DeleteAllGroups(DeleteAllDedupData: boolean) {
+    public DeleteAllGroups(DeleteAllDedupData: boolean): Promise<void> {
         
         this._BusyMethods.push("DeleteAllGroups");
         let toDo = JSON.stringify({ Value: DeleteAllDedupData });
-        this._http.post(this._baseUrl + 'api/Duplicates/DeleteAllGroups',
-            toDo).subscribe((result: any) => {
+        return this._http.post(this._baseUrl + 'api/Duplicates/DeleteAllGroups',
+            toDo).toPromise().then((result: any) => {
                 this.RemoveBusy("DeleteAllGroups");
                 this.CurrentGroup = null;
                 this.FetchGroups(false);
@@ -300,11 +313,11 @@ export class DuplicatesService extends BusyAwareService implements OnDestroy {
         console.log("MarkAutomatically");
         await this.FetchGroups(false);
         //console.log("MarkAutomatically1");
-        if (this.DuplicateGroups.length == 0) {
+        if (this.DuplicateGroups.WholeList.length == 0) {
             this.RemoveBusy("MarkAutomatically");
             return;
         }
-        let ToDo = this.DuplicateGroups.filter(ff => ff.isComplete == false);
+        let ToDo = this.DuplicateGroups.WholeList.filter(ff => ff.isComplete == false);
         this.ToDoCount = ToDo.length;
         while (this.currentCount < this.ToDoCount && this.allDone == false) {
             //console.log("getting group", ToDo[this.currentCount].groupId);
@@ -346,15 +359,15 @@ export class DuplicatesService extends BusyAwareService implements OnDestroy {
         this.RemoveBusy("MarkAutomatically");
         //await Helpers.Sleep(50);
     }
-    public RemoveManualMember(itemId: number) {
-        if (!this.CurrentGroup || this.CurrentGroup.manualMembers.findIndex(ff => ff.itemId == itemId) == -1) return;
+    public RemoveManualMember(itemId: number): Promise<void> {
+        if (!this.CurrentGroup || this.CurrentGroup.manualMembers.findIndex(ff => ff.itemId == itemId) == -1) return new Promise<void>(() => { });
         this._BusyMethods.push("RemoveManualMember");
         let toDo = {
             groupId: this.CurrentGroup.groupID,
             itemId: itemId
         }
-        this._http.post(this._baseUrl + 'api/Duplicates/RemoveManualMember',
-            toDo).subscribe(result => {
+        return this._http.post(this._baseUrl + 'api/Duplicates/RemoveManualMember',
+            toDo).toPromise().then(result => {
                 if (this.CurrentGroup && this.CurrentGroup.groupID == toDo.groupId) {
                     //remove manual member from client!
                     let ind = this.CurrentGroup.manualMembers.findIndex(ff => ff.itemId == itemId);
@@ -370,10 +383,10 @@ export class DuplicatesService extends BusyAwareService implements OnDestroy {
             });
     }
 
-    public AddManualMembers(crit: GroupListSelectionCriteriaMVC) {
+    public AddManualMembers(crit: GroupListSelectionCriteriaMVC): Promise<void> {
         this._BusyMethods.push("AddManualMembers");
-        this._http.post<iItemDuplicateGroup>(this._baseUrl + 'api/Duplicates/AddManualMembers',
-            crit).subscribe(result => {
+        return this._http.post<iItemDuplicateGroup>(this._baseUrl + 'api/Duplicates/AddManualMembers',
+            crit).toPromise().then(result => {
                 let res = new ItemDuplicateGroup(result);
                 this.CurrentGroup = res;
                 this.RemoveBusy("AddManualMembers");
@@ -391,14 +404,83 @@ export class DuplicatesService extends BusyAwareService implements OnDestroy {
                 }
             });
     }
+    public FetchDirtyGroup(IdsList: string): Promise<ItemDuplicateDirtyGroup> {
+        this._BusyMethods.push("FetchDirtyGroup");
+        //await Helpers.Sleep(50);
+        let body = JSON.stringify({ Value: IdsList });
+        return this._http.post<iItemDuplicateDirtyGroup>(this._baseUrl + 'api/Duplicates/FetchDirtyGroup',
+            body).toPromise().then(result => {
+                let res = new ItemDuplicateDirtyGroup(result);
+                this.RemoveBusy("FetchDirtyGroup");
+                return res;
+            }, error => {
+                this.modalService.GenericError(error);
+                this.RemoveBusy("FetchDirtyGroup");
+                    return new ItemDuplicateDirtyGroup({ members: [] });
+            });
+    }
+    public CreateNewGroup(crit: IncomingDirtyGroupMemberMVC[]): Promise<boolean> {
+        this._BusyMethods.push("CreateNewGroup");
+        return this._http.post<iReadOnlyDuplicatesGroup[]>(this._baseUrl + 'api/Duplicates/CreateNewGroup',
+            crit).toPromise().then(result => {
+                if (!this.ShowingFilteredGroups) {
+                    //if we're showing all groups we add the new group to the list
+                    if (result.length == 1) {
+                        //easy: only one group in the current list contains the master of the created group
+                        this.DuplicateGroups.WholeList.unshift(result[0]);
+                        this.NotificationService.show({
+                            content: "Group was created and added on top of the list of groups.",
+                            position: { horizontal: 'center', vertical: 'top' },
+                            animation: { type: 'slide', duration: 400 },
+                            type: { style: 'info', icon: true },
+                            closable: true
+                        });
+                    }
+                    else if (result.length > 1) {
+                        let maxid: number = 0;
+                        for (let gr of result) {
+                            if (gr.groupId > maxid) maxid = gr.groupId;
+                        }
+                        let i: number = result.findIndex(f => f.groupId == maxid);
+                        if (i != -1) {
+                            this.DuplicateGroups.WholeList.unshift(result[i]);
+                            this.NotificationService.show({
+                                content: "Group was created and added on top of the list of groups.",
+                                position: { horizontal: 'center', vertical: 'top' },
+                                animation: { type: 'slide', duration: 400 },
+                                type: { style: 'info', icon: true },
+                                closable: true
+                            });
+                        }
+                    }
+                }
+                else {
+                    //we inform the user that she needs to refresh the results to get to see the new group.
+                    this.NotificationService.show({
+                        content: "Group was created, please click 'refresh' to retrieve it.",
+                        position: { horizontal: 'center', vertical: 'top' },
+                        animation: { type: 'slide', duration: 400 },
+                        type: { style: 'warning', icon: true },
+                        closable: true
+                    });
+                }
+                this.RemoveBusy("CreateNewGroup");
+                return true;
 
+            }, error => {
+                    console.log("FetchGroups error", error, crit);
+                    this.RemoveBusy("CreateNewGroup");
+                    this.modalService.GenericError(error);
+                    return false;
+            });
+    }
     public DoSort() {
         //console.log("doSort", this.LocalSort);
-        if (this.DuplicateGroups.length == 0 || this.LocalSort.SortBy == "") return;
-        for (let property of Object.getOwnPropertyNames(this.DuplicateGroups[0])) {
+        if (this.DuplicateGroups.WholeList.length == 0 || this.LocalSort.SortBy == "") return;
+        for (let property of Object.getOwnPropertyNames(this.DuplicateGroups.WholeList[0])) {
             //console.log("doSort2", property);
             if (property == this.LocalSort.SortBy) {
-                this.DuplicateGroups.sort((a: any, b: any) => {
+                this.DuplicateGroups.WholeList.sort((a: any, b: any) => {
                     if (this.LocalSort.Direction) {
                         if (a[property] > b[property]) {
                             return 1;
@@ -430,7 +512,7 @@ export class DuplicatesService extends BusyAwareService implements OnDestroy {
         this.allDone = true;
         this.currentCount = 0;
         this.ToDoCount = 0;
-        this.DuplicateGroups = [];
+        this.DuplicateGroups.WholeList = [];
         this.CurrentGroup = null;
         this.LocalSort = new LocalSort();
     }
@@ -596,6 +678,148 @@ export class MarkUnmarkItemAsDuplicate {
 export class GroupListSelectionCriteriaMVC {
     public groupId: number = 0;
     public itemIds: string = "0";
+}
+
+export interface iItemDuplicateDirtyGroup {
+    members: ItemDuplicateDirtyGroupMember[];
+}
+export class ItemDuplicateDirtyGroup {
+    constructor(iGroup: iItemDuplicateDirtyGroup) {
+        this.members = iGroup.members;
     }
+    public getMaster(): ItemDuplicateDirtyGroupMember | null{
+        for(let gm of this.members)
+        {
+            if (gm.isMaster) return gm;
+        }
+        return null;
+    }
+    public setMaster(ID: number): boolean {
+        let canDo: boolean = false;
+        for(let m of this.members)
+        {
+            if (m.itemId == ID && m.isAvailable) {
+                canDo = true;
+                break;
+            }
+        }
+        if (!canDo) return false;
+        let chk:number = 0;
+        for (let m of this.members)
+        {
+            if (m.itemId == ID && m.isAvailable) {
+                m.isMaster = true;
+                chk++;
+            }
+            else if (m.isMaster) {
+                m.isMaster = false;
+                chk++;
+            }
+            if (chk == 2) return true;
+        }
+        return false;
+    }
+    public get MembersOnly(): ItemDuplicateDirtyGroupMember[] {
+        return this.members.filter(f => f.isMaster == false);
+    } 
+    public get IsUsable(): boolean
+    {
+        let countM: number = 0;
+        let countValidMembers: number  = 0;
+        for(let m of this.members)
+        {
+            if (m.isMaster) countM++;
+            if (m.isAvailable) countValidMembers++;
+        }
+        if (countM == 1 && countValidMembers > 1) return true;
+        return false;
+    }
+    public get HasExportedMembers(): boolean {
+        for (let m of this.members) {
+            if (m.isExported) return true;
+        }
+        return false;
+    }
+    members: ItemDuplicateDirtyGroupMember[];
+}
+export interface ItemDuplicateDirtyGroupMember {
+    itemId: number;
+    title: string;
+    parentTitle: string;
+    shortTitle: string;
+    year: string;
+    month: string;
+    authors: string;
+    parentAuthors: string;
+    isMaster: boolean;
+    isExported: boolean;
+    isEditable: boolean;
+    codedCount: number;
+    docCount: number;
+    source: string;
+    typeName: string;
+    relatedGroupsCount: number;
+    isAvailable: boolean;
+    propertiesConverter: number;
+}
+export class IncomingDirtyGroupMemberMVC {
+    itemId: number = -1;
+    isMaster: boolean = false;
+}
+
+export class PagedDuplicateGroupsList {
+
+    private _WholeList: iReadOnlyDuplicatesGroup[] = [];
+    private _TotPages: number = -1;
+    private _PageSize: number = 1000;
+    public get WholeList(): iReadOnlyDuplicatesGroup[] {
+        return this._WholeList;
+    }
+    public set WholeList(list: iReadOnlyDuplicatesGroup[]) {
+        this.CurrentPage = 1;
+        this._TotPages = -1;
+        this._WholeList = list;
+    }
+    public get PageSize(): number {
+        return this._PageSize;
+    }
+    public set PageSize(n: number) {
+        this._PageSize = n;
+        this._TotPages = -1;
+    }
+    public get TotPages(): number {
+        if (this._TotPages == -1) {
+            if (this.WholeList.length == 0) this._TotPages = 0;
+            else this._TotPages = Math.ceil(this.WholeList.length / this.PageSize);
+        }
+        return this._TotPages;
+    }
+    public CurrentPage: number = 1;
+    public get PagedList(): iReadOnlyDuplicatesGroup[] {
+        if (this.WholeList.length <= this.PageSize) return this.WholeList;
+        const StartIndex: number = (this.CurrentPage - 1) * this.PageSize;
+        if (this.CurrentPage !== this.TotPages) {
+            return this.WholeList.slice(StartIndex, StartIndex + this.PageSize);
+        } else {
+            return this.WholeList.slice(StartIndex);
+        }
+    }
+    public PageUp() {
+        if (this.CurrentPage < this.TotPages) this.CurrentPage++;
+    }
+    public PageDown() {
+        if (this.CurrentPage > 1) this.CurrentPage--;
+    }
+    public get CanPageUp(): boolean {
+        return this.CurrentPage < this.TotPages;
+    }
+    public get CanPageDown(): boolean {
+        return this.CurrentPage > 1;
+    }
+    public get HasPages(): boolean {
+        return this.TotPages > 1;
+    }
+}
+    
 
 

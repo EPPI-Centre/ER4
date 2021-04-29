@@ -41,16 +41,25 @@
         </ng-template>
 
         <div *ngIf="EditingDB == null && CurrentDB !== null" class="bg-light rounded">
-            <div class="row m-0 p-0 " style="" >
-                <img *ngIf="CurrentDB.encodedImage1 != ''" src="data:image/jpg;base64,{{CurrentDB.encodedImage1}}" alt="image1" class="  p-0 ml-0 mr-auto my-auto" style="max-height: 100px; object-fit: cover;" /> 
-                <div class="col-6 row p-0 mx-auto my-0">
-                    <h2 class=" p p-0 mx-auto my-auto ">&nbsp;{{CurrentDB.webDBName}}</h2>
+            <div class="row m-0 px-0 py-1" style="background-image: linear-gradient( -45deg, rgb(6, 65, 142), rgb(21, 114, 232)) !important;">
+                <div class="col-1 p-0 mx-auto my-0">
+                    &nbsp;
                 </div>
-                <img *ngIf="CurrentDB.encodedImage2 != ''" src="data:image/jpg;base64,{{CurrentDB.encodedImage2}}" alt="image2" class="  p-0 mr-0 ml-auto my-auto" style="max-height: 100px; object-fit: cover;" />
+                <div class="col-6 p-0 mx-auto my-0">
+                    <h3 class="text-white ml-3 pb-1">{{CurrentDB.webDBName}}</h3>
+                    <h6 class="text-white ml-3 op-7 mb-2">{{CurrentDB.subtitle}}</h6>
+                </div>
+                <div class="col-5 mx-0 pl-0 pr-3 row">
+                    <img *ngIf="CurrentDB.encodedImage1 != ''" src="data:image/jpg;base64,{{CurrentDB.encodedImage1}}" alt="image1" 
+                         style="max-height: 60px; object-fit: cover;" class="pb-2 my-auto ml-auto" />
+                
+                    <img *ngIf="CurrentDB.encodedImage2 != ''" src="data:image/jpg;base64,{{CurrentDB.encodedImage2}}" alt="image2" 
+                         style="max-height: 60px; object-fit: cover;" class="pb-2 my-auto ml-auto" />
+                </div>
             </div>
             <div *ngIf="CanWrite" class="w-100 m-0 p-0 text-center">
                 <button class="btn btn-outline-success btn-sm ml-1 mb-1" (click)="Edit(CurrentDB)" [disabled]="CurrentDB==null || EditingSomething">
-                    Edit
+                    Edit!
                 </button>
                 <button class="btn btn-outline-danger btn-sm ml-1 mb-1" (click)="DeleteDB(CurrentDB)" [disabled]="CurrentDB==null || EditingSomething">
                     <span class="k-icon k-i-delete "></span>
@@ -83,12 +92,22 @@
                 </div>
             </div>
             <div class="row col-12 p-1 mx-0 mt-2 border-bottom border-info">
+                <div class="col-12 row m-0 p-1 ">
+                    <div class="col-auto p-1 small">
+                        Subtitle:
+                    </div>
+                    <div class="rounded bg-white col w-100 px-1">
+                        {{CurrentDB.subtitle}}
+                    </div>
+                </div>
+            </div>
+            <div class="row col-12 p-1 mx-0 mt-2 border-bottom border-info">
                 <div class="col-12 col-sm-9 row m-0 p-0">
                     <div class="col-auto">
                         Description:
                     </div>
                     <div class="rounded bg-white col w-100 border border-dark" style="max-height:400px;overflow:auto;" [innerHTML]="CurrentDB.webDBDescription">
-                        
+
                     </div>
                 </div>
                 <div class="col-12 col-sm-3 row m-0 p-0">
@@ -115,63 +134,138 @@
                     </div>
                 </div>
             </div>
-            
+            <div class="row col-12 p-1 mx-0 mt-0 border-bottom border-info">
+                <div class="mx-auto p-1">
+                    Public URL:
+                    <a href="{{VisitURL}}" target="_blank">{{VisitURL}}</a>
+                    <span *ngIf="!CurrentDB.isOpen" class="alert-warning mx-1 px-1 small border border-warning rounded">Login required!</span>
+                </div>
+            </div>
+            <div *ngIf="CurrentDB.headerImage1Url != ''" class="row col-12 p-1 mx-0 mt-2 border-bottom border-info">
+                <div class="col-12 row m-0 p-1 ">
+                    <div class="col-auto p-1 small">
+                        Image 1 URL:
+                    </div>
+                    <div class="rounded bg-white col w-100 px-1">
+                        <a class="p-1 w-100" href="{{CurrentDB.headerImage1Url}}" target="_blank">
+                            {{CurrentDB.headerImage1Url}}
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div *ngIf="CurrentDB.headerImage2Url != ''" class="row col-12 p-1 mx-0 mt-2 border-bottom border-info">
+                <div class="col-12 row m-0 p-1">
+                    <div class="col-auto p-1 small">
+                        Image 2 URL:
+                    </div>
+                    <div class="rounded bg-white col w-100 px-1">
+                        <a class="p-1 w-100" href="{{CurrentDB.headerImage2Url}}" target="_blank">
+                            {{CurrentDB.headerImage2Url}}
+                        </a>
+                    </div>
+                </div>
+            </div>
         </div>
         <div *ngIf="EditingDB !== null" class="bg-light rounded">
             <div class="w-100 m-0 p-0 text-center">
                 <button class="btn btn-outline-dark btn-sm ml-1 mb-1" (click)="CancelEdit()">Cancel</button>
                 <button class="btn btn-outline-danger btn-sm ml-1 mb-1" [disabled]="!CanSave" (click)="Save()">Save</button>
+                <div *ngIf="!CanSave" class="m-0 p-0 text-center">
+                    <span class="alert-danger rounded small border border-danger px-1">{{CantSaveMessage}}</span>
+                </div>
             </div>
-            <div *ngIf="!ShowUpload && CanWrite" class="row ml-2 bg-white mr-1 p-0">
-                <button class="btn btn-outline-primary btn-sm" (click)="ShowUpload = true">Edit Images</button> <div class="ml-1 my-auto">(Upload/change and/or delete)</div>
-            </div>
-            <div *ngIf="ShowUpload" class="row ml-2 bg-white mr-1 p-0">
-                <kendo-upload class="" [autoUpload]="true"
-                              [multiple]="false"
-                              [saveUrl]="uploadSaveUrl"
-                              [restrictions]="uploadRestrictions"
-                              (upload)="uploadEventHandler($event)"
-                              (complete)="completeEventHandler($event)"
-                              >
-                </kendo-upload>
-                <div *ngIf="CurrentDB.encodedImage1 != '' || CurrentDB.encodedImage2 != ''" class="row m-0 p-0 col">
-                    <div class="col-auto">
-                        <div class="mr-1 text-right">
-                            Upload for Image 1 <input type="radio" name="imageDest" [(ngModel)]="isUploadImage1" [value]="true" />
+            <div class=" row m-2 p-1 rounded border-icon border">
+                <div class="row col-12 mx-0 mb-1 font-weight-bold">
+                    <div class="mx-auto">Logos and Images</div>
+                    <div *ngIf="!ShowUpload && CurrentDB && EditingDB && EditingDB.webDBId == CurrentDB.webDBId  && CurrentDB.encodedImage1 != '' ">
+                        <img src="data:image/jpg;base64,{{CurrentDB.encodedImage1}}" alt="image1" class="  p-0 ml-0 mr-auto my-auto" style="max-height: 100px; object-fit: cover;" />
+                    </div>
+                    <div *ngIf="!ShowUpload && CurrentDB && EditingDB && EditingDB.webDBId == CurrentDB.webDBId && CurrentDB.encodedImage2 != '' ">
+                        <img src="data:image/jpg;base64,{{CurrentDB.encodedImage2}}" alt="image2" class="  p-0 ml-0 mr-auto my-auto" style="max-height: 100px; object-fit: cover;" />
+                    </div>
+                </div>
+                <div *ngIf="!ShowUpload && CanWrite && EditingDB && EditingDB.webDBId > 0" class="row ml-2 bg-white mr-1 p-0">
+                    <button class="btn btn-outline-primary btn-sm" (click)="ShowUpload = true">Edit Images</button> <div class="ml-1 my-auto">(Upload/change and/or delete)</div>
+                </div>
+                <div *ngIf="!ShowUpload && CanWrite && (!EditingDB || EditingDB.webDBId < 1)" class="row m-2 rouded small alert-info p-1">
+                    To add logos to a new EPPI-Visualiser DB, you need to&nbsp;<strong>give it a name (at least) and click "save"</strong>. After saving (a DB now exists), you can click "Edit" again and upload logos to the new visualisation.
+                </div>
+                <div *ngIf="ShowUpload" class="row col-12 mx-0 bg-white p-0 mb-1">
+                    <div class="row mx-0 col-6">
+                        <div class="col-auto">
+                            <div class="mr-1 text-right">
+                                Upload for Image 1 <input type="radio" name="imageDest" [(ngModel)]="isUploadImage1" [value]="true" />
+                            </div>
+                            <div class="mr-1 text-right">
+                                Or Image 2 <input type="radio" name="imageDest" [(ngModel)]="isUploadImage1" [value]="false" />
+                            </div>
                         </div>
-                        <div class="mr-1 text-right">
-                            Or Image 2 <input type="radio" name="imageDest" [(ngModel)]="isUploadImage1" [value]="false" />
+                        <kendo-upload class="" [autoUpload]="false"
+                                      [multiple]="false"
+                                      [saveUrl]="uploadSaveUrl"
+                                      (select)="selectEventHandler($event)"
+                                      [restrictions]="uploadRestrictions"
+                                      (upload)="uploadEventHandler($event)"
+                                      (clear)="clearUploadImageEventHandler()"
+                                      (complete)="completeEventHandler($event)">
+                        </kendo-upload>
+                    </div>
+
+                    <div *ngIf="CurrentDB.encodedImage1 != '' || CurrentDB.encodedImage2 != ''" class="row mx-0 col-6">
+
+
+                        <div class="mx-1">
+                            <div class="col-12 mx-0">
+                                Image 1:
+                                <img *ngIf="CurrentDB.encodedImage1 != ''" src="data:image/jpg;base64,{{CurrentDB.encodedImage1}}"
+                                     alt="image1" class=" col-auto p-1 m-1 border border-dark "
+                                     style=" object-fit: cover; max-width:200px;" />
+                                <button *ngIf="CurrentDB.encodedImage1 != ''" class="btn btn-outline-danger btn-sm pt-0 pb-1 px-0" (click)="DeleteImage(1)" [disabled]="!CanWrite">
+                                    <span class="k-icon k-i-delete "></span>
+                                </button>
+                            </div>
+                            <div class="col-12 mx-0">
+                                Image 2:
+                                <img *ngIf="CurrentDB.encodedImage2 != ''" src="data:image/jpg;base64,{{CurrentDB.encodedImage2}}"
+                                     alt="image1" class=" col-auto p-1 m-1 border border-dark "
+                                     style=" object-fit: cover; max-width:200px;" />
+                                <button *ngIf="CurrentDB.encodedImage2 != ''" class="btn btn-outline-danger btn-sm pt-0 pb-1 px-0" (click)="DeleteImage(2)" [disabled]="!CanWrite">
+                                    <span class="k-icon k-i-delete "></span>
+                                </button>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div *ngIf="imagePreview" class="row m-0 p-0 col-12">
+                        <div class="col-12">Image preview:</div>
+                        <div class="mx-auto border border-primary" style="overflow:auto; max-height:25vh; max-width:90vw;">
+                            <img #ImagePreview
+                                 [src]="imagePreview.src"
+                                 alt="image preview"
+                                 style="margin: 10px;" />
+                        </div>
+                        <div class="mx-auto">
+                            <div>Height: {{ImagePreviewH}}  <span *ngIf="ImagePreviewH > MaxImgH" class="mx-1 small alert-danger">Too high (max:{{MaxImgH}}px)</span></div>
+                            <div>Width: {{ImagePreviewW}} <span *ngIf="ImagePreviewW > MaxImgW" class="mx-1 small alert-danger">Too wide (max:{{MaxImgW}}px)</span></div>
+                            <div *ngIf="!ImageToUploadisGood" class="alert-danger">Can't upload this image</div>
                         </div>
                     </div>
-                    <div class="col row">
-                        <div class="mx-1 text-center">
-                            Image 1:
-                            <img *ngIf="CurrentDB.encodedImage1 != ''" src="data:image/jpg;base64,{{CurrentDB.encodedImage1}}"
-                                 alt="image1" class=" col-1 p-1 m-1 border border-dark "
-                                 style=" object-fit: cover;" />
-                            <button *ngIf="CurrentDB.encodedImage1 != ''" class="btn btn-outline-danger btn-sm pt-0 pb-0 px-0" (click)="DeleteImage(1)" [disabled]="!CanWrite">
-                                <span class="k-icon k-i-delete "></span>
-                            </button>
-                            Image 2:
-                            <img *ngIf="CurrentDB.encodedImage2 != ''" src="data:image/jpg;base64,{{CurrentDB.encodedImage2}}"
-                                 alt="image1" class=" col-1 p-1 m-1 border border-dark "
-                                 style=" object-fit: cover;" />
-                            <button *ngIf="CurrentDB.encodedImage2 != ''" class="btn btn-outline-danger btn-sm pt-0 pb-0 px-0" (click)="DeleteImage(2)" [disabled]="!CanWrite">
-                                <span class="k-icon k-i-delete "></span>
-                            </button>
+                    <div class="row mx-0 mt-1 p-0 col-12">
+                        <div class="col-auto m-0 px-1 row align-items-center">
+                            <button class="btn btn-outline-info btn-sm  m-2" (click)="ShowUpload = false; imagePreview = null">Cancel</button>
                         </div>
-                        <div>
-                            
+                        <div class="col m-0 p-0">
+                            <div class="p-1 mx-1 rounded small alert-info">
+                                <strong>Note:</strong> logos are cached in the Visualisation site, changes might take up to 24h to become visible.
+                                To change an image <em>immediately</em> you can: (1) delete the current image; (2) visit the Visualisation "open/login" url, the deleted logo should not be shown; (3) upload the new image.
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="">
-                    <button class="btn btn-outline-info btn-sm  m-2" (click)="ShowUpload = false">Cancel</button>
-                </div>
             </div>
-            <div *ngIf="!CanSave" class="w-100 m-0 p-0 text-center">
-                <span class="alert-danger rounded small border border-danger px-1">{{CantSaveMessage}}</span>
-            </div>
+
+
+            
             <div class="row col-12 p-1 mx-0 mt-2 border-bottom border-info">
                 <div class="col-12 col-sm-2 row m-0 p-0">
                     <div class="col-auto">
@@ -241,6 +335,19 @@
                     </div>
                 </div>
             </div>
+
+
+            <div  class="row col-12 p-1 mx-0 mt-2 border-bottom border-info">
+                <div class="col-12 row m-0 p-1">
+                    <div class="col-auto p-1">
+                        SubTitle:
+                    </div>
+                    <div class="rounded bg-white col w-100 px-1">
+                        <input class="p-1 w-100" type="text" maxlength="1000" [(ngModel)]="EditingDB.subtitle" />
+                    </div>
+                </div>
+            </div>
+
             <div class="row col-12 p-1 mx-0 mt-2 border-bottom border-info">
                 <div class="col-12 col-sm-9 row m-0 p-0">
                     <div class="col-auto">
@@ -252,23 +359,23 @@
                         </ckeditor>
                         <!--<textarea class="p-1 w-100" type="text" [(ngModel)]="EditingDB.webDBDescription" rows="4"></textarea>-->
                         <!--<ckeditor [(ngModel)]="EditingDB.webDBDescription"
-                          [config]="{uiColor: '#bbbbbb'
-                                    }"
-                          [readonly]="false"
-                          debounce="500">
-                        </ckeditor>
+                  [config]="{uiColor: '#bbbbbb'
+                            }"
+                  [readonly]="false"
+                  debounce="500">
+                </ckeditor>
 
-                        (change)="onChange($event)"
-                        (editorChange)="onEditorChange($event)"
-                        (ready)="onReady($event)"
-                        (focus)="onFocus($event)"
-                        (blur)="onBlur($event)"
-                        (contentDom)="onContentDom($event)"
-                        (fileUploadRequest)="onFileUploadRequest($event)"
-                        (fileUploadResponse)="onFileUploadResponse($event)"
-                        (paste)="onPaste($event)"
-                        (drop)="onDrop($event)"
-                         -->
+                (change)="onChange($event)"
+                (editorChange)="onEditorChange($event)"
+                (ready)="onReady($event)"
+                (focus)="onFocus($event)"
+                (blur)="onBlur($event)"
+                (contentDom)="onContentDom($event)"
+                (fileUploadRequest)="onFileUploadRequest($event)"
+                (fileUploadResponse)="onFileUploadResponse($event)"
+                (paste)="onPaste($event)"
+                (drop)="onDrop($event)"
+                 -->
                     </div>
                 </div>
                 <div class="col-12 col-sm-3 row m-0 p-0">
@@ -285,7 +392,13 @@
                     </div>
                 </div>
             </div>
-            <div *ngIf="!EditingDB.isOpen" class="row col-12 p-1 mx-0 mt-2 border-bottom border-info">
+            <div *ngIf="!EditingDB.isOpen" class="row col-12 p-1 mx-0 mt-1 border-bottom border-info">
+                <div class="col-12 small m-0 p-0">
+                    <div class="alert-info mx-3 my-1 py-1 px-2">
+                        Username is mandatory and needs to be at least 4 characters long. It is not case-sensitive.
+                        Passwords are case-sensitive and need to be at least 6 characters long.
+                    </div>
+                </div>
                 <div class="col-12 col-sm-6 row m-0 p-0">
                     <div class="col-auto">
                         Username:
@@ -306,6 +419,26 @@
                     </div>
                 </div>
 
+            </div>
+            <div *ngIf="CurrentDB.encodedImage1 != ''" class="row col-12 p-1 mx-0 mt-2 border-bottom border-info">
+                <div class="col-12 row m-0 p-1">
+                    <div class="col-auto p-1">
+                        Image 1 URL:
+                    </div>
+                    <div class="rounded bg-white col w-100 px-1">
+                        <input class="p-1 w-100" type="text" maxlength="1000" [(ngModel)]="EditingDB.headerImage1Url" />
+                    </div>
+                </div>
+            </div>
+            <div *ngIf="CurrentDB.encodedImage2 != ''" class="row col-12 p-1 mx-0 mt-2 border-bottom border-info">
+                <div class="col-12 row m-0 p-1">
+                    <div class="col-auto p-1">
+                        Image 2 URL:
+                    </div>
+                    <div class="rounded bg-white col w-100 px-1">
+                        <input class="p-1 w-100" type="text" maxlength="1000" [(ngModel)]="EditingDB.headerImage2Url" />
+                    </div>
+                </div>
             </div>
         </div>
 

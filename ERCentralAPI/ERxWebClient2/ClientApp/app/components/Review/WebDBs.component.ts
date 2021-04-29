@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, OnDestroy, ViewChild, Input, Output, EventEmitter, AfterViewInit } from '@angular/core';
+import { Component, Inject, OnInit, OnDestroy, ViewChild, Input, Output, EventEmitter, AfterViewInit, ElementRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { WebDBService, iWebDB, iWebDbReviewSet, WebDbReviewSet, MissingAttribute } from '../services/WebDB.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
@@ -7,7 +7,9 @@ import { ReviewSetsService, SetAttribute, ReviewSet } from '../services/ReviewSe
 import { codesetSelectorComponent } from '../CodesetTrees/codesetSelector.component';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 import { forEach } from '@angular/router/src/utils/collection';
-import { FileRestrictions, UploadEvent } from '@progress/kendo-angular-upload';
+import { FileRestrictions, UploadEvent, SelectEvent } from '@progress/kendo-angular-upload';
+import { Observable } from 'rxjs';
+import { Image } from '@progress/kendo-drawing';
 
 @Component({
 	selector: 'WebDBsComp',
@@ -179,12 +181,17 @@ export class WebDBsComponent implements OnInit, OnDestroy, AfterViewInit {
 	public get EditingSomething(): boolean {
 		return this.EditingDB != null || this.EditingSetAttribute != null || this.EditingWebDbReviewSet != null;
 	}
+	public get VisitURL(): string {
+		if (this.CurrentDB) return this.WebDBService.URLfromWebDB(this.CurrentDB);
+		else return "";
+    }
 
 	Edit(item: iWebDB | null) {
 		if (!item) {
 			item = {
 				webDBId: 0,
 				webDBName: '',
+				subtitle: '',
 				webDBDescription: '',
 				attributeIdFilter: 0,
 				isOpen: true,
@@ -193,7 +200,11 @@ export class WebDBsComponent implements OnInit, OnDestroy, AfterViewInit {
 				createdBy: '',
 				editedBy: '',
 				encodedImage1: '',
-				encodedImage2: ''
+				encodedImage2: '',
+				encodedImage3: '',
+				headerImage1Url: '',
+				headerImage2Url: '',
+				headerImage3Url: ''
 			};
         }
 		this.EditingDB = this.WebDBService.CloneWebDBforEdit(item);
@@ -203,6 +214,8 @@ export class WebDBsComponent implements OnInit, OnDestroy, AfterViewInit {
 		this.EditingDB = null;
 		this.EditingFilter = false;
 		this.isCollapsedFilterCode = false;
+		this.imagePreview = null;
+		this.ShowUpload = false;
         //this.isExpanded = false;
 	}
 	ShowDBSetting(db: any) {
@@ -270,21 +283,81 @@ export class WebDBsComponent implements OnInit, OnDestroy, AfterViewInit {
 		this.CancelEdit();
 	}
 
-	public completeEventHandler() {
-		this.ShowUpload = false;
-		this.WebDBService.Fetch();
-		//this.ItemDocsService.Refresh();
-		//this.log(`All files processed`);
+	
+	public imagePreview: any | null = null;
+	@ViewChild('ImagePreview') ImagePreviewEl!: ElementRef;
+	public readonly MaxImgW: number = 500;
+	public readonly MaxImgH: number = 150;
+	public ImageToUploadisGood: boolean = false;
+	public get ImagePreviewH(): number {
+		if (this.ImagePreviewEl) {
+			return this.ImagePreviewEl.nativeElement.offsetHeight;
+		}
+		return 0;
 	}
+
+	public get ImagePreviewW(): number {
+		if (this.ImagePreviewEl) {
+			return this.ImagePreviewEl.nativeElement.offsetWidth;
+		}
+		return 0;
+	}
+
+	public selectEventHandler(e: SelectEvent): void {
+		const that = this;
+
+		e.files.forEach((file) => {
+			console.log(`File selected: ${file.name}`);
+
+			if (!file.validationErrors) {
+				const reader = new FileReader();
+
+				reader.onload = function (ev) {
+					if (ev.target) {
+						const image = {
+							src: ev.target['result'],
+							uid: file.uid
+						};
+
+						that.imagePreview = image;
+						setTimeout(() => {
+							const w = that.ImagePreviewW;
+							const h = that.ImagePreviewH;
+							that.ImageToUploadisGood = true;
+							if (w == 0 || w > that.MaxImgW) that.ImageToUploadisGood = false;
+							else if (h == 0 || h > that.MaxImgH) that.ImageToUploadisGood = false;
+						}, 100);
+					}
+				};
+				if (file && file.rawFile) reader.readAsDataURL(file.rawFile);
+			}
+		});
+	}
+	clearUploadImageEventHandler() {
+		this.imagePreview = null;
+    }
+
 	uploadEventHandler(e: UploadEvent) {
-		if (this.EditingDB) {
+		if (this.EditingDB && this.EditingDB.webDBId > 0 && this.ImageToUploadisGood) {
 			e.data = {
 				webDbId: this.EditingDB.webDBId,
 				imageNumber: this.isUploadImage1 ? 1 : 2
 			};
-		} else e.preventDefault();
-		console.log("uploading", e.data);
+			//console.log("uploading", e.data);
+		} else {
+			this.imagePreview = null;
+			e.preventDefault();
+		}
 	}
+
+	public completeEventHandler() {
+		this.ShowUpload = false;
+		this.WebDBService.Fetch();
+		this.imagePreview = null;
+		//this.ItemDocsService.Refresh();
+		//this.log(`All files processed`);
+	}
+
 	DeleteImage(imageN: number) {
 		if (this.CurrentDB) this.WebDBService.DeleteHeaderImage(imageN);
     }
