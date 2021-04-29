@@ -268,12 +268,37 @@ namespace BusinessLibrary.BusinessClasses
                     ReScore();
                 }
 #endif
+                List<ItemDuplicateGroupMember> goneWrong = new List<ItemDuplicateGroupMember>();
                 foreach (ItemDuplicateGroupMember o in this.Members)
                 {
                     if (o.IsDirty)
                     {
                         toSave = true;
-                        ItemDuplicateGroupMember oo = o.Save(true);
+                        try
+                        {
+                            ItemDuplicateGroupMember oo = o.Save(true);
+                        }
+                        catch (Exception e)
+                        {//we should log it in DB, so that it will work both in ER4 and ER-Web.
+                            goneWrong.Add(o);//we keep track of what member(s) didn't save properly...
+                            this.LogException(e, ri.UserId, o, true);
+                        }
+                    }
+                }
+                if (goneWrong.Count > 0)
+                {
+                    //if something went wrong and an exception was triggered, we'll try saving the changes for the members where saving failed (once)
+                    foreach (ItemDuplicateGroupMember o in goneWrong)
+                    {
+                        try
+                        {
+                            ItemDuplicateGroupMember oo = o.Save(true);
+                        }
+                        catch (Exception e)
+                        {
+                            //we should log it, in DB, so that it will work both in ER4 and ER-Web.
+                            this.LogException(e, ri.UserId, o, false);
+                        }
                     }
                 }
                 if (toSave)
@@ -300,6 +325,32 @@ namespace BusinessLibrary.BusinessClasses
                 //System.Threading.Thread.Sleep(2000);
                 Members.Clear(); 
                 DataPortal_Fetch(new SingleCriteria<ItemDuplicateGroup, int>(this.GroupID));
+            }
+        }
+        private void LogException(Exception e, int ContactId, ItemDuplicateGroupMember member, bool firstAttempt)
+        {
+            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+            {
+                connection.Open();
+                using (SqlCommand command = new SqlCommand("st_LogReviewJob", connection))
+                {
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@ReviewId", RevID));
+                    command.Parameters.Add(new SqlParameter("@ContactId", ContactId));
+                    command.Parameters.Add(new SqlParameter("@JobType", "Save Changes to Duplicates group"));
+                    command.Parameters.Add(new SqlParameter("@CurrentState", "Failure"));
+                    command.Parameters.Add(new SqlParameter("@Success", false));
+                    string msg = "Exception thrown when saving changes to group member" 
+                                + (firstAttempt ? " (1st try)" : " (2nd try)") + ". Group ID: " + this.GroupID
+                                + ". Group Member ID: " + member.ItemDuplicateId + " (ItemId: " + member.ItemId + "). "
+                                + "IsChecked: " + member.IsChecked.ToString() + "; "
+                                + "IsDuplicate: " + member.IsDuplicate.ToString() + "; "
+                                + "IsMaster: " + member.IsMaster.ToString() + ". "
+                                + "ERROR: " + e.Message;
+                    command.Parameters.Add(new SqlParameter("@JobMessage", msg));
+                    command.ExecuteNonQuery();
+                }
+                connection.Close();
             }
         }
         private void ReScore()
