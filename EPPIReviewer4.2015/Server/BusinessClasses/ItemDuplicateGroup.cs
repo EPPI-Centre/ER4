@@ -183,7 +183,8 @@ namespace BusinessLibrary.BusinessClasses
         {
             ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
             RevID = ri.ReviewId;
-            bool toSave = false; 
+            bool toSave = false;
+            Exception LastCaughtException = null;
             if (AddGroupID != 0)
             {
                 toSave = true;
@@ -298,6 +299,7 @@ namespace BusinessLibrary.BusinessClasses
                         {
                             //we should log it, in DB, so that it will work both in ER4 and ER-Web.
                             this.LogException(e, ri.UserId, o, false);
+                            LastCaughtException = e;
                         }
                     }
                 }
@@ -323,8 +325,16 @@ namespace BusinessLibrary.BusinessClasses
                 //it seems safer to simply reload the whole group before sending it back, alternatively we could replicate some of the the data collection in st_ItemDuplicateUpdateTbItemReview
                 // and in this method to re-load the group data directly from/in st_ItemDuplicateUpdateTbItemReview, performance wise, this alternative way is probably better than what follows.
                 //System.Threading.Thread.Sleep(2000);
+                if (LastCaughtException != null)
+                {
+                    //we get in here _only_ if an exception was thrown, caught and not compensated for, so we throw it "after" processing all that we could process.
+                    //this ensures the client gets a chance to signal the problem to the user.
+                    //if an exception was thrown but we could retry successfully, then we don't need the user to know.
+                    throw LastCaughtException;
+                }
                 Members.Clear(); 
                 DataPortal_Fetch(new SingleCriteria<ItemDuplicateGroup, int>(this.GroupID));
+                
             }
         }
         private void LogException(Exception e, int ContactId, ItemDuplicateGroupMember member, bool firstAttempt)
