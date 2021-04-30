@@ -289,6 +289,7 @@ namespace BusinessLibrary.BusinessClasses
                 if (goneWrong.Count > 0)
                 {
                     //if something went wrong and an exception was triggered, we'll try saving the changes for the members where saving failed (once)
+                    System.Threading.Thread.Sleep(200);//wait a tiny bit, to give some time to SQL to "catch up"...
                     foreach (ItemDuplicateGroupMember o in goneWrong)
                     {
                         try
@@ -305,17 +306,60 @@ namespace BusinessLibrary.BusinessClasses
                 }
                 if (toSave)
                 {
-                    using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+                    try
                     {
-                        connection.Open();
-                        using (SqlCommand command = new SqlCommand("st_ItemDuplicateUpdateTbItemReview", connection))
+                        using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
                         {
-                            command.CommandType = System.Data.CommandType.StoredProcedure;
-                            command.Parameters.Add("@groupID", System.Data.SqlDbType.Int);
-                            command.Parameters["@groupID"].Value = GroupID;
-                            command.ExecuteNonQuery();
+                            //fake exception for testing...
+                            //uncomment code below, put a breakpoint and "drag" execution into the exception rising block, to test how the system reacts...
+
+                            //if (1 == DateTime.Now.Ticks)
+                            //{
+                            //    Exception e = new Exception("this is fake, deliberately triggered(TB_ITEM_REV1)");
+                            //    throw e;
+                            //}
+                            connection.Open();
+                            using (SqlCommand command = new SqlCommand("st_ItemDuplicateUpdateTbItemReview", connection))
+                            {
+                                command.CommandType = System.Data.CommandType.StoredProcedure;
+                                command.Parameters.Add("@groupID", System.Data.SqlDbType.Int);
+                                command.Parameters["@groupID"].Value = GroupID;
+                                command.ExecuteNonQuery();
+                            }
+                            connection.Close();
                         }
-                        connection.Close();
+                    }
+                    catch (Exception e) {
+                        LogException(e, ri.UserId, null, true);
+                        System.Threading.Thread.Sleep(200);
+                        try
+                        {
+                            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+                            {
+                                //fake exception for testing...
+                                //uncomment code below, put a breakpoint and "drag" execution into the exception rising block, to test how the system reacts...
+
+                                //if (1 == DateTime.Now.Ticks)
+                                //{
+                                //    Exception e2 = new Exception("this is fake, deliberately triggered(TB_ITEM_REV2)");
+                                //    throw e2;
+                                //}
+                                connection.Open();
+                                using (SqlCommand command = new SqlCommand("st_ItemDuplicateUpdateTbItemReview", connection))
+                                {
+                                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                                    command.Parameters.Add("@groupID", System.Data.SqlDbType.Int);
+                                    command.Parameters["@groupID"].Value = GroupID;
+                                    command.ExecuteNonQuery();
+                                }
+                                connection.Close();
+                            }
+                        }
+                        catch (Exception ee)
+                        {
+                            LogException(ee, ri.UserId, null, false);
+                            LastCaughtException = ee;
+                        }
                     }
                     
                 }
@@ -347,16 +391,27 @@ namespace BusinessLibrary.BusinessClasses
                     command.CommandType = System.Data.CommandType.StoredProcedure;
                     command.Parameters.Add(new SqlParameter("@ReviewId", RevID));
                     command.Parameters.Add(new SqlParameter("@ContactId", ContactId));
+                    command.Parameters.Add(new SqlParameter("@Success", false));
                     command.Parameters.Add(new SqlParameter("@JobType", "Save Changes to Duplicates group"));
                     command.Parameters.Add(new SqlParameter("@CurrentState", "Failure"));
-                    command.Parameters.Add(new SqlParameter("@Success", false));
-                    string msg = "Exception thrown when saving changes to group member" 
-                                + (firstAttempt ? " (1st try)" : " (2nd try)") + ". Group ID: " + this.GroupID
-                                + ". Group Member ID: " + member.ItemDuplicateId + " (ItemId: " + member.ItemId + "). "
-                                + "IsChecked: " + member.IsChecked.ToString() + "; "
-                                + "IsDuplicate: " + member.IsDuplicate.ToString() + "; "
-                                + "IsMaster: " + member.IsMaster.ToString() + ". "
-                                + "ERROR: " + e.Message;
+                    string msg = "";
+                    if (member != null)
+                    {
+                        msg = "Exception thrown when saving changes to group member"
+                                    + (firstAttempt ? " (1st try)" : " (2nd try)") + ". Group ID: " + this.GroupID
+                                    + ". Group Member ID: " + member.ItemDuplicateId + " (ItemId: " + member.ItemId + "). "
+                                    + "IsChecked: " + member.IsChecked.ToString() + "; "
+                                    + "IsDuplicate: " + member.IsDuplicate.ToString() + "; "
+                                    + "IsMaster: " + member.IsMaster.ToString() + ". "
+                                    + "ERROR: " + e.Message;
+                    } 
+                    else
+                    {
+                        msg = "Exception thrown when applying group changes to TB_ITEM_REVIEW"
+                                    + (firstAttempt ? " (1st try)" : " (2nd try)") + ". Group ID: " + this.GroupID
+                                    + ". "
+                                    + "ERROR: " + e.Message;
+                    }
                     command.Parameters.Add(new SqlParameter("@JobMessage", msg));
                     command.ExecuteNonQuery();
                 }
