@@ -272,22 +272,22 @@
                     <div class="col-12 m-0 p-0 row">
                         &nbsp;Print coding tool?
                         <div *ngIf="selectedNode != null && selectedNode.nodeType == 'ReviewSet'" class="small px-1 mt-1 ml-1 alert-info col-auto">(Saves the result to disk)</div>
-                        <div *ngIf="selectedNode == null || selectedNode.nodeType != 'ReviewSet'" class="small px-1 mt-1 ml-1 alert-danger col-auto">Please select the root of a coding tool.</div>
+                        <div *ngIf="selectedNode == null || selectedNode.nodeType != 'ReviewSet'" class="small px-1 mt-1 ml-1 alert-danger col-auto">Please select a coding tool.</div>
                     </div>
                     <div class="col-12 m-0 p-0">
                         &nbsp;Show IDs <input type="checkbox" [(ngModel)]="printCsetShowIds" class="m-1" />
                     </div>
                     <div class="col-12 m-0 p-0">
-                        &nbsp;Show descriptions <input type="checkbox" [(ngModel)]="printCsetShowDescriptions" class="m-1" />
+                        &nbsp;Show types <input type="checkbox" [(ngModel)]="printCsetShowTypes" class="m-1" />
                     </div>
                     <div class="col-12 m-0 p-0">
-                        &nbsp;Show types <input type="checkbox" [(ngModel)]="printCsetShowTypes" class="m-1" />
+                        &nbsp;Show descriptions <input type="checkbox" [(ngModel)]="printCsetShowDescriptions" class="m-1" />
                     </div>
                     <div class="col-12 mx-0 mb-1 p-0 row">
                         <button kendoButton class="btn btn-outline-success btn-sm ml-1" title="Print coding tool" (click)="PrintCodingTool()" [disabled]="selectedNode == null || selectedNode.nodeType != 'ReviewSet'">
                             Print!
                         </button>
-                        <button kendoButton class="btn btn-dark btn-sm px-2 ml-1" title="Cancel" (click)="ShowPrintCodeset = false" >
+                        <button kendoButton class="btn btn-dark btn-sm px-2 ml-1" title="Cancel" (click)="ShowPrintCodeset = false">
                             Cancel
                         </button>
                     </div>
