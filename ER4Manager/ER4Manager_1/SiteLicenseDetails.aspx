@@ -230,6 +230,10 @@
             <asp:Button ID="Button1" runat="server" BackColor="White"
                 BorderColor="White" BorderStyle="None" ForeColor="White" Height="1px"
                 OnClick="cmdPlaceDate_Click" Width="1px" />
+        &nbsp;&nbsp;
+        <asp:Button ID="lblPushBackForTesting" runat="server" Tooltip="'Valid from' and 'Date created' for all activated packages are pushed back by their length in months" Text ="*Push Back for testing*" OnClick="lblPushBackForTesting_Click"/>
+        &nbsp;&nbsp;
+        <asp:Button ID="lblPullForwardForTesting" runat="server" Tooltip="'Valid from' and 'Date created' for all activated packages are pulled forward by their length in months" Text ="*Pull Forward for testing*" OnClick="lblPullForwardForTesting_Click"/>
         <br />
         <asp:Panel ID="pnlChangeLicenseModel" runat="server" Visible="false">
             <div style="padding:10px">
@@ -273,7 +277,7 @@
         Visible="False">
         <br />
         <asp:Label ID="lblPackageTitle" runat="server" Font-Bold="True"
-            Text="Most recent package"></asp:Label>
+            Text="Selected recent package"></asp:Label>
         &nbsp;&nbsp;&nbsp;
                                         <br />
         <table id="Table2" border="1" cellpadding="1" cellspacing="1" width="100%">
@@ -469,7 +473,7 @@
                     <b>Accounts in latest package</b></td>
                 <td style="background-color: #ffffff; width: 5%;">&nbsp;</td>
                 <td style="background-color: #ffffff; width: 40%;">
-                    <b>Reviews in latest package</b></td>
+                    <b>Reviews in latest package</b> <asp:Label ID="lblTooManyReviews" runat="server" Text="Too many reviews!" Visible="False" ForeColor="Red" Font-Bold="True"></asp:Label></td>
             </tr>
             <tr>
                 <td style="background-color: #ffffff; width: 50%;" valign="top">

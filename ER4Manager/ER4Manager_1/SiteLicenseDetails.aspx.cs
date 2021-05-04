@@ -485,15 +485,21 @@ public partial class SiteLicenseDetails : System.Web.UI.Page
             cmdAddAccount.Enabled = false;
             tbEmail.Enabled = false;
         }
+
+        lblTooManyReviews.Visible = false;
         if (gvReviews.Rows.Count < int.Parse(tbNumberReviews.Text))
         {
             cmdAddReview.Enabled = true;
             tbReviewID.Enabled = true;
         }
-        else
+        else if (gvReviews.Rows.Count == int.Parse(tbNumberReviews.Text))
         {
             cmdAddReview.Enabled = false;
             tbReviewID.Enabled = false;
+        }
+        else
+        {
+            lblTooManyReviews.Visible = true;
         }
         
 
@@ -551,6 +557,7 @@ public partial class SiteLicenseDetails : System.Web.UI.Page
 
     protected void ddlPackages_SelectedIndexChanged(object sender, EventArgs e)
     {
+        lblTooManyReviews.Visible = false;
         lblSelectOfferMsg.Visible = false;
         lbRemoveOffer.Visible = false;
         tbExpiryDate.BackColor = Color.White;
@@ -618,6 +625,12 @@ public partial class SiteLicenseDetails : System.Web.UI.Page
         {
             lbRemoveOffer.Visible = true;
         }
+
+        if (gvReviews.Rows.Count > int.Parse(tbNumberReviews.Text))
+        {
+            lblTooManyReviews.Visible = true;
+        }
+
     }
 
     protected void lbShowBLCodes_Click(object sender, EventArgs e)
@@ -1086,12 +1099,26 @@ public partial class SiteLicenseDetails : System.Web.UI.Page
                 }
             }
 
+            // we need to know what the ID is of the LATEST PACKAGE
+            // in case we need to adjust where the reviews go on a renewal
+            string latestPackageID = "NA";
+            for (int i = 0; i < ddlPackages.Items.Count; i++)
+            {
+                if (ddlPackages.Items[i].Text.Contains("Latest"))
+                {
+                    latestPackageID = ddlPackages.Items[i].Value;
+                    i = ddlPackages.Items.Count;
+                }
+            }
+
+
+
 
             if (licenseConditionsMet == true)
             {
                 int pricePerMonth = (int.Parse(tbTotalFee.Text)) / (int.Parse(tbNumberMonths.Text));
                 bool isAdmDB = true;
-                SqlParameter[] paramList = new SqlParameter[17];
+                SqlParameter[] paramList = new SqlParameter[18];
 
                 paramList[0] = new SqlParameter("@LIC_ID", SqlDbType.NVarChar, 50, ParameterDirection.Input,
                         true, 0, 0, null, DataRowVersion.Default, lblSiteLicID.Text);
@@ -1125,19 +1152,21 @@ public partial class SiteLicenseDetails : System.Web.UI.Page
                     true, 0, 0, null, DataRowVersion.Default, tbDescription.Text);
                 paramList[15] = new SqlParameter("@SITE_LIC_MODEL", SqlDbType.Int, 8, ParameterDirection.Input,
                     true, 0, 0, null, DataRowVersion.Default, ddlLicenseModel.SelectedValue);
-                paramList[16] = new SqlParameter("@RESULT", SqlDbType.NVarChar, 50, ParameterDirection.Output,
+                paramList[16] = new SqlParameter("@LATEST_SITE_LIC_DETAILS_ID", SqlDbType.NVarChar, 50, ParameterDirection.Input,
+                        true, 0, 0, null, DataRowVersion.Default, latestPackageID);
+                paramList[17] = new SqlParameter("@RESULT", SqlDbType.NVarChar, 50, ParameterDirection.Output,
                     true, 0, 0, null, DataRowVersion.Default, "");
 
                 Utils.ExecuteSPWithReturnValues(isAdmDB, Server, "st_Site_Lic_Details_Create_or_Edit_AndOr_Activate", paramList);
 
 
-                if (paramList[16].Value.ToString() == "Invalid")
+                if (paramList[17].Value.ToString() == "Invalid")
                 {
                     lblLicenseDetailsMessage.Visible = true;
                     lblLicenseDetailsMessage.Text = "the SQL statement has failed and has been rolled back";
                     lblLicenseDetailsMessage.ForeColor = System.Drawing.Color.Red;
                 }
-                else if (paramList[16].Value.ToString() == "rollback")
+                else if (paramList[17].Value.ToString() == "rollback")
                 {
                     lblLicenseDetailsMessage.Visible = true;
                     lblLicenseDetailsMessage.Text = "the SQL statement has failed and has been rolled back";
@@ -1154,7 +1183,7 @@ public partial class SiteLicenseDetails : System.Web.UI.Page
                     // is lblIsActivated = No or reload the list 
                     int selectedIndex = 0;
                     string test = lblIsActivated.Text;
-                    if ((paramList[16].Value.ToString() == "new offer") || (lblIsActivated.Text == "No"))
+                    if ((paramList[17].Value.ToString() == "new offer") || (lblIsActivated.Text == "No"))
                     //if (lblIsActivated.Text == "No")
                     //if (ddlPackages.Items.Count == 0)
                     {
@@ -1853,6 +1882,49 @@ public partial class SiteLicenseDetails : System.Web.UI.Page
         // remove offer
         bool isAdmDB = true;
         Utils.ExecuteSP(isAdmDB, Server, "st_Site_Lic_RemoveOffer", ddlPackages.SelectedValue, lblSiteLicID.Text);
+
+        // reload packages
+        licenseDetails(lblSiteLicID.Text, lblAdminID.Text);
+
+        ddlPackages.SelectedIndex = 0;
+        ddlPackages_SelectedIndexChanged(sender, e);
+    }
+
+    protected void lblExpireLatestForTesting_Click(object sender, EventArgs e)
+    {
+        if (ddlPackages.SelectedItem.Text.Contains("Latest"))
+        {
+            // remove offer
+            bool isAdmDB = true;
+            Utils.ExecuteSP(isAdmDB, Server, "st_Site_Lic_ExpireForTesting", ddlPackages.SelectedValue, lblSiteLicID.Text);
+
+            // reload packages
+            licenseDetails(lblSiteLicID.Text, lblAdminID.Text);
+
+            ddlPackages.SelectedIndex = 0;
+            ddlPackages_SelectedIndexChanged(sender, e);
+        }
+    }
+
+    protected void lblPushBackForTesting_Click(object sender, EventArgs e)
+    {
+        // 'Valid from' and 'Date created' for all activated packages are pushed back by their length in months
+        bool isAdmDB = true;
+        Utils.ExecuteSP(isAdmDB, Server, "st_Site_Lic_PushBackForTesting", lblSiteLicID.Text);
+        
+
+        // reload packages
+        licenseDetails(lblSiteLicID.Text, lblAdminID.Text);
+
+        ddlPackages.SelectedIndex = 0;
+        ddlPackages_SelectedIndexChanged(sender, e);
+    }
+
+    protected void lblPullForwardForTesting_Click(object sender, EventArgs e)
+    {
+        // 'Valid from' and 'Date created' for all activated packages are pulled forward by their length in months
+        bool isAdmDB = true;
+        Utils.ExecuteSP(isAdmDB, Server, "st_Site_Lic_PullForwardForTesting", lblSiteLicID.Text);
 
         // reload packages
         licenseDetails(lblSiteLicID.Text, lblAdminID.Text);
