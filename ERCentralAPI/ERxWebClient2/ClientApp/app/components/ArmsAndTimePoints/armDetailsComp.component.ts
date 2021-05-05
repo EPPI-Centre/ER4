@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, ViewChild, ElementRef, Renderer2 } from '@angular/core';
-import { ArmsService, iArm, Arm } from '../services/arms.service';
+import { ArmTimepointLinkListService, iArm, Arm } from '../services/ArmTimepointLinkList.service';
 import {  Item } from '../services/ItemList.service';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 import { Observable } from 'rxjs';
@@ -14,7 +14,7 @@ import { NgModel, NgForm } from '@angular/forms';
 export class armDetailsComp implements OnInit {
 
 	constructor(
-		private _armsService: ArmsService,
+		private _armsService: ArmTimepointLinkListService,
 		private _renderer: Renderer2,
 		private confirmationDialogService: ConfirmationDialogService,
         private eventsService: EventEmitterService,

@@ -1,17 +1,9 @@
-import { Component, Inject, OnInit, Output, Input, ViewChild, OnDestroy, ElementRef, AfterViewInit, ViewContainerRef } from '@angular/core';
-import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
+import { Component, Inject, OnInit, Output, Input, OnDestroy,  } from '@angular/core';
 import { forEach } from '@angular/router/src/utils/collection';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Router } from '@angular/router';
-import { ReviewSetsService, singleNode, ReviewSet, SetAttribute, iAttributeSet } from '../services/ReviewSets.service';
-import { ITreeOptions, TreeModel, TreeComponent } from 'angular-tree-component';
-import { NgbModal, NgbActiveModal, NgbTabset } from '@ng-bootstrap/ng-bootstrap';
-import { ArmsService } from '../services/arms.service';
-import { ITreeNode } from 'angular-tree-component/dist/defs/api';
-import { frequenciesService } from '../services/frequencies.service';
-import { Injectable, EventEmitter } from '@angular/core';
-import { Subscription } from 'rxjs';
-import { EventEmitterService } from '../services/EventEmitter.service';
+import { ReviewSetsService, ReviewSet } from '../services/ReviewSets.service';
+import { EventEmitter } from '@angular/core';
 import { ReviewSetsEditingService, ReadOnlyTemplateReview } from '../services/ReviewSetsEditing.service';
 import { Helpers } from '../helpers/HelperMethods';
 
@@ -23,7 +15,6 @@ import { Helpers } from '../helpers/HelperMethods';
 
 export class ImportCodesetsWizardComponent implements OnInit, OnDestroy {
    constructor(private router: Router,
-        private _httpC: HttpClient,
         @Inject('BASE_URL') private _baseUrl: string,
         private ReviewerIdentityServ: ReviewerIdentityService,
        private ReviewSetsService: ReviewSetsService,

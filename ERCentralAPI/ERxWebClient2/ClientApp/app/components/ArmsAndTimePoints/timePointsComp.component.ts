@@ -4,7 +4,7 @@ import {  Item } from '../services/ItemList.service';
 import { _localeFactory } from '@angular/core/src/application_module';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 import { EventEmitterService } from '../services/EventEmitter.service';
-import { timePointsService, ItemTimepointDeleteWarningCommandJSON, iTimePoint, TimePoint } from '../services/timePoints.service';
+import { ArmTimepointLinkListService, ItemTimepointDeleteWarningCommandJSON, iTimePoint, TimePoint } from '../services/ArmTimepointLinkList.service';
 import { NgModel, NgForm } from '@angular/forms';
 
 @Component({
@@ -16,7 +16,7 @@ import { NgModel, NgForm } from '@angular/forms';
 export class timePointsComp  implements OnInit {
 
 	constructor(
-		private _timePointsService: timePointsService,
+		private _timePointsService: ArmTimepointLinkListService,
 		private confirmationDialogService: ConfirmationDialogService,
 		private eventsService: EventEmitterService,
 		private ReviewerIdentityServ: ReviewerIdentityService
@@ -53,7 +53,7 @@ export class timePointsComp  implements OnInit {
 
 		if (this.item) {
 			console.log('got in here servuce time points');
-			this._timePointsService.Fetchtimepoints(this.item);
+			//this._timePointsService.Fetchtimepoints(this.item);
 		}
 	}
 

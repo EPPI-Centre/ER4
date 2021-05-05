@@ -6,7 +6,7 @@ import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
 import { Item, ItemListService, Criteria, ItemList } from './ItemList.service';
 import { ReviewSet, SetAttribute, ReviewSetsService, singleNode, ItemAttributeSaveCommand, iSetType } from './ReviewSets.service';
-import { ArmsService } from './arms.service';
+import { ArmTimepointLinkListService } from './ArmTimepointLinkList.service';
 import { ItemDocsService } from './itemdocs.service';
 import { Outcome, OutcomeItemList, OutcomeItemAttributesList, OutcomeItemAttribute } from './outcomes.service';
 import { EventEmitterService } from './EventEmitter.service';
@@ -20,7 +20,7 @@ export class ItemCodingService extends BusyAwareService implements OnDestroy {
         private _httpC: HttpClient,
         @Inject('BASE_URL') private _baseUrl: string,
         private modalService: ModalService,
-        private ArmsService: ArmsService,
+        private ArmsService: ArmTimepointLinkListService,
         private ReviewSetsService: ReviewSetsService,
         private ReviewerIdentityService: ReviewerIdentityService,
         private ngZone: NgZone,

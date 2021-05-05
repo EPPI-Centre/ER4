@@ -13,13 +13,12 @@ import { ReviewInfoService } from '../services/ReviewInfo.service';
 import { PriorityScreeningService } from '../services/PriorityScreening.service';
 import { ReviewerTermsService } from '../services/ReviewerTerms.service';
 import { ItemDocsService } from '../services/itemdocs.service';
-import { ArmsService } from '../services/arms.service';
+import { ArmTimepointLinkListService, iItemLink } from '../services/ArmTimepointLinkList.service';
 import { NotificationService } from '@progress/kendo-angular-notification';
 import { SelectEvent, TabStripComponent } from '@progress/kendo-angular-layout';
 import { WebViewerComponent } from '../PDFTron/webviewer.component';
 import { Helpers } from '../helpers/HelperMethods';
 import { PdfTronContainer } from '../PDFTron/pdftroncontainer.component';
-import { timePointsService } from '../services/timePoints.service';
 import { CreateNewCodeComp } from '../CodesetTrees/createnewcode.component';
 import { ReviewSetsEditingService } from '../services/ReviewSetsEditing.service';
 import { OutcomesService } from '../services/outcomes.service';
@@ -51,8 +50,7 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
         public PriorityScreeningService: PriorityScreeningService
         , private ReviewerTermsService: ReviewerTermsService,
         public ItemDocsService: ItemDocsService,
-		private armservice: ArmsService,
-		private timePointsService: timePointsService,
+        private ArmTimepointLinkListService: ArmTimepointLinkListService,
 		private notificationService: NotificationService,
 		private _reviewSetsEditingService: ReviewSetsEditingService,
 		private _outcomeService: OutcomesService
@@ -85,7 +83,9 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
         if (this.item) return this.item.itemId;
         else return -1;
 	}
-	
+
+    
+
     private itemString: string = '0';
 	public item?: Item;
 	public itemSet?: ItemSet;
@@ -156,8 +156,8 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
                 // ERROR HANDLING IN HERE NEXT....
             );
 
-            this.armservice.armChangedEE.subscribe(() => {
-                if (this.armservice.SelectedArm) this.SetArmCoding(this.armservice.SelectedArm.itemArmId);
+            this.ArmTimepointLinkListService.armChangedEE.subscribe(() => {
+                if (this.ArmTimepointLinkListService.SelectedArm) this.SetArmCoding(this.ArmTimepointLinkListService.SelectedArm.itemArmId);
                 else this.SetArmCoding(0);
             });
             //this.timePointsService.gotNewTimepoints.subscribe(() => {
@@ -289,7 +289,7 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
     }
 	IsServiceBusy(): boolean {
         if (this._reviewSetsEditingService.IsBusy || this.ItemDocsService.IsBusy ||
-            this.timePointsService.IsBusy || this.armservice.IsBusy ||
+            this.ArmTimepointLinkListService.IsBusy ||
 			this.reviewInfoService.IsBusy || this._outcomeService.IsBusy
 			|| this.ReviewerTermsService.IsBusy) {
 			return true;
@@ -437,8 +437,7 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
 
 			this._outcomeService.outcomesChangedEE.emit();
             this.ArmsCompRef.CurrentItem = this.item;
-			this.armservice.FetchArms(this.item);
-			this.timePointsService.Fetchtimepoints(this.item);
+            this.ArmTimepointLinkListService.FetchAll(this.item);
 
         }
         this.ItemCodingService.Fetch(this.itemID);    
@@ -452,7 +451,7 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
             this.ReviewSetsService.clearItemData();
             return;//no need to add codes that don't exist.
         }
-        if (this.armservice.SelectedArm) this.SetArmCoding(this.armservice.SelectedArm.itemArmId);
+        if (this.ArmTimepointLinkListService.SelectedArm) this.SetArmCoding(this.ArmTimepointLinkListService.SelectedArm.itemArmId);
         else this.SetArmCoding(0);
     }
     SetArmCoding(armId: number) {

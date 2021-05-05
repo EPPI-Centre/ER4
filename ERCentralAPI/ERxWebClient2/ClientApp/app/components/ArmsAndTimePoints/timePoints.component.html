@@ -68,31 +68,24 @@
 			</div>
 			<!---->
 			
-			<table class="table table-bordered table-responsive-md table-striped text-sm-center">
+			<table *ngIf="timePointsList.length > 0" class="table table-bordered table-responsive-md table-striped text-center table-sm p-1">
 				<tr>
-					<th class="text-sm-center">Timepoint</th>
-					<th class="text-sm-center" style="max-width: 10px;">Edit</th>
-					<th class="text-sm-center" style="max-width: 10px;">Remove</th>
+					<th class="text-center">Timepoint</th>
+					<th class="text-center" style="">Actions</th>
 				</tr>
 				<tr *ngFor="let timepoint of timePointsList; let key = index">
-					<td style="width: 150px;">{{timepoint.timepointValue}}  {{timepoint.timepointMetric}}</td>
-					<td style="width: 15px; white-space:nowrap;">
-						<span class="table-remove">
-							<button (click)="edit=true; setTimePoint(timepoint, key)"
-									[disabled]="!HasWriteRights"
-									type="button" rounded="true" size="sm" class="btn btn-outline-info p-1 m-1">
-								Edit
-							</button>
-						</span>
-					</td>
-					<td style="width: 15px; white-space:nowrap;">
-						<span class="table-remove">
-							<button type="button" rounded="true" size="sm" class="btn btn-outline-danger p-1 m-1"
-									[disabled]="!HasWriteRights" (click)="removeWarning(key)">
-								Remove
-							</button>
-						</span>
-					</td>
+					<td style="">{{timepoint.timepointValue}}&nbsp;{{timepoint.timepointMetric}}</td>
+                    <td style="white-space:nowrap;">
+                        <button (click)="edit=true; setTimePoint(timepoint, key)"
+                                [disabled]="!HasWriteRights"
+                                type="button" rounded="true" size="sm" class="btn btn-outline-info p-1 m-1">
+                            Edit
+                        </button>
+                        <button type="button" rounded="true" size="sm" class="btn btn-outline-danger p-1 m-1"
+                                [disabled]="!HasWriteRights" (click)="removeWarning(key)">
+							<span class="k-icon k-i-delete "></span>
+                        </button>
+                    </td>
 				</tr>
 			</table>
 		</div>

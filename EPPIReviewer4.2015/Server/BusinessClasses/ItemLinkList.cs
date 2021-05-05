@@ -24,23 +24,15 @@ namespace BusinessLibrary.BusinessClasses
         {
             DataPortal<ItemLinkList> dp = new DataPortal<ItemLinkList>();
             dp.FetchCompleted += handler;
-            dp.BeginFetch(new SingleCriteria<AttributeSetList, Int64>(ItemId));
+            dp.BeginFetch(new SingleCriteria<Item, Int64>(ItemId));
         }
 
-
-#if SILVERLIGHT
         public ItemLinkList() { }
-#else
-        private ItemLinkList() { }
-#endif
 
 
-#if SILVERLIGHT
-       
-#else
+#if !SILVERLIGHT
 
-
-        protected void DataPortal_Fetch(SingleCriteria<AttributeSetList, Int64> criteria)
+        protected void DataPortal_Fetch(SingleCriteria<Item, Int64> criteria)
         {
             ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
             RaiseListChangedEvents = false;
@@ -65,8 +57,6 @@ namespace BusinessLibrary.BusinessClasses
             RaiseListChangedEvents = true;
         }
 #endif
-
-
 
     }
 }

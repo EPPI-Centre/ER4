@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
 import { SetAttribute } from './ReviewSets.service';
-import { iTimePoint } from './timePoints.service';
+import { iTimePoint } from './ArmTimepointLinkList.service';
 import { StatFunctions } from '../helpers/StatisticsMethods';
 import { Subscription } from 'rxjs';
 
