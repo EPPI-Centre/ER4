@@ -323,7 +323,7 @@ export class ArmTimepointLinkListService extends BusyAwareService implements OnI
 					return result;
 				}
 				, (error) => {
-					this.arms = this.FetchArms(this._currentItem);
+					this.FetchArms(this._currentItem);
 					this.modalService.GenericErrorMessage(ErrMsg);
 					this.RemoveBusy("CreateArm");
 					return error;
@@ -331,7 +331,7 @@ export class ArmTimepointLinkListService extends BusyAwareService implements OnI
 			)
 			.catch(
 				(error) => {
-					this.arms = this.FetchArms(this._currentItem);
+					this.FetchArms(this._currentItem);
 					this.modalService.GenericErrorMessage(ErrMsg);
 					this.RemoveBusy("CreateArm");
 					return error;
@@ -356,7 +356,7 @@ export class ArmTimepointLinkListService extends BusyAwareService implements OnI
 					return result;
 				}
 				, (error) => {
-					this.arms = this.FetchArms(this._currentItem);
+					this.FetchArms(this._currentItem);
 					this.modalService.GenericErrorMessage(ErrMsg);
 					this.RemoveBusy("UpdateArm");
 					return error;
@@ -418,7 +418,7 @@ export class ArmTimepointLinkListService extends BusyAwareService implements OnI
 				}
 				, (error) => {
 
-					this.arms = this.FetchArms(this._currentItem);
+					this.FetchArms(this._currentItem);
 					this.modalService.GenericErrorMessage(ErrMsg);
 					this.RemoveBusy("DeleteArm");
 					return error;
