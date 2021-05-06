@@ -65,6 +65,7 @@ export class WebDBsComponent implements OnInit, OnDestroy, AfterViewInit {
 		]
 		, maxFileSize: 1024000
 	};
+	public ImageSizeError: string = "";
 	public isUploadImage1: boolean = true;
 	public ShowUpload: boolean = false;
 	public get MissingAttributes(): MissingAttribute[] {
@@ -302,10 +303,9 @@ export class WebDBsComponent implements OnInit, OnDestroy, AfterViewInit {
 		}
 		return 0;
 	}
-
 	public selectEventHandler(e: SelectEvent): void {
 		const that = this;
-
+		this.ImageSizeError = "";
 		e.files.forEach((file) => {
 			console.log(`File selected: ${file.name}`);
 
@@ -331,10 +331,12 @@ export class WebDBsComponent implements OnInit, OnDestroy, AfterViewInit {
 				};
 				if (file && file.rawFile) reader.readAsDataURL(file.rawFile);
 			}
+			else this.ImageSizeError = "File size is too big (Max: 1MB)";
 		});
 	}
 	clearUploadImageEventHandler() {
 		this.imagePreview = null;
+		this.ImageSizeError = "";
     }
 
 	uploadEventHandler(e: UploadEvent) {
@@ -354,6 +356,7 @@ export class WebDBsComponent implements OnInit, OnDestroy, AfterViewInit {
 		this.ShowUpload = false;
 		this.WebDBService.Fetch();
 		this.imagePreview = null;
+		this.ImageSizeError = "";
 		//this.ItemDocsService.Refresh();
 		//this.log(`All files processed`);
 	}
