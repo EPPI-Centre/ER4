@@ -55,6 +55,7 @@ export class WebDBsComponent implements OnInit, OnDestroy, AfterViewInit {
 	public EditingSetAttribute: SetAttribute | null = null;
 	public EditingFilter: boolean = false;
 	public ConfirmPassword: string = "";
+	public ShowPassword: boolean = false;
 	public isCollapsedFilterCode: boolean = false;
 	public uploadSaveUrl = this._baseUrl + 'api/WebDB/UploadImage'; 
 	public uploadRestrictions: FileRestrictions = {

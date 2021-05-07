@@ -356,7 +356,7 @@
             </div>
 
             <div class="row col-12 p-1 mx-0 mt-2 border-bottom border-info">
-                <div class="col-12 col-sm-9 row m-0 p-0">
+                <div class="col-12 col-md-9 row m-0 p-0">
                     <div class="col-auto">
                         Description:
                     </div>
@@ -385,11 +385,9 @@
                  -->
                     </div>
                 </div>
-                <div class="col-12 col-sm-3 row m-0 p-0">
-                    <div class="col-auto">
+                <div class="col-12 col-md-3 row m-0 p-0">
+                    <div class="col-12">
                         Is open access:
-                    </div>
-                    <div class="rounded bg-white col w-100">
                         <span class="brightSwitch" style="zoom:75%;">
                             <kendo-switch name="showOptionalFieldsSW" class="small small mt-0"
                                           [(ngModel)]="EditingDB.isOpen"
@@ -397,34 +395,65 @@
                                           [offLabel]="'No'"></kendo-switch>
                         </span>
                     </div>
+                    <ng-container *ngIf="!EditingDB.isOpen">
+                        <div class="col-12 small m-0 p-0">
+                            <div class="alert-info mx-3 my-1 py-1 px-2">
+                                Username is mandatory and needs to be at least 4 characters long. It is not case-sensitive.
+                                Passwords are case-sensitive and need to be at least 6 characters long.
+                            </div>
+                        </div>
+                        <div class="col-12 row m-0 p-0">
+                            <div class="col-auto">
+                                Username:
+                            </div>
+                            <div class="rounded bg-white col-auto">
+                                <input class="p-1 w-100" type="text" [(ngModel)]="EditingDB.userName" />
+                            </div>
+                        </div>
+                        <div class="col-12 row m-0 p-0">
+                            <ng-container *ngIf="!ShowPassword">
+                                <div class="border">
+                                    <div class="col-auto my-auto">
+                                        Password: (show <input type="checkbox" [(ngModel)]="ShowPassword" />)
+                                    </div>
+                                    <div class="rounded col-auto my-auto">
+                                        <input class="p-1 w-100" type="password" [(ngModel)]="EditingDB.password" />
+                                    </div>
+                                </div>
+                                <div  class="border"  [ngClass]="{'alert-danger' : ConfirmPassword.length == 0 || ConfirmPassword != EditingDB.password}">
+                                    <div class="col-auto my-auto">
+                                        Confirm Password:
+                                    </div>
+                                    <div class="rounded col-auto my-auto">
+                                        <input class="p-1 w-100" type="password" [(ngModel)]="ConfirmPassword" />
+                                    </div>
+                                </div>
+                            </ng-container>
+                            <ng-container *ngIf="ShowPassword">
+                                <div class="border">
+                                    <div class="col-auto my-auto">
+                                        Password: (show <input type="checkbox" [(ngModel)]="ShowPassword" />)
+                                    </div>
+                                    <div class="rounded col-auto my-auto">
+                                        <input class="p-1 w-100" type="text" [(ngModel)]="EditingDB.password" />
+                                    </div>
+                                </div>
+                                <div class="border" [ngClass]="{'alert-danger' : ConfirmPassword.length == 0 || ConfirmPassword != EditingDB.password}">
+                                    <div class="col-auto my-auto">
+                                        Confirm Password:
+                                    </div>
+                                    <div class="rounded col-auto my-auto" >
+                                        <input class="p-1 w-100" type="text" [(ngModel)]="ConfirmPassword" />
+                                    </div>
+                                </div>
+                            </ng-container>
+                        </div>
+                    </ng-container>
                 </div>
             </div>
             <div *ngIf="!EditingDB.isOpen" class="row col-12 p-1 mx-0 mt-1 border-bottom border-info">
-                <div class="col-12 small m-0 p-0">
-                    <div class="alert-info mx-3 my-1 py-1 px-2">
-                        Username is mandatory and needs to be at least 4 characters long. It is not case-sensitive.
-                        Passwords are case-sensitive and need to be at least 6 characters long.
-                    </div>
-                </div>
-                <div class="col-12 col-sm-6 row m-0 p-0">
-                    <div class="col-auto">
-                        Username:
-                    </div>
-                    <div class="rounded bg-white col w-100">
-                        <input class="p-1 w-100" type="text" [(ngModel)]="EditingDB.userName" />
-                    </div>
-                </div>
-                <div class="col-12 col-sm-6 row m-0 p-0">
-                    <div class="col-auto">
-                        Password:
-                    </div>
-                    <div class="rounded bg-white col w-100">
-                        <input class="p-1 w-100" type="password" [(ngModel)]="EditingDB.password" />
-                    </div>
-                    <div class="rounded bg-white col w-100" [ngClass]="{'alert-danger' : ConfirmPassword.length == 0 || ConfirmPassword != EditingDB.password}">
-                        <input class="p-1 w-100" type="password" [(ngModel)]="ConfirmPassword" />
-                    </div>
-                </div>
+               
+                
 
             </div>
             <div *ngIf="CurrentDB.encodedImage1 != ''" class="row col-12 p-1 mx-0 mt-2 border-bottom border-info">
