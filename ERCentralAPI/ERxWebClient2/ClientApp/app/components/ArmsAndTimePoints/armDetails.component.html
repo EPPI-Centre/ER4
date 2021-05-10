@@ -13,7 +13,8 @@
 	<div class="card-body" style="max-height:360px;overflow:auto;">
 		<div id="table" class="bg-light" *ngIf="ShowArms">
 			<form #ArmsForm="ngForm" class="table-add float-left mb-3 mr-2 col-12 col-md-6 row">
-				Create new study arm:
+				<div *ngIf="!editTitle">Create new study arm:</div>
+				<div *ngIf="editTitle">Update study arm:</div>
 				<input #titleModel="ngModel" name="n1"
 					   required minlength="3"
 					   pattern="^(?!\s*$).+" class="form-control"
@@ -34,23 +35,21 @@
 
 				</div>
 				<div class="col-md-12 row">
-					<button [disabled]="!HasWriteRights || titleModel.invalid || titleModel =='' || editTitle == true"
+					<button *ngIf="editTitle !== true" [disabled]="!HasWriteRights || titleModel.invalid || title =='' || editTitle == true"
 							class="btn btn-success mt-1 p-1 m-1" (click)="add(title)">
 						Add New Study Arm
 					</button>
-					<button *ngIf="
-							editTitle == true
-							&& titleModel !=''"
-							[disabled]="!editTitle"
-							class="btn btn-warning mt-1 p-1 m-1"
+					<button *ngIf="editTitle == true"
+							[disabled]="!HasWriteRights || !editTitle || title ==''"
+							class="btn btn-success mt-1 p-1 m-1"
 							(click)="updateList(currentArm)">
 						Update study arm
 					</button>
-					<button [disabled]="!HasWriteRights || titleModel =='' && editTitle == false"
+					<button [disabled]="title =='' && !editTitle"
 							class="btn btn-danger mt-1 p-1 m-1"
 							(click)="Clear()">
 						Cancel
-					</button>
+					</button> 
 				</div>
 			</form>
 				<!---->

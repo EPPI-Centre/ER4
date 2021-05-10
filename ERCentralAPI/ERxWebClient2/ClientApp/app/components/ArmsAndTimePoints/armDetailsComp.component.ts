@@ -81,10 +81,10 @@ export class armDetailsComp implements OnInit {
 
 	Clear() {
 
-		//this.editTitle = false;
+		this.editTitle = false;
 		//this.titleModel = '';
-		//this.title = '';
-		if (this.ArmsForm) this.ArmsForm.resetForm({});
+		this.title = '';
+		if (this.ArmsForm) this.ArmsForm.resetForm({n1: this.title});
 	}
 
 	
