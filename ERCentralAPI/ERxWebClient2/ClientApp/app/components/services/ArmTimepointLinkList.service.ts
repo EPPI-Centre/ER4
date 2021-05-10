@@ -129,7 +129,7 @@ export class ArmTimepointLinkListService extends BusyAwareService implements OnI
 
 		this._http.post<iTimePoint[]>(this._baseUrl + 'api/ArmTimepointLinkList/GetTimePoints', body).subscribe(result => {
 			this.timepoints = result;
-			console.log('got inside the timepoints service: ' + this.timepoints.length);
+			//console.log('got inside the timepoints service: ' + this.timepoints.length);
 				   currentItem.timepoints = this.timepoints;
 				   this._selectedtimepoint = null;
 				   //this.gotNewTimepoints.emit(this.timepoints);
@@ -147,17 +147,17 @@ export class ArmTimepointLinkListService extends BusyAwareService implements OnI
 		this._BusyMethods.push("Createtimepoint");
 		let ErrMsg = "Something went wrong when creating an timepoint. \r\n If the problem persists, please contact EPPISupport.";
 
-		return this._http.post<iTimePoint>(this._baseUrl + 'api/ArmTimepointLinkList/CreateTimePoint',
+		return this._http.post<iTimePoint[]>(this._baseUrl + 'api/ArmTimepointLinkList/CreateTimePoint',
 
 			currenttimepoint).toPromise()
 						.then(
-						(result) => {
-	
-							if (!result) this.modalService.GenericErrorMessage(ErrMsg);
-							this.Fetchtimepoints(this._currentItem);
-							this.RemoveBusy("Createtimepoint");
-							return result;
-						}
+							(result) => {
+								this.timepoints = result;
+								//console.log('got inside the timepoints service: ' + this.timepoints.length);
+								this._currentItem.timepoints = this.timepoints;
+								this.RemoveBusy("Createtimepoint");
+								return result;
+							}
 						, (error) => {
 							this.Fetchtimepoints(this._currentItem);		
 							this.modalService.GenericErrorMessage(ErrMsg);
@@ -182,21 +182,22 @@ export class ArmTimepointLinkListService extends BusyAwareService implements OnI
 		this._BusyMethods.push("Updatetimepoint");
 		let ErrMsg = "Something went wrong when updating an timepoint. \r\n If the problem persists, please contact EPPISupport.";
 
-		this._http.post<iTimePoint[]>(this._baseUrl + 'api/ArmTimepointLinkList/UpdateTimePoint',
+		this._http.post<iTimePoint>(this._baseUrl + 'api/ArmTimepointLinkList/UpdateTimePoint',
 
 			currenttimepoint).subscribe(
 
 				(result) => {
-
-					if (!result) this.modalService.GenericErrorMessage(ErrMsg);
+					let tpi = this._currentItem.timepoints.findIndex(f => f.itemTimepointId == currenttimepoint.itemTimepointId);
+					if (tpi > -1) {
+						this._currentItem.timepoints[tpi].timepointMetric = result.timepointMetric;
+						this._currentItem.timepoints[tpi].timepointValue = result.timepointValue;
+                    }
 					this.RemoveBusy("Updatetimepoint");
-					return result;
 				}
 				, (error) => {
-					 this.Fetchtimepoints(this._currentItem);		
+					this.Fetchtimepoints(this._currentItem);		
 					this.modalService.GenericErrorMessage(ErrMsg);
 					this.RemoveBusy("Updatetimepoint");
-					return error;
 				});
 	}
 
@@ -519,7 +520,7 @@ export class ItemTimepointDeleteWarningCommandJSON {
 }
 
 export interface iTimePoint {
-	[key: number]: any;  // Add index signature
+	//[key: number]: any;  // Add index signature
 	itemId: number;
 	timepointValue: string;
 	timepointMetric: string;

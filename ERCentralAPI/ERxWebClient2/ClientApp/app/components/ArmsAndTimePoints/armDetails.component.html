@@ -11,7 +11,7 @@
 
 
 	<div class="card-body" style="max-height:360px;overflow:auto;">
-		<div id="table" class="small table table-striped bg-light" *ngIf="ShowArms">
+		<div id="table" class="bg-light" *ngIf="ShowArms">
 			<form #ArmsForm="ngForm" class="table-add float-left mb-3 mr-2 col-12 col-md-6 row">
 				Create new study arm:
 				<input #titleModel="ngModel" name="n1"
@@ -19,7 +19,7 @@
 					   pattern="^(?!\s*$).+" class="form-control"
 					   type="text" [(ngModel)]="title" />
 				<div *ngIf="titleModel.invalid && (titleModel.dirty || titleModel.touched)"
-					 class="alert alert-danger p-1 mb-1">
+					 class="alert alert-danger p-1 mb-1 small">
 
 					<div *ngIf="titleModel.errors.pattern">
 						Arm name cannot be empty
@@ -54,7 +54,7 @@
 				</div>
 			</form>
 				<!---->
-				<table *ngIf="armsList.length > 0" class="table table-bordered table-responsive-md table-striped text-center table-sm p-1">
+				<table *ngIf="armsList.length > 0" class="table table-bordered table-sm table-striped text-center">
 					<tr>
 						<th class="text-center">Arm Title</th>
 						<th class="text-center">Actions</th>
@@ -64,10 +64,10 @@
                         <td style="white-space:nowrap;">
                             <button (click)="editTitle=true; setArm(arm, key)"
                                     [disabled]="!HasWriteRights"
-                                    type="button" rounded="true" size="sm" class="btn btn-outline-info p-1 m-1">
+                                    type="button" rounded="true" size="sm" class="btn btn-outline-info p-1 mx-1">
                                 Edit
                             </button>
-                            <button type="button" rounded="true" size="sm" class="btn btn-outline-danger p-1 m-1"
+                            <button type="button" rounded="true" size="sm" class="btn btn-outline-danger p-1 mx-1"
                                     [disabled]="!HasWriteRights" (click)="removeWarning(key)">
                                 <span class="k-icon k-i-delete "></span>
                             </button>

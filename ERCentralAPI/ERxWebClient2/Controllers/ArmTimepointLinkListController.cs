@@ -60,7 +60,7 @@ namespace ERxWebClient2.Controllers
 				DataPortal<ItemTimepointList> dp = new DataPortal<ItemTimepointList>();
 				SingleCriteria<Item, Int64> criteria = new SingleCriteria<Item, Int64>(ItemIDCrit.Value);
 				ItemTimepointList result = dp.Fetch(criteria);
-				result.OrderBy(x => x.ItemTimepointId).ToList();
+				//result.OrderBy(x => x.ItemTimepointId).ToList();
 				return Ok(result);
 
 			}
@@ -88,9 +88,9 @@ namespace ERxWebClient2.Controllers
 					newTimePoint.TimepointMetric = data.timepointMetric;
 					newTimePoint.TimepointValue = Convert.ToSingle(data.timepointValue);
                     newTimePoint.ApplyEdit();
-                    ItemTimepoint result = newTimePoint.Save();
-
-                    return Ok(result);
+					newTimePoint = newTimePoint.Save();
+					ItemTimepointList result = DataPortal.Fetch<ItemTimepointList>(new SingleCriteria<Item, Int64>(newTimePoint.ItemId));
+					return Ok(result);
                 }
                 else
                 {
