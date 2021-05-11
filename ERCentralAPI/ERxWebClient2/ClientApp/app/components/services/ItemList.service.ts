@@ -791,6 +791,7 @@ export class ItemListService extends BusyAwareService implements OnDestroy {
             body).toPromise().then(
                 result => {
                     this.RemoveBusy("FetchSingleItem");
+                    //console.log("FetchSingleItem, fetched this:", result);
                     return result;
                 },
                 (error) => {

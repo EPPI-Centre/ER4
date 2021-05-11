@@ -80,7 +80,7 @@ export class armDetailsComp implements OnInit {
 	}
 
 	Clear() {
-
+		//console.log("Clear in ArmDetails");
 		this.editTitle = false;
 		//this.titleModel = '';
 		this.title = '';

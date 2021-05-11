@@ -20,34 +20,39 @@
 						Add/Edit Linked Item
 					</div>
 					<div *ngIf="EditingLink.itemIdPrimary < 1 || EditingLink.itemLinkId < 1" class="row py-1 mx-0">
-						<div class="col-2 my-auto">(Find) Item ID:</div>
-						<div class="col row px-1 py-0">
-							<input class="" type="number" [(ngModel)]="ItemIdTofind" />
-							<button class="btn btn-outline-success btn-sm px-1 py-0 my-o ml-1" [disabled]="ItemIdTofind < 1"
+						<div class="col-4 col-lg-3 col-xl-2 my-auto">(Find) Item ID:</div>
+						<div class="col row px-1 py-0 mx-0">
+							<input class="mb-auto" type="number" [(ngModel)]="ItemIdTofind" />
+							<button class="btn btn-outline-success btn-sm px-1 py-0 my-0 ml-1 mb-auto" [disabled]="ItemIdTofind < 1 || (item != undefined && item.itemId == ItemIdTofind)"
 									(click)="FindItemById()">
 								Find Item...
 							</button>
+							<div *ngIf="item != undefined && item.itemId == ItemIdTofind" class="small ml-1 px-1 rounded alert-danger my-auto">
+								This is the current item: can't link an item to itself.
+							</div>
 						</div>
 					</div>
 					<div class="row mx-0">
-						<div class="col-2 my-auto">(Current) Item ID</div>
+						<div class="col-4 col-lg-3 col-xl-2 my-auto">(Current) Item ID</div>
 						<div *ngIf="EditingLink.itemIdSecondary > 0" class="col px-1 py-0"> {{EditingLink.itemIdSecondary}}</div>
 						<div *ngIf="EditingLink.itemIdSecondary < 1" class="col px-1 py-0">
 							<span class="mx-1 px-1 rounded alert-danger">N/A</span>
 						</div>
 					</div>
 					<div class="row mx-0">
-						<div class="col-2 my-auto">Short title</div>
+						<div class="col-4 col-lg-3 col-xl-2 my-auto">Short title</div>
 						<div class="col px-1 py-0">{{EditingLink.shortTitle}}</div>
 					</div>
 					<div class="row mx-0">
-						<div class="col-2 my-auto">Title</div>
+						<div class="col-4 col-lg-3 col-xl-2 my-auto">Title</div>
 						<div class="col px-1 py-0 small font-weight-bold">{{EditingLink.title}}</div>
 					</div>
 					<div class="row mx-0">
-						<div class="col-2 my-auto">Description:</div>
-						<div class="col m-0 px-1 py-0">
-							<input class="form-control" type="text" maxlength="200" [(ngModel)]="EditingLink.description" />
+						<div class="col-4 col-lg-3 col-xl-2 my-auto">Description:</div>
+						<div class="col m-0 px-1 py-0 row">
+							<input class="form-control mb-auto" type="text" maxlength="200" [(ngModel)]="EditingLink.description" />
+							<div *ngIf="!CanSaveLink && CantSaveLinkMessage == '' && this.EditingLink.itemIdSecondary > 0 && this.EditingLink.description.trim().length < 3" 
+								 class="small alert-danger rounded px-1 mr-auto">Please enter a description (3 characters or longer).</div>
 						</div>
 					</div>
 					<div class="row mx-0">
@@ -59,6 +64,7 @@
 								(click)="CancelEditing()">
 							Cancel
 						</button>
+						<div *ngIf="!CanSaveLink" class="small rounded alert-danger px-1 my-auto">{{CantSaveLinkMessage}}</div>
 					</div>
 				</div>
 

@@ -23,10 +23,17 @@ export class ItemLinksComp  implements OnInit {
 	) {
 		
 	}
-
-	@Input() item!: Item | undefined;
+	private _item: Item | undefined = undefined;
+	@Input() public set item(it: Item | undefined) {
+		this.Clear();
+		this._item = it;
+	}
+	public get item(): Item | undefined {
+		return this._item;
+    }
 	public EditingLink: iItemLink | null = null;
 	public ItemIdTofind: number = 0;
+	public CantSaveLinkMessage: string = "";
 	public ShowItemLinks: boolean = true;
 	private _LinkedItemDetails: Item | null = null;
 	ngOnInit() {
@@ -76,6 +83,7 @@ export class ItemLinksComp  implements OnInit {
 		this.EditingLink = newLink;
 	}
 	CancelEditing() {
+		this.CantSaveLinkMessage = "";
 		this.EditingLink = null;
     }
 	public EditLink(link: iItemLink) {
@@ -94,31 +102,38 @@ export class ItemLinksComp  implements OnInit {
 	public async FindItemById() {
 		if (!this.ItemIdTofind || this.ItemIdTofind < 1 ) return;
 		else {
+			this.CantSaveLinkMessage = "";
 			let itm: Item | null = await this.itemListService.FetchSingleItem(this.ItemIdTofind);
 			if (itm && this.item) {
 				let newL: iItemLink = {
 					itemIdPrimary: this.item.itemId
 					, itemIdSecondary: itm.itemId
 					, itemLinkId: 0
-					, description: ""
+					, description: (this.EditingLink != null && this.EditingLink.description != "") ? this.EditingLink.description : ""
 					, shortTitle: itm.shortTitle
 					, title: itm.title
 				}
 				this.EditingLink = newL;
+			}
+			if (this.EditingLink == null || this.EditingLink.itemIdSecondary == 0) {
+				this.CantSaveLinkMessage = "Item with ID " + this.ItemIdTofind.toString() + " was not found in this review";
+			}
+			else if (this.ItemLinks.findIndex(f => this.EditingLink != null && f.itemIdSecondary == this.EditingLink.itemIdSecondary) != -1) {
+				this.CantSaveLinkMessage = "Item " + this.EditingLink.itemIdSecondary.toString() + " is already linked.";
             }
         }
     }
 	public get CanSaveLink(): boolean {
 		if (!this.HasWriteRights || this.EditingLink == null
 			|| this.EditingLink.itemIdPrimary < 1 || this.EditingLink.itemIdSecondary < 1
-			|| this.EditingLink.description.length < 3) {
-			console.log("R1");
+			|| this.EditingLink.description.trim().length < 3) {
+			//console.log("R1");
 			return false;
 		}
 		else if (this.EditingLink.itemLinkId == 0
 			&& this.ItemLinks.findIndex(f => this.EditingLink != null && f.itemIdSecondary == this.EditingLink.itemIdSecondary) != -1 //this is a new link, but we're trying to link to an already-linked item
 		) {
-			console.log("R2");
+			//console.log("R2");
 			return false;
 		}
 		else return true;
@@ -163,14 +178,16 @@ export class ItemLinksComp  implements OnInit {
     }
 
 	public async ViewLinkedItemDetails(link: iItemLink) {
-		if (link.itemIdSecondary > 0)
+		if (link.itemIdSecondary > 0) {
 			this._LinkedItemDetails = await this.itemListService.FetchSingleItem(link.itemIdSecondary);
+		}
     }
 	public CloseLinkedItemDetails() {
 		this._LinkedItemDetails = null;
     }
 	Clear() {
-		
+		this.CancelEditing();
+		this.ItemIdTofind = 0;
 	}
 
 	
