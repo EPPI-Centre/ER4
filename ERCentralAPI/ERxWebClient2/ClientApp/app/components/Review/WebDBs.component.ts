@@ -32,7 +32,7 @@ export class WebDBsComponent implements OnInit, OnDestroy, AfterViewInit {
 
 	ngOnInit() {
 		if (this.WebDBService.WebDBs.length == 0) this.WebDBService.Fetch();
-		if (this.ReviewSetsService.ReviewSets.length == 0) this.ReviewSetsService.GetReviewSets();
+		if (this.ReviewSetsService.ReviewSets.length == 0) this.ReviewSetsService.GetReviewSets(false);
 	}
 
 	async ngAfterViewInit() {
@@ -55,6 +55,7 @@ export class WebDBsComponent implements OnInit, OnDestroy, AfterViewInit {
 	public EditingSetAttribute: SetAttribute | null = null;
 	public EditingFilter: boolean = false;
 	public ConfirmPassword: string = "";
+	public ShowPassword: boolean = false;
 	public isCollapsedFilterCode: boolean = false;
 	public uploadSaveUrl = this._baseUrl + 'api/WebDB/UploadImage'; 
 	public uploadRestrictions: FileRestrictions = {
@@ -65,6 +66,7 @@ export class WebDBsComponent implements OnInit, OnDestroy, AfterViewInit {
 		]
 		, maxFileSize: 1024000
 	};
+	public ImageSizeError: string = "";
 	public isUploadImage1: boolean = true;
 	public ShowUpload: boolean = false;
 	public get MissingAttributes(): MissingAttribute[] {
@@ -302,10 +304,9 @@ export class WebDBsComponent implements OnInit, OnDestroy, AfterViewInit {
 		}
 		return 0;
 	}
-
 	public selectEventHandler(e: SelectEvent): void {
 		const that = this;
-
+		this.ImageSizeError = "";
 		e.files.forEach((file) => {
 			console.log(`File selected: ${file.name}`);
 
@@ -331,10 +332,12 @@ export class WebDBsComponent implements OnInit, OnDestroy, AfterViewInit {
 				};
 				if (file && file.rawFile) reader.readAsDataURL(file.rawFile);
 			}
+			else this.ImageSizeError = "File size is too big (Max: 1MB)";
 		});
 	}
 	clearUploadImageEventHandler() {
 		this.imagePreview = null;
+		this.ImageSizeError = "";
     }
 
 	uploadEventHandler(e: UploadEvent) {
@@ -354,6 +357,7 @@ export class WebDBsComponent implements OnInit, OnDestroy, AfterViewInit {
 		this.ShowUpload = false;
 		this.WebDBService.Fetch();
 		this.imagePreview = null;
+		this.ImageSizeError = "";
 		//this.ItemDocsService.Refresh();
 		//this.log(`All files processed`);
 	}

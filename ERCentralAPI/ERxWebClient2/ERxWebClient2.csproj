@@ -121,6 +121,8 @@
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemDuplicatesReadOnly.cs" Link="Models\ItemDuplicatesReadOnly.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemDuplicatesReadOnlyList.cs" Link="Models\ItemDuplicatesReadOnlyList.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemIncludeExcludeCommand.cs" Link="Models\ItemIncludeExcludeCommand.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemLink.cs" Link="Models\ItemLink.cs" />
+    <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemLinkList.cs" Link="Models\ItemLinkList.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemList.cs" Link="Models\ItemList.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemSet.cs" Link="Models\ItemSet.cs" />
     <Compile Include="..\..\EPPIReviewer4.2015\Server\BusinessClasses\ItemSetBulkCompleteCommand.cs" Link="Models\ItemSetBulkCompleteCommand.cs" />

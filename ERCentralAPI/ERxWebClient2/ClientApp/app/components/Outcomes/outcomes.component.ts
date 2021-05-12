@@ -4,9 +4,8 @@ import { EventEmitterService } from '../services/EventEmitter.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { OutcomesService, OutcomeType, Outcome } from '../services/outcomes.service';
 import { Item } from '../services/ItemList.service';
-import { iTimePoint } from '../services/timePoints.service';
-import { iArm } from '../services/arms.service';
-import { Console } from '@angular/core/src/console';
+import { iTimePoint } from '../services/ArmTimepointLinkList.service';
+import { iArm } from '../services/ArmTimepointLinkList.service';
 
 
 @Component({

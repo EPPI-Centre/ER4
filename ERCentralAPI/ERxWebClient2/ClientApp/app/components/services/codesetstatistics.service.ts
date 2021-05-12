@@ -31,10 +31,12 @@ export class CodesetStatisticsService extends BusyAwareService implements OnDest
     private clearSub: Subscription | null = null;
     private _CompletedCodesets: ReviewStatisticsCodeSet[] = [];
 	private _IncompleteCodesets: ReviewStatisticsCodeSet[] = [];
-	private _tmpCodesets: StatsCompletion[] = [];
+    private _tmpCodesets: StatsCompletion[] = [];
+    public SkippedFullStats: boolean = false; //is true when we got stats, but not all of them
+    public WouldSkipFullStats: boolean = false;//is true when, to get the full stats the service requires to override the "review size" check, i.e. when current review is considered "big".
 
-    @Output() GetCompletedSetsEmit: EventEmitter<any> = new EventEmitter<any>();
-    @Output() GetIncompleteSetsEmit: EventEmitter<any> = new EventEmitter<any>();
+    //@Output() GetCompletedSetsEmit: EventEmitter<any> = new EventEmitter<any>();
+    //@Output() GetIncompleteSetsEmit: EventEmitter<any> = new EventEmitter<any>();
 
     private _ReviewStats: ReviewStatisticsCountsCommand = {
         itemsIncluded: -1,
@@ -43,37 +45,9 @@ export class CodesetStatisticsService extends BusyAwareService implements OnDest
         duplicateItems: -1
     };
     public get ReviewStats(): ReviewStatisticsCountsCommand {
-        //if (this._ReviewStats.itemsIncluded != -1 ) {
-        //    return this._ReviewStats;
-        //}
-        //else {
-        //    const ReviewStatsJson = localStorage.getItem('ReviewStats');
-        //    let rev_Stats: ReviewStatisticsCountsCommand = ReviewStatsJson !== null ? JSON.parse(ReviewStatsJson) : null;
-        //    if (rev_Stats == undefined || rev_Stats == null || rev_Stats.itemsIncluded == -1) {
-
-        //        return this._ReviewStats;
-        //    }
-        //    else {
-        //        this._ReviewStats = rev_Stats;
-        //    }
-        //}
         return this._ReviewStats;
     }
     public get CompletedCodesets(): ReviewStatisticsCodeSet[]  {
-        //if (this._CompletedCodesets != null ) {
-        //    return this._CompletedCodesets;
-        //}
-        //else {
-        //    const CompletedCodesetsJson = localStorage.getItem('CompletedCodesets');
-        //    let CompletedSets: ReviewStatisticsCodeSet[]  = CompletedCodesetsJson !== null ? JSON.parse(CompletedCodesetsJson) : null;
-        //    if (CompletedSets == undefined || CompletedSets == null  ) {
-
-        //        return this._CompletedCodesets;
-        //    }
-        //    else {
-        //        this._CompletedCodesets = CompletedSets;
-        //    }
-        //}
         return this._CompletedCodesets;
 	}
 	public set CompletedCodesets(CompletedCodesets: ReviewStatisticsCodeSet[]) {
@@ -86,48 +60,51 @@ export class CodesetStatisticsService extends BusyAwareService implements OnDest
 		this._tmpCodesets = tmpCodesets;
 	}
 	public get tmpCodesets(): StatsCompletion[] {
-
-  //      if (this._tmpCodesets != null) {
-  //          return this._tmpCodesets;
-  //      }
-  //      else {
-		//	const tmpCodesetsJson = localStorage.getItem('tmpCodesets');
-		//	let tmpCodesets: StatsCompletion[] = tmpCodesetsJson !== null ? JSON.parse(tmpCodesetsJson) : null;
-		//	if (tmpCodesets == undefined || tmpCodesets == null) {
-
-  //              return this._tmpCodesets;
-  //          }
-  //          else {
-		//		this._tmpCodesets = tmpCodesets;
-  //          }
-		//}
-		//console.log('blah ' + this._tmpCodesets);
 		return this._tmpCodesets;
     }
 	public get IncompleteCodesets(): ReviewStatisticsCodeSet[] {
-		//if (this._IncompleteCodesets != null) {
-		//	return this._IncompleteCodesets;
-		//}
-		//else {
-		//	const IncompleteCodesetsJson = localStorage.getItem('IncompleteCodesets');
-		//	let IncompleteSets: ReviewStatisticsCodeSet[] = IncompleteCodesetsJson !== null ? JSON.parse(IncompleteCodesetsJson) : null;
-		//	if (IncompleteSets == undefined || IncompleteSets == null) {
-
-		//		return this._IncompleteCodesets;
-		//	}
-		//	else {
-		//		this._IncompleteCodesets = IncompleteSets;
-		//	}
-		//}
 		return this._IncompleteCodesets;
 	}
-    public GetReviewStatisticsCountsCommand(DoAlsoDetailedStats: boolean = true) {
+    public GetReviewStatisticsCountsCommand(DoAlsoDetailedStats: boolean = false, ForceDetailedStats: boolean = false) {
         this._BusyMethods.push("GetReviewStatisticsCountsCommand");
         this._http.get<ReviewStatisticsCountsCommand>(this._baseUrl + 'api/ReviewStatistics/ExcecuteReviewStatisticsCountCommand').subscribe(
            data => {
-               this._ReviewStats = data;
+                this._ReviewStats = data;
+                //let's check how many items and coding tools we have...
+                const TotItems = data.itemsIncluded + data.itemsExcluded;
+                const TotTools = this.reviewSetsService.ReviewSets.length;
+                console.log("Should we skip the full stats? (tot items, tot tools)", TotItems, TotTools);
+                if (TotItems > 100000 //just too many items!
+                    || (TotItems > 80000 && TotTools > 6) //lots of items and a fair amount of tools
+                    || (TotItems > 60000 && TotTools >= 9) //lots of items and a fair amount of tools
+                    || (TotItems > 40000 && TotTools >= 12) //plenty of items and a many tools
+                    || (TotItems > 30000 && TotTools >= 20) //quite a few items, but so many tools!
+                ) {
+                    this.WouldSkipFullStats = true;
+                }
+                if (DoAlsoDetailedStats == true) {
+                    //we now want to get the details of complete/uncomplete coding numbers. But should we? 
+                    //If we probably have too much data, we won't unless ForceDetailedStats is true;
+                    if (ForceDetailedStats == true) {
+                        //we get all stats, no matter what!!
+                        this.GetReviewSetsCodingCounts(true);
+                    }
+                    else {
+                        //let's check how many items and coding tools we have...
+                        const TotItems = data.itemsIncluded + data.itemsExcluded;
+                        const TotTools = this.reviewSetsService.ReviewSets.length;
+                        //console.log("Should we skip the full stats? (tot items, tot tools)", TotItems, TotTools);
+                        if (this.WouldSkipFullStats) {
+                            this.SkippedFullStats = true;
+                            return;
+                        }
+                        else {
+                            this.GetReviewSetsCodingCounts(true);
+                        }
+                    }
+                }
                //this.Save();
-               if (DoAlsoDetailedStats) this.GetCompletedSetsEmit.emit(data);
+               //if (DoAlsoDetailedStats) this.GetCompletedSetsEmit.emit(data);
                return data;
             },
             (error) => {
@@ -139,7 +116,8 @@ export class CodesetStatisticsService extends BusyAwareService implements OnDest
             }
         );
     }
-    public GetReviewSetsCodingCounts(completed: boolean, trigger: Subject<any>) {
+    public GetReviewSetsCodingCounts(completed: boolean) {
+        this.SkippedFullStats = false;
         this._BusyMethods.push("GetReviewSetsCodingCounts");
         let body = JSON.stringify({ Value: completed });
         this._http.post<ReviewStatisticsCodeSet[]>(this._baseUrl + 'api/ReviewStatistics/FetchCounts',
@@ -148,11 +126,7 @@ export class CodesetStatisticsService extends BusyAwareService implements OnDest
             result => {
 
                 this.CompletedCodesets = result;
-                //console.log('complete sets: ', result);
-                //console.log('complete sets: ' + JSON.stringify(result.map((x) => x.setName + ' ' + x.numItems)));
-                //this.SaveCompletedSets();
-                this.GetCompletedSetsEmit.emit(result);
-                this.GetReviewSetsIncompleteCodingCounts(false, trigger);
+                this.GetReviewSetsIncompleteCodingCounts(false);
 
             }, error => {
                 this.modalService.SendBackHomeWithError(error);
@@ -165,7 +139,7 @@ export class CodesetStatisticsService extends BusyAwareService implements OnDest
         );
 
     }
-    public GetReviewSetsIncompleteCodingCounts(completed: boolean, trigger: Subject<any>) {
+    public GetReviewSetsIncompleteCodingCounts(completed: boolean) {
         this._BusyMethods.push("GetReviewSetsIncompleteCodingCounts");
         let body = JSON.stringify({ Value: completed });
         this._http.post<ReviewStatisticsCodeSet[]>(this._baseUrl + 'api/ReviewStatistics/FetchCounts',
@@ -174,11 +148,10 @@ export class CodesetStatisticsService extends BusyAwareService implements OnDest
                 this.IncompleteCodesets = result;
                 //console.log('incomplete sets' + JSON.stringify(result.map((x) => x.setName + ' ' + x.numItems)) + '\n');
                 //this.SaveIncompleteSets();
-                this.GetIncompleteSetsEmit.emit(result);
+                //this.GetIncompleteSetsEmit.emit(result);
                 this.formateSets();
                 //console.log(this._tmpCodesets);
                 this.RemoveBusy("GetReviewSetsIncompleteCodingCounts");
-                trigger.next();
 
             }, error => {
                 this.RemoveBusy("GetReviewSetsIncompleteCodingCounts");
@@ -229,7 +202,7 @@ export class CodesetStatisticsService extends BusyAwareService implements OnDest
             if (index1 != -1) {
 
                 ind += 1;
-                let tmp: ReviewStatisticsCodeSet | undefined = this.CompletedCodesets.find(x => x.setName == tempSetName);
+                let tmp: ReviewStatisticsCodeSet | undefined = this.CompletedCodesets.find(x => x.setId == tempSetId);
                 
                 if (tmp) {
                     tmpSet.CompletedByReviewer = tmpSet.CompletedByReviewer.concat(tmp.reviewerStatistics);
@@ -244,7 +217,7 @@ export class CodesetStatisticsService extends BusyAwareService implements OnDest
 
                 ind += 1;
                 //console.log('single find in incomplete');
-                let tmpI: ReviewStatisticsCodeSet | undefined = this.IncompleteCodesets.find(x => x.setName == tempSetName);
+                let tmpI: ReviewStatisticsCodeSet | undefined = this.IncompleteCodesets.find(x => x.setId == tempSetId);
 
                 if (tmpI) {
                     tmpSet.IncompleteByReviewer = tmpSet.IncompleteByReviewer.concat(tmpI.reviewerStatistics);
@@ -273,7 +246,7 @@ export class CodesetStatisticsService extends BusyAwareService implements OnDest
 		this._http.post<ItemSetBulkCompleteCommand>(this._baseUrl + 'api/ReviewStatistics/ExcecuteItemSetBulkCompleteCommand',
 			MVCcmd).subscribe(() => {
 
-				this.GetReviewStatisticsCountsCommand();
+                this.GetReviewSetsCodingCounts(true);//refresh coding counts - we just changed completion states is bulk, so we'd better!
 				this.RemoveBusy("SendToItemBulkCompleteCommand");
 	
 				}, error => {
@@ -296,11 +269,12 @@ export class CodesetStatisticsService extends BusyAwareService implements OnDest
 		MVCcmd.isPreview = isPreview;
 		return this._http.post<BulkCompleteUncompleteCommand>(this._baseUrl + 'api/ReviewStatistics/PreviewCompleteUncompleteCommand',
 			MVCcmd).toPromise().then(
-
-			(result) => {
-
-				this.RemoveBusy("ItemsToBulkCompleteOrNotCommand");
-				return result;
+                (result) => {
+                    if (isPreview == 'false') {
+                        this.GetReviewSetsCodingCounts(true);//refresh coding counts - we just changed completion states is bulk, so we'd better!
+                    }
+                    this.RemoveBusy("ItemsToBulkCompleteOrNotCommand");
+                    return result;
 				
 			}, error => {
 				this.RemoveBusy("ItemsToBulkCompleteOrNotCommand");
@@ -309,27 +283,7 @@ export class CodesetStatisticsService extends BusyAwareService implements OnDest
 			}
 		);
 	}
-    //private Save() {
-    //    if (this.ReviewStats != undefined && this.ReviewStats != null )
-    //        localStorage.setItem('ReviewStats', JSON.stringify(this.ReviewStats));
-    //    else if (localStorage.getItem('ReviewStats')) localStorage.removeItem('ReviewStats');
-    //}
-    //private SaveCompletedSets() {
-    //    if (this._CompletedCodesets != undefined && this._CompletedCodesets != null) 
-    //        localStorage.setItem('CompletedSets', JSON.stringify(this._CompletedCodesets));
-    //    else if (localStorage.getItem('CompletedSets')) localStorage.removeItem('CompletedSets');
-    //}
-    //private SaveIncompleteSets() {
-    //    if (this._IncompleteCodesets != undefined && this._IncompleteCodesets != null) 
-    //        localStorage.setItem('IncompleteSets', JSON.stringify(this._IncompleteCodesets));
-    //    else if (localStorage.getItem('IncompleteSets')) localStorage.removeItem('IncompleteSets');
-    //}
-    //private SaveFormattedSets() {
-    //    console.log('saving formatted sets')
-    //    if (this._tmpCodesets != undefined && this._tmpCodesets != null)
-    //        localStorage.setItem('tmpCodesets', JSON.stringify(this._tmpCodesets));
-    //    else if (localStorage.getItem('tmpCodesets')) localStorage.removeItem('tmpCodesets');
-    //}
+
     public Clear() {
         console.log("Clear on CodesetStatisticsService");
         this._ReviewStats = {
@@ -341,6 +295,8 @@ export class CodesetStatisticsService extends BusyAwareService implements OnDest
         this._tmpCodesets = [];
         this._CompletedCodesets = [];
         this._IncompleteCodesets = [];
+        this.SkippedFullStats = false; 
+        this.WouldSkipFullStats = false; 
         //localStorage.removeItem('tmpCodesets');
         //localStorage.removeItem('CompletedSets');
         //localStorage.removeItem('IncompleteCodesets');

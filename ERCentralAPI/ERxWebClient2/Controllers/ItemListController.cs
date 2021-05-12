@@ -264,32 +264,25 @@ namespace ERxWebClient2.Controllers
 			}
 		}
 
-		//[HttpPost("[action]")]
-		//public IActionResult WorkAllocation(int AllocationId, string ListType, int pageSize, int pageNumber)
-		//{
-		//    try
-		//    {
-		//        if (!SetCSLAUser()) return Unauthorized();
-		//        ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+        [HttpPost("[action]")]
+        public IActionResult GetSingleItem([FromBody] SingleInt64Criteria ItemIDCrit)
+        {
 
-		//        DataPortal<ItemList> dp = new DataPortal<ItemList>();
-		//        SelectionCriteria crit = new SelectionCriteria();
-		//        crit.WorkAllocationId = AllocationId;
-		//        crit.ListType = ListType;
-		//        crit.PageSize = pageSize;
-		//        crit.PageNumber = pageNumber;
-		//        ItemList result = dp.Fetch(crit);
-		//        //return Json(result);
+            try
+            {
+                if (!SetCSLAUser()) return Unauthorized();
+                SingleCriteria<Item, Int64> criteria = new SingleCriteria<Item, Int64>(ItemIDCrit.Value);
+                Item result = DataPortal.Fetch<Item>(criteria);
+                return Ok(result);
 
-		//        return Ok(new ItemList4Json(result));
-		//    }
-		//    catch (Exception)
-		//    {
-
-		//        return StatusCode(500, e.Message);
-		//    }
-		//}
-	}
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Error in GetSingleItem: {0}", ItemIDCrit.Value);
+                return StatusCode(500, e.Message);
+            }
+        }
+    }
 	
 	public class SelCritMVC
     {

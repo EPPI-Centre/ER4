@@ -481,7 +481,6 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 
 		this.AllIncOrExcShow = false;
 	}
-	dtTrigger: Subject<any> = new Subject();
 	private ListSubType: string = '';
 	ngOnInit() {
 
@@ -941,10 +940,10 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
     //    }
     //    this.GetStats();
     //}
-    GetStats() {
+    GetStats(forceAllDetails: boolean = false) {
         console.log('getting stats (mainfull):', this.InstanceId);
-        this.codesetStatsServ.GetReviewStatisticsCountsCommand();
-        this.codesetStatsServ.GetReviewSetsCodingCounts(true, this.dtTrigger);
+        this.codesetStatsServ.GetReviewStatisticsCountsCommand(true, forceAllDetails);
+        //this.codesetStatsServ.GetReviewSetsCodingCounts(true, this.dtTrigger);
     }
     Clear() {
         console.log('Clear in mainfull');

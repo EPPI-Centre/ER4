@@ -4,9 +4,7 @@ import { Helpers } from '../helpers/HelperMethods';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { ItemDocsService } from '../services/itemdocs.service';
 import { ItemCodingService, InPageSelection, ItemAttPDFCodingCrit, ItemSet } from '../services/ItemCoding.service';
-import { Console } from '@angular/core/src/console';
-import { CheckBoxClickedEventData } from '../CodesetTrees/codesetTreeCoding.component';
-import { ArmsService } from '../services/arms.service';
+import { ArmTimepointLinkListService } from '../services/ArmTimepointLinkList.service';
 import { ReviewSetsService, ItemAttributeSaveCommand } from '../services/ReviewSets.service';
 import { Item } from '../services/ItemList.service';
 import { ReviewInfoService } from '../services/ReviewInfo.service';
@@ -25,7 +23,7 @@ export class PdfTronContainer implements OnInit, AfterViewInit, OnDestroy {
     constructor(private ReviewerIdentityServ: ReviewerIdentityService,
         private ItemDocsService: ItemDocsService,
         private ItemCodingService: ItemCodingService,
-        private armsService: ArmsService,
+        private armsService: ArmTimepointLinkListService,
         private ReviewSetsService: ReviewSetsService,
         private ReviewInfoService: ReviewInfoService,
         private ngZone: NgZone,

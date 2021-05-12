@@ -24,7 +24,7 @@ export class CodesetTreeEditComponent implements OnInit, OnDestroy {
     ngOnInit() {
         
         if (this.ReviewSetsService.ReviewSets.length == 0) {
-            this.ReviewSetsService.GetReviewSets();
+            this.ReviewSetsService.GetReviewSets(false);
         } else {
             this.CheckReviewSetsOrder();
         }

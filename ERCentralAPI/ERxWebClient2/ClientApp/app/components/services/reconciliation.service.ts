@@ -3,12 +3,10 @@ import { HttpClient } from '@angular/common/http';
 import { BusyAwareService } from '../helpers/BusyAwareService';
 import {  Comparison } from './comparisons.service';
 import { ReviewSet, SetAttribute, ItemSetCompleteCommand, ReviewSetsService } from './ReviewSets.service';
-import { Item, Criteria } from './ItemList.service';
+import { Item } from './ItemList.service';
 import { ItemSet } from './ItemCoding.service';
-import { ArmsService } from './arms.service';
+import { ArmTimepointLinkListService } from './ArmTimepointLinkList.service';
 import { ModalService } from './modal.service';
-import { EventEmitterService } from './EventEmitter.service';
-
 @Injectable({
 
 	providedIn: 'root',
@@ -19,7 +17,7 @@ export class ReconciliationService extends BusyAwareService {
 
 	constructor(
 		private _httpC: HttpClient,
-		private _armsService: ArmsService,
+		private _armsService: ArmTimepointLinkListService,
 		private _modalService: ModalService,
 		private _ReviewSetsService: ReviewSetsService,
 		@Inject('BASE_URL') private _baseUrl: string

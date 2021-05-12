@@ -107,9 +107,10 @@
                         </ng-template>
                     </kendo-tabstrip-tab>
 
-                    <kendo-tabstrip-tab [title]="'Arms and Timepoints'">
+                    <kendo-tabstrip-tab [title]="'Links Arms Timepoints'">
                         <ng-template kendoTabContent>
                             <div *ngIf="item">
+                                <ItemLinksComp [item]="item"></ItemLinksComp>
                                 <armDetailsComp #ArmDetailsComp [item]="item"></armDetailsComp>
                                 <timePointsComp #TimePointsComp [item]="item"></timePointsComp>
                             </div>

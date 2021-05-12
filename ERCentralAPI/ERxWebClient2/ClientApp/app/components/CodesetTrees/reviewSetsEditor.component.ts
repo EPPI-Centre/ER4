@@ -352,7 +352,7 @@ export class ReviewSetsEditorComponent implements OnInit, OnDestroy {
                     , () => { if (sub) sub.unsubscribe(); }
                 );
                 this.ReviewSetsService.selectedNode = null;
-                this.ReviewSetsService.GetReviewSets();
+                this.ReviewSetsService.GetReviewSets(false);
             }
         }
         this.ShowChangeDataEntry = false;
@@ -500,7 +500,7 @@ export class ReviewSetsEditorComponent implements OnInit, OnDestroy {
     }
     
     BackToMain() {
-        this.ReviewSetsService.GetReviewSets();
+        this.ReviewSetsService.GetReviewSets(false);
         this.router.navigate(['Main']);
     }
     ngOnDestroy() {
