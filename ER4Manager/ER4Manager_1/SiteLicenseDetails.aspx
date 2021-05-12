@@ -113,7 +113,7 @@
             </tr>
             <tr>
                 <td style="background-color: #B6C6D6; width: 25%; height: 24px;"
-                    valign="middle">License model
+                    valign="middle">License model *
                     &nbsp;&nbsp;
                     (<asp:Label ID="lblModelType" runat="server" Text="0" Visible="true"></asp:Label>)
                 </td>
