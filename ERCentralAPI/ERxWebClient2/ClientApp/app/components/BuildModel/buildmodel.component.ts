@@ -211,10 +211,8 @@ export class BuildModelComponent implements OnInit, OnDestroy {
 
 		this.selectedModelDropDown1 = '';
 		this.selectedModelDropDown2 = '';
-		this._reviewSetsService.GetReviewSets();
+		if (this._reviewSetsService.ReviewSets.length == 0) this._reviewSetsService.GetReviewSets(false);
 		this._classifierService.Fetch();
-	
-
 	}
 	ngOnDestroy() {
 

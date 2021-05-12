@@ -49,8 +49,11 @@
                 <button *ngIf="!IsServiceBusy" class="btn btn-sm btn-outline-success mx-1 my-0 py-1 px-2 ng-star-inserted" (click)="RefreshStats()">
                     <i class="fa fa-refresh" aria-hidden="true"></i>
                 </button>
-                <div *ngIf="IsServiceBusy" class="ml-2 mt-1 pl-1 " style="display:inline-block;position:absolute; top:0.30em;">
+                <div *ngIf="IsServiceBusy" class="mx-2 mt-1 pl-1 " style="display:inline-block;position:relative; top:0.10em;">
                     <i class="fa fa-spinner fa-spin text-success mt-1 " style=""></i>
+                </div>
+                <div *ngIf="WillNotAutoRefreshCodingStats && !HasSkippedFullStats" class="font-weight-normal small alert-danger my-auto d-inline-block rounded px-1">
+                    This is a big review, coding stats do not auto-refresh.
                 </div>
             </div>
         </div>
@@ -64,6 +67,11 @@
                  style="border:1px solid white; border-radius: 3px; float:right; cursor:pointer; position:relative; top:15%;"
                  title="Advanced: bulk-uncomplete" (click)="changePanel('false')">
                 <img class="mb-1" src="../assets/CodingNotComplete.png" width="14" />
+            </div>
+        </div>
+        <div *ngIf="HasSkippedFullStats" class="p-1 bg-white rounded mx-auto my-auto">
+            <div  class="font-weight-normal alert-danger rounded px-2">
+                This is a big review, please get/refresh (<i class="fa fa-refresh text-success small" aria-hidden="true"></i>) the full stats manually, when needed.
             </div>
         </div>
     </div>

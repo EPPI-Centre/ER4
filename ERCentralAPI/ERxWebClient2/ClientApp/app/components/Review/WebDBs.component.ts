@@ -32,7 +32,7 @@ export class WebDBsComponent implements OnInit, OnDestroy, AfterViewInit {
 
 	ngOnInit() {
 		if (this.WebDBService.WebDBs.length == 0) this.WebDBService.Fetch();
-		if (this.ReviewSetsService.ReviewSets.length == 0) this.ReviewSetsService.GetReviewSets();
+		if (this.ReviewSetsService.ReviewSets.length == 0) this.ReviewSetsService.GetReviewSets(false);
 	}
 
 	async ngAfterViewInit() {
