@@ -38,7 +38,7 @@
             <br />
 
             <telerik:RadEditor runat="server" ID="RadEditor" Height="350px" 
-                MaxHtmlLength="4000">
+                MaxHtmlLength="8000">
     <Tools>
         <telerik:EditorToolGroup> 
              <telerik:EditorTool Name="Bold" />
