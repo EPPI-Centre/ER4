@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, Inject, ViewChild } from '@angular/core';
 import { ItemListService } from '../services/ItemList.service';
 import { ReviewSet, SetAttribute, singleNode } from '../services/ReviewSets.service';
-import { Report, ConfigurableReportService, ReportStandard, ReportOutcomes, ReportRiskOfBias, CommonReportFields } from '../services/configurablereport.service';
+import { iConfigurableReport, ConfigurableReportService, ReportStandard, ReportOutcomes, ReportRiskOfBias, CommonReportFields } from '../services/configurablereport.service';
 import { codesetSelectorComponent } from '../CodesetTrees/codesetSelector.component';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { EventEmitterService } from '../services/EventEmitter.service';
@@ -30,7 +30,7 @@ export class configurablereportComp implements OnInit, OnDestroy {
 	public ReportCommonParams: CommonReportFields = new CommonReportFields();
 
 	ngOnInit() {
-        this.configurablereportServ.FetchReports();
+        //this.configurablereportServ.FetchReports();
 	}
 
 	ngOnDestroy() {
@@ -43,7 +43,7 @@ export class configurablereportComp implements OnInit, OnDestroy {
 	public AllocateChoice: string = '';
 	public AllIncOrExcShow: boolean = false;
 	public RunReportsShow: boolean = false;
-	public ReportChoice: Report = {} as Report;
+	public ReportChoice: iConfigurableReport = {} as iConfigurableReport;
 	public AddBulletstoCodes: boolean = false;
 	public AdditionalTextTag: string = '[Info]';
 	public AssignDocs: string = 'true';
@@ -59,8 +59,8 @@ export class configurablereportComp implements OnInit, OnDestroy {
 	public reportHTML: string = '';
 	public sectionShow: string = 'Standard';
 	public GeneratedReport: boolean = false;
-	public QuestionReports: Report[] = [];
-	public AnswerReports: Report[] = [];
+	public QuestionReports: iConfigurableReport[] = [];
+	public AnswerReports: iConfigurableReport[] = [];
 	public tabSelectedIndex: number = 0;
 	public showRiskOfBias() {
 		this.showROB = !this.showROB;
@@ -74,7 +74,7 @@ export class configurablereportComp implements OnInit, OnDestroy {
 	public onTabSelect(event: any) {
 
 		this.Clear();
-		this.ReportChoice = {} as Report;
+		this.ReportChoice = {} as iConfigurableReport;
 		let index: number = event.index;
 		this.outcomesHidden = false;
 
@@ -129,7 +129,7 @@ export class configurablereportComp implements OnInit, OnDestroy {
 		
 		this.configurablereportServ.reportHTML = '';
 		this.reportHTML = '';
-		this.ReportChoice = {} as Report;
+		this.ReportChoice = {} as iConfigurableReport;
 		this.ReportCommonParams.itemsChoice == 'Items with this code'
 		this.DropdownSelectedCodingTool = {} as singleNode;
 		this.GeneratedReport = false;

@@ -107,6 +107,7 @@ import { CKEditorModule } from 'ckeditor4-angular';
 import { MAGKeepUpToDate } from './components/MAG/MAGKeepUpToDate.component';
 import { MAGComp } from './components/MAG/MAG.component';
 import { ItemLinksComp } from './components/ArmsAndTimePoints/ItemLinks.component';
+import { SetupConfigurableReports } from './components/Reports/SetupConfigurableReports.component';
 
 @NgModule({
     declarations: [
@@ -193,7 +194,8 @@ import { ItemLinksComp } from './components/ArmsAndTimePoints/ItemLinks.componen
         MAGSearchDetailsComponent,
         WebDBsComponent,
         WebDbCcodesetTreeComponent,
-        ItemLinksComp
+        ItemLinksComp,
+        SetupConfigurableReports
 	],
     providers: [
         DatePipe, 

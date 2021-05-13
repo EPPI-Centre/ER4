@@ -1,0 +1,39 @@
+<div *ngIf="IsServiceBusy" class="k-loading-image" style="position: fixed; top: 0%;"></div>
+<div class="container px-1 col-12 fullBordersInTabs">
+    <div class="row">
+        <div class="col-5 col-lg-4" style="max-height:80vh; overflow:auto;">
+            Reports list
+            <div *ngFor="let rpt of Reports">
+                {{rpt.reportId}} : {{rpt.name}} <button class="btn btn-outline-success" (click)="EditReport(rpt)">Edit</button>
+            </div>
+        </div>
+        <div class="col-7 col-lg-8 row">
+            <div *ngIf="EditingReport != null">
+                <div>{{EditingReport.name}} - {{EditingReport.reportType}} <button class="btn btn-outline-dark" (click)="CancelEditing()">Cancel</button></div>
+                <div class="row">
+                    <div *ngFor="let col of EditingReport.columns" class="border border-info">
+                        <div class="row mx-1">Name: {{col.name}} <div class="ml-auto alert-info">Col {{col.columnOrder + 1}}</div></div>
+                       <div class="p-1 m-1 border border-dark"> 
+                           Codes in column...
+                           <div *ngFor="let code of col.codes" class="m-1 border rounded border-info">
+                               CodeId:{{code.attributeId}}<br />
+                               Order: {{code.codeOrder}}<br />
+                               Show add.txt: {{code.displayAdditionalText}}<br />
+                               Show code name: {{code.displayCode}}<br />
+                               Show PDF txt: {{code.displayCodedText}}<br />
+                               ParentCodeId: {{code.parentAttributeId}}<br />
+                               parentAttributeText? {{code.parentAttributeText}}<br />
+                               reportColumnCodeId: {{code.reportColumnCodeId}}<br />
+                               reportColumnId: {{code.reportColumnId}}<br />
+                               setId: {{code.setId}}<br />
+                               userDefText: {{code.userDefText}}<br />
+                           </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
