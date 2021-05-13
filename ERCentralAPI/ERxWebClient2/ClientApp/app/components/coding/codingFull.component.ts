@@ -282,7 +282,7 @@ export class ItemCodingFullComp implements OnInit, OnDestroy {
                 );
                 //this.SetCoding();
                 this.ReviewSetsService.selectedNode = null;
-                this.ReviewSetsService.GetReviewSets();
+                this.ReviewSetsService.GetReviewSets(false);
             }
         }
         this.EditCodesPanel = "";

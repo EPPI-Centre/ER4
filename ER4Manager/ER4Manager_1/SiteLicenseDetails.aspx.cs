@@ -714,9 +714,9 @@ public partial class SiteLicenseDetails : System.Web.UI.Page
                         pnlChangeLicenseModel.Visible = true;
                         lblContinueMessage.Text = "You are changing the license mode from <b>Fixed</b> to <b>Removable</b>. There are two options available:";
 
-                        lblContinueMessage01.Text = "<b>1)</b> To change to 'Removable' using the 'Latest' package, click <b>Convert</b>.<br>" +
+                        lblContinueMessage01.Text = "<b>1)</b> To change to 'Removable' using the 'Latest' (existing: currently active) package, click <b>Convert</b>.<br>" +
                             "The existing reviews will stay in the 'Latest' package.<br><br>";
-                        lblContinueMessage02.Text = "<b>2)</b> If this is a renewal select the 'Offer' package, set the start and end dates, and then click <b>Renew</b>.<br>" +
+                        lblContinueMessage02.Text = "<b>2)</b> If this is a renewal select the current 'Offer' package (create it, if neccesary!), set the start and end dates, and then click <b>Renew</b>.<br>" +
                             "The existing reviews will be moved to the 'Reviews in previous package' table.<br>" +
                             "If the 'Offer' package doesn't yet exist, click <b>cancel</b> and create one.";
                     }
@@ -726,9 +726,9 @@ public partial class SiteLicenseDetails : System.Web.UI.Page
                         pnlChangeLicenseModel.Visible = true;
                         lblContinueMessage.Text = "You are changing the license mode from <b>Removable</b> to <b>Fixed</b>. There are two options available:";
 
-                        lblContinueMessage01.Text = "<b>1)</b> To change to 'Fixed' using the 'Latest' package, click <b>Convert</b>.<br>" +
+                        lblContinueMessage01.Text = "<b>1)</b> To change to 'Fixed' using the 'Latest' (existing: currently active) package, click <b>Convert</b>.<br>" +
                             "The existing reviews will stay in the 'Latest' package.<br><br>";
-                        lblContinueMessage02.Text = "<b>2)</b> If this is a renewal select the 'Offer' package, set the start and end dates, and then click <b>Renew</b>.<br>" +
+                        lblContinueMessage02.Text = "<b>2)</b> If this is a renewal select the current 'Offer' package (create it, if neccesary!), set the start and end dates, and then click <b>Renew</b>.<br>" +
                             "The existing reviews will be moved to the 'Reviews in previous package' table.<br>" +
                             "If the 'Offer' package doesn't yet exist, click <b>cancel</b> and create one.";
                     }

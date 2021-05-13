@@ -9,6 +9,7 @@ import { NotificationService } from '@progress/kendo-angular-notification';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 import { MAGBrowserHistory } from './MAGBrowserHistory.component';
 import { MAGBrowserHistoryService } from '../services/MAGBrowserHistory.service';
+import { MAGBrowserService } from '../services/MAGBrowser.service';
 
 @Component({
    
@@ -21,6 +22,7 @@ export class microsoftAcademicComp implements OnInit, OnDestroy {
 
     constructor(private router: Router, 
         @Inject('BASE_URL') private _baseUrl: string,
+        private _MAGBrowserService: MAGBrowserService,
         public _magAdvancedService: MAGAdvancedService,
         private _ItemCodingService: ItemCodingService,
         public _notificationService: NotificationService,
@@ -167,7 +169,15 @@ export class microsoftAcademicComp implements OnInit, OnDestroy {
     }
 
     public GetMagPaperForPage() {
-        if (this.magPaperId > 0) this.router.navigate(['MAG', this.magPaperId]);
+        //if (this.magPaperId > 0) this.router.navigate(['MAG', this.magPaperId]);
+        this._MAGBrowserService.FetchJustMagPaperRecordById(this.magPaperId).then(
+            (res: boolean) => {
+                if (res && this._MAGBrowserService.currentMagPaper.paperId == this.magPaperId) {
+                    this.foundMagPaper = true;
+                    this.FoundPaper = this._MAGBrowserService.currentMagPaper;
+                }
+            }
+        );
     }
 
     public UpdateMagPaperFound(match: boolean) {

@@ -174,20 +174,7 @@ export class CodesetTreeCodingComponent implements OnInit, OnDestroy, AfterViewI
             return null;
         }
     }
-    GetReviewSets() {
-        if (this.ReviewSetsService.ReviewSets && this.ReviewSetsService.ReviewSets.length > 0) return;
 
-        this.ReviewSetsService.GetReviewSets();
-            //.subscribe(
-            //result => {
-            //    this.ReviewSetsService.ReviewSets = result;
-            //    this.nodes = this.ReviewSetsService.ReviewSets;// as singleNode[];
-            //}, error => {
-            //    console.error(error);
-            //    this.router.navigate(['main']);
-            //}
-            //);
-    }
     CheckBoxClicked(event: any, data: singleNode, ) {
         let checkPassed: boolean = true;
         if (event.target) checkPassed = event.target.checked;//if we ticked the checkbox, it's OK to carry on, otherwise we need to check

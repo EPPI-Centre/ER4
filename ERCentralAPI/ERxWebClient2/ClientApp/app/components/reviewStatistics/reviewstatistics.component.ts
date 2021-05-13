@@ -27,7 +27,6 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
 		private ItemListService: ItemListService,
 		private codesetStatsServ: CodesetStatisticsService,
 		private confirmationDialogService: ConfirmationDialogService,
-		private _reviewSetsService: ReviewSetsService,
 		private _reviewInfoService: ReviewInfoService,
 		private _notificationService: NotificationService,
 	) {
@@ -71,7 +70,7 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
 	}
 	public get CodeSets(): ReviewSet[] {
 
-		return this._reviewSetsService.ReviewSets.filter(x => x.setType.allowComparison != false);
+		return this.reviewSetsService.ReviewSets.filter(x => x.setType.allowComparison != false);
 	}
     public get IsServiceBusy(): boolean {
         return this.codesetStatsServ.IsBusy;
@@ -84,7 +83,8 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
     }
     public get AdminSets(): StatsCompletion[] {
         return this.codesetStatsServ.tmpCodesets.filter(found => found.subTypeName == 'Administration');
-    }
+	}
+	
     public get HasWriteRights(): boolean {
         return this.ReviewerIdentityServ.HasWriteRights;
     }
@@ -100,6 +100,13 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
 		) return true;
 		return false;
 	}
+	public get HasSkippedFullStats(): boolean {
+		if (this.reviewSetsService.ReviewSets.length == 0) return false;
+		else return this.codesetStatsServ.SkippedFullStats;
+	}
+	public get WillNotAutoRefreshCodingStats(): boolean {
+		return this.codesetStatsServ.WouldSkipFullStats;
+    }
 	ngOnInit() {
 
 		console.log('inititating stats');
@@ -133,7 +140,8 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
         else this.DetailsForSetId = SetId;
     }
     RefreshStats() {
-        this.reviewSetsService.GetReviewStatsEmit.emit();
+        //this.reviewSetsService.GetReviewStatsEmit.emit();
+		this.codesetStatsServ.GetReviewStatisticsCountsCommand(true, true);
     }
 	Reload() {
 		this.Clear();
@@ -225,9 +233,7 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
 							this.codesetStatsServ.SendToItemBulkCompleteCommand(
 								setId,
 								contactId,
-								completeOrNot);
-
-							this.RefreshStats();
+								completeOrNot);//stats are refreshed here, overriding review-size check.
 
 						} else {
 							//alert('did not confirm');
@@ -311,7 +317,6 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
 				reviewerId
 			).then(
 				() => {
-					this.RefreshStats();
 					this._notificationService.show({
 						content: 'finished the bulk complete',
 						animation: { type: 'slide', duration: 400 },
@@ -331,7 +336,6 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
 				'false'
 			).then(
 				() => {
-					this.RefreshStats();
 					this._notificationService.show({
 						content: 'finished the bulk uncomplete',
 						animation: { type: 'slide', duration: 400 },
@@ -424,7 +428,6 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
 
 						this.msg +=  "Nothing to be " + (result.isCompleting ? "completed" : "un-completed") + "!";
 					}
-					this.RefreshStats();
 					this.showMessage = true;
 				});
 			}
