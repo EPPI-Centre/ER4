@@ -28,7 +28,7 @@ export class ConfigurableReportService extends BusyAwareService {
 	private clearSub: Subscription | null = null;
 	public reportHTML: string = '';
 	private _ReportList: iConfigurableReport[] = [];
-	public get Reports(): iConfigurableReport[] | null {
+	public get Reports(): iConfigurableReport[]  {
 		return this._ReportList;
 	}
 	public get ReportCollectionROB(): iConfigurableReport[] | null {
@@ -129,6 +129,28 @@ export class ConfigurableReportService extends BusyAwareService {
 			}
 		);
 	}
+
+	UpdateReport(rep: iConfigurableReport) {
+		this._BusyMethods.push("UpdateReport");
+		
+		//console.log("saving reviewSet via command", rs, rsC);
+		return this._httpC.post<iConfigurableReport>(this._baseUrl + 'api/ReportList/UpdateReport', rep).subscribe((res) => {
+			let ind = this.Reports.findIndex(f => f.reportId == res.reportId)
+			if (ind == -1) {
+				this.Reports.push(res);
+			}
+			else {
+				this.Reports.splice(ind, 1, res);
+            }
+
+			this.RemoveBusy("UpdateReport");
+		},
+			(err) => {
+				console.log("Error Updating Report:", err);
+				this.RemoveBusy("UpdateReport");
+				this.modalService.GenericError(err);
+			});
+    }
 
 	public Clear() {
 		this.reportHTML = '';

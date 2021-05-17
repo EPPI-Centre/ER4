@@ -9,14 +9,21 @@
         </div>
         <div class="col-7 col-lg-8 row">
             <div *ngIf="EditingReport != null">
-                <div>{{EditingReport.name}} - {{EditingReport.reportType}} <button class="btn btn-outline-dark" (click)="CancelEditing()">Cancel</button></div>
+                <div>
+                    {{EditingReport.name}} - {{EditingReport.reportType}}
+                    <button class="btn btn-outline-danger" (click)="Save()" [disabled]="!EditingReportHasChanged || !HasWriteRights">Save</button>
+                    <button class="btn btn-outline-dark" (click)="CancelEditing()">Cancel</button>
+                </div>
                 <div class="row">
                     <div *ngFor="let col of EditingReport.columns" class="border border-info">
                         <div class="row mx-1">Name: {{col.name}} <div class="ml-auto alert-info">Col {{col.columnOrder + 1}}</div></div>
                        <div class="p-1 m-1 border border-dark"> 
                            Codes in column...
                            <div *ngFor="let code of col.codes" class="m-1 border rounded border-info">
-                               CodeId:{{code.attributeId}}<br />
+                               {{code.userDefText}}
+                                <button class="btn btn-sm px-1 py-0 my-auto ml-auto" [disabled]="code.codeOrder == 0 || !HasWriteRights" (click)="MoveColumnCodeUp(col, code)">Up</button>
+                                <button class="btn btn-sm px-1 py-0 my-auto mx-1" [disabled]="code.codeOrder == col.codes.length -1 || !HasWriteRights" (click)="MoveColumnCodeDown(col, code)">Down</button>
+                               <!--CodeId:{{code.attributeId}}<br />
                                Order: {{code.codeOrder}}<br />
                                Show add.txt: {{code.displayAdditionalText}}<br />
                                Show code name: {{code.displayCode}}<br />
@@ -26,7 +33,7 @@
                                reportColumnCodeId: {{code.reportColumnCodeId}}<br />
                                reportColumnId: {{code.reportColumnId}}<br />
                                setId: {{code.setId}}<br />
-                               userDefText: {{code.userDefText}}<br />
+                               userDefText: {{code.userDefText}}<br />-->
                            </div>
                         </div>
                     </div>
