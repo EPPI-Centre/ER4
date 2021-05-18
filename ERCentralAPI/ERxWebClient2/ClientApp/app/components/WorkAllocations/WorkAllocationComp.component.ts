@@ -360,60 +360,7 @@ export class WorkAllocationComp implements OnInit {
 			) return true;
 		return false;
 	}
-	CreateNewCode() {
 	
-		if (this.CurrentNode) {
-
-			this._NewCode.order = this.CurrentNode.attributes.length;
-
-			if (this.CurrentNode.nodeType == "ReviewSet") {
-				this._NewCode.set_id = (this.CurrentNode as ReviewSet).set_id;
-				this._NewCode.parent_attribute_id = 0;
-			}
-			else if (this.CurrentNode.nodeType == "SetAttribute") {
-				this._NewCode.set_id = (this.CurrentNode as SetAttribute).set_id;
-				this._NewCode.parent_attribute_id = (this.CurrentNode as SetAttribute).attribute_id;
-			}
-		}
-		else {
-			this._NewReviewSet.order = 0;
-		}
-		console.log("What the hell?", this.CodeTypeSelect, this.CodeTypeSelect.nativeElement.selectedOptions, this.CodeTypeSelect.nativeElement.selectedOptions.length);
-		
-		if (this.CodeTypeSelect && this.CodeTypeSelect.nativeElement.selectedOptions && this.CodeTypeSelect.nativeElement.selectedOptions.length > 0) {
-			this._NewCode.attribute_type_id = this.CodeTypeSelect.nativeElement.selectedOptions[0].value;
-			this._NewCode.attribute_type = this.CodeTypeSelect.nativeElement.selectedOptions[0].text;
-		}
-		else {
-			this._NewCode.attribute_type_id = 1;//non selectable HARDCODED WARNING!
-			this._NewCode.attribute_type = "Not selectable(no checkbox)";
-		}
-
-		console.log("will create:", this._NewCode, this.CodeTypeSelect);
-		this._reviewSetsEditingService.SaveNewAttribute(this._NewCode)
-			.then(
-				success => {
-					if (success && this.CurrentNode) {
-						this.CurrentNode.attributes.push(success);
-						this._reviewSetsService.GetReviewSets();
-						
-					}
-					this._NewCode = new SetAttribute();
-					this.CancelActivity();
-					
-				},
-				error => {
-					this.CancelActivity();
-					console.log("error saving new code:", error, this._NewCode);
-					
-				})
-			.catch(
-				error => {
-					console.log("error(catch) saving new code:", error, this._NewCode);
-					this.CancelActivity();
-				}
-			);
-	}
 	CancelActivity(refreshTree?: boolean) {
 		if (refreshTree) {
 			if (this._reviewSetsService.selectedNode) {
