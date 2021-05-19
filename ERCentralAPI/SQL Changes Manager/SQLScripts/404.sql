@@ -20,8 +20,8 @@ declare @Content nvarchar(max) = '
 	<div class="col-sm">		
 	<b>Create a new visualisation.</b><br>
 	<img class="img" src="Images/EPPIVis_Create.png"><br>
-	To create a new visualisation click <b>Add new</b>, enter a title, a subTitle and click <b>Save</b><br>
-	Add any time you can preview the visualisation by clicking <b>View in EPPI-Vis</b><br>
+	To create a new visualisation click <b>Add new</b>, enter a title, a subTitle and click <b>Save</b><br><br>
+	At any time you can preview the visualisation by clicking <b>View in EPPI-Vis</b><br>
 	<img class="img" src="Images/EPPIVis_EditButton.png"><br>
 	The actual link to your visualisation can be found further down the screen as the <b>Public URL</b><br>
 	<img class="img" src="Images/EPPIVis_PublicURL.png"><br><br>
