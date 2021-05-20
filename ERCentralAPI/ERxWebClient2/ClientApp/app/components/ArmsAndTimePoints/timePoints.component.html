@@ -9,18 +9,18 @@
 	</h5>
 	
 	<div class="card-body" style="max-height:360px;overflow:auto;">
-		<div id="table" class="small table table-striped bg-light" *ngIf="ShowTimePoints">
+		<div id="table" class=" bg-light" *ngIf="ShowTimePoints">
 			<div class="table-add float-left mb-3 mr-2 col-md-12 row">
 				<form #timePointForm="ngForm" class="col-md-6">
 					Enter Time Point value:
 					<div>
 						<input #timePointModel="ngModel" name="n1"
 							   required
-							   pattern="^[0-9]+$" class="form-control"
-							   type="text" [(ngModel)]="timepointFreq" />
+							   class="form-control"
+							   type="number" [(ngModel)]="TimePointValue" />
 					</div>
 					<div *ngIf="timePointModel.invalid && (timePointModel.dirty || timePointModel.touched)"
-						 class="alert alert-danger p-1">
+						 class="alert alert-danger p-1 small">
 
 						<div *ngIf="timePointModel.errors.required">
 							Time Point value is required
@@ -29,34 +29,34 @@
 							Time Point value has to be a number
 						</div>
 					</div>
-					<div *ngIf="TimePointTheSame" class="alert small alert-danger p-1 col-md-4">
+					<div *ngIf="TimePointTheSame && EditingTimepointId == 0" class="rounded alert-danger p-1 small">
 						Time Point exists already
+					</div>
+					<div *ngIf="TimePointTheSame && EditingTimepointId > 0" class="rounded alert-danger p-1 small">
+						Time Point hasn't changed or has the same value of one that exists already
 					</div>
 				</form>
 				<div class="col-md-2">
 				</div>
 				<div class="form-group col-md-4">
 					<label class="m-0 p-0">Time Unit</label>
-					<select #unitM="ngModel" [(ngModel)]="unitModel"
-							class="form-control col-md-12" name="n2"
-							(change)="TimePointChanged(unitModel)">
+					<select #unitM="ngModel" [(ngModel)]="SelectedUnit"
+							class="form-control col-md-12" name="n2">
 						<option value="" selected="selected">Choose time point metric</option>
-						<option [ngValue]="unit" *ngFor="let unit of Units">
-							{{unit.name}}
+						<option [ngValue]="unit" *ngFor="let unit of Units" [selected]="unit == SelectedUnit">
+							{{unit}}
 						</option>
 					</select>
 				</div>
 				<div class="col-md-12 row">
-					<button
-							[disabled]="!HasWriteRights || timePointModel.invalid || unitModel =='' || edit != false"
-							class="btn btn-success mt-1 p-1 m-1" (click)="add(timepointFreq)">
+					<button *ngIf="EditingTimepointId == 0"
+							[disabled]="!HasWriteRights || timePointModel.invalid || SelectedUnit =='' || TimePointTheSame"
+							class="btn btn-success mt-1 p-1 m-1" (click)="CreateTimepoint()">
 						Add Time Point
 					</button>
-					<button *ngIf=" !timePointModel.invalid &&
-							edit == true
-							&& unitModel !=''"
-							[disabled]="!HasWriteRights"
-							class="btn btn-warning mt-1 p-1 m-1" (click)="UpdateList()">
+					<button *ngIf="EditingTimepointId > 0"
+							[disabled]="!HasWriteRights || timePointModel.invalid || SelectedUnit =='' || TimePointTheSame"
+							class="btn btn-success mt-1 p-1 m-1" (click)="UpdateTimepoint()">
 						Update Time Point
 					</button>
 					<button [disabled]="!timePointModel.dirty && unitModel ==''" type="reset"
@@ -68,31 +68,24 @@
 			</div>
 			<!---->
 			
-			<table class="table table-bordered table-responsive-md table-striped text-sm-center">
+			<table *ngIf="timePointsList.length > 0" class="table table-bordered table-sm table-striped text-center">
 				<tr>
-					<th class="text-sm-center">Timepoint</th>
-					<th class="text-sm-center" style="max-width: 10px;">Edit</th>
-					<th class="text-sm-center" style="max-width: 10px;">Remove</th>
+					<th class="text-center">Timepoint</th>
+					<th class="text-center" style="">Actions</th>
 				</tr>
-				<tr *ngFor="let timepoint of timePointsList; let key = index">
-					<td style="width: 150px;">{{timepoint.timepointValue}}  {{timepoint.timepointMetric}}</td>
-					<td style="width: 15px; white-space:nowrap;">
-						<span class="table-remove">
-							<button (click)="edit=true; setTimePoint(timepoint, key)"
-									[disabled]="!HasWriteRights"
-									type="button" rounded="true" size="sm" class="btn btn-outline-info p-1 m-1">
-								Edit
-							</button>
-						</span>
-					</td>
-					<td style="width: 15px; white-space:nowrap;">
-						<span class="table-remove">
-							<button type="button" rounded="true" size="sm" class="btn btn-outline-danger p-1 m-1"
-									[disabled]="!HasWriteRights" (click)="removeWarning(key)">
-								Remove
-							</button>
-						</span>
-					</td>
+				<tr *ngFor="let timepoint of timePointsList">
+					<td style="">{{timepoint.timepointValue}}&nbsp;{{timepoint.timepointMetric}}</td>
+                    <td style="white-space:nowrap;">
+                        <button (click)="setTimePointForEdit(timepoint)"
+                                [disabled]="!HasWriteRights"
+                                type="button" rounded="true" size="sm" class="btn btn-outline-info p-1 mx-1">
+                            Edit
+                        </button>
+                        <button type="button" rounded="true" size="sm" class="btn btn-outline-danger p-1 mx-1"
+                                [disabled]="!HasWriteRights" (click)="removeWarning(timepoint)">
+							<span class="k-icon k-i-delete "></span>
+                        </button>
+                    </td>
 				</tr>
 			</table>
 		</div>

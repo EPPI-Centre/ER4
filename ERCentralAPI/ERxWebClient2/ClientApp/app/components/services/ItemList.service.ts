@@ -1,19 +1,16 @@
 import { Inject, Injectable, EventEmitter, Output, OnDestroy } from '@angular/core';
 import { HttpClient,  } from '@angular/common/http';
-import { WorkAllocationListService } from './WorkAllocationList.service';
-import { PriorityScreeningService } from './PriorityScreening.service';
 import { ModalService } from './modal.service';
-import { error } from '@angular/compiler/src/util';
 import { BusyAwareService } from '../helpers/BusyAwareService';
 import { SortDescriptor, orderBy } from '@progress/kendo-data-query';
-import { ArmsService, iArm } from './arms.service';
-import { Subject, Subscription } from 'rxjs';
+import { iArm } from './ArmTimepointLinkList.service';
+import { Subscription } from 'rxjs';
 import { Helpers } from '../helpers/HelperMethods';
 import { ReadOnlySource } from './sources.service';
 import { EventEmitterService } from './EventEmitter.service';
 import { forEach } from '@angular/router/src/utils/collection';
 import { ERROR_COLLECTOR_TOKEN } from '@angular/platform-browser-dynamic/src/compiler_factory';
-import { iTimePoint } from './timePoints.service';
+import { iTimePoint } from './ArmTimepointLinkList.service';
 
 
 @Injectable({
@@ -259,7 +256,7 @@ export class ItemListService extends BusyAwareService implements OnDestroy {
         cr.listType = 'StandardItemList';
         cr.onlyIncluded = false;
         cr.showDeleted = true;
-        this.FetchWithCrit(cr, "Excluded Items");
+        this.FetchWithCrit(cr, "Deleted Items");
 	}
 	public GetCitationForExport(Item: Item) {
 
@@ -786,6 +783,24 @@ export class ItemListService extends BusyAwareService implements OnDestroy {
 			);
 	}
 
+    public FetchSingleItem(ItemId: number): Promise<Item | null> {
+        this._BusyMethods.push("FetchSingleItem");
+        let body = JSON.stringify({ Value: ItemId });
+
+        return this._httpC.post<Item>(this._baseUrl + 'api/ItemList/GetSingleItem',
+            body).toPromise().then(
+                result => {
+                    this.RemoveBusy("FetchSingleItem");
+                    //console.log("FetchSingleItem, fetched this:", result);
+                    return result;
+                },
+                (error) => {
+                    this.ModalService.SendBackHomeWithError(error);
+                    this.RemoveBusy("FetchSingleItem");
+                    return null;
+                }
+            );
+    }
 
     //public Save() {
     //    if (this._ItemList.items.length > 0) {

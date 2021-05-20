@@ -123,7 +123,14 @@ namespace AuthorsHandling
             }
             int i = 0;
             if (AutList.Count > 256)
+            {
                 AutList = AutList.GetRange(0, 256);
+                if (StartRank == 1)//i.e. the first author
+                {//we are probably processing 1 huge field with more than 256 authors in it.
+                    //so we'll truncate it, but we add an "Et Al" at the end...
+                    AutList.Add(AutH.NewAutH("Et Al.", 257, OrigiN));
+                }
+            }
             while ( i < AutList.Count)
             {
                 if (AutList[i].LastName == "")

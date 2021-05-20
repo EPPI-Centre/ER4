@@ -99,7 +99,7 @@
              class="small p-2 ml-3 mr-1 mb-1 row col-12 col-sm-10 card bg-white flex-row">
             <b>Showing&nbsp;</b>{{ItemListService.ListDescription}}
         </div>
-        <div *ngIf="Context!='CodingOnly'" class="row small col-12 col-sm-2 align-self-start">
+        <div *ngIf="Context =='FullUI'" class="row small col-12 col-sm-2 align-self-start">
             <button title="List All Included Items" class="btn mt-1 btn-outline-primary btn-sm" (click)="IncludedItemList()">I</button>
             <button title="List All Excluded Items" class="btn mt-1 ml-1 btn-outline-secondary btn-sm" (click)="ExcludedItemList()">E</button>
             <button title="List All Explicitly Deleted Items" class="btn mt-1 ml-1 btn-outline-dark btn-sm" (click)="DeletedItemList()">D</button>
@@ -160,8 +160,8 @@
             <kendo-grid-column field="rank" title="Score" width="68" [hidden]="!ShowScore">
             </kendo-grid-column>
         </kendo-grid>-->
-        <div style="max-height:500px;overflow:auto;">
-            <table class=" p-1 table table-striped" #exportItemsTable id="ItemsTable"
+        <div style="overflow:auto;" [ngStyle]="{'max-height': Context === 'dedup' ? '45vh' : '80vh' }">
+            <table class=" p-1 table table-striped" #exportItemsTable id="ItemsTable" [ngClass]="{'table-sm' : Context == 'dedup' }"
                    *ngIf="ShowItemsTable && ItemListService && ItemListService.ItemList && this.ItemListService.ItemList.items && this.ItemListService.ItemList.items.length > 0 && !this.ItemListService.IsBusy">
                 <thead>
                     <tr style="">

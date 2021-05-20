@@ -1,12 +1,6 @@
 import { Component, Inject, OnInit, Input, EventEmitter, Output} from '@angular/core';
-
-import { ReviewerIdentityService } from '../services/revieweridentity.service';
-import { ModalService } from '../services/modal.service';
-import { ItemCodingService } from '../services/ItemCoding.service';
-import { ReviewSetsService } from '../services/ReviewSets.service';
-import { ItemCodingComp } from '../coding/coding.component';
 import {  Item } from '../services/ItemList.service';
-import { ArmsService } from '../services/arms.service';
+import { ArmTimepointLinkListService } from '../services/ArmTimepointLinkList.service';
 
 @Component({
     selector: 'ArmsComp',
@@ -21,7 +15,7 @@ export class armsComp implements OnInit{
     public CurrentItem: Item = new Item();
 
     constructor(
-        private armsService: ArmsService
+        private armsService: ArmTimepointLinkListService
         ) {
     }
     ArmChanged(armId: number) {

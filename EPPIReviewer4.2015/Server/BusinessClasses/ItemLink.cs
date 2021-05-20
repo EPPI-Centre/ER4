@@ -22,20 +22,14 @@ namespace BusinessLibrary.BusinessClasses
     [Serializable]
     public class ItemLink : BusinessBase<ItemLink>
     {
-#if SILVERLIGHT
     public ItemLink() { }
-
-        
-#else
-        private ItemLink() { }
-#endif
 
         public override string ToString()
         {
             return ShortTitle;
         }
 
-        private static PropertyInfo<int> ItemLinkIdProperty = RegisterProperty<int>(new PropertyInfo<int>("ItemLinkId", "ItemLinkId"));
+        public static readonly PropertyInfo<int> ItemLinkIdProperty = RegisterProperty<int>(new PropertyInfo<int>("ItemLinkId", "ItemLinkId"));
         public int ItemLinkId
         {
             get
@@ -44,7 +38,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<Int64> ItemIdPrimaryProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("ItemIdPrimary", "ItemIdPrimary"));
+        public static readonly PropertyInfo<Int64> ItemIdPrimaryProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("ItemIdPrimary", "ItemIdPrimary"));
         public Int64 ItemIdPrimary
         {
             get
@@ -57,7 +51,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<Int64> ItemIdSecondaryProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("ItemIdSecondary", "ItemIdSecondary"));
+        public static readonly PropertyInfo<Int64> ItemIdSecondaryProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("ItemIdSecondary", "ItemIdSecondary"));
         public Int64 ItemIdSecondary
         {
             get
@@ -70,7 +64,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> TitleProperty = RegisterProperty<string>(new PropertyInfo<string>("Title", "Title", string.Empty));
+        public static readonly PropertyInfo<string> TitleProperty = RegisterProperty<string>(new PropertyInfo<string>("Title", "Title", string.Empty));
         public string Title
         {
             get
@@ -83,7 +77,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> ShortTitleProperty = RegisterProperty<string>(new PropertyInfo<string>("ShortTitle", "ShortTitle", string.Empty));
+        public static readonly PropertyInfo<string> ShortTitleProperty = RegisterProperty<string>(new PropertyInfo<string>("ShortTitle", "ShortTitle", string.Empty));
         public string ShortTitle
         {
             get
@@ -96,7 +90,7 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        private static PropertyInfo<string> DescriptionProperty = RegisterProperty<string>(new PropertyInfo<string>("Description", "Description", string.Empty));
+        public static readonly PropertyInfo<string> DescriptionProperty = RegisterProperty<string>(new PropertyInfo<string>("Description", "Description", string.Empty));
         public string Description
         {
             get

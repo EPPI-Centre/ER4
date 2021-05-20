@@ -1,22 +1,18 @@
-import { Component, Inject, OnInit, EventEmitter, Output, OnDestroy, Input, ViewChild, ElementRef, AfterViewInit, HostListener } from '@angular/core';
-import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
+import { Component, OnInit, OnDestroy, ViewChild, AfterViewInit, HostListener } from '@angular/core';
 import { forEach } from '@angular/router/src/utils/collection';
 import { ActivatedRoute } from '@angular/router';
 import { Router } from '@angular/router';
-import { Observable, Subscription, Subject, Subscribable, } from 'rxjs';
+import { Subscription } from 'rxjs';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
-import { ReviewerIdentity } from '../services/revieweridentity.service';
-import { WorkAllocation } from '../services/WorkAllocationList.service';
-import { ItemListService, Criteria, Item } from '../services/ItemList.service';
+import { ItemListService, Item } from '../services/ItemList.service';
 import { ItemCodingService, ItemSet, ReadOnlyItemAttribute } from '../services/ItemCoding.service';
 import { ReviewSetsService, ItemAttributeSaveCommand, SetAttribute } from '../services/ReviewSets.service';
 import { CodesetTreeCodingComponent, CheckBoxClickedEventData } from '../CodesetTrees/codesetTreeCoding.component';
-import { ReviewInfo, ReviewInfoService } from '../services/ReviewInfo.service';
+import { ReviewInfoService } from '../services/ReviewInfo.service';
 import { PriorityScreeningService } from '../services/PriorityScreening.service';
 import { ReviewerTermsService } from '../services/ReviewerTerms.service';
 import { ItemDocsService } from '../services/itemdocs.service';
-import { ArmsService } from '../services/arms.service';
-import { armsComp } from '../ArmsAndTimePoints/armsComp.component';
+import { ArmTimepointLinkListService } from '../services/ArmTimepointLinkList.service';
 import { NotificationService } from '@progress/kendo-angular-notification';
 import { SelectEvent, TabStripComponent } from '@progress/kendo-angular-layout';
 import { PdfTronContainer } from '../PDFTron/pdftroncontainer.component';
@@ -80,7 +76,7 @@ export class ItemCodingComp implements OnInit, OnDestroy, AfterViewInit {
         public PriorityScreeningService: PriorityScreeningService
         , private ReviewerTermsService: ReviewerTermsService,
         public ItemDocsService: ItemDocsService,
-        private armservice: ArmsService,
+        private armservice: ArmTimepointLinkListService,
 		private notificationService: NotificationService,
 		private _outcomeService: OutcomesService
     ) { }

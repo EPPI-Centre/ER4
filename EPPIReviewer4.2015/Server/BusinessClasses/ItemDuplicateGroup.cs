@@ -183,7 +183,8 @@ namespace BusinessLibrary.BusinessClasses
         {
             ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
             RevID = ri.ReviewId;
-            bool toSave = false; 
+            bool toSave = false;
+            Exception LastCaughtException = null;
             if (AddGroupID != 0)
             {
                 toSave = true;
@@ -268,27 +269,97 @@ namespace BusinessLibrary.BusinessClasses
                     ReScore();
                 }
 #endif
+                List<ItemDuplicateGroupMember> goneWrong = new List<ItemDuplicateGroupMember>();
                 foreach (ItemDuplicateGroupMember o in this.Members)
                 {
                     if (o.IsDirty)
                     {
                         toSave = true;
-                        ItemDuplicateGroupMember oo = o.Save(true);
+                        try
+                        {
+                            ItemDuplicateGroupMember oo = o.Save(true);
+                        }
+                        catch (Exception e)
+                        {//we should log it in DB, so that it will work both in ER4 and ER-Web.
+                            goneWrong.Add(o);//we keep track of what member(s) didn't save properly...
+                            this.LogException(e, ri.UserId, o, true);
+                        }
+                    }
+                }
+                if (goneWrong.Count > 0)
+                {
+                    //if something went wrong and an exception was triggered, we'll try saving the changes for the members where saving failed (once)
+                    System.Threading.Thread.Sleep(200);//wait a tiny bit, to give some time to SQL to "catch up"...
+                    foreach (ItemDuplicateGroupMember o in goneWrong)
+                    {
+                        try
+                        {
+                            ItemDuplicateGroupMember oo = o.Save(true);
+                        }
+                        catch (Exception e)
+                        {
+                            //we should log it, in DB, so that it will work both in ER4 and ER-Web.
+                            this.LogException(e, ri.UserId, o, false);
+                            LastCaughtException = e;
+                        }
                     }
                 }
                 if (toSave)
                 {
-                    using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+                    try
                     {
-                        connection.Open();
-                        using (SqlCommand command = new SqlCommand("st_ItemDuplicateUpdateTbItemReview", connection))
+                        using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
                         {
-                            command.CommandType = System.Data.CommandType.StoredProcedure;
-                            command.Parameters.Add("@groupID", System.Data.SqlDbType.Int);
-                            command.Parameters["@groupID"].Value = GroupID;
-                            command.ExecuteNonQuery();
+                            //fake exception for testing...
+                            //uncomment code below, put a breakpoint and "drag" execution into the exception rising block, to test how the system reacts...
+
+                            //if (1 == DateTime.Now.Ticks)
+                            //{
+                            //    Exception e = new Exception("this is fake, deliberately triggered(TB_ITEM_REV1)");
+                            //    throw e;
+                            //}
+                            connection.Open();
+                            using (SqlCommand command = new SqlCommand("st_ItemDuplicateUpdateTbItemReview", connection))
+                            {
+                                command.CommandType = System.Data.CommandType.StoredProcedure;
+                                command.Parameters.Add("@groupID", System.Data.SqlDbType.Int);
+                                command.Parameters["@groupID"].Value = GroupID;
+                                command.ExecuteNonQuery();
+                            }
+                            connection.Close();
                         }
-                        connection.Close();
+                    }
+                    catch (Exception e) {
+                        LogException(e, ri.UserId, null, true);
+                        System.Threading.Thread.Sleep(200);
+                        try
+                        {
+                            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+                            {
+                                //fake exception for testing...
+                                //uncomment code below, put a breakpoint and "drag" execution into the exception rising block, to test how the system reacts...
+
+                                //if (1 == DateTime.Now.Ticks)
+                                //{
+                                //    Exception e2 = new Exception("this is fake, deliberately triggered(TB_ITEM_REV2)");
+                                //    throw e2;
+                                //}
+                                connection.Open();
+                                using (SqlCommand command = new SqlCommand("st_ItemDuplicateUpdateTbItemReview", connection))
+                                {
+                                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                                    command.Parameters.Add("@groupID", System.Data.SqlDbType.Int);
+                                    command.Parameters["@groupID"].Value = GroupID;
+                                    command.ExecuteNonQuery();
+                                }
+                                connection.Close();
+                            }
+                        }
+                        catch (Exception ee)
+                        {
+                            LogException(ee, ri.UserId, null, false);
+                            LastCaughtException = ee;
+                        }
                     }
                     
                 }
@@ -298,8 +369,53 @@ namespace BusinessLibrary.BusinessClasses
                 //it seems safer to simply reload the whole group before sending it back, alternatively we could replicate some of the the data collection in st_ItemDuplicateUpdateTbItemReview
                 // and in this method to re-load the group data directly from/in st_ItemDuplicateUpdateTbItemReview, performance wise, this alternative way is probably better than what follows.
                 //System.Threading.Thread.Sleep(2000);
+                if (LastCaughtException != null)
+                {
+                    //we get in here _only_ if an exception was thrown, caught and not compensated for, so we throw it "after" processing all that we could process.
+                    //this ensures the client gets a chance to signal the problem to the user.
+                    //if an exception was thrown but we could retry successfully, then we don't need the user to know.
+                    throw LastCaughtException;
+                }
                 Members.Clear(); 
                 DataPortal_Fetch(new SingleCriteria<ItemDuplicateGroup, int>(this.GroupID));
+                
+            }
+        }
+        private void LogException(Exception e, int ContactId, ItemDuplicateGroupMember member, bool firstAttempt)
+        {
+            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+            {
+                connection.Open();
+                using (SqlCommand command = new SqlCommand("st_LogReviewJob", connection))
+                {
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@ReviewId", RevID));
+                    command.Parameters.Add(new SqlParameter("@ContactId", ContactId));
+                    command.Parameters.Add(new SqlParameter("@Success", false));
+                    command.Parameters.Add(new SqlParameter("@JobType", "Save Changes to Duplicates group"));
+                    command.Parameters.Add(new SqlParameter("@CurrentState", "Failure"));
+                    string msg = "";
+                    if (member != null)
+                    {
+                        msg = "Exception thrown when saving changes to group member"
+                                    + (firstAttempt ? " (1st try)" : " (2nd try)") + ". Group ID: " + this.GroupID
+                                    + ". Group Member ID: " + member.ItemDuplicateId + " (ItemId: " + member.ItemId + "). "
+                                    + "IsChecked: " + member.IsChecked.ToString() + "; "
+                                    + "IsDuplicate: " + member.IsDuplicate.ToString() + "; "
+                                    + "IsMaster: " + member.IsMaster.ToString() + ". "
+                                    + "ERROR: " + e.Message;
+                    } 
+                    else
+                    {
+                        msg = "Exception thrown when applying group changes to TB_ITEM_REVIEW"
+                                    + (firstAttempt ? " (1st try)" : " (2nd try)") + ". Group ID: " + this.GroupID
+                                    + ". "
+                                    + "ERROR: " + e.Message;
+                    }
+                    command.Parameters.Add(new SqlParameter("@JobMessage", msg));
+                    command.ExecuteNonQuery();
+                }
+                connection.Close();
             }
         }
         private void ReScore()

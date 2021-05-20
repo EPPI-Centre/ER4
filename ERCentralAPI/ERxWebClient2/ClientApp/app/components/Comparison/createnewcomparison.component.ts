@@ -189,7 +189,7 @@ export class ComparisonComp implements OnInit {
 					, () => { if (sub) sub.unsubscribe(); }
 				);
 				this._reviewSetsService.selectedNode = null;
-				this._reviewSetsService.GetReviewSets();
+				this._reviewSetsService.GetReviewSets(false);
 			}
 		}
 		this.PanelName = '';

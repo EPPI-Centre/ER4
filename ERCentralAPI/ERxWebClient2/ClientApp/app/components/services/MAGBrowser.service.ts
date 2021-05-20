@@ -243,7 +243,9 @@ export class MAGBrowserService extends BusyAwareService implements OnDestroy {
                 }
             });
     }
-
+    public async FetchJustMagPaperRecordById(Id: number): Promise<boolean> {
+        return this.FetchMagPaperById(Id);
+    }
     private FetchMagPaperById(Id: number): Promise<boolean> {
         this.currentMagPaper = new MagPaper();
         this.ClearTopics();

@@ -1,20 +1,15 @@
-import { Component, Inject, OnInit, EventEmitter, Output, OnDestroy, Input, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
-import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
+import { Component, OnInit, EventEmitter, Output, OnDestroy, Input, AfterViewInit } from '@angular/core';
 import { forEach } from '@angular/router/src/utils/collection';
-import { ActivatedRoute } from '@angular/router';
 import { Router } from '@angular/router';
-import { Observable, Subscription, Subject, Subscribable, } from 'rxjs';
+import { Subscription} from 'rxjs';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
-import { ReviewerIdentity } from '../services/revieweridentity.service';
-import { WorkAllocation } from '../services/WorkAllocationList.service';
-import { ItemListService, Criteria, Item } from '../services/ItemList.service';
-import { ItemCodingService, ItemSet, ReadOnlyItemAttribute } from '../services/ItemCoding.service';
-import { ReviewSetsService, ItemAttributeSaveCommand, SetAttribute } from '../services/ReviewSets.service';
-import { ReviewInfo, ReviewInfoService } from '../services/ReviewInfo.service';
+import { ItemListService, Item } from '../services/ItemList.service';
+import { ItemCodingService } from '../services/ItemCoding.service';
+import { ReviewSetsService } from '../services/ReviewSets.service';
+import { ReviewInfoService } from '../services/ReviewInfo.service';
 import { PriorityScreeningService } from '../services/PriorityScreening.service';
 import { ReviewerTermsService } from '../services/ReviewerTerms.service';
 import { ItemDocsService } from '../services/itemdocs.service';
-import { ArmsService } from '../services/arms.service';
 
 @Component({
 	selector: 'itemDetailsPaginator',
@@ -31,13 +26,12 @@ export class itemDetailsPaginatorComp implements OnInit, OnDestroy, AfterViewIni
 
 	constructor(private router: Router, private ReviewerIdentityServ: ReviewerIdentityService,
 		public ItemListService: ItemListService
-		, private route: ActivatedRoute, private ItemCodingService: ItemCodingService,
+		, private ItemCodingService: ItemCodingService,
 		private ReviewSetsService: ReviewSetsService,
 		private reviewInfoService: ReviewInfoService,
 		public PriorityScreeningService: PriorityScreeningService
 		, private ReviewerTermsService: ReviewerTermsService,
-		public ItemDocsService: ItemDocsService,
-		private armservice: ArmsService
+		public ItemDocsService: ItemDocsService
 	) { }
 	
 	//public item?: Item;

@@ -60,8 +60,8 @@
                                         {{MyReviewMessage}}
                                     <div class="row m-0 p-0">
                                         <NewReviewComp></NewReviewComp>
-                                        <div *ngIf="IsSiteAdmin && HasAdminRights" class="btn btn-link btn-sm my-auto" (click)="SetupWebDBs()">
-                                            Setup WebDBs...
+                                        <div *ngIf="HasAdminRights" class="btn btn-link btn-sm my-auto" (click)="SetupWebDBs()">
+                                            Setup Visualisations...
                                         </div>
                                     </div>
                                         <div>
@@ -264,6 +264,33 @@
                     <button kendoButton class="my-1 ml-1 mr-0" *ngIf="!IsServiceBusy" title="Refresh Coding Tools" (click)="RefreshCodingTools()">
                         <i class="fa fa-refresh my-1" aria-hidden="true"></i>
                     </button>
+                    <button kendoButton class="my-1 ml-1 mr-0" title="Print coding tool" (click)="ShowPrintCodeset = !ShowPrintCodeset">
+                        <i class="fa fa-print my-1"></i>
+                    </button>
+                </div>
+                <div *ngIf="ShowPrintCodeset" class="m-1 rounded border border-success">
+                    <div class="col-12 m-0 p-0 row">
+                        &nbsp;Print coding tool?
+                        <div *ngIf="selectedNode != null && selectedNode.nodeType == 'ReviewSet'" class="small px-1 mt-1 ml-1 alert-info col-auto">(Saves the result to disk)</div>
+                        <div *ngIf="selectedNode == null || selectedNode.nodeType != 'ReviewSet'" class="small px-1 mt-1 ml-1 alert-danger col-auto">Please select a coding tool.</div>
+                    </div>
+                    <div class="col-12 m-0 p-0">
+                        &nbsp;Show IDs <input type="checkbox" [(ngModel)]="printCsetShowIds" class="m-1" />
+                    </div>
+                    <div class="col-12 m-0 p-0">
+                        &nbsp;Show types <input type="checkbox" [(ngModel)]="printCsetShowTypes" class="m-1" />
+                    </div>
+                    <div class="col-12 m-0 p-0">
+                        &nbsp;Show descriptions <input type="checkbox" [(ngModel)]="printCsetShowDescriptions" class="m-1" />
+                    </div>
+                    <div class="col-12 mx-0 mb-1 p-0 row">
+                        <button kendoButton class="btn btn-outline-success btn-sm ml-1" title="Print coding tool" (click)="PrintCodingTool()" [disabled]="selectedNode == null || selectedNode.nodeType != 'ReviewSet'">
+                            Print!
+                        </button>
+                        <button kendoButton class="btn btn-dark btn-sm px-2 ml-1" title="Cancel" (click)="ShowPrintCodeset = false">
+                            Cancel
+                        </button>
+                    </div>
                 </div>
                 <codesetTreeMain [MaxHeight]="700"></codesetTreeMain>
                 <div *ngIf="(!ReviewSets || ReviewSets.length == 0) && !IsServiceBusy && HasWriteRights">

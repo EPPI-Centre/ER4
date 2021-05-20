@@ -132,7 +132,7 @@ namespace ERxWebClient2.Controllers
                 {
                     if (crit.itemDuplicateIds == null || crit.itemDuplicateIds.Length != 1)
                     {
-                        return StatusCode(500, "Error: malformed request.");
+                        return StatusCode(400, "Error: malformed request.");
                     }
                     DataPortal<ItemDuplicateGroup> dp = new DataPortal<ItemDuplicateGroup>();
                     ItemDuplicateGroup IDG = dp.Fetch(new SingleCriteria<ItemDuplicateGroup, int>(crit.groupId));
@@ -197,6 +197,42 @@ namespace ERxWebClient2.Controllers
         }
 
         [HttpPost("[action]")]
+        public IActionResult AddManualMembers([FromBody] GroupListSelectionCriteriaMVC crit)
+        {
+            try
+            {
+                if (SetCSLAUser4Writing())
+                {
+                    DataPortal<ItemDuplicateGroup> dp = new DataPortal<ItemDuplicateGroup>();
+                    ItemDuplicateGroup IDG = dp.Fetch(new SingleCriteria<ItemDuplicateGroup, int>(crit.groupId));
+                    long currmas = IDG.getMaster().ItemId;
+                    IDG.AddItems = new Csla.Core.MobileList<long>();
+                    string[] list = crit.itemIds.Split(',');
+                    foreach (string it in list)
+                    {
+                        Int64 ItemId;
+                        if (Int64.TryParse(it, out ItemId))
+                        {
+                            if (ItemId != currmas && ItemId > 0) IDG.AddItems.Add(ItemId);
+                        }
+                    }
+                    IDG = IDG.Save();
+                    return Ok(IDG);
+                }
+                else
+                {
+                    return Forbid();
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "Error in AddManualMembers. GroupId = " + crit.groupId + " itemIds: " + crit.itemIds);
+                return StatusCode(500, e.Message);
+            }
+        }
+
+
+        [HttpPost("[action]")]
         public IActionResult DeleteGroup([FromBody] SingleIntCriteria crit)
         {
             try
@@ -205,7 +241,7 @@ namespace ERxWebClient2.Controllers
                 {
                     if (crit  == null || crit.Value < 1)
                     {
-                        return StatusCode(500, "Error: malformed request.");
+                        return StatusCode(400, "Error: malformed request.");
                     }
                     DataPortal<ItemDuplicateGroup> dp = new DataPortal<ItemDuplicateGroup>();
                     ItemDuplicateGroup IDG = dp.Fetch(new SingleCriteria<ItemDuplicateGroup, int>(crit.Value));
@@ -239,7 +275,7 @@ namespace ERxWebClient2.Controllers
                 {
                     if (crit == null)
                     {
-                        return StatusCode(500, "Error: malformed request.");
+                        return StatusCode(400, "Error: malformed request.");
                     }
                     ItemDuplicateGroupsDeleteCommand command = new ItemDuplicateGroupsDeleteCommand(crit.Value);
                     command = DataPortal.Execute<ItemDuplicateGroupsDeleteCommand>(command);
@@ -253,6 +289,100 @@ namespace ERxWebClient2.Controllers
             catch (Exception e)
             {
                 _logger.LogException(e, "Error in Delete All Groups. Hard Reset = " + crit.Value);
+                return StatusCode(500, e.Message);
+            }
+        }
+        [HttpPost("[action]")]
+        public IActionResult FetchDirtyGroup([FromBody] SingleStringCriteria crit)
+        {
+            try
+            {
+                if (!SetCSLAUser()) return Unauthorized();
+
+                //let's check what we have is sensible...
+                string[] Ids = crit.Value.Split(',');
+                foreach (string id in Ids)
+                {
+                    Int64 chk;
+                    if (!Int64.TryParse(id, out chk) || chk < 1)
+                    {
+                        return StatusCode(400, "Error: malformed request.");
+                    }
+                }
+                DataPortal<ItemDuplicateDirtyGroup> dp = new DataPortal<ItemDuplicateDirtyGroup>();
+                ItemDuplicateDirtyGroup result = dp.Fetch(new SingleCriteria<ItemDuplicateDirtyGroup, string>(crit.Value));
+                return Ok(result);
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "Error Fetching DirtyGroup. Crit = " + crit.Value);
+                return StatusCode(500, e.Message);
+            }
+        }
+        [HttpPost("[action]")]
+        public IActionResult CreateNewGroup([FromBody] IncomingDirtyGroupMemberMVC[] members)
+        {
+            try
+            {
+                if (SetCSLAUser4Writing())
+                {
+                    if (members == null || members.Length < 2)
+                    {
+                        return StatusCode(400, "Error: malformed request.");
+                    }
+                    string Ids = "";
+                    IncomingDirtyGroupMemberMVC master = new IncomingDirtyGroupMemberMVC() { isMaster = true, itemId = -1 };
+                    foreach (IncomingDirtyGroupMemberMVC chk in members)
+                    {
+                        if (chk.itemId < 1)
+                        {
+                            return StatusCode(400, "Error: malformed request.");
+                        }
+                        Ids += chk.itemId.ToString() + ",";
+                        if (chk.isMaster == true) master = chk;
+                    }
+                    Ids = Ids.TrimEnd(',');
+                    ItemDuplicateDirtyGroup grp = DataPortal.Fetch<ItemDuplicateDirtyGroup>(new SingleCriteria<ItemDuplicateDirtyGroup, string>(Ids));
+                    //we check that all is good and we set the current master if needed
+                    if (
+                        grp.Members.Count > 1 && master.itemId > 0 //enough members and the input gave us a master
+                            &&
+                            (
+                                master.itemId == grp.getMaster().ItemId //master is the default one from the DB
+                                || //OR
+                                grp.setMaster(master.itemId) //setting the new master succeeded
+                            )
+                            && grp.IsUsable //group can be created
+                        )
+                    {//all is good, we can do this!
+                        grp = grp.Save();
+                        //we'll now fetch the new group, hoping it exists...
+                        GroupListSelectionCriteria crit = new GroupListSelectionCriteria(0, master.itemId.ToString());
+                        ItemDuplicateReadOnlyGroupList result = DataPortal.Fetch<ItemDuplicateReadOnlyGroupList>(crit);
+                        if (result.Count < 1)
+                        {
+                            //not good, could not find any group containing the current master!?!?!
+                            _logger.LogError("Error in CreateNewGroup: attempt to create new group failed", members);
+                            return StatusCode(500, "Error: attempt to create new group failed");
+                        }
+                        else
+                        {//result could contain more than one group, in which case, the client will find the new one and add only that to the local list.
+                            return Ok(result);
+                        }
+                    }
+                    else 
+                    {
+                        return StatusCode(400, "Error: malformed request.");
+                    }
+                }
+                else
+                {
+                    return Forbid();
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.LogException(e, "Error in CreateNewGroup");
                 return StatusCode(500, e.Message);
             }
         }
@@ -273,5 +403,11 @@ namespace ERxWebClient2.Controllers
     {
         public int groupId { get; set; }
         public string itemIds { get; set; }
+    }
+
+    public class IncomingDirtyGroupMemberMVC
+    {
+        public long itemId { get; set; }
+        public bool isMaster { get; set; }
     }
 }

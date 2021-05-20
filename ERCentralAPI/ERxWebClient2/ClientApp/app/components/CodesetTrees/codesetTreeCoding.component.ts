@@ -7,7 +7,7 @@ import { ReviewSetsService, singleNode, ReviewSet, SetAttribute, ItemSetComplete
 import { ITreeOptions, TreeModel, TreeComponent } from 'angular-tree-component';
 import { NgbModal, NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { Node } from '@angular/compiler/src/render3/r3_ast';
-import { ArmsService } from '../services/arms.service';
+import { ArmTimepointLinkListService } from '../services/ArmTimepointLinkList.service';
 import { TREE_ACTIONS, KEYS, IActionMapping } from 'angular-tree-component';
 import { TreeNode } from '@angular/router/src/utils/tree';
 import { ITreeNode } from 'angular-tree-component/dist/defs/api';
@@ -45,7 +45,7 @@ export class CodesetTreeCodingComponent implements OnInit, OnDestroy, AfterViewI
        private ItemCodingService: ItemCodingService,
        private modalService: NgbModal,
        private ItemDocsService: ItemDocsService,
-       private armsService: ArmsService,
+       private armsService: ArmTimepointLinkListService,
        private ReviewInfoService: ReviewInfoService,
 	   private NotificationService: NotificationService,
 	   private _ItemCodingService: ItemCodingService,
@@ -174,20 +174,7 @@ export class CodesetTreeCodingComponent implements OnInit, OnDestroy, AfterViewI
             return null;
         }
     }
-    GetReviewSets() {
-        if (this.ReviewSetsService.ReviewSets && this.ReviewSetsService.ReviewSets.length > 0) return;
 
-        this.ReviewSetsService.GetReviewSets();
-            //.subscribe(
-            //result => {
-            //    this.ReviewSetsService.ReviewSets = result;
-            //    this.nodes = this.ReviewSetsService.ReviewSets;// as singleNode[];
-            //}, error => {
-            //    console.error(error);
-            //    this.router.navigate(['main']);
-            //}
-            //);
-    }
     CheckBoxClicked(event: any, data: singleNode, ) {
         let checkPassed: boolean = true;
         if (event.target) checkPassed = event.target.checked;//if we ticked the checkbox, it's OK to carry on, otherwise we need to check

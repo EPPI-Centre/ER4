@@ -106,6 +106,7 @@ import { WebDbCcodesetTreeComponent } from './components/CodesetTrees/WebDbCcode
 import { CKEditorModule } from 'ckeditor4-angular';
 import { MAGKeepUpToDate } from './components/MAG/MAGKeepUpToDate.component';
 import { MAGComp } from './components/MAG/MAG.component';
+import { ItemLinksComp } from './components/ArmsAndTimePoints/ItemLinks.component';
 
 @NgModule({
     declarations: [
@@ -191,7 +192,8 @@ import { MAGComp } from './components/MAG/MAG.component';
         TruncatePipe,
         MAGSearchDetailsComponent,
         WebDBsComponent,
-        WebDbCcodesetTreeComponent
+        WebDbCcodesetTreeComponent,
+        ItemLinksComp
 	],
     providers: [
         DatePipe, 

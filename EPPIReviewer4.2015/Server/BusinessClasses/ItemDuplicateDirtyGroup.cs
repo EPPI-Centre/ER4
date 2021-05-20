@@ -20,7 +20,10 @@ namespace BusinessLibrary.BusinessClasses
     [Serializable]
     public class ItemDuplicateDirtyGroup: BusinessBase<ItemDuplicateDirtyGroup>
     {
-
+        public ItemDuplicateDirtyGroup()
+        {
+            Members = new MobileList<ItemDuplicateDirtyGroupMember>();
+        }
         public static void GetItemDuplicateList(string IDs, EventHandler<DataPortalResult<ItemDuplicateDirtyGroup>> handler)
         {
             DataPortal<ItemDuplicateDirtyGroup> dp = new DataPortal<ItemDuplicateDirtyGroup>();
@@ -79,7 +82,7 @@ namespace BusinessLibrary.BusinessClasses
                 return false;
             }
         }
-        private static PropertyInfo<MobileList<ItemDuplicateDirtyGroupMember>> MembersProperty = RegisterProperty<MobileList<ItemDuplicateDirtyGroupMember>>(new PropertyInfo<MobileList<ItemDuplicateDirtyGroupMember>>("Members", "Members"));
+        public readonly static PropertyInfo<MobileList<ItemDuplicateDirtyGroupMember>> MembersProperty = RegisterProperty<MobileList<ItemDuplicateDirtyGroupMember>>(new PropertyInfo<MobileList<ItemDuplicateDirtyGroupMember>>("Members", "Members"));
         public MobileList<ItemDuplicateDirtyGroupMember> Members
         {
             get
@@ -104,16 +107,7 @@ namespace BusinessLibrary.BusinessClasses
         //    string[] denyEditSave = new string[] { "ReadOnlyUser" };
         //    AuthorizationRules.DenyEdit(typeof(ItemDuplicateGroup), denyEditSave);
         //}
-#if SILVERLIGHT
-        public ItemDuplicateDirtyGroup() { }
-        
-#else
-        private ItemDuplicateDirtyGroup() 
-        {
-            Members = new MobileList<ItemDuplicateDirtyGroupMember>();
-        }
-        
-#endif
+
 
 
 #if !SILVERLIGHT

@@ -198,7 +198,9 @@ export class WorkAllocationComp implements OnInit {
 	FormatDate(DateSt: string): string {
 		return Helpers.FormatDate(DateSt);
 	}
-    
+	//FormatDateWithInputSlashes(DateSt: string): string {
+	//	return Helpers.FormatDateWithInputSlashes(DateSt);
+	//}
 	public NewComparisonSectionOpen() {
 
 		if (this.PanelName == 'NewComparisonSection') {
@@ -358,60 +360,7 @@ export class WorkAllocationComp implements OnInit {
 			) return true;
 		return false;
 	}
-	CreateNewCode() {
 	
-		if (this.CurrentNode) {
-
-			this._NewCode.order = this.CurrentNode.attributes.length;
-
-			if (this.CurrentNode.nodeType == "ReviewSet") {
-				this._NewCode.set_id = (this.CurrentNode as ReviewSet).set_id;
-				this._NewCode.parent_attribute_id = 0;
-			}
-			else if (this.CurrentNode.nodeType == "SetAttribute") {
-				this._NewCode.set_id = (this.CurrentNode as SetAttribute).set_id;
-				this._NewCode.parent_attribute_id = (this.CurrentNode as SetAttribute).attribute_id;
-			}
-		}
-		else {
-			this._NewReviewSet.order = 0;
-		}
-		console.log("What the hell?", this.CodeTypeSelect, this.CodeTypeSelect.nativeElement.selectedOptions, this.CodeTypeSelect.nativeElement.selectedOptions.length);
-		
-		if (this.CodeTypeSelect && this.CodeTypeSelect.nativeElement.selectedOptions && this.CodeTypeSelect.nativeElement.selectedOptions.length > 0) {
-			this._NewCode.attribute_type_id = this.CodeTypeSelect.nativeElement.selectedOptions[0].value;
-			this._NewCode.attribute_type = this.CodeTypeSelect.nativeElement.selectedOptions[0].text;
-		}
-		else {
-			this._NewCode.attribute_type_id = 1;//non selectable HARDCODED WARNING!
-			this._NewCode.attribute_type = "Not selectable(no checkbox)";
-		}
-
-		console.log("will create:", this._NewCode, this.CodeTypeSelect);
-		this._reviewSetsEditingService.SaveNewAttribute(this._NewCode)
-			.then(
-				success => {
-					if (success && this.CurrentNode) {
-						this.CurrentNode.attributes.push(success);
-						this._reviewSetsService.GetReviewSets();
-						
-					}
-					this._NewCode = new SetAttribute();
-					this.CancelActivity();
-					
-				},
-				error => {
-					this.CancelActivity();
-					console.log("error saving new code:", error, this._NewCode);
-					
-				})
-			.catch(
-				error => {
-					console.log("error(catch) saving new code:", error, this._NewCode);
-					this.CancelActivity();
-				}
-			);
-	}
 	CancelActivity(refreshTree?: boolean) {
 		if (refreshTree) {
 			if (this._reviewSetsService.selectedNode) {
@@ -428,7 +377,7 @@ export class WorkAllocationComp implements OnInit {
 					, () => { if (sub) sub.unsubscribe(); }
 				);
 				this._reviewSetsService.selectedNode = null;
-				this._reviewSetsService.GetReviewSets();
+				this._reviewSetsService.GetReviewSets(false);
 			}
 		}
 		this.PanelName = '';
@@ -743,6 +692,25 @@ export class WorkAllocationComp implements OnInit {
 		this._workAllocationListService.FetchAll();
 		this.getCodeSets();
 		this._comparisonsService.FetchAll();
+
+		////test code for date formatting, needs to be "commented out!"
+		//const date = "01/01/2021";
+		//let tmp = "";
+		//let start = new Date();
+		//for (let i: number = 0; i < 100000; i++) {
+		//	tmp = Helpers.FormatDateWithInputSlashes(date);
+		//}
+		//let secondTimeMs = new Date().getTime() - start.getTime();
+		//console.log("time used New = " + secondTimeMs);
+		//start = new Date();
+		//for (let i: number = 0; i < 100000; i++) {
+		//	tmp = Helpers.FormatDate(date);
+		//}
+		//let firstTimeMs = new Date().getTime() - start.getTime();
+		//console.log("time used OLD = " + firstTimeMs);
+		//if (secondTimeMs > firstTimeMs) console.log("OLD method it best: ", secondTimeMs - firstTimeMs);
+		//else console.log("NEW method it best: ", secondTimeMs - firstTimeMs);
+
 	}
 	public getCodeSets() {
 		this.CodeSets = this._reviewSetsService.ReviewSets.filter(x => x.nodeType == 'ReviewSet')

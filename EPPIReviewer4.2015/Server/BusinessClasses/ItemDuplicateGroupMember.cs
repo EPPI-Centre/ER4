@@ -339,6 +339,17 @@ namespace BusinessLibrary.BusinessClasses
 #else
                 using (SqlCommand command = new SqlCommand("st_ItemDuplicateGroupMemberUpdateWithScore", connection))
                 {//@memberID //@is_checked //@is_duplicate //@is_master
+
+
+                    //fake exception for testing...
+                    //uncomment code below, put a breakpoint and "drag" execution into the exception rising block, to test how the system reacts...
+
+                    //if (1 == DateTime.Now.Ticks)
+                    //{
+                    //    Exception e = new Exception("this is fake, deliberately triggered");
+                    //    throw e;
+                    //}
+
                     command.CommandType = System.Data.CommandType.StoredProcedure;
                     command.Parameters.Add("@groupID", System.Data.SqlDbType.Int);
                     command.Parameters["@groupID"].Value = GroupID;
