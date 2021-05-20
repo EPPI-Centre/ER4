@@ -14,7 +14,7 @@
                     {{db.webDBName}}
                 </option>
             </select>
-            <button class="btn btn-outline-primary btn-sm ml-1 mb-1" (click)="Edit()">Add New...</button>
+            <button class="btn btn-outline-primary btn-sm ml-1 mb-1" (click)="Edit()" [disabled]="!CanWrite">Add New...</button>
             <button class="page-link rounded pt-1 pb-1 mb-1 mr-0 ml-auto float-right" style="z-index:91;"
                     (click)="BackToMain()">
                 Close/back
@@ -23,7 +23,7 @@
         </div>
         <ng-template #CreateNewBlock>
             <div class="col-12  p-0 m-0 row ">
-                <div>Create new Web Database:</div>
+                <div>Create new Visualisation:</div>
                 <button class="page-link rounded pt-1 pb-1 mb-1 mr-0 ml-auto float-right"
                         (click)="BackToMain()">
                     Close/back
@@ -31,10 +31,11 @@
                 <div class="col-12 m-3 rounded alert-info border">
                     To get started, you will:
                     <ul>
-                        <li>Create a new WebDatabase, give it a name and description (save it);</li>
-                        <li>Pick other properties, such as password protections;</li>
-                        <li>Define what data will be visible (what coding tools and what items).</li>
+                        <li>Create a new Visualisation, give it a name and click "Save";</li>
+                        <li>Click "Edit" to add a description, logos and other properties such as password protection;</li>
+                        <li>Define what data will be visible (including coding tools and items).</li>
                     </ul>
+                    Further information on creating your visualisation is available by clicking Help at the top of the page.
                 </div>
                 <button class="btn btn-outline-primary btn-sm ml-1 mb-1" (click)="Edit()">Add New...</button>
             </div>
@@ -488,7 +489,7 @@
                             <div ngbDropdown class="" style="min-width:200px;">
                                 <button class="btn btn-outline-secondary dropdown-toggle"
                                         style="min-width: 200px; max-width:720px;"
-                                        (click)="isCollapsedAddTool = false;" [disabled]="EditingSomething"
+                                        (click)="isCollapsedAddTool = false;" [disabled]="EditingSomething || !CanWrite"
                                         id="dropdownBasicCodingTool" ngbDropdownToggle>
                                     {{GetCodingToolName()}}
                                 </button>

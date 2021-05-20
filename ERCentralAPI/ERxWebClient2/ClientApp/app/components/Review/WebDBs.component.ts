@@ -31,6 +31,7 @@ export class WebDBsComponent implements OnInit, OnDestroy, AfterViewInit {
 	//possible editor, see: https://github.com/chymz/ng2-ckeditor
 
 	ngOnInit() {
+		if (!this.ReviewerIdentityService.HasAdminRights) this.BackToMain();
 		if (this.WebDBService.WebDBs.length == 0) this.WebDBService.Fetch();
 		if (this.ReviewSetsService.ReviewSets.length == 0) this.ReviewSetsService.GetReviewSets(false);
 	}

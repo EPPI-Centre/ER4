@@ -82,6 +82,9 @@ export class CodesetStatisticsService extends BusyAwareService implements OnDest
                 ) {
                     this.WouldSkipFullStats = true;
                 }
+                else {
+                    this.WouldSkipFullStats = false;
+                }
                 if (DoAlsoDetailedStats == true) {
                     //we now want to get the details of complete/uncomplete coding numbers. But should we? 
                     //If we probably have too much data, we won't unless ForceDetailedStats is true;
