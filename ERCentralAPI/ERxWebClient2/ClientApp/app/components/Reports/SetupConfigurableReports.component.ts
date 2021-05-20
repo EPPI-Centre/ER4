@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, Inject, ViewChild } from '@angular/core';
 import { ItemListService } from '../services/ItemList.service';
-import { ReviewSet, SetAttribute, singleNode } from '../services/ReviewSets.service';
+import { ReviewSet, SetAttribute, singleNode, ReviewSetsService } from '../services/ReviewSets.service';
 import { iConfigurableReport, ConfigurableReportService, ReportStandard, ReportOutcomes, ReportRiskOfBias, CommonReportFields, iReportColumnCode, iReportColumn } from '../services/configurablereport.service';
 import { codesetSelectorComponent } from '../CodesetTrees/codesetSelector.component';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
@@ -21,6 +21,7 @@ export class SetupConfigurableReports implements OnInit, OnDestroy {
 		private configurablereportServ: ConfigurableReportService,
 		private ReviewerIdentityServ: ReviewerIdentityService,
 		private EventEmitterServ: EventEmitterService,
+		private reviewSetsService: ReviewSetsService,
 		private _confirmationDialogService: ConfirmationDialogService
 	) { }
 
@@ -31,6 +32,10 @@ export class SetupConfigurableReports implements OnInit, OnDestroy {
 	public get HasWriteRights(): boolean {
 		return this.ReviewerIdentityServ.HasWriteRights;
 	}
+
+	public get selectedNode(): singleNode | null {
+		return this.reviewSetsService.selectedNode;
+    }
 	public EditingReport: iConfigurableReport | null = null;
 	public EditingReportHasChanged: boolean = false;
 	public get Reports(): iConfigurableReport[] {
@@ -82,6 +87,50 @@ export class SetupConfigurableReports implements OnInit, OnDestroy {
 	private FixOrderValuesInColumnCodes(col: iReportColumn) {
 
 	}
+	public AddColumn() {
+		if (this.EditingReport == null) return;
+		else {
+			this.EditingReportHasChanged = true;
+			let newCol: iReportColumn = {
+				codes: [],
+				columnOrder: this.EditingReport.columns.length,
+				name: "New Column",
+				reportColumnId: 0
+            }
+			this.EditingReport.columns.push(newCol);
+		}
+	}
+	public CanAddNodeToColumn(col: iReportColumn, nodeToAdd: singleNode | null): boolean {
+		if (this.EditingReport == null || nodeToAdd == null) return false;
+		else {
+			if (this.EditingReport.reportType == "Question" && nodeToAdd.attributes.length > 0) return true;
+			else if (this.EditingReport.reportType == "Answer" && col.codes.length == 0 && nodeToAdd.nodeType == "SetAttribute") return true;
+		}
+		return false;
+    } 
+	public AddCodeToColumn(col: iReportColumn, nodeToAdd: singleNode) {
+		if (!this.CanAddNodeToColumn(col, nodeToAdd)) return;
+		let colCode: iReportColumnCode = {
+			attributeId: 0,
+			codeOrder: col.codes.length,
+			displayAdditionalText: true,
+			displayCode: true,
+			displayCodedText: true,
+			parentAttributeId: 0,
+			parentAttributeText: nodeToAdd.name,
+			reportColumnCodeId: 0,
+			reportColumnId: col.reportColumnId,
+			setId: nodeToAdd.set_id,
+			userDefText: nodeToAdd.name,
+		}
+		if (nodeToAdd.nodeType == "SetAttribute") {
+			let att = nodeToAdd as SetAttribute;
+			colCode.attributeId = att.attribute_id;
+			colCode.parentAttributeId = att.attribute_id;
+		} else if (nodeToAdd.nodeType !== "ReviewSet") { return; }
+		this.EditingReportHasChanged = true;
+		col.codes.push(colCode);
+    }
 	public Save() {
 		if (!this.HasWriteRights || this.EditingReport == null) return;
 		else {
