@@ -22,7 +22,7 @@ export class SetupConfigurableReports implements OnInit, OnDestroy {
 		private ReviewerIdentityServ: ReviewerIdentityService,
 		private EventEmitterServ: EventEmitterService,
 		private reviewSetsService: ReviewSetsService,
-		private _confirmationDialogService: ConfirmationDialogService
+		private confirmationDialogService: ConfirmationDialogService
 	) { }
 
 	ngOnInit() {
@@ -35,8 +35,10 @@ export class SetupConfigurableReports implements OnInit, OnDestroy {
 
 	public get selectedNode(): singleNode | null {
 		return this.reviewSetsService.selectedNode;
-    }
+	}
 	public EditingReport: iConfigurableReport | null = null;
+	private EditingColumn: iReportColumn | null = null;
+	private EditingColumnCode: iReportColumnCode | null = null; 
 	public EditingReportHasChanged: boolean = false;
 	public get Reports(): iConfigurableReport[] {
 		return this.configurablereportServ.Reports;
@@ -44,6 +46,81 @@ export class SetupConfigurableReports implements OnInit, OnDestroy {
 	public EditReport(rpt: iConfigurableReport) {
 		this.EditingReport = ConfigurableReportService.CloneReport(rpt);
 	}
+	//we use getters and setters so to allow keeping track of changes, these are in use for private members "EditingColumn" and "EditingColumnCode".
+	public get EditingColumnId(): number | null {
+		if (this.EditingColumn) return this.EditingColumn.reportColumnId;
+		else return null;
+	}
+	public get EditingColumnName(): string {
+		if (this.EditingColumn) return this.EditingColumn.name;
+		else return "N/A";
+	}
+	public set EditingColumnName(val: string) {
+		if (this.EditingColumn && val !== this.EditingColumn.name) {
+			this.EditingReportHasChanged = true;
+			this.EditingColumn.name = val;
+		}
+	}
+
+	public get EditingColumnCodeId(): number | null {
+		if (this.EditingColumnCode) return this.EditingColumnCode.reportColumnCodeId;
+		else return null;
+	}
+	public get EditingColumnNamedisplayAdditionalText(): boolean {
+		if (this.EditingColumnCode) return this.EditingColumnCode.displayAdditionalText;
+		else return false;
+	}
+	public set EditingColumnNamedisplayAdditionalText(val: boolean) {
+		if (this.EditingColumnCode && val !== this.EditingColumnCode.displayAdditionalText) {
+			this.EditingReportHasChanged = true;
+			this.EditingColumnCode.displayAdditionalText = val;
+		}
+	}
+	public get EditingColumnCodedisplayCode(): boolean {
+		if (this.EditingColumnCode) return this.EditingColumnCode.displayCode;
+		else return false;
+	}
+	public set EditingColumnCodedisplayCode(val: boolean) {
+		if (this.EditingColumnCode && val !== this.EditingColumnCode.displayCode) {
+			this.EditingReportHasChanged = true;
+			this.EditingColumnCode.displayCode = val;
+		}
+	}
+	public get EditingColumnCodedisplayCodedText(): boolean {
+		if (this.EditingColumnCode) return this.EditingColumnCode.displayCodedText;
+		else return false;
+	}
+	public set EditingColumnCodedisplayCodedText(val: boolean) {
+		if (this.EditingColumnCode && val !== this.EditingColumnCode.displayCodedText) {
+			this.EditingReportHasChanged = true;
+			this.EditingColumnCode.displayCodedText = val;
+		}
+	}
+	public get EditingColumnCodeText(): string {
+		if (this.EditingColumnCode) return this.EditingColumnCode.userDefText;
+		else return "N/A";
+	}
+	public set EditingColumnCodeText(val: string) {
+		if (this.EditingColumnCode && val !== this.EditingColumnCode.userDefText) {
+			this.EditingReportHasChanged = true;
+			this.EditingColumnCode.userDefText = val;
+		}
+	}
+
+	//Order: {{ code.codeOrder }}<br />
+	//Show add.txt: { { code.displayAdditionalText } } <br />
+	//Show code name: { { code.displayCode } } <br />
+	//Show PDF txt: { { code.displayCodedText } } <br />
+	//ParentCodeId: { { code.parentAttributeId } } <br />
+	//parentAttributeText ? {{ code.parentAttributeText }}<br />
+	//reportColumnCodeId: { { code.reportColumnCodeId } } <br />
+	//reportColumnId: { { code.reportColumnId } } <br />
+	//setId: { { code.setId } } <br />
+	//userDefText: { { code.userDefText } }
+	public FetchReports() {
+		this.CancelEditing();
+		this.configurablereportServ.FetchReports();
+    }
 	public CancelEditing() {
 		this.EditingReport = null;
 		this.EditingReportHasChanged = false;
@@ -85,8 +162,21 @@ export class SetupConfigurableReports implements OnInit, OnDestroy {
 		this.EditingReportHasChanged = true;
 	}
 	private FixOrderValuesInColumnCodes(col: iReportColumn) {
-
+		let i: number = 0;
+		for (let cc of col.codes) {
+			cc.codeOrder = i;
+			i++;
+		}
+		this.EditingReportHasChanged = true;
 	}
+	private FixOrderValuesInColumns(EditingReport: iConfigurableReport) {
+		let i: number = 0;
+		for (let cc of EditingReport.columns) {
+			cc.columnOrder = i;
+			i++;
+		}
+		this.EditingReportHasChanged = true;
+    }
 	public AddColumn() {
 		if (this.EditingReport == null) return;
 		else {
@@ -130,7 +220,74 @@ export class SetupConfigurableReports implements OnInit, OnDestroy {
 		} else if (nodeToAdd.nodeType !== "ReviewSet") { return; }
 		this.EditingReportHasChanged = true;
 		col.codes.push(colCode);
-    }
+	}
+	public EditColumn(col: iReportColumn | null) {
+		this.EditingColumn = col;
+	}
+	public MoveColumnLeft(EditingReport: iConfigurableReport, col: iReportColumn) {
+		if (EditingReport == null) return;
+		let toMoveInd = EditingReport.columns.findIndex(f => f.columnOrder == col.columnOrder - 1);
+		if (toMoveInd == -1) {
+			//bad luck, the oder values are malformed, let's fix them...
+			this.FixOrderValuesInColumns(EditingReport);
+			toMoveInd = EditingReport.columns.findIndex(f => f.columnOrder == col.columnOrder - 1);
+			if (toMoveInd == -1) {
+				//??? this shouldn't happen!
+				return;
+			}
+		}
+		const toMove = EditingReport.columns[toMoveInd];
+		toMove.columnOrder++;
+		col.columnOrder--;
+		EditingReport.columns.splice(toMoveInd, 2, col, toMove);
+		this.EditingReportHasChanged = true;
+	}
+	public MoveColumnRight(EditingReport: iConfigurableReport, col: iReportColumn) {
+		if (EditingReport == null) return;
+		let toMoveInd = EditingReport.columns.findIndex(f => f.columnOrder == col.columnOrder + 1);
+		if (toMoveInd == -1) {
+			//bad luck, the oder values are malformed, let's fix them...
+			this.FixOrderValuesInColumns(EditingReport);
+			toMoveInd = EditingReport.columns.findIndex(f => f.columnOrder == col.columnOrder + 1);
+			if (toMoveInd == -1) {
+				//??? this shouldn't happen!
+				return;
+			}
+		}
+		const toMove = EditingReport.columns[toMoveInd];
+		toMove.columnOrder--;
+		col.columnOrder++;
+		EditingReport.columns.splice(toMoveInd -1, 2, toMove, col);
+		this.EditingReportHasChanged = true;
+	}
+	public EditCode(code: iReportColumnCode | null) {
+		this.EditingColumnCode = code;
+	}
+	public DeleteColumnCode(code: iReportColumnCode, col:iReportColumn) {
+		const ind = col.codes.findIndex(f => f.reportColumnCodeId == code.reportColumnCodeId);
+		if (ind != -1) {this.confirmationDialogService.confirm("Remove code from column?"
+			, "Are you sure? This will remove the \"<strong>" + code.userDefText + "\"</strong> code from the <strong>\"" + col.name + "\"</strong> column."
+			, false, '').then((res: any) => {
+				if (res == true) {
+					this.EditingReportHasChanged = true;
+					col.codes.splice(ind, 1);
+                }
+			});
+        }
+	}
+	public DeleteColumn(col: iReportColumn, EditingReport: iConfigurableReport) {
+		const ind = EditingReport.columns.findIndex(f => f.reportColumnId == col.reportColumnId);
+		if (ind != -1) {
+			this.confirmationDialogService.confirm("Remove column from report?"
+				, "Are you sure? This will remove the  entire \"<strong>" + col.name + "\"</strong> column from the report."
+				, false, '').then((res: any) => {
+					if (res == true) {
+						this.EditingReportHasChanged = true;
+						EditingReport.columns.splice(ind, 1);
+					}
+				});
+		}
+	}
 	public Save() {
 		if (!this.HasWriteRights || this.EditingReport == null) return;
 		else {

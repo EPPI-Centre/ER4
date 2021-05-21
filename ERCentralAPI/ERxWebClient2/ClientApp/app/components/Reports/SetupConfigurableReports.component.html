@@ -3,6 +3,9 @@
     <div class="row">
         <div class="col-5 col-lg-4" style="max-height:60vh; overflow:auto;">
             Reports list
+            <button class="btn btn-sm btn-outline-success my-auto px-1 py-0" (click)="FetchReports()">
+                <i class="fa fa-refresh "></i>
+            </button>
             <div *ngFor="let rpt of Reports">
                 {{rpt.reportId}} : {{rpt.name}} <button class="btn btn-outline-success px-1 py-0 my-auto" (click)="EditReport(rpt)">Edit</button>
             </div>
@@ -12,6 +15,7 @@
                 <div class="row">
                     {{EditingReport.name}} - {{EditingReport.reportType}}
                     <button class="btn btn-danger my-auto px-1 py-0" (click)="Save()" [disabled]="!EditingReportHasChanged || !HasWriteRights">Save</button>
+                    <div *ngIf="EditingReportHasChanged" class="alert-danger small rounded mx-1 my-auto px-1 py-0">You have unsaved changes!!</div>
                     <button class="btn btn-outline-dark my-auto px-1 py-0" (click)="CancelEditing()">Cancel</button>
                     <div *ngIf="selectedNode != null">Selected code:  <span class="font-weight-bold">{{selectedNode.name}}</span></div>
                     <button class="btn btn-outline-success my-auto px-1 py-0" (click)="AddColumn()" [disabled]="!HasWriteRights">Add column</button>
@@ -19,27 +23,68 @@
                 <div class="row">
                     <div *ngFor="let col of EditingReport.columns" class="border border-info">
                         <div class="row mx-1">
-                            Name: {{col.name}} 
-                            <div class="ml-auto alert-info">Col {{col.columnOrder + 1}}</div>
-
-                        </div><button class="btn btn-sm btn-outline-success my-auto px-1 py-0" (click)="AddCodeToColumn(col, selectedNode)" [disabled]="!CanAddNodeToColumn(col, selectedNode) || !HasWriteRights" >+</button>
+                            <div *ngIf="EditingColumnId == null || EditingColumnId !== col.reportColumnId; else EditingColName">
+                                <div>Name: {{col.name}}</div>
+                                <div class="ml-auto alert-info">
+                                    <button class="btn btn-sm btn-outline-success my-auto px-1 py-0" (click)="EditColumn(col)"
+                                            [disabled]="!HasWriteRights">
+                                        <i class="fa fa-edit "></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-success my-auto px-1 py-0" (click)="AddCodeToColumn(col, selectedNode)"
+                                            [disabled]="!CanAddNodeToColumn(col, selectedNode) || !HasWriteRights">
+                                        <i class="fa fa-plus-square "></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-success my-auto px-1 py-0" (click)="MoveColumnLeft(EditingReport, col)"
+                                            [disabled]="col.columnOrder == 0 || !HasWriteRights">
+                                        <i class='fa fa-arrow-circle-left'></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-success my-auto px-1 py-0" (click)="MoveColumnRight(EditingReport, col)"
+                                            [disabled]="col.columnOrder >= EditingReport.columns.length-1 || !HasWriteRights">
+                                        <i class='fa fa-arrow-circle-right'></i>
+                                    </button>
+                                    Col {{col.columnOrder + 1}}
+                                    <button class="btn btn-sm btn-outline-danger my-auto px-1 py-0" (click)="DeleteColumn(col, EditingReport)"
+                                            [disabled]="!HasWriteRights">
+                                        <i class="fa fa-trash "></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <ng-template #EditingColName>
+                                <div class="small">
+                                    <input type="text" [(ngModel)]="EditingColumnName" maxlength="200" />
+                                    <button class="btn btn-sm btn-outline-primary my-auto px-1 py-0" (click)="EditColumn()">
+                                        Done
+                                    </button>
+                                </div>
+                            </ng-template>
+                        </div>
                        <div class="p-1 m-1 border border-dark"> 
                            Codes in column...
                            <div *ngFor="let code of col.codes" class="m-1 border rounded border-info">
                                {{code.userDefText}}
-                                <button class="btn btn-sm px-1 py-0 my-auto ml-auto" [disabled]="code.codeOrder == 0 || !HasWriteRights" (click)="MoveColumnCodeUp(col, code)">Up</button>
-                                <button class="btn btn-sm px-1 py-0 my-auto mx-1" [disabled]="code.codeOrder == col.codes.length -1 || !HasWriteRights" (click)="MoveColumnCodeDown(col, code)">Down</button>
-                               <!--CodeId:{{code.attributeId}}<br />
-                               Order: {{code.codeOrder}}<br />
-                               Show add.txt: {{code.displayAdditionalText}}<br />
-                               Show code name: {{code.displayCode}}<br />
-                               Show PDF txt: {{code.displayCodedText}}<br />
-                               ParentCodeId: {{code.parentAttributeId}}<br />
-                               parentAttributeText? {{code.parentAttributeText}}<br />
-                               reportColumnCodeId: {{code.reportColumnCodeId}}<br />
-                               reportColumnId: {{code.reportColumnId}}<br />
-                               setId: {{code.setId}}<br />
-                               userDefText: {{code.userDefText}}<br />-->
+                               <button class="btn btn-sm btn-outline-success my-auto px-1 py-0" (click)="EditCode(code)"
+                                       [disabled]="!HasWriteRights">
+                                   <i class="fa fa-edit "></i>
+                               </button>
+                               <button class="btn btn-sm btn-outline-danger my-auto px-1 py-0" (click)="DeleteColumnCode(code, col)"
+                                       [disabled]="!HasWriteRights">
+                                   <i class="fa fa-trash "></i>
+                               </button>
+                               <button class="btn btn-sm btn-outline-success my-auto px-1 py-0 ml-auto" [disabled]="code.codeOrder == 0 || !HasWriteRights" (click)="MoveColumnCodeUp(col, code)">
+                                   <i class='fa fa-arrow-circle-up'></i>
+                               </button>
+                               <button class="btn btn-sm btn-outline-success my-auto px-1 py-0 mx-1" [disabled]="code.codeOrder >= col.codes.length -1 || !HasWriteRights" (click)="MoveColumnCodeDown(col, code)">
+                                   <i class='fa fa-arrow-circle-down'></i>
+                               </button>
+                               <div *ngIf="EditingColumnCodeId != null && EditingColumnCodeId == code.reportColumnCodeId" class="m-1 p-1">
+                                   <div>Name: <input type="text" [(ngModel)]="EditingColumnCodeText" maxlength="200" /></div>
+                                   <div>Show code names: <input type="checkbox" [(ngModel)]="EditingColumnCodedisplayCode" /></div>
+                                   <div>Show infobox text: <input type="checkbox" [(ngModel)]="EditingColumnNamedisplayAdditionalText" /></div>
+                                   <div>Show coded text: <input type="checkbox" [(ngModel)]="EditingColumnCodedisplayCodedText" /></div>
+                                   <button class="btn btn-sm btn-outline-primary my-auto px-1 py-0 mx-1" (click)="EditCode()">
+                                       Done
+                                   </button>
+                               </div>
                            </div>
                         </div>
                     </div>
