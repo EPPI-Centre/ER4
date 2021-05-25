@@ -83,7 +83,7 @@ namespace BusinessLibrary.BusinessClasses
         }
         public string ToJSON()
         {
-            return JsonConvert.SerializeObject(this, Formatting.Indented, new JsonSerializerSettings { ContractResolver = new SkipEmptyContractResolver() });
+            return JsonConvert.SerializeObject(this, Formatting.Indented, new JsonSerializerSettings { ContractResolver = new SkipEmptyContractResolver(), DateFormatString = "dd/MM/yyyy" });
         }
         internal static ReviewSet NewReviewSet()
         {

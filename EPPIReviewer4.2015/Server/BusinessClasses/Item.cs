@@ -40,13 +40,13 @@ namespace BusinessLibrary.BusinessClasses
 #if (!CSLA_NETCORE)
         public string ToJSON()
         {
-            return JsonConvert.SerializeObject(this, Formatting.Indented, new JsonSerializerSettings { ContractResolver = new SkipEmptyContractResolver() });
+            return JsonConvert.SerializeObject(this, Formatting.Indented, new JsonSerializerSettings { ContractResolver = new SkipEmptyContractResolver(), DateFormatString = "dd/MM/yyyy"});
         }
 #endif
 #if SILVERLIGHT
         public string ToJSON(List<ItemSet> itemSetList)
         {
-            string ItemJSON = JsonConvert.SerializeObject(this, Formatting.Indented, new JsonSerializerSettings { ContractResolver = new SkipEmptyContractResolver() });
+            string ItemJSON = JsonConvert.SerializeObject(this, Formatting.Indented, new JsonSerializerSettings { ContractResolver = new SkipEmptyContractResolver(), DateFormatString = "dd/MM/yyyy" });
             if (itemSetList != null)
             {
                 JObject interim = JObject.Parse(ItemJSON);
@@ -56,7 +56,7 @@ namespace BusinessLibrary.BusinessClasses
                 {
                     if (itemSet.ItemId == this.ItemId)
                     {//collect the coding info in JSON requires a bit of rejingling to produce a flat list (ignoring where codes come from).
-                        string AttributesJSON = JsonConvert.SerializeObject(itemSet, Formatting.Indented, new JsonSerializerSettings { ContractResolver = new SkipEmptyContractResolver() });
+                        string AttributesJSON = JsonConvert.SerializeObject(itemSet, Formatting.Indented, new JsonSerializerSettings { ContractResolver = new SkipEmptyContractResolver(), DateFormatString = "dd/MM/yyyy" });
                         JObject jo = JObject.Parse(AttributesJSON);
                         JArray internalVals = (JArray)jo["ItemAttributesList"];
                         JArray internalOutcomes = new JArray();
