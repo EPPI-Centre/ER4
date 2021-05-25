@@ -318,10 +318,22 @@ namespace BusinessLibrary.BusinessClasses
             #endregion
 
             #region Quick Check and quick match score
-
+            //don't calculate this if strings are identical!
+            if (strOneUppercase == strTwoUppercase) return 100;
             int strOneLength = strOneUppercase.Length;
             int strTwoLength = strTwoUppercase.Length;
-
+            //sanity checks, don't use the full string if they are too long
+            if (strOneLength > 5000)
+            {
+                strOneUppercase = strOneUppercase.Substring(0, 5000);
+                strOneLength = 5000;
+            }
+            if (strTwoLength > 5000)
+            {
+                strTwoUppercase = strTwoUppercase.Substring(0, 5000);
+                strTwoLength = 5000;
+            }
+            //following line is now safe, without truncation it could fail
             int[,] dimension = new int[strOneLength + 1, strTwoLength + 1];
             int matchCost = 0;
 
