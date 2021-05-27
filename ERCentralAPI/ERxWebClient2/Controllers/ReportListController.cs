@@ -114,6 +114,26 @@ namespace ERxWebClient2.Controllers
 				return StatusCode(500, e.Message);
 			}
 		}
+		[HttpPost("[action]")]
+		public IActionResult DeleteReport([FromBody] SingleIntCriteria criteria)
+		{
+			try
+			{
+				if (SetCSLAUser4Writing())
+				{
+					Report rep = DataPortal.Fetch<Report>(new SingleCriteria<int>(criteria.Value));
+					rep.Delete();
+					rep = rep.Save();
+					return Ok();//if no error, all should be OK.
+				}
+				else return Forbid();
+			}
+			catch (Exception e)
+			{
+				_logger.LogException(e, "Error deleting report, RepID:" + criteria.Value);
+				return StatusCode(500, e.Message);
+			}
+		}
 
 		[HttpPost("[action]")]
 		public IActionResult FetchStandardReport([FromBody] ReportStandardJSON args)

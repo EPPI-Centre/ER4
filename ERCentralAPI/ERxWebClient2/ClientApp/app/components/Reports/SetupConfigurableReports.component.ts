@@ -159,10 +159,14 @@ export class SetupConfigurableReports implements OnInit, OnDestroy {
 	public CancelEditing() {
 		this.EditingReport = null;
 		this.EditingReportHasChanged = false;
+		this.UpdatingReportName = false;
 	}
+	public Clear() {
+		this.CancelEditing();
+    }
 	public NewReport() {
 		let newR: iConfigurableReport = {
-			name: "New Report (please edit)",
+			name: "",
 			reportId: 0,
 			contactId: this.ReviewerIdentityServ.reviewerIdentity.userId,
 			contactName: this.ReviewerIdentityServ.reviewerIdentity.name,
@@ -338,6 +342,18 @@ export class SetupConfigurableReports implements OnInit, OnDestroy {
 				});
 		}
 	}
+	public DeleteReport(rep: iConfigurableReport) {
+		if (!this.HasWriteRights || (this.EditingReport != null && this.EditingReport.reportId == rep.reportId)) return;
+		else {
+			this.confirmationDialogService.confirm("Delete Report?"
+				, "Are you sure? This will delete the report called \"<strong>" + rep.name + "\"</strong>.<br /> This action cannot be undone."
+				, false, '').then((res: any) => {
+					if (res == true) {
+						this.configurablereportServ.DeleteReport(rep);
+					}
+				});
+		}
+    }
 	public Save() {
 		if (!this.HasWriteRights || this.EditingReport == null) return;
 		else {

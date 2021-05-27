@@ -34,6 +34,7 @@ import { FetchReadOnlyReviewsComponent } from '../readonlyreviews/readonlyreview
 import { MAGRelatedRunsService } from '../services/MAGRelatedRuns.service';
 import { ReviewInfoService } from '../services/ReviewInfo.service';
 import { MAGBrowserHistoryService } from '../services/MAGBrowserHistory.service';
+import { SetupConfigurableReports } from '../Reports/SetupConfigurableReports.component';
 //import { AdvancedMAGFeaturesComponent } from '../MAG/AdvancedMAGFeatures.component';
 
 
@@ -94,6 +95,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 	@ViewChild('CodeTreeAllocate') CodeTreeAllocate!: codesetSelectorComponent;
     @ViewChild('CodingToolTreeReports') CodingToolTree!: codesetSelectorComponent;
     @ViewChild(FetchReadOnlyReviewsComponent) private ReadOnlyReviewsComponent!: FetchReadOnlyReviewsComponent;
+    @ViewChild(SetupConfigurableReports) private SetupConfigurableReports!: SetupConfigurableReports; 
     //@ViewChild('AdvancedMAG') AdvancedMAG!: AdvancedMAGFeaturesComponent;
 
 	public DropdownSelectedCodeAllocate: singleNode | null = null;
@@ -970,6 +972,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 			this.ComparisonComp.Clear();
         }
         if (this.ReadOnlyReviewsComponent) this.ReadOnlyReviewsComponent.Clear();
+        if (this.SetupConfigurableReports) this.SetupConfigurableReports.Clear();
         this.isReviewPanelCollapsed = false;
         this.isWorkAllocationsPanelCollapsed = false;
         this.isSourcesPanelVisible = false;

@@ -165,7 +165,25 @@ export class ConfigurableReportService extends BusyAwareService {
 				this.RemoveBusy("UpdateReport");
 				this.modalService.GenericError(err);
 			});
-    }
+	}
+	DeleteReport(rep: iConfigurableReport) {
+		if (rep.reportId < 1) return;
+		let body = JSON.stringify({ Value: rep.reportId });
+		this._BusyMethods.push("DeleteReport");
+		//console.log("saving reviewSet via command", rs, rsC);
+		return this._httpC.post<void>(this._baseUrl + 'api/ReportList/DeleteReport', body).subscribe(() => {
+			let ind = this.Reports.findIndex(f => f.reportId == rep.reportId)
+			if (ind !== -1) {
+				this.Reports.splice(ind, 1);
+			}
+			this.RemoveBusy("DeleteReport");
+		},
+			(err) => {
+				console.log("Error deleting Report:", err);
+				this.RemoveBusy("DeleteReport");
+				this.modalService.GenericError(err);
+			});
+	}
 
 	public Clear() {
 		this.reportHTML = '';

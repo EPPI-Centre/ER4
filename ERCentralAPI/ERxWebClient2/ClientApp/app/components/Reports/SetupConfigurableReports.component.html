@@ -1,122 +1,195 @@
 <div *ngIf="IsServiceBusy" class="k-loading-image" style="position: fixed; top: 0%;"></div>
 <div class="container px-1 col-12 fullBordersInTabs">
     <div class="row">
-        <div class="col-5 col-lg-4" style="max-height:60vh; overflow:auto;">
-            Reports list
-            <button class="btn btn-sm btn-outline-success my-auto px-1 py-0" (click)="FetchReports()">
-                <i class="fa fa-refresh "></i>
-            </button>
-            <button class="btn btn-sm btn-outline-success my-auto px-1 py-0" (click)="NewReport()">
-               New Report
-            </button>
-            <div *ngFor="let rpt of Reports">
-                {{rpt.reportId}} : {{rpt.name}} <button class="btn btn-outline-success px-1 py-0 my-auto" (click)="EditReport(rpt)">Edit</button>
+        <div class="col-4 col-lg-3 rounded alert-dark border border-dark p-1">
+            <div class="row mx-0 p-1">
+                <h3>Reports list</h3>
+                <button class="btn btn-sm btn-outline-success ml-auto my-auto px-1 py-0" (click)="FetchReports()" title="Refresh reports list">
+                    <i class="fa fa-refresh "></i>
+                </button>
+                <button class="btn btn-sm btn-outline-success my-auto px-1 py-0 ml-1" (click)="NewReport()" title="Create New Report">
+                    New Report
+                </button>
+            </div>
+            <div class="mx-0 p-1 rounded border border-info bg-white" style="max-height:80vh; overflow:auto;" >
+                <div *ngIf="Reports.length == 0" class="rounded border border-info alert-info">
+                    No reports loaded. Click 
+                    <button class="btn btn-sm btn-outline-success my-auto px-1 py-0 ml-1" (click)="NewReport()" title="Create New Report">
+                        New Report
+                    </button> to create the first report.
+                </div>
+                <div *ngFor="let rpt of Reports" class="border-bottom border-info">
+                    {{rpt.name}}
+                    <button class="btn btn-outline-success px-1 ml-auto mr-1 py-0 my-1" (click)="EditReport(rpt)" title="View/Edit report details">
+                        <i class="fa fa-edit mx-1"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger ml-0 mr-1 my-1 px-1 py-0" (click)="DeleteReport(rpt)" title="Delete Report"
+                            [disabled]="!HasWriteRights || (EditingReport != null && EditingReport.reportId == rpt.reportId)">
+                        <i class="fa fa-trash "></i>
+                    </button>
+                </div>
             </div>
         </div>
-        <div class="col-7 col-lg-8 row">
-            <div *ngIf="EditingReport != null && ShowCreateNew == true" class="row col-12 m-0 p-1">
-                <div class="col m-0">
-                    Report Name: <input type="text" maxlength="100" [(ngModel)]="EditingReportName" />
-                    Report Type: {{EditingReportType}}
-                    <select class="form-control mb-1" style="min-width:110px;"
-                            [disabled]="!HasWriteRights" [(ngModel)]="EditingReportType">
-                        <option value="Question" [selected]="EditingReportType == 'Question'">Question</option>
-                        <option value="Answer" [selected]="EditingReportType == 'Answer'">Answer</option>
-                    </select>
-
-                </div>
-                <button class="btn btn-outline-success px-1 py-0 my-auto" (click)="ShowCreateNew = false" [disabled]="!EditingReportHasChanged">Done</button>
-                <button class="btn btn-outline-dark px-1 py-0 my-auto" (click)="ShowCreateNew = false; EditingReport = null">Cancel</button>
-            </div>
-            <div *ngIf="EditingReport != null && ShowCreateNew == false">
-                <div class="row">
-                    <div *ngIf="!UpdatingReportName ; else UpdatingReportNameDiv">
-                        {{EditingReport.name}} - {{EditingReport.reportType}}
-                        <button class="btn btn-sm btn-outline-success my-auto px-1 py-0" (click)="UpdatingReportName = true"
-                                [disabled]="!HasWriteRights">
-                            <i class="fa fa-edit "></i>
-                        </button>
+        <div class="col-8 col-lg-9 row m-0 p-0">
+            <ng-template #NotEditingAReport>
+                <div class="card alert alert-info mx-auto my-auto ">
+                    <div class="card-body font-weight-bold">
+                        Please click on a <i class="fa fa-edit text-success"></i> button, to view/edit a report.
                     </div>
-                    <ng-template #UpdatingReportNameDiv>
-                        Report Name: <input type="text" maxlength="100" [(ngModel)]="EditingReportName" /> - {{EditingReport.reportType}}
-                        <button class="btn btn-sm btn-outline-primary my-auto px-1 py-0" (click)="UpdatingReportName = false"
-                                [disabled]="!HasWriteRights">
-                            Done
-                        </button>
-                    </ng-template><button class="btn btn-danger my-auto px-1 py-0" (click)="Save()" [disabled]="!EditingReportHasChanged || !HasWriteRights">Save</button>
-                    <div *ngIf="EditingReportHasChanged" class="alert-danger small rounded mx-1 my-auto px-1 py-0">You have unsaved changes!!</div>
-                    <button class="btn btn-outline-dark my-auto px-1 py-0" (click)="CancelEditing()">Cancel</button>
-                    <div *ngIf="selectedNode != null">Selected code:  <span class="font-weight-bold">{{selectedNode.name}}</span></div>
-                    <button class="btn btn-outline-success my-auto px-1 py-0" (click)="AddColumn()" [disabled]="!HasWriteRights">Add column</button>
                 </div>
-                <div class="row">
-                    <div *ngFor="let col of EditingReport.columns" class="border border-info">
-                        <div class="row mx-1">
-                            <div *ngIf="EditingColumnId == null || EditingColumnId !== col.reportColumnId; else EditingColName">
-                                <div>Name: {{col.name}}</div>
-                                <div class="ml-auto alert-info">
-                                    <button class="btn btn-sm btn-outline-success my-auto px-1 py-0" (click)="EditColumn(col)"
-                                            [disabled]="!HasWriteRights">
-                                        <i class="fa fa-edit "></i>
-                                    </button>
-                                    <button class="btn btn-sm btn-outline-success my-auto px-1 py-0" (click)="AddCodeToColumn(col, selectedNode)"
-                                            [disabled]="!CanAddNodeToColumn(col, selectedNode) || !HasWriteRights">
-                                        <i class="fa fa-plus-square "></i>
-                                    </button>
-                                    <button class="btn btn-sm btn-outline-success my-auto px-1 py-0" (click)="MoveColumnLeft(EditingReport, col)"
-                                            [disabled]="col.columnOrder == 0 || !HasWriteRights">
-                                        <i class='fa fa-arrow-circle-left'></i>
-                                    </button>
-                                    <button class="btn btn-sm btn-outline-success my-auto px-1 py-0" (click)="MoveColumnRight(EditingReport, col)"
-                                            [disabled]="col.columnOrder >= EditingReport.columns.length-1 || !HasWriteRights">
-                                        <i class='fa fa-arrow-circle-right'></i>
-                                    </button>
-                                    Col {{col.columnOrder + 1}}
-                                    <button class="btn btn-sm btn-outline-danger my-auto px-1 py-0" (click)="DeleteColumn(col, EditingReport)"
-                                            [disabled]="!HasWriteRights">
-                                        <i class="fa fa-trash "></i>
-                                    </button>
+            </ng-template>
+
+            <div  *ngIf="EditingReport != null; else NotEditingAReport;" class="ml-1 px-1 mb-auto container rounded alert-info border border-dark">
+                <div *ngIf="ShowCreateNew == true" class="m-0 p-1 ">
+                    <div class="col-12 px-1 font-weight-bold">Please pick a name and a report type</div>
+                    <div class="col-12 row p-1 m-0">
+                        <div class="my-auto col-auto px-0">Report Name:</div> 
+                        <input type="text" ma placeholder="(please edit)" maxlength="200" [(ngModel)]="EditingReportName" class="col ml-1 px-1 " />
+                        </div>
+                    <div class="col-12 row p-1 m-0">
+                        <div class="my-auto col-auto px-0 mr-1">Report type:</div> 
+                        <select class="col-auto ml-1 px-1 mt-1" style="min-width:90px;" 
+                                [disabled]="!HasWriteRights" [(ngModel)]="EditingReportType">
+                            <option value="Question" [selected]="EditingReportType == 'Question'">Question</option>
+                            <option value="Answer" [selected]="EditingReportType == 'Answer'">Answer</option>
+                        </select>
+
+                    </div>
+                    <div class="col-12 row p-1 m-0 border rounded border-info bg-white">
+                        <button class="btn btn-success px-2 py-0 my-auto ml-2 mr-1" (click)="ShowCreateNew = false" [disabled]="EditingReportName == '' || !EditingReportHasChanged">Continue...</button>
+                        <button class="btn btn-outline-dark px-1 py-0 my-auto" (click)="ShowCreateNew = false; EditingReport = null">Cancel</button>
+                    </div>
+                </div>
+                <div *ngIf="ShowCreateNew == false">
+                    <ng-template #SaveCancelBar>
+                        <div class="row p-1">
+                            <div class="mx-auto d-inline-flex">
+                                <button class="btn btn-danger my-auto px-1 py-0" (click)="Save()" [disabled]="!EditingReportHasChanged || !HasWriteRights">Save</button>
+                                <button class="btn btn-outline-dark my-auto px-1 py-0" (click)="CancelEditing()">Cancel</button>
+                                <div *ngIf="EditingReportHasChanged" class="bg-white rounded p-1 mx-1 my-auto">
+                                    <div class="alert-danger border-danger rounded  px-1 py-0">
+                                        You have unsaved changes!
+                                    </div>
                                 </div>
                             </div>
-                            <ng-template #EditingColName>
-                                <div class="small">
-                                    <input type="text" [(ngModel)]="EditingColumnName" maxlength="200" />
-                                    <button class="btn btn-sm btn-outline-primary my-auto px-1 py-0" (click)="EditColumn()">
-                                        Done
-                                    </button>
-                                </div>
-                            </ng-template>
                         </div>
-                       <div class="p-1 m-1 border border-dark"> 
-                           Codes in column...
-                           <div *ngFor="let code of col.codes" class="m-1 border rounded border-info">
-                               {{code.userDefText}}
-                               <button class="btn btn-sm btn-outline-success my-auto px-1 py-0" (click)="EditCode(code)"
-                                       [disabled]="!HasWriteRights">
-                                   <i class="fa fa-edit "></i>
-                               </button>
-                               <button class="btn btn-sm btn-outline-danger my-auto px-1 py-0" (click)="DeleteColumnCode(code, col)"
-                                       [disabled]="!HasWriteRights">
-                                   <i class="fa fa-trash "></i>
-                               </button>
-                               <button class="btn btn-sm btn-outline-success my-auto px-1 py-0 ml-auto" [disabled]="code.codeOrder == 0 || !HasWriteRights" (click)="MoveColumnCodeUp(col, code)">
-                                   <i class='fa fa-arrow-circle-up'></i>
-                               </button>
-                               <button class="btn btn-sm btn-outline-success my-auto px-1 py-0 mx-1" [disabled]="code.codeOrder >= col.codes.length -1 || !HasWriteRights" (click)="MoveColumnCodeDown(col, code)">
-                                   <i class='fa fa-arrow-circle-down'></i>
-                               </button>
-                               <div *ngIf="EditingColumnCodeId != null && EditingColumnCodeId == code.reportColumnCodeId" class="m-1 p-1">
-                                   <div>Name: <input type="text" [(ngModel)]="EditingColumnCodeText" maxlength="200" /></div>
-                                   <div>Show code names: <input type="checkbox" [(ngModel)]="EditingColumnCodedisplayCode" /></div>
-                                   <div>Show infobox text: <input type="checkbox" [(ngModel)]="EditingColumnNamedisplayAdditionalText" /></div>
-                                   <div>Show coded text: <input type="checkbox" [(ngModel)]="EditingColumnCodedisplayCodedText" /></div>
-                                   <button class="btn btn-sm btn-outline-primary my-auto px-1 py-0 mx-1" (click)="EditCode()">
-                                       Done
-                                   </button>
-                               </div>
-                           </div>
+                    </ng-template>
+                    <ng-container *ngTemplateOutlet="SaveCancelBar"></ng-container>
+
+                    <div class="row col-12 m-0 px-0 ">
+                        <div *ngIf="!UpdatingReportName ; else UpdatingReportNameDiv" class="col row m-1 p-0">
+                            <div class="my-auto mr-1">Report Name:</div>
+                            <div class="font-weight-bold px-1 d-flex bg-white rounded my-auto">
+                                <div class="my-auto">{{EditingReport.name}}</div>
+                                <button class="btn btn-sm btn-outline-success my-auto px-1 py-0 ml-1" (click)="UpdatingReportName = true" title="Edit Report Name"
+                                        [disabled]="!HasWriteRights">
+                                    <i class="fa fa-edit "></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <ng-template #UpdatingReportNameDiv>
+                            <div class="my-auto mx-1 px-0 col-auto">Report Name:</div>
+                            <input type="text" maxlength="100" [(ngModel)]="EditingReportName" class="col px-1" />
+                            <button class="btn btn-sm btn-outline-primary my-auto px-1 py-0 ml-1" (click)="UpdatingReportName = false"
+                                    [disabled]="!HasWriteRights">
+                                Done
+                            </button>
+                        </ng-template>
+
+                        <div class="col-auto my-auto bg-white px-0 rounded ">
+                            <button class="btn btn-outline-success my-auto px-1 py-0" (click)="AddColumn()" [disabled]="!HasWriteRights">Add column</button>
                         </div>
                     </div>
+                    <div class="row mx-1 mb-1">
+                        <div class="mr-auto">Report Type: <span class="font-weight-bold">{{EditingReport.reportType}}</span></div>
+                        <div *ngIf="selectedNode != null; else NoCodeSelected" class="">
+                            <div class="alert-light rounded ml-1 px-1">Selected code:  <span class="font-weight-bold">{{selectedNode.name}}</span></div>
+                        </div>
+                        <ng-template #NoCodeSelected>
+                            <div class="alert-light rounded ml-1 px-1">Selected code:  <span class="font-italic">None</span></div>
+                        </ng-template>
+                    </div>
+                    <div class="row bg-white rounded m-0 p-1" style="max-height:75vh; overflow:auto;">
+                        <div *ngFor="let col of EditingReport.columns" class="border border-info rounded m-1">
+                            <div>
+                                <div class="row mx-1" *ngIf="EditingColumnId == null || EditingColumnId !== col.reportColumnId; else EditingColName">
+                                    <div class="mr-1">Column: <strong class="mr-1">{{col.name}}</strong></div>
+                                    <div class="ml-auto alert-info">
+                                        <button class="btn btn-sm btn-outline-success my-auto px-1 py-0" (click)="EditColumn(col)" title="Edit column header"
+                                                [disabled]="!HasWriteRights">
+                                            <i class="fa fa-edit "></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-success my-auto px-1 py-0" (click)="AddCodeToColumn(col, selectedNode)" title="Add selected code to column"
+                                                [disabled]="!CanAddNodeToColumn(col, selectedNode) || !HasWriteRights">
+                                            <i class="fa fa-plus-square "></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-success my-auto px-1 py-0" (click)="MoveColumnLeft(EditingReport, col)" title="Move column to the left"
+                                                [disabled]="col.columnOrder == 0 || !HasWriteRights">
+                                            <i class='fa fa-arrow-circle-left'></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-success my-auto px-1 py-0" (click)="MoveColumnRight(EditingReport, col)" title="Move column to the right"
+                                                [disabled]="col.columnOrder >= EditingReport.columns.length-1 || !HasWriteRights">
+                                            <i class='fa fa-arrow-circle-right'></i>
+                                        </button>
+                                        Col#{{col.columnOrder + 1}}
+                                        <button class="btn btn-sm btn-outline-danger my-auto px-1 py-0" (click)="DeleteColumn(col, EditingReport)" title="Delete column from report"
+                                                [disabled]="!HasWriteRights">
+                                            <i class="fa fa-trash "></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <ng-template #EditingColName>
+                                    <div class="mx-1 px-0 row">
+                                        <input type="text" [(ngModel)]="EditingColumnName" maxlength="200" class="col px-1 mx-1 " />
+                                        <button class="btn btn-sm btn-outline-primary ml-1 my-auto px-1 py-0" (click)="EditColumn()">
+                                            Done
+                                        </button>
+                                    </div>
+                                </ng-template>
+                            </div>
+                            <div class="p-1 m-1 border border-dark">
+                                Codes in column:
+                                <div *ngFor="let code of col.codes" class="m-1 border rounded border-info">
+                                    <div *ngIf="EditingColumnCodeId == null || EditingColumnCodeId !== code.reportColumnCodeId; else EditingColCodeTemplate" class="row mx-0 px-0">
+                                        <div class="mx-1">{{code.userDefText}}</div>
+                                        <button class="btn btn-sm btn-outline-success my-auto px-1 py-0" (click)="EditCode(code)" title="View/Edit details"
+                                                [disabled]="!HasWriteRights">
+                                            <i class="fa fa-edit "></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-success my-auto px-1 py-0" [disabled]="code.codeOrder == 0 || !HasWriteRights" title="Move code up (within this column)"
+                                                (click)="MoveColumnCodeUp(col, code)">
+                                            <i class='fa fa-arrow-circle-up'></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-success my-auto px-1 py-0 mr-1" [disabled]="code.codeOrder >= col.codes.length -1 || !HasWriteRights" title="Move code down (within this column)"
+                                                (click)="MoveColumnCodeDown(col, code)">
+                                            <i class='fa fa-arrow-circle-down'></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-danger my-auto px-1 py-0 ml-auto" (click)="DeleteColumnCode(code, col)" title="Remove code from column"
+                                                [disabled]="!HasWriteRights">
+                                            <i class="fa fa-trash "></i>
+                                        </button>
+                                    </div>
+                                    <ng-template #EditingColCodeTemplate>
+                                        <div class="m-1 p-1">
+                                            <div class="row mx-0 px-1">
+                                                <div class="mr-1">Display Name: </div>
+                                                <input type="text" [(ngModel)]="EditingColumnCodeText" maxlength="200" class="col px-1" />
+                                            </div>
+                                            <div class="row mx-0 px-1">Code Name: {{code.parentAttributeText}} </div>
+                                            <div>Show code names: <input type="checkbox" [(ngModel)]="EditingColumnCodedisplayCode" /></div>
+                                            <div>Show infobox text: <input type="checkbox" [(ngModel)]="EditingColumnNamedisplayAdditionalText" /></div>
+                                            <div>Show coded text: <input type="checkbox" [(ngModel)]="EditingColumnCodedisplayCodedText" /></div>
+                                            <button class="btn btn-sm btn-outline-primary my-auto px-1 py-0 mx-1" (click)="EditCode()">
+                                                Done
+                                            </button>
+                                        </div>
+                                    </ng-template>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <ng-container *ngTemplateOutlet="SaveCancelBar"></ng-container>
                 </div>
             </div>
         </div>
