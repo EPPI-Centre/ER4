@@ -38,8 +38,10 @@ export class SetupConfigurableReports implements OnInit, OnDestroy {
 	}
 	public EditingReport: iConfigurableReport | null = null;
 	private EditingColumn: iReportColumn | null = null;
-	private EditingColumnCode: iReportColumnCode | null = null; 
+	private EditingColumnCode: iReportColumnCode | null = null;
 	public EditingReportHasChanged: boolean = false;
+	public ShowCreateNew: boolean = false;
+	public UpdatingReportName: boolean = false;
 	public get Reports(): iConfigurableReport[] {
 		return this.configurablereportServ.Reports;
     }
@@ -47,6 +49,39 @@ export class SetupConfigurableReports implements OnInit, OnDestroy {
 		this.EditingReport = ConfigurableReportService.CloneReport(rpt);
 	}
 	//we use getters and setters so to allow keeping track of changes, these are in use for private members "EditingColumn" and "EditingColumnCode".
+	public get EditingReportName(): string {
+		if (this.EditingReport) return this.EditingReport.name;
+		else return "N/A";
+	}
+	public set EditingReportName(val: string) {
+		if (this.EditingReport && val !== this.EditingReport.name) {
+			this.EditingReportHasChanged = true;
+			this.EditingReport.name = val;
+		}
+	}
+	public get EditingReportType(): string {
+		if (this.EditingReport) {
+			//console.log("get EditingReportType", this.EditingReport.reportType);
+			return this.EditingReport.reportType;
+		}
+		else return "N/A";
+    }
+	public set EditingReportType(val: string) {
+		if (this.EditingReport == null) return;
+		else {
+
+			//console.log("set EditingReportType", this.EditingReport.reportType, val);
+			if (this.EditingReport.reportType != val
+				&& (val == "Question" || val == "Answer")
+				&& this.EditingReport.columns.findIndex(f => f.codes.length > 1) == -1) {
+				//we can change type as all columns have 1 code or less 
+				this.EditingReportHasChanged = true;
+				this.EditingReport.reportType = val;
+				if (val == "Question") this.EditingReport.isAnswer = false;
+				else this.EditingReport.isAnswer = true;
+            }
+		}
+	}
 	public get EditingColumnId(): number | null {
 		if (this.EditingColumn) return this.EditingColumn.reportColumnId;
 		else return null;
@@ -125,6 +160,21 @@ export class SetupConfigurableReports implements OnInit, OnDestroy {
 		this.EditingReport = null;
 		this.EditingReportHasChanged = false;
 	}
+	public NewReport() {
+		let newR: iConfigurableReport = {
+			name: "New Report (please edit)",
+			reportId: 0,
+			contactId: this.ReviewerIdentityServ.reviewerIdentity.userId,
+			contactName: this.ReviewerIdentityServ.reviewerIdentity.name,
+			isAnswer: false,
+			reportType: "Question",
+			//detail: string;
+			columns: []
+		};
+		this.EditingReportHasChanged = false;
+		this.EditingReport = newR;
+		this.ShowCreateNew = true;
+    }
 	public MoveColumnCodeDown(col: iReportColumn, code: iReportColumnCode) {
 		if (this.EditingReport == null) return;
 		let toMoveInd = col.codes.findIndex(f => f.codeOrder == code.codeOrder + 1);
@@ -291,7 +341,11 @@ export class SetupConfigurableReports implements OnInit, OnDestroy {
 	public Save() {
 		if (!this.HasWriteRights || this.EditingReport == null) return;
 		else {
-			this.configurablereportServ.UpdateReport(this.EditingReport);
+			if (this.EditingReport.reportId == 0) {
+				this.configurablereportServ.CreateReport(this.EditingReport);
+			} else {
+				this.configurablereportServ.UpdateReport(this.EditingReport);
+			}
 			this.CancelEditing();
 		}
 	}

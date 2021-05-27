@@ -6,15 +6,44 @@
             <button class="btn btn-sm btn-outline-success my-auto px-1 py-0" (click)="FetchReports()">
                 <i class="fa fa-refresh "></i>
             </button>
+            <button class="btn btn-sm btn-outline-success my-auto px-1 py-0" (click)="NewReport()">
+               New Report
+            </button>
             <div *ngFor="let rpt of Reports">
                 {{rpt.reportId}} : {{rpt.name}} <button class="btn btn-outline-success px-1 py-0 my-auto" (click)="EditReport(rpt)">Edit</button>
             </div>
         </div>
         <div class="col-7 col-lg-8 row">
-            <div *ngIf="EditingReport != null">
+            <div *ngIf="EditingReport != null && ShowCreateNew == true" class="row col-12 m-0 p-1">
+                <div class="col m-0">
+                    Report Name: <input type="text" maxlength="100" [(ngModel)]="EditingReportName" />
+                    Report Type: {{EditingReportType}}
+                    <select class="form-control mb-1" style="min-width:110px;"
+                            [disabled]="!HasWriteRights" [(ngModel)]="EditingReportType">
+                        <option value="Question" [selected]="EditingReportType == 'Question'">Question</option>
+                        <option value="Answer" [selected]="EditingReportType == 'Answer'">Answer</option>
+                    </select>
+
+                </div>
+                <button class="btn btn-outline-success px-1 py-0 my-auto" (click)="ShowCreateNew = false" [disabled]="!EditingReportHasChanged">Done</button>
+                <button class="btn btn-outline-dark px-1 py-0 my-auto" (click)="ShowCreateNew = false; EditingReport = null">Cancel</button>
+            </div>
+            <div *ngIf="EditingReport != null && ShowCreateNew == false">
                 <div class="row">
-                    {{EditingReport.name}} - {{EditingReport.reportType}}
-                    <button class="btn btn-danger my-auto px-1 py-0" (click)="Save()" [disabled]="!EditingReportHasChanged || !HasWriteRights">Save</button>
+                    <div *ngIf="!UpdatingReportName ; else UpdatingReportNameDiv">
+                        {{EditingReport.name}} - {{EditingReport.reportType}}
+                        <button class="btn btn-sm btn-outline-success my-auto px-1 py-0" (click)="UpdatingReportName = true"
+                                [disabled]="!HasWriteRights">
+                            <i class="fa fa-edit "></i>
+                        </button>
+                    </div>
+                    <ng-template #UpdatingReportNameDiv>
+                        Report Name: <input type="text" maxlength="100" [(ngModel)]="EditingReportName" /> - {{EditingReport.reportType}}
+                        <button class="btn btn-sm btn-outline-primary my-auto px-1 py-0" (click)="UpdatingReportName = false"
+                                [disabled]="!HasWriteRights">
+                            Done
+                        </button>
+                    </ng-template><button class="btn btn-danger my-auto px-1 py-0" (click)="Save()" [disabled]="!EditingReportHasChanged || !HasWriteRights">Save</button>
                     <div *ngIf="EditingReportHasChanged" class="alert-danger small rounded mx-1 my-auto px-1 py-0">You have unsaved changes!!</div>
                     <button class="btn btn-outline-dark my-auto px-1 py-0" (click)="CancelEditing()">Cancel</button>
                     <div *ngIf="selectedNode != null">Selected code:  <span class="font-weight-bold">{{selectedNode.name}}</span></div>

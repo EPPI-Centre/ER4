@@ -460,9 +460,9 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         this.router.navigate(['WebDBs']);
     }
 
-	public GetReports() {
-
-		this.configurablereportServ.FetchReports();
+	public GetReports(force: boolean = false) {
+        if (force || this.configurablereportServ.Reports.length == 0)
+            this.configurablereportServ.FetchReports();
 	}
 	public RunConfigurableReports() {
 
@@ -930,6 +930,8 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         //else console.log("work allocs comp is undef :-(");
         if (this.ItemListService.ListCriteria && this.ItemListService.ListCriteria.listType == "") 
             this.IncludedItemsListNoTabChange();
+        setTimeout(() => {this.GetReports(true);}, 1000);//always get reports list, but we can wait 1s before doing so...
+        
     }
     //GetStatsFromSubscription() {
     //    //we unsubscribe here as we won't use this again.
@@ -954,6 +956,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 		this.SourcesService.Clear();
 		this.workAllocationListService.Clear();
         this.DuplicatesService.Clear();
+        this.configurablereportServ.Clear();
         if (this.FreqComponent) this.FreqComponent.Clear();
 		if (this.CrosstabsComponent) this.CrosstabsComponent.Clear();
 		if (this.workAllocationCollaborateComp) {

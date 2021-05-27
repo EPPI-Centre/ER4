@@ -130,6 +130,21 @@ export class ConfigurableReportService extends BusyAwareService {
 		);
 	}
 
+	CreateReport(rep: iConfigurableReport) {
+		this._BusyMethods.push("CreateReport");
+
+		//console.log("saving reviewSet via command", rs, rsC);
+		return this._httpC.post<iConfigurableReport>(this._baseUrl + 'api/ReportList/CreateReport', rep).subscribe((res) => {
+			this.Reports.push(res);			
+			this.RemoveBusy("CreateReport");
+		},
+			(err) => {
+				console.log("Error Creating Report:", err);
+				this.RemoveBusy("CreateReport");
+				this.modalService.GenericError(err);
+			});
+	}
+
 	UpdateReport(rep: iConfigurableReport) {
 		this._BusyMethods.push("UpdateReport");
 		

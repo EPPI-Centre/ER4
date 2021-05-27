@@ -37,8 +37,28 @@ namespace ERxWebClient2.Controllers
             }
 		}
 		[HttpPost("[action]")]
+		public IActionResult CreateReport([FromBody] ReportJSON rep)
+		{
+			try
+			{
+				if (SetCSLAUser4Writing())
+				{
+					Report newR = rep.ToCSLAReport();
+					newR = newR.Save();
+					newR = DataPortal.Fetch<Report>(new SingleCriteria<int>(newR.ReportId));//re-fetching to ensure we return the truth...
+					return Ok(newR);//if no error, all should be OK.
+				}
+				else return Forbid();
+			}
+			catch (Exception e)
+			{
+				_logger.LogException(e, "Error running UpdateReport, RepID:" + rep.reportId);
+				return StatusCode(500, e.Message);
+			}
+		}
+		[HttpPost("[action]")]
 		public IActionResult UpdateReport([FromBody] ReportJSON rep)
-        {
+		{
 			try
 			{
 				if (SetCSLAUser4Writing())
@@ -52,36 +72,36 @@ namespace ERxWebClient2.Controllers
 					List<ReportColumnJSON> AddedColumns = rep.columns.ToList();
 					Dictionary<ReportColumn, ReportColumnJSON> ExistingColumns = new Dictionary<ReportColumn, ReportColumnJSON>();
 					foreach (ReportColumn col in actual.Columns)
-                    {
+					{
 						ReportColumnJSON cJ = rep.columns.FirstOrDefault((f) => f.reportColumnId == col.ReportColumnId);
 						if (cJ != null)
-                        {//we have this column in both lists... We list it as existent and remove from the list "potentially new" columns
+						{//we have this column in both lists... We list it as existent and remove from the list "potentially new" columns
 							ExistingColumns.Add(col, cJ);
 							AddedColumns.Remove(cJ);
 						}
 						else
-                        {
+						{
 							col.Delete();//this col is not in the object received from the client, so it has been deleted from there...
 							DeletedColumns.Add(col);
 							actual.Detail = "edited!!";
 						}
-                    }
+					}
 					//OK, let's add the new columns...
-					foreach(ReportColumnJSON newCol in AddedColumns)
-                    {
+					foreach (ReportColumnJSON newCol in AddedColumns)
+					{
 						ReportColumn adding = newCol.ToCSLAReportColumn();
 						actual.Columns.Add(adding);
 						actual.Detail = "edited!!";
 					}
 					foreach (KeyValuePair<ReportColumn, ReportColumnJSON> pair in ExistingColumns)
-                    {
+					{
 						if (!pair.Value.IsIdenticalTo(pair.Key))
-                        {
+						{
 							pair.Key.Delete();
 							actual.Columns.Add(pair.Value.ToCSLAReportColumn());
 							actual.Detail = "edited!!";
-                        }
-                    }
+						}
+					}
 					actual = actual.Save(true);
 					actual = DataPortal.Fetch<Report>(new SingleCriteria<int>(rep.reportId));//re-fetching to ensure we return the truth...
 					return Ok(actual);//if no error, all should be OK.
@@ -271,6 +291,19 @@ namespace ERxWebClient2.Controllers
 			}
 			return false;
         }
+		public Report ToCSLAReport()
+        {
+			Report res = new Report();
+			res.ContactName = this.contactName;
+			res.Name = this.name;
+			res.ReportType = this.reportType == "Answer" ? "Answer" : "Question";
+			res.Columns = new ReportColumnList();
+			foreach (ReportColumnJSON rc in this.columns)
+            {
+				res.Columns.Add(rc.ToCSLAReportColumn());
+            }
+			return res;
+		}
 	}
 	public class ReportColumnJSON
 	{
