@@ -7,14 +7,14 @@
                 <button class="btn btn-sm btn-outline-success ml-auto my-auto px-1 py-0" (click)="FetchReports()" title="Refresh reports list">
                     <i class="fa fa-refresh "></i>
                 </button>
-                <button class="btn btn-sm btn-outline-success my-auto px-1 py-0 ml-1" (click)="NewReport()" title="Create New Report">
+                <button class="btn btn-sm btn-outline-success my-auto px-1 py-0 ml-1" (click)="NewReport()" title="Create New Report" [disabled]="!HasWriteRights">
                     New Report
                 </button>
             </div>
             <div class="mx-0 p-1 rounded border border-info bg-white" style="max-height:80vh; overflow:auto;" >
                 <div *ngIf="Reports.length == 0" class="rounded border border-info alert-info">
                     No reports loaded. Click 
-                    <button class="btn btn-sm btn-outline-success my-auto px-1 py-0 ml-1" (click)="NewReport()" title="Create New Report">
+                    <button class="btn btn-sm btn-outline-success my-auto px-1 py-0 ml-1" (click)="NewReport()" title="Create New Report" [disabled]="!HasWriteRights">
                         New Report
                     </button> to create the first report.
                 </div>
@@ -153,8 +153,7 @@
                                 <div *ngFor="let code of col.codes" class="m-1 border rounded border-info">
                                     <div *ngIf="EditingColumnCodeId == null || EditingColumnCodeId !== code.reportColumnCodeId; else EditingColCodeTemplate" class="row mx-0 px-0">
                                         <div class="mx-1">{{code.userDefText}}</div>
-                                        <button class="btn btn-sm btn-outline-success my-auto px-1 py-0" (click)="EditCode(code)" title="View/Edit details"
-                                                [disabled]="!HasWriteRights">
+                                        <button class="btn btn-sm btn-outline-success my-auto px-1 py-0" (click)="EditCode(code)" title="View/Edit details">
                                             <i class="fa fa-edit "></i>
                                         </button>
                                         <button class="btn btn-sm btn-outline-success my-auto px-1 py-0" [disabled]="code.codeOrder == 0 || !HasWriteRights" title="Move code up (within this column)"
@@ -174,12 +173,12 @@
                                         <div class="m-1 p-1">
                                             <div class="row mx-0 px-1">
                                                 <div class="mr-1">Display Name: </div>
-                                                <input type="text" [(ngModel)]="EditingColumnCodeText" maxlength="200" class="col px-1" />
+                                                <input type="text" [disabled]="!HasWriteRights" [(ngModel)]="EditingColumnCodeText" maxlength="200" class="col px-1" />
                                             </div>
                                             <div class="row mx-0 px-1">Code Name: {{code.parentAttributeText}} </div>
-                                            <div>Show code names: <input type="checkbox" [(ngModel)]="EditingColumnCodedisplayCode" /></div>
-                                            <div>Show infobox text: <input type="checkbox" [(ngModel)]="EditingColumnNamedisplayAdditionalText" /></div>
-                                            <div>Show coded text: <input type="checkbox" [(ngModel)]="EditingColumnCodedisplayCodedText" /></div>
+                                            <div>Show code names: <input type="checkbox" [(ngModel)]="EditingColumnCodedisplayCode"  [disabled]="!HasWriteRights"/></div>
+                                            <div>Show infobox text: <input type="checkbox" [(ngModel)]="EditingColumnNamedisplayAdditionalText"  [disabled]="!HasWriteRights"/></div>
+                                            <div>Show coded text: <input type="checkbox" [(ngModel)]="EditingColumnCodedisplayCodedText"  [disabled]="!HasWriteRights"/></div>
                                             <button class="btn btn-sm btn-outline-primary my-auto px-1 py-0 mx-1" (click)="EditCode()">
                                                 Done
                                             </button>

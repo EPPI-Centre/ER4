@@ -32,7 +32,9 @@ export class SetupConfigurableReports implements OnInit, OnDestroy {
 	public get HasWriteRights(): boolean {
 		return this.ReviewerIdentityServ.HasWriteRights;
 	}
-
+	public get IsServiceBusy(): boolean {
+		return this.configurablereportServ.IsBusy;
+    }
 	public get selectedNode(): singleNode | null {
 		return this.reviewSetsService.selectedNode;
 	}
