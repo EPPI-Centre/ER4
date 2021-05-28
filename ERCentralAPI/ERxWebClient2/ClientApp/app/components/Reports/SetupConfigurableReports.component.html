@@ -18,8 +18,8 @@
                         New Report
                     </button> to create the first report.
                 </div>
-                <div *ngFor="let rpt of Reports" class="border-bottom border-info">
-                    {{rpt.name}}
+                <div *ngFor="let rpt of Reports" class="row ml-1 mr-1 border-bottom border-info">
+                    <div class="my-auto">{{rpt.name}}</div>
                     <button class="btn btn-outline-success px-1 ml-auto mr-1 py-0 my-1" (click)="EditReport(rpt)" title="View/Edit report details">
                         <i class="fa fa-edit mx-1"></i>
                     </button>
@@ -56,7 +56,7 @@
 
                     </div>
                     <div class="col-12 row p-1 m-0 border rounded border-info bg-white">
-                        <button class="btn btn-success px-2 py-0 my-auto ml-2 mr-1" (click)="ShowCreateNew = false" [disabled]="EditingReportName == '' || !EditingReportHasChanged">Continue...</button>
+                        <button class="btn btn-success px-2 py-0 my-auto ml-2 mr-1" (click)="ShowCreateNew = false; AddColumn()" [disabled]="EditingReportName == '' || !EditingReportHasChanged">Continue...</button>
                         <button class="btn btn-outline-dark px-1 py-0 my-auto" (click)="ShowCreateNew = false; EditingReport = null">Cancel</button>
                     </div>
                 </div>
@@ -111,8 +111,8 @@
                         </ng-template>
                     </div>
                     <div class="row bg-white rounded m-0 p-1" style="max-height:75vh; overflow:auto;">
-                        <div *ngFor="let col of EditingReport.columns" class="border border-info rounded m-1">
-                            <div>
+                        <div *ngFor="let col of EditingReport.columns" class="col-12 px-0 border border-info rounded m-1">
+                            <div class="">
                                 <div class="row mx-1" *ngIf="EditingColumnId == null || EditingColumnId !== col.reportColumnId; else EditingColName">
                                     <div class="mr-1">Column: <strong class="mr-1">{{col.name}}</strong></div>
                                     <div class="ml-auto alert-info">
