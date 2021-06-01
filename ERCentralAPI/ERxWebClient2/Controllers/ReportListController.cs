@@ -400,6 +400,7 @@ namespace ERxWebClient2.Controllers
 			res.DisplayAdditionalText = this.displayAdditionalText;
 			res.DisplayCode = this.displayCode;
 			res.DisplayCodedText = this.displayCodedText;
+			res.ParentAttributeText = this.parentAttributeText;
 			res.ReportColumnId = this.reportColumnId;
 			res.SetId = this.setId;
 			res.UserDefText = this.userDefText;
