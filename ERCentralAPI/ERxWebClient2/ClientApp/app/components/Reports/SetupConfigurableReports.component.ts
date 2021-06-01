@@ -246,7 +246,7 @@ export class SetupConfigurableReports implements OnInit, OnDestroy {
 				codes: [],
 				columnOrder: this.EditingReport.columns.length,
 				name: "New Column",
-				reportColumnId: Math.floor(Math.random() * -10000)//negative number as a fake ID, to make new columns "unique";
+				reportColumnId: Math.floor(Math.random() * -100000)//negative number as a fake ID, to make new columns "unique";
 			}
 			this.EditingReport.columns.push(newCol);
 			//console.log("New col:", newCol, newCol.columnOrder);
@@ -270,7 +270,7 @@ export class SetupConfigurableReports implements OnInit, OnDestroy {
 			displayCodedText: true,
 			parentAttributeId: 0,
 			parentAttributeText: nodeToAdd.name,
-			reportColumnCodeId: Math.floor(Math.random() * -10000),//negative number as a fake ID, to make new ColumnCodes "unique"
+			reportColumnCodeId: Math.floor(Math.random() * -100000),//negative number as a fake ID, to make new ColumnCodes "unique"
 			reportColumnId: col.reportColumnId,
 			setId: nodeToAdd.set_id,
 			userDefText: nodeToAdd.name,
