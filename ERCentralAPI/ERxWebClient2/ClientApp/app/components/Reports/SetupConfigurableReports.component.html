@@ -115,6 +115,7 @@
                             <div class="">
                                 <div class="row mx-1" *ngIf="EditingColumnId == null || EditingColumnId !== col.reportColumnId; else EditingColName">
                                     <div class="mr-1">Column: <strong class="mr-1">{{col.name}}</strong></div>
+                                    <!--<div class="col-12 m-0 p-0">Cond: {{col.columnOrder}} {{EditingColumnOrder}} {{EditingColumnId !== col.reportColumnId}} {{EditingColumnOrder !== col.columnOrder}}</div>-->
                                     <div class="ml-auto alert-info">
                                         <button class="btn btn-sm btn-outline-success my-auto px-1 py-0" (click)="EditColumn(col)" title="Edit column header"
                                                 [disabled]="!HasWriteRights">
@@ -141,6 +142,8 @@
                                 </div>
                                 <ng-template #EditingColName>
                                     <div class="mx-1 px-0 row">
+
+                                        <!--<div class="col-12 m-0 p-0">Cond: {{col.columnOrder}} {{EditingColumnOrder}} {{EditingColumnId !== col.reportColumnId}} {{EditingColumnOrder !== col.columnOrder}}</div>-->
                                         <input type="text" [(ngModel)]="EditingColumnName" maxlength="200" class="col px-1 mx-1 " />
                                         <button class="btn btn-sm btn-outline-primary ml-1 my-auto px-1 py-0" (click)="EditColumn()">
                                             Done

@@ -92,6 +92,11 @@ export class SetupConfigurableReports implements OnInit, OnDestroy {
 		if (this.EditingColumn) return this.EditingColumn.name;
 		else return "N/A";
 	}
+	public get EditingColumnOrder(): number | null {
+		//console.log("EditingColumnOrder", this.EditingColumn);
+		if (this.EditingColumn) return this.EditingColumn.columnOrder;
+		else return null;
+	}
 	public set EditingColumnName(val: string) {
 		if (this.EditingColumn && val !== this.EditingColumn.name) {
 			this.EditingReportHasChanged = true;
@@ -241,9 +246,10 @@ export class SetupConfigurableReports implements OnInit, OnDestroy {
 				codes: [],
 				columnOrder: this.EditingReport.columns.length,
 				name: "New Column",
-				reportColumnId: 0
-            }
+				reportColumnId: Math.floor(Math.random() * -10000)//negative number as a fake ID, to make new columns "unique";
+			}
 			this.EditingReport.columns.push(newCol);
+			//console.log("New col:", newCol, newCol.columnOrder);
 		}
 	}
 	public CanAddNodeToColumn(col: iReportColumn, nodeToAdd: singleNode | null): boolean {
@@ -264,7 +270,7 @@ export class SetupConfigurableReports implements OnInit, OnDestroy {
 			displayCodedText: true,
 			parentAttributeId: 0,
 			parentAttributeText: nodeToAdd.name,
-			reportColumnCodeId: 0,
+			reportColumnCodeId: Math.floor(Math.random() * -10000),//negative number as a fake ID, to make new ColumnCodes "unique"
 			reportColumnId: col.reportColumnId,
 			setId: nodeToAdd.set_id,
 			userDefText: nodeToAdd.name,
