@@ -373,7 +373,7 @@ export class configurablereportComp implements OnInit, OnDestroy {
 	public SaveAsHtml() {
 
 		if (this.reportHTML.length < 1) return;
-		const dataURI = "data:text/plain;base64," + encodeBase64(Helpers.AddHTMLFrame(this.reportHTML, this._baseUrl));
+		const dataURI = "data:text/plain;base64," + encodeBase64(this.reportHTML);
 		saveAs(dataURI, "ConfigurableReport.html");
 	}
 	public GetReports() {
