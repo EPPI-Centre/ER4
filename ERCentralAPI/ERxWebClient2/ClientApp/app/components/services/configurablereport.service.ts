@@ -227,7 +227,7 @@ export class ConfigurableReportService extends BusyAwareService {
 			//detail: string;
 			columns: cols
 		}
-		return rep;
+		return res;
     }
 }
 

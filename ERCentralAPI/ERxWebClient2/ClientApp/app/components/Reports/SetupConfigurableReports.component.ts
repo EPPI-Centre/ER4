@@ -48,6 +48,7 @@ export class SetupConfigurableReports implements OnInit, OnDestroy {
 		return this.configurablereportServ.Reports;
     }
 	public EditReport(rpt: iConfigurableReport) {
+		this.CancelEditing();
 		this.EditingReport = ConfigurableReportService.CloneReport(rpt);
 	}
 	//we use getters and setters so to allow keeping track of changes, these are in use for private members "EditingColumn" and "EditingColumnCode".
@@ -165,6 +166,9 @@ export class SetupConfigurableReports implements OnInit, OnDestroy {
     }
 	public CancelEditing() {
 		this.EditingReport = null;
+		this.EditingColumn = null;
+		this.EditingColumnCode = null;
+		this.ShowCreateNew = false;
 		this.EditingReportHasChanged = false;
 		this.UpdatingReportName = false;
 	}
@@ -326,19 +330,25 @@ export class SetupConfigurableReports implements OnInit, OnDestroy {
 		this.EditingColumnCode = code;
 	}
 	public DeleteColumnCode(code: iReportColumnCode, col:iReportColumn) {
-		const ind = col.codes.findIndex(f => f.reportColumnCodeId == code.reportColumnCodeId);
+		let ind = col.codes.findIndex(f => f.reportColumnCodeId == code.reportColumnCodeId);
 		if (ind != -1) {this.confirmationDialogService.confirm("Remove code from column?"
 			, "Are you sure? This will remove the \"<strong>" + code.userDefText + "\"</strong> code from the <strong>\"" + col.name + "\"</strong> column."
 			, false, '').then((res: any) => {
 				if (res == true) {
+					//console.log("deleting col code", col.codes);
 					this.EditingReportHasChanged = true;
 					col.codes.splice(ind, 1);
-                }
+					while (ind < col.codes.length) {
+						col.codes[ind].codeOrder--;
+						//console.log("reordering col codes", col.codes[ind].codeOrder, col.codes[ind].userDefText);
+						ind++;
+					}
+				}
 			});
         }
 	}
 	public DeleteColumn(col: iReportColumn, EditingReport: iConfigurableReport) {
-		const ind = EditingReport.columns.findIndex(f => f.reportColumnId == col.reportColumnId);
+		let ind = EditingReport.columns.findIndex(f => f.reportColumnId == col.reportColumnId);
 		if (ind != -1) {
 			this.confirmationDialogService.confirm("Remove column from report?"
 				, "Are you sure? This will remove the  entire \"<strong>" + col.name + "\"</strong> column from the report."
@@ -346,6 +356,10 @@ export class SetupConfigurableReports implements OnInit, OnDestroy {
 					if (res == true) {
 						this.EditingReportHasChanged = true;
 						EditingReport.columns.splice(ind, 1);
+						while (ind < EditingReport.columns.length) {
+							EditingReport.columns[ind].columnOrder--;
+							ind++;
+						}
 					}
 				});
 		}
