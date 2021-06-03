@@ -91,34 +91,7 @@ namespace BusinessLibrary.BusinessClasses
         
 #endif
     }
-    internal class MiniItem: IComparable
-    {
-        public long ItemId;
-        public List<long> Attributes;
-        public List<long> Attributes2;
-        public List<long> Attributes3;
-        public string ShortTitle;
-        public MiniItem(long itemId)
-        {
-            ItemId = itemId;
-            Attributes = new List<long>();
-            Attributes2 = new List<long>();
-            Attributes3 = new List<long>();
-        }
-        public int CompareTo(object y)
-        {//implements IComparable, used to sort items!
-            if (y == null) return 1;
-            MiniItem yy = y as MiniItem;
-            if (yy == null) return 1;
-
-            int score = ShortTitle.CompareTo(yy.ShortTitle);
-            if (score == 0)
-            {
-                return ItemId.CompareTo(yy.ItemId);
-            }
-            else return score;
-        }
-    }
+    
     [Serializable]
     public class WebDbFrequencyCrosstabAndMapSelectionCriteria : Csla.CriteriaBase<WebDbFrequencyCrosstabAndMapSelectionCriteria>
     {

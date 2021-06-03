@@ -38,24 +38,18 @@ namespace ERxWebClient2.Controllers
                 if (!SetCSLAUser()) return Unauthorized();
                 ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
 
-                DataPortal<ReadOnlyItemAttributeCrosstabList> dp = new DataPortal<ReadOnlyItemAttributeCrosstabList>();
+                //DataPortal<ReadOnlyItemAttributeCrosstabList> dp = new DataPortal<ReadOnlyItemAttributeCrosstabList>();
 
-				ItemAttributeCrosstabSelectionCriteria criteria = new ItemAttributeCrosstabSelectionCriteria(type, data.attributeIdXAxis, data.setIdXAxis, data.attributeIdYAxis, data.setIdYAxis,
-					data.attributeIdFilter, data.setIdFilter, data.nxaxis);
-				ReadOnlyItemAttributeCrosstabList result = dp.Fetch(criteria);
+                //ItemAttributeCrosstabSelectionCriteria criteria = new ItemAttributeCrosstabSelectionCriteria(type, data.attributeIdXAxis, data.setIdXAxis, 
+                //	data.attributeIdYAxis, data.setIdYAxis,
+                //	data.attributeIdFilter, data.setIdFilter, data.nxaxis);
+                //ReadOnlyItemAttributeCrosstabList result = dp.Fetch(criteria);
 
-				//var info = typeof(ReadOnlyItemAttributeCrosstabList).GetProperties();
+                WebDbFrequencyCrosstabAndMapSelectionCriteria criteria = new WebDbFrequencyCrosstabAndMapSelectionCriteria(0, data.attributeIdXAxis
+                                            , data.setIdXAxis, "", data.onlyIncluded, "", data.attributeIdFilter, data.attributeIdYAxis, data.setIdYAxis, "");
+                WebDbItemAttributeCrosstabList result = DataPortal.Fetch<WebDbItemAttributeCrosstabList>(criteria);
 
-				//for (int i = 0; i < info.Count(); i++)
-				//{
-				//	if (info[i].Name.Contains("Field")
-				//	{
-
-				//	}
-				//}
-
-
-				return Ok(result);
+                return Ok(result);
             }
             catch (Exception e)
             {
@@ -78,6 +72,7 @@ public class CrossTabCriteria
 	public long attributeIdFilter { get; set; }
 	public int setIdFilter { get; set; }
 	public int nxaxis { get; set; }
+    public string onlyIncluded { get; set; }
 
 }
 

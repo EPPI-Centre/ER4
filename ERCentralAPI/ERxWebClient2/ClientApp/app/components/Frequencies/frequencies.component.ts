@@ -25,7 +25,7 @@ export class frequenciesComp implements OnInit {
 
     ngOnInit() { }
 
-    public freqIncEx: string = 'true';
+    public freqIncEx: string = 'bothIandE';
     public FreqShowWhat: string = 'table';
     public NoneOfTheAboveCB: boolean = true;
     public get selectedNode(): singleNode | null {
@@ -42,9 +42,17 @@ export class frequenciesComp implements OnInit {
 
         } else {
 
-            console.log(selectedNodeDataF.name);
-            // need to filter data before calling the below Fetch	
-            this.frequenciesService.crit.Included = this.freqIncEx == 'true';
+            //console.log(selectedNodeDataF.name);
+            // need to filter data before calling the below Fetch
+            if (this.freqIncEx == 'included') {
+                this.frequenciesService.crit.Included = true;
+            } else if (this.freqIncEx == 'excluded') {
+                this.frequenciesService.crit.Included = false;
+            } else if (this.freqIncEx == 'bothIandE') {
+                this.frequenciesService.crit.Included = null;
+            } else {
+                return;//just in case
+            }
             this.frequenciesService.Fetch(selectedNodeDataF, selectedFilter);
 
         }
@@ -83,7 +91,7 @@ export class frequenciesComp implements OnInit {
         this.chosenNode = null;
         this.chosenFilter = null;
         this.FreqShowWhat = 'table';
-        this.freqIncEx = 'true';
+        this.freqIncEx = 'bothIandE';
         this.frequenciesService.Clear();
     }
 }

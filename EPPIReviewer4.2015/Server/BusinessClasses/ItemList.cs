@@ -402,7 +402,7 @@ namespace BusinessLibrary.BusinessClasses
                 PageSize = criteria.PageSize;
                 try
                 {
-                    if (criteria.ListType != "WebDbWithWithoutCodes")
+                    if (criteria.ListType != "ErWithWithoutCodes" && criteria.ListType != "WebDbWithWithoutCodes")
                     {
                         using (SqlCommand command = SpecifyListCommand(connection, criteria, ri))
                         {
@@ -438,7 +438,6 @@ namespace BusinessLibrary.BusinessClasses
                     }
                     else
                     {
-#if WEBDB
                         List<MiniItem> items = new List<MiniItem>();
                         Dictionary<long, string> Wcodes = new Dictionary<long, string>();
                         Dictionary<long, string> WOcodes = new Dictionary<long, string>();
@@ -456,11 +455,12 @@ namespace BusinessLibrary.BusinessClasses
                                     WOcodes.Add(reader.GetInt64("ATTRIBUTE_ID"), reader.GetString("ATTRIBUTE_NAME"));
                                 }
                                 reader.NextResult();
+                                char[] sep = { ',' };
                                 while (reader.Read())
                                 {
                                     MiniItem mit = new MiniItem(reader.GetInt64("ItemId"));
-                                    string[] tmp = reader.GetString("With_atts").Split(',', StringSplitOptions.RemoveEmptyEntries);
-                                    string[] tmp2 = reader.GetString("reject").Split(',', StringSplitOptions.RemoveEmptyEntries);
+                                    string[] tmp = reader.GetString("With_atts").Split(sep, StringSplitOptions.RemoveEmptyEntries);
+                                    string[] tmp2 = reader.GetString("reject").Split(sep, StringSplitOptions.RemoveEmptyEntries);
                                     foreach (string s in tmp)
                                     {
                                         mit.Attributes.Add(long.Parse(s));
@@ -508,13 +508,20 @@ namespace BusinessLibrary.BusinessClasses
                             Ids += itm.ItemId.ToString() + ",";
                         }
                         Ids = Ids.TrimEnd(',');
+#if WEBDB
                         //st_WebDbItemListFromIDs
                         using (SqlCommand command = new SqlCommand("st_WebDbItemListFromIDs", connection))
+#else
+                        //st_WebDbItemListFromIDs
+                        using (SqlCommand command = new SqlCommand("st_ErItemListFromIDs", connection))
+#endif
                         {
                             command.CommandType = System.Data.CommandType.StoredProcedure;
                             command.Parameters.Add(new SqlParameter("@RevId", ri.ReviewId)); // use the stored value so that noone can list items out of a review they aren't properly authenticated on
                             command.Parameters.Add(new SqlParameter("@Items", Ids));
+#if WEBDB
                             command.Parameters.Add(new SqlParameter("@webDbId", criteria.WebDbId));
+#endif
                             List<long> tIds = new List<long>();
                             using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
                             {
@@ -529,7 +536,6 @@ namespace BusinessLibrary.BusinessClasses
                                 }
                             }
                         }
-#endif
                     }
                 }
                 catch (Exception e)
@@ -744,6 +750,16 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId)); // use the stored value so that noone can list items out of a review they aren't properly authenticated on
                     command.Parameters.Add(new SqlParameter("@SHOW_INCLUDED", criteria.OnlyIncluded));
                     break;
+                case "ErWithWithoutCodes":
+                    command = new SqlCommand("st_ErItemListWithWithoutCodes", connection);
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@RevId", ri.ReviewId));
+                    command.Parameters.Add(new SqlParameter("@WithAttributesIds", criteria.WithAttributesIds));
+                    command.Parameters.Add(new SqlParameter("@WithSetIdsList", criteria.WithSetIdsList));
+                    command.Parameters.Add(new SqlParameter("@included", criteria.OnlyIncluded));
+                    command.Parameters.Add(new SqlParameter("@WithOutAttributesIdsList", criteria.WithOutAttributesIdsList));
+                    command.Parameters.Add(new SqlParameter("@WithOutSetIdsList", criteria.WithOutSetIdsList));
+                    break;
 #if WEBDB //little trick to avoid making this field add to routine costs in ER4 and ER-Web 
                 //this section contains special lists used only by WebDbs
                 case "WebDbWithThisCode":
@@ -815,7 +831,6 @@ namespace BusinessLibrary.BusinessClasses
             return command;
         }
 #endif
-
     }
 
     // used to define the parameters for the query.
@@ -823,8 +838,8 @@ namespace BusinessLibrary.BusinessClasses
     public class SelectionCriteria : BusinessBase //Csla.CriteriaBase
     {
         public SelectionCriteria() { }
-        public static readonly PropertyInfo<bool> OnlyIncludedProperty = RegisterProperty<bool>(typeof(SelectionCriteria), new PropertyInfo<bool>("OnlyIncluded", "OnlyIncluded", true));
-        public bool OnlyIncluded
+        public static readonly PropertyInfo<bool?> OnlyIncludedProperty = RegisterProperty<bool?>(typeof(SelectionCriteria), new PropertyInfo<bool?>("OnlyIncluded", "OnlyIncluded", true));
+        public bool? OnlyIncluded
         {
             get { return ReadProperty(OnlyIncludedProperty); }
             set
@@ -1042,14 +1057,13 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(ShowScoreColumnProperty, value);
             }
         }
-#if WEBDB //little trick to avoid making this field add to routine costs in ER4 and ER-Web
-        public static readonly PropertyInfo<int> WebDbIdProperty = RegisterProperty<int>(typeof(SelectionCriteria), new PropertyInfo<int>("WebDbId", "WebDbId", 0));
-        public int WebDbId
+        public static readonly PropertyInfo<string> WithOutAttributesIdsListProperty = RegisterProperty<string>(typeof(SelectionCriteria), new PropertyInfo<string>("WithOutAttributesIdsList", "WithOutAttributesIdsList", string.Empty));
+        public string WithOutAttributesIdsList
         {
-            get { return ReadProperty(WebDbIdProperty); }
+            get { return ReadProperty(WithOutAttributesIdsListProperty); }
             set
             {
-                SetProperty(WebDbIdProperty, value);
+                SetProperty(WithOutAttributesIdsListProperty, value);
             }
         }
         public static readonly PropertyInfo<string> WithAttributesIdsListProperty = RegisterProperty<string>(typeof(SelectionCriteria), new PropertyInfo<string>("WithAttributesIds", "WithAttributesIds", string.Empty));
@@ -1070,15 +1084,6 @@ namespace BusinessLibrary.BusinessClasses
                 SetProperty(WithSetIdsListProperty, value);
             }
         }
-        public static readonly PropertyInfo<string> WithOutAttributesIdsListProperty = RegisterProperty<string>(typeof(SelectionCriteria), new PropertyInfo<string>("WithOutAttributesIdsList", "WithOutAttributesIdsList", string.Empty));
-        public string WithOutAttributesIdsList
-        {
-            get { return ReadProperty(WithOutAttributesIdsListProperty); }
-            set
-            {
-                SetProperty(WithOutAttributesIdsListProperty, value);
-            }
-        }
         public static readonly PropertyInfo<string> WithOutSetIdsListProperty = RegisterProperty<string>(typeof(SelectionCriteria), new PropertyInfo<string>("WithOutSetIdsList", "WithOutSetIdsList", string.Empty));
         public string WithOutSetIdsList
         {
@@ -1086,6 +1091,16 @@ namespace BusinessLibrary.BusinessClasses
             set
             {
                 SetProperty(WithOutSetIdsListProperty, value);
+            }
+        }
+#if WEBDB //little trick to avoid making this field add to routine costs in ER4 and ER-Web
+        public static readonly PropertyInfo<int> WebDbIdProperty = RegisterProperty<int>(typeof(SelectionCriteria), new PropertyInfo<int>("WebDbId", "WebDbId", 0));
+        public int WebDbId
+        {
+            get { return ReadProperty(WebDbIdProperty); }
+            set
+            {
+                SetProperty(WebDbIdProperty, value);
             }
         }
         public static readonly PropertyInfo<string> SearchWhatProperty = RegisterProperty<string>(typeof(SelectionCriteria), new PropertyInfo<string>("SearchWhat", "SearchWhat", string.Empty));
@@ -1108,4 +1123,34 @@ namespace BusinessLibrary.BusinessClasses
         }
 #endif
     }
+#if !SILVERLIGHT
+    internal class MiniItem : IComparable
+    {
+        public long ItemId;
+        public List<long> Attributes;
+        public List<long> Attributes2;
+        public List<long> Attributes3;
+        public string ShortTitle;
+        public MiniItem(long itemId)
+        {
+            ItemId = itemId;
+            Attributes = new List<long>();
+            Attributes2 = new List<long>();
+            Attributes3 = new List<long>();
+        }
+        public int CompareTo(object y)
+        {//implements IComparable, used to sort items!
+            if (y == null) return 1;
+            MiniItem yy = y as MiniItem;
+            if (yy == null) return 1;
+
+            int score = ShortTitle.CompareTo(yy.ShortTitle);
+            if (score == 0)
+            {
+                return ItemId.CompareTo(yy.ItemId);
+            }
+            else return score;
+        }
+    }
+#endif
 }

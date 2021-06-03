@@ -104,14 +104,14 @@ export class Frequency {
 	attributeSetId: number = 0;
 	setId: number = 0;
 	filterAttributeId: number = 0;
-	isIncluded: boolean = false;
+	isIncluded: boolean | null = false;
 }
 
 export class CriteriaFrequency {
 	
 	AttributeId: string = '0';
 	SetId: string ='0';
-	Included: boolean = false;
+	Included: boolean | null = false;
 	FilterAttributeId: number = 0;
 	
 }

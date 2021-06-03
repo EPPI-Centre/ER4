@@ -181,7 +181,11 @@ namespace BusinessLibrary.BusinessClasses
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
                 connection.Open();
+#if WEBDB
                 using (SqlCommand command = new SqlCommand("st_WebDbFrequencyCrosstabAndMap", connection))
+#else
+                using (SqlCommand command = new SqlCommand("st_ErFrequencyCrosstabAndMap", connection))
+#endif
                 {
                     command.CommandType = System.Data.CommandType.StoredProcedure;
                     command.Parameters.Add(new SqlParameter("@attributeIdXAxis", criteria.attributeIdXAxis));
@@ -194,7 +198,9 @@ namespace BusinessLibrary.BusinessClasses
                     }
                     command.Parameters.Add(new SqlParameter("@onlyThisAttribute", criteria.onlyThisAttribute));
                     command.Parameters.Add(new SqlParameter("@RevId", ri.ReviewId));
+#if WEBDB
                     command.Parameters.Add(new SqlParameter("@WebDbId", criteria.webDbId));
+#endif
                     using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
                     {
                         while (reader.Read())
@@ -284,7 +290,5 @@ namespace BusinessLibrary.BusinessClasses
         }
 
 #endif
-    }
-
-
+    }    
 }

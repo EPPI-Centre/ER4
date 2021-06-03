@@ -931,9 +931,10 @@ export class Criteria {
         interimCrit.setId = this.setId;
         interimCrit.showInfoColumn = this.showInfoColumn;
         interimCrit.showScoreColumn = this.showScoreColumn;
+
         return interimCrit;
     }
-    onlyIncluded: boolean = true;
+    onlyIncluded: boolean | null = true;
     showDeleted: boolean = false;
     sourceId: number = 0;
     searchId: number = 0;
@@ -962,6 +963,10 @@ export class Criteria {
     setId: number = 0;
     showInfoColumn: boolean = true;
     showScoreColumn: boolean = true;
+    withOutAttributesIdsList: string = "";
+    withAttributesIds: string = "";
+    withSetIdsList: string = "";
+    withOutSetIdsList: string = "";
 }
 
 

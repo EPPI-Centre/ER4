@@ -561,7 +561,7 @@ namespace WebDatabasesMVC.Controllers
             searchString = CSLAcrit.SearchString;
             searchWhat = CSLAcrit.SearchWhat;
         }
-        public bool onlyIncluded { get; set; }
+        public bool? onlyIncluded { get; set; }
         public bool showDeleted { get; set; }
         public int sourceId { get; set; }
         public int searchId { get; set; }
