@@ -1,9 +1,16 @@
 <div *ngIf="IsServiceBusy" class="k-loading-image" style="position: fixed; top: 0%;"></div>
 <ng-template #FirstRowNotEditingAReport>
     <div class="mx-0 px-0 col-12 mb-1">
-        <div class="card alert alert-info mx-auto my-auto col ">
-            <div class="card-body  mx-auto">
-                We can put some "welcome / instructions" content here, which will disappear when we edit a report...
+        <div class="card alert alert-info mx-auto my-auto col">
+            <div class="card-body mx-auto">
+
+
+                Please click <button class="btn btn-sm btn-outline-success my-auto px-1 py-0 ml-1" (click)="NewReport()" title="Create New Report" [disabled]="!HasWriteRights">
+                    New Report
+                </button> to create a report or one of the <i class="fa fa-edit text-success"></i> buttons to view/edit an existing report.
+
+
+                <!--We can put some "welcome / instructions" content here, which will disappear when we edit a report...-->
             </div>
         </div>
     </div>
@@ -51,9 +58,10 @@
 
                     <div class="row col-12 h4 m-0 px-0 ">
                         <div *ngIf="!UpdatingReportName ; else UpdatingReportNameDiv" class="col row m-1 p-0">
-                            <div class="my-auto mr-1">Report Name:</div>
-                            <div class="font-weight-bold px-1 d-flex bg-white rounded my-auto">
-                                <div class="my-auto">{{EditingReport.name}}</div>
+                            
+                            <div class="font-weight-bold px-1 d-flex rounded my-auto">
+
+                                <div class="my-auto">{{EditingReport.name}}</div>&nbsp;&nbsp;
                                 <button class="btn btn-sm btn-outline-success my-auto px-1 py-0 ml-1" (click)="UpdatingReportName = true" title="Edit Report Name"
                                         [disabled]="!HasWriteRights">
                                     Edit&nbsp;<i class="fa fa-edit "></i>
@@ -62,7 +70,7 @@
                         </div>
 
                         <ng-template #UpdatingReportNameDiv>
-                            <div class="my-auto mx-1 px-0 col-auto">Report Name:</div>
+                            
                             <input type="text" maxlength="100" [(ngModel)]="EditingReportName" class="col px-1" />
                             <button class="btn btn-sm btn-outline-primary my-auto px-1 py-0 ml-1" (click)="UpdatingReportName = false"
                                     [disabled]="!HasWriteRights">
@@ -87,7 +95,7 @@
                     </div>
                 </div>
                 <div class="col-12 mx-0 px-1 bg-light">
-                    <div>Report Columns:</div>
+                    <div><strong>Report Columns</strong></div>
                     <div class="bg-light m-1" style="overflow-x:auto;">
                         <table style="height:80px;">
                             <tbody class="h-100">
@@ -96,9 +104,9 @@
                                         <div class="my-0 ml-0 mr-1 p-1 h-100 border rounded border"
                                              [ngClass]="{'alert-dark border-secondary': (EditingColumn == null || EditingColumn.reportColumnId !== col.reportColumnId), 'alert-info border-primary': (EditingColumn !== null && EditingColumn.reportColumnId == col.reportColumnId)}">
                                             <div class="row mx-0 px-0 alert-info " style="min-width:195px;">
-                                                <button class="btn btn-sm btn-outline-success mx-0 my-auto px-1 py-0" (click)="EditColumn(col)" title="Edit column header"
+                                                <button class="btn btn-sm btn-outline-success mx-0 my-auto px-1 py-0" (click)="EditColumn(col)" title="Edit column content"
                                                         [disabled]="!HasWriteRights">
-                                                    Edit<i class="fa fa-edit ml-1"></i>
+                                                    <i class="fa fa-edit ml-1"></i>
                                                 </button>
                                                 <button class="btn btn-sm btn-outline-success my-auto px-1 py-0" (click)="AddCodeToColumn(col, selectedNode)" title="Add selected code to column"
                                                         [disabled]="!CanAddNodeToColumn(col, selectedNode) || !HasWriteRights">
@@ -112,13 +120,13 @@
                                                         [disabled]="col.columnOrder >= EditingReport.columns.length-1 || !HasWriteRights">
                                                     <i class='fa fa-arrow-circle-right'></i>
                                                 </button>
-                                                Col.{{col.columnOrder + 1}}
+                                                Col {{col.columnOrder + 1}}
                                                 <button class="btn btn-sm btn-outline-danger my-auto ml-1 px-1 py-0" (click)="DeleteColumn(col, EditingReport)" title="Delete column from report"
                                                         [disabled]="!HasWriteRights">
                                                     <i class="fa fa-trash "></i>
                                                 </button>
                                             </div>
-                                            <div class="mx-1 d-inline-block"><strong class="mr-1">{{col.name}}</strong></div>
+                                            <div class="mx-1 d-inline-block"><strong class="mr-1">{{ShortColumnName(col)}}</strong></div>
                                             <div class="m-1 rounded border border-info p-1 bg-white" style="max-height:160px; overflow-y:auto;">
                                                 <div *ngFor="let code of col.codes" class="small my-1 p-1 rounded text-nowrap border border-info">
                                                     {{ShortCodeName(code)}}
@@ -163,17 +171,11 @@
             </div>
         </div>
         <div class="col-8 col-lg-9 row m-0 p-0">
-            <ng-template #NotEditingAReport>
-                <div class="card alert alert-info  my-auto mx-auto">
-                    <div class="card-body font-weight-bold">
-                        Please click on a <i class="fa fa-edit text-success"></i> button, to view/edit a report.
-                    </div>
-                </div>
-            </ng-template>
+
             <ng-template #EditingReportNotEditingAColumn>
                 <div class="card alert alert-info  my-auto border-0 ml-1 mr-0">
                     <div class="card-body font-weight-bold">
-                        To edit all properties of a column, please click on an "<span class="text-success">Edit <i class="fa fa-edit "></i></span>" button from the list of columns above.
+                        Click <span class="text-success"><i class="fa fa-edit "></i></span> in a column to edit that column's content.
                     </div>
                 </div>
             </ng-template>

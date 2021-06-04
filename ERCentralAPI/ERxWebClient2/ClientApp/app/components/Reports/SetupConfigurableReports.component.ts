@@ -183,7 +183,15 @@ export class SetupConfigurableReports implements OnInit, OnDestroy {
 			if (res.length > 33) res = res.substring(0, 30) + "...";
 		}
 		return res;
-    }
+	}
+	public ShortColumnName(col: iReportColumn): string {
+		let res: string = "";
+		res = col.name;
+		if (res.length > 20) {
+			if (res.length > 23) res = res.substring(0, 20) + "...";
+		}
+		return res;
+	}
 	public NewReport() {
 		let newR: iConfigurableReport = {
 			name: "",
