@@ -39,7 +39,7 @@ export class SetupConfigurableReports implements OnInit, OnDestroy {
 		return this.reviewSetsService.selectedNode;
 	}
 	public EditingReport: iConfigurableReport | null = null;
-	private EditingColumn: iReportColumn | null = null;
+	public EditingColumn: iReportColumn | null = null;
 	private EditingColumnCode: iReportColumnCode | null = null;
 	public EditingReportHasChanged: boolean = false;
 	public ShowCreateNew: boolean = false;
@@ -174,6 +174,15 @@ export class SetupConfigurableReports implements OnInit, OnDestroy {
 	}
 	public Clear() {
 		this.CancelEditing();
+	}
+	public ShortCodeName(code: iReportColumnCode):string {
+		let res: string = "";
+		if (code.userDefText == "") res = code.parentAttributeText;
+		else res = code.userDefText;
+		if (res.length > 30) {
+			if (res.length > 33) res = res.substring(0, 30) + "...";
+		}
+		return res;
     }
 	public NewReport() {
 		let newR: iConfigurableReport = {
@@ -290,6 +299,9 @@ export class SetupConfigurableReports implements OnInit, OnDestroy {
 	public EditColumn(col: iReportColumn | null) {
 		this.EditingColumn = col;
 	}
+	public CancelEditColumn() {
+		this.EditingColumn = null;
+	}
 	public MoveColumnLeft(EditingReport: iConfigurableReport, col: iReportColumn) {
 		if (EditingReport == null) return;
 		let toMoveInd = EditingReport.columns.findIndex(f => f.columnOrder == col.columnOrder - 1);
@@ -375,16 +387,37 @@ export class SetupConfigurableReports implements OnInit, OnDestroy {
 					}
 				});
 		}
-    }
+	}
+	public SaveAndClose() {
+		if (!this.HasWriteRights || this.EditingReport == null) return;
+		else {
+			if (this.EditingReport.reportId == 0) {
+				this.configurablereportServ.CreateReport(this.EditingReport).then(() => { this.CancelEditing(); });
+			} else {
+				this.configurablereportServ.UpdateReport(this.EditingReport);
+				this.CancelEditing();
+			}
+		}
+	}
 	public Save() {
 		if (!this.HasWriteRights || this.EditingReport == null) return;
 		else {
 			if (this.EditingReport.reportId == 0) {
-				this.configurablereportServ.CreateReport(this.EditingReport);
+				this.configurablereportServ.CreateReport(this.EditingReport).then(
+					(res: iConfigurableReport | null) => {
+						if (res) {
+							this.EditingReport = res;
+							this.EditingColumnCode = null;
+							this.EditingColumn = null;
+							this.EditingReportHasChanged = false;
+						}
+					}
+				);
 			} else {
 				this.configurablereportServ.UpdateReport(this.EditingReport);
+				this.EditingReportHasChanged = false;
 			}
-			this.CancelEditing();
+			//this.CancelEditing();
 		}
 	}
 	ngOnDestroy() {
