@@ -243,7 +243,7 @@ export class CrossTabsComp implements OnInit, OnDestroy, AfterViewInit {
     public Clear() {
         this.clearFilter();
         this.crosstbShowWhat = 'table';
-        this.crosstbIncEx = 'both';
+        this.crosstbIncEx = 'bothIandE';
         this.selectedFilterAttribute = null;
         this.selectedNodeDataX = null;
         this.selectedNodeDataY = null;
