@@ -35,6 +35,7 @@ import { MAGRelatedRunsService } from '../services/MAGRelatedRuns.service';
 import { ReviewInfoService } from '../services/ReviewInfo.service';
 import { MAGBrowserHistoryService } from '../services/MAGBrowserHistory.service';
 import { SetupConfigurableReports } from '../Reports/SetupConfigurableReports.component';
+import { FreqXtabMapsComp } from '../Frequencies/FreqXtabMaps.component';
 //import { AdvancedMAGFeaturesComponent } from '../MAG/AdvancedMAGFeatures.component';
 
 
@@ -89,6 +90,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
     @ViewChild('tabstrip') public tabstrip!: TabStripComponent;
     @ViewChild('ItemList') ItemListComponent!: ItemListComp;
     @ViewChild('FreqComp') FreqComponent!: frequenciesComp;
+    @ViewChild('FreqXtabMapsComp') FreqXtabMapsComp!: FreqXtabMapsComp;
     @ViewChild('CrosstabsComp') CrosstabsComponent!: CrossTabsComp;
 	@ViewChild('SearchComp') SearchComp!: SearchComp;
 	@ViewChild('ComparisonComp') ComparisonComp!: ComparisonComp;
@@ -116,6 +118,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
     public printCsetShowIds: boolean = true;
     public printCsetShowDescriptions: boolean = false;
     public printCsetShowTypes: boolean = false;
+    public reportsShowWhat: string = "AllFreq";
 
     public get IsServiceBusy(): boolean {
         //console.log("mainfull IsServiceBusy", this.ItemListService, this.codesetStatsServ, this.SourcesService )
@@ -449,12 +452,13 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 		}
 	}
 	public AllocateChoice: string = '';
-	public AllIncOrExcShow: boolean = false;
-	public RunReportsShow: boolean = false;
+    public AllIncOrExcShow: boolean = false;
+    public RunReportsShow: boolean = false;
+    public RunReportsShow2: boolean = false;
 	public AssignDocs: string = 'true';
 
 	public CloseReportsSection() {
-
+        this.RunReportsShow2 = false;
 		this.RunReportsShow = false;
 	}
 
@@ -478,7 +482,10 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 
 			this.RunReportsShow = false;
 		}
-	}
+    }
+    public RunConfigurableReports2() {
+        this.RunReportsShow2 = !this.RunReportsShow2;
+    }
 	public CloseSection() {
 
 		this.AllIncOrExcShow = false;
@@ -958,8 +965,9 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 		this.SourcesService.Clear();
 		this.workAllocationListService.Clear();
         this.DuplicatesService.Clear();
-        this.configurablereportServ.Clear();
+        this.configurablereportServ.Clear(); FreqXtabMapsComp
         if (this.FreqComponent) this.FreqComponent.Clear();
+        if (this.FreqXtabMapsComp) this.FreqXtabMapsComp.Clear();
 		if (this.CrosstabsComponent) this.CrosstabsComponent.Clear();
 		if (this.workAllocationCollaborateComp) {
 			//console.log('this comp exists');
@@ -984,6 +992,8 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         this._ShowQuickQuestionReport = false;
         this._ShowQuickQuestionReport = false;
         this._ShowQuickQuestionReport = false;
+        this.reportsShowWhat = "AllFreq";
+        this.RunReportsShow2 = false;
         //this.dtTrigger.unsubscribe();
         //if (this.statsSub) this.statsSub.unsubscribe();
         //this.statsSub = this.reviewSetsService.GetReviewStatsEmit.subscribe(

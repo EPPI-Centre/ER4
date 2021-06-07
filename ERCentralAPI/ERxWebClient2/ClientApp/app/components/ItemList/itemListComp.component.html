@@ -18,7 +18,7 @@
         </div> 
     </div>
     <div *ngIf="ShowOptions"
-         class="alert alert-secondary row col-12">
+         class="alert alert-secondary mx-1 row col-12">
         <div class="col-12 col-sm-6 font-weight-bold">List Options:</div>
         <div class="col-12 col-sm-6">
             Page size: <kendo-numerictextbox 
@@ -94,9 +94,9 @@
             </div>
         </div>
     </div>
-    <div class="row">
+    <div class="row mx-1">
         <div *ngIf="ItemListService.ListDescription != ''"
-             class="small p-2 ml-3 mr-1 mb-1 row col-12 col-sm-10 card bg-white flex-row">
+             class="small p-2 ml-1 mr-1 mb-1 row col-12 col-sm-10 card bg-white flex-row">
             <b>Showing&nbsp;</b>{{ItemListService.ListDescription}}
         </div>
         <div *ngIf="Context =='FullUI'" class="row small col-12 col-sm-2 align-self-start">

@@ -31,6 +31,10 @@ export class configurablereportComp implements OnInit, OnDestroy {
 
 	ngOnInit() {
         //this.configurablereportServ.FetchReports();
+		if (!this.HasSelectedItems) {
+			this.ReportCommonParams.itemsChoice = "Items with this code";
+			this.ItemsChoiceChange();
+		}
 	}
 
 	ngOnDestroy() {
