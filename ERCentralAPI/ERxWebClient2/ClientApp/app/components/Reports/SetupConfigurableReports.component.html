@@ -50,7 +50,7 @@
     </div>
 </ng-template>
 <div class="container px-1 m-0 col-12 ">
-    <div class="row">
+    <div class="row mx-0">
         <div class="col-12 p-0">
             <div *ngIf="EditingReport != null; else FirstRowNotEditingAReport;" class="mx-0 px-1 mb-1 container rounded alert-info border border-dark" style="min-width:100%;max-width:100%;">
                 <div *ngIf="ShowCreateNew == false; else ShowCreateNewTemplate">
@@ -179,10 +179,10 @@
                     </div>
                 </div>
             </ng-template>
-            <div *ngIf="EditingReport != null; else NotEditingAReport;" class="ml-1 mr-0 px-1 mb-auto container rounded alert-info border border-dark">
+            <div *ngIf="EditingReport != null" class="ml-1 mr-0 px-1 mb-auto container rounded alert-info border border-dark">
                 <div *ngIf="EditingColumn !== null; else EditingReportNotEditingAColumn">
                     <div class="row bg-white rounded m-0 p-1" style="max-height:75vh; overflow:auto;">
-                        <div class="col-12 px-0 border border-info rounded m-1">
+                        <div class="col-12 px-0 border border-info rounded m-0">
                             <div class="w-100 mx-0 row">
                                 <div class="ml-2">Col. {{EditingColumn.columnOrder + 1}} name:</div>
                                 <button *ngIf="CanAddNodeToColumn(EditingColumn, selectedNode)" class="btn btn-sm btn-outline-success ml-auto mr-1 my-auto px-1 py-0"

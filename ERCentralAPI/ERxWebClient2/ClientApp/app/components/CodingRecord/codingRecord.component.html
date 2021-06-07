@@ -1,6 +1,6 @@
 <div class="container col-12 p-0">
     <!--<h2><b>Coding Record</b></h2>-->
-    <div class="row">
+    <div class="row mx-0">
         <div class="row col-12 mb-1">
             <button (click)="RunComparison()" class="btn btn-outline-primary mt-0 mb-1 ml-1">Run Comparison</button>
             <button (click)="SaveReportAsHtml(ComparisonReportHTML)" [disabled]="ComparisonReportHTML.length == 0"
@@ -17,7 +17,7 @@
             </div>
         </div>
     </div>
-    <div class="p-0 row ">
+    <div class="p-0 row mx-0">
         <kendo-grid [data]="DataSourceModel"
                     [style.height.vh]="70"
                     [style.max-height.vh]="70"

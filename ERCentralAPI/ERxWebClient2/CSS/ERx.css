@@ -131,9 +131,14 @@ ul.k-tabstrip-items li.k-item.k-state-active {
 }
 
 .fullBordersInTabs .k-tabstrip > .k-content {
+    margin-left: 0.5rem;
+    margin-right: 0.5rem;
     border-color: rgba(33, 37, 41, 0.45);
 }
-
+.k-tabstrip > .k-content {
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
+}
 .brightSwitch .k-switch-label-off {
     color: orange;
 }
