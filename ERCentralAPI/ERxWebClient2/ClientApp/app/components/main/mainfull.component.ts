@@ -113,12 +113,52 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
     public CodesAreCollapsed: boolean = true;
     public DropDownAllocateAtt: SetAttribute = new SetAttribute();
     public isCollapsedCodeAllocate: boolean = false;
+    private _ShowQuickReport: boolean = false;
+    public ShowClusterCommand: boolean = false;
+    public HelpAndFeebackContext: string = "main\\reviewhome";
+    private ListSubType: string = '';
 
     public ShowPrintCodeset: boolean = false;
     public printCsetShowIds: boolean = true;
     public printCsetShowDescriptions: boolean = false;
     public printCsetShowTypes: boolean = false;
     public reportsShowWhat: string = "AllFreq";
+
+    ngOnInit() {
+
+        this._eventEmitter.CloseReportsSectionEmitter.subscribe(
+            () => {
+                this.CloseReportsSection();
+            }
+        )
+        this._eventEmitter.PleaseSelectItemsListTab.subscribe(
+            () => {
+                this.tabstrip.selectTab(1);
+            }
+        )
+        this._eventEmitter.criteriaComparisonChange.subscribe(
+            (item: Comparison) => {
+                this.LoadComparisonList(item, this.ListSubType);
+            }
+        )
+        this._eventEmitter.criteriaMAGChange.subscribe(
+            (item: any) => {
+                this.router.navigate(['Main']);
+                this.GoToItemList();
+                this.LoadMAGAllocList(item);
+            }
+
+        )
+        this.subOpeningReview = this._eventEmitter.OpeningNewReview.subscribe(() => this.Reload());
+        this.statsSub = this.reviewSetsService.GetReviewStatsEmit.subscribe(
+            () => this.GetStats()
+        );
+        if (this.codesetStatsServ.ReviewStats.itemsIncluded == -1
+            || (this.reviewSetsService.ReviewSets == undefined && this.codesetStatsServ.tmpCodesets == undefined)
+            || (this.reviewSetsService.ReviewSets.length > 0 && this.codesetStatsServ.tmpCodesets.length == 0)
+        ) this.Reload();
+
+    }
 
     public get IsServiceBusy(): boolean {
         //console.log("mainfull IsServiceBusy", this.ItemListService, this.codesetStatsServ, this.SourcesService )
@@ -304,7 +344,6 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         }
     }];
 
-    private _ShowQuickReport: boolean = false;
     public get ShowQuickReport(): boolean {
         
         return this._ShowQuickReport;
@@ -357,8 +396,6 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         ) return true;
         return false;
     }
-    public ShowClusterCommand: boolean = false;
-    public HelpAndFeebackContext: string = "main\\reviewhome";
 
     public get IsSiteAdmin(): boolean {
         //console.log("Is it?", this.ReviewerIdentityServ.reviewerIdentity
@@ -486,45 +523,25 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
     public RunConfigurableReports2() {
         this.RunReportsShow2 = !this.RunReportsShow2;
     }
+    public get CanGetFrequencies(): boolean {
+        if (!this.FreqXtabMapsComp || this.selectedNode == null) return false;
+        else {
+            return this.FreqXtabMapsComp.canSetCode();
+        }
+    }
+    public GetFrequencies() {
+        if (!this.FreqXtabMapsComp || this.selectedNode == null) return;
+        else {
+            this.FreqXtabMapsComp.Clear();
+            this.FreqXtabMapsComp.selectedNodeDataY = this.selectedNode;
+            this.reportsShowWhat = 'AllFreq';
+            this.FreqXtabMapsComp.fetchFrequencies(this.selectedNode, null);
+            this.tabstrip.selectTab(2);
+        }
+    }
+
 	public CloseSection() {
-
 		this.AllIncOrExcShow = false;
-	}
-	private ListSubType: string = '';
-	ngOnInit() {
-
-		this._eventEmitter.CloseReportsSectionEmitter.subscribe(
-			() => {
-				this.CloseReportsSection();
-			}
-		)
-        this._eventEmitter.PleaseSelectItemsListTab.subscribe(
-            () => {
-                this.tabstrip.selectTab(1);
-            }
-		)
-		this._eventEmitter.criteriaComparisonChange.subscribe(
-			(item: Comparison) => {
-				this.LoadComparisonList(item, this.ListSubType);
-			}
-        )
-        this._eventEmitter.criteriaMAGChange.subscribe(
-            (item: any) => {
-                this.router.navigate(['Main']);
-                this.GoToItemList();
-                this.LoadMAGAllocList(item);
-            }
-
-        )
-        this.subOpeningReview = this._eventEmitter.OpeningNewReview.subscribe(() => this.Reload());
-        this.statsSub = this.reviewSetsService.GetReviewStatsEmit.subscribe(
-            () => this.GetStats()
-        );
-        if (this.codesetStatsServ.ReviewStats.itemsIncluded == -1
-            || (this.reviewSetsService.ReviewSets == undefined && this.codesetStatsServ.tmpCodesets == undefined)
-            || (this.reviewSetsService.ReviewSets.length > 0 && this.codesetStatsServ.tmpCodesets.length == 0)
-        ) this.Reload();
-        
 	}
 	public LoadComparisonList(comparison: Comparison, ListSubType: string) {
 

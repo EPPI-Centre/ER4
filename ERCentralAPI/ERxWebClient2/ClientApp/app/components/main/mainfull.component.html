@@ -271,6 +271,9 @@
                                        [data]="AddRemoveSearchesDDData"
                                        class="my-1 ml-1 mr-0"
                                        style="border-color: #04070b;background-color: #e1e4eb;"></kendo-splitbutton>
+                    <button kendoButton class="my-1 ml-1 mr-0" title="Get Frequencies (for children of currently selected code)" (click)="GetFrequencies()" [disabled]="!CanGetFrequencies">
+                        <i class="fa fa-bar-chart my-1" style="transform: rotate(90deg) scaleX(-1)"></i>
+                    </button>
                     <button kendoButton class="my-1 ml-1 mr-0" *ngIf="!IsServiceBusy" title="Refresh Coding Tools" (click)="RefreshCodingTools()">
                         <i class="fa fa-refresh my-1" aria-hidden="true"></i>
                     </button>
