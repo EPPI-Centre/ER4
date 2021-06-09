@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using WebDatabasesMVC.Controllers;
 
 namespace WebDatabasesMVC.ViewModels
 {
@@ -11,9 +12,10 @@ namespace WebDatabasesMVC.ViewModels
         public Item Item { get; set; }
         public ItemDocumentList Documents { get; set; }
         public ItemTimepointList Timepoints { get; set; }
-
         public ReadOnlySource Source { get; set; }
         public ItemDuplicatesReadOnlyList Duplicates { get; set; }
+        public SelCritMVC ListCrit { get; set; }
+        public string ItemIds { get; set; }
 
         public string URLLink() {
             if (Item == null || Item.URL.Trim() == "") return "";

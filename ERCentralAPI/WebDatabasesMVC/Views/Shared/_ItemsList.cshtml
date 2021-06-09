@@ -9,6 +9,7 @@
     };
     var CurrentItemsCriteria = null;
     var ItemsListData = null;
+    var ItemsIds = null;
     var FirstBuild = true;
     var ItemsListKendoDataSource = null;
     var gridHeightCSS = "60vh";
@@ -16,6 +17,8 @@
         if (result == "success") {
             CurrentItemsCriteria = data.criteria;
             ItemsListData = data.items;
+            ItemsIds = ItemsListData.items.map(i => i.itemId);
+            //console.log(ItemsIds );
             ItemsListKendoDataSource = new kendo.data.DataSource({
                 data: ItemsListData.items
             });
@@ -36,12 +39,7 @@
                         attributes: {
                             "class": "p-0 border-bottom small"
                         },
-                        template:  '<form action="../ItemList/ItemDetails" method="post" class= "form-inline">'
-                                 +   '<button class="btn btn-link px-1 py-0 my-1 mx-0" type="submit"'
-                                 +       'name="itemId" value="#= itemId #">'
-                                 +       '#= itemId #'
-                                 +   '</button>'
-                                 + '</form>'
+                        template: '<button class="text-left btn-link px-1 py-0 my-1 mx-0" onclick=\"GoToItem(#=itemId#)\">#= itemId #</button>'
                         //,hidden: function () { return ColumnVisibility.ItemId;}
                     },
                     {
@@ -67,12 +65,7 @@
                         attributes: {
                             "class": "p-0 border-bottom"
                         },
-                        template: '<form action="../ItemList/ItemDetails" method="post" class= "form-inline">'
-                            +   '<button class="text-left btn-link px-1 py-0 my-1 mx-0" type="submit" style="overflow: !important;"'
-                            +    'name="itemId" value="#= itemId #">'
-                            +    '#= title #'
-                            +   '</button>'
-                            +  '</form>'
+                        template: '<button class="text-left btn-link px-1 py-0 my-1 mx-0" onclick=\"GoToItem(#=itemId#)\">#= title #</button>'
                     },
                     {
                         field: "year",

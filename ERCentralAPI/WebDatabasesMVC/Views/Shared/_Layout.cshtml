@@ -69,6 +69,14 @@
             }
         };
 
+        function GoToItem(itemId) {
+            //console.log(itemId, ItemsIds);
+            if (ItemsIds.indexOf(itemId) == -1) return;
+            let crit = CurrentItemsCriteria;
+            crit.itemID = itemId;
+            crit.itemIds = ItemsIds;
+            postwith("../ItemList/ItemDetails", crit);
+        }
     </script>
 
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
