@@ -80,10 +80,10 @@
         </div>
     </div>
     <div class="row pb-1 mx-1 mb-1 col-12 alert-secondary" [hidden]="Frequencies.length == 0">
-        <div class="p-1">
+        <div class="p-1  my-auto">
             <b>Show results as:</b>
         </div>
-        <div class="row mx-2 rounded border border-info bg-light px-1">
+        <div class="row mx-2 rounded border border-info bg-light px-1 my-auto">
             <div class="p-1">
                 <input type="radio" value="table" name="FreqShowWhatNx" [(ngModel)]="FreqShowWhat">&nbsp;Table
             </div>
@@ -94,8 +94,13 @@
                 <input type="radio" value="bar" name="FreqShowWhatNx" [(ngModel)]="FreqShowWhat">&nbsp;Bar chart
             </div>
         </div>
-        <div class="p-1">
+        <div class="p-1 my-auto">
             <input type="checkbox" value="true" [(ngModel)]="NoneOfTheAboveCB" checked="checked"> Show 'None of the codes above'
+        </div>
+        <div class="p-1 my-auto">
+            <button class="btn btn-sm btn-outline-primary my-auto py-0 px-1" (click)="FreqToExcel()" title="Export to Excel">
+                Export <i class="k-icon k-i-excel my-1"></i>
+            </button>
         </div>
     </div>
 
@@ -116,7 +121,11 @@
     <table class="table table-striped table-bordered table-condensed mb-2">
         <thead>
             <tr>
-                <td> &nbsp;</td>
+                <td>
+                    <button class="btn btn-sm btn-outline-primary my-auto py-0 px-1" (click)="CrosstabToExcel()" title="Export to Excel">
+                        Export <i class="k-icon k-i-excel my-1"></i>
+                    </button>
+                </td>
                 <td class="font-weight-bold" *ngFor="let item of xTab.columnAttNames">
                     {{item}}
                 </td>

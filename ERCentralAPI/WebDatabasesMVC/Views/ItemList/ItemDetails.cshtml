@@ -22,6 +22,7 @@
 <script id="InitialScript" type="text/javascript">
     @{var jdata = @Html.Raw(JsonConvert.SerializeObject(Model, new JsonSerializerSettings {
           ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+          NullValueHandling = NullValueHandling.Ignore,
           ContractResolver = new CamelCasePropertyNamesContractResolver() })) ;};
     $(document).ready(function () {
         ModelData = @jdata;

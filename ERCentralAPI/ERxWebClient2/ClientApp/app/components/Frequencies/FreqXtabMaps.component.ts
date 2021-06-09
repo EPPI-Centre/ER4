@@ -11,6 +11,8 @@ import { NgbTabset } from '@ng-bootstrap/ng-bootstrap';
 import { ItemListComp } from '../ItemList/itemListComp.component';
 import { EventEmitterService } from '../services/EventEmitter.service';
 import { frequenciesService, Frequency } from '../services/frequencies.service';
+import { ExcelService } from '../services/excel.service';
+import { JSON2SheetOpts } from 'xlsx/types';
 
 
 @Component({
@@ -22,32 +24,17 @@ import { frequenciesService, Frequency } from '../services/frequencies.service';
 })
 export class FreqXtabMapsComp implements OnInit, OnDestroy, AfterViewInit {
 
-	constructor(private router: Router,
-		private ReviewerIdentityServ: ReviewerIdentityService,
+	constructor(
 		private ItemListService: ItemListService,
-		public reviewSetsService: ReviewSetsService,
-		public crosstabService: crosstabService,
+		private reviewSetsService: ReviewSetsService,
+		private crosstabService: crosstabService,
         private _eventEmitter: EventEmitterService,
         private frequenciesService: frequenciesService,
-
+        private ExcelService: ExcelService
     ) { }
 
     ngOnInit() {
 
-
-        if (this.ReviewerIdentityServ.reviewerIdentity.userId == 0) {
-            this.router.navigate(['home']);
-        }
-        else {
-            //this._eventEmitter.dataStr.subscribe(
-
-            //	(data: any) => {
-
-            //		console.log('this is being emitted CT');
-            //		this.selectedNodeData = data;
-            //	}
-            //)
-        }
     }
      
     ngAfterViewInit() {
@@ -203,6 +190,30 @@ export class FreqXtabMapsComp implements OnInit, OnDestroy, AfterViewInit {
             this.crosstabService.Clear();
             this.frequenciesService.Fetch(selectedNodeDataF, selectedFilter);
 
+        }
+    }
+    public FreqToExcel() {
+        let res: any[] = [];
+        //res.push(["Code", "CodeId", "Count"]);
+        for (let row of this.frequenciesService.Frequencies) {
+            let rrow = { Code: row.attribute, CodeId: row.attributeId, Count: row.itemCount };
+            res.push(rrow);
+        }
+        this.ExcelService.exportAsExcelFile(res, 'FrequenciesReport');
+    }
+
+    public CrosstabToExcel() {
+        if (this.crosstabService.xTab) {
+            let res: any[] = [];
+            
+            for (let i = 0; i < this.crosstabService.xTab.rows.length; i++) {
+                let rrow: any = { Codes: this.crosstabService.xTab.rows[i].attributeName };
+                for (let ii = 0; ii < this.crosstabService.xTab.columnAttNames.length; ii++) {
+                    rrow[this.crosstabService.xTab.columnAttNames[ii]] = this.crosstabService.xTab.rows[i].counts[ii];
+                }
+                res.push(rrow);
+            }
+            this.ExcelService.exportAsExcelFile(res, 'CrosstabReport');
         }
     }
 

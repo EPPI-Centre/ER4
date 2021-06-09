@@ -15,24 +15,10 @@ export class ExcelService {
 
   public exportAsExcelFile(json: any[], excelFileName: string): void {
 
-	  console.log('passed json=', json);
-	  let data: any = [{
-		  eid: 'e101',
-		  ename: 'ravi',
-		  esal: 1000
-	  }, {
-		  eid: 'e102',
-		  ename: 'ram',
-		  esal: 2000
-	  }, {
-		  eid: 'e103',
-		  ename: 'rajesh',
-		  esal: 3000
-	  }];
 	  const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(json);
 
     //const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(json);
-    console.log('worksheet',worksheet);
+    //console.log('worksheet',worksheet);
     const workbook: XLSX.WorkBook = { Sheets: { 'data': worksheet }, SheetNames: ['data'] };
     const excelBuffer: any = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
     //const excelBuffer: any = XLSX.write(workbook, { bookType: 'xlsx', type: 'buffer' });
@@ -43,7 +29,7 @@ export class ExcelService {
     const data: Blob = new Blob([buffer], {
       type: EXCEL_TYPE
     });
-    FileSaver.saveAs(data, fileName + '_export_' + new Date().getTime() + EXCEL_EXTENSION);
+    FileSaver.saveAs(data, fileName + EXCEL_EXTENSION);
   }
 
 }

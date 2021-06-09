@@ -251,8 +251,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 		console.log('EXPORT REFERENCES FUNCTION, report: ', dataURI);
 	}
 	exportAsXLSX(report: string[]): void {
-
-		this.excelService.exportAsExcelFile(report, 'test');
+		this.excelService.exportAsExcelFile(report, 'ItemsList');
 
 	}
     public ItemsWithThisCodeDDData: Array<any> = [{
