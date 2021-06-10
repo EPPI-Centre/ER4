@@ -185,7 +185,7 @@
                                         <kendo-toolbar-button [toggleable]="true" [text]="'Configurable reports'" (click)="reportsShowWhat = 'ReportsCfg'" [selected]="reportsShowWhat == 'ReportsCfg'">Configurable reports</kendo-toolbar-button>
                                         
                                     </kendo-toolbar-buttongroup>
-                                    <kendo-toolbar-button [toggleable]="true" [text]="'Run Reports'" (click)="RunConfigurableReports2()" [selected]="RunReportsShow2" text></kendo-toolbar-button>
+                                    <kendo-toolbar-button [toggleable]="true" [text]="'Run Reports'" [iconClass]="RunReportsShow2 ? 'k-icon k-i-arrow-chevron-up ml-0 mr-0' : 'k-icon k-i-arrow-chevron-down ml-0 mr-0'" (click)="RunConfigurableReports2()" [selected]="RunReportsShow2" text></kendo-toolbar-button>
                                 </kendo-toolbar>
                             </div>
                             <div  *ngIf="RunReportsShow2" class="rounded alert alert-info col-12 d-flex container px-1"

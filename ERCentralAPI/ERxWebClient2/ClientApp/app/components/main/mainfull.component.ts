@@ -907,11 +907,16 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 			this.ShowItemsTable = true;
 			this.ShowSearchesAssign = false;
         }
-        else if (e.title == 'Frequencies') {
-            this.HelpAndFeebackContext = "main\\frequencies";
-			this.ShowItemsTable = false;
-			this.ShowSearchesAssign = false;
+        else if (e.title == 'Reports') {
+            this.HelpAndFeebackContext = "main\\reports";
+            this.ShowItemsTable = false;
+            this.ShowSearchesAssign = false;
         }
+        //else if (e.title == 'Frequencies') {
+        //    this.HelpAndFeebackContext = "main\\frequencies";
+        //    this.ShowItemsTable = false;
+        //    this.ShowSearchesAssign = false;
+        //}
         else if (e.title == 'Crosstabs') {
             this.HelpAndFeebackContext = "main\\crosstabs";
 			this.ShowItemsTable = false;
