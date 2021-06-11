@@ -265,6 +265,46 @@ namespace WebDatabasesMVC.Controllers
                     _logger.LogError(e, "could not delete file: " + filename);
                 }
             }
+
+            if (reader["HEADER_IMAGE_3"] != DBNull.Value)
+            {
+                ViewBag.Image3 = true;
+                string filename = HeaderImagesFolder + @"\Img-" + WebDbID.ToString() + "-3." + reader.GetString("HEADER_IMAGE_EXT_3");
+                if (System.IO.File.Exists(filename))
+                {
+                    System.IO.FileInfo fl = new FileInfo(filename);
+                    if (fl.CreationTime < DateTime.Now.AddDays(-1)) todo = true;
+                }
+                else todo = true;
+                if (todo)
+                {
+                    using (var stream = new FileStream(filename, FileMode.OpenOrCreate))
+                    {
+                        byte[] image = (byte[])reader["HEADER_IMAGE_3"];
+                        stream.Write(image, 0, image.Length);
+                    }
+                }
+            }
+            else
+            {
+                string filename = HeaderImagesFolder + @"\Img-" + WebDbID.ToString() + "-3.jpg";
+                try
+                {
+                    if (System.IO.File.Exists(filename))
+                    {
+                        System.IO.File.Delete(filename);
+                    }
+                    filename = HeaderImagesFolder + @"\Img-" + WebDbID.ToString() + "-3.png";
+                    if (System.IO.File.Exists(filename))
+                    {
+                        System.IO.File.Delete(filename);
+                    }
+                }
+                catch (Exception e)
+                {
+                    _logger.LogError(e, "could not delete file: " + filename);
+                }
+            }
         }
     }
 }

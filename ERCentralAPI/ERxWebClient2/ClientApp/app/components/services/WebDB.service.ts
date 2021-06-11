@@ -361,6 +361,8 @@ export class WebDBService extends BusyAwareService implements OnDestroy {
                         this._CurrentDB.encodedImage1 = "";
                     else if (ImageNumber == 2)
                         this._CurrentDB.encodedImage2 = "";
+                    else if (ImageNumber == 3)
+                        this._CurrentDB.encodedImage3 = "";
                 }
                 this.RemoveBusy("WebDBDeleteHeaderImageCommand");
             }, error => {

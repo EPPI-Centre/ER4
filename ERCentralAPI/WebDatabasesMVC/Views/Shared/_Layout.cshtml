@@ -3,10 +3,8 @@
 @using System.Security.Claims;
 @using Microsoft.AspNetCore.Html;
 
-@{string imgPath3 = ""; }
-
-
 @{
+    string imgPath3 = "";
     Claim WebDbIDclaim = User.FindFirst("WebDbID");
     if (WebDbIDclaim != null)
     {
@@ -105,20 +103,19 @@
 </head>
 <body>
 
-
-
-
-
-
-
-
-
-    <div class="wrapper">
+    <div class="wrapper h-100">
         <div class="main-header">
             <!-- Logo Header -->
             <div class="logo-header" data-background-color="blue">
+                @if (imgPath3 == "")
+                {
+                    <img src="~/assets/img/logo.svg" alt="EPPI-Centre logo" class="navbar-brand" style="max-width:80px; max-height: 55px; object-fit: cover;">
+                }
+                else
+                {
+                    <img src="@imgPath3" alt="logo image" class="navbar-brand" style="max-width: 80px; max-height: 55px; object-fit: cover;">
+                }
 
-                <img src="~/assets/img/logo.svg" alt="navbar brand" class="navbar-brand">
 
                 <button class="navbar-toggler sidenav-toggler ml-auto" type="button" data-toggle="collapse" data-target="collapse" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon">
@@ -197,44 +194,44 @@
 
 
 
-                            @*<li class="nav-item dropdown hidden-caret">
-                <a class="dropdown-toggle profile-pic btn btn-white btn-border btn-round" data-toggle="dropdown" href="#" aria-expanded="false">
-                    Contact
-                </a>
-                <ul class="dropdown-menu dropdown-user animated fadeIn">
-                    <div class="dropdown-user-scroll scrollbar-outer">
-                        <li>
-                            <div class="user-box">
-                                <div class="avatar-lg"><img src="~/assets/img/profile.jpg" alt="image profile" class="avatar-img rounded"></div>
-                                <div class="u-text">
-                                    <h4>Steven Startle</h4>
-                                    <p class="text-muted">s.startle@ucl.ac.uk</p>
+                        @*<li class="nav-item dropdown hidden-caret">
+                            <a class="dropdown-toggle profile-pic btn btn-white btn-border btn-round" data-toggle="dropdown" href="#" aria-expanded="false">
+                                Contact
+                            </a>
+                            <ul class="dropdown-menu dropdown-user animated fadeIn">
+                                <div class="dropdown-user-scroll scrollbar-outer">
+                                    <li>
+                                        <div class="user-box">
+                                            <div class="avatar-lg"><img src="~/assets/img/profile.jpg" alt="image profile" class="avatar-img rounded"></div>
+                                            <div class="u-text">
+                                                <h4>Steven Startle</h4>
+                                                <p class="text-muted">s.startle@ucl.ac.uk</p>
+                                            </div>
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <div class="dropdown-divider"></div>
+                                        <table>
+                                            <tr>
+                                                <td style="padding: 0px 10px 0px 10px;">
+                                                    <p class="text-muted">
+                                                        EPPI-Centre<br />
+                                                        Social Science Research Unit<br />
+                                                        UCL Institute of Education,<br />
+                                                        University College London<br />
+                                                        18 Woburn Square<br />
+                                                        London<br />
+                                                        WC1H 0NR<br />
+                                                    </p>
+                                                </td>
+                                            </tr>
+                                        </table>
+
+
+                                    </li>
                                 </div>
-                            </div>
-                        </li>
-                        <li>
-                            <div class="dropdown-divider"></div>
-                            <table>
-                                <tr>
-                                    <td style="padding: 0px 10px 0px 10px;">
-                                        <p class="text-muted">
-                                            EPPI-Centre<br />
-                                            Social Science Research Unit<br />
-                                            UCL Institute of Education,<br />
-                                            University College London<br />
-                                            18 Woburn Square<br />
-                                            London<br />
-                                            WC1H 0NR<br />
-                                        </p>
-                                    </td>
-                                </tr>
-                            </table>
-
-
-                        </li>
-                    </div>
-                </ul>
-            </li>*@
+                            </ul>
+                        </li>*@
 
                     </ul>
                 </div>
@@ -247,9 +244,15 @@
         @RenderBody()
 
         <!-- End Custom template -->
+    <div class="row w-100 border-left-0 py-1 px-2 small alert-secondary" style="position:fixed; z-index:2003; bottom:1px;">
+        <div class="mx-auto">EPPI-Visualisation is a Web Application Maintained by the EPPI-Centre. The data shown is retreived in real time from the EPPI-Reviewer database.</div>
+        <div class="ml-auto">
+            <img src="~/assets/img/logo.svg" alt="EPPI-Centre logo" class="navbar-brand" style="max-width:30px; max-height: 55px; object-fit: cover;">
+        </div>
+    </div>
     </div>
 
-
+    
 
 
 
