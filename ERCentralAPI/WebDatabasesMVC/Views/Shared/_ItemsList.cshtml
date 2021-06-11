@@ -17,6 +17,7 @@
         if (result == "success") {
             CurrentItemsCriteria = data.criteria;
             ItemsListData = data.items;
+            CurrentItemsCriteria.endPage = ItemsListData.pagecount;
             ItemsIds = ItemsListData.items.map(i => i.itemId);
             //console.log(ItemsIds );
             ItemsListKendoDataSource = new kendo.data.DataSource({
@@ -186,7 +187,7 @@
             $("#withOutAttributesIdsList").val(CurrentItemsCriteria.withOutAttributesIdsList);
             $("#searchWhat").val(CurrentItemsCriteria.searchWhat);
             $("#searchString").val(CurrentItemsCriteria.searchString);
-
+            $("#endPage").val(ItemsListData.pagecount);
             $("#HeaderPaged").show();
             $("#WholeListToRisButton").show();
             $("#HeaderNotPaged").hide();
@@ -649,6 +650,7 @@
                             <input type="hidden" id="withOutSetIdsList" name="withOutSetIdsList" />
                             <input type="hidden" id="searchWhat" name="searchWhat" />
                             <input type="hidden" id="searchString" name="searchString" />
+                            <input type="hidden" id="endPage" name="endPage" />
                         </div>
                         <!--<div id="ResultsCountPaged" class="my-auto">Loading...</div>-->
                     </div>
