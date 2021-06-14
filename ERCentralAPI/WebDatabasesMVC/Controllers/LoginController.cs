@@ -88,8 +88,8 @@ namespace WebDatabasesMVC.Controllers
                             {
                                 long AttId = -1;
                                 if (!reader.IsDBNull("WITH_ATTRIBUTE_ID")) AttId = reader.GetInt64("WITH_ATTRIBUTE_ID");
-                                SetUser(reader["WEBDB_NAME"].ToString(), WebDbId, Revid, AttId);
-                                SetImages(WebDbId, reader);
+                                SetUser(reader["WEBDB_NAME"].ToString(), WebDbId, Revid, AttId, reader);
+                                //SetImages(WebDbId, reader);
                                 return Redirect("~/Review/Index");
                             } 
                             else
@@ -137,8 +137,8 @@ namespace WebDatabasesMVC.Controllers
                             {
                                 long AttId = -1;
                                 if (!reader.IsDBNull("WITH_ATTRIBUTE_ID")) AttId = reader.GetInt64("WITH_ATTRIBUTE_ID");
-                                SetUser(reader["WEBDB_NAME"].ToString(), WebDbId, Revid, AttId);
-                                SetImages(WebDbId, reader);
+                                SetUser(reader["WEBDB_NAME"].ToString(), WebDbId, Revid, AttId, reader);
+                                //SetImages(WebDbId, reader);
                                 return Redirect("~/Review/Index");
                             }
                             else
@@ -169,7 +169,7 @@ namespace WebDatabasesMVC.Controllers
         {
             return Forbid();
         }
-        private void SetUser(string Name, int WebDbID, int revId, long itemsCode)
+        private void SetUser(string Name, int WebDbID, int revId, long itemsCode, SqlDataReader reader)
         {
             var userClaims = new List<Claim>()
             {
@@ -181,9 +181,10 @@ namespace WebDatabasesMVC.Controllers
             };
             var innerIdentity = new ClaimsIdentity(userClaims, "User Identity");
             var userPrincipal = new ClaimsPrincipal(new[] { innerIdentity });
+            SetImages(WebDbID, reader, innerIdentity);
             HttpContext.SignInAsync(userPrincipal);
         }
-        private void SetImages(int WebDbID, SqlDataReader reader)
+        private void SetImages(int WebDbID, SqlDataReader reader, ClaimsIdentity userPrincipal)
         {
             bool todo = false;
             if (reader["HEADER_IMAGE_1"] != DBNull.Value)
@@ -282,6 +283,15 @@ namespace WebDatabasesMVC.Controllers
                     {
                         byte[] image = (byte[])reader["HEADER_IMAGE_3"];
                         stream.Write(image, 0, image.Length);
+                    }
+                }
+                if (reader["HEADER_IMAGE_3_URL"] != DBNull.Value  )
+                {
+                    string url = reader.GetString("HEADER_IMAGE_3_URL");
+                    if (url != "" && (url.ToLower().StartsWith("http://") || url.ToLower().StartsWith("https://")))
+                    {
+                        Claim CL = new Claim("LogoURL", url);
+                        userPrincipal.AddClaim(CL);
                     }
                 }
             }

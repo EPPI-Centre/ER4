@@ -45,7 +45,7 @@
             <div class="row m-0 px-0 py-1" style="background-image: linear-gradient( -45deg, rgb(6, 65, 142), rgb(21, 114, 232)) !important;">
                 <div class="col-1 p-0 mx-auto my-0">
                     <img *ngIf="CurrentDB.encodedImage3 != ''" src="data:image/jpg;base64,{{CurrentDB.encodedImage3}}" alt="logo"
-                         style="max-width: 80px; max-height: 45px; object-fit: cover;" class="pb-2 mb-auto ml-1 mt-1" />
+                         style="max-width: 80px; max-height: 53px; object-fit: cover;" class="pb-2 mb-auto ml-1 mt-1" />
                 </div>
                 <div class="col-6 p-0 mx-auto my-0">
                     <h3 class="text-white ml-3 pb-1">{{CurrentDB.webDBName}}</h3>
@@ -212,19 +212,21 @@
                     You&nbsp;<strong>must Save</strong>&nbsp;the Visualisation before you can upload logos.
                 </div>
                 <div *ngIf="ShowUpload" class="row col-12 mx-0 bg-white p-0 mb-1">
-                    <div class="row mx-0 col-auto">
+                    <div class="row mx-0 col">
                         <div class="col-auto">
-                            <div class="mr-1 text-right">
-                                Top Left Logo (all pages) <input type="radio" name="imageDest" [(ngModel)]="UploadImageNumber" [value]="3" />
-                            </div>
-                            <div class="mr-1 text-right">
-                                Image 1 (header, vis home page) <input type="radio" name="imageDest" [(ngModel)]="UploadImageNumber" [value]="1" />
-                            </div>
-                            <div class="mr-1 text-right">
-                                Image 2  (header, vis home page) <input type="radio" name="imageDest" [(ngModel)]="UploadImageNumber" [value]="2" />
+                            <div>
+                                <div class="mr-1 text-right">
+                                    Top Left Logo (all pages) <input type="radio" name="imageDest" [(ngModel)]="UploadImageNumber" [value]="3" />
+                                </div>
+                                <div class="mr-1 text-right">
+                                    Image 1 (header, vis home page) <input type="radio" name="imageDest" [(ngModel)]="UploadImageNumber" [value]="1" />
+                                </div>
+                                <div class="mr-1 text-right">
+                                    Image 2  (header, vis home page) <input type="radio" name="imageDest" [(ngModel)]="UploadImageNumber" [value]="2" />
+                                </div>
                             </div>
                         </div>
-                        <kendo-upload class="" [autoUpload]="false"
+                        <kendo-upload class="col" [autoUpload]="false"
                                       [multiple]="false"
                                       [saveUrl]="uploadSaveUrl"
                                       (select)="selectEventHandler($event)"
@@ -233,10 +235,19 @@
                                       (clear)="clearUploadImageEventHandler()"
                                       (complete)="completeEventHandler($event)">
                         </kendo-upload>
+                        <div class="col-12 mx-0 px-1">
+                            <div class="m-1 p-1 rounded alert-danger small">
+                                <div class="rounded text-danger p-1 bg-white">
+                                    <strong>About the Top Left logo:</strong> In EPPI-Vis, this logo will be very small. It has maximum width of 80 pixels and maximum height of 45 pixels.
+                                    <br /> If it does not look good in here (its shows with the same dimensions if you close the Images/Logos section), you might need to change/adapt the image.
+                                    Often, using an image editor to re-scale it to the above dimensions might produce a better final result.
+                                </div>
+                            </div>
+                        </div>
                         <div *ngIf="ImageSizeError != ''" class="col-auto mb-auto small alert-danger mt-1 mx-1 rounded">{{ImageSizeError}}</div>
                     </div>
 
-                    <div *ngIf="CurrentDB.encodedImage1 != '' || CurrentDB.encodedImage2 != ''" class="row mx-0 col-auto">
+                    <div *ngIf="CurrentDB.encodedImage1 != '' || CurrentDB.encodedImage2 != ''" class="row mx-0 col">
 
 
                         <div class="mx-1">
@@ -290,7 +301,7 @@
                         </div>
                         <div class="col m-0 p-0">
                             <div class="p-1 mx-1 rounded small alert-info">
-                                <strong>Note:</strong> logos are cached in EPPI-Vis, for up to 24 hours. To see logo changes <em>immediately</em>:<br />
+                                <strong>Note:</strong> images are cached in EPPI-Vis, for up to 24 hours. To see logo changes <em>immediately</em>:<br />
                                 (1) delete the current image; <br />
                                 (2) visit the Visualisation "open/login" url, the deleted logo should not be shown; <br />
                                 (3) upload the new image.

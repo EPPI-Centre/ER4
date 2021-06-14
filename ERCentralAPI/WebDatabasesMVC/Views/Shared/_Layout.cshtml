@@ -5,6 +5,7 @@
 
 @{
     string imgPath3 = "";
+    string imgUrl3 = "";
     Claim WebDbIDclaim = User.FindFirst("WebDbID");
     if (WebDbIDclaim != null)
     {
@@ -12,6 +13,11 @@
         string absolutePath = service.WebRootPath + "\\HeaderImages\\";
         if (System.IO.File.Exists(absolutePath + "Img-" + WebDbIDclaim.Value + "-3.jpg")) imgPath3 = Url.Content("~/HeaderImages/Img-" + WebDbIDclaim.Value + "-3.jpg");
         else if (System.IO.File.Exists(absolutePath + "Img-" + WebDbIDclaim.Value + "-3.png")) imgPath3 = Url.Content("~/HeaderImages/Img-" + WebDbIDclaim.Value + "-3.png");
+        if (imgPath3 != "")
+        {
+            Claim LogoUrlCl = User.FindFirst("LogoURL");
+            if (LogoUrlCl != null) imgUrl3 = LogoUrlCl.Value;
+        }
     }
 }
 
@@ -109,11 +115,22 @@
             <div class="logo-header" data-background-color="blue">
                 @if (imgPath3 == "")
                 {
-                    <img src="~/assets/img/logo.svg" alt="EPPI-Centre logo" class="navbar-brand" style="max-width:80px; max-height: 55px; object-fit: cover;">
+
+                    <img src="~/assets/img/logo.svg" alt="EPPI-Centre logo" class="" style="max-width:80px; max-height: 55px; object-fit: cover;">
                 }
                 else
                 {
-                    <img src="@imgPath3" alt="logo image" class="navbar-brand" style="max-width: 80px; max-height: 55px; object-fit: cover;">
+                    if (imgUrl3 != "")
+                    {
+                        <a href="@(new HtmlString(imgUrl3))" class="m-0 p-0" target="_blank" title="Open this Organisation Webpage">
+                            <img src="@imgPath3" alt="logo image" class="" style="max-width: 80px; max-height: 55px; object-fit: cover;">
+                        </a>
+                    }
+                    else
+                    {
+                        <img src="@imgPath3" alt="logo image" class="" style="max-width: 80px; max-height: 55px; object-fit: cover;">
+                    }
+
                 }
 
 
@@ -244,10 +261,10 @@
         @RenderBody()
 
         <!-- End Custom template -->
-    <div class="row w-100 border-left-0 py-1 px-2 small alert-secondary" style="position:fixed; z-index:2003; bottom:1px;">
-        <div class="mx-auto">EPPI-Visualisation is a Web Application Maintained by the EPPI-Centre. The data shown is retreived in real time from the EPPI-Reviewer database.</div>
-        <div class="ml-auto">
-            <img src="~/assets/img/logo.svg" alt="EPPI-Centre logo" class="navbar-brand" style="max-width:30px; max-height: 55px; object-fit: cover;">
+    <div class="row w-100 border-left-0 mx-0 py-0 px-1 small alert-secondary" style="position:fixed; z-index:2003; bottom:0px;">
+        <div class="mx-auto mt-1 mb-0">EPPI-Visualisation is a Web Application Maintained by the EPPI-Centre. The data shown is retreived in real time from the EPPI-Reviewer database.</div>
+        <div class="ml-auto my-auto">
+            <img src="~/assets/img/logo.svg" alt="EPPI-Centre logo" class="" style="margin-top: 2px; max-width: 40px; max-height: 55px; object-fit: cover;">
         </div>
     </div>
     </div>
