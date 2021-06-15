@@ -548,7 +548,7 @@ namespace BusinessLibrary.BusinessClasses
                     command.CommandType = CommandType.StoredProcedure;
                     command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
                     command.Parameters.Add(new SqlParameter("@CONTACT_ID", ri.UserId));
-                    command.Parameters.Add(new SqlParameter("@SEARCH_TEXT", SearchText));
+                    command.Parameters.Add(new SqlParameter("@SEARCH_TEXT", SearchText + " (" + MagInfo.MagFolder + ")"));
                     command.Parameters.Add(new SqlParameter("@SEARCH_NO", 0)); // set in the SP
                     command.Parameters.Add(new SqlParameter("@HITS_NO", HitsNo)); 
                     command.Parameters.Add(new SqlParameter("@SEARCH_DATE", SearchDate));
