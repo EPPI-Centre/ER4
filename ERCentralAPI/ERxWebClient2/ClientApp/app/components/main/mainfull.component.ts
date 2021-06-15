@@ -254,12 +254,26 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 		this.excelService.exportAsExcelFile(report, 'ItemsList');
 
 	}
-    public ItemsWithThisCodeDDData: Array<any> = [{
-        text: 'With this Code (Excluded)',
-        click: () => {
-            this.ListItemsWithThisCode(false);
+    public ItemsWithThisCodeDDData: Array<any> = [
+        {
+            text: 'With this Code (Excluded)',
+            click: () => {
+                this.ListItemsWithWithoutThisCode(false, true);
+            }
+        },
+        {
+            text: 'Without this Code ',
+            click: () => {
+                this.ListItemsWithWithoutThisCode(true, false);
+            }
+        },
+        {
+            text: 'Without this Code (Excluded)',
+            click: () => {
+                this.ListItemsWithWithoutThisCode(false, false);
+            }
         }
-    }];
+    ];
     public AddRemoveItemsDDData: Array<any> = [{
         text: 'Remove code from selection',
         click: () => {
@@ -608,7 +622,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
     NewReference() {
         this.router.navigate(['EditItem'], { queryParams: { return: 'Main' } });
     }
-    ListItemsWithThisCode(Included: boolean) {
+    ListItemsWithWithoutThisCode(Included: boolean, withThisCode: boolean) {
         if (!this.selectedNode || this.selectedNode.nodeType != "SetAttribute") return;
         let CurrentAtt = this.selectedNode as SetAttribute;
         if (!CurrentAtt) return;
@@ -616,17 +630,31 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         cr.onlyIncluded = Included;
         cr.showDeleted = false;
         cr.pageNumber = 0;
+        cr.showInfoColumn = true;
         let ListDescription: string = "";
-        if (Included) ListDescription = CurrentAtt.attribute_name + ".";
-        else ListDescription = CurrentAtt.attribute_name + " (excluded).";
-        cr.attributeid = CurrentAtt.attribute_id;
+        if (withThisCode) {
+            //with this code
+            if (Included) ListDescription = CurrentAtt.attribute_name + ".";
+            else ListDescription = CurrentAtt.attribute_name + " (excluded).";
+            cr.listType = "StandardItemList";
+            cr.attributeid = CurrentAtt.attribute_id;
+            cr.showInfoColumn = true;
+        } else {
+            //without this code
+            if (Included) ListDescription = "Without code: " + CurrentAtt.attribute_name + ".";
+            else ListDescription = "Without code: " + CurrentAtt.attribute_name + " (excluded).";
+            cr.listType = "ItemListWithoutAttributes";
+            cr.attributeid = 0;
+            cr.attributeSetIdList = CurrentAtt.attributeSetId.toString();
+            cr.showInfoColumn = false;
+        }
         cr.sourceId = 0;
-        cr.listType = "StandardItemList";
         cr.attributeSetIdList = CurrentAtt.attributeSetId.toString();
         this.ItemListService.FetchWithCrit(cr, ListDescription);
         this.tabstrip.selectTab(1);
         //this._eventEmitter.PleaseSelectItemsListTab.emit();
-	}
+    }
+    
 	BulkAssignRemoveCodesToSearches(IsBulkAssign: boolean) {
 
 		//alert(this.searchService.SearchList.filter(x => x.add == true).length);

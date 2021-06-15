@@ -1064,6 +1064,7 @@ export class SearchComp implements OnInit, OnDestroy {
 		cr.searchId = dataItem.searchId;
 		let ListDescription: string = dataItem.title;
 		cr.listType = 'GetItemSearchList';
+		if (dataItem.isClassifierResult) cr.showScoreColumn = true;
 
 		this.ItemListService.FetchWithCrit(cr, ListDescription);
 		this._eventEmitter.PleaseSelectItemsListTab.emit();

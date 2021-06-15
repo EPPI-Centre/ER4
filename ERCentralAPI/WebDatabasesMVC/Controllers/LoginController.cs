@@ -184,7 +184,7 @@ namespace WebDatabasesMVC.Controllers
             SetImages(WebDbID, reader, innerIdentity);
             HttpContext.SignInAsync(userPrincipal);
         }
-        private void SetImages(int WebDbID, SqlDataReader reader, ClaimsIdentity userPrincipal)
+        private void SetImages(int WebDbID, SqlDataReader reader, ClaimsIdentity innerIdentity)
         {
             bool todo = false;
             if (reader["HEADER_IMAGE_1"] != DBNull.Value)
@@ -291,7 +291,7 @@ namespace WebDatabasesMVC.Controllers
                     if (url != "" && (url.ToLower().StartsWith("http://") || url.ToLower().StartsWith("https://")))
                     {
                         Claim CL = new Claim("LogoURL", url);
-                        userPrincipal.AddClaim(CL);
+                        innerIdentity.AddClaim(CL);
                     }
                 }
             }

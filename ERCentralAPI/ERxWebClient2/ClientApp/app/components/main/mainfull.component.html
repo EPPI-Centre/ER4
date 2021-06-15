@@ -255,7 +255,7 @@
                 </button>-->
                 <div class="k-block containsAtoolbar p-0" look="outline">
                     <button kendoButton class="my-1 ml-1 mr-0" (click)="EditCodeSets()">Edit Tools</button>
-                    <kendo-splitbutton [text]="'With this Code'" (buttonClick)="ListItemsWithThisCode(true)"
+                    <kendo-splitbutton [text]="'With this Code'" (buttonClick)="ListItemsWithWithoutThisCode(true, true)"
                                        [disabled]="!CanGetItemsWithThisCode"
                                        [data]="ItemsWithThisCodeDDData"
                                        class="my-1 ml-1 mr-0"
