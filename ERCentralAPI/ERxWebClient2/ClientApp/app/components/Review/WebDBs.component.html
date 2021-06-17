@@ -174,7 +174,7 @@
             <div *ngIf="CurrentDB.headerImage3Url != ''" class="row col-12 p-1 mx-0 mt-2 border-bottom border-info">
                 <div class="col-12 row m-0 p-1">
                     <div class="col-auto p-1 small">
-                        Image 3 URL:
+                        Top left logo URL:
                     </div>
                     <div class="rounded bg-white col w-100 px-1">
                         <a class="p-1 w-100" href="{{CurrentDB.headerImage3Url}}" target="_blank">
@@ -219,10 +219,10 @@
                                     Top Left Logo (all pages) <input type="radio" name="imageDest" [(ngModel)]="UploadImageNumber" [value]="3" />
                                 </div>
                                 <div class="mr-1 text-right">
-                                    Image 1 (header, vis home page) <input type="radio" name="imageDest" [(ngModel)]="UploadImageNumber" [value]="1" />
+                                    Image 1 (header, home page) <input type="radio" name="imageDest" [(ngModel)]="UploadImageNumber" [value]="1" />
                                 </div>
                                 <div class="mr-1 text-right">
-                                    Image 2  (header, vis home page) <input type="radio" name="imageDest" [(ngModel)]="UploadImageNumber" [value]="2" />
+                                    Image 2  (header, home page) <input type="radio" name="imageDest" [(ngModel)]="UploadImageNumber" [value]="2" />
                                 </div>
                             </div>
                         </div>
@@ -238,9 +238,10 @@
                         <div class="col-12 mx-0 px-1">
                             <div class="m-1 p-1 rounded alert-danger small">
                                 <div class="rounded text-danger p-1 bg-white">
-                                    <strong>About the Top Left logo:</strong> In EPPI-Vis, this logo will be very small. It has maximum width of 80 pixels and maximum height of 45 pixels.
-                                    <br /> If it does not look good in here (its shows with the same dimensions if you close the Images/Logos section), you might need to change/adapt the image.
-                                    Often, using an image editor to re-scale it to the above dimensions might produce a better final result.
+                                    <strong>Top Left logo:</strong><br /> 
+                                    In EPPI-Vis, this logo will be reduced to a maximum width of 80 pixels and a maximum height of 45 pixels.<br />
+                                    If it does not look good once uploaded and reduced, you may need to change or edit the image using an image editor. 
+                                    Rescaling or cropping the image might produce a better final result.
                                 </div>
                             </div>
                         </div>
@@ -515,7 +516,7 @@
             <div *ngIf="CurrentDB.encodedImage3 != ''" class="row col-12 p-1 mx-0 mt-2 border-bottom border-info">
                 <div class="col-12 row m-0 p-1">
                     <div class="col-auto p-1">
-                        Image 3 URL:
+                        Top left logo URL:
                     </div>
                     <div class="rounded bg-white col w-100 px-1">
                         <input class="p-1 w-100" type="text" maxlength="1000" [(ngModel)]="EditingDB.headerImage3Url" />
