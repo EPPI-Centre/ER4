@@ -16,7 +16,7 @@
     <div class="col-5 px-0 mt-1"><div *ngIf="selectedNodeDataY != null; else NoCodeSet" class="border px-1 mt-0 mb-auto">{{selectedNodeDataY?.name}}</div></div>
     <div class="col">
         <button (click)="setYaxis()" [disabled]="!canSetCode()" class="btn btn-primary btn-sm">Set</button>&nbsp;
-        <button *ngIf="selectedNodeDataY != null" class="btn btn-sm btn-outline-primary ml-1" (click)="fetchFrequencies(selectedNodeDataY, selectedFilterAttribute?.attribute_id)"
+        <button *ngIf="selectedNodeDataY != null" class="btn btn-sm btn-outline-primary ml-1" (click)="fetchFrequencies(selectedNodeDataY, selectedFilterAttribute)"
                 [disabled]="selectedNodeDataY == null">
             Get Frequencies
         </button>
@@ -43,7 +43,7 @@
 
     <div class="row mx-1 px-0 col-12 alert-secondary">
         <div class="p-1 d-flex col-auto">
-            <button class="my-auto btn btn-primary mr-1" (click)="fetchFrequencies(selectedNodeDataY, selectedFilterAttribute?.attribute_id)"
+            <button class="my-auto btn btn-primary mr-1" (click)="fetchFrequencies(selectedNodeDataY, selectedFilterAttribute)"
                     [disabled]="selectedNodeDataY == null">
                 Get Frequencies
             </button>

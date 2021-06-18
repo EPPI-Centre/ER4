@@ -168,7 +168,7 @@ export class FreqXtabMapsComp implements OnInit, OnDestroy, AfterViewInit {
         }
     }
 
-    fetchFrequencies(selectedNodeDataF: any, selectedFilter: any) {
+    fetchFrequencies(selectedNodeDataF: any, selectedFilter: singleNode | null) {
         //console.log('NoneOfTheAboveCB:' + this.NoneOfTheAboveCB);
         if (!selectedNodeDataF || selectedNodeDataF == undefined) {
 
@@ -188,7 +188,11 @@ export class FreqXtabMapsComp implements OnInit, OnDestroy, AfterViewInit {
                 return;//just in case
             }
             this.crosstabService.Clear();
-            this.frequenciesService.Fetch(selectedNodeDataF, selectedFilter);
+            let filterAttId: number | null = null;
+            if (selectedFilter != null && selectedFilter.nodeType == "SetAttribute") {
+                filterAttId = (selectedFilter as SetAttribute).attribute_id;
+            }
+            this.frequenciesService.Fetch(selectedNodeDataF, filterAttId);
 
         }
     }

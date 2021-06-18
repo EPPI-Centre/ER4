@@ -44,16 +44,14 @@ export class frequenciesService extends BusyAwareService  {
         //this.Save();
     }
 
-	public Fetch(selectedNodeData: any, selectedFilter?: any) {
+	public Fetch(selectedNodeData: any, selectedFilter: number | null) {
         this._BusyMethods.push("Fetch");
 		this.codeSelectedChanged.emit(selectedNodeData);
 				
 		//console.log('Inside the service now: ' + selectedFilter);
 		if (selectedFilter != null) {
-
 			this.crit.FilterAttributeId = selectedFilter;
 		} else {
-
 			this.crit.FilterAttributeId = -1;
 		}
 
