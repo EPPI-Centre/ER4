@@ -84,8 +84,8 @@ namespace BusinessLibrary.BusinessClasses
             get { return ReadProperty(SetIdProperty); }
         }
 
-        private static PropertyInfo<bool> IncludedProperty = RegisterProperty<bool>(typeof(ItemAttributeChildFrequencySelectionCriteria), new PropertyInfo<bool>("Included", "Included"));
-        public bool Included
+        private static PropertyInfo<bool?> IncludedProperty = RegisterProperty<bool?>(typeof(ItemAttributeChildFrequencySelectionCriteria), new PropertyInfo<bool?>("Included", "Included"));
+        public bool? Included
         {
             get { return ReadProperty(IncludedProperty); }
         }
@@ -96,7 +96,7 @@ namespace BusinessLibrary.BusinessClasses
             get { return ReadProperty(FilterAttributeIdProperty); }
         }
 
-        public ItemAttributeChildFrequencySelectionCriteria(Type type, Int64 attributeId, int setId, bool isIncluded, Int64 filterAttributeId)
+        public ItemAttributeChildFrequencySelectionCriteria(Type type, Int64 attributeId, int setId, bool? isIncluded, Int64 filterAttributeId)
             //: base(type)
         {
             LoadProperty(AttributeIdProperty, attributeId);

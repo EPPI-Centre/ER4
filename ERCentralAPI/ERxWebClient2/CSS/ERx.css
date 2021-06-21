@@ -112,6 +112,10 @@ body {
     font-size: 0.9em;
     padding: .25rem .25rem !important;
 }
+.containsAtoolbar .k-button.k-state-active {
+    
+    border-color: #04070b;
+}
 .containsAtoolbar .k-button-icon {
     height: calc(2px + 0.75rem + 1.25em);
 }
@@ -133,7 +137,10 @@ ul.k-tabstrip-items li.k-item.k-state-active {
 .fullBordersInTabs .k-tabstrip > .k-content {
     border-color: rgba(33, 37, 41, 0.45);
 }
-
+.k-tabstrip > .k-content {
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
+}
 .brightSwitch .k-switch-label-off {
     color: orange;
 }

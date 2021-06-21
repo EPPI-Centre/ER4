@@ -88,9 +88,12 @@ namespace BusinessLibrary.BusinessClasses
             ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
             try
             {
-                ro = JsonConvert.DeserializeObject<Rootobject>(File.ReadAllText(_path));
+                ro = JsonConvert.DeserializeObject<Rootobject>(File.ReadAllText(_path), new JsonSerializerSettings
+                {
+                    DateFormatString = "dd/MM/yyyy"
+                });
             }
-            catch
+            catch (Exception e)
             {
                 _message = "deserialize error";
             }
@@ -138,7 +141,7 @@ namespace BusinessLibrary.BusinessClasses
                     }
                 }
                 this.ReviewSets.Add(rs);
-                if (rs != null)
+                if (rs != null && CurrentCodeSet.Attributes != null)
                 {
                     foreach (Attributeslist nested in CurrentCodeSet.Attributes.AttributesList)
                     {

@@ -2,10 +2,12 @@ using System;
 using BusinessLibrary.BusinessClasses;
 using BusinessLibrary.Security;
 using Csla;
+using System.Linq;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using EPPIDataServices.Helpers;
+using System.Collections.Generic;
 
 namespace ERxWebClient2.Controllers
 {
@@ -33,7 +35,105 @@ namespace ERxWebClient2.Controllers
                 _logger.LogException(e, "Error with ReportList");
                 return StatusCode(500, e.Message);
             }
-        }
+		}
+		[HttpPost("[action]")]
+		public IActionResult CreateReport([FromBody] ReportJSON rep)
+		{
+			try
+			{
+				if (SetCSLAUser4Writing())
+				{
+					Report newR = rep.ToCSLAReport();
+					newR = newR.Save();
+					newR = DataPortal.Fetch<Report>(new SingleCriteria<int>(newR.ReportId));//re-fetching to ensure we return the truth...
+					return Ok(newR);//if no error, all should be OK.
+				}
+				else return Forbid();
+			}
+			catch (Exception e)
+			{
+				_logger.LogException(e, "Error running UpdateReport, RepID:" + rep.reportId);
+				return StatusCode(500, e.Message);
+			}
+		}
+		[HttpPost("[action]")]
+		public IActionResult UpdateReport([FromBody] ReportJSON rep)
+		{
+			try
+			{
+				if (SetCSLAUser4Writing())
+				{
+					Report actual = DataPortal.Fetch<Report>(new SingleCriteria<int>(rep.reportId));
+					if (actual.Name != rep.name) actual.Name = rep.name;
+					//bit of work to do here!
+					//we need to figure what cols have been created or deleted,
+					//we also need to apply any change done to columns that (might) have been edited.
+					List<ReportColumn> DeletedColumns = new List<ReportColumn>();
+					List<ReportColumnJSON> AddedColumns = rep.columns.ToList();
+					Dictionary<ReportColumn, ReportColumnJSON> ExistingColumns = new Dictionary<ReportColumn, ReportColumnJSON>();
+					foreach (ReportColumn col in actual.Columns)
+					{
+						ReportColumnJSON cJ = rep.columns.FirstOrDefault((f) => f.reportColumnId == col.ReportColumnId);
+						if (cJ != null)
+						{//we have this column in both lists... We list it as existent and remove from the list "potentially new" columns
+							ExistingColumns.Add(col, cJ);
+							AddedColumns.Remove(cJ);
+						}
+						else
+						{
+							col.Delete();//this col is not in the object received from the client, so it has been deleted from there...
+							DeletedColumns.Add(col);
+							actual.Detail = "edited!!";
+						}
+					}
+					//OK, let's add the new columns...
+					foreach (ReportColumnJSON newCol in AddedColumns)
+					{
+						ReportColumn adding = newCol.ToCSLAReportColumn();
+						actual.Columns.Add(adding);
+						actual.Detail = "edited!!";
+					}
+					foreach (KeyValuePair<ReportColumn, ReportColumnJSON> pair in ExistingColumns)
+					{
+						if (!pair.Value.IsIdenticalTo(pair.Key))
+						{
+							pair.Key.Delete();
+							actual.Columns.Add(pair.Value.ToCSLAReportColumn());
+							actual.Detail = "edited!!";
+						}
+					}
+					actual = actual.Save(true);
+					actual = DataPortal.Fetch<Report>(new SingleCriteria<int>(rep.reportId));//re-fetching to ensure we return the truth...
+					return Ok(actual);//if no error, all should be OK.
+				}
+				else return Forbid();
+			}
+			catch (Exception e)
+			{
+				_logger.LogException(e, "Error running UpdateReport, RepID:" + rep.reportId);
+				return StatusCode(500, e.Message);
+			}
+		}
+		[HttpPost("[action]")]
+		public IActionResult DeleteReport([FromBody] SingleIntCriteria criteria)
+		{
+			try
+			{
+				if (SetCSLAUser4Writing())
+				{
+					Report rep = DataPortal.Fetch<Report>(new SingleCriteria<int>(criteria.Value));
+					rep.Delete();
+					rep = rep.Save();
+					return Ok();//if no error, all should be OK.
+				}
+				else return Forbid();
+			}
+			catch (Exception e)
+			{
+				_logger.LogException(e, "Error deleting report, RepID:" + criteria.Value);
+				return StatusCode(500, e.Message);
+			}
+		}
 
 		[HttpPost("[action]")]
 		public IActionResult FetchStandardReport([FromBody] ReportStandardJSON args)
@@ -186,7 +286,126 @@ namespace ERxWebClient2.Controllers
 		public string name { get; set; }
 		public int reportId { get; set; }
 		public int contactId  { get; set; }
-		public string reportType  { get; set; }
+		public string contactName { get; set; }
+		public string reportType { get; set; }
+		public bool isAnswer { get; set; }
+		public ReportColumnJSON[] columns { get; set; }
+		public bool IsIdenticalTo(Report rep)
+        {
+			if (this.name != rep.Name) return false;
+			else if (this.reportType != rep.ReportType) return false;
+			if (this.columns.Length != rep.Columns.Count) return false;
+			else
+            {
+				int matchTarget = this.columns.Length;
+				int matched = 0;
+				foreach (ReportColumn col in rep.Columns)
+                {
+					ReportColumnJSON tmp = this.columns.FirstOrDefault((f) => f.IsIdenticalTo(col));
+					if (tmp != null)
+					{
+						matched++;
+					}
+				}
+				if (matched == matchTarget) return true;
+			}
+			return false;
+        }
+		public Report ToCSLAReport()
+        {
+			Report res = new Report();
+			res.ContactName = this.contactName;
+			res.Name = this.name;
+			res.ReportType = this.reportType == "Answer" ? "Answer" : "Question";
+			res.Columns = new ReportColumnList();
+			foreach (ReportColumnJSON rc in this.columns)
+            {
+				res.Columns.Add(rc.ToCSLAReportColumn());
+            }
+			return res;
+		}
+	}
+	public class ReportColumnJSON
+	{
+		public int reportColumnId { get; set; }
+		public int columnOrder { get; set; }
+		public string name { get; set; }
+		public ReportColumnCodeJSON[] codes { get; set; }
+		public bool IsIdenticalTo(ReportColumn col)
+		{
+			if (col.ColumnOrder != this.columnOrder || col.Name != this.name) return false;
+			else if (this.codes.Length != col.Codes.Count) return false;
+			else 
+			{
+				int matchTarget = this.codes.Length;
+				int matched = 0;
+				foreach (ReportColumnCode rcc in col.Codes)
+                {
+					ReportColumnCodeJSON tmp = this.codes.FirstOrDefault((f) => f.IsIdenticalTo(rcc));
+					if (tmp != null)
+                    {
+						matched++;
+                    }
+                }
+				if (matched == matchTarget) return true;
+			}
+			return false;
+		}
+		public ReportColumn ToCSLAReportColumn()
+        {
+			ReportColumn res = new ReportColumn();
+			res.ColumnOrder = columnOrder;
+			res.Name = name;
+			res.Codes = new ReportColumnCodeList();
+			foreach (ReportColumnCodeJSON newCode in codes)
+			{
+				res.Codes.Add(newCode.ToCSLAReportColumnCode());
+			}
+			return res;
+		}
+	}
+	public class ReportColumnCodeJSON
+	{
+
+		public Int64 attributeId { get; set; }
+		public int codeOrder { get; set; }
+		public bool displayAdditionalText { get; set; }
+		public bool displayCode { get; set; }
+		public bool displayCodedText { get; set; }
+		public Int64 parentAttributeId { get; set; }
+		public string parentAttributeText { get; set; }
+		public int reportColumnCodeId { get; set; }
+		public int reportColumnId { get; set; }
+		public int setId { get; set; }
+		public string userDefText { get; set; }
+		public bool IsIdenticalTo(ReportColumnCode col)
+		{
+			if (this.reportColumnCodeId != col.ReportColumnCodeId
+				|| this.attributeId != col.AttributeId
+				|| this.codeOrder != col.CodeOrder
+				|| this.displayAdditionalText != col.DisplayAdditionalText
+				|| this.displayCode != col.DisplayCode
+				|| this.displayCodedText != col.DisplayCodedText
+				|| this.reportColumnId != col.ReportColumnId
+				|| this.setId != col.SetId
+				|| this.userDefText != col.UserDefText
+				) return false;
+			else return true;
+		}
+		public ReportColumnCode ToCSLAReportColumnCode()
+        {
+			ReportColumnCode res = new ReportColumnCode();
+			res.AttributeId = this.attributeId;
+			res.CodeOrder = this.codeOrder;
+			res.DisplayAdditionalText = this.displayAdditionalText;
+			res.DisplayCode = this.displayCode;
+			res.DisplayCodedText = this.displayCodedText;
+			res.ParentAttributeText = this.parentAttributeText;
+			res.ReportColumnId = this.reportColumnId;
+			res.SetId = this.setId;
+			res.UserDefText = this.userDefText;
+			return res;
+		}
 	}
 	   
 	public class ReportStandardJSON

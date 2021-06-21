@@ -97,6 +97,8 @@ export class ItemListService extends BusyAwareService implements OnDestroy {
 					this._Criteria.totalItems = this.ItemList.totalItemCount;
 					console.log();
                     this.SaveItems(list, this._Criteria);
+                    if (this._itemListOptions.showInfo == false && this._Criteria.showInfoColumn == true) this._itemListOptions.showInfo = true;
+                    if (this._itemListOptions.showScore == false && this._Criteria.showScoreColumn == true) this._itemListOptions.showScore = true;
                     this.ListChanged.emit();
 					//console.log('aksdjh: CHEKC: ', JSON.stringify(this.ItemList.items.length));
                 }, error => {
@@ -931,9 +933,10 @@ export class Criteria {
         interimCrit.setId = this.setId;
         interimCrit.showInfoColumn = this.showInfoColumn;
         interimCrit.showScoreColumn = this.showScoreColumn;
+
         return interimCrit;
     }
-    onlyIncluded: boolean = true;
+    onlyIncluded: boolean | null = true;
     showDeleted: boolean = false;
     sourceId: number = 0;
     searchId: number = 0;
@@ -960,8 +963,12 @@ export class Criteria {
     description: string = "";
     contactId: number = 0;
     setId: number = 0;
-    showInfoColumn: boolean = true;
-    showScoreColumn: boolean = true;
+    showInfoColumn: boolean = false;
+    showScoreColumn: boolean = false;
+    withOutAttributesIdsList: string = "";
+    withAttributesIds: string = "";
+    withSetIdsList: string = "";
+    withOutSetIdsList: string = "";
 }
 
 

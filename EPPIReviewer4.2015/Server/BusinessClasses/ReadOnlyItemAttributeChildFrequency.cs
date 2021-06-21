@@ -79,8 +79,8 @@ namespace BusinessLibrary.BusinessClasses
                 return GetProperty(ItemCountProperty);
             }
         }
-		public static readonly PropertyInfo<bool> IsIncludedProperty = RegisterProperty<bool>(new PropertyInfo<bool>("IsIncluded", "IsIncluded"));
-        public bool IsIncluded
+		public static readonly PropertyInfo<bool?> IsIncludedProperty = RegisterProperty<bool?>(new PropertyInfo<bool?>("IsIncluded", "IsIncluded"));
+        public bool? IsIncluded
         {
             get
             {
@@ -95,12 +95,12 @@ namespace BusinessLibrary.BusinessClasses
 
 #if !SILVERLIGHT
 
-        public static ReadOnlyItemAttributeChildFrequency GetReadOnlyItemAttributeChildFrequency(SafeDataReader reader, int SetId, Int64 FilterAttributeId, bool isIncluded)
+        public static ReadOnlyItemAttributeChildFrequency GetReadOnlyItemAttributeChildFrequency(SafeDataReader reader, int SetId, Int64 FilterAttributeId, bool? isIncluded)
         {
             return DataPortal.FetchChild<ReadOnlyItemAttributeChildFrequency>(reader, SetId, FilterAttributeId, isIncluded);
         }
 
-        private void Child_Fetch(SafeDataReader reader, int SetId, Int64 FilterAttributeId, bool isIncluded)
+        private void Child_Fetch(SafeDataReader reader, int SetId, Int64 FilterAttributeId, bool? isIncluded)
         {
             LoadProperty<Int64>(AttributeIdProperty, reader.GetInt64("ATTRIBUTE_ID"));
             LoadProperty<int>(ItemCountProperty, reader.GetInt32("ITEM_COUNT"));
@@ -108,7 +108,7 @@ namespace BusinessLibrary.BusinessClasses
             LoadProperty<Int64>(AttributeSetIdProperty, reader.GetInt64("ATTRIBUTE_SET_ID"));
             LoadProperty<int>(SetIdProperty, SetId);
             LoadProperty<Int64>(FilterAttributeIdProperty, FilterAttributeId);
-            LoadProperty<bool>(IsIncludedProperty, isIncluded);
+            LoadProperty<bool?>(IsIncludedProperty, isIncluded);
         }
 
 

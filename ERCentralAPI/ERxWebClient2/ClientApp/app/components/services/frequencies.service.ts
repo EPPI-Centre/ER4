@@ -44,16 +44,14 @@ export class frequenciesService extends BusyAwareService  {
         //this.Save();
     }
 
-	public Fetch(selectedNodeData: any, selectedFilter?: any) {
+	public Fetch(selectedNodeData: any, selectedFilter: number | null) {
         this._BusyMethods.push("Fetch");
 		this.codeSelectedChanged.emit(selectedNodeData);
 				
 		//console.log('Inside the service now: ' + selectedFilter);
 		if (selectedFilter != null) {
-
 			this.crit.FilterAttributeId = selectedFilter;
 		} else {
-
 			this.crit.FilterAttributeId = -1;
 		}
 
@@ -104,14 +102,14 @@ export class Frequency {
 	attributeSetId: number = 0;
 	setId: number = 0;
 	filterAttributeId: number = 0;
-	isIncluded: boolean = false;
+	isIncluded: boolean | null = false;
 }
 
 export class CriteriaFrequency {
 	
 	AttributeId: string = '0';
 	SetId: string ='0';
-	Included: boolean = false;
+	Included: boolean | null = false;
 	FilterAttributeId: number = 0;
 	
 }

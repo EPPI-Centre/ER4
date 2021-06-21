@@ -1,26 +1,88 @@
 ﻿@model WebDatabasesMVC.ViewModels.FullItemDetails;
 @using WebDatabasesMVC.ViewModels;
 @using BusinessLibrary.BusinessClasses;
+@using Newtonsoft.Json;
+@using Newtonsoft.Json.Serialization;
+@using System.Linq; 
 @{
     Item itm = Model.Item;
 }
 <script type="text/javascript">
     function toggleDetails() {
-        //alert('oooo');
-        //if (!$) console.log("no jquery???");
-        //else console.log("we do have jquery");
         $(document).find('.showhide1').toggle(100);
         $(document).find('.showhide2').toggle(100);
     }
+    var ModelData = null;
+    var CurrentItemsCriteria = null;
+    var ItemsIds = null;
+    function BackToList() {
+        postwith("../ItemList/ListFromCrit", CurrentItemsCriteria);
+    }
 </script>
+<script id="InitialScript" type="text/javascript">
+    @{var jdata = @Html.Raw(JsonConvert.SerializeObject(Model, new JsonSerializerSettings {
+            ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+            NullValueHandling = NullValueHandling.Ignore,
+            ContractResolver = new CamelCasePropertyNamesContractResolver() }));};
+    $(document).ready(function () {
+        ModelData = @jdata;
+        ItemsIds = ModelData.itemIds.split(',').map(cal => Number(cal));
+        //console.log("parsed:", ItemsIds);
+        CurrentItemsCriteria = ModelData.listCrit;
+        //console.log(ModelData);
+        $("#InitialScript").remove();
+    });
 
+</script>
 
 <br />
 <br />
 <br />
 <div class="main-panel main-panel-no-sidebar">
     <div class="page-inner">
+        <div class="col-12 row mx-0 px-1 mb-2">
+            @{
+                string[] idsSt = Model.ItemIds.Split(',', StringSplitOptions.RemoveEmptyEntries);
+                string currId = Model.Item.ItemId.ToString();
+                int currentIndex = Array.FindIndex(idsSt, val => val == currId);
+                bool canDoNext = false; bool canDoPrev = false;
+                if (currentIndex != -1)
+                {
+                    if (currentIndex < idsSt.Length - 1) canDoNext = true;
+                    if (currentIndex > 0) canDoPrev = true;
+                }
+                string PagingText = "Back to List";
+                if (Model.ListCrit.endPage > 1)
+                {
+                    PagingText += " (Page " + (Model.ListCrit.pageNumber + 1).ToString() + " of " + Model.ListCrit.endPage.ToString() + ")";
+                }
+            }
+            <button class="btn btn-outline-primary btn-sm btn-round" onclick="BackToList()">@PagingText</button>
+            <div class="d-flex mx-auto">
 
+                @if (canDoPrev)
+                {
+                    <button class="btn btn-secondary btn-sm btn-round" onclick="GoToItem(@idsSt[currentIndex - 1])">Previous</button>
+                }
+                else
+                {
+                    <button class="btn btn-secondary btn-sm btn-round" disabled>Previous</button>
+                }
+                <div class="mx-1 my-auto">Record @(currentIndex + 1) of @(idsSt.Length) </div>
+                @if (canDoNext)
+                {
+                    <button class="btn btn-secondary btn-sm btn-round" onclick="GoToItem(@idsSt[currentIndex + 1])">Next</button>
+                }
+                else
+                {
+                    <button class="btn btn-secondary btn-sm btn-round" disabled>Next</button>
+                }
+            </div>
+            <div style="width:84px;min-width:84px;">
+                <!--provides spacing to "center" the next/prev buttons...-->
+                &nbsp;
+            </div>
+        </div>
         <div class="card">
             <div class="card-body">
 

@@ -144,10 +144,12 @@ export class Helpers {
 
     //used to add link to stylesheet and HTML frame to HTML content, usually for reports
     //gets used to show and save reports.
-    public static AddHTMLFrame(report: string, baseUrl: string, title?: string): string {
+    public static AddHTMLFrame(report: string, baseUrl: string, title?: string, addExcelStyleHack: boolean = false): string {
         //used to save reports
-        if (title === undefined) title = ">EPPI-Reviewer Coding Report";
-        let res = "<HTML id='content'><HEAD><title>"+ title +"</title><link rel='stylesheet' href='" + baseUrl + "/dist/vendor.css' /></HEAD><BODY class='m-2' id='body'>" + report;
+        if (title === undefined) title = "EPPI-Reviewer Coding Report";
+        let res = "<HTML id='content'><HEAD><title>" + title + "</title><link rel='stylesheet' href='" + baseUrl + "/dist/vendor.css' />"; 
+        if (addExcelStyleHack) res += "<style type='text/css'> br { mso-data-placement: same-cell;} </style>"
+        res += "</HEAD><BODY class='m-2' id='body'>" + report;
         //res += "<br /><a download='report.html' href='data:text/html;charset=utf-8," + report + "'>Save...</a></BODY></HTML>";
         //res += "<br />" + this.AddSaveMe() + "</BODY></HTML>";
         res += "</BODY></HTML>";

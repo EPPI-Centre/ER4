@@ -6,9 +6,8 @@
 			<select class="col-9 form-control mb-1"
 					[(ngModel)]="ReportCommonParams.itemsChoice"
 					(change)="ItemsChoiceChange()">
-				<option>All selected items</option>
-				<option hidden>All included items</option>
-				<option>Items with this code</option>
+				<option [disabled]="!HasSelectedItems" [selected]="ReportCommonParams.itemsChoice == 'All selected items'">All selected items</option>
+				<option [selected]="ReportCommonParams.itemsChoice == 'Items with this code'">Items with this code</option>
 			</select>
 		</div>
 		<div class="row col-12 m-0 p-0" *ngIf="ShowCodeTree" ngbDropdown style="min-width:190px;">
@@ -49,9 +48,9 @@
 				<ng-template kendoTabContent>
                     <div class="row col-12 px-0 mx-0">
                         <div class="row col-12">
-                            <div class="col-sm-auto pl-0 mt-2 font-weight-bold">Report Name:</div>
-                            <div class="col-sm-auto">
-                                <select class="col-12 col-md-5 form-control mb-1" style="min-width:190px;"
+                            <div class="pl-0 mt-2 font-weight-bold mr-1">Report Name:</div>
+                            <div class="col">
+                                <select class="form-control mb-1" style="min-width:190px;"
                                         (change)="ChangedReport(item)"
                                         [ngClass]="{'font-weight-light alert-warning' : (!ReportStandard.report || ReportStandard.report == '[Please select...]' || ReportStandard.report.reportId == undefined )}"
                                         [(ngModel)]="ReportStandard.report">
@@ -144,10 +143,10 @@
 			</kendo-tabstrip-tab>
 			<kendo-tabstrip-tab [title]="'Risk Of Bias'">
                 <ng-template kendoTabContent>
-                    <div class="row col-12">
+                    <div class="row col-12 px-0 mx-0">
                         <div class="row col-12">
-                            <div class="col-sm-auto pl-0 mt-2 font-weight-bold">Report Name:</div>
-                            <div class="col-sm-auto">
+                            <div class="pl-0 mt-2 font-weight-bold mr-1">Report Name:</div>
+                            <div class="col">
                                 <select class="form-control mb-1" style="min-width:190px;"
                                         (change)="ChangedReport(item)"
                                         [ngClass]="{'font-weight-light alert-warning' : (!ReportRiskOfBias.report || ReportRiskOfBias.report == '[Please select...]' || ReportRiskOfBias.report.reportId == undefined )}"
@@ -203,10 +202,10 @@
 			</kendo-tabstrip-tab>
 			<kendo-tabstrip-tab [title]="'Outcomes'">
                 <ng-template kendoTabContent>
-                    <div class="row col-12">
-                        <div class="row">
+                    <div class="row col-12 px-0 mx-0">
+                        <div class="row col-12">
                             <div class="col-sm-auto mt-2 font-weight-bold">Report Name:</div>
-                            <div class="col-sm-auto">
+                            <div class="col">
                                 <select class="form-control mb-1" style="min-width:190px;"
                                         (change)="ChangedReport(item)"
                                         [ngClass]="{'font-weight-light alert-warning' : (!ReportOutcomes.report || ReportOutcomes.report == '[Please select...]' || ReportOutcomes.report.reportId == undefined )}"

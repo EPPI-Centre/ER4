@@ -34,6 +34,8 @@ import { FetchReadOnlyReviewsComponent } from '../readonlyreviews/readonlyreview
 import { MAGRelatedRunsService } from '../services/MAGRelatedRuns.service';
 import { ReviewInfoService } from '../services/ReviewInfo.service';
 import { MAGBrowserHistoryService } from '../services/MAGBrowserHistory.service';
+import { SetupConfigurableReports } from '../Reports/SetupConfigurableReports.component';
+import { FreqXtabMapsComp } from '../Frequencies/FreqXtabMaps.component';
 //import { AdvancedMAGFeaturesComponent } from '../MAG/AdvancedMAGFeatures.component';
 
 
@@ -88,12 +90,14 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
     @ViewChild('tabstrip') public tabstrip!: TabStripComponent;
     @ViewChild('ItemList') ItemListComponent!: ItemListComp;
     @ViewChild('FreqComp') FreqComponent!: frequenciesComp;
+    @ViewChild('FreqXtabMapsComp') FreqXtabMapsComp!: FreqXtabMapsComp;
     @ViewChild('CrosstabsComp') CrosstabsComponent!: CrossTabsComp;
 	@ViewChild('SearchComp') SearchComp!: SearchComp;
 	@ViewChild('ComparisonComp') ComparisonComp!: ComparisonComp;
 	@ViewChild('CodeTreeAllocate') CodeTreeAllocate!: codesetSelectorComponent;
     @ViewChild('CodingToolTreeReports') CodingToolTree!: codesetSelectorComponent;
     @ViewChild(FetchReadOnlyReviewsComponent) private ReadOnlyReviewsComponent!: FetchReadOnlyReviewsComponent;
+    @ViewChild(SetupConfigurableReports) private SetupConfigurableReports!: SetupConfigurableReports; 
     //@ViewChild('AdvancedMAG') AdvancedMAG!: AdvancedMAGFeaturesComponent;
 
 	public DropdownSelectedCodeAllocate: singleNode | null = null;
@@ -109,11 +113,52 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
     public CodesAreCollapsed: boolean = true;
     public DropDownAllocateAtt: SetAttribute = new SetAttribute();
     public isCollapsedCodeAllocate: boolean = false;
+    private _ShowQuickReport: boolean = false;
+    public ShowClusterCommand: boolean = false;
+    public HelpAndFeebackContext: string = "main\\reviewhome";
+    private ListSubType: string = '';
 
     public ShowPrintCodeset: boolean = false;
     public printCsetShowIds: boolean = true;
     public printCsetShowDescriptions: boolean = false;
     public printCsetShowTypes: boolean = false;
+    public reportsShowWhat: string = "AllFreq";
+
+    ngOnInit() {
+
+        this._eventEmitter.CloseReportsSectionEmitter.subscribe(
+            () => {
+                this.CloseReportsSection();
+            }
+        )
+        this._eventEmitter.PleaseSelectItemsListTab.subscribe(
+            () => {
+                this.tabstrip.selectTab(1);
+            }
+        )
+        this._eventEmitter.criteriaComparisonChange.subscribe(
+            (item: Comparison) => {
+                this.LoadComparisonList(item, this.ListSubType);
+            }
+        )
+        this._eventEmitter.criteriaMAGChange.subscribe(
+            (item: any) => {
+                this.router.navigate(['Main']);
+                this.GoToItemList();
+                this.LoadMAGAllocList(item);
+            }
+
+        )
+        this.subOpeningReview = this._eventEmitter.OpeningNewReview.subscribe(() => this.Reload());
+        this.statsSub = this.reviewSetsService.GetReviewStatsEmit.subscribe(
+            () => this.GetStats()
+        );
+        if (this.codesetStatsServ.ReviewStats.itemsIncluded == -1
+            || (this.reviewSetsService.ReviewSets == undefined && this.codesetStatsServ.tmpCodesets == undefined)
+            || (this.reviewSetsService.ReviewSets.length > 0 && this.codesetStatsServ.tmpCodesets.length == 0)
+        ) this.Reload();
+
+    }
 
     public get IsServiceBusy(): boolean {
         //console.log("mainfull IsServiceBusy", this.ItemListService, this.codesetStatsServ, this.SourcesService )
@@ -206,16 +251,29 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 		console.log('EXPORT REFERENCES FUNCTION, report: ', dataURI);
 	}
 	exportAsXLSX(report: string[]): void {
-
-		this.excelService.exportAsExcelFile(report, 'test');
+		this.excelService.exportAsExcelFile(report, 'ItemsList');
 
 	}
-    public ItemsWithThisCodeDDData: Array<any> = [{
-        text: 'With this Code (Excluded)',
-        click: () => {
-            this.ListItemsWithThisCode(false);
+    public ItemsWithThisCodeDDData: Array<any> = [
+        {
+            text: 'With this Code (Excluded)',
+            click: () => {
+                this.ListItemsWithWithoutThisCode(false, true);
+            }
+        },
+        {
+            text: 'Without this Code ',
+            click: () => {
+                this.ListItemsWithWithoutThisCode(true, false);
+            }
+        },
+        {
+            text: 'Without this Code (Excluded)',
+            click: () => {
+                this.ListItemsWithWithoutThisCode(false, false);
+            }
         }
-    }];
+    ];
     public AddRemoveItemsDDData: Array<any> = [{
         text: 'Remove code from selection',
         click: () => {
@@ -299,7 +357,6 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         }
     }];
 
-    private _ShowQuickReport: boolean = false;
     public get ShowQuickReport(): boolean {
         
         return this._ShowQuickReport;
@@ -352,8 +409,6 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         ) return true;
         return false;
     }
-    public ShowClusterCommand: boolean = false;
-    public HelpAndFeebackContext: string = "main\\reviewhome";
 
     public get IsSiteAdmin(): boolean {
         //console.log("Is it?", this.ReviewerIdentityServ.reviewerIdentity
@@ -447,12 +502,13 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 		}
 	}
 	public AllocateChoice: string = '';
-	public AllIncOrExcShow: boolean = false;
-	public RunReportsShow: boolean = false;
+    public AllIncOrExcShow: boolean = false;
+    public RunReportsShow: boolean = false;
+    public RunReportsShow2: boolean = false;
 	public AssignDocs: string = 'true';
 
 	public CloseReportsSection() {
-
+        this.RunReportsShow2 = false;
 		this.RunReportsShow = false;
 	}
 
@@ -460,9 +516,9 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         this.router.navigate(['WebDBs']);
     }
 
-	public GetReports() {
-
-		this.configurablereportServ.FetchReports();
+	public GetReports(force: boolean = false) {
+        if (force || this.configurablereportServ.Reports.length == 0)
+            this.configurablereportServ.FetchReports();
 	}
 	public RunConfigurableReports() {
 
@@ -476,46 +532,29 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 
 			this.RunReportsShow = false;
 		}
-	}
+    }
+    public RunConfigurableReports2() {
+        this.RunReportsShow2 = !this.RunReportsShow2;
+    }
+    public get CanGetFrequencies(): boolean {
+        if (!this.FreqXtabMapsComp || this.selectedNode == null) return false;
+        else {
+            return this.FreqXtabMapsComp.canSetCode();
+        }
+    }
+    public GetFrequencies() {
+        if (!this.FreqXtabMapsComp || this.selectedNode == null) return;
+        else {
+            this.FreqXtabMapsComp.Clear();
+            this.FreqXtabMapsComp.selectedNodeDataY = this.selectedNode;
+            this.reportsShowWhat = 'AllFreq';
+            this.FreqXtabMapsComp.fetchFrequencies(this.selectedNode, null);
+            this.tabstrip.selectTab(2);
+        }
+    }
+
 	public CloseSection() {
-
 		this.AllIncOrExcShow = false;
-	}
-	private ListSubType: string = '';
-	ngOnInit() {
-
-		this._eventEmitter.CloseReportsSectionEmitter.subscribe(
-			() => {
-				this.CloseReportsSection();
-			}
-		)
-        this._eventEmitter.PleaseSelectItemsListTab.subscribe(
-            () => {
-                this.tabstrip.selectTab(1);
-            }
-		)
-		this._eventEmitter.criteriaComparisonChange.subscribe(
-			(item: Comparison) => {
-				this.LoadComparisonList(item, this.ListSubType);
-			}
-        )
-        this._eventEmitter.criteriaMAGChange.subscribe(
-            (item: any) => {
-                this.router.navigate(['Main']);
-                this.GoToItemList();
-                this.LoadMAGAllocList(item);
-            }
-
-        )
-        this.subOpeningReview = this._eventEmitter.OpeningNewReview.subscribe(() => this.Reload());
-        this.statsSub = this.reviewSetsService.GetReviewStatsEmit.subscribe(
-            () => this.GetStats()
-        );
-        if (this.codesetStatsServ.ReviewStats.itemsIncluded == -1
-            || (this.reviewSetsService.ReviewSets == undefined && this.codesetStatsServ.tmpCodesets == undefined)
-            || (this.reviewSetsService.ReviewSets.length > 0 && this.codesetStatsServ.tmpCodesets.length == 0)
-        ) this.Reload();
-        
 	}
 	public LoadComparisonList(comparison: Comparison, ListSubType: string) {
 
@@ -583,7 +622,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
     NewReference() {
         this.router.navigate(['EditItem'], { queryParams: { return: 'Main' } });
     }
-    ListItemsWithThisCode(Included: boolean) {
+    ListItemsWithWithoutThisCode(Included: boolean, withThisCode: boolean) {
         if (!this.selectedNode || this.selectedNode.nodeType != "SetAttribute") return;
         let CurrentAtt = this.selectedNode as SetAttribute;
         if (!CurrentAtt) return;
@@ -591,17 +630,31 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         cr.onlyIncluded = Included;
         cr.showDeleted = false;
         cr.pageNumber = 0;
+        cr.showInfoColumn = true;
         let ListDescription: string = "";
-        if (Included) ListDescription = CurrentAtt.attribute_name + ".";
-        else ListDescription = CurrentAtt.attribute_name + " (excluded).";
-        cr.attributeid = CurrentAtt.attribute_id;
+        if (withThisCode) {
+            //with this code
+            if (Included) ListDescription = CurrentAtt.attribute_name + ".";
+            else ListDescription = CurrentAtt.attribute_name + " (excluded).";
+            cr.listType = "StandardItemList";
+            cr.attributeid = CurrentAtt.attribute_id;
+            cr.showInfoColumn = true;
+        } else {
+            //without this code
+            if (Included) ListDescription = "Without code: " + CurrentAtt.attribute_name + ".";
+            else ListDescription = "Without code: " + CurrentAtt.attribute_name + " (excluded).";
+            cr.listType = "ItemListWithoutAttributes";
+            cr.attributeid = 0;
+            cr.attributeSetIdList = CurrentAtt.attributeSetId.toString();
+            cr.showInfoColumn = false;
+        }
         cr.sourceId = 0;
-        cr.listType = "StandardItemList";
         cr.attributeSetIdList = CurrentAtt.attributeSetId.toString();
         this.ItemListService.FetchWithCrit(cr, ListDescription);
         this.tabstrip.selectTab(1);
         //this._eventEmitter.PleaseSelectItemsListTab.emit();
-	}
+    }
+    
 	BulkAssignRemoveCodesToSearches(IsBulkAssign: boolean) {
 
 		//alert(this.searchService.SearchList.filter(x => x.add == true).length);
@@ -882,11 +935,16 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 			this.ShowItemsTable = true;
 			this.ShowSearchesAssign = false;
         }
-        else if (e.title == 'Frequencies') {
-            this.HelpAndFeebackContext = "main\\frequencies";
-			this.ShowItemsTable = false;
-			this.ShowSearchesAssign = false;
+        else if (e.title == 'Reports') {
+            this.HelpAndFeebackContext = "main\\reports";
+            this.ShowItemsTable = false;
+            this.ShowSearchesAssign = false;
         }
+        //else if (e.title == 'Frequencies') {
+        //    this.HelpAndFeebackContext = "main\\frequencies";
+        //    this.ShowItemsTable = false;
+        //    this.ShowSearchesAssign = false;
+        //}
         else if (e.title == 'Crosstabs') {
             this.HelpAndFeebackContext = "main\\crosstabs";
 			this.ShowItemsTable = false;
@@ -930,6 +988,8 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         //else console.log("work allocs comp is undef :-(");
         if (this.ItemListService.ListCriteria && this.ItemListService.ListCriteria.listType == "") 
             this.IncludedItemsListNoTabChange();
+        setTimeout(() => {this.GetReports(true);}, 1000);//always get reports list, but we can wait 1s before doing so...
+        
     }
     //GetStatsFromSubscription() {
     //    //we unsubscribe here as we won't use this again.
@@ -954,7 +1014,9 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 		this.SourcesService.Clear();
 		this.workAllocationListService.Clear();
         this.DuplicatesService.Clear();
+        this.configurablereportServ.Clear(); FreqXtabMapsComp
         if (this.FreqComponent) this.FreqComponent.Clear();
+        if (this.FreqXtabMapsComp) this.FreqXtabMapsComp.Clear();
 		if (this.CrosstabsComponent) this.CrosstabsComponent.Clear();
 		if (this.workAllocationCollaborateComp) {
 			//console.log('this comp exists');
@@ -967,6 +1029,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 			this.ComparisonComp.Clear();
         }
         if (this.ReadOnlyReviewsComponent) this.ReadOnlyReviewsComponent.Clear();
+        if (this.SetupConfigurableReports) this.SetupConfigurableReports.Clear();
         this.isReviewPanelCollapsed = false;
         this.isWorkAllocationsPanelCollapsed = false;
         this.isSourcesPanelVisible = false;
@@ -978,6 +1041,8 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         this._ShowQuickQuestionReport = false;
         this._ShowQuickQuestionReport = false;
         this._ShowQuickQuestionReport = false;
+        this.reportsShowWhat = "AllFreq";
+        this.RunReportsShow2 = false;
         //this.dtTrigger.unsubscribe();
         //if (this.statsSub) this.statsSub.unsubscribe();
         //this.statsSub = this.reviewSetsService.GetReviewStatsEmit.subscribe(

@@ -470,14 +470,14 @@ namespace WebDatabasesMVC.Controllers
             return new ItemListWithCriteria { items = res, criteria = new SelCritMVC(crit)   };
         }
 
-
-        public IActionResult ItemDetails([FromForm] long itemId)
+        [HttpPost]
+        public IActionResult ItemDetails(ItemSelCritMVC crit)
         {
             try
             {
                 if (SetCSLAUser())
                 {
-                    FullItemDetails Itm = GetItemDetails(itemId);
+                    FullItemDetails Itm = GetItemDetails(crit);
                     return View(Itm);
                 }
                 else return Unauthorized();
@@ -488,13 +488,14 @@ namespace WebDatabasesMVC.Controllers
                 return StatusCode(500, e.Message);
             }
         }
-        public IActionResult ItemDetailsJSON([FromForm] long itemId)
+        [HttpPost]
+        public IActionResult ItemDetailsJSON(ItemSelCritMVC crit)
         {//we provide all items details in a single JSON method, as it makes no sense to get partial item details, so without Arms, Docs, etc.
             try
             {
                 if (SetCSLAUser())
                 {
-                    FullItemDetails Itm = GetItemDetails(itemId);
+                    FullItemDetails Itm = GetItemDetails(crit);
                     return Json(Itm);
                 }
                 else return Unauthorized();
@@ -505,22 +506,24 @@ namespace WebDatabasesMVC.Controllers
                 return StatusCode(500, e.Message);
             }
         }
-        internal FullItemDetails GetItemDetails(long ItemId)
+        internal FullItemDetails GetItemDetails(ItemSelCritMVC crit)
         {
-            Item itm = DataPortal.Fetch<Item>(new SingleCriteria<Item, Int64>(ItemId));
-            ItemArmList arms = DataPortal.Fetch<ItemArmList>(new SingleCriteria<Item, Int64>(ItemId));
+            Item itm = DataPortal.Fetch<Item>(new SingleCriteria<Item, Int64>(crit.itemID));
+            ItemArmList arms = DataPortal.Fetch<ItemArmList>(new SingleCriteria<Item, Int64>(crit.itemID));
             itm.Arms = arms;
-            ItemTimepointList timepoints = DataPortal.Fetch<ItemTimepointList>(new SingleCriteria<Item, Int64>(ItemId));
-            ItemDocumentList docs = DataPortal.Fetch<ItemDocumentList>(new SingleCriteria<ItemDocumentList, Int64>(ItemId));
-            ReadOnlySource ros = DataPortal.Fetch<ReadOnlySource>(new SingleCriteria<ReadOnlySource, long>(ItemId));
-            ItemDuplicatesReadOnlyList dups = DataPortal.Fetch<ItemDuplicatesReadOnlyList>(new SingleCriteria<ItemDuplicatesReadOnlyList, long>(ItemId));
+            ItemTimepointList timepoints = DataPortal.Fetch<ItemTimepointList>(new SingleCriteria<Item, Int64>(crit.itemID));
+            ItemDocumentList docs = DataPortal.Fetch<ItemDocumentList>(new SingleCriteria<ItemDocumentList, Int64>(crit.itemID));
+            ReadOnlySource ros = DataPortal.Fetch<ReadOnlySource>(new SingleCriteria<ReadOnlySource, long>(crit.itemID));
+            ItemDuplicatesReadOnlyList dups = DataPortal.Fetch<ItemDuplicatesReadOnlyList>(new SingleCriteria<ItemDuplicatesReadOnlyList, long>(crit.itemID));
             FullItemDetails res = new FullItemDetails
             {
                 Item = itm,
                 Documents = docs,
                 Timepoints = timepoints,
                 Duplicates = dups,
-                Source = ros
+                Source = ros,
+                ListCrit = crit as SelCritMVC,
+                ItemIds = crit.itemIds
             };
             return res;
         }
@@ -561,7 +564,7 @@ namespace WebDatabasesMVC.Controllers
             searchString = CSLAcrit.SearchString;
             searchWhat = CSLAcrit.SearchWhat;
         }
-        public bool onlyIncluded { get; set; }
+        public bool? onlyIncluded { get; set; }
         public bool showDeleted { get; set; }
         public int sourceId { get; set; }
         public int searchId { get; set; }
@@ -631,5 +634,9 @@ namespace WebDatabasesMVC.Controllers
         }
     }
 
-    
+    public class ItemSelCritMVC: SelCritMVC
+    {
+        public long itemID { get; set; }
+        public string itemIds { get; set; }
+    }
 }

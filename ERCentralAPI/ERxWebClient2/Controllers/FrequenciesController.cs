@@ -28,7 +28,7 @@ namespace ERxWebClient2.Controllers
         { }
 
         [HttpPost("[action]")]
-        public IActionResult GetFrequencies([FromBody] Criteria data)
+        public IActionResult GetFrequencies([FromBody] FrequenciesCriteria data)
         {
 
 			Type type = null;
@@ -58,11 +58,11 @@ namespace ERxWebClient2.Controllers
 }
 
 
-public class Criteria
+public class FrequenciesCriteria
 {
 	public string AttributeId { get; set; }
 	public string SetId { get; set; }
-	public bool Included { get; set; }
+	public bool? Included { get; set; }
 	public int FilterAttributeId { get; set; } 
 	
 }

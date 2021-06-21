@@ -104,12 +104,6 @@
                                     <kendo-toolbar-button [text]="'Run Reports'"
                                                           (click)="RunConfigurableReports()">
                                     </kendo-toolbar-button>
-                                    <!--<kendo-toolbar-button *ngIf="ReviewIsMagEnabled" [text]="'MAG'"
-                          (click)="OpenBasicMAG()">
-    </kendo-toolbar-button>-->
-                                    <!--<kendo-toolbar-button *ngIf="ReviewIsMagEnabled" [text]="'MAG'"
-                          (click)="OpenMAG()">
-    </kendo-toolbar-button>-->
                                 </kendo-toolbar>
 
                             </div>
@@ -182,16 +176,32 @@
                             </div>
                         </ng-template>
                     </kendo-tabstrip-tab>
-                    <kendo-tabstrip-tab [title]="'Frequencies'">
+                    <kendo-tabstrip-tab [title]="'Reports'">
                         <ng-template kendoTabContent>
-                            <frequencies #FreqComp></frequencies>
+                            <div class="containsAtoolbar mb-1">
+                                <kendo-toolbar class="">
+                                    <kendo-toolbar-buttongroup selection="single">
+                                        <kendo-toolbar-button [toggleable]="true" [text]="'Frequencies and crosstabs'" (click)="reportsShowWhat = 'AllFreq'" [selected]="reportsShowWhat == 'AllFreq'" text></kendo-toolbar-button>
+                                        <kendo-toolbar-button [toggleable]="true" [text]="'Configurable reports'" (click)="reportsShowWhat = 'ReportsCfg'" [selected]="reportsShowWhat == 'ReportsCfg'">Configurable reports</kendo-toolbar-button>
+                                        
+                                    </kendo-toolbar-buttongroup>
+                                    <kendo-toolbar-button [toggleable]="true" [text]="'Run Reports'" [iconClass]="RunReportsShow2 ? 'k-icon k-i-arrow-chevron-up ml-0 mr-0' : 'k-icon k-i-arrow-chevron-down ml-0 mr-0'" (click)="RunConfigurableReports2()" [selected]="RunReportsShow2" text></kendo-toolbar-button>
+                                </kendo-toolbar>
+                            </div>
+                            <div  *ngIf="RunReportsShow2" class="rounded alert alert-info col-12 d-flex container px-1"
+                                 style="min-width:500px;overflow:auto;">
+                                <configurablereport></configurablereport>
+                            </div>
+                            <FreqXtabMaps [hidden]="reportsShowWhat !== 'AllFreq'" #FreqXtabMapsComp></FreqXtabMaps>
+                            <SetupConfigurableReports [hidden]="reportsShowWhat !== 'ReportsCfg'" #SetupConfigurableReports></SetupConfigurableReports>
+                            <!--<frequencies *ngIf="reportsShowWhat == 'OnlyFreq'" #FreqComp></frequencies>-->
                         </ng-template>
                     </kendo-tabstrip-tab>
-                    <kendo-tabstrip-tab [title]="'Crosstabs'">
+                    <!--<kendo-tabstrip-tab [title]="'Crosstabs'">
                         <ng-template kendoTabContent>
                             <crosstab #CrosstabsComp></crosstab>
                         </ng-template>
-                    </kendo-tabstrip-tab>
+                    </kendo-tabstrip-tab>-->
                     <kendo-tabstrip-tab [title]="'Search & Classify'">
                         <ng-template kendoTabContent>
                             <SearchComp #SearchComp class="bg-light" (PleaseOpenTheCodes)="OpenCodesPanel()"></SearchComp>
@@ -245,7 +255,7 @@
                 </button>-->
                 <div class="k-block containsAtoolbar p-0" look="outline">
                     <button kendoButton class="my-1 ml-1 mr-0" (click)="EditCodeSets()">Edit Tools</button>
-                    <kendo-splitbutton [text]="'With this Code'" (buttonClick)="ListItemsWithThisCode(true)"
+                    <kendo-splitbutton [text]="'With this Code'" (buttonClick)="ListItemsWithWithoutThisCode(true, true)"
                                        [disabled]="!CanGetItemsWithThisCode"
                                        [data]="ItemsWithThisCodeDDData"
                                        class="my-1 ml-1 mr-0"
@@ -261,6 +271,9 @@
                                        [data]="AddRemoveSearchesDDData"
                                        class="my-1 ml-1 mr-0"
                                        style="border-color: #04070b;background-color: #e1e4eb;"></kendo-splitbutton>
+                    <button kendoButton class="my-1 ml-1 mr-0" title="Get Frequencies (for children of currently selected code)" (click)="GetFrequencies()" [disabled]="!CanGetFrequencies">
+                        <i class="fa fa-bar-chart my-1" style="transform: rotate(90deg) scaleX(-1)"></i>
+                    </button>
                     <button kendoButton class="my-1 ml-1 mr-0" *ngIf="!IsServiceBusy" title="Refresh Coding Tools" (click)="RefreshCodingTools()">
                         <i class="fa fa-refresh my-1" aria-hidden="true"></i>
                     </button>

@@ -27,20 +27,20 @@ export class ConfigurableReportService extends BusyAwareService {
 	}
 	private clearSub: Subscription | null = null;
 	public reportHTML: string = '';
-    private _ReportList: Report[] = [];
-	public get Reports(): Report[] | null {
+	private _ReportList: iConfigurableReport[] = [];
+	public get Reports(): iConfigurableReport[]  {
 		return this._ReportList;
 	}
-	public get ReportCollectionROB(): Report[] | null {
+	public get ReportCollectionROB(): iConfigurableReport[] | null {
 		return this._ReportList.filter(x => x.reportType == 'Question');
 	}
-	public get ReportCollectionOutcomes(): Report[] | null {
+	public get ReportCollectionOutcomes(): iConfigurableReport[] | null {
 		return this._ReportList.filter(x => x.reportType == 'Answer');
 	}  
 	public FetchReports() {
 
 		this._BusyMethods.push("FetchReports");
-		this._httpC.get<Report[]>(this._baseUrl + 'api/ReportList/FetchReports')
+		this._httpC.get<iConfigurableReport[]>(this._baseUrl + 'api/ReportList/FetchReports')
 			.subscribe(result => {
 
 				this._ReportList = result;
@@ -130,9 +130,106 @@ export class ConfigurableReportService extends BusyAwareService {
 		);
 	}
 
+	CreateReport(rep: iConfigurableReport): Promise<iConfigurableReport | null> {
+		this._BusyMethods.push("CreateReport");
+
+		//console.log("saving reviewSet via command", rs, rsC);
+		return this._httpC.post<iConfigurableReport>(this._baseUrl + 'api/ReportList/CreateReport', rep).toPromise().then((res: iConfigurableReport) => {
+			this.Reports.push(res);			
+			this.RemoveBusy("CreateReport");
+			return res;
+		},
+			(err) => {
+				console.log("Error Creating Report:", err);
+				this.RemoveBusy("CreateReport");
+				this.modalService.GenericError(err);
+				return null;
+			});
+	}
+
+	UpdateReport(rep: iConfigurableReport) {
+		this._BusyMethods.push("UpdateReport");
+		
+		//console.log("saving reviewSet via command", rs, rsC);
+		return this._httpC.post<iConfigurableReport>(this._baseUrl + 'api/ReportList/UpdateReport', rep).subscribe((res) => {
+			let ind = this.Reports.findIndex(f => f.reportId == res.reportId)
+			if (ind == -1) {
+				this.Reports.push(res);
+			}
+			else {
+				this.Reports.splice(ind, 1, res);
+            }
+
+			this.RemoveBusy("UpdateReport");
+		},
+			(err) => {
+				console.log("Error Updating Report:", err);
+				this.RemoveBusy("UpdateReport");
+				this.modalService.GenericError(err);
+			});
+	}
+	DeleteReport(rep: iConfigurableReport) {
+		if (rep.reportId < 1) return;
+		let body = JSON.stringify({ Value: rep.reportId });
+		this._BusyMethods.push("DeleteReport");
+		//console.log("saving reviewSet via command", rs, rsC);
+		return this._httpC.post<void>(this._baseUrl + 'api/ReportList/DeleteReport', body).subscribe(() => {
+			let ind = this.Reports.findIndex(f => f.reportId == rep.reportId)
+			if (ind !== -1) {
+				this.Reports.splice(ind, 1);
+			}
+			this.RemoveBusy("DeleteReport");
+		},
+			(err) => {
+				console.log("Error deleting Report:", err);
+				this.RemoveBusy("DeleteReport");
+				this.modalService.GenericError(err);
+			});
+	}
+
 	public Clear() {
 		this.reportHTML = '';
 		this._ReportList = [];
+	}
+	public static CloneReport(rep: iConfigurableReport): iConfigurableReport {
+		let cols: iReportColumn[] = []
+		for (let inCol of rep.columns) {
+			let codes: iReportColumnCode[] = [];
+			for (let cCode of inCol.codes) {
+				let code: iReportColumnCode = {
+					attributeId: cCode.attributeId,
+					codeOrder: cCode.codeOrder,
+					displayAdditionalText: cCode.displayAdditionalText,
+					displayCode: cCode.displayCode,
+					displayCodedText: cCode.displayCodedText,
+					parentAttributeId: cCode.parentAttributeId,
+					parentAttributeText: cCode.parentAttributeText,
+					reportColumnCodeId: cCode.reportColumnCodeId,
+					reportColumnId: cCode.reportColumnId,
+					setId: cCode.setId,
+					userDefText: cCode.userDefText,
+				}
+				codes.push(code);
+			}
+			let column: iReportColumn = {
+				codes: codes,
+				columnOrder: inCol.columnOrder,
+				name: inCol.name,
+				reportColumnId: inCol.reportColumnId
+			}
+			cols.push(column)
+        }
+		let res: iConfigurableReport = {
+			name: rep.name,
+			reportId: rep.reportId,
+			contactId: rep.contactId,
+			contactName: rep.contactName,
+			isAnswer: rep.isAnswer,
+			reportType: rep.reportType,
+			//detail: string;
+			columns: cols
+		}
+		return res;
     }
 }
 
@@ -142,13 +239,35 @@ export interface ReportResult
 
 }
 
-export interface Report {
-
+export interface iConfigurableReport {
 	name: string;
 	reportId: number;
 	contactId: number;
+	contactName: string;
+	isAnswer: boolean;
 	reportType: string;
+	//detail: string;
+	columns: iReportColumn[];
+}
 
+export interface iReportColumn {
+	codes: iReportColumnCode[];
+	columnOrder: number;
+	name: string;
+	reportColumnId: number;
+}
+export interface iReportColumnCode {
+	attributeId: number;
+	codeOrder: number;
+	displayAdditionalText: boolean;
+	displayCode: boolean;
+	displayCodedText: boolean;
+	parentAttributeId: number;
+	parentAttributeText: string;
+	reportColumnCodeId: number;
+	reportColumnId: number;
+	setId: number;
+	userDefText: string;
 }
 
 export class ReportStandard {
@@ -159,7 +278,7 @@ export class ReportStandard {
 	showYear: boolean = false;
 	showShortTitle: boolean = true;
 	reportId: number = 0;
-	report: Report = {} as Report;
+	report: iConfigurableReport = {} as iConfigurableReport;
 	showItemId: boolean = false;
 	showOldItemId: boolean = false;
 	showOutcomes: boolean = false;
@@ -179,7 +298,7 @@ export class ReportOutcomes {
 	reportType: string = '';
 	codes: string = '';
 	reportId: number = 0;
-	report: Report = {} as Report;
+	report: iConfigurableReport = {} as iConfigurableReport;
 	showItemId: boolean = false; 
 	showOldItemId: boolean = false; 
 	showOutcomes: boolean = false; 
@@ -199,7 +318,7 @@ export class ReportRiskOfBias {
 	showYear: boolean = false;
 	showShortTitle: boolean = true;
 	reportId: number = 0;
-	report: Report = {} as Report;
+	report: iConfigurableReport = {} as iConfigurableReport;
 	showItemId: boolean = false;
 	showOldID: boolean = false;
 	showOutcomes: boolean = false;

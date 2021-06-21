@@ -68,7 +68,7 @@ export class WebDBsComponent implements OnInit, OnDestroy, AfterViewInit {
 		, maxFileSize: 1024000
 	};
 	public ImageSizeError: string = "";
-	public isUploadImage1: boolean = true;
+	public UploadImageNumber: number = 1;
 	public ShowUpload: boolean = false;
 	public get MissingAttributes(): MissingAttribute[] {
 		return this.WebDBService.MissingAttributes;
@@ -345,7 +345,7 @@ export class WebDBsComponent implements OnInit, OnDestroy, AfterViewInit {
 		if (this.EditingDB && this.EditingDB.webDBId > 0 && this.ImageToUploadisGood) {
 			e.data = {
 				webDbId: this.EditingDB.webDBId,
-				imageNumber: this.isUploadImage1 ? 1 : 2
+				imageNumber: this.UploadImageNumber
 			};
 			//console.log("uploading", e.data);
 		} else {

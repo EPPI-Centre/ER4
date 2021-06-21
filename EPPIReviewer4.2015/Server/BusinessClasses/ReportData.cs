@@ -673,8 +673,7 @@ namespace BusinessLibrary.BusinessClasses
             string res = "<HTML><head><title>" + ReportName 
                 + "</title>";
             string commonstyle = @"<style>
-                                   
-                                    
+                                    br { mso-data-placement: same-cell;}  p {margin-bottom: 0.1em;}                               
                                    </style>";
             res += commonstyle +"</head><body>";
             //1. Rep header: title (and columns, if it's horizontal)
@@ -682,21 +681,21 @@ namespace BusinessLibrary.BusinessClasses
 
             if (IsHorizontal && !ShowRiskOfBias)
             {
-                res += "<table border='1' Style='width:100%' Cellpadding='33'><tr>";
+                res += "<table border='1' Style='width:100%; border-collapse:collapse;' Cellpadding='33'><tr>";
                 int smallcolumnscount = (ShowItemId ? 1 : 0) + (ShowOldItemId ? 1 : 0) ;
                 int columnscount = 2 * ReportColumns.Count + smallcolumnscount;
-                string shortSyle = " Style='width:" + (93/columnscount).ToString() +"%'";
-                string longSyle = " Style='width:" + (186 / columnscount).ToString() + "%'";
+                string shortSyle = " Style='width:" + (93/columnscount).ToString() + "%; padding: 3px 5px 3px 5px; '";
+                string longSyle = " Style='width:" + (186 / columnscount).ToString() + "%; padding: 3px 5px 3px 5px; '";
 
-                if (ShowItemId) res += "<th Style='width:7%'><p style='margin-left:5px; margin-right:5px;'>Item ID</p></th>";
-                if (ShowOldItemId) res += "<th" + shortSyle + "><p style='margin-left:5px; margin-right:5px;'>Imported Id</p></th>";
-                if (ShowShortTitle) res += "<th" + shortSyle + "><p style='margin-left:5px; margin-right:5px;'>Short Title</p></th>";
-                if (ShowFullTitle) res += "<th" + shortSyle + "><p style='margin-left:5px; margin-right:5px;'>Title</p></th>";
-                if (ShowYear) res += "<th" + shortSyle + "><p style='margin-left:5px; margin-right:5px;'>Year</p></th>";
-                if (ShowAbstract) res += "<th" + shortSyle + "><p style='margin-left:5px; margin-right:5px;'>Abstract</p></th>";
+                if (ShowItemId) res += "<th Style='width:7%; padding: 3px 5px 3px 5px; '>Item ID</th>";
+                if (ShowOldItemId) res += "<th" + shortSyle + ">Imported Id</th>";
+                if (ShowShortTitle) res += "<th" + shortSyle + ">Short Title</th>";
+                if (ShowFullTitle) res += "<th" + shortSyle + ">Title</th>";
+                if (ShowYear) res += "<th" + shortSyle + ">Year</th>";
+                if (ShowAbstract) res += "<th" + shortSyle + ">Abstract</th>";
                 foreach (ReportColumnData rcd in ReportColumns)
                 {
-                    res += "<th" + longSyle + "><p style='margin-left:5px; margin-right:5px;'>" + rcd.ColumnName + "</p></th>";
+                    res += "<th" + longSyle + ">" + rcd.ColumnName + "</th>";
                 }
                 res += "</tr>";
             }
@@ -739,22 +738,31 @@ namespace BusinessLibrary.BusinessClasses
                 if (IsHorizontal && !ShowRiskOfBias)
                 {
                     ItemRow += "<tr>";
-                    if (ShowItemId) ItemRow += "<td><p style='margin-left:5px; margin-right:5px;'>" + rit.ItemId + "</p></td>";
-                    if (ShowOldItemId) ItemRow += "<td><p style='margin-left:5px; margin-right:5px;'>" + rit.oldItemId + "</p></td>"; 
-                    if (ShowShortTitle) ItemRow += "<td><p style='margin-left:5px; margin-right:5px;'>" + rit.ShortTitle + "</p></td>";
-                    if (ShowFullTitle) ItemRow += "<td><p style='margin-left:5px; margin-right:5px;'>" + rit.FullTitle + "</p></td>";
-                    if (ShowYear) ItemRow += "<td><p style='margin-left:5px; margin-right:5px;'>" + rit.Year + "</p></td>";
-                    if (ShowAbstract) ItemRow += "<td><p style='margin-left:5px; margin-right:5px;'>" + rit.Abstract + "</p></td>";
+                    if (ShowItemId) ItemRow += "<td style='padding: 3px 5px 3px 5px; '>" + rit.ItemId + "</td>";
+                    if (ShowOldItemId) ItemRow += "<td style='padding: 3px 5px 3px 5px; '>" + rit.oldItemId + "</td>"; 
+                    if (ShowShortTitle) ItemRow += "<td style='padding: 3px 5px 3px 5px; '>" + rit.ShortTitle + "</td>";
+                    if (ShowFullTitle) ItemRow += "<td style='padding: 3px 5px 3px 5px; '>" + rit.FullTitle + "/td>";
+                    if (ShowYear) ItemRow += "<td style='padding: 3px 5px 3px 5px; '>" + rit.Year + "</td>";
+                    if (ShowAbstract) ItemRow += "<td style='padding: 3px 5px 3px 5px; '>" + rit.Abstract + "</td>";
                     //ItemRow += "<td><p style='margin-left:5px; margin-right:5px;'>" + rit.ShortTitle + "</p></td>";
                     foreach (ReportColumnData rcd in ReportColumns)
                     {
-                        ItemRow += "<td>";
+                        ItemRow += "<td style='padding: 3px 5px 3px 5px; '>";
+                        bool firstRow = true;
                         foreach (ColumnRow Row in rcd.ColumnRows)
                         {
                             if (rit.ItemColumnsData.ContainsKey(rcd.ColumnId) && rit.ItemColumnsData[rcd.ColumnId].ContainsKey(Row.RowId) && rit.ItemColumnsData[rcd.ColumnId][Row.RowId].Count != 0)
                             {//item has data for this column+row
                                 HasData = true;
-                                ItemRow += "<p style='margin-left:5px; margin-right:5px;'><b>" + Row.RowName + "</b><br>";
+                                if (firstRow)
+                                {
+                                    firstRow = false;
+                                }
+                                else
+                                {//add a trailing <br> before adding new rows within the same cell...
+                                    ItemRow += "<br>";
+                                }
+                                ItemRow += "<b>" + Row.RowName + "</b><br>";
                                 foreach (ReportAttribute ratt in rit.ItemColumnsData[rcd.ColumnId][Row.RowId])
                                 {
                                     //add code name & arm name
@@ -801,8 +809,6 @@ namespace BusinessLibrary.BusinessClasses
                                     }
                                     
                                 } 
-                                ItemRow += "</p>";
-                                    
                             }
                         }
                         ItemRow += "</td>";   
@@ -1016,7 +1022,7 @@ namespace BusinessLibrary.BusinessClasses
             }
             else
             {
-                res += "</table></body></html>";
+                res = res.Replace("<br></td>", "</td>") + "</table></body></html>";
             }
            return res;
         }

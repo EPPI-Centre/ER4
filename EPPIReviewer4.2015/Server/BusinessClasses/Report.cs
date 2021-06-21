@@ -172,7 +172,40 @@ namespace BusinessLibrary.BusinessClasses
         }
 
 #if !SILVERLIGHT
-
+        protected void DataPortal_Fetch(SingleCriteria<int> crit)
+        {
+            Report willBeMe = new Report();
+            ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
+            using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
+            {
+                connection.Open();
+                using (SqlCommand command = new SqlCommand("st_Report", connection))
+                {
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
+                    command.Parameters.Add(new SqlParameter("@REPORT_ID", crit.Value));
+                    using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
+                    {
+                        if (reader.Read())
+                        {
+                            willBeMe = Report.GetReport(reader);
+                            LoadProperty<int>(ReportIdProperty, willBeMe.ReportId);
+                            LoadProperty<string>(NameProperty, willBeMe.Name);
+                            LoadProperty<string>(ContactNameProperty, willBeMe.ContactName);
+                            LoadProperty<string>(ReportTypeProperty, willBeMe.ReportType);
+                            LoadProperty<ReportColumnList>(ColumnsProperty, willBeMe.Columns);
+                            MarkOld();
+                        }
+                        else
+                        {
+                            Exception e = new Exception("Report with id = " + crit.Value + " not found in review " + ri.ReviewId.ToString()  + ".");
+                            throw e;
+                        }
+                    }
+                }
+                connection.Close();
+            }
+        }
         protected override void DataPortal_Insert()
         {
             ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
@@ -204,6 +237,7 @@ namespace BusinessLibrary.BusinessClasses
             int order = 0;
             foreach (ReportColumn rc in this.Columns)
             {
+                if (rc.IsDeleted) continue;
                 int newRcId = WriteColumn(connection, rc, order);
                 int order2 = 0;
                 foreach (ReportColumnCode rcc in rc.Codes)

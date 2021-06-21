@@ -88,8 +88,8 @@ namespace WebDatabasesMVC.Controllers
                             {
                                 long AttId = -1;
                                 if (!reader.IsDBNull("WITH_ATTRIBUTE_ID")) AttId = reader.GetInt64("WITH_ATTRIBUTE_ID");
-                                SetUser(reader["WEBDB_NAME"].ToString(), WebDbId, Revid, AttId);
-                                SetImages(WebDbId, reader);
+                                SetUser(reader["WEBDB_NAME"].ToString(), WebDbId, Revid, AttId, reader);
+                                //SetImages(WebDbId, reader);
                                 return Redirect("~/Review/Index");
                             } 
                             else
@@ -137,8 +137,8 @@ namespace WebDatabasesMVC.Controllers
                             {
                                 long AttId = -1;
                                 if (!reader.IsDBNull("WITH_ATTRIBUTE_ID")) AttId = reader.GetInt64("WITH_ATTRIBUTE_ID");
-                                SetUser(reader["WEBDB_NAME"].ToString(), WebDbId, Revid, AttId);
-                                SetImages(WebDbId, reader);
+                                SetUser(reader["WEBDB_NAME"].ToString(), WebDbId, Revid, AttId, reader);
+                                //SetImages(WebDbId, reader);
                                 return Redirect("~/Review/Index");
                             }
                             else
@@ -169,7 +169,7 @@ namespace WebDatabasesMVC.Controllers
         {
             return Forbid();
         }
-        private void SetUser(string Name, int WebDbID, int revId, long itemsCode)
+        private void SetUser(string Name, int WebDbID, int revId, long itemsCode, SqlDataReader reader)
         {
             var userClaims = new List<Claim>()
             {
@@ -181,9 +181,10 @@ namespace WebDatabasesMVC.Controllers
             };
             var innerIdentity = new ClaimsIdentity(userClaims, "User Identity");
             var userPrincipal = new ClaimsPrincipal(new[] { innerIdentity });
+            SetImages(WebDbID, reader, innerIdentity);
             HttpContext.SignInAsync(userPrincipal);
         }
-        private void SetImages(int WebDbID, SqlDataReader reader)
+        private void SetImages(int WebDbID, SqlDataReader reader, ClaimsIdentity innerIdentity)
         {
             bool todo = false;
             if (reader["HEADER_IMAGE_1"] != DBNull.Value)
@@ -255,6 +256,55 @@ namespace WebDatabasesMVC.Controllers
                         System.IO.File.Delete(filename);
                     }
                     filename = HeaderImagesFolder + @"\Img-" + WebDbID.ToString() + "-2.png";
+                    if (System.IO.File.Exists(filename))
+                    {
+                        System.IO.File.Delete(filename);
+                    }
+                }
+                catch (Exception e)
+                {
+                    _logger.LogError(e, "could not delete file: " + filename);
+                }
+            }
+
+            if (reader["HEADER_IMAGE_3"] != DBNull.Value)
+            {
+                ViewBag.Image3 = true;
+                string filename = HeaderImagesFolder + @"\Img-" + WebDbID.ToString() + "-3." + reader.GetString("HEADER_IMAGE_EXT_3");
+                if (System.IO.File.Exists(filename))
+                {
+                    System.IO.FileInfo fl = new FileInfo(filename);
+                    if (fl.CreationTime < DateTime.Now.AddDays(-1)) todo = true;
+                }
+                else todo = true;
+                if (todo)
+                {
+                    using (var stream = new FileStream(filename, FileMode.OpenOrCreate))
+                    {
+                        byte[] image = (byte[])reader["HEADER_IMAGE_3"];
+                        stream.Write(image, 0, image.Length);
+                    }
+                }
+                if (reader["HEADER_IMAGE_3_URL"] != DBNull.Value  )
+                {
+                    string url = reader.GetString("HEADER_IMAGE_3_URL");
+                    if (url != "" && (url.ToLower().StartsWith("http://") || url.ToLower().StartsWith("https://")))
+                    {
+                        Claim CL = new Claim("LogoURL", url);
+                        innerIdentity.AddClaim(CL);
+                    }
+                }
+            }
+            else
+            {
+                string filename = HeaderImagesFolder + @"\Img-" + WebDbID.ToString() + "-3.jpg";
+                try
+                {
+                    if (System.IO.File.Exists(filename))
+                    {
+                        System.IO.File.Delete(filename);
+                    }
+                    filename = HeaderImagesFolder + @"\Img-" + WebDbID.ToString() + "-3.png";
                     if (System.IO.File.Exists(filename))
                     {
                         System.IO.File.Delete(filename);

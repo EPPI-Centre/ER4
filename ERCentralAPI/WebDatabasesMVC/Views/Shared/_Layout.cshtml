@@ -3,10 +3,9 @@
 @using System.Security.Claims;
 @using Microsoft.AspNetCore.Html;
 
-@{string imgPath3 = ""; }
-
-
 @{
+    string imgPath3 = "";
+    string imgUrl3 = "";
     Claim WebDbIDclaim = User.FindFirst("WebDbID");
     if (WebDbIDclaim != null)
     {
@@ -14,6 +13,11 @@
         string absolutePath = service.WebRootPath + "\\HeaderImages\\";
         if (System.IO.File.Exists(absolutePath + "Img-" + WebDbIDclaim.Value + "-3.jpg")) imgPath3 = Url.Content("~/HeaderImages/Img-" + WebDbIDclaim.Value + "-3.jpg");
         else if (System.IO.File.Exists(absolutePath + "Img-" + WebDbIDclaim.Value + "-3.png")) imgPath3 = Url.Content("~/HeaderImages/Img-" + WebDbIDclaim.Value + "-3.png");
+        if (imgPath3 != "")
+        {
+            Claim LogoUrlCl = User.FindFirst("LogoURL");
+            if (LogoUrlCl != null) imgUrl3 = LogoUrlCl.Value;
+        }
     }
 }
 
@@ -69,6 +73,14 @@
             }
         };
 
+        function GoToItem(itemId) {
+            //console.log(itemId, ItemsIds);
+            if (ItemsIds.indexOf(itemId) == -1) return;
+            let crit = CurrentItemsCriteria;
+            crit.itemID = itemId;
+            crit.itemIds = ItemsIds;
+            postwith("../ItemList/ItemDetails", crit);
+        }
     </script>
 
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -97,20 +109,30 @@
 </head>
 <body>
 
-
-
-
-
-
-
-
-
-    <div class="wrapper">
+    <div class="wrapper h-100">
         <div class="main-header">
             <!-- Logo Header -->
             <div class="logo-header" data-background-color="blue">
+                @if (imgPath3 == "")
+                {
 
-                <img src="~/assets/img/logo.svg" alt="navbar brand" class="navbar-brand">
+                    <img src="~/assets/img/logo.svg" alt="EPPI-Centre logo" class="" style="max-width:80px; max-height: 55px; object-fit: cover;">
+                }
+                else
+                {
+                    if (imgUrl3 != "")
+                    {
+                        <a href="@(new HtmlString(imgUrl3))" class="m-0 p-0" target="_blank" title="Open this Organisation Webpage">
+                            <img src="@imgPath3" alt="logo image" class="" style="max-width: 80px; max-height: 55px; object-fit: cover;">
+                        </a>
+                    }
+                    else
+                    {
+                        <img src="@imgPath3" alt="logo image" class="" style="max-width: 80px; max-height: 55px; object-fit: cover;">
+                    }
+
+                }
+
 
                 <button class="navbar-toggler sidenav-toggler ml-auto" type="button" data-toggle="collapse" data-target="collapse" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon">
@@ -189,44 +211,44 @@
 
 
 
-                            @*<li class="nav-item dropdown hidden-caret">
-                <a class="dropdown-toggle profile-pic btn btn-white btn-border btn-round" data-toggle="dropdown" href="#" aria-expanded="false">
-                    Contact
-                </a>
-                <ul class="dropdown-menu dropdown-user animated fadeIn">
-                    <div class="dropdown-user-scroll scrollbar-outer">
-                        <li>
-                            <div class="user-box">
-                                <div class="avatar-lg"><img src="~/assets/img/profile.jpg" alt="image profile" class="avatar-img rounded"></div>
-                                <div class="u-text">
-                                    <h4>Steven Startle</h4>
-                                    <p class="text-muted">s.startle@ucl.ac.uk</p>
+                        @*<li class="nav-item dropdown hidden-caret">
+                            <a class="dropdown-toggle profile-pic btn btn-white btn-border btn-round" data-toggle="dropdown" href="#" aria-expanded="false">
+                                Contact
+                            </a>
+                            <ul class="dropdown-menu dropdown-user animated fadeIn">
+                                <div class="dropdown-user-scroll scrollbar-outer">
+                                    <li>
+                                        <div class="user-box">
+                                            <div class="avatar-lg"><img src="~/assets/img/profile.jpg" alt="image profile" class="avatar-img rounded"></div>
+                                            <div class="u-text">
+                                                <h4>Steven Startle</h4>
+                                                <p class="text-muted">s.startle@ucl.ac.uk</p>
+                                            </div>
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <div class="dropdown-divider"></div>
+                                        <table>
+                                            <tr>
+                                                <td style="padding: 0px 10px 0px 10px;">
+                                                    <p class="text-muted">
+                                                        EPPI-Centre<br />
+                                                        Social Science Research Unit<br />
+                                                        UCL Institute of Education,<br />
+                                                        University College London<br />
+                                                        18 Woburn Square<br />
+                                                        London<br />
+                                                        WC1H 0NR<br />
+                                                    </p>
+                                                </td>
+                                            </tr>
+                                        </table>
+
+
+                                    </li>
                                 </div>
-                            </div>
-                        </li>
-                        <li>
-                            <div class="dropdown-divider"></div>
-                            <table>
-                                <tr>
-                                    <td style="padding: 0px 10px 0px 10px;">
-                                        <p class="text-muted">
-                                            EPPI-Centre<br />
-                                            Social Science Research Unit<br />
-                                            UCL Institute of Education,<br />
-                                            University College London<br />
-                                            18 Woburn Square<br />
-                                            London<br />
-                                            WC1H 0NR<br />
-                                        </p>
-                                    </td>
-                                </tr>
-                            </table>
-
-
-                        </li>
-                    </div>
-                </ul>
-            </li>*@
+                            </ul>
+                        </li>*@
 
                     </ul>
                 </div>
@@ -239,9 +261,17 @@
         @RenderBody()
 
         <!-- End Custom template -->
+    <div class="row w-100 border-left-0 mx-0 py-0 px-1 small alert-secondary" style="position:fixed; z-index:2003; bottom:0px;">
+        <div class="mx-auto mt-1 mb-0"><a href="https://eppi.ioe.ac.uk/EPPI-Vis/Login/Index" target="_blank">EPPI-Vis</a> is developed and maintained by the <a href="https://eppi.ioe.ac.uk" target="_blank">EPPI-Centre</a>. The data shown is retrieved in real time from the <a href="https://eppi.ioe.ac.uk/cms/er4" target="_blank">EPPI-Reviewer</a> database.</div>
+        <div class="ml-auto my-auto">
+            <a href="https://eppi.ioe.ac.uk" target="_blank">
+                <img src="~/assets/img/logo.svg" alt="EPPI-Centre logo" class="" style="margin-top: 2px; max-width: 40px; max-height: 55px; object-fit: cover;">
+                </a>
+        </div>
+    </div>
     </div>
 
-
+    
 
 
 

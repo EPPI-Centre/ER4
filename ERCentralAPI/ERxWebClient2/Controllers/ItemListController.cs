@@ -286,7 +286,7 @@ namespace ERxWebClient2.Controllers
 	
 	public class SelCritMVC
     {
-        public bool onlyIncluded { get; set; }
+        public bool? onlyIncluded { get; set; }
         public bool showDeleted { get; set; }
         public int sourceId { get; set; }
         public int searchId { get; set; }
@@ -314,6 +314,12 @@ namespace ERxWebClient2.Controllers
         public int setId { get; set; }
         public bool showInfoColumn { get; set; }
         public bool showScoreColumn { get; set; }
+
+        public string withOutAttributesIdsList { get; set; }
+        public string withAttributesIds { get; set; }
+        public string withSetIdsList { get; set; }
+        public string withOutSetIdsList { get; set; }
+
         public SelectionCriteria CSLACriteria 
         {
             get
@@ -341,6 +347,10 @@ namespace ERxWebClient2.Controllers
                 CSLAcrit.SetId = setId;
                 CSLAcrit.ShowInfoColumn = showInfoColumn;
                 CSLAcrit.ShowScoreColumn = showScoreColumn;
+                CSLAcrit.WithAttributesIds = withAttributesIds;
+                CSLAcrit.WithOutAttributesIdsList = withOutAttributesIdsList;
+                CSLAcrit.WithOutSetIdsList = withOutSetIdsList;
+                CSLAcrit.WithSetIdsList = withSetIdsList;
                 return CSLAcrit;
             }
         }

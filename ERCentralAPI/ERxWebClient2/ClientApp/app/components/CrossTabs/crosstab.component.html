@@ -6,69 +6,107 @@
 </div>
 
 
-    <div class="row m-1 p-0">
-        <div class="col-2 mt-1 pl-1 pr-1" style="min-width:168px;">Selected X-Axis Code:&nbsp;</div>
-        <div class="col-5 border">{{selectedNodeDataX?.name}}</div>
-        <div class="col-4">
-            <button (click)="setXaxis()" [disabled]="!canSetCode()" class="btn btn-primary btn-sm">Set</button>&nbsp;
-        </div>
+<div class="row m-1 p-0">
+    <div class="col-2 mt-1 pl-1 pr-1" style="min-width:168px;">Selected X-Axis Code:&nbsp;</div>
+    <div class="col-5 border">{{selectedNodeDataX?.name}}</div>
+    <div class="col-4">
+        <button (click)="setXaxis()" [disabled]="!canSetCode()" class="btn btn-primary btn-sm">Set</button>&nbsp;
     </div>
-    <div class="row m-1 p-0">
-        <div class="col-2 mt-1 pl-1 pr-1" style="min-width:168px;">Selected Y-Axis Code:&nbsp;</div>
-        <div class="col-5 border">{{selectedNodeDataY?.name}}</div>
-        <div class="col-4">
-            <button (click)="setYaxis()" [disabled]="!canSetCode()" class="btn btn-primary btn-sm">Set</button>&nbsp;
-        </div>
+</div>
+<div class="row m-1 p-0">
+    <div class="col-2 mt-1 pl-1 pr-1" style="min-width:168px;">Selected Y-Axis Code:&nbsp;</div>
+    <div class="col-5 border">{{selectedNodeDataY?.name}}</div>
+    <div class="col-4">
+        <button (click)="setYaxis()" [disabled]="!canSetCode()" class="btn btn-primary btn-sm">Set</button>&nbsp;
     </div>
-    <div class="row m-1 p-0">
-        <div class="col-2 mt-1 pl-1 pr-1" style="min-width:168px;">Selected Filter:&nbsp;</div>
-        <div class="col-5 border">{{selectedFilterAttribute?.name}}</div>
-        <div class="col-4">
-            <button (click)="setFilter()" [disabled]="!canSetFilter()" class="btn btn-primary btn-sm"> Set Filter</button>&nbsp;
-            <button (click)="clearFilter()" class="btn btn-outline-info btn-sm"> Clear Filter</button>
-        </div>
-
+</div>
+<div class="row m-1 p-0">
+    <div class="col-2 mt-1 pl-1 pr-1" style="min-width:168px;">Selected Filter:&nbsp;</div>
+    <div class="col-5 border">{{selectedFilterAttribute?.name}}</div>
+    <div class="col-4">
+        <button (click)="setFilter()" [disabled]="!canSetFilter()" class="btn btn-primary btn-sm"> Set Filter</button>&nbsp;
+        <button (click)="clearFilter()" class="btn btn-outline-info btn-sm"> Clear Filter</button>
     </div>
 
-    <div class="row col-md-12">
-        <table class="table-striped table table-light card-body">
-            <tbody>
-                <tr class="collapse">
-                    <td>
-                        <b>Get frequencies for</b>
-                    </td>
-                    <td>
-                        <input type="radio" value="true" name="cxTabIncludeOrExclude" [(ngModel)]="crosstbIncEx"> <b>&nbsp;Included</b>
-                    </td>
-                    <td>
-                        <input type="radio" value="false" name="cxTabIncludeOrExclude" [(ngModel)]="crosstbIncEx"><b>&nbsp; Excluded</b>
-                    </td>
-                    <td colspan="2"> <b class="align-self-end">&nbsp; Items</b></td>
-                </tr>
-                <tr class="collapse">
-                    <td>
-                        <b>Show results as:</b>
-                    </td>
-                    <td>
-                        <input type="radio" value="table" name="CrosstShowWhatN" [(ngModel)]="crosstbShowWhat"><b>&nbsp;Table</b>
-                    </td>
-                    <td>
-                        <input type="radio" value="bar" disabled name="CrosstShowWhatN" [(ngModel)]="crosstbShowWhat"><b>&nbsp;Bar chart</b>
-                    </td>
-                    <td>
-                        <input type="radio" value="stackbar" disabled name="CrosstShowWhatN" [(ngModel)]="crosstbShowWhat"><b>&nbsp;Stacked bar chart</b>
-                    </td>
-                    <td>
-                        <input type="radio" value="stackbar" disabled name="CrosstShowWhatN" [(ngModel)]="crosstbShowWhat"><b>&nbsp;Stacked bar chart (%)</b>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+</div>
+
+<div class="row col-md-12">
+    <table class="table-striped table table-light card-body">
+        <tbody>
+            <tr>
+                <td>
+                    <b>Get Crosstab for</b>
+                </td>
+                <td>
+                    <input type="radio" value="included" name="crIncludeOrExclude" [(ngModel)]="crosstbIncEx">&nbsp;Included
+                </td>
+                <td>
+                    <input type="radio" value="excluded" name="crIncludeOrExclude" [(ngModel)]="crosstbIncEx">&nbsp;Excluded
+                </td>
+                <td>
+                    <input type="radio" value="bothIandE" name="crIncludeOrExclude" [(ngModel)]="crosstbIncEx">&nbsp;Both
+                </td>
+                <td colspan="1"> </td>
+            </tr>
+            <tr class="collapse">
+                <td>
+                    <b>Show results as:</b>
+                </td>
+                <td>
+                    <input type="radio" value="table" name="CrosstShowWhatN" [(ngModel)]="crosstbShowWhat"><b>&nbsp;Table</b>
+                </td>
+                <td>
+                    <input type="radio" value="bar" disabled name="CrosstShowWhatN" [(ngModel)]="crosstbShowWhat"><b>&nbsp;Bar chart</b>
+                </td>
+                <td>
+                    <input type="radio" value="stackbar" disabled name="CrosstShowWhatN" [(ngModel)]="crosstbShowWhat"><b>&nbsp;Stacked bar chart</b>
+                </td>
+                <td>
+                    <input type="radio" value="stackbar" disabled name="CrosstShowWhatN" [(ngModel)]="crosstbShowWhat"><b>&nbsp;Stacked bar chart (%)</b>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+
+<div *ngIf="xTab == null || !xTab.rows || xTab.rows.length == 0"
+     class="justify-content-center row m-0">
+    <div class="p-2 font-weight-bold text-info">
+        No data to show.
     </div>
-    
-    <div *ngIf="CrossTab && CrossTab.yRows && CrossTab.yRows.length > 0 && crosstbShowWhat=='table'"
+</div>
+
+
+<div *ngIf="xTab && xTab.rows && xTab.rows.length > 0"
+     class="row contentCT col-md-12" style="max-height:80vh; max-width:98vw; overflow:auto;">
+    <table class="table table-striped table-bordered table-condensed mb-2">
+        <thead>
+            <tr>
+                <td> &nbsp;</td>
+                <td class="font-weight-bold" *ngFor="let item of xTab.columnAttNames">
+                    {{item}}
+                </td>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let row of xTab.rows">
+                <td class="font-weight-bold">{{row.attributeName}}</td>
+                <td *ngFor="let colAttName of xTab.columnAttNames; index as i; ">
+                    <button (click)="xTabItemsList(xTab, row, i)" [disabled]="row.counts[i] == 0"
+                            class="btn btn-link border-0 pt-0 pb-1 pl-1 font-weight-bold">
+                        {{row.counts[i]}}
+                    </button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+
+    <!--<div *ngIf="CrossTab && CrossTab.yRows && CrossTab.yRows.length > 0 && crosstbShowWhat=='table'"
          class="row contentCT col-md-12" style="height:460px; overflow:auto;">
-        <table 
+        <table
                class="table table-striped table-bordered table-condensed mb-2">
             <thead>
                 <tr>
@@ -90,12 +128,4 @@
                 </tr>
             </tbody>
         </table>
-    </div>
-    <div *ngIf="!CrossTab || !CrossTab.yRows || CrossTab.yRows.length == 0" 
-         class="justify-content-center row m-0">
-        <div class="p-2 font-weight-bold text-info">
-        No data to show.
-        </div>
-    </div>
-        
-    
+    </div>-->

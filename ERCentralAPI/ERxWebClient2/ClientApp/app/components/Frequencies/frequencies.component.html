@@ -28,12 +28,15 @@
                         <b>Get frequencies for</b>
                     </td>
                     <td>
-                        <input type="radio" value="true" name="frIncludeOrExclude" [(ngModel)]="freqIncEx"> &nbsp;Included
+                        <input type="radio" value="included" name="frIncludeOrExclude" [(ngModel)]="freqIncEx">&nbsp;Included
                     </td>
                     <td>
-                        <input type="radio" value="false" name="frIncludeOrExclude" [(ngModel)]="freqIncEx">&nbsp;Excluded
+                        <input type="radio" value="excluded" name="frIncludeOrExclude" [(ngModel)]="freqIncEx">&nbsp;Excluded
                     </td>
-                    <td colspan="2"></td>
+                    <td>
+                        <input type="radio" value="bothIandE" name="frIncludeOrExclude" [(ngModel)]="freqIncEx">&nbsp;Both
+                    </td>
+                    <td colspan="1"></td>
                 </tr>
                 <tr>
                     <td>
