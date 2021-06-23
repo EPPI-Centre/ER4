@@ -19,7 +19,6 @@ export class configurablereportComp implements OnInit, OnDestroy {
 		private ItemListService: ItemListService,
 		@Inject('BASE_URL') private _baseUrl: string,
 		private configurablereportServ: ConfigurableReportService,
-		private ReviewerIdentityServ: ReviewerIdentityService,
 		private EventEmitterServ: EventEmitterService,
 		private _confirmationDialogService: ConfirmationDialogService
 	) { }
@@ -275,6 +274,7 @@ export class configurablereportComp implements OnInit, OnDestroy {
 			}
 		}
 	}
+	
 	public RunROBReports(attribute: SetAttribute, reviewSet: ReviewSet) {
 
 		if (this.ReportRiskOfBias.report.reportId) {
