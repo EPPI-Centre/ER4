@@ -48,7 +48,7 @@ BEGIN
 		set @todoLines = (select count(*) from @fa where done=0) 
 	END
 	update @fa set level = 1 where level is null and done = 1
-	select * from @fa order by p_id, a_order
+	select * from @fa order by [level], p_id, a_order
 
 	insert into @items SELECT distinct tis.item_id, tis.ITEM_SET_ID, tis.CONTACT_ID, c.CONTACT_NAME, tis.IS_COMPLETED 
 	,case 
