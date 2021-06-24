@@ -60,6 +60,7 @@ namespace BusinessLibrary.BusinessClasses
         {
             List<MiniAtt> atts = new List<MiniAtt>();
             List<MiniItem> Items = new List<MiniItem>();
+            bool HasOutcomes = false; //this is used to add a second table for outcomes, if necessary.
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
                 ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
@@ -69,6 +70,7 @@ namespace BusinessLibrary.BusinessClasses
                     command.CommandType = System.Data.CommandType.StoredProcedure;
                     command.Parameters.Add(new SqlParameter("@ReviewId", ri.ReviewId));
                     command.Parameters.Add(new SqlParameter("@SetId", _setId));
+                    command.CommandTimeout = 60;//we might have to retreive hundred of thousands of rows...
                     using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
                     {
                         while (reader.Read())
@@ -78,7 +80,7 @@ namespace BusinessLibrary.BusinessClasses
                                );
                         }
                         reader.NextResult();//coding data...
-                        MiniItem tmpItem = new MiniItem(-1, "", "");
+                        MiniItem tmpItem = new MiniItem(-1, "", "", "");
                         while (reader.Read()) 
                         {
                             long tmpId = reader.GetInt64("ItemId");
@@ -88,7 +90,7 @@ namespace BusinessLibrary.BusinessClasses
                                 {
                                     Items.Add(tmpItem);
                                 }
-                                tmpItem = new MiniItem(tmpId, reader.GetString("TITLE"), reader.GetString("SHORT_TITLE"));
+                                tmpItem = new MiniItem(tmpId, reader.GetString("TITLE"), reader.GetString("SHORT_TITLE"), reader.GetString("State"));
                             }
                             long tmpAttId = reader.GetInt64("ATTRIBUTE_ID");
                             MiniAtt CurrAtt = atts.Find(f => f.AttId == tmpAttId);
@@ -129,6 +131,30 @@ namespace BusinessLibrary.BusinessClasses
                                 }
                             }
                         }
+                        reader.NextResult();//Outcomes coding data...
+                        while (reader.Read())
+                        {
+                            HasOutcomes = true;
+                            long tmpId = reader.GetInt64("ItemId");
+                            int tmpContactId = reader.GetInt32("ContactId");
+
+                            int miIndex = Items.FindIndex(f => f.ItemId == tmpId);
+                            if (miIndex >= 0)
+                            {//found the item
+                                MiniItem mi = Items[miIndex];
+                                if (mi.Outcomes.ContainsKey(tmpContactId))
+                                {//additional outcomes for an existing coder
+                                    mi.Outcomes[tmpContactId].Add(new MaxiOutcome(reader.GetBoolean("Completed"), reader.GetString("ContactName"), reader));
+                                }
+                                else
+                                {//new coder with new outcome value to add...
+                                    List<MaxiOutcome> newVal = new List<MaxiOutcome>();
+                                    newVal.Add(new MaxiOutcome(reader.GetBoolean("Completed"), reader.GetString("ContactName"), reader));
+                                    KeyValuePair<int, List<MaxiOutcome>> kvp = new KeyValuePair<int, List<MaxiOutcome>>(tmpContactId, new List<MaxiOutcome>());
+                                    mi.Outcomes.Add(tmpContactId, newVal);
+                                }
+                            }
+                        }
                     }
                 }
                 connection.Close();
@@ -144,11 +170,11 @@ namespace BusinessLibrary.BusinessClasses
             _result += commonstyle + "</head><body>";
             if (atts.Count > 0 && Items.Count > 0)
             {
-                StringBuilder sb = new StringBuilder("<p>This is a Comparison report for all codings in this Set</p>"
-                        + "<table><tr><th>ItemId</th><th>ShortTitle</th><th>Title</th>");
+                StringBuilder sb = new StringBuilder("<table><tr><th>ItemId</th><th>ShortTitle</th><th>Title</th><th>I/E/S flag</th>");
                 //_result += "<p>This is a Comparison report for all codings in this Set</p>"
                 //        + "<table><tr><td>ItemId</td><td>ShortTitle</td><td>Title</td>";
-                string secondTableLine = "<tr><td></td><td></td><td>FullPath:</td>";
+                string secondTableLine = "<tr><td colspan='4'><div style='display: flex; justify-content: flex-end; margin-right:0.25em;'>FullPath:</div></td>";
+               
                 foreach (MiniAtt a in atts)
                 {
                     sb.Append("<th>" + a.AttName + "</th>");
@@ -158,7 +184,7 @@ namespace BusinessLibrary.BusinessClasses
                 //done the headers, on with the list of items...
                 foreach (MiniItem itm in Items)
                 {
-                    sb.Append("<tr><td>" + itm.ItemId.ToString() + "</td><td>" + itm.ShortTitle + "</td><td>" + itm.Title + "</td>");
+                    sb.Append("<tr><td>" + itm.ItemId.ToString() + "</td><td>" + itm.ShortTitle + "</td><td>" + itm.Title + "</td><td>" + itm.State + "</td>");
                     foreach (MiniAtt a in atts)
                     {
                         if (itm.Codings.ContainsKey(a))
@@ -189,10 +215,91 @@ namespace BusinessLibrary.BusinessClasses
                         }
                         else
                         {//there is no coding for this item in this code
-                            sb.Append("<td>.</td>");
+                            sb.Append("<td></td>");
                         }
                     }
                     sb.Append("</tr>");
+                }
+                if (HasOutcomes)
+                {//adding a second outcomes table!
+                    _result += sb.Append("</table><br /> Outcomes:<br />" 
+                        + "<table><tr><th>ItemId</th><th>ShortTitle</th><th>Coder</th><th>IsComplete</th>"
+                        + "<th>Outcome title</th><th>Outcome description</th><th>Timepoint</th><th>Outcome</th><th>Intervention</th><th>Comparison</th><th>Arm 1</th><th>Arm 2</th><th>Outcome type</th>"
+                        + "<th>Data 1</th><th>Data 2</th><th>Data 3</th><th>Data 4</th><th>Data 5</th><th>Data 6</th><th>Data 7</th><th>Data 8</th><th>Data 9</th><th>Data 10</th>"
+                        + "<th>Data 11</th><th>Data 12</th><th>Data 13</th><th>Data 14</th><th>ES</th><th>SE</th><th>Outcome Codes</th></tr>");
+                    List<MiniItem> itemsWithOutcomes = Items.FindAll(f => f.Outcomes.Count > 0); 
+                    foreach(MiniItem mi in itemsWithOutcomes)
+                    {
+                        foreach(KeyValuePair<int, List<MaxiOutcome>> kvp in mi.Outcomes)
+                        {
+                            foreach (MaxiOutcome mxo in kvp.Value)
+                            {
+                                sb.Append("<tr><td>" + mi.ItemId.ToString() + "</td><td>" + mi.ShortTitle + "</td><td>"
+                                    + mxo.ContactName + "</td><td>" + (mxo.IsComplete ? "<span class='complete'>Yes</span>" : "No") + "</td><td>" + mxo.Outcome.Title + "</td><td>" + mxo.Outcome.OutcomeDescription.Replace("\r", "<br />")
+                                    + "</td><td>" + mxo.Outcome.TimepointDisplayValue + "</td><td>" + mxo.Outcome.OutcomeText + "</td><td>" + mxo.Outcome.InterventionText
+                                    + "</td><td>" + mxo.Outcome.ControlText + "</td><td>" + mxo.Outcome.grp1ArmName + "</td><td>" + mxo.Outcome.grp2ArmName);
+                                switch (mxo.Outcome.OutcomeTypeId)
+                                {
+                                    case 0: // manual entry
+                                        sb.Append("<td>Manual entry</td>");
+                                        break;
+
+                                    case 1: // n, mean, SD
+                                        sb.Append("<td>Continuous: Ns, means and SD</td>");
+                                        break;
+
+                                    case 2: // binary 2 x 2 table
+                                        sb.Append("<td>Binary: 2 x 2 table</td>");
+                                        break;
+
+                                    case 3: //n, mean SE
+                                        sb.Append("<td>Continuous: N, Mean, SE</td>" );
+                                        break;
+
+                                    case 4: //n, mean CI
+                                        sb.Append("<td>Continuous: N, Mean, CI</td>" );
+                                        break;
+
+                                    case 5: //n, t or p value
+                                        sb.Append("<td>Continuous: N, t- or p-value</td>") ;
+                                        break;
+
+                                    case 6: // binary 2 x 2 table
+                                        sb.Append("<td>Diagnostic test: 2 x 2 table</td>") ;
+                                        break;
+
+                                    case 7: // correlation coefficient r
+                                        sb.Append("<td>Correlation coefficient r</td>");
+                                        break;
+
+                                    default:
+                                        sb.Append("<td>N/A</td>");
+                                        break;
+                                }
+                                sb.Append("<td>" + mxo.Outcome.Data1.ToString("G3") + "</td>" +
+                                            "<td>" + mxo.Outcome.Data2.ToString("G3") + "</td>" +
+                                            "<td>" + mxo.Outcome.Data3.ToString("G3") + "</td>" +
+                                            "<td>" + mxo.Outcome.Data4.ToString("G3") + "</td>" +
+                                            "<td>" + mxo.Outcome.Data5.ToString("G3") + "</td>" +
+                                            "<td>" + mxo.Outcome.Data6.ToString("G3") + "</td>" +
+                                            "<td>" + mxo.Outcome.Data7.ToString("G3") + "</td>" +
+                                            "<td>" + mxo.Outcome.Data8.ToString("G3") + "</td>" +
+                                            "<td>" + mxo.Outcome.Data9.ToString("G3") + "</td>" +
+                                            "<td>" + mxo.Outcome.Data10.ToString("G3") + "</td>" +
+                                            "<td>" + mxo.Outcome.Data11.ToString("G3") + "</td>" +
+                                            "<td>" + mxo.Outcome.Data12.ToString("G3") + "</td>" +
+                                            "<td>" + mxo.Outcome.Data13.ToString("G3") + "</td>" +
+                                            "<td>" + mxo.Outcome.Data14.ToString("G3") + "</td>" +
+                                            "<td>" + mxo.Outcome.ES.ToString("G3") + "</td>" +
+                                            "<td>" + mxo.Outcome.SEES.ToString("G3") + "</td><td>");
+                                foreach (OutcomeItemAttribute OIA in mxo.Outcome.OutcomeCodes)
+                                {
+                                    sb.Append(OIA.AttributeName + "<br>");
+                                }
+                                sb.Append("</td></tr>");
+                            }
+                        }
+                    }
                 }
                 _result += sb.Append("</table></body></html>").ToString();
             }
@@ -252,17 +359,33 @@ namespace BusinessLibrary.BusinessClasses
         }
         private class MiniItem
         {
-            public MiniItem(long Id, string title, string shortTitle)
+            public MiniItem(long Id, string title, string shortTitle, string state)
             {
                 ItemId = Id;
                 Title = title;
                 ShortTitle = shortTitle;
+                State = state;
                 Codings = new Dictionary<MiniAtt, List<MiniCoding>>();
+                Outcomes = new Dictionary<int, List<MaxiOutcome>>();
             }
             public long ItemId;
             public string Title;
             public string ShortTitle;
+            public string State;
             public Dictionary<MiniAtt, List<MiniCoding>> Codings;
+            public Dictionary<int, List<MaxiOutcome>> Outcomes; //int is the contact ID
+        }
+        private class MaxiOutcome
+        {
+            public bool IsComplete;
+            public string ContactName;
+            public Outcome Outcome;
+            public MaxiOutcome(bool isComplete, string contactName, Csla.Data.SafeDataReader reader)
+            {
+                IsComplete = isComplete;
+                ContactName = contactName;
+                Outcome = Outcome.GetOutcome(reader);
+            }
         }
 #endif
     }
