@@ -6,6 +6,7 @@ import { ReviewSet, SetAttribute } from './ReviewSets.service';
 import { EventEmitterService } from './EventEmitter.service';
 import { Helpers } from '../helpers/HelperMethods';
 import { Subscription } from 'rxjs';
+import { SortDescriptor, orderBy } from '@progress/kendo-data-query';
 
 
 @Injectable({
@@ -54,7 +55,15 @@ export class ComparisonsService extends BusyAwareService implements OnDestroy {
 		return this._Statistics;		
 	}
 
-	
+	public sort: SortDescriptor[] = [{
+		field: 'shortTitle',
+		dir: 'asc'
+	}];
+	public sortChange(sort: SortDescriptor[]): void {
+		this.sort = sort;
+		//console.log('sorting comparisons by ' + this.sort[0].field + " ");
+		this._Comparisons = orderBy(this._Comparisons, this.sort);
+	}
 
 	public FetchComparisonReport(comparisonId: number, ParentAttributeId: number, SetId: number, chosenParent: any)  : Promise<any>
 	{

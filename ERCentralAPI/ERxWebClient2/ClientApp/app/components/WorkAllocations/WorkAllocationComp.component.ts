@@ -34,7 +34,7 @@ export class WorkAllocationComp implements OnInit {
 		private _reviewSetsService: ReviewSetsService,
 		private _reviewSetsEditingService: ReviewSetsEditingService,
 		public _comparisonsService: ComparisonsService,
-        private _notificationService: NotificationService,
+		private _notificationService: NotificationService,
 		 @Inject('BASE_URL') private _baseUrl: string
     ) { }
 
@@ -209,7 +209,37 @@ export class WorkAllocationComp implements OnInit {
 			this.PanelName = 'NewComparisonSection';
 		}
 	}
-	
+	public get sort(): SortDescriptor[] {
+		return this._comparisonsService.sort;
+	}
+	public sortChange(sort: SortDescriptor[]): void {
+		this._comparisonsService.sortChange(sort);
+	}
+	ChangeSort(fieldName: string): void {
+		let NewSort: SortDescriptor[] = [];
+		if (this._comparisonsService.sort.length > 0 && this._comparisonsService.sort[0].field == fieldName) {
+			let curr = this._comparisonsService.sort[0];
+			if (!curr.dir) curr.dir = 'asc';
+			else if (curr.dir == 'asc') curr.dir = 'desc';
+			else curr.dir = 'asc';
+			NewSort.push(curr);
+		}
+		else {
+			let curr: SortDescriptor = {
+				field: fieldName,
+				dir: 'asc'
+			};
+			NewSort.push(curr);
+		}
+		this._comparisonsService.sortChange(NewSort);
+	}
+	sortSymbol(fieldName: string): string {
+		if (this._comparisonsService.sort.length > 0 && this._comparisonsService.sort[0].field == fieldName) {
+			if (this._comparisonsService.sort[0].dir == 'asc') return "&#8593;";
+			else if (this._comparisonsService.sort[0].dir == 'desc') return "&#8595;";
+			else return "";
+		} else return "";
+	}
 	ngOnInit() {
 		this.RefreshData();
 	}
