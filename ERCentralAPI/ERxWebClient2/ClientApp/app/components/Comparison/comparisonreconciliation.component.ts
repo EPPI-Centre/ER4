@@ -29,6 +29,7 @@ import { Subscription } from 'rxjs';
                 .table-bordered th, .table-bordered td {
                     border: 1px solid #888888;
                 } 
+				button.disabled {color:black; }
             `],
     providers: []
 })
@@ -86,6 +87,7 @@ export class ComparisonReconciliationComp extends BusyAwareService implements On
 				if (this.panelItem) {
 					this.RefreshDataItems(this.panelItem);
 					this.testBool = true;
+					if (this.DetailsView == true) this.PrepareDetailsViewData();
 				}
 			}
 		);
@@ -132,6 +134,24 @@ export class ComparisonReconciliationComp extends BusyAwareService implements On
 			this.router.navigate(['itemcoding', itemId]);
 		}
 	}
+	FirstItem() {
+		this.ChangePanelItem(this.allItems[0].Item.itemId, 0);
+	}
+	NextItem() {
+		this.ChangeItem(this.selectedRow + 2);
+	}
+	ChangeItem(notOffsetIndex: number) {
+		let index = notOffsetIndex - 1;
+		if (this.allItems.length < index) index = this.allItems.length - 1;
+		if (index < 1) this.ChangePanelItem(this.allItems[0].Item.itemId, 0);
+		else this.ChangePanelItem(this.allItems[index].Item.itemId, index);
+    }
+	PreviousItem() {
+		this.ChangeItem(this.selectedRow);
+	}
+	LastItem() {
+		this.ChangePanelItem(this.allItems[this.allItems.length - 1].Item.itemId, this.allItems.length - 1);
+    }
 	recursiveItemList(i: number) {
 
 		let ItemSetlst: ItemSet[] = [];

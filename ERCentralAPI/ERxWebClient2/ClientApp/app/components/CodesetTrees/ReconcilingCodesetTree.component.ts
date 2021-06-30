@@ -46,14 +46,35 @@ export class ReconcilingCodesetTreeComponent implements OnInit, OnDestroy, After
 
 	@Input() reconcilingReviewSet: ReconcilingReviewSet | null = null;
 	@Input() CurrentComparison: Comparison = new Comparison();
-	@Input() ReconcilingItem: ReconcilingItem | null = null;
+	private _ReconcilingItem: ReconcilingItem | undefined = undefined;
+	@Input() public set ReconcilingItem(it: ReconcilingItem | undefined) {
+		if (this._ReconcilingItem && it && this._ReconcilingItem.Item.itemId != it.Item.itemId) {
+			if (this.reconcilingReviewSet && this.SelectedNode) {
+				this.SelectedNode = this.reconcilingReviewSet.FindByIdNumber(this.SelectedNode.attribute_id);
+			}
+			else if (this.SelectedNode && !this.reconcilingReviewSet) {
+				setTimeout(() => {
+					console.log("Waiting for the recRevSet to arrive...");
+					if (this.reconcilingReviewSet && this.SelectedNode) {
+						this.SelectedNode = this.reconcilingReviewSet.FindByIdNumber(this.SelectedNode.attribute_id);
+					}
+				}, 200);
+            }
+        }
+		this._ReconcilingItem = it;
+	}
+	public get ReconcilingItem(): ReconcilingItem | undefined {
+		return this._ReconcilingItem;
+	}
+
+
 
 	@Output() CompleteEvent = new EventEmitter<{ item: ReconcilingItem, contactId: number }>();
 	@Output() CompleteAndLockEvent = new EventEmitter<{ item: ReconcilingItem, contactId: number }>();
 	@Output() UnCompleteEvent = new EventEmitter<ReconcilingItem>();
 
 	NodesState: ITreeState = {};// see https://angular2-tree.readme.io/docs/save-restore
-
+	SelectedNode: ReconcilingSetAttribute | null = null;
 	ngOnInit() {
 		if (this.reconcilingReviewSet) {
 			//console.log("ngOnInit Will try to expand the root!");
@@ -124,8 +145,17 @@ export class ReconcilingCodesetTreeComponent implements OnInit, OnDestroy, After
 		return "Agr";
     }
 
-	NodeSelected(node: singleNode) {
-		//this.ReviewSetsService.selectedNode = node;
+	NodeSelected(node: ReconcilingSetAttribute | ReconcilingReviewSet) {
+		if (node.nodeType == "ReviewSet") {
+			this.SelectedNode = null;
+		}
+		else {
+			let renode = node as ReconcilingSetAttribute;
+			if (renode) {
+				this.SelectedNode = renode;
+            }
+        }
+		//console.log("NodeSelected", node);
 	}
 	Complete(recItem: ReconcilingItem, contactId: number) {
 		this.CompleteEvent.emit({ item: recItem, contactId: contactId });
@@ -235,6 +265,7 @@ export class ReconcilingCodesetTreeComponent implements OnInit, OnDestroy, After
 					...this.NodesState,
 					activeNodeIds
 				};
+				this.NodeSelected(att);
 				let expandTheseNodes = this.reconcilingReviewSet.ParentsListByAttId(att.attribute_id);
 				if (expandTheseNodes.length > 0) {
 					let alreadyExpanded: any = this.NodesState.expandedNodeIds;
@@ -266,20 +297,41 @@ export class ReconcilingCodesetTreeComponent implements OnInit, OnDestroy, After
 		}
     }
 
-	private SelectedNodeId(): string | null {
-		//console.log("SelectedNodeId", this.NodesState.selectedNodeIds, this.NodesState.activeNodeIds);
-		const Id = this.NodesState.activeNodeIds;
-		//console.log("SelectedNodeId", Id);
-		let i: number = 0;
-		let Key: string = "";
-		if (Id) {
-			for (let key in Id) {
-				Key = key;
-				break;
-			}
+	public CodingWholeStudy(coding: ReconcilingCode[]): ReconcilingCode[] {
+		return coding.filter(f => f.ArmID == 0);
+	}
+	public CodingByArmId(coding: ReconcilingCode[], armId: number): ReconcilingCode[] {
+		return coding.filter(f => f.ArmID == armId);
+	}
+	public HtmlPathForReconcilingSetAttribute(sa: ReconcilingSetAttribute): string {
+		let res: string = "";
+		if (this.reconcilingReviewSet) {
+			let parents = this.reconcilingReviewSet.ParentsListByAttId(sa.attribute_id);
+			for (let i = parents.length - 1; i > -1; i-- ) {//parents come from immediate parent towards the root
+				res += "<i class='fa fa-arrow-right pt-1 mt-2 mx-1'></i>" + parents[i].attribute_name;
+            }
 		}
-		if (Key != "") return Key;
-		else return null;
+		res += "<i class='fa fa-arrow-right pt-1 mt-2 mx-1'></i>" + sa.attribute_name;
+		return res;
+    }
+	private SelectedNodeId(): string | null {
+		if (this.SelectedNode == null) return null;
+		else {
+			return this.SelectedNode.id;
+		}
+		////console.log("SelectedNodeId", this.NodesState.selectedNodeIds, this.NodesState.activeNodeIds);
+		//const Id = this.NodesState.activeNodeIds;
+		////console.log("SelectedNodeId", Id);
+		//let i: number = 0;
+		//let Key: string = "";
+		//if (Id) {
+		//	for (let key in Id) {
+		//		Key = key;
+		//		break;
+		//	}
+		//}
+		//if (Key != "") return Key;
+		//else return null;
     }
 	ngOnDestroy() {
 		

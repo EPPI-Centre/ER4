@@ -1,28 +1,28 @@
-<div class="row mx-1 px-0 bg-light">
-    <div class="alert alert-success py-0 my-1">
-        Browse Disagreements:
+<div class="row mx-1 px-0 bg-white">
+    <div class="border rounded border-success text-success px-2 py-0 my-1 row mx-auto">
+        <div class="mx-1 my-1">Browse Disagreements:</div>
         <button (click)="FirstDisagreement()"
-                class="btn btn-sm btn-outline-success my-auto">
+                class="btn btn-sm btn-outline-success my-1 py-0 mr-1">
             First
         </button>
         <button (click)="PreviousDisagreement()"
-                class="btn btn-sm btn-outline-success my-auto">
+                class="btn btn-sm btn-outline-success my-1 py-0 mr-1">
             Previous
         </button>
         <button (click)="NextDisagreement()"
-                class="btn btn-sm btn-outline-success my-auto">
+                class="btn btn-sm btn-outline-success my-1 py-0 mr-1">
             Next
         </button>
         <button (click)="LastDisagreement()"
-                class="btn btn-sm btn-outline-success my-auto">
+                class="btn btn-sm btn-outline-success my-1 py-0 mr-1">
             Last
         </button>
     </div>
 </div>
-<div class="row mx-1 px-0 bg-light" *ngIf="nodes && nodes.length > 0 " [ngStyle]="{'max-height.px': MaxHeight}" style="overflow-y:auto;">
-    <div class="col">
-        <div class="row" [ngClass]="ReconcilingItem.IsCompleted ? 'bg-comp' : ''" style="min-height:31px;">
-            <div class="col my-auto">
+<div class="mx-1 px-0 bg-light" *ngIf="nodes && nodes.length > 0 ">
+    <div class="row mx-0 px-0" [ngClass]="ReconcilingItem.IsCompleted ? 'bg-comp' : ''" style="min-height:31px;">
+        <div class="col row mx-0 px-1 my-auto">
+            <div class="col my-auto text-info font-weight-bold rounded border border-info">
                 {{CurrentComparison.contactName1}}
             </div>
             <div class="col-auto" *ngIf="!ReconcilingItem.IsCompleted && ReconcilingItem.CodesReviewer1.length > 0">
@@ -42,26 +42,8 @@
                 </button>
             </div>
         </div>
-        <tree-root #SingleCodeSetTree1 class="" *ngIf="nodes" [nodes]="nodes" [(state)]="NodesState" [options]="options"
-                   (activate)="NodeSelected($event.node.data)">
-            <ng-template #treeNodeTemplate let-node let-index="index" >
-                <span *ngIf="node.data.nodeType == 'ReviewSet'">
-                    <img *ngIf="node.data.codingIsFinal" title="Normal Mode: single data entry for all users" src="../assets/person.png" class="mr-1" />
-                    <img *ngIf="!node.data.codingIsFinal" title="Comparison Mode: independent multi-user entry" src="../assets/team.png" class="mr-1" />
-                    <img *ngIf="!node.data.allowEditingCodeset" title="You can't edit this Coding Tool" src="../assets/CodeSetLocked.png" class="mr-1" />
-                </span>
-                <input class="m-1" type="checkbox" id="attributeID-{{node.data.id}}"
-                       [checked]="node.data.Reviewer1Coding.length > 0"
-                       [disabled]="true"
-                       *ngIf="node.data.showCheckBox" (change)="CheckBoxClicked($event.target.checked, node.data)" />
-
-                <span [ngClass]="AgreementClass(node.data)">{{node.data.name}}</span> {{AgrSt}}
-            </ng-template>
-        </tree-root>
-    </div>
-    <div class="col border-left border-dark">
-        <div class="row" [ngClass]="ReconcilingItem.IsCompleted ? 'bg-comp' : ''" style="min-height:31px;">
-            <div class="col my-auto">
+        <div class="col row mx-0 px-1 my-auto">
+            <div class="col my-auto text-info font-weight-bold rounded border border-info">
                 {{CurrentComparison.contactName2}}
             </div>
             <div class="col-auto" *ngIf="!ReconcilingItem.IsCompleted && ReconcilingItem.CodesReviewer2.length > 0">
@@ -81,26 +63,8 @@
                 </button>
             </div>
         </div>
-        <tree-root #SingleCodeSetTree2 class="" *ngIf="nodes" [nodes]="nodes" [(state)]="NodesState" [options]="options"
-                   (activate)="NodeSelected($event.node.data)">
-            <ng-template #treeNodeTemplate let-node let-index="index">
-                <span *ngIf="node.data.nodeType == 'ReviewSet'">
-                    <img *ngIf="node.data.codingIsFinal" title="Normal Mode: single data entry for all users" src="../assets/person.png" class="mr-1" />
-                    <img *ngIf="!node.data.codingIsFinal" title="Comparison Mode: independent multi-user entry" src="../assets/team.png" class="mr-1" />
-                    <img *ngIf="!node.data.allowEditingCodeset" title="You can't edit this Coding Tool" src="../assets/CodeSetLocked.png" class="mr-1" />
-                </span>
-                <input class="m-1" type="checkbox" id="attributeID-{{node.data.id}}"
-                       [checked]="node.data.Reviewer2Coding.length > 0"
-                       [disabled]="true"
-                       *ngIf="node.data.showCheckBox" (change)="CheckBoxClicked($event.target.checked, node.data)" />
-
-                <span [ngClass]="AgreementClass(node.data)">{{node.data.name}}</span>
-            </ng-template>
-        </tree-root>
-    </div>
-    <div *ngIf="CurrentComparison.contactName3 != ''" class="col border-left border-dark">
-        <div class="row" [ngClass]="ReconcilingItem.IsCompleted ? 'bg-comp' : ''" style="min-height:31px;">
-            <div class="col my-auto">
+        <div class="col row mx-0 px-1 my-auto">
+            <div class="col my-auto text-info font-weight-bold rounded border border-info">
                 {{CurrentComparison.contactName3}}
             </div>
             <div class="col-auto" *ngIf="!ReconcilingItem.IsCompleted && ReconcilingItem.CodesReviewer3.length > 0">
@@ -120,21 +84,128 @@
                 </button>
             </div>
         </div>
-        <tree-root #SingleCodeSetTree3 class="bg-dark" *ngIf="nodes" [nodes]="nodes" [(state)]="NodesState" [options]="options"
-                   (activate)="NodeSelected($event.node.data)">
-            <ng-template #treeNodeTemplate let-node let-index="index">
-                <span *ngIf="node.data.nodeType == 'ReviewSet'">
-                    <img *ngIf="node.data.codingIsFinal" title="Normal Mode: single data entry for all users" src="../assets/person.png" class="mr-1" />
-                    <img *ngIf="!node.data.codingIsFinal" title="Comparison Mode: independent multi-user entry" src="../assets/team.png" class="mr-1" />
-                    <img *ngIf="!node.data.allowEditingCodeset" title="You can't edit this Coding Tool" src="../assets/CodeSetLocked.png" class="mr-1" />
-                </span>
-                <input class="m-1" type="checkbox" id="attributeID-{{node.data.id}}"
-                       [checked]="node.data.Reviewer3Coding.length > 0"
-                       [disabled]="true"
-                       *ngIf="node.data.showCheckBox" (change)="CheckBoxClicked($event.target.checked, node.data)" />
+    </div>
+    <div class="row mx-0 px-0" style="max-height:40vh;overflow-y:auto;">
+        <div class="col">
+            <tree-root #SingleCodeSetTree1 class="" *ngIf="nodes" [nodes]="nodes" [(state)]="NodesState" [options]="options"
+                       (activate)="NodeSelected($event.node.data)">
+                <ng-template #treeNodeTemplate let-node let-index="index">
+                    <span *ngIf="node.data.nodeType == 'ReviewSet'">
+                        <img *ngIf="node.data.codingIsFinal" title="Normal Mode: single data entry for all users" src="../assets/person.png" class="mr-1" />
+                        <img *ngIf="!node.data.codingIsFinal" title="Comparison Mode: independent multi-user entry" src="../assets/team.png" class="mr-1" />
+                        <img *ngIf="!node.data.allowEditingCodeset" title="You can't edit this Coding Tool" src="../assets/CodeSetLocked.png" class="mr-1" />
+                    </span>
+                    <input class="m-1" type="checkbox" id="attributeID-{{node.data.id}}"
+                           [checked]="node.data.Reviewer1Coding.length > 0"
+                           [disabled]="true"
+                           *ngIf="node.data.showCheckBox" (change)="CheckBoxClicked($event.target.checked, node.data)" />
 
-                <span [ngClass]="AgreementClass(node.data)">{{node.data.name}}</span>
-            </ng-template>
-        </tree-root>
+                    <span [ngClass]="AgreementClass(node.data)">{{node.data.name}}</span> {{AgrSt}}
+                </ng-template>
+            </tree-root>
+        </div>
+        <div class="col border-left border-dark">
+            <tree-root #SingleCodeSetTree2 class="" *ngIf="nodes" [nodes]="nodes" [(state)]="NodesState" [options]="options"
+                       (activate)="NodeSelected($event.node.data)">
+                <ng-template #treeNodeTemplate let-node let-index="index">
+                    <span *ngIf="node.data.nodeType == 'ReviewSet'">
+                        <img *ngIf="node.data.codingIsFinal" title="Normal Mode: single data entry for all users" src="../assets/person.png" class="mr-1" />
+                        <img *ngIf="!node.data.codingIsFinal" title="Comparison Mode: independent multi-user entry" src="../assets/team.png" class="mr-1" />
+                        <img *ngIf="!node.data.allowEditingCodeset" title="You can't edit this Coding Tool" src="../assets/CodeSetLocked.png" class="mr-1" />
+                    </span>
+                    <input class="m-1" type="checkbox" id="attributeID-{{node.data.id}}"
+                           [checked]="node.data.Reviewer2Coding.length > 0"
+                           [disabled]="true"
+                           *ngIf="node.data.showCheckBox" (change)="CheckBoxClicked($event.target.checked, node.data)" />
+
+                    <span [ngClass]="AgreementClass(node.data)">{{node.data.name}}</span>
+                </ng-template>
+            </tree-root>
+        </div>
+        <div *ngIf="CurrentComparison.contactName3 != ''" class="col border-left border-dark">
+            <tree-root #SingleCodeSetTree3 class="bg-dark" *ngIf="nodes" [nodes]="nodes" [(state)]="NodesState" [options]="options"
+                       (activate)="NodeSelected($event.node.data)">
+                <ng-template #treeNodeTemplate let-node let-index="index">
+                    <span *ngIf="node.data.nodeType == 'ReviewSet'">
+                        <img *ngIf="node.data.codingIsFinal" title="Normal Mode: single data entry for all users" src="../assets/person.png" class="mr-1" />
+                        <img *ngIf="!node.data.codingIsFinal" title="Comparison Mode: independent multi-user entry" src="../assets/team.png" class="mr-1" />
+                        <img *ngIf="!node.data.allowEditingCodeset" title="You can't edit this Coding Tool" src="../assets/CodeSetLocked.png" class="mr-1" />
+                    </span>
+                    <input class="m-1" type="checkbox" id="attributeID-{{node.data.id}}"
+                           [checked]="node.data.Reviewer3Coding.length > 0"
+                           [disabled]="true"
+                           *ngIf="node.data.showCheckBox" (change)="CheckBoxClicked($event.target.checked, node.data)" />
+
+                    <span [ngClass]="AgreementClass(node.data)">{{node.data.name}}</span>
+                </ng-template>
+            </tree-root>
+        </div>
+    </div>
+    <div *ngIf="SelectedNode != null && (SelectedNode.Reviewer1Coding.length > 0 ||SelectedNode.Reviewer2Coding.length > 0 ||SelectedNode.Reviewer3Coding.length > 0)" 
+         class="row mx-0 px-1 border-success border-top border-bottom mb-1" style="max-height:20vh;overflow-y:auto;">
+        <div class="col-12 bg-white">Details for code: <span class="" [innerHTML]="HtmlPathForReconcilingSetAttribute(SelectedNode)"></span></div>
+        <div class="col ml-0 mr-1 px-1 border border-info rounded mb-1">
+            <b class="mx-0 px-0 border-bottom border-info">{{CurrentComparison.contactName1}}</b>
+            <ul *ngIf="SelectedNode.Reviewer1Coding.length > 0" class="pl-4">
+                <li *ngIf="CodingWholeStudy(SelectedNode.Reviewer1Coding).length > 0">
+                    <b>Whole Study</b>
+                    <div *ngFor="let coding of CodingWholeStudy(SelectedNode.Reviewer1Coding)">
+                        <div *ngIf="coding.InfoBox != ''" class="small mt-1 p-1 bg-white border border-dark">
+                            <b>[Info Box]</b> {{coding.InfoBox}}
+                        </div>
+                    </div>
+                </li>
+                <li *ngFor="let arm of ReconcilingItem.Item.arms" [hidden]="CodingByArmId(SelectedNode.Reviewer1Coding, arm.itemArmId).length == 0">
+                    <div *ngFor="let coding of CodingByArmId(SelectedNode.Reviewer1Coding, arm.itemArmId)">
+                        <b>{{arm.title}}</b>
+                        <div *ngIf="coding.InfoBox != ''" class="small mt-1 p-1 bg-white border border-dark">
+                            <b>[Info Box]</b> {{coding.InfoBox}}
+                        </div>
+                    </div>
+                </li>
+            </ul>
+        </div>
+        <div class="col ml-0 mr-1 px-1 border border-info rounded mb-1">
+            <b class="mx-0 px-0 border-bottom border-info">{{CurrentComparison.contactName2}}</b>
+            <ul *ngIf="SelectedNode.Reviewer2Coding.length > 0" class="pl-4">
+                <li *ngIf="CodingWholeStudy(SelectedNode.Reviewer2Coding).length > 0">
+                    <b>Whole Study</b>
+                    <div *ngFor="let coding of CodingWholeStudy(SelectedNode.Reviewer2Coding)">
+                        <div *ngIf="coding.InfoBox != ''" class="small mt-1 p-1 bg-white border border-dark">
+                            <b>[Info Box]</b> {{coding.InfoBox}}
+                        </div>
+                    </div>
+                </li>
+                <li *ngFor="let arm of ReconcilingItem.Item.arms" [hidden]="CodingByArmId(SelectedNode.Reviewer2Coding, arm.itemArmId).length == 0">
+                    <div *ngFor="let coding of CodingByArmId(SelectedNode.Reviewer2Coding, arm.itemArmId)">
+                        <b>{{arm.title}}</b>
+                        <div *ngIf="coding.InfoBox != ''" class="small mt-1 p-1 bg-white border border-dark">
+                            <b>[Info Box]</b> {{coding.InfoBox}}
+                        </div>
+                    </div>
+                </li>
+            </ul>
+        </div>
+        <div class="col ml-0 mr-1 px-1 border border-info rounded mb-1" *ngIf="CurrentComparison.contactName3 != ''">
+            <b class="mx-0 px-0 border-bottom border-info">{{CurrentComparison.contactName3}}</b>
+            <ul *ngIf="SelectedNode.Reviewer3Coding.length > 0" class="pl-4">
+                <li *ngIf="CodingWholeStudy(SelectedNode.Reviewer3Coding).length > 0">
+                    <b>Whole Study</b>
+                    <div *ngFor="let coding of CodingWholeStudy(SelectedNode.Reviewer3Coding)">
+                        <div *ngIf="coding.InfoBox != ''" class="small mt-1 p-1 bg-white border border-dark">
+                            <b>[Info Box]</b> {{coding.InfoBox}}
+                        </div>
+                    </div>
+                </li>
+                <li *ngFor="let arm of ReconcilingItem.Item.arms" [hidden]="CodingByArmId(SelectedNode.Reviewer3Coding, arm.itemArmId).length == 0">
+                    <div *ngFor="let coding of CodingByArmId(SelectedNode.Reviewer3Coding, arm.itemArmId)">
+                        <b>{{arm.title}}</b>
+                        <div *ngIf="coding.InfoBox != ''" class="small mt-1 p-1 bg-white border border-dark">
+                            <b>[Info Box]</b> {{coding.InfoBox}}
+                        </div>
+                    </div>
+                </li>
+            </ul>
+        </div>
     </div>
 </div>
