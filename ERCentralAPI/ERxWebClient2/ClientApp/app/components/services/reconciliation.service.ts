@@ -2,7 +2,7 @@ import { Inject, Injectable} from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BusyAwareService } from '../helpers/BusyAwareService';
 import {  Comparison } from './comparisons.service';
-import { ReviewSet, SetAttribute, ItemSetCompleteCommand, ReviewSetsService } from './ReviewSets.service';
+import { ReviewSet, SetAttribute, ItemSetCompleteCommand, ReviewSetsService, singleNode } from './ReviewSets.service';
 import { Item } from './ItemList.service';
 import { ItemSet } from './ItemCoding.service';
 import { ArmTimepointLinkListService } from './ArmTimepointLinkList.service';
@@ -398,4 +398,216 @@ export class ReconcilingItem {
 		this._ItemSetR2 = itemsetR2;
 		this._ItemSetR3 = itemsetR3;
 	}
+}
+export interface iReconcilingReviewSet extends singleNode {
+	Reviewer1Coding: ReconcilingCode[];
+	Reviewer2Coding: ReconcilingCode[];
+	Reviewer3Coding: ReconcilingCode[];
+}
+export class ReconcilingSetAttribute extends SetAttribute implements iReconcilingReviewSet {
+	public Reviewer1Coding: ReconcilingCode[] = [];
+	public Reviewer2Coding: ReconcilingCode[] = [];
+	public Reviewer3Coding: ReconcilingCode[] = [];
+	attributes: ReconcilingSetAttribute[];
+	constructor(SetAtt: SetAttribute, AllReviewer1Coding: ReconcilingCode[], AllReviewer2Coding: ReconcilingCode[], AllReviewer3Coding: ReconcilingCode[]) {
+		super();
+		this.attribute_id = SetAtt.attribute_id;
+		this.attribute_name = SetAtt.attribute_name;
+		this.attribute_order = SetAtt.attribute_order;
+		this.attributeSetId = SetAtt.attributeSetId;
+		this.attribute_type = SetAtt.attribute_type;
+		this.attribute_set_desc = SetAtt.attribute_set_desc;
+		this.attribute_desc = SetAtt.attribute_desc;
+		this.set_id = SetAtt.set_id;
+		this.parent_attribute_id = SetAtt.parent_attribute_id;
+		this.attribute_type_id = SetAtt.attribute_type_id;
+		this.originalAttributeID = SetAtt.originalAttributeID;
+		this.allowEditingCodeset = SetAtt.allowEditingCodeset;
+		this.itemSetIsLocked = SetAtt.itemSetIsLocked;
+		this.nodeType = SetAtt.nodeType;
+		this.allowCodingEdits = SetAtt.allowCodingEdits;
+		this.isSelected = SetAtt.isSelected;
+		this.additionalText = SetAtt.additionalText;
+		this.armId = SetAtt.armId;
+		this.armTitle = SetAtt.armTitle;
+		this.order = SetAtt.order;
+		this.codingComplete = SetAtt.codingComplete;
+		this.extURL = SetAtt.extURL;
+		this.extType = SetAtt.extType;
+		this.Reviewer1Coding = AllReviewer1Coding.filter(f => f.ID == this.attribute_id);
+		this.Reviewer2Coding = AllReviewer2Coding.filter(f => f.ID == this.attribute_id);
+		this.Reviewer3Coding = AllReviewer3Coding.filter(f => f.ID == this.attribute_id);
+		this.attributes = [];
+		for (let aset of SetAtt.attributes) {
+			this.attributes.push(new ReconcilingSetAttribute(aset,
+				AllReviewer1Coding.filter(f => f.ID !== this.attribute_id),
+				AllReviewer2Coding.filter(f => f.ID !== this.attribute_id),
+				AllReviewer3Coding.filter(f => f.ID !== this.attribute_id)));
+		}
+	}
+
+	public FindByIdNumber(Id: number): ReconcilingSetAttribute | null {
+		if (this.attribute_id == Id) return this;
+		for (let a of this.attributes) {
+			let b = a.FindByIdNumber(Id);
+			if (b != null) return b;
+        }
+		return null;
+	}
+
+	public FindPreviousByIdNumber(Id: number): ReconcilingSetAttribute | null {
+		let index = this.attributes.findIndex(f => f.attribute_id == Id);
+		if (index > 0) {//the found attribute is not the first child, we want the last descendant of its previous sibling...
+			let counter: number = 0;
+			let LastAtt = this.attributes[index - 1];
+			let FoundAtLast: ReconcilingSetAttribute | null = null;
+			while (FoundAtLast == null && counter < 10000) {
+				counter++;
+				if (LastAtt.attributes.length == 0) {
+					//no children to crawl, this is the att we want
+					FoundAtLast = LastAtt;
+				} else {
+					//this LastAtt is not the actual last, 'cause it has children...
+					LastAtt = LastAtt.attributes[LastAtt.attributes.length - 1];//replace with the last child of the current "LastAtt", repeat...
+				}
+			} 
+			return FoundAtLast;
+		}
+		else if (index == 0) {//the found attribute is the first code at its level, so its "parent" is the "previous code", which happens to be "this".
+			return this;
+		}
+		else {//Attribute we're looking for is not an immediate child, keep crawling in reverse...
+			for (let i = this.attributes.length - 1; i > -1; i--) {//we are searching from last to first
+				let TmpRes = this.attributes[i].FindPreviousByIdNumber(Id);
+				if (TmpRes != null) {//must be a ReconcilingSetAttribute, so it's our result...
+					return TmpRes;
+				}
+				//otherwise, we keep crawling in reverse...
+			}
+		}
+		return null;
+	}
+
+	public FindNextByIdNumber(Id: number): ReconcilingSetAttribute | null | true {
+		if (this.attribute_id == Id) {
+			//good, we have found the "initial" node, now we need to find the "next" and return that...
+			if (this.attributes.length > 0) return this.attributes[0];//if this node has children, the "next" node is the first child.
+			else {//next we look at the siblings if our current 
+				return true;//this signals the caller that the "next" node is the first of its siblings, or the first of its parent's siblings, etc.
+			}
+		}
+		for (let i = 0; i < this.attributes.length; i++) {
+			let a = this.attributes[i];
+			let b = a.FindNextByIdNumber(Id);
+			if (b != null && b != true) return b;
+			else if (b == true) {
+				//we need to see if we have a next sibling!
+				if (i == this.attributes.length - 1) return true;//pass signal back: need to look for a next sibling or further up the tree
+				else return this.attributes[i + 1];//the first sibling...
+            }
+		}
+		return null;
+	}
+	public ParentsListByAttId(Id: number, listSoFar: ReconcilingSetAttribute[]): boolean {
+		if (this.attribute_id == Id) return true;
+		for (let a of this.attributes) {
+			let b = a.ParentsListByAttId(Id, listSoFar);
+			if (b == true) {
+				listSoFar.push(this);
+				return b;
+			}
+		}
+		return false;
+	}
+}
+export class ReconcilingReviewSet extends ReviewSet implements iReconcilingReviewSet {
+	public readonly Reviewer1Coding: ReconcilingCode[] = [];
+	public readonly Reviewer2Coding: ReconcilingCode[] = [];
+	public readonly Reviewer3Coding: ReconcilingCode[] = [];
+	public attributes: ReconcilingSetAttribute[];
+	constructor(RevSet: ReviewSet, AllReviewer1Coding: ReconcilingCode[], AllReviewer2Coding: ReconcilingCode[], AllReviewer3Coding: ReconcilingCode[]) {
+		super();
+		this.set_id = RevSet.set_id;
+		this.set_name = RevSet.set_name;
+		this.set_order = RevSet.set_order;
+		this.reviewSetId = RevSet.reviewSetId;
+		this.description = RevSet.description;
+		this.setType = RevSet.setType;
+		this.reviewSetId = RevSet.reviewSetId;
+		this.order = RevSet.order;
+		this.allowEditingCodeset = RevSet.allowEditingCodeset;
+		this.ItemSetId = RevSet.ItemSetId;
+		this.itemSetIsLocked = RevSet.itemSetIsLocked;
+		this.codingIsFinal = RevSet.codingIsFinal;
+		this.attributeSetId = RevSet.attributeSetId;
+		this.codingComplete = RevSet.codingComplete;
+		this.userCanEditURLs = RevSet.userCanEditURLs;
+		this.attributes = [];
+		this.Reviewer1Coding = AllReviewer1Coding;
+		this.Reviewer2Coding = AllReviewer2Coding;
+		this.Reviewer3Coding = AllReviewer3Coding;
+		for (let aset of RevSet.attributes) {
+			this.attributes.push(new ReconcilingSetAttribute(aset, AllReviewer1Coding, AllReviewer2Coding, AllReviewer3Coding));
+        }
+	}
+	public FindByIdNumber(Id: number): ReconcilingSetAttribute | null {
+
+		for (let a of this.attributes) {
+			let b = a.FindByIdNumber(Id);
+			if (b != null) return b;
+		}
+		return null;
+	}
+	public FindPreviousByIdNumber(Id: number): ReconcilingSetAttribute | null {
+		let index = this.attributes.findIndex(f => f.attribute_id == Id);
+		if (index > 0) {//attribute we should start from is a direct child and is not the first child, we want the last descendant of its previous sibling
+			let counter: number = 0;
+			let LastAtt = this.attributes[index - 1];
+			let FoundAtLast: ReconcilingSetAttribute | null = null;
+			while (FoundAtLast == null && counter < 10000) {
+				counter++;
+				if (LastAtt.attributes.length == 0) {
+					//no children to crawl, this is the att we want
+					FoundAtLast = LastAtt;
+				} else {
+					//this LastAtt is not the actual last, 'cause it has children...
+					LastAtt = LastAtt.attributes[LastAtt.attributes.length - 1];//replace with the last child of the current "LastAtt", repeat...
+				}
+			}
+			return FoundAtLast;
+		}
+		else if (index == 0) {//attribute we should start from is the first child, there is no "attribute" before it, return null
+			return null;
+		}
+		else {//attribute we should start from is NOT a direct child (index == -1), so we have to crawl...
+			for (let i = this.attributes.length - 1; i > -1; i--) {//we are searching from last to first
+				let TmpRes = this.attributes[i].FindPreviousByIdNumber(Id);
+				if (TmpRes != null) {//must be a ReconcilingSetAttribute, so it's our result...
+					return TmpRes;
+				}
+            }
+		}
+		return null;
+	}
+	public FindNextByIdNumber(Id: number): ReconcilingSetAttribute | null {
+
+		for (let i = 0; i < this.attributes.length; i++) {
+			let a = this.attributes[i];
+			let b = a.FindNextByIdNumber(Id);
+			if (b != null && b != true) return b;
+			else if (b == true) {//need to look for the next sibling
+				if (i < this.attributes.length - 1) return this.attributes[i + 1];//the next sibling
+            }
+		}
+		return null;
+	}
+	public ParentsListByAttId(Id: number): ReconcilingSetAttribute[] {
+		let res: ReconcilingSetAttribute[] = [];
+		for (let i = 0; i < this.attributes.length; i++) {
+			let a = this.attributes[i];
+			let b = a.ParentsListByAttId(Id, res);
+			if (b == true) break;
+		}
+		return res;
+    }
 }

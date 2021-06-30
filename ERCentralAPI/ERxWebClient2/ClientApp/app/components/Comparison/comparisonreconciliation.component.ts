@@ -4,7 +4,7 @@ import { ComparisonsService, Comparison } from '../services/comparisons.service'
 import { Router } from '@angular/router';
 import { ItemListService, Item, Criteria } from '../services/ItemList.service';
 import { ItemSet } from '../services/ItemCoding.service';
-import { ReconciliationService, ReconcilingItemList, ReconcilingItem } from '../services/reconciliation.service';
+import { ReconciliationService, ReconcilingItemList, ReconcilingItem, ReconcilingReviewSet, ReconcilingCode } from '../services/reconciliation.service';
 import { ItemDocsService } from '../services/itemdocs.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
 import { Subscription } from 'rxjs';
@@ -54,6 +54,7 @@ export class ComparisonReconciliationComp extends BusyAwareService implements On
 	private ReviewSet: ReviewSet = new ReviewSet();
 	private item: Item = new Item();
 	public CurrentComparison: Comparison = new Comparison();
+	public DetailsView: boolean = false;
 	public panelItem: Item | undefined = new Item();
 	public hideme = [];
 	public hidemeOne = [];
@@ -65,7 +66,10 @@ export class ComparisonReconciliationComp extends BusyAwareService implements On
     public get CodeSets(): ReviewSet[] {
 		return this._reviewSetsService.ReviewSets.filter(x => x.setType.allowComparison != false);
 	}
-	public allItems: any[] = [];
+	public get FlatAttributes(): ReconcilingCode[] {
+		return this.localList.Attributes;
+    }
+	public allItems: ReconcilingItem[] = [];
 	public testBool: boolean = false;
 	public selectedRow: number = 0;
 	private subscription: Subscription | null = null;
@@ -119,7 +123,10 @@ export class ComparisonReconciliationComp extends BusyAwareService implements On
 			}
 		}
 	}
-	
+	ToDetailsView() {
+		this.PrepareDetailsViewData();
+		this.DetailsView = true;
+    }
 	OpenItem(itemId: number) {
 		if (itemId > 0) {
 			this.router.navigate(['itemcoding', itemId]);
@@ -249,8 +256,20 @@ export class ComparisonReconciliationComp extends BusyAwareService implements On
 		this.selectedRow = index;
 		let tempItemList = this._ItemListService.ItemList.items;
         this.panelItem = tempItemList.find(x => x.itemId == itemid);
-        this.getItemDocuments(itemid);
+		this.getItemDocuments(itemid);
+		if (this.DetailsView == true) this.PrepareDetailsViewData();
 	}
+	public ReconcilingReviewSet: ReconcilingReviewSet | null = null;
+	private PrepareDetailsViewData() {
+		if (this.panelItem) {
+			let rrs: ReconcilingReviewSet = new ReconcilingReviewSet(this.ReviewSet
+				, this.allItems[this.selectedRow].CodesReviewer1
+				, this.allItems[this.selectedRow].CodesReviewer2
+				, this.allItems[this.selectedRow].CodesReviewer3);
+			//console.log("justaTest", rrs);
+			this.ReconcilingReviewSet = rrs;
+        }
+    }
 	BackToMain() {
 		this.router.navigate(['Main']);
 	}
