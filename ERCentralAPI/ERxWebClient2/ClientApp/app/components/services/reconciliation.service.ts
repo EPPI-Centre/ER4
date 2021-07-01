@@ -4,9 +4,10 @@ import { BusyAwareService } from '../helpers/BusyAwareService';
 import {  Comparison } from './comparisons.service';
 import { ReviewSet, SetAttribute, ItemSetCompleteCommand, ReviewSetsService, singleNode } from './ReviewSets.service';
 import { Item } from './ItemList.service';
-import { ItemSet } from './ItemCoding.service';
+import { ItemSet, ItemAttributePDF, iItemSet } from './ItemCoding.service';
 import { ArmTimepointLinkListService } from './ArmTimepointLinkList.service';
 import { ModalService } from './modal.service';
+import { Outcome } from './outcomes.service';
 @Injectable({
 
 	providedIn: 'root',
@@ -35,14 +36,17 @@ export class ReconciliationService extends BusyAwareService {
 		this._BusyMethods.push("FetchItemSetList");
 		let body = JSON.stringify({ Value: ItemIDCrit });
 
-		return this._httpC.post<ItemSet[]>(this._baseUrl + 'api/ItemSetList/Fetch', body
+		return this._httpC.post<iItemSet[]>(this._baseUrl + 'api/ItemSetList/Fetch', body
 			)
 			.toPromise().then(
-
-			(res: ItemSet[]) => {
-			
-				this.RemoveBusy('FetchItemSetList');
-				return res;
+				(ires: iItemSet[]) => {
+					let res: ItemSet[] = [];
+					for (let iSet of ires) {
+						let NewRealItemSet: ItemSet = new ItemSet(iSet);
+						res.push(NewRealItemSet);
+					}
+					this.RemoveBusy('FetchItemSetList');
+					return res;
 			},
 			(error) => {
 				this.RemoveBusy("FetchItemSetList");
@@ -212,6 +216,9 @@ export class ReconcilingItemList {
 		let r1: ReconcilingCode[] = [];
 		let r2: ReconcilingCode[] = [];
 		let r3: ReconcilingCode[] = [];
+		let o1: Outcome[] = [];
+		let o2: Outcome[] = [];
+		let o3: Outcome[] = [];
 
 		let itSetR1: number = -1, itSetR2: number = -1, itSetR3: number = -1;
 
@@ -237,10 +244,12 @@ export class ReconcilingItemList {
 							r.InfoBox = roia.additionalText;
 							r.ArmID = roia.armId;
 							r.ArmName = roia.armTitle;
+							r.ItemAttributeID = roia.itemAttributeId;
 							r1.push(r);
 							
 						}
 					}
+					o1 = iSet.OutcomeList;
 				}
 				else if (iSet.contactId == this._Comparison.contactId2) {
 					itSetR2 = iSet.itemSetId;
@@ -252,9 +261,11 @@ export class ReconcilingItemList {
 							r.InfoBox = roia.additionalText;
 							r.ArmID = roia.armId;
 							r.ArmName = roia.armTitle;
+							r.ItemAttributeID = roia.itemAttributeId;
 							r2.push(r);
 						}
 					}
+					o2 = iSet.OutcomeList;
 				}
 				else if (iSet.contactId == this._Comparison.contactId3) {
 					itSetR3 = iSet.itemSetId;
@@ -266,15 +277,17 @@ export class ReconcilingItemList {
 							r.InfoBox = roia.additionalText;
 							r.ArmID = roia.armId;
 							r.ArmName = roia.armTitle;
+							r.ItemAttributeID = roia.itemAttributeId;
 							r3.push(r);
 						}
 					}
+					o3 = iSet.OutcomeList;
 				}
 
 			}
 		}
 		return new ReconcilingItem(item, isCompleted, r1, r2, r3,
-			CompletedBy, CompletedByID, CompletedItemSetID, itSetR1, itSetR2, itSetR3);
+			CompletedBy, CompletedByID, CompletedItemSetID, itSetR1, itSetR2, itSetR3, o1, o2, o3);
 	}
 
 }
@@ -287,7 +300,8 @@ export class ReconcilingCode {
 	private _ArmName: string = '';
 	private _Fullpath: string = '';
 	private _InfoBox: string = '';
-
+	private _ItemAttributeID: number = 0;
+	private _PDFCoding: ItemAttributePDF[] | null = null;
 
 	get ID(): number {
 		return this._ID;
@@ -325,11 +339,23 @@ export class ReconcilingCode {
 	get InfoBox(): string {
 		return this._InfoBox;
 	}
-
 	set InfoBox(value: string) {
 		this._InfoBox = value;
 	}
 
+	get PDFCoding(): ItemAttributePDF[] | null {
+		return this._PDFCoding;
+	}
+	set PDFCoding(data: ItemAttributePDF[] | null) {
+		this._PDFCoding = data;
+	}
+	
+	get ItemAttributeID(): number {
+		return this._ItemAttributeID;
+	}
+	set ItemAttributeID(value: number) {
+		this._ItemAttributeID = value;
+	}
 
 	constructor(AttributeID: number, attributeSetID: number,
 		name: string, fullpath: string) {
@@ -381,10 +407,20 @@ export class ReconcilingItem {
 	private _ItemSetR3: number = 0;
 	get ItemSetR3(): number { return this._ItemSetR3; }
 
+	private _OutcomesReviewer1: Outcome[] = [];
+	get OutcomesReviewer1(): Outcome[] { return this._OutcomesReviewer1; }
+
+	private _OutcomesReviewer2: Outcome[] = [];
+	get OutcomesReviewer2(): Outcome[] { return this._OutcomesReviewer2; }
+
+	private _OutcomesReviewer3: Outcome[] = [];
+	get OutcomesReviewer3(): Outcome[] { return this._OutcomesReviewer3; }
+
 	constructor(item: Item, isCompleted: boolean, codesReviewer1: ReconcilingCode[],
 		codesReviewer2: ReconcilingCode[], codesReviewer3: ReconcilingCode[]
 		, completedby: string, completedbyID: number, completedItemSetID: number
-		, itemsetR1: number, itemsetR2: number, itemsetR3: number) {
+		, itemsetR1: number, itemsetR2: number, itemsetR3: number
+		, outcomesReviewer1: Outcome[], outcomesReviewer2: Outcome[], outcomesReviewer3: Outcome[]) {
 
 		this._Item = item;
 		this._CodesReviewer1 = codesReviewer1;
@@ -397,6 +433,9 @@ export class ReconcilingItem {
 		this._ItemSetR1 = itemsetR1;
 		this._ItemSetR2 = itemsetR2;
 		this._ItemSetR3 = itemsetR3;
+		this._OutcomesReviewer1 = outcomesReviewer1;
+		this._OutcomesReviewer2 = outcomesReviewer2;
+		this._OutcomesReviewer3 = outcomesReviewer3;
 	}
 }
 export interface iReconcilingReviewSet extends singleNode {

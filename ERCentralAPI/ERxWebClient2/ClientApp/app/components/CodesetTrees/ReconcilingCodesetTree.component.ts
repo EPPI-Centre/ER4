@@ -10,6 +10,8 @@ import { IDTypeDictionary } from 'angular-tree-component/dist/defs/api';
 import { Comparison } from '../services/comparisons.service';
 import { Helpers } from '../helpers/HelperMethods';
 import { forEach } from '@angular/router/src/utils/collection';
+import { ItemCodingService, ItemAttPDFCodingCrit } from '../services/ItemCoding.service';
+import { ItemDocsService, ItemDocument } from '../services/itemdocs.service';
 
 //see: https://angular2-tree.readme.io/docs
 
@@ -38,8 +40,9 @@ export class ReconcilingCodesetTreeComponent implements OnInit, OnDestroy, After
 		private _httpC: HttpClient,
 		@Inject('BASE_URL') private _baseUrl: string,
 		private ReviewerIdentityServ: ReviewerIdentityService,
-		private ReviewSetsService: ReviewSetsService
-
+		private ReviewSetsService: ReviewSetsService,
+		private ItemCodingService: ItemCodingService,
+		private ItemDocsService: ItemDocsService
 	) { }
 
 	@ViewChild('SingleCodeSetTree1') treeComponent!: TreeComponent;
@@ -75,6 +78,8 @@ export class ReconcilingCodesetTreeComponent implements OnInit, OnDestroy, After
 
 	NodesState: ITreeState = {};// see https://angular2-tree.readme.io/docs/save-restore
 	SelectedNode: ReconcilingSetAttribute | null = null;
+	LoadPDFCoding: boolean = false;
+	ShowOutcomes: boolean = false; 
 	ngOnInit() {
 		if (this.reconcilingReviewSet) {
 			//console.log("ngOnInit Will try to expand the root!");
@@ -167,10 +172,10 @@ export class ReconcilingCodesetTreeComponent implements OnInit, OnDestroy, After
 		this.UnCompleteEvent.emit(recItem);
     }
 	public PreviousDisagreement() {
-		console.log("PreviousDisagreement");
+		//console.log("PreviousDisagreement");
 		if (this.treeComponent) {
 			let sel = this.SelectedNodeId();
-			console.log("PreviousDisagreement", sel);
+			//console.log("PreviousDisagreement", sel);
 			let Id: number | null = null;
 			if (this.reconcilingReviewSet == null || this.reconcilingReviewSet.attributes.length == 0) return;
 			else if (sel == null || sel.toString().startsWith("C_")) {
@@ -293,13 +298,44 @@ export class ReconcilingCodesetTreeComponent implements OnInit, OnDestroy, After
 					}
 					this.NodesState.expandedNodeIds = alreadyExpanded;
 				}
+				//scroll the node in view
+				if (document) {
+					const attId = att.id;
+					setTimeout(() => {
+						const element = document.getElementById(attId);
+						if (element) element.scrollIntoView(false);
+					}, 250);
+                }
+				
 			}
 		}
     }
 
 	public CodingWholeStudy(coding: ReconcilingCode[]): ReconcilingCode[] {
+		if (this.LoadPDFCoding && this.ReconcilingItem && this.ItemDocsService._itemDocs.length > 0 && this.ReconcilingItem.Item.itemId == this.ItemDocsService.CurrentItemId) {
+			for (let singleCoding of coding) {
+				if (singleCoding.PDFCoding == null) {//if it's an empty array, it means we already asked for the data, and there was no data. Null means we never asked for this data.
+					this.getPDFCoding(singleCoding, this.ItemDocsService._itemDocs);
+				}
+            }
+        }
 		return coding.filter(f => f.ArmID == 0);
 	}
+	private async getPDFCoding(singleCoding: ReconcilingCode, docs: ItemDocument[]) {
+		singleCoding.PDFCoding = [];//no matter what, this ensures we ask for this data only once!
+		for (let doc of this.ItemDocsService._itemDocs) {
+			let req: ItemAttPDFCodingCrit = new ItemAttPDFCodingCrit(doc.itemDocumentId, singleCoding.ItemAttributeID);
+			let res = await this.ItemCodingService.StandaloneFetchItemAttPDFCoding(req);
+			if (typeof res != "boolean") {
+				singleCoding.PDFCoding = res;// as ReconcilingCode[];
+			} else singleCoding.PDFCoding = [];//something went wrong, but we can't keep asking!!
+		}
+	}
+	PDFNameFromId(id: number): string {
+		let ind = this.ItemDocsService._itemDocs.findIndex(f => f.itemDocumentId == id);
+		if (ind > -1) return this.ItemDocsService._itemDocs[ind].title;
+		else return "*Unknown*";
+    }
 	public CodingByArmId(coding: ReconcilingCode[], armId: number): ReconcilingCode[] {
 		return coding.filter(f => f.ArmID == armId);
 	}
@@ -313,7 +349,12 @@ export class ReconcilingCodesetTreeComponent implements OnInit, OnDestroy, After
 		}
 		res += "<i class='fa fa-arrow-right pt-1 mt-2 mx-1'></i>" + sa.attribute_name;
 		return res;
+	}
+
+	OutcomeHTMLtable(data: Outcome[]): string {
+		return this.ItemCodingService.OutcomesTable(data, true);
     }
+
 	private SelectedNodeId(): string | null {
 		if (this.SelectedNode == null) return null;
 		else {
