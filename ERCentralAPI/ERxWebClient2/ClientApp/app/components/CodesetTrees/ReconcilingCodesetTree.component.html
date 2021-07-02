@@ -1,26 +1,43 @@
 <div class="row mx-1 px-0 bg-white">
-    <div class="border rounded border-success text-success px-2 py-0 my-1 row mx-auto">
-        <div class="mx-1 my-1">Browse Disagreements:</div>
-        <button (click)="FirstDisagreement()"
-                class="btn btn-sm btn-outline-success my-1 py-0 mr-1">
-            First
-        </button>
-        <button (click)="PreviousDisagreement()"
-                class="btn btn-sm btn-outline-success my-1 py-0 mr-1">
-            Previous
-        </button>
-        <button (click)="NextDisagreement()"
-                class="btn btn-sm btn-outline-success my-1 py-0 mr-1">
-            Next
-        </button>
-        <button (click)="LastDisagreement()"
-                class="btn btn-sm btn-outline-success my-1 py-0 mr-1">
-            Last
-        </button>
+    <div class="border rounded border-success text-success px-2 py-0 my-1 mx-auto">
+        <div class="row mx-0 px-0">
+            <div class="mx-1 my-1">Browse Disagreements:</div>
+            <button (click)="FirstDisagreement()" [disabled]="FindingDisagreements || Disagreements.length == 0"
+                    class="btn btn-sm btn-outline-success my-1 py-0 mr-1">
+                First
+            </button>
+            <button (click)="PreviousDisagreement()" [disabled]="FindingDisagreements || (SelectedNode != null && DisagreementPosition(SelectedNode) == 0)"
+                    class="btn btn-sm btn-outline-success my-1 py-0 mr-1">
+                Previous
+            </button>
+            <button (click)="NextDisagreement()" [disabled]="FindingDisagreements || (SelectedNode != null && DisagreementPosition(SelectedNode) == Disagreements.length - 1)"
+                    class="btn btn-sm btn-outline-success my-1 py-0 mr-1">
+                Next
+            </button>
+            <button (click)="LastDisagreement()" [disabled]="FindingDisagreements || Disagreements.length == 0"
+                    class="btn btn-sm btn-outline-success my-1 py-0 mr-1">
+                Last
+            </button>
+            <div *ngIf="FindingDisagreements" class="mx-2 mt-1 pl-1 " style="display:inline-block;position:relative; top:0.10em;">
+                <i class="fa fa-spinner fa-spin text-success mt-1 " style=""></i>
+            </div>
+        </div>
+        <div *ngIf="DisagreementPosition(SelectedNode) >= 0; else NoDisagreementSelected" class="row mx-1 my-1">
+            <div class="mx-auto my-0 small">
+                Selected: disagreement {{DisagreementPosition(SelectedNode) + 1}} of {{Disagreements.length}}
+            </div>
+        </div>
+        <ng-template #NoDisagreementSelected>
+            <div class="row  mx-1 my-1">
+                <div class="mx-auto my-0 small">
+                    Selected: no disagreement selected ({{Disagreements.length}} disagreements)
+                </div>
+            </div>
+        </ng-template>
     </div>
-    <div class="ml-auto mr-1 my-auto">
+    <div class="mr-1 my-auto">
         <div>Show PDFCoding? <input type="checkbox" [(ngModel)]="LoadPDFCoding" /></div>
-        <div>Show Outocmes? <input type="checkbox" [(ngModel)]="ShowOutcomes" /></div>
+        <div>Show Outcomes? <input type="checkbox" [(ngModel)]="ShowOutcomes" /></div>
     </div>
 </div>
 <div class="mx-1 px-0 bg-light" *ngIf="nodes && nodes.length > 0 ">

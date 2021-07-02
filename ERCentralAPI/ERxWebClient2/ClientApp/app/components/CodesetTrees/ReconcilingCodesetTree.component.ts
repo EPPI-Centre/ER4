@@ -50,8 +50,11 @@ export class ReconcilingCodesetTreeComponent implements OnInit, OnDestroy, After
 	@Input() reconcilingReviewSet: ReconcilingReviewSet | null = null;
 	@Input() CurrentComparison: Comparison = new Comparison();
 	private _ReconcilingItem: ReconcilingItem | undefined = undefined;
+	private _lastReconcilingItemId: number = 0;
 	@Input() public set ReconcilingItem(it: ReconcilingItem | undefined) {
-		if (this._ReconcilingItem && it && this._ReconcilingItem.Item.itemId != it.Item.itemId) {
+		console.log("set ReconcilingItem", it, this._ReconcilingItem);
+		if (it && (this._ReconcilingItem == undefined || this._ReconcilingItem.Item.itemId != it.Item.itemId)) {
+			console.log("set ReconcilingItem2", this.reconcilingReviewSet, this.SelectedNode, this._lastReconcilingItemId, it.Item.itemId);
 			if (this.reconcilingReviewSet && this.SelectedNode) {
 				this.SelectedNode = this.reconcilingReviewSet.FindByIdNumber(this.SelectedNode.attribute_id);
 			}
@@ -61,8 +64,18 @@ export class ReconcilingCodesetTreeComponent implements OnInit, OnDestroy, After
 					if (this.reconcilingReviewSet && this.SelectedNode) {
 						this.SelectedNode = this.reconcilingReviewSet.FindByIdNumber(this.SelectedNode.attribute_id);
 					}
+					//if (this._lastReconcilingItemId != it.Item.itemId) {
+					//	console.log("set ReconcilingItem3.1!");
+					//	this.FindDisagreements();
+					//	this._lastReconcilingItemId = it.Item.itemId;
+					//}
 				}, 200);
-            }
+			}
+			if (this._lastReconcilingItemId != it.Item.itemId) {
+				console.log("set ReconcilingItem3!");
+				this.FindDisagreements();
+				this._lastReconcilingItemId = it.Item.itemId;
+			}
         }
 		this._ReconcilingItem = it;
 	}
@@ -80,6 +93,11 @@ export class ReconcilingCodesetTreeComponent implements OnInit, OnDestroy, After
 	SelectedNode: ReconcilingSetAttribute | null = null;
 	LoadPDFCoding: boolean = false;
 	ShowOutcomes: boolean = false; 
+	FindingDisagreements: boolean = false;
+	private _Disagreements: ReconcilingSetAttribute[] = [];
+	public get Disagreements(): ReconcilingSetAttribute[] {
+		return this._Disagreements;
+	}
 	ngOnInit() {
 		if (this.reconcilingReviewSet) {
 			//console.log("ngOnInit Will try to expand the root!");
@@ -191,39 +209,49 @@ export class ReconcilingCodesetTreeComponent implements OnInit, OnDestroy, After
 	}
 
 	public FirstDisagreement() {
-		if (this.treeComponent) {
-			let Id: number | null = null;
-			if (this.reconcilingReviewSet == null || this.reconcilingReviewSet.attributes.length == 0) return;
-			else {
-				Id = this.reconcilingReviewSet.attributes[0].attribute_id;
-			}
-			if (Id != null) {
-				this.NextPreviousDisagreementFromAttributeId(Id, true, true);
-			}
+		if (this.reconcilingReviewSet && this._Disagreements.length > 0) {
+			this.UpdateTreeSelection(this._Disagreements[0], this.reconcilingReviewSet);
 		}
+
+		//old code below, from when we did not have the list of disagreements, this code works, keeping it in case the list of disagreements is unreliable
+		//if (this.treeComponent) {
+		//	let Id: number | null = null;
+		//	if (this.reconcilingReviewSet == null || this.reconcilingReviewSet.attributes.length == 0) return;
+		//	else {
+		//		Id = this.reconcilingReviewSet.attributes[0].attribute_id;
+		//	}
+		//	if (Id != null) {
+		//		this.NextPreviousDisagreementFromAttributeId(Id, true, true);
+		//	}
+		//}
 	}
 	public LastDisagreement() {
-		if (this.treeComponent) {
-			let Id: number | null = null;
-			if (this.reconcilingReviewSet == null || this.reconcilingReviewSet.attributes.length == 0) return;
-			else {//got to do some crawling to find the last attribute!
-				let LastAtt = this.reconcilingReviewSet.attributes[this.reconcilingReviewSet.attributes.length - 1];//last of first level codes
-				let counter: number = 0;
-				while (Id == null && counter < 10000) {
-					counter++;
-					if (LastAtt.attributes.length == 0) {
-						//no children to crawl, this is the att we want
-						Id = LastAtt.attribute_id;
-					} else {
-						//this LastAtt is not the actual last, 'cause it has children...
-						LastAtt = LastAtt.attributes[LastAtt.attributes.length - 1];//replace with the last child of the current "LastAtt", repeat...
-                    }
-                }
-			}
-			if (Id != null) {
-				this.NextPreviousDisagreementFromAttributeId(Id, false, true);
-			}
-		}
+		if (this.reconcilingReviewSet && this._Disagreements.length > 0) {
+			this.UpdateTreeSelection(this._Disagreements[this._Disagreements.length - 1], this.reconcilingReviewSet);
+        }
+
+		//old code below, from when we did not have the list of disagreements, this code works, keeping it in case the list of disagreements is unreliable
+		//if (this.treeComponent) {
+		//	let Id: number | null = null;
+		//	if (this.reconcilingReviewSet == null || this.reconcilingReviewSet.attributes.length == 0) return;
+		//	else {//got to do some crawling to find the last attribute!
+		//		let LastAtt = this.reconcilingReviewSet.attributes[this.reconcilingReviewSet.attributes.length - 1];//last of first level codes
+		//		let counter: number = 0;
+		//		while (Id == null && counter < 10000) {
+		//			counter++;
+		//			if (LastAtt.attributes.length == 0) {
+		//				//no children to crawl, this is the att we want
+		//				Id = LastAtt.attribute_id;
+		//			} else {
+		//				//this LastAtt is not the actual last, 'cause it has children...
+		//				LastAtt = LastAtt.attributes[LastAtt.attributes.length - 1];//replace with the last child of the current "LastAtt", repeat...
+  //                  }
+  //              }
+		//	}
+		//	if (Id != null) {
+		//		this.NextPreviousDisagreementFromAttributeId(Id, false, true);
+		//	}
+		//}
 	}
 	public NextDisagreement() {
 		//console.log("NextDisagreement");
@@ -249,68 +277,89 @@ export class ReconcilingCodesetTreeComponent implements OnInit, OnDestroy, After
 	private NextPreviousDisagreementFromAttributeId(Id: number, searchForward: boolean, includeStartId: boolean = false) {
 		if (this.reconcilingReviewSet) {
 			let att: ReconcilingSetAttribute | null = null;
-			if (includeStartId) att = this.reconcilingReviewSet.FindByIdNumber(Id);
-			else if (searchForward) att = this.reconcilingReviewSet.FindNextByIdNumber(Id);
-			else att = this.reconcilingReviewSet.FindPreviousByIdNumber(Id);
-			let counter: number = 0;
-			let compRes: string = "";
-			while (att != null && compRes != "Dis" && counter < 10000) {//
-				counter++;
-				compRes = this.IsNodeAgreement(att);
-				if (compRes != "Dis") {
-					if (searchForward) att = this.reconcilingReviewSet.FindNextByIdNumber(att.attribute_id);
-					else att = this.reconcilingReviewSet.FindPreviousByIdNumber(att.attribute_id);
+			const indOfDis = this._Disagreements.findIndex(f => f.attribute_id == Id);
+			if (indOfDis == -1) {
+				//this is the old code that does work, written before we started listing disagreements, we need it when a random code (not a disagreement) is selected...
+				//it can be slow, so we use this _only_ when we have to
+				if (includeStartId) att = this.reconcilingReviewSet.FindByIdNumber(Id);
+				else if (searchForward) att = this.reconcilingReviewSet.FindNextByIdNumber(Id);
+				else att = this.reconcilingReviewSet.FindPreviousByIdNumber(Id);
+				let counter: number = 0;
+				let compRes: string = "";
+				while (att != null && compRes != "Dis" && counter < 10000) {//
+					counter++;
+					compRes = this.IsNodeAgreement(att);
+					if (compRes != "Dis") {
+						if (searchForward) att = this.reconcilingReviewSet.FindNextByIdNumber(att.attribute_id);
+						else att = this.reconcilingReviewSet.FindPreviousByIdNumber(att.attribute_id);
+					}
 				}
 			}
+			else {
+				if (includeStartId) att = this._Disagreements[indOfDis];//?? why would we? (go to first and last used this option, but now rely on the list of disagreements...)
+				else if (searchForward) {
+					if (indOfDis == this._Disagreements.length - 1) {//shouldn't happen, we already are on the last, no change
+						att = this._Disagreements[indOfDis];
+					}
+					else att = this._Disagreements[indOfDis+1];
+				}
+				else {//looking for previous...
+					if (indOfDis == 0) {//shouldn't happen, we already are on the first, no change
+						att = this._Disagreements[indOfDis];
+					}
+					else att = this._Disagreements[indOfDis - 1];
+                }
+            }
 			//console.log("NextDisagreement2", att);
 			if (att != null) {
-				const activeNodeIds: any = {};
-				activeNodeIds[att.id] = true;
-				this.NodesState = {
-					...this.NodesState,
-					activeNodeIds
-				};
-				this.NodeSelected(att);
-				let expandTheseNodes = this.reconcilingReviewSet.ParentsListByAttId(att.attribute_id);
-				if (expandTheseNodes.length > 0) {
-					let alreadyExpanded: any = this.NodesState.expandedNodeIds;
-					if (alreadyExpanded != undefined) {
-						for (let toExpand of expandTheseNodes) {
-							let done: boolean = false;
-							for (let key in alreadyExpanded) {
-								if (toExpand.id == key) {
-									//add this key to the list of expanded nodes
-									alreadyExpanded[key] = true;
-									done = true;
-									break;
-								}
-							}
-							if (done == false) {
-								alreadyExpanded[toExpand.id] = true;
-							}
-						}
-					}
-					else {
-						alreadyExpanded = {};
-						for (let toExpand of expandTheseNodes) {
-							alreadyExpanded[toExpand.id] = true;
-						}
-					}
-					this.NodesState.expandedNodeIds = alreadyExpanded;
-				}
-				//scroll the node in view
-				if (document) {
-					const attId = att.id;
-					setTimeout(() => {
-						const element = document.getElementById(attId);
-						if (element) element.scrollIntoView(false);
-					}, 250);
-                }
-				
+				this.UpdateTreeSelection(att, this.reconcilingReviewSet);
 			}
 		}
     }
-
+	private UpdateTreeSelection(att: ReconcilingSetAttribute, rrs: ReconcilingReviewSet) {		
+		const activeNodeIds: any = {};
+		activeNodeIds[att.id] = true;
+		this.NodesState = {
+			...this.NodesState,
+			activeNodeIds
+		};
+		this.NodeSelected(att);
+		let expandTheseNodes = rrs.ParentsListByAttId(att.attribute_id);
+		if (expandTheseNodes.length > 0) {
+			let alreadyExpanded: any = this.NodesState.expandedNodeIds;
+			if (alreadyExpanded != undefined) {
+				for (let toExpand of expandTheseNodes) {
+					let done: boolean = false;
+					for (let key in alreadyExpanded) {
+						if (toExpand.id == key) {
+							//add this key to the list of expanded nodes
+							alreadyExpanded[key] = true;
+							done = true;
+							break;
+						}
+					}
+					if (done == false) {
+						alreadyExpanded[toExpand.id] = true;
+					}
+				}
+			}
+			else {
+				alreadyExpanded = {};
+				for (let toExpand of expandTheseNodes) {
+					alreadyExpanded[toExpand.id] = true;
+				}
+			}
+			this.NodesState.expandedNodeIds = alreadyExpanded;
+		}
+		//scroll the node in view
+		if (document) {
+			const attId = att.id;
+			setTimeout(() => {
+				const element = document.getElementById(attId);
+				if (element) element.scrollIntoView(false);
+			}, 250);
+		}		
+    }
 	public CodingWholeStudy(coding: ReconcilingCode[]): ReconcilingCode[] {
 		if (this.LoadPDFCoding && this.ReconcilingItem && this.ItemDocsService._itemDocs.length > 0 && this.ReconcilingItem.Item.itemId == this.ItemDocsService.CurrentItemId) {
 			for (let singleCoding of coding) {
@@ -353,6 +402,37 @@ export class ReconcilingCodesetTreeComponent implements OnInit, OnDestroy, After
 
 	OutcomeHTMLtable(data: Outcome[]): string {
 		return this.ItemCodingService.OutcomesTable(data, true);
+	}
+	
+	public DisagreementPosition(item: ReconcilingSetAttribute): number {
+		if (this.SelectedNode !== null) {
+			const curr = this.SelectedNode;
+			return this._Disagreements.findIndex(f => f.id == curr.id);
+		}
+		else return -1
+		
+    }
+	FindDisagreements() {
+		console.log("FindDisagreements");
+		if (!this.reconcilingReviewSet || this.reconcilingReviewSet.attributes.length < 1) return;
+		else {
+			console.log("FindDisagreements2");
+			this.FindingDisagreements = true;
+			this._Disagreements = [];
+			let att: ReconcilingSetAttribute | null = this.reconcilingReviewSet.attributes[0];
+			if (this.IsNodeAgreement(att) == "Dis") this._Disagreements.push(att);
+			let counter: number = 0;
+			while (counter < 50000 && att != null) {
+				att = this.reconcilingReviewSet.FindNextByIdNumber(att.attribute_id);
+				counter++;
+				if (att == null) break;
+				else {
+					const cAtt = att;
+					if (this.IsNodeAgreement(att) == "Dis" && this._Disagreements.findIndex(f => f.id == cAtt.id) == -1) this._Disagreements.push(att);
+				}
+			}
+			this.FindingDisagreements = false;
+        }
     }
 
 	private SelectedNodeId(): string | null {
