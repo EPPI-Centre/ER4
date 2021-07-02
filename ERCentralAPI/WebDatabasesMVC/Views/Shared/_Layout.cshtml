@@ -122,13 +122,13 @@
                 {
                     if (imgUrl3 != "")
                     {
-                        <a href="@(new HtmlString(imgUrl3))" class="m-0 p-0" target="_blank" title="Open this Organisation Webpage">
-                            <img src="@imgPath3" alt="logo image" class="" style="max-width: 80px; max-height: 55px; object-fit: cover;">
+                        <a href="@(new HtmlString(imgUrl3))" class="logo" target="_blank" title="Open this Organisation Webpage">
+                            <img src="@imgPath3" alt="logo image" class="navbar-brand" style="max-width: 80px; max-height: 55px; object-fit: cover;">
                         </a>
                     }
                     else
                     {
-                        <img src="@imgPath3" alt="logo image" class="" style="max-width: 80px; max-height: 55px; object-fit: cover;">
+                        <img src="@imgPath3" alt="logo image" class="navbar-brand" style="max-width: 80px; max-height: 55px; object-fit: cover;">
                     }
 
                 }
@@ -191,64 +191,30 @@
                             </tr>
                         </table>
                     </form>
+                    
+
+
+
+                    
                     <ul class="navbar-nav topbar-nav ml-md-auto align-items-center">
-                        <li class="nav-item toggle-nav-search hidden-caret">
+
+                        <!--<li class="nav-item toggle-nav-search hidden-caret">
                             <a class="nav-link" data-toggle="collapse" href="#search-nav" role="button" aria-expanded="false" aria-controls="search-nav">
                                 <i class="fa fa-search"></i>
                             </a>
-                        </li>
-
-
+                        </li>-->
 
                         <li>
-                            <a class="btn btn-white btn-border btn-round mr-2" href="~/Review/Index">Home</a>
+                            <a class="btn btn-sm btn-white btn-border btn-round mr-2" href="~/Review/Index">Home</a>
                         </li>
                         <li>
-                            <a class="btn btn-white btn-border btn-round mr-2" href="~/ItemList/Index">All records</a>
-                            <a class="btn btn-info btn-round" asp-controller="Login" asp-action="Logout">Logout</a>&nbsp;&nbsp;&nbsp;
+                            <a class="btn btn-sm btn-white btn-border btn-round mr-2" href="~/ItemList/Index">All records</a>
                         </li>
+                        <li>
+                            <a class="btn btn-sm btn-info btn-round" asp-controller="Login" asp-action="Logout">Logout</a>
+                        </li>
+                        -->
 
-
-
-
-                        @*<li class="nav-item dropdown hidden-caret">
-                            <a class="dropdown-toggle profile-pic btn btn-white btn-border btn-round" data-toggle="dropdown" href="#" aria-expanded="false">
-                                Contact
-                            </a>
-                            <ul class="dropdown-menu dropdown-user animated fadeIn">
-                                <div class="dropdown-user-scroll scrollbar-outer">
-                                    <li>
-                                        <div class="user-box">
-                                            <div class="avatar-lg"><img src="~/assets/img/profile.jpg" alt="image profile" class="avatar-img rounded"></div>
-                                            <div class="u-text">
-                                                <h4>Steven Startle</h4>
-                                                <p class="text-muted">s.startle@ucl.ac.uk</p>
-                                            </div>
-                                        </div>
-                                    </li>
-                                    <li>
-                                        <div class="dropdown-divider"></div>
-                                        <table>
-                                            <tr>
-                                                <td style="padding: 0px 10px 0px 10px;">
-                                                    <p class="text-muted">
-                                                        EPPI-Centre<br />
-                                                        Social Science Research Unit<br />
-                                                        UCL Institute of Education,<br />
-                                                        University College London<br />
-                                                        18 Woburn Square<br />
-                                                        London<br />
-                                                        WC1H 0NR<br />
-                                                    </p>
-                                                </td>
-                                            </tr>
-                                        </table>
-
-
-                                    </li>
-                                </div>
-                            </ul>
-                        </li>*@
 
                     </ul>
                 </div>
@@ -313,3 +279,42 @@
 
 </body>
 </html>
+
+                        @*<li class="nav-item dropdown hidden-caret">
+            <a class="dropdown-toggle profile-pic btn btn-white btn-border btn-round" data-toggle="dropdown" href="#" aria-expanded="false">
+                Contact
+            </a>
+            <ul class="dropdown-menu dropdown-user animated fadeIn">
+                <div class="dropdown-user-scroll scrollbar-outer">
+                    <li>
+                        <div class="user-box">
+                            <div class="avatar-lg"><img src="~/assets/img/profile.jpg" alt="image profile" class="avatar-img rounded"></div>
+                            <div class="u-text">
+                                <h4>Steven Startle</h4>
+                                <p class="text-muted">s.startle@ucl.ac.uk</p>
+                            </div>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="dropdown-divider"></div>
+                        <table>
+                            <tr>
+                                <td style="padding: 0px 10px 0px 10px;">
+                                    <p class="text-muted">
+                                        EPPI-Centre<br />
+                                        Social Science Research Unit<br />
+                                        UCL Institute of Education,<br />
+                                        University College London<br />
+                                        18 Woburn Square<br />
+                                        London<br />
+                                        WC1H 0NR<br />
+                                    </p>
+                                </td>
+                            </tr>
+                        </table>
+
+
+                    </li>
+                </div>
+            </ul>
+        </li>*@

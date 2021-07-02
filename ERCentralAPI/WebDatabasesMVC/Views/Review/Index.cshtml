@@ -84,7 +84,92 @@
                 }
             },
             select: TreeViewSelection
-        });
+        })
+
+
+        $("#WorldMap").hide();
+        var showMap = @(Model.WebDb.ShowWorldMap);
+        if (showMap == 1)
+        {
+            $("#WorldMap").show();
+            var countrySetID = @(Model.WebDb.WorldMapSetId);
+            var countryAttributeID = @(Model.WebDb.WorldMapAttributeId);
+
+            $.post("../Frequencies/GetFrequenciesJSON", {
+                attId: countryAttributeID, setId: countrySetID, included: true
+            },
+                function (data, result) {
+                    BuildFreqsWM(data, result);
+
+                    // the countries with itemCounts > 0 and has a 2 letter countryCode
+                    const countries = [];
+                    var counter = 0;
+                    var countryCode;
+                    var counts;
+                    for (j = 0; j < data.results.length; j++) {
+                        countryCode = data.results[j].countryCode;
+                        counts = data.results[j].itemCount;
+                        if ((countryCode != 0) && (counts != 0)) {
+                            countries[counter] = countryCode;
+                            counter += 1;
+                        }
+                    }
+
+                    $('#map-example').vectorMap( {
+                        map: 'world_en',
+                        backgroundColor: 'transparent',
+                        borderColor: '#fff',
+                        borderWidth: 2,
+                        color: '#e4e4e4',
+                        enableZoom: true,
+                        hoverColor: '#35cd3a',
+                        hoverOpacity: null,
+                        normalizeFunction: 'linear',
+                        scaleColors: ['#b6d6ff', '#005ace'],
+                        selectedColor: '#35cd3a',
+                        selectedRegions: countries,
+                        showTooltip: true,
+                        onRegionClick: function (element, code, region) {
+                            var codeP = code;
+                            var regionP = region;
+                            GoToListJQVMap(data, codeP, regionP)
+                        },
+                        onResize: function (element, width, height) {
+                            console.log('Map Size: ' + width + 'x' + height);
+                        },
+                        onLabelShow: function (event, label, code) {
+                            var index = 0;
+                            for (j = 0; j < data.results.length; j++) {
+                                if ((data.results[j].countryCode).toLowerCase() == code) {
+                                    index = j;
+                                    j = data.results.length;
+                                }
+                            }                        
+
+                            var countryName = label[0].innerHTML;
+                            var html = ['<table>',
+                                '<tr>',
+                                '<td>',
+                                countryName,
+                                '</td>',
+                                '</tr>',
+                                '<tr>',
+                                '<td>',
+                                data.results[index].itemCount,
+                                //code,
+                                '</td>',
+                                '</tr>',
+                                '</table>'
+                            ].join("");
+                            label[0].innerHTML = html;
+                        }
+                    })
+
+                })
+        };
+
+
+
         treeviewData = $("#treeView").data("kendoTreeView");
         const descrPanel = $("#WebDBDescription");
         console.log("descrPanel:", descrPanel, descrPanel.height());
@@ -93,7 +178,7 @@
             $("#ExpandDescription").show();
             $("#ReduceDescription").hide();
             $("#HideDescriptionDiv").show();
-            $("#ShowDescriptionDiv").hide();           
+            $("#ShowDescriptionDiv").hide();
             descrPanel.css("max-height", "250px");
         } else {
             $("#ExpandDescription").hide();
@@ -102,6 +187,27 @@
         //$("#treeView").data("kendoTreeView").bind("change", TreeViewSelection);
         $("#FrequenciesResult").html("Frequencies");
     });
+
+    function GoToListJQVMap(data, codeP, regionP) {
+        /* get the attributeID for the selected country and list the studies*/
+        var attributeID = 0;
+        var countryCode;
+        for (j = 0; j < data.results.length; j++) {
+            countryCode = data.results[j].countryCode;
+            if ((data.results[j].countryCode).toLowerCase() == codeP) {
+                attributeID = data.results[j].attributeId;
+                j = data.results.length;
+            }
+        }
+        GoToItems(attributeID, regionP);
+        /*
+        if (attributeID != 0) {
+            GoToItems(attributeID, regionP);
+        }*/
+    }
+
+    function BuildFreqsWM(data, result) { }
+
     function ToggleDescrPanelSize() {
         const descrPanel = $("#WebDBDescription");
         if (descrPanel) {
@@ -121,7 +227,7 @@
         const descrShowHideIcon = $("#ShowHideDescriptionDivIcon");
         if (descrPanel) {
             descrPanel.css("max-height", "250px");
-            if (descrShowHideIcon[0].className == "fa fa-plus") {                
+            if (descrShowHideIcon[0].className == "fa fa-plus") {
                 $("#ExpandDescription").show();
                 $("#ReduceDescription").hide();
                 $("#WebDBDescriptionBody").show();
@@ -306,6 +412,7 @@
             $("#FrequenciesGrid").html("");
         }
     }
+
 
     function GetFreqLinkContent(attId, count, attName) {
         //console.log("GetFreqLinkContent", attId, count, attName);
@@ -552,6 +659,10 @@
     }
 
 
+
+
+
+
     //var treeviewData = $("#treeView").data("kendoTreeView");
     //treeview.bind("change", TreeViewSelection);
 </script>
@@ -669,7 +780,7 @@
                             </table>
 
                         </div>
-                        <div class="card-body" id="WebDBDescriptionBody" tooltip="" >
+                        <div class="card-body" id="WebDBDescriptionBody" tooltip="">
                             <div class="card-category" id="WebDBDescription" style="overflow-y:auto;">
                                 @(new HtmlString(Model.WebDb.WebDBDescription))
 
@@ -744,38 +855,52 @@
 
 
 
-                    @*@if (@imgMapPath1 != "")
-                    {
-                        <div class="card">
-                            <div class="card-header">
-                                <table width="100%">
-                                    <tr>
-                                        <td>
-                                            <div class="card-title">@(new HtmlString(Model.WebDb.MapTitle))</div>
-                                        </td>
-                                        <td style="text-align:right;padding-top:5px">
-
-                                            <a href="@(new HtmlString(Model.WebDb.MapUrl))" class="btn btn-secondary btn-sm btn-round" target="_blank" title="Go to W3Schools HTML section">
-                                                <span class="btn-label">
-                                                    <i class="fa fa-table"></i>
-                                                </span>&nbsp;View map
-
-                                            </a>
-
-                                        </td>
-                                    </tr>
-                                </table>
-                            </div>
-
-                            <div class="card-body">
-                                <a href="@(new HtmlString(Model.WebDb.MapUrl))" target="_blank" title="Go to W3Schools HTML section">
-                                    <img src=@imgMapPath1 style="object-fit: cover;" class="img-fluid pb-2 float-sm-left float-md-left float-lg-left" />
-                                </a>
-
-
+                    <div class="card" id="WorldMap">
+                        <div class="card-header">
+                            <div class="card-title">@(new HtmlString(Model.WebDb.WorldMapAttributeName))</div>
+                            <div class="card-title" id="WorldMapTitle"></div>
+                        </div>
+                        <div class="card-body">
+                            <div class="mapcontainer">
+                                <div id="map-example" class="vmap" style="height: 450px"></div>
                             </div>
                         </div>
-                    }*@
+                    </div>
+
+
+
+        @*@if (@imgMapPath1 != "")
+        {
+            <div class="card">
+                <div class="card-header">
+                    <table width="100%">
+                        <tr>
+                            <td>
+                                <div class="card-title">@(new HtmlString(Model.WebDb.MapTitle))</div>
+                            </td>
+                            <td style="text-align:right;padding-top:5px">
+
+                                <a href="@(new HtmlString(Model.WebDb.MapUrl))" class="btn btn-secondary btn-sm btn-round" target="_blank" title="Go to W3Schools HTML section">
+                                    <span class="btn-label">
+                                        <i class="fa fa-table"></i>
+                                    </span>&nbsp;View map
+
+                                </a>
+
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="card-body">
+                    <a href="@(new HtmlString(Model.WebDb.MapUrl))" target="_blank" title="Go to W3Schools HTML section">
+                        <img src=@imgMapPath1 style="object-fit: cover;" class="img-fluid pb-2 float-sm-left float-md-left float-lg-left" />
+                    </a>
+
+
+                </div>
+            </div>
+        }*@
 
                 </div>
 

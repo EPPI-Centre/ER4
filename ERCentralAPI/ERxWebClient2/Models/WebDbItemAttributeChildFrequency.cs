@@ -71,7 +71,16 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-		public static readonly PropertyInfo<int> ItemCountProperty = RegisterProperty<int>(new PropertyInfo<int>("ItemCount", "ItemCount"));
+        public static readonly PropertyInfo<string> CountryCodeProperty = RegisterProperty<string>(new PropertyInfo<string>("CountryCode", "CountryCode", string.Empty));
+        public string CountryCode
+        {
+            get
+            {
+                return GetProperty(CountryCodeProperty);
+            }
+        }
+
+        public static readonly PropertyInfo<int> ItemCountProperty = RegisterProperty<int>(new PropertyInfo<int>("ItemCount", "ItemCount"));
         public int ItemCount
         {
             get
@@ -95,16 +104,17 @@ namespace BusinessLibrary.BusinessClasses
 
 #if !SILVERLIGHT
 
-        public static WebDbItemAttributeChildFrequency GetReadOnlyItemAttributeChildFrequency(string AttName, long AttId, int ItemCound, int SetId, long FilterAttributeId, string isIncluded)
+        public static WebDbItemAttributeChildFrequency GetReadOnlyItemAttributeChildFrequency(string AttName, long AttId, int ItemCound, int SetId, long FilterAttributeId, string isIncluded, string CountryCode)
         {
-            return DataPortal.FetchChild<WebDbItemAttributeChildFrequency>(AttName,  AttId,  ItemCound, SetId, FilterAttributeId, isIncluded);
+            return DataPortal.FetchChild<WebDbItemAttributeChildFrequency>(AttName,  AttId,  ItemCound, SetId, FilterAttributeId, isIncluded, CountryCode);
         }
 
-        private void Child_Fetch(string AttName, long AttId, int ItemCound, int SetId, Int64 FilterAttributeId, string isIncluded)
+        private void Child_Fetch(string AttName, long AttId, int ItemCound, int SetId, Int64 FilterAttributeId, string isIncluded, string CountryCode)
         {
             LoadProperty<Int64>(AttributeIdProperty, AttId);
             LoadProperty<int>(ItemCountProperty, ItemCound);
             LoadProperty<string>(AttributeProperty, AttName);
+            LoadProperty<string>(CountryCodeProperty, CountryCode);
             //LoadProperty<Int64>(AttributeSetIdProperty, reader.GetInt64("ATTRIBUTE_SET_ID"));
             LoadProperty<int>(SetIdProperty, SetId);
             LoadProperty<Int64>(FilterAttributeIdProperty, FilterAttributeId);

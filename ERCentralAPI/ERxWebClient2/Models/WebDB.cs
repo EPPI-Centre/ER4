@@ -116,6 +116,58 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
+        public static readonly PropertyInfo<int> ShowWorldMapProperty = RegisterProperty<int>(new PropertyInfo<int>("ShowWorldMap", "ShowWorldMap"));
+        public int ShowWorldMap
+        {
+            get
+            {
+                return GetProperty(ShowWorldMapProperty);
+            }
+            set
+            {
+                SetProperty(ShowWorldMapProperty, value);
+            }
+        }
+
+        public static readonly PropertyInfo<int> WorldMapSetIdProperty = RegisterProperty<int>(new PropertyInfo<int>("WorldMapSetId", "WorldMapSetId"));
+        public int WorldMapSetId
+        {
+            get
+            {
+                return GetProperty(WorldMapSetIdProperty);
+            }
+            set
+            {
+                SetProperty(WorldMapSetIdProperty, value);
+            }
+        }
+
+        public static readonly PropertyInfo<long> WorldMapAttributeIdProperty = RegisterProperty<long>(new PropertyInfo<long>("WorldMapAttributeId", "WorldMapAttributeId"));
+        public long WorldMapAttributeId
+        {
+            get
+            {
+                return GetProperty(WorldMapAttributeIdProperty);
+            }
+            set
+            {
+                SetProperty(WorldMapAttributeIdProperty, value);
+            }
+        }
+
+        public static readonly PropertyInfo<string> WorldMapAttributeNameProperty = RegisterProperty<string>(new PropertyInfo<string>("WorldMapAttributeName", "WorldMapAttributeName"));
+        public string WorldMapAttributeName
+        {
+            get
+            {
+                return GetProperty(WorldMapAttributeNameProperty);
+            }
+            set
+            {
+                SetProperty(WorldMapAttributeNameProperty, value);
+            }
+        }
+
         public static readonly PropertyInfo<string> UserNameProperty = RegisterProperty<string>(new PropertyInfo<string>("UserName", "UserName", ""));
         public string UserName
         {
@@ -317,6 +369,10 @@ namespace BusinessLibrary.BusinessClasses
                             LoadProperty(HeaderImage1UrlProperty, reader.GetString("HEADER_IMAGE_1_URL"));
                             LoadProperty(HeaderImage2UrlProperty, reader.GetString("HEADER_IMAGE_2_URL"));
                             LoadProperty(HeaderImage3UrlProperty, reader.GetString("HEADER_IMAGE_3_URL"));
+                            LoadProperty(ShowWorldMapProperty, reader.GetInt32("SHOW_WORLD_MAP"));
+                            LoadProperty(WorldMapSetIdProperty, reader.GetInt32("WORLD_MAP_SET_ID"));
+                            LoadProperty(WorldMapAttributeIdProperty, reader.GetInt64("WORLD_MAP_ATTRIBUTE_ID"));
+                            LoadProperty(WorldMapAttributeNameProperty, reader.GetString("WORLD_MAP_ATTRIBUTE_NAME"));
                         }
                     }
                 }

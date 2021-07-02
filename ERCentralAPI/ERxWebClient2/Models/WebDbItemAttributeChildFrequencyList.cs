@@ -37,6 +37,7 @@ namespace BusinessLibrary.BusinessClasses
             RaiseListChangedEvents = false;
             IsReadOnly = false;
             Dictionary<long, string> codes = new Dictionary<long, string>();
+            Dictionary<long, string> countryCodes = new Dictionary<long, string>();
             List<MiniItem> items = new List<MiniItem>();
             using (SqlConnection connection = new SqlConnection(DataConnection.ConnectionString))
             {
@@ -58,6 +59,7 @@ namespace BusinessLibrary.BusinessClasses
                         while (reader.Read())
                         {
                             codes.Add(reader.GetInt64("ATTRIBUTE_ID"), reader.GetString("ATTRIBUTE_NAME"));
+                            countryCodes.Add(reader.GetInt64("ATTRIBUTE_ID"), reader.GetString("COUNTRY_CODE"));
                         }
                         reader.NextResult();
                         while (reader.Read())
@@ -76,13 +78,14 @@ namespace BusinessLibrary.BusinessClasses
                 foreach(KeyValuePair<long, string> kvp in codes)
                 {
                     int count = items.FindAll(found => found.Attributes.Contains(kvp.Key)).Count;
+                    string countryCode = countryCodes[kvp.Key].ToString();
                     Add(WebDbItemAttributeChildFrequency.GetReadOnlyItemAttributeChildFrequency(
-                        kvp.Value, kvp.Key, count, criteria.setIdXAxis, criteria.onlyThisAttribute, criteria.included
+                        kvp.Value, kvp.Key, count, criteria.setIdXAxis, criteria.onlyThisAttribute, criteria.included, countryCode
                         ));
                 }
                 int others = items.FindAll(found => found.Attributes.Count == 0).Count;
                 Add(WebDbItemAttributeChildFrequency.GetReadOnlyItemAttributeChildFrequency(
-                        "None of the above", -999999, others, criteria.setIdXAxis, criteria.onlyThisAttribute, criteria.included
+                        "None of the above", -999999, others, criteria.setIdXAxis, criteria.onlyThisAttribute, criteria.included, ""
                         ));
             }
             IsReadOnly = true;
