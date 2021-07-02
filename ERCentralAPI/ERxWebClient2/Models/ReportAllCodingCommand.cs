@@ -170,7 +170,7 @@ namespace BusinessLibrary.BusinessClasses
             _result += commonstyle + "</head><body>";
             if (atts.Count > 0 && Items.Count > 0)
             {
-                StringBuilder sb = new StringBuilder("<table><tr><th>ItemId</th><th>ShortTitle</th><th>Title</th><th>I/E/S flag</th>");
+                StringBuilder sb = new StringBuilder("<table><tr><th>ItemId</th><th>ShortTitle</th><th>Title</th><th>I/E/D/S flag</th>");
                 //_result += "<p>This is a Comparison report for all codings in this Set</p>"
                 //        + "<table><tr><td>ItemId</td><td>ShortTitle</td><td>Title</td>";
                 string secondTableLine = "<tr><td colspan='4'><div style='display: flex; justify-content: flex-end; margin-right:0.25em;'>FullPath:</div></td>";
