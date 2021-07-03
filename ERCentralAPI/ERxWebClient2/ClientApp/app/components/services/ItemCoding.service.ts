@@ -140,6 +140,32 @@ export class ItemCodingService extends BusyAwareService implements OnDestroy {
             }
             );
     }
+
+    public async StandaloneFetchItemAttPDFCoding(criteria: ItemAttPDFCodingCrit): Promise<ItemAttributePDF[] | boolean> {
+        this._BusyMethods.push("StandaloneFetchItemAttPDFCoding");
+        this._CurrentItemAttPDFCoding = new ItemAttPDFCoding();
+        return this._httpC.post<ItemAttributePDF[]>(this._baseUrl + 'api/ItemSetList/FetchPDFCoding',
+            criteria).toPromise().then(result => {
+                //console.log("FetchItemAttPDFCoding", result);
+                //this._CurrentItemAttPDFCoding.Criteria = criteria;
+                //this._CurrentItemAttPDFCoding.ItemAttPDFCoding = result;
+                this.RemoveBusy("StandaloneFetchItemAttPDFCoding");
+                this.ngZone.run(() => this.IsBusy);
+                return result;
+                //this.ItemAttPDFCodingChanged.emit();
+            }, error => {
+                this.RemoveBusy("StandaloneFetchItemAttPDFCoding");
+                this.modalService.GenericError(error);
+                    this.ngZone.run(() => this.IsBusy);
+                    return false;
+            }).catch(caught => {
+                this.RemoveBusy("StandaloneFetchItemAttPDFCoding");
+                this.modalService.GenericError(caught);
+                this.ngZone.run(() => this.IsBusy);
+                return false;
+            });
+    }
+
     public SaveItemAttPDFCoding(perPageXML: string, itemAttributeId: number, cmd: ItemAttributeSaveCommand | null = null) {
         this._BusyMethods.push("SaveItemAttPDFCoding");
         //this is big an complex because we use the XML representation of highlights to re-match with exsiting InPageSelections so to keep the ER4 side happy, when possible...
