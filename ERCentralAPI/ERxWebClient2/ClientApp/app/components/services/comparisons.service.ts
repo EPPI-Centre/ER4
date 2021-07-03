@@ -64,37 +64,6 @@ export class ComparisonsService extends BusyAwareService implements OnDestroy {
 	}
 	public sortChange(sort: SortDescriptor[]): void {
 		this.sort = sort;
-		if (this.sort[0].field.indexOf('Date') > -1) {
-			let arrayComparisonCopys: ComparisonCopy[] = [];
-			for (var i = 0; i < this._Comparisons.length; i++) {
-				let comp = new ComparisonCopy();
-				comp.attributeName = this._Comparisons[i].attributeName;
-				comp.comparisonDate = new Date(this.FormatDateWithInputSlashes(this._Comparisons[i].comparisonDate));
-				comp.comparisonId = this._Comparisons[i].comparisonId;
-				comp.contactId1 = this._Comparisons[i].contactId1;
-				comp.contactId2 = this._Comparisons[i].contactId2;
-				comp.contactId3 = this._Comparisons[i].contactId3;
-				comp.contactName1 = this._Comparisons[i].contactName1;
-				comp.contactName2 = this._Comparisons[i].contactName2;
-				comp.contactName3 = this._Comparisons[i].contactName3;
-				arrayComparisonCopys.push(comp);
-			}
-			arrayComparisonCopys = orderBy(arrayComparisonCopys, this.sort);
-			for (var i = 0; i < this._Comparisons.length; i++) {
-				let comp = new Comparison();
-				comp.attributeName = arrayComparisonCopys[i].attributeName;
-				comp.comparisonDate = arrayComparisonCopys[i].comparisonDate.toLocaleDateString();
-				comp.comparisonId = arrayComparisonCopys[i].comparisonId;
-				comp.contactId1 = arrayComparisonCopys[i].contactId1;
-				comp.contactId2 = arrayComparisonCopys[i].contactId2;
-				comp.contactId3 = arrayComparisonCopys[i].contactId3;
-				comp.contactName1 = arrayComparisonCopys[i].contactName1;
-				comp.contactName2 = arrayComparisonCopys[i].contactName2;
-				comp.contactName3 = arrayComparisonCopys[i].contactName3;
-				this.Comparisons[i] = comp;
-			}
-			return;
-        }
 		this._Comparisons = orderBy(this._Comparisons, this.sort);
 	}
 
