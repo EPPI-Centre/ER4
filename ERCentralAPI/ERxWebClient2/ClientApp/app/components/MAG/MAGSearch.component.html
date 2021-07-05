@@ -128,13 +128,19 @@
                                     </tr>
                                 </table>
                             </div>
-
-                            <div *ngIf="DateLimitSelection == 1 || DateLimitSelection == 2  || DateLimitSelection == 3
-                                || DateLimitSelection == 5  || DateLimitSelection == 6  || DateLimitSelection == 7">
+                            <div *ngIf="DateLimitSelection == 1 || DateLimitSelection == 2  || DateLimitSelection == 3">
                                 <div class="m-1 p-1"><b>Date</b></div>
                                 <div>
                                     <div class="example-wrapper">
                                         <kendo-datepicker [(value)]="valueKendoDatepicker3" [format]="'dd MMM yyyy'"></kendo-datepicker>
+                                    </div>
+                                </div>
+                            </div>
+                            <div *ngIf="DateLimitSelection == 5  || DateLimitSelection == 6  || DateLimitSelection == 7">
+                                <div class="m-1 p-1"><b>Date</b></div>
+                                <div>
+                                    <div class="example-wrapper">
+                                        <kendo-datepicker [(value)]="valueKendoDatepicker3" [format]="'yyyy'"></kendo-datepicker>
                                     </div>
                                 </div>
                             </div>
