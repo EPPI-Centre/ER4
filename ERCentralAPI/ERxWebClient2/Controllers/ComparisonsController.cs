@@ -115,7 +115,7 @@ namespace ERxWebClient2.Controllers
 		{
 			try
 			{
-				if (SetCSLAUser4Writing())
+				if (SetCSLAUser())
 				{
 
 					ComparisonStatsCommand cmd = new ComparisonStatsCommand(comparisonId.Value);

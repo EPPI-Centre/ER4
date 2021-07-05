@@ -84,14 +84,17 @@ export class ComparisonStatsComp implements OnInit {
 		}
 	}
 	public checkCanComplete1(): boolean {
+		if (!this.HasWriteRights) return false;
 		let stats: ComparisonStatistics = this._comparisonsService.Statistics!;
 		return stats.RawStats.canComplete1vs2;
 	}
 	public checkCanComplete2(): boolean {
+		if (!this.HasWriteRights) return false;
 		let stats: ComparisonStatistics = this._comparisonsService.Statistics!;
 		return stats.RawStats.canComplete2vs3;
 	}
 	public checkCanComplete3(): boolean {
+		if (!this.HasWriteRights) return false;
 		let stats: ComparisonStatistics = this._comparisonsService.Statistics!;
 		return stats.RawStats.canComplete1vs3;
 	}	

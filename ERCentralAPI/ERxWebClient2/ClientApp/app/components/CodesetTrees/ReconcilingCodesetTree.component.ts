@@ -39,7 +39,7 @@ export class ReconcilingCodesetTreeComponent implements OnInit, OnDestroy, After
 	constructor(private router: Router,
 		private _httpC: HttpClient,
 		@Inject('BASE_URL') private _baseUrl: string,
-		private ReviewerIdentityServ: ReviewerIdentityService,
+		//private ReviewerIdentityServ: ReviewerIdentityService,
 		private ReviewSetsService: ReviewSetsService,
 		private ItemCodingService: ItemCodingService,
 		private ItemDocsService: ItemDocsService
@@ -49,6 +49,8 @@ export class ReconcilingCodesetTreeComponent implements OnInit, OnDestroy, After
 
 	@Input() reconcilingReviewSet: ReconcilingReviewSet | null = null;
 	@Input() CurrentComparison: Comparison = new Comparison();
+	@Input() HasWriteRights: boolean = false;//to avoid having to use the ReviewerIdentityService
+	@Input() HasAdminRights: boolean = false;//ditto. If not, any "on the fly" editing of coding is disabled.
 	private _ReconcilingItem: ReconcilingItem | undefined = undefined;
 	private _lastReconcilingItemId: number = 0;
 	@Input() public set ReconcilingItem(it: ReconcilingItem | undefined) {

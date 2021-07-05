@@ -36,7 +36,7 @@
         </ng-template>
     </div>
     <div class="mr-1 my-auto">
-        <div>Show PDFCoding? <input type="checkbox" [(ngModel)]="LoadPDFCoding" /></div>
+        <div>Show PDF Coding? <input type="checkbox" [(ngModel)]="LoadPDFCoding" /></div>
         <div>Show Outcomes? <input type="checkbox" [(ngModel)]="ShowOutcomes" /></div>
     </div>
 </div>
@@ -47,17 +47,17 @@
                 {{CurrentComparison.contactName1}}
             </div>
             <div class="col-auto" *ngIf="!ReconcilingItem.IsCompleted && ReconcilingItem.CodesReviewer1.length > 0">
-                <button (click)="Complete(ReconcilingItem, CurrentComparison.contactId1)"
+                <button (click)="Complete(ReconcilingItem, CurrentComparison.contactId1)"  [disabled]="!HasWriteRights"
                         class="btn btn-sm btn-success mr-1">
                     Complete
                 </button>
-                <button (click)="CompleteAndLock(ReconcilingItem, CurrentComparison.contactId1)"
+                <button (click)="CompleteAndLock(ReconcilingItem, CurrentComparison.contactId1)" [disabled]="!HasWriteRights"
                         class="btn btn-sm btn-info">
                     Complete & Lock
                 </button>
             </div>
             <div *ngIf="ReconcilingItem.IsCompleted && ReconcilingItem.CompletedByID == CurrentComparison.contactId1" class="col-auto">
-                <button (click)="UnComplete(ReconcilingItem)"
+                <button (click)="UnComplete(ReconcilingItem)" [disabled]="!HasWriteRights"
                         class="btn btn-sm btn-danger">
                     Un-Complete
                 </button>
@@ -68,17 +68,17 @@
                 {{CurrentComparison.contactName2}}
             </div>
             <div class="col-auto" *ngIf="!ReconcilingItem.IsCompleted && ReconcilingItem.CodesReviewer2.length > 0">
-                <button (click)="Complete(ReconcilingItem, CurrentComparison.contactId2)"
+                <button (click)="Complete(ReconcilingItem, CurrentComparison.contactId2)" [disabled]="!HasWriteRights"
                         class="btn btn-sm btn-success mr-1">
                     Complete
                 </button>
-                <button (click)="CompleteAndLock(ReconcilingItem, CurrentComparison.contactId2)"
+                <button (click)="CompleteAndLock(ReconcilingItem, CurrentComparison.contactId2)" [disabled]="!HasWriteRights"
                         class="btn btn-sm btn-info">
                     Complete & Lock
                 </button>
             </div>
             <div *ngIf="ReconcilingItem.IsCompleted && ReconcilingItem.CompletedByID == CurrentComparison.contactId2" class="col-auto">
-                <button (click)="UnComplete(ReconcilingItem)"
+                <button (click)="UnComplete(ReconcilingItem)" [disabled]="!HasWriteRights"
                         class="btn btn-sm btn-danger">
                     Un-Complete
                 </button>
@@ -89,17 +89,17 @@
                 {{CurrentComparison.contactName3}}
             </div>
             <div class="col-auto" *ngIf="!ReconcilingItem.IsCompleted && ReconcilingItem.CodesReviewer3.length > 0">
-                <button (click)="Complete(ReconcilingItem, CurrentComparison.contactId3)"
+                <button (click)="Complete(ReconcilingItem, CurrentComparison.contactId3)" [disabled]="!HasWriteRights"
                         class="btn btn-sm btn-success mr-1">
                     Complete
                 </button>
-                <button (click)="CompleteAndLock(ReconcilingItem, CurrentComparison.contactId3)"
+                <button (click)="CompleteAndLock(ReconcilingItem, CurrentComparison.contactId3)" [disabled]="!HasWriteRights"
                         class="btn btn-sm btn-info">
                     Complete & Lock
                 </button>
             </div>
             <div *ngIf="ReconcilingItem.IsCompleted && ReconcilingItem.CompletedByID == CurrentComparison.contactId3" class="col-auto">
-                <button (click)="UnComplete(ReconcilingItem)"
+                <button (click)="UnComplete(ReconcilingItem)" [disabled]="!HasWriteRights"
                         class="btn btn-sm btn-danger">
                     Un-Complete
                 </button>

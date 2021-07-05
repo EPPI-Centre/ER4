@@ -8,6 +8,7 @@ import { ReconciliationService, ReconcilingItemList, ReconcilingItem, Reconcilin
 import { ItemDocsService } from '../services/itemdocs.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
 import { Subscription } from 'rxjs';
+import { ReviewerIdentityService } from '../services/revieweridentity.service';
 
 
 @Component({
@@ -42,7 +43,8 @@ export class ComparisonReconciliationComp extends BusyAwareService implements On
 		private _ItemListService: ItemListService,
 		private _comparisonsService: ComparisonsService,
 		private _reconciliationService: ReconciliationService,
-		private _ItemDocsService: ItemDocsService
+		private _ItemDocsService: ItemDocsService,
+		private ReviewerIdentityServ: ReviewerIdentityService,
 
 	) {
 		super();
@@ -57,6 +59,12 @@ export class ComparisonReconciliationComp extends BusyAwareService implements On
 	public CurrentComparison: Comparison = new Comparison();
 	public DetailsView: boolean = false;
 	public panelItem: Item | undefined = new Item();
+	public get HasWriteRights(): boolean {
+		return this.ReviewerIdentityServ.HasWriteRights;
+	}
+	public get HasAdminRights(): boolean {
+		return this.ReviewerIdentityServ.HasAdminRights;
+	}
 	public hideme = [];
 	public hidemeOne = [];
 	public hidemeTwo = [];
@@ -84,10 +92,11 @@ export class ComparisonReconciliationComp extends BusyAwareService implements On
 			() => {
 				this.item = this._ItemListService.ItemList.items[0];
 				this.panelItem = this._ItemListService.ItemList.items[0];
+				this.selectedRow = 0;
 				if (this.panelItem) {
 					this.RefreshDataItems(this.panelItem);
 					this.testBool = true;
-					if (this.DetailsView == true) this.PrepareDetailsViewData();
+					//if (this.DetailsView == true) this.PrepareDetailsViewData();
 				}
 			}
 		);
@@ -167,9 +176,9 @@ export class ComparisonReconciliationComp extends BusyAwareService implements On
 						i = i + 1;
 						this.recursiveItemList(i);
 					} else {
-
+						this.allItems = this.localList.Items;
+						if (this.DetailsView) this.PrepareDetailsViewData();
 						this.RemoveBusy("recursiveItemList");
-						this.allItems  = this.localList.Items;
 						return;
 					}
 				}
@@ -201,7 +210,6 @@ export class ComparisonReconciliationComp extends BusyAwareService implements On
 				this.getItemDocuments(this.panelItem.itemId);
 				this._reconciliationService.FetchArmsForReconItems(
 					this._ItemListService.ItemList.items);
-
 			}
 		}
 	}
