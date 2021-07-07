@@ -20,6 +20,7 @@
     <UserControl.Resources>
         <Button x:Name="isEn" IsEnabled="{Binding HasWriteRights, Mode=OneWay}" ></Button>
         <helper:LoginToReviewIsEn x:Key="LoginToReviewIsEnK"/>
+        <helper:CanActivateArchieReview x:Key="CanActivateArchieReviewK"/>
         <helper:ReverseEditTrueFalseVisibilityConverter x:Key="ReverseEditTrueFalseVisibility" />
         <helper:EditTrueFalseVisibilityConverter x:Key="EditTrueFalseVisibility" />
         <Style TargetType="grid:GridViewCell" x:Name="selectReviewCellStyle">
@@ -49,7 +50,8 @@
                     <ControlTemplate>
                         <StackPanel Orientation="Vertical">
                             <Button x:Name="ActionButtonArchieCheckout" Content="Activate" Click="ActionButtonArchieCheckout_Click"
-                                    Visibility="{Binding isLocal, Mode=TwoWay, Converter={StaticResource ReverseEditTrueFalseVisibility}}"></Button>
+                                    Visibility="{Binding isLocal, Mode=TwoWay, Converter={StaticResource ReverseEditTrueFalseVisibility}}"
+                                    IsEnabled="{Binding ReviewName, Converter={StaticResource CanActivateArchieReviewK}}"></Button>
                             <!--<Button x:Name="ActionButtonArchieUndoCheckout" Content="Undo Check Out" Tag="{Binding ReviewId}" Click="ActionButtonArchieUndoCheckout_Click"
                                     Visibility="{Binding isCheckedOutHere, Mode=TwoWay, Converter={StaticResource EditTrueFalseVisibility}}"></Button>-->
                             <Button x:Name="ActionButtonArchieOpen" Content="Open" Tag="{Binding ReviewId}" Click="ActionButtonArchieOpen_Click"

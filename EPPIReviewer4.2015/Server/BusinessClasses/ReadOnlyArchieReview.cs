@@ -208,7 +208,7 @@ namespace BusinessLibrary.BusinessClasses
             res.Identity = identity;
             res.LoadProperty(ArchieReviewCDProperty, "CD0");
             res.LoadProperty(checkedOutInArchieProperty, false);
-            res.LoadProperty(ArchieReviewIdProperty, "0");
+            res.LoadProperty(ArchieReviewIdProperty, "-1");
             res.LoadProperty(StageProperty, "V");//vacant
             res.LoadProperty(StatusProperty, "I");//inactive
             res.LoadProperty(isCheckedOutHereProperty, false);

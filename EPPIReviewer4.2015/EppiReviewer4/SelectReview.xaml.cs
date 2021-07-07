@@ -513,7 +513,7 @@ namespace EppiReviewer4
         private void ActionButtonArchieOpen_Click(object sender, RoutedEventArgs e)
         {
             ReadOnlyArchieReview roar = (sender as FrameworkElement).DataContext as ReadOnlyArchieReview;
-            if (roar == null || roar.ReviewId < 1) return;//access to any review (for admins) is done via the other tab
+            if (roar == null || roar.ReviewId < 1 || roar.ReviewName == "Place holder: no real reviews are in this list") return;//access to any review (for admins) is done via the other tab
             //GridViewReviewList.IsEnabled = false;
             //GridViewArchieReviewList.IsEnabled = false;
             //TextBlockLoading.Visibility = Visibility.Visible;

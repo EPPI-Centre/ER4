@@ -17,6 +17,7 @@
     <UserControl.Resources>
         <helper:LoginToReviewIsEn x:Key="LoginToReviewIsEnK"/>
         <helper:LoginToArchieReviewIsEn x:Key="LoginToArchieReviewIsEn" />
+        <helper:CanActivateArchieReview x:Key="CanActivateArchieReviewK"/>
         <helper:ReverseEditTrueFalseVisibilityConverter x:Key="ReverseEditTrueFalseVisibility" />
         <helper:EditTrueFalseVisibilityConverter x:Key="EditTrueFalseVisibility" />
         <!--<cslaXAML:CslaDataProvider x:Key="ReviewsData"
@@ -58,7 +59,8 @@
                     <ControlTemplate>
                         <StackPanel Orientation="Vertical">
                             <Button x:Name="ActionButtonArchieCheckout" Content="Activate" Click="ActionButtonArchieCheckout_Click"
-                                    Visibility="{Binding isLocal, Mode=TwoWay, Converter={StaticResource ReverseEditTrueFalseVisibility}}"></Button>
+                                    Visibility="{Binding isLocal, Mode=TwoWay, Converter={StaticResource ReverseEditTrueFalseVisibility}}"
+                                    IsEnabled="{Binding ReviewName, Converter={StaticResource CanActivateArchieReviewK}}"></Button>
                             <!--<Button x:Name="ActionButtonArchieUndoCheckout" Content="Undo Check Out" Tag="{Binding ReviewId}" Click="ActionButtonArchieUndoCheckout_Click"
                                     Visibility="{Binding isCheckedOutHere, Mode=TwoWay, Converter={StaticResource EditTrueFalseVisibility}}"></Button>-->
                             <Button x:Name="ActionButtonArchieOpen" Content="Open" Tag="{Binding ReviewId}" Click="ActionButtonArchieOpen_Click"

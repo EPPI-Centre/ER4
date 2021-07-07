@@ -88,7 +88,7 @@ namespace BusinessLibrary.BusinessClasses
             foreach (XElement el in reviews.Elements().Elements("review"))
             {
                 roar = ReadOnlyArchieReview.GetReadOnlyReview(el, Identity);
-                if (roar.ArchieReviewId == ArchieReviewID)
+                if (roar.ArchieReviewId == ArchieReviewID && ArchieReviewID != "-1")
                 {
                     break;
                 }
