@@ -139,7 +139,7 @@
                             <div >
                                 <div *ngIf="DateLimitSelection == 5 ">
                                     This year:
-                                    <kendo-numerictextbox [(ngModel)]="valueYearPickerCombine3"
+                                    <kendo-numerictextbox [(ngModel)]="valueYearPicker3"
                                                           name="n1" [format]="'#####'"
                                                           [min]="1850"
                                                           [max]="maxyear"
@@ -150,7 +150,7 @@
                                 </div>
                                 <div *ngIf="DateLimitSelection == 6 ">
                                     Before this year:
-                                    <kendo-numerictextbox [(ngModel)]="valueYearPickerCombine3"
+                                    <kendo-numerictextbox [(ngModel)]="valueYearPicker3"
                                                           name="n1" [format]="'#####'"
                                                           [min]="1850"
                                                           [max]="maxyear"
@@ -161,7 +161,7 @@
                                 </div>
                                 <div *ngIf="DateLimitSelection == 7 ">
                                     After this year:
-                                    <kendo-numerictextbox [(ngModel)]="valueYearPickerCombine3"
+                                    <kendo-numerictextbox [(ngModel)]="valueYearPicker3"
                                                           name="n1" [format]="'#####'"
                                                           [min]="1850"
                                                           [max]="maxyear"
@@ -173,7 +173,7 @@
                                 <div *ngIf="DateLimitSelection == 8 ">
                                     <div class="d-block">
                                         Between year:
-                                        <kendo-numerictextbox [(ngModel)]="valueYearPickerCombine3"
+                                        <kendo-numerictextbox [(ngModel)]="valueYearPicker3"
                                                               name="n1" [format]="'#####'"
                                                               [min]="1850"
                                                               [max]="maxyear"
@@ -184,9 +184,9 @@
                                     </div>
                                     <div class="d-block">
                                         and year:
-                                        <kendo-numerictextbox [(ngModel)]="valueYearPickerCombine4"
+                                        <kendo-numerictextbox [(ngModel)]="valueYearPicker4"
                                                               name="n2" [format]="'#####'"
-                                                              [min]="valueYearPickerCombine3"
+                                                              [min]="valueYearPicker3"
                                                               [max]="maxyear"
                                                               [step]="1"
                                                               [autoCorrect]="true"
