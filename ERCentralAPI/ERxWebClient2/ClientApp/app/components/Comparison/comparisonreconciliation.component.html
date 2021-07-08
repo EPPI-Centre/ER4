@@ -10,8 +10,8 @@
             <div class="row mx-1 px-0">
                 <div class="col row mx-0 px-0">
                     <h5 class="m-1 p-1 font-weight-bold">Details view</h5>
-                    <button (click)="DetailsView = false" class="btn btn-sm btn-outline-info my-auto">
-                        Show Items List
+                    <button (click)="DetailsView = false" class="btn btn-sm btn-primary my-auto">
+                        Show Items List View
                     </button>
                 </div>
 
@@ -73,8 +73,8 @@
             <div *ngIf="!DetailsView">
                 <div class="row mx-1 px-0">
                     <h5 class="m-1 p-1 font-weight-bold">Items List</h5>
-                    <button (click)="ToDetailsView()" class="btn btn-sm btn-outline-info my-auto">
-                        Show details view
+                    <button (click)="ToDetailsView()" class="btn btn-sm btn-primary my-auto">
+                        Show Detailed Tree-View
                     </button>
                 </div>
                 <div style="max-height:48vh; overflow:auto;">

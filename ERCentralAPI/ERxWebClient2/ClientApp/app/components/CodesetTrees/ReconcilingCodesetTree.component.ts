@@ -395,10 +395,10 @@ export class ReconcilingCodesetTreeComponent implements OnInit, OnDestroy, After
 		if (this.reconcilingReviewSet) {
 			let parents = this.reconcilingReviewSet.ParentsListByAttId(sa.attribute_id);
 			for (let i = parents.length - 1; i > -1; i-- ) {//parents come from immediate parent towards the root
-				res += "<i class='fa fa-arrow-right pt-1 mt-2 mx-1'></i>" + parents[i].attribute_name;
+				res += "<i class='fa small text-primary fa-arrow-right pt-1 mt-2 mx-1'></i><span class='font-italic'>" + parents[i].attribute_name + "</span>";
             }
 		}
-		res += "<i class='fa fa-arrow-right pt-1 mt-2 mx-1'></i>" + sa.attribute_name;
+		res += "<i class='fa small text-primary fa-arrow-right pt-1 mt-2 mx-1'></i>" + sa.attribute_name;
 		return res;
 	}
 

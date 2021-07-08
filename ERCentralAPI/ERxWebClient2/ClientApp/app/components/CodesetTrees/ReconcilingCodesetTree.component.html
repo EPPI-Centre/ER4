@@ -195,7 +195,7 @@
             </ng-template>
             <ul *ngIf="SelectedNode.Reviewer1Coding.length > 0" class="pl-4">
                 <li *ngIf="CodingWholeStudy(SelectedNode.Reviewer1Coding).length > 0">
-                    <b>Whole Study</b>
+                    <b>{{SelectedNode.attribute_name}}</b>
                     <div *ngFor="let coding of CodingWholeStudy(SelectedNode.Reviewer1Coding)">
                         <div *ngIf="coding.InfoBox != ''" class="small mt-1 p-1 bg-white border border-dark">
                             <b>[Info Box]</b> {{coding.InfoBox}}
@@ -205,7 +205,7 @@
                 </li>
                 <li *ngFor="let arm of ReconcilingItem.Item.arms" [hidden]="CodingByArmId(SelectedNode.Reviewer1Coding, arm.itemArmId).length == 0">
                     <div *ngFor="let coding of CodingByArmId(SelectedNode.Reviewer1Coding, arm.itemArmId)">
-                        <b>{{arm.title}}</b>
+                        <b>{{SelectedNode.attribute_name}} (Arm: {{arm.title}})</b>
                         <div *ngIf="coding.InfoBox != ''" class="small mt-1 p-1 bg-white border border-dark">
                             <b>[Info Box]</b> {{coding.InfoBox}}
                         </div>
@@ -228,7 +228,7 @@
             </ng-template>
             <ul *ngIf="SelectedNode.Reviewer2Coding.length > 0" class="pl-4">
                 <li *ngIf="CodingWholeStudy(SelectedNode.Reviewer2Coding).length > 0">
-                    <b>Whole Study</b>
+                    <b>{{SelectedNode.attribute_name}}</b>
                     <div *ngFor="let coding of CodingWholeStudy(SelectedNode.Reviewer2Coding)">
                         <div *ngIf="coding.InfoBox != ''" class="small mt-1 p-1 bg-white border border-dark">
                             <b>[Info Box]</b> {{coding.InfoBox}}
@@ -238,7 +238,7 @@
                 </li>
                 <li *ngFor="let arm of ReconcilingItem.Item.arms" [hidden]="CodingByArmId(SelectedNode.Reviewer2Coding, arm.itemArmId).length == 0">
                     <div *ngFor="let coding of CodingByArmId(SelectedNode.Reviewer2Coding, arm.itemArmId)">
-                        <b>{{arm.title}}</b>
+                        <b>{{SelectedNode.attribute_name}} (Arm: {{arm.title}})</b>
                         <div *ngIf="coding.InfoBox != ''" class="small mt-1 p-1 bg-white border border-dark">
                             <b>[Info Box]</b> {{coding.InfoBox}}
                         </div>
@@ -261,7 +261,7 @@
             </ng-template>
             <ul *ngIf="SelectedNode.Reviewer3Coding.length > 0" class="pl-4">
                 <li *ngIf="CodingWholeStudy(SelectedNode.Reviewer3Coding).length > 0">
-                    <b>Whole Study</b>
+                    <b>{{SelectedNode.attribute_name}}</b>
                     <div *ngFor="let coding of CodingWholeStudy(SelectedNode.Reviewer3Coding)">
                         <div *ngIf="coding.InfoBox != ''" class="small mt-1 p-1 bg-white border border-dark">
                             <b>[Info Box]</b> {{coding.InfoBox}}
@@ -271,7 +271,7 @@
                 </li>
                 <li *ngFor="let arm of ReconcilingItem.Item.arms" [hidden]="CodingByArmId(SelectedNode.Reviewer3Coding, arm.itemArmId).length == 0">
                     <div *ngFor="let coding of CodingByArmId(SelectedNode.Reviewer3Coding, arm.itemArmId)">
-                        <b>{{arm.title}}</b>
+                        <b>{{SelectedNode.attribute_name}} (Arm: {{arm.title}})</b>
                         <div *ngIf="coding.InfoBox != ''" class="small mt-1 p-1 bg-white border border-dark">
                             <b>[Info Box]</b> {{coding.InfoBox}}
                         </div>
