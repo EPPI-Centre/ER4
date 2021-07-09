@@ -401,12 +401,12 @@
             <table class='card-body table table-striped bg-light' *ngIf="ShowComparisons && Comparisons">
                 <thead>
                     <tr class="small">
-                        <th class="pl-1"  (click)="ChangeSort('setName')" style="cursor:pointer;">Codes applied from this set<span [innerHTML]="sortSymbol('setName')"></span></th>
-                        <th class="pl-1"  (click)="ChangeSort('contactName1')" style="cursor:pointer;">Reviewer 1<span [innerHTML]="sortSymbol('contactName1')"></span></th>
-                        <th class="pl-1"  (click)="ChangeSort('contactName2')" style="cursor:pointer;">Reviewer 2<span [innerHTML]="sortSymbol('contactName2')"></span></th>
-                        <th class="pl-1"  (click)="ChangeSort('contactName3')" style="cursor:pointer;">(Reviewer 3)<span [innerHTML]="sortSymbol('contactName3')"></span></th>
-                        <th class="pl-1"  (click)="ChangeSort('attributeName')" style="cursor:pointer;">(Only with this code)<span [innerHTML]="sortSymbol('attributeName')"></span></th>
-                        <th class="pl-1"  (click)="ChangeSort('comparisonId')" style="cursor:pointer;">Date<span [innerHTML]="sortSymbol('comparisonId')"></span></th>
+						<th class="pl-1" (click)="ChangeSort('setName')" style="cursor:pointer;">Codes applied from this set&nbsp;<span [innerHTML]="sortSymbol('setName')"></span></th>
+                        <th class="pl-1"  (click)="ChangeSort('contactName1')" style="cursor:pointer;">Reviewer 1&nbsp;<span [innerHTML]="sortSymbol('contactName1')"></span></th>
+						<th class="pl-1" (click)="ChangeSort('contactName2')" style="cursor:pointer;">Reviewer 2&nbsp;<span [innerHTML]="sortSymbol('contactName2')"></span></th>
+						<th class="pl-1" (click)="ChangeSort('contactName3')" style="cursor:pointer;">(Reviewer 3)&nbsp;<span [innerHTML]="sortSymbol('contactName3')"></span></th>
+						<th class="pl-1" (click)="ChangeSort('attributeName')" style="cursor:pointer;">(Only with this code)&nbsp;<span [innerHTML]="sortSymbol('attributeName')"></span></th>
+						<th class="pl-1" (click)="ChangeSort('comparisonId')" style="cursor:pointer;">Date&nbsp;<span [innerHTML]="sortSymbol('comparisonId')"></span></th>
                         <th class="pl-1">Quick Rep.</th>
                         <th class="pl-1">Details</th>
                         <th class="pl-1">Delete</th>
