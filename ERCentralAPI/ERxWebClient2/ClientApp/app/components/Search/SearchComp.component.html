@@ -330,7 +330,49 @@
         </figure>
     </div>
     <div class="card bg-light ">
-        <div class="col-12 row justify-content-center">
+        <div class="col-6 justify-content-lg-start">
+            <button style="min-width: 150px;" class="btn btn-dark p-2 m-2" (click)="findItemsScoring()">Find</button>
+            <table class="p-2 m-2">
+                <tr>
+                    <td>
+                        <input class="p-2 m-2" name="searchMoreThanLessThanBetween" type="radio" value="More" [(ngModel)]="searchMTLTB">
+
+                        <b>&nbsp; More than </b>
+                    </td>
+                    <td>
+                        <input class="p-2 m-2" name="searchMoreThanLessThanBetween" type="radio" value="Less" [(ngModel)]="searchMTLTB">
+
+                        <b>&nbsp; Less than</b>
+                    </td>
+                    <td>
+                        <input class="p-2 m-2" name="searchMoreThanLessThanBetween" type="radio" value="Between" [(ngModel)]="searchMTLTB">
+
+                        <b>&nbsp; Between</b>
+                    </td>
+                    <td>
+                        <div>
+                            <div class="p-2 m-2 small pull-right">
+                                <h6>Score threshold</h6>
+                                <kendo-numerictextbox [(ngModel)]="LowerScoreThreshold"
+                                                      [min]="0"
+                                                      [max]="100"
+                                                      [autoCorrect]="true"
+                                                      class="border border-dark rounded"></kendo-numerictextbox>
+                            </div>
+                            <div  *ngIf="searchMTLTB==='Between'" class="p-2 m-2 small">
+                                <h6>Score threshold</h6>
+                                <kendo-numerictextbox [(ngModel)]="UpperScoreThreshold"
+                                                      [min]="0"
+                                                      [max]="100"
+                                                      [autoCorrect]="true"
+                                                      class="border border-dark rounded"></kendo-numerictextbox>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div class="col-6 row justify-content-center">
             <div class="">
                 <button style="min-width: 150px;" class="btn btn-info p-2 m-2" (click)="exportChart()">Save</button>
             </div>

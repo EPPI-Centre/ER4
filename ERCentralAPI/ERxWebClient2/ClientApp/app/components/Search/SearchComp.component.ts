@@ -101,7 +101,9 @@ export class SearchComp implements OnInit, OnDestroy {
 	public searchText: string = '';
 	public searchTextModel: string = '';
 	public CurrentDropdownSelectedCode: singleNode | null = null;
-    public SearchForPeoplesModel: string = 'true';
+	public SearchForPeoplesModel: string = 'true';
+	public LowerScoreThreshold: number = 0;
+	public UpperScoreThreshold: number = 0;
 
     public get DataSourceSearches(): GridDataResult {
         return {
@@ -164,6 +166,38 @@ export class SearchComp implements OnInit, OnDestroy {
 		});
 
 	}
+	public findItemsScoring(): void {
+
+
+		this._searchService.cmdSearches._scoreOne = this.LowerScoreThreshold;
+		this._searchService.cmdSearches._scoreTwo = this.UpperScoreThreshold;
+		this._searchService.cmdSearches._searchType = this._searchMTLTB;
+		console.log('this._searchService.cmdSearches._scoreOne : ', this._searchService.cmdSearches._scoreOne);
+		console.log('this._searchService.cmdSearches._scoreTwo : ', this._searchService.cmdSearches._scoreTwo);
+		if (this.visualiseSearchId > 0) {
+			this._searchService.cmdSearches._searchId = this.visualiseSearchId;
+        } else {
+			return;	
+        }
+		
+		let searchText: string = '';
+		if (this._searchMTLTB === 'More') {
+			searchText = "Search #" + this._searchService.cmdSearches._searchId + " scores more than " +
+				this.LowerScoreThreshold;
+		} else if (this._searchMTLTB === 'Less') {
+			searchText = "Search #" + this._searchService.cmdSearches._searchId + " scores less than " +
+				this.LowerScoreThreshold;
+		} else if (this._searchMTLTB ==='Between') {
+			searchText = "Search #" + this._searchService.cmdSearches._searchId + " scores is between " +
+				this.LowerScoreThreshold + " and " + this.UpperScoreThreshold;
+		} else {		
+			return;
+		}	
+		
+		this._searchService.cmdSearches._searchText = searchText;
+		this._searchService.CreateSearch(this._searchService.cmdSearches, 'SearchClassifierScores');
+
+    }
 	public HideManuallyCreatedItems(ROS: ReadOnlySource): boolean {
 		if (ROS.source_Name == 'NN_SOURCELESS_NN' && ROS.source_ID == -1) return true;
 		else return false;
@@ -631,6 +665,25 @@ export class SearchComp implements OnInit, OnDestroy {
 
 	}
 
+	private _searchMTLTB: string = 'More';
+	public scoreOne: number = 0;
+	public scoreTwo: number = 0;
+
+	public get searchMTLTB(): string {
+
+		this._searchService.cmdSearches._searchType = this._searchMTLTB;
+
+		return this._searchMTLTB;
+	}
+	public set searchMTLTB(value: string) {
+
+		this._searchService.cmdSearches._searchType = this._searchMTLTB;
+
+		if (value == 'More' || value == 'Less' || value == 'Between') this._searchMTLTB = value;
+		else console.log("I'm not doing it :-P ", value);
+
+	}
+
 	private _logic: string = '';
 
 	public get logic(): string {
@@ -1031,6 +1084,7 @@ export class SearchComp implements OnInit, OnDestroy {
 	public visualiseSearchId = 0;
 
 	OpenClassifierVisualisation(search: Search) {
+
 
 		//console.log(JSON.stringify(search.title));
 		this.NewSearchSection = false;
