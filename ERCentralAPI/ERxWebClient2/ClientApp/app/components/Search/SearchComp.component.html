@@ -351,6 +351,8 @@
                         <div class="col-sm-12 col-md-2" style="min-width: 220px;">
                                  <kendo-numerictextbox [(ngModel)]="LowerScoreThreshold"
                                                           [min]="0"
+                                                          [step]="1"
+                                                          [format]="'n0'"
                                                           [max]="100"
                                                           [autoCorrect]="true"
                                                           class="border border-dark rounded"></kendo-numerictextbox>
@@ -358,6 +360,8 @@
                         <div class="col-sm-12 col-md-2" [hidden]="searchMTLTB!=='Between'" style="min-width: 130px;">
                                  <kendo-numerictextbox [(ngModel)]="UpperScoreThreshold"
                                                       [min]="0"
+                                                      [step]="1"
+                                                      [format]="'n0'"
                                                       [max]="100"
                                                       [autoCorrect]="true"
                                                       class="border border-dark rounded"></kendo-numerictextbox>
