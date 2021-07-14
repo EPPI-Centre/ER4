@@ -179,7 +179,7 @@ export class WorkAllocationWizardComp implements OnInit, OnDestroy {
         else return this.workAllocationFromWizardCommand.numberOfItemsToAssign.toString();
     }
     public get CanEditSelectedSet(): boolean {
-        return (this.CanWrite && this.WorkToDoSelectedCodeSet.allowEditingCodeset);
+        return (this.CanWrite() && this.WorkToDoSelectedCodeSet.allowEditingCodeset);
     }
     public get WorkToDoSelectedCodeSetDataEntryM(): string {
         if (this.WorkToDoSelectedCodeSet.codingIsFinal) return "Comparison";
