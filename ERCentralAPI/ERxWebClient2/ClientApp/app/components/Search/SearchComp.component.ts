@@ -61,6 +61,8 @@ export class SearchComp implements OnInit, OnDestroy {
             //this.getMembers();
             //console.log(this.Contacts);
             this.clearSub = this._eventEmitter.PleaseClearYourDataAndState.subscribe(() => { this.Clear(); })
+
+            this._sourcesService.FetchSources();
         }
     }
     //getMembers() {
@@ -104,6 +106,8 @@ export class SearchComp implements OnInit, OnDestroy {
     public SearchForPeoplesModel: string = 'true';
     public LowerScoreThreshold: number = 50;
     public UpperScoreThreshold: number = 50;
+    public ShowSources: boolean = false;
+    public ReviewSources: ReadOnlySource[] = [];
 
     public get DataSourceSearches(): GridDataResult {
         return {
@@ -1050,6 +1054,17 @@ export class SearchComp implements OnInit, OnDestroy {
                     );
                 this.dropDownList = this._reviewSetsService.ReviewSets;
 
+                break;
+            }
+            case 11: {
+                
+                this.ReviewSources = this._sourcesService.ReviewSources;
+                if (this.ReviewSources.length > 0) {
+
+                    this.ShowSources = true;
+                }
+                console.log('got in correct switch level, length of sources: ', this.ReviewSources);
+                console.log('Should we show results: ', this.ShowSources);
                 break;
             }
             default: {
