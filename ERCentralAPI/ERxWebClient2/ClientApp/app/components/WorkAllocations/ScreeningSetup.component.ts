@@ -206,7 +206,7 @@ export class ScreeningSetupComp implements OnInit, OnDestroy, AfterViewInit {
         return this.ReviewerIdentityService.HasAdminRights;
     }
     public get CanEditSelectedSet(): boolean {
-        return (this.CanWrite && this.selectedCodeSetDropDown !=null && this.selectedCodeSetDropDown.allowEditingCodeset);
+        return (this.CanWrite() && this.selectedCodeSetDropDown !=null && this.selectedCodeSetDropDown.allowEditingCodeset);
     }
     public get WorkToDoSelectedCodeSetDataEntryM(): string {
         if (this.selectedCodeSetDropDown != null && this.selectedCodeSetDropDown.codingIsFinal) return "Comparison";
