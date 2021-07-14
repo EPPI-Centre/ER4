@@ -1,0 +1,25 @@
+<div class="">
+    <div class="m-1 border border-dark" style="max-height: 350px; overflow-y:scroll;">
+        <div *ngIf="ReviewSources.length == 0">
+            No Sources in review.
+        </div>
+        <table *ngIf="ReviewSources.length > 0" class="table-striped table table-bordered small" >
+            <tbody>
+                <tr>
+                    <th><input type="checkbox" id="checkAll" (click)="changeCheck()" [(ngModel)]="checkAllValue" /></th>
+                    <th class="p-0" style="min-width:100px;">Name</th>
+                    <th class="p-0" width="50">Items</th>
+                    <th class="p-0" width="60">Deleted</th>
+                    <th class="p-0" width="70">Duplicates</th>
+                </tr>
+                <tr *ngFor="let ROsource of ReviewSources" class="p-0">
+                    <td><input type="checkbox" [(ngModel)]="ROsource.isSelected" (change)="checkboxChange(ROsource)"  /></td>
+                    <td class="p-1 align-middle">{{DisplaySourcename(ROsource)}}</td>
+                    <td class="p-1 align-middle ">{{ROsource.total_Items}}</td>
+                    <td class="p-1 align-middle ">{{ROsource.deleted_Items}}</td>
+                    <td class="p-1 align-middle ">{{ROsource.duplicates}}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

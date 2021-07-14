@@ -1009,7 +1009,7 @@ export class SearchComp implements OnInit, OnDestroy {
         let typeElement: "success" | "error" | "none" | "warning" | "info" | undefined = undefined;
         this.showTextBox = false;
         this.selectedSearchDropDown = val;
-
+        this.ShowSources = false;
         switch (num) {
 
             case 1: {
@@ -1063,8 +1063,6 @@ export class SearchComp implements OnInit, OnDestroy {
 
                     this.ShowSources = true;
                 }
-                console.log('got in correct switch level, length of sources: ', this.ReviewSources);
-                console.log('Should we show results: ', this.ShowSources);
                 break;
             }
             default: {
