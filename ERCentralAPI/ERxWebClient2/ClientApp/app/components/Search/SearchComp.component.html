@@ -329,53 +329,89 @@
             </kendo-chart>
         </figure>
     </div>
+
     <div class="card bg-light ">
-        <div class="col-12 row">
-            <div class="col-12 row justify-content-lg-start">
-                <div class="p-2 m-2 row">
-                        <div class="col-sm-12 col-md-1" style="min-width: 130px;">
-                            <button class="btn btn-dark col-12" (click)="FindItemsScoring()">Find</button>
-                        </div>
-                        <div class="col-sm-3 col-md-1" style="min-width: 140px;" >
-                            <input  name="searchMoreThanLessThanBetween" type="radio" value="More" [(ngModel)]="searchMTLTB">
-                            <b>&nbsp; More than </b>
-                        </div>
-                        <div class="col-sm-3 col-md-1" style="min-width: 130px;" >
-                            <input  name="searchMoreThanLessThanBetween" type="radio" value="Less" [(ngModel)]="searchMTLTB">
-                            <b>&nbsp; Less than</b>
-                        </div>
-                        <div class="col-sm-3 col-md-1" style="min-width: 130px;" >
-                            <input  name="searchMoreThanLessThanBetween" type="radio" value="Between" [(ngModel)]="searchMTLTB">
-                            <b>&nbsp; Between</b>
-                        </div>
-                        <div class="col-sm-12 col-md-2" style="min-width: 220px;">
-                                 <kendo-numerictextbox [(ngModel)]="LowerScoreThreshold"
-                                                          [min]="0"
-                                                          [step]="1"
-                                                          [format]="'n0'"
-                                                          [max]="100"
-                                                          [autoCorrect]="true"
-                                                          class="border border-dark rounded"></kendo-numerictextbox>
-                        </div>
-                        <div class="col-sm-12 col-md-2" [hidden]="searchMTLTB!=='Between'" style="min-width: 130px;">
-                                 <kendo-numerictextbox [(ngModel)]="UpperScoreThreshold"
-                                                      [min]="0"
-                                                      [step]="1"
-                                                      [format]="'n0'"
-                                                      [max]="100"
-                                                      [autoCorrect]="true"
-                                                      class="border border-dark rounded"></kendo-numerictextbox>
-                        </div>
-                        <div class="col-sm-6 col-md-1" style="min-width: 130px;">
-                                <button  class="btn btn-info  col-12" (click)="exportChart()">Save</button>
-                        </div>
-                        <div class="col-sm-6 col-md-1" style="min-width: 130px;">
-                                <button class="btn btn-danger col-12" (click)="CancelVisualise()">Close</button>
-                        </div>
+
+        <div class="col-12 p-2 m-2 row">
+
+
+
+            <div class="col-sm-3 col-md-3">
+                <button class="btn btn-dark" (click)="FindItemsScoring()">Search scores</button>
+            </div>
+            <div class="col-sm-3 col-md-3">
+                <div class="form-check-inline">
+                    <label class="form-check-label">
+                        <input type="radio" class="form-check-input" value="More" [(ngModel)]="searchMTLTB" name="optradio">More than
+                    </label>
+                </div>
+                <div class="form-check-inline">
+                    <label class="form-check-label">
+                        <input type="radio" class="form-check-input" value="Less" [(ngModel)]="searchMTLTB" name="optradio">Less than
+                    </label>
+                </div>
+                <div class="form-check-inline">
+                    <label class="form-check-label">
+                        <input type="radio" class="form-check-input" value="Between" [(ngModel)]="searchMTLTB" name="optradio">Between
+                    </label>
                 </div>
             </div>
+
+
+
+            <div class="col-sm-4 col-md-3">
+                <div class="row">
+                    <div class="col-lg-6">
+                        <kendo-numerictextbox [(ngModel)]="LowerScoreThreshold"
+                                              [min]="0"
+                                              [step]="1"
+                                              [format]="'n0'"
+                                              [max]="100"
+                                              [autoCorrect]="true"
+                                              [style.width]="'90px'"
+                                              class="border border-dark rounded"></kendo-numerictextbox>
+                        &nbsp;
+
+                    </div>
+                    <div class="col-lg-6">
+                        <div [hidden]="searchMTLTB!=='Between'">
+                            <kendo-numerictextbox [(ngModel)]="UpperScoreThreshold"
+                                                  [min]="0"
+                                                  [step]="1"
+                                                  [format]="'n0'"
+                                                  [max]="100"
+                                                  [autoCorrect]="true"
+                                                  class="border border-dark rounded"
+                                                  style="width: 90px"></kendo-numerictextbox>
+
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="col-sm-2 col-md-3">
+
+                <div class="row">
+                    <div class="col-lg-6">
+                        <button class="btn btn-info" (click)="exportChart()">Save chart</button>
+                        &nbsp;
+                    </div>
+                    <div class="col-lg-6">
+                        <button class="btn btn-danger" (click)="CancelVisualise()">Close</button>
+                    </div>
+                </div>
+
+
+            </div>
+
+
+
+
         </div>
     </div>
+
+
 </div>
 <div class="card col-12 bg-light">
 
