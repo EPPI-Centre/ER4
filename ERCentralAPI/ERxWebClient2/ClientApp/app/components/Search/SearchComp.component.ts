@@ -439,6 +439,8 @@ export class SearchComp implements OnInit, OnDestroy {
         }
         else if (this.selectedSearchDropDown == 'Containing this text' && this.searchText != '' && this.selectedSearchTextDropDown != '') {
             return true;
+        } else if (this.selectedSearchDropDown == 'With Specific Sources' && this._sourcesService.ReviewSources.map(x => x.isSelected == true).length > 0 ) {
+            return true;
         }
 
         return false;
@@ -996,6 +998,12 @@ export class SearchComp implements OnInit, OnDestroy {
                 this._searchService.cmdSearches._title = 'With at least one document uploaded.';
                 this._searchService.CreateSearch(this._searchService.cmdSearches, 'SearchOneFile');
 
+            }
+            if (selectedSearchDropDown == 'Within Sources') {
+
+                this._searchService.cmdSearches._title = 'With Specific Sources.';
+                this._searchService.cmdSearches._sourceIds = this._sourcesService.ReviewSources.filter(x => x.isSelected == true).map<string>(y => y.source_ID.toString()).join(',');
+                this._searchService.CreateSearch(this._searchService.cmdSearches, 'SearchSources');
             }
 
         }

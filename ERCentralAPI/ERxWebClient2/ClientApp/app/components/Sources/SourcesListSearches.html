@@ -13,7 +13,7 @@
                     <th class="p-0" width="70">Duplicates</th>
                 </tr>
                 <tr *ngFor="let ROsource of ReviewSources" class="p-0">
-                    <td><input type="checkbox" [(ngModel)]="ROsource.isSelected" (change)="checkboxChange(ROsource)"  /></td>
+                    <td><input type="checkbox" [(ngModel)]="ROsource.isSelected"/></td>
                     <td class="p-1 align-middle">{{DisplaySourcename(ROsource)}}</td>
                     <td class="p-1 align-middle ">{{ROsource.total_Items}}</td>
                     <td class="p-1 align-middle ">{{ROsource.deleted_Items}}</td>

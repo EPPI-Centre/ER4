@@ -39,9 +39,6 @@ export class SourcesListSearchesComponent implements OnInit {
             }
         }
     }
-    checkboxChange(item: ReadOnlySource) {
-        this.ReviewSources.filter(x => x == item)[0].isSelected = !this.ReviewSources.filter(x => x == item)[0].isSelected;
-    }
     get ReviewSources(): ReadOnlySource[] {
 
         let sources: ReadOnlySource[] = this.SourcesService.ReviewSources.filter((v, i) => i != this.SourcesService.ReviewSources.length - 1);
