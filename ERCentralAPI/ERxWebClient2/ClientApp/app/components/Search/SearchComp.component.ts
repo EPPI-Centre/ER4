@@ -61,6 +61,8 @@ export class SearchComp implements OnInit, OnDestroy {
             //this.getMembers();
             //console.log(this.Contacts);
             this.clearSub = this._eventEmitter.PleaseClearYourDataAndState.subscribe(() => { this.Clear(); })
+
+            this._sourcesService.FetchSources();
         }
     }
     //getMembers() {
@@ -104,6 +106,8 @@ export class SearchComp implements OnInit, OnDestroy {
     public SearchForPeoplesModel: string = 'true';
     public LowerScoreThreshold: number = 50;
     public UpperScoreThreshold: number = 50;
+    public ShowSources: boolean = false;
+    public ReviewSources: ReadOnlySource[] = [];
 
     public get DataSourceSearches(): GridDataResult {
         return {
@@ -434,6 +438,8 @@ export class SearchComp implements OnInit, OnDestroy {
             return true;
         }
         else if (this.selectedSearchDropDown == 'Containing this text' && this.searchText != '' && this.selectedSearchTextDropDown != '') {
+            return true;
+        } else if (this.selectedSearchDropDown == 'With Specific Sources' && this._sourcesService.ReviewSources.map(x => x.isSelected == true).length > 0 ) {
             return true;
         }
 
@@ -993,6 +999,12 @@ export class SearchComp implements OnInit, OnDestroy {
                 this._searchService.CreateSearch(this._searchService.cmdSearches, 'SearchOneFile');
 
             }
+            if (selectedSearchDropDown == 'Within Sources') {
+
+                this._searchService.cmdSearches._title = 'With Specific Sources.';
+                this._searchService.cmdSearches._sourceIds = this._sourcesService.ReviewSources.filter(x => x.isSelected == true).map<string>(y => y.source_ID.toString()).join(',');
+                this._searchService.CreateSearch(this._searchService.cmdSearches, 'SearchSources');
+            }
 
         }
     }
@@ -1005,7 +1017,7 @@ export class SearchComp implements OnInit, OnDestroy {
         let typeElement: "success" | "error" | "none" | "warning" | "info" | undefined = undefined;
         this.showTextBox = false;
         this.selectedSearchDropDown = val;
-
+        this.ShowSources = false;
         switch (num) {
 
             case 1: {
@@ -1050,6 +1062,15 @@ export class SearchComp implements OnInit, OnDestroy {
                     );
                 this.dropDownList = this._reviewSetsService.ReviewSets;
 
+                break;
+            }
+            case 11: {
+                
+                this.ReviewSources = this._sourcesService.ReviewSources;
+                if (this.ReviewSources.length > 0) {
+
+                    this.ShowSources = true;
+                }
                 break;
             }
             default: {

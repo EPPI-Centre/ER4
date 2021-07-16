@@ -349,6 +349,34 @@ namespace ERxWebClient2.Controllers
 			}
 		}
 
+		[HttpPost("[action]")]
+		public IActionResult SearchSources([FromBody] CodeCommand cmdIn)
+		{
+			try
+			{
+				if (SetCSLAUser4Writing())
+				{
+					SearchSourcesCommand cmd = new SearchSourcesCommand(
+						 cmdIn._title,
+						 cmdIn._included,
+						 cmdIn._sourceIds,
+						 cmdIn._searchId
+						);
+					DataPortal<SearchSourcesCommand> dp = new DataPortal<SearchSourcesCommand>();
+
+					cmd = dp.Execute(cmd);
+
+					return Ok(cmd);
+				}
+				else return Forbid();
+			}
+			catch (Exception e)
+			{
+				_logger.LogException(e, "Searches based on Source parameters has failed");
+				return StatusCode(400, e.Message);
+			}
+		}
+
 
 		[HttpPost("[action]")]
 		public IActionResult DeleteSearch([FromBody] SingleStringCriteria _searches)
@@ -418,6 +446,7 @@ namespace ERxWebClient2.Controllers
 		public int _contactId = 0;
 		public string _contactName = "";
 		public string _searchType = "";
+		public string _sourceIds = "";
 		public int _scoreOne = 0;
 		public int _scoreTwo = 0;
 	}

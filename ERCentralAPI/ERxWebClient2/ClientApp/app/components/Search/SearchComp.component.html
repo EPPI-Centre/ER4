@@ -32,9 +32,14 @@
                         <button (click)="nextDropDownList(8,'With at least one document uploaded')" class="dropdown-item">With at least one document uploaded</button>
                         <button (click)="nextDropDownList(9, 'Without any documents uploaded')" class="dropdown-item">Without any documents uploaded</button>
                         <button (click)="nextDropDownList(10,'Without an abstract')" class="dropdown-item">Without an abstract</button>
+                        <button (click)="nextDropDownList(11,'With Specific Sources')" class="dropdown-item">With Specific Sources</button>
                     </div>
                 </div>
+                <div *ngIf="ShowSources">
+                    <SourcesListSearches class="mt-1" style="max-height: 420px;"></SourcesListSearches>
+                </div>
             </div>
+           
             <div class="col-12 col-md-3 pull-left brightSwitch font-weight-bold"></div>
             <div class="col-12 col-md-3 pull-left brightSwitch font-weight-bold"> </div>
             <div *ngIf="(selectedSearchDropDown == 'With this code')

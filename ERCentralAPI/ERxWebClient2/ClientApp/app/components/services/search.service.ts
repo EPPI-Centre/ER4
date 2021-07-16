@@ -143,6 +143,7 @@ export class SearchCodeCommand {
 	public _searchType: string = '';
 	public _scoreOne: number = 0;
 	public _scoreTwo: number = 0;
+	public _sourceIds: string = '';
 
 }
 

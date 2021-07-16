@@ -390,6 +390,7 @@ export interface ImportFilter {
     startOfNewRec: string;//we might use this to split the file and send only the first 100 refs for checking (import step1)...
 }
 export interface ReadOnlySource {
+    isSelected: boolean;
     source_ID: number;
     source_Name: string;
     total_Items: number;

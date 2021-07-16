@@ -110,6 +110,7 @@ import { ItemLinksComp } from './components/ArmsAndTimePoints/ItemLinks.componen
 import { SetupConfigurableReports } from './components/Reports/SetupConfigurableReports.component';
 import { FreqXtabMapsComp } from './components/Frequencies/FreqXtabMaps.component';
 import { ReconcilingCodesetTreeComponent } from './components/CodesetTrees/ReconcilingCodesetTree.component';
+import { SourcesListSearchesComponent } from './components/Sources/SourcesListSearches.component';
 
 @NgModule({
     declarations: [
@@ -151,6 +152,7 @@ import { ReconcilingCodesetTreeComponent } from './components/CodesetTrees/Recon
         ModalDialogComponent,
         HeaderComponent,
         ROSourcesListComponent,
+        SourcesListSearchesComponent,
         MainFullReviewComponent,
 		MainComponent,
         ConfirmationDialogComponent,
