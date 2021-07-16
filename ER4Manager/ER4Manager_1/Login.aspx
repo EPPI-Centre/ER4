@@ -43,7 +43,7 @@
                     <td align="center" style="font-size: large; width: 60%; color: #4544af">
                         <asp:Label ID="lblTitle" runat="server" Text="Login"></asp:Label>
                     </td>
-                    <td align="right" style="width: 20%">
+                    <td align="right" style="width: 20%"> 
                         <br />
                         &nbsp;</td>
                 </tr>
