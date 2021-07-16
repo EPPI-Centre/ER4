@@ -4,7 +4,7 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml" >
 <head id="Head1" runat="server">
-    <title>EPPI-Reviewer 4 manager</title>
+    <title>EPPI-Reviewer manager</title>
     <link href="MainStyleSheet.css" rel="stylesheet" type="text/css" />
     <script type="text/javascript">
     function disableMe()
@@ -39,7 +39,7 @@
             padding-top: 0px" width="100%">
                 <tr>
                     <td style="width: 20%; color: #4544af; font-style: italic">
-                        <strong>EPPI-Reviewer 4 manager</strong></td>
+                        <strong>EPPI-Reviewer manager</strong></td>
                     <td align="center" style="font-size: large; width: 60%; color: #4544af">
                         <asp:Label ID="lblTitle" runat="server" Text="Login"></asp:Label>
                     </td>
@@ -72,7 +72,7 @@
                 <tr>
                     <td style="background-color: #99ccff; background-image: url('Images/Web2strip3.gif');">
                         
-                            <span style="color: #FFFFFF">If you already have an EPPI-Reviewer 4 account please click on <b>Login</b>.</span><br />
+                            <span style="color: #FFFFFF">If you already have an EPPI-Reviewer account please click on <b>Login</b>.</span><br />
                             <br />
                             <asp:Button ID="cmdGoToLoginScreen" runat="server" 
                                 onclick="cmdGoToLoginScreen_Click" Text="Login" />
@@ -115,7 +115,7 @@
                 <tr>
                     <td style="background-image: url('Images/Web2strip3.gif');">
 
-                        <span style="color: #FFFFFF">If you do not have an EPPI-Reviewer 4 account you can create one by clicking on <b>New account</b>.</span><br />
+                        <span style="color: #FFFFFF">If you do not have an EPPI-Reviewer account you can create one by clicking on <b>New account</b>.</span><br />
                         <br />
                         <asp:Button ID="cmdNewAccountScreen0" runat="server" 
                             onclick="cmdNewAccountScreen_Click" Text="New account" Enabled="False" />
@@ -298,8 +298,7 @@
          
                 Must be valid and unique. <br />
             
-                If you previously had an EPPI-Reviewer account (version 3 or 4) your email 
-                address might already be registered.<br />
+                If you previously had an EPPI-Reviewer account (version 3 or 4 or Web) your email address might already be registered.<br />
             
             
                 If you get a message saying your email address is already in use please contact 
@@ -481,7 +480,7 @@
         </asp:Panel>
         <asp:Panel ID="pnlAccountCreated" runat="server" Visible="False">
             <p>Thank you <asp:Label runat="server" ID="lblCreatedFullName"></asp:Label>,</p>
-            <p>You have created a new EPPI-Reviewer 4 account.
+            <p>You have created a new EPPI-Reviewer account.
             </p>
             <p>    The username is:<b> <asp:Label ID="lblCreatedUsername" runat="server"></asp:Label>
                 </b><br />
