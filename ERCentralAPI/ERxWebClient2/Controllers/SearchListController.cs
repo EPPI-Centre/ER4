@@ -358,11 +358,9 @@ namespace ERxWebClient2.Controllers
 				{
 					SearchSourcesCommand cmd = new SearchSourcesCommand(
 						 cmdIn._title,
-						 cmdIn._included,
 						 cmdIn._sourceIds,
 						 cmdIn._searchId,
-						 cmdIn._deleted,
-						 cmdIn._duplicates
+						 cmdIn._searchWhat
 						);
 					DataPortal<SearchSourcesCommand> dp = new DataPortal<SearchSourcesCommand>();
 
@@ -443,7 +441,6 @@ namespace ERxWebClient2.Controllers
 		public string _answers = "";
 		public bool _included = false;
 		public bool _deleted = false;
-		public bool _duplicates = false;
 		public bool _withCodes = false;
 		public int _searchId = 0;
 		public string _searches = "";
@@ -453,6 +450,7 @@ namespace ERxWebClient2.Controllers
 		public string _sourceIds = "";
 		public int _scoreOne = 0;
 		public int _scoreTwo = 0;
+		public string _searchWhat = "";
 	}
 }
 

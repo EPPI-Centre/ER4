@@ -1,9 +1,7 @@
 import { Component, Inject, OnInit, ViewChild } from '@angular/core';
-import { Router } from '@angular/router';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
-import { ItemListService, ItemList, Criteria } from '../services/ItemList.service';
-import { SourcesService, IncomingItemsList, ImportFilter, SourceForUpload, Source, ReadOnlySource } from '../services/sources.service';
-import { CodesetStatisticsService } from '../services/codesetstatistics.service';
+import { ItemListService,  Criteria } from '../services/ItemList.service';
+import { SourcesService, ReadOnlySource } from '../services/sources.service';
 import { EventEmitterService } from '../services/EventEmitter.service';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 import { searchService } from '../services/search.service';
@@ -29,40 +27,37 @@ export class SourcesListSearchesComponent implements OnInit {
     }
     nextSourceDropDownList(num: number, val: string) {
 
-        this._searchService.cmdSearches._sourceIds = this._sourcesService.ReviewSources.map<string>(y => y.source_ID.toString()).join(',');
-        this._searchService.cmdSearches._deleted = 'false'
-        this._searchService.cmdSearches._included = 'false'
-        this._searchService.cmdSearches._duplicates = 'false'
+        this._searchService.cmdSearches._sourceIds = this._sourcesService.ReviewSources.filter(x=> x.isSelected ==  true).map<string>(y => y.source_ID.toString()).join(',');
         switch (num) {
 
             case 1: {
                 this._searchService.cmdSearches._title = 'All items in source';
+                this._searchService.cmdSearches._searchWhat = "AllItems";
                 break;
             }
             case 2: {
                 this._searchService.cmdSearches._title = 'Only included';
-                this._searchService.cmdSearches._included = 'true';
+                this._searchService.cmdSearches._searchWhat = "Included";
                 break;
             }
             case 3: {
                 this._searchService.cmdSearches._title = 'Only excluded';
-                this._searchService.cmdSearches._included = 'false';
+                this._searchService.cmdSearches._searchWhat = "Excluded";
                 break;
             }
             case 4: {
                 this._searchService.cmdSearches._title = 'Only deleted';
-                this._searchService.cmdSearches._deleted = 'true'
+                this._searchService.cmdSearches._searchWhat = "Deleted";
                 break;
             }
             case 5: {
                 this._searchService.cmdSearches._title = 'Only duplicates';
-                this._searchService.cmdSearches._duplicates = 'true'
+                this._searchService.cmdSearches._searchWhat = "Duplicates";
                 break;
             }
             default:
                 break;
         }
-        console.log('cmd: ', this._searchService.cmdSearches);
         this._searchService.CreateSearch(this._searchService.cmdSearches, 'SearchSources');
     }
     private checkAllValue: boolean = false;

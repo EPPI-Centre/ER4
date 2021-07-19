@@ -144,8 +144,7 @@ export class SearchCodeCommand {
 	public _scoreOne: number = 0;
 	public _scoreTwo: number = 0;
 	public _sourceIds: string = '';
-	public _deleted: string = 'false';
-	public _duplicates: string = 'false';
+	public _searchWhat: string = '';
 }
 
 
