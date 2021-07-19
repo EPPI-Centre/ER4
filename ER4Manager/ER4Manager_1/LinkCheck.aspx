@@ -5,7 +5,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
     <link href="MainStyleSheet.css" rel="stylesheet" type="text/css" />
-    <title>EPPI Reviewer 4: account manager verification page</title>
+    <title>EPPI Reviewer: account manager verification page</title>
     <script type="text/javascript">
         function disableMe() {
             var button = document.getElementById('<%=cmdActivateGhost.ClientID%>')
@@ -37,14 +37,16 @@
                 Thank you.<br /> Your email address has been verified and your EPPI-Reviewer 
                 account is now ready for use.
                 <br />
-                You can log onto the main <strong>EPPI-Reviewer 4</strong> program from this 
-                address: <a href='http://eppi.ioe.ac.uk/eppireviewer4/'>http://eppi.ioe.ac.uk/eppireviewer4/</a>. <br />
+                You can log into <strong>EPPI-Reviewer </strong> from this 
+                address: <a href='https://eppi.ioe.ac.uk/EPPIReviewer-Web/'>https://eppi.ioe.ac.uk/EPPIReviewer-Web/</a>. <br />
                 You may also log onto the <b>Review and Account Manager</b> here: <a href='http://eppi.ioe.ac.uk/cms/Default.aspx?tabid=2935'>Account Manager</a>. <br />
             <asp:Label ID="lblErrorCreatingExampleReview" runat="server" Visible="false" style="font-weight: 700" ForeColor="#FF3300"/>
             </asp:Panel>
             <asp:Panel ID="PnlResetPassword" Visible="false" runat="server">
-            <h2>EPPI-Reviewer 4 Password Reset Page.</h2>
+            <h2>EPPI-Reviewer Password Reset Page.</h2>
             <asp:Label runat="server" ID="lblresetPWinstructions">Please enter your account details below, all fields are required!</asp:Label>
+            <br /><b>Passwords</b> must be at least <strong>8 characters</strong> and contain and at least one <strong>one lower case</strong> letter, 
+                <strong>one upper case letter, one digit</strong> and no spaces.
             <asp:Table ID="tableResetPW" runat="server" Width="750px">
                 <asp:TableRow ID="TableRow1" runat="server" style="font-weight: 700; color:#FFFFFF;">
                     <asp:TableCell ID="TableCell1" runat="server" style="background-image: url('Images/Web2strip3.gif'); text-align:right; ">&nbsp;Username&nbsp;</asp:TableCell>
@@ -78,9 +80,8 @@
             <asp:Label runat="server" ID="lblPwResetResult" style="font-weight: 700" Visible="False" 
                             ForeColor="#FF3300" />
                 <asp:Panel ID="PnlResetPWfinalMsg" runat="server" Visible="false">
-                    You can log on the main <strong>EPPI-Reviewer 4</strong> program from this 
-                    address: <a href="http://eppi.ioe.ac.uk/eppireviewer4/">
-                    http://eppi.ioe.ac.uk/eppireviewer4/</a>.
+                    You can log into <strong>EPPI-Reviewer</strong> from this address: <a href="https://eppi.ioe.ac.uk/EPPIReviewer-Web/">
+                    https://eppi.ioe.ac.uk/EPPIReviewer-Web</a>.
                     <br />
                     You may also log on the <b>Review and Account Manager</b> here:
                     <a href="http://eppi.ioe.ac.uk/cms/Default.aspx?tabid=2935">Account Manager</a>.
@@ -88,7 +89,7 @@
                 </asp:Panel>
             </asp:Panel>
             <asp:Panel ID="PnlActivateGhost" Visible="false" runat="server" BorderWidth="0px">
-                 <h2>EPPI-Reviewer 4 Account Activation Page.</h2>
+                 <h2>EPPI-Reviewer Account Activation Page.</h2>
 
                     Contact ID =
                     <asp:Label ID="lblContactID" runat="server" Text="N/A"></asp:Label>
@@ -261,7 +262,7 @@
          
                     Must be valid and unique. <br />
             
-                    If you previously had an EPPI-Reviewer account (version 3 or 4) your email 
+                    If you previously had an EPPI-Reviewer account (version 3 or 4 or Web) your email 
                     address might already be registered.<br />
             
             
