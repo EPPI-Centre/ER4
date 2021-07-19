@@ -34,6 +34,8 @@ namespace BusinessLibrary.BusinessClasses
         private bool _included;
         private string _sourceIds;
         private int _searchId;
+        private bool _deleted;
+        private bool _duplicates;
 
         public int SearchId
         {
@@ -43,12 +45,14 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
-        public SearchSourcesCommand(string title, bool included, string sourceIds, int searchId)
+        public SearchSourcesCommand(string title, bool included, string sourceIds, int searchId, bool deleted, bool duplicates)
         {
             _title = title;
             _included = included;
             _sourceIds = sourceIds;
             _searchId = searchId;
+            _deleted = deleted;
+            _duplicates = duplicates;
         }
 
         protected override void OnGetState(Csla.Serialization.Mobile.SerializationInfo info, Csla.Core.StateMode mode)
@@ -58,6 +62,8 @@ namespace BusinessLibrary.BusinessClasses
             info.AddValue("_included", _included);
             info.AddValue("_sourceIds", _sourceIds);
             info.AddValue("_searchId", _searchId);
+            info.AddValue("_deleted", _deleted);
+            info.AddValue("_duplicates", _duplicates);
         }
         protected override void OnSetState(Csla.Serialization.Mobile.SerializationInfo info, Csla.Core.StateMode mode)
         {
@@ -65,6 +71,8 @@ namespace BusinessLibrary.BusinessClasses
             _included = info.GetValue<bool>("_included");
             _sourceIds = info.GetValue<string>("_sourceIds");
             _searchId = info.GetValue<int>("_searchId");
+            _deleted = info.GetValue<bool>("_deleted");
+            _duplicates = info.GetValue<bool>("_duplicates");
         }
 
 
@@ -83,6 +91,8 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
                     command.Parameters.Add(new SqlParameter("@SEARCH_TITLE", _title));
                     command.Parameters.Add(new SqlParameter("@INCLUDED", _included));
+                    command.Parameters.Add(new SqlParameter("@DELETED", _deleted));
+                    command.Parameters.Add(new SqlParameter("@DUPLICATES", _duplicates));
                     command.Parameters.Add(new SqlParameter("@SOURCE_IDS", _sourceIds));
                     command.Parameters.Add(new SqlParameter("@SEARCH_ID", 0));
                     command.Parameters["@SEARCH_ID"].Direction = System.Data.ParameterDirection.Output;

@@ -6,6 +6,7 @@ import { SourcesService, IncomingItemsList, ImportFilter, SourceForUpload, Sourc
 import { CodesetStatisticsService } from '../services/codesetstatistics.service';
 import { EventEmitterService } from '../services/EventEmitter.service';
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
+import { searchService } from '../services/search.service';
 
 
 @Component({
@@ -19,11 +20,50 @@ export class SourcesListSearchesComponent implements OnInit {
     constructor( 
         private ItemListService: ItemListService,
         private _eventEmitter: EventEmitterService,
-        private SourcesService: SourcesService,
+        private _sourcesService: SourcesService,
+        public _searchService: searchService,
         private ConfirmationDialogService: ConfirmationDialogService,
         private ReviewerIdentityService: ReviewerIdentityService 
     ) {    }
     ngOnInit() {
+    }
+    nextSourceDropDownList(num: number, val: string) {
+
+        this._searchService.cmdSearches._sourceIds = this._sourcesService.ReviewSources.map<string>(y => y.source_ID.toString()).join(',');
+        this._searchService.cmdSearches._deleted = 'false'
+        this._searchService.cmdSearches._included = 'false'
+        this._searchService.cmdSearches._duplicates = 'false'
+        switch (num) {
+
+            case 1: {
+                this._searchService.cmdSearches._title = 'All items in source';
+                break;
+            }
+            case 2: {
+                this._searchService.cmdSearches._title = 'Only included';
+                this._searchService.cmdSearches._included = 'true';
+                break;
+            }
+            case 3: {
+                this._searchService.cmdSearches._title = 'Only excluded';
+                this._searchService.cmdSearches._included = 'false';
+                break;
+            }
+            case 4: {
+                this._searchService.cmdSearches._title = 'Only deleted';
+                this._searchService.cmdSearches._deleted = 'true'
+                break;
+            }
+            case 5: {
+                this._searchService.cmdSearches._title = 'Only duplicates';
+                this._searchService.cmdSearches._duplicates = 'true'
+                break;
+            }
+            default:
+                break;
+        }
+        console.log('cmd: ', this._searchService.cmdSearches);
+        this._searchService.CreateSearch(this._searchService.cmdSearches, 'SearchSources');
     }
     private checkAllValue: boolean = false;
     changeCheck(): void {
@@ -41,7 +81,7 @@ export class SourcesListSearchesComponent implements OnInit {
     }
     get ReviewSources(): ReadOnlySource[] {
 
-        let sources: ReadOnlySource[] = this.SourcesService.ReviewSources.filter((v, i) => i != this.SourcesService.ReviewSources.length - 1);
+        let sources: ReadOnlySource[] = this._sourcesService.ReviewSources.filter((v, i) => i != this._sourcesService.ReviewSources.length - 1);
         return sources;
     }
     public get HasWriteRights(): boolean {
@@ -93,6 +133,6 @@ export class SourcesListSearchesComponent implements OnInit {
     }
     
     ActuallyDeleteUndeleteSource(ros: ReadOnlySource) {
-        this.SourcesService.DeleteUndeleteSource(ros);
+        this._sourcesService.DeleteUndeleteSource(ros);
     }
 }
