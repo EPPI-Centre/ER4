@@ -112,8 +112,7 @@ export class ReconciliationService extends BusyAwareService {
 		}
 		//alert('testing...' + cmd.itemSetId);
 
-		return this._httpC.post<ItemSetCompleteCommand>(this._baseUrl + 'api/ItemSetList/ExcecuteItemSetCompleteCommand', cmd
-		)
+		return this._httpC.post<ItemSetCompleteCommand>(this._baseUrl + 'api/ItemSetList/ExcecuteItemSetCompleteCommand', cmd)
 			.toPromise().then(
 			(res) => {
 				//console.log('sadfgdfg' + res);
@@ -137,7 +136,23 @@ export class ReconciliationService extends BusyAwareService {
 				}
 			);
 	}
-
+	public TransferSingleCoding(cmd: iComparisonItemAttributeSaveCommand) : Promise<boolean>{
+		this._BusyMethods.push("TransferSingleCoding");
+		return this._httpC.post<iComparisonItemAttributeSaveCommand>(this._baseUrl + 'api/ItemSetList/ComparisonItemAttributeSave', cmd)
+			.toPromise().then(
+				(res) => {
+					//console.log('sadfgdfg' + res);
+					this.RemoveBusy("TransferSingleCoding");
+					if (res && res.result == 'success') return true;
+					else return false;
+				},
+				(error) => {
+					this.RemoveBusy("TransferSingleCoding");
+					this._modalService.GenericError(error);
+					return false;
+				}
+			);
+    }
 	ngOnInit() {
 
 	}
@@ -649,4 +664,19 @@ export class ReconcilingReviewSet extends ReviewSet implements iReconcilingRevie
 		}
 		return res;
     }
+}
+
+export interface iComparisonItemAttributeSaveCommand {
+	destinationContactId: number;
+    sourceContactId: number;
+    attributeSetId: number;
+    comparisonId: number;
+    includePDFcoding: boolean;
+    setId: number;
+    itemId: number;
+    itemArmId: number;
+
+    result: string;
+    itemAttributeId: number;
+    itemSetId: number;
 }
