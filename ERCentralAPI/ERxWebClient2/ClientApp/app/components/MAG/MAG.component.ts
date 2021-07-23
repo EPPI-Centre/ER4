@@ -19,6 +19,7 @@ import { magSearchService } from '../services/MAGSearch.service';
 import { MAGAdminService } from '../services/MAGAdmin.service';
 import { CodesetStatisticsService } from '../services/codesetstatistics.service';
 import { ItemListService } from '../services/ItemList.service';
+import { ClassifierService } from '../services/classifier.service';
 
 @Component({
     selector: 'MAG',
@@ -38,7 +39,8 @@ export class MAGComp implements OnInit, OnDestroy {
         private magSearchService: magSearchService,
         private MAGAdminService: MAGAdminService,
         private CodesetStatisticsService: CodesetStatisticsService,
-        private ItemListService: ItemListService
+        private ItemListService: ItemListService,
+        private classifierService: ClassifierService
     ) {
 
     }
@@ -91,7 +93,7 @@ export class MAGComp implements OnInit, OnDestroy {
                     setTimeout(() => {
                         this.magSearchService.FetchMAGSearchList();
                         setTimeout(() => {
-                            this.MAGAdvancedService.FetchClassifierContactModelList(this.ReviewerIdentityService.reviewerIdentity.userId);
+                            this.classifierService.FetchClassifierContactModelList(this.ReviewerIdentityService.reviewerIdentity.userId);
                             setTimeout(() => {
                                 this.MAGSimulationService.FetchMagSimulationList();
                             }, 150);

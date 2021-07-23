@@ -208,14 +208,15 @@
 <div id="ModelSection" *ngIf="ModelSection">
 
     <div class="col-12 row mt-2 border border-primary rounded m-1 p-1">
-        <div class="col-12 col-sm-4 mr-2 mb-2" style="min-width:222px;max-width:222px;">
+        <div class="col-12 col-sm-4 mr-2 mb-2" style="min-width:422px;max-width:422px;">
             <div class="font-weight-bold col-12 p-0 mb-2">Step1:	Select a Model</div>
             <div class="btn-group-vertical col-12 p-0" role="group" aria-label="Basic example">
                 <button (click)="SetModelSelection(4)" [attr.aria-expanded]="!radioButtonApplyModelSection" role="group" type="button" class="btn" [ngClass]="{'font-weight-bold btn-info':(modelNum==4),'btn-outline-info' :(modelNum!=4)}">Cochrane RCT</button>
                 <button (click)="SetModelSelection(3)" [attr.aria-expanded]="!radioButtonApplyModelSection" role="group" type="button" class="btn" [ngClass]="{'font-weight-bold btn-info':(modelNum==3),'btn-outline-info' :(modelNum!=3)}">Economic Evaluation</button>
                 <button (click)="SetModelSelection(2)" [attr.aria-expanded]="!radioButtonApplyModelSection" role="group" type="button" class="btn" [ngClass]="{'font-weight-bold btn-info':(modelNum==2),'btn-outline-info' :(modelNum!=2)}">Systematic Review</button>
                 <button (click)="SetModelSelection(1)" [attr.aria-expanded]="!radioButtonApplyModelSection" role="group" type="button" class="btn" [ngClass]="{'font-weight-bold btn-info':(modelNum==1),'btn-outline-info' :(modelNum!=1)}">Original RCT</button>
-                <button role="group" type="button" class="btn" [ngClass]="{'font-weight-bold btn-info':(modelNum==5),'btn-outline-info' :(modelNum!=5)}" (click)="CustomModels()" [attr.aria-expanded]="!modelResultsSection" aria-controls="modelResultsSection">Show Custom Models</button>
+                <button role="group" type="button" class="btn" [ngClass]="{'font-weight-bold btn-info':(modelNum==5),'btn-outline-info' :(modelNum!=5)}" (click)="CustomModels()" [attr.aria-expanded]="!modelResultsSection" aria-controls="modelResultsSection">Show Custom Models per the current review</button>
+                <button role="group" type="button" class="btn" [ngClass]="{'font-weight-bold btn-info':(modelNum==6),'btn-outline-info' :(modelNum!=5)}" (click)="CustomModelsAllReviews()" [attr.aria-expanded]="!modelResultsAllReviewSection" aria-controls="modelResultsAllReviewSection">Show Custom Models for all reviews</button>
             </div>
         </div>
 
@@ -271,6 +272,48 @@
             <kendo-grid-checkbox-column width="40" headerClass="p-2" class="pr-1 pl-2 py-0">
                 <ng-template kendoGridHeaderTemplate>
                     <button class="btn btn-sm btn-outline-success my-1 py-0 px-1 " (click)="refreshModels()">
+                        <i class="fa fa-refresh" aria-hidden="true"></i>
+                    </button>
+                </ng-template>
+            </kendo-grid-checkbox-column>
+            <kendo-grid-column field="modelId" title="ModelID">
+            </kendo-grid-column>
+            <kendo-grid-column field="modelTitle" title="Title">
+            </kendo-grid-column>
+            <kendo-grid-column field="attributeOn" title="Applies">
+            </kendo-grid-column>
+            <kendo-grid-column field="attributeNotOn" title="Compared with">
+            </kendo-grid-column>
+            <!--<kendo-grid-column field="accuracy" title="Accuracy">
+            </kendo-grid-column>
+            <kendo-grid-column field="auc" title="AUC">
+            </kendo-grid-column>-->
+            <kendo-grid-column field="precision" title="Precision">
+            </kendo-grid-column>
+            <kendo-grid-column field="recall" title="Recall">
+            </kendo-grid-column>
+            <kendo-grid-column width="80" class="px-1 py-0 m-1"
+                               field="modelId" title="Rebuild">
+                <ng-template kendoGridCellTemplate let-dataItem>
+                    <div (click)="openRebuildConfirmationDialog(dataItem)" class="btn btn-link font-weight-bold">
+                        Rebuild
+                    </div>
+                </ng-template>
+            </kendo-grid-column>
+        </kendo-grid>
+
+    </div>
+    <div id="modelResultsAllReviewSection" *ngIf="modelResultsAllReviewSection" class="mt-2">
+        <kendo-grid [data]="DataSourceModelAllReviews"
+                    [selectable]="selectableSettings"
+                    [sort]="sortCustomModel"
+                    [kendoGridSelectBy]="'modelId'"
+                    (sortChange)="sortChangeModel($event)"
+                    (selectionChange)="selectedRows($event)">
+
+            <kendo-grid-checkbox-column width="40" headerClass="p-2" class="pr-1 pl-2 py-0">
+                <ng-template kendoGridHeaderTemplate>
+                    <button class="btn btn-sm btn-outline-success my-1 py-0 px-1 " (click)="refreshModelsAllReview()">
                         <i class="fa fa-refresh" aria-hidden="true"></i>
                     </button>
                 </ng-template>

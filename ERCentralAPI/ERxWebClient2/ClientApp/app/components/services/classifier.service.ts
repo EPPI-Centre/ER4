@@ -6,6 +6,7 @@ import { ReviewInfo, ReviewInfoService } from './ReviewInfo.service';
 import {  Subscription } from 'rxjs';
 import { NotificationService } from '@progress/kendo-angular-notification';
 import { EventEmitterService } from './EventEmitter.service';
+import { ClassifierContactModel, MagCurrentInfo} from './MAGClasses.service';
 
 @Injectable({
 
@@ -33,7 +34,17 @@ export class ClassifierService extends BusyAwareService implements OnDestroy {
 		if (this.clearSub != null) this.clearSub.unsubscribe();
 	}
 	private clearSub: Subscription | null = null;
-
+	private _CurrentUserId4ClassifierContactModelList: number = 0;
+	private _ClassifierContactModelList: ClassifierContactModel[] = [];
+	public get ClassifierContactModelList(): ClassifierContactModel[] {
+		return this._ClassifierContactModelList;
+	}
+	public get CurrentUserId4ClassifierContactModelList(): number {
+		return this._CurrentUserId4ClassifierContactModelList;
+	}
+	public set ClassifierContactModelList(classifierContactModelList: ClassifierContactModel[]) {
+		this._ClassifierContactModelList = classifierContactModelList;
+	}
 	private _ClassifierModelList: ClassifierModel[] = [];
 	//@Output() searchesChanged = new EventEmitter();
 	//public crit: CriteriaSearch = new CriteriaSearch();
@@ -46,7 +57,25 @@ export class ClassifierService extends BusyAwareService implements OnDestroy {
 	public set ClassifierModelList(models: ClassifierModel[]) {
 		this._ClassifierModelList = models;
 	}
-
+	public FetchClassifierContactModelList(UserId: number) {
+		this._BusyMethods.push("FetchClassifierContactModelList");
+		this._CurrentUserId4ClassifierContactModelList = UserId;
+		this._httpC.get<ClassifierContactModel[]>(this._baseUrl + 'api/MagClassifierContact/FetchClassifierContactList')
+			.subscribe(result => {
+				this.RemoveBusy("FetchClassifierContactModelList");
+				if (result != null) {
+					console.log('any models for me or not??: ', result)
+					this.ClassifierContactModelList = result;
+				}
+			},
+				error => {
+					this.RemoveBusy("FetchClassifierContactModelList");
+					this.modalService.GenericError(error);
+				},
+				() => {
+					this.RemoveBusy("FetchClassifierContactModelList");
+				});
+	}
 	Fetch() {
 
 		this._BusyMethods.push("Fetch");

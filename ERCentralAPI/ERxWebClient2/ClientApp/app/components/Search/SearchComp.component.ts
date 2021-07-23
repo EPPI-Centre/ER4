@@ -91,6 +91,7 @@ export class SearchComp implements OnInit, OnDestroy {
     public ModelSection: boolean = false;
     public ShowVisualiseSection: boolean = false;
     public modelResultsSection: boolean = false;
+    public modelResultsAllReviewSection: boolean = false;
     public radioButtonApplyModelSection: boolean = false;
     public isCollapsed: boolean = false;
     public isCollapsedVisualise: boolean = false;
@@ -243,7 +244,7 @@ export class SearchComp implements OnInit, OnDestroy {
     public modelIsInProgress: boolean = false;
     public selectedRows(e: any) {
 
-        if (e.selectedRows[0] != undefined && this.modelNum == 5) {
+        if (e.selectedRows[0] != undefined && this.modelNum == 5 || this.modelNum == 6) {
 
             console.log("selected:", e.selectedRows[0].dataItem);
 
@@ -269,9 +270,18 @@ export class SearchComp implements OnInit, OnDestroy {
         }
     }
     public get DataSourceModel(): GridDataResult {
+        console.log('called: ', this.classifierService.ClassifierModelList);
         return {
             data: orderBy(this.classifierService.ClassifierModelList, this.sortCustomModel),
             total: this.classifierService.ClassifierModelList.length,
+        };
+    }
+    public get DataSourceModelAllReviews(): GridDataResult {
+        console.log('called: ', this.classifierService.ClassifierContactModelList);
+        return {
+            
+            data: orderBy(this.classifierService.ClassifierContactModelList, this.sortCustomModel),
+            total: this.classifierService.ClassifierContactModelList.length,
         };
     }
     CanOnlySelectRoots() {
@@ -312,12 +322,16 @@ export class SearchComp implements OnInit, OnDestroy {
     Classify() {
 
         this.classifierService.Fetch();
+        this.classifierService.FetchClassifierContactModelList(this.ReviewerIdentityServ.reviewerIdentity.userId);
         this._reviewSetsService.selectedNode = null;
         this.NewSearchSection = false;
         this.ModelSection = !this.ModelSection;
         this.modelResultsSection = false;
+        this.modelResultsAllReviewSection = false;
         this.radioButtonApplyModelSection = true;
         this.ShowVisualiseSection = false;
+        console.log('this.classifierService.ClassifierModelList', this.classifierService.ClassifierModelList.length);
+        console.log('this.classifierService.ClassifierContactModelList',this.classifierService.ClassifierContactModelList.length);
     }
 
     CanCreateClassifierCodes(): boolean {
@@ -379,6 +393,14 @@ export class SearchComp implements OnInit, OnDestroy {
         this.modelNum = 5;
         this.modelResultsSection = !this.modelResultsSection
 
+    }
+    CustomModelsAllReviews() {
+        if (this.modelTitle == '') {
+
+            this.ModelSelected = false;
+        }
+        this.modelNum = 6;
+        this.modelResultsAllReviewSection = !this.modelResultsAllReviewSection
     }
     SetModelSelection(num: number) {
 

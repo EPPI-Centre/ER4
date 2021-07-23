@@ -241,24 +241,24 @@ export class MAGAdvancedService extends BusyAwareService implements OnDestroy {
                 }
         );
     }
-    public FetchClassifierContactModelList(UserId: number) {
-        this._BusyMethods.push("FetchClassifierContactModelList");
-        this._CurrentUserId4ClassifierContactModelList = UserId;
-        this._httpC.get<ClassifierContactModel[]>(this._baseUrl + 'api/MagClassifierContact/FetchClassifierContactList')
-            .subscribe(result => {
-                this.RemoveBusy("FetchClassifierContactModelList");
-                if (result != null) {
-                    this.ClassifierContactModelList = result;
-                }
-            },
-                error => {
-                    this.RemoveBusy("FetchClassifierContactModelList");
-                    this.modalService.GenericError(error);
-            },
-            () => {
-                this.RemoveBusy("FetchClassifierContactModelList");
-            });
-    }
+    //public FetchClassifierContactModelList(UserId: number) {
+    //    this._BusyMethods.push("FetchClassifierContactModelList");
+    //    this._CurrentUserId4ClassifierContactModelList = UserId;
+    //    this._httpC.get<ClassifierContactModel[]>(this._baseUrl + 'api/MagClassifierContact/FetchClassifierContactList')
+    //        .subscribe(result => {
+    //            this.RemoveBusy("FetchClassifierContactModelList");
+    //            if (result != null) {
+    //                this.ClassifierContactModelList = result;
+    //            }
+    //        },
+    //            error => {
+    //                this.RemoveBusy("FetchClassifierContactModelList");
+    //                this.modalService.GenericError(error);
+    //        },
+    //        () => {
+    //            this.RemoveBusy("FetchClassifierContactModelList");
+    //        });
+    //}
     public FetchMagReviewMagInfo() {
         this._BusyMethods.push("FetchMagReviewMagInfo");
         this._httpC.get<MagReviewMagInfo>(this._baseUrl + 'api/MagCurrentInfo/GetMagReviewMagInfo')
