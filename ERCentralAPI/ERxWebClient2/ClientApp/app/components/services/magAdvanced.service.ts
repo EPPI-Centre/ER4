@@ -48,22 +48,11 @@ export class MAGAdvancedService extends BusyAwareService implements OnDestroy {
     public MagPaperFieldsList: MagPaper[] = [];
     public CurrentMagSimId: number = 0;
     private _MagCurrentInfo: MagCurrentInfo = new MagCurrentInfo();
-    private _CurrentUserId4ClassifierContactModelList: number = 0;
-    private _ClassifierContactModelList: ClassifierContactModel[] = [];
     public get MagCurrentInfo(): MagCurrentInfo{
         return this._MagCurrentInfo;
     }
     public set MagCurrentInfo(magInfo: MagCurrentInfo) {
         this._MagCurrentInfo = magInfo;
-    }
-    public get ClassifierContactModelList(): ClassifierContactModel[] {
-        return this._ClassifierContactModelList;
-    }
-    public get CurrentUserId4ClassifierContactModelList(): number {
-        return this._CurrentUserId4ClassifierContactModelList;
-    }
-    public set ClassifierContactModelList(classifierContactModelList: ClassifierContactModel[]) {
-        this._ClassifierContactModelList = classifierContactModelList;
     }
 
     public UpdateMagPaper(matchCorrect: boolean, paperId: number, itemId: number): Promise<MagPaper[]> {
@@ -241,24 +230,7 @@ export class MAGAdvancedService extends BusyAwareService implements OnDestroy {
                 }
         );
     }
-    //public FetchClassifierContactModelList(UserId: number) {
-    //    this._BusyMethods.push("FetchClassifierContactModelList");
-    //    this._CurrentUserId4ClassifierContactModelList = UserId;
-    //    this._httpC.get<ClassifierContactModel[]>(this._baseUrl + 'api/MagClassifierContact/FetchClassifierContactList')
-    //        .subscribe(result => {
-    //            this.RemoveBusy("FetchClassifierContactModelList");
-    //            if (result != null) {
-    //                this.ClassifierContactModelList = result;
-    //            }
-    //        },
-    //            error => {
-    //                this.RemoveBusy("FetchClassifierContactModelList");
-    //                this.modalService.GenericError(error);
-    //        },
-    //        () => {
-    //            this.RemoveBusy("FetchClassifierContactModelList");
-    //        });
-    //}
+    
     public FetchMagReviewMagInfo() {
         this._BusyMethods.push("FetchMagReviewMagInfo");
         this._httpC.get<MagReviewMagInfo>(this._baseUrl + 'api/MagCurrentInfo/GetMagReviewMagInfo')
@@ -367,10 +339,8 @@ export class MAGAdvancedService extends BusyAwareService implements OnDestroy {
     public Clear() {
         this.ListDescription = "";
         this._MagCurrentInfo = new MagCurrentInfo();
-        this._ClassifierContactModelList = [];
         this.AdvancedReviewInfo = new MagReviewMagInfo();
         this.CurrentMagSimId = 0;
-        this._CurrentUserId4ClassifierContactModelList = 0;
         this._RunAlgorithmFirst = false;
     }
 }

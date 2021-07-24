@@ -93,7 +93,7 @@ export class MAGComp implements OnInit, OnDestroy {
                     setTimeout(() => {
                         this.magSearchService.FetchMAGSearchList();
                         setTimeout(() => {
-                            this.classifierService.FetchClassifierContactModelList(this.ReviewerIdentityService.reviewerIdentity.userId);
+                            this.classifierService.GetClassifierContactModelList();
                             setTimeout(() => {
                                 this.MAGSimulationService.FetchMagSimulationList();
                             }, 150);

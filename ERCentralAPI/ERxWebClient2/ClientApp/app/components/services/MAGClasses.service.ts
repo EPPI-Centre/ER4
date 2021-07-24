@@ -169,6 +169,8 @@ export class ClassifierContactModel {
     contactName: string = '';
     attributeOn: string = '';
     attributeNotOn: string = '';
+    attributeIdOn: number = -1;
+    attributeIdNotOn: number = -1;
     accuracy: number = 0;
     auc: number = 0;
     precision: number = 0;

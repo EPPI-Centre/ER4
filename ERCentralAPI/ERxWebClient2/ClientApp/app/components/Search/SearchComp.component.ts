@@ -270,14 +270,12 @@ export class SearchComp implements OnInit, OnDestroy {
         }
     }
     public get DataSourceModel(): GridDataResult {
-        console.log('called: ', this.classifierService.ClassifierModelList);
         return {
             data: orderBy(this.classifierService.ClassifierModelList, this.sortCustomModel),
             total: this.classifierService.ClassifierModelList.length,
         };
     }
     public get DataSourceModelAllReviews(): GridDataResult {
-        console.log('called: ', this.classifierService.ClassifierContactModelList);
         return {
             
             data: orderBy(this.classifierService.ClassifierContactModelList, this.sortCustomModel),
@@ -321,8 +319,7 @@ export class SearchComp implements OnInit, OnDestroy {
 
     Classify() {
 
-        this.classifierService.Fetch();
-        this.classifierService.FetchClassifierContactModelList(this.ReviewerIdentityServ.reviewerIdentity.userId);
+        this.classifierService.GetClassifierContactModelList();
         this._reviewSetsService.selectedNode = null;
         this.NewSearchSection = false;
         this.ModelSection = !this.ModelSection;
@@ -330,8 +327,6 @@ export class SearchComp implements OnInit, OnDestroy {
         this.modelResultsAllReviewSection = false;
         this.radioButtonApplyModelSection = true;
         this.ShowVisualiseSection = false;
-        console.log('this.classifierService.ClassifierModelList', this.classifierService.ClassifierModelList.length);
-        console.log('this.classifierService.ClassifierContactModelList',this.classifierService.ClassifierContactModelList.length);
     }
 
     CanCreateClassifierCodes(): boolean {
@@ -856,7 +851,7 @@ export class SearchComp implements OnInit, OnDestroy {
 
     refreshModels() {
 
-        this.classifierService.Fetch();
+        this.classifierService.GetClassifierContactModelList();
 
     }
 
@@ -1228,6 +1223,7 @@ export class SearchComp implements OnInit, OnDestroy {
         this.searchTextModel = '';
         this.CurrentDropdownSelectedCode = null;
         this.SearchForPeoplesModel = 'true';
+        
     }
 }
 

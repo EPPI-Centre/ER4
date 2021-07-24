@@ -7,6 +7,7 @@ import {  Subscription } from 'rxjs';
 import { NotificationService } from '@progress/kendo-angular-notification';
 import { EventEmitterService } from './EventEmitter.service';
 import { ClassifierContactModel, MagCurrentInfo} from './MAGClasses.service';
+import { ReviewerIdentityService } from './revieweridentity.service';
 
 @Injectable({
 
@@ -20,9 +21,10 @@ export class ClassifierService extends BusyAwareService implements OnDestroy {
     constructor(
         private _httpC: HttpClient,
 		private modalService: ModalService,
-		private reviewInfoService: ReviewInfoService,
+		private _reviewInfoService: ReviewInfoService,
 		private notificationService: NotificationService,
 		private EventEmitterService: EventEmitterService,
+		private _ReviewerIdentityServ: ReviewerIdentityService,
         @Inject('BASE_URL') private _baseUrl: string
         ) {
 		super();
@@ -57,15 +59,28 @@ export class ClassifierService extends BusyAwareService implements OnDestroy {
 	public set ClassifierModelList(models: ClassifierModel[]) {
 		this._ClassifierModelList = models;
 	}
+	public GetClassifierContactModelList(): void {
+		if ((this.ClassifierContactModelList.length == 0
+			&& (
+				this.CurrentUserId4ClassifierContactModelList < 1
+				|| this.CurrentUserId4ClassifierContactModelList != this._ReviewerIdentityServ.reviewerIdentity.userId
+			)) || (this.CurrentUserId4ClassifierContactModelList < 1
+				|| this.CurrentUserId4ClassifierContactModelList != this._ReviewerIdentityServ.reviewerIdentity.userId)) {
+			//only fetch this if it's empty or if it contains a list of models that belongs to someone else. 
+			//the second checks on userId prevent leaking when one user logs off, another logs in and finds the list belonging to another user, very ugly, but should work.
+			//wait 100ms and then get this list, I don't like sending many server requests all concurrent
+			this.FetchClassifierContactModelList(this._ReviewerIdentityServ.reviewerIdentity.userId);
+		}
+	}
 	public FetchClassifierContactModelList(UserId: number) {
 		this._BusyMethods.push("FetchClassifierContactModelList");
 		this._CurrentUserId4ClassifierContactModelList = UserId;
 		this._httpC.get<ClassifierContactModel[]>(this._baseUrl + 'api/MagClassifierContact/FetchClassifierContactList')
 			.subscribe(result => {
 				this.RemoveBusy("FetchClassifierContactModelList");
-				if (result != null) {
-					console.log('any models for me or not??: ', result)
+				if (result != null) {			
 					this.ClassifierContactModelList = result;
+					this.ClassifierModelList = this.ClassifierContactModelList.filter(x => x.reviewId = this._reviewInfoService.ReviewInfo.reviewId);
 				}
 			},
 				error => {
@@ -76,28 +91,6 @@ export class ClassifierService extends BusyAwareService implements OnDestroy {
 					this.RemoveBusy("FetchClassifierContactModelList");
 				});
 	}
-	Fetch() {
-
-		this._BusyMethods.push("Fetch");
-
-		this._httpC.get<any>(this._baseUrl + 'api/Classifier/GetClassifierModelList',
-		)
-			.subscribe(result => {
-
-				this.ClassifierModelList = result;
-				console.log(result)
-			},
-				error => {
-					this.modalService.GenericError(error);
-					this.RemoveBusy("Fetch");
-				}
-				, () => {
-					this.RemoveBusy("Fetch");
-				}
-			);
-
-	}
-
 	public Delete(modelId: number): Promise<boolean> {
 
 		let MVCcmd: MVCClassifierCommand = new MVCClassifierCommand();
@@ -107,7 +100,7 @@ export class ClassifierService extends BusyAwareService implements OnDestroy {
 		MVCcmd._attributeIdNotOn = -1;
 		MVCcmd._attributeIdClassifyTo = -1;
 		MVCcmd._modelId = modelId;
-		MVCcmd.revInfo = this.reviewInfoService.ReviewInfo;
+		MVCcmd.revInfo = this._reviewInfoService.ReviewInfo;
 
 		this._BusyMethods.push("DeleteModel");
 
@@ -146,7 +139,7 @@ export class ClassifierService extends BusyAwareService implements OnDestroy {
 
 	IamVerySorryRefresh() {
 
-		this.Fetch();
+		this.GetClassifierContactModelList();
 
 	}
 
@@ -171,7 +164,7 @@ export class ClassifierService extends BusyAwareService implements OnDestroy {
 		MVCcmd._attributeIdOn = attrOn;
 		MVCcmd._sourceId = -1;
 		MVCcmd._title = title;
-		MVCcmd.revInfo = this.reviewInfoService.ReviewInfo;
+		MVCcmd.revInfo = this._reviewInfoService.ReviewInfo;
 		MVCcmd._classifierId = classifierId;
 
         this._BusyMethods.push("CreateAsync");
@@ -217,7 +210,7 @@ export class ClassifierService extends BusyAwareService implements OnDestroy {
 		MVCcmd._attributeIdClassifyTo = AttributeId;
 		MVCcmd._classifierId = ModelId;
 		MVCcmd._sourceId = SourceId;
-		MVCcmd.revInfo = this.reviewInfoService.ReviewInfo;
+		MVCcmd.revInfo = this._reviewInfoService.ReviewInfo;
 
         this._BusyMethods.push("Apply");
 
@@ -244,6 +237,8 @@ export class ClassifierService extends BusyAwareService implements OnDestroy {
 	public Clear() {
 		this.modelToBeDeleted = 0;
 		this._ClassifierModelList = [];
+		this._ClassifierContactModelList = [];
+		this._CurrentUserId4ClassifierContactModelList = 0;
     }
 }
 

@@ -123,7 +123,7 @@ export class AdvancedMAGFeaturesComponent implements OnInit, OnDestroy {
     }
     public Refresh() {
         this.GetMagSimulationList();
-        setTimeout(() => { this.GetClassifierContactModelList();}, 100);
+        setTimeout(() => { this._classifierService.GetClassifierContactModelList();}, 100);
     }
     private ShowMAGSimulationMessage(notifyMsg: string) {
 
@@ -232,20 +232,7 @@ export class AdvancedMAGFeaturesComponent implements OnInit, OnDestroy {
 
             this.AddActualSimulation();
         }
-    }
-    public GetClassifierContactModelList(): void {
-        //if ((this._magAdvancedService.ClassifierContactModelList.length == 0
-        //    && (
-        //    this._magAdvancedService.CurrentUserId4ClassifierContactModelList < 1
-        //    || this._magAdvancedService.CurrentUserId4ClassifierContactModelList != this._ReviewerIdentityServ.reviewerIdentity.userId
-        //    )) || (this._magAdvancedService.CurrentUserId4ClassifierContactModelList < 1
-        //        || this._magAdvancedService.CurrentUserId4ClassifierContactModelList != this._ReviewerIdentityServ.reviewerIdentity.userId)) {
-        //    //only fetch this if it's empty or if it contains a list of models that belongs to someone else. 
-        //    //the second checks on userId prevent leaking when one user logs off, another logs in and finds the list belonging to another user, very ugly, but should work.
-        //    //wait 100ms and then get this list, I don't like sending many server requests all concurrent
-        this._classifierService.FetchClassifierContactModelList(this._ReviewerIdentityServ.reviewerIdentity.userId);
-        //}
-    }
+    }   
     public OpenResultsInReview(listType: string, magSimId: number) {
 
         if (listType != null) {
