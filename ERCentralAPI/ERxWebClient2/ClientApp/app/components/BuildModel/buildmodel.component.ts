@@ -106,19 +106,19 @@ export class BuildModelComponent implements OnInit, OnDestroy {
                                     });
                                 }
                                 this.modelsToBeDeleted = [];
-								this._classifierService.Fetch();//we refresh data in all branches, as it's not costly and we like getting a reliable list from the server side.
+								this._classifierService.GetClassifierContactModelList();//we refresh data in all branches, as it's not costly and we like getting a reliable list from the server side.
                                 this.Clear();
 							},
                             (error) => {
                                 this.modelsToBeDeleted = [];
-								this._classifierService.Fetch();
+								this._classifierService.GetClassifierContactModelList();
                                 console.log("Error deleting models (controller side)", error);
                                 this.Clear();
                             }
                         ).catch(
                             (caught) => {
                                 this.modelsToBeDeleted = [];
-								this._classifierService.Fetch();
+								this._classifierService.GetClassifierContactModelList();
                                 console.log("Error deleting models (controller side, catch)", caught);
                                 this.Clear();
                             }
@@ -212,7 +212,7 @@ export class BuildModelComponent implements OnInit, OnDestroy {
 		this.selectedModelDropDown1 = '';
 		this.selectedModelDropDown2 = '';
 		if (this._reviewSetsService.ReviewSets.length == 0) this._reviewSetsService.GetReviewSets(false);
-		this._classifierService.Fetch();
+		this._classifierService.GetClassifierContactModelList();
 	}
 	ngOnDestroy() {
 
@@ -220,7 +220,7 @@ export class BuildModelComponent implements OnInit, OnDestroy {
 	}
 	IamVerySorryRefresh() {
 
-		this._classifierService.Fetch();
+		this._classifierService.GetClassifierContactModelList();
 
 	}
 	SetAttrOn(node: singleNode | null | undefined) {
