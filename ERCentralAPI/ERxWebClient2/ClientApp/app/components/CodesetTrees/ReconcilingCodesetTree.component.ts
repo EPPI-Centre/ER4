@@ -5,13 +5,15 @@ import { Router } from '@angular/router';
 import { ReviewSetsService, singleNode,  SetAttribute } from '../services/ReviewSets.service';
 import { ITreeOptions,  TreeComponent, ITreeState } from 'angular-tree-component';
 import { OutcomesService, OutcomeItemAttribute, Outcome } from '../services/outcomes.service';
-import {  ReconcilingReviewSet, ReconcilingSetAttribute, ReconcilingCode, ReconcilingItem } from '../services/reconciliation.service';
+import {  ReconcilingReviewSet, ReconcilingSetAttribute, ReconcilingCode, ReconcilingItem, ReconciliationService } from '../services/reconciliation.service';
 import { IDTypeDictionary } from 'angular-tree-component/dist/defs/api';
 import { Comparison } from '../services/comparisons.service';
 import { Helpers } from '../helpers/HelperMethods';
 import { forEach } from '@angular/router/src/utils/collection';
 import { ItemCodingService, ItemAttPDFCodingCrit } from '../services/ItemCoding.service';
 import { ItemDocsService, ItemDocument } from '../services/itemdocs.service';
+import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
+import { NumberPipe } from '@progress/kendo-angular-intl';
 
 //see: https://angular2-tree.readme.io/docs
 
@@ -39,15 +41,32 @@ export class ReconcilingCodesetTreeComponent implements OnInit, OnDestroy, After
 	constructor(private router: Router,
 		private _httpC: HttpClient,
 		@Inject('BASE_URL') private _baseUrl: string,
-		//private ReviewerIdentityServ: ReviewerIdentityService,
+		private ReconciliationService: ReconciliationService,
+		private ConfirmationDialogService: ConfirmationDialogService,
+		private ReviewerIdentityServ: ReviewerIdentityService,
 		private ReviewSetsService: ReviewSetsService,
 		private ItemCodingService: ItemCodingService,
 		private ItemDocsService: ItemDocsService
 	) { }
 
-	@ViewChild('SingleCodeSetTree1') treeComponent!: TreeComponent;
+	@ViewChild('SingleCodeSetTree1') treeComponent1!: TreeComponent; 
+	@ViewChild('SingleCodeSetTree2') treeComponent2!: TreeComponent;
+	@ViewChild('SingleCodeSetTree3') treeComponent3!: TreeComponent;
+	private _reconcilingReviewSet: ReconcilingReviewSet | null = null;
+	private UpdatingSingleItem: boolean = false;
+	@Input() public set reconcilingReviewSet(rrs: ReconcilingReviewSet | null) {
+		this._reconcilingReviewSet = rrs;
+		if (this.UpdatingSingleItem) {
+			console.log("set reconcilingReviewSet2!");
+			this.FindDisagreements();
+			if (this.reconcilingReviewSet && this.SelectedNode) this.SelectedNode = this.reconcilingReviewSet.FindByIdNumber(this.SelectedNode.attribute_id);
+			this.UpdatingSingleItem = false;
+        }
+    }
 
-	@Input() reconcilingReviewSet: ReconcilingReviewSet | null = null;
+	public get reconcilingReviewSet(): ReconcilingReviewSet | null {
+		return this._reconcilingReviewSet;
+    }
 	@Input() CurrentComparison: Comparison = new Comparison();
 	@Input() HasWriteRights: boolean = false;//to avoid having to use the ReviewerIdentityService
 	@Input() HasAdminRights: boolean = false;//ditto. If not, any "on the fly" editing of coding is disabled.
@@ -90,16 +109,46 @@ export class ReconcilingCodesetTreeComponent implements OnInit, OnDestroy, After
 	@Output() CompleteEvent = new EventEmitter<{ item: ReconcilingItem, contactId: number }>();
 	@Output() CompleteAndLockEvent = new EventEmitter<{ item: ReconcilingItem, contactId: number }>();
 	@Output() UnCompleteEvent = new EventEmitter<ReconcilingItem>();
+	@Output() PleaseUpdateCurrentItem = new EventEmitter<void>();
 
 	NodesState: ITreeState = {};// see https://angular2-tree.readme.io/docs/save-restore
 	SelectedNode: ReconcilingSetAttribute | null = null;
 	LoadPDFCoding: boolean = false;
 	ShowOutcomes: boolean = false; 
 	FindingDisagreements: boolean = false;
+	ShowingTransferPanelForCoding: ReconcilingCode | null = null;
+	TransferringToReviewer: string = "reviewer2";//this is the key that drives who we are transferring coding to. All logic should refer to this value...
+	public get TransferringToReviewerName(): string {
+		if (!this.CurrentComparison) return "N/A";
+		if (this.TransferringToReviewer = "reviewer1") return this.CurrentComparison.contactName1;
+		else if (this.TransferringToReviewer = "reviewer2") return this.CurrentComparison.contactName2;
+		else if (this.TransferringToReviewer = "reviewer3") return this.CurrentComparison.contactName3;
+		else return "N/A";
+    }
+	public get TransferringToReviewerId(): number | null {
+		if (!this.CurrentComparison) return null;
+		if (this.TransferringToReviewer = "reviewer1") return this.CurrentComparison.contactId1;
+		else if (this.TransferringToReviewer = "reviewer2") return this.CurrentComparison.contactId2;
+		else if (this.TransferringToReviewer = "reviewer3") return this.CurrentComparison.contactId3;
+		else return null;
+	}
 	private _Disagreements: ReconcilingSetAttribute[] = [];
 	public get Disagreements(): ReconcilingSetAttribute[] {
 		return this._Disagreements;
 	}
+	private _EditAcess: number = -1;
+	public get EditAcess(): number {
+		//0 = read only, 1 = accept other people's coding, 2 move coding freely
+		if (this._EditAcess == -1) {
+			if (!this.HasWriteRights) this._EditAcess = 0;
+			else if (this.HasAdminRights) this._EditAcess = 2;
+			else this._EditAcess = 1;
+		}
+		return this._EditAcess;
+    }
+	public get CurrentContactId(): number {
+		return this.ReviewerIdentityServ.reviewerIdentity.userId;
+    }
 	ngOnInit() {
 		if (this.reconcilingReviewSet) {
 			//console.log("ngOnInit Will try to expand the root!");
@@ -127,6 +176,28 @@ export class ReconcilingCodesetTreeComponent implements OnInit, OnDestroy, After
 		if (this.reconcilingReviewSet == null) return null;
 		else return [this.reconcilingReviewSet];
 	}
+	CanMoveCodesFromHere(reviewerSlot: number):boolean {
+		if (this.EditAcess == 0) return false;
+		else if (this.EditAcess == 1) {
+			//user can "accept" someone else's codes (doesn't have admin rights) so can't transfer their own to anyone else...
+			if (reviewerSlot == 1) {
+				if (this.ReviewerIdentityServ.reviewerIdentity.userId == this.CurrentComparison.contactId1) return false;
+				else return (this.ReviewerIdentityServ.reviewerIdentity.userId == this.CurrentComparison.contactId2
+					|| this.ReviewerIdentityServ.reviewerIdentity.userId == this.CurrentComparison.contactId3);//we also check the current user is in the comparison!
+			}
+			else if (reviewerSlot == 2) {
+				if (this.ReviewerIdentityServ.reviewerIdentity.userId == this.CurrentComparison.contactId2) return false;
+				else return (this.ReviewerIdentityServ.reviewerIdentity.userId == this.CurrentComparison.contactId1
+					|| this.ReviewerIdentityServ.reviewerIdentity.userId == this.CurrentComparison.contactId3);//we also check the current user is in the comparison!
+			}
+			else {//must be slot #3...
+				if (this.ReviewerIdentityServ.reviewerIdentity.userId == this.CurrentComparison.contactId3) return false;
+				else return (this.ReviewerIdentityServ.reviewerIdentity.userId == this.CurrentComparison.contactId2
+					|| this.ReviewerIdentityServ.reviewerIdentity.userId == this.CurrentComparison.contactId1);//we also check the current user is in the comparison!
+			} 
+		}
+		return true;//must have admin rights...
+    }
 	CheckBoxClicked(checked: boolean, data: singleNode, ) {
 	}
 	AgreementClass(node: singleNode | ReconcilingSetAttribute): string {
@@ -193,7 +264,7 @@ export class ReconcilingCodesetTreeComponent implements OnInit, OnDestroy, After
     }
 	public PreviousDisagreement() {
 		//console.log("PreviousDisagreement");
-		if (this.treeComponent) {
+		if (this.treeComponent1) {
 			let sel = this.SelectedNodeId();
 			//console.log("PreviousDisagreement", sel);
 			let Id: number | null = null;
@@ -257,7 +328,7 @@ export class ReconcilingCodesetTreeComponent implements OnInit, OnDestroy, After
 	}
 	public NextDisagreement() {
 		//console.log("NextDisagreement");
-		if (this.treeComponent) {
+		if (this.treeComponent1) {
 			let sel = this.SelectedNodeId();
 			//console.log("NextDisagreement", sel);
 			let Id: number | null = null;
@@ -442,20 +513,139 @@ export class ReconcilingCodesetTreeComponent implements OnInit, OnDestroy, After
 		else {
 			return this.SelectedNode.id;
 		}
-		////console.log("SelectedNodeId", this.NodesState.selectedNodeIds, this.NodesState.activeNodeIds);
-		//const Id = this.NodesState.activeNodeIds;
-		////console.log("SelectedNodeId", Id);
-		//let i: number = 0;
-		//let Key: string = "";
-		//if (Id) {
-		//	for (let key in Id) {
-		//		Key = key;
-		//		break;
-		//	}
-		//}
-		//if (Key != "") return Key;
-		//else return null;
+	}
+	OpenTransferDialog(coding: ReconcilingCode, from: string) {
+		if (this.EditAcess == 0 || this.CurrentComparison.comparisonId == 0) return;
+		else if (this.EditAcess == 1) {//user can only transfer to herself...
+			if (this.CurrentComparison.contactId3 < 1) {//2 people in comparison
+				if (this.CurrentContactId == this.CurrentComparison.contactId1 && from != "reviewer1") {
+					this.TransferringToReviewer = "Reviewer1";
+				}
+				else if (this.CurrentContactId == this.CurrentComparison.contactId2 && from != "reviewer2") {
+					this.TransferringToReviewer = "reviewer2";
+				}
+				else return;//we can't transfer to anyone
+			}
+			else {//3 people in comparison
+				if (this.CurrentContactId == this.CurrentComparison.contactId1 && from != "reviewer1") {
+					this.TransferringToReviewer = "reviewer1";
+				}
+				else if (this.CurrentContactId == this.CurrentComparison.contactId2 && from != "reviewer2") {
+					this.TransferringToReviewer = "reviewer2";
+				}
+				else if (this.CurrentContactId == this.CurrentComparison.contactId3 && from != "reviewer3") {
+					this.TransferringToReviewer = "reviewer3";
+				}
+				else return;//we can't transfer to anyone
+			}
+		}
+		else if (this.EditAcess == 2) {//user can transfer to anybody...
+			if (this.CurrentComparison.contactId3 < 1) {//2 people in comparison
+				if (from == "reviewer1") {
+					this.TransferringToReviewer = "reviewer2";
+				}
+				else if (from == "reviewer2") {
+					this.TransferringToReviewer = "reviewer1";
+				}
+				else return;//we can't transfer to anyone
+			}
+			else {//3 people in comparison
+				if (from == "reviewer1") {
+					this.TransferringToReviewer = "reviewer2";
+				}
+				else if (from == "reviewer2") {
+					this.TransferringToReviewer = "reviewer1";
+				}
+				else if (from == "reviewer3") {
+					this.TransferringToReviewer = "reviewer2";
+				}
+				else return;//we can't transfer to anyone
+			}
+		}
+		else return;
+		this.ShowingTransferPanelForCoding = coding;
     }
+	ConfirmTransferACode(node: ReconcilingSetAttribute, rc: ReconcilingCode, from:string) {
+		
+		if (!this.HasWriteRights) return;
+		else {
+			let title = "Transfer coding to: ";
+			let destName = "";
+			let msg: string = "Are you sure? <br />";
+			let destId: number = 0;
+			if (this.TransferringToReviewer == "reviewer1") {
+				destName = this.CurrentComparison.contactName1;
+				title += destName;
+				destId = this.CurrentComparison.contactId1;
+			}
+			else if (this.TransferringToReviewer == "reviewer2") {
+				destName = this.CurrentComparison.contactName2;
+				title += destName;
+				destId = this.CurrentComparison.contactId2;
+			}
+			else if (this.TransferringToReviewer == "reviewer3") {
+				destName = this.CurrentComparison.contactName3;
+				title += destName;
+				destId = this.CurrentComparison.contactId3;
+			}
+			else return;
+			if (this.LoadPDFCoding) {
+				msg += "This will merge also the PDF coding (overwriting text selections only if they clash on a <strong class='font-danger'>per-page basis</strong>).<br />";
+			} else {
+				msg += "This will <strong class='font-danger'>not transfer the PDF coding</strong> (please tick \"Show PDF Coding?\" first, if you want to see and transfer PDF coding).<br />";
+			}
+			msg += "You will copy the coding for the <strong class='border border-success text-success px-1 mb-1 rounded d-inline-block'>" + rc.Name + (rc.ArmID == 0 ? "" : " (Arm: " + rc.ArmName + ")")
+				+ "</strong> code, to the coding of <strong class='border border-info text-info px-1 mb-1 rounded d-inline-block'>"
+				+ destName + "</strong>. <br />";
+			msg += "<div class='m-1 p-1 alert-danger rounded'><i class='fa fa-warning'></i> This will (irreversibly) overwrite the coding on the destination version (if any).</div>"
+			this.ConfirmationDialogService.confirm(title, msg, false, "", "Copy coding", "Cancel", "lg").then(
+				(res: any) => { if (res == true) this.DoTheTransfer(destId, node, rc, from); }
+			);
+        }
+	}
+	private DoTheTransfer(destId: number, node: ReconcilingSetAttribute, rc: ReconcilingCode, from: string) {
+		let srcContId: number = this.CurrentComparison.contactId1;
+		if (from == "Reviewer2") {
+			srcContId = this.CurrentComparison.contactId2;
+		} else if (from == "Reviewer3") {
+			srcContId = this.CurrentComparison.contactId3;
+		}
+		let cmd = {
+			destinationContactId: destId,
+			sourceContactId: srcContId,
+			attributeSetId: node.attributeSetId,
+			comparisonId: this.CurrentComparison.comparisonId,
+			includePDFcoding: this.LoadPDFCoding,
+			setId: node.set_id,
+			itemId: this.ReconcilingItem != undefined ? this.ReconcilingItem.Item.itemId : 0,
+			itemArmId: rc.ArmID,
+
+			result: "",
+			itemAttributeId: 0,
+			itemSetId: 0
+		}
+		this.ReconciliationService.TransferSingleCoding(cmd).then(
+			(res) => {
+				if (res == true) {
+					//alert("this worked");
+					//this._lastReconcilingItemId = -1;//this ensures the page will react reloading all data when the current item gets updated.
+					//if (this._ReconcilingItem) this._ReconcilingItem.Item.itemId = this._lastReconcilingItemId;//as above, we need both!
+					this.UpdatingSingleItem = true;
+					this.PleaseUpdateCurrentItem.emit();
+				}
+				//else alert("nope");
+            }
+		)
+	}
+	public TextForTransferringCoding(rc: ReconcilingCode): string {
+		//if (this.SelectedNode) console.log("don't understand...", this.SelectedNode.Reviewer1Coding);
+		//if (rc == undefined) return "wtf?";
+		return rc.ArmID == 0 ? "Whole study" : rc.ArmName;
+    }
+	CanTransferTheCurrentCodingTo(reviewerN: number): boolean {
+		return true;
+    }
+
 	ngOnDestroy() {
 		
 	}

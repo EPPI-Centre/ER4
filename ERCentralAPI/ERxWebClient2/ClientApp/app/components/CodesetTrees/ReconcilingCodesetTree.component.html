@@ -182,7 +182,7 @@
     <div *ngIf="SelectedNode != null && (SelectedNode.Reviewer1Coding.length > 0 ||SelectedNode.Reviewer2Coding.length > 0 ||SelectedNode.Reviewer3Coding.length > 0)"
          class="row mx-0 px-1 border-success border-bottom mb-1" style="max-height:40vh;overflow-y:auto;">
         <div class="col ml-0 mr-1 px-1 border border-info rounded mb-1">
-            <b *ngIf="ReconcilingItem.IsCompleted && ReconcilingItem.CompletedByID == CurrentComparison.contactId1; else ReviewerName1incomplete" 
+            <b *ngIf="ReconcilingItem.IsCompleted && ReconcilingItem.CompletedByID == CurrentComparison.contactId1; else ReviewerName1incomplete"
                class="mx-0 text-success px-0 border-bottom border-success">
                 <img title="Coding complete: these codes can appear in reports and be found in searches" src="../assets/CodingComplete.png"
                      class="mb-1" />
@@ -193,10 +193,17 @@
                     {{CurrentComparison.contactName1}}
                 </b>
             </ng-template>
+            
+
             <ul *ngIf="SelectedNode.Reviewer1Coding.length > 0" class="pl-4">
                 <li *ngIf="CodingWholeStudy(SelectedNode.Reviewer1Coding).length > 0">
-                    <b>{{SelectedNode.attribute_name}}</b>
                     <div *ngFor="let coding of CodingWholeStudy(SelectedNode.Reviewer1Coding)">
+                        <div>
+                            <b>{{SelectedNode.attribute_name}}</b>
+                            <div *ngIf="CanMoveCodesFromHere(1)">
+                                <ng-container *ngTemplateOutlet="TransferCodeTemplate; context:{coding : coding, reviewerN: 'reviewer1'}"></ng-container>
+                            </div>
+                        </div>
                         <div *ngIf="coding.InfoBox != ''" class="small mt-1 p-1 bg-white border border-dark">
                             <b>[Info Box]</b> {{coding.InfoBox}}
                         </div>
@@ -205,7 +212,12 @@
                 </li>
                 <li *ngFor="let arm of ReconcilingItem.Item.arms" [hidden]="CodingByArmId(SelectedNode.Reviewer1Coding, arm.itemArmId).length == 0">
                     <div *ngFor="let coding of CodingByArmId(SelectedNode.Reviewer1Coding, arm.itemArmId)">
-                        <b>{{SelectedNode.attribute_name}} (Arm: {{arm.title}})</b>
+                        <div>
+                            <b>{{SelectedNode.attribute_name}} (Arm: {{arm.title}})</b>
+                            <div *ngIf="CanMoveCodesFromHere(1)">
+                                <ng-container  *ngTemplateOutlet="TransferCodeTemplate; context:{coding : coding, reviewerN: 'reviewer1'}"></ng-container>
+                            </div>
+                        </div>
                         <div *ngIf="coding.InfoBox != ''" class="small mt-1 p-1 bg-white border border-dark">
                             <b>[Info Box]</b> {{coding.InfoBox}}
                         </div>
@@ -228,8 +240,13 @@
             </ng-template>
             <ul *ngIf="SelectedNode.Reviewer2Coding.length > 0" class="pl-4">
                 <li *ngIf="CodingWholeStudy(SelectedNode.Reviewer2Coding).length > 0">
-                    <b>{{SelectedNode.attribute_name}}</b>
                     <div *ngFor="let coding of CodingWholeStudy(SelectedNode.Reviewer2Coding)">
+                        <div>
+                            <b>{{SelectedNode.attribute_name}}</b>
+                            <div *ngIf="CanMoveCodesFromHere(2)">
+                                <ng-container *ngTemplateOutlet="TransferCodeTemplate; context:{coding : coding, reviewerN: 'reviewer2'}"></ng-container>
+                            </div>
+                        </div>
                         <div *ngIf="coding.InfoBox != ''" class="small mt-1 p-1 bg-white border border-dark">
                             <b>[Info Box]</b> {{coding.InfoBox}}
                         </div>
@@ -238,7 +255,12 @@
                 </li>
                 <li *ngFor="let arm of ReconcilingItem.Item.arms" [hidden]="CodingByArmId(SelectedNode.Reviewer2Coding, arm.itemArmId).length == 0">
                     <div *ngFor="let coding of CodingByArmId(SelectedNode.Reviewer2Coding, arm.itemArmId)">
-                        <b>{{SelectedNode.attribute_name}} (Arm: {{arm.title}})</b>
+                        <div>
+                            <b>{{SelectedNode.attribute_name}} (Arm: {{arm.title}})</b>
+                            <div *ngIf="CanMoveCodesFromHere(2)">
+                                <ng-container *ngTemplateOutlet="TransferCodeTemplate; context:{coding : coding, reviewerN: 'reviewer2'}"></ng-container>
+                            </div>
+                        </div>
                         <div *ngIf="coding.InfoBox != ''" class="small mt-1 p-1 bg-white border border-dark">
                             <b>[Info Box]</b> {{coding.InfoBox}}
                         </div>
@@ -261,8 +283,13 @@
             </ng-template>
             <ul *ngIf="SelectedNode.Reviewer3Coding.length > 0" class="pl-4">
                 <li *ngIf="CodingWholeStudy(SelectedNode.Reviewer3Coding).length > 0">
-                    <b>{{SelectedNode.attribute_name}}</b>
                     <div *ngFor="let coding of CodingWholeStudy(SelectedNode.Reviewer3Coding)">
+                        <div>
+                            <b>{{SelectedNode.attribute_name}}</b>
+                            <div *ngIf="CanMoveCodesFromHere(3)">
+                                <ng-container *ngTemplateOutlet="TransferCodeTemplate; context:{coding : coding, reviewerN: 'reviewer3'}"></ng-container>
+                            </div>
+                        </div>
                         <div *ngIf="coding.InfoBox != ''" class="small mt-1 p-1 bg-white border border-dark">
                             <b>[Info Box]</b> {{coding.InfoBox}}
                         </div>
@@ -271,7 +298,12 @@
                 </li>
                 <li *ngFor="let arm of ReconcilingItem.Item.arms" [hidden]="CodingByArmId(SelectedNode.Reviewer3Coding, arm.itemArmId).length == 0">
                     <div *ngFor="let coding of CodingByArmId(SelectedNode.Reviewer3Coding, arm.itemArmId)">
-                        <b>{{SelectedNode.attribute_name}} (Arm: {{arm.title}})</b>
+                        <div>
+                            <b>{{SelectedNode.attribute_name}} (Arm: {{arm.title}})</b>
+                            <div *ngIf="CanMoveCodesFromHere(3)">
+                                <ng-container *ngTemplateOutlet="TransferCodeTemplate; context:{coding : coding, reviewerN: 'reviewer3'}"></ng-container>
+                            </div>
+                        </div>
                         <div *ngIf="coding.InfoBox != ''" class="small mt-1 p-1 bg-white border border-dark">
                             <b>[Info Box]</b> {{coding.InfoBox}}
                         </div>
@@ -297,3 +329,45 @@
         </div>
     </div>
 </div>
+
+
+<ng-template #TransferCodeTemplate let-coding="coding" let-reviewerN="reviewerN">
+    <div class="float-right" *ngIf="!ReconcilingItem.IsCompleted">
+        <button (click)="OpenTransferDialog(coding, reviewerN)"
+                class="btn btn-sm btn-outline-danger my-1 py-0 mr-1">
+            Copy to...
+        </button>
+    </div>
+    <div class="" *ngIf="ShowingTransferPanelForCoding == coding">
+        <div class="m-1 border border-danger row mx-0 px-0 col-12">
+            <div *ngIf="CurrentComparison.contactName3 != '' && EditAcess == 2" class="w-100 px-1">
+                <div *ngIf="reviewerN !='Reviewer1'" class="row mx-0 px-0 col-12 small border-bottom">
+                    <label class="my-auto">{{CurrentComparison.contactName1}}</label>
+                    <input type="radio" name="TransferToRb" value="reviewer1" [(ngModel)]="TransferringToReviewer" class="ml-1 my-auto" />
+                </div>
+                <div *ngIf="reviewerN !='Reviewer2'" class="row mx-0 px-0 col-12 small border-bottom">
+                    <label class="my-auto">{{CurrentComparison.contactName2}}</label>
+                    <input type="radio" name="TransferToRb" value="reviewer2" [(ngModel)]="TransferringToReviewer" class="ml-1 my-auto" />
+                </div>
+                <div *ngIf="reviewerN !='Reviewer3'" class="row mx-0 px-0 col-12 small border-bottom">
+                    <label class="my-auto">{{CurrentComparison.contactName3}}</label>
+                    <input type="radio" name="TransferToRb" value="reviewer3" [(ngModel)]="TransferringToReviewer" class="ml-1 my-auto" />
+                </div>
+            </div>
+            <div *ngIf="CurrentComparison.contactName3 == '' || EditAcess == 1" class="border-bottom w-100 px-1">
+                <span class="my-auto">Transferring to: {{TransferringToReviewerName}}</span>
+            </div>
+            <div class="row mx-0 px-0 col-12 small">
+                <button (click)="ShowingTransferPanelForCoding = null"
+                        class="btn btn-sm btn-outline-dark my-1 py-0 px-4 mx-1">
+                    Cancel
+                </button>
+                <button (click)="ConfirmTransferACode(SelectedNode, coding, reviewerN)"
+                        class="btn btn-sm btn-danger my-1 py-0 mr-1">
+                    Copy!
+                </button>
+            </div>
+        </div>
+
+    </div>
+</ng-template>

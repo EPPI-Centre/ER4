@@ -385,7 +385,27 @@ namespace ERxWebClient2.Controllers
                 return StatusCode(500, e.Message);
             }
         }
-        
+        [HttpPost("[action]")]
+        public IActionResult ComparisonItemAttributeSave([FromBody] MVCComparisonItemAttributeSaveCommand jsCmd)
+        {
+            try
+            {
+                if (!SetCSLAUser4Writing()) return Unauthorized();
+                ComparisonItemAttributeSaveCommand cmd = jsCmd.ToComparisonItemAttributeSaveCommand();
+                cmd = DataPortal.Execute<ComparisonItemAttributeSaveCommand>(cmd);
+                jsCmd.result = cmd.Result;
+                jsCmd.itemAttributeId = cmd.ItemAttributeId;
+                jsCmd.itemSetId = cmd.ItemSetId;
+                return Ok(jsCmd);
+
+            }
+            catch (Exception e)
+            {
+                string json = JsonConvert.SerializeObject(jsCmd);
+                _logger.LogError(e, "Error in ComparisonItemAttributeSave: {0}", json);
+                return StatusCode(500, e.Message);
+            }
+        }
     }
 
     public class MVCItemAttributeSaveCommand
@@ -521,5 +541,25 @@ namespace ERxWebClient2.Controllers
             return res;
         }
     }
+    public class MVCComparisonItemAttributeSaveCommand
+    {
+        public int destinationContactId;
+        public int sourceContactId;
+        public Int64 attributeSetId;
+        public int comparisonId;
+        public bool includePDFcoding;
+        public int setId;
+        public Int64 itemId;
+        public Int64 itemArmId;
 
+        public string result;
+        public Int64 itemAttributeId;
+        public Int64 itemSetId;
+        public ComparisonItemAttributeSaveCommand ToComparisonItemAttributeSaveCommand()
+        {
+            return new ComparisonItemAttributeSaveCommand(
+                destinationContactId, sourceContactId, attributeSetId, comparisonId, includePDFcoding, setId, itemId, itemArmId);
+        }
+
+    }
 }

@@ -183,6 +183,10 @@ export class ComparisonReconciliationComp extends BusyAwareService implements On
 					}
 				}
 			);
+	}
+	UpdateCurrentItem() {
+		console.log("updating current item...");
+		if (this.panelItem) this.UpdateItem(this.panelItem);
     }
     UpdateItem(item: Item) {
         let ItemSetlst: ItemSet[] = [];
@@ -195,7 +199,10 @@ export class ComparisonReconciliationComp extends BusyAwareService implements On
                         //we want to substitute the new reconciling item in the current list
                         let index = this.localList.Items.findIndex(found => found.Item.itemId == item.itemId);
                         if (index > -1) {
-                            this.localList.Items[index] = tmp;
+							this.localList.Items[index] = tmp;
+							if (this.DetailsView) {
+								this.PrepareDetailsViewData();
+                            }
                         }
                     }
                     

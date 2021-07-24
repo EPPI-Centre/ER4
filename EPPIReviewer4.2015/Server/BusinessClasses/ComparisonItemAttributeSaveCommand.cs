@@ -26,20 +26,71 @@ namespace BusinessLibrary.BusinessClasses
 
     public ComparisonItemAttributeSaveCommand(){}
 
-
-        private string _saveType;
-        private Int64 _ItemAttributeId;
-        private Int64 _itemSetId;
-        private string _additionalText;
+        //@CurrentContactId = 1214,
+        //@DestinationContactId = 1512,
+        //@SourceContactId = 1214,
+        //@attributeSetId = 62105,
+        //@comparisonId = 658,
+        //@IncludePDFcoding = 1,
+        //@SET_ID = 790,
+        //@ITEM_ID = 3264,
+        //@REVIEW_ID = 7,
+        //@ITEM_ARM_ID = NULL,
+        //@Result = @Result OUTPUT,
+        //@NEW_ITEM_ATTRIBUTE_ID = @NEW_ITEM_ATTRIBUTE_ID OUTPUT,
+        //@NEW_ITEM_SET_ID = @NEW_ITEM_SET_ID OUTPUT
+        private int _destinationContactId;
+        private int _SourceContactId;
         private Int64 _attributeSetId;
+        private int _comparisonId;
+        private bool _IncludePDFcoding;
         private int _setId;
         private Int64 _itemId;
         private Int64 _itemArmId;
-        private int _contactId;
-        private int _SourceContactId;
-        private int _comparisonId;
-        private bool _IncludePDFcoding;
 
+        private string _Result;
+        private Int64 _ItemAttributeId;
+        private Int64 _itemSetId;
+
+        public int DestinationContactId
+        {
+            get { return _destinationContactId; }
+        }
+        public int SourceContactId
+        {
+            get { return _SourceContactId; }
+        }
+        public Int64 attributeSetId
+        {
+            get { return _attributeSetId; }
+        }        
+        public int ComparisonId
+        {
+            get { return _comparisonId; }
+        }
+        public bool IncludePDFcoding
+        {
+            get { return _IncludePDFcoding; }
+        }
+        public int SetId
+        {
+            get { return _setId; }
+        }
+        public Int64 ItemId
+        {
+            get { return _itemId; }
+        }
+        public Int64 ItemArmId
+        {
+            get { return _itemArmId; }
+        }
+
+
+        //the members below are output...
+        public string Result
+        {
+            get { return _Result;}
+        }
         public Int64 ItemAttributeId
         {
             get { return _ItemAttributeId; }
@@ -50,93 +101,51 @@ namespace BusinessLibrary.BusinessClasses
             get { return _itemSetId; }
         }
 
-        public string AdditionalText
-        {
-            get { return _additionalText;}
-        }
 
-        public Int64 attributeSetId
+        public ComparisonItemAttributeSaveCommand(int destContactId, int srcContactId, Int64 attrSetId, int comparisonID
+            , bool includePdfCoding, int setId, Int64 itemId, Int64 itemArmId)
         {
-            get { return _attributeSetId; }
-        }
-
-        public int SetId
-        {
-            get { return _setId; }
-        }
-
-        public Int64 ItemId
-        {
-            get { return _itemId; }
-        }
-
-        public Int64 ItemArmId
-        {
-            get { return _itemArmId; }
-        }
-
-        public int ContactId
-        {
-            get { return _contactId; }
-        }
-        public int SourceContactId
-        {
-            get { return _SourceContactId; }
-        }
-        
-        public int ComparisonId
-        {
-            get { return _comparisonId; }
-        }
-        public bool IncludePDFcoding
-        {
-            get { return _IncludePDFcoding; }
-        }
-
-
-        public ComparisonItemAttributeSaveCommand(string saveType, Int64 itemAttributeId, Int64 itemSetId, string additionalText, Int64 attributeId,
-            int setId, Int64 itemId, Int64 itemArmId, bool includePdfCoding)
-        {
-            _saveType = saveType;
-            _ItemAttributeId = itemAttributeId;
-            _itemSetId = itemSetId;
-            _additionalText = additionalText;
-            _attributeSetId = attributeId;
+            _destinationContactId = destContactId;
+            _SourceContactId = srcContactId;
+            _attributeSetId = attrSetId;
+            _comparisonId = comparisonID;
+            _IncludePDFcoding = includePdfCoding;
             _setId = setId;
             _itemId = itemId;
             _itemArmId = itemArmId;
-            _IncludePDFcoding = includePdfCoding;
         }
 
         protected override void OnGetState(Csla.Serialization.Mobile.SerializationInfo info, Csla.Core.StateMode mode)
         {
             base.OnGetState(info, mode);
-            info.AddValue("_saveType", _saveType);
-            info.AddValue("_ItemAttributeId", _ItemAttributeId);
-            info.AddValue("_itemSetId", _itemSetId);
-            info.AddValue("_additionalText", _additionalText);
+            info.AddValue("_destinationContactId", _destinationContactId);
+            info.AddValue("_SourceContactId", _SourceContactId); 
             info.AddValue("_attributeSetId", _attributeSetId);
+            info.AddValue("_comparisonId", _comparisonId);
+            info.AddValue("_IncludePDFcoding", _IncludePDFcoding); 
             info.AddValue("_setId", _setId);
             info.AddValue("_itemId", _itemId);
             info.AddValue("_itemArmId", _itemArmId);
-            info.AddValue("_comparisonId", _comparisonId);
-            info.AddValue("_contactId", _contactId);
-            info.AddValue("_SourceContactId", _SourceContactId); 
+
+            info.AddValue("_Result", _Result); 
+            info.AddValue("_ItemAttributeId", _ItemAttributeId);
+            info.AddValue("_itemSetId", _itemSetId);
 
         }
         protected override void OnSetState(Csla.Serialization.Mobile.SerializationInfo info, Csla.Core.StateMode mode)
         {
-            _saveType = info.GetValue<string>("_saveType");
-            _ItemAttributeId = info.GetValue<Int64>("_ItemAttributeId");
-            _itemSetId = info.GetValue<Int64>("_itemSetId");
-            _additionalText = info.GetValue<string>("_additionalText");
-            _attributeSetId = info.GetValue<Int64>("_attributeId");
+            _destinationContactId = info.GetValue<int>("_destinationContactId");
+            _SourceContactId = info.GetValue<int>("_SourceContactId");
+            _attributeSetId = info.GetValue<Int64>("_attributeSetId");
+            _comparisonId = info.GetValue<int>("_comparisonId");
+            _IncludePDFcoding = info.GetValue<bool>("_IncludePDFcoding"); 
             _setId = info.GetValue<int>("_setId");
             _itemId = info.GetValue<Int64>("_itemId");
             _itemArmId = info.GetValue<Int64>("_itemArmId");
-            _contactId = info.GetValue<int>("_contactId");
-            _comparisonId = info.GetValue<int>("_comparisonId");
-            _SourceContactId = info.GetValue<int>("_SourceContactId");
+
+            _Result = info.GetValue<string>("_Result"); 
+            _ItemAttributeId = info.GetValue<Int64>("_ItemAttributeId");
+            _itemSetId = info.GetValue<Int64>("_itemSetId");
         }
 
 
@@ -155,72 +164,38 @@ namespace BusinessLibrary.BusinessClasses
                 ReviewerIdentity ri = Csla.ApplicationContext.User.Identity as ReviewerIdentity;
                 using (SqlCommand command = new SqlCommand("st_ComparisonItemAttributeSaveCheckAndRun", connection))
                 {
+                    
                     command.CommandType = System.Data.CommandType.StoredProcedure;
                     command.Parameters.Add(new SqlParameter("@CurrentContactId", ri.UserId));
-                    command.Parameters.Add(new SqlParameter("@DestinationContactId", _contactId));
+                    command.Parameters.Add(new SqlParameter("@DestinationContactId", _destinationContactId));
                     command.Parameters.Add(new SqlParameter("@SourceContactId", _SourceContactId)); 
                     command.Parameters.Add(new SqlParameter("@attributeSetId", _attributeSetId));
                     command.Parameters.Add(new SqlParameter("@comparisonId", _comparisonId));
+                    command.Parameters.Add(new SqlParameter("@IncludePDFcoding", _IncludePDFcoding));
                     command.Parameters.Add(new SqlParameter("@SET_ID", _setId));
                     command.Parameters.Add(new SqlParameter("@ITEM_ID", _itemId));
                     command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
                     command.Parameters.Add(new SqlParameter("@ITEM_ARM_ID", _itemArmId == 0 ? (object)DBNull.Value : _itemArmId));
 
-                    command.Parameters.Add(new SqlParameter("@Result", ""));
+                    command.Parameters.Add(new SqlParameter("@Result", System.Data.SqlDbType.NVarChar, 20));
+                    command.Parameters["@Result"].Value = "";
                     command.Parameters["@Result"].Direction = System.Data.ParameterDirection.Output;
                     command.Parameters.Add(new SqlParameter("@NEW_ITEM_ATTRIBUTE_ID", 0));
                     command.Parameters["@NEW_ITEM_ATTRIBUTE_ID"].Direction = System.Data.ParameterDirection.Output;
                     command.Parameters.Add(new SqlParameter("@NEW_ITEM_SET_ID", 0));
                     command.Parameters["@NEW_ITEM_SET_ID"].Direction = System.Data.ParameterDirection.Output;
-                }
-
-
-                using (SqlCommand command = new SqlCommand("st_ItemAttributeInsert", connection))
-                {
-                    
-                    int justCheck = ri.ReviewId;
-                    
-                    command.CommandType = System.Data.CommandType.StoredProcedure;
-                    switch (_saveType)
-                    {
-                        case "Update":
-                            command.CommandText = "st_ItemAttributeUpdate";
-                            command.Parameters.Add(new SqlParameter("@ITEM_ATTRIBUTE_ID", _ItemAttributeId));
-                            command.Parameters.Add(new SqlParameter("@ADDITIONAL_TEXT", _additionalText));
-                            break;
-
-                        case "Delete":
-                            command.Parameters.Add(new SqlParameter("@ITEM_ATTRIBUTE_ID", _ItemAttributeId));
-                            command.Parameters.Add(new SqlParameter("@ITEM_SET_ID", _itemSetId));
-                            command.CommandText = "st_ItemAttributeDelete";
-                            break;
-
-                        case "Insert":
-                            //command.Parameters.Add(new SqlParameter("@CONTACT_ID", ri.UserId));
-                            //command.Parameters.Add(new SqlParameter("@ADDITIONAL_TEXT", _additionalText));
-                            //command.Parameters.Add(new SqlParameter("@ATTRIBUTE_ID", _attributeId));
-                            //command.Parameters.Add(new SqlParameter("@SET_ID", _setId));
-                            //command.Parameters.Add(new SqlParameter("@ITEM_ID", _itemId));
-                            //command.Parameters.Add(new SqlParameter("@REVIEW_ID", ri.ReviewId));
-                            //command.Parameters.Add(new SqlParameter("@ITEM_ARM_ID", _itemArmId == 0 ? (object)DBNull.Value : _itemArmId));
-                            //command.Parameters.Add(new SqlParameter("@NEW_ITEM_ATTRIBUTE_ID", 0));
-                            //command.Parameters["@NEW_ITEM_ATTRIBUTE_ID"].Direction = System.Data.ParameterDirection.Output;
-                            //command.Parameters.Add(new SqlParameter("@NEW_ITEM_SET_ID", 0));
-                            //command.Parameters["@NEW_ITEM_SET_ID"].Direction = System.Data.ParameterDirection.Output;
-                            break;
-
-                        default:
-                            break;
-                    }
                     command.ExecuteNonQuery();
-                    
-                    if (_saveType == "Insert")
+                    if (command.Parameters["@Result"].Value != DBNull.Value)
                     {
-                        _ItemAttributeId = (Int64)command.Parameters["@NEW_ITEM_ATTRIBUTE_ID"].Value;
-                        _itemSetId = (Int64)command.Parameters["@NEW_ITEM_SET_ID"].Value;
+                        _Result = command.Parameters["@Result"].Value.ToString();
                     }
-
-                    
+                    if (command.Parameters["@Result"].Value.ToString() == "success")
+                    {
+                        if (command.Parameters["@NEW_ITEM_SET_ID"].Value != DBNull.Value)
+                            _itemSetId = (long)command.Parameters["@NEW_ITEM_SET_ID"].Value;
+                        if (command.Parameters["@NEW_ITEM_ATTRIBUTE_ID"].Value != DBNull.Value)
+                            _ItemAttributeId = (long)command.Parameters["@NEW_ITEM_ATTRIBUTE_ID"].Value;
+                    }
                 }
                 connection.Close();
             }
