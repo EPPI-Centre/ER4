@@ -120,16 +120,16 @@ export class ReconcilingCodesetTreeComponent implements OnInit, OnDestroy, After
 	TransferringToReviewer: string = "reviewer2";//this is the key that drives who we are transferring coding to. All logic should refer to this value...
 	public get TransferringToReviewerName(): string {
 		if (!this.CurrentComparison) return "N/A";
-		if (this.TransferringToReviewer = "reviewer1") return this.CurrentComparison.contactName1;
-		else if (this.TransferringToReviewer = "reviewer2") return this.CurrentComparison.contactName2;
-		else if (this.TransferringToReviewer = "reviewer3") return this.CurrentComparison.contactName3;
+		if (this.TransferringToReviewer == "reviewer1") return this.CurrentComparison.contactName1;
+		else if (this.TransferringToReviewer == "reviewer2") return this.CurrentComparison.contactName2;
+		else if (this.TransferringToReviewer == "reviewer3") return this.CurrentComparison.contactName3;
 		else return "N/A";
     }
 	public get TransferringToReviewerId(): number | null {
 		if (!this.CurrentComparison) return null;
-		if (this.TransferringToReviewer = "reviewer1") return this.CurrentComparison.contactId1;
-		else if (this.TransferringToReviewer = "reviewer2") return this.CurrentComparison.contactId2;
-		else if (this.TransferringToReviewer = "reviewer3") return this.CurrentComparison.contactId3;
+		if (this.TransferringToReviewer == "reviewer1") return this.CurrentComparison.contactId1;
+		else if (this.TransferringToReviewer == "reviewer2") return this.CurrentComparison.contactId2;
+		else if (this.TransferringToReviewer == "reviewer3") return this.CurrentComparison.contactId3;
 		else return null;
 	}
 	private _Disagreements: ReconcilingSetAttribute[] = [];
