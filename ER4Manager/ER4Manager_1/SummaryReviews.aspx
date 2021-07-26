@@ -220,7 +220,7 @@
 
         <br />
         <b>Your non-shareable reviews </b>(you create non-shareable reviews within 
-                EPPI-Reviewer 4)<br />
+                EPPI-Reviewer)<br />
         <asp:GridView ID="gvReviewNonShareable" runat="server"
             AutoGenerateColumns="False" Width="800px" CssClass="grviewFixedWidth"
             OnRowCommand="gvReviewNonShareable_RowCommand"

@@ -303,7 +303,7 @@
             
                 If you get a message saying your email address is already in use please contact 
                 us at <a href="mailto:EPPISupport@ucl.ac.uk">EPPISupport@ucl.ac.uk</a>
-                        <b>Newsletter</b><br />
+                        <br /><b>Newsletter</b><br />
                     
                         We would like you to receive our EPPI-Reviewer newsletter which contains news 
                         about EPPI-Reviewer including new features and helpful tips and tricks. This is 
