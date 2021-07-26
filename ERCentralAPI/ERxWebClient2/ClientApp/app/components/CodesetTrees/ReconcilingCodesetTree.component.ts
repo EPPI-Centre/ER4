@@ -254,9 +254,11 @@ export class ReconcilingCodesetTreeComponent implements OnInit, OnDestroy, After
 		//console.log("NodeSelected", node);
 	}
 	Complete(recItem: ReconcilingItem, contactId: number) {
+		this.ShowingTransferPanelForCoding = null;
 		this.CompleteEvent.emit({ item: recItem, contactId: contactId });
 	}
 	CompleteAndLock(recItem: ReconcilingItem, contactId: number) {
+		this.ShowingTransferPanelForCoding = null;
 		this.CompleteAndLockEvent.emit({ item: recItem, contactId: contactId });
 	}
 	UnComplete(recItem: ReconcilingItem) {
