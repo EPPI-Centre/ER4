@@ -605,9 +605,9 @@ export class ReconcilingCodesetTreeComponent implements OnInit, OnDestroy, After
 	}
 	private DoTheTransfer(destId: number, node: ReconcilingSetAttribute, rc: ReconcilingCode, from: string) {
 		let srcContId: number = this.CurrentComparison.contactId1;
-		if (from == "Reviewer2") {
+		if (from == "reviewer2") {
 			srcContId = this.CurrentComparison.contactId2;
-		} else if (from == "Reviewer3") {
+		} else if (from == "reviewer3") {
 			srcContId = this.CurrentComparison.contactId3;
 		}
 		let cmd = {
