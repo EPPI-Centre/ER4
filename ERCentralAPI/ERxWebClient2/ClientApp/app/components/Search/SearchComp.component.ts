@@ -1016,11 +1016,9 @@ export class SearchComp implements OnInit, OnDestroy {
                 this._searchService.CreateSearch(this._searchService.cmdSearches, 'SearchOneFile');
 
             }
-            if (selectedSearchDropDown == 'Within Sources') {
+            if (selectedSearchDropDown == 'With Specific Sources') {
 
-                this._searchService.cmdSearches._title = 'With Specific Sources.';
-                this._searchService.cmdSearches._sourceIds = this._sourcesService.ReviewSources.filter(x => x.isSelected == true).map<string>(y => y.source_ID.toString()).join(',');
-                this._searchService.CreateSearch(this._searchService.cmdSearches, 'SearchSources');
+               this._searchService.CreateSearch(this._searchService.cmdSearches, 'SearchSources');
             }
 
         }

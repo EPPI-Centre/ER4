@@ -58,7 +58,6 @@ export class SourcesListSearchesComponent implements OnInit {
             default:
                 break;
         }
-        this._searchService.CreateSearch(this._searchService.cmdSearches, 'SearchSources');
     }
     private checkAllValue: boolean = false;
     changeCheck(): void {
