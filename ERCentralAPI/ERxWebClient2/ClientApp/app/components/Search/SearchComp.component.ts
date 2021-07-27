@@ -379,23 +379,21 @@ export class SearchComp implements OnInit, OnDestroy {
         }
     }
 
-    CustomModels() {
-
+    CustomModels(modelNum: number) {
         if (this.modelTitle == '') {
 
             this.ModelSelected = false;
         }
-        this.modelNum = 5;
-        this.modelResultsSection = !this.modelResultsSection
-
-    }
-    CustomModelsAllReviews() {
-        if (this.modelTitle == '') {
-
-            this.ModelSelected = false;
+        if (modelNum ==5) {
+            this.modelNum = 5;
+            this.modelResultsSection = !this.modelResultsSection;
+            this.modelResultsAllReviewSection = false;
+        } else if (modelNum ==6) {
+            this.modelNum = 6;
+            this.modelResultsAllReviewSection = !this.modelResultsAllReviewSection;
+            this.modelResultsSection = false;
         }
-        this.modelNum = 6;
-        this.modelResultsAllReviewSection = !this.modelResultsAllReviewSection
+
     }
     SetModelSelection(num: number) {
 
@@ -849,10 +847,8 @@ export class SearchComp implements OnInit, OnDestroy {
         this._searchService.Fetch();
     }
 
-    refreshModels() {
-
-        this.classifierService.GetClassifierContactModelList();
-
+    refreshModels() {        
+        this.classifierService.FetchClassifierContactModelList(this.ReviewerIdentityServ.reviewerIdentity.userId);
     }
 
     public SearchForPersonModel: boolean = false;
@@ -1221,6 +1217,7 @@ export class SearchComp implements OnInit, OnDestroy {
         this.searchTextModel = '';
         this.CurrentDropdownSelectedCode = null;
         this.SearchForPeoplesModel = 'true';
+        this.classifierService.Clear();
         
     }
 }

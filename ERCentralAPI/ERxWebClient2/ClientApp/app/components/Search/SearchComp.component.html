@@ -215,8 +215,8 @@
                 <button (click)="SetModelSelection(3)" [attr.aria-expanded]="!radioButtonApplyModelSection" role="group" type="button" class="btn" [ngClass]="{'font-weight-bold btn-info':(modelNum==3),'btn-outline-info' :(modelNum!=3)}">Economic Evaluation</button>
                 <button (click)="SetModelSelection(2)" [attr.aria-expanded]="!radioButtonApplyModelSection" role="group" type="button" class="btn" [ngClass]="{'font-weight-bold btn-info':(modelNum==2),'btn-outline-info' :(modelNum!=2)}">Systematic Review</button>
                 <button (click)="SetModelSelection(1)" [attr.aria-expanded]="!radioButtonApplyModelSection" role="group" type="button" class="btn" [ngClass]="{'font-weight-bold btn-info':(modelNum==1),'btn-outline-info' :(modelNum!=1)}">Original RCT</button>
-                <button role="group" type="button" class="btn" [ngClass]="{'font-weight-bold btn-info':(modelNum==5),'btn-outline-info' :(modelNum!=5)}" (click)="CustomModels()" [attr.aria-expanded]="!modelResultsSection" aria-controls="modelResultsSection">Show Custom Models per the current review</button>
-                <button role="group" type="button" class="btn" [ngClass]="{'font-weight-bold btn-info':(modelNum==6),'btn-outline-info' :(modelNum!=5)}" (click)="CustomModelsAllReviews()" [attr.aria-expanded]="!modelResultsAllReviewSection" aria-controls="modelResultsAllReviewSection">Show Custom Models for all reviews</button>
+                <button role="group" type="button" class="btn" [ngClass]="{'font-weight-bold btn-info':(modelNum==5),'btn-outline-info' :(modelNum!=5)}" (click)="CustomModels(5)" [attr.aria-expanded]="!modelResultsSection" aria-controls="modelResultsSection">Show Custom Models per the current review</button>
+                <button role="group" type="button" class="btn" [ngClass]="{'font-weight-bold btn-info':(modelNum==6),'btn-outline-info' :(modelNum!=6)}" (click)="CustomModels(6)" [attr.aria-expanded]="!modelResultsAllReviewSection" aria-controls="modelResultsAllReviewSection">Show Custom Models for all reviews</button>
             </div>
         </div>
 
@@ -276,6 +276,8 @@
                     </button>
                 </ng-template>
             </kendo-grid-checkbox-column>
+            <kendo-grid-column field="reviewId" title="ReviewID">
+            </kendo-grid-column>
             <kendo-grid-column field="modelId" title="ModelID">
             </kendo-grid-column>
             <kendo-grid-column field="modelTitle" title="Title">
@@ -285,9 +287,9 @@
             <kendo-grid-column field="attributeNotOn" title="Compared with">
             </kendo-grid-column>
             <!--<kendo-grid-column field="accuracy" title="Accuracy">
-            </kendo-grid-column>
-            <kendo-grid-column field="auc" title="AUC">
-            </kendo-grid-column>-->
+    </kendo-grid-column>
+    <kendo-grid-column field="auc" title="AUC">
+    </kendo-grid-column>-->
             <kendo-grid-column field="precision" title="Precision">
             </kendo-grid-column>
             <kendo-grid-column field="recall" title="Recall">
@@ -320,6 +322,8 @@
             </kendo-grid-checkbox-column>
             <kendo-grid-column field="modelId" title="ModelID">
             </kendo-grid-column>
+            <kendo-grid-column field="reviewId" title="ReviewID">
+            </kendo-grid-column>
             <kendo-grid-column field="modelTitle" title="Title">
             </kendo-grid-column>
             <kendo-grid-column field="attributeOn" title="Applies">
@@ -327,9 +331,9 @@
             <kendo-grid-column field="attributeNotOn" title="Compared with">
             </kendo-grid-column>
             <!--<kendo-grid-column field="accuracy" title="Accuracy">
-            </kendo-grid-column>
-            <kendo-grid-column field="auc" title="AUC">
-            </kendo-grid-column>-->
+    </kendo-grid-column>
+    <kendo-grid-column field="auc" title="AUC">
+    </kendo-grid-column>-->
             <kendo-grid-column field="precision" title="Precision">
             </kendo-grid-column>
             <kendo-grid-column field="recall" title="Recall">
