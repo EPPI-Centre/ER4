@@ -271,15 +271,15 @@ export class SearchComp implements OnInit, OnDestroy {
     }
     public get DataSourceModel(): GridDataResult {
         return {
-            data: orderBy(this.classifierService.ClassifierModelList, this.sortCustomModel),
-            total: this.classifierService.ClassifierModelList.length,
+            data: orderBy(this.classifierService.ClassifierModelCurrentReviewList, this.sortCustomModel),
+            total: this.classifierService.ClassifierModelCurrentReviewList.length,
         };
     }
     public get DataSourceModelAllReviews(): GridDataResult {
         return {
             
-            data: orderBy(this.classifierService.ClassifierContactModelList, this.sortCustomModel),
-            total: this.classifierService.ClassifierContactModelList.length,
+            data: orderBy(this.classifierService.ClassifierContactAllModelList, this.sortCustomModel),
+            total: this.classifierService.ClassifierContactAllModelList.length,
         };
     }
     CanOnlySelectRoots() {
@@ -669,8 +669,9 @@ export class SearchComp implements OnInit, OnDestroy {
     async RebuildModel(model: ClassifierModel) {
 
         if (model.modelId > 0) {
-
-            await this.classifierService.CreateAsync(model.modelTitle, model.attributeIdOn, model.attributeIdNotOn, model.modelId);
+            if (model.attributeIdOn !== undefined && model.attributeIdNotOn !== undefined) {
+                await this.classifierService.CreateAsync(model.modelTitle, model.attributeIdOn, model.attributeIdNotOn, model.modelId);
+            }           
         }
 
     }

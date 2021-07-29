@@ -6,7 +6,6 @@ import { ReviewInfo, ReviewInfoService } from './ReviewInfo.service';
 import {  Subscription } from 'rxjs';
 import { NotificationService } from '@progress/kendo-angular-notification';
 import { EventEmitterService } from './EventEmitter.service';
-import { ClassifierContactModel, MagCurrentInfo} from './MAGClasses.service';
 import { ReviewerIdentityService } from './revieweridentity.service';
 
 @Injectable({
@@ -37,14 +36,14 @@ export class ClassifierService extends BusyAwareService implements OnDestroy {
 	}
 	private clearSub: Subscription | null = null;
 	private _CurrentUserId4ClassifierContactModelList: number = 0;
-	private _ClassifierContactModelList: ClassifierContactModel[] = [];
-	public get ClassifierContactModelList(): ClassifierContactModel[] {
+	private _ClassifierContactModelList: ClassifierModel[] = [];
+	public get ClassifierContactAllModelList(): ClassifierModel[] {
 		return this._ClassifierContactModelList;
 	}
 	public get CurrentUserId4ClassifierContactModelList(): number {
 		return this._CurrentUserId4ClassifierContactModelList;
 	}
-	public set ClassifierContactModelList(classifierContactModelList: ClassifierContactModel[]) {
+	public set ClassifierContactAllModelList(classifierContactModelList: ClassifierModel[]) {
 		this._ClassifierContactModelList = classifierContactModelList;
 	}
 	private _ClassifierModelList: ClassifierModel[] = [];
@@ -52,15 +51,15 @@ export class ClassifierService extends BusyAwareService implements OnDestroy {
 	//public crit: CriteriaSearch = new CriteriaSearch();
 	public modelToBeDeleted: number = 0;
 
-	public get ClassifierModelList(): ClassifierModel[] {
+	public get ClassifierModelCurrentReviewList(): ClassifierModel[] {
 		return this._ClassifierModelList;
 	}
 
-	public set ClassifierModelList(models: ClassifierModel[]) {
+	public set ClassifierModelCurrentReviewList(models: ClassifierModel[]) {
 		this._ClassifierModelList = models;
 	}
 	public GetClassifierContactModelList(): void {
-		if ((this.ClassifierContactModelList.length == 0
+		if ((this.ClassifierContactAllModelList.length == 0
 			&& (
 				this.CurrentUserId4ClassifierContactModelList < 1
 				|| this.CurrentUserId4ClassifierContactModelList != this._ReviewerIdentityServ.reviewerIdentity.userId
@@ -75,12 +74,16 @@ export class ClassifierService extends BusyAwareService implements OnDestroy {
 	public FetchClassifierContactModelList(UserId: number) {
 		this._BusyMethods.push("FetchClassifierContactModelList");
 		this._CurrentUserId4ClassifierContactModelList = UserId;
-		this._httpC.get<ClassifierContactModel[]>(this._baseUrl + 'api/MagClassifierContact/FetchClassifierContactList')
+		this._httpC.get<ClassifierModel[]>(this._baseUrl + 'api/MagClassifierContact/FetchClassifierContactList')
 			.subscribe(result => {
+				console.log('result', result);
 				this.RemoveBusy("FetchClassifierContactModelList");
 				if (result != null) {			
-					this.ClassifierContactModelList = result;
-					this.ClassifierModelList = this.ClassifierContactModelList.filter(x => x.reviewId = this._reviewInfoService.ReviewInfo.reviewId);
+					this.ClassifierContactAllModelList = result; 
+					
+					this.ClassifierModelCurrentReviewList = this.ClassifierContactAllModelList.filter(x => x.reviewId = this._reviewInfoService.ReviewInfo.reviewId);
+					
+					console.log('this.ClassifierModelCurrentReviewList', this.ClassifierModelCurrentReviewList);
 				}
 			},
 				error => {
@@ -257,6 +260,7 @@ export class ClassifierModel {
 	attributeIdOn: number = -1;
 	attributeIdNotOn: number = -1;
 	reviewId: number = 0;
+	reviewName: string = '';
 
 }
 

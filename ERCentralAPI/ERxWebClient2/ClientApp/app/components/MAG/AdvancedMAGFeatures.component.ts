@@ -6,14 +6,14 @@ import { codesetSelectorComponent } from '../CodesetTrees/codesetSelector.compon
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Router } from '@angular/router';
-import { ClassifierContactModel,  MagSimulation, TopicLink, MagBrowseHistoryItem } from '../services/MAGClasses.service';
+import {  MagSimulation, TopicLink } from '../services/MAGClasses.service';
 import { EventEmitterService } from '../services/EventEmitter.service';
 import { MAGAdvancedService } from '../services/magAdvanced.service';
 import { MAGBrowserHistoryService } from '../services/MAGBrowserHistory.service';
-import { interval, Subscription } from 'rxjs';
+import { interval } from 'rxjs';
 import { NotificationService } from '@progress/kendo-angular-notification';
 import { MAGSimulationService } from '../services/MAGSimulation.service';
-import { ClassifierService } from '../services/classifier.service';
+import { ClassifierModel, ClassifierService } from '../services/classifier.service';
 
 
 @Component({
@@ -106,7 +106,7 @@ export class AdvancedMAGFeaturesComponent implements OnInit, OnDestroy {
     public UserDefinedClassifier: string = '';
     public magMatchedAll: number = 0;
     public magPaperId: number = 0;
-    public currentClassifierContactModel: ClassifierContactModel = new ClassifierContactModel();
+    public currentClassifierContactModel: ClassifierModel = new ClassifierModel();
     public description: string = '';
     public kendoDateValue: Date = new Date();
     public kendoEndDateValue: Date = new Date();

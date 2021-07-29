@@ -4,7 +4,10 @@ import { MAGBrowserHistoryService } from '../services/MAGBrowserHistory.service'
 import {  Router } from '@angular/router';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { MAGAdvancedService } from '../services/magAdvanced.service';
-import { MagBrowseHistoryItem, MagPaper, MVCMagPaperListSelectionCriteria, MagRelatedPapersRun, MagAutoUpdateRun, MagAutoUpdate, MagAutoUpdateVisualise, MagAutoUpdateVisualiseSelectionCriteria, ClassifierContactModel, MagAddClassifierScoresCommand, MagItemPaperInsertCommand } from '../services/MAGClasses.service';
+import {
+    MagBrowseHistoryItem, MagPaper, MVCMagPaperListSelectionCriteria, MagRelatedPapersRun,
+    MagAutoUpdateRun, MagAutoUpdate, MagAutoUpdateVisualise, MagAutoUpdateVisualiseSelectionCriteria, MagAddClassifierScoresCommand, MagItemPaperInsertCommand
+} from '../services/MAGClasses.service';
 import { EventEmitterService } from '../services/EventEmitter.service';
 import { MAGBrowserService } from '../services/MAGBrowser.service';
 import { MAGRelatedRunsService } from '../services/MAGRelatedRuns.service';
@@ -18,7 +21,7 @@ import { timeout } from 'rxjs/operators';
 import { Helpers } from '../helpers/HelperMethods';
 import { NgForm } from '@angular/forms';
 import { ModalService } from '../services/modal.service';
-import { ClassifierService } from '../services/classifier.service';
+import { ClassifierModel, ClassifierService } from '../services/classifier.service';
 
 @Component({
     selector: 'MAGKeepUpToDate',
@@ -125,10 +128,10 @@ export class MAGKeepUpToDate implements OnInit {
             , "Systematic review"];
     }
     public SelectedStudyClassifier = "[Please select...]";
-    public get ClassifierContactModelList(): ClassifierContactModel[] {
-        return this._classifierService.ClassifierContactModelList;
+    public get ClassifierContactModelList(): ClassifierModel[] {
+        return this._classifierService.ClassifierContactAllModelList;
     }
-    public SelectedClassifierContactModel: ClassifierContactModel | null = null;
+    public SelectedClassifierContactModel: ClassifierModel | null = null;
 
     public ToggleSearchPanel() {
         this.basicSearchPanel = !this.basicSearchPanel;
@@ -203,7 +206,7 @@ export class MAGKeepUpToDate implements OnInit {
         this.ListCriteriaTotPapers = taskRun.nPapers;
         this.ListCriteriaFilteredPapers = taskRun.nPapers;
         this.comboAutoUpdateImportOptions = 'AutoUpdate';
-        if ((this._classifierService.ClassifierContactModelList.length == 0
+        if ((this._classifierService.ClassifierContactAllModelList.length == 0
             && (
             this._classifierService.CurrentUserId4ClassifierContactModelList < 1
             || this._classifierService.CurrentUserId4ClassifierContactModelList != this._ReviewerIdentityServ.reviewerIdentity.userId

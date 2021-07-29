@@ -107,6 +107,25 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
+
+        public static readonly PropertyInfo<int> AttributeIdNotOnProperty = RegisterProperty<int>(new PropertyInfo<int>("AttributeIdNotOn", "AttributeIdNotOn"));
+        public int AttributeIdNotOn
+        {
+            get
+            {
+                return GetProperty(AttributeIdNotOnProperty);
+            }
+        }
+        public static readonly PropertyInfo<int> AttributeIdOnProperty = RegisterProperty<int>(new PropertyInfo<int>("AttributeIdOn", "AttributeIdOn"));
+        public int AttributeIdOn
+        {
+            get
+            {
+                return GetProperty(AttributeIdOnProperty);
+            }
+        }
+
+
         public static readonly PropertyInfo<decimal> AccuracyProperty = RegisterProperty<decimal>(new PropertyInfo<decimal>("Accuracy", "Accuracy"));
         public decimal Accuracy
         {

@@ -2,11 +2,10 @@ import { Inject, Injectable, OnDestroy} from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { ModalService } from './modal.service';
 import { BusyAwareService } from '../helpers/BusyAwareService';
-import { Item } from './ItemList.service';
 import { MAGBrowserService } from './MAGBrowser.service';
 import { MagPaper, MagReviewMagInfo, MVCMagPaperListSelectionCriteria,  
-    ClassifierContactModel, MVCMagFieldOfStudyListSelectionCriteria, MagList,
-    MagCheckContReviewRunningCommand, MagFieldOfStudy, MagCurrentInfo} from './MAGClasses.service';
+      MagList,
+    MagCheckContReviewRunningCommand,  MagCurrentInfo} from './MAGClasses.service';
 import { Router } from '@angular/router';
 import { EventEmitterService } from './EventEmitter.service';
 import { MAGTopicsService } from './MAGTopics.service';

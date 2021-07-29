@@ -159,25 +159,6 @@ export class MvcMagFieldOfStudyListSelectionCriteria {
 
 }
 
-export class ClassifierContactModel {
-
-    modelId: number = 0;
-    modelTitle: string = '';
-    contactId: number = 0;
-    reviewId: number = 0;
-    reviewName: string = '';
-    contactName: string = '';
-    attributeOn: string = '';
-    attributeNotOn: string = '';
-    attributeIdOn: number = -1;
-    attributeIdNotOn: number = -1;
-    accuracy: number = 0;
-    auc: number = 0;
-    precision: number = 0;
-    recall: number = 0;
-
-}
-
 export class MagFieldOfStudy {
 
     fieldOfStudyId: number = 0;

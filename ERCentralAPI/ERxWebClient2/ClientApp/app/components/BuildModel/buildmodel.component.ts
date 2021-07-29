@@ -36,8 +36,8 @@ export class BuildModelComponent implements OnInit, OnDestroy {
 	public DD2: number = 0;
 	public get DataSource(): GridDataResult {
 		return {
-			data: orderBy(this._classifierService.ClassifierContactModelList, this.sort),
-			total: this._classifierService.ClassifierContactModelList.length,
+			data: orderBy(this._classifierService.ClassifierModelCurrentReviewList, this.sort),
+			total: this._classifierService.ClassifierModelCurrentReviewList.length,
 		};
     }
     public get selectedNode(): singleNode | null {
