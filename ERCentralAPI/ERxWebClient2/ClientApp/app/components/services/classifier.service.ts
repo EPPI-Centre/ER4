@@ -139,7 +139,7 @@ export class ClassifierService extends BusyAwareService implements OnDestroy {
 
 	IamVerySorryRefresh() {
 
-		this.GetClassifierContactModelList();
+		this.FetchClassifierContactModelList(this._ReviewerIdentityServ.reviewerIdentity.userId);
 
 	}
 

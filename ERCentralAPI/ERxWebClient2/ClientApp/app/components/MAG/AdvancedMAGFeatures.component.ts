@@ -123,7 +123,7 @@ export class AdvancedMAGFeaturesComponent implements OnInit, OnDestroy {
     }
     public Refresh() {
         this.GetMagSimulationList();
-        setTimeout(() => { this._classifierService.GetClassifierContactModelList();}, 100);
+        setTimeout(() => { this._classifierService.FetchClassifierContactModelList(this._ReviewerIdentityServ.reviewerIdentity.userId);}, 100);
     }
     private ShowMAGSimulationMessage(notifyMsg: string) {
 

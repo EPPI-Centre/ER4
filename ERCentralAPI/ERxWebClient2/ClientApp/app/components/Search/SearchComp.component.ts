@@ -319,7 +319,7 @@ export class SearchComp implements OnInit, OnDestroy {
 
     Classify() {
 
-        this.classifierService.GetClassifierContactModelList();
+        this.classifierService.FetchClassifierContactModelList(this.ReviewerIdentityServ.reviewerIdentity.userId);
         this._reviewSetsService.selectedNode = null;
         this.NewSearchSection = false;
         this.ModelSection = !this.ModelSection;
