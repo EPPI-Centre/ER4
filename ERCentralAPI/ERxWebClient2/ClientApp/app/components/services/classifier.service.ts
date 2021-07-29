@@ -256,6 +256,7 @@ export class ClassifierModel {
 	attributeNotOn: string = '';
 	attributeIdOn: number = -1;
 	attributeIdNotOn: number = -1;
+	reviewId: number = 0;
 
 }
 
