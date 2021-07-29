@@ -32,7 +32,7 @@ export class searchService extends BusyAwareService implements OnDestroy {
 	public cmdSearches: SearchCodeCommand = new SearchCodeCommand();
 
 	private _SearchList: Search[] = [];
-	
+	public selectedSourceDropDown: string = '';
 
 
 	//@Output() searchesChanged = new EventEmitter();

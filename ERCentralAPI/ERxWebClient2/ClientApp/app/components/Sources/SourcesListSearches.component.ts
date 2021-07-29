@@ -25,9 +25,12 @@ export class SourcesListSearchesComponent implements OnInit {
     ) {    }
     ngOnInit() {
     }
-    nextSourceDropDownList(num: number, val: string) {
 
+    nextSourceDropDownList(num: number, val: string) {
+        this._searchService.selectedSourceDropDown = val;
         this._searchService.cmdSearches._sourceIds = this._sourcesService.ReviewSources.filter(x=> x.isSelected ==  true).map<string>(y => y.source_ID.toString()).join(',');
+
+        console.log('this._searchService.cmdSearches._sourceIds: ', this._searchService.cmdSearches._sourceIds);
         switch (num) {
 
             case 1: {

@@ -454,7 +454,9 @@ export class SearchComp implements OnInit, OnDestroy {
         }
         else if (this.selectedSearchDropDown == 'Containing this text' && this.searchText != '' && this.selectedSearchTextDropDown != '') {
             return true;
-        } else if (this.selectedSearchDropDown == 'With Specific Sources' && this._sourcesService.ReviewSources.map(x => x.isSelected == true).length > 0 ) {
+        } else if (this.selectedSearchDropDown == 'From search source(s)' &&
+            this._searchService.cmdSearches._sourceIds.length > 0 &&
+            this._searchService.selectedSourceDropDown.length > 0 ) {
             return true;
         }
 
