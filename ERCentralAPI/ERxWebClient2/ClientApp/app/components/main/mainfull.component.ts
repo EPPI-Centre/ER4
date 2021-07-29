@@ -36,6 +36,7 @@ import { ReviewInfoService } from '../services/ReviewInfo.service';
 import { MAGBrowserHistoryService } from '../services/MAGBrowserHistory.service';
 import { SetupConfigurableReports } from '../Reports/SetupConfigurableReports.component';
 import { FreqXtabMapsComp } from '../Frequencies/FreqXtabMaps.component';
+import { ClassifierService } from '../services/classifier.service';
 //import { AdvancedMAGFeaturesComponent } from '../MAG/AdvancedMAGFeatures.component';
 
 
@@ -84,6 +85,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
 		@Inject('BASE_URL') private _baseUrl: string,
         private excelService: ExcelService,
         private reviewInfoService: ReviewInfoService,
+        private classifierService: ClassifierService
     ) {}
 	@ViewChild('WorkAllocationContactList') workAllocationsContactComp!: WorkAllocationContactListComp;
 	@ViewChild('WorkAllocationCollaborateList') workAllocationCollaborateComp!: WorkAllocationComp;
@@ -1010,6 +1012,7 @@ export class MainFullReviewComponent implements OnInit, OnDestroy {
         this.ItemListService.Clear();
         //this.codesetStatsServ.
         this.reviewSetsService.Clear();
+        this.classifierService.Clear();
         this.codesetStatsServ.Clear();
 		this.SourcesService.Clear();
 		this.workAllocationListService.Clear();
