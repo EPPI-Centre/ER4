@@ -418,8 +418,6 @@ export class SearchComp implements OnInit, OnDestroy {
 
     }
     get CanApplySearch(): boolean {
-
-        console.log('being called..');
         // Easy ones do not have a condition in the seacrhes DD
         // Without an abstract and without any documents uploaded
         if (this.selectedSearchDropDown == 'Without any documents uploaded') {
@@ -893,8 +891,6 @@ export class SearchComp implements OnInit, OnDestroy {
     callSearches(selectedSearchDropDown: string, selectedSearchTextDropDown: string, searchBool: boolean) {
 
         if (this.CanWrite()) {
-
-
             this.selectedSearchTextDropDown = selectedSearchTextDropDown;
             let searchTitle: string = '';
             let firstNum: boolean = selectedSearchDropDown.search('With this code') != -1;
@@ -1014,9 +1010,9 @@ export class SearchComp implements OnInit, OnDestroy {
                 this._searchService.CreateSearch(this._searchService.cmdSearches, 'SearchOneFile');
 
             }
-            if (selectedSearchDropDown == 'With Specific Sources') {
+            if (selectedSearchDropDown == 'From search source(s)') {
 
-               this._searchService.CreateSearch(this._searchService.cmdSearches, 'SearchSources');
+                this._searchService.CreateSearch(this._searchService.cmdSearches, 'SearchSources');
             }
 
         }
