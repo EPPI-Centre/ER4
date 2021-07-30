@@ -29,8 +29,7 @@ export class SourcesListSearchesComponent implements OnInit {
     nextSourceDropDownList(num: number, val: string) {
         this._searchService.selectedSourceDropDown = val;
         this._searchService.cmdSearches._sourceIds = this._sourcesService.ReviewSources.filter(x=> x.isSelected ==  true).map<string>(y => y.source_ID.toString()).join(',');
-
-        console.log('this._searchService.cmdSearches._sourceIds: ', this._searchService.cmdSearches._sourceIds);
+                
         switch (num) {
 
             case 1: {
@@ -75,10 +74,12 @@ export class SourcesListSearchesComponent implements OnInit {
                 this.ReviewSources[item].isSelected = false;
             }
         }
+        this._searchService.cmdSearches._sourceIds = this._sourcesService.ReviewSources.filter(x => x.isSelected == true).map<string>(y => y.source_ID.toString()).join(',');
+
     }
     get ReviewSources(): ReadOnlySource[] {
-
         let sources: ReadOnlySource[] = this._sourcesService.ReviewSources.filter((v, i) => i != this._sourcesService.ReviewSources.length - 1);
+        this._searchService.cmdSearches._sourceIds = this._sourcesService.ReviewSources.filter(x => x.isSelected == true).map<string>(y => y.source_ID.toString()).join(',');
         return sources;
     }
     public get HasWriteRights(): boolean {

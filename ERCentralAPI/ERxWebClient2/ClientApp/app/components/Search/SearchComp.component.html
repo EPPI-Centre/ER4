@@ -13,7 +13,7 @@
         <div class="row mt-1 mb-2">
             <div class="col-12 col-md-3 ">
                 <button type="button" class="btn btn-primary"
-                        [disabled]="!CanApplySearch()"
+                        [disabled]="!CanApplySearch"
                         (click)="callSearches(selectedSearchDropDown, selectedSearchTextDropDown, searchInclOrExcl == 'true')">
                     Run Search
                 </button>

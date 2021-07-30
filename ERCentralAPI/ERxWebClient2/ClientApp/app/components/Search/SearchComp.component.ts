@@ -417,8 +417,9 @@ export class SearchComp implements OnInit, OnDestroy {
         this.ApplySource = false;
 
     }
-    CanApplySearch(): boolean {
+    get CanApplySearch(): boolean {
 
+        console.log('being called..');
         // Easy ones do not have a condition in the seacrhes DD
         // Without an abstract and without any documents uploaded
         if (this.selectedSearchDropDown == 'Without any documents uploaded') {
@@ -461,9 +462,7 @@ export class SearchComp implements OnInit, OnDestroy {
         }
 
         return false;
-
         // 
-
     }
     CanApplyModel(): boolean {
 
