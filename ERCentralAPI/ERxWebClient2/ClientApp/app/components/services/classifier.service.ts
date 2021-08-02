@@ -76,12 +76,11 @@ export class ClassifierService extends BusyAwareService implements OnDestroy {
 		this._CurrentUserId4ClassifierContactModelList = UserId;
 		this._httpC.get<ClassifierModel[]>(this._baseUrl + 'api/MagClassifierContact/FetchClassifierContactList')
 			.subscribe(result => {
-				console.log('result', result);
 				this.RemoveBusy("FetchClassifierContactModelList");
 				if (result != null) {			
 					this.ClassifierContactAllModelList = result; 
 					
-					this.ClassifierModelCurrentReviewList = this.ClassifierContactAllModelList.filter(x => x.reviewId = this._reviewInfoService.ReviewInfo.reviewId);
+					this.ClassifierModelCurrentReviewList = this.ClassifierContactAllModelList.filter(x => x.reviewId == this._reviewInfoService.ReviewInfo.reviewId);
 					
 					console.log('this.ClassifierModelCurrentReviewList', this.ClassifierModelCurrentReviewList);
 				}
