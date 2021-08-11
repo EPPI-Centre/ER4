@@ -267,7 +267,8 @@
                     [sort]="sortCustomModel"
                     [kendoGridSelectBy]="'modelId'"
                     (sortChange)="sortChangeModel($event)"
-                    (selectionChange)="selectedRows($event)">
+                    (selectionChange)="selectedRows($event)"
+                    [style.max-height.vh]="40">
 
             <kendo-grid-checkbox-column width="40" headerClass="p-2" class="pr-1 pl-2 py-0">
                 <ng-template kendoGridHeaderTemplate>
@@ -311,7 +312,8 @@
                     [sort]="sortCustomModel"
                     [kendoGridSelectBy]="'modelId'"
                     (sortChange)="sortChangeModel($event)"
-                    (selectionChange)="selectedRows($event)">
+                    (selectionChange)="selectedRows($event)"
+                    [style.max-height.vh]="40">
 
             <kendo-grid-checkbox-column width="40" headerClass="p-2" class="pr-1 pl-2 py-0">
                 <ng-template kendoGridHeaderTemplate>
@@ -338,14 +340,14 @@
             </kendo-grid-column>
             <kendo-grid-column field="recall" title="Recall">
             </kendo-grid-column>
-            <kendo-grid-column width="80" class="px-1 py-0 m-1"
+            <!--<kendo-grid-column width="80" class="px-1 py-0 m-1"
                                field="modelId" title="Rebuild">
                 <ng-template kendoGridCellTemplate let-dataItem>
                     <div (click)="openRebuildConfirmationDialog(dataItem)" class="btn btn-link font-weight-bold">
                         Rebuild
                     </div>
                 </ng-template>
-            </kendo-grid-column>
+            </kendo-grid-column>-->
         </kendo-grid>
 
     </div>

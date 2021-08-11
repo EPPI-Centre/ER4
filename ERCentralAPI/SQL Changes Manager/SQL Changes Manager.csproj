@@ -503,7 +503,7 @@
 	  <None Update="SQLScripts\414.sql">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </None>
-	  <None Update="SQLScripts\TestSQLChangesForSergioToVerify.sql">
+	  <None Update="SQLScripts\424.sql">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </None>
 	  <None Update="SQLScripts\420.sql">
