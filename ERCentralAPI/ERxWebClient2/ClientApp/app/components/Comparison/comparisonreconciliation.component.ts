@@ -58,6 +58,10 @@ export class ComparisonReconciliationComp extends BusyAwareService implements On
 	private item: Item = new Item();
 	public CurrentComparison: Comparison = new Comparison();
 	public DetailsView: boolean = false;
+	public get CurrentContext(): string {
+		if (this.DetailsView) return "reconciliation\treesview";
+		else return "reconciliation";
+	}
 	public panelItem: Item | undefined = new Item();
 	public get HasWriteRights(): boolean {
 		return this.ReviewerIdentityServ.HasWriteRights;
