@@ -119,7 +119,7 @@ export class SourcesService extends BusyAwareService implements OnDestroy {
     public ActOnPubMedSearch(PmSearch: PubMedSearch) {
         this._BusyMethods.push("ActOnPubMedSearch");
         //same logic as ER4 to figure if we're doing the import or just getting some results to show.
-        let IsGettingAPreview: boolean = (PmSearch.showEnd != 0 && PmSearch.showStart < PmSearch.showEnd && PmSearch.saveEnd == 0 && PmSearch.saveStart == 0);
+        let IsGettingAPreview: boolean = (PmSearch.showEnd != 0 && PmSearch.showStart <= PmSearch.showEnd && PmSearch.saveEnd == 0 && PmSearch.saveStart == 0);
         let body = JSON.stringify(PmSearch);
         this._httpC.post<PubMedSearch>(this._baseUrl + 'api/Sources/ActOnPubMedSearchPreview', body).subscribe(result => {
             this._CurrentPMsearch = result;

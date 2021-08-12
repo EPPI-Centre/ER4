@@ -47,7 +47,7 @@ export class PubMedComponent implements OnInit, OnDestroy {
     }
     set AdjustedShowStart(value: number) {
         if (this._DataToCheck && value > 0) {
-            this._DataToCheck.showStart = value - 1;
+            this._DataToCheck.showStart = value;
             if (this._DataToCheck.showStart > this._DataToCheck.showEnd) {
                 //adjust showEnd as it's too low!
                 this._DataToCheck.showEnd = this._DataToCheck.showStart;
@@ -55,25 +55,25 @@ export class PubMedComponent implements OnInit, OnDestroy {
         }
     }
     get AdjustedShowStart(): number {
-        if (this._DataToCheck) return this._DataToCheck.showStart + 1;
+        if (this._DataToCheck) return this._DataToCheck.showStart;
         else return 1;
     }
     set AdjustedShowEnd(value: number) {
         if (this._DataToCheck && value > 0) {
-            this._DataToCheck.showEnd = value - 1;
-            if (this._DataToCheck.showEnd < this._DataToCheck.showStart) {
-                //adjust showStart as it's too high!
-                this._DataToCheck.showStart = this._DataToCheck.showEnd;
-            }
+            this._DataToCheck.showEnd = value;
+            //if (this._DataToCheck.showEnd < this._DataToCheck.showStart) {
+            //    //adjust showStart as it's too high!
+            //    //this._DataToCheck.showStart = this._DataToCheck.showEnd;
+            //}
         }
     }
     get AdjustedShowEnd(): number {
-        if (this._DataToCheck) return this._DataToCheck.showEnd + 1;
+        if (this._DataToCheck) return this._DataToCheck.showEnd;
         else return 1;
     }
     set AdjustedSaveStart(value: number) {
         if (this._DataToCheck && value > 0) {
-            this._DataToCheck.saveStart = value - 1;
+            this._DataToCheck.saveStart = value;
             if (this._DataToCheck.saveStart > this._DataToCheck.saveEnd) {
                 //adjust saveEnd as it's too low!
                 this._DataToCheck.saveEnd = this._DataToCheck.saveStart;
@@ -81,24 +81,27 @@ export class PubMedComponent implements OnInit, OnDestroy {
         }
     }
     get AdjustedSaveStart(): number {
-        if (this._DataToCheck) return this._DataToCheck.saveStart + 1;
+        if (this._DataToCheck) {
+            if (this._DataToCheck.saveStart <= 0) this._DataToCheck.saveStart = 1;
+            return this._DataToCheck.saveStart;
+        }
         else return 1;
     }
     set AdjustedSaveEnd(value: number) {
         if (this._DataToCheck && value > 0) {
-            this._DataToCheck.saveEnd = value - 1;
-            if (this._DataToCheck.saveEnd < this._DataToCheck.saveStart) {
-                //adjust saveStart as it's too high!
-                this._DataToCheck.saveStart = this._DataToCheck.saveEnd;
-            }
+            this._DataToCheck.saveEnd = value;
+            //if (this._DataToCheck.saveEnd < this._DataToCheck.saveStart) {
+            //    //adjust saveStart as it's too high!
+            //    //this._DataToCheck.saveStart = this._DataToCheck.saveEnd;
+            //}
         }
     }
     get AdjustedSaveEnd(): number {
         if (this._DataToCheck) {
             if (this._DataToCheck.saveEnd == 0) {
-                this._DataToCheck.saveEnd = this._DataToCheck.queMax > 10000 ? 9999 : this._DataToCheck.queMax - 1;
+                this._DataToCheck.saveEnd = this._DataToCheck.queMax > 10000 ? 10000 : this._DataToCheck.queMax;
             }
-            return this._DataToCheck.saveEnd + 1;
+            return this._DataToCheck.saveEnd;
         }
         else return 1;
     }
@@ -124,8 +127,8 @@ export class PubMedComponent implements OnInit, OnDestroy {
     }
     ImportPmSearch() {
         if (this._DataToCheck && this._DataToCheck.saveEnd != 0
-            && this._DataToCheck.saveStart >= 0
-            && this._DataToCheck.saveStart < this._DataToCheck.saveEnd
+            && this._DataToCheck.saveStart > 0
+            && this._DataToCheck.saveStart <= this._DataToCheck.saveEnd
         ) {
             this._DataToCheck.showEnd = 0;
             this._DataToCheck.showStart = 0;

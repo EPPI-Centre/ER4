@@ -64,7 +64,7 @@
                         </div>
                         <kendo-numerictextbox [(ngModel)]="AdjustedShowEnd" 
                                               [max]="AdjustedMax()"
-                                              [format]="'n0'" [min]="1" 
+                                              [format]="'n0'" [min]="AdjustedShowStart" 
                                               [autoCorrect]="true"
                                               class="border border-dark rounded"
                                               style="width: 130px;"></kendo-numerictextbox>
@@ -155,7 +155,7 @@
                         &nbsp;to Item&nbsp;
                     </div>
                         <kendo-numerictextbox [(ngModel)]="AdjustedSaveEnd"
-                                              [min]="1" [format]="'n0'"
+                                              [min]="AdjustedSaveStart" [format]="'n0'"
                                               [max]="AdjustedMax()"
                                               [autoCorrect]="true"
                                               class="border border-dark rounded"
