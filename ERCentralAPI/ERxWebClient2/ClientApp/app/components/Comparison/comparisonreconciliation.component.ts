@@ -59,7 +59,7 @@ export class ComparisonReconciliationComp extends BusyAwareService implements On
 	public CurrentComparison: Comparison = new Comparison();
 	public DetailsView: boolean = false;
 	public get CurrentContext(): string {
-		if (this.DetailsView) return "reconciliation\treesview";
+		if (this.DetailsView) return "reconciliation\\treesview";
 		else return "reconciliation";
 	}
 	public panelItem: Item | undefined = new Item();
