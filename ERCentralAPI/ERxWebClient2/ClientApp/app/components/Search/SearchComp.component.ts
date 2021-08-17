@@ -453,7 +453,7 @@ export class SearchComp implements OnInit, OnDestroy {
         }
         else if (this.selectedSearchDropDown == 'Containing this text' && this.searchText != '' && this.selectedSearchTextDropDown != '') {
             return true;
-        } else if (this.selectedSearchDropDown == 'From search source(s)' &&
+        } else if (this.selectedSearchDropDown == 'From source(s)' &&
             this._searchService.cmdSearches._sourceIds.length > 0 &&
             this._searchService.selectedSourceDropDown.length > 0 ) {
             return true;
@@ -1010,12 +1010,62 @@ export class SearchComp implements OnInit, OnDestroy {
                 this._searchService.CreateSearch(this._searchService.cmdSearches, 'SearchOneFile');
 
             }
-            if (selectedSearchDropDown == 'From search source(s)') {
-
-                this._searchService.CreateSearch(this._searchService.cmdSearches, 'SearchSources');
+            if (selectedSearchDropDown == 'From source(s)') {
+                if (this.MakeSearchBySourceName()) this._searchService.CreateSearch(this._searchService.cmdSearches, 'SearchSources');
             }
 
         }
+    }
+    MakeSearchBySourceName(): boolean {
+        //this._searchService.selectedSourceDropDown = val;
+        let NameSt: string = "";
+        let ids: string[] = this._sourcesService.ReviewSources.filter(x => x.isSelected == true).map<string>(y => y.source_ID.toString());
+        if (ids.length == 0) {
+            return false;//nothing to do, can't search on sources without a selected source...
+        }
+        else if (ids.length == 1) {
+            NameSt = "Source search, Id:" + ids[0] + " - ";
+        }
+        else if (ids.length > 1 && ids.length < 4) {
+            //selected multiple sources
+            NameSt = "Sources search  (IDs: " + ids.join(',') + ") - ";
+        }
+        else {
+            NameSt = "Sources search  (" + ids.length.toString() + " IDs: " + ids[0] + "," + ids[1] + "," + ids[2] + "...) - ";
+        }
+        this._searchService.cmdSearches._sourceIds = ids.join(',');
+
+        switch (this._searchService.cmdSearches._searchWhat) {
+
+            case "AllItems": {
+                this._searchService.cmdSearches._title = NameSt + 'All items in source';
+                //this._searchService.cmdSearches._searchWhat = "AllItems";
+                break;
+            }
+            case "Included": {
+                this._searchService.cmdSearches._title = NameSt + 'Only included';
+                //this._searchService.cmdSearches._searchWhat = "Included";
+                break;
+            }
+            case "Excluded": {
+                this._searchService.cmdSearches._title = NameSt + 'Only excluded';
+                //this._searchService.cmdSearches._searchWhat = "Excluded";
+                break;
+            }
+            case "Deleted": {
+                this._searchService.cmdSearches._title = NameSt + 'Only deleted';
+                //this._searchService.cmdSearches._searchWhat = "Deleted";
+                break;
+            }
+            case "Duplicates": {
+                this._searchService.cmdSearches._title = NameSt + 'Only duplicates';
+                //this._searchService.cmdSearches._searchWhat = "Duplicates";
+                break;
+            }
+            default:
+                return false;
+        }
+        return true;
     }
     public ShowSearchForAnyone: boolean = false;
     public nextDropDownList(num: number, val: string) {
