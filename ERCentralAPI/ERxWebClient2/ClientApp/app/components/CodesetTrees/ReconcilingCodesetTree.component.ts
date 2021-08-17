@@ -479,7 +479,7 @@ export class ReconcilingCodesetTreeComponent implements OnInit, OnDestroy, After
 		return this.ItemCodingService.OutcomesTable(data, true);
 	}
 	
-	public DisagreementPosition(item: ReconcilingSetAttribute): number {
+	public DisagreementPosition(): number {
 		if (this.SelectedNode !== null) {
 			const curr = this.SelectedNode;
 			return this._Disagreements.findIndex(f => f.id == curr.id);

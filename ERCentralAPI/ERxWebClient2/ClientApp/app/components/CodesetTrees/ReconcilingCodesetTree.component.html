@@ -6,11 +6,11 @@
                     class="btn btn-sm btn-outline-success my-1 py-0 mr-1">
                 First
             </button>
-            <button (click)="PreviousDisagreement()" [disabled]="FindingDisagreements || (SelectedNode != null && DisagreementPosition(SelectedNode) == 0)"
+            <button (click)="PreviousDisagreement()" [disabled]="FindingDisagreements || (SelectedNode != null && DisagreementPosition() == 0)"
                     class="btn btn-sm btn-outline-success my-1 py-0 mr-1">
                 Previous
             </button>
-            <button (click)="NextDisagreement()" [disabled]="FindingDisagreements || (SelectedNode != null && DisagreementPosition(SelectedNode) == Disagreements.length - 1)"
+            <button (click)="NextDisagreement()" [disabled]="FindingDisagreements || (SelectedNode != null && DisagreementPosition() == Disagreements.length - 1)"
                     class="btn btn-sm btn-outline-success my-1 py-0 mr-1">
                 Next
             </button>
@@ -22,7 +22,7 @@
                 <i class="fa fa-spinner fa-spin text-success mt-1 " style=""></i>
             </div>
         </div>
-        <div *ngIf="DisagreementPosition(SelectedNode) >= 0; else NoDisagreementSelected" class="row mx-1 my-1">
+        <div *ngIf="DisagreementPosition() >= 0; else NoDisagreementSelected" class="row mx-1 my-1">
             <div class="mx-auto my-0 small">
                 Selected: disagreement {{DisagreementPosition(SelectedNode) + 1}} of {{Disagreements.length}}
             </div>

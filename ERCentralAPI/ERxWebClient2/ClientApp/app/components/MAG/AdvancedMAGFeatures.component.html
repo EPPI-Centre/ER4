@@ -232,7 +232,7 @@
                             <td style="padding-right: 25px;">
                                 <div ngbDropdown class="col-sm-12 col-lg-6">
                                     <select [(ngModel)]="currentClassifierContactModel" class="form-control" name="currentClassifierContactModel">
-                                        <option *ngFor="let item of _classifierService.ClassifierContactModelList"
+                                        <option *ngFor="let item of ClassifierContactModelList"
                                                 [ngValue]="item" [selected]="item == currentClassifierContactModel">
                                             {{item.modelTitle}}
                                         </option>

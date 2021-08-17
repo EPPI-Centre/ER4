@@ -42,7 +42,7 @@ export class AdvancedMAGFeaturesComponent implements OnInit, OnDestroy {
 
         //this.history = this._routingStateService.getHistory();
     }
-
+    
     public basicMAGPanel: boolean = false;
     public basicSeedPanel: boolean = false;
 
@@ -143,6 +143,9 @@ export class AdvancedMAGFeaturesComponent implements OnInit, OnDestroy {
     }
     public get IsServiceBusy(): boolean {
         return this._magAdvancedService.IsBusy;
+    }
+    public get ClassifierContactModelList(): ClassifierModel[] {
+        return this._classifierService.ClassifierContactAllModelList;
     }
     public ShowGraphViewer: boolean = false;
     public ShowGraph() {
