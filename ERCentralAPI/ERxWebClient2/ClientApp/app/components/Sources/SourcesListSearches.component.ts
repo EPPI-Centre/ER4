@@ -70,12 +70,12 @@ export class SourcesListSearchesComponent implements OnInit {
                 this.ReviewSources[item].isSelected = false;
             }
         }
-        this._searchService.cmdSearches._sourceIds = this._sourcesService.ReviewSources.filter(x => x.isSelected == true).map<string>(y => y.source_ID.toString()).join(',');
+        //this._searchService.cmdSearches._sourceIds = this._sourcesService.ReviewSources.filter(x => x.isSelected == true).map<string>(y => y.source_ID.toString()).join(',');
 
     }
     get ReviewSources(): ReadOnlySource[] {
         let sources: ReadOnlySource[] = this._sourcesService.ReviewSources.filter((v, i) => i != this._sourcesService.ReviewSources.length - 1);
-        this._searchService.cmdSearches._sourceIds = this._sourcesService.ReviewSources.filter(x => x.isSelected == true).map<string>(y => y.source_ID.toString()).join(',');
+        //this._searchService.cmdSearches._sourceIds = this._sourcesService.ReviewSources.filter(x => x.isSelected == true).map<string>(y => y.source_ID.toString()).join(',');
         return sources;
     }
     public get HasWriteRights(): boolean {

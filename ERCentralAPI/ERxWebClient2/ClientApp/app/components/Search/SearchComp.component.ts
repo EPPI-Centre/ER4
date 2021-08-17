@@ -299,6 +299,9 @@ export class SearchComp implements OnInit, OnDestroy {
         this.modelResultsSection = false;
         this.radioButtonApplyModelSection = false;
         this.ShowVisualiseSection = false;
+        this._searchService.cmdSearches._searchWhat = "";
+        this._searchService.cmdSearches._sourceIds = "";
+        this._searchService.cmdSearches._title = "";
     }
     CloseCodeDropDown() {
         if (this.WithOrWithoutCodeSelector) {
@@ -454,7 +457,7 @@ export class SearchComp implements OnInit, OnDestroy {
         else if (this.selectedSearchDropDown == 'Containing this text' && this.searchText != '' && this.selectedSearchTextDropDown != '') {
             return true;
         } else if (this.selectedSearchDropDown == 'From source(s)' &&
-            this._searchService.cmdSearches._sourceIds.length > 0 &&
+            this._sourcesService.ReviewSources.filter(x => x.isSelected == true).length > 0 &&
             this._searchService.selectedSourceDropDown.length > 0 ) {
             return true;
         }
