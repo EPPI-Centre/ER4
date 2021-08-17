@@ -41,7 +41,11 @@ you will want to use the <b>Treeview reconciliation</b> (as explained further do
 
 	<div class="row">
 	<div class="col-lg">
-	If there is text in a code''s Info box or pdf coding is assigned to the code it will be displayed.<br>
+	Clicking on a code name will expand the details for the clicked code:
+	<ul>
+	<li>If there is text in a code''s Info box it will be displayed. <strong>Note:</strong> PDF coding is <strong>not</strong> shown in this view.<br></li>
+	<li>The full path of the code will be shown (if the code is a child of some other code).</li>
+	</ul>
 	If an item has arms as part of its coding, the arm the coding is assigned to will be clearly displayed next to the selected code.<br>
 	At the bottom of the screen can be found the full reference including the abstract to help with the reconciliation process.<br>
 	Clicking on the Item ID link in each row will take you to the Item Details page where more detailed adjustment of the coding can take place.
