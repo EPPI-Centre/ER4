@@ -122,7 +122,7 @@ and PDF coding, between reviewers to create an agreed version of the coding.
 
 	<div class="col-sm">
 	<br>
-	Each reviewer in the comparison has their own column with its own treeview of the coding tool so you can examime each person''s work in detail.<br>
+	Each reviewer in the comparison has their own column with its own treeview of the coding tool so you can examine each person''s work in detail.<br>
 	You can step through the items in the comparison using the <b>First</b>, <b>Previous</b>, <b>Next</b> and <b>Last</b> controls at the top.<br>
 	You can also step through the individual disagreements using a similar control.<br>
 	Below the treeview are the ciation details including the study abstract.<br><br>
