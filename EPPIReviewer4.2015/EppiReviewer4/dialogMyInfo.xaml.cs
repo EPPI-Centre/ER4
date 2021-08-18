@@ -424,7 +424,7 @@ namespace EppiReviewer4
             GridViewMyReviews.IsEnabled = false;
             int reviewId = ((sender as Button).DataContext as ReadOnlyArchieReview).ReviewId;
             string reviewName = ((sender as Button).DataContext as ReadOnlyArchieReview).ReviewName;
-            if (LoginToNewReviewRequested != null)
+            if (LoginToNewReviewRequested != null && reviewName != "Place holder: no real reviews are in this list")
                 LoginToNewReviewRequested.Invoke(this, new ReviewSelectedEventArgs(reviewId, reviewName));
         }
 

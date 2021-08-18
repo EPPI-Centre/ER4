@@ -469,21 +469,16 @@ namespace EppiReviewer4
                 else
                 {
                     SearchRes.Text = e2.Object.Summary;
-                    string Tname = e2.Object.ItemsList.SourceName;
+
                     grViewWebSearch.DataContext = e2.Object as PubMedSearch;
-                    grViewWebSearch.ItemsSource = e2.Object.ItemsList.IncomingItems;
-                    //BusinessLibrary.BusinessClasses.SourceList ROSL = (BusinessLibrary.BusinessClasses.SourceList)provider.Data;
-                    //for (int i=0; i < grView0.Items.Count; i++)
-                    //{
-                    //    BusinessLibrary.BusinessClasses.Source ROS = (Source)grView0.Items[i];
-                    //    if (ROS.Source_Name == Tname)
-                    //    {
-                    //        SaveWebSearch.IsEnabled = false;
-                    //    }
-                    //}
-                    //grViewWebSearch.DataContext = e2.Object;
+                    if (e2.Object.ItemsList != null)
+                    {
+                        grViewWebSearch.ItemsSource = e2.Object.ItemsList.IncomingItems;
+                    } else
+                    {
+                        grViewWebSearch.ItemsSource = null;
+                    }
                     PubmSearchName.Text = PubmSearchName.Text == "" ? e2.Object.ItemsList.SourceName : PubmSearchName.Text;
-                    //grViewWebSearch.Rebind();
                 }
             });
             //dp.BeginExecute(command);

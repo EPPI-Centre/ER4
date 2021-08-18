@@ -265,6 +265,29 @@ namespace EppiReviewer4.Helpers
             return value;
         }
     }
+    public class CanActivateArchieReview : IValueConverter
+    {
+        public CanActivateArchieReview()
+        {
+        }
+        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            if (value == null || !(value is string) || (string)value == "") return false;
+            if (value.ToString() == "Place holder: no real reviews are in this list")
+            {
+                return false;
+            }
+
+            else return true;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            return value;
+        }
+    }
+    
+
     public class LoginToArchieReviewIsEn : IValueConverter
     {
         public LoginToArchieReviewIsEn()

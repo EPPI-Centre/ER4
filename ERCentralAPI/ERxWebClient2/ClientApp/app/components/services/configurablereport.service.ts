@@ -61,7 +61,7 @@ export class ConfigurableReportService extends BusyAwareService {
 		).toPromise().then(
 			(result) => {
 				this.RemoveBusy("FetchStandardReport");
-				console.log("FetchStandardReport got:", result);
+				//console.log("FetchStandardReport got:", result);
 				return result;
 
 			}, error => {
@@ -129,6 +129,34 @@ export class ConfigurableReportService extends BusyAwareService {
 			}
 		);
 	}
+
+	FetchAllCodingReportBySet(setId: number): Promise<string> {
+
+		let body = JSON.stringify({ Value: setId });
+		this._BusyMethods.push("FetchAllCodingReportBySet");
+		return this._httpC.post<string>(this._baseUrl + 'api/ReportList/FetchReportAllCoding',
+			body
+		).toPromise().then(
+			(result) => {
+				this.RemoveBusy("FetchAllCodingReportBySet");
+				//console.log("FetchStandardReport got:", result);
+				return result;
+
+			}, error => {
+				console.log('error in FetchAllCodingReportBySet error:', error);
+				this.RemoveBusy("FetchAllCodingReportBySet");
+				this.modalService.GenericError(error);
+				return "error";
+			}
+		).catch(
+			(error) => {
+				console.log('error in FetchAllCodingReportBySet catch:', error);
+				this.modalService.GenericError(error);
+				this.RemoveBusy("FetchAllCodingReportBySet");
+				return "error";
+			}
+		);
+    }
 
 	CreateReport(rep: iConfigurableReport): Promise<iConfigurableReport | null> {
 		this._BusyMethods.push("CreateReport");

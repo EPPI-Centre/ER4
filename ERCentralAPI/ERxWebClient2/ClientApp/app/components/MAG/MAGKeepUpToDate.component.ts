@@ -4,7 +4,10 @@ import { MAGBrowserHistoryService } from '../services/MAGBrowserHistory.service'
 import {  Router } from '@angular/router';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { MAGAdvancedService } from '../services/magAdvanced.service';
-import { MagBrowseHistoryItem, MagPaper, MVCMagPaperListSelectionCriteria, MagRelatedPapersRun, MagAutoUpdateRun, MagAutoUpdate, MagAutoUpdateVisualise, MagAutoUpdateVisualiseSelectionCriteria, ClassifierContactModel, MagAddClassifierScoresCommand, MagItemPaperInsertCommand } from '../services/MAGClasses.service';
+import {
+    MagBrowseHistoryItem, MagPaper, MVCMagPaperListSelectionCriteria, MagRelatedPapersRun,
+    MagAutoUpdateRun, MagAutoUpdate, MagAutoUpdateVisualise, MagAutoUpdateVisualiseSelectionCriteria, MagAddClassifierScoresCommand, MagItemPaperInsertCommand
+} from '../services/MAGClasses.service';
 import { EventEmitterService } from '../services/EventEmitter.service';
 import { MAGBrowserService } from '../services/MAGBrowser.service';
 import { MAGRelatedRunsService } from '../services/MAGRelatedRuns.service';
@@ -18,6 +21,7 @@ import { timeout } from 'rxjs/operators';
 import { Helpers } from '../helpers/HelperMethods';
 import { NgForm } from '@angular/forms';
 import { ModalService } from '../services/modal.service';
+import { ClassifierModel, ClassifierService } from '../services/classifier.service';
 
 @Component({
     selector: 'MAGKeepUpToDate',
@@ -36,6 +40,7 @@ export class MAGKeepUpToDate implements OnInit {
         private MAGRelatedRunsService: MAGRelatedRunsService,
         private NotificationService: NotificationService,
         private ModalService: ModalService,
+        private _classifierService: ClassifierService
     ) {
 
     }
@@ -123,10 +128,10 @@ export class MAGKeepUpToDate implements OnInit {
             , "Systematic review"];
     }
     public SelectedStudyClassifier = "[Please select...]";
-    public get ClassifierContactModelList(): ClassifierContactModel[] {
-        return this.MAGAdvancedService.ClassifierContactModelList;
+    public get ClassifierContactModelList(): ClassifierModel[] {
+        return this._classifierService.ClassifierContactAllModelList;
     }
-    public SelectedClassifierContactModel: ClassifierContactModel | null = null;
+    public SelectedClassifierContactModel: ClassifierModel | null = null;
 
     public ToggleSearchPanel() {
         this.basicSearchPanel = !this.basicSearchPanel;
@@ -201,17 +206,17 @@ export class MAGKeepUpToDate implements OnInit {
         this.ListCriteriaTotPapers = taskRun.nPapers;
         this.ListCriteriaFilteredPapers = taskRun.nPapers;
         this.comboAutoUpdateImportOptions = 'AutoUpdate';
-        if ((this.MAGAdvancedService.ClassifierContactModelList.length == 0
+        if ((this._classifierService.ClassifierContactAllModelList.length == 0
             && (
-                this.MAGAdvancedService.CurrentUserId4ClassifierContactModelList < 1
-                || this.MAGAdvancedService.CurrentUserId4ClassifierContactModelList != this._ReviewerIdentityServ.reviewerIdentity.userId
-            )) || (this.MAGAdvancedService.CurrentUserId4ClassifierContactModelList < 1
-                || this.MAGAdvancedService.CurrentUserId4ClassifierContactModelList != this._ReviewerIdentityServ.reviewerIdentity.userId)
+            this._classifierService.CurrentUserId4ClassifierContactModelList < 1
+            || this._classifierService.CurrentUserId4ClassifierContactModelList != this._ReviewerIdentityServ.reviewerIdentity.userId
+            )) || (this._classifierService.CurrentUserId4ClassifierContactModelList < 1
+            || this._classifierService.CurrentUserId4ClassifierContactModelList != this._ReviewerIdentityServ.reviewerIdentity.userId)
         ) {
             //only fetch this if it's empty or if it contains a list of models that belongs to someone else. 
             //the second checks on userId prevent leaking when one user logs off, another logs in and finds the list belonging to another user, very ugly, but should work.
             //wait 100ms and then get this list, I don't like sending many server requests all concurrent
-            setTimeout(() => { this.MAGAdvancedService.FetchClassifierContactModelList(this._ReviewerIdentityServ.reviewerIdentity.userId); }, 100);
+            setTimeout(() => { this._classifierService.FetchClassifierContactModelList(this._ReviewerIdentityServ.reviewerIdentity.userId); }, 100);
         }
     }
     public LoadGraph() {

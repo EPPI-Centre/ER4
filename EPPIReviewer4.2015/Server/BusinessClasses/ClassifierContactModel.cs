@@ -107,6 +107,25 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
+
+        public static readonly PropertyInfo<Int64> AttributeIdNotOnProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("AttributeIdNotOn", "AttributeIdNotOn"));
+        public Int64 AttributeIdNotOn
+        {
+            get
+            {
+                return GetProperty(AttributeIdNotOnProperty);
+            }
+        }
+        public static readonly PropertyInfo<Int64> AttributeIdOnProperty = RegisterProperty<Int64>(new PropertyInfo<Int64>("AttributeIdOn", "AttributeIdOn"));
+        public Int64 AttributeIdOn
+        {
+            get
+            {
+                return GetProperty(AttributeIdOnProperty);
+            }
+        }
+
+
         public static readonly PropertyInfo<decimal> AccuracyProperty = RegisterProperty<decimal>(new PropertyInfo<decimal>("Accuracy", "Accuracy"));
         public decimal Accuracy
         {
@@ -198,6 +217,8 @@ namespace BusinessLibrary.BusinessClasses
             returnValue.LoadProperty<string>(ModelTitleProperty, reader.GetString("MODEL_TITLE"));
             returnValue.LoadProperty<string>(AttributeOnProperty, reader.GetString("ATTRIBUTE_ON"));
             returnValue.LoadProperty<string>(AttributeNotOnProperty, reader.GetString("ATTRIBUTE_NOT_ON"));
+            returnValue.LoadProperty<Int64>(AttributeIdOnProperty, reader.GetInt64("ATTRIBUTE_ID_ON"));
+            returnValue.LoadProperty<Int64>(AttributeIdNotOnProperty, reader.GetInt64("ATTRIBUTE_ID_NOT_ON"));
             returnValue.MarkOld();
             return returnValue;
         }

@@ -85,7 +85,7 @@
                 <br />
                 Public access codesets are also availble to copy into your review.<br />
                 <br />
-                The copy can be edited in EPPI-Reviewer 4 without affecting the original.<br />
+                The copy can be edited in EPPI-Reviewer without affecting the original.<br />
                 <asp:Panel ID="pnlChooseCodes" runat="server" BorderColor="Black" 
                     BorderStyle="Solid" BorderWidth="1px" Width="99%" 
                     BackColor="#E2E9EF">
@@ -138,7 +138,7 @@
                                     Width="70px" Visible="False" />
                                 <br />
                                 <asp:Label ID="lblLinkPersonalCodeset" runat="server" 
-                                    Text="Only ER4 admins can link codesets" Visible="False"></asp:Label>
+                                    Text="Only ER admins can link codesets" Visible="False"></asp:Label>
                                 <br />
                             </td>
                             <td style="width: 40%" valign="top" rowspan="3">
@@ -187,7 +187,7 @@
                                     Width="70px" />
                                 <br />
                                 <asp:Label ID="lblLinkPublicCodeset" runat="server" 
-                                    Text="Only ER4 admins can link codesets" Visible="False"></asp:Label>
+                                    Text="Only ER admins can link codesets" Visible="False"></asp:Label>
                                 <br />
                             </td>
                         </tr>

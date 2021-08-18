@@ -64,6 +64,8 @@ export class MAGSearchComponent implements OnInit {
     }
     public valueYearPickerCombine1: number = this.maxyear - 11;
     public valueYearPickerCombine2: number = this.valueYearPickerCombine1;
+    public valueYearPicker3: number = this.maxyear - 11;
+    public valueYearPicker4: number = this.maxyear - 11;
     public ShowTextImportFilters: boolean = false;
     public FilterOutJournal: string = "";
     public FilterOutURL: string = "";
@@ -300,12 +302,26 @@ export class MAGSearchComponent implements OnInit {
     }
     public RunMAGSearch() {
 
-        if (this.DateLimitSelection == 4 || this.DateLimitSelection == 8 ) {
+        if (this.DateLimitSelection == 4 ) {
+
             this.magSearchDate1 = this.valueKendoDatepicker1;
             this.magSearchDate2 = this.valueKendoDatepicker2;
-        } else {
+
+        } else if (this.DateLimitSelection == 5 || this.DateLimitSelection == 6 ||
+            this.DateLimitSelection == 7) {
+
+            this.magSearchDate1 = new Date(this.valueYearPicker3+1,0 ,0,0,0,0,0);
+  
+        } else if (this.DateLimitSelection == 8) {
+
+            this.magSearchDate1 = new Date(this.valueYearPicker3+1, 0, 0, 0, 0, 0, 0);
+            this.magSearchDate2 = new Date(this.valueYearPicker4+1, 0, 0, 0, 0, 0, 0);        
+
+        }else{
+
             this.magSearchDate1 = this.valueKendoDatepicker3;
         }
+
         let title: string = "";
         if (this.WordsInSelection != 3) title = this.magSearchInput;
         else title = this.SearchTextTopicDisplayName;

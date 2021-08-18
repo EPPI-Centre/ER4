@@ -228,7 +228,7 @@ namespace BusinessLibrary.BusinessClasses
             }
             else
             {//fetch some results to show to the user
-                showStart = 0;
+                showStart = 1;
                 showEnd = showStart + 39;
                 if (ItemsList == null)
                 {
@@ -243,14 +243,13 @@ namespace BusinessLibrary.BusinessClasses
                 ItemsList.DateOfSearch = DateTime.Now;
                 ItemsList.SourceName = "PubMed Search on " + DateTime.Now.ToShortDateString();
                 FetchResults();
-                Summary = "Search in PubMed for \""
-                        + (criteria.Value.Length > 200 ? "[...long query...]" : criteria.Value)
-                        + "\" returned approximately " + QueMax + " Items.\r\n";
-                Summary += "Dislpaying first " + (showEnd + 1) + " Items.\r\n";
+                NormalSummary();
+                //Summary = "Search in PubMed for \""
+                //        + (criteria.Value.Length > 200 ? "[...long query...]" : criteria.Value)
+                //        + "\" returned approximately " + QueMax + " Items.\r\n";
+                //Summary += "Displaying first " + (showEnd + 1) + " Items.\r\n";
             }
-            //second go: if QueryKey, NewWebEnv, QueMax are already set
-                //if saveStart&End are set saveresults
-                //if showStart&End are set getresults to show them to client
+
         }
         private System.Collections.Specialized.NameValueCollection nvcoll = new System.Collections.Specialized.NameValueCollection();
         private string SearchAddress = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi";
@@ -271,7 +270,7 @@ namespace BusinessLibrary.BusinessClasses
                 nvcoll.Add("retmode", "text");
                 nvcoll.Add("rettype", "medline");
                 nvcoll.Add("query_key", QueryKey.ToString());
-                if (showEnd != 0 && showStart < showEnd && saveEnd == 0 && saveStart == 0)
+                if (showEnd != 0 && showStart <= showEnd && saveEnd == 0 && saveStart == 0)
                 {
                     nvcoll.Add("retstart", (showStart - 1).ToString() );
                     if (showEnd > QueMax) showEnd = QueMax;
@@ -280,6 +279,7 @@ namespace BusinessLibrary.BusinessClasses
                 else
                 {
                     nvcoll.Add("retstart", (saveStart - 1).ToString());
+                    if (saveEnd > QueMax) saveEnd = QueMax;
                     nvcoll.Add("retmax", (saveEnd - saveStart + 1).ToString());
                     toSave = true;
                 }
@@ -322,11 +322,14 @@ namespace BusinessLibrary.BusinessClasses
             }
             else
             {
-                Summary = "Search in PubMed for \"" + ItemsList.SearchStr + "\" returned " + QueMax + " Items.\r\n";
-                Summary += "Dislpaying Items from N° " + (showStart + 1) + " to N° " + (showEnd + 1) + ".\r\n";
+                NormalSummary();
             }
         }
-        
+        private void NormalSummary()
+        {
+            Summary = "Search in PubMed for \"" + ItemsList.SearchStr + "\" returned " + QueMax + " Items.\r\n";
+            Summary += "Displaying Items from N°" + (showStart) + " to N°" + (showEnd) + ".\r\n";
+        }
         private void ParseThis(string TxtFileContent)
         {
             BusinessLibrary.BusinessClasses.ReadOnlyImportFilterRule inRules =  ReadOnlyImportFilterRule.NewReadOnlyImportFilterRule();

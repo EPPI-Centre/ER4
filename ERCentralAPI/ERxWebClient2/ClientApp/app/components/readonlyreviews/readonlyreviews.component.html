@@ -66,7 +66,7 @@
                                [headerStyle]="{'width':'150px', 'min-width':'150px', 'overflow': 'visible', 'padding':'0.30rem'}" field="reviewName" title="Review Name">
                 <ng-template kendoGridCellTemplate let-dataItem >
                     <button *ngIf="dataItem.isLocal" class="btn btn-link p-0 ml-0 border-0" title="Open full Review" (click)="onFullSubmit(dataItem)"
-                            [disabled]="HasCodingOnlyRole(dataItem)"
+                            [disabled]="HasCodingOnlyRole(dataItem) || dataItem.reviewName == 'Place holder: no real reviews are in this list'"
                             style="white-space:normal;text-align: left;">
                         {{dataItem.reviewName}}
                     </button>
@@ -85,7 +85,8 @@
                     <div *ngIf="dataItem.isLocal">
                         {{FormatDate(dataItem.lastAccess)}}
                     </div>
-                    <button *ngIf="!dataItem.isLocal" title="Checks-out review from Archie - Makes it Editable in EPPI-Reviewer"
+                    <button *ngIf="!dataItem.isLocal" title="Activate: creates a record for this review in the EPPI-Reviewer database"
+                             [disabled]="dataItem.reviewName == 'Place holder: no real reviews are in this list'"
                             class="btn btn-sm btn-outline-danger" (click)="ConfirmActivate(dataItem)">Activate</button>
                 </ng-template>
             </kendo-grid-column>
@@ -101,7 +102,7 @@
                 <ng-template kendoGridCellTemplate let-dataItem let-rowIndex="rowIndex">
                     <form #f="ngForm" (ngSubmit)="onSubmit(r_id.value)" novalidate>
                         <input type="hidden" #r_id name="review_id" value="{{ dataItem.reviewId }}">
-                        <button class="btn btn-info p-1 btn-sm" data-placement="top" [disabled]="!dataItem.isLocal">Coding UI</button>
+                        <button class="btn btn-info p-1 btn-sm" data-placement="top" [disabled]="!dataItem.isLocal || dataItem.reviewName == 'Place holder: no real reviews are in this list'">Coding UI</button>
                     </form>
                 </ng-template>
             </kendo-grid-column>

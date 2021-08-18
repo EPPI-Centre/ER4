@@ -36,8 +36,8 @@ export class BuildModelComponent implements OnInit, OnDestroy {
 	public DD2: number = 0;
 	public get DataSource(): GridDataResult {
 		return {
-			data: orderBy(this._classifierService.ClassifierModelList, this.sort),
-			total: this._classifierService.ClassifierModelList.length,
+			data: orderBy(this._classifierService.ClassifierModelCurrentReviewList, this.sort),
+			total: this._classifierService.ClassifierModelCurrentReviewList.length,
 		};
     }
     public get selectedNode(): singleNode | null {
@@ -106,19 +106,19 @@ export class BuildModelComponent implements OnInit, OnDestroy {
                                     });
                                 }
                                 this.modelsToBeDeleted = [];
-								this._classifierService.Fetch();//we refresh data in all branches, as it's not costly and we like getting a reliable list from the server side.
+								this._classifierService.FetchClassifierContactModelList(this._ReviewerIdentityServ.reviewerIdentity.userId);//we refresh data in all branches, as it's not costly and we like getting a reliable list from the server side.
                                 this.Clear();
 							},
                             (error) => {
                                 this.modelsToBeDeleted = [];
-								this._classifierService.Fetch();
+								this._classifierService.FetchClassifierContactModelList(this._ReviewerIdentityServ.reviewerIdentity.userId)
                                 console.log("Error deleting models (controller side)", error);
                                 this.Clear();
                             }
                         ).catch(
                             (caught) => {
                                 this.modelsToBeDeleted = [];
-								this._classifierService.Fetch();
+								this._classifierService.FetchClassifierContactModelList(this._ReviewerIdentityServ.reviewerIdentity.userId)
                                 console.log("Error deleting models (controller side, catch)", caught);
                                 this.Clear();
                             }
@@ -212,7 +212,7 @@ export class BuildModelComponent implements OnInit, OnDestroy {
 		this.selectedModelDropDown1 = '';
 		this.selectedModelDropDown2 = '';
 		if (this._reviewSetsService.ReviewSets.length == 0) this._reviewSetsService.GetReviewSets(false);
-		this._classifierService.Fetch();
+		this._classifierService.FetchClassifierContactModelList(this._ReviewerIdentityServ.reviewerIdentity.userId)
 	}
 	ngOnDestroy() {
 
@@ -220,7 +220,7 @@ export class BuildModelComponent implements OnInit, OnDestroy {
 	}
 	IamVerySorryRefresh() {
 
-		this._classifierService.Fetch();
+		this._classifierService.FetchClassifierContactModelList(this._ReviewerIdentityServ.reviewerIdentity.userId)
 
 	}
 	SetAttrOn(node: singleNode | null | undefined) {

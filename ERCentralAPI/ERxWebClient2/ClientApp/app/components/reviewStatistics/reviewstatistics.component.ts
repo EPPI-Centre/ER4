@@ -10,6 +10,9 @@ import { ConfirmationDialogService } from '../services/confirmation-dialog.servi
 import { codesetSelectorComponent } from '../CodesetTrees/codesetSelector.component';
 import { ReviewInfoService, Contact } from '../services/ReviewInfo.service';
 import { NotificationService } from '@progress/kendo-angular-notification';
+import { encodeBase64, saveAs } from '@progress/kendo-file-saver';
+import { ConfigurableReportService } from '../services/configurablereport.service';
+import { data } from 'jquery';
 
 
 @Component({
@@ -29,6 +32,7 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
 		private confirmationDialogService: ConfirmationDialogService,
 		private _reviewInfoService: ReviewInfoService,
 		private _notificationService: NotificationService,
+		private configurablereportServ: ConfigurableReportService
 	) {
 
 	}
@@ -74,6 +78,9 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
 	}
     public get IsServiceBusy(): boolean {
         return this.codesetStatsServ.IsBusy;
+	}
+	public get IsReportsServiceBusy(): boolean {
+		return this.configurablereportServ.IsBusy || this.saving;
     }
     public get ScreeningSets(): StatsCompletion[] {
         return this.codesetStatsServ.tmpCodesets.filter(found => found.subTypeName == 'Screening');
@@ -475,6 +482,47 @@ export class ReviewStatisticsComp implements OnInit, OnDestroy {
 		}
 		this.ClearBulkFields();
 	}
+
+
+	public async GetAndSaveCodingReport(setStats: StatsCompletion) {
+		console.log("Asking for the report");
+		let stringReport = await this.configurablereportServ.FetchAllCodingReportBySet(setStats.setId);
+		if (stringReport != 'error') {
+			console.log("Got the report");
+			this.SaveAsHtml(stringReport, setStats.setName);
+		}
+	}
+	private saving: boolean = false;
+	public SaveAsHtml(reportHTML: string, CodesetName: string) {
+		if (reportHTML.length < 1) return;
+		this.saving = true;
+		//console.log("Encoding the report, length:", reportHTML.length);
+		//let dataURI: string = "";
+		//if (reportHTML.length < 1000000) dataURI = "data:text/plain;base64," + encodeBase64(reportHTML);
+		//else {
+		//	let remaining = reportHTML.length;
+		//	let i: number = 0; const ChunkLength = 999999;
+		//	dataURI = "data:text/plain;base64,";
+		//	while (remaining > 0 && i < 10000) {
+		//		const end = remaining < ChunkLength ? reportHTML.length : (i + 1) * ChunkLength;  //((i + 1) * ChunkLength > reportHTML.length)
+		//		const tmp = reportHTML.substring(i * ChunkLength, end);
+		//		dataURI += encodeBase64(tmp);
+		//		console.log("Datauri l:", dataURI.length, i);
+		//		i++;
+		//		remaining = reportHTML.length - end;
+		//	}
+		//	console.log("in chunks", dataURI);
+		//	console.log("in one", "data:text/plain;base64," + encodeBase64(reportHTML));
+  //      }
+		//console.log("Saving the report");
+
+		//saveAs(dataURI, CodesetName + " full coding report.html");
+		const b = new Blob([reportHTML], { type: 'text/html' });
+		saveAs(b, CodesetName + " full coding report.html");
+		this.saving = false;
+	}
+
+
 
 	ngOnDestroy() {
 		//if (this.subOpeningReview) {

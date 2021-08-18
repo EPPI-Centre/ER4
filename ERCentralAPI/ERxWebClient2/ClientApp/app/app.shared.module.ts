@@ -109,6 +109,8 @@ import { MAGComp } from './components/MAG/MAG.component';
 import { ItemLinksComp } from './components/ArmsAndTimePoints/ItemLinks.component';
 import { SetupConfigurableReports } from './components/Reports/SetupConfigurableReports.component';
 import { FreqXtabMapsComp } from './components/Frequencies/FreqXtabMaps.component';
+import { ReconcilingCodesetTreeComponent } from './components/CodesetTrees/ReconcilingCodesetTree.component';
+import { SourcesListSearchesComponent } from './components/Sources/SourcesListSearches.component';
 
 @NgModule({
     declarations: [
@@ -150,6 +152,7 @@ import { FreqXtabMapsComp } from './components/Frequencies/FreqXtabMaps.componen
         ModalDialogComponent,
         HeaderComponent,
         ROSourcesListComponent,
+        SourcesListSearchesComponent,
         MainFullReviewComponent,
 		MainComponent,
         ConfirmationDialogComponent,
@@ -197,7 +200,8 @@ import { FreqXtabMapsComp } from './components/Frequencies/FreqXtabMaps.componen
         WebDbCcodesetTreeComponent,
         ItemLinksComp,
         SetupConfigurableReports,
-        FreqXtabMapsComp
+        FreqXtabMapsComp,
+        ReconcilingCodesetTreeComponent
 	],
     providers: [
         DatePipe, 

@@ -1,0 +1,37 @@
+<div class="mx-0 px-2">
+    <div class="m-1 border border-dark" style="max-height: 350px; overflow-y:scroll;">
+        <div *ngIf="ReviewSources.length == 0">
+            No Sources in review.
+        </div>
+        <table *ngIf="ReviewSources.length > 0" class="table-striped table table-bordered small">
+            <tbody>
+                <tr>
+                    <th><input type="checkbox" id="checkAll" (click)="changeCheck()" [(ngModel)]="checkAllValue" /></th>
+                    <th class="py-0 pl-1 pr-0 align-middle" width="30">Id</th>
+                    <th class="py-0 pl-1 pr-0 align-middle" style="min-width: 100px">Name</th>
+                    <th class="py-0 pl-1 pr-0 align-middle" width="50">Items</th>
+                    <th class="py-0 pl-1 pr-0 align-middle" width="60">Deleted</th>
+                    <th class="py-0 pl-1 pr-0 align-middle" width="70">Duplicates</th>
+                </tr>
+                <tr *ngFor="let ROsource of ReviewSources" class="p-0">
+                    <td><input type="checkbox" [(ngModel)]="ROsource.isSelected" /></td>
+                    <td class="p-1 align-middle ">{{ROsource.source_ID}}</td>
+                    <td class="p-1 align-middle">{{DisplaySourcename(ROsource)}}</td>
+                    <td class="p-1 align-middle ">{{ROsource.total_Items}}</td>
+                    <td class="p-1 align-middle ">{{ROsource.deleted_Items}}</td>
+                    <td class="p-1 align-middle ">{{ROsource.duplicates}}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div ngbDropdown>
+        <button style="min-width: 50px; white-space:normal" class="btn alert-primary col-12 pr-1 pl-1 mt-2" id="dropdownBasic1" ngbDropdownToggle >{{_searchService.selectedSourceDropDown}}</button>
+        <div ngbDropdownMenu aria-labelledby="dropdownBasic1" class="mb-1 {white-space: normal;}">
+            <button (click)="nextSourceDropDownList(1, 'All items in source')" class="dropdown-item">All items in source</button>
+            <button (click)="nextSourceDropDownList(2, 'Only included')" class="dropdown-item">Only included</button>
+            <button (click)="nextSourceDropDownList(3, 'Only excluded')" class="dropdown-item">Only excluded</button>
+            <button (click)="nextSourceDropDownList(4, 'Only deleted')" class="dropdown-item">Only deleted</button>
+            <button (click)="nextSourceDropDownList(5, 'Only duplicates')" class="dropdown-item">Only duplicates</button>
+        </div>
+    </div>
+</div>

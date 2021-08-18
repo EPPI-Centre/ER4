@@ -106,7 +106,7 @@
                         </div>
 
                         <div class="col-sm-6">
-                            <div *ngIf="DateLimitSelection == 4 || DateLimitSelection == 8">
+                            <div *ngIf="DateLimitSelection == 4 ">
                                 <table width="100%">
                                     <tr>
                                         <td>
@@ -128,13 +128,70 @@
                                     </tr>
                                 </table>
                             </div>
-
-                            <div *ngIf="DateLimitSelection == 1 || DateLimitSelection == 2  || DateLimitSelection == 3
-                                || DateLimitSelection == 5  || DateLimitSelection == 6  || DateLimitSelection == 7">
+                            <div *ngIf="DateLimitSelection == 1 || DateLimitSelection == 2  || DateLimitSelection == 3">
                                 <div class="m-1 p-1"><b>Date</b></div>
                                 <div>
                                     <div class="example-wrapper">
                                         <kendo-datepicker [(value)]="valueKendoDatepicker3" [format]="'dd MMM yyyy'"></kendo-datepicker>
+                                    </div>
+                                </div>
+                            </div>
+                            <div >
+                                <div *ngIf="DateLimitSelection == 5 ">
+                                    This year:
+                                    <kendo-numerictextbox [(ngModel)]="valueYearPicker3"
+                                                          name="n1" [format]="'#####'"
+                                                          [min]="1850"
+                                                          [max]="maxyear"
+                                                          [step]="1"
+                                                          [autoCorrect]="true"
+                                                          class="border border-dark rounded mb-1"
+                                                          style="width: 105px;"></kendo-numerictextbox>
+                                </div>
+                                <div *ngIf="DateLimitSelection == 6 ">
+                                    Before this year:
+                                    <kendo-numerictextbox [(ngModel)]="valueYearPicker3"
+                                                          name="n1" [format]="'#####'"
+                                                          [min]="1850"
+                                                          [max]="maxyear"
+                                                          [step]="1"
+                                                          [autoCorrect]="true"
+                                                          class="border border-dark rounded mb-1"
+                                                          style="width: 105px;"></kendo-numerictextbox>
+                                </div>
+                                <div *ngIf="DateLimitSelection == 7 ">
+                                    After this year:
+                                    <kendo-numerictextbox [(ngModel)]="valueYearPicker3"
+                                                          name="n1" [format]="'#####'"
+                                                          [min]="1850"
+                                                          [max]="maxyear"
+                                                          [step]="1"
+                                                          [autoCorrect]="true"
+                                                          class="border border-dark rounded mb-1"
+                                                          style="width: 105px;"></kendo-numerictextbox>
+                                </div>
+                                <div *ngIf="DateLimitSelection == 8 ">
+                                    <div class="d-block">
+                                        Between year:
+                                        <kendo-numerictextbox [(ngModel)]="valueYearPicker3"
+                                                              name="n1" [format]="'#####'"
+                                                              [min]="1850"
+                                                              [max]="maxyear"
+                                                              [step]="1"
+                                                              [autoCorrect]="true"
+                                                              class="border border-dark rounded mb-1"
+                                                              style="width: 105px;"></kendo-numerictextbox>
+                                    </div>
+                                    <div class="d-block">
+                                        and year:
+                                        <kendo-numerictextbox [(ngModel)]="valueYearPicker4"
+                                                              name="n2" [format]="'#####'"
+                                                              [min]="valueYearPicker3"
+                                                              [max]="maxyear"
+                                                              [step]="1"
+                                                              [autoCorrect]="true"
+                                                              class="border border-dark rounded mb-1"
+                                                              style="width: 105px;"></kendo-numerictextbox>
                                     </div>
                                 </div>
                             </div>

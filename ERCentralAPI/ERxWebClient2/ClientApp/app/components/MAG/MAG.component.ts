@@ -1,16 +1,11 @@
 import { Component,  OnInit, ViewChild, EventEmitter, Input, OnDestroy } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
-import { Location } from '@angular/common';
 import { MAGBrowserService } from '../services/MAGBrowser.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
-import { MagItemPaperInsertCommand, MagBrowseHistoryItem, MVCMagPaperListSelectionCriteria, MagRelatedPapersRun, MagSearch, MagPaper, MagFieldOfStudy, MagList } from '../services/MAGClasses.service';
-import { NotificationService } from '@progress/kendo-angular-notification';
-import { EventEmitterService } from '../services/EventEmitter.service';
-import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
+import {  MagBrowseHistoryItem } from '../services/MAGClasses.service';
 import { MAGBrowserHistoryService } from '../services/MAGBrowserHistory.service';
 import { Helpers } from '../helpers/HelperMethods';
 import { MAGAdvancedService } from '../services/magAdvanced.service';
-import { MAGTopicsService } from '../services/MAGTopics.service';
 import { MAGHeaderBar2Comp } from '../commonComponents/MAGHeaderBar2.component';
 import { Subscription } from 'rxjs';
 import { MAGRelatedRunsService } from '../services/MAGRelatedRuns.service';
@@ -19,6 +14,7 @@ import { magSearchService } from '../services/MAGSearch.service';
 import { MAGAdminService } from '../services/MAGAdmin.service';
 import { CodesetStatisticsService } from '../services/codesetstatistics.service';
 import { ItemListService } from '../services/ItemList.service';
+import { ClassifierService } from '../services/classifier.service';
 
 @Component({
     selector: 'MAG',
@@ -38,7 +34,8 @@ export class MAGComp implements OnInit, OnDestroy {
         private magSearchService: magSearchService,
         private MAGAdminService: MAGAdminService,
         private CodesetStatisticsService: CodesetStatisticsService,
-        private ItemListService: ItemListService
+        private ItemListService: ItemListService,
+        private classifierService: ClassifierService
     ) {
 
     }
@@ -91,7 +88,7 @@ export class MAGComp implements OnInit, OnDestroy {
                     setTimeout(() => {
                         this.magSearchService.FetchMAGSearchList();
                         setTimeout(() => {
-                            this.MAGAdvancedService.FetchClassifierContactModelList(this.ReviewerIdentityService.reviewerIdentity.userId);
+                            this.classifierService.FetchClassifierContactModelList(this.ReviewerIdentityService.reviewerIdentity.userId);
                             setTimeout(() => {
                                 this.MAGSimulationService.FetchMagSimulationList();
                             }, 150);

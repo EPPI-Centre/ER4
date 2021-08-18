@@ -6,6 +6,7 @@ import { ReviewSet, SetAttribute } from './ReviewSets.service';
 import { EventEmitterService } from './EventEmitter.service';
 import { Helpers } from '../helpers/HelperMethods';
 import { Subscription } from 'rxjs';
+import { SortDescriptor, orderBy } from '@progress/kendo-data-query';
 
 
 @Injectable({
@@ -54,7 +55,17 @@ export class ComparisonsService extends BusyAwareService implements OnDestroy {
 		return this._Statistics;		
 	}
 
-	
+	public sort: SortDescriptor[] = [{
+		field: 'shortTitle',
+		dir: 'asc'
+	}];
+	FormatDateWithInputSlashes(DateSt: string): string {
+		return Helpers.FormatDateWithInputSlashes(DateSt);
+	}
+	public sortChange(sort: SortDescriptor[]): void {
+		this.sort = sort;
+		this._Comparisons = orderBy(this._Comparisons, this.sort);
+	}
 
 	public FetchComparisonReport(comparisonId: number, ParentAttributeId: number, SetId: number, chosenParent: any)  : Promise<any>
 	{
@@ -314,6 +325,25 @@ export class Comparison {
 	public inGroupAttributeId: number = -1;
 	public setId: number = 0;
 	public comparisonDate: string = "";
+	public contactId1: number = 0;
+	public contactId2: number = 0;
+	public contactId3: number = -1;
+	public contactName1: string = '';
+	public contactName2: string = '';
+	public contactName3: string = '';
+	public attributeName: string = '';
+	public setName: string = '';
+
+}
+
+export class ComparisonCopy {
+
+	public comparisonId: number = 0;
+	public isScreening: boolean = false;
+	public reviewId: number = 0;
+	public inGroupAttributeId: number = -1;
+	public setId: number = 0;
+	public comparisonDate: Date = new Date();
 	public contactId1: number = 0;
 	public contactId2: number = 0;
 	public contactId3: number = -1;

@@ -6,13 +6,14 @@ import { codesetSelectorComponent } from '../CodesetTrees/codesetSelector.compon
 import { ConfirmationDialogService } from '../services/confirmation-dialog.service';
 import { ReviewerIdentityService } from '../services/revieweridentity.service';
 import { Router } from '@angular/router';
-import { ClassifierContactModel,  MagSimulation, TopicLink, MagBrowseHistoryItem } from '../services/MAGClasses.service';
+import {  MagSimulation, TopicLink } from '../services/MAGClasses.service';
 import { EventEmitterService } from '../services/EventEmitter.service';
 import { MAGAdvancedService } from '../services/magAdvanced.service';
 import { MAGBrowserHistoryService } from '../services/MAGBrowserHistory.service';
-import { interval, Subscription } from 'rxjs';
+import { interval } from 'rxjs';
 import { NotificationService } from '@progress/kendo-angular-notification';
 import { MAGSimulationService } from '../services/MAGSimulation.service';
+import { ClassifierModel, ClassifierService } from '../services/classifier.service';
 
 
 @Component({
@@ -34,13 +35,14 @@ export class AdvancedMAGFeaturesComponent implements OnInit, OnDestroy {
         private _location: Location,
         private _notificationService: NotificationService,
         private router: Router,
-        public _magAdminService: MAGAdvancedService
+        public _magAdminService: MAGAdvancedService,
+        private _classifierService: ClassifierService
 
     ) {
 
         //this.history = this._routingStateService.getHistory();
     }
-
+    
     public basicMAGPanel: boolean = false;
     public basicSeedPanel: boolean = false;
 
@@ -104,7 +106,7 @@ export class AdvancedMAGFeaturesComponent implements OnInit, OnDestroy {
     public UserDefinedClassifier: string = '';
     public magMatchedAll: number = 0;
     public magPaperId: number = 0;
-    public currentClassifierContactModel: ClassifierContactModel = new ClassifierContactModel();
+    public currentClassifierContactModel: ClassifierModel = new ClassifierModel();
     public description: string = '';
     public kendoDateValue: Date = new Date();
     public kendoEndDateValue: Date = new Date();
@@ -121,7 +123,7 @@ export class AdvancedMAGFeaturesComponent implements OnInit, OnDestroy {
     }
     public Refresh() {
         this.GetMagSimulationList();
-        setTimeout(() => { this.GetClassifierContactModelList();}, 100);
+        setTimeout(() => { this._classifierService.FetchClassifierContactModelList(this._ReviewerIdentityServ.reviewerIdentity.userId);}, 100);
     }
     private ShowMAGSimulationMessage(notifyMsg: string) {
 
@@ -141,6 +143,9 @@ export class AdvancedMAGFeaturesComponent implements OnInit, OnDestroy {
     }
     public get IsServiceBusy(): boolean {
         return this._magAdvancedService.IsBusy;
+    }
+    public get ClassifierContactModelList(): ClassifierModel[] {
+        return this._classifierService.ClassifierContactAllModelList;
     }
     public ShowGraphViewer: boolean = false;
     public ShowGraph() {
@@ -230,20 +235,7 @@ export class AdvancedMAGFeaturesComponent implements OnInit, OnDestroy {
 
             this.AddActualSimulation();
         }
-    }
-    public GetClassifierContactModelList(): void {
-        //if ((this._magAdvancedService.ClassifierContactModelList.length == 0
-        //    && (
-        //    this._magAdvancedService.CurrentUserId4ClassifierContactModelList < 1
-        //    || this._magAdvancedService.CurrentUserId4ClassifierContactModelList != this._ReviewerIdentityServ.reviewerIdentity.userId
-        //    )) || (this._magAdvancedService.CurrentUserId4ClassifierContactModelList < 1
-        //        || this._magAdvancedService.CurrentUserId4ClassifierContactModelList != this._ReviewerIdentityServ.reviewerIdentity.userId)) {
-        //    //only fetch this if it's empty or if it contains a list of models that belongs to someone else. 
-        //    //the second checks on userId prevent leaking when one user logs off, another logs in and finds the list belonging to another user, very ugly, but should work.
-        //    //wait 100ms and then get this list, I don't like sending many server requests all concurrent
-            this._magAdvancedService.FetchClassifierContactModelList(this._ReviewerIdentityServ.reviewerIdentity.userId);
-        //}
-    }
+    }   
     public OpenResultsInReview(listType: string, magSimId: number) {
 
         if (listType != null) {
