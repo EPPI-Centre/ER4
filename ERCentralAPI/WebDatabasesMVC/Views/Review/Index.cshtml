@@ -101,6 +101,7 @@
         }
         //$("#treeView").data("kendoTreeView").bind("change", TreeViewSelection);
         $("#FrequenciesResult").html("Frequencies");
+        $("#BarOrPieChartVisible").hide();
     });
     function ToggleDescrPanelSize() {
         const descrPanel = $("#WebDBDescription");
@@ -158,6 +159,7 @@
             //console.log("GetFreqs no data");
             return;
         }
+        $("#BarOrPieChartVisible").hide();
         $("#attributeIdXAxisCrit").val(dataItem.isCodeset ? 0 : dataItem.id);
         $("#setIdXAxisCrit").val(dataItem.setId);
         $("#FrequenciesGrid").show();
@@ -210,6 +212,7 @@
             return;
         }
 
+        $("#BarOrPieChartVisible").show();
         $("#FrequenciesGrid").hide();
         $("#FrequenciesChart").show();
         $("#FrequenciesResult").html("Frequencies:&nbsp;&nbsp;" + dataItem.text);
@@ -245,6 +248,7 @@
             return;
         }
 
+        $("#BarOrPieChartVisible").show();
         $("#FrequenciesGrid").hide();
         $("#FrequenciesChart").show();
         $("#FrequenciesResult").html("Frequencies:&nbsp;&nbsp;" + dataItem.text);
@@ -253,7 +257,13 @@
         $("#FrequenciesChart").kendoChart({
             dataSource: { data: data.results },
             legend: {
-                position: "right"
+                position: "right",
+                padding: 10,
+                background: "#e2e3e5",
+                border: {
+                    width: 1,
+                    color: "#d6d8db"                    
+                }                
             },
             chartArea: {
                 height: 250
@@ -262,7 +272,7 @@
                 type: "pie"
             },
             seriesClick: function (e) {
-                GoToFreqListPieAndBar(e);
+                GoToFreqListPieAndBar(e);                
             },
             series: [{
                 field: "itemCount",
@@ -273,9 +283,34 @@
                 visible: true,
                 template: "#= category #: #= value # records"
             }
+            /* disables hiding the slice when you click the legend
+            ,legendItemClick: function (e) {
+                e.preventDefault();
+            }*/
         });
     }
 
+    function ExportImg() {
+        var chart = $("#FrequenciesChart").getKendoChart();
+        chart.exportImage().done(function (data) {
+            kendo.saveAs({
+                dataURI: data,
+                fileName: dataItem.text 
+                /*, proxyURL: "https://demos.telerik.com/kendo-ui/service/export"*/
+            });
+        });
+    };
+
+    function ExportByYearImg() {
+        var chart = $("#chartByYear").getKendoChart();
+        chart.exportImage().done(function (data) {
+            kendo.saveAs({
+                dataURI: data,
+                fileName: "Pubications by year"
+                /*, proxyURL: "https://demos.telerik.com/kendo-ui/service/export"*/
+            });
+        });
+    };
 
     function BuildFreqs(data, result) {
         console.log(data, result);//FrequenciesTemplate
@@ -441,7 +476,7 @@
     }
 
     function GetYearsFreqs() {
-        $("#chart").kendoChart({
+        $("#chartByYear").kendoChart({
             categoryAxis: {
                 field: "year"
             },
@@ -473,7 +508,7 @@
     }
 
     function GetYearsFreqsPie() {
-        $("#chart").kendoChart({
+        $("#chartByYear").kendoChart({
             dataSource: {
                 transport: {
                     read: {
@@ -713,6 +748,13 @@
                                             </span>
                                             Table (new page)
                                         </button>
+                                        <button class="btn btn-default btn-sm btn-round" onclick="ExportImg()" id="BarOrPieChartVisible">
+                                            <span class="btn-label">
+                                                <i class="fa fa-save"></i>
+                                            </span>
+                                            Save
+                                        </button>
+                                        <!--<button class="export-img k-button" onclick="ExportImg()">Export as Image</button>-->
                                     </td>
                                 </tr>
                             </table>
@@ -787,6 +829,8 @@
                                     <td>
                                         <div class="card-title">Publications by year</div>
                                     </td>
+                                </tr>
+                                <tr>
                                     <td style="padding: 0px 0px 0px 25px;">
 
                                         <button class="btn btn-primary btn-sm btn-round" onclick="GetYearsFreqs()" id="YearFreq">
@@ -803,13 +847,20 @@
                                             Pie
                                         </button>
 
+                                        <button class="btn btn-default btn-sm btn-round" onclick="ExportByYearImg()" id="BarOrPieByYearChartVisible">
+                                            <span class="btn-label">
+                                                <i class="fa fa-save"></i>
+                                            </span>
+                                            Save
+                                        </button>
+
 
                                     </td>
                                 </tr>
                             </table>
                         </div>
                         <div class="card-body">
-                            <div id="chart"></div>
+                            <div id="chartByYear"></div>
                         </div>
                     </div>
                     <div class="card ">
