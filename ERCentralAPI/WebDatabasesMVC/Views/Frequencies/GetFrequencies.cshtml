@@ -11,15 +11,25 @@
 
 <script type="text/javascript">
 
+
+    $(document).ready(function () {
+        $("#BarOrPieChartVisible").hide();
+    });
+
+
+
     function GoToFreq() {
-            if (!@Model.criteria.setIdXAxis) {
-                return;
-            }
-            if (@Model.criteria.attributeIdXAxis == 0) {
-                postwith("../Frequencies/GetFrequencies", { attId: 0, setId: @Model.criteria.setIdXAxis, parentName: "@Model.criteria.nameXAxis", included: true });
-            }
-            else postwith("../Frequencies/GetFrequencies", { attId: @Model.criteria.attributeIdXAxis, setId: @Model.criteria.setIdXAxis, parentName: "@Model.criteria.nameXAxis", included: true });
+        if (!@Model.criteria.setIdXAxis) {
+            return;
         }
+
+        if (@Model.criteria.attributeIdXAxis == 0) {
+            postwith("../Frequencies/GetFrequencies", { attId: 0, setId: @Model.criteria.setIdXAxis, parentName: "@Model.criteria.nameXAxis", included: true });
+        }
+        else {
+            postwith("../Frequencies/GetFrequencies", { attId: @Model.criteria.attributeIdXAxis, setId: @Model.criteria.setIdXAxis, parentName: "@Model.criteria.nameXAxis", included: true });
+        }
+    }
 
 
 
@@ -52,6 +62,7 @@
 
     function BuildBar(data, result) {
         if (result == "success") {
+            $("#BarOrPieChartVisible").show();
             $("#FrequenciesGrid").hide();
             $("#FrequenciesChart").show();
             $("#FrequenciesResult").html("Frequencies for: " + data.criteria.nameXAxis);
@@ -85,6 +96,7 @@
 
     function BuildPie(data, result) {
         if (result == "success") {
+            $("#BarOrPieChartVisible").show();
             $("#FrequenciesGrid").hide();
             $("#FrequenciesChart").show();
             $("#FrequenciesResult").html("Frequencies for: " + data.criteria.nameXAxis);
@@ -195,6 +207,18 @@
         }
     }
 
+    function ExportImg() {
+        var title = "@Model.criteria.nameXAxis.Replace("\'", "&#39;")";
+        var chart = $("#FrequenciesChart").getKendoChart();
+        chart.exportImage().done(function (data) {
+            kendo.saveAs({
+                dataURI: data,
+                fileName: title
+                /*, proxyURL: "https://demos.telerik.com/kendo-ui/service/export"*/
+            });
+        });
+    };
+
     function GoToItemsJson(AttId, AttName = '') {
         $("#ItemCount").html("Loading...");
         $("#ItemsGrid").empty();
@@ -220,7 +244,7 @@
             );
         }
     };
-    
+
 </script>
 
 
@@ -260,18 +284,24 @@
                                     </span>
                                     Pie
                                 </button>
+                                <button class="btn btn-default btn-sm btn-round" onclick="ExportImg()" id="BarOrPieChartVisible">
+                                    <span class="btn-label">
+                                        <i class="fa fa-save"></i>
+                                    </span>
+                                    Save
+                                </button>
                                 <!--<a href="#" class="btn btn-info btn-border btn-round btn-sm mr-2" disabled>
-                                    <span class="btn-label">
-                                        <i class="fa fa-file-excel"></i>
-                                    </span>
-                                    Export
-                                </a>-->
-                                <!--<a href="#" class="btn btn-info btn-border btn-round btn-sm" disabled>
-                                    <span class="btn-label">
-                                        <i class="fa fa-copy"></i>
-                                    </span>
-                                    Copy
-                                </a>-->
+                                <span class="btn-label">
+                                    <i class="fa fa-file-excel"></i>
+                                </span>
+                                Export
+                            </a>-->
+                                                        <!--<a href="#" class="btn btn-info btn-border btn-round btn-sm" disabled>
+                                <span class="btn-label">
+                                    <i class="fa fa-copy"></i>
+                                </span>
+                                Copy
+                            </a>-->
                             </div>
                         </td>
                     </tr>
@@ -329,8 +359,9 @@
                             </div>
                         }
                     </div>
-                    <div id="FrequenciesChart" class="chart" style="text-align:left">
 
+                    <div id="FrequenciesChart" class="chart" style="text-align:left">
+                        <!-- pie and bar charts get displayed here -->
                     </div>
 
                 </div>
