@@ -110,7 +110,7 @@ namespace WebDatabasesMVC.Controllers
             }
             catch (Exception e)
             {
-                _logger.LogError(e, "Error in GetFrequencies");
+                _logger.LogError(e, "Error in GetCrosstab");
                 return StatusCode(500, e.Message);
             }
         }
@@ -142,14 +142,66 @@ namespace WebDatabasesMVC.Controllers
                 _logger.LogError("Error in GetFrequenciesInternal, no WebDbId!");
                 return null;
             }
-            //FrequencyResultWithCriteria res = new FrequencyResultWithCriteria();
-            //res.criteria =
-            //    new WebDbFrequencyCrosstabAndMapSelectionCriteria(DBid, attIdx, setIdy, included, onlyThisAtt, attIdy, setIdx);
-            //res.results = DataPortal.Fetch<WebDbItemAttributeChildFrequencyList>(res.criteria);
+            
             WebDbFrequencyCrosstabAndMapSelectionCriteria crit = new WebDbFrequencyCrosstabAndMapSelectionCriteria(DBid, attIdx, setIdx, nameXaxis, included, graphic, onlyThisAtt, attIdy, setIdy, nameYaxis);
             WebDbItemAttributeCrosstabList res = DataPortal.Fetch<WebDbItemAttributeCrosstabList>(crit);
             return res;
         }
+
+        public IActionResult GetMap([FromForm] long attIdx, int setIdx, string nameXaxis, long attIdy, int setIdy, string nameYaxis, 
+                                    string included, string graphic, long segmentsParent, int setIdSegments)
+        {
+
+            try
+            {
+                if (SetCSLAUser())
+                {
+                    WebDbItemAttributeCrosstabList Itm = GetMapInternal(attIdx, setIdx, nameXaxis, attIdy, setIdy, nameYaxis, included, graphic, segmentsParent, setIdSegments);
+                    return View(Itm);
+                }
+                else return Unauthorized();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Error in GetFrequencies");
+                return StatusCode(500, e.Message);
+            }
+        }
+        [HttpPost("[action]")]
+        public IActionResult GetMapJSON([FromForm] long attIdx, int setIdx, string nameXaxis, long attIdy, int setIdy, string nameYaxis,
+                                    string included, string graphic, long segmentsParent, int setIdSegments)
+        {//we provide all items details in a single JSON method, as it makes no sense to get partial item details, so without Arms, Docs, etc.
+            try
+            {
+                if (SetCSLAUser())
+                {
+                    WebDbItemAttributeCrosstabList Itm = GetMapInternal(attIdx, setIdx, nameXaxis, attIdy, setIdy, nameYaxis,
+                                                         included,  graphic,  segmentsParent,  setIdSegments);
+                    return Json(Itm);
+                }
+                else return Unauthorized();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Error in GetFrequenciesJSON");
+                return StatusCode(500, e.Message);
+            }
+        }
+        internal WebDbItemAttributeCrosstabList GetMapInternal(long attIdx, int setIdx, string nameXaxis, long attIdy, int setIdy, string nameYaxis,
+            string included, string graphic, long segmentsParent, int setIdSegments, long onlyThisAtt = 0)
+        {
+            int DBid = WebDbId;
+            if (DBid < 1)
+                if (DBid < 1)
+                {
+                    _logger.LogError("Error in GetFrequenciesInternal, no WebDbId!");
+                    return null;
+                }
+            WebDbFrequencyCrosstabAndMapSelectionCriteria crit = new WebDbFrequencyCrosstabAndMapSelectionCriteria(DBid, attIdx, setIdx, nameXaxis, included, graphic, onlyThisAtt, attIdy, setIdy, nameYaxis, segmentsParent, setIdSegments);
+            WebDbItemAttributeCrosstabList res = DataPortal.Fetch<WebDbItemAttributeCrosstabList>(crit);
+            return res;
+        }
+
 
     }
     public class WebDbFrequencyCrosstabAndMapSelectionCriteriaMVC

@@ -28,6 +28,9 @@
     var treeviewData = null;
     var dataItem = null;
     var dataItemXaxis = null;
+    var dataItemMapXaxis = null;
+    var dataItemMapYaxis = null;
+    var dataItemMapSegments = null;
     var freqData = null;
     function Buildnode(attr) {
         var nodes = [];
@@ -485,13 +488,17 @@
             $("#GoToItemsWithThisCodeSB").prop("disabled", true);
             $("#CurrentNodeGoToFreqBar").prop("disabled", true);
             $("#CurrentNodeGoToFreqPie").prop("disabled", true);
+            $("#CurrentNodeSetMapXAxis").prop("disabled", true);
+            $("#CurrentNodeSetMapYAxis").prop("disabled", true);
+            $("#CurrentNodeSetMapSegments").prop("disabled", true);
             $("#GoToItemsWithThisCode").attr('onclick', '');
             $("#GoToItemsWithThisCodeSB").attr('onclick', '');
             return;
         }
-        console.log("Change", dataItem.setId, dataItem.id, dataItem.text);
+        //console.log("Change", dataItem.setId, dataItem.id, dataItem.text);
         $("#CurrentNodeName").text(dataItem.text);
         $("#CurrentNodeNameCT").text(dataItem.text);
+        $("#CurrentNodeNameMap").text(dataItem.text);
         $("#CurrentNodeId").text(dataItem.id);
         $("#CurrentNodeSetId").text(dataItem.setId);
         $("#CurrentNodeIsCodeSet").text(dataItem.isCodeset.toString());
@@ -504,6 +511,13 @@
             $("#CurrentNodeSetXAxis").prop("disabled", false);
             $("#CurrentNodeGoToFreqBar").prop("disabled", false);
             $("#CurrentNodeGoToFreqPie").prop("disabled", false);
+
+            $("#CurrentNodeSetMapXAxis").prop("disabled", false);
+            $("#CurrentNodeSetMapYAxis").prop("disabled", false);
+            if (dataItem.items.length < 7) {
+                //max 6 children in the segments of maps
+                $("#CurrentNodeSetMapSegments").prop("disabled", false);
+            } else $("#CurrentNodeSetMapSegments").prop("disabled", true);
         }
         else {
             $("#CurrentNodeGoToFreq").prop("disabled", true);
@@ -514,6 +528,9 @@
             $("#CurrentNodeSetXAxis").prop("disabled", true);
             $("#CurrentNodeGoToFreqBar").prop("disabled", true);
             $("#CurrentNodeGoToFreqPie").prop("disabled", true);
+            $("#CurrentNodeSetMapXAxis").prop("disabled", true);
+            $("#CurrentNodeSetMapYAxis").prop("disabled", true);
+            $("#CurrentNodeSetMapSegments").prop("disabled", true);
         }
         if (dataItem.isCodeset) {
             $("#GoToItemsWithThisCode").prop("disabled", true);
@@ -531,14 +548,14 @@
     }
     function SetXAxis() {
         if (!dataItem) {
-            dataItemXaxis = null;
+            dataItemMapXaxis = null;
             $("#x_axis_setting").hide();
-            $("CurrentNodeGoToCrosstab").prop("disabled", true);
+            //$("#CurrentNodeGoToCrosstab").prop("disabled", true);
         }
         else {
             dataItemXaxis = dataItem;
             $("#x_axis_name").text(dataItemXaxis.text);
-            $("CurrentNodeGoToCrosstab").prop("disabled", false);
+            //$("#CurrentNodeGoToCrosstab").prop("disabled", false);
             $("#x_axis_setting").show();
         }
     }
@@ -633,7 +650,6 @@
         })
     }
 
-
     function GoToFreqListPieAndBar(dataItem) {
         GoToItems(dataItem.dataItem.attributeId, dataItem.dataItem.attribute);
         //if (dataItem.dataItem.attributeId == -999999) {
@@ -654,7 +670,94 @@
         //}
     }
 
-
+    function GoToMap() {
+        console.log("CurrentNodeGoToCrosstab");
+        if (!dataItemMapXaxis || !dataItemMapYaxis || !dataItemMapSegments) {
+            console.log("GoToMap no data");
+            return;
+        }
+        var pars = {
+            attIdx: 0
+            , setIdx: 0
+            , attIdy: 0
+            , setIdy: 0
+            , segmentsParent: 0
+            , setIdSegments: 0
+            , included: true
+            , graphic: "bubble"
+        }
+        if (dataItemMapXaxis.isCodeset == true) {
+            pars.attIdx = 0;
+            pars.setIdx = dataItemMapXaxis.setId;
+        }
+        else {
+            pars.attIdx = dataItemMapXaxis.id;
+            pars.setIdx = dataItemMapXaxis.setId;
+        }
+        if (dataItemMapYaxis.isCodeset == true) {
+            pars.attIdy = 0;
+            pars.setIdy = dataItemMapYaxis.setId;
+        }
+        else {
+            pars.attIdy = dataItemMapYaxis.id;
+            pars.setIdy = dataItemMapYaxis.setId;
+        }
+        if (dataItemMapSegments.isCodeset == true) {
+            pars.segmentsParent = 0;
+            pars.setIdSegments = dataItemMapSegments.setId;
+        }
+        else {
+            pars.segmentsParent = dataItemMapSegments.id;
+            pars.setIdSegments = dataItemMapSegments.setId;
+        }
+        postwith("../Frequencies/GetMap", pars);
+        
+    }
+    function SetMapXAxis() {
+        if (!dataItem) {
+            dataItemMapXaxis = null;
+            $("#map_x_axis_name").hide();
+            $("#CurrentNodeGoToMap").prop("disabled", true);
+        }
+        else {
+            dataItemMapXaxis = dataItem;
+            $("#map_x_axis_name").text(dataItemMapXaxis.text);
+            $("#map_x_axis_name").show();
+            console.log("X", dataItem, dataItemMapXaxis, dataItemMapYaxis, dataItemMapSegments);
+            if (dataItemMapXaxis != null && dataItemMapYaxis != null && dataItemMapSegments != null)
+                $("#CurrentNodeGoToMap").prop("disabled", false);
+        }
+    }
+    function SetMapYAxis() {
+        if (!dataItem) {
+            dataItemMapYaxis = null;
+            $("#map_y_axis_name").hide();
+            $("#CurrentNodeGoToMap").prop("disabled", true);
+        }
+        else {
+            dataItemMapYaxis = dataItem;
+            $("#map_y_axis_name").text(dataItemMapYaxis.text);
+            $("#map_y_axis_name").show();
+            console.log("Y", dataItem, dataItemMapXaxis, dataItemMapYaxis, dataItemMapSegments);
+            if (dataItemMapXaxis != null && dataItemMapYaxis != null && dataItemMapSegments != null)
+                $("#CurrentNodeGoToMap").prop("disabled", false);
+        }
+    }
+    function SetMapSegments() {
+        if (!dataItem) {
+            dataItemMapSegments = null;
+            $("#map_segments_name").hide();
+            $("#CurrentNodeGoToMap").prop("disabled", true);
+        }
+        else {
+            dataItemMapSegments = dataItem;
+            $("#map_segments_name").text(dataItemMapSegments.text);
+            $("#map_segments_name").show();
+            console.log("S", dataItem, dataItemMapXaxis, dataItemMapYaxis, dataItemMapSegments);
+            if (dataItemMapXaxis != null && dataItemMapYaxis != null && dataItemMapSegments != null)
+                $("#CurrentNodeGoToMap").prop("disabled", false);
+        }
+    }
     //var treeviewData = $("#treeView").data("kendoTreeView");
     //treeview.bind("change", TreeViewSelection);
 </script>
@@ -980,6 +1083,64 @@
                             </div>
                         </div>
                     </div>
+
+
+                    <div class="card ">
+                        <div class="card-header">
+                            <table>
+                                <tr>
+                                    <td>
+                                        <div class="card-title">Get Evidence Maps</div>
+                                    </td>
+                                    <td style="padding: 0px 0px 0px 25px;">
+                                        <button class="btn btn-secondary btn-sm btn-round" onclick="GoToMap()" disabled id="CurrentNodeGoToMap">
+                                            <span class="btn-label">
+                                                <i class="fa fa-table"></i>
+                                            </span>&nbsp;Go To Map
+                                        </button>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+
+                        <div class="card-body">
+                            <table>
+                                <tr>
+                                    <td colspan="2" style="padding: 0px 0px 10px 0px;">
+                                        Selected node: <div class="ml-1 font-weight-bold my-auto" id="CurrentNodeNameMap"></div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <button class="btn btn-secondary btn-sm btn-round" onclick="SetMapXAxis()" disabled id="CurrentNodeSetMapXAxis">Set X axis</button>
+                                    </td>
+                                    <td>
+                                        <div class="my-auto"><span id="map_x_axis_name" class="m-1"></span></div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <button class="btn btn-secondary btn-sm btn-round" onclick="SetMapYAxis()" disabled id="CurrentNodeSetMapYAxis">Set Y axis</button>
+                                    </td>
+                                    <td>
+                                        <div class="my-auto"><span id="map_y_axis_name" class="m-1"></span></div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <button class="btn btn-secondary btn-sm btn-round" onclick="SetMapSegments()" disabled id="CurrentNodeSetMapSegments">Set segments</button>
+                                    </td>
+                                    <td>
+                                        <div class="my-auto"><span id="map_segments_name" class="m-1"></span></div>
+                                    </td>
+                                </tr>
+                            </table>
+                            <div class="row m-0" id="x_axis_map_setting" style="display:none;"></div>
+                            <div class="row m-0" id="y_axis_map_setting" style="display:none;"></div>
+                            <div class="row m-0" id="segments_map_setting" style="display:none;"></div>
+                        </div>
+                    </div>
+
                 </div>
             </div>
 

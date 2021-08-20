@@ -69,3 +69,24 @@ body {
   white-space: nowrap;
   line-height: 60px; /* Vertically center the text there */
 }
+.mapC1 {
+    color: #e6194B;
+}
+.mapC2 {
+    color: #3cb44b;
+}
+.mapC3 {
+    color: #efd109;
+}
+.mapC4 {
+    color: #4363d8;
+}
+.mapC5 {
+    color: #f032e6;
+}
+.mapC6 {
+    color: #000095;
+}
+.mapC7 {
+    color: #a9a9a9;
+}
