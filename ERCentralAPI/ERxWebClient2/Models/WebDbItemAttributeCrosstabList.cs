@@ -27,6 +27,10 @@ namespace BusinessLibrary.BusinessClasses
             LoadProperty(RowsProperty, new MobileList<WebDbItemAttributeCrosstabRow>());
             LoadProperty(ColumnAttIDsProperty, new MobileList<long>());
             LoadProperty(ColumnAttNamesProperty, new MobileList<string>());
+#if WEBDB
+            LoadProperty(SegmentsAttIDsProperty, new MobileList<long>());
+            LoadProperty(SegmentsAttNamesProperty, new MobileList<string>());
+#endif
         }
 
         public static readonly PropertyInfo<MobileList<WebDbItemAttributeCrosstabRow>> RowsProperty = RegisterProperty<MobileList<WebDbItemAttributeCrosstabRow>>(new PropertyInfo<MobileList<WebDbItemAttributeCrosstabRow>>("Rows", "Rows", new MobileList<WebDbItemAttributeCrosstabRow>()));
@@ -78,6 +82,7 @@ namespace BusinessLibrary.BusinessClasses
                 return GetProperty(SetIdYProperty);
             }
         }
+        
 
 
         public static readonly PropertyInfo<string> SetIdXNameProperty = RegisterProperty<string>(new PropertyInfo<string>("SetIdXName", "SetIdXName"));
@@ -98,7 +103,9 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
+        
 
+       
 
         public static readonly PropertyInfo<int> AttibuteIdXProperty = RegisterProperty<int>(new PropertyInfo<int>("AttibuteIdX", "AttibuteIdX"));
         public int AttibuteIdX
@@ -162,6 +169,58 @@ namespace BusinessLibrary.BusinessClasses
             }
         }
 
+#if WEBDB
+        //data to create a 3D map, on WEBDB only, for now(19/08/21)...
+        public static readonly PropertyInfo<int> SetIdSegmentsProperty = RegisterProperty<int>(new PropertyInfo<int>("SetIdSegments", "SetIdSegments", 0));
+        public int SetIdSegments
+        {
+            get
+            {
+                return GetProperty(SetIdSegmentsProperty);
+            }
+        }
+        public static readonly PropertyInfo<string> SetIdSegmentsNameProperty = RegisterProperty<string>(new PropertyInfo<string>("SetIdSegmentsName", "SetIdSegmentsName"));
+        public string SetIdSegmentsName
+        {
+            get
+            {
+                return GetProperty(SetIdSegmentsNameProperty);
+            }
+        }
+        public static readonly PropertyInfo<MobileList<long>> SegmentsAttIDsProperty = RegisterProperty<MobileList<long>>(new PropertyInfo<MobileList<long>>("SegmentsAttIDs", "SegmentsAttIDs", new MobileList<long>()));
+        public MobileList<long> SegmentsAttIDs
+        {
+            get
+            {
+                return GetProperty(SegmentsAttIDsProperty);
+            }
+        }
+        public static readonly PropertyInfo<MobileList<string>> SegmentsAttNamesProperty = RegisterProperty<MobileList<string>>(new PropertyInfo<MobileList<string>>("SegmentsAttNames", "SegmentsAttNames", new MobileList<string>()));
+        public MobileList<string> SegmentsAttNames
+        {
+            get
+            {
+                return GetProperty(SegmentsAttNamesProperty);
+            }
+        }
+        public static readonly PropertyInfo<string> AttibuteIdSegmentsNameProperty = RegisterProperty<string>(new PropertyInfo<string>("AttibuteIdSegmentsName", "AttibuteIdSegmentsName"));
+        public string AttibuteIdSegmentsName
+        {
+            get
+            {
+                return GetProperty(AttibuteIdSegmentsNameProperty);
+            }
+        }
+        public static readonly PropertyInfo<long> AttibuteIdSegmentsProperty = RegisterProperty<long>(new PropertyInfo<long>("AttibuteIdSegments", "AttibuteIdSegments"));
+        public long AttibuteIdSegments
+        {
+            get
+            {
+                return GetProperty(AttibuteIdSegmentsProperty);
+            }
+        }
+#endif
+
 #if !SILVERLIGHT
 
         private void DataPortal_Fetch(WebDbFrequencyCrosstabAndMapSelectionCriteria criteria)
@@ -200,6 +259,13 @@ namespace BusinessLibrary.BusinessClasses
                     command.Parameters.Add(new SqlParameter("@RevId", ri.ReviewId));
 #if WEBDB
                     command.Parameters.Add(new SqlParameter("@WebDbId", criteria.webDbId));
+                    if (criteria.setIdSegments > 0 && criteria.segmentsParent >0)
+                    {
+                        LoadProperty(SetIdSegmentsProperty, criteria.setIdSegments);
+                        LoadProperty(AttibuteIdSegmentsProperty, criteria.segmentsParent);
+                        command.Parameters.Add(new SqlParameter("@setIdSegments", criteria.setIdSegments));
+                        command.Parameters.Add(new SqlParameter("@segmentsParent", criteria.segmentsParent));
+                    }
 #endif
                     using (Csla.Data.SafeDataReader reader = new Csla.Data.SafeDataReader(command.ExecuteReader()))
                     {
@@ -214,35 +280,53 @@ namespace BusinessLibrary.BusinessClasses
                             codesY.Add(reader.GetInt64("ATTRIBUTE_ID"), reader.GetString("ATTRIBUTE_NAME"));
                         }
                         reader.NextResult();
+#if WEBDB
+                        if (SetIdSegments > 0)
+                        {
+                            //get the segment names/ids
+                            while (reader.Read())
+                            {
+                                SegmentsAttIDs.Add(reader.GetInt64("ATTRIBUTE_ID"));
+                                SegmentsAttNames.Add(reader.GetString("ATTRIBUTE_NAME"));
+                            }
+                            reader.NextResult();
+                            while (reader.Read())
+                            {
+                                Make3DminiItem(items, reader);
+                            }
+                        }
+                        else
+                        {
+                            while (reader.Read())
+                            {
+                                Make2DminiItem(items, reader);
+                            }
+                        }
+#else
                         while (reader.Read())
                         {
-                            MiniItem mit = new MiniItem(reader.GetInt64("ItemId"));
-                            string[] tmp = reader.GetString("X_atts").Split(',', StringSplitOptions.RemoveEmptyEntries);
-                            string[] tmp2 = reader.GetString("Y_atts").Split(',', StringSplitOptions.RemoveEmptyEntries);
-                            foreach (string s in tmp)
-                            {
-                                mit.Attributes.Add(long.Parse(s));
-                            }
-                            foreach (string s in tmp2)
-                            {
-                                mit.Attributes2.Add(long.Parse(s));
-                            }
-                            items.Add(mit);
+                            Make2DminiItem(items, reader);
                         }
-
+#endif
                         reader.NextResult();
 
-                        string test = "";
+                        //string test = "";
                         while (reader.Read())
                         {
-                            test = reader.GetInt64("SETIDX_ID").ToString();
+                            //test = reader.GetInt64("SETIDX_ID").ToString();
                             SetIdXAxisName = reader.GetString("SETIDX_NAME"); 
-                            test = reader.GetInt64("SETIDY_ID").ToString();
+                            //test = reader.GetInt64("SETIDY_ID").ToString();
                             SetIdYAxisName = reader.GetString("SETIDY_NAME");
                             AttibuteIdXAxis = reader.GetInt64("ATTIBUTEIDX_ID");
                             AttibuteIdXAxisName = reader.GetString("ATTIBUTEIDX_NAME");
                             AttibuteIdYAxis = reader.GetInt64("ATTIBUTEIDY_ID");
                             AttibuteIdYAxisName = reader.GetString("ATTIBUTEIDY_NAME");
+#if WEBDB
+                            if (SetIdSegments > 0)
+                            {
+                                LoadProperty(AttibuteIdSegmentsNameProperty, reader.GetString("SEGMENTS_PARENT_NAME"));//we did the ID above...
+                            }
+#endif
                         }
 
                     }
@@ -260,35 +344,124 @@ namespace BusinessLibrary.BusinessClasses
                 LoadProperty(AttibuteIdYNameProperty, AttibuteIdYAxisName);
                 LoadProperty(SetIdXNameProperty, SetIdXAxisName);
                 LoadProperty(SetIdYNameProperty, SetIdYAxisName);
-
-                foreach (KeyValuePair<long, string> kvp in codesY)
-                {//cycle on rows
-                    WebDbItemAttributeCrosstabRow row = WebDbItemAttributeCrosstabRow.GetReadOnlyItemAttributeCrosstabRow(kvp.Key, kvp.Value);
-                    for (int i = 0; i < ColumnAttIDs.Count; i++)
-                    {//cycle on columns, within the row
-                        int count = items.FindAll(found => found.Attributes2.Contains(kvp.Key) && found.Attributes.Contains(ColumnAttIDs[i])).Count;
-                        row.Counts.Add(count);
-                        
+#if WEBDB
+                if (SetIdSegments > 0)
+                {//3Dmap!
+                    foreach (KeyValuePair<long, string> kvp in codesY)
+                    {//cycle on rows
+                        WebDbItemAttributeCrosstabRow row = WebDbItemAttributeCrosstabRow.GetReadOnlyItemAttributeCrosstabRow(kvp.Key, kvp.Value);
+                        for (int i = 0; i < ColumnAttIDs.Count; i++)
+                        {//cycle on columns, within the row
+                            for (int ii = 0; ii < SegmentsAttIDs.Count; ii++)
+                            {//cycle also through all segments... So that each cell will contain N values, where N = number of segments.
+                                int count = items.FindAll(found => found.Attributes2.Contains(kvp.Key) 
+                                                            && found.Attributes.Contains(ColumnAttIDs[i])
+                                                            && found.Attributes3.Contains(SegmentsAttIDs[ii])
+                                                            ).Count;
+                                row.Counts.Add(count);
+                            }
+                        }
+                        for (int ii = 0; ii < SegmentsAttIDs.Count; ii++)
+                        {
+                            int others = items.FindAll(found => found.Attributes.Count == 0 
+                                                        && found.Attributes2.Contains(kvp.Key)
+                                                        && found.Attributes3.Contains(SegmentsAttIDs[ii])
+                                                        ).Count;
+                            row.Counts.Add(others);
+                        }
+                            
+                        Rows.Add(row);
                     }
-                    int others = items.FindAll(found => found.Attributes.Count == 0 && found.Attributes2.Contains(kvp.Key)).Count;
-                    row.Counts.Add(others);
-                    Rows.Add(row);
+                    WebDbItemAttributeCrosstabRow lastRow = WebDbItemAttributeCrosstabRow.GetReadOnlyItemAttributeCrosstabRow(-999999, "None of the above");
+                    for (int i = 0; i < ColumnAttIDs.Count; i++)
+                    {//last cycles for the "none of the above" row
+                        for (int ii = 0; ii < SegmentsAttIDs.Count; ii++)
+                        {
+                            int others = items.FindAll(found => found.Attributes2.Count == 0 
+                                                        && found.Attributes.Contains(ColumnAttIDs[i])
+                                                        && found.Attributes3.Contains(SegmentsAttIDs[ii])).Count;
+                            lastRow.Counts.Add(others);
+                        }                        
+                    }
+                    for (int ii = 0; ii < SegmentsAttIDs.Count; ii++)
+                    {//last cell, never has counts...
+                        lastRow.Counts.Add(0);
+                    }
+                    Rows.Add(lastRow);
+                    //add the ID and Name for the last "none of these" column
+                    ColumnAttIDs.Add(-999999);
+                    ColumnAttNames.Add("None of these");
                 }
-                WebDbItemAttributeCrosstabRow lastRow = WebDbItemAttributeCrosstabRow.GetReadOnlyItemAttributeCrosstabRow(-999999, "None of the above");
-                for (int i = 0; i < ColumnAttIDs.Count; i++)
-                {//last cycle for the "none of the above" row
-                    int others = items.FindAll(found => found.Attributes2.Count == 0 && found.Attributes.Contains(ColumnAttIDs[i])).Count;
-                    lastRow.Counts.Add(others);
+                else
+                {
+#endif
+                    //2D only
+                    foreach (KeyValuePair<long, string> kvp in codesY)
+                    {//cycle on rows
+                        WebDbItemAttributeCrosstabRow row = WebDbItemAttributeCrosstabRow.GetReadOnlyItemAttributeCrosstabRow(kvp.Key, kvp.Value);
+                        for (int i = 0; i < ColumnAttIDs.Count; i++)
+                        {//cycle on columns, within the row
+                            int count = items.FindAll(found => found.Attributes2.Contains(kvp.Key) && found.Attributes.Contains(ColumnAttIDs[i])).Count;
+                            row.Counts.Add(count);
+
+                        }
+                        int others = items.FindAll(found => found.Attributes.Count == 0 && found.Attributes2.Contains(kvp.Key)).Count;
+                        row.Counts.Add(others);
+                        Rows.Add(row);
+                    }
+                    WebDbItemAttributeCrosstabRow lastRow = WebDbItemAttributeCrosstabRow.GetReadOnlyItemAttributeCrosstabRow(-999999, "None of the above");
+                    for (int i = 0; i < ColumnAttIDs.Count; i++)
+                    {//last cycle for the "none of the above" row
+                        int others = items.FindAll(found => found.Attributes2.Count == 0 && found.Attributes.Contains(ColumnAttIDs[i])).Count;
+                        lastRow.Counts.Add(others);
+                    }
+                    lastRow.Counts.Add(0);
+                    Rows.Add(lastRow);
+                    //add the ID and Name for the last "none of these" column
+                    ColumnAttIDs.Add(-999999);
+                    ColumnAttNames.Add("None of these");
+#if WEBDB
                 }
-                lastRow.Counts.Add(0);
-                Rows.Add(lastRow);
-                //add the ID and Name for the last "none of these" column
-                ColumnAttIDs.Add(-999999);
-                ColumnAttNames.Add("None of these");
+#endif
             }
 
         }
+        private void Make2DminiItem(List<MiniItem> items, Csla.Data.SafeDataReader reader)
+        {
+            MiniItem mit = new MiniItem(reader.GetInt64("ItemId"));
+            string[] tmp = reader.GetString("X_atts").Split(',', StringSplitOptions.RemoveEmptyEntries);
+            string[] tmp2 = reader.GetString("Y_atts").Split(',', StringSplitOptions.RemoveEmptyEntries);
+            foreach (string s in tmp)
+            {
+                mit.Attributes.Add(long.Parse(s));
+            }
+            foreach (string s in tmp2)
+            {
+                mit.Attributes2.Add(long.Parse(s));
+            }
+            items.Add(mit);
+        }
+        private void Make3DminiItem(List<MiniItem> items, Csla.Data.SafeDataReader reader)
+        {
+            MiniItem mit = new MiniItem(reader.GetInt64("ItemId"));
+            string[] tmp = reader.GetString("X_atts").Split(',', StringSplitOptions.RemoveEmptyEntries);
+            string[] tmp2 = reader.GetString("Y_atts").Split(',', StringSplitOptions.RemoveEmptyEntries);
+            string[] tmp3 = reader.GetString("segments").Split(',', StringSplitOptions.RemoveEmptyEntries); 
+            foreach (string s in tmp)
+            {
+                mit.Attributes.Add(long.Parse(s));
+            }
+            foreach (string s in tmp2)
+            {
+                mit.Attributes2.Add(long.Parse(s));
+            }
+            foreach (string s in tmp3)
+            {
+                mit.Attributes3.Add(long.Parse(s));
+            }
+            items.Add(mit);
+        }
 
 #endif
-    }    
+                    }    
 }
