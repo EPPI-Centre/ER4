@@ -254,9 +254,57 @@
         $("#FrequenciesResult").html("Frequencies:&nbsp;&nbsp;" + dataItem.text);
         //$("#FrequenciesResult").show();
 
+        /*
+        $("#FrequenciesChart").kendoChart({
+            legend: {
+                item: {
+                    visual: function (e) {
+                        var color = e.options.markers.background;
+                        var labelColor = e.options.labels.color;
+                        var rect = new kendo.geometry.Rect([0, 0], [100, 50]);
+                        var layout = new kendo.drawing.Layout(rect, {
+                            spacing: 5,
+                            alignItems: "center"
+                        });
+                        var allZeroValues = false;
+                        if (e.series.data.length == 0) {
+                            allZeroValues = true;
+                        }
+
+                        if (!allZeroValues) {
+                            var marker = new kendo.drawing.Path({
+                                fill: {
+                                    color: color
+                                }
+                            }).moveTo(10, 0).lineTo(15, 10).lineTo(5, 10).close();
+
+                            var label = new kendo.drawing.Text(e.series.name, [0, 0], {
+                                fill: {
+                                    color: labelColor
+                                }
+                            });
+
+                            layout.append(marker, label);
+                            layout.reflow()
+                        }
+
+
+                        return layout;
+                    }
+                }
+            },
+            series: [
+                { name: "Series 1", data: [] },
+                { name: "Series 2", data: [3, 4, 5] }
+            ]
+        });
+        */
+
+
+        
         $("#FrequenciesChart").kendoChart({
             dataSource: { data: data.results },
-            legend: {
+            /*legend: {
                 position: "right",
                 padding: 10,
                 background: "#e2e3e5",
@@ -264,7 +312,7 @@
                     width: 1,
                     color: "#d6d8db"                    
                 }                
-            },
+            },*/
             chartArea: {
                 height: 250
             },
@@ -282,11 +330,31 @@
             tooltip: {
                 visible: true,
                 template: "#= category #: #= value # records"
+            },
+            /* manually create the legend and leave out the 0 values */
+            legend: {
+                position: "right",
+                padding: 10,
+                background: "#e2e3e5",
+                border: {
+                    width: 1,
+                    color: "#d6d8db"
+                },
+                item: {
+                    visual: function (e) {
+                        var zeroValue = false;
+                        if (e.series.data[e.pointIndex].itemCount == 0) {
+                            zeroValue = true;
+                        }
+
+                        if (!zeroValue) {
+                            /* add it to the legent */
+
+                        }
+
+                    }
+                }
             }
-            /* disables hiding the slice when you click the legend
-            ,legendItemClick: function (e) {
-                e.preventDefault();
-            }*/
         });
     }
 
