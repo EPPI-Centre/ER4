@@ -336,7 +336,7 @@
                                                             else
                                                             {//normal cell, with row and col codes
                                                                 title = Model.SegmentsAttNames[ii] + ": " + @row.Counts[(i * segmentsN) + ii].ToString() + " records";
-                                                                string dimension = (4 * ((double)row.Counts[(i * segmentsN) + ii] / (double)maxVal) + 0.2).ToString() + "em;";
+                                                                string dimension = (4 * ((double)row.Counts[(i * segmentsN) + ii] / (double)maxVal) + 0.5).ToString() + "em;";
                                                                 string with = row.AttributeId.ToString() + "," + Model.ColumnAttIDs[i].ToString() + "," + Model.SegmentsAttIDs[ii].ToString();
                                                                 string withSets = Model.SetIdY.ToString() + "," + Model.SetIdX.ToString() + "," + Model.SetIdSegments.ToString();
                                                                 //string descript = "Listing crosstab result for the codes (x,y): " + Model.ColumnAttNames[i].Replace("'", "&#39;") + ", " + row.AttributeName.Replace("'", "&#39;");

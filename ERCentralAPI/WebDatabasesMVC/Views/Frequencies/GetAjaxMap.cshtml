@@ -1,0 +1,320 @@
+﻿@model BusinessLibrary.BusinessClasses.WebDbFrequencyCrosstabAndMapSelectionCriteria
+@using BusinessLibrary.BusinessClasses
+
+
+<input type="hidden" value="@Model.included" name="included" id="includedCrit" />
+<input type="hidden" value="@Model.setIdYAxis" name="setIdYAxis" id="setIdYAxisCrit" />
+<input type="hidden" value="@Model.setIdXAxis" name="setIdXAxis" id="setIdXAxisCrit" />
+<input type="hidden" value="@Model.webDbId" name="webDbId" id="webDbIdCrit" />
+
+<input type="hidden" value="@Model.attributeIdXAxis" name="AttibuteIdXAxis" id="AttibuteIdXCrit" />
+<input type="hidden" value="@Model.attributeIdYAxis" name="AttibuteIdYAxis" id="AttibuteIdYCrit" />
+<input type="hidden" value="@Model.segmentsParent" name="AttibuteIdSegments" id="AttibuteIdSegments" />
+<input type="hidden" value="@Model.setIdSegments" name="SetIdSegments" id="SetIdSegments" />
+<input type="hidden" value="@Model.graphic" name="Graphic" id="GraphicCrit" />
+
+
+<input type="hidden" value="-1" name="SetIdXName" id="SetIdXNameCrit" />
+<input type="hidden" value="-1" name="SetIdYName" id="SetIdYNameCrit" />
+<input type="hidden" value="" name="AttibuteIdXName" id="AttibuteIdXNameCrit" />
+<input type="hidden" value="" name="AttibuteIdYName" id="AttibuteIdYNameCrit" />
+
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('[tool-tip-toggle="tooltip-demo"]').tooltip({
+            placement: 'top'
+        });
+    });
+</script>
+
+
+<script type="text/javascript">
+    let mapData = null;
+    $(document).ready(function () {
+        console.log("ready function is happening");
+        var pars = {
+            attributeIdXAxis: @Model.attributeIdXAxis
+            , setIdXAxis: @Model.setIdXAxis
+            , attributeIdYAxis: @Model.attributeIdYAxis
+            , setIdYAxis: @Model.setIdYAxis
+            , segmentsParent: @Model.segmentsParent
+            , setIdSegments: @Model.setIdSegments
+            , included: @Model.included
+            , graphic: "bubble"
+        }
+        $("#spinner").show();
+        $("#resultsTable").hide();
+        $.post("../Frequencies/GetMapJSON", pars, (data, status) => buildResults(data, status));
+    });
+    function buildResults(data, status) {
+        mapData = data;
+        buildTable();
+    }
+    function buildTable() {
+        let resultsDiv = $("#resultsTable");
+        if (!resultsDiv) return;//just for safety...
+        let resultsHTML = "";
+        if (mapData.graphic == "bubble") {
+            resultsHTML = BubbleMap();
+        }
+        else if (mapData.graphic == "table") {
+            resultsHTML = tableMap();
+        }
+        else if (mapData.graphic == "bubbleLog") {
+            resultsHTML = BubbleMapLog();
+        }
+        resultsDiv.html(resultsHTML);
+        $("#spinner").hide();
+        resultsDiv.show();
+    }
+    function changeView(viewName) {
+        if (mapData != null) {
+            mapData.graphic = viewName;
+            buildTable();
+        }
+    }
+    function GoToItemsJson(WithAttIds, WithSetId, WithoutAttIds, WithoutSetId, Descript) {
+        $("#ItemCount").html("Loading...");
+        $("#ItemsGrid").empty();
+        $("#ItemsGrid").kendoGrid();
+        var pars = {
+            WithAttIds: WithAttIds
+            , WithSetId: WithSetId
+            , WithoutAttIds: WithoutAttIds
+            , WithoutSetId: WithoutSetId
+            , included: @Model.included
+            , Description: Descript.replaceAll('&#39;', '\'')
+        }
+        $.post("../ItemList/GetListWithWithoutAttsJSON"
+            , pars
+            , function (data, result) { BuildItems(data, result); }
+        );
+
+    }
+
+
+    function tableMap() {
+        let res = "<table class=\"content-full table table-striped\"><tr><th></th>";
+        for (let i = 0; i < mapData.columnAttIDs.length; i++) {
+            res += "<th>" + mapData.columnAttNames[i] + "</th>";
+        }
+        let segmentsN = mapData.segmentsAttIDs.length;
+        for (let ri = 0; ri < mapData.rows.length ; ri++) {
+            let row = mapData.rows[ri];
+            let rgx = new RegExp("'", 'g');
+            let withC = "", withS = "", withoutC = "", withoutS = "", descript = "";
+
+            res += "<tr><td>" + row.attributeName + "</th>";
+            for (let i = 0; i < mapData.columnAttIDs.length; i++) {
+                res += "<td>";
+                if (ri == mapData.rows.length - 1 && i == mapData.columnAttIDs.length - 1) {
+                    //last row AND Last column...
+                    res += "...";
+                }
+                else if (ri == mapData.rows.length - 1) {
+                    //last row...
+                    for (let ii = 0; ii < segmentsN; ii++) {
+                        res += "<span class='font-weight-bold'>" + mapData.segmentsAttNames[ii] + ": </span >";
+                        let currC = row.counts[(i * segmentsN) + ii];
+                        if (currC == 0) {
+                            res += "0 <br />";
+                        }
+                        else {//we need item list with column header, without all the row codes
+                            withC = mapData.columnAttIDs[i] + "," + mapData.segmentsAttIDs[ii];
+                            withS = mapData.setIdX + "," + mapData.setIdSegments;
+                            descript = "TBC";//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                            for (let rowInd = 0; rowInd < mapData.rows.length - 1; rowInd++) {
+                                withoutC += mapData.rows[rowInd].attributeId + ",";
+                                withoutS += mapData.setIdY + ",";
+                            }
+                            withoutC = withoutC.substring(0, withoutC.length - 1);
+                            withoutS = withoutS.substring(0, withoutS.length - 1);
+                            res += "<a href=\"javascript:GoToItemsJson('" + withC + "', '" + withS
+                                + "', '" + withoutC + "', '" + withoutS + "', '" + descript + "')\">" 
+                                + currC + "</a><br />";
+                        }
+                    }
+                }
+                else if (i == mapData.columnAttIDs.length - 1) {
+                    //last column
+                    for (let ii = 0; ii < segmentsN; ii++) {
+                        res += "<span class='font-weight-bold'>" + mapData.segmentsAttNames[ii] + ": </span >";
+                        let currC = row.counts[(i * segmentsN) + ii];
+                        if (currC == 0) {
+                            res += "0 <br />";
+                        }
+                        else {//we need item list with row header, without all the column codes
+                            withC = row.attributeId + "," + mapData.segmentsAttIDs[ii];
+                            withS = mapData.setIdY + "," + mapData.setIdSegments;
+                            descript = "TBC";//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                            for (let colInd = 0; colInd < mapData.columnAttIDs.length - 1; colInd++) {
+                                withoutC += mapData.columnAttIDs[colInd].toString() + ",";
+                                withoutS += mapData.setIdX + ",";
+                            }
+                            withoutC = withoutC.substring(0, withoutC.length - 1);
+                            withoutS = withoutS.substring(0, withoutS.length - 1);
+                            res += "<a href=\"javascript:GoToItemsJson('" + withC + "', '" + withS
+                                + "', '" + withoutC + "', '" + withoutS + "', '" + descript + "')\">"
+                                + currC + "</a><br />";
+                        }
+                    }
+                }
+                else {
+                    for (let ii = 0; ii < segmentsN; ii++) {
+                        res += "<span class='font-weight-bold'>" + mapData.segmentsAttNames[ii] + ": </span >";
+                        let currC = row.counts[(i * segmentsN) + ii];
+                        if (currC == 0) {
+                            res += "0 <br />";
+                        }
+                        else {
+                            withC = mapData.columnAttIDs[i] + "," + row.attributeId + "," + mapData.segmentsAttIDs[ii];
+                            withS = mapData.setIdX + "," + mapData.setIdY + "," + mapData.setIdSegments;
+                            descript = "With these codes: " + mapData.columnAttNames[i].replace(rgx, "&#39;") + " [AND] "
+                                + row.attributeName.replace(rgx, "&#39;") + " [AND] "
+                                + mapData.segmentsAttNames[ii].replace(rgx, "&#39;");
+                            res += "<a href=\"javascript:GoToItemsJson('" + withC + "', '" + withS
+                                + "', '', '', '" + descript + "')\">"
+                                + currC + "</a><br />";
+                        }
+                    }
+                }
+                res += "</td>";
+            }
+            res += "</tr>";
+        }
+        res += "</table>"
+        return res;
+    }
+
+    function BubbleMap() {
+        let res = "<table class=\"content-full table table-striped\"><tr><th></th>";
+        let maxVal = 0;
+        let segmentsN = mapData.segmentsAttIDs.length;
+        for (let i = 0; i < mapData.rows.length - 1; i++)//ignore the last row
+        {
+            for (let j = 0; j < mapData.rows[i].counts.length - mapData.segmentsAttIDs.length; j++)//ignore the values for the last column
+            {
+                if (mapData.rows[i].counts[j] > maxVal) maxVal = mapData.rows[i].counts[j];
+            }
+        }
+        for (let i = 0; i < mapData.columnAttIDs.length - 1; i++)
+        {
+            res += "<th>" + mapData.columnAttNames[i] + "</th>";
+        }
+        res += "</tr>";
+        for (let ri = 0; ri < mapData.rows.length - 1; ri++)
+        {
+            let row = mapData.rows[ri];
+            let rgx = new RegExp("'", 'g');
+            res +="<tr><td>" + row.attributeName + "</th>";
+            for (let i = 0; i < mapData.columnAttIDs.length - 1; i++) {
+                res += "<td>";
+                for (let ii = 0; ii < segmentsN; ii++) {
+                    let SegClassName = "mapC" + (ii + 1).toString();
+                    let title = "";
+                    if (row.counts[(i * segmentsN) + ii] == 0)
+                    {
+                        title = mapData.segmentsAttNames[ii] + ": no records";
+                        res += "<i class='fa fa-ban SegClassName' style='font-size:0.8em' tool-tip-toggle='tooltip-demo' title='" + title + "'></i>";
+                    }
+                    else {//normal cell, with row and col codes
+                        title = mapData.segmentsAttNames[ii] + ": " + row.counts[(i * segmentsN) + ii].toString() + " records";
+                        let dimension = (4 * (row.counts[(i * segmentsN) + ii] / maxVal) + 0.5).toString() + "em;";
+                        let withAtts = row.attributeId.toString() + "," + mapData.columnAttIDs[i].toString() + "," + mapData.segmentsAttIDs[ii].toString();
+                        let withSets = mapData.setIdY.toString() + "," + mapData.setIdX.toString() + "," + mapData.setIdSegments.toString();
+                        let descript = mapData.columnAttNames[i].replace(rgx, "&#39;") + " [AND] " + row.attributeName.replace(rgx, "&#39;") + " [AND] " + mapData.segmentsAttNames[ii];
+                        res += "<a href=\"javascript:GoToItemsJson('" + withAtts + "', '" + withSets + "', '', '', '" + descript + "')\" >";
+                        res += "<i class=\"fa fa-circle " + SegClassName + "\" style=\"font-size:" + dimension + "\" tool-tip-toggle=\"tooltip-demo\" title=\"" + title + "\"></i></a>";
+                    }
+                }
+                res += "</td>";
+            }
+            res += "</tr>";
+        }
+        res +="</table>"
+        return res;
+    }
+
+        function BubbleMapLog() {
+            return "Sorry: not implemented, yet";
+    }
+
+</script>
+
+
+
+<br />
+<br />
+<br />
+<div class="main-panel main-panel-no-sidebar">
+
+    <div class="page-inner">
+
+        <div class="card">
+            <div class="card-body">
+                <div class="card-body" style="max-height:70vh; max-width:99vw; overflow:auto;">
+                    <table width="100%">
+                        <tr>
+                            <td>
+                                <h5 class="card-title mb-3">Evidence (gap) Map</h5>
+                                <div id="MapDescription">description goes here...</div>
+
+                            </td>
+                            <td style="text-align:right">
+                                <div class="card-tools">
+                                    <button class="btn btn-primary btn-sm btn-round" onclick="changeView('table')">
+                                        <span class="btn-label">
+                                            <i class="fa fa-table"></i>
+                                        </span>
+                                        Table
+                                    </button>
+                                    <button class="btn btn-primary btn-sm btn-round" onclick="changeView('bubble')">
+                                        <span class="btn-label">
+                                            <i class="fa fa-circle"></i>
+                                        </span>
+                                        Bubble map
+                                    </button>
+                                    <button class="btn btn-primary btn-sm btn-round" onclick="changeView('bubbleLog')">
+                                        <span class="btn-label">
+                                            <i class="fa fa-circle"></i>
+                                        </span>
+                                        Bubble (log)
+                                    </button>
+                                    <!--<a href="#" class="btn btn-info btn-border btn-round btn-sm mr-2">
+                                        <span class="btn-label">
+                                            <i class="fa fa-file-excel"></i>
+                                        </span>
+                                        Export
+                                    </a>-->
+                                    <!--<a href="#" class="btn btn-info btn-border btn-round btn-sm">
+                                        <span class="btn-label">
+                                            <i class="fa fa-copy"></i>
+                                        </span>
+                                        Copy
+                                    </a>-->
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                    
+                    <div id="spinner" class="w-100" style="display:none;">
+                        <div class="d-flex justify-content-center">
+                            <div class="spinner-border" role="status">
+                                <span class="sr-only">Loading...</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body" id="resultsTable" style="max-height:50vh; overflow:auto;display:none;">
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            @await Html.PartialAsync("_ItemsList")
+        </div>
+    </div>
+</div>
+
