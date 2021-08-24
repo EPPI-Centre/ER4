@@ -148,6 +148,8 @@ namespace WebDatabasesMVC.Controllers
             return res;
         }
 
+
+        //[HttpPost("[action]")]
         public IActionResult GetMap([FromForm] long attIdx, int setIdx, string nameXaxis, long attIdy, int setIdy, string nameYaxis, 
                                     string included, string graphic, long segmentsParent, int setIdSegments)
         {
@@ -167,8 +169,33 @@ namespace WebDatabasesMVC.Controllers
                 return StatusCode(500, e.Message);
             }
         }
+        //[HttpPost("[action]")]
+        public IActionResult GetAjaxMap([FromForm] long attIdx, int setIdx, string nameXaxis, long attIdy, int setIdy, string nameYaxis,
+                                    string included, string graphic, long segmentsParent, int setIdSegments)
+        {
+            try
+            {
+                if (SetCSLAUser())
+                {
+                    int DBid = WebDbId;
+                    if (DBid < 1)
+                    {
+                        _logger.LogError("Error in GetAjaxMap, no WebDbId!");
+                        return Unauthorized();
+                    }
+                    WebDbFrequencyCrosstabAndMapSelectionCriteria crit = new WebDbFrequencyCrosstabAndMapSelectionCriteria(DBid, attIdx, setIdx, nameXaxis, included, graphic, 0, attIdy, setIdy, nameYaxis, segmentsParent, setIdSegments);
+                    return View(crit);
+                }
+                else return Unauthorized();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Error in GetAjaxMap");
+                return StatusCode(500, e.Message);
+            }
+        }
         [HttpPost("[action]")]
-        public IActionResult GetMapJSON([FromForm] long attIdx, int setIdx, string nameXaxis, long attIdy, int setIdy, string nameYaxis,
+        public IActionResult GetMapJSONold([FromForm] long attIdx, int setIdx, string nameXaxis, long attIdy, int setIdy, string nameYaxis,
                                     string included, string graphic, long segmentsParent, int setIdSegments)
         {//we provide all items details in a single JSON method, as it makes no sense to get partial item details, so without Arms, Docs, etc.
             try
@@ -183,7 +210,34 @@ namespace WebDatabasesMVC.Controllers
             }
             catch (Exception e)
             {
-                _logger.LogError(e, "Error in GetFrequenciesJSON");
+                _logger.LogError(e, "Error in GetMapJSON");
+                return StatusCode(500, e.Message);
+            }
+        }
+        [HttpPost]
+        public IActionResult GetMapJSON(WebDbFrequencyCrosstabAndMapSelectionCriteriaMVC crit)
+        {//we provide all items details in a single JSON method, as it makes no sense to get partial item details, so without Arms, Docs, etc.
+            try
+            {
+                if (SetCSLAUser())
+                {
+                    int DBid = WebDbId;
+                    if (DBid < 1)
+                    {
+                        _logger.LogError("Error in GetAjaxMap, no WebDbId!");
+                        return Unauthorized();
+                    } else
+                    {
+                        crit.webDbId = DBid;
+                    }
+                    WebDbItemAttributeCrosstabList Itm = DataPortal.Fetch<WebDbItemAttributeCrosstabList>(crit.GetWebDbFrequencyCrosstabAndMapSelectionCriteria());
+                    return Json(Itm);
+                }
+                else return Unauthorized();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Error in GetMapJSON");
                 return StatusCode(500, e.Message);
             }
         }
