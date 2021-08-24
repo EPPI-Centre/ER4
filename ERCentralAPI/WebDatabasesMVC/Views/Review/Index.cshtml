@@ -268,9 +268,17 @@
             data.results.splice(lastRow, 1);
         }
 
+        var legendPostion = "right";
+        var chartHeight = 250;
+        if (data.results.length > 20) {
+            legendPostion = "bottom";
+            chartHeight = 600;
+        }
 
         $("#FrequenciesGrid").hide();
         $("#FrequenciesResult").html("Frequencies:&nbsp;&nbsp;" + dataItem.text);
+
+
 
         if (data.results.length != 0) {
             $("#BarOrPieChartVisible").show();          
@@ -280,7 +288,7 @@
             $("#FrequenciesChart").kendoChart({
                 dataSource: { data: data.results },
                 chartArea: {
-                    height: 250
+                    height: chartHeight
                 },
                 seriesDefaults: {
                     type: "pie"
@@ -333,7 +341,7 @@
                             return layout;
                         }
                     },
-                    position: "right",
+                    position: legendPostion,
                     padding: 10,
                     background: "#e2e3e5",
                     border: {
@@ -925,7 +933,7 @@
 
 
 
-                            <div id="FrequenciesChart" class="chart"></div>
+                            <div id="FrequenciesChart" style="overflow-y:auto;" class="chart"></div>
                             <div id="NoCodedRecords">No coded records</div>
                             <div style="max-height:50vh;" id="FrequenciesGrid"></div>
 
