@@ -105,6 +105,7 @@
         //$("#treeView").data("kendoTreeView").bind("change", TreeViewSelection);
         $("#FrequenciesResult").html("Frequencies");
         $("#BarOrPieChartVisible").hide();
+        $("#NoCodedRecords").hide();
     });
     function ToggleDescrPanelSize() {
         const descrPanel = $("#WebDBDescription");
@@ -167,6 +168,7 @@
         $("#setIdXAxisCrit").val(dataItem.setId);
         $("#FrequenciesGrid").show();
         $("#FrequenciesChart").hide();
+        $("#NoCodedRecords").hide();
         $("#FrequenciesResult").html("Frequencies:&nbsp;&nbsp;" + dataItem.text);
         //$("#FrequenciesResult").show();
 
@@ -219,6 +221,7 @@
         $("#FrequenciesGrid").hide();
         $("#FrequenciesChart").show();
         $("#FrequenciesResult").html("Frequencies:&nbsp;&nbsp;" + dataItem.text);
+        $("#NoCodedRecords").hide();
         //$("#FrequenciesResult").show();
 
         $("#FrequenciesChart").kendoChart({
@@ -251,114 +254,100 @@
             return;
         }
 
-        $("#BarOrPieChartVisible").show();
+        // remove all of the rows that have zero values
+        for (var i = data.results.length - 1; i >= 0; i--) {
+            if (data.results[i].itemCount == 0) {
+                data.results.splice(i, 1);
+            }
+        }
+
+        var lastRow = data.results.length - 1;
+
+        // remove the last row if it is 'none of the above'
+        if (data.results[lastRow].attributeId == -999999) {
+            data.results.splice(lastRow, 1);
+        }
+
+
         $("#FrequenciesGrid").hide();
-        $("#FrequenciesChart").show();
         $("#FrequenciesResult").html("Frequencies:&nbsp;&nbsp;" + dataItem.text);
-        //$("#FrequenciesResult").show();
 
-        /*
-        $("#FrequenciesChart").kendoChart({
-            legend: {
-                item: {
-                    visual: function (e) {
-                        var color = e.options.markers.background;
-                        var labelColor = e.options.labels.color;
-                        var rect = new kendo.geometry.Rect([0, 0], [100, 50]);
-                        var layout = new kendo.drawing.Layout(rect, {
-                            spacing: 5,
-                            alignItems: "center"
-                        });
-                        var allZeroValues = false;
-                        if (e.series.data.length == 0) {
-                            allZeroValues = true;
-                        }
-
-                        if (!allZeroValues) {
-                            var marker = new kendo.drawing.Path({
-                                fill: {
-                                    color: color
-                                }
-                            }).moveTo(10, 0).lineTo(15, 10).lineTo(5, 10).close();
-
-                            var label = new kendo.drawing.Text(e.series.name, [0, 0], {
-                                fill: {
-                                    color: labelColor
-                                }
+        if (data.results.length != 0) {
+            $("#BarOrPieChartVisible").show();          
+            $("#FrequenciesChart").show();
+            $("#NoCodedRecords").hide();           
+            
+            $("#FrequenciesChart").kendoChart({
+                dataSource: { data: data.results },
+                chartArea: {
+                    height: 250
+                },
+                seriesDefaults: {
+                    type: "pie"
+                },
+                seriesClick: function (e) {
+                    GoToFreqListPieAndBar(e);
+                },
+                series: [{
+                    field: "itemCount",
+                    categoryField: "attribute",
+                    padding: 0
+                }],
+                tooltip: {
+                    visible: true,
+                    template: "#= category #: #= value # records"
+                },
+                legend: {
+                    item: {
+                        visual: function (e) {
+                            var color = e.options.markers.background;
+                            var labelColor = e.options.labels.color;
+                            var rect = new kendo.geometry.Rect([0, 0], [200, 50]);
+                            var layout = new kendo.drawing.Layout(rect, {
+                                spacing: 10
                             });
 
-                            layout.append(marker, label);
-                            layout.reflow()
+                            var allZeroValues = false;
+                            if (e.series.data[e.pointIndex].itemCount == 0) {
+                                allZeroValues = true;
+                            }
+
+                            if (!allZeroValues) {
+                                // create a circle geometry centered at x=10, y=5, with a radius of 5
+                                var CircGeometry = new kendo.geometry.Circle([10, 5], 5);
+                                // draw the circle using the geometry and set the color (could have no stroke)
+                                var MarkerCircle = new kendo.drawing.Circle(CircGeometry, {
+                                    stroke: { color: color, width: 1 },
+                                    fill: { color: color }
+                                });
+
+                                var label = new kendo.drawing.Text(e.series.data[e.pointIndex].attribute, [0, 0], {
+                                    fill: {
+                                        color: labelColor
+                                    }
+                                });
+
+                                layout.append(MarkerCircle, label);
+                                layout.reflow()
+                            }
+                            return layout;
                         }
-
-
-                        return layout;
-                    }
-                }
-            },
-            series: [
-                { name: "Series 1", data: [] },
-                { name: "Series 2", data: [3, 4, 5] }
-            ]
-        });
-        */
-
-
-        
-        $("#FrequenciesChart").kendoChart({
-            dataSource: { data: data.results },
-            /*legend: {
-                position: "right",
-                padding: 10,
-                background: "#e2e3e5",
-                border: {
-                    width: 1,
-                    color: "#d6d8db"                    
-                }                
-            },*/
-            chartArea: {
-                height: 250
-            },
-            seriesDefaults: {
-                type: "pie"
-            },
-            seriesClick: function (e) {
-                GoToFreqListPieAndBar(e);                
-            },
-            series: [{
-                field: "itemCount",
-                categoryField: "attribute",
-                padding: 0
-            }],
-            tooltip: {
-                visible: true,
-                template: "#= category #: #= value # records"
-            },
-            /* manually create the legend and leave out the 0 values */
-            legend: {
-                position: "right",
-                padding: 10,
-                background: "#e2e3e5",
-                border: {
-                    width: 1,
-                    color: "#d6d8db"
+                    },
+                    position: "right",
+                    padding: 10,
+                    background: "#e2e3e5",
+                    border: {
+                        width: 1,
+                        color: "#d6d8db"
+                    },
                 },
-                item: {
-                    visual: function (e) {
-                        var zeroValue = false;
-                        if (e.series.data[e.pointIndex].itemCount == 0) {
-                            zeroValue = true;
-                        }
-
-                        if (!zeroValue) {
-                            /* add it to the legent */
-
-                        }
-
-                    }
-                }
-            }
-        });
+            });
+        }
+        else {
+            $("#BarOrPieChartVisible").hide();
+            $("#FrequenciesChart").hide();
+            $("#NoCodedRecords").show();
+        }
     }
 
     function ExportImg() {
@@ -937,6 +926,7 @@
 
 
                             <div id="FrequenciesChart" class="chart"></div>
+                            <div id="NoCodedRecords">No coded records</div>
                             <div style="max-height:50vh;" id="FrequenciesGrid"></div>
 
 
