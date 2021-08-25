@@ -49,7 +49,30 @@
     });
     function buildResults(data, status) {
         mapData = data;
+        buildDescription();
         buildTable();
+    }
+    function buildDescription() {
+        let el = $("#MapDescription");
+        if (!el) return;
+        let descr = "";
+        if ((mapData.attibuteIdX == 0) && (mapData.attibuteIdY == 0))
+        {
+            descr = "<h5>\"<b>(Column) " + mapData.setIdXName.toString() + "</b>\" vs \"<b>(Row) " + mapData.setIdYName.toString() + "</b>\", segments: \"" + mapData.attibuteIdSegmentsName + "\"</h5>";
+        }
+        if ((mapData.attibuteIdX != 0) && (mapData.attibuteIdY != 0))
+        {
+            descr = "<h5>\"<b>(Column) " + mapData.attibuteIdXName.toString() + "</b>\" vs \"<b>(Row) " + mapData.attibuteIdYName.toString() + "</b>\", segments: \"" + mapData.attibuteIdSegmentsName + "\"</h5>";
+        }
+        if ((mapData.attibuteIdX == 0) && (mapData.attibuteIdY != 0))
+        {
+            descr = " <h5>\"<b>(Column) " + mapData.setIdXName.toString() + "</b >\" vs \"<b>(Row) " + mapData.attibuteIdYName.toString() + "</b>\", segments: \"" + mapData.attibuteIdSegmentsName + "\"</h5>";
+        }
+        if ((mapData.attibuteIdX != 0) && (mapData.attibuteIdY == 0))
+        {
+            descr = "<h5>\"<b>(Column) " + mapData.attibuteIdXName.toString() + "</b >\" vs \"<b>(Row) " + mapData.setIdYName.toString() + "</b>\", segments: \"" + mapData.attibuteIdSegmentsName + "\"</h5>";
+        }
+        el.html(descr);
     }
     function buildTable() {
         let resultsDiv = $("#resultsTable");
@@ -64,7 +87,10 @@
         else if (mapData.graphic == "bubbleLog") {
             resultsHTML = BubbleMapLog();
         }
+
+        console.log("html string:", resultsHTML);
         resultsDiv.html(resultsHTML);
+        console.log("all html:", resultsDiv.html());
         $("#spinner").hide();
         resultsDiv.show();
     }
@@ -78,13 +104,15 @@
         $("#ItemCount").html("Loading...");
         $("#ItemsGrid").empty();
         $("#ItemsGrid").kendoGrid();
+        let rgx = new RegExp("↖", 'g');
+        let rgx2 = new RegExp("↗", 'g');
         var pars = {
             WithAttIds: WithAttIds
             , WithSetId: WithSetId
             , WithoutAttIds: WithoutAttIds
             , WithoutSetId: WithoutSetId
             , included: @Model.included
-            , Description: Descript.replaceAll('&#39;', '\'')
+            , Description: Descript.replace(rgx, '\'').replace(rgx2, '"')
         }
         $.post("../ItemList/GetListWithWithoutAttsJSON"
             , pars
@@ -103,6 +131,7 @@
         for (let ri = 0; ri < mapData.rows.length ; ri++) {
             let row = mapData.rows[ri];
             let rgx = new RegExp("'", 'g');
+            let rgx2 = new RegExp("\"", 'g');
             let withC = "", withS = "", withoutC = "", withoutS = "", descript = "";
 
             res += "<tr><td>" + row.attributeName + "</th>";
@@ -123,7 +152,8 @@
                         else {//we need item list with column header, without all the row codes
                             withC = mapData.columnAttIDs[i] + "," + mapData.segmentsAttIDs[ii];
                             withS = mapData.setIdX + "," + mapData.setIdSegments;
-                            descript = "TBC";//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                            descript = "3D Map, list from last row, column: &nearr;" + mapData.columnAttNames[i].replace(rgx, "&nwarr;").replace(rgx2, "&nearr;") + "&nearr;, segment: &nearr;"
+                                + mapData.segmentsAttNames[ii].replace(rgx, "&nwarr;").replace(rgx2, "&nearr;") + "&nearr;";
                             for (let rowInd = 0; rowInd < mapData.rows.length - 1; rowInd++) {
                                 withoutC += mapData.rows[rowInd].attributeId + ",";
                                 withoutS += mapData.setIdY + ",";
@@ -131,7 +161,7 @@
                             withoutC = withoutC.substring(0, withoutC.length - 1);
                             withoutS = withoutS.substring(0, withoutS.length - 1);
                             res += "<a href=\"javascript:GoToItemsJson('" + withC + "', '" + withS
-                                + "', '" + withoutC + "', '" + withoutS + "', '" + descript + "')\">" 
+                                + "', '" + withoutC + "', '" + withoutS + "', '" + descript + "')\">"
                                 + currC + "</a><br />";
                         }
                     }
@@ -147,7 +177,8 @@
                         else {//we need item list with row header, without all the column codes
                             withC = row.attributeId + "," + mapData.segmentsAttIDs[ii];
                             withS = mapData.setIdY + "," + mapData.setIdSegments;
-                            descript = "TBC";//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                            descript = "3D Map, list from last column, row: &nearr;" + row.attributeName.replace(rgx, "&nwarr;").replace(rgx2, "&nearr;") + "&nearr;, segment: &nearr;"
+                                + mapData.segmentsAttNames[ii].replace(rgx, "&nwarr;").replace(rgx2, "&nearr;") + "&nearr;";
                             for (let colInd = 0; colInd < mapData.columnAttIDs.length - 1; colInd++) {
                                 withoutC += mapData.columnAttIDs[colInd].toString() + ",";
                                 withoutS += mapData.setIdX + ",";
@@ -170,9 +201,9 @@
                         else {
                             withC = mapData.columnAttIDs[i] + "," + row.attributeId + "," + mapData.segmentsAttIDs[ii];
                             withS = mapData.setIdX + "," + mapData.setIdY + "," + mapData.setIdSegments;
-                            descript = "With these codes: " + mapData.columnAttNames[i].replace(rgx, "&#39;") + " [AND] "
-                                + row.attributeName.replace(rgx, "&#39;") + " [AND] "
-                                + mapData.segmentsAttNames[ii].replace(rgx, "&#39;");
+                            descript = "With these codes: " + mapData.columnAttNames[i].replace(rgx, "&nwarr;").replace(rgx2, "&nearr;") + " [AND] "
+                                + row.attributeName.replace(rgx, "&nwarr;").replace(rgx2, "&nearr;") + " [AND] "
+                                + mapData.segmentsAttNames[ii].replace(rgx, "&nwarr;").replace(rgx2, "&nearr;");
                             res += "<a href=\"javascript:GoToItemsJson('" + withC + "', '" + withS
                                 + "', '', '', '" + descript + "')\">"
                                 + currC + "</a><br />";
@@ -207,6 +238,7 @@
         {
             let row = mapData.rows[ri];
             let rgx = new RegExp("'", 'g');
+            let rgx2 = new RegExp("\"", 'g');
             res +="<tr><td>" + row.attributeName + "</th>";
             for (let i = 0; i < mapData.columnAttIDs.length - 1; i++) {
                 res += "<td>";
@@ -223,7 +255,8 @@
                         let dimension = (4 * (row.counts[(i * segmentsN) + ii] / maxVal) + 0.5).toString() + "em;";
                         let withAtts = row.attributeId.toString() + "," + mapData.columnAttIDs[i].toString() + "," + mapData.segmentsAttIDs[ii].toString();
                         let withSets = mapData.setIdY.toString() + "," + mapData.setIdX.toString() + "," + mapData.setIdSegments.toString();
-                        let descript = mapData.columnAttNames[i].replace(rgx, "&#39;") + " [AND] " + row.attributeName.replace(rgx, "&#39;") + " [AND] " + mapData.segmentsAttNames[ii];
+                        let descript = mapData.columnAttNames[i].replace(rgx, "&nwarr;").replace(rgx2, "&nearr;") + " [AND] " + row.attributeName.replace(rgx, "&nwarr;").replace(rgx2, "&nearr;") + " [AND] " + mapData.segmentsAttNames[ii].replace(rgx, "&nwarr;").replace(rgx2, "&nearr;");
+                        console.log("des", descript);
                         res += "<a href=\"javascript:GoToItemsJson('" + withAtts + "', '" + withSets + "', '', '', '" + descript + "')\" >";
                         res += "<i class=\"fa fa-circle " + SegClassName + "\" style=\"font-size:" + dimension + "\" tool-tip-toggle=\"tooltip-demo\" title=\"" + title + "\"></i></a>";
                     }
@@ -258,7 +291,7 @@
                         <tr>
                             <td>
                                 <h5 class="card-title mb-3">Evidence (gap) Map</h5>
-                                <div id="MapDescription">description goes here...</div>
+                                <div id="MapDescription">Loading...</div>
 
                             </td>
                             <td style="text-align:right">
