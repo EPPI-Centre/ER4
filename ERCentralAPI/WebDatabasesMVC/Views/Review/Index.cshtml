@@ -27,7 +27,7 @@
 <script>
     var treeviewData = null;
     var dataItem = null;
-    var dataItemXaxis = null;
+    //var dataItemXaxis = null;
     var dataItemMapXaxis = null;
     var dataItemMapYaxis = null;
     var dataItemMapSegments = null;
@@ -415,10 +415,11 @@
         if (count == 0) return "0";
         else return '<a href="javascript:GoToItems(' + attId + ', \'' + attName.replaceAll('\'', '\\\'') + '\')" style="color: #007bff!important;">' + count.toString() + '</a>';
     }
+
     function GoToCrosstab(isSelfXtab) {
-        console.log("CurrentNodeGoToCrosstab");
-        if (!dataItem || (isSelfXtab !== true && !dataItemXaxis)) {
-            console.log("CurrentNodeGoToCrosstab no data");
+        //console.log("CurrentNodeGoToCrosstab");
+        if (!dataItem || (isSelfXtab !== true && !dataItemMapXaxis)) {
+            //console.log("CurrentNodeGoToCrosstab no data");
             return;
         }
         if (isSelfXtab == true) {
@@ -451,21 +452,21 @@
                 , included: true
                 , graphic: "table"
             }
-            if (dataItem.isCodeset == true) {
+            if (dataItemMapYaxis.isCodeset == true) {
                 pars.attIdy = 0;
-                pars.setIdy = dataItem.setId;
+                pars.setIdy = dataItemMapYaxis.setId;
             }
             else {
-                pars.attIdy = dataItem.id;
-                pars.setIdy = dataItem.setId;
+                pars.attIdy = dataItemMapYaxis.id;
+                pars.setIdy = dataItemMapYaxis.setId;
             }
-            if (dataItemXaxis.isCodeset == true) {
+            if (dataItemMapXaxis.isCodeset == true) {
                 pars.attIdx = 0;
-                pars.setIdx = dataItemXaxis.setId;
+                pars.setIdx = dataItemMapXaxis.setId;
             }
             else {
-                pars.attIdx = dataItemXaxis.id;
-                pars.setIdx = dataItemXaxis.setId;
+                pars.attIdx = dataItemMapXaxis.id;
+                pars.setIdx = dataItemMapXaxis.setId;
             }
             postwith("../Frequencies/GetCrosstab", pars);
         }
@@ -475,12 +476,13 @@
         if (treeviewData == null) retrun;
         dataItem = treeviewData.dataItem(e.node);
         if (!dataItem) {
+            $("#CurrentNodeNameMap").html("N\A");
             $("#CurrentNodeGoToFreq").prop("disabled", true);
             $("#CurrentNodeGoToFreqSB").prop("disabled", true);
             $("#CurrentNodeGoToFreq2").prop("disabled", true);
             $("#CurrentNodeGoToSelfCrosstab").prop("disabled", true);
-            $("#CurrentNodeGoToCrosstab").prop("disabled", true);
-            $("#CurrentNodeSetXAxis").prop("disabled", true);
+            //$("#CurrentNodeGoToCrosstab").prop("disabled", true);
+            //$("#CurrentNodeSetXAxis").prop("disabled", true);
             $("#GoToItemsWithThisCode").prop("disabled", true);
             $("#GoToItemsWithThisCodeSB").prop("disabled", true);
             $("#CurrentNodeGoToFreqBar").prop("disabled", true);
@@ -494,18 +496,18 @@
         }
         //console.log("Change", dataItem.setId, dataItem.id, dataItem.text);
         $("#CurrentNodeName").text(dataItem.text);
-        $("#CurrentNodeNameCT").text(dataItem.text);
+        //$("#CurrentNodeNameCT").text(dataItem.text);
         $("#CurrentNodeNameMap").text(dataItem.text);
-        $("#CurrentNodeId").text(dataItem.id);
-        $("#CurrentNodeSetId").text(dataItem.setId);
-        $("#CurrentNodeIsCodeSet").text(dataItem.isCodeset.toString());
+        //$("#CurrentNodeId").text(dataItem.id);
+        //$("#CurrentNodeSetId").text(dataItem.setId);
+        //$("#CurrentNodeIsCodeSet").text(dataItem.isCodeset.toString());
         if (dataItem.items && dataItem.items.length > 0) {
             $("#CurrentNodeGoToFreq").prop("disabled", false);
             $("#CurrentNodeGoToFreqSB").prop("disabled", false);
             $("#CurrentNodeGoToFreq2").prop("disabled", false);
             $("#CurrentNodeGoToSelfCrosstab").prop("disabled", false);
-            $("#CurrentNodeGoToCrosstab").prop("disabled", dataItemXaxis == null);
-            $("#CurrentNodeSetXAxis").prop("disabled", false);
+            //$("#CurrentNodeGoToCrosstab").prop("disabled", dataItemMapXaxis == null);
+            //$("#CurrentNodeSetXAxis").prop("disabled", false);
             $("#CurrentNodeGoToFreqBar").prop("disabled", false);
             $("#CurrentNodeGoToFreqPie").prop("disabled", false);
 
@@ -521,8 +523,8 @@
             $("#CurrentNodeGoToFreqSB").prop("disabled", true);
             $("#CurrentNodeGoToFreq2").prop("disabled", true);
             $("#CurrentNodeGoToSelfCrosstab").prop("disabled", true);
-            $("#CurrentNodeGoToCrosstab").prop("disabled", true);
-            $("#CurrentNodeSetXAxis").prop("disabled", true);
+            //$("#CurrentNodeGoToCrosstab").prop("disabled", true);
+            //$("#CurrentNodeSetXAxis").prop("disabled", true);
             $("#CurrentNodeGoToFreqBar").prop("disabled", true);
             $("#CurrentNodeGoToFreqPie").prop("disabled", true);
             $("#CurrentNodeSetMapXAxis").prop("disabled", true);
@@ -543,19 +545,7 @@
             //$("#GoToItemsWithThisCode").attr('onclick', 'GoToItems(dataItem.id)');
         }
     }
-    function SetXAxis() {
-        if (!dataItem) {
-            dataItemMapXaxis = null;
-            $("#x_axis_setting").hide();
-            //$("#CurrentNodeGoToCrosstab").prop("disabled", true);
-        }
-        else {
-            dataItemXaxis = dataItem;
-            $("#x_axis_name").text(dataItemXaxis.text);
-            //$("#CurrentNodeGoToCrosstab").prop("disabled", false);
-            $("#x_axis_setting").show();
-        }
-    }
+    
 
     function GetYearsFreqs() {
         $("#chartByYear").kendoChart({
@@ -668,9 +658,9 @@
     }
 
     function GoToMap() {
-        console.log("CurrentNodeGoToCrosstab");
+        //console.log("CurrentNodeGoToCrosstab");
         if (!dataItemMapXaxis || !dataItemMapYaxis || !dataItemMapSegments) {
-            console.log("GoToMap no data");
+            //console.log("GoToMap no data");
             return;
         }
         var pars = {
@@ -716,14 +706,17 @@
             dataItemMapXaxis = null;
             $("#map_x_axis_name").hide();
             $("#CurrentNodeGoToMap").prop("disabled", true);
+            $("#CurrentNodeGoToCrosstab").prop("disabled", true);
         }
         else {
             dataItemMapXaxis = dataItem;
             $("#map_x_axis_name").text(dataItemMapXaxis.text);
             $("#map_x_axis_name").show();
             console.log("X", dataItem, dataItemMapXaxis, dataItemMapYaxis, dataItemMapSegments);
-            if (dataItemMapXaxis != null && dataItemMapYaxis != null && dataItemMapSegments != null)
-                $("#CurrentNodeGoToMap").prop("disabled", false);
+            if (dataItemMapXaxis != null && dataItemMapYaxis != null) {
+                if (dataItemMapSegments != null) $("#CurrentNodeGoToMap").prop("disabled", false);//segments are needed for Maps, irrelevant to Xtabs
+                $("#CurrentNodeGoToCrosstab").prop("disabled", false); //2Ds are set, can enable XTab
+            }
         }
     }
     function SetMapYAxis() {
@@ -731,14 +724,17 @@
             dataItemMapYaxis = null;
             $("#map_y_axis_name").hide();
             $("#CurrentNodeGoToMap").prop("disabled", true);
+            $("#CurrentNodeGoToCrosstab").prop("disabled", true);
         }
         else {
             dataItemMapYaxis = dataItem;
             $("#map_y_axis_name").text(dataItemMapYaxis.text);
             $("#map_y_axis_name").show();
             console.log("Y", dataItem, dataItemMapXaxis, dataItemMapYaxis, dataItemMapSegments);
-            if (dataItemMapXaxis != null && dataItemMapYaxis != null && dataItemMapSegments != null)
-                $("#CurrentNodeGoToMap").prop("disabled", false);
+            if (dataItemMapXaxis != null && dataItemMapYaxis != null) {
+                if (dataItemMapSegments != null) $("#CurrentNodeGoToMap").prop("disabled", false);//segments are needed for Maps, irrelevant to Xtabs
+                $("#CurrentNodeGoToCrosstab").prop("disabled", false); //2Ds are set, can enable XTab
+            }
         }
     }
     function SetMapSegments() {
@@ -1033,7 +1029,7 @@
                             <div id="chartByYear"></div>
                         </div>
                     </div>
-                    <div class="card ">
+                    @*<div class="card ">
                         <div class="card-header">
                             <table>
                                 <tr>
@@ -1081,55 +1077,70 @@
 
                             </div>
                         </div>
-                    </div>
+                    </div>*@
 
 
                     <div class="card ">
-                        <div class="card-header">
+                        <div class="card-header p-2">
                             <table>
                                 <tr>
-                                    <td>
-                                        <div class="card-title">Get Evidence Maps</div>
-                                    </td>
-                                    <td style="padding: 0px 0px 0px 25px;">
-                                        <button class="btn btn-secondary btn-sm btn-round" onclick="GoToMap()" disabled id="CurrentNodeGoToMap">
-                                            <span class="btn-label">
-                                                <i class="fa fa-table"></i>
-                                            </span>&nbsp;Go To Map
-                                        </button>
+                                    <td colspan="2">
+                                        <div class="card-title">
+                                            Maps(3D) & Crosstabs(2D)
+                                        </div>
                                     </td>
                                 </tr>
                             </table>
                         </div>
 
-                        <div class="card-body">
+                        <div class="card-body px-2 pt-1 pb-1">
                             <table>
                                 <tr>
-                                    <td colspan="2" style="padding: 0px 0px 10px 0px;">
-                                        Selected node: <div class="ml-1 font-weight-bold my-auto" id="CurrentNodeNameMap"></div>
+                                    <td colspan="2" class="px-1 py-1 border-bottom">
+                                        <button class="btn btn-secondary btn-sm btn-round" onclick="GoToMap()" disabled id="CurrentNodeGoToMap">
+                                            <span class="btn-label">
+                                                <i class="fa fa-table"></i>
+                                            </span>&nbsp;Get Map
+                                        </button>
+                                        <button class="btn btn-secondary btn-sm btn-round" onclick="GoToCrosstab(false)" disabled id="CurrentNodeGoToCrosstab">
+                                            <span class="btn-label">
+                                                <i class="fa fa-table"></i>
+                                            </span>&nbsp;Get Crosstab
+                                        </button>
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td>
+                                    <td colspan="2" class="px-1 py-1 border-bottom">
+                                        Selected node: <span class="mx-1 font-weight-bold my-auto" id="CurrentNodeNameMap">N\A</span>
+                                        <button class="btn btn-outline-primary btn-sm btn-round" onclick="GoToCrosstab(true)" disabled id="CurrentNodeGoToSelfCrosstab">
+                                            <span class="btn-label">
+                                                <i class="fa fa-table"></i>
+                                            </span>&nbsp;Self Crosstab
+                                        </button>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td class="px-1 py-1 ">
                                         <button class="btn btn-secondary btn-sm btn-round" onclick="SetMapXAxis()" disabled id="CurrentNodeSetMapXAxis">Set X axis</button>
                                     </td>
-                                    <td>
+                                    <td class="px-1 py-1 ">
                                         <div class="my-auto"><span id="map_x_axis_name" class="m-1"></span></div>
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td>
+                                    <td class="px-1 py-1">
                                         <button class="btn btn-secondary btn-sm btn-round" onclick="SetMapYAxis()" disabled id="CurrentNodeSetMapYAxis">Set Y axis</button>
                                     </td>
-                                    <td>
+                                    <td class="px-1 py-1">
                                         <div class="my-auto"><span id="map_y_axis_name" class="m-1"></span></div>
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td>
+                                    <td class="px-1 py-1 border-bottom">
                                         <button class="btn btn-secondary btn-sm btn-round" onclick="SetMapSegments()" disabled id="CurrentNodeSetMapSegments">Set segments</button>
                                     </td>
-                                    <td>
+                                    <td class="px-1 py-1 border-bottom">
                                         <div class="my-auto"><span id="map_segments_name" class="m-1"></span></div>
                                     </td>
                                 </tr>
