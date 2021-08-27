@@ -69,6 +69,11 @@ body {
   white-space: nowrap;
   line-height: 60px; /* Vertically center the text there */
 }
+
+.table-bordered.mapTable td, .table-bordered.mapTable th {
+    border: 1px solid #aaaaaa !important;
+}
+
 .mapC1 {
     color: #e6194B;
 }
@@ -76,10 +81,10 @@ body {
     color: #3cb44b;
 }
 .mapC3 {
-    color: #efd109;
+    color: #4363d8;
 }
 .mapC4 {
-    color: #4363d8;
+    color: #efd109;
 }
 .mapC5 {
     color: #f032e6;
@@ -89,4 +94,54 @@ body {
 }
 .mapC7 {
     color: #a9a9a9;
+}
+
+
+.mapBG1 {
+    background-color: #e6194B44;
+    border-radius:5px 5px;
+    margin:4px;
+    padding: 2px 6px 2px 6px;
+}
+
+.mapBG2 {
+    background-color: #3cb44b44;
+    border-radius: 5px 5px;
+    margin: 4px;
+    padding: 2px 6px 2px 6px;
+}
+
+.mapBG3 {
+    background-color: #4363d844;
+    border-radius: 5px 5px;
+    margin: 4px;
+    padding: 2px 6px 2px 6px;
+}
+
+.mapBG4 {
+    background-color: #efd10944;
+    border-radius: 5px 5px;
+    margin: 4px;
+    padding: 2px 6px 2px 6px;
+}
+
+.mapBG5 {
+    background-color: #f032e644;
+    border-radius: 5px 5px;
+    margin: 4px;
+    padding: 2px 6px 2px 6px;
+}
+
+.mapBG6 {
+    background-color: #00009544;
+    border-radius: 5px 5px;
+    margin: 4px;
+    padding: 2px 6px 2px 6px;
+}
+
+.mapBG7 {
+    background-color: #a9a9a944;
+    border-radius: 5px 5px;
+    margin: 4px;
+    padding: 2px 6px 2px 6px;
 }

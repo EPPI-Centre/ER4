@@ -80,19 +80,26 @@
         let resultsHTML = "";
         if (mapData.graphic == "bubble") {
             resultsHTML = BubbleMap();
+            $("#showBubbleButton").prop("disabled", true);
+            $("#showTableButton").prop("disabled", false);
         }
         else if (mapData.graphic == "table") {
             resultsHTML = tableMap();
+            $("#showTableButton").prop("disabled", true);
+            $("#showBubbleButton").prop("disabled", false);
         }
         else if (mapData.graphic == "bubbleLog") {
             resultsHTML = BubbleMapLog();
         }
 
-        console.log("html string:", resultsHTML);
+        //console.log("html string:", resultsHTML);
         resultsDiv.html(resultsHTML);
-        console.log("all html:", resultsDiv.html());
+        //console.log("all html:", resultsDiv.html());
         $("#spinner").hide();
         resultsDiv.show();
+        $('[tool-tip-toggle="tooltip-demo"]').tooltip({
+            placement: 'top'
+        });
     }
     function changeView(viewName) {
         if (mapData != null) {
@@ -104,6 +111,8 @@
         $("#ItemCount").html("Loading...");
         $("#ItemsGrid").empty();
         $("#ItemsGrid").kendoGrid();
+        let spinnerItems = $("#spinnerItems");
+        if (spinnerItems) spinnerItems.show();
         let rgx = new RegExp("↖", 'g');
         let rgx2 = new RegExp("↗", 'g');
         var pars = {
@@ -116,14 +125,17 @@
         }
         $.post("../ItemList/GetListWithWithoutAttsJSON"
             , pars
-            , function (data, result) { BuildItems(data, result); }
+            , function (data, result) {
+                if (spinnerItems) spinnerItems.remove();
+                BuildItems(data, result);
+            }
         );
 
     }
 
 
     function tableMap() {
-        let res = "<table class=\"content-full table table-striped\"><tr><th></th>";
+        let res = "<table class=\"content-full mapTable table table-bordered table-striped\"><tr><th></th>";
         for (let i = 0; i < mapData.columnAttIDs.length; i++) {
             res += "<th>" + mapData.columnAttNames[i] + "</th>";
         }
@@ -134,69 +146,77 @@
             let rgx2 = new RegExp("\"", 'g');
             let withC = "", withS = "", withoutC = "", withoutS = "", descript = "";
 
-            res += "<tr><td>" + row.attributeName + "</th>";
+            res += "<tr><th class='px-1'>" + row.attributeName + "</th>";
             for (let i = 0; i < mapData.columnAttIDs.length; i++) {
-                res += "<td>";
+                res += "<td class='px-1'>";
+                
                 if (ri == mapData.rows.length - 1 && i == mapData.columnAttIDs.length - 1) {
                     //last row AND Last column...
-                    res += "...";
+                    res += "&nbsp;";
                 }
                 else if (ri == mapData.rows.length - 1) {
                     //last row...
                     for (let ii = 0; ii < segmentsN; ii++) {
-                        res += "<span class='font-weight-bold'>" + mapData.segmentsAttNames[ii] + ": </span >";
+                        let SegClassName = "mapBG" + (ii + 1).toString();
+                        res += "<div class='"+ SegClassName + "'><span class='font-weight-bold'>" + mapData.segmentsAttNames[ii] + ": </span >";
                         let currC = row.counts[(i * segmentsN) + ii];
                         if (currC == 0) {
-                            res += "0 <br />";
+                            res += "0 </div>";
                         }
                         else {//we need item list with column header, without all the row codes
                             withC = mapData.columnAttIDs[i] + "," + mapData.segmentsAttIDs[ii];
                             withS = mapData.setIdX + "," + mapData.setIdSegments;
                             descript = "3D Map, list from last row, column: &nearr;" + mapData.columnAttNames[i].replace(rgx, "&nwarr;").replace(rgx2, "&nearr;") + "&nearr;, segment: &nearr;"
                                 + mapData.segmentsAttNames[ii].replace(rgx, "&nwarr;").replace(rgx2, "&nearr;") + "&nearr;";
+                            withoutC = "";
+                            withoutS = "";
                             for (let rowInd = 0; rowInd < mapData.rows.length - 1; rowInd++) {
                                 withoutC += mapData.rows[rowInd].attributeId + ",";
                                 withoutS += mapData.setIdY + ",";
                             }
                             withoutC = withoutC.substring(0, withoutC.length - 1);
                             withoutS = withoutS.substring(0, withoutS.length - 1);
-                            res += "<a href=\"javascript:GoToItemsJson('" + withC + "', '" + withS
+                            res += "<a class='bg-white rounded px-1' href=\"javascript:GoToItemsJson('" + withC + "', '" + withS
                                 + "', '" + withoutC + "', '" + withoutS + "', '" + descript + "')\">"
-                                + currC + "</a><br />";
+                                + currC + "</a></div>";
                         }
                     }
                 }
                 else if (i == mapData.columnAttIDs.length - 1) {
                     //last column
                     for (let ii = 0; ii < segmentsN; ii++) {
-                        res += "<span class='font-weight-bold'>" + mapData.segmentsAttNames[ii] + ": </span >";
+                        let SegClassName = "mapBG" + (ii + 1).toString();
+                        res += "<div class='" + SegClassName + "'><span class='font-weight-bold'>" + mapData.segmentsAttNames[ii] + ": </span>";
                         let currC = row.counts[(i * segmentsN) + ii];
                         if (currC == 0) {
-                            res += "0 <br />";
+                            res += "0 </div>";
                         }
                         else {//we need item list with row header, without all the column codes
                             withC = row.attributeId + "," + mapData.segmentsAttIDs[ii];
                             withS = mapData.setIdY + "," + mapData.setIdSegments;
                             descript = "3D Map, list from last column, row: &nearr;" + row.attributeName.replace(rgx, "&nwarr;").replace(rgx2, "&nearr;") + "&nearr;, segment: &nearr;"
                                 + mapData.segmentsAttNames[ii].replace(rgx, "&nwarr;").replace(rgx2, "&nearr;") + "&nearr;";
+                            withoutC = "";
+                            withoutS = "";
                             for (let colInd = 0; colInd < mapData.columnAttIDs.length - 1; colInd++) {
                                 withoutC += mapData.columnAttIDs[colInd].toString() + ",";
                                 withoutS += mapData.setIdX + ",";
                             }
                             withoutC = withoutC.substring(0, withoutC.length - 1);
                             withoutS = withoutS.substring(0, withoutS.length - 1);
-                            res += "<a href=\"javascript:GoToItemsJson('" + withC + "', '" + withS
+                            res += "<a class='bg-white rounded px-1' href=\"javascript:GoToItemsJson('" + withC + "', '" + withS
                                 + "', '" + withoutC + "', '" + withoutS + "', '" + descript + "')\">"
-                                + currC + "</a><br />";
+                                + currC + "</a></div>";
                         }
                     }
                 }
                 else {
                     for (let ii = 0; ii < segmentsN; ii++) {
-                        res += "<span class='font-weight-bold'>" + mapData.segmentsAttNames[ii] + ": </span >";
+                        let SegClassName = "mapBG" + (ii + 1).toString();
+                        res += "<div class='" + SegClassName + "'><span class='font-weight-bold'>" + mapData.segmentsAttNames[ii] + ": </span>";
                         let currC = row.counts[(i * segmentsN) + ii];
                         if (currC == 0) {
-                            res += "0 <br />";
+                            res += "0 </div>";
                         }
                         else {
                             withC = mapData.columnAttIDs[i] + "," + row.attributeId + "," + mapData.segmentsAttIDs[ii];
@@ -204,9 +224,9 @@
                             descript = "With these codes: " + mapData.columnAttNames[i].replace(rgx, "&nwarr;").replace(rgx2, "&nearr;") + " [AND] "
                                 + row.attributeName.replace(rgx, "&nwarr;").replace(rgx2, "&nearr;") + " [AND] "
                                 + mapData.segmentsAttNames[ii].replace(rgx, "&nwarr;").replace(rgx2, "&nearr;");
-                            res += "<a href=\"javascript:GoToItemsJson('" + withC + "', '" + withS
+                            res += "<a class='bg-white rounded px-1' href=\"javascript:GoToItemsJson('" + withC + "', '" + withS
                                 + "', '', '', '" + descript + "')\">"
-                                + currC + "</a><br />";
+                                + currC + "</a></div>";
                         }
                     }
                 }
@@ -247,16 +267,16 @@
                     let title = "";
                     if (row.counts[(i * segmentsN) + ii] == 0)
                     {
-                        title = mapData.segmentsAttNames[ii] + ": no records";
-                        res += "<i class='fa fa-ban SegClassName' style='font-size:0.8em' tool-tip-toggle='tooltip-demo' title='" + title + "'></i>";
+                        title = mapData.segmentsAttNames[ii].replace(rgx2, "&quot;") + ": no records";
+                        res += "<i class='fa fa-ban " + SegClassName + "' style='font-size:0.8em' tool-tip-toggle='tooltip-demo' title=\"" + title + "\"></i>";
                     }
                     else {//normal cell, with row and col codes
-                        title = mapData.segmentsAttNames[ii] + ": " + row.counts[(i * segmentsN) + ii].toString() + " records";
-                        let dimension = (4 * (row.counts[(i * segmentsN) + ii] / maxVal) + 0.5).toString() + "em;";
+                        title = mapData.segmentsAttNames[ii].replace(rgx2, "&quot;") + ": " + row.counts[(i * segmentsN) + ii].toString() + " records";
+                        let dimension = (4 * (row.counts[(i * segmentsN) + ii] / maxVal) + 0.8).toString() + "em;";
                         let withAtts = row.attributeId.toString() + "," + mapData.columnAttIDs[i].toString() + "," + mapData.segmentsAttIDs[ii].toString();
                         let withSets = mapData.setIdY.toString() + "," + mapData.setIdX.toString() + "," + mapData.setIdSegments.toString();
                         let descript = mapData.columnAttNames[i].replace(rgx, "&nwarr;").replace(rgx2, "&nearr;") + " [AND] " + row.attributeName.replace(rgx, "&nwarr;").replace(rgx2, "&nearr;") + " [AND] " + mapData.segmentsAttNames[ii].replace(rgx, "&nwarr;").replace(rgx2, "&nearr;");
-                        console.log("des", descript);
+                        //console.log("des", descript);
                         res += "<a href=\"javascript:GoToItemsJson('" + withAtts + "', '" + withSets + "', '', '', '" + descript + "')\" >";
                         res += "<i class=\"fa fa-circle " + SegClassName + "\" style=\"font-size:" + dimension + "\" tool-tip-toggle=\"tooltip-demo\" title=\"" + title + "\"></i></a>";
                     }
@@ -296,25 +316,25 @@
                             </td>
                             <td style="text-align:right">
                                 <div class="card-tools">
-                                    <button class="btn btn-primary btn-sm btn-round" onclick="changeView('table')">
+                                    <button class="btn btn-primary btn-sm btn-round" onclick="changeView('table')" disabled id="showTableButton">
                                         <span class="btn-label">
                                             <i class="fa fa-table"></i>
                                         </span>
                                         Table
                                     </button>
-                                    <button class="btn btn-primary btn-sm btn-round" onclick="changeView('bubble')">
+                                    <button class="btn btn-primary btn-sm btn-round" onclick="changeView('bubble')" disabled id="showBubbleButton">
                                         <span class="btn-label">
                                             <i class="fa fa-circle"></i>
                                         </span>
                                         Bubble map
                                     </button>
-                                    <button class="btn btn-primary btn-sm btn-round" onclick="changeView('bubbleLog')">
+                                    <!--<button class="btn btn-primary btn-sm btn-round" onclick="changeView('bubbleLog')">
                                         <span class="btn-label">
                                             <i class="fa fa-circle"></i>
                                         </span>
                                         Bubble (log)
-                                    </button>
-                                    <!--<a href="#" class="btn btn-info btn-border btn-round btn-sm mr-2">
+                                    </button>*
+                                    <a href="#" class="btn btn-info btn-border btn-round btn-sm mr-2">
                                         <span class="btn-label">
                                             <i class="fa fa-file-excel"></i>
                                         </span>
@@ -346,6 +366,16 @@
         </div>
 
         <div class="card">
+
+            <div id="spinnerItems" class="col-12 row m-0" style="display:none;">
+                <div class="col-auto p-1">Loading...</div>
+                <div class="col d-flex justify-content-center">
+                    <div class="spinner-border" role="status">
+                        <span class="sr-only">Loading...</span>
+                    </div>
+                </div>
+            </div>
+
             @await Html.PartialAsync("_ItemsList")
         </div>
     </div>
