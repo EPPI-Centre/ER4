@@ -81,6 +81,9 @@
             crit.itemIds = ItemsIds;
             postwith("../ItemList/ItemDetails", crit);
         }
+        function HTMLEncodeText(unsafeText) {
+            return $('<div>').text(unsafeText).html();
+        }
     </script>
 
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />

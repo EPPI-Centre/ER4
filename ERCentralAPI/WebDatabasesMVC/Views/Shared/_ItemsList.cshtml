@@ -155,7 +155,7 @@
         //});
     }
     function setPaging() {
-        $("#ItemsDescr").html(CurrentItemsCriteria.description);
+        $("#ItemsDescr").text(CurrentItemsCriteria.description);
         $("#ItemCount").html(ItemsListData.totalItemCount.toString() + (ItemsListData.totalItemCount == 1 ? " record" : " records"));
         if (ItemsListData.pagecount > 1) {
             $("#ResultsCountPaged").html("[Total: " + ItemsListData.totalItemCount.toString() + " references]");
