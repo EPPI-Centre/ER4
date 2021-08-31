@@ -137,7 +137,7 @@
     function tableMap() {
         let res = "<table class=\"content-full mapTable table table-bordered table-striped\"><tr><th></th>";
         for (let i = 0; i < mapData.columnAttIDs.length; i++) {
-            res += "<th>" + mapData.columnAttNames[i] + "</th>";
+            res += "<th>" + HTMLEncodeText(mapData.columnAttNames[i]) + "</th>";
         }
         let segmentsN = mapData.segmentsAttIDs.length;
         for (let ri = 0; ri < mapData.rows.length ; ri++) {
@@ -146,7 +146,7 @@
             let rgx2 = new RegExp("\"", 'g');
             let withC = "", withS = "", withoutC = "", withoutS = "", descript = "";
 
-            res += "<tr><th class='px-1'>" + row.attributeName + "</th>";
+            res += "<tr><th class='px-1'>" + HTMLEncodeText(row.attributeName) + "</th>";
             for (let i = 0; i < mapData.columnAttIDs.length; i++) {
                 res += "<td class='px-1'>";
                 
@@ -158,7 +158,7 @@
                     //last row...
                     for (let ii = 0; ii < segmentsN; ii++) {
                         let SegClassName = "mapBG" + (ii + 1).toString();
-                        res += "<div class='"+ SegClassName + "'><span class='font-weight-bold'>" + mapData.segmentsAttNames[ii] + ": </span >";
+                        res += "<div class='" + SegClassName + "'><span class='font-weight-bold'>" + HTMLEncodeText(mapData.segmentsAttNames[ii]) + ": </span >";
                         let currC = row.counts[(i * segmentsN) + ii];
                         if (currC == 0) {
                             res += "0 </div>";
@@ -166,8 +166,8 @@
                         else {//we need item list with column header, without all the row codes
                             withC = mapData.columnAttIDs[i] + "," + mapData.segmentsAttIDs[ii];
                             withS = mapData.setIdX + "," + mapData.setIdSegments;
-                            descript = "3D Map, list from last row, column: &nearr;" + mapData.columnAttNames[i].replace(rgx, "&nwarr;").replace(rgx2, "&nearr;") + "&nearr;, segment: &nearr;"
-                                + mapData.segmentsAttNames[ii].replace(rgx, "&nwarr;").replace(rgx2, "&nearr;") + "&nearr;";
+                            descript = "3D Map, list from last row, column: &nearr;" + HTMLEncodeText(mapData.columnAttNames[i]).replace(rgx, "&nwarr;").replace(rgx2, "&nearr;") + "&nearr;, segment: &nearr;"
+                                + HTMLEncodeText(mapData.segmentsAttNames[ii]).replace(rgx, "&nwarr;").replace(rgx2, "&nearr;") + "&nearr;";
                             withoutC = "";
                             withoutS = "";
                             for (let rowInd = 0; rowInd < mapData.rows.length - 1; rowInd++) {
@@ -186,7 +186,7 @@
                     //last column
                     for (let ii = 0; ii < segmentsN; ii++) {
                         let SegClassName = "mapBG" + (ii + 1).toString();
-                        res += "<div class='" + SegClassName + "'><span class='font-weight-bold'>" + mapData.segmentsAttNames[ii] + ": </span>";
+                        res += "<div class='" + SegClassName + "'><span class='font-weight-bold'>" + HTMLEncodeText(mapData.segmentsAttNames[ii]) + ": </span>";
                         let currC = row.counts[(i * segmentsN) + ii];
                         if (currC == 0) {
                             res += "0 </div>";
@@ -194,8 +194,8 @@
                         else {//we need item list with row header, without all the column codes
                             withC = row.attributeId + "," + mapData.segmentsAttIDs[ii];
                             withS = mapData.setIdY + "," + mapData.setIdSegments;
-                            descript = "3D Map, list from last column, row: &nearr;" + row.attributeName.replace(rgx, "&nwarr;").replace(rgx2, "&nearr;") + "&nearr;, segment: &nearr;"
-                                + mapData.segmentsAttNames[ii].replace(rgx, "&nwarr;").replace(rgx2, "&nearr;") + "&nearr;";
+                            descript = "3D Map, list from last column, row: &nearr;" + HTMLEncodeText(row.attributeName).replace(rgx, "&nwarr;").replace(rgx2, "&nearr;") + "&nearr;, segment: &nearr;"
+                                + HTMLEncodeText(mapData.segmentsAttNames[ii]).replace(rgx, "&nwarr;").replace(rgx2, "&nearr;") + "&nearr;";
                             withoutC = "";
                             withoutS = "";
                             for (let colInd = 0; colInd < mapData.columnAttIDs.length - 1; colInd++) {
@@ -213,7 +213,7 @@
                 else {
                     for (let ii = 0; ii < segmentsN; ii++) {
                         let SegClassName = "mapBG" + (ii + 1).toString();
-                        res += "<div class='" + SegClassName + "'><span class='font-weight-bold'>" + mapData.segmentsAttNames[ii] + ": </span>";
+                        res += "<div class='" + SegClassName + "'><span class='font-weight-bold'>" + HTMLEncodeText(mapData.segmentsAttNames[ii]) + ": </span>";
                         let currC = row.counts[(i * segmentsN) + ii];
                         if (currC == 0) {
                             res += "0 </div>";
@@ -221,9 +221,9 @@
                         else {
                             withC = mapData.columnAttIDs[i] + "," + row.attributeId + "," + mapData.segmentsAttIDs[ii];
                             withS = mapData.setIdX + "," + mapData.setIdY + "," + mapData.setIdSegments;
-                            descript = "With these codes: " + mapData.columnAttNames[i].replace(rgx, "&nwarr;").replace(rgx2, "&nearr;") + " [AND] "
-                                + row.attributeName.replace(rgx, "&nwarr;").replace(rgx2, "&nearr;") + " [AND] "
-                                + mapData.segmentsAttNames[ii].replace(rgx, "&nwarr;").replace(rgx2, "&nearr;");
+                            descript = "With these codes: " + HTMLEncodeText(mapData.columnAttNames[i]).replace(rgx, "&nwarr;").replace(rgx2, "&nearr;") + " [AND] "
+                                + HTMLEncodeText(row.attributeName).replace(rgx, "&nwarr;").replace(rgx2, "&nearr;") + " [AND] "
+                                + HTMLEncodeText(mapData.segmentsAttNames[ii]).replace(rgx, "&nwarr;").replace(rgx2, "&nearr;");
                             res += "<a class='bg-white rounded px-1' href=\"javascript:GoToItemsJson('" + withC + "', '" + withS
                                 + "', '', '', '" + descript + "')\">"
                                 + currC + "</a></div>";
@@ -251,7 +251,7 @@
         }
         for (let i = 0; i < mapData.columnAttIDs.length - 1; i++)
         {
-            res += "<th>" + mapData.columnAttNames[i] + "</th>";
+            res += "<th>" + HTMLEncodeText(mapData.columnAttNames[i]) + "</th>";
         }
         res += "</tr>";
         for (let ri = 0; ri < mapData.rows.length - 1; ri++)
@@ -259,7 +259,7 @@
             let row = mapData.rows[ri];
             let rgx = new RegExp("'", 'g');
             let rgx2 = new RegExp("\"", 'g');
-            res +="<tr><td>" + row.attributeName + "</th>";
+            res += "<tr><td>" + HTMLEncodeText(row.attributeName) + "</th>";
             for (let i = 0; i < mapData.columnAttIDs.length - 1; i++) {
                 res += "<td>";
                 for (let ii = 0; ii < segmentsN; ii++) {
@@ -275,7 +275,7 @@
                         let dimension = (4 * (row.counts[(i * segmentsN) + ii] / maxVal) + 0.8).toString() + "em;";
                         let withAtts = row.attributeId.toString() + "," + mapData.columnAttIDs[i].toString() + "," + mapData.segmentsAttIDs[ii].toString();
                         let withSets = mapData.setIdY.toString() + "," + mapData.setIdX.toString() + "," + mapData.setIdSegments.toString();
-                        let descript = mapData.columnAttNames[i].replace(rgx, "&nwarr;").replace(rgx2, "&nearr;") + " [AND] " + row.attributeName.replace(rgx, "&nwarr;").replace(rgx2, "&nearr;") + " [AND] " + mapData.segmentsAttNames[ii].replace(rgx, "&nwarr;").replace(rgx2, "&nearr;");
+                        let descript = HTMLEncodeText(mapData.columnAttNames[i]).replace(rgx, "&nwarr;").replace(rgx2, "&nearr;") + " [AND] " + HTMLEncodeText(row.attributeName).replace(rgx, "&nwarr;").replace(rgx2, "&nearr;") + " [AND] " + HTMLEncodeText(mapData.segmentsAttNames[ii]).replace(rgx, "&nwarr;").replace(rgx2, "&nearr;");
                         //console.log("des", descript);
                         res += "<a href=\"javascript:GoToItemsJson('" + withAtts + "', '" + withSets + "', '', '', '" + descript + "')\" >";
                         res += "<i class=\"fa fa-circle " + SegClassName + "\" style=\"font-size:" + dimension + "\" tool-tip-toggle=\"tooltip-demo\" title=\"" + title + "\"></i></a>";
