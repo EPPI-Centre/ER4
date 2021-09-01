@@ -786,13 +786,12 @@
     <div class="content">
         <div class="panel-header bg-primary-gradient">
             <div class="page-inner py-5">
-                <div class="d-flex align-items-left align-items-md-center flex-md-row">
-                    <div class="col-6 col-md-7 px-1">
-                        @*@(new HtmlString(Model.WebDb.WebDBName))*@
+                <div class="row">
+                    <div class="col-8 col-md-7 px-1">
                         <h2 class="text-white pb-2 fw-bold">@Model.WebDb.WebDBName</h2>
                         <h5 class="text-white op-7 mb-2">@Model.WebDb.Subtitle</h5>
                     </div>
-                    <div class="col-6 col-md-5 px-1 row mx-0">
+                    <div class="col-auto col-md-5 px-1 row mx-0">
                         @if (@imgPath1 != "")
                         {
                             if (Model.WebDb.HeaderImage1Url == "")
@@ -836,9 +835,9 @@
                 </div>
             </div>
         </div>
-        <div class="page-inner mt--5">
-            <div class="row mt--2">
-                <div class="col-md-8">
+        <div class="page-inner px-2 mt--5">
+            <div class="row mx-0 mt--2">
+                <div class="col-12 col-md-7 col-lg-8">
                     <div class="card ">
                         <div class="card-header">
                             <table width="100%">
@@ -987,7 +986,7 @@
 
                 </div>
 
-                <div class="col-md-4">
+                <div class="col-auto col-lg">
                     <div class="card">
                         <div class="card-header">
                             <table>
