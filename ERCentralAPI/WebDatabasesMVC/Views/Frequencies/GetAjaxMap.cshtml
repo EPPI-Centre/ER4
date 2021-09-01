@@ -32,7 +32,7 @@
 <script type="text/javascript">
     let mapData = null;
     $(document).ready(function () {
-        console.log("ready function is happening");
+        //console.log("ready function is happening");
         var pars = {
             attributeIdXAxis: @Model.attributeIdXAxis
             , setIdXAxis: @Model.setIdXAxis
@@ -140,10 +140,10 @@
             res += "<th>" + HTMLEncodeText(mapData.columnAttNames[i]) + "</th>";
         }
         let segmentsN = mapData.segmentsAttIDs.length;
+        let rgx = new RegExp("'", 'g');
+        let rgx2 = new RegExp("\"", 'g');
         for (let ri = 0; ri < mapData.rows.length ; ri++) {
             let row = mapData.rows[ri];
-            let rgx = new RegExp("'", 'g');
-            let rgx2 = new RegExp("\"", 'g');
             let withC = "", withS = "", withoutC = "", withoutS = "", descript = "";
 
             res += "<tr><th class='px-1'>" + HTMLEncodeText(row.attributeName) + "</th>";

@@ -65,8 +65,11 @@
                 //alert("GoToItems" + attributeIdXAxis + " : " + setIdXAxis);
                 postwith("../ItemList/GetFreqListNoneOfTheAbove",
                     {
-                        attributeIdXAxis: attributeIdXAxis, setId: setIdXAxis, included: true
-                        , onlyThisAttribute: onlyThisAttribute, webDbId: webDbId, attName: AttName.replaceAll('&#39;', '\'')
+                        attributeIdXAxis: attributeIdXAxis
+                        , setId: setIdXAxis
+                        , included: true
+                        , onlyThisAttribute: onlyThisAttribute
+                        , attName: AttName.replaceAll('&#39;', '\'')
                     });
             } else {
                 postwith("../ItemList/GetFreqList", { attId: AttId, attName: AttName.replaceAll('&#39;', '\'') });
