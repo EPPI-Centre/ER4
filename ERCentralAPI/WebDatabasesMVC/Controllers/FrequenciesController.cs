@@ -34,8 +34,14 @@ namespace WebDatabasesMVC.Controllers
             {
                 if (SetCSLAUser())
                 {
-                    FrequencyResultWithCriteria Itm = GetFrequenciesInternal(attId, setId, parentName, included);
-                    return View(Itm);
+                    int DBid = WebDbId;
+                    if (DBid < 1)
+                    {
+                        _logger.LogError("Error in GetFrequencies, no WebDbId!");
+                        return null;
+                    }
+                    WebDbFrequencyCrosstabAndMapSelectionCriteria res = new WebDbFrequencyCrosstabAndMapSelectionCriteria(DBid, attId, setId, parentName, included);
+                    return View(res);
                 }
                 else return Unauthorized();
             }
@@ -64,7 +70,7 @@ namespace WebDatabasesMVC.Controllers
                 return StatusCode(500, e.Message);
             }
         }
-        public IActionResult GetFrequenciesResultsJSON([FromForm] long attId, int setId, string parentName, string included)
+        public IActionResult GetFrequenciesResultsJSONOld([FromForm] long attId, int setId, string parentName, string included)
         {//we provide all items details in a single JSON method, as it makes no sense to get partial item details, so without Arms, Docs, etc.
             try
             {
@@ -72,6 +78,31 @@ namespace WebDatabasesMVC.Controllers
                 {
                     FrequencyResultWithCriteria Itm = GetFrequenciesInternal(attId, setId, parentName, included);
                     return Json(Itm.results);
+                }
+                else return Unauthorized();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Error in GetFrequenciesResultsJSON");
+                return StatusCode(500, e.Message);
+            }
+        }
+        [HttpPost]
+        public IActionResult GetFrequenciesResultsJSON(WebDbFrequencyCrosstabAndMapSelectionCriteriaMVC crit)
+        {//we provide all items details in a single JSON method, as it makes no sense to get partial item details, so without Arms, Docs, etc.
+            try
+            {
+                if (SetCSLAUser())
+                {
+                    int DBid = WebDbId;
+                    if (DBid < 1)
+                    {
+                        _logger.LogError("Error in GetFrequenciesResultsJSON, no WebDbId!");
+                        return null;
+                    }
+                    else crit.webDbId = DBid;
+                    WebDbItemAttributeChildFrequencyList results = DataPortal.Fetch<WebDbItemAttributeChildFrequencyList>(crit.GetWebDbFrequencyCrosstabAndMapSelectionCriteria()); 
+                    return Json(results);
                 }
                 else return Unauthorized();
             }
