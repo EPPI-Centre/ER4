@@ -32,6 +32,10 @@
 <script type="text/javascript">
     let mapData = null;
     $(document).ready(function () {
+        const mapPanel = $("#resultsTable");
+        mapPanel.css("max-height", "400px");
+        $("#ExpandMapDiv").show();
+        $("#ReduceMapDiv").hide();
         //console.log("ready function is happening");
         var pars = {
             attributeIdXAxis: @Model.attributeIdXAxis
@@ -57,21 +61,19 @@
         let el = $("#MapDescription");
         if (!el) return;
         let descr = "";
-        if ((mapData.attibuteIdX == 0) && (mapData.attibuteIdY == 0))
-        {
-            descr = "<h5>\"<b>(Column) " + mapData.setIdXName.toString() + "</b>\" vs \"<b>(Row) " + mapData.setIdYName.toString() + "</b>\", segments: \"" + mapData.attibuteIdSegmentsName + "\"</h5>";
-        }
-        if ((mapData.attibuteIdX != 0) && (mapData.attibuteIdY != 0))
-        {
-            descr = "<h5>\"<b>(Column) " + mapData.attibuteIdXName.toString() + "</b>\" vs \"<b>(Row) " + mapData.attibuteIdYName.toString() + "</b>\", segments: \"" + mapData.attibuteIdSegmentsName + "\"</h5>";
-        }
-        if ((mapData.attibuteIdX == 0) && (mapData.attibuteIdY != 0))
-        {
-            descr = " <h5>\"<b>(Column) " + mapData.setIdXName.toString() + "</b >\" vs \"<b>(Row) " + mapData.attibuteIdYName.toString() + "</b>\", segments: \"" + mapData.attibuteIdSegmentsName + "\"</h5>";
-        }
-        if ((mapData.attibuteIdX != 0) && (mapData.attibuteIdY == 0))
-        {
-            descr = "<h5>\"<b>(Column) " + mapData.attibuteIdXName.toString() + "</b >\" vs \"<b>(Row) " + mapData.setIdYName.toString() + "</b>\", segments: \"" + mapData.attibuteIdSegmentsName + "\"</h5>";
+        if (mapData.graphic == "table") {
+            if ((mapData.attibuteIdX == 0) && (mapData.attibuteIdY == 0)) {
+                descr = "<h5>\"<b>(Column) " + mapData.setIdXName.toString() + "</b>\" vs \"<b>(Row) " + mapData.setIdYName.toString() + "</b>\", segments: \"" + mapData.attibuteIdSegmentsName + "\"</h5>";
+            }
+            if ((mapData.attibuteIdX != 0) && (mapData.attibuteIdY != 0)) {
+                descr = "<h5>\"<b>(Column) " + mapData.attibuteIdXName.toString() + "</b>\" vs \"<b>(Row) " + mapData.attibuteIdYName.toString() + "</b>\", segments: \"" + mapData.attibuteIdSegmentsName + "\"</h5>";
+            }
+            if ((mapData.attibuteIdX == 0) && (mapData.attibuteIdY != 0)) {
+                descr = " <h5>\"<b>(Column) " + mapData.setIdXName.toString() + "</b >\" vs \"<b>(Row) " + mapData.attibuteIdYName.toString() + "</b>\", segments: \"" + mapData.attibuteIdSegmentsName + "\"</h5>";
+            }
+            if ((mapData.attibuteIdX != 0) && (mapData.attibuteIdY == 0)) {
+                descr = "<h5>\"<b>(Column) " + mapData.attibuteIdXName.toString() + "</b >\" vs \"<b>(Row) " + mapData.setIdYName.toString() + "</b>\", segments: \"" + mapData.attibuteIdSegmentsName + "\"</h5>";
+            }
         }
         el.html(descr);
     }
@@ -86,11 +88,13 @@
             legendHTML = createLegend();
             $("#showBubbleButton").prop("disabled", true);
             $("#showTableButton").prop("disabled", false);
+            buildDescription();
         }
         else if (mapData.graphic == "table") {
             resultsHTML = tableMap();
             $("#showTableButton").prop("disabled", true);
             $("#showBubbleButton").prop("disabled", false);
+            buildDescription();
         }
         else if (mapData.graphic == "bubbleLog") {
             resultsHTML = BubbleMapLog();
@@ -139,6 +143,19 @@
 
     }
 
+    function ToggleMapDivSize() {
+        const descrPanel = $("#resultsTable");
+        if (descrPanel) {
+            if (descrPanel.css("max-height") == "400px") {
+                descrPanel.css("max-height", "");
+            }
+            else {
+                descrPanel.css("max-height", "400px");
+            }
+            $("#ExpandMapDiv").toggle();
+            $("#ReduceMapDiv").toggle();
+        }
+    }
 
     function tableMap() {
         let res = "<table class=\"content-full mapTable table table-bordered table-striped\"><tr><th></th>";
@@ -155,7 +172,7 @@
             res += "<tr><th class='px-1'>" + HTMLEncodeText(row.attributeName) + "</th>";
             for (let i = 0; i < mapData.columnAttIDs.length; i++) {
                 res += "<td class='px-1'>";
-                
+
                 if (ri == mapData.rows.length - 1 && i == mapData.columnAttIDs.length - 1) {
                     //last row AND Last column...
                     res += "&nbsp;";
@@ -296,9 +313,42 @@
     }
 
     function BubbleMap2() {
-        let res = "<table class=\"content-full table table-striped\"><tr><th></th>";
+        let colDescr = "";
+        let RowDescr = "";
+        if ((mapData.attibuteIdX == 0) && (mapData.attibuteIdY == 0)) {
+            colDescr = mapData.setIdXName.toString();
+            RowDescr = mapData.setIdYName.toString();
+        }
+        if ((mapData.attibuteIdX != 0) && (mapData.attibuteIdY != 0)) {
+            colDescr = mapData.attibuteIdXName.toString();
+            RowDescr = mapData.attibuteIdYName.toString();
+        }
+        if ((mapData.attibuteIdX == 0) && (mapData.attibuteIdY != 0)) {
+            colDescr = mapData.setIdXName.toString();
+            RowDescr = mapData.attibuteIdYName.toString();
+        }
+        if ((mapData.attibuteIdX != 0) && (mapData.attibuteIdY == 0)) {
+            colDescr = mapData.attibuteIdXName.toString();
+            RowDescr = mapData.setIdYName.toString();
+        }
+
+
+
+        //let res = "<table class=\"content-full table table-striped\"><tr><th></th>";
+        let res = "<table class=\"mapTable2 \"><tr><th class=\"th-blankCell\"></th><th class=\"th-blankCell\"></th>";
+        res += "<th class=\"th_topRowHeader\" colspan=" + mapData.columnAttIDs.length + ">" + HTMLEncodeText(colDescr) +
+            "</th><tr><th class=\"th-blankCell\"></th><th class=\"th-blankCell\"></th>"
         let maxVal = 0;
         let segmentsN = mapData.segmentsAttIDs.length;
+        for (let i = 0; i < mapData.columnAttIDs.length - 1; i++) {
+            if ((i % 2) == 0) {
+                res += "<th class=\"th_2ndRowHeaderA\">" + mapData.columnAttNames[i] + "</th>";
+            } else {
+                res += "<th class=\"th_2ndRowHeaderB\">" + mapData.columnAttNames[i] + "</th>";
+            }
+        }
+
+        // gettting the sizes
         for (let i = 0; i < mapData.rows.length - 1; i++)//ignore the last row
         {
             for (let j = 0; j < mapData.rows[i].counts.length - mapData.segmentsAttIDs.length; j++)//ignore the values for the last column
@@ -306,23 +356,41 @@
                 if (mapData.rows[i].counts[j] > maxVal) maxVal = mapData.rows[i].counts[j];
             }
         }
+        
+        /* 
         for (let i = 0; i < mapData.columnAttIDs.length - 1; i++) {
             res += "<th>" + HTMLEncodeText(mapData.columnAttNames[i]) + "</th>";
         }
+        */
         res += "</tr>";
+
+
+        res += "<tr><th rowspan=" + (mapData.rows.length + 1) + " class=\"th_topColHeader\" style=\"vertical-align:top\">" + RowDescr + "</th>";
+
+
         for (let ri = 0; ri < mapData.rows.length - 1; ri++) {
             let row = mapData.rows[ri];
             let rgx = new RegExp("'", 'g');
             let rgx2 = new RegExp("\"", 'g');
-            res += "<tr><td>" + HTMLEncodeText(row.attributeName) + "</th>";
+
+            if ((ri % 2) == 0) {
+                res += "<tr><th class=\"th_2ndColHeaderA\">" + HTMLEncodeText(row.attributeName) + "</th>";
+            } else {
+                res += "<tr><th class=\"th_2ndColHeaderB\">" + HTMLEncodeText(row.attributeName) + "</th>";
+            }
+
+            //res += "<tr><td>" + HTMLEncodeText(row.attributeName) + "</th>";
+
             for (let i = 0; i < mapData.columnAttIDs.length - 1; i++) {
-                res += "<td>";
+                //res += "<td>";
+                res += "<td class=\"td_mapCell\">";
                 for (let ii = 0; ii < segmentsN; ii++) {
                     let SegClassName = "mapC" + (ii + 1).toString();
                     let title = "";
                     if (row.counts[(i * segmentsN) + ii] == 0) {
-                        title = mapData.segmentsAttNames[ii].replace(rgx2, "&quot;") + ": no records";
-                        res += "<i class='fa fa-ban " + SegClassName + "' style='font-size:0.8em' tool-tip-toggle='tooltip-demo' title=\"" + title + "\"></i>";
+                        // hide the 'no records' bubbles
+                        //title = mapData.segmentsAttNames[ii].replace(rgx2, "&quot;") + ": no records";
+                        //res += "<i class='fa fa-ban " + SegClassName + "' style='font-size:0.8em' tool-tip-toggle='tooltip-demo' title=\"" + title + "\"></i>";
                     }
                     else {//normal cell, with row and col codes
                         title = mapData.segmentsAttNames[ii].replace(rgx2, "&quot;") + ": " + row.counts[(i * segmentsN) + ii].toString() + " records";
@@ -345,7 +413,32 @@
 
 
     function createLegend() {
-        let res = "Legend goes here";
+        let segmentsN = mapData.segmentsAttIDs.length;
+        let dimension = "1em";
+        let SegClassName = "";
+        let title = "";
+        let res = "";
+        let rgx2 = new RegExp("\"", 'g');
+
+        res += "<table>";
+        res += "<tr>";
+        res += "<td>";
+        res += "<h3><b>Legend</b></h3>";
+        res += "</td>";
+        res += "</tr>";
+        res += "<tr>";
+        for (let ii = 0; ii < segmentsN; ii++) {
+            SegClassName = "mapC" + (ii + 1).toString();
+            title = mapData.segmentsAttNames[ii].replace(rgx2, "&quot;");
+
+            res += "<td>";
+            res += "<i class=\"fa fa-circle " + SegClassName + "\" style=\"font-size:" + dimension + "\"></i>&nbsp;&nbsp;" + HTMLEncodeText(title) +
+                "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
+            res += "</td>";
+        }                
+        res += "</tr>";
+        res += "</table>";
+
         return res;
     }
 
@@ -377,36 +470,50 @@
                             </td>
                             <td style="text-align:right">
                                 <div class="card-tools">
-                                    <button class="btn btn-primary btn-sm btn-round" onclick="changeView('table')" disabled id="showTableButton">
-                                        <span class="btn-label">
-                                            <i class="fa fa-table"></i>
-                                        </span>
-                                        Table
-                                    </button>
+                                    <div id="ExpandMapDiv" class="btn btn-primary btn-sm btn-round"
+                                         onclick="ToggleMapDivSize()">
+                                        <div class="flaticon-down-arrow-1">
+                                            &nbsp;&nbsp;View more&nbsp;
+                                        </div>
+                                    </div>
+                                    <div id="ReduceMapDiv" class="btn btn-primary btn-sm btn-round"
+                                         onclick="ToggleMapDivSize()">
+                                        <div class="flaticon-up-arrow-1">
+                                            &nbsp;&nbsp;View less&nbsp;
+                                        </div>
+                                    </div>
+
                                     <button class="btn btn-primary btn-sm btn-round" onclick="changeView('bubble')" disabled id="showBubbleButton">
                                         <span class="btn-label">
                                             <i class="fa fa-circle"></i>
                                         </span>
                                         Bubble map
                                     </button>
+                                    <button class="btn btn-primary btn-sm btn-round" onclick="changeView('table')" disabled id="showTableButton">
+                                        <span class="btn-label">
+                                            <i class="fa fa-table"></i>
+                                        </span>
+                                        Table
+                                    </button>
+
                                     <!--<button class="btn btn-primary btn-sm btn-round" onclick="changeView('bubbleLog')">
-                        <span class="btn-label">
-                            <i class="fa fa-circle"></i>
-                        </span>
-                        Bubble (log)
-                    </button>*
-                    <a href="#" class="btn btn-info btn-border btn-round btn-sm mr-2">
-                        <span class="btn-label">
-                            <i class="fa fa-file-excel"></i>
-                        </span>
-                        Export
-                    </a>-->
+        <span class="btn-label">
+            <i class="fa fa-circle"></i>
+        </span>
+        Bubble (log)
+    </button>*
+    <a href="#" class="btn btn-info btn-border btn-round btn-sm mr-2">
+        <span class="btn-label">
+            <i class="fa fa-file-excel"></i>
+        </span>
+        Export
+    </a>-->
                                     <!--<a href="#" class="btn btn-info btn-border btn-round btn-sm">
-                        <span class="btn-label">
-                            <i class="fa fa-copy"></i>
-                        </span>
-                        Copy
-                    </a>-->
+        <span class="btn-label">
+            <i class="fa fa-copy"></i>
+        </span>
+        Copy
+    </a>-->
                                 </div>
                             </td>
                         </tr>
