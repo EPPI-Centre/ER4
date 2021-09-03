@@ -45,6 +45,7 @@
         }
         $("#spinner").show();
         $("#resultsTable").hide();
+        $("#mapLegend").hide();
         $.post("../Frequencies/GetMapJSON", pars, (data, status) => buildResults(data, status));
     });
     function buildResults(data, status) {
@@ -76,10 +77,13 @@
     }
     function buildTable() {
         let resultsDiv = $("#resultsTable");
+        let legendDiv = $("#mapLegend");
         if (!resultsDiv) return;//just for safety...
         let resultsHTML = "";
+        let legendHTML = "";
         if (mapData.graphic == "bubble") {
-            resultsHTML = BubbleMap();
+            resultsHTML = BubbleMap2();
+            legendHTML = createLegend();
             $("#showBubbleButton").prop("disabled", true);
             $("#showTableButton").prop("disabled", false);
         }
@@ -94,9 +98,11 @@
 
         //console.log("html string:", resultsHTML);
         resultsDiv.html(resultsHTML);
+        legendDiv.html(legendHTML);
         //console.log("all html:", resultsDiv.html());
         $("#spinner").hide();
         resultsDiv.show();
+        legendDiv.show();
         $('[tool-tip-toggle="tooltip-demo"]').tooltip({
             placement: 'top'
         });
@@ -289,8 +295,63 @@
         return res;
     }
 
-        function BubbleMapLog() {
-            return "Sorry: not implemented, yet";
+    function BubbleMap2() {
+        let res = "<table class=\"content-full table table-striped\"><tr><th></th>";
+        let maxVal = 0;
+        let segmentsN = mapData.segmentsAttIDs.length;
+        for (let i = 0; i < mapData.rows.length - 1; i++)//ignore the last row
+        {
+            for (let j = 0; j < mapData.rows[i].counts.length - mapData.segmentsAttIDs.length; j++)//ignore the values for the last column
+            {
+                if (mapData.rows[i].counts[j] > maxVal) maxVal = mapData.rows[i].counts[j];
+            }
+        }
+        for (let i = 0; i < mapData.columnAttIDs.length - 1; i++) {
+            res += "<th>" + HTMLEncodeText(mapData.columnAttNames[i]) + "</th>";
+        }
+        res += "</tr>";
+        for (let ri = 0; ri < mapData.rows.length - 1; ri++) {
+            let row = mapData.rows[ri];
+            let rgx = new RegExp("'", 'g');
+            let rgx2 = new RegExp("\"", 'g');
+            res += "<tr><td>" + HTMLEncodeText(row.attributeName) + "</th>";
+            for (let i = 0; i < mapData.columnAttIDs.length - 1; i++) {
+                res += "<td>";
+                for (let ii = 0; ii < segmentsN; ii++) {
+                    let SegClassName = "mapC" + (ii + 1).toString();
+                    let title = "";
+                    if (row.counts[(i * segmentsN) + ii] == 0) {
+                        title = mapData.segmentsAttNames[ii].replace(rgx2, "&quot;") + ": no records";
+                        res += "<i class='fa fa-ban " + SegClassName + "' style='font-size:0.8em' tool-tip-toggle='tooltip-demo' title=\"" + title + "\"></i>";
+                    }
+                    else {//normal cell, with row and col codes
+                        title = mapData.segmentsAttNames[ii].replace(rgx2, "&quot;") + ": " + row.counts[(i * segmentsN) + ii].toString() + " records";
+                        let dimension = (4 * (row.counts[(i * segmentsN) + ii] / maxVal) + 0.8).toString() + "em;";
+                        let withAtts = row.attributeId.toString() + "," + mapData.columnAttIDs[i].toString() + "," + mapData.segmentsAttIDs[ii].toString();
+                        let withSets = mapData.setIdY.toString() + "," + mapData.setIdX.toString() + "," + mapData.setIdSegments.toString();
+                        let descript = HTMLEncodeText(mapData.columnAttNames[i]).replace(rgx, "&nwarr;").replace(rgx2, "&nearr;") + " [AND] " + HTMLEncodeText(row.attributeName).replace(rgx, "&nwarr;").replace(rgx2, "&nearr;") + " [AND] " + HTMLEncodeText(mapData.segmentsAttNames[ii]).replace(rgx, "&nwarr;").replace(rgx2, "&nearr;");
+                        //console.log("des", descript);
+                        res += "<a href=\"javascript:GoToItemsJson('" + withAtts + "', '" + withSets + "', '', '', '" + descript + "')\" >";
+                        res += "<i class=\"fa fa-circle " + SegClassName + "\" style=\"font-size:" + dimension + "\" tool-tip-toggle=\"tooltip-demo\" title=\"" + title + "\"></i></a>";
+                    }
+                }
+                res += "</td>";
+            }
+            res += "</tr>";
+        }
+        res += "</table>"
+        return res;
+    }
+
+
+    function createLegend() {
+        let res = "Legend goes here";
+        return res;
+    }
+
+
+    function BubbleMapLog() {
+        return "Sorry: not implemented, yet";
     }
 
 </script>
@@ -306,7 +367,7 @@
 
         <div class="card">
             <div class="card-body">
-                <div class="card-body" style="max-height:70vh; max-width:99vw; overflow:auto;">
+                <div class="card-body" style="max-height:80vh; max-width:99vw; overflow:auto;">
                     <table width="100%">
                         <tr>
                             <td>
@@ -329,28 +390,28 @@
                                         Bubble map
                                     </button>
                                     <!--<button class="btn btn-primary btn-sm btn-round" onclick="changeView('bubbleLog')">
-                                        <span class="btn-label">
-                                            <i class="fa fa-circle"></i>
-                                        </span>
-                                        Bubble (log)
-                                    </button>*
-                                    <a href="#" class="btn btn-info btn-border btn-round btn-sm mr-2">
-                                        <span class="btn-label">
-                                            <i class="fa fa-file-excel"></i>
-                                        </span>
-                                        Export
-                                    </a>-->
+                        <span class="btn-label">
+                            <i class="fa fa-circle"></i>
+                        </span>
+                        Bubble (log)
+                    </button>*
+                    <a href="#" class="btn btn-info btn-border btn-round btn-sm mr-2">
+                        <span class="btn-label">
+                            <i class="fa fa-file-excel"></i>
+                        </span>
+                        Export
+                    </a>-->
                                     <!--<a href="#" class="btn btn-info btn-border btn-round btn-sm">
-                                        <span class="btn-label">
-                                            <i class="fa fa-copy"></i>
-                                        </span>
-                                        Copy
-                                    </a>-->
+                        <span class="btn-label">
+                            <i class="fa fa-copy"></i>
+                        </span>
+                        Copy
+                    </a>-->
                                 </div>
                             </td>
                         </tr>
                     </table>
-                    
+
                     <div id="spinner" class="w-100" style="display:none;">
                         <div class="d-flex justify-content-center">
                             <div class="spinner-border" role="status">
@@ -359,7 +420,8 @@
                         </div>
                     </div>
                     <div class="card-body" id="resultsTable" style="max-height:50vh; overflow:auto;display:none;">
-                        
+                    </div>
+                    <div class="card-body" id="mapLegend">
                     </div>
                 </div>
             </div>
