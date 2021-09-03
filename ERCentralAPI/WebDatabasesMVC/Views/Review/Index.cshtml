@@ -90,7 +90,7 @@
         });
         treeviewData = $("#treeView").data("kendoTreeView");
         const descrPanel = $("#WebDBDescription");
-        console.log("descrPanel:", descrPanel, descrPanel.height());
+        //console.log("descrPanel:", descrPanel, descrPanel.height());
         if (descrPanel && descrPanel.height() > 300) {
             //ExpandDescription ReduceDescription
             $("#ExpandDescription").show();
@@ -143,7 +143,7 @@
 
 
     function tree_dataBound(e) {
-        console.log("DataBound", e.node);
+        //console.log("DataBound", e.node);
     }
     function GoToFreq() {
         //console.log("CurrentNodeGoToFreq");
@@ -162,70 +162,157 @@
         if (!dataItem) {
             //console.log("GetFreqs no data");
             return;
+        } else if (freqData != null && dataItem.id == freqData.criteria.attributeIdXAxis) {
+            //console.log("GetFreqs no API call");
+            BuildFreqs();
+            return;
         }
-        $("#BarOrPieChartVisible").hide();
+        //console.log("GetFreqs do API call");
+        freqData = null;
         $("#attributeIdXAxisCrit").val(dataItem.isCodeset ? 0 : dataItem.id);
         $("#setIdXAxisCrit").val(dataItem.setId);
+        $("#FrequenciesResult").text("Frequencies: " + dataItem.text);
+        $("#FreqSpinner").show();
+
+        if (dataItem.isCodeset == true) {
+            $.post("../Frequencies/GetFrequenciesJSON", { attId: 0, setId: dataItem.setId, included: true }
+                , function (data, result) {
+                    $("#FreqSpinner").hide();
+                    if (result == "success") {
+                        freqData = data;
+                        BuildFreqs();
+                    } else {
+                        $("#FrequenciesGrid").html("");
+                    }
+                })
+        }
+        else {
+            $.post("../Frequencies/GetFrequenciesJSON", { attId: dataItem.id, setId: dataItem.setId, included: true }
+                , function (data, result) {
+                    $("#FreqSpinner").hide();
+                    if (result == "success") {
+                        freqData = data;
+                        BuildFreqs();
+                    } else {
+                        $("#FrequenciesGrid").html("");
+                    }
+                })
+            
+        }
+    }
+    
+    function BuildFreqs() {
+        $("#BarOrPieChartVisible").hide();
         $("#FrequenciesGrid").show();
         $("#FrequenciesChart").hide();
         $("#NoCodedRecords").hide();
-        $("#FrequenciesResult").html("Frequencies:&nbsp;&nbsp;" + dataItem.text);
         //$("#FrequenciesResult").show();
-
-        if (dataItem.isCodeset == true) {
-            $.post("../Frequencies/GetFrequenciesJSON", { attId: 0, setId: dataItem.setId, included: true }, function (data, result) { BuildFreqs(data, result); })
-            //postwith("../Frequencies/GetFrequencies", { attId: 0, setId: dataItem.setId, included: true });
-        }
-        else {
-            $.post("../Frequencies/GetFrequenciesJSON", { attId: dataItem.id, setId: dataItem.setId, included: true }, function (data, result) { BuildFreqs(data, result); })
-            //postwith("../Frequencies/GetFrequencies", { attId: dataItem.id, setId: dataItem.setId, included: true });
-        }
+        let desiredHeight = ((freqData.results.length + 1) * 20.1 + 4);
+        if (desiredHeight > window.innerHeight / 2) desiredHeight = window.innerHeight / 2;
+        $("#FrequenciesGrid").css("height", ((freqData.length + 1) * 20.1 + 4).toString() + 'px');
+        $("#FrequenciesGrid").kendoGrid({
+            rowTemplate: kendo.template($("#FrequenciesTemplate").html()),
+            columns: [
+                {
+                    field: "attribute",
+                    title: "Code Name",
+                    headerAttributes: {
+                        "class": "small py-0 px-1 font-weight-bold w-75"
+                    }
+                },
+                {
+                    field: "itemCount",
+                    title: "Count",
+                    headerAttributes: {
+                        "class": "small py-0 px-1 font-weight-bold w-25"
+                    }
+                }],
+            dataSource: freqData.results,
+            height: desiredHeight
+        });
+        
     }
-
-
+    
     function GetFreqsBar() {
         if (!dataItem) {
+            //console.log("GetFreqs no data");
+            return;
+        } else if (freqData != null && dataItem.id == freqData.criteria.attributeIdXAxis) {
+            BuildBar();
             return;
         }
+        freqData = null;
         $("#attributeIdXAxisCrit").val(dataItem.isCodeset ? 0 : dataItem.id);
         $("#setIdXAxisCrit").val(dataItem.setId);
+        $("#FrequenciesResult").text("Frequencies: " + dataItem.text);
+        $("#FreqSpinner").show();
         if (dataItem.isCodeset == true) {
-            $.post("../Frequencies/GetFrequenciesJSON", { attId: 0, setId: dataItem.setId, included: true }, function (data, result) { BuildBar(data, result); })
+            $.post("../Frequencies/GetFrequenciesJSON", { attId: 0, setId: dataItem.setId, included: true }
+                , function (data, result) {
+                    $("#FreqSpinner").hide();
+                    if (result == "success") {
+                        freqData = data;
+                        BuildBar();
+                    }
+                })
         }
         else {
-            $.post("../Frequencies/GetFrequenciesJSON", { attId: dataItem.id, setId: dataItem.setId, included: true }, function (data, result) { BuildBar(data, result); })
+            $.post("../Frequencies/GetFrequenciesJSON", { attId: dataItem.id, setId: dataItem.setId, included: true }
+                , function (data, result) {
+                    $("#FreqSpinner").hide();
+                    if (result == "success") {
+                        freqData = data;
+                        BuildBar();
+                    }
+                })
         }
     }
-
 
     function GetFreqsPie() {
         if (!dataItem) {
+            //console.log("GetFreqs no data");
+            return;
+        } else if (freqData != null && dataItem.id == freqData.criteria.attributeIdXAxis) {
+            //console.log("direct to build pie");
+            BuildPie();
             return;
         }
+        freqData = null;
         $("#attributeIdXAxisCrit").val(dataItem.isCodeset ? 0 : dataItem.id);
         $("#setIdXAxisCrit").val(dataItem.setId);
+        $("#FrequenciesResult").text("Frequencies: " + dataItem.text);
+        $("#FreqSpinner").show();
         if (dataItem.isCodeset == true) {
-            $.post("../Frequencies/GetFrequenciesJSON", { attId: 0, setId: dataItem.setId, included: true }, function (data, result) { BuildPie(data, result); })
+            $.post("../Frequencies/GetFrequenciesJSON", { attId: 0, setId: dataItem.setId, included: true }
+                , function (data, result) {
+                    $("#FreqSpinner").hide();
+                    if (result == "success") {
+                        freqData = data;
+                        BuildPie();
+                    }
+                })
         }
         else {
-            $.post("../Frequencies/GetFrequenciesJSON", { attId: dataItem.id, setId: dataItem.setId, included: true }, function (data, result) { BuildPie(data, result); })
+            $.post("../Frequencies/GetFrequenciesJSON", { attId: dataItem.id, setId: dataItem.setId, included: true }
+                , function (data, result) {
+                    $("#FreqSpinner").hide();
+                    if (result == "success") {
+                        freqData = data;
+                        BuildPie();
+                    }
+                })
         }
     }
 
-    function BuildBar(data, result) {
-        if (!dataItem) {
-            return;
-        }
-
+    function BuildBar() {
         $("#BarOrPieChartVisible").show();
         $("#FrequenciesGrid").hide();
         $("#FrequenciesChart").show();
-        $("#FrequenciesResult").html("Frequencies:&nbsp;&nbsp;" + dataItem.text);
         $("#NoCodedRecords").hide();
         //$("#FrequenciesResult").show();
 
         $("#FrequenciesChart").kendoChart({
-            dataSource: { data: data.results },
+            dataSource: { data: freqData.results },
             categoryAxis: {
                 field: "attribute"
             },
@@ -243,50 +330,47 @@
             },
             tooltip: {
                 visible: true,
-                template: "#= category #: #= value # records"
+                template: "#= HTMLEncodeText(category) #: #= value # records"
             }
         });
     }
 
 
-    function BuildPie(data, result) {
-        if (!dataItem) {
-            return;
-        }
-
+    function BuildPie() {
+        
+        let myData = [];
         // remove all of the rows that have zero values
-        for (var i = data.results.length - 1; i >= 0; i--) {
-            if (data.results[i].itemCount == 0) {
-                data.results.splice(i, 1);
+        for (var i = freqData.results.length - 1; i >= 0; i--) {
+            if (freqData.results[i].itemCount > 0) {
+                //console.log("adding: ", freqData.results[i]);
+                myData.push(freqData.results[i]);
+                //data.results.splice(i, 1);
             }
         }
-
-        var lastRow = data.results.length - 1;
+        if (myData.length == 0) return;
+        //var lastRow = myData.length - 1;
 
         // remove the last row if it is 'none of the above'
-        if (data.results[lastRow].attributeId == -999999) {
-            data.results.splice(lastRow, 1);
+        if (myData[0].attributeId == -999999) {
+            myData.splice(0, 1);
         }
 
         var legendPostion = "right";
         var chartHeight = 250;
-        if (data.results.length > 20) {
+        if (myData.length > 20) {
             legendPostion = "bottom";
             chartHeight = 600;
         }
 
         $("#FrequenciesGrid").hide();
-        $("#FrequenciesResult").html("Frequencies:&nbsp;&nbsp;" + dataItem.text);
 
-
-
-        if (data.results.length != 0) {
+        if (myData.length != 0) {
             $("#BarOrPieChartVisible").show();          
             $("#FrequenciesChart").show();
             $("#NoCodedRecords").hide();           
             
             $("#FrequenciesChart").kendoChart({
-                dataSource: { data: data.results },
+                dataSource: { data: myData },
                 chartArea: {
                     height: chartHeight
                 },
@@ -303,7 +387,7 @@
                 }],
                 tooltip: {
                     visible: true,
-                    template: "#= category #: #= value # records"
+                    template: "#= HTMLEncodeText(category) #: #= value # records"
                 },
                 legend: {
                     item: {
@@ -380,35 +464,7 @@
         });
     };
 
-    function BuildFreqs(data, result) {
-        console.log(data, result);//FrequenciesTemplate
-        if (result == "success") {
-            $("#FrequenciesChart").hide();
-            //$("#FrequenciesResult").show();
-            $("#FrequenciesGrid").css("height", ((data.results.length + 1) * 20.1 + 4).toString() + 'px');
-            $("#FrequenciesGrid").kendoGrid({
-                rowTemplate: kendo.template($("#FrequenciesTemplate").html()),
-                columns: [
-                    {
-                        field: "attribute",
-                        title: "Code Name",
-                        headerAttributes: {
-                            "class": "small py-0 px-1  w-75"
-                        }
-                    },
-                    {
-                        field: "itemCount",
-                        title: "Count",
-                        headerAttributes: {
-                            "class": "small py-0 px-1  w-25"
-                        }
-                    }],
-                dataSource: data.results
-            });
-        } else {
-            $("#FrequenciesGrid").html("");
-        }
-    }
+    
 
     function GetFreqLinkContent(attId, count, attName) {
         //console.log("GetFreqLinkContent", attId, count, attName);
@@ -697,7 +753,7 @@
             dataItemMapXaxis = dataItem;
             $("#map_x_axis_name").text(dataItemMapXaxis.text);
             $("#map_x_axis_name").show();
-            console.log("X", dataItem, dataItemMapXaxis, dataItemMapYaxis, dataItemMapSegments);
+            //console.log("X", dataItem, dataItemMapXaxis, dataItemMapYaxis, dataItemMapSegments);
             if (dataItemMapXaxis != null && dataItemMapYaxis != null) {
                 if (dataItemMapSegments != null) $("#CurrentNodeGoToMap").prop("disabled", false);//segments are needed for Maps, irrelevant to Xtabs
                 $("#CurrentNodeGoToCrosstab").prop("disabled", false); //2Ds are set, can enable XTab
@@ -715,7 +771,7 @@
             dataItemMapYaxis = dataItem;
             $("#map_y_axis_name").text(dataItemMapYaxis.text);
             $("#map_y_axis_name").show();
-            console.log("Y", dataItem, dataItemMapXaxis, dataItemMapYaxis, dataItemMapSegments);
+            //console.log("Y", dataItem, dataItemMapXaxis, dataItemMapYaxis, dataItemMapSegments);
             if (dataItemMapXaxis != null && dataItemMapYaxis != null) {
                 if (dataItemMapSegments != null) $("#CurrentNodeGoToMap").prop("disabled", false);//segments are needed for Maps, irrelevant to Xtabs
                 $("#CurrentNodeGoToCrosstab").prop("disabled", false); //2Ds are set, can enable XTab
@@ -732,7 +788,7 @@
             dataItemMapSegments = dataItem;
             $("#map_segments_name").text(dataItemMapSegments.text);
             $("#map_segments_name").show();
-            console.log("S", dataItem, dataItemMapXaxis, dataItemMapYaxis, dataItemMapSegments);
+            //console.log("S", dataItem, dataItemMapXaxis, dataItemMapYaxis, dataItemMapSegments);
             if (dataItemMapXaxis != null && dataItemMapYaxis != null && dataItemMapSegments != null)
                 $("#CurrentNodeGoToMap").prop("disabled", false);
         }
@@ -867,7 +923,16 @@
                             <table>
                                 <tr>
                                     <td>
-                                        <div class="card-title" id="FrequenciesResult"></div>
+                                        <div class="row m-0 p-0">
+                                            <div class="card-title" id="FrequenciesResult"></div>
+                                            <div id="FreqSpinner" class="ml-2" style="display:none;">
+                                                <div class="d-flex justify-content-end">
+                                                    <div class="spinner-border" role="status">
+                                                        <span class="sr-only">Loading...</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </td>
                                 </tr>
                                 <tr>
@@ -915,14 +980,14 @@
 
                             <div id="FrequenciesChart" style="overflow-y:auto;" class="chart"></div>
                             <div id="NoCodedRecords">No coded records</div>
-                            <div style="max-height:50vh;" id="FrequenciesGrid"></div>
+                            <div id="FrequenciesGrid"></div>
 
 
                             <script id="FrequenciesTemplate" type="text/x-kendo-tmpl">
                                 <tr class="border border-bottom ">
                                     @*<td>#= attributeId #</td>*@
                                     <td class="px-1 py-0 border-bottom small w-75">
-                                        #= attribute #
+                                        #= HTMLEncodeText(attribute) #
                                     </td>
                                     <td class="px-1 py-0 border-bottom small w-25">
                                         #= GetFreqLinkContent(attributeId, itemCount, attribute) #

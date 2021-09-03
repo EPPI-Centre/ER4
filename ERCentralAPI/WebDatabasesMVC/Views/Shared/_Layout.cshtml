@@ -121,8 +121,9 @@
             <div class="logo-header" data-background-color="blue">
                 @if (imgPath3 == "")
                 {
-
+                <div class="logo">
                     <img src="~/assets/img/logo.svg" alt="EPPI-Centre logo" class="" style="max-width:80px; max-height: 55px; object-fit: cover;">
+                </div>
                 }
                 else
                 {
@@ -134,7 +135,9 @@
                     }
                     else
                     {
+                    <div class="logo">
                         <img src="@imgPath3" alt="logo image" class="navbar-brand" style="max-width: 80px; max-height: 55px; object-fit: cover;">
+                    </div>
                     }
 
                 }
@@ -219,7 +222,6 @@
                         <li>
                             <a class="btn btn-sm btn-info btn-round" asp-controller="Login" asp-action="Logout">Logout</a>
                         </li>
-                        -->
 
 
                     </ul>
