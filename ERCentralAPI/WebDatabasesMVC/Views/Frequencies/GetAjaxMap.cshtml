@@ -342,9 +342,9 @@
         let segmentsN = mapData.segmentsAttIDs.length;
         for (let i = 0; i < mapData.columnAttIDs.length - 1; i++) {
             if ((i % 2) == 0) {
-                res += "<th class=\"th_2ndRowHeaderA\">" + mapData.columnAttNames[i] + "</th>";
+                res += "<th class=\"th_2ndRowHeaderA\">" + HTMLEncodeText(mapData.columnAttNames[i]) + "</th>";
             } else {
-                res += "<th class=\"th_2ndRowHeaderB\">" + mapData.columnAttNames[i] + "</th>";
+                res += "<th class=\"th_2ndRowHeaderB\">" + HTMLEncodeText(mapData.columnAttNames[i]) + "</th>";
             }
         }
 
@@ -365,7 +365,7 @@
         res += "</tr>";
 
 
-        res += "<tr><th rowspan=" + (mapData.rows.length + 1) + " class=\"th_topColHeader\" style=\"vertical-align:top\">" + RowDescr + "</th>";
+        res += "<tr><th rowspan=" + (mapData.rows.length + 1) + " class=\"th_topColHeader\" style=\"vertical-align:top\">" + HTMLEncodeText(RowDescr) + "</th>";
 
 
         for (let ri = 0; ri < mapData.rows.length - 1; ri++) {
@@ -429,7 +429,7 @@
         res += "<tr>";
         for (let ii = 0; ii < segmentsN; ii++) {
             SegClassName = "mapC" + (ii + 1).toString();
-            title = mapData.segmentsAttNames[ii].replace(rgx2, "&quot;");
+            title = mapData.segmentsAttNames[ii];//.replace(rgx2, "&quot;");
 
             res += "<td>";
             res += "<i class=\"fa fa-circle " + SegClassName + "\" style=\"font-size:" + dimension + "\"></i>&nbsp;&nbsp;" + HTMLEncodeText(title) +

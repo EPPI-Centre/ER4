@@ -218,6 +218,7 @@ body {
     min-width: 100px;
     font-weight: 400 !important;
     padding: 10px 10px 10px 10px;
+    text-align: center;
 }
 
 .th-blankCell {
